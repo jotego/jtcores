@@ -19,8 +19,6 @@ clocks:
     - freq: 5000000
       outputs:
         - cen_snd
-ports:
-  - name: gfx_cs
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

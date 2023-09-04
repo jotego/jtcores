@@ -23,52 +23,47 @@ module jttmnt_game(
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw, odtac, vdtac;
-wire [ 7:0] tilesys_dout, objsys_dout,
-            obj_dout, pal_dout, cpu_d8,
+wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
+wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
+wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
+            obj_dout,
             st_main, st_video, st_snd;
+wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-// reg  [ 1:0] cpu_cfg;
+reg  [ 2:0] game_id;
 
 assign debug_view = debug_mux;
-assign ram_addr   = main_addr[13:1];
+assign ram_addr   = { main_addr[17], main_addr[13:1] };
 assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= st_main;
+        0: debug_mux <= { 7'd0, dip_flip };
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= { 2'd0, prio, 3'd0, rmrd };
+        3: debug_mux <= st_main;
     endcase
 end
 
-// always @(posedge clk) begin
-//     if( prog_addr==0 && prog_we && header )
-//         cpu_cfg <= prog_data[2:1];
-// end
+always @(posedge clk) begin
+    if( prog_addr==0 && prog_we && header )
+        game_id <= prog_data[2:0];
+end
 
-// always @(*) begin
-//     post_addr = prog_addr;
-//     if( prog_ba[1] ) begin
-//         post_addr[]
-//     end
-// end
-
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
 
-    // .cfg            ( cpu_cfg       ),
-    .cpu_d8         ( cpu_d8        ),
+    .game_id        ( game_id       ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
+    .tile_irqn      ( tile_irqn     ),
+    .tile_nmin      ( tile_nmin     ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -96,60 +91,20 @@ jttmnt_main u_main(
     .rmrd           ( rmrd          ),
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
-    .pal_we         ( pal_we        ),
+    .pal_cs         ( pal_cs        ),
+    .pcu_cs         ( pcu_cs        ),
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
+    .snd2main       ( snd2main      ),
+    .snd_wrn        ( snd_wrn       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
+    .dip_test       ( dip_test      ),
     .dipsw          ( dipsw[19:0]   ),
     // Debug
-    .st_dout        ( st_main       )
-);
-
-/* verilator tracing_off */
-jttmnt_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen_fm     ( cen_fm        ),
-    .cen_fm2    ( cen_fm2       ),
-    .cen_640    ( cen_640       ),
-    .cen_20     ( cen_20        ),
-    // communication with main CPU
-    .snd_irq    ( snd_irq       ),
-    .snd_latch  ( snd_latch     ),
-    // ROM
-    .rom_addr   ( snd_addr      ),
-    .rom_cs     ( snd_cs        ),
-    .rom_data   ( snd_data      ),
-    .rom_ok     ( snd_ok        ),
-    // ADPCM ROM
-    .pcma_addr  ( pcma_addr     ),
-    .pcma_dout  ( pcma_data     ),
-    .pcma_cs    ( pcma_cs       ),
-    .pcma_ok    ( pcma_ok       ),
-
-    .pcmb_addr  ( pcmb_addr     ),
-    .pcmb_dout  ( pcmb_data     ),
-    .pcmb_cs    ( pcmb_cs       ),
-    .pcmb_ok    ( pcmb_ok       ),
-
-    .upd_addr   ( upd_addr      ),
-    .upd_cs     ( upd_cs        ),
-    .upd_data   ( upd_data      ),
-    .upd_ok     ( upd_ok        ),
-    // Title music
-    .title_data ( title_data    ),
-    .title_cs   ( title_cs      ),
-    .title_addr ( title_addr    ),
-    .title_ok   ( title_ok      ),
-    // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
-    // Debug
-    .debug_bus  ( debug_bus     ),
-    .st_dout    ( st_snd        )
+    .st_dout        ( st_main       ),
+    .debug_bus      ( debug_bus     )
 );
 
 /* verilator tracing_on */
@@ -159,8 +114,11 @@ jttmnt_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
-    // .cfg            ( cpu_cfg       ),
+    .game_id        ( game_id       ),
     .cpu_prio       ( prio          ),
+
+    .tile_irqn      ( tile_irqn     ),
+    .tile_nmin      ( tile_nmin     ),
 
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),
@@ -175,10 +133,11 @@ jttmnt_video u_video (
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
-    .pal_we         ( pal_we        ),
+    .pal_cs         ( pal_cs        ),
+    .pcu_cs         ( pcu_cs        ),
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),
-    .cpu_dout       ( cpu_d8        ),
+    .cpu_dout       ( ram_din       ),
     .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
@@ -211,6 +170,68 @@ jttmnt_video u_video (
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
+);
+
+
+/* verilator tracing_off */
+jttmnt_sound u_sound(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen_fm     ( cen_fm        ),
+    .cen_fm2    ( cen_fm2       ),
+    .cen_640    ( cen_640       ),
+    .cen_20     ( cen_20        ),
+    .game_id    ( game_id       ),
+    // communication with main CPU
+    .main_dout  ( ram_din[7:0]  ),
+    .main_din   ( snd2main      ),
+    .main_addr  ( main_addr[1]  ),
+    .main_rnw   ( snd_wrn       ),
+    .snd_irq    ( snd_irq       ),
+    .snd_latch  ( snd_latch     ),
+    // ROM
+    .rom_addr   ( snd_addr      ),
+    .rom_cs     ( snd_cs        ),
+    .rom_data   ( snd_data      ),
+    .rom_ok     ( snd_ok        ),
+    // ADPCM ROM
+    .pcma_addr  ( pcma_addr     ),
+    .pcma_dout  ( pcma_data     ),
+    .pcma_cs    ( pcma_cs       ),
+    .pcma_ok    ( pcma_ok       ),
+
+    .pcmb_addr  ( pcmb_addr     ),
+    .pcmb_dout  ( pcmb_data     ),
+    .pcmb_cs    ( pcmb_cs       ),
+    .pcmb_ok    ( pcmb_ok       ),
+
+    .pcmc_addr  ( pcmc_addr     ),
+    .pcmc_dout  ( pcmc_data     ),
+    .pcmc_cs    ( pcmc_cs       ),
+    .pcmc_ok    ( pcmc_ok       ),
+
+    .pcmd_addr  ( pcmd_addr     ),
+    .pcmd_dout  ( pcmd_data     ),
+    .pcmd_cs    ( pcmd_cs       ),
+    .pcmd_ok    ( pcmd_ok       ),
+
+    .upd_addr   ( upd_addr      ),
+    .upd_cs     ( upd_cs        ),
+    .upd_data   ( upd_data      ),
+    .upd_ok     ( upd_ok        ),
+    // Title music
+    .title_data ( title_data    ),
+    .title_cs   ( title_cs      ),
+    .title_addr ( title_addr    ),
+    .title_ok   ( title_ok      ),
+    // Sound output
+    .snd_left   ( snd_left      ),
+    .snd_right  ( snd_right     ),
+    .sample     ( sample        ),
+    .peak       ( game_led      ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_snd        )
 );
 
 endmodule

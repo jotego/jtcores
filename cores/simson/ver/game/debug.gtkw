@@ -1,0 +1,75 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Jul 26 17:42:06 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/game/test.fst"
+[dumpfile_mtime] "Wed Jul 26 06:56:55 2023"
+[dumpfile_size] 723833101
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/game/debug.gtkw"
+[timestart] 5469034517000
+[size] 1264 1013
+[pos] -28 -51
+*-20.904959 5469038157072 188418888000 5485947574800 4203496531920 5469036421000 5469040115280 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_alu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.
+[sst_width] 219
+[signals_width] 247
+[sst_expanded] 1
+[sst_vpaned_height] 442
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.downloading
+TOP.game_test.u_game.u_game.u_main.rst8
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.irq_n
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.firq_n
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.addr[23:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.din[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.buserror
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.fetch
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.alu_busy
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.str_busy
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.stack_busy
+@29
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.irq_bsy
+@20000
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.cc[7:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.dp[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.b[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.x[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.y[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.u[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.s[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.rom_cs
+[pattern_trace] 1
+[pattern_trace] 0

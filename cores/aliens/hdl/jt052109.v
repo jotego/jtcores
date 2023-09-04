@@ -33,6 +33,7 @@ module jt052109(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen, // used for E/Q generation
 
     input             lvbl,
     // CPU interface
@@ -70,10 +71,13 @@ module jt052109(
     output reg [ 7:0] lyra_col,
     output reg [ 7:0] lyrb_col,
 
+    output reg         e, q,        // 3MHz signals, Q is 1/4 wave ahead
+
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
+    output     [ 7:0] mmr_dump,
 
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -122,8 +126,7 @@ reg  [ 1:0] cab,         // tile address MSB
 reg  [ 2:1] we;
 reg  [ 2:0] vsub_a, vsub_b, vmux, cs, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
-wire        same_col_n,  // layer B uses the same attribute data as layer A
-            rd_vpos, rd_hpos, scrlyr_sel;
+wire        rd_vpos, rd_hpos, scrlyr_sel;
 reg         v4_l, rd_rowscr, vflip;
 wire        cscra_en, cscrb_en, reg_we,
             rscra_en, rscrb_en, vflip_en;
@@ -137,7 +140,6 @@ assign int_en      = mmr[REG_INT];
 assign flip        = mmr[REG_FLIP][0];
 assign hflip_en    = mmr[REG_FLIP][1];
 assign vflip_en    = mmr[REG_FLIP][2];
-assign same_col_n  = cfg[5];
 assign { cscrb_en, rscrb_en, fine_row[1], cscra_en, rscra_en, fine_row[0] }
                    = mmr[REG_SCR][5:0];
 // read vpos when col scr is disabled
@@ -146,11 +148,19 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
+assign mmr_dump    = mmr[ioctl_addr[2:0]];
+assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
            range1 = range[3:0],
            range2 = range[4:1];
+
+always @(posedge clk) begin // 3MHz signals
+    if( pxl_cen  ) q <= ~q;
+    if( pxl2_cen ) e <= q;
+end
+
 // CPU Memory Mapper
 always @* begin
     casez( cpu_addr[15:13] )
@@ -219,12 +229,9 @@ always @* begin
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
-    vflip = col_cfg[1] & vflip_en;
-    vc = { scan_dout[7:0], vmux^{3{vflip}} };
-    if( rmrd ) begin
-        col_cfg = mmr[REG_RMRD];
-        vc      = cpu_addr[12:2];
-    end
+    if( rmrd ) col_cfg = mmr[REG_RMRD];
+    vflip = col_cfg[1] & vflip_en; // must be after rmrd check, as it changes col_cfg
+    vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
 
 `ifdef SIMULATION
@@ -236,6 +243,7 @@ initial begin
     if( f!=0 ) begin
         fcnt=$fread(mmr_init,f);
         $fclose(f);
+        $display("Read %1d bytes for 052109 MMR", fcnt);
     end
 end
 `endif
@@ -277,11 +285,6 @@ always @(posedge clk, posedge rst) begin
         end else begin
             st_dout <= mmr[debug_bus[2:0]];
         end
-
-        // first 16kB, VRAM, after that, MMR
-        ioctl_din <= ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
-        if( ioctl_addr[14] )
-            ioctl_din <= mmr[ioctl_addr[2:0]];
     end
 end
 
@@ -357,7 +360,7 @@ always @(posedge clk) begin
                         vposb <= scan_dout[ 7:0];
                 end
                 1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
-                2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
+                2: begin lyrb_col  <= col_cfg; lyrb_addr <= { cab, vc };end
                 3: begin lyrf_col <= col_cfg; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase else case( hdump[1:0] ) // row scroll position reading
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];
@@ -366,6 +369,7 @@ always @(posedge clk) begin
                 3: if( rd_hpos || rscrb_en ) hposb[8]   <= scan_dout[0];
             endcase
         end
+        if( rmrd ) lyra_addr <= { cab, cpu_addr[12:2] };
     end
 end
 

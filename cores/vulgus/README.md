@@ -8,14 +8,14 @@ board! You have in your hands a faithful conversion of the circuits on
 the Vulgus PCB to FPGA. If you come from the emulation world here are 
 some of the things different from emulators:
 
-- Real CPU/GPU bus sharing with delays
-- Sprites handled with the same scan pattern as in the original hardware
-- Palettes determined by the original PROMs
-- Graphics priority handled by the original PROM
-- No lag between image and input. Data is being sent to the screen in real time.
-- 3 button input
-- Sound sampling rate exactly as the original
-- Accurate FPS 100% same as real hardware
+-Real CPU/GPU bus sharing with delays
+-Sprites handled with the same scan pattern as in the original hardware
+-Palettes determined by the original PROMs
+-Graphics priority handled by the original PROM
+-No lag between image and input. Data is being sent to the screen in real time.
+-3 button input
+-Sound sampling rate exactly as the original
+-Accurate FPS 100% same as real hardware
 
 These technical aspects mean that the game play will be different from an emulator
 in a number of ways and that some hardware tricks that were not emulated will work
@@ -34,19 +34,14 @@ REVISION HISTORY
 ================
 
 28th Dec 2019
-
-  - Fixes missing sprite bug
-  - Fixes top line missing (noticeable in cross hatch test)
-  - Moved to new MiSTer SYS folder
-
+    - Fixes missing sprite bug
+    - Fixes top line missing (noticeable in cross hatch test)
+    - Moved to new MiSTer SYS folder
 21st Nov 2019
-
-  - Fixes bug in SDRAM controller
-
+    - Fixes bug in SDRAM controller
 13th Nov 2019
-
-  - Updated to latest JT49 sound module. Fixes bug in envelope duration
-  - Set JT49 compression to level 2 (21dB)
+    - Updated to latest JT49 sound module. Fixes bug in envelope duration
+    - Set JT49 compression to level 2 (21dB)
     
 7th Oct 2019 - Public release MisT(er)
 

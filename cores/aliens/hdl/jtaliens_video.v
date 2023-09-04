@@ -20,6 +20,7 @@ module jtaliens_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
     input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
 
@@ -54,9 +55,9 @@ module jtaliens_video(
     input             prom_we,
 
     // Tile ROMs
-    output     [20:2] lyrf_addr,
-    output     [20:2] lyra_addr,
-    output     [20:2] lyrb_addr,
+    output reg [20:2] lyrf_addr,
+    output reg [20:2] lyra_addr,
+    output reg [20:2] lyrb_addr,
     output     [20:2] lyro_addr,
 
     output            lyrf_cs,
@@ -90,10 +91,15 @@ module jtaliens_video(
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal;
+            dump_scr, dump_obj, dump_pal,
+            lyrf_col, lyra_col, lyrb_col,
+            opal, opal_eff;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
+wire [12:0] pre_f, pre_a, pre_b, ocode;
+wire [13:0] ocode_eff;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
+            e, q;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
 assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
@@ -102,6 +108,10 @@ assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 assign cpu_irq_n = cfg==ALIENS || cfg==CRIMFGHT ? obj_irqn : tile_irqn;
 assign cpu_nmi_n = cfg==ALIENS   ? obj_nmin :
                    cfg==CRIMFGHT ? 1'b1 : tile_nmin;
+
+assign opal_eff  = cfg==SCONTRA || cfg==CRIMFGHT ? opal : { 1'b0, opal[6:0] };
+assign ocode_eff = cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, ocode } : { opal[7], ocode };
+
 
 // Debug
 always @(posedge clk) begin
@@ -121,12 +131,38 @@ always @(posedge clk) begin
         ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
 end
 
+always @* begin
+    case( cfg )
+        CRIMFGHT: begin
+            lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] };
+            lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
+        end
+        SCONTRA: begin
+            lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] };
+            lyra_addr = { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[4:0], pre_b[10:0] };
+        end
+        default: begin
+            lyrf_addr = { pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
+            lyra_addr = { pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
+            lyrb_addr = { pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
+        end
+    endcase
+end
+
+function [7:0] cgate( input [7:0] c);
+    cgate = cfg==SCONTRA  ? { c[7:5], 5'd0       } :
+            cfg==CRIMFGHT ? { c[7:6], 5'd0, c[5] } :
+                            { c[7:6], 6'd0       };
+endfunction
+
 /* verilator tracing_on */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -154,11 +190,19 @@ jtaliens_scroll u_scroll(
     .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
 
+    // color byte connection
+    .lyrf_col   ( lyrf_col  ),
+    .lyra_col   ( lyra_col  ),
+    .lyrb_col   ( lyrb_col  ),
+
+    .lyrf_cg    (cgate(lyrf_col)),
+    .lyra_cg    (cgate(lyra_col)),
+    .lyrb_cg    (cgate(lyrb_col)),
 
     // Tile ROMs
-    .lyrf_addr  ( lyrf_addr ),
-    .lyra_addr  ( lyra_addr ),
-    .lyrb_addr  ( lyrb_addr ),
+    .lyrf_addr  ( pre_f     ),
+    .lyra_addr  ( pre_a     ),
+    .lyrb_addr  ( pre_b     ),
 
     .lyrf_cs    ( lyrf_cs   ),
     .lyra_cs    ( lyra_cs   ),
@@ -192,7 +236,6 @@ jtaliens_obj u_obj(    // sprite logic
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .cfg        ( cfg       ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -209,6 +252,11 @@ jtaliens_obj u_obj(    // sprite logic
 
     .irq_n      ( obj_irqn  ),
     .nmi_n      ( obj_nmin  ),
+    // external connection
+    .pal        ( opal      ),
+    .code       ( ocode     ),
+    .code_eff   ( ocode_eff ),
+    .pal_eff    ( opal_eff  ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),

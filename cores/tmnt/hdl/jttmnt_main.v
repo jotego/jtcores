@@ -20,14 +20,18 @@ module jttmnt_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
+    input         [ 2:0] game_id,
 
     output        [18:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
     // 8-bit interface
-    output        [ 7:0] cpu_d8,
     output               cpu_we,
-    output               pal_we,
+    output reg           pal_cs,
+    output reg           pcu_cs,
+    // K053260 (PCM sound in Punk Shot)
+    output               snd_wrn,
+    input         [ 7:0] snd2main,
 
     output reg           rom_cs,
     output reg           ram_cs,
@@ -36,13 +40,15 @@ module jttmnt_main(
 
     input         [ 7:0] oram_dout,
     input         [ 7:0] vram_dout,
-    input         [ 7:0] pal_dout,
+    input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                odtac,
+    input                tile_irqn,
+    input                tile_nmin,
 
     // Sound interface
     output reg    [ 7:0] snd_latch,
@@ -60,22 +66,25 @@ module jttmnt_main(
     input         [ 3:0] coin_input,
     input                service,
     input                dip_pause,
+    input                dip_test,
     input         [19:0] dipsw,
-    output        [ 7:0] st_dout
+    output        [ 7:0] st_dout,
+    input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
+
+`include "game_id.inc"
+
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         pal_cs, snddt_cs, shoot_cs,
+reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
-reg  [ 7:0] cab_dout;
-reg  [15:0] cpu_din;
-reg         intn, LVBLl;
-reg         arst;
+reg  [15:0] cpu_din, cab_dout;
+reg         intn, LVBLl, div8;
 wire        bus_cs, bus_busy, BUSn;
-wire        io_cs, dtac_mux;
+wire        dtac_mux;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -83,55 +92,93 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = { intn, 1'b1, intn };
+assign IPLn     = game_id==PUNKSHOT ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
-assign cpu_d8   = ~UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
-assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
-assign st_dout  = { 7'd0, arst };
+assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
-assign io_cs    = !ASn && A[20:16]=='ha;
 assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
-
-always @(posedge clk) arst <= A[23:1]=='h1000>>1;
+assign snd_wrn  = ~(snd_cs & ~RnW);
 
 always @* begin
-    rom_cs   = 0;  // 0'0000 ~ 5'FFFF
-    ram_cs   = 0;  // 6'0000 ~ 7'FFFF
-    pal_cs   = 0;      // 8'0000 ~ 9'FFFF
+    rom_cs   = 0;
+    ram_cs   = 0;
+    pal_cs   = 0;
     iowr_cs  = 0;
     snddt_cs = 0;
     shoot_cs = 0;
     dip_cs   = 0;
     dip3_cs  = 0;
-    syswr_cs = 0;    // C'0000 ~ C'FFFF
+    syswr_cs = 0;
     vram_cs  = 0;
     obj_cs   = 0;
+    snd_cs   = 0;
+    pcu_cs   = 0;
+    punk_cab = 0;
     if(!ASn) begin
         if(!A[20]) case( A[19:17] )
-            0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
-            3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
-            4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
-            5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
-                    0: iowr_cs  = 1;
-                    1: snddt_cs = 1;
-                    // 2: watchdog
-                    4: shoot_cs = 1;
-                    6: dip_cs   = 1;
-                    7: dip3_cs  = 1;
-                    default:;
+            0,1: rom_cs = 1;  // 0'0000 ~ 3'FFFF
+            2: case( game_id )  // 4'0000 ~ 5'FFFF
+                TMNT: rom_cs = 1;
+                MIA:  ram_cs = ~BUSn;
+                default:;
+            endcase
+            3: case( game_id )  // 6'0000 ~ 7'FFFF
+                TMNT, MIA: ram_cs = ~BUSn;
+                default:;
+            endcase
+            4: case( game_id )  // 8'0000 ~ 9'FFFF
+                PUNKSHOT: begin
+                    ram_cs = !A[16] && ~BUSn;
+                    pal_cs =  A[16] && A[15:12]==0;
+                end
+                default:  pal_cs = 1;
+            endcase
+            5: case( game_id )
+                    PUNKSHOT: //  A'0000 ~ A'FFFF
+                    case( A[7:5] )
+                        0: punk_cab  = 1; // A'000x
+                        1: iowr_cs   = 1; // A'002x
+                        2: snd_cs    = 1; // A'004x
+                        3: pcu_cs    = 1; // A'006x
+                        // 4: watchdog
+                        default:;
+                    endcase
+                    default:
+                    if(!A[16]) case( { RnW, A[4:3] } )
+                        0: iowr_cs  = 1;
+                        1: snddt_cs = 1;
+                        // 2: watchdog
+                        4: shoot_cs = 1;
+                        6: dip_cs   = 1;
+                        7: dip3_cs  = 1;
+                        default:;
+                    endcase
                 endcase
-            6: syswr_cs = 1;    // C'0000 ~ C'FFFF
+            6: case( game_id )  // C'0000 ~ C'FFFF
+                TMNT, MIA: syswr_cs = 1;
+                default:;
+            endcase
             default:;
-        endcase else case(A[18:17]) // 10'0000 ~
-            0: vram_cs = 1;
-            2: obj_cs  = 1;
-            default:;
-        endcase
+        endcase else
+            case( game_id )
+                PUNKSHOT:
+                    case(A[18:16]) // 10'0000 ~
+                        0: vram_cs = 1;
+                        1: obj_cs  = 1;
+                        default:;
+                    endcase
+                default:
+                    case(A[18:17]) // 10'0000 ~
+                        0: vram_cs = 1;
+                        2: obj_cs  = 1;
+                        default:;
+                    endcase
+            endcase
     end
 end
 
@@ -140,10 +187,11 @@ always @(posedge clk) begin
                ram_cs  ? ram_dout  :
                obj_cs  ? {2{oram_dout}} :
                vram_cs ? {2{vram_dout}} :
-               pal_cs  ? {2{pal_dout}}  :
+               pal_cs  ? pal_dout       :
+               snd_cs  ? {8'd0,snd2main}:
                dip3_cs ? { 12'd0, dipsw[19:16] } :
-               (shoot_cs | dip_cs) ? { 8'd0, cab_dout } :
-               { 15'hffff, arst};
+               (shoot_cs | dip_cs | punk_cab) ? cab_dout :
+               { 16'hffff };
 end
 
 always @(posedge clk, posedge rst) begin
@@ -162,18 +210,28 @@ end
 always @(posedge rmrd) $display("RMRD high");
 
 always @(posedge clk) begin
+    cab_dout[15:8] <= 0;
     if(dip_cs) case( A[2:1] )
-        ~2'd0: cab_dout <= 0;
-        ~2'd1: cab_dout <= { start_button[3], joystick4[6:0] };
-        ~2'd2: cab_dout <= dipsw[15:8];
-        ~2'd3: cab_dout <= dipsw[7:0];
+        ~2'd0: cab_dout[7:0] <= 0;
+        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { start_button[3], joystick4[6:0] } : 8'hff;
+        ~2'd2: cab_dout[7:0] <= dipsw[15:8];
+        ~2'd3: cab_dout[7:0] <= dipsw[7:0];
     endcase
     else case( A[2:1] )
-        ~2'd0: cab_dout <= { start_button[2], joystick3[6:0] };
-        ~2'd1: cab_dout <= { start_button[1], joystick2[6:0] };
-        ~2'd2: cab_dout <= { start_button[0], joystick1[6:0] };
-        ~2'd3: cab_dout <= { {4{service}}, coin_input };
+        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { start_button[2], joystick3[6:0] } : 8'hff;
+        ~2'd1: cab_dout[7:0] <= { start_button[1], joystick2[6:0] };
+        ~2'd2: cab_dout[7:0] <= { start_button[0], joystick1[6:0] };
+        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin_input } :
+                            { 1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
     endcase
+    if( punk_cab ) begin // 16-bit interface
+        case( A[2:1] )
+            ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
+            ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
+            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, start_button[1:0], {4{service}}, coin_input };
+            ~2'd3: cab_dout <= dipsw[15:0];
+        endcase
+    end
 end
 
 always @(posedge clk, posedge rst) begin
@@ -182,15 +240,23 @@ always @(posedge clk, posedge rst) begin
         rmrd    <= 0;
         int16en <= 0;
         sndon   <= 0;
+        div8    <= 0;
     end else begin
+        div8 <= game_id != PUNKSHOT;
         if( syswr_cs ) prio <= cpu_dout[3:2];
-        if( iowr_cs  )
-            { rmrd, int16en, sndon } <= {cpu_dout[7], cpu_dout[5], cpu_dout[3]};
+        if( iowr_cs  ) begin
+            case(game_id)
+                PUNKSHOT:
+                    { rmrd, sndon } <= cpu_dout[3:2];
+                default:
+                    { rmrd, int16en, sndon } <= {cpu_dout[7], cpu_dout[5], cpu_dout[3]};
+            endcase
+        end
         if( snddt_cs ) snd_latch <= cpu_dout[7:0];
     end
 end
 
-jtframe_68kdtack #(.W(6),.RECOVERY(0)) u_dtack(
+jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -201,7 +267,7 @@ jtframe_68kdtack #(.W(6),.RECOVERY(0)) u_dtack(
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
-    .den        ( 6'd6      ),  // denominator
+    .den        ({4'b1,div8,1'd0}),  // denominator, 4 (12MHz) or 6 (8MHz)
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
@@ -248,22 +314,23 @@ jtframe_m68k u_cpu(
         sndon    <=framecnt==10;
     end
     initial begin
-        rmrd      = 0;
-        prio      = 0;
-        rom_cs    = 0;
-        ram_cs    = 0;
-        vram_cs   = 0;
+        // sndon  = 0;
         obj_cs    = 0;
+        pal_cs    = 0;
+        pcu_cs    = 0;
+        prio      = 0;
+        ram_cs    = 0;
+        rmrd      = 0;
+        rom_cs    = 0;
         snd_latch = 'h63;
-        // sndon     = 0;
+        vram_cs   = 0;
     end
     assign
-        st_dout   = 0,
+        cpu_dout  = 0,
+        cpu_we    = 0,
         main_addr = 0,
         ram_dsn   = 0,
-        cpu_dout  = 0,
-        cpu_d8    = 0,
-        cpu_we    = 0,
-        pal_we    = 0;
+        snd_wrn   = 0,
+        st_dout   = 0;
 `endif
 endmodule

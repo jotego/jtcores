@@ -1,0 +1,43 @@
+game:
+  - from: simson
+    get:
+      - jtsimson_game.v
+      - jtsimson_main.v
+      - jtsimson_video.v
+      - jtsimson_scroll.v
+      - jtsimson_obj.v
+      - jtsimson_sound.v
+      - jtsimson_colmix.v
+      - jt053260.v
+      - jt053246.sv
+      - jtcolmix_053251.v
+  - from: aliens
+    get:
+      - jt052109.v
+      - jt051962.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+modules:
+  jt:
+    - name: jtkcpu
+    - name: jt51
+  other:
+    - from: jteeprom
+      get: [ hdl/jt5911.sv ]
+

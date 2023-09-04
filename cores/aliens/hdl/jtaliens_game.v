@@ -152,6 +152,7 @@ jtaliens_video u_video (
     .rst8           ( rst8          ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
     .cfg            ( cpu_cfg       ),
     .cpu_prio       ( prio          ),
 

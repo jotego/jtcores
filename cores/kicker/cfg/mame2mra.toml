@@ -1,5 +1,4 @@
 [global]
-# info = [ {tag="mameversion", value="0229"} ]
 mraauthor=["jotego"]
 
 [features]
@@ -34,6 +33,6 @@ order = [
 ]
 
 patches = [
-    { setname="kicker", offset=0x58c6, value="3d 3d" }
+    { setname="kicker", offset=0x58c6, data="3d 3d" }
 ]
 

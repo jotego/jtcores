@@ -1,0 +1,73 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
+clocks:
+  clk48:
+    - freq: 24000000
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: main
+          addr_width: 19
+          data_width: 8
+    -
+      buses:
+        -
+          name: snd
+          addr_width: 17
+          data_width: 8
+        -
+          name: pcma
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmb
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmc
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmd
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+    -
+      buses:
+        -
+          name: lyrf
+          addr_width: 20
+          data_width: 32
+        -
+          name: lyra
+          addr_width: 20
+          data_width: 32
+        -
+          name: lyrb
+          addr_width: 20
+          data_width: 32
+
+    -
+      buses:
+        -
+          name: lyro
+          addr_width: 22
+          data_width: 32
+bram:
+  - name: ram
+    addr_width: 13
+    data_width: 8
+    rw: true
+    addr: main_addr[12:0]

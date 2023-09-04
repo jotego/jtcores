@@ -41,11 +41,11 @@ module jt051960(    // sprite logic
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output reg [12:0] code,
+    output reg [12:0] code, // pins CA17~5
     output reg [ 7:0] attr,     // OC pins
     output reg        hflip, vflip,
     output reg [ 8:0] hpos,
-    output     [ 3:0] ysub,
+    output     [ 3:0] ysub, // pins CA4, CA2~0. pin CA3 = horizontal half
     output reg [ 5:0] hzoom,
     output reg        hz_keep,
 
@@ -58,6 +58,11 @@ module jt051960(    // sprite logic
     input             lvbl,
     input             hs,
     output            flip,
+
+    // ROM check
+
+    output            romrd,
+    output reg [17:0] romrd_addr,
 
     // shadow
     input      [11:0] pxl,
@@ -74,7 +79,8 @@ module jt051960(    // sprite logic
     // Debug
     input      [10:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    input             ioctl_mmr,
+    output     [ 7:0] ioctl_din,
 
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -86,18 +92,18 @@ localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
                   REG_ROM_H = 3,
                   REG_ROM_VH= 4;
 
-wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we;
+wire        lut_we, reg_we, reg_rd, vb_rd, dma_we;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
-reg  [ 8:0] ydiff, ydiff_b, y, vlatch, hadd;
+reg  [ 8:0] ydiff, ydiff_b, y, vlatch;
 reg  [ 6:0] dma_prio, scan_obj;
 reg         dma_clr, dma_done, dma_cen, inzone, hs_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en, sha_cfg;
 reg  [ 2:0] size;
-wire [ 7:0] romrd_bank, dma_din;
+wire [ 7:0] dma_din;
 wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
 reg  [17:0] yz_add;
 reg         vb_start_n, // low for the first six lines of VBLANK
@@ -114,8 +120,6 @@ assign cpu_din = reg_rd ? { 7'd0, ~vb_start_n }  : ram_dout;
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
 assign romrd   = mmr[REG_CFG][5];
-assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
-    { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H], mmr[REG_ROM_L] };
 assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | dma_ok);
 assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
@@ -124,6 +128,13 @@ assign ysub = ydiff[3:0];
 assign busy_g = busy_l | dr_busy;
 assign sha_cfg = mmr[REG_SHA][2:0];
 assign shadow = &{(pxl[11]|sha_cfg[1]),~sha_cfg[2],pxl[3:0]}^sha_cfg[0];
+assign ioctl_din = ioctl_mmr ? mmr[ioctl_addr[2:0]] : dma_data;
+
+always @(posedge clk) begin
+    /* verilator lint_off WIDTH */
+    yz_add <= {vzoom,3'b0}*ydiff_b;
+    /* verilator lint_on WIDTH */
+end
 
 always @* begin
     ydiff_b= y + vlatch;
@@ -140,12 +151,10 @@ always @* begin
         4,6:   hdone = hstep==3;
         7:     hdone = hstep==7;
     endcase
-    case( size )
-        0,2:   hadd = 0;
-        1,3,5: hadd = 9'h10;
-        4,6:   hadd = 9'h40;
-        7:     hadd = 9'h80;
-    endcase
+end
+
+always @(posedge clk) begin
+    if( cs && !cpu_addr[10] ) romrd_addr <= { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr[9:2] }; // 2+8+8=18
 end
 
 // DMA logic
@@ -199,12 +208,6 @@ end
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
-
-always @(posedge clk) begin
-    /* verilator lint_off WIDTH */
-    yz_add <= {vzoom,3'b0}*ydiff_b;
-    /* verilator lint_on WIDTH */
-end
 
 // Table scan
 always @(posedge clk, posedge rst) begin
@@ -286,6 +289,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
+        if( romrd ) attr <= { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H][7:2] };
     end
 end
 
@@ -327,10 +331,6 @@ always @(posedge clk, posedge rst) begin
             0,2,3,4: st_dout <= mmr[debug_bus[2:0]];
             default: st_dout <= 0; // keep it to 0 so we can merge it with the output from 051937
         endcase
-        // first 1kB, VRAM, after that, MMR
-        ioctl_din <= dma_data;
-        if( ioctl_addr[10] )
-            ioctl_din <= mmr[ioctl_addr[2:0]];
     end
 end
 

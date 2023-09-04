@@ -21,7 +21,8 @@ module jttmnt_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
-    // input      [ 1:0] cfg,
+    input      [ 2:0] game_id,
+
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -30,16 +31,20 @@ module jttmnt_video(
     output            hs,
     output            vs,
 
+    output            tile_irqn,
+    output            tile_nmin,
+
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
-    input      [ 7:0] cpu_dout,
-    output     [ 7:0] pal_dout,
+    input      [15:0] cpu_dout,
+    output     [15:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
     output reg        odtac,
     output reg        vdtac,
-    input             pal_we,
+    input             pcu_cs,
+    input             pal_cs,
     input             cpu_we,
     input             tilesys_cs,
     input             objsys_cs,
@@ -59,7 +64,7 @@ module jttmnt_video(
     output reg [19:2] lyrf_addr,
     output reg [19:2] lyra_addr,
     output reg [19:2] lyrb_addr,
-    output     [20:2] lyro_addr,
+    output reg [20:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -89,47 +94,51 @@ module jttmnt_video(
     output reg [ 7:0] st_dout
 );
 
+`include "game_id.inc"
+
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
             lyrf_col, lyra_col, lyrb_col,
-            opal, opal_eff;
+            opal,     cpu_d8,   mmr_pal,
+            scr_mmr;
 wire [15:0] cpu_saddr;
-wire [11:0] lyra_pxl, lyrb_pxl;
-wire [11:0] lyro_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [13:0] ocode_eff;
+reg  [13:0] ocode_eff;
+reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
-            e, q, ioctl_mmr;
-wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
-reg         pre_odtac, pre_vdtac;
+            e, q, ormrd;
+wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
+reg         pre_odtac, pre_vdtac, sort_en, ioctl_mmr;
 wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
-assign ioctl_mmr = ioctl_addr>='h5800;
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
+assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
 // Debug
 always @* begin
     st_dout = debug_bus[5] ? st_obj : st_scr;
-    // remember to drive ioctl_ram from game module:
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
+    ioctl_mmr = 0;
     if( ioctl_addr<'h4000 )
         ioctl_din = dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
         ioctl_din = dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr<'h5800 )
-        ioctl_din = dump_obj;  // 1kB 5000~5800
+        ioctl_din = dump_obj;  // 2kB 5000~5800 (second half equal for 051960)
     else if( ioctl_addr<'h5808 )
-        ioctl_din = dump_scr;  // 8 bytes, MMR 5807
-    else if (ioctl_addr<'h5810)
+        ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
+    else if (ioctl_addr<'h5810) begin
+        ioctl_mmr = 1;
         ioctl_din = dump_obj;  // 7 bytes, MMR 580F
-    else
+    end else
         ioctl_din = { 6'd0, cpu_prio }; // 1 byte, 5810
 end
 
@@ -145,12 +154,12 @@ always @(posedge clk) begin
         odtac <= pre_odtac;
         vdtac <= pre_vdtac;
     end
-    if( !objsys_cs  ) { pre_odtac, odtac } <= 1;
-    if( !tilesys_cs || (rmrd && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
+    if( !objsys_cs /* || (ormrd && !lyro_ok) */ ) { pre_odtac, odtac } <= 1;
+    if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
 end
 
-function [31:0] sort( input [31:0] x );
-    sort={
+function [31:0] sort( input [31:0] x, input sort_en );
+    sort= sort_en ? {
         x[31], x[27], x[23], x[19],
         x[15], x[11], x[ 7], x[ 3],
         x[30], x[26], x[22], x[18],
@@ -159,11 +168,11 @@ function [31:0] sort( input [31:0] x );
         x[13], x[ 9], x[ 5], x[ 1],
         x[28], x[24], x[20], x[16],
         x[12], x[ 8], x[ 4], x[ 0]
-    };
+    } : x;
 endfunction
 
 function [31:0] sorto( input [31:0] x );
-    sorto={
+    sorto= {
         x[12], x[ 8], x[ 4], x[ 0],
         x[28], x[24], x[20], x[16],
         x[13], x[ 9], x[ 5], x[ 1],
@@ -171,16 +180,15 @@ function [31:0] sorto( input [31:0] x );
         x[14], x[10], x[ 6], x[ 2],
         x[30], x[26], x[22], x[18],
         x[15], x[11], x[ 7], x[ 3],
-        x[31], x[27], x[23], x[19]
-    };
+        x[31], x[27], x[23], x[19] };
 endfunction
 
-wire [31:0] odata = sorto(
-    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } );
+wire [31:0] odata = sort_en ? sorto(
+    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } ) :
+      lyro_data;
 // wire [3:0] opxls;
 
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
-
 
 // object encoding is different from what 051960 expects
 jtframe_prom #(.DW(3), .AW(8)) u_gfx (
@@ -205,20 +213,48 @@ always @* begin
     endcase
 end
 
-assign lyro_addr = { ca[18:10], oa, ca[3] };
+always @(posedge clk) begin
+    sort_en <= game_id!=PUNKSHOT;
+end
 
 always @* begin
-    lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
-    lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
-    lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+    case(game_id)
+        MIA: begin
+        lyrf_addr = { 6'd0,                              lyrf_col[0], pre_f[10:0] };
+        lyra_addr = { 2'd0, pre_a[12:11], lyra_col[4:3], lyra_col[0], pre_a[10:0] };
+        lyrb_addr = { 2'd0, pre_b[12:11], lyrb_col[4:3], lyrb_col[0], pre_b[10:0] };
+        opal_eff  = opal;
+        ocode_eff = { 1'b0, ocode };
+        lyro_addr = { ca[18:8],  &ca[17:14] ? {ca[7:6],ca[4],ca[2],ca[1:0] } :
+                                              {ca[6],  ca[4],ca[2:0],ca[7] },ca[5],ca[3] };
+        end
+
+        PUNKSHOT: begin
+        lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
+        lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
+        lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
+        ocode_eff = { opal[4], ocode };
+        lyro_addr = ca;
+        end
+
+        default: begin // TMNT
+        lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
+        lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
+        lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
+        ocode_eff = { opal[4], ocode };
+        lyro_addr = { ca[18:10], oa, ca[3] };
+        end
+    endcase
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = { c[7:5], 5'd0 };
+    case(game_id)
+        MIA:     cgate = { c[7:4], 3'd0, c[2] };
+        default: cgate = { c[7:5], 5'd0 }; // TMNT, PUNKSHOT
+    endcase
 endfunction
-
-assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-assign ocode_eff = { opal[4], ocode };
 
 /* verilator tracing_on */
 // extra blanking added to help MiSTer output
@@ -245,7 +281,7 @@ jtaliens_scroll #(
 
     // CPU interface
     .cpu_addr   ( cpu_saddr ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_dout   ( cpu_d8    ),
     .cpu_we     ( cpu_weg   ),
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
@@ -283,9 +319,9 @@ jtaliens_scroll #(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( sort(lyrf_data) ),
-    .lyra_data  ( sort(lyra_data) ),
-    .lyrb_data  ( sort(lyrb_data) ),
+    .lyrf_data  ( sort(lyrf_data, sort_en) ),
+    .lyra_data  ( sort(lyra_data, sort_en) ),
+    .lyrb_data  ( sort(lyrb_data, sort_en) ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
@@ -299,13 +335,14 @@ jtaliens_scroll #(
     .ioctl_addr ( ioctl_addr[14:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_scr  ),
+    .mmr_dump   ( scr_mmr   ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -321,7 +358,7 @@ jtaliens_obj u_obj(    // sprite logic
     // CPU interface
     .cs         ( objsys_cs ),
     .cpu_addr   ( cpu_oaddr ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_dout   ( cpu_d8    ),
     .cpu_we     ( cpu_weg   ),
     .cpu_din    ( objsys_dout),
 
@@ -337,6 +374,7 @@ jtaliens_obj u_obj(    // sprite logic
     .rom_data   ( odata     ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
+    .romrd      ( ormrd     ),
     // pixel output
     .pxl        ( { lyro_pxl[11:4], lyro_pxl[0], lyro_pxl[1], lyro_pxl[2], lyro_pxl[3] } ),
     .blank_n    (lyro_blnk_n),
@@ -353,12 +391,12 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    // .cfg        ( cfg       ),
+    .game_id    ( game_id   ),
     .cpu_prio   ( cpu_prio  ),
 
     // Base Video
@@ -367,9 +405,13 @@ jttmnt_colmix u_colmix(
 
     // CPU interface
     .cpu_addr   (cpu_addr[12:1]),
+    .cpu_we     ( cpu_weg   ),
     .cpu_din    ( pal_dout  ),
+    .cpu_d8     ( cpu_d8    ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( pal_we    ),
+    .cpu_dsn    ( cpu_dsn   ),
+    .pal_cs     ( pal_cs    ),
+    .pcu_cs     ( pcu_cs    ),
 
     // PROMs
     .prog_addr  (prog_addr[7:0]),
@@ -395,6 +437,7 @@ jttmnt_colmix u_colmix(
     .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
+    .dump_mmr   ( mmr_pal   ),
 
     .debug_bus  ( debug_bus )
 );

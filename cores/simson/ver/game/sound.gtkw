@@ -1,0 +1,51 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Jul 30 16:29:24 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/game/test.fst"
+[dumpfile_mtime] "Sun Jul 30 10:40:51 2023"
+[dumpfile_size] 634365341
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/game/sound.gtkw"
+[timestart] 29464000000000
+[size] 2528 1014
+[pos] -1 -1
+*-38.584034 31254000000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_pcm.
+[sst_width] 219
+[signals_width] 233
+[sst_expanded] 1
+[sst_vpaned_height] 308
+@24
+TOP.game_test.frame_cnt[31:0]
+@c00022
+TOP.game_test.u_game.u_game.u_sound.u_pcm.adpcm_en[3:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_pcm.adpcm_en[3:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_pcm.adpcm_en[3:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_pcm.adpcm_en[3:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_pcm.adpcm_en[3:0]
+@1401200
+-group_end
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_ch0.pre_snd[9:0]
+@20000
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_ch1.pre_snd[9:0]
+@20001
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_ch2.pre_snd[9:0]
+@20000
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_ch3.pre_snd[9:0]
+@20000
+-
+[pattern_trace] 1
+[pattern_trace] 0

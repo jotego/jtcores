@@ -23,7 +23,7 @@ sdram:
       buses:
         -
           name: ram
-          addr_width: 14
+          addr_width: 15
           data_width: 16
           offset: RAM_OFFSET
           rw: true
@@ -39,12 +39,22 @@ sdram:
           data_width: 8
         -
           name: pcma
-          addr_width: 17
+          addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
         -
           name: pcmb
-          addr_width: 17
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmc
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmd
+          addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
         -

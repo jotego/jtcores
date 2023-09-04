@@ -8,6 +8,7 @@ skip = { machines=[
     "cuebrick",
     "mia",
     "vulcan",
+    "devilw",
 ], setnames=[
     "hpuncher",
 ] }

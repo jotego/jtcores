@@ -6,6 +6,10 @@ game:
       - jttmnt_sound.v
       - jttmnt_video.v
       - jttmnt_colmix.v
+  - from: simson
+    get:
+      - jt053260.v
+      - jtcolmix_053251.v
   - from: aliens
     get:
       - jtaliens_scroll.v
@@ -14,7 +18,7 @@ game:
       - jt051962.v
       - jt051960.v
       # - jt051937.v
-  - from: contra
+  - from: flane
     get:
       - jt007232.v
 jtframe:
