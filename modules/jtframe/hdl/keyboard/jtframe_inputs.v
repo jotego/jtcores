@@ -50,7 +50,7 @@ module jtframe_inputs(
     output reg        game_service,
     output            game_test,
     output reg        game_tilt,
-    input             lock, // disable joystick inputs
+    output reg        locked, // disable joystick inputs
 
     // Mouse & Paddle
     input signed [8:0] bd_mouse_dx, bd_mouse_dy,
@@ -67,9 +67,12 @@ module jtframe_inputs(
     output      [ 1:0] dial_x, dial_y,
 
     input       [ 7:0] debug_bus,
+    input              ioctl_lock,
     // input data recording
     input       [12:0] ioctl_addr,
     input       [ 7:0] ioctl_din,
+    input       [ 7:0] ioctl_dout,
+    input              ioctl_wr,
     output      [ 7:0] ioctl_merged,
     // For simulation only
     input              downloading
@@ -285,7 +288,7 @@ always @(posedge clk, posedge rst) begin
         game_tilt    <= key_tilt    ^ ACTIVE_LOW[0];
 
         // Disable inputs for locked cores
-        if( lock ) begin
+        if( locked ) begin
             game_joy1    <= {10{ACTIVE_LOW[0]}};
             game_joy2    <= {10{ACTIVE_LOW[0]}};
             game_joy3    <= {10{ACTIVE_LOW[0]}};
@@ -297,6 +300,27 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+
+`ifdef JTFRAME_UNLOCKKEY // lock system inputs
+    localparam [31:0] UNLOCKKEY = `JTFRAME_UNLOCKKEY;
+    reg [7:0] lock_key[0:3];
+
+    initial begin
+        lock_key[0] = 0;
+        lock_key[1] = 0;
+        lock_key[2] = 0;
+        lock_key[3] = 0;
+        locked      = 1;
+    end
+
+    always @(posedge clk) begin
+        if( ioctl_lock && ioctl_wr )
+            lock_key[ ioctl_addr[1:0] ] <= ioctl_dout;
+        locked <= UNLOCKKEY != { lock_key[3], lock_key[2], lock_key[1], lock_key[0] };
+    end
+`else
+    initial locked=0;
+`endif
 
 // Dial emulation
 jtframe_dial u_dial(
@@ -334,7 +358,7 @@ jtframe_paddle u_paddle(
 jtframe_mouse u_mouse(
     .rst        ( rst          ),
     .clk        ( clk          ),
-    .lock       ( lock         ),
+    .lock       ( locked       ),
 
     // Mouse emulation
     .joy1       ( game_joy1[3:0] ^ {4{ACTIVE_LOW[0]}} ),

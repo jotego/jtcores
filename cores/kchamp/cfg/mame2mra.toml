@@ -42,6 +42,6 @@ blanks = [
 # It isn't clear how the ROM decryption works for the first
 # four instructions. It is safe to just skip over them
 patches = [
-    { setnames=[ "kchampvs", "kchampvs3", "kchampvs4", ], offset=0, value="69 6e B4" },
-    { setnames=[ "karatevs",                           ], offset=0, value="69 5f B4" },
+    { setnames=[ "kchampvs", "kchampvs3", "kchampvs4", ], offset=0, data="69 6e B4" },
+    { setnames=[ "karatevs",                           ], offset=0, data="69 5f B4" },
 ]

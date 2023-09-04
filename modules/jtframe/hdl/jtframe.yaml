@@ -41,6 +41,7 @@ jtframe:
       - jtframe_bram_rom.v
       - jtframe_prom.v
       - jtframe_ram.v
+      - jtframe_ioctl_dump.v
   # Cheat system (enabled with JTFRAME_CHEAT)
   - from: cpu/pauloblaze
     get:

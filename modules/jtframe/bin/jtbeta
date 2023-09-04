@@ -63,12 +63,6 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
-# Check that MiSTer is reachable
-if ! ping MiSTer.home -c 1 -W 1 > /dev/null; then
-    echo "MiSTer.home is not reachable. Fix the problem and try again"
-    exit 1
-fi
-
 MASTER=master
 CORE=$1
 CORESTAMP=$(date --date=friday +"%Y%m%d")
@@ -171,7 +165,7 @@ git tag --force $TAG
 git push --tags --force
 
 cd $JTROOT/release
-cp -r mister mra $JTBIN
+cp -r mister mra pocket $JTBIN
 cd $JTBIN
 git add *
 git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
@@ -187,9 +181,8 @@ git pull
 if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     ./addcore.sh $CORE
     git commit -m "Added $CORE"
-    # git push
+    git push
 fi
-
 
 # Show problems
 BETALOG=$JTROOT/log/update.log

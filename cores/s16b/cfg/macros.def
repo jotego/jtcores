@@ -31,5 +31,5 @@ VRAMW=19
 #[mist|sidi]
 #JTFRAME_INPUT_RECORD
 
-[mister]
-JTFRAME_IOCTL_RD=75777
+# [mister]
+# JTFRAME_IOCTL_RD=75777

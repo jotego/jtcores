@@ -793,7 +793,7 @@ func parseValue( txt string ) ( string, uint64 ) {
     var v uint64
     if txt[0] == 'b' {
         var s int
-        for s=1; txt[s]!=' ' && s<len(txt); s++ {
+        for s=1; s<len(txt) && txt[s]!=' '; s++ {
             v <<= 1
             if txt[s]=='1' {
                 v |= 1

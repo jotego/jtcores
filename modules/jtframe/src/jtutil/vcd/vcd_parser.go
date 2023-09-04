@@ -80,6 +80,19 @@ func (this vcdData)Get(name string) *VCDSignal {
 	return nil
 }
 
+func (this vcdData)GetAll(name string) []*VCDSignal {
+	if name=="" { return nil }
+	r := make([]*VCDSignal,0,1)
+	for _,each := range this {
+		if each.Name==name { r=append(r,each) }
+	}
+	if len(r) == 0 {
+		return nil
+	} else {
+		return r
+	}
+}
+
 func RenameRegs( ss vcdData ) {
 	// Rename signals for some CPUs
 	// fx68k
@@ -324,12 +337,14 @@ func ( this *NameValue ) showDiff( o NameValue ) bool {
 }
 
 func (file *LnFile) NextVCD( ss vcdData ) bool {
+	// fmt.Printf("%s (#%d @%d):\n",file.fname,file.time, file.line)
     for file.Scan() {
         txt := file.Text()
         if txt[0]=='#' {
             file.time, _ = strconv.ParseUint( txt[1:],10,64 )
             return true
         }
+        // fmt.Printf("\t%s\n",txt)
         a, v := parseValue(txt)
         assign( a, v, ss )
     }

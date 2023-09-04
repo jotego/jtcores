@@ -51,9 +51,15 @@ type BRAMBus struct {
     Addr       string `yaml:"addr"`
     Din        string `yaml:"din"`  // optional name for din signal
     Sim_file   bool   `yaml:"sim_file"`
+    Ioctl      struct {
+        Save bool `yaml:"save"`
+        Order int `yaml:"order"`
+    } `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
+        Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
         Din  string `yaml:"din"`  // optional name for din signal
+        Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
         We   string `yaml:"we"`
     } `yaml:"dual_port"`
@@ -109,6 +115,19 @@ type ClockCfg struct {
     Comment string
 }
 
+type IoctlBus struct{
+    DW, AW, AWl int
+    Blocks, SkipBlocks, Size, SizekB int
+    Name, Dout, Ain, Aout string
+}
+
+type Ioctl struct {
+    Dump bool
+    DinName string
+    SkipAll int
+    Buses [6]IoctlBus
+}
+
 type MemConfig struct {
     Include  []Include   `yaml:"include"`
     Download DownloadCfg `yaml:"download"`
@@ -127,4 +146,6 @@ type MemConfig struct {
     // Precalculated values
     Colormsb int
     Unused   [4]bool // true for unused banks
+    // Derived information
+    Ioctl    Ioctl
 }

@@ -8,10 +8,12 @@ For I/O (SDRAM download, etc.) the following indexes are used
 | JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
 | Cartridges      |      | 4      |                 | cart.bin  |
 | NVRAM           | 255  | 2      | 2               | nvram.bin |
-| Cheat ROM       | 16   | 16     | N/A             |           |
+| Cheat ROM       | 16   | 16     | 16              |           |
 | Beta keys       | N/A  | 17     | 17              |           |
 | DIP switches    | N/A  | 254    | N/A             |           |
 | Cheat switches  | N/A  | 255    | N/A             |           |
+
+The cheat ROM and the beta key files must be stored in the folder `/Assets/jtpatreon/common`
 
 ## core_mod (JTFRAME options)
 

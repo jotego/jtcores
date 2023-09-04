@@ -222,7 +222,7 @@ func get_macros( core, target string ) (map[string]string) {
 	return jtdef.Make_macros(def_cfg)
 }
 
-func check_banks( macros map[string]string, cfg MemConfig ) {
+func check_banks( macros map[string]string, cfg *MemConfig ) {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
@@ -263,17 +263,7 @@ func check_banks( macros map[string]string, cfg MemConfig ) {
 	if bad {
 		os.Exit(1)
 	}
-}
 
-func Run(args Args) {
-	var cfg MemConfig
-	if !parse_file(args.Core, "mem", &cfg, args) {
-		// the mem.yaml file does not exist, that's
-		// normally ok
-		return
-	}
-	macros := get_macros( args.Core, args.Target )
-	check_banks( macros, cfg )
 	// Check that the required files are available
 	for k, each := range cfg.SDRAM.Banks {
 		total_slots := len(each.Buses)
@@ -317,10 +307,183 @@ func Run(args Args) {
 			cfg.Unused[k] = true
 		}
 	}
+}
+
+func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
+	implicit := make( map[string]bool )
+	// get implicit names
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Addr=="" { implicit[each.Name+"_addr"]=true }
+			if each.Cs=="" { implicit[each.Name+"_cs"]=true }
+			if each.Din=="" { implicit[each.Name+"_din"]=true }
+			implicit[each.Name+"_data"]=true
+		}
+	}
+	// Add some other ports
+	for _, each := range []string{ "LVBL", "LHBL", "HS", "VS" } {
+		implicit[each] = true
+	}
+	// fmt.Println("Implicit ports:\n",implicit)
+	// get explicit names in SDRAM/BRAM buses and added to the port list
+	all := make( map[string]Port )
+	add := func( p Port ) {
+		if p.Name[0]>='0' && p.Name[0]<='9' { return } // not a name
+		// remove the brackts
+		k := strings.Index( p.Name, "[" )
+		if k>=0 { p.Name = p.Name[0:k] }
+		if t,_:=implicit[p.Name]; t { return }
+		all[p.Name] = p
+	}
+	for _, each := range cfg.Ports {
+		all[each.Name] = each
+	}
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Cs != ""  { add( Port{ Name: each.Cs, } ) }
+			if each.Dsn != "" { add( Port{ Name: each.Dsn, MSB: 1, } ) }
+			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
+		}
+	}
+	for k, each := range cfg.BRAM {
+		if each.Addr == "" {
+			cfg.BRAM[k].Addr = each.Name + "_addr"
+			each=cfg.BRAM[k]
+		}
+		add( Port{
+			Name: each.Addr,
+			MSB:  each.Addr_width-1,
+			LSB:  each.Data_width>>4, // 8->0, 16->1
+		})
+		if each.Din != "" {
+			add( Port{
+				Name: each.Din,
+				MSB: each.Data_width-1,
+			})
+		}
+		if each.Rw {
+			name := each.Name + "_we"
+			if each.We!="" { name = each.We }
+			add( Port{
+				Name: name,
+				MSB: each.Data_width>>4,
+				LSB: 0,
+			})
+		}
+		if each.Dual_port.Name!="" {
+			add( Port{
+				Name: each.Dual_port.Name+"_addr",
+				MSB:  each.Addr_width-1,
+				LSB:  each.Data_width>>4, // 8->0, 16->1
+			})
+			if each.Dual_port.We != "" {
+				add( Port{
+					Name: each.Dual_port.We,
+					MSB: each.Data_width>>4, // 8->0, 16->1
+				})
+			}
+			if each.Dual_port.Dout != "" {
+				add( Port{
+					Name: each.Dual_port.Dout,
+					MSB: each.Data_width-1,
+					Input: true,
+				})
+			} else {
+				name:= each.Name+"2"+each.Dual_port.Name+"_data"
+				add( Port{
+					Name: name,
+					MSB: each.Data_width-1,
+					Input: true,
+				})
+			}
+		}
+	}
+	cfg.Ports = make( []Port,0, len(all) )
+	// fmt.Println("Final ports\n",all)
+	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
+}
+
+func make_ioctl( cfg *MemConfig, verbose bool ) {
+	found := false
+	dump_size := 0
+	total_blocks := 0
+	for k, each := range cfg.BRAM {
+		if each.Ioctl.Save {
+			found = true
+			i := each.Ioctl.Order
+			cfg.Ioctl.Buses[i].Name = each.Name
+			cfg.Ioctl.Buses[i].AW = each.Addr_width
+			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
+			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
+			cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
+			if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
+			cfg.Ioctl.Buses[i].DW = each.Data_width
+			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
+			cfg.BRAM[k].Addr = each.Name+"_amux"
+			dump_size += 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
+			cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
+			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
+			total_blocks += cfg.Ioctl.Buses[i].Blocks
+		}
+	}
+	cfg.Ioctl.SkipAll = total_blocks
+	if found {
+		cfg.Ioctl.Dump = true
+		cfg.Ioctl.DinName = "ioctl_aux" // block game module output
+	} else {
+		cfg.Ioctl.DinName = "ioctl_din"	// let it come from game module
+	}
+	// fill in blank ones
+	for k, _ := range cfg.Ioctl.Buses {
+		each := &cfg.Ioctl.Buses[k]
+		if each.DW==0 {
+			each.DW=8
+			each.Dout = "8'd0"
+			each.Ain  = "1'd0"
+		}
+	}
+	if verbose {
+		fmt.Printf("JTFRAME_IOCTL_RD=%d\n", dump_size)
+	}
+}
+
+func make_dump2bin( args Args, cfg *MemConfig ) {
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
+	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).ParseFiles(tpath))
+	var buffer bytes.Buffer
+	t.Execute(&buffer, cfg)
+	// Dump the file
+	outpath := filepath.Join(os.Getenv("CORES"), args.Core, "ver","game" )
+	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
+	outpath = filepath.Join( outpath, "dump2bin.sh" )
+	e := ioutil.WriteFile(outpath, buffer.Bytes(), 0755)
+	if e!=nil {
+		fmt.Println(e)
+	} else {
+		if args.Verbose {
+			fmt.Printf("%s created\n",outpath)
+		}
+	}
+}
+
+func Run(args Args) {
+	var cfg MemConfig
+	if !parse_file(args.Core, "mem", &cfg, args) {
+		// the mem.yaml file does not exist, that's
+		// normally ok
+		return
+	}
+	macros := get_macros( args.Core, args.Target )
+	check_banks( macros, &cfg )
+	fill_implicit_ports( macros, &cfg )
+	make_ioctl( &cfg, args.Verbose )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Execute the template
 	cfg.Core = args.Core
 	make_sdram(args, &cfg)
 	add_game_ports(args, &cfg)
+	make_dump2bin(args, &cfg )
 }

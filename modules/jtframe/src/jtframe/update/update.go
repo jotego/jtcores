@@ -234,6 +234,10 @@ func dump_output(cfg Config) {
 	appendif(cfg.Nohdmi, "MISTER_DEBUG_NOHDMI")
 	appendif(cfg.Nosnd, "NOSOUND")
 	appendif(cfg.Beta != "", "BETA", "JTFRAME_UNLOCKKEY="+cfg.Beta)
+	lockable := func( s string ) bool { // systems that work with jtbeta.zip
+		return s=="pocket" || s=="mister" || s=="sockit" ||
+				 s=="de1soc" || s=="de10standard"
+	}
 	for target, valid := range cfg.Targets {
 		if !valid {
 			continue
@@ -261,6 +265,9 @@ func dump_output(cfg Config) {
 			}
 			for _, each := range defs {
 				each = strings.TrimSpace(each)
+				if strings.Index(each,"JTFRAME_UNLOCKKEY=")==0 && !lockable(target) {
+					continue
+				}
 				if each != "" {
 					jtcore += " -d " + each
 				}

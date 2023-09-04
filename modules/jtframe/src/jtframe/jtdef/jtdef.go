@@ -309,15 +309,6 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
-	// if the macro BETA is defined, and we are on MiSTer, make
-	// sure JTFRAME_CHEAT is defined too
-	if defined( macros, "BETA" ) {
-		_, cheatok := macros["JTFRAME_CHEAT"]
-		if !cheatok && (cfg.Target == "mister" || cfg.Target == "sockit" || cfg.Target == "de1soc" || cfg.Target == "de10standard") {
-			fmt.Fprintln(os.Stderr, "Compiling a BETA for MiSTer but JTFRAME_CHEAT was not set\nAdding it now automatically.")
-			macros["JTFRAME_CHEAT"] = ""
-		}
-	}
 	return macros
 }
 

@@ -153,7 +153,7 @@ function clean_up {
     rm -f video.pipe frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
-    if [ -z "$TESTCPP" ]; then rm -f test.cpp game_test.v; fi
+    if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
 }
 
 trap "clean_up; exit 1" INT KILL
@@ -741,7 +741,6 @@ verilator)
     fi
     if [ -z "$TESTCPP" ]; then
         cp $JTFRAME/hdl/ver/test.cpp .
-        cp $JTFRAME/hdl/ver/game_test.v .
     fi
     # verilog to C++ conversion
     GAME_VLT=
@@ -755,7 +754,7 @@ verilator)
         -I$JTFRAME/hdl/inc -I$CORES/$SYSNAME/$TARGET \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
         --timescale 1ps/1ps \
-        game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \
+        $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \
         -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
         --top-module game_test -o sim \
          $EXTRA $TRACE --prefix UUT --assert \

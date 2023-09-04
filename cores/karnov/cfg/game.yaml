@@ -22,9 +22,13 @@ jtframe:
     get:
       - jtframe_m68k.yaml
   - from: cpu
+    unless: NOSOUND
     get:
       # - jtframe_mos6502.yaml
       - t65/t65.yaml
+  - from: cpu
+    unless: NOMCU
+    get:
       - jtframe_8751.yaml
   - from: sound
     get:

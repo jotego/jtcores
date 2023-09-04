@@ -2,6 +2,8 @@ game:
   - from: contra
     get:
       - ../cfg/common.yaml
+  - from: flane
+    get:
       - jt007232.v
   - from: mx5k
     get:

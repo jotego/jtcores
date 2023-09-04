@@ -756,7 +756,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		if filename == "" {
 			filename = args.Def_cfg.Core + ".s"
 		}
-		asmhex := picoasm(filename, machine, cfg, args) // the filename is ignored for betas
+		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
 		if asmhex != nil && len(asmhex) > 0 && (!skip || args.Beta) {
 			root.AddNode("Machine code for the Picoblaze CPU").comment = true
 			n := root.AddNode("rom").AddAttr("index", "16")
@@ -767,6 +767,9 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 				basename := filepath.Base(re.ReplaceAllString(filename, ""))
 				n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
 				n.AddNode("part").AddAttr("name", basename+".bin")
+			}
+			if !args.SkipPocket {
+				pocket_pico( asmhex )
 			}
 		}
 	}

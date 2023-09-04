@@ -10,7 +10,7 @@ game:
   - from: mx5k
     get:
       - jtmx5k_colmix.v
-  - from: contra
+  - from: flane
     get:
       - ../cfg/common.yaml
       - jt007232.v

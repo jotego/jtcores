@@ -21,3 +21,7 @@ func pocket_init(cfg Mame2MRA, args Args) {
 func pocket_save() {
 	// Does nothing
 }
+
+func pocket_pico( data []byte ) {
+	// Does nothing
+}
