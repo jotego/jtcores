@@ -2740,10 +2740,6 @@
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid 300d00a9-fe54-4139-8104-3c2d3e2f400a)
     )
-    (pin "IO" input (at 307.34 132.08 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 098d858f-880b-45b1-85cc-43a7c95b8c08)
-    )
     (instances
       (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "2"))
