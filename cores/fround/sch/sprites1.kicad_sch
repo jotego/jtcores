@@ -9623,7 +9623,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 4d0b7984-e046-4a2f-86fc-d4d87de373b5)
   )
-  (text "According to mame the object table\nfor each frame buffer seems to be\nsize 800h = 2048 words. That is after\nprocessing 2048 / 4 = 512 sprites"
+  (text "According to mame the object table\nfor each frame buffer seems to be\nsize 1800h = 6144 words. That is after\nprocessing 6144 / 80 = 76 sprites"
     (at 151.13 27.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 539c0e26-9df0-4208-b50c-adc82b125d76)
@@ -9632,7 +9632,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 60e2a40c-b914-41fb-b306-f016e348fa69)
   )
-  (text "007793\n\nCLK21B = CLK21\n\n~~{LRW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (~8H & HFLIP + 8H & ~HFLIP) +\n        ~DMAINIT & ~~{LWR}\n\n~~{URW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT"
+  (text "007793\n\nCLK21B = CLK21\n\n~{LRW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (~8H & HFLIP + 8H & ~HFLIP))\n\n~{URW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT)"
     (at 15.24 281.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 947831ab-84a0-449c-940e-f807ea4d21ce)
@@ -10547,7 +10547,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 7073a65c-4da4-4050-8861-861eb4538a53)
   )
-  (label "CLK21B" (at 111.76 220.98 0) (fields_autoplaced)
+  (label "CLK21'" (at 111.76 220.98 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 70f21130-1fc3-4baf-8fc1-af0617f6ee29)
   )
