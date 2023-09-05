@@ -222,7 +222,7 @@
     )
   )
 
-  (text "Source: System 16 The Arcade Museum\n        wikipedia.org/wiki/Parodius_Da!"
+  (text "Source: System 16 The Arcade Museum\n        wikipedia.org/wiki/"
     (at 259.08 227.33 0)
     (effects (font (size 2 2) italic) (justify left bottom))
     (uuid 24c41db7-b5af-4a92-ae1b-3e57c0f8e2cd)
