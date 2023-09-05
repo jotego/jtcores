@@ -185,12 +185,12 @@ assign mask_mux = prog_en ? prog_dsn :
     end
 `endif
 
-// `ifndef VERILATOR
-// reg  [15:0] dq_pad;
-// assign sdram_dq = dq_pad;
-// `else
+`ifndef VERILATOR
+reg  [15:0] dq_pad;
+assign sdram_dq = dq_pad;
+`else
 assign sdram_din = prog_en ? prog_din : din;
-// `endif
+`endif
 
 always @(negedge clk) begin
     prog_rst  <= ~prog_en | init | rst;
@@ -217,14 +217,13 @@ always @(posedge clk) begin
     sdram_a[10:0] <= next_a[10:0];
 
     wr_l <= wr_aux;
-    if( bg[3] && BA3_WEN) din <= ba3_din;
-    if( bg[2] && BA2_WEN) din <= ba2_din;
-    if( bg[1] && BA1_WEN) din <= ba1_din;
-    if( bg[0] && BA0_WEN) din <= ba0_din;
+    din <= (bg[3] && BA3_WEN) ? ba3_din :
+           (bg[2] && BA2_WEN) ? ba2_din :
+           (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
-// `ifndef VERILATOR
-//     dq_pad <= wr_cycle ? (prog_en ? prog_din : din) : 16'hzzzz;
-// `endif
+`ifndef VERILATOR
+    dq_pad <= wr_cycle ? (prog_en ? prog_din : din) : 16'hzzzz;
+`endif
     if( MISTER ) begin
         if( next_cmd==CMD_ACTIVE )
             sdram_a[12:11] <= next_a[12:11];
