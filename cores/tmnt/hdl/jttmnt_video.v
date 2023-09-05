@@ -392,7 +392,7 @@ jtaliens_obj u_obj(    // sprite logic
 );
 
 /* verilator tracing_on */
-jttmnt_colmix u_colmix(
+jttmnt_colmix #(.IOCTL_A0(1)) u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
