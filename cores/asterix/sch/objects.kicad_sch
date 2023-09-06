@@ -11096,7 +11096,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 14309d73-74c7-4220-9780-24319e01c912)
   )
-  (text "PIN 79 054157" (at 161.29 46.99 0)
+  (text "PIN 109 054157" (at 161.29 46.99 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 51c4d33e-b4e8-48dd-82da-df5578532d85)
   )
