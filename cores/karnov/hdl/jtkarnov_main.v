@@ -233,7 +233,7 @@ jtframe_68kdtack #(.W(8)) u_dtack(
     // Frequency report
     .fave       ( fave      ),
     .fworst     (           ),
-    .frst       (           )
+    .frst       ( 1'b0      )
 );
 
 jtframe_m68k u_cpu(

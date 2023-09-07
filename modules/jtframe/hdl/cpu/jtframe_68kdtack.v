@@ -82,7 +82,7 @@ reg  [1:0]   waitsh;
 wire         halt;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire over = cencnt>den-num2;
-reg  [CW:0] cencnt_nx;
+reg  [CW:0] cencnt_nx=0;
 reg         risefall=0, wait1;
 
 `ifdef SIMULATION
@@ -123,9 +123,12 @@ always @* begin
     cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt} +num2;
 end
 
+
+
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
-    if( over && !halt) begin
+    if( rst ) cencnt <= 0;
+    if( (over && !halt) || rst ) begin
         cpu_cen  <= risefall;
         cpu_cenb <= ~risefall;
         risefall <= ~risefall;
@@ -143,16 +146,23 @@ end
 reg [15:0] freq_cnt=0, fout_cnt;
 initial fworst = 16'hffff;
 
-always @(posedge clk) begin
-    freq_cnt <= freq_cnt + 1'd1;
-    if(cpu_cen) fout_cnt<=fout_cnt+1'd1;
-    if( freq_cnt == MFREQ-1 ) begin // updated every 1ms
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
         freq_cnt <= 0;
         fout_cnt <= 0;
-        fave <= fout_cnt;
-        if( fworst > fout_cnt ) fworst <= fout_cnt;
+        fave     <= 0;
+        fworst   <= 0;
+    end else begin
+        freq_cnt <= freq_cnt + 1'd1;
+        if(cpu_cen) fout_cnt<=fout_cnt+1'd1;
+        if( freq_cnt == MFREQ-1 ) begin // updated every 1ms
+            freq_cnt <= 0;
+            fout_cnt <= 0;
+            fave <= fout_cnt;
+            if( fworst > fout_cnt ) fworst <= fout_cnt;
+        end
+        if( frst ) fworst <= 16'hffff;
     end
-    if( frst ) fworst <= 16'hffff;
 end
 
 endmodule
