@@ -2521,11 +2521,11 @@
     )
   )
 
-  (text "PIN86 156" (at 123.19 168.91 0)
+  (text "PIN116 156" (at 123.19 168.91 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 33ce9d3f-fcca-441b-ad49-fba980479327)
   )
-  (text "PIN87 156" (at 133.35 165.1 0)
+  (text "PIN117 156" (at 133.35 165.1 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 89a78cf8-d836-4ce2-abe9-aa5abfac6064)
   )
