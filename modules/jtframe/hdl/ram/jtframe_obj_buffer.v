@@ -110,22 +110,60 @@ jtframe_dual_ram #(.AW(AW+1),.DW(EW)) u_line(
 
 generate
     if( SHADOW==1 ) begin
-        wire shadow_we = we & wr_data[DW-1];
+        wire       sh0_wemx, sh1_wemx, sh0_delmx, sh1_delmx,
+                   sh_we;
+        reg  [AW-1:0] sh_wa;
+        wire [AW-1:0] sh0_rdmx, sh1_rdmx;
+        wire [1:0] shdout, shadow_we;
+        reg        newwe_l, we_l, shdin;
 
-        jtframe_dual_ram #(.AW(AW+1),.DW(1)) u_shadow(
+        assign sh0_rdmx  =  line ? wr_af : rd_addr;
+        assign sh1_rdmx  = ~line ? wr_af : rd_addr;
+        assign sh_we     =  shdout[~line] ? newwe_l : we_l;
+        assign sh0_wemx  =  line & sh_we;
+        assign sh1_wemx  = ~line & sh_we;
+        assign sh0_delmx = ~line & delete_we;
+        assign sh1_delmx =  line & delete_we;
+
+        always @(posedge clk) begin
+            shdin <= wr_data[DW-1];
+            sh_wa <= wr_af;
+            newwe_l <= new_we;
+            we_l    <= we;
+        end
+
+        assign dump_data[DW-1] = shdout[line];
+
+        jtframe_dual_ram #(.AW(AW),.DW(1)) u_shadow0(
             .clk0   ( clk           ),
             .clk1   ( clk           ),
             // Port 0
-            .data0  ( wr_data[DW-1] ),
-            .addr0  ( {line,wr_af}  ),
-            .we0    ( shadow_we     ),
+            .data0  ( shdin         ),
+            .addr0  ( sh_wa         ),
+            .we0    ( sh0_wemx      ),
             .q0     (               ),
             // Port 1
             .data1  ( 1'b0          ),
-            .addr1  ({~line,rd_addr}),
-            .we1    ( delete_we     ),
-            .q1     (dump_data[DW-1])
+            .addr1  ( sh0_rdmx      ),
+            .we1    ( sh0_delmx     ),
+            .q1     ( shdout[0]     )
         );
+
+        jtframe_dual_ram #(.AW(AW),.DW(1)) u_shadow1(
+            .clk0   ( clk           ),
+            .clk1   ( clk           ),
+            // Port 0
+            .data0  ( shdin         ),
+            .addr0  ( sh_wa         ),
+            .we0    ( sh1_wemx      ),
+            .q0     (               ),
+            // Port 1
+            .data1  ( 1'b0          ),
+            .addr1  ( sh1_rdmx      ),
+            .we1    ( sh1_delmx     ),
+            .q1     ( shdout[1]     )
+        );
+
     end
 endgenerate
 
