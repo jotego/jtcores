@@ -175,7 +175,7 @@ jtcolmix_053251 u_k251(
     .ci4        ( { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] } ),
     .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),
     // shadow
-    .shd_in     ({1'b0,shadow}),
+    .shd_in     ({1'b0,~shadow}), // why do we need the inversion?
     .shd_out    ( k251_shd  ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),

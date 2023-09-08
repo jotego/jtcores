@@ -235,6 +235,7 @@ diploop:
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
             def_str = each.Value
+            if args.Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
         }
     }
     n.AddAttr("default", def_str)

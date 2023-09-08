@@ -36,11 +36,10 @@ data = [
 delete = [ "Unused", "Unknown" ]
 useLocation = true
 
-# rename = [
-#     {  name="Difficulty 1 (Game)", To="Gameplay" },
-#     {  name="Difficulty 2 (Strength)", To="Strength" },
-#     {  name="Allow Continue", To="Continue" },
-# ]
+defaults=[
+    # currently the default value is not correctly parsed by jtframe
+    { machine="punkshot", value="cf,7f,ff"}
+]
 
 [ROM]
 regions = [
