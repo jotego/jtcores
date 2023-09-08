@@ -90,7 +90,7 @@ module jtsf_main #(
     // Memory address for SDRAM
     output   [MAINW:1] addr,
     // RAM access
-    output             ram_cs,
+    output reg         ram_cs,
     output  [RAMW-1:0] ram_addr,
     input       [15:0] ram_data,
     output      [15:0] ram_din,
@@ -112,7 +112,7 @@ wire        cen8, cen8b;
 reg  [15:0] cabinet_input, cpu_din;
 wire [15:0] objram;
 wire        BRn, BGACKn, BGn;
-reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
+reg         io_cs, obj_cs, col_cs,
             misc_cs, snd_cs;
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
@@ -170,7 +170,7 @@ wire bus_wrn = mcu_master ? ~mcu_wr : RnW;
 
 always @(*) begin
     rom_cs     = 0;
-    pre_ram_cs = 0;
+    ram_cs     = 0;
     col_cs     = 0;
     io_cs      = 0;
     char_cs    = 0;
@@ -196,7 +196,7 @@ always @(*) begin
                 if( Aeff[14:13]==2'b11 && Aeff[5:3]==3'd0 ) begin // FE - object RAM
                     obj_cs = 1;
                 end else begin
-                    pre_ram_cs = 1;
+                    ram_cs = 1;
                 end
             end
             4'hc: if(Aeff[19:16]==4'd0) begin
@@ -231,7 +231,6 @@ always @(*) begin
 end
 
 // MCU and shared bus
-assign ram_cs   = mcu_master ? pre_ram_cs : ( ~BUSn & (dsn_dly ? reg_ram_cs  : pre_ram_cs));
 assign ram_addr = Aeff[15:1];
 assign ram_din  = mcu_master ? {2{mcu_dout_s}} : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
@@ -280,26 +279,6 @@ always @(posedge clk) begin
         if( snd_cs ) begin
             snd_latch <= ram_din[7:0];
         end
-    end
-end
-
-`ifdef SIMULATION
-    initial begin
-        reg_ram_cs = 0;
-        dsn_dly    = 2'b11;
-    end
-`endif
-
-// ram_cs and vram_cs signals go down before DSWn signals
-// that causes a false read request to the SDRAM. In order
-// to avoid that a little bit of logic is needed:
-always @(posedge clk, posedge rst)  begin
-    if(rst) begin
-        reg_ram_cs <= 0;
-        dsn_dly    <= 2'b11;
-    end else if(cen8) begin
-        reg_ram_cs  <= pre_ram_cs;
-        dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
     end
 end
 
@@ -381,12 +360,12 @@ end
 wire       int1, int2;
 wire [2:0] FC;
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
+wire       bus_cs =   |{ rom_cs, char_cs, ram_cs };
 reg        bus_busy;
 wire       DTACKn;
 
 always @* begin
-    bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
+    bus_busy = |{ rom_cs & ~rom_ok, char_busy, ram_cs & ~ram_ok };
     if( BUSn ) bus_busy=0;
 end
 
