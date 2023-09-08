@@ -22,8 +22,9 @@ JTFRAME_OSD_NOLOGO
 # Not enough BRAM for the interpolator
 NOFIR
 
-[mister]
-# JTFRAME_CHEAT
+[mister|pocket]
 JTFRAME_CREDITS
 JTFRAME_CREDITS_NOROTATE
+
+[mister]
 JTFRAME_MR_DDRLOAD
