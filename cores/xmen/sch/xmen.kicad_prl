@@ -79,10 +79,10 @@
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 2360,
-          "pos_y": 52,
-          "size_x": 978,
-          "size_y": 1052
+          "pos_x": 470,
+          "pos_y": 28,
+          "size_x": 980,
+          "size_y": 1024
         }
       }
     ]
