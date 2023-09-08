@@ -2633,9 +2633,6 @@
         (text "*" (at -19.05 -29.21 0)
           (effects (font (size 1.27 1.27)))
         )
-        (text "*" (at -15.24 -36.83 0)
-          (effects (font (size 1.27 1.27)))
-        )
         (text "*" (at -11.43 -21.59 0)
           (effects (font (size 1.27 1.27)))
         )
@@ -2652,9 +2649,6 @@
           (effects (font (size 1.27 1.27)))
         )
         (text "*" (at 22.86 -3.81 0)
-          (effects (font (size 1.27 1.27)))
-        )
-        (text "16MHz" (at -19.05 -36.83 0)
           (effects (font (size 1.27 1.27)))
         )
         (text "KONAMI\n054358\n\n" (at 2.54 6.35 0)
@@ -3518,6 +3512,10 @@
   (bus_entry (at 177.8 158.75) (size 2.54 -2.54)
     (stroke (width 0) (type default))
     (uuid 5b5f9040-f583-47c1-8557-e8bc8d1beaf4)
+  )
+  (bus_entry (at 175.26 97.79) (size 2.54 2.54)
+    (stroke (width 0) (type default))
+    (uuid 5bf41223-10f5-47da-9fad-2d2a275f46bb)
   )
   (bus_entry (at 176.53 123.19) (size -2.54 -2.54)
     (stroke (width 0) (type default))
@@ -4604,7 +4602,7 @@
     (stroke (width 0) (type default))
     (uuid 2c5bc3a4-63fe-4553-a334-05178e8fe0ab)
   )
-  (bus (pts (xy 177.8 97.79) (xy 177.8 123.19))
+  (bus (pts (xy 177.8 97.79) (xy 177.8 100.33))
     (stroke (width 0) (type default))
     (uuid 2c739938-f879-4788-9002-fd8db0fa1f16)
   )
@@ -6819,6 +6817,10 @@
     (stroke (width 0) (type default))
     (uuid f254b9e3-f0a0-494e-9ed9-dda55b7dcea5)
   )
+  (bus (pts (xy 177.8 100.33) (xy 177.8 123.19))
+    (stroke (width 0) (type default))
+    (uuid f3658de9-8353-4714-bd36-9aa55bd5d397)
+  )
   (bus (pts (xy 372.11 140.97) (xy 372.11 187.96))
     (stroke (width 0) (type default))
     (uuid f37a9ee5-484e-4844-962b-31292c9dbc7c)
@@ -7190,10 +7192,6 @@
     )
   )
 
-  (text "PIN72 054156" (at 69.85 54.61 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 06d11ddd-a2f4-487f-8163-4f126ba14938)
-  )
   (text "CMOS EPROM\n1M-BIT [128K x 8]" (at 215.9 96.52 90)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 0ad2e0f2-92fd-4f90-aeba-c94d343bbed0)
@@ -7225,10 +7223,6 @@
   (text "KONAMI 054860" (at 279.4 73.66 90)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 93a92d31-1cab-447e-a774-4e7072f73f04)
-  )
-  (text "PIN79 054157" (at 31.75 250.19 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 9798ebf0-604a-4441-ad93-4471cfa06964)
   )
   (text "CMOS EPROM\n1M-BIT [128K x 8]" (at 284.48 176.53 90)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -8432,6 +8426,10 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 28125b11-e74c-4a76-8450-aaf52adad130)
   )
+  (hierarchical_label "UKSCR~{DRI}" (shape output) (at 223.52 269.24 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid 2b055508-f8ff-4bab-a3cd-e8879aff84a9)
+  )
   (hierarchical_label "~{IPL0}" (shape input) (at 90.17 49.53 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 2cbce118-f1e1-4426-8439-67e629c90f68)
@@ -8448,7 +8446,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 44e9dcad-ae89-44d1-873e-dd2786abc65d)
   )
-  (hierarchical_label "MAIN_A[23..0]" (shape output) (at 379.73 29.21 0) (fields_autoplaced)
+  (hierarchical_label "MAIN_A[23..1]" (shape output) (at 379.73 29.21 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 54c9dd54-1f2d-457b-9002-20713fb218d5)
   )
@@ -8544,7 +8542,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid af0503d2-72cb-4aaa-8da3-47d843130baa)
   )
-  (hierarchical_label "~{RES}" (shape input) (at 50.8 248.92 180) (fields_autoplaced)
+  (hierarchical_label "~{RESET}" (shape input) (at 50.8 248.92 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid c6965d31-2134-470e-bde3-c0629eb2939e)
   )
@@ -8556,7 +8554,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid d1e191d0-bf23-4693-a16a-3122c402efd7)
   )
-  (hierarchical_label "M16" (shape input) (at 50.8 256.54 180) (fields_autoplaced)
+  (hierarchical_label "M12" (shape input) (at 50.8 256.54 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid d41b1b30-f38f-4f02-bc4f-088422087947)
   )
@@ -8604,9 +8602,6 @@
           (reference "F11") (unit 2)
         )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
-          (reference "F11") (unit 3)
-        )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
           (reference "F11") (unit 3)
         )
       )
@@ -9000,9 +8995,6 @@
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
           (reference "G6-1") (unit 1)
         )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
-          (reference "G6-1") (unit 1)
-        )
       )
     )
   )
@@ -9351,9 +9343,6 @@
         (path "/0011ec10-82c4-4039-b424-337480f568e8"
           (reference "H?") (unit 1)
         )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
-          (reference "H?") (unit 1)
-        )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
           (reference "G17") (unit 1)
         )
@@ -9423,9 +9412,6 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8"
-          (reference "#PWR?") (unit 1)
-        )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
           (reference "#PWR?") (unit 1)
         )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
@@ -10119,9 +10105,6 @@
         (path "/0011ec10-82c4-4039-b424-337480f568e8"
           (reference "F?") (unit 6)
         )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
-          (reference "F10") (unit 1)
-        )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
           (reference "F10") (unit 1)
         )
@@ -10230,9 +10213,6 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8"
-          (reference "#PWR?") (unit 1)
-        )
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7a299681-be7c-4cce-bfa8-cc7d4310cd10"
           (reference "#PWR?") (unit 1)
         )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
