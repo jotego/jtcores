@@ -322,19 +322,6 @@ func mvTrace( trace *LnFile, mame_st *MAMEState, expr string ) bool {
     return true
 }
 
-func stepVCD( vcd *LnFile, sim_st *SimState ) bool {
-    for vcd.Scan() {
-        txt := vcd.Text()
-        if txt[0]=='#' {
-            vcd.time, _ = strconv.ParseUint( txt[1:],10,64 )
-            return true
-        }
-        a, v := parseValue(txt)
-        assign( a, v, sim_st.data )
-    }
-    return false
-}
-
 func mvFrame( vcd *LnFile, sim_st *SimState, limit uint64 ) {
     var frame *VCDSignal
     for _,each := range sim_st.data {
@@ -347,7 +334,7 @@ func mvFrame( vcd *LnFile, sim_st *SimState, limit uint64 ) {
         fmt.Printf("frame_cnt signal not found in VCD\n")
         return
     }
-    for frame.Value<limit && stepVCD(vcd,sim_st) { }
+    for frame.Value<limit && vcd.NextVCD(sim_st.data) { }
 }
 
 func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope string ) bool {
@@ -381,7 +368,7 @@ func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope s
             fmt.Printf("Not a boolean expression")
             return false
         }
-        if !stepVCD( vcd, sim_st ) { break }
+        if !vcd.NextVCD(sim_st.data) { break }
         if vcd.time-t0>1000000000 { // 1ms
             fmt.Print(".")
             t0=vcd.time
@@ -750,60 +737,5 @@ func MakeAlias( trace string, ss vcdData ) mameAlias {
         mame_alias[each[0:k]]=p
     }
     return mame_alias
-}
-
-func filter( file *LnFile, ss vcdData ) {
-    var wel, addrl, doutl uint64
-    for ; file.scn.Scan(); file.line++ {
-        txt := file.scn.Text()
-        if txt[0]=='#' {
-            we := ss["5"].Value
-            addr := ss["$"].Value & 0xfffffe
-            dout := ss["6"].Value
-            if wel==we && addrl==addr && doutl==dout { continue }
-            if we !=0 && addr>=0x6000 && addr<0x7000 {
-                //fmt.Printf("% x=%02x\n", ss["$"].Value, ss["6"].Value)
-                if (we&1)!=0 { fmt.Printf("% x=%02x\n", addr, dout&0xff) }
-                if (we&2)!=0 { fmt.Printf("% x=%02x\n", addr|1, (dout>>8)&0xff) }
-            }
-            wel=we
-            addrl=addr
-            doutl=dout
-        } else {
-            s, v := parseValue(txt)
-            assign( s, v, ss )
-        }
-    }
-}
-
-func assign( alias string, v uint64, ss vcdData) {
-    p, _ := ss[alias]
-    if p==nil {
-        fmt.Printf("Warning: signal vcdData as %s not found\n",alias)
-        return
-    }
-    p.Value = v
-}
-
-func parseValue( txt string ) ( string, uint64 ) {
-    if txt[0]!='0' && txt[0]!='1' && txt[0]!='b' {
-        fmt.Printf("Warning: unexpected value definition %s\n",txt)
-        return "",0
-    }
-    var v uint64
-    if txt[0] == 'b' {
-        var s int
-        for s=1; s<len(txt) && txt[s]!=' '; s++ {
-            v <<= 1
-            if txt[s]=='1' {
-                v |= 1
-            }
-        }
-        s++
-        return txt[s:], v
-    } else {
-        if txt[0]=='1' { v=1 }
-        return txt[1:], v
-    }
 }
 

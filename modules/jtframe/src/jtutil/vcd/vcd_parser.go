@@ -434,3 +434,35 @@ func GetSignals( file *LnFile ) vcdData {
     }
     return ss
 }
+
+
+func assign( alias string, v uint64, ss vcdData) {
+    p, _ := ss[alias]
+    if p==nil {
+        fmt.Printf("Warning: signal vcdData as %s not found\n",alias)
+        return
+    }
+    p.Value = v
+}
+
+func parseValue( txt string ) ( string, uint64 ) {
+    if txt[0]!='0' && txt[0]!='1' && txt[0]!='b' {
+        fmt.Printf("Warning: unexpected value definition %s\n",txt)
+        return "",0
+    }
+    var v uint64
+    if txt[0] == 'b' {
+        var s int
+        for s=1; s<len(txt) && txt[s]!=' '; s++ {
+            v <<= 1
+            if txt[s]=='1' {
+                v |= 1
+            }
+        }
+        s++
+        return txt[s:], v
+    } else {
+        if txt[0]=='1' { v=1 }
+        return txt[1:], v
+    }
+}
