@@ -132,7 +132,7 @@ always @* begin
     dmarq     = 0;
     pos_cs    = 0;
     vint_ctl  = 0;
-    if( !ASn ) begin
+    if( !ASn && (RnW || dsn!=3)) begin
         rom_cs    = A[21:17]<=2; // 00000~5FFFF
         pre_ram_cs= A[21:17]==3; // 60000~6FFFF
         objram_cs = A[21:17]==4; // 80000

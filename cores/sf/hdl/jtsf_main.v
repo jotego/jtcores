@@ -187,7 +187,7 @@ always @(*) begin
     mcu_DMAONn = 1;
     regs_cs    = 0;
 
-    if( (!CPUbus && mcu_acc_s) ||  (!ASn && BGACKn) ) begin
+    if( (!CPUbus && mcu_acc_s) ||  (!ASn && BGACKn && (RnW || {UDSn,LDSn}!=3)) ) begin
         case(Aeff[23:20])
             4'h0: rom_cs  = 1;  // reading from the ROM may fail from the MCU, but it shouldn't matter
             4'h8: char_cs = 1;

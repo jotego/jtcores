@@ -128,7 +128,7 @@ end
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( rst ) cencnt <= 0;
-    if( (over && !halt) || rst ) begin
+    if( over || rst || halt ) begin
         cpu_cen  <= risefall;
         cpu_cenb <= ~risefall;
         risefall <= ~risefall;

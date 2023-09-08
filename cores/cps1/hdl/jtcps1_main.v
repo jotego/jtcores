@@ -180,7 +180,7 @@ always @(posedge clk, posedge rst) begin
         main2qs_addr <= 23'd0;
         `endif
     end else begin
-        if( !ASn && BGACKn ) begin // PAL PRG1 12H
+        if( !ASn && BGACKn && (RnW || {UDSn,LDSn}!=3) ) begin // PAL PRG1 12H
             rom_addr    <= A[21:1];
             rom_cs      <= A[23:22] == 2'b00;
             // dbus_cs     <= ~|A[23:18]; // all must be zero
