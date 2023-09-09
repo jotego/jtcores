@@ -34,7 +34,7 @@ var mraCmd = &cobra.Command{
 	Long: `Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
-otherwise the file mame.xml in $JTROOT/rom/mame.xml will be used.
+otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used.
 
 Each repository is meant to have a reduced mame.xml file in $ROM as
 part of the source file commited in git.
@@ -140,7 +140,7 @@ patches = [
 		if reduce {
 			mra.Reduce(args[0])
 		} else { // regular operation, core names are separated by commas
-			mra_args.Xml_path=os.Getenv("JTROOT")+"/rom/mame.xml"
+			mra_args.Xml_path=os.Getenv("JTROOT")+"/doc/mame.xml"
 			mra_args.Def_cfg.Target="mister"
 			for _, each := range args {
 				mra_args.Def_cfg.Core = each
@@ -157,7 +157,7 @@ func init() {
 
 	mra_args.Def_cfg.Target = "mist"
 	flag.StringVar(&mra_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
-	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/rom/mame.xml", "Path to MAME XML file")
+	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
 	flag.BoolVarP(&mra_args.Verbose, "verbose", "v", false, "verbose")
 	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
