@@ -1,0 +1,103 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Sep  3 08:23:24 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/karnov/ver/game/bad.fst"
+[dumpfile_mtime] "Sun Sep  3 08:13:31 2023"
+[dumpfile_size] 8286466
+[savefile] "/home/jtejada/jtcores/cores/karnov/ver/game/sdram.gtkw"
+[timestart] 1186746000
+[size] 1263 1010
+[pos] -1265 -1
+*-16.863258 1187038608 1228545000 1188080208 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_sdram.
+[sst_width] 215
+[signals_width] 249
+[sst_expanded] 1
+[sst_vpaned_height] 219
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+[color] 2
+TOP.game_test.u_game.u_game.u_main.cpu_dout[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.ram_ok
+[color] 2
+TOP.game_test.u_game.u_game.u_main.DTACKn
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_din[15:0]
+TOP.game_test.u_game.u_game.u_main.ram_data[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.ASn
+TOP.game_test.u_game.u_game.u_main.dsn[1:0]
+TOP.game_test.u_game.u_game.u_main.RnW
+@200
+-
+@22
+TOP.game_test.ba_rd[3:0]
+@c00022
+TOP.game_test.ba_wr[3:0]
+@28
+(0)TOP.game_test.ba_wr[3:0]
+(1)TOP.game_test.ba_wr[3:0]
+(2)TOP.game_test.ba_wr[3:0]
+(3)TOP.game_test.ba_wr[3:0]
+@1401200
+-group_end
+@22
+TOP.game_test.ba_rdy[3:0]
+@200
+-
+@22
+TOP.game_test.SDRAM_DIN[15:0]
+@28
+TOP.game_test.SDRAM_DQM[1:0]
+@22
+TOP.game_test.SDRAM_DQ[15:0]
+@28
+TOP.game_test.SDRAM_nCAS
+TOP.game_test.SDRAM_nCS
+TOP.game_test.SDRAM_nRAS
+TOP.game_test.SDRAM_nWE
+TOP.game_test.u_model.Write_enable
+@200
+-
+@28
+TOP.game_test.u_sdram.all_dbusy64
+@22
+TOP.game_test.u_sdram.br[3:0]
+@c00022
+TOP.game_test.u_sdram.bg[3:0]
+@28
+(0)TOP.game_test.u_sdram.bg[3:0]
+(1)TOP.game_test.u_sdram.bg[3:0]
+(2)TOP.game_test.u_sdram.bg[3:0]
+(3)TOP.game_test.u_sdram.bg[3:0]
+@1401200
+-group_end
+@200
+-
+@22
+TOP.game_test.u_sdram.u_bank3.PRE_ACT[31:0]
+TOP.game_test.u_sdram.u_bank3.ACT[31:0]
+TOP.game_test.u_sdram.u_bank3.PRE_RD[31:0]
+TOP.game_test.u_sdram.u_bank3.READ[31:0]
+@c00022
+TOP.game_test.u_sdram.u_bank3.st[7:0]
+@28
+(0)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(1)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(2)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(3)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(4)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(5)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(6)TOP.game_test.u_sdram.u_bank3.st[7:0]
+(7)TOP.game_test.u_sdram.u_bank3.st[7:0]
+@1401200
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0

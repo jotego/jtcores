@@ -1,0 +1,84 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Jul  8 05:49:13 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s16b/ver/goldnaxe/test.fst"
+[dumpfile_mtime] "Sat Jul  8 05:48:27 2023"
+[dumpfile_size] 478307064
+[savefile] "/home/jtejada/jtcores/cores/s16b/ver/goldnaxe/dbg.gtkw"
+[timestart] 1371100000000
+[size] 2528 1014
+[pos] -1 -1
+*-35.337673 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[sst_width] 219
+[signals_width] 260
+[sst_expanded] 1
+[sst_vpaned_height] 308
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.cpu_sel
+[color] 2
+TOP.game_test.u_game.u_game.u_main.u_mapper.bus_mcu
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_acc
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_acc_s
+@22
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_addr[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_addr_s[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_amux[23:1]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_asn
+@23
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_cnt[8:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_din[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_dout[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_dout_s[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_en
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_intn[1:0]
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_rd_s
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_snd_intn
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_wr
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_wr_s
+TOP.game_test.u_game.u_game.u_main.u_mapper.wredge_mcu
+TOP.game_test.u_game.u_game.u_main.u_mapper.wren_mcu
+TOP.game_test.u_game.u_game.u_main.u_mapper.wren_mcu_l
+TOP.game_test.u_game.u_game.u_main.u_mapper.mcu_vintn
+@200
+-MMR
+@c00022
+TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(1)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(2)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(3)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(4)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(5)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(6)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+(7)TOP.game_test.u_game.u_game.u_main.u_mapper.mmr[2][7:0]
+@1401200
+-group_end
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.cpu_rst
+TOP.game_test.u_game.u_game.u_main.vint
+@200
+-BUS
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.bus_rq
+TOP.game_test.u_game.u_game.u_main.u_mapper.cpu_bgn
+@22
+TOP.game_test.u_game.u_game.u_main.u_mapper.addr_out[23:1]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.vint
+TOP.game_test.u_game.u_game.u_main.u_mapper.vint_n
+[pattern_trace] 1
+[pattern_trace] 0

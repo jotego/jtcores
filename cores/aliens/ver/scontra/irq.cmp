@@ -1,0 +1,7 @@
+go
+
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+match-trace
+diff
+go
+display frame

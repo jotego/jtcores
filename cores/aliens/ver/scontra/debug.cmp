@@ -1,0 +1,14 @@
+# 868d = IRQ start
+# 8682~8 wait until next IRQ
+# 86EA = RTI
+# frame 241
+# step-trace
+# mv-trace frame_cnt==294
+
+# # go to IRQ
+# mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868f
+# mv-trace PC==$868E
+
+scope TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode
+
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
