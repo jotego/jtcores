@@ -43,19 +43,20 @@ rename = [
 
 [ROM]
 regions=[
-{ name="maincpu", sequence=[1,2,3,3,4] },
-{ name="soundcpu", no_offset=true },
-{ name="gfx1" },
-# In MAME versions past 0.251 the explicit PROMS may not be needed
-{ name="proms", no_offset=true, files =[
-        { name="21j-k-0", size=256, crc="fdb130a9" },
-        { name="prom.16", size=512, crc="46339529" }
-    ]},
+    { name="maincpu", sequence=[1,2,3,3,4] },
+    { name="soundcpu", no_offset=true, start="JTFRAME_BA1_START" },
+    { name="gfx1", start="JTFRAME_BA2_START" }, # char
+    { name="gfx3", width=16, no_offset=true, start="SCR_START" }, # scroll
+    { name="gfx3", width=16, no_offset=true, sequence=[0,2,1,3], start="SCR_START", setname="ddragon2b" }, # scroll
+    { name="gfx2", width=16, no_offset=true, sequence=[0,3,1,4,2,5], start="JTFRAME_BA3_START" },  # objects
+    { name="gfx2", width=16, no_offset=true, sequence=[0,6,1,7,2,8,3,9,4,10,5,11], start="JTFRAME_BA3_START", setname="ddragon2b" },  # objects
+    { name="sub", start="MCU_START" },
+    { name="proms", files =[{ name="21j-k-0", size=256, crc="fdb130a9" }] } # the second PROM is not used
 ]
 
 order=[
     "maincpu", "soundcpu",
-    "sub", "oki",
-    "gfx1", "gfx3", "gfx2",
+    "oki",
+    "gfx1", "gfx3", "gfx2", "sub",
     "proms"
 ]

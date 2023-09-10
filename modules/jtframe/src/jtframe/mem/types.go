@@ -39,6 +39,7 @@ type SDRAMBus struct {
     Dsn        string `yaml:"dsn"`  // optional name for dsn signal
     Din        string `yaml:"din"`  // optional name for din signal
     Cs         string `yaml:"cs"`
+    Gfx        string `yaml:"gfx_sort"`
 }
 
 type BRAMBus struct {
@@ -148,4 +149,7 @@ type MemConfig struct {
     Unused   [4]bool // true for unused banks
     // Derived information
     Ioctl    Ioctl
+    Gfx8     string
+    Gfx16    string
+    Gfx8b0, Gfx16b0 int
 }

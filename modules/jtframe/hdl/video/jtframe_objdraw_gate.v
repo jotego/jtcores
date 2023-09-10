@@ -43,7 +43,9 @@ module jtframe_objdraw_gate #( parameter
     SHADOW     =0, // 1 for shadows
     KEEP_OLD   =0, // new writes do not overwrite old ones (reverse priority)
     // object line buffer
-    ALPHA      =0
+    ALPHA      =0,
+    PACKED     =0  // 0 if rom_data is { plane3, plane2, plane1, plane0 }, 8 bits each
+                   // 1 if rom_data packs the 4 planes in nibbles
 )(
     input               rst,
     input               clk,
@@ -89,6 +91,13 @@ reg           dr_hz_keep;
 
 wire    [8:0] buf_addr;
 wire          buf_we;
+wire   [31:0] rom_sorted;
+
+assign rom_sorted = PACKED==0 ? rom_data :
+{rom_data[31], rom_data[27], rom_data[23], rom_data[19], rom_data[15], rom_data[11], rom_data[7], rom_data[3],
+ rom_data[30], rom_data[26], rom_data[22], rom_data[18], rom_data[14], rom_data[10], rom_data[6], rom_data[2],
+ rom_data[29], rom_data[25], rom_data[21], rom_data[17], rom_data[13], rom_data[ 9], rom_data[5], rom_data[1],
+ rom_data[28], rom_data[24], rom_data[20], rom_data[16], rom_data[12], rom_data[ 8], rom_data[4], rom_data[0] };
 
 generate
     if( LATCH ) begin
@@ -123,7 +132,7 @@ endgenerate
 always @* begin
     case( HJUMP )
         1: begin
-            aeff = { buf_addr[8], buf_addr[8] | buf_addr[7], buf_addr[6:0] }; // 100~17F is translated to 180~1FF
+            aeff = { buf_addr[8], buf_addr[8] ^ buf_addr[7], buf_addr[6:0] }; // 100~17F is translated to 180~1FF, and 180~1FF to 100~17F
             hdf  = hdump ^ { 1'b0, flip&~hdump[8], {7{flip}} };
         end
         2: begin
@@ -132,7 +141,7 @@ always @* begin
         end
         default: begin
             aeff = buf_addr;
-            hdf  = flip ? ~hdfix+FLIP_OFFSET : hdfix;
+            hdf  = flip ? ~hdfix+FLIP_OFFSET[8:0] : hdfix;
         end
     endcase
 end
@@ -177,7 +186,7 @@ jtframe_draw #(
     .rom_addr   ( rom_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_data   ( rom_sorted),
 
     .buf_addr   ( buf_addr  ),
     .buf_we     ( buf_we    ),

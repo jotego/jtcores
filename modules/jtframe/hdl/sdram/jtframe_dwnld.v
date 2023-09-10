@@ -42,6 +42,9 @@ module jtframe_dwnld(
     output reg [ 1:0]    prog_ba,
     `endif
 
+    input                gfx8_en,   // HHVVV  -> VVVHH
+    input                gfx16_en,  // HHVVVV -> VVVVHH
+
     output reg           prom_we,
     output reg           header,
     input                sdram_ack
@@ -54,6 +57,9 @@ parameter [25:0] BA1_START = ~26'd0,
                  BA3_START = ~26'd0,
                  HEADER    = `ifdef JTFRAME_HEADER `JTFRAME_HEADER `else 0 `endif,
                  SWAB      = 0; // swap every pair of input bytes (SDRAM only)
+parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
+                 GFX16B0   = 0; // bit 0 for HHVVVV sequence
+
 
 localparam       BA_EN     = (BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0);
 localparam       PROM_EN   = PROM_START!=~26'd0;
@@ -76,6 +82,8 @@ assign prog_rd   = 0;
 always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && downloading;
     part_addr = ioctl_addr-HEADER;
+    if( gfx8_en  ) part_addr[GFX8B0 +:5] = { part_addr[GFX8B0 +:3], part_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
+    if( gfx16_en ) part_addr[GFX16B0+:6] = { part_addr[GFX16B0+:4], part_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
 end
 
 `ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM

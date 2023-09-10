@@ -169,7 +169,7 @@ func DefPath(cfg Config) string {
 	}
 }
 
-func defined( macros map[string]string, key string ) bool {
+func Defined( macros map[string]string, key string ) bool {
 	_ ,e := macros[key]
 	return e
 }
@@ -305,7 +305,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		freq, _ := strconv.Atoi(freq_str)
 		mclk = freq*8
 	}
-	if defined(macros,"JTFRAME_SDRAM96") || defined(macros,"JTFRAME_CLK96") {
+	if Defined(macros,"JTFRAME_SDRAM96") || Defined(macros,"JTFRAME_CLK96") {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)

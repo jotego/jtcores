@@ -27,10 +27,8 @@ module jtdd_colmix(
     output reg [7:0]   pal_dout,
     input [9:0]        cpu_AB,
     // blanking
-    input              VBL,
-    input              HBL,
-    output             LVBL_dly,
-    output             LHBL_dly,
+    input              LVBL,
+    input              LHBL,
     // Pixel inputs
     input [6:0]        char_pxl,  // called mcol in schematics
     input [7:0]        obj_pxl,  // called ocol in schematics
@@ -45,7 +43,7 @@ module jtdd_colmix(
     output reg [3:0]   green,
     output reg [3:0]   blue,
     // Debug
-    input      [3:0] gfx_en
+    input        [3:0] gfx_en
 );
 
 parameter SIM_PRIO="../../../rom/21j-k-0";
@@ -55,7 +53,7 @@ wire [3:0] pal_b;
 reg        pal_gr_we, pal_b_we;
 reg  [8:0] pal_addr;
 wire [1:0] prio;
-wire       obj_blank  = ~gfx_en[2] | ~|obj_pxl[3:0];
+wire       obj_blank  = ~gfx_en[3] | ~|obj_pxl[3:0];
 wire       char_blank = ~gfx_en[0] | ~|char_pxl[3:0];
 wire [7:0] scr2_pxl   = scr_pxl & {8{gfx_en[1]}}; // gated by global enable signal
 wire [7:0] seladdr = { scr2_pxl[7], obj_pxl[7], obj_blank, char_blank, scr2_pxl[3:0] };
@@ -69,26 +67,17 @@ always @(posedge clk) begin
     pal_dout  <= cpu_AB[9] ? {4'hf, pal_b } : pal_gr;
     if( pal_cs )
         pal_addr <= cpu_AB[8:0];
-    else 
+    else begin
         case( prio )
             default: pal_addr <= { 2'b00, char_pxl };
             2'd2:    pal_addr <= { 2'b01, obj_pxl[6:0] };
             2'd3:    pal_addr <= { 2'b10, scr2_pxl[6:0] };
         endcase
-
+    end
 end
 
-wire BL = ~LVBL_dly | ~LHBL_dly;
-
-jtframe_sh #(.width(2), .stages(6)) u_sh(
-    .clk    ( clk                   ),
-    .clk_en ( pxl_cen               ),
-    .din    ( ~{VBL, HBL}           ),
-    .drop   ( {LVBL_dly, LHBL_dly } )
-);
-
 always @(posedge clk) if(pxl_cen) begin
-    { blue, green, red } <= BL ? 12'd0 : { pal_b, pal_gr };
+    { blue, green, red } <= (LHBL && LVBL) ? { pal_b, pal_gr } : 12'd0;
 end
 
 jtframe_ram #(.AW(9),.SIMFILE("pal_gr.bin")) u_pal_gr(

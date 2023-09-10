@@ -19,9 +19,8 @@ skip.setnames=[
     "toffy",
     "stoffy",
     "stoffyu",
-    # broken bootlegs
+    # broken bootlegs (three M6809 instead of two plus MCU)
     "ddragonb", "ddragonba",
-    # 6809 as MCU
     "ddragon6809", "ddragon6809a"
 ]
 
@@ -41,8 +40,11 @@ rename = [
 [ROM]
 regions=[
     { name="maincpu", sequence=[1,2,3,3,4] },
-    { name="soundcpu", no_offset=true },
-    { name="gfx1", sequence=[0,0]},
+    { name="soundcpu", no_offset=true, start="JTFRAME_BA1_START" },
+    { name="gfx1", start="JTFRAME_BA2_START" }, # char
+    { name="gfx3", width=16, no_offset=true, sequence=[0,2,1,3], start="SCR_START" }, # scroll
+    { name="gfx2", width=16, no_offset=true, sequence=[0,4,1,5,2,6,3,7], start="JTFRAME_BA3_START" },  # objects
+    { name="proms", sequence=[0] } # the second PROM is not used
 ]
 
 order=[
@@ -50,4 +52,9 @@ order=[
     "adpcm1", "adpcm2",
     "gfx1", "gfx3", "gfx2",
     "sub", "proms"
+]
+
+patches=[
+    # skip ROM test and legal screen - it won't initialize the hi-score table
+    # { setname="ddragon", offset=0x20040, data="7e 80 63" },
 ]

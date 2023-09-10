@@ -1,0 +1,79 @@
+params:
+  - { name: PCM0_OFFSET, value: "(`ADPCM0_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM1_OFFSET, value: "(`ADPCM1_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA2_START) >>1" }
+  - { name: MCU_OFFSET,  value: "(`MCU_START-`JTFRAME_BA3_START)>>1" }
+clocks:
+  clk24:
+    - freq: 12000000
+      outputs:
+        - cen12
+        - cen6
+        - cen3
+        - cen1p5
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: main
+          addr_width: 18
+          data_width: 8
+    -
+      buses:
+        -
+          name: snd
+          addr_width: 15
+          data_width: 8
+        -
+          name: adpcm0
+          addr_width: 16
+          data_width: 8
+          offset: PCM0_OFFSET
+        -
+          name: adpcm1
+          addr_width: 16
+          data_width: 8
+          offset: PCM1_OFFSET
+    -
+      buses:
+        -
+          name: char
+          addr_width: 15 # DD1 only uses 15, DD2 uses 16
+          data_width: 32
+          gfx_sort: hhvvv
+        -
+          name: scr
+          addr_width: 18
+          data_width: 16
+          offset: SCR_OFFSET
+          gfx_sort: hhvvvvx
+    -
+      buses:
+        -
+          name: obj
+          addr_width: 20
+          data_width: 32
+          gfx_sort: hhvvvvx
+        -
+          name: mcu
+          addr_width: 14
+          data_width: 8
+          offset: MCU_OFFSET
+bram:
+  - name: cram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: main
+      din:  "{2{main_dout}}"
+      dout: char16_dout
+      we:   cram_we
+      rw:   true
+  - name: oram
+    addr_width: 9
+    dual_port:
+      name: main
+      dout: obj_dout
+      we:   oram_we
+      rw:   true

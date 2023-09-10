@@ -47,13 +47,13 @@ module jtdd_main(
     // Characters
     input       [7:0]  char_dout,
     output      [7:0]  cpu_dout,
-    output  reg        char_cs,
+    output  reg        cram_cs,
     // Object
     input       [7:0]  obj_dout,
-    output  reg        obj_cs,
+    output  reg        oram_cs,
     // scroll
     input       [7:0]  scr_dout,
-    output  reg        scr_cs,
+    output  reg        vram_cs,
     output  reg [8:0]  scrhpos,
     output  reg [8:0]  scrvpos,
     // cabinet I/O
@@ -94,18 +94,28 @@ wire irq_clr     = w3805;
 `endif
 wire sndlatch_cs = w3806;
 wire irq_ack;
+reg  rst_vb;
 
 assign mcu_nmi_set = w3807;
 assign flip = 0; // not implemented
 
+// Do not release the reset while in blanking or it will trigger
+// a potentially catastrophic NMI
+always @(posedge clk) begin
+    if( rst )
+        rst_vb <= 1;
+    else if( !VBL )
+        rst_vb <= 0;
+end
+
 always @(*) begin
-    scr_cs      = 1'b0;
+    vram_cs      = 1'b0;
     io_cs       = 1'b0;
     pal_cs      = 1'b0;
     ram_cs      = 1'b0;
-    char_cs     = 1'b0;
+    cram_cs     = 1'b0;
     rom_cs      = 1'b0;
-    obj_cs      = 1'b0;
+    oram_cs      = 1'b0;
     misc_cs     = 1'b0;
     com_cs      = 1'b0;
     banked_cs   = 1'b0;
@@ -121,10 +131,10 @@ always @(*) begin
             `else
             3'd2: ram_cs = 1'b1; // more available RAM in DD2
             `endif
-            3'd3: char_cs = 1'b1;
+            3'd3: cram_cs = 1'b1;
             3'd4: com_cs  = 1'b1;
-            3'd5: obj_cs  = 1'b1;
-            3'd6: scr_cs  = 1'b1;
+            3'd5: oram_cs  = 1'b1;
+            3'd6: vram_cs  = 1'b1;
             3'd7: begin
                 `ifdef DD2
                 if(A[10]) pal_cs = 1'b1;
@@ -212,16 +222,16 @@ assign cpu_AB = A[12:0];
 
 reg [7:0] cpu_din;
 
-always @(*) begin
+always @(*) begin // do not register
     case( 1'b1 )
         ram_cs    : cpu_din = ram_dout;
-        char_cs   : cpu_din = char_dout;
-        scr_cs    : cpu_din = scr_dout;
+        cram_cs   : cpu_din = char_dout;
+        vram_cs    : cpu_din = scr_dout;
         rom_cs    : cpu_din = rom_data;
         banked_cs : cpu_din = rom_data;
         io_cs     : cpu_din = cabinet_input;
         pal_cs    : cpu_din = pal_dout;
-        obj_cs    : cpu_din = obj_dout;
+        oram_cs    : cpu_din = obj_dout;
         com_cs    : cpu_din = mcu_ram;
         default   : cpu_din = 8'hff;
     endcase
@@ -241,16 +251,13 @@ always @(*) begin
 end
 
 // Interrupts
-(*keep*) wire nIRQ, nFIRQ, nNMI;
-(*keep*) reg VBL_pause;
+wire nIRQ, nFIRQ, nNMI, VBL_pause;
 
-always @(posedge clk) if(cpu_cen) begin
-    VBL_pause <= VBL & dip_pause;
-end
+assign VBL_pause = VBL & dip_pause;
 
 jtframe_ff #(.W(3)) u_irq(
     .clk     (   clk                            ),
-    .rst     (   rst                            ),
+    .rst     (   rst_vb                         ),
     .cen     (   1'b1                           ),
     .sigedge ( {VBL_pause, IMS, mcu_irqmain   } ),
     .din     ( ~3'd0                            ),
@@ -260,10 +267,11 @@ jtframe_ff #(.W(3)) u_irq(
     .qn      ( { nNMI, nFIRQ, nIRQ }            )
 );
 
-jtframe_sys6809 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
+// RECOVERY does not seem to have an effect on DD2 hanging up
+jtframe_sys6809 #(.RAM_AW(13),.RECOVERY(1)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen12     ),    // This is normally the input clock to the CPU
+    .cen        ( cen12     ),   // This is normally the input clock to the CPU
     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
     .VMA        (           ),
     // Interrupts

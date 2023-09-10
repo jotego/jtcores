@@ -31,7 +31,8 @@ module jtframe_objdraw #( parameter
     FLIP_OFFSET=0,
     KEEP_OLD  = 0,
     SHADOW    = 0,
-    ALPHA       = 0
+    ALPHA     = 0,
+    PACKED    = 0
 )(
     input               rst,
     input               clk,
@@ -75,7 +76,8 @@ module jtframe_objdraw #( parameter
         .FLIP_OFFSET    ( FLIP_OFFSET   ),
         .SHADOW         ( SHADOW        ),
         .KEEP_OLD       ( KEEP_OLD      ),
-        .ALPHA          ( ALPHA         )
+        .ALPHA          ( ALPHA         ),
+        .PACKED         ( PACKED        )
     )u_gate(
         .rst            ( rst           ),
         .clk            ( clk           ),

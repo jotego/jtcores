@@ -21,7 +21,6 @@ module jtdd_video(
     input              clk,
     input              rst,
     input              pxl_cen,
-    input              pxl_cenb,
     // CPU bus
     input      [12:0]  cpu_AB,
     input              cpu_wrn,
@@ -31,13 +30,14 @@ module jtdd_video(
     input              pal_cs,
     output     [ 7:0]  pal_dout,
     // Char
-    input              char_cs,
-    output     [ 7:0]  char_dout,
-    output     [15:0]  char_addr,
-    input      [ 7:0]  char_data,
+    output     [15:2]  char_addr,
+    input      [31:0]  char_data,
+    output             char_cs,
     input              char_ok,
+    output     [10:1]  cram_addr,
+    input      [15:0]  cram_data,
     // Scroll
-    input              scr_cs,
+    input              vram_cs,
     input      [ 8:0]  scrhpos,
     input      [ 8:0]  scrvpos,
     output     [ 7:0]  scr_dout,
@@ -45,17 +45,17 @@ module jtdd_video(
     input      [15:0]  scr_data,
     input              scr_ok,
     // Object
-    input              obj_cs,
-    output     [ 7:0]  obj_dout,
-    output     [18:0]  obj_addr,
-    input      [15:0]  obj_data,
-    input              obj_ok,    
+    output     [19:2]  obj_addr,
+    input      [31:0]  obj_data,
+    input              obj_ok,
+    output             obj_cs,
+    output     [ 8:0]  oram_addr,
+    input      [ 7:0]  oram_data,
     // video signals
     output             VBL,
-    output             LVBL_dly,
+    output             LVBL,
     output             VS,
-    output             HBL,
-    output             LHBL_dly,
+    output             LHBL,
     output             HS,
     output             IMS, // Interrupt Middle Screen
     input              flip,
@@ -69,70 +69,95 @@ module jtdd_video(
     output     [3:0]   green,
     output     [3:0]   blue,
     // Debug
+    input      [7:0]   debug_bus,
     input      [3:0]   gfx_en
 );
 
 wire [6:0]  char_pxl;  // called mcol in schematics
 wire [7:0]  obj_pxl;  // called ocol in schematics
 wire [7:0]  scr_pxl;  // called bcol in schematics
-wire [7:0]  HPOS, VPOS;
+wire [8:0]  hdump, vdump;
+wire        HBL;
 
-assign IMS = VPOS[3];
+assign IMS = vdump[3];
+assign VBL = ~LVBL;
+assign HBL = ~LHBL;
+assign H8 = hdump[3];
 
-jtdd_timing u_timing(
-    .clk      (  clk      ),
-    .rst      (  rst      ),
-    .pxl_cen  (  pxl_cen  ),
-    .flip     (  flip     ),
-    .VPOS     (  VPOS     ),
-    .HPOS     (  HPOS     ),
-    .VBL      (  VBL      ),
-    .VS       (  VS       ),
-    .HBL      (  HBL      ),
-    .HS       (  HS       ),
-    .M        (           )
+jtframe_vtimer #(
+    .VB_START   ( 9'hf7     ),
+    .VB_END     ( 9'h7      ),
+    .VCNT_END   ( 9'd271    ),
+    .VS_START   ( 9'h106    ),
+    .HS_START   ( 9'h1ae    ),
+    .HB_START   ( 9'h184    ),
+    .HJUMP      ( 1         ),
+    .HB_END     ( 9'd4      ),
+    .HINIT      ( 9'd255    )
+)   u_vtimer(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .vdump      ( vdump     ),
+    .vrender    (           ),
+    .vrender1   (           ),
+    .H          ( hdump     ),
+    .Hinit      (           ),
+    .Vinit      (           ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .HS         ( HS        ),
+    .VS         ( VS        )
 );
 
-assign H8 = HPOS[3];
+wire [31:0] char_sorted = {
+char_data[ 6],char_data[ 7],char_data[14],char_data[15],char_data[22],char_data[23],char_data[30],char_data[31],
+char_data[ 4],char_data[ 5],char_data[12],char_data[13],char_data[20],char_data[21],char_data[28],char_data[29],
+char_data[ 2],char_data[ 3],char_data[10],char_data[11],char_data[18],char_data[19],char_data[26],char_data[27],
+char_data[ 0],char_data[ 1],char_data[ 8],char_data[ 9],char_data[16],char_data[17],char_data[24],char_data[25]
+};
 
-`ifndef NOCHAR
-jtdd_char u_char(
-    .clk         ( clk              ),
-    .rst         ( rst              ),
-    .pxl_cen     ( pxl_cen          ),
-    .cpu_AB      ( cpu_AB[10:0]     ),
-    .char_cs     ( char_cs          ),
-    .cpu_wrn     ( cpu_wrn          ),
-    .cpu_dout    ( cpu_dout         ),
-    .cen_Q       ( cen_Q            ),
-    .char_dout   ( char_dout        ),
-    .HPOS        ( HPOS             ),
-    .VPOS        ( VPOS             ),
-    .flip        ( flip             ),
-    .rom_addr    ( char_addr        ),
-    .rom_data    ( char_data        ),
-    .rom_ok      ( char_ok          ),
-    .char_pxl    ( char_pxl         )
+jtframe_tilemap #(
+    .CW ( 11 ),
+    .PW (  7 ),
+    .HDUMP_OFFSET( -2 )
+) u_char(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .vdump      ( vdump     ),
+    .hdump      ( hdump     ),
+    .blankn     ( LVBL      ),
+    .flip       ( flip      ),
+
+    .vram_addr  ( cram_addr ),
+
+    .code       (cram_data[10: 0]),
+    .pal        (cram_data[15:13]),
+    .hflip      ( 1'b0        ),
+    .vflip      ( 1'b0        ),
+
+    .rom_cs     ( char_cs     ),
+    .rom_addr   ( char_addr   ),
+    .rom_data   ( char_sorted ),
+    .rom_ok     ( char_ok     ),
+
+    .pxl        ( char_pxl    )
 );
-`else 
-assign char_addr = 16'd0;
-assign char_pxl  = 7'd0;
-`endif
 
 `ifndef NOSCROLL
 jtdd_scroll u_scroll(
-    .clk         ( clk              ),
     .rst         ( rst              ),
+    .clk         ( clk              ),
     .pxl_cen     ( pxl_cen          ),
-    .pxl_cenb    ( pxl_cenb         ),
     .cpu_AB      ( cpu_AB[10:0]     ),
-    .scr_cs      ( scr_cs           ),
+    .vram_cs     ( vram_cs          ),
     .cpu_wrn     ( cpu_wrn          ),
     .cpu_dout    ( cpu_dout         ),
     .cen_Q       ( cen_Q            ),
     .scr_dout    ( scr_dout         ),
-    .HPOS        ( HPOS             ),
-    .VPOS        ( VPOS             ),
+    .HPOS        ( hdump[7:0]       ),
+    .VPOS        ( vdump[7:0]       ),
     .scrhpos     ( scrhpos          ),
     .scrvpos     ( scrvpos          ),
     .flip        ( flip             ),
@@ -141,7 +166,7 @@ jtdd_scroll u_scroll(
     .rom_ok      ( scr_ok           ),
     .scr_pxl     ( scr_pxl          )
 );
-`else 
+`else
 assign scr_addr = 17'd0;
 assign scr_pxl = 8'd0;
 `endif
@@ -150,22 +175,23 @@ jtdd_obj u_obj(
     .clk         ( clk              ),
     .rst         ( rst              ),
     .pxl_cen     ( pxl_cen          ),
-    .cpu_AB      ( cpu_AB[8:0]      ),
-    .cen_Q       ( cen_Q            ),
-    .obj_cs      ( obj_cs           ),
-    .cpu_wrn     ( cpu_wrn          ),
-    .cpu_dout    ( cpu_dout         ),
-    .obj_dout    ( obj_dout         ),
     // screen
-    .HPOS        ( HPOS             ),
-    .VPOS        ( VPOS             ),
+    .hdump       ( hdump            ),
+    .VPOS        ( vdump[7:0]       ),
     .flip        ( flip             ),
     .HBL         ( HBL              ),
+    .hs          ( HS               ),
+    // Video RAM
+    .oram_addr   ( oram_addr        ),
+    .oram_data   ( oram_data        ),
     // ROM access
+    .rom_cs      ( obj_cs           ),
     .rom_addr    ( obj_addr         ),
     .rom_data    ( obj_data         ),
     .rom_ok      ( obj_ok           ),
-    .obj_pxl     ( obj_pxl          )
+    .pxl         ( obj_pxl          ),
+
+    .debug_bus   ( debug_bus        )
 );
 
 jtdd_colmix u_colmix(
@@ -177,10 +203,8 @@ jtdd_colmix u_colmix(
     .pal_dout    ( pal_dout         ),
     .cpu_AB      ( cpu_AB[9:0]      ),
     .cpu_wrn     ( cpu_wrn          ),
-    .VBL         ( VBL              ),
-    .HBL         ( HBL              ),
-    .LVBL_dly    ( LVBL_dly         ),
-    .LHBL_dly    ( LHBL_dly         ),
+    .LVBL        ( LVBL             ),
+    .LHBL        ( LHBL             ),
     .char_pxl    ( char_pxl         ),
     .obj_pxl     ( obj_pxl          ),
     .scr_pxl     ( scr_pxl          ),

@@ -24,9 +24,8 @@ module jtdd_scroll(
     input              clk,
     input              rst,
     (*direct_enable*)  input pxl_cen,
-    (*direct_enable*)  input pxl_cenb,
     input      [10:0]  cpu_AB,
-    input              scr_cs,
+    input              vram_cs,
     input              cpu_wrn,
     input      [ 7:0]  cpu_dout,
     input              cen_Q,
@@ -48,14 +47,14 @@ reg  [ 9:0] scan;
 wire [ 7:0] hi_data, lo_data, cpu_hi, cpu_lo;
 reg  [ 8:0] hscr, vscr;
 
-always @(posedge clk) if(pxl_cenb) begin // may consider latching this if glitches appear
+always @(posedge clk) begin // may consider latching this if glitches appear
     hscr = {1'b0, HPOS} + scrhpos; // hscr[8] is latched in the original
     vscr = {1'b0, VPOS} + scrvpos;
 end
 
 always @(*) begin
-    lo_we     = cen_Q && scr_cs && !cpu_wrn &&  cpu_AB[0];
-    hi_we     = cen_Q && scr_cs && !cpu_wrn && !cpu_AB[0];
+    lo_we     = cen_Q && vram_cs && !cpu_wrn &&  cpu_AB[0];
+    hi_we     = cen_Q && vram_cs && !cpu_wrn && !cpu_AB[0];
     scan      = { vscr[8], hscr[8], vscr[7:4], hscr[7:4] };
     scr_dout  = !cpu_AB[0] ? cpu_hi : cpu_lo;
 end
@@ -64,7 +63,7 @@ end
 reg scr_error;
 `define SCR_ERROR scr_error<=~rom_ok;
 `else
-`define SCR_ERROR 
+`define SCR_ERROR
 `endif
 
 reg  [15:0] shift;
@@ -75,14 +74,14 @@ wire [ 3:0] mux = hflip0 ? shift[15:12] : shift[3:0]; //{shift[2], shift[3], shi
 // pixel output
 always @(posedge clk) if(pxl_cen) begin
     scr_pxl  <= { pal0, mux };
-    case( hscr[1:0] ) 
+    case( hscr[1:0] )
         2'b0: begin
             rom_addr  <= { hi_data[2:0], lo_data, vscr[3:0], hscr[3:2]^{2{hi_data[6]}} };
             pal       <= { hi_data[7], hi_data[5:3] }; // bit 7 affects priority
             pal0      <= pal;
             hflip0    <= hflip;
             hflip     <= hi_data[6] ^ flip;
-            shift     <= { 
+            shift     <= {
                 rom_data[15], rom_data[11], rom_data[7], rom_data[3],
                 rom_data[14], rom_data[10], rom_data[6], rom_data[2],
                 rom_data[13], rom_data[ 9], rom_data[5], rom_data[1],

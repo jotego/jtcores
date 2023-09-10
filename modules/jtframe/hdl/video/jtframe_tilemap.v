@@ -18,8 +18,7 @@
 
 
 // Generic tile map generator with no scroll
-// The ROM data must be in these format
-// code, H parts, V part
+// The ROM data must be in this format: {code, H parts, V part}
 // pixel data is 4bpp, and arrives in four bytes. Each byte is for a plane
 
 module jtframe_tilemap #( parameter

@@ -71,6 +71,7 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
+wire gfx8_en, gfx16_en;
 
 assign pass_io = header | ioctl_ram;
 
@@ -228,6 +229,8 @@ assign dwnld_busy = downloading | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
+assign gfx8_en   = {{ .Gfx8 }}
+assign gfx16_en  = {{ .Gfx16 }}
 
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
@@ -245,13 +248,17 @@ jtframe_dwnld #(
 `ifdef JTFRAME_PROM_START
     .PROM_START( PROM_START ),
 `endif
-    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}         )
+    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}),
+    .GFX8B0    ( {{ .Gfx8b0 }}),
+    .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
     .downloading  ( downloading & ~ioctl_ram    ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
+    .gfx8_en      ( gfx8_en        ),
+    .gfx16_en     ( gfx16_en       ),
     .prog_addr    ( raw_addr       ),
     .prog_data    ( raw_data       ),
     .prog_mask    ( prog_mask      ), // active low
