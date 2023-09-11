@@ -59,6 +59,7 @@ func save_rom(root *XMLNode, verbose bool) {
 }
 
 func rom_file(setname *XMLNode, ext string, rombytes []byte) {
+	os.MkdirAll( filepath.Join(os.Getenv("JTROOT"), "rom"), 0775 )
 	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", shorten_name(setname.text)+ext) // setname.text should be shortened to match mra.exe's output
 	fout, err := os.Create(fout_name)
 	if err != nil {
