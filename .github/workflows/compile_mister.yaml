@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: 'true'
-        token: '{{PAT}}' # Personal Access Token, must be defined in the repo's secrets    
+        token: ${{PAT}} # Personal Access Token, must be defined in the repo's secrets    
     - id: generate-matrix
       run: |
         cd cores
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'true'
-          token: '{{ PAT }}'
+          token: ${{ PAT }}
       - id: compile
         run: |
           # Compilation on Quartus 17
