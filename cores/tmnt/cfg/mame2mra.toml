@@ -34,12 +34,11 @@ data = [
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]
-useLocation = true
 
-defaults=[
-    # currently the default value is not correctly parsed by jtframe
-    { machine="punkshot", value="cf,7f,ff"}
-]
+# defaults=[
+#     # currently the default value is not correctly parsed by jtframe
+#     { machine="punkshot", value="cf,7f,ff"}
+# ]
 
 [ROM]
 regions = [

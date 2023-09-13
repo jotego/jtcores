@@ -180,7 +180,6 @@ type Mame2MRA struct {
 		Delete []string
 		base   int // Define it macros.def as JTFRAME_DIPBASE
 		Bitcnt int // Total bit count (including all switches)
-		UseLocation bool // use MAME's <DIPlocation> to set the bit position
 		Defaults [] struct {
 			Selectable
 			Value			 string // used big-endian order, comma separated
@@ -194,7 +193,6 @@ type Mame2MRA struct {
 			Values   []string // Will rename the values if present
 		}
 	}
-
 	rbf string
 	// Rbf struct {
 	// 	Name string

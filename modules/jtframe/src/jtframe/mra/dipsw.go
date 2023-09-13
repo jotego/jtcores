@@ -3,7 +3,7 @@ package mra
 import(
     "fmt"
     "log"
-    "math"
+    "os"
     "regexp"
     "sort"
     "strconv"
@@ -25,40 +25,29 @@ func dip_mask( ds MachineDIP ) (int, int) {
     return bitmin, bitmax-1
 }
 
-func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int) {
-    if cfg.Dipsw.UseLocation && len(ds.Diplocation)>0 &&
-     len(ds.Diplocation[0].Name)>2 &&
-     ds.Diplocation[0].Name[0:2]=="SW" {
-        locmin := 1000
-        locmax := 0
-        for _, each := range ds.Diplocation {
-            if each.Number < locmin {
-                locmin = each.Number
-            }
-            if each.Number > locmax {
-                locmax = each.Number
-            }
+// return start bit, end bit and switch count
+func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
+    locmin := 1000
+    locmax := 0
+    for _, each := range ds.Diplocation {
+        if each.Number < locmin {
+            locmin = each.Number
         }
-        // Get the switch number
-        loc := ds.Diplocation[0].Name[2:]
-        re := regexp.MustCompile("[0-9]+")
-        if re.FindStringIndex(loc)!= nil {
-            swcnt, _ := strconv.Atoi(loc)
-            swcnt = (swcnt-1)<<3
-            // fmt.Printf("Found %d, %d at %s\n",locmin,locmax,loc)
-            return locmin-1+swcnt,locmax-1+swcnt
-        } else {
-            fmt.Printf("Warning: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0] )
+        if each.Number > locmax {
+            locmax = each.Number
         }
     }
-    bitmin := 0
-    for bitmin = 0; bitmin < (1 << 32); bitmin++ {
-        if (ds.Mask & (1 << bitmin)) != 0 {
-            break
-        }
+    // Get the switch number
+    loc := ds.Diplocation[0].Name[2:]
+    re := regexp.MustCompile("[0-9]+")
+    if re.FindStringIndex(loc)== nil {
+        fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0] )
+        os.Exit(1)
     }
-    bitmax := bitmin + int(math.Ceil(math.Log2(float64(len(ds.Dipvalue))))) - 1
-    return bitmin, bitmax
+    swcnt, _ := strconv.Atoi(loc)
+    swcnt = (swcnt-1)<<3
+    // fmt.Printf("Found %d, %d at DS%s -> %d \n",locmin,locmax,loc,swcnt)
+    return locmin-1+swcnt,locmax-1+swcnt, swcnt
 }
 
 // make_DIP
@@ -70,11 +59,10 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
         return "ff,ff"
     }
     // Regular DIP parsing
-    def_str := ""
-    n := add_switches_parent(root, cfg)
+    n := add_switches_parent(root, cfg) // XML node for switches
     last_tag := ""
     base := 0
-    def_cur := 0xff
+    def_all := 0xffffffff // 32 bits
     game_bitcnt := cfg.Dipsw.Bitcnt
 diploop:
     for _, ds := range machine.Dipswitch {
@@ -88,38 +76,14 @@ diploop:
         if ds.Condition.Tag != "" && ds.Condition.Value == 0 {
             continue diploop // This switch depends on others, skip it
         }
-        // Rename the DIP
-        for _, each := range cfg.Dipsw.Rename {
-            if each.Name == ds.Name {
-                if each.To != "" {
-                    ds.Name = each.To
-                }
-                for k, v := range each.Values {
-                    if k > len(ds.Dipvalue) {
-                        break
-                    }
-                    if v != "" {
-                        ds.Dipvalue[k].Name = v
-                    }
-                }
-                break
-            }
-        }
-        bitmin, bitmax := dip_bit0( ds, cfg )
+        dip_rename( &ds, cfg )
+        bitmin, bitmax, _ := dip_bit0( ds, cfg )
         maskmin, maskmax := dip_mask( ds )
         if args.Verbose {
-            fmt.Printf("\tDIP %s (%s) %d:%d - def_str = '%s'. Mask %d:%d\n", ds.Name, ds.Tag, bitmax, bitmin, def_str, maskmax, maskmin )
+            fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X. Mask %d:%d\n",
+                ds.Name, ds.Tag, bitmax, bitmin, uint(def_all), maskmax, maskmin )
         }
         if ds.Tag != last_tag {
-            if last_tag!="" {
-                // Record the default values
-                if len(def_str) > 0 {
-                    def_str += ","
-                }
-                def_str = def_str + fmt.Sprintf("%02x", def_cur)
-                def_cur = 0xff
-                if !cfg.Dipsw.UseLocation { base += 8 }
-            }
             last_tag = ds.Tag
             m := n.AddNode(last_tag)
             m.comment = true
@@ -127,110 +91,26 @@ diploop:
         sort.Slice(ds.Dipvalue, func(p, q int) bool {
             return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value
         })
-        options := ""
-        var opt_dev int
-        opt_dev = -1
-        next_val := 0
-        for _, each := range ds.Dipvalue {
-            if len(options) != 0 {
-                options += ","
-            }
-            this_value := each.Value >> bitmin
-            for next_val < this_value {
-                options += "-,"
-                next_val++
-            }
-            options += strings.ReplaceAll(each.Name, ",", " ")
-            next_val++
-            if each.Default == "yes" {
-                opt_dev = each.Value
-                if args.Verbose {
-                    fmt.Printf("\t\tDefault = %s. %X -> %X \n", each.Name, each.Value, opt_dev )
-                }
-            }
-        }
+        mask := (1<<(bitmax+1))-1
+        mask = mask & ^((1<<bitmin)-1)
+        options, opt_dev := dip_option_string( mask, args.Verbose, ds.Dipvalue )
         if !ignore {
-            options = strings.Replace(options, " Coins", "", -1)
-            options = strings.Replace(options, " Coin", "", -1)
-            options = strings.Replace(options, " Credits", "", -1)
-            options = strings.Replace(options, " Credit", "", -1)
-            options = strings.Replace(options, " and every ", " & *", -1)
-            options = strings.Replace(options, "00000", "00k", -1)
-            options = strings.Replace(options, "0000", "0k", -1)
-            // remove comments
-            re := regexp.MustCompile(`\([^)]*\)`)
-            options = re.ReplaceAllString(options, "")
-            // remove double spaces
-            re = regexp.MustCompile(" +")
-            options = re.ReplaceAllString(options, " ")
-            // remove spaces around the comma
-            re = regexp.MustCompile(" ,")
-            options = re.ReplaceAllString(options, ",")
-            re = regexp.MustCompile(", ")
-            options = re.ReplaceAllString(options, ",")
-            m := n.AddNode("dip")
-            m.AddAttr("name", ds.Name)
-            bitstr := strconv.Itoa(base + bitmin)
-            if bitmin != bitmax {
-                bitstr += fmt.Sprintf(",%d", base+bitmax)
-            }
-            game_bitcnt = Max(game_bitcnt, bitmax+base)
-            // Check that the DIP name plus each option length isn't longer than 28 characters
-            // which is MiSTer's OSD length
-            name_len := len(ds.Name)
-            chunks := strings.Split(options,",")
-            for k, each := range chunks {
-                if tl := name_len + len(each) - 26; tl > 0 {
-                    re := regexp.MustCompile("(k|K)( |$)")
-                    if re.FindString(chunks[k])!="" { // A common case is 50k 100k etc.
-                        // Delete the k to save space
-                        chunks[k]=re.ReplaceAllString(chunks[k],"$2")
-                        tl = name_len + len(chunks[k])-26
-                    }
-                    if tl>0 {
-                        fmt.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
-                            tl, machine.Name, ds.Name, chunks[k])
-                    }
-                }
-            }
-            options = strings.Join(chunks,",") // re-build the options in case there was a change
-            m.AddAttr("bits", bitstr)
-            m.AddAttr("ids", strings.TrimSpace(options))
+            dip_add_node( machine.Name, ds.Name, options, n, bitmin, bitmax, &game_bitcnt )
         }
         // apply the default value
         if bitmax+1-bitmin < 0 {
             fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
             log.Fatal("Don't know how to parse DIP ", ds.Name)
         }
-        mask := 1 << (1 + Max(cfg.Dipsw.Bitcnt, maskmax) - maskmin)
-        mask = (^((mask - 1) << maskmin)) & 0xffff
-        def_cur &= mask
-        opt_dev = opt_dev & ^mask
-        def_cur |= opt_dev
+        def_all &= ^mask
+        for opt_dev != 0 && (opt_dev&mask)==0 { opt_dev = opt_dev<<4 }
+        def_all |= opt_dev
         if args.Verbose {
-            fmt.Printf("\t\tMask %X Default %x -> def_cur=%X (base=%d)\n", mask, opt_dev, def_cur, base)
+            fmt.Printf("\t\tMask %X (MAME %X) this one %x -> all =%X (base=%d)\n",
+                uint(mask), ds.Mask, uint(opt_dev), uint(def_all&0xffffff), base)
         }
     }
-    // Default values of switch parsed last
-    if len(def_str) > 0 {
-        def_str += ","
-    }
-    cur_str := fmt.Sprintf("%02x", def_cur)
-    def_str += cur_str
-    if args.Verbose {
-        fmt.Printf("\tDefaults from MAME = %s\n", def_str )
-    }
-    base += 8
-    if base < game_bitcnt && !cfg.Dipsw.UseLocation{
-        cur_str := fmt.Sprintf("%02x", def_cur)
-        def_str += cur_str
-        base += len(cur_str) << 2
-        // fmt.Printf("\t2. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-        for k := base; k < game_bitcnt; k += 8 {
-            def_str += ",ff"
-            // fmt.Printf("\tn. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-        }
-    }
+    def_str := dip_int2str( def_all, game_bitcnt )
     // Override the defaults is set so in the TOML
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
@@ -248,6 +128,131 @@ func Max(x, y int) int {
         return x
     }
     return y
+}
+
+func dip_int2str( def, maxbit int ) string {
+    s := ""
+    for k:=maxbit; k>0; k-=8 {
+        if s!="" { s += "," }
+        s = fmt.Sprintf("%s%02x",s,def&0xff )
+        def >>= 8
+    }
+    return s
+}
+
+func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int) {
+    options := ""
+    def := 0
+    var minv, maxv, bits int
+    for _, each := range all {
+        if minv > each.Value { minv = each.Value }
+        if maxv < each.Value { maxv = each.Value }
+    }
+    for k:=mask; k!=0; k>>=1 {
+        if (k&1)!=0 { bits++ }
+    }
+    if (1<<bits) < len(all) {
+        fmt.Printf("Options for DIP switch do not fit in its mask %X\nOptions:\n",mask)
+        fmt.Println(all)
+        os.Exit(1)
+    }
+    if maxv==minv {
+        fmt.Printf("DIP options do not have a valid value list:\n")
+        fmt.Println(all)
+        os.Exit(1)
+    }
+    step := (maxv-minv+1)/(1<<(bits-1))
+    if step==0 {
+        fmt.Printf("Cannot determine DIP option list value step\n")
+        fmt.Printf("max=$%X, min=$%X, length=%d, step=$%X\n",maxv,minv,(1<<bits),step)
+        os.Exit(1)
+    }
+    cur := all[0].Value
+    for _, each := range all {
+        if options !=""  { options += "," }
+        for cur < each.Value {
+            options += "-,"
+            cur += step
+        }
+        options += strings.ReplaceAll(each.Name, ",", " ")
+        cur += step
+        if each.Default == "yes" {
+            def = each.Value
+            if verbose {
+                fmt.Printf("\t\tDefault = %s. %X -> %X \n", each.Name, each.Value, uint(def) )
+            }
+        }
+    }
+    return options, def
+}
+
+func dip_clean( options string ) string {
+    options = strings.Replace(options, " Coins", "", -1)
+    options = strings.Replace(options, " Coin", "", -1)
+    options = strings.Replace(options, " Credits", "", -1)
+    options = strings.Replace(options, " Credit", "", -1)
+    options = strings.Replace(options, " and every ", " & *", -1)
+    options = strings.Replace(options, "00000", "00k", -1)
+    options = strings.Replace(options, "0000", "0k", -1)
+    // remove comments
+    options = regexp.MustCompile(`\([^)]*\)`).ReplaceAllString(options, "")
+    // remove double spaces
+    options = regexp.MustCompile(" +").ReplaceAllString(options, " ")
+    // remove spaces around the comma
+    options = regexp.MustCompile(" ,").ReplaceAllString(options, ",")
+    options = regexp.MustCompile(", ").ReplaceAllString(options, ",")
+    return options
+}
+
+func dip_add_node( machineName, dsName, options string, n *XMLNode, bitmin, bitmax int, game_bitcnt *int ) {
+    options = dip_clean( options )
+    m := n.AddNode("dip")
+    m.AddAttr("name", dsName)
+    bitstr := strconv.Itoa(bitmin)
+    if bitmin != bitmax {
+        bitstr += fmt.Sprintf(",%d", bitmax)
+    }
+    *game_bitcnt = Max(*game_bitcnt, bitmax)
+    // Check that the DIP name plus each option length isn't longer than 28 characters
+    // which is MiSTer's OSD length
+    name_len := len(dsName)
+    chunks := strings.Split(options,",")
+    re := regexp.MustCompile("(k|K)( |$)")
+    for k, each := range chunks {
+        if tl := name_len + len(each) - 26; tl > 0 {
+            if re.FindString(chunks[k])!="" { // A common case is 50k 100k etc.
+                // Delete the k to save space
+                chunks[k]=re.ReplaceAllString(chunks[k],"$2")
+                tl = name_len + len(chunks[k])-26
+            }
+            if tl>0 {
+                fmt.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
+                    tl, machineName, dsName, chunks[k])
+            }
+        }
+    }
+    options = strings.Join(chunks,",") // re-build the options in case there was a change
+    m.AddAttr("bits", bitstr)
+    m.AddAttr("ids", strings.TrimSpace(options))
+}
+
+func dip_rename( ds *MachineDIP, cfg Mame2MRA ) {
+    for _, each := range cfg.Dipsw.Rename {
+        if each.Name == ds.Name {
+            if each.To != "" {
+                ds.Name = each.To
+            }
+            for k, v := range each.Values {
+                if k > len(ds.Dipvalue) {
+                    break
+                }
+                if v != "" {
+                    ds.Dipvalue[k].Name = v
+                }
+            }
+            break
+        }
+    }
 }
 
 func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {
