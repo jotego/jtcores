@@ -2333,9 +2333,8 @@
     )
   )
 
-  (bus_alias "2XW" (members "~{20W}" "~{21W}" "~{22W}" "~{23W}"))
   (bus_alias "1XW" (members "~{10W}" "~{11W}" "~{12W}" "~{13W}"))
-
+  (bus_alias "2XW" (members "~{20W}" "~{21W}" "~{22W}" "~{23W}"))
   (junction (at 142.24 76.2) (diameter 0) (color 0 0 0 0)
     (uuid 00171ff0-b04f-4777-bbb6-48144e04cef6)
   )
