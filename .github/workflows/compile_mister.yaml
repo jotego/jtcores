@@ -41,16 +41,8 @@ jobs:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
       - uses: actions/checkout@v3
-      - id: submodules
-        run: |
-          git config --global --add safe.directory /__w/jtcores/jtcores
-          git submodule init
-          git submodule update --depth 1
-          cd modules
-          cd jt12
-          git submodule init
-          git submodule update --depth 1
-          cd ../..
+        with:
+          submodules: 'true'
       - id: compile
         run: |
           # Compilation on Quartus 17
