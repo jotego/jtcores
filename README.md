@@ -18,6 +18,7 @@ The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/
 # Compilation - JTFRAME
 
 Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and general information about how the cores are organized.
+Master branch MiSTer status: [![Compile all MiSTer cores](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml)
 
 # Schematics
 
