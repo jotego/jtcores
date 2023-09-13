@@ -2,10 +2,10 @@ name: Compile all MiSTer cores
 
 on:
   workflow_dispatch:
-
   repository_dispatch:
     types: rebuild
-
+  schedule:
+    - cron: '0 0 * * mon' # runs every Monday
 jobs:
   list_cores:
     runs-on: ubuntu-latest
