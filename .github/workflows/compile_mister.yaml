@@ -12,6 +12,10 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        token: '{{PAT}}' # Personal Access Token, must be defined in the repo's secrets    
     - id: generate-matrix
       run: |
         cd cores
