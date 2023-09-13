@@ -1,6 +1,5 @@
 #!/bin/bash
 git config --global --add safe.directory /jtcores
-git config --global --add safe.directory /jtcores/modules/jtframe
 cd /jtcores
 export JTROOT=$(pwd)
 export JTFRAME=$JTROOT/modules/jtframe
