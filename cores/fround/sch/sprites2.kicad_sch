@@ -2487,10 +2487,10 @@
     )
   )
 
-  (bus_alias "1W" (members "10W" "11W" "12W" "13W"))
-  (bus_alias "2W" (members "20W" "21W" "22W" "23W"))
-  (bus_alias "FABCD0" (members "FA[0..7]" "FB[0..7]" "FC[0..7]" "FD[0..7]"))
   (bus_alias "FABCD2" (members "FA[20..27]" "FB[20..27]" "FC[20..27]" "FD[20..27]"))
+  (bus_alias "2W" (members "20W" "21W" "22W" "23W"))
+  (bus_alias "1W" (members "10W" "11W" "12W" "13W"))
+  (bus_alias "FABCD0" (members "FA[0..7]" "FB[0..7]" "FC[0..7]" "FD[0..7]"))
   (junction (at 184.15 149.86) (diameter 0) (color 0 0 0 0)
     (uuid 00dac4ad-ceb3-4c91-b69f-ef452f6201c1)
   )

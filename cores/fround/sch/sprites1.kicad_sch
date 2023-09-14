@@ -9613,7 +9613,7 @@
     (uuid ffda444c-b8c4-4e38-bc12-3ba531a42a08)
   )
 
-  (text "The sprite memory is controlled in three separate cases:\n1. OBJBUFINIT\n2. BEFLAG (and DMA, check it)\n3. ~DMAINIT"
+  (text "The sprite memory is controlled in three separate cases:\n1. OBJBUFINIT\n2. BEFLAG\n3. ~DMAINIT, when OBJBUFINIT and DMA are low."
     (at 15.24 255.27 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 1819b0ff-cb93-4af7-9ff6-79628324c93a)
@@ -9645,7 +9645,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 60e2a40c-b914-41fb-b306-f016e348fa69)
   )
-  (text "007793\n\nCLK21B = CLK21\n\n~{LRW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (~8H & HFLIP + 8H & ~HFLIP))\n\n~{URW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT)"
+  (text "007793\n\nCLK21' = CLK21\n\n~{LRW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (~8H & HFLIP + 8H & ~HFLIP)\n		~~{LWR} & ~DMAINIT)\n\n~{URW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT)"
     (at 15.24 281.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 947831ab-84a0-449c-940e-f807ea4d21ce)

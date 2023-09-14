@@ -1830,8 +1830,8 @@
     )
   )
 
-  (bus_alias "FX" (members "~{OE}" "FXA[0..10]"))
   (bus_alias "HVCOUNTERS" (members "8H" "16H" "32H" "64H" "128H" "256H" "1V" "2V" "4V" "8V" "16V" "32V" "64V" "128V"))
+  (bus_alias "FX" (members "~{OE}" "FXA[0..10]"))
   (junction (at 92.71 260.35) (diameter 0) (color 0 0 0 0)
     (uuid 180263b4-194a-4670-8a30-36069dd59ede)
   )
