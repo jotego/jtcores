@@ -43,7 +43,6 @@ wire ioctl_ram = 0;
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
 wire     {{ data_range . }} {{.Name}}_din;
-wire     {{ data_range . }} {{ data_name . }};
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
@@ -169,8 +168,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     // Memory interface - BRAM
 {{ range $cnt, $bus:=.BRAM -}}
     {{if not .Addr}}.{{.Name}}_addr ( {{.Name}}_addr ),{{end}}{{ if .Rw }}
-    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}
-    .{{ data_name . }}    ( {{ data_name . }} ),{{ if .Dual_port.Name }}
+    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}{{ if .Dual_port.Name }}
     {{ if not .Dual_port.We }}.{{.Dual_port.Name}}_we ( {{.Dual_port.Name}}_we ),  // Dual port for {{.Dual_port.Name}}{{end}}
     {{ else }}{{ if not $bus.ROM.Offset }}{{end}}
     {{- end}}

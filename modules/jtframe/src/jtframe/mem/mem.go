@@ -385,6 +385,11 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 				Name: each.Din,
 				MSB: each.Data_width-1,
 			})
+		} else {
+			add( Port{
+				Name: each.Name + "_dout",
+				MSB: each.Data_width-1,
+			})
 		}
 		if each.Rw {
 			name := each.Name + "_we"
