@@ -14,8 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        submodules: 'true'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets    
+        submodules: 'recursive'
+        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: generate-matrix
       run: |
         cd cores
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          submodules: 'true'
+          submodules: 'recursive'
           token: ${{ secrets.PAT }}
       - id: compile
         run: |
