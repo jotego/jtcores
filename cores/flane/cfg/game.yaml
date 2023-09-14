@@ -11,13 +11,9 @@ game:
       - jtlabrun_video.v
   - from: contra
     get:
-      - jtcontra_gfx.v
-      - jtcontra_gfx_tilemap.v
-      - jtcontra_gfx_obj.v
       # Protection device / Math coprocessor
       - jt051733.v
       - divfunc.v
-      # Sound
 jtframe:
   - from: sound
     get:
