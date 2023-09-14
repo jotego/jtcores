@@ -249,7 +249,7 @@ function is_dirty {
 # Used to remove the v in version codes without
 # affecting the git id, in the case it's used instead
 function no_v {
-    if [ ${1:0:1} = v ]; then
+    if [ "${1:0:1}" = v ]; then
         echo ${1:1}
     else
         echo $1
