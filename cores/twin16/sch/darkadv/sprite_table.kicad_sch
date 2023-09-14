@@ -1958,8 +1958,8 @@
     )
   )
 
-  (bus_alias "RW1" (members "U~{W}R" "L~{W}R"))
   (bus_alias "RW2" (members "UR~{W}" "LR~{W}"))
+  (bus_alias "RW1" (members "U~{W}R" "L~{W}R"))
   (junction (at 135.89 190.5) (diameter 0) (color 0 0 0 0)
     (uuid 0472e14c-05e0-4fa6-9ccc-f4fb48949773)
   )
@@ -6377,7 +6377,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 98a01098-b452-49eb-9e3c-709b025297cc)
   )
-  (text "007793\n\nCLK21' = CLK21\n\n~{LRW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (~8H & HFLIP + 8H & ~HFLIP))\n\n~{URW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT)"
+  (text "007793\n\nCLK21' = CLK21\n\n~{LRW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (~8H & HFLIP + 8H & ~HFLIP)\n	   ~~{LWR} & ~DMAINIT)\n\n~{URW} = ~(~{DMAONS} & OBJBUFINIT & CLK21' +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21' & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT)"
     (at 15.24 280.67 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid a60c1c32-a5b4-47f5-b79b-381e20714220)
