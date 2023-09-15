@@ -22,21 +22,24 @@ func dip_mask( ds MachineDIP ) (int, int) {
         mtest <<= 1
         bitmax++
     }
-    return bitmin, bitmax-1
+    bitmax--
+    // fmt.Printf("%d:%d\n",bitmax,bitmin)
+    for bitmax > 7 { bitmax-=8 }
+    for bitmin > 7 { bitmin-=8 }
+    return bitmin, bitmax
 }
 
 // return start bit, end bit and switch count
 func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
-    locmin := 1000
-    locmax := 0
-    for _, each := range ds.Diplocation {
-        if each.Number < locmin {
-            locmin = each.Number
-        }
-        if each.Number > locmax {
-            locmax = each.Number
-        }
-    }
+    locmin, locmax := dip_mask(ds)
+    // for _, each := range ds.Diplocation {
+    //     if each.Number < locmin {
+    //         locmin = each.Number
+    //     }
+    //     if each.Number > locmax {
+    //         locmax = each.Number
+    //     }
+    // }
     // Get the switch number
     loc := ds.Diplocation[0].Name[2:]
     re := regexp.MustCompile("[0-9]+")
@@ -46,8 +49,8 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
     }
     swcnt, _ := strconv.Atoi(loc)
     swcnt = (swcnt-1)<<3
-    // fmt.Printf("Found %d, %d at DS%s -> %d \n",locmin,locmax,loc,swcnt)
-    return locmin-1+swcnt,locmax-1+swcnt, swcnt
+    // fmt.Printf("Found %d:%d at DS%s -> %d \n",locmax,locmin,loc,swcnt)
+    return locmin+swcnt,locmax+swcnt, swcnt
 }
 
 // make_DIP
@@ -78,10 +81,9 @@ diploop:
         }
         dip_rename( &ds, cfg )
         bitmin, bitmax, _ := dip_bit0( ds, cfg )
-        maskmin, maskmax := dip_mask( ds )
         if args.Verbose {
-            fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X. Mask %d:%d\n",
-                ds.Name, ds.Tag, bitmax, bitmin, uint(def_all), maskmax, maskmin )
+            fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
+                ds.Name, ds.Tag, bitmax, bitmin, uint(def_all) )
         }
         if ds.Tag != last_tag {
             last_tag = ds.Tag
