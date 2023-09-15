@@ -1,6 +1,3 @@
-###########################################
-## Copy to MiST, SiDi and Pocket
-###########################################
 #!/bin/bash
 # This file is part of JTFRAME.
 # JTFRAME program is free software: you can redistribute it and/or modify
@@ -141,12 +138,21 @@ if [ ! -s $JTUTIL/.jtbeta ]; then
     exit 1
 fi
 
+# get $BETAKEY from .jtbeta
 source $JTUTIL/.jtbeta
 # generate the jtbeta.zip file
 # the assembler file for the pico is in asm/beta.s
 cd $JTUTIL/pico
 echo cheatzip beta -beta $BETAKEY
 cheatzip beta -beta $BETAKEY
+# update the beta key in GitHub
+if which gh; then
+    gh secret set BETAKEY -b $BETAKEY
+else
+    echo "Warning: GitHub BETAKEY secret not updated"
+    echo "Install github CLI for automatic update of GitHub secrets"
+fi
+
 
 jtupdate --cores $CORE --seed $DEFAULT_TARGET \
     --beta $BETAKEY --corestamp $CORESTAMP $* \

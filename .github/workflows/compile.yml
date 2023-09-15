@@ -57,7 +57,7 @@ jobs:
         run: |
           # Compilation on Quartus 13
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
@@ -90,7 +90,7 @@ jobs:
       - id: compile
         run: |
           # Compilation on Quartus 17
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} ${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
