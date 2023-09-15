@@ -40,15 +40,18 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
     //         locmax = each.Number
     //     }
     // }
-    // Get the switch number
+    // Get the switch count
+    swcnt := 0
     loc := ds.Diplocation[0].Name[2:]
-    re := regexp.MustCompile("[0-9]+")
-    if re.FindStringIndex(loc)== nil {
-        fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0] )
+    if loc[0]>='1' && loc[0]<='4' {
+        swcnt, _ = strconv.Atoi(loc)
+        swcnt = (swcnt-1)<<3
+    } else if loc[0]>='A' && loc[0]<='D' {
+        swcnt = int(loc[0]-'A')<<3
+    } else {
+        fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0].Name )
         os.Exit(1)
     }
-    swcnt, _ := strconv.Atoi(loc)
-    swcnt = (swcnt-1)<<3
     // fmt.Printf("Found %d:%d at DS%s -> %d \n",locmax,locmin,loc,swcnt)
     return locmin+swcnt,locmax+swcnt, swcnt
 }
