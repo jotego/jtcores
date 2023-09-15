@@ -57,7 +57,8 @@ jobs:
         run: |
           # Compilation on Quartus 13
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
-          git config --global --add safe.directory .
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
