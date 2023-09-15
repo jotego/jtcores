@@ -34,7 +34,7 @@ module jtframe_inputs(
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4,
     input       [3:0] board_coin, board_start,
 
-    input       [9:0] key_joy1, key_joy2, key_joy3,
+    input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
     input       [3:0] key_start, key_coin,
     input             key_service,
     input             key_test,
@@ -258,7 +258,7 @@ always @(posedge clk, posedge rst) begin
 `endif
         game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~dip_flip, autofire ));
         game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~dip_flip, autofire ));
-        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0]           , rot_control, ~dip_flip, autofire ));
+        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~dip_flip, autofire ));
 
         soft_rst <= key_reset && !last_reset;
 

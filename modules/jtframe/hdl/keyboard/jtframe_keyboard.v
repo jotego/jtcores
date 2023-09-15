@@ -30,6 +30,7 @@ module jtframe_keyboard(
     output reg [9:0] key_joy1,
     output reg [9:0] key_joy2,
     output reg [9:0] key_joy3,
+    output reg [9:0] key_joy4,
     output reg [3:0] key_start,
     output reg [3:0] key_coin,
     output     [7:0] key_digit,
@@ -65,18 +66,19 @@ assign key_digit = { key_coin, key_start };
 
 always @(posedge clk) begin
     if(rst) begin
-      key_released <= 1'b0;
-      key_extended <= 1'b0;
-      key_joy1     <= 10'd0;
-      key_joy2     <= 10'd0;
-      key_joy3     <= 10'd0;
-      key_coin     <= 4'd0;
-      key_start    <= 4'd0;
-      key_reset    <= 1'b0;
-      key_pause    <= 1'b0;
-      key_service  <= 1'b0;
-      key_tilt     <= 1'b0;
-      key_test     <= 1'b0;
+      key_released <= 0;
+      key_extended <= 0;
+      key_joy1     <= 0;
+      key_joy2     <= 0;
+      key_joy3     <= 0;
+      key_joy3     <= 0;
+      key_coin     <= 0;
+      key_start    <= 0;
+      key_reset    <= 0;
+      key_pause    <= 0;
+      key_service  <= 0;
+      key_tilt     <= 0;
+      key_test     <= 0;
 
       debug_plus   <= 0;
       debug_minus  <= 0;
@@ -85,13 +87,13 @@ always @(posedge clk) begin
         if(valid) begin
             if(ps2byte == 8'he0 /*|| ps2byte == 8'h12*/)
                 // extended key code
-            key_extended <= 1'b1;
+            key_extended <= 1;
          else if(ps2byte == 8'hf0)
                 // release code
-            key_released <= 1'b1;
+            key_released <= 1;
          else begin
-                key_extended <= 1'b0;
-                key_released <= 1'b0;
+                key_extended <= 0;
+                key_released <= 0;
 
                 case({key_extended, ps2byte})
                     `ifndef JTFRAME_LITE_KEYBOARD
@@ -127,6 +129,14 @@ always @(posedge clk) begin
                     end
                     9'h0_3b: key_joy3[1] <= !key_released;   // Left  (J)
                     9'h0_4b: key_joy3[0] <= !key_released;   // Right (L)
+                    // 4th joystick
+                    9'h0_75: key_joy4[3] <= !key_released; // 4P Up
+                    9'h0_72: key_joy4[2] <= !key_released; // 4P Down
+                    9'h0_6b: key_joy4[1] <= !key_released; // 4P Left
+                    9'h0_74: key_joy4[0] <= !key_released; // 4P Right
+                    9'h0_70: key_joy4[4] <= !key_released; // 4P Button 1
+                    9'h0_71: key_joy4[5] <= !key_released; // 4P Button 2
+                    9'h1_5a: key_joy4[6] <= !key_released; // 4P Button 3
                     // coins
                     9'h2e: key_coin[0] <= !key_released;  // 1st coin
                     9'h36: key_coin[1] <= !key_released;  // 2nd coin

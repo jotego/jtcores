@@ -230,7 +230,7 @@ wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
 
-wire   [9:0] key_joy1, key_joy2, key_joy3;
+wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [1:0] sensty;
@@ -306,6 +306,7 @@ jtframe_keyboard u_keyboard(
     .key_joy1    ( key_joy1      ),
     .key_joy2    ( key_joy2      ),
     .key_joy3    ( key_joy3      ),
+    .key_joy4    ( key_joy4      ),
     .key_start   ( key_start     ),
     .key_coin    ( key_coin      ),
     .key_reset   ( key_reset     ),
@@ -387,6 +388,7 @@ jtframe_keyboard u_keyboard(
     `ifndef JTFRAME_SIM_GFXEN
     `define JTFRAME_SIM_GFXEN 4'hf
     `endif
+    assign key_joy4    = 10'h0;
     assign key_joy3    = 10'h0;
     assign key_joy2    = 10'h0;
     assign key_joy1    = 10'h0;
@@ -432,6 +434,7 @@ jtframe_inputs #(
     .key_joy1       ( key_joy1        ),
     .key_joy2       ( key_joy2        ),
     .key_joy3       ( key_joy3        ),
+    .key_joy4       ( key_joy4        ),
     .key_start      ( key_start       ),
     .key_coin       ( key_coin        ),
     .key_service    ( key_service     ),
