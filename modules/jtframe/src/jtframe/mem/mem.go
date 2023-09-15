@@ -358,7 +358,17 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		k := strings.Index( p.Name, "[" )
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
-		all[p.Name] = p
+		old, fnd := all[p.Name]
+		if fnd {
+			if old.Input || p.Input { // overwrite if the port should be an input
+				// required for JTKARNOV's objram_dout signal, which comes from one
+				// BRAM and is used on another and is also an input to the game
+				p.Input = true
+				all[p.Name] = p
+			}
+		} else {
+			all[p.Name] = p
+		}
 	}
 	for _, each := range cfg.Ports {
 		all[each.Name] = each
