@@ -370,27 +370,25 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
 		}
 	}
-	for k, each := range cfg.BRAM {
-		if each.Addr == "" {
-			cfg.BRAM[k].Addr = each.Name + "_addr"
-			each=cfg.BRAM[k]
-		}
+	for k, _ := range cfg.BRAM {
+		each := &cfg.BRAM[k]
+		if each.Addr == "" { each.Addr = each.Name + "_addr" }
+		if each.Din  == "" { each.Din  = each.Name + "_din"  }
+		if each.Dout == "" { each.Dout = each.Name + "_dout" }
 		add( Port{
 			Name: each.Addr,
 			MSB:  each.Addr_width-1,
 			LSB:  each.Data_width>>4, // 8->0, 16->1
 		})
-		if each.Din != "" {
-			add( Port{
-				Name: each.Din,
-				MSB: each.Data_width-1,
-			})
-		} else {
-			add( Port{
-				Name: each.Name + "_dout",
-				MSB: each.Data_width-1,
-			})
-		}
+		add( Port{
+			Name: each.Din,
+			MSB: each.Data_width-1,
+		})
+		add( Port{
+			Name: each.Dout,
+			Input: true,
+			MSB: each.Data_width-1,
+		})
 		if each.Rw {
 			name := each.Name + "_we"
 			if each.We!="" { name = each.We }

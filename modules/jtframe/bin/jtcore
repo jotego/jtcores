@@ -625,8 +625,8 @@ if [ $TARGET = pocket ]; then
 fi
 
 # Copy to JTBIN  if --git is set, except for cores in beta
-# in which case only the MiSTer version is copied
-if [[ ( "$GIT" = FALSE || (( is_mister_family || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
+# in which case only the MiSTer and Pocket versions are copied
+if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
     announce "Copy to $JTBIN"
     if is_mister_family; then
         BINFOLDER=$JTBIN/$TARGET/$PRJ

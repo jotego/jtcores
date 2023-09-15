@@ -51,6 +51,7 @@ type BRAMBus struct {
     We         string `yaml:"we"`
     Addr       string `yaml:"addr"`
     Din        string `yaml:"din"`  // optional name for din signal
+    Dout       string `yaml:"dout"` // optional name for dout signal
     Sim_file   bool   `yaml:"sim_file"`
     Ioctl      struct {
         Save bool `yaml:"save"`

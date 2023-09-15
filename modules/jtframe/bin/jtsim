@@ -399,7 +399,6 @@ case "$1" in
         rm -f frame_*.jpg
         rm -f frame.raw
         rm -rf frames
-        mkdir frames
         VIDEO_DUMP=TRUE
         ;;
     -load)
@@ -430,6 +429,7 @@ fi
 
 echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
 
+mkdir frames
 if [ -z "$SYSNAME" ]; then
     SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
     echo "Using $SYSNAME as the system name"

@@ -164,6 +164,11 @@ jtaliens_scroll u_scroll(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    // unused
+    .q          (           ),
+    .e          (           ),
+    .mmr_dump   (           ),
+
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -252,6 +257,7 @@ jtaliens_obj u_obj(    // sprite logic
 
     .irq_n      ( obj_irqn  ),
     .nmi_n      ( obj_nmin  ),
+    .romrd      (           ),
     // external connection
     .pal        ( opal      ),
     .code       ( ocode     ),
@@ -271,6 +277,7 @@ jtaliens_obj u_obj(    // sprite logic
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_obj  ),
+    .ioctl_mmr  ( 1'b0      ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),

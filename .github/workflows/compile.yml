@@ -57,6 +57,7 @@ jobs:
         run: |
           # Compilation on Quartus 13
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
+          git config --global --add safe.directory .
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
@@ -77,6 +78,9 @@ jobs:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
       - id: submodules
         run: |
           git config --global --add safe.directory /__w/jtcores/jtcores

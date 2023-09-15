@@ -42,7 +42,6 @@ wire ioctl_ram = 0;
 {{end}}
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
-wire     {{ data_range . }} {{.Name}}_din;
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
