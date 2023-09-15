@@ -29,7 +29,7 @@ data = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
 
 # rename = [

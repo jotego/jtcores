@@ -13,7 +13,7 @@ names=[
 
 [dipsw]
 # Flip screen mode is not supported
-delete=[ "Flip Screen", "Cabinet" ]
+delete=[{names=[ "Flip Screen", "Cabinet" ]}]
 
 [ROM]
 regions=[

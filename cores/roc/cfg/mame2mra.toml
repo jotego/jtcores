@@ -16,7 +16,7 @@ skip.setnames=[
 names=[{ names="Rope,Flash" }]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 bitcnt = 23
 
 [ROM]

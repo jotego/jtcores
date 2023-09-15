@@ -36,7 +36,7 @@ names=[
 
 [dipsw]
 bitcnt = 16
-delete = [ "Unused", "Unknown", "Mode" ]
+delete = [{names=[ "Unused", "Unknown", "Mode" ]}]
 defaults = [
     { value="ff,ff" },
 ]

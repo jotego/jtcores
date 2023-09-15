@@ -142,6 +142,11 @@ type Overrule_t struct {
 	Rotate           int
 }
 
+type DIPswDelete struct{
+	Selectable
+	Names []string
+}
+
 type Mame2MRA struct {
 	Global struct {
 		Info      []Info
@@ -177,7 +182,7 @@ type Mame2MRA struct {
 	}
 
 	Dipsw struct {
-		Delete []string
+		Delete []DIPswDelete
 		base   int // Define it macros.def as JTFRAME_DIPBASE
 		Bitcnt int // Total bit count (including all switches)
 		Defaults [] struct {
@@ -1013,7 +1018,9 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 	aux, _ := strconv.ParseInt(macros["JTFRAME_HEADER"], 0, 32)
 	mra_cfg.Header.Len = int(aux)
 	if len(mra_cfg.Dipsw.Delete) == 0 {
-		mra_cfg.Dipsw.Delete = []string{"Unused", "Unknown"}
+		mra_cfg.Dipsw.Delete = []DIPswDelete{
+			{ Names: []string{"Unused", "Unknown"} },
+		}
 	}
 	// Add the NVRAM section if it was in the .def file
 	if macros["JTFRAME_IOCTL_RD"] != "" {

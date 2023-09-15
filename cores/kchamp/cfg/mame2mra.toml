@@ -9,7 +9,7 @@ Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]
 
 [dipsw]
 bitcnt = 8
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 regions = [

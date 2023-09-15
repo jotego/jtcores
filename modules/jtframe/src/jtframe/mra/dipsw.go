@@ -49,8 +49,10 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
     } else if loc[0]>='A' && loc[0]<='D' {
         swcnt = int(loc[0]-'A')<<3
     } else {
-        fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0].Name )
-        os.Exit(1)
+        if ds.Tag!="UNUSED" {
+            fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0].Name )
+        }
+        return -1,-1,-1
     }
     // fmt.Printf("Found %d:%d at DS%s -> %d \n",locmax,locmin,loc,swcnt)
     return locmin+swcnt,locmax+swcnt, swcnt
@@ -73,10 +75,15 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
 diploop:
     for _, ds := range machine.Dipswitch {
         ignore := false
-        for _, del := range cfg.Dipsw.Delete {
-            if del == ds.Name {
-                ignore = true
-                break
+        delete_loop:
+        for _, each := range cfg.Dipsw.Delete {
+            if each.Match(machine)>0 {
+                for _, name := range each.Names {
+                    if strings.ToLower(name) == strings.ToLower(ds.Name) {
+                        ignore = true
+                        break delete_loop
+                    }
+                }
             }
         }
         if ds.Condition.Tag != "" && ds.Condition.Value == 0 {
@@ -84,6 +91,14 @@ diploop:
         }
         dip_rename( &ds, cfg )
         bitmin, bitmax, _ := dip_bit0( ds, cfg )
+        if bitmax==-1 || bitmin==-1 {
+            if ds.Tag=="UNUSED" {
+                continue
+            } else {
+                fmt.Printf("Cannot parse DIP switches for %s (%s)\n", machine.Name, machine.Description)
+                os.Exit(1)
+            }
+        }
         if args.Verbose {
             fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
                 ds.Name, ds.Tag, bitmax, bitmin, uint(def_all) )

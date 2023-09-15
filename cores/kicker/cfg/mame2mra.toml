@@ -14,7 +14,7 @@ names=[
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename = [ {name="Bonus Life", to="Bonus"} ]
 # base = 16
 

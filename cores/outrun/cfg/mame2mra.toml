@@ -15,7 +15,7 @@ Names = [
 
 
 [dipsw]
-delete = [ "Unused", "Unknown", "Credits" ]
+delete=[{names=["Unused","Unknown","Credits"]}]
 bitcnt = 16
 
 [header]

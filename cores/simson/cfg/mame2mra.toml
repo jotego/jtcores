@@ -8,7 +8,7 @@ names = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 regions = [

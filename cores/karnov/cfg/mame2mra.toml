@@ -16,7 +16,7 @@ name="jtkarnov"
 
 [dipsw]
 bitcnt = 16
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 regions = [

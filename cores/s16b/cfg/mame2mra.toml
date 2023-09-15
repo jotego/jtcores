@@ -84,7 +84,10 @@ names = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown", "Advertise Coin Indication" ]
+delete = [
+    { names=[ "Unused", "Unknown", "Advertise Coin Indication" ] },
+    { machine="goldnaxe", names=["Difficulty"] }
+]
 bitcnt = 16
 rename = [
     { name="Bonus Life", to="Bonus" },

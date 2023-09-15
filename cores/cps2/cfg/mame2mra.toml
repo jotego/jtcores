@@ -10,7 +10,7 @@ parents= [
 skip.setnames=["ssf2us2","gigaman2"]
 
 [dipsw]
-delete=[ "Unused" ]
+delete=[{names=["Unused"]}]
 extra=[
     { machine="ecofghtr", name="Spinner", options="on,off", bits="0" }
 ]

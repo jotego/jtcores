@@ -57,7 +57,7 @@ data = [
 
 [dipsw]
 bitcnt = 16
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 regions = [

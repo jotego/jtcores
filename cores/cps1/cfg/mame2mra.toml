@@ -70,7 +70,7 @@ defaults=[
     { value="ff,fd,ff", setnames=[ "ghouls", "ghoulsu", "qadjr", "strider", "striderua", "strideruc" ] },
     { value="ff,ff,fa", setnames=[ "willow", "willowu", "willowuo" ] },
 ]
-delete=[ "Unused", "Unknown", "Coinage" ]
+delete=[{names=[ "Unused", "Unknown", "Coinage" ]}]
 rename=[
     {name="2 Coins to Start, 1 to Continue", to="2 to start, 1 continue"},
     {name="Lives (Midnight Wanderers)", to="Lives (Mid.W.)"},

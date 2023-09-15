@@ -33,7 +33,7 @@ data = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 # defaults=[
 #     # currently the default value is not correctly parsed by jtframe

@@ -20,7 +20,7 @@ names=[
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 # values starting with $ refer to macro definitions in the .def file

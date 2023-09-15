@@ -27,7 +27,7 @@ Names = [
 [dipsw]
 bitcnt = 16
 base = 17
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename = [
     { name="Enemy Power Decrease on Continue", to="Player strenght"},
     { name="Control Panel Type", to="Panel" },
