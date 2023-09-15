@@ -66,7 +66,9 @@ if [ -z "$GIT" ]; then
     export JTBIN=$JTROOT/release
     if [ -z "$KEEP" ]; then
         rm -rf $JTROOT/release.bak
-        mv $JTROOT/release $JTROOT/release.bak
+        if [ -d $JTROOT/release ]; then
+            mv $JTROOT/release $JTROOT/release.bak
+        fi
         rm -rf $JTBIN
     fi
     mkdir -p $JTBIN
@@ -84,7 +86,7 @@ else
         git checkout -b `basename $JTROOT`_$CORESTAMP || exit $?
     fi
 fi
-if [ -z "$KEEP" ]; then rm -f $ROM/cp_*.sh $ROM/*.rom; fi
+if [ -z "$KEEP" ]; then rm -rf $ROM; mkdir $ROM; fi
 
 # TASKS is a temporary file with the list of tasks
 TASKS=`mktemp`

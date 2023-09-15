@@ -10,10 +10,11 @@ game:
       - jtgng_sound.yaml
       - jtgng_colmix.v
 jtframe:
+  - get:
+      - jtframe_ff.v
   - from: cpu
     get:
-      - mc6809i.v
-      - jtframe_sys6809.v
+      - jtframe_6809.yaml
       - jtframe_z80.yaml
   - from: clocking
     get:

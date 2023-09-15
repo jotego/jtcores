@@ -22,8 +22,8 @@ module jtgng_game(
     input           clk,
     input           rst24,
     input           clk24,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
+    input           pxl2_cen,   // 12   MHz
+    input           pxl_cen,    //  6   MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -34,8 +34,8 @@ module jtgng_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
@@ -80,8 +80,6 @@ module jtgng_game(
 assign prog_rd    = 1'b0;
 assign dwnld_busy = downloading;
 
-parameter CLK_SPEED=48;
-
 wire [8:0] V;
 wire [8:0] H;
 wire HINIT;
@@ -112,11 +110,8 @@ wire [ 7:0] dipsw_a, dipsw_b;
 
 wire main_ok, snd_ok;
 wire cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
-wire clk48_cen12, clk48_cen6;
 
 assign block_flash = status[13];
-assign pxl2_cen = clk48_cen12;
-assign pxl_cen  = clk48_cen6;
 
 jtframe_cen24 u_cen24(
     .clk    ( clk24     ),
@@ -126,17 +121,6 @@ jtframe_cen24 u_cen24(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    ),
     .cen1p5b( cen1p5b   )
-);
-
-
-jtframe_cen48 u_cen48(
-    .clk    ( clk         ),
-    .cen12  ( clk48_cen12 ),
-    .cen6   ( clk48_cen6  ),
-    .cen6b  (             ),
-    .cen3   (             ),
-    .cen1p5 (             ),
-    .cen1p5b(             )
 );
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
@@ -200,6 +184,7 @@ jtgng_prom_we u_prom_we(
 jtgng_main u_main(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
+    .clk_dma    ( clk           ),
     .cen6       ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
@@ -226,7 +211,7 @@ jtgng_main u_main(
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
-    .ram_dout   ( main_ram      ),
+    .dma_dout   ( main_ram      ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
@@ -243,8 +228,8 @@ jtgng_main u_main(
     .start_button( start_button ),
     .coin_input ( coin_input    ),
     .service    ( service       ),
-    .joystick1  ( joystick1[5:0]),
-    .joystick2  ( joystick2[5:0]),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
 
     .RnW        ( RnW           ),
     // DIP switches
@@ -294,6 +279,7 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
 `else
     assign snd_addr   = 0;
     assign sample     = 0;
+    assign game_led   = 0;
     assign snd_cs     = 0;
     assign snd        = 0;
     assign debug_view = 0;
@@ -353,7 +339,7 @@ jtgng_video #(.GNGPAL(1)) u_video(
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
     // PROM ports used to assign a non-zero starting value to the palette RAM
-    .prog_addr  ( prog_addr     ),
+    .prog_addr  ( prog_addr[7:0]),
     .prom_red_we( prog_we       ),
     // Pixel Output
     .red        ( red           ),
@@ -405,6 +391,9 @@ jtframe_rom #(
     .slot0_ok    ( char_ok       ),
     .slot1_ok    ( scr1_ok       ),
     .slot2_ok    ( scr2_ok       ),
+    .slot3_ok    (               ),
+    .slot4_ok    (               ),
+    .slot5_ok    (               ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
     .slot8_ok    ( obj_ok        ),
@@ -412,6 +401,9 @@ jtframe_rom #(
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( scr_addr      ),
     .slot2_addr  ( scr_addr      ),
+    .slot3_addr  (               ),
+    .slot4_addr  (               ),
+    .slot5_addr  (               ),
     .slot6_addr  ( snd_addr      ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),
@@ -419,6 +411,9 @@ jtframe_rom #(
     .slot0_dout  ( char_data     ),
     .slot1_dout  ( scr_data[15:0]),
     .slot2_dout  ( { scr_nc, scr_data[23:16]       } ),
+    .slot3_dout  (               ),
+    .slot4_dout  (               ),
+    .slot5_dout  (               ),
     .slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),

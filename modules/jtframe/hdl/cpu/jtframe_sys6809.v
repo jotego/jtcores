@@ -90,6 +90,7 @@ module jtframe_6809wait(
 endmodule
 
 
+// Wrapper that hides the DMA access to RAM
 module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
@@ -118,7 +119,6 @@ module jtframe_sys6809 #( parameter
     output  [7:0]   cpu_dout,
     input   [7:0]   cpu_din
 );
-    // This is a wrapper that hides the DMA access to RAM
 
     jtframe_sys6809_dma #(
         .RAM_AW     ( RAM_AW    ),
