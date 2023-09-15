@@ -2,7 +2,7 @@ game:
   - from: kicker
     get:
       - jtkicker_game.v
-      - ../cfg/common.yaml
+      - common.yaml
   - from: yiear
     get:
       - jtyiear_main.v

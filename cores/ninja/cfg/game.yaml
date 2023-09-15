@@ -1,7 +1,7 @@
 game:
   - from: cop
     get:
-      - ../cfg/common.yaml
+      - common.yaml
       - jtcop_decoder.v
       - jtcop_colmix.v
       - jtcop_snd.v

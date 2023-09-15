@@ -4,14 +4,14 @@ game:
       - jtshanon_colmix.v
   - from: outrun
     get:
-      - ../cfg/common.yaml
+      - common.yaml
   - from: s16
     get:
       - jts16_obj.v
       - jts16_obj_ram.v
       - jts16_obj_scan.v
       - jts16_obj_draw.v
-      - ../cfg/tilemap.yaml
+      - tilemap.yaml
 jtframe:
   - from: ram
     get:

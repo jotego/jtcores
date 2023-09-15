@@ -2,10 +2,10 @@ game:
   - from: cps15
     get:
       - jtcps15_game.v
-      - ../cfg/qsound.yaml
+      - qsound.yaml
   - from: cps1
     get:
       - jtcps1_obj.v
       - jtcps1_main.v
-      - ../cfg/common.yaml
+      - common.yaml
 

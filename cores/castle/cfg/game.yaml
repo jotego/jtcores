@@ -12,7 +12,7 @@ game:
       - jtmx5k_colmix.v
   - from: flane
     get:
-      - ../cfg/common.yaml
+      - common.yaml
       - jt007232.v
 jtframe:
   - from: cpu

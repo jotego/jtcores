@@ -1,7 +1,7 @@
 game:
   - from: s16
     get:
-    - ../cfg/game.yaml
+    - game.yaml
   - from: s16b
     get:
       - jts16b_main.v

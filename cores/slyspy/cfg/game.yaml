@@ -1,7 +1,7 @@
 game:
   - from: cop
     get:
-      - ../cfg/common.yaml
+      - common.yaml
   - from: slyspy
     get:
       - jtslyspy_decoder.v

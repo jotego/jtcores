@@ -12,7 +12,7 @@ game:
       - jtyiear_colmix.v
   - from: kicker
     get:
-      - ../cfg/common.yaml
+      - common.yaml
   - from: sbaskt
     get:
-      - ../cfg/sound.yaml
+      - sound.yaml

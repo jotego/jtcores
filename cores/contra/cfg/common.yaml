@@ -8,7 +8,7 @@ game:
       - jtcontra_gfx_obj.v
       - jtcontra_colmix.v
       - jtcontra_007452.v
-      - ../cfg/base.yaml
+      - base.yaml
 jtframe:
   - from: cpu
     get:

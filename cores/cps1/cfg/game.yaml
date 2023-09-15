@@ -5,7 +5,7 @@ game:
       - jtcps1_main.v
       - jtcps1_sound.v
       - jtcps1_obj.v
-      - ../cfg/common.yaml
+      - common.yaml
 jtframe:
   - from: sound
     get:

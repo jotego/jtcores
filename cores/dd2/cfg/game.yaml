@@ -6,7 +6,7 @@ game:
       - jtdd2_sound.v
   - from: dd
     get:
-      - ../cfg/common.yaml
+      - common.yaml
 jtframe:
   - from: cpu
     get:

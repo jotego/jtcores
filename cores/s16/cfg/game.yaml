@@ -7,7 +7,7 @@ game:
       - jts16_shadow.v
       - jts16_snd.v
       - jts16_cen.v
-      - ../cfg/tilemap.yaml
+      - tilemap.yaml
       - jts16_colmix.v
       - jts16_obj.v
       - jts16_obj_ram.v

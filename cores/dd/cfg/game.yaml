@@ -5,7 +5,7 @@ game:
       - jtdd_mcu.v
       - jtdd_sound.v
       - jtdd_adpcm.v
-      - ../cfg/common.yaml
+      - common.yaml
 jtframe:
   - from: sound
     get:

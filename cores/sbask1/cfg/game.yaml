@@ -1,4 +1,4 @@
 game:
   - from: sbaskt
     get:
-      - ../cfg/game.yaml
+      - game.yaml

@@ -4,7 +4,7 @@ game:
       - jtflane_game.v
       - jtflane_main.v
       - jt007232.v
-      - ../cfg/common.yaml
+      - common.yaml
   - from: labrun
     get:
       - jtlabrun_colmix.v
