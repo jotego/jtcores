@@ -352,6 +352,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	// get explicit names in SDRAM/BRAM buses and added to the port list
 	all := make( map[string]Port )
 	add := func( p Port ) {
+		if p.Name=="" { return }
 		if p.Name[0]>='0' && p.Name[0]<='9' { return } // not a name
 		if p.Name[0]=='{' { return } // ignore compound buses
 		// remove the brackets
@@ -382,9 +383,16 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	}
 	for k, _ := range cfg.BRAM {
 		each := &cfg.BRAM[k]
+		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
 		if each.Addr == "" { each.Addr = each.Name + "_addr" }
-		if each.Din  == "" { each.Din  = each.Name + "_din"  }
-		if each.Dout == "" { each.Dout = each.Name + "_dout" }
+		if each.Din  == "" && !bram_rom { each.Din  = each.Name + "_din"  }
+		if each.Dout == "" {
+			if bram_rom {
+				each.Dout = each.Name + "_data"
+			} else {
+				each.Dout = each.Name + "_dout"
+			}
+		}
 		add( Port{
 			Name: each.Addr,
 			MSB:  each.Addr_width-1,

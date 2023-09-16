@@ -3,6 +3,7 @@ include ../../outrun/cfg/macros.def
 CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
 SHANON=1
+-JTFRAME_LF_BUFFER
 
 # System 16B Objects don't work
 # well with 64-bit bursts. I just
