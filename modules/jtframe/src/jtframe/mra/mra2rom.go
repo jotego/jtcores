@@ -13,9 +13,12 @@ import (
 	"strings"
 )
 
-func mra2rom(root *XMLNode, verbose bool) {
-	save_rom(root, verbose)
-	save_coremod(root, verbose)
+// save2disk = false is uselful to update the md5 calculation only
+func mra2rom(root *XMLNode, verbose, save2disk bool) {
+	save_rom(root, verbose, save2disk )
+	if save2disk {
+		save_coremod(root, verbose)
+	}
 }
 
 func save_coremod(root *XMLNode, verbose bool) {
@@ -30,7 +33,7 @@ func save_coremod(root *XMLNode, verbose bool) {
 	rom_file(setname, ".mod", rombytes)
 }
 
-func save_rom(root *XMLNode, verbose bool) {
+func save_rom(root *XMLNode, verbose, save2disk bool) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
@@ -54,8 +57,10 @@ func save_rom(root *XMLNode, verbose bool) {
 		return
 	}
 	update_md5(xml_rom, rombytes)
-	patchrom(xml_rom, &rombytes)
-	rom_file(setname, ".rom", rombytes)
+	if save2disk {
+		patchrom(xml_rom, &rombytes)
+		rom_file(setname, ".rom", rombytes)
+	}
 }
 
 func rom_file(setname *XMLNode, ext string, rombytes []byte) {

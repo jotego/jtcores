@@ -2,7 +2,6 @@ package mra
 
 import(
     "fmt"
-    "log"
     "os"
     "regexp"
     "sort"
@@ -26,6 +25,11 @@ func dip_mask( ds MachineDIP ) (int, int) {
     // fmt.Printf("%d:%d\n",bitmax,bitmin)
     for bitmax > 7 { bitmax-=8 }
     for bitmin > 7 { bitmin-=8 }
+    if bitmax+1-bitmin < 0 {
+        fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
+        fmt.Printf("ERROR: don't know how to parse DIP '%s' %d:%d\n", ds.Name, bitmax, bitmin)
+        os.Exit(1)
+    }
     return bitmin, bitmax
 }
 
@@ -42,7 +46,20 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
     // }
     // Get the switch count
     swcnt := 0
-    loc := ds.Diplocation[0].Name[2:]
+    id := 2
+    loc := ""
+    if len(ds.Diplocation )==0 {
+        return locmin, locmax, 0
+    } else {
+        if strings.HasPrefix(ds.Diplocation[0].Name,"DSW") ||
+           strings.HasPrefix(ds.Diplocation[0].Name,"DIP") ||
+           strings.HasPrefix(ds.Diplocation[0].Name,"SW ") ||
+           strings.HasPrefix(ds.Diplocation[0].Name,"SW(")   { id = 3 }
+        if strings.HasPrefix(ds.Diplocation[0].Name,"DSW-" ) ||
+           strings.HasPrefix(ds.Diplocation[0].Name,"DIP-" ) { id = 4 }
+        if strings.HasPrefix(ds.Diplocation[0].Name,"DIPSW") { id = 5 }
+        loc = ds.Diplocation[0].Name[id:id+1]
+    }
     if loc[0]>='1' && loc[0]<='4' {
         swcnt, _ = strconv.Atoi(loc)
         swcnt = (swcnt-1)<<3
@@ -75,13 +92,12 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
 diploop:
     for _, ds := range machine.Dipswitch {
         ignore := false
-        delete_loop:
         for _, each := range cfg.Dipsw.Delete {
             if each.Match(machine)>0 {
                 for _, name := range each.Names {
                     if strings.ToLower(name) == strings.ToLower(ds.Name) {
-                        ignore = true
-                        break delete_loop
+                        if args.Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
+                        continue diploop
                     }
                 }
             }
@@ -118,10 +134,6 @@ diploop:
             dip_add_node( machine.Name, ds.Name, options, n, bitmin, bitmax, &game_bitcnt )
         }
         // apply the default value
-        if bitmax+1-bitmin < 0 {
-            fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
-            log.Fatal("Don't know how to parse DIP ", ds.Name)
-        }
         def_all &= ^mask
         for opt_dev != 0 && (opt_dev&mask)==0 { opt_dev = opt_dev<<4 }
         def_all |= opt_dev

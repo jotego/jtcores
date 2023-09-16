@@ -24,6 +24,9 @@ rename=[
     {name="Buy-In Feature", to="Buy in"},
     {name="Number of Countries Selected", to="Selectable countries"}
 ]
+delete=[
+    { names=["Buy-In Feature"] }
+]
 
 [ROM]
 regions=[

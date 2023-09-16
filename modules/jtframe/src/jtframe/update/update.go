@@ -208,8 +208,8 @@ func dump_output(cfg Config) {
 	if cfg.Beta != "" {
 		mra_str += " --beta"
 	}
-	if cfg.SkipROM {
-		mra_str += " --skipROM"
+	if cfg.SkipROM { // skips ROM saving, but calculates MD5 anyway
+		mra_str += " --skipROM --md5"
 	}
 	mra_str += "\n"
 	sch_str += "\n"
