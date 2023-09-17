@@ -1,0 +1,92 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Sep 17 13:25:28 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shanon/ver/game/test.fst"
+[dumpfile_mtime] "Sun Sep 17 13:08:40 2023"
+[dumpfile_size] 29914503
+[savefile] "/home/jtejada/jtcores/cores/shanon/ver/game/road.gtkw"
+[timestart] 1781642588000
+[size] 1263 1010
+[pos] -31 -48
+*-20.433758 1781646355000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_road.
+[sst_width] 215
+[signals_width] 198
+[sst_expanded] 1
+[sst_vpaned_height] 375
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.LVBL
+TOP.game_test.u_game.u_game.u_video.LHBL
+@c08022
+TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_road.pxl[7:0]
+@1401200
+-group_end
+@20000
+-
+-
+-
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_road.rrc[4:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_road.cent_a
+TOP.game_test.u_game.u_game.u_video.u_road.rd_a[1:0]
+TOP.game_test.u_game.u_game.u_video.u_road.pxl_cen
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_road.rom0_addr[13:0]
+TOP.game_test.u_game.u_game.u_video.u_road.rom0_data[15:0]
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+@1401200
+-group_end
+@c00024
+#{hpos2:0} (9)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0] (10)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0] (11)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+@28
+(9)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hpos[11:0]
+@1401204
+-group_end
+@23
+TOP.game_test.u_game.u_game.u_video.u_road.u_rom0.hscr[11:0]
+[pattern_trace] 1
+[pattern_trace] 0

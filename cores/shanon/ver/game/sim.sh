@@ -2,6 +2,11 @@
 
 EXTRA=
 
+eval `jtframe cfgstr shanon -o bash`
+
+dd if=epr-10642.47 of=rd0_lo.bin count=32 > /dev/null
+dd if=epr-10642.47 of=rd0_hi.bin skip=32 count=32 > /dev/null
+
 if [ -e obj.bin ]; then
     drop1    < obj.bin >  obj_hi.bin
     drop1    < obj.bin >> obj_hi.bin

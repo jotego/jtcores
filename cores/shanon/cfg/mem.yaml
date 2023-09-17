@@ -19,6 +19,7 @@ clocks:
     - freq: 5000000
       outputs:
         - cen_snd
+        - cen_nc
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
@@ -52,6 +53,6 @@ sdram:
       buses:
         - { name: obj, addr_width: 21, data_width: 16 } # this line is different in Out Run
 
-# The ROAD 32kBx2 memories must go in BRAM to guarantee correct data reads at 48 MHz
+# The ROAD 32kB memory must go in BRAM to guarantee correct data reads at 48 MHz
 bram:
   - { name: rd0, addr_width: 15, data_width: 16, rom: { offset: RD0_OFFSET } }

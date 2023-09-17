@@ -11,3 +11,6 @@ SHANON=1
 -JTFRAME_BA0_LEN=64
 -JTFRAME_BA2_LEN=64
 -JTFRAME_BA3_LEN=64
+
+# This system does not fit in MiST because of the 32kB used for road memory
+# Disabled the OSD logo or the credits won't make it fit

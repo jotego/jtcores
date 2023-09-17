@@ -270,15 +270,18 @@ module jtoutrun_rdrom(
     output reg         cent, // this seems to mean the road central 8 pixels
     output      [ 1:0] pxl
 );
-    parameter HOFF = 12'h18;
+    parameter HOFF0 = 12'h18,
+              HOFF1 = 12'h07;
 
     reg  [11:0] hpos;
+    wire [11:0] hpos_rom;
     reg  [15:0] pxl_data;
     wire        en;
     wire        j, k;
 
     assign pxl  = { pxl_data[15], pxl_data[7] };
-    assign rom_addr = { cfg[8:1], hpos[8:3] };
+    assign hpos_rom = hpos-HOFF1;
+    assign rom_addr = { cfg[8:1], hpos_rom[8:3] };
     assign en   = !cfg[11] && hpos[11:9]==3'b011;
     assign j    = &hpos[2:0];
     assign k    = hpos[11:9]==3'b011 && hpos[8:0] == 9'hff;
@@ -292,18 +295,18 @@ module jtoutrun_rdrom(
         end else begin
             if( hs ) begin
                 rom_cs   <= 0;
-                hpos     <= hscr - HOFF;
+                hpos     <= hscr - HOFF0;
                 pxl_data <= 16'hffff;
                 cent     <= 0;
             end else if( pxl_cen ) begin
                 rom_cs <= en;
                 hpos   <= hpos + 11'd1;
                 case( {j,k} )
-                    1:  cent <= 1;
-                    2:  cent <= 0;
+                    1:  cent <= 1; // cent should overlap with rd[1:0]=='b11
+                    2:  cent <= 0; // cent might be 1 pixel too wide at the moment
                     3:  cent <= ~cent;
                 endcase
-                if( hpos[2:0]==3 ) begin // 3 pixel delay, to give time to the SDRAM
+                if( hpos_rom[2:0]==0 ) begin // 3 pixel delay, to give time to the SDRAM
                     pxl_data <= !en ? 16'hffff : rom_data;
                 end else begin
                     pxl_data <= pxl_data << 1;
