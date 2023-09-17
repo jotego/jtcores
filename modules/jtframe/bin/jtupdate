@@ -128,3 +128,8 @@ cat $TASKS | parallel --no-run-if-empty --colsep " " --sshdelay 0.25 \
     --delay 0.25 $CMD {} $EXTRA | tee $JTROOT/log/update.log
 
 rm -f $TASKS
+
+if [ ! -z "$GIT" ]; then
+    # update JTBIN's md5.md file
+    jtutil md5
+fi

@@ -68,7 +68,7 @@ function cp_mist {
         cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
     done
     if [ ! -z "$SETNAME" ]; then
-        local MAINSET=`grep -i $SETNAME $DST/*.arc --files-with-matches | head -n 1`
+        local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`
         if [ ! -z "$MAINSET" ]; then
             cp "$MAINSET" $DST/core.arc
         else

@@ -22,10 +22,11 @@ names=[
 rename=[
     {name="Game Continuation", to="Continue"},
     {name="Buy-In Feature", to="Buy in"},
-    {name="Number of Countries Selected", to="Selectable countries"}
+    {name="Number of Countries Selected", to="Countries"},
+    {name="Round Time Count", to="Time"},
 ]
 delete=[
-    { names=["Buy-In Feature"] }
+    { names=["Unused","Buy-In Feature"] }
 ]
 
 [ROM]
