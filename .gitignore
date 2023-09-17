@@ -66,6 +66,7 @@ cores/*/ver/regrun
 cores/*/zxuno/*
 default.dip
 defmacros.h
+dump2bin.sh
 game.qip
 game_env.F
 game_test.v
