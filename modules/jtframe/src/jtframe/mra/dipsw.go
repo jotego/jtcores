@@ -58,7 +58,11 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
         if strings.HasPrefix(ds.Diplocation[0].Name,"DSW-" ) ||
            strings.HasPrefix(ds.Diplocation[0].Name,"DIP-" ) { id = 4 }
         if strings.HasPrefix(ds.Diplocation[0].Name,"DIPSW") { id = 5 }
-        loc = ds.Diplocation[0].Name[id:id+1]
+        if len(loc)<=id {
+            loc="1"
+        } else {
+            loc = ds.Diplocation[0].Name[id:id+1]
+        }
     }
     if loc[0]>='1' && loc[0]<='4' {
         swcnt, _ = strconv.Atoi(loc)
@@ -67,7 +71,7 @@ func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
         swcnt = int(loc[0]-'A')<<3
     } else {
         if ds.Tag!="UNUSED" {
-            fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation\n", ds.Diplocation[0].Name )
+            fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation (loc=%s)\n", ds.Diplocation[0].Name, loc )
         }
         return -1,-1,-1
     }

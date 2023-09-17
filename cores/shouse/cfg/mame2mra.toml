@@ -1,17 +1,25 @@
 [parse]
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[
-    "shadowld",
-    "dspirit",
-    "quester",
-    "pacmania",
-    "galaga88",
+    "bakutotu",
     "berabohm",
-    "mmaze",
-    "rompers",
-    "ws",
+    "blastoff",
+    "blazer",
     "boxyboy",
+    "dangseed",
+    "dspirit",
+    "faceoff",
+    "galaga88",
+    "mmaze",
+    "pacmania",
+    "pistoldm",
+    "puzlclub",
+    "quester",
+    "rompers",
+    "shadowld",
     "tankfrce",
+    "wldcourt",
+    "ws",
 ] }
 
 [buttons]
@@ -21,27 +29,45 @@ names=[
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
+rename=[
+    # no idea about how to use these settings:
+    {name="Open 3rd Life (step1of7)", to="3rd life 1/7"},
+    {name="Open 3rd Life (step2of7)", to="3rd life 2/7"},
+    {name="Open 3rd Life (step3of7)", to="3rd life 3/7"},
+    {name="Open 3rd Life (step4of7)", to="3rd life 4/7"},
+    {name="Open 3rd Life (step5of7)", to="3rd life 5/7"},
+    {name="Open 3rd Life (step6of7)", to="3rd life 6/7"},
+    {name="Open 3rd Life (step7of7)", to="3rd life 7/7"},
+    {name="Auto Data Sampling (step1of2)", to="Data 1/2"},
+    {name="Auto Data Sampling (step2of2)", to="Data 2/2"},
+    {name="Draw Debug Lines (step1of6)", to="Debug lines 1/6"},
+    {name="Draw Debug Lines (step2of6)", to="Debug lines 2/6"},
+    {name="Draw Debug Lines (step3of6)", to="Debug lines 3/6"},
+    {name="Draw Debug Lines (step4of6)", to="Debug lines 4/6"},
+    {name="Draw Debug Lines (step5of6)", to="Debug lines 5/6"},
+    {name="Draw Debug Lines (step6of6)", to="Debug lines 6/6"},
+    {name="CPU #0 Kick Watchdog in IRQ (step1of2)", to="Debug IRQ 1/2"},
+    {name="CPU #0 Kick Watchdog in IRQ (step2of2)", to="Debug IRQ 2/2"},
+    {name="CPU #0&1 Kick Watchdog in IRQ (step1of2)", to="Debug IRQ 1/2"},
+    {name="CPU #0&1 Kick Watchdog in IRQ (step2of2)", to="Debug IRQ 2/2"},
+]
 
 [ROM]
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra
 regions = [
-    { name="maincpu", width=16, reverse=true  },
-    { name="sub", width=16, reverse=true  },
-    { name="sub", setnames=[ "fround", "froundl" ], skip = true },
-    { name="data"  },
+    { name="user1" },
     { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="fixed",    start="JTFRAME_BA2_START" },
-    { name="tiles",    start="SCR_START", width=32 },
-    { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
-    { name="k007232"  },
-    { name="upd"  }
+    { name="voice",    start="PCM_START"  },
+    { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
+    { name="c123tmap",         start="SCR_START", width=32 },
+    { name="sprite",           start="JTFRAME_BA3_START", width=32 },
+    { name="mcu",              start="JTFRAME_PROM_START"  },
 ]
 
 order = [
-    "maincpu", "sub", "data", "audiocpu",
-    "k007232", "upd",
-    "fixed", "tiles", "gfxrom"
+    "user1", "audiocpu", "voice",
+    "c123tmap:mask", "c123tmap", "sprite", "mcu"
 ]
 
 # patches = [
