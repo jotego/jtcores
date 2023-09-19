@@ -1,0 +1,87 @@
+params:
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
+  - { name: SCR_OFFSET,   value: "(`SCR_START-`JTFRAME_BA2_START) >> 1"   }
+clocks:
+  clk48:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 24576
+      outputs:
+        - cen_24
+        - cen_12
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: main
+          addr_width: 22
+          data_width: 8
+        -
+          name: sub
+          addr_width: 22
+          data_width: 8
+    -
+      buses:
+        -
+          name: snd
+          addr_width: 17
+          data_width: 8
+        -
+          name: pcm
+          addr_width: 20
+          data_width: 8
+          offset: PCM_OFFSET
+    -
+      buses:
+        -
+          name: mask
+          addr_width: 17
+          data_width: 32
+        -
+          name: scr
+          addr_width: 20
+          data_width: 32
+          offset: SCR_OFFSET
+
+    -
+      buses:
+        -
+          name: obj
+          addr_width: 20
+          data_width: 32
+bram:
+  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
+  - name: fram
+    data_width: 16
+    addr_width: 12
+    sim_file: true
+    ioctl: { save: true, order: 0 }
+    dual_port: { name: main, we: fx_we, rw: true, din: ram_din, dout: mf_dout }
+  - name: scra
+    data_width: 16
+    addr_width: 13
+    sim_file: true
+    ioctl: { save: true, order: 1 }
+    dual_port: { name: vram, we: va_we, rw: true, din: ram_din, dout: ma_dout }
+  - name: scrb
+    data_width: 16
+    addr_width: 13
+    sim_file: true
+    ioctl: { save: true, order: 2 }
+    dual_port: { name: vram, we: vb_we, rw: true, din: ram_din, dout: mb_dout }
+  - name: oram
+    data_width: 16
+    addr_width: 14
+    rw: true
+    sim_file: true
+    ioctl: { save: true, order: 3 }
+    dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
+  - name: pal
+    data_width: 8
+    addr_width: 12
+    sim_file: true
+    ioctl: { save: true, order: 4 }
+    dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "ram_din[7:0]", dout: mp_dout }
