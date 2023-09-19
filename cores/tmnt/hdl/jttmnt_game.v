@@ -101,9 +101,7 @@ jttmnt_main u_main(
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
-    // Punkshot maps the DIP switches to 23:20
-    // TMNT does it to 19:16, I just & them
-    .dipsw          ( { dipsw[23:20]&dipsw[19:16], dipsw[15:0] } ),
+    .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )

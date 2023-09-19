@@ -2,81 +2,14 @@ package mra
 
 import(
     "fmt"
-    "os"
     "regexp"
     "sort"
     "strconv"
     "strings"
 )
 
-func dip_mask( ds MachineDIP ) (int, int) {
-    bitmin := 0
-    mtest := 1
-    for (ds.Mask & mtest) == 0 {
-        mtest <<= 1
-        bitmin++
-    }
-    bitmax := bitmin
-    for (ds.Mask & mtest)!=0 {
-        mtest <<= 1
-        bitmax++
-    }
-    bitmax--
-    // fmt.Printf("%d:%d\n",bitmax,bitmin)
-    for bitmax > 7 { bitmax-=8 }
-    for bitmin > 7 { bitmin-=8 }
-    if bitmax+1-bitmin < 0 {
-        fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
-        fmt.Printf("ERROR: don't know how to parse DIP '%s' %d:%d\n", ds.Name, bitmax, bitmin)
-        os.Exit(1)
-    }
-    return bitmin, bitmax
-}
-
-// return start bit, end bit and switch count
-func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int, int) {
-    locmin, locmax := dip_mask(ds)
-    // for _, each := range ds.Diplocation {
-    //     if each.Number < locmin {
-    //         locmin = each.Number
-    //     }
-    //     if each.Number > locmax {
-    //         locmax = each.Number
-    //     }
-    // }
-    // Get the switch count
-    swcnt := 0
-    id := 2
-    loc := ""
-    if len(ds.Diplocation )==0 {
-        return locmin, locmax, 0
-    } else {
-        if strings.HasPrefix(ds.Diplocation[0].Name,"DSW") ||
-           strings.HasPrefix(ds.Diplocation[0].Name,"DIP") ||
-           strings.HasPrefix(ds.Diplocation[0].Name,"SW ") ||
-           strings.HasPrefix(ds.Diplocation[0].Name,"SW(")   { id = 3 }
-        if strings.HasPrefix(ds.Diplocation[0].Name,"DSW-" ) ||
-           strings.HasPrefix(ds.Diplocation[0].Name,"DIP-" ) { id = 4 }
-        if strings.HasPrefix(ds.Diplocation[0].Name,"DIPSW") { id = 5 }
-        if len(loc)<=id {
-            loc="1"
-        } else {
-            loc = ds.Diplocation[0].Name[id:id+1]
-        }
-    }
-    if loc[0]>='1' && loc[0]<='4' {
-        swcnt, _ = strconv.Atoi(loc)
-        swcnt = (swcnt-1)<<3
-    } else if loc[0]>='A' && loc[0]<='D' {
-        swcnt = int(loc[0]-'A')<<3
-    } else {
-        if ds.Tag!="UNUSED" {
-            fmt.Printf("Error: ignoring DIP location '%s' for bit zero calculation (loc=%s)\n", ds.Diplocation[0].Name, loc )
-        }
-        return -1,-1,-1
-    }
-    // fmt.Printf("Found %d:%d at DS%s -> %d \n",locmax,locmin,loc,swcnt)
-    return locmin+swcnt,locmax+swcnt, swcnt
+func dipsw_tag(ds MachineDIP ) bool {
+    return ds.Tag=="UNUSED" || ds.Tag=="SYSTEM"
 }
 
 // make_DIP
@@ -110,18 +43,9 @@ diploop:
             continue diploop // This switch depends on others, skip it
         }
         dip_rename( &ds, cfg )
-        bitmin, bitmax, _ := dip_bit0( ds, cfg )
-        if bitmax==-1 || bitmin==-1 {
-            if ds.Tag=="UNUSED" {
-                continue
-            } else {
-                fmt.Printf("Cannot parse DIP switches for %s (%s)\n", machine.Name, machine.Description)
-                os.Exit(1)
-            }
-        }
         if args.Verbose {
             fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
-                ds.Name, ds.Tag, bitmax, bitmin, uint(def_all) )
+                ds.Name, ds.Tag, ds.msb, ds.lsb, uint(def_all) )
         }
         if ds.Tag != last_tag {
             last_tag = ds.Tag
@@ -131,22 +55,23 @@ diploop:
         sort.Slice(ds.Dipvalue, func(p, q int) bool {
             return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value
         })
-        mask := (1<<(bitmax+1))-1
-        mask = mask & ^((1<<bitmin)-1)
-        options, opt_dev := dip_option_string( mask, args.Verbose, ds.Dipvalue )
+        options, opt_dev := dip_option_string( ds.Mask, args.Verbose, ds.Dipvalue )
         if !ignore {
-            dip_add_node( machine.Name, ds.Name, options, n, bitmin, bitmax, &game_bitcnt )
+            dip_add_node( machine.Name, ds.Name, options, n, ds.lsb, ds.msb, &game_bitcnt )
         }
         // apply the default value
-        def_all &= ^mask
-        for opt_dev != 0 && (opt_dev&mask)==0 { opt_dev = opt_dev<<4 }
-        def_all |= opt_dev
+        def_all &= ^ds.full_mask
+        def_all |= opt_dev<<ds.offset
         if args.Verbose {
             fmt.Printf("\t\tMask %X (MAME %X) this one %x -> all =%X (base=%d)\n",
-                uint(mask), ds.Mask, uint(opt_dev), uint(def_all&0xffffff), base)
+                uint(ds.full_mask), ds.Mask, uint(opt_dev<<ds.offset), uint(def_all&0xffffff), base)
         }
     }
     def_str := dip_int2str( def_all, game_bitcnt )
+    if args.Verbose {
+        fmt.Printf("Default string before applying TOML overrides: %s (bit count=%d)\n",
+            def_str, game_bitcnt)
+    }
     // Override the defaults is set so in the TOML
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
@@ -177,41 +102,19 @@ func dip_int2str( def, maxbit int ) string {
 }
 
 func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int) {
-    options := ""
+    total := mask
+    offset := 0
     def := 0
-    var minv, maxv, bits int
-    for _, each := range all {
-        if minv > each.Value { minv = each.Value }
-        if maxv < each.Value { maxv = each.Value }
+    for (total&1)==0 {
+        total>>=1
+        offset++
     }
-    for k:=mask; k!=0; k>>=1 {
-        if (k&1)!=0 { bits++ }
-    }
-    if (1<<bits) < len(all) {
-        fmt.Printf("Options for DIP switch do not fit in its mask %X\nOptions:\n",mask)
-        fmt.Println(all)
-        os.Exit(1)
-    }
-    if maxv==minv {
-        fmt.Printf("DIP options do not have a valid value list:\n")
-        fmt.Println(all)
-        os.Exit(1)
-    }
-    step := (maxv-minv+1)/(1<<(bits-1))
-    if step==0 {
-        fmt.Printf("Cannot determine DIP option list value step\n")
-        fmt.Printf("max=$%X, min=$%X, length=%d, step=$%X\n",maxv,minv,(1<<bits),step)
-        os.Exit(1)
-    }
-    cur := all[0].Value
-    for _, each := range all {
-        if options !=""  { options += "," }
-        for cur < each.Value {
-            options += "-,"
-            cur += step
-        }
-        options += strings.ReplaceAll(each.Name, ",", " ")
-        cur += step
+    total++
+    options := make([]string,total)
+    for k, _ := range options { options[k]="-" }
+    for _, each:= range all {
+        v := each.Value>>offset
+        options[v] = strings.ReplaceAll(each.Name, ",", " ")
         if each.Default == "yes" {
             def = each.Value
             if verbose {
@@ -219,7 +122,8 @@ func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int
             }
         }
     }
-    return options, def
+
+    return strings.Join(options,","), def
 }
 
 func dip_clean( options string ) string {
@@ -240,15 +144,15 @@ func dip_clean( options string ) string {
     return options
 }
 
-func dip_add_node( machineName, dsName, options string, n *XMLNode, bitmin, bitmax int, game_bitcnt *int ) {
+func dip_add_node( machineName, dsName, options string, n *XMLNode, lsb, msb int, game_bitcnt *int ) {
     options = dip_clean( options )
     m := n.AddNode("dip")
     m.AddAttr("name", dsName)
-    bitstr := strconv.Itoa(bitmin)
-    if bitmin != bitmax {
-        bitstr += fmt.Sprintf(",%d", bitmax)
+    bitstr := strconv.Itoa(lsb)
+    if lsb != msb {
+        bitstr += fmt.Sprintf(",%d", msb)
     }
-    *game_bitcnt = Max(*game_bitcnt, bitmax)
+    *game_bitcnt = Max(*game_bitcnt, msb)
     // Check that the DIP name plus each option length isn't longer than 28 characters
     // which is MiSTer's OSD length
     name_len := len(dsName)
@@ -320,4 +224,47 @@ func add_switches_parent(root *XMLNode, cfg Mame2MRA) *XMLNode {
     n.AddAttr("page_name", "Switches")
     n.AddIntAttr("base", cfg.Dipsw.base)
     return n
+}
+
+func calc_DIP_bits( machine *MachineXML, cfg DipswCfg ) {
+    if machine==nil { return }
+    max := 0
+    offset := 0
+    tag := ""
+    for k, _ := range machine.Dipswitch {
+        each := &machine.Dipswitch[k]
+        if k==0 { tag=each.Tag }
+        if tag!=each.Tag {
+            offset = max+1
+            tag=each.Tag
+        }
+        // get bit limits for this option
+        lsb := 0
+        mtest := 1
+        for (each.Mask & mtest) == 0 {
+            mtest <<= 1
+            lsb++
+        }
+        msb := lsb
+        for (each.Mask & mtest)!=0 {
+            mtest <<= 1
+            msb++
+        }
+        msb--
+        // apply offset
+        // this way of parsing the cfg.Offset will select the bestMatch
+        // regardles of the order in the TOML file. The code becomes a bit
+        // convoluted, though
+        if i := bestMatch( len(cfg.Offset), func(j int)int {
+                if cfg.Offset[j].Name != each.Tag { return -1 }
+                return cfg.Offset[j].Match(machine)
+            }); i>-1 {
+            offset = cfg.Offset[i].Value
+        }
+        each.msb = msb + offset
+        each.lsb = lsb + offset
+        each.full_mask = each.Mask << offset
+        each.offset = offset
+        max = each.msb
+    }
 }

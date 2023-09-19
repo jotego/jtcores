@@ -34,11 +34,10 @@ data = [
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
-
-# defaults=[
-#     # currently the default value is not correctly parsed by jtframe
-#     { machine="punkshot", value="cf,7f,ff"}
-# ]
+offset=[
+    { machine="punkshot", name="COINS_DSW3",value=4 },
+    { machine="punkshot", name="DSW1_DSW2", value=0 }
+]
 
 [ROM]
 regions = [

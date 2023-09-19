@@ -70,7 +70,11 @@ files=[
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ "name"... ]
-useLocation=true # Use MAME's diplocation information for deriving the bit position of each DIP option
+# applies an offset to the bit position of MAME's DIP sw tag given by "name"
+# JTTMNT uses this for PunkShot
+offset=[
+	{ machine="", setname="", name="", value=0 },...
+]
 # Add more options
 extra=[
 	{ machine="", setname="", name="", options="", bits="" },...

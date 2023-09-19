@@ -13,5 +13,6 @@ fi
 
 if [ -e $CORES/$1/cfg/macros.def ]; then
     jtframe
-    jtseed 3 $1 -mister --nodbg $BETAKEY
+    # Remote builds have red OSD and beta key enabled
+    jtseed 3 $1 -mister --nodbg $BETAKEY -d JTFRAME_OSDCOLOR=0x30
 fi
