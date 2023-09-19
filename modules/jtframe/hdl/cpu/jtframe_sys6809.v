@@ -55,8 +55,10 @@ module jtframe_6809wait(
                 misses <= misses-4'd1;
             end
         end else if(!gate) begin
-            if( !last_EQ && !EQ && !(&misses) && !dev_busy)
+            if( !last_EQ && !EQ && !(&misses) && !dev_busy) begin
                 misses <= misses+4'd1;
+                $display("Missed (%d)",misses+4'd1);
+            end
         end
         if( !rstn ) begin
             misses  <= 4'd0;
@@ -137,6 +139,8 @@ module jtframe_sys6809 #( parameter
         .irq_ack    ( irq_ack   ),
         // Bus sharing
         .bus_busy   ( bus_busy  ),
+        .breq_n     ( 1'b1      ),
+        .bg         (           ),
         // memory interface
         .A          ( A         ),
         .RnW        ( RnW       ),
@@ -180,6 +184,8 @@ module jtframe_sys6809_dma #( parameter
     output          irq_ack,
     // Bus sharing
     input           bus_busy,
+    input           breq_n, // bus request
+    output          bg,     // bus grant
     // memory interface
     output  [15:0]  A,
     output          RnW,
@@ -205,7 +211,8 @@ module jtframe_sys6809_dma #( parameter
     wire [7:0] din_dec;
     wire    irqn_eff, firqn_eff, nmin_eff;
 
-    assign  irq_ack = {BA,BS}==2'b01;
+    assign irq_ack = {BA,BS}==2'b01;
+    assign bg      = {BA,BS}==2'b11; // this will toggle once every 16 cycles when granted
 
     always @(posedge clk, negedge rstn) begin
         if( !rstn )
@@ -315,7 +322,7 @@ module jtframe_sys6809_dma #( parameter
         .AVMA    ( AVMA    ),
         .BUSY    (         ),
         .LIC     (         ),
-        .nDMABREQ( 1'b1    ),
+        .nDMABREQ( breq_n  ),
         .nHALT   ( 1'b1    ),
         .nRESET  ( rstn    ),
         .OP      ( OP      ),

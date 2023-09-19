@@ -350,8 +350,8 @@ jtframe_freqinfo #(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .pulse  ( int_n ),
-    .fave   ( fave  ), // average cpu_cen frequency in kHz
-    .fworst (       ) // average cpu_cen frequency in kHz
+    .fave   ( fave  ),
+    .fworst (       )
 );
 
 jtframe_mixer #(.W2(11)) u_mixer(

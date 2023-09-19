@@ -112,7 +112,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
@@ -156,7 +155,6 @@ jtgng_scroll #(
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),

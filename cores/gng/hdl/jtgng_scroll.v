@@ -33,7 +33,6 @@ module jtgng_scroll #(parameter
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
-    input              cpu_cen,
     input              Asel,
     input  [SCANW-1:0] AB,
     input        [7:0] V, // V128-V1

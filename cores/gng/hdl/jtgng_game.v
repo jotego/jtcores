@@ -20,8 +20,6 @@
 module jtgng_game(
     input           rst,
     input           clk,
-    input           rst24,
-    input           clk24,
     input           pxl2_cen,   // 12   MHz
     input           pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -75,24 +73,12 @@ module jtgng_game(
     output  [ 7:0]  debug_view
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
-
-wire [8:0] V;
-wire [8:0] H;
-wire HINIT;
+wire [ 8:0] V, H;
+wire [ 7:0] cpu_dout, char_dout, scr_dout, st_snd;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
-wire block_flash;
-wire preLHBL, preLVBL;
+wire        snd_cs, char_cs, flip, HINIT;
+wire        char_busy, scr_busy, block_flash, preLHBL, preLVBL;
 
 // ROM data
 wire [15:0] char_data;
@@ -106,30 +92,59 @@ wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [14:0] scr_addr;
 wire [15:0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
 
-wire main_ok, snd_ok;
-wire cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
+wire        main_ok, snd_ok;
+wire        cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
+wire        LHBL_obj, LVBL_obj;
+
+wire        RnW, blue_cs, redgreen_cs, bus_ack, bus_req;
+wire [15:0] sdram_din;
+wire [12:0] wr_row;
+wire [ 8:0] wr_col;
+wire        main_cs;
+// OBJ
+wire [ 8:0] obj_AB;
+wire        OKOUT, blcnten;
+wire [ 7:0] main_ram;
+// sound
+wire        sres_b;
+wire [ 7:0] snd_latch;
+
+wire        scr_cs;
+wire [ 8:0] scr_hpos, scr_vpos;
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 assign block_flash = status[13];
+assign dip_flip    = flip;
+assign debug_view  = debug_bus[7] ? st_snd :
+            { 3'd0, ~sres_b, 2'd0, blcnten, OKOUT };
 
-jtframe_cen24 u_cen24(
-    .clk    ( clk24     ),
+jtframe_cen48 u_cen(
+    .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen6b  ( cen6b     ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    ),
-    .cen1p5b( cen1p5b   )
+    .cen1p5b( cen1p5b   ),
+    // unused
+    .cen8   (           ),
+    .cen4   (           ),
+    .cen12b (           ),
+    .cen16  (           ),
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen4_12(           ),
+    .cen16b (           )
 );
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~dipsw_a[7];
-
-wire LHBL_obj, LVBL_obj;
-
 jtgng_timer u_timer(
-    .clk       ( clk24    ),
+    .clk       ( clk      ),
     .cen6      ( cen6     ),
     .V         ( V        ),
     .H         ( H        ),
@@ -142,28 +157,6 @@ jtgng_timer u_timer(
     .VS        ( VS       ),
     .Vinit     (          )
 );
-
-wire RnW;
-
-wire blue_cs;
-wire redgreen_cs;
-
-wire bus_ack, bus_req;
-wire [15:0] sdram_din;
-wire [12:0] wr_row;
-wire [ 8:0] wr_col;
-wire        main_cs;
-// OBJ
-wire [ 8:0] obj_AB;
-wire OKOUT;
-wire [7:0] main_ram;
-wire blcnten;
-// sound
-wire sres_b;
-wire [7:0] snd_latch;
-
-wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
 
 jtgng_prom_we u_prom_we(
     .clk         ( clk           ),
@@ -182,11 +175,10 @@ jtgng_prom_we u_prom_we(
 
 `ifndef NOMAIN
 jtgng_main u_main(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .clk_dma    ( clk           ),
     .cen6       ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
     .LVBL       ( LVBL          ),
@@ -234,8 +226,8 @@ jtgng_main u_main(
     .RnW        ( RnW           ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_a    ( dipsw[ 7:0]   ),
+    .dipsw_b    ( dipsw[15:8]   )
 );
 `else
 assign main_addr   = 17'd0;
@@ -248,13 +240,12 @@ assign flip        = 1'b0;
 assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
 jtgng_sound #(.PSG_ATT(1)) u_sound (
-    .rst            ( rst24      ),
-    .clk            ( clk24      ),
+    .rst            ( rst        ),
+    .clk            ( clk        ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),
     // Interface with main CPU
@@ -274,7 +265,7 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
     .peak           ( game_led   ),
-    .debug_view     ( debug_view )
+    .debug_view     ( st_snd     )
 );
 `else
     assign snd_addr   = 0;
@@ -282,18 +273,18 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     assign game_led   = 0;
     assign snd_cs     = 0;
     assign snd        = 0;
-    assign debug_view = 0;
+    assign st_snd     = 0;
 `endif
 
 wire char_ok, scr1_ok, scr2_ok, obj_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
+/* verilator tracing_off */
 jtgng_video #(.GNGPAL(1)) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( pxl2_cen      ),
     .cen6       ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
@@ -344,7 +335,11 @@ jtgng_video #(.GNGPAL(1)) u_video(
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )
+    .blue       ( blue          ),
+    // Unused
+    .prom_green_we( 1'd0 ),
+    .prom_blue_we ( 1'd0 ),
+    .prom_din     ( 4'd0 )
 );
 
 wire [7:0] scr_nc; // no connect

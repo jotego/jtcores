@@ -19,7 +19,7 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cen48.v
-      - jtframe_cen24.v
+      # - jtframe_cen24.v
   - from: ram
     get:
       - jtframe_ram.v

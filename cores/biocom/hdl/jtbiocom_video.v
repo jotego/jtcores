@@ -118,7 +118,6 @@ end
 jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
@@ -160,7 +159,6 @@ jtgng_scroll #(
 u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
@@ -204,7 +202,6 @@ jtgng_scroll #(
 u_scroll2 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),

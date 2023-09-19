@@ -162,7 +162,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( buf_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),  // shouldn't this be 12:1, or change char's AW
     .V          ( cv            ),
     .H          ( ch            ),

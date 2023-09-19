@@ -135,7 +135,7 @@ wire        sres_b, flip;
 wire        bus_ack, bus_req, blcnten;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
-assign dip_flip = ~flip;
+assign dip_flip = flip;
 assign obj_cs   = 1;
 assign debug_view = { 7'd0, flip };
 
@@ -259,7 +259,6 @@ u_video(
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
     .V          ( vdump         ),
     .RnW        ( main_rnw      ),

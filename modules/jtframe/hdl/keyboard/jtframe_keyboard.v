@@ -71,7 +71,7 @@ always @(posedge clk) begin
       key_joy1     <= 0;
       key_joy2     <= 0;
       key_joy3     <= 0;
-      key_joy3     <= 0;
+      key_joy4     <= 0;
       key_coin     <= 0;
       key_start    <= 0;
       key_reset    <= 0;

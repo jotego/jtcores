@@ -25,7 +25,6 @@ module jtrumble_video#(
     input               clk,
     input               pxl2_cen,
     input               pxl_cen,
-    input               cpu_cen,
     input       [12:0]  cpu_AB,
     output      [ 8:0]  V,
     input               RnW,
@@ -147,7 +146,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( { ~cpu_AB[0], cpu_AB[11:1] } ),
     .V          ( V[7:0]        ),
     .H          ( H[8:0]        ),
@@ -193,7 +191,6 @@ jtgng_scroll #(
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
