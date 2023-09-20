@@ -13,43 +13,36 @@ clocks:
         - cen_12
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: main
+    - buses:
+        - name: main
           addr_width: 22
           data_width: 8
-        -
-          name: sub
+        - name: sub
           addr_width: 22
           data_width: 8
-    -
-      buses:
-        -
-          name: snd
+        - name: ram
+          addr_width: 14  # the PCB seems to support 17 bits too
+          data_width: 8
+          rw: true
+    - buses:
+        - name: snd
           addr_width: 17
           data_width: 8
-        -
-          name: pcm
+        - name: pcm
           addr_width: 20
           data_width: 8
           offset: PCM_OFFSET
-    -
-      buses:
-        -
-          name: mask
+    - buses:
+        - name: mask
           addr_width: 17
           data_width: 32
-        -
-          name: scr
+        - name: scr
           addr_width: 20
           data_width: 32
           offset: SCR_OFFSET
 
-    -
-      buses:
-        -
-          name: obj
+    - buses:
+        - name: obj
           addr_width: 20
           data_width: 32
 bram:

@@ -51,7 +51,6 @@ module jtc117(
     output              rnw,
     output       [21:0] baddr,
     output       [ 7:0] bdout
-
 );
     reg          vb_edge, lvbl_l, fedge, firqn_l;
     wire         xirq;
@@ -141,7 +140,6 @@ module jtc117(
         .firq_n     ( sfirq_n   ),
         .ahi        ( sahi      )
     );
-
 endmodule
 
 //////////////////////////////////////////////////////////////////////
@@ -175,6 +173,7 @@ module jtc117_unit(
             firq_n   <= 1;
             oirq     <= 0;
             // not all defaults values have been verified
+            // they all point to RAM except bank 7, pointing to the last ROM
             banks[0] <= 10'h180; banks[1] <= 10'h180;
             banks[2] <= 10'h180; banks[3] <= 10'h180;
             banks[4] <= 10'h180; banks[5] <= 10'h180;
