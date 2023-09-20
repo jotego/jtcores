@@ -22,7 +22,11 @@
 
 module jtc117(
     input               rst,
-    input               clk,
+    input               clk,     // original runs at 6MHz (4x CPU)
+    input               bsel,    // bus selection, 0=master, 1=sub, 1.5MHz
+    // interrupt triggers
+    input               lvbl,
+    input               firqn,   // input that will trigger both FIRQ outputs
 
     // Master
     input        [15:0] maddr,  // not all bits are used, but easier to connect as a whole
@@ -30,27 +34,49 @@ module jtc117(
     input               mrnw,
     output reg          mirq,
     output reg          mfirq,
-    output reg  [21:12] mahi,   // address high bits
     output reg          mram_cs,
 
     // Sub
     input        [15:0] saddr,
     input        [ 7:0] sdout,
     input               srnw,
-    output reg  [21:12] sahi,
     output reg          sirq,
     output reg          sfirq,
     output reg          sram_cs,
     output              srst_n,
 
-    output reg   [ 9:0] cs,
-
+    output       [ 9:0] cs,
+    output              rom_cs,
+    output              ram_cs,
+    output              rnw,
+    output       [21:0] baddr,
+    output       [ 7:0] bdout
 
 );
-    reg         vb_edge, lvbl_l;
-    wire        xirq_n;
-    reg  [15:0] samux;
-    reg  [ 7:0] sdmux;
+    reg          vb_edge, lvbl_l, fedge, firqn_l;
+    wire         xirq;
+    reg  [ 15:0] samux;
+    reg  [  7:0] sdmux;
+    wire [22:12] mahi, sahi;
+
+    function range( input s, e [21:12] );
+        range = baddr[21:12]>=s && baddr[21:12]<e;
+    endfunction
+
+    assign { rom_cs, baddr } = bsel ? { sahi, saddr[11:0] } : { mahi, maddr[11:0] };
+    assign bdout  = bsel ? sdout : mdout;
+    assign cs[0]  = range(10'h200,10'h280); // made-up number
+    assign cs[1]  = range(10'h280,10'h2C0); // made-up number
+    assign cs[2]  = range(10'h2C0,10'h2C2); // 3D,     acc. to MAME
+    assign cs[3]  = range(10'h2E0,10'h2E8); // COL,    acc. to MAME
+    assign cs[4]  = range(10'h2F0,10'h2F8); // CHAR,   acc. to MAME
+    assign cs[5]  = range(10'h2F8,10'h2FA); // KEY,    acc. to MAME
+    assign cs[6]  = range(10'h2FC,10'h2FD); // OBJ,    acc. to MAME
+    assign cs[7]  = range(10'h2FD,10'h2FE); // SCRDT,  acc. to MAME
+    assign cs[8]  = range(10'h2FE,10'h2FF); // SOUND,  acc. to MAME
+    assign cs[9]  = range(10'h2FF,10'h300); // TRIRAM, acc. to MAME
+    assign ram_cs = range(10'h300,10'h320); // RAM, 32 or 128kB on board. MAME uses 32kB
+    assign rnw    = bsel ? srnw : mrnw;
 
     always @* begin
         samux = saddr;
@@ -67,10 +93,14 @@ module jtc117(
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             lvbl_l  <= 0;
+            firqn_l <= 0;
             vb_edge <= 0;
+            fedge   <= 0;
         end else begin
             lvbl_l  <= lvbl;
+            firqn_l <= firqn;
             vb_edge <= !lvbl && lvbl_l;
+            fedge   <= !firqn && firqn_l;
         end
     end
 
@@ -84,8 +114,8 @@ module jtc117(
         .dout       ( mdout     ),
         .rnw        ( mrnw      ),
 
-        .xirq_n     (           ),
-        .oirq_n     ( xirq_n    ),
+        .xirq       ( fedge     ),
+        .oirq       ( xirq      ),
 
         .rstn_out   ( srst_n    ),
         .irq_n      ( mirq_n    ),
@@ -103,10 +133,10 @@ module jtc117(
         .dout       ( sdmux     ),
         .rnw        ( swmux     ),
 
-        .xirq_n     ( xirq_n    ),
-        .oirq_n     (           ),
+        .xirq       ( xirq|fedge),
+        .oirq       (           ),
 
-        .rstn_out   (           ),
+        .rstn_out   (           ), // the sub CPU can probably reset the master too
         .irq_n      ( sirq_n    ),
         .firq_n     ( sfirq_n   ),
         .ahi        ( sahi      )
@@ -125,32 +155,33 @@ module jtc117_unit(
     input        [ 7:0] dout,
     input               rnw,
 
-    input               xirq_n,
-    output reg          oirq_n,
+    input               xirq,
+    output reg          oirq,
 
     output reg          rstn_out,
     output reg          irq_n,
     output reg          firq_n,
-    output reg  [21:12] ahi,   // address high bits
-    output reg          ram_cs,
+    output      [22:12] ahi    // address high bits
 );
     reg  [22:13] banks[0:7];
     wire         mmr_cs;
 
     assign mmr_cs = &addr[15:13];
+    assign ahi    = { banks[addr[15:13]], addr[12] };
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             rstn_out <= 0;
             firq_n   <= 1;
+            oirq     <= 0;
             // not all defaults values have been verified
             banks[0] <= 10'h180; banks[1] <= 10'h180;
             banks[2] <= 10'h180; banks[3] <= 10'h180;
             banks[4] <= 10'h180; banks[5] <= 10'h180;
             banks[6] <= 10'h180; banks[7] <= 10'h3FF;
         end else begin
-            oirq_n <= 1;
-            if( !xirq_n ) firq_n <= 0;
+            oirq <= 0;
+            if( xirq ) firq_n <= 0;
             if( vb_edge ) irq_n  <= 0;
             if( !rnw && mmr_cs ) begin
                 casez( addr[12:9] )
@@ -165,7 +196,7 @@ module jtc117_unit(
                     // 10: ?
                     11: irq_n  <= 1;
                     12: firq_n <= 1;
-                    13: oirq_n <= 0;
+                    13: oirq   <= 1;
                 endcase
             end
         end

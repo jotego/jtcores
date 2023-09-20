@@ -89,26 +89,26 @@ Address          Dir Data     Name      Description
 
 virtual memory map:
 
-Address                 Dir Data     Name      Description
------------------------ --- -------- --------- -----------------------
-010110----------------x   W -------- 3DCS      side select for 3D glasses
-01011100xxxxxxxxxxxxxxx R/W xxxxxxxx COLCS     palette + video window (CUS116 & CUS120)
-01011110xxxxxxxxxxxxxxx R/W xxxxxxxx CHAR      tilemap RAM (CUS133)
-0101111100---xxxxxxxxxx R/W xxxxxxxx KEY       protection key custom [1]
-01011111100xxxxxxxxxxxx R/W xxxxxxxx OBJECT    work RAM (CUS48)
-010111111001xxxxxxxxxxx R/W xxxxxxxx           portion holding sprite registers
-01011111101-------xxxxx R/W xxxxxxxx SCRDT     tilemap control (CUS123 & CUS133)
-01011111110--xxxxxxxxxx R/W xxxxxxxx SOUND     sound RAM (through CUS30) [2]
-01011111111-xxxxxxxxxxx R/W xxxxxxxx IOEN      TRIRAM (shared with all other CPUs)
-01100000xxxxxxxxxxxxxxx R/W xxxxxxxx RAM       work RAM
-1000xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM H10   program ROM
-1001xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM K10   program ROM
-1010xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM L10   program ROM
-1011xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM M10   program ROM
-1100xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM N10   program ROM
-1101xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM P10   program ROM
-1110xxxxxxxxxxxxxxxxxxx R   xxxxxxxx ROM S10   program ROM
-1111--xxxxxxxxxxxxxxxxx R   xxxxxxxx ROM T10   program ROM [3]
+Address                    Dir Data     Name      Description
+-------------------------- --- -------- --------- -----------------------
+010'110-'--------'------xx   W -------- 3DCS      side select for 3D glasses
+010'1110'0xxxxxxx'xxxxxxxx R/W xxxxxxxx COLCS     palette + video window (CUS116 & CUS120)
+010'1111'0xxxxxxx'xxxxxxxx R/W xxxxxxxx CHAR      tilemap RAM (CUS133)
+010'1111'100---xx'xxxxxxxx R/W xxxxxxxx KEY       protection key custom [1]
+010'1111'1100xxxx'xxxxxxxx R/W xxxxxxxx OBJECT    work RAM (CUS48)
+010'1111'11001xxx'xxxxxxxx R/W xxxxxxxx           portion holding sprite registers
+010'1111'1101----'---xxxxx R/W xxxxxxxx SCRDT     tilemap control (CUS123 & CUS133)
+010'1111'1110--xx'xxxxxxxx R/W xxxxxxxx SOUND     sound RAM (through CUS30) [2]
+010'1111'1111-xxx'xxxxxxxx R/W xxxxxxxx IOEN      TRIRAM (shared with all other CPUs)
+011'0000'0xxxxxxx'xxxxxxxx R/W xxxxxxxx RAM       work RAM
+100'0xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM H10   program ROM
+100'1xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM K10   program ROM
+101'0xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM L10   program ROM
+101'1xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM M10   program ROM
+110'0xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM N10   program ROM
+110'1xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM P10   program ROM
+111'0xxx'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM S10   program ROM
+111'1--x'xxxxxxxx'xxxxxxxx R   xxxxxxxx ROM T10   program ROM [3]
 
 [1] different in every game
 [2] from the schematics, it would seem that only 000-0FF is shared, but shadowld
