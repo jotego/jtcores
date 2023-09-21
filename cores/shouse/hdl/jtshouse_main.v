@@ -16,10 +16,6 @@
     Version: 1.0
     Date: 19-9-2023 */
 
-// Implementation of Namco's CUS117 - Memory Mapper for two CPUs
-// Based on MAME's c117 information and Atari's schematics
-
-
 module jtshouse_main(
     input               clk,
     input               cen3,
@@ -30,6 +26,9 @@ module jtshouse_main(
     output       [21:0] baddr,  // shared by both CPUs
     output       [ 7:0] bdout,
     output              brnw,
+
+    output              key_cs,
+    input        [ 7:0] key_dout,
 
     output              mrom_cs,   srom_cs,   ram_cs,
     input               mrom_ok,   srom_ok,   ram_ok,
@@ -52,6 +51,7 @@ assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
               srom_cs ? srom_data :
               ram_cs  ? ram_dout  :
+              key_cs  ? key_dout  :
               8'd0;
 
 always @(posedge clk) begin

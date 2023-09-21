@@ -641,6 +641,7 @@ void namcos1_state::key_type_2_init(int key_id)
 	save_item(NAME(m_key_numerator_high_word));
 }
 
+// splatter: key_type_3_init(181, 3, 4, -1, -1, -1, -1);
 void namcos1_state::key_type_3_init(int key_id, int reg, int rng, int swap4_arg, int swap4, int bottom4, int top4)
 {
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,

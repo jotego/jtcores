@@ -22,6 +22,12 @@ skip = { machines=[
     "ws",
 ] }
 
+[header]
+info="Byte 0: protection type"
+data= [
+    { machine="splatter", data="03 B5 03 04" }
+]
+
 [buttons]
 names=[
     { machine="splatter", names="Attack,Jump" },

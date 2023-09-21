@@ -88,6 +88,8 @@ defaults=[
 
 [header]
 # Specify the length in macros.def: JTFRAME_HEADER=length
+# The header signal will be high during the header length
+# verilog: if( prog_addr==0 && prog_we && header ) mycfg <= prog_data;
 info="Describe the header"
 fill=0xff
 data = [
