@@ -27,7 +27,7 @@ module jtshouse_key(
     input               rnw,
     input         [7:0] addr,
     input         [7:0] din,
-    output        [7:0] dout
+    output reg    [7:0] dout,
 
     input               prog_en,
     input               prog_wr,
@@ -64,6 +64,7 @@ end
 always @(posedge clk or posedge rst) begin
     if(rst) begin
         cen_rng <= 0;
+        dout    <= 0;
     end else begin
         cen_rng <= 0;
         if( cs & ~rnw ) mmr[addr[6:4]] <= din;
@@ -73,9 +74,9 @@ always @(posedge clk or posedge rst) begin
                 cen_rng <= 1;
                 dout <= rng; // Random Number Generator
             end
-            cfg[5][2:0]: { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
-            cfg[6][2:0]: { mmr_mux[3:0], addr[7:4] }; // lower nibble
-            cfg[7][2:0]: { mmr_mux[7:4], addr[7:4] }; // upper nibble
+            cfg[5][2:0]: dout <= { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
+            cfg[6][2:0]: dout <= { mmr_mux[3:0], addr[7:4] }; // lower nibble
+            cfg[7][2:0]: dout <= { mmr_mux[7:4], addr[7:4] }; // upper nibble
         endcase
     end
 end
