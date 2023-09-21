@@ -11,6 +11,8 @@ clocks:
       outputs:
         - cen_24
         - cen_12
+        - cen_6
+        - cen_3
 sdram:
   banks:
     - buses:

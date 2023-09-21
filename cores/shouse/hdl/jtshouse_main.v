@@ -30,6 +30,8 @@ module jtshouse_main(
     output              key_cs,
     input        [ 7:0] key_dout,
 
+    output              srst_n,
+
     output              mrom_cs,   srom_cs,   ram_cs,
     input               mrom_ok,   srom_ok,   ram_ok,
     input        [ 7:0] mrom_data, srom_data, ram_dout,
@@ -40,7 +42,7 @@ wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin;
 wire        mrnw, mirq, mfirq, mram_cs,
             srnw, sirq, sfirq, sram_cs,
-            bus_busy, srst_n;
+            bus_busy;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 
