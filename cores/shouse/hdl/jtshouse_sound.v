@@ -19,7 +19,7 @@
 module jtshouse_sound(
     input               srst_n,
     input               clk,
-    input               cen6,
+    input        [ 1:0] cpu_cen,
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
@@ -28,20 +28,24 @@ module jtshouse_sound(
     output       [16:0] rom_addr,
     input        [ 7:0] rom_data,
     input               rom_ok,
+    output              bus_busy,
 
     output signed[15:0] left, right,
-    output              sample
+    output              sample,
+    output              peak
 );
 
 wire [15:0] A;
 wire [ 7:0] cpu_dout, ram_dout, fm_dout;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
-reg         irq_n, lvbl_l;
-wire        VMA, RnW, ram_cs, fm_cs, firq_n;
+reg         irq_n, lvbl_l, VMA;
+wire        AVMA, RnW, ram_cs, fm_cs, firq_n;
 wire signed [15:0] fm_l, fm_r;
 
 assign rom_addr = { bank, A[13:0] };
+assign bus_busy = rom_cs & ~rom_ok;
+assign peak     = 0;
 
 always @(posedge clk) begin
     rom_cs   <= 0;
@@ -72,7 +76,9 @@ always @(posedge clk, posedge rst) begin
         bank  <= 0;
         irq_n <= 1;
         lvbl_l <= 0;
+        VMA   <= 0;
     end else begin
+        if( cpu_cen[1] ) VMA <= AVMA;
         lvbl_l <= lvbl;
         if( !lvbl && lvbl_l ) irq_n <= 0;
         if( reg_cs && !RnW ) begin
@@ -104,32 +110,29 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_sys6809 #(
-    .RAM_AW  ( 13 ),
-    .RECOVERY(  1 )
-)u_cpu(
-    .rstn       ( srst_n    ),
+mc6809i u_cpu(
+    .nRESET     ( srst_n    ),
     .clk        ( clk       ),
-    .cen        ( cen6      ),       // This is normally the input clock to the CPU
-    .cpu_cen    (           ),   // 1/4th of cen
+    .cen_E      ( cpu_cen[1]),
+    .cen_Q      ( cpu_cen[0]),
+    .D          ( cpu_din   ),
+    .DOut       ( cpu_dout  ),
+    .ADDR       ( A         ),
+    .RnW        ( RnW       ),
+    .AVMA       ( AVMA      ),
     // Interrupts
     .nIRQ       ( irq_n     ),
     .nFIRQ      ( firq_n    ),
     .nNMI       ( 1'b1      ),
-    .irq_ack    (           ),
-    // Bus sharing
-    input           bus_busy,
-    // memory interface
-    .A          ( A         ),
-    .RnW        ( RnW       ),
-    .VMA        ( VMA       ),
-    .ram_cs     ( ram_cs    ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-    // Bus multiplexer is external
-    .ram_dout   ( ram_dout  ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_din    ( cpu_din   )
+    .nHALT      ( 1'b1      ),
+    // unused
+    .BS         (           ),
+    .BA         (           ),
+    .BUSY       (           ),
+    .LIC        (           ),
+    .nDMABREQ   ( 1'b1      ),
+    .OP         (           ),
+    .RegData    (           )
 );
 
 endmodule

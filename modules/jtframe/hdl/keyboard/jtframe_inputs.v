@@ -189,7 +189,7 @@ function [9:0] apply_rotation;
     begin
     apply_rotation = {10{ACTIVE_LOW[0]}} ^
         (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        flip ?
+        ~flip ?
          { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
          { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
     end

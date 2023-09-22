@@ -1,0 +1,34 @@
+game:
+  - from: shouse
+    get:
+      - jtshouse_game.v
+      - jtshouse_main.v
+      - jtshouse_video.v
+      - jtshouse_sound.v
+      - jtshouse_colmix.v
+      # - jtshouse_mcu.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_bcd_cnt.v
+  # - from: clocking
+  #   get:
+  #     - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - mc6809i.v
+  - from: clocking
+    get:
+      - jtframe_freqinfo.v
+  # - from: ram
+  #   get:
+  #     - jtframe_ram.v
+  #     - jtframe_dual_ram.v
+  #     - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+modules:
+  jt:
+    - name: jt51
+

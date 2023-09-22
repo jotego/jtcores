@@ -17,18 +17,21 @@
     Date: 16-4-2022 */
 
 module jtframe_freqinfo #(parameter
-    KHZ   = 1,      // set to 1 to output kHz, set to 0 to output Hz   
-    MFREQ = 48_000  // clk input frequency in kHz
+    KHZ   = 1,      // set to 1 to output kHz, set to 0 to output Hz
+    MFREQ = 48_000, // clk input frequency in kHz
+    DIGITS = 4      // count up to 9999 kHz, change to 5 for 10MHz and above
 )(
     input             rst,
     input             clk,
     input             pulse,
-    output reg [15:0] fave, // average cpu_cen frequency in kHz
-    output reg [15:0] fworst  // average cpu_cen frequency in kHz
+    output reg [DIGITS*4-1:0] fave,   // average cpu_cen frequency in kHz (BCD encoding)
+    output reg [DIGITS*4-1:0] fworst  // worst case registered (BCD)
 );
 
 wire cnt_event;
-wire cen;
+wire cen, ms;
+
+assign ms = freq_cnt == MFREQ-1;
 
 generate
     if( KHZ==1 )
@@ -49,8 +52,9 @@ generate
 endgenerate
 
 // Frequency reporting
-reg [15:0] freq_cnt, fout_cnt;
-reg        pulse_l;
+reg  [15:0] freq_cnt;
+wire [DIGITS*4-1:0] fout_cnt;
+reg         pulse_l;
 
 assign cnt_event = pulse & ~pulse_l;
 
@@ -62,14 +66,20 @@ always @(posedge clk, posedge rst) begin
     end else begin
         pulse_l <= pulse;
         if( cen ) freq_cnt <= freq_cnt + 1'd1;
-        if( cnt_event ) fout_cnt<=fout_cnt+1'd1;
-        if( freq_cnt == MFREQ-1 ) begin // updated every 1ms
+        if( ms ) begin // updated every 1ms
             freq_cnt <= 0;
-            fout_cnt <= 0;
             fave <= fout_cnt;
             if( fworst > fout_cnt ) fworst <= fout_cnt;
         end
     end
 end
+
+jtframe_bcd_cnt #(.DIGITS(DIGITS)) u_bcd(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .clr        ( ms        ),
+    .up         ( cnt_event ),
+    .cnt        ( fout_cnt  )
+);
 
 endmodule

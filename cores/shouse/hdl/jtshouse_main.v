@@ -17,8 +17,9 @@
     Date: 19-9-2023 */
 
 module jtshouse_main(
+    input               rst,
     input               clk,
-    input               cen3,
+    input        [ 1:0] cpu_cen,
 
     input               lvbl,
     input               firqn,     // input that will trigger both FIRQ outputs
@@ -36,17 +37,16 @@ module jtshouse_main(
     input               mrom_ok,   srom_ok,   ram_ok,
     input        [ 7:0] mrom_data, srom_data, ram_dout,
 
+    output              bus_busy
 );
 
 wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin;
 wire        mrnw, mirq, mfirq, mram_cs,
-            srnw, sirq, sfirq, sram_cs,
-            bus_busy;
+            srnw, sirq, sfirq, sram_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
-
-reg         cen_cnt=0;
+reg         bsel;
 
 assign ram_cs   = mram_cs | sram_cs;
 assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
@@ -57,24 +57,16 @@ assign bdin = mrom_cs ? mrom_data :
               8'd0;
 
 always @(posedge clk) begin
-    cen_e <= 0;
-    cen_q <= 0;
-    if( cen3 & ~bus_busy) begin // no cycle recovery for now
-       cen_cnt <= ~cen_cnt;
-       cen_e <= ~cen_cnt;
-       cen_q <=  cen_cnt;
-    end
-end
-
-always @(posedge clk) begin
-    if(  cen_cnt ) mdin <= bdin;
-    if( ~cen_cnt ) sdin <= bdin;
+    if( cpu_cen[0] ) bsel <= 1;
+    if( cpu_cen[1] ) bsel <= 0;
+    if( ~bsel ) mdin <= bdin;
+    if(  bsel ) sdin <= bdin;
 end
 
 jtc117 u_mapper(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .bsel   ( cen_cnt   ), // 0=master, 1=sub
+    .bsel   ( bsel      ), // 0=master, 1=sub
     // interrupt triggers
     .lvbl   ( lvbl      ),
     .firqn  ( firqn     ),   // input that will trigger both FIRQ outputs
@@ -107,12 +99,13 @@ jtc117 u_mapper(
 mc6809i u_main(
     .nRESET     ( ~rst      ),
     .clk        ( clk       ),
-    .cen_E      ( cen_e     ),
-    .cen_Q      ( cen_q     ),
+    .cen_E      ( cpu_cen[0]),
+    .cen_Q      ( cpu_cen[1]),
     .D          ( mdin      ),
     .DOut       ( mdout     ),
     .ADDR       ( maddr     ),
     .RnW        ( mrnw      ),
+    // Interrupts
     .nIRQ       ( mirqn     ),
     .nFIRQ      ( mfirqn    ),
     .nNMI       ( 1'b1      ),
@@ -131,12 +124,13 @@ mc6809i u_main(
 mc6809i u_sub(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
-    .cen_E      ( cen_q     ),
-    .cen_Q      ( cen_e     ),
+    .cen_E      ( cpu_cen[1]),
+    .cen_Q      ( cpu_cen[0]),
     .D          ( sdin      ),
     .DOut       ( sdout     ),
     .ADDR       ( saddr     ),
     .RnW        ( srnw      ),
+    // Interrupts
     .nIRQ       ( sirqn     ),
     .nFIRQ      ( sfirqn    ),
     .nNMI       ( 1'b1      ),

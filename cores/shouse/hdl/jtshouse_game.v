@@ -21,12 +21,31 @@ module jtshouse_game(
 );
 
 wire [21:0] baddr;
-wire        brnw, key_cs;
+wire        brnw, key_cs, srst_n;
 wire [ 7:0] bdout, key_dout;
+wire [ 1:0] busy, cpu_cen;
+reg  [ 7:0] dbg_mux;
 
 // bit 16 of ROM T10 in sch. is inverted:
 assign main_addr = (&baddr[21:18] ? 22'h10000 : 22'h0) ^ baddr;
 assign sub_addr  = main_addr;
+
+always @* begin
+    case( debug_bus )
+        0: fave[15:8]; // average CPU frequency (BCD format)
+        1: fave[ 7:0];
+    endcase
+end
+
+jtshouse_cenloop u_cen(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .busy       ( busy      ),
+
+    .cpu_cen    ( cpu_cen   ),
+    .fave       ( fave      ),
+    .fworst     (           )
+);
 
 jtshouse_key u_key(
     .rst        ( rst       ),
@@ -43,6 +62,55 @@ jtshouse_key u_key(
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 
+);
+
+jtshouse_main u_main(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+
+    .lvbl       ( LVBL      ),
+    .firqn      ( firqn     ),     // input that will trigger both FIRQ outputs
+
+    .baddr      ( baddr     ),  // shared by both CPUs
+    .bdout      ( bdout     ),
+    .brnw       ( brnw      ),
+
+    .key_cs     ( key_cs    ),
+    .key_dout   ( key_dout  ),
+
+    .srst_n     ( srst_n    ),
+
+    .mrom_cs    ( main_cs   ),
+    .srom_cs    ( sub_cs    ),
+    .ram_cs     ( ram_cs    ),
+    .mrom_ok    ( main_ok   ),
+    .srom_ok    ( sub_ok    ),
+    .ram_ok     ( ram_ok    ),
+    .mrom_data  ( main_data ),
+    .srom_data  ( sub_data  ),
+    .ram_dout   ( ram_dout  ),
+    .bus_busy   ( busy[0]   )
+);
+
+jtshouse_sound u_sound(
+    .srst_n     ( srst_n    ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    .cen_fm     ( cen_fm    ),
+    .cen_fm2    ( cen_fm2   ),
+    .lvbl       ( lvbl      ),
+
+    .rom_cs     ( snd_cs    ),
+    .rom_addr   ( snd_addr  ),
+    .rom_data   ( snd_data  ),
+    .rom_ok     ( snd_ok    ),
+    .bus_busy   ( busy[1]   ),
+
+    .left       ( snd_left  ),
+    .right      ( snd_right ),
+    .sample     ( sample    ),
+    .peak       ( game_led  )
 );
 
 endmodule
