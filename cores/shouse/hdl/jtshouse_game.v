@@ -25,7 +25,8 @@ wire [15:0] fave;
 wire        brnw, srst_n, firqn,
             key_cs, cus30b_cs;
 wire [ 7:0] bdout, key_dout, sndcpu_dout;
-wire [ 1:0] busy, cpu_cen;
+wire [ 1:0] busy;
+wire [ 3:0] cpu_cen;
 reg  [ 7:0] dbg_mux;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
@@ -84,7 +85,7 @@ jtshouse_key u_key(
 jtshouse_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .cpu_cen    (cpu_cen[1:0]),
 
     .lvbl       ( LVBL      ),
     .firqn      ( firqn     ),     // input that will trigger both FIRQ outputs
@@ -114,7 +115,7 @@ jtshouse_main u_main(
 jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .cpu_cen    (cpu_cen[3:2]),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),

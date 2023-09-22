@@ -21,17 +21,17 @@ module jtshouse_cenloop(
     input             clk,
     input      [ 1:0] busy,
 
-    output reg [ 1:0] cpu_cen,
+    output reg [ 3:0] cpu_cen,
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
 parameter FCLK = 49152,
-          FCPU =  1536*2,
+          FCPU =  1536*4,
           NUM  = 1,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
 
-reg           clk2;
+reg     [1:0] clk4;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
@@ -47,9 +47,11 @@ always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin
         blank <= 1;
-        clk2 <= ~clk2;
-        cpu_cen[0] <=  clk2;
-        cpu_cen[1] <= ~clk2;
+        clk4 <= clk4+2'd1;
+        cpu_cen[0] <= clk4==0;
+        cpu_cen[1] <= clk4==2;
+        cpu_cen[2] <= clk4==1;
+        cpu_cen[3] <= clk4==3;
     end else begin
         cpu_cen <= 0;
     end
@@ -58,7 +60,7 @@ end
 jtframe_freqinfo #(.MFREQ( FCLK )) u_info(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pulse      ( clk2      ),
+    .pulse      ( cpu_cen[0]),
     .fave       ( fave      ), // average cpu_cen frequency in kHz
     .fworst     ( fworst    )
 );
