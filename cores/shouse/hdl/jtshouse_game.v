@@ -21,19 +21,37 @@ module jtshouse_game(
 );
 
 wire [21:0] baddr;
-wire        brnw, key_cs, srst_n;
-wire [ 7:0] bdout, key_dout;
+wire [15:0] fave;
+wire        brnw, srst_n, firqn,
+            key_cs, cus30b_cs;
+wire [ 7:0] bdout, key_dout, sndcpu_dout;
 wire [ 1:0] busy, cpu_cen;
 reg  [ 7:0] dbg_mux;
 
-// bit 16 of ROM T10 in sch. is inverted:
-assign main_addr = (&baddr[21:18] ? 22'h10000 : 22'h0) ^ baddr;
+// bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
+// limiting to 128kB ROMs for now to allow address mirroring on Splatter
+// To do: use a header byte to config this? duplicate content in the MRA?
+assign main_addr = { baddr[21:19], 2'd0, &baddr[21:19] ? { ~baddr[16],baddr[15:0]} : baddr[16:0] };
 assign sub_addr  = main_addr;
+assign debug_view= dbg_mux;
+
+assign ram_addr  = baddr[14:1];
+assign ram_din   = bdout;
+assign ram_dsn   = { baddr[0], ~baddr[0] };
+assign ram_we    = ram_cs & ~brnw;
+
+assign sndram_addr = snd_addr[12:0];
+assign sndram_din  = sndcpu_dout;
+
+// To do:
+assign firqn = 1;
+assign dip_flip = 0;
 
 always @* begin
     case( debug_bus )
-        0: fave[15:8]; // average CPU frequency (BCD format)
-        1: fave[ 7:0];
+        0: dbg_mux = fave[15:8]; // average CPU frequency (BCD format)
+        1: dbg_mux = fave[ 7:0];
+        default: dbg_mux = 0;
     endcase
 end
 
@@ -55,13 +73,12 @@ jtshouse_key u_key(
     .rnw        ( brnw      ),
     .addr       ( baddr[7:0]),
     .din        ( bdout     ),
-    .dout       ( key_dout  )
+    .dout       ( key_dout  ),
 
     .prog_en    ( header    ),
-    .prog_wr    ( prog_wr   ),
+    .prog_wr    ( prog_we   ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
-
 );
 
 jtshouse_main u_main(
@@ -76,6 +93,7 @@ jtshouse_main u_main(
     .bdout      ( bdout     ),
     .brnw       ( brnw      ),
 
+    .cus30b_cs  ( cus30b_cs ),
     .key_cs     ( key_cs    ),
     .key_dout   ( key_dout  ),
 
@@ -89,7 +107,7 @@ jtshouse_main u_main(
     .ram_ok     ( ram_ok    ),
     .mrom_data  ( main_data ),
     .srom_data  ( sub_data  ),
-    .ram_dout   ( ram_dout  ),
+    .ram_dout   ( ram_data  ),
     .bus_busy   ( busy[0]   )
 );
 
@@ -99,7 +117,11 @@ jtshouse_sound u_sound(
     .cpu_cen    ( cpu_cen   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
-    .lvbl       ( lvbl      ),
+    .lvbl       ( LVBL      ),
+
+    .ram_we     ( sndram_we ),
+    .ram_dout   (sndram_dout),
+    .cpu_dout   (sndcpu_dout),
 
     .rom_cs     ( snd_cs    ),
     .rom_addr   ( snd_addr  ),
@@ -111,6 +133,21 @@ jtshouse_sound u_sound(
     .right      ( snd_right ),
     .sample     ( sample    ),
     .peak       ( game_led  )
+);
+
+jtshouse_video u_video(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .lvbl       ( LVBL      ),
+    .lhbl       ( LHBL      ),
+    .hs         ( HS        ),
+    .vs         ( VS        ),
+
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      )
 );
 
 endmodule

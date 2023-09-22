@@ -30,6 +30,7 @@ module jtshouse_main(
 
     output              key_cs,
     input        [ 7:0] key_dout,
+    output              cus30b_cs,
 
     output              srst_n,
 
@@ -42,13 +43,20 @@ module jtshouse_main(
 
 wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin;
-wire        mrnw, mirq, mfirq, mram_cs,
-            srnw, sirq, sfirq, sram_cs;
+wire        mrnw, mirq_n, mfirq_n, mavma,
+            srnw, sirq_n, sfirq_n, savma,
+            rom_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
-reg         bsel;
+reg         bsel, mvma, svma;
+wire        master, sub; // current bus owner
 
-assign ram_cs   = mram_cs | sram_cs;
+assign master   = ~bsel;
+assign sub      =  bsel;
+assign mrom_cs  = rom_cs & master;
+assign srom_cs  = rom_cs & sub;
+assign cus30b_cs= cs[8];
+assign key_cs   = cs[5];
 assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
               srom_cs ? srom_data :
@@ -57,10 +65,12 @@ assign bdin = mrom_cs ? mrom_data :
               8'd0;
 
 always @(posedge clk) begin
-    if( cpu_cen[0] ) bsel <= 1;
-    if( cpu_cen[1] ) bsel <= 0;
-    if( ~bsel ) mdin <= bdin;
-    if(  bsel ) sdin <= bdin;
+    if( cpu_cen[0] ) begin bsel <= 1; mvma <= mavma; end
+    if( cpu_cen[1] ) begin bsel <= 0; svma <= savma; end
+    if( master )
+        mdin <= bdin;
+    else
+        sdin <= bdin;
 end
 
 jtc117 u_mapper(
@@ -70,22 +80,23 @@ jtc117 u_mapper(
     // interrupt triggers
     .lvbl   ( lvbl      ),
     .firqn  ( firqn     ),   // input that will trigger both FIRQ outputs
+    .vma    (           ),
 
     // Master
+    .mvma   ( mvma      ),
     .maddr  ( maddr     ),  // not all bits are used, but easier to connect as a whole
     .mdout  ( mdout     ),
     .mrnw   ( mrnw      ),
-    .mirq   ( mirq      ),
-    .mfirq  ( mfirq     ),
-    .mram_cs( mram_cs   ),
+    .mirq_n ( mirq_n    ),
+    .mfirq_n( mfirq_n   ),
 
     // Sub
+    .svma   ( svma      ),
     .saddr  ( saddr     ),
     .sdout  ( sdout     ),
     .srnw   ( srnw      ),
-    .sirq   ( sirq      ),
-    .sfirq  ( sfirq     ),
-    .sram_cs( sram_cs   ),
+    .sirq_n ( sirq_n    ),
+    .sfirq_n( sfirq_n   ),
     .srst_n ( srst_n    ),
 
     .cs     ( cs        ),
@@ -106,12 +117,12 @@ mc6809i u_main(
     .ADDR       ( maddr     ),
     .RnW        ( mrnw      ),
     // Interrupts
-    .nIRQ       ( mirqn     ),
-    .nFIRQ      ( mfirqn    ),
+    .nIRQ       ( mirq_n    ),
+    .nFIRQ      ( mfirq_n   ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
     // unused
-    .AVMA       (           ),
+    .AVMA       ( mavma     ),
     .BS         (           ),
     .BA         (           ),
     .BUSY       (           ),
@@ -131,12 +142,12 @@ mc6809i u_sub(
     .ADDR       ( saddr     ),
     .RnW        ( srnw      ),
     // Interrupts
-    .nIRQ       ( sirqn     ),
-    .nFIRQ      ( sfirqn    ),
+    .nIRQ       ( sirq_n    ),
+    .nFIRQ      ( sfirq_n   ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
     // unused
-    .AVMA       (           ),
+    .AVMA       ( savma     ),
     .BS         (           ),
     .BA         (           ),
     .BUSY       (           ),

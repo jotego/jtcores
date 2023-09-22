@@ -326,7 +326,7 @@ func check_banks( macros map[string]string, cfg *MemConfig ) {
 	}
 }
 
-func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
+func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool ) {
 	implicit := make( map[string]bool )
 	nonblank := func( a, b string ) string {
 		if a=="" {
@@ -360,6 +360,9 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
 		old, fnd := all[p.Name]
+		if Verbose {
+			fmt.Printf("Adding port: %s\n", p.Name)
+		}
 		if fnd {
 			if old.Input || p.Input { // overwrite if the port should be an input
 				// required for JTKARNOV's objram_dout signal, which comes from one
@@ -592,7 +595,7 @@ func Run(args Args) {
 	}
 	macros := get_macros( args.Core, args.Target )
 	check_banks( macros, &cfg )
-	fill_implicit_ports( macros, &cfg )
+	fill_implicit_ports( macros, &cfg, args.Verbose )
 	make_ioctl( &cfg, args.Verbose )
 	fill_gfx_sort( macros, &cfg )
 	// Fill the clock configuration

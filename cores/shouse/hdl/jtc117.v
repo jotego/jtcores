@@ -32,37 +32,40 @@ module jtc117(
     input        [15:0] maddr,  // not all bits are used, but easier to connect as a whole
     input        [ 7:0] mdout,
     input               mrnw,
-    output reg          mirq,
-    output reg          mfirq,
-    output reg          mram_cs,
+    input               mvma,
+    output              mirq_n,
+    output              mfirq_n,
 
     // Sub
     input        [15:0] saddr,
     input        [ 7:0] sdout,
     input               srnw,
-    output reg          sirq,
-    output reg          sfirq,
-    output reg          sram_cs,
+    input               svma,
+    output              sirq_n,
+    output              sfirq_n,
     output              srst_n,
 
     output       [ 9:0] cs,
     output              rom_cs,
     output              ram_cs,
     output              rnw,
+    output              vma,
     output       [21:0] baddr,
     output       [ 7:0] bdout
 );
-    reg          vb_edge, lvbl_l, fedge, firqn_l;
+    reg          vb_edge, lvbl_l, fedge, firqn_l, swmux;
     wire         xirq;
     reg  [ 15:0] samux;
     reg  [  7:0] sdmux;
     wire [22:12] mahi, sahi;
 
-    function range( input s, e [21:12] );
+    function range( input [21:12] s, e );
         range = baddr[21:12]>=s && baddr[21:12]<e;
     endfunction
 
-    assign { rom_cs, baddr } = bsel ? { sahi, saddr[11:0] } : { mahi, maddr[11:0] };
+    assign { rom_cs, baddr } = bsel ? { sahi[22]&svma&srnw, sahi[21:12], saddr[11:0] } :
+                                      { mahi[22]&mvma&mrnw, mahi[21:12], maddr[11:0] };
+    assign vma    = bsel ? svma : mvma;
     assign bdout  = bsel ? sdout : mdout;
     assign cs[0]  = range(10'h200,10'h280); // made-up number
     assign cs[1]  = range(10'h280,10'h2C0); // made-up number
@@ -82,8 +85,8 @@ module jtc117(
         sdmux = sdout;
         swmux = srnw;
         if( !srst_n && &maddr[15:13] && maddr[12:9]==14 ) begin
-            saddr[15:12] = 4'hf;
-            saddr[12: 9] = 7;
+            samux[15:12] = 4'hf;
+            samux[12: 9] = 7;
             sdmux        = mdout;
             swmux        = mrnw;
         end
@@ -112,6 +115,7 @@ module jtc117(
         .addr       ( maddr     ),
         .dout       ( mdout     ),
         .rnw        ( mrnw      ),
+        .vma        ( mvma      ),
 
         .xirq       ( fedge     ),
         .oirq       ( xirq      ),
@@ -131,6 +135,7 @@ module jtc117(
         .addr       ( samux     ),
         .dout       ( sdmux     ),
         .rnw        ( swmux     ),
+        .vma        ( svma      ),
 
         .xirq       ( xirq|fedge),
         .oirq       (           ),
@@ -152,6 +157,7 @@ module jtc117_unit(
     input        [15:0] addr,  // not all bits are used, but easier to connect as a whole
     input        [ 7:0] dout,
     input               rnw,
+    input               vma,
 
     input               xirq,
     output reg          oirq,
@@ -163,9 +169,12 @@ module jtc117_unit(
 );
     reg  [22:13] banks[0:7];
     wire         mmr_cs;
+    wire [ 2: 0] idx;
 
-    assign mmr_cs = &addr[15:13];
-    assign ahi    = { banks[addr[15:13]], addr[12] };
+
+    assign idx = addr[15:13];
+    assign mmr_cs = &{idx, vma};
+    assign ahi    = { banks[idx], addr[12] };
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
@@ -185,7 +194,7 @@ module jtc117_unit(
             if( !rnw && mmr_cs ) begin
                 casez( addr[12:9] )
                     4'b0???: begin
-                        if( addr[0] )
+                        if( !addr[0] )
                             banks[addr[11:9]][22:21] = dout[1:0];
                         else
                             banks[addr[11:9]][20:13] = dout;

@@ -1,4 +1,5 @@
 params:
+  - { name: RAM_OFFSET,   value: "22'h20_0000"   }
   - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
   - { name: SCR_OFFSET,   value: "(`SCR_START-`JTFRAME_BA2_START) >> 1"   }
 clocks:
@@ -16,67 +17,40 @@ clocks:
 sdram:
   banks:
     - buses:
+        - name: ram
+          addr_width: 14  # the PCB seems to support 17 bits too
+          data_width: 8
+          offset: RAM_OFFSET
+          rw: true
         - name: main
           addr_width: 22
           data_width: 8
         - name: sub
           addr_width: 22
           data_width: 8
-        - name: ram
-          addr_width: 14  # the PCB seems to support 17 bits too
-          data_width: 8
-          rw: true
     - buses:
         - name: snd
           addr_width: 17
           data_width: 8
-        - name: pcm
-          addr_width: 20
-          data_width: 8
-          offset: PCM_OFFSET
-    - buses:
-        - name: mask
-          addr_width: 17
-          data_width: 32
-        - name: scr
-          addr_width: 20
-          data_width: 32
-          offset: SCR_OFFSET
+    #     - name: pcm
+    #       addr_width: 20
+    #       data_width: 8
+    #       offset: PCM_OFFSET
+    # - buses:
+    #     - name: mask
+    #       addr_width: 17
+    #       data_width: 32
+    #     - name: scr
+    #       addr_width: 20
+    #       data_width: 32
+    #       offset: SCR_OFFSET
 
-    - buses:
-        - name: obj
-          addr_width: 20
-          data_width: 32
+    # - buses:
+    #     - name: obj
+    #       addr_width: 20
+    #       data_width: 32
 bram:
-  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
-  - name: fram
-    data_width: 16
-    addr_width: 12
-    sim_file: true
-    ioctl: { save: true, order: 0 }
-    dual_port: { name: main, we: fx_we, rw: true, din: ram_din, dout: mf_dout }
-  - name: scra
-    data_width: 16
+  - name: sndram
     addr_width: 13
-    sim_file: true
-    ioctl: { save: true, order: 1 }
-    dual_port: { name: vram, we: va_we, rw: true, din: ram_din, dout: ma_dout }
-  - name: scrb
-    data_width: 16
-    addr_width: 13
-    sim_file: true
-    ioctl: { save: true, order: 2 }
-    dual_port: { name: vram, we: vb_we, rw: true, din: ram_din, dout: mb_dout }
-  - name: oram
-    data_width: 16
-    addr_width: 14
+    data_width:  8
     rw: true
-    sim_file: true
-    ioctl: { save: true, order: 3 }
-    dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
-  - name: pal
-    data_width: 8
-    addr_width: 12
-    sim_file: true
-    ioctl: { save: true, order: 4 }
-    dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "ram_din[7:0]", dout: mp_dout }

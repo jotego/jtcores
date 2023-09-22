@@ -31,6 +31,7 @@ jtframe:
       - jtframe_wirebw.v
   - from: sdram
     get:
+      - jtframe_dwnld.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml
       - jtframe_sdram_stats.v

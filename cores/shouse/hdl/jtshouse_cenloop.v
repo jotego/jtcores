@@ -35,14 +35,18 @@ reg           clk2;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
+reg           blank=0;
+wire          bsyg = busy==0 || rst;
 
-assign over      = cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
+assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
-                   (over && busy==0 ? DEN[CW:0] : {CW+1{1'b0}});
+                   (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
 always @(posedge clk) begin
+    blank <= 0;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
-    if( (over && busy==0) || rst ) begin
+    if( over && bsyg ) begin
+        blank <= 1;
         clk2 <= ~clk2;
         cpu_cen[0] <=  clk2;
         cpu_cen[1] <= ~clk2;
