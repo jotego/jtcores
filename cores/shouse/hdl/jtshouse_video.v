@@ -22,6 +22,10 @@ module jtshouse_video(
 
     input             pxl_cen,
 
+    // Video RAM
+    output      [11:1] oram_addr,
+    input       [15:0] oram_dout,
+
     output            lvbl, lhbl, hs, vs,
     output      [ 7:0]red, green, blue
 );
@@ -33,6 +37,7 @@ wire [ 8:0] vdump, hdump, vrender, vrender1;
 assign red   = 0;
 assign green = 0;
 assign blue  = 0;
+assign oram_addr = 0;
 
 // See https://github.com/jotego/jtcores/issues/348
 jtframe_vtimer #(

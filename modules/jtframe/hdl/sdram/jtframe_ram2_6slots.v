@@ -249,61 +249,6 @@ u_slot5(
     .we        ( slot_sel[5]            )
 );
 
-always @(posedge clk) begin
-    if( rst ) begin
-        sdram_addr <= 0;
-        sdram_rd   <= 0;
-        sdram_wr   <= 0;
-        slot_sel   <= 0;
-    end else begin
-        if( sdram_ack ) begin
-            sdram_rd   <= 0;
-            sdram_wr   <= 0;
-        end
-
-        // accept a new request
-        if( slot_sel==0 || data_rdy ) begin
-            sdram_rd     <= |active;
-            slot_sel     <= 0;
-            sdram_wrmask <= 2'b11;
-            if( active[0] ) begin
-                sdram_addr  <= slot0_addr_req;
-                data_write  <= slot0_din;
-                sdram_wrmask<= slot0_wrmask;
-                sdram_rd    <= req_rnw[0];
-                sdram_wr    <= ~req_rnw[0];
-                slot_sel[0] <= 1;
-            end else if( active[1] ) begin
-                sdram_addr  <= slot1_addr_req;
-                data_write  <= slot1_din;
-                sdram_wrmask<= slot1_wrmask;
-                sdram_rd    <= req_rnw[1];
-                sdram_wr    <= ~req_rnw[1];
-                slot_sel[1] <= 1;
-            end else if( active[2]) begin
-                sdram_addr  <= slot2_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[2] <= 1;
-            end else if( active[3]) begin
-                sdram_addr  <= slot3_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[3] <= 1;
-            end else if( active[4]) begin
-                sdram_addr  <= slot4_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[4] <= 1;
-            end else if( active[5]) begin
-                sdram_addr  <= slot5_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[5] <= 1;
-            end
-        end
-    end
-end
 
 `ifdef JTFRAME_SDRAM_CHECK
 

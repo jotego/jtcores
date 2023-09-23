@@ -18,7 +18,7 @@ sdram:
   banks:
     - buses:
         - name: ram
-          addr_width: 14  # the PCB seems to support 17 bits too
+          addr_width: 15  # the PCB seems to support 17 bits too
           data_width: 8
           offset: RAM_OFFSET
           rw: true
@@ -36,7 +36,9 @@ sdram:
     #       addr_width: 20
     #       data_width: 8
     #       offset: PCM_OFFSET
-    # - buses:
+    - buses:
+        - name: vram
+          addr_width: 15
     #     - name: mask
     #       addr_width: 17
     #       data_width: 32
@@ -54,3 +56,11 @@ bram:
     addr_width: 13
     data_width:  8
     rw: true
+  - name: oram
+    addr_width: 12
+    data_width: 16
+    dual_port:
+      name: obus
+      din: bdout16
+      dout: obus_dout
+      rw: true

@@ -43,6 +43,7 @@ assign ram_we    = ram_cs & ~brnw;
 
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
+assign bdout16 = {2{bdout}};
 
 // To do:
 assign firqn = 1;
@@ -98,6 +99,11 @@ jtshouse_main u_main(
     .key_cs     ( key_cs    ),
     .key_dout   ( key_dout  ),
 
+    // Video RAM
+    .obus_we    ( obus_we   ),
+    .obus_addr  ( obus_addr ),
+    .obus_dout  ( obus_dout ),
+
     .srst_n     ( srst_n    ),
 
     .mrom_cs    ( main_cs   ),
@@ -145,6 +151,10 @@ jtshouse_video u_video(
     .lhbl       ( LHBL      ),
     .hs         ( HS        ),
     .vs         ( VS        ),
+
+    // Video RAM
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
 
     .red        ( red       ),
     .green      ( green     ),

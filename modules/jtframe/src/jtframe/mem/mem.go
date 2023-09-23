@@ -388,7 +388,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 		each := &cfg.BRAM[k]
 		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
 		if each.Addr == "" { each.Addr = each.Name + "_addr" }
-		if each.Din  == "" && !bram_rom { each.Din  = each.Name + "_din"  }
+		if each.Din  == "" && each.Rw { each.Din  = each.Name + "_din"  }
 		if each.Dout == "" {
 			if bram_rom {
 				each.Dout = each.Name + "_data"

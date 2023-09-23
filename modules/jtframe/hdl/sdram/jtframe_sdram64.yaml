@@ -6,6 +6,7 @@ jtframe:
       - jtframe_sdram64_init.v
       - jtframe_sdram64_rfsh.v
       - jtframe_sdram64_latch.v
+      - jtframe_ramslot_ctrl.v
       - jtframe_ram1_1slot.v
       - jtframe_ram1_2slots.v
       - jtframe_ram1_3slots.v

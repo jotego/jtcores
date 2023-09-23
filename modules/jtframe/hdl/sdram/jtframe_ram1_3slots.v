@@ -72,22 +72,21 @@ module jtframe_ram1_3slots #(parameter
 
     // SDRAM controller interface
     input               sdram_ack,
-    output  reg         sdram_rd,
-    output  reg         sdram_wr,
-    output  reg [SDRAMW-1:0] sdram_addr,
+    output              sdram_rd,
+    output              sdram_wr,
+    output [SDRAMW-1:0] sdram_addr,
     input               data_dst,
     input               data_rdy,
     input       [15:0]  data_read,
-    output  reg [15:0]  data_write,  // only 16-bit writes
-    output  reg [ 1:0]  sdram_wrmask // each bit is active low
+    output      [15:0]  data_write,  // only 16-bit writes
+    output      [ 1:0]  sdram_wrmask // each bit is active low
 );
 
 localparam SW=3;
 
 wire [SW-1:0] req, slot_ok;
-reg  [SW-1:0] slot_sel;
+wire [SW-1:0] slot_sel;
 wire          req_rnw; // slot 0
-wire [SW-1:0] active = ~slot_sel & req;
 
 wire [SDRAMW-1:0] slot0_addr_req,
                   slot1_addr_req,
@@ -154,44 +153,28 @@ u_slot2(
     .we        ( slot_sel[2]            )
 );
 
-always @(posedge clk) begin
-    if( rst ) begin
-        sdram_addr <= {SDRAMW{1'd0}};
-        sdram_rd   <= 0;
-        sdram_wr   <= 0;
-        slot_sel   <= {SW{1'd0}};
-    end else begin
-        if( sdram_ack ) begin
-            sdram_rd   <= 0;
-            sdram_wr   <= 0;
-        end
-
-        // accept a new request
-        if( slot_sel==0 || data_rdy ) begin
-            sdram_rd     <= |active;
-            slot_sel     <= {SW{1'd0}};
-            sdram_wrmask <= 2'b11;
-            if( active[0] ) begin
-                sdram_addr  <= slot0_addr_req;
-                data_write  <= {(SLOT0_DW==8?2:1){slot0_din}};
-                sdram_wrmask<= slot0_wrmask;
-                sdram_rd    <= req_rnw;
-                sdram_wr    <= ~req_rnw;
-                slot_sel[0] <= 1;
-            end else if( active[1]) begin
-                sdram_addr  <= slot1_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[1] <= 1;
-            end else if( active[2]) begin
-                sdram_addr  <= slot2_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[2] <= 1;
-            end
-        end
-    end
-end
+jtframe_ramslot_ctrl #(
+    .SDRAMW     (SDRAMW     ),
+    .SW         ( SW        ),
+    .SLOT0_DW   ( SLOT0_DW  )
+)u_ctrl(
+    .rst            ( rst       ),
+    .clk            ( clk       ),
+    .req            ( req       ),
+    .slot_addr_req  ({ slot2_addr_req, slot1_addr_req, slot0_addr_req }),
+    .req_rnw        ( req_rnw   ),        // only for slot0
+    .slot0_din      ( slot0_din ),
+    .slot0_wrmask  (slot0_wrmask),   // only used if DW!=8
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_wr       ( sdram_wr      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
+    .data_write     ( data_write    ),
+    .sdram_wrmask   ( sdram_wrmask  )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

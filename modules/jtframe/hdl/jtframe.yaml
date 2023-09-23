@@ -38,6 +38,7 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
       - jtframe_rpwp_ram.v
       - jtframe_bram_rom.v
       - jtframe_prom.v

@@ -32,6 +32,11 @@ module jtshouse_main(
     input        [ 7:0] key_dout,
     output              cus30b_cs,
 
+    // Video RAMs
+    output       [ 1:0] obus_we,
+    output       [11:1] obus_addr,
+    input        [15:0] obus_dout,
+
     output              srst_n,
 
     output              mrom_cs,   srom_cs,   ram_cs,
@@ -45,7 +50,7 @@ wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin;
 wire        mrnw, mirq_n, mfirq_n, mavma,
             srnw, sirq_n, sfirq_n, savma,
-            rom_cs;
+            rom_cs, oram_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
@@ -56,12 +61,19 @@ assign sub      =  bsel;
 assign mrom_cs  = rom_cs & master;
 assign srom_cs  = rom_cs & sub;
 assign cus30b_cs= cs[8];
+assign oram_cs  = cs[6];
 assign key_cs   = cs[5];
+
+// Object RAM
+assign obus_we  = {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
+assign obus_addr= baddr[10:0];
+
 assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
               srom_cs ? srom_data :
               ram_cs  ? ram_dout  :
               key_cs  ? key_dout  :
+              oram_cs ? ( baddr[11] ? obus_dout[15:8] : obus_dout[7:0] ) :
               8'd0;
 
 always @(posedge clk) begin
