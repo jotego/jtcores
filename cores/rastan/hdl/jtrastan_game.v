@@ -54,7 +54,7 @@ module jtrastan_game(
     output   [15:0] ba3_din,
     output   [ 1:0] ba3_dsn,  // write mask
     output   [ 3:0] ba_rd,
-    output          ba_wr,
+    output   [ 3:0] ba_wr,
     input    [ 3:0] ba_ack,
     input    [ 3:0] ba_dst,
     input    [ 3:0] ba_dok,
@@ -133,6 +133,7 @@ assign      ba3_dsn=3;
 assign      ba1_din=0;
 assign      ba2_din=0;
 assign      ba3_din=0;
+assign   ba_wr[3:1]=0;
 
 `ifndef NOMAIN
 jtrastan_main u_main(
@@ -369,7 +370,7 @@ jtrastan_sdram u_sdram(
     .ba0_din    ( ba0_din   ),
     .ba0_din_m  ( ba0_dsn   ),  // write mask
     .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr     ),
+    .ba_wr      ( ba_wr[0]  ),
     .ba_ack     ( ba_ack    ),
     .ba_dst     ( ba_dst    ),
     .ba_dok     ( ba_dok    ),

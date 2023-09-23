@@ -36,6 +36,7 @@ assign main_addr = { baddr[21:19], 2'd0, &baddr[21:19] ? { ~baddr[16],baddr[15:0
 assign sub_addr  = main_addr;
 assign debug_view= dbg_mux;
 
+assign vram_addr = baddr[14:1];
 assign ram_addr  = baddr[14:1];
 assign ram_din   = bdout;
 assign ram_dsn   = { baddr[0], ~baddr[0] };
@@ -103,6 +104,9 @@ jtshouse_main u_main(
     .obus_we    ( obus_we   ),
     .obus_addr  ( obus_addr ),
     .obus_dout  ( obus_dout ),
+    .vram_dout  ( vram_data ),
+    .vram_dsn   ( vram_dsn  ),
+    .vram_we    ( vram_we   ),
 
     .srst_n     ( srst_n    ),
 

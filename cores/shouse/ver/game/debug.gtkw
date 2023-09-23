@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Fri Sep 22 12:49:50 2023
+[*] Sat Sep 23 13:03:50 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Fri Sep 22 11:36:39 2023"
-[dumpfile_size] 156511042
+[dumpfile_mtime] "Sat Sep 23 06:05:59 2023"
+[dumpfile_size] 26475089
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 220008000
+[timestart] 10172
 [size] 1263 1010
 [pos] -1 -1
-*-20.117252 221902180 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-35.310844 -1 259945460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -19,121 +19,56 @@
 [sst_width] 215
 [signals_width] 238
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 373
 @28
 TOP.game_test.u_game.u_game.u_main.rst
 TOP.game_test.u_game.u_game.srst_n
 TOP.game_test.u_game.u_game.u_main.clk
-@800028
-TOP.game_test.u_game.u_game.cpu_cen[1:0]
+@22
+TOP.game_test.u_game.u_game.u_cen.fave[15:0]
+TOP.game_test.u_game.u_game.u_cen.cencnt[6:0]
+@c08024
+TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
 @28
-(0)TOP.game_test.u_game.u_game.cpu_cen[1:0]
-(1)TOP.game_test.u_game.u_game.cpu_cen[1:0]
+(0)TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
+(1)TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
+@1401200
+-group_end
+@c00022
+TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(1)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(2)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(3)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.rom_cs
+@800022
+TOP.game_test.u_game.u_game.u_main.cs[9:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(1)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+@29
+(2)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+@28
+(3)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(4)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(5)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(6)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(7)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(8)TOP.game_test.u_game.u_game.u_main.cs[9:0]
+(9)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 @1001200
 -group_end
 @22
-TOP.game_test.u_game.u_game.fave[15:0]
 TOP.game_test.u_game.u_game.u_main.maddr[15:0]
 @200
 -
 @28
-TOP.game_test.u_game.u_game.u_main.master
-@c00022
-TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(1)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(2)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(3)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(4)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(5)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(6)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(7)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(8)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(9)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(10)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(11)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(12)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(13)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(14)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(15)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(16)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(17)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(18)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(19)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(20)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-(21)TOP.game_test.u_game.u_game.u_main.baddr[21:0]
-@1401200
--group_end
-@22
-TOP.game_test.u_game.u_game.u_main.mdin[7:0]
-@28
-TOP.game_test.u_game.u_game.u_main.mrnw
 TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.mmr_cs
-@22
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.dout[7:0]
-@28
-TOP.game_test.u_game.u_game.u_main.mvma
-@200
--
-@23
-[color] 1
-TOP.game_test.u_game.u_game.u_main.u_mapper.mahi[22:12]
-@22
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[0][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[1][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[2][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[3][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[4][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[5][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[6][22:13]
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.banks[7][22:13]
-@200
--
-@28
-TOP.game_test.u_game.u_game.u_main.mrom_cs
-TOP.game_test.u_game.u_game.u_main.mrom_ok
-@22
-TOP.game_test.u_game.u_game.u_main.mrom_data[7:0]
-@c00022
-TOP.game_test.u_game.u_game.main_addr[21:0]
-@28
-(0)TOP.game_test.u_game.u_game.main_addr[21:0]
-(1)TOP.game_test.u_game.u_game.main_addr[21:0]
-(2)TOP.game_test.u_game.u_game.main_addr[21:0]
-(3)TOP.game_test.u_game.u_game.main_addr[21:0]
-(4)TOP.game_test.u_game.u_game.main_addr[21:0]
-(5)TOP.game_test.u_game.u_game.main_addr[21:0]
-(6)TOP.game_test.u_game.u_game.main_addr[21:0]
-(7)TOP.game_test.u_game.u_game.main_addr[21:0]
-(8)TOP.game_test.u_game.u_game.main_addr[21:0]
-(9)TOP.game_test.u_game.u_game.main_addr[21:0]
-(10)TOP.game_test.u_game.u_game.main_addr[21:0]
-(11)TOP.game_test.u_game.u_game.main_addr[21:0]
-(12)TOP.game_test.u_game.u_game.main_addr[21:0]
-(13)TOP.game_test.u_game.u_game.main_addr[21:0]
-(14)TOP.game_test.u_game.u_game.main_addr[21:0]
-(15)TOP.game_test.u_game.u_game.main_addr[21:0]
-(16)TOP.game_test.u_game.u_game.main_addr[21:0]
-(17)TOP.game_test.u_game.u_game.main_addr[21:0]
-(18)TOP.game_test.u_game.u_game.main_addr[21:0]
-(19)TOP.game_test.u_game.u_game.main_addr[21:0]
-(20)TOP.game_test.u_game.u_game.main_addr[21:0]
-(21)TOP.game_test.u_game.u_game.main_addr[21:0]
-@1401200
--group_end
-@22
-TOP.game_test.u_game.u_game.main_data[7:0]
-@200
--
-@22
-TOP.game_test.u_game.u_game.u_main.cs[9:0]
-@200
--
-@28
-TOP.game_test.u_game.u_game.u_main.bsel
-TOP.game_test.u_game.u_game.u_main.bus_busy
-TOP.game_test.u_game.u_game.u_cen.over
-TOP.game_test.u_game.u_game.u_cen.blank
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.rnw
 [pattern_trace] 1
 [pattern_trace] 0

@@ -18,16 +18,18 @@
 
 module jtframe_ramslot_ctrl #(parameter
     SDRAMW   = 22,
-    SW       = 3,         // number of slots
-    SLOT0_DW = 16
+    SW       = 3,         // total number of slots (including writable ones)
+    WRSW     = 1,         // number of writable slots. Up to 2
+    DW0      = 16,
+    DW1      = 0
 )(
     input               rst,
     input               clk,
     input [SW-1:0]      req,
     input [SW*SDRAMW-1:0] slot_addr_req,
-    input               req_rnw,        // only for slot0
-    input [SLOT0_DW-1:0]slot0_din,
-    input [1:0]         slot0_wrmask,   // only used if DW!=8
+    input [WRSW-1:0]    req_rnw,        // only for slot0
+    input [DW1+DW0-1:0] slot_din,
+    input [WRSW*2-1:0]  wrmask,   // only used if DW!=8
     output reg [SW-1:0] slot_sel,
     // SDRAM controller interface
     input               sdram_ack,
@@ -39,11 +41,14 @@ module jtframe_ramslot_ctrl #(parameter
     output  reg [ 1:0]  sdram_wrmask // each bit is active low
 );
 
+localparam XW = WRSW==1 ? DW0 : DW1; // helper to get clear syntax
+
 wire [SW-1:0] active = ~slot_sel & req;
 reg  [SW-1:0] acthot; // priority encoding of active, only one bit is set
 
 wire [SDRAMW-1:0] slot0_addr_req = slot_addr_req[0+:SDRAMW];
-wire [SLOT0_DW*2-1:0] din2 = {2{slot0_din}};
+wire [DW0*2-1:0] s0_din2 = {2{slot_din[0+:DW0]}};
+wire [ XW*2-1:0] s1_din2 = {2{slot_din[(WRSW==2?DW0:0)+:XW]}}; // not used when WRSR==1
 
 integer i,j;
 
@@ -69,29 +74,25 @@ always @(posedge clk) begin
 
         // accept a new request
         if( slot_sel==0 || data_rdy ) begin
-            sdram_rd     <= |active;
             slot_sel     <= 0;
             sdram_wrmask <= 2'b11;
-            if( active[0] ) begin
-                data_write  <= din2[15:0];
-                if( SLOT0_DW==8 ) begin
-                    sdram_addr  <= slot0_addr_req>>1;
-                    sdram_wrmask<= { ~slot0_addr_req[0], slot0_addr_req[0] };
-                end else begin
-                    sdram_addr  <= slot0_addr_req;
-                    sdram_wrmask<= slot0_wrmask;
-                end
-                sdram_rd    <=  req_rnw;
-                sdram_wr    <= ~req_rnw;
-                slot_sel[0] <= 1;
-            end else begin
-                for( i=1; i<SW; i=i+1 ) begin
-                    if( active[i] ) begin
+
+            for( i=0; i<SW; i=i+1 ) begin
+                if( acthot[i] ) begin
+                    if( i==0 )            data_write <= s0_din2[15:0];
+                    if( i==1 && WRSW==2 ) data_write <= s1_din2[15:0];
+                    sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
+                    if( DW0==8 ) begin
+                        sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW]>>1;
+                        sdram_wrmask<= { ~slot_addr_req[i*SDRAMW], slot_addr_req[i*SDRAMW] };
+                    end else begin
                         sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
-                        sdram_rd    <= 1;
-                        sdram_wr    <= 0;
-                        slot_sel[i] <= 1;
+                        sdram_wrmask<= wrmask>>(2*i);
                     end
+
+                    sdram_rd    <= i<WRSW ?  req_rnw[i] : 1;
+                    sdram_wr    <= i<WRSW ? ~req_rnw[i] : 0;
+                    slot_sel[i] <= 1;
                 end
             end
         end

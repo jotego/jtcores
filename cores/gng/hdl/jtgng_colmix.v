@@ -155,8 +155,8 @@ end else begin
     wire [7:0] pre_rg;
     wire [3:0] pre_b;
 
-    assign { pal_red, pal_green } = (GNGPAL==1 && we_rg ) ? DB : pre_rg;
-    assign pal_blue               = (GNGPAL==1 && we_b  ) ? DB : pre_b;
+    assign { pal_red, pal_green } = (GNGPAL==1 && we_rg ) ? DB      : pre_rg;
+    assign pal_blue               = (GNGPAL==1 && we_b  ) ? DB[3:0] : pre_b;
 
     always @* begin
         pal_din = DB;

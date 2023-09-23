@@ -249,6 +249,32 @@ u_slot5(
     .we        ( slot_sel[5]            )
 );
 
+jtframe_ramslot_ctrl #(
+    .SDRAMW     (SDRAMW     ),
+    .SW         ( SW        ),
+    .WRSW       ( 2         ),
+    .DW0        ( SLOT0_DW  ),
+    .DW1        ( SLOT1_DW  )
+)u_ctrl(
+    .rst            ( rst       ),
+    .clk            ( clk       ),
+    .req            ( req       ),
+    .slot_addr_req  ({  slot5_addr_req, slot4_addr_req,
+                        slot3_addr_req, slot2_addr_req,
+                        slot1_addr_req, slot0_addr_req }),
+    .req_rnw        ( req_rnw   ),
+    .slot_din       ( {slot1_din, slot0_din} ),
+    .wrmask        ({slot1_wrmask, slot0_wrmask}),   // only used if DW!=8
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_wr       ( sdram_wr      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
+    .data_write     ( data_write    ),
+    .sdram_wrmask   ( sdram_wrmask  )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

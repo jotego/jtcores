@@ -39,6 +39,9 @@ sdram:
     - buses:
         - name: vram
           addr_width: 15
+          data_width: 16
+          offset: RAM_OFFSET
+          rw: true
     #     - name: mask
     #       addr_width: 17
     #       data_width: 32

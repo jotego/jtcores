@@ -185,51 +185,31 @@ u_slot3(
     .we        ( slot_sel[3]            )
 );
 
-always @(posedge clk) begin
-    if( rst ) begin
-        sdram_addr <= 0;
-        sdram_rd   <= 0;
-        sdram_wr   <= 0;
-        slot_sel   <= 0;
-    end else begin
-        if( sdram_ack ) begin
-            sdram_rd <= 0;
-            sdram_wr <= 0;
-        end
-
-        // accept a new request
-        if( slot_sel==0 || data_rdy ) begin
-            sdram_rd     <= |active;
-            slot_sel     <= 0;
-            sdram_wrmask <= 2'b11;
-            if( active[0] ) begin
-                sdram_addr  <= slot0_addr_req;
-                data_write  <= slot0_din;
-                sdram_wrmask<= slot0_wrmask;
-                sdram_rd    <= req_rnw[0];
-                sdram_wr    <= ~req_rnw[0];
-                slot_sel[0] <= 1;
-            end else if( active[1] ) begin
-                sdram_addr  <= slot1_addr_req;
-                data_write  <= slot1_din;
-                sdram_wrmask<= slot1_wrmask;
-                sdram_rd    <= req_rnw[1];
-                sdram_wr    <= ~req_rnw[1];
-                slot_sel[1] <= 1;
-            end else if( active[2]) begin
-                sdram_addr  <= slot2_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[2] <= 1;
-            end else if( active[3]) begin
-                sdram_addr  <= slot3_addr_req;
-                sdram_rd    <= 1;
-                sdram_wr    <= 0;
-                slot_sel[3] <= 1;
-            end
-        end
-    end
-end
+jtframe_ramslot_ctrl #(
+    .SDRAMW     (SDRAMW     ),
+    .SW         ( SW        ),
+    .WRSW       ( 2         ),
+    .DW0        ( SLOT0_DW  ),
+    .DW1        ( SLOT1_DW  )
+)u_ctrl(
+    .rst            ( rst       ),
+    .clk            ( clk       ),
+    .req            ( req       ),
+    .slot_addr_req  ({  slot3_addr_req, slot2_addr_req,
+                        slot1_addr_req, slot0_addr_req }),
+    .req_rnw        ( req_rnw   ),
+    .slot_din       ( {slot1_din, slot0_din} ),
+    .wrmask        ({slot1_wrmask, slot0_wrmask}),   // only used if DW!=8
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_wr       ( sdram_wr      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
+    .data_write     ( data_write    ),
+    .sdram_wrmask   ( sdram_wrmask  )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

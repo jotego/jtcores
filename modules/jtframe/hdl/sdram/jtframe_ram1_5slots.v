@@ -216,7 +216,7 @@ u_slot4(
 jtframe_ramslot_ctrl #(
     .SDRAMW     (SDRAMW     ),
     .SW         ( SW        ),
-    .SLOT0_DW   ( SLOT0_DW  )
+    .DW0        ( SLOT0_DW  )
 )u_ctrl(
     .rst            ( rst       ),
     .clk            ( clk       ),
@@ -224,8 +224,8 @@ jtframe_ramslot_ctrl #(
     .slot_addr_req  ({ slot4_addr_req, slot3_addr_req, slot2_addr_req,
                        slot1_addr_req, slot0_addr_req }),
     .req_rnw        ( req_rnw   ),        // only for slot0
-    .slot0_din      ( slot0_din ),
-    .slot0_wrmask  (slot0_wrmask),   // only used if DW!=8
+    .slot_din       ( slot0_din ),
+    .wrmask        (slot0_wrmask),   // only used if DW!=8
     .slot_sel       ( slot_sel  ),
     // SDRAM controller interface
     .sdram_ack      ( sdram_ack     ),
