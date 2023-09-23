@@ -12,20 +12,12 @@ jtframe:
   - get:
       - jtframe_ff.v
       - jtframe_bcd_cnt.v
-  # - from: clocking
-  #   get:
-  #     - jtframe_frac_cen.v
   - from: cpu
     get:
       - mc6809i.v
   - from: clocking
     get:
       - jtframe_freqinfo.v
-  # - from: ram
-  #   get:
-  #     - jtframe_ram.v
-  #     - jtframe_dual_ram.v
-  #     - jtframe_dual_ram16.v
   - from: video
     get:
       - jtframe_vtimer.v

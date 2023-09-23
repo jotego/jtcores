@@ -78,5 +78,5 @@ order = [
 
 # patches = [
 #     # skip ROM check
-#     { setname="fround", offset=0x1058, data="12 11" }
+#     { setname="xxx", offset=0x1058, data="12 11" }
 # ]

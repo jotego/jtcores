@@ -82,12 +82,14 @@ always @(posedge clk) begin
                     if( i==0 )            data_write <= s0_din2[15:0];
                     if( i==1 && WRSW==2 ) data_write <= s1_din2[15:0];
                     sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
-                    if( DW0==8 ) begin
-                        sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW]>>1;
-                        sdram_wrmask<= { ~slot_addr_req[i*SDRAMW], slot_addr_req[i*SDRAMW] };
-                    end else begin
-                        sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
-                        sdram_wrmask<= wrmask>>(2*i);
+                    if( i<WRSW ) begin // RAM slots
+                        if( DW0==8 ) begin
+                            sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW]>>1;
+                            sdram_wrmask<= { ~slot_addr_req[i*SDRAMW], slot_addr_req[i*SDRAMW] };
+                        end else begin
+                            sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
+                            sdram_wrmask<= wrmask>>(2*i);
+                        end
                     end
 
                     sdram_rd    <= i<WRSW ?  req_rnw[i] : 1;

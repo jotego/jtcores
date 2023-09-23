@@ -117,9 +117,8 @@ module jtframe_ram2_6slots #(parameter
 localparam SW=6;
 
 wire [SW-1:0] req, slot_ok;
-reg  [SW-1:0] slot_sel;
+wire [SW-1:0] slot_sel;
 wire [   1:0] req_rnw; // slots 0 & 1
-wire [SW-1:0] active = ~slot_sel & req;
 
 wire [SDRAMW-1:0] slot0_addr_req,
                   slot1_addr_req,
