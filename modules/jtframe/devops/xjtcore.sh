@@ -11,7 +11,7 @@ if [ ! -z "$2" ]; then
     BETAKEY=`printf "%04X%04X" $RANDOM $RANDOM`
     echo "WARNING: remote compilation with no beta key. Assigning random one"
 fi
-BETAKEY="-d JTFRAME_UNLOCKKEY=$BETAKEY"
+BETAKEY="-d JTFRAME_UNLOCKKEY=0x$BETAKEY"
 
 if [ -e $CORES/$1/cfg/macros.def ]; then
     jtframe

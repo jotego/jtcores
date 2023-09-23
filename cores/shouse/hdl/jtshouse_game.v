@@ -36,11 +36,12 @@ assign main_addr = { baddr[21:19], 2'd0, &baddr[21:19] ? { ~baddr[16],baddr[15:0
 assign sub_addr  = main_addr;
 assign debug_view= dbg_mux;
 
-assign vram_addr = baddr[14:1];
-assign ram_addr  = baddr[14:1];
+assign ram_addr  = baddr[14:0];
 assign ram_din   = bdout;
-assign ram_dsn   = { baddr[0], ~baddr[0] };
-assign ram_we    = ram_cs & ~brnw;
+assign ram_dsn   = 2'b11; // this is ignored by the logic
+assign vram_dsn  = 2'b11; // this is ignored by the logic
+assign ram_we    =  ram_cs & ~brnw;
+assign vram_we   = vram_cs & ~brnw;
 
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
@@ -104,9 +105,8 @@ jtshouse_main u_main(
     .obus_we    ( obus_we   ),
     .obus_addr  ( obus_addr ),
     .obus_dout  ( obus_dout ),
+    .vram_cs    ( vram_cs   ),
     .vram_dout  ( vram_data ),
-    .vram_dsn   ( vram_dsn  ),
-    .vram_we    ( vram_we   ),
 
     .srst_n     ( srst_n    ),
 

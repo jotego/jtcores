@@ -91,14 +91,14 @@ module jtframe_ram2_5slots #(parameter
 
     // SDRAM controller interface
     input               sdram_ack,
-    output  reg         sdram_rd,
-    output  reg         sdram_wr,
-    output  reg [SDRAMW-1:0] sdram_addr,
+    output              sdram_rd,
+    output              sdram_wr,
+    output      [SDRAMW-1:0] sdram_addr,
     input               data_rdy,
     input               data_dst,
     input       [15:0]  data_read,
-    output  reg [15:0]  data_write,  // only 16-bit writes
-    output  reg [ 1:0]  sdram_wrmask // each bit is active low
+    output      [15:0]  data_write,  // only 16-bit writes
+    output      [ 1:0]  sdram_wrmask // each bit is active low
 );
 
 localparam SW=5;
