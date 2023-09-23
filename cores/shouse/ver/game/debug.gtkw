@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sat Sep 23 13:03:50 2023
+[*] Sat Sep 23 14:28:19 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Sat Sep 23 06:05:59 2023"
-[dumpfile_size] 26475089
+[dumpfile_mtime] "Sat Sep 23 14:15:13 2023"
+[dumpfile_size] 69612325
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 10172
+[timestart] 81389550000
 [size] 1263 1010
-[pos] -1 -1
-*-35.310844 -1 259945460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -27 -48
+*-19.171579 81390291000 259945460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -19,21 +19,12 @@
 [sst_width] 215
 [signals_width] 238
 [sst_expanded] 1
-[sst_vpaned_height] 373
+[sst_vpaned_height] 425
 @28
 TOP.game_test.u_game.u_game.u_main.rst
 TOP.game_test.u_game.u_game.srst_n
-TOP.game_test.u_game.u_game.u_main.clk
 @22
 TOP.game_test.u_game.u_game.u_cen.fave[15:0]
-TOP.game_test.u_game.u_game.u_cen.cencnt[6:0]
-@c08024
-TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
-(1)TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
-@1401200
--group_end
 @c00022
 TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
 @28
@@ -51,9 +42,7 @@ TOP.game_test.u_game.u_game.u_main.cs[9:0]
 @28
 (0)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (1)TOP.game_test.u_game.u_game.u_main.cs[9:0]
-@29
 (2)TOP.game_test.u_game.u_game.u_main.cs[9:0]
-@28
 (3)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (4)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (5)TOP.game_test.u_game.u_game.u_main.cs[9:0]
@@ -70,5 +59,6 @@ TOP.game_test.u_game.u_game.u_main.maddr[15:0]
 @28
 TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.mmr_cs
 TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.rnw
+TOP.game_test.u_game.u_game.u_main.vram_cs
 [pattern_trace] 1
 [pattern_trace] 0

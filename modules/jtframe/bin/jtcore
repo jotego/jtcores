@@ -451,7 +451,14 @@ START_TIME=$(date +%s)
 echo =============== JTCORE =======================
 echo -e "${wBG}$CORENAME $TARGET compilation ${blue}starts${NC}${wBG} at ${red}$(date +%T)${NC}${wBG} with seed ${red}$SEED${NC}${wBG} on $(hostname)${NC}"
 if [ "$MACROS" != "" ]; then
-    echo Explicit macros: $MACROS
+    echo -e Explicit macros:
+    for i in $MACROS; do
+        if [ ${i:0:17} != JTFRAME_UNLOCKKEY ]; then
+            echo -e $i " ";
+        else # Do not print the key value
+            echo -e JTFRAME_UNLOCKKEY " ";
+        fi
+    done
 fi
 
 ################ compilation

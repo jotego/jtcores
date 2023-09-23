@@ -64,10 +64,10 @@ assign master   = ~bsel;
 assign sub      =  bsel;
 assign mrom_cs  = rom_cs & master;
 assign srom_cs  = rom_cs & sub;
-assign cus30b_cs= cs[8];
-assign vram_cs  = cs[7];
-assign oram_cs  = cs[6];
-assign key_cs   = cs[5];
+assign cus30b_cs= cs[8]; // /SOUND
+assign vram_cs  = cs[4]; // /CHAR
+assign oram_cs  = cs[6]; // /OBJECT
+assign key_cs   = cs[5]; // /KEY
 
 // Video RAM
 assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
