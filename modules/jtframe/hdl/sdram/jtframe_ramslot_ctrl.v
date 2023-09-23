@@ -49,10 +49,8 @@ integer i,j;
 
 always @* begin
     acthot = 0;
-    for( j=0; j<SW; j=j+1 ) begin
-        if( active[j] ) begin
-            if(acthot==0) acthot[j]=1;
-        end
+    for( j=0; j<SW && acthot==0; j=j+1 ) begin
+        if( active[j] ) acthot[j]=1;
     end
 end
 

@@ -1,4 +1,3 @@
 include:
-    -
-        game: tora
+    - game: tora
 game: "tora"

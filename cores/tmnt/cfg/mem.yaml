@@ -19,72 +19,54 @@ clocks:
         - cen_20
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: ram
+    - buses:
+        - name: ram
           addr_width: 15
           data_width: 16
           offset: RAM_OFFSET
           rw: true
-        -
-          name: main
+        - name: main
           addr_width: 19
           data_width: 16
-    -
-      buses:
-        -
-          name: snd
+    - buses:
+        - name: snd
           addr_width: 15
           data_width: 8
-        -
-          name: pcma
+        - name: pcma
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: pcmb
+        - name: pcmb
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: pcmc
+        - name: pcmc
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: pcmd
+        - name: pcmd
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: upd
+        - name: upd
           addr_width: 17
           data_width: 8
           offset: UPD_OFFSET
-        -
-          name: title
+        - name: title
           addr_width: 19
           data_width: 16
           offset: TITLE_OFFSET
-    -
-      buses:
-        -
-          name: lyrf
+    - buses:
+        - name: lyrf
           addr_width: 20
           data_width: 32
-        -
-          name: lyra
+        - name: lyra
           addr_width: 20
           data_width: 32
-        -
-          name: lyrb
+        - name: lyrb
           addr_width: 20
           data_width: 32
-
-    -
-      buses:
-        -
-          name: lyro
+    - buses:
+        - name: lyro
           addr_width: 21
           data_width: 32

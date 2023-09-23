@@ -29,27 +29,23 @@ clocks:
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
-    -
-      buses:
+    - buses:
         - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
 
     # Bank 1 for sound & frame buffer
-    -
-      buses:
+    - buses:
         - { name: snd, addr_width: 19, data_width: 8 }
         - { name: pcm, addr_width: 17, data_width: 8, offset: PCM_OFFSET }
 
     # Bank 2 for tile graphics
-    -
-      buses:
+    - buses:
         - { name: char, addr_width: 20, data_width: 32, cs: gfx_cs }
         - { name: scr1, addr_width: 20, data_width: 32, cs: gfx_cs }
         - { name: scr2, addr_width: 20, data_width: 32, cs: gfx_cs }
 
     # Bank 3 objects
-    -
-      buses:
+    - buses:
         - { name: obj, addr_width: 21, data_width: 16 }

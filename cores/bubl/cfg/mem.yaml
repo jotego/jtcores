@@ -14,33 +14,24 @@ clocks:
 
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: main
+    - buses:
+        - name: main
           addr_width: 18
           data_width: 8
-        -
-          name: sub
+        - name: sub
           addr_width: 15
           data_width: 8
           offset: SUB_OFFSET
-    -
-      buses:
-        -
-          name: snd
+    - buses:
+        - name: snd
           addr_width: 15
           data_width: 8
-    -
-      buses:
-        -
-          name: mcu
+    - buses:
+        - name: mcu
           addr_width: 12
           data_width: 8
-    -
-      buses:
-        -
-          name: gfx
+    - buses:
+        - name: gfx
           addr_width: 19
           data_width: 32
 

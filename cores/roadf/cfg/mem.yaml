@@ -21,30 +21,24 @@ download:
   post_data: true
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: scr
+    - buses:
+        - name: scr
           addr_width: 16
           data_width: 32
           offset: SCR_OFFSET
           cs: LVBL
-        -
-          name: objrom
+        - name: objrom
           addr_width: 16
           data_width: 32
           offset: OBJ_OFFSET
-        -
-          name: pcm
+        - name: pcm
           addr_width: 16
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: snd
+        - name: snd
           addr_width: 14
           data_width: 8
           offset: SND_OFFSET
-        -
-          name: main
+        - name: main
           addr_width: 16
           data_width: 8

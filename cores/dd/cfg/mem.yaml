@@ -13,50 +13,38 @@ clocks:
         - cen1p5
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: main
+    - buses:
+        - name: main
           addr_width: 18
           data_width: 8
-    -
-      buses:
-        -
-          name: snd
+    - buses:
+        - name: snd
           addr_width: 15
           data_width: 8
-        -
-          name: adpcm0
+        - name: adpcm0
           addr_width: 16
           data_width: 8
           offset: PCM0_OFFSET
-        -
-          name: adpcm1
+        - name: adpcm1
           addr_width: 16
           data_width: 8
           offset: PCM1_OFFSET
-    -
-      buses:
-        -
-          name: char
+    - buses:
+        - name: char
           addr_width: 15 # DD1 only uses 15, DD2 uses 16
           data_width: 32
           gfx_sort: hhvvv
-        -
-          name: scr
+        - name: scr
           addr_width: 18
           data_width: 16
           offset: SCR_OFFSET
           gfx_sort: hhvvvvx
-    -
-      buses:
-        -
-          name: obj
+    - buses:
+        - name: obj
           addr_width: 20
           data_width: 32
           gfx_sort: hhvvvvx
-        -
-          name: mcu
+        - name: mcu
           addr_width: 14
           data_width: 8
           offset: MCU_OFFSET

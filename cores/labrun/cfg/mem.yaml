@@ -13,14 +13,11 @@ download:
   post_addr: true
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: gfx
+    - buses:
+        - name: gfx
           addr_width: 19
           data_width: 16
           offset: GFX_OFFSET
-        -
-          name: main
+        - name: main
           addr_width: 17
           data_width: 8

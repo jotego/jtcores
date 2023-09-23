@@ -20,8 +20,7 @@ clocks:
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
-    -
-      buses:
+    - buses:
         - { name: xram,   addr_width: 17, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: subram, addr_width: 15, data_width: 16, offset: SRAM_OFFSET, rw: true }
         - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
@@ -31,23 +30,20 @@ sdram:
       #   - { dst_addr: 16384, offset: VRAM_OFFSET, addr_width: 16 }
 
     # Bank 1 for sound & frame buffer
-    -
-      buses:
+    - buses:
         - { name: subrom, addr_width: 19, data_width: 16 } # ok latch 0, # latch 0
         - { name: snd, addr_width: 16, data_width: 8, offset: SND_OFFSET }
         - { name: pcm, addr_width: 19, data_width: 8, offset: PCM_OFFSET }
 
     # Bank 2 for tile graphics
-    -
-      buses:
+    - buses:
         # - { name: fbuf, addr_width: 18, data_width: 16, offset: FBUF_OFFSET, rw: true }
         - { name: char, addr_width: 14, data_width: 32, cs: gfx_cs }
         - { name: scr1, addr_width: 18, data_width: 32, cs: gfx_cs }
         - { name: scr2, addr_width: 18, data_width: 32, cs: gfx_cs }
 
     # Bank 3 for objects
-    -
-      buses:
+    - buses:
         - { name: obj, addr_width: 20, data_width: 32 }
 # The ROAD 32kBx2 memories must go in BRAM to guarantee correct data reads at 48 MHz
 bram:
