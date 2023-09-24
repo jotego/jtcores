@@ -23,8 +23,9 @@ module jtshouse_game(
 wire [21:0] baddr;
 wire [15:0] fave;
 wire        brnw, srst_n, firqn,
-            key_cs, cus30b_cs;
-wire [ 7:0] bdout, key_dout, sndcpu_dout;
+            key_cs, cus30b_cs, pal_cs;
+wire [ 7:0] bdout, key_dout, sndcpu_dout, pal_dout,
+            st_video;
 wire [ 1:0] busy;
 wire [ 3:0] cpu_cen;
 reg  [ 7:0] dbg_mux;
@@ -48,7 +49,6 @@ assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
 
 // To do:
-assign firqn = 1;
 assign dip_flip = 0;
 
 always @* begin
@@ -100,6 +100,8 @@ jtshouse_main u_main(
     .cus30b_cs  ( cus30b_cs ),
     .key_cs     ( key_cs    ),
     .key_dout   ( key_dout  ),
+    .pal_cs     ( pal_cs    ),
+    .pal_dout   ( pal_dout  ),
 
     // Video RAM
     .obus_we    ( obus_we   ),
@@ -156,9 +158,33 @@ jtshouse_video u_video(
     .hs         ( HS        ),
     .vs         ( VS        ),
 
+    .raster_irqn( firqn     ),
+
+    .pal_cs     ( pal_cs    ),
+    .pal_dout   ( pal_dout  ),
+    .cpu_addr   (baddr[14:0]),
+    .cpu_rnw    ( brnw      ),
+    .cpu_dout   ( bdout     ),
     // Video RAM
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
+    .pal_addr   ( pal_addr  ),
+    .rgb_addr   ( rgb_addr  ),
+    .rpal_we    ( rpal_we   ),
+    .gpal_we    ( gpal_we   ),
+    .bpal_we    ( bpal_we   ),
+    .rpal_dout  ( rpal_dout ),
+    .gpal_dout  ( gpal_dout ),
+    .bpal_dout  ( bpal_dout ),
+
+    // color mixer
+    .red_dout   ( red_dout  ),
+    .green_dout ( green_dout),
+    .blue_dout  ( blue_dout ),
+
+    .debug_bus  ( debug_bus ),
+    .gfx_en     ( gfx_en    ),
+    .st_dout    ( st_video  ),
 
     .red        ( red       ),
     .green      ( green     ),

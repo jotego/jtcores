@@ -37,8 +37,8 @@ module jtshouse_main(
     output       [11:1] obus_addr,
     input        [15:0] obus_dout,
 
-    output              vram_cs,
-    input        [ 7:0] vram_dout,
+    output              vram_cs, pal_cs,
+    input        [ 7:0] vram_dout, pal_dout,
 
 
     output              srst_n,
@@ -68,6 +68,7 @@ assign cus30b_cs= cs[8]; // /SOUND
 assign vram_cs  = cs[4]; // /CHAR
 assign oram_cs  = cs[6]; // /OBJECT
 assign key_cs   = cs[5]; // /KEY
+assign pal_cs   = cs[3]; // /COLOR
 
 // Video RAM
 assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
@@ -79,6 +80,7 @@ assign bdin = mrom_cs ? mrom_data :
               ram_cs  ? ram_dout  :
               key_cs  ? key_dout  :
               vram_cs ? vram_dout :
+              pal_cs  ? pal_dout  :
               oram_cs ? ( baddr[11] ? obus_dout[15:8] : obus_dout[7:0] ) :
               8'd0;
 

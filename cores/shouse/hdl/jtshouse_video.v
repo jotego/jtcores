@@ -22,12 +22,28 @@ module jtshouse_video(
 
     input             pxl_cen,
 
+    input      [14:0] cpu_addr,
+    input             cpu_rnw,
+    input      [ 7:0] cpu_dout,
     // Video RAM
-    output      [11:1] oram_addr,
-    input       [15:0] oram_dout,
+    output     [11:1] oram_addr,
+    input      [15:0] oram_dout,
+    input      [ 7:0] red_dout,   rpal_dout,
+                      green_dout, gpal_dout,
+                      blue_dout,  bpal_dout,
+    output     [12:0] rgb_addr, pal_addr,
+    output            rpal_we, gpal_we, bpal_we,
+    // color mixer
+    input             pal_cs,
+    output            raster_irqn,
+    output     [ 7:0] pal_dout,
 
     output            lvbl, lhbl, hs, vs,
-    output      [ 7:0]red, green, blue
+    output     [ 7:0] red, green, blue,
+    // Debug
+    input      [ 3:0] gfx_en,
+    input      [ 7:0] debug_bus,
+    output     [ 7:0] st_dout
 );
 
 localparam [8:0] HB_OFFSET=0;
@@ -67,6 +83,41 @@ jtframe_vtimer #(
     .LVBL       ( lvbl      ),
     .HS         ( hs        ), // 16kHz
     .VS         ( vs        )
+);
+
+jtshouse_colmix u_colmix(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .pxl_cen    ( pxl_cen   ),
+    .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .raster_irqn(raster_irqn),
+
+    .cpu_addr   ( cpu_addr  ),
+    .cs         ( pal_cs    ),
+    .cpu_rnw    ( cpu_rnw   ),
+    .rgb_addr   ( rgb_addr  ),
+    .pal_addr   ( pal_addr  ),
+    .rpal_we    ( rpal_we   ),
+    .gpal_we    ( gpal_we   ),
+    .bpal_we    ( bpal_we   ),
+
+    .cpu_dout   ( cpu_dout  ),
+    .red_dout   ( red_dout  ),
+    .rpal_dout  ( rpal_dout ),
+    .green_dout ( green_dout),
+    .gpal_dout  ( gpal_dout ),
+    .blue_dout  ( blue_dout ),
+    .bpal_dout  ( bpal_dout ),
+    .pal_dout   ( pal_dout  ),
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
 endmodule

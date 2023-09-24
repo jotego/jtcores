@@ -56,4 +56,4 @@ jobs:
         with:
           name: jtcore17_rbf
           path: release
-          retention-days: 30
+          retention-days: 60

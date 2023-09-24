@@ -87,6 +87,7 @@ obj_dir
 old/*
 release.bak/*
 release/*
+rom
 rom/*
 rom/cp_*sh
 rom/mra

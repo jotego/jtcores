@@ -6,7 +6,7 @@ game:
       - jtshouse_video.v
       - jtshouse_sound.v
       - jtshouse_key.v
-      # - jtshouse_colmix.v
+      - jtshouse_colmix.v
       # - jtshouse_mcu.v
 jtframe:
   - get:

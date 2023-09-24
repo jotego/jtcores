@@ -328,13 +328,6 @@ func check_banks( macros map[string]string, cfg *MemConfig ) {
 
 func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool ) {
 	implicit := make( map[string]bool )
-	nonblank := func( a, b string ) string {
-		if a=="" {
-			return b
-		} else {
-			return a
-		}
-	}
 	// get implicit names
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
@@ -420,14 +413,17 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 			})
 		}
 		if each.Dual_port.Name!="" {
+			if each.Dual_port.Addr == "" { each.Dual_port.Addr = each.Dual_port.Name + "_addr" }
+			if each.Dual_port.Dout == "" { each.Dual_port.Dout = each.Name+"2"+each.Dual_port.Name+"_data" }
+			if each.Dual_port.Din  == "" { each.Dual_port.Din  = each.Dual_port.Name+"_dout" }
 			add( Port{
-				Name: each.Dual_port.Name+"_addr",
+				Name: each.Dual_port.Addr,
 				MSB:  each.Addr_width-1,
 				LSB:  each.Data_width>>4, // 8->0, 16->1
 			})
 			if each.Dual_port.Rw {
 				add( Port{
-					Name: nonblank( each.Dual_port.Din, each.Dual_port.Name+"_dout"),
+					Name: each.Dual_port.Din,
 					MSB: each.Data_width-1,
 				})
 			}
@@ -437,20 +433,11 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 					MSB: each.Data_width>>4, // 8->0, 16->1
 				})
 			}
-			if each.Dual_port.Dout != "" {
-				add( Port{
-					Name: each.Dual_port.Dout,
-					MSB: each.Data_width-1,
-					Input: true,
-				})
-			} else {
-				name:= each.Name+"2"+each.Dual_port.Name+"_data"
-				add( Port{
-					Name: name,
-					MSB: each.Data_width-1,
-					Input: true,
-				})
-			}
+			add( Port{
+				Name: each.Dual_port.Dout,
+				MSB: each.Data_width-1,
+				Input: true,
+			})
 		}
 	}
 	cfg.Ports = make( []Port,0, len(all) )

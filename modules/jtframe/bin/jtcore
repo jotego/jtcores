@@ -454,10 +454,11 @@ if [ "$MACROS" != "" ]; then
     echo -e Explicit macros:
     for i in $MACROS; do
         if [ ${i:0:17} != JTFRAME_UNLOCKKEY ]; then
-            echo -e $i " ";
+            echo -n "$i "
         else # Do not print the key value
-            echo -e JTFRAME_UNLOCKKEY " ";
+            echo -n "JTFRAME_UNLOCKKEY "
         fi
+        echo
     done
 fi
 

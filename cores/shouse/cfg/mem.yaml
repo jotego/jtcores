@@ -69,3 +69,37 @@ bram:
       din: bdout16
       dout: obus_dout
       rw: true
+# palette, 3x8kB
+  - name: red
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    rw: false
+    dual_port:
+      name: rpal
+      addr: pal_addr
+      din: ram_din
+      dout: rpal_dout
+      rw: true
+  - name: green
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    rw: false
+    dual_port:
+      name: gpal
+      addr: pal_addr
+      din: ram_din
+      dout: gpal_dout
+      rw: true
+  - name: blue
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    rw: false
+    dual_port:
+      name: bpal
+      addr: pal_addr
+      din: ram_din
+      dout: bpal_dout
+      rw: true
