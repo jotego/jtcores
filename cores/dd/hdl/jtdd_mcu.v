@@ -34,7 +34,7 @@ module jtdd_mcu(
     input              mcu_nmi_set,
     input              mcu_halt,
     output             mcu_irqmain,
-    // PROM programming
+    // PROM
     output     [13:0]  rom_addr,
     input      [ 7:0]  rom_data,
     output reg         rom_cs,

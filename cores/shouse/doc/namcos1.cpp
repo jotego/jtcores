@@ -143,6 +143,7 @@ map is inferred by program behaviour
 
 Address          Dir Data     Name      Description
 ---------------- --- -------- --------- -----------------------
+FEDCBA9876543210
 00000000xxxxxxxx                        MCU internal registers, timers, ports and RAM
 000100--------x- R   xxxxxxxx DIPSW     dip switches
 000101---------x R   xxxxxxxx CONTROL   switch inputs

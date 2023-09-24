@@ -43,7 +43,7 @@ reg        cen_rng;
 
 assign mmr_mux = mmr[cfg[4][2:0]];
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
     if( prog_en & prog_wr ) cfg[prog_addr] <= prog_data;
 end
 

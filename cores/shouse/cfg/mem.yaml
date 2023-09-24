@@ -32,10 +32,10 @@ sdram:
         - name: snd
           addr_width: 17
           data_width: 8
-    #     - name: pcm
-    #       addr_width: 20
-    #       data_width: 8
-    #       offset: PCM_OFFSET
+        - name: pcm
+          addr_width: 20
+          data_width: 8
+          offset: PCM_OFFSET
     - buses:
         - name: vram
           addr_width: 15

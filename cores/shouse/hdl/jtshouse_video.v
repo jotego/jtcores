@@ -50,9 +50,6 @@ localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1;
 
-assign red   = 0;
-assign green = 0;
-assign blue  = 0;
 assign oram_addr = 0;
 
 // See https://github.com/jotego/jtcores/issues/348
