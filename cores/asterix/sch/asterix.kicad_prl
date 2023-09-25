@@ -72,19 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "asterix.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2621,
-          "pos_y": 28,
-          "size_x": 982,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
