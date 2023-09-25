@@ -409,13 +409,12 @@ jtframe_ioctl_dump #(
     {{- $first := true}}
     {{- range $k, $v := .Ioctl.Buses }}
     {{- if $first}}{{$first = false}}{{else}},{{end}}
-    .DW{{$k}}( {{$v.DW}} ),
-    .AW{{$k}}( {{$v.AW}} ){{end}}
+    .DW{{$k}}( {{$v.DW}} ), .AW{{$k}}( {{$v.AW}} ){{end}}
 ) u_dump (
-    .clk        ( clk       ),
+    .clk       ( clk        ),
     {{- range $k, $v := .Ioctl.Buses }}
-    .din{{$k}} ( {{$v.Dout}} ),
-    .addrin_{{$k}} ( {{$v.Ain}} ),
+    .din{{$k}}      ( {{$v.Dout}} ),
+    .addrin_{{$k}}  ( {{$v.Ain}} ),
     .addrout_{{$k}} ( {{$v.Aout}} ),
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),

@@ -74,7 +74,6 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
-    rw: false
     dual_port:
       name: rpal
       addr: pal_addr
@@ -85,7 +84,6 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
-    rw: false
     dual_port:
       name: gpal
       addr: pal_addr
@@ -96,10 +94,15 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
-    rw: false
     dual_port:
       name: bpal
       addr: pal_addr
       din: ram_din
       dout: bpal_dout
       rw: true
+# EEROM
+  - name: eerom
+    addr_width: 11
+    data_width: 8
+    rw: true
+    ioctl: { save: true, order: 0 }

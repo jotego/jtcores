@@ -70,10 +70,12 @@ always @(*) begin
     triram_cs = 0;
     port_cs   = 0;
     if( vma ) begin
-        port_cs = A[15:12]==4'h0;
-        swio_cs = A[15:12]==4'h1;
-        reg_cs  = A[15:12]==4'hd & ~rnw;
-        rom_cs  = A[15:12]==4'hf &  rnw;
+        port_cs =  A[15:12]==4'h0;
+        swio_cs =  A[15:12]==4'h1;
+        ram_cs  =  A[15:12]==4'hc && !A[11];    // c000~c7ff
+        epr_cs  =  A[15:12]==4'hc &&  A[11];    // c800~cfff
+        reg_cs  =  A[15:12]==4'hd && !rnw;
+        rom_cs  = (A[15:14]==4'hd &&  rnw) || ^A[15:14];
 
         dip_cs  = swio_cs && A[11:10]==0;
         cab_cs  = swio_cs && A[11:10]==1;
@@ -161,7 +163,7 @@ jtframe_ram #(.AW(8)) u_intram(
     .q      ( ram_dout  )
 );
 
-jtframe_prom #(.AW(12)) u_intram(
+jtframe_prom #(.AW(12)) u_prom(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),

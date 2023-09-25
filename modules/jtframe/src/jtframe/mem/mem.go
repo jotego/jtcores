@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -445,7 +446,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
 }
 
-func make_ioctl( cfg *MemConfig, verbose bool ) {
+func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	found := false
 	dump_size := 0
 	total_blocks := 0
@@ -486,9 +487,21 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 			each.Ain  = "1'd0"
 		}
 	}
-	if verbose {
-		fmt.Printf("JTFRAME_IOCTL_RD=%d\n", dump_size)
+	// warn if JTFRAME_IOCTL_RD is below the required one
+	ioctl_rd, fnd := macros["JTFRAME_IOCTL_RD"]
+	suggest := ioctl_rd=="" || verbose
+	if fnd {
+		aux2, _ := strconv.ParseInt(ioctl_rd,0,32)
+		aux := int(aux2)
+		if aux < dump_size {
+			suggest = true
+			fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-aux)
+		}
 	}
+	if suggest {
+		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d\n", dump_size)
+	}
+	return dump_size
 }
 
 func make_dump2bin( args Args, cfg *MemConfig ) {
@@ -583,7 +596,7 @@ func Run(args Args) {
 	macros := get_macros( args.Core, args.Target )
 	check_banks( macros, &cfg )
 	fill_implicit_ports( macros, &cfg, args.Verbose )
-	make_ioctl( &cfg, args.Verbose )
+	make_ioctl( macros, &cfg, args.Verbose )
 	fill_gfx_sort( macros, &cfg )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
