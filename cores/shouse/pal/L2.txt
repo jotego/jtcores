@@ -9,8 +9,8 @@ EEOE = /RAM & CRW & E & IA11 +
 
 EEWE = /RAM & /CRW & E & IA11
 
-EEROM = /RAM & E & IA11 +
-       /RAM & 2H & IA11 & /AS
+EEROM = /RAM &  E & IA11 +
+        /RAM & 2H & IA11 & /AS
 
 OEC = /RAM & CRW & /2H & /1H & E & /IA11 +
        /VOICEG & SNRW & 2H & 1H +

@@ -23,10 +23,10 @@ module jtshouse_game(
 wire [21:0] baddr;
 wire [15:0] fave;
 wire        brnw, srst_n, firqn,
-            key_cs, cus30b_cs, pal_cs;
+            key_cs, cus30b_cs, pal_cs, pcm_busy;
 wire [ 7:0] bdout, key_dout, sndcpu_dout, pal_dout,
             st_video;
-wire [ 1:0] busy;
+wire [ 2:0] busy;
 wire [ 3:0] cpu_cen;
 reg  [ 7:0] dbg_mux;
 
@@ -124,6 +124,39 @@ jtshouse_main u_main(
     .bus_busy   ( busy[0]   )
 );
 
+jtshouse_mcu u_mcu(
+    .clk        ( clk       ),
+    .rstn       ( rstn      ),
+    .cen        ( cpu_cen[2]), // is 2 the best one?
+
+    .mcu_dout   ( mcu_dout  ),
+    // cabinet I/O
+    .start_button( start_button  ),
+    .coin_input ( coin_input),
+    .joystick1  ( joystick1 ),
+    .joystick2  ( joystick2 ),
+    .dipsw      ( dipsw     ),
+    .service    ( service   ),
+    .dip_test   ( dip_test  ),
+
+    // PROM programming
+    .prog_addr  ( prog_addr ),
+    .prog_data  ( prog_data ),
+    .prog_we    ( prom_we   ),
+
+    // EEROM
+    .eerom_addr ( eerom_addr),
+    .eerom_dout ( eerom_dout),
+    .eerom_we   ( eerom_we  ),
+
+    // "Voice" ROM
+    .pcm_addr   ( pcm_addr  ),
+    .pcm_data   ( pcm_data  ),
+    .pcm_cs     ( pcm_cs    ),
+    .pcm_ok     ( pcm_ok    ),
+    .bus_busy   ( busy[1]   )
+);
+
 jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
@@ -140,7 +173,7 @@ jtshouse_sound u_sound(
     .rom_addr   ( snd_addr  ),
     .rom_data   ( snd_data  ),
     .rom_ok     ( snd_ok    ),
-    .bus_busy   ( busy[1]   ),
+    .bus_busy   ( busy[2]   ),
 
     .left       ( snd_left  ),
     .right      ( snd_right ),

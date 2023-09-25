@@ -104,5 +104,6 @@ bram:
   - name: eerom
     addr_width: 11
     data_width: 8
+    din: mcu_dout
     rw: true
     ioctl: { save: true, order: 0 }

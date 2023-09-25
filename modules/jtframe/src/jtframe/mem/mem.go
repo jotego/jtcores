@@ -489,7 +489,7 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	}
 	// warn if JTFRAME_IOCTL_RD is below the required one
 	ioctl_rd, fnd := macros["JTFRAME_IOCTL_RD"]
-	suggest := ioctl_rd=="" || verbose
+	suggest := (ioctl_rd=="" && dump_size!=0) || verbose
 	if fnd {
 		aux2, _ := strconv.ParseInt(ioctl_rd,0,32)
 		aux := int(aux2)

@@ -19,7 +19,7 @@
 module jtshouse_cenloop(
     input             rst,
     input             clk,
-    input      [ 1:0] busy,
+    input      [ 2:0] busy,
 
     output reg [ 3:0] cpu_cen,
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz

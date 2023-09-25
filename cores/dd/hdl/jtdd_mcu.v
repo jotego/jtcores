@@ -37,26 +37,22 @@ module jtdd_mcu(
     // PROM
     output     [13:0]  rom_addr,
     input      [ 7:0]  rom_data,
-    output reg         rom_cs,
+    output             rom_cs,
     input              rom_ok
 
 );
 
-wire        vma;
-reg         port_cs, ram_cs, shared_cs;
-
-wire        rnw;
+wire        vma, halted, shared_cs, rnw,
+            cpu_cen, nmi, nmi_clr;
 wire [15:0] A;
-wire [ 7:0] mcu_dout;
-reg  [ 7:0] mcu_din;
+wire [ 7:0] mcu_dout, p6_dout, sh2mcu_dout;
+reg         waitn;
 
-assign  mcu_ban = vma;
-
-reg  [7:0] p6_dout;
-wire       nmi;
-wire       nmi_clr = ~p6_dout[0];
-
+assign nmi_clr     = ~p6_dout[0];
 assign mcu_irqmain =  p6_dout[1];
+assign mcu_ban     = vma;
+assign shared_cs   = vma && A[15:12]==8;
+assign cpu_cen     = mcu_cen & (waitn | ~mcu_rstb);
 
 jtframe_ff u_nmi(
     .clk     (   clk          ),
@@ -70,89 +66,47 @@ jtframe_ff u_nmi(
     .qn      (                )
 );
 
-wire [7:0] ram_dout;
-assign rom_addr = A[13:0];
-
-// Address decoder
-always @(*) begin
-    rom_cs    = 1'b0;
-    ram_cs    = 1'b0;
-    shared_cs = 1'b0;
-    port_cs   = 1'b0;
-    if( vma ) begin
-        if( A[15:14]==2'b11 )        rom_cs    = 1'b1; // Cxxx
-        if( A>=16'h40 && A<16'h140 ) ram_cs    = 1'b1;
-        if( A[15:12]==4'h8  )        shared_cs = 1'b1; // 8xxx
-        if( A<16'h28 )               port_cs   = 1'b1;
-    end
-end
-
-// Ports
-reg [7:0] port_map[0:31];
-always @(posedge clk ) begin
-    if( !mcu_rstb ) begin
-        p6_dout <= 8'd0;
-    end else begin
-        port_map[A[4:0]] <= mcu_dout;
-        if( port_cs && A[5:0]==6'h17 ) p6_dout <= mcu_dout;
-    end
-end
-
-`ifdef SIMULATION
-always @(posedge port_cs) begin
-    if( A[5:0] !=6'h17 && vma ) begin
-        if( rnw )
-            $display("WARNING: Access to non-supported MCU port %X", A );
-        else
-            $display("WARNING: Write to non-supported MCU port %X, data = %X", A, mcu_dout );
-    end
-end
-`endif
-
-// Input multiplexer
-wire [7:0] sh2mcu_dout;
-
-always @(*) begin
-    case(1'b1)
-        default:   mcu_din = rom_data;
-        ram_cs:    mcu_din = ram_dout;
-        shared_cs: mcu_din = sh2mcu_dout;
-        port_cs:   mcu_din = port_map[A[4:0]];
-    endcase
-end
-
 // Clock enable
-reg  waitn;
-wire cpu_cen = mcu_cen & (waitn | ~mcu_rstb);
 
 always @(posedge clk) begin : cpu_clockenable
-    if( !mcu_rstb ) begin
-        waitn   <= 1'b1;
-    end else begin
-        if( rom_cs && !rom_ok ) waitn <= 1'b0;
-        else if( rom_ok) waitn <= 1'b1;
-    end
+    waitn <= rom_ok | ~rom_cs;
 end
 
-wire halted;
-
-m6801 u_6801(
+jt63701 #(.ROMW(14)) u_63701(
     .rst        ( ~mcu_rstb     ),
     .clk        ( clk           ),
     .cen        ( cpu_cen       ),
-    .rw         ( rnw           ),
-    .vma        ( vma           ),
-    .address    ( A             ),
-    .data_in    ( mcu_din       ),
-    .data_out   ( mcu_dout      ),
+
+    // Bus
+    .rnw        ( rnw           ),
+    .x_cs       ( vma           ),
+    .A          ( A             ),
+    .xdin       ( sh2mcu_dout   ),
+    .dout       ( mcu_dout      ),
+
+    // interrupts
     .halt       ( mcu_halt      ),
     .halted     ( halted        ),
     .irq        ( 1'b0          ),
     .nmi        ( nmi           ),
-    .irq_icf    ( 1'b0          ),
-    .irq_ocf    ( 1'b0          ),
-    .irq_tof    ( 1'b0          ),
-    .irq_sci    ( 1'b0          )
+    // ports
+    .p1_din     ( 8'd0          ),
+    .p2_din     ( 8'd0          ),
+    .p3_din     ( 8'd0          ),
+    .p4_din     ( 8'd0          ),
+    .p5_din     ( 8'd0          ),
+    .p6_din     ( 8'd0          ),
+
+    .p1_dout    (               ),
+    .p2_dout    (               ),
+    .p3_dout    (               ),
+    .p4_dout    (               ),
+    .p5_dout    (               ),
+    .p6_dout    ( p6_dout       ),
+    // ROM
+    .rom_cs     ( rom_cs        ),
+    .rom_addr   ( rom_addr      ),
+    .rom_data   ( rom_data      )
 );
 
 jtframe_dual_ram #(.AW(9)) u_shared(
@@ -170,20 +124,4 @@ jtframe_dual_ram #(.AW(9)) u_shared(
     .q1     ( shared_dout )
 );
 
-wire intram_we = ram_cs & ~rnw;
-
-jtframe_ram #(.AW(8)) u_intram(
-    .clk    ( clk         ),
-    .cen    ( cpu_cen     ),
-    .data   ( mcu_dout    ),
-    .addr   ( A[7:0]      ),
-    .we     ( intram_we   ),
-    .q      ( ram_dout    )
-);
-
-// `ifdef SIMULATION
-// always @(posedge mcu_halt)   $display("MCU_HALT rose");
-// always @(negedge mcu_halt)   $display("MCU_HALT fell");
-// always @(posedge mcu_nmi_set) $display("MCU NMI set");
-// `endif
 endmodule

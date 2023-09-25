@@ -57,7 +57,7 @@ module jtframe_6809wait(
         end else if(!gate) begin
             if( !last_EQ && !EQ && !(&misses) && !dev_busy) begin
                 misses <= misses+4'd1;
-                $display("Missed (%d)",misses+4'd1);
+                // $display("Missed (%d)",misses+4'd1);
             end
         end
         if( !rstn ) begin

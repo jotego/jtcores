@@ -24,6 +24,8 @@ module jtshouse_mcu(
     input              rstn,
     input              cen,
 
+    output      [7:0]  mcu_dout,
+    // Ports
     // cabinet I/O
     input       [1:0]  start_button,
     input       [1:0]  coin_input,
@@ -38,6 +40,12 @@ module jtshouse_mcu(
     input      [ 7:0]  prog_data,
     input              prog_we,
 
+    // EEROM
+    output     [10:0]  eerom_addr,
+    input      [ 7:0]  eerom_dout,
+    output             eerom_we,
+
+    // "Voice" ROM
     output     [19:0]  pcm_addr,
     input      [ 7:0]  pcm_data,
     output reg         pcm_cs,
@@ -45,12 +53,12 @@ module jtshouse_mcu(
     output             bus_busy
 );
 
-wire        vma, rnw, intram_we;
+wire        vma, rnw, iram_we;
 reg         port_cs, ram_cs, triram_cs,
-            dip_cs,  cab_cs;
+            iram_cs, dip_cs,  cab_cs;
 
 wire [15:0] A;
-wire [ 7:0] mcu_dout, ram_dout;
+wire [ 7:0] ram_dout;
 reg  [ 7:0] mcu_din, cab_dout;
 reg  [15:0] lt;         // DAC control
 reg  [ 2:0] bank;
@@ -58,19 +66,23 @@ reg  [ 1:0] pcm_msb;
 
 assign bus_busy    = pcm_cs & ~pcm_ok;
 assign mcu_irqmain =  p6_dout[1];
-assign intram_we   = ram_cs & ~rnw;
+assign iram_we     = iram_cs & ~rnw;
+assign eerom_we    = epr_cs & ~rnw;
 assign pcm_addr    = {bank, bank==0 ? ~pcm_msb[1] : pcm_msb[1], pcm_msb[0], A[15],A[13:0]};
+assign eerom_addr  = A[10:0];
 
 // Address decoder
 always @(*) begin
     rom_cs    = 0;
     pcm_cs    = 0;
+    iram_cs   = 0;
     ram_cs    = 0;
     swio_cs   = 0;
     triram_cs = 0;
     port_cs   = 0;
-    if( vma ) begin
-        port_cs =  A[15:12]==4'h0;
+    if( other_cs ) begin
+        port_cs =  A[15: 0] < 16'h28;
+        iram_cs =  A[15: 0] >=16'h40 && A[15:0]<16'h14f;
         swio_cs =  A[15:12]==4'h1;
         ram_cs  =  A[15:12]==4'hc && !A[11];    // c000~c7ff
         epr_cs  =  A[15:12]==4'hc &&  A[11];    // c800~cfff
@@ -83,7 +95,6 @@ always @(*) begin
 end
 
 // Ports
-reg [7:0] ports[0:31];
 
 always @* begin
     mcu_din =   rom_cs  ? rom_data :
@@ -98,6 +109,8 @@ always @(posedge clk, negedge rstn ) begin
         bank    <= 0;
         lt      <= 0;
         cab_dout<= 0;
+        p1_dout <= 0;
+        p2_dout <= 0;
     end else begin
         cab_dout <= A[0] ? { start_button[1], joystick2 }:
                            { start_button[0], joystick1 };
@@ -117,8 +130,7 @@ always @(posedge clk, negedge rstn ) begin
                 endcase
             end
         endcase
-        ports[A[4:0]] <= mcu_dout;
-        if( port_cs && A[5:0]==6'h17 ) p6_dout <= mcu_dout;
+        if( port_cs & ~rnw ) ports[A[4:0]] <= mcu_dout;
     end
 end
 
@@ -159,7 +171,7 @@ jtframe_ram #(.AW(8)) u_intram(
     .cen    ( cen       ),
     .data   ( mcu_dout  ),
     .addr   ( A[7:0]    ),
-    .we     ( intram_we ),
+    .we     ( iram_we ),
     .q      ( ram_dout  )
 );
 
