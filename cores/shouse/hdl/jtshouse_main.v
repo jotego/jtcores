@@ -28,9 +28,11 @@ module jtshouse_main(
     output       [ 7:0] bdout,
     output              brnw,
 
+    output              tri_cs,
     output              key_cs,
-    input        [ 7:0] key_dout,
     output              cus30b_cs,
+    input        [ 7:0] key_dout,
+    input        [ 7:0] tri_dout,
 
     // Video RAMs
     output       [ 1:0] obus_we,
@@ -64,6 +66,7 @@ assign master   = ~bsel;
 assign sub      =  bsel;
 assign mrom_cs  = rom_cs & master;
 assign srom_cs  = rom_cs & sub;
+assign tri_cs   = cs[9]; // /IOEN
 assign cus30b_cs= cs[8]; // /SOUND
 assign vram_cs  = cs[4]; // /CHAR
 assign oram_cs  = cs[6]; // /OBJECT
@@ -78,6 +81,7 @@ assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
               srom_cs ? srom_data :
               ram_cs  ? ram_dout  :
+              tri_cs  ? tri_dout  :
               key_cs  ? key_dout  :
               vram_cs ? vram_dout :
               pal_cs  ? pal_dout  :

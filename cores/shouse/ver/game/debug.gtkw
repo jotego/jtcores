@@ -1,28 +1,43 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sat Sep 23 14:28:19 2023
+[*] Mon Sep 25 14:20:17 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Sat Sep 23 14:15:13 2023"
-[dumpfile_size] 69612325
+[dumpfile_mtime] "Mon Sep 25 14:10:38 2023"
+[dumpfile_size] 135283230
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 81389550000
+[timestart] 10172
 [size] 1263 1010
-[pos] -27 -48
-*-19.171579 81390291000 259945460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-37.625671 800319161000 259945460 800318668340 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
 [treeopen] TOP.game_test.u_game.u_game.u_main.
 [treeopen] TOP.game_test.u_game.u_game.u_main.u_mapper.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
 [sst_width] 215
 [signals_width] 238
 [sst_expanded] 1
 [sst_vpaned_height] 425
+@24
+TOP.game_test.frame_cnt[31:0]
 @28
 TOP.game_test.u_game.u_game.u_main.rst
 TOP.game_test.u_game.u_game.srst_n
+@c00024
+TOP.game_test.u_game.u_game.busy[2:0]
+@28
+(0)TOP.game_test.u_game.u_game.busy[2:0]
+(1)TOP.game_test.u_game.u_game.busy[2:0]
+(2)TOP.game_test.u_game.u_game.busy[2:0]
+@1401200
+-group_end
+@200
+-
 @22
 TOP.game_test.u_game.u_game.u_cen.fave[15:0]
 @c00022
@@ -37,7 +52,7 @@ TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
 @28
 TOP.game_test.u_game.u_game.u_main.ram_cs
 TOP.game_test.u_game.u_game.u_main.rom_cs
-@800022
+@c00022
 TOP.game_test.u_game.u_game.u_main.cs[9:0]
 @28
 (0)TOP.game_test.u_game.u_game.u_main.cs[9:0]
@@ -50,15 +65,45 @@ TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (7)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (8)TOP.game_test.u_game.u_game.u_main.cs[9:0]
 (9)TOP.game_test.u_game.u_game.u_main.cs[9:0]
-@1001200
+@1401200
 -group_end
 @22
 TOP.game_test.u_game.u_game.u_main.maddr[15:0]
+TOP.game_test.u_game.u_game.u_main.baddr[21:0]
 @200
 -
 @28
 TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.mmr_cs
 TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.rnw
 TOP.game_test.u_game.u_game.u_main.vram_cs
+TOP.game_test.u_game.u_game.pal_cs
+@22
+TOP.game_test.u_game.u_game.bdout[7:0]
+@200
+-MCU
+@22
+TOP.game_test.u_game.u_game.u_mcu.u_63701.A[15:0]
+@28
+TOP.game_test.u_game.u_game.u_mcu.cen
+@200
+-Sound
+@22
+TOP.game_test.u_game.u_game.u_sound.A[15:0]
+@c00028
+TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
+@28
+[color] 1
+(0)TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
+(1)TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
+@1401200
+-group_end
+@29
+TOP.game_test.u_game.u_game.u_sound.rom_cs
+@200
+-Tri RAM
+@28
+TOP.game_test.u_game.u_game.u_triram.bus_cs
+TOP.game_test.u_game.u_game.u_triram.mcu_cs
+TOP.game_test.u_game.u_game.u_triram.snd_cs
 [pattern_trace] 1
 [pattern_trace] 0

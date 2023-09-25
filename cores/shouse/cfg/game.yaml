@@ -8,6 +8,7 @@ game:
       - jtshouse_key.v
       - jtshouse_colmix.v
       - jtshouse_mcu.v
+      - jtshouse_triram.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -16,6 +17,7 @@ jtframe:
     get:
       - mc6809i.v
       - 6801_core.sv
+      - jt63701.v
   - from: clocking
     get:
       - jtframe_freqinfo.v

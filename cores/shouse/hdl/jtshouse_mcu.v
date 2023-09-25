@@ -23,8 +23,14 @@ module jtshouse_mcu(
     input              clk,
     input              rstn,
     input              cen,
+    input              lvbl,
+
+    input       [8:0]  hdump,
 
     output      [7:0]  mcu_dout,
+    output             rnw,
+    output reg         ram_cs,      // Tri port RAM
+    input       [7:0]  ram_dout,
     // Ports
     // cabinet I/O
     input       [1:0]  start_button,
@@ -41,7 +47,7 @@ module jtshouse_mcu(
     input              prog_we,
 
     // EEROM
-    output     [10:0]  eerom_addr,
+    output     [10:0]  mcu_addr,
     input      [ 7:0]  eerom_dout,
     output             eerom_we,
 
@@ -50,73 +56,80 @@ module jtshouse_mcu(
     input      [ 7:0]  pcm_data,
     output reg         pcm_cs,
     input              pcm_ok,
-    output             bus_busy
+    output             bus_busy,
+
+    output signed[10:0]snd          // is it signed?
 );
 
-wire        vma, rnw, iram_we;
-reg         port_cs, ram_cs, triram_cs,
-            iram_cs, dip_cs,  cab_cs;
+wire        vma, irqen;
+reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
+            irq;
 
 wire [15:0] A;
-wire [ 7:0] ram_dout;
-reg  [ 7:0] mcu_din, cab_dout;
-reg  [15:0] lt;         // DAC control
+wire [11:0] rom_addr;
+wire [ 7:0] p1_din, p2_dout, rom_data;
+wire [ 1:0] gain1,  gain0;
+reg  [ 7:0] mcu_din, cab_dout, dac1, dac0;
 reg  [ 2:0] bank;
 reg  [ 1:0] pcm_msb;
+reg  [ 9:0] amp1, amp0;
+
+function [1:0] gain( input [1:0] g);
+    case( g )
+        0:   gain = 1;
+        1,2: gain = 2;
+        3:   gain = 3;
+    endcase
+endfunction
 
 assign bus_busy    = pcm_cs & ~pcm_ok;
-assign mcu_irqmain =  p6_dout[1];
-assign iram_we     = iram_cs & ~rnw;
 assign eerom_we    = epr_cs & ~rnw;
 assign pcm_addr    = {bank, bank==0 ? ~pcm_msb[1] : pcm_msb[1], pcm_msb[0], A[15],A[13:0]};
-assign eerom_addr  = A[10:0];
+assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
+assign p1_din      = { 1'b1, service, dip_test, coin_input, 3'd0 };
+assign gain1       = p2_dout[4:3];
+assign gain0       = {p2_dout[2], p2_dout[0]};
+assign irqen       = hdump[1:0]==0;
 
 // Address decoder
 always @(*) begin
-    rom_cs    = 0;
-    pcm_cs    = 0;
-    iram_cs   = 0;
-    ram_cs    = 0;
-    swio_cs   = 0;
-    triram_cs = 0;
-    port_cs   = 0;
-    if( other_cs ) begin
-        port_cs =  A[15: 0] < 16'h28;
-        iram_cs =  A[15: 0] >=16'h40 && A[15:0]<16'h14f;
-        swio_cs =  A[15:12]==4'h1;
-        ram_cs  =  A[15:12]==4'hc && !A[11];    // c000~c7ff
-        epr_cs  =  A[15:12]==4'hc &&  A[11];    // c800~cfff
-        reg_cs  =  A[15:12]==4'hd && !rnw;
-        rom_cs  = (A[15:14]==4'hd &&  rnw) || ^A[15:14];
-
-        dip_cs  = swio_cs && A[11:10]==0;
-        cab_cs  = swio_cs && A[11:10]==1;
-    end
+    pcm_cs  = vma && ^A[15:14];
+    swio_cs = vma &&  A[15:12]==4'h1;
+    ram_cs  = vma &&  A[15:12]==4'hc && !A[11];    // c000~c7ff
+    epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
+    reg_cs  = vma &&  A[15:12]==4'hd && !rnw;
+    dip_cs  = vma && swio_cs && A[11:10]==0;
+    cab_cs  = vma && swio_cs && A[11:10]==1;
 end
 
-// Ports
-
 always @* begin
-    mcu_din =   rom_cs  ? rom_data :
-                pcm_cs  ? pcm_data :
+    mcu_din =   pcm_cs  ? pcm_data :
+                ram_cs  ? ram_dout :
                 dip_cs  ? dipsw    :
-                cab_cs  ? cab_dout :
+                cab_cs  ? cab_dout : 8'd0;
 end
 
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
-        p6_dout <= 8'd0;
-        bank    <= 0;
-        lt      <= 0;
-        cab_dout<= 0;
-        p1_dout <= 0;
-        p2_dout <= 0;
+        bank     <= 0;
+        dac1     <= 0;
+        dac0     <= 0;
+        cab_dout <= 0;
+        irq      <= 0;
     end else begin
+        amp1 <= dac1 * gain(gain1);
+        amp0 <= dac0 * gain(gain0);
+        snd  <= {amp1[7], amp1}+{amp0[7], amp0};
         cab_dout <= A[0] ? { start_button[1], joystick2 }:
                            { start_button[0], joystick1 };
+        irq <= ~lvbl & irqen & ~rnw & (
+                ~A[15] & A[14]                 |
+                        ~A[14] & A[13]         |
+                                ~A[13] & A[12] |
+                                        ~A[12] );
         if( reg_cs ) case(A[1:0])
-            0: lt[ 7:0] <= mcu_dout;
-            1: lt[15:8] <= mcu_dout;
+            0: dac0 <= mcu_dout;
+            1: dac1 <= mcu_dout;
             2: begin
                 pcm_msb <= mcu_dout[1:0];
                 case( mcu_dout[7:2] )
@@ -130,49 +143,44 @@ always @(posedge clk, negedge rstn ) begin
                 endcase
             end
         endcase
-        if( port_cs & ~rnw ) ports[A[4:0]] <= mcu_dout;
     end
 end
 
-`ifdef SIMULATION
-always @(posedge port_cs) begin
-    if( A[5:0] !=6'h17 && vma ) begin
-        if( rnw )
-            $display("WARNING: Access to non-supported MCU port %X", A );
-        else
-            $display("WARNING: Write to non-supported MCU port %X, data = %X", A, mcu_dout );
-    end
-end
-`endif
+jt63701 #(.ROMW(12)) u_63701(
+    .rst        ( ~rstn         ),
+    .clk        ( clk           ),
+    .cen        ( cen           ),
 
-wire halted;
+    // Bus
+    .rnw        ( rnw           ),
+    .x_cs       ( vma           ),
+    .A          ( A             ),
+    .xdin       ( mcu_din       ),
+    .dout       ( mcu_dout      ),
 
-m6801 u_6801(
-    .rst        ( ~rstn     ),
-    .clk        ( clk       ),
-    .cen        ( cen       ),
-    .rw         ( rnw       ),
-    .vma        ( vma       ),
-    .address    ( A         ),
-    .data_in    ( mcu_din   ),
-    .data_out   ( mcu_dout  ),
-    .halt       ( mcu_halt  ),
-    .halted     ( halted    ),
-    .irq        ( 1'b0      ),
-    .nmi        ( 1'b1      ),
-    .irq_icf    ( 1'b0      ),
-    .irq_ocf    ( 1'b0      ),
-    .irq_tof    ( 1'b0      ),
-    .irq_sci    ( 1'b0      )
-);
+    // interrupts
+    .halt       ( 1'b0          ),
+    .halted     (               ),
+    .irq        ( irq           ),
+    .nmi        ( 1'b0          ),
+    // ports
+    .p1_din     ( p1_din        ),
+    .p2_din     ( 8'd0          ),
+    .p3_din     ( 8'd0          ),
+    .p4_din     ( 8'd0          ),
+    .p5_din     ( 8'd0          ),
+    .p6_din     ( 8'd0          ),
 
-jtframe_ram #(.AW(8)) u_intram(
-    .clk    ( clk       ),
-    .cen    ( cen       ),
-    .data   ( mcu_dout  ),
-    .addr   ( A[7:0]    ),
-    .we     ( iram_we ),
-    .q      ( ram_dout  )
+    .p1_dout    (               ),  // coin lock & counters
+    .p2_dout    ( p2_dout       ),
+    .p3_dout    (               ),
+    .p4_dout    (               ),
+    .p5_dout    (               ),
+    .p6_dout    (               ),
+    // ROM
+    .rom_cs     (               ),
+    .rom_addr   ( rom_addr      ),
+    .rom_data   ( rom_data      )
 );
 
 jtframe_prom #(.AW(12)) u_prom(
@@ -181,7 +189,7 @@ jtframe_prom #(.AW(12)) u_prom(
     .data   ( prog_data ),
     .we     ( prog_we   ),
     .wr_addr( prog_addr ),
-    .rd_addr( A[11:0]   ),
+    .rd_addr( rom_addr  ),
     .q      ( rom_data  )
 );
 

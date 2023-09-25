@@ -24,6 +24,10 @@ module jtshouse_sound(
     input               cen_fm2,
     input               lvbl,
 
+    output reg          tri_cs,
+    input        [ 7:0] tri_dout,
+
+    output              rnw,
     output              ram_we,
     input        [ 7:0] ram_dout,
     output       [ 7:0] cpu_dout,
@@ -34,26 +38,28 @@ module jtshouse_sound(
     input               rom_ok,
     output              bus_busy,
 
+    input  signed[10:0] pcm_snd,
     output signed[15:0] left, right,
     output              sample,
     output              peak
 );
 
-localparam [7:0] FMGAIN=8'h10;
+localparam [7:0] FMGAIN =8'h10,
+                 PCMGAIN=8'h10;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst;
-wire        AVMA, RnW, firq_n, peak_l, peak_r;
-reg         ram_cs, fm_cs, cus30_cs, tri_cs, reg_cs;
+wire        AVMA, firq_n, peak_l, peak_r;
+reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 wire signed [15:0] fm_l, fm_r;
 
-assign rom_addr = { bank, A[13:0] };
+assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
 assign peak     = peak_r | peak_l;
-assign ram_we   = ram_cs & ~RnW;
+assign ram_we   = ram_cs & ~rnw;
 
 always @* begin
     rom_cs   = 0;
@@ -68,7 +74,10 @@ always @* begin
         4'b0101: cus30_cs = 1;
         4'b0111: tri_cs   = 1;
         4'b100?: ram_cs   = 1;
-        4'b11??: reg_cs   = 1;
+        4'b11??: begin
+            if( !rnw ) reg_cs = 1;
+            if(  rnw ) rom_cs = 1;
+        end
         default:;
     endcase
 end
@@ -78,6 +87,7 @@ always @(posedge clk) begin
     cpu_din <=rom_cs ? rom_data :
               ram_cs ? ram_dout :
               fm_cs  ? fm_dout  :
+              tri_cs ? tri_dout :
               8'd0;
 end
 
@@ -91,7 +101,7 @@ always @(posedge clk, negedge srst_n) begin
         if( cpu_cen[1] ) VMA <= AVMA;
         lvbl_l <= lvbl;
         if( !lvbl && lvbl_l ) irq_n <= 0;
-        if( reg_cs && !RnW ) begin
+        if( reg_cs ) begin
             if( A[13:12]==0 ) bank <=cpu_dout[6:4];
             if( A[13:12]==2 ) irq_n <= 1;
         end
@@ -104,7 +114,7 @@ jt51 u_jt51(
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
     .cs_n       ( ~fm_cs    ), // chip select
-    .wr_n       ( RnW       ), // write
+    .wr_n       ( rnw       ), // write
     .a0         ( A[0]      ),
     .din        ( cpu_dout  ), // data in
     .dout       ( fm_dout   ), // data out
@@ -120,36 +130,36 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer u_right(
+jtframe_mixer #(.W1(11)) u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_r      ),
-    .ch1    ( 16'd0     ),
+    .ch1    ( pcm_snd   ),
     .ch2    ( 16'd0     ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
-    .gain1  ( 8'h00     ),
+    .gain1  ( PCMGAIN   ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
     .mixed  ( right     ),
     .peak   ( peak_r    )
 );
 
-jtframe_mixer u_left(
+jtframe_mixer #(.W1(11)) u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_l      ),
-    .ch1    ( 16'd0     ),
+    .ch1    ( pcm_snd   ),
     .ch2    ( 16'd0     ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
-    .gain1  ( 8'h00     ),
+    .gain1  ( PCMGAIN   ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
     .mixed  ( left      ),
@@ -164,7 +174,7 @@ mc6809i u_cpu(
     .D          ( cpu_din   ),
     .DOut       ( cpu_dout  ),
     .ADDR       ( A         ),
-    .RnW        ( RnW       ),
+    .RnW        ( rnw       ),
     .AVMA       ( AVMA      ),
     // Interrupts
     .nIRQ       ( irq_n     ),

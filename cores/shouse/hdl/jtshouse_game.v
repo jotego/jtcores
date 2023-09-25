@@ -22,13 +22,18 @@ module jtshouse_game(
 
 wire [21:0] baddr;
 wire [15:0] fave;
-wire        brnw, srst_n, firqn,
+wire        brnw, srnw, mcu_rnw, srst_n, firqn,
+            btri_cs, stri_cs, mcutri_cs,
             key_cs, cus30b_cs, pal_cs, pcm_busy;
-wire [ 7:0] bdout, key_dout, sndcpu_dout, pal_dout,
+wire [ 7:0] bdout, sndcpu_dout,
+            key_dout, pal_dout,
+            alt_din, tri_dout,
             st_video;
+wire [ 8:0] hdump;
 wire [ 2:0] busy;
 wire [ 3:0] cpu_cen;
 reg  [ 7:0] dbg_mux;
+wire signed [10:0] pcm_snd;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -47,6 +52,7 @@ assign vram_we   = vram_cs & ~brnw;
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
+assign ioctl_din = 0;
 
 // To do:
 assign dip_flip = 0;
@@ -98,9 +104,12 @@ jtshouse_main u_main(
     .brnw       ( brnw      ),
 
     .cus30b_cs  ( cus30b_cs ),
+    .tri_cs     ( btri_cs   ),
     .key_cs     ( key_cs    ),
-    .key_dout   ( key_dout  ),
     .pal_cs     ( pal_cs    ),
+
+    .tri_dout   ( tri_dout  ),
+    .key_dout   ( key_dout  ),
     .pal_dout   ( pal_dout  ),
 
     // Video RAM
@@ -126,26 +135,32 @@ jtshouse_main u_main(
 
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
-    .rstn       ( rstn      ),
+    .rstn       ( srst_n    ),
     .cen        ( cpu_cen[2]), // is 2 the best one?
 
+    .lvbl       ( LVBL      ),
+    .hdump      ( hdump     ),
+
+    .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),
+    .ram_cs     ( mcutri_cs ),
+    .ram_dout   ( alt_din   ),
     // cabinet I/O
     .start_button( start_button  ),
     .coin_input ( coin_input),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
-    .dipsw      ( dipsw     ),
+    .dipsw      ( dipsw[7:0]),
     .service    ( service   ),
     .dip_test   ( dip_test  ),
 
     // PROM programming
-    .prog_addr  ( prog_addr ),
+    .prog_addr  (prog_addr[11:0]),
     .prog_data  ( prog_data ),
     .prog_we    ( prom_we   ),
 
     // EEROM
-    .eerom_addr ( eerom_addr),
+    .mcu_addr   ( eerom_addr),
     .eerom_dout ( eerom_dout),
     .eerom_we   ( eerom_we  ),
 
@@ -154,7 +169,9 @@ jtshouse_mcu u_mcu(
     .pcm_data   ( pcm_data  ),
     .pcm_cs     ( pcm_cs    ),
     .pcm_ok     ( pcm_ok    ),
-    .bus_busy   ( busy[1]   )
+    .bus_busy   ( busy[1]   ),
+
+    .snd        ( pcm_snd   )
 );
 
 jtshouse_sound u_sound(
@@ -165,6 +182,10 @@ jtshouse_sound u_sound(
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),
 
+    .tri_cs     ( stri_cs   ),
+    .tri_dout   ( alt_din   ),
+
+    .rnw        ( srnw      ),
     .ram_we     ( sndram_we ),
     .ram_dout   (sndram_dout),
     .cpu_dout   (sndcpu_dout),
@@ -175,16 +196,47 @@ jtshouse_sound u_sound(
     .rom_ok     ( snd_ok    ),
     .bus_busy   ( busy[2]   ),
 
+    .pcm_snd    ( pcm_snd   ),
     .left       ( snd_left  ),
     .right      ( snd_right ),
     .sample     ( sample    ),
     .peak       ( game_led  )
 );
 
+jtshouse_triram u_triram(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .snd_cen    ( cpu_cen[2]),
+    .mcu_cen    ( cpu_cen[3]),
+
+    .baddr      ( baddr[10:0]   ),
+    .mcu_addr   ( eerom_addr    ),
+    .saddr      (snd_addr[10:0] ),
+
+    // CS to the tri RAM from each subsystem
+    .bus_cs     ( btri_cs   ),
+    .mcu_cs     ( mcutri_cs ),
+    .snd_cs     ( stri_cs   ),
+
+    .brnw       ( brnw      ),
+    .mcu_rnw    ( mcu_rnw   ),
+    .srnw       ( srnw      ),
+
+    .bdout      ( bdout     ),
+    .mcu_dout   ( mcu_dout  ),
+    .sdout      (sndcpu_dout),
+
+    .bdin       ( tri_dout  ),
+    .alt_din    ( alt_din   )       // input to MCU and sound CPU
+);
+
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
+
     .pxl_cen    ( pxl_cen   ),
+    .hdump      ( hdump     ),
 
     .lvbl       ( LVBL      ),
     .lhbl       ( LHBL      ),

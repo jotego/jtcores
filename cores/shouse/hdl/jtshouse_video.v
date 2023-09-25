@@ -21,6 +21,7 @@ module jtshouse_video(
     input             clk,
 
     input             pxl_cen,
+    output     [ 8:0] hdump,
 
     input      [14:0] cpu_addr,
     input             cpu_rnw,
@@ -48,7 +49,7 @@ module jtshouse_video(
 
 localparam [8:0] HB_OFFSET=0;
 
-wire [ 8:0] vdump, hdump, vrender, vrender1;
+wire [ 8:0] vdump, vrender, vrender1;
 
 assign oram_addr = 0;
 
