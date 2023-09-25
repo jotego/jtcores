@@ -59,14 +59,14 @@ jtframe_vtimer #(
     .HCNT_END   ( 9'h19F    ),
     .HB_START   ( 9'h029+HB_OFFSET ), // 288 visible, 384 total (64 pxl=HB)
     .HB_END     ( 9'h089+HB_OFFSET ),
-    .HS_START   ( 9'h02B    ), // HS starts 2 pixels after HB
-    .HS_END     ( 9'h04B    ), // 32 pixel wide
+    .HS_START   ( 9'h049+HB_OFFSET ), // HS starts 32 pixels after HB
+    .HS_END     ( 9'h069+HB_OFFSET ), // 32 pixel wide
 
     .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
     .VB_START   ( 9'h1EF    ),
     .VB_END     ( 9'h10F    ),
-    .VS_START   ( 9'h1FF    ), // 8 lines wide, 16 lines after VB start
-    .VS_END     ( 9'h0FF    ), // 60.6 Hz according to MAME
+    .VS_START   ( 9'h1F7    ), // 8 lines wide, 8 lines after VB start
+    .VS_END     ( 9'h1FF    ), // 60.6 Hz according to MAME
     .VCNT_END   ( 9'h1FF    )
 ) u_vtimer(
     .clk        ( clk       ),

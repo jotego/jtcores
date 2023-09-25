@@ -68,9 +68,9 @@ assign mrom_cs  = rom_cs & master;
 assign srom_cs  = rom_cs & sub;
 assign tri_cs   = cs[9]; // /IOEN
 assign cus30b_cs= cs[8]; // /SOUND
-assign vram_cs  = cs[4]; // /CHAR
 assign oram_cs  = cs[6]; // /OBJECT
 assign key_cs   = cs[5]; // /KEY
+assign vram_cs  = cs[4]; // /CHAR
 assign pal_cs   = cs[3]; // /COLOR
 
 // Video RAM
