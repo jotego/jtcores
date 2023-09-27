@@ -24,6 +24,10 @@ module jtshouse_colmix(
     input      [ 8:0] hdump, vdump,
     output reg        raster_irqn,
 
+    // pixels
+    input      [10:0] scr_pxl,
+    input      [ 2:0] scr_prio,
+
     input      [14:0] cpu_addr,
     input             cs, cpu_rnw,
     output     [12:0] rgb_addr, pal_addr,
@@ -43,8 +47,9 @@ module jtshouse_colmix(
 reg  [7:0] mmr[0:15];
 wire [8:0] virq, hirq;
 reg        mmr_cs, r_cs, g_cs, b_cs;
+wire       blank;
 
-assign rgb_addr = 0;
+assign rgb_addr = {2'b10, scr_pxl };
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 
 assign rpal_we = ~cpu_rnw & r_cs;
@@ -54,9 +59,10 @@ assign st_dout = mmr[debug_bus[3:0]];
 assign virq    = { mmr[10][0], mmr[11] };
 assign hirq    = { mmr[ 8][0], mmr[ 9] };
 
-assign red   = 0;
-assign green = 0;
-assign blue  = 0;
+assign red   = blank ? 8'd0 : red_dout;
+assign green = blank ? 8'd0 : green_dout;
+assign blue  = blank ? 8'd0 : blue_dout;
+assign blank = ~(lhbl & lvbl);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

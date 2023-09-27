@@ -23,10 +23,10 @@ module jtshouse_game(
 wire [21:0] baddr;
 wire [15:0] fave;
 wire        brnw, srnw, mcu_rnw, srst_n, firqn,
-            btri_cs, stri_cs, mcutri_cs,
-            key_cs, cus30b_cs, pal_cs, pcm_busy;
-wire [ 7:0] bdout, sndcpu_dout,
-            key_dout, pal_dout,
+            btri_cs, stri_cs, mcutri_cs, vram_cs,
+            key_cs, bc30_cs, pal_cs, pcm_busy, scfg_cs;
+wire [ 7:0] bdout, sndcpu_dout, c30_dout,
+            key_dout, pal_dout, scfg_dout,
             alt_din, tri_dout,
             st_video;
 wire [ 8:0] hdump;
@@ -45,9 +45,9 @@ assign debug_view= dbg_mux;
 assign ram_addr  = baddr[14:0];
 assign ram_din   = bdout;
 assign ram_dsn   = 2'b11; // this is ignored by the logic
-assign vram_dsn  = 2'b11; // this is ignored by the logic
 assign ram_we    =  ram_cs & ~brnw;
-assign vram_we   = vram_cs & ~brnw;
+assign vram_addr = baddr[14:1];
+assign vram_we   = {2{vram_cs & ~brnw}} & {baddr[0], ~baddr[0]};
 
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
@@ -103,21 +103,24 @@ jtshouse_main u_main(
     .bdout      ( bdout     ),
     .brnw       ( brnw      ),
 
-    .cus30b_cs  ( cus30b_cs ),
+    .bc30_cs    ( bc30_cs   ),
     .tri_cs     ( btri_cs   ),
     .key_cs     ( key_cs    ),
     .pal_cs     ( pal_cs    ),
+    .scfg_cs    ( scfg_cs   ),
+    .scfg_dout  ( scfg_dout ),
 
     .tri_dout   ( tri_dout  ),
     .key_dout   ( key_dout  ),
     .pal_dout   ( pal_dout  ),
+    .c30_dout   ( c30_dout  ),
 
     // Video RAM
     .obus_we    ( obus_we   ),
     .obus_addr  ( obus_addr ),
     .obus_dout  ( obus_dout ),
     .vram_cs    ( vram_cs   ),
-    .vram_dout  ( vram_data ),
+    .vram_dout  ( vram_dout ),
 
     .srst_n     ( srst_n    ),
 
@@ -181,6 +184,12 @@ jtshouse_sound u_sound(
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),
+
+    .bc30_cs    ( bc30_cs   ),
+    .baddr      ( baddr[9:0]),
+    .brnw       ( brnw      ),
+    .bdout      ( bdout     ),
+    .c30_dout   ( c30_dout  ),
 
     .tri_cs     ( stri_cs   ),
     .tri_dout   ( alt_din   ),
@@ -247,6 +256,8 @@ jtshouse_video u_video(
 
     .pal_cs     ( pal_cs    ),
     .pal_dout   ( pal_dout  ),
+    .scfg_cs    ( scfg_cs   ),
+    .scfg_dout  ( scfg_dout ),
     .cpu_addr   (baddr[14:0]),
     .cpu_rnw    ( brnw      ),
     .cpu_dout   ( bdout     ),
@@ -261,6 +272,19 @@ jtshouse_video u_video(
     .rpal_dout  ( rpal_dout ),
     .gpal_dout  ( gpal_dout ),
     .bpal_dout  ( bpal_dout ),
+    // Tile map readout (BRAM)
+    .tmap_addr  ( tmap_addr ),
+    .tmap_dout  ( tmap_dout ),
+    // Scroll mask readout (SDRAM)
+    .mask_cs    ( mask_cs   ),
+    .mask_ok    ( mask_ok   ),
+    .mask_addr  ( mask_addr ),
+    .mask_data  ( mask_data ),
+    // Scroll tile readout (SDRAM)
+    .scr_cs     ( scr_cs    ),
+    .scr_ok     ( scr_ok    ),
+    .scr_addr   ( scr_addr  ),
+    .scr_data   ( scr_data  ),
 
     // color mixer
     .red_dout   ( red_dout  ),

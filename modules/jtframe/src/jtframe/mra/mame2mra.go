@@ -658,7 +658,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 
 func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 	coremod := 0
-	if machine.Display.Rotate != 0 {
+	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
 		root.AddNode("Vertical game").comment = true
 		coremod |= 1
 		if machine.Display.Rotate != 90 {

@@ -5,10 +5,13 @@ game:
       - jtshouse_main.v
       - jtshouse_video.v
       - jtshouse_sound.v
-      - jtshouse_key.v
       - jtshouse_colmix.v
       - jtshouse_mcu.v
       - jtshouse_triram.v
+      # Custom chips
+      - jtshouse_key.v
+      - jtcus30.v
+      - jtc117.v
 jtframe:
   - get:
       - jtframe_ff.v

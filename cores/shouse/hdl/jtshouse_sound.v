@@ -24,6 +24,13 @@ module jtshouse_sound(
     input               cen_fm2,
     input               lvbl,
 
+    // main/sub bus
+    input               bc30_cs,
+    input               brnw,
+    input        [ 9:0] baddr,
+    input        [ 7:0] bdout,
+    output       [ 7:0] c30_dout,
+
     output reg          tri_cs,
     input        [ 7:0] tri_dout,
 
@@ -51,7 +58,7 @@ wire [15:0] A;
 wire [ 7:0] fm_dout;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
-reg         irq_n, lvbl_l, VMA, rst;
+reg         irq_n, lvbl_l, VMA, rst, bsel;
 wire        AVMA, firq_n, peak_l, peak_r;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 wire signed [15:0] fm_l, fm_r;
@@ -83,12 +90,15 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    rst <= ~srst_n;
-    cpu_din <=rom_cs ? rom_data :
-              ram_cs ? ram_dout :
-              fm_cs  ? fm_dout  :
-              tri_cs ? tri_dout :
-              8'd0;
+    rst  <= ~srst_n;
+    bsel <= cpu_cen[1];
+
+    cpu_din <= rom_cs   ? rom_data :
+               ram_cs   ? ram_dout :
+               fm_cs    ? fm_dout  :
+               tri_cs   ? tri_dout :
+               cus30_cs ? c30_dout :
+               8'd0;
 end
 
 always @(posedge clk, negedge srst_n) begin
@@ -107,6 +117,25 @@ always @(posedge clk, negedge srst_n) begin
         end
     end
 end
+
+jtcus30 u_wav(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .bsel   ( bsel      ),
+
+    .xdin   ( c30_dout  ),
+    // main/sub bus
+    .bcs    ( bc30_cs   ),
+    .brnw   ( brnw      ),
+    .baddr  ( baddr     ),
+    .bdout  ( bdout     ),
+
+    // sound CPU
+    .scs    ( cus30_cs  ),
+    .srnw   ( rnw       ),
+    .saddr  ( A         ),
+    .sdout  ( cpu_dout  )
+);
 
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset

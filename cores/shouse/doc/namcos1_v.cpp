@@ -13,7 +13,7 @@ Namco System 1 Video Hardware
 
 /*
   video ram map
-  0000-1fff : scroll playfield (0) : 64*64*2
+  0000-1fff : scroll playfield (0) : 64*64*2 = 8kB
   2000-3fff : scroll playfield (1) : 64*64*2
   4000-5fff : scroll playfield (2) : 64*64*2
   6000-6fff : scroll playfield (3) : 64*32*2
@@ -34,7 +34,7 @@ Namco System 1 Video Hardware
 
   x800-x807 : CUS116 registers (visibility window)
 
-  so there is just 3x0x2000 RAM, plus the CUS116 internal registers.
+  so there is just 3*0x2000 RAM, plus the CUS116 internal registers.
 */
 
 /*

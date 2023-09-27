@@ -26,6 +26,8 @@ module jtshouse_video(
     input      [14:0] cpu_addr,
     input             cpu_rnw,
     input      [ 7:0] cpu_dout,
+    input             scfg_cs,
+    output     [ 7:0] scfg_dout, // scroll MMR data
     // Video RAM
     output     [11:1] oram_addr,
     input      [15:0] oram_dout,
@@ -34,6 +36,19 @@ module jtshouse_video(
                       blue_dout,  bpal_dout,
     output     [12:0] rgb_addr, pal_addr,
     output            rpal_we, gpal_we, bpal_we,
+    // Tile map readout (BRAM)
+    output     [14:1] tmap_addr,
+    input      [15:0] tmap_dout,
+    // Scroll mask readout (SDRAM)
+    output            mask_cs,
+    input             mask_ok,
+    output     [16:0] mask_addr,
+    input      [ 7:0] mask_data,
+    // Scroll tile readout (SDRAM)
+    output            scr_cs,
+    input             scr_ok,
+    output     [19:0] scr_addr,
+    input      [ 7:0] scr_data,
     // color mixer
     input             pal_cs,
     output            raster_irqn,
@@ -44,14 +59,26 @@ module jtshouse_video(
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output     [ 7:0] st_dout
+    output reg [ 7:0] st_dout
 );
 
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, vrender, vrender1;
+wire [ 7:0] st_scr, st_colmix;
+wire [10:0] scr_pxl;
+wire [ 2:0] scr_prio;
+wire        flip;
 
 assign oram_addr = 0;
+assign flip = 0;
+
+always @(posedge clk) begin
+    case( debug_bus[0] )
+        0: st_dout <= st_scr;
+        1: st_dout <= st_colmix;
+    endcase
+end
 
 // See https://github.com/jotego/jtcores/issues/348
 jtframe_vtimer #(
@@ -83,6 +110,42 @@ jtframe_vtimer #(
     .VS         ( vs        )
 );
 
+jtshouse_scr u_scroll(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .pxl_cen    ( pxl_cen   ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .flip       ( flip      ),
+
+    .cs         ( scfg_cs   ),
+    .addr       (cpu_addr[4:0]),
+    .rnw        ( cpu_rnw   ),
+    .din        ( cpu_dout  ),
+    .dout       ( scfg_dout ),
+
+    // Tile map readout (BRAM)
+    .tmap_addr  ( tmap_addr ),
+    .tmap_dout  ( tmap_dout ),
+    // Mask readout (SDRAM)
+    .mask_cs    ( mask_cs   ),
+    .mask_ok    ( mask_ok   ),
+    .mask_addr  ( mask_addr ),
+    .mask_data  ( mask_data ),
+    // Tile readout (SDRAM)
+    .scr_cs     ( scr_cs    ),
+    .scr_ok     ( scr_ok    ),
+    .scr_addr   ( scr_addr  ),
+    .scr_data   ( scr_data  ),
+    // Pixel output
+    .pxl        ( scr_pxl   ),
+    .prio       ( scr_prio  ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_scr    )
+);
+
 jtshouse_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -93,6 +156,10 @@ jtshouse_colmix u_colmix(
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     .raster_irqn(raster_irqn),
+
+    // pixel input
+    .scr_pxl    ( scr_pxl   ),
+    .scr_prio   ( scr_prio  ),
 
     .cpu_addr   ( cpu_addr  ),
     .cs         ( pal_cs    ),
@@ -115,7 +182,7 @@ jtshouse_colmix u_colmix(
     .green      ( green     ),
     .blue       ( blue      ),
     .debug_bus  ( debug_bus ),
-    .st_dout    ( st_dout   )
+    .st_dout    ( st_colmix )
 );
 
 endmodule

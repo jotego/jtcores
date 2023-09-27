@@ -58,7 +58,7 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output signed[10:0]snd          // is it signed?
+    output reg signed [10:0] snd // is it signed?
 );
 
 wire        vma, irqen;

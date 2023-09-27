@@ -37,30 +37,33 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: vram
-          addr_width: 15
-          addr: ram_addr    # shared with regular RAM
-          din: ram_din
+        - name: mask
+          addr_width: 17
           data_width: 8
-          offset: RAM_OFFSET
-          rw: true
-    #     - name: mask
-    #       addr_width: 17
-    #       data_width: 32
-    #     - name: scr
-    #       addr_width: 20
-    #       data_width: 32
-    #       offset: SCR_OFFSET
-
+        - name: scr # 4-byte burst here
+          addr_width: 20
+          data_width: 8
+          offset: SCR_OFFSET
     # - buses:
     #     - name: obj
     #       addr_width: 20
     #       data_width: 32
 bram:
+  # Tile map
+  - name: tmap
+    addr_width: 15
+    data_width: 16
+    dual_port:
+      name: vram
+      din: bdout16
+      dout: vram_dout
+      rw: true
+  # Sound CPU RAM
   - name: sndram
     addr_width: 13
     data_width:  8
     rw: true
+  # Object RAM
   - name: oram
     addr_width: 12
     data_width: 16
@@ -69,7 +72,7 @@ bram:
       din: bdout16
       dout: obus_dout
       rw: true
-# palette, 3x8kB
+  # Palette RAM, 3x8kB
   - name: red
     addr_width: 13
     data_width: 8
@@ -100,7 +103,7 @@ bram:
       din: ram_din
       dout: bpal_dout
       rw: true
-# EEROM
+  # EEROM
   - name: eerom
     addr_width: 11
     data_width: 8
