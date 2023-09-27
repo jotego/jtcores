@@ -6974,7 +6974,7 @@
   (symbol (lib_id "Jumper:Jumper_2_Bridged") (at 83.82 31.75 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1ae4d388-fb84-4eb9-87a0-b7a3f847d9c4)
-    (property "Reference" "JP?" (at 83.82 29.845 0)
+    (property "Reference" "JP1" (at 83.82 29.845 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "JP_2_Bridged" (at 83.82 34.29 0)
@@ -6991,7 +6991,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "JP?") (unit 1)
+          (reference "JP1") (unit 1)
         )
       )
       (project "sriders"
