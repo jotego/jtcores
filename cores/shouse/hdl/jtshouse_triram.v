@@ -60,6 +60,7 @@ always @(posedge clk) begin
     if( mcu_cen ) xsel <= 0;
 end
 
+/* verilator tracing_off */
 jtframe_dual_ram #(.AW(11)) u_ram(
     // Port 0: main and sub CPUs
     .clk0   ( clk   ),

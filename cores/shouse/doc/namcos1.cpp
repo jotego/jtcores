@@ -129,7 +129,7 @@ Address          Dir Data     Name      Description
 0111-xxxxxxxxxxx R/W xxxxxxxx VOICEG    TRIRAM (shared with the other CPUs)
 100xxxxxxxxxxxxx R/W xxxxxxxx RAMC      work RAM
 11xxxxxxxxxxxxxx R   xxxxxxxx ROM A10   program ROM
-1100------------   W xxxx----           ROM bank select
+1100------------   W -xxx----           ROM bank select
 1101------------   W --------           watchdog (RESOUT?)
 1110------------   W --------           IRQ acknowledge (SNDIRQ)
 

@@ -116,6 +116,7 @@ always @(posedge clk, negedge srst_n) begin
         if( !lvbl && lvbl_l ) irq_n <= 0;
         if( reg_cs ) begin
             if( A[13:12]==0 ) bank <=cpu_dout[6:4];
+            // if( A[13:12]==1 ) WATCHDOG?
             if( A[13:12]==2 ) irq_n <= 1;
         end
     end
@@ -139,7 +140,7 @@ jtcus30 u_wav(
     .saddr  ( A         ),
     .sdout  ( cpu_dout  )
 );
-
+/* verilator tracing_off */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock

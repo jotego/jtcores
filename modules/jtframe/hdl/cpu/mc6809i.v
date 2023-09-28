@@ -110,6 +110,9 @@ assign RnW = RnWOut;
 //
 
 // The last-latched copy.
+`ifdef VERILATOR_KEEP_CPU
+/* verilator tracing_on */
+`endif
 reg     [7:0]           a;
 reg     [7:0]           b;
 reg     [15:0]          x;
@@ -119,6 +122,7 @@ reg     [15:0]          s;
 reg     [15:0]          pc;
 reg     [7:0]           dp;
 reg     [7:0]           cc;
+/* verilator tracing_off */
 reg     [15:0]          tmp;
 reg     [15:0]          addr;
 reg     [15:0]          ea;

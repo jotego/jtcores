@@ -189,7 +189,7 @@ module jtc117_unit(
             banks[6] <= 10'h180; banks[7] <= 10'h3FF;
         end else begin
             oirq <= 0;
-            if( xirq ) firq_n <= 0;
+            if( xirq    ) firq_n <= 0;
             if( vb_edge ) irq_n  <= 0;
             if( !rnw && mmr_cs ) begin
                 casez( addr[12:9] )

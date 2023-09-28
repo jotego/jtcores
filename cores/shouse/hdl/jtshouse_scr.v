@@ -69,6 +69,7 @@ wire [ 3:0] nx_cfg;
 // mapped by priority
 reg  [ 7:0] maskll[0:7];
 reg  [13:0] infoll[0:7];
+reg  [ 2:0] lyr   [0:7]; // maps the priority 0-7 to the layer 0-5
 integer     i, j;
 
 assign idx = flip ? 3'd7 : 3'd0;
@@ -120,6 +121,7 @@ always @(posedge clk, posedge rst) begin
         for( i=0; i< 8; i=i+1 ) begin
             maskll[i] <= 0;
             infoll[i] <= 0;
+            lyr   [i] <= 0;
         end
     end else begin
         { vpos, hpos } <= { nx_vpos, nx_hpos };
@@ -139,19 +141,20 @@ always @(posedge clk, posedge rst) begin
                     for( j=0; j<8; j=j+1 ) maskll[j] <= 0;
                     maskll[cfg[i][2:0]] <= cfg[i][3] ? 8'd0 : maskin[i] ;
                     infoll[cfg[i][2:0]] <= info[i];
+                    lyr[cfg[i][2:0]] <= i;
                 end else begin
                     maskll[i] <= flip ? maskll[i]<<1 : maskll[i]>>1;
                 end
             end
             case(1'b1)
-                maskll[0][idx]: begin mux <= infoll[0]; nx_prio <= 0; nx_pal <= mmr[5'h18][2:0]; end
-                maskll[1][idx]: begin mux <= infoll[1]; nx_prio <= 1; nx_pal <= mmr[5'h19][2:0]; end
-                maskll[2][idx]: begin mux <= infoll[2]; nx_prio <= 2; nx_pal <= mmr[5'h1A][2:0]; end
-                maskll[3][idx]: begin mux <= infoll[3]; nx_prio <= 3; nx_pal <= mmr[5'h1B][2:0]; end
-                maskll[4][idx]: begin mux <= infoll[4]; nx_prio <= 4; nx_pal <= mmr[5'h1C][2:0]; end
-                maskll[5][idx]: begin mux <= infoll[5]; nx_prio <= 5; nx_pal <= mmr[5'h1D][2:0]; end
-                maskll[6][idx]: begin mux <= infoll[6]; nx_prio <= 6; nx_pal <= mmr[5'h1E][2:0]; end
-                maskll[7][idx]: begin mux <= infoll[7]; nx_prio <= 7; nx_pal <= mmr[5'h1F][2:0]; end
+                maskll[0][idx]: begin mux <= infoll[0]; nx_prio <= 0; nx_pal <= mmr[{2'b11,lyr[0]}][2:0]; end
+                maskll[1][idx]: begin mux <= infoll[1]; nx_prio <= 1; nx_pal <= mmr[{2'b11,lyr[1]}][2:0]; end
+                maskll[2][idx]: begin mux <= infoll[2]; nx_prio <= 2; nx_pal <= mmr[{2'b11,lyr[2]}][2:0]; end
+                maskll[3][idx]: begin mux <= infoll[3]; nx_prio <= 3; nx_pal <= mmr[{2'b11,lyr[3]}][2:0]; end
+                maskll[4][idx]: begin mux <= infoll[4]; nx_prio <= 4; nx_pal <= mmr[{2'b11,lyr[4]}][2:0]; end
+                maskll[5][idx]: begin mux <= infoll[5]; nx_prio <= 5; nx_pal <= mmr[{2'b11,lyr[5]}][2:0]; end
+                maskll[6][idx]: begin mux <= infoll[6]; nx_prio <= 6; nx_pal <= mmr[{2'b11,lyr[6]}][2:0]; end
+                maskll[7][idx]: begin mux <= infoll[7]; nx_prio <= 7; nx_pal <= mmr[{2'b11,lyr[7]}][2:0]; end
             endcase
             { pxl, prio } <= { nx_pal, scr_data, nx_prio };
         end
