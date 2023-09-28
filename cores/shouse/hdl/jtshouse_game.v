@@ -31,9 +31,10 @@ wire [ 7:0] bdout, sndcpu_dout, c30_dout,
             st_video;
 wire [ 8:0] hdump;
 wire [ 2:0] busy;
-wire [ 3:0] cpu_cen;
 reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
+wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
+            cen_main, cen_sub,  cen_snd,  cen_mcu;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -58,9 +59,11 @@ assign ioctl_din = 0;
 assign dip_flip = 0;
 
 always @* begin
-    case( debug_bus )
-        0: dbg_mux = fave[15:8]; // average CPU frequency (BCD format)
-        1: dbg_mux = fave[ 7:0];
+    case( debug_bus[7:6] )
+        0: dbg_mux = { 7'd0, ~srst_n };
+        1: dbg_mux = st_video;
+        2: dbg_mux = st_video;
+        3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
     endcase
 end
@@ -70,7 +73,15 @@ jtshouse_cenloop u_cen(
     .clk        ( clk       ),
     .busy       ( busy      ),
 
-    .cpu_cen    ( cpu_cen   ),
+    .prc_main   ( prc_main  ),
+    .prc_sub    ( prc_sub   ),
+    .prc_snd    ( prc_snd   ),
+    .prc_mcu    ( prc_mcu   ),
+    .cen_main   ( cen_main  ),
+    .cen_sub    ( cen_sub   ),
+    .cen_snd    ( cen_snd   ),
+    .cen_mcu    ( cen_mcu   ),
+
     .fave       ( fave      ),
     .fworst     (           )
 );
@@ -94,7 +105,8 @@ jtshouse_key u_key(
 jtshouse_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cpu_cen    (cpu_cen[1:0]),
+    .cen_main   ( cen_main  ),
+    .cen_sub    ( cen_sub   ),
 
     .lvbl       ( LVBL      ),
     .firqn      ( firqn     ),     // input that will trigger both FIRQ outputs
@@ -139,7 +151,7 @@ jtshouse_main u_main(
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
     .rstn       ( srst_n    ),
-    .cen        ( cpu_cen[2]), // is 2 the best one?
+    .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),
     .hdump      ( hdump     ),
@@ -180,7 +192,9 @@ jtshouse_mcu u_mcu(
 jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
-    .cpu_cen    (cpu_cen[3:2]),
+    .cen_E      ( cen_snd   ),
+    .cen_Q      ( cen_mcu   ),
+    .prc_snd    ( prc_snd   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),
@@ -216,8 +230,8 @@ jtshouse_triram u_triram(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .snd_cen    ( cpu_cen[2]),
-    .mcu_cen    ( cpu_cen[3]),
+    .snd_cen    ( cen_snd   ),
+    .mcu_cen    ( cen_mcu   ),
 
     .baddr      ( baddr[10:0]   ),
     .mcu_addr   ( eerom_addr    ),

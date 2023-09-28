@@ -21,7 +21,9 @@ module jtshouse_cenloop(
     input             clk,
     input      [ 2:0] busy,
 
-    output reg [ 3:0] cpu_cen,
+    output reg        prc_main, prc_sub, prc_snd, prc_mcu,
+    output            cen_main, cen_sub, cen_snd, cen_mcu,
+
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
@@ -31,6 +33,7 @@ parameter FCLK = 49152,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
 
+reg     [3:0] cpu_cen;
 reg     [1:0] clk4;
 wire          over;
 wire [  CW:0] cencnt_nx;
@@ -41,6 +44,11 @@ wire          bsyg = busy==0 || rst;
 assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
+
+assign cen_main = cpu_cen[0];
+assign cen_sub  = cpu_cen[1];
+assign cen_mcu  = cpu_cen[2];
+assign cen_snd  = cpu_cen[3];
 
 always @(posedge clk) begin
     blank <= 0;
@@ -55,6 +63,10 @@ always @(posedge clk) begin
     end else begin
         cpu_cen <= 0;
     end
+    if( cen_sub ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b1000;
+    if( cen_main) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0100;
+    if( cen_mcu ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0010;
+    if( cen_snd ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0001;
 end
 
 jtframe_freqinfo #(.MFREQ( FCLK )) u_info(

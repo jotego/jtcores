@@ -19,7 +19,8 @@
 module jtshouse_main(
     input               rst,
     input               clk,
-    input        [ 1:0] cpu_cen,
+    input               cen_main,
+    input               cen_sub,
 
     input               lvbl,
     input               firqn,     // input that will trigger both FIRQ outputs
@@ -65,6 +66,7 @@ wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
 wire        master, sub; // current bus owner
+wire        main_E, main_Q, sub_E, sub_Q;
 
 assign master   = ~bsel;
 assign sub      =  bsel;
@@ -77,6 +79,11 @@ assign oram_cs  = cs[6]; // /OBJECT
 assign key_cs   = cs[5]; // /KEY
 assign vram_cs  = cs[4]; // /CHAR
 assign pal_cs   = cs[3]; // /COLOR
+
+assign main_E = cen_main;
+assign main_Q = cen_sub;
+assign sub_E  = cen_sub;
+assign sub_Q  = cen_main;
 
 // Video RAM
 assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
@@ -96,8 +103,8 @@ assign bdin = mrom_cs ? mrom_data :
               8'd0;
 
 always @(posedge clk) begin
-    if( cpu_cen[0] ) begin bsel <= 1; mvma <= mavma; end
-    if( cpu_cen[1] ) begin bsel <= 0; svma <= savma; end
+    if( cen_main ) begin bsel <= 1; mvma <= mavma; end
+    if( cen_sub  ) begin bsel <= 0; svma <= savma; end
     if( master )
         mdin <= bdin;
     else
@@ -141,8 +148,8 @@ jtc117 u_mapper(
 mc6809i u_main(
     .nRESET     ( ~rst      ),
     .clk        ( clk       ),
-    .cen_E      ( cpu_cen[0]),
-    .cen_Q      ( cpu_cen[1]),
+    .cen_E      ( main_E    ),
+    .cen_Q      ( main_Q    ),
     .D          ( mdin      ),
     .DOut       ( mdout     ),
     .ADDR       ( maddr     ),
@@ -166,8 +173,8 @@ mc6809i u_main(
 mc6809i u_sub(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
-    .cen_E      ( cpu_cen[1]),
-    .cen_Q      ( cpu_cen[0]),
+    .cen_E      ( sub_E     ),
+    .cen_Q      ( sub_Q     ),
     .D          ( sdin      ),
     .DOut       ( sdout     ),
     .ADDR       ( saddr     ),

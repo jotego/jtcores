@@ -19,7 +19,9 @@
 module jtshouse_sound(
     input               srst_n,
     input               clk,
-    input        [ 1:0] cpu_cen,
+    input               cen_E,
+    input               cen_Q,
+    input               prc_snd,
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
@@ -58,7 +60,8 @@ wire [15:0] A;
 wire [ 7:0] fm_dout;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
-reg         irq_n, lvbl_l, VMA, rst, bsel;
+reg         irq_n, lvbl_l, VMA, rst;
+wire        bsel;
 wire        AVMA, firq_n, peak_l, peak_r;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 wire signed [15:0] fm_l, fm_r;
@@ -67,6 +70,7 @@ assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
 assign peak     = peak_r | peak_l;
 assign ram_we   = ram_cs & ~rnw;
+assign bsel     = ~prc_snd;
 
 always @* begin
     rom_cs   = 0;
@@ -91,7 +95,6 @@ end
 
 always @(posedge clk) begin
     rst  <= ~srst_n;
-    bsel <= cpu_cen[1];
 
     cpu_din <= rom_cs   ? rom_data :
                ram_cs   ? ram_dout :
@@ -108,7 +111,7 @@ always @(posedge clk, negedge srst_n) begin
         lvbl_l <= 0;
         VMA   <= 0;
     end else begin
-        if( cpu_cen[1] ) VMA <= AVMA;
+        if( cen_E ) VMA <= AVMA;
         lvbl_l <= lvbl;
         if( !lvbl && lvbl_l ) irq_n <= 0;
         if( reg_cs ) begin
@@ -119,7 +122,7 @@ always @(posedge clk, negedge srst_n) begin
 end
 
 jtcus30 u_wav(
-    .rst    ( rst       ),
+    .rst    ( rst       ),  // original does not have a reset pin
     .clk    ( clk       ),
     .bsel   ( bsel      ),
 
@@ -198,8 +201,8 @@ jtframe_mixer #(.W1(11)) u_left(
 mc6809i u_cpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
-    .cen_E      ( cpu_cen[1]),
-    .cen_Q      ( cpu_cen[0]),
+    .cen_E      ( cen_E     ),
+    .cen_Q      ( cen_Q     ),
     .D          ( cpu_din   ),
     .DOut       ( cpu_dout  ),
     .ADDR       ( A         ),

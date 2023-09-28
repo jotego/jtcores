@@ -71,6 +71,7 @@ wire [ 7:0] p1_din, p2_dout, rom_data;
 wire [ 1:0] gain1,  gain0;
 reg  [ 7:0] mcu_din, cab_dout, dac1, dac0;
 reg  [ 2:0] bank;
+reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
 
@@ -105,7 +106,7 @@ end
 always @* begin
     mcu_din =   pcm_cs  ? pcm_data :
                 ram_cs  ? ram_dout :
-                dip_cs  ? dipsw    :
+                dip_cs  ? { 4'hf, dipmx[0], dipmx[1], dipmx[2], dipmx[3] } :
                 cab_cs  ? cab_dout : 8'd0;
 end
 
@@ -120,6 +121,7 @@ always @(posedge clk, negedge rstn ) begin
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};
+        dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { start_button[1], joystick2 }:
                            { start_button[0], joystick1 };
         irq <= ~lvbl & irqen & ~rnw & (

@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Wed Sep 27 06:29:21 2023
+[*] Thu Sep 28 02:51:08 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Wed Sep 27 05:56:37 2023"
-[dumpfile_size] 458706188
+[dumpfile_mtime] "Wed Sep 27 20:14:35 2023"
+[dumpfile_size] 565195968
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
 [timestart] 10172
 [size] 1263 1010
-[pos] -1 -1
-*-38.624355 -1 259945460 800318668340 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -31 -48
+*-38.887314 1271567170000 259945460 800318668340 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -22,7 +22,7 @@
 [sst_width] 215
 [signals_width] 238
 [sst_expanded] 1
-[sst_vpaned_height] 425
+[sst_vpaned_height] 319
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -84,103 +84,31 @@ TOP.game_test.u_game.u_game.bdout[7:0]
 -MCU
 @22
 TOP.game_test.u_game.u_game.u_mcu.u_63701.A[15:0]
-@28
-TOP.game_test.u_game.u_game.u_mcu.cen
 @200
 -Sound
-@22
+@c00022
 TOP.game_test.u_game.u_game.u_sound.A[15:0]
-@c00028
-TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
 @28
-[color] 1
-(0)TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
-(1)TOP.game_test.u_game.u_game.u_sound.cpu_cen[1:0]
-@1401200
+(0)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(1)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(2)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(3)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(4)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(5)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(6)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(7)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(8)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(9)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(10)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(11)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(12)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(13)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(14)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+(15)TOP.game_test.u_game.u_game.u_sound.A[15:0]
+@1401202
 -group_end
 @28
-TOP.game_test.u_game.u_game.u_sound.rom_cs
-@200
--Tri RAM
-@28
+TOP.game_test.u_game.u_game.u_sound.bc30_cs
 TOP.game_test.u_game.u_game.u_sound.cus30_cs
-TOP.game_test.u_game.u_game.u_triram.bus_cs
-TOP.game_test.u_game.u_game.u_triram.mcu_cs
-TOP.game_test.u_game.u_game.u_triram.snd_cs
-@200
--Scroll
-@c00022
-TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(1)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(2)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(3)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(4)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(5)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(6)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(7)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(8)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(9)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(10)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(11)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(12)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(13)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(14)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(15)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-(16)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
-@1401200
--group_end
-@c00022
-TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(1)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(2)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(3)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(4)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(5)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(6)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-(7)TOP.game_test.u_game.u_game.u_video.u_scroll.mask_data[7:0]
-@1401200
--group_end
-@22
-TOP.game_test.u_game.u_game.u_video.u_scroll.scr_addr[19:0]
-@c00023
-TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(1)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(2)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(3)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(4)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(5)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(6)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-(7)TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
-@1401201
--group_end
-@c00022
-TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(1)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(2)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(3)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(4)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(5)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(6)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(7)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(8)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(9)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-(10)TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
-@1401200
--group_end
-@22
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[0][13:0]
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[1][13:0]
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[2][13:0]
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[3][13:0]
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[4][13:0]
-TOP.game_test.u_game.u_game.u_video.u_scroll.info[5][13:0]
 [pattern_trace] 1
 [pattern_trace] 0
