@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ! -v $JTFRAME && -e setprj.sh ]]; then
+if [[ ! -v JTFRAME && -e setprj.sh ]]; then
     source setprj.sh
 fi
 

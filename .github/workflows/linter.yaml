@@ -16,7 +16,5 @@ jobs:
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: linter
       run: |
-        pwd
-        ls
-        source setprj.sh
+        # pwd will be: /home/runner/work/jtcores/jtcores
         docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/lint-all.sh
