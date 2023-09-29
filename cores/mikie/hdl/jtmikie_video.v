@@ -156,7 +156,7 @@ jtkicker_obj #(.LAYOUT(LAYOUT)) u_obj(
     .pxl_cen    ( pxl_cen   ),
 
     // CPU interface
-    .cpu_addr   ( {cpu_addr[0],cpu_addr[10:2],fix_addr[1]}  ),
+    .cpu_addr   ( {cpu_addr[10:2],fix_addr[1]} ),
     .cpu_dout   ( cpu_dout  ),
     .obj1_cs    ( obj1_cs   ),
     .obj2_cs    ( obj2_cs   ),

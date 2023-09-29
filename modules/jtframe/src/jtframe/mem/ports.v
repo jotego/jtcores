@@ -15,7 +15,7 @@
     output reg [21:0] post_addr,
 {{end}}
 {{- if .Download.Pre_addr }}
-    output reg [24:0] pre_addr,
+    output reg [25:0] pre_addr,
 {{end}}
 {{- if .Download.Post_data }}
     output reg [ 7:0] post_data,

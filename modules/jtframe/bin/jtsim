@@ -406,7 +406,7 @@ case "$1" in
         ;;
     -lint)
         # only possible with verilator
-        EXTRA="$EXTRA --lint-only -Wno-REDEFMACRO"
+        EXTRA="$EXTRA --lint-only -Wno-REDEFMACRO -Wno-UNOPTFLAT"
         add_macro LINT
         export LINT=1
         ;;
@@ -766,13 +766,13 @@ verilator)
     if [ -z "$JTFRAME_REGRESSION" ]; then MAKEJOBS=-j; fi
     # boost C++ optimization without affecting other settings
     # export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`
-    if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
-        cat make.log
-        exit $?
-    fi
     if echo "$EXTRA" | grep -q lint-only; then
         echo "Lint only: no simulation "
     else
+        if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
+            cat make.log
+            exit $?
+        fi
         # Run the simulation
         rm -f test.vcd
         if [[ -n "$DUMP" && -z "$SHOWCMD" ]]; then

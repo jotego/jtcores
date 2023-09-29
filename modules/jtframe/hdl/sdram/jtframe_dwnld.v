@@ -145,7 +145,9 @@ parameter [31:0] GAME_ROM_LEN = `GAME_ROM_LEN;
 integer          f, readcnt, dumpcnt;
 reg       [ 7:0] mem[0:`GAME_ROM_LEN];
 
+`ifdef JTFRAME_SDRAM_BANKS
 initial prog_ba=0;
+`endif
 
 initial begin
     dumpcnt = PROM_START+HEADER;
