@@ -146,11 +146,11 @@
         )
       )
     )
-    (symbol "Connector:Conn_01x04_Male" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+    (symbol "Connector:Conn_01x04_Pin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Value" "Conn_01x04_Male" (at 0 -7.62 0)
+      (property "Value" "Conn_01x04_Pin" (at 0 -7.62 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "" (at 0 0 0)
@@ -159,16 +159,19 @@
       (property "Datasheet" "~" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
+      (property "ki_locked" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)))
+      )
       (property "ki_keywords" "connector" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)" (at 0 0 0)
+      (property "ki_description" "Generic connector, single row, 01x04, script generated" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (property "ki_fp_filters" "Connector*:*_1x??_*" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "Conn_01x04_Male_1_1"
+      (symbol "Conn_01x04_Pin_1_1"
         (polyline
           (pts
             (xy 1.27 -5.08)
@@ -2441,9 +2444,6 @@
   (junction (at 93.98 186.69) (diameter 0) (color 0 0 0 0)
     (uuid 5e942189-38d8-4888-86c6-c35a543ab2c1)
   )
-  (junction (at 353.06 161.29) (diameter 0) (color 0 0 0 0)
-    (uuid 5edcfacd-f929-43f3-bf1b-226f619fd555)
-  )
   (junction (at 127 186.69) (diameter 0) (color 0 0 0 0)
     (uuid 666d4a8c-9b82-4028-ab25-1f409fb7f20b)
   )
@@ -2486,6 +2486,9 @@
   (junction (at 316.23 44.45) (diameter 0) (color 0 0 0 0)
     (uuid 8d9be055-ed56-44af-a71b-c2b913b022da)
   )
+  (junction (at 353.06 158.75) (diameter 0) (color 0 0 0 0)
+    (uuid 921a29fb-9d1e-49f1-897b-6127a39d2034)
+  )
   (junction (at 110.49 118.11) (diameter 0) (color 0 0 0 0)
     (uuid 93cc81af-9874-40bc-9cc2-eb745a3c6053)
   )
@@ -2501,9 +2504,6 @@
   (junction (at 95.25 186.69) (diameter 0) (color 0 0 0 0)
     (uuid a559797a-df40-4472-b28c-baf7d2ffcbdc)
   )
-  (junction (at 353.06 158.75) (diameter 0) (color 0 0 0 0)
-    (uuid a978bf4c-1da5-4ccd-a640-ec58dbc63976)
-  )
   (junction (at 342.9 41.91) (diameter 0) (color 0 0 0 0)
     (uuid aa391b5b-3227-447c-81ba-59d879857330)
   )
@@ -2512,6 +2512,9 @@
   )
   (junction (at 58.42 186.69) (diameter 0) (color 0 0 0 0)
     (uuid b3c566de-7201-4f89-b882-361f18bb5a78)
+  )
+  (junction (at 353.06 161.29) (diameter 0) (color 0 0 0 0)
+    (uuid be517d5f-7037-4e1f-9acb-76cf7c659ac7)
   )
   (junction (at 129.54 186.69) (diameter 0) (color 0 0 0 0)
     (uuid c44b34e5-3174-4997-9297-42c2fcafac10)
@@ -2524,6 +2527,9 @@
   )
   (junction (at 96.52 173.99) (diameter 0) (color 0 0 0 0)
     (uuid cdd99047-138f-4ce6-a28f-2a48e8db8d78)
+  )
+  (junction (at 152.4 114.3) (diameter 0) (color 0 0 0 0)
+    (uuid d40e5e6a-3659-4cf5-83c1-3effc18db9ad)
   )
   (junction (at 363.22 158.75) (diameter 0) (color 0 0 0 0)
     (uuid d58bd7c4-a416-47e3-b145-f459b135f962)
@@ -4212,6 +4218,10 @@
     (stroke (width 0) (type default))
     (uuid a669f09c-f810-48fb-9791-07ffc2bf3fac)
   )
+  (wire (pts (xy 353.06 161.29) (xy 363.22 161.29))
+    (stroke (width 0) (type default))
+    (uuid a739da73-8235-493a-a658-748093a8726f)
+  )
   (bus (pts (xy 41.91 101.6) (xy 41.91 99.06))
     (stroke (width 0) (type default))
     (uuid a742dacd-6988-46e5-9e73-2b4474394b0e)
@@ -4302,10 +4312,6 @@
     (uuid b264d800-abe2-4d24-9ca6-8cba9b436221)
   )
 
-  (wire (pts (xy 353.06 161.29) (xy 363.22 161.29))
-    (stroke (width 0) (type default))
-    (uuid b2a9a09d-787d-47ec-bd18-228a55ca37ed)
-  )
   (wire (pts (xy 304.8 109.22) (xy 353.06 109.22))
     (stroke (width 0) (type default))
     (uuid b2b935a0-88e9-4dd4-9d8d-80cbcb089638)
@@ -4548,10 +4554,6 @@
     (stroke (width 0) (type default))
     (uuid d0fd184d-4b05-41d7-858d-f59ee98146ea)
   )
-  (wire (pts (xy 140.97 111.76) (xy 152.4 111.76))
-    (stroke (width 0) (type default))
-    (uuid d1a76dec-84f3-4364-86f4-180e9e4fa90e)
-  )
   (wire (pts (xy 99.06 186.69) (xy 96.52 186.69))
     (stroke (width 0) (type default))
     (uuid d2c75af4-5ad9-4913-bc33-5f5c83963152)
@@ -4590,7 +4592,7 @@
     (stroke (width 0) (type default))
     (uuid d82ab8d4-f39e-4c10-929a-b58d267f0ab1)
   )
-  (wire (pts (xy 48.26 101.6) (xy 53.34 101.6))
+  (wire (pts (xy 44.45 101.6) (xy 53.34 101.6))
     (stroke (width 0) (type default))
     (uuid d83403d2-65f8-46c7-aa42-69d0c2db36a2)
   )
@@ -4774,6 +4776,10 @@
   (wire (pts (xy 60.96 186.69) (xy 63.5 186.69))
     (stroke (width 0) (type default))
     (uuid f472c737-f293-44cb-b7d2-2b0835b2528f)
+  )
+  (wire (pts (xy 152.4 111.76) (xy 152.4 114.3))
+    (stroke (width 0) (type default))
+    (uuid f4c05922-ba61-49a0-b61f-51fcdd266d79)
   )
   (wire (pts (xy 106.68 118.11) (xy 107.95 118.11))
     (stroke (width 0) (type default))
@@ -6548,10 +6554,6 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 7977f390-7eff-46c9-a99d-32d1656dfedd)
   )
-  (label "ST1" (at 140.97 111.76 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 7d27d0ee-dfd2-43a5-a1bc-6df56c786570)
-  )
   (label "RA12" (at 66.04 158.75 270) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 7d620fda-37ff-4488-ad5a-e3ed22300dde)
@@ -6636,7 +6638,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid a90ded1d-b8bd-4b7c-a89e-e48a88953da0)
   )
-  (label "ST1" (at 48.26 101.6 0) (fields_autoplaced)
+  (label "VSS" (at 44.45 101.6 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid ab8826c8-e3d6-4531-8991-0b1f81594c20)
   )
@@ -7036,7 +7038,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x32_Row_Letter_First") (at 91.44 179.07 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 202aa2af-e75c-4306-b322-9d059ad953ff)
-    (property "Reference" "CN?" (at 50.8 180.34 0)
+    (property "Reference" "CN3" (at 50.8 180.34 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Conn_02x32_Row_Letter_First" (at 88.9 180.34 90)
@@ -7115,7 +7117,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "CN?") (unit 1)
+          (reference "CN3") (unit 1)
         )
       )
       (project "sriders"
@@ -7351,7 +7353,7 @@
   (symbol (lib_id "power:VSS") (at 240.03 78.74 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4eaeac8a-b687-4397-a4ba-fb936f793e65)
-    (property "Reference" "#PWR?" (at 240.03 74.93 0)
+    (property "Reference" "#PWR0111" (at 240.03 74.93 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VSS" (at 240.03 82.55 0)
@@ -7367,7 +7369,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0111") (unit 1)
         )
       )
       (project "sriders"
@@ -7416,39 +7418,6 @@
       (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3646ae6b-b442-459b-90c3-3178fe7652f7"
           (reference "H6") (unit 4)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Connector:Conn_01x04_Male") (at 358.14 156.21 0) (mirror y) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 5df0a472-815e-4b7e-bfbc-a7e8d6def0ab)
-    (property "Reference" "CN2" (at 358.14 151.13 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "SOUND OUT" (at 370.84 167.64 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 358.14 156.21 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 358.14 156.21 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 703ebc71-cb5d-4149-9622-0e412f4c4234))
-    (pin "2" (uuid cd94e88c-65de-4c0b-bab1-d6546e288fbd))
-    (pin "3" (uuid d77370b8-8990-4223-8bd6-8238fe8c53de))
-    (pin "4" (uuid 1396d8cb-ea0a-4f3b-8c18-7b292589fc7f))
-    (instances
-      (project "asterix"
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "CN2") (unit 1)
-        )
-      )
-      (project "sriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3646ae6b-b442-459b-90c3-3178fe7652f7"
-          (reference "CN5") (unit 1)
         )
       )
     )
@@ -7729,7 +7698,7 @@
   (symbol (lib_id "power:VCC") (at 240.03 31.75 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 75154eea-91fd-4c2b-9596-c8104528f0a7)
-    (property "Reference" "#PWR?" (at 240.03 35.56 0)
+    (property "Reference" "#PWR0112" (at 240.03 35.56 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 240.03 27.94 0)
@@ -7745,7 +7714,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0112") (unit 1)
         )
       )
       (project "sriders"
@@ -7790,7 +7759,7 @@
   (symbol (lib_id "Device:R_Potentiometer_US") (at 378.46 191.77 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 832cd5a4-8853-4f59-9578-71ee0585974c)
-    (property "Reference" "SDR" (at 378.46 194.31 90)
+    (property "Reference" "SDR1" (at 378.46 194.31 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "VR1" (at 378.46 196.85 90)
@@ -7808,7 +7777,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "SDR") (unit 1)
+          (reference "SDR1") (unit 1)
         )
       )
       (project "sriders"
@@ -7822,7 +7791,7 @@
   (symbol (lib_id "power:VCC") (at 87.63 49.53 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 84fb8a25-a8d9-4c8b-aaa6-6b7f15a2df31)
-    (property "Reference" "#PWR?" (at 87.63 53.34 0)
+    (property "Reference" "#PWR0113" (at 87.63 53.34 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 87.63 45.72 0)
@@ -7838,7 +7807,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0113") (unit 1)
         )
       )
       (project "sriders"
@@ -8031,6 +8000,34 @@
       (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3646ae6b-b442-459b-90c3-3178fe7652f7"
           (reference "CP1") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Connector:Conn_01x04_Pin") (at 358.14 156.21 0) (mirror y) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid b16d8a4a-0c57-4a74-beea-1e0205531a16)
+    (property "Reference" "CNT2" (at 358.14 151.13 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "Conn_01x04_Pin" (at 355.6 148.59 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 358.14 156.21 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (at 358.14 156.21 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 9c0c2aaf-d9ac-4220-9587-501b4c235c69))
+    (pin "2" (uuid 30bdd35e-2df5-491c-9896-0b908fe5d2c8))
+    (pin "3" (uuid 0fbc27db-745d-45d7-8d78-7153ee665bda))
+    (pin "4" (uuid ea6cd23b-3403-4897-bd6e-4a8f8eb07a12))
+    (instances
+      (project "asterix"
+        (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
+          (reference "CNT2") (unit 1)
         )
       )
     )
@@ -8505,7 +8502,7 @@
   (symbol (lib_id "power:VSS") (at 106.68 120.65 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f14c90ec-3040-4528-b7c6-5d8915df6e0a)
-    (property "Reference" "#PWR?" (at 106.68 116.84 0)
+    (property "Reference" "#PWR0110" (at 106.68 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VSS" (at 106.68 124.46 0)
@@ -8521,7 +8518,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f77ef12d-4fae-4492-854a-8904da97faa2"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0110") (unit 1)
         )
       )
       (project "sriders"
