@@ -1,6 +1,7 @@
 #!/bin/bash
 
-if [[ ! -v JTFRAME && -e setprj.sh ]]; then
+if [ -z "$JTFRAME" ]; then
+    cd /jtcores
     source setprj.sh
 fi
 
