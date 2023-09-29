@@ -439,6 +439,12 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 				MSB: each.Data_width-1,
 				Input: true,
 			})
+			// Fill the rest
+			if strings.Index(each.Dual_port.Addr,"[")>=0 {
+				each.Dual_port.AddrFull = each.Dual_port.Addr
+			} else {
+				each.Dual_port.AddrFull = fmt.Sprintf("%s[%d:%d]", each.Dual_port.Addr, each.Addr_width-1, each.Data_width>>4)
+			}
 		}
 	}
 	cfg.Ports = make( []Port,0, len(all) )

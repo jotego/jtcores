@@ -64,6 +64,8 @@ type BRAMBus struct {
         Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
         We   string `yaml:"we"`
+        // filled later
+        AddrFull string           // contains the bus indexes
     } `yaml:"dual_port"`
     ROM struct { // Use the BRAM as ROM
         Offset string `yaml:"offset"`
