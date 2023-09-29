@@ -133,7 +133,9 @@ jtframe_dwnld #(
     .prog_rd        ( prog_rd       ),
     .prom_we        (               ),
     .header         (               ),
-    .sdram_ack      ( prog_ack      )
+    .sdram_ack      ( prog_ack      ),
+    .gfx8_en        ( 1'b0          ),
+    .gfx16_en       ( 1'b0          )
 );
 
 localparam [21:0] ZERO_OFFSET = 0,

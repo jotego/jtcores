@@ -221,7 +221,9 @@ jtframe_dwnld #(
     .prog_we      ( prog_we      ),
     .prom_we      ( promsel_we   ),
     .header       (              ),
-    .sdram_ack    ( sdram_ack    )
+    .sdram_ack    ( sdram_ack    ),
+    .gfx8_en      ( 1'b0         ),
+    .gfx16_en     ( 1'b0         )
 );
 
 `ifndef NOMAIN

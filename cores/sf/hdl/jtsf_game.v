@@ -299,7 +299,9 @@ jtframe_dwnld #(
     .prom_we     ( prom_we       ),
 
     .sdram_ack   ( prog_rdy      ),
-    .header      (               )
+    .header      (               ),
+    .gfx8_en     ( 1'b0          ),
+    .gfx16_en    ( 1'b0          )
 );
 
 wire [15:0] scrposh, scrposv, dmaout;

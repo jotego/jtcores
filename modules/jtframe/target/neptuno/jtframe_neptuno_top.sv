@@ -68,7 +68,7 @@ module neptuno_top(
     input           PS2_DATA,
     inout           PS2_MOUSE_CLK,
     inout           PS2_MOUSE_DATA
-    
+
     // Joystick
 `ifndef MC2
     // joy pins for neptUNO and Multicore 2 plus
@@ -86,18 +86,18 @@ module neptuno_top(
 `ifdef MC2_PINS
     // only MC2 and MC2+ pins
     ,input [3:0]     BUTTON_n,
-    
+
     // SD Card
     output          SD_CS,
     output          SD_SCLK,
     output          SD_MOSI,
-    input           SD_MISO,   
-    
+    input           SD_MISO,
+
     // SRAM
     output  [20:0]  SRAM_ADDR,
     inout   [7:0]   SRAM_DATA,
     output          SRAM_WE,
-    output          SRAM_OE 
+    output          SRAM_OE
 `endif
 
 `ifdef NEPTUNO_PINS
@@ -118,11 +118,11 @@ module neptuno_top(
     //STM32
     ,output   		STM_RESET,
     output    		SPI_nWAIT
-        
+
 `ifdef MCP
     //Multicore 2 plus exclusive pins
-    ,inout [31:0] GPIO 
-`endif   
+    ,inout [31:0] GPIO
+`endif
 
 `ifdef SIMULATION
     ,output         sim_pxl_cen,
@@ -135,7 +135,7 @@ module neptuno_top(
 //---------------------------------------------------------
 //-- Multicores defaults
 //---------------------------------------------------------
-`ifdef MC2_PINS    
+`ifdef MC2_PINS
     //no SRAM for this core
     assign SRAM_WE  = 1'b1;
     assign SRAM_OE  = 1'b1;
@@ -144,14 +144,14 @@ module neptuno_top(
     assign SD_CS   = 1'bZ;
     assign SD_SCLK = 1'bZ;
     assign SD_MOSI = 1'bZ;
-`endif  
+`endif
 
     assign STM_RESET = 1'bZ;
 
 `ifdef MCP
    //disable external interfaces for this core
-    assign GPIO = 32'Hzzzz; 
-`endif  
+    assign GPIO = 32'Hzzzz;
+`endif
 
 `ifdef NEPTUNO_PINS
     `ifdef JTFRAME_LF_BUFFER
@@ -306,6 +306,7 @@ wire [1:0] dip_fxlevel, game_led;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 wire       pxl_cen, pxl2_cen;
+wire [31:0]dipsw;
 
 `ifdef JTFRAME_DIPBASE
 localparam DIPBASE=`JTFRAME_DIPBASE;
@@ -354,6 +355,7 @@ u_frame(
     .clk_pico       ( clk_pico       ),
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
+    .dipsw          ( dipsw          ),
     // Base video
     .game_r         ( red            ),
     .game_g         ( green          ),
@@ -396,7 +398,7 @@ u_frame(
 
     .ps2_clk        ( PS2_CLK        ),
     .ps2_dout       ( PS2_DATA       ),
-    
+
     .BUTTON_n       ( BUTTON_n       ),
 
     // ROM access from game
@@ -496,11 +498,6 @@ u_frame(
 );
 
 wire        game_tx, game_rx;
-wire [31:0] dipsw;
-
-assign dipsw = `ifdef JTFRAME_SIM_DIPS
-    `JTFRAME_SIM_DIPS `else
-    status[31+DIPBASE:DIPBASE]; `endif
 
 `include "jtframe_game_instance.v"
 

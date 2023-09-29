@@ -107,6 +107,7 @@ module jtframe_board #(parameter
 
     // DIP and OSD settings
     input        [63:0] status,
+    input        [23:0] dipsw,
     output       [12:0] hdmi_arx, hdmi_ary,
     output       [ 1:0] rotate,
 
@@ -370,6 +371,7 @@ jtframe_keyboard u_keyboard(
             .core_mod   ( core_mod      ),
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
+            .dipsw      ( dipsw[23:0]   ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
             .mouse_dx   ( bd_mouse_dx   ),

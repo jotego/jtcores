@@ -636,7 +636,7 @@ jtcop_sdram u_sdram(
     .downloading ( downloading   ),
     .dwnld_busy  ( dwnld_busy    ),
 
-    .ioctl_addr ( ioctl_addr ),
+    .ioctl_addr ( ioctl_addr[24:0] ),
     .ioctl_dout ( ioctl_dout ),
     .ioctl_din  ( ioctl_din  ),
     .ioctl_wr   ( ioctl_wr   ),

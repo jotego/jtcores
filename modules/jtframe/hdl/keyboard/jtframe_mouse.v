@@ -21,17 +21,21 @@ module jtframe_mouse(
     input              clk,
     input              lock,
 
+    // real mouse inputs
     input signed [8:0] mouse_dx,
     input signed [8:0] mouse_dy,
-    input        [7:0] mouse_f,
-    input              mouse_st,
-    input              mouse_idx,
-    output reg  [15:0] mouse_1p,
-    output reg  [15:0] mouse_2p,
-
+    input        [7:0] mouse_f,     // flags (2:0 = buttons)
+    input              mouse_st,    // strobe
+    input              mouse_idx,   // up to two mouse devices
     // Mouse emulation
     input       [ 3:0] joy1,
     input       [ 3:0] joy2,
+
+    // { 8-bit dx, 8-bit dy } encoded for the core
+    // in 2's complement unless JTFRAME_MOUSE_NO2COMPL is defined
+    output reg  [15:0] mouse_1p,
+    output reg  [15:0] mouse_2p,
+
 
     output reg  [ 2:0] but_1p,
     output reg  [ 2:0] but_2p

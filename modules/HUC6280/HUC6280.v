@@ -1,3 +1,4 @@
+/* verilator lint_off UNOPTFLAT*/
 module bit_adder
   (input  a,
    input  b,
@@ -10656,4 +10657,4 @@ module HUC6280
     else
       n402_q <= n401_o;
 endmodule
-
+/* verilator lint_on UNOPTFLAT*/

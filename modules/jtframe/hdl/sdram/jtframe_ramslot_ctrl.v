@@ -45,12 +45,15 @@ localparam XW = WRSW==1 ? DW0 : DW1; // helper to get clear syntax
 
 wire [SW-1:0] active = ~slot_sel & req;
 reg  [SW-1:0] acthot; // priority encoding of active, only one bit is set
+wire [WRSW*2-1:0] wrmask_sh;
 
 wire [SDRAMW-1:0] slot0_addr_req = slot_addr_req[0+:SDRAMW];
 wire [DW0*2-1:0] s0_din2 = {2{slot_din[0+:DW0]}};
 wire [ XW*2-1:0] s1_din2 = {2{slot_din[(WRSW==2?DW0:0)+:XW]}}; // not used when WRSR==1
 
 integer i,j;
+
+assign wrmask_sh = wrmask>>(2*i);
 
 always @* begin
     acthot = 0;
@@ -88,12 +91,12 @@ always @(posedge clk) begin
                             sdram_wrmask<= { ~slot_addr_req[i*SDRAMW], slot_addr_req[i*SDRAMW] };
                         end else begin
                             sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
-                            sdram_wrmask<= wrmask>>(2*i);
+                            sdram_wrmask<= wrmask_sh[1:0];
                         end
                     end
 
-                    sdram_rd    <= i<WRSW ?  req_rnw[i] : 1;
-                    sdram_wr    <= i<WRSW ? ~req_rnw[i] : 0;
+                    sdram_rd    <= i<WRSW ?  req_rnw[i] : 1'd1;
+                    sdram_wr    <= i<WRSW ? ~req_rnw[i] : 1'd0;
                     slot_sel[i] <= 1;
                 end
             end
