@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ ! -v $JTFRAME && -e setprj.sh ]]; then
+    source setprj.sh
+fi
+
 WARNLIST=
 ERRLIST=
 cd $CORES
