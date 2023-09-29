@@ -3005,7 +3005,7 @@
   (symbol (lib_id "74xx:74LS07") (at 257.81 161.29 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0da87477-a701-4d7c-8d71-f26c96208194)
-    (property "Reference" "B17-41" (at 257.81 160.02 0)
+    (property "Reference" "B17-1" (at 257.81 160.02 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 257.81 162.56 0)
@@ -3034,7 +3034,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-          (reference "B17-41") (unit 3)
+          (reference "B17-1") (unit 3)
         )
       )
       (project "xmen"
@@ -3575,7 +3575,7 @@
   (symbol (lib_id "74xx:74LS07") (at 293.37 135.89 0) (mirror x) (unit 6)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 710ab7c6-dfdd-429e-b5e4-a17459beb3a0)
-    (property "Reference" "B17-41" (at 293.37 137.16 0)
+    (property "Reference" "B17-1" (at 293.37 137.16 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 293.37 134.62 0)
@@ -3604,7 +3604,7 @@
     (instances
       (project "asterix"
         (path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-          (reference "B17-41") (unit 6)
+          (reference "B17-1") (unit 6)
         )
       )
       (project "xmen"
