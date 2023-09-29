@@ -22,8 +22,10 @@ module jtgng_objpxl #(
     parameter          DW=4,
                        palw=0,
                        AW=8,
+    /* verilator lint_off WIDTH */
     parameter [AW-1:0] PXL_DLY=7,
     parameter [AW-1:0] H0=0
+    /* verilator lint_on WIDTH */
     )(
     input              rst,
     input              clk,

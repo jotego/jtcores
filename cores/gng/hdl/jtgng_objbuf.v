@@ -145,7 +145,7 @@ always @(posedge clk, posedge rst)
                         post_scan <= post_scan+1'b1;
                         if( !extend[0] ) begin
                             // advance to next obj
-                            pre_scan <= pre_scan + 2'd3;
+                            pre_scan <= pre_scan + 'd3;
                             trf_state  <= SEARCH;
                             line_obj_we <= 1'b0;
                         end else begin
@@ -191,7 +191,7 @@ function [DW-1:0] apply_ext;
         case( pre_scan )
             //2'd0: apply_ext = dma_dout + extend[1];
             2'd1: apply_ext = { extend[1], dma_dout[DW-2:0] }; // mark MSB
-            2'd3: apply_ext = dma_dout + { extend[1], 4'd0 };
+            2'd3: apply_ext = dma_dout + { {DW-5{1'b0}}, extend[1], 4'd0 };
             default: apply_ext = dma_dout;
         endcase
     end else begin

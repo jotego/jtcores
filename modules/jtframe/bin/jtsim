@@ -406,9 +406,9 @@ case "$1" in
         ;;
     -lint)
         # only possible with verilator
-        EXTRA="$EXTRA --lint-only"
+        EXTRA="$EXTRA --lint-only -Wno-REDEFMACRO"
         add_macro LINT
-        export LINT=
+        export LINT=1
         ;;
     -ncverilog|-verilator|-synap|-modelsim|-iverilog|-questasim|-xcelium)
         # This is parsed in the first argument loop
@@ -490,7 +490,7 @@ EOF
     if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
 fi
 
-if [ ! -s rom.bin ]; then
+if [[ ! -s rom.bin && -z "$LINT" ]]; then
     echo "ERROR: file rom.bin is not valid."
     exit 1
 fi
@@ -583,8 +583,8 @@ done
 if [ -e $MODULES/fx68k ]; then
     # These files are read by the FX68K module but they must be in the
     # simulation folder. Forgetting to have them there results in X everywhere
-    ln -sf $MODULES/fx68k/microrom.mem
-    ln -sf $MODULES/fx68k/nanorom.mem
+    ln -sfr $MODULES/fx68k/microrom.mem
+    ln -sfr $MODULES/fx68k/nanorom.mem
 fi
 
 if [ $GATES = NO ]; then

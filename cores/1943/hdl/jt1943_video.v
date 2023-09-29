@@ -162,7 +162,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -294,7 +294,7 @@ u_obj(
     .LHBL           ( LHBL_obj      ),
     .LVBL           ( LVBL          ),
     .LVBL_obj       ( LVBL_obj      ),
-    .V              ( V             ),
+    .V              ( V[7:0]        ),
     .H              ( H             ),
     .flip           ( flip          ),
     // CPU bus

@@ -44,7 +44,7 @@ module jtgng_game(
     input           data_dst,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -163,7 +163,7 @@ jtgng_prom_we u_prom_we(
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -265,7 +265,10 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
     .peak           ( game_led   ),
-    .debug_view     ( st_snd     )
+    .debug_bus      ( debug_bus  ),
+    .debug_view     ( st_snd     ),
+    // unused
+    .snd2_latch     (            )
 );
 `else
     assign snd_addr   = 0;

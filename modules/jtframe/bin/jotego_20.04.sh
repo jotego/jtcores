@@ -49,3 +49,14 @@ cd asl-current
 make
 cp alink asl p2bin p2hex pbind plist *.msg /usr/local/bin
 cp man/* /usr/local/share/man/man1/
+
+# Verilator
+cd $HOME
+unset VERILATOR_ROOT
+git clone http://git.veripool.org/git/verilator --depth 1 || exit $?
+cd $HOME/verilator
+autoconf
+./configure
+# compile using 80% of available CPUs
+make -j $((`nproc`*4/5))
+export VERILATOR_ROOT=`pwd`

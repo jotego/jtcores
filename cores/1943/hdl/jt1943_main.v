@@ -194,7 +194,7 @@ always @(posedge clk, posedge rst)
         bank      <= {BANKW{1'b0}};
         scr1posh  <= 16'd0;
         scr2posh  <= 16'd0;
-        scrposv   <= 'd0;
+        scrposv   <= 0;
         flip      <= 0;
         sres_b    <= 1;
         coin_cnt  <= 1;  // omitting inverter in M54532 for coin counter.
@@ -225,7 +225,9 @@ always @(posedge clk, posedge rst)
             if(GAME==0) scrposv <= cpu_dout;
             if(GAME==1) begin
                 if( !A[0] ) scrposv[ 7:0] <= cpu_dout;
+                /* verilator lint_off SELRANGE */
                 if(  A[0] ) scrposv[15:8] <= cpu_dout;
+                /* verilator lint_on SELRANGE */
             end
         end
         if( scr1posh_cs[0] )  scr1posh[ 7:0] <= cpu_dout;

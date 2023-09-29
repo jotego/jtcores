@@ -1,0 +1,14 @@
+FROM jotego/jtcore-base
+LABEL maintainer=jotego@gmail.com
+
+RUN apt install -y autoconf
+
+# Verilator
+RUN cd /opt; git clone http://git.veripool.org/git/verilator --depth 1
+RUN cd /opt/verilator; autoconf; ./configure
+RUN cd /opt/verilator; make -j $((`nproc`*4/5)); echo Done
+RUN find /opt/verilator -name "*.o" -delete
+ENV PATH=$PATH:/opt/verilator/bin
+ENV VERILATOR_ROOT=/opt/verilator
+
+ENTRYPOINT ["bash"]

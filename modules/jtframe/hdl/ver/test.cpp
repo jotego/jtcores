@@ -292,17 +292,21 @@ public:
                         dut.ioctl_addr += _JTFRAME_CART_OFFSET-cart_start;
                     }
 #endif
+#ifdef _JTFRAME_IOCTL_RD
                     if( nvram && addr>=nvram_start) {
                         dut.ioctl_addr -= nvram_start;
                         dut.ioctl_ram = 1;
                     }
+#endif
                     dut.ioctl_dout = read_buf();
                     break;
                 case 1:
                     if( addr < len ) {
                         dut.ioctl_wr = 1;
                     } else {
+#ifdef _JTFRAME_IOCTL_RD
                         dut.ioctl_ram   = 0;
+#endif
                         dut.downloading = 0;
                         done = true;
                     }

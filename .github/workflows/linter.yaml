@@ -1,0 +1,21 @@
+name: Apply Verilator linter on all cores
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: rebuild
+  schedule:
+    - cron: '0 0 * * *' # runs every night
+jobs:
+  linter_cores:
+    runs-on: jotego/linter
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+    - id: linter
+      run: |
+        source $JTFRAME/bin/setprj.sh
+        jtframe
+        lint-all.sh

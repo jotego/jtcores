@@ -43,7 +43,7 @@ module jt1943_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -124,6 +124,7 @@ jtframe_cen48 u_cen(
     .cen4   (           ),
     .cen4_12(           ),
     .cen3q  (           ),
+    .cen16  (           ),
     .cen16b (           ),
     .cen12b (           ),
     .cen6b  (           ),
@@ -170,7 +171,7 @@ jt1943_prom_we #(.SND_BRAM(1)) u_prom_we(
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -268,7 +269,12 @@ jt1943_main u_main(
     .dipsw_b    ( dipsw_b       ),
     .dipsw_c    (               ),
     .dip_pause  ( dip_pause     ),
-    .coin_cnt   (               )
+    .coin_cnt   (               ),
+    // unused ports (used in SideArms only)
+    .blue_cs    (               ),
+    .redgreen_cs(               ),
+    .eres_n     (               ),
+    .wrerr_n    (               )
 );
 `else
     assign scr1posh  = 16'h5f3a;
@@ -309,6 +315,7 @@ jtgng_sound u_sound (
     // Interface with main CPU
     .sres_b         ( sres_b     ),
     .snd_latch      ( snd_latch  ),
+    .snd2_latch     (            ),
     .snd_int        ( V[5]       ),
     // sound control
     .enable_psg     ( enable_psg ),
@@ -323,6 +330,7 @@ jtgng_sound u_sound (
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
     .peak           ( game_led   ),
+    .debug_bus      ( debug_bus  ),
     .debug_view     ( debug_view )
 );
 
