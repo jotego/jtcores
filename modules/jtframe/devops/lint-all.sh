@@ -2,6 +2,7 @@
 
 if [ -z "$JTFRAME" ]; then
     cd /jtcores
+    git config --global --add safe.directory /jtcores
     source setprj.sh
 fi
 
