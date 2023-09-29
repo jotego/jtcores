@@ -38,7 +38,7 @@ module jtshouse_scr(
 
     // Tile map readout (BRAM)
     output     [14:1] tmap_addr,
-    input      [15:0] tmap_dout,
+    input      [15:0] tmap_data,
     // Mask readout (SDRAM)
     output reg        mask_cs,
     input             mask_ok,
@@ -128,9 +128,9 @@ always @(posedge clk, posedge rst) begin
         if( pxl_cen ) begin
             tcnt <= hdump[2:0]==0 ? 3'd0 : tcnt+3'd1;
             if( tcnt<6 ) begin
-                mask_addr  <= { tmap_dout[13:0], vpos[2:0] }; // 17 bits
+                mask_addr  <= { tmap_data[13:0], vpos[2:0] }; // 17 bits
                 mask_cs    <= 1;
-                info[nx_cfg[2:0]] <= tmap_dout[13:0];
+                info[nx_cfg[2:0]] <= tmap_data[13:0];
                 cfg[tcnt]  <= nx_cfg;
             end else begin
                 mask_cs    <= 0;
@@ -139,9 +139,9 @@ always @(posedge clk, posedge rst) begin
             for( i=0; i<6; i=i+1 ) begin
                 if( tcnt==7 ) begin
                     for( j=0; j<8; j=j+1 ) maskll[j] <= 0;
-                    maskll[cfg[i][2:0]] <= cfg[i][3] ? 8'd0 : maskin[i] ;
+                    maskll[cfg[i][2:0]] <= /*cfg[i][3] ? 8'd0 :*/ maskin[i] ;
                     infoll[cfg[i][2:0]] <= info[i];
-                    lyr[cfg[i][2:0]] <= i;
+                    lyr[cfg[i][2:0]] <= i[2:0];
                 end else begin
                     maskll[i] <= flip ? maskll[i]<<1 : maskll[i]>>1;
                 end

@@ -288,7 +288,7 @@ jtshouse_video u_video(
     .bpal_dout  ( bpal_dout ),
     // Tile map readout (BRAM)
     .tmap_addr  ( tmap_addr ),
-    .tmap_dout  ( tmap_dout ),
+    .tmap_data  ( tmap_dout ),
     // Scroll mask readout (SDRAM)
     .mask_cs    ( mask_cs   ),
     .mask_ok    ( mask_ok   ),

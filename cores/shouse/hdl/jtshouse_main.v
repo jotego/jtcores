@@ -61,7 +61,7 @@ wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin;
 wire        mrnw, mirq_n, mfirq_n, mavma,
             srnw, sirq_n, sfirq_n, savma,
-            rom_cs, oram_cs, sram_cs;
+            rom_cs, oram_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
@@ -79,6 +79,7 @@ assign oram_cs  = cs[6]; // /OBJECT
 assign key_cs   = cs[5]; // /KEY
 assign vram_cs  = cs[4]; // /CHAR
 assign pal_cs   = cs[3]; // /COLOR
+// assign trid_cs   = cs[2]; // /3D glasses
 
 assign main_E = cen_main;
 assign main_Q = cen_sub;

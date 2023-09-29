@@ -38,7 +38,7 @@ module jtshouse_video(
     output            rpal_we, gpal_we, bpal_we,
     // Tile map readout (BRAM)
     output     [14:1] tmap_addr,
-    input      [15:0] tmap_dout,
+    input      [15:0] tmap_data,
     // Scroll mask readout (SDRAM)
     output            mask_cs,
     input             mask_ok,
@@ -74,7 +74,7 @@ assign oram_addr = 0;
 assign flip = 0;
 
 always @(posedge clk) begin
-    case( debug_bus[0] )
+    case( debug_bus[5] )
         0: st_dout <= st_scr;
         1: st_dout <= st_colmix;
     endcase
@@ -127,7 +127,7 @@ jtshouse_scr u_scroll(
 
     // Tile map readout (BRAM)
     .tmap_addr  ( tmap_addr ),
-    .tmap_dout  ( tmap_dout ),
+    .tmap_data  ( tmap_data ),
     // Mask readout (SDRAM)
     .mask_cs    ( mask_cs   ),
     .mask_ok    ( mask_ok   ),

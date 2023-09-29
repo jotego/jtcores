@@ -73,6 +73,7 @@ bram:
       dout: obus_dout
       rw: true
   # Palette RAM, 3x8kB
+  # colmix muxes rpal,gpal,bpal to pal_dout -> main/sub
   - name: red
     addr_width: 13
     data_width: 8

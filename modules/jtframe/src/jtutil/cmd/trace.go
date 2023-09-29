@@ -86,7 +86,7 @@ trace off
 trace debug.trace,maincpu,noloop,{tracelog "PC=%X,SSP=%X,D0=%X,D1=%X,D2=%X,D3=%X,D4=%X,D5=%X,D6=%X,D7=%X,A0=%X,A1=%X,A2=%X,A3=%X,A4=%X,A5=%X,A6=%X,A7=%X,IR=%X,frame_cnt=%x* ",pc,ssp,d0,d1,d2,d3,d4,d5,d6,d7,a0,a1,a2,a3,a4,a5,a6,a7,ir,frame}
 go
 `
-		case "konami","kcpu": s=`focus 0
+		case "konami","kcpu","6809": s=`focus 0
 trace off
 trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
 go
@@ -97,6 +97,12 @@ go
 	}
 	if s=="" {
 		fmt.Printf("No default trace.mame file for %s CPU. Add it to trace.go\n", cpu)
+		fmt.Printf(`Supported CPUs names and aliases:
+t900h
+m68000, m68k, 68k, 68000
+konami, kcpu, 6809
+qsnd, qsound
+`)
 		return
 	}
 	f, e := os.Create("trace.mame")

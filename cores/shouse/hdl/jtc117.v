@@ -69,7 +69,7 @@ module jtc117(
     assign bdout  = bsel ? sdout : mdout;
     assign cs[0]  = range(10'h200,10'h280); // made-up number
     assign cs[1]  = range(10'h280,10'h2C0); // made-up number
-    assign cs[2]  = range(10'h2C0,10'h2C2); // 3D,     acc. to MAME
+    assign cs[2]  = range(10'h2C0,10'h2D0); // 3D,     acc. to MAME
     assign cs[3]  = range(10'h2E0,10'h2E8); // COL,    acc. to MAME
     assign cs[4]  = range(10'h2F0,10'h2F8); // CHAR,   acc. to MAME
     assign cs[5]  = range(10'h2F8,10'h2FA); // KEY,    acc. to MAME
