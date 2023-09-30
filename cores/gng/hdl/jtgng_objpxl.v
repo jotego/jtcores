@@ -61,7 +61,7 @@ always @(posedge clk, posedge rst)
     end
 
 always @(posedge clk) if(pxl_cen) begin
-    if( !LHBL ) Hcnt <= AW==8 ? 8'd0 : (H0-PXL_DLY);
+    if( !LHBL ) Hcnt <= AW==8 ? {AW{1'd0}} : (H0-PXL_DLY);
     else Hcnt <= Hcnt+1'd1;
 end
 
@@ -131,9 +131,9 @@ jtframe_ram #(.AW(AW),.DW(DW),.CEN_RD(0)) lineB_buf(
 );
 
 generate
-    if( AW==8 )begin : shifter
+    if( AW==8 && PXL_DLY!=0 )begin : shifter
     // Delay pixel output in order to be aligned with the other layers
-    jtframe_sh #(.width(DW), .stages(PXL_DLY)) u_sh(
+    jtframe_sh #(.W(DW), .L(PXL_DLY)) u_sh(
         .clk            ( clk           ),
         .clk_en         ( pxl_cen       ), // important: pixel cen!
         .din            ( obj_pxl0      ),

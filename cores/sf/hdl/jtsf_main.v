@@ -156,10 +156,11 @@ assign mcu_master = ~mcu_brn & bus_ack;
 assign BUSn       = ASn | (LDSn & UDSn);
 
 `ifdef SIMULATION
-wire [24:0] A_full = {A,1'b0};
+wire [23:0] A_full = {A,1'b0};
 `endif
 
 jtframe_sync #(.W(15+8+1+1+1)) u_mcus(
+    .clk_in ( clk       ),
     .clk_out( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s } )
@@ -372,7 +373,7 @@ end
 jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 5'd1       ),
+    .num        ( 4'd1       ),
     .den        ( 5'd6       ),
     .cpu_cen    ( cen8       ),
     .cpu_cenb   ( cen8b      ),
@@ -381,7 +382,13 @@ jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .bus_legit  ( char_busy  ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
-    .DTACKn     ( DTACKn     )
+    .DTACKn     ( DTACKn     ),
+    .wait2      ( 1'd0       ),
+    .wait3      ( 1'd0       ),
+    // unused
+    .frst       ( 1'd0       ),
+    .fave       (            ),
+    .fworst     (            )
 );
 
 // OBJ RAM is implemented in BRAM

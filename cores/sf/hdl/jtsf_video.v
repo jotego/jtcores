@@ -162,7 +162,7 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( buf_cen       ),
-    .AB         ( cpu_AB[11:1]  ),  // shouldn't this be 12:1, or change char's AW
+    .AB         ({1'd0,cpu_AB[11:1]}),  // shouldn't this be 12:1, or change char's AW
     .V          ( cv            ),
     .H          ( ch            ),
     .flip       ( flip          ),
@@ -196,7 +196,7 @@ jtframe_tilebuf #(
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .hdump      ( H         ),
-    .vdump      ( V         ),
+    .vdump      ( V[7:0]    ),
     .scan_cen   ( buf_cen   ),
     .hscan      ( ch        ),
     .vscan      ( cv        ),

@@ -61,16 +61,9 @@ wire is_snd   = bulk_addr[21:8] < char_start && bulk_addr[21:8]>=snd_start;
 wire is_char  = bulk_addr[21:8] < scr_start  && bulk_addr[21:8]>=char_start;
 wire is_scr   = bulk_addr[21:8] < obj_start  && bulk_addr[21:8]>=scr_start;
 
-reg [7:0] scr_buf;
-reg [3:0] scr_rewr;
+reg [ 7:0] scr_buf;
+reg [ 3:0] scr_rewr=0;
 reg [31:0] prev_data;
-
-`ifdef SIMULATION
-initial begin
-    scr_rewr = 4'b0;
-end
-`endif
-
 reg [21:0] scr_addr;
 
 always @(posedge clk) begin
@@ -86,11 +79,11 @@ always @(posedge clk) begin
                          is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
                          is_char ? char_addr[21:1] + CHAR_OFFSET : (
                          { obj_addr[21:7],obj_addr[5:2],obj_addr[6], obj_addr[1] } + OBJ_OFFSET )));
-            scr_rewr  <= 1'b0;
+            scr_rewr  <= 0;
             prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;
         end
         if( ioctl_addr < FULL_HEADER ) begin
-            if( !ioctl_addr ) game_cfg <= ioctl_dout;
+            if( ioctl_addr==0 ) game_cfg <= ioctl_dout;
             if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_dout };
             prog_we <= 1'b0;
         end else if(!is_scr) begin
@@ -102,7 +95,7 @@ always @(posedge clk) begin
         else if( !prog_we ) begin
             if( !is_scr )
                 scr_addr <= SCR_OFFSET;
-            else if( scr_rewr ) begin
+            else if( scr_rewr!=0 ) begin
                 prog_we       <= 1'b1;
                 scr_rewr      <= scr_rewr<<1;
                 prog_addr     <= scr_addr;
@@ -112,6 +105,7 @@ always @(posedge clk) begin
                     4'b0010: prog_data <= { prev_data[31:28], prev_data[23:20] };
                     4'b0100: prog_data <= { prev_data[11: 8], prev_data[ 3: 0] };
                     4'b1000: prog_data <= { prev_data[27:24], prev_data[19:16] };
+                    default:;
                 endcase
                 prog_mask <= scr_rewr[0] || scr_rewr[2] ?  2'b10 : 2'b01;
             end

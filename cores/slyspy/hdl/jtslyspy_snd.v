@@ -187,7 +187,6 @@ jtframe_ram #(.AW(11)) u_ram( // only 2kB
     .q      ( ram_dout  )
 );
 
-`ifndef VERILATOR
 HUC6280 u_huc(
     .CLK        ( hu_clk    ),
     .RST_N      ( ~rst      ),
@@ -219,12 +218,6 @@ HUC6280 u_huc(
     .AUD_LDATA  (           ),
     .AUD_RDATA  (           )
 );
-`else
-assign A=0;
-assign wrn=1;
-assign rdn=1;
-assign ce=1;
-`endif
 
 jtcop_ongen #(.PCM_GAIN(8'h30)) u_ongen(
     .rst        ( rst           ),

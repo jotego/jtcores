@@ -96,6 +96,7 @@ always @(posedge clk, posedge rst) begin
             {3'd4,1'b0}: scr0_hpos <= main_dout;
             {3'd4,1'b1}: scr1_hpos <= main_dout;
             {3'd5,1'b0}: flip      <= main_dout[0];
+            default:;
         endcase
     end
 end

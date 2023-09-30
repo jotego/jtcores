@@ -189,7 +189,7 @@ jtcps1_obj_draw u_draw(
     .rom_ok     ( rom_ok        )
 );
 
-jtframe_sh #(.width(9),.stages(3)) u_sh(
+jtframe_sh #(.W(9),.L(3)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( hdump     ),

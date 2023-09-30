@@ -51,7 +51,7 @@ sdram:
     # Bank 3 for objects
     -
       buses:
-        - { name: obj, addr_width: 21, data_width: 16 } # this line is different in Out Run
+        - { name: obj, addr_width: 20, data_width: 16 } # this line is different in Out Run
 
 # The ROAD 32kB memory must go in BRAM to guarantee correct data reads at 48 MHz
 bram:

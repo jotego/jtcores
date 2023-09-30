@@ -146,7 +146,7 @@ assign ppu_rstn = 1'b1;
 always @(posedge clk) begin
     case( debug_bus[1:0] )
         2: st_dout <= spin1p[7:0];
-        3: st_dout <= spin1p[11:8];
+        3: st_dout <= {4'd0, spin1p[11:8] };
         default: st_dout <= { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
     endcase
 end
@@ -434,6 +434,7 @@ jtframe_68kdma #(.BW(1)) u_arbitration(
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
     .rst        ( rst         ),
+    .RESETn     (             ),
     .cpu_cen    ( cen16       ),
     .cpu_cenb   ( cen16b      ),
 

@@ -12,6 +12,9 @@ jtframe:
     - jtframe_sort.v
 modules:
   other:
-    - unless: NOSOUND
+    - unless: VERILATOR
       get:
-        - HUC6280/HUC6280.yaml
+      - HUC6280/HUC6280.yaml
+    - when: VERILATOR
+      get:
+      - HUC6280/HUC6280.v

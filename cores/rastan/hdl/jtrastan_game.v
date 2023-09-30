@@ -62,7 +62,7 @@ module jtrastan_game(
 
     input   [15:0]  data_read,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -95,7 +95,8 @@ module jtrastan_game(
     input   [3:0]   gfx_en,
     input   [7:0]   debug_bus,
     output  [7:0]   debug_view,
-    output  [ 7:0]  ioctl_din
+    output  [7:0]   ioctl_din,
+    input           ioctl_ram
 );
 
 wire [18:1] main_addr;
@@ -122,8 +123,6 @@ wire        snd_cs, pcm_cs, snd_ok, pcm_ok, sub_cs;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] sn_dout;
-
-wire        ioctl_ram=0;
 
 assign      dip_flip = flip;
 assign      { dipsw_b, dipsw_a } = dipsw[15:0];

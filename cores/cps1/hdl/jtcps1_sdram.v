@@ -469,7 +469,7 @@ jt9346_16b8b #(.DW(EEPROM_DW),.AW(EEPROM_AW)) u_eeprom(
     .scs        ( scs       ),  // chip select, active high. Goes low in between instructions
     // Dump access
     .dump_clk   ( clk       ),  // same as prom_we module
-    .dump_addr  ( ioctl_addr[6:0] ),
+    .dump_addr  ( ioctl_addr[(EEPROM_DW==16?EEPROM_AW+1:EEPROM_AW):0] ),
     .dump_we    ( dump_we   ),
     .dump_din   ( ioctl_dout),
     .dump_dout  ( ioctl_din ),

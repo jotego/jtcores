@@ -72,7 +72,7 @@ module jtvigil_sdram(
     input            downloading,
     output           dwnld_busy,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     output reg [21:0] prog_addr,
@@ -99,7 +99,7 @@ wire [21:0] pre_addr;
 wire        is_tiles, is_obj, prom_we;
 
 assign dwnld_busy = downloading;
-assign is_tiles   = prog_ba==2 && ioctl_addr<SCR2_START;
+assign is_tiles   = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
 assign is_obj     = prog_ba==3 && !prom_we;
 
 always @* begin

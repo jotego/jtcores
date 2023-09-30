@@ -48,8 +48,8 @@ module jttrojan_video #(
     input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
-    input       [ 9:0]  scr_hpos,
-    input       [ 9:0]  scr_vpos,
+    input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
     // SCROLL 2
     output      [14:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [15:0]  scr2_data,
@@ -91,7 +91,7 @@ localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;
-localparam SCR_OFFSET = 2;
+localparam SCR_OFFSET = 9'd2;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
@@ -123,7 +123,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -147,15 +147,6 @@ jtgng_char #(
 );
 
 `ifndef NOSCR
-// wire [7:0] scr_pre;
-//
-// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( cen6     ),
-//     .din    ( scr_pre  ),
-//     .drop   ( scr_pxl  )
-// );
-
 jtgng_scroll #(
     .HOFFSET( SCR_OFFSET    ),
     .ROM_AW ( SCRW          ),
@@ -194,7 +185,7 @@ assign scr_dout   = 8'd0;
 `endif
 
 jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET+1 ),
+    .HOFFSET    (SCR_OFFSET+9'd1),
     .AS8MASK    ( 1'b0      ),
     .ROM_AW     ( 15        ),
     .PALETTE    ( 0         ),
@@ -204,6 +195,7 @@ jt1943_scroll #(
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .V128         ( {1'b0, V[7:0]} ),
+    .LHBL         ( LHBL          ),
     .H            ( H             ),
     .hpos         ( scr2_hpos     ),
     .SCxON        ( 1'b1          ),
@@ -222,7 +214,8 @@ jt1943_scroll #(
     .map_ok       ( map2_ok       ),
     .scr_addr     ( scr2_addr     ),
     .scrom_data   ( scr2_data     ),
-    .scr_pxl      ( scr2_pxl      )
+    .scr_pxl      ( scr2_pxl      ),
+    .debug_bus    ( 8'd0          )
 );
 
 `ifndef NOOBJ

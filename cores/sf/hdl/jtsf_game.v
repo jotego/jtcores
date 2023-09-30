@@ -70,7 +70,7 @@ module jtsf_game(
 
     input   [15:0]  data_read,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -90,7 +90,7 @@ module jtsf_game(
     input           service,
     input           tilt,
     input           dip_pause,
-    input           dip_flip,
+    output          dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
@@ -197,6 +197,7 @@ assign ba_wr[3:1]         = 0;
 assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
        ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
 assign debug_view = 0;
+assign dip_flip = flip;
 
 always @(negedge clk) begin
     snd_rst   <= rst;
@@ -255,13 +256,13 @@ wire        prom_we;
 reg         mcu_en, mcu_lock;
 
 // Optimize cache use for object ROMs
-assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
+assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START[21:0]) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
 
 // This distinguishes the games using SFJ-style input from the rest
 always @(posedge clk) begin
-    if( ioctl_addr==25'h19910 && ioctl_wr )
+    if( ioctl_addr==26'h19910 && ioctl_wr )
         game_id <= ioctl_dout==6;
 end
 
@@ -609,7 +610,7 @@ jtframe_ram1_2slots #(
 
     // SDRAM interface
     .sdram_addr  ( ba0_addr      ),
-    .sdram_wr    ( ba_wr         ),
+    .sdram_wr    ( ba_wr[0]      ),
     .sdram_rd    ( ba_rd[0]      ),
     .sdram_ack   ( ba_ack[0]     ),
     .data_dst    ( ba_dst[0]     ),

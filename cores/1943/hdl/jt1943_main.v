@@ -222,7 +222,7 @@ always @(posedge clk, posedge rst)
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) begin
-            if(GAME==0) scrposv <= cpu_dout;
+            if(GAME==0) scrposv[7:0] <= cpu_dout[7:0];
             if(GAME==1) begin
                 if( !A[0] ) scrposv[ 7:0] <= cpu_dout;
                 /* verilator lint_off SELRANGE */

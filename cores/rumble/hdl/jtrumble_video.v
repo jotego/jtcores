@@ -97,13 +97,6 @@ always @(posedge clk) if(pxl_cen) LHBL_sh <= { LHBL_sh[30:0], !(H[8] ? H[7:0] > 
 assign LVBL_obj = ~V[8];
 assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6]; // LHBL_sh[debug_bus[4:0]];
 
-// jtframe_sh #(.width(1), .stages(5) ) u_sh(
-//     .clk    ( clk       ),
-//     .clk_en ( pxl_cen   ),
-//     .din    ( LHBL      ),
-//     .drop   ( LHBL_obj  )
-// );
-
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
@@ -171,15 +164,6 @@ jtgng_char #(
 );
 
 `ifndef NOSCR
-// wire [7:0] scr_pre;
-//
-// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( pxl_cen     ),
-//     .din    ( scr_pre  ),
-//     .drop   ( scr_pxl  )
-// );
-
 jtgng_scroll #(
     .HOFFSET( 1    ),
     .ROM_AW ( SCRW  ),

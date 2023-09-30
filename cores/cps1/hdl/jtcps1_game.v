@@ -48,10 +48,10 @@ module jtcps1_game(
     output          dwnld_busy,
 
     // Bank 0: allows R/W
-    output   [22:0] ba0_addr,
-    output   [22:0] ba1_addr,
-    output   [22:0] ba2_addr,
-    output   [22:0] ba3_addr,
+    output   [21:0] ba0_addr,
+    output   [21:0] ba1_addr,
+    output   [21:0] ba2_addr,
+    output   [21:0] ba3_addr,
     output   [ 3:0] ba_rd,
     output   [ 3:0] ba_wr,
     output   [15:0] ba0_din,
@@ -510,6 +510,8 @@ assign game_led   = 0;
 reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
+wire nc0, nc1, nc2, nc3;
+
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),
@@ -621,10 +623,10 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
 
     // Bank 0: allows R/W
     /*verilator lint_off width*/
-    .ba0_addr    ( ba0_addr      ),
-    .ba1_addr    ( ba1_addr      ),
-    .ba2_addr    ( ba2_addr      ),
-    .ba3_addr    ( ba3_addr      ),
+    .ba0_addr    ({nc0,ba0_addr} ),
+    .ba1_addr    ({nc1,ba1_addr} ),
+    .ba2_addr    ({nc2,ba2_addr} ),
+    .ba3_addr    ({nc3,ba3_addr} ),
     /*verilator lint_on width*/
     .ba_rd       ( ba_rd         ),
     .ba_wr       ( ba_wr         ),

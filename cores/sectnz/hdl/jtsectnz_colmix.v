@@ -146,6 +146,7 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .pxl_cen    ( pxl_cen             ),
     .preLHBL    ( preLHBL             ),
     .preLVBL    ( preLVBL             ),
+    .preLBL     (                     ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .rgb_in     ( {pal_red, pal_green, pal_blue} ),

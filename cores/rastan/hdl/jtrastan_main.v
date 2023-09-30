@@ -261,6 +261,7 @@ jtframe_68kdtack #(.W(8)) u_dtack(
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
     .rst        ( rst         ),
+    .RESETn     (             ),
     .cpu_cen    ( cpu_cen     ),
     .cpu_cenb   ( cpu_cenb    ),
 

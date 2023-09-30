@@ -46,7 +46,7 @@ wire            bl_n;
 
 assign bl_n = enable ? &dly[1:0] : (LHB_in & LVB_in);
 
-jtframe_sh #(.width(4), .stages(4)) u_sh(
+jtframe_sh #(.W(4), .L(4)) u_sh(
     .clk    ( clk              ),
     .clk_en ( spl_in           ),
     .din    ( {HS_in,  VS_in,  LHB_in,  LVB_in  } ),

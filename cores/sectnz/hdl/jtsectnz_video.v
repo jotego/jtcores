@@ -28,7 +28,7 @@ module jtsectnz_video#(
     input               cpu_cen,
     input       [11:0]  cpu_AB,
     input               game_sel,
-    output      [ 7:0]  V,
+    output      [ 8:0]  V,
     output      [ 8:0]  H,
     input               RnW,
     input               flip,
@@ -47,10 +47,8 @@ module jtsectnz_video#(
     input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
-    input       [10:0]  scr_hpos,
-    input       [10:0]  scr_vpos,
-    input       [ 1:0]  scr_bank,
-    input               scr_layout,
+    input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
     // OBJ
     output      [ 8:0]  obj_AB,
     input       [ 7:0]  main_ram,
@@ -113,7 +111,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -137,15 +135,6 @@ jtgng_char #(
 );
 
 `ifndef NOSCR
-// wire [7:0] scr_pre;
-//
-// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( cen6     ),
-//     .din    ( scr_pre  ),
-//     .drop   ( scr_pxl  )
-// );
-
 jtgng_scroll #(
     .HOFFSET( 1    ),
     .ROM_AW ( SCRW  ),

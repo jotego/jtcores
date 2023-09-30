@@ -88,8 +88,11 @@ jtgng_sound #(.LAYOUT(0)) u_fmcpu (
     .ym_snd     (  fm_snd       ),
     .sample     (  sample       ),
     .peak       (  fm_peak      ),
+    .debug_bus  ( 8'd0          ),
     .debug_view ( debug_view    )
 );
+
+wire [1:0] nc;
 
 jttora_adpcm u_adpcmcpu(
     .rst        ( rst           ),
@@ -99,7 +102,7 @@ jttora_adpcm u_adpcmcpu(
     // Interface with second CPU
     .snd2_latch ( snd2_latch    ),
     // ADPCM ROM
-    .rom2_addr  ( rom2_addr     ),
+    .rom2_addr  ( {nc,rom2_addr}),
     .rom2_cs    ( rom2_cs       ),
     .rom2_data  ( rom2_data     ),
     .rom2_ok    ( rom2_ok       ),

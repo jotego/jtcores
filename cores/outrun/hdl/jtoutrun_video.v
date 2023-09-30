@@ -326,6 +326,7 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
         .debug_bus ( 8'd0      )
     );
     assign st_obj = 0;
+    assign obj_dump=0;
 `else
     jtoutrun_obj #(.PXL_DLY(9'd19)) u_obj(
         .rst       ( rst            ),

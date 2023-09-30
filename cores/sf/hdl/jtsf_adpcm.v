@@ -28,10 +28,6 @@ module jtsf_adpcm(
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,
-    `ifdef VERILATOR
-    output  [ 3:0]  adpcm_din,
-    output          adpcm_irq,
-    `endif
 
     // Sound output
     output          sample,
@@ -86,6 +82,7 @@ always @(posedge clk, posedge rst) begin
                 2'd2: begin
                     bank <= dout[2:0];
                 end
+                default:;
             endcase
         end
     end

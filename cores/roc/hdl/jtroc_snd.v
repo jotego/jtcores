@@ -125,9 +125,11 @@ jt49_bus u_psg0(
 
     .IOA_in     ( main_latch),
     .IOA_out    (           ),
+    .IOA_oe     (           ),
 
     .IOB_in     ( { biq_cnt[3:1], cnt[8], 4'd0} ),
-    .IOB_out    (           )
+    .IOB_out    (           ),
+    .IOB_oe     (           )
 );
 
 jt49_bus u_psg1(
@@ -148,9 +150,11 @@ jt49_bus u_psg1(
 
     .IOA_in     ( 8'd0      ),
     .IOA_out    (           ),
+    .IOA_oe     (           ),
 
     .IOB_in     ( 8'd0      ),
-    .IOB_out    (           )
+    .IOB_out    (           ),
+    .IOB_oe     (           )
 );
 
 jtframe_mixer #(.W0(10),.W1(10)) u_mixer(

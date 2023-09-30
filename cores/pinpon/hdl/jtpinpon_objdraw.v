@@ -117,7 +117,7 @@ wire buf_clr, LHBL_dly;
 
 assign buf_clr = pxl_cen & LHBL_dly;
 
-jtframe_sh #(.width(1),.stages(HOFFSET-1) ) u_dly(
+jtframe_sh #(.W(1),.L(HOFFSET-1) ) u_dly(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( LHBL      ),

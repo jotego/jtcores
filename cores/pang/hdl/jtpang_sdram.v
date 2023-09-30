@@ -66,7 +66,7 @@ module jtpang_sdram(
     output           kabuki_we,
     output reg       kabuki_en,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     input            ioctl_ram,

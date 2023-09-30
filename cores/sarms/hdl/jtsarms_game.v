@@ -43,7 +43,7 @@ module jtsarms_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -121,7 +121,7 @@ assign star_fix_n = status[13];
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dipsw_c = 8'hff; // Only the freeze is contained here, and users often get
     // confused with it, so I'd rather leave it fixed and hidden
-
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen16  ( cen16     ),
@@ -140,7 +140,7 @@ jtframe_cen48 u_cen(
     .cen3qb (           ),
     .cen1p5b(           )
 );
-
+/* verilator lint_on PINMISSING */
 wire rd_n, wr_n;
 // sound
 wire sres_b;
@@ -168,6 +168,7 @@ localparam [21:0] MAP_OFFSET  = 22'hA_C000 >> 1;
 localparam [21:0] PROM_START  = 22'hB_4000;
 
 wire [21:0] pre_prog;
+wire [ 7:0] nc2;
 
 assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<MAP_OFFSET) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
@@ -185,14 +186,15 @@ u_dwnld(
     .ioctl_wr    ( ioctl_wr      ),
 
     .prog_addr   ( pre_prog      ),
-    .prog_data   ( prog_data     ),
+    .prog_data   ({nc2,prog_data}),
     .prog_mask   ( prog_mask     ),
     .prog_we     ( prog_we       ),
     .prom_we     ( prom_we       ),
 
     .sdram_ack   ( sdram_ack     ),
     .gfx8_en     ( 1'b0          ),
-    .gfx16_en    ( 1'b0          )
+    .gfx16_en    ( 1'b0          ),
+    .header      (               )
 );
 
 `ifndef NOMAIN
@@ -293,6 +295,7 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .ym_snd         ( snd            ),
     .sample         ( sample         ),
     .peak           ( game_led       ),
+    .debug_bus      ( 8'd0           ),
     .debug_view     ( debug_view     )
 );
 `else
@@ -389,7 +392,7 @@ jtframe_rom #(
     .SLOT2_AW    ( MAPW            ), // Scroll Map
     .SLOT3_AW    ( STARW           ), // Star field
     .SLOT6_AW    ( 15              ), // Sound
-    .SLOT7_AW    ( 17              ), // Main
+    .SLOT7_AW    ( 18              ), // Main
     .SLOT8_AW    ( OBJW            ), // OBJ
 
     .SLOT0_DW    ( 16              ), // Char

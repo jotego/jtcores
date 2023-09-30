@@ -588,6 +588,9 @@ u_game(
     `endif
 `endif
 
+`ifdef JTFRAME_MOUSE
+    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), `endif
+
     // Sound control
     .enable_fm   ( enable_fm      ),
     .enable_psg  ( enable_psg     ),

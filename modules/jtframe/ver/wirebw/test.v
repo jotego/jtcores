@@ -40,7 +40,7 @@ jtframe_wirebw_unit #(.WIN(WIN),.WOUT(WOUT)) uut(
 
 wire [WIN-1:0] din_dly;
 
-jtframe_sh #(.width(WIN), .stages(6)) u_sh(
+jtframe_sh #(.W(WIN), .L(6)) u_sh(
     .clk    ( clk              ),
     .clk_en ( 1'b1             ),
     .din    ( din              ),

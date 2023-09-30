@@ -107,7 +107,7 @@ end
 
 wire [1:0] pre_BL;
 
-jtframe_sh #(.width(2),.stages(BLANK_OFFSET-1)) u_hb_dly(
+jtframe_sh #(.W(2),.L(BLANK_OFFSET-1)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
     .din    ( {preLHBL, preLVBL} ),

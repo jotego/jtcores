@@ -38,7 +38,7 @@ module jtshanon_colmix(
 
     // From tile map generator
     input      [10:0]  tmap_addr,
-    input      [12:0]  obj_pxl,
+    input      [11:0]  obj_pxl,
     input      [ 7:0]  rd_pxl,
     input      [ 4:3]  rc,
     input              shadow,
@@ -63,7 +63,7 @@ wire [15:0] pal_out;
 wire [14:0] rgb;
 reg  [10:0] rd_mux;
 reg  [11:0] pal_addr, pre_addr;
-reg  [12:0] objl;
+reg  [11:0] objl;
 reg         muxsel;
 // reg  [ 1:0] blink;
 

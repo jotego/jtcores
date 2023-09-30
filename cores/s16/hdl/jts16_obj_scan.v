@@ -127,7 +127,9 @@ always @(posedge clk, posedge rst) begin
         stop     <= 0;
         dr_start <= 0;
         tbl_we   <= 0;
+/* verilator lint_off WIDTH */
         case( st )
+/* verilator lint_on WIDTH */
             0: begin
                 cur_obj  <= 0;
                 stop     <= 0;

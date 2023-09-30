@@ -62,8 +62,6 @@ module jtframe_m68k(
     output [2:0] FC
 );
 
-`ifndef LINT
-
 `ifdef VERILATOR_KEEP_68K /* verilator tracing_on  */
                   `else   /* verilator tracing_off */ `endif
 `ifdef JTFRAME_J68
@@ -110,5 +108,4 @@ fx68k u_cpu(
     .FC1        ( FC[1]       ),
     .FC2        ( FC[2]       )
 );
-`endif
 endmodule
