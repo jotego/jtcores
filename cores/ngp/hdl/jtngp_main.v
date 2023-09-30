@@ -166,7 +166,7 @@ end
     // synchronize VB with MAME
     always @(posedge clk) begin
         last_addr <= addr;
-        if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
+        if( addr=='h20015A && addr!=last_addr ) locked <= 1;
         if( !lvbl ) locked <= 0;
     end
 `endif

@@ -62,7 +62,7 @@ module jtrumble_game(
 
     input   [15:0]  data_read,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -392,7 +392,7 @@ jtrumble_sdram #(
     .ba2_addr   ( ba2_addr  ),
     .ba3_addr   ( ba3_addr  ),
     .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr     ),
+    .ba_wr      ( ba_wr[0]  ),
     .ba_ack     ( ba_ack    ),
     .ba_dst     ( ba_dst    ),
     .ba_rdy     ( ba_rdy    ),

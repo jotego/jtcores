@@ -80,7 +80,7 @@ module jtrumble_sdram #(
     output [1:0]    prom_banks,
     output          prom_prior_we,
 
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -194,7 +194,12 @@ jtgng_obj32 #(
     .data_ok     ( prog_rdy     )   // using prog_dst would corrupt the graphics
 );
 `else
-assign convert=0;
+assign conv_addr = 0;
+assign conv_data = 0;
+assign conv_we   = 0;
+assign conv_rd   = 0;
+assign conv_mask = 0;
+assign convert   = 0;
 `endif
 
 /* xxx tracing_off */
