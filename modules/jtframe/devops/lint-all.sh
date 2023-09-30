@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -v GITHUB_ACTION ]; then
+if [ "$1" = GITHUB_ACTION ]; then
     cd /jtcores
     git config --global --add safe.directory /jtcores
     source setprj.sh
