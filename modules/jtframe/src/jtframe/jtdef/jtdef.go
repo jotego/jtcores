@@ -226,7 +226,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_COLORW":        "4",
 		"JTFRAME_BUTTONS":       "2",
 		"JTFRAME_SIGNED_SND":    "1",
-		"JTFRAME_DIPBASE": "16",
+		"JTFRAME_DIPBASE":      "16",
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
