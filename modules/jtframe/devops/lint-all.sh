@@ -8,6 +8,7 @@ fi
 
 WARNLIST=
 ERRLIST=
+FAIL=
 cd $CORES
 
 for i in *; do
@@ -28,22 +29,21 @@ for i in *; do
     fi
 done
 
-echo
-echo
-echo "======================= REPORT ============================"
-echo
-
-if [ ! -z "WARNLIST" ]; then
+if [ ! -z "$WARNLIST" ]; then
     echo "Cores with linter warnings:"
     echo $WARNLIST
     echo
+    FAIL=1
 fi
 
-if [ ! -z "ERRLIST" ]; then
+if [ ! -z "$ERRLIST" ]; then
     echo "Cores with linter errors:"
     echo $ERRLIST
-    echo "lint-all: FAIL"
-    exit 1
+    FAIL=1
 fi
 
-echo "lint-all: PASS"
+if [ -z "$FAIL" ]; then
+    echo "lint-all: PASS"
+else
+    echo "lint-all: FAIL"
+fi
