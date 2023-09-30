@@ -39,17 +39,15 @@ module jtcps15_game(
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
     input   [ 9:0]  joystick4,
-    input   [ 1:0]  dial_x,
-    input   [ 1:0]  dial_y,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
-    output   [22:0] ba0_addr,
-    output   [22:0] ba1_addr,
-    output   [22:0] ba2_addr,
-    output   [22:0] ba3_addr,
+    output   [21:0] ba0_addr,
+    output   [21:0] ba1_addr,
+    output   [21:0] ba2_addr,
+    output   [21:0] ba3_addr,
     output   [ 3:0] ba_rd,
     output   [ 3:0] ba_wr,
     output   [15:0] ba0_din,
@@ -68,7 +66,7 @@ module jtcps15_game(
     input   [15:0]  data_read,
 
     // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [ 7:0]  ioctl_din,
@@ -243,8 +241,8 @@ jtcps1_main u_main(
     .joystick2   ( joystick2        ),
     .joystick3   ( joystick3        ),
     .joystick4   ( joystick4        ),
-    .dial_x      ( dial_x           ),
-    .dial_y      ( dial_y           ),
+    .dial_x      ( 2'd0             ),
+    .dial_y      ( 2'd0             ),
     .service     ( service          ),
     .tilt        ( 1'b1             ),
     // BUS sharing
@@ -276,7 +274,8 @@ jtcps1_main u_main(
     .eeprom_scs  ( scs              ),
     // Unused -stuff from CPS1
     .snd_latch0  (                  ),
-    .snd_latch1  (                  )
+    .snd_latch1  (                  ),
+    .joymode     ( 2'd0             )
 );
 `else
 assign ram_addr = 17'd0;
@@ -323,7 +322,7 @@ jtcps1_video #(REGSIZE) u_video(
     .ppu_rstn       ( ppu_rstn      ),
     .ppu1_cs        ( ppu1_cs       ),
     .ppu2_cs        ( ppu2_cs       ),
-    .addr           ( ram_addr[5:1] ),
+    .addr           ( ram_addr[12:1]),
     .dsn            ( dsn           ),      // data select, active low
     .cpu_dout       ( main_dout     ),
     .mmr_dout       ( mmr_dout      ),
@@ -374,7 +373,19 @@ jtcps1_video #(REGSIZE) u_video(
     .rom0_cs        ( rom0_cs       ),
     .rom0_ok        ( rom0_ok       ),
 
-    .debug_bus      ( debug_bus     )
+    .debug_bus      ( debug_bus     ),
+    // unused
+    .star_bank      (               ),
+    .star0_addr     (               ),
+    .star0_data     ( 32'd0         ),
+    .star0_cs       (               ),
+    .star0_ok       ( 1'd0          ),
+    .star1_addr     (               ),
+    .star1_data     ( 32'd0         ),
+    .star1_cs       (               ),
+    .star1_ok       ( 1'd0          ),
+    .watch_vram_cs  ( 1'd0          ),
+    .watch          (               )
 );
 
 `ifndef NOZ80
@@ -420,7 +431,8 @@ jtcps15_sound u_sound(
     // Sound output
     .left       ( snd_left          ),
     .right      ( snd_right         ),
-    .sample     ( sample            )
+    .sample     ( sample            ),
+    .volume     (                   )
 );
 `else
 assign snd_cs = 0;
@@ -428,6 +440,8 @@ assign snd_addr = 0;
 assign qsnd_cs = 0;
 assign qsnd_addr = 0;
 `endif
+
+wire nc0, nc1, nc2, nc3, nc4;
 
 jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
@@ -446,7 +460,7 @@ jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .ioctl_din   ( ioctl_din     ),
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_ram   ( ioctl_ram     ),
-    .prog_addr   ( prog_addr     ),
+    .prog_addr   ({nc4,prog_addr}),
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_ba     ( prog_ba       ),
@@ -532,10 +546,10 @@ jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .star1_cs    ( 1'b0          ),
 
     // Bank 0: allows R/W
-    .ba0_addr    ( ba0_addr      ),
-    .ba1_addr    ( ba1_addr      ),
-    .ba2_addr    ( ba2_addr      ),
-    .ba3_addr    ( ba3_addr      ),
+    .ba0_addr    ( {nc0,ba0_addr}),
+    .ba1_addr    ( {nc1,ba1_addr}),
+    .ba2_addr    ( {nc2,ba2_addr}),
+    .ba3_addr    ( {nc3,ba3_addr}),
     .ba_rd       ( ba_rd         ),
     .ba_wr       ( ba_wr         ),
     .ba_ack      ( ba_ack        ),
@@ -545,7 +559,13 @@ jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .ba0_din     ( ba0_din       ),
     .ba0_dsn     ( ba0_dsn       ),
 
-    .data_read   ( data_read     )
+    .data_read   ( data_read     ),
+    // Unused - CPS2
+    .rom0_bank    ( 2'd0         ),
+    .star_bank    ( 1'd0         ),
+    .cps2_key_we  (              ),
+    .cps2_joymode (              ),
+    .dump_flag    (              )
 );
 
 endmodule
