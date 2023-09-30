@@ -68,7 +68,7 @@ module jts16_main(
     input       [15:0] joyana3,
     input       [15:0] joyana4,
     input       [ 3:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 3:0] coin_input,
     input              service,
     // ROM access
     output reg         rom_cs,
@@ -226,7 +226,7 @@ assign op_n        = FC[1:0]!=2'b10;
 assign snd_irqn    = ppic_dout[7];
 assign colscr_en   = ~ppic_dout[2];
 assign rowscr_en   = ~ppic_dout[1];
-assign ppic_din[6] = snd_ack;
+assign ppic_din    = { 1'd0, snd_ack, 6'd0 };
 
 function [7:0] sort_joy( input [7:0] joy_in );
     sort_joy = { joy_in[1:0], joy_in[3:2], joy_in[7], joy_in[5:4], joy_in[6] };
@@ -306,7 +306,7 @@ always @(posedge clk, posedge rst) begin
                 case( A[2:1] )
                     0: begin
                         if( !last_iocs ) port_cnt <= 0;
-                        cab_dout <= { 2'b11, start_button[1:0], service, dip_test, coin_input };
+                        cab_dout <= { 2'b11, start_button[1:0], service, dip_test, coin_input[1:0] };
                         case( game_id )
                             GAME_SDI: begin
                                 cab_dout[7] <= joystick2[4];
@@ -315,6 +315,7 @@ always @(posedge clk, posedge rst) begin
                             GAME_PASSSHT: begin
                                 cab_dout[7:6] <= start_button[3:2];
                             end
+                            default:;
                         endcase
                     end
                     1: begin
@@ -372,6 +373,7 @@ always @(posedge clk, posedge rst) begin
                 endcase
             2'd2:
                 cab_dout <= { A[1] ? dipsw_b : dipsw_a };
+            default:;
         endcase
     end
 end

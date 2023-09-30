@@ -301,6 +301,7 @@ always @(posedge clk, posedge rst) begin
                             3: cab_dout <= trackball[3][10:3];
                         endcase
                     end
+                    default:;
                 endcase
             end
         endcase

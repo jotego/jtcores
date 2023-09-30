@@ -24,7 +24,7 @@ module jts16_game(
     localparam SNDW=15;
     wire [7:0] sndmap_dout=0;
 
-    assign snd_addr[18:16]=0;
+    assign snd_addr[18:15]=0;
 `else
     localparam SNDW=19;
 
@@ -117,6 +117,10 @@ always @(negedge clk, posedge rst) begin
     end
 end
 
+`ifndef S16b
+assign key_mcaddr=0;
+`endif
+
 `ifndef NOMAIN
 `JTS16_MAIN u_main(
     .rst        ( rstx      ),
@@ -163,7 +167,7 @@ end
     .joyana3     ( joyana_l3  ),
     .joyana4     ( joyana_l4  ),
     .start_button(start_button),
-    .coin_input  (coin_input[1:0]),
+    .coin_input  ( coin_input ),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),
@@ -212,7 +216,10 @@ end
     .st_dout     ( st_main    ),
     // NVRAM dump
     .ioctl_din   ( `ifdef JTFRAME_IOCTL_RD ioctl_din `endif ),
+`ifdef S16B
     .ioctl_addr  ( prog_addr[16:0] )
+`else
+    .ioctl_addr  ( prog_addr[15:0] ) `endif
 );
 `else
     assign flip      = 0;
@@ -309,7 +316,10 @@ end
     .pcm_ok     ( pcm_ok    ),
 `endif
     // ROM
+`ifdef S16B
     .rom_addr   ( snd_addr  ),
+`else
+    .rom_addr   (snd_addr[14:0]), `endif
     .rom_cs     ( snd_cs    ),
     .rom_data   ( snd_data  ),
     .rom_ok     ( snd_ok    ),

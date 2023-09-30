@@ -613,7 +613,11 @@ jts16_shadow #(.VRAMW(15)) u_shadow(
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
 );
+`else
+assign ioctl_din = 0;
 `endif
+`else
+assign ioctl_din = 0;
 `endif
 
 endmodule
