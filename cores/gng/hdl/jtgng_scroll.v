@@ -71,7 +71,7 @@ assign VS   = vpos + { {POSW-8{1'b0}}, VF};
 assign Hsum = hpos_s + ( LAYOUT==1 ?
             { {POSW-8{~Hfix[8]}}, HF[7:0]} : (
             LAYOUT==10 && SCANW==12 ?
-            HF :
+            { {POSW-9{1'd0}}, HF} :
             { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} ));
 assign busy = (HS[2:0]<2) && scr_cs;
 

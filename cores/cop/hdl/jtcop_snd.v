@@ -148,6 +148,7 @@ end
 
 // As the sound tempo comes from interruptions,
 // cycle recovery isn't probably needed
+wire [7:0] nc;
 T65 u_cpu(
     .Mode   ( 2'd0      ),  // 6502 mode
     .Res_n  ( ~rst      ),
@@ -167,7 +168,7 @@ T65 u_cpu(
     .VP_n   (           ),
     .VDA    (           ),
     .VPA    (           ),
-    .A      ( cpu_addr  ),
+    .A      ({nc,cpu_addr}),
     .DI     ( cpu_din   ),
     .DO     ( cpu_dout  )
 );

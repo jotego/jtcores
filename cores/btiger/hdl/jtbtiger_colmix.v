@@ -64,7 +64,6 @@ wire enable_obj  = gfx_en[3] && OBJON;
 
 wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
 wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
-wire scr_blank   = &scr_pxl[3:0];
 
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
 
@@ -77,7 +76,7 @@ reg [6:0] char0, obj0;
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
 
 always @(posedge clk) if(cen6) begin
-    seladdr <= { ~char_blank & enable_char, ~obj_blank & enable_obj, 
+    seladdr <= { ~char_blank & enable_char, ~obj_blank & enable_obj,
         (scr_pxl[7] || !enable_scr) ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
     scr0 <= scr_pxl;
     char0 <= char_pxl;
@@ -145,6 +144,7 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .rgb_in     ( {pal_red, pal_green, pal_blue} ),
+    .preLBL     (                     ),
     .rgb_out    ( {red, green, blue } )
 );
 

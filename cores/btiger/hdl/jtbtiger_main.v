@@ -285,7 +285,12 @@ jtframe_z80wait #(2) u_wait(
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( rom_ok    ),
+    // unused
+    .busak_n    ( busak_n   ),
+    .iorq_n     ( iorq_n    ),
+    .mreq_n     ( mreq_n    ),
+    .gate       (           )
 );
 
 

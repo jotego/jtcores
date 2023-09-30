@@ -258,6 +258,8 @@ HUC6280 u_huc(
 );
 `else
 assign A=0;
+assign dout=0;
+assign SX=0;
 assign wrn=1;
 assign rdn=1;
 assign ce=1;

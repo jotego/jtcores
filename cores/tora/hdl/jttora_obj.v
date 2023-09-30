@@ -114,7 +114,7 @@ jtframe_objdraw#(.CW(ROM_AW-7),.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw
     .flip       ( flip      ),
     .hdump      ( hdump^9'h100     ),
 
-    .code       ( dr_code   ),
+    .code       (dr_code[10:0]),
     .xpos       ( dr_xpos   ),
     .ysub       ( dr_ysub   ),
     .hflip      ( dr_hflip  ),
