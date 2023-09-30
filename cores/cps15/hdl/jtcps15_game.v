@@ -39,15 +39,17 @@ module jtcps15_game(
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
     input   [ 9:0]  joystick4,
+    input   [ 1:0]  dial_x,
+    input   [ 1:0]  dial_y,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
-    output   [21:0] ba0_addr,
-    output   [21:0] ba1_addr,
-    output   [21:0] ba2_addr,
-    output   [21:0] ba3_addr,
+    output   [22:0] ba0_addr,
+    output   [22:0] ba1_addr,
+    output   [22:0] ba2_addr,
+    output   [22:0] ba3_addr,
     output   [ 3:0] ba_rd,
     output   [ 3:0] ba_wr,
     output   [15:0] ba0_din,
@@ -98,18 +100,10 @@ module jtcps15_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
-`ifdef JTFRAME_DEBUG
-    ,input   [7:0]   debug_bus
-    ,output  [7:0]   debug_view
-`endif
+    input   [3:0]   gfx_en,
+    input   [7:0]   debug_bus,
+    output  [7:0]   debug_view
 );
-
-`ifndef JTFRAME_DEBUG
-    wire [7:0] debug_bus=0;
-`else
-    assign debug_view = 0;
-`endif
 
 wire        clk_gfx, rst_gfx;
 wire        snd_cs, qsnd_cs, main_ram_cs, main_vram_cs, main_rom_cs,
@@ -170,7 +164,12 @@ assign turbo = 1;
 assign turbo = status[6];
 `endif
 
+assign debug_view = 0;
+assign ba1_din=0, ba2_din=0, ba3_din=0,
+       ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
+
 // CPU clock enable signals come from 48MHz domain
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen48(
     .clk        ( clk48         ),
     .cen16      ( cen16         ),
@@ -189,7 +188,7 @@ jtframe_cen48 u_cen48(
     .cen3qb     (               ),
     .cen1p5b    (               )
 );
-
+/* verilator lint_on PINMISSING */
 jtframe_cen96 u_pxl_cen(
     .clk    ( clk96     ),    // 96 MHz
     .cen16  ( pxl2_cen  ),
@@ -244,6 +243,8 @@ jtcps1_main u_main(
     .joystick2   ( joystick2        ),
     .joystick3   ( joystick3        ),
     .joystick4   ( joystick4        ),
+    .dial_x      ( dial_x           ),
+    .dial_y      ( dial_y           ),
     .service     ( service          ),
     .tilt        ( 1'b1             ),
     // BUS sharing
@@ -371,7 +372,9 @@ jtcps1_video #(REGSIZE) u_video(
     .rom0_half      ( rom0_half     ),
     .rom0_data      ( rom0_data     ),
     .rom0_cs        ( rom0_cs       ),
-    .rom0_ok        ( rom0_ok       )
+    .rom0_ok        ( rom0_ok       ),
+
+    .debug_bus      ( debug_bus     )
 );
 
 `ifndef NOZ80

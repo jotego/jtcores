@@ -211,6 +211,8 @@ jt03 u_fm0(
     .psg_C      (            ),
     .IOA_out    (            ),
     .IOB_out    (            ),
+    .IOA_oe     (            ),
+    .IOB_oe     (            ),
     .snd        (            ),
     .debug_view (            )
 );
@@ -237,6 +239,8 @@ jt03 u_fm1(
     .psg_C      (            ),
     .IOA_out    (            ),
     .IOB_out    (            ),
+    .IOA_oe     (            ),
+    .IOB_oe     (            ),
     .snd        (            ),
     .debug_view (            )
 );

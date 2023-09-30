@@ -68,7 +68,7 @@ reg         bank, bank_cs, io_cs, flip_cs,
             mcu_irq, mcu_stn,
             irq_clr, nmi_clr, mcu_clr, main2mcu_cs, mcu2main_cs;
 wire        rdy, irqn, nmi_n;
-wire [ 7:0] p1_out, p2_out; // for the MCU - not implemented yet
+wire [ 7:0] p1_out=0, p2_out=0; // for the MCU - not implemented yet
 
 assign rom_addr = { cpu_addr[15], cpu_addr[15] ? cpu_addr[14] : bank, cpu_addr[13:0] };
 assign rdy      = ~rom_cs | rom_ok;

@@ -74,7 +74,7 @@ module jtkunio_sdram(
     input            downloading,
     output           dwnld_busy,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     output    [21:0] prog_addr,
@@ -102,7 +102,7 @@ localparam [21:0] SCR_OFFSET  = (SCR_START-BA2_START)>>1,
 /* xxverilator tracing_off */
 
 wire        is_char, is_scr, is_obj;
-reg  [24:0] post_addr;
+reg  [25:0] post_addr;
 wire        gfx_cs;
 
 assign gfx_cs     = ~vs & ~hs & ~downloading;

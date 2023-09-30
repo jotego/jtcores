@@ -98,7 +98,7 @@ jtframe_cen48 u_cen(
 
 jtcontra_gfx #(
     .BYPASS_VPROM({1'b0,GAME==LABRUN}),
-    .BYPASS_OPROM(GAME==FLANE)
+    .BYPASS_OPROM( {1'b0,GAME==FLANE})
     ) u_gfx(
     .rst        ( rst           ),
     .clk        ( clk           ),

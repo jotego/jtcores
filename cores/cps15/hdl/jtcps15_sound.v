@@ -97,6 +97,7 @@ reg         rom_okl, last_romcs;
 
 `ifndef NOSOUND
 assign      dsp_rdy_n = ~(dsp_irq | dsp_iack);
+assign      dsp_doen  = 1; // ignored by dsp16
 
 jtcps15_qsnd_cen u_dspcen(
     .clk96       ( clk96       ),

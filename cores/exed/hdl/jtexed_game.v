@@ -43,7 +43,7 @@ module jtexed_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output reg [21:0]  prog_addr,
@@ -167,7 +167,7 @@ wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
-wire [ 7:0] main_ram, game_cfg;
+wire [ 7:0] main_ram;
 
 localparam        CPU_OFFSET  = 0,
                   SND_OFFSET  = `SND_START  >> 1,
@@ -181,19 +181,19 @@ localparam        CPU_OFFSET  = 0,
 
 // Address transformations for optimum SDRAM download
 wire [21:0] pre_prog;
-reg  [24:0] pre_io;
+reg  [25:0] pre_io;
 
 always @(*) begin
     // IOCTL
     pre_io = ioctl_addr;
     if( ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ) // Map 2
-        pre_io = { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] };
+        pre_io = { ioctl_addr[25:7], ioctl_addr[5:0], ioctl_addr[6] };
 
 //    if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
 //        pre_io = { ioctl_addr[24:7], ioctl_addr[5:2], ioctl_addr[6], ioctl_addr[1:0] };
 
     if( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
-        pre_io = { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
+        pre_io = { ioctl_addr[25:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
 
     // Programming address
     prog_addr = pre_prog;
@@ -205,6 +205,7 @@ always @(*) begin
 
 end
 
+wire [7:0] nc;
 
 jtframe_dwnld #(
     .PROM_START(PROM_OFFSET),
@@ -216,7 +217,7 @@ jtframe_dwnld #(
     .ioctl_dout   ( ioctl_dout   ),
     .ioctl_wr     ( ioctl_wr     ),
     .prog_addr    ( pre_prog     ),
-    .prog_data    ( prog_data    ),
+    .prog_data    ({nc,prog_data}),
     .prog_mask    ( prog_mask    ), // active low
     .prog_we      ( prog_we      ),
     .prom_we      ( promsel_we   ),
@@ -348,7 +349,6 @@ u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
-    .game_sel   ( game_cfg[0]   ),
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),

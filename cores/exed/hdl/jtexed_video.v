@@ -27,7 +27,6 @@ module jtexed_video #(
     input               cen3,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
-    input               game_sel,
     output      [ 8:0]  V,
     output      [ 8:0]  H,
     input               RnW,
@@ -144,7 +143,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -162,7 +161,7 @@ jtgng_char #(
     .char_pxl   ( char_pxl      ),
     // Palette PROM
     .prog_addr  ( prog_addr     ),
-    .prog_din   ( prom_din      ),
+    .prog_din   ( prom_din[3:0] ),
     .prom_we    ( prom_we[PROM_CHAR] ),
     // unused
     .dseln      (               )

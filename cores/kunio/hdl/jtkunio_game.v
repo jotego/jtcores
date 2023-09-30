@@ -63,7 +63,7 @@ module jtkunio_game(
     input    [15:0] data_read,
 
     // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,

@@ -155,7 +155,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         freq_cnt <= freq_cnt + 1'd1;
         if(cpu_cen) fout_cnt<=fout_cnt+1'd1;
-        if( freq_cnt == MFREQ-1 ) begin // updated every 1ms
+        if( freq_cnt == MFREQ[15:0]-16'd1 ) begin // updated every 1ms
             freq_cnt <= 0;
             fout_cnt <= 0;
             fave <= fout_cnt;

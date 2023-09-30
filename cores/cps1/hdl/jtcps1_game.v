@@ -48,10 +48,10 @@ module jtcps1_game(
     output          dwnld_busy,
 
     // Bank 0: allows R/W
-    output   [21:0] ba0_addr,
-    output   [21:0] ba1_addr,
-    output   [21:0] ba2_addr,
-    output   [21:0] ba3_addr,
+    output   [22:0] ba0_addr,
+    output   [22:0] ba1_addr,
+    output   [22:0] ba2_addr,
+    output   [22:0] ba3_addr,
     output   [ 3:0] ba_rd,
     output   [ 3:0] ba_wr,
     output   [15:0] ba0_din,
@@ -70,7 +70,7 @@ module jtcps1_game(
     input   [15:0]  data_read,
 
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [ 7:0]  ioctl_din,
@@ -523,7 +523,7 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .cfg_we      ( cfg_we        ),
 
     // ROM LOAD
-    .ioctl_addr  ({1'b0,ioctl_addr}),
+    .ioctl_addr  ( ioctl_addr    ),
     .ioctl_dout  ( ioctl_dout    ),
     .ioctl_din   ( ioctl_din     ),
     .ioctl_wr    ( ioctl_wr      ),

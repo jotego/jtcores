@@ -99,6 +99,7 @@ always @(posedge clk) if(cen6) begin
             2'b00: pixel_mux[5:0] <= scr1_pxl_1;
             2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
             2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
+            default:;
         endcase // selbus[1:0]
 
     pixel_mux[7:6] <= selbus[3:2];
@@ -161,7 +162,7 @@ jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_PRIOR)) u_selbus(
 );
 
 always @(posedge clk) if(cen6) begin
-    { red, green, blue } <= 
+    { red, green, blue } <=
         pre_BL==2'b11 ?  {pal_red, pal_green, pal_blue} : 12'd0; // blanking
 end
 

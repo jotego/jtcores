@@ -99,9 +99,9 @@ localparam  COMMANDO = 0,
             EXEDEXES = 3;
 
 // bit locations
-localparam FLIP = GAME ? 0 : 7;
+localparam FLIP = GAME!=0 ? 0 : 7;
 localparam NMI  = 3;
-localparam SRES = GAME ? 6 : 4;
+localparam SRES = GAME!=0 ? 6 : 4;
 
 wire [15:0] A;
 wire        t80_rst_n;
@@ -116,7 +116,7 @@ assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
 
-assign cpu_cen = !GAME ? cen6 // Commando
+assign cpu_cen = GAME!=0 ? cen6 // Commando
     : (cen_sel ? cen6 // Legendary Wings
         : cen3 ); // Section Z
 assign bus_ack = ~busak_n;

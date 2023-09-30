@@ -264,6 +264,7 @@ always @(posedge clk) begin
                     2'b11,
                     ~LVBL, start_button, 8'hff };
             2'b10: cabinet_input <= { dipsw_a, dipsw_b };
+            default:;
         endcase
 end
 
