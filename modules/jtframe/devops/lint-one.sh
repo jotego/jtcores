@@ -15,7 +15,7 @@ cd ver/game
 
 if [ ! -e rom.bin ]; then
     # dummy ROM
-    dd if=/dev/zero of=rom.bin count=1 > /dev/null
+    dd if=/dev/zero of=rom.bin count=1 2> /dev/null
     DELROM=
 fi
 

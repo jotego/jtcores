@@ -116,7 +116,7 @@ end
 always @* begin
     acc_nx  = {acc[10], acc } + { chsnd[12], chsnd[12:2] };
     // limiter
-    if( acc_nx[11]^acc_nx[10] ) acc_nx = { acc_nx[11], {10{~acc_nx[11]}} };
+    if( acc_nx[11]^acc_nx[10] ) acc_nx = { acc_nx[11], {11{~acc_nx[11]}} };
     nx_cnt = {cfg_dout[3:0],cnt[7:0]}+12'd5;
     if( nx_cnt >= freq ) begin
         sinc = 1;
@@ -184,7 +184,7 @@ always @(posedge clk, posedge rst) begin
                     acc <= chsnd[12:2];
                     snd <= acc;
                 end else if(ch<5) begin
-                    acc <= acc_nx;
+                    acc <= acc_nx[10:0];
                 end
             end
         endcase

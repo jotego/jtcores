@@ -818,4 +818,4 @@ COMPILE_TIME=$[$END_TIME - $START_TIME]
 MINUTES=$[$COMPILE_TIME / 60]
 SECONDS=$[$COMPILE_TIME % 60]
 
-echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======" > /dev/stderr
+echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
