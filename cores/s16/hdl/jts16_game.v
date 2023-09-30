@@ -117,7 +117,7 @@ always @(negedge clk, posedge rst) begin
     end
 end
 
-`ifndef S16b
+`ifndef S16B
 assign key_mcaddr=0;
 `endif
 
