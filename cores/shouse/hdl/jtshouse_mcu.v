@@ -104,10 +104,12 @@ always @(*) begin
 end
 
 always @* begin
-    mcu_din =   pcm_cs  ? pcm_data :
-                ram_cs  ? ram_dout :
+    mcu_din =   pcm_cs  ? pcm_data   :
+                ram_cs  ? ram_dout   :
+                epr_cs  ? eerom_dout :
+                cab_cs  ? cab_dout   :
                 dip_cs  ? { 4'hf, dipmx[0], dipmx[1], dipmx[2], dipmx[3] } :
-                cab_cs  ? cab_dout : 8'd0;
+                8'd0;
 end
 
 always @(posedge clk, negedge rstn ) begin
