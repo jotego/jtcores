@@ -49,11 +49,15 @@ wire        vma, ram_we, irq1e, irq2e;
 reg         ram_cs, port_cs;
 wire [ 7:0] ram_dout;
 wire [ 5:0] psel;
-wire [15:0] nx_frc;
 reg  [ 7:0] din, port_mux;
 reg  [ 7:0] ports[0:'h27];
 integer     i;
 wire        irq1g;
+reg         irq_cnt, irq_ic, irq_tof;
+// timers
+wire [15:0] nx_frc;
+wire        ocf1, ocf2, tin, nx_frc_ov, ic_edge;
+reg         tin_l;
 
 localparam  P1DDR = 'h0,
             P2DDR = 'h1,
@@ -68,10 +72,15 @@ localparam  P1DDR = 'h0,
             FRCL  = 'hA,    // Free Running Counter Low
             OCR1H = 'hB,    // Output Compare Register 1 (MSB)
             OCR1L = 'hC,    // Output Compare Register 1 (LSB)
+            ICRH  = 'hD,    // input capture register (MSB)
+            ICRL  = 'hE,    // input capture register (LSB)
+            TCSR2 = 'hF,
             RP5CR = 'h14,   // RAM/port 5 control register
             P5    = 'h15,
             P6DDR = 'h16,
             P6    = 'h17,
+            OCR2H = 'h19,    // Output Compare Register 2 (MSB)
+            OCR2L = 'h1A,    // Output Compare Register 2 (LSB)
             P5DDR = 'h20,
             P6CSR = 'h21; // P6 Control/Status - Not implemented
 
@@ -92,7 +101,11 @@ assign irq1e   = ports[RP5CR][0];
 assign irq2e   = ports[RP5CR][1];
 assign irq1g   = irq & irq1e;       // other signals should be in the mix too...
 // Timers
-assign nx_frc  = { ports[FRCH],ports[FRCL] }+16'd1;
+assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
+assign ocf1    = {ports[OCR1H],ports[OCR1L]}==nx_frc;
+assign ocf2    = {ports[OCR2H],ports[OCR2L]}==nx_frc;
+assign tin     = p2_din[0];
+assign ic_edge = ports[TCSR1][1] ? (tin&~tin_l) : (~tin&tin_l);
 
 // Address decoder
 always @(posedge clk) begin
@@ -110,16 +123,24 @@ end
 // ports
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        ports[P1DDR] = 'hf1;
-        ports[P2DDR] = 0;
-        ports[P3DDR] = 'hf3;
-        ports[P4DDR] = 0;
-        ports[P5DDR] = 0;
-        ports[RP5CR] = 'h78; // MSB should be high if we come from a sleep without losing power
-        ports[P6DDR] = 0;
-        ports[P6CSR] = 7;
-        ports[FRCH]  = 0;
-        ports[FRCL]  = 0;
+        ports[P1DDR] <='hf1;
+        ports[P2DDR] <= 0;
+        ports[P3DDR] <='hf3;
+        ports[P4DDR] <= 0;
+        ports[P5DDR] <= 0;
+        ports[RP5CR] <='h78; // MSB should be high if we come from a sleep without losing power
+        ports[P6DDR] <= 0;
+        ports[P6CSR] <= 7;
+        ports[FRCH]  <= 0;
+        ports[FRCL]  <= 0;
+        ports[TCSR2] <='h10;
+        ports[OCR1H] <='hff;
+        ports[OCR1L] <='hff;
+        ports[OCR2H] <='hff;
+        ports[OCR2L] <='hff;
+        ports[ICRH]  <= 0;
+        ports[ICRL]  <= 0;
+        tin_l <= 0;
     end else begin
         port_mux <= ports[psel];
         // PORT 1
@@ -143,18 +164,48 @@ always @(posedge clk, posedge rst) begin
                         if( psel==P5 && ports[P5DDR][i] ) ports[P5][i] <= dout[i];
                         if( psel==P6 && ports[P6DDR][i] ) ports[P6][i] <= dout[i];
                     end
-                TCSR1: begin
-                    $display("jt63701: Timer not supported (%X)",dout);
-                    $finish;
-                end
+                TCSR1, TCSR2: ports[psel][4:0] <= dout[4:0];
+                // any other port is directly written through
                 default: ports[psel] <= dout;
             endcase
         end
-        // Free running counter
         if( cen ) begin
+            if( psel==ICRH ) begin // the manual sets one more condition for this bit clearance, though
+                ports[TCSR1][7] <= 0;   // ICF (input capture flag)
+                ports[TCSR2][7] <= 0;
+                ports[TCSR1][5] <= 0;   // TOF (timer overflow flag)
+            end
+            // Free running counter
             { ports[FRCH],ports[FRCL] } <= nx_frc;
-            ports[TCSR1][6] <= {ports[OCR1H],ports[OCR1L]}==nx_frc;
+            ports[TCSR1][6] <= ocf1;
+            ports[TCSR2][6] <= ocf1; // repeated in both ports
+            ports[TCSR2][5] <= ocf2;
+            ports[TCSR1][5] <= nx_frc_ov;
+            // input capture register
+            tin_l <= tin;
+            if( ic_edge ) begin
+                { ports[ICRH], ports[ICRL] } <= { ports[FRCH],ports[FRCL] };
+                ports[TCSR1][7] <= 1;
+                ports[TCSR2][7] <= 1; // mirrored
+            end
+            // free counter matches fed to output ports:
+            if( ports[TCSR2][0] ) ports[P2][1] <= ~ports[TCSR1][0]^ports[TCSR1][6];
+            if( ports[TCSR2][1] ) ports[P2][5] <= ~ports[TCSR2][2]^ports[TCSR2][5];
         end
+    end
+end
+
+// interrupts
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        irq_cnt <= 0;
+        irq_ic  <= 0;
+        irq_tof <= 0;
+    end else begin
+        irq_cnt <= ports[TCSR1][6]&ports[TCSR1][3]| // Counter compare register 1
+                   ports[TCSR2][5]&ports[TCSR2][3]; // Counter compare register 2
+        irq_ic  <= ports[TCSR1][4]&ports[TCSR1][7]; // input captured
+        irq_tof <= ports[TCSR1][2]&ports[TCSR1][5]; // timer overflow
     end
 end
 
@@ -180,10 +231,10 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .halted     ( halted    ),
     .irq        ( irq1g     ),  // a irq2 should probably be OR'ed here too
     .nmi        ( nmi       ),
+    .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
+    .irq_ocf    ( irq_cnt   ),  // interrupt vector at FFF4
+    .irq_icf    ( irq_ic    ),  // interrupt vector at FFF6
     // not implemented
-    .irq_icf    ( 1'b0      ),
-    .irq_ocf    ( 1'b0      ),
-    .irq_tof    ( 1'b0      ),
     .irq_sci    ( 1'b0      )
 );
 

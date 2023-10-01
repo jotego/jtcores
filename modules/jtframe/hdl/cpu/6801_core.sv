@@ -15,10 +15,10 @@ module m6801(
         output logic        halted,
         input  logic        irq,
         input  logic        nmi,
-        input  logic        irq_icf,
-        input  logic        irq_ocf,
-        input  logic        irq_tof,
-        input  logic        irq_sci
+        input  logic        irq_icf, // interrupt vector at FFF6
+        input  logic        irq_ocf, // interrupt vector at FFF4
+        input  logic        irq_tof, // interrupt vector at FFF2
+        input  logic        irq_sci  // interrupt vector at FFF0
 );
 
 parameter NOSX_BITS=0;  // S/X bits in CC seem to be an addition by the original author
