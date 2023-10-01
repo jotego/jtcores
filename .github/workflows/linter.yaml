@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: rebuild
+  push:
+    branches:
+      - master
   schedule:
     - cron: '0 0 * * *' # runs every night
 jobs:
