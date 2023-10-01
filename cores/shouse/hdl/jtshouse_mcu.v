@@ -85,7 +85,7 @@ endfunction
 
 assign bus_busy    = pcm_cs & ~pcm_ok;
 assign eerom_we    = epr_cs & ~rnw;
-assign pcm_addr    = {bank, bank==0 ? ~pcm_msb[1] : pcm_msb[1], pcm_msb[0], A[15],A[13:0]};
+assign pcm_addr    = {bank, pcm_msb, A[15],A[13:0]};
 assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
 assign p1_din      = { 1'b1, service, dip_test, coin_input, 3'd0 };
 assign gain1       = p2_dout[4:3];
@@ -94,7 +94,7 @@ assign irqen       = hdump[1:0]==0;
 
 // Address decoder
 always @(*) begin
-    pcm_cs  = vma && ^A[15:14];
+    pcm_cs  = vma && ^A[15:14];                    // 4000~bfff
     swio_cs = vma &&  A[15:12]==4'h1;
     ram_cs  = vma &&  A[15:12]==4'hc && !A[11];    // c000~c7ff
     epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
@@ -129,18 +129,18 @@ always @(posedge clk, negedge rstn ) begin
                         ~A[14] & A[13]         |
                                 ~A[13] & A[12] |
                                         ~A[12] );
-        if( reg_cs ) case(A[1:0])
+        if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
             1: dac1 <= mcu_dout;
             2: begin
-                pcm_msb <= mcu_dout[1:0];
+                pcm_msb <= { (~mcu_dout[2])^mcu_dout[1], mcu_dout[0] };
                 case( mcu_dout[7:2] )
-                    6'd1<<0: bank <= 0;
-                    6'd1<<1: bank <= 1;
-                    6'd1<<2: bank <= 2;
-                    6'd1<<3: bank <= 3;
-                    6'd1<<4: bank <= 4;
-                    6'd1<<5: bank <= 5;
+                    ~(6'd1<<0): bank <= 0;
+                    ~(6'd1<<1): bank <= 1;
+                    ~(6'd1<<2): bank <= 2;
+                    ~(6'd1<<3): bank <= 3;
+                    ~(6'd1<<4): bank <= 4;
+                    ~(6'd1<<5): bank <= 5;
                     default: bank <= 0;
                 endcase
             end
