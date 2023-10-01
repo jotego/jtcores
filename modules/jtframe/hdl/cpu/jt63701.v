@@ -45,13 +45,15 @@ module jt63701#(
     output reg         rom_cs
 );
 
-wire        vma, ram_we;
+wire        vma, ram_we, irq1e, irq2e;
 reg         ram_cs, port_cs;
 wire [ 7:0] ram_dout;
 wire [ 5:0] psel;
+wire [15:0] nx_frc;
 reg  [ 7:0] din, port_mux;
 reg  [ 7:0] ports[0:'h27];
 integer     i;
+wire        irq1g;
 
 localparam  P1DDR = 'h0,
             P2DDR = 'h1,
@@ -61,6 +63,12 @@ localparam  P1DDR = 'h0,
             P4DDR = 'h5,
             P3    = 'h6,
             P4    = 'h7,
+            TCSR1 = 'h8,    // Timer Control/Status Register 1
+            FRCH  = 'h9,    // Free Running Counter High
+            FRCL  = 'hA,    // Free Running Counter Low
+            OCR1H = 'hB,    // Output Compare Register 1 (MSB)
+            OCR1L = 'hC,    // Output Compare Register 1 (LSB)
+            RP5CR = 'h14,   // RAM/port 5 control register
             P5    = 'h15,
             P6DDR = 'h16,
             P6    = 'h17,
@@ -79,11 +87,17 @@ assign p6_dout = ports[P6];   // Port 6 supports handshaking -not implemented-
 // assign p7_dout = ports[P7];
 assign psel    = A[5:0];
 assign x_cs    = vma && {port_cs,ram_cs,rom_cs}==0;
+// IRQ enables
+assign irq1e   = ports[RP5CR][0];
+assign irq2e   = ports[RP5CR][1];
+assign irq1g   = irq & irq1e;       // other signals should be in the mix too...
+// Timers
+assign nx_frc  = { ports[FRCH],ports[FRCL] }+16'd1;
 
 // Address decoder
 always @(posedge clk) begin
     port_cs <= vma &&  A < 16'h28;
-    ram_cs  <= vma &&  A >=16'h40 && A < 16'h140;
+    ram_cs  <= vma &&  A >=16'h40 && A < 16'h140 && ports[RP5CR][6];
     rom_cs  <= vma && &A[15:ROMW] && rnw;
 end
 
@@ -96,13 +110,16 @@ end
 // ports
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        ports[P1DDR] = 0;
+        ports[P1DDR] = 'hf1;
         ports[P2DDR] = 0;
-        ports[P3DDR] = 0;
+        ports[P3DDR] = 'hf3;
         ports[P4DDR] = 0;
         ports[P5DDR] = 0;
+        ports[RP5CR] = 'h78; // MSB should be high if we come from a sleep without losing power
         ports[P6DDR] = 0;
         ports[P6CSR] = 7;
+        ports[FRCH]  = 0;
+        ports[FRCL]  = 0;
     end else begin
         port_mux <= ports[psel];
         // PORT 1
@@ -126,8 +143,17 @@ always @(posedge clk, posedge rst) begin
                         if( psel==P5 && ports[P5DDR][i] ) ports[P5][i] <= dout[i];
                         if( psel==P6 && ports[P6DDR][i] ) ports[P6][i] <= dout[i];
                     end
+                TCSR1: begin
+                    $display("jt63701: Timer not supported (%X)",dout);
+                    $finish;
+                end
                 default: ports[psel] <= dout;
             endcase
+        end
+        // Free running counter
+        if( cen ) begin
+            { ports[FRCH],ports[FRCL] } <= nx_frc;
+            ports[TCSR1][6] <= {ports[OCR1H],ports[OCR1L]}==nx_frc;
         end
     end
 end
@@ -141,7 +167,7 @@ jtframe_ram #(.AW(8)) u_intram(
     .q      ( ram_dout  )
 );
 
-m6801 u_6801(
+m6801 #(.NOSX_BITS(1)) u_6801(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -152,7 +178,7 @@ m6801 u_6801(
     .data_out   ( dout      ),
     .halt       ( halt      ),
     .halted     ( halted    ),
-    .irq        ( irq       ),
+    .irq        ( irq1g     ),  // a irq2 should probably be OR'ed here too
     .nmi        ( nmi       ),
     // not implemented
     .irq_icf    ( 1'b0      ),

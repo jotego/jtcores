@@ -1,7 +1,8 @@
 // Edited by Jose Tejada
 // * hold changed to clock enable cen signal
 
-module m6801(   
+/* verilator tracing_off */
+module m6801(
         input  logic        clk,
         input  logic        rst,
         (*direct_enable*) input cen,
@@ -9,7 +10,7 @@ module m6801(
         output logic        vma,
         output logic [15:0] address,
         input  logic [ 7:0] data_in,
-        output logic [ 7:0] data_out,        
+        output logic [ 7:0] data_out,
         input  logic        halt,
         output logic        halted,
         input  logic        irq,
@@ -19,6 +20,9 @@ module m6801(
         input  logic        irq_tof,
         input  logic        irq_sci
 );
+
+parameter NOSX_BITS=0;  // S/X bits in CC seem to be an addition by the original author
+
 localparam SBIT = 7;
 localparam XBIT = 6;
 localparam HBIT = 5;
@@ -36,7 +40,7 @@ typedef enum logic[5:0] {reset_state, fetch_state, decode_state,
                              mul0_state, mul1_state, mul2_state, mul3_state,
                              mul4_state, mul5_state, mul6_state, mul7_state,
                               jmp_state, jsr_state, jsr1_state,
-                             branch_state, bsr_state, bsr1_state, 
+                             branch_state, bsr_state, bsr1_state,
                               rts_hi_state, rts_lo_state,
                               int_pcl_state, int_pch_state,
                              int_ixl_state, int_ixh_state,
@@ -63,7 +67,7 @@ typedef enum logic[5:0] {reset_iv, latch_iv, swi_iv, nmi_iv, irq_iv, icf_iv, ocf
 typedef enum logic[5:0] {reset_nmi, set_nmi, latch_nmi } nmi_type;
 typedef enum logic[5:0] {acca_left, accb_left, accd_left, md_left, ix_left, sp_left } left_type;
 typedef enum logic[5:0] {md_right, zero_right, plus_one_right, accb_right } right_type;
-typedef enum logic[5:0] {alu_add8, alu_sub8, alu_add16, alu_sub16, alu_adc, alu_sbc, 
+typedef enum logic[5:0] {alu_add8, alu_sub8, alu_add16, alu_sub16, alu_adc, alu_sbc,
                        alu_and, alu_ora, alu_eor,
                        alu_tst, alu_inc, alu_dec, alu_clr, alu_neg, alu_com,
                               alu_inx, alu_dex,
@@ -73,15 +77,18 @@ typedef enum logic[5:0] {alu_add8, alu_sub8, alu_add16, alu_sub16, alu_adc, alu_
                              alu_sei, alu_cli, alu_sec, alu_clc, alu_sev, alu_clv, alu_tpa, alu_tap,
                              alu_ld8, alu_st8, alu_ld16, alu_st16, alu_nop, alu_daa } alu_type;
 
-logic[7:0] op_code;
+`ifdef VERILATOR_KEEP_CPU
+/* verilator tracing_on */ `endif
 logic[7:0] acca;
 logic[7:0] accb;
-logic[7:0] cc;
-logic[7:0] cc_out;
+logic[15:0] pc;
 logic[15:0] xreg;
 logic[15:0] sp;
+logic[7:0] cc;
+/* verilator tracing_off */
+logic[7:0] op_code;
+logic[7:0] cc_out;
 logic[15:0] ea;
-logic[15:0] pc;
 logic[15:0] md;
 logic[15:0] left;
 logic[15:0] right;
@@ -93,7 +100,7 @@ logic nmi_ack;
 state_type state;
 state_type next_state;
 pc_type pc_ctrl;
-ea_type ea_ctrl; 
+ea_type ea_ctrl;
 op_type op_ctrl;
 md_type md_ctrl;
 acca_type acca_ctrl;
@@ -612,7 +619,7 @@ end
      alu_com:
        cc_out[CBIT] = 1'b1;
      alu_neg, alu_clr:
-       cc_out[CBIT] = out_alu[7] | out_alu[6] | out_alu[5] | out_alu[4] | out_alu[3] | out_alu[2] | out_alu[1] | out_alu[0]; 
+       cc_out[CBIT] = out_alu[7] | out_alu[6] | out_alu[5] | out_alu[4] | out_alu[3] | out_alu[2] | out_alu[1] | out_alu[0];
     alu_daa:
         begin
             if ( daa_reg[7:4] == 4'b0110 )
@@ -636,7 +643,7 @@ end
      alu_add8 , alu_sub8 ,
           alu_adc , alu_sbc ,
           alu_and , alu_ora , alu_eor ,
-          alu_inc , alu_dec , 
+          alu_inc , alu_dec ,
             alu_neg , alu_com , alu_clr ,
             alu_rol8 , alu_ror8 , alu_asr8 , alu_asl8 , alu_lsr8 ,
            alu_ld8  , alu_st8, alu_tst:
@@ -697,7 +704,7 @@ end
     case (alu_ctrl)
      alu_add8, alu_adc:
       cc_out[HBIT] = (left[3] & right[3]) |
-                     (right[3] & ~out_alu[3]) | 
+                     (right[3] & ~out_alu[3]) |
                       (left[3] & ~out_alu[3]);
     alu_tap:
       cc_out[HBIT] = left[HBIT];
@@ -749,18 +756,21 @@ end
         cc_out[VBIT] = cc[VBIT];
     endcase
 
-     case (alu_ctrl)
-     alu_tap:
-     begin
-      cc_out[XBIT] = cc[XBIT] & left[XBIT];
-      cc_out[SBIT] = left[SBIT];
-     end
-     default:
-     begin
-      cc_out[XBIT] = cc[XBIT] & left[XBIT];
-       cc_out[SBIT] = cc[SBIT];
-     end
-     endcase
+    if( NOSX_BITS==0 ) begin
+      case (alu_ctrl)
+        alu_tap: begin
+          cc_out[XBIT] = cc[XBIT] & left[XBIT];
+          cc_out[SBIT] = left[SBIT];
+          end
+        default: begin
+          cc_out[XBIT] = cc[XBIT] & left[XBIT];
+          cc_out[SBIT] = cc[SBIT];
+          end
+      endcase
+    end else begin
+      cc_out[XBIT]=1;
+      cc_out[SBIT]=1;
+    end
 
      // test_alu = out_alu;
      // test_cc  = cc_out;
@@ -1344,7 +1354,7 @@ always @(*)
                 else
                   nmi_ctrl = latch_nmi;
                 // IRQ is level sensitive
-                if ((irq == 1'b1 || irq_icf == 1'b1 || irq_ocf == 1'b1 
+                if ((irq == 1'b1 || irq_icf == 1'b1 || irq_ocf == 1'b1
                   || irq_tof == 1'b1 || irq_sci == 1'b1) && cc[IBIT] == 1'b0) begin
                   pc_ctrl    = latch_pc;
                   next_state = int_pcl_state;
@@ -2126,7 +2136,7 @@ always @(*)
                     accb_ctrl  = latch_accb;
                    ix_ctrl    = latch_ix;
                    sp_ctrl    = latch_sp;
-                    // increment the pc 
+                    // increment the pc
                left_ctrl  = acca_left;
                right_ctrl = zero_right;
                alu_ctrl   = alu_nop;
@@ -2884,7 +2894,7 @@ always @(*)
                  sp_ctrl    = load_sp;
                       // write pc low
                  addr_ctrl  = push_ad;
-                      dout_ctrl  = pc_lo_dout; 
+                      dout_ctrl  = pc_lo_dout;
                  next_state = jsr1_state;
                     end
 
@@ -2907,7 +2917,7 @@ always @(*)
                  sp_ctrl    = load_sp;
                       // write pc hi
                  addr_ctrl  = push_ad;
-                      dout_ctrl  = pc_hi_dout; 
+                      dout_ctrl  = pc_hi_dout;
                  next_state = jmp_state;
                     end
 
@@ -2955,7 +2965,7 @@ always @(*)
                  sp_ctrl    = load_sp;
                       // write pc low
                  addr_ctrl  = push_ad;
-                      dout_ctrl  = pc_lo_dout; 
+                      dout_ctrl  = pc_lo_dout;
                  next_state = bsr1_state;
                     end
 
@@ -2979,7 +2989,7 @@ always @(*)
                  sp_ctrl    = load_sp;
                       // write pc hi
                  addr_ctrl  = push_ad;
-                      dout_ctrl  = pc_hi_dout; 
+                      dout_ctrl  = pc_hi_dout;
                  next_state = branch_state;
                     end
 
@@ -3560,7 +3570,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write acca
              addr_ctrl  = push_ad;
-                dout_ctrl  = acca_dout; 
+                dout_ctrl  = acca_dout;
              next_state = fetch_state;
             end
 
@@ -3609,7 +3619,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write accb
              addr_ctrl  = push_ad;
-                dout_ctrl  = accb_dout; 
+                dout_ctrl  = accb_dout;
              next_state = fetch_state;
             end
 
@@ -3659,7 +3669,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write ix low
              addr_ctrl  = push_ad;
-                dout_ctrl  = ix_lo_dout; 
+                dout_ctrl  = ix_lo_dout;
              next_state = pshx_hi_state;
             end
 
@@ -3683,7 +3693,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write ix hi
              addr_ctrl  = push_ad;
-                dout_ctrl  = ix_hi_dout; 
+                dout_ctrl  = ix_hi_dout;
              next_state = fetch_state;
             end
 
@@ -3956,7 +3966,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write pc low
              addr_ctrl  = push_ad;
-                dout_ctrl  = pc_lo_dout; 
+                dout_ctrl  = pc_lo_dout;
              next_state = int_pch_state;
             end
 
@@ -3980,7 +3990,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write pc hi
              addr_ctrl  = push_ad;
-                dout_ctrl  = pc_hi_dout; 
+                dout_ctrl  = pc_hi_dout;
              next_state = int_ixl_state;
             end
 
@@ -4004,7 +4014,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write ix low
              addr_ctrl  = push_ad;
-                dout_ctrl  = ix_lo_dout; 
+                dout_ctrl  = ix_lo_dout;
              next_state = int_ixh_state;
             end
 
@@ -4028,7 +4038,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write ix hi
              addr_ctrl  = push_ad;
-                dout_ctrl  = ix_hi_dout; 
+                dout_ctrl  = ix_hi_dout;
              next_state = int_acca_state;
             end
 
@@ -4052,7 +4062,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write acca
              addr_ctrl  = push_ad;
-                dout_ctrl  = acca_dout; 
+                dout_ctrl  = acca_dout;
              next_state = int_accb_state;
             end
 
@@ -4077,7 +4087,7 @@ always @(*)
              sp_ctrl    = load_sp;
                  // write accb
              addr_ctrl  = push_ad;
-                dout_ctrl  = accb_dout; 
+                dout_ctrl  = accb_dout;
              next_state = int_cc_state;
             end
 
@@ -4180,7 +4190,7 @@ always @(*)
              sp_ctrl    = latch_sp;
                  // idle bus
              addr_ctrl  = idle_ad;
-                dout_ctrl  = cc_dout; 
+                dout_ctrl  = cc_dout;
                 if ((nmi_req == 1'b1) & (nmi_ack==1'b0))
                  begin
                     iv_ctrl    = nmi_iv;

@@ -1,0 +1,47 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Oct  1 12:27:14 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
+[dumpfile_mtime] "Sun Oct  1 12:12:24 2023"
+[dumpfile_size] 292034005
+[savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/tr_mcu.gtkw"
+[timestart] 759466065036
+[size] 1263 1010
+[pos] 1263 -1
+*-34.437130 816561650000 800330936000 816561650000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.u_63701.
+[sst_width] 215
+[signals_width] 214
+[sst_expanded] 1
+[sst_vpaned_height] 430
+@24
+TOP.game_test.frame_cnt[31:0]
+@29
+TOP.game_test.u_game.u_game.u_mcu.u_63701.rst
+@22
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.acca[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.accb[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.pc[15:0]
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.sp[15:0]
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.xreg[15:0]
+@c00022
+TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(1)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(2)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(3)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(4)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(5)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(6)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+(7)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
+@1401200
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0
