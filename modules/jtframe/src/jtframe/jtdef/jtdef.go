@@ -118,8 +118,15 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 	return
 }
 
+func target_uses_dipbase( target string ) bool {
+	switch( target ) {
+	case "mist","sidi","neptuno","mc2","mcp": return true
+	default: return false
+	}
+}
+
 // check incompatible macro settings
-func Check_macros(def map[string]string) bool {
+func Check_macros(def map[string]string, target string) bool {
 	// Check that MiST DIPs are defined after the
 	// last used status bit
 	dipbase, _ := strconv.Atoi(def["JTFRAME_DIPBASE"])
@@ -131,17 +138,19 @@ func Check_macros(def map[string]string) bool {
 	_, osd_test   := def["JTFRAME_OSD_TEST"]
 	_, lf_buffer  := def["JTFRAME_LF_BUFFER"]
 	_, mr_ddrload := def["JTFRAME_MR_DDRLOAD"]
-	if autofire0 && dipbase < 17 {
-		log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_AUTOFIRE0")
-		return false
-	}
-	if osd_snd_en && dipbase < 10 {
-		log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_OSD_SND_EN")
-		return false
-	}
-	if osd_test && dipbase < 11 {
-		log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
-		return false
+	if target_uses_dipbase(target) {
+		if autofire0 && dipbase < 17 {
+			log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_AUTOFIRE0")
+			return false
+		}
+		if osd_snd_en && dipbase < 10 {
+			log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_OSD_SND_EN")
+			return false
+		}
+		if osd_test && dipbase < 11 {
+			log.Fatal("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
+			return false
+		}
 	}
 	if lf_buffer && mr_ddrload {
 		log.Fatal("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_MR_DDRLOAD")
