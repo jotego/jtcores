@@ -18,6 +18,8 @@
 package cmd
 
 import (
+	"fmt"
+	"path/filepath"
 	"os"
 	"github.com/jotego/jtframe/mra"
 
@@ -25,7 +27,7 @@ import (
 )
 
 var mra_args mra.Args
-var reduce bool
+var reduce, clear_folders bool
 
 // mraCmd represents the mra command
 var mraCmd = &cobra.Command{
@@ -146,7 +148,18 @@ patches = [
 		if reduce {
 			mra.Reduce(args[0])
 		} else { // regular operation, core names are separated by commas
-			mra_args.Xml_path=os.Getenv("JTROOT")+"/doc/mame.xml"
+			if clear_folders {
+				root := os.Getenv("JTROOT")
+				if root=="" {
+					fmt.Println("Environment variable JTROOT is not set")
+					os.Exit(1)
+				}
+				e := os.RemoveAll( filepath.Join(root,"release") )
+				if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+				e = os.RemoveAll( filepath.Join(root,"rom") )
+				if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+			}
+			mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
 			mra_args.Def_cfg.Target="mister"
 			for _, each := range args {
 				mra_args.Def_cfg.Core = each
@@ -167,6 +180,7 @@ func init() {
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
 	flag.BoolVarP(&mra_args.Verbose, "verbose", "v", false, "verbose")
 	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
+	flag.BoolVar(&clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
 	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
