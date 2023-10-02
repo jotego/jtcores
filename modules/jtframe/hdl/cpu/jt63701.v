@@ -53,7 +53,8 @@ reg  [ 7:0] din, port_mux;
 reg  [ 7:0] ports[0:'h27];
 integer     i;
 wire        irq1g;
-reg         irq_cnt, irq_ic, irq_tof;
+reg         irq_ocf, irq_icf, irq_tof;
+wire        intv_rd;    // interrupt vector is being read
 // timers
 wire [15:0] nx_frc;
 wire        ocf1, ocf2, tin, nx_frc_ov, ic_edge;
@@ -100,6 +101,7 @@ assign x_cs    = vma && {port_cs,ram_cs,rom_cs}==0;
 assign irq1e   = ports[RP5CR][0];
 assign irq2e   = ports[RP5CR][1];
 assign irq1g   = irq & irq1e;       // other signals should be in the mix too...
+assign intv_rd = &A[15:5];
 // Timers
 assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
 assign ocf1    = {ports[OCR1H],ports[OCR1L]}==nx_frc;
@@ -198,14 +200,21 @@ end
 // interrupts
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        irq_cnt <= 0;
-        irq_ic  <= 0;
+        irq_ocf <= 0;
+        irq_icf  <= 0;
         irq_tof <= 0;
     end else begin
-        irq_cnt <= ports[TCSR1][6]&ports[TCSR1][3]| // Counter compare register 1
-                   ports[TCSR2][5]&ports[TCSR2][3]; // Counter compare register 2
-        irq_ic  <= ports[TCSR1][4]&ports[TCSR1][7]; // input captured
-        irq_tof <= ports[TCSR1][2]&ports[TCSR1][5]; // timer overflow
+        if ( ports[TCSR1][6]&ports[TCSR1][3]| // Counter compare register 1
+             ports[TCSR2][5]&ports[TCSR2][3]) // Counter compare register 2
+            irq_ocf <= 1;
+        if( ports[TCSR1][4]&ports[TCSR1][7] ) irq_icf <= 1; // input capture flag
+        if( ports[TCSR1][2]&ports[TCSR1][5] ) irq_tof <= 1; // timer overflow flag
+        if( intv_rd ) case(A[4:1])
+            4'o13: irq_icf <= 0;  // FFF6-FFF7
+            4'o12: irq_ocf <= 0;  // FFF4-FFF5
+            4'o11: irq_tof <= 0;  // FFF2-FFF3
+            default:;
+        endcase
     end
 end
 
@@ -232,8 +241,8 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .irq        ( irq1g     ),  // a irq2 should probably be OR'ed here too
     .nmi        ( nmi       ),
     .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
-    .irq_ocf    ( irq_cnt   ),  // interrupt vector at FFF4
-    .irq_icf    ( irq_ic    ),  // interrupt vector at FFF6
+    .irq_ocf    ( irq_ocf   ),  // interrupt vector at FFF4
+    .irq_icf    ( irq_icf   ),  // interrupt vector at FFF6
     // not implemented
     .irq_sci    ( 1'b0      )
 );

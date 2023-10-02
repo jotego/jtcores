@@ -4090,87 +4090,63 @@ always @(*)
                 dout_ctrl  = accb_dout;
              next_state = int_cc_state;
             end
-
-              int_cc_state:
-              begin
-                 // default
-             acca_ctrl  = latch_acca;
-             accb_ctrl  = latch_accb;
-             ix_ctrl    = latch_ix;
-             pc_ctrl    = latch_pc;
-             md_ctrl    = latch_md;
+              int_cc_state: begin
+                // default
+                acca_ctrl  = latch_acca;
+                accb_ctrl  = latch_accb;
+                ix_ctrl    = latch_ix;
+                pc_ctrl    = latch_pc;
+                md_ctrl    = latch_md;
                 op_ctrl    = latch_op;
-                 nmi_ctrl   = latch_nmi;
-             ea_ctrl    = latch_ea;
-             // decrement sp
-             left_ctrl  = sp_left;
-             right_ctrl = plus_one_right;
-             alu_ctrl   = alu_sub16;
-             cc_ctrl    = latch_cc;
-             sp_ctrl    = load_sp;
-                 // write cc
-             addr_ctrl  = push_ad;
+                nmi_ctrl   = latch_nmi;
+                ea_ctrl    = latch_ea;
+                // decrement sp
+                left_ctrl  = sp_left;
+                right_ctrl = plus_one_right;
+                alu_ctrl   = alu_sub16;
+                cc_ctrl    = latch_cc;
+                sp_ctrl    = load_sp;
+                // write cc
+                addr_ctrl  = push_ad;
                 dout_ctrl  = cc_dout;
-                 nmi_ctrl   = latch_nmi;
-                 //
-                 // nmi is edge triggered
-                 // nmi_req is cleared when nmi goes low.
-                 //
-                if (nmi_req == 1'b1)
-                 begin
-                    iv_ctrl    = nmi_iv;
+                nmi_ctrl   = latch_nmi;
+                // nmi is edge triggered
+                // nmi_req is cleared when nmi goes low.
+                if (nmi_req == 1'b1) begin
+                  iv_ctrl    = nmi_iv;
                   next_state = vect_hi_state;
-                 end
-                else
-                 begin
-                    //
-                    // IRQ is level sensitive
-                    //
-                   if ((irq == 1'b1) & (cc[IBIT] == 1'b0))
-                    begin
-                      iv_ctrl    = irq_iv;
+                end else begin // IRQ is level sensitive
+                  if ((irq == 1'b1) & (cc[IBIT] == 1'b0)) begin
+                    iv_ctrl    = irq_iv;
                     next_state = int_mask_state;
-                    end
-               else if ((irq_icf == 1'b1) & (cc[IBIT] == 1'b0))
-                    begin
-                      iv_ctrl    = icf_iv;
+                  end else if ((irq_icf == 1'b1) & (cc[IBIT] == 1'b0)) begin
+                    iv_ctrl    = icf_iv;
                     next_state = int_mask_state;
-                    end
-               else if ((irq_ocf == 1'b1) & (cc[IBIT] == 1'b0))
-                    begin
-                      iv_ctrl    = ocf_iv;
+                  end else if ((irq_ocf == 1'b1) & (cc[IBIT] == 1'b0)) begin
+                    iv_ctrl    = ocf_iv;
                     next_state = int_mask_state;
-                    end
-               else if ((irq_tof == 1'b1) & (cc[IBIT] == 1'b0))
-                    begin
-                      iv_ctrl    = tof_iv;
+                  end else if ((irq_tof == 1'b1) & (cc[IBIT] == 1'b0)) begin
+                    iv_ctrl    = tof_iv;
                     next_state = int_mask_state;
-                    end
-               else if ((irq_sci == 1'b1) & (cc[IBIT] == 1'b0))
-                    begin
-                      iv_ctrl    = sci_iv;
+                  end else if ((irq_sci == 1'b1) & (cc[IBIT] == 1'b0)) begin
+                    iv_ctrl    = sci_iv;
                     next_state = int_mask_state;
+                  end else case (op_code)
+                    8'b00111110: begin // WAI (wait for interrupt)
+                      iv_ctrl    = latch_iv;
+                      next_state = int_wai_state;
                     end
-               else
-                      case (op_code)
-                      8'b00111110: // WAI (wait for interrupt)
-                      begin
-                   iv_ctrl    = latch_iv;
-                    next_state = int_wai_state;
+                    8'b00111111: begin // SWI (Software interrupt)
+                      iv_ctrl    = swi_iv;
+                      next_state = vect_hi_state;
                     end
-                      8'b00111111: // SWI (Software interrupt)
-                      begin
-                   iv_ctrl    = swi_iv;
-                    next_state = vect_hi_state;
+                    default: begin // bogus interrupt (return)
+                      iv_ctrl    = latch_iv;
+                      next_state = rti_state;
                     end
-                      default: // bogus interrupt (return)
-                      begin
-                   iv_ctrl    = latch_iv;
-                    next_state = rti_state;
-                    end
-                      endcase
-                 end
-                 end
+                  endcase
+                end
+              end
 
               int_wai_state:
               begin
