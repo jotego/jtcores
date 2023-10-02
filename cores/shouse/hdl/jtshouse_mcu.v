@@ -63,7 +63,7 @@ module jtshouse_mcu(
 
 wire        vma, irqen;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
-            irq;
+            irq, lvbl_l;
 
 wire [15:0] A;
 wire [11:0] rom_addr;
@@ -119,18 +119,22 @@ always @(posedge clk, negedge rstn ) begin
         dac0     <= 0;
         cab_dout <= 0;
         irq      <= 0;
+        lvbl_l   <= 0;
     end else begin
+        lvbl_l <= lvbl;
+        if( lvbl_l && !lvbl) irq <= 1;
+        if( !lvbl && hdump=='h60 ) irq <= 0;
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { start_button[1], joystick2 }:
                            { start_button[0], joystick1 };
-        irq <= ~lvbl & irqen & ~rnw & (
-                ~A[15] & A[14]                 |
-                        ~A[14] & A[13]         |
-                                ~A[13] & A[12] |
-                                        ~A[12] );
+        // irq <= ~lvbl & irqen & ~rnw & (
+        //         ~A[15] & A[14]                 |
+        //                 ~A[14] & A[13]         |
+        //                         ~A[13] & A[12] |
+        //                                 ~A[12] );
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
             1: dac1 <= mcu_dout;

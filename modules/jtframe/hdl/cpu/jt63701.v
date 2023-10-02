@@ -25,7 +25,9 @@ module jt63701#(
     input              clk,
     input              cen,     // clk must be at leat x4 cen (24MHz -> 6MHz maximum)
 
-    input              irq, nmi, // active high
+    // all inputs are active high
+    input              irq,     // not a pin on HD63701Y, but needed by shouse (?)
+    input              nmi,
     input              halt,
     output             halted,
 
@@ -35,6 +37,7 @@ module jt63701#(
     output             rnw,
     output             x_cs,    // eXternal access
     // Ports
+    // irq1 = P5-0, irq2 = P5-1
     input       [7:0]  p1_din, p2_din, p3_din, p4_din, p5_din, p6_din,
     output      [7:0]  p1_dout, p2_dout, p3_dout, p4_dout, p5_dout, p6_dout,
 
@@ -45,16 +48,16 @@ module jt63701#(
     output reg         rom_cs
 );
 
-wire        vma, ram_we, irq1e, irq2e;
+wire        vma, ram_we, irq1, irq2;
 reg         ram_cs, port_cs;
 wire [ 7:0] ram_dout;
 wire [ 5:0] psel;
 reg  [ 7:0] din, port_mux;
 reg  [ 7:0] ports[0:'h27];
 integer     i;
-wire        irq1g;
 reg         irq_ocf, irq_icf, irq_tof;
-wire        intv_rd;    // interrupt vector is being read
+wire        intv_rd,    // interrupt vector is being read
+            any_irq;
 // timers
 wire [15:0] nx_frc;
 wire        ocf1, ocf2, tin, nx_frc_ov, ic_edge;
@@ -98,9 +101,9 @@ assign p6_dout = ports[P6];   // Port 6 supports handshaking -not implemented-
 assign psel    = A[5:0];
 assign x_cs    = vma && {port_cs,ram_cs,rom_cs}==0;
 // IRQ enables
-assign irq1e   = ports[RP5CR][0];
-assign irq2e   = ports[RP5CR][1];
-assign irq1g   = irq & irq1e;       // other signals should be in the mix too...
+assign irq1    = ports[RP5CR][0] & ports[P5][0];
+assign irq2    = ports[RP5CR][1] & ports[P5][1];
+assign any_irq = |{irq,irq1,irq2};
 assign intv_rd = &A[15:5];
 // Timers
 assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
@@ -238,7 +241,7 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .data_out   ( dout      ),
     .halt       ( halt      ),
     .halted     ( halted    ),
-    .irq        ( irq1g     ),  // a irq2 should probably be OR'ed here too
+    .irq        ( any_irq   ),
     .nmi        ( nmi       ),
     .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
     .irq_ocf    ( irq_ocf   ),  // interrupt vector at FFF4
