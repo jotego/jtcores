@@ -97,6 +97,7 @@ setnames.txt
 sim
 test.cpp
 test.shm
+test.gtkw
 video.info
 vsim.do
 waiver

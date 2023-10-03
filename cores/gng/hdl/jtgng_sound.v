@@ -288,7 +288,7 @@ always @(posedge clk or negedge reset_n)
     end else if(cen3) begin
         last_fmx_cs <= fmx_cs;
         fm_wait  <= {  fm_wait[0], fmx_cs_posedge };
-    end // else if(cen3)
+    end
 
 reg last_rom_cs, rom_lock;
 
