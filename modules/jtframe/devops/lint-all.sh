@@ -42,8 +42,17 @@ if [ ! -z "$ERRLIST" ]; then
     FAIL=1
 fi
 
+# print out all log files that have problems
+if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
+    for i in $WARNLIST $ERRLIST; do
+        echo =========== $i ================
+        cat lint-$i.log
+    done
+fi
+
 if [ -z "$FAIL" ]; then
     echo "lint-all: PASS"
 else
     echo "lint-all: FAIL"
+    exit 1
 fi
