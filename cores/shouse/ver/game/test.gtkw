@@ -1,23 +1,43 @@
 [*]
-[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Oct  3 05:17:16 2023
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Tue Oct  3 17:06:59 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Mon Oct  2 18:21:16 2023"
-[dumpfile_size] 448395789
+[dumpfile_mtime] "Tue Oct  3 06:10:56 2023"
+[dumpfile_size] 558088050
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.gtkw"
 [timestart] 759466065036
-[size] 1263 958
-[pos] -1 -1
-*0.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[size] 1263 1010
+[pos] -31 -48
+*-38.576885 788000000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mapper.
 [sst_width] 215
-[signals_width] 212
+[signals_width] 210
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 299
 @25
 TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_main.mrst_n
+@200
+-Sub
+@28
+TOP.game_test.u_game.u_game.u_main.srst_n
+@22
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[0][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[1][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[2][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[3][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[4][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[5][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[6][22:13]
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.banks[7][22:13]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mapper.u_sub.xbank
 [pattern_trace] 1
 [pattern_trace] 0

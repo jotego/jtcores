@@ -54,8 +54,8 @@ module jtc117(
     output       [21:0] baddr,
     output       [ 7:0] bdout
 );
-    reg          vb_edge, lvbl_l, fedge, firqn_l;
-    wire         xirq, srrqn, wdogn, mwdn, swdn, xbank;
+    reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l;
+    wire         xirq, srrqn, wdogn, mwdn, swdn, xbank, bsel_negedge;
     wire [22:12] mahi, sahi;
 
     function range( input [21:12] s, e );
@@ -79,12 +79,15 @@ module jtc117(
     assign ram_cs = range(10'h300,10'h320); // RAM, 32 or 128kB on board. MAME uses 32kB
     assign rnw    = bsel ? srnw : mrnw;
     assign wdogn  = mwdn & swdn;
+    assign bsel_negedge = bsel_l & ~bsel;
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             mrst_n <= 0;
             srst_n <= 0;
+            bsel_l <= 0;
         end else begin
+            bsel_l <= bsel;
             mrst_n <= wdogn;
             srst_n <= wdogn & srrqn;
         end
@@ -143,7 +146,7 @@ module jtc117(
         .rnw        ( srnw      ),
         .vma        ( svma      ),
 
-        .xbank      ( xbank     ),
+        .xbank      ( xbank & bsel_negedge ),
         .xdout      ( mdout     ),
 
         .xirq       ( xirq|fedge),
@@ -184,10 +187,12 @@ module jtc117_unit(
     output reg          firq_n,
     output      [22:12] ahi    // address high bits
 );
+    parameter WDW=7; // watchdog bit width
+
     reg  [22:13] banks[0:7];
     wire         mmr_cs;
     wire [ 2: 0] idx;
-    reg  [ 7: 0] wdog_cnt;
+    reg [WDW-1:0]wdog_cnt;
 
 
     assign idx = addr[15:13];
@@ -213,7 +218,7 @@ module jtc117_unit(
             if( xirq    ) firq_n <= 0;
             if( vb_edge ) begin
                 irq_n <= 0;
-                wdog_cnt <= wd_en ? wdog_cnt + 1'd1 : 8'd0;
+                wdog_cnt <= wd_en ? wdog_cnt + 1'd1 : {WDW{1'b0}};
             end
             if( xbank ) banks[7][22:13] = { 2'b11, xdout };
             if( !rnw && mmr_cs ) begin
