@@ -35,6 +35,7 @@ module jtc117(
     input               mvma,
     output              mirq_n,
     output              mfirq_n,
+    output reg          mrst_n,
 
     // Sub
     input        [15:0] saddr,
@@ -43,7 +44,7 @@ module jtc117(
     input               svma,
     output              sirq_n,
     output              sfirq_n,
-    output              srst_n,
+    output reg          srst_n,
 
     output       [ 9:0] cs,
     output              rom_cs,
@@ -53,10 +54,8 @@ module jtc117(
     output       [21:0] baddr,
     output       [ 7:0] bdout
 );
-    reg          vb_edge, lvbl_l, fedge, firqn_l, swmux;
-    wire         xirq;
-    reg  [ 15:0] samux;
-    reg  [  7:0] sdmux;
+    reg          vb_edge, lvbl_l, fedge, firqn_l;
+    wire         xirq, srrqn, wdogn, mwdn, swdn, xbank;
     wire [22:12] mahi, sahi;
 
     function range( input [21:12] s, e );
@@ -79,16 +78,15 @@ module jtc117(
     assign cs[9]  = range(10'h2FF,10'h300); // TRIRAM, acc. to MAME
     assign ram_cs = range(10'h300,10'h320); // RAM, 32 or 128kB on board. MAME uses 32kB
     assign rnw    = bsel ? srnw : mrnw;
+    assign wdogn  = mwdn & swdn;
 
-    always @* begin
-        samux = saddr;
-        sdmux = sdout;
-        swmux = srnw;
-        if( !srst_n && &maddr[15:13] && maddr[12:9]==14 ) begin
-            samux[15:12] = 4'hf;
-            samux[12: 9] = 7;
-            sdmux        = mdout;
-            swmux        = mrnw;
+    always @(posedge clk, posedge rst) begin
+        if( rst ) begin
+            mrst_n <= 0;
+            srst_n <= 0;
+        end else begin
+            mrst_n <= wdogn;
+            srst_n <= wdogn & srrqn;
         end
     end
 
@@ -111,16 +109,22 @@ module jtc117(
         .clk        ( clk       ),
 
         .vb_edge    ( vb_edge   ),
+        .wdogn      ( mwdn      ),
+        .wd_en      ( 1'b1      ),
 
         .addr       ( maddr     ),
         .dout       ( mdout     ),
         .rnw        ( mrnw      ),
         .vma        ( mvma      ),
 
+        .xbank      ( 1'b0      ),
+        .xdout      ( 8'd0      ),
+
         .xirq       ( fedge     ),
         .oirq       ( xirq      ),
+        .obank      ( xbank     ),
 
-        .rstn_out   ( srst_n    ),
+        .orstn      ( srrqn     ), // sub reset request
         .irq_n      ( mirq_n    ),
         .firq_n     ( mfirq_n   ),
         .ahi        ( mahi      )
@@ -131,16 +135,22 @@ module jtc117(
         .clk        ( clk       ),
 
         .vb_edge    ( vb_edge   ),
+        .wdogn      ( swdn      ),
+        .wd_en      ( srst_n    ),
 
-        .addr       ( samux     ),
-        .dout       ( sdmux     ),
-        .rnw        ( swmux     ),
+        .addr       ( saddr     ),
+        .dout       ( sdout     ),
+        .rnw        ( srnw      ),
         .vma        ( svma      ),
+
+        .xbank      ( xbank     ),
+        .xdout      ( mdout     ),
 
         .xirq       ( xirq|fedge),
         .oirq       (           ),
+        .obank      (           ),
 
-        .rstn_out   (           ), // the sub CPU can probably reset the master too
+        .orstn      (           ), // the sub CPU can probably reset the master too
         .irq_n      ( sirq_n    ),
         .firq_n     ( sfirq_n   ),
         .ahi        ( sahi      )
@@ -153,16 +163,23 @@ module jtc117_unit(
     input               clk,
 
     input               vb_edge,
+    input               wd_en,
 
     input        [15:0] addr,  // not all bits are used, but easier to connect as a whole
     input        [ 7:0] dout,
     input               rnw,
     input               vma,
 
+    // bank 7 can be set by the other CPU
+    input               xbank,
+    input        [ 7:0] xdout,
+
     input               xirq,
     output reg          oirq,
+    output reg          obank,
 
-    output reg          rstn_out,
+    output reg          orstn, // rst to other logic
+    output reg          wdogn, // rst from watchdog
     output reg          irq_n,
     output reg          firq_n,
     output      [22:12] ahi    // address high bits
@@ -170,6 +187,7 @@ module jtc117_unit(
     reg  [22:13] banks[0:7];
     wire         mmr_cs;
     wire [ 2: 0] idx;
+    reg  [ 7: 0] wdog_cnt;
 
 
     assign idx = addr[15:13];
@@ -178,19 +196,26 @@ module jtc117_unit(
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            rstn_out <= 0;
-            firq_n   <= 1;
-            oirq     <= 0;
+            orstn  <= 0;
+            firq_n <= 1;
+            oirq   <= 0;
             // not all defaults values have been verified
             // they all point to RAM except bank 7, pointing to the last ROM
             banks[0] <= 10'h180; banks[1] <= 10'h180;
             banks[2] <= 10'h180; banks[3] <= 10'h180;
             banks[4] <= 10'h180; banks[5] <= 10'h180;
             banks[6] <= 10'h180; banks[7] <= 10'h3FF;
+            wdog_cnt <= 0;
         end else begin
-            oirq <= 0;
+            oirq  <= 0;
+            obank <= 0;
+            wdogn <= ~&wdog_cnt;
             if( xirq    ) firq_n <= 0;
-            if( vb_edge ) irq_n  <= 0;
+            if( vb_edge ) begin
+                irq_n <= 0;
+                wdog_cnt <= wd_en ? wdog_cnt + 1'd1 : 8'd0;
+            end
+            if( xbank ) banks[7][22:13] = { 2'b11, xdout };
             if( !rnw && mmr_cs ) begin
                 casez( addr[12:9] )
                     4'b0???: begin
@@ -199,12 +224,13 @@ module jtc117_unit(
                         else
                             banks[addr[11:9]][20:13] = dout;
                     end
-                    8: rstn_out <= dout[0];
-                    // 9: watchdog
+                    8: orstn <= dout[0];
+                    9: wdog_cnt <= 0;
                     // 10: ?
                     11: irq_n  <= 1;
                     12: firq_n <= 1;
                     13: oirq   <= 1;
+                    14: obank  <= 1;
                 endcase
             end
         end

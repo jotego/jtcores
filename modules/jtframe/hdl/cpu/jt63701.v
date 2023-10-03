@@ -171,7 +171,11 @@ always @(posedge clk, posedge rst) begin
                     end
                 TCSR1, TCSR2: ports[psel][4:0] <= dout[4:0];
                 // any other port is directly written through
-                default: ports[psel] <= dout;
+                default: begin
+                    ports[psel] <= dout;
+                    if( psel>='h1b && psel<'h1f ) $display("Unsupported port write: %X <- %X", psel, dout);
+                    if( psel>='h10 && psel<'h14 ) $display("Unsupported port write: %X <- %X", psel, dout);
+                end
             endcase
         end
         if( cen ) begin

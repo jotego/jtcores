@@ -74,6 +74,7 @@ reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
+reg         init_done;
 
 function [1:0] gain( input [1:0] g);
     case( g )
@@ -96,7 +97,7 @@ assign irqen       = hdump[1:0]==0;
 always @(*) begin
     pcm_cs  = vma && ^A[15:14];                    // 4000~bfff
     swio_cs = vma &&  A[15:12]==4'h1;
-    ram_cs  = vma &&  A[15:12]==4'hc && !A[11];    // c000~c7ff
+    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] && (A[10:0]!=0 || rnw || !init_done);    // c000~c7ff
     epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
     reg_cs  = vma &&  A[15:12]==4'hd && !rnw;
     dip_cs  = vma && swio_cs && A[11:10]==0;
@@ -120,6 +121,7 @@ always @(posedge clk, negedge rstn ) begin
         cab_dout <= 0;
         irq      <= 0;
         lvbl_l   <= 0;
+        init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
         if( lvbl_l && !lvbl) irq <= 1;
@@ -130,6 +132,7 @@ always @(posedge clk, negedge rstn ) begin
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { start_button[1], joystick2 }:
                            { start_button[0], joystick1 };
+        if( ram_cs && A[10:0]==0 && !rnw && cen ) init_done <= mcu_dout=='ha6;
         // irq <= ~lvbl & irqen & ~rnw & (
         //         ~A[15] & A[14]                 |
         //                 ~A[14] & A[13]         |

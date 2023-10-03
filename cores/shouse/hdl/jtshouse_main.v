@@ -66,7 +66,7 @@ wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
 wire        master, sub; // current bus owner
-wire        main_E, main_Q, sub_E, sub_Q;
+wire        main_E, main_Q, sub_E, sub_Q, mrst_n;
 
 assign master   = ~bsel;
 assign sub      =  bsel;
@@ -128,6 +128,7 @@ jtc117 u_mapper(
     .mrnw   ( mrnw      ),
     .mirq_n ( mirq_n    ),
     .mfirq_n( mfirq_n   ),
+    .mrst_n ( mrst_n    ),
 
     // Sub
     .svma   ( svma      ),
@@ -146,8 +147,8 @@ jtc117 u_mapper(
     .bdout  ( bdout     )
 );
 
-mc6809i u_main(
-    .nRESET     ( ~rst      ),
+mc6809i u_mcpu(
+    .nRESET     ( mrst_n    ),
     .clk        ( clk       ),
     .cen_E      ( main_E    ),
     .cen_Q      ( main_Q    ),
@@ -171,7 +172,7 @@ mc6809i u_main(
     .RegData    (           )
 );
 
-mc6809i u_sub(
+mc6809i u_scpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( sub_E     ),

@@ -164,7 +164,9 @@ function gw {
     if [ -e test.lxt ]; then
         gtkwave test.lxt &
     elif [ -e test.fst ]; then
-        gtkwave test.fst &
+        local DMPFILE=
+        if [ -e test.gtkw ]; then DMPFILE=test.gtkw; fi
+        gtkwave test.fst $DMPFILE &
     elif [ -e test.vcd ]; then
         gtkwave test.vcd &
     else
