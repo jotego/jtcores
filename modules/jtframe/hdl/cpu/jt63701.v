@@ -130,7 +130,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         ports[P1DDR] <='hfe;
         ports[P2DDR] <= 0;
-        ports[P3DDR] <='hf3;
+        ports[P3DDR] <='hfe;
         ports[P4DDR] <= 0;
         ports[P5DDR] <= 0;
         ports[RP5CR] <='h78; // MSB should be high if we come from a sleep without losing power
