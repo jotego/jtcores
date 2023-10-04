@@ -54,11 +54,13 @@ module jtshouse_main(
     input               mrom_ok,   srom_ok,   ram_ok,
     input        [ 7:0] mrom_data, srom_data, ram_dout,
 
-    output              bus_busy
+    output              bus_busy,
+    input        [ 7:0] debug_bus,
+    output       [ 7:0] st_dout
 );
 
 wire [15:0] maddr, saddr;
-wire [ 7:0] mdout, sdout, bdin;
+wire [ 7:0] mdout, sdout, bdin, st_mapper;
 wire        mrnw, mirq_n, mfirq_n, mavma,
             srnw, sirq_n, sfirq_n, savma,
             rom_cs, oram_cs;
@@ -85,6 +87,8 @@ assign main_E = cen_main;
 assign main_Q = cen_sub;
 assign sub_E  = cen_sub;
 assign sub_Q  = cen_main;
+
+assign st_dout = st_mapper;
 
 // Video RAM
 assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
@@ -144,7 +148,10 @@ jtc117 u_mapper(
     .ram_cs ( ram_cs    ),
     .rnw    ( brnw      ),
     .baddr  ( baddr     ),
-    .bdout  ( bdout     )
+    .bdout  ( bdout     ),
+
+    .debug_bus(debug_bus),
+    .st_dout( st_mapper )
 );
 
 mc6809i u_mcpu(

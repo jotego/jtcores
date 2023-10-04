@@ -28,7 +28,7 @@ wire        brnw, srnw, mcu_rnw, srst_n, firqn,
 wire [ 7:0] bdout, sndcpu_dout, c30_dout,
             key_dout, pal_dout, scfg_dout,
             alt_din, tri_dout,
-            st_video;
+            st_video, st_main;
 wire [ 8:0] hdump;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
@@ -62,7 +62,7 @@ always @* begin
     case( debug_bus[7:6] )
         0: dbg_mux = { 7'd0, ~srst_n };
         1: dbg_mux = st_video;
-        2: dbg_mux = st_video;
+        2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
     endcase
@@ -145,7 +145,10 @@ jtshouse_main u_main(
     .mrom_data  ( main_data ),
     .srom_data  ( sub_data  ),
     .ram_dout   ( ram_data  ),
-    .bus_busy   ( busy[0]   )
+    .bus_busy   ( busy[0]   ),
+
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_main   )
 );
 
 jtshouse_mcu u_mcu(
@@ -155,6 +158,7 @@ jtshouse_mcu u_mcu(
 
     .lvbl       ( LVBL      ),
     .hdump      ( hdump     ),
+    .hs         ( HS        ),
 
     .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),

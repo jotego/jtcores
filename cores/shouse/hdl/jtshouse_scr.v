@@ -146,16 +146,15 @@ always @(posedge clk, posedge rst) begin
                     maskll[i] <= flip ? maskll[i]<<1 : maskll[i]>>1;
                 end
             end
-            case(1'b1)
-                maskll[0][idx]: begin mux <= infoll[0]; nx_prio <= 0; nx_pal <= mmr[{2'b11,lyr[0]}][2:0]; end
-                maskll[1][idx]: begin mux <= infoll[1]; nx_prio <= 1; nx_pal <= mmr[{2'b11,lyr[1]}][2:0]; end
-                maskll[2][idx]: begin mux <= infoll[2]; nx_prio <= 2; nx_pal <= mmr[{2'b11,lyr[2]}][2:0]; end
-                maskll[3][idx]: begin mux <= infoll[3]; nx_prio <= 3; nx_pal <= mmr[{2'b11,lyr[3]}][2:0]; end
-                maskll[4][idx]: begin mux <= infoll[4]; nx_prio <= 4; nx_pal <= mmr[{2'b11,lyr[4]}][2:0]; end
-                maskll[5][idx]: begin mux <= infoll[5]; nx_prio <= 5; nx_pal <= mmr[{2'b11,lyr[5]}][2:0]; end
-                maskll[6][idx]: begin mux <= infoll[6]; nx_prio <= 6; nx_pal <= mmr[{2'b11,lyr[6]}][2:0]; end
-                maskll[7][idx]: begin mux <= infoll[7]; nx_prio <= 7; nx_pal <= mmr[{2'b11,lyr[7]}][2:0]; end
-            endcase
+            // Keep the order:
+            if( maskll[7][idx] ) begin mux <= infoll[7]; nx_prio <= 7; nx_pal <= mmr[{2'b11,lyr[7]}][2:0]; end
+            if( maskll[6][idx] ) begin mux <= infoll[6]; nx_prio <= 6; nx_pal <= mmr[{2'b11,lyr[6]}][2:0]; end
+            if( maskll[5][idx] ) begin mux <= infoll[5]; nx_prio <= 5; nx_pal <= mmr[{2'b11,lyr[5]}][2:0]; end
+            if( maskll[4][idx] ) begin mux <= infoll[4]; nx_prio <= 4; nx_pal <= mmr[{2'b11,lyr[4]}][2:0]; end
+            if( maskll[3][idx] ) begin mux <= infoll[3]; nx_prio <= 3; nx_pal <= mmr[{2'b11,lyr[3]}][2:0]; end
+            if( maskll[2][idx] ) begin mux <= infoll[2]; nx_prio <= 2; nx_pal <= mmr[{2'b11,lyr[2]}][2:0]; end
+            if( maskll[1][idx] ) begin mux <= infoll[1]; nx_prio <= 1; nx_pal <= mmr[{2'b11,lyr[1]}][2:0]; end
+            if( maskll[0][idx] ) begin mux <= infoll[0]; nx_prio <= 0; nx_pal <= mmr[{2'b11,lyr[0]}][2:0]; end
             { pxl, prio } <= { nx_pal, scr_data, nx_prio };
         end
     end

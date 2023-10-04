@@ -198,7 +198,7 @@ jtframe_mixer #(.W1(11)) u_left(
     .mixed  ( left      ),
     .peak   ( peak_l    )
 );
-
+/* verilator tracing_on */
 mc6809i u_cpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),

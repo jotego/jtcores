@@ -52,11 +52,15 @@ module jtc117(
     output              rnw,
     output              vma,
     output       [21:0] baddr,
-    output       [ 7:0] bdout
+    output       [ 7:0] bdout,
+    // Debug
+    input        [ 7:0] debug_bus,
+    output reg   [ 7:0] st_dout
 );
     reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l;
     wire         xirq, srrqn, wdogn, mwdn, swdn, xbank, bsel_negedge;
     wire [22:12] mahi, sahi;
+    wire [ 7: 0] mst_dout, sst_dout;
 
     function range( input [21:12] s, e );
         range = baddr[21:12]>=s && baddr[21:12]<e;
@@ -86,10 +90,12 @@ module jtc117(
             mrst_n <= 0;
             srst_n <= 0;
             bsel_l <= 0;
+            st_dout <= 0;
         end else begin
             bsel_l <= bsel;
             mrst_n <= wdogn;
             srst_n <= wdogn & srrqn;
+            st_dout <= debug_bus[0] ? sst_dout : mst_dout;
         end
     end
 
@@ -130,7 +136,8 @@ module jtc117(
         .orstn      ( srrqn     ), // sub reset request
         .irq_n      ( mirq_n    ),
         .firq_n     ( mfirq_n   ),
-        .ahi        ( mahi      )
+        .ahi        ( mahi      ),
+        .st_dout    ( mst_dout  )
     );
 
     jtc117_unit u_sub(
@@ -156,7 +163,8 @@ module jtc117(
         .orstn      (           ), // the sub CPU can probably reset the master too
         .irq_n      ( sirq_n    ),
         .firq_n     ( sfirq_n   ),
-        .ahi        ( sahi      )
+        .ahi        ( sahi      ),
+        .st_dout    ( sst_dout  )
     );
 endmodule
 
@@ -185,7 +193,8 @@ module jtc117_unit(
     output reg          wdogn, // rst from watchdog
     output reg          irq_n,
     output reg          firq_n,
-    output      [22:12] ahi    // address high bits
+    output      [22:12] ahi,   // address high bits
+    output      [  7:0] st_dout
 );
     parameter WDW=7; // watchdog bit width
 
@@ -198,6 +207,7 @@ module jtc117_unit(
     assign idx = addr[15:13];
     assign mmr_cs = &{idx, vma};
     assign ahi    = { banks[idx], addr[12] };
+    assign st_dout= { {8-WDW{1'b0}}, wdog_cnt};
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin

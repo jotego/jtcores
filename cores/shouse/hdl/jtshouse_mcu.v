@@ -24,6 +24,7 @@ module jtshouse_mcu(
     input              rstn,
     input              cen,
     input              lvbl,
+    input              hs,
 
     input       [8:0]  hdump,
 
@@ -61,7 +62,7 @@ module jtshouse_mcu(
     output reg signed [10:0] snd // is it signed?
 );
 
-wire        vma, irqen;
+wire        vma;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
             irq, lvbl_l;
 
@@ -74,6 +75,7 @@ reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
+reg         hs_cnt, hs_l;
 reg         init_done;
 
 function [1:0] gain( input [1:0] g);
@@ -91,7 +93,7 @@ assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
 assign p1_din      = { 1'b1, service, dip_test, coin_input, 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
-assign irqen       = hdump[1:0]==0;
+// assign irqen       = hdump[1:0]==0;
 
 // Address decoder
 always @(*) begin
@@ -121,11 +123,19 @@ always @(posedge clk, negedge rstn ) begin
         cab_dout <= 0;
         irq      <= 0;
         lvbl_l   <= 0;
+        hs_l     <= 0;
         init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
-        if( lvbl_l && !lvbl) irq <= 1;
-        if( !lvbl && hdump=='h60 ) irq <= 0;
+        hs_l   <= hs;
+        if( lvbl_l && !lvbl) begin
+            irq <= 1;
+            hs_cnt <= 0;
+        end
+        if( hs && !hs_l) begin
+            hs_cnt <= hs_cnt+1'd1;
+            if( &hs_cnt ) irq <= 0;
+        end
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};

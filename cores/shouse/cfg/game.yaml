@@ -8,6 +8,7 @@ game:
       - jtshouse_colmix.v
       - jtshouse_mcu.v
       - jtshouse_triram.v
+      - jtshouse_cenloop.v
       # Custom chips
       - jtshouse_key.v
       - jtcus30.v
