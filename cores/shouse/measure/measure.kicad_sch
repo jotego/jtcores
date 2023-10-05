@@ -2694,7 +2694,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 995daa26-f065-4aff-a9b2-b54e89c5ee73)
   )
-  (text "5 OR 74LS32\n1 AND 74LS08\nA NOT 74LS04\n1 CAP 220µF\n1 R 10KΩ\n3 ZÓCALOS\n1 PROTOBOARD\nCABLES\nVCC +5V\nVSS -5V"
+  (text "5 OR 74LS32\n1 AND 74LS08\nA NOT 74LS04\n1 CAP 220µF ?\n3 ZÓCALOS\n1 PROTOBOARD\nCABLES\nVCC +5V\nVSS -5V"
     (at 69.85 247.65 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid a07f80b4-1ecb-42e6-af1e-5fe6a9e506bd)
