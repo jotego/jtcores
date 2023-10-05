@@ -446,6 +446,7 @@ corename=${CORENAME,,}
 
 if (eval parse_macros bash | grep JTFRAME_SKIP > /dev/null); then
     echo "Compilation skipped for $TARGET because of JTFRAME_SKIP"
+    echo "Use -u JTFRAME_SKIP to override this."
     echo "PASS"
     exit 0
 fi

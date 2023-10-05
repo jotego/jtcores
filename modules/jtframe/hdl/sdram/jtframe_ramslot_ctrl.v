@@ -48,7 +48,6 @@ localparam XW = WRSW==1 ? DW0 : DW1; // helper to prevent linter warnings
 wire [SW-1:0] active = ~slot_sel & req;
 reg  [SW-1:0] acthot; // priority encoding of active, only one bit is set
 
-wire [SDRAMW-1:0] slot0_addr_req = slot_addr_req[0+:SDRAMW];
 wire [DW0*2-1:0] s0_din2 = {2{slot_din[0+:DW0]}};
 wire [ XW*2-1:0] s1_din2 = {2{slot_din[(WRSW==2?DW0:0)+:XW]}}; // not used when WRSR==1
 

@@ -155,6 +155,12 @@ Macro                    | Target  |  Usage
 JTFRAME_BAx_AUTOPRECH    |         | Enables auto precharge on bank X (0,1,2,3)
 JTFRAME_BAx_LEN          |         | Sets length of bank x, valid values 16, 32 or 64
 
+# SDRAM ROM/RAM Modules
+
+Macro                    | Target  |  Usage
+-------------------------|---------|----------------------
+JTFRAME_SDRAM_TOGGLE     |         | Consider a CS toggle automatically after SDRAM is ready (experimental)
+
 # Simulation-only Macros
 
 The following macros only have an effect if SIMULATION is defined.
@@ -179,6 +185,7 @@ JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
 VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulation
+VERILATOR_KEEP_SDRAM     |verilator| Keeps SDRAM signals in the game_sdram.v module (mem.yaml)
 VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation
 VERILATOR_KEEP_VTIMER    |verilator| Keeps jtframe_vtimer signals
 VIDEO_START              |         | First frame for which video output is provided use it to prevent a split first frame

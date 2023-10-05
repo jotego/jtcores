@@ -28,6 +28,9 @@ module jtframe_ram_rq #(parameter
     SDRAMW = 22,
     AW     = 18,
     DW     = 8,
+    AUTOTOGGLE= // automatically toggles cs after a data delivery.
+        `ifdef JTFRAME_SDRAM_TOGGLE
+        1 `else 0 `endif ,
     FASTWR = 0  // gives an ok as soon as the slot mux accepts the write
                 // operation. But a new operation won't be accepted until
                 // the current one finishes
@@ -80,6 +83,7 @@ module jtframe_ram_rq #(parameter
                 end
                 if( dst ) begin // note byte selection for DW==8
                     dout <= DW==8 && addr[0] ? din[15-:DW] : din[0+:DW];
+                    if( AUTOTOGGLE==1 ) last_cs <= 0; // forces a toggle
                 end
                 if( din_ok && (!FASTWR || req_rnw) ) data_ok <= 1;
             end else if( cs_posedge || pending ) begin
