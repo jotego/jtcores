@@ -41,7 +41,9 @@ module jtframe_ramslot_ctrl #(parameter
     output  reg [ 1:0]  sdram_wrmask // each bit is active low
 );
 
-localparam XW = WRSW==1 ? DW0 : DW1; // helper to get clear syntax
+localparam XW = WRSW==1 ? DW0 : DW1; // helper to prevent linter warnings
+                                     // if WRSW=2, it is used for DW1,
+                                     // else, it isn't really used but won't produce warnings
 
 wire [SW-1:0] active = ~slot_sel & req;
 reg  [SW-1:0] acthot; // priority encoding of active, only one bit is set

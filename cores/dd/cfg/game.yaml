@@ -13,7 +13,7 @@ jtframe:
       - jtframe_uprate2_fir.yaml
   - from: cpu
     get:
-      - jt63701.v
+      - jt63701y.v
       - 6801_core.sv
 modules:
   jt:

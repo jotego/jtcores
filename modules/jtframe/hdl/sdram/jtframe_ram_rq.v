@@ -78,8 +78,8 @@ module jtframe_ram_rq #(parameter
                 if( FASTWR && !req_rnw ) begin
                     data_ok <= 1;
                 end
-                if( dst ) begin
-                    dout    <= din[DW-1:0];
+                if( dst ) begin // note byte selection for DW==8
+                    dout <= DW==8 && addr[0] ? din[15-:DW] : din[0+:DW];
                 end
                 if( din_ok && (!FASTWR || req_rnw) ) data_ok <= 1;
             end else if( cs_posedge || pending ) begin

@@ -20,7 +20,10 @@
 function show_usage() {
     cat << EOF
 JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
-    Argument without - is the core name, like gng, or 1943
+usage: jtcore <corename> [options]
+
+    jtcore compiles only one core at a time. To compile many cores at once
+    use jtupdate.
 
     Macro definition
     --def | -d   Defines a verilog macro. Macros are removed from qsf file after

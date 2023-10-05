@@ -199,13 +199,14 @@ module jtc117_unit(
     parameter WDW=7; // watchdog bit width
 
     reg  [22:13] banks[0:7];
+    wire [  3:0] rsel;
     wire         mmr_cs;
     wire [ 2: 0] idx;
     reg [WDW-1:0]wdog_cnt;
 
-
-    assign idx = addr[15:13];
-    assign mmr_cs = &{idx, vma};
+    assign idx    = addr[15:13];
+    assign rsel   = addr[12: 9];
+    assign mmr_cs = &{idx, vma, ~rnw};
     assign ahi    = { banks[idx], addr[12] };
     assign st_dout= { {8-WDW{1'b0}}, wdog_cnt};
 
@@ -231,8 +232,8 @@ module jtc117_unit(
                 wdog_cnt <= wd_en ? wdog_cnt + 1'd1 : {WDW{1'b0}};
             end
             if( xbank ) banks[7][22:13] = { 2'b11, xdout };
-            if( !rnw && mmr_cs ) begin
-                casez( addr[12:9] )
+            if( mmr_cs ) begin
+                casez( rsel )
                     4'b0???: begin
                         if( !addr[0] )
                             banks[addr[11:9]][22:21] = dout[1:0];

@@ -72,7 +72,7 @@ always @(posedge clk) begin : cpu_clockenable
     waitn <= rom_ok | ~rom_cs;
 end
 
-jt63701 #(.ROMW(14)) u_63701(
+jt63701y #(.ROMW(14)) u_63701(
     .rst        ( ~mcu_rstb     ),
     .clk        ( clk           ),
     .cen        ( cpu_cen       ),
