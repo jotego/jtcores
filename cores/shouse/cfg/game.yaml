@@ -21,7 +21,7 @@ jtframe:
     get:
       - mc6809i.v
       - 6801_core.sv
-      - jt63701.v
+      - jt63701v.v
   - from: clocking
     get:
       - jtframe_freqinfo.v

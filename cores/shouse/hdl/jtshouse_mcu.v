@@ -167,7 +167,7 @@ always @(posedge clk, negedge rstn ) begin
     end
 end
 
-jt63701 #(.ROMW(12)) u_63701(
+jt63701v #(.ROMW(12)) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
@@ -189,15 +189,11 @@ jt63701 #(.ROMW(12)) u_63701(
     .p2_din     ( 8'd0          ),
     .p3_din     ( 8'd0          ),
     .p4_din     ( 8'd0          ),
-    .p5_din     ( 8'd0          ),
-    .p6_din     ( 8'd0          ),
 
     .p1_dout    (               ),  // coin lock & counters
     .p2_dout    ( p2_dout       ),
     .p3_dout    (               ),
     .p4_dout    (               ),
-    .p5_dout    (               ),
-    .p6_dout    (               ),
     // ROM
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
