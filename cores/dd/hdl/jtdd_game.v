@@ -123,8 +123,14 @@ assign mcu_rstb  = 1'b0;
 `endif
 
 `ifndef NOMCU
-wire cpu_cen2;
-wire mcu_cen = turbo ? cpu_cen : cpu_cen2; // 3 or 1.5MHz
+reg turbo_l;
+wire cpu_cen2, mcu_cen; // 3 or 1.5MHz
+
+// for non-turbo mode, there is exact synchronization between CPU and MCU
+// for turbo mode, this love for accuracy is dismissed.
+assign mcu_cen = turbo_l ? cen3 : cpu_cen;
+
+always @(posedge clk24) if( mcu_cen ) turbo_l <= turbo;
 
 jtframe_cendiv u_cendiv(
     .clk        ( clk24         ),
