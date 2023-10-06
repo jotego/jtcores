@@ -123,7 +123,15 @@ assign mcu_rstb  = 1'b0;
 `endif
 
 `ifndef NOMCU
-wire mcu_cen = turbo ? cen3 : cen1p5;
+wire cpu_cen2;
+wire mcu_cen = turbo ? cpu_cen : cpu_cen2; // 3 or 1.5MHz
+
+jtframe_cendiv u_cendiv(
+    .clk        ( clk24         ),
+    .cen_in     ( cpu_cen       ),
+    .cen_div    ( cpu_cen2      ),
+    .cen_da     (               )
+);
 
 jtdd_mcu u_mcu(
     .clk          (  clk24           ),
@@ -190,7 +198,7 @@ jtdd_sound u_sound(
     .sample      ( sample        ),
     .peak        ( game_led      )
 );
-
+/* verilator tracing_off */
 jtdd_video u_video(
     .clk          (  clk             ),
     .rst          (  rst             ),

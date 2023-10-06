@@ -59,9 +59,15 @@ assign st_dout = mmr[debug_bus[3:0]];
 assign virq    = { mmr[10][0], mmr[11] };
 assign hirq    = { mmr[ 8][0], mmr[ 9] };
 
+`ifdef GRAY
+assign red   = blank ? 8'd0 : {8{scr_pxl!=0}};
+assign green = blank ? 8'd0 : {8{scr_pxl!=0}};
+assign blue  = blank ? 8'd0 : {8{scr_pxl!=0}};
+`else
 assign red   = blank ? 8'd0 : red_dout;
 assign green = blank ? 8'd0 : green_dout;
 assign blue  = blank ? 8'd0 : blue_dout;
+`endif
 assign blank = ~(lhbl & lvbl);
 
 always @(posedge clk, posedge rst) begin

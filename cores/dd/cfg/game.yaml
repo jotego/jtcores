@@ -15,6 +15,9 @@ jtframe:
     get:
       - jt63701y.v
       - 6801_core.sv
+  - from: clocking
+    get:
+      - jtframe_cendiv.v
 modules:
   jt:
     - name: jt5205

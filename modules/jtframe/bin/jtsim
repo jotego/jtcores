@@ -121,7 +121,7 @@ Please support the development: https://patreon.com/jotego
     -mist      Use MiST setup for simulation, instead of using directly the
                game module. This is slower but more informative.
     -ncverilog Select NCVerilog as the simulator
-    -nosnd     Disable SOUND hardware. Speeds up simulation a lot!
+    -nosnd|-q  Disable SOUND hardware. Speeds up simulation a lot!
     -pause     Enable pause DIP setting. Same as -d DIP_PAUSE
     -pocket    Select PocketFPGA as target platform
     -questasim Use QuestaSim as the simulator
@@ -362,7 +362,7 @@ case "$1" in
         echo "\`define BUILD_TIME \"190311\"" >> build_id.v
         ;;
     ##########################
-    -nosnd)
+    -nosnd|-q)
         add_macro NOSOUND
         add_macro NOFM
         add_macro NOSSG;;

@@ -42,7 +42,7 @@ module jtdd_mcu(
 
 );
 
-wire        vma, halted, shared_cs, rnw,
+wire        vma, ba, shared_cs, rnw,
             cpu_cen, nmi, nmi_clr;
 wire [15:0] A;
 wire [ 7:0] mcu_dout, p6_dout, sh2mcu_dout;
@@ -50,7 +50,7 @@ reg         waitn;
 
 assign nmi_clr     = ~p6_dout[0];
 assign mcu_irqmain =  p6_dout[1];
-assign mcu_ban     = vma;
+assign mcu_ban     = ~ba;
 assign shared_cs   = vma && A[15:12]==8;
 assign cpu_cen     = mcu_cen & (waitn | ~mcu_rstb);
 
@@ -83,11 +83,10 @@ jt63701y #(.ROMW(14)) u_63701(
     .A          ( A             ),
     .xdin       ( sh2mcu_dout   ),
     .dout       ( mcu_dout      ),
+    .ba         ( ba            ),
 
     // interrupts
     .halt       ( mcu_halt      ),
-    .halted     ( halted        ),
-    .irq        ( 1'b0          ),
     .nmi        ( nmi           ),
     // ports
     .p1_din     ( 8'd0          ),
@@ -103,6 +102,7 @@ jt63701y #(.ROMW(14)) u_63701(
     .p4_dout    (               ),
     .p5_dout    (               ),
     .p6_dout    ( p6_dout       ),
+    .p7_dout    (               ),
     // ROM
     .rom_cs     ( rom_cs        ),
     .rom_addr   ( rom_addr      ),
@@ -120,7 +120,7 @@ jtframe_dual_ram #(.AW(9)) u_shared(
 
     .data1  ( cpu_dout    ),
     .addr1  ( cpu_AB[8:0] ),
-    .we1    ( ~cpu_wrn & com_cs & halted),
+    .we1    ( ~cpu_wrn & com_cs & ba),
     .q1     ( shared_dout )
 );
 

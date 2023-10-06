@@ -17,11 +17,6 @@ clocks:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 15  # the PCB seems to support 17 bits too
-          data_width: 8
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 22
           data_width: 8
@@ -49,6 +44,11 @@ sdram:
     #       addr_width: 20
     #       data_width: 32
 bram:
+  - name: ram
+    addr_width: 15  # the PCB seems to support 17 bits too
+    data_width: 8
+    # offset: RAM_OFFSET
+    rw: true
   # Tile map
   - name: tmap
     addr_width: 15

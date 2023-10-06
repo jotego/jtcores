@@ -35,6 +35,7 @@ reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
 wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
             cen_main, cen_sub,  cen_snd,  cen_mcu;
+wire        ram_cs;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -45,7 +46,7 @@ assign debug_view= dbg_mux;
 
 assign ram_addr  = baddr[14:0];
 assign ram_din   = bdout;
-assign ram_dsn   = 2'b11; // this is ignored by the logic
+// assign ram_dsn   = 2'b11; // this is ignored by the logic
 assign ram_we    =  ram_cs & ~brnw;
 assign vram_addr = baddr[14:1];
 assign vram_we   = {2{vram_cs & ~brnw}} & {baddr[0], ~baddr[0]};
@@ -141,10 +142,11 @@ jtshouse_main u_main(
     .ram_cs     ( ram_cs    ),
     .mrom_ok    ( main_ok   ),
     .srom_ok    ( sub_ok    ),
-    .ram_ok     ( ram_ok    ),
+    // .ram_ok     ( ram_ok    ),
+    .ram_ok     ( 1'b1      ),
     .mrom_data  ( main_data ),
     .srom_data  ( sub_data  ),
-    .ram_dout   ( ram_data  ),
+    .ram_dout   ( ram_dout  ),
     .bus_busy   ( busy[0]   ),
 
     .debug_bus  ( debug_bus ),

@@ -1,4 +1,4 @@
-mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$e048
+mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$c023
 match-trace
 go
 

@@ -19,17 +19,17 @@
 // non-comprehensive implementation of a HD63701Y compatible MCU
 
 module jt63701y #(
-    parameter ROMW = 12 // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
+    parameter ROMW = 12,    // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
+              MODE = 2'd2   // expanded mode (internal ROM valid)
 )(
     input              rst,
     input              clk,
     input              cen,     // clk must be at leat x4 cen (24MHz -> 6MHz maximum)
 
     // all inputs are active high
-    input              irq,     // not a pin on HD63701Y, but needed by shouse (?)
     input              nmi,
-    input              halt,
-    output             halted,
+    input              halt,    // interrupts are ignored while halt is high
+    output             ba,
 
     output     [15:0]  A,
     input       [7:0]  xdin,
@@ -37,9 +37,10 @@ module jt63701y #(
     output             rnw,
     output             x_cs,    // eXternal access
     // Ports
-    // irq1 = P5-0, irq2 = P5-1
+    // irq1 = P5-0, irq2 = P5-1, halt = P5-3
     input       [7:0]  p1_din, p2_din, p3_din, p4_din, p5_din, p6_din,
     output      [7:0]  p1_dout, p2_dout, p3_dout, p4_dout, p5_dout, p6_dout,
+    output      [4:0]  p7_dout,
 
     // ROM, regardless of size is external
     // data assumed to be right from one cen to the next
@@ -48,7 +49,8 @@ module jt63701y #(
     output reg         rom_cs
 );
 
-wire        vma, ram_we, irq1, irq2;
+wire        vma, ram_we, irq1, irq2,
+            halt_en, halt_g, lir;
 reg         ram_cs, port_cs;
 wire [ 7:0] ram_dout;
 wire [ 5:0] psel;
@@ -83,6 +85,7 @@ localparam  P1DDR = 'h0,
             P5    = 'h15,
             P6DDR = 'h16,
             P6    = 'h17,
+            P7    = 'h18,
             OCR2H = 'h19,    // Output Compare Register 2 (MSB)
             OCR2L = 'h1A,    // Output Compare Register 2 (LSB)
             P5DDR = 'h20,
@@ -91,19 +94,23 @@ localparam  P1DDR = 'h0,
 assign ram_we = ram_cs & ~rnw;
 assign rom_addr = A[0+:ROMW];
 
-assign p1_dout = ports[P1];
+assign p1_dout = MODE==2'd3 ? ports[P1] : A[7:0];
 assign p2_dout = ports[P2];   // Port 2 can be used by timers 1,2 too
-assign p3_dout = ports[P3];
-assign p4_dout = ports[P4];
+assign p3_dout = MODE==2'd3 ? ports[P3] : dout;
+assign p4_dout = MODE==2'd0 ? A[15:8] : ports[P4]; // MODE 2 may be A[15:8] or I/O port
 assign p5_dout = ports[P5];
 assign p6_dout = ports[P6];   // Port 6 supports handshaking -not implemented-
+assign p7_dout = MODE==2'd3 ? ports[P7][4:0] : { ~rnw|vma, rnw|vma, rnw, lir , ba };
+assign halt_en = ports[RP5CR][3];
+assign halt_g  = halt_en & ( halt | p5_din[3] );
+assign lir     = ~vma; // not implemented. This should mark an op-code fetch
 // assign p7_dout = ports[P7];
 assign psel    = A[5:0];
-assign x_cs    = vma && {port_cs,ram_cs,rom_cs}==0;
+assign x_cs    = vma && {port_cs,ram_cs,rom_cs}==0 && MODE!=2'd3;
 // IRQ enables
 assign irq1    = ports[RP5CR][0] & ports[P5][0];
 assign irq2    = ports[RP5CR][1] & ports[P5][1];
-assign any_irq = |{irq,irq1,irq2};
+assign any_irq = |{irq1,irq2};
 assign intv_rd = &A[15:5];
 // Timers
 assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
@@ -116,7 +123,17 @@ assign ic_edge = ports[TCSR1][1] ? (tin&~tin_l) : (~tin&tin_l);
 always @(posedge clk) begin
     port_cs <= vma &&  A < 16'h28;
     ram_cs  <= vma &&  A >=16'h40 && A < 16'h140 && ports[RP5CR][6];
-    rom_cs  <= vma && &A[15:ROMW] && rnw;
+    case( MODE[1:0] )
+        1: case( A[4:0 ])
+            'h0, 'h2, 'h4, 'h5, 'h6, 'h7, 'h18: port_cs <= 0;
+            default:;
+        endcase
+        2: case( A[4:0 ])
+            'h0, 'h2, 'h4, 'h5, 'h6, 'h18: port_cs <= 0;
+            default:;
+        endcase
+    endcase
+    rom_cs  <= vma && &A[15:ROMW] && rnw && MODE!=2'd0;
 end
 
 always @(*) begin
@@ -234,7 +251,7 @@ jtframe_ram #(.AW(8)) u_intram(
     .q      ( ram_dout  )
 );
 
-m6801 #(.NOSX_BITS(1)) u_6801(
+m6801 u_6801(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -243,8 +260,8 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .address    ( A         ),
     .data_in    ( din       ),
     .data_out   ( dout      ),
-    .halt       ( halt      ),
-    .halted     ( halted    ),
+    .halt       ( halt_g    ),
+    .halted     ( ba        ),
     .irq        ( any_irq   ),
     .nmi        ( nmi       ),
     .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2

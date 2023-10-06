@@ -122,7 +122,6 @@ always @(*) begin
     w3801       = 1'b0;
     w3802       = 1'b0;
     w3806       = 1'b0;
-    //w3807       = 1'b0;
     if( A[15:14]==2'b00 ) begin
         case(A[13:11])
             3'd0, 3'd1: ram_cs = 1'b1;
@@ -155,7 +154,7 @@ always @(*) begin
             end
         endcase
     end else begin
-        rom_cs    = A[15] | A[14];
+        rom_cs    =  A[15] | A[14];
         banked_cs = ~A[15] & A[14];
     end
 end
@@ -164,7 +163,7 @@ always @(posedge clk) begin
     w3803 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd3; // NMI clear
     w3804 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd4; // FIRQ ack
     w3805 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd5; // IRQ ack (from MCU)
-    w3807 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd7;
+    w3807 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd7; // MCU NMI set
 end
 
 // special registers. Schematic sheet 3/9
