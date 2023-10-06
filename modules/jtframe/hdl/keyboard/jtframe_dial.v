@@ -50,7 +50,7 @@ wire       toggle1, toggle2, line;
 reg        mouse_inc, mouse_dec;
 reg  [1:0] mouse_sens;
 wire       mouse_up;
-reg  [8:0] mouse_cnt;
+reg [10:0] mouse_cnt;
 
 assign toggle1  = last1 != spinner_1[8],
        toggle2  = last2 != spinner_2[8];
@@ -82,7 +82,7 @@ always @(posedge clk) begin
         mouse_sel <= 1;
         mouse_inc <=  mouse_dx[8];
         mouse_dec <= ~mouse_dx[8];
-        mouse_cnt <=  (mouse_dx[8] ? -mouse_dx : mouse_dx)<<mouse_sens;
+        mouse_cnt <=  { 2'd0, (mouse_dx[8] ? -mouse_dx : mouse_dx) } << mouse_sens;
     end else if( line ) begin
         if( mouse_cnt==0 ) begin
             mouse_inc <= 0;
