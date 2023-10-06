@@ -75,9 +75,9 @@
     "files": [
       {
         "name": "fairyland.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
-          "display": 1,
+          "display": 0,
           "maximized": true,
           "pos_x": 2390,
           "pos_y": 28,
