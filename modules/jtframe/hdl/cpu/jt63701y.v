@@ -51,10 +51,10 @@ module jt63701y #(
 
 wire        vma, ram_we, irq1, irq2,
             halt_en, halt_g, lir;
-reg         ram_cs, port_cs;
+reg         ram_cs, port_cs, fcup;
 wire [ 7:0] ram_dout;
 wire [ 5:0] psel;
-reg  [ 7:0] din, port_mux;
+reg  [ 7:0] din, port_mux, fch, fcl;
 reg  [ 7:0] ports[0:'h27];
 integer     i;
 reg         irq_ocf, irq_icf, irq_tof;
@@ -163,8 +163,14 @@ always @(posedge clk, posedge rst) begin
         ports[ICRH]  <= 0;
         ports[ICRL]  <= 0;
         tin_l <= 0;
+        fcup  <= 0;
+        fch   <= 0;
+        fcl   <= 0;
     end else begin
         port_mux <= ports[psel];
+        // The FRCL register is read through a latch, to guarantee accuracy
+        if( psel == FRCH && rnw ) fcl <= ports[FRCL];
+        if( psel == FRCL && rnw ) port_mux <= fcl;
         // PORT 1
         if( !ports[P1DDR][0] ) ports[P1] <= p1_din;
         if( !ports[P3DDR][0] ) ports[P3] <= p3_din;
@@ -187,6 +193,14 @@ always @(posedge clk, posedge rst) begin
                         if( psel==P6 && ports[P6DDR][i] ) ports[P6][i] <= dout[i];
                     end
                 TCSR1, TCSR2: ports[psel][4:0] <= dout[4:0];
+                FRCH: begin
+                    { ports[FRCH], ports[FRCL] } <= 16'hfff8;
+                    fch  <= dout;
+                end
+                FRCL: begin
+                    fcl <= dout;
+                    fcup <= 1;
+                end
                 // any other port is directly written through
                 default: begin
                     ports[psel] <= dout;
@@ -199,14 +213,20 @@ always @(posedge clk, posedge rst) begin
             if( psel==ICRH ) begin // the manual sets one more condition for this bit clearance, though
                 ports[TCSR1][7] <= 0;   // ICF (input capture flag)
                 ports[TCSR2][7] <= 0;
+                ports[TCSR1][6] <= 0;   // TOF (output compare flag - 1)
+                ports[TCSR2][6] <= 0;   // TOF (output compare flag - 2)
                 ports[TCSR1][5] <= 0;   // TOF (timer overflow flag)
             end
             // Free running counter
             { ports[FRCH],ports[FRCL] } <= nx_frc;
-            ports[TCSR1][6] <= ocf1;
-            ports[TCSR2][6] <= ocf1; // repeated in both ports
-            ports[TCSR2][5] <= ocf2;
-            ports[TCSR1][5] <= nx_frc_ov;
+            if( ocf1      ) ports[TCSR1][6] <= 1;
+            if( ocf1      ) ports[TCSR2][6] <= 1; // repeated in both ports
+            if( ocf2      ) ports[TCSR2][5] <= 1;
+            if( nx_frc_ov ) ports[TCSR1][5] <= 1;
+            if( fcup ) begin
+                { ports[FRCH], ports[FRCL] } <= { fch, fcl };
+                fcup <= 0;
+            end
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin

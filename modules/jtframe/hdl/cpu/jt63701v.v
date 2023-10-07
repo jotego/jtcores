@@ -20,20 +20,21 @@
 // The HD63701Y version, with an Y, has different port mappings
 // and some ports are not controlled in the same way. That is not supported here
 
+// Modes
+// 6: multiplexed/partial decode
+
 module jt63701v #(
     parameter ROMW = 12, // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
               MODE   = 6  // latched from port pints P2.2,1,0 at reset in the original
                           // only mode 6 is implemented so far
 )(
-    input              rst,
+    input              rst,     // use it for standby too, RAM is always preserved
     input              clk,
     input              cen,     // clk must be at leat x4 cen (24MHz -> 6MHz maximum)
 
     // all inputs are active high
     input              irq,
-    input              nmi,
-    input              halt,
-    output             halted,
+    input              nmi, // edge triggered
 
     output     [15:0]  A,
     input       [7:0]  xdin,
@@ -42,8 +43,17 @@ module jt63701v #(
     output             x_cs,    // eXternal access
     // Ports
     // irq1 = P5-0, irq2 = P5-1
-    input       [7:0]  p1_din, p2_din, p3_din, p4_din,
-    output      [7:0]  p1_dout, p2_dout, p3_dout, p4_dout,
+    input       [7:0]  p1_din,  p3_din,  p4_din,
+    output      [7:0]  p1_dout, p3_dout, p4_dout,
+
+    input       [4:0]  p2_din,
+    output      [4:0]  p2_dout,
+
+    // serial communication
+    // it uses the same pins as R/W and AS, so it cannot be used when an
+    // external is connected
+    // output             sc2, sc1_out,
+    // input              sc1_in,
 
     // ROM, regardless of size is external
     // data assumed to be right from one cen to the next
@@ -92,10 +102,12 @@ localparam  P1DDR = 'h0,
 assign buf_we = buf_cs & ~rnw;
 assign rom_addr = A[0+:ROMW];
 
-assign p1_dout = ports[P1];
-assign p2_dout = ports[P2];   // Port 2 can be used by timers 1,2 too
-assign p3_dout = ports[P3];
-assign p4_dout = ports[P4];
+assign p1_dout = MODE==1 ? A[7:0] : ports[P1];
+assign p2_dout = ports[P2][4:0];   // Port 2 can be used by timers 1,2 too
+assign p3_dout = (MODE<=2||MODE==6) ? dout : ports[P3]; // it should really toggle between dout and A[7:0]
+assign p4_dout = (MODE==0||MODE==2) ? A[15:8] :
+                  MODE!=6 ? ports[P4] :
+                (ports[P4DDR] & A[15:8]) | (~ports[P4DDR] & ports[P4]);
 assign psel    = A[4:0];
 assign x_cs    = vma && {port_cs,buf_cs,rom_cs}==0; // the MODE should limit this
 assign intv_rd = &A[15:5];
@@ -114,6 +126,13 @@ always @(posedge clk) begin
     port_cs <= vma &&  A < 16'h20;
     buf_cs  <= vma &&  A >=16'h40 && A < 16'h100;
     rom_cs  <= vma && &A[15:ROMW] && rnw;
+    // some port addresses are redirected to x_cs depending upon MODE
+    case( MODE )
+        0:   if((A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf ) port_cs <= 0;
+        1:   if( A[3:0]==0 || A[3:0]==2  ||(A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf) port_cs <= 0;
+        2:   if((A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf ) port_cs <= 0;
+        5,6: if((A[3:0]==4 || A[3:0]==6  || A[3:0]=='hf)) port_cs <= 0;
+    endcase
 end
 
 always @(*) begin
@@ -131,10 +150,11 @@ always @(posedge clk, posedge rst) begin
         ports[P4DDR] <= 0;
         ports[FRCH]  <= 0;
         ports[FRCL]  <= 0;
-        ports[OCRH] <='hff;
-        ports[OCRL] <='hff;
+        ports[OCRH]  <='hff;
+        ports[OCRL]  <='hff;
         ports[ICRH]  <= 0;
         ports[ICRL]  <= 0;
+        ports[RMCR]  <='hf0;
         tin_l <= 0;
         fcup  <= 0;
         fch   <= 0;
@@ -147,7 +167,7 @@ always @(posedge clk, posedge rst) begin
         for( i=0; i<8; i=i+1) begin
             if( !ports[P1DDR][i] ) ports[P1][i] <= p1_din[i];
             if( !ports[P3DDR][i] ) ports[P3][i] <= p3_din[i];
-            if( !ports[P2DDR][i] ) ports[P2][i] <= p2_din[i];
+            if( !ports[P2DDR][i] && i<5 ) ports[P2][i] <= p2_din[i];
             if( !ports[P4DDR][i] ) ports[P4][i] <= p4_din[i];
         end
 
@@ -165,28 +185,36 @@ always @(posedge clk, posedge rst) begin
                 TCSR: ports[psel][4:0] <= dout[4:0];
                 FRCH: begin
                     { ports[FRCH], ports[FRCL] } <= 16'hfff8;
-                    fch <= dout;
+                    fch  <= dout;
+                end
+                FRCL: begin
+                    fcl <= dout;
                     fcup <= 1;
                 end
-                FRCL: fcl <= dout;
+                RMCR: begin
+                    ports[RMCR]<={4'hf,dout[3:0]};
+                    if( dout[3:0]!=0 ) $display("Unsupported port write: %X <- %X", psel, dout);
+                end
                 // any other port is directly written through
                 default: begin
                     ports[psel] <= dout;
-                    if( psel>='h1b && psel<'h1f ) $display("Unsupported port write: %X <- %X", psel, dout);
-                    if( psel>='h10 && psel<'h14 ) $display("Unsupported port write: %X <- %X", psel, dout);
+                    if( psel>='h1b && psel<'h1f    ) $display("Unsupported port write: %X <- %X", psel, dout);
+                    if( psel>='h11 && psel<'h14    ) $display("Unsupported port write: %X <- %X", psel, dout);
                 end
             endcase
         end
         ports[P2][7:5] <= MODE[2:0];
+        ports[P2][1]   <= p2_din[1]; // overwritten below as needed
         if( cen ) begin
             if( psel==ICRH ) begin // the manual sets one more condition for this bit clearance, though
-                ports[TCSR][7] <= 0;   // ICF (input capture flag)
+                ports[TCSR][7] <= 0;   // ICF (input  capture flag)
+                ports[TCSR][6] <= 0;   // OCF (output compare flag)
                 ports[TCSR][5] <= 0;   // TOF (timer overflow flag)
             end
             // Free running counter
             { ports[FRCH],ports[FRCL] } <= nx_frc;
-            ports[TCSR][6] <= ocf1;
-            ports[TCSR][5] <= nx_frc_ov;
+            if( ocf1      ) ports[TCSR][6] <= 1;
+            if( nx_frc_ov ) ports[TCSR][5] <= 1;
             if( fcup ) begin
                 { ports[FRCH], ports[FRCL] } <= { fch, fcl };
                 fcup <= 0;
@@ -207,7 +235,7 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         irq_ocf <= 0;
-        irq_icf  <= 0;
+        irq_icf <= 0;
         irq_tof <= 0;
     end else begin
         if( ports[TCSR][6]&ports[TCSR][3] ) irq_ocf <= 1; // Counter compare register 1
@@ -217,6 +245,10 @@ always @(posedge clk, posedge rst) begin
             4'o13: irq_icf <= 0;  // FFF6-FFF7
             4'o12: irq_ocf <= 0;  // FFF4-FFF5
             4'o11: irq_tof <= 0;  // FFF2-FFF3
+            4'o07: begin
+                $display("TRAP interrupt %m, this indicates an address or op-code error");
+                $finish;
+            end
             default:;
         endcase
     end
@@ -240,15 +272,15 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .address    ( A         ),
     .data_in    ( din       ),
     .data_out   ( dout      ),
-    .halt       ( halt      ),
-    .halted     ( halted    ),
+    .halt       ( 1'b0      ),
+    .halted     (           ),
     .irq        ( irq       ),
-    .nmi        ( nmi       ),
+    .nmi        ( nmi       ),  // interrupt vector at FFF8
     .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
     .irq_ocf    ( irq_ocf   ),  // interrupt vector at FFF4
     .irq_icf    ( irq_icf   ),  // interrupt vector at FFF6
     // not implemented
-    .irq_sci    ( 1'b0      )
+    .irq_sci    ( 1'b0      )   // interrupt vector at FFF0
 );
 
 endmodule

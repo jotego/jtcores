@@ -68,7 +68,8 @@ reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
 
 wire [15:0] A;
 wire [11:0] rom_addr;
-wire [ 7:0] p1_din, p2_dout, rom_data;
+wire [ 7:0] p1_din, rom_data;
+wire [ 4:0] p2_dout;
 wire [ 1:0] gain1,  gain0;
 reg  [ 7:0] mcu_din, cab_dout, dac1, dac0;
 reg  [ 2:0] bank;
@@ -180,13 +181,11 @@ jt63701v #(.ROMW(12)) u_63701(
     .dout       ( mcu_dout      ),
 
     // interrupts
-    .halt       ( 1'b0          ),
-    .halted     (               ),
     .irq        ( irq           ),
     .nmi        ( 1'b0          ),
     // ports
     .p1_din     ( p1_din        ),
-    .p2_din     ( 8'd0          ),
+    .p2_din     ( 5'd0          ),
     .p3_din     ( 8'd0          ),
     .p4_din     ( 8'd0          ),
 

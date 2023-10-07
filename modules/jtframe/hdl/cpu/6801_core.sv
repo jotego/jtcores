@@ -13,8 +13,8 @@ module m6801(
         output logic [ 7:0] data_out,
         input  logic        halt,
         output logic        halted,
-        input  logic        irq,
-        input  logic        nmi,
+        input  logic        irq,     // interrupt vector at FFF8
+        input  logic        nmi,     // edge triggered
         input  logic        irq_icf, // interrupt vector at FFF6
         input  logic        irq_ocf, // interrupt vector at FFF4
         input  logic        irq_tof, // interrupt vector at FFF2
