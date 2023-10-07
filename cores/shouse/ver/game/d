@@ -1,4 +1,5 @@
-mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$c023
-match-trace
+; Pass the start up of the MCU/SUB
+mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$c04a
+mt PC==$c04a
+ignore x
 go
-

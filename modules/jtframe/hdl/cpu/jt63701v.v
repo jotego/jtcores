@@ -144,9 +144,9 @@ end
 // ports
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        ports[P1DDR] <='hfe;
+        ports[P1DDR] <= 0;
         ports[P2DDR] <= 0;
-        ports[P3DDR] <='hfe;
+        ports[P3DDR] <= 0;
         ports[P4DDR] <= 0;
         ports[FRCH]  <= 0;
         ports[FRCL]  <= 0;

@@ -154,6 +154,7 @@ reg     [7:0]           cc_nxt;
 reg     [15:0]          addr_nxt;
 reg     [15:0]          ea_nxt;
 reg     [15:0]          tmp_nxt;
+reg                     s_wr;       // signal a write to S register (JT addition)
 
 reg                     BS_nxt;
 reg                     BA_nxt;
@@ -198,8 +199,10 @@ reg     [15:0] ea_p1;
 // NMI is supposed to be masked - despite the name - until the 6809 loads a value into S.
 // Frankly, I'm cheating slightly.  If someone does a LDS #$0, it won't disable the mask.  Pretty much anything else
 // that changes the value of S from the default (which is currently $0) will clear the mask.  A reset will set the mask again.
+`ifdef VERILATOR_KEEP_CPU
+/* verilator tracing_on */ `endif
 reg     NMIMask;
-
+/* verilator tracing_off */
 reg     NMILatched;
 reg     NMISample;
 reg     NMISample2;
@@ -665,8 +668,7 @@ always @(posedge clk, negedge nRESET) begin
 
         IntType <= IntType_nxt;
 
-        if (s != s_nxt)                 // Once S changes at all (default is '0'), release the NMI Mask.
-            NMIMask <= 1'b0;
+        if( s_wr) NMIMask <= 0;
     end
 end
 
@@ -1712,6 +1714,7 @@ begin
     x_nxt      =  x;
     y_nxt      =  y;
     s_nxt      =  s;
+    s_wr       =  0;
     u_nxt      =  u;
     cc_nxt     =  cc;
     dp_nxt     =  dp;
@@ -1748,7 +1751,7 @@ begin
         b_nxt      =  0;
         x_nxt      =  0;
         y_nxt      =  0;
-        s_nxt      =  16'HFFFD;    // Take care about removing the reset of S.  There's logic depending on the delta between s and s_nxt to clear NMIMask.
+        s_nxt      =  0;
         u_nxt      =  0;
         cc_nxt     =  CC_F | CC_I; // reset disables interrupts
         dp_nxt     =  0;
@@ -2092,8 +2095,10 @@ begin
                                     y_nxt  =  EXGTFRRegA;
                                 EXGTFR_REG_U:
                                     u_nxt  =  EXGTFRRegA;
-                                EXGTFR_REG_S:
+                                EXGTFR_REG_S: begin
                                     s_nxt  =  EXGTFRRegA;
+                                    s_wr   = 1;
+                                end
                                 EXGTFR_REG_PC:
                                     pc_nxt =  EXGTFRRegA;
                                 EXGTFR_REG_DP:
@@ -2125,8 +2130,10 @@ begin
                                     y_nxt  =  EXGTFRRegB;
                                 EXGTFR_REG_U:
                                     u_nxt  =  EXGTFRRegB;
-                                EXGTFR_REG_S:
+                                EXGTFR_REG_S: begin
                                     s_nxt  =  EXGTFRRegB;
+                                    s_wr   = 1;
+                                end
                                 EXGTFR_REG_PC:
                                     pc_nxt =  EXGTFRRegB;
                                 EXGTFR_REG_DP:
@@ -2150,8 +2157,10 @@ begin
                                     y_nxt  =  EXGTFRRegA;
                                 EXGTFR_REG_U:
                                     u_nxt  =  EXGTFRRegA;
-                                EXGTFR_REG_S:
+                                EXGTFR_REG_S: begin
                                     s_nxt  =  EXGTFRRegA;
+                                    s_wr   = 1;
+                                end
                                 EXGTFR_REG_PC:
                                     pc_nxt =  EXGTFRRegA;
                                 EXGTFR_REG_DP:
@@ -2498,7 +2507,7 @@ begin
                 ALU16_REG_U:
                     {cc_nxt, u_nxt}        =  ALU16;
                 ALU16_REG_S:
-                    {cc_nxt, s_nxt}        =  ALU16;
+                    {s_wr, cc_nxt, s_nxt}  =  {1'b1, ALU16 };
                 default:
                 begin
                 end
@@ -2622,7 +2631,7 @@ begin
                 ALU16_REG_Y:
                     y_nxt[15:8]    =  D[7:0];
                 ALU16_REG_S:
-                    s_nxt[15:8]    =  D[7:0];
+                    { s_wr, s_nxt[15:8] } = {1'b1, D[7:0]};
                 ALU16_REG_U:
                     u_nxt[15:8]    =  D[7:0];
                 default:
@@ -2758,7 +2767,7 @@ begin
                 ALU16_REG_U:
                     u_nxt = ALU16[15:0];
                 ALU16_REG_S:
-                    s_nxt = ALU16[15:0];
+                    { s_wr, s_nxt } = {1'b1, ALU16[15:0] };
                 default:
                 begin
                 end
@@ -2813,7 +2822,7 @@ begin
             end
             ALU16_REG_S:
             begin
-                s_nxt[7:0] =  D[7:0];
+                {s_wr, s_nxt[7:0] } = { 1'b1, D[7:0] };
                 ALU16_B[15:8] = s[15:8];
             end
             ALU16_REG_U:
@@ -2901,7 +2910,7 @@ begin
                 ALU16_REG_U:
                     {cc_nxt, u_nxt}        =  ALU16;
                 ALU16_REG_S:
-                    {cc_nxt, s_nxt}        =  ALU16;
+                    {s_wr, cc_nxt, s_nxt}  = {1'b1, ALU16};
                 default:
                 begin
                 end

@@ -1,15 +1,15 @@
 [*]
-[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Mon Oct  2 17:16:10 2023
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sat Oct  7 06:22:39 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Mon Oct  2 16:55:19 2023"
-[dumpfile_size] 893455144
+[dumpfile_mtime] "Sat Oct  7 06:09:29 2023"
+[dumpfile_size] 476386179
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 1148000000000
-[size] 2527 1010
-[pos] -35 -48
-*-33.184704 -1 4333653683956 800339175092 817557034676 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 2290300000000
+[size] 1263 1010
+[pos] -31 -48
+*-34.999882 2310000524020 4333653683956 800339175092 817557034676 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -37,83 +37,21 @@ TOP.game_test.u_game.u_game.u_main.sirq_n
 @22
 TOP.game_test.u_game.u_game.u_main.saddr[15:0]
 @200
--
--CS
-@28
-TOP.game_test.u_game.u_game.u_main.bc30_cs
-TOP.game_test.u_game.u_game.u_main.key_cs
-TOP.game_test.u_game.u_game.u_main.mrom_cs
-TOP.game_test.u_game.u_game.u_main.oram_cs
-TOP.game_test.u_game.u_game.u_main.pal_cs
-TOP.game_test.u_game.u_game.u_main.ram_cs
-TOP.game_test.u_game.u_game.u_main.rom_cs
-TOP.game_test.u_game.u_game.u_main.scfg_cs
-TOP.game_test.u_game.u_game.u_main.srom_cs
-TOP.game_test.u_game.u_game.u_main.tri_cs
-TOP.game_test.u_game.u_game.u_main.vram_cs
-@22
-TOP.game_test.u_game.u_game.u_main.tri_dout[7:0]
-@200
--Mapper
-@28
-TOP.game_test.u_game.u_game.u_main.u_mapper.u_main.mmr_cs
-@200
--Triram
-@28
-TOP.game_test.u_game.u_game.u_triram.xwe
-@22
-TOP.game_test.u_game.u_game.u_triram.xaddr[10:0]
-TOP.game_test.u_game.u_game.u_triram.xdout[7:0]
-@28
-TOP.game_test.u_game.u_game.u_triram.xsel
-@200
--MCU
-@28
-TOP.game_test.u_game.u_game.u_mcu.irq
-TOP.game_test.u_game.u_game.u_mcu.epr_cs
-TOP.game_test.u_game.u_game.u_mcu.ram_cs
-@22
-TOP.game_test.u_game.u_game.u_mcu.mcu_addr[10:0]
-@c00022
-TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(1)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(2)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(3)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(4)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(5)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(6)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(7)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(8)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(9)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(10)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(11)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(12)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(13)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(14)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-(15)TOP.game_test.u_game.u_game.u_mcu.A[15:0]
-@1401200
--group_end
-@28
-TOP.game_test.u_game.u_game.u_mcu.rnw
-TOP.game_test.u_game.u_game.u_mcu.pcm_cs
-TOP.game_test.u_game.u_game.u_mcu.reg_cs
-@c00022
-TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-@28
-(0)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(1)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(2)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(3)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(4)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(5)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(6)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-(7)TOP.game_test.u_game.u_game.u_mcu.mcu_dout[7:0]
-@1401200
--group_end
-@22
+-Main
+@23
 [color] 1
-TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.pc[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.pc[15:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_mcpu.a[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.b[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.dp[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_mcpu.s[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.u[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.x[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.y[15:0]
 [pattern_trace] 1
 [pattern_trace] 0
