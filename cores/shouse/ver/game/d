@@ -1,5 +1,4 @@
-; Pass the start up of the MCU/SUB
-mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$c04a
-mt PC==$c04a
-ignore x
+# Pass MCU/SUB start up
+mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$d255
+mt PC==$d255
 go

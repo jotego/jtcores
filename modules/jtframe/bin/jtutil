@@ -7,7 +7,7 @@ fi
 RECOMPILE=FALSE
 BIN=$JTFRAME/src/jtutil/jtutil
 
-if [ ! -e $BIN ]; then
+if [[ ! -e $BIN || $# = 0 ]]; then
     RECOMPILE=TRUE
 else
     # Find out whether the jtutil file is older

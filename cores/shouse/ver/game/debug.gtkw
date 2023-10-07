@@ -1,15 +1,15 @@
 [*]
-[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Sat Oct  7 06:22:39 2023
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat Oct  7 14:22:21 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Sat Oct  7 06:09:29 2023"
-[dumpfile_size] 476386179
+[dumpfile_mtime] "Sat Oct  7 14:21:42 2023"
+[dumpfile_size] 43659561
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 2290300000000
-[size] 1263 1010
-[pos] -31 -48
-*-34.999882 2310000524020 4333653683956 800339175092 817557034676 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 2128895245452
+[size] 1264 1024
+[pos] -1 -1
+*-36.432892 2253933762036 2160546013428 2253921474260 2253933762036 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -18,10 +18,10 @@
 [treeopen] TOP.game_test.u_game.u_game.u_main.u_mapper.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.u_63701.
-[sst_width] 215
-[signals_width] 212
+[sst_width] 223
+[signals_width] 242
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 310
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -38,10 +38,9 @@ TOP.game_test.u_game.u_game.u_main.sirq_n
 TOP.game_test.u_game.u_game.u_main.saddr[15:0]
 @200
 -Main
-@23
+@22
 [color] 1
 TOP.game_test.u_game.u_game.u_main.u_mcpu.pc[15:0]
-@22
 TOP.game_test.u_game.u_game.u_main.u_mcpu.a[7:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.b[7:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
@@ -53,5 +52,23 @@ TOP.game_test.u_game.u_game.u_main.u_mcpu.s[15:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.u[15:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.x[15:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.y[15:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcpu.alu_busy
+@29
+TOP.game_test.u_game.u_game.u_main.u_mcpu.stack_busy
+@200
+-
 [pattern_trace] 1
+!100000@@
+?01
+@29
+TOP.game_test.u_game.u_game.u_triram.mcu_cs
+?04
+TOP.game_test.u_game.u_game.u_triram.mcu_rnw
+?"03F
+@23
+TOP.game_test.u_game.u_game.u_triram.mcu_addr[10:0]
+!!
 [pattern_trace] 0

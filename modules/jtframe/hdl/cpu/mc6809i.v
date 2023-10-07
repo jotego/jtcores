@@ -122,6 +122,10 @@ reg     [15:0]          s;
 reg     [15:0]          pc;
 reg     [7:0]           dp;
 reg     [7:0]           cc;
+`ifdef SIMULATION
+wire   alu_busy = CpuState==CPUSTATE_MUL_ACTION;
+wire stack_busy = CpuState==CPUSTATE_PUL_ACTION || CpuState==CPUSTATE_PSH_ACTION;
+`endif
 /* verilator tracing_off */
 reg     [15:0]          tmp;
 reg     [15:0]          addr;
