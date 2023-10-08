@@ -329,7 +329,7 @@ public:
         if( (ticks&STEP)==STEP) {
             iodin[dut.ioctl_addr] = dut.ioctl_din;
             if( ++dut.ioctl_addr == _JTFRAME_IOCTL_RD ) {
-                fpintf(stderr,"\nIOCTL read finished\n");
+                fprintf(stderr,"\nIOCTL read finished\n");
                 dut.ioctl_addr=0;
                 dut.ioctl_ram=0;
                 iodump_busy=false;
@@ -344,7 +344,7 @@ public:
     }
     void iodump_start() {
         if( iodump_busy ) return;
-        fpintf(stderr,"\nIOCTL read started\n");
+        fprintf(stderr,"\nIOCTL read started\n");
         iodump_busy = true;
         dut.ioctl_addr=0;
         dut.ioctl_ram=1;

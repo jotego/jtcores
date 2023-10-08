@@ -125,7 +125,9 @@ Please support the development: https://patreon.com/jotego
     -pause     Enable pause DIP setting. Same as -d DIP_PAUSE
     -pocket    Select PocketFPGA as target platform
     -questasim Use QuestaSim as the simulator
-    -s|-scene  Ignored
+    -s|-scene  Simulates a scene dump. These dumps can be obtained through FPGA runs,
+               MAME emulation or simulation. New cores and encouraged to use the ioctl
+               dump features in mem.yaml to create these dumps.
     -safe      Disable verilator optimizations that may halt the elaboration stage
     -setname   Creates the .rom file for the given MAME setname by looking in the MRA folder
     -shaup     Update the .sha file with the shasum for each frame.jpg
@@ -258,10 +260,13 @@ require "$JTFRAME" "You need to source the project setprj.sh"
 require "$MODULES" "Missing the modules path. You need to source the project setprj.sh"
 
 function add_macro {
+    if [ $# = 0 ]; then return; fi
     if [ ! -z "$ALLMACROS" ]; then
         ALLMACROS=${ALLMACROS},
     fi
     ALLMACROS=${ALLMACROS}$1
+    shift
+    add_macro $*
 }
 
 function has_macro {
@@ -369,7 +374,21 @@ case "$1" in
     -setname)
         shift
         SETNAME=$1;;
-    -s|-scene) shift;; # -scene is parsed by the sim.sh scripts
+    -s|-scene)
+        shift
+        SCENE="$1/dump.bin"
+        if [ ! -e "$SCENE" ]; then
+            SCENE="scenes/$SCENE"
+        fi
+        if [[ -e "$SCENE" && -x dump2bin.sh ]]; then
+            dump2bin.sh "$SCENE" 2> /dev/null
+            add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3
+            rm -rf video.bin frame_*.jpg frame.raw frames
+            VIDEO_DUMP=TRUE
+        else
+            echo "ignoring -scene in jtsim as scene file $SCENE or dump2bin.sh were not found"
+        fi
+        ;;
     -shaup) SHAUP=1;;
     -time)
         shift
@@ -395,10 +414,7 @@ case "$1" in
             add_macro MAXFRAME=$1
             echo Simulate up to $1 frames
         fi
-        rm -f video.bin
-        rm -f frame_*.jpg
-        rm -f frame.raw
-        rm -rf frames
+        rm -rf video.bin frame_*.jpg frame.raw frames
         VIDEO_DUMP=TRUE
         ;;
     -load)
