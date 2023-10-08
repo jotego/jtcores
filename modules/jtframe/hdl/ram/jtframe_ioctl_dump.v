@@ -77,7 +77,6 @@ reg  [23:0] offset;
 
 assign part_addr = ioctl_addr - offset;
 
-
 assign addrout_0 = sel[0] ? ioctl_addr[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addrin_0;
 assign addrout_1 = sel[1] ? part_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addrin_1;
 assign addrout_2 = sel[2] ? part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addrin_2;
@@ -98,12 +97,12 @@ always @(posedge clk) begin
     sel    <= 0;
     offset <= 0;
     if( ioctl_ram ) begin
-        if( ioctl_addr < OS1 ) begin sel[0] <= 1; offset <= 0; end
-        else if( ioctl_addr < OS2 ) begin sel[1] <= 1; offset <= OS1[23:0]; end
-        else if( ioctl_addr < OS3 ) begin sel[2] <= 1; offset <= OS2[23:0]; end
-        else if( ioctl_addr < OS4 ) begin sel[3] <= 1; offset <= OS3[23:0]; end
-        else if( ioctl_addr < OS5 ) begin sel[4] <= 1; offset <= OS4[23:0]; end
-        else if( ioctl_addr < OS6 ) begin sel[5] <= 1; offset <= OS5[23:0]; end
+        if     ( ioctl_addr < OS1 && AW0!=0) begin sel[0] <= 1; offset <= 0; end
+        else if( ioctl_addr < OS2 && AW1!=0) begin sel[1] <= 1; offset <= OS1[23:0]; end
+        else if( ioctl_addr < OS3 && AW2!=0) begin sel[2] <= 1; offset <= OS2[23:0]; end
+        else if( ioctl_addr < OS4 && AW3!=0) begin sel[3] <= 1; offset <= OS3[23:0]; end
+        else if( ioctl_addr < OS5 && AW4!=0) begin sel[4] <= 1; offset <= OS4[23:0]; end
+        else if( ioctl_addr < OS6 && AW5!=0) begin sel[5] <= 1; offset <= OS5[23:0]; end
     end
 end
 

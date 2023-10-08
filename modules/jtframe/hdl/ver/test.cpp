@@ -783,9 +783,6 @@ void JTSim::clock(int n) {
             if ( dwn.FullDownload() ) sdram.dump();
             reset(0);
         }
-#ifdef _JTFRAME_SIM_IODUMP
-        if( frame_cnt==_JTFRAME_SIM_IODUMP ) dwn.iodump_start();
-#endif
 #ifdef _RST_DLY // reset delay in us
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
@@ -811,6 +808,9 @@ void JTSim::clock(int n) {
         if( game.VS && !last_VS ) {
             fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf); // do not flush the streams. It can mess up
             frame_cnt++;
+#ifdef _JTFRAME_SIM_IODUMP
+            if( frame_cnt==_JTFRAME_SIM_IODUMP ) dwn.iodump_start();
+#endif
             if( frame_cnt == _DUMP_START && !dump_ok ) {
                 dump_ok = 1;
                 fprintf(stderr,"\nDump starts (frame %d)\n", frame_cnt);

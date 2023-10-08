@@ -54,7 +54,6 @@ assign vram_we   = {2{vram_cs & ~brnw}} & {baddr[0], ~baddr[0]};
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
-assign ioctl_din = 0;
 
 // To do:
 assign dip_flip = 0;
@@ -310,6 +309,10 @@ jtshouse_video u_video(
     .red_dout   ( red_dout  ),
     .green_dout ( green_dout),
     .blue_dout  ( blue_dout ),
+
+    // IOCTL dump
+    .ioctl_addr (ioctl_addr[4:0]),
+    .ioctl_din  (ioctl_din),
 
     .debug_bus  ( debug_bus ),
     .gfx_en     ( gfx_en    ),

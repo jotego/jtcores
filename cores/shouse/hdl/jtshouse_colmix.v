@@ -49,7 +49,8 @@ wire [8:0] virq, hirq;
 reg        mmr_cs, r_cs, g_cs, b_cs;
 wire       blank;
 
-assign rgb_addr = {2'b10, scr_pxl };
+// assign rgb_addr = {2'b01, scr_pxl };
+assign rgb_addr = { debug_bus[1:0]^2'b01, scr_pxl };
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 
 assign rpal_we = ~cpu_rnw & r_cs;

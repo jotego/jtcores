@@ -56,6 +56,9 @@ module jtshouse_video(
 
     output            lvbl, lhbl, hs, vs,
     output     [ 7:0] red, green, blue,
+    // Dump MMR
+    input      [ 4:0] ioctl_addr,
+    output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -141,6 +144,9 @@ jtshouse_scr u_scroll(
     // Pixel output
     .pxl        ( scr_pxl   ),
     .prio       ( scr_prio  ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr),
+    .ioctl_din  ( ioctl_din ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
