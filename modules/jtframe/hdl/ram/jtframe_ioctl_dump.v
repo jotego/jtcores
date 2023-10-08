@@ -91,7 +91,7 @@ assign ioctl_din =
     sel[2] ? ( (DW2==16 && ioctl_addr[0]) ? din2[DW2-1 -:8] : din2[7:0]) :
     sel[3] ? ( (DW3==16 && ioctl_addr[0]) ? din3[DW3-1 -:8] : din3[7:0]) :
     sel[4] ? ( (DW4==16 && ioctl_addr[0]) ? din4[DW4-1 -:8] : din4[7:0]) :
-    sel[4] ? ( (DW5==16 && ioctl_addr[0]) ? din5[DW5-1 -:8] : din5[7:0]) :
+    sel[5] ? ( (DW5==16 && ioctl_addr[0]) ? din5[DW5-1 -:8] : din5[7:0]) :
                ioctl_aux;
 
 always @(posedge clk) begin
