@@ -456,27 +456,36 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	found := false
 	dump_size := 0
 	total_blocks := 0
+	tosave := make([]*BRAMBus, len(cfg.BRAM))
 	for k, each := range cfg.BRAM {
+		if each.Ioctl.Order>=len(tosave) {
+			fmt.Printf("ioctl.order is too big for element %s in mem.yaml\n",each.Name)
+			os.Exit(1)
+		}
 		if each.Ioctl.Save {
 			found = true
-			cfg.BRAM[k].Sim_file=true
-			i := each.Ioctl.Order
-			cfg.Ioctl.Buses[i].Name = each.Name
-			cfg.Ioctl.Buses[i].AW = each.Addr_width
-			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
-			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
-			cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
-			if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
-			cfg.Ioctl.Buses[i].DW = each.Data_width
-			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
-			cfg.BRAM[k].Addr = each.Name+"_amux"
-			dump_size += 1<<each.Addr_width
-			cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
-			cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
-			cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
-			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
-			total_blocks += cfg.Ioctl.Buses[i].Blocks
+			tosave[each.Ioctl.Order] = &cfg.BRAM[k]
 		}
+	}
+	for k, each := range tosave {
+		if each == nil { continue }
+		cfg.BRAM[k].Sim_file=true
+		i := each.Ioctl.Order
+		cfg.Ioctl.Buses[i].Name = each.Name
+		cfg.Ioctl.Buses[i].AW = each.Addr_width
+		cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
+		cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
+		cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
+		if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
+		cfg.Ioctl.Buses[i].DW = each.Data_width
+		cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
+		cfg.BRAM[k].Addr = each.Name+"_amux"
+		dump_size += 1<<each.Addr_width
+		cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
+		cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
+		cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
+		cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
+		total_blocks += cfg.Ioctl.Buses[i].Blocks
 	}
 	cfg.Ioctl.SkipAll = total_blocks
 	if found {
