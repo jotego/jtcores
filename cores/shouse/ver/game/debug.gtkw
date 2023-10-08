@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sat Oct  7 14:22:21 2023
+[*] Sat Oct  7 15:09:52 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
 [dumpfile_mtime] "Sat Oct  7 14:21:42 2023"
 [dumpfile_size] 43659561
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 2128895245452
+[timestart] 2263031533000
 [size] 1264 1024
 [pos] -1 -1
-*-36.432892 2253933762036 2160546013428 2253921474260 2253933762036 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-20.634533 2263036155892 2263020531700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -21,7 +21,7 @@
 [sst_width] 223
 [signals_width] 242
 [sst_expanded] 1
-[sst_vpaned_height] 310
+[sst_vpaned_height] 309
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -31,19 +31,39 @@ TOP.game_test.u_game.u_game.u_main.srst_n
 TOP.game_test.u_game.u_game.u_main.maddr[15:0]
 TOP.game_test.u_game.u_game.u_main.mdin[7:0]
 @28
+TOP.game_test.u_game.u_game.u_main.mrnw
+@200
+-
+@28
 TOP.game_test.u_game.u_game.u_main.firqn
 TOP.game_test.u_game.u_game.u_main.mirq_n
 TOP.game_test.u_game.u_game.u_main.sirq_n
-@22
-TOP.game_test.u_game.u_game.u_main.saddr[15:0]
 @200
 -Main
 @22
 [color] 1
 TOP.game_test.u_game.u_game.u_main.u_mcpu.pc[15:0]
+@201
+-
+@22
 TOP.game_test.u_game.u_game.u_main.u_mcpu.a[7:0]
 TOP.game_test.u_game.u_game.u_main.u_mcpu.b[7:0]
+@200
+-
+@c00022
 TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(1)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(2)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(3)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(4)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(5)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(6)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+(7)TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+@1401200
+-group_end
+@22
 TOP.game_test.u_game.u_game.u_main.u_mcpu.dp[7:0]
 @200
 -
@@ -56,7 +76,6 @@ TOP.game_test.u_game.u_game.u_main.u_mcpu.y[15:0]
 -
 @28
 TOP.game_test.u_game.u_game.u_main.u_mcpu.alu_busy
-@29
 TOP.game_test.u_game.u_game.u_main.u_mcpu.stack_busy
 @200
 -

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 21-9-2023 */
 
-// The implementation of the KEY chips follows MAME's documentation
+// The implementation of the KEY chips follows MAME's namcos1_m.cpp
 // These chips won't impact any timing accuracy
 
 module jtshouse_key(
@@ -36,10 +36,16 @@ module jtshouse_key(
 
 );
 
+// The random number generator follows MAME's implementation
+// for the sake of comparing debug traces
+
 reg  [7:0] cfg[0:7];
 reg  [7:0] mmr[0:7];
-wire [7:0] mmr_mux, rng;
-reg        cen_rng;
+reg  [5:0] sel;
+wire [7:0] mmr_mux;
+reg        up_rng, cs_l;
+
+integer i, rng, nx_rng;
 
 assign mmr_mux = mmr[cfg[4][2:0]];
 
@@ -49,34 +55,39 @@ end
 
 // Random number generator. Should research the real one: https://github.com/jotego/jtcores/issues/363
 // For now, I use JT51's LFSR
-reg [16:0] bb;
-assign rng = bb[16-:8];
+// reg [16:0] bb;
+// assign rng = bb[16-:8];
 
-always @(posedge clk, posedge rst) begin : base_counter
-    if( rst ) begin
-        bb <= 14220;
-    end else if(cen_rng) begin
-        bb[16:1] <= bb[15:0];
-        bb[0]    <= ~(bb[16]^bb[13]);
-    end
+// always @(posedge clk, posedge rst) begin : base_counter
+//     if( rst ) begin
+//         bb <= 14220;
+//     end else if(up_rng) begin
+//         bb[16:1] <= bb[15:0];
+//         bb[0]    <= ~(bb[16]^bb[13]);
+//     end
+// end
+
+always @* begin
+    for(i=0;i<6;i=i+1) sel[i]=addr[6:4]==cfg[i+2][2:0] && cs;
+    up_rng = sel[1] && !cs_l;
+    nx_rng = 1664525 * rng + 1013904223;
 end
 
 always @(posedge clk or posedge rst) begin
     if(rst) begin
-        cen_rng <= 0;
         dout    <= 0;
+        cs_l    <= 0;
+        rng     <= 'h9d14abd7;
     end else begin
-        cen_rng <= 0;
-        if( cs & ~rnw ) mmr[addr[6:4]] <= din;
-        case( addr[6:4] )
-            cfg[2][2:0]: dout <= cfg[1]; // key ID
-            cfg[3][2:0]: begin
-                cen_rng <= 1;
-                dout <= rng; // Random Number Generator
-            end
-            cfg[5][2:0]: dout <= { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
-            cfg[6][2:0]: dout <= { mmr_mux[3:0], addr[7:4] }; // lower nibble
-            cfg[7][2:0]: dout <= { mmr_mux[7:4], addr[7:4] }; // upper nibble
+        cs_l    <= cs;
+        if( cs && ~rnw ) mmr[addr[6:4]] <= din;
+        if( up_rng ) rng <= nx_rng;
+        case( 1'b1 )
+            sel[0]: dout <= cfg[1];   // key ID
+            sel[1]: dout <= rng[16+:8]; // Random Number Generator
+            sel[3]: dout <= { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
+            sel[4]: dout <= { mmr_mux[3:0], addr[7:4] };    // lower nibble
+            sel[5]: dout <= { mmr_mux[7:4], addr[7:4] };    // upper nibble
         endcase
     end
 end
