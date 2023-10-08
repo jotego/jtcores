@@ -70,7 +70,7 @@ The MRA file must include `<nvram index="2" size="2048"/>`. MiSTer will create a
 
 At the time of writting, MiSTer firmware doesn't handle correctly NVRAM sizes equal or above 64kB.
 
-# SDRAM RTL Generator
+# Memory RTL Generator
 
 JTFRAME expects the core game module to have the SDRAM interface ports for downloading the game data and accessing the SDRAM during the core operation. There are two different interfaces possible, one that only supports a single SDRAM bank and one that supports the four SDRAM banks (enabled with **JTFRAME_SDRAM_BANKS**). JTFRAME also provides the developer with a series of modules to interface with the SDRAM as easily as possible.
 
@@ -112,7 +112,23 @@ sdram:
           data_width: 8
 ```
 
-In this example only one bank is used. You can check the *game_sdram.v* file that is generated to see what JTFRAME does. Another core that uses *mem.yaml* is [Extermination](https://github.com/jotego/jtbubl). Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works.
+In this example only one bank is used. You can check the *game_sdram.v* file that is generated to see what JTFRAME does. Another core that uses *mem.yaml* is [Extermination](https://github.com/jotego/jtbubl). Eventually, all cores should take this approach. Explicit SDRAM modules are deprecated for new cores.
+
+*mem.yaml* can also instantiate BRAM modules, making it easy to swap a given memory location from SDRAM to BRAM. BRAM modules are also easily configurable for saving back to the SD card via the IOCTL interface. For example:
+
+```
+bram:
+  - name: eerom
+    addr_width: 11
+    data_width: 8
+    din: mcu_dout
+    rw: true
+    ioctl: { save: true, order: 0 }
+```
+
+This will generate the right code for the BRAM instantiation with dumping through IOCTL and an auxiliarry *dump2bin.sh* in the *ver/game* folder to help convert the file(s) to simulation format. The macro **JTFRAME_SIM_IODUMP** works in Verilator to simulate the IOCTL process and generate a dump file within the simulator.
+
+Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works.
 
 When a *mem.yaml* file exists, *jtframe* automatically declares the **JTFRAME_SDRAM_BANKS** and **JTFRAME_MEMGEN** macros.
 

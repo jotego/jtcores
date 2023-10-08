@@ -73,9 +73,9 @@ reg  [ 2:0] lyr   [0:7]; // maps the priority 0-7 to the layer 0-5
 integer     i, j;
 
 assign idx = flip ? 3'd7 : 3'd0;
-assign tmap_addr = tcnt<3 ? { tcnt[1:0],       hpos[3+:6], vpos[3+:6] }: // 3 + 12 = 14 bits
-                   tcnt<4 ? { tcnt[1:0], 1'b0, hpos[3+:6], vpos[3+:5] }:
-                            { 3'd7, tcnt[0],   hpos[3+:5], vpos[3+:5] }; // not sure about this one
+assign tmap_addr = tcnt<3 ? { tcnt[1:0],       vpos[3+:6], hpos[3+:6] }: // 3 + 12 = 14 bits
+                   tcnt<4 ? { tcnt[1:0], 1'b0, vpos[3+:5], hpos[3+:6] }:
+                            { 3'd7, tcnt[0],   vpos[3+:5], hpos[3+:5] }; // not sure about this one
 assign scr_addr  = { mux[13:0], hpos[2:0], vpos[2:0] };
 assign scr_cs    = 1;
 assign nx_cfg    = mmr[{2'b10, tcnt }][3:0];

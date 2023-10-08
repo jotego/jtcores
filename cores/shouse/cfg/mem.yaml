@@ -53,6 +53,7 @@ bram:
   - name: tmap
     addr_width: 15
     data_width: 16
+    ioctl: { save: true, order: 1 }
     dual_port:
       name: vram
       din: bdout16
@@ -78,6 +79,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 2 }
     dual_port:
       name: rpal
       addr: pal_addr
@@ -88,6 +90,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 3 }
     dual_port:
       name: gpal
       addr: pal_addr
@@ -98,6 +101,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 4 }
     dual_port:
       name: bpal
       addr: pal_addr

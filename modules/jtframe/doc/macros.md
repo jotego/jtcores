@@ -181,6 +181,7 @@ JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
+JTFRAME_SIM_IODUMP       |verilator| Frame at which an ioctl_ram read is run. Outputs to dump.bin (JTFRAME_IOCTL_RD needed)
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
 VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulation

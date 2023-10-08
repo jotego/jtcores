@@ -467,9 +467,9 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 			tosave[each.Ioctl.Order] = &cfg.BRAM[k]
 		}
 	}
-	for k, each := range tosave {
+	for _, each := range tosave {
 		if each == nil { continue }
-		cfg.BRAM[k].Sim_file=true
+		each.Sim_file=true
 		i := each.Ioctl.Order
 		cfg.Ioctl.Buses[i].Name = each.Name
 		cfg.Ioctl.Buses[i].AW = each.Addr_width
@@ -479,7 +479,7 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 		if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
 		cfg.Ioctl.Buses[i].DW = each.Data_width
 		cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
-		cfg.BRAM[k].Addr = each.Name+"_amux"
+		each.Addr = each.Name+"_amux"
 		dump_size += 1<<each.Addr_width
 		cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
 		cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10

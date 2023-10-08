@@ -195,8 +195,8 @@ int fileLength( const char *name ) {
 class Download {
     UUT& dut;
     int addr, din, ticks,len, cart_start, nvram_start;
-    char *buf;
-    bool done, cart, nvram, full_download;
+    char *buf, *iodin;
+    bool done, cart, nvram, full_download, iodump_busy;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
@@ -204,6 +204,7 @@ public:
     Download(UUT& _dut) : dut(_dut) {
         done = false;
         buf = nullptr;
+        iodin = nullptr;
         ifstream fin( "rom.bin", ios_base::binary );
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
@@ -255,6 +256,8 @@ public:
     ~Download() {
         delete []buf;
         buf=nullptr;
+        delete []iodin;
+        iodin=nullptr;
     };
     bool FullDownload() { return full_download; }
     void start( bool download ) {
@@ -277,7 +280,11 @@ public:
     }
     void update() {
         dut.ioctl_wr = 0;
-        if( !done && dut.downloading ) {
+        if( dut.downloading ) step_download();
+        if( iodump_busy ) iodump_step();
+    }
+    void step_download() {
+        if( !done ) {
 #ifdef _JTFRAME_SIM_SLOWLOAD
             const int STEP=31;
 #else
@@ -315,6 +322,35 @@ public:
             ticks++;
         } else {
             ticks=0;
+        }
+    }
+    void iodump_step() {
+        const int STEP=3;
+        if( (ticks&STEP)==STEP) {
+            iodin[dut.ioctl_addr] = dut.ioctl_din;
+            if( ++dut.ioctl_addr == _JTFRAME_IOCTL_RD ) {
+                fpintf(stderr,"\nIOCTL read finished\n");
+                dut.ioctl_addr=0;
+                dut.ioctl_ram=0;
+                iodump_busy=false;
+                auto of = ofstream("dump.bin",ios_base::binary);
+                of.write(iodin,_JTFRAME_IOCTL_RD);
+                if( of.bad() ) {
+                    fprintf(stderr,"ERROR: (test.cpp) creating dump.bin\n" );
+                }
+            }
+        }
+        ticks++;
+    }
+    void iodump_start() {
+        if( iodump_busy ) return;
+        fpintf(stderr,"\nIOCTL read started\n");
+        iodump_busy = true;
+        dut.ioctl_addr=0;
+        dut.ioctl_ram=1;
+        ticks=0;
+        if(iodin==nullptr) {
+            iodin=new char[_JTFRAME_IOCTL_RD];
         }
     }
 };
@@ -747,6 +783,9 @@ void JTSim::clock(int n) {
             if ( dwn.FullDownload() ) sdram.dump();
             reset(0);
         }
+#ifdef _JTFRAME_SIM_IODUMP
+        if( frame_cnt==_JTFRAME_SIM_IODUMP ) dwn.iodump_start();
+#endif
 #ifdef _RST_DLY // reset delay in us
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
