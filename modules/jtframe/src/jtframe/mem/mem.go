@@ -459,6 +459,7 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	for k, each := range cfg.BRAM {
 		if each.Ioctl.Save {
 			found = true
+			cfg.BRAM[k].Sim_file=true
 			i := each.Ioctl.Order
 			cfg.Ioctl.Buses[i].Name = each.Name
 			cfg.Ioctl.Buses[i].AW = each.Addr_width
