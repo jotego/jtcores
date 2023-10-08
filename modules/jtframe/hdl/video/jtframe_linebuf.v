@@ -27,7 +27,7 @@ module jtframe_linebuf #(parameter
     input   [AW-1:0] wr_addr,
     input   [DW-1:0] wr_data,
     input            we,
-    // Old data reads (and erases)
+    // Old data reads
     input   [AW-1:0] rd_addr,
     output  [DW-1:0] rd_data,
     output  [DW-1:0] rd_gated

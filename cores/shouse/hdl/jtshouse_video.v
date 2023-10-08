@@ -119,7 +119,8 @@ jtshouse_scr u_scroll(
 
     .pxl_cen    ( pxl_cen   ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
+    .vdump      ( vrender   ),
+    .hs         ( hs        ),
     .flip       ( flip      ),
 
     .cs         ( scfg_cs   ),

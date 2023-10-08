@@ -7,6 +7,7 @@ game:
       - jtshouse_sound.v
       - jtshouse_colmix.v
       - jtshouse_mcu.v
+      - jtshouse_scr.v
       - jtshouse_triram.v
       - jtshouse_cenloop.v
       # Custom chips
@@ -28,6 +29,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_linebuf.v
 modules:
   jt:
     - name: jt51

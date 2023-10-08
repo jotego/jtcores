@@ -26,6 +26,7 @@ module jtshouse_scr(
     input             clk,
 
     input             pxl_cen,
+    input             hs,
     input       [8:0] hdump,
     input       [8:0] vdump,
     input             flip,
@@ -50,8 +51,8 @@ module jtshouse_scr(
     output     [19:0] scr_addr,
     input      [ 7:0] scr_data,
     // Pixel output
-    output reg [10:0] pxl,
-    output reg [ 2:0] prio,
+    output     [10:0] pxl,
+    output     [ 2:0] prio,
     // IOCTL dump
     input      [ 4:0] ioctl_addr,
     output     [ 7:0] ioctl_din,
@@ -80,6 +81,11 @@ reg  [ 2:0] vin[0:5], hin[0:5];
 reg  [ 2:0] vll[0:7], hll[0:7];
 reg  [ 2:0] vmux, hmux;
 reg  [ 2:0] lyr   [0:7]; // maps the priority 0-7 to the layer 0-5
+reg  [ 8:0] hcnt;
+reg  [10:0] bpxl;
+reg  [ 2:0] bprio;
+reg         hs_l, done, alt_cen;
+wire        buf_we, rom_ok;
 integer     i, j;
 
 assign idx = flip ? 3'd7 : 3'd0;
@@ -89,8 +95,10 @@ assign tmap_addr = tcntl<3 ? { tcntl[1:0],       vpos[3+:6], hpos[3+:6] }: // 3 
                              { 3'd7, tcntl[0],   vpos[3+:5], hpos[3+:5] }; // not sure about this one
 assign scr_addr  = { mux[13:0], vmux[2:0], hmux[2:0] };
 assign scr_cs    = 1;
-assign tcnt      = hdump[2:0];
+assign tcnt      = hcnt[2:0];
 assign ioctl_din = mmr[ioctl_addr];
+assign buf_we    = alt_cen & ~done;
+assign rom_ok    = scr_ok & (mask_ok | ~mask_cs);
 
 `ifdef SIMULATION
 integer f, fcnt;
@@ -104,6 +112,23 @@ initial begin
     $fclose(f);
 end
 `endif
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        hs_l <= 0;
+        hcnt <= 0;
+        done <= 0;
+    end else begin
+        alt_cen <= 0;
+        if(pxl_cen) begin
+            hs_l    <= hs;
+            alt_cen <= rom_ok;
+            if( hcnt < 9'h1a0 && rom_ok) hcnt <= hcnt+9'd1;
+            if( hs & ~hs_l ) hcnt <= 9'h80;
+            done <= hcnt==9'h19f;
+        end
+    end
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -121,10 +146,10 @@ end
 
 always @* begin
     if( tcnt>3 )
-        { nx_vpos, nx_hpos } = { 7'd0, vdump, 7'd0, hdump };
+        { nx_vpos, nx_hpos } = { 7'd0, vdump, 7'd0, hcnt };
     else
         { nx_vpos, nx_hpos } = { {mmr[{tcnt,2'd2}], mmr[{tcnt,2'd3}]}+{7'd0,vdump},
-                                 {mmr[{tcnt,2'd0}], mmr[{tcnt,2'd1}]}+{7'd0,hdump} };
+                                 {mmr[{tcnt,2'd0}], mmr[{tcnt,2'd1}]}+{7'd0,hcnt} };
     if( flip ) begin
         nx_hpos = -nx_hpos;
         nx_vpos = -nx_vpos;
@@ -139,8 +164,9 @@ always @(posedge clk, posedge rst) begin
         mask_cs   <= 0;
         mask_addr <= 0;
         mux       <= 0;
-        pxl       <= 0;
-        nx_prio<= 0;
+        bpxl      <= 0;
+        bprio     <= 0;
+        nx_prio   <= 0;
         nx_pal    <= 0;
         for( i=0; i< 6; i=i+1 ) begin
             maskin[i] <= 0;
@@ -150,11 +176,13 @@ always @(posedge clk, posedge rst) begin
             maskll[i] <= 0;
             infoll[i] <= 0;
             lyr   [i] <= 0;
+            hll   [i] <= 0;
+            vll   [i] <= 0;
         end
     end else begin
         { vpos, hpos } <= { nx_vpos, nx_hpos };
         tcntl <= tcnt;
-        if( pxl_cen ) begin
+        if( alt_cen ) begin
             // pipeline
             // 0:                  output: tmap_addr
             // 1: input: tmap_data output: mask_addr
@@ -184,17 +212,28 @@ always @(posedge clk, posedge rst) begin
                 for( i=0; i<6; i=i+1 ) maskll[i] <= flip ? maskll[i]<<1 : maskll[i]>>1;
             end
             // Keep the order:
-            if( maskll[7][idx] ) begin mux <= infoll[7]; vmux<=vll[7]; hmux<=hll[7]+hdump[2:0]; nx_prio <= 7; nx_pal <= mmr[{2'b11,lyr[7]}][2:0]; end
-            if( maskll[6][idx] ) begin mux <= infoll[6]; vmux<=vll[6]; hmux<=hll[6]+hdump[2:0]; nx_prio <= 6; nx_pal <= mmr[{2'b11,lyr[6]}][2:0]; end
-            if( maskll[5][idx] ) begin mux <= infoll[5]; vmux<=vll[5]; hmux<=hll[5]+hdump[2:0]; nx_prio <= 5; nx_pal <= mmr[{2'b11,lyr[5]}][2:0]; end
-            if( maskll[4][idx] ) begin mux <= infoll[4]; vmux<=vll[4]; hmux<=hll[4]+hdump[2:0]; nx_prio <= 4; nx_pal <= mmr[{2'b11,lyr[4]}][2:0]; end
-            if( maskll[3][idx] ) begin mux <= infoll[3]; vmux<=vll[3]; hmux<=hll[3]+hdump[2:0]; nx_prio <= 3; nx_pal <= mmr[{2'b11,lyr[3]}][2:0]; end
-            if( maskll[2][idx] ) begin mux <= infoll[2]; vmux<=vll[2]; hmux<=hll[2]+hdump[2:0]; nx_prio <= 2; nx_pal <= mmr[{2'b11,lyr[2]}][2:0]; end
-            if( maskll[1][idx] ) begin mux <= infoll[1]; vmux<=vll[1]; hmux<=hll[1]+hdump[2:0]; nx_prio <= 1; nx_pal <= mmr[{2'b11,lyr[1]}][2:0]; end
-            if( maskll[0][idx] ) begin mux <= infoll[0]; vmux<=vll[0]; hmux<=hll[0]+hdump[2:0]; nx_prio <= 0; nx_pal <= mmr[{2'b11,lyr[0]}][2:0]; end
-            { pxl, prio } <= { nx_pal, scr_data, nx_prio };
+            if( maskll[7][idx] ) begin mux <= infoll[7]; vmux<=vll[7]; hmux<=hll[7]+hcnt[2:0]; nx_prio <= 7; nx_pal <= mmr[{2'b11,lyr[7]}][2:0]; end
+            if( maskll[6][idx] ) begin mux <= infoll[6]; vmux<=vll[6]; hmux<=hll[6]+hcnt[2:0]; nx_prio <= 6; nx_pal <= mmr[{2'b11,lyr[6]}][2:0]; end
+            if( maskll[5][idx] ) begin mux <= infoll[5]; vmux<=vll[5]; hmux<=hll[5]+hcnt[2:0]; nx_prio <= 5; nx_pal <= mmr[{2'b11,lyr[5]}][2:0]; end
+            if( maskll[4][idx] ) begin mux <= infoll[4]; vmux<=vll[4]; hmux<=hll[4]+hcnt[2:0]; nx_prio <= 4; nx_pal <= mmr[{2'b11,lyr[4]}][2:0]; end
+            if( maskll[3][idx] ) begin mux <= infoll[3]; vmux<=vll[3]; hmux<=hll[3]+hcnt[2:0]; nx_prio <= 3; nx_pal <= mmr[{2'b11,lyr[3]}][2:0]; end
+            if( maskll[2][idx] ) begin mux <= infoll[2]; vmux<=vll[2]; hmux<=hll[2]+hcnt[2:0]; nx_prio <= 2; nx_pal <= mmr[{2'b11,lyr[2]}][2:0]; end
+            if( maskll[1][idx] ) begin mux <= infoll[1]; vmux<=vll[1]; hmux<=hll[1]+hcnt[2:0]; nx_prio <= 1; nx_pal <= mmr[{2'b11,lyr[1]}][2:0]; end
+            if( maskll[0][idx] ) begin mux <= infoll[0]; vmux<=vll[0]; hmux<=hll[0]+hcnt[2:0]; nx_prio <= 0; nx_pal <= mmr[{2'b11,lyr[0]}][2:0]; end
+            { bpxl, bprio } <= { nx_pal, scr_data, nx_prio };
         end
     end
 end
+
+jtframe_linebuf #(.DW(14)) u_buffer(
+    .clk        ( clk       ),
+    .LHBL       ( ~hs       ),
+    .wr_addr    ( hcnt      ),
+    .wr_data    ({bpxl,bprio}),
+    .we         ( buf_we    ),
+    .rd_addr    ( hdump     ),
+    .rd_data    ({pxl,prio} ),
+    .rd_gated   (           )
+);
 
 endmodule
