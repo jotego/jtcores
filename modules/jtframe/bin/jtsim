@@ -324,6 +324,10 @@ case "$1" in
         fi
         ;;
     -inputs)
+        if [ ! -e sim_inputs.hex ]; then
+            echo "-inputs specified but there is no sim_inputs.hex file"
+            exit 1
+        fi
         add_macro SIM_INPUTS;;
     -keepcpp)
         shift

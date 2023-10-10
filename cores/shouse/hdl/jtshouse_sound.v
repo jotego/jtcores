@@ -52,7 +52,7 @@ module jtshouse_sound(
     output              sample,
     output              peak
 );
-
+`ifndef NOSOUND
 localparam [7:0] FMGAIN =8'h10,
                  PCMGAIN=8'h10;
 
@@ -223,5 +223,17 @@ mc6809i u_cpu(
     .OP         (           ),
     .RegData    (           )
 );
-
+`else
+initial tri_cs=0;
+initial rom_cs=0;
+assign c30_dout = 0;
+assign rnw = 0;
+assign ram_we = 0;
+assign cpu_dout = 0;
+assign rom_addr = 0;
+assign bus_busy = 0;
+assign left = 0, right=0;
+assign sample = 0;
+assign peak = 0;
+`endif
 endmodule

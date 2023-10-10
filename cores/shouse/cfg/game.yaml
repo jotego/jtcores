@@ -30,6 +30,9 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
+  # - from: sdram
+  #   get:
+  #     - jtframe_ucache.v
 modules:
   jt:
     - name: jt51

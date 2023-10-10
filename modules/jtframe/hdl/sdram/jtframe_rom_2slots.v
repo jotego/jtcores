@@ -58,19 +58,17 @@ module jtframe_rom_2slots #(parameter
     output              slot1_ok,
     // SDRAM controller interface
     input               sdram_ack,
-    output  reg         sdram_rd,
-    output  reg [SDRAMW-1:0]  sdram_addr,
+    output              sdram_rd,
+    output [SDRAMW-1:0] sdram_addr,
     input               data_dst,
     input               data_rdy,
     input       [15:0]  data_read
 );
 
+localparam SW=2;
 
-reg  [ 3:0] ready_cnt;
-reg  [ 3:0] rd_state_last;
-wire [ 1:0] req, ok;
-
-reg  [ 1:0] slot_sel;
+wire [SW-1:0] req, ok;
+wire [SW-1:0] slot_sel;
 wire [SDRAMW-1:0] slot0_addr_req,
                   slot1_addr_req;
 
@@ -118,28 +116,31 @@ u_slot1(
     .we        ( slot_sel[1]            )
 );
 
-wire [1:0] active = ~slot_sel & req;
 
-always @(posedge clk, posedge rst)
-if( rst ) begin
-    sdram_addr <= 0;
-    sdram_rd  <= 0;
-    slot_sel   <= 0;
-end else begin
-    if( sdram_ack ) sdram_rd <= 0;
-    // accept a new request
-    if( slot_sel==0 || data_rdy ) begin
-        sdram_rd <= |active;
-        slot_sel  <= 2'd0;
-        if( active[0] ) begin
-            sdram_addr <= slot0_addr_req;
-            slot_sel[0] <= 1;
-        end else if( active[1] ) begin
-            sdram_addr <= slot1_addr_req;
-            slot_sel[1] <= 1;
-        end
-    end
-end
+jtframe_ramslot_ctrl #(
+    .SDRAMW         ( SDRAMW        ),
+    .SW             (     SW        ),
+    .WRSW           (      0        )
+)u_ctrl(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .req            ( req           ),
+    .slot_addr_req  ({slot1_addr_req, slot0_addr_req }),
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
+
+    // RAM section ignored
+    .req_rnw        (  1'b1         ),
+    .slot_din       ( 16'd0         ),
+    .wrmask         (  2'd0         ),
+    .sdram_wr       (               ),
+    .data_write     (               ),
+    .sdram_wrmask   (               )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

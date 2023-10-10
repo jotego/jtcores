@@ -74,8 +74,8 @@ module jtframe_rom_4slots #(parameter
     output              slot3_ok,
     // SDRAM controller interface
     input               sdram_ack,
-    output  reg         sdram_rd,
-    output  reg [SDRAMW-1:0] sdram_addr,
+    output              sdram_rd,
+    output [SDRAMW-1:0] sdram_addr,
     input               data_dst,
     input               data_rdy,
     input       [15:0]  data_read
@@ -84,7 +84,7 @@ module jtframe_rom_4slots #(parameter
 localparam SW=4;
 
 wire [SW-1:0] req, ok;
-reg  [SW-1:0] slot_sel;
+wire [SW-1:0] slot_sel;
 wire [SDRAMW-1:0] slot0_addr_req, slot1_addr_req, slot2_addr_req, slot3_addr_req;
 
 assign slot0_ok = ok[0];
@@ -173,34 +173,31 @@ u_slot3(
     .we        ( slot_sel[3]            )
 );
 
-wire [SW-1:0] active = ~slot_sel & req;
+jtframe_ramslot_ctrl #(
+    .SDRAMW         ( SDRAMW        ),
+    .SW             (     SW        ),
+    .WRSW           (      0        )
+)u_ctrl(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .req            ( req           ),
+    .slot_addr_req  ({  slot3_addr_req, slot2_addr_req,
+                        slot1_addr_req, slot0_addr_req }),
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
 
-always @(posedge clk, posedge rst)
-if( rst ) begin
-    sdram_addr <= 0;
-    sdram_rd  <= 0;
-    slot_sel   <= 0;
-end else begin
-    if( sdram_ack ) sdram_rd <= 0;
-    // accept a new request
-    if( slot_sel==0 || data_rdy ) begin
-        sdram_rd <= |active;
-        slot_sel  <= {SW{1'b0}};
-        if( active[0] ) begin
-            sdram_addr <= slot0_addr_req;
-            slot_sel[0] <= 1;
-        end else if ( active[1] ) begin
-            sdram_addr <= slot1_addr_req;
-            slot_sel[1] <= 1;
-        end else if( active[2] ) begin
-            sdram_addr <= slot2_addr_req;
-            slot_sel[2] <= 1;
-        end else if( active[3] ) begin
-            sdram_addr <= slot3_addr_req;
-            slot_sel[3] <= 1;
-        end
-    end
-end
+    // RAM section ignored
+    .req_rnw        (  1'b1         ),
+    .slot_din       ( 16'd0         ),
+    .wrmask         (  2'd0         ),
+    .sdram_wr       (               ),
+    .data_write     (               ),
+    .sdram_wrmask   (               )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

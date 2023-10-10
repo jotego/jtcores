@@ -58,7 +58,7 @@ module jtshouse_main(
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
 );
-
+`ifndef NOMAIN
 wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin, st_mapper;
 wire        mrnw, mirq_n, mfirq_n, mavma,
@@ -203,5 +203,23 @@ mc6809i u_scpu(
     .OP         (           ),
     .RegData    (           )
 );
-
+`else
+assign baddr    = 0;
+assign bdout    = 0;
+assign brnw     = 1;
+assign tri_cs   = 0;
+assign key_cs   = 0;
+assign bc30_cs  = 0;
+assign scfg_cs  = 0;
+assign obus_we  = 0;
+assign obus_addr= 0;
+assign vram_cs  = 0;
+assign pal_cs   = 0;
+assign srst_n   = 0;
+assign mrom_cs  = 0;
+assign srom_cs  = 0;
+assign ram_cs   = 0;
+assign bus_busy = 0;
+assign st_dout  = 0;
+`endif
 endmodule

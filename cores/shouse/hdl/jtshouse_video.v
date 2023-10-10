@@ -21,6 +21,7 @@ module jtshouse_video(
     input             clk,
 
     input             pxl_cen,
+    input             pxl2_cen,
     output     [ 8:0] hdump,
 
     input      [14:0] cpu_addr,
@@ -85,12 +86,12 @@ end
 
 // See https://github.com/jotego/jtcores/issues/348
 jtframe_vtimer #(
-    .HCNT_START ( 9'h020    ),
-    .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h029+HB_OFFSET ), // 288 visible, 384 total (64 pxl=HB)
-    .HB_END     ( 9'h089+HB_OFFSET ),
-    .HS_START   ( 9'h049+HB_OFFSET ), // HS starts 32 pixels after HB
-    .HS_END     ( 9'h069+HB_OFFSET ), // 32 pixel wide
+    .HCNT_START ( 9'h000    ),
+    .HCNT_END   ( 9'h17F    ),
+    .HB_START   ( 9'h168+HB_OFFSET ), // 288 visible, 384 total (96 pxl=HB)
+    .HB_END     ( 9'h048+HB_OFFSET ),
+    .HS_START   ( 9'h008+HB_OFFSET ), // HS starts 32 pixels after HB
+    .HS_END     ( 9'h028+HB_OFFSET ), // 32 pixel wide
 
     .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
     .VB_START   ( 9'h1EF    ),
@@ -118,9 +119,11 @@ jtshouse_scr u_scroll(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
     .hdump      ( hdump     ),
-    .vdump      ( vrender   ),
+    .vrender    ( vrender   ),
     .hs         ( hs        ),
+    .vs         ( vs        ),
     .flip       ( flip      ),
 
     .cs         ( scfg_cs   ),

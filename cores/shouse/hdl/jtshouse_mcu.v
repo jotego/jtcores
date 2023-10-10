@@ -61,7 +61,7 @@ module jtshouse_mcu(
 
     output reg signed [10:0] snd // is it signed?
 );
-
+`ifndef NOMAIN
 wire        vma;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
             irq, lvbl_l;
@@ -208,5 +208,15 @@ jtframe_prom #(.AW(12)) u_prom(
     .rd_addr( rom_addr  ),
     .q      ( rom_data  )
 );
-
+`else
+assign mcu_dout = 0;
+assign rnw      = 0;
+assign mcu_addr = 0;
+assign eerom_we = 0;
+assign pcm_addr = 0;
+assign bus_busy = 0;
+initial ram_cs  = 0;
+initial pcm_cs  = 0;
+initial snd     = 0;
+`endif
 endmodule

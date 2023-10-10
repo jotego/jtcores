@@ -97,7 +97,7 @@ always @(posedge clk, posedge rst) begin
                 cnt      <= 8;
                 hcnt     <= 0;
                 buf_addr <= xpos;
-                hmax     <= 2<<hsize;
+                hmax     <= 5'd2<<hsize;
             end
         end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it

@@ -27,9 +27,9 @@ module jtframe_ramslot_ctrl #(parameter
     input               clk,
     input [SW-1:0]      req,
     input [SW*SDRAMW-1:0] slot_addr_req,
-    input [WRSW-1:0]    req_rnw,        // only for slot0
+    input [(WRSW==0? 0:WRSW-1):0]    req_rnw,        // only for slot0
     input [DW1+DW0-1:0] slot_din,
-    input [WRSW*2-1:0]  wrmask,   // only used if DW!=8
+    input [(WRSW==0? 1 : WRSW*2-1):0]  wrmask,   // only used if DW!=8
     output reg [SW-1:0] slot_sel,
     // SDRAM controller interface
     input               sdram_ack,
@@ -41,7 +41,7 @@ module jtframe_ramslot_ctrl #(parameter
     output  reg [ 1:0]  sdram_wrmask // each bit is active low
 );
 
-localparam XW = WRSW==1 ? DW0 : DW1; // helper to prevent linter warnings
+localparam XW = WRSW<=1 ? DW0 : DW1; // helper to prevent linter warnings
                                      // if WRSW=2, it is used for DW1,
                                      // else, it isn't really used but won't produce warnings
 
