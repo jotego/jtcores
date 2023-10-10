@@ -839,3 +839,10 @@ MINUTES=$[$COMPILE_TIME / 60]
 SECONDS=$[$COMPILE_TIME % 60]
 
 echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
+
+# Open the image viewer for scene sims
+if which eom > /dev/null; then
+    if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
+        eom frames/frame_00001.jpg &
+    fi
+fi

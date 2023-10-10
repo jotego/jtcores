@@ -75,7 +75,7 @@ always @(posedge clk, posedge rst) begin
         if( clr ) valid <= 0;
         dout <= hit ? dread : din;
         ok   <= (hit | sdram_ok) & cs;
-        if( cs & ok & ~hit) begin
+        if( cs & sdram_ok & ~hit) begin
             wr_indx <= wr_indx==SMAX[SW-1:0] ? {SW{1'b0}} : wr_indx+1'd1;
             amem[wr_indx] <= addr;
             dmem[wr_indx] <= din;

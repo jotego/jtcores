@@ -35,7 +35,7 @@ sdram:
         - name: mask
           addr_width: 17
           data_width: 8
-          cache_size: 4
+          cache_size: 8
         - name: scr # 4-byte burst here
           addr_width: 20
           data_width: 8

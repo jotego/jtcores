@@ -332,7 +332,17 @@ OUTPUTDIR=output_files
 
 # Check Quartus path
 case $TARGET in
-    mister|sockit|de1soc|de10standard)
+    mist) # MiST can only be compiled on Quartus 13, which is slower on systems with many CPU cores
+        if ! (which quartus_sh|grep 13 -q); then
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            if [ -d "/opt/altera/13.1" ]; then
+                PATH=$PATH:/opt/altera/13.1/quartus/bin
+            else
+                echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
+                exit 1
+            fi
+        fi;;
+    *)
         if ! (which quartus_sh|grep intelFPGA_lite -q); then
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
             if [ -d /opt/intelFPGA_lite ]; then
@@ -341,16 +351,6 @@ case $TARGET in
                 PATH=$PATH:`pwd`/quartus/bin
             else
                 echo "Cannot find Quartus in /opt/intelFPGA_lite (`hostname`)"
-                exit 1
-            fi
-        fi;;
-    *)
-        if ! (which quartus_sh|grep 13 -q); then
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
-            if [ -d "/opt/altera/13.1" ]; then
-                PATH=$PATH:/opt/altera/13.1/quartus/bin
-            else
-                echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
                 exit 1
             fi
         fi;;
@@ -523,6 +523,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         jtframe mem $PRJ --target=$TARGET || exit $?
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
+        quartus_sh -v
         quartus_sh --flow compile $corename > "$LOG"
         if ! grep "Full Compilation was successful" "$LOG"; then
             grep -i error "$LOG" -A 2

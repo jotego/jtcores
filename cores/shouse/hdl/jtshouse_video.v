@@ -66,8 +66,6 @@ module jtshouse_video(
     output reg [ 7:0] st_dout
 );
 
-localparam [8:0] HB_OFFSET=0;
-
 wire [ 8:0] vdump, vrender, vrender1;
 wire [ 7:0] st_scr, st_colmix;
 wire [10:0] scr_pxl;
@@ -88,10 +86,10 @@ end
 jtframe_vtimer #(
     .HCNT_START ( 9'h000    ),
     .HCNT_END   ( 9'h17F    ),
-    .HB_START   ( 9'h168+HB_OFFSET ), // 288 visible, 384 total (96 pxl=HB)
-    .HB_END     ( 9'h048+HB_OFFSET ),
-    .HS_START   ( 9'h008+HB_OFFSET ), // HS starts 32 pixels after HB
-    .HS_END     ( 9'h028+HB_OFFSET ), // 32 pixel wide
+    .HB_START   ( 9'h15f    ), // 288 visible, 384 total (96 pxl=HB)
+    .HB_END     ( 9'h03f    ), // Fixed layer is mapped for a counter that leaves blanking at $40
+    .HS_START   ( 9'h17f    ), // HS starts 32 pixels after HB
+    .HS_END     ( 9'h01f    ), // 32 pixel wide
 
     .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
     .VB_START   ( 9'h1EF    ),
@@ -118,8 +116,6 @@ jtshouse_scr u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
     .hs         ( hs        ),
