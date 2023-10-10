@@ -278,6 +278,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if not .Rw }}
     {{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
+    {{- with .Cache_size }}
+    .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}

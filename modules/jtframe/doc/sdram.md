@@ -128,7 +128,7 @@ bram:
 
 This will generate the right code for the BRAM instantiation with dumping through IOCTL and an auxiliarry *dump2bin.sh* in the *ver/game* folder to help convert the file(s) to simulation format. The macro **JTFRAME_SIM_IODUMP** works in Verilator to simulate the IOCTL process and generate a dump file within the simulator.
 
-Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works.
+Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works. Also, look at the tool help with `jtframe mem -h`
 
 When a *mem.yaml* file exists, *jtframe* automatically declares the **JTFRAME_SDRAM_BANKS** and **JTFRAME_MEMGEN** macros.
 

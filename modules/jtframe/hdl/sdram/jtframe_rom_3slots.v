@@ -38,6 +38,10 @@ module jtframe_rom_3slots #(parameter
     SLOT0_OKLATCH= 1,
     SLOT1_OKLATCH= 1,
     SLOT2_OKLATCH= 1,
+
+    CACHE0_SIZE = 0,
+    CACHE1_SIZE = 0,
+    CACHE2_SIZE = 0,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT0_OFFSET = 0,
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
@@ -88,7 +92,8 @@ wire [SDRAMW-1:0] offset0 = SLOT0_OFFSET,
                   offset2 = SLOT2_OFFSET;
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),
-    .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH))
+    .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH),
+    .CACHE_SIZE(CACHE0_SIZE))
 u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -107,7 +112,8 @@ u_slot0(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
-    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH))
+    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
+    .CACHE_SIZE(CACHE1_SIZE))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -126,7 +132,8 @@ u_slot1(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
-    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH))
+    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
+    .CACHE_SIZE(CACHE2_SIZE))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Oct 10 05:11:15 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
+[dumpfile_mtime] "Tue Oct 10 05:10:51 2023"
+[dumpfile_size] 4835729
+[savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/cache.gtkw"
+[timestart] 4034590000
+[size] 1264 1024
+[pos] -1 -1
+*-19.890228 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 223
+[signals_width] 281
+[sst_expanded] 1
+[sst_vpaned_height] 273
+@24
+TOP.game_test.frame_cnt[31:0]
+TOP.game_test.u_game.u_game.u_video.u_scroll.aux[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.lhbl
+TOP.game_test.u_game.u_game.u_video.lvbl
+TOP.game_test.u_game.u_game.u_video.u_scroll.alt_cen
+TOP.game_test.u_game.u_game.u_video.u_scroll.done
+TOP.game_test.u_game.u_game.u_video.u_scroll.miss
+TOP.game_test.u_game.u_game.u_video.u_scroll.pxl_cen
+@200
+-
+[pattern_trace] 1
+[pattern_trace] 0

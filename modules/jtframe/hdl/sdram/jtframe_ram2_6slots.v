@@ -42,6 +42,10 @@ module jtframe_ram2_6slots #(parameter
     SLOT4_OKLATCH= 1,
     SLOT5_OKLATCH= 1,
 
+    CACHE2_SIZE = 0,
+    CACHE3_SIZE = 0,
+    CACHE4_SIZE = 0,
+    CACHE5_SIZE = 0,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT2_OFFSET = {SDRAMW{1'b0}},
     parameter [SDRAMW-1:0] SLOT3_OFFSET = {SDRAMW{1'b0}},
@@ -173,7 +177,8 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(0)) u_slot1
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
-    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH))
+    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
+    .CACHE_SIZE(CACHE2_SIZE))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -192,7 +197,8 @@ u_slot2(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
-    .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH))
+    .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
+    .CACHE_SIZE(CACHE3_SIZE))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -211,7 +217,8 @@ u_slot3(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT4_AW),.DW(SLOT4_DW),
-    .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH))
+    .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH),
+    .CACHE_SIZE(CACHE4_SIZE))
 u_slot4(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -230,7 +237,8 @@ u_slot4(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT5_AW),.DW(SLOT5_DW),
-    .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH))
+    .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH),
+    .CACHE_SIZE(CACHE5_SIZE))
 u_slot5(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

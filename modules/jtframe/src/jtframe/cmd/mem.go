@@ -64,6 +64,10 @@ sdram:
         - name:
           addr_width:
           data_width: # 8, 16 or 32. It will affect the LSB start of addr_width
+          cache_size: 4 # default 0, will use the regular jtframe_romrq_bcache
+                        # change it to !=0 to use jtframe_romrq_dcache, that will cache
+                        # the served data to the game, rather than all the data coming
+                        # from SDRAM. This is good when data access is not sequential
           # Optional switches:
           rw: true # normally false
           cs: myown_cs # use a cs signal not based on the bus name

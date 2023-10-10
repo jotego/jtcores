@@ -28,6 +28,7 @@ module jtframe_ram1_2slots #(parameter
 
     SLOT1_OKLATCH= 1,
 
+    CACHE1_SIZE = 0,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
 /* verilator lint_on WIDTH */
@@ -104,7 +105,8 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW)) u_slot0(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
-    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH))
+    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
+    .CACHE_SIZE(CACHE1_SIZE))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

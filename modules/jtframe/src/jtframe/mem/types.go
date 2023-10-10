@@ -35,6 +35,7 @@ type SDRAMBus struct {
     Addr       string `yaml:"addr"`
     Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
     Data_width int    `yaml:"data_width"`
+    Cache_size int    `yaml:"cache_size"`
     Rw         bool   `yaml:"rw"`
     Dsn        string `yaml:"dsn"`  // optional name for dsn signal
     Din        string `yaml:"din"`  // optional name for din signal
