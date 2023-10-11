@@ -546,7 +546,7 @@ void SDRAM::update() {
             ba_addr[ cur_ba ] &= ~0x1ff;
             ba_addr[ cur_ba ] |= (dut.SDRAM_A & 0x1ff);
             if( dut.SDRAM_nWE ) { // enque read
-                rd_st[ cur_ba ] = ba_blen[cur_ba];
+                rd_st[ cur_ba ] = burst_len+1;
             } else {
                 int dqm = dut.SDRAM_DQM;
                 // cout << "Write bank " << cur_ba <<
@@ -586,6 +586,7 @@ void SDRAM::update() {
                 ba_busy = k;
             }
             if(rd_st[k]>0) rd_st[k]--;
+            if(rd_st[k]==(burst_len+1-ba_blen[k])) rd_st[k]=0;
         }
     }
     last_clk = dut.SDRAM_CLK;

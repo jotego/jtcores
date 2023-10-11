@@ -661,15 +661,6 @@ if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != 
         sed -i /$RELEASE/d  $BINFOLDER/version.log
     fi
     printf "%-24s %s\n" ${RELEASE} $PRJCOMMIT >> $BINFOLDER/version.log
-
-    if is_mister_family; then
-        OTHER=$(append_if_exists $JTROOT/doc/$corename.md $JTROOT/cores/$PRJ/README.md $JTROOT/README.md $JTROOT/README.txt )
-        # remove blanks
-        OTHER=${OTHER## }
-        if [ ! -z "$OTHER" ]; then
-            cp $OTHER $BINFOLDER;
-        fi
-    fi
     cd - > /dev/null
 elif [ ! -z "$VERBOSE" ]; then
     echo "Skipping copy to JTBIN or release"

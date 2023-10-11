@@ -18,7 +18,7 @@
 
 // Port 4 configured as output --> use as address bus
 // Port 6 configured as output
-
+/* verilator tracing_off */
 module jtshouse_mcu(
     input              clk,
     input              rstn,

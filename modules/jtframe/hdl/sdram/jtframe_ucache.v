@@ -57,7 +57,7 @@ assign sdram_cs = cs & ~hit & ~sdram_ok;
 always @* begin
     dread = dmem[0];
     for(i=0; i<SIZE; i=i+1) begin
-        if( addr == amem[i] ) begin
+        if( addr == amem[i] && valid[i] ) begin
             match[i] = 1;
             dread = dmem[i];
         end else begin
@@ -73,8 +73,13 @@ always @(posedge clk, posedge rst) begin
         wr_indx <= 0;
     end else begin
         if( clr ) valid <= 0;
-        dout <= hit ? dread : din;
-        ok   <= (hit | sdram_ok) & cs;
+        if( cs ) begin
+            if( hit )
+                dout <= dread;
+            else if(sdram_ok)
+                dout <= din;
+        end
+        ok <= (hit | sdram_ok) & cs;
         if( cs & sdram_ok & ~hit) begin
             wr_indx <= wr_indx==SMAX[SW-1:0] ? {SW{1'b0}} : wr_indx+1'd1;
             amem[wr_indx] <= addr;

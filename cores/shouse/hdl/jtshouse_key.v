@@ -82,13 +82,12 @@ always @(posedge clk or posedge rst) begin
         cs_l    <= cs;
         if( cs && ~rnw ) mmr[addr[6:4]] <= din;
         if( up_rng ) rng <= nx_rng;
-        case( 1'b1 )
-            sel[0]: dout <= cfg[1];   // key ID
-            sel[1]: dout <= rng[16+:8]; // Random Number Generator
-            sel[3]: dout <= { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
-            sel[4]: dout <= { mmr_mux[3:0], addr[7:4] };    // lower nibble
-            sel[5]: dout <= { mmr_mux[7:4], addr[7:4] };    // upper nibble
-        endcase
+        // do not use "case" to avoid Quartus warning
+             if( sel[0] ) dout <= cfg[1];     // key ID
+        else if( sel[1] ) dout <= rng[16+:8]; // Random Number Generator
+        else if( sel[3] ) dout <= { mmr_mux[3:0], mmr_mux[7:4] }; // swap nibbles
+        else if( sel[4] ) dout <= { mmr_mux[3:0], addr[7:4] };    // lower nibble
+        else if( sel[5] ) dout <= { mmr_mux[7:4], addr[7:4] };    // upper nibble
     end
 end
 

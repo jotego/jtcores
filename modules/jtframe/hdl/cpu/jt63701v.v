@@ -245,10 +245,12 @@ always @(posedge clk, posedge rst) begin
             4'o13: irq_icf <= 0;  // FFF6-FFF7
             4'o12: irq_ocf <= 0;  // FFF4-FFF5
             4'o11: irq_tof <= 0;  // FFF2-FFF3
+`ifdef SIMULATION
             4'o07: begin
                 $display("TRAP interrupt %m, this indicates an address or op-code error");
                 $finish;
             end
+`endif
             default:;
         endcase
     end

@@ -33,7 +33,7 @@ module jtshouse_scr_mmr(
 
     // IOCTL dump
     input      [ 4:0] ioctl_addr,
-    output     [ 7:0] ioctl_din,
+    output reg [ 7:0] ioctl_din,
     // Debug
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -58,31 +58,30 @@ assign vscr = { mmr[{3'd3,2'd2}], mmr[{3'd3,2'd3}],
                 mmr[{3'd1,2'd2}], mmr[{3'd1,2'd3}],
                 mmr[{3'd0,2'd2}], mmr[{3'd0,2'd3}]};
 
-assign prio = {
-  mmr[{2'b10,3'd5}][2:0],
-  mmr[{2'b10,3'd4}][2:0],
-  mmr[{2'b10,3'd3}][2:0],
-  mmr[{2'b10,3'd2}][2:0],
-  mmr[{2'b10,3'd1}][2:0],
-  mmr[{2'b10,3'd0}][2:0] };
-
 assign enb = {
-  mmr[{2'b10,3'd5}][3],
-  mmr[{2'b10,3'd4}][3],
-  mmr[{2'b10,3'd3}][3],
-  mmr[{2'b10,3'd2}][3],
-  mmr[{2'b10,3'd1}][3],
-  mmr[{2'b10,3'd0}][3] };
+  mmr[{5'o25}][3],
+  mmr[{5'o24}][3],
+  mmr[{5'o23}][3],
+  mmr[{5'o22}][3],
+  mmr[{5'o21}][3],
+  mmr[{5'o20}][3] };
+
+assign prio = {
+  mmr[{5'o25}][2:0],
+  mmr[{5'o24}][2:0],
+  mmr[{5'o23}][2:0],
+  mmr[{5'o22}][2:0],
+  mmr[{5'o21}][2:0],
+  mmr[{5'o20}][2:0] };
 
 assign pal = {
-  mmr[{2'b11,3'd5}][2:0],
-  mmr[{2'b11,3'd4}][2:0],
-  mmr[{2'b11,3'd3}][2:0],
-  mmr[{2'b11,3'd2}][2:0],
-  mmr[{2'b11,3'd1}][2:0],
-  mmr[{2'b11,3'd0}][2:0] };
+  mmr[{5'o35}][2:0],
+  mmr[{5'o34}][2:0],
+  mmr[{5'o33}][2:0],
+  mmr[{5'o32}][2:0],
+  mmr[{5'o31}][2:0],
+  mmr[{5'o30}][2:0] };
 
-assign ioctl_din = mmr[ioctl_addr];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -95,8 +94,9 @@ always @(posedge clk, posedge rst) begin
         for(i=0;i<32;i++) mmr[i] <= mmr_init[i];
     `endif
     end else begin
-        dout    <= mmr[addr];
-        st_dout <= mmr[debug_bus[4:0]];
+        dout      <= mmr[addr];
+        st_dout   <= mmr[debug_bus[4:0]];
+        ioctl_din <= mmr[ioctl_addr];
         if( cs & ~rnw ) mmr[addr]<=din;
     end
 end

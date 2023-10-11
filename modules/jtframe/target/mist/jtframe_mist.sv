@@ -333,8 +333,8 @@ jtframe_board #(
     .game_tilt      ( game_tilt       ),
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
-    .spinner_1      ( 8'd0            ),
-    .spinner_2      ( 8'd0            ),
+    .spinner_1      ( 9'd0            ),
+    .spinner_2      ( 9'd0            ),
     // Mouse & paddle
     .bd_mouse_dx    ( bd_mouse_dx     ),
     .bd_mouse_dy    ( bd_mouse_dy     ),
@@ -350,7 +350,7 @@ jtframe_board #(
     .mouse_2p       ( mouse_2p        ),
     // DIP and OSD settings
     .status         ( board_status    ),
-    .dipsw          ( dipsw           ),
+    .dipsw          ( dipsw[23:0]     ),
     .enable_fm      ( enable_fm       ),
     .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),
