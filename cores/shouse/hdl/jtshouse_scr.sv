@@ -58,36 +58,34 @@ module jtshouse_scr(
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
 
-// MMR
-// 0~F scroll positions
-// tilemap 3 bits - scroll X/Y 1 bit - upper/lower byte sel 1 bit
-// 10~17 priority
-// 18~1F color
 
-reg  [ 7:0] mmr[0:31]; // upper bits probably did not exist for the upper half of the MMR
 reg  [15:0] hpos, vpos, nx_hpos, nx_vpos;
-reg  [ 2:0] pal, mlyr, mst;
-reg  [ 5:0] mreq;
+reg  [ 2:0] mlyr, mst;
+reg  [ 5:0] mreq, attr;
 wire [ 2:0] tcnt;
 // mapped by priority
 reg  [ 7:0] nx_mask[0:7], mask[0:7];
 reg  [22:0] info[0:7];
-reg  [ 8:0] hcnt;
+reg  [ 8:0] hcnt, buf_a;
 reg  [10:0] bpxl;
 reg  [ 9:0] lin_row;   // linear "row" count (does not count during blanks)
 reg  [ 9:0] linear;    // linear position ("row"+col)
-reg  [ 2:0] bprio, win, nx_prio, hcnt0, hcnt1, hcnt2, hcnt3;
+reg  [ 2:0] bprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
 reg         hs_l, done, alt_cen, vs_l;
-wire        buf_we, rom_ok, hs_edge;
-// Horizontal scroll
-wire [15:0] hscr0, hscr1, hscr2, hscr3;
+wire        buf_we, rom_ok, hs_edge, mask_good;
+
+// Layer configuration
+wire [3:0][15:0] hscr, vscr;
+wire [5:0][ 2:0] cfg_pal, cfg_prio;
+wire [5:0]       cfg_enb;
+
 integer     i;
 `ifdef SIMULATION
     reg       miss;
@@ -95,29 +93,10 @@ integer     i;
 
 assign scr_cs    = 1;
 assign tcnt      = hcnt[2:0];
-assign ioctl_din = mmr[ioctl_addr];
 assign buf_we    = alt_cen & ~done;
 assign rom_ok    = scr_ok & (mask_ok | ~mask_cs) & mlyr==7;
-assign hscr0     = {mmr[{3'd0,2'd0}], mmr[{3'd0,2'd1}]}/*+aux[15:0]*/;
-assign hscr1     = {mmr[{3'd1,2'd0}], mmr[{3'd1,2'd1}]}/*+aux[15:0]*/;
-assign hscr2     = {mmr[{3'd2,2'd0}], mmr[{3'd2,2'd1}]}/*+aux[15:0]*/;
-assign hscr3     = {mmr[{3'd3,2'd0}], mmr[{3'd3,2'd1}]}/*+aux[15:0]*/;
 assign hs_edge   = hs & ~hs_l;
-
-// Memory Mapped Registers
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        for(i=0;i<32;i=i+1) `ifndef SIMULATION
-            mmr[i]<=0; // ignore latch warning by Quartus here
-        `else
-            mmr[i]<=mmr_init[i];
-        `endif
-    end else begin
-        dout    <= mmr[addr];
-        st_dout <= mmr[debug_bus[4:0]];
-        if( cs & ~rnw ) mmr[addr]<=din;
-    end
-end
+assign mask_good = mask_ok|~mask_cs;
 
 always @* begin
     mlyr = 7;
@@ -166,10 +145,10 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= hscr0[2:0];
-            hcnt1 <= hscr1[2:0];
-            hcnt2 <= hscr2[2:0];
-            hcnt3 <= hscr3[2:0];
+            hcnt0 <= hscr[0][2:0];
+            hcnt1 <= hscr[1][2:0];
+            hcnt2 <= hscr[2][2:0];
+            hcnt3 <= hscr[3][2:0];
             if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
         end
         if( vrender==9'h110 ) lin_row <= 0;
@@ -181,8 +160,8 @@ always @* begin
     if( mlyr>3 )
         { nx_vpos, nx_hpos } = { 7'd0, vrender, 7'd0, hcnt };
     else
-        { nx_vpos, nx_hpos } = { {7'd0,vrender}-{mmr[{mlyr,2'd2}], mmr[{mlyr,2'd3}]},
-                                 {7'd0,   hcnt}-{mmr[{mlyr,2'd0}], mmr[{mlyr,2'd1}]} /*+ aux[15:0]*/};
+        { nx_vpos, nx_hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]],
+                                 {7'd0,    hcnt}-hscr[mlyr[1:0]]};
     nx_hpos = nx_hpos;
     if( flip ) begin
         nx_hpos = -nx_hpos;
@@ -222,7 +201,7 @@ always @(posedge clk, posedge rst) begin
         mask_addr <= 0;
         bpxl      <= 0;
         bprio     <= 0;
-        pal       <= 0;
+        attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
     end else begin
@@ -230,19 +209,23 @@ always @(posedge clk, posedge rst) begin
         { vpos, hpos } <= { nx_vpos, nx_hpos };
         linear <= lin_row + {4'd0,hpos[3+:6]};
 
-        if( mlyr!=7 & (mask_ok|~mask_cs) ) mst<= mst==4 ? 3'd0 : mst+3'd1;
+        if( mlyr!=7 & mask_good ) mst<= mst==4 ? 3'd0 : mst+3'd1;
 
         case( mst )
             2: begin
                 mask_addr  <= { tmap_data[13:0], vpos[2:0]+debug_bus[2:0] }; // 17 bits
-                mask_cs    <= ~mmr[{2'b10,mlyr}][3]; // do not request disabled layers
-            end
-            4: begin
-                if(mask_cs) begin
-                    mask[mmr[{2'b10,mlyr}][2:0]] <= mask_data;
-                    info[mmr[{2'b10,mlyr}][2:0]] <= { mmr[{2'b11,mlyr}][2:0], tmap_data[13:0], vpos[2:0], debug_bus[6:4]-tcnt };
+                if( cfg_enb[mlyr] ) begin // do not request disabled layers
+                    mreq[mlyr] <= 0;
+                    mask_cs    <= 0;
+                    mst        <= 0;
+                end else begin
+                    mask_cs <= 1;
                 end
-                mreq[mlyr] <= ~(mask_ok | ~mask_cs);
+            end
+            4: if(mask_ok) begin
+                mask[cfg_prio[mlyr]] <= mask_data;
+                info[cfg_prio[mlyr]] <= { cfg_pal[mlyr], tmap_data[13:0], vpos[2:0], ~tcnt-3'd1 };
+                mreq[mlyr] <= 0;
                 mask_cs    <= 0;
             end
         endcase
@@ -252,10 +235,12 @@ always @(posedge clk, posedge rst) begin
             if( hcnt2==7 ) mreq[2] <= 1;
             if( hcnt3==7 ) mreq[3] <= 1;
             if( hcnt[2:0]==7 ) mreq[5:4] <= 3;
-            { bprio, bpxl } <= { nx_prio, pal, scr_data };
+            // next pixel information
+            { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+tcnt };
             for( i=0; i<8; i=i+1 ) mask[i] <= mask[i] << 1;
-            // Get next pixel information
-            { nx_prio, pal, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+tcnt };
+            buf_a <= hcnt;
+            // current pixel
+            { bprio, bpxl } <= { attr, scr_data };
         end
         if( hs_edge ) begin
             mreq <= 0;
@@ -267,13 +252,33 @@ end
 jtframe_linebuf #(.DW(14)) u_buffer(
     .clk        ( clk       ),
     .LHBL       ( ~hs       ),
-    .wr_addr    ( hcnt      ),
+    .wr_addr    ( buf_a     ),
     .wr_data    ({bpxl,bprio}),
     .we         ( buf_we    ),
     .rd_addr    ( hdump     ),
     .rd_data    ({pxl,prio} ),
     .rd_gated   (           )
 );
+
+jtshouse_scr_mmr u_mmr(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cs         ( cs            ),
+    .addr       ( addr          ),
+    .rnw        ( rnw           ),
+    .din        ( din           ),
+    .dout       ( dout          ),
+    .hscr       ( hscr          ),
+    .vscr       ( vscr          ),
+    .pal        ( cfg_pal       ),
+    .prio       ( cfg_prio      ),
+    .enb        ( cfg_enb       ),
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
+);
+
 
 integer aux;
 
@@ -284,17 +289,6 @@ end
 
 `ifdef SIMULATION
 /* verilator tracing_off */
-integer f, fcnt;
-reg [7:0] mmr_init[0:31];
-initial begin
-    f=$fopen("rest.bin","rb");
-    if( f!=0 ) begin
-        fcnt=$fread(mmr_init,f);
-        $display("INFO: Read %d bytes for %m.mmr",fcnt);
-    end
-    $fclose(f);
-end
-
 int reported=0;
 
 always @(posedge miss) begin

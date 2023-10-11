@@ -7,7 +7,8 @@ game:
       - jtshouse_sound.v
       - jtshouse_colmix.v
       - jtshouse_mcu.v
-      - jtshouse_scr.v
+      - jtshouse_scr.sv
+      - jtshouse_scr_mmr.v
       - jtshouse_triram.v
       - jtshouse_cenloop.v
       # Custom chips
