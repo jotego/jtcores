@@ -1,20 +1,7 @@
 game:
   - from: shouse
     get:
-      - jtshouse_game.v
-      - jtshouse_main.v
-      - jtshouse_video.v
-      - jtshouse_sound.v
-      - jtshouse_colmix.v
-      - jtshouse_mcu.v
-      - jtshouse_scr.sv
-      - jtshouse_scr_mmr.v
-      - jtshouse_triram.v
-      - jtshouse_cenloop.v
-      # Custom chips
-      - jtshouse_key.v
-      - jtcus30.v
-      - jtc117.v
+      - "*.v"
 jtframe:
   - get:
       - jtframe_ff.v

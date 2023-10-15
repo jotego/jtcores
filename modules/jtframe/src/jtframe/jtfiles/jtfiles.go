@@ -272,16 +272,20 @@ func parse_yaml(filename string, files *JTFiles) {
 	}
 }
 
+// Make the path relative or absolute
 func make_path(path, filename string, rel bool) (item string) {
 	var err error
-	oldpath := filepath.Join(path, filename)
+	if strings.Index(filename,path)==-1 {
+		fmt.Printf("%s -> %s\n",path,filename)
+		filename = filepath.Join(path, filename)
+	}
 	if rel {
-		item, err = filepath.Rel(CWD, oldpath)
+		item, err = filepath.Rel(CWD, filename)
 	} else {
-		item = filepath.Clean(oldpath)
+		item = filepath.Clean(filename)
 	}
 	if err != nil {
-		log.Fatalf("JTFILES: Cannot parse path to %s\n", oldpath)
+		log.Fatalf("JTFILES: Cannot parse path to %s\n", filename)
 	}
 	return item
 }
@@ -302,8 +306,18 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 			path = os.Getenv("JTROOT")
 		}
 		for _, each := range each.Get {
-			if len(each) > 0 {
-				*all = append(*all, make_path(path, each, rel))
+			if len(each) ==0 { continue }
+			matches,e := filepath.Glob(filepath.Join(path,each))
+			if e!=nil {
+				fmt.Println(e)
+				fmt.Printf("jtframe files: error parsing file list.")
+				os.Exit(1)
+			}
+			if( len(matches)==0 ) {
+				fmt.Printf("Warning: no matches for %s\n",each)
+			}
+			for _, m := range matches {
+				*all = append(*all, make_path(path, m, rel))
 			}
 		}
 	}
