@@ -18,9 +18,7 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
-  # - from: sdram
-  #   get:
-  #     - jtframe_ucache.v
+      - jtframe_obj.yaml
 modules:
   jt:
     - name: jt51

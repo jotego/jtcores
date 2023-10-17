@@ -35,7 +35,7 @@ reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
 wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
             cen_main, cen_sub,  cen_snd,  cen_mcu;
-wire        ram_cs;
+wire        obus_cs, ram_cs, dma_we;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -50,6 +50,7 @@ assign ram_din   = bdout;
 assign ram_we    =  ram_cs & ~brnw;
 assign vram_addr = baddr[14:1];
 assign vram_we   = {2{vram_cs & ~brnw}} & {baddr[0], ~baddr[0]};
+assign oram_we   = {2{dma_we}};
 
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
@@ -128,6 +129,7 @@ jtshouse_main u_main(
     .c30_dout   ( c30_dout  ),
 
     // Video RAM
+    .oram_cs    ( obus_cs   ),
     .obus_we    ( obus_we   ),
     .obus_addr  ( obus_addr ),
     .obus_dout  ( obus_dout ),
@@ -281,9 +283,13 @@ jtshouse_video u_video(
     .cpu_addr   (baddr[14:0]),
     .cpu_rnw    ( brnw      ),
     .cpu_dout   ( bdout     ),
-    // Video RAM
+    // Object RAM
+    .obus_cs    ( obus_cs   ),
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
+    .oram_din   ( oram_din  ),
+    .oram_we    ( dma_we    ),
+    // Palette RAM
     .pal_addr   ( pal_addr  ),
     .rgb_addr   ( rgb_addr  ),
     .rpal_we    ( rpal_we   ),
@@ -306,15 +312,19 @@ jtshouse_video u_video(
     .scr_ok     ( scr_ok    ),
     .scr_addr   ( scr_addr  ),
     .scr_data   ( scr_data  ),
-
+    // Object tile readout (SDRAM)
+    .obj_data   ( obj_data  ),
+    .obj_addr   ( obj_addr  ),
+    .obj_ok     ( obj_ok    ),
+    .obj_cs     ( obj_cs    ),
     // color mixer
     .red_dout   ( red_dout  ),
     .green_dout ( green_dout),
     .blue_dout  ( blue_dout ),
 
     // IOCTL dump
-    .ioctl_addr (ioctl_addr[4:0]),
-    .ioctl_din  (ioctl_din),
+    .ioctl_addr (ioctl_addr[5:0]),
+    .ioctl_din  ( ioctl_din ),
 
     .debug_bus  ( debug_bus ),
     .gfx_en     ( gfx_en    ),

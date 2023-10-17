@@ -184,6 +184,7 @@ JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours
 JTFRAME_SIM_IODUMP       |verilator| Frame at which an ioctl_ram read is run. Outputs to dump.bin (JTFRAME_IOCTL_RD needed)
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
+SIMSCENE                 |         | Set when jtsim is called with -scene
 VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulation
 VERILATOR_KEEP_SDRAM     |verilator| Keeps SDRAM signals in the game_sdram.v module (mem.yaml)
 VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation

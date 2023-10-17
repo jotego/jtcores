@@ -552,11 +552,19 @@ if [ $SKIP_COMPILE = FALSE ]; then
             grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
         fi
         # Report connectivity problems
+        AUX=`mktemp`
         grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
-        | grep -v "\.we_a.*has no driver or initial value"
+        | grep -v "\.we_a.*has no driver or initial value" > $AUX
+        if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
+            # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
+            grep -v sys_top.v $AUX
+        else
+            cat $AUX
+        fi
+        rm -f $AUX
         # Report timing
         grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
         if [[ $? = 0 && -z "$SKIPTIMING" ]]; then

@@ -390,7 +390,7 @@ case "$1" in
         fi
         if [[ -e "$SCENE" && -x dump2bin.sh ]]; then
             dump2bin.sh "$SCENE" 2> /dev/null
-            add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3
+            add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
             set_zoom
             rm -rf video.bin frame_*.jpg frame.raw frames
             VIDEO_DUMP=TRUE

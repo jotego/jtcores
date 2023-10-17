@@ -39,6 +39,7 @@ module jtshouse_main(
     input        [ 7:0] scfg_dout,
 
     // Video RAMs
+    output              oram_cs,
     output       [ 1:0] obus_we,
     output       [11:1] obus_addr,
     input        [15:0] obus_dout,
@@ -46,7 +47,6 @@ module jtshouse_main(
     output              vram_cs, pal_cs,
     input        [15:0] vram_dout,
     input        [ 7:0] pal_dout,
-
 
     output              srst_n,
 
@@ -63,7 +63,7 @@ wire [15:0] maddr, saddr;
 wire [ 7:0] mdout, sdout, bdin, st_mapper;
 wire        mrnw, mirq_n, mfirq_n, mavma,
             srnw, sirq_n, sfirq_n, savma,
-            rom_cs, oram_cs;
+            rom_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
@@ -91,8 +91,8 @@ assign sub_Q  = cen_main;
 assign st_dout = st_mapper;
 
 // Video RAM
-assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
-assign obus_addr= baddr[10:0];
+assign obus_we  = {2{oram_cs&~brnw}} & { baddr[0], ~baddr[0] };
+assign obus_addr= baddr[11:1];
 
 assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
@@ -104,7 +104,7 @@ assign bdin = mrom_cs ? mrom_data :
               pal_cs  ? pal_dout  :
               bc30_cs ? c30_dout  :
               scfg_cs ? scfg_dout :
-              oram_cs ? ( baddr[11] ? obus_dout[15:8] : obus_dout[7:0] ) :
+              oram_cs ? ( baddr[0] ? obus_dout[15:8] : obus_dout[7:0] ) :
               8'd0;
 
 always @(posedge clk) begin
@@ -214,6 +214,7 @@ assign scfg_cs  = 0;
 assign obus_we  = 0;
 assign obus_addr= 0;
 assign vram_cs  = 0;
+assign oram_cs  = 0;
 assign pal_cs   = 0;
 assign srst_n   = 0;
 assign mrom_cs  = 0;

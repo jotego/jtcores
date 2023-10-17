@@ -32,6 +32,9 @@ module jtshouse_video(
     // Video RAM
     output     [11:1] oram_addr,
     input      [15:0] oram_dout,
+    output            oram_we,
+    output     [15:0] oram_din,
+    input             obus_cs,   // obj RAM access by CPU(s)
     input      [ 7:0] red_dout,   rpal_dout,
                       green_dout, gpal_dout,
                       blue_dout,  bpal_dout,
@@ -50,6 +53,11 @@ module jtshouse_video(
     input             scr_ok,
     output     [19:0] scr_addr,
     input      [ 7:0] scr_data,
+    // Object tile readout (SDRAM)
+    output            obj_cs,
+    input             obj_ok,
+    output     [19:2] obj_addr,
+    input      [31:0] obj_data,
     // color mixer
     input             pal_cs,
     output            raster_irqn,
@@ -58,8 +66,8 @@ module jtshouse_video(
     output            lvbl, lhbl, hs, vs,
     output     [ 7:0] red, green, blue,
     // Dump MMR
-    input      [ 4:0] ioctl_addr,
-    output     [ 7:0] ioctl_din,
+    input      [ 5:0] ioctl_addr,
+    output reg [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -67,18 +75,21 @@ module jtshouse_video(
 );
 
 wire [ 8:0] vdump, vrender, vrender1;
-wire [ 7:0] st_scr, st_colmix;
-wire [10:0] scr_pxl;
-wire [ 2:0] scr_prio;
+wire [ 7:0] st_scr, st_colmix, iodin_obj, iodin_scr;
+wire [10:0] scr_pxl,  obj_pxl;
+wire [ 2:0] scr_prio, obj_prio;
 wire        flip;
 
-assign oram_addr = 0;
 assign flip = 0;
 
 always @(posedge clk) begin
     case( debug_bus[5] )
         0: st_dout <= st_scr;
         1: st_dout <= st_colmix;
+    endcase
+    case(ioctl_addr[5])
+        0: ioctl_din = iodin_scr;
+        1: ioctl_din = iodin_obj;
     endcase
 end
 
@@ -145,11 +156,48 @@ jtshouse_scr u_scroll(
     .pxl        ( scr_pxl   ),
     .prio       ( scr_prio  ),
     // IOCTL dump
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din ),
+    .ioctl_addr ( ioctl_addr[4:0]),
+    .ioctl_din  ( iodin_scr ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
+);
+
+jtshouse_obj u_obj(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .pxl_cen    ( pxl_cen   ),
+
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_addr   (cpu_addr[11:0]),
+    .cpu_rnw    ( cpu_rnw   ),
+    .cs         ( obus_cs   ),
+
+    .hs         ( hs        ),
+    .lvbl       ( lvbl      ),
+    .flip       ( flip      ),
+    .vrender    ( vrender   ),
+    .hdump      ( hdump     ),
+
+    // Video RAM
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
+    .oram_we    ( oram_we   ),
+    .oram_din   ( oram_din  ),
+
+    // Object tile readout (SDRAM)
+    .rom_cs     ( obj_cs    ),
+    .rom_ok     ( obj_ok    ),
+    .rom_addr   ( obj_addr  ),
+    .rom_data   ( obj_data  ),
+
+    // pixel output
+    .pxl        ( obj_pxl   ),
+    .prio       ( obj_prio  ),
+    // MMR dump
+    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_din  ( iodin_obj )
 );
 
 jtshouse_colmix u_colmix(
@@ -164,6 +212,9 @@ jtshouse_colmix u_colmix(
     .raster_irqn(raster_irqn),
 
     // pixel input
+    .obj_pxl    ( obj_pxl   ),
+    .obj_prio   ( obj_prio  ),
+
     .scr_pxl    ( scr_pxl   ),
     .scr_prio   ( scr_prio  ),
 
@@ -187,6 +238,8 @@ jtshouse_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
+    // Debug
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_colmix )
 );

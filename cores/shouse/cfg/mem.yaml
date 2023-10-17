@@ -40,10 +40,10 @@ sdram:
           addr_width: 20
           data_width: 8
           offset: SCR_OFFSET
-    # - buses:
-    #     - name: obj
-    #       addr_width: 20
-    #       data_width: 32
+    - buses:
+        - name: obj
+          addr_width: 20
+          data_width: 32
 bram:
   - name: ram
     addr_width: 15  # the PCB seems to support 17 bits too
@@ -69,6 +69,8 @@ bram:
   - name: oram
     addr_width: 12
     data_width: 16
+    rw: true
+    ioctl: { save: true, order: 5 }
     dual_port:
       name: obus
       din: bdout16
@@ -115,4 +117,4 @@ bram:
     data_width: 8
     din: mcu_dout
     rw: true
-    ioctl: { save: true, order: 0 }
+    ioctl: { save: true, restore: true, order: 0 }

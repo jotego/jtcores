@@ -15,17 +15,20 @@ skip = { machines=[
     "pistoldm",
     "puzlclub",
     "quester",
-    "rompers",
+    "rompers", # hangs up after notice - vertical game
     "shadowld",
     "tankfrce",
     "wldcourt",
-    "ws",
+    "ws",      # needs 2-byte key ID
 ] }
 
 [header]
 info="Byte 0: protection type"
 data= [
-    { machine="splatter", data="03 B5 03 04" }
+    { machine="splatter", data="03 B5 03 04" },
+    # { machine="rompers",  data="03 B6 07 00" },
+    # { machine="blastoff", data="03 B7 00 03 05" },
+    # { setname="ws89",     data="03 B8 02 00" },
 ]
 
 [buttons]

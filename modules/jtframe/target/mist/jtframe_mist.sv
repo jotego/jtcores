@@ -294,6 +294,7 @@ jtframe_board #(
     .rst_req        ( rst_req         ),
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
+    .ioctl_ram      ( ioctl_ram       ),
     .downloading    ( dwnld_busy      ), // use busy signal from game module
 
     .clk_sys        ( clk_sys         ),
