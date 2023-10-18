@@ -36,8 +36,8 @@ JTFRAME_SDRAM_TOGGLE
 
 # Minimum 2kB for EEROM
 # Add 32 bytes (scroll MMR)
-# Add  4 bytes (object MMR)
-JTFRAME_IOCTL_RD=63524
+# Add  8 bytes (object MMR)
+JTFRAME_IOCTL_RD=63528
 
 [mist|sidi]
 # not enough BRAM

@@ -49,45 +49,56 @@ module jtshouse_obj(
     output     [10:0] pxl,
     output     [ 2:0] prio,
 
+    input      [ 7:0] debug_bus,
+    output     [ 7:0] st_dout,
     // IOCTL dump
-    input      [ 1:0] ioctl_addr,
-    output reg [ 7:0] ioctl_din
+    input      [ 2:0] ioctl_addr,
+    output     [ 7:0] ioctl_din
 );
 
 // Registers
-reg  [ 7:0] yoffset;
-reg  [ 8:0] xoffset;
+wire [ 7:0] yoffset;
+wire [ 8:0] xoffset;
+wire        mmr_cs;
 // DMA
-reg         dma_on, nx_dma, dma_bsy, hs_l, lvbl_l;
+reg         nx_dma, dma_bsy, hs_l, lvbl_l;
 reg  [ 6:0] dma_obj;
 reg  [ 2:0] oram_sub, dma_sub;
 reg  [ 1:0] dma_st;
-wire        vb_edge;
+wire        dma_on, vb_edge;
 // LUT Scan
 wire [ 1:0] vsize, vos;
 wire [17:2] pre_addr;
 reg  [10:0] code;
 reg  [ 9:0] attr;
 reg  [ 8:0] xpos;
-reg  [ 7:0] ydiff, ypos;
+reg  [ 8:0] ydiff, ypos;
 reg  [ 6:0] scan_obj;
 reg  [ 4:0] ysub, nx_ysub;
 reg  [ 1:0] scan_sub, dr_vmsb, st, hsize, hos,
             dr_hmsb, nx_hmsb, dr_hsize, dr_hos;
 reg         inzone, vflip, hflip, draw, cen, scan_bsy, half;
 wire        dr_bsy;
+wire [31:0] rom_swap;
 
 assign {vos, vsize } = oram_dout[4:1];
 assign vb_edge = ~lvbl & lvbl_l;
+assign mmr_cs  = &{ cs, cpu_addr[11:4] };
+assign rom_swap = {
+    rom_data[24+:4], rom_data[28+:4],
+    rom_data[16+:4], rom_data[20+:4],
+    rom_data[ 8+:4], rom_data[12+:4],
+    rom_data[ 0+:4], rom_data[ 4+:4]
+};
 
 always @* begin
-    ypos  = oram_dout[15:8]+yoffset; // maybe include the carry bit?
-    ydiff = ypos+vrender[7:0];
+    ypos  = 9'h28+{1'b0,oram_dout[15:8]}+{1'b0,yoffset};
+    ydiff = ypos+{1'b0,vrender[7:0]};
     case(vsize)
-        0: inzone = ydiff[7-:4]==0; // 16 pxl
-        1: inzone = ydiff[7-:5]==0; //  8 pxl
-        2: inzone = ydiff[7-:3]==0; // 32 pxl
-        3: inzone = ydiff[7-:6]==0; //  4 pxl
+        0: inzone = ydiff[8-:5]==0; // 16 pxl
+        1: inzone = ydiff[8-:6]==0; //  8 pxl
+        2: inzone = ydiff[8-:4]==0; // 32 pxl
+        3: inzone = ydiff[8-:7]==0; //  4 pxl
     endcase
     nx_ysub = ydiff[4:0];
     case( vsize )
@@ -108,7 +119,7 @@ assign rom_addr  = { pre_addr[17-:11],
             dr_hmsb[1],      // H16
             dr_vmsb[0],      // V8
             pre_addr[2+:3],  // V4/2/1
-            dr_hsize[0] ? dr_hmsb[0] : pre_addr[5] /* H8 */ };
+            dr_hsize[0] ? dr_hmsb[0] : pre_addr[6] /* H8 */ };
 
 // LUT scan
 always @(posedge clk, posedge rst) begin
@@ -145,7 +156,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin // read 11, 10
                     { code[7:0], hsize, hflip, hos, code[10:8] } <= oram_dout;
-                    xpos <= xpos + xoffset;
+                    xpos <= xpos + xoffset + 9'h43;
                 end
                 3: begin
                     if( !dr_bsy ) begin
@@ -217,7 +228,7 @@ jtframe_objdraw #(
     .rom_addr   ( pre_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_data   ( rom_swap  ),
 
     .pxl        ({prio, pxl})
 );
@@ -274,29 +285,21 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// MMR
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        xoffset <= 0;
-        yoffset <= 0;
-    end else begin
-        dma_on <= 0;
-        if( cs && !cpu_rnw ) case( cpu_addr )
-            'hff2: dma_on       <= 1;
-            'hff4: xoffset[  8] <= cpu_dout[0];
-            'hff5: xoffset[7:0] <= cpu_dout;
-            'hff7: yoffset      <= cpu_dout;
-        endcase
-    end
-end
-
-always @(posedge clk) begin
-    case( ioctl_addr )
-        0: ioctl_din <= { 7'd0, xoffset[8] };
-        1: ioctl_din <= xoffset[7:0];
-        2: ioctl_din <= yoffset;
-        default: ioctl_din <= 0;
-    endcase
-end
+jtshouse_obj_mmr u_mmr(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cs         ( mmr_cs        ),
+    .addr       ( cpu_addr[2:0] ),
+    .rnw        ( cpu_rnw       ),
+    .din        ( cpu_dout      ),
+    .dout       (               ),
+    .xoffset    ( xoffset       ),
+    .yoffset    ( yoffset       ),
+    .dma_on     ( dma_on        ),
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
+);
 
 endmodule

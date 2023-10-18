@@ -1,0 +1,39 @@
+- name: scr
+  size: 32
+  regs:
+    - name: hscr
+      desc: "horizontal scroll for each layer"
+      dw: 64
+      at: "12,13, 8, 9,4,5,0,1"
+    - name: vscr
+      desc: "vertical scroll for each layer"
+      dw: 64
+      at: "14,15,10,11,6,7,2,3"
+    - name: enb
+      desc: "layer enable (active low)"
+      dw: 6
+      at: "025[3],024[3],023[3],022[3],021[3],020[3]"
+    - name: prio
+      desc: "layer priority"
+      dw: 18
+      at: "025[2:0],024[2:0],023[2:0],022[2:0],021[2:0],020[2:0]"
+    - name: pal
+      desc: "layer palette"
+      dw: 18
+      at: "035[2:0],034[2:0],033[2:0],032[2:0],031[2:0],030[2:0]"
+- name: obj
+  size: 8
+  regs:
+    - name: xoffset
+      desc: "global x offset"
+      dw: 9
+      at: "4[0],5"
+    - name: yoffset
+      desc: "global y offset"
+      dw: 8
+      at: "7"
+    - name: dma_on
+      desc: "trigger DMA at next vertical blanking"
+      dw: 1
+      at: "2"
+      rd_event: true

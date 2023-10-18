@@ -53,7 +53,7 @@ wire        blank, lyr_sel;
 
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 assign scr_rgb  = { 2'b01, scr_pxl };
-assign obj_rgb  = { 2'b00^debug_bus[1:0], obj_pxl }; // 2'b10 right?
+assign obj_rgb  = { 2'b00, obj_pxl };
 assign lyr_sel  = (obj_prio>=scr_prio && obj_pxl[3:0]!='hf) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
 assign rgb_addr = lyr_sel ? obj_rgb : scr_rgb;
 

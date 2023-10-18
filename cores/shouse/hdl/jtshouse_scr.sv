@@ -64,7 +64,8 @@ module jtshouse_scr(
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR=16'h70;
+localparam [15:0] HSCR= 16'h70,
+                  VSCR=-16'h07;
 
 reg  [15:0] hpos, vpos;
 reg  [ 2:0] mlyr, mst;
@@ -136,7 +137,7 @@ always @* begin
     if( mlyr>3 )
         { vpos, hpos } = { 7'd0, vrender, 7'd0, hcnt };
     else
-        { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]],
+        { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]]+VSCR,
                            {7'd0,    hcnt}-hscr[mlyr[1:0]]+HSCR};
     if( flip ) begin
         hpos = -hpos;
@@ -266,7 +267,6 @@ jtshouse_scr_mmr u_mmr(
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_dout       )
 );
-
 
 integer aux;
 

@@ -75,7 +75,8 @@ module jtshouse_video(
 );
 
 wire [ 8:0] vdump, vrender, vrender1;
-wire [ 7:0] st_scr, st_colmix, iodin_obj, iodin_scr;
+wire [ 7:0] st_scr, st_obj, st_colmix,
+            iodin_obj, iodin_scr;
 wire [10:0] scr_pxl,  obj_pxl;
 wire [ 2:0] scr_prio, obj_prio;
 wire        flip;
@@ -83,9 +84,11 @@ wire        flip;
 assign flip = 0;
 
 always @(posedge clk) begin
-    case( debug_bus[5] )
+    case( debug_bus[6:5] )
         0: st_dout <= st_scr;
-        1: st_dout <= st_colmix;
+        1: st_dout <= st_obj;
+        2: st_dout <= st_colmix;
+        default: st_dout <= 0;
     endcase
     case(ioctl_addr[5])
         0: ioctl_din = iodin_scr;
@@ -177,7 +180,7 @@ jtshouse_obj u_obj(
     .hs         ( hs        ),
     .lvbl       ( lvbl      ),
     .flip       ( flip      ),
-    .vrender    ( vrender   ),
+    .vrender    ( vrender1  ),
     .hdump      ( hdump     ),
 
     // Video RAM
@@ -195,8 +198,11 @@ jtshouse_obj u_obj(
     // pixel output
     .pxl        ( obj_pxl   ),
     .prio       ( obj_prio  ),
+
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_obj    ),
     // MMR dump
-    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_addr ( ioctl_addr[2:0]),
     .ioctl_din  ( iodin_obj )
 );
 
