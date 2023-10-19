@@ -57,8 +57,10 @@ module jtshouse_obj(
 );
 
 // Registers
-wire [ 7:0] yoffset;
-wire [ 8:0] xoffset;
+wire [ 7:0] pre_yos;
+wire [ 8:0] pre_xos;
+reg  [ 7:0] yoffset;
+reg  [ 8:0] xoffset;
 wire        mmr_cs;
 // DMA
 reg         nx_dma, dma_bsy, hs_l, lvbl_l;
@@ -267,6 +269,10 @@ always @(posedge clk, posedge rst) begin
             dma_st   <= 0;
             dma_obj  <= 0;
             dma_sub  <= 1;
+            // the global offsets are changed by the CPU in the middle of the frame
+            // so they must be registered during blanking
+            xoffset  <= pre_xos;
+            yoffset  <= pre_yos;
         end
         if( dma_bsy ) case(dma_st)
             2: begin
@@ -294,8 +300,8 @@ jtshouse_obj_mmr u_mmr(
     .rnw        ( cpu_rnw       ),
     .din        ( cpu_dout      ),
     .dout       (               ),
-    .xoffset    ( xoffset       ),
-    .yoffset    ( yoffset       ),
+    .xoffset    ( pre_xos       ),
+    .yoffset    ( pre_yos       ),
     .dma_on     ( dma_on        ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     ),

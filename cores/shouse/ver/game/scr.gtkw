@@ -1,24 +1,24 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Wed Oct 18 06:24:22 2023
+[*] Thu Oct 19 06:01:39 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Wed Oct 18 06:23:59 2023"
-[dumpfile_size] 3487437
+[dumpfile_mtime] "Thu Oct 19 05:58:04 2023"
+[dumpfile_size] 69784413
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/scr.gtkw"
-[timestart] 10172
+[timestart] 4575577000000
 [size] 1264 1024
 [pos] -1 -1
-*-33.717667 8327591000 8327826572 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-26.738111 4575763477780 8327826572 4575763477780 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
 [treeopen] TOP.game_test.u_game.u_game.u_video.
 [treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.
-[sst_width] 223
+[sst_width] 43
 [signals_width] 281
-[sst_expanded] 1
+[sst_expanded] 0
 [sst_vpaned_height] 608
 @24
 TOP.game_test.frame_cnt[31:0]
@@ -26,6 +26,9 @@ TOP.game_test.u_game.u_game.u_video.u_scroll.aux[31:0]
 @28
 TOP.game_test.u_game.u_game.u_video.lhbl
 TOP.game_test.u_game.u_game.u_video.lvbl
+@22
+TOP.game_test.u_game.u_game.u_video.u_scroll.vrender[8:0]
+@28
 TOP.game_test.u_game.u_game.u_video.u_scroll.alt_cen
 @22
 TOP.game_test.u_game.u_game.u_video.u_scroll.pxl[10:0]
@@ -149,10 +152,8 @@ TOP.game_test.u_game.u_game.u_video.u_scroll.mask[1][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[2][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[3][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[4][7:0]
-@23
 [color] 1
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[5][7:0]
-@22
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[6][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[7][7:0]
 [pattern_trace] 1
