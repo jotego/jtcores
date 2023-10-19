@@ -94,6 +94,7 @@ assign rom_swap = {
 always @* begin
     ypos  = 9'h28+{1'b0,oram_dout[15:8]}+{1'b0,yoffset};
     ydiff = ypos+{1'b0,vrender[7:0]};
+    if(debug_bus[4]) ydiff[8] = 0;
     case(vsize)
         0: inzone = ydiff[8-:5]==0; // 16 pxl
         1: inzone = ydiff[8-:6]==0; //  8 pxl
