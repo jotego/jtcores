@@ -66,6 +66,15 @@ echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 apt install --yes htop
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/
 
+# Go
+GONAME=go1.21.3.linux-amd64.tar.gz
+wget https://go.dev/dl/$GONAME
+rm -rf /usr/local/go && tar -C /usr/local -xzf $GONAME
+rm -f $GONAME
+export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+echo export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin >> $HOME/.bashrc
+go install github.com/spf13/cobra-cli@latest
+
 # GitHub CLI
 type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \

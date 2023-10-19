@@ -34,6 +34,8 @@ type MRA struct{
 	Setname string `xml:"setname"`
 	Rbf     string `xml:"rbf"`
 	Rom     struct {
+		Index	int    `xml:"index,attr"`
+		Zip		string `xml:"zip,attr"`
 		Md5		string `xml:"asm_md5,attr"`
 	} `xml:"rom"`
 	Dip		struct {
@@ -53,17 +55,17 @@ func list_md5() {
 		}
 		if fi.IsDir() { return nil }
 		// get the information
-			var game MRA
-			buf, e := os.ReadFile(fname)
-			if e!=nil { return e }
-			xml.Unmarshal(buf, &game )
-			if slc, _ := bycore[game.Rbf]; slc ==nil {
-				bycore[game.Rbf] = make([]*MRA,1)
-				bycore[game.Rbf][0] = &game
-			} else {
-				bycore[game.Rbf] = append(bycore[game.Rbf], &game)
-			}
-			all=append(all,&game)
+		var game MRA
+		buf, e := os.ReadFile(fname)
+		if e!=nil { return e }
+		xml.Unmarshal(buf, &game )
+		if slc, _ := bycore[game.Rbf]; slc ==nil {
+			bycore[game.Rbf] = make([]*MRA,1)
+			bycore[game.Rbf][0] = &game
+		} else {
+			bycore[game.Rbf] = append(bycore[game.Rbf], &game)
+		}
+		all=append(all,&game)
 		return nil
 	}
 	e := filepath.WalkDir( filepath.Join(os.Getenv("JTBIN"),"mra"), get_mradata)
