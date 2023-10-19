@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Oct 10 10:20:56 2023
+[*] Wed Oct 18 06:24:22 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Tue Oct 10 10:20:25 2023"
-[dumpfile_size] 1570397
+[dumpfile_mtime] "Wed Oct 18 06:23:59 2023"
+[dumpfile_size] 3487437
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/scr.gtkw"
 [timestart] 10172
 [size] 1264 1024
-[pos] 1265 -1
-*-33.717667 4370000000 -1 31407911476 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-33.717667 8327591000 8327826572 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -19,7 +19,7 @@
 [sst_width] 223
 [signals_width] 281
 [sst_expanded] 1
-[sst_vpaned_height] 307
+[sst_vpaned_height] 608
 @24
 TOP.game_test.frame_cnt[31:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.aux[31:0]
@@ -54,6 +54,32 @@ TOP.game_test.u_game.u_game.u_video.u_scroll.mask_ok
 TOP.game_test.u_game.u_game.u_video.u_scroll.mlyr[2:0]
 @200
 -
+@22
+TOP.game_test.u_game.u_game.u_video.u_scroll.hpos[15:0]
+TOP.game_test.u_game.u_game.u_video.u_scroll.vpos[15:0]
+@200
+-
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(13)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(14)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+(15)TOP.game_test.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+@1401200
+-group_end
 @c00030
 TOP.game_test.u_game.u_game.u_video.u_scroll.scr_addr[19:0]
 @28
@@ -92,6 +118,29 @@ TOP.game_test.u_game.u_game.u_video.u_scroll.scr_ok
 @22
 TOP.game_test.u_game.u_game.u_video.u_scroll.scr_data[7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.linear[9:0]
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(13)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(14)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(15)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(16)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+(17)TOP.game_test.u_game.u_game.u_video.u_scroll.cfg_prio[17:0]
+@1401200
+-group_end
 @200
 -
 @22
@@ -100,7 +149,10 @@ TOP.game_test.u_game.u_game.u_video.u_scroll.mask[1][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[2][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[3][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[4][7:0]
+@23
+[color] 1
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[5][7:0]
+@22
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[6][7:0]
 TOP.game_test.u_game.u_game.u_video.u_scroll.mask[7][7:0]
 [pattern_trace] 1

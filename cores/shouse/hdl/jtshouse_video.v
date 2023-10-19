@@ -79,9 +79,11 @@ wire [ 7:0] st_scr, st_obj, st_colmix,
             iodin_obj, iodin_scr;
 wire [10:0] scr_pxl,  obj_pxl;
 wire [ 2:0] scr_prio, obj_prio;
-wire        flip;
+wire        flip, pre_scrcs, pre_maskcs;
 
 assign flip = 0;
+assign scr_cs  = pre_scrcs  & gfx_en[0];
+assign mask_cs = pre_maskcs & gfx_en[0];
 
 always @(posedge clk) begin
     case( debug_bus[6:5] )
@@ -146,12 +148,12 @@ jtshouse_scr u_scroll(
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
     // Mask readout (SDRAM)
-    .mask_cs    ( mask_cs   ),
+    .mask_cs    ( pre_maskcs),
     .mask_ok    ( mask_ok   ),
     .mask_addr  ( mask_addr ),
     .mask_data  ( mask_data ),
     // Tile readout (SDRAM)
-    .scr_cs     ( scr_cs    ),
+    .scr_cs     ( pre_scrcs ),
     .scr_ok     ( scr_ok    ),
     .scr_addr   ( scr_addr  ),
     .scr_data   ( scr_data  ),

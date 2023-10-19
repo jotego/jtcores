@@ -156,7 +156,7 @@ jtshouse_main u_main(
 
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
-    .rstn       ( srst_n    ),
+    .rstn       ( srst_n & ~debug_bus[0]   ),
     .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),

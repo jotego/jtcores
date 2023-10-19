@@ -122,10 +122,10 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= -hscr[0][2:0];
-            hcnt1 <= -hscr[1][2:0];
-            hcnt2 <= -hscr[2][2:0];
-            hcnt3 <= -hscr[3][2:0];
+            hcnt0 <= -hscr[0][2:0]-HSCR[2:0];
+            hcnt1 <= -hscr[1][2:0]-HSCR[2:0];
+            hcnt2 <= -hscr[2][2:0]-HSCR[2:0];
+            hcnt3 <= -hscr[3][2:0]-HSCR[2:0];
             if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
         end
         if( vrender==9'h110 ) lin_row <= 1;
@@ -186,7 +186,7 @@ always @(posedge clk, posedge rst) begin
         attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
-    end else begin
+    end else if(vrender<9'h1f0 && vrender>'h10e) begin
         if( mlyr!=7 ) mst <= mst+3'd1;
 
         case( mst )
@@ -195,7 +195,7 @@ always @(posedge clk, posedge rst) begin
                 0: tmap_addr <= { 2'd0, vpos[3+:6], hpos[3+:6] };
                 1: tmap_addr <= { 2'd1, vpos[3+:6], hpos[3+:6] };
                 2: tmap_addr <= { 2'd2, vpos[3+:6], hpos[3+:6] };
-                3: tmap_addr <= { 3'd3, vpos[3+:5], hpos[3+:6] };
+                3: tmap_addr <= { 3'd6, vpos[3+:5], hpos[3+:6] };
                 // fixed tile maps are packed in memory and do not fit into a H-V binary split
                 4: tmap_addr <= { 4'b1110, linear };
                 5: tmap_addr <= { 4'b1111, linear };
@@ -207,7 +207,7 @@ always @(posedge clk, posedge rst) begin
             end
             5: if(mask_ok) begin
                 mask[cfg_prio[mlyr]] <= mask_data;
-                info[cfg_prio[mlyr]] <= { cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
+                info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
                 mreq[mlyr] <= 0;
                 mask_cs    <= 0;
                 mst        <= 0;
