@@ -57,3 +57,11 @@ jobs:
           name: jtcore17_rbf
           path: release
           retention-days: 60
+      - name: Synology Uploader
+        uses: leconio/synology-uploader-action@v1.0.4
+        with:
+          host: ${{secrets.NAS_HOST}}
+          sharing_id: ${{secrets.NAS_SHAREID}}
+          uploader_name: ${{secrets.NAS_NAME}}
+          # password: ${{secrets.NAS_PASSWD}}
+          file: 'jtcore17_rbf'
