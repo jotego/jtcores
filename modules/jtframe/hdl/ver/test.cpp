@@ -325,6 +325,7 @@ public:
         }
     }
     void iodump_step() {
+#ifdef _JTFRAME_IOCTL_RD
         const int STEP=3;
         if( (ticks&STEP)==STEP) {
             iodin[dut.ioctl_addr] = dut.ioctl_din;
@@ -341,8 +342,10 @@ public:
             }
         }
         ticks++;
+#endif
     }
     void iodump_start() {
+#ifdef _JTFRAME_IOCTL_RD
         if( iodump_busy ) return;
         fprintf(stderr,"\nIOCTL read started\n");
         iodump_busy = true;
@@ -352,6 +355,7 @@ public:
         if(iodin==nullptr) {
             iodin=new char[_JTFRAME_IOCTL_RD];
         }
+#endif
     }
 };
 
