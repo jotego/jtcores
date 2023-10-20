@@ -275,7 +275,7 @@ func parse_yaml(filename string, files *JTFiles) {
 // Make the path relative or absolute
 func make_path(path, filename string, rel bool) (item string) {
 	var err error
-	if strings.Index(filename,path)==-1 {
+	if strings.Index(filename,path)==-1 && strings.Index(filename,"/")==-1 {
 		fmt.Printf("%s -> %s\n",path,filename)
 		filename = filepath.Join(path, filename)
 	}
