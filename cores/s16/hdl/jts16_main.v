@@ -67,8 +67,8 @@ module jts16_main(
     input       [15:0] joyana2b,
     input       [15:0] joyana3,
     input       [15:0] joyana4,
-    input       [ 3:0] start_button,
-    input       [ 3:0] coin_input,
+    input       [ 3:0] cab_1p,
+    input       [ 3:0] coin,
     input              service,
     // ROM access
     output reg         rom_cs,
@@ -306,14 +306,14 @@ always @(posedge clk, posedge rst) begin
                 case( A[2:1] )
                     0: begin
                         if( !last_iocs ) port_cnt <= 0;
-                        cab_dout <= { 2'b11, start_button[1:0], service, dip_test, coin_input[1:0] };
+                        cab_dout <= { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
                         case( game_id )
                             GAME_SDI: begin
                                 cab_dout[7] <= joystick2[4];
                                 cab_dout[6] <= joystick1[4];
                             end
                             GAME_PASSSHT: begin
-                                cab_dout[7:6] <= start_button[3:2];
+                                cab_dout[7:6] <= cab_1p[3:2];
                             end
                             default:;
                         endcase

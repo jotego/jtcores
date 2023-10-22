@@ -95,10 +95,10 @@ jtbubl_main u_main(
     .main_stb       ( main_stb      ),
     .main_flag      ( main_flag     ),
     .main_latch     ( main_latch    ),
-    .snd_rst       ( snd_rst      ),
+    .snd_rst        ( snd_rst       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -139,7 +139,7 @@ jtbubl_video u_video(
     .VS             ( VS            ),
     .flip           ( flip          ),
     .dip_pause      ( dip_pause     ),
-    .start_button   ( &start_button ),
+    .cab_1p   ( &cab_1p ),
     // PROMs
     .prom_we        ( prom_we       ),
     .prog_addr      ( prog_addr[7:0]),

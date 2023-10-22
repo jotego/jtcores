@@ -168,8 +168,8 @@ jtshouse_mcu u_mcu(
     .ram_cs     ( mcutri_cs ),
     .ram_dout   ( alt_din   ),
     // cabinet I/O
-    .start_button( start_button  ),
-    .coin_input ( coin_input),
+    .cab_1p     ( cab_1p    ),
+    .coin       ( coin      ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .dipsw      ( dipsw[7:0]),

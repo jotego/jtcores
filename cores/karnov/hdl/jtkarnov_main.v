@@ -56,8 +56,8 @@ module jtkarnov_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
 
-    input       [ 1:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] cab_1p,
+    input       [ 1:0] coin,
     input              service,
 
     // RAM access
@@ -185,7 +185,7 @@ end
 always @(posedge clk) begin
     case(A[2:1])
         0: cab_dout <= { joystick2, joystick1 };
-        1: cab_dout <= { 8'hff, ~LVBL, 3'd7, start_button, 2'b11 }; // button 5 should be bits 1:0, not adding it
+        1: cab_dout <= { 8'hff, ~LVBL, 3'd7, cab_1p, 2'b11 }; // button 5 should be bits 1:0, not adding it
         2: cab_dout <= dipsw;
         3: cab_dout <= 16'hffff;
     endcase

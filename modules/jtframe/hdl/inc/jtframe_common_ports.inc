@@ -25,10 +25,10 @@
     output          game_led,
     // cabinet I/O
 `ifdef JTFRAME_4PLAYERS
-    input   [ 3:0]  start_button, coin_input,
+    input   [ 3:0]  cab_1p, coin,
     input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2, joystick3, joystick4,
 `else
-    input   [ 1:0]  start_button, coin_input,
+    input   [ 1:0]  cab_1p, coin,
     input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2,
 `endif
 `ifdef JTFRAME_PADDLE

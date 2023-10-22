@@ -118,8 +118,8 @@ module jtrastan_main(
 
     input         [ 5:0] joystick1,
     input         [ 5:0] joystick2,
-    input         [ 1:0] start_button,
-    input         [ 1:0] coin_input,
+    input         [ 1:0] cab_1p,
+    input         [ 1:0] coin,
     input                service,
     input                tilt,
     input                dip_test,
@@ -228,7 +228,7 @@ always @(posedge clk, posedge rst) begin
             0: cab_dout <= { 2'b11, mapjoy(joystick1) };
             1: cab_dout <= { 2'b11, mapjoy(joystick2) };
             2: cab_dout <= 8'hbf; // "SPECIAL"
-            3: cab_dout <= {1'b1, coin_input, start_button,
+            3: cab_dout <= {1'b1, coin, cab_1p,
                     tilt, dip_test, service };
             4: cab_dout <= dipsw_a;
             5: cab_dout <= dipsw_b;

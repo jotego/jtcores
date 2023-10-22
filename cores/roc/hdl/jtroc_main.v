@@ -30,8 +30,8 @@ module jtroc_main(
     input               rom_ok,
 
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 5:0]  joystick1,
     input       [ 5:0]  joystick2,
     input               service,
@@ -124,7 +124,7 @@ end
 
 always @(posedge clk) begin
     case( A[1:0] )
-        0: cabinet <= { ~3'd0, start_button, service, coin_input };
+        0: cabinet <= { ~3'd0, cab_1p, service, coin };
         1: cabinet <= { 2'd3, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1] };
         2: cabinet <= { 2'd3, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1] };
         3: cabinet <= dipsw[ 7-:8]; //

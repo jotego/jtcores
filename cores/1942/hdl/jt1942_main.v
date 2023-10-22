@@ -53,8 +53,8 @@ module jt1942_main(
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     input              service,
     // BUS sharing
     output  [12:0]     cpu_AB,
@@ -188,11 +188,11 @@ end
 
 always @(*) begin
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input[0], coin_input[1], // COINS
+        3'd0: cabinet_input = { coin[0], coin[1], // COINS
                      1'd1, // Tilt ?
                      service,
                      2'b11, // undocumented. The game start screen has background when set to 0!
-                     start_button }; // START
+                     cab_1p }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };
         3'd2: cabinet_input = { 2'b11, joystick2 };
         3'd3: cabinet_input = dipsw_a;

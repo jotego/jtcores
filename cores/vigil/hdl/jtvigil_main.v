@@ -46,8 +46,8 @@ module jtvigil_main(
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     input              service,
     // DIP switches
     input    [7:0]     dipsw_a,
@@ -143,7 +143,7 @@ always @(posedge clk, posedge rst) begin
             ram_cs  ? ram_dout :
             pal_cs  ? pal_dout :
             scr_cs  ? scr_dout : // I think the scroll cannot be read, but sch. are blurry
-            in0_cs  ? { 4'hf, coin_input[0], service, start_button } :
+            in0_cs  ? { 4'hf, coin[0], service, cab_1p } :
             in1_cs  ? { joystick1[5], 1'b1, joystick1[4], 1'b1, joystick1[3:0] } :
             in2_cs  ? { joystick2[5], 1'b1, joystick2[4], 1'b1, joystick2[3:0] } :
             dip1_cs ? dipsw_a  :

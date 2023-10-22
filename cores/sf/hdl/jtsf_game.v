@@ -39,8 +39,8 @@ module jtsf_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
 
@@ -375,11 +375,11 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .service     ( service      ),
-    .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
 
     .RnW        ( RnW           ),
     // DIP switches

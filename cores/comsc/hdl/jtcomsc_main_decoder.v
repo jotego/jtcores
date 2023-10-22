@@ -37,8 +37,8 @@ module jtcomsc_main_decoder(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 5:0]  joystick1,
     input       [ 5:0]  joystick2,
     input               service,
@@ -117,8 +117,8 @@ end
 
 always @(posedge clk) begin
     case( A[2:0] )
-        3'b000: port_in <= {3'b111, coin_input, start_button[0], joystick1[5:4] };
-        3'b001: port_in <= { dipsw_c, 1'b1, start_button[1], joystick2[5:4] };
+        3'b000: port_in <= {3'b111, coin, cab_1p[0], joystick1[5:4] };
+        3'b001: port_in <= { dipsw_c, 1'b1, cab_1p[1], joystick2[5:4] };
         3'b010: port_in <= dipsw_a;
         3'b011: port_in <= dipsw_b;
         3'b100: port_in <= { joystick1[3:0], joystick2[3:0]};

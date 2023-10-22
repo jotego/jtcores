@@ -79,10 +79,10 @@ jthige_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1[4:0] ),
-    .joystick2   ( joystick2[4:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .joystick1  ( joystick1[4:0]),
+    .joystick2  ( joystick2[4:0]),
     // PROM K6
     .prog_addr  ( prom_addr[7:0]),
     .prom_irq_we( prom_irq_we   ),

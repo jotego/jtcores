@@ -29,8 +29,8 @@ module jt1943_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
     // SDRAM interface
@@ -259,8 +259,8 @@ jt1943_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin         ),
     .service     ( service      ),
     .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
     .joystick2   ( { joy2_btn, joystick2[3:0]}    ),

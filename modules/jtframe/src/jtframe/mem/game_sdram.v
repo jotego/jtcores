@@ -98,8 +98,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .HS             ( HS            ),
     .VS             ( VS            ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     `ifdef JTFRAME_4PLAYERS

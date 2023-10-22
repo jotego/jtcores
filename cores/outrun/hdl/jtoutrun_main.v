@@ -62,8 +62,8 @@ module jtoutrun_main(
     input       [ 7:0] joystick2,
     input       [15:0] joyana1,
     input       [15:0] joyana1b,
-    input       [ 1:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] cab_1p,
+    input       [ 1:0] coin,
     input              service,
     output      [19:1] addr,
     // ROM access
@@ -290,7 +290,7 @@ always @(*) begin
         case( { A[13:12],A[5] } )
             2: case( A[2:1] )
                 0: cab_dout = 8'hff;
-                1: cab_dout = { 2'b11, joystick1[7], start_button[0], service, dip_test, coin_input };
+                1: cab_dout = { 2'b11, joystick1[7], cab_1p[0], service, dip_test, coin };
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;
                 default:;
@@ -338,7 +338,7 @@ always @(*) begin
                 cab_dout = ppi_dout;
             end
             1: case( A[2:1] )
-                0: cab_dout = { coin_input, ~joystick1[7], joystick1[6], start_button[0], service, dip_test, 1'b1 };
+                0: cab_dout = { coin, ~joystick1[7], joystick1[6], cab_1p[0], service, dip_test, 1'b1 };
                 1: cab_dout = 8'hff;
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;

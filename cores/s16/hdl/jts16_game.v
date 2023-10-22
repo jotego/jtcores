@@ -166,8 +166,8 @@ assign key_mcaddr=0;
     .joyana2b    ( joyana_r2  ),
     .joyana3     ( joyana_l3  ),
     .joyana4     ( joyana_l4  ),
-    .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .cab_1p      ( cab_1p     ),
+    .coin        (  coin      ),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),

@@ -26,8 +26,8 @@ TOP.game_test.frame_cnt[31:0]
 @200
 -
 @28
-TOP.game_test.u_game.u_game.u_sound.coin_input[1:0]
-TOP.game_test.u_game.u_game.u_sound.start_button[1:0]
+TOP.game_test.u_game.u_game.u_sound.coin[1:0]
+TOP.game_test.u_game.u_game.u_sound.cab_1p[1:0]
 @200
 -
 @22

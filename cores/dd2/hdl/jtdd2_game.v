@@ -81,15 +81,15 @@ jtdd_main u_main(
     .cram_cs        ( cram_cs       ),
     // Objects
     .obj_dout       ( obj_dout      ),
-    .oram_cs         ( oram_cs        ),
+    .oram_cs        ( oram_cs       ),
     // scroll
     .scr_dout       ( scr_dout      ),
-    .vram_cs         ( vram_cs        ),
+    .vram_cs        ( vram_cs       ),
     .scrhpos        ( scrhpos       ),
     .scrvpos        ( scrvpos       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     // BUS sharing

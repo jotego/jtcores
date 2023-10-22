@@ -42,8 +42,8 @@ module jtrumble_main(
     output  reg [9:0]  scr_hpos,
     output  reg [9:0]  scr_vpos,
     // cabinet I/O
-    input       [1:0]  start_button,
-    input       [1:0]  coin_input,
+    input       [1:0]  cab_1p,
+    input       [1:0]  coin,
     input       [5:0]  joystick1,
     input       [5:0]  joystick2,
     // BUS sharing
@@ -172,11 +172,11 @@ reg [7:0] cabinet;
 
 always @(*) begin
     case( A[2:0])
-        3'd0: cabinet = { coin_input, // COINS
+        3'd0: cabinet = { coin, // COINS
                      service,
                      1'b1, // tilt?
                      2'h3, // undocumented
-                     start_button }; // START
+                     cab_1p }; // START
         3'd1: cabinet = { 2'b11, joystick1 };
         3'd2: cabinet = { 2'b11, joystick2 };
         3'd3: cabinet = dipsw_a;

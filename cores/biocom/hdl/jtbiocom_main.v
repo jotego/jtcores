@@ -53,8 +53,8 @@ module jtbiocom_main(
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     // BUS sharing
     output             UDSWn,
     output             LDSWn,
@@ -249,8 +249,8 @@ always @(posedge clk) begin
     if( GAME==0 ) // Bionic Commando:
         cabinet_input = Aeff[1] ?
             { dipsw_b, dipsw_a } :
-            { coin_input[0], coin_input[1],        // COINS
-              start_button[0], start_button[1],    // START
+            { coin[0], coin[1],        // COINS
+              cab_1p[0], cab_1p[1],    // START
               { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
               { joystick2[3:0], joystick2[4], joystick2[5]} };
     else // Tiger Road:
@@ -259,10 +259,10 @@ always @(posedge clk) begin
                 2'b11, joystick2[5:0],
                 2'b11, joystick1[5:0] };
             2'b01: cabinet_input <=
-                { coin_input,
+                { coin,
                     service,
                     2'b11,
-                    ~LVBL, start_button, 8'hff };
+                    ~LVBL, cab_1p, 8'hff };
             2'b10: cabinet_input <= { dipsw_a, dipsw_b };
             default:;
         endcase

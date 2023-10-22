@@ -97,8 +97,8 @@ jtfround_main u_main(
     .obj_data       ( lyro_data     ),
     .obj_ok         ( lyro_ok       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

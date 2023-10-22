@@ -34,8 +34,8 @@ module jtlabrun_main(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 5:0]  joystick1,
     input       [ 5:0]  joystick2,
     input               service,
@@ -114,11 +114,11 @@ always @(*) begin
     rom_addr = A[15] ? { 2'b00, A[14:0] } : { bank+3'b10, A[13:0] }; // 14+3=17
 end
 
-wire [7:0] sys_dout ={ ~5'd0, service, coin_input };
+wire [7:0] sys_dout ={ ~5'd0, service, coin };
 
 always @(posedge clk) begin
-    cabinet <= A[0] ? {start_button[0],1'b1, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]} :
-                      {start_button[1],1'b1, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
+    cabinet <= A[0] ? {cab_1p[0],1'b1, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]} :
+                      {cab_1p[1],1'b1, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
     cpu_din <= rom_cs ? rom_data : (
                ram_cs ? ram_dout : (
                gfx_cs ? gfx_dout : (

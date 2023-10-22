@@ -47,8 +47,8 @@ module jts16b_cabinet(
     input      [15:0] joyana2b, // used by SDI
     input      [15:0] joyana3,
     input      [15:0] joyana4,
-    input      [ 3:0] start_button,
-    input      [ 3:0] coin_input,
+    input      [ 3:0] cab_1p,
+    input      [ 3:0] coin,
     input             service,
 
     output     [ 7:0] sys_inputs,
@@ -106,7 +106,7 @@ end
 
 wire [8:0] joyana_sum = {joyana1[15], joyana1[15:8]} + {joyana2[15], joyana2[15:8]};
 reg  [7:0] ana_in;
-assign sys_inputs = { 2'b11, start_button[1:0], service, dip_test, coin_input[1:0] };
+assign sys_inputs = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
 
 function [7:0] pass_joy( input [7:0] joy_in );
     pass_joy = { joy_in[7:4], joy_in[1:0], joy_in[3:2] };
@@ -207,11 +207,11 @@ always @(posedge clk, posedge rst) begin
                     0: begin  // Service
                         cab_dout <= sys_inputs;
                         if( game_bullet ) begin
-                            cab_dout[7] <= coin_input[2];
-                            cab_dout[6] <= start_button[2];
+                            cab_dout[7] <= coin[2];
+                            cab_dout[6] <= cab_1p[2];
                         end
                         if( game_passsht | game_dunkshot )  begin
-                            cab_dout[7:6] <= start_button[3:2];
+                            cab_dout[7:6] <= cab_1p[3:2];
                         end
                         if( game_sdi ) begin
                             cab_dout[7:6] <= { joystick2[4], joystick1[4] };

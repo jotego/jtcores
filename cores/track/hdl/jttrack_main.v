@@ -30,8 +30,8 @@ module jttrack_main(
     input               rom_ok,
 
     // cabinet I/O
-    input       [ 3:0]  start_button,
-    input       [ 3:0]  coin_input,
+    input       [ 3:0]  cab_1p,
+    input       [ 3:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input       [ 6:0]  joystick3,
@@ -123,9 +123,9 @@ endfunction
 
 always @(posedge clk) begin
     case( A[1:0] )
-        0: cabinet <= { 3'b111, start_button[1:0], service, coin_input[1:0] };
-        1: cabinet <= {1'b1, rev3(joystick2[6:4]), start_button[2], rev3(joystick1[6:4]) };
-        2: cabinet <= {1'b1, rev3(joystick4[6:4]), start_button[3], rev3(joystick3[6:4]) };
+        0: cabinet <= { 3'b111, cab_1p[1:0], service, coin[1:0] };
+        1: cabinet <= {1'b1, rev3(joystick2[6:4]), cab_1p[2], rev3(joystick1[6:4]) };
+        2: cabinet <= {1'b1, rev3(joystick4[6:4]), cab_1p[3], rev3(joystick3[6:4]) };
         3: cabinet <= dipsw_a;
     endcase
     cpu_din <= rom_cs  ? rom_data  :

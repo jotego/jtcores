@@ -44,8 +44,8 @@ module jtgng_main(
     output  reg [8:0]  scr_vpos,
     input              scr_holdn,
     // cabinet I/O
-    input       [1:0]  start_button,
-    input       [1:0]  coin_input,
+    input       [1:0]  cab_1p,
+    input       [1:0]  coin,
     input       [5:0]  joystick1,
     input       [5:0]  joystick2,
     // BUS sharing
@@ -155,11 +155,11 @@ always @(posedge clk, posedge rst) begin
         cabinet_input <= 0;
     end else begin
         case( cpu_AB[3:0])
-            0: cabinet_input <= { coin_input, // COINS
+            0: cabinet_input <= { coin, // COINS
                          service,
                          1'b1, // tilt?
                          2'h3, // undocumented. The game start screen has background when set to 0!
-                         start_button }; // START
+                         cab_1p }; // START
             1: cabinet_input <= { 2'b11, joystick1 };
             2: cabinet_input <= { 2'b11, joystick2 };
             3: cabinet_input <= dipsw_a;

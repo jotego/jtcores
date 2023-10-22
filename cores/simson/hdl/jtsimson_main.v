@@ -34,8 +34,8 @@ module jtsimson_main(
     output              cpu_we,
     input       [ 7:0]  ram_dout,
     // cabinet I/O
-    input       [ 3:0]  start_button,
-    input       [ 3:0]  coin_input,
+    input       [ 3:0]  cab_1p,
+    input       [ 3:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input       [ 6:0]  joystick3,
@@ -184,16 +184,16 @@ always @(posedge clk, posedge rst) begin
         endcase
 
         if( joystk_cs ) case( A[1:0] )
-            2'd0: port_in <= { start_button[0], joystick1[6:0] };
-            2'd1: port_in <= { start_button[1], joystick2[6:0] };
-            2'd2: port_in <= { start_button[2], joystick3[6:0] };
-            2'd3: port_in <= { start_button[3], joystick4[6:0] };
+            2'd0: port_in <= { cab_1p[0], joystick1[6:0] };
+            2'd1: port_in <= { cab_1p[1], joystick2[6:0] };
+            2'd2: port_in <= { cab_1p[2], joystick3[6:0] };
+            2'd3: port_in <= { cab_1p[3], joystick4[6:0] };
         endcase
 
         if( eeprom_cs ) port_in <= A[0] ? { W0C1, W0C0, eep_rdy, eep_do,
                                             eep_di, eep_clk, eep_cs, dip_test } // real PCB */
                                         //{ 2'b11, eep_rdy, eep_do, 3'b111, dip_test } // use for MAME comparisons
-                                        : { {4{service}}, coin_input };
+                                        : { {4{service}}, coin };
     end
 end
 

@@ -87,8 +87,8 @@ jtkarnov_main u_main(
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
 
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin         ),
     .service     ( service      ),
 
     // RAM access
@@ -118,9 +118,9 @@ jtkarnov_main u_main(
 
     assign mcu_p0i = ~mcu_p2o[4] ? mcu_din[ 7:0] : mcu_p0o;
     assign mcu_p1i = ~mcu_p2o[5] ? mcu_din[15:8] : mcu_p1o;
-    assign mcu_p3i = { service, coin_input, 5'h1f };
+    assign mcu_p3i = { service, coin, 5'h1f };
     assign mcu2main_irq = ~mcu_p2o[2];
-    assign coin_in = ~&{coin_input[1:0], service};
+    assign coin_in = ~&{coin[1:0], service};
     always @(posedge clk24) begin
         case( debug_bus[3:0] )
             0: mcu_st <= mcu_din[7:0];

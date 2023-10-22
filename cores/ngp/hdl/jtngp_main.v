@@ -27,7 +27,7 @@ module jtngp_main(
 
     input               lvbl,
 
-    input               start_button,
+    input               cab_1p,
     input               pwr_button,
     input       [ 5:0]  joystick1,
 

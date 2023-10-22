@@ -28,7 +28,7 @@ module jtbubl_video(
     output              VS,
     input               flip,
     input               dip_pause,
-    input               start_button,
+    input               cab_1p,
     // PROMs
     input      [ 7:0]   prog_addr,
     input      [ 3:0]   prog_data,

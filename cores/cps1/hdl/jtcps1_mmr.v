@@ -47,8 +47,8 @@ module jtcps1_mmr(
     output reg         star_bank,
 
     // Extra inputs read through the C-Board
-    input      [ 3:0]  start_button,
-    input      [ 3:0]  coin_input,
+    input      [ 3:0]  cab_1p,
+    input      [ 3:0]  coin,
     input      [ 9:0]  joystick1,
     input      [ 9:0]  joystick2,
     input      [ 9:0]  joystick3,
@@ -208,13 +208,13 @@ end
 
 // extra inputs
 always @(posedge clk) begin
-    in3 = { start_button[3], coin_input[3], joystick4[5:0] }; // four players
+    in3 = { cab_1p[3], coin[3], joystick4[5:0] }; // four players
     if( cpsb_inputs[2] )
         begin // 6 buttons
             in2 = { 1'b1, joystick2[9:7], 1'b1, joystick1[9:7] };
         end
         else begin // 3'b001 or other: three players
-            in2 = { start_button[2], coin_input[2], joystick3[5:0] };
+            in2 = { cab_1p[2], coin[2], joystick3[5:0] };
         end
 end
 

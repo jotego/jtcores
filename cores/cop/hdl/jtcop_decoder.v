@@ -26,7 +26,7 @@ module jtcop_decoder(
     input              LVBL_l,
     input              sec2,
     input              service,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] coin,
     output reg         rom_cs,
     output reg         eep_cs,
     output reg         prisel_cs,
@@ -92,7 +92,7 @@ always @(*) begin
     pal_cs     = 0;
     sysram_cs  = 0;
     obj_cs     = 0;
-    sec[5:3]   = { service, coin_input };
+    sec[5:3]   = { service, coin };
     sec[2]     = sec2;
     sec[1:0]   = 0;
     disp_cs    = 0;

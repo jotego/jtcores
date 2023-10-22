@@ -34,8 +34,8 @@ module jtshouse_mcu(
     input       [7:0]  ram_dout,
     // Ports
     // cabinet I/O
-    input       [1:0]  start_button,
-    input       [1:0]  coin_input,
+    input       [1:0]  cab_1p,
+    input       [1:0]  coin,
     input       [6:0]  joystick1,
     input       [6:0]  joystick2,
     input       [7:0]  dipsw,
@@ -91,7 +91,7 @@ assign bus_busy    = pcm_cs & ~pcm_ok;
 assign eerom_we    = epr_cs & ~rnw;
 assign pcm_addr    = {bank, pcm_msb, A[15],A[13:0]};
 assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
-assign p1_din      = { 1'b1, service, dip_test, coin_input, 3'd0 };
+assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
 // assign irqen       = hdump[1:0]==0;
@@ -141,8 +141,8 @@ always @(posedge clk, negedge rstn ) begin
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
-        cab_dout <= A[0] ? { start_button[1], joystick2 }:
-                           { start_button[0], joystick1 };
+        cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
+                           { cab_1p[0], joystick1 };
         if( ram_cs && A[10:0]==0 && !rnw && cen ) init_done <= mcu_dout=='ha6;
         // irq <= ~lvbl & irqen & ~rnw & (
         //         ~A[15] & A[14]                 |

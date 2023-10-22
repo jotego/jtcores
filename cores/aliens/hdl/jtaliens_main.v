@@ -35,8 +35,8 @@ module jtaliens_main(
     output              cpu_we,
     input       [ 7:0]  ram_dout,
     // cabinet I/O
-    input       [ 3:0]  start_button,
-    input       [ 3:0]  coin_input,
+    input       [ 3:0]  cab_1p,
+    input       [ 3:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input       [ 6:0]  joystick3,
@@ -228,17 +228,17 @@ always @(posedge clk, posedge rst) begin
                 case( A[3:2] )
                     0: begin // CONTROL1 in schematics
                         case( A[1:0] )
-                            0: port_in <= { 3'b111, service, coin_input };
-                            1: port_in <= { start_button[0], joystick1[6:0] };
-                            2: port_in <= { start_button[1], joystick2[6:0] };
+                            0: port_in <= { 3'b111, service, coin };
+                            1: port_in <= { cab_1p[0], joystick1[6:0] };
+                            2: port_in <= { cab_1p[1], joystick2[6:0] };
                             3: port_in <= dipsw[15:8];
                         endcase
                     end
                     1: begin // CONTROL2 in schematics
                         case( A[1:0] )
                             0: port_in <= { init, rmrd, work, 1'b1, dipsw[19:16] };
-                            1: port_in <= { start_button[2], joystick3[6:0] };
-                            2: port_in <= { start_button[3], joystick4[6:0] };
+                            1: port_in <= { cab_1p[2], joystick3[6:0] };
+                            2: port_in <= { cab_1p[3], joystick4[6:0] };
                             3: port_in <= dipsw[7:0];
                         endcase
                     end
@@ -259,7 +259,7 @@ always @(posedge clk, posedge rst) begin
                     // 3: AFR (watchdog)
                     4: begin // COINEN
                         case( A[1:0] )
-                            0: port_in <= { 3'b111, start_button[1:0], service, coin_input[1:0] };
+                            0: port_in <= { 3'b111, cab_1p[1:0], service, coin[1:0] };
                             1: port_in <= { 2'b11, joystick1[5:0] };
                             2: port_in <= { 2'b11, joystick2[5:0] };
                             3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
@@ -282,7 +282,7 @@ always @(posedge clk, posedge rst) begin
                     // 3: AFR (watchdog)
                     4: begin // COINEN
                         case( A[1:0] )
-                            0: port_in <= { 3'b111, start_button[1:0], service, coin_input[1:0] };
+                            0: port_in <= { 3'b111, cab_1p[1:0], service, coin[1:0] };
                             1: port_in <= { 2'b11, joystick1[5:0] };
                             2: port_in <= { 2'b11, joystick2[5:0] };
                             3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
@@ -310,8 +310,8 @@ always @(posedge clk, posedge rst) begin
                     endcase
                 end else case( A[3:0] )
                     0: port_in <= { 3'b111, service, dipsw[19:16] };
-                    1: port_in <= { start_button[0], coin_input[0], joystick1[5:0] };
-                    2: port_in <= { start_button[1], coin_input[1], joystick2[5:0] };
+                    1: port_in <= { cab_1p[0], coin[0], joystick1[5:0] };
+                    2: port_in <= { cab_1p[1], coin[1], joystick2[5:0] };
                     3: port_in <= dipsw[15:8];
                     4: port_in <= dipsw[ 7:0];
                     // 8 watchdog
