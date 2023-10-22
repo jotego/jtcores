@@ -3,6 +3,7 @@ jtframe:
       - jtframe_board.v
       - jtframe_debug.v
       - jtframe_led.v
+      - jtframe_bcd_cnt.v
       - jtframe_enlarger.v
       - jtframe_reset.v
       - jtframe_uart.v
@@ -12,7 +13,8 @@ jtframe:
       - jtframe_bcd_cnt.v
   - from: clocking
     get:
-      - jtframe_frac_cen.v
+      - jtframe_gated_cen.v
+      - jtframe_freqinfo.v
       - jtframe_pxlcen.v
   - from: keyboard
     get:

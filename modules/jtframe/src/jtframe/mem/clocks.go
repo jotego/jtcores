@@ -44,7 +44,7 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 			ratio := 1.0
 			if mode96 { // clk is 96MHz
 				switch key {
-				case "clk6": ratio = 0.125
+				case "clk6":  ratio = 0.125
 				case "clk24": ratio = 0.25
 				case "clk48": ratio = 0.5
 				case "clk96": ratio = 1.0
@@ -52,7 +52,7 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 				if v.ClkName == "clk96" { v.ClkName = "clk" }
 			} else { // clk is 48MHz
 				switch key {
-				case "clk6": ratio = 0.25
+				case "clk6":  ratio = 0.25
 				case "clk24": ratio = 0.5
 				case "clk48": ratio = 1.0
 				case "clk96": ratio = 2.0
@@ -72,7 +72,21 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 				v.OutStr = s + v.OutStr
 				first = false
 			}
-			v.W = max( 2, len(v.Outputs) )
+			v.W = len(v.Outputs)
+			if v.W == 0 {
+				fmt.Printf("Error: no outputs specified for clock enable in mem.yaml")
+				os.Exit(1)
+			}
+			// Build the gate signal
+			if len(v.Gate)==0 {
+				v.Busy = "1'b0"
+			} else {
+				aux := make([]string,len(v.Gate))
+				for k, each := range v.Gate {
+					aux[k] = fmt.Sprintf("(%s_cs & ~%s_ok)", each, each)
+				}
+				v.Busy = strings.Join(aux," | ")
+			}
 			// Either the mul/div pair or the frequency may be specified
 			if v.Div==0 || v.Mul==0 {
 				if v.Freq==0 {

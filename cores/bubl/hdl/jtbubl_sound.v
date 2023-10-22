@@ -137,7 +137,7 @@ jtframe_ff u_flag(
     .sigedge( snd_stb  )
 );
 
-jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rst_n      ( snd_rstn    ),
     .clk        ( clk         ),
     .cen        ( cen3        ),
@@ -159,7 +159,7 @@ jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .ram_dout   ( ram_dout    ),
     .ram_cs     ( ram_cs      ),
     .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      )
+    .rom_ok     ( 1'b1        )   // SDRAM gating managed in mem.yaml
 );
 
 jt49_dcrm2 #(.sw(10)) u_dcrm (

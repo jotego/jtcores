@@ -430,12 +430,13 @@ jtframe_ioctl_dump #(
 // Clock enable generation
 {{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
 // {{ .Comment }} Hz from {{ .ClkName }}
-jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
+jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ(`JTFRAME_MCLK)) u_cen{{$cnt}}_{{.ClkName}}(
+    .rst    ( rst          ),
     .clk    ( {{.ClkName}} ),
-    .n      ( {{.WC}}'d{{.Mul    }} ),
-    .m      ( {{.WC}}'d{{.Div    }} ),
+    .busy   ( {{.Busy}}    ),
     .cen    ( { {{ .OutStr }} } ),
-    .cenb   (              )
+    .fave   (              ),
+    .fworst (              )
 );
 {{ end }}{{ end }}{{ end }}
 

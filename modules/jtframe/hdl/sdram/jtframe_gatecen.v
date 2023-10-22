@@ -47,7 +47,7 @@ module jtframe_gatecen #(parameter ROMW=12 )(
     input  [ROMW-1:0] rom_addr,
     input             rom_cs,
     input             rom_ok,
-    output            wait_cen
+    output            wait_cen  // warning: this module may generate two cen pulses in a row (!)
 );
 
 reg  [     1:0] last_cs;

@@ -22,9 +22,10 @@
 // of the logic needed to become a 63701 MCU
 // such as the one used in Double Dragon or Bubble Bobble
 
-module jtframe_6801mcu #(
-    parameter ROMW=12,
-    parameter [15:0] MAXPORT=16'd27
+module jtframe_6801mcu #( parameter
+    ROMW        = 12,
+    GATE_CEN    = 1,
+    MAXPORT     = 16'd27
 )(
     input              clk,
     input              rst,
@@ -125,16 +126,22 @@ jtframe_ram #(.AW(8)) u_intram(
 );
 
 
-jtframe_gatecen #(.ROMW(ROMW)) u_gatecen(
-    .clk        ( clk       ),
-    .rst        ( rst       ),
-    .cen        ( cen       ),
-    .rec_en     ( bus_free  ),
-    .rom_addr   ( rom_addr  ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-    .wait_cen   ( wait_cen  )
-);
+generate
+    if( GATE_CEN==1 ) begin
+        jtframe_gatecen #(.ROMW(ROMW)) u_gatecen(
+            .clk        ( clk       ),
+            .rst        ( rst       ),
+            .cen        ( cen       ),
+            .rec_en     ( bus_free  ),
+            .rom_addr   ( rom_addr  ),
+            .rom_cs     ( rom_cs    ),
+            .rom_ok     ( rom_ok    ),
+            .wait_cen   ( wait_cen  )
+        );
+    end else begin
+        assign wait_cen = cen;
+    end
+endgenerate
 
 m6801 u_mcu(
     .rst        ( rst           ),

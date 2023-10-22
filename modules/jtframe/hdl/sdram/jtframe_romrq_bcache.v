@@ -31,7 +31,7 @@ module jtframe_romrq_bcache #(parameter
     SDRAMW  = 22,  // SDRAM width
     AW      = 18,
     DW      =  8,
-    OKLATCH =  1,  // Set to 1 to latch the data_ok signal. This implies that
+    OKLATCH =  0,  // Set to 1 to latch the data_ok signal. This implies that
                    // data_ok will be high for one clock cycle after the input address
                    // has changed. The requesting module needs to take care of that
                    // If OKLATCH is zero, data_ok is combinational and it will go to
