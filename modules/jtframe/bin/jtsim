@@ -616,6 +616,7 @@ if [ $GATES = NO ]; then
     # Prepare all file lists
     jtframe mem $SYSNAME --target "$TARGET" || exit $?
     jtframe files sim $SYSNAME --rel --target "$TARGET" --macro "$ALLMACROS" || exit $?
+    jtframe mmr $SYSNAME || exit $?
     # Remove duplicated lines
     rm -f tmp.f
     rm -f game_env.f

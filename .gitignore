@@ -19,6 +19,7 @@
 *.mra
 *.nvm
 *.ods#
+*.old
 *.p
 *.pin
 *.png
@@ -65,6 +66,7 @@ cores/*/sidi/*
 cores/*/sockit/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+cores/*/hdl/*_mmr.v
 default.dip
 defmacros.h
 dump2bin.sh
