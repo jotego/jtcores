@@ -14,6 +14,7 @@ jtframe:
   - from: clocking
     get:
       - jtframe_gated_cen.v
+      - jtframe_frac_cen.v
       - jtframe_freqinfo.v
       - jtframe_pxlcen.v
   - from: keyboard

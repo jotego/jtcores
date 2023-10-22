@@ -23,7 +23,7 @@
 // generation is halted while busy input is high, and lost
 // cycles are recovered once busy goes low
 
-/* xxverilator tracing_off */
+/* verilator tracing_off */
 
 module jtframe_gated_cen #( parameter
     W     =  2,
@@ -48,10 +48,11 @@ reg  [ W-1:0] toggle=0;
 reg           blank=0;
 wire          cnt_en = !busy || rst;
 integer       i;
-
+/* verilator lint_off CMPCONST */
 assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && cnt_en ? DEN[CW:0] : {CW+1{1'b0}});
+/* verilator lint_on CMPCONST */
 
 always @(posedge clk) begin
     blank <= 0;
