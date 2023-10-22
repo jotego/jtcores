@@ -70,11 +70,15 @@ echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 
 # nice to have
 apt install --yes htop
+
+# git configuration
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/
 git config --global alias.d diff
 git config --global alias.co checkout
 git config --global alias.st status
+git config --global alias.p pull
 git config --global alias.r "reset --hard"
+git config pull.rebase true
 
 # Go
 GONAME=go1.21.3.linux-amd64.tar.gz
@@ -84,6 +88,9 @@ rm -f $GONAME
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 echo export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin >> $HOME/.bashrc
 go install github.com/spf13/cobra-cli@latest
+go install golang.org/x/tools/cmd/goimports@latest
+go install golang.org/x/tools/cmd/godoc@latest
+
 
 # GitHub CLI
 type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
