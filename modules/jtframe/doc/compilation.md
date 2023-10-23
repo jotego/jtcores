@@ -1,13 +1,6 @@
 # Compilation
 
-All JT arcade cores depend on JTFRAME for compilation:
-
-* [CAPCOM arcades prior to CPS1](https://github.com/jotego/jtgng)
-* [CAPCOM SYSTEM](https://github.com/jotego/jtcps)
-* [Technos Double Dragon 1 & 2](https://github.com/jotego/jtdd) arcade games
-* [Konami Contra](https://github.com/jotego/jtcontra)
-* [System 16](https://github.com/jotego/jts16)
-* etc.
+All JT arcade cores depend on JTFRAME for compilation. You need to follow the jtframe framework in order to compile and simulate these cores.
 
 ## Prerequisites
 
@@ -25,10 +18,10 @@ JTFRAME uses a submodule to give support to the *Analogue Pocket* target. This s
 These are the minimum compilation steps, using _Pirate Ship Higemaru_ as the example core
 
 ```
-> git clone --recursive https://github.com/jotego/jtgng
-> cd jtgng
+> git clone --recursive https://github.com/jotego/jtcores
+> cd jtcores
 > source setprj.sh
-> cd $JTFRAME/cc && make && cd -
+> jtframe
 > jtcore hige
 ```
 
@@ -46,7 +39,7 @@ The output file is stored in **releases/target** where target stands for the FPG
 
 ## jtcore
 
-jtcore is the script used to compile the cores. It does a lot of stuff and it does it very well. Taking as an example the [CPS0 games](https://github.com/jotego/jt_gng), these are some commands:
+jtcore is the script used to compile the cores. It does a lot of stuff and it does it very well. Taking as an example the [CPS0 games](https://github.com/jotego/jtcores), these are some commands:
 
 `jtcore gng -sidi`
 
@@ -55,12 +48,6 @@ Compiles Ghosts'n Goblins core for SiDi.
 `jtcore tora -mister`
 
 Compiles Tiger Road core for MiSTer.
-
-Some cores, particularly if they only produce one RBF file, may alias jtcore. For [CPS1](https://github.com/jotego/jtcps1) do:
-
-`jtcore cps1 -mister`
-
-And that will produce the MiSTer version.
 
 Run `jtcore -h` to get help on the commands.
 

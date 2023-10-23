@@ -38,7 +38,7 @@ foo      | cores           | container for core foo
 hdl      | cores/foo       | HDL and include files for core foo
 ver      | cores/foo       | verification files. A folder for each test bench
 cfg      | cores/foo       | configuration files (macros, RTL generation...)
-doc      | root            | documentation
+doc      | cores/foo       | documentation
 rom      | root            | ROM files used for simulation
 release  | root            | Do not add to git. Mock-up release folder for tests outside JTBIN
 modules  | modules         | container for each git submodule.
