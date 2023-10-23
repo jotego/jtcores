@@ -43,7 +43,7 @@ func parse_folder( corename string, cores_fs fs.FS, path string) {
 			// fullpath := filepath.Join( path, k.Name() )
 			os.Chdir(filepath.Join("cores",path))
 			cmd_args := []string{
-				"kicad-cli-nightly","sch","export","pdf",
+				"kicad-cli","sch","export","pdf",
 				"--output", filepath.Join(output_folder,corename+".pdf"), k.Name(),
 			}
 			if verbose {
