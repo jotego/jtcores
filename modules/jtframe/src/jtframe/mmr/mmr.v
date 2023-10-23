@@ -85,7 +85,7 @@ initial begin
         fcnt=$fread(mmr_init,f);
         $display("INFO: Read %d bytes for %m.mmr",fcnt);
         if( fcnt!=SIZE ) begin
-            $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt)
+            $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
         end
     end
     $fclose(f);

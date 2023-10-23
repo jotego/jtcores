@@ -29,7 +29,7 @@ module jtshouse_cenloop(
 );
 
 parameter FCLK = 49152,
-          FCPU =  1536*4,
+          FCPU =  1536*4, // 49152/1536/4 = 8
           NUM  = 1,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
@@ -39,10 +39,10 @@ reg     [1:0] clk4;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
-reg           blank=0;
+reg     [1:0] blank=0;
 wire          bsyg = busy==0 || rst;
 
-assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
+assign over      = blank==0 && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
@@ -55,7 +55,7 @@ always @(posedge clk) begin
     blank <= 0;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin
-        blank <= 1;
+        if( ~&blank ) blank <= blank + 1'd1 ;
         clk4 <= clk4+2'd1;
         cpu_cen[0] <= clk4==0;
         cpu_cen[1] <= clk4==2;

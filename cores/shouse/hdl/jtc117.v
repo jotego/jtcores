@@ -24,6 +24,7 @@ module jtc117(
     input               rst,
     input               clk,     // original runs at 6MHz (4x CPU)
     input               bsel,    // bus selection, 0=master, 1=sub, 1.5MHz
+    input               sub_Q,
     // interrupt triggers
     input               lvbl,
     input               firqn,   // input that will trigger both FIRQ outputs
@@ -57,7 +58,7 @@ module jtc117(
     input        [ 7:0] debug_bus,
     output reg   [ 7:0] st_dout
 );
-    reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l;
+    reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l, prstn;
     wire         xirq, srrqn, wdogn, mwdn, swdn, xbank, bsel_negedge;
     wire [22:12] mahi, sahi;
     wire [ 7: 0] mst_dout, sst_dout;
@@ -88,13 +89,15 @@ module jtc117(
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             mrst_n <= 0;
+            prstn  <= 0;    // pre reset n
             srst_n <= 0;
             bsel_l <= 0;
             st_dout <= 0;
         end else begin
             bsel_l <= bsel;
             mrst_n <= wdogn;
-            srst_n <= wdogn & srrqn;
+            prstn  <= wdogn & srrqn;
+            if( sub_Q ) srst_n <= prstn;    // always toggle it here
             st_dout <= debug_bus[0] ? sst_dout : mst_dout;
         end
     end
