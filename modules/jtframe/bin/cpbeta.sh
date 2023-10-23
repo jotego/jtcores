@@ -48,9 +48,9 @@ mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
 if [ -e $JTROOT/release/mister/$CORE/releases/*.rbf ]; then
     cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
     cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
-    cp -r $JTROOT/release/mra/* "$DEST"/mra
     UPMR=1
 fi
+cp -r $JTROOT/release/mra "$DEST"
 
 # MiST, SiDi
 
@@ -99,8 +99,10 @@ if [ -z "$UPMR" ]; then
 else
     betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games *.md
 fi
-betazip jtfriday_${SHORTSTAMP}_other.zip  mra *.md mist sidi
-betazip jtfriday_${SHORTSTAMP}_pocket.zip mra _Arcade/_alternatives *.md pocket
+if [[ -d mist || -d sidi ]]; then
+    betazip jtfriday_${SHORTSTAMP}_other.zip  mra *.md mist sidi
+fi
+betazip jtfriday_${SHORTSTAMP}_pocket.zip mra *.md pocket
 
 cp *.zip $JTROOT
 if [ -d "$JTFRIDAY" ]; then
