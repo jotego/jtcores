@@ -37,7 +37,7 @@ module jtframe_mister_dwnld(
     input             rst,
     input             clk,
 
-    output reg        downloading,
+    output reg        ioctl_rom,
     input             dwnld_busy,
 
     input             prog_we,
@@ -185,7 +185,7 @@ always @(posedge clk, posedge rst) begin
         wr_latch    <= 0;
         last_dwn    <= 0;
         ddr_dwn     <= 0;
-        downloading <= 0;
+        ioctl_rom   <= 0;
         ddr_len     <= 27'd0;
         game_rom    <= 0;
         game_cart   <= 0;
@@ -194,23 +194,23 @@ always @(posedge clk, posedge rst) begin
         last_dwnbusy <= dwnld_busy;
         game_rom  <= hps_index==IDX_ROM || hps_index==IDX_CART;
         game_cart <= hps_index==IDX_CART;
-        if( hps_download && !last_dwn && game_rom) begin
-            downloading <= 1;
-            wr_latch    <= 0;
+        if( hps_download && hps_index==IDX_ROM && !last_dwn && game_rom) begin
+            ioctl_rom <= 1;
+            wr_latch  <= 0;
         end else begin
             if( hps_wr && game_rom ) wr_latch <= 1;
         end
-        if( !hps_download && last_dwn && downloading ) begin
+        if( !hps_download && last_dwn && ioctl_rom ) begin
             if( wr_latch )
-                downloading <= 0;   // regular download
+                ioctl_rom <= 0;   // regular download
             else begin
                 ddr_len  <= hps_addr; // the ROM length is notified here
                 ddr_dwn  <= 1;
             end
         end
         if( last_dwnbusy && !dwnld_busy || (ddr_dwn && ioctl_addr==ddr_len)) begin
-            downloading <= 0;
-            ddr_dwn     <= 0;
+            ioctl_rom <= 0;
+            ddr_dwn   <= 0;
         end
     end
 end

@@ -44,7 +44,7 @@ module jtcps1_game(
     input   [ 1:0]  dial_x,
     input   [ 1:0]  dial_y,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -520,7 +520,7 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .LVBL        ( LVBL          ),
     .star_bank   ( star_bank     ),
 
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),
     .cfg_we      ( cfg_we        ),
 

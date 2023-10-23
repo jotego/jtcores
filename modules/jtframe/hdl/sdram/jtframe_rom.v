@@ -93,10 +93,7 @@ module jtframe_rom #(parameter
     output  reg [21:0]  sdram_addr,
     input               data_dst,
     input               data_rdy,
-    input       [15:0]  data_read,
-
-    // deprecated
-    input               downloading
+    input       [15:0]  data_read
 );
 
 

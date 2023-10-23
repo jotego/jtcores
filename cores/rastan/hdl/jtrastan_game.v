@@ -37,7 +37,7 @@ module jtrastan_game(
     input   [ 5:0]  joystick2,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -358,7 +358,7 @@ jtrastan_sdram u_sdram(
     .orom_ok    ( orom_ok   ),
 
     // SDRAM interface
-    .downloading(downloading),
+    .ioctl_rom  ( ioctl_rom ),
     .dwnld_busy ( dwnld_busy),
 
     // Bank 0: allows R/W

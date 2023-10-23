@@ -19,7 +19,7 @@
 module jtframe_mr_ddrmux(
     input          rst,
     input          clk,
-    input          downloading,
+    input          ioctl_rom,
     // Fast DDR load
     input   [ 7:0] ddrld_burstcnt,
     input   [28:0] ddrld_addr,
@@ -67,7 +67,7 @@ always @(posedge clk, posedge rst) begin
             2'b00: ddrld_en <= 0; // don't care
             2'b10: ddrld_en <= 1;
             2'b01: ddrld_en <= 0;
-            2'b11: ddrld_en <= downloading;
+            2'b11: ddrld_en <= ioctl_rom;
         endcase
     end
 end

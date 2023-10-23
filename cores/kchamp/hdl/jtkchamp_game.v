@@ -56,7 +56,7 @@ reg  [24:0] dwn_addr;
 wire [ 7:0] pre_data;
 
 assign prog_rd    = 0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 assign flip       = ~dip_flip ^ ~main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = status[13];
@@ -223,7 +223,7 @@ jtkchamp_video u_video(
 jtframe_dwnld #(.PROM_START(PROM_START),.SWAB(1))
 u_dwnld(
     .clk            ( clk           ),
-    .downloading    ( downloading   ),
+    .ioctl_rom      ( ioctl_rom     ),
     .ioctl_addr     ( post_addr     ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),
@@ -304,7 +304,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

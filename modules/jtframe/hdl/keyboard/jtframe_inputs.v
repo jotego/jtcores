@@ -75,7 +75,7 @@ module jtframe_inputs(
     input              ioctl_wr,
     output      [ 7:0] ioctl_merged,
     // For simulation only
-    input              downloading
+    input              ioctl_rom
 );
 
 parameter BUTTONS    = 2,
@@ -264,7 +264,7 @@ always @(posedge clk, posedge rst) begin
 
         // state variables:
 `ifndef DIP_PAUSE // Forces pause during simulation
-        if( downloading )
+        if( ioctl_rom )
             game_pause<=0;
         else begin// toggle
             if( (key_pause && !last_pause) || (joy_pause && !last_joypause) )

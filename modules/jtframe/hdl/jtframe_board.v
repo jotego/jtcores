@@ -66,7 +66,7 @@ module jtframe_board #(parameter
     output              prog_rdy,
     output              prog_dst,
     output              prog_ack,
-    input               downloading,
+    input               ioctl_rom,
     input               ioctl_ram,
     // SDRAM interface
     inout    [15:0]     SDRAM_DQ,       // SDRAM Data bus 16 Bits
@@ -139,7 +139,7 @@ module jtframe_board #(parameter
     inout        [21:0] gamma_bus,
     input               direct_video,
 
-    // ROM downloading (cheat engine)
+    // ROM ioctl_rom (cheat engine)
     input               prog_cheat,
     input               prog_lock,
     input               ioctl_wr,
@@ -273,7 +273,7 @@ jtframe_reset u_reset(
     .pxl_cen    ( pxl_cen       ),
 
     .sdram_init ( sdram_init    ),
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
@@ -289,7 +289,7 @@ jtframe_led u_led(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .LVBL       ( LVBL          ),
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
     .game_led   ( game_led      ),
@@ -374,7 +374,7 @@ jtframe_keyboard u_keyboard(
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),
             // IOCTL
-            .downloading( downloading   ),
+            .ioctl_rom  ( ioctl_rom     ),
             .ioctl_ram  ( ioctl_ram     ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
@@ -421,7 +421,7 @@ jtframe_inputs #(
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
     .LHBL           ( LHBL            ),
-    .downloading    ( downloading     ),
+    .ioctl_rom      ( ioctl_rom       ),
     .dip_flip       ( dip_flip        ),
     .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
@@ -709,7 +709,7 @@ jtframe_sdram64 #(
     .dst        ( bax_dst       ),
 
     // ROM-load interface
-    .prog_en    ( downloading   ),
+    .prog_en    ( ioctl_rom     ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),

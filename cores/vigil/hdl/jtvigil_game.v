@@ -34,7 +34,7 @@ module jtvigil_game(
     input   [ 5:0]  joystick2,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -327,7 +327,7 @@ jtvigil_sdram u_sdram(
     .data_read   ( data_read     ),
 
     // ROM load
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),
 
     .ioctl_addr  ( ioctl_addr    ),

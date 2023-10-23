@@ -73,7 +73,7 @@ module jtrumble_sdram #(
     input    [15:0] data_read,
 
     // ROM LOAD
-    input           downloading,
+    input           ioctl_rom,
     output reg      dwnld_busy,
 
     // PROMs
@@ -141,8 +141,8 @@ assign ba0_din_m = 3;
 reg last_dwn;
 
 always @(posedge clk) begin
-    last_dwn   <= downloading;
-    dwnld_busy <= downloading | last_dwn | convert;
+    last_dwn   <= ioctl_rom;
+    dwnld_busy <= ioctl_rom | last_dwn | convert;
 end
 
 jtframe_dwnld #(
@@ -153,7 +153,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
@@ -182,7 +182,7 @@ jtgng_obj32 #(
     .OBJ_END  ( 22'h40000 )
 ) u_obj32(
     .clk         ( clk          ),
-    .downloading ( downloading  ),
+    .ioctl_rom   ( ioctl_rom    ),
     .sdram_dout  ( data_read    ),
     .convert     ( convert      ),
     .prog_addr   ( conv_addr    ),

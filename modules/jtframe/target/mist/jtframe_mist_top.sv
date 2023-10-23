@@ -84,7 +84,7 @@ wire [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
 wire rst_req   = status[0];
 
 // ROM download
-wire          downloading, dwnld_busy;
+wire          ioctl_rom, dwnld_busy;
 
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0]   prog_data;
@@ -281,7 +281,7 @@ u_frame(
     .ioctl_wr       ( ioctl_wr       ),
     .ioctl_ram      ( ioctl_ram      ),
 
-    .downloading    ( downloading    ),
+    .ioctl_rom      ( ioctl_rom      ),
     .dwnld_busy     ( dwnld_busy     ),
 
     .sdram_dout     ( sdram_dout     ),

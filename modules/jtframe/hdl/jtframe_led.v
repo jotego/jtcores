@@ -20,7 +20,7 @@ module jtframe_led(
     input        rst,
     input        clk,
     input        LVBL,
-    input        downloading,
+    input        ioctl_rom,
     input        osd_shown,
     input [3:0]  gfx_en,
     input [1:0]  game_led,
@@ -37,7 +37,7 @@ localparam POL = 1;
 localparam POL = 0;
 `endif
 
-assign sys_led = ~( downloading | cheat_led /*| osd_shown*/);
+assign sys_led = ~( ioctl_rom | cheat_led /*| osd_shown*/);
 
 always @(posedge clk) begin
     last_LVBL <= LVBL;
@@ -54,7 +54,7 @@ jtframe_enlarger #(.W(4)) u_enlarger(
 );
 
 ///////////////// LED is on while
-// downloading, PLL lock lost, OSD is shown or in reset state
+// ioctl_rom, PLL lock lost, OSD is shown or in reset state
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         led <= POL[0];

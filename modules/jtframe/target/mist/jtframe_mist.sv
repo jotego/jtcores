@@ -102,7 +102,7 @@ module jtframe_mist #(parameter
     input       [ 7:0] ioctl_din,
     output             ioctl_ram,
     input              dwnld_busy,
-    output             downloading,
+    output             ioctl_rom,
 
 //////////// board
     output             rst,      // synchronous reset
@@ -275,7 +275,7 @@ jtframe_mist_base #(
     .ioctl_wr       ( ioctl_wr      ),
     .ioctl_ram      ( ioctl_ram     ),
     .ioctl_cheat    ( ioctl_cheat   ),
-    .downloading    ( downloading   )
+    .ioctl_rom      ( ioctl_rom     )
 );
 
 jtframe_board #(
@@ -295,7 +295,7 @@ jtframe_board #(
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
     .ioctl_ram      ( ioctl_ram       ),
-    .downloading    ( dwnld_busy      ), // use busy signal from game module
+    .ioctl_rom      ( dwnld_busy      ), // use busy signal from game module
 
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),

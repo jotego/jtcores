@@ -61,7 +61,7 @@ module jtpang_sdram(
     input     [15:0] data_read,
 
     // ROM LOAD
-    input            downloading,
+    input            ioctl_rom,
     output           dwnld_busy,
     output           kabuki_we,
     output reg       kabuki_en,
@@ -95,7 +95,7 @@ reg  [ 8:0] frame_cnt;
 reg         ram_done = 0;   // it cannot use the rst signal
 
 assign dwn_wr    = ioctl_wr & ~ioctl_ram;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 assign is_obj    = prog_ba==3 && !prom_we;
 assign kabuki_we = dwn_wr && header && ioctl_addr[3:0]<11;
 
@@ -107,7 +107,7 @@ end
 
 always @(posedge clk) begin
     LVBLl  <= LVBL;
-    if( downloading ) begin
+    if( ioctl_rom ) begin
         frame_cnt <= 0;
         if( ioctl_ram && ioctl_wr ) ram_done <= 1;
     end else if( !LVBL & LVBLl ) begin
@@ -131,7 +131,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( dwn_wr         ),

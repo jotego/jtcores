@@ -64,7 +64,7 @@ module game_test(
     input   [15:0]  joyana_r4,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // ROM LOAD
@@ -286,7 +286,7 @@ endgenerate
 // Above 64MHz HF should be 1. SHIFTED depends on whether the SDRAM
 // clock is shifted or not.
 /* verilator tracing_off */
-wire prog_en = downloading | dwnld_busy;
+wire prog_en = ioctl_rom | dwnld_busy;
 
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
@@ -603,7 +603,7 @@ u_game(
     .ioctl_din   ( ioctl_din      ),
 `endif
     // ROM load
-    .downloading ( downloading    ),
+    .ioctl_rom   ( ioctl_rom      ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( data_read      ),
 

@@ -45,7 +45,7 @@ module jtsf_game(
     input   [ 9:0]  joystick2,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -192,7 +192,7 @@ reg game_id=0; // 1 for SFJ style inputs
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
-assign dwnld_busy         = downloading;
+assign dwnld_busy         = ioctl_rom;
 assign ba_wr[3:1]         = 0;
 assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
        ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
@@ -285,7 +285,7 @@ jtframe_dwnld #(
     .BA3_START  ( BA3_START  )
 ) u_dwnld(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_addr  ( ioctl_addr    ),
     .ioctl_dout  ( ioctl_dout    ),
