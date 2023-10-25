@@ -27,7 +27,7 @@ wire        brnw, srnw, mcu_rnw, srst_n, firqn,
             key_cs, bc30_cs, pal_cs, pcm_busy, scfg_cs;
 wire [ 7:0] bdout, sndcpu_dout, c30_dout,
             key_dout, pal_dout, scfg_dout,
-            alt_din, tri_dout,
+            tri_snd, tri_mcu, tri_dout,
             st_video, st_main;
 wire [ 8:0] hdump;
 wire [ 2:0] busy;
@@ -166,7 +166,7 @@ jtshouse_mcu u_mcu(
     .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),
     .ram_cs     ( mcutri_cs ),
-    .ram_dout   ( alt_din   ),
+    .ram_dout   ( tri_mcu   ),
     // cabinet I/O
     .cab_1p     ( cab_1p    ),
     .coin       ( coin      ),
@@ -193,7 +193,8 @@ jtshouse_mcu u_mcu(
     .pcm_ok     ( pcm_ok    ),
     .bus_busy   ( busy[1]   ),
 
-    .snd        ( pcm_snd   )
+    .snd        ( pcm_snd   ),
+    .debug_bus  ( debug_bus )
 );
 
 jtshouse_sound u_sound(
@@ -213,7 +214,7 @@ jtshouse_sound u_sound(
     .c30_dout   ( c30_dout  ),
 
     .tri_cs     ( stri_cs   ),
-    .tri_dout   ( alt_din   ),
+    .tri_dout   ( tri_snd   ),
 
     .rnw        ( srnw      ),
     .ram_we     ( sndram_we ),
@@ -258,9 +259,10 @@ jtshouse_triram u_triram(
     .sdout      (sndcpu_dout),
 
     .bdin       ( tri_dout  ),
-    .alt_din    ( alt_din   )       // input to MCU and sound CPU
+    .mcu_din    ( tri_mcu   ),
+    .snd_din    ( tri_snd   )
 );
-
+/* verilator tracing_off */
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

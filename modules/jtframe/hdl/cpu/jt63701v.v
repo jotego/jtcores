@@ -49,6 +49,7 @@ module jt63701v #(
     input       [4:0]  p2_din,
     output      [4:0]  p2_dout,
 
+    output reg         irq_ack, // not a pin on the real one, but it is derived from the A bus (i.e. pins) directly anyway
     // serial communication
     // it uses the same pins as R/W and AS, so it cannot be used when an
     // external is connected
@@ -63,7 +64,7 @@ module jt63701v #(
 );
 
 wire        vma, buf_we, irq1, irq2;
-reg         buf_cs, port_cs, fcup;
+reg         buf_cs, port_cs, fcup, pre_clr;
 wire [ 7:0] buf_dout;
 wire [ 4:0] psel;
 reg  [ 7:0] din, port_mux, fch, fcl;
@@ -74,7 +75,7 @@ wire        intv_rd,    // interrupt vector is being read
             any_irq;
 // timers
 wire [15:0] nx_frc;
-wire        ocf1, ocf2, tin, nx_frc_ov, ic_edge;
+wire        ocf, tin, nx_frc_ov, ic_edge;
 reg         tin_l;
 
 localparam  P1DDR = 'h0,
@@ -109,11 +110,11 @@ assign p4_dout = (MODE==0||MODE==2) ? A[15:8] :
                   MODE!=6 ? ports[P4] :
                 (ports[P4DDR] & A[15:8]) | (~ports[P4DDR] & ports[P4]);
 assign psel    = A[4:0];
-assign x_cs    = vma && {port_cs,buf_cs,rom_cs}==0; // the MODE should limit this
-assign intv_rd = &A[15:5];
+assign x_cs    = vma && {port_cs,buf_cs,rom_cs/*,~ports[RAME][6]*/}==0; // the MODE should limit this
+assign intv_rd = &{A[15:5],vma};
 // Timers
 assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
-assign ocf1    = {ports[OCRH],ports[OCRL]}==nx_frc;
+assign ocf     = {ports[OCRH],ports[OCRL]}==nx_frc;
 assign tin     = p2_din[0];
 assign ic_edge = ports[TCSR][1] ? (tin&~tin_l) : (~tin&tin_l);
 
@@ -128,10 +129,10 @@ always @(posedge clk) begin
     rom_cs  <= vma && &A[15:ROMW] && rnw;
     // some port addresses are redirected to x_cs depending upon MODE
     case( MODE )
-        0:   if((A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf ) port_cs <= 0;
-        1:   if( A[3:0]==0 || A[3:0]==2  ||(A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf) port_cs <= 0;
-        2:   if((A[3:0]>=4 && A[3:0]<=7) || A[3:0]=='hf ) port_cs <= 0;
-        5,6: if((A[3:0]==4 || A[3:0]==6  || A[3:0]=='hf)) port_cs <= 0;
+        0:   if((psel>=4 && psel<=7) || psel=='hf ) port_cs <= 0;
+        1:   if( psel==0 || psel==2  ||(psel>=4 && psel<=7) || psel=='hf) port_cs <= 0;
+        2:   if((psel>=4 && psel<=7) || psel=='hf ) port_cs <= 0;
+        5,6: if((psel==4 || psel==6  || psel=='hf)) port_cs <= 0;
     endcase
 end
 
@@ -150,11 +151,13 @@ always @(posedge clk, posedge rst) begin
         ports[P4DDR] <= 0;
         ports[FRCH]  <= 0;
         ports[FRCL]  <= 0;
+        ports[TCSR]  <= 0;
         ports[OCRH]  <='hff;
         ports[OCRL]  <='hff;
         ports[ICRH]  <= 0;
         ports[ICRL]  <= 0;
         ports[RMCR]  <='hf0;
+        ports[RAMC]  <='h7f;
         tin_l <= 0;
         fcup  <= 0;
         fch   <= 0;
@@ -192,9 +195,10 @@ always @(posedge clk, posedge rst) begin
                     fcup <= 1;
                 end
                 RMCR: begin
-                    ports[RMCR]<={4'hf,dout[3:0]};
+                    ports[RMCR] <= {4'hf,dout[3:0]};
                     if( dout[3:0]!=0 ) $display("Unsupported port write: %X <- %X", psel, dout);
                 end
+                RAMC: ports[RAMC][7:6] <= dout[7:6];
                 // any other port is directly written through
                 default: begin
                     ports[psel] <= dout;
@@ -206,14 +210,24 @@ always @(posedge clk, posedge rst) begin
         ports[P2][7:5] <= MODE[2:0];
         ports[P2][1]   <= p2_din[1]; // overwritten below as needed
         if( cen ) begin
-            if( psel==ICRH ) begin // the manual sets one more condition for this bit clearance, though
-                ports[TCSR][7] <= 0;   // ICF (input  capture flag)
-                ports[TCSR][6] <= 0;   // OCF (output compare flag)
-                ports[TCSR][5] <= 0;   // TOF (timer overflow flag)
+            if( port_cs && psel==TCSR && rnw) pre_clr <= 1;
+            if( port_cs && pre_clr ) begin // clear conditions
+                if( psel==ICRH && rnw ) begin
+                    ports[TCSR][7] <= 0;   // ICF (input  capture flag)
+                    pre_clr <= 0;
+                end
+                if( (psel==OCRH || psel==OCRL) && !rnw ) begin
+                    ports[TCSR][6] <= 0;   // OCF (output compare flag)
+                    pre_clr <= 0;
+                end
+                if( psel==FRCH && rnw ) begin
+                    ports[TCSR][5] <= 0;   // TOF (timer overflow flag)
+                    pre_clr <= 0;
+                end
             end
             // Free running counter
             { ports[FRCH],ports[FRCL] } <= nx_frc;
-            if( ocf1      ) ports[TCSR][6] <= 1;
+            if( ocf       ) ports[TCSR][6] <= 1;
             if( nx_frc_ov ) ports[TCSR][5] <= 1;
             if( fcup ) begin
                 { ports[FRCH], ports[FRCL] } <= { fch, fcl };
@@ -237,22 +251,18 @@ always @(posedge clk, posedge rst) begin
         irq_ocf <= 0;
         irq_icf <= 0;
         irq_tof <= 0;
+        irq_ack <= 0;
     end else begin
-        if( ports[TCSR][6]&ports[TCSR][3] ) irq_ocf <= 1; // Counter compare register 1
-        if( ports[TCSR][4]&ports[TCSR][7] ) irq_icf <= 1; // input capture flag
-        if( ports[TCSR][2]&ports[TCSR][5] ) irq_tof <= 1; // timer overflow flag
-        if( intv_rd ) case(A[4:1])
-            4'o13: irq_icf <= 0;  // FFF6-FFF7
-            4'o12: irq_ocf <= 0;  // FFF4-FFF5
-            4'o11: irq_tof <= 0;  // FFF2-FFF3
+        irq_ocf <= ports[TCSR][6] & ports[TCSR][3]; // Counter compare register 1 -- FFF4-FFF5
+        irq_icf <= ports[TCSR][7] & ports[TCSR][4]; // input capture flag         -- FFF6-FFF7
+        irq_tof <= ports[TCSR][5] & ports[TCSR][2]; // timer overflow flag        -- FFF2-FFF3
 `ifdef SIMULATION
-            4'o07: begin
-                $display("TRAP interrupt %m, this indicates an address or op-code error");
-                $finish;
-            end
+        irq_ack <= intv_rd && A[4:1]=='hc;
+        if( intv_rd && A[4:1]==7 ) begin
+            $display("TRAP interrupt %m, this indicates an address or op-code error");
+            $finish;
+        end
 `endif
-            default:;
-        endcase
     end
 end
 

@@ -1,25 +1,25 @@
 [*]
-[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Mon Oct  2 04:33:04 2023
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Wed Oct 25 04:49:33 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Mon Oct  2 04:28:57 2023"
-[dumpfile_size] 46525670
+[dumpfile_mtime] "Wed Oct 25 04:43:51 2023"
+[dumpfile_size] 182327325
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/tr_mcu.gtkw"
-[timestart] 860406792000
-[size] 1263 1010
-[pos] -1 -1
-*-20.437130 860410368660 817236097000 817581203348 817602745000 817639061684 817649518500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 817233230000
+[size] 1264 1024
+[pos] 1265 -1
+*-22.124454 817242440000 817236826000 816542958000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.u_63701.
-[sst_width] 215
-[signals_width] 214
+[sst_width] 223
+[signals_width] 241
 [sst_expanded] 1
-[sst_vpaned_height] 430
+[sst_vpaned_height] 636
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -39,9 +39,10 @@ TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.accb[7:0]
 [color] 1
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.pc[15:0]
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.sp[15:0]
+@23
 [color] 2
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.xreg[15:0]
-@800022
+@c00022
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 @28
 (0)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
@@ -53,7 +54,7 @@ TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 (5)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 (6)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 (7)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
-@1001200
+@1401200
 -group_end
 @200
 -
@@ -66,28 +67,16 @@ TOP.game_test.u_game.u_game.u_mcu.bus_busy
 @200
 -
 @28
-[color] 6
-TOP.game_test.u_game.u_game.u_mcu.u_63701.ram_cs
+[color] 4
 TOP.game_test.u_game.u_game.u_mcu.u_63701.port_cs
 TOP.game_test.u_game.u_game.u_mcu.pcm_cs
 TOP.game_test.u_game.u_game.u_mcu.ram_cs
 TOP.game_test.u_game.u_game.u_mcu.epr_cs
 @200
 -
-@22
-TOP.game_test.u_game.u_game.u_mcu.eerom_dout[7:0]
 @28
 TOP.game_test.u_game.u_game.u_mcu.u_63701.irq
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq1e
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq1g
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq2e
 [color] 1
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq_cnt
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq_ic
 TOP.game_test.u_game.u_game.u_mcu.u_63701.irq_tof
-@23
-TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.next_state[5:0]
-@22
-TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.state[5:0]
 [pattern_trace] 1
 [pattern_trace] 0

@@ -31,6 +31,7 @@ type MMRdef struct {
 	Name string
 	Size int
 	Regs []Register
+	Read_only bool
 	// Added by jtframe
 	AMSB int
 	Core string

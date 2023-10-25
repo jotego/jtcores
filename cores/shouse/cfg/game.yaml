@@ -14,6 +14,7 @@ jtframe:
   - from: clocking
     get:
       - jtframe_freqinfo.v
+      - jtframe_cendiv.v
   - from: video
     get:
       - jtframe_vtimer.v

@@ -18,21 +18,26 @@
 
 // Divides a clock enable signal frequency by two
 
-module jtframe_cendiv(
+module jtframe_cendiv #( parameter
+    MDIV    = 2
+)(
     input      clk,
     input      cen_in,
     output reg cen_div, // Divided but not alligned with the original
     output     cen_da   // Divided and alligned
 );
 
-reg d = 0;
+localparam CW = $clog2(MDIV);
 
-assign cen_da = cen_in & d;
+reg [CW-1:0] cnt=0;
+reg z;
+
+assign cen_da = cen_in & z;
 
 always @(posedge clk) begin
-    if( cen_in ) d<=~d;
+    if( cen_in ) cnt <= cnt+1'd1;
+    z <= cnt==0;
     cen_div <= cen_da;
 end
-
 
 endmodule

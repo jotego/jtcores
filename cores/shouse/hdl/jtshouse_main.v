@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 19-9-2023 */
-/* verilator tracing_off */
+
 module jtshouse_main(
     input               rst,
     input               clk,

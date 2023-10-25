@@ -610,7 +610,7 @@ void namco_cus30_device::namcos1_sound_w(offs_t offset, uint8_t data)
 		break;
 
 	case 0x01:
-		voice->waveform_select = (data >> 4) & 15;
+		voice->waveform_select = (data >> 4) & 0xf;
 		[[fallthrough]];
 	case 0x02:
 	case 0x03:
@@ -697,7 +697,7 @@ void namco_audio_device::sound_stream_update(sound_stream &stream, std::vector<r
 			int rv = voice->volume[1];
 
 			if (voice->noise_sw)
-			{
+			{   // noise enabled:
 				int f = voice->frequency & 0xff;
 
 				/* only update if we have non-zero volume */

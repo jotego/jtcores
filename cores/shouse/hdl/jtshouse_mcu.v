@@ -18,7 +18,7 @@
 
 // Port 4 configured as output --> use as address bus
 // Port 6 configured as output
-/* verilator tracing_off */
+
 module jtshouse_mcu(
     input              clk,
     input              rstn,
@@ -59,10 +59,12 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output reg signed [10:0] snd // is it signed?
+    output reg signed [10:0] snd, // is it signed?
+
+    input      [ 7:0]  debug_bus
 );
 `ifndef NOMAIN
-wire        vma;
+wire        vma, irq_ack;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
             irq, lvbl_l;
 
@@ -76,7 +78,7 @@ reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
-reg         hs_cnt, hs_l;
+reg         hs_l;
 reg         init_done;
 
 function [1:0] gain( input [1:0] g);
@@ -131,12 +133,8 @@ always @(posedge clk, negedge rstn ) begin
         hs_l   <= hs;
         if( lvbl_l && !lvbl) begin
             irq <= 1;
-            hs_cnt <= 0;
         end
-        if( hs && !hs_l) begin
-            hs_cnt <= hs_cnt+1'd1;
-            if( &hs_cnt ) irq <= 0;
-        end
+        if( irq_ack || lvbl ) irq <= 0;
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};
@@ -196,7 +194,8 @@ jt63701v #(.ROMW(12)) u_63701(
     // ROM
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
-    .rom_data   ( rom_data      )
+    .rom_data   ( rom_data      ),
+    .irq_ack    ( irq_ack       )
 );
 
 jtframe_prom #(.AW(12)) u_prom(

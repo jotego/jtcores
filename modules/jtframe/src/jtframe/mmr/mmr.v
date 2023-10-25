@@ -23,8 +23,8 @@ module jt{{.Core}}_{{.Name}}_mmr(
     input             cs,
     input       [{{.AMSB}}:0] addr,
     input             rnw,
-    input       [7:0] din,
-    output reg  [7:0] dout,
+    input       [7:0] din, {{ if not .Read_only }}
+    output reg  [7:0] dout, {{- end }}
     {{ range .Regs }}
     output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ .Dw }}-1:0]{{end}} {{ .Name }},
     {{- end }}
@@ -61,10 +61,11 @@ always @(posedge clk, posedge rst) begin
     `else
         for(i=0;i<SIZE-1;i++) mmr[i] <= mmr_init[i];
     `endif {{ range .Regs }}{{ if .Wr_event }}
-    {{.Name}} <= 0; {{ end }}{{- end }}
+    {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
+    dout <= 0; {{- end }}
     end else begin{{ range .Regs }}{{ if .Wr_event }}
-        {{.Name}} <= 0; {{ end }}{{- end }}
-        dout      <= mmr[addr];
+        {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
+        dout      <= mmr[addr];{{- end }}
         st_dout   <= mmr[debug_bus[{{.AMSB}}:0]];
         ioctl_din <= mmr[ioctl_addr];
         if( cs & ~rnw ) begin

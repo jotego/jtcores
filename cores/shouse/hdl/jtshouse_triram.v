@@ -43,10 +43,11 @@ module jtshouse_triram(
     input      [ 7:0] sdout,
 
     output     [ 7:0] bdin,
-    output     [ 7:0] alt_din       // input to MCU and sound CPU
+    output reg [ 7:0] mcu_din,
+    output reg [ 7:0] snd_din
 );
 
-wire [ 7:0] xdout;
+wire [ 7:0] xdout, alt_din;
 wire [10:0] xaddr;
 wire        xwe;
 reg         xsel;
@@ -58,6 +59,10 @@ assign xdout = xsel ? mcu_dout : sdout;
 always @(posedge clk) begin
     if( snd_cen ) xsel <= 1;
     if( mcu_cen ) xsel <= 0;
+    if( xsel    )
+        mcu_din <= alt_din;
+    else
+        snd_din <= alt_din;
 end
 
 /* verilator tracing_off */

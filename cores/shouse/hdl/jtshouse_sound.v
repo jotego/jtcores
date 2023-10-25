@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 21-9-2023 */
-/* verilator tracing_off */
+
 module jtshouse_sound(
     input               srst_n,
     input               clk,
@@ -54,10 +54,13 @@ module jtshouse_sound(
 );
 `ifndef NOSOUND
 localparam [7:0] FMGAIN =8'h10,
-                 PCMGAIN=8'h10;
+                 PCMGAIN=8'h10,
+                 CUS30G =8'h10;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
+wire [11:0] snd_l, snd_r;
+wire [10:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst;
@@ -126,6 +129,7 @@ jtcus30 u_wav(
     .rst    ( rst       ),  // original does not have a reset pin
     .clk    ( clk       ),
     .bsel   ( bsel      ),
+    .cen    ( cen_E     ),
 
     .xdin   ( c30_dout  ),
     // main/sub bus
@@ -138,7 +142,11 @@ jtcus30 u_wav(
     .scs    ( cus30_cs  ),
     .srnw   ( rnw       ),
     .saddr  ( A         ),
-    .sdout  ( cpu_dout  )
+    .sdout  ( cpu_dout  ),
+
+    // sound output
+    .snd_l  ( cus30_l   ),
+    .snd_r  ( cus30_r   )
 );
 /* verilator tracing_off */
 jt51 u_jt51(
@@ -163,37 +171,37 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer #(.W1(11)) u_right(
+jtframe_mixer #(.W1(11),.W2(11)) u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_r      ),
     .ch1    ( pcm_snd   ),
-    .ch2    ( 16'd0     ),
+    .ch2    ( cus30_r   ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
     .gain1  ( PCMGAIN   ),
-    .gain2  ( 8'h00     ),
+    .gain2  ( CUS30G    ),
     .gain3  ( 8'h00     ),
     .mixed  ( right     ),
     .peak   ( peak_r    )
 );
 
-jtframe_mixer #(.W1(11)) u_left(
+jtframe_mixer #(.W1(11),.W2(11)) u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_l      ),
     .ch1    ( pcm_snd   ),
-    .ch2    ( 16'd0     ),
+    .ch2    ( cus30_l   ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
     .gain1  ( PCMGAIN   ),
-    .gain2  ( 8'h00     ),
+    .gain2  ( CUS30G    ),
     .gain3  ( 8'h00     ),
     .mixed  ( left      ),
     .peak   ( peak_l    )
