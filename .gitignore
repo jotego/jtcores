@@ -3,7 +3,6 @@
 *.bak
 *.bin
 *.cfg
-*.f
 *.fmt
 *.fst
 *.hex
@@ -23,8 +22,6 @@
 *.p
 *.pin
 *.png
-*.qpf
-*.qsf
 *.RAM
 *.raw
 *.rbf
