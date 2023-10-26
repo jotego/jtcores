@@ -72,19 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "vendetta.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2242,
-          "pos_y": 67,
-          "size_x": 974,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
