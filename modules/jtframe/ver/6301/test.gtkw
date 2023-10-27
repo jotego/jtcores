@@ -1,0 +1,92 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Oct 27 07:13:50 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/modules/jtframe/ver/6301/test.lxt"
+[dumpfile_mtime] "Fri Oct 27 06:57:40 2023"
+[dumpfile_size] 2771
+[savefile] "/home/jtejada/jtcores/modules/jtframe/ver/6301/test.gtkw"
+[timestart] 628
+[size] 1264 1024
+[pos] -1 -1
+*-4.817885 505 525 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] test.
+[sst_width] 223
+[signals_width] 287
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+test.clk[0]
+@22
+[color] 2
+test.uut.pc[15:0]
+test.addr[15:0]
+@28
+test.vma[0]
+[color] 1
+test.rnw[0]
+@200
+-
+@22
+test.uut.acca[7:0]
+test.uut.accb[7:0]
+@c00023
+test.uut.xreg[15:0]
+@29
+(0)test.uut.xreg[15:0]
+(1)test.uut.xreg[15:0]
+(2)test.uut.xreg[15:0]
+(3)test.uut.xreg[15:0]
+(4)test.uut.xreg[15:0]
+(5)test.uut.xreg[15:0]
+(6)test.uut.xreg[15:0]
+(7)test.uut.xreg[15:0]
+(8)test.uut.xreg[15:0]
+(9)test.uut.xreg[15:0]
+(10)test.uut.xreg[15:0]
+(11)test.uut.xreg[15:0]
+(12)test.uut.xreg[15:0]
+(13)test.uut.xreg[15:0]
+(14)test.uut.xreg[15:0]
+(15)test.uut.xreg[15:0]
+@1401201
+-group_end
+@200
+-
+@28
+test.ram_cs[0]
+test.rom_cs[0]
+@200
+-
+@22
+[color] 2
+test.din[7:0]
+test.dout[7:0]
+@200
+-
+@2022
+^1 /home/jtejada/jtcores/modules/jtframe/ver/6301/state.st
+test.uut.state[5:0]
+@22
+test.uut.op_code[7:0]
+@200
+-
+@22
+test.uut.alu_ctrl[5:0]
+test.uut.addr_ctrl[5:0]
+test.uut.ea_ctrl[5:0]
+test.uut.dout_ctrl[5:0]
+[color] 2
+test.uut.md_ctrl[5:0]
+@200
+-
+@22
+test.uut.ea[15:0]
+@200
+-
+@22
+test.uut.out_alu[15:0]
+[color] 2
+test.uut.md[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

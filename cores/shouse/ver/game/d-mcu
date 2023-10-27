@@ -1,2 +1,6 @@
 go
 match-trace
+# timer mismatch by 1
+ignore accb
+match-trace
+go

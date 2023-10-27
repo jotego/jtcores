@@ -51,14 +51,15 @@ typedef enum logic[5:0] {reset_state, fetch_state, decode_state,
                              rti_pcl_state, rti_pch_state,
                               pula_state, psha_state, pulb_state, pshb_state,
                              pulx_lo_state, pulx_hi_state, pshx_lo_state, pshx_hi_state,
+                             imm_state, // used for AIM,OIM,EIM,TIM
                               vect_lo_state, vect_hi_state } state_type;
 typedef enum logic[5:0] {idle_ad, fetch_ad, read_ad, write_ad, push_ad, pull_ad, int_hi_ad, int_lo_ad } addr_type;
 typedef enum logic[5:0] {md_lo_dout, md_hi_dout, acca_dout, accb_dout, ix_lo_dout, ix_hi_dout, cc_dout, pc_lo_dout, pc_hi_dout} dout_type;
 typedef enum logic[2:0] {reset_op, fetch_op, latch_op } op_type;
-typedef enum logic[5:0] {reset_acca, load_acca, load_hi_acca, pull_acca, latch_acca } acca_type;
-typedef enum logic[5:0] {reset_accb, load_accb, pull_accb, latch_accb } accb_type;
+typedef enum logic[5:0] {reset_acca, load_acca, load_hi_acca, pull_acca, latch_acca, xcg_acca } acca_type;
+typedef enum logic[5:0] {reset_accb, load_accb, pull_accb, latch_accb, xcg_accb } accb_type;
 typedef enum logic[5:0] {reset_cc, load_cc, pull_cc, latch_cc } cc_type;
-typedef enum logic[5:0] {reset_ix, load_ix, pull_lo_ix, pull_hi_ix, latch_ix } ix_type;
+typedef enum logic[5:0] {reset_ix, load_ix, pull_lo_ix, pull_hi_ix, latch_ix, xcg_ix } ix_type;
 typedef enum logic[5:0] {reset_sp, latch_sp, load_sp } sp_type;
 typedef enum logic[5:0] {reset_pc, latch_pc, load_ea_pc, add_ea_pc, pull_lo_pc, pull_hi_pc, inc_pc } pc_type;
 typedef enum logic[5:0] {reset_md, latch_md, load_md, fetch_first_md, fetch_next_md, shiftl_md } md_type;
@@ -66,7 +67,7 @@ typedef enum logic[5:0] {reset_ea, latch_ea, add_ix_ea, load_accb_ea, inc_ea, fe
 typedef enum logic[5:0] {reset_iv, latch_iv, swi_iv, nmi_iv, irq_iv, icf_iv, ocf_iv, tof_iv, sci_iv } iv_type;
 typedef enum logic[5:0] {reset_nmi, set_nmi, latch_nmi } nmi_type;
 typedef enum logic[5:0] {acca_left, accb_left, accd_left, md_left, ix_left, sp_left } left_type;
-typedef enum logic[5:0] {md_right, zero_right, plus_one_right, accb_right } right_type;
+typedef enum logic[5:0] {md_right, zero_right, plus_one_right, accb_right, mdhi_right } right_type;
 typedef enum logic[5:0] {alu_add8, alu_sub8, alu_add16, alu_sub16, alu_adc, alu_sbc,
                        alu_and, alu_ora, alu_eor,
                        alu_tst, alu_inc, alu_dec, alu_clr, alu_neg, alu_com,
@@ -96,6 +97,7 @@ logic[15:0] out_alu;
 logic[2:0] iv;
 logic nmi_req;
 logic nmi_ack;
+logic is_im_logic;
 
 state_type state;
 state_type next_state;
@@ -115,6 +117,8 @@ alu_type alu_ctrl;
 addr_type addr_ctrl;
 dout_type dout_ctrl;
 nmi_type nmi_ctrl;
+
+assign is_im_logic = op_code[3:0]==1 || op_code[3:0]==2 || op_code[3:0]==5 || op_code[3:0]==11;
 
 ////////////////////////////////////
 ////
@@ -320,6 +324,7 @@ always_ff @(posedge clk) if(cen) begin
       reset_acca:   acca <= 8'b00000000;
       load_acca:    acca <= out_alu[7:0];
       load_hi_acca: acca <= out_alu[15:8];
+      xcg_acca:     acca <= xreg[15:8];
       pull_acca:    acca <= data_in;
       default:;
     endcase
@@ -334,6 +339,7 @@ always_ff @(posedge clk) if(cen) begin
     case (accb_ctrl)
       reset_accb: accb <= 8'b00000000;
       load_accb:  accb <= out_alu[7:0];
+      xcg_accb:   accb <= xreg[7:0];
       pull_accb:  accb <= data_in;
       default:;
     endcase
@@ -348,6 +354,7 @@ always_ff @(posedge clk) if(cen) begin
     case (ix_ctrl)
       reset_ix:   xreg <= 16'b0000000000000000;
       load_ix:    xreg <= out_alu[15:0];
+      xcg_ix:     xreg <= { acca, accb };
       pull_hi_ix: xreg[15:8] <= data_in;
       pull_lo_ix: xreg[7:0] <= data_in;
       default:;
@@ -498,6 +505,7 @@ begin
       zero_right:    right = 16'b0;
       plus_one_right:right = 16'b1;
       accb_right:    right = {8'b0, accb};
+      mdhi_right:    right = {8'b0,md[15:8]};
       default:       right = md;
     endcase
 end
@@ -814,6 +822,9 @@ end
 ////////////////////////////////////
 always @(*)
     begin
+          left_ctrl = acca_left;
+          right_ctrl = zero_right;
+          cc_ctrl = latch_cc;
           case (state)
           reset_state:        //  released from reset
              begin
@@ -1567,6 +1578,13 @@ always @(*)
                       acca_ctrl  = load_acca;
                  accb_ctrl  = latch_accb;
                      end
+                 4'b1000: begin // xgdx
+                      alu_ctrl = alu_nop;
+                      cc_ctrl = latch_cc;
+                      ix_ctrl = xcg_ix;
+                      acca_ctrl = xcg_acca;
+                      accb_ctrl = xcg_accb;
+                 end
                  4'b1001: // daa
                     begin
                       alu_ctrl   = alu_daa;
@@ -2143,6 +2161,11 @@ always @(*)
                     cc_ctrl    = latch_cc;
                pc_ctrl    = inc_pc;
                    next_state = indexed_state;
+                   if( is_im_logic ) begin
+                     // AIM, OIM, EIM, TIM. grab immediate value first
+                     ea_ctrl = reset_ea;
+                     next_state = imm_state;
+                   end
                 end
              //
                  // Single operand extended addressing
@@ -2163,6 +2186,11 @@ always @(*)
                     cc_ctrl    = latch_cc;
                pc_ctrl    = inc_pc;
                    next_state = extended_state;
+                   if( is_im_logic ) begin
+                     // AIM, OIM, EIM, TIM. grab immediate value first
+                     ea_ctrl = reset_ea;
+                     next_state = imm_state;
+                   end
                 end
 
               4'b1000: // acca immediate
@@ -2415,6 +2443,22 @@ always @(*)
                  next_state = fetch_state;
             end
            //
+            imm_state: begin
+              if( op_code[4] ) next_state = read8_state; else next_state = indexed_state;
+              acca_ctrl  = latch_acca;
+              accb_ctrl  = latch_accb;
+              md_ctrl    = latch_md;
+              ix_ctrl    = latch_ix;
+              sp_ctrl    = latch_sp;
+              pc_ctrl    = latch_pc;
+              iv_ctrl    = latch_iv;
+              op_ctrl    = latch_op;
+              nmi_ctrl   = latch_nmi;
+              ea_ctrl    = fetch_first_ea;
+              addr_ctrl  = fetch_ad;
+              dout_ctrl  = md_lo_dout;
+              pc_ctrl    = inc_pc;
+            end
               // ea holds 8 bit index offet
               // calculate the effective memory address
               // using the alu
@@ -2445,8 +2489,6 @@ always @(*)
                    alu_ctrl   = alu_nop;
                cc_ctrl    = latch_cc;
                 case (op_code[3:0])
-                 4'b1011: // undefined
-                      next_state = fetch_state;
                  4'b1110: // jmp
                       next_state = jmp_state;
                  default:
@@ -2577,8 +2619,6 @@ always @(*)
                    alu_ctrl   = alu_nop;
                cc_ctrl    = latch_cc;
                 case (op_code[3:0])
-                 4'b1011: // undefined
-                      next_state = fetch_state;
                  4'b1110: // jmp
                       next_state = jmp_state;
                  default:
@@ -2700,7 +2740,7 @@ always @(*)
                           right_ctrl = zero_right;
                           alu_ctrl   = alu_nop;
                      cc_ctrl    = latch_cc;
-                         md_ctrl    = fetch_first_md;
+                        if( is_im_logic ) md_ctrl = fetch_next_md; else md_ctrl = fetch_first_md;
                           ea_ctrl    = latch_ea;
                           next_state = execute_state;
                         end
@@ -3408,6 +3448,22 @@ always @(*)
                        md_ctrl    = load_md;
                        next_state = write8_state;
                     end
+                    4'b0001, // aim
+                    4'b0010, // oim
+                    4'b0101, // eim
+                    4'b1011: begin // tim
+                      left_ctrl  = md_left;
+                      right_ctrl = mdhi_right;
+                      if( op_code[2:0]==2 )
+                        alu_ctrl = alu_ora;
+                      else if( op_code[2:0]==5 )
+                        alu_ctrl = alu_eor;
+                      else
+                        alu_ctrl = alu_and;
+                      cc_ctrl  = load_cc;
+                      md_ctrl  = load_md;
+                      if( op_code[3] ) next_state = fetch_state; else next_state = write8_state;
+                    end
                   4'b0011: // com
                       begin
                    left_ctrl  = md_left;
@@ -3470,15 +3526,6 @@ always @(*)
                         cc_ctrl    = load_cc;
                        md_ctrl    = load_md;
                        next_state = write8_state;
-                        end
-                   4'b1011: // undefined
-                      begin
-                   left_ctrl  = md_left;
-                         right_ctrl = zero_right;
-                        alu_ctrl   = alu_nop;
-                        cc_ctrl    = latch_cc;
-                       md_ctrl    = latch_md;
-                       next_state = fetch_state;
                         end
                    4'b1100: // inc
                       begin

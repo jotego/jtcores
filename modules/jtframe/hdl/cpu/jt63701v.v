@@ -256,8 +256,8 @@ always @(posedge clk, posedge rst) begin
         irq_ocf <= ports[TCSR][6] & ports[TCSR][3]; // Counter compare register 1 -- FFF4-FFF5
         irq_icf <= ports[TCSR][7] & ports[TCSR][4]; // input capture flag         -- FFF6-FFF7
         irq_tof <= ports[TCSR][5] & ports[TCSR][2]; // timer overflow flag        -- FFF2-FFF3
-`ifdef SIMULATION
         irq_ack <= intv_rd && A[4:1]=='hc;
+`ifdef SIMULATION
         if( intv_rd && A[4:1]==7 ) begin
             $display("TRAP interrupt %m, this indicates an address or op-code error");
             $finish;
