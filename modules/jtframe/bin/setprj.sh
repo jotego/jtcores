@@ -30,6 +30,7 @@ unset ALLFOLDERS
 export ROM=$JTROOT/rom
 export RLS=$JTROOT/release
 export MRA=$JTROOT/release/mra
+export POCKET=$JTFRAME/target/pocket
 DOC=$JTROOT/doc
 MAME=$JTROOT/doc/mame
 export MODULES=$JTROOT/modules
