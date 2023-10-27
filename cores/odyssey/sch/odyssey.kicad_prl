@@ -75,7 +75,7 @@
     "files": [
       {
         "name": "odyssey.kicad_sch",
-        "open": false,
+        "open": true,
         "window": {
           "display": 0,
           "maximized": true,
