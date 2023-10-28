@@ -212,6 +212,9 @@ module jtc117_unit(
     assign mmr_cs = &{idx, vma, ~rnw};
     assign ahi    = { banks[idx], addr[12] };
     assign st_dout= { {8-WDW{1'b0}}, wdog_cnt};
+`ifdef SIMULATION
+    wire rst_sel = mmr_cs && rsel==8;
+`endif
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin

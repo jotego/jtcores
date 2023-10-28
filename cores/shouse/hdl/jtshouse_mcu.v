@@ -96,8 +96,10 @@ assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
 assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
-// assign irqen       = hdump[1:0]==0;
 
+`ifdef SIMULATION
+wire bad_cs  = vma &&  A==16'hc000;
+`endif
 // Address decoder
 always @(*) begin
     pcm_cs  = vma && ^A[15:14];                    // 4000~bfff
@@ -134,7 +136,7 @@ always @(posedge clk, negedge rstn ) begin
         if( lvbl_l && !lvbl) begin
             irq <= 1;
         end
-        if( irq_ack || lvbl ) irq <= 0;
+        if( hdump=='ha1 ) irq <= 0; // 31.2us width measure on the PCB
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         snd  <= {amp1[7], amp1}+{amp0[7], amp0};
@@ -142,11 +144,6 @@ always @(posedge clk, negedge rstn ) begin
         cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
                            { cab_1p[0], joystick1 };
         if( ram_cs && A[10:0]==0 && !rnw && cen ) init_done <= mcu_dout=='ha6;
-        // irq <= ~lvbl & irqen & ~rnw & (
-        //         ~A[15] & A[14]                 |
-        //                 ~A[14] & A[13]         |
-        //                         ~A[13] & A[12] |
-        //                                 ~A[12] );
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
             1: dac1 <= mcu_dout;

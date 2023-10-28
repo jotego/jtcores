@@ -56,6 +56,16 @@ assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
 assign xaddr = xsel ? mcu_addr : saddr;
 assign xdout = xsel ? mcu_dout : sdout;
 
+`ifdef SIMULATION
+wire bad_cs = bus_cs && baddr==0;
+wire reply_cs = bus_cs && baddr=='h2f && !brnw;
+reg [7:0] flag;
+always @(posedge clk) begin
+    if( baddr==0 && ~brnw && bus_cs ) flag <= bdout;
+    if( xaddr==0 && xwe ) flag <= xdout;
+end
+`endif
+
 always @(posedge clk) begin
     if( snd_cen ) xsel <= 1;
     if( mcu_cen ) xsel <= 0;

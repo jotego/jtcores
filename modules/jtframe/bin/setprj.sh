@@ -66,6 +66,10 @@ function swcore {
         echo Have you forgot to define JTROOT?
         return
     fi
+    if [ `pwd` = "$JTROOT/cores" ]; then
+        cd $1/$2
+        return
+    fi
     IFS=/ read -ra string <<< $(pwd)
     j="/"
     next=0

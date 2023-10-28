@@ -577,9 +577,9 @@ void namcos1_state::mcu_bankswitch_w(u8 data)
 /* CPU2   [7000]      */
 /* CPU3   [c000]      */
 
-/* This memory point should be set $A6 by anywhere, but         */
-/* I found set $A6 only initialize in MCU                       */
-/* This patch kill write this data by MCU case $A6 to xx(clear) */
+/* This memory point should be set to $A6 by someone, but         */
+/* I found it is only set to $A6 by the MCU                       */
+/* This patch blocks the MCU from clearing this byte after it has been set to $A6 */
 
 void namcos1_state::mcu_patch_w(u8 data)
 {
