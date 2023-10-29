@@ -60,7 +60,9 @@ module jt63701v #(
     // data assumed to be right from one cen to the next
     output [ROMW-1:0]  rom_addr,    // just A, provided as a safeguard to check AW against upper hierarchy's signals
     input      [ 7:0]  rom_data,
-    output reg         rom_cs
+    output reg         rom_cs,
+
+    input      [ 7:0]  debug_bus
 );
 
 wire        vma, buf_we, irq1, irq2;
@@ -147,6 +149,7 @@ always @(*) begin
           port_cs ? port_mux : xdin;
 end
 
+reg [1:0] slow;
 // ports
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -162,6 +165,7 @@ always @(posedge clk, posedge rst) begin
         ports[ICRH]  <= 0;
         ports[ICRL]  <= 0;
         ports[RMCR]  <='hf0;
+        ports[TRCS]  <='h20;
         ports[RAMC]  <='h7f;
         tin_l <= 0;
         fch   <= 0;
@@ -191,7 +195,8 @@ always @(posedge clk, posedge rst) begin
                         if( psel==P3 && ports[P3DDR][i] ) ports[P3][i] <= dout[i];
                         if( psel==P4 && ports[P4DDR][i] ) ports[P4][i] <= dout[i];
                     end
-                TCSR: ports[psel][4:0] <= dout[4:0];
+                TCSR: ports[psel][4:0] <= dout[4:0]; // Timer control/status register
+                TRCS: ports[psel][4:0] <= dout[4:0]; // Transmit/Receive control/status register
                 FRCH: begin
                     { ports[FRCH], ports[FRCL] } <= 16'hfff8;
                     fch  <= dout;
@@ -238,7 +243,13 @@ always @(posedge clk, posedge rst) begin
             // Free running counter
             if( ocf       ) ports[TCSR][6] <= 1;
             if( nx_frc_ov ) ports[TCSR][5] <= 1;
-            if( !frc_bsy ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+            slow <= slow+2'd1;
+            if( !frc_bsy ) case(debug_bus[1:0])
+                0: { ports[FRCH], ports[FRCL] } <= nx_frc;
+                1: if( slow[0] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+                2: if( slow[1] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+                3: if( slow==0 ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+            endcase
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin
@@ -294,9 +305,9 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .halted     (           ),
     .irq        ( irq       ),
     .nmi        ( nmi       ),  // interrupt vector at FFF8
-    .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
-    .irq_ocf    ( irq_ocf   ),  // interrupt vector at FFF4
-    .irq_icf    ( irq_icf   ),  // interrupt vector at FFF6
+    .irq_tof    ( irq_tof & debug_bus[7]   ),  // interrupt vector at FFF2
+    .irq_ocf    ( irq_ocf & debug_bus[7]   ),  // interrupt vector at FFF4
+    .irq_icf    ( irq_icf & debug_bus[7]   ),  // interrupt vector at FFF6
     // not implemented
     .irq_sci    ( 1'b0      )   // interrupt vector at FFF0
 );

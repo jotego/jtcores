@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Wed Oct 25 04:49:33 2023
+[*] Sun Oct 29 16:44:24 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Wed Oct 25 04:43:51 2023"
-[dumpfile_size] 182327325
+[dumpfile_mtime] "Sun Oct 29 15:59:05 2023"
+[dumpfile_size] 503110317
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/tr_mcu.gtkw"
-[timestart] 817233230000
+[timestart] 2660722000000
 [size] 1264 1024
-[pos] 1265 -1
-*-22.124454 817242440000 817236826000 816542958000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -28
+*-29.718529 2662382854068 2662382854068 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -19,7 +19,7 @@
 [sst_width] 223
 [signals_width] 241
 [sst_expanded] 1
-[sst_vpaned_height] 636
+[sst_vpaned_height] 381
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -39,7 +39,6 @@ TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.accb[7:0]
 [color] 1
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.pc[15:0]
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.sp[15:0]
-@23
 [color] 2
 TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.xreg[15:0]
 @c00022
@@ -56,6 +55,9 @@ TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 (7)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 @1401200
 -group_end
+@28
+[color] 1
+(3)TOP.game_test.u_game.u_game.u_mcu.u_63701.u_6801.cc[7:0]
 @200
 -
 @28
@@ -76,7 +78,25 @@ TOP.game_test.u_game.u_game.u_mcu.epr_cs
 -
 @28
 TOP.game_test.u_game.u_game.u_mcu.u_63701.irq
-[color] 1
-TOP.game_test.u_game.u_game.u_mcu.u_63701.irq_tof
+@29
+TOP.game_test.u_game.u_game.u_mcu.u_63701.irq_ocf
+@200
+-Cabinet
+@28
+TOP.game_test.u_game.u_game.u_mcu.cab_cs
+@22
+TOP.game_test.u_game.u_game.u_mcu.p1_din[7:0]
+@28
+TOP.game_test.u_game.u_game.u_mcu.u_63701.port_cs
+@22
+TOP.game_test.u_game.u_game.u_mcu.u_63701.psel[4:0]
 [pattern_trace] 1
 [pattern_trace] 0
+!100000@@
+?"2
+@23
+TOP.game_test.u_game.u_game.u_mcu.u_63701.psel[4:0]
+?01
+@29
+TOP.game_test.u_game.u_game.u_mcu.u_63701.port_cs
+!!

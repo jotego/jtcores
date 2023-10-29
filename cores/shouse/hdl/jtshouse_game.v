@@ -156,7 +156,7 @@ jtshouse_main u_main(
 
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
-    .rstn       ( srst_n & ~debug_bus[0]   ),
+    .rstn       ( srst_n /*& ~debug_bus[0]*/   ),
     .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),
@@ -260,7 +260,9 @@ jtshouse_triram u_triram(
 
     .bdin       ( tri_dout  ),
     .mcu_din    ( tri_mcu   ),
-    .snd_din    ( tri_snd   )
+    .snd_din    ( tri_snd   ),
+
+    .debug_bus  ( debug_bus )
 );
 /* verilator tracing_off */
 jtshouse_video u_video(

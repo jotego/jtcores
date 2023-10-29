@@ -210,7 +210,8 @@ jt63701v #(.ROMW(12)) u_63701(
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
     .rom_data   ( rom_data      ),
-    .irq_ack    ( irq_ack       )
+    .irq_ack    ( irq_ack       ),
+    .debug_bus  ( debug_bus     )
 );
 
 jtframe_prom #(.AW(12)) u_prom(
