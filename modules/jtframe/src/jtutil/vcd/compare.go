@@ -16,8 +16,8 @@ func (this cmpData) next() bool {
     return this.file.NextVCD(this.data)
 }
 
-func Compare( fnames []string, sname string ) {
-    d := cmpReadin( fnames, sname )
+func Compare( fnames []string, sname string, ignore_rst bool ) {
+    d,r := cmpReadin( fnames, sname )
     defer d[0].file.Close()
     defer d[1].file.Close()
     mismatch := false
@@ -42,9 +42,12 @@ func Compare( fnames []string, sname string ) {
     top:
     for {
         for k:=0; k<2; k++ {
-            if !d[k].next() {
-                fmt.Println("EOF:",d[k].file.fname)
-                break top
+            for {
+                if !d[k].next() {
+                    fmt.Println("EOF:",d[k].file.fname)
+                    break top
+                }
+                if !ignore_rst || r[k].signal==nil || r[k].signal.Value==0 { break }
             }
         }
         if d[0].signal.Value == d[1].signal.Value {
@@ -71,8 +74,8 @@ func Compare( fnames []string, sname string ) {
 
 // Open the VCD files, get the VCD signal information and
 // find the required signal to compare. Caller must close the files
-func cmpReadin( fnames []string, sname string ) [2]cmpData {
-    var c [2]cmpData
+func cmpReadin( fnames []string, sname string ) ([2]cmpData,[2]cmpData) {
+    var c,r [2]cmpData // compare and reset signals
 
     for k:=0; k<2; k++ {
         c[k].file = &LnFile{}
@@ -81,21 +84,29 @@ func cmpReadin( fnames []string, sname string ) [2]cmpData {
         }
         c[k].file.Open(fnames[k])
         c[k].data = GetSignals(c[k].file)
-        all := c[k].data.GetAll(sname)
-        if all == nil {
-            fmt.Println("Cannot find any signal named",sname,"in",fnames[k])
-            os.Exit(1)
-        }
-        if len(all)>1 {
-            fmt.Println("Found multiple signals named similarly")
-            for _,k := range all {
-                fmt.Println("\t",k.Name)
-            }
-            fmt.Println("Please specify the name better")
-            os.Exit(1)
-        }
-        fmt.Println("Found",all[0].FullName(), "in", fnames[k])
-        c[k].signal=all[0]
+        c[k].signal=getOne(c[k],sname, true)
+        r[k].signal=getOne(c[k],"rst", false)
     }
-    return c
+    return c,r
+}
+
+func getOne( cd cmpData, sname string, must bool ) *VCDSignal {
+    all := cd.data.GetAll(sname)
+    if all == nil {
+        if must {
+            fmt.Println("Cannot find any signal named",sname,"in",cd.file.fname)
+            os.Exit(1)
+        }
+        return nil
+    }
+    if len(all)>1 {
+        fmt.Println("Found multiple signals named similarly to",sname)
+        for _,k := range all {
+            fmt.Println("\t",k.Name)
+        }
+        fmt.Println("Please specify the name better")
+        os.Exit(1)
+    }
+    fmt.Println("Found",all[0].FullName(), "in", cd.file.fname)
+    return all[0]
 }

@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var ignore_rst *bool
+
 // compareCmd represents the compare command
 var compareCmd = &cobra.Command{
 	Use:   "compare file1[.vcd] file2[.vcd] signal-name",
@@ -19,7 +21,7 @@ var compareCmd = &cobra.Command{
 `Load two VCD databases containing mostly identical scope and signals and
 compare specific signals.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		vcd.Compare( args[0:2], args[2] )
+		vcd.Compare( args[0:2], args[2], *ignore_rst )
 	},
 	Args: cobra.ExactArgs(3),
 }
@@ -35,6 +37,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// compareCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	ignore_rst = compareCmd.Flags().BoolP("rst", "r", false, "ignore while any signal called rst is high")
 }
 

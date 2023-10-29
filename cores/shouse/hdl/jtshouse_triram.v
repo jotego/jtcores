@@ -54,10 +54,10 @@ reg         xsel;
 
 assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
 assign xaddr = xsel ? mcu_addr : saddr;
-assign xdout = xsel ? mcu_dout : sdout;
+assign xdout = !xwe ? 8'd0 : xsel ? mcu_dout : sdout;
 
 `ifdef SIMULATION
-wire bad_cs = bus_cs && baddr==0;
+wire flag_cs  = bus_cs && baddr==0;
 wire reply_cs = bus_cs && baddr=='h2f && !brnw;
 reg [7:0] flag;
 always @(posedge clk) begin

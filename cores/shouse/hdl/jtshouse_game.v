@@ -198,7 +198,7 @@ jtshouse_mcu u_mcu(
 );
 
 jtshouse_sound u_sound(
-    .srst_n     ( srst_n & ~debug_bus[1]   ),
+    .srst_n     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( cen_snd   ),
     .cen_Q      ( cen_mcu   ),
