@@ -64,7 +64,7 @@ module jt63701v #(
 );
 
 wire        vma, buf_we, irq1, irq2;
-reg         buf_cs, port_cs, fcup, pre_clr;
+reg         buf_cs, port_cs, pre_clr;
 wire [ 7:0] buf_dout;
 wire [ 4:0] psel;
 reg  [ 7:0] din, port_mux, fch, fcl;
@@ -74,8 +74,9 @@ reg         irq_ocf, irq_icf, irq_tof;
 wire        intv_rd,    // interrupt vector is being read
             any_irq;
 // timers
-wire [15:0] nx_frc;
-wire        ocf, tin, nx_frc_ov, ic_edge;
+wire [15:0] frc, ocr, nx_frc;
+reg         oc_en_aux;
+wire        ocf, tin, nx_frc_ov, ic_edge, oc_en, frc_bsy;
 reg         tin_l;
 
 localparam  P1DDR = 'h0,
@@ -113,10 +114,14 @@ assign psel    = A[4:0];
 assign x_cs    = vma && {port_cs,buf_cs,rom_cs/*,~ports[RAME][6]*/}==0; // the MODE should limit this
 assign intv_rd = &{A[15:5],vma};
 // Timers
-assign { nx_frc_ov, nx_frc } = { 1'd0, ports[FRCH],ports[FRCL] }+17'd1;
-assign ocf     = {ports[OCRH],ports[OCRL]}==nx_frc;
+assign { nx_frc_ov, nx_frc } = { 1'd0, frc }+17'd1;
+assign frc     = {ports[FRCH],ports[FRCL]};
+assign ocr     = {ports[OCRH],ports[OCRL]};
+assign ocf     = ocr==nx_frc && oc_en;
 assign tin     = p2_din[0];
 assign ic_edge = ports[TCSR][1] ? (tin&~tin_l) : (~tin&tin_l);
+assign oc_en   = oc_en_aux && !(!rnw && port_cs && (psel==OCRH || psel==FRCH));
+assign frc_bsy = port_cs && !rnw && (psel==FRCH || psel==FRCL);
 
 `ifdef SIMULATION
 wire p1ddr = ports[P1DDR][0];
@@ -159,7 +164,6 @@ always @(posedge clk, posedge rst) begin
         ports[RMCR]  <='hf0;
         ports[RAMC]  <='h7f;
         tin_l <= 0;
-        fcup  <= 0;
         fch   <= 0;
         fcl   <= 0;
     end else begin
@@ -173,7 +177,9 @@ always @(posedge clk, posedge rst) begin
             if( !ports[P2DDR][i] && i<5 ) ports[P2][i] <= p2_din[i];
             if( !ports[P4DDR][i] ) ports[P4][i] <= p4_din[i];
         end
-
+        if( cen ) begin
+            oc_en_aux <= 1;
+        end
         if( port_cs & ~rnw ) begin
             case(psel)
                 P1: if( ports[P1DDR][0] ) ports[P1] <= dout;
@@ -189,10 +195,14 @@ always @(posedge clk, posedge rst) begin
                 FRCH: begin
                     { ports[FRCH], ports[FRCL] } <= 16'hfff8;
                     fch  <= dout;
+                    oc_en_aux <= 0;
                 end
                 FRCL: begin
-                    fcl <= dout;
-                    fcup <= 1;
+                    { ports[FRCH], ports[FRCL] } <= { fch, dout };
+                end
+                OCRH: begin
+                    ports[OCRH] <= dout;
+                    oc_en_aux <= 0;
                 end
                 RMCR: begin
                     ports[RMCR] <= {4'hf,dout[3:0]};
@@ -226,13 +236,9 @@ always @(posedge clk, posedge rst) begin
                 end
             end
             // Free running counter
-            { ports[FRCH],ports[FRCL] } <= nx_frc;
             if( ocf       ) ports[TCSR][6] <= 1;
             if( nx_frc_ov ) ports[TCSR][5] <= 1;
-            if( fcup ) begin
-                { ports[FRCH], ports[FRCL] } <= { fch, fcl };
-                fcup <= 0;
-            end
+            if( !frc_bsy ) { ports[FRCH], ports[FRCL] } <= nx_frc;
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin
