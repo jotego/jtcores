@@ -20,6 +20,9 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
       - jtframe_obj.yaml
+  - from: sound
+    get:
+      - jtframe_dcrm.v
 modules:
   jt:
     - name: jt51

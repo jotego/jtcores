@@ -59,7 +59,7 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output reg signed [10:0] snd, // is it signed?
+    output     signed [10:0] snd, // is it signed?
 
     input      [ 7:0]  debug_bus
 );
@@ -70,6 +70,7 @@ reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
 
 wire [15:0] A;
 wire [11:0] rom_addr;
+reg  [10:0] mix;
 wire [ 7:0] p1_din, rom_data;
 wire [ 4:0] p2_dout;
 wire [ 1:0] gain1,  gain0;
@@ -122,6 +123,20 @@ always @* begin
                 8'd0;
 end
 
+reg [7:0] sample_cnt;
+wire sample = sample_cnt==0 && cen;
+
+always @(posedge clk) begin
+    if( cen ) sample_cnt <= sample_cnt+1'd1;
+end
+
+jtframe_dcrm #(.SW(11)) u_dcrm(
+    .rst        ( ~rstn     ),
+    .clk        ( clk       ),
+    .sample     ( sample    ),
+    .din        ( mix       ),
+    .dout       ( snd       )
+);
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
@@ -131,6 +146,7 @@ always @(posedge clk, negedge rstn ) begin
         irq      <= 0;
         lvbl_l   <= 0;
         hs_l     <= 0;
+        mix      <= 0;
         init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
@@ -141,7 +157,7 @@ always @(posedge clk, negedge rstn ) begin
         if( hdump=='ha1 ) irq <= 0; // 31.2us width measure on the PCB
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
-        snd  <= {amp1[7], amp1}+{amp0[7], amp0};
+        mix  <= {1'b0, amp1}+{1'b0, amp0};
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
                            { cab_1p[0], joystick1 };
