@@ -21,7 +21,7 @@ module jtshouse_sound(
     input               clk,
     input               cen_E,
     input               cen_Q,
-    input               prc_snd,
+    input               cen_sub,
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
@@ -63,8 +63,7 @@ wire [11:0] snd_l, snd_r;
 wire [10:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
-reg         irq_n, lvbl_l, VMA, rst;
-wire        bsel;
+reg         irq_n, lvbl_l, VMA, rst, bsel;
 wire        AVMA, firq_n, peak_l, peak_r;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 wire signed [15:0] fm_l, fm_r;
@@ -73,7 +72,6 @@ assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
 assign peak     = peak_r | peak_l;
 assign ram_we   = ram_cs & ~rnw;
-assign bsel     = ~prc_snd;
 `ifdef SIMULATION
 wire bad_cs = tri_cs && A[10:0]==0;
 wire reply_cs = tri_cs && A[10:0]=='h2f && ~rnw;
@@ -102,7 +100,8 @@ end
 
 always @(posedge clk) begin
     rst  <= ~srst_n;
-
+    if( cen_sub ) bsel <= 0;
+    if( cen_E   ) bsel <= 1;
     cpu_din <= rom_cs   ? rom_data :
                ram_cs   ? ram_dout :
                fm_cs    ? fm_dout  :

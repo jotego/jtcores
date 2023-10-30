@@ -22,8 +22,7 @@ module jtshouse_cenloop(
     input             clk,
     input      [ 2:0] busy,
 
-    output reg        prc_main, prc_sub, prc_snd, prc_mcu,
-    output            cen_main, cen_sub, cen_snd, cen_mcu,
+    output            cen_main, cen_sub, cen_snd, cen_mcu, cen_sndq,
 
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
@@ -49,9 +48,9 @@ assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
 assign cen_main = cpu_cen[0];
 assign cen_sub  = cpu_cen[1];
 assign cen_mcu  = |cpu_cen[2:0]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
-// assign cen_mcu  = |cpu_cen[2:1]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 // assign cen_mcu  = cpu_cen[2]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 assign cen_snd  = cpu_cen[3];
+assign cen_sndq = cpu_cen[1];
 
 always @(posedge clk) begin
     if( ~&blank ) blank <= blank + 1'd1 ;
@@ -66,10 +65,6 @@ always @(posedge clk) begin
     end else begin
         cpu_cen <= 0;
     end
-    if( cen_sub ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b1000;
-    if( cen_main) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0100;
-    if( cen_mcu ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0010;
-    if( cen_snd ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0001;
 end
 
 jtframe_freqinfo #(.MFREQ( FCLK )) u_info(

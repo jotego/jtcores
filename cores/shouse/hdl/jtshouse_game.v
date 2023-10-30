@@ -33,8 +33,8 @@ wire [ 8:0] hdump;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
-wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
-            cen_main, cen_sub,  cen_snd,  cen_mcu;
+wire        prc_snd,
+            cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
 wire        obus_cs, ram_cs, dma_we;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
@@ -74,13 +74,10 @@ jtshouse_cenloop u_cen(
     .clk        ( clk       ),
     .busy       ( busy      ),
 
-    .prc_main   ( prc_main  ),
-    .prc_sub    ( prc_sub   ),
-    .prc_snd    ( prc_snd   ),
-    .prc_mcu    ( prc_mcu   ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
     .cen_snd    ( cen_snd   ),
+    .cen_sndq   ( cen_sndq  ),
     .cen_mcu    ( cen_mcu   ),
 
     .fave       ( fave      ),
@@ -201,8 +198,8 @@ jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( cen_snd   ),
-    .cen_Q      ( cen_mcu   ),
-    .prc_snd    ( prc_snd   ),
+    .cen_Q      ( cen_sndq  ),
+    .cen_sub    ( cen_sub   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),

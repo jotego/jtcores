@@ -8,12 +8,6 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 24576
-      outputs:
-        - cen_24
-        - cen_12
-        - cen_6
-        - cen_3
 sdram:
   banks:
     - buses:

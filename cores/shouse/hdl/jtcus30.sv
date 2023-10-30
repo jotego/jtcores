@@ -54,7 +54,7 @@ localparam CW=21,
 
 wire [ 7:0] xdout = bsel ? bdout : sdout;
 wire [15:0] xaddr = bsel ? {6'd0, baddr } : saddr;
-wire        xcs   = (bsel ? bcs  : scs) && xaddr[9:8]==0;
+wire        xcs   = bsel ? bcs  : scs;
 wire        xwe   = xcs & ~(bsel ? brnw : srnw);
 wire        mmr_cs= (bsel ? bcs  : scs) && xaddr[9:6]==4'b0100;
 wire        mmr_wn= ~mmr_cs | (bsel ? brnw : srnw);
