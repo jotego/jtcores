@@ -137,6 +137,7 @@ jtframe_dcrm #(.SW(11)) u_dcrm(
     .din        ( mix       ),
     .dout       ( snd       )
 );
+
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
@@ -210,8 +211,7 @@ jt63701v #(.ROMW(12),.SLOW_FRC(2)) u_63701(
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
     .rom_data   ( rom_data      ),
-    .irq_ack    ( irq_ack       ),
-    .debug_bus  ( debug_bus     )
+    .irq_ack    ( irq_ack       )
 );
 
 jtframe_prom #(.AW(12)) u_prom(

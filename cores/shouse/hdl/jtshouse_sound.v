@@ -50,7 +50,8 @@ module jtshouse_sound(
     input  signed[10:0] pcm_snd,
     output signed[15:0] left, right,
     output              sample,
-    output              peak
+    output              peak,
+    input        [ 7:0] debug_bus
 );
 `ifndef NOSOUND
 localparam [7:0] FMGAIN =8'h10,
@@ -60,7 +61,7 @@ localparam [7:0] FMGAIN =8'h10,
 wire [15:0] A;
 wire [ 7:0] fm_dout;
 wire [11:0] snd_l, snd_r;
-wire [10:0] cus30_l, cus30_r;
+wire [12:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst, bsel;
@@ -149,8 +150,11 @@ jtcus30 u_wav(
 
     // sound output
     .snd_l  ( cus30_l   ),
-    .snd_r  ( cus30_r   )
+    .snd_r  ( cus30_r   ),
+    .sample (           ),
+    .debug_bus(debug_bus)
 );
+
 /* verilator tracing_off */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
@@ -174,7 +178,7 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer #(.W1(11),.W2(11)) u_right(
+jtframe_mixer #(.W1(11),.W2(13)) u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
@@ -192,7 +196,7 @@ jtframe_mixer #(.W1(11),.W2(11)) u_right(
     .peak   ( peak_r    )
 );
 
-jtframe_mixer #(.W1(11),.W2(11)) u_left(
+jtframe_mixer #(.W1(11),.W2(13)) u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),

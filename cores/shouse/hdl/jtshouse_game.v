@@ -228,7 +228,8 @@ jtshouse_sound u_sound(
     .left       ( snd_left  ),
     .right      ( snd_right ),
     .sample     ( sample    ),
-    .peak       ( game_led  )
+    .peak       ( game_led  ),
+    .debug_bus  ( debug_bus )
 );
 
 jtshouse_triram u_triram(

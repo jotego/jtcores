@@ -758,7 +758,7 @@ void namco_audio_device::sound_stream_update(sound_stream &stream, std::vector<r
 
 				/* only update if we have non-zero left volume */
 				if (lv)
-				{
+				{	// MAME has the sound tables pre-calculated with the different gains applied
 					const int16_t *lw = &m_waveform[lv][voice->waveform_select * 32];
 
 					/* generate sound into the buffer */

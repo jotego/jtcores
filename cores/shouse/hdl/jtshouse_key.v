@@ -18,7 +18,7 @@
 
 // The implementation of the KEY chips follows MAME's namcos1_m.cpp
 // These chips won't impact any timing accuracy
-
+/* verilator tracing_off */
 module jtshouse_key(
     input               rst,
     input               clk,

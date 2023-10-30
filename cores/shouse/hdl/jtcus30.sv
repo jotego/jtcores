@@ -29,7 +29,7 @@ module jtcus30(
     input               rst,
     input               clk,
     input               bsel,
-    input               cen,    // 1.5 MHz
+    input               cen,    // 1.5 MHz (16 times slower than original input clk at 24MHz)
 
     output       [ 7:0] xdin,
     // main/sub bus
@@ -45,8 +45,11 @@ module jtcus30(
     input        [ 7:0] sdout,
 
     // sound output
-    output reg   [10:0] snd_l,
-    output reg   [10:0] snd_r
+    output                   sample,
+    output reg signed [12:0] snd_l,
+    output reg signed [12:0] snd_r,
+
+    input             [ 7:0] debug_bus
 );
 
 localparam CW=21,
@@ -70,15 +73,37 @@ reg  [7:0][CW-1:0] cnt;
 
 // sound synthesis
 reg  [ 2:0] ch, ch_l;
-reg  [10:0] lacc, racc;
-wire [ 7:0] wdata;
-reg  [ 7:0] lamp, ramp;
-wire [ 9:0] rd_addr = {1'b0, wsel[ch], cnt[ch][A0+:5] };
+reg  [12:0] lacc, racc, raw_l, raw_r;
+wire [ 7:0] wdata8;
+reg  signed [ 9:0] lamp, ramp;
+wire [ 9:0] rd_addr = {2'b0, wsel[ch], cnt[ch][(A0+1)+:4] };
+wire signed [ 3:0] wdata;
 
 // LFSR polynomial
 reg  [17:0] lfsr;
 reg         noise;
 reg  [7:0][CW-1:A0] cnt_no; // old value of counter when noise was last produced
+
+assign sample = ch==0 && cen120;
+assign wdata  = (cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4])^{ debug_bus[1],3'd0};
+
+// `ifdef SIMULATION
+// reg [7:0][3:0] wav;
+// wire [ 3:0] wav0,  wav1,  wav2,  wav3,  wav4,  wav5,  wav6,  wav7;
+// wire [19:0] freq0, freq1, freq2, freq3, freq4, freq5, freq6, freq7;
+// wire [ 3:0] lvol0, lvol1, lvol2, lvol3, lvol4, lvol5, lvol6, lvol7;
+// wire [CW-1:0] wcnt0, wcnt1, wcnt2, wcnt3, wcnt4, wcnt5, wcnt6, wcnt7;
+
+// assign  freq0 = freq[0], freq1 = freq[1], freq2 = freq[2], freq3 = freq[3],
+//         freq4 = freq[4], freq5 = freq[5], freq6 = freq[6], freq7 = freq[7];
+// assign  wav0 = wav[0], wav1 = wav[1], wav2 = wav[2], wav3 = wav[3],
+//         wav4 = wav[4], wav5 = wav[5], wav6 = wav[6], wav7 = wav[7];
+// assign  lvol0 = lvol[0], lvol1 = lvol[1], lvol2 = lvol[2], lvol3 = lvol[3],
+//         lvol4 = lvol[4], lvol5 = lvol[5], lvol6 = lvol[6], lvol7 = lvol[7];
+// assign  wcnt0 = cnt[0], wcnt1 = cnt[1], wcnt2 = cnt[2], wcnt3 = cnt[3],
+//         wcnt4 = cnt[4], wcnt5 = cnt[5], wcnt6 = cnt[6], wcnt7 = cnt[7];
+// always @(posedge clk) if(cen120) wav[ch]<=wdata;
+// `endif
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
@@ -102,13 +127,13 @@ always @(posedge clk, posedge rst ) begin
             ramp <= 4'd7*({1'b0,rvol[ch_l][3:1]});
             cnt_no[ch_l] <= cnt[ch_l][CW-1:A0];
         end else begin
-            lamp <= wdata*lvol[ch_l];
-            ramp <= wdata*rvol[ch_l];
+            lamp <= { wdata[3] & debug_bus[0], wdata } * { 1'b0, lvol[ch_l] };
+            ramp <= { wdata[3] & debug_bus[0], wdata } * { 1'b0, rvol[ch_l] };
         end
 
         // accumulator and output
-        lacc <= ch==0 ? {3'd0,lamp} : lacc+{3'd0,lamp};
-        racc <= ch==0 ? {3'd0,ramp} : racc+{3'd0,ramp};
+        lacc <= ch==0 ? {{3{lamp[9]}},lamp} : lacc+{ {3{lamp[9]}},lamp};
+        racc <= ch==0 ? {{3{lamp[9]}},ramp} : racc+{ {3{lamp[9]}},ramp};
         if( ch==0 ) begin
             snd_l <= lacc;
             snd_r <= racc;
@@ -119,7 +144,7 @@ always @(posedge clk, posedge rst ) begin
     end
 end
 
-jtframe_cendiv #(.MDIV(12)) u_cendiv(
+jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .clk        ( clk       ),
     .cen_in     ( cen       ),
     .cen_div    ( cen120    ),
@@ -138,7 +163,7 @@ jtframe_dual_ram u_wave( // 4 (waves) + 5 (wave length) = 9 bits, 10th bit must 
     .data1  (  8'd0      ),
     .addr1  ( rd_addr    ),
     .we1    (  1'b0      ),
-    .q1     ( wdata      )
+    .q1     ( wdata8     )
 );
 
 jtshouse_cus30_mmr u_mmr(

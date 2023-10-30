@@ -822,6 +822,7 @@ end
 ////////////////////////////////////
 always @(*)
     begin
+          alu_ctrl   = alu_nop;
           left_ctrl = acca_left;
           right_ctrl = zero_right;
           cc_ctrl = latch_cc;

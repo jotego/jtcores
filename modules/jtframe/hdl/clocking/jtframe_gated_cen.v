@@ -23,7 +23,7 @@
 // generation is halted while busy input is high, and lost
 // cycles are recovered once busy goes low
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 
 module jtframe_gated_cen #( parameter
     W     =  2,

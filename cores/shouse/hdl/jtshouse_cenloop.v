@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 22-9-2023 */
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 module jtshouse_cenloop(
     input             rst,
     input             clk,

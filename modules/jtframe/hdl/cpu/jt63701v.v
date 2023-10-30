@@ -61,9 +61,7 @@ module jt63701v #(
     // data assumed to be right from one cen to the next
     output [ROMW-1:0]  rom_addr,    // just A, provided as a safeguard to check AW against upper hierarchy's signals
     input      [ 7:0]  rom_data,
-    output reg         rom_cs,
-
-    input      [ 7:0]  debug_bus
+    output reg         rom_cs
 );
 
 wire        vma, buf_we, irq1, irq2;
