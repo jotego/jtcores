@@ -49,7 +49,7 @@ module jtshouse_triram(
     input      [ 7:0] debug_bus
 );
 
-wire [ 7:0] xdout, alt_din; //, p_alt_din, p_bdin;
+wire [ 7:0] xdout, alt_din, p_alt_din, p_bdin;
 wire [10:0] xaddr;
 wire        xwe;
 reg         xsel;
@@ -58,8 +58,8 @@ assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
 assign xaddr = xsel ? mcu_addr : saddr;
 assign xdout = !xwe ? 8'd0 : xsel ? mcu_dout : sdout;
 
-// assign alt_din = xaddr==0 && !debug_bus[0] ? 8'ha6 : p_alt_din;
-// assign bdin    = baddr==0 && !debug_bus[1] ? 8'ha6 : p_bdin;
+assign alt_din = xaddr==0 && !debug_bus[0] ? 8'ha6 : p_alt_din;
+assign bdin    = baddr==0 && !debug_bus[1] ? 8'ha6 : p_bdin;
 
 `ifdef SIMULATION
 wire flag_cs  = bus_cs && baddr==0;
@@ -87,13 +87,13 @@ jtframe_dual_ram #(.AW(11)) u_ram(
     .data0  ( bdout ),
     .addr0  ( baddr ),
     .we0    ( bus_cs & ~brnw ),
-    .q0     ( bdin  ),
+    .q0     ( p_bdin  ),
     // Port 1
     .clk1   ( clk   ),
     .data1  ( xdout ),
     .addr1  ( xaddr ),
     .we1    ( xwe   ),
-    .q1     (alt_din)
+    .q1     (p_alt_din)
 );
 
 endmodule

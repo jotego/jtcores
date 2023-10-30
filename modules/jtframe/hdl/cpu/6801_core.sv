@@ -86,7 +86,7 @@ logic[15:0] pc;
 logic[15:0] xreg;
 logic[15:0] sp;
 logic[7:0] cc;
-/* verilator tracing_off */
+/* verilator tracing_on */
 logic[7:0] op_code;
 logic[7:0] cc_out;
 logic[15:0] ea;
@@ -916,8 +916,71 @@ always @(*)
              //
           fetch_state:
              begin
+                next_state = decode_state;
+                left_ctrl  = acca_left;
+                right_ctrl = zero_right;
+                alu_ctrl   = alu_nop;
+                cc_ctrl    = latch_cc;
+                acca_ctrl  = latch_acca;
+                accb_ctrl  = latch_accb;
+                md_ctrl    = fetch_first_md;
+                sp_ctrl    = latch_sp;
+                ix_ctrl    = latch_ix;
+                sp_ctrl    = latch_sp;
+                if (halt == 1'b1) begin
+                  pc_ctrl    = latch_pc;
+                  nmi_ctrl   = latch_nmi;
+                  next_state = halt_state;
+                end else if (nmi_req == 1'b1 && nmi_ack == 1'b0) begin
+                  // service non maskable interrupts
+                  pc_ctrl    = latch_pc;
+                  nmi_ctrl   = set_nmi;
+                  next_state = int_pcl_state;
+                end else begin // service maskable interrupts
+                // nmi request is not cleared until nmi input goes low
+                  if(nmi_req == 1'b0 && nmi_ack==1'b1)
+                    nmi_ctrl = reset_nmi;
+                  else
+                    nmi_ctrl = latch_nmi;
+                  // IRQ is level sensitive
+                  if ((irq == 1'b1 || irq_icf == 1'b1 || irq_ocf == 1'b1
+                    || irq_tof == 1'b1 || irq_sci == 1'b1) && cc[IBIT] == 1'b0) begin
+                    pc_ctrl    = latch_pc;
+                    next_state = int_pcl_state;
+                  end else begin
+                    // Advance the PC to fetch next instruction byte
+                    pc_ctrl    = inc_pc;
                   case (op_code[7:4])
-                   4'b0000,
+                    4'b0000: begin // implicit, solve within this state
+                      next_state = fetch_state;
+                      case( op_code[3:0])
+                        4'b1010: begin // clv
+                          alu_ctrl   = alu_clv;
+                          cc_ctrl    = load_cc;
+                        end
+                        4'b1011: begin // sev
+                          alu_ctrl   = alu_sev;
+                          cc_ctrl    = load_cc;
+                        end
+                        4'b1100: begin // clc
+                          alu_ctrl   = alu_clc;
+                          cc_ctrl    = load_cc;
+                        end
+                        4'b1101: begin // sec
+                          alu_ctrl   = alu_sec;
+                          cc_ctrl    = load_cc;
+                        end
+                        4'b1110: begin // cli
+                          alu_ctrl   = alu_cli;
+                          cc_ctrl    = load_cc;
+                        end
+                        4'b1111: begin // sei
+                          alu_ctrl   = alu_sei;
+                          cc_ctrl    = load_cc;
+                        end
+                        default: next_state = decode_state;
+                      endcase
+                    end
                      4'b0001,
                      4'b0010,  // branch conditional
                      4'b0011,
@@ -1339,43 +1402,17 @@ always @(*)
                  sp_ctrl     = latch_sp;
                      end
               endcase
-             md_ctrl    = latch_md;
+                md_ctrl    = latch_md;
                 // fetch the op code
                 op_ctrl    = fetch_op;
                 ea_ctrl    = reset_ea;
                 addr_ctrl  = fetch_ad;
                 dout_ctrl  = md_lo_dout;
                 iv_ctrl    = latch_iv;
-                if (halt == 1'b1) begin
-                  pc_ctrl    = latch_pc;
-                  nmi_ctrl   = latch_nmi;
-                  next_state = halt_state;
-                end
-                // service non maskable interrupts
-                else if (nmi_req == 1'b1 && nmi_ack == 1'b0) begin
-                  pc_ctrl    = latch_pc;
-                  nmi_ctrl   = set_nmi;
-                  next_state = int_pcl_state;
-                end
-                // service maskable interrupts
-               else begin
-                  // nmi request is not cleared until nmi input goes low
-                if(nmi_req == 1'b0 && nmi_ack==1'b1)
-                  nmi_ctrl = reset_nmi;
-                else
-                  nmi_ctrl = latch_nmi;
-                // IRQ is level sensitive
-                if ((irq == 1'b1 || irq_icf == 1'b1 || irq_ocf == 1'b1
-                  || irq_tof == 1'b1 || irq_sci == 1'b1) && cc[IBIT] == 1'b0) begin
-                  pc_ctrl    = latch_pc;
-                  next_state = int_pcl_state;
-                end else begin
-                  // Advance the PC to fetch next instruction byte
-                  pc_ctrl    = inc_pc;
-                  next_state = decode_state;
-                end
-                end
             end
+            end
+          end
+
              //
              // Here to decode instruction
              // and fetch next byte of intruction
@@ -1512,16 +1549,6 @@ always @(*)
                       left_ctrl  = acca_left;
                  right_ctrl = zero_right;
                       alu_ctrl   = alu_cli;
-                 cc_ctrl    = load_cc;
-                      acca_ctrl  = latch_acca;
-                      accb_ctrl  = latch_accb;
-                      ix_ctrl    = latch_ix;
-                     end
-                 4'b1111: // sei
-                    begin
-                      left_ctrl  = acca_left;
-                 right_ctrl = zero_right;
-                      alu_ctrl   = alu_sei;
                  cc_ctrl    = load_cc;
                       acca_ctrl  = latch_acca;
                       accb_ctrl  = latch_accb;
