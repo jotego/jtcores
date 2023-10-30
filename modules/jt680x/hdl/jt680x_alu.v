@@ -76,6 +76,8 @@ always @* begin
             rslt = op0 + {8'b0, daa};
         ALU_TPA:
             rslt = {8'b0, cc};
+        ALU_MUL:
+            rslt = { 8'd0, op0 } * { 8'd0, op1};
         default:
             rslt = op0; // nop
     endcase
