@@ -48,7 +48,7 @@ assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
 
 assign cen_main = cpu_cen[0];
 assign cen_sub  = cpu_cen[1];
-assign cen_mcu  = |{cpu_cen[2],cpu_cen[0]}; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
+assign cen_mcu  = |cpu_cen[2:0]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 // assign cen_mcu  = |cpu_cen[2:1]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 // assign cen_mcu  = cpu_cen[2]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 assign cen_snd  = cpu_cen[3];

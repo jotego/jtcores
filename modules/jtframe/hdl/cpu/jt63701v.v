@@ -80,7 +80,8 @@ wire        intv_rd,    // interrupt vector is being read
 wire [15:0] frc, ocr, nx_frc;
 reg         oc_en_aux;
 wire        ocf, tin, nx_frc_ov, ic_edge, oc_en, frc_bsy;
-reg         tin_l, cen_frc;
+reg         tin_l;
+reg  [ 1:0] cen_frc;
 
 localparam  P1DDR = 'h0,
             P2DDR = 'h1,
@@ -243,8 +244,8 @@ always @(posedge clk, posedge rst) begin
             // Free running counter
             if( ocf       ) ports[TCSR][6] <= 1;
             if( nx_frc_ov ) ports[TCSR][5] <= 1;
-            cen_frc <= ~cen_frc;
-            if( SLOW_FRC==0 || cen_frc ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+            cen_frc <= cen_frc==SLOW_FRC[1:0] ? 2'd0 : cen_frc+1'd1;
+            if( SLOW_FRC==0 || cen_frc==SLOW_FRC[1:0] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin
