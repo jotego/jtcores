@@ -24,9 +24,10 @@
 // 6: multiplexed/partial decode
 
 module jt63701v #(
-    parameter ROMW = 12, // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
-              MODE   = 6  // latched from port pints P2.2,1,0 at reset in the original
+    parameter ROMW = 12,  // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
+              MODE =  6,  // latched from port pints P2.2,1,0 at reset in the original
                           // only mode 6 is implemented so far
+              SLOW_FRC=0  // operates the Free Running Counter at half the speed
 )(
     input              rst,     // use it for standby too, RAM is always preserved
     input              clk,
@@ -79,7 +80,7 @@ wire        intv_rd,    // interrupt vector is being read
 wire [15:0] frc, ocr, nx_frc;
 reg         oc_en_aux;
 wire        ocf, tin, nx_frc_ov, ic_edge, oc_en, frc_bsy;
-reg         tin_l;
+reg         tin_l, cen_frc;
 
 localparam  P1DDR = 'h0,
             P2DDR = 'h1,
@@ -149,7 +150,6 @@ always @(*) begin
           port_cs ? port_mux : xdin;
 end
 
-reg [1:0] slow;
 // ports
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -243,13 +243,8 @@ always @(posedge clk, posedge rst) begin
             // Free running counter
             if( ocf       ) ports[TCSR][6] <= 1;
             if( nx_frc_ov ) ports[TCSR][5] <= 1;
-            slow <= slow+2'd1;
-            if( !frc_bsy ) case(debug_bus[1:0])
-                0: { ports[FRCH], ports[FRCL] } <= nx_frc;
-                1: if( slow[0] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
-                2: if( slow[1] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
-                3: if( slow==0 ) { ports[FRCH], ports[FRCL] } <= nx_frc;
-            endcase
+            cen_frc <= ~cen_frc;
+            if( SLOW_FRC==0 || cen_frc ) { ports[FRCH], ports[FRCL] } <= nx_frc;
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin
@@ -305,9 +300,9 @@ m6801 #(.NOSX_BITS(1)) u_6801(
     .halted     (           ),
     .irq        ( irq       ),
     .nmi        ( nmi       ),  // interrupt vector at FFF8
-    .irq_tof    ( irq_tof & debug_bus[7]   ),  // interrupt vector at FFF2
-    .irq_ocf    ( irq_ocf & debug_bus[7]   ),  // interrupt vector at FFF4
-    .irq_icf    ( irq_icf & debug_bus[7]   ),  // interrupt vector at FFF6
+    .irq_tof    ( irq_tof   ),  // interrupt vector at FFF2
+    .irq_ocf    ( irq_ocf   ),  // interrupt vector at FFF4
+    .irq_icf    ( irq_icf   ),  // interrupt vector at FFF6
     // not implemented
     .irq_sci    ( 1'b0      )   // interrupt vector at FFF0
 );

@@ -71,9 +71,17 @@ always @(posedge clk) begin
 end
 `endif
 
+reg mcu_cnt=0;
+
 always @(posedge clk) begin
-    if( snd_cen ) xsel <= 1;
-    if( mcu_cen ) xsel <= 0;
+    if( snd_cen ) begin
+        xsel <= 1;
+        mcu_cnt <= 0;
+    end
+    if( mcu_cen ) begin
+        mcu_cnt <= 1;
+        if( mcu_cnt ) xsel <= 0;
+    end
     if( xsel    )
         mcu_din <= alt_din;
     else

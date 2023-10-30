@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 22-9-2023 */
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 module jtshouse_cenloop(
     input             rst,
     input             clk,
@@ -42,20 +42,22 @@ reg  [CW-1:0] cencnt=0;
 reg     [1:0] blank=0;
 wire          bsyg = busy==0 || rst;
 
-assign over      = blank==0 && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
+assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
 assign cen_main = cpu_cen[0];
 assign cen_sub  = cpu_cen[1];
-assign cen_mcu  = cpu_cen[2];
+assign cen_mcu  = |{cpu_cen[2],cpu_cen[0]}; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
+// assign cen_mcu  = |cpu_cen[2:1]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
+// assign cen_mcu  = cpu_cen[2]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 assign cen_snd  = cpu_cen[3];
 
 always @(posedge clk) begin
-    blank <= 0;
+    if( ~&blank ) blank <= blank + 1'd1 ;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin
-        if( ~&blank ) blank <= blank + 1'd1 ;
+        blank <= 0;
         clk4 <= clk4+2'd1;
         cpu_cen[0] <= clk4==0;
         cpu_cen[1] <= clk4==2;

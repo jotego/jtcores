@@ -181,7 +181,7 @@ always @(posedge clk, negedge rstn ) begin
     end
 end
 
-jt63701v #(.ROMW(12)) u_63701(
+jt63701v #(.ROMW(12),.SLOW_FRC(1)) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
