@@ -58,7 +58,6 @@ if [ ! -d "$JTUTIL" ]; then
 fi
 
 CORESTAMP=$(date --date=friday +"%Y%m%d")
-shift
 
 for CORE in $*; do
     if [ ${CORE:0:1} = - ]; then break; fi
@@ -98,6 +97,7 @@ if ! version_ok.sh > /dev/null; then
 fi
 
 # If the release folder exists, it may be better to delete it
+KEEP=
 if [ -d $JTROOT/release ]; then
     cat <<EOF
 The release folder exists. It is recommended to start from
@@ -105,7 +105,7 @@ a clean folder.
 Delete it y/n?
 EOF
     read CONT
-    if [ $CONT = y ]; then rm -rf $JTROOT/{release,rom}; fi
+    if [ $CONT = y ]; then rm -rf $JTROOT/{release,rom}; else KEEP="--keep"; fi
 fi
 
 
@@ -132,7 +132,7 @@ fi
 
 
 jtupdate $BETACORES --seed \
-    --beta $BETAKEY --corestamp $CORESTAMP $* \
+    --beta $BETAKEY --corestamp $CORESTAMP $KEEP $* \
 || exit $?
 
 echo -e "\n****** COMPILATION COMPLETE *********\n"
@@ -160,9 +160,10 @@ cd $JTBIN/../jtbin.wiki
 git pull
 for CORE in $BETACORES; do
     if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
-        ./addcore.sh $CORE
-        git commit -m "Added $CORE"
-        git push
+        echo "WARNING: $CORE not found in JTBIN's wiki"
+        # ./addcore.sh $CORE
+        # git commit -m "Added $CORE"
+        # git push
     fi
 done
 
