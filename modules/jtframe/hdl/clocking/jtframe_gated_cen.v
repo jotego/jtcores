@@ -60,7 +60,7 @@ always @(posedge clk) begin
         toggle <= toggle + 1'd1;
         cen[0] <= 1;
         for( i=1; i<W; i=i+1 ) begin
-            cen[i] <= toggle[i-1];
+            cen[i] <= (toggle&((1<<i)-1))==(1<<i)-1;
         end
     end else begin
         cen <= 0;
