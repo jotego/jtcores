@@ -61,7 +61,7 @@ CORESTAMP=$(date --date=friday +"%Y%m%d")
 shift
 
 for CORE in $*; do
-    if [ ${CORE:0:1} = - ]; then continue; fi
+    if [ ${CORE:0:1} = - ]; then break; fi
     BETACORES="$BETACORES $CORE"
     if [ ! -d $CORES/$CORE ]; then
         echo "Unknown core $CORE"
