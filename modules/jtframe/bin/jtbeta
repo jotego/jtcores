@@ -104,7 +104,7 @@ a clean folder.
 Delete it y/n?
 EOF
     read CONT
-    if [ $CONT = y ]; then rm -rf $JTROOT/release; fi
+    if [ $CONT = y ]; then rm -rf $JTROOT/{release,rom}; fi
 fi
 
 
