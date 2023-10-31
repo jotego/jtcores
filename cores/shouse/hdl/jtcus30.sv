@@ -24,7 +24,7 @@
 // MAME reports 12kHz as sampling frequency
 // 15 kHz * 8 = 120 kHz
 // 1536 kHz / 120 kHz = 12
-/* verilator tracing_on */
+/* verilator tracing_off */
 module jtcus30(
     input               rst,
     input               clk,

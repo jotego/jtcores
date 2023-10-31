@@ -107,7 +107,7 @@ always @(*) begin
     swio_cs = vma &&  A[15:12]==4'h1;
     // the init_done mechanism mimics MAME's hack to prevent a lock up during the boot sequence
     // see https://github.com/jotego/jtcores/issues/410
-    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] && (A[10:0]!=0 || rnw || !init_done);    // c000~c7ff
+    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] /*&& (A[10:0]!=0 || rnw || !init_done)*/;    // c000~c7ff
     epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
     reg_cs  = vma &&  A[15:12]==4'hd && !rnw;
     dip_cs  = vma && swio_cs && A[11:10]==0;

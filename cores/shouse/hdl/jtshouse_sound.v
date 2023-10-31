@@ -54,9 +54,9 @@ module jtshouse_sound(
     input        [ 7:0] debug_bus
 );
 `ifndef NOSOUND
-localparam [7:0] FMGAIN =8'h10,
+localparam [7:0] FMGAIN =8'h0C,
                  PCMGAIN=8'h10,
-                 CUS30G =8'h10;
+                 CUS30G =8'h20;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
@@ -155,7 +155,7 @@ jtcus30 u_wav(
     .debug_bus(debug_bus)
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on  */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock

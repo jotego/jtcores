@@ -58,8 +58,9 @@ assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
 assign xaddr = xsel ? mcu_addr : saddr;
 assign xdout = !xwe ? 8'd0 : xsel ? mcu_dout : sdout;
 
-assign alt_din = xaddr==0 && !debug_bus[0] ? 8'ha6 : p_alt_din;
-assign bdin    = baddr==0 && !debug_bus[1] ? 8'ha6 : p_bdin;
+// Needed to boot up
+assign alt_din = xaddr==0 /*&& !debug_bus[0]*/ ? 8'ha6 : p_alt_din;
+assign bdin    = baddr==0 /*&& !debug_bus[1]*/ ? 8'ha6 : p_bdin;
 
 `ifdef SIMULATION
 wire flag_cs  = bus_cs && baddr==0;
