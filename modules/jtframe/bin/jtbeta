@@ -57,15 +57,12 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
-if [ -z "$DEFAULT_TARGET" ]; then
-    echo -e 'Compiling all targets. Define a subset with\nexport DEFAULT_TARGET="--target pocket,mister"'
-fi
-
-BETACORES="$*"
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 shift
 
-for CORE in $BETACORES; do
+for CORE in $*; do
+    if [ ${CORE:0:1} = - ]; then continue; fi
+    BETACORES="$BETACORES $CORE"
     if [ ! -d $CORES/$CORE ]; then
         echo "Unknown core $CORE"
         exit 1
@@ -134,8 +131,8 @@ else
 fi
 
 
-jtupdate $BETACORES --seed $DEFAULT_TARGET \
-    --beta $BETAKEY --corestamp $CORESTAMP $* --jobs $((`nproc`*8*10))\
+jtupdate $BETACORES --seed \
+    --beta $BETAKEY --corestamp $CORESTAMP $* \
 || exit $?
 
 echo -e "\n****** COMPILATION COMPLETE *********\n"
