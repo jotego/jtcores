@@ -347,7 +347,7 @@ jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
 
 jtframe_z80 u_subcpu(
     .rst_n    ( sub_rst_n      ),
-    .clk      ( clk          ),
+    .clk      ( clk            ),
     .cen      ( cen_sub        ),
     .wait_n   ( 1'b1           ),
     .int_n    ( sub_int_n      ),
