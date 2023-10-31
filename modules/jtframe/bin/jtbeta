@@ -57,14 +57,28 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
-CORE=$1
+BETACORES="$*"
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 shift
 
-if [ ! -d $CORES/$CORE ]; then
-    echo "Unknown core $CORE"
-    exit 1
-fi
+for CORE in $BETACORES; do
+    if [ ! -d $CORES/$CORE ]; then
+        echo "Unknown core $CORE"
+        exit 1
+    fi
+    # Check whether the patrons/msg file has been updated
+    if [ -e $CORES/$CORE/patrons/msg ]; then
+        MSGFILE=$CORES/$CORE/patrons/msg
+        for REV in $(git tag | grep beta_$CORE); do
+            if [ $(git diff $REV -- $MSGFILE|wc -l) = 0 ]; then
+                echo "The msg file $MSGFILE has not changed since tag $REV"
+                echo "Continue y/n?"
+                read CONT
+                if [ $CONT != y ]; then exit 1; fi
+            fi
+        done
+    fi
+done
 
 MASTER_COMMIT=$(git rev-parse master)
 if [ $? != 0 ]; then
@@ -93,18 +107,6 @@ EOF
     if [ $CONT = y ]; then rm -rf $JTROOT/release; fi
 fi
 
-# Check whether the patrons/msg file has been updated
-if [ -e $CORES/$CORE/patrons/msg ]; then
-    MSGFILE=$CORES/$CORE/patrons/msg
-    for REV in $(git tag | grep beta_$CORE); do
-        if [ $(git diff $REV -- $MSGFILE|wc -l) = 0 ]; then
-            echo "The msg file $MSGFILE has not changed since tag $REV"
-            echo "Continue y/n?"
-            read CONT
-            if [ $CONT != y ]; then exit 1; fi
-        fi
-    done
-fi
 
 # Beta keys are kept in $JTUTIL/.jtbeta
 if [ ! -s $JTUTIL/.jtbeta ]; then
@@ -128,14 +130,11 @@ else
 fi
 
 
-jtupdate --cores $CORE --seed $DEFAULT_TARGET \
-    --beta $BETAKEY --corestamp $CORESTAMP $* \
+jtupdate $BETACORES --seed $DEFAULT_TARGET \
+    --beta $BETAKEY --corestamp $CORESTAMP $* --jobs $((`nproc`*8*10))\
 || exit $?
 
 echo -e "\n****** COMPILATION COMPLETE *********\n"
-
-# keep track of beta keys
-echo "$CORE $CORESTAMP BETAKEY=$BETAKEY=0x$(printf %X $BETAKEY)" >> $JTUTIL/betakey.log
 
 # Tag both code and JTBIN repositories
 cd $JTROOT
@@ -153,16 +152,18 @@ git tag --force $TAG
 
 # Prepare the zip files
 echo "Creating zip files"
-cpbeta.sh $CORE
+cpbeta.sh
 
 echo "Adding the reference to JTBIN's wiki"
 cd $JTBIN/../jtbin.wiki
 git pull
-if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
-    ./addcore.sh $CORE
-    git commit -m "Added $CORE"
-    git push
-fi
+for CORE in $BETACORES; do
+    if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
+        ./addcore.sh $CORE
+        git commit -m "Added $CORE"
+        git push
+    fi
+done
 
 # Show problems
 BETALOG=$JTROOT/log/update.log
