@@ -57,6 +57,10 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
+if [ -z "$DEFAULT_TARGET" ]; then
+    echo -e 'Compiling all targets. Define a subset with\nexport DEFAULT_TARGET="--target pocket,mister"'
+fi
+
 BETACORES="$*"
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 shift
