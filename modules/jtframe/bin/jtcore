@@ -555,7 +555,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
         # Report connectivity problems
         AUX=`mktemp`
         grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
-        | grep -v "RST port on the PLL" \
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
