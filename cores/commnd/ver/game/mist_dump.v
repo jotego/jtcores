@@ -1,3 +1,21 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME. If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 20-8-2020 */
+
 `timescale 1ns/1ps
 
 module mist_dump(
@@ -9,35 +27,38 @@ module mist_dump(
 `ifdef DUMP
 `ifndef NCVERILOG // iVerilog:
     initial begin
-        // #(200*100*1000*1000);
-        $display("DUMP enabled");
-        $dumpfile("test.lxt");
-    end
-    `ifdef LOADROM
-    always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
-        $display("DUMP starts");
-        $dumpvars(0,mist_test.UUT.u_game.u_prom_we);
-        $dumpvars(0,mist_test.UUT.u_game.u_video);
-        $dumpvars(0,mist_test.UUT.u_game.u_video.u_colmix);
-        $dumpvars(0,mist_test.UUT.u_frame.u_board.u_sdram);
-        // $dumpvars(0,mist_test);
-        $dumpon;
-    end
-    `else
-        `ifdef DUMP_START
-        always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
+        `ifdef IVERILOG
+            $dumpfile("test.lxt");
         `else
-            initial begin
+            $dumpfile("test.vcd");
         `endif
-            $display("DUMP starts");
-            `ifdef DEEPDUMP
-                $dumpvars(0,mist_test);
-            `else
+    end
+`ifdef DUMP_START
+    initial $display("Dumping will start at frame %0d", `DUMP_START);
+    always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
+`else
+    initial begin
+`endif
+        `ifdef DEEPDUMP
+            $display("Dumping all signals");
+            $dumpvars(0,mist_test);
+        `else
+            $display("Dumping selected signals");
+            `ifndef NOMAIN
                 $dumpvars(1,mist_test.UUT.u_game.u_main);
             `endif
-            $dumpon;
-        end
-    `endif
+            `ifndef NOSOUND
+                $dumpvars(1,mist_test.UUT.u_game.u_sound);
+            `endif
+            $dumpvars(1,mist_test.UUT.u_game.u_sdram);
+            $dumpvars(1,mist_test.UUT.u_game.u_sdram.u_dwnld);
+            `ifndef NOVIDEO
+                $dumpvars(1,mist_test.UUT.u_game.u_video);
+            `endif
+            $dumpvars(1,mist_test.frame_cnt);
+        `endif
+        $dumpon;
+    end
 `else // NCVERILOG
     `ifdef DUMP_START
     always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
@@ -51,11 +72,12 @@ module mist_dump(
         `else
             $display("NC Verilog: will dump selected signals");
             $shm_probe(frame_cnt);
-            $shm_probe(UUT.u_game.u_sound,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fm0,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fm1,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_mmr,"AS");
-            $shm_probe(UUT.u_game.u_sound.u_fm1.u_jt12.u_mmr,"AS");
+            $shm_probe(UUT.u_game,"A");
+            $shm_probe(UUT.u_game.u_main,"A");
+            $shm_probe(UUT.u_game.u_sdram,"A");
+            $shm_probe(UUT.u_game.u_sdram.u_dwnld,"A");
+            // $shm_probe(UUT.u_game.u_sound,"A");
+            // $shm_probe(UUT.u_game.u_video,"A");
         `endif
     end
 `endif
