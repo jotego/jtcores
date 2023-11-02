@@ -972,12 +972,3 @@ func interleave_group( reg string,
 		k += rom_cnt
 	}
 }
-
-// The MRA tool shortens ROM file names to 8 characters
-// We need to match that
-func shorten_name(name string) string {
-	if len(name) <= 8 {
-		return name
-	}
-	return name[0:5] + name[len(name)-3:]
-}
