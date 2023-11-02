@@ -264,7 +264,8 @@ public:
         full_download = download; // At least the first 32 bytes will always be downloaded
         if( !full_download ) {
             if ( len > 32 ) {
-                fputs("ROM download shortened to 32 bytes\n",stderr);
+                fputs("ROM download shortened to 32 bytes.\n",stderr);
+                if( nvram ) fputs("Warning: skipping transfer of nvram.bin.\n",stderr);
                 len=32;
             } else {
                 fputs("Short ROM download\n",stderr);
