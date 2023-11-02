@@ -74,6 +74,12 @@ bits 3:2=2  | Show blank region stats
 
 By pressing SHIFT+CTRL again, the core displays an 8-bit signal defined by the JTFRAME target subsystem. This information is shown in blue. The MiSTer target uses this feature to show the status of the [line-frame buffer](../hdl/video/jtframe_lfbuf_ddr_ctrl.v).
 
+### MiST Target Info
+
+Fixed information with MiST base module internal status. The eight bits correspond to:
+
+`{ osd_shown, 1'b0, osd_rotate[1:0], 1'b0, no_csync, ypbpr, scan2x_enb }`
+
 ## Generic SDRAM Dump
 
 The SDRAM bank0 can be partially shadowed in BRAM and download as NVRAM via the NVRAM interface. This requires the macros JTFRAME_SHADOW and JTFRAME_SHADOW_LEN to be defined. The MRA file should also enable NVRAM with a statement such as:

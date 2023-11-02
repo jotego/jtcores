@@ -167,7 +167,7 @@ wire  [15:0]  board_left, board_right;
 wire  [ 8:0]  bd_mouse_dx, bd_mouse_dy;
 wire          bd_mouse_st, bd_mouse_idx;
 wire  [ 7:0]  bd_mouse_f;
-wire  [ 7:0]  ioctl_merged;
+wire  [ 7:0]  ioctl_merged, mist_view;
 
 
 assign paddle_3 = 0;
@@ -275,7 +275,10 @@ jtframe_mist_base #(
     .ioctl_wr       ( ioctl_wr      ),
     .ioctl_ram      ( ioctl_ram     ),
     .ioctl_cheat    ( ioctl_cheat   ),
-    .ioctl_rom      ( ioctl_rom     )
+    .ioctl_rom      ( ioctl_rom     ),
+    // Debug
+    .debug_bus      ( debug_bus     ),
+    .debug_view     ( mist_view     )
 );
 
 jtframe_board #(
@@ -424,7 +427,7 @@ jtframe_board #(
     .ioctl_addr ( ioctl_addr[12:0]  ),
     .st_addr    ( st_addr           ),
     .st_dout    ( st_dout           ),
-    .target_info( 8'h00             ),
+    .target_info( mist_view         ),
 
     // input data recording
     .ioctl_din      ( ioctl_din       ),

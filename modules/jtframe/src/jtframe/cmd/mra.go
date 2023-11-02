@@ -183,6 +183,7 @@ func init() {
 	flag.BoolVar(&clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
 	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
+	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar(&mra_args.SkipPocket, "skipPocket", false, "Do not generate JSON files for the Pocket")
 	flag.BoolVar(&mra_args.Beta, "beta", false, "Generates the files for a beta core")

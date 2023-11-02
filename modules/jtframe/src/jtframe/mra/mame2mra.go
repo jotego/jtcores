@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,7 @@ func (this *StartNode) add_length(pos int) {
 }
 
 func Run(args Args) {
+	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
 	mra_cfg := parse_toml(&args) // macros become part of args
@@ -170,6 +172,12 @@ func dump_setnames( corefolder string, sn []string ) {
 }
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
+	if args.MainOnly && machine.Cloneof!="" && !slices.Contains( mra_cfg.Parse.Main_setnames, machine.Name ){
+		if args.Verbose {
+			fmt.Println("Skipping ", machine.Description, "for it is not the main version of the game")
+		}
+		return true
+	}
 	if mra_cfg.Parse.Skip.Bootlegs &&
 		strings.Index(
 			strings.ToLower(machine.Description), "bootleg") != -1 {

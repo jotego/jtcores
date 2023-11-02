@@ -16,7 +16,7 @@ type Args struct {
     SkipROM, Md5                 bool // By skipping the ROM generation,
         // the md5 will be set to None, unless Md5 is true
     Show_platform                bool
-    Beta                         bool
+    Beta,MainOnly                bool
     JTbin                        bool // copy to JTbin & disable debug features
     Author, URL                  string
     // private

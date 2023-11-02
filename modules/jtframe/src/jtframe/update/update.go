@@ -23,7 +23,7 @@ type Config struct {
 	Git, Nohdmi   		  bool
 	Nosnd, Actions, Seed  bool
 	Private,  Nodbg  		bool
-	Skip, SkipROM				bool
+	Skip, SkipROM, MainOnly	bool
 	Group, extra 		  	string
 	Beta, Stamp, Defs   string
 	cores               []string
@@ -210,6 +210,9 @@ func dump_output(cfg Config) {
 	}
 	if cfg.SkipROM { // skips ROM saving, but calculates MD5 anyway
 		mra_str += " --skipROM --md5"
+	}
+	if cfg.MainOnly {
+		mra_str += " --mainonly"
 	}
 	mra_str += "\n"
 	sch_str += "\n"
