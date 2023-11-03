@@ -62,8 +62,7 @@ module jtframe_m68k(
     output [2:0] FC
 );
 
-`ifdef VERILATOR_KEEP_68K /* verilator tracing_on  */
-                  `else   /* verilator tracing_off */ `endif
+`ifndef VERILATOR_KEEP_CPU /* verilator tracing_off  */ `endif
 `ifdef JTFRAME_J68
 jtframe_j68 u_cpu(
     .clk        ( clk         ),
