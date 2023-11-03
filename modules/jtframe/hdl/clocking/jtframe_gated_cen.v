@@ -40,17 +40,19 @@ module jtframe_gated_cen #( parameter
     output     [ 15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
+localparam NUM2 = NUM<<1;
+
 // reg  [ W-1:0] pre;
 wire          over;
 wire [  CW:0] cencnt_nx, sum;
 reg  [CW-1:0] cencnt=0;
-reg  [ W-1:0] toggle=0;
+reg  [ W-1:0] toggle=0, toggle_l=0;
 reg           blank=0;
 wire          cnt_en = !busy || rst;
 integer       i;
 
-assign over      = !blank && cencnt > DEN[CW-1:0]-NUM[CW-1:0];
-assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
+assign over      = !blank && cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
+assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
 
 always @(posedge clk) begin
     blank <= 0;
@@ -58,10 +60,8 @@ always @(posedge clk) begin
     if( over && cnt_en ) begin
         blank <= 1;
         toggle <= toggle + 1'd1;
-        cen[0] <= 1;
-        for( i=1; i<W; i=i+1 ) begin
-            cen[i] <= (toggle&((1<<i)-1))==(1<<i)-1;
-        end
+        toggle_l <= toggle;
+        cen <= toggle & ~toggle_l;
     end else begin
         cen <= 0;
     end
