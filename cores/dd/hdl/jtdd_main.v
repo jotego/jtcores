@@ -76,6 +76,8 @@ module jtdd_main(
     input  [7:0]       dipsw_b
 );
 
+parameter CENDIV=1; // dd2 sets it to zero
+
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg io_cs, ram_cs, misc_cs, banked_cs;
@@ -225,12 +227,12 @@ always @(*) begin // do not register
     case( 1'b1 )
         ram_cs    : cpu_din = ram_dout;
         cram_cs   : cpu_din = char_dout;
-        vram_cs    : cpu_din = scr_dout;
+        vram_cs   : cpu_din = scr_dout;
         rom_cs    : cpu_din = rom_data;
         banked_cs : cpu_din = rom_data;
         io_cs     : cpu_din = cabinet_input;
         pal_cs    : cpu_din = pal_dout;
-        oram_cs    : cpu_din = obj_dout;
+        oram_cs   : cpu_din = obj_dout;
         com_cs    : cpu_din = mcu_ram;
         default   : cpu_din = 8'hff;
     endcase
@@ -267,7 +269,7 @@ jtframe_ff #(.W(3)) u_irq(
 );
 
 // RECOVERY does not seem to have an effect on DD2 hanging up
-jtframe_sys6809 #(.RAM_AW(13),.RECOVERY(1)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(13),.CENDIV(CENDIV)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen12     ),   // This is normally the input clock to the CPU

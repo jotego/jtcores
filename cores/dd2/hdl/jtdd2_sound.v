@@ -26,6 +26,10 @@ module jtdd2_sound(
     input           clk,
     input           rst,
     input           H8,
+    input           cen_snd,
+    input           cen_fm,
+    input           cen_fm2,
+    input           cen_oki,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -56,7 +60,6 @@ reg ram_cs, latch_cs, oki_cs, fm_cs;
 wire oki_wrn = oki_cs & ~wr_n;
 assign rom_addr = A[14:0];
 
-wire cen_fm, cen_fm2, cen_oki;
 wire mreq_n;
 
 localparam [7:0] FMGAIN  = 8'h10,
@@ -123,10 +126,10 @@ jtframe_ff u_ff(
     .sigedge  ( snd_irq     ) // signal whose edge will trigger the FF
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst          ),
     .clk        ( clk           ),
-    .cen        ( cen_fm        ),
+    .cen        ( cen_snd       ),
     .cpu_cen    (               ),
     .int_n      ( int_n         ),
     .nmi_n      ( nmi_n         ),
@@ -146,22 +149,6 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .ram_cs     ( ram_cs        ),
     .rom_cs     ( rom_cs        ),
     .rom_ok     ( rom_ok        )
-);
-
-jtframe_cen3p57 u_fmcen(
-    .clk        (  clk       ),       // 48 MHz
-    .cen_3p57   (  cen_fm    ),
-    .cen_1p78   (  cen_fm2   )
-);
-
-wire nc;
-
-jtframe_frac_cen u_cen_oki(
-    .clk        (  clk       ),       // 48 MHz
-    .n          ( 10'd11     ),
-    .m          ( 10'd500    ),
-    .cen        ( {nc, cen_oki}    ),
-    .cenb       (            )
 );
 
 jt51 u_jt51(
