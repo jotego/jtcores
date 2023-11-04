@@ -11,9 +11,7 @@ RUN apt install -yq ftp figlet xmlstarlet flex
 RUN apt install -yq python python3-pip && pip install pypng
 
 # Go
-RUN curl -LO https://go.dev/dl/go1.19.6.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go1.19.6.linux-amd64.tar.gz
-RUN rm -f go1.19.6.linux-amd64.tar.gz
+RUN GONAME=go1.21.3.linux-amd64.tar.gz; curl -LO https://go.dev/dl/$GONAME && tar -C /usr/local -xzf $GONAME && rm -f $GONAME
 RUN echo export PATH=\$PATH:/usr/local/go/bin >> $HOME/.bashrc
 
 # iverilog compilation
