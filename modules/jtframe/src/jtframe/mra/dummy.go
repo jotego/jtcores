@@ -25,3 +25,7 @@ func pocket_save() {
 func pocket_pico( data []byte ) {
 	// Does nothing
 }
+
+func pocket_clear() {
+	// Does nothing
+}
