@@ -26,5 +26,14 @@ RUN cd /tmp; git clone https://github.com/jotego/asl.git; cd asl; make -j; cp al
 # JT core environment
 RUN mkdir /jtbin; echo export JTBIN=/jtbin >> $HOME/.bashrc
 
+# Locales
+RUN apt install locales locales-all
+RUN locale-gen en_US.UTF-8
+RUN echo LC_ALL=en_US.UTF-8 >> /etc/environment
+RUN echo LANG=en_US.UTF-8 >> /etc/environment
+
+# Needed by Quartus 17
+RUN apt-get install -y libglib2.0-0
+
 
 ENTRYPOINT ["bash"]

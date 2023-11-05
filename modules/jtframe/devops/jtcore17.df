@@ -4,5 +4,4 @@ LABEL maintainer=jotego@gmail.com
 COPY 17.1 /opt/intelFPGA_lite/17.1
 ENV PATH $PATH:/opt/intelFPGA_lite/17.1/quartus/bin
 
-RUN apt-get install -y libglib2.0-0
 ENTRYPOINT ["bash"]

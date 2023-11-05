@@ -1,11 +1,6 @@
 FROM jotego/jtcore17
 LABEL maintainer=jotego@gmail.com
 
-RUN apt install locales locales-all
-RUN locale-gen en_US.UTF-8
-RUN echo LC_ALL=en_US.UTF-8 >> /etc/environment
-RUN echo LANG=en_US.UTF-8 >> /etc/environment
-
 COPY xjtcore.sh /usr/bin
 RUN chmod +x /usr/bin/xjtcore.sh
 ENTRYPOINT ["bash"]
