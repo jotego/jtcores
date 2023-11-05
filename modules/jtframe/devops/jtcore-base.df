@@ -28,6 +28,7 @@ RUN cd /tmp; git clone https://github.com/jotego/asl.git; cd asl; make -j; cp al
 RUN mkdir /jtbin; echo export JTBIN=/jtbin >> $HOME/.bashrc
 
 # Locales
+RUN apt update
 RUN apt install locales locales-all
 RUN locale-gen en_US.UTF-8
 RUN echo LC_ALL=en_US.UTF-8 >> /etc/environment
