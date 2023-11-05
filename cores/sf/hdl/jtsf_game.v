@@ -256,7 +256,7 @@ wire        prom_we, prog_obj;
 reg         mcu_en, mcu_lock;
 
 // Optimize cache use for object ROMs
-assign prog_obj  = ioctl_addr>=OBJ_START;
+assign prog_obj  = ioctl_addr[24:0]>=OBJ_START;
 assign prog_addr = prog_obj ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
@@ -600,7 +600,7 @@ jtframe_ram1_2slots #(
     .slot0_ok    ( ram_ok        ),
     .slot1_ok    ( main_ok       ),
 
-    .slot0_offset( RAM_OFFSET    ),
+    .slot0_offset( RAM_OFFSET[21:0]),
 
     .slot0_din   ( ram_din       ),
     .slot0_wrmask( ram_dsn       ),

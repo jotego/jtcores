@@ -6,7 +6,7 @@ shift
 if [ -z "$CORE" ]; then echo "Missing core name"; exit 1; fi
 if [ ! -d "$CORES/$CORE" ]; then echo "No core named $CORE in $CORES"; exit 1; fi
 
-jtframe mra $CORE
+jtframe mra --mainonly $CORE
 SETNAMES=`cat $CORES/$CORE/ver/setnames.txt`
 
 if [ -z "$SETNAMES" ]; then
