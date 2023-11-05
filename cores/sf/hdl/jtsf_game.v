@@ -136,7 +136,7 @@ localparam [24:0] MAIN_OFFSET = 25'h0,
                   SCR1_OFFSET = 25'h0,
                   SCR2_OFFSET = 25'h10_0000 >> 1,
                   OBJ_START   = 25'h26_C000,
-                  OBJ_OFFSET  = 22'h18_0000 >> 1,
+                  OBJ_OFFSET  = 25'h18_0000 >> 1,
                   PROM_START  = 25'h42_C000;
 
 wire [ 8:0] V;
