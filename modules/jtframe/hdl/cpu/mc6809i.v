@@ -39,6 +39,7 @@
 
 /* verilator lint_off CASEX */
 /* verilator lint_off UNOPTFLAT */
+/* verilator lint_off SIDEEFFECT */
 /* verilator tracing_off */
 
 module mc6809i
@@ -4199,3 +4200,4 @@ endmodule
 
 /* verilator lint_on CASEX */
 /* verilator lint_on UNOPTFLAT */
+/* verilator lint_on SIDEEFFECT */
