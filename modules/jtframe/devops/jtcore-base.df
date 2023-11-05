@@ -5,14 +5,15 @@ RUN apt update
 RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 RUN apt install -yq git curl gawk
 RUN apt install -yq ca-certificates libgnutls30
-RUN apt install -yq ftp figlet xmlstarlet flex rsync
+RUN apt install -yq ftp figlet xmlstarlet flex
+RUN apt install -yq rsync
 
 # Python
 RUN apt install -yq python python3-pip && pip install pypng
 
 # Go
 RUN GONAME=go1.21.3.linux-amd64.tar.gz; curl -LO https://go.dev/dl/$GONAME && tar -C /usr/local -xzf $GONAME && rm -f $GONAME
-RUN ENV PATH="$PATH:/usr/local/go/bin"
+ENV PATH="$PATH:/usr/local/go/bin"
 
 # iverilog compilation
 RUN apt install -yq --install-suggests build-essential git zlib1g-dev
