@@ -20,12 +20,14 @@
 
 
 module jt1942_main(
+    input              rst,
     input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
-    input              rst,
-    output             [7:0] cpu_dout,
+
+    input        [1:0] game_id,
+    output       [7:0] cpu_dout,
     output  reg        flip,
     input   [7:0]      V,
     input              LHBL,
@@ -75,7 +77,8 @@ module jt1942_main(
     input    [3:0]     prog_din
 );
 
-parameter VULGUS=1'b0;
+localparam [1:0] VULGUS=2'b1;
+
 `ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout, irq_vector;
@@ -143,7 +146,7 @@ always @(posedge clk, posedge rst) begin
         scr_vpos <= 0;
         scr_hpos <= 0;
     end else if(cpu_cen && scrpos_cs) begin
-        if( VULGUS ) begin
+        if( game_id==VULGUS ) begin
             case( {A[8], A[0]} )
                 2'b00: scr_vpos[7:0] <= cpu_dout;
                 2'b01: scr_hpos[7:0] <= cpu_dout;
@@ -172,7 +175,7 @@ always @(posedge clk)
     end
     else if(cen3) begin
         if( bank_cs  ) begin
-            bank   <= VULGUS ? 2'd0 : cpu_dout[1:0];
+            bank   <= game_id==VULGUS ? 2'd0 : cpu_dout[1:0];
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin

@@ -67,7 +67,7 @@ extra_loop:
 			break
 		}
 		if args.Verbose {
-			fmt.Print("Found ", machine.Name)
+			fmt.Print("#####################\n#####################\nFound", machine.Name)
 			if machine.Cloneof != "" {
 				fmt.Printf(" (%s)", machine.Cloneof)
 			}
@@ -91,8 +91,8 @@ extra_loop:
 		}
 		for _, reg := range mra_cfg.ROM.Regions {
 			for k, r := range machine.Rom {
-				if r.Region == reg.Rename && reg.Rename != "" {
-					machine.Rom[k].Region = reg.Name
+				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
+					machine.Rom[k].Region = reg.Rename
 				}
 			}
 		}
@@ -692,7 +692,7 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 	for _, dev := range machine.Devices {
 		if strings.Contains(dev.Name, "fd1089") {
-			reg_cfg := find_region_cfg(machine, "fd1089", cfg)
+			reg_cfg := find_region_cfg(machine, "fd1089", cfg, true)
 			if delta := fill_upto(pos, reg_cfg.start, root); delta < 0 {
 				fmt.Printf(
 					"\tstart offset overcome by 0x%X while adding FD1089 LUT\n", -delta)
@@ -830,6 +830,11 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 				os.Exit(1)
 			}
 			this.start = int(aux)
+			if args.Verbose {
+				fmt.Printf("Start in .ROM set to %X for region %s",this.start, this.Name)
+				if this.Rename!="" { fmt.Printf(" (%s)",this.Rename)}
+				fmt.Println()
+			}
 		}
 		if  this.Sort_even ||
 			this.Singleton || len(this.Ext_sort) > 0 ||

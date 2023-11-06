@@ -25,6 +25,7 @@ module jt1942_obj(
     input              cen6,    //  6 MHz
     input              cen3,    //  3 MHz
     input              cpu_cen,
+    input       [1:0]  game_id,
     // screen
     input              HINIT,
     input              LHBL,
@@ -58,8 +59,7 @@ module jt1942_obj(
 `endif
 );
 
-parameter PXL_DLY = 7,
-          LAYOUT  = 0; // 0=1942, 1=Vulgus, 2=Higemaru
+parameter PXL_DLY = 7;
 
 
 wire line, fill, line_obj_we;
@@ -70,10 +70,11 @@ wire [4:0] objcnt;
 wire       pxlcnt_lsb;
 wire       over;
 
-jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
+jt1942_objtiming u_timing(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen6        ( cen6          ),    //  6 MHz
+    .game_id     ( game_id       ),
     // screen
     .LHBL        ( LHBL_eff      ),
     .HINIT       ( HINIT         ),
@@ -130,10 +131,11 @@ wire [3:0] new_pxl;
 `endif
 
 // draw the sprite
-jt1942_objdraw #(.LAYOUT(LAYOUT)) u_draw(
+jt1942_objdraw u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
+    .game_id        ( game_id       ),
     // screen
     .V              ( V_eff         ),
     .H              ( H             ),

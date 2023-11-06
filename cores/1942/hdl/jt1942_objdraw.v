@@ -20,6 +20,7 @@ module jt1942_objdraw(
     input              rst,
     input              clk,     //
     input              cen6,    //  6 MHz
+    input       [1:0]  game_id,
     // screen
     input              flip,
     input       [7:0]  V,
@@ -33,7 +34,7 @@ module jt1942_objdraw(
     input       [7:0]  objbuf_data2,
     input       [7:0]  objbuf_data3,
     // SDRAM interface
-    output      [14:0] obj_addr,
+    output reg  [14:0] obj_addr,
     input       [15:0] obj_data,
     input              obj_ok,
     // Palette PROM
@@ -45,7 +46,8 @@ module jt1942_objdraw(
     output reg  [3:0]  new_pxl
 );
 
-parameter LAYOUT = 0; // 0=1942, 1=Vulgus, 2=Higemaru
+localparam [1:0] VULGUS   = 2'd1,
+                 HIGEMARU = 2'd2;
 
 reg [3:0] CD; // colour data
 reg [7:0] V2C;
@@ -55,13 +57,15 @@ reg VINZONE;
 reg [1:0] vlen;
 reg VINcmp, VINlen, Veq, Vlt; // Vgt;
 
+reg  hige, vulgus;
+
 // signal aliases
 wire [7:0] next_AD    = objbuf_data0;
 wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
-wire       next_hover = LAYOUT==2 ? 1'b0: objbuf_data1[4];
-wire       next_hflip = LAYOUT==2 && objbuf_data1[4];
-wire       next_vflip = LAYOUT==2 && objbuf_data1[5];
+wire       next_hover = hige ? 1'b0: objbuf_data1[4];
+wire       next_hflip = hige && objbuf_data1[4];
+wire       next_vflip = hige && objbuf_data1[5];
 wire [3:0] next_CD    = objbuf_data1[3:0];
 wire [7:0] objy       = objbuf_data2;
 wire [8:0] objx       = { next_hover, objbuf_data3 };
@@ -71,13 +75,18 @@ wire [7:0] VBETA = ~LVBETA;
 
 reg        hflip;
 
+always @(posedge clk) begin
+    hige   <= game_id==HIGEMARU;
+    vulgus <= game_id==VULGUS;
+end
+
 always @(*) begin
     // comparison side of VINZONE
     // Vgt = VBETA  > ~objy;
     Veq = VBETA == ~objy;
     Vlt = VBETA  < ~objy;
     VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
-    if( LAYOUT != 2 ) begin
+    if( !hige ) begin
         case( next_vlen )
             2'b00: VINlen = &LVBETA[7:4]; // 16 lines
             2'b01: VINlen = &LVBETA[7:5]; // 32 lines
@@ -100,12 +109,12 @@ localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 always @(posedge clk) begin
     V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
     if( bufcnt==4'h9 ) begin // set new address
-        case( LAYOUT )
-            0: pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
-            1: pre_addr[14:10] <= {1'b0, next_AD[7:4]};
-            2: pre_addr[14:10] <= {2'b0, next_AD[6:4]};
+        case( game_id )
+            VULGUS:   pre_addr[14:10] <= {1'b0, next_AD[7:4]};
+            HIGEMARU: pre_addr[14:10] <= {2'b0, next_AD[6:4]};
+            default:  pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
         endcase
-        if( LAYOUT!=2 ) begin
+        if( !hige ) begin
             case( next_vlen )
                 2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
                 2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
@@ -122,21 +131,13 @@ always @(posedge clk) begin
     end
 end
 
-// assign obj_addr[14:6] = pre_addr[14:6];
-// assign obj_addr[ 4:1] = pre_addr[ 4:1];
 reg [1:0] hcnt; // read order 2,3,0,1
 
-generate
-    if( LAYOUT == 2 ) begin : original_addr
-        assign obj_addr = { pre_addr[14:6], hcnt[1]^hflip, pre_addr[4:1], hcnt[0]^hflip };
-    end else begin : cache_addr
-        assign obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
-        assign obj_addr[1:0] = hcnt;
-    end
-endgenerate
-
-
-//assign { obj_addr[5], obj_addr[0] } = hcnt;
+always @* begin
+    obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
+    obj_addr[1:0] = hcnt;
+    if(hige) obj_addr = { pre_addr[14:6], hcnt[1]^hflip, pre_addr[4:1], hcnt[0]^hflip };
+end
 
 // ROM data depacking
 
@@ -176,10 +177,10 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    case( LAYOUT )
-        0: obj_wxyz = {w[3],x[3],y[3],z[3]};
-        1: obj_wxyz = {y[3],z[3],w[3],x[3]};
-        2: obj_wxyz = hflip ? {y[0],z[0],w[0],x[0]} : {y[3],z[3],w[3],x[3]};
+    case( game_id )
+        VULGUS:   obj_wxyz = {y[3],z[3],w[3],x[3]};
+        HIGEMARU: obj_wxyz = hflip ? {y[0],z[0],w[0],x[0]} : {y[3],z[3],w[3],x[3]};
+        default : obj_wxyz = {w[3],x[3],y[3],z[3]};
     endcase
 end
 
@@ -189,7 +190,7 @@ always @(posedge clk ) begin
     if(draw[0]) posx2 <= posx1;
     if(draw[1]) begin
         new_pxl <= prom_dout;
-        posx    <= LAYOUT==2 ? { 1'b0, posx2[7:0]} : posx2; // Higemaru's OBJ wrap around
+        posx    <= hige ? { 1'b0, posx2[7:0]} : posx2; // Higemaru's OBJ wrap around
     end else begin
         new_pxl <= 4'hf;
         posx    <= 9'h100;

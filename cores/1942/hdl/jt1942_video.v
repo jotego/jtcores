@@ -22,6 +22,9 @@ module jt1942_video(
     input               cen6,
     input               cen3,
     input               cpu_cen,
+
+    input       [ 1:0]  game_id,
+
     input       [10:0]  cpu_AB,
     output      [ 8:0]  V,
     output      [ 8:0]  H,
@@ -75,17 +78,15 @@ module jt1942_video(
     input       [3:0]   gfx_en
 );
 
-`ifdef VULGUS
-localparam VULGUS = 1'b1;
-`else
-localparam VULGUS = 1'b0;
-`endif
-
+localparam [1:0] VULGUS  = 2'b1;
 localparam COFFSET = 9'd5;
 localparam SOFFSET = 9'd5;
 
 wire [3:0] char_pxl, obj_pxl;
 wire       preLHBL, preLVBL, LHBL_obj, HINIT;
+reg        vulgus;
+
+always @(posedge clk ) vulgus <= game_id==VULGUS;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -144,16 +145,8 @@ wire [2:0] scr_col;
 wire [4:0] scr_pal;
 reg  [5:0] scr_pxl;
 
-// As scr_AB width differs depending on VULGUS
-// I think it is more clear to use `ifdef rather
-// than generate here.
-`ifdef VULGUS
-wire [9:0] scr_AB = cpu_AB[9:0];
-wire       scr_sel= cpu_AB[10];
-`else // 1942
-wire [8:0] scr_AB = { cpu_AB[9:5], cpu_AB[3:0] };
-wire       scr_sel= cpu_AB[4];
-`endif
+wire [9:0] scr_AB = vulgus ? cpu_AB[9:0] : {cpu_AB[9:5], 1'b0, cpu_AB[3:0]};
+wire       scr_sel= vulgus ? cpu_AB[10] : cpu_AB[4];
 
 jtgng_scroll #(
     .HOFFSET ( SOFFSET ),
@@ -163,7 +156,7 @@ jtgng_scroll #(
     .VFLIP   ( 6       ),
     .HFLIP   ( 5       ),
     .PALW    ( 5       ),
-    .SCANW   ( VULGUS ? 10 : 9 )
+    .SCANW   ( 10      ) // only 9 for 1942
 ) u_scroll (
     .clk          ( clk           ),
     .pxl_cen      ( cen6          ),
@@ -230,7 +223,7 @@ jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-4.d6")) u_prom_d6(
 reg [3:0] pre_scr_pxl;
 always @(*) begin
     pre_scr_pxl = scr_pal_addr[3:0];
-    scr_pxl     = VULGUS ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
+    scr_pxl     = vulgus ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
 end
 `else
 initial $display("INFO: scroll simulation omitted.");
@@ -241,12 +234,13 @@ assign scr_addr  = 14'd0;
 assign scr_pxl   = ~6'h0;
 `endif
 
-jt1942_obj #(.PXL_DLY(4),.LAYOUT( {1'b0,VULGUS} )) u_obj(
+jt1942_obj #(.PXL_DLY(4)) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),
     .cen3           ( cen3      ),
     .cpu_cen        ( cpu_cen   ),
+    .game_id        ( game_id   ),
     // screen
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
@@ -271,11 +265,11 @@ jt1942_obj #(.PXL_DLY(4),.LAYOUT( {1'b0,VULGUS} )) u_obj(
     .obj_pxl        ( obj_pxl   )
 );
 
-`ifndef NOCOLMIX
-jt1942_colmix #(.VULGUS(VULGUS)) u_colmix (
+jt1942_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .game_id    ( game_id       ),
     .preLHBL    ( preLHBL       ),
     .preLVBL    ( preLVBL       ),
     .LVBL       ( LVBL          ),
@@ -299,10 +293,5 @@ jt1942_colmix #(.VULGUS(VULGUS)) u_colmix (
     .green      ( green         ),
     .blue       ( blue          )
 );
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
-`endif
 
 endmodule

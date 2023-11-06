@@ -24,6 +24,7 @@ module jt1942_colmix(
     input           rst,
     input           clk,    // 24 MHz
     input           cen6 /* synthesis direct_enable = 1 */,
+    input [1:0]     game_id,
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr_pxl,
@@ -47,8 +48,8 @@ module jt1942_colmix(
     input      [3:0] gfx_en
 );
 
-parameter VULGUS=1'b0;
-localparam BLANK_DLY = 2;
+localparam [1:0] VULGUS    = 2'b1;
+localparam       BLANK_DLY = 2;
 
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
@@ -57,19 +58,22 @@ reg [7:0] pixel_mux;
 
 wire char_blank_b = |(~char_pxl);
 wire obj_blank_b  = |(~obj_pxl);
+reg        vulgus;
+
+always @(posedge clk ) vulgus <= game_id==VULGUS;
 
 always @(*) begin
     if( !char_blank_b || !gfx_en[0] ) begin
         // Object or scroll
         if( !obj_blank_b || !gfx_en[3])
-            pixel_mux[5:0] = gfx_en[2]?(VULGUS?{2'b0, scr_pxl[3:0]}:scr_pxl) : ~6'h0; // scroll wins
+            pixel_mux[5:0] = gfx_en[2]?(vulgus?{2'b0, scr_pxl[3:0]}:scr_pxl) : ~6'h0; // scroll wins
         else
-            pixel_mux[5:0] = {1'b0, VULGUS, obj_pxl }; // object wins
+            pixel_mux[5:0] = {1'b0, vulgus, obj_pxl }; // object wins
     end
     else begin // characters
-        pixel_mux[5:0] = { VULGUS, 1'b0, char_pxl };
+        pixel_mux[5:0] = { vulgus, 1'b0, char_pxl };
     end
-    pixel_mux[7:6] = VULGUS ? scr_pxl[5:4] : { char_blank_b, obj_blank_b };
+    pixel_mux[7:6] = vulgus ? scr_pxl[5:4] : { char_blank_b, obj_blank_b };
 end
 
 wire [ 3:0] pre_r, pre_g, pre_b;

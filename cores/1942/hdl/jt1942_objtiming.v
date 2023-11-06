@@ -24,6 +24,7 @@ module jt1942_objtiming(
     input              rst,
     input              clk,
     input              cen6,    //  6 MHz
+    input        [1:0] game_id,
     // screen
     input   [7:0]      V,
     input   [8:0]      H,
@@ -39,9 +40,6 @@ module jt1942_objtiming(
     output reg         over
 );
 
-parameter LAYOUT=0;
-localparam VULGUS=LAYOUT!=0;
-
 reg last_LHBL, okdly;
 wire rom_good = obj_ok & okdly;
 wire posedge_LHBL = LHBL && !last_LHBL;
@@ -55,7 +53,7 @@ reg [4:0] auxcnt;
 // correctly
 always @(*) begin
     objcnt = auxcnt;
-    if( (V[7]^flip) && auxcnt> 'hf && LAYOUT==0)
+    if( (V[7]^flip) && auxcnt> 'hf && game_id==0)
         objcnt[3] = objcnt[3]^1;
 end
 
@@ -75,13 +73,8 @@ always @(posedge clk) begin
             {pxlcnt, pxlcnt_lsb} <= {pxlcnt,pxlcnt_lsb}+5'd1;
             if( &{pxlcnt,pxlcnt_lsb} ) begin
                 bufcnt <= 4'd0;
-                //if( VULGUS ) begin
-                    over   <= auxcnt == 5'h17;
-                    auxcnt <= auxcnt + 5'h1;
-                //end else begin // 1942
-                //    auxcnt <= auxcnt+5'h1;
-                //    over   <= auxcnt == 5'h1f;
-                //end
+                over   <= auxcnt == 5'h17;
+                auxcnt <= auxcnt + 5'h1;
             end
         end
         else if(!rom_good) pxlcnt_lsb <= 1'b0;
