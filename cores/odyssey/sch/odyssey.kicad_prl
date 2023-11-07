@@ -75,14 +75,14 @@
     "files": [
       {
         "name": "odyssey.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 2034,
+          "pos_x": 0,
           "pos_y": 28,
-          "size_x": 980,
-          "size_y": 893
+          "size_x": 960,
+          "size_y": 1024
         }
       }
     ]
