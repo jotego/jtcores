@@ -1,7 +1,7 @@
 {
   "board": {
-    "active_layer": 0,
-    "active_layer_preset": "",
+    "active_layer": 31,
+    "active_layer_preset": "All Layers",
     "auto_track_width": true,
     "hidden_netclasses": [],
     "hidden_nets": [],
@@ -83,6 +83,18 @@
           "pos_y": 28,
           "size_x": 960,
           "size_y": 1024
+        }
+      },
+      {
+        "name": "odyssey.kicad_pcb",
+        "open": true,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 36,
+          "pos_y": -1,
+          "size_x": 1848,
+          "size_y": 1053
         }
       }
     ]
