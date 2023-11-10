@@ -227,12 +227,14 @@ always @(posedge clk, negedge t80_rst_n) begin
 `endif
     end else if(cpu_cen && scrpos_cs) begin
         if( !A[2] ) begin // redundant for GAME==1
-            scr2_hpos <= 0; // prevents Quartus warning
-            scr1_pal  <= 0;
-            scr2_pal  <= 0;
-            scr1_on   <= 0;
-            scr2_on   <= 0;
-            obj_on    <= 0;
+            if( GAME!=EXEDEXES ) begin
+                scr2_hpos <= 0; // prevents Quartus warning
+                scr1_pal  <= 0;
+                scr2_pal  <= 0;
+                scr1_on   <= 0;
+                scr2_on   <= 0;
+                obj_on    <= 0;
+            end
             case(A[1:0])
                 2'd0: scr_hpos[7:0] <= cpu_dout;
                 2'd1: begin
