@@ -311,13 +311,13 @@ assign scr1_vpos   = 0;
 assign cpu_cen     = cen3;
 `endif
 
-`ifndef NOSOUND
 jt1942_sound #(.EXEDEXES(1)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
     .sres_b         ( 1'b1           ),
+    .game_id        ( 2'd0           ),
     .main_dout      ( cpu_dout       ),
     .main_latch0_cs ( 1'b0           ),
     .main_latch1_cs ( 1'b0           ),
@@ -329,13 +329,13 @@ jt1942_sound #(.EXEDEXES(1)) u_sound (
     .rom_ok         ( snd_ok         ),
     .snd            ( snd            ),
     .sample         (                ),
-    .peak           ( game_led       )
+    .peak           ( game_led       ),
+    // pins used for Higemaru but unused here
+    .main_a0        ( 1'b0           ),
+    .main_ay0_cs    ( 1'b0           ),
+    .main_ay1_cs    ( 1'b0           ),
+    .main_wr_n      ( 1'b1           )
 );
-`else
-assign snd_addr = 15'd0;
-assign snd      = 16'd0;
-assign snd_cs   = 1'b0;
-`endif
 
 jtexed_video #(
     .OBJW   ( OBJW      )
