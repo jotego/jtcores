@@ -36,6 +36,6 @@ modules:
   other:
     - get:
       - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.yaml
+      - jt49/hdl/jt49.yaml
 
 

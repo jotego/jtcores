@@ -65,7 +65,7 @@ module jt1942_video(
     output      [3:0]   blue,
     // PROM access
     input       [7:0]   prog_addr,
-    input       [3:0]   prog_din,
+    input       [7:0]   prog_din,
     input               prom_char_we,
     input               prom_d1_we,
     input               prom_d2_we,
@@ -78,15 +78,20 @@ module jt1942_video(
     input       [3:0]   gfx_en
 );
 
-localparam [1:0] VULGUS  = 2'b1;
+`include "1942.vh"
 localparam COFFSET = 9'd5;
 localparam SOFFSET = 9'd5;
 
-wire [3:0] char_pxl, obj_pxl;
+reg        vulgus, hige;
 wire       preLHBL, preLVBL, LHBL_obj, HINIT;
-reg        vulgus;
+wire [3:0] char_pxl, obj_pxl;
+wire [8:0] aux_AB = cpu_AB[8:0]-9'h80;
+wire [6:0] obj_AB = hige ? aux_AB[8:2] :cpu_AB[6:0];
 
-always @(posedge clk ) vulgus <= game_id==VULGUS;
+always @(posedge clk ) begin
+    hige   <= game_id==HIGEMARU;
+    vulgus <= game_id==VULGUS;
+end
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -109,7 +114,7 @@ jtgng_char #(
     .IDMSB1  (  7      ),
     .IDMSB0  (  7      ),
     .VFLIP   (  6      ),
-    .PALW    (  6      ),
+    .PALW    (  6      ),   // Higemaru only uses 5 bits, the core relies on the software keeping the 6th bit low, or the data from the PROM will be wrong
     .HFLIP_EN(  0      ),   // 1942 does not have character H flip
     .PALETTE (  1      ),
     .PALETTE_SIMFILE( "../../../rom/1942/sb-0.f1" )
@@ -129,7 +134,7 @@ jtgng_char #(
     .busy       ( char_busy     ),
     // PROM access
     .prog_addr  ( prog_addr     ),
-    .prog_din   ( prog_din      ),
+    .prog_din   ( prog_din[3:0] ),
     .prom_we    ( prom_char_we  ),
     // ROM
     .char_addr  ( char_addr     ),
@@ -147,7 +152,7 @@ reg  [5:0] scr_pxl;
 
 wire [9:0] scr_AB = vulgus ? cpu_AB[9:0] : {cpu_AB[9:5], 1'b0, cpu_AB[3:0]};
 wire       scr_sel= vulgus ? cpu_AB[10] : cpu_AB[4];
-
+// Higemaru does not use this layer
 jtgng_scroll #(
     .HOFFSET ( SOFFSET ),
     .ROM_AW  ( 14      ),
@@ -202,7 +207,7 @@ jtframe_prom #(.AW(8),.DW(2),.SIMFILE("../../../rom/1942/sb-2.d1")) u_prom_d1(
 jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-3.d2")) u_prom_d2(
     .clk    ( clk            ),
     .cen    ( cen6           ),
-    .data   ( prog_din       ),
+    .data   ( prog_din[3:0]  ),
     .rd_addr( scr_pal_addr   ),
     .wr_addr( prog_addr      ),
     .we     ( prom_d2_we     ),
@@ -213,7 +218,7 @@ jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-3.d2")) u_prom_d2(
 jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-4.d6")) u_prom_d6(
     .clk    ( clk            ),
     .cen    ( cen6           ),
-    .data   ( prog_din       ),
+    .data   ( prog_din[3:0]  ),
     .rd_addr( {scr_pal, scr_col} ),
     .wr_addr( prog_addr      ),
     .we     ( prom_d6_we     ),
@@ -249,10 +254,10 @@ jt1942_obj #(.PXL_DLY(4)) u_obj(
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
-    .AB             ( cpu_AB[6:0] ),
-    .DB             ( cpu_dout    ),
-    .obj_cs         ( obj_cs      ),
-    .wr_n           ( wr_n        ),
+    .AB             ( obj_AB    ),
+    .DB             ( cpu_dout  ),
+    .obj_cs         ( obj_cs    ),
+    .wr_n           ( wr_n      ),
     // SDRAM interface
     .obj_addr       ( obj_addr    ),
     .obj_data       ( obj_data    ),
@@ -260,7 +265,7 @@ jt1942_obj #(.PXL_DLY(4)) u_obj(
     // PROMs
     .prog_addr      ( prog_addr   ),
     .prom_pal_we    ( prom_obj_we ),
-    .prog_din       ( prog_din    ),
+    .prog_din       (prog_din[3:0]),
     // pixel output
     .obj_pxl        ( obj_pxl   )
 );

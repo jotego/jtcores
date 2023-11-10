@@ -58,6 +58,7 @@ SED="sed -i"
 SHAUP=
 START_TIME=$(date +%s)
 UNDEF=
+FAST=
 # Extra arguments for the simulator, passed with -args
 SIMULATOR_EXTRA=
 
@@ -97,6 +98,7 @@ Please support the development: https://patreon.com/jotego
                If the simulation is run from a folder whose name matches a
                .dip file in $ROM, and -dipsw is not set, then jtsim will load
                the matching file automatically
+    -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
     -frame     Number of frames to simulate
     -gates     Gate-level simulation
     -fx68k     Keep FX68K files for Icarus Verilog
@@ -327,6 +329,7 @@ case "$1" in
             exit 1
         fi
         ;;
+    -fast) FAST=1;;
     -inputs)
         if [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
@@ -779,7 +782,7 @@ verilator)
     # all simulations will compete against each other for CPU resources
     if [ -z "$JTFRAME_REGRESSION" ]; then MAKEJOBS=-j; fi
     # boost C++ optimization without affecting other settings
-    # export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`
+    if [ ! -z "$FAST" ]; then export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`; fi
     if echo "$EXTRA" | grep -q lint-only; then
         echo "Lint only: no simulation "
     else
