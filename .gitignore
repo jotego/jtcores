@@ -70,6 +70,7 @@ dump2bin.sh
 game.qip
 game_env.F
 game_test.v
+fp-info-cache
 history
 INCA_libs
 jtsim.f

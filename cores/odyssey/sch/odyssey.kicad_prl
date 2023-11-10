@@ -79,7 +79,7 @@
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 0,
+          "pos_x": 2400,
           "pos_y": 28,
           "size_x": 960,
           "size_y": 1024
@@ -87,14 +87,14 @@
       },
       {
         "name": "odyssey.kicad_pcb",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 36,
-          "pos_y": -1,
+          "pos_x": 1919,
+          "pos_y": 28,
           "size_x": 1848,
-          "size_y": 1053
+          "size_y": 1004
         }
       }
     ]
