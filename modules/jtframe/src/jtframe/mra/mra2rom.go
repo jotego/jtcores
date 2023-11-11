@@ -3,6 +3,7 @@ package mra
 import (
 	"archive/zip"
 	"bytes"
+	"hash/crc32"
 	"crypto/md5"
 	"fmt"
 	"io"
@@ -270,4 +271,13 @@ interleave_loop:
 	}
 	// fmt.Printf("Interleaved length %X\n",len(data))
 	return data
+}
+
+func calcBetaSums() (md5sum string, crcsum string) {
+	betapath := filepath.Join(os.Getenv("JTUTIL"),"beta.bin")
+	buf, e := os.ReadFile(betapath)
+	if e != nil { return "","" }
+	crcsum = fmt.Sprintf("%x", crc32.ChecksumIEEE(buf) )
+	md5sum = fmt.Sprintf("%x", md5.Sum(buf) )
+	return md5sum, crcsum
 }

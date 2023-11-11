@@ -141,10 +141,6 @@ func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	f, e := os.Open(path)
 	folder_ok := e == nil
 	f.Close()
-	if args.Beta {
-		path = filepath.Join(os.Getenv("JTFRAME"), "asm")
-		filename = "beta.s"
-	}
 	e = os.Chdir(path)
 	defer os.Chdir(olddir)
 	if e != nil {

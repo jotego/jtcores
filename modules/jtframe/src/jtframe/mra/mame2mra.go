@@ -114,9 +114,6 @@ extra_loop:
 	for _, d := range data_queue {
 		_, good := parent_names[d.machine.Cloneof]
 		if good || len(d.machine.Cloneof) == 0 {
-			if !args.SkipPocket {
-				pocket_add(d.machine, mra_cfg, args, d.def_dipsw, d.coremod)
-			}
 			if !args.SkipMRA {
 				// Delete old MRA files
 				if !old_deleted {
@@ -140,6 +137,9 @@ extra_loop:
 				dumped := dump_mra(args, d.machine, mra_cfg, d.mra_xml, parent_names)
 				main_copied = dumped || main_copied
 				valid_setnames = append( valid_setnames, d.machine.Name )
+			}
+			if !args.SkipPocket {
+				pocket_add(d.machine, mra_cfg, args, d.def_dipsw, d.coremod, d.mra_xml )
 			}
 		} else {
 			fmt.Printf("Skipping derivative '%s' as parent '%s' was not found\n",
@@ -514,8 +514,11 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	// Beta
 	if args.Beta {
 		n := root.AddNode("rom").AddAttr("index", "17")
-		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None")
-		n.AddNode("part").AddAttr("name", "beta.bin")
+		md5sum, crcsum := calcBetaSums()
+		// MiSTer makes a mess of md5 calculations, so I am not using that
+		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5",md5sum)
+		m := n.AddNode("part").AddAttr("name", "beta.bin")
+		m.AddAttr("crc",crcsum)
 	}
 	if !cfg.Cheat.Disable {
 		skip := false
