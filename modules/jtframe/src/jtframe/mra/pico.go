@@ -160,7 +160,7 @@ func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	hexfile := basename + ".hex"
 	binfile := basename + ".bin"
 	data := pico2hex(hexfile, 0)
-	if !args.Beta && !args.JTbin { // Prepare a zip if needed
+	if !args.JTbin { // Prepare a zip if needed
 		dump_bin(binfile, data)
 		// Zip the binary
 		zipfile := filepath.Join(args.cheatdir, basename+"_cheat.zip")

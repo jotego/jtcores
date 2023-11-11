@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jotego/jtframe/betas"
 	"github.com/jotego/jtframe/jtdef"
 	toml "github.com/komkom/toml"
 )
@@ -36,6 +37,7 @@ func Run(args Args) {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
+	betas.Init()
 	mra_cfg := parse_toml(&args) // macros become part of args
 	if args.Verbose {
 		fmt.Println("Parsing", args.Xml_path)
@@ -472,7 +474,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	n.AddAttr("twitter", "@topapate")
 	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
 	root.AddNode("setname", machine.Name)
-	set_rbfname(&root, machine, cfg, args)
+	corename := set_rbfname(&root, machine, cfg, args).text[2:] // corename = RBF, skipping the JT part
 	root.AddNode("mameversion", Mame_version())
 	root.AddNode("year", machine.Year)
 	root.AddNode("manufacturer", machine.Manufacturer)
@@ -512,13 +514,12 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	// ROM load
 	make_ROM(&root, machine, cfg, args)
 	// Beta
-	if args.Beta {
+	if betas.All.IsBetaFor(corename,"mister") {
 		n := root.AddNode("rom").AddAttr("index", "17")
-		md5sum, crcsum := calcBetaSums()
 		// MiSTer makes a mess of md5 calculations, so I am not using that
-		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5",md5sum)
+		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
 		m := n.AddNode("part").AddAttr("name", "beta.bin")
-		m.AddAttr("crc",crcsum)
+		m.AddAttr("crc",betas.Crcsum)
 	}
 	if !cfg.Cheat.Disable {
 		skip := false
@@ -544,10 +545,10 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			filename = args.Def_cfg.Core + ".s"
 		}
 		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
-		if asmhex != nil && len(asmhex) > 0 && (!skip || args.Beta) {
+		if asmhex != nil && len(asmhex) > 0 && !skip {
 			root.AddNode("Machine code for the Picoblaze CPU").comment = true
 			n := root.AddNode("rom").AddAttr("index", "16")
-			if args.JTbin || args.Beta {
+			if args.JTbin {
 				n.AddNode("part").SetText(hexdump(asmhex, 32)).indent_txt = true
 			} else {
 				re := regexp.MustCompile("\\..*$")

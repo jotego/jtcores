@@ -186,7 +186,6 @@ func init() {
 	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar(&mra_args.SkipPocket, "skipPocket", false, "Do not generate JSON files for the Pocket")
-	flag.BoolVar(&mra_args.Beta, "beta", false, "Generates the files for a beta core")
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP(&mra_args.JTbin, "git", "g", false, "Save files to JTBIN")
 	flag.StringVar(&mra_args.Buttons, "buttons", "", "Buttons used by the game -upto six-")

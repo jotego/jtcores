@@ -96,7 +96,7 @@ var funcMap = template.FuncMap{
 
 func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 	filename = jtfiles.GetFilename(core, filename, "")
-	buf, err := ioutil.ReadFile(filename)
+	buf, err := os.ReadFile(filename)
 	if err != nil {
 		if args.Verbose {
 			log.Printf("jtframe mem: no memory file (%s)", filename)
