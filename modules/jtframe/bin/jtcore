@@ -646,7 +646,7 @@ if [ $TARGET = pocket ]; then
 fi
 
 # Copy to JTBIN  if --git is set
-if [[ ( "$GIT" = FALSE && "$FAIL" = 0 )) ]]; then
+if [[ "$GIT" = FALSE && "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
     if is_mister_family; then
         BINFOLDER=$JTBIN/$TARGET/$PRJ

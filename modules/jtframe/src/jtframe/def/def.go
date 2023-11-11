@@ -321,8 +321,10 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
 	// Set beta macros
-	macros["JTFRAME_UNLOCKKEY"] = fmt.Sprintf("%d",betas.Betakey)
-	macros["BETA"]= ""
+	if betas.IsBetaFor(cfg.Core, cfg.Target) {
+		macros["JTFRAME_UNLOCKKEY"] = fmt.Sprintf("%d",betas.Betakey)
+		macros["BETA"]= ""
+	}
 	return macros
 }
 

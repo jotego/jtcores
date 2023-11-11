@@ -30,7 +30,8 @@ wire [ 7:0] tilesys_dout, objsys_dout,
             st_main, st_video, st_snd;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-reg  [ 1:0] cpu_cfg;
+reg  [ 1:0] game_id;
+reg         gx878;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -40,13 +41,13 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= {init,rmrd, prio, 2'd0, cpu_cfg};
+        3: debug_mux <= {init,rmrd, prio, 2'd0, game_id};
     endcase
 end
 
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
-        cpu_cfg <= prog_data[2:1];
+        { game_id, gx878 } <= prog_data[2:0];
 end
 
 // always @(*) begin
@@ -56,14 +57,14 @@ end
 //     end
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen_ref        ( cen24         ), // should it be cen12?
     .cpu_cen        ( cpu_cen       ),
 
-    .cfg            ( cpu_cfg       ),
+    .cfg            ( game_id       ),
     .cpu_dout       ( cpu_dout      ),
     .cpu_we         ( cpu_we        ),
 
@@ -117,7 +118,7 @@ jtaliens_sound u_sound(
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .fxlevel    ( dip_fxlevel   ),
-    .cfg        ( cpu_cfg       ),
+    .cfg        ( game_id       ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -153,7 +154,8 @@ jtaliens_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
-    .cfg            ( cpu_cfg       ),
+    .gx878          ( gx878         ),
+    .cfg            ( game_id       ),
     .cpu_prio       ( prio          ),
 
     .lhbl           ( LHBL          ),

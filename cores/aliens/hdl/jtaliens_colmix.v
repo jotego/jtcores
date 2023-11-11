@@ -94,7 +94,7 @@ always @* begin
             endcase
             pxl[9:8] = { 1'b0, prio_sel[1] & ~prio_sel[0] };
         end
-        SCONTRA: case( prio_sel ) // Super Contra
+        SCONTRA, THUNDERX: case( prio_sel ) // Super Contra
             0: pxl = { 3'b000, lyra_pxl[7:5], lyra_pxl[3:0] };
             1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
             2: pxl = { 2'b10,  lyro_pxl[7:0] };
