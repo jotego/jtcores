@@ -392,7 +392,7 @@ func find_region_cfg(machine *MachineXML, regname string, cfg Mame2MRA, verbose 
 	for k, each := range cfg.ROM.Regions {
 		if each.EffName() == regname {
 			m := each.Match(machine)
-			if verbose { fmt.Println(machine.Name," checking region config: ", each, "\n\tmatch level=",m)}
+			// if verbose { fmt.Println(machine.Name," checking region config: ", each, "\n\tmatch level=",m)}
 			if m == 3 {
 				best = &cfg.ROM.Regions[k]
 				break
