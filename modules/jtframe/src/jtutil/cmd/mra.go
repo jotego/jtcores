@@ -55,7 +55,7 @@ func list_zip() {
 			return e
 		}
 		xml.Unmarshal(buf, &game)
-		names := strings.Split(game.Rom.Zip, "|")
+		names := strings.Split(game.Rom[0].Zip, "|")
 		if len(names) == 0 {
 			return nil
 		}
