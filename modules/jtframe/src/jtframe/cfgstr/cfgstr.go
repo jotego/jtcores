@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2022 */
 
-package jtcfgstr
+package cfgstr
 
 import (
 	//"text/template"
@@ -29,7 +29,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/jotego/jtframe/jtdef"
+	jtdef "github.com/jotego/jtframe/def"
 )
 
 // appends non blank arguments to a slice
@@ -186,7 +186,7 @@ func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
 			// Converts to ns for simulation
 			khz, err := strconv.Atoi(strings.TrimPrefix(v, "jtframe_pll"))
 			if err != nil {
-				log.Fatal("JTCFGSTR: while parsing JTFRAME_PLL ", nil)
+				log.Fatal("cfgstr: while parsing JTFRAME_PLL ", nil)
 			}
 			ns := 1e6 / float32(khz*16)
 			pllsim = fmt.Sprintf("%.3f", ns)
@@ -232,7 +232,7 @@ func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
 			dump_cfgstr(cfgstr)
 			// show the config string
 			if cfg.Verbose {
-				fmt.Printf("jtdef.Config for target %s (%d bits)\n\n", cfg.Target, len(cfgstr)*8)
+				fmt.Printf("def.Config for target %s (%d bits)\n\n", cfg.Target, len(cfgstr)*8)
 				fmt.Println(cfgstr, "\n\nBreak up:")
 				aux := strings.Split(cfgstr, ";")
 				for _, s := range aux {
@@ -255,7 +255,7 @@ func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
 		dump_verilog(def, "-define %s=%s", true) // escape quotes
 	default:
 		{
-			fmt.Printf("JTCFGSTR: requested invalid output '%s'\n", cfg.Output)
+			fmt.Printf("cfgstr: requested invalid output '%s'\n", cfg.Output)
 			os.Exit(1)
 		}
 	}

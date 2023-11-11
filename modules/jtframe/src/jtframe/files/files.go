@@ -27,8 +27,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jotego/jtframe/jtdef"
-	"github.com/jotego/jtframe/jtcfgstr"
+	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/cfgstr"
 	"gopkg.in/yaml.v2"
 )
 
@@ -515,11 +515,11 @@ func append_mem( info CoreInfo, macros map[string]string, fn []string ) []string
 func Run(args Args) {
 	CWD, _ = os.Getwd()
 
-	var def_cfg jtdef.Config
+	var def_cfg def.Config
 	def_cfg.Target = args.Target
 	def_cfg.Core = args.Corename
-	def_cfg.Add = jtcfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	macros = jtdef.Make_macros(def_cfg)
+	def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
+	macros = def.Make_macros(def_cfg)
 
 	var files JTFiles
 	parse_yaml( GetFilename(args.Corename, "game", args.Parse), &files )

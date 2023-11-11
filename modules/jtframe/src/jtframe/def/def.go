@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2022 */
 
-package jtdef
+package def
 
 import (
 	"bufio"
@@ -29,6 +29,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+    "github.com/jotego/jtframe/betas"
 )
 
 type Config struct {
@@ -318,6 +320,9 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
+	// Set beta macros
+	macros["JTFRAME_UNLOCKKEY"] = fmt.Sprintf("%d",betas.Betakey)
+	macros["BETA"]= ""
 	return macros
 }
 

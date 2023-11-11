@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/jotego/jtframe/betas"
-	"github.com/jotego/jtframe/jtdef"
+	"github.com/jotego/jtframe/def"
 	toml "github.com/komkom/toml"
 )
 
@@ -37,7 +37,6 @@ func Run(args Args) {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
-	betas.Init()
 	mra_cfg := parse_toml(&args) // macros become part of args
 	if args.Verbose {
 		fmt.Println("Parsing", args.Xml_path)
@@ -768,14 +767,14 @@ func (p *flag_info) Set(a string) error {
 }
 
 func parse_toml(args *Args) (mra_cfg Mame2MRA) {
-	macros := jtdef.Make_macros(args.Def_cfg)
+	macros := def.Make_macros(args.Def_cfg)
 	// fmt.Println(macros)
 	// Replaces words starting with $ with the corresponding macro
 	// and translates the hexadecimal 0x to 'h where needed
 	// This functionality is tagged for deletion in favour of
 	// using macro names as strings in the TOML, so the TOML
 	// syntax does not get broken
-	str := jtdef.Replace_Macros(args.Toml_path, macros)
+	str := def.Replace_Macros(args.Toml_path, macros)
 	str = Replace_Hex(str)
 	if args.Verbose {
 		fmt.Println("TOML file after replacing the macros:")

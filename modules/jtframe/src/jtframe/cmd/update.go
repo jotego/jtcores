@@ -99,7 +99,6 @@ func init() {
 	flag.BoolVarP( &up_cfg.Skip, "skipRBF", "s", false, "Skip RBF generation and update only MRA files")
 	flag.BoolVarP( &up_cfg.SkipROM, "skipROM", "n", false, "Skip ROM generation when parsing MRA files")
 	flag.BoolVarP(&up_cfg.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
-	flag.StringVar( &up_cfg.Beta,   "beta",    "", "Sets JTFRAME_UNLOCKKEY=<value> and sets BETA. Use with --corestamp")
 	flag.StringVar( &up_cfg.Stamp,  "corestamp",   "", "Date string for RBF file. Passed to jtcore")
 	flag.StringVarP(&up_cfg.CoreList, "cores",  "c", "", "Comma separated list of cores")
 	flag.StringVarP(&up_cfg.Defs, "def",  "d", "", "Comma separated list of macros")

@@ -34,7 +34,6 @@ JTBETA Beta release preparation. (c) Jose Tejada 2021, @topapate
     -The jtupdate script is run with the added options:
         * --all
         * --seed
-        * --beta
     -If all compilations are succesful:
         * commit the builds.log
         * tag the commit as "beta_core_month_day"
@@ -115,13 +114,11 @@ if [ ! -s $JTUTIL/.jtbeta ]; then
     exit 1
 fi
 
-# get $BETAKEY from .jtbeta
-source $JTUTIL/.jtbeta
+# get $BETAKEY from beta.bin
+BETAKEY=$(xxd -p -l 4 $JTUTIL/beta.bin)
+export BETAKEY=$(printf "%d" "0x$BETAKEY")
+zip --junk-paths $JTUTIL/jtbeta.zip $JTUTIL/beta.bin
 # generate the jtbeta.zip file
-# the assembler file for the pico is in asm/beta.s
-cd $JTUTIL/pico
-echo cheatzip beta -beta $BETAKEY
-cheatzip beta -beta $BETAKEY
 # update the beta key in GitHub
 if which gh; then
     gh secret set BETAKEY -b $BETAKEY
@@ -130,10 +127,7 @@ else
     echo "Install github CLI for automatic update of GitHub secrets"
 fi
 
-
-jtupdate $BETACORES --seed \
-    --beta $BETAKEY --corestamp $CORESTAMP $KEEP $* \
-|| exit $?
+jtupdate $BETACORES --seed --corestamp $CORESTAMP $KEEP $* || exit $?
 
 echo -e "\n****** COMPILATION COMPLETE *********\n"
 

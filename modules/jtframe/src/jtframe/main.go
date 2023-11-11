@@ -25,6 +25,7 @@ import (
     "os"
     "log"
     "github.com/jotego/jtframe/cmd"
+    "github.com/jotego/jtframe/betas"
 )
 
 func RequireEnv( v string ) {
@@ -39,5 +40,6 @@ func main() {
     for _, each := range []string{"JTROOT","CORES","JTBIN","JTFRAME"} {
         RequireEnv(each)
     }
+    betas.Init()
 	cmd.Execute()
 }

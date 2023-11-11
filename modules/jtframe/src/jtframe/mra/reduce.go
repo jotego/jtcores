@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jotego/jtframe/jtdef"
+	"github.com/jotego/jtframe/def"
 )
 
 func exists(fname string) bool {
@@ -30,14 +30,14 @@ func collect_sources(verbose bool) []string {
 		if each.IsDir() && each.Name() != "." {
 			cfg := filepath.Join(cores, each.Name(), "cfg")
 			args := Args{
-				Def_cfg: jtdef.Config{
+				Def_cfg: def.Config{
 					Core:    each.Name(),
 					Verbose: verbose,
 				},
 				Toml_path: filepath.Join(cfg, "mame2mra.toml"),
 				Verbose:   verbose,
 			}
-			if exists(jtdef.DefPath(args.Def_cfg)) && exists(args.Toml_path) {
+			if exists(def.DefPath(args.Def_cfg)) && exists(args.Toml_path) {
 				if verbose {
 					fmt.Println("Parsing ", args)
 				}

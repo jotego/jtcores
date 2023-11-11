@@ -29,8 +29,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/jotego/jtframe/jtfiles"
-	"github.com/jotego/jtframe/jtdef"
+	"github.com/jotego/jtframe/files"
+	"github.com/jotego/jtframe/def"
 
 	"gopkg.in/yaml.v2"
 )
@@ -233,11 +233,11 @@ func add_game_ports(args Args, cfg *MemConfig) {
 }
 
 func get_macros( core, target string ) (map[string]string) {
-	var def_cfg jtdef.Config
+	var def_cfg def.Config
 	def_cfg.Target = target
 	def_cfg.Core = core
-	// def_cfg.Add = jtcfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	return jtdef.Make_macros(def_cfg)
+	// def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
+	return def.Make_macros(def_cfg)
 }
 
 func check_banks( macros map[string]string, cfg *MemConfig ) {
@@ -544,7 +544,7 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 	// this will not merge correctly hhvvv and hhvvvx used together, that's
 	// not supported in jtframe_dwnld at the moment
 	appendif := func( ss *[]string, mac string ) {
-		if jtdef.Defined(macros,mac) { *ss = append(*ss, "`"+mac) }
+		if def.Defined(macros,mac) { *ss = append(*ss, "`"+mac) }
 	}
 	make_gfx := func( match string ) (string, int) {
 		ranges :=  make([]string,0)
@@ -574,10 +574,10 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 					}
 					offsets2 = append(offsets,fmt.Sprintf("(%s<<1)",bank.Buses[j+1].Offset))
 				} else {
-					if jtdef.Defined(macros,fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
+					if def.Defined(macros,fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,fmt.Sprintf("`JTFRAME_BA%d_START",k+1))
-					} else if jtdef.Defined(macros,"JTFRAME_PROM_START") {
+					} else if def.Defined(macros,"JTFRAME_PROM_START") {
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,"JTFRAME_PROM_START")
 					}

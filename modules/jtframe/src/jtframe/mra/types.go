@@ -1,11 +1,11 @@
 package mra
 
 import (
-    "github.com/jotego/jtframe/jtdef"
+    "github.com/jotego/jtframe/def"
 )
 
 type Args struct {
-    Def_cfg                      jtdef.Config
+    Def_cfg                      def.Config
     Toml_path, Xml_path          string
     outdir, altdir               string
     cheatdir, pocketdir          string

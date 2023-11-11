@@ -77,7 +77,6 @@ EOF
    exit 0
 }
 
-BETA=FALSE
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
@@ -135,7 +134,6 @@ function parse_args {
             --def|-d)
                 shift
                 if [ ! -z "$1" ]; then
-                    if [ $1 = BETA ]; then BETA=TRUE; fi
                     MACROS="$1 $MACROS"
                 fi
                 ;;
@@ -647,9 +645,8 @@ if [ $TARGET = pocket ]; then
     RBF=${RBF}_r
 fi
 
-# Copy to JTBIN  if --git is set, except for cores in beta
-# in which case only the MiSTer and Pocket versions are copied
-if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
+# Copy to JTBIN  if --git is set
+if [[ ( "$GIT" = FALSE && "$FAIL" = 0 )) ]]; then
     announce "Copy to $JTBIN"
     if is_mister_family; then
         BINFOLDER=$JTBIN/$TARGET/$PRJ
