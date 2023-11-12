@@ -23,6 +23,7 @@ module jttora_sound(
     input           cenfm,   //  3.57   MHz
     input           cenp384, //  384 kHz
     input           jap,
+    input           f1dream,
     // Interface with main CPU
     input   [7:0]   snd_latch,
     // Interface with MCU
@@ -70,11 +71,7 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .cen3       (  cenfm        ),
     .cen1p5     (  cenfm        ), // unused
     .sres_b     (  1'b1         ),
-`ifndef F1DRM
-    .snd_latch  (  snd_latch    ),
-`else
-    .snd_latch  (  snd_din      ), // from MCU
-`endif
+    .snd_latch  (  f1dream ? snd_din : snd_latch ),
     .snd2_latch (  snd2_latch   ),
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
@@ -91,24 +88,27 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .debug_view ( debug_view    )
 );
 
-`ifndef F1DRM
-reg [7:0] pcm_gain;
+reg [7:0] pcm_gain, fm_gain;
+reg       pcm_rst;
+
+always @(posedge clk) pcm_rst <= f1dream | rst;
 
 always @(posedge clk) begin
     if( !enable_psg )
         pcm_gain <= 8'h0;
     else begin
         case( psg_level )
-            2'd0: pcm_gain <= 8'h04;
-            2'd1: pcm_gain <= 8'h08;
-            2'd2: pcm_gain <= 8'h10;
-            2'd3: pcm_gain <= 8'h20;
+            2'd0: pcm_gain <= 8'h03;
+            2'd1: pcm_gain <= 8'h06;
+            2'd2: pcm_gain <= 8'h0c;
+            2'd3: pcm_gain <= 8'h18;
         endcase
     end
+    fm_gain <= jap ? 8'h0c : 8'h10;
 end
 
 jttora_adpcm u_adpcmcpu(
-    .rst        ( rst           ),
+    .rst        ( pcm_rst       ),
     .clk        ( clk           ),
     .cen3       ( cen3          ),
     .cenp384    ( cenp384       ),
@@ -123,7 +123,6 @@ jttora_adpcm u_adpcmcpu(
     .snd        ( prepcm_snd    )
 );
 
-wire [7:0] fm_gain = jap ? 8'h08 : 8'h10;
 
 jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     .rst    ( rst       ),
@@ -144,14 +143,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     .mixed  ( ym_snd    ),
     .peak   ( mix_peak  )
 );
-`else
-// F1 Dream does not have the ADPCM section
-assign ym_snd     = fm_snd;
-assign mix_peak   = 0;
-assign rom2_cs    = 0;
-assign prepcm_snd = 0;
-assign rom2_addr  = 0;
-`endif
+
 `else // NOSOUND
     assign snd_dout   = 0;
     assign snd_mcu_wr = 0;
