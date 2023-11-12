@@ -7,9 +7,13 @@ params:
 clocks:
   clk24:
     - mul: 1
-      div: 4
+      div: 16
+      gate: ["main"]
       outputs:
-        - cpu4
+        - cpu
+    - mul: 1
+      div: 8
+      outputs:
         - ti1
         - ti2
     - freq: 3579545
@@ -49,3 +53,10 @@ sdram:
           name: main
           addr_width: 16
           data_width: 8
+bram:
+  - name: ram
+    addr_width: 12
+    data_width: 8
+    rw: true
+    addr: "main_addr[11:0]"
+    din: cpu_dout

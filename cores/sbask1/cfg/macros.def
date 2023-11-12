@@ -1,4 +1,0 @@
-include ../../sbaskt/cfg/macros.def
-
-KONAMI1=1
-CORENAME=JTSBASK1

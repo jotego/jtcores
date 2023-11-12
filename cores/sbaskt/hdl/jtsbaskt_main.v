@@ -19,13 +19,15 @@
 module jtsbaskt_main(
     input               rst,
     input               clk,        // 24 MHz
-    input               cpu4_cen,   // 6 MHz
-    output              cpu_cen,    // Q clock
+    input               cpu_cen,    // 1.53 MHz
+    input               decode,
     // ROM
     output      [15:0]  rom_addr,
     output reg          rom_cs,
     input       [ 7:0]  rom_data,
-    input               rom_ok,
+
+    input       [ 7:0]  ram_dout,
+    output              ram_we,
 
     // cabinet I/O
     input       [ 1:0]  cab_1p,
@@ -64,7 +66,7 @@ module jtsbaskt_main(
 );
 
 reg  [ 7:0] cabinet, cpu_din;
-wire [ 7:0] ram_dout;
+wire [ 7:0] din_dec;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
 wire        irq_trigger;
@@ -72,11 +74,13 @@ reg         irq_clrn, ram_cs, vgap_cs;
 reg         ior_cs, in5_cs, in6_cs, int_cs,
             color_cs, iow_cs, intshow_cs;
 // reg         afe_cs; // watchdog
-wire        VMA;
+wire        avma, op;
+reg         VMA, cen_Q;
 
 assign irq_trigger = ~LVBL & dip_pause;
 assign cpu_rnw     = RnW;
 assign rom_addr    = A;
+assign ram_we      = ram_cs & ~RnW;
 
 always @(*) begin
     rom_cs  = VMA && A[15:13]>2 && RnW && VMA; // ROM = 4000 - FFFF
@@ -169,30 +173,40 @@ jtframe_ff u_irq(
     .sigedge  ( irq_trigger )     // signal whose edge will trigger the FF
 );
 
-jtframe_sys6809 #(.RAM_AW(12),.KONAMI(`KONAMI1)) u_cpu(
-    .rstn       ( ~rst      ),
+always @(posedge clk) begin
+    cen_Q <= cpu_cen;
+    if( cpu_cen ) VMA <= avma;
+end
+
+assign din_dec = !(decode && op) ? cpu_din :
+    cpu_din ^ {A[1], 1'b0, ~A[1], 1'b0, A[3], 1'b0, ~A[3], 1'b0};
+
+mc6809i u_cpu(
+    .nRESET     ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cpu4_cen  ),   // This is normally the input clock to the CPU
-    .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
+    .cen_E      ( cpu_cen   ),
+    .cen_Q      ( cen_Q     ),
 
     // Interrupts
     .nIRQ       ( irq_n     ),
     .nFIRQ      ( 1'b1      ),
     .nNMI       ( 1'b1      ),
-    .irq_ack    (           ),
     // Bus sharing
-    .bus_busy   ( 1'b0      ),
+    .BUSY       (           ),
+    .LIC        (           ),
+    .BS         (           ),
+    .BA         (           ),
+    .nDMABREQ   ( 1'b1      ),
+    .nHALT      ( 1'b1      ),
+    .OP         ( op        ),
     // memory interface
-    .A          ( A         ),
+    .ADDR       ( A         ),
     .RnW        ( RnW       ),
-    .VMA        ( VMA       ),
-    .ram_cs     ( ram_cs    ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .AVMA       ( avma      ),
     // Bus multiplexer is external
-    .ram_dout   ( ram_dout  ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_din    ( cpu_din   )
+    .D          ( din_dec   ),
+    .DOut       ( cpu_dout  ),
+    .RegData    (           )
 );
 
 endmodule
