@@ -29,7 +29,7 @@ module jtframe_hexdisplay #(
     output reg                 pxl
 );
 
-reg  [0:19] font [0:15]; // 4x5 font
+reg  [19:0] font [0:15]; // 4x5 font
 wire [ 3:0] display_nibble_bus, display_nibble_view;
 reg  [ 4:0] font_pixel;
 wire [19:0] char;

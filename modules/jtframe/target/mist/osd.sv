@@ -227,7 +227,7 @@ reg        osd_pixel;
 `endif
 
 `ifndef JTFRAME_OSD_NOLOGO
-reg  [7:0] back_buffer[0:8*256-1];
+reg  [7:0] back_buffer[8*256];
 wire [7:0] back_byte = back_buffer[osd_buffer_addr];
 reg        back_pixel;
 `else
