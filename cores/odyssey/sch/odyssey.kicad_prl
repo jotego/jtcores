@@ -1,8 +1,8 @@
 {
   "board": {
-    "active_layer": 31,
+    "active_layer": 0,
     "active_layer_preset": "All Layers",
-    "auto_track_width": true,
+    "auto_track_width": false,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -19,7 +19,7 @@
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": false,
+      "lockedItems": true,
       "otherItems": true,
       "pads": true,
       "text": true,
@@ -74,6 +74,18 @@
   "project": {
     "files": [
       {
+        "name": "odyssey.kicad_pcb",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 1919,
+          "pos_y": 28,
+          "size_x": 1848,
+          "size_y": 906
+        }
+      },
+      {
         "name": "odyssey.kicad_sch",
         "open": false,
         "window": {
@@ -83,18 +95,6 @@
           "pos_y": 28,
           "size_x": 960,
           "size_y": 1024
-        }
-      },
-      {
-        "name": "odyssey.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1848,
-          "size_y": 1004
         }
       }
     ]
