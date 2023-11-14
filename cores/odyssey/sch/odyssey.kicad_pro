@@ -124,8 +124,8 @@
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.19999999999999998,
         "min_track_width": 0.19999999999999998,
-        "min_via_annular_width": 0.09999999999999999,
-        "min_via_diameter": 0.3,
+        "min_via_annular_width": 0.049999999999999996,
+        "min_via_diameter": 0.39999999999999997,
         "solder_mask_clearance": 0.0,
         "solder_mask_min_width": 0.0,
         "solder_mask_to_copper_clearance": 0.0,
@@ -173,7 +173,7 @@
       ],
       "track_widths": [
         0.0,
-        0.0,
+        0.2,
         0.2
       ],
       "via_dimensions": [
@@ -182,8 +182,8 @@
           "drill": 0.0
         },
         {
-          "diameter": 0.3,
-          "drill": 0.2
+          "diameter": 0.5,
+          "drill": 0.4
         }
       ],
       "zones_allow_external_fillets": false
@@ -429,8 +429,8 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
-        "via_diameter": 0.3,
-        "via_drill": 0.2,
+        "via_diameter": 0.5,
+        "via_drill": 0.4,
         "wire_width": 6
       },
       {
@@ -445,8 +445,8 @@
         "name": "PWR",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "via_diameter": 0.6,
+        "track_width": 0.3,
+        "via_diameter": 0.5,
         "via_drill": 0.4,
         "wire_width": 6
       },
@@ -462,8 +462,8 @@
         "name": "VCC",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.45,
-        "via_diameter": 0.8,
+        "track_width": 0.3,
+        "via_diameter": 0.5,
         "via_drill": 0.4,
         "wire_width": 6
       },
@@ -479,8 +479,8 @@
         "name": "VSS",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.45,
-        "via_diameter": 0.8,
+        "track_width": 0.3,
+        "via_diameter": 0.5,
         "via_drill": 0.4,
         "wire_width": 6
       }

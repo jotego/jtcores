@@ -12,7 +12,7 @@
       "pads": 1.0,
       "tracks": 1.0,
       "vias": 1.0,
-      "zones": 0.6
+      "zones": 1.0
     },
     "selection_filter": {
       "dimensions": true,
@@ -82,7 +82,7 @@
           "pos_x": 1919,
           "pos_y": 28,
           "size_x": 1848,
-          "size_y": 906
+          "size_y": 857
         }
       },
       {
