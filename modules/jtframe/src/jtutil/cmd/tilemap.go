@@ -206,6 +206,12 @@ func hexdump[E int|byte]( fname string, data []E, bpp int ) {
 		}
 		fmt.Fprintf(f,format,v8)
 	}
+	// the dump length is always extended to match a power of 2
+	// in order to prevent Quartus warnings when loading the data into a BRAM
+	rounded := 1<<int(math.Ceil(math.Log2(float64(len(data)))))
+	for k:=len(data); k <rounded; k+=bpp {
+		fmt.Fprintf(f,format,0)
+	}
 }
 
 func arraydump[E int|byte]( fname string, data []E, bpp int ) {
