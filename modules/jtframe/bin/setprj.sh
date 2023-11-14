@@ -180,20 +180,22 @@ function gw {
 }
 
 # check that git hooks are present
-cp $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
+cp --no-clobber $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
 
 # Recompiles jtframe quietly after each commit
 cd $JTFRAME
 JTFRAME_POSTCOMMIT=$(git rev-parse --git-path hooks)/post-commit
-cat > $JTFRAME_POSTCOMMIT <<EOF
-#!/bin/bash
-jtframe > /dev/null
-if [ $(git branch --no-color --show-current) = master ]; then
-    # automatically push changes to master branch
-    git push
-fi
+if [ ! -e $JTFRAME_POSTCOMMIT ]; then
+    cat > $JTFRAME_POSTCOMMIT <<EOF
+    #!/bin/bash
+    jtframe > /dev/null
+    if [ $(git branch --no-color --show-current) = master ]; then
+        # automatically push changes to master branch
+        git push
+    fi
 EOF
-chmod +x $JTFRAME_POSTCOMMIT
+    chmod +x $JTFRAME_POSTCOMMIT
+fi
 
 if ! git config -l | grep instead > /dev/null; then
     cat<<EOF
