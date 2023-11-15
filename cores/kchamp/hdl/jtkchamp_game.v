@@ -36,10 +36,10 @@ wire [31:0] obj_data;
 wire        char_cs, char_ok, obj_ok, obj_cs,
             vram_bsy, oram_cs;
 
-wire [ 7:0] main_data, nc2;
+wire [ 7:0] main_data, nc2, nc3;
 wire [15:0] main_addr;
 
-wire        cpu_cen, pcm_cen, psg_cen, nc;
+wire        cpu_cen, pcm_cen, psg_cen, nc, snd_cen, ntsc_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs,
             prom_we, flip, main_flip;
@@ -78,11 +78,26 @@ always @(posedge clk) begin
     if( ioctl_addr==0 && ioctl_wr ) enc <= ioctl_dout==8'h69;
 end
 
+// The sound CPU clock speed on the discrete DAC systems is a guess
+// The 3MHz that the schematics show for the OKI version result in
+// very slow voice effects for the DAC ones. Using 3.57MHz, an educated guess,
+// gives more decent sound
+
+assign snd_cen = enc ? cpu_cen : ntsc_cen;
+
 jtframe_frac_cen #(.W(4),.WC(4)) u_cpu_cen(
     .clk    ( clk24 ),
     .n      ( 4'd1  ),
     .m      ( 4'd8  ),
     .cen    ( { pcm_cen, nc, psg_cen, cpu_cen }  ),
+    .cenb   (       )
+);
+
+jtframe_frac_cen #(.W(2),.WC(6)) u_snd_cen(
+    .clk    ( clk24 ),
+    .n      ( 6'd7   ),
+    .m      ( 6'd47  ),
+    .cen    ( { nc3, ntsc_cen }  ),
     .cenb   (       )
 );
 
@@ -139,7 +154,7 @@ jtkchamp_main u_main(
 jtkchamp_snd u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
-    .cen_3      ( cpu_cen   ),
+    .cen_3      ( snd_cen   ),
     .pcm_cen    ( pcm_cen   ),
     .psg_cen    ( psg_cen   ),
     .enc        ( enc       ),
