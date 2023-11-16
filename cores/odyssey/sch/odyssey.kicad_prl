@@ -15,16 +15,16 @@
       "zones": 1.0
     },
     "selection_filter": {
-      "dimensions": false,
-      "footprints": false,
-      "graphics": false,
+      "dimensions": true,
+      "footprints": true,
+      "graphics": true,
       "keepouts": true,
       "lockedItems": false,
-      "otherItems": false,
-      "pads": false,
-      "text": false,
-      "tracks": false,
-      "vias": false,
+      "otherItems": true,
+      "pads": true,
+      "text": true,
+      "tracks": true,
+      "vias": true,
       "zones": true
     },
     "visible_items": [
@@ -64,7 +64,7 @@
       39,
       40
     ],
-    "visible_layers": "fffffff_fffffffe",
+    "visible_layers": "fffc1ff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
@@ -74,27 +74,27 @@
   "project": {
     "files": [
       {
+        "name": "odyssey.kicad_sch",
+        "open": true,
+        "window": {
+          "display": 0,
+          "maximized": false,
+          "pos_x": 0,
+          "pos_y": 28,
+          "size_x": 960,
+          "size_y": 1024
+        }
+      },
+      {
         "name": "odyssey.kicad_pcb",
-        "open": false,
+        "open": true,
         "window": {
           "display": 0,
           "maximized": true,
           "pos_x": 1919,
           "pos_y": 28,
           "size_x": 1848,
-          "size_y": 781
-        }
-      },
-      {
-        "name": "odyssey.kicad_sch",
-        "open": true,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2400,
-          "pos_y": 28,
-          "size_x": 960,
-          "size_y": 1024
+          "size_y": 536
         }
       }
     ]
