@@ -47,18 +47,21 @@ wire          over;
 wire [  CW:0] cencnt_nx, sum;
 reg  [CW-1:0] cencnt=0;
 reg  [ W-1:0] toggle=0, toggle_l=0;
+reg           blank=0;
 wire          cnt_en = !busy || rst;
 integer       i;
 
-assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
+assign over      = !blank && cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
 
 always @(posedge clk) begin
+    blank <= 0;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && cnt_en ) begin
+        blank <= 1;
         toggle <= toggle + 1'd1;
         toggle_l <= toggle;
-        cen <= toggle & ~toggle_l;
+        cen <= ~toggle & toggle_l;
     end else begin
         cen <= 0;
     end

@@ -65,7 +65,7 @@ module jtsimson_sound(
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
-localparam  [ 7:0]  FMGAIN=8'h10;
+localparam  [ 7:0]  FMGAIN=8'h08;
 
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
@@ -83,7 +83,7 @@ reg         [ 7:0]  fmgain, fxgain;
 
 
 assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
-assign st_dout  = 0;
+assign st_dout  = fm_dout;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -97,7 +97,7 @@ always @(*) begin
     if( mem_acc && af ) case(A[11:9])
         7: bank_cs = 1;
         6: pcm_cs  = 1;
-        5: nmi_clr = 1; // this is not really needed for operation
+        5: nmi_clr = 1;
         4: fm_cs   = 1;
         default:;
     endcase
