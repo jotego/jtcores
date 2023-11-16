@@ -95,7 +95,7 @@ entity T80s is
 		OUT0    : in  std_logic := '0';  -- 0 => OUT(C),0, 1 => OUT(C),255
 		A       : out std_logic_vector(15 downto 0);
 		DI      : in std_logic_vector(7 downto 0);
-		DO      : out std_logic_vector(7 downto 0)
+		DOUT    : out std_logic_vector(7 downto 0)
 	);
 end T80s;
 
@@ -131,14 +131,14 @@ architecture rtl of T80s is
             A          : out std_logic_vector(15 downto 0);
             DInst      : in  std_logic_vector(7 downto 0);
             DI         : in  std_logic_vector(7 downto 0);
-            DO         : out std_logic_vector(7 downto 0);
+            DOUT       : out std_logic_vector(7 downto 0);
             MC         : out std_logic_vector(2 downto 0);
             TS         : out std_logic_vector(2 downto 0);
             IntCycle_n : out std_logic;
             IntE       : out std_logic;
             Stop       : out std_logic;
             out0       : in  std_logic := '0';  -- 0 => OUT(C),0, 1 => OUT(C),255
-            REG        : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+            REGS       : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
 
             DIRSet     : in  std_logic := '0';
             DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
@@ -177,7 +177,7 @@ begin
 		A => A,
 		DInst => DI,
 		DI => DI_Reg,
-		DO => DO,
+		DOUT => DOUT,
 		MC => MCycle,
 		TS => TState,
 		OUT0 => OUT0,

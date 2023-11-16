@@ -124,8 +124,6 @@ different underlying modules.
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_J68              |         | Selects J68_CPU as M68000 module (default fx68k)
-VHDLZ80                  |         | Selects VHDL version of T80 core (default for synthesis)
-TV80S                    |         | Selects verilog version of T80 core
 
 # SDRAM Banks
 

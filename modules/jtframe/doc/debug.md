@@ -25,7 +25,7 @@ st_addr[7:4] |  Read
   00_00      |  SDRAM stats
   00_01      |  IOCTL status { 3'd0, ioctl_ram, 3'd0, downloading }
   01_??      |  Frame count (BCD) set st_addr[0] for upper byte
-  10_00      |  Sample rate (BCD)
+  10_00      |  Audio output sample rate (BCD)
   10_01      |  dipsw[ 7: 0]
   10_10      |  dipsw[15: 8]
   10_11      |  dipsw[23:16]
