@@ -45,7 +45,9 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ $LOCAL = 1 ]; then
+if  pwd | grep "$JTBIN"; then
+    echo "Copying from JTBIN as the current working dir is JTBIN"
+elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
 

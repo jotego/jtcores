@@ -36,7 +36,8 @@ wire [31:0] obj_data;
 wire        char_cs, char_ok, obj_ok, obj_cs,
             vram_bsy, oram_cs;
 
-wire [ 7:0] main_data, nc2, nc3;
+wire [ 7:0] main_data, nc2;
+wire        nc3;
 wire [15:0] main_addr;
 
 wire        cpu_cen, pcm_cen, psg_cen, nc, snd_cen, ntsc_cen;
