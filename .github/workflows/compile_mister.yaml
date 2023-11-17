@@ -67,7 +67,7 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Set zip file name
         run: |
-          echo ARTIFACT_NAME=dummy_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
+          echo ARTIFACT_NAME=mister_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
       - name: Make zip file
         run: |
           ls -l release/*
