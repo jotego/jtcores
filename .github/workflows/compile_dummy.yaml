@@ -1,22 +1,19 @@
-name: Compile all MiSTer cores
+name: Dummy compilation
 
 on:
   workflow_dispatch:
   repository_dispatch:
     types: rebuild
-  schedule:
-    - cron: '0 0 * * *' # runs every night
 jobs:
   list_cores:
     runs-on: ubuntu-latest
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
+      artifact_name: ${{ steps.generate-matrix.outputs.artifact_name }}
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: 'recursive'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: generate-matrix
+      name: Get core names
       run: |
         cd cores
         # Get list of cores ready for compilation
@@ -31,7 +28,7 @@ jobs:
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
-  compile_cores17:
+  dummy_files:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,9 +45,10 @@ jobs:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
       - id: compile
+        name: Create dummy file
         run: |
-          # Compilation on Quartus 17
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} ${{secrets.BETAKEY}}
+          mkdir release
+          echo "All good" > release/${{matrix.core}}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
@@ -82,3 +80,11 @@ jobs:
           host: jotego.es
           src: ${{ env.ARTIFACT_NAME }}
           dest: ${{ env.ARTIFACT_NAME }}
+      # - name: Synology Uploader
+      #   uses: leconio/synology-uploader-action@v1.0.4
+      #   with:
+      #     host: ${{secrets.NAS_HOST}}
+      #     sharing_id: ${{secrets.NAS_SHAREID}}
+      #     uploader_name: ${{secrets.NAS_NAME}}
+      #     # password: ${{secrets.NAS_PASSWD}}
+      #     file: ${{ env.ARTIFACT_NAME }}
