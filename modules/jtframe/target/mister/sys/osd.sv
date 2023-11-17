@@ -262,7 +262,7 @@ always @(posedge clk_video) begin : GEOMETRY
         logo_v   <= osd_vcnt[8:0] ^ {9{~rot[0]& rot[1]}};
         logo_enb <= info || !highres; // do not use background for the info box
 `ifdef JTFRAME_OSD_NOLOGO
-        logo_enb <= 0;
+        logo_enb <= 1;
 `endif
     end
 end
