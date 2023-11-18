@@ -23,6 +23,8 @@ jobs:
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: files
       name: filechange.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
       run: |
         . setprj.sh
         jtframe

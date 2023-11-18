@@ -115,6 +115,9 @@ extra_loop:
 	for _, d := range data_queue {
 		_, good := parent_names[d.machine.Cloneof]
 		if good || len(d.machine.Cloneof) == 0 {
+			if args.PrintNames {
+				fmt.Println(d.machine.Description)
+			}
 			if !args.SkipMRA {
 				// Delete old MRA files
 				if !old_deleted {

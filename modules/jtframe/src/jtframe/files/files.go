@@ -452,7 +452,7 @@ func dump_sim(all []string, args Args ) {
 	}
 }
 
-func dump_git(all []string, args Args ) {
+func dump_plain(all []string, args Args ) {
 	fout, err := os.Create( "files" )
 	if err != nil {
 		log.Fatal(err)
@@ -493,8 +493,8 @@ func dump_files( filenames[]string, format string ) bool {
 		dump_qip(filenames, args )
 	case "sim":
 		dump_sim(filenames, args )
-	case "git":
-		dump_git(filenames, args )
+	case "plain":
+		dump_plain(filenames, args )
 	default:
 		return false // don't know how to dump
 	}
