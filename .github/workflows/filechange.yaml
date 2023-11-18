@@ -22,7 +22,10 @@ jobs:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: files
+      name: filechange.sh
       run: |
         . setprj.sh
+        jtframe
+        echo "Cores affected (if any):"
         filechange.sh `git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
 
