@@ -452,6 +452,19 @@ func dump_sim(all []string, args Args ) {
 	}
 }
 
+func dump_git(all []string, args Args ) {
+	fout, err := os.Create( "files" )
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fout.Close()
+	jtroot := os.Getenv("JTROOT")+"/"
+	for _, each := range all {
+		each=strings.TrimPrefix(each,jtroot)
+		fmt.Fprintln(fout, each)
+	}
+}
+
 // func parse_paths( skip []string, args Args, paths... string ) (uniq []string) {
 // 	var files JTFiles
 // 	for _, each := range paths {
@@ -474,13 +487,18 @@ func dump_sim(all []string, args Args ) {
 // 	return uniq
 // }
 
-func dump_files( filenames[]string, format string ) {
+func dump_files( filenames[]string, format string ) bool {
 	switch format {
 	case "syn", "qip":
 		dump_qip(filenames, args )
-	default:
+	case "sim":
 		dump_sim(filenames, args )
+	case "git":
+		dump_git(filenames, args )
+	default:
+		return false // don't know how to dump
 	}
+	return true
 }
 
 // Trying out the "accept interfaces" Go principle:
@@ -533,5 +551,8 @@ func Run(args Args) {
 	}
 	filenames := collect_files( files, args.Rel )
 	filenames = append_mem( args, macros, filenames )
-	dump_files( filenames, args.Format )
+	if !dump_files( filenames, args.Format ) {
+		fmt.Printf("Unknown output format '%s'\n", args.Format)
+		os.Exit(1)
+	}
 }
