@@ -48,11 +48,9 @@ jobs:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
       - id: compile
-        env:
-          BETAKEY: ${{ secrets.BETAKEY }}
         run: |
           # Compilation on Quartus 17
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
       - id: upload
         uses: actions/upload-artifact@v3
         with:

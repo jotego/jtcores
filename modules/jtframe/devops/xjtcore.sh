@@ -6,7 +6,7 @@ cd /jtcores
 export JTROOT=$(pwd)
 export JTFRAME=$JTROOT/modules/jtframe
 
-source $JTFRAME/bin/setprj.sh
+source $JTFRAME/bin/setprj.sh > /dev/null
 export PATH=$PATH:/usr/local/go/bin
 
 CORENAME=$1
