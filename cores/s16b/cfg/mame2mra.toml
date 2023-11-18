@@ -86,7 +86,8 @@ names = [
 [dipsw]
 delete = [
     { names=[ "Unused", "Unknown", "Advertise Coin Indication" ] },
-    { machine="goldnaxe", names=["Difficulty"] }
+    { machine="goldnaxe", names=["Difficulty"] },
+    { machine="timescan", names=["Coin A", "Coin B"] }, # wouldn't fit in the Pocket
 ]
 bitcnt = 16
 rename = [
