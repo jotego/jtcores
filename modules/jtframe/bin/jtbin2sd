@@ -54,15 +54,18 @@ fi
 cd $JTBIN/mra
 
 function cp_mist {
-    cp $V $ROM/*rom $DST
     cp $V $JTBIN/${i,,}/*rbf $DST
     find $JTBIN/mra -name "*.mra" -print0 | parallel -0 mra -z $HOME/.mame/roms -O /media/$USER/$i -A -s
     # Get the main MRA as the core's arc for JTAG programming
     for CORE in $JTBIN/mister/*; do
+        CORENAME=jt$(basename $CORE)
+        if [ ! -e $DST/$CORENAME.rbf ]; then
+            echo "$i: skipping ARC files for ${CORENAME#jt} (no RBF)"
+            continue;
+        fi
         MR=$CORE/releases
         if [ ! -d "$MR" ]; then continue; fi
         cd $MR
-        CORENAME=JT$(basename $CORE)
         CORENAME=${CORENAME^^}
         FIRST=`find . -name "*.mra" | head -n 1`
         if [ -z "$FIRST" ]; then continue; fi
@@ -85,20 +88,29 @@ for i in SIDI MIST POCKET; do
         continue
     fi
     echo "`basename $DST` found"
-    rm -rf $DST/* &
-    wait
-    cd $ROM
+    rm -rf $DST/*
+    # Copy RBF and ARC/JSON files
     if [ $i = POCKET ]; then
         cp -r $V $JTBIN/pocket/raw/* $DST
-        # Copy Pocket assets
-        for k in $ROM/cp_*sh; do
-            if [ ! -z "$V" ]; then
-                echo $k $ROM
-            fi
-            $k $ROM
-        done
     else
         cp_mist $i &
+    fi
+    # Copy ROM files
+    if [ -d $ROM ]; then
+        cd $ROM
+        if [ $i = POCKET ]; then
+            # Copy Pocket assets
+            for k in $ROM/cp_*sh; do
+                if [ ! -z "$V" ]; then
+                    echo $k $ROM
+                fi
+                $k $ROM
+            done
+        else
+            cp $V $ROM/*rom $DST &
+        fi
+    else
+        echo "Skipping ROMs (no ROM folder)"
     fi
     CNT=$((CNT+1))
 done
@@ -109,11 +121,23 @@ if [ $CNT = 0 ]; then
     echo "Nothing done"
 fi
 
+# copy the beta file to the Pocket
 if [[ -d /media/$USER/POCKET && -e $JTUTIL/beta.bin ]]; then
     mkdir -p /media/$USER/POCKET/Assets/jtpatreon/common
     for i in /media/$USER/POCKET/Assets/*; do
         if [ -d $i/common ]; then
             cp $JTUTIL/beta.bin -d $i/common
+        fi
+    done
+fi
+
+# warn for missing rbf_r in the Pocket
+if [ -d /media/$USER/POCKET ]; then
+    for i in /media/$USER/POCKET/Cores/*; do
+        if [ ! -e $i/*.rbf_r ]; then
+            CORENAME=`basename $i`
+            CORENAME=${CORENAME#jotego.jt}
+            echo "POCKET: no rbf_r for $CORENAME"
         fi
     done
 fi
