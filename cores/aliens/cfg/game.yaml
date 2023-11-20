@@ -11,14 +11,13 @@ game:
       - jt052109.v
       - jt051962.v
       - jt051960.v
-      # - jt051937.v
+      - jt052591.v    # collision detector for Thunder Force
   - from: flane
     get:
       - jt007232.v
 jtframe:
   - get:
     - jtframe_edge.v
-    # - jtframe_sort.v
   - from: video
     get:
       - jtframe_vtimer.v

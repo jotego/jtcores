@@ -56,7 +56,6 @@ function require {
 require "$CORES/$CORENAME/cfg/mame2mra.toml"
 require "$JTROOT/doc/mame.xml"
 
-cd $ROM
 AUX=`mktemp`
 if ! jtframe mra $CORENAME $* > $AUX; then
     cat $AUX
@@ -76,6 +75,7 @@ if [ `wc -l $MATCHES | cut -f 1 -d ' '` -gt 1 ]; then
 fi
 
 # Get the DIP switch configuration
+cd $ROM
 DIPSW=$(xmlstarlet sel -t -m misterromdescription -m switches -v @default "$(cat $MATCHES)")
 DIPSW=$(echo $DIPSW | tr , '\n' | tac | tr -t '\n' ' ')
 printf "%s%s%s%s" $DIPSW > $SETNAME.dip
