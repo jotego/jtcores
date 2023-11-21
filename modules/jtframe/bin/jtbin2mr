@@ -14,7 +14,9 @@ Usage:
 jtbin2mr.sh [-l|--local]
 
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
+-m, --mr        MiSTer host name or IP address
 -g, --git       Uses JTBIN as the target folder
+-h, --help      Help
 -v, --verbose
 HELP
 }
@@ -27,10 +29,16 @@ while [ $# -gt 0 ]; do
         -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
+        -m|--mr)
+            shift
+            export MRHOST=$1;;
         -v|--verbose)
             V=-v;;
         -h|--help)
             show_help
+            exit 1;;
+        *)
+            echo "Unknown argument $1"
             exit 1;;
     esac
     shift
