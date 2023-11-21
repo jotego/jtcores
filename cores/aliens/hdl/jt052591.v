@@ -173,7 +173,7 @@ always @(posedge clk, posedge rst) begin
             23: begin // INNER_NEXT
                 addr <= {3'd0,pos1};
                 if( pos1<end1 )
-                    st <= 16;
+                    st <= 15; // inner loop
                 else
                     pos0 <= pos0 + 11'd5;
             end
