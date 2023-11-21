@@ -1,3 +1,0 @@
-Info: Archivo de posicionamiento: '/home/espe/jtcores/cores/odyssey/sch/odyssey-all-pos.csv'.
-Info: Número de componentes: 21.
-Info: Archivo creado satisfactoriamente.
