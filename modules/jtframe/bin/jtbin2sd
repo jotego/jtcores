@@ -61,6 +61,7 @@ function cp_mist {
         CORENAME=jt$(basename $CORE)
         if [ ! -e $DST/$CORENAME.rbf ]; then
             echo "$i: skipping ARC files for ${CORENAME#jt} (no RBF)"
+            find $DST -name "*.arc" -print0 | xargs -0 grep -l -i $CORENAME | (while IFS= read -r LINE; do rm "$LINE"; done)
             continue;
         fi
         MR=$CORE/releases
@@ -107,7 +108,12 @@ for i in SIDI MIST POCKET; do
                 $k $ROM
             done
         else
-            cp $V $ROM/*rom $DST &
+            # only copy .rom files for which there is an ARC file
+            find /m/MIST/ -name "*.arc" -print0 | xargs -0 grep -ho NAME=".*" | \
+                (while IFS= read -r LINE; do \
+                    LINE=${LINE:5}; FN=$ROM/${LINE,,}.rom; \
+                    if [ -e "$FN" ]; then cp "$FN" /m/MIST; fi \
+                done)
         fi
     else
         echo "Skipping ROMs (no ROM folder)"
