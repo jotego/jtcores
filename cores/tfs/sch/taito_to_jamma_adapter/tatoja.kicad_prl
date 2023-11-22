@@ -14,13 +14,12 @@
       "vias": 1.0,
       "zones": 0.6
     },
-    "ratsnest_display_mode": 0,
     "selection_filter": {
       "dimensions": true,
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": true,
+      "lockedItems": false,
       "otherItems": true,
       "pads": true,
       "text": true,
@@ -41,7 +40,6 @@
       11,
       12,
       13,
-      14,
       15,
       16,
       17,
@@ -62,39 +60,41 @@
       33,
       34,
       35,
-      36
+      36,
+      39,
+      40
     ],
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "xmen.kicad_prl",
+    "filename": "tatoja.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "xmen.kicad_sch",
+        "name": "tatoja.kicad_sch",
         "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 0,
+          "pos_x": 960,
           "pos_y": 28,
           "size_x": 960,
           "size_y": 1024
         }
       },
       {
-        "name": "xmen.kicad_pcb",
+        "name": "tatoja.kicad_pcb",
         "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 36,
-          "pos_y": -1,
-          "size_x": 1848,
-          "size_y": 1053
+          "pos_x": 1919,
+          "pos_y": 28,
+          "size_x": 1280,
+          "size_y": 573
         }
       }
     ]

@@ -25,5 +25,6 @@
   (lib (name "74extra")(type "KiCad")(uri "${MODULES}/jtkicad/lib/74extra.kicad_sym")(options "0")(descr "74extra"))
   (lib (name "capcom")(type "KiCad")(uri "${MODULES}/jtkicad/lib/capcom.kicad_sym")(options "0")(descr "capcom"))
   (lib (name "texas_instruments")(type "KiCad")(uri "${MODULES}/jtkicad/lib/texas_instruments.kicad_sym")(options "0")(descr "texas_instruments"))
-  (lib (name "namco")(type "KiCad")(uri "${MODULES}/jtkicad/lib/namco.kicad_sym")(options "")(descr "namco"))
+  (lib (name "namco")(type "KiCad")(uri "${MODULES}/jtkicad/lib/namco.kicad_sym")(options "0")(descr "namco"))
+  (lib (name "taito")(type "KiCad")(uri "${MODULES}/jtkicad/lib/taito.kicad_sym")(options "0")(descr "taito"))
 )
