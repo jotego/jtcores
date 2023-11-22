@@ -32,6 +32,7 @@ module jt680x_ctrl(
 
 reg  [15:0] tempof, temppc;
 reg  [ 2:0] pc_ctrl;
+reg  [ 7:0] op_code;
 wire        fetch;
 
 always @(posedge clk, posedge rst) begin
@@ -72,7 +73,7 @@ always @(posedge clk, posedge rst) begin
         op_code <= 1;
     end else begin if( cen ) begin
         pc <= temppc + tempof;
-        if( fetch ) op_code <= din;
+        if( op_ctrl ) op_code <= din;
     end
 end
 

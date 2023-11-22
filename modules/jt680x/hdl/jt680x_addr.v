@@ -38,37 +38,37 @@ reg  [15:0] tempind, tempea;
 
 always begin
     case(bus_ctrl)
-        FETCH_AD: begin
+        FETCH_BC: begin
             address = pc;
             vma     = 1;
             rw      = 1;
         end
-        READ_AD: begin
+        READ_BC: begin
             address = ea;
             vma     = 1;
             rw      = 1;
         end
-        WRITE_AD: begin
+        WRITE_BC: begin
             address = ea;
             vma     = 1;
             rw      = 0;
         end
-        PUSH_AD: begin
+        PUSH_BC: begin
             address = sp;
             vma     = 1;
             rw      = 0;
         end
-        PULL_AD: begin
+        PULL_BC: begin
             address = sp;
             vma     = 1;
             rw      = 1;
         end
-        INT_HI_AD: begin
+        INT_HI_BC: begin
             address = { 12'hfff, iv, 1'b0};
             vma     = 1;
             rw      = 1;
         end
-        INT_LO_AD: begin
+        INT_LO_BC: begin
             address = { 12'hf, iv, 1'b1};
             vma     = 1;
             rw      = 1;
@@ -101,10 +101,10 @@ always @(posedge clk, posedge rst) begin
        md <= 0;
     end else if( cen ) begin
         case (md_ctrl)
-            LOAD_MD:        md <= rslt[15:0];
-            FETCH_FIRST_MD: md <= { 8'd0, din };
-            FETCH_NEXT_MD:  md <= { md[7:0], din };
-            SHIFTL_MD:      md <= md << 1;
+            LOAD_MD:     md <= rslt[15:0];
+            FETCH_LO_MD: md <= { 8'd0, din };
+            FETCH_HI_MD: md <= { md[7:0], din };
+            SHIFTL_MD:   md <= md << 1;
             default:;
         endcase
     end

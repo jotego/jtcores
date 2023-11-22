@@ -99,7 +99,7 @@ always @* begin
         ALU_MUL:
             rslt = { 8'd0, op0 } * { 8'd0, op1};
         default:
-            rslt = op0; // nop
+            rslt = op0; // ALU_NOP
     endcase
 
     case (sel)

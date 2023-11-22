@@ -26,7 +26,7 @@ module jt680x_regs(
     output reg [15:0] op0, op1,
     // control
     input      [ 2:0] acca_ctrl, accb_ctrl, ix_ctrl,
-                      op0_sel,   op1_sel,
+                      op0_ctrl,   op1_ctrl,
     input      [ 1:0] cc_ctrl,
     input             load_sp
 );
@@ -37,31 +37,31 @@ reg  [ 7:0] acca, accb, cc;
 reg  [15:0] xreg, sp;
 
 always @* begin
-    case( op0_sel )
-        ACCA_OP0:     op0 = { 8'd0, acca };
-        ACCB_OP0:     op0 = { 8'd0, accb };
-        ACCD_OP0:     op0 = { acca, accb };
-        IX_OP0:       op0 = xreg;
-        SP_OP0:       op0 = sp;
-        default:      op0 = md;
+    case( op0_ctrl )
+        ACCA_OP0: op0 = { 8'd0, acca };
+        ACCB_OP0: op0 = { 8'd0, accb };
+        ACCD_OP0: op0 = { acca, accb };
+        IX_OP0:   op0 = xreg;
+        SP_OP0:   op0 = sp;
+        default:  op0 = md;
     endcase
-    case (op1_ctrl)
-        ZERO_OP1:     op1 = 0;
-        PLUS_ONE_OP1: op1 = 1;
-        ACCB_OP1:     op1 = { 8'd0, accb };
-        MDHI_OP1:     op1 = { 8'd0, md[15:8] };
-        default:      op1 = md;
+    case( op1_ctrl )
+        ZERO_OP1: op1 = 0;
+        ONE_OP1:  op1 = 1;
+        ACCB_OP1: op1 = { 8'd0, accb };
+        MDHI_OP1: op1 = { 8'd0, md[15:8] };
+        default:  op1 = md;
     endcase
 end
 
-always @(posedge clk, posedge rst) begin
+always @( posedge clk, posedge rst ) begin
     if( rst ) begin
         acca <= 0;
         accb <= 0;
         xreg <= 0;
         sp   <= 0;
         cc   <= 8'hc0;
-    end if(cen) begin
+    end if( cen ) begin
         case( acca_ctrl )
             LOAD_ACCA:    acca <= rslt[7:0];
             LOAD_HI_ACCA: acca <= rslt[15:8];
@@ -82,7 +82,7 @@ always @(posedge clk, posedge rst) begin
             PULL_LO_IX:   xreg[ 7:0] <= din;
             default:;
         endcase
-        case (cc_ctrl)
+        case( cc_ctrl )
             LOAD_CC:      cc <= cc_out;
             PULL_CC:      cc <= data_in;
             default:;
