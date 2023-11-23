@@ -87,13 +87,19 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
-    input        [ 3:0] board_start,     board_coin,
     output       [ 3:0] game_coin,       game_start,
     output              game_service,
     output              game_tilt,
-
+    // keyboard
+    input        [ 7:0] board_digit,
+    input               board_reset, board_pause, board_tilt, board_test,
+                        board_service, board_shift, board_ctrl, board_alt,
+    // debug features
+    input        [ 3:0] board_gfx,
+    input               board_plus, board_minus,
     // Mouse & Paddle
     input        [ 8:0] bd_mouse_dx, bd_mouse_dy,
     output       [15:0] mouse_1p,    mouse_2p,
@@ -334,13 +340,14 @@ jtframe_keyboard u_keyboard(
             .clk         ( clk_sys       ),
             .rst         ( rst           ),
 
-            .shift       ( key_shift     ),
-            .ctrl        ( key_ctrl      ),
-            .alt         ( key_alt       ),
-            .key_gfx     ( key_gfx       ),
-            .key_digit   ( key_digit     ),
-            .debug_plus  ( debug_plus    ),
-            .debug_minus ( debug_minus   ),
+            .shift       ( key_shift   | board_shift ),
+            .ctrl        ( key_ctrl    | board_ctrl  ),
+            .alt         ( key_alt     | board_alt   ),
+            .key_gfx     ( key_gfx     | board_gfx   ),
+            .key_digit   ( key_digit   | board_digit ),
+            .debug_plus  ( debug_plus  | board_plus  ),
+            .debug_minus ( debug_minus | board_minus ),
+            .board_gfx   ( board_gfx     ),
 
             // overlay the value on video
             .pxl_cen     ( pxl_cen       ),
@@ -443,12 +450,12 @@ jtframe_inputs #(
     .key_joy4       ( key_joy4        ),
     .key_start      ( key_start       ),
     .key_coin       ( key_coin        ),
-    .key_service    ( key_service     ),
-    .key_tilt       ( key_tilt        ),
-    .key_pause      ( key_pause       ),
-    .key_test       ( key_test        ),
+    .key_service    ( key_service | board_service ),
+    .key_tilt       ( key_tilt    | board_tilt    ),
+    .key_pause      ( key_pause   | board_pause   ),
+    .key_test       ( key_test    | board_test    ),
     .osd_pause      ( osd_pause       ),
-    .key_reset      ( key_reset       ),
+    .key_reset      ( key_reset | board_reset     ),
     .rot_control    ( rot_control     ),
 
     .game_joy1      ( game_joystick1  ),
