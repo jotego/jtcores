@@ -1,11 +1,31 @@
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 22-11-2023 */
+
 module jt680x_alu(
-    input   [ 6:0] sel,
+    input   [ 4:0] sel,
     input   [15:0] op0, op1,
     output  [15:0] rslt,
 
     input   [ 5:0] cc,
     output  [ 5:0] cc_out
 );
+
+`include "jt680x.vh"
 
 reg       valid_lo, valid_hi, cin;
 reg [7:0] daa;
@@ -79,7 +99,7 @@ always @* begin
         ALU_MUL:
             rslt = { 8'd0, op0 } * { 8'd0, op1};
         default:
-            rslt = op0; // nop
+            rslt = op0; // ALU_NOP
     endcase
 
     case (sel)
