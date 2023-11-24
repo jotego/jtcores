@@ -65,13 +65,13 @@ always @(*) begin // Decoder 051502 takes as inputs A[15:10]
     rom_addr = A[15:12]>=6 ? A[15:0] : { A[15], bank, A[12:0] };
 end
 
-always @(*) begin
+always @(posedge clk) begin
     case(1'b1)
-        rom_cs:  cpu_din = rom_data;
-        ram_cs:  cpu_din = ram_dout;
-        io_cs:   cpu_din = port_in;
-        gfx1_cs: cpu_din = pal_cs ? pal_dout : gfx1_dout;
-        default: cpu_din = 8'hff;
+        rom_cs:  cpu_din <= rom_data;
+        ram_cs:  cpu_din <= ram_dout;
+        io_cs:   cpu_din <= port_in;
+        gfx1_cs: cpu_din <= pal_cs ? pal_dout : gfx1_dout;
+        default: cpu_din <= 8'hff;
     endcase
 end
 

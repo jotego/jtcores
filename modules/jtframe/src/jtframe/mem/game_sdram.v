@@ -430,7 +430,7 @@ jtframe_ioctl_dump #(
 // Clock enable generation
 {{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
 // {{ .Comment }} Hz from {{ .ClkName }}
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ(`JTFRAME_MCLK)) u_cen{{$cnt}}_{{.ClkName}}(
     .rst    ( rst          ),
     .clk    ( {{.ClkName}} ),

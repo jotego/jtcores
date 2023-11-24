@@ -64,7 +64,7 @@
       39,
       40
     ],
-    "visible_layers": "9ffffff_ffffffff",
+    "visible_layers": "9ffffff_7ffffffe",
     "zone_display_mode": 0
   },
   "meta": {
@@ -72,31 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "odyssey.kicad_sch",
-        "open": true,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 0,
-          "pos_y": 28,
-          "size_x": 960,
-          "size_y": 1024
-        }
-      },
-      {
-        "name": "odyssey.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1280,
-          "size_y": 573
-        }
-      }
-    ]
+    "files": []
   }
 }

@@ -25,9 +25,8 @@
 module jtcontra_sound(
     input           clk,        // 24 MHz
     input           rst,
-    input           cen12,
-    input           cen3,
-    input           cen1p5,
+    input           cen_fm,
+    input           cen_fm2,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -63,8 +62,6 @@ wire signed [15:0] xleft, xright;
 
 assign rom_addr  = A[14:0];
 
-
-wire cen_fm, cen_fm2;
 wire cpu_cen;
 
 always @(*) begin
@@ -75,13 +72,13 @@ always @(*) begin
     ram_cs   = !A[15] && A[14:13]==2'b11;
 end
 
-always @(*) begin
+always @(posedge clk) begin
     case(1'b1)
-        rom_cs:   cpu_din = rom_data;
-        ram_cs:   cpu_din = ram_dout;
-        latch_cs: cpu_din = snd_latch;
-        fm_cs:    cpu_din = fm_dout;
-        default:  cpu_din = 8'hff;
+        rom_cs:   cpu_din <= rom_data;
+        ram_cs:   cpu_din <= ram_dout;
+        latch_cs: cpu_din <= snd_latch;
+        fm_cs:    cpu_din <= fm_dout;
+        default:  cpu_din <= 8'hff;
     endcase
 end
 
@@ -98,10 +95,10 @@ jtframe_ff u_ff(
     .sigedge  ( snd_irq     ) // signal whose edge will trigger the FF
 );
 
-jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(11),.CENDIV(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen12     ),   // This is normally the input clock to the CPU
+    .cen        ( cen_fm2   ),   // This is normally the input clock to the CPU
     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
 
     // Interrupts
@@ -122,14 +119,6 @@ jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   ),
     .VMA        (           )
-);
-
-jtframe_frac_cen u_fmcen(
-    .clk        (  clk                ), // 24 MHz
-    .n          ( 10'd105             ),
-    .m          ( 10'd704             ),
-    .cen        ( { cen_fm2, cen_fm } ),
-    .cenb       (                     )
 );
 
 jt51 u_jt51(
