@@ -38,7 +38,7 @@ var updateCmd = &cobra.Command{
 	Long: `JTUPDATE (c) Jose Tejada 2022-2023
 
 A tool to run parallel compilations of FPGA cores and
-prepare GitHub actions.
+update schematic files.
 
 Arguments after -- are sent to jtcore directly.
 
@@ -95,7 +95,6 @@ func init() {
 	flag.BoolVar( &up_cfg.Git,   "git",   false, "Sets $JTBIN as the output and defines JTFRAME_RELEASE")
 	flag.BoolVar( &up_cfg.Seed,    "seed",    false, "Random seed iteration used for compilation")
 	flag.BoolVar( &up_cfg.Private, "private", false, "Build for JTALPHA team (defines JTFRAME_RELEASE and a red OSD)")
-	flag.BoolVar( &up_cfg.Actions, "actions", false, "Updates GitHub actions")
 	flag.BoolVarP( &up_cfg.Skip, "skipRBF", "s", false, "Skip RBF generation and update only MRA files")
 	flag.BoolVarP( &up_cfg.SkipROM, "skipROM", "n", false, "Skip ROM generation when parsing MRA files")
 	flag.BoolVarP(&up_cfg.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")

@@ -2,17 +2,13 @@ package update
 
 import (
 	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
-	"time"
 )
 
 type Customs map[string]string
@@ -21,7 +17,7 @@ type Groups map[string]string
 type Config struct {
 	Max_jobs            int
 	Git, Nohdmi   		  bool
-	Nosnd, Actions, Seed  bool
+	Nosnd, Seed  		    bool
 	Private,  Nodbg  		bool
 	Skip, SkipROM, MainOnly	bool
 	Group, extra 		  	string
@@ -118,73 +114,6 @@ func parse_cfgfile(cfg *Config, file *os.File) {
 			log.Fatal(fmt.Sprintf("jtupdate: error in .jtupdate line %d. Dangling text", linecnt))
 		}
 	}
-}
-
-func update_actions(jtroot string, cfg Config) {
-	folder := filepath.Join(jtroot, ".github", "workflows")
-	if err := os.MkdirAll( folder, 0775 ); err!=nil {
-		fmt.Println("jtframe update: problem creating ", folder, "\n\t", err )
-		os.Exit(1)
-	}
-	t := template.Must(template.New("yaml").Parse(yaml_code))
-	rand.Seed(time.Now().UnixNano())
-
-	for target, _ := range cfg.Targets {
-		if target == "mister" || target == "sockit" || target == "de1soc" || target == "de10standard" {
-			continue // not ready yet
-		}
-		for _, core := range cfg.cores {
-			key := make_key(target, core)
-			data := struct {
-				Corename, Target, Extra, Seed, Branches, Docker, OtherBranch string
-			}{
-				Corename:    core,
-				Target:      target,
-				Docker:      "jtcore13",
-				Extra:       cfg.customs[key],
-				Seed:        "",
-				OtherBranch: "",
-			}
-			if target == "mister" {
-				data.Docker = "jtcore:20"
-			}
-			// MiST gets compiled for each update on the master branch
-			if target == "mist" {
-				data.OtherBranch = "master"
-			}
-			for cnt := 0; cnt < 5; cnt++ {
-				var buffer bytes.Buffer
-				if cfg.Seed {
-					data.Seed = fmt.Sprintf("--seed %d", rand.Int31())
-				}
-				err := t.Execute(&buffer, data)
-				if err != nil {
-					log.Fatal(err)
-				}
-				aux := bytes.ReplaceAll(buffer.Bytes(), []byte("¿¿"), []byte("{{"))
-				aux = bytes.ReplaceAll(aux, []byte("??"), []byte("}}"))
-				//fmt.Println(string(aux))
-				// Save to file
-				var f *os.File
-				fname := folder + target + "_" + core
-				if cfg.Seed {
-					fname += fmt.Sprintf("_%d", cnt)
-				}
-				fname = fname + ".yml"
-				f, err = os.Create(fname)
-				if err != nil {
-					log.Fatal(err)
-				}
-				//fmt.Println(fname)
-				f.Write(aux)
-				f.Close()
-				if !cfg.Seed {
-					break
-				}
-			}
-		}
-	}
-	fmt.Println("Remember to add the secrets to the GitHub repository")
 }
 
 func dump_output(cfg Config) {
@@ -384,11 +313,7 @@ func Run(cfg *Config, all_args []string) {
 	if cfg.cores == nil {
 		log.Fatal("jtupdate: you must specify at least one core to update")
 	}
-	if cfg.Actions {
-		update_actions(jtroot, *cfg)
-	} else {
-		dump_output(*cfg)
-	}
+	dump_output(*cfg)
 }
 
 // Keep space indentation for YAML code
