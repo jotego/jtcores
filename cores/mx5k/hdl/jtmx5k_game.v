@@ -44,7 +44,7 @@ assign debug_view = st_video;
 jtcontra_main #(.GAME(2)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
-    .cen12          ( cen12         ),
+    .cen3           ( cen3          ),
     .cpu_cen        ( cpu_cen       ),
     // communication with main CPU
     .snd_irq        ( snd_irq       ),
@@ -53,7 +53,7 @@ jtcontra_main #(.GAME(2)) u_main(
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
     .rom_data       ( main_data     ),
-    .rom_ok         ( main_ok       ),
+    .rom_ok         ( 1'b1          ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
@@ -135,6 +135,8 @@ jtmx5k_video u_video (
 jtmx5k_sound u_sound(
     .rst        ( rst24         ),
     .clk        ( clk24         ), // 24 MHz
+    .cen_fm     ( cen_fm        ),
+    .cen_fm2    ( cen_fm2       ),
     .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
@@ -143,7 +145,6 @@ jtmx5k_sound u_sound(
     .rom_addr   ( snd_addr      ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
-    .rom_ok     ( snd_ok        ),
     // ADPCM ROM
     .pcma_addr  ( pcma_addr     ),
     .pcma_cs    ( pcma_cs       ),

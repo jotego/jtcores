@@ -96,10 +96,11 @@ for i in SIDI MIST POCKET; do
     else
         cp_mist $i &
     fi
+    wait
     # Copy ROM files
     if [ -d $ROM ]; then
-        cd $ROM
         if [ $i = POCKET ]; then
+            cd $ROM
             # Copy Pocket assets
             for k in $ROM/cp_*sh; do
                 if [ ! -z "$V" ]; then
@@ -109,10 +110,10 @@ for i in SIDI MIST POCKET; do
             done
         else
             # only copy .rom files for which there is an ARC file
-            find /m/MIST/ -name "*.arc" -print0 | xargs -0 grep -ho NAME=".*" | \
+            find $DST -name "*.arc" -print0 | xargs -0 grep -ho NAME=".*" | \
                 (while IFS= read -r LINE; do \
                     LINE=${LINE:5}; FN=$ROM/${LINE,,}.rom; \
-                    if [ -e "$FN" ]; then cp "$FN" /m/MIST; fi \
+                    if [ -e "$FN" ]; then cp "$FN" $DST; fi \
                 done)
         fi
     else
@@ -120,8 +121,6 @@ for i in SIDI MIST POCKET; do
     fi
     CNT=$((CNT+1))
 done
-
-wait
 
 if [ $CNT = 0 ]; then
     echo "Nothing done"

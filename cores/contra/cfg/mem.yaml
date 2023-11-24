@@ -8,12 +8,16 @@ params:
 
 clocks:
   clk24:
-    - freq: 12000000
+    - freq: 3000000
+      gate: [ "main", "snd" ]
       outputs:
-        - cen12
-        - cen6
         - cen3
         - cen1p5
+    - freq: 3579545
+      gate: [ "main", "snd" ]
+      outputs:
+        - cen_fm
+        - cen_fm2
 sdram:
   banks:
     - buses:

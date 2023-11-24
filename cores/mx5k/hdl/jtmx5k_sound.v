@@ -19,6 +19,8 @@
 module jtmx5k_sound(
     input           clk,        // 24 MHz
     input           rst,
+    input           cen_fm,
+    input           cen_fm2,
     input   [ 1:0]  fxlevel,
     // communication with main CPU
     input           snd_irq,
@@ -27,7 +29,6 @@ module jtmx5k_sound(
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
-    input           rom_ok,
     // ADPCM ROM
     output   [17:0] pcma_addr,
     input    [ 7:0] pcma_dout,
@@ -51,7 +52,6 @@ reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, int_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, div_cs, dac_cs, iock;
 wire signed [15:0]  fm_left, fm_right;
-wire                cen_fm, cen_fm2;
 wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
@@ -65,12 +65,6 @@ assign irq_ack   = !m1_n && !iorq_n;
 // I can simplify it here:
 assign pcma_addr[17] = 0;
 assign pcmb_addr[17] = 1;
-
-jtframe_cen3p57 #(.CLK24(1)) u_cen(
-    .clk        ( clk       ),
-    .cen_3p57   ( cen_fm    ),
-    .cen_1p78   ( cen_fm2   )
-);
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -146,7 +140,7 @@ jtcontra_007452 u_div(
     .dout   ( div_dout  )
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -169,7 +163,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     // ROM access
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( 1'b1      )
 );
 
 jt51 u_jt51(
