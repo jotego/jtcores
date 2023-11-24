@@ -8593,7 +8593,7 @@
         (name "VBLUE" (effects (font (size 1.27 1.27))))
         (number "13" (effects (font (size 1.27 1.27))))
       )
-      (pin passive line (at -12.7 1.27 0) (length 5.08)
+      (pin power_in line (at -12.7 1.27 0) (length 5.08)
         (name "VIDEO_GND" (effects (font (size 1.27 1.27))))
         (number "14" (effects (font (size 1.27 1.27))))
       )
