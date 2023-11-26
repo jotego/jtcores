@@ -36,6 +36,7 @@ module jt680x_regs(
 reg  [ 7:0] acca, accb, cc;
 reg  [15:0] xreg, sp;
 
+// ALU inputs
 always @* begin
     case( op0_ctrl )
         ACCA_OP0: op0 = { 8'd0, acca };

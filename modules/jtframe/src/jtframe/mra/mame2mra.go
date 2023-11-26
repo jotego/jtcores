@@ -213,16 +213,6 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 		return true
 	}
 	// Parse Must-be conditions
-	device_ok := len(mra_cfg.Parse.Mustbe.Devices) == 0
-device_check:
-	for _, each := range mra_cfg.Parse.Mustbe.Devices {
-		for _, check := range machine.Devices {
-			if each == check.Name {
-				device_ok = true
-				break device_check
-			}
-		}
-	}
 	// Check must-be machine names
 	machine_ok := len(mra_cfg.Parse.Mustbe.Machines) == 0
 	for _, each := range mra_cfg.Parse.Mustbe.Machines {
@@ -234,7 +224,7 @@ device_check:
 			break
 		}
 	}
-	return !(device_ok && machine_ok)
+	return !machine_ok
 }
 
 func rm_spsp(a string) string {

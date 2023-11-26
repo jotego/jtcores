@@ -16,10 +16,12 @@
     Version: 1.0
     Date: 22-11-2023 */
 
-module jt680x_alu(
-    input   [ 4:0] sel,
-    input   [15:0] op0, op1,
-    output  [15:0] rslt,
+// 6800 has an 8-bit ALU
+module jt680x_alu#(parameter AW=8
+)(
+    input   [   4:0] sel,
+    input   [AW-1:0] op0, op1,
+    output  [AW-1:0] rslt,
 
     input   [ 5:0] cc,
     output  [ 5:0] cc_out
@@ -48,8 +50,8 @@ always @* begin
             else
                 daa = 8'b01100110;
         end else begin
-            if (valid_lo) begin
-                if (valid_hi)
+            if( valid_lo ) begin
+                if( valid_hi )
                     daa = 8'b00000000;
                 else
                     daa = 8'b01100000;
@@ -61,7 +63,7 @@ always @* begin
             end
         end
     end else begin
-        if ( cc[HBIT] == 1'b1 )
+        if( cc[HBIT] )
             daa = 8'b01100110;
         else if (valid_lo)
             daa = 8'b01100000;
@@ -179,8 +181,8 @@ always @* begin
         ALU_AND, ALU_ORA, ALU_EOR,  ALU_COM,
         ALU_ST8, ALU_TST, ALU_ST16, ALU_LD8,
         ALU_LD16,ALU_CLV:
-                            cc_out[VBIT] = 1'b0;
-        ALU_SEV:            cc_out[VBIT] = 1;
+                    cc_out[VBIT] = 0;
+        ALU_SEV:    cc_out[VBIT] = 1;
         default:;
     endcase
 

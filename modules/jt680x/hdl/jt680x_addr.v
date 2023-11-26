@@ -24,7 +24,7 @@ module jt680x_addr(
     input      [15:0] pc, sp,
     // Control
     input      [ 2:0] ea_ctrl, bus_ctrl, md_ctrl, iv,
-    input      [ 3:0] dout_sel,
+    input      [ 3:0] dout_ctrl,
     // Bus
     input      [ 7:0] din,
     output reg [15:0] ea, addr,
@@ -34,55 +34,22 @@ module jt680x_addr(
 
 `include "jt680x.vh"
 
-reg  [15:0] tempind, tempea;
+reg  [15:0] nx_ea;
 
 always begin
     case(bus_ctrl)
-        FETCH_BC: begin
-            address = pc;
-            vma     = 1;
-            rw      = 1;
-        end
-        READ_BC: begin
-            address = ea;
-            vma     = 1;
-            rw      = 1;
-        end
-        WRITE_BC: begin
-            address = ea;
-            vma     = 1;
-            rw      = 0;
-        end
-        PUSH_BC: begin
-            address = sp;
-            vma     = 1;
-            rw      = 0;
-        end
-        PULL_BC: begin
-            address = sp;
-            vma     = 1;
-            rw      = 1;
-        end
-        INT_HI_BC: begin
-            address = { 12'hfff, iv, 1'b0};
-            vma     = 1;
-            rw      = 1;
-        end
-        INT_LO_BC: begin
-            address = { 12'hf, iv, 1'b1};
-            vma     = 1;
-            rw      = 1;
-        end
-        default: begin
-            address = 16'hffff;
-            vma     = 0;
-            rw      = 1;
-        end
+        READ_BUS:   address = ea;
+        WRITE_BUS:  address = ea;
+        PUSH_BUS:   address = sp;
+        PULL_BUS:   address = sp;
+        INT_HI_BUS: address = { 12'hfff, iv, 1'b0};
+        INT_LO_BUS: address = { 12'hfff, iv, 1'b1};
+        default:    address = pc;
     endcase
 end
 
 always @(*) begin
-    case (dout_sel)
+    case (dout_ctrl)
         MD_HI_DOUT: dout = md[15:8];    // alu output
         MD_LO_DOUT: dout = md[ 7:0];
         ACCA_DOUT:  dout = acca;        // accumulator a
@@ -90,8 +57,8 @@ always @(*) begin
         IX_LO_DOUT: dout = xreg[ 7:0];  // index reg
         IX_HI_DOUT: dout = xreg[15:8];
         CC_DOUT:    dout = cc;
-        PC_LO_DOUT: dout = pc[7:0];     // pc
-        PC_HI_DOUT: dout = pc[15:8];
+        // PC_LO_DOUT: dout = pc[7:0];     // pc
+        // PC_HI_DOUT: dout = pc[15:8];
         default:    dout = 8'd0;
     endcase
 end
@@ -112,18 +79,12 @@ end
 
 always @(*) begin
     case (ea_ctrl)
-        ADD_IX_EA: tempind = { 8'd0, ea[7:0] };
-        INC_EA:    tempind = 1;
-        default:   tempind = 0;
-    endcase
-
-    case (ea_ctrl)
-        RESET_EA:       tempea = 0;
-        LOAD_ACCB_EA:   tempea = { 8'd0, accb[7:0] };
-        ADD_IX_EA:      tempea = xreg;
-        FETCH_FIRST_EA: tempea = { 8'd0, din };
-        FETCH_NEXT_EA:  tempea = { ea[7:0], din };
-        default:        tempea = ea;
+        LOAD_ACCB_EA:   nx_ea = { 8'd0, accb[7:0] };
+        ADD_IX_EA:      nx_ea = xreg;
+        FETCH_FIRST_EA: nx_ea = { 8'd0, din };
+        FETCH_NEXT_EA:  nx_ea = { ea[7:0], din };
+        INC_EA:         nx_ea = ea+16'd1;
+        default:        nx_ea = ea;
     endcase
 end
 
@@ -131,7 +92,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         ea <= 0;
     end else if( cen ) begin
-        ea <= tempea + tempind;
+        ea <= nx_ea;
     end
 end
 

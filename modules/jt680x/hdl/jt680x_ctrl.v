@@ -20,6 +20,8 @@ module jt680x_ctrl(
     input             rst,
     input             clk,
     input             cen,
+    // registers
+    input      [ 5:0] cc,
     // Bus
     input      [ 7:0] din,
     input             nmi_n, irq_n,
@@ -30,10 +32,29 @@ module jt680x_ctrl(
 
 `include "jt680x.vh"
 
+wire dec_en;
+wire dir2;
+wire ext2;
+wire ix_en;
+wire load_sp;
+wire memdec_en;
+wire [2:0] acca_ctrl;
+wire [1:0] accb_ctrl;
+wire [2:0] bus_ctrl;
+wire [1:0] cc_ctrl;
+wire [2:0] dout_ctrl;
+wire [2:0] ea_ctrl;
+wire [2:0] ix_ctrl;
+wire [2:0] md_ctrl;
+wire [2:0] op0_ctrl;
+wire [2:0] op1_ctrl;
+wire op_ctrl;
+wire [5:0] seqa;
+
 reg  [15:0] tempof, temppc;
 reg  [ 2:0] pc_ctrl;
-reg  [ 7:0] op_code;
-wire        fetch;
+reg  [ 7:0] op;
+wire        branch_en;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -54,7 +75,7 @@ end
 
 always @(*) begin
   case (pc_ctrl)
-    ADD_EA_PC: tempof = { {8{ea[7]}}, ea[7:0] };
+    BRANCH_PC: tempof = branch_en ? { {8{md[7]}}, md[7:0] } : 16'd0;
     INC_PC:    tempof = 1;
     default:   tempof = 0;
   endcase
@@ -69,12 +90,110 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        pc      <= 16'hfffe;
-        op_code <= 1;
+        pc <= 16'hfffe;
+        op <= 1;
     end else begin if( cen ) begin
         pc <= temppc + tempof;
-        if( op_ctrl ) op_code <= din;
+        if( op_ctrl ) op <= din;
     end
 end
+
+reg [2:0] admode;
+localparam [2:0] IMM_AD=0, DIR_AD=1, IDX_AD=2, EXT_AD=3, INH_AD=4;
+
+always @* begin
+    // addressing decoding
+    casez( din )
+        8'b0010_????, // branch
+        8'b1?00_????: admode = IMM_AD;
+        8'b1?01_????: admode = DIR_AD;
+        8'b1?10_????,
+        8'b0110_????: admode = IDX_AD;
+        8'b0111_????,
+        8'b1?11_????: admode = EXT_AD;
+        default: admode = INH_AD;
+    endcase
+    // operation decoding
+    casez( din )
+        // inherent
+        8'b0000_0001: opseq = FETCH_SEQA;  // NOP
+        8'b0000_011?, // TAP, TPA
+        8'b0000_101?, // CLV, SEV
+        8'b0000_11??: // CLC, SEC, CLI, SEI
+            opseq = INH_CC_SEQA;
+        8'b0001_0000, // SBA
+        8'b0001_10?1: // ABA, DAA
+            opseq =ALU_SBA_SEQA;
+        8'b0001_0001: opseq =ALU_CBA_SEQA;  // CBA
+        8'b0001_0110: opseq =ALU_TAB_SEQA;  // TAB
+        8'b0001_0111: opseq =ALU_TBA_SEQA;  // TBA
+        // one operand:
+        8'b010?_1101: // TST
+            opseq = din[4] ? ALU_CC8B_SEQA : ALU_CC8B_SEQA;
+        8'b010?_0???, 8'b010?_10??, 8'b010?_111?, 8'b010?_1100:
+            opseq = din[4] ? ALU8B_SEQA : ALU8B_SEQA;
+        // two operands:
+        8'b1???_0?01: // SUB, BIT
+            opseq = din[6] ? ALU_CC8B_SEQA : ALU_CC8B_SEQA;
+        8'b1???_0000, // CMP
+        8'b1???_001?, // SBC
+        8'b1???_01?0, // AND, LDA
+        8'b1???_10??: // EOR, ADC, OR, ADD
+            opseq = din[6] ? ALU8B_SEQA : ALU8B_SEQA;
+
+        default: opseq = BERR_SEQA; // bus error
+    endcase
+end
+
+// sequencer
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        seqa <= SERVE_INT_SEQA;
+    end else begin
+        case( seq_ctrl )
+            FETCH_SEQ: seqa <= FETCH_SEQA;
+            DEC_SEQ:
+                case( admode )
+                    DIR_AD: begin seqa <= DIRECT_SEQA; nx_ops <= opseq; end
+                    IDX_AD: begin seqa <= EXTEND_SEQA; nx_ops <= opseq; end
+                    EXT_AD: begin seqa <= INDEXD_SEQA; nx_ops <= opseq; end
+                    default: seqa <= opseq;
+                endcase
+            EXEC_SEQ: seqa <= nx_ops;
+            default: seqa <= seqa + 1'd1;
+        endcase
+    end
+end
+
+jt680x_branch u_branch(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen       ),
+    .sel    ( op[3:0]   ),
+    .cc     ( cc        ),
+    .branch ( branch_en )
+);
+
+jt680x_ucode ucode(
+    .dec_en   (dec_en   ),
+    .dir2     (dir2     ),
+    .ext2     (ext2     ),
+    .ix_en    (ix_en    ),
+    .load_sp  (load_sp  ),
+    .memdec_en(memdec_en),
+    .acca_ctrl(acca_ctrl),
+    .accb_ctrl(accb_ctrl),
+    .bus_ctrl (bus_ctrl ),
+    .cc_ctrl  (cc_ctrl  ),
+    .dout_ctrl(dout_ctrl),
+    .ea_ctrl  (ea_ctrl  ),
+    .ix_ctrl  (ix_ctrl  ),
+    .md_ctrl  (md_ctrl  ),
+    .op0_ctrl (op0_ctrl ),
+    .op1_ctrl (op1_ctrl ),
+    .op_ctrl  (op_ctrl  ),
+    .pc_ctrl  (pc_ctrl  ),
+    .seqa     (seqa     )
+);
 
 endmodule
