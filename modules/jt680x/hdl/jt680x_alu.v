@@ -17,176 +17,93 @@
     Date: 22-11-2023 */
 
 // 6800 has an 8-bit ALU
-module jt680x_alu#(parameter AW=8
-)(
-    input   [   4:0] sel,
-    input   [AW-1:0] op0, op1,
-    output  [AW-1:0] rslt,
+// 6801 might have used an 8-bit ALU
+// 6301 seems to have a 16-bit ALU
+module jt680x_alu(
+    input          rst,
+    input          clk,
+    input          cen,
+    input   [ 4:0] sel,
+    input          op0_inv,
+    input   [15:0] op0, op1,
+    output  [15:0] rslt,
 
-    input   [ 5:0] cc,
-    output  [ 5:0] cc_out
+    input          cin,
+    output reg     ho,
+    output   [3:0] cc8,
+    output   [3:0] cc16
 );
 
 `include "jt680x.vh"
 
-reg       valid_lo, valid_hi, cin;
-reg [7:0] daa;
+reg  c8, c16, cx,
+     v8, v16;
+wire n8, n16,
+     z8, z16;
+
+assign cc8  = { n8, z8, v8, c8 };
+assign cc16 = { n16,z16,v16,c16};
+
+wire [15:0] op0_mx = {op0[15:8], op0_inv ? ~op0mx[7:0] : op0mx[7:0]};
+
+assign z8  = rslt[7:0]==0;
+       z16 = rslt[7:0]==0;
+       n8  = rslt[7];
+       n16 = rslt[15];
 
 always @* begin
-    case (alu_ctrl)
-        ALU_ADC, ALU_SBC, ALU_ROL8, ALU_ROR8: cin = cc[CBIT];
-        default: cin = 0;
+    case( carry_ctrl )
+        CIN_CARRY:  cx = cin;
+        OP0L_CARRY: cx = op0mx[0];
+        OP0M_CARRY: cx = op0mx[7];
+        HI_CARRY:   cx = 1;
+        default:    cx = 0;
     endcase
-end
-
-always @* begin
-    valid_lo = (op0[3:0] <= 9);
-    valid_hi = (op0[7:4] <= 9);
-
-    if( !cc[CBIT] ) begin
-        if( cc[HBIT] ) begin
-            if (valid_hi)
-                daa = 8'b00000110;
-            else
-                daa = 8'b01100110;
-        end else begin
-            if( valid_lo ) begin
-                if( valid_hi )
-                    daa = 8'b00000000;
-                else
-                    daa = 8'b01100000;
-            end else begin
-                if( op0[7:4] <= 8 )
-                    daa = 8'b00000110;
-                else
-                    daa = 8'b01100110;
-            end
+    case( alu_ctrl )
+        ADD_ALU: begin
+            {ho,  rslt[ 3:0]} = {1'b0, op0mx[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
+            {c8,  rslt[ 7:4]} = {1'b0, op0mx[ 7:4]}+{1'b0, op1[ 7:4]}+{4'd0,ho};
+            {c16, rslt[15:8]} = {1'b0, op0mx[15:8]}+{1'b0, op1[15:8]}+{8'd0,c8};
+            v8  = ^{op0mx[ 7],op1[ 7],~rslt[ 7]};
+            v16 = ^{op0mx[15],op1[15],~rslt[15]};
         end
-    end else begin
-        if( cc[HBIT] )
-            daa = 8'b01100110;
-        else if (valid_lo)
-            daa = 8'b01100000;
-        else
-            daa = 8'b01100110;
-    end
-end
-
-always @* begin
-    cc_out = cc;
-    case (sel)
-        ALU_ADD8, ALU_INC, ALU_ADD16, ALU_INX, ALU_ADC:
-            rslt = op0 + op1 + {15'b0, cin};
-        ALU_SUB8, ALU_DEC, ALU_SUB16, ALU_DEX, ALU_SBC:
-            rslt = op0 - op1 - {15'b0, cin};
-        ALU_AND: rslt = op0 & op1;
-        ALU_ORA: rslt = op0 | op1;
-        ALU_EOR: rslt = op0 ^ op1;
-        ALU_LSL16, ALU_ASL8, ALU_ROL8:
-            rslt = {op0[14:0], cin};
-        ALU_LSR16, ALU_LSR8:
-            rslt = {cin, op0[15:1]};
-        ALU_ROR8: rslt = {8'b0, cin, op0[7:1]};
-        ALU_ASR8: rslt = {8'b0, op0[7], op0[7:1]};
-        ALU_NEG:  rslt = -op0;
-        ALU_COM:  rslt = ~op0;
-        ALU_CLR, ALU_LD8, ALU_LD16:
-            rslt = op1;
-        ALU_ST8, ALU_TST, ALU_ST16:
-            rslt = op0;
-        ALU_DAA:
-            rslt = op0 + {8'b0, daa};
-        ALU_TPA:
-            rslt = {8'b0, cc};
-        ALU_MUL:
-            rslt = { 8'd0, op0 } * { 8'd0, op1};
-        default:
-            rslt = op0; // ALU_NOP
+        AND_ALU: rslt = op0mx & op1;
+         OR_ALU: rslt = op0mx | op1;
+        EOR_ALU: rslt = op0mx ^ op1;
+        MUL_ALU: rslt = op0mx[7:0]*op1[7:0];  // Use a hardware multiplier
+        ASR_ALU, LSR_ALU: begin
+            rslt[15:8] = {alu_ctrl==ASR_ALU ? op0mx[7] : 1'b0, op0mx[7:1]};
+            rslt[ 7:0] = {cx,op1[7:1]};
+            c8  = op1[0];
+            c16 = op1[0];
+            v8  = op1[7] ^ op1[0];
+            v16 = op0mx[7] ^ op1[0];
+        end
+        LSL_ALU: begin
+            rslt[15:8] = {op0mx[6:0],cx};
+            rslt[ 7:0] = {op1[6:0],1'b0};
+            c8  = op0mx[7];
+            c16 = op0mx[7];
+            v8  = op0mx[7] ^ op0mx[6];
+            v16 = op0mx[7] ^ op0mx[6];
+        end
+        ROL_ALU: begin
+            {c8,rslt[7:0]} = {op0mx,cin};
+            v8  = op0mx[7] ^ op0mx[6];
+        end
+        ROR_ALU: begin
+            {rslt[7:0],c8} = {cin,op0mx};
+            v8  = op0mx[7] ^ cin;
+        end
+        SUB_ALU: begin
+            {c8,  rslt[ 7:0]} = {1'b0, op0mx[ 7:0]}-{1'b0,op1[ 7:0]}-{8'b0,cx};
+            {c16, rslt[15:8]} = {1'b0, op0mx[15:8]}-{1'b0,op1[15:8]}-{8'b0,c8};
+            v8  = &{op0mx[ 7],~op1[ 7],~rslt[ 7]}|&{~op0mx[ 7],op1[ 7],rslt[ 7]};
+            v16 = &{op0mx[15],~op1[15],~rslt[15]}|&{~op0mx[15],op1[15],rslt[15]};
+        end
+        default: rslt = op0mx;
     endcase
 
-    case (sel)
-        ALU_ADD8,  ALU_SUB8,  ALU_ADC,   ALU_SBC, ALU_AND,  ALU_ORA,  ALU_EOR,  ALU_INC,
-        ALU_DEC,   ALU_NEG,   ALU_COM,   ALU_CLR, ALU_ROL8, ALU_ROR8, ALU_ASR8, ALU_ASL8,
-        ALU_LSR8,  ALU_LD8 ,  ALU_ST8,   ALU_TST: cc_out[ZBIT] = rslt[7:0]==0;
-        ALU_ADD16, ALU_SUB16, ALU_LSL16, ALU_LSR16,
-        ALU_INX,   ALU_DEX,   ALU_LD16,  ALU_ST16: cc_out[ZBIT] = rslt==0;
-        default:;
-    endcase
-
-    case (sel)
-        ALU_ADD8, ALU_ADC: cc_out[CBIT] = (op0[7] & op1[7]) | (op0[7] & ~rslt[7]) | (op1[7] & ~rslt[7]);
-        ALU_SUB8, ALU_SBC: cc_out[CBIT] = ((~op0[7]) & op1[7]) | ((~op0[7]) & rslt[7]) | (op1[7] & rslt[7]);
-        ALU_ADD16: cc_out[CBIT] = (op0[15] & op1[15]) | (op0[15] & ~rslt[15]) | (op1[15] & ~rslt[15]);
-        ALU_SUB16: cc_out[CBIT] = ((~op0[15]) & op1[15]) | ((~op0[15]) & rslt[15]) | (op1[15] & rslt[15]);
-        ALU_ROR8, ALU_LSR16, ALU_LSR8, ALU_ASR8: cc_out[CBIT] = op0[0];
-        ALU_ROL8, ALU_ASL8: cc_out[CBIT] = op0[7];
-        ALU_LSL16: cc_out[CBIT] = op0[15];
-        ALU_COM,  ALU_SEC: cc_out[CBIT] = 1;
-        ALU_NEG,  ALU_CLR: cc_out[CBIT] = |rslt[7:0];
-        ALU_DAA: cc_out[CBIT] = daa[7:4] == 4'b0110;
-        ALU_CLC, ALU_TST: cc_out[CBIT] = 1'b0;
-        default:;
-    endcase
-
-    case (sel)
-        ALU_ADD8, ALU_SUB8, ALU_ADC,  ALU_SBC,
-        ALU_AND,  ALU_ORA,  ALU_EOR,  ALU_ROL8,
-        ALU_ROR8, ALU_ASR8, ALU_ASL8, ALU_LSR8,
-        ALU_INC,  ALU_DEC,  ALU_NEG,  ALU_COM,
-        ALU_CLR,  ALU_LD8,  ALU_ST8,  ALU_TST:
-            cc_out[NBIT] = rslt[7];
-        ALU_ADD16, ALU_SUB16, ALU_LSL16, ALU_LSR16,
-        ALU_LD16, ALU_ST16:
-            cc_out[NBIT] = rslt[15];
-        default:;
-    endcase
-
-    case (sel)
-        ALU_SEI: cc_out[IBIT] = 1;
-        ALU_CLI: cc_out[IBIT] = 0;
-        default:;
-    endcase
-
-    case (sel)
-        ALU_ADD8, ALU_ADC:
-            cc_out[HBIT] = (op0[3] & op1[3]) |
-                (op1[3] & ~rslt[3]) |
-                (op0[3] & ~rslt[3]);
-        default:;
-    endcase
-
-    case (sel)
-        ALU_ADD8, ALU_ADC:
-            cc_out[VBIT] = (op0[7] & op1[7] & (~rslt[7])) |
-                ((~op0[7]) & (~op1[7]) & rslt[7]);
-        ALU_SUB8, ALU_SBC:
-            cc_out[VBIT] = (op0[7] & (~op1[7]) & (~rslt[7])) |
-                ((~op0[7]) & op1[7] & rslt[7]);
-        ALU_ADD16:
-            cc_out[VBIT] = (op0[15] & op1[15] & (~rslt[15])) |
-                ((~op0[15]) & (~op1[15]) & rslt[15]);
-        ALU_SUB16:
-            cc_out[VBIT] = (op0[15] & (~op1[15]) & (~rslt[15])) |
-                ((~op0[15]) & op1[15] & rslt[15]);
-        ALU_INC:
-            cc_out[VBIT] = op0==8'h7f;
-        ALU_DEC, ALU_NEG:
-            cc_out[VBIT] = (op0[7] & (~op0[6]) & (~op0[5]) & (~op0[4]) &
-                (~op0[3]) & (~op0[2]) & (~op0[1]) & (~op0[0]));
-        ALU_ASR8:           cc_out[VBIT] = op0[0] ^ op0[7];
-        ALU_LSR8, ALU_LSR16:cc_out[VBIT] = op0[0];
-        ALU_ROR8:           cc_out[VBIT] = op0[0] ^ cc[CBIT];
-        ALU_LSL16:          cc_out[VBIT] = op0[15] ^ op0[14];
-        ALU_ROL8, ALU_ASL8: cc_out[VBIT] = op0[7] ^ op0[6];
-        ALU_AND, ALU_ORA, ALU_EOR,  ALU_COM,
-        ALU_ST8, ALU_TST, ALU_ST16, ALU_LD8,
-        ALU_LD16,ALU_CLV:
-                    cc_out[VBIT] = 0;
-        ALU_SEV:    cc_out[VBIT] = 1;
-        default:;
-    endcase
-
-    if( sel==ALU_TAP ) cc_out = op0[5:0];
 end
 
 endmodule

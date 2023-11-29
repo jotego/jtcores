@@ -7,6 +7,15 @@ You can show your appreciation through
 * [Paypal](https://paypal.me/topapate)
 * [Github](https://github.com/sponsors/jotego)
 
+## Device differences
+
+Item           | MC6801            | MC6805          | HD6301
+---------------|-------------------|-----------------|-------
+Type           | MCU               | MCU             | MCU
+B              | present           | absent
+X/S            | 16 bits           | 8 bits
+Idx addr.      | 8-bit offset      | 8/16-bit offset
+
 ## Device Usage on Arcade Games
 
 ### MC6800
@@ -38,201 +47,133 @@ Some games from Taito and Atari in the late 1970's used the MC6800. KONAMI's Whi
 
 ### MC6801
 
-bublbobl
-kicknrun
-kicknrunu
+Two Taito titles. The MCU is referred to as PS4 in the schematics.
+
+- bublbobl
+- kicknrun
 
 ### MC6803
 
 IREM M62 system runs on this CPU. Currently implemented on MiSTer using [Open Core's CPU68](https://github.com/MiSTer-devel/Arcade-IremM62_MiSTer/blob/master/rtl/6800/cpu68.vhd)
 
-10yard
-10yard85
-10yardj
-alpha1v
-banctec
-battroad
-bcrusher
-bkungfu
-ddragonba
-dpb7000
-horizon
-kidniki
-kidnikib
-kidnikiu
-kncljoe
-kncljoea
-kungfub
-kungfub2
-kungfub3s
-kungfum
-kungfumd
-ldrun
-ldrun2
-ldrun3
-ldrun3j
-ldrun4
-ldruna
-lithero
-lotlot
-mc10
-motorace
-mototour
-mpatrol
-mpatrolw
-mranger
-newtangl
-shtrider
-shtridera
-shtriderb
-spartanx
-spelunk2
-spelunkr
-spelunkrj
-travrusa
-travrusab
-travrusab2
-troangel
-vs10yard
-vs10yardj
-vs10yardu
-yanchamr
-youjyudn
+- 10yard
+- 10yard85
+- 10yardj
+- alpha1v
+- banctec
+- battroad
+- bcrusher
+- bkungfu
+- ddragonba
+- dpb7000
+- horizon
+- kidniki
+- kncljoe
+- kungfum
+- ldrun
+- ldrun2
+- ldrun3
+- ldrun3j
+- ldrun4
+- ldruna
+- lithero
+- lotlot
+- mc10
+- motorace
+- mototour
+- mpatrol
+- mranger
+- newtangl
+- shtrider
+- spelunk2
+- spelunkr
+- travrusa
+- troangel
+- vs10yard
+- yanchamr
+- youjyudn
 
 ## 68705
 
-40love
-40lovej
-705p3prg
-705p5prg
-705r3prg
-705u3prg
-alcon
-ark1ball
-arkanoid
-arkanoidj
-arkanoidja
-arkanoidjb
-arkanoidjbl
-arkanoidjbl2
-arkanoidu
-arkanoiduo
-arkatour
-arkatour2
-bballs
-bballsa
-bigevglf
-bigevglfj
-bking3
-bub68705
-buggychl
-buggychlt
-bygone
-chaknpop
-changela
-cshootert
-daikaiju
-darktowr
-ddungeon
-ddungeone
-elecyoyo
-elecyoyo2
-elevator
-elevatora
-empcity
-empcityfr
-empcityi
-empcityj
-empcityu
-fieldday
-flstory
-flstoryj
-frontlin
-frontlina
-getstarj
-grdian
-hotsmash
-kikstart
-knightb
-kram
-kram2
-kuniokun
-lkage
-lkageo
-lkageoo
-lsasquad
-maniach
-maniach2
-maxaflex
-maxidpkr
-megadpkr
-megadpkrb
-mexico86
-mexico86a
-mf_achas
-mf_bdash
-mf_brist
-mf_flip
-midresb
-ncd16
-nycaptor
-onna34ro
-pbillian
-pipeline
-pitnrun
-pitnruna
-pushman
-pushmana
-pushmans
-pushmant
-puzznic
-puzznicj
-puzznicu
-quizpun
-renegade
-retofinv
-retofinvb
-rumba
-sdungeon
-sdungeona
-sfposeid
-slapfigh
-slapfigha
-solrwarr
-stfight
-stfighta
-stfightgb
-tbasebal
-tigerh
-tigerhb4
-tigerhj
-tinstar
-tinstara
-tokio
-tokioo
-tokiou
-topgunnr
-tstrike
-tstrikea
-undoukai
-victnine
-wyvernf0
-wyvernf0a
-xsleena
-xsleenaj
-zookeep
-zookeep2
-zookeep3
-zorba
-zorba_kbd
-taitosjsecmcu
-ace_sp_reelctrl
-ace_sp_reelctrl_pcp
-taito68705
-taito68705tiger
-arkanoid68705p3
-arkanoid68705p5
-a2mouse
+- 40love
+- alcon
+- ark1ball
+- arkanoid
+- arkatour
+- bballs
+- bigevglf
+- bking3
+- bub68705
+- buggychl
+- bygone
+- chaknpop
+- changela
+- cshootert
+- daikaiju
+- darktowr
+- ddungeon
+- ddungeone
+- elecyoyo
+- elecyoyo2
+- elevator
+- elevatora
+- empcity
+- fieldday
+- flstory
+- frontlin
+- getstarj
+- grdian
+- hotsmash
+- kikstart
+- knightb
+- kram
+- kram2
+- kuniokun
+- lkage
+- lkageo
+- lkageoo
+- lsasquad
+- maniach
+- maniach2
+- maxaflex
+- maxidpkr
+- megadpkr
+- mexico86
+- mf_achas
+- mf_bdash
+- mf_brist
+- mf_flip
+- midresb
+- ncd16
+- nycaptor
+- onna34ro
+- pbillian
+- pipeline
+- pitnrun
+- pushman
+- puzznic
+- quizpun
+- renegade
+- retofinv
+- rumba
+- sdungeon
+- sfposeid
+- slapfigh
+- solrwarr
+- stfight
+- tbasebal
+- tigerh
+- tinstar
+- tokio
+- topgunnr
+- tstrike
+- undoukai
+- victnine
+- wyvernf0
+- xsleena
+- zookeep
+- zookeep3
+- a2mouse
 
 ### 63701
 
@@ -240,11 +181,9 @@ aliensec
 bakutotu
 baraduke
 berabohm
-berabohmb
 blastoff
 blazer
 boxyboy
-boxyboya
 dangseed
 darktowr
 ddragon

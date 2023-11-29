@@ -99,7 +99,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 reg [2:0] admode;
-localparam [2:0] IMM_AD=0, DIR_AD=1, IDX_AD=2, EXT_AD=3, INH_AD=4;
+localparam [2:0] IMM_AD=0, DIR_AD=1, IDX_AD=2, EXT_AD=3, EXTOP_AD=4, IDXOP_AD=5, INH_AD=6;
 
 always @* begin
     // addressing decoding
@@ -111,27 +111,38 @@ always @* begin
         8'b0110_????: admode = IDX_AD;
         8'b0111_????,
         8'b1?11_????: admode = EXT_AD;
+        8'b011?_0???,
+        8'b011?_10??,
+        8'b011?_110?,
+        8'b011?_1111: admode = din[4] ? EXTOP_AD : IDXOP_AD;
         default: admode = INH_AD;
     endcase
     // operation decoding
     casez( din )
-        // inherent
+        // implied
         8'b0000_0001: opseq = FETCH_SEQA;  // NOP
         8'b0000_011?, // TAP, TPA
         8'b0000_101?, // CLV, SEV
         8'b0000_11??: // CLC, SEC, CLI, SEI
             opseq = INH_CC_SEQA;
+        8'b0000_100?: // INX, DEX
+            opseq = ALU_X_SEQA;
         8'b0001_0000, // SBA
         8'b0001_10?1: // ABA, DAA
-            opseq =ALU_SBA_SEQA;
-        8'b0001_0001: opseq =ALU_CBA_SEQA;  // CBA
-        8'b0001_0110: opseq =ALU_TAB_SEQA;  // TAB
-        8'b0001_0111: opseq =ALU_TBA_SEQA;  // TBA
+            opseq = ALU_SBA_SEQA;
+        8'b0001_0001: opseq = ALU_CBA_SEQA;  // CBA
+        8'b0001_0110: opseq = ALU_TAB_SEQA;  // TAB
+        8'b0001_0111: opseq = ALU_TBA_SEQA;  // TBA
+        8'b0011_0000: opseq = TSX_SEQA;      // TSX
+        8'b0011_0101: opseq = TXS_SEQA;      // TXS
+        8'b0011_0010: opseq = ALU8A_SEQA;    // PULA
+        8'b0011_0011: opseq = ALU8B_SEQA;    // PULB
+        8'b0011_1000: opseq = PULX_SEQA;     // PULX
         // one operand:
         8'b010?_1101: // TST
-            opseq = din[4] ? ALU_CC8B_SEQA : ALU_CC8B_SEQA;
+            opseq = din[4] ? ALU_CC8B_SEQA : ALU_CC8A_SEQA;
         8'b010?_0???, 8'b010?_10??, 8'b010?_111?, 8'b010?_1100:
-            opseq = din[4] ? ALU8B_SEQA : ALU8B_SEQA;
+            opseq = din[4] ? ALU8B_SEQA : ALU8A_SEQA;
         // two operands:
         8'b1???_0?01: // SUB, BIT
             opseq = din[6] ? ALU_CC8B_SEQA : ALU_CC8B_SEQA;
@@ -139,8 +150,18 @@ always @* begin
         8'b1???_001?, // SBC
         8'b1???_01?0, // AND, LDA
         8'b1???_10??: // EOR, ADC, OR, ADD
-            opseq = din[6] ? ALU8B_SEQA : ALU8B_SEQA;
-
+            opseq = din[6] ? ALU8B_SEQA : ALU8A_SEQA;
+        8'b1???_0011: opseq = ALU_IMM16_SEQA;
+        // operand and result in memory
+        8'b011?_0000, // NEG
+        8'b011?_0011, // COM
+        8'b011?_0100, // LSR
+        8'b011?_011?, // ROR, ASR
+        8'b011?_100?, // ASL, ROL
+        8'b011?_1010, // DEC
+        8'b011?_110?, // INC, TST
+        8'b011?_1111: // CLR
+            opseq = ALU_MEM_SEQA;
         default: opseq = BERR_SEQA; // bus error
     endcase
 end
@@ -154,9 +175,11 @@ always @(posedge clk, posedge rst) begin
             FETCH_SEQ: seqa <= FETCH_SEQA;
             DEC_SEQ:
                 case( admode )
-                    DIR_AD: begin seqa <= DIRECT_SEQA; nx_ops <= opseq; end
-                    IDX_AD: begin seqa <= EXTEND_SEQA; nx_ops <= opseq; end
-                    EXT_AD: begin seqa <= INDEXD_SEQA; nx_ops <= opseq; end
+                    DIR_AD:   begin seqa <=    DIRECT_SEQA; nx_ops <= opseq; end
+                    IDX_AD:   begin seqa <=    EXTEND_SEQA; nx_ops <= opseq; end
+                    EXT_AD:   begin seqa <=    INDEXD_SEQA; nx_ops <= opseq; end
+                    IDXOP_AD: begin seqa <= INDEXD_WR_SEQA; nx_ops <= opseq; end
+                    EXTOP_AD: begin seqa <= EXTEND_WR_SEQA; nx_ops <= opseq; end
                     default: seqa <= opseq;
                 endcase
             EXEC_SEQ: seqa <= nx_ops;

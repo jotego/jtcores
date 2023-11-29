@@ -28,7 +28,7 @@ control:
   op0:  [ "0", ACCA, ACCB, ACCD, IX, SP ]
   op1:  [ "0", ZERO, ONE, ACCB, MDHI ]
   acca: [ "0", LOAD, LOAD_HI, XCG, PULL ]
-  md:   [ "0", LOAD, FETCH_LO, FETCH_HI, SHIFTL ]
+  md:   [ "0", LOAD, FETCH_LO, SH_FETCH, SHIFTL ]
   acca: [ "0", LOAD, LOAD_HI, XCG, PULL ]
   accb: [ "0", LOAD, XCG, PULL ]
   ix:   [ "0", LOAD, XCG, PULL_HI, PULL_LO ]
@@ -70,11 +70,18 @@ sequence:
   - id: alu_cc8b
     seq:
       - ACCB_OP0, LOAD_CC, FETCH_OP, INC_PC, DEC_SEQ
+  - id: alu_x # 3 cycles in 6801, 1 in 6301
+      - IX_OP0, ONE_OP1, LOAD_CC, INC_PC, IMA
+      - FETCH_SEQ
+  - id: alu_s # 3 cycles in 6801, 1 in 6301
+      - S_OP0,  ONE_OP1, LOAD_CC, INC_PC, IMA
+      - FETCH_SEQ
   # Execution on memory operand and result
   - id: alu_mem
     seq:
-      - ALU_CC, LOAD_MD
-  # instructions using both A and B
+      - ALU_CC, LOAD_MD, WRITE_BUS
+      - FETCH_SEQ
+  # Instructions using both A and B
   - id: alu_sba
     seq:
       - ACCA_OP0, ACCB_OP1, LOAD_ACCA, LOAD_CC, FETCH_SEQ
@@ -87,25 +94,33 @@ sequence:
   - id: alu_tab
     seq:
       - ACCA_OP0, LOAD_ACCB, LOAD_CC, FETCH_SEQ
-
+  # Transfers
+  - id: tsx
+    seq:
+      - SP_OP0, LOAD_X, LOAD_EA, IMA
+      - FETCH_SEQ
+  - id: txs
+    seq:
+      - IX_OP0, LOAD_SP, IMA
+      - FETCH_SEQ
   # 16-bit loads
   - id: ldx
     seq:
-      - FETCH_HI_MD, READ_BUS, INC_PC
+      - SH_FETCH_MD, READ_BUS, INC_PC
       - LOAD_IX, READ_BUS, INC_PC
   - id: lds
     seq:
-      - FETCH_HI_MD, READ_BUS, INC_PC
+      - SH_FETCH_MD, READ_BUS, INC_PC
       - LOAD_SP, READ_BUS, INC_PC
   - id: alu_imm16
-    seq:
+    seq: # 1 cycle shorter in 6301
       - FETCH_LO_MD, READ_BUS, INC_PC
-      - FETCH_HI_MD, READ_BUS,
-      - LOAD_HI_ACCA, LOAD_ACCB, LOAD_CC, INC_PC
+      - SH_FETCH_MD, READ_BUS, INC_PC, IMA,
+      - LOAD_HI_ACCA, LOAD_ACCB, LOAD_CC, FETCH_SEQ
   - id: alu_cmp16
     seq:
       - FETCH_LO_MD, READ_BUS, INC_PC
-      - FETCH_HI_MD, READ_BUS,
+      - SH_FETCH_MD, READ_BUS,
       - LOAD_CC, INC_PC
   - id: staa
     seq:
@@ -113,6 +128,19 @@ sequence:
   - id: stab
     seq:
       - ACCB_DOUT, WRITE_BUS
+  # Stack
+  - id: pulab
+    seq:
+      - SP_OP0, ZERO_OP1, LOAD_SP, LOAD_EA
+      - SP_OP0, ONE_OP1,  LOAD_SP, LOAD_EA
+      - FETCH_LO_MD, EXEC_SEQ
+  - id: pulx
+    seq:
+      - SP_OP0, ZERO_OP1, LOAD_SP, LOAD_EA
+      - SP_OP0, ONE_OP1,  LOAD_SP, LOAD_EA
+      - SP_OP0, ONE_OP1,  LOAD_SP, LOAD_EA, FETCH_LO_MD
+      - SH_FETCH_MD
+      - LOAD_X, FETCH_OP, INC_PC, DEC_SEQ
   # Branching
   - id: branch
     seq:
@@ -129,11 +157,23 @@ sequence:
   - id: extend
     seq:
       - FETCH_FIRST_EA, INC_PC
-      - FETCH_NEXT_EA,  INC_PC, READ_BUS, EXEC_SEQ
+      - FETCH_NEXT_EA,  INC_PC, READ_BUS
+      - FETCH_LO_MD, EXEC_SEQ
+  - id: extend_wr
+    seq:
+      - FETCH_FIRST_EA, INC_PC
+      - FETCH_NEXT_EA,  INC_PC, READ_BUS
+      - FETCH_LO_MD, EXEC_SEQ, IMA
   - id: indexd
     seq:
-      - FETCH_LO_MD, IX_OP0, INC_PC, IMA
-      - FETCH_LO_MD, IX_EN, READ_BUS, EXEC_SEQ
+      - FETCH_LO_MD, INC_PC, IMA
+      - IX_OP0, LOAD_EA, READ_BUS
+      - FETCH_LO_MD, EXEC_SEQ
+  - id: indexd_wr
+    seq:
+      - FETCH_LO_MD, INC_PC, IMA
+      - IX_OP0, LOAD_EA, READ_BUS
+      - FETCH_LO_MD, EXEC_SEQ, IMA
   - id: berr
     seq:
       - BERR, HALT_SEQ

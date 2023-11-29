@@ -25,33 +25,26 @@ module jt680x_regs(
     input      [15:0] rslt,
     output reg [15:0] op0, op1,
     // control
-    input      [ 2:0] acca_ctrl, accb_ctrl, ix_ctrl,
-                      op0_ctrl,   op1_ctrl,
-    input      [ 1:0] cc_ctrl,
-    input             load_sp
+
 );
 
 `include "jt680x.vh"
 
-reg  [ 7:0] acca, accb, cc;
-reg  [15:0] xreg, sp;
+reg  [ 7:0] acca, accb;
+reg  [ 5:0] cc;
+reg  [15:0] xreg, sp, rmux, md, ea, pc;
 
-// ALU inputs
+
 always @* begin
-    case( op0_ctrl )
-        ACCA_OP0: op0 = { 8'd0, acca };
-        ACCB_OP0: op0 = { 8'd0, accb };
-        ACCD_OP0: op0 = { acca, accb };
-        IX_OP0:   op0 = xreg;
-        SP_OP0:   op0 = sp;
-        default:  op0 = md;
-    endcase
-    case( op1_ctrl )
-        ZERO_OP1: op1 = 0;
-        ONE_OP1:  op1 = 1;
-        ACCB_OP1: op1 = { 8'd0, accb };
-        MDHI_OP1: op1 = { 8'd0, md[15:8] };
-        default:  op1 = md;
+    case( rmux_ctrl )
+          MD_RMUX: rmux = md;
+           A_RMUX: rmux = { 8'd0, a };
+           B_RMUX: rmux = { 8'd0, b };
+           X_RMUX: rmux = x;
+           S_RMUX: rmux = sp;
+          CC_RMUX: rmux = {2'b11, cc};
+         ONE_RMUX: rmux = 16'd1;
+        ZERO_RMUX: rmux = 16'd0;
     endcase
 end
 
@@ -61,34 +54,33 @@ always @( posedge clk, posedge rst ) begin
         accb <= 0;
         xreg <= 0;
         sp   <= 0;
-        cc   <= 8'hc0;
+        op0  <= 0;
+        op1  <= 0;
+        md   <= 0;
+        ea   <= 0;
+        cc   <= 0;
     end if( cen ) begin
-        case( acca_ctrl )
-            LOAD_ACCA:    acca <= rslt[7:0];
-            LOAD_HI_ACCA: acca <= rslt[15:8];
-            XCG_ACCA:     acca <= xreg[15:8];
-            PULL_ACCA:    acca <= din;
+        if( fetch  ) begin
+            md[ 7:0] <= din;
+            md[15:8] <= md_shift ? md[7:0] : 8'd0;
+        end
+        case( opnd_ctrl )
+            LD0_OPND: op0 <= rmux;
+            LD1_OPND: op1 <= rmux;
             default:;
         endcase
-        case( accb_ctrl )
-            LOAD_ACCB:    accb <= rslt[7:0];
-            XCG_ACCB:     accb <= xreg[7:0];
-            PULL_ACCB:    accb <= din;
-            default:;
+        case( ld_ctrl )
+              A_LD:     a <= rslt[7:0];
+              B_LD:     b <= rslt[7:0];
+              D_LD: {a,b} <= rslt;
+              X_LD:     x <= rslt;
+              S_LD:     s <= rslt;
+             EA_LD:    ea <= rslt;
+             CC_LD:    cc <= rslt[5:0];
+             PC_LD: if( branch_ok | ~branch ) pc <= rslt;
+             default:;
         endcase
-        case( ix_ctrl )
-            LOAD_IX:      xreg <= rslt[15:0];
-            XCG_IX:       xreg <= { acca, accb };
-            PULL_HI_IX:   xreg[15:8] <= din;
-            PULL_LO_IX:   xreg[ 7:0] <= din;
-            default:;
-        endcase
-        case( cc_ctrl )
-            LOAD_CC:      cc <= cc_out;
-            PULL_CC:      cc <= data_in;
-            default:;
-        endcase
-        if( load_sp ) sp <= rslt;
+        if( inc_pc ) pc <= pc+16'd1;
     end
 end
 
