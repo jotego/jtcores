@@ -5451,7 +5451,7 @@
     (property "Reference" "RN1" (at 22.86 93.98 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "R_Network08_US" (at 34.29 93.98 0)
+    (property "Value" "R_Network08_US" (at 35.56 90.17 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_THT:R_Array_SIP9" (at 47.625 93.98 90)

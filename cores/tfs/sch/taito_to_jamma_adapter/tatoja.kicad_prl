@@ -84,6 +84,18 @@
           "size_x": 1280,
           "size_y": 573
         }
+      },
+      {
+        "name": "tatoja.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 960,
+          "pos_y": 28,
+          "size_x": 960,
+          "size_y": 720
+        }
       }
     ]
   }
