@@ -20,20 +20,24 @@ module jt680x_regs(
     input             rst,
     input             clk,
     input             cen,
-    input      [ 7:0] din, md,
-    // ALU
+    input      [ 7:0] md,
+    input             op0_inv,
     input      [15:0] rslt,
+    input             rslt_h,
+    input      [ 3:0] rslt_cc,
     output reg [15:0] op0, op1,
     // control
-
+    // external bus
+    input      [ 7:0] din
+    output reg [15:0] addr, // always valid
+    output reg [ 7:0] dout
 );
 
 `include "jt680x.vh"
 
 reg  [ 7:0] acca, accb;
-reg  [ 5:0] cc;
+reg         i,h,n,z,v,c; // condition codes
 reg  [15:0] xreg, sp, rmux, md, ea, pc;
-
 
 always @* begin
     case( rmux_ctrl )
@@ -46,6 +50,8 @@ always @* begin
          ONE_RMUX: rmux = 16'd1;
         ZERO_RMUX: rmux = 16'd0;
     endcase
+    addr = use_ea   ? ea : pc;
+    dout = md_shift ? md[15:8] : md[7:0];
 end
 
 always @( posedge clk, posedge rst ) begin
@@ -58,15 +64,35 @@ always @( posedge clk, posedge rst ) begin
         op1  <= 0;
         md   <= 0;
         ea   <= 0;
-        cc   <= 0;
+        {h,n,z,v,c} <= 0;
+        i    <= 1;
     end if( cen ) begin
         if( fetch  ) begin
             md[ 7:0] <= din;
             md[15:8] <= md_shift ? md[7:0] : 8'd0;
         end
         case( opnd_ctrl )
-            LD0_OPND: op0 <= rmux;
+            LD0_OPND: op0 <= {16{op0_inv}} ^ rmux;
             LD1_OPND: op1 <= rmux;
+            default:;
+        endcase
+        case( cc_ctrl )
+             NZVC_CC:    {n,z,v,c} <= rslt_cc;
+            N0ZVC_CC:    {n,z,v,c} <= {1'b0,rslt_cc[2:0]};
+              NZV_CC:    {n,z,v  } <= rslt_cc[3:1];
+                Z_CC:       z      <= rslt_cc[2];
+                C_CC:           c  <= rslt_cc[0];
+             NZV0_CC:    {n,z,v  } <= {rslt_cc[3:2],1'b0};
+            N0Z1V0C0_CC: {n,z,v,c} <= 4'b0100;
+            NZV0C1_CC:   {n,z,v,c} <= {rslt_cc[3:2],2'b01};
+            NZV0C0_CC:   {n,z,v,c} <= {rslt_cc[3:2],2'b00};
+            HNZVC_CC:  {h,n,z,v,c} <= {rslt_h, rslt_cc};
+               I0_CC:  i           <= 0;
+               I1_CC:  i           <= 1;
+               C0_CC:           c  <= 0;
+               C1_CC:           c  <= 1;
+               V0_CC:         v    <= 0;
+               V1_CC:         v    <= 1;
             default:;
         endcase
         case( ld_ctrl )
@@ -81,6 +107,31 @@ always @( posedge clk, posedge rst ) begin
              default:;
         endcase
         if( inc_pc ) pc <= pc+16'd1;
+    end
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        branch <= 0;
+    end else if(cen) begin
+        if( ld_branch ) case(sel)
+            4'b0000: branch <= 1; // bra
+            4'b0001: branch <= 0; // brn
+            4'b0010: branch <= !(c | z); // bhi
+            4'b0011: branch <=   c | z;  // bls
+            4'b0100: branch <= ! c; // bcc/bhs
+            4'b0101: branch <=   c; // bcs/blo
+            4'b0110: branch <= ! z; // bne
+            4'b0111: branch <=   z; // beq
+            4'b1000: branch <= ! v; // bvc
+            4'b1001: branch <=   v; // bvs
+            4'b1010: branch <= ! n; // bpl
+            4'b1011: branch <=   n; // bmi
+            4'b1100: branch <= !(n ^ v); // bge
+            4'b1101: branch <=   n ^ v;  // blt
+            4'b1110: branch <= !(z | (n ^ v)); // bgt
+            4'b1111: branch <=   z | (n ^ v);// ble
+        endcase
     end
 end
 

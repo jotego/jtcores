@@ -35,10 +35,7 @@ jt680x_alu u_alu(
     .cc_out ( cc_out    )
 )
 
-jt680x_alu_sel u_alu_sel(
-    .op     ( op        ),
-    .sel    ( alu_sel   )
-)
+
 
 
 endmodule
