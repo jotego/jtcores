@@ -605,9 +605,9 @@ fi
 
 if [ $GATES = NO ]; then
     # Prepare all file lists
-    jtframe mem $SYSNAME --target "$TARGET" || exit $?
+    jtframe mem $SYSNAME --target "$TARGET" --local || exit $?
     jtframe mmr $SYSNAME || exit $?
-    jtframe files sim $SYSNAME --rel --target "$TARGET" --macro "$ALLMACROS" || exit $?
+    jtframe files sim $SYSNAME --rel --local --target "$TARGET" --macro "$ALLMACROS" || exit $?
     # Remove duplicated lines
     rm -f tmp.f
     rm -f game_env.f
@@ -685,7 +685,6 @@ iverilog)
         $SIMULATOR_EXTRA \
         -s $TOP -o $SIMEXE \
         -DIVERILOG $EXTRA -I$CORES/$SYSNAME/hdl -I$JTFRAME/hdl/inc \
-        -I$CORES/$SYSNAME/$TARGET \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
         -DDUMP_VIDEO_FNAME=\"video.pipe\" $FILES \
     || exit 1
@@ -699,7 +698,6 @@ modelsim|questasim)
     $SHOWCMD vlog -svfilesuffix=sv -svinputport=net -suppress vlog-7061 \
         +initwireX $SIMULATOR_EXTRA \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$CORES/$SYSNAME/$TARGET \
         +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         $EXTRA +define+DUMP_VIDEO_FNAME=\"video.pipe\" \
@@ -719,7 +717,6 @@ xcelium)
         -f filtered.f $FILES -nowarn RECOME \
         -top $TOP \
         -incdir $CORES/$SYSNAME/hdl -incdir $JTFRAME/hdl/inc \
-        -incdir $CORES/$SYSNAME/$TARGET \
         -incdir $MODULES/jtkcpu/hdl -incdir $MODULES/jt900h/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         -define DUMP_VIDEO_FNAME=\"video.pipe\" \
@@ -730,7 +727,6 @@ synapticad)
         -f filtered.f $FILES \
         +scd_top+$TOP \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$CORES/$SYSNAME/$TARGET \
         +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         +define+DUMP_VIDEO_FNAME=\"video.pipe\" \
@@ -743,7 +739,6 @@ ncverilog)
         -disable_sem2009 $FILES \
         +nctop+$TOP \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$CORES/$SYSNAME/$TARGET \
         +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
         -ncvhdl_args,-V93 \
         $SIMARGS $SIMULATOR_EXTRA\
@@ -768,7 +763,7 @@ verilator)
     # but if you use JTFPGA/FX68K branch fix 6, you should be able to simulate it
     if [ ! -z "$VERILATOR_ROOT" ]; then VERILATOR_PATH=${VERILATOR_ROOT}/bin/; fi
     $SHOWCMD ${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl \
-        -I$JTFRAME/hdl/inc -I$CORES/$SYSNAME/$TARGET \
+        -I$JTFRAME/hdl/inc \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
         --timescale 1ps/1ps \
         $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \

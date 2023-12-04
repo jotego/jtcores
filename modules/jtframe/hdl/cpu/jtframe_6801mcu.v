@@ -31,12 +31,10 @@ module jtframe_6801mcu #( parameter
     input              rst,
     input              cen,
     output             wait_cen,
-    output             wrn,
+    output             wr,
     output             vma,
     output      [15:0] addr,
     output      [ 7:0] dout,
-    input              halt,
-    output             halted,
     input              irq,
     input              nmi,
     // Ports
@@ -66,7 +64,7 @@ wire [ 7:0] ram_dout,
 reg         port_cs, ram_cs, bus_free;
 
 assign rom_addr  = addr[ROMW-1:0];
-assign intram_we = ram_cs & ~wrn;
+assign intram_we = ram_cs & wr;
 assign p1_datadir= port_map[0];
 assign p2_datadir= port_map[1];
 assign p3_datadir= port_map[4];
@@ -75,6 +73,7 @@ assign p1_out    = port_map[2];
 assign p2_out    = port_map[3];
 assign p3_out    = port_map[6];
 assign p4_out    = port_map[7];
+assign vma       = 1;
 
 // Address decoder
 always @(*) begin
@@ -143,24 +142,21 @@ generate
     end
 endgenerate
 
-m6801 u_mcu(
+jt680x u_mcu(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( wait_cen      ),
-    .rw         ( wrn           ),
-    .vma        ( vma           ),
-    .address    ( addr          ),
-    .data_in    ( din           ),
-    .data_out   ( dout          ),
-    .halt       ( halt          ),
-    .halted     ( halted        ),
+    .wr         ( wr            ),
+    .addr       ( addr          ),
+    .din        ( din           ),
+    .dout       ( dout          ),
     .irq        ( irq           ),
-    .nmi        ( nmi           ),
-    // Timer interrupts
-    .irq_icf    ( 1'b0          ),
-    .irq_ocf    ( 1'b0          ),
-    .irq_tof    ( 1'b0          ),
-    .irq_sci    ( 1'b0          )
+    .nmi        ( nmi           )
+    // // Timer interrupts
+    // .irq_icf    ( 1'b0          ),
+    // .irq_ocf    ( 1'b0          ),
+    // .irq_tof    ( 1'b0          ),
+    // .irq_sci    ( 1'b0          )
 );
 
 endmodule

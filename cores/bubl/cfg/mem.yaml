@@ -8,7 +8,7 @@ clocks:
       outputs:
         - cen6
         - cen3
-    - freq: 1000000
+    - freq: 4000000
       gate: [ "main", "sub", "snd", "mcu" ]
       outputs:
         - cen4

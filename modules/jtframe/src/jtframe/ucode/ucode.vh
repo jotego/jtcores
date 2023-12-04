@@ -1,34 +1,35 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: {{ now | date "02-01-2006" }} */
-
-// Control signals
-{{- range .Ss }}{{ if (ne .Bw 1)}}
-localparam [{{ sub .Bw 1 }}:0] // {{ .Name }}
-{{- $bw := .Bw -}}
-{{- $first := true }}
-{{- range .Macros}}
-    {{- if (not $first) }},{{ end }}
-    {{ printf "%-16s" .Name | upper }} = {{ $bw }}'d{{ .Value }}
-    {{- $first = false -}}
-{{- end }};
-{{ end }}{{ end }}
-// Sequencer entry points
-{{- $seq_bw := .Seq_bw }}
-{{- range .Seq }}
-localparam [{{ sub $seq_bw 1 }}:0] {{ printf "%s_SEQA" .Id | printf "%-16s" | upper }} = {{ $seq_bw }}'h{{ printf "%X" .Start }};
+{{ if (len .Jsr) -}}
+reg jsr_en;
+reg [{{ sub .Aw 1}}:0] jsr_ua, jsr_ret, uaddr;
 {{- end }}
+
+{{ range .Ss }}{{ if (ne .Bw 1) }}// wire [{{ sub .Bw 1 }}:0] {{ lower .Name }}_sel;
+{{end}}{{ end }}
+{{ range .Ss }}{{ if (eq .Bw 1) }}// wire       {{ lower .Name }};
+{{end}}{{ end }}
+reg  [{{ sub .Dw 1 }}:0] ucode_rom[0:2**{{.Aw}}-1];
+wire [{{ sub .Dw 1 }}:0] ucode_data;
+
+initial begin
+    $readmemb("{{.Rom}}",ucode_rom);
+end
+
+assign ucode_data = ucode_rom[uaddr];
+// always @(posedge clk ) if(cen) ucode_data = ucode_rom[uaddr];
+
+{{ range .Ss }}{{ if (eq .Bw 1) }}assign {{ lower .Name | printf "%-11s" }}= ucode_data[{{ printf "%2d" .Pos }}+:{{ .Bw }}];
+{{end}}{{- end }}
+{{- range .Ss }}{{ if (ne .Bw 1) }}assign {{ lower .Name | printf "%s_sel" | printf "%-11s" }}= ucode_data[{{ printf "%2d" .Pos }}+:{{ .Bw }}];
+{{end}}{{- end }}
+
+{{- $aw := .Aw }}
+{{- $entryLen := .EntryLen }}
+{{ with .Jsr }}
+always @* begin
+    case( jsr_sel ){{ range . }}{{ if .Name }}
+        {{ printf "%s_JSR:" .Name | printf "%-12s" | upper }} begin jsr_en=1; jsr_ua = {{ printf "%d" $aw }}'{{ printf "h%02X*" .Start}}{{printf "%d" $aw}}'d{{ $entryLen }}; end {{ end -}}{{ end }}
+        RET_JSR:     begin jsr_en=1; jsr_ua = jsr_ret; end
+        default:     begin jsr_en=0; jsr_ua = 'h00; end
+    endcase
+end
+{{ end }}

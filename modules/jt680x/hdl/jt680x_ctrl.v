@@ -17,75 +17,79 @@
     Date: 22-11-2023 */
 
 module jt680x_ctrl(
-    input             rst,
-    input             clk,
-    input             cen,
-    // registers
-    input      [ 5:0] cc,
-    // Bus
-    input      [ 7:0] din,
-    input             nmi_n, irq_n,
-    // Control
-    output reg [15:0] pc,
-    output reg [ 2:0] iv,
+    input        rst,
+    input        clk,
+    input        cen,
+    input [15:0] md,
+    // interrupts
+    input        i,
+    input        irq,
+    input        nmi,
+    output reg [2:0] iv,
+    // control
+    output       alu16,
+    output       branch,
+    output       brlatch,
+    output       fetch,
+    output       inc_pc,
+    output       md_shift,
+    output       op0inv,
+    output       wr,
+    output [1:0] carry_sel,
+    output [1:0] ea_sel,
+    output [1:0] opnd_sel,
+    output [3:0] alu_sel,
+    output [3:0] ld_sel,
+    output [3:0] rmux_sel,
+    output [4:0] cc_sel
 );
 
+`include "jt680x_param.vh"
 `include "jt680x.vh"
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        iv <= 7;
-    end else if(cen) begin
-        case (iv_ctrl)
-            NMI_IV: iv <= 6;
-            SWI_IV: iv <= 5;
-            IRQ_IV: iv <= 4;
-            ICF_IV: iv <= 3;
-            OCF_IV: iv <= 2;
-            TOF_IV: iv <= 1;
-            SCI_IV: iv <= 0;
-            default:;
-        endcase
-    end
-end
+wire [4:0] jsr_sel;
+reg  [2:0] iv_sel;
+wire       halt;
+wire       ni;
+wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
+
+// always @* begin
+//     case (iv_sel)
+//         NMI_IV: iv = 6;
+//         SWI_IV: iv = 5;
+//         IRQ_IV: iv = 4;
+//         ICF_IV: iv = 3;
+//         OCF_IV: iv = 2;
+//         TOF_IV: iv = 1;
+//         SCI_IV: iv = 0;
+//         default:iv = 7; // reset
+//     endcase
+// end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        uaddr <= 0;
+        uaddr   <= 0;
+        jsr_ret <= 0;
+        iv      <= 7;
     end else if(cen) begin
-        if(!halt) uaddr[3:0] <= uaddr[3:0] + 1'd1;
-        if( ni  ) uaddr      <= { md[7:0], 4'd0 };
-        case( jsr_ctrl )
-            RET_JSR:                      uaddr<=uret;
-            IMM_JSR:   begin uret<=uaddr; uaddr<=IMM_SEQA;   end
-            IMM16_JSR: begin uret<=uaddr; uaddr<=IMM16_SEQA; end
-            IMM_JSR:   begin uret<=uaddr; uaddr<=IMM_SEQA;   end
-            // etc...
-            default:;
-        endcase
+        if(!halt) uaddr[3:0] <= nx_ualo;
+        if( ni | halt ) begin
+            // nmi_l <= nmi;
+            uaddr <= { md[7:0], 4'd0 };
+            if( irq & ~i ) begin
+                iv <= 4;
+                uaddr <= 'hc70; // irq service
+            end
+            // if( nmi & ~nmi_l )
+        end
+        if( jsr_en ) begin
+            jsr_ret <= uaddr;
+            jsr_ret[3:0] <= nx_ualo;
+            uaddr   <= jsr_ua;
+        end
     end
 end
 
-jt680x_ucode ucode(
-    .dec_en   (dec_en   ),
-    .dir2     (dir2     ),
-    .ext2     (ext2     ),
-    .ix_en    (ix_en    ),
-    .load_sp  (load_sp  ),
-    .memdec_en(memdec_en),
-    .acca_ctrl(acca_ctrl),
-    .accb_ctrl(accb_ctrl),
-    .bus_ctrl (bus_ctrl ),
-    .cc_ctrl  (cc_ctrl  ),
-    .dout_ctrl(dout_ctrl),
-    .ea_ctrl  (ea_ctrl  ),
-    .ix_ctrl  (ix_ctrl  ),
-    .md_ctrl  (md_ctrl  ),
-    .op0_ctrl (op0_ctrl ),
-    .op1_ctrl (op1_ctrl ),
-    .op_ctrl  (op_ctrl  ),
-    .pc_ctrl  (pc_ctrl  ),
-    .seqa     (seqa     )
-);
+
 
 endmodule

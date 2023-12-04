@@ -17,25 +17,112 @@
     Date: 22-11-2023 */
 
 module jt680x(
+    input             rst,
+    input             clk,
+    input             cen,  // crystal clock freq. = 4x E pin freq.
+    input             irq,
+    input             nmi,
+    output            wr,
+    output     [15:0] addr, // always valid
+    input      [ 7:0] din,
+    output     [ 7:0] dout
 );
 
-wire   [ 7:0] op;
-wire   [ 4:0] alu_sel;
-wire   [15:0] op0, op1, rslt;
-wire   [ 5:0] cc, cc_out;
+wire [15:0] op0, op1, rslt,md;
+wire [ 3:0] rslt_cc;
+wire        h, rslt_h, c, i;
 
+wire        alu16;
+wire        branch;
+wire        brlatch;
+wire        fetch;
+wire        inc_pc;
+wire        md_shift;
+wire        ni;
+wire        op0inv;
+wire [ 1:0] carry_sel;
+wire [ 1:0] ea_sel;
+wire [ 1:0] opnd_sel;
+wire [ 2:0] iv;
+wire [ 3:0] alu_sel;
+wire [ 3:0] ld_sel;
+wire [ 3:0] rmux_sel;
+wire [ 4:0] cc_sel;
+
+jt680x_ctrl u_ctrl(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen       ),
+    .md         ( md        ),
+    // interrupt
+    .nmi        ( nmi       ),
+    .irq        ( irq       ),
+    .i          ( i         ),
+    .iv         ( iv        ),
+    // control
+    .alu16      ( alu16     ),
+    .branch     ( branch    ),
+    .brlatch    ( brlatch   ),
+    .fetch      ( fetch     ),
+    .inc_pc     ( inc_pc    ),
+    .md_shift   ( md_shift  ),
+    .op0inv     ( op0inv    ),
+    .ea_sel     ( ea_sel    ),
+    .wr         ( wr        ),
+    .carry_sel  ( carry_sel ),
+    .opnd_sel   ( opnd_sel  ),
+    .alu_sel    ( alu_sel   ),
+    .ld_sel     ( ld_sel    ),
+    .rmux_sel   ( rmux_sel  ),
+    .cc_sel     ( cc_sel    )
+);
 
 jt680x_alu u_alu(
-    .sel    ( alu_sel   ),
-    .op0    ( op0       ),
-    .op1    ( op1       ),
-    .rslt   ( rslt      ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen       ),
+    .alu16      ( alu16     ),
+    .carry_sel  ( carry_sel ),
+    .alu_sel    ( alu_sel   ),
+    .cin        ( c         ),
+    .hin        ( h         ),
+    .op0        ( op0       ),
+    .op1        ( op1       ),
+    .ho         ( rslt_h    ),
+    .rslt       ( rslt      ),
+    .rslt_cc    ( rslt_cc   )
+);
 
-    .cc     ( cc        ),
-    .cc_out ( cc_out    )
-)
-
-
-
+jt680x_regs u_regs(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen       ),
+    .md         ( md        ),
+    .brlatch    ( brlatch   ),
+    .branch     ( branch    ),
+    .cc_sel     ( cc_sel    ),
+    .ea_sel     ( ea_sel    ),
+    .fetch      ( fetch     ),
+    .ld_sel     ( ld_sel    ),
+    .op0inv     ( op0inv    ),
+    .opnd_sel   ( opnd_sel  ),
+    .inc_pc     ( inc_pc    ),
+    .rmux_sel   ( rmux_sel  ),
+    .md_shift   ( md_shift  ),
+    // interrupts
+    .i          ( i         ),
+    .iv         ( iv        ),
+    // ALU
+    .rslt       ( rslt      ),
+    .rslt_h     ( rslt_h    ),
+    .rslt_cc    ( rslt_cc   ),
+    .op0        ( op0       ),
+    .op1        ( op1       ),
+    .h          ( h         ),
+    .c          ( c         ),
+    .din        ( din       ),
+    .addr       ( addr      ),
+    .dout       ( dout      )
+);
 
 endmodule

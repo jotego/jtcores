@@ -78,6 +78,7 @@ func init() {
 	flag.StringVarP(&files_args.Target, "target", "t", "", "Target platform: mist, mister, pocket, etc.")
 	flag.StringVarP(&files_args.AddMacro, "macro", "m", "", "Add more verilog macros separated by commas")
 	flag.BoolVar(&files_args.Rel, "rel", false, "Output relative paths")
+	flag.BoolVar(&files_args.Local, "local", false, "Refer to mem.yaml derived files in the local, instead of the target, folder")
 }
 
 func run_files(cmd *cobra.Command, args []string) {

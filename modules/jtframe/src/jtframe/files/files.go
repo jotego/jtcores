@@ -29,6 +29,7 @@ import (
 
 	"github.com/jotego/jtframe/def"
 	"github.com/jotego/jtframe/cfgstr"
+	"github.com/jotego/jtframe/ucode"
 	"gopkg.in/yaml.v2"
 )
 
@@ -55,6 +56,8 @@ type JTModule struct {
 	When   string   `yaml:"when"`
 }
 
+type UcFiles map[string]string // if this is changed to a non reference type, update the functions that take it as an argument
+
 type JTFiles struct {
 	Game    []FileList `yaml:"game"`
 	JTFrame []FileList `yaml:"jtframe"`
@@ -64,12 +67,14 @@ type JTFiles struct {
 		Other []FileList `yaml:"other"`
 	} `yaml:"modules"`
 	Here []string `yaml:"here"`
+	Ucode UcFiles `yaml:"ucode"`
 }
 
 type Args struct {
 	Corename string // JT core
 	Parse    string // any file
 	Rel      bool
+	Local    bool
 	Format   string
 	Target   string
 	AddMacro string // More macros, separated by commas
@@ -269,6 +274,11 @@ func parse_yaml(filename string, files *JTFiles) {
 		} else {
 			files.Here = append(files.Here, fullpath)
 		}
+	}
+	// ucode requirements
+	for k,v := range aux.Ucode {
+		if files.Ucode == nil { files.Ucode=make(UcFiles) }
+		files.Ucode[k] = v
 	}
 }
 
@@ -515,7 +525,7 @@ func (this Args) GetTarget() string {
 	return this.Target
 }
 
-func append_mem( info CoreInfo, macros map[string]string, fn []string ) []string {
+func append_mem( info CoreInfo, local bool, macros map[string]string, fn []string ) []string {
 	mempath := filepath.Join( os.Getenv("CORES"), info.GetName(), "cfg", "mem.yaml" )
 	f, err := os.Open( mempath )
 	f.Close()
@@ -523,11 +533,17 @@ func append_mem( info CoreInfo, macros map[string]string, fn []string ) []string
 		return fn	// mem.yaml didn't exist. Nothing done
 	}
 	fname := macros["GAMETOP"]+".v"
-	if info.GetTarget()!="" {
+	if info.GetTarget()!="" && !local {
 		fname = filepath.Join( os.Getenv("CORES"), info.GetName(),info.GetTarget(),fname)
 	}
 	return append(fn,fname)
 
+}
+
+func dump_ucode( files JTFiles ) {
+	for modname, fname := range files.Ucode {
+		ucode.Make(modname,fname)
+	}
 }
 
 func Run(args Args) {
@@ -550,7 +566,8 @@ func Run(args Args) {
 		}
 	}
 	filenames := collect_files( files, args.Rel )
-	filenames = append_mem( args, macros, filenames )
+	filenames = append_mem( args, args.Local, macros, filenames )
+	dump_ucode( files )
 	if !dump_files( filenames, args.Format ) {
 		fmt.Printf("Unknown output format '%s'\n", args.Format)
 		os.Exit(1)

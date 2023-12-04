@@ -16,22 +16,15 @@
     Version: 1.0
     Date: {{ now | date "02-01-2006" }} */
 
-module {{ .Modname }}_ucode({{ range .Ss }}
-    output {{ if (ne .Bw 1) }}[{{ sub .Bw 1 }}:0]{{else}}     {{ end }} {{ .Name }},{{ end }}
-    input  [{{ sub .Aw 1 }}:0] seqa // sequencer address
-);
-
-reg [{{ sub .Dw 1 }}:0] data;
-{{- range .Ss }}
-assign {{ printf "%14s" .Name}}{{ if (ne .Bw 1) }}[{{ sub .Bw 1 }}:0]{{else}}     {{ end }}=data[{{ .Pos }}+:{{ .Bw }}];
-{{- end }}
-
-always @* begin
-    {{ $dw := .Dw -}}
-    case( seqa ){{ range $k, $v := .Data }}
-        {{ $k }}: data = {{ $dw }}'h{{ printf "%X" $v }};{{ end }}
-        default: data = 0;
-    endcase
-end
-
-endmodule
+// Control signals
+{{- range .Ss }}{{ if (ne .Bw 1)}}
+localparam [{{ sub .Bw 1 }}:0] // {{ .Name }}
+{{- $bw := .Bw -}}
+{{- $busName := .Name -}}
+{{- $first := true }}
+{{- range $k,$v := .Values}}
+    {{- if (not $first) }},{{ end }}
+    {{ printf "%s_%s" $v $busName | printf "%12s" | upper }} = {{ $bw }}'d{{ add $k 1 }}
+    {{- $first = false -}}
+{{- end }};
+{{ end }}{{ end }}

@@ -198,6 +198,8 @@ always @(posedge clk ) begin
             if(!tokio) begin
                 sub_rst_n <= cpu_dout[4];
                 mcu_rst   <= ~cpu_dout[5];
+                if( cpu_dout[5]  &&  mcu_rst ) $display("MCU reset over");
+                if( ~cpu_dout[5] && ~mcu_rst ) $display("MCU reset");
             end else begin
                 sub_rst_n <= 1;
                 mcu_rst   <= 1;
@@ -506,16 +508,14 @@ end
 
 jtframe_6801mcu #(.MAXPORT(7),.GATE_CEN(0)) u_mcu (
     .rst        ( mcu_rst       ),
-    //.rst( rst ), // for quick sims
+    // .rst( rst ), // for quick sims
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
     .wait_cen   (               ),
-    .wrn        (               ),
+    .wr         (               ),
     .vma        ( mcu_vma       ),
     .addr       ( mcu_addr      ),
     .dout       (               ),
-    .halt       ( 1'b0          ),
-    .halted     (               ),
     .irq        ( mcuirq        ), // relies on sub CPU to clear it
     .nmi        ( 1'b0          ),
     // Ports
