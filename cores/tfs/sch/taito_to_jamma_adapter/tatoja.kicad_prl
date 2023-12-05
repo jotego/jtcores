@@ -72,31 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "tatoja.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 22,
-          "pos_y": 85,
-          "size_x": 1280,
-          "size_y": 573
-        }
-      },
-      {
-        "name": "tatoja.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 960,
-          "pos_y": 28,
-          "size_x": 960,
-          "size_y": 720
-        }
-      }
-    ]
+    "files": []
   }
 }
