@@ -1,0 +1,5 @@
+wpset 3804,1,r,1,{printf "Rd %X",wpdata;go}
+wpset 3804,1,w,1,{printf "Wr %X",wpdata;go}
+focus 2
+bp 14d
+go

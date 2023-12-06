@@ -25,7 +25,7 @@ ops:
   # 2^12 ucode entries -> 16 entries/instruction
   # uCode clock @ 4x E pin clock (uCode clock = crystal frequency)
   - { name: ABA,  op: 0x1b, ctl: { alu: ADD, op0: a, op1: b,            ld: a,    cc: hnzvc }, cycles: 2 }
-  - { name: ABX,  op: 0x3a, ctl: { alu: ADD, op0: b, op1: x, alu16: 1,  ld: x,    cc: hnzvc }, cycles: 3 }
+  - { name: ABX,  op: 0x3a, ctl: { alu: ADD, op0: b, op1: x, alu16: 1,  ld: x               }, cycles: 3 }
 
   - { name: ADCA, op: 0x89, ctl: { alu: ADD, op0: a,  op1: md,  addr: imm, ld: a, carry: cin, cc: hnzvc }, cycles: 2 }
   - { name: ADCA, op: 0x99, ctl: { alu: ADD, op0: a,  op1: md,  addr: dir, ld: a, carry: cin, cc: hnzvc }, cycles: 3 }
@@ -188,7 +188,7 @@ ops:
   - { name: NEGA, op: 0x40, ctl: { alu: ADD, op0: a,  op1: one, op0inv: 1,            carry: hi, ld: a, cc: nzvc }, cycles: 2 }
   - { name: NEGB, op: 0x50, ctl: { alu: ADD, op0: b,  op1: one, op0inv: 1,            carry: hi, ld: b, cc: nzvc }, cycles: 2 }
 
-  - { name: NOP,  op: 0x01, ctl: {                                                            }, cycles: 1 }
+  - { name: NOP,  op: 0x01, ctl: {                                                            }, cycles: 2 }
   - { name: ORA,  op: 0x8a, ctl: { alu: OR,  op0: a,  op1: md,  addr: imm,   ld: a,  cc: nzv0 }, cycles: 2 }
   - { name: ORA,  op: 0x9a, ctl: { alu: OR,  op0: a,  op1: md,  addr: dir,   ld: a,  cc: nzv0 }, cycles: 3 }
   - { name: ORA,  op: 0xaa, ctl: { alu: OR,  op0: a,  op1: md,  addr: idx,   ld: a,  cc: nzv0 }, cycles: 4 }
@@ -267,9 +267,9 @@ ops:
   - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
   - { name: RTI,  op: 0x3b, ctl: {                                                cc: nzvc   }, cycles: 10 }
   - { name: RTS,  op: 0x39, ctl: {                               addr: pul, ld: pc           }, cycles: 5  }
-  - { name: WAI,  op: 0x3e,                                                                      cycles: 9  }
+  - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
 ucode:
-  - name: int # interrupt service and reset vector read and jump
+  - name: ivrd # interrupt service and reset vector read and jump
     start: 0
     seq:
       - iv_rmux,  ld0_opnd
@@ -290,7 +290,7 @@ ucode:
       -
       -
       - ret_jsr
-  - name: irqsrv
+  - name: isrv
     start: 0xc7 # referenced in  jt680x_ctrl manually!
     seq:
       - pc_rmux, ld0_opnd, s_ea
@@ -307,7 +307,7 @@ ucode:
 
       - cc_rmux, ld0_opnd, s_ea
       - md_ld, psh8_jsr,   s_ea
-      - int_jsr
+      - ivrd_jsr
   - name: imm # 1+3 ucode cycles = 1 bus cycle
     start: 0x12
     seq:
@@ -531,7 +531,7 @@ ucode:
   - mnemo: [ JMP ]
     seq:
       - ${addr}_jsr, inc_pc
-      - ld0_opnd
+      - ${op0}_rmux, ld0_opnd
       - pc_ld
       - fetch
       -

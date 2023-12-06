@@ -33,20 +33,20 @@ module jtkunio_video(
     // Char
     input              ram_cs,
     output     [ 7:0]  ram_dout,
-    output     [13:0]  char_addr,
+    output     [14:2]  char_addr,
     input      [31:0]  char_data,
     input              char_ok,
     // Scroll
     input              scrram_cs,
     input      [ 9:0]  scrpos,
     output     [ 7:0]  scr_dout,
-    output     [16:0]  scr_addr,
+    output     [17:2]  scr_addr,
     input      [31:0]  scr_data,
     input              scr_ok,
     // Object
     input              objram_cs,
     output     [ 7:0]  obj_dout,
-    output     [17:0]  obj_addr,
+    output     [18:2]  obj_addr,
     input      [31:0]  obj_data,
     input              obj_ok,    
     output             obj_cs,

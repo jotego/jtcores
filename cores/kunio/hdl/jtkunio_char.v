@@ -32,7 +32,7 @@ module jtkunio_char(
     input      [ 7:0]  cpu_dout,
     output     [ 7:0]  cpu_din,
     // ROM access
-    output     [13:0]  rom_addr,
+    output     [14:2]  rom_addr,
     input      [31:0]  rom_data,
     input              rom_ok,
     output     [ 4:0]  pxl
@@ -49,7 +49,7 @@ wire [11:0] shf_addr = { cpu_addr[12:11], cpu_addr[9:0] };
 assign ram_we    = { cpu_addr[10], ~cpu_addr[10] } & {2{ram_cs & ~cpu_wrn}};
 assign cpu_din   = cpu_addr[10] ? ram_dout[15:8] : ram_dout[7:0];
 assign scan_addr = { v[7:3], h[7:3] };
-assign rom_addr  = { code, v[2:0], 1'b0 }; // 10+3+1 = 14
+assign rom_addr  = { code, v[2:0] }; // 10+3 = 13
 assign pxl       = { cur_pal, flip ? { pxl_data[16], pxl_data[8], pxl_data[0] } : { pxl_data[23], pxl_data[15], pxl_data[7] } };
 
 always @(posedge clk) if(pxl_cen) begin

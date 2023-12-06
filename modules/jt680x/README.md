@@ -95,6 +95,16 @@ IREM M62 system runs on this CPU. Currently implemented on MiSTer using [Open Co
 
 ## 68705
 
+Many Taito titles. Schematics available for
+
+
+- Arkanoid
+- Buggy Challenge
+- The Fairy Land Story (JT schematics)
+
+
+Complete list (trying not to repeat sets from the same machine driver)
+
 - 40love
 - alcon
 - ark1ball
@@ -112,11 +122,8 @@ IREM M62 system runs on this CPU. Currently implemented on MiSTer using [Open Co
 - daikaiju
 - darktowr
 - ddungeon
-- ddungeone
 - elecyoyo
-- elecyoyo2
 - elevator
-- elevatora
 - empcity
 - fieldday
 - flstory
@@ -130,8 +137,6 @@ IREM M62 system runs on this CPU. Currently implemented on MiSTer using [Open Co
 - kram2
 - kuniokun
 - lkage
-- lkageo
-- lkageoo
 - lsasquad
 - maniach
 - maniach2

@@ -51,8 +51,8 @@ assign dip_flip               = flip;
 `endif
 
 always @(posedge clk) begin
-    if( prog_we && ioctl_addr==1 )
-        tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this
+    if( prog_we && header && ioctl_addr[0]==0 ) tokio <= prog_data[0];
+        // tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this at ioctl_addr==1
 end
 
 always @(posedge clk) begin

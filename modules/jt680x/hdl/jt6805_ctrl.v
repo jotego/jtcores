@@ -14,73 +14,72 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 22-11-2023 */
+    Date: 4-12-2023 */
 
-module jt680x_ctrl(
+module jt6805_ctrl(
     input        rst,
     input        clk,
     input        cen,
-    input [15:0] md,
+    input [12:0] md,
     // interrupts
     input        i,
     input        irq,
-    input        nmi,
+    input        tirq,
     output reg [2:0] iv,
     // control
-    output       alu16,
     output       branch,
     output       brlatch,
     output       fetch,
     output       inc_pc,
     output       md_shift,
     output       op0inv,
+    output       stop,
     output       wr,
+    output [1:0] brt_sel,
     output [1:0] carry_sel,
     output [1:0] ea_sel,
     output [1:0] opnd_sel,
+    output [2:0] ld_sel,
     output [3:0] alu_sel,
-    output [3:0] ld_sel,
-    output [3:0] rmux_sel,
-    output [4:0] cc_sel
+    output [3:0] cc_sel,
+    output [3:0] rmux_sel
 );
 
-`include "680x_param.vh"
-`include "680x.vh"
+`include "6805_param.vh"
+`include "6805.vh"
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
-wire       halt;
-wire       ni;
+reg        irq_l, pendng;
+wire       halt, swi, ni;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
-// always @* begin
-//     case (iv_sel)
-//         NMI_IV: iv = 6;
-//         SWI_IV: iv = 5;
-//         IRQ_IV: iv = 4;
-//         ICF_IV: iv = 3;
-//         OCF_IV: iv = 2;
-//         TOF_IV: iv = 1;
-//         SCI_IV: iv = 0;
-//         default:iv = 7; // reset
-//     endcase
-// end
+localparam IVRD_SEQA='h820,
+           ISRV_SEQA='h9E0;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        uaddr   <= 0;
+        uaddr   <= IVRD_SEQA;
         jsr_ret <= 0;
         iv      <= 7;
+        pendng  <= 0;
     end else if(cen) begin
-        if(!halt) uaddr[3:0] <= nx_ualo;
-        if( ni | halt ) begin
-            // nmi_l <= nmi;
+        irq_l <= irq;
+        if( irq & ~irq_l ) pendng <= 1;
+        if(~halt&~stop) uaddr[3:0] <= nx_ualo;
+        if( swi ) iv <= 6;
+        if( ni | halt | stop) begin
             uaddr <= { md[7:0], 4'd0 };
-            if( irq & ~i ) begin
-                iv <= 4;
-                uaddr <= 'hc70; // irq service
+            if( ~i ) begin
+                if( pendng ) begin
+                    iv     <= 5;
+                    pendng <= 0;
+                    uaddr  <= ISRV_SEQA; // irq service
+                end else if( tirq ) begin
+                    iv    <= 4;
+                    uaddr <= ISRV_SEQA;
+                end
             end
-            // if( nmi & ~nmi_l )
         end
         if( jsr_en ) begin
             jsr_ret <= uaddr;
@@ -89,7 +88,5 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-
-
 
 endmodule

@@ -19,8 +19,8 @@
 module jtkunio_sound(
     input             clk,        // 24 MHz
     input             rst,
-    input             cen6,
     input             cen3,
+    input             cen1p5,
     input             h8,
     // communication with main CPU
     input             snd_irq,
@@ -41,7 +41,7 @@ module jtkunio_sound(
     output               sample,
     output               peak
 );
-
+`ifndef NOSOUND
 wire        [ 7:0] cpu_dout, ram_dout, fm_dout;
 wire        [15:0] A;
 reg         [ 7:0] cpu_din;
@@ -50,7 +50,7 @@ reg                ram_cs, latch_cs, fm_cs,
                    pcm_start, pcm_stop, nmi_n,
                    oki_s, pcm_rst;
 reg         [13:0] pcm_cnt;
-wire               cen_fm, cen_fm2;
+wire               cen_fm;
 wire signed [11:0] pcm_snd, pcm_raw;
 wire signed [15:0] fm_snd;
 wire               pcm_sample;
@@ -65,7 +65,6 @@ assign rom_addr = A[14:0];
 assign pcm_din  = ~pcm_cnt[0] ? pcm_data[7:4] : pcm_data[3:0];
 assign pcm_cs   = nmi_n;
 assign cen_fm   = cen3;
-assign cen_fm2  = cen6;
 assign pcm_addr = { ~pcm_ce[2] ? 2'd2 : ~pcm_ce[1] ? 2'd1 : 2'd0,
                     pcm_msb, pcm_cnt[13:1] };
 
@@ -75,7 +74,7 @@ localparam [7:0] FMGAIN  = 8'h18,
 jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     .rst    ( rst           ),
     .clk    ( clk           ),
-    .cen    ( cen_fm2       ),
+    .cen    ( cen_fm        ),
     // input signals
     .ch0    ( fm_snd        ),
     .ch1    ( pcm_snd       ),
@@ -164,10 +163,10 @@ jtframe_ff u_ff(
     .sigedge  ( snd_irq     ) // signal whose edge will trigger the FF
 );
 
-jtframe_sys6809 #(.RAM_AW(12)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(12),.CENDIV(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen6      ),    // This is normally the input clock to the CPU
+    .cen        ( cen1p5    ),    // This is normally the input clock to the CPU
     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 1.5MHz
     .VMA        (           ),
     // Interrupts
@@ -223,6 +222,13 @@ jtframe_dcrm #(.SW(12),.SIGNED_INPUT(1)) u_dcrm (
     .din    ( pcm_raw       ),
     .dout   ( pcm_snd       )
 );
-
-
+`else
+    assign sample   = 0;
+    assign peak     = 0;
+    assign sound    = 0;
+    assign pcm_cs   = 0;
+    initial rom_cs  = 0;
+    assign pcm_addr = 0;
+    assign rom_addr = 0;
+`endif
 endmodule

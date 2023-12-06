@@ -1,0 +1,3 @@
+wpset 3804,1,r,1,{logerror "-Rd %X\n",wpdata;go}
+wpset 3804,1,w,1,{logerror "-Wr %X\n",wpdata;go}
+go

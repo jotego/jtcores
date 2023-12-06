@@ -483,7 +483,7 @@ func Make(modname, fname string) {
 	if Args.Report { report_cycles( code, &desc) }
 	params := make_params(list_unames(code))
 	fname = strings.TrimSuffix(fname, ".yaml")
-	dump_ucode(modname, params, code)
-	dump_ucrom_vh(modname, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
-	dump_param_vh(modname, params )
+	dump_ucode(fname, params, code)
+	dump_ucrom_vh(fname, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
+	dump_param_vh(fname, params )
 }

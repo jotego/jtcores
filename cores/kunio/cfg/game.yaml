@@ -4,7 +4,6 @@ game:
       - jtkunio_game.v
       - jtkunio_main.v
       - jtkunio_sound.v
-      - jtkunio_sdram.v
       - jtkunio_video.v
       - jtkunio_char.v
       - jtkunio_scroll.v
@@ -17,7 +16,8 @@ jtframe:
   - from: cpu
     get:
       - jtframe_6809.yaml
-      - jtframe_mos6502.yaml
+      - t65/t65.yaml
+      - jtframe_6805mcu.yaml
   - get:
       - jtframe_ff.v
       - jtframe_sort.v
@@ -33,9 +33,6 @@ jtframe:
     get:
       - jtframe_mixer.v
       - jtframe_dcrm.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
 modules:
   jt:
     - name: jt5205

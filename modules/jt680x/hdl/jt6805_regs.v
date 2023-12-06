@@ -14,12 +14,16 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 22-11-2023 */
+    Date: 4-12-2023 */
 
-module jt680x_regs(
+module jt6805_regs(
     input             rst,
     input             clk,
     input             cen,
+    output reg [12:0] md,
+    // interrupts
+    input      [ 2:0] iv,
+    input             irq,
     // CONTROL
     input             branch,
     input             brlatch,
@@ -27,114 +31,106 @@ module jt680x_regs(
     input             inc_pc,
     input             md_shift,
     input             op0inv,
+    input             wr,
+    input      [ 1:0] brt_sel,
+    input      [ 1:0] carry_sel,
     input      [ 1:0] ea_sel,
     input      [ 1:0] opnd_sel,
-    input      [ 3:0] ld_sel,
+    input      [ 2:0] ld_sel,
+    input      [ 3:0] cc_sel,
     input      [ 3:0] rmux_sel,
-    input      [ 4:0] cc_sel,
-    input      [ 2:0] iv,
-    output reg [15:0] md,
     // ALU
-    input      [15:0] rslt,
+    input      [12:0] rslt,
     input             rslt_h,
-    input      [ 3:0] rslt_cc,
-    output reg [15:0] op0, op1,
+    input      [ 2:0] rslt_cc,
+    output reg [12:0] op0, op1,
     output reg        h,c,i,
     // external bus
     input      [ 7:0] din,
-    output reg [15:0] addr, // always valid
+    output reg [12:0] addr, // always valid
     output reg [ 7:0] dout
 );
 
-`include "680x_param.vh"
+`include "6805_param.vh"
 
-reg  [ 7:0] a, b;
-reg  [15:0] x, s, rmux, ea, pc;
-reg         n,z,v; // other condition codes
+reg  [ 7:0] a, x;
+reg  [ 5:0] s;
+reg  [12:0] rmux, ea, pc;
+reg         n,z; // other condition codes
 reg         brok;
 
 `ifdef SIMULATION
-wire [7:0] cc = {2'b11,h,i,n,z,v,c};
+wire [4:0] cc = {h,i,n,z,c};
 `endif
 
 always @* begin
     case( rmux_sel )
-           A_RMUX: rmux = { 8'd0, a };
-           B_RMUX: rmux = { 8'd0, b };
-           D_RMUX: rmux = { a, b };
-           X_RMUX: rmux = x;
-           S_RMUX: rmux = s;
+           A_RMUX: rmux = { 5'd0, a };
+           X_RMUX: rmux = { 5'd0, x };
+           S_RMUX: rmux = { 7'd1, s };
           PC_RMUX: rmux = pc;
           EA_RMUX: rmux = ea;
-          CC_RMUX: rmux = {8'd0, 2'b11, h,i,n,z,v,c};
-         ONE_RMUX: rmux = 16'd1;
-        ZERO_RMUX: rmux = 16'd0;
-          IV_RMUX: rmux = {12'hfff,iv,1'b0};
+          CC_RMUX: rmux = {8'd0, h,i,n,z,c};
+         ONE_RMUX: rmux = 13'd1;
+        ZERO_RMUX: rmux = 13'd0;
+          IV_RMUX: rmux = {9'h1ff,iv,1'b0};
           default: rmux = md;
     endcase
     case( ea_sel )
-        S_EA: addr = s;
+        S_EA: addr = { 7'd1, s };
         M_EA: addr = ea;
         default: addr = pc;
     endcase
-    dout = md_shift ? md[15:8] : md[7:0];
+    dout = md_shift ? {3'd0,md[12:8]} : md[7:0];
 end
 
 always @( posedge clk, posedge rst ) begin
     if( rst ) begin
         a   <= 0;
-        b   <= 0;
         x   <= 0;
         s   <= 0;
         op0 <= 0;
         op1 <= 0;
         md  <= 0;
         ea  <= 0;
-        {h,n,z,v,c} <= 0;
+        {h,n,z,c} <= 0;
         i    <= 1;
     end else if( cen ) begin
         if( fetch  ) begin
             md[ 7:0] <= din;
-            md[15:8] <= md_shift ? md[7:0] : 8'd0;
+            md[12:8] <= md_shift ? md[4:0] : 5'd0;
         end
-        if( branch ) md[15:8] <= {8{md[7]}}; // sign extension for BR instructions
+        if( branch ) md[12:8] <= {5{md[7]}}; // sign extension for BR instructions
         case( opnd_sel )
-            LD0_OPND: op0 <= {16{op0inv}} ^ rmux;
+            LD0_OPND: op0 <= {13{op0inv}} ^ rmux;
             LD1_OPND: op1 <= rmux;
             default:;
         endcase
         case( cc_sel )
-             NZVC_CC:    {n,z,v,c} <= rslt_cc;
-            N0ZVC_CC:    {n,z,v,c} <= {1'b0,rslt_cc[2:0]};
-              NZV_CC:    {n,z,v  } <= rslt_cc[3:1];
-                Z_CC:       z      <= rslt_cc[2];
-                C_CC:           c  <= rslt_cc[0];
-             NZV0_CC:    {n,z,v  } <= {rslt_cc[3:2],1'b0};
-            N0Z1V0C0_CC: {n,z,v,c} <= 4'b0100;
-            NZV0C1_CC:   {n,z,v,c} <= {rslt_cc[3:2],2'b01};
-            NZV0C0_CC:   {n,z,v,c} <= {rslt_cc[3:2],2'b00};
-            HNZVC_CC:  {h,n,z,v,c} <= {rslt_h, rslt_cc};
-               I0_CC:  i           <= 0;
-               I1_CC:  i           <= 1;
-               C0_CC:           c  <= 0;
-               C1_CC:           c  <= 1;
-               V0_CC:         v    <= 0;
-               V1_CC:         v    <= 1;
+              NZ_CC:    {n,z  } <= rslt_cc[2:1];
+             NZC_CC:    {n,z,c} <= rslt_cc;
+            NZC1_CC:    {n,z,c} <= {rslt_cc[2:1],1'b1};
+            N0Z1_CC:    {n,z  } <= 2'b01;
+              I0_CC:  i         <= 0;
+              I1_CC:  i         <= 1;
+            HNZC_CC:  {h,n,z,c} <= {rslt_h, rslt_cc};
+               C_CC:         c  <= rslt_cc[0];
+              C0_CC:         c  <= 0;
+              C1_CC:         c  <= 1;
             default:;
         endcase
         case( ld_sel )
               A_LD:     a <= rslt[7:0];
-              B_LD:     b <= rslt[7:0];
-              D_LD: {a,b} <= rslt;
-              X_LD:     x <= rslt;
-              S_LD:     s <= rslt;
+              X_LD:     x <= rslt[7:0];
+              S_LD:     s <= rslt[5:0];
              MD_LD:    md <= rslt;
              EA_LD:    ea <= rslt;
-             CC_LD:    {h,i,n,z,v,c} <= rslt[5:0];
-             PC_LD: if( brok | ~branch ) pc <= rslt;
+             CC_LD:    {h,i,n,z,c} <= rslt[4:0];
+             PC_LD: if( (brok && branch) || (!branch && brt_sel==0) || (brt_sel==CLR_BRT && !c) || (brt_sel==SET_BRT && c))
+                        pc <= rslt;
              default:;
         endcase
-        if( inc_pc ) pc <= pc+16'd1;
+        if( inc_pc ) pc <= pc+13'd1;
     end
 end
 
@@ -151,14 +147,14 @@ always @(posedge clk, posedge rst) begin
             4'b0101: brok <=   c; // bcs/blo
             4'b0110: brok <= ! z; // bne
             4'b0111: brok <=   z; // beq
-            4'b1000: brok <= ! v; // bvc
-            4'b1001: brok <=   v; // bvs
+            4'b1000: brok <= ! h; // bhc
+            4'b1001: brok <=   h; // bhs
             4'b1010: brok <= ! n; // bpl
             4'b1011: brok <=   n; // bmi
-            4'b1100: brok <= !(n ^ v); // bge
-            4'b1101: brok <=   n ^ v;  // blt
-            4'b1110: brok <= !(z | (n ^ v)); // bgt
-            4'b1111: brok <=   z | (n ^ v);// ble
+            4'b1100: brok <= ! i; // bmc
+            4'b1101: brok <=   i; // bms
+            4'b1110: brok <= irq; // int. line active
+            4'b1111: brok <=~irq; // int. line clear
         endcase
     end
 end

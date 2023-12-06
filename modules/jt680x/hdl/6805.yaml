@@ -1,0 +1,590 @@
+#    This file is part of JTCORES.
+#    JTCORES program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    JTCORES program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Author: Jose Tejada Gomez. Twitter: @topapate
+#    Version: 1.0
+#    Date: 22-11-2023
+
+config:
+  entry_len: 16
+  entries: 256
+  cycle_factor: 4 # the crystal input takes 4x the clock freq.
+ops:
+  # 2^8  op entries
+  # 2^12 ucode entries -> 16 entries/instruction
+  # uCode clock @ 4x E pin clock (uCode clock = crystal frequency)
+  - { name: LDA, op: 0xa6, ctl: {            op0: md,         addr: imm,   ld: a,   cc: nz }, cycles: 2 }
+  - { name: LDA, op: 0xb6, ctl: {            op0: md,         addr: dir,   ld: a,   cc: nz }, cycles: 3 }
+  - { name: LDA, op: 0xc6, ctl: {            op0: md,         addr: ext,   ld: a,   cc: nz }, cycles: 4 }
+  - { name: LDA, op: 0xf6, ctl: {            op0: md,         addr: idx,   ld: a,   cc: nz }, cycles: 3 }
+  - { name: LDA, op: 0xe6, ctl: {            op0: md,         addr: idx8,  ld: a,   cc: nz }, cycles: 4 }
+  - { name: LDA, op: 0xd6, ctl: {            op0: md,         addr: idx16, ld: a,   cc: nz }, cycles: 5 }
+
+  - { name: LDX, op: 0xae, ctl: {            op0: md,         addr: imm,   ld: x,   cc: nz }, cycles: 2 }
+  - { name: LDX, op: 0xbe, ctl: {            op0: md,         addr: dir,   ld: x,   cc: nz }, cycles: 3 }
+  - { name: LDX, op: 0xce, ctl: {            op0: md,         addr: ext,   ld: x,   cc: nz }, cycles: 4 }
+  - { name: LDX, op: 0xfe, ctl: {            op0: md,         addr: idx,   ld: x,   cc: nz }, cycles: 3 }
+  - { name: LDX, op: 0xee, ctl: {            op0: md,         addr: idx8,  ld: x,   cc: nz }, cycles: 4 }
+  - { name: LDX, op: 0xde, ctl: {            op0: md,         addr: idx16, ld: x,   cc: nz }, cycles: 5 }
+
+  - { name: STA,  op: 0xb7, ctl: {           op0: a, op1: md,  addr: imm,           cc: nz }, cycles: 4 }
+  - { name: STA,  op: 0xc7, ctl: {           op0: a, op1: ea,  addr: exta,          cc: nz }, cycles: 5 }
+  - { name: STA,  op: 0xf7, ctl: {           op0: a, op1: x,                        cc: nz }, cycles: 4 }
+  - { name: STA,  op: 0xe7, ctl: {           op0: a, op1: ea,  addr: idx8a,         cc: nz }, cycles: 5 }
+  - { name: STA,  op: 0xd7, ctl: {           op0: a, op1: ea,  addr: idx16a,        cc: nz }, cycles: 6 }
+
+  - { name: STX,  op: 0xbf, ctl: {           op0: x, op1: md,  addr: imm,           cc: nz }, cycles: 4 }
+  - { name: STX,  op: 0xcf, ctl: {           op0: x, op1: ea,  addr: exta,          cc: nz }, cycles: 5 }
+  - { name: STX,  op: 0xff, ctl: {           op0: x, op1: x,                        cc: nz }, cycles: 4 }
+  - { name: STX,  op: 0xef, ctl: {           op0: x, op1: ea,  addr: idx8a,         cc: nz }, cycles: 5 }
+  - { name: STX,  op: 0xdf, ctl: {           op0: x, op1: ea,  addr: idx16a,        cc: nz }, cycles: 6 }
+
+  - { name: ADD, op: 0xab, ctl: { alu: ADD, op0: a,  op1: md, addr: imm,   ld: a, cc: hnzc }, cycles: 2 }
+  - { name: ADD, op: 0xbb, ctl: { alu: ADD, op0: a,  op1: md, addr: dir,   ld: a, cc: hnzc }, cycles: 3 }
+  - { name: ADD, op: 0xcb, ctl: { alu: ADD, op0: a,  op1: md, addr: ext,   ld: a, cc: hnzc }, cycles: 4 }
+  - { name: ADD, op: 0xfb, ctl: { alu: ADD, op0: a,  op1: md, addr: idx,   ld: a, cc: hnzc }, cycles: 3 }
+  - { name: ADD, op: 0xeb, ctl: { alu: ADD, op0: a,  op1: md, addr: idx8,  ld: a, cc: hnzc }, cycles: 4 }
+  - { name: ADD, op: 0xdb, ctl: { alu: ADD, op0: a,  op1: md, addr: idx16, ld: a, cc: hnzc }, cycles: 5 }
+
+  - { name: ADC, op: 0xa9, ctl: { alu: ADD, op0: a,  op1: md, addr: imm,   ld: a, carry: cin, cc: hnzc }, cycles: 2 }
+  - { name: ADC, op: 0xb9, ctl: { alu: ADD, op0: a,  op1: md, addr: dir,   ld: a, carry: cin, cc: hnzc }, cycles: 3 }
+  - { name: ADC, op: 0xc9, ctl: { alu: ADD, op0: a,  op1: md, addr: ext,   ld: a, carry: cin, cc: hnzc }, cycles: 4 }
+  - { name: ADC, op: 0xf9, ctl: { alu: ADD, op0: a,  op1: md, addr: idx,   ld: a, carry: cin, cc: hnzc }, cycles: 3 }
+  - { name: ADC, op: 0xe9, ctl: { alu: ADD, op0: a,  op1: md, addr: idx8,  ld: a, carry: cin, cc: hnzc }, cycles: 4 }
+  - { name: ADC, op: 0xd9, ctl: { alu: ADD, op0: a,  op1: md, addr: idx16, ld: a, carry: cin, cc: hnzc }, cycles: 5 }
+
+  - { name: SUB, op: 0xa0, ctl: { alu: SUB, op0: a,  op1: md, addr: imm,   ld: a, cc: nzc }, cycles: 2 }
+  - { name: SUB, op: 0xb0, ctl: { alu: SUB, op0: a,  op1: md, addr: dir,   ld: a, cc: nzc }, cycles: 3 }
+  - { name: SUB, op: 0xc0, ctl: { alu: SUB, op0: a,  op1: md, addr: ext,   ld: a, cc: nzc }, cycles: 4 }
+  - { name: SUB, op: 0xf0, ctl: { alu: SUB, op0: a,  op1: md, addr: idx,   ld: a, cc: nzc }, cycles: 3 }
+  - { name: SUB, op: 0xe0, ctl: { alu: SUB, op0: a,  op1: md, addr: idx8,  ld: a, cc: nzc }, cycles: 4 }
+  - { name: SUB, op: 0xd0, ctl: { alu: SUB, op0: a,  op1: md, addr: idx16, ld: a, cc: nzc }, cycles: 5 }
+
+  - { name: SBC, op: 0xa2, ctl: { alu: SBC, op0: a,  op1: md, addr: imm,   ld: a, carry: cin, cc: nzc }, cycles: 2 }
+  - { name: SBC, op: 0xb2, ctl: { alu: SBC, op0: a,  op1: md, addr: dir,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
+  - { name: SBC, op: 0xc2, ctl: { alu: SBC, op0: a,  op1: md, addr: ext,   ld: a, carry: cin, cc: nzc }, cycles: 4 }
+  - { name: SBC, op: 0xf2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
+  - { name: SBC, op: 0xe2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx8,  ld: a, carry: cin, cc: nzc }, cycles: 4 }
+  - { name: SBC, op: 0xd2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx16, ld: a, carry: cin, cc: nzc }, cycles: 5 }
+
+  - { name: AND, op: 0xa4, ctl: { alu: AND, op0: a,  op1: md, addr: imm,   ld: a, cc: nz }, cycles: 2 }
+  - { name: AND, op: 0xb4, ctl: { alu: AND, op0: a,  op1: md, addr: dir,   ld: a, cc: nz }, cycles: 3 }
+  - { name: AND, op: 0xc4, ctl: { alu: AND, op0: a,  op1: md, addr: ext,   ld: a, cc: nz }, cycles: 4 }
+  - { name: AND, op: 0xf4, ctl: { alu: AND, op0: a,  op1: md, addr: idx,   ld: a, cc: nz }, cycles: 3 }
+  - { name: AND, op: 0xe4, ctl: { alu: AND, op0: a,  op1: md, addr: idx8,  ld: a, cc: nz }, cycles: 4 }
+  - { name: AND, op: 0xd4, ctl: { alu: AND, op0: a,  op1: md, addr: idx16, ld: a, cc: nz }, cycles: 5 }
+
+  - { name: ORA, op: 0xaa, ctl: { alu: OR, op0: a,  op1: md, addr: imm,   ld: a, cc: nz }, cycles: 2 }
+  - { name: ORA, op: 0xba, ctl: { alu: OR, op0: a,  op1: md, addr: dir,   ld: a, cc: nz }, cycles: 3 }
+  - { name: ORA, op: 0xca, ctl: { alu: OR, op0: a,  op1: md, addr: ext,   ld: a, cc: nz }, cycles: 4 }
+  - { name: ORA, op: 0xfa, ctl: { alu: OR, op0: a,  op1: md, addr: idx,   ld: a, cc: nz }, cycles: 3 }
+  - { name: ORA, op: 0xea, ctl: { alu: OR, op0: a,  op1: md, addr: idx8,  ld: a, cc: nz }, cycles: 4 }
+  - { name: ORA, op: 0xda, ctl: { alu: OR, op0: a,  op1: md, addr: idx16, ld: a, cc: nz }, cycles: 5 }
+
+  - { name: EOR, op: 0xa8, ctl: { alu: EOR, op0: a,  op1: md, addr: imm,   ld: a, cc: nz }, cycles: 2 }
+  - { name: EOR, op: 0xb8, ctl: { alu: EOR, op0: a,  op1: md, addr: dir,   ld: a, cc: nz }, cycles: 3 }
+  - { name: EOR, op: 0xc8, ctl: { alu: EOR, op0: a,  op1: md, addr: ext,   ld: a, cc: nz }, cycles: 4 }
+  - { name: EOR, op: 0xf8, ctl: { alu: EOR, op0: a,  op1: md, addr: idx,   ld: a, cc: nz }, cycles: 3 }
+  - { name: EOR, op: 0xe8, ctl: { alu: EOR, op0: a,  op1: md, addr: idx8,  ld: a, cc: nz }, cycles: 4 }
+  - { name: EOR, op: 0xd8, ctl: { alu: EOR, op0: a,  op1: md, addr: idx16, ld: a, cc: nz }, cycles: 5 }
+
+  - { name: CMP, op: 0xa1, ctl: { alu: SUB, op0: a,  op1: md, addr: imm,          cc: nzc }, cycles: 2 }
+  - { name: CMP, op: 0xb1, ctl: { alu: SUB, op0: a,  op1: md, addr: dir,          cc: nzc }, cycles: 3 }
+  - { name: CMP, op: 0xc1, ctl: { alu: SUB, op0: a,  op1: md, addr: ext,          cc: nzc }, cycles: 4 }
+  - { name: CMP, op: 0xf1, ctl: { alu: SUB, op0: a,  op1: md, addr: idx,          cc: nzc }, cycles: 3 }
+  - { name: CMP, op: 0xe1, ctl: { alu: SUB, op0: a,  op1: md, addr: idx8,         cc: nzc }, cycles: 4 }
+  - { name: CMP, op: 0xd1, ctl: { alu: SUB, op0: a,  op1: md, addr: idx16,        cc: nzc }, cycles: 5 }
+
+  - { name: CPX, op: 0xa3, ctl: { alu: SUB, op0: x,  op1: md, addr: imm,          cc: nzc }, cycles: 2 }
+  - { name: CPX, op: 0xb3, ctl: { alu: SUB, op0: x,  op1: md, addr: dir,          cc: nzc }, cycles: 3 }
+  - { name: CPX, op: 0xc3, ctl: { alu: SUB, op0: x,  op1: md, addr: ext,          cc: nzc }, cycles: 4 }
+  - { name: CPX, op: 0xf3, ctl: { alu: SUB, op0: x,  op1: md, addr: idx,          cc: nzc }, cycles: 3 }
+  - { name: CPX, op: 0xe3, ctl: { alu: SUB, op0: x,  op1: md, addr: idx8,         cc: nzc }, cycles: 4 }
+  - { name: CPX, op: 0xd3, ctl: { alu: SUB, op0: x,  op1: md, addr: idx16,        cc: nzc }, cycles: 5 }
+
+  - { name: BIT, op: 0xa5, ctl: { alu: AND, op0: a,  op1: md, addr: imm,          cc: nz }, cycles: 2 }
+  - { name: BIT, op: 0xb5, ctl: { alu: AND, op0: a,  op1: md, addr: dir,          cc: nz }, cycles: 3 }
+  - { name: BIT, op: 0xc5, ctl: { alu: AND, op0: a,  op1: md, addr: ext,          cc: nz }, cycles: 4 }
+  - { name: BIT, op: 0xf5, ctl: { alu: AND, op0: a,  op1: md, addr: idx,          cc: nz }, cycles: 3 }
+  - { name: BIT, op: 0xe5, ctl: { alu: AND, op0: a,  op1: md, addr: idx8,         cc: nz }, cycles: 4 }
+  - { name: BIT, op: 0xd5, ctl: { alu: AND, op0: a,  op1: md, addr: idx16,        cc: nz }, cycles: 5 }
+
+  - { name: JMP,  op: 0xbc, ctl: {            op0: ea,         addr: dira  }, cycles: 2 }
+  - { name: JMP,  op: 0xcc, ctl: {            op0: ea,         addr: exta  }, cycles: 3 }
+  - { name: JMP,  op: 0xfc, ctl: {            op0: x,                      }, cycles: 2 }
+  - { name: JMP,  op: 0xec, ctl: {            op0: ea,         addr: idx8a }, cycles: 3 }
+  - { name: JMP,  op: 0xdc, ctl: {            op0: ea,         addr: idx16a}, cycles: 4 }
+
+  - { name: JSR,  op: 0xbd, ctl: {            op0: ea,         addr: dira  }, cycles: 5 }
+  - { name: JSR,  op: 0xcd, ctl: {            op0: ea,         addr: exta  }, cycles: 6 }
+  - { name: JSR,  op: 0xfd, ctl: {            op0: x,                      }, cycles: 5 }
+  - { name: JSR,  op: 0xed, ctl: {            op0: ea,         addr: idx8a }, cycles: 6 }
+  - { name: JSR,  op: 0xdd, ctl: {            op0: ea,         addr: idx16a}, cycles: 7 }
+
+  - { name: INCA, op: 0x4c, ctl: { alu: ADD, op0: a,  op1: one,             ld: a,  cc: nz }, cycles: 3 }
+  - { name: INCX, op: 0x5c, ctl: { alu: ADD, op0: x,  op1: one,             ld: x,  cc: nz }, cycles: 3 }
+  - { name: INC,  op: 0x3c, ctl: { alu: ADD, op0: md, op1: one, addr: dir,  wr: wr, cc: nz }, cycles: 5 }
+  - { name: INC,  op: 0x7c, ctl: { alu: ADD, op0: md, op1: one, addr: idx,  wr: wr, cc: nz }, cycles: 5 }
+  - { name: INC,  op: 0x6c, ctl: { alu: ADD, op0: md, op1: one, addr: idx8, wr: wr, cc: nz }, cycles: 6 }
+
+  - { name: DECA, op: 0x4A, ctl: { alu: SUB, op0: a,  op1: one,             ld: a,  cc: nz }, cycles: 3 }
+  - { name: DECX, op: 0x5A, ctl: { alu: SUB, op0: x,  op1: one,             ld: x,  cc: nz }, cycles: 3 }
+  - { name: DEC,  op: 0x3A, ctl: { alu: SUB, op0: md, op1: one, addr: dir,  wr: wr, cc: nz }, cycles: 5 }
+  - { name: DEC,  op: 0x7A, ctl: { alu: SUB, op0: md, op1: one, addr: idx,  wr: wr, cc: nz }, cycles: 5 }
+  - { name: DEC,  op: 0x6A, ctl: { alu: SUB, op0: md, op1: one, addr: idx8, wr: wr, cc: nz }, cycles: 6 }
+
+  - { name: CLRA, op: 0x4f, ctl: { op0: zero,             ld: a,  cc: n0z1 }, cycles: 3 }
+  - { name: CLRX, op: 0x5f, ctl: { op0: zero,             ld: x,  cc: n0z1 }, cycles: 3 }
+  - { name: CLR,  op: 0x3f, ctl: { op0: zero, addr: dir,  wr: wr, cc: n0z1 }, cycles: 5 }
+  - { name: CLR,  op: 0x7f, ctl: { op0: zero, addr: idx,  wr: wr, cc: n0z1 }, cycles: 5 }
+  - { name: CLR,  op: 0x6f, ctl: { op0: zero, addr: idx8, wr: wr, cc: n0z1 }, cycles: 6 }
+
+  - { name: COMA, op: 0x43, ctl: { op0inv: 1, op0: a,              ld: a,  cc: nzc1 }, cycles: 3 }
+  - { name: COMX, op: 0x53, ctl: { op0inv: 1, op0: x,              ld: x,  cc: nzc1 }, cycles: 3 }
+  - { name: COM,  op: 0x33, ctl: { op0inv: 1, op0: md, addr: dir,  wr: wr, cc: nzc1 }, cycles: 5 }
+  - { name: COM,  op: 0x73, ctl: { op0inv: 1, op0: md, addr: idx,  wr: wr, cc: nzc1 }, cycles: 5 }
+  - { name: COM,  op: 0x63, ctl: { op0inv: 1, op0: md, addr: idx8, wr: wr, cc: nzc1 }, cycles: 6 }
+
+  - { name: NEGA, op: 0x40, ctl: { alu: ADD, op0: a,  op1: one, op0inv: 1, carry: hi,             ld: a,  cc: nzc }, cycles: 3 }
+  - { name: NEGX, op: 0x50, ctl: { alu: ADD, op0: x,  op1: one, op0inv: 1, carry: hi,             ld: x,  cc: nzc }, cycles: 3 }
+  - { name: NEG,  op: 0x30, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: NEG,  op: 0x70, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: NEG,  op: 0x60, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
+  - { name: ROLX, op: 0x59, ctl: { alu: ROL, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
+  - { name: ROL,  op: 0x39, ctl: { alu: ROL, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ROL,  op: 0x79, ctl: { alu: ROL, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ROL,  op: 0x69, ctl: { alu: ROL, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: RORA, op: 0x46, ctl: { alu: ROR, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
+  - { name: RORX, op: 0x56, ctl: { alu: ROR, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
+  - { name: ROR,  op: 0x36, ctl: { alu: ROR, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ROR,  op: 0x76, ctl: { alu: ROR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ROR,  op: 0x66, ctl: { alu: ROR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: LSLA, op: 0x48, ctl: { alu: LSL, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
+  - { name: LSLX, op: 0x58, ctl: { alu: LSL, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
+  - { name: LSL,  op: 0x38, ctl: { alu: LSL, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: LSL,  op: 0x78, ctl: { alu: LSL, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: LSL,  op: 0x68, ctl: { alu: LSL, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: LSRA, op: 0x44, ctl: { alu: LSR, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
+  - { name: LSRX, op: 0x54, ctl: { alu: LSR, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
+  - { name: LSR,  op: 0x34, ctl: { alu: LSR, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: LSR,  op: 0x74, ctl: { alu: LSR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: LSR,  op: 0x64, ctl: { alu: LSR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: ASRA, op: 0x47, ctl: { alu: ASR, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
+  - { name: ASRX, op: 0x57, ctl: { alu: ASR, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
+  - { name: ASR,  op: 0x37, ctl: { alu: ASR, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ASR,  op: 0x77, ctl: { alu: ASR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: ASR,  op: 0x67, ctl: { alu: ASR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+
+  - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,             cc: nz }, cycles: 3 }
+  - { name: TSTX, op: 0x5d, ctl: { alu: SUB, op0: x,  op1: zero,             cc: nz }, cycles: 3 }
+  - { name: TST,  op: 0x3d, ctl: { alu: SUB, op0: md, op1: zero, addr: dir,  cc: nz }, cycles: 4 }
+  - { name: TST,  op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx,  cc: nz }, cycles: 4 }
+  - { name: TST,  op: 0x6d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx8, cc: nz }, cycles: 5 }
+
+  # Branches
+  - { name: BRA,  op: 0x20, cycles: 3 }
+  - { name: BRN,  op: 0x21, cycles: 3 }
+  - { name: BHI,  op: 0x22, cycles: 3 }
+  - { name: BLS,  op: 0x23, cycles: 3 }
+  - { name: BCC,  op: 0x24, cycles: 3 }
+  - { name: BCS,  op: 0x25, cycles: 3 }
+  - { name: BNE,  op: 0x26, cycles: 3 }
+  - { name: BEQ,  op: 0x27, cycles: 3 }
+  - { name: BHC,  op: 0x28, cycles: 3 }
+  - { name: BHS,  op: 0x29, cycles: 3 }
+  - { name: BPL,  op: 0x2a, cycles: 3 }
+  - { name: BMI,  op: 0x2b, cycles: 3 }
+  - { name: BMC,  op: 0x2c, cycles: 3 }
+  - { name: BMS,  op: 0x2d, cycles: 3 }
+  - { name: BIL,  op: 0x2e, cycles: 3 }
+  - { name: BIH,  op: 0x2f, cycles: 3 }
+  - { name: BSR,  op: 0xad, cycles: 6, ctl: { pshpc: 1 } }
+
+  # Bit manipulation
+  - { name: BRSET0, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x00, cycles: 5 }
+  - { name: BRSET1, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x02, cycles: 5 }
+  - { name: BRSET2, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x04, cycles: 5 }
+  - { name: BRSET3, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x06, cycles: 5 }
+  - { name: BRSET4, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x08, cycles: 5 }
+  - { name: BRSET5, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x0a, cycles: 5 }
+  - { name: BRSET6, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x0c, cycles: 5 }
+  - { name: BRSET7, ctl: { alu: BSET, cc: c, brt: set  },  op: 0x0e, cycles: 5 }
+  - { name: BRCLR0, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x01, cycles: 5 }
+  - { name: BRCLR1, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x03, cycles: 5 }
+  - { name: BRCLR2, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x05, cycles: 5 }
+  - { name: BRCLR3, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x07, cycles: 5 }
+  - { name: BRCLR4, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x09, cycles: 5 }
+  - { name: BRCLR5, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x0b, cycles: 5 }
+  - { name: BRCLR6, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x0d, cycles: 5 }
+  - { name: BRCLR7, ctl: { alu: BCLR, cc: c, brt: clr  },  op: 0x0f, cycles: 5 }
+
+  - { name: BSET0, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x10, cycles: 5 }
+  - { name: BSET1, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x12, cycles: 5 }
+  - { name: BSET2, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x14, cycles: 5 }
+  - { name: BSET3, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x16, cycles: 5 }
+  - { name: BSET4, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x18, cycles: 5 }
+  - { name: BSET5, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x1a, cycles: 5 }
+  - { name: BSET6, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x1c, cycles: 5 }
+  - { name: BSET7, ctl: { addr: dir, alu: BSET, op0: md, wr: wr },  op: 0x1e, cycles: 5 }
+  - { name: BCLR0, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x11, cycles: 5 }
+  - { name: BCLR1, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x13, cycles: 5 }
+  - { name: BCLR2, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x15, cycles: 5 }
+  - { name: BCLR3, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x17, cycles: 5 }
+  - { name: BCLR4, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x19, cycles: 5 }
+  - { name: BCLR5, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x1b, cycles: 5 }
+  - { name: BCLR6, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x1d, cycles: 5 }
+  - { name: BCLR7, ctl: { addr: dir, alu: BCLR, op0: md, wr: wr },  op: 0x1f, cycles: 5 }
+
+  - { name: TAX,  op: 0x97, ctl: {           op0: a,                       ld: x,          }, cycles: 2 }
+  - { name: TXA,  op: 0x9F, ctl: {           op0: x,                       ld: a,          }, cycles: 2 }
+  - { name: SEC,  op: 0x99, ctl: {                                                 cc:  c1 }, cycles: 2 }
+  - { name: SEI,  op: 0x9b, ctl: {                                                 cc:  i1 }, cycles: 2 }
+  - { name: CLC,  op: 0x98, ctl: { cc: c0 },  cycles: 2 }
+  - { name: CLI,  op: 0x9a, ctl: { cc: i0 },  cycles: 2 }
+  - { name: SWI,  op: 0x83, ctl: {                                                 cc: i1 }, cycles: 10 }
+  - { name: RTI,  op: 0x80,                                                                  cycles: 9 }
+  - { name: RTS,  op: 0x81, ctl: {                            addr: pul, ld: pc           }, cycles: 6 }
+  - { name: RSP,  op: 0x9C, ctl: { op0inv: 1, op0: zero,                 ld: s            }, cycles: 2 }
+  - { name: NOP,  op: 0x9d,                                                                  cycles: 2 }
+  - { name: STOP, op: 0x8e, ctl: { cc: i0, stop: stop },                                                   cycles: 2 }
+  - { name: WAIT, op: 0x8f, ctl: { cc: i0 },                                                 cycles: 2 }
+ucode:
+  - name: ivrd # interrupt service and reset vector read and jump
+    start: 0x82
+    seq:
+      - iv_rmux,  ld0_opnd
+      - one_rmux, ld1_opnd,     ea_ld
+      - m_ea
+      - m_ea, fetch, add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, md_shift
+      - ld0_opnd
+      -                         pc_ld
+      - fetch, i1_cc
+      -
+      - ni
+  - name: isrv
+    start: 0x9e # referenced in  jt6805_ctrl manually!
+    cycles: 11
+    seq:
+      - pc_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr,  s_ea
+
+      - x_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr, s_ea
+
+      - a_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - cc_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,   s_ea
+      - ivrd_jsr
+  - name: imm
+    start: 0x90
+    seq:
+      - fetch, inc_pc, ret_jsr
+  - name: dir
+    start: 0x91
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: dira
+    start: 0x87
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - ea_ld, ret_jsr
+  - name: ext
+    start: 0x92
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - # idle
+      - # idle
+      - ld0_opnd
+      - ea_ld
+      - m_ea,
+      - m_ea, fetch, ret_jsr
+  - name: exta
+    start: 0x84
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, inc_pc, md_shift
+      - # idle
+      - ld0_opnd
+      - ea_ld, ret_jsr
+  - name: idx
+    start: 0x93
+    seq:
+      - x_rmux, ld0_opnd
+      - ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: idx8
+    start: 0x94
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - # idle
+      - # idle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: idx8a
+    start: 0x85
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld, ret_jsr
+  - name: idx16
+    start: 0x95
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - fetch, inc_pc, md_shift
+      - # idle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: idx16a
+    start: 0x96
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - fetch, inc_pc, md_shift
+      - # idle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld, ret_jsr
+  - name: psh8
+    start: 0x3b
+    seq:
+      - s_rmux,   ld0_opnd
+      - one_rmux, ld1_opnd, ea_ld
+      - sub_alu,  s_ld, m_ea, wr, ret_jsr
+  - name: psh16
+    start: 0x4b
+    seq:
+      - s_rmux,    ld0_opnd, s_ea
+      - one_rmux,  ld1_opnd, s_ea
+      - sub_alu    s_ld, s_ea, wr
+      - s_rmux,    ld0_opnd,                 s_ea
+      -                      sub_alu,  s_ld, s_ea, wr, md_shift, ret_jsr
+  - name: idle6 # waste 6 ucycles
+    start: 0xaf
+    seq:
+      - # 1
+      - # 2
+      - # 3
+      - # 4
+      - # 5
+      - ret_jsr # 6
+  - name: rti8
+    start: 0x7b
+    seq:
+      - #idle to meet specs
+      - add_alu, s_ld
+      - s_rmux, ld0_opnd, s_ea
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, cc_ld
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, a_ld
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, x_ld, ret_jsr # s points at the next data to fetch
+############ Instructions
+  - mnemo: [
+      # Operand from memory (${addr}!=nil)
+      ADC, ADD, AND, BIT, CMP, CPX, EOR, LDA, LDX,
+      NOP, ORA, SBC, SUB,
+      # No addressing (${addr}==nil), 2 cycles
+      ASRA, ASRX, CLRA, CLRX, COMA, COMX,
+      DECA, DECX, INCA, INCX,
+      LSLA, LSLX, LSRA, LSRX,
+      NEGA, NEGX, ROLA, ROLX, RORA, RORX,
+      TAX,  TXA,  RSP,  TSTA, TSTX,
+      SEC,  SEI,  CLC,  CLI
+    ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
+      - ${op1}_rmux, ld1_opnd, fetch
+      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ni
+  - mnemo: [ BRA, BRN, BHI, BLS, BCC, BCS, BNE, BEQ, BHC, BHS, BPL, BMI, BMC, BMS, BIL, BIH ]
+    seq:
+      - imm_jsr, inc_pc, brlatch
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, branch, pc_ld
+      - # idle
+      - fetch
+      - # wait for the fetch
+      - ni
+  # read operand and write result to memory
+  - mnemo: [
+      ASR, CLR, COM, DEC, INC, LSL, LSR, NEG, ROL, ROR, TST
+   ]
+    seq:
+      - ${addr}_jsr inc_pc # 3 bus cycles gone
+      - ${op0}_rmux, op0inv=${op0inv} ld0_opnd
+      - ${op1}_rmux, ld1_opnd
+      - ${alu}_alu, ${carry}_carry, md_ld, ${cc}_cc
+      - m_ea, ${wr}
+      - # bus cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ # Bit manipulation
+      BSET0, BSET1, BSET2, BSET3, BSET4, BSET5, BSET6, BSET7,
+      BCLR0, BCLR1, BCLR2, BCLR3, BCLR4, BCLR5, BCLR6, BCLR7
+   ]
+    seq:
+      - ld1_opnd # keep the op code
+      - ${addr}_jsr inc_pc # 3 bus cycles gone
+      - ld0_opnd
+      - ${alu}_alu, md_ld, ${cc}_cc
+      - m_ea, ${wr}
+      - # bus cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  # write 8-bit registers
+  - mnemo: [ STA, STX ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op1}_rmux, ld0_opnd
+      - ea_ld
+      - ${op0}_rmux, ld0_opnd
+      - md_ld, ${cc}_cc
+      - m_ea, wr
+      - fetch
+      -
+      - ni
+  - mnemo: [ JMP ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd
+      - pc_ld
+      - fetch
+      -
+      - ni
+  - mnemo: [ JSR ]
+    seq:
+      - ${addr}_jsr, inc_pc # get EA loaded
+      - pc_rmux, ld0_opnd
+      - md_ld, psh16_jsr
+      - ${op0}_rmux, ld0_opnd
+      - pc_ld
+      - # jsr cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [  BSR ]
+    seq:
+      - inc_pc, one_rmux, ld1_opnd
+      - pc_rmux, ld0_opnd
+      - add_alu, md_ld, psh16_jsr
+      - imm_jsr
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, pc_ld
+      - # idle
+      - idle6_jsr
+      - fetch
+      - # wait for the fetch
+      - ni
+
+  - mnemo: [ BRSET0, BRSET1, BRSET2, BRSET3, BRSET4, BRSET5, BRSET6, BRSET7,
+             BRCLR0, BRCLR1, BRCLR2, BRCLR3, BRCLR4, BRCLR5, BRCLR6, BRCLR7 ]
+    seq:
+      - ld1_opnd # keep the op code
+      - dir_jsr, inc_pc
+      - ld0_opnd
+      - ${alu}_alu, ${cc}_cc
+      - imm_jsr
+      - pc_rmux, ld1_opnd, branch
+      - ld0_opnd
+      - add_alu, ${brt}_brt, pc_ld
+      -
+      - fetch
+      -
+      - ni
+  - mnemo: [ STOP, WAIT ]
+    seq:
+      - ${cc}_cc, ${stop}, inc_pc
+      - halt
+  - mnemo: [ RTS ]
+    seq:
+      - s_rmux, ld0_opnd
+      - one_rmux, ld1_opnd
+      - add_alu, s_ld
+      - s_ea, s_rmux, ld0_opnd
+      - s_ea, fetch, add_alu, s_ld
+      - s_ea, fetch, md_shift
+      - ld0_opnd
+      - pc_ld, idle6_jsr
+      - fetch, idle6_jsr
+      - # wait for the fetch
+      - ni
+  - mnemo: [ RTI ]
+    seq:
+      - one_rmux, ld1_opnd
+      -   s_rmux, ld0_opnd, rti8_jsr
+
+      - add_alu, s_ld,    s_ea, fetch
+      - s_rmux, ld0_opnd, s_ea
+      -                   s_ea, fetch, md_shift
+      - ld0_opnd
+      -                   s_ea, pc_ld
+      - fetch, idle6_jsr
+      - idle6_jsr # wait for the fetch
+      - ni
+  - mnemo: [ SWI ]
+    seq: # like isrv but with swi at the end
+      - pc_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr,  s_ea
+
+      - x_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr, s_ea
+
+      - a_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - cc_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,   s_ea
+      - swi, ivrd_jsr
