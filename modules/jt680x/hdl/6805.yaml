@@ -265,8 +265,9 @@ ops:
   - { name: NOP,  op: 0x9d,                                                                  cycles: 2 }
   - { name: STOP, op: 0x8e, ctl: { cc: i0, stop: stop },                                                   cycles: 2 }
   - { name: WAIT, op: 0x8f, ctl: { cc: i0 },                                                 cycles: 2 }
+
 ucode:
-  - name: ivrd # interrupt service and reset vector read and jump
+  - name: ivrd # interrupt vector read and jump. Used as reset too
     start: 0x82
     seq:
       - iv_rmux,  ld0_opnd
@@ -281,8 +282,9 @@ ucode:
       -
       - ni
   - name: isrv
-    start: 0x9e # referenced in  jt6805_ctrl manually!
+    start: 0x9e  # 0x9e referenced in  jt6805_ctrl manually!
     cycles: 11
+    mnemo: [ "ISRV" ]
     seq:
       - pc_rmux, ld0_opnd, s_ea
       - md_ld, psh16_jsr,  s_ea
@@ -295,6 +297,7 @@ ucode:
 
       - cc_rmux, ld0_opnd, s_ea
       - md_ld, psh8_jsr,   s_ea
+      - idle6_jsr
       - ivrd_jsr
   - name: imm
     start: 0x90

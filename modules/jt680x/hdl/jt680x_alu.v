@@ -49,11 +49,10 @@ assign rslt_cc  = alu16 ? { n16,z16,v16,c16} : { n8, z8, v8, c8 };
 
 always @* begin
     case( carry_sel )
-        // OP0L_CARRY: cx = op0[0];
-        CIN_CARRY:  cx = cin;
-        OP0M_CARRY: cx = op0[7];
-        HI_CARRY:   cx = 1;
-        default:    cx = 0;
+        CIN_CARRY: cx = cin;
+        SHL_CARRY: cx = op1[7];
+        SHR_CARRY: cx = op0[0];
+        default:   cx = 0;
     endcase
 
     rslt = op0;
@@ -84,24 +83,24 @@ always @* begin
             rslt[ 7:0] = {cx,op1[7:1]};
             c8  = op1[0];
             c16 = op1[0];
-            v8  = op1[7] ^ op1[0];
-            v16 = op0[7] ^ op1[0];
+            v8  = rslt[ 7] ^ c8; // result of N^C (after shift execution)
+            v16 = rslt[15] ^ c16;
         end
         LSL_ALU: begin
             rslt[15:8] = {op0[6:0],cx};
             rslt[ 7:0] = {op1[6:0],1'b0};
-            c8  = op0[7];
+            c8  = op1[7];
             c16 = op0[7];
-            v8  = op0[7] ^ op0[6];
-            v16 = op0[7] ^ op0[6];
+            v8  = rslt[ 7] ^ c8;
+            v16 = rslt[15] ^ c16;
         end
         ROL_ALU: begin
             {c8,rslt[7:0]} = {op0[7:0],cin};
-            v8  = op0[7] ^ op0[6];
+            v8  = rslt[ 7] ^ c8;
         end
         ROR_ALU: begin
             {rslt[7:0],c8} = {cin,op0[7:0]};
-            v8  = op0[7] ^ cin;
+            v8  = rslt[ 7] ^ c8;
         end
         SUB_ALU: begin
             {c8,  rslt[ 7:0]} = {1'b0, op0[ 7:0]}-{1'b0,op1[ 7:0]}-{8'b0,cx};

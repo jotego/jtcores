@@ -33,6 +33,7 @@ type UcOp struct {
 type UcChunk struct {
 	Name  string   `yaml:"name"`
 	Start int      `yaml:"start"`
+	Cycles int	   `yaml:"cycles"` // used for procedures
 	Mnemo []string `yaml:"mnemo"`
 	Seq   []string `yaml:"seq"`
 	// private
@@ -67,7 +68,7 @@ func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
 	upk := 0
 	proc := false
 	var id string
-	if desc.Chunks[mnemok].Mnemo == nil || len(desc.Chunks[mnemok].Mnemo) == 0 {
+	if desc.Chunks[mnemok].Name!="" {
 		up0 = desc.Chunks[mnemok].Start
 		id = desc.Chunks[mnemok].Name
 		proc = true
@@ -188,17 +189,22 @@ func expand_all(desc *UcDesc) []string {
 	return code
 }
 
-func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc) int {
+func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc, was_ni *bool) int {
 	re := regexp.MustCompile("([a-zA-Z][a-zA-Z0-9_]+)_JSR")
 	ni := regexp.MustCompile(`\bNI|HALT\b`)
 	sum := 0
 	k0 := 0
-	for k := uaddr; k < len(code); k++ {
+	if was_ni == nil {
+		aux := false
+		was_ni = &aux
+	}
+	for k := uaddr; k < len(code) && !*was_ni; k++ {
 		each := code[k]
 		sum++
 		k0++
 		// fmt.Printf("%X %s\n",k,each)
 		if ni.MatchString(each) {
+			*was_ni = true
 			break
 		}
 		jsr := re.FindStringSubmatch(each)
@@ -206,13 +212,14 @@ func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc) int {
 			if jsr[1] == "RET" {
 				break
 			}
+			proc := find_proc(jsr[1], desc)
+			if proc == -1 {
+				fmt.Printf("Cannot find microcode procedure %s\n", jsr[1])
+				os.Exit(1)
+			}
+			sub := calc_cycles(desc.Chunks[proc].Start*desc.Cfg.EntryLen, code, true, desc, was_ni)
 			if recurse {
-				proc := find_proc(jsr[1], desc)
-				if proc == -1 {
-					fmt.Printf("Cannot find microcode procedure %s\n", jsr[1])
-					os.Exit(1)
-				}
-				sum += calc_cycles(desc.Chunks[proc].Start*desc.Cfg.EntryLen, code, true, desc)
+				sum+=sub
 			}
 		}
 	}
@@ -221,14 +228,13 @@ func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc) int {
 
 func fix_cycles(code []string, desc *UcDesc) {
 	elen := desc.Cfg.EntryLen
-	for _, each := range desc.Ops {
-		ref := each.Cycles * desc.Cfg.CycleK
-		uaddr := each.Op * elen
-		actual := calc_cycles(uaddr, code, true, desc)
-		main := calc_cycles(uaddr, code, false, desc)
+	var ref, uaddr int
+	fixone := func(op int) {
+		actual := calc_cycles(uaddr, code, true, desc, nil)
+		main := calc_cycles(uaddr, code, false, desc, nil)
 		delta := ref - actual
 		if main+delta > elen {
-			fmt.Printf("%02X: (%d-%d-%d) %d ", each.Op, ref, actual,main, delta)
+			fmt.Printf("%02X: (%d-%d-%d) %d ", op, ref, actual,main, delta)
 			delta=elen-main
 			fmt.Printf("-> %d\n",delta)
 		}
@@ -242,6 +248,18 @@ func fix_cycles(code []string, desc *UcDesc) {
 			}
 		}
 	}
+	for _, each := range desc.Chunks {
+		if each.Name!="" && each.Cycles!=0 {
+			ref = each.Cycles * desc.Cfg.CycleK
+			uaddr = each.Start * elen
+			fixone(each.Start)
+		}
+	}
+	for _, each := range desc.Ops {
+		ref = each.Cycles * desc.Cfg.CycleK
+		uaddr = each.Op * elen
+		fixone(each.Op)
+	}
 }
 
 func report_cycles(code []string, desc *UcDesc) {
@@ -249,7 +267,7 @@ func report_cycles(code []string, desc *UcDesc) {
 	header:=false
 	for _, each := range desc.Ops {
 		ref := each.Cycles * desc.Cfg.CycleK
-		actual := calc_cycles(each.Op*desc.Cfg.EntryLen, code, true, desc)
+		actual := calc_cycles(each.Op*desc.Cfg.EntryLen, code, true, desc, nil)
 		if actual==ref {
 			continue
 		}
@@ -461,6 +479,21 @@ func dump_param_vh(fname string, params []UcParam) {
 	os.WriteFile(fname+"_param.vh", buffer.Bytes(), 0644)
 }
 
+func check_mnemos(desc *UcDesc) {
+	missing := false
+	for _, chunk := range desc.Chunks {
+		next_chunk:
+		for _,each := range chunk.Mnemo {
+			for _,op := range desc.Ops {
+				if each == op.Name { continue next_chunk }
+			}
+			fmt.Println("Missing OP definition for mnemonic",each)
+			missing=true
+		}
+	}
+	if missing { os.Exit(1) }
+}
+
 func Make(modname, fname string) {
 	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
 	buf, err := os.ReadFile(fpath)
@@ -478,6 +511,7 @@ func Make(modname, fname string) {
 		fmt.Println("Set non-zero values for entry_len and entries in the config section")
 		os.Exit(1)
 	}
+	check_mnemos(&desc)
 	code := expand_all(&desc)
 	fix_cycles(code, &desc)
 	if Args.Report { report_cycles( code, &desc) }

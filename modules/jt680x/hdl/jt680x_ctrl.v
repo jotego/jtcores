@@ -49,8 +49,8 @@ module jt680x_ctrl(
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
-wire       halt;
-wire       ni;
+wire       halt, swi, ni;
+reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 // always @* begin
@@ -73,14 +73,18 @@ always @(posedge clk, posedge rst) begin
         iv      <= 7;
     end else if(cen) begin
         if(!halt) uaddr[3:0] <= nx_ualo;
+        if( swi ) iv <= 5;
         if( ni | halt ) begin
-            // nmi_l <= nmi;
+            nmi_l <= nmi;
             uaddr <= { md[7:0], 4'd0 };
             if( irq & ~i ) begin
                 iv <= 4;
                 uaddr <= 'hc70; // irq service
             end
-            // if( nmi & ~nmi_l )
+            if( nmi & ~nmi_l ) begin
+                iv <= 6;
+                uaddr <= 'hc70;
+            end
         end
         if( jsr_en ) begin
             jsr_ret <= uaddr;
