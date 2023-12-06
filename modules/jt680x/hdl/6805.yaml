@@ -156,11 +156,11 @@ ops:
   - { name: COM,  op: 0x73, ctl: { op0inv: 1, op0: md, addr: idx,  wr: wr, cc: nzc1 }, cycles: 5 }
   - { name: COM,  op: 0x63, ctl: { op0inv: 1, op0: md, addr: idx8, wr: wr, cc: nzc1 }, cycles: 6 }
 
-  - { name: NEGA, op: 0x40, ctl: { alu: ADD, op0: a,  op1: one, op0inv: 1, carry: hi,             ld: a,  cc: nzc }, cycles: 3 }
-  - { name: NEGX, op: 0x50, ctl: { alu: ADD, op0: x,  op1: one, op0inv: 1, carry: hi,             ld: x,  cc: nzc }, cycles: 3 }
-  - { name: NEG,  op: 0x30, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: NEG,  op: 0x70, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: NEG,  op: 0x60, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, carry: hi, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+  - { name: NEGA, op: 0x40, ctl: { alu: ADD, op0: a,  op1: one, op0inv: 1,             ld: a,  cc: nzc }, cycles: 3 }
+  - { name: NEGX, op: 0x50, ctl: { alu: ADD, op0: x,  op1: one, op0inv: 1,             ld: x,  cc: nzc }, cycles: 3 }
+  - { name: NEG,  op: 0x30, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: NEG,  op: 0x70, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
+  - { name: NEG,  op: 0x60, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
 
   - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
   - { name: ROLX, op: 0x59, ctl: { alu: ROL, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
