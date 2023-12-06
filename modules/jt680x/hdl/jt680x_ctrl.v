@@ -44,8 +44,8 @@ module jt680x_ctrl(
     output [4:0] cc_sel
 );
 
-`include "680x_param.vh"
-`include "680x.vh"
+`include "6801_param.vh"
+`include "6801.vh"
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;

@@ -35,7 +35,7 @@ module jt680x_alu(
     output     [ 3:0] rslt_cc
 );
 
-`include "680x_param.vh"
+`include "6801_param.vh"
 
 reg  c8, c16, cx,
      v8, v16,

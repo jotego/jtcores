@@ -46,7 +46,7 @@ module jt680x_regs(
     output reg [ 7:0] dout
 );
 
-`include "680x_param.vh"
+`include "6801_param.vh"
 
 reg  [ 7:0] a, b;
 reg  [15:0] x, s, rmux, ea, pc;
