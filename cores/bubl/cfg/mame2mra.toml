@@ -32,12 +32,12 @@ skip.setnames=[
 info = """ Header to identify the PCB type
         Byte 0 = 0 for Bubble Bobble (MC6801 MCU)
                  1 for Tokio (MC68705 MCU)
+                 3 for Tokio bootleg (no MCU but a fixed value fed into CPU)
 """
 data = [
     { machine="bublbobl", offset=0, data="00" },
     { machine="tokio",    offset=0, data="01" },
-    # vulgusa is flipped relative to the others
-    # { setname = "vulgusa", offset=1, data="01" },
+    { setname="tokiob",   offset=0, data="03" },
 ]
 
 [buttons]

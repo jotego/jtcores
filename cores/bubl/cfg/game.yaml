@@ -7,6 +7,9 @@ game:
       - jtbubl_video.v
       - jtbubl_gfx.v
       - jtbubl_sound.v
+  - from: kunio
+    get:
+      - jtkunio_mcu.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -35,6 +38,7 @@ jtframe:
       - jtframe_z80.yaml
       # MCU
       - jtframe_6801mcu.yaml
+      - jtframe_6805mcu.yaml
   - from: sound
     get:
       - jtframe_mixer.v

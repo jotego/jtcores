@@ -24,7 +24,7 @@ module jtbubl_main(
     input               cen4,
 
     // game selection
-    input               tokio,
+    input               tokio, bootleg,
     // Cabinet inputs
     input      [ 1:0]   cab_1p,
     input      [ 1:0]   coin,
@@ -73,13 +73,15 @@ module jtbubl_main(
     // DIP switches
     input               dip_pause,
     input               service,
+    input               tilt,
     input      [ 7:0]   dipsw_a,
-    input      [ 7:0]   dipsw_b
+    input      [ 7:0]   dipsw_b,
+    input      [ 7:0]   debug_bus
 );
 
 wire        cen_main, cen_sub;
 reg  [ 7:0] main_din, sub_din;
-wire [ 7:0] ram2sub, main_dout, sub_dout, comm2main, comm2mcu,
+wire [ 7:0] ram2sub, main_dout, sub_dout, comm2main, comm2mcu, mcu_dout,
             p1_in,
             p1_out, p3_out, p4_out;
 wire [ 4:0] p2_out;
@@ -90,10 +92,11 @@ wire [11:0] mcu_bus;
 wire [15:0] main_addr, sub_addr;
 wire        main_mreq_n, main_iorq_n, main_rdn, main_wrn, main_rfsh_n;
 wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n;
+wire        mcu_stn, mcu_irqn;
 reg         rammcu_we, rammcu_cs;
 reg         main_work_cs, mcram_cs, // shared memories
             tres_cs,  // watchdog reset
-            main2sub_nmi,
+            main2sub_nmi, mcu_cs,
             misc_cs, sound_cs,
             cabinet_cs, flip_cs;
 reg         sub_work_cs;
@@ -127,7 +130,7 @@ assign      cpu_dout     = main_dout;
 assign      cpu_rnw      = main_wrn;
 assign      p1_in[7:4]   = 4'hf;
 assign      p1_in[3:2]   = ~coin;
-assign      p1_in[1:0]   = { service, 1'b1 };
+assign      p1_in[1:0]   = { service, tilt };
 assign      mcu_bus      = { p2_out[3:0], p4_out };
 
 // Watchdog and main CPU reset
@@ -156,7 +159,8 @@ always @(*) begin
         flip_cs     = !main_mreq_n && main_addr[15: 8]==8'hFB && !main_addr[7] && !main_wrn;
         main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB &&  main_addr[7] && !main_wrn;
         tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7]; // watchdog
-        mcram_cs    = !main_mreq_n && main_addr[15: 9]==7'b1111_111; // FE
+        mcu_cs      = !main_mreq_n && main_addr[15: 9]==7'b1111_111; // FE
+        mcram_cs    = 0;
         cabinet_cs  = !main_mreq_n && main_addr[15: 7]==9'b1111_1010_0 && main_wrn;
     end else begin // Bubble Bobble
         sound_cs    = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7];
@@ -165,6 +169,7 @@ always @(*) begin
         main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b00 && !main_wrn;
         tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && main_addr[7];
         mcram_cs    = !main_mreq_n && main_addr[15:10]==6'b1111_11; // FC
+        mcu_cs      = 0;
         cabinet_cs  = 0;
     end
 end
@@ -172,16 +177,16 @@ end
 // Main CPU input mux
 always @(posedge clk) begin
     main_din <=
-        main_rom_cs ? main_rom_data : (
-        vram_cs     ? vram_dout     : (
-        pal_cs      ? pal_dout      : (
-        main_work_cs? work2main_dout: (
-        mcram_cs    ? (tokio ? 8'hbf : comm2main ) : (
-        !main_iorq_n? int_vector    : (
-        sound_cs    ? (
-            main_addr[0] ? { 6'h3f, main_flag, snd_flag } : main_latch ) :(
-        cabinet_cs  ? cab_dout
-        : 8'hff )))))));
+        main_rom_cs ? main_rom_data :
+        vram_cs     ? vram_dout     :
+        pal_cs      ? pal_dout      :
+        main_work_cs? work2main_dout:
+        mcram_cs    ? comm2main     :
+        !main_iorq_n? int_vector    :
+        sound_cs    ? (main_addr[0] ? { 6'h3f, main_flag, snd_flag } : main_latch) :
+        cabinet_cs  ? cab_dout :
+        mcu_cs      ? (bootleg ? 8'hbf : mcu_dout) :
+        8'hff;
 end
 
 // Main CPU miscellaneous control bits
@@ -449,7 +454,9 @@ always @(posedge clk) begin
     case( main_addr[2:0] )
         3'd3: cab_dout <= dipsw_a;
         3'd4: cab_dout <= dipsw_b;
-        3'd5: cab_dout <= {2'b11, 2'b11 /* MCU related */, coin, service, 1'b1 };
+        3'd5: cab_dout <= {2'b11,
+            debug_bus[0] ? { mcu_stn, mcu_irqn } : { mcu_irqn, mcu_stn },
+            coin, service, tilt };
         3'd6: cab_dout <= {1'b1, cab_1p[0], joystick1[5:0] };
         3'd7: cab_dout <= {1'b1, cab_1p[1], joystick2[5:0] };
         default: cab_dout <= 8'hff;
@@ -511,9 +518,9 @@ reg         rst01, rst05;
 wire        rom01_cs, rom05_cs;
 wire [11:0] rom01_a,  rom05_a;
 
-assign mcu_rom_cs  = tokio ? rom05_cs : rom01_cs;
+assign mcu_rom_cs  = tokio ? 1'b1     : rom01_cs;
 assign mcu_rom_addr= tokio ? rom05_a  : rom01_a;
-always @(posedge clk) { rst01, rst05 } <= { ~tokio, tokio } & {2{mcu_rst}};
+always @(posedge clk) { rst01, rst05 } <= { tokio, ~tokio } | {2{mcu_rst}};
 
 jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     .rst        ( rst01         ),
@@ -542,26 +549,20 @@ jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     .rom_cs     ( rom01_cs      )
 );
 
-jtframe_6805mcu  u_mcu05(
+jtkunio_mcu u_mcu(
     .rst        ( rst05         ),
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
-    .wr         (               ),
-    .addr       (               ),
-    .dout       (               ),
-    .irq        ( mcu_irq       ), // active high
-    .timer      ( 1'b0          ),
-    // Ports
-    .pa_in      ( mcu_din       ),
-    .pa_out     ( pa_out        ),
-    .pb_in      ( pb_out        ),
-    .pb_out     ( pb_out        ),
-    .pc_in      ({2'b11,mcu_stn,mcu_irq}),
-    .pc_out     (               ),
-    // ROM interface
+    .rd         ( mcu_cs & ~main_rdn ),
+    .wr         ( mcu_cs & ~main_wrn ),
+    .clr        ( 1'b0          ),
+    .cpu_dout   ( main_dout     ),
+    .dout       ( mcu_dout      ),
+    .stn        ( mcu_stn       ),
+    .irqn       ( mcu_irqn      ),
+    // ROM
     .rom_addr   ( rom05_a       ),
-    .rom_data   ( rom05_data    ),
-    .rom_cs     (               )
+    .rom_data   ( mcu_rom_data  )
 );
 
 endmodule

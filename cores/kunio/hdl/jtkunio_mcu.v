@@ -17,8 +17,8 @@
     Date: 7-12-2023 */
 
 module jtkunio_mcu(
-    input            clk,
     input            rst,
+    input            clk,
     input            cen,
     input            rd,
     input            wr,

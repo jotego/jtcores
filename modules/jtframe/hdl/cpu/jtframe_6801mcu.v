@@ -82,7 +82,7 @@ reg  [ 2:0] oc_en_aux;
 wire [ 2:0] oc_en, ocf;
 wire [ 1:0] tin, ic_edge;
 reg  [ 1:0] tin_l;
-wire        nx_frc_ov, frc_bsy;
+wire        nx_frc_ov;
 reg  [ 1:0] cen_frc;
 
 localparam  P1DDR = 'h0,
@@ -142,7 +142,6 @@ assign ic_edge[1] = tcr1[4] ? (tin[1]&~tin_l[1]) : (~tin[1]&tin_l[1]);
 assign oc_en[0]= oc_en_aux[0] && !(wr && port_cs && (psel==OCR1H || psel==FRCH));
 assign oc_en[1]= oc_en_aux[1] && !(wr && port_cs && (psel==OCR2H || psel==FRCH));
 assign oc_en[2]= oc_en_aux[2] && !(wr && port_cs && (psel==OCR3H || psel==FRCH));
-assign frc_bsy = port_cs && wr && (psel==FRCH || psel==FRCL);
 
 // Address decoder
 always @(posedge clk) begin
@@ -262,9 +261,7 @@ always @(posedge clk, posedge rst) begin
                 // serial interface
                 P3CSR: p3csr <= dout[7:3]; // bit 5 unused
                 RMCR: rmcr <= dout; // bits 6-4 unused
-                TRCS: trcs <= dout;
                 TD:   td   <= dout;
-
                 RAMC: ramc[7:6] <= dout[7:6];
                 CAAH,CAAL,ICR1H,ICR1L,ICR2H,ICR2L,RD,FRCL,TSR:; // read-only port
                 default: $display("%m: ignored write to port %X",psel);

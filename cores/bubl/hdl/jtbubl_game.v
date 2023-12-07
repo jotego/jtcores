@@ -24,7 +24,7 @@ wire        snd_rst, black_n, flip;
 wire [ 7:0] snd_latch, main_latch;
 reg  [ 7:0] debug_mux;
 
-reg         tokio;
+reg         tokio, bootleg;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        main_flag, main_stb, snd_stb;
 
@@ -36,12 +36,12 @@ wire        snd_flag;
 wire        snd_rstn_eff;
 
 assign snd_rstn_eff = ~(tokio ? snd_rst : rst);
-assign debug_view = debug_mux;
+assign debug_view = {6'd0,bootleg,tokio};
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
 
 always @(posedge clk) begin
-    if( prog_we && header && ioctl_addr[0]==0 ) tokio <= prog_data[0];
+    if( prog_we && header && ioctl_addr[0]==0 ) { bootleg, tokio } <= prog_data[1:0];
         // tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this at ioctl_addr==1
 end
 
@@ -93,6 +93,7 @@ jtbubl_main u_main(
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
+    .tilt           ( tilt          ),
     // Video
     .LVBL           ( LVBL          ),
     .flip           ( flip          ),
@@ -108,7 +109,8 @@ jtbubl_main u_main(
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dipsw_a        ( dipsw_a       ),
-    .dipsw_b        ( dipsw_b       )
+    .dipsw_b        ( dipsw_b       ),
+    .debug_bus      ( debug_bus     )
 );
 `else
 assign main_cs = 0;

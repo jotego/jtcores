@@ -197,8 +197,8 @@ T65 u_cpu(
 );
 
 jtkunio_mcu u_mcu(
-    .clk        ( clk           ),
     .rst        ( rst           ),
+    .clk        ( clk           ),
     .cen        ( cen3          ),
     .rd         ( mcu2main_cs   ),
     .wr         ( main2mcu_cs   ),
