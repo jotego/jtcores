@@ -35,7 +35,6 @@ wire        h, rslt_h, c, i;
 
 wire [3:0] alu_sel;
 wire [1:0] brt_sel;
-wire [1:0] carry_sel;
 wire [3:0] cc_sel;
 wire [1:0] ea_sel;
 wire [2:0] ld_sel;
@@ -44,6 +43,7 @@ wire [3:0] rmux_sel;
 
 wire       branch;
 wire       brlatch;
+wire       cin_carry;
 wire       fetch;
 wire       op0inv;
 wire       inc_pc;
@@ -70,7 +70,7 @@ jt6805_ctrl u_ctrl(
     .stop       ( tstop     ),
     .wr         ( wr        ),
     .brt_sel    ( brt_sel   ),
-    .carry_sel  ( carry_sel ),
+    .cin_carry  ( cin_carry ),
     .ea_sel     ( ea_sel    ),
     .opnd_sel   ( opnd_sel  ),
     .ld_sel     ( ld_sel    ),
@@ -83,7 +83,7 @@ jt6805_alu u_alu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .carry_sel  ( carry_sel ),
+    .cin_carry  ( cin_carry ),
     .alu_sel    ( alu_sel   ),
     .cin        ( c         ),
     .hin        ( h         ),
@@ -107,7 +107,6 @@ jt6805_regs u_regs(
     .op0inv     ( op0inv    ),
     .wr         ( wr        ),
     .brt_sel    ( brt_sel   ),
-    .carry_sel  ( carry_sel ),
     .ea_sel     ( ea_sel    ),
     .opnd_sel   ( opnd_sel  ),
     .ld_sel     ( ld_sel    ),

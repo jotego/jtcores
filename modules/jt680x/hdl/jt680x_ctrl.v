@@ -25,6 +25,10 @@ module jt680x_ctrl(
     input        i,
     input        irq,
     input        nmi,
+    input        irq_icf,
+    input        irq_ocf,
+    input        irq_tof,
+    input        irq_sci,
     output reg [2:0] iv,
     // control
     output       alu16,
@@ -53,37 +57,29 @@ wire       halt, swi, ni;
 reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
-// always @* begin
-//     case (iv_sel)
-//         NMI_IV: iv = 6;
-//         SWI_IV: iv = 5;
-//         IRQ_IV: iv = 4;
-//         ICF_IV: iv = 3;
-//         OCF_IV: iv = 2;
-//         TOF_IV: iv = 1;
-//         SCI_IV: iv = 0;
-//         default:iv = 7; // reset
-//     endcase
-// end
+localparam INTSRV = 12'hc70;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         uaddr   <= 0;
         jsr_ret <= 0;
-        iv      <= 7;
+        iv      <= 7; // reset vector
     end else if(cen) begin
         if(!halt) uaddr[3:0] <= nx_ualo;
-        if( swi ) iv <= 5;
+        if( swi ) iv <= 5; // lowest priority
         if( ni | halt ) begin
             nmi_l <= nmi;
             uaddr <= { md[7:0], 4'd0 };
-            if( irq & ~i ) begin
-                iv <= 4;
-                uaddr <= 'hc70; // irq service
+            if( ~i ) begin // maskable interrupts by priority
+                if( irq_sci) begin iv <= 0; uaddr <= INTSRV; end // lowest priority
+                if( irq_tof) begin iv <= 1; uaddr <= INTSRV; end
+                if( irq_ocf) begin iv <= 2; uaddr <= INTSRV; end
+                if( irq_icf) begin iv <= 3; uaddr <= INTSRV; end
+                if( irq    ) begin iv <= 4; uaddr <= INTSRV; end // highest priority
             end
             if( nmi & ~nmi_l ) begin
                 iv <= 6;
-                uaddr <= 'hc70;
+                uaddr <= INTSRV;
             end
         end
         if( jsr_en ) begin
@@ -93,7 +89,5 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-
-
 
 endmodule

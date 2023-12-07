@@ -36,7 +36,7 @@ module jt6805_ctrl(
     output       stop,
     output       wr,
     output [1:0] brt_sel,
-    output [1:0] carry_sel,
+    output       cin_carry,
     output [1:0] ea_sel,
     output [1:0] opnd_sel,
     output [2:0] ld_sel,
@@ -54,8 +54,8 @@ reg        irq_l, pendng;
 wire       halt, swi, ni;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
-localparam IVRD_SEQA='h820,
-           ISRV_SEQA='h9E0;
+localparam IVRD_SEQA=12'h820,
+           ISRV_SEQA=12'h9E0;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

@@ -284,7 +284,6 @@ ucode:
   - name: isrv
     start: 0x9e  # 0x9e referenced in  jt6805_ctrl manually!
     cycles: 11
-    mnemo: [ "ISRV" ]
     seq:
       - pc_rmux, ld0_opnd, s_ea
       - md_ld, psh16_jsr,  s_ea

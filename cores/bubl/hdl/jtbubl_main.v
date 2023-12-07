@@ -80,12 +80,13 @@ wire        cen_main, cen_sub;
 reg  [ 7:0] main_din, sub_din;
 wire [ 7:0] ram2sub, main_dout, sub_dout, comm2main, comm2mcu,
             p1_in,
-            p1_out, p2_out, p3_out, p4_out;
+            p1_out, p3_out, p4_out;
+wire [ 4:0] p2_out;
 reg  [ 7:0] p3_in, rammcu_din;
 reg  [ 7:0] cab_dout;
 reg         h1;
 wire [11:0] mcu_bus;
-wire [15:0] main_addr, sub_addr, mcu_addr;
+wire [15:0] main_addr, sub_addr;
 wire        main_mreq_n, main_iorq_n, main_rdn, main_wrn, main_rfsh_n;
 wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n;
 reg         rammcu_we, rammcu_cs;
@@ -95,8 +96,7 @@ reg         main_work_cs, mcram_cs, // shared memories
             misc_cs, sound_cs,
             cabinet_cs, flip_cs;
 reg         sub_work_cs;
-wire        mcram_we, sub_int_n, main_int_n,
-            mcu_vma;
+wire        mcram_we, sub_int_n, main_int_n;
 reg  [ 2:0] bank;
 reg         main_rst_n, sub_rst_n, mcu_rst;
 reg  [ 7:0] wdog_cnt, int_vector;
@@ -506,35 +506,31 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_6801mcu #(.MAXPORT(7),.GATE_CEN(0)) u_mcu (
+jtframe_6801mcu #(.MODE(7)) u_mcu ( // MC6801U4
     .rst        ( mcu_rst       ),
     // .rst( rst ), // for quick sims
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
-    .wait_cen   (               ),
     .wr         (               ),
-    .vma        ( mcu_vma       ),
-    .addr       ( mcu_addr      ),
+    .addr       (               ),
     .dout       (               ),
     .irq        ( mcuirq        ), // relies on sub CPU to clear it
     .nmi        ( 1'b0          ),
+    .xdin       ( 8'd0          ),
+    .x_cs       (               ),
     // Ports
-    .p1_in      ( p1_in         ),
-    .p1_out     ( p1_out        ),
-    .p2_in      ( 8'hff         ), // feed back p2_out for sims
-    .p2_out     ( p2_out        ),
-    .p3_in      ( p3_in         ),
-    .p3_out     ( p3_out        ),
-    .p4_in      ( 8'hff         ), // feed back p4_out for sims
-    .p4_out     ( p4_out        ),
-    // external RAM
-    .ext_cs     ( 1'b0          ),
-    .ext_dout   (               ),
+    .p1_din     ( p1_in         ),
+    .p1_dout    ( p1_out        ),
+    .p2_din     ( 5'h1f         ), // feed back p2_out for sims
+    .p2_dout    ( p2_out        ),
+    .p3_din     ( p3_in         ),
+    .p3_dout    ( p3_out        ),
+    .p4_din     ( 8'hff         ), // feed back p4_out for sims
+    .p4_dout    ( p4_out        ),
     // ROM interface
     .rom_addr   ( mcu_rom_addr  ),
     .rom_data   ( mcu_rom_data  ),
-    .rom_cs     ( mcu_rom_cs    ),
-    .rom_ok     ( 1'b1          )     // SDRAM gating managed in mem.yaml
+    .rom_cs     ( mcu_rom_cs    )
 );
 
 endmodule

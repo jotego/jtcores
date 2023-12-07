@@ -20,7 +20,7 @@ module jt6805_alu(
     input          rst,
     input          clk,
     input          cen,
-    input   [ 1:0] carry_sel,
+    input          cin_carry,
     input   [ 3:0] alu_sel,
     input          cin,
     input          hin,
@@ -38,11 +38,7 @@ reg  c8, cx, n8, z8;
 assign rslt_cc = {n8,z8,c8};
 
 always @* begin
-    case( carry_sel )
-        CIN_CARRY:  cx = cin;
-        HI_CARRY:   cx = 1;
-        default:    cx = 0;
-    endcase
+    cx = cin_carry;
 
     rslt = op0;
     c8   = 0;
@@ -60,12 +56,12 @@ always @* begin
         BSET_ALU: begin
             rslt[7:0] = op0[7:0];
             rslt[{1'b0,op1[3:1]}]=1;
-            c8=op0[{1'b0,op1[3:1]}];
+            c8=op0[{8'b0,op1[3:1]}];
         end
         BCLR_ALU: begin
             rslt[7:0] = op0[7:0];
             rslt[{1'b0,op1[3:1]}]=0;
-            c8=op0[{1'b0,op1[3:1]}];
+            c8=op0[{2'b0,op1[3:1]}];
         end
         LSL_ALU: {c8,rslt[7:0]} = {op0[7:0],1'b0};
         ROL_ALU: {c8,rslt[7:0]} = {op0[7:0],cin};

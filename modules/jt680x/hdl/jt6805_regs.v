@@ -33,7 +33,6 @@ module jt6805_regs(
     input             op0inv,
     input             wr,
     input      [ 1:0] brt_sel,
-    input      [ 1:0] carry_sel,
     input      [ 1:0] ea_sel,
     input      [ 1:0] opnd_sel,
     input      [ 2:0] ld_sel,

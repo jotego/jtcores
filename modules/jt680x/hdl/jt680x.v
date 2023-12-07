@@ -20,12 +20,17 @@ module jt680x(
     input             rst,
     input             clk,
     input             cen,  // crystal clock freq. = 4x E pin freq.
-    input             irq,
-    input             nmi,
     output            wr,
     output     [15:0] addr, // always valid
     input      [ 7:0] din,
-    output     [ 7:0] dout
+    output     [ 7:0] dout,
+    // interrupts
+    input             irq,
+    input             nmi,
+    input             irq_icf,
+    input             irq_ocf,
+    input             irq_tof,
+    input             irq_sci
 );
 
 wire [15:0] op0, op1, rslt,md;
@@ -57,6 +62,10 @@ jt680x_ctrl u_ctrl(
     // interrupt
     .nmi        ( nmi       ),
     .irq        ( irq       ),
+    .irq_icf    ( irq_icf   ),
+    .irq_ocf    ( irq_ocf   ),
+    .irq_tof    ( irq_tof   ),
+    .irq_sci    ( irq_sci   ),
     .i          ( i         ),
     .iv         ( iv        ),
     // control
