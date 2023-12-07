@@ -33,7 +33,7 @@ module jtkunio_mcu(
 );
 
 reg  [7:0] din;
-reg        irq;
+reg        irq, mcu_wrnl;
 
 /* verilator tracing_on */
 wire [7:0] pa_out, pb_out;
@@ -44,14 +44,16 @@ assign irqn = ~irq;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        dout <= 0;
-        din  <= 0;
-        stn  <= 1;
-        irq  <= 0;
+        dout     <= 0;
+        din      <= 0;
+        stn      <= 1;
+        irq      <= 0;
+        mcu_wrnl <= 0;
     end else begin
-        if( !mcu_wrn ) begin
+        mcu_wrnl <= mcu_wrn;
+        if( !mcu_wrn && mcu_wrnl ) begin
             dout <= pa_out;
-            stn  <= 0;
+            stn  <= 0; // MCU semaphore in MAME jargon
         end
         if( wr ) begin
             irq <= 1;

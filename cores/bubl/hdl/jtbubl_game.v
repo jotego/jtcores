@@ -63,6 +63,7 @@ jtbubl_main u_main(
     .cen3           ( cen3          ),
 
     .tokio          ( tokio         ),
+    .bootleg        ( bootleg       ),
     // Main CPU ROM
     .main_rom_addr  ( main_addr     ),
     .main_rom_cs    ( main_cs       ),

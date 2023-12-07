@@ -455,7 +455,7 @@ always @(posedge clk) begin
         3'd3: cab_dout <= dipsw_a;
         3'd4: cab_dout <= dipsw_b;
         3'd5: cab_dout <= {2'b11,
-            debug_bus[0] ? { mcu_stn, mcu_irqn } : { mcu_irqn, mcu_stn },
+            mcu_stn, mcu_irqn,
             coin, service, tilt };
         3'd6: cab_dout <= {1'b1, cab_1p[0], joystick1[5:0] };
         3'd7: cab_dout <= {1'b1, cab_1p[1], joystick2[5:0] };
@@ -516,11 +516,12 @@ end
 
 reg         rst01, rst05;
 wire        rom01_cs, rom05_cs;
-wire [11:0] rom01_a,  rom05_a;
+wire [11:0] rom01_a;
+wire [10:0] rom05_a;
 
-assign mcu_rom_cs  = tokio ? 1'b1     : rom01_cs;
-assign mcu_rom_addr= tokio ? rom05_a  : rom01_a;
-always @(posedge clk) { rst01, rst05 } <= { tokio, ~tokio } | {2{mcu_rst}};
+assign mcu_rom_cs  = tokio ? 1'b1           : rom01_cs;
+assign mcu_rom_addr= tokio ? {1'b0,rom05_a} : rom01_a;
+always @(posedge clk) { rst01, rst05 } <= { tokio, ~tokio } | {mcu_rst,rst};
 
 jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     .rst        ( rst01         ),
@@ -549,7 +550,7 @@ jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     .rom_cs     ( rom01_cs      )
 );
 
-jtkunio_mcu u_mcu(
+jtkunio_mcu u_mcu05(
     .rst        ( rst05         ),
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),

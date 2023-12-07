@@ -13,7 +13,6 @@ skip.setnames=[
     # 8749 MCU - doesn't boot on MAME
     "bub8749",
     # Tokio hardware - Nees MCU support
-    # "bublboblp",
     # "tokio",
     # "tokioo",
     # "tokiou",
@@ -38,6 +37,7 @@ data = [
     { machine="bublbobl", offset=0, data="00" },
     { machine="tokio",    offset=0, data="01" },
     { setname="tokiob",   offset=0, data="03" },
+    { setname="bublboblp",offset=0, data="01" },
 ]
 
 [buttons]
@@ -67,7 +67,7 @@ regions = [
     { machine="bublbobl", name="mcu", No_offset=true,      start="JTFRAME_BA2_START" },
     { machine="tokio", name="bmcu:mcu", rename="mcu", No_offset=true,      start="JTFRAME_BA2_START" },
     { name="gfx1", width=16, start="JTFRAME_BA3_START", sequence=[6,0,7,1,8,2,9,3,10,4,11,5] },
-    { name="gfx1", width=16, start="JTFRAME_BA3_START", setname="tokiob", sequence=[8,0,9,1,10,2,11,3,12,4,13,5,14,6,15,7] },
+    { name="gfx1", width=16, start="JTFRAME_BA3_START", machines=["tokio","tokiob"], sequence=[8,0,9,1,10,2,11,3,12,4,13,5,14,6,15,7] },
     { name="proms", start="JTFRAME_PROM_START"},
     { name="plds", skip=true },
 ]
