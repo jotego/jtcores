@@ -56,12 +56,12 @@ always @* begin
         BSET_ALU: begin
             rslt[7:0] = op0[7:0];
             rslt[{1'b0,op1[3:1]}]=1;
-            c8=op0[{8'b0,op1[3:1]}];
+            c8=op0[{1'b0,op1[3:1]}];
         end
         BCLR_ALU: begin
             rslt[7:0] = op0[7:0];
             rslt[{1'b0,op1[3:1]}]=0;
-            c8=op0[{2'b0,op1[3:1]}];
+            c8=op0[{1'b0,op1[3:1]}];
         end
         LSL_ALU: {c8,rslt[7:0]} = {op0[7:0],1'b0};
         ROL_ALU: {c8,rslt[7:0]} = {op0[7:0],cin};

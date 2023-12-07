@@ -40,16 +40,6 @@ assign debug_view = debug_mux;
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
 
-`ifdef SIMULATION
-`ifndef LOADROM
-    `ifdef TOKIO
-    initial tokio=1;
-    `else
-    initial tokio=0;
-    `endif
-`endif
-`endif
-
 always @(posedge clk) begin
     if( prog_we && header && ioctl_addr[0]==0 ) tokio <= prog_data[0];
         // tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this at ioctl_addr==1
@@ -70,6 +60,7 @@ jtbubl_main u_main(
     .clk            ( clk           ),        // 24 MHz
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
+    .cen3           ( cen3          ),
 
     .tokio          ( tokio         ),
     // Main CPU ROM

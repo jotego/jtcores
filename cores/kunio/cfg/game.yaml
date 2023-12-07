@@ -3,6 +3,7 @@ game:
     get:
       - jtkunio_game.v
       - jtkunio_main.v
+      - jtkunio_mcu.v
       - jtkunio_sound.v
       - jtkunio_video.v
       - jtkunio_char.v

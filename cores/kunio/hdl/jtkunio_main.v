@@ -61,13 +61,13 @@ module jtkunio_main(
 );
 `ifndef NOMAIN
 wire [15:0] cpu_addr;
-reg  [ 7:0] cpu_din, cab_dout, mcu_dout, mcu_din;
+reg  [ 7:0] cpu_din, cab_dout;
+wire [ 7:0] mcu_dout;
 reg         bank, bank_cs, io_cs, flip_cs,
             scrpos0_cs, scrpos1_cs,
-            mcu_irq, mcu_stn,
             irq_clr, nmi_clr, mcu_clr, main2mcu_cs, mcu2main_cs;
-wire        rdy, irqn, nmi_n;
-wire [ 7:0] pa_out, pb_out;
+wire        rdy, irqn, nmi_n,
+            mcu_stn, mcu_irqn;
 
 assign rom_addr = { cpu_addr[15], cpu_addr[15] ? cpu_addr[14] : bank, cpu_addr[13:0] };
 assign rdy      = ~rom_cs | rom_ok;
@@ -127,7 +127,7 @@ always @(posedge clk) begin
     case( cpu_addr[1:0] )
         0: cab_dout <= { start, joystick1[5:4], joystick1[2], joystick1[3], joystick1[1:0] };
         1: cab_dout <= { coin,  joystick2[5:4], joystick2[2], joystick2[3], joystick2[1:0] };
-        2: cab_dout <= { service, ~LVBL, mcu_stn, ~mcu_irq,
+        2: cab_dout <= { service, ~LVBL, mcu_stn, mcu_irqn,
                         joystick2[6], joystick1[6], dipsw_b[1:0] };
         3: cab_dout <=  dipsw_a;
     endcase
@@ -195,54 +195,23 @@ T65 u_cpu(
     .DI     ( cpu_din   ),
     .DO     ( cpu_dout  )
 );
-/* verilator tracing_on */
-wire mcu_wrn = pb_out[2];
-wire mcu_rdn = pb_out[1];
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        mcu_dout <= 0;
-        mcu_din  <= 0;
-        mcu_stn  <= 1;
-        mcu_irq  <= 0;
-    end else begin
-        if( !mcu_wrn ) begin
-            mcu_dout <= pa_out;
-            mcu_stn  <= 0;
-        end
-        if( main2mcu_cs ) begin
-            mcu_irq <= 1;
-            mcu_din <= cpu_dout;
-            // if(!mcu_irq) $display("Wr %X to MCU",cpu_dout);
-        end
-        if( !mcu_rdn || mcu_clr ) begin
-            mcu_irq <= 0;
-        end
-        if( mcu_clr | mcu2main_cs ) mcu_stn <= 1;
-    end
-end
-
-jtframe_6805mcu  u_mcu (
-    .rst        ( rst           ),
+jtkunio_mcu u_mcu(
     .clk        ( clk           ),
+    .rst        ( rst           ),
     .cen        ( cen3          ),
-    .wr         (               ),
-    .addr       (               ),
-    .dout       (               ),
-    .irq        ( mcu_irq       ), // active high
-    .timer      ( 1'b0          ),
-    // Ports
-    .pa_in      ( mcu_din       ),
-    .pa_out     ( pa_out        ),
-    .pb_in      ( pb_out        ),
-    .pb_out     ( pb_out        ),
-    .pc_in      ({2'b11,mcu_stn,mcu_irq}),
-    .pc_out     (               ),
-    // ROM interface
+    .rd         ( mcu2main_cs   ),
+    .wr         ( main2mcu_cs   ),
+    .clr        ( mcu_clr       ),
+    .cpu_dout   ( cpu_dout      ),
+    .dout       ( mcu_dout      ),
+    .stn        ( mcu_stn       ),
+    .irqn       ( mcu_irqn      ),
+    // ROM
     .rom_addr   ( mcu_addr      ),
-    .rom_data   ( mcu_data      ),
-    .rom_cs     (               )
+    .rom_data   ( mcu_data      )
 );
+
 `else
     initial rom_cs   = 0;
     assign  pal_cs   = 0;

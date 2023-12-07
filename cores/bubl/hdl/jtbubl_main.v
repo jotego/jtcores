@@ -20,6 +20,7 @@ module jtbubl_main(
     input               rst,
     input               clk,
     input               cen6,
+    input               cen3,
     input               cen4,
 
     // game selection
@@ -104,7 +105,7 @@ reg         last_VBL;
 
 wire [ 7:0] work2main_dout, work2sub_dout;
 wire        sub_m1_n, main_m1_n;
-wire        cen_mcu = cen4;
+wire        cen_mcu = tokio ? cen3 : cen4;
 
 wire        main_halt_n;
 reg         lde, sde; // original signal names: lde = main drives, sde = sub drives
@@ -506,8 +507,16 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_6801mcu #(.MODE(7)) u_mcu ( // MC6801U4
-    .rst        ( mcu_rst       ),
+reg         rst01, rst05;
+wire        rom01_cs, rom05_cs;
+wire [11:0] rom01_a,  rom05_a;
+
+assign mcu_rom_cs  = tokio ? rom05_cs : rom01_cs;
+assign mcu_rom_addr= tokio ? rom05_a  : rom01_a;
+always @(posedge clk) { rst01, rst05 } <= { ~tokio, tokio } & {2{mcu_rst}};
+
+jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
+    .rst        ( rst01         ),
     // .rst( rst ), // for quick sims
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
@@ -528,9 +537,31 @@ jtframe_6801mcu #(.MODE(7)) u_mcu ( // MC6801U4
     .p4_din     ( 8'hff         ), // feed back p4_out for sims
     .p4_dout    ( p4_out        ),
     // ROM interface
-    .rom_addr   ( mcu_rom_addr  ),
+    .rom_addr   ( rom01_a       ),
     .rom_data   ( mcu_rom_data  ),
-    .rom_cs     ( mcu_rom_cs    )
+    .rom_cs     ( rom01_cs      )
+);
+
+jtframe_6805mcu  u_mcu05(
+    .rst        ( rst05         ),
+    .clk        ( clk           ),
+    .cen        ( cen_mcu       ),
+    .wr         (               ),
+    .addr       (               ),
+    .dout       (               ),
+    .irq        ( mcu_irq       ), // active high
+    .timer      ( 1'b0          ),
+    // Ports
+    .pa_in      ( mcu_din       ),
+    .pa_out     ( pa_out        ),
+    .pb_in      ( pb_out        ),
+    .pb_out     ( pb_out        ),
+    .pc_in      ({2'b11,mcu_stn,mcu_irq}),
+    .pc_out     (               ),
+    // ROM interface
+    .rom_addr   ( rom05_a       ),
+    .rom_data   ( rom05_data    ),
+    .rom_cs     (               )
 );
 
 endmodule
