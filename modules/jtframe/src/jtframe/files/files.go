@@ -278,7 +278,7 @@ func parse_yaml(filename string, files *JTFiles) {
 	// ucode requirements
 	for k,v := range aux.Ucode {
 		if files.Ucode == nil { files.Ucode=make(UcFiles) }
-		files.Ucode[k] = v
+		files.Ucode[v] = k
 	}
 }
 
@@ -541,7 +541,7 @@ func append_mem( info CoreInfo, local bool, macros map[string]string, fn []strin
 }
 
 func dump_ucode( files JTFiles ) {
-	for modname, fname := range files.Ucode {
+	for fname, modname := range files.Ucode {
 		ucode.Make(modname,fname)
 	}
 }
