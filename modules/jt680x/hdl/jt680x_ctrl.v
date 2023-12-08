@@ -68,6 +68,10 @@ wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 assign still = ni & ext_halt;
 
+`ifdef JT680X_6801
+assign alt=0;
+`endif
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         uaddr   <= IVRD;
