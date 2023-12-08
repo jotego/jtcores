@@ -20,7 +20,7 @@ import (
 )
 
 var Args struct{
-	Report bool
+	Report, Verbose bool
 	Output string
 }
 
@@ -269,15 +269,15 @@ func report_cycles(code []string, desc *UcDesc) {
 	for _, each := range desc.Ops {
 		ref := each.Cycles * desc.Cfg.CycleK
 		actual := calc_cycles(each.Op*desc.Cfg.EntryLen, code, true, desc, nil)
-		if actual==ref {
+		if actual==ref && !Args.Verbose {
 			continue
 		}
 		if !header {
-			fmt.Println("  Op code  |Spec| uC |")
-			fmt.Println("-----------|----|----|")
+			fmt.Println("  Op code  | Spec | Core |")
+			fmt.Println("-----------|------|------|")
 			header=true
 		}
-		fmt.Printf("%08s | %02d | %02d | ", each.Id(), ref, actual)
+		fmt.Printf("%08s |  %02d  |  %02d  | ", each.Id(), ref, actual)
 		if actual < ref {
 			fmt.Printf("<")
 			bad++

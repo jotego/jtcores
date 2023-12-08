@@ -83,6 +83,7 @@ always @(posedge clk, posedge rst) begin
             nmi_l <= nmi;
             if( !still ) uaddr <= { md[7:0], 4'd0 };
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
+                // alt signal used to bypass the register push to the stack in 6301
                 if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD : INTSRV; end // lowest priority
                 if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD : INTSRV; end
                 if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD : INTSRV; end

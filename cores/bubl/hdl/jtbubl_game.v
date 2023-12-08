@@ -76,8 +76,8 @@ jtbubl_main u_main(
     .sub_rom_data   ( sub_data      ),
     // MCU ROM
     .mcu_rom_addr   ( mcu_addr      ),
-    .mcu_rom_cs     ( mcu_cs        ),
-    .mcu_rom_ok     ( mcu_ok        ),
+    .mcu_rom_cs     (               ),
+    .mcu_rom_ok     ( 1'b1          ),
     .mcu_rom_data   ( mcu_data      ),
 
     // Sound
