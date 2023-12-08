@@ -5,12 +5,22 @@ params:
   - { name: MCU_OFFSET,  value: "(`MCU_START-`JTFRAME_BA3_START)>>1" }
 clocks:
   clk24:
-    - freq: 12000000
+    - freq: 3000000
+      gate: [ main, snd, mcu ]
       outputs:
-        - cen12
-        - cen6
         - cen3
         - cen1p5
+        - cen0p75
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+  clk:
+    - freq: 12000000
+      gate: [ main, snd, mcu ]
+      outputs:
+        - mcu_cen12
+        - mcu_cen6
 sdram:
   banks:
     - buses:

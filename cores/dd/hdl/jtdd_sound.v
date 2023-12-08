@@ -26,6 +26,8 @@ module jtdd_sound(
     input           clk,        // 24 MHz
     input           rst,
     input           cen6,
+    input           cen_fm,
+    input           cen_fm2,
     input           H8,
     // communication with main CPU
     input           snd_irq,
@@ -56,7 +58,6 @@ wire        [15:0] A;
 reg         [ 7:0] cpu_din;
 wire               RnW, firq_n, irq_n;
 reg                ram_cs, latch_cs, ad_cs, fm_cs, ad0_cs, ad1_cs;
-wire               cen_fm, cen_fm2;
 wire signed [11:0] adpcm0_snd, adpcm1_snd;
 wire signed [15:0] fm_left, fm_right, adpcm_snd_fir;
 wire signed [12:0] ac_mix;
@@ -142,7 +143,7 @@ jtframe_ff u_ff(
     .sigedge  ( snd_irq     ) // signal whose edge will trigger the FF
 );
 
-jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(11),.CENDIV(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen6      ),    // This is normally the input clock to the CPU
@@ -165,14 +166,6 @@ jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
-);
-
-jtframe_frac_cen u_fmcen(
-    .clk        (  clk                ), // 24 MHz
-    .n          ( 10'd105             ),
-    .m          ( 10'd704             ),
-    .cen        ( { cen_fm2, cen_fm } ),
-    .cenb       (                     )
 );
 
 jt51 u_jt51(

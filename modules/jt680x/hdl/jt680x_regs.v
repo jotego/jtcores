@@ -21,6 +21,7 @@ module jt680x_regs(
     input             clk,
     input             cen,
     // CONTROL
+    input             alt,
     input             branch,
     input             brlatch,
     input             fetch,
@@ -32,7 +33,7 @@ module jt680x_regs(
     input      [ 3:0] ld_sel,
     input      [ 3:0] rmux_sel,
     input      [ 4:0] cc_sel,
-    input      [ 2:0] iv,
+    input      [ 3:0] iv,
     output reg [15:0] md,
     // ALU
     input      [15:0] rslt,
@@ -48,7 +49,7 @@ module jt680x_regs(
 
 `include "6801_param.vh"
 
-reg  [ 7:0] a, b;
+reg  [ 7:0] a, b, md_alt;
 reg  [15:0] x, s, rmux, ea, pc;
 reg         n,z,v; // other condition codes
 reg         brok;
@@ -69,8 +70,8 @@ always @* begin
           CC_RMUX: rmux = {8'd0, 2'b11, h,i,n,z,v,c};
          ONE_RMUX: rmux = 16'd1;
         ZERO_RMUX: rmux = 16'd0;
-          IV_RMUX: rmux = {12'hfff,iv,1'b0};
-          default: rmux = md;
+          IV_RMUX: rmux = {11'h7ff,iv,1'b0};
+          default: rmux = alt ? {8'd0, md_alt} : md;
     endcase
     case( ea_sel )
         S_EA: addr = s;
@@ -94,8 +95,12 @@ always @( posedge clk, posedge rst ) begin
         i    <= 1;
     end else if( cen ) begin
         if( fetch  ) begin
-            md[ 7:0] <= din;
-            md[15:8] <= md_shift ? md[7:0] : 8'd0;
+            if( alt )
+                md_alt <= din;
+            else begin
+                md[ 7:0] <= din;
+                md[15:8] <= md_shift ? md[7:0] : 8'd0;
+            end
         end
         if( branch ) md[15:8] <= {8{md[7]}}; // sign extension for BR instructions
         case( opnd_sel )

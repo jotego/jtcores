@@ -13,7 +13,7 @@ jtframe:
       - jtframe_uprate2_fir.yaml
   - from: cpu
     get:
-      - jt63701y.v
+      - jtframe_63701y.yaml
       - 6801_core.sv
   - from: clocking
     get:

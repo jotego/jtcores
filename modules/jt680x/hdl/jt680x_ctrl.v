@@ -29,8 +29,14 @@ module jt680x_ctrl(
     input        irq_ocf,
     input        irq_tof,
     input        irq_sci,
-    output reg [2:0] iv,
+    input        irq2,      // only 6301
+    input        irq_cmf,   // only 6301
+    output reg [3:0] iv,
+    // bus sharing - 6301
+    input        ext_halt,  // active high
+    output reg   ba,
     // control
+    output       alt,
     output       alu16,
     output       branch,
     output       brlatch,
@@ -51,34 +57,42 @@ module jt680x_ctrl(
 `include "6801_param.vh"
 `include "6801.vh"
 
+localparam IVRD   = 12'h000,
+           INTSRV = 12'hc70;
+
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
-wire       halt, swi, ni;
+wire       halt, swi, ni, still;
 reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
-localparam INTSRV = 12'hc70;
+assign still = ni & ext_halt;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        uaddr   <= 0;
+        uaddr   <= IVRD;
         jsr_ret <= 0;
-        iv      <= 7; // reset vector
+        iv      <= 4'o17; // reset vector
+        ba      <= 0;
     end else if(cen) begin
-        if(!halt) uaddr[3:0] <= nx_ualo;
-        if( swi ) iv <= 5; // lowest priority
+        if(!halt && !still) uaddr[3:0] <= nx_ualo;
+        if( swi ) iv <= 4'o15; // lowest priority
+        if( halt | (ni & ext_halt) ) ba<=1;
+        if( ~halt & ~ext_halt ) ba<=0;
         if( ni | halt ) begin
             nmi_l <= nmi;
-            uaddr <= { md[7:0], 4'd0 };
-            if( ~i ) begin // maskable interrupts by priority
-                if( irq_sci) begin iv <= 0; uaddr <= INTSRV; end // lowest priority
-                if( irq_tof) begin iv <= 1; uaddr <= INTSRV; end
-                if( irq_ocf) begin iv <= 2; uaddr <= INTSRV; end
-                if( irq_icf) begin iv <= 3; uaddr <= INTSRV; end
-                if( irq    ) begin iv <= 4; uaddr <= INTSRV; end // highest priority
+            if( !still ) uaddr <= { md[7:0], 4'd0 };
+            if( ~i & ~ext_halt ) begin // maskable interrupts by priority
+                if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD : INTSRV; end // lowest priority
+                if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD : INTSRV; end
+                if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD : INTSRV; end
+                if( irq_tof) begin iv <= 4'o11; uaddr <= alt ? IVRD : INTSRV; end
+                if( irq_ocf) begin iv <= 4'o12; uaddr <= alt ? IVRD : INTSRV; end
+                if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD : INTSRV; end
+                if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD : INTSRV; end // highest priority
             end
             if( nmi & ~nmi_l ) begin
-                iv <= 6;
+                iv <= 4'o16;
                 uaddr <= INTSRV;
             end
         end

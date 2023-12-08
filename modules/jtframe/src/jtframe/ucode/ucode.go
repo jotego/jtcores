@@ -21,6 +21,7 @@ import (
 
 var Args struct{
 	Report bool
+	Output string
 }
 
 type UcOp struct {
@@ -495,6 +496,7 @@ func check_mnemos(desc *UcDesc) {
 }
 
 func Make(modname, fname string) {
+	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
 	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
 	buf, err := os.ReadFile(fpath)
 	if err != nil {
@@ -517,7 +519,7 @@ func Make(modname, fname string) {
 	if Args.Report { report_cycles( code, &desc) }
 	params := make_params(list_unames(code))
 	fname = strings.TrimSuffix(fname, ".yaml")
-	dump_ucode(fname, params, code)
-	dump_ucrom_vh(fname, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
-	dump_param_vh(fname, params )
+	dump_ucode(Args.Output, params, code)
+	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
+	dump_param_vh(Args.Output, params )
 }

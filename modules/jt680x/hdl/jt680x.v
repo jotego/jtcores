@@ -24,19 +24,25 @@ module jt680x(
     output     [15:0] addr, // always valid
     input      [ 7:0] din,
     output     [ 7:0] dout,
+    // bus sharing - 6301
+    input             ext_halt, // active high
+    output            ba,
     // interrupts
     input             irq,
     input             nmi,
     input             irq_icf,
     input             irq_ocf,
     input             irq_tof,
-    input             irq_sci
+    input             irq_sci,
+    input             irq_cmf,   // only 6301
+    input             irq2       // only 6301
 );
 
 wire [15:0] op0, op1, rslt,md;
 wire [ 3:0] rslt_cc;
 wire        h, rslt_h, c, i;
 
+wire        alt;
 wire        alu16;
 wire        branch;
 wire        brlatch;
@@ -48,7 +54,7 @@ wire        op0inv;
 wire [ 1:0] carry_sel;
 wire [ 1:0] ea_sel;
 wire [ 1:0] opnd_sel;
-wire [ 2:0] iv;
+wire [ 3:0] iv;
 wire [ 3:0] alu_sel;
 wire [ 3:0] ld_sel;
 wire [ 3:0] rmux_sel;
@@ -59,6 +65,9 @@ jt680x_ctrl u_ctrl(
     .clk        ( clk       ),
     .cen        ( cen       ),
     .md         ( md        ),
+    // bus sharing - 6301
+    .ext_halt   ( ext_halt  ),
+    .ba         ( ba        ),
     // interrupt
     .nmi        ( nmi       ),
     .irq        ( irq       ),
@@ -66,9 +75,12 @@ jt680x_ctrl u_ctrl(
     .irq_ocf    ( irq_ocf   ),
     .irq_tof    ( irq_tof   ),
     .irq_sci    ( irq_sci   ),
+    .irq_cmf    ( irq_cmf   ),
+    .irq2       ( irq2      ),
     .i          ( i         ),
     .iv         ( iv        ),
     // control
+    .alt        ( alt       ),
     .alu16      ( alu16     ),
     .branch     ( branch    ),
     .brlatch    ( brlatch   ),
@@ -107,6 +119,7 @@ jt680x_regs u_regs(
     .clk        ( clk       ),
     .cen        ( cen       ),
     .md         ( md        ),
+    .alt        ( alt       ),
     .brlatch    ( brlatch   ),
     .branch     ( branch    ),
     .cc_sel     ( cc_sel    ),

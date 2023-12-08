@@ -31,11 +31,11 @@ wire               VBL, IMS, H8, flip, nc;
 wire               mcu_rstb, snd_irq;
 wire       [ 7:0]  snd_latch;
 // MCU
-wire               mcu_irqmain, mcu_halt, com_cs, mcu_nmi_set, mcu_ban;
+wire               mcu_irqmain, mcu_haltn, com_cs, mcu_nmi_set, mcu_ban;
 wire       [ 7:0]  mcu_ram;
 
 wire       [ 8:0]  scrhpos, scrvpos;
-wire               cpu_cen, turbo;
+wire               turbo;
 
 assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
 assign dip_flip   = flip;
@@ -47,20 +47,19 @@ assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 
 `ifndef NOMAIN
-wire main_cen = turbo ? 1'd1 : cen12;
+wire cpu_cen = turbo ? cen1p5 : cen0p75;
 
 // CPU and sub CPU from slower clock in order to
 // prevent timing error in 6809 CC bit Z
 jtdd_main u_main(
     .clk            ( clk24         ),
     .rst            ( rst24         ),
-    .cen12          ( main_cen      ),
     .cpu_cen        ( cpu_cen       ),
     .VBL            ( VBL           ),
     .IMS            ( IMS           ), // =VPOS[3]
     // MCU
     .mcu_irqmain    ( mcu_irqmain   ),
-    .mcu_halt       ( mcu_halt      ),
+    .mcu_haltn      ( mcu_haltn     ),
     .mcu_ban        ( mcu_ban       ),
     .com_cs         ( com_cs        ),
     .mcu_nmi_set    ( mcu_nmi_set   ),
@@ -97,7 +96,6 @@ jtdd_main u_main(
     .rom_cs         ( main_cs       ),
     .rom_addr       ( main_addr     ),
     .rom_data       ( main_data     ),
-    .rom_ok         ( main_ok       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .service        ( service       ),
@@ -124,23 +122,16 @@ assign mcu_rstb  = 1'b0;
 
 `ifndef NOMCU
 reg turbo_l;
-wire cpu_cen2, mcu_cen; // 3 or 1.5MHz
+wire mcu_cen; // 3 or 1.5MHz
 
 // for non-turbo mode, there is exact synchronization between CPU and MCU
 // for turbo mode, this love for accuracy is dismissed.
-assign mcu_cen = turbo_l ? cen3 : cpu_cen;
+assign mcu_cen = mcu_cen6; //turbo_l ? cen12 : cen6;
 
-always @(posedge clk24) if( mcu_cen ) turbo_l <= turbo;
-
-jtframe_cendiv u_cendiv(
-    .clk        ( clk24         ),
-    .cen_in     ( cpu_cen       ),
-    .cen_div    ( cpu_cen2      ),
-    .cen_da     (               )
-);
+always @(posedge clk) if( mcu_cen ) turbo_l <= turbo;
 
 jtdd_mcu u_mcu(
-    .clk          (  clk24           ),
+    .clk          (  clk             ),
     .mcu_rstb     (  mcu_rstb        ),
     .mcu_cen      (  mcu_cen         ),
     // CPU bus
@@ -151,14 +142,13 @@ jtdd_mcu u_mcu(
     // CPU Interface
     .com_cs       (  com_cs          ),
     .mcu_nmi_set  (  mcu_nmi_set     ),
-    .mcu_halt     (  mcu_halt        ),
+    .mcu_haltn    (  mcu_haltn       ),
     .mcu_irqmain  (  mcu_irqmain     ),
     .mcu_ban      (  mcu_ban         ),
     // PROM programming
     .rom_addr     (  mcu_addr        ),
     .rom_data     (  mcu_data        ),
-    .rom_cs       (  mcu_cs          ),
-    .rom_ok       (  mcu_ok          )
+    .rom_cs       (  mcu_cs          )
 );
 `else
 reg    irqmain;
@@ -179,7 +169,9 @@ jtframe_ram #(.AW(9)) u_shared(
 jtdd_sound u_sound(
     .clk         ( clk24         ),
     .rst         ( rst24         ),
-    .cen6        ( cen6          ),
+    .cen6        ( cen1p5        ),
+    .cen_fm      ( cen_fm        ),
+    .cen_fm2     ( cen_fm2       ),
     .H8          ( H8            ),
     // communication with main CPU
     .snd_irq     ( snd_irq       ),
@@ -188,7 +180,7 @@ jtdd_sound u_sound(
     .rom_addr    ( snd_addr      ),
     .rom_cs      ( snd_cs        ),
     .rom_data    ( snd_data      ),
-    .rom_ok      ( snd_ok        ),
+    .rom_ok      ( 1'b1          ),
 
     .adpcm0_addr ( adpcm0_addr   ),
     .adpcm0_cs   ( adpcm0_cs     ),

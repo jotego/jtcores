@@ -4,4 +4,4 @@ here:
   - jt6805_regs.v
   - jt6805.v
 ucode:
-  jt680x: "6805.yaml"
+  jt680x: { src: "6805.yaml" }

@@ -25,16 +25,15 @@
 module jtdd_main(
     input              clk,
     input              rst,
-    (* direct_enable *) input cen12,
-    output             cpu_cen,
+    input              cpu_cen,
     input              VBL,
-(*keep*)    input              IMS, // =VPOS[3]
+    input              IMS, // =VPOS[3]
     // MCU
     input       [7:0]  mcu_ram,
     input              mcu_irqmain,
     input              mcu_ban,
     output             mcu_nmi_set,
-    output  reg        mcu_halt,
+    output  reg        mcu_haltn,
     output  reg        com_cs,
     // Palette
     output  reg        pal_cs,
@@ -68,15 +67,12 @@ module jtdd_main(
     output  reg        rom_cs,
     output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
-    input              rom_ok,
     // DIP switches
     input              service,
     input              dip_pause,
     input  [7:0]       dipsw_a,
     input  [7:0]       dipsw_b
 );
-
-parameter CENDIV=1; // dd2 sets it to zero
 
 wire [15:0] A;
 wire [ 7:0] ram_dout;
@@ -174,7 +170,7 @@ always @(posedge clk or posedge rst) begin
     if( rst ) begin
         bank        <= 3'd0;
         //flip        <= 1'b0;
-        mcu_halt    <= 1'b0;
+        mcu_haltn   <= 1'b0;
         scrhpos     <= 9'b0;
         scrvpos     <= 9'b0;
         mcu_rstb    <= 1'b0;
@@ -191,7 +187,7 @@ always @(posedge clk or posedge rst) begin
             scrvpos[8] <= cpu_dout[1];
             //flip       <=~cpu_dout[2];
             mcu_rstb   <= cpu_dout[3];
-            mcu_halt   <= cpu_dout[4];
+            mcu_haltn  <= ~cpu_dout[4];
             bank       <= cpu_dout[7:5];
         end
     end
@@ -269,11 +265,11 @@ jtframe_ff #(.W(3)) u_irq(
 );
 
 // RECOVERY does not seem to have an effect on DD2 hanging up
-jtframe_sys6809 #(.RAM_AW(13),.CENDIV(CENDIV)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen12     ),   // This is normally the input clock to the CPU
-    .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
+    .cen        ( cpu_cen   ),   // This is normally the input clock to the CPU
+    .cpu_cen    (           ),   // 1/4th of cen -> 3MHz
     .VMA        (           ),
     // Interrupts
     .nIRQ       ( nIRQ      ),
@@ -287,7 +283,7 @@ jtframe_sys6809 #(.RAM_AW(13),.CENDIV(CENDIV)) u_cpu(
     .RnW        ( RnW       ),
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_ok     ( 1'b1      ),
     // Bus multiplexer is external
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),

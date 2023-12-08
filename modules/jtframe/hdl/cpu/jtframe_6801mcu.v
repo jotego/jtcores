@@ -329,11 +329,17 @@ jt680x u_mcu(
     .dout       ( dout          ),
     .irq        ( irq           ),
     .nmi        ( nmi           ),
+    // bus sharing - only used on 6301 mode
+    .ext_halt   ( 1'b0          ),
+    .ba         (               ),
     // Timer interrupts
     .irq_icf    ( irq_icf       ),
     .irq_ocf    ( irq_ocf       ),
     .irq_tof    ( irq_tof       ),
-    .irq_sci    ( 1'b0          )
+    .irq_sci    ( 1'b0          ),  // not implemented
+    // 6301 only
+    .irq_cmf    ( 1'b0          ),
+    .irq2       ( 1'b0          )
 );
 
 endmodule

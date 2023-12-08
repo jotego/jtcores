@@ -24,8 +24,8 @@ ops:
   # 2^8  op entries
   # 2^12 ucode entries -> 16 entries/instruction
   # uCode clock @ 4x E pin clock (uCode clock = crystal frequency)
-  - { name: ABA,  op: 0x1b, ctl: { alu: ADD, op0: a, op1: b,            ld: a,    cc: hnzvc }, cycles: 2 }
-  - { name: ABX,  op: 0x3a, ctl: { alu: ADD, op0: b, op1: x, alu16: 1,  ld: x               }, cycles: 3 }
+  - { name: ABA,  op: 0x1b, ctl: { alu: ADD, op0: a, op1: b,            ld: a,    cc: hnzvc }, cycles: 1 }
+  - { name: ABX,  op: 0x3a, ctl: { alu: ADD, op0: b, op1: x, alu16: 1,  ld: x               }, cycles: 1 }
 
   - { name: ADCA, op: 0x89, ctl: { alu: ADD, op0: a,  op1: md,  addr: imm, ld: a, carry: cin, cc: hnzvc }, cycles: 2 }
   - { name: ADCA, op: 0x99, ctl: { alu: ADD, op0: a,  op1: md,  addr: dir, ld: a, carry: cin, cc: hnzvc }, cycles: 3 }
@@ -45,10 +45,10 @@ ops:
   - { name: ADDB, op: 0xeb, ctl: { alu: ADD, op0: b,  op1: md,  addr: idx, ld: b, cc: hnzvc }, cycles: 4 }
   - { name: ADDB, op: 0xfb, ctl: { alu: ADD, op0: b,  op1: md,  addr: ext, ld: b, cc: hnzvc }, cycles: 4 }
 
-  - { name: ADDD, op: 0xc3, ctl: { alu: ADD, op0: d,  op1: md,  addr: imm16, ld: d, alu16: 1, cc: nzvc }, cycles: 4 }
-  - { name: ADDD, op: 0xd3, ctl: { alu: ADD, op0: d,  op1: md,  addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
-  - { name: ADDD, op: 0xe3, ctl: { alu: ADD, op0: d,  op1: md,  addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: ADDD, op: 0xf3, ctl: { alu: ADD, op0: d,  op1: md,  addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
+  - { name: ADDD, op: 0xc3, ctl: { alu: ADD, op0: d,  op1: md,  addr: imm16, ld: d, alu16: 1, cc: nzvc }, cycles: 3 }
+  - { name: ADDD, op: 0xd3, ctl: { alu: ADD, op0: d,  op1: md,  addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 4 }
+  - { name: ADDD, op: 0xe3, ctl: { alu: ADD, op0: d,  op1: md,  addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
+  - { name: ADDD, op: 0xf3, ctl: { alu: ADD, op0: d,  op1: md,  addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
 
   - { name: ANDA, op: 0x84, ctl: { alu: AND, op0: a,  op1: md,  addr: imm, ld: a,    cc: nzv0 }, cycles: 2 }
   - { name: ANDA, op: 0x94, ctl: { alu: AND, op0: a,  op1: md,  addr: dir, ld: a,    cc: nzv0 }, cycles: 3 }
@@ -61,8 +61,8 @@ ops:
 
   - { name: ASR,  op: 0x67, ctl: { alu: ASR, op0: md, op1: md, carry:shl,  addr: idx, wr: wr, cc: nzvc }, cycles: 6 }
   - { name: ASR,  op: 0x77, ctl: { alu: ASR, op0: md, op1: md, carry:shl,  addr: ext, wr: wr, cc: nzvc }, cycles: 6 }
-  - { name: ASRA, op: 0x47, ctl: { alu: ASR, op0: a,  op1: a,  carry: shl, ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: ASRB, op: 0x57, ctl: { alu: ASR, op0: b,  op1: b,  carry: shl, ld: b,  cc: nzvc }, cycles: 2 }
+  - { name: ASRA, op: 0x47, ctl: { alu: ASR, op0: a,  op1: a,  carry: shl, ld: a,  cc: nzvc }, cycles: 1 }
+  - { name: ASRB, op: 0x57, ctl: { alu: ASR, op0: b,  op1: b,  carry: shl, ld: b,  cc: nzvc }, cycles: 1 }
 
   - { name: BITA, op: 0x85, ctl: { alu: AND, op0: a,  op1: md,  addr: imm, cc: nzv0 }, cycles: 2 }
   - { name: BITA, op: 0x95, ctl: { alu: AND, op0: a,  op1: md,  addr: dir, cc: nzv0 }, cycles: 3 }
@@ -90,14 +90,14 @@ ops:
   - { name: BLT,  op: 0x2d, cycles: 3 }
   - { name: BGT,  op: 0x2e, cycles: 3 }
   - { name: BLE,  op: 0x2f, cycles: 3 }
-  - { name: BSR,  op: 0x8d, cycles: 6, ctl: { pshpc: 1 } }
+  - { name: BSR,  op: 0x8d, cycles: 5, ctl: { pshpc: 1 } }
 
-  - { name: CBA,  op: 0x11, ctl: { alu: SUB, op0: a, op1: b, cc: nzvc}, cycles: 2 }
+  - { name: CBA,  op: 0x11, ctl: { alu: SUB, op0: a, op1: b, cc: nzvc}, cycles: 1 }
 
   - { name: CLR,  op: 0x6F, ctl: { op0: zero, addr: idx, wr: wr, cc: n0z1v0c0 }, cycles: 6 }
   - { name: CLR,  op: 0x7F, ctl: { op0: zero, addr: ext, wr: wr, cc: n0z1v0c0 }, cycles: 6 }
-  - { name: CLRA, op: 0x4F, ctl: { op0: zero,            ld: a,  cc: n0z1v0c0 }, cycles: 2 }
-  - { name: CLRB, op: 0x5F, ctl: { op0: zero,            ld: b,  cc: n0z1v0c0 }, cycles: 2 }
+  - { name: CLRA, op: 0x4F, ctl: { op0: zero,            ld: a,  cc: n0z1v0c0 }, cycles: 1 }
+  - { name: CLRB, op: 0x5F, ctl: { op0: zero,            ld: b,  cc: n0z1v0c0 }, cycles: 1 }
 
   - { name: CMPA, op: 0x81, ctl: { alu: SUB, op0: a,  op1: md,  addr: imm, cc: nzvc }, cycles: 2 }
   - { name: CMPA, op: 0x91, ctl: { alu: SUB, op0: a,  op1: md,  addr: dir, cc: nzvc }, cycles: 3 }
@@ -110,25 +110,25 @@ ops:
 
   - { name: COM,  op: 0x63, ctl: { op0inv: 1, op0: md, addr: idx, wr: wr, cc: nzv0c1 }, cycles: 6 }
   - { name: COM,  op: 0x73, ctl: { op0inv: 1, op0: md, addr: ext, wr: wr, cc: nzv0c1 }, cycles: 6 }
-  - { name: COMA, op: 0x43, ctl: { op0inv: 1, op0: a,             ld: a,  cc: nzv0c1 }, cycles: 2 }
-  - { name: COMB, op: 0x53, ctl: { op0inv: 1, op0: b,             ld: b,  cc: nzv0c1 }, cycles: 2 }
+  - { name: COMA, op: 0x43, ctl: { op0inv: 1, op0: a,             ld: a,  cc: nzv0c1 }, cycles: 1 }
+  - { name: COMB, op: 0x53, ctl: { op0inv: 1, op0: b,             ld: b,  cc: nzv0c1 }, cycles: 1 }
 
   - { name: DAA,  op: 0x19, ctl: { alu: DAA, op0: a,                       ld: a,  cc: nzvc }, cycles: 2 }
   - { name: DEC,  op: 0x6A, ctl: { alu: SUB, op0: md, op1: one, addr: idx, wr: wr, cc: nzv  }, cycles: 6 }
   - { name: DEC,  op: 0x7A, ctl: { alu: SUB, op0: md, op1: one, addr: ext, wr: wr, cc: nzv  }, cycles: 6 }
-  - { name: DECA, op: 0x4A, ctl: { alu: SUB, op0: a,  op1: one,            ld: a,  cc: nzv  }, cycles: 2 }
-  - { name: DECB, op: 0x5A, ctl: { alu: SUB, op0: b,  op1: one,            ld: b,  cc: nzv  }, cycles: 2 }
-  - { name: DEX,  op: 0x09, ctl: { alu: SUB, op0: x,  op1: one,  alu16: 1, ld: x,  cc:  z,  }, cycles: 3 }
-  - { name: DES,  op: 0x34, ctl: { alu: SUB, op0: s,  op1: one,            ld: s,           }, cycles: 3 }
+  - { name: DECA, op: 0x4A, ctl: { alu: SUB, op0: a,  op1: one,            ld: a,  cc: nzv  }, cycles: 1 }
+  - { name: DECB, op: 0x5A, ctl: { alu: SUB, op0: b,  op1: one,            ld: b,  cc: nzv  }, cycles: 1 }
+  - { name: DEX,  op: 0x09, ctl: { alu: SUB, op0: x,  op1: one,  alu16: 1, ld: x,  cc:  z,  }, cycles: 1 }
+  - { name: DES,  op: 0x34, ctl: { alu: SUB, op0: s,  op1: one,            ld: s,           }, cycles: 1 }
 
-  - { name: CPX,  op: 0x8c, ctl: { alu: SUB, op0: x,  op1: md,  addr: imm16, alu16: 1, cc: nzvc }, cycles: 4 }
-  - { name: CPX,  op: 0x9c, ctl: { alu: SUB, op0: x,  op1: md,  addr: dir16, alu16: 1, cc: nzvc }, cycles: 5 }
-  - { name: CPX,  op: 0xac, ctl: { alu: SUB, op0: x,  op1: md,  addr: idx16, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: CPX,  op: 0xbc, ctl: { alu: SUB, op0: x,  op1: md,  addr: ext16, alu16: 1, cc: nzvc }, cycles: 6 }
+  - { name: CPX,  op: 0x8c, ctl: { alu: SUB, op0: x,  op1: md,  addr: imm16, alu16: 1, cc: nzvc }, cycles: 3 }
+  - { name: CPX,  op: 0x9c, ctl: { alu: SUB, op0: x,  op1: md,  addr: dir16, alu16: 1, cc: nzvc }, cycles: 4 }
+  - { name: CPX,  op: 0xac, ctl: { alu: SUB, op0: x,  op1: md,  addr: idx16, alu16: 1, cc: nzvc }, cycles: 5 }
+  - { name: CPX,  op: 0xbc, ctl: { alu: SUB, op0: x,  op1: md,  addr: ext16, alu16: 1, cc: nzvc }, cycles: 5 }
 
-  - { name: CLC,  op: 0x0c, ctl: { cc: c0 },  cycles: 2 }
-  - { name: CLI,  op: 0x0e, ctl: { cc: i0 },  cycles: 2 }
-  - { name: CLV,  op: 0x0a, ctl: { cc: v0 },  cycles: 2 }
+  - { name: CLC,  op: 0x0c, ctl: { cc: c0 },  cycles: 1 }
+  - { name: CLI,  op: 0x0e, ctl: { cc: i0 },  cycles: 1 }
+  - { name: CLV,  op: 0x0a, ctl: { cc: v0 },  cycles: 1 }
 
   - { name: EORA, op: 0x88, ctl: { alu: EOR, op0: a,  op1: md,  addr: imm, ld: a, cc: nzv0 }, cycles: 2 }
   - { name: EORA, op: 0x98, ctl: { alu: EOR, op0: a,  op1: md,  addr: dir, ld: a, cc: nzv0 }, cycles: 3 }
@@ -141,15 +141,15 @@ ops:
 
   - { name: INC,  op: 0x6c, ctl: { alu: ADD, op0: md, op1: one, addr: idx, wr: wr, cc: nzv }, cycles: 6 }
   - { name: INC,  op: 0x7c, ctl: { alu: ADD, op0: md, op1: one, addr: ext, wr: wr, cc: nzv }, cycles: 6 }
-  - { name: INCA, op: 0x4c, ctl: { alu: ADD, op0: a,  op1: one,            ld: a,  cc: nzv }, cycles: 2 }
-  - { name: INCB, op: 0x5c, ctl: { alu: ADD, op0: b,  op1: one,            ld: b,  cc: nzv }, cycles: 2 }
-  - { name: INX,  op: 0x08, ctl: { alu: ADD, op0: x,  op1: one, alu16: 1,  ld: x,  cc:  z  }, cycles: 3 }
-  - { name: INS,  op: 0x31, ctl: { alu: ADD, op0: s,  op1: one,            ld: s,          }, cycles: 3 }
+  - { name: INCA, op: 0x4c, ctl: { alu: ADD, op0: a,  op1: one,            ld: a,  cc: nzv }, cycles: 1 }
+  - { name: INCB, op: 0x5c, ctl: { alu: ADD, op0: b,  op1: one,            ld: b,  cc: nzv }, cycles: 1 }
+  - { name: INX,  op: 0x08, ctl: { alu: ADD, op0: x,  op1: one, alu16: 1,  ld: x,  cc:  z  }, cycles: 1 }
+  - { name: INS,  op: 0x31, ctl: { alu: ADD, op0: s,  op1: one,            ld: s,          }, cycles: 1 }
 
   - { name: JMP,  op: 0x6e, ctl: {            op0: ea,         addr: idxa  }, cycles: 3 }
   - { name: JMP,  op: 0x7e, ctl: {            op0: md,         addr: imm16 }, cycles: 3 }
   - { name: JSR,  op: 0x9d, ctl: {                             addr: dira  }, cycles: 5 }
-  - { name: JSR,  op: 0xad, ctl: {                             addr: idxa  }, cycles: 6 }
+  - { name: JSR,  op: 0xad, ctl: {                             addr: idxa  }, cycles: 5 }
   - { name: JSR,  op: 0xbd, ctl: {                             addr: exta  }, cycles: 6 }
   - { name: LDAA, op: 0x86, ctl: {            op0: md,         addr: imm,   ld: a,   cc: nzv0 }, cycles: 2 }
   - { name: LDAA, op: 0x96, ctl: {            op0: md,         addr: dir,   ld: a,   cc: nzv0 }, cycles: 3 }
@@ -173,45 +173,45 @@ ops:
   - { name: LDS,  op: 0xbe, ctl: {  alu16: 1, op0: md,         addr: ext16, ld: s,   cc: nzv0 }, cycles: 5 }
   - { name: LSL,  op: 0x68, ctl: {  alu: LSL, op0: md,         addr: idx, wr: wr,    cc: nzvc }, cycles: 6 }
   - { name: LSL,  op: 0x78, ctl: {  alu: LSL, op0: md,         addr: ext, wr: wr,    cc: nzvc }, cycles: 6 }
-  - { name: LSLA, op: 0x48, ctl: {  alu: LSL, op0: a, op1: a,              ld: a,    cc: nzvc }, cycles: 2 }
-  - { name: LSLB, op: 0x58, ctl: {  alu: LSL, op0: b, op1: b,              ld: b,    cc: nzvc }, cycles: 2 }
-  - { name: LSLD, op: 0x05, ctl: {  alu: LSL, op0: a, op1: b, alu16: 1, carry: shl,   ld: d,    cc: nzvc }, cycles: 3 }
+  - { name: LSLA, op: 0x48, ctl: {  alu: LSL, op0: a, op1: a,              ld: a,    cc: nzvc }, cycles: 1 }
+  - { name: LSLB, op: 0x58, ctl: {  alu: LSL, op0: b, op1: b,              ld: b,    cc: nzvc }, cycles: 1 }
+  - { name: LSLD, op: 0x05, ctl: {  alu: LSL, op0: a, op1: b, alu16: 1, carry: shl, ld: d, cc: nzvc }, cycles: 1 }
   - { name: LSR,  op: 0x64, ctl: {  alu: LSR, op0: md,op1: md,  addr: idx, wr: wr,  cc: n0zvc }, cycles: 6 }
   - { name: LSR,  op: 0x74, ctl: {  alu: LSR, op0: md,op1: md,  addr: ext, wr: wr,  cc: n0zvc }, cycles: 6 }
-  - { name: LSRA, op: 0x44, ctl: {  alu: LSR, op0: a, op1: a,              ld: a,   cc: n0zvc }, cycles: 2 }
-  - { name: LSRB, op: 0x54, ctl: {  alu: LSR, op0: b, op1: b,              ld: b,   cc: n0zvc }, cycles: 2 }
-  - { name: LSRD, op: 0x04, ctl: {  alu: LSR, op0: a, op1: b, alu16: 1, carry: shr, ld: d,   cc: n0zvc }, cycles: 3 }
-  - { name: MUL,  op: 0x3d, ctl: {  alu: MUL, op0: a, op1: b,               ld: d,  cc:     c }, cycles: 10}
+  - { name: LSRA, op: 0x44, ctl: {  alu: LSR, op0: a, op1: a,              ld: a,   cc: n0zvc }, cycles: 1 }
+  - { name: LSRB, op: 0x54, ctl: {  alu: LSR, op0: b, op1: b,              ld: b,   cc: n0zvc }, cycles: 1 }
+  - { name: LSRD, op: 0x04, ctl: {  alu: LSR, op0: a, op1: b, alu16: 1, carry: shr, ld: d,   cc: n0zvc }, cycles: 1 }
+  - { name: MUL,  op: 0x3d, ctl: {  alu: MUL, op0: a, op1: b,               ld: d,  cc:     c }, cycles: 7 }
 
   - { name: NEG,  op: 0x60, ctl: { alu: NEG, op0: md, op1: one, op0inv: 1, addr: idx, wr: wr, cc: nzvc }, cycles: 6 }
   - { name: NEG,  op: 0x70, ctl: { alu: NEG, op0: md, op1: one, op0inv: 1, addr: ext, wr: wr, cc: nzvc }, cycles: 6 }
-  - { name: NEGA, op: 0x40, ctl: { alu: NEG, op0: a,  op1: one, op0inv: 1,            ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: NEGB, op: 0x50, ctl: { alu: NEG, op0: b,  op1: one, op0inv: 1,            ld: b,  cc: nzvc }, cycles: 2 }
+  - { name: NEGA, op: 0x40, ctl: { alu: NEG, op0: a,  op1: one, op0inv: 1,            ld: a,  cc: nzvc }, cycles: 1 }
+  - { name: NEGB, op: 0x50, ctl: { alu: NEG, op0: b,  op1: one, op0inv: 1,            ld: b,  cc: nzvc }, cycles: 1 }
 
-  - { name: NOP,  op: 0x01, ctl: {                                                            }, cycles: 2 }
-  - { name: ORA,  op: 0x8a, ctl: { alu: OR,  op0: a,  op1: md,  addr: imm,   ld: a,  cc: nzv0 }, cycles: 2 }
-  - { name: ORA,  op: 0x9a, ctl: { alu: OR,  op0: a,  op1: md,  addr: dir,   ld: a,  cc: nzv0 }, cycles: 3 }
-  - { name: ORA,  op: 0xaa, ctl: { alu: OR,  op0: a,  op1: md,  addr: idx,   ld: a,  cc: nzv0 }, cycles: 4 }
-  - { name: ORA,  op: 0xba, ctl: { alu: OR,  op0: a,  op1: md,  addr: ext,   ld: a,  cc: nzv0 }, cycles: 4 }
-  - { name: ORB,  op: 0xca, ctl: { alu: OR,  op0: b,  op1: md,  addr: imm,   ld: b,  cc: nzv0 }, cycles: 2 }
-  - { name: ORB,  op: 0xda, ctl: { alu: OR,  op0: b,  op1: md,  addr: dir,   ld: b,  cc: nzv0 }, cycles: 3 }
-  - { name: ORB,  op: 0xea, ctl: { alu: OR,  op0: b,  op1: md,  addr: idx,   ld: b,  cc: nzv0 }, cycles: 4 }
-  - { name: ORB,  op: 0xfa, ctl: { alu: OR,  op0: b,  op1: md,  addr: ext,   ld: b,  cc: nzv0 }, cycles: 4 }
-  - { name: PSHA, op: 0x36, ctl: {           op0: a,            addr: psh,                    }, cycles: 3 }
-  - { name: PSHB, op: 0x37, ctl: {           op0: b,            addr: psh,                    }, cycles: 3 }
-  - { name: PSHX, op: 0x3c, ctl: {           op0: x,            addr: psh16,                  }, cycles: 4 }
-  - { name: PULA, op: 0x32, ctl: {                              addr: pul,   ld: a,           }, cycles: 4 }
-  - { name: PULB, op: 0x33, ctl: {                              addr: pul,   ld: b,           }, cycles: 4 }
-  - { name: PULX, op: 0x38, ctl: {                              addr: pul16, ld: x,           }, cycles: 5 }
+  - { name: NOP,  op: 0x01, ctl: {                                                            }, cycles: 1 }
+  - { name: ORAA, op: 0x8a, ctl: { alu: OR,  op0: a,  op1: md,  addr: imm,   ld: a,  cc: nzv0 }, cycles: 2 }
+  - { name: ORAA, op: 0x9a, ctl: { alu: OR,  op0: a,  op1: md,  addr: dir,   ld: a,  cc: nzv0 }, cycles: 3 }
+  - { name: ORAA, op: 0xaa, ctl: { alu: OR,  op0: a,  op1: md,  addr: idx,   ld: a,  cc: nzv0 }, cycles: 4 }
+  - { name: ORAA, op: 0xba, ctl: { alu: OR,  op0: a,  op1: md,  addr: ext,   ld: a,  cc: nzv0 }, cycles: 4 }
+  - { name: ORAB, op: 0xca, ctl: { alu: OR,  op0: b,  op1: md,  addr: imm,   ld: b,  cc: nzv0 }, cycles: 2 }
+  - { name: ORAB, op: 0xda, ctl: { alu: OR,  op0: b,  op1: md,  addr: dir,   ld: b,  cc: nzv0 }, cycles: 3 }
+  - { name: ORAB, op: 0xea, ctl: { alu: OR,  op0: b,  op1: md,  addr: idx,   ld: b,  cc: nzv0 }, cycles: 4 }
+  - { name: ORAB, op: 0xfa, ctl: { alu: OR,  op0: b,  op1: md,  addr: ext,   ld: b,  cc: nzv0 }, cycles: 4 }
+  - { name: PSHA, op: 0x36, ctl: {           op0: a,            addr: psh,                    }, cycles: 4 }
+  - { name: PSHB, op: 0x37, ctl: {           op0: b,            addr: psh,                    }, cycles: 4 }
+  - { name: PSHX, op: 0x3c, ctl: {           op0: x,            addr: psh16,                  }, cycles: 5 }
+  - { name: PULA, op: 0x32, ctl: {                              addr: pul,   ld: a,           }, cycles: 3 }
+  - { name: PULB, op: 0x33, ctl: {                              addr: pul,   ld: b,           }, cycles: 3 }
+  - { name: PULX, op: 0x38, ctl: {                              addr: pul16, ld: x,           }, cycles: 4 }
   - { name: ROL,  op: 0x69, ctl: { alu: ROL, op0: md, wr: wr,   addr: idx,           cc: nzvc }, cycles: 6 }
   - { name: ROL,  op: 0x79, ctl: { alu: ROL, op0: md, wr: wr,   addr: ext,           cc: nzvc }, cycles: 6 }
-  - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,                         ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: ROLB, op: 0x59, ctl: { alu: ROL, op0: b,                         ld: b,  cc: nzvc }, cycles: 2 }
+  - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,                         ld: a,  cc: nzvc }, cycles: 1 }
+  - { name: ROLB, op: 0x59, ctl: { alu: ROL, op0: b,                         ld: b,  cc: nzvc }, cycles: 1 }
   - { name: ROR,  op: 0x66, ctl: { alu: ROR, op0: md, wr: wr,   addr: idx,           cc: nzvc }, cycles: 6 }
   - { name: ROR,  op: 0x76, ctl: { alu: ROR, op0: md, wr: wr,   addr: ext,           cc: nzvc }, cycles: 6 }
-  - { name: RORA, op: 0x46, ctl: { alu: ROR, op0: a,                         ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: RORB, op: 0x56, ctl: { alu: ROR, op0: b,                         ld: b,  cc: nzvc }, cycles: 2 }
-  - { name: SBA,  op: 0x10, ctl: { alu: SUB, op0: a, op1: b,                 ld: a,  cc: nzvc }, cycles: 2 }
+  - { name: RORA, op: 0x46, ctl: { alu: ROR, op0: a,                         ld: a,  cc: nzvc }, cycles: 1 }
+  - { name: RORB, op: 0x56, ctl: { alu: ROR, op0: b,                         ld: b,  cc: nzvc }, cycles: 1 }
+  - { name: SBA,  op: 0x10, ctl: { alu: SUB, op0: a, op1: b,                 ld: a,  cc: nzvc }, cycles: 1 }
 
   - { name: SBCA, op: 0x82, ctl: { alu: SUB, op0: a,  op1: md,  addr: imm, ld: a, carry: cin, cc: nzvc }, cycles: 2 }
   - { name: SBCA, op: 0x92, ctl: { alu: SUB, op0: a,  op1: md,  addr: dir, ld: a, carry: cin, cc: nzvc }, cycles: 3 }
@@ -222,15 +222,15 @@ ops:
   - { name: SBCB, op: 0xe2, ctl: { alu: SUB, op0: b,  op1: md,  addr: idx, ld: b, carry: cin, cc: nzvc }, cycles: 4 }
   - { name: SBCB, op: 0xf2, ctl: { alu: SUB, op0: b,  op1: md,  addr: ext, ld: b, carry: cin, cc: nzvc }, cycles: 4 }
 
-  - { name: SEC,  op: 0x0d, ctl: {                                                 cc:   c1 }, cycles: 2 }
-  - { name: SEI,  op: 0x0f, ctl: {                                                 cc:   i1 }, cycles: 2 }
-  - { name: SEV,  op: 0x0b, ctl: {                                                 cc:   v1 }, cycles: 2 }
-  - { name: STA,  op: 0x97, ctl: {           op0: a,           addr: dira,         cc: nzv0 }, cycles: 3 }
-  - { name: STA,  op: 0xa7, ctl: {           op0: a,           addr: idxa,         cc: nzv0 }, cycles: 4 }
-  - { name: STA,  op: 0xb7, ctl: {           op0: a,           addr: exta,         cc: nzv0 }, cycles: 4 }
-  - { name: STB,  op: 0xd7, ctl: {           op0: b,           addr: dira,         cc: nzv0 }, cycles: 3 }
-  - { name: STB,  op: 0xe7, ctl: {           op0: b,           addr: idxa,         cc: nzv0 }, cycles: 4 }
-  - { name: STB,  op: 0xf7, ctl: {           op0: b,           addr: exta,         cc: nzv0 }, cycles: 4 }
+  - { name: SEC,  op: 0x0d, ctl: {                                                 cc:   c1 }, cycles: 1 }
+  - { name: SEI,  op: 0x0f, ctl: {                                                 cc:   i1 }, cycles: 1 }
+  - { name: SEV,  op: 0x0b, ctl: {                                                 cc:   v1 }, cycles: 1 }
+  - { name: STAA, op: 0x97, ctl: {           op0: a,           addr: dira,         cc: nzv0 }, cycles: 3 }
+  - { name: STAA, op: 0xa7, ctl: {           op0: a,           addr: idxa,         cc: nzv0 }, cycles: 4 }
+  - { name: STAA, op: 0xb7, ctl: {           op0: a,           addr: exta,         cc: nzv0 }, cycles: 4 }
+  - { name: STBA, op: 0xd7, ctl: {           op0: b,           addr: dira,         cc: nzv0 }, cycles: 3 }
+  - { name: STBA, op: 0xe7, ctl: {           op0: b,           addr: idxa,         cc: nzv0 }, cycles: 4 }
+  - { name: STBA, op: 0xf7, ctl: {           op0: b,           addr: exta,         cc: nzv0 }, cycles: 4 }
   - { name: STD,  op: 0xdd, ctl: { alu16: 1, op0: d,           addr: dira,         cc: nzv0 }, cycles: 4 }
   - { name: STD,  op: 0xed, ctl: { alu16: 1, op0: d,           addr: idxa,         cc: nzv0 }, cycles: 5 }
   - { name: STD,  op: 0xfd, ctl: { alu16: 1, op0: d,           addr: exta,         cc: nzv0 }, cycles: 5 }
@@ -249,25 +249,37 @@ ops:
   - { name: SUBB, op: 0xe0, ctl: { alu: SUB, op0: b,  op1: md,  addr: idx, ld: b,  cc: nzvc }, cycles: 4 }
   - { name: SUBB, op: 0xf0, ctl: { alu: SUB, op0: b,  op1: md,  addr: ext, ld: b,  cc: nzvc }, cycles: 4 }
 
-  - { name: SUBD, op: 0x83, ctl: { alu: SUB, op0: d,  op1: md,  addr: imm16, ld: d, alu16: 1, cc: nzvc }, cycles: 4 }
-  - { name: SUBD, op: 0x93, ctl: { alu: SUB, op0: d,  op1: md,  addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
-  - { name: SUBD, op: 0xa3, ctl: { alu: SUB, op0: d,  op1: md,  addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: SUBD, op: 0xb3, ctl: { alu: SUB, op0: d,  op1: md,  addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
+  - { name: SUBD, op: 0x83, ctl: { alu: SUB, op0: d,  op1: md,  addr: imm16, ld: d, alu16: 1, cc: nzvc }, cycles: 3 }
+  - { name: SUBD, op: 0x93, ctl: { alu: SUB, op0: d,  op1: md,  addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 4 }
+  - { name: SUBD, op: 0xa3, ctl: { alu: SUB, op0: d,  op1: md,  addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
+  - { name: SUBD, op: 0xb3, ctl: { alu: SUB, op0: d,  op1: md,  addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
 
   - { name: SWI,  op: 0x3f, ctl: {                                                 cc: i1    }, cycles: 12 }
-  - { name: TAB,  op: 0x16, ctl: {           op0: a,                       ld: b,  cc: nzv0  }, cycles: 2 }
-  - { name: TAP,  op: 0x06, ctl: {           op0: a,                       ld: cc            }, cycles: 2 }
-  - { name: TBA,  op: 0x17, ctl: {           op0: b,                       ld: a,  cc: nzv0  }, cycles: 2 }
-  - { name: TPA,  op: 0x07, ctl: {           op0: cc,                      ld: a             }, cycles: 2 }
-  - { name: TXS,  op: 0x35, ctl: { alu: SUB, op0: x,  op1: one,            ld: s             }, cycles: 3 }
-  - { name: TSX,  op: 0x30, ctl: { alu: ADD, op0: s,  op1: one,            ld: x             }, cycles: 3 }
+  - { name: TAB,  op: 0x16, ctl: {           op0: a,                       ld: b,  cc: nzv0  }, cycles: 1 }
+  - { name: TAP,  op: 0x06, ctl: {           op0: a,                       ld: cc            }, cycles: 1 }
+  - { name: TBA,  op: 0x17, ctl: {           op0: b,                       ld: a,  cc: nzv0  }, cycles: 1 }
+  - { name: TPA,  op: 0x07, ctl: {           op0: cc,                      ld: a             }, cycles: 1 }
+  - { name: TXS,  op: 0x35, ctl: { alu: SUB, op0: x,  op1: one,            ld: s             }, cycles: 1 }
+  - { name: TSX,  op: 0x30, ctl: { alu: ADD, op0: s,  op1: one,            ld: x             }, cycles: 1 }
   - { name: TST,  op: 0x6d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx,       cc: nzv0c0 }, cycles: 6 }
   - { name: TST,  op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: ext,       cc: nzv0c0 }, cycles: 6 }
-  - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
-  - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
+  - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,                  cc: nzv0c0 }, cycles: 1 }
+  - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles: 1 }
   - { name: RTI,  op: 0x3b, ctl: {                                                cc: nzvc   }, cycles: 10 }
   - { name: RTS,  op: 0x39, ctl: {                               addr: pul, ld: pc           }, cycles: 5  }
   - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
+
+  # New instructions, not present in 6801
+  - { name: AIM,  op: 0x71, ctl: { alu: AND,                    addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
+  - { name: AIM,  op: 0x61, ctl: { alu: AND,                    addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
+  - { name: OIM,  op: 0x72, ctl: { alu: OR,                     addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
+  - { name: OIM,  op: 0x62, ctl: { alu: OR,                     addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
+  - { name: EIM,  op: 0x75, ctl: { alu: EOR,                    addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
+  - { name: EIM,  op: 0x65, ctl: { alu: EOR,                    addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
+  - { name: TIM,  op: 0x7b, ctl: { alu: AND,                    addr: dir,         cc: nzv0 }, cycles: 6 }
+  - { name: TIM,  op: 0x6b, ctl: { alu: AND,                    addr: idx,         cc: nzv0 }, cycles: 7 }
+  - { name: XGDX, op: 0x18,                                                                    cycles: 2 }
+  - { name: SLP,  op: 0x1a,                                                                    cycles: 4 }
 ucode:
   - name: ivrd # interrupt service and reset vector read and jump
     start: 0
@@ -501,7 +513,7 @@ ucode:
       # Operand from memory (${addr}!=nil)
       ADCA, ADCB, ADDA, ADDB, ADDD, ANDA, ANDB, BITA, BITB,
       CMPA, CMPB, CPX, EORA, EORB, LDAA, LDAB, LDD, LDX, LDS,
-      NOP,  ORA,  ORB, SBCA, SBCB, SUBA, SUBB, SUBD,
+      NOP,  ORAA,  ORAB, SBCA, SBCB, SUBA, SUBB, SUBD,
       # No addressing (${addr}==nil), 2 cycles
       ABA,  ASRA, ASRB, CBA,
       CLRA, CLRB, COMA, COMB, DAA,
@@ -538,6 +550,14 @@ ucode:
       - fetch
       -
       - ni
+  - mnemo: [ XGDX ]
+    seq:
+      - x_rmux, ld0_opnd
+      - d_rmux, ld0_opnd, d_ld
+      - x_ld
+      - fetch
+      -
+      - ni
   # read operand and write result to memory, typ 6 cycles (idx/ext=~3)
   - mnemo: [ ASR, CLR, COM, DEC, INC, LSL, LSR, NEG, ROL, ROR, TST ]
     seq:
@@ -545,6 +565,20 @@ ucode:
       - ${op0}_rmux, op0inv=${op0inv} ld0_opnd
       - ${op1}_rmux, ld1_opnd
       - ${alu}_alu, ${carry}_carry, md_ld, ${cc}_cc
+      - m_ea, ${wr}
+      - # bus cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  # 1st operand as immediate, then read operand and write result to memory, 6/7 cycles
+  - mnemo: [ AIM, OIM, EIM, TIM ]
+    seq:
+      - idle6_jsr
+      - fetch, inc_pc, alt
+      - ${addr}_jsr inc_pc
+      - ld0_opnd
+      - ld1_opnd, alt
+      - ${alu}_alu, md_ld, ${cc}_cc
       - m_ea, ${wr}
       - # bus cycle
       - fetch
@@ -577,7 +611,7 @@ ucode:
       - # wait for the fetch
       - ni
   # write 8-bit registers
-  - mnemo: [ PSHA, PSHB, STA, STB ]
+  - mnemo: [ PSHA, PSHB, STAA, STBA ]
     seq:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd
@@ -592,10 +626,10 @@ ucode:
     seq:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd
-      - m_ea, md_ld, ${cc}_cc, alu16=${alu16}
+      - md_ld, ${cc}_cc, alu16=${alu16}
       - m_ea, wr, ea_rmux, ld0_opnd, md_shift
-      - one_rmux, ld1_opnd
-      - add_alu, ea_ld
+      - m_ea, one_rmux, ld1_opnd
+      - m_ea, add_alu, ea_ld
       - m_ea, wr
       - fetch
       -
@@ -676,7 +710,7 @@ ucode:
 
       - cc_rmux, md_ld
       - md_ld, psh8_jsr
-      - halt
+      - alt, halt # alt means here not to push the registers on interrupt execution
   - mnemo: [ SWI ]
     seq:
       - pc_rmux, ld0_opnd, s_ea
@@ -695,3 +729,6 @@ ucode:
       - md_ld, psh8_jsr,   s_ea
       - idle6_jsr
       - swi, ivrd_jsr
+  - mnemo: [ SLP ]
+    seq:
+      - halt

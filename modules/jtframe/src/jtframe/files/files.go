@@ -56,7 +56,13 @@ type JTModule struct {
 	When   string   `yaml:"when"`
 }
 
-type UcFiles map[string]string // if this is changed to a non reference type, update the functions that take it as an argument
+type UcDesc struct {
+	Src		string `yaml:"src"`
+	Output  string `yaml:"output"`
+	// private
+	modname string
+}
+type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
 
 type JTFiles struct {
 	Game    []FileList `yaml:"game"`
@@ -278,7 +284,8 @@ func parse_yaml(filename string, files *JTFiles) {
 	// ucode requirements
 	for k,v := range aux.Ucode {
 		if files.Ucode == nil { files.Ucode=make(UcFiles) }
-		files.Ucode[v] = k
+		v.modname = k
+		files.Ucode[k+"-"+v.Src+"-"+v.Output] = v
 	}
 }
 
@@ -541,8 +548,9 @@ func append_mem( info CoreInfo, local bool, macros map[string]string, fn []strin
 }
 
 func dump_ucode( files JTFiles ) {
-	for fname, modname := range files.Ucode {
-		ucode.Make(modname,fname)
+	for _, uc := range files.Ucode {
+		ucode.Args.Output = uc.Output
+		ucode.Make(uc.modname,uc.Src)
 	}
 }
 
