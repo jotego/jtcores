@@ -42,10 +42,13 @@ type UcChunk struct {
 }
 
 type UcDesc struct {
+	Incs []string `yaml:"include"`
 	Cfg struct {
 		EntryLen int `yaml:"entry_len"`
 		Entries  int `yaml:"entries"`
 		CycleK   int `yaml:"cycle_factor"`
+		BusError string `yaml:"bus_error"`
+
 	} `yaml:"config"`
 	Ops    []UcOp    `yaml:"ops"`
 	Chunks []UcChunk `yaml:"ucode"`
@@ -73,9 +76,18 @@ func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
 		up0 = desc.Chunks[mnemok].Start
 		id = desc.Chunks[mnemok].Name
 		proc = true
+		if up0<0 {
+			up0 = opk // used for copying a procedure to any location
+					  // specify -1 in the YAML, and then it can be used
+					  // as the bus_error procedure
+			if up0<0 { return } // if opk was negative too, ignore the procedure
+		}
 	} else {
 		up0 = desc.Ops[opk].Op
 		id = desc.Ops[opk].Id()
+	}
+	if desc.Cfg.Entries<=up0 {
+		fmt.Printf("%s starts outside the allowed range (0-%d)\n", id, desc.Cfg.Entries-1)
 	}
 	up0 = up0 * desc.Cfg.EntryLen
 next_line:
@@ -162,6 +174,7 @@ func find_proc(name string, desc *UcDesc) int {
 func expand_all(desc *UcDesc) []string {
 	op_dups := make(map[int]bool) // track duplicated OPs
 	code := make([]string, desc.Cfg.Entries*desc.Cfg.EntryLen)
+	syntax := regexp.MustCompile("[0-1a-zA-Z][0-9a-zA-Z]*")
 	// expand ucode entries with no op associated
 	for k, chunk := range desc.Chunks {
 		if chunk.Name == "" {
@@ -172,6 +185,7 @@ func expand_all(desc *UcDesc) []string {
 			continue
 		}
 		expand_entry(-1, k, code, desc)
+		if desc.Chunks[k].Start>=0 { op_dups[desc.Chunks[k].Start]=true }
 	}
 	for opk, each := range desc.Ops {
 		if _, found := op_dups[each.Op]; found {
@@ -179,6 +193,17 @@ func expand_all(desc *UcDesc) []string {
 			os.Exit(1)
 		}
 		op_dups[each.Op] = true
+		// Verify that all CTL signal names make sense
+		for k,v := range each.Ctl {
+			if !syntax.MatchString(k) {
+				fmt.Printf("Bad control signal name %s in OP %X\n", k, each.Op)
+				os.Exit(1)
+			}
+			if !syntax.MatchString(v) {
+				fmt.Printf("Bad control values %s for signal %s in OP %X\n", v, k, each.Op)
+				os.Exit(1)
+			}
+		}
 		// Find a matching ucode chunk
 		ref := find_chunk(each.Name, desc)
 		if ref == -1 {
@@ -186,6 +211,22 @@ func expand_all(desc *UcDesc) []string {
 			continue
 		}
 		expand_entry(opk, ref, code, desc)
+	}
+	// fill unused entries with the bus_error entry
+	if desc.Cfg.BusError!="" {
+		ref := find_proc(desc.Cfg.BusError, desc)
+		if ref == -1 {
+			fmt.Printf("Missing ucode for %s\n", desc.Cfg.BusError)
+		} else {
+			for k:=0; k<desc.Cfg.Entries; k++ {
+				f, _ := op_dups[k]
+				if f { continue }
+				expand_entry(k, ref, code, desc)
+				if Args.Verbose {
+					fmt.Printf("%X filled as bus error\n",k)
+				}
+			}
+		}
 	}
 	return code
 }
@@ -495,9 +536,7 @@ func check_mnemos(desc *UcDesc) {
 	if missing { os.Exit(1) }
 }
 
-func Make(modname, fname string) {
-	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
-	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
+func read_yaml( fpath string ) UcDesc {
 	buf, err := os.ReadFile(fpath)
 	if err != nil {
 		fmt.Println(err)
@@ -509,6 +548,43 @@ func Make(modname, fname string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	// Parse include files
+	for _, each := range desc.Incs {
+		fname := filepath.Join(filepath.Dir(fpath),each)
+		inc := read_yaml(fname)
+		// overwrite unset values with those in the include file
+		if desc.Cfg.EntryLen==0  { desc.Cfg.EntryLen=inc.Cfg.EntryLen 	}
+		if desc.Cfg.Entries==0 	 { desc.Cfg.Entries=inc.Cfg.Entries 	}
+		if desc.Cfg.CycleK==0 	 { desc.Cfg.CycleK=inc.Cfg.CycleK 		}
+		if desc.Cfg.BusError=="" { desc.Cfg.BusError=inc.Cfg.BusError 	}
+		if len(inc.Ops)!=0 {
+			fmt.Printf("Include file %s has an ops section. This is still not supported\n", each)
+			os.Exit(1)
+		}
+		next_chunk:
+		for k, _ := range inc.Chunks {
+			if inc.Chunks[k].Name!="" {
+				cur := find_proc( inc.Chunks[k].Name, &desc )
+				if cur<0 {
+					desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
+					continue next_chunk
+				}
+			}
+			// Copy it if there is no definition for any of the OPs listed
+			for _,opName := range inc.Chunks[k].Mnemo {
+				cur := find_chunk( opName, &desc )
+				if cur!=-1 { continue next_chunk }
+			}
+			desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
+		}
+	}
+	return desc
+}
+
+func Make(modname, fname string) {
+	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
+	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
+	desc := read_yaml(fpath)
 	if desc.Cfg.Entries <= 0 || desc.Cfg.EntryLen <= 0 {
 		fmt.Println("Set non-zero values for entry_len and entries in the config section")
 		os.Exit(1)

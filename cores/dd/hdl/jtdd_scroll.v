@@ -21,14 +21,14 @@
 
 
 module jtdd_scroll(
-    input              clk,
     input              rst,
+    input              clk,
+    input              clk_cpu,
     (*direct_enable*)  input pxl_cen,
     input      [10:0]  cpu_AB,
     input              vram_cs,
     input              cpu_wrn,
     input      [ 7:0]  cpu_dout,
-    input              cen_Q,
     output reg [ 7:0]  scr_dout,
     input      [ 7:0]  HPOS,
     input      [ 7:0]  VPOS,
@@ -53,8 +53,8 @@ always @(posedge clk) begin // may consider latching this if glitches appear
 end
 
 always @(*) begin
-    lo_we     = cen_Q && vram_cs && !cpu_wrn &&  cpu_AB[0];
-    hi_we     = cen_Q && vram_cs && !cpu_wrn && !cpu_AB[0];
+    lo_we     = vram_cs && !cpu_wrn &&  cpu_AB[0];
+    hi_we     = vram_cs && !cpu_wrn && !cpu_AB[0];
     scan      = { vscr[8], hscr[8], vscr[7:4], hscr[7:4] };
     scr_dout  = !cpu_AB[0] ? cpu_hi : cpu_lo;
 end
@@ -95,7 +95,7 @@ always @(posedge clk) if(pxl_cen) begin
 end
 
 jtframe_dual_ram #(.AW(10),.SIMFILE("scr_hi.bin")) u_ram_high(
-    .clk0   ( clk         ),
+    .clk0   ( clk_cpu     ),
     .data0  ( cpu_dout    ),
     .addr0  ( cpu_AB[10:1]),
     .we0    ( hi_we       ),
@@ -109,7 +109,7 @@ jtframe_dual_ram #(.AW(10),.SIMFILE("scr_hi.bin")) u_ram_high(
 );
 
 jtframe_dual_ram #(.AW(10),.SIMFILE("scr_lo.bin")) u_ram_low(
-    .clk0   ( clk         ),
+    .clk0   ( clk_cpu     ),
     .data0  ( cpu_dout    ),
     .addr0  ( cpu_AB[10:1]),
     .we0    ( lo_we       ),

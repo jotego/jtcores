@@ -20,6 +20,7 @@ config:
   entry_len: 16
   entries: 256
   cycle_factor: 4 # the crystal input takes 4x the clock freq.
+  bus_error: berr
 ops:
   # 2^8  op entries
   # 2^12 ucode entries -> 16 entries/instruction
@@ -298,6 +299,10 @@ ucode:
       - md_ld, psh8_jsr,   s_ea
       - idle6_jsr
       - ivrd_jsr
+  - name: berr  # bus error
+    start: -1
+    seq:
+      - i1_cc, halt # something went wrong. Stay here
   - name: imm
     start: 0x90
     seq:

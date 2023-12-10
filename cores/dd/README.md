@@ -58,10 +58,9 @@ The FPGA clone uses the following modules:
 JT51:    For YM2151 sound synthesis. From the same author.
 JT5205:  For MSM5205 ADPCM sound synthesis. From the same author.
 JT6295:  For MSM6295 ADPCM sound synthesis. From the same author.
-JTFRAME: A common framework for MiST arcades. From the same author.
+HD63701: JT680X. From the same author.
+JTFRAME: A common framework for FPGA arcades. From the same author.
 MC6809:  from Greg Miller, slightly modified. Part of JTFRAME, the original can be found in github
-MC6801:  By Dukov, slightly modified. It is part of JTFRAME but the original can be found at
-         https://opencores.org/projects/mc6803
 
 When populating the git, remember to use:
 

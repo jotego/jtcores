@@ -116,6 +116,7 @@ type ClockCfg struct {
     Gate    []string `yaml:"gate"`      // SDRAM buses that will halt the clock enable
     // values for jtframe_frac_cen instantiation
     ClkName string
+    KHz     int         // clock frequency in kHz
     WC, W   int
     OutStr  string
     Comment string

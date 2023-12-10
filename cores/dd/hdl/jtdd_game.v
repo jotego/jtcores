@@ -35,7 +35,8 @@ wire               mcu_irqmain, mcu_haltn, com_cs, mcu_nmi_set, mcu_ban;
 wire       [ 7:0]  mcu_ram;
 
 wire       [ 8:0]  scrhpos, scrvpos;
-wire               turbo;
+wire               turbo, mcu_cen, cpu_cen;
+reg                turbo_l=0;
 
 assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
 assign dip_flip   = flip;
@@ -45,10 +46,13 @@ assign main_dout  = cpu_dout;
 assign oram_we    = oram_cs & ~cpu_wrn;
 assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
+assign mcu_cen    = turbo_l ? mcu_cen12 : mcu_cen6;
+assign cpu_cen    = turbo_l ? cen6 : cen3;
+
+always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
 
 `ifndef NOMAIN
-wire cpu_cen = turbo ? cen1p5 : cen0p75;
-
+/* verilator tracing_off */
 // CPU and sub CPU from slower clock in order to
 // prevent timing error in 6809 CC bit Z
 jtdd_main u_main(
@@ -119,16 +123,7 @@ assign snd_latch = 8'd0;
 assign snd_irq   = 1'b0;
 assign mcu_rstb  = 1'b0;
 `endif
-
-`ifndef NOMCU
-reg turbo_l;
-wire mcu_cen; // 3 or 1.5MHz
-
-// for non-turbo mode, there is exact synchronization between CPU and MCU
-// for turbo mode, this love for accuracy is dismissed.
-assign mcu_cen = mcu_cen6; //turbo_l ? cen12 : cen6;
-
-always @(posedge clk) if( mcu_cen ) turbo_l <= turbo;
+/* verilator tracing_on */
 
 jtdd_mcu u_mcu(
     .clk          (  clk             ),
@@ -150,22 +145,7 @@ jtdd_mcu u_mcu(
     .rom_data     (  mcu_data        ),
     .rom_cs       (  mcu_cs          )
 );
-`else
-reg    irqmain;
-assign mcu_irqmain = irqmain;
-assign mcu_ban = 1'b0;
-always @(posedge clk) irqmain <= mcu_nmi_set;
-wire shared_we = com_cs && !cpu_wrn;
-jtframe_ram #(.AW(9)) u_shared(
-    .clk    ( clk         ),
-    .cen    ( cpu_cen     ),
-    .data   ( cpu_dout    ),
-    .addr   ( cpu_AB[8:0] ),
-    .we     ( shared_we   ),
-    .q      ( mcu_ram     )
-);
-`endif
-
+/* verilator tracing_off */
 jtdd_sound u_sound(
     .clk         ( clk24         ),
     .rst         ( rst24         ),
@@ -198,10 +178,10 @@ jtdd_sound u_sound(
 );
 /* verilator tracing_off */
 jtdd_video u_video(
-    .clk          (  clk             ),
     .rst          (  rst             ),
+    .clk          (  clk             ),
+    .clk_cpu      (  clk24           ),
     .pxl_cen      (  pxl_cen         ),
-    .cen_Q        (  cpu_cen         ),
     .cpu_AB       (  cpu_AB          ),
     .pal_cs       (  pal_cs          ),
     .vram_cs      (  vram_cs         ),

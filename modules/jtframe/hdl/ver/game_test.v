@@ -515,14 +515,6 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
     `endif
 `endif
 
-`ifdef JTFRAME_PXLCLK
-    jtframe_pxlcen u_pxlcen(
-        .clk        ( clk_rom   ),
-        .pxl_cen    ( pxl_cen   ),
-        .pxl2_cen   ( pxl2_cen  )
-    );
-`endif
-
 //////// GAME MODULE
 `GAMETOP
 u_game(
@@ -694,6 +686,15 @@ u_game(
     .debug_bus   ( debug_bus      ),
     .debug_view  ( debug_view     )
 );
+
+`ifdef JTFRAME_PXLCLK
+    /* verilator tracing_off */
+    jtframe_pxlcen u_pxlcen(
+        .clk        ( clk_rom   ),
+        .pxl_cen    ( pxl_cen   ),
+        .pxl2_cen   ( pxl2_cen  )
+    );
+`endif
 
 endmodule
 

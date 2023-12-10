@@ -71,7 +71,7 @@ always @* begin
          ONE_RMUX: rmux = 16'd1;
         ZERO_RMUX: rmux = 16'd0;
           IV_RMUX: rmux = {11'h7ff,iv,1'b0};
-          default: rmux = alt ? {8'd0, md_alt} : md;
+          default: rmux = { md[15:8], alt ? md_alt : md[7:0] };
     endcase
     case( ea_sel )
         S_EA: addr = s;

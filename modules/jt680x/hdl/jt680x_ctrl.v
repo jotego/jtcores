@@ -68,9 +68,8 @@ wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 assign still = ni & ext_halt;
 
-`ifdef JT680X_6801
-assign alt=0;
-`endif
+// reg [255:0] ops, ops_old;
+// integer k;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -85,9 +84,18 @@ always @(posedge clk, posedge rst) begin
         if( ~halt & ~ext_halt ) ba<=0;
         if( ni | halt ) begin
             nmi_l <= nmi;
-            if( !still ) uaddr <= { md[7:0], 4'd0 };
+            if( !still ) begin
+                uaddr <= { md[7:0], 4'd0 };
+                // ops[md[7:0]] <= 1;
+                // if( ops_old != ops ) begin
+                //     $display("---------");
+                //     for(k=0;k<16;k=k+1)
+                //         $display("%02X: %X",k<<4,ops[(k<<4)+:16]);
+                //     ops_old = ops;
+                // end
+            end
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
-                // alt signal used to bypass the register push to the stack in 6301
+                // alt signal used to bypass the register push to the stack
                 if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD : INTSRV; end // lowest priority
                 if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD : INTSRV; end
                 if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD : INTSRV; end

@@ -189,6 +189,10 @@ always @(posedge clk or posedge rst) begin
             mcu_rstb   <= cpu_dout[3];
             mcu_haltn  <= ~cpu_dout[4];
             bank       <= cpu_dout[7:5];
+            // `ifdef SIMULATION
+            //     if(  cpu_dout[4] &&  mcu_haltn ) $display("MCU halted");
+            //     if( !cpu_dout[4] && !mcu_haltn ) $display("MCU released");
+            // `endif
         end
     end
 end
@@ -219,7 +223,7 @@ assign cpu_AB = A[12:0];
 
 reg [7:0] cpu_din;
 
-always @(*) begin // do not register
+always @* begin // do not register
     case( 1'b1 )
         ram_cs    : cpu_din = ram_dout;
         cram_cs   : cpu_din = char_dout;
@@ -269,7 +273,7 @@ jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),   // This is normally the input clock to the CPU
-    .cpu_cen    (           ),   // 1/4th of cen -> 3MHz
+    .cpu_cen    (           ),
     .VMA        (           ),
     // Interrupts
     .nIRQ       ( nIRQ      ),

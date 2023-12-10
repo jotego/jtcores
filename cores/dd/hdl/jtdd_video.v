@@ -18,14 +18,14 @@
 
 
 module jtdd_video(
-    input              clk,
     input              rst,
+    input              clk,
+    input              clk_cpu,
     input              pxl_cen,
     // CPU bus
     input      [12:0]  cpu_AB,
     input              cpu_wrn,
     input      [ 7:0]  cpu_dout,
-    input              cen_Q,
     // Palette
     input              pal_cs,
     output     [ 7:0]  pal_dout,
@@ -149,12 +149,12 @@ jtframe_tilemap #(
 jtdd_scroll u_scroll(
     .rst         ( rst              ),
     .clk         ( clk              ),
+    .clk_cpu     ( clk_cpu          ),
     .pxl_cen     ( pxl_cen          ),
     .cpu_AB      ( cpu_AB[10:0]     ),
     .vram_cs     ( vram_cs          ),
     .cpu_wrn     ( cpu_wrn          ),
     .cpu_dout    ( cpu_dout         ),
-    .cen_Q       ( cen_Q            ),
     .scr_dout    ( scr_dout         ),
     .HPOS        ( hdump[7:0]       ),
     .VPOS        ( vdump[7:0]       ),
@@ -195,10 +195,10 @@ jtdd_obj u_obj(
 );
 
 jtdd_colmix u_colmix(
-    .clk         ( clk              ),
     .rst         ( rst              ),
+    .clk         ( clk              ),
+    .clk_cpu     ( clk_cpu          ),
     .pxl_cen     ( pxl_cen          ),
-    .cen_Q       ( cen_Q            ),
     .cpu_dout    ( cpu_dout         ),
     .pal_dout    ( pal_dout         ),
     .cpu_AB      ( cpu_AB[9:0]      ),

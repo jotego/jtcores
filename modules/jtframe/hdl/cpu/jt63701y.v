@@ -19,9 +19,10 @@
 // non-comprehensive implementation of a HD63701Y compatible MCU
 // the external bus pins are mixed with the port pins as the original
 // refer to port assignments or comments to know the bus addressing bits
+// trap interrupt - not implemented
 module jt63701y #(
     parameter ROMW = 12,    // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
-              MODE = 2'd2   // expanded mode (internal ROM valid)
+              MODE = 2'd2   // expanded mode (internal ROM valid). Valid values: 1,2,3
 )(
     input              rst,
     input              clk,
@@ -29,6 +30,7 @@ module jt63701y #(
 
     // all inputs are active high
     input              nmi,
+    // input           stby,    // active high - standby function not implemented
     // Ports
     // irq1 = P5-0, irq2 = P5-1, halt = P5-3
     input       [7:0]  p1_din, p2_din,
@@ -48,6 +50,15 @@ module jt63701y #(
     input      [ 7:0]  rom_data,
     output reg         rom_cs
 );
+
+`ifdef SIMULATION
+initial begin
+    if( MODE<1 || MODE>3 ) begin
+        $display("%m: MODE must be 1,2 or 3");
+        $stop;
+    end
+end
+`endif
 
 wire [15:0] addr;
 wire        ram_we, irq1, irq2, wr, ba,
@@ -110,15 +121,18 @@ localparam  P1DDR = 'h0,
 assign ram_we = ram_cs & wr;
 assign rom_addr = addr[0+:ROMW];
 
-assign p1_dout = MODE==2'd3 ? p1 : addr[7:0];
+assign p1_dout = MODE!=2'd3 ? addr[7:0] : p1;
+assign p3_dout = MODE!=2'd3 ? dout : p3;
+assign p4_dout = MODE!=2'd3 ? addr[15:8] : p4; // MODE 2 may use some pins as inputs too
+assign p7_dout = MODE!=2'd3 ? {ba, 1'b0 /*LIR*/, ~wr |~x_cs, ~wr|~x_cs, wr|~x_cs} : p7;
 assign p2_dout = p2;   // Port 2 can be used by timers 1,2 too
-assign p3_dout = MODE==2'd3 ? p3 : dout;
-assign p4_dout = MODE!=2'd0 ? addr[15:8] : p4; // MODE 2 may use some pins as inputs too
 assign p5_dout = p5;
 assign p6_dout = p6;   // Port 6 supports handshaking -not implemented-
-assign p7_dout = MODE==2'd3 ? p7 : {  ba, 1'b0 /*LIR*/, ~wr |~x_cs, ~wr|~x_cs, wr|~x_cs };
 assign halt_en = rp5cr[3];
-assign halt_g  = halt_en & ~p5_din[3];
+assign halt_g  = halt_en && (MODE!=3 && !p5_din[3]);
+// assign mr   = MODE!=3 && p5_din[2] && rp5cr[4]; // Memory Ready input, adds wait cycles for the bus
+// rp5cr[AMRE=4] set -> makes E clock stay high one cycle longer when accessing external addresses -> should implement this one! it's the behavior at reset!
+// rp5ce[ MRE=2] set -> MR high keeps E high
 assign psel    = addr[5:0];
 assign x_cs    = !ba && {port_cs,ram_cs,rom_cs}==0 && MODE!=2'd3;
 // IRQ enables
@@ -171,7 +185,7 @@ always @* begin // Timer 2 input
 end
 
 always @(posedge clk) begin
-    pmux<=0;
+    pmux<=8'hff;
     case( psel )
         P1:     pmux <= p1ddr ? p1 : p1_din;
         P2:     pmux <= (p2ddr&p2)|(~p2ddr&p2_din);
@@ -222,6 +236,7 @@ always @(posedge clk, posedge rst) begin
         fch   <= 0;
         fcl   <= 0;
         t2l   <= 0;
+        {p1,p2,p3,p4,p5,p6,p7}<=53'd0;
     end else begin
         // The FRCL register is read through a latch, to guarantee accuracy
         if( psel == FRCH && ~wr ) fcl <= frc[7:0];

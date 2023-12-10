@@ -59,6 +59,7 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 				}
 				if v.ClkName == "clk48" { v.ClkName = "clk" }
 			}
+			v.KHz = int(float64(fmhz)*ratio/1000)
 			v.OutStr = ""
 			first := true
 			for j, s := range v.Outputs {

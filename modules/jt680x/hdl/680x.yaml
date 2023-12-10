@@ -1,0 +1,421 @@
+config:
+  entry_len: 16
+  entries: 256
+  cycle_factor: 4
+  bus_error: berr
+ucode:
+  - name: ivrd # interrupt service and reset vector read and jump
+    start: 0
+    seq:
+      - iv_rmux,  ld0_opnd
+      - one_rmux, ld1_opnd,     ea_ld
+      - m_ea
+      - m_ea, fetch, add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, md_shift
+      - ld0_opnd
+      -                         pc_ld
+      - fetch, i1_cc
+      -
+      - ni
+  - name: berr  # bus error
+    start: -1
+    seq:
+      - i1_cc, halt # something went wrong. Stay here
+  - name: idle4
+    start: 0x87
+    seq:
+      -
+      -
+      -
+      - ret_jsr
+  - name: isrv
+    start: 0xc7 # referenced in  jt680x_ctrl manually!
+    cycles: 12
+    seq:
+      - pc_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr,  s_ea
+
+      - x_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr, s_ea
+
+      - a_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - b_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - cc_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,   s_ea
+      - idle6_jsr
+      - ivrd_jsr
+  - name: imm # 1+3 ucode cycles = 1 bus cycle
+    start: 0x12
+    seq:
+      - fetch, inc_pc, ret_jsr
+  - name: imm16 # 1+7 ucode cycles = 2 bus cycles
+    start: 0x13
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, md_shift, inc_pc
+      - ret_jsr
+  - name: dira
+    start: 0x45
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - ea_ld, ret_jsr
+  - name: dir # 1+7 ucode cycles = 2 bus cycles
+    start: 0x14
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: dir16 # 1+7 ucode cycles = 2 bus cycles
+    start: 0x15
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - ea_ld, one_rmux, ld1_opnd
+      - m_ea, ea_rmux, ld0_opnd
+      - m_ea, fetch, add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, md_shift, ret_jsr # jsr cycle
+  - name: exta
+    start: 0x55
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, inc_pc, md_shift
+      - ld0_opnd
+      - ea_ld, ret_jsr
+  - name: ext # 1+11 ucode cycles = 3 bus cycles
+    start: 0x1c
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, inc_pc, md_shift
+      - # idle
+      - # idle
+      - # idle
+      - ld0_opnd
+      - ea_ld
+      - m_ea,
+      - m_ea, fetch, ret_jsr
+  - name: ext16 # 1+15 ucode cycles = 4 bus cycles
+    start: 0x1d
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - fetch, inc_pc, md_shift
+      - # idle
+      - # idle
+      - ld0_opnd
+      - ea_ld
+      - m_ea,
+      - m_ea, fetch,
+      - one_rmux, ld1_opnd
+      - ea_rmux, ld0_opnd
+      - add_alu, ea_ld
+      - m_ea,
+      - m_ea, fetch, md_shift, ret_jsr
+  - name: idxa
+    start: 0x4b
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld, ret_jsr
+  - name: idx # 1+11 ucode cycles = 3 bus cycles
+    start: 0x1e
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - # idle
+      - # idle
+      - # idle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  - name: idx16 # 1+11 ucode cycles = 3 bus cycles
+    start: 0x1f
+    seq:
+      - # mem wait cycle
+      - fetch, inc_pc
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea, ea_rmux, ld0_opnd
+      - m_ea, fetch, one_rmux, ld1_opnd # MSB
+      - m_ea, add_alu, ea_ld
+      - m_ea # LSB
+      - m_ea, fetch, md_shift, ret_jsr # LSB
+  - name: psh8 # 4 ucycles, calculates EA and updates S. writes to memory
+    start: 0x4e
+    seq:
+      - s_rmux, ld0_opnd
+      - one_rmux, ld1_opnd, ea_ld
+      - sub_alu, s_ld, m_ea, wr, ret_jsr
+  - name: psh16
+    start: 2
+    seq:
+      - s_rmux,    ld0_opnd, s_ea
+      - one_rmux,  ld1_opnd, s_ea
+      - sub_alu    s_ld, wr, s_ea
+      - s_rmux,    ld0_opnd, s_ea
+      - sub_alu,   s_ld, wr, s_ea, md_shift, ret_jsr
+  - name: pul8 # 1+11 ucode cycles = 3 bus cycles
+    start: 3
+    seq:
+      - s_rmux,   ld0_opnd
+      - one_rmux, ld1_opnd
+      - add_alu, s_ld
+      - s_ea
+      - s_ea, fetch
+      - ret_jsr
+  - name: pul16 # 1+15 ucode cycles = 4 bus cycles
+    start: 0x41
+    seq:
+      - s_rmux,   ld0_opnd
+      - one_rmux, ld1_opnd
+      - add_alu, s_ld
+      - s_ea
+      - s_ea, fetch, s_rmux, ld0_opnd
+      - s_ea, add_alu, s_ld
+      - s_ea
+      - s_ea, md_shift, fetch
+      - ret_jsr
+  - name: idle6 # waste 6 ucycles
+    start: 0x42
+    seq:
+      - # 1
+      - # 2
+      - # 3
+      - # 4
+      - # 5
+      - ret_jsr # 6
+  - name: rti8
+    start: 0x51
+    seq:
+      - #idle to meet specs
+      - add_alu, s_ld
+      - s_rmux, ld0_opnd, s_ea
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, cc_ld
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, b_ld
+      - add_alu, s_ld,    s_ea, fetch
+      -         ld0_opnd, s_ea
+      - s_rmux, ld0_opnd, s_ea, a_ld, ret_jsr # s points at the next data to fetch
+  - name: rti16
+    start: 0x52
+    seq:
+      -                     add_alu, ea_ld, s_ea, fetch            
+      -                     add_alu,  s_ld, s_ea                   
+      -  s_rmux,  ld0_opnd,                 s_ea, fetch, md_shift  
+      -           ld0_opnd,                 s_ea                   
+      -  s_rmux,  ld0_opnd,           x_ld, s_ea,                  
+      -                     add_alu, ea_ld, s_ea,                  
+      -                     add_alu,  s_ld, s_ea                   
+
+      -                     add_alu, ea_ld, s_ea, fetch            
+      -                     add_alu,  s_ld, s_ea  fetch, md_shift  
+      -           ld0_opnd,                 s_ea                   
+      -                              pc_ld, s_ea, ret_jsr   
+  ######### mnemonics
+  - mnemo: [ # 2/3 cycles for imm.
+      # Operand from memory (${addr}!=nil)
+      ADCA, ADCB, ADDA, ADDB, ADDD, ANDA, ANDB, BITA, BITB,
+      CMPA, CMPB, CPX, EORA, EORB, LDAA, LDAB, LDD, LDX, LDS,
+      NOP,  ORAA,  ORAB, SBCA, SBCB, SUBA, SUBB, SUBD,
+      # No addressing (${addr}==nil), 2 cycles
+      ABA,  ASRA, ASRB, CBA,
+      CLRA, CLRB, COMA, COMB, DAA,
+      DECA, DECB,
+      INCA, INCB, INX, INS,
+      LSLA, LSLB, LSLD, LSRA, LSRB, LSRD,
+      NEGA, NEGB, ROLA, ROLB, RORA, RORB,
+      TAB,  TAP,  TBA, TPA, TSTA, TSTB, SBA,
+      SEC, SEI, SEV, CLC, CLI, CLV,
+      # No addressing (${addr}==nil), 3 cycles
+      ABX, DEX, DES, TXS, TSX,
+    ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
+      - ${op1}_rmux, ld1_opnd, fetch
+      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ni
+  - mnemo: [ JMP ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd
+      - pc_ld
+      - fetch
+      -
+      - ni
+  # read operand and write result to memory, typ 6 cycles (idx/ext=~3)
+  - mnemo: [ ASR, CLR, COM, DEC, INC, LSL, LSR, NEG, ROL, ROR, TST ]
+    seq:
+      - ${addr}_jsr inc_pc # 3 bus cycles gone
+      - ${op0}_rmux, op0inv=${op0inv} ld0_opnd
+      - ${op1}_rmux, ld1_opnd
+      - ${alu}_alu, ${carry}_carry, md_ld, ${cc}_cc
+      - m_ea, ${wr}
+      - # bus cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ # 3 cycles
+      BRA, BRN, BHI, BLS, BCC, BCS, BNE, BEQ,
+      BVC, BVS, BPL, BMI, BGE, BLT, BGT, BLE ]
+    seq:
+      - imm_jsr, inc_pc, brlatch
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, branch, pc_ld
+      - # idle
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [  BSR ]
+    seq:
+      - inc_pc, one_rmux, ld1_opnd
+      - pc_rmux, ld0_opnd
+      - add_alu, md_ld, psh16_jsr
+      - imm_jsr
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, pc_ld
+      - # idle
+      - idle4_jsr
+      - fetch
+      - # wait for the fetch
+      - ni
+  # write 8-bit registers
+  - mnemo: [ STAA, STAB ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd
+      - md_ld, ${cc}_cc
+      - m_ea, wr
+      -
+      - fetch
+      -
+      - ni
+  # write 16-bit registers
+  - mnemo: [ STD, STX, STS ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - ${op0}_rmux, ld0_opnd
+      - m_ea, md_ld, ${cc}_cc, alu16=${alu16}
+      - m_ea, wr, ea_rmux, ld0_opnd, md_shift
+      - one_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea, wr
+      - fetch
+      -
+      - ni
+  - mnemo: [ PSHA, PSHB, PSHX ]
+    seq:
+      - ${op0}_rmux, ld0_opnd
+      - md_ld
+      - ${addr}_jsr, inc_pc
+      -
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ JSR ]
+    seq:
+      - ${addr}_jsr, inc_pc # get EA loaded
+      - pc_rmux, ld0_opnd
+      - md_ld, psh16_jsr
+      - ea_rmux, ld0_opnd
+      - pc_ld
+      - # jsr cycle
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ PULA, PULB, PULX ]
+    seq:  # 3/4+1 bus cycle
+      - ${addr}_jsr, inc_pc
+      - ld0_opnd
+      - ${ld}_ld
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ RTI ]
+    seq:  # 10*4=40 ucycles
+      - one_rmux, ld1_opnd
+      -   s_rmux, ld0_opnd, rti8_jsr
+
+      - add_alu, s_ld,    s_ea, fetch
+      - s_rmux, ld0_opnd  s_ea, idle6_jsr
+      - add_alu, s_ld,    s_ea, fetch, md_shift
+      - ld0_opnd, idle6_jsr
+      - s_rmux, ld0_opnd, s_ea, x_ld
+
+      - add_alu, s_ld,    s_ea, fetch
+      - s_rmux, ld0_opnd, s_ea
+      -                   s_ea, fetch, md_shift
+      - ld0_opnd
+      -                   s_ea, pc_ld
+      - fetch
+      - # wait for the fetch
+      - ni
+  - mnemo: [ RTS ]
+    seq:  # 5*4=20 ucycles
+      - s_rmux, ld0_opnd
+      - one_rmux, ld1_opnd
+      - add_alu, s_ld
+      - s_ea, s_rmux, ld0_opnd
+      - s_ea, fetch, add_alu, s_ld
+      - s_ea, fetch, md_shift
+      - ld0_opnd
+      - pc_ld
+      - fetch, idle6_jsr
+      - # wait for the fetch
+      - ni
+  - mnemo: [ WAI ]
+    seq: # 9*4 = 36 codes
+      - inc_pc, idle4_jsr
+      - pc_rmux, ld0_opnd
+      - md_ld, psh16_jsr
+
+      - x_rmux, ld0_opnd
+      - md_ld, psh16_jsr
+
+      - a_rmux, ld0_opnd
+      - md_ld, psh8_jsr
+
+      - b_rmux, ld0_opnd
+      - md_ld, psh8_jsr
+
+      - cc_rmux, md_ld
+      - md_ld, psh8_jsr
+      - alt, halt # alt means here not to push the registers on interrupt execution
+  - mnemo: [ SWI ]
+    seq:
+      - pc_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr,  s_ea
+
+      - x_rmux, ld0_opnd, s_ea
+      - md_ld, psh16_jsr, s_ea
+
+      - a_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - b_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,  s_ea
+
+      - cc_rmux, ld0_opnd, s_ea
+      - md_ld, psh8_jsr,   s_ea
+      - idle6_jsr
+      - swi, ivrd_jsr

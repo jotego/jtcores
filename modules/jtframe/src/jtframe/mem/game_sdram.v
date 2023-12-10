@@ -228,7 +228,7 @@ assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
 assign gfx8_en   = {{ .Gfx8 }}
 assign gfx16_en  = {{ .Gfx16 }}
-
+/* verilator tracing_off */
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
     .HEADER    ( `JTFRAME_HEADER   ),
@@ -366,7 +366,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .we1    ( 2'd0 ),{{end}}
     .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )
 );{{else}}{{if $bus.ROM.Offset }}
-/* verilator tracing_on */
+/* verilator tracing_off */
 
 jtframe_bram_rom #(
     .AW({{$bus.Addr_width}}{{if is_nbits $bus 16 }}-1{{end}}),.DW({{$bus.Data_width}}),
@@ -403,7 +403,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 {{ end }}{{end}}
 
 {{- if .Ioctl.Dump }}
-/* verilator tracing_on */
+/* verilator tracing_off */
 wire [7:0] ioctl_aux;
 {{- range $k, $v := .Ioctl.Buses }}
 {{ if $v.Aout }}wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}
@@ -430,8 +430,8 @@ jtframe_ioctl_dump #(
 // Clock enable generation
 {{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
 // {{ .Comment }} Hz from {{ .ClkName }}
-/* verilator tracing_on */
-jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ(`JTFRAME_MCLK)) u_cen{{$cnt}}_{{.ClkName}}(
+/* verilator tracing_off */
+jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u_cen{{$cnt}}_{{.ClkName}}(
     .rst    ( rst          ),
     .clk    ( {{.ClkName}} ),
     .busy   ( {{.Busy}}    ),

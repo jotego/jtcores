@@ -18,25 +18,25 @@
 
 
 module jtdd_colmix(
+    input              clk_cpu,
     input              clk,
     input              rst,
     (*direct_enable*) input pxl_cen,
-    (*direct_enable*) input cen_Q,
     input      [7:0]   cpu_dout,
     input              cpu_wrn,
-    output reg [7:0]   pal_dout,
-    input [9:0]        cpu_AB,
+    output     [7:0]   pal_dout,
+    input      [9:0]   cpu_AB,
     // blanking
     input              LVBL,
     input              LHBL,
     // Pixel inputs
-    input [6:0]        char_pxl,  // called mcol in schematics
-    input [7:0]        obj_pxl,  // called ocol in schematics
-    input [7:0]        scr_pxl,  // called bcol in schematics
+    input      [6:0]   char_pxl,  // called mcol in schematics
+    input      [7:0]   obj_pxl,   // called ocol in schematics
+    input      [7:0]   scr_pxl,   // called bcol in schematics
     input              pal_cs,
     // PROM programming
-    input [7:0]        prog_addr,
-    input [3:0]        prom_din,
+    input      [7:0]   prog_addr,
+    input      [3:0]   prom_din,
     input              prom_prio_we,
     // Pixel output
     output reg [3:0]   red,
@@ -48,9 +48,9 @@ module jtdd_colmix(
 
 parameter SIM_PRIO="../../../rom/21j-k-0";
 
-wire [7:0] pal_gr;
-wire [3:0] pal_b;
-reg        pal_gr_we, pal_b_we;
+wire [7:0] pal_gr, cpu_gr;
+wire [3:0] pal_b,  cpu_b;
+wire       pal_gr_we, pal_b_we;
 reg  [8:0] pal_addr;
 wire [1:0] prio;
 wire       obj_blank  = ~gfx_en[3] | ~|obj_pxl[3:0];
@@ -58,13 +58,11 @@ wire       char_blank = ~gfx_en[0] | ~|char_pxl[3:0];
 wire [7:0] scr2_pxl   = scr_pxl & {8{gfx_en[1]}}; // gated by global enable signal
 wire [7:0] seladdr = { scr2_pxl[7], obj_pxl[7], obj_blank, char_blank, scr2_pxl[3:0] };
 
-reg [7:0] pal_din;
+assign pal_gr_we = pal_cs && !cpu_AB[9] && !cpu_wrn;
+assign pal_b_we  = pal_cs &&  cpu_AB[9] && !cpu_wrn;
+assign pal_dout  = cpu_AB[9] ? {4'hf, cpu_b } : cpu_gr;
 
 always @(posedge clk) begin
-    pal_gr_we <= pal_cs && !cpu_AB[9] && !cpu_wrn;
-    pal_b_we  <= pal_cs &&  cpu_AB[9] && !cpu_wrn;
-    pal_din   <= cpu_dout;
-    pal_dout  <= cpu_AB[9] ? {4'hf, pal_b } : pal_gr;
     if( pal_cs )
         pal_addr <= cpu_AB[8:0];
     else begin
@@ -80,22 +78,34 @@ always @(posedge clk) if(pxl_cen) begin
     { blue, green, red } <= (LHBL && LVBL) ? { pal_b, pal_gr } : 12'd0;
 end
 
-jtframe_ram #(.AW(9),.SIMFILE("pal_gr.bin")) u_pal_gr(
-    .clk    ( clk         ),
-    .cen    ( cen_Q     ),
-    .data   ( pal_din     ),
-    .addr   ( pal_addr    ),
-    .we     ( pal_gr_we   ),
-    .q      ( pal_gr      )
+jtframe_dual_ram #(.AW(9),.SIMFILE("pal_gr.bin")) u_pal_gr(
+    // CPU
+    .clk0   ( clk_cpu     ),
+    .data0  ( cpu_dout    ),
+    .addr0  ( cpu_AB[8:0] ),
+    .we0    ( pal_gr_we   ),
+    .q0     ( cpu_gr      ),
+    // Video
+    .clk1   ( clk         ),
+    .data1  ( 8'd0        ),
+    .addr1  ( pal_addr    ),
+    .we1    ( 1'b0        ),
+    .q1     ( pal_gr      )
 );
 
-jtframe_ram #(.AW(9),.DW(4),.SIMFILE("pal_b.bin")) u_pal_b(
-    .clk    ( clk           ),
-    .cen    ( cen_Q       ),
-    .data   ( cpu_dout[3:0] ),
-    .addr   ( pal_addr      ),
-    .we     ( pal_b_we      ),
-    .q      ( pal_b         )
+jtframe_dual_ram #(.AW(9),.DW(4),.SIMFILE("pal_b.bin")) u_pal_b(
+    // CPU
+    .clk0   ( clk_cpu     ),
+    .data0  (cpu_dout[3:0]),
+    .addr0  ( cpu_AB[8:0] ),
+    .we0    ( pal_b_we    ),
+    .q0     ( cpu_b       ),
+    // Video
+    .clk1   ( clk         ),
+    .data1  ( 4'd0        ),
+    .addr1  ( pal_addr    ),
+    .we1    ( 1'b0        ),
+    .q1     ( pal_b       )
 );
 
 jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_prio(

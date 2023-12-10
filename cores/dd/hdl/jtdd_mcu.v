@@ -97,8 +97,8 @@ jtframe_dual_ram #(.AW(9)) u_shared(
     .clk0   ( clk         ),
     .clk1   ( clk         ),
 
-    .data0  ( mcu_dout    ),
     .addr0  ( A[8:0]      ),
+    .data0  ( mcu_dout    ),
     .we0    ( ~wrn & shared_cs  ),
     .q0     ( sh2mcu_dout ),
 

@@ -79,10 +79,10 @@ func makeMAME( cpu string ) {
 	switch strings.ToLower(cpu) {
 		case "t900h": s=`trace debug.trace,maincpu,noloop,{tracelog "PC=%X,XWA0=%X,XBC0=%X,XDE0=%X,XHL0=%X,XWA1=%X,XBC1=%X,XDE1=%X,XHL1=%X,XWA2=%X,XBC2=%X,XDE2=%X,XHL2=%X,XWA3=%X,XBC3=%X,XDE3=%X,XHL3=%X,XIX=%X,XIY=%X,XIZ=%X,XSP=%X,* ",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
 `
-		case "m6801":
-			s=`focus 0
+		case "6301","6800","6801":
+			s=`focus 1
 trace off
-trace debug.trace,maincpu,noloop,{tracelog "pc=%X,acca=%X,accb=%X,xreg=%X,sp=%X,cc=%x,frame_cnt=%x* ",pc,a,b,s,x,cc,frame}
+trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,frame}
 `
 		case "m68000","m68k","68k","68000":
 			s=`focus 0
@@ -100,7 +100,7 @@ trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%
 		fmt.Printf("No default trace.mame file for %s CPU. Add it to trace.go\n", cpu)
 		fmt.Printf(`Supported CPUs names and aliases:
 t900h
-m6801
+6800, 6301, 6801,
 m68000, m68k, 68k, 68000
 konami, kcpu, 6809
 qsnd, qsound

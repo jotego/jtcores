@@ -45,7 +45,7 @@ reg  c8, c16, cx,
 reg [7:0] daa;
 reg       valid_hi, valid_lo;
 
-assign rslt_cc  = alu16 ? { n16,z16,v16,c16} : { n8, z8, v8, c8 };
+assign rslt_cc  = alu16 ? {n16,z16,v16,c16} : {n8,z8,v8,c8};
 
 always @* begin
     case( carry_sel )
@@ -66,8 +66,8 @@ always @* begin
             {ho,  rslt[ 3:0]} = {1'b0, op0[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
             {c8,  rslt[ 7:4]} = {1'b0, op0[ 7:4]}+{1'b0, op1[ 7:4]}+{4'd0,ho};
             {c16, rslt[15:8]} = {1'b0, op0[15:8]}+{1'b0, op1[15:8]}+{8'd0,c8};
-            v8  = ^{op0[ 7],op1[ 7],~rslt[ 7]};
-            v16 = ^{op0[15],op1[15],~rslt[15]};
+            v8  = &{op0[ 7],op1[ 7],~rslt[ 7]}|&{~op0[ 7],~op1[ 7],rslt[ 7]};
+            v16 = &{op0[15],op1[15],~rslt[15]}|&{~op0[15],~op1[15],rslt[15]};
         end
         DAA_ALU: begin
             rslt = {op0[15:8],op0[7:0]+daa}; // output daa so the ucode can use it as an operand
@@ -82,7 +82,7 @@ always @* begin
             c8 = rslt[7];
         end
         ASR_ALU, LSR_ALU: begin
-            rslt[15:8] = {alu_sel==ASR_ALU ? op0[7] : 1'b0, op0[7:1]};
+            rslt[15:8] = {1'b0, op0[7:1]};
             rslt[ 7:0] = {cx,op1[7:1]};
             c8  = op1[0];
             c16 = op1[0];
@@ -90,10 +90,8 @@ always @* begin
             v16 = rslt[15] ^ c16;
         end
         LSL_ALU: begin
-            rslt[15:8] = {op0[6:0],cx};
-            rslt[ 7:0] = {op1[6:0],1'b0};
-            c8  = op1[7];
-            c16 = op0[7];
+            {c16, rslt[15:8]}= {op0[7:0],op1[7]};
+            { c8, rslt[ 7:0]}= {op1[7:0],1'b0};
             v8  = rslt[ 7] ^ c8;
             v16 = rslt[15] ^ c16;
         end
@@ -105,11 +103,11 @@ always @* begin
         end
         ROL_ALU: begin
             {c8,rslt[7:0]} = {op0[7:0],cin};
-            v8  = rslt[ 7] ^ c8;
+            v8  = rslt[7] ^ c8;
         end
         ROR_ALU: begin
             {rslt[7:0],c8} = {cin,op0[7:0]};
-            v8  = rslt[ 7] ^ c8;
+            v8  = rslt[7] ^ c8;
         end
         SUB_ALU: begin
             {c8,  rslt[ 7:0]} = {1'b0, op0[ 7:0]}-{1'b0,op1[ 7:0]}-{8'b0,cx};
