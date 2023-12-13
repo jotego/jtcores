@@ -2872,8 +2872,8 @@
     )
   )
 
-  (bus_alias "2C" (members "2C[0..5]" "BUS"))
   (bus_alias "ZIPRWCS" (members "~{L1}" "~{L2}" "~{H1}" "~{H2}" "~{COE}"))
+  (bus_alias "2C" (members "2C[0..5]" "BUS"))
   (bus_alias "XV12" (members "1V1" "2V1" "4V1" "1V2" "2V2" "4V2"))
   (junction (at 53.34 133.35) (diameter 0) (color 0 0 0 0)
     (uuid 0c966d3f-8211-406e-a252-af29e7be5e9f)
