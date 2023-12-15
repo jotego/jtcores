@@ -8540,7 +8540,7 @@
     (property "Footprint" "" (at 1.27 2.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 1.27 2.54 0)
+    (property "Datasheet" "https://www.thegeekpub.com/279928/jamma-pinout-pdf/" (at 1.27 2.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "JAMMA_CONN_PARTS_SIDE_1_1"
