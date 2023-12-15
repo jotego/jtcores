@@ -1963,7 +1963,7 @@
     (pin "8" (uuid e1183302-0a06-49b1-92b6-7d5d18b2e542))
     (pin "9" (uuid 8a76b00e-758a-45d0-a5ea-e2b003cda652))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "J1") (unit 1)
         )
@@ -1988,7 +1988,7 @@
     )
     (pin "1" (uuid c787f5d7-7494-443c-bcb1-f7d38942c416))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#PWR03") (unit 1)
         )
@@ -2014,7 +2014,7 @@
     (pin "1" (uuid 728f40cb-b246-4d96-a6b2-904418656783))
     (pin "2" (uuid 0eb1fe2b-323e-4b97-a5a1-de10c035b462))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "R1") (unit 1)
         )
@@ -2039,7 +2039,7 @@
     )
     (pin "1" (uuid efe07af5-4aaa-4dd6-98f7-bb442b910899))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#FLG01") (unit 1)
         )
@@ -2105,7 +2105,7 @@
     (pin "Y" (uuid 3bf9c921-b07a-4570-980f-69e826aa4681))
     (pin "Z" (uuid 0bbfc3ba-d1ae-4d16-a8f0-5a18bf9b3a01))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "U2") (unit 1)
         )
@@ -2130,7 +2130,7 @@
     )
     (pin "1" (uuid 7fccbd9e-db38-4a9c-9286-5f30e7b5c84a))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#PWR04") (unit 1)
         )
@@ -2155,7 +2155,7 @@
     )
     (pin "1" (uuid 28eed19a-376f-4f86-bc58-f403596d0b81))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#PWR05") (unit 1)
         )
@@ -2180,7 +2180,7 @@
     )
     (pin "1" (uuid dace2bfc-f838-454d-bf96-03a01fc44230))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#FLG02") (unit 1)
         )
@@ -2258,7 +2258,7 @@
     (pin "e" (uuid bcc651f8-12a6-4099-808f-de9b98cd48fb))
     (pin "f" (uuid a1efe0c5-1850-419a-a7ad-2318c35596ee))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "U1") (unit 1)
         )
@@ -2283,7 +2283,7 @@
     )
     (pin "1" (uuid add480f3-416c-4de1-bb1f-e90744e9d00a))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "#PWR02") (unit 1)
         )
@@ -2309,7 +2309,7 @@
     (pin "1" (uuid d02dee7a-38f3-4bd5-8ec4-04bf24b0ed69))
     (pin "3" (uuid 77db8e15-92b9-47f0-b3ef-3e1c57624fe0))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "U3") (unit 1)
         )
@@ -2335,7 +2335,7 @@
     (pin "1" (uuid 311b6e34-3013-4ed7-afdb-e6155067cbec))
     (pin "2" (uuid 80717dbe-de4f-47cf-8dd7-55fd60b80f63))
     (instances
-      (project "tatoja"
+      (project "adapter"
         (path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
           (reference "R2") (unit 1)
         )
