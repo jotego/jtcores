@@ -9,4 +9,4 @@ modules:
   other:
     - from: jt680x/hdl
       get:
-        - jt680x.yaml
+        - jt6301.yaml

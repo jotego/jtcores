@@ -32,7 +32,7 @@ module jtshouse_triram(
     // CS to the tri RAM from each subsystem
     input             bus_cs,
     input             mcu_cs,
-    input             snd_cs,
+    input             snd_cs, snd_sel,
 
     input             brnw,
     input             mcu_rnw,
@@ -43,8 +43,8 @@ module jtshouse_triram(
     input      [ 7:0] sdout,
 
     output     [ 7:0] bdin,
-    output reg [ 7:0] mcu_din,
-    output reg [ 7:0] snd_din,
+    output     [ 7:0] mcu_din,
+    output     [ 7:0] snd_din,
 
     input      [ 7:0] debug_bus
 );
@@ -52,11 +52,16 @@ module jtshouse_triram(
 wire [ 7:0] xdout, alt_din, p_alt_din, p_bdin;
 wire [10:0] xaddr;
 wire        xwe;
-reg         xsel;
+wire        xsel;
+reg         ssel_l;
 
-assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
-assign xaddr = xsel ? mcu_addr : saddr;
-assign xdout = !xwe ? 8'd0 : xsel ? mcu_dout : sdout;
+assign xsel  = snd_sel & ~ssel_l;
+assign xwe   = xsel ? snd_cs & ~srnw : mcu_cs & ~mcu_rnw;
+assign xaddr = xsel ? saddr : mcu_addr;
+assign xdout = xsel ? sdout : mcu_dout;
+
+assign mcu_din = alt_din;
+assign snd_din = alt_din;
 
 // Needed to boot up
 assign alt_din = xaddr==0 /*&& !debug_bus[0]*/ ? 8'ha6 : p_alt_din;
@@ -67,6 +72,7 @@ wire flag_cs  = bus_cs && baddr==0;
 wire reply_cs = bus_cs && baddr=='h2f && !brnw;
 reg [7:0] flag;
 always @(posedge clk) begin
+    ssel_l <= snd_sel & ~ssel_l;
     if( baddr==0 && ~brnw && bus_cs ) flag <= bdout;
     if( xaddr==0 && xwe ) flag <= xdout;
 end
@@ -76,17 +82,11 @@ reg [1:0] mcu_cnt=0;
 
 always @(posedge clk) begin
     if( snd_cen ) begin
-        xsel <= 1;
         mcu_cnt <= 0;
     end
     if( mcu_cen ) begin
         mcu_cnt <= { mcu_cnt[0], 1'd1 };
-        if( mcu_cnt[1] ) xsel <= 0;
     end
-    if( xsel    )
-        mcu_din <= alt_din;
-    else
-        snd_din <= alt_din;
 end
 
 /* verilator tracing_off */

@@ -24,7 +24,8 @@ module jtframe_6801mcu #(
     parameter ROMW = 12,  // valid values from 12~14 (2kB~16kB). Mapped at the end of memory
               MODE =  6,  // latched from port pints P2.2,1,0 at reset in the original
                           // only mode 6 is implemented so far
-              SLOW_FRC=0  // operates the Free Running Counter at half the speed
+              SLOW_FRC=0, // operates the Free Running Counter at half the speed
+              MODEL="MC6801" // see valid values below
 )(
     input              rst,     // use it for standby too, RAM is always preserved
     input              clk,
@@ -59,6 +60,16 @@ module jtframe_6801mcu #(
     input      [ 7:0]  rom_data,
     output reg         rom_cs
 );
+
+localparam M6801=0, M6801U4=1, H6301=2;
+/* verilator lint_off WIDTHEXPAND */
+localparam M = MODEL=="MC6801"   ? M6801   :
+               MODEL=="MC6801U4" ? M6801U4 : // more timers
+               MODEL=="HD63701V" ? H6301   : -1;
+/* verilator lint_on WIDTHEXPAND */
+
+initial if( M<0 ) begin $display("Invalid value for MODEL in %m"); $stop; end
+
 
 wire        buf_we, irq1, irq2;
 reg         buf_cs, port_cs, pre_clr;
@@ -158,7 +169,8 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    case( psel )
+    port_mux = 8'hff;
+    case(psel)
         P1DDR:  port_mux = p1ddr;
         P2DDR:  port_mux = {3'b0,p2ddr};
         P1:     port_mux = (~p1ddr&p1_din | p1ddr&p1);
@@ -180,8 +192,9 @@ always @(*) begin
         TRCS:   port_mux = trcs;
         RD:     port_mux = 8'd0; // rd; - not implemented
         TD:     port_mux = td;
-
         RAMC:   port_mux = {ramc, 6'h3f};
+    endcase
+    if(M==M6801U4) case(psel)
         CAAH:   port_mux = frc[15:8];
         CAAL:   port_mux = frc[ 7:0];
         TCR1:   port_mux = tcr1;
@@ -193,7 +206,6 @@ always @(*) begin
         OCR3L:  port_mux = ocr3[ 7:0];
         ICR2H:  port_mux = icr2[15:8];
         ICR2L:  port_mux = icr2[ 7:0];
-        default: port_mux = p1;
     endcase
 end
 
@@ -214,7 +226,6 @@ always @(posedge clk, posedge rst) begin
         frc   <= 0;
         ocr1  <='hffff;
         icr1  <= 0;
-        icr2  <= 0;
         rmcr  <='hf0;
         trcs  <= 0;
         tcr1  <= 0;
@@ -224,6 +235,11 @@ always @(posedge clk, posedge rst) begin
         p4    <= 0;
         tin_l <= 0;
         ramc  <= 1;
+        if( M==M6801U4 ) begin
+            icr2 <= 0;
+            ocr2 <= 'hffff;
+            ocr3 <= 'hffff;
+        end
     end else begin
         if( cen ) begin
             oc_en_aux <= 3'b111;
@@ -248,23 +264,25 @@ always @(posedge clk, posedge rst) begin
                     tcr2[3:2]<= dout[3:2]; // EOCI1 / ETOI
                     tcr2[6]  <= dout[4];   // EICI1
                 end
-                TCR1: tcr1 <= dout;
-                TCR2: tcr2 <= dout[7:2];
                 TRCS: trcs <= dout;
                 FRCH: if(MODE==0) frc <= 16'hfff8;
                 OCR1H: { ocr1[15:8], oc_en_aux[0] } <= { dout, 1'b0 };
-                OCR2H: { ocr2[15:8], oc_en_aux[1] } <= { dout, 1'b0 };
-                OCR3H: { ocr3[15:8], oc_en_aux[2] } <= { dout, 1'b0 };
                 OCR1L: ocr1[7:0] <= dout;
-                OCR2L: ocr2[7:0] <= dout;
-                OCR3L: ocr3[7:0] <= dout;
                 // serial interface
                 P3CSR: p3csr <= dout[7:3]; // bit 5 unused
                 RMCR: rmcr <= dout; // bits 6-4 unused
                 TD:   td   <= dout;
                 RAMC: ramc[7:6] <= dout[7:6];
+                default:;
+            endcase
+            if(M==M6801U4) case(psel)
+                TCR1: tcr1 <= dout;
+                TCR2: tcr2 <= dout[7:2];
+                OCR2H: { ocr2[15:8], oc_en_aux[1] } <= { dout, 1'b0 };
+                OCR3H: { ocr3[15:8], oc_en_aux[2] } <= { dout, 1'b0 };
+                OCR2L: ocr2[7:0] <= dout;
+                OCR3L: ocr3[7:0] <= dout;
                 CAAH,CAAL,ICR1H,ICR1L,ICR2H,ICR2L,RD,FRCL,TSR:; // read-only port
-                default: $display("%m: ignored write to port %X",psel);
             endcase
         end
         if( cen ) begin
@@ -278,9 +296,6 @@ always @(posedge clk, posedge rst) begin
                 if( psel==FRCH && !wr ) tsr[2] <= 0; // TOF (timer overflow flag)
             end
             // Timer flags
-            if( ocf[0]    ) begin tsr[3] <= 1; pre_clr <= 0; if(tcr1[5]) p2[1]<=tcr1[0]; end
-            if( ocf[1]    ) begin tsr[4] <= 1; pre_clr <= 0; if(tcr1[6]) p1[1]<=tcr1[1]; end
-            if( ocf[2]    ) begin tsr[5] <= 1; pre_clr <= 0; if(tcr1[7]) p1[2]<=tcr1[2]; end
             if( nx_frc_ov ) begin tsr[2] <= 1; pre_clr <= 0; end
             tin_l <= tin;
             if( ic_edge[0] ) begin // input capture register 1
@@ -288,10 +303,17 @@ always @(posedge clk, posedge rst) begin
                 tsr[6]  <= 1;
                 pre_clr <= 0;
             end
-            if( ic_edge[1] ) begin // input capture register 2
-                icr2    <= frc;
-                tsr[7]  <= 1;
-                pre_clr <= 0;
+            if( M==M6801U4 ) begin
+                if( ic_edge[1] ) begin // input capture register 2
+                    icr2    <= frc;
+                    tsr[7]  <= 1;
+                    pre_clr <= 0;
+                end
+                if( ocf[0] ) begin tsr[3] <= 1; pre_clr <= 0; if(tcr1[5]) p2[1]<=tcr1[0]; end
+                if( ocf[1] ) begin tsr[4] <= 1; pre_clr <= 0; if(tcr1[6]) p1[1]<=tcr1[1]; end
+                if( ocf[2] ) begin tsr[5] <= 1; pre_clr <= 0; if(tcr1[7]) p1[2]<=tcr1[2]; end
+            end else begin
+                if( ocf[0] ) begin tsr[3] <= 1; pre_clr <= 0; if(p2ddr[1]) p2[1]<=tcr1[0]; end
             end
         end
     end

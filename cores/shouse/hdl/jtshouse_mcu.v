@@ -64,7 +64,7 @@ module jtshouse_mcu(
     input      [ 7:0]  debug_bus
 );
 `ifndef NOMAIN
-wire        vma, irq_ack;
+wire        vma;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
             irq, lvbl_l;
 
@@ -81,6 +81,7 @@ reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
 reg         hs_l;
 reg         init_done;
+wire        wr;
 
 function [1:0] gain( input [1:0] g);
     case( g )
@@ -90,8 +91,9 @@ function [1:0] gain( input [1:0] g);
     endcase
 endfunction
 
+assign rnw         = ~wr;
 assign bus_busy    = pcm_cs & ~pcm_ok;
-assign eerom_we    = epr_cs & ~rnw;
+assign eerom_we    = epr_cs & wr;
 assign pcm_addr    = {bank, pcm_msb, A[15],A[13:0]};
 assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
 assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
@@ -109,7 +111,7 @@ always @(*) begin
     // see https://github.com/jotego/jtcores/issues/410
     ram_cs  = vma &&  A[15:12]==4'hc && !A[11] /*&& (A[10:0]!=0 || rnw || !init_done)*/;    // c000~c7ff
     epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
-    reg_cs  = vma &&  A[15:12]==4'hd && !rnw;
+    reg_cs  = vma &&  A[15:12]==4'hd && wr;
     dip_cs  = vma && swio_cs && A[11:10]==0;
     cab_cs  = vma && swio_cs && A[11:10]==1;
 end
@@ -162,7 +164,7 @@ always @(posedge clk, negedge rstn ) begin
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
                            { cab_1p[0], joystick1 };
-        if( ram_cs && A[10:0]==0 && !rnw && cen ) init_done <= mcu_dout=='ha6;
+        if( ram_cs && A[10:0]==0 && wr && cen ) init_done <= mcu_dout=='ha6;
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
             1: dac1 <= mcu_dout;
@@ -182,15 +184,15 @@ always @(posedge clk, negedge rstn ) begin
     end
 end
 
-jt63701v #(.ROMW(12),.SLOW_FRC(2)) u_63701(
+jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
 
     // Bus
-    .rnw        ( rnw           ),
+    .wr         ( wr            ),
     .x_cs       ( vma           ),
-    .A          ( A             ),
+    .addr       ( A             ),
     .xdin       ( mcu_din       ),
     .dout       ( mcu_dout      ),
 
@@ -210,8 +212,7 @@ jt63701v #(.ROMW(12),.SLOW_FRC(2)) u_63701(
     // ROM
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
-    .rom_data   ( rom_data      ),
-    .irq_ack    ( irq_ack       )
+    .rom_data   ( rom_data      )
 );
 
 jtframe_prom #(.AW(12)) u_prom(
@@ -225,7 +226,7 @@ jtframe_prom #(.AW(12)) u_prom(
 );
 `else
 assign mcu_dout = 0;
-assign rnw      = 0;
+assign wr       = 0;
 assign mcu_addr = 0;
 assign eerom_we = 0;
 assign pcm_addr = 0;

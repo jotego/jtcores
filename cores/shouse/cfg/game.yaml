@@ -9,8 +9,7 @@ jtframe:
   - from: cpu
     get:
       - mc6809i.v
-      - 6801_core.sv
-      - jt63701v.v
+      - jtframe_63701v.yaml
   - from: clocking
     get:
       - jtframe_freqinfo.v

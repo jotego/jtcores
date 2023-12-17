@@ -1,0 +1,6 @@
+focus 1
+trace off
+trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,frame}
+
+gtime 25000
+traceflush

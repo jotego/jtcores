@@ -748,7 +748,7 @@ ncverilog)
 verilator)
     TRACE=$(if [ ! -z "$DUMP" ]; then echo --trace; fi)
     if [ -z "$CPPFLAGS" ]; then
-        if [ $MAXFRAME -gt 600 ]; then
+        if [[ ! -z "$MAXFRAME" && "$MAXFRAME" -gt 600 ]]; then
             export CPPFLAGS=-O2
             echo "Using CPPFLAGS=$CPPFLAGS for faster simulation"
         else

@@ -16,27 +16,31 @@ import (
 
 	// "github.com/Masterminds/sprig/v3"
 	"github.com/Masterminds/sprig"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"	// v3 skips blank entries in a sequence. That ruins idle ucode cycles in the YAML. Stick to v2
 )
 
 var Args struct{
-	Report, Verbose bool
+	Report, Verbose, List bool
 	Output string
 }
 
 type UcOp struct {
 	Name   string            `yaml:"name"`
 	Op     int               `yaml:"op"`
+	Mask   int               `yaml:"mask"`
 	Cycles int               `yaml:"cycles"`
 	Ctl    map[string]string `yaml:"ctl"`
 }
 
 type UcChunk struct {
-	Name  string   `yaml:"name"`
-	Start int      `yaml:"start"`
+	Seq   []string `yaml:"seq"`	   // sequence of microcode instructions
+	// Decoded OP instructions:
+	Mnemo []string `yaml:"mnemo"`  // if mnemo!=nil, the UcOp.Op field is used as Start
+	// Procedures:
+	Name  string   `yaml:"name"`   // if name!="", this is a procedure and it uses the Start field
+	Start int      `yaml:"start"`  // ucode address at which the procedure starts
+	Auto  bool	   `yaml:"auto"`   // only for procedures: assign a free start address automatically
 	Cycles int	   `yaml:"cycles"` // used for procedures
-	Mnemo []string `yaml:"mnemo"`
-	Seq   []string `yaml:"seq"`
 	// private
 	cycles int
 }
@@ -48,8 +52,12 @@ type UcDesc struct {
 		Entries  int `yaml:"entries"`
 		CycleK   int `yaml:"cycle_factor"`
 		BusError string `yaml:"bus_error"`
-
+		Auto struct { // Automatic assignment of start address to procedures
+			Min int   // base address at which assignment starts
+			Max int   // bits set to 1 can be used for automatic addressing
+		} `yaml:"auto"`
 	} `yaml:"config"`
+	Constants map[string]string `yaml:"constants"`
 	Ops    []UcOp    `yaml:"ops"`
 	Chunks []UcChunk `yaml:"ucode"`
 }
@@ -99,21 +107,24 @@ next_line:
 		each = strings.ReplaceAll(each, ",", " ")
 		tokens := strings.Fields(each)
 		for k, _ := range tokens {
-			vars := reVars.FindAllStringSubmatch(tokens[k], -1)
-			if vars == nil {
-				continue
-			}
-			if proc {
-				fmt.Printf("ucode procedures cannot use variables, such as %s\n", vars[0][0])
-				os.Exit(1)
-			}
-			for j, _ := range vars {
-				if len(vars[j]) != 2 {
-					fmt.Println("Don't know how to handle line", each)
-					os.Exit(1)
+			for { // replace all variables, allowing a variable to reference another one
+				vars := reVars.FindAllStringSubmatch(tokens[k], -1)
+				if vars == nil { break }
+				for j, _ := range vars {
+					if len(vars[j]) != 2 {
+						fmt.Println("Don't know how to handle line", each)
+						os.Exit(1)
+					}
+					val, fnd := desc.Ops[opk].Ctl[vars[j][1]]
+					if !fnd { // look in global constants
+						val, fnd = desc.Constants[vars[j][1]]
+						if !fnd && proc {
+							fmt.Printf("ucode procedures are limited to global constants and cannot use OP-specific variables, such as %s\n", vars[0][0])
+							os.Exit(1)
+						}
+					}
+					tokens[k] = strings.ReplaceAll(tokens[k], "${"+vars[j][1]+"}", val)
 				}
-				val, _ := desc.Ops[opk].Ctl[vars[j][1]]
-				tokens[k] = strings.ReplaceAll(tokens[k], "${"+vars[j][1]+"}", val)
 			}
 			// Skip lines marked with ? if the condition is nil or 0
 			if option := strings.Index(tokens[k], "?"); option >= 0 {
@@ -268,17 +279,18 @@ func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc, was_ni *b
 	return sum
 }
 
-func fix_cycles(code []string, desc *UcDesc) {
+func fix_cycles(code []string, desc *UcDesc, verbose bool) {
+	if verbose { fmt.Println("##### Cycle Count Analysis ######")}
 	elen := desc.Cfg.EntryLen
 	var ref, uaddr int
 	fixone := func(op int) {
-		actual := calc_cycles(uaddr, code, true, desc, nil)
-		main := calc_cycles(uaddr, code, false, desc, nil)
-		delta := ref - actual
+		total := calc_cycles(uaddr, code, true, desc, nil)  // including jsr calls
+		main  := calc_cycles(uaddr, code, false, desc, nil) // only main body of the ucode chunk
+		delta := ref - total
 		if main+delta > elen {
-			fmt.Printf("%02X: (%d-%d-%d) %d ", op, ref, actual,main, delta)
+			if verbose { fmt.Printf("%02X: (%d-%d-%d) %d ", op, ref, total,main, delta) }
 			delta=elen-main
-			fmt.Printf("-> %d\n",delta)
+			if verbose { fmt.Printf("-> %d\n",delta) }
 		}
 
 		if delta>0 {
@@ -304,7 +316,7 @@ func fix_cycles(code []string, desc *UcDesc) {
 	}
 }
 
-func report_cycles(code []string, desc *UcDesc) {
+func report_cycles(code []string, desc *UcDesc, verbose bool) int {
 	bad := 0
 	header:=false
 	for _, each := range desc.Ops {
@@ -313,25 +325,26 @@ func report_cycles(code []string, desc *UcDesc) {
 		if actual==ref && !Args.Verbose {
 			continue
 		}
-		if !header {
+		if !header && verbose {
 			fmt.Println("  Op code  | Spec | Core |")
 			fmt.Println("-----------|------|------|")
 			header=true
 		}
-		fmt.Printf("%08s |  %02d  |  %02d  | ", each.Id(), ref, actual)
+		if verbose { fmt.Printf("%08s |  %02d  |  %02d  | ", each.Id(), ref, actual) }
 		if actual < ref {
-			fmt.Printf("<")
+			if verbose { fmt.Printf("<") }
 			bad++
 		}
 		if actual > ref {
-			fmt.Printf(">")
+			if verbose { fmt.Printf(">") }
 			bad++
 		}
-		fmt.Println()
+		if verbose { fmt.Println() }
 	}
-	if bad!=0 {
-		fmt.Printf("%d instructions are not accurate\n",bad)
+	if bad!=0 && verbose {
+		fmt.Printf("Warning: %d instructions are not cycle-accurate\n",bad)
 	}
+	return bad
 }
 
 func list_unames(code []string) []string {
@@ -441,6 +454,18 @@ next:
 	return v
 }
 
+func dump_list(fname string, code []string) {
+	f, e := os.Create(fname + ".lst")
+	defer f.Close()
+	if e != nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
+	for k, each := range code {
+		fmt.Fprintf(f, "%03X\t%s\n",k,each)
+	}
+}
+
 func dump_ucode(fname string, params []UcParam, code []string) {
 	dw := params[len(params)-1].Pos + params[len(params)-1].Bw
 	if dw > 64 {
@@ -521,7 +546,84 @@ func dump_param_vh(fname string, params []UcParam) {
 	os.WriteFile(fname+"_param.vh", buffer.Bytes(), 0644)
 }
 
-func check_mnemos(desc *UcDesc) {
+func check_mnemos(desc *UcDesc, verbose bool) {
+	free := check_duplicated(desc, verbose)
+	assign_auto( desc, free, verbose )
+	check_missing_mnemos(desc)
+}
+
+func assign_auto( desc *UcDesc, free []int, verbose bool ) {
+	var u int
+	header := false
+	for k, _ := range desc.Chunks {
+		each := &desc.Chunks[k]
+		if each.Name!="" && each.Auto {
+			var addr int
+			for {
+				if u>=len(free) {
+					fmt.Printf("Run out of unused codes while trying to assign an address to %s\n",each.Name)
+					os.Exit(1)
+				}
+				addr = free[u]
+				u++
+				if addr >= desc.Cfg.Auto.Min && addr <= desc.Cfg.Auto.Max { break }
+			}
+			each.Start = addr
+			if verbose {
+				if !header {
+					header = true
+					fmt.Printf("Autoplacement of procedures:\n")
+				}
+				fmt.Printf("%-12s placed at %02X\n",each.Name,addr)
+			}
+		}
+	}
+}
+
+func check_duplicated(desc *UcDesc, verbose bool) (free []int) {
+	entries := desc.Cfg.Entries
+	used := make([]*UcOp,entries,entries)
+	for opk, each := range desc.Ops {
+		if each.Op>entries {
+			fmt.Printf("Invalid OP code %X as it is larger than config.entries (%d)\n", each.Op, entries )
+		}
+		if each.Mask==0 || each.Mask>=entries {
+			desc.Ops[opk].Mask = entries-1
+			each.Mask = desc.Ops[opk].Mask
+		}
+		// scan all codes derived from the mask
+		step := 1
+		for (step & each.Mask)!=0 {
+			step = step<<1
+		}
+		mmax := 0
+		for k:= 0; (1<<k)<entries; k++ {
+			if ( (1<<k)&each.Mask)==0 { mmax = k }
+		}
+		mmax++
+		if verbose { fmt.Printf("%s (%X): Mask %X, step %X, Max %X\n", each.Name, each.Op, each.Mask, step, 1<<mmax) }
+		for k:=0; k<(1<<mmax);k+=step { // ideally, it should skip some sections but this is fast enough anyway
+			m := each.Op | (k&^each.Mask)
+			if used[m]==&desc.Ops[opk] { continue }
+			if used[m]!=nil {
+				fmt.Printf("OP %X (for %s) duplicated. It was used by %s (%X)\n", m, each.Name, used[m].Name, used[m].Op)
+				os.Exit(1)
+			}
+			if verbose {
+				fmt.Printf("%X\n",m)
+			}
+			used[m] = &desc.Ops[opk]
+		}
+	}
+	// return which OP values are not used
+	free = make([]int,0,entries)
+	for k,_ := range used {
+		if used[k]== nil { free = append(free,k) }
+	}
+	return free
+}
+
+func check_missing_mnemos(desc *UcDesc) {
 	missing := false
 	for _, chunk := range desc.Chunks {
 		next_chunk:
@@ -537,17 +639,30 @@ func check_mnemos(desc *UcDesc) {
 }
 
 func read_yaml( fpath string ) UcDesc {
+	var desc UcDesc
+	// This code would detect mispelled fields. It requires yaml/v3, but
+	// yaml/v3 skips blank lines in a sequence and that breaks (or makes cluttered) the ucode YAML file
+	// var pass1 UcDesc
+	// f,err := os.Open(fpath)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// dec := yaml.NewDecoder(f)
+	// dec.KnownFields(true)
+	// err = dec.Decode(&pass1)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// f.Close()
+	// parse again
 	buf, err := os.ReadFile(fpath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	var desc UcDesc
-	err = yaml.Unmarshal(buf, &desc)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	yaml.Unmarshal(buf,&desc)
 	// Parse include files
 	for _, each := range desc.Incs {
 		fname := filepath.Join(filepath.Dir(fpath),each)
@@ -589,13 +704,18 @@ func Make(modname, fname string) {
 		fmt.Println("Set non-zero values for entry_len and entries in the config section")
 		os.Exit(1)
 	}
-	check_mnemos(&desc)
+	check_mnemos(&desc, Args.Verbose)
 	code := expand_all(&desc)
-	fix_cycles(code, &desc)
-	if Args.Report { report_cycles( code, &desc) }
+	fix_cycles(code, &desc, Args.Verbose)
+	bad := report_cycles( code, &desc, Args.Report )
 	params := make_params(list_unames(code))
 	fname = strings.TrimSuffix(fname, ".yaml")
+	if Args.List { dump_list(Args.Output,code) }
 	dump_ucode(Args.Output, params, code)
 	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
 	dump_param_vh(Args.Output, params )
+	if bad != 0 && !Args.Report {
+		fmt.Printf("Warning: %d instructions are not cycle-accurate in %s/%s\n",bad,modname,fname)
+		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
+	}
 }

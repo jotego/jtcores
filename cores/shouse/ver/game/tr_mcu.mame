@@ -1,6 +1,6 @@
 focus 3
 trace off
-trace debug.trace,mcu,noloop,{tracelog "pc=%X,acca=%X,accb=%X,xreg=%X,sp=%X,cc=%x,frame_cnt=%x* ",pc,a,b,x,s,cc,frame}
+trace debug.trace,mcu,noloop,{tracelog "pc=%X,a=%X,b=%X,x=%X,s=%X,cc=%x,frame_cnt=%x* ",pc,a,b,x,s,cc,frame}
 gtime #25000
 traceflush
 quit

@@ -65,6 +65,7 @@ reg  [2:0] iv_sel;
 wire       halt, swi, ni, still;
 reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
+reg        stack_bsy;
 
 assign still = ni & ext_halt;
 
@@ -77,6 +78,7 @@ always @(posedge clk, posedge rst) begin
         jsr_ret <= 0;
         iv      <= 4'o17; // reset vector
         ba      <= 0;
+        stack_bsy <= 1;
     end else if(cen) begin
         if(!halt && !still) uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= 4'o15; // lowest priority
@@ -86,6 +88,7 @@ always @(posedge clk, posedge rst) begin
             nmi_l <= nmi;
             if( !still ) begin
                 uaddr <= { md[7:0], 4'd0 };
+                stack_bsy <= 0;
                 // ops[md[7:0]] <= 1;
                 // if( ops_old != ops ) begin
                 //     $display("---------");
@@ -96,17 +99,18 @@ always @(posedge clk, posedge rst) begin
             end
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
                 // alt signal used to bypass the register push to the stack
-                if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD : INTSRV; end // lowest priority
-                if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD : INTSRV; end
-                if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD : INTSRV; end
-                if( irq_tof) begin iv <= 4'o11; uaddr <= alt ? IVRD : INTSRV; end
-                if( irq_ocf) begin iv <= 4'o12; uaddr <= alt ? IVRD : INTSRV; end
-                if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD : INTSRV; end
-                if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD : INTSRV; end // highest priority
+                if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end // lowest priority
+                if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end
+                if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end
+                if( irq_tof) begin iv <= 4'o11; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end
+                if( irq_ocf) begin iv <= 4'o12; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end
+                if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end
+                if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD : INTSRV; stack_bsy<=1; end // highest priority
             end
             if( nmi & ~nmi_l ) begin
                 iv <= 4'o16;
                 uaddr <= INTSRV;
+                stack_bsy <= 1;
             end
         end
         if( jsr_en ) begin

@@ -33,6 +33,7 @@ a Verilog module and a verilog include file.
 func init() {
 	rootCmd.AddCommand(ucodeCmd)
 	ucodeCmd.Flags().BoolVarP(&ucode.Args.Report,"report", "r", false, "Report cycle count")
+	ucodeCmd.Flags().BoolVarP(&ucode.Args.List,"list", "l", false, "Generate list file")
 	ucodeCmd.Flags().BoolVarP(&ucode.Args.Verbose,"verbose", "v", false, "Verbose")
 	ucodeCmd.Flags().StringVarP(&ucode.Args.Output,"output", "o", "", "Prefix to use for output files")
 }
