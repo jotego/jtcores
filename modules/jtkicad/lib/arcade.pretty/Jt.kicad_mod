@@ -1,7 +1,7 @@
 (footprint "Jt" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (attr board_only exclude_from_pos_files exclude_from_bom)
-  (fp_text reference "G***" (at 0 -2) (layer "F.SilkS")
+  (attr board_only exclude_from_pos_files exclude_from_bom allow_missing_courtyard)
+  (fp_text reference "Logo" (at 0.49 -0.27) (layer "F.Fab") hide
       (effects (font (size 1.5 1.5) (thickness 0.3)))
     (tstamp e985c896-fe4a-4bce-9eec-967449d99418)
   )

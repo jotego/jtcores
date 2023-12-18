@@ -1,11 +1,11 @@
 (footprint "Jt_BSs" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (attr board_only exclude_from_pos_files exclude_from_bom)
-  (fp_text reference "G***" (at -0.330346 0) (layer "B.SilkS")
+  (attr board_only exclude_from_pos_files exclude_from_bom allow_missing_courtyard)
+  (fp_text reference "logo" (at -0.278307 1.255864) (layer "B.SilkS") hide
       (effects (font (size 1.5 1.5) (thickness 0.3)) (justify mirror))
     (tstamp 3442a091-3c7b-4b26-8374-0b454a99ef8c)
   )
-  (fp_text value "LOGO" (at -1.080346 0) (layer "B.SilkS") hide
+  (fp_text value "Jt" (at -1.080346 0) (layer "B.SilkS") hide
       (effects (font (size 1.5 1.5) (thickness 0.3)) (justify mirror))
     (tstamp a11fb619-3fb2-4921-bd67-fb50c2e3b36d)
   )

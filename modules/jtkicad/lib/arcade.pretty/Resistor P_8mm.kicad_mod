@@ -1,6 +1,6 @@
 (footprint "Resistor P_8mm" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (attr through_hole)
+  (attr through_hole allow_missing_courtyard)
   (fp_text reference "REF**" (at 0.06 -1.71 unlocked) (layer "F.SilkS")
       (effects (font (size 1 1) (thickness 0.15)))
     (tstamp 9e540e0f-60db-4d65-81c7-7b00a66e299d)

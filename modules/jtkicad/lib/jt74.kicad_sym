@@ -15412,6 +15412,10 @@
         (name "~" (effects (font (size 1.27 1.27))))
         (number "1" (effects (font (size 1.27 1.27))))
       )
+      (pin no_connect line (at 1.27 -7.62 180) (length 5.08) hide
+        (name "" (effects (font (size 1.27 1.27))))
+        (number "10" (effects (font (size 1.27 1.27))))
+      )
       (pin input line (at -8.89 -7.62 0) (length 5.08)
         (name "~" (effects (font (size 1.27 1.27))))
         (number "11" (effects (font (size 1.27 1.27))))
@@ -15419,6 +15423,10 @@
       (pin input line (at -8.89 -10.16 0) (length 5.08)
         (name "~" (effects (font (size 1.27 1.27))))
         (number "12" (effects (font (size 1.27 1.27))))
+      )
+      (pin no_connect line (at 1.27 -10.16 180) (length 5.08) hide
+        (name "" (effects (font (size 1.27 1.27))))
+        (number "13" (effects (font (size 1.27 1.27))))
       )
       (pin input line (at -8.89 5.08 0) (length 5.08)
         (name "~" (effects (font (size 1.27 1.27))))
@@ -15443,6 +15451,10 @@
       (pin output inverted (at 8.89 0 180) (length 5.08)
         (name "~" (effects (font (size 1.27 1.27))))
         (number "8" (effects (font (size 1.27 1.27))))
+      )
+      (pin no_connect line (at 1.27 -5.08 180) (length 5.08) hide
+        (name "" (effects (font (size 1.27 1.27))))
+        (number "9" (effects (font (size 1.27 1.27))))
       )
     )
     (symbol "74LS30_1_2"
