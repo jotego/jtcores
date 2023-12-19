@@ -39,13 +39,13 @@ ops:
   - { name: LDX, op: 0xee, ctl: {            op0: md,         addr: idx8,  ld: x,   cc: nz }, cycles: 4 }
   - { name: LDX, op: 0xde, ctl: {            op0: md,         addr: idx16, ld: x,   cc: nz }, cycles: 5 }
 
-  - { name: STA,  op: 0xb7, ctl: {           op0: a, op1: md,  addr: imm,           cc: nz }, cycles: 4 }
+  - { name: STA,  op: 0xb7, ctl: {           op0: a, op1: md,  addr: dira,          cc: nz }, cycles: 4 }
   - { name: STA,  op: 0xc7, ctl: {           op0: a, op1: ea,  addr: exta,          cc: nz }, cycles: 5 }
   - { name: STA,  op: 0xf7, ctl: {           op0: a, op1: x,                        cc: nz }, cycles: 4 }
   - { name: STA,  op: 0xe7, ctl: {           op0: a, op1: ea,  addr: idx8a,         cc: nz }, cycles: 5 }
   - { name: STA,  op: 0xd7, ctl: {           op0: a, op1: ea,  addr: idx16a,        cc: nz }, cycles: 6 }
 
-  - { name: STX,  op: 0xbf, ctl: {           op0: x, op1: md,  addr: imm,           cc: nz }, cycles: 4 }
+  - { name: STX,  op: 0xbf, ctl: {           op0: x, op1: md,  addr: dira,          cc: nz }, cycles: 4 }
   - { name: STX,  op: 0xcf, ctl: {           op0: x, op1: ea,  addr: exta,          cc: nz }, cycles: 5 }
   - { name: STX,  op: 0xff, ctl: {           op0: x, op1: x,                        cc: nz }, cycles: 4 }
   - { name: STX,  op: 0xef, ctl: {           op0: x, op1: ea,  addr: idx8a,         cc: nz }, cycles: 5 }
@@ -208,8 +208,8 @@ ops:
   - { name: BCS,  op: 0x25, cycles: 3 }
   - { name: BNE,  op: 0x26, cycles: 3 }
   - { name: BEQ,  op: 0x27, cycles: 3 }
-  - { name: BHC,  op: 0x28, cycles: 3 }
-  - { name: BHS,  op: 0x29, cycles: 3 }
+  - { name: BHCC,  op: 0x28, cycles: 3 }
+  - { name: BHCS,  op: 0x29, cycles: 3 }
   - { name: BPL,  op: 0x2a, cycles: 3 }
   - { name: BMI,  op: 0x2b, cycles: 3 }
   - { name: BMC,  op: 0x2c, cycles: 3 }
@@ -452,7 +452,7 @@ ucode:
       - ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
       - ${op1}_rmux, ld1_opnd, fetch
       - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ni
-  - mnemo: [ BRA, BRN, BHI, BLS, BCC, BCS, BNE, BEQ, BHC, BHS, BPL, BMI, BMC, BMS, BIL, BIH ]
+  - mnemo: [ BRA, BRN, BHI, BLS, BCC, BCS, BNE, BEQ, BHCC, BHCS, BPL, BMI, BMC, BMS, BIL, BIH ]
     seq:
       - imm_jsr, inc_pc, brlatch
       - pc_rmux, ld1_opnd, branch

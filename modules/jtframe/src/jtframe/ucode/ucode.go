@@ -201,9 +201,10 @@ func expand_all(desc *UcDesc) []string {
 	}
 	for opk, each := range desc.Ops {
 		if _, found := op_dups[each.Op]; found {
-			fmt.Printf("Duplicated entry for op=%X\n", each.Op)
+			fmt.Printf("Duplicated entry for op=%X (while parsing %s)\n", each.Op, each.Name)
 			os.Exit(1)
 		}
+		if Args.Verbose { fmt.Printf("> %03X = %s\n", each.Op, each.Name)}
 		op_dups[each.Op] = true
 		// Verify that all CTL signal names make sense
 		for k,v := range each.Ctl {
