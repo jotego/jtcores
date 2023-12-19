@@ -97,8 +97,8 @@
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
-        "text_height": "ignore",
-        "text_thickness": "ignore",
+        "text_height": "warning",
+        "text_thickness": "warning",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",
         "track_dangling": "warning",
@@ -175,7 +175,8 @@
         0.0,
         0.2,
         0.4,
-        0.5
+        0.5,
+        1.0
       ],
       "via_dimensions": [
         {
@@ -193,6 +194,10 @@
         {
           "diameter": 0.7,
           "drill": 0.6
+        },
+        {
+          "diameter": 1.2,
+          "drill": 1.1
         }
       ],
       "zones_allow_external_fillets": false
@@ -488,26 +493,9 @@
         "name": "GND",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "via_diameter": 0.6,
-        "via_drill": 0.5,
-        "wire_width": 6
-      },
-      {
-        "bus_width": 12,
-        "clearance": 0.2,
-        "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
-        "diff_pair_width": 0.2,
-        "line_style": 0,
-        "microvia_diameter": 0.3,
-        "microvia_drill": 0.1,
-        "name": "GND1",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "via_diameter": 0.6,
-        "via_drill": 0.5,
+        "track_width": 1.0,
+        "via_diameter": 1.2,
+        "via_drill": 1.1,
         "wire_width": 6
       },
       {
@@ -539,9 +527,9 @@
         "name": "VCC",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "via_diameter": 0.6,
-        "via_drill": 0.5,
+        "track_width": 1.0,
+        "via_diameter": 1.2,
+        "via_drill": 1.1,
         "wire_width": 6
       },
       {
