@@ -39,27 +39,37 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     input       pxl2_cen,
     input       [COLORW*3-1:0]    base_pxl,
     input       HS,
+    input       HB,
+    input       VB,
     input [1:0] sl_mode,  // scanline modes
     input       blend_en, // horizontal blending modes
 
     output  reg [COLORW*3-1:0]    x2_pxl,
-    output  reg x2_HS
+    output  reg x2_HS,
+    output      x2_DE
 );
 
 localparam AW=HLEN<=512 ? 9:10;
 localparam DW=COLORW*3;
 
 reg  [DW-1:0] preout;
-reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth;
+reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth, hb_rise, hb_fall, vb_rise, vb_fall;
 reg           scanline;
-reg           last_HS;
+reg           last_HS, last_HB, last_VB;
+reg           vb_rising, vb_falling;
 reg           line;
+reg           x2_HB, x2_VB;
 
 wire          HS_posedge     =  HS && !last_HS;
 wire          HS_negedge     = !HS &&  last_HS;
 wire [DW-1:0] next;
 wire [DW-1:0] dim2, dim4;
 reg [COLORW:0] ab;
+
+wire          HB_posedge     =  HB && !last_HB;
+wire          HB_negedge     = !HB &&  last_HB;
+wire          VB_posedge     =  VB && !last_VB;
+wire          VB_negedge     = !VB &&  last_VB;
 
 function [COLORW-1:0] ave(
         input [COLORW-1:0] a,
@@ -127,8 +137,8 @@ end
 
 always @(posedge clk) if(pxl2_cen) begin
     alt_pxl <= ~alt_pxl;
-    last_HS <= HS;
-    if( HS_posedge ) begin
+    if( alt_pxl ) last_HS <= HS;
+    if( alt_pxl & HS_posedge ) begin
         wraddr   <= {AW{1'b0}};
         rdaddr   <= {AW{1'b0}};
         hlen     <= wraddr;
@@ -148,10 +158,33 @@ always @(posedge clk) if(pxl2_cen) begin
             end
         end
     end
-    if( HS_negedge ) begin
+    if( alt_pxl & HS_negedge ) begin
         hswidth <= wraddr;
     end
 end
+
+always @(posedge clk) if(pxl2_cen) begin
+    last_HB <= HB;
+    last_VB <= VB;
+    if (HB_posedge) hb_rise <= wraddr;
+    if (HB_negedge) hb_fall <= wraddr;
+    if (VB_posedge) begin
+        vb_rise <= wraddr;
+        vb_rising <= 1;
+        vb_falling <= 0;
+    end
+    if (VB_negedge) begin
+        vb_fall <= wraddr;
+        vb_falling <= 1;
+        vb_rising <= 0;
+    end
+    if (rdaddr == hb_rise) x2_HB <= 1;
+    if (rdaddr == hb_fall) x2_HB <= 0;
+    if (vb_rising && rdaddr == vb_rise) x2_VB <= 1;
+    if (vb_falling && rdaddr == vb_fall) x2_VB <= 0;
+end
+
+assign x2_DE = ~(x2_VB | x2_HB);
 
 jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
     .clk0   ( clk            ),
