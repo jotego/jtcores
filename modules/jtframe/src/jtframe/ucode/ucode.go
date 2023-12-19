@@ -183,6 +183,7 @@ func find_proc(name string, desc *UcDesc) int {
 }
 
 func expand_all(desc *UcDesc) []string {
+	missing := 0
 	op_dups := make(map[int]bool) // track duplicated OPs
 	code := make([]string, desc.Cfg.Entries*desc.Cfg.EntryLen)
 	syntax := regexp.MustCompile("[0-1a-zA-Z][0-9a-zA-Z]*")
@@ -219,6 +220,7 @@ func expand_all(desc *UcDesc) []string {
 		ref := find_chunk(each.Name, desc)
 		if ref == -1 {
 			fmt.Printf("Missing ucode for %s (0x%x)\n", each.Name, each.Op)
+			missing++
 			continue
 		}
 		expand_entry(opk, ref, code, desc)
@@ -239,6 +241,7 @@ func expand_all(desc *UcDesc) []string {
 			}
 		}
 	}
+	if missing>0 { fmt.Printf("%d instructions lack ucode sequence\n",missing)}
 	return code
 }
 
