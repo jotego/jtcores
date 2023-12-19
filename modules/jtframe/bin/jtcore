@@ -45,7 +45,7 @@ usage: jtcore <corename> [options]
     -pocket     compiles the PocketFPGA version
     -sockit     compiles the Arrow SoCKit version
     -de1soc     compiles the Terasic DE1-SoC version
-    -de10standard compiles the Terasic DE10-Standard version
+    -de10std    compiles the Terasic DE10-Standard version
     -folder     any folder present in $JTFRAME/target/folder can be used as the target
 
     General options
@@ -114,7 +114,7 @@ if [ -t 1 ]; then
 fi
 
 function is_mister_family {
-    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10standard ]]; then
+    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10std ]]; then
         return 0
     else
         return 1
