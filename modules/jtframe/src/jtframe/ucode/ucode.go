@@ -39,7 +39,7 @@ type UcChunk struct {
 	// Procedures:
 	Name  string   `yaml:"name"`   // if name!="", this is a procedure and it uses the Start field
 	Start int      `yaml:"start"`  // ucode address at which the procedure starts
-	Auto  bool	   `yaml:"auto"`   // only for procedures: assign a free start address automatically
+	NoAuto bool	   `yaml:"no_auto"` // only for procedures: disables automatic address assignment
 	Cycles int	   `yaml:"cycles"` // used for procedures
 	// private
 	cycles int
@@ -128,9 +128,13 @@ next_line:
 					tokens[k] = strings.ReplaceAll(tokens[k], "${"+parms[j][1]+"}", val)
 				}
 			}
-			// Skip lines marked with ? if the condition is nil or 0
+			// Skip lines marked with ? if the condition is nil or 0, or if it does not match an equality
 			if option := strings.Index(tokens[k], "?"); option >= 0 {
-				if len(tokens[k][option+1:]) == 0 || tokens[k][option+1:option+2] == "0" {
+				eqs := strings.Split(tokens[k][option+1:],"=")
+				if len(eqs)==2 {
+					if eqs[0]!=eqs[1] { continue next_line }
+				}
+				if len(eqs)==1 && (len(tokens[k][option+1:]) == 0 || tokens[k][option+1:option+2] == "0") {
 					continue next_line
 				}
 				tokens[k] = ""
@@ -231,6 +235,15 @@ func expand_all(desc *UcDesc) []string {
 			continue
 		}
 		expand_entry(opk, ref, code, desc)
+		range_mask( desc.Cfg.Entries, each, func( opnx int) {
+			src := each.Op*desc.Cfg.EntryLen
+			opnx = opnx*desc.Cfg.EntryLen
+			if src==opnx { return }
+			// fmt.Printf("Copying from %X (%s) to %X\n", src, each.Name, opnx)
+			for line:=0; line < desc.Cfg.EntryLen; line++ {
+				code[opnx+line]=code[src+line]
+			}
+		})
 	}
 	// fill unused entries with the bus_error entry
 	if desc.Cfg.BusError!="" {
@@ -464,15 +477,36 @@ next:
 	return v
 }
 
-func dump_list(fname string, code []string) {
+func dump_list(fname string, code []string, desc *UcDesc) {
 	f, e := os.Create(fname + ".lst")
 	defer f.Close()
 	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}
+	fs := fmt.Sprintf("%%0%dX\t%%s",int(math.Ceil(math.Log2(float64(len(code)))/4)))
 	for k, each := range code {
-		fmt.Fprintf(f, "%03X\t%s\n",k,each)
+		line := fmt.Sprintf(fs,k,each)
+		if k & (desc.Cfg.EntryLen-1)==0 {
+			k2 := k/desc.Cfg.EntryLen
+			fnd := false
+			for _, each := range desc.Ops {
+				if k2&each.Mask==each.Op {
+					line = fmt.Sprintf("%-48s; %s",line,each.Name)
+					fnd = true
+					break
+				}
+			}
+			if !fnd {
+				for _, each := range desc.Chunks {
+					if k2==each.Start {
+						line = fmt.Sprintf("%-48s; %s",line,each.Name)
+						break
+					}
+				}
+			}
+		}
+		fmt.Fprintln(f,line)
 	}
 }
 
@@ -567,7 +601,7 @@ func assign_auto( desc *UcDesc, free []int, verbose bool ) {
 	header := false
 	for k, _ := range desc.Chunks {
 		each := &desc.Chunks[k]
-		if each.Name!="" && each.Auto {
+		if each.Name!="" && !each.NoAuto {
 			var addr int
 			for {
 				if u>=len(free) {
@@ -590,6 +624,22 @@ func assign_auto( desc *UcDesc, free []int, verbose bool ) {
 	}
 }
 
+func range_mask( entries int, op UcOp, f func( int ) ) {
+	step := 1
+	for (step & op.Mask)!=0 {
+		step = step<<1
+	}
+	mmax := 0
+	for k:= 0; (1<<k)<entries; k++ {
+		if ( (1<<k)&op.Mask)==0 { mmax = k }
+	}
+	mmax++
+	// if verbose { fmt.Printf("%s (%X): Mask %X, step %X, Max %X\n", each.Name, each.Op, each.Mask, step, 1<<mmax) }
+	for k:=0; k<(1<<mmax);k+=step { // ideally, it should skip some sections but this is fast enough anyway
+		f( op.Op | (k&^op.Mask) )
+	}
+}
+
 func check_duplicated(desc *UcDesc, verbose bool) (free []int) {
 	entries := desc.Cfg.Entries
 	used := make([]*UcOp,entries,entries)
@@ -602,19 +652,8 @@ func check_duplicated(desc *UcDesc, verbose bool) (free []int) {
 			each.Mask = desc.Ops[opk].Mask
 		}
 		// scan all codes derived from the mask
-		step := 1
-		for (step & each.Mask)!=0 {
-			step = step<<1
-		}
-		mmax := 0
-		for k:= 0; (1<<k)<entries; k++ {
-			if ( (1<<k)&each.Mask)==0 { mmax = k }
-		}
-		mmax++
-		if verbose { fmt.Printf("%s (%X): Mask %X, step %X, Max %X\n", each.Name, each.Op, each.Mask, step, 1<<mmax) }
-		for k:=0; k<(1<<mmax);k+=step { // ideally, it should skip some sections but this is fast enough anyway
-			m := each.Op | (k&^each.Mask)
-			if used[m]==&desc.Ops[opk] { continue }
+		range_mask( entries, each, func( m int) {
+			if used[m]==&desc.Ops[opk] { return }
 			if used[m]!=nil {
 				fmt.Printf("OP %X (for %s) duplicated. It was used by %s (%X)\n", m, each.Name, used[m].Name, used[m].Op)
 				os.Exit(1)
@@ -623,7 +662,7 @@ func check_duplicated(desc *UcDesc, verbose bool) (free []int) {
 				fmt.Printf("%X\n",m)
 			}
 			used[m] = &desc.Ops[opk]
-		}
+		})
 	}
 	// return which OP values are not used
 	free = make([]int,0,entries)
@@ -720,7 +759,7 @@ func Make(modname, fname string) {
 	bad := report_cycles( code, &desc, Args.Report )
 	params := make_params(list_unames(code))
 	fname = strings.TrimSuffix(fname, ".yaml")
-	if Args.List { dump_list(Args.Output,code) }
+	if Args.List { dump_list(Args.Output,code,&desc) }
 	dump_ucode(Args.Output, params, code)
 	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
 	dump_param_vh(Args.Output, params )
