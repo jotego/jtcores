@@ -21,6 +21,7 @@ config:
   entries: 256
   cycle_factor: 4 # the crystal input takes 4x the clock freq.
   bus_error: berr
+  implicit: true
 ops:
   # 2^8  op entries
   # 2^12 ucode entries -> 16 entries/instruction

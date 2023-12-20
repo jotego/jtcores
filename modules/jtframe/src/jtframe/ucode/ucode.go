@@ -51,6 +51,7 @@ type UcDesc struct {
 		EntryLen int `yaml:"entry_len"`
 		Entries  int `yaml:"entries"`
 		CycleK   int `yaml:"cycle_factor"`
+		Implicit bool `yaml:"implicit"`
 		BusError string `yaml:"bus_error"`
 		Auto struct { // Automatic assignment of start address to procedures
 			Min int   // base address at which assignment starts
@@ -107,23 +108,24 @@ next_line:
 		each = strings.ReplaceAll(each, ",", " ")
 		tokens := strings.Fields(each)
 		for k, _ := range tokens {
-			for { // replace all variables, allowing a variable to reference another one
-				vars := reVars.FindAllStringSubmatch(tokens[k], -1)
-				if vars == nil { break }
-				for j, _ := range vars {
-					if len(vars[j]) != 2 {
+			for { // replace all parameter, allowing a variable to reference another one
+				parms := reVars.FindAllStringSubmatch(tokens[k], -1)
+				if parms == nil { break }
+				for j, _ := range parms {
+					if len(parms[j]) != 2 {
 						fmt.Println("Don't know how to handle line", each)
 						os.Exit(1)
 					}
-					val, fnd := desc.Ops[opk].Ctl[vars[j][1]]
+					val, fnd := desc.Ops[opk].Ctl[parms[j][1]]
 					if !fnd { // look in global constants
-						val, fnd = desc.Constants[vars[j][1]]
-						if !fnd && proc {
-							fmt.Printf("ucode procedures are limited to global constants and cannot use OP-specific variables, such as %s\n", vars[0][0])
+						val, fnd = desc.Constants[parms[j][1]]
+						if !fnd && (proc || !desc.Cfg.Implicit) {
+							fmt.Printf("Cannot find ucode parameter %s while parsing %s\n", parms[j][1], id)
+							if proc { fmt.Println("ucode procedures are limited to global constants and cannot use OP-specific parameter") }
 							os.Exit(1)
 						}
 					}
-					tokens[k] = strings.ReplaceAll(tokens[k], "${"+vars[j][1]+"}", val)
+					tokens[k] = strings.ReplaceAll(tokens[k], "${"+parms[j][1]+"}", val)
 				}
 			}
 			// Skip lines marked with ? if the condition is nil or 0
@@ -197,7 +199,10 @@ func expand_all(desc *UcDesc) []string {
 			continue
 		}
 		expand_entry(-1, k, code, desc)
-		if desc.Chunks[k].Start>=0 { op_dups[desc.Chunks[k].Start]=true }
+		if desc.Chunks[k].Start>=0 {
+			if Args.Verbose { fmt.Printf("> %03X = %s (chunk)\n", desc.Chunks[k].Start, desc.Chunks[k].Name)}
+			op_dups[desc.Chunks[k].Start]=true
+		}
 	}
 	for opk, each := range desc.Ops {
 		if _, found := op_dups[each.Op]; found {
@@ -208,12 +213,13 @@ func expand_all(desc *UcDesc) []string {
 		op_dups[each.Op] = true
 		// Verify that all CTL signal names make sense
 		for k,v := range each.Ctl {
+			if v=="" { continue } // allow empty strings
 			if !syntax.MatchString(k) {
 				fmt.Printf("Bad control signal name %s in OP %X\n", k, each.Op)
 				os.Exit(1)
 			}
 			if !syntax.MatchString(v) {
-				fmt.Printf("Bad control values %s for signal %s in OP %X\n", v, k, each.Op)
+				fmt.Printf("Bad control values '%s' for signal %s in OP %X\n", v, k, each.Op)
 				os.Exit(1)
 			}
 		}

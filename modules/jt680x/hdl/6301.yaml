@@ -16,6 +16,8 @@
 #    Version: 1.0
 #    Date: 22-11-2023
 
+config:
+  implicit: true
 include:
   - 680x.yaml
 ops:
