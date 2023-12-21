@@ -597,6 +597,7 @@ func check_mnemos(desc *UcDesc, verbose bool) {
 }
 
 func assign_auto( desc *UcDesc, free []int, verbose bool ) {
+	if desc.Cfg.Auto.Max<=desc.Cfg.Auto.Min { return } // automatic addressing is disabled
 	var u int
 	header := false
 	for k, _ := range desc.Chunks {
