@@ -116,7 +116,11 @@ next_line:
 						fmt.Println("Don't know how to handle line", each)
 						os.Exit(1)
 					}
-					val, fnd := desc.Ops[opk].Ctl[parms[j][1]]
+					val := ""
+					fnd := false
+					if opk!=-1 {
+						val, fnd = desc.Ops[opk].Ctl[parms[j][1]]
+					}
 					if !fnd { // look in global constants
 						val, fnd = desc.Constants[parms[j][1]]
 						if !fnd && (proc || !desc.Cfg.Implicit) {
