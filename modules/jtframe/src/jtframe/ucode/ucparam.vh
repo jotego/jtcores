@@ -28,3 +28,8 @@ localparam [{{ sub .Bw 1 }}:0] // {{ .Name }}
     {{- $first = false -}}
 {{- end }};
 {{ end }}{{ end }}
+// entry points for ucode procedures
+{{- $tw := .Tw -}}
+{{- range $k,$v := .Seqa }}
+localparam {{ printf "%s%s" $k "_SEQA" | upper | printf "%-20s" }} = {{ $tw }}'h{{ printf "%X" $v }};
+{{- end }}

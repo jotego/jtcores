@@ -134,6 +134,10 @@ next_line:
 			}
 			// Skip lines marked with ? if the condition is nil or 0, or if it does not match an equality
 			if option := strings.Index(tokens[k], "?"); option >= 0 {
+				if option!=0 {
+					fmt.Printf("? market should start the line. Cannot parse line %s\n",each)
+					os.Exit(1)
+				}
 				eqs := strings.Split(tokens[k][option+1:],"=")
 				if len(eqs)==2 {
 					if eqs[0]!=eqs[1] { continue next_line }
@@ -579,13 +583,25 @@ func dump_ucrom_vh(fname string, lenentry, lenuc int, params []UcParam, chunks [
 	os.WriteFile(fname+".vh", buffer.Bytes(), 0644)
 }
 
-func dump_param_vh(fname string, params []UcParam) {
+func dump_param_vh(fname string, params []UcParam, total int, chunks []UcChunk) {
 	context := struct {
+		// values for bus signals
 		Dw, Aw int
 		Ss     []UcParam
+		// entry points for chunks
+		Tw     int
+		Seqa   map[string]int
 	}{
 		Ss: params,
+		Tw: int(math.Ceil(math.Log2(float64(total)))),
+		Seqa: make(map[string]int),
 	}
+	// prepare entry points
+	for _, each := range chunks {
+		if each.Name=="" { continue }
+		context.Seqa[each.Name] = each.Start
+	}
+	// execute the template
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "ucode", "ucparam.vh")
 	t := template.Must(template.New("ucparam.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath))
 	var buffer bytes.Buffer
@@ -646,6 +662,18 @@ func range_mask( entries int, op UcOp, f func( int ) ) {
 }
 
 func check_duplicated(desc *UcDesc, verbose bool) (free []int) {
+	// Duplicated chunks
+	chnames := make(map[string]bool)
+	for _,each := range desc.Chunks {
+		if each.Name=="" { continue	}
+		_, f := chnames[each.Name]
+		if f {
+			fmt.Printf("Duplicated ucode procedure with name %s. All names must be unique.\n",each.Name)
+			os.Exit(1)
+		}
+		chnames[each.Name]=true
+	}
+	// Duplicated OPs
 	entries := desc.Cfg.Entries
 	used := make([]*UcOp,entries,entries)
 	for opk, each := range desc.Ops {
@@ -762,12 +790,12 @@ func Make(modname, fname string) {
 	code := expand_all(&desc)
 	fix_cycles(code, &desc, Args.Verbose)
 	bad := report_cycles( code, &desc, Args.Report )
-	params := make_params(list_unames(code))
+	params := make_params(list_unames(code)) // make parameter definitions for bus signals
 	fname = strings.TrimSuffix(fname, ".yaml")
 	if Args.List { dump_list(Args.Output,code,&desc) }
 	dump_ucode(Args.Output, params, code)
 	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
-	dump_param_vh(Args.Output, params )
+	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen*desc.Cfg.Entries, desc.Chunks )
 	if bad != 0 && !Args.Report {
 		fmt.Printf("Warning: %d instructions are not cycle-accurate in %s/%s\n",bad,modname,fname)
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
