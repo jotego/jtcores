@@ -598,7 +598,7 @@ func dump_param_vh(fname string, params []UcParam, total int, chunks []UcChunk) 
 	}
 	// prepare entry points
 	for _, each := range chunks {
-		if each.Name=="" { continue }
+		if each.Name=="" || each.Start<0 { continue }
 		context.Seqa[each.Name] = each.Start
 	}
 	// execute the template

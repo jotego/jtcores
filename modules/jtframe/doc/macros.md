@@ -4,6 +4,21 @@ Macros are expected in the file *cores/corename/cfg/macros.def*. From there, oth
 
 Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools.
 
+Macros in *macros.def* can have different values for a given target platform, using the following syntax:
+
+```
+# defines FOO as 4
+FOO=4
+[sidi]
+# but in the sidi platform, it will become 6
+FOO=6
+[mist*]
+# and in mist/mister platforms, it will be 7
+FOO=7
+```
+
+The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
+
 # System Name
 
 There are two macros that define the core name the FPGA will use when communicating with the rest of the target platform. This is the name that MiST(er) display in the side of the OSD menu under some circumstances. It is also the name used for compilation files and the RBF file name. If undefined, the core folder name will be used. CORENAME is a way of using a different name for the core folder and the core itself.
