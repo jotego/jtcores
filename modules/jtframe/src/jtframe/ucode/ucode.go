@@ -583,7 +583,7 @@ func dump_ucrom_vh(fname string, lenentry, lenuc int, params []UcParam, chunks [
 	os.WriteFile(fname+".vh", buffer.Bytes(), 0644)
 }
 
-func dump_param_vh(fname string, params []UcParam, total int, chunks []UcChunk) {
+func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks []UcChunk) {
 	context := struct {
 		// values for bus signals
 		Dw, Aw int
@@ -593,13 +593,13 @@ func dump_param_vh(fname string, params []UcParam, total int, chunks []UcChunk) 
 		Seqa   map[string]int
 	}{
 		Ss: params,
-		Tw: int(math.Ceil(math.Log2(float64(total)))),
+		Tw: int(math.Ceil(math.Log2(float64(entrylen*entries)))),
 		Seqa: make(map[string]int),
 	}
 	// prepare entry points
 	for _, each := range chunks {
 		if each.Name=="" || each.Start<0 { continue }
-		context.Seqa[each.Name] = each.Start
+		context.Seqa[each.Name] = each.Start*entrylen
 	}
 	// execute the template
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "ucode", "ucparam.vh")
@@ -795,7 +795,7 @@ func Make(modname, fname string) {
 	if Args.List { dump_list(Args.Output,code,&desc) }
 	dump_ucode(Args.Output, params, code)
 	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
-	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen*desc.Cfg.Entries, desc.Chunks )
+	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
 	if bad != 0 && !Args.Report {
 		fmt.Printf("Warning: %d instructions are not cycle-accurate in %s/%s\n",bad,modname,fname)
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)

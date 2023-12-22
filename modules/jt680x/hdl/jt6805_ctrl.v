@@ -54,9 +54,6 @@ reg        irq_l, pendng;
 wire       halt, swi, ni;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
-localparam IVRD_SEQA=12'h820,
-           ISRV_SEQA=12'h9E0;
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         uaddr   <= IVRD_SEQA;
