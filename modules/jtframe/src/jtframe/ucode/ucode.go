@@ -20,7 +20,7 @@ import (
 )
 
 var Args struct{
-	Report, Verbose, List bool
+	Report, Verbose, List, GTKWave bool
 	Output string
 }
 
@@ -77,6 +77,7 @@ func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
 	reVars := regexp.MustCompile(`\${([a-zA-Z][a-zA-Z0-9_]*?)}`)
 	reSp := regexp.MustCompile(` +`)
 	reDig := regexp.MustCompile(`\b[0-9]`)
+	used := make(map[string]bool) // used OP parameters. All parameters defined in the Op must be referenced to in the ucode template
 	up0 := 0
 	upk := 0
 	proc := false
@@ -94,6 +95,9 @@ func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
 	} else {
 		up0 = desc.Ops[opk].Op
 		id = desc.Ops[opk].Id()
+		for each,_ := range desc.Ops[opk].Ctl {
+			used[each]=false
+		}
 	}
 	if desc.Cfg.Entries<=up0 {
 		fmt.Printf("%s starts outside the allowed range (0-%d)\n", id, desc.Cfg.Entries-1)
@@ -128,24 +132,45 @@ next_line:
 							if proc { fmt.Println("ucode procedures are limited to global constants and cannot use OP-specific parameter") }
 							os.Exit(1)
 						}
+					} else {
+						used[parms[j][1]] = true
 					}
 					tokens[k] = strings.ReplaceAll(tokens[k], "${"+parms[j][1]+"}", val)
 				}
 			}
 			// Skip lines marked with ? if the condition is nil or 0, or if it does not match an equality
-			if option := strings.Index(tokens[k], "?"); option >= 0 {
-				if option!=0 {
-					fmt.Printf("? market should start the line. Cannot parse line %s\n",each)
+			opts := strings.Split(tokens[k],"?")
+			if len(opts)!=1 {
+				if len(opts)>2 {
+					fmt.Printf("Don't know how to handle multiple ? in %s\n",tokens[k])
 					os.Exit(1)
 				}
-				eqs := strings.Split(tokens[k][option+1:],"=")
-				if len(eqs)==2 {
-					if eqs[0]!=eqs[1] { continue next_line }
+				whole_line := opts[1]=="*"
+				val := true
+				eqs := strings.Split(opts[0],"=")
+				if len(eqs)==2 && eqs[0]!=eqs[1] {
+					val = false // mismatched equality
 				}
-				if len(eqs)==1 && (len(tokens[k][option+1:]) == 0 || tokens[k][option+1:option+2] == "0") {
-					continue next_line
+				if len(eqs)==1 && (opts[0]=="" || opts[0] == "0") {
+					val = false // null value or zero
 				}
-				tokens[k] = ""
+				if whole_line {
+					if !val {
+						continue next_line
+					} else {
+						tokens[k] = ""
+					}
+
+				} else {
+					evals := strings.Split(opts[1],":")
+					if val {
+						tokens[k] = evals[0]
+					} else if len(evals)==2 {
+						tokens[k] = evals[1]
+					} else {
+						tokens[k] = ""
+					}
+				}
 			}
 			// Delete handling suffixes after variable replacement
 			if strings.HasPrefix(tokens[k], "_") || strings.HasSuffix(tokens[k], "=") || strings.HasSuffix(tokens[k], "=0") {
@@ -168,6 +193,12 @@ next_line:
 		// join all tokens and remove meaningless spaces
 		code[up0+upk] = strings.ToUpper(reSp.ReplaceAllString(strings.TrimSpace(strings.Join(tokens, " ")), " "))
 		upk++
+	}
+	for k,v := range used {
+		if !v {
+			fmt.Printf("Unused parameter %s in OP %s\n", k, id)
+			os.Exit(1)
+		}
 	}
 	desc.Chunks[mnemok].cycles = upk
 }
@@ -444,6 +475,7 @@ next:
 			params[k].Name = params[k].Values[0] + "_" + params[k].Name
 			params[k].Values = nil
 		}
+		sort.Strings(params[k].Values)
 	}
 	// assign a position in the ucode word
 	t := 0
@@ -515,6 +547,18 @@ func dump_list(fname string, code []string, desc *UcDesc) {
 			}
 		}
 		fmt.Fprintln(f,line)
+	}
+}
+
+func dump_gtkwave(params []UcParam) {
+	for _, each := range params {
+		if len(each.Values)<3 { continue }
+		var s strings.Builder
+		fs := fmt.Sprintf("%%0%dX %%s\n",int(math.Ceil(float64(each.Bw)/4.0)))
+		for k,v := range each.Values {
+			s.WriteString(fmt.Sprintf(fs,k+1,v))
+		}
+		os.WriteFile( each.Name+".st", []byte(s.String()), 0644 )
 	}
 }
 
@@ -744,7 +788,11 @@ func read_yaml( fpath string ) UcDesc {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	yaml.Unmarshal(buf,&desc)
+	err = yaml.Unmarshal(buf,&desc)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	// Parse include files
 	for _, each := range desc.Incs {
 		fname := filepath.Join(filepath.Dir(fpath),each)
@@ -775,6 +823,13 @@ func read_yaml( fpath string ) UcDesc {
 			desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
 		}
 	}
+	// expand $ values in parameters
+	// parameters defined as foo: $ will become foo: foo
+	for i,_ := range desc.Ops {
+		for k,v := range desc.Ops[i].Ctl {
+			if strings.TrimSpace(v)=="$" { desc.Ops[i].Ctl[k]=k }
+		}
+	}
 	return desc
 }
 
@@ -791,12 +846,17 @@ func Make(modname, fname string) {
 	fix_cycles(code, &desc, Args.Verbose)
 	bad := report_cycles( code, &desc, Args.Report )
 	params := make_params(list_unames(code)) // make parameter definitions for bus signals
-	fname = strings.TrimSuffix(fname, ".yaml")
-	if Args.List { dump_list(Args.Output,code,&desc) }
+	if Args.List {
+		dump_list(Args.Output,code,&desc)
+	}
+	if Args.GTKWave {
+		dump_gtkwave(params)
+	}
 	dump_ucode(Args.Output, params, code)
 	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
 	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
 	if bad != 0 && !Args.Report {
+		fname = strings.TrimSuffix(fname, ".yaml")
 		fmt.Printf("Warning: %d instructions are not cycle-accurate in %s/%s\n",bad,modname,fname)
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
 	}

@@ -90,7 +90,7 @@ ops:
   - { name: BLT,  op: 0x2d, cycles: 3 }
   - { name: BGT,  op: 0x2e, cycles: 3 }
   - { name: BLE,  op: 0x2f, cycles: 3 }
-  - { name: BSR,  op: 0x8d, cycles: 6, ctl: { pshpc: 1 } }
+  - { name: BSR,  op: 0x8d, cycles: 6 }
 
   - { name: CBA,  op: 0x11, ctl: { alu: SUB, op0: a, op1: b, cc: nzvc}, cycles: 2 }
 
@@ -265,8 +265,8 @@ ops:
   - { name: TST,  op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: ext,       cc: nzv0c0 }, cycles: 6 }
   - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
   - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
-  - { name: RTI,  op: 0x3b, ctl: {                                                cc: nzvc   }, cycles: 10 }
-  - { name: RTS,  op: 0x39, ctl: {                               addr: pul8, ld: pc          }, cycles: 5  }
+  - { name: RTI,  op: 0x3b,                                                                     cycles: 10 }
+  - { name: RTS,  op: 0x39,                                                                     cycles: 5  }
   - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
 ucode:
   - mnemo: [ MUL ]

@@ -403,7 +403,7 @@ ucode:
       - alt, halt # alt means here not to push the registers on interrupt execution
   - mnemo: [ SWI ]
     seq:
-      - pc_rmux, ld0_opnd, s_ea
+      - pc_rmux, ld0_opnd, s_ea, ${cc}_cc
       - md_ld, psh16_jsr,  s_ea
 
       - x_rmux, ld0_opnd, s_ea
