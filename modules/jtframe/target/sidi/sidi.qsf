@@ -193,6 +193,8 @@ set_global_assignment -name QIP_FILE game.qip
 # SiDi also defines MiST
 set_global_assignment -name VERILOG_MACRO "MIST=1"
 
+set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION ON
+
 set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to SPI_SCK
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
