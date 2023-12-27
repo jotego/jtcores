@@ -53,9 +53,9 @@ module jtcastle_main(
     input               gfx_firqn,
     input               gfx_irqn,
     input               gfx_nmin,
-    inout  reg          gfx1_cs,
-    inout  reg          gfx2_cs,
-    inout  reg          pal_cs,
+    inout               gfx1_cs,
+    inout               gfx2_cs,
+    inout               pal_cs,
 
     output reg [1:0]    video_bank,
     output reg          prio,
@@ -79,6 +79,7 @@ wire [15:0] A;
 wire        irq_n, nmi_n, irq_ack;
 reg         ram_cs, work;
 wire        cpu_we, dtack;
+reg         pal_cs_r, gfx1_cs_r, gfx2_cs_r;
 
 assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
@@ -101,13 +102,17 @@ wire banked_cs = A[15:12]>=6 && A[15:12]<8;
 // use a 32kB+128kB combination
 always @(*) begin
     io_cs    = A[15:8]==4;
-    pal_cs   = A[15:8]==6;
+    pal_cs_r   = A[15:8]==6;
     ram_cs   = A[15:8]>=8'h08 && A[15:8]<8'h20;
     rom_cs   = A[15:12]>=6 && !cpu_we;
-    gfx1_cs  = A[15:8]==0 || A[15:13]==3'd2>>1;
-    gfx2_cs  = A[15:8]==2 || A[15:13]==3'd4>>1;
+    gfx1_cs_r  = A[15:8]==0 || A[15:13]==3'd2>>1;
+    gfx2_cs_r  = A[15:8]==2 || A[15:13]==3'd4>>1;
     rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank, A[12:0] };
 end
+
+assign pal_cs = pal_cs_r;
+assign gfx1_cs = gfx1_cs_r;
+assign gfx2_cs = gfx2_cs_r;
 
 always @* begin
     cpu_din = rom_cs  ? rom_data  :
