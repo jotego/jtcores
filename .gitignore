@@ -61,6 +61,10 @@ cores/*/sch/*/*pdf
 cores/*/sch/*pdf
 cores/*/sidi/*
 cores/*/sockit/*
+cores/*/de1soc/*
+cores/*/de10std/*
+cores/*/demist_*/*
+cores/*/mist_*/*
 cores/*/ver/regrun
 cores/*/zxuno/*
 cores/*/hdl/*_mmr.v
