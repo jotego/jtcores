@@ -1,0 +1,9 @@
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) hdmi.vhd]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) encoder.vhd]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) hdmidataencoder.v]
+set_global_assignment -name QIP_FILE  [file join $::quartus(qip_path) altddio_out1.qip]
+#following files are not used (can be removed)
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) gtia_palette.vhdl]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) scandoubler_hdmi.vhdl]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) scandouble_ram_infer_9.vhdl]
+

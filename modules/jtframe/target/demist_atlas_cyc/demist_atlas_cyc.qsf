@@ -1,0 +1,180 @@
+##   This file is part of JTFRAME.
+##
+##   JTFRAME program is free software: you can redistribute it and/or modify
+##   it under the terms of the GNU General Public License as published by
+##   the Free Software Foundation, either version 3 of the License, or
+##   (at your option) any later version.
+##
+##   JTFRAME program is distributed in the hope that it will be useful,
+##   but WITHOUT ANY WARRANTY; without even the implied warranty of
+##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##   GNU General Public License for more details.
+##
+##   You should have received a copy of the GNU General Public License
+##   along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+##   Author: Jose Tejada Gomez. Twitter: @topapate
+##   Version: 1.0
+
+
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name DEVICE 10CL025YU256C8G
+set_global_assignment -name TOP_LEVEL_ENTITY jtframe_atlas_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 17.1.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "23:41:30  APRIL 11, 2023"
+set_global_assignment -name LAST_QUARTUS_VERSION "17.1.0 Lite Edition"
+set_global_assignment -name AUTO_MERGE_PLLS OFF
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name DEVICE_FILTER_PACKAGE UFBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 256
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name FLOW_ENABLE_POWER_ANALYZER ON
+set_global_assignment -name POWER_DEFAULT_INPUT_IO_TOGGLE_RATE "12.5 %"
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name ENABLE_OCT_DONE OFF
+set_global_assignment -name EXTERNAL_FLASH_FALLBACK_ADDRESS 0
+set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+set_global_assignment -name INTERNAL_FLASH_UPDATE_MODE "SINGLE IMAGE WITH ERAM"
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCQ16
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION ON
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_location_assignment PIN_M2 -to CLK12M
+set_location_assignment PIN_E15 -to CLK_X
+set_location_assignment PIN_N6 -to KEY0
+set_location_assignment PIN_M6 -to LED[0]
+set_location_assignment PIN_T4 -to LED[1]
+set_location_assignment PIN_T3 -to LED[2]
+set_location_assignment PIN_R3 -to LED[3]
+set_location_assignment PIN_T2 -to LED[4]
+set_location_assignment PIN_R4 -to LED[5]
+set_location_assignment PIN_N5 -to LED[6]
+set_location_assignment PIN_N3 -to LED[7]
+set_location_assignment PIN_L16 -to TMDS[0]
+set_location_assignment PIN_L15 -to TMDS[1]
+set_location_assignment PIN_P1 -to TMDS[2]
+set_location_assignment PIN_P2 -to TMDS[3]
+set_location_assignment PIN_J1 -to TMDS[4]
+set_location_assignment PIN_J2 -to TMDS[5]
+set_location_assignment PIN_N1 -to TMDS[6]
+set_location_assignment PIN_N2 -to TMDS[7]
+
+set_location_assignment PIN_K2 -to PS2_KEYBOARD_1
+set_location_assignment PIN_L2 -to PS2_KEYBOARD_2
+set_location_assignment PIN_L1 -to PDP_4k7
+set_location_assignment PIN_K1 -to PDM_4k7
+set_location_assignment PIN_C16 -to PS2_MOUSE_CLK
+set_location_assignment PIN_B16 -to PS2_MOUSE_DAT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MOUSE_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MOUSE_DAT
+
+set_location_assignment PIN_T12 -to SIGMA_L
+set_location_assignment PIN_R11 -to SIGMA_R
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SIGMA_L
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SIGMA_R
+
+set_location_assignment PIN_F15 -to PI_MISO_I2S_BCLK
+set_location_assignment PIN_F16 -to PI_MOSI_I2S_LRCLK
+set_location_assignment PIN_F13 -to PI_CLK_I2S_DATA
+set_location_assignment PIN_C15 -to PI_CS_MIDI_CLKBD
+set_location_assignment PIN_D16 -to UART_RXD_MIDI_WSBD
+set_location_assignment PIN_D15 -to UART_TXD_MIDI_OUT
+set_location_assignment PIN_P11 -to JOYX_SEL_EAR_MIDI_DABD
+
+set_location_assignment PIN_K16 -to JOY1_B2_P9
+set_location_assignment PIN_K15 -to JOY1_B1_P6
+set_location_assignment PIN_J14 -to JOY1_UP
+set_location_assignment PIN_R1 -to JOY1_DOWN
+set_location_assignment PIN_T15 -to JOY1_LEFT
+set_location_assignment PIN_N16 -to JOY1_RIGHT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_B2_P9
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_B1_P6
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_UP
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_DOWN
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_LEFT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY1_RIGHT
+
+set_location_assignment PIN_T13 -to SD_SCLK_O
+set_location_assignment PIN_T14 -to SD_MOSI_O
+set_location_assignment PIN_R13 -to SD_MISO_I
+set_location_assignment PIN_R12 -to SD_CS_N_O
+set_location_assignment PIN_P14 -to SD_DAT1
+set_location_assignment PIN_R14 -to SD_DAT2
+
+set_location_assignment PIN_A3 -to DRAM_ADDR[0]
+set_location_assignment PIN_B5 -to DRAM_ADDR[1]
+set_location_assignment PIN_B4 -to DRAM_ADDR[2]
+set_location_assignment PIN_B3 -to DRAM_ADDR[3]
+set_location_assignment PIN_C3 -to DRAM_ADDR[4]
+set_location_assignment PIN_D3 -to DRAM_ADDR[5]
+set_location_assignment PIN_E6 -to DRAM_ADDR[6]
+set_location_assignment PIN_E7 -to DRAM_ADDR[7]
+set_location_assignment PIN_D6 -to DRAM_ADDR[8]
+set_location_assignment PIN_D8 -to DRAM_ADDR[9]
+set_location_assignment PIN_A5 -to DRAM_ADDR[10]
+set_location_assignment PIN_E8 -to DRAM_ADDR[11]
+set_location_assignment PIN_A2 -to DRAM_ADDR[12]
+set_location_assignment PIN_A4 -to DRAM_BA[0]
+set_location_assignment PIN_B6 -to DRAM_BA[1]
+set_location_assignment PIN_B10 -to DRAM_DQ[0]
+set_location_assignment PIN_A10 -to DRAM_DQ[1]
+set_location_assignment PIN_B11 -to DRAM_DQ[2]
+set_location_assignment PIN_A11 -to DRAM_DQ[3]
+set_location_assignment PIN_A12 -to DRAM_DQ[4]
+set_location_assignment PIN_D9 -to DRAM_DQ[5]
+set_location_assignment PIN_B12 -to DRAM_DQ[6]
+set_location_assignment PIN_C9 -to DRAM_DQ[7]
+set_location_assignment PIN_D11 -to DRAM_DQ[8]
+set_location_assignment PIN_E11 -to DRAM_DQ[9]
+set_location_assignment PIN_A15 -to DRAM_DQ[10]
+set_location_assignment PIN_E9 -to DRAM_DQ[11]
+set_location_assignment PIN_D14 -to DRAM_DQ[12]
+set_location_assignment PIN_F9 -to DRAM_DQ[13]
+set_location_assignment PIN_C14 -to DRAM_DQ[14]
+set_location_assignment PIN_A14 -to DRAM_DQ[15]
+set_location_assignment PIN_B14 -to DRAM_CLK
+set_location_assignment PIN_C8 -to DRAM_CAS_N
+set_location_assignment PIN_B7 -to DRAM_RAS_N
+set_location_assignment PIN_A7 -to DRAM_WE_N
+set_location_assignment PIN_A6 -to DRAM_CS_N
+set_location_assignment PIN_F8 -to DRAM_CKE
+set_location_assignment PIN_B13 -to DRAM_LDQM
+set_location_assignment PIN_D12 -to DRAM_UDQM
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
+set_global_assignment -name QIP_FILE game.qip
+
+# DeMiSTify also shares the MIST macro
+set_global_assignment -name VERILOG_MACRO "MIST=1"
+
+set_global_assignment -name VERILOG_MACRO "DEMISTIFY_PARALLEL_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "DEMISTIFY_HDMI=1"
+set_global_assignment -name VERILOG_MACRO "DEMISTIFY_ATLAS_CYC=1"
+set_global_assignment -name VERILOG_MACRO "DEMISTIFY=1"
+
+set_global_assignment -name SEARCH_PATH "../hdl"
+set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
+#
+

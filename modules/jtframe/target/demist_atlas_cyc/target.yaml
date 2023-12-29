@@ -1,0 +1,23 @@
+here:
+  - ../demist_deca/common.yaml
+  - jtframe_mist_clocks.v  
+  - jtframe_atlas_cyc_top.vhd
+  # DeMiSTify specific board modules     
+  - demistify/atlas_cyc/constraints.sdc
+  - demistify/atlas_cyc/audio/audio_i2s.vhd
+  - demistify/atlas_cyc/USB2PS2/USB_PS2_PUBLIC.v
+  - demistify/atlas_cyc/hdmi1/hdmi1.qip
+  # PLLs  (12 MHz to 48, 49.15, 50.35, 53.37 MHz )
+  - pll6000/jtframe_pll6000.qip
+  - pll6144/jtframe_pll6144.qip
+  - pll6293/jtframe_pll6293.qip
+  - pll6671/jtframe_pll6671.qip   
+  # 12 to 50MHz (CYC1000) - used in atlas_cyc_top.vhd
+  - pll2/pll2.qip
+  # 12 to 27MHz (CYC1000)
+  #- pll_27/pll_27.qip  
+target:
+  - from: demist_deca
+    get:
+      # PLLs
+      - pllgame96/jtframe_pllgame96.qip

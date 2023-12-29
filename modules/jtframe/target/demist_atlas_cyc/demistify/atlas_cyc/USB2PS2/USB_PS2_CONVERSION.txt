@@ -1,0 +1,113 @@
+//PS2 Scancode			Teclas modificadoras
+// 	00	14				Bit 0 LEFT CTRL
+// 	00	12				Bit 1 LEFT SHIFT
+// 	00	11				Bit 2 LEFT ALT
+// 	E0	1F				Bit 3 LEFT GUI
+// 	E0	14				Bit 4 RIGHT CTRL
+// 	00	59				Bit 5 RIGHT SHIFT
+// 	E0	11				Bit 6 RIGHT ALT
+// 	E0	27				Bit 7 RIGHT GUI
+//
+//PS2 Scancode			USB Keycode
+0000					//00-00 Reserved
+0000					//01 Keyboard ErrorRollOver
+0000					//02 Keyboard POSTFail
+0000					//03 Keyboard ErrorUndefined
+001C					//04 Keyboard a and A
+0032					//05 Keyboard b and B
+0021					//06 Keyboard c and C
+0023					//07 Keyboard d and D
+0024					//08 Keyboard e and E
+002B					//09 Keyboard f and F
+0034					//0A Keyboard g and G
+0033					//0B Keyboard h and H
+0043					//0C Keyboard i and I
+003B					//0D Keyboard j and J
+0042					//0E Keyboard k and K
+004B					//0F Keyboard l and L
+003A					//10 Keyboard m and M
+0031					//11 Keyboard n and N
+0044					//12 Keyboard o and O
+004D					//13 Keyboard p and P
+0015					//14 Keyboard q and Q
+002D					//15 Keyboard r and R
+001B					//16 Keyboard s and S
+002C					//17 Keyboard t and T
+003C					//18 Keyboard u and U
+002A					//19 Keyboard v and V
+001D					//1A Keyboard w and W
+0022					//1B Keyboard x and X
+0035					//1C Keyboard y and Y
+001A					//1D Keyboard z and Z
+0016					//1E Keyboard 1 and !
+001E					//1F Keyboard 2 and @
+0026					//20 Keyboard 3 and #
+0025					//21 Keyboard 4 and $
+002E					//22 Keyboard 5 and %
+0036					//23 Keyboard 6 and ^
+003D					//24 Keyboard 7 and &
+003E					//25 Keyboard 8 and *
+0046					//26 Keyboard 9 and (
+0045					//27 Keyboard 0 and )
+005A					//28 Keyboard Return (ENTER)
+0076					//29 Keyboard ESCAPE
+0066					//2A Keyboard DELETE (Backspace)
+000D					//2B Keyboard Tab
+0029					//2C Keyboard Spacebar
+004E					//2D Keyboard - and (underscore)
+0055					//2E Keyboard = and +
+0054					//2F Keyboard [ and {
+005B					//30 Keyboard ] and }
+005D					//31 Keyboard \and |
+0000					//32 Keyboard Non-US # and ˜ (No soportado, tecla desconocida)
+004C					//33 Keyboard ; and :
+0052					//34 Keyboard ‘ and “
+000E					//35 Keyboard Grave Accent and Tilde
+0041					//36 Keyboard , and <
+0049					//37 Keyboard . and >
+004A					//38 Keyboard / and ?
+0058					//39 Keyboard Caps Lock
+0005					//3A Keyboard F1
+0006					//3B Keyboard F2
+0004					//3C Keyboard F3
+000C					//3D Keyboard F4
+0003					//3E Keyboard F5
+000B					//3F Keyboard F6
+0083					//40 Keyboard F7
+000A					//41 Keyboard F8
+0001					//42 Keyboard F9
+0009					//43 Keyboard F10
+0078					//44 Keyboard F11
+0007					//45 Keyboard F12
+0000					//46 Keyboard PrintScreen (No soportado E012E07C)
+007E					//47 Keyboard Scroll Lock
+0000					//48 Keyboard Pause (No soportado E11477E1F014E077)
+E070					//49 Keyboard Insert
+E06C					//4A Keyboard Home
+E07D					//4B Keyboard PageUp
+E071					//4C Keyboard Delete Forward
+E069					//4D Keyboard End
+E07A					//4E Keyboard PageDown
+E074					//4F Keyboard RightArrow
+E06B					//50 Keyboard LeftArrow
+E072					//51 Keyboard DownArrow
+E075					//52 Keyboard UpArrow
+0077					//53 Keypad Num Lock and Clear
+E04A					//54 Keypad /
+007C					//55 Keypad *
+007B					//56 Keypad -
+0079					//57 Keypad +
+E059					//58 Keypad ENTER
+0069					//59 Keypad 1 and End
+0072					//5A Keypad 2 and Down Arrow
+007A					//5B Keypad 3 and PageDn
+006B					//5C Keypad 4 and Left Arrow
+0073					//5D Keypad 5 
+0074					//5E Keypad 6 and Right Arrow
+006C					//5F Keypad 7 and Home
+0075					//60 Keypad 8 and Up Arrow
+007D					//61 Keypad 9 and PageUp
+0070					//62 Keypad 0 and Insert
+0071					//63 Keypad . and Delete
+0000					//64 Keyboard Non-US \and | (No soportado, tecla desconocida)
+0000					//65 Keyboard Application (No soportado, tecla desconocida)

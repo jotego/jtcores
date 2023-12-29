@@ -1,0 +1,8 @@
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) serializer_generic.vhd]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) hdmidelay.vhd]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) hdmi_out_altera.vhd]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) hdmidataencoder.v]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) hdmi.vhd]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) encoder.vhd]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altddio_out1.vhd]
+

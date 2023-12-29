@@ -1,0 +1,47 @@
+# Common files to DeMiSTify targets: DECA, DE10lite, ...
+here:
+  # modified MiST modules
+  - jtframe_mist_top.sv
+  - jtframe_mist.sv
+  - jtframe_mist_base.v  
+  - mist_io.sdc
+  # joystick direct support
+  - jtframe_demistify_joy.v
+  - mc2_hid_joy.vhd
+  # DeMiSTify
+  - demistify_config_pkg.vhd
+  - firmware/controller_rom1_word.vhd
+  - firmware/controller_rom2_word.vhd
+jtframe:
+  - from: sound
+    unless: POCKET
+    get:
+      - hybrid_pwm_sd.v
+      - hifi_1bit_dac.v
+  - from: clocking
+    get:
+      - jtframe_sync.v
+      - jtframe_rst_sync.v
+  # JTFRAME scan doubler for memory constrained systems
+  - from: video
+    get:
+      - jtframe_scan2x.v
+      # line framebuffer  (SRAM)
+      - jtframe_lfbuf_sram.v
+      - jtframe_lfbuf_sram_ctrl.v
+      - jtframe_lfbuf_line.v        
+target:
+  - from: mist
+    get:
+      - user_io.v
+  - from: mist
+    unless: POCKET
+    get:
+      - osd.sv
+      - rgb2ypbpr.v
+  - from: demist_deca
+    get:
+      - demistify/controller/controller.qip
+  - from: neptuno
+    get:
+      - joydecoder.v
