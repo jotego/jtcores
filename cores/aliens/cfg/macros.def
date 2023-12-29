@@ -31,7 +31,7 @@ JTFRAME_DIPBASE=8
 # JTFRAME_IOCTL_RD=19472
 JTFRAME_INPUT_RECORD
 
-[mist|sidi]
+[mist|sidi|demist_*|mist_*]
 # OSD credits cannot be used when
 # DIP base is less than 13
 JTFRAME_CREDITS_PAGES=4

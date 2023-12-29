@@ -21,3 +21,8 @@ JTFRAME_FLIP_RESET
 # Video
 JTFRAME_VERTICAL
 
+[demist_*|mist_*]
+JTFRAME_DIPBASE=8
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS

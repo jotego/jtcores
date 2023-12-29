@@ -39,6 +39,12 @@ CORE_OSD=O5,Turbo,Off,On;
 NOCREDITS
 JTFRAME_OSD_NOCREDITS
 
+[demist_*|mist_*]
+CORE_OSD=O5,Turbo,Off,On;
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+
 [mister]
 JTFRAME_OSD_NOLOAD
 CORE_OSD=OD,Turbo,Off,On;

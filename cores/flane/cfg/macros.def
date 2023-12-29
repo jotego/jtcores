@@ -23,6 +23,12 @@ JTFRAME_PROM_START=0x140000
 # DIP base is less than 13
 JTFRAME_OSD_NOCREDITS
 
+[demist_*|mist_*]
+JTFRAME_DIPBASE=8
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+
 [mister]
 JTFRAME_ARX=4
 JTFRAME_ARY=3
