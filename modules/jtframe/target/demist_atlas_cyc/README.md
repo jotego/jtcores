@@ -1,6 +1,48 @@
-# ATLAS board with CYC1000 FGPA 
+# JTFRAME target for ATLAS base board with CYC1000 FGPA 
 
-Website ATLAS: https://github.com/ATLASfpga, https://github.com/theexperimentgroup/Atlas-FPGA
+target by @somhi
+
+### This is an experimental target. Most cores do not work. SDRAM64 controller needs to be modified in order to work.
+
+## Target information
+
+This target is based on [DeMiSTify](https://github.com/robinsonb5/DeMiSTify) firmware by Alastair M. Robinson. DeMiSTify is code to support porting MiST cores to other boards. 
+
+Deca target consists of a Trenz electronic CYC1000 board (Cyclone 10CL025, 8 MB sdram) plus an Atlas base board for retro connectivity
+
+**Base board options**
+
+Edit jtframe_atlas_cyc_top.vhd to select base board options (keyboard, video output).
+
+## Changes needed in jtframe_sdram64_bank.v
+
+**Because of the very low resources of this target (8 MB SDRAM) only a handful of cores are working on it. The cores reported to be working by 06/2023 were:  bubl, dd, dd2, exed, gunsmk, kchamp, kicker, sectnz, trojan, yiear.**  
+
+You need to manually modify the file modules/jtframe/hdl/sdram/jtframe_sdram64_bank.v according to these changes:
+
+```diff
+@@ -127 +127
+-       addr_row = AW==22 ? addr[AW-1:AW-ROW] : addr[AW-2:AW-1-ROW],
++       addr_row = addr[20:8],
+ 
+@@ -217 +217
+-    sdram_a[12:11] =  addr_row[12:11];
+-    sdram_a[10:0] = do_act ? addr_row[10:0] :
+-            { do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], addr[AW-1], addr[8:0]};
++    sdram_a[12:0] = do_act ? addr_row :
++            { 2'b00, do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], 2'b00, addr[7:0]};  
+```
+
+
+
+## Atlas base board information
+
+* https://github.com/ATLASfpga
+* https://github.com/theexperimentgroup/Atlas-FPGA
+
+
+
+## CYC1000 board information
 
 Website CYC1000: https://shop.trenz-electronic.de/de/TEI0003-02-CYC1000-mit-Cyclone-10-FPGA-8-MByte-SDRAM
 
