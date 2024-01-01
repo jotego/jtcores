@@ -50,8 +50,8 @@ wire [9:0] hdiff = 10'd514-hcnt; // the value read decreases from left to right
                                  // the LCD does not have scan lines
 
 `define SETREG(a,b) begin if(!dsn[1]) a<=cpu_dout[15:8]; if(!dsn[0]) b<=cpu_dout[7:0]; cpu_din<={a,b}; end
-`define SET8L(b)    begin if(!dsn[0]) b<=cpu_dout[ 7:0]; cpu_din<=b; end
-`define SET8H(a)    begin if(!dsn[1]) a<=cpu_dout[15:8]; cpu_din<=a; end
+// `define SET8L(b)    begin if(!dsn[0]) b<=cpu_dout[ 7:0]; cpu_din<=b; end
+// `define SET8H(a)    begin if(!dsn[1]) a<=cpu_dout[15:8]; cpu_din<=a; end
 
 `ifdef SIMULATION
 reg [7:0] zeroval[0:63];

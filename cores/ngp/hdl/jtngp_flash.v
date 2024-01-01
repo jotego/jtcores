@@ -76,6 +76,7 @@ reg  [15:0] prog_data;
 reg         erase_start, prog_start, erase_bsy, prog_bsy,
             ba_full, rd_bsy;
 wire        last;
+wire [ 7:0] dmux;
 
 assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:1] };
 assign cpu_din = id ? id_data : cart_data;
@@ -85,6 +86,7 @@ assign cpu_csrd = cpu_cs && cpu_we==0;
 assign we_edge  = cpu_cswe && !cswe_l;
 assign cs_edge  = cpu_cs && (!cs_l || addr_l!=cpu_addr);
 assign rdy      = ~|{erase_bsy,prog_bsy,rd_bsy};
+assign dmux     = cpu_we[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
 always @* begin
     case( { cpu_addr[6], cpu_addr[1] } )
@@ -180,6 +182,7 @@ always @(posedge clk, posedge rst ) begin
                 rd_bsy    <= 1;
                 { cart_we, cart_cs } <= 2'b01;
             end
+            if( !cpu_cs && cart_ok ) cart_cs <= 0;
         end else begin
             if( erase_bsy ) begin
                 erase_st <= erase_st + 1'd1;
@@ -200,7 +203,6 @@ always @(posedge clk, posedge rst ) begin
             end
             if( rd_bsy && cart_ok ) { rd_bsy, cart_cs } <= 0;
         end
-        if( !cpu_cs && cart_ok ) cart_cs <= 0;
     end
 end
 
@@ -225,20 +227,20 @@ always @(posedge clk, posedge rst) begin
         if( we_edge ) begin
             case( st )
                 IDLE: begin
-                    if( cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ) st <= PROG1;
+                    if( cpu_addr[15:1]==15'h5555>>1 && dmux=='haa ) st <= PROG1;
                     id  <= 0;
                     cmd <= 0;
                 end
                 READ: begin
-                    st  <= cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ? PROG1 : READ;
+                    st  <= cpu_addr[15:1]==15'h5555>>1 && dmux=='haa ? PROG1 : READ;
                     id  <= 0;
                     cmd <= 0;
                 end
                 PROG1: begin
-                    st <= cpu_addr[15:1]==15'h2aaa>>1 && cpu_dout[7:0]=='h55 ? PROG2 : READ;
+                    st <= cpu_addr[15:1]==15'h2aaa>>1 && dmux=='h55 ? PROG2 : READ;
                 end
                 PROG2: begin
-                    if( cpu_dout[7:0]=='h30 ) begin
+                    if( dmux=='h30 ) begin
                         if( cmd=='h80 ) begin
                             prog_ba     <= ba_addr;
                             prog_size   <= ba_size;
@@ -247,9 +249,9 @@ always @(posedge clk, posedge rst) begin
                             st          <= READ;
                         end
                     end else if( cpu_addr[15:1]==15'h5555>>1 ) begin
-                        case( cpu_dout[7:0] )
+                        case( dmux )
                             8'h80: begin
-                                cmd <= cpu_dout[7:0];
+                                cmd <= dmux;
                                 st  <= CMD;
                             end
                             8'h90: begin // ID read
@@ -260,7 +262,7 @@ always @(posedge clk, posedge rst) begin
                                 if( cmd==8'h9A ) begin
                                     st <= PROTECT; // ignored
                                 end else begin
-                                    cmd <= cpu_dout[7:0];
+                                    cmd <= dmux;
                                     st <= CMD;
                                 end
                             end
@@ -275,7 +277,7 @@ always @(posedge clk, posedge rst) begin
                     end
                 end
                 CMD: begin
-                    st <= cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ? PROG1 : READ;
+                    st <= cpu_addr[15:1]==15'h5555>>1 && dmux=='haa ? PROG1 : READ;
                 end
                 AUTOPROG: begin
                     // read data first and apply a logic and to only program

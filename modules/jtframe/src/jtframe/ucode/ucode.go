@@ -53,6 +53,7 @@ type UcDesc struct {
 		CycleK   int `yaml:"cycle_factor"`
 		Implicit bool `yaml:"implicit"`
 		BusError string `yaml:"bus_error"`
+		Latch    bool	`yaml:"latch_ucode"`
 		Auto struct { // Automatic assignment of start address to procedures
 			Min int   // base address at which assignment starts
 			Max int   // bits set to 1 can be used for automatic addressing
@@ -187,7 +188,8 @@ next_line:
 			}
 		}
 		if code[up0+upk] != "" {
-			fmt.Printf("Duplicated ucode at uaddress %X-%X. While parsing %s\n", up0, upk, id)
+			fmt.Printf("Duplicated ucode at uaddress %X,%X. While parsing %s\n", up0/desc.Cfg.EntryLen, upk, id)
+			fmt.Printf("Existing code: %s\n", code[up0+upk])
 			os.Exit(1)
 		}
 		// join all tokens and remove meaningless spaces
@@ -276,9 +278,12 @@ func expand_all(desc *UcDesc) []string {
 		expand_entry(opk, ref, code, desc)
 		range_mask( desc.Cfg.Entries, each, func( opnx int) {
 			src := each.Op*desc.Cfg.EntryLen
+			op_dups[opnx]=true
 			opnx = opnx*desc.Cfg.EntryLen
 			if src==opnx { return }
-			// fmt.Printf("Copying from %X (%s) to %X\n", src, each.Name, opnx)
+			if Args.Verbose {
+				fmt.Printf("Copying from %X (%s) to %X\n", src, each.Name, opnx)
+			}
 			for line:=0; line < desc.Cfg.EntryLen; line++ {
 				code[opnx+line]=code[src+line]
 			}
@@ -581,11 +586,12 @@ func dump_ucode(fname string, params []UcParam, code []string) {
 	}
 }
 
-func dump_ucrom_vh(fname string, lenentry, lenuc int, params []UcParam, chunks []UcChunk) {
+func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcParam, chunks []UcChunk) {
 	context := struct {
 		Dw, Aw int
 		EntryLen int
 		Rom	   string
+		Latch  bool
 		Ss     []UcParam
 		Jsr    []UcChunk
 	}{
@@ -593,6 +599,7 @@ func dump_ucrom_vh(fname string, lenentry, lenuc int, params []UcParam, chunks [
 		Aw: int(math.Ceil(math.Log2(float64(lenuc)))),
 		EntryLen: lenentry,
 		Rom: fname+".uc",
+		Latch: latch,
 		Ss: params,
 		Jsr: make([]UcChunk,0,len(chunks)),
 	}
@@ -666,7 +673,7 @@ func assign_auto( desc *UcDesc, free []int, verbose bool ) {
 	header := false
 	for k, _ := range desc.Chunks {
 		each := &desc.Chunks[k]
-		if each.Name!="" && !each.NoAuto {
+		if each.Name!="" && !each.NoAuto && each.Name!=desc.Cfg.BusError{
 			var addr int
 			for {
 				if u>=len(free) {
@@ -853,7 +860,7 @@ func Make(modname, fname string) {
 		dump_gtkwave(params)
 	}
 	dump_ucode(Args.Output, params, code)
-	dump_ucrom_vh(Args.Output, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
+	dump_ucrom_vh(Args.Output, desc.Cfg.Latch, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
 	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
 	if bad != 0 && !Args.Report {
 		fname = strings.TrimSuffix(fname, ".yaml")

@@ -71,6 +71,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+reg [15:0] chk_d=0;
+reg [12:1] chk_a=0;
+always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { cpu_addr, cpu_dout & {{8{we[1]}},{8{we[0]}}} };
+
 jtframe_dual_ram16 #(
     .AW         ( 12            ),  // 4kB
     .SIMFILE_LO ("ch_lo.bin"    ),

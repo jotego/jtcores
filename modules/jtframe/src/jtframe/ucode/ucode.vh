@@ -8,14 +8,14 @@ reg [{{ sub .Aw 1}}:0] jsr_ua, jsr_ret, uaddr;
 {{ range .Ss }}{{ if (eq .Bw 1) }}// wire       {{ lower .Name }};
 {{end}}{{ end }}
 reg  [{{ sub .Dw 1 }}:0] ucode_rom[0:2**{{.Aw}}-1];
-wire [{{ sub .Dw 1 }}:0] ucode_data;
+{{ if .Latch }}reg  {{else}}wire {{end}}[{{ sub .Dw 1 }}:0] ucode_data;
 
 initial begin
     $readmemb("{{.Rom}}",ucode_rom);
 end
 
-assign ucode_data = ucode_rom[uaddr];
-// always @(posedge clk ) if(cen) ucode_data = ucode_rom[uaddr];
+{{ if .Latch }}always @(posedge clk) if(!cen) ucode_data = ucode_rom[uaddr];{{- else -}}
+               assign ucode_data = ucode_rom[uaddr];{{ end }}
 
 {{ range .Ss }}{{ if (eq .Bw 1) }}assign {{ lower .Name | printf "%-11s" }}= ucode_data[{{ printf "%2d" .Pos }}+:{{ .Bw }}];
 {{end}}{{- end }}

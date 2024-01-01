@@ -44,16 +44,16 @@ module jtngp_colmix #( parameter
 
     output      [3:0] red,
     output      [3:0] green,
-    output      [3:0] blue
+    output      [3:0] blue,
+    input       [7:0] debug_bus
     // gfx_en is handled at the scroll and obj modules
 );
 
 reg  [ 2:0] pxl;
 wire [ 1:0] prio = obj_pxl[4:3];
-reg  [ 1:0] lyr;
-wire [ 3:0] raw, scr_eff;
-// wire [15:0] pal_dout;
-wire [ 7:0] pal_addr;
+// reg  [ 1:0] lyr;
+wire [ 3:0] scr_eff;
+reg  [ 3:0] raw;
 wire [ 2:0] obj_palout, scr1_palout, scr2_palout;
 wire        scr1_blank, scr2_blank, obj_blank;
 
@@ -69,34 +69,37 @@ reg [2:0] bg_pal;
 assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
         obj_blank  = obj_pxl[1:0]==0 || prio==0,
-        scr_eff    = scr_order ?
+        scr_eff    = scr1_blank && scr2_blank  ? {1'b1, bg_pal } :
+                     scr_order ?
             ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ) :
             ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),
-        pal_addr   = 0,
-        raw        = { pxl[2:0], pxl[2] }^{4{~lcd_neg}},
         obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
         scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
         scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
 
-// to do: connect to actual palette RAM
 assign  red        = raw,
         blue       = raw,
         green      = raw;
 
-always @(posedge clk) begin
+always @* begin
     // layer mixing
-    pxl <= scr_eff[2:0];
-    lyr[1] <= 0;
-    lyr[0] <= scr_eff[3] ^ scr_order;
+    pxl = scr_eff[2:0];
+    // lyr[1] = 0;
+    // lyr[0] = scr_eff[3] ^ scr_order;
     if( !obj_blank ) begin
-        lyr[1] <= 1;
+        // lyr[1] = 1;
         case( prio )
-            3: pxl <= obj_palout;
-            2: if( scr_eff[3] ) pxl <= obj_palout;
-            1: if( scr_eff[1:0]==0) pxl <= obj_palout;
-            default: lyr[1] <= 0;
+            3: pxl = obj_palout;
+            2: if( scr_eff[3] ) pxl = obj_palout;
+            1: if( scr_eff[1:0]==0) pxl = obj_palout;
+            default: pxl = bg_pal;
+            // default: lyr[1] = 0;
         endcase
     end
+end
+
+always @(posedge clk) if(pxl_cen) begin
+    raw <= LHBL&LVBL ? { pxl[2:0], pxl[2] }^{4{~lcd_neg}} : 4'd0;
 end
 
 `ifdef SIMULATION
@@ -227,25 +230,5 @@ always @(posedge clk, posedge rst) begin
         endcase
     end
 end
-
-// 256 entries, each is 16 bits
-// jtframe_dual_ram16 #(
-//     .AW         (  8          ),
-//     .SIMFILE_LO ( SIMFILE_LO  ),
-//     .SIMFILE_HI ( SIMFILE_HI  )
-// ) u_pal(
-//     // Port 0
-//     .clk0   ( clk       ),
-//     .data0  ( cpu_dout  ),
-//     .addr0  ( cpu_addr  ),
-//     .we0    ( we        ),
-//     .q0     ( cpu_din   ),
-//     // Port 1
-//     .clk1   ( clk       ),
-//     .data1  (           ),
-//     .addr1  ( pal_addr  ),
-//     .we1    ( 2'b0      ),
-//     .q1     ( pal_dout  )
-// );
 
 endmodule

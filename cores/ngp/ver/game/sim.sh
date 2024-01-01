@@ -14,6 +14,9 @@ function try {
 
 INPUTS=
 
+drop1 -l < rom.bin > rom_lo.bin
+drop1    < rom.bin > rom_hi.bin
+
 while [ $# -gt 0 ]; do
     case $1 in
         -nvram)
@@ -24,6 +27,11 @@ while [ $# -gt 0 ]; do
                 fi
             fi
             go run fixnvram.go  # prevents running the setup
+            drop1 -l < nvram.bin > nvram_lo.bin
+            drop1    < nvram.bin > nvram_hi.bin
+            # Change reset vector, so it does not wait for the power-up button press
+            printf "\x18" | dd of=rom_hi.bin bs=1 seek=`printf "%d" 0x7f80` count=1 conv=notrunc
+            printf "\x00" | dd of=rom_lo.bin bs=1 seek=`printf "%d" 0x7f80` count=1 conv=notrunc
             OTHER="$OTHER -d NVRAM"
             ;;
         -cart)
@@ -45,8 +53,8 @@ while [ $# -gt 0 ]; do
         -s)
             shift
             SCENE=$1
-            OTHER="$OTHER -d NOMAIN -d NOSND -video 2 -w"
-            if [ ! -d $SCENE ]; then
+            OTHER="$OTHER -d NOMAIN -d NOSND -video 2 -w -zoom"
+            if [ ! -e scenes/$SCENE/vram.bin ]; then
                 echo Cannot find scene $SCENE
                 exit 1
             fi
@@ -72,15 +80,15 @@ function split {
 }
 
 if [ -n "$SCENE" ]; then
-    dd if=$SCENE/vram.bin of=regsram.bin ibs=64 count=1
-    dd if=$SCENE/vram.bin of=pal.bin ibs=1 count=25 skip=256
-    dd if=$SCENE/vram.bin of=objram.bin  ibs=256 count=1 skip=8
-    dd if=$SCENE/vram.bin of=scr1ram.bin count=4 skip=8
-    dd if=$SCENE/vram.bin of=scr2ram.bin count=4 skip=12
-    dd if=$SCENE/vram.bin of=chram.bin count=16 skip=16
+    dd if=scenes/$SCENE/vram.bin of=regsram.bin ibs=64 count=1 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=pal.bin ibs=1 count=25 skip=256 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=objram.bin  ibs=256 count=1 skip=8 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=scr1ram.bin count=4 skip=8 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=scr2ram.bin count=4 skip=12 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=chram.bin count=16 skip=16 2> /dev/null
     for i in obj ch scr1 scr2 regs; do split $i; done
     # rm -f objram.bin charam.bin
 fi
 
 echo jtsim $OTHER
-jtsim $OTHER
+jtsim -sysname ngp -d JTFRAME_SIM_DIPS=0 $OTHER

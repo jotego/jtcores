@@ -1,0 +1,7 @@
+1 B0
+2 CIN
+3 COM
+4 HI
+5 SA
+6 SH
+7 ZF

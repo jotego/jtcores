@@ -20,8 +20,7 @@ module jtngp_main(
     input               rst,
     input               clk,
     input               clk_rom,
-    input               cen12,
-    input               cen6,
+    input               cpu_cen,
     input               phi1_cen,
     input               rtc_cen,
 
@@ -57,9 +56,7 @@ module jtngp_main(
     output reg   [ 7:0] snd_dacl, snd_dacr,
 
     // Firmware access
-    output reg          rom_cs,
     input        [15:0] rom_data,
-    input               rom_ok,
 
     // NVRAM
     input        [13:0] ioctl_addr,
@@ -77,11 +74,11 @@ wire [23:0] addr;
 wire [15:0] ram0_dout, ram1_dout;
 reg  [15:0] io_dout;
 reg         ram0_cs, ram1_cs,
-            shd_cs,  io_cs;
+            shd_cs,  io_cs,   rom_cs;
 reg  [ 7:0] ngp_ports[0:63]; // mapped to 80~BF
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
-wire        int4;
+wire        int4, rd;
 // reg         cpu_cen=0;
 reg         poweron;
 reg  [ 3:0] pwr_cnt;
@@ -93,10 +90,15 @@ wire [ 2:0] rtc_we;
 // NVRAM
 wire        nvram0_we, nvram1_we;
 wire [ 7:0] nvram0_dout, nvram1_dout;
+// Flash
+reg         f0csl, f1csl;
+reg  [23:0] addrl;
+wire        fwc;        // flash wait cycle
 
 wire [ 7:0] st_cpu;
 
-assign bus_busy  = (rom_cs & ~rom_ok) | (flash0_cs & ~flash0_rdy);
+assign fwc       = (flash0_cs&~f0csl) | (flash1_cs&~f1csl) | ((flash0_cs||flash1_cs)&&addrl!=addr);
+assign bus_busy  = (flash0_cs & ~flash0_rdy);// | fwc; // the fwc part may not be needed
 assign cpu_addr  = addr[20:1];
 // assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
 //        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
@@ -111,7 +113,6 @@ assign rtc_we[0] = io_cs && we[0] && addr[5:1]==5'b01_011; // 80+16 = 96 - secon
 
 assign nvram0_we = ioctl_ram & ioctl_wr & ~ioctl_addr[13];
 assign nvram1_we = ioctl_ram & ioctl_wr &  ioctl_addr[13];
-// always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
 always @(posedge clk) begin
     st_dout <= joystick1[4] ? st_cpu : ngp_ports[debug_bus[5:0]];
@@ -140,12 +141,18 @@ always @* begin
     ram1_cs   = in_range(24'h00_6000, 24'h00_7000); //  4kB exclusive
     shd_cs    = in_range(24'h00_7000, 24'h00_8000); //  4kB shared
     gfx_cs    = in_range(24'h00_8000, 24'h00_c000); // 16kB GFX RAM
-    flash0_cs = in_range(24'h20_0000, 24'h40_0000);
-    flash1_cs = in_range(24'h80_0000, 24'hA0_0000);
+    flash0_cs = (rd||we!=0) && in_range(24'h20_0000, 24'h40_0000);
+    flash1_cs = (rd||we!=0) && in_range(24'h80_0000, 24'hA0_0000);
     rom_cs    = addr >= 24'hFF_0000;                // maybe map_cs[2/3] could be used too?
 end
 
 always @(posedge clk) ioctl_din <= ioctl_addr[13] ? nvram1_dout : nvram0_dout;
+
+always @(posedge clk) begin
+    f0csl <= flash0_cs;
+    f1csl <= flash1_cs;
+    addrl <= addr;
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -224,7 +231,9 @@ jtframe_rtc u_rtc(
 
 /* verilator tracing_on */
 jtframe_dual_nvram16 #(
-    .AW(12)     // 8kB
+    .AW(12),     // 8kB
+    .SIMFILE_HI("nvram_hi.bin"),
+    .SIMFILE_LO("nvram_lo.bin")
 `ifdef DUMP_RAM
     ,.VERBOSE(1),.VERBOSE_OFFSET('h4000) `endif
 ) u_ram0(
@@ -344,9 +353,9 @@ jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
 `ifdef SIMULATION
-    .cen        ( cen12 & ~(copy^copy_done) & ~locked  ),  // this is still too slow...
+    .cen        ( cpu_cen & ~(copy^copy_done) & ~locked  ),
 `else
-    .cen        ( cen12     ),
+    .cen        ( cpu_cen     ),
 `endif
     .phi1_cen   ( phi1_cen  ),
 
@@ -364,6 +373,7 @@ jt95c061 u_mcu(
     .din        ( din       ),
     .dout       ( cpu_dout  ),
     .we         ( we        ),
+    .rd         ( rd        ),
     .bus_busy   ( bus_busy  ),
 
     .map_cs     ( map_cs    ),
@@ -374,7 +384,7 @@ jt95c061 u_mcu(
     assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq } = 0;
     initial begin
         snd_rstn = 1;
-        { gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, rom_cs } = 0;
+        { gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout, ioctl_din } = 0;
     end
 `endif
 endmodule

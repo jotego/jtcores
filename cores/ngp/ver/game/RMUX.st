@@ -1,0 +1,15 @@
+1 BC
+2 CC
+3 CR
+4 DST
+5 EA
+6 MD
+7 N3
+8 N4
+9 PC
+A RFP
+B SPD
+C SR
+D SRC
+E XSP
+F ZERO

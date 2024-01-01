@@ -20,9 +20,9 @@ module jtngp_video(
     input               rst,
     input               clk,
     input               clk24,
-    input        [ 1:0] video_cen,
-    output              pxl_cen,
-    output              pxl2_cen,
+    input               cen6,
+    input               pxl_cen,
+    input               pxl2_cen,
 
     input        [31:0] status,
 
@@ -111,17 +111,17 @@ always @* begin
     ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
 end
 
-always @(posedge clk) begin
-    cpu_din <= pal_cs   ? pal_dout  :
+always @* begin // do not register here
+    cpu_din =  pal_cs   ? pal_dout  :
                scr1_cs  ? scr1_dout :
                scr2_cs  ? scr2_dout :
                regs_cs  ? regs_dout :
                ram_cs   ? fix_dout : obj_dout;
 end
-
+/* verilator tracing_on */
 jtngp_vtimer u_vtimer(
     .clk        ( clk       ),
-    .video_cen  ( video_cen ),
+    .cen6       ( cen6      ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .hint_en    ( hirq_en   ),
@@ -141,7 +141,7 @@ jtngp_vtimer u_vtimer(
     .hirq       ( hirq      ),
     .virq       ( virq      )
 );
-
+/* verilator tracing_on */
 jtngp_mmr u_mmr(
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -192,14 +192,13 @@ jtngp_chram u_chram(
     .scr2_addr  ( scr2_addr ),
     .scr2_data  ( scr2_data )
 );
-
+/* verilator tracing_on */
 jtngp_scr #(
     .SIMFILE_LO("scr1_lo.bin"),
     .SIMFILE_HI("scr1_hi.bin")
 ) u_scr1 (
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .LHBL       ( LHBL      ),
     .pxl_cen    ( pxl_cen   ),
 
     .hdump      ( hdump     ),
@@ -226,7 +225,6 @@ jtngp_scr #(
 ) u_scr2 (
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .LHBL       ( LHBL      ),
     .pxl_cen    ( pxl_cen   ),
 
     .hdump      ( hdump     ),
@@ -246,7 +244,7 @@ jtngp_scr #(
     .en         ( gfx_en[1] ),
     .pxl        ( scr2_pxl  )
 );
-
+/* verilator tracing_on */
 jtngp_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -274,7 +272,7 @@ jtngp_obj u_obj(
     .en         ( gfx_en[3] ),
     .pxl        ( obj_pxl   )
 );
-
+/* verilator tracing_off */
 jtngp_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -300,7 +298,8 @@ jtngp_colmix u_colmix(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus )
 );
 
 endmodule

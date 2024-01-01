@@ -85,8 +85,8 @@ localparam [26:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET 
 
 always @(posedge clk) begin
     ioctl_ram   <= (hps_download && hps_index==IDX_NVRAM) || hps_upload;
-    ioctl_cheat <= hps_download && hps_index==IDX_CHEAT;
-    ioctl_lock  <= hps_download && hps_index==IDX_LOCK;
+    ioctl_cheat <=  hps_download && hps_index==IDX_CHEAT;
+    ioctl_lock  <=  hps_download && hps_index==IDX_LOCK;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -194,7 +194,7 @@ always @(posedge clk, posedge rst) begin
         last_dwnbusy <= dwnld_busy;
         game_rom  <= hps_index==IDX_ROM || hps_index==IDX_CART;
         game_cart <= hps_index==IDX_CART;
-        if( hps_download && hps_index==IDX_ROM && !last_dwn && game_rom) begin
+        if( hps_download && (hps_index==IDX_ROM  || hps_index==IDX_CART) && !last_dwn && game_rom) begin
             ioctl_rom <= 1;
             wr_latch  <= 0;
         end else begin

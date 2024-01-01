@@ -627,7 +627,7 @@ void k2ge_device::draw( int line )
 		}
 		col = m_vram[0x3e0 + col ] | ( m_vram[0x3e1 + col ] << 8 );
 
-		/* Set the bacground color */
+		/* Set the background color */
 		for ( int i = 0; i < 160; i++ )
 		{
 			p[i] = col;
