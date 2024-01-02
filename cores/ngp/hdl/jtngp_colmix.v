@@ -64,13 +64,13 @@ reg [2:0] scr1_pal1 [1:3];
 reg [2:0] scr2_pal0 [1:3];
 reg [2:0] scr2_pal1 [1:3];
 reg [2:0] bg_pal;
-reg       bg_en;
+reg [1:0] bg_en;
 
 assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
         obj_blank  = obj_pxl[1:0]==0 || prio==0,
         scr_blank  = scr1_blank && scr2_blank,
-        scr_eff    = scr_blank ? {1'b1, bg_en ? bg_pal : 3'd0 } :
+        scr_eff    = scr_blank ? {1'b1, bg_en==2'b10 ? bg_pal : 3'd0 } :
                      scr_order ?
             ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ) :
             ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),
@@ -151,7 +151,7 @@ always @(posedge clk, posedge rst) begin
             scr2_pal1[2] <= zeroval[20+2][2:0];
             scr2_pal1[3] <= zeroval[20+3][2:0];
               bg_pal     <= zeroval[20+4][2:0];
-              bg_en      <= zeroval[20+4][7:6]==2;
+              bg_en      <= zeroval[20+4][7:6];
         end
 `endif
     end else begin
@@ -190,7 +190,7 @@ always @(posedge clk, posedge rst) begin
                 cpu_din[10:8] <= scr2_pal1[3];
             end
             // Background
-            4'b1_100: cpu_din[2:0] <= bg_pal;
+            4'b1_100: {cpu_din[7:6], cpu_din[2:0]} <= {bg_en,bg_pal};
             default:;
         endcase
 
@@ -228,7 +228,7 @@ always @(posedge clk, posedge rst) begin
                 if( we[1] ) scr2_pal1[3] <= cpu_dout[10:8];
             end
             // Background
-            4'b1_100: if( we[0] ) {bg_en, bg_pal} <= {cpu_dout[7:6]==2,cpu_dout[2:0]};
+            4'b1_100: if( we[0] ) {bg_en, bg_pal} <= {cpu_dout[7:6],cpu_dout[2:0]};
             default:;
         endcase
     end

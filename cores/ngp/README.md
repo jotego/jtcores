@@ -41,6 +41,8 @@ See more simulation setup notes [here](ver/game/README.md).
 
 MiSTer scaler automatically handles the awkward video format. This means that the core will only work via HDMI. MiSTer's analog output may work if it is configured to output the scaler video. Compiling the sound CPU is most likely needed for the system to work correctly. All this means that you need to run full compilations for all tests: `jtcore ngp -mr`
 
+The analog video output will not work without a frame buffer because the line period is 83.82us, very far from the typical 64us required. If the system was ignorant of the video output, it would be possible to output at a different rate but the CPU has access to the video circuitry internals and knows at which point of the line the graphics hardware is working. Therefore, only HDMI output is supported.
+
 ## MAME
 
 Supply the cartridge name with `-cart`. It is possible to boot with no cartridge too.

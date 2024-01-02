@@ -65,7 +65,7 @@ always @(posedge clk) begin
         endcase
     endcase
 end
-
+/* verilator tracing_off */
 jtngp_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -145,7 +145,7 @@ jtngp_flash u_flash(
     .cart_dsn   ( cart0_dsn ),
     .cart_din   ( cart0_din )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_snd u_snd(
     .rstn       ( snd_rstn  ),
     .clk        ( clk       ),
@@ -173,7 +173,7 @@ jtngp_snd u_snd(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
