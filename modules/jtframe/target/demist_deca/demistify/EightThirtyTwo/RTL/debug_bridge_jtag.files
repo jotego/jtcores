@@ -1,0 +1,4 @@
+debug_fifo.vhd
+${vendor}/debug_virtualjtag_${fpga}.vhd
+${vendor}/debug_bridge_jtag.vhd
+

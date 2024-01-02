@@ -1,0 +1,26 @@
+here:
+  - common.yaml
+  - jtframe_mist_clocks.v  
+  - jtframe_deca_top.vhd
+  # DeMiSTify specific board modules
+  - demistify/deca/constraints.sdc      
+  - demistify/deca/audio/AUDIO_SPI_CTL_RD.v
+  - demistify/deca/audio/SPI_RAM.v
+  - demistify/deca/audio/audio_i2s.vhd
+  - demistify/deca/hdmi/I2C_Controller.v
+  - demistify/deca/hdmi/I2C_HDMI_Config.v
+  # PLLs
+  #- pllgame/jtframe_pllgame.qip
+  - pllgame96/jtframe_pllgame96.qip
+  - pll6000/jtframe_pll6000.qip
+  - pll6144/jtframe_pll6144.qip
+  - pll6293/jtframe_pll6293.qip
+  - pll6671/jtframe_pll6671.qip          
+  # ddr3 framebuffer    // TODO:  NOT WORKING YET
+  - jtframe_lfbuf_ddr_deca.v
+  - jtframe_lfbuf_ddr_deca_ctrl.v    
+jtframe:
+  - from: video
+    get:
+      - jtframe_lfbuf_line.v
+      
