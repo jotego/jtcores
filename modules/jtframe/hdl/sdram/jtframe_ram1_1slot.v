@@ -67,15 +67,16 @@ always @(posedge clk, posedge rst) begin
             sdram_rd <= 0;
             sdram_wr <= 0;
         end
-        if( data_rdy ) we <= 0;
-
-        // accept a new request
-        if( req ) begin
-            we          <= 1;
-            data_write  <= {(SLOT0_DW==8?2:1){slot0_din}};
-            sdram_wrmask<= slot0_wrmask;
-            sdram_rd    <= req_rnw;
-            sdram_wr    <= ~req_rnw;
+        if( !we || data_rdy ) begin
+            we <= 0;
+            // accept a new request
+            if( req ) begin
+                we          <= 1;
+                data_write  <= {(SLOT0_DW==8?2:1){slot0_din}};
+                sdram_wrmask<= slot0_wrmask;
+                sdram_rd    <= req_rnw;
+                sdram_wr    <= ~req_rnw;
+            end
         end
     end
 end

@@ -267,7 +267,7 @@ jtframe_dwnld #(
     .header       ( header         ),
     .sdram_ack    ( prog_ack       )
 );
-
+/* verilator tracing_on*/
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 `ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif

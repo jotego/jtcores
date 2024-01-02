@@ -121,7 +121,7 @@ jtngp_main u_main(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_flash u_flash(
     .rst        ( rst       ),
     .clk        ( clk       ),

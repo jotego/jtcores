@@ -152,13 +152,15 @@ end
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
         cart_addr <= 0;
-        cart_we   <= 0;
         cart_cs   <= 0;
         cart_din  <= 0;
         cart_dsn  <= 0;
+        cart_we   <= 0;
         erase_bsy <= 0;
-        prog_bsy  <= 0;
         erase_st  <= 0;
+        prog_bsy  <= 0;
+        prog_st   <= 0;
+        rd_bsy    <= 0;
     end else begin
         if( !erase_bsy && !prog_bsy && !rd_bsy ) begin
             if( erase_start ) begin
@@ -208,20 +210,23 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        st          <= READ;
+        addr_l      <= 0;
         cmd         <= 0;
-        id          <= 0;
-        erase_start <= 0;
-        prog_start  <= 0;
-        prog_data   <= 0;
-        prog_addr   <= 0;
-        cswe_l      <= 0;
         cs_l        <= 0;
+        cswe_l      <= 0;
+        erase_start <= 0;
+        id          <= 0;
+        prog_addr   <= 0;
+        prog_ba     <= 0;
+        prog_data   <= 0;
+        prog_size   <= 0;
+        prog_start  <= 0;
+        st          <= READ;
     end else begin
         erase_start <= 0;
         prog_start  <= 0;
         cswe_l      <= cpu_cswe;
-        cs_l        <= cpu_cs;
+        cs_l        <= cpu_cs & ~(erase_bsy|prog_bsy);
         addr_l      <= cpu_addr;
 
         if( we_edge ) begin
