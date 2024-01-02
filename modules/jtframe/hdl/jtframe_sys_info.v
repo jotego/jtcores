@@ -33,6 +33,7 @@ module jtframe_sys_info(
     // IOCTL
     input               ioctl_ram,
     input               ioctl_rom,
+    input               ioctl_cart,
     // mouse
     input         [8:0] mouse_dx,
     input         [8:0] mouse_dy,
@@ -73,7 +74,7 @@ always @(posedge clk, posedge rst) begin
         case( st_addr[7:6] )
             0: case(st_addr[5:4])
                 0: st_dout <= stats;
-                1: st_dout <= { 3'd0, ioctl_ram, 3'd0, ioctl_rom };
+                1: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
                 default: st_dout <= 0;
             endcase
             1: case( st_addr[1:0] )

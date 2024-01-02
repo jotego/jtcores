@@ -143,6 +143,8 @@ splits=[
 patches = [
 	{ machine="...", setname="...", offset=0x0000, data="01 02 03..." },...
 ]
+# file extensions used for cartridge loading
+carts=["rom","bin"]
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {

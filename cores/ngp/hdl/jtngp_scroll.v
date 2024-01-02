@@ -57,11 +57,11 @@ always @* begin
     veff = vdump + vpos;
     scan_addr = { veff[7:3], heff[7:3] };
 end
-
+`ifdef SIMULATION
 reg [15:0] chk_d=0;
 reg [ 9:0] chk_a=0;
 always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { cpu_addr, cpu_dout & {{8{we[1]}},{8{we[0]}}} };
-
+`endif
 // 2048 bytes = 32x32 characters
 jtframe_dual_ram16 #(
     .AW         (  10         ),

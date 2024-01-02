@@ -69,7 +69,7 @@ wire [ 7:0] hoffset, voffset,
             scr2_hpos, scr2_vpos,
             view_width, view_height,
             view_startx,view_starty;
-wire        scr_order, hirq_en, virq_en, lcd_neg;
+wire        scr_order, hirq_en, virq_en, lcd_neg, oow;
 
 wire [ 4:0] obj_pxl;
 wire [ 2:0] scr1_pxl, scr2_pxl, oowc;
@@ -102,7 +102,7 @@ end
 
 always @* begin
     regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
-    pal_cs    = gfx_cs && in_range(14'h0100,14'h0118); // monochrome palette
+    pal_cs    = gfx_cs && in_range(14'h0100,14'h011A); // monochrome palette
     palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
     obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
     obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
@@ -135,9 +135,13 @@ jtngp_vtimer u_vtimer(
     .LVBL       ( LVBL      ),
     .HS         ( HS        ),
     .VS         ( VS        ),
+    // Window
+    .view_width ( view_width  ),
+    .view_height( view_height ), // it influences when interrupts occur too
+    .view_startx( view_startx ),
+    .view_starty( view_starty ),
+    .oow        ( oow       ),
     // interrupts
-    .view_height(view_height),
-    .view_starty(view_starty),
     .hirq       ( hirq      ),
     .virq       ( virq      )
 );
@@ -161,11 +165,12 @@ jtngp_mmr u_mmr(
     .scr1_vpos  ( scr1_vpos   ),
     .scr2_hpos  ( scr2_hpos   ),
     .scr2_vpos  ( scr2_vpos   ),
+    .scr_order  ( scr_order   ),
+    // Window
     .view_width ( view_width  ),
     .view_height( view_height ), // it influences when interrupts occur too
     .view_startx( view_startx ),
     .view_starty( view_starty ),
-    .scr_order  ( scr_order   ),
     .oowc       ( oowc        ),
     .hirq_en    ( hirq_en     ),
     .virq_en    ( virq_en     ),
@@ -272,7 +277,7 @@ jtngp_obj u_obj(
     .en         ( gfx_en[3] ),
     .pxl        ( obj_pxl   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -280,6 +285,10 @@ jtngp_colmix u_colmix(
 
     .lcd_neg    ( lcd_neg   ),
     .scr_order  ( scr_order ),
+
+    // Window
+    .oow        ( oow       ),
+    .oowc       ( oowc      ),
 
     // CPU access
     .cpu_addr   ( cpu_addr[8:1] ),

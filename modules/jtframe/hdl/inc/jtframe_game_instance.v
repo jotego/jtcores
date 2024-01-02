@@ -107,6 +107,7 @@ u_game(
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
+    .ioctl_cart  ( ioctl_cart     ),
     .ioctl_wr    ( ioctl_wr       ), `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram   ( ioctl_ram      ),
     .ioctl_din   ( ioctl_din      ), `endif

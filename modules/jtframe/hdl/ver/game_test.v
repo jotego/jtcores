@@ -65,6 +65,7 @@ module game_test(
 
     // SDRAM interface
     input           ioctl_rom,
+    input           ioctl_cart,
     output          dwnld_busy,
 
     // ROM LOAD
@@ -589,13 +590,12 @@ u_game(
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
-    .ioctl_wr    ( ioctl_wr       ),
-`ifdef JTFRAME_IOCTL_RD
+    .ioctl_wr    ( ioctl_wr       ), `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram   ( ioctl_ram      ),
-    .ioctl_din   ( ioctl_din      ),
-`endif
+    .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
     .ioctl_rom   ( ioctl_rom      ),
+    .ioctl_cart  ( ioctl_cart     ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( data_read      ),
 

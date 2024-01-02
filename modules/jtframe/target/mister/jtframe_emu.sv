@@ -348,7 +348,7 @@ assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
 
 // ROM download
-wire          ioctl_rom, dwnld_busy;
+wire          ioctl_rom, ioctl_cart, dwnld_busy;
 
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0]   prog_data;
@@ -554,11 +554,12 @@ u_frame(
     // ROM load
     .ioctl_addr     ( ioctl_addr     ),
     .ioctl_dout     ( ioctl_dout     ),
-    .ioctl_rom_wr   ( ioctl_wr       ),
+    .ioctl_wr       ( ioctl_wr       ),
     .ioctl_ram      ( ioctl_ram      ),
     .ioctl_din      ( ioctl_din      ),
 
     .ioctl_rom      ( ioctl_rom      ),
+    .ioctl_cart     ( ioctl_cart     ),
     .dwnld_busy     ( dwnld_busy     ),
 //////////// board
     .rst            ( rst            ),

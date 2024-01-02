@@ -1,6 +1,6 @@
 jtframe:
   - from: cpu/t80
-    unless: VERILATOR
+    unless: VERILATOR,IVERILOG
     get:
       - T80pa.vhd
       - T80s.vhd
@@ -9,6 +9,6 @@ jtframe:
       - T80_ALU.vhd
       - T80.vhd
   - from: cpu/t80
-    when: VERILATOR
+    when: VERILATOR,IVERILOG
     get:
       - T80s.v

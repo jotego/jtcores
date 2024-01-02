@@ -1,6 +1,6 @@
 J{{.CORENAME}};;
 {{ if .JTFRAME_OSD_LOAD }}          F,rom;                    {{ end }}
-{{ if .JTFRAME_CART_OFFSET }}       F4,ngp;                   {{ end }}
+{{ if .JTFRAME_CART_OFFSET }}       F4,ngpngc;                {{ end }}
 {{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}
 {{ if .JTFRAME_CHEAT }}             CHEAT;                    {{ end }}
     P1,Video;

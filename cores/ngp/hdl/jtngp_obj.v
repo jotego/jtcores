@@ -62,11 +62,11 @@ always @(posedge clk) if(pxl_cen) begin
     pxl <= pre_pxl;
     if(!en) pxl[1:0] <= 0;
 end
-
+`ifdef SIMULATION
 reg [15:0] chk_d=0;
 reg [ 7:0] chk_a=0;
 always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { obj2_cs, cpu_addr, cpu_dout & {{8{we[1]}},{8{we[0]}}} };
-
+`endif
 // 256 bytes = 64 objects, extra 64 bytes in K2GE
 // the extra byte is mapped up in the BRAM
 jtframe_dual_ram16 #(

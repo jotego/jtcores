@@ -69,6 +69,7 @@ JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, u
 JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  down,  up
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
+JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for objects
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping

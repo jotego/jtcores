@@ -103,6 +103,7 @@ module jtframe_mist #(parameter
     output             ioctl_ram,
     input              dwnld_busy,
     output             ioctl_rom,
+    output             ioctl_cart,
 
 //////////// board
     output             rst,      // synchronous reset
@@ -175,6 +176,7 @@ assign paddle_4 = 0;
 assign dipsw = `ifdef JTFRAME_SIM_DIPS
     `JTFRAME_SIM_DIPS `else
     status[31+DIPBASE:DIPBASE] `endif;
+assign ioctl_cart = 0; // not supported for now
 
 always @* begin
     board_status = { {64-DIPBASE{1'b0}}, status[DIPBASE-1:0] };
@@ -298,7 +300,8 @@ jtframe_board #(
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
     .ioctl_ram      ( ioctl_ram       ),
-    .ioctl_rom      ( dwnld_busy      ), // use busy signal from game module
+    .ioctl_cart     ( ioctl_cart      ),
+    .dwnld_busy     ( dwnld_busy      ), // use busy signal from game module
 
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),

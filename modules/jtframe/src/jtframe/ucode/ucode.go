@@ -54,6 +54,7 @@ type UcDesc struct {
 		Implicit bool `yaml:"implicit"`
 		BusError string `yaml:"bus_error"`
 		Latch    bool	`yaml:"latch_ucode"`
+		IgnoreCycles bool `yaml:"ignore_cycles"`		// use to indicate that cycle information is still not ready and should not be used
 		Auto struct { // Automatic assignment of start address to procedures
 			Min int   // base address at which assignment starts
 			Max int   // bits set to 1 can be used for automatic addressing
@@ -850,8 +851,11 @@ func Make(modname, fname string) {
 	}
 	check_mnemos(&desc, Args.Verbose)
 	code := expand_all(&desc)
-	fix_cycles(code, &desc, Args.Verbose)
-	bad := report_cycles( code, &desc, Args.Report )
+	bad := 0
+	if !desc.Cfg.IgnoreCycles {
+		fix_cycles(code, &desc, Args.Verbose)
+		bad = report_cycles( code, &desc, Args.Report )
+	}
 	params := make_params(list_unames(code)) // make parameter definitions for bus signals
 	if Args.List {
 		dump_list(Args.Output,code,&desc)

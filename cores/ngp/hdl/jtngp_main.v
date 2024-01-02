@@ -28,6 +28,7 @@ module jtngp_main(
 
     input               cab_1p,
     input               pwr_button,
+    output reg          poweron,
     input       [ 5:0]  joystick1,
 
     // Bus access
@@ -80,7 +81,6 @@ wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        int4, rd;
 // reg         cpu_cen=0;
-reg         poweron;
 reg  [ 3:0] pwr_cnt;
 wire [ 3:0] porta_dout;
 wire        bus_busy;
@@ -384,7 +384,7 @@ jt95c061 u_mcu(
     assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq } = 0;
     initial begin
         snd_rstn = 1;
-        { gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout, ioctl_din } = 0;
+        { poweron, gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout, ioctl_din } = 0;
     end
 `endif
 endmodule

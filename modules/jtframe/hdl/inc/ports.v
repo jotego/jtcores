@@ -27,8 +27,8 @@
     input           ioctl_ram,
     input           ioctl_wr,
     output   [ 7:0] ioctl_din,
-    input    [ 7:0] ioctl_dout,
-`endif
+    input    [ 7:0] ioctl_dout, `endif
+    input           ioctl_cart,
     // Explicit ports
 {{- range .Ports}}
     {{if .Input}}input{{else}}output{{end}}   {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}},{{end }}

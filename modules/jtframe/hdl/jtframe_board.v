@@ -66,7 +66,8 @@ module jtframe_board #(parameter
     output              prog_rdy,
     output              prog_dst,
     output              prog_ack,
-    input               ioctl_rom,
+    input               ioctl_cart,
+    input               dwnld_busy,
     input               ioctl_ram,
     // SDRAM interface
     inout    [15:0]     SDRAM_DQ,       // SDRAM Data bus 16 Bits
@@ -273,13 +274,20 @@ assign base_LVBL = pre2x_LVBL;
     );
 `endif
 
+reg rom_rst=0;
+
+always @(posedge clk_rom) begin
+    if(!dwnld_busy) rom_rst <= 0;
+    else if(ioctl_wr&&!ioctl_cart) rom_rst <= 1;
+end
+
 jtframe_reset u_reset(
     .clk_sys    ( clk_sys       ),
     .clk_rom    ( clk_rom       ),
     .pxl_cen    ( pxl_cen       ),
 
     .sdram_init ( sdram_init    ),
-    .ioctl_rom  ( ioctl_rom     ),
+    .ioctl_rom  ( rom_rst       ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
@@ -295,7 +303,7 @@ jtframe_led u_led(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .LVBL       ( LVBL          ),
-    .ioctl_rom  ( ioctl_rom     ),
+    .ioctl_rom  ( dwnld_busy     ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
     .game_led   ( game_led      ),
@@ -381,8 +389,9 @@ jtframe_keyboard u_keyboard(
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),
             // IOCTL
-            .ioctl_rom  ( ioctl_rom     ),
+            .ioctl_rom  ( dwnld_busy     ),
             .ioctl_ram  ( ioctl_ram     ),
+            .ioctl_cart ( ioctl_cart    ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
             .mouse_dx   ( bd_mouse_dx   ),
@@ -428,7 +437,7 @@ jtframe_inputs #(
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
     .LHBL           ( LHBL            ),
-    .ioctl_rom      ( ioctl_rom       ),
+    .ioctl_rom      ( dwnld_busy       ),
     .dip_flip       ( dip_flip        ),
     .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
@@ -716,7 +725,7 @@ jtframe_sdram64 #(
     .dst        ( bax_dst       ),
 
     // ROM-load interface
-    .prog_en    ( ioctl_rom     ),
+    .prog_en    ( dwnld_busy | ioctl_cart ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),
@@ -942,22 +951,21 @@ endfunction
     assign scan2x_sl    = scanlines[1:0];
     // unused in MiST
     assign gamma_bus    = 22'd0;
-`else
-    localparam VIDEO_DW = CLROUTW!=5 ? 3*CLROUTW : 24;
+`else // MiSTer do not take u_wirebw's output but u_debug's
+    localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
 
     wire [VIDEO_DW-1:0] game_rgb;
 
     // arcade video does not support 15bpp colour, so for that
     // case we need to convert it to 24bpp
     generate
-        if( CLROUTW!=5 ) begin
-            assign game_rgb = {r_ana, g_ana, b_ana };
+        if( COLORW!=5 ) begin
+            assign game_rgb = {dbg_r, dbg_g, dbg_b};
         end else begin
             assign game_rgb = {
-                r_ana, r_ana[4:2],
-                g_ana, g_ana[4:2],
-                b_ana, b_ana[4:2]
-            };
+                dbg_r, dbg_r[4:2],
+                dbg_g, dbg_g[4:2],
+                dbg_b, dbg_b[4:2]   };
         end
     endgenerate
 
@@ -968,10 +976,10 @@ endfunction
         .ce_pix     ( pxl_cen       ),
 
         .RGB_in     ( game_rgb      ),
-        .HBlank     ( ~lhbl_ana     ),
-        .VBlank     ( ~lvbl_ana     ),
-        .HSync      ( hs_ana        ),
-        .VSync      ( vs_ana        ),
+        .HBlank     ( ~pre2x_LHBL   ),
+        .VBlank     ( ~pre2x_LVBL   ),
+        .HSync      ( hs            ),
+        .VSync      ( vs            ),
 
         .CLK_VIDEO  ( scan2x_clk    ),
         .CE_PIXEL   ( scan2x_cen    ),

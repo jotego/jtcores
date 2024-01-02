@@ -69,7 +69,7 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
-wire gfx8_en, gfx16_en;
+wire gfx8_en, gfx16_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
 
@@ -199,8 +199,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .ioctl_ram    ( ioctl_ram      ),
     .ioctl_din    ( {{.Ioctl.DinName}}      ),
     .ioctl_dout   ( ioctl_dout     ),
-    .ioctl_wr     ( ioctl_wr       ),
-`endif
+    .ioctl_wr     ( ioctl_wr       ), `endif
+    .ioctl_cart   ( ioctl_cart     ),
     // Debug
     .debug_bus    ( debug_bus      ),
     .debug_view   ( debug_view     ),
@@ -228,6 +228,7 @@ assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
 assign gfx8_en   = {{ .Gfx8 }}
 assign gfx16_en  = {{ .Gfx16 }}
+assign ioctl_dwn = ioctl_rom | ioctl_cart;
 /* verilator tracing_off */
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
@@ -250,7 +251,7 @@ jtframe_dwnld #(
     .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
-    .ioctl_rom    ( ioctl_rom      ),
+    .ioctl_rom    ( ioctl_dwn      ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),

@@ -6,6 +6,10 @@ JTFRAME_JOY_RLDU
 JTFRAME_WIDTH=160
 JTFRAME_HEIGHT=152
 
+# square pixels
+JTFRAME_ARX=160
+JTFRAME_ARY=152
+
 # First 64 kB for firmware, games loaded in bank 1
 JTFRAME_CART_OFFSET=0x10000
 JTFRAME_BA1_START=0x10000
@@ -13,6 +17,9 @@ JTFRAME_BA1_WEN
 
 JTFRAME_IOCTL_RD=12288
 
-# [mist|sidi|neptuno|mcp|mc2]
+[mist|sidi|neptuno|mcp|mc2]
 # This core needs 114 M10K blocks just for the CPU
 JTFRAME_SKIP
+
+[pocket]
+JTFRAME_JOY_B1B0

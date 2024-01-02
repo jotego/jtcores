@@ -24,33 +24,44 @@ module jtngp_vtimer(
     input               cen6,
     input               pxl_cen,
     input               pxl2_cen,
-    output reg  [9:0]   hcnt,       // top 8 bits
-    output reg  [8:0]   hdump,
-    output reg  [7:0]   vdump, vrender,
+    output reg  [9:0]   hcnt=0,       // top 8 bits
+    output reg  [8:0]   hdump=0,
+    output reg  [7:0]   vdump=0, vrender=0,
+    output reg          LHBL=0,
+    output reg          LVBL=0,
+    output reg          HS=0,
+    output reg          VS=0,
+    // Active window
     input       [7:0]   view_height, view_starty,
-    output reg          LHBL,
-    output reg          LVBL,
-    output reg          HS,
-    output reg          VS,
+    input       [7:0]   view_width, view_startx,
+    output reg          oow,
 
-    output reg          hirq,
-    output reg          virq
+    output reg          hirq=0,
+    output reg          virq=0
 );
 
 localparam HBSTART  = 9'd169,
            HS0      = 9'd170,
            HBEND    = 9'd9;       // 170 pixels in haux count (21*8 plus two dummy pixels during HS)
 
-reg [7:0] virq_line;
-reg [1:0] dummy;
-reg [8:0] haux,hcmp=0;
+reg  [7:0] virq_line;
+reg  [1:0] dummy=0;
+reg  [8:0] haux=0,hcmp=0;
+reg  [7:0] oowsh=0;
+wire      oownx;
 
 initial begin
     hirq = 0;
     virq = 0;
 end
 
+assign oownx =  hdump[7:0]<view_startx   || hdump>({1'b0,view_startx}+{1'b0,view_width}) ||
+                vdump[7:0]<view_starty || vrender>(view_starty+view_height);
 always @* hdump=haux;
+
+always @(posedge clk) if(pxl_cen) begin
+    {oow,oowsh}<={oowsh,oownx};
+end
 
 always @(posedge clk) begin
     if( cen6 ) hcnt <= hcnt-10'd1;

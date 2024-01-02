@@ -87,8 +87,8 @@ if [ -d $JTBIN/mister ]; then
         fi
     done
     # NeoGeo Pocket core shoult not go inside the cores folder, but
-    # to the root level
-    if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
+    # to the root level  --- eventually, it must be in cores for the MRA to work. It needs the MRA for the beta key
+    # if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
 fi
 
 cp -r $JTBIN/mra/_alternatives $ROOT

@@ -238,6 +238,7 @@ type Mame2MRA struct {
         Ddr_load bool
         Regions  []RegCfg
         Order    []string
+        Carts    []string
         Remove   []string // Remove specific files from the dump
         // Splits break a file into chunks using the offset and length MRA attributes
         // Offset sets the break point, and Min_len the minimum length for each chunk

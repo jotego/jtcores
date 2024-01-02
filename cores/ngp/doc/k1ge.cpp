@@ -255,7 +255,7 @@ void k1ge_device::draw( int line )
 	}
 	else
 	{
-		uint16_t col = ( ( m_vram[0x118] & 0xc0 ) == 0x80 ) ? m_vram[0x118] & 0x07 : 0;
+		uint16_t col = ( ( m_vram[0x118] & 0xc0 ) == 0x80 ) ? m_vram[0x118] & 0x07 : 0; // either fill with background color or with zero
 
 		for ( int i = 0; i < 160; i++ )
 			p[i] = col;
