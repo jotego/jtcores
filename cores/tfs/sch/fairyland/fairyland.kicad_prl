@@ -78,11 +78,23 @@
         "open": false,
         "window": {
           "display": 0,
-          "maximized": false,
-          "pos_x": 958,
+          "maximized": true,
+          "pos_x": 2189,
+          "pos_y": 111,
+          "size_x": 960,
+          "size_y": 1024
+        }
+      },
+      {
+        "name": "fairyland.kicad_pcb",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 1919,
           "pos_y": 28,
-          "size_x": 962,
-          "size_y": 748
+          "size_x": 1280,
+          "size_y": 671
         }
       }
     ]
