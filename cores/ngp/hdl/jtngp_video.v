@@ -86,17 +86,17 @@ assign dsn = ~we;
 
 always @(posedge clk) begin
     case( debug_bus[3:0] )
-        0: st_dout <= scr1_hpos;
-        1: st_dout <= scr1_vpos;
-        2: st_dout <= scr2_hpos;
-        3: st_dout <= scr2_vpos;
-        4: st_dout <= view_width;  // WSI.H
-        5: st_dout <= view_height; // WSI.V
-        6: st_dout <= view_startx; // WBA.H
-        7: st_dout <= view_starty; // WBA.V
-        8: st_dout <= hoffset;
-        9: st_dout <= voffset;
-        default: st_dout <= { 2'd0, scr_order, lcd_neg, 2'd0, hirq_en, virq_en };
+        1: st_dout <= scr1_hpos;
+        2: st_dout <= scr1_vpos;
+        3: st_dout <= scr2_hpos;
+        4: st_dout <= scr2_vpos;
+        5: st_dout <= view_width;  // WSI.H
+        6: st_dout <= view_height; // WSI.V
+        7: st_dout <= view_startx; // WBA.H
+        8: st_dout <= view_starty; // WBA.V
+        9: st_dout <= hoffset;
+       10: st_dout <= voffset;
+        default: st_dout <= { 1'b0, oowc, scr_order, lcd_neg, hirq_en, virq_en };
     endcase
 end
 

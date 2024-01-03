@@ -60,11 +60,9 @@ module jtngp_main(
     input        [15:0] rom_data,
 
     // NVRAM
-    input        [13:0] ioctl_addr,
-    input        [ 7:0] ioctl_dout,
-    output reg   [ 7:0] ioctl_din,
-    input               ioctl_ram,
-    input               ioctl_wr,
+    output       [ 1:0] nvram_we, ram1_we,
+    input        [15:0] nvram_dout, ram1_dout,
+
     // Debug
     input        [ 7:0] debug_bus,
     output reg   [ 7:0] st_dout
@@ -72,12 +70,10 @@ module jtngp_main(
 `ifndef NOMAIN
 reg  [15:0] din;
 wire [23:0] addr;
-wire [15:0] ram0_dout, ram1_dout;
 reg  [15:0] io_dout;
 reg         ram0_cs, ram1_cs,
             shd_cs,  io_cs,   rom_cs;
 reg  [ 7:0] ngp_ports[0:63]; // mapped to 80~BF
-wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        int4, rd;
 // reg         cpu_cen=0;
@@ -91,18 +87,18 @@ wire [ 2:0] rtc_we;
 wire        nvram0_we, nvram1_we;
 wire [ 7:0] nvram0_dout, nvram1_dout;
 // Flash
-reg         f0csl, f1csl;
-reg  [23:0] addrl;
-wire        fwc;        // flash wait cycle
+// reg         f0csl, f1csl;
+// reg  [23:0] addrl;
+// wire        fwc;        // flash wait cycle
 
 wire [ 7:0] st_cpu;
 
-assign fwc       = (flash0_cs&~f0csl) | (flash1_cs&~f1csl) | ((flash0_cs||flash1_cs)&&addrl!=addr);
+// assign fwc       = (flash0_cs&~f0csl) | (flash1_cs&~f1csl) | ((flash0_cs||flash1_cs)&&addrl!=addr);
 assign bus_busy  = (flash0_cs & ~flash0_rdy);// | fwc; // the fwc part may not be needed
 assign cpu_addr  = addr[20:1];
 // assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
 //        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
-assign ram0_we   = {2{ram0_cs}} & we,
+assign nvram_we  = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
 // assign cpu_clk   = cpu_cen & clk;
@@ -110,9 +106,6 @@ assign snd_irq   = porta_dout[3];
 assign rtc_we[2] = io_cs && we[0] && addr[5:1]==5'b01_010; // 80+14 = 94 - hours
 assign rtc_we[1] = io_cs && we[1] && addr[5:1]==5'b01_010; // 80+15 = 95 - minutes
 assign rtc_we[0] = io_cs && we[0] && addr[5:1]==5'b01_011; // 80+16 = 96 - seconds
-
-assign nvram0_we = ioctl_ram & ioctl_wr & ~ioctl_addr[13];
-assign nvram1_we = ioctl_ram & ioctl_wr &  ioctl_addr[13];
 
 always @(posedge clk) begin
     st_dout <= joystick1[4] ? st_cpu : ngp_ports[debug_bus[5:0]];
@@ -146,13 +139,11 @@ always @* begin
     rom_cs    = addr >= 24'hFF_0000;                // maybe map_cs[2/3] could be used too?
 end
 
-always @(posedge clk) ioctl_din <= ioctl_addr[13] ? nvram1_dout : nvram0_dout;
-
-always @(posedge clk) begin
-    f0csl <= flash0_cs;
-    f1csl <= flash1_cs;
-    addrl <= addr;
-end
+// always @(posedge clk) begin
+//     f0csl <= flash0_cs;
+//     f1csl <= flash1_cs;
+//     addrl <= addr;
+// end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -211,7 +202,7 @@ end
 always @* begin
     din =  gfx_cs    ? gfx_dout    :
            rom_cs    ? rom_data    :
-           ram0_cs   ? ram0_dout   :
+           ram0_cs   ? nvram_dout  :
            ram1_cs   ? ram1_dout   :
            io_cs     ? io_dout     :
            flash0_cs ? flash0_dout :
@@ -229,30 +220,6 @@ jtframe_rtc u_rtc(
     .hour   ( rtc_hour      )
 );
 
-/* verilator tracing_on */
-jtframe_dual_nvram16 #(
-    .AW(12),     // 8kB
-    .SIMFILE_HI("nvram_hi.bin"),
-    .SIMFILE_LO("nvram_lo.bin")
-`ifdef DUMP_RAM
-    ,.VERBOSE(1),.VERBOSE_OFFSET('h4000) `endif
-) u_ram0(
-    .clk0   ( clk           ),
-    .data0  ( cpu_dout      ),
-    .addr0  ( addr[12:1]    ),
-    .we0    ( ram0_we       ),
-    .q0     ( ram0_dout     ),
-    // memory dump
-    .clk1   ( clk_rom       ),
-    .addr1a ( 12'd0         ),
-    .q1a    (               ),
-    .addr1b (ioctl_addr[12:0]),
-    .data1  ( ioctl_dout    ),
-    .sel_b  ( 1'b1          ),
-    .we1b   ( nvram0_we     ),
-    .q1b    ( nvram0_dout   )
-);
-
 `ifdef SIMULATION
     reg flash0_csl, flash0_msg = 0;
     always @(posedge clk) begin
@@ -263,82 +230,6 @@ jtframe_dual_nvram16 #(
         end
     end
 `endif
-
-`ifdef TRACE
-// for trace comparisons with MAME, swap the RAM memory contents at a given frame
-    reg [11:0] over_k=0;
-    reg [ 7:0] over_data[0:2**12-1];
-    reg        copy=0, copy_done=0, lvbl_l, halted_l;
-    wire       copy_bsy = copy & ~copy_done;
-    integer framecnt=1, f, fcnt;
-
-    initial begin
-        f=$fopen("ram1.bin","rb");
-        if( f!=0 ) begin
-            fcnt=$fread(over_data,f);
-            $display("Read %X bytes from ram1.bin",fcnt);
-            $fclose(f);
-        end else begin
-            $display("Cannot open ram1.bin");
-            $finish;
-        end
-    end
-
-
-    always @(posedge clk) begin
-        lvbl_l <= lvbl;
-        halted_l <= u_mcu.u_cpu.u_ctrl.halted;
-        if( /*u_mcu.u_cpu.u_ctrl.halted && !halted_l &&*/ flash0_cs && framecnt>=`TRACE && !copy_done && !copy ) begin
-            copy   <= 1;
-            $display("ram1 overwrite starts");
-        end
-        if( !lvbl && lvbl_l ) begin
-            framecnt <= framecnt+1;
-        end
-        if( copy && !copy_done ) begin
-            { copy_done, over_k } <= { copy_done, over_k } + 1'd1;
-        end
-    end
-`else
-    wire copy=0, copy_done=0, copy_bsy=0;
-`endif
-
-wire [15:0] r6c18;
-
-jtframe_dual_nvram16 #(
-    .AW(11)     // 4kB
-`ifdef DUMP_RAM
-    ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
-) u_ram1(
-    .clk0   ( clk           ),
-    .data0  ( cpu_dout      ),
-    .addr0  ( addr[11:1]    ),
-    .we0    ( ram1_we       ),
-    .q0     ( ram1_dout     ),
-    // memory dump
-    .addr1a ( 11'h60c       ), // 6c18 >> 1
-    .q1a    ( r6c18         ),
-    .q1b    ( nvram1_dout   ),
-`ifdef TRACE
-    // memory overwrite
-    .clk1   ( clk           ),
-    .sel_b  ( copy_bsy      ),
-    .addr1b ( over_k        ),
-    .data1  ( over_data[over_k] ),
-    .we1b   ( copy_bsy )
-`else
-    .clk1   ( clk_rom       ),
-    .sel_b  ( 1'b1          ),
-    .addr1b (ioctl_addr[11:0]),
-`ifdef SIMULATION    // for sims, NVRAM is supported to skip the set up menu
-    .data1  ( ioctl_dout    ),
-    .we1b   ( nvram1_we     )
-`else // for compilation, delete the RAM when something is loaded
-    .data1  ( 8'd0          ),
-    .we1b   ( ioctl_wr      )
-`endif
-`endif
-);
 
 jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
     .rst    ( rst       ),
@@ -352,11 +243,7 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-`ifdef SIMULATION
-    .cen        ( cpu_cen & ~(copy^copy_done) & ~locked  ),
-`else
-    .cen        ( cpu_cen     ),
-`endif
+    .cen        ( cpu_cen   ),
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
@@ -381,10 +268,10 @@ jt95c061 u_mcu(
     .st_dout    ( st_cpu    )
 ); // NOMAIN
 `else
-    assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq } = 0;
+    assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq, nvram_we, ram1_we } = 0;
     initial begin
         snd_rstn = 1;
-        { poweron, gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout, ioctl_din } = 0;
+        { poweron, gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout } = 0;
     end
 `endif
 endmodule

@@ -23,8 +23,18 @@ Because of the awkward video timing, the system needs some sort of buffer to out
 # Key Mapping
 
 - A, B buttons are mapped to the first two buttons in the gamepad
-- Start button is mapped to _1P_ (keyboard key `1`)
-- Power button is mapped to _coin_ (keyboard key `5`)
+- Start button is mapped to _1P_ (keyboard key `1` or gamepad _select_)
+- Power button is mapped to _coin_ (keyboard key `5` or gamepad _start_)
+
+# Cartridge Loading
+
+The first time you insert batteries into a NGP, the system will boot and present a menu. You can go through the set-up process or not. What matters is that when you press the power button in the actual machine, it will suspend the system but keep the memory alive. When you press the power button again, if there is a cartridge, it will not show the setup menu. The core needs the user to replicate this procedure in order to play games.
+
+1. Load the core
+2. Use the virtual power button to _turn off_ the NGP
+3. Load the cartridge through the OSD menu
+
+If you want to load a new game while the core is working, go directly to step 2.
 
 # Simulation & Debugging
 

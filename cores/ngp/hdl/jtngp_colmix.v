@@ -100,7 +100,7 @@ always @* begin
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    raw <= LHBL&LVBL ? { pxl[2:0], pxl[2] }^{4{~lcd_neg}} : 4'd0;
+    raw <= LVBL ? { pxl[2:0], pxl[2] }^{4{~lcd_neg}} : 4'd0;
 end
 
 `ifdef SIMULATION

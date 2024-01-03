@@ -47,7 +47,7 @@ localparam HBSTART  = 9'd169,
 reg  [7:0] virq_line;
 reg  [1:0] dummy=0;
 reg  [8:0] haux=0,hcmp=0;
-reg  [7:0] oowsh=0;
+reg  [3:0] oowsh=0;
 wire      oownx;
 
 initial begin
@@ -55,9 +55,9 @@ initial begin
     virq = 0;
 end
 
-assign oownx =  hdump[7:0]<view_startx   || hdump>({1'b0,view_startx}+{1'b0,view_width}) ||
+assign oownx =  hdump[7:0]<view_startx || hdump>({1'b0,view_startx}+{1'b0,view_width}) ||
                 vdump[7:0]<view_starty || vrender>(view_starty+view_height);
-always @* hdump=haux;
+always @* hdump=haux-9'd4;
 
 always @(posedge clk) if(pxl_cen) begin
     {oow,oowsh}<={oowsh,oownx};
@@ -68,7 +68,7 @@ always @(posedge clk) begin
     if(pxl_cen) begin
         // hdump <= haux==hcmp ? -9'd16: hdump+9'd1;
         virq_line <= view_height+view_starty;
-        if( haux!=HS0 || dummy==3 ) haux<= haux==HS0 ? 9'd0 : haux+1'd1;
+        if( haux!=HS0 || dummy==3 ) haux<= haux==HS0 ? (HS0-9'd170) : haux+1'd1;
         if( haux==HS0 ) begin
             hirq  <= 0;
             virq  <= 0;

@@ -92,13 +92,15 @@ always @(posedge clk, posedge rst) begin
         pal        <= 0;
         pxl_data   <= 0;
     end else if(pxl_cen) begin
-        if( heff[2:0]==0 ) begin
+        if( heff[1:0]==0 ) begin
             chram_addr <= { scan_dout[8:0], veff[2:0] ^ {3{scan_dout[14]}} };
             hflip0     <= scan_dout[15];
             pal0       <= scan_dout[13];
             pxl_data   <= chram_data;
             hflip      <= hflip0;
             pal        <= pal0;
+            if( !heff[2] )
+                pxl_data <= hflip ? {2{chram_data[15:8]}} : {2{chram_data[7:0]}};
         end else begin
             pxl_data   <= hflip ? pxl_data>>2 : pxl_data<<2;
         end

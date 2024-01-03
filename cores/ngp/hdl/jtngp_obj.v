@@ -213,7 +213,7 @@ u_linebuffer(
     .wr_addr( {1'd0,hpos} ),
     .we     ( buff_we   ),
     // Old data reads (and erases)
-    .rd_addr( hdump - 9'd9    ),
+    .rd_addr( hdump - 9'd4    ),
     .rd     ( pxl_cen   ),
     .rd_data( pre_pxl   )
 );
