@@ -1,0 +1,83 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Wed Jan  3 15:06:08 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
+[dumpfile_mtime] "Wed Jan  3 14:47:33 2024"
+[dumpfile_size] 438874020
+[savefile] "/home/jtejada/jtcores/cores/ngp/ver/game2/scr.gtkw"
+[timestart] 6533327600688
+[size] 1920 1052
+[pos] -1 -28
+*-38.261646 8487349100000 20954879460 20940003504 20946398928 20896110480 20902526736 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 223
+[signals_width] 244
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@24
+TOP.game_test.frame_cnt[31:0]
+TOP.game_test.u_game.u_game.u_video.u_vtimer.vdump[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_vtimer.LVBL
+[color] 1
+TOP.game_test.u_game.u_game.u_video.u_vtimer.LHBL
+TOP.game_test.u_game.u_game.u_video.u_vtimer.HS
+TOP.game_test.u_game.u_game.u_video.u_vtimer.VS
+@30
+TOP.game_test.u_game.u_game.u_video.u_vtimer.hdump[8:0]
+@28
+TOP.game_test.u_game.u_game.u_video.lcd_neg
+TOP.game_test.u_game.u_game.u_video.oow
+@25
+TOP.game_test.u_game.u_game.u_video.oowc[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_colmix.bg_en[1:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_colmix.bg_pal[2:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_video.scr1_pxl[2:0]
+@c00024
+[color] 2
+TOP.game_test.u_game.u_game.u_video.scr2_pxl[2:0]
+@28
+[color] 2
+(0)TOP.game_test.u_game.u_game.u_video.scr2_pxl[2:0]
+[color] 2
+(1)TOP.game_test.u_game.u_game.u_video.scr2_pxl[2:0]
+[color] 2
+(2)TOP.game_test.u_game.u_game.u_video.scr2_pxl[2:0]
+@1401200
+-group_end
+@24
+TOP.game_test.u_game.u_game.u_video.u_colmix.obj_pxl[4:0]
+TOP.game_test.u_game.u_game.u_video.u_colmix.pxl[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_vtimer.dummy[1:0]
+@200
+-
+@30
+TOP.game_test.u_game.u_game.u_video.u_scr1.heff[8:0]
+TOP.game_test.u_game.u_game.u_video.u_scr2.heff[8:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_scr1.scan_addr[9:0]
+TOP.game_test.u_game.u_game.u_video.u_scr1.chram_addr[12:1]
+TOP.game_test.u_game.u_game.u_video.u_scr1.pxl_data[15:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_scr2.scan_addr[9:0]
+TOP.game_test.u_game.u_game.u_video.u_scr2.chram_addr[12:1]
+TOP.game_test.u_game.u_game.u_video.u_scr2.pxl_data[15:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_scr2.pxl_cen
+[pattern_trace] 1
+[pattern_trace] 0

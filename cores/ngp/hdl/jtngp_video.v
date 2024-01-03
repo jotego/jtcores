@@ -57,7 +57,8 @@ wire [ 1:0] dsn;
 
 // Memory map
 reg   ram_cs, obj_cs,  obj2_cs, pal_cs, palrgb_cs,
-      scr1_cs,  scr2_cs, regs_cs;
+      scr1_cs,  scr2_cs, regs_cs, rst_cs;
+reg   rstv;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
 wire [12:1] scr1_addr, scr2_addr, obj_addr;
@@ -85,6 +86,10 @@ endfunction
 assign dsn = ~we;
 
 always @(posedge clk) begin
+    rstv <= rst || (rst_cs && we[0] && cpu_dout[7:0]==8'h52);
+end
+
+always @(posedge clk) begin
     case( debug_bus[3:0] )
         1: st_dout <= scr1_hpos;
         2: st_dout <= scr1_vpos;
@@ -104,6 +109,7 @@ always @* begin
     regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
     pal_cs    = gfx_cs && in_range(14'h0100,14'h011A); // monochrome palette
     palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
+    rst_cs    = gfx_cs && cpu_addr[13:1]==13'h7e0>>1;
     obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
     obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
     scr1_cs   = gfx_cs && in_range(14'h1000,14'h1800); // Scroll VRAM, 1st half
@@ -147,7 +153,7 @@ jtngp_vtimer u_vtimer(
 );
 /* verilator tracing_on */
 jtngp_mmr u_mmr(
-    .rst        ( rst         ),
+    .rst        ( rstv        ),
     .clk        ( clk         ),
     .hcnt       ( hcnt        ),
     .vdump      ( vdump       ),
@@ -178,7 +184,7 @@ jtngp_mmr u_mmr(
 );
 /* verilator tracing_off */
 jtngp_chram u_chram(
-    .rst        ( rst       ),
+    .rst        ( rstv      ),
     .clk        ( clk       ),
     // CPU access
     .cpu_addr   (cpu_addr[12:1]),
@@ -202,7 +208,7 @@ jtngp_scr #(
     .SIMFILE_LO("scr1_lo.bin"),
     .SIMFILE_HI("scr1_hi.bin")
 ) u_scr1 (
-    .rst        ( rst       ),
+    .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
@@ -228,7 +234,7 @@ jtngp_scr #(
     .SIMFILE_LO("scr2_lo.bin"),
     .SIMFILE_HI("scr2_hi.bin")
 ) u_scr2 (
-    .rst        ( rst       ),
+    .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
@@ -251,7 +257,7 @@ jtngp_scr #(
 );
 /* verilator tracing_on */
 jtngp_obj u_obj(
-    .rst        ( rst       ),
+    .rst        ( rstv      ),
     .clk        ( clk       ),
 
     .HS         ( HS        ),
@@ -279,7 +285,7 @@ jtngp_obj u_obj(
 );
 /* verilator tracing_on */
 jtngp_colmix u_colmix(
-    .rst        ( rst       ),
+    .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 

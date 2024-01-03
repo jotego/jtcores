@@ -1,0 +1,70 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu Dec 28 13:50:39 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
+[dumpfile_mtime] "Thu Dec 28 13:41:46 2023"
+[dumpfile_size] 167460372
+[savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/new.gtkw"
+[timestart] 10172
+[size] 1920 1052
+[pos] -1 -1
+*-39.746990 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scr2.
+[sst_width] 223
+[signals_width] 180
+[sst_expanded] 1
+[sst_vpaned_height] 636
+@22
+TOP.game_test.u_game.u_game.u_video.u_scr1.chk_a[9:0]
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(13)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(14)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+(15)TOP.game_test.u_game.u_game.u_video.u_scr1.chk_d[15:0]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_video.u_scr2.chk_a[9:0]
+@c00023
+TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+@29
+(0)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(13)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(14)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+(15)TOP.game_test.u_game.u_game.u_video.u_scr2.chk_d[15:0]
+@1401201
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0

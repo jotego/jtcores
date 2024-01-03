@@ -106,14 +106,21 @@ always @(posedge clk, posedge rst) begin
         view_starty <= 0;
         cpu_din     <= 0;
     end else begin
+        cpu_din <= 0;
         if( regs_cs ) begin
             case( cpu_addr[7:1] )
-                7'h00>>1: if(!dsn[0]) { virq_en, hirq_en } <= cpu_dout[7:6];     // 8000
+                7'h00>>1: begin
+                    if(!dsn[0]) { virq_en, hirq_en } <= cpu_dout[7:6];     // 8000
+                    cpu_din[7:6] <= { virq_en, hirq_en };
+                end
                 7'h02>>1: `SETREG(view_starty,view_startx)  // 8002
                 7'h04>>1: `SETREG(view_height,view_width)   // 8004
                 7'h08>>1: cpu_din <= { vdump, hdiff[9:2] }; // 8008
                 7'h10>>1: cpu_din <= { 8'h0, 1'b0 /* char over*/, ~LVBL, 6'd0 }; // 8010
-                7'h12>>1: if(!dsn[0]) { lcd_neg, oowc } <= { cpu_dout[7], cpu_dout[2:0] }; // 8012
+                7'h12>>1: begin
+                    if(!dsn[0]) { lcd_neg, oowc } <= { cpu_dout[7], cpu_dout[2:0] }; // 8012
+                    {cpu_din[7], cpu_din[2:0]} <= { lcd_neg, oowc };
+                end
                 7'h20>>1: `SETREG(voffset,hoffset) // offset for sprite position
                 7'h30>>1: begin // scroll layer order
                     if(!dsn[0]) scr_order<=cpu_dout[7];

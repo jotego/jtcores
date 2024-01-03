@@ -1,0 +1,74 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat Dec 30 18:39:58 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
+[dumpfile_mtime] "Sat Dec 30 18:29:30 2023"
+[dumpfile_size] 40356433
+[savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/tennis.gtkw"
+[timestart] 13008613345748
+[size] 1920 1052
+[pos] -1 -1
+*-36.874935 15175560018972 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 223
+[signals_width] 295
+[sst_expanded] 1
+[sst_vpaned_height] 657
+@24
+TOP.game_test.frame_cnt[31:0]
+@23
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.pc[23:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.ni
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.nxgr_sel[1:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_mmr.scr1_hpos[7:0]
+TOP.game_test.u_game.u_game.u_video.u_mmr.scr1_vpos[7:0]
+TOP.game_test.u_game.u_game.u_video.u_mmr.scr2_hpos[7:0]
+TOP.game_test.u_game.u_game.u_video.u_mmr.scr2_vpos[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_mmr.regs_cs
+TOP.game_test.u_game.u_game.u_video.gfx_cs
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.addr[23:0]
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_mem.bus_din[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_mem.bus_dout[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_mem.bus_we[1:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xsp[31:0]
+@2024
+^1 /home/jtejada/jtcores/cores/ngp/ver/game/EA.st
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_mem.ea_sel[1:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.rfp[1:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde0[31:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.ram0_cs
+@22
+TOP.game_test.u_game.u_game.u_main.u_ram0.data0[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_ram0.we0[1:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_ram0.q0[15:0]
+[pattern_trace] 1
+[pattern_trace] 0
