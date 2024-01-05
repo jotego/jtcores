@@ -43,6 +43,10 @@ modules:
       get:
         - hdl/jt95c061.v
         - hdl/jt95c061_timer.v
+    - from: jt12
+      get:
+        - hdl/mixer/jt12_interpol.v
+        - hdl/mixer/jt12_comb.v
   jt:
     - name: jt900h
     - name: jt89
