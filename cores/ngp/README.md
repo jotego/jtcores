@@ -122,3 +122,150 @@ According to MAME:
 * https://github.com/jotego/jtcores/issues
 
 # Thanks to December 2023 Patrons
+```
+3style                 4Slippy                8bits4ever             A Hernandez
+A Murder               Aaron Ray              Adam Leslie            Adam Small
+Adrian Labastida       Alan Kebab             Alan McGrath           Alan Michael
+Alan Shurvinton        Alberto                Alejandro Escobedo     Alejandro Fajardo
+Alex Baldwin           Alex Mandic            Alex Smith             Alexander Facchini
+Alexander Lash         Alexander Upton        Alfonso Clemente       AllDarnDavey
+Allen Tipper           Allister Fiend         Alvaro Paniagua        Andrea Chiavazza
+Andreas Micklei        Andrew Boudreau        Andrew Hannan          Andrew Schmidt
+Andrew Zah             Angelfred              Angelo Kanaris         AnotherJoe
+Anselmo Moreno         Anthony Archer         Anthony Monaco         Anton Gale
+Arend Pronk            Ariel Mendoza          Arjan de Lang          Armin Hierstetter
+Arthur Fung            Aurich Lawson          B A                    BRCDEvg
+Banane                 Barley Cheezers        Basti                  Batlab Electronics
+Bear S                 Ben Cullen             Ben Toman              BigRedPimp
+Birrdman               Bit2018                Bitmap Bureau          Bitmaps Retro
+Blayke                 Bliz 452               Bluezer222             Boris Prüßmann
+Borja Burgos           Brandon Arnold         Brandon Peach          Brandon Thomas
+Brandoon               Brent Fraser           Brian Birkinbine       Brian Horne
+Brian Peek             Brian Shiver           Brianna Cluck          Bruce Fontaine
+Bruno Meyere           Bruno Silva            Bryan Evans            Byshop303
+CF                     Cameron Berkenpas      Cameron Tinker         Carlos Gruberman
+Chad Page              Charles Dreiss         Charles Paek           Chris
+Chris Angelini         Chris Babishoff        Chris C                Chris Chappell
+Chris D                Chris Hauk             Chris Hoff             Chris Jardine
+Chris Maguire          Chris Mzhickteno       Chris Petroni          Chris Ryan
+Chris S                Chris Scully           Chris Tuckwell         Chris W Miller
+Chris Waltham          Christophe GARDES      Claudio Fortuna        Clayton Anderson
+Clinton Cronin         Clinton McCarty        Cobra Clips            Cody Gray
+Colin Colehour         Collidingforces        Cosmic Savant          Craig Kergald
+Craig McLaughlin       D S                    Dallas Grant           Damien D
+Dan Anderson           Dan Kelley             Daniel Dongil          Daniel Flowers
+Daniel Page            Daniel Zee             Daniele Pellegrini     Danny Austin
+Danny Garfield         Darren Wootton         Daryll David           DasGutt
+Dave Bennett           Dave Douglas           Dave Nice              David Drury
+David Fleetwood        David Gallène          David Guida            David Osborne
+David Stone            DenizB                 Dennis Ranker          Denny Letourneau
+Devon Meunier          Devon Shaw             Diana2Carolina         Didier Touron
+Diego                  Douglas Alves          Dr Catjail             DrMnike
+Dre137                 DrewtoriousFGC         E M                    Ed
+EdgarsDouble           Edward Cartier         Edward Kim             Edward Mallett
+Edward Williams        Emile Denichaud        Enzo                   Eren Kotan
+Eric J Faulkes         Eric Schneider         Eric Sorensen          Erik
+Ethan Foley            F34R                   FROELIGER              Fabian L
+Fabio Michelin         Fabrice Odero          Fabricio               Fahim Rahman
+Federico               Fergal Byrne           Five Year Guy          Frank Brevoort
+Gabe Larios            GarethY                Gaussian Llama         Gene Starwind
+GeorgeSpinner          GigaBoots              Girth305               Glenn
+Glenn Percival         Gord Allott            Gordon Coughlin        Gregory Val
+Gregory VanNostrand    Grummkol               Guillermo Tunon        H G
+HamsoloPlays           Harmonica              HawkManHawk            Heinz Stampfli
+HendrixTrog            Henry                  Henry R                Hermes Yan
+Hugo Pinto             Ian Guebert            Ian Kester-Haney       Ian King
+Isles487               Isra T.G.              Issiah                 ItalianGrandma
+ItsBobDudes            JBrent                 JPanic666              JSwan
+Jack Follansbee        Jacob Hoffman          Jakob Schmid           James Bamford
+James Boone            James Butler           James Dingo            James Ervin
+James Mayes            James Miller           James Trautner         James Wilson
+Janne Heikkarainen     Jared M                Jason Baker            Jason Dee
+Jason Jacobs           Jason Moskowitz        Jason Robinson         Javier Heredia
+Jayson Larose          Jeff Roberts           Jeremie Barnes         Jerry Langwell
+Jerry Suggs            Jesse Clark            Jesse Rankin           Jesus Garcia
+Jim Hendricks          Jim Knowler            JimLahey               Jimmy Dozier
+Jimmy Ecker            Jimmy Kim              Jimmy Richards         Jms
+Jochen Koerner         Jockel                 Joe Dinges             Joe Giuliano
+Joe Naberhaus          Joel Albino            Johan Smolinski        John Dawson
+John Fletcher          John Hood              John K                 John Paul Luna
+John T. Keen           John Torn              John Wilson            John Woods
+Johnny harvick         Jonathan               Joost Peters           Jork Sonkinfield
+Jose Antonio           Jose Perez             Josep Barbie           Joseph Kulinski
+Joseph Milazzo         Josh Davis             Josh Yates-Walker      Joshua Kubeczka
+Joshua Wordlaw         Juan Barriga           Juan E. Gayon          Jukka Hast
+Justin D'Arcangelo     Justin Wynn            Kael Spencer           Kai Cherry
+Keith Gordon           Kellerkind             Ken B                  Ken Scott
+Kevin Brown            Kevin Dayton           Kevin Miller           Kike Alcor
+Kimberley Fisher       KnC                    Konrad                 Kricys
+Krisztian Lanyi        KrzysFR                Kyle Peters            L.Rapter
+LL                     Lakeside               Lance Bohy             Lance Linimon
+Lars Peter             Lee G                  Lee Huggett            Lee Osborne
+LoBai Zen              Lost Retro             Luc JOLY               Lucian
+Lucius Bono            Luis F Giron           M Reznor               MaDDoG
+Mack H                 Madox                  Magnus Aspling         Magnus Kvevlander
+Mane Function          Manfred Müller         Manksalot              Marcello Medini
+Marco Feder            Mark Floyd             Mark Jeffers           Mark Saunders
+MarthSR                Matt Bouverie          Matt Evans             Matt Howard
+Matt McCarthy          Matt Postema           Matt Simonds           Matt Vulcano
+Matthew Heyman         Matthew Schrader       Matthew Woodford       Max
+MechaGG                Mehdi Daouas           Meloyelo51             MiSTer Retro
+Michael Bariszlovits   Michael Eggers         Michael Jones          Michael Maple
+Michael Petri          Michael Rea            Michael V.             Mickaël Renou
+Miguel Mendez          Mike Baldwin           Mike Holzinger         Mike Jegenjan
+Mottzilla              Mysterious Benefactor  Nadir Shabazz          Nailbomb
+Nando Iron             NeTaXe                 Nic B.                 Nicholas Bold
+Nick Daniels           Nick Delia             Nick Gudauskas         Nico Stamp
+Night Thief            Niko                   Nolan                  NonstopXiaowei
+Notaturnip             Noyman29               Odilio FRAGATA         Olivier Latignies
+Omar Najera            Omega16bit             Oriez                  Oskar Maria
+Oyvind Christiansen    Pablo Avila-Estevez    Packetfetcher          Patrick Roman
+Paul Cunningham        Paul PIROTTE           Paulo M.               Paulo Nascimento
+PeFClic                Pedro Delao            Pedro Santiago         Per Ole
+Peter Coleman          Peter Mehes            Peter Olsen            Philip Lai
+Philip Lawson          Potato                 Pretendo               Prime1984
+ProfessorAnon          Pumpy Crumpy           R Omar Leal            Rainier Taufik
+Ralph Barbagallo       Ramon                  Ramon Gamaliel         Ramon jimenez
+RandomRetro            Raphael Melgar         Raul3D                 Rautz
+Reborn 187             Retro Ralph            RetroRGB               Rex Kung
+Ricardo Ramirez        Richard Murillo        Richard Simpson        Rob Mossefin
+Robert Hayes           Roberto Garcia         Roberto Mercado        Robin Hertzberg
+RoboyZHunter           Rodney Larsen          Rog                    Roger Ong
+Romain Dijoux          Romier Silvera         Ronald Dean            Ronan Amicel
+RoryDropkick           Rufo Sanchez           Rune P                 Russ Crandall
+Ryan                   Ryan Clark             Ryne Weiss             Sam Hall
+Samuel Pizarro         Samuel Schwager        Sang Hee               Sascha Zupanek
+Schnookums             Scott Bender           Sean Lake              Sean Quinn
+Ser Erris              Seth Callaway          Shad Uttam             Shannon King
+Sherwood Hachtman      Shon Garraway          Sigmund68k             Simon Dukes
+Skeletex               Sonthayaya Siha        Spank Minister         StealthCT
+SteelRush              Stefan Krueger         Step 3                 Stephan Allen
+Stephen                Stephen Pagenstecher   Stephen R Price        Steve Lin
+Steve Skrzyniarz       Steven Hansen          Steven Keller          Stuart Morton
+Supaslicer             Synbios                TAKA Hara              TMoney
+Terse                  TgrMstr                That's A               The Collector
+The Video              TheGodsGuitar          TheVoiceOver           Thomas Attanasio
+Thomas Popper          Thomas Ruf             Thorias                Timothy Bearup
+Timothy Latunde        Tobias Dossin          Tom Milner             Tony Shong
+Topher Campbell        Trifle                 Twipp                  Two Bards
+Ty                     Tyler Shumpert         Tyson Hanes            Unlovedhomie
+VERHILLE Arnaud        VickiViperZabel        Victor Fontanez        Victor Yoon
+Vincent Lietart        Visa-Valtteri Pimiä    Wayne Lymbery          Wesley Lyons
+William C.             William Clemens        William Roussin        XC-3730C
+Xaxius                 Yunus Soğukkanlı       Zack Fawley            Zoltan Kovacs
+aguijon                alejandro carlos       amdrgn                 angel_killah
+arcadebros             bitwalk                blackwine              brian burney
+budude2                charlysan              chauviere benjamin     dARKrEIGn
+dECKARD (Daniel        datajerk               dc9884                 derFunkenstein
+elsee2                 eltee                  fbmg                   iunno
+jimmysombrero          joe figueroa           kccheng                kerobaros
+keropi                 lcscape                liphy                  mattyhochs
+metal                  mike roach             moalthan               moises lopez
+myusernamewastaken     ogge_leander           ojwales                ordigdug
+pixelhans              raoulvp                respergu               retroboi
+robert james           robert rodgers         rsn8887                simon black
+singularwit            slayer213              snickersnag            sourdille
+spaceduck              tim rogers             turbochop3300          twilitezoner
+type78                 vampsthevampyre        yoaarond               zombiex123xkill xxx
+Δlain                  一樹 原                   민주 김
+```

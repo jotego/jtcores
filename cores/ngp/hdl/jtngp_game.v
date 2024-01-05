@@ -30,7 +30,7 @@ reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
-wire        hirq, virq, main_int5, pwr_button, poweron;
+wire        hirq, virq, main_int5, pwr_button, poweron, halted;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
@@ -40,7 +40,7 @@ assign game_led   = 0;
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
 assign {pxl_cen,pxl2_cen}={v1_cen,v0_cen}; // ideally the framework should do this for me
-assign pwr_button = coin[0] & ~(~ioctl_cart & cart_l); // active low, positive edge triggered
+assign pwr_button = coin[0] & ~&{~ioctl_cart,cart_l,halted}; // active low, positive edge triggered
 assign ioctl_din  = 0;
 
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
@@ -66,7 +66,7 @@ always @(posedge clk) begin
         endcase
     endcase
 end
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -76,12 +76,15 @@ jtngp_main u_main(
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
+    .hirq       ( hirq      ),
+    .virq       ( virq      ),
     .lvbl       ( LVBL      ),
     // player inputs
     .joystick1  ( joystick1 ),
     .cab_1p     ( cab_1p[0] ),
     .pwr_button ( pwr_button),
     .poweron    ( poweron   ),
+    .halted     ( halted    ),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),

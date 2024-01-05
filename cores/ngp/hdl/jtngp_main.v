@@ -25,11 +25,14 @@ module jtngp_main(
     input               rtc_cen,
 
     input               lvbl,
+    input               hirq,
+    input               virq,
 
     input               cab_1p,
     input               pwr_button,
     output reg          poweron,
     input       [ 5:0]  joystick1,
+    output              halted,
 
     // Bus access
     output       [20:1] cpu_addr,
@@ -247,13 +250,15 @@ jt95c061 u_mcu(
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
-    .int4       ( int4      ),
+    .ti0        ( hirq      ),
+    .int4       ( virq      ),
     .int5       ( main_int5 ),
 `ifdef NVRAM
     .nmi        ( 1'b0      ),
 `else
     .nmi        ( poweron   ), // should this be gated by bit mmr[0x33][2] ?
 `endif
+    .halted     ( halted    ),
     .porta_dout ( porta_dout),
 
     .addr       ( addr      ),

@@ -77,8 +77,8 @@ always @(posedge clk) begin
             if( dummy==0 ) begin
                 vrender <= (vrender==198) ? 8'd0 : (vrender+8'd1);
                 vdump   <=  vrender;
-                virq    <=  vint_en && vdump==virq_line;
-                hirq    <=  hint_en && (vdump<150 || vdump==198 );
+                virq    <=  vint_en && vrender==virq_line;
+                hirq    <=  hint_en && (vdump<151 || vdump==198 );
                 if( vdump==151 )
                     LVBL <= 0;
                 else if( vdump==198 ) begin

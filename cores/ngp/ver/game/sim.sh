@@ -14,6 +14,8 @@ function try {
 
 INPUTS=
 
+rm -f *_lo.bin *_hi.bin pal.bin regsram.bin
+
 drop1 -l < rom.bin > rom_lo.bin
 drop1    < rom.bin > rom_hi.bin
 

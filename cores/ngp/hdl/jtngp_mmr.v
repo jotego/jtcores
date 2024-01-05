@@ -134,4 +134,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`undef SETREG
+
 endmodule
