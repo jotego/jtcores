@@ -108,9 +108,9 @@ EOF
 fi
 
 
-# Beta keys are kept in $JTUTIL/.jtbeta
-if [ ! -s $JTUTIL/.jtbeta ]; then
-    echo "Missing JTUTIL/.jtbeta"
+# Beta keys are kept in $JTUTIL/beta.bin
+if [ ! -s $JTUTIL/beta.bin ]; then
+    echo "Missing $JTUTIL/beta.bin"
     exit 1
 fi
 
