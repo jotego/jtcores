@@ -54,7 +54,6 @@ integer       i;
 
 assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
-assign cannary   = blank & over;
 assign fave      = full_ave[  DIGITS*4-1-:16];
 assign fworst    = full_worst[DIGITS*4-1-:16];
 

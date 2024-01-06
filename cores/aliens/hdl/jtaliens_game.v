@@ -61,7 +61,7 @@ end
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen_ref        ( cen12         ), // should it be cen12?
+    .cen_ref        ( cen24         ),
     .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
