@@ -97,7 +97,7 @@ module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
-    CENDIV   = 0    // set to zero to not divide by four the input cen, implies RECOVERY=0
+    CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
     input           rstn,
     input           clk,
