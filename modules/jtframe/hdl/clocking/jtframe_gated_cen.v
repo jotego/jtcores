@@ -40,18 +40,23 @@ module jtframe_gated_cen #( parameter
     output     [ 15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
-localparam NUM2 = NUM<<1;
+localparam NUM2   = NUM<<1,
+           DIGITS = (MFREQ*NUM)/DEN>9999 ? 5 : 4;
 
 // reg  [ W-1:0] pre;
 wire          over;
 wire [  CW:0] cencnt_nx, sum;
 reg  [CW-1:0] cencnt=0;
 reg  [ W-1:0] toggle=0, toggle_l=0;
+wire [DIGITS*4-1:0] full_ave, full_worst;
 wire          cnt_en = !busy || rst;
 integer       i;
 
 assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
+assign cannary   = blank & over;
+assign fave      = full_ave[  DIGITS*4-1-:16];
+assign fworst    = full_worst[DIGITS*4-1-:16];
 
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
@@ -82,12 +87,12 @@ always @(posedge clk) begin
 end
 `endif
 
-jtframe_freqinfo #(.MFREQ( MFREQ )) u_info(
+jtframe_freqinfo #(.MFREQ( MFREQ ),.DIGITS(DIGITS)) u_info(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pulse      ( cen[0]    ),
-    .fave       ( fave      ), // average cpu_cen frequency in kHz
-    .fworst     ( fworst    )
+    .fave       ( full_ave  ), // average cpu_cen frequency in kHz
+    .fworst     ( full_worst)
 );
 
 endmodule

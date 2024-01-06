@@ -61,7 +61,7 @@ assign cnt_event = pulse & ~pulse_l;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         freq_cnt <= 0;
-        fworst   <= 16'hffff;
+        fworst   <= {DIGITS*4{1'b1}};
         fave     <= 0;
     end else begin
         pulse_l <= pulse;
