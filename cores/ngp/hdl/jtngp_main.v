@@ -31,7 +31,7 @@ module jtngp_main(
     input               cab_1p,
     input               pwr_button,
     output reg          poweron,
-    input       [ 5:0]  joystick1,
+    input       [ 6:0]  joystick1,
     output              halted,
 
     // Bus access
@@ -125,7 +125,7 @@ always @* begin
         5'b01_011: io_dout[7:0] = rtc_sec;          // 96
         5'b11_000: io_dout = { 7'b1,
                                1'b0, // power button: it should be zero for it to power up
-             /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
+             /* lower byte: */ 1'd0, ~joystick1 }; // Option, B1, B0
         5'b11_110: io_dout = { 8'd0, main_latch}; //  BC - written by the z80
         default:;
     endcase

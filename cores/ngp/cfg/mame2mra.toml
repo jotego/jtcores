@@ -5,4 +5,4 @@ sourcefile=[ "ngp.cpp" ]
 order = ["maincpu"]
 
 [buttons]
-names = [{names="A,B"}]
+names = [{names="A,B,Option"}]
