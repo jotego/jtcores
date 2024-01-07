@@ -72,7 +72,7 @@ always @* begin
         DAA_ALU: begin
             rslt = {op0[15:8],op0[7:0]+daa}; // output daa so the ucode can use it as an operand
             v8  = ^{op0[ 7],op1[ 7],~rslt[ 7]}; // manual defines it as undefined, so leaving it as ADD_ALU makes sense
-            c8   = cin || rslt[7:4]>9; // 6801 reference manual, page 103
+            c8   = cin || daa[6]; // 6801 reference manual, page 103
         end
         AND_ALU: rslt = op0 & op1;
          OR_ALU: rslt = op0 | op1;
@@ -94,12 +94,6 @@ always @* begin
             { c8, rslt[ 7:0]}= {op1[7:0],1'b0};
             v8  = rslt[ 7] ^ c8;
             v16 = rslt[15] ^ c16;
-        end
-        NEG_ALU: begin
-            {ho,  rslt[ 3:0]} = {1'b0, op0[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
-                  rslt[ 7:4]  =        op0[ 7:4] +       op1[ 7:4] +{3'd0,ho};
-            v8 = rslt[7:0]==8'h80;
-            c8 = rslt[7:0]!=0;
         end
         ROL_ALU: begin
             {c8,rslt[7:0]} = {op0[7:0],cin};
