@@ -236,6 +236,7 @@ type Mame2MRA struct {
 
     ROM struct {
         Ddr_load bool
+        Firmware string     // Used for consoles by the Pocket target
         Regions  []RegCfg
         Order    []string
         Carts    []string
