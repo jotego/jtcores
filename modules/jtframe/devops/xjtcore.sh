@@ -10,6 +10,7 @@ source $JTFRAME/bin/setprj.sh > /dev/null
 export PATH=$PATH:/usr/local/go/bin
 
 CORENAME=$1
+shift
 
 if [ -z "$BETAKEY" ]; then
     BETAKEY=`printf "%04X%04X" $RANDOM $RANDOM`
@@ -24,6 +25,8 @@ ls -l $JTUTIL/beta.bin
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     jtframe mra --skipROM $CORENAME
     # Beta key is enabled for cores listed in beta.yaml
-    jtseed 4 $CORENAME -mister --nodbg
-    jtseed 4 $CORENAME -pocket --nodbg
+    for TARGET in $*; do
+        echo "Compiling for $TARGET"
+        jtseed 4 $CORENAME -$TARGET --nodbg
+    done
 fi

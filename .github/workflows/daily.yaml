@@ -1,4 +1,4 @@
-name: Compile all MiSTer cores
+name: Compile all MiSTer and Pocket cores
 
 on:
   workflow_dispatch:
@@ -50,7 +50,7 @@ jobs:
       - id: compile
         run: |
           # Compilation on Quartus 17
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} mister pocket
       - id: upload
         uses: actions/upload-artifact@v3
         with:
