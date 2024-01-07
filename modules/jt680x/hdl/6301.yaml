@@ -183,10 +183,10 @@ ops:
   - { name: LSRD, op: 0x04, ctl: {  alu: LSR, op0: a, op1: b, alu16: 1, carry: shr, ld: d,   cc: n0zvc }, cycles: 1 }
   - { name: MUL,  op: 0x3d, ctl: {  alu: MUL, op0: a, op1: b,               ld: d,  cc:     c }, cycles: 7 }
 
-  - { name: NEG,  op: 0x60, ctl: { alu: NEG, op0: md, op1: one, op0inv: 1, addr: idx, wr: wr, cc: nzvc }, cycles: 6 }
-  - { name: NEG,  op: 0x70, ctl: { alu: NEG, op0: md, op1: one, op0inv: 1, addr: ext, wr: wr, cc: nzvc }, cycles: 6 }
-  - { name: NEGA, op: 0x40, ctl: { alu: NEG, op0: a,  op1: one, op0inv: 1,            ld: a,  cc: nzvc }, cycles: 1 }
-  - { name: NEGB, op: 0x50, ctl: { alu: NEG, op0: b,  op1: one, op0inv: 1,            ld: b,  cc: nzvc }, cycles: 1 }
+  - { name: NEG,  op: 0x60, ctl: { alu: SUB, op0: zero, op1: md, addr: idx, wr: wr, cc: nzvc }, cycles: 6 }
+  - { name: NEG,  op: 0x70, ctl: { alu: SUB, op0: zero, op1: md, addr: ext, wr: wr, cc: nzvc }, cycles: 6 }
+  - { name: NEGA, op: 0x40, ctl: { alu: SUB, op0: zero, op1: a,             ld: a,  cc: nzvc }, cycles: 1 }
+  - { name: NEGB, op: 0x50, ctl: { alu: SUB, op0: zero, op1: b,             ld: b,  cc: nzvc }, cycles: 1 }
 
   - { name: NOP,  op: 0x01, ctl: {                                                            }, cycles: 1 }
   - { name: ORAA, op: 0x8a, ctl: { alu: OR,  op0: a,  op1: md,  addr: imm,   ld: a,  cc: nzv0 }, cycles: 2 }
@@ -287,7 +287,7 @@ ucode:
       - idle6_jsr
       - idle6_jsr
       - ${addr}_jsr, inc_pc
-      - ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
+      - ${op0}_rmux, ld0_opnd
       - ${op1}_rmux, ld1_opnd, fetch
       - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ni
   - mnemo: [ XGDX ]
