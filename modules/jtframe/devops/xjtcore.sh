@@ -23,6 +23,6 @@ ls -l $JTUTIL/beta.bin
 
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     jtframe mra --skipROM $CORENAME
-    # Remote builds have red OSD. beta key is enabled for cores listed in beta.yaml
-    jtseed 3 $CORENAME -mister --nodbg -d JTFRAME_OSDCOLOR=0x30
+    # Beta key is enabled for cores listed in beta.yaml
+    jtseed 3 $CORENAME -mister --nodbg
 fi
