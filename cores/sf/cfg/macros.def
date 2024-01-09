@@ -20,8 +20,10 @@ JTFRAME_BA2_AUTOPRECH=1
 JTFRAME_OSD_VOL
 JTFRAME_DIPBASE=8
 
-[mist|sidi]
+[mist|sidi|demist_*|mist_*]
 JTFRAME_SCAN2X_NOBLEND
+# OSD credits cannot be used when
+# DIP base is less than 13
 JTFRAME_OSD_NOCREDITS
 
 [mister]
