@@ -396,7 +396,8 @@ jtcps2_decrypt u_decrypt(
 // interrupt generation
 wire       int1, // VBLANK
            int2, // Raster
-           skip_but = ~&cab_1p;
+           skip_but;
+assign  skip_but = ~&cab_1p;
 //assign inta_n = ~&{ FC, ~BGACKn }; // interrupt ack. according to Loic's DL-1827 schematic
 assign inta_n = ~&{ FC, A[19:16] }; // ctrl like M68000's manual
 wire   vpa_n = ~&{ FC, ~ASn };
