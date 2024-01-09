@@ -651,26 +651,16 @@ fi
 # Copy to JTBIN  if --git is set
 if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
-    if is_mister_family; then
-        BINFOLDER=$JTBIN/$TARGET/$PRJ
-        BINRBF=$BINFOLDER/releases/$corename.$EXT
-        mkdir -p $BINFOLDER/releases
-    else
-        BINFOLDER=$JTBIN/$TARGET
-        if [ $TARGET = pocket ]; then
-            BINFOLDER=$BINFOLDER/raw/Cores/jotego.$corename
-        fi
-        BINRBF=$BINFOLDER/$corename.$EXT
+    BINFOLDER=$JTBIN/$TARGET
+    if [ $TARGET = pocket ]; then
+        BINFOLDER=$BINFOLDER/raw/Cores/jotego.$corename
     fi
+    BINRBF=$BINFOLDER/$corename.$EXT
     mkdir -p $(dirname $BINRBF)
     cp -v $RBF $BINRBF || exit 1
 
     cd $JTBIN
-    RELEASE=$corename_$CORESTAMP
-    if [ -e $BINFOLDER/version.log ]; then
-        sed -i /$RELEASE/d  $BINFOLDER/version.log
-    fi
-    printf "%-24s %s\n" ${RELEASE} $PRJCOMMIT >> $BINFOLDER/version.log
+    printf "%-12s %-12s %-24s %s\n" ${PRJ} ${TARGET} `date +%Y-%m-%d` $PRJCOMMIT >> $JTBIN/version.log
     cd - > /dev/null
 elif [ ! -z "$VERBOSE" ]; then
     echo "Skipping copy to JTBIN or release"

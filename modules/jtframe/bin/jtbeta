@@ -107,7 +107,6 @@ EOF
     if [ $CONT = y ]; then rm -rf $JTROOT/{release,rom}; else KEEP="--keep"; fi
 fi
 
-
 # Beta keys are kept in $JTUTIL/beta.bin
 if [ ! -s $JTUTIL/beta.bin ]; then
     echo "Missing $JTUTIL/beta.bin"
@@ -140,6 +139,7 @@ git push --tags --force
 
 cd $JTROOT/release
 cp -r mister mra pocket $JTBIN
+cat version.log >> $JTBIN/version.log
 cd $JTBIN
 git add *
 git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
@@ -148,18 +148,6 @@ git tag --force $TAG
 # Prepare the zip files
 echo "Creating zip files"
 cpbeta.sh
-
-echo "Adding the reference to JTBIN's wiki"
-cd $JTBIN/../jtbin.wiki
-git pull
-for CORE in $BETACORES; do
-    if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
-        echo "WARNING: $CORE not found in JTBIN's wiki"
-        # ./addcore.sh $CORE
-        # git commit -m "Added $CORE"
-        # git push
-    fi
-done
 
 # Show problems
 BETALOG=$JTROOT/log/update.log

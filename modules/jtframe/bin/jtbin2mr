@@ -73,29 +73,14 @@ CORES=$ROOT/cores
 mkdir -p $CORES
 
 if [ -d $JTBIN/mister ]; then
-    cd $JTBIN/mister
-    for i in *; do
-        if [ `ls $i/releases/*.rbf 2>/dev/null | wc -l` -gt 0 ]; then
-            cp $i/releases/*.rbf $CORES
-        else
-            echo "No RBF files for $i"
-        fi
-        if [ `ls $i/releases/*.mra 2>/dev/null | wc -l` -gt 0 ]; then
-            cp $i/releases/*.mra $ROOT
-        elif [ $i != ngp ]; then
-            echo "No MRA files for $i"
-        fi
-    done
-    # NeoGeo Pocket core shoult not go inside the cores folder, but
-    # to the root level  --- eventually, it must be in cores for the MRA to work. It needs the MRA for the beta key
-    # if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
+    cp $JTBIN/mister/*.rbf $CORES
 fi
 
-cp -r $JTBIN/mra/_alternatives $ROOT
+cp -r $JTBIN/mra/* $ROOT
 if [ -d $JTBIN/games ]; then cp -r $JTBIN/games $ROOT; fi
 
 # Copy the files to MiSTer
-if [ "$V" = -v ]; then echo -e "\nCopying the files to MiSTer"; fi
+if [ ! -z "$V" ]; then echo -e "\nCopying the files to MiSTer"; fi
 if [ -d /media/$USER/MiSTer_Data ]; then
     echo "MiSTer SD card detected"
     rm -rf /media/$USER/MiSTer_Data/_JTBIN

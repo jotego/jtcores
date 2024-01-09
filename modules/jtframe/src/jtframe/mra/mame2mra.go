@@ -316,26 +316,7 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	b.WriteString(mra_xml.Dump())
 	b.WriteString("\n")
 	os.WriteFile(fname, []byte(b.String()), 0666)
-	main_copied := false
-	if main_mra {
-		// Look for the RBF name
-		rbf_name := mra_xml.FindNode("rbf").text // it must find it
-		rbf_name = rbf_name[2:]                  // deletes the initial jt
-		if args.JTbin {
-			fname = os.Getenv("JTBIN")
-		} else {
-			fname = filepath.Join(os.Getenv("JTROOT"), "release")
-		}
-		fname = filepath.Join(fname, "mister", rbf_name, "releases")
-		os.MkdirAll(fname, 0775)
-		fname = filepath.Join(fname, fix_filename(game_name)+".mra")
-		if args.Verbose {
-			fmt.Println("Creating ", fname)
-		}
-		os.WriteFile(fname, []byte(b.String()), 0666)
-		main_copied = true
-	}
-	return main_copied
+	return main_mra
 }
 
 func mra_disclaimer(machine *MachineXML, year string) string {
