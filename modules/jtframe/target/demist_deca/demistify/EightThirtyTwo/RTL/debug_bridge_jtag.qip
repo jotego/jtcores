@@ -1,0 +1,4 @@
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) altera/debug_bridge_jtag.vhd]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) altera/debug_virtualjtag.qip]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) debug_fifo.vhd]
+

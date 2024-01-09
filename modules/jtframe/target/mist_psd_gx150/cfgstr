@@ -1,0 +1,19 @@
+{{.CORENAME}};;
+
+{{ if not .JTFRAME_OSD_NOLOAD }}    F,rom; {{ end }}
+{{ if .JTFRAME_OSD60HZ }}           OJ,Force 60Hz, Off, On; {{ end }}
+{{ if .JTFRAME_VERTICAL }}
+{{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}
+                                    O2,Rotate controls,No,Yes; {{ end }}
+                                    O34,Video Mode, pass thru, linear, analogue, dark;
+{{ if .JTFRAME_OSD_VOL }}           O67,FX volume, high, very high, very low, low; {{ end }}
+{{ if .JTFRAME_OSD_SND_EN }}        O8,FX,On,Off; O9,FM,On,Off; {{ end }}
+{{ if .JTFRAME_OSD_TEST }}          OA,Test mode,Off,On; {{ end }}
+{{ if .JTFRAME_DIAL }}              O67,Sensitivity,high,highest,lowest,low;{{end}}
+{{ if not .JTFRAME_OSD_NOCREDITS }} OC,Pause,Off,On; {{ end }}
+{{ if .JTFRAME_AUTOFIRE0}}          OI,Autofire button 0,Off,On; {{ end }}
+{{ if not .JTFRAME_NO_MRA_DIP }}    DIP; {{ end }}
+{{ .CORE_OSD }}
+{{ with .JTFRAME_IOCTL_RD }}         R{{ . }},Save NVRAM;{{ end }}
+T0,Reset;
+V,{{ .COMMIT }} - patreon.com/jotego

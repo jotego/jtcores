@@ -1,0 +1,11 @@
+simple_uart.vhd
+jtag_uart.vhd
+io_ps2_com.vhd
+interrupt_controller.vhd
+timer_controller.vhd
+spi_controller.vhd
+../EightThirtyTwo/RTL/eightthirtytwo.qip
+../EightThirtyTwo/RTL/debug_bridge_jtag.qip
+../firmware/controller_rom.vhd
+substitute_mcu.vhd
+

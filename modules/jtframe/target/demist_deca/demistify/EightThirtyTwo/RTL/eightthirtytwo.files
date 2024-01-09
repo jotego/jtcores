@@ -1,0 +1,11 @@
+eightthirtytwo_pkg.vhd
+eightthirtytwo_shifter.vhd
+eightthirtytwo_alu.vhd
+eightthirtytwo_aligner.vhd
+eightthirtytwo_aligner_le.vhd
+eightthirtytwo_fetchloadstore.vhd
+eightthirtytwo_decode.vhd
+eightthirtytwo_hazard.vhd
+eightthirtytwo_debug.vhd
+eightthirtytwo_cpu.vhd
+
