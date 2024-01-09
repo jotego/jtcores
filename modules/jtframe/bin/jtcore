@@ -328,7 +328,7 @@ fi
 
 OUTPUTDIR=output_files
 
-# Check Quartus path
+# Check Quartus/Vivado path
 case $TARGET in
     mist) # MiST can only be compiled on Quartus 13, which is slower on systems with many CPU cores
         if ! (which quartus_sh|grep 13 -q); then
@@ -337,6 +337,19 @@ case $TARGET in
                 PATH=$PATH:/opt/altera/13.1/quartus/bin
             else
                 echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
+                exit 1
+            fi
+        fi;;
+    demist_zx3*)  
+        if ! (which vivado|grep Vivado -q); then
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            if [ -d /opt/Xilinx/Vivado ]; then
+                cd /opt/Xilinx/Vivado
+                cd $(ls | head -n 1)
+                PATH=$PATH:`pwd`/bin
+                #source /opt/Xilinx/Vivado/*/settings64.sh
+            else
+                echo "Cannot find Vivado in /opt/Xilinx/Vivado (`hostname`)"
                 exit 1
             fi
         fi;;
@@ -466,10 +479,18 @@ fi
 
 ################ compilation
 if [ $SKIP_COMPILE = FALSE ]; then
-    if ! which quartus_sh>/dev/null; then
-        echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
-        echo -e "      ${wBG} to the PATH environment variable${NC}"
-        exit 1
+    if [[ $TARGET = demist_zx3a* ]]; then
+        if ! which vivado>/dev/null; then
+            echo -e "${rBG}ERROR:${NC}${wBG} cannot find vivado in the path. Please add the correct path${NC}"
+            echo -e "      ${wBG} to the PATH environment variable${NC}"
+        	exit 1
+        fi        
+    else
+        if ! which quartus_sh>/dev/null; then
+            echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
+            echo -e "      ${wBG} to the PATH environment variable${NC}"
+        	exit 1
+        fi
     fi
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
@@ -523,61 +544,65 @@ if [ $SKIP_COMPILE = FALSE ]; then
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
-        quartus_sh -v
-        quartus_sh --flow compile $corename > "$LOG"
-        if ! grep "Full Compilation was successful" "$LOG"; then
-            grep -i error "$LOG" -A 2
-            echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
-            report FAIL
-            exit 1
-        fi
-        if [ ! -e $corename.map.rpt ]; then
-            RPTPATH=$OUTPUTDIR
+        if [[ $TARGET = demist_zx3a* ]]; then
+            echo "" #TODO: get compilation info from vivado logs
         else
-            RPTPATH=.
-        fi
-        grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
-        gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
-        cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
-        if [ -s sdram_badio.rpt ]; then
-            echo -e "${yBG}WARNING:${NC}${wBG} some SDRAM signals are not IO registers${NC}"
-            cat sdram_badio.rpt
-        fi
-        if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
-            echo "Warning: latch inferred"
-        fi
-        # Report FPGA usage
-        if [ -e $RPTPATH/*.fit.summary ]; then
-            grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary
-            grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
-        fi
-        # Report connectivity problems
-        AUX=`mktemp`
-        grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
-        | grep -v altera_cyclonev_pll\\.v \
-        | grep -v "\.data_a.*has no driver or initial value" \
-        | grep -v "\.waddr_a.*has no driver or initial value" \
+		    quartus_sh -v
+		    quartus_sh --flow compile $corename > "$LOG"
+		    if ! grep "Full Compilation was successful" "$LOG"; then
+		        grep -i error "$LOG" -A 2
+		        echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
+		        report FAIL
+		        exit 1
+		    fi
+		    if [ ! -e $corename.map.rpt ]; then
+		        RPTPATH=$OUTPUTDIR
+		    else
+		        RPTPATH=.
+		    fi
+		    grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
+		    gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
+		    cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
+		    if [ -s sdram_badio.rpt ]; then
+		        echo -e "${yBG}WARNING:${NC}${wBG} some SDRAM signals are not IO registers${NC}"
+		        cat sdram_badio.rpt
+		    fi
+		    if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
+		        echo "Warning: latch inferred"
+		    fi
+		    # Report FPGA usage
+		    if [ -e $RPTPATH/*.fit.summary ]; then
+		        grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary
+		        grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
+		    fi
+		    # Report connectivity problems
+		    AUX=`mktemp`
+		    grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
+		    | grep -v altera_cyclonev_pll\\.v \
+		    | grep -v "\.data_a.*has no driver or initial value" \
+		    | grep -v "\.waddr_a.*has no driver or initial value" \
         | grep -v "\.we_a.*has no driver or initial value" \
         | grep -v "Warning: RST port on the PLL" \
         | grep -v "Warning: OUTCLK port on the PLL" \
         | grep -v "Warning \(10762\)" > $AUX
-        if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
-            # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
-            grep -v sys_top.v $AUX
-        else
-            cat $AUX
-        fi
-        rm -f $AUX
-        # Report timing
-        grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
-        if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
-            FAIL=1
-            report FAIL
-            echo FAIL $PRJ
-        else
-            echo PASS
-            report PASS
-        fi
+		    if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
+		        # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
+		        grep -v sys_top.v $AUX
+		    else
+		        cat $AUX
+		    fi
+		    rm -f $AUX
+		    # Report timing
+		    grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
+		    if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
+		        FAIL=1
+		        report FAIL
+		        echo FAIL $PRJ
+		    else
+		        echo PASS
+		        report PASS
+		    fi
+		fi
     else
         # Simulation
         echo Preparing simulation netlist. Logfile:
@@ -608,6 +633,9 @@ function announce {
 # Determine file extension
 case $TARGET in
     neptuno) EXT=np1;;
+    demist_deca) EXT=svf;;
+    demist_de10lite) EXT=svf;;
+	demist_zx3a*) EXT=zx3;;
     mc2) EXT=mc2;;
     mcp) EXT=mcp;;
     pocket) EXT=rbf_r;;
@@ -622,11 +650,36 @@ if [ $SEED != 1 ]; then
 fi
 
 # Do not use [[ ]] in this if statement !!
-if is_mister_family || test $TARGET = neptuno; then
+if is_mister_family || test $TARGET = neptuno || test $TARGET = mist_psd_gx150; then
     echo $TARGET
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.rbf
+elif [[ $TARGET = demist_deca || $TARGET = demist_de10lite ]]; then
+    RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.svf
+elif [[ $TARGET = demist_zx3a* ]]; then
+    RBF=$PRJPATH/${TARGET}/zxtres.runs/${TARGET}/jtframe_zxtres_top.bin
 else
     RBF=$PRJPATH/${TARGET}/$corename.rbf
+fi
+
+if [[ $TARGET = demist_zx3a* ]]; then
+    cp $JTROOT/modules/jtframe/target/${TARGET}/moyone/* $PRJPATH/$TARGET/
+    cd $PRJPATH/$TARGET/
+    rm -r db incremental_db output_files >> "$LOG" 2>&1  
+    if [[ $TARGET = demist_zx3a35 ]]; then
+        # vga_output 1=mist video (+DP), 2=zxtres wrapper video (+DP), 3=mist video (without DP)
+        python3 qpf2xpr.py --${TARGET} --vga_output 3 > "$LOG" 2>&1
+    else
+        python3 qpf2xpr.py --${TARGET} > "$LOG" 2>&1
+    fi
+    vivado -mode tcl -source generate_vivado_project.tcl >> "$LOG" 2>&1
+fi
+
+if [[ $TARGET = demist_deca || $TARGET = demist_de10lite ]]; then
+    # clear DSM Tool that removes lines in .svf files to preserve the security key stored in Intel® MAX® 10 devices.
+    echo "Clear DSM Tool (max10_svf_cleaner) https://github.com/opengateware-labs/tools-max10_svf_cleaner/releases"
+    max10_svf_cleaner $RBF
+    RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/${corename}_nodsm.svf
+    rm -r $PRJPATH/$TARGET/db $PRJPATH/$TARGET/incremental_db   	# remove Quartus db folders
 fi
 
 if [ ! -e $RBF ]; then
@@ -656,8 +709,19 @@ if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
         BINFOLDER=$BINFOLDER/raw/Cores/jotego.$corename
     fi
     BINRBF=$BINFOLDER/$corename.$EXT
+
+    if [[ $TARGET = demist_zx3a* ]]; then        
+        BINRBF=$BINFOLDER/$corename"_"$TARGET"_"$CORESTAMP.$EXT
+    fi
+    
     mkdir -p $(dirname $BINRBF)
     cp -v $RBF $BINRBF || exit 1
+
+    if [[ $TARGET = demist_zx3a* ]]; then        # copy also bit file for zxtres targets
+        RBF=$PRJPATH/${TARGET}/zxtres.runs/${TARGET}/jtframe_zxtres_top.bit
+        BINRBF=$BINFOLDER/$corename"_"$TARGET"_"$CORESTAMP.bit
+        cp -v $RBF $BINRBF || exit 1
+    fi
 
     cd $JTBIN
     printf "%-12s %-12s %-24s %s\n" ${PRJ} ${TARGET} `date +%Y-%m-%d` $PRJCOMMIT >> $JTBIN/version.log
