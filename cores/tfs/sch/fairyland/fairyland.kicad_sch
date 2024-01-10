@@ -1627,6 +1627,11 @@
     )
   )
 
+  (text "OK" (at 212.09 139.7 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 5dca5b25-005c-4ea2-a41f-3efc96fcdee7)
+  )
+
   (label "~{DVBLK}" (at 349.25 213.36 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 02e2c2b5-d742-4e10-b40a-c9303f673733)
