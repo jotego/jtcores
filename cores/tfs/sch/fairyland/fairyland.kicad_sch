@@ -2243,7 +2243,7 @@
           (reference "S1") (unit 1)
         )
         (path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758"
-          (reference "S1") (unit 1)
+          (reference "S9") (unit 1)
         )
       )
     )
@@ -2320,7 +2320,7 @@
           (reference "JR1") (unit 1)
         )
         (path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758"
-          (reference "JR1") (unit 1)
+          (reference "JR9") (unit 1)
         )
       )
     )
