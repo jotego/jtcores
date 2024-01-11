@@ -55,24 +55,15 @@ cd $JTBIN/mra
 
 function cp_mist {
     cp $V $JTBIN/${i,,}/*rbf $DST
-    find $JTBIN/mra -name "*.mra" -print0 | parallel -0 mra -z $HOME/.mame/roms -O /media/$USER/$i -A -s
     # Get the main MRA as the core's arc for JTAG programming
-    for CORE in $JTBIN/mister/*; do
-        CORENAME=jt$(basename $CORE)
-        if [ ! -e $DST/$CORENAME.rbf ]; then
-            echo "$i: skipping ARC files for ${CORENAME#jt} (no RBF)"
-            find $DST -name "*.arc" -print0 | xargs -0 grep -l -i $CORENAME | (while IFS= read -r LINE; do rm "$LINE"; done)
-            continue;
-        fi
-        MR=$CORE/releases
-        if [ ! -d "$MR" ]; then continue; fi
-        cd $MR
-        CORENAME=${CORENAME^^}
-        FIRST=`find . -name "*.mra" | head -n 1`
-        if [ -z "$FIRST" ]; then continue; fi
-        mra -A -s -a $DST/$CORENAME.arc "$FIRST"
-        cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
+    for CORE in $JTBIN/mist/*rbf; do
+        IFS=$'\n'
+        CORE=`basename $CORE .rbf`
+        for MRA in `find -name "*mra" -print0 | xargs -0 grep --files-with-matches --ignore-case $CORE`; do
+            mra -z $HOME/.mame/roms -O $DST -A -s "$MRA"
+        done
     done
+    # Set one game as core.arc
     if [ ! -z "$SETNAME" ]; then
         local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`
         if [ ! -z "$MAINSET" ]; then
@@ -80,6 +71,8 @@ function cp_mist {
         else
             echo "Cannot find any arc file for $SETNAME"
         fi
+    elif [ ! -e $DST/core.arc ]; then
+        cp -v `ls $DST/*arc|head -n 1` $DST/core.arc;
     fi
 }
 
