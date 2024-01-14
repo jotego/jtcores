@@ -108,7 +108,7 @@ jtshouse_main u_main(
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
 
-    .lvbl       ( LVBL      ),
+    .lvbl       ( LVBL & dip_pause ),
     .firqn      ( firqn     ),     // input that will trigger both FIRQ outputs
 
     .baddr      ( baddr     ),  // shared by both CPUs
@@ -154,8 +154,9 @@ jtshouse_main u_main(
 );
 /* verilator tracing_on */
 jtshouse_mcu u_mcu(
+    .game_rst   ( rst       ),
+    .rstn       ( srst_n    ),
     .clk        ( clk       ),
-    .rstn       ( srst_n /*& ~debug_bus[0]*/   ),
     .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),
@@ -195,7 +196,7 @@ jtshouse_mcu u_mcu(
     .snd        ( pcm_snd   ),
     .debug_bus  ( debug_bus )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
@@ -233,7 +234,7 @@ jtshouse_sound u_sound(
     .peak       ( game_led  ),
     .debug_bus  ( debug_bus )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_triram u_triram(
     .rst        ( rst       ),
     .srst_n     ( srst_n    ),

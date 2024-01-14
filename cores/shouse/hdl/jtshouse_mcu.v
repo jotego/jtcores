@@ -21,6 +21,7 @@
 
 module jtshouse_mcu(
     input              clk,
+    input              game_rst,
     input              rstn,
     input              cen,
     input              lvbl,
@@ -132,7 +133,7 @@ always @(posedge clk) begin
 end
 
 jtframe_dcrm #(.SW(11)) u_dcrm(
-    .rst        ( ~rstn     ),
+    .rst        ( game_rst  ),
     .clk        ( clk       ),
     .sample     ( sample    ),
     .din        ( mix       ),
@@ -142,12 +143,12 @@ jtframe_dcrm #(.SW(11)) u_dcrm(
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
-        dac1     <= 0;
-        dac0     <= 0;
+        dac1     <= 8'h80;
+        dac0     <= 8'h80;
         cab_dout <= 0;
         irq      <= 0;
         lvbl_l   <= 0;
-        mix      <= 0;
+        mix      <= 11'h100;
         init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
@@ -179,7 +180,7 @@ always @(posedge clk, negedge rstn ) begin
         endcase
     end
 end
-
+/* verilator tracing_off */
 jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),

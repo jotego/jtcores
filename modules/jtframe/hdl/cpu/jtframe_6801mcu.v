@@ -375,19 +375,19 @@ jtframe_ram #(.AW(8)) u_buffer( // internal RAM
 );
 `endif
 
-reg [7:0] tracka, trackd;
+// reg [7:0] tracka, trackd;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        tracka <= 0;
-        trackd <= 0;
-    end else begin
-        if( buf_we && addr[7:0]<8'hf0 ) begin
-            tracka <= addr[7:0];
-            trackd <= dout;
-        end
-    end
-end
+// always @(posedge clk, posedge rst) begin
+//     if( rst ) begin
+//         tracka <= 0;
+//         trackd <= 0;
+//     end else begin
+//         if( buf_we && addr[7:0]<8'hf0 ) begin
+//             tracka <= addr[7:0];
+//             trackd <= dout;
+//         end
+//     end
+// end
 
 jt680x u_mcu(
     .rst        ( rst           ),
