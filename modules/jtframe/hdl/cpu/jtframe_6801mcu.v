@@ -272,8 +272,8 @@ always @(posedge clk, posedge rst) begin
                 FRCH: begin
                     frc <= 16'hfff8;
                     frbuf <= dout;
-                end
-                FRCL: if(MODEL=="HD63701V") begin
+                end /* verilator lint_off WIDTHEXPAND */
+                FRCL: if(MODEL=="HD63701V") begin /* verilator lint_on WIDTHEXPAND */
                     frc     <= { frbuf, dout };
                     cen_frc <= 1;
                 end
