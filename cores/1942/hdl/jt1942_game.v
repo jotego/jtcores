@@ -51,7 +51,7 @@ reg         flip_xor=0, eff_flip=0, hige=0;
 assign prom_red_we   = prom_we && prog_addr[11:8]==0; // sb-5.e8 - also used as Higemaru's palette
 assign prom_green_we = prom_we && prog_addr[11:8]==1; // sb-6.e9
 assign prom_blue_we  = prom_we && prog_addr[11:8]==2; // sb-7.e10
-assign prom_char_we  = prom_we && prog_addr[11:8]==(!hige ? 4'd3 : 4'd1); // sb-0.f1
+assign prom_char_we  = prom_we && prog_addr[11:8]==(!hige ? 4'd3 : 4'd1) && (!hige || !prog_addr[7]); // sb-0.f1
 assign prom_scr_we   = prom_we && prog_addr[11:8]==4; // sb-4.d6
 assign prom_obj_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd5 : 4'd2); // sb-8.k3
 assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus

@@ -108,13 +108,23 @@ jtgng_timer u_timer(
     .LVBL_obj  (          )
 );
 
+// Higemaru only uses 5 bits for char palette. The other games use 6 bits.
+// in order to share the module, the same data is written in both halves of the
+// palette PROM. Higemaru writes bit 6 during hi-score entry and does not
+// clear it afterwards. See https://github.com/jotego/jtcores/issues/466
+reg        paux=0;
+wire [7:0] paddr;
+
+always @(posedge clk) paux<=~paux;
+assign paddr={prog_addr[7]^(hige&paux),prog_addr[6:0]};
+
 jtgng_char #(
     .HOFFSET ( COFFSET ),
     .ROM_AW  ( 12      ),
     .IDMSB1  (  7      ),
     .IDMSB0  (  7      ),
     .VFLIP   (  6      ),
-    .PALW    (  6      ),   // Higemaru only uses 5 bits, the core relies on the software keeping the 6th bit low, or the data from the PROM will be wrong
+    .PALW    (  6      ),
     .HFLIP_EN(  0      ),   // 1942 does not have character H flip
     .PALETTE (  1      ),
     .PALETTE_SIMFILE( "../../../rom/1942/sb-0.f1" )
@@ -133,7 +143,7 @@ jtgng_char #(
     .wr_n       ( wr_n          ),
     .busy       ( char_busy     ),
     // PROM access
-    .prog_addr  ( prog_addr     ),
+    .prog_addr  ( paddr         ),
     .prog_din   ( prog_din[3:0] ),
     .prom_we    ( prom_char_we  ),
     // ROM
