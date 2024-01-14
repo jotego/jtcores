@@ -3,20 +3,65 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "cps1.cpp" ]
-skip.bootlegs=true
+#skip.bootlegs=true
 mustbe.devices=["ym2151"]
 # Need to fix the mix of gfx ROMs of 8 and 16 bits:
 skip.setnames=[
 	# won't boot
+	"ganbare",
+	"3wondersu",
+	"3wonders1",
+	"ffightjh",
+    # bootlegs that won't boot (likely different hardware)
+    "sf2level",
+    "sf2dongb",
+    "sf2dkot2",
+    "sf2bhh",
+    "sf2m2",
+    "sf2m3",
+    "sf2m4",
+    "sf2m5",
+    "sf2m7",
+    "sf2ceblp",
+    "sf2rb",
+    "sf2rb2",
 	"sf2mkot",
 	"sf2um",
 	"sf2ue",
 	"sf2ef",
 	"sf2ee",
-	"ganbare",
-	"3wondersu",
-	"3wonders1",
-	"ffightjh",
+    "sf2reda",
+    "sf2koryu",
+    "sf2thndr",
+    "sf2thndr2",
+    "pang3b2",
+    "pang3b3",
+    "pang3b4",
+    "pang3b5",
+    "varthb2",
+    # bootlegs with bad graphics
+    "3wondersb",
+    # Bad number of ROMs for interlave in bootlegs
+    "captcommb",
+    "knightsb2",
+    "sf2amf",
+    "sf2amf2",
+    "sf2amf3",
+    "sf2ceds6",
+    "sf2cems6a",
+    "sf2cems6b",
+    "sf2cems6c",
+    "sf2ebbl",
+    "sf2ebbl2",
+    "sf2ebbl3",
+    "sf2m10",
+    "sf2m6",
+    "sf2m8",
+    "sf2re",
+    "sf2rk",
+    "sf2rules",
+    "sf2stt",
+    "varthb3",
 ]
 
 [buttons]
