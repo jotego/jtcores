@@ -157,7 +157,7 @@ reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
     assign joy_pause = board_coin[0] & board_joy1[4];
-    assign joy_test  = board_start[0] & board_joy1[4];
+    assign joy_test  = board_coin[0] & board_joy1[5];
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
