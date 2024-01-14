@@ -159,8 +159,8 @@ assign obj2tile = { obj_pxl[5:4], {2{obj_pxl[6]}}, {2{obj_pxl[3:0]}}^8'h50 }; //
 always @* begin
     case( ioctl_addr[15:12] )
         0,1: ioctl_din = pal_dump;  // first 8kB of pal RAM dumped
-        1,2: ioctl_din = road_dump; // 8 kB
-        3:   ioctl_din = obj_dump;
+        2,3: ioctl_din = road_dump; // 8 kB
+        4:   ioctl_din = obj_dump;
         default: ioctl_din = 0;
     endcase
 end
