@@ -61,7 +61,7 @@ wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
 wire signed [11:0]  pcm_snd;
-wire signed [10:0]  scc_snd;
+wire signed [11:0]  scc_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
@@ -124,7 +124,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_mixer #(.W0(16),.W1(11),.W2(12)) u_mixer(
+jtframe_mixer #(.W0(16),.W1(12),.W2(12)) u_mixer(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
