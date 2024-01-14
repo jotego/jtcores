@@ -203,14 +203,14 @@ ops:
   - { name: PULA, op: 0x32, ctl: {                              addr: pul8,  ld: a,           }, cycles: 4 }
   - { name: PULB, op: 0x33, ctl: {                              addr: pul8,  ld: b,           }, cycles: 4 }
   - { name: PULX, op: 0x38, ctl: {                              addr: pul16, ld: x,           }, cycles: 5 }
-  - { name: ROL,  op: 0x69, ctl: { alu: ROL, op0: md, wr: wr,   addr: idx,           cc: nzvc }, cycles: 6 }
-  - { name: ROL,  op: 0x79, ctl: { alu: ROL, op0: md, wr: wr,   addr: ext,           cc: nzvc }, cycles: 6 }
-  - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,                         ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: ROLB, op: 0x59, ctl: { alu: ROL, op0: b,                         ld: b,  cc: nzvc }, cycles: 2 }
-  - { name: ROR,  op: 0x66, ctl: { alu: ROR, op0: md, wr: wr,   addr: idx,           cc: nzvc }, cycles: 6 }
-  - { name: ROR,  op: 0x76, ctl: { alu: ROR, op0: md, wr: wr,   addr: ext,           cc: nzvc }, cycles: 6 }
-  - { name: RORA, op: 0x46, ctl: { alu: ROR, op0: a,                         ld: a,  cc: nzvc }, cycles: 2 }
-  - { name: RORB, op: 0x56, ctl: { alu: ROR, op0: b,                         ld: b,  cc: nzvc }, cycles: 2 }
+  - { name: ROL,  op: 0x69, ctl: { alu: LSL, op1: md, wr: wr,   addr: idx,          carry: cin,  cc: nzvc }, cycles: 6 }
+  - { name: ROL,  op: 0x79, ctl: { alu: LSL, op1: md, wr: wr,   addr: ext,          carry: cin,  cc: nzvc }, cycles: 6 }
+  - { name: ROLA, op: 0x49, ctl: { alu: LSL, op1: a,                         ld: a, carry: cin,  cc: nzvc }, cycles: 2 }
+  - { name: ROLB, op: 0x59, ctl: { alu: LSL, op1: b,                         ld: b, carry: cin,  cc: nzvc }, cycles: 2 }
+  - { name: ROR,  op: 0x66, ctl: { alu: LSR, op1: md, wr: wr,   addr: idx,          carry: cin,  cc: nzvc }, cycles: 6 }
+  - { name: ROR,  op: 0x76, ctl: { alu: LSR, op1: md, wr: wr,   addr: ext,          carry: cin,  cc: nzvc }, cycles: 6 }
+  - { name: RORA, op: 0x46, ctl: { alu: LSR, op1: a,                         ld: a, carry: cin,  cc: nzvc }, cycles: 2 }
+  - { name: RORB, op: 0x56, ctl: { alu: LSR, op1: b,                         ld: b, carry: cin,  cc: nzvc }, cycles: 2 }
   - { name: SBA,  op: 0x10, ctl: { alu: SUB, op0: a, op1: b,                 ld: a,  cc: nzvc }, cycles: 2 }
 
   - { name: SBCA, op: 0x82, ctl: { alu: SUB, op0: a,  op1: md,  addr: imm, ld: a, carry: cin, cc: nzvc }, cycles: 2 }
@@ -225,21 +225,21 @@ ops:
   - { name: SEC,  op: 0x0d, ctl: {                                                 cc:   c1 }, cycles: 2 }
   - { name: SEI,  op: 0x0f, ctl: {                                                 cc:   i1 }, cycles: 2 }
   - { name: SEV,  op: 0x0b, ctl: {                                                 cc:   v1 }, cycles: 2 }
-  - { name: STAA,  op: 0x97, ctl: {           op0: a,           addr: dira,         cc: nzv0 }, cycles: 3 }
-  - { name: STAA,  op: 0xa7, ctl: {           op0: a,           addr: idxa,         cc: nzv0 }, cycles: 4 }
-  - { name: STAA,  op: 0xb7, ctl: {           op0: a,           addr: exta,         cc: nzv0 }, cycles: 4 }
-  - { name: STAB,  op: 0xd7, ctl: {           op0: b,           addr: dira,         cc: nzv0 }, cycles: 3 }
-  - { name: STAB,  op: 0xe7, ctl: {           op0: b,           addr: idxa,         cc: nzv0 }, cycles: 4 }
-  - { name: STAB,  op: 0xf7, ctl: {           op0: b,           addr: exta,         cc: nzv0 }, cycles: 4 }
-  - { name: STD,  op: 0xdd, ctl: { alu16: 1, op0: d,           addr: dira,         cc: nzv0 }, cycles: 4 }
-  - { name: STD,  op: 0xed, ctl: { alu16: 1, op0: d,           addr: idxa,         cc: nzv0 }, cycles: 5 }
-  - { name: STD,  op: 0xfd, ctl: { alu16: 1, op0: d,           addr: exta,         cc: nzv0 }, cycles: 5 }
-  - { name: STS,  op: 0x9f, ctl: { alu16: 1, op0: s,           addr: dira,         cc: nzv0 }, cycles: 4 }
-  - { name: STS,  op: 0xaf, ctl: { alu16: 1, op0: s,           addr: idxa,         cc: nzv0 }, cycles: 5 }
-  - { name: STS,  op: 0xbf, ctl: { alu16: 1, op0: s,           addr: exta,         cc: nzv0 }, cycles: 5 }
-  - { name: STX,  op: 0xdf, ctl: { alu16: 1, op0: x,           addr: dira,         cc: nzv0 }, cycles: 4 }
-  - { name: STX,  op: 0xef, ctl: { alu16: 1, op0: x,           addr: idxa,         cc: nzv0 }, cycles: 5 }
-  - { name: STX,  op: 0xff, ctl: { alu16: 1, op0: x,           addr: exta,         cc: nzv0 }, cycles: 5 }
+  - { name: STAA, op: 0x97, ctl: {           op0: a,           addr: dira,         cc: nzv0 }, cycles: 3 }
+  - { name: STAA, op: 0xa7, ctl: {           op0: a,           addr: idxa,         cc: nzv0 }, cycles: 4 }
+  - { name: STAA, op: 0xb7, ctl: {           op0: a,           addr: exta,         cc: nzv0 }, cycles: 4 }
+  - { name: STAB, op: 0xd7, ctl: {           op0: b,           addr: dira,         cc: nzv0 }, cycles: 3 }
+  - { name: STAB, op: 0xe7, ctl: {           op0: b,           addr: idxa,         cc: nzv0 }, cycles: 4 }
+  - { name: STAB, op: 0xf7, ctl: {           op0: b,           addr: exta,         cc: nzv0 }, cycles: 4 }
+  - { name: STD,  op: 0xdd, ctl: {           op0: d,           addr: dira,         cc: nzv0 }, cycles: 4 }
+  - { name: STD,  op: 0xed, ctl: {           op0: d,           addr: idxa,         cc: nzv0 }, cycles: 5 }
+  - { name: STD,  op: 0xfd, ctl: {           op0: d,           addr: exta,         cc: nzv0 }, cycles: 5 }
+  - { name: STS,  op: 0x9f, ctl: {           op0: s,           addr: dira,         cc: nzv0 }, cycles: 4 }
+  - { name: STS,  op: 0xaf, ctl: {           op0: s,           addr: idxa,         cc: nzv0 }, cycles: 5 }
+  - { name: STS,  op: 0xbf, ctl: {           op0: s,           addr: exta,         cc: nzv0 }, cycles: 5 }
+  - { name: STX,  op: 0xdf, ctl: {           op0: x,           addr: dira,         cc: nzv0 }, cycles: 4 }
+  - { name: STX,  op: 0xef, ctl: {           op0: x,           addr: idxa,         cc: nzv0 }, cycles: 5 }
+  - { name: STX,  op: 0xff, ctl: {           op0: x,           addr: exta,         cc: nzv0 }, cycles: 5 }
   - { name: SUBA, op: 0x80, ctl: { alu: SUB, op0: a,  op1: md,  addr: imm, ld: a,  cc: nzvc }, cycles: 2 }
   - { name: SUBA, op: 0x90, ctl: { alu: SUB, op0: a,  op1: md,  addr: dir, ld: a,  cc: nzvc }, cycles: 3 }
   - { name: SUBA, op: 0xa0, ctl: { alu: SUB, op0: a,  op1: md,  addr: idx, ld: a,  cc: nzvc }, cycles: 4 }

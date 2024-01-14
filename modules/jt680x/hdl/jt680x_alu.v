@@ -91,17 +91,9 @@ always @* begin
         end
         LSL_ALU: begin
             {c16, rslt[15:8]}= {op0[7:0],op1[7]};
-            { c8, rslt[ 7:0]}= {op1[7:0],1'b0};
+            { c8, rslt[ 7:0]}= {op1[7:0],cx};
             v8  = rslt[ 7] ^ c8;
             v16 = rslt[15] ^ c16;
-        end
-        ROL_ALU: begin
-            {c8,rslt[7:0]} = {op0[7:0],cin};
-            v8  = rslt[7] ^ c8;
-        end
-        ROR_ALU: begin
-            {rslt[7:0],c8} = {cin,op0[7:0]};
-            v8  = rslt[7] ^ c8;
         end
         SUB_ALU: begin
             {c8,  rslt[ 7:0]} = {1'b0, op0[ 7:0]}-{1'b0,op1[ 7:0]}-{8'b0,cx};

@@ -57,11 +57,12 @@ function cp_mist {
     cp $V $JTBIN/${i,,}/*rbf $DST
     # Get the main MRA as the core's arc for JTAG programming
     for CORE in $JTBIN/mist/*rbf; do
-        IFS=$'\n'
         CORE=`basename $CORE .rbf`
+        IFS=$'\n'
         for MRA in `find -name "*mra" -print0 | xargs -0 grep --files-with-matches --ignore-case $CORE`; do
             mra -z $HOME/.mame/roms -O $DST -A -s "$MRA"
         done
+        unset IFS
     done
     # Set one game as core.arc
     if [ ! -z "$SETNAME" ]; then
@@ -72,7 +73,7 @@ function cp_mist {
             echo "Cannot find any arc file for $SETNAME"
         fi
     elif [ ! -e $DST/core.arc ]; then
-        cp -v `ls $DST/*arc|head -n 1` $DST/core.arc;
+        cp -v "`ls $DST/*arc|head -n 1`" $DST/core.arc;
     fi
 }
 

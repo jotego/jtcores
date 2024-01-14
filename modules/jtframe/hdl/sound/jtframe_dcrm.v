@@ -20,11 +20,11 @@
     */
 
 // This is pretty much a copy of jt49_dcrm2
-
 // DC removal filter
 // input is unsigned
 // output is signed
 
+/* verilator tracing_off */
 module jtframe_dcrm #(parameter
     SW           = 8,
     SIGNED_INPUT = 0

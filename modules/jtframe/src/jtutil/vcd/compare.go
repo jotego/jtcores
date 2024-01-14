@@ -6,17 +6,42 @@ import (
     "os"
 )
 
-type cmpData struct{
+type CmpArgs struct {
+    Ignore_rst bool
+    Mismatch_n int
+    Time0a, Time0b uint64
+}
+
+type cmpData struct {
     file   *LnFile
     data    vcdData
     signal *VCDSignal
+    resets []*VCDSignal
 }
 
 func (this cmpData) next() bool {
     return this.file.NextVCD(this.data)
 }
 
-func CompareAll( fnames []string, mismatch_n int ) {
+func in_reset(cmpd *cmpData) bool {
+    for _, rst := range cmpd.resets {
+        if rst.Value==1 { return true }
+    }
+    return false
+}
+
+func mv_reset( cmpd *cmpData ) {
+    // ensure that we are in reset state
+    for _, rst := range cmpd.resets {
+        for rst.Value!=1 && cmpd.file.NextVCD(cmpd.data) { }
+    }
+    // next, come out of it
+    for _, rst := range cmpd.resets {
+        for rst.Value!=0 && cmpd.file.NextVCD(cmpd.data) { }
+    }
+}
+
+func CompareAll( fnames []string, args CmpArgs ) {
     var c [2]cmpData
     for k,_ := range c{
         c[k].file = &LnFile{}
@@ -25,6 +50,10 @@ func CompareAll( fnames []string, mismatch_n int ) {
         }
         c[k].file.Open(fnames[k])
         c[k].data = GetSignals(c[k].file)
+        c[k].resets=c[k].data.GetAll("rst",false)
+    }
+    if c[0].resets!=nil {
+        fmt.Println("rst signals found")
     }
     pairs := make(map[string]*VCDSignal)
     k:=0
@@ -51,6 +80,8 @@ func CompareAll( fnames []string, mismatch_n int ) {
         }
         return true,"",0,0
     }
+    c[0].file.MoveTo(c[0].data,args.Time0a)
+    c[1].file.MoveTo(c[1].data,args.Time0b)
     // run through the VCD
     for c[0].file.NextVCD(c[0].data) {
         matched := false
@@ -59,14 +90,20 @@ func CompareAll( fnames []string, mismatch_n int ) {
         more := true
         t1 := c[1].file.time
         more = c[1].file.NextVCD(c[1].data)
+        if args.Ignore_rst {
+            if in_reset(&c[0]) || in_reset(&c[1]) {
+                mv_reset(&c[0])
+                mv_reset(&c[1])
+            }
+        }
         matched, offender, v0, v1 = equal()
         if !matched {
             fmt.Printf("Time %d (%s) and %d (%s): %s\t %X != %X\n",
                 c[0].file.time, c[0].file.fname,
                 t1, c[1].file.fname, offender,
                 v0, v1)
-            mismatch_n--
-            if( mismatch_n<=0 ) { break }
+            args.Mismatch_n--
+            if( args.Mismatch_n<=0 ) { break }
         }
         if !more {
             fmt.Println("EOF")
@@ -75,29 +112,41 @@ func CompareAll( fnames []string, mismatch_n int ) {
     }
 }
 
-func Compare( fnames []string, sname string, ignore_rst bool, mismatch_n int ) {
+func Compare( fnames []string, sname string, args CmpArgs ) {
     d,_ := cmpReadin( fnames, sname )
     defer d[0].file.Close()
     defer d[1].file.Close()
     mismatch := false
     d0Names := []string{ d[0].signal.alias }
     d1Names := []string{ d[1].signal.alias }
-    if ignore_rst {
-        fmt.Println("reset parsing not supported")
-        return
+    d[0].file.MoveTo(d[0].data,args.Time0a)
+    d[1].file.MoveTo(d[1].data,args.Time0b)
+    if args.Ignore_rst {
+        for k:=0; k<len(d); k++ {
+            d[k].resets=d[k].data.GetAll("rst",false)
+        }
+        if d[0].resets!=nil {
+            fmt.Println("rst signals found")
+        }
     }
     more := true
     for more {
         more = more && d[0].file.NextChangeIn( d[0].data, d0Names )
         more = more && d[1].file.NextChangeIn( d[1].data, d1Names )
+        if args.Ignore_rst {
+            if in_reset(&d[0]) || in_reset(&d[1]) {
+                mv_reset(&d[0])
+                mv_reset(&d[1])
+            }
+        }
         mismatch = d[0].signal.Value != d[1].signal.Value
         if mismatch {
-            fmt.Printf("xxMismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
+            fmt.Printf("Mismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
                 d[0].file.time, d[0].file.fname,
                 d[1].file.time, d[1].file.fname,
                 d[0].signal.Value, d[1].signal.Value )
-            mismatch_n--
-            if( mismatch_n<=0 ) { break }
+            args.Mismatch_n--
+            if( args.Mismatch_n<=0 ) { break }
         }
     }
     if !mismatch {

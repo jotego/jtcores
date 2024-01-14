@@ -35,7 +35,7 @@ reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
 wire        prc_snd, snd_sel,
             cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
-wire        obus_cs, ram_cs, dma_we;
+wire        obus_cs, ram_cs, dma_we, mcu_halt;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -61,7 +61,7 @@ assign dip_flip = 0;
 
 always @* begin
     case( debug_bus[7:6] )
-        0: dbg_mux = { 7'd0, ~srst_n };
+        0: dbg_mux = { 3'd0, mcu_halt, 3'd0, ~srst_n };
         1: dbg_mux = st_video;
         2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
@@ -69,6 +69,7 @@ always @* begin
     endcase
 end
 
+/* verilator tracing_on */
 jtshouse_cenloop u_cen(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -84,7 +85,7 @@ jtshouse_cenloop u_cen(
     .fave       ( fave      ),
     .fworst     (           )
 );
-
+/* verilator tracing_off */
 jtshouse_key u_key(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -100,7 +101,7 @@ jtshouse_key u_key(
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 );
-
+/* verilator tracing_off */
 jtshouse_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -151,7 +152,7 @@ jtshouse_main u_main(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
-
+/* verilator tracing_on */
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
     .rstn       ( srst_n /*& ~debug_bus[0]*/   ),
@@ -165,6 +166,7 @@ jtshouse_mcu u_mcu(
     .mcu_dout   ( mcu_dout  ),
     .ram_cs     ( mcutri_cs ),
     .ram_dout   ( tri_mcu   ),
+    .halted     ( mcu_halt  ),
     // cabinet I/O
     .cab_1p     ( cab_1p    ),
     .coin       ( coin      ),
@@ -194,10 +196,9 @@ jtshouse_mcu u_mcu(
     .snd        ( pcm_snd   ),
     .debug_bus  ( debug_bus )
 );
-
+/* verilator tracing_off */
 jtshouse_sound u_sound(
-    //.srst_n     ( srst_n    ),
-    .srst_n     ( ~rst    ),
+    .srst_n     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( cen_snd   ),
     .cen_Q      ( cen_sndq  ),
@@ -233,9 +234,10 @@ jtshouse_sound u_sound(
     .peak       ( game_led  ),
     .debug_bus  ( debug_bus )
 );
-
+/* verilator tracing_on */
 jtshouse_triram u_triram(
     .rst        ( rst       ),
+    .srst_n     ( srst_n    ),
     .clk        ( clk       ),
 
     .snd_cen    ( cen_snd   ),

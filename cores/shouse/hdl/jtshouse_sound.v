@@ -120,7 +120,7 @@ always @(posedge clk, negedge srst_n) begin
     end else begin
         if( cen_E ) VMA <= AVMA;
         lvbl_l <= lvbl;
-        if( !lvbl && lvbl_l ) irq_n <= 0;
+        if( lvbl && !lvbl_l ) irq_n <= 0;
         if( reg_cs ) begin
             if( A[13:12]==0 ) bank <=cpu_dout[6:4];
             // if( A[13:12]==1 ) WATCHDOG?
@@ -155,7 +155,7 @@ jtcus30 u_wav(
     .debug_bus(debug_bus)
 );
 
-/* verilator tracing_on  */
+/* verilator tracing_off  */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock

@@ -91,6 +91,7 @@ always @( posedge clk, posedge rst ) begin
         op1 <= 0;
         md  <= 0;
         ea  <= 0;
+        pc  <= 0;
         {h,n,z,v,c} <= 0;
         i    <= 1;
     end else if( cen ) begin

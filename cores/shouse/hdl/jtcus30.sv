@@ -45,11 +45,11 @@ module jtcus30(
     input        [ 7:0] sdout,
 
     // sound output
-    output                   sample,
-    output reg signed [12:0] snd_l,
-    output reg signed [12:0] snd_r,
+    output               sample,
+    output signed [12:0] snd_l,
+    output signed [12:0] snd_r,
 
-    input             [ 7:0] debug_bus
+    input         [ 7:0] debug_bus
 );
 
 localparam CW=21,
@@ -112,8 +112,8 @@ always @(posedge clk, posedge rst ) begin
         ramp  <= 0;
         lacc  <= 0;
         racc  <= 0;
-        snd_l <= 0;
-        snd_r <= 0;
+        raw_l <= 0;
+        raw_r <= 0;
         lfsr  <= 18'h1;
         noise <= 0;
         cnt_no<= 0;
@@ -135,14 +135,30 @@ always @(posedge clk, posedge rst ) begin
         lacc <= ch==0 ? {{3{lamp[9]}},lamp} : lacc+{ {3{lamp[9]}},lamp};
         racc <= ch==0 ? {{3{lamp[9]}},ramp} : racc+{ {3{lamp[9]}},ramp};
         if( ch==0 ) begin
-            snd_l <= lacc;
-            snd_r <= racc;
+            raw_l <= lacc;
+            raw_r <= racc;
         end
         // LFSR
         noise <= noise^(^lfsr[1:0]);
         lfsr <= { lfsr[0], lfsr[17]^lfsr[0], lfsr[16], lfsr[15]^{lfsr[0]}, lfsr[14:1] }; // MAME's polynomial, is it verified?
     end
 end
+
+jtframe_dcrm #(.SW(13),.SIGNED_INPUT(1)) u_dcrm_left(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .sample ( sample        ),
+    .din    ( raw_l         ),
+    .dout   ( snd_l         )
+);
+
+jtframe_dcrm #(.SW(13),.SIGNED_INPUT(1)) u_dcrm_right(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .sample ( sample        ),
+    .din    ( raw_r         ),
+    .dout   ( snd_r         )
+);
 
 jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .clk        ( clk       ),

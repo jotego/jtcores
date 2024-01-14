@@ -379,7 +379,7 @@ class JTSim {
     SDRAM sdram;
     SimInputs sim_inputs;
     Download dwn;
-    int frame_cnt, last_VS;
+    int frame_cnt, last_LVBL, last_VS;
     // Video dump
     struct t_dump{
         ofstream fout;
@@ -675,6 +675,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
 {
     simtime   = 0;
     frame_cnt = 0;
+    last_LVBL = 0;
     last_VS   = 0;
     char *opt = getenv("CONVERT_OPTIONS");
     if ( opt!=NULL ) convert_options = opt;
@@ -823,12 +824,13 @@ void JTSim::clock(int n) {
             }
             // the display and fdisplay output of the verilog files
             if( (frame_cnt & 0x3f)==0 ) fprintf(stderr," - " ANSI_COLOR_YELLOW "%4d\n", frame_cnt);
-            sim_inputs.next();
 #ifdef _JTFRAME_SIM_DEBUG
             game.debug_bus++;
 #endif
         }
-        last_VS = game.VS;
+        if( !game.LVBL && last_LVBL ) sim_inputs.next();    // sim inputs are applied when entering blanking
+        last_LVBL = game.LVBL;
+        last_VS   = game.VS;
 
         // Video dump
         video_dump();

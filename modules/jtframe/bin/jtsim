@@ -495,7 +495,8 @@ if [ ! -z "$SETNAME" ]; then
     if [ ! -e $ROMFILE ]; then
         cat<<EOF
 jtsim: cannot produce $ROMFILE"
-    This may occur if the setname is long than 8 characters
+    This may occur if the setname is longer than 8 characters or
+    if you are not in the core folder for the game
 EOF
         exit 1
     fi

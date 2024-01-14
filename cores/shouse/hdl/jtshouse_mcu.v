@@ -24,7 +24,6 @@ module jtshouse_mcu(
     input              rstn,
     input              cen,
     input              lvbl,
-    input              hs,
 
     input       [8:0]  hdump,
 
@@ -32,6 +31,7 @@ module jtshouse_mcu(
     output             rnw,
     output reg         ram_cs,      // Tri port RAM
     input       [7:0]  ram_dout,
+    output             halted,      // signals an decoding error too
     // Ports
     // cabinet I/O
     input       [1:0]  cab_1p,
@@ -59,7 +59,7 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output     signed [10:0] snd, // is it signed?
+    output     signed [10:0] snd,
 
     input      [ 7:0]  debug_bus
 );
@@ -79,7 +79,6 @@ reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
-reg         hs_l;
 reg         init_done;
 wire        wr;
 
@@ -148,16 +147,13 @@ always @(posedge clk, negedge rstn ) begin
         cab_dout <= 0;
         irq      <= 0;
         lvbl_l   <= 0;
-        hs_l     <= 0;
         mix      <= 0;
         init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
-        hs_l   <= hs;
-        if( lvbl_l && !lvbl) begin
-            irq <= 1;
-        end
-        if( hdump=='ha1 ) irq <= 0; // 31.2us width measure on the PCB
+        // The IRQ is held until VB ends or the CPU acknowledges it with a write at Fxxx
+        if( !lvbl && lvbl_l         ) irq <= 1;
+        if(  lvbl || &{A[15:12],wr} ) irq <= 0; // typ 31.2us width measure on the PCB
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
         mix  <= {1'b0, amp1}+{1'b0, amp0};
@@ -195,6 +191,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .addr       ( A             ),
     .xdin       ( mcu_din       ),
     .dout       ( mcu_dout      ),
+    .ba         ( halted        ),
 
     // interrupts
     .irq        ( irq           ),
@@ -215,7 +212,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rom_data   ( rom_data      )
 );
 
-jtframe_prom #(.AW(12)) u_prom(
+jtframe_prom #(.AW(12),.SIMFILE("../../firmware/triram-mcu.bin")) u_prom(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
