@@ -160,7 +160,6 @@ jtshouse_mcu u_mcu(
 
     .lvbl       ( LVBL      ),
     .hdump      ( hdump     ),
-    .hs         ( HS        ),
 
     .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),

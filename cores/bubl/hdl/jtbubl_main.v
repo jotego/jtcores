@@ -535,6 +535,7 @@ jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     .nmi        ( 1'b0          ),
     .xdin       ( 8'd0          ),
     .x_cs       (               ),
+    .ba         (               ),
     // Ports
     .p1_din     ( p1_in         ),
     .p1_dout    ( p1_out        ),
