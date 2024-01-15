@@ -35,3 +35,12 @@ sdram:
         addr_width: 16
         data_width: 32
         cs: LVBL
+bram:
+  - name: tmap
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: chram
+      din:  chram_din
+      dout: chram_o16
+      rw: true

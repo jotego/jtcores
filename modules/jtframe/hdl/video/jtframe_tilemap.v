@@ -59,7 +59,7 @@ module jtframe_tilemap #( parameter
     input              vflip,
 
     output reg [VR-1:0]rom_addr,
-    input      [DW-1:0]rom_data,
+    input      [DW-1:0]rom_data,    // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
     output reg         rom_cs,
     input              rom_ok,      // ignored. It assumes that data is always right
 
