@@ -122,7 +122,7 @@ ops:
   - { name: BIT, op: 0xe5, ctl: { alu: AND, op0: a,  op1: md, addr: idx8,         cc: nz }, cycles: 4 }
   - { name: BIT, op: 0xd5, ctl: { alu: AND, op0: a,  op1: md, addr: idx16,        cc: nz }, cycles: 5 }
 
-  - { name: JMP,  op: 0xbc, ctl: {            op0: ea,         addr: dira  }, cycles: 2 }
+  - { name: JMP,  op: 0xbc, ctl: {                             addr: dira  }, cycles: 2 } # no op0 to meet cycle count
   - { name: JMP,  op: 0xcc, ctl: {            op0: ea,         addr: exta  }, cycles: 3 }
   - { name: JMP,  op: 0xfc, ctl: {            op0: x,                      }, cycles: 2 }
   - { name: JMP,  op: 0xec, ctl: {            op0: ea,         addr: idx8a }, cycles: 3 }
@@ -506,7 +506,7 @@ ucode:
   - mnemo: [ JMP ]
     seq:
       - ${addr}_jsr, inc_pc
-      - ${op0}_rmux, ld0_opnd
+      - ${op0}?*, ${op0}_rmux, ld0_opnd # for JMP 0xbc (direct), ommit this line as EA is already in OP0
       - pc_ld
       - fetch
       -

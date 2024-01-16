@@ -33,9 +33,11 @@ module jt6805_alu(
 
 `include "6805_param.vh"
 
+wire [3:0] bsel;
 reg  c8, cx, n8, z8;
 
 assign rslt_cc = {n8,z8,c8};
+assign bsel    = {1'b0,op1[3:1]};
 
 always @* begin
     cx = cin_carry;
@@ -55,13 +57,13 @@ always @* begin
         ASR_ALU, LSR_ALU: { rslt[7:0], c8 } = {cx,op0[7:0]};
         BSET_ALU: begin
             rslt[7:0] = op0[7:0];
-            rslt[{1'b0,op1[3:1]}]=1;
-            c8=op0[{1'b0,op1[3:1]}];
+            rslt[bsel]=1;
+            c8=op0[bsel];
         end
         BCLR_ALU: begin
             rslt[7:0] = op0[7:0];
-            rslt[{1'b0,op1[3:1]}]=0;
-            c8=op0[{1'b0,op1[3:1]}];
+            rslt[bsel]=0;
+            c8=op0[bsel];
         end
         LSL_ALU: {c8,rslt[7:0]} = {op0[7:0],1'b0};
         ROL_ALU: {c8,rslt[7:0]} = {op0[7:0],cin};

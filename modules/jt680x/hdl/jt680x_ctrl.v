@@ -51,7 +51,9 @@ module jt680x_ctrl(
     output [3:0] alu_sel,
     output [3:0] ld_sel,
     output [3:0] rmux_sel,
-    output [4:0] cc_sel
+    output [4:0] cc_sel,
+    // info
+    output reg   stack_bsy
 );
 
 `include "6801_param.vh"
@@ -62,7 +64,6 @@ reg  [2:0] iv_sel;
 wire       halt, swi, ni, still;
 reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
-reg        stack_bsy;
 
 assign still = ni & ext_halt;
 
