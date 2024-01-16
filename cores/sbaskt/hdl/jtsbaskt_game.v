@@ -51,7 +51,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if( header && prog_we && !ioctl_addr[1:0] ) decode <= prog_data[0];
+    if( header && prog_we && ioctl_addr[1:0]==0 ) decode <= prog_data[0];
 end
 
 `ifndef NOMAIN
