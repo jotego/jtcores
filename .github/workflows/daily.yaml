@@ -31,7 +31,7 @@ jobs:
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
-  compile_cores17:
+  compile_cores20:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -49,8 +49,8 @@ jobs:
           token: ${{ secrets.PAT }}
       - id: compile
         run: |
-          # Compilation on Quartus 17
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} mister pocket sidi
+          # Compilation on Quartus 20.1
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20x xjtcore.sh ${{matrix.core}} mister pocket sidi
       - id: upload
         uses: actions/upload-artifact@v3
         with:
@@ -60,7 +60,7 @@ jobs:
 
   upload:
     runs-on: ubuntu-latest
-    needs: [ compile_cores17 ]
+    needs: [ compile_cores20 ]
     if: ${{ always() }} # upload the results even if some core did not compile correctly
     steps:
       - uses: actions/checkout@v3

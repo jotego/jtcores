@@ -1,0 +1,7 @@
+FROM jotego/jtcore-base
+LABEL maintainer=jotego@gmail.com
+
+COPY 20.1 /opt/intelFPGA_lite/20.1
+ENV PATH $PATH:/opt/intelFPGA_lite/20.1/quartus/bin
+
+ENTRYPOINT ["bash"]
