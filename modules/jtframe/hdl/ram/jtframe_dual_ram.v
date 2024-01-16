@@ -117,23 +117,23 @@ localparam POCKET=1;
 localparam POCKET=0;
 `endif
 
-generate
-    if( !SIMULATION && POCKET && AW<13 && DW<=8 ) begin
-            jtframe_pocket_dualram u_pocket_ram(
-                .address_a( { {AW-13{1'b0}}, addr0} ),
-                .address_b( { {AW-13{1'b0}}, addr1} ),
-                .clock_a  ( clk0    ),
-                .clock_b  ( clk1    ),
-                .data_a   ( data0   ),
-                .data_b   ( data1   ),
-                .enable_a ( cen0    ),
-                .enable_b ( cen1    ),
-                .wren_a   ( we0     ),
-                .wren_b   ( we1     ),
-                .q_a      ( q0      ),
-                .q_b      ( q1      )
-            );
-        end else begin
+// generate
+//     if( !SIMULATION && POCKET && AW<13 && DW<=8 ) begin
+//             jtframe_pocket_dualram u_pocket_ram(
+//                 .address_a( { {AW-13{1'b0}}, addr0} ),
+//                 .address_b( { {AW-13{1'b0}}, addr1} ),
+//                 .clock_a  ( clk0    ),
+//                 .clock_b  ( clk1    ),
+//                 .data_a   ( data0   ),
+//                 .data_b   ( data1   ),
+//                 .enable_a ( cen0    ),
+//                 .enable_b ( cen1    ),
+//                 .wren_a   ( we0     ),
+//                 .wren_b   ( we1     ),
+//                 .q_a      ( q0      ),
+//                 .q_b      ( q1      )
+//             );
+//         end else begin
             reg [DW-1:0] qq0, qq1;
             (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:(2**AW)-1];
 
@@ -222,8 +222,8 @@ generate
                         $readmemh(SYNFILE,mem);
                 end
             `endif
-        end
-endgenerate
+//         end
+// endgenerate
 
 /* verilator lint_on WIDTH */
 endmodule

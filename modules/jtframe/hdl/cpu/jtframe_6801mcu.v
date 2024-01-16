@@ -194,6 +194,7 @@ always @(*) begin
         RD:     port_mux = 8'd0; // rd; - not implemented
         TD:     port_mux = td;
         RAMC:   port_mux = {ramc, 6'h3f};
+        default:;
     endcase
     if(M==M6801U4) case(psel)
         CAAH:   port_mux = frc[15:8];
