@@ -83,3 +83,6 @@ jobs:
           host: jotego.es
           src: ${{ env.ARTIFACT_NAME }}
           dest: ${{ env.ARTIFACT_NAME }}
+      - uses: geekyeggo/delete-artifact@v4
+        with:
+            name: $ARTIFACT_NAME
