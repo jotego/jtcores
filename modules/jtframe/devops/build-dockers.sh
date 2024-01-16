@@ -2,7 +2,7 @@
 docker image build --file jtcore-base.df --tag jotego/jtcore-base .
 docker image build --file jtcore13.df --tag jotego/jtcore13 /opt/altera
 docker image build --file jtcore17.df --tag jotego/jtcore17 /opt/intelFPGA_lite
-docker image build --file jtcore20.df --tag jotego/jtcore20 /opt/intelFPGA_lite .
+docker image build --file jtcore20.df --tag jotego/jtcore20 /opt/intelFPGA_lite
 docker image build --file jtcore17x.df --tag jotego/jtcore17x .
 docker image build --file jtcore20x.df --tag jotego/jtcore20x .
 docker image build --file linter.df --tag jotego/linter .
