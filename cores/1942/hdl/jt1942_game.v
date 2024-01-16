@@ -78,7 +78,7 @@ end
 always @(posedge clk) begin
     hige <= game_id==HIGEMARU;
     if( header && prog_we ) begin
-        case(ioctl_addr[0])
+        case(ioctl_addr[1:0])
             0: game_id  <= prog_data[1:0];
             1: flip_xor <= prog_data[0];
         endcase

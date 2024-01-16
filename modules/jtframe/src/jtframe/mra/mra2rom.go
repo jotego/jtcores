@@ -57,6 +57,9 @@ func save_rom(root *XMLNode, verbose, save2disk bool) {
 		return
 	}
 	update_md5(xml_rom, rombytes)
+	if len(rombytes)%4 != 0 {
+		fmt.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
+	}
 	if save2disk {
 		patchrom(xml_rom, &rombytes)
 		rom_file(setname, ".rom", rombytes)
