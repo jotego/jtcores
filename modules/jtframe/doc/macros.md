@@ -203,6 +203,7 @@ VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulat
 VERILATOR_KEEP_SDRAM     |verilator| Keeps SDRAM signals in the game_sdram.v module (mem.yaml)
 VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation
 VERILATOR_KEEP_VTIMER    |verilator| Keeps jtframe_vtimer signals
+VERILATOR_KEEP_SDRAM     |verilator| Keeps all SDRAM related signals
 VIDEO_START              |         | First frame for which video output is provided use it to prevent a split first frame
 
 # Credits

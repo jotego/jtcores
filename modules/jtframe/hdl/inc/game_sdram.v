@@ -229,7 +229,7 @@ assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{en
 assign gfx8_en   = {{ .Gfx8 }}
 assign gfx16_en  = {{ .Gfx16 }}
 assign ioctl_dwn = ioctl_rom | ioctl_cart;
-/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
     .HEADER    ( `JTFRAME_HEADER   ),
@@ -267,7 +267,7 @@ jtframe_dwnld #(
     .header       ( header         ),
     .sdram_ack    ( prog_ack       )
 );
-/* verilator tracing_on*/
+`ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 `ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif

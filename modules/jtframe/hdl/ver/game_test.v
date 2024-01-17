@@ -286,7 +286,7 @@ endgenerate
 // support for 48MHz
 // Above 64MHz HF should be 1. SHIFTED depends on whether the SDRAM
 // clock is shifted or not.
-/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 wire prog_en = ioctl_rom | dwnld_busy;
 
 jtframe_sdram64 #(
