@@ -72,31 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "odyssey.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1280,
-          "size_y": 426
-        }
-      },
-      {
-        "name": "odyssey.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2419,
-          "pos_y": 38,
-          "size_x": 964,
-          "size_y": 1052
-        }
-      }
-    ]
+    "files": []
   }
 }
