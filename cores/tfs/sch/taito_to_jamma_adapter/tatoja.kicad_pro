@@ -35,8 +35,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 0.6,
-          "width": 1.95
+          "height": 10.0,
+          "width": 3.0
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -82,18 +82,18 @@
         "length_out_of_range": "error",
         "lib_footprint_issues": "warning",
         "lib_footprint_mismatch": "warning",
-        "malformed_courtyard": "warning",
+        "malformed_courtyard": "error",
         "microvia_drill_out_of_range": "error",
-        "missing_courtyard": "warning",
+        "missing_courtyard": "ignore",
         "missing_footprint": "warning",
         "net_conflict": "warning",
-        "npth_inside_courtyard": "ignore",
+        "npth_inside_courtyard": "warning",
         "padstack": "warning",
-        "pth_inside_courtyard": "ignore",
+        "pth_inside_courtyard": "warning",
         "shorting_items": "error",
         "silk_edge_clearance": "warning",
         "silk_over_copper": "warning",
-        "silk_overlap": "ignore",
+        "silk_overlap": "warning",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
@@ -116,10 +116,10 @@
         "min_copper_edge_clearance": 0.0,
         "min_hole_clearance": 0.25,
         "min_hole_to_hole": 0.25,
-        "min_microvia_diameter": 0.0,
-        "min_microvia_drill": 0.0,
+        "min_microvia_diameter": 0.19999999999999998,
+        "min_microvia_drill": 0.09999999999999999,
         "min_resolved_spokes": 2,
-        "min_silk_clearance": 1.0,
+        "min_silk_clearance": 0.0,
         "min_text_height": 0.7999999999999999,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.19999999999999998,
@@ -174,7 +174,8 @@
       "track_widths": [
         0.0,
         0.2,
-        0.2
+        0.4,
+        0.5
       ],
       "via_dimensions": [
         {
@@ -184,6 +185,14 @@
         {
           "diameter": 0.5,
           "drill": 0.4
+        },
+        {
+          "diameter": 0.6,
+          "drill": 0.5
+        },
+        {
+          "diameter": 0.7,
+          "drill": 0.6
         }
       ],
       "zones_allow_external_fillets": false
@@ -411,7 +420,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "odyssey.kicad_pro",
+    "filename": "tatoja.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -442,12 +451,63 @@
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
+        "name": "+12V",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.7,
+        "via_drill": 0.6,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "-5V",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "GND",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
         "name": "PWR",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
-        "via_diameter": 0.5,
-        "via_drill": 0.4,
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
         "wire_width": 6
       },
       {
@@ -462,9 +522,26 @@
         "name": "VCC",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
-        "via_diameter": 0.5,
-        "via_drill": 0.4,
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "VGND",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
         "wire_width": 6
       },
       {
@@ -479,9 +556,9 @@
         "name": "VSS",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
-        "via_diameter": 0.5,
-        "via_drill": 0.4,
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.5,
         "wire_width": 6
       }
     ],
@@ -492,20 +569,28 @@
     "netclass_assignments": null,
     "netclass_patterns": [
       {
-        "netclass": "PWR",
-        "pattern": "VSS"
-      },
-      {
-        "netclass": "PWR",
+        "netclass": "VCC",
         "pattern": "VCC"
       },
       {
-        "netclass": "PWR",
-        "pattern": "PWR"
+        "netclass": "GND",
+        "pattern": "GND"
       },
       {
-        "netclass": "Default",
-        "pattern": ""
+        "netclass": "VGND",
+        "pattern": "VGND"
+      },
+      {
+        "netclass": "-5V",
+        "pattern": "-5V"
+      },
+      {
+        "netclass": "+12V",
+        "pattern": "+12V"
+      },
+      {
+        "netclass": "VSS",
+        "pattern": "VSS"
       }
     ]
   },
@@ -556,7 +641,7 @@
   },
   "sheets": [
     [
-      "ea89f528-dfca-45f9-876d-06e25866f262",
+      "250af5f4-1fb8-4aaa-bf80-421ccba750d1",
       ""
     ]
   ],

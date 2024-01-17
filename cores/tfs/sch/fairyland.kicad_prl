@@ -2,7 +2,7 @@
   "board": {
     "active_layer": 0,
     "active_layer_preset": "",
-    "auto_track_width": false,
+    "auto_track_width": true,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -12,8 +12,9 @@
       "pads": 1.0,
       "tracks": 1.0,
       "vias": 1.0,
-      "zones": 1.0
+      "zones": 0.6
     },
+    "ratsnest_display_mode": 0,
     "selection_filter": {
       "dimensions": true,
       "footprints": true,
@@ -40,6 +41,7 @@
       11,
       12,
       13,
+      14,
       15,
       16,
       17,
@@ -60,33 +62,19 @@
       33,
       34,
       35,
-      36,
-      39,
-      40
+      36
     ],
-    "visible_layers": "9ffffff_fffffffe",
+    "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "odyssey.kicad_prl",
+    "filename": "fairyland.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "odyssey.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1280,
-          "size_y": 426
-        }
-      },
-      {
-        "name": "odyssey.kicad_sch",
+        "name": "fairyland.kicad_sch",
         "open": false,
         "window": {
           "display": 0,

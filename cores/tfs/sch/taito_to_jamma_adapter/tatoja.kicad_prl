@@ -1,7 +1,7 @@
 {
   "board": {
-    "active_layer": 0,
-    "active_layer_preset": "",
+    "active_layer": 31,
+    "active_layer_preset": "All Layers",
     "auto_track_width": false,
     "hidden_netclasses": [],
     "hidden_nets": [],
@@ -12,14 +12,14 @@
       "pads": 1.0,
       "tracks": 1.0,
       "vias": 1.0,
-      "zones": 1.0
+      "zones": 0.6
     },
     "selection_filter": {
       "dimensions": true,
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": true,
+      "lockedItems": false,
       "otherItems": true,
       "pads": true,
       "text": true,
@@ -64,29 +64,17 @@
       39,
       40
     ],
-    "visible_layers": "9ffffff_fffffffe",
+    "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "odyssey.kicad_prl",
+    "filename": "tatoja.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "odyssey.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1280,
-          "size_y": 426
-        }
-      },
-      {
-        "name": "odyssey.kicad_sch",
+        "name": "tatoja.kicad_sch",
         "open": false,
         "window": {
           "display": 0,
