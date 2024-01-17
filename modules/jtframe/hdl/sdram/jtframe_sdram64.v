@@ -97,7 +97,7 @@ module jtframe_sdram64 #(
     // of the SDRAM, as done in the MiSTer 128MB module
     inout       [15:0]  sdram_dq,       // SDRAM Data bus 16 Bits
     `ifdef VERILATOR // sdram_dq is used as input-only in Verilator sims
-    output      [15:0]  sdram_din,      // Data to be stored in SDRAM
+    output reg  [15:0]  sdram_din,      // Data to be stored in SDRAM
     `endif
     output reg  [12:0]  sdram_a,        // SDRAM Address bus 13 Bits
     output              sdram_dqml,     // SDRAM Low-byte Data Mask
@@ -136,7 +136,7 @@ reg  [14:0] prio_lfsr;
 wire [12:0] bx0_a, bx1_a, bx2_a, bx3_a, init_a, next_a, rfsh_a,
             ba0_row, ba1_row, ba2_row, ba3_row;
 wire [ 1:0] next_ba, prio;
-reg  [15:0] din;
+wire [15:0] din;
 
 wire [AW-1:0] ba0_addr_l, ba1_addr_l, ba2_addr_l, ba3_addr_l;
 wire    [3:0] rd_l, wr_aux;
@@ -188,8 +188,6 @@ assign mask_mux = prog_en ? prog_dsn :
 `ifndef VERILATOR
 reg  [15:0] dq_pad;
 assign sdram_dq = dq_pad;
-`else
-assign sdram_din = prog_en ? prog_din : din;
 `endif
 
 always @(negedge clk) begin
@@ -197,6 +195,10 @@ always @(negedge clk) begin
     rfsh_rst  <= init | rst;
     other_rst <= prog_en | init | rst;
 end
+
+assign din = (bg[3] && BA3_WEN) ? ba3_din :
+             (bg[2] && BA2_WEN) ? ba2_din :
+             (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
 always @(posedge clk) begin
     dst      <= ba_dst;
@@ -217,12 +219,11 @@ always @(posedge clk) begin
     sdram_a[10:0] <= next_a[10:0];
 
     wr_l <= wr_aux;
-    din <= (bg[3] && BA3_WEN) ? ba3_din :
-           (bg[2] && BA2_WEN) ? ba2_din :
-           (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
 `ifndef VERILATOR
     dq_pad <= wr_cycle ? (prog_en ? prog_din : din) : 16'hzzzz;
+`else
+    sdram_din <= prog_en ? prog_din : din;
 `endif
     if( MISTER ) begin
         if( next_cmd==CMD_ACTIVE )
