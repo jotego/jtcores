@@ -28,6 +28,11 @@ JTFRAME_PROM_START=0x440000
 
 # Redefine memory size
 VRAMW=19
+
+[sidi]
+# it does not fit in SiDi anymore
+JTFRAME_SKIP
+
 #[mist|sidi]
 #JTFRAME_INPUT_RECORD
 
