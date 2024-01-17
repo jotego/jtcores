@@ -49,7 +49,10 @@ end
 initial begin
     rst=1;
     #100 rst=0;
-    #(SIMLEN*1_000_000) $finish;
+    #(SIMLEN*1_000_000) begin
+        $display("PASS");
+        $finish;
+    end
 end
 
 // horizontal line counter
@@ -109,7 +112,7 @@ jtframe_rom_1slot #(.SLOT0_DW( 8),.SLOT0_AW(12)) u_bank0(
     .slot0_ok   ( slot0_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[0]  ),
-    .sdram_req  ( ba_rd[0]   ),
+    .sdram_rd   ( ba_rd[0]   ),
     .sdram_addr ( ba0_addr   ),
     .data_rdy   ( ba_rdy[0]  ),
     .data_dst   ( ba_dst[0]  ),
@@ -126,7 +129,7 @@ jtframe_rom_1slot #(.SLOT0_DW(16),.SLOT0_AW(12)) u_bank1(
     .slot0_ok   ( slot1_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[1]  ),
-    .sdram_req  ( ba_rd[1]   ),
+    .sdram_rd   ( ba_rd[1]   ),
     .sdram_addr ( ba1_addr   ),
     .data_rdy   ( ba_rdy[1]  ),
     .data_dst   ( ba_dst[1]  ),
@@ -143,7 +146,7 @@ jtframe_rom_1slot #(.SLOT0_DW(32),.SLOT0_AW(12)) u_bank2(
     .slot0_ok   ( slot2_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[2]  ),
-    .sdram_req  ( ba_rd[2]   ),
+    .sdram_rd   ( ba_rd[2]   ),
     .sdram_addr ( ba2_addr   ),
     .data_rdy   ( ba_rdy[2]  ),
     .data_dst   ( ba_dst[2]  ),
@@ -186,8 +189,14 @@ jtframe_sdram64 #(
     .ba3_addr   ( ba3_addr      ),
     .rd         ( ba_rd         ),
     .wr         ( ba_wr         ),
-    .din        ( ba0_din       ),
-    .din_m      ( ba0_din_m     ),  // write mask
+    .ba0_din    ( ba0_din       ),
+    .ba0_dsn    ( ba0_din_m     ),  // write mask
+    .ba1_din    (               ),
+    .ba1_dsn    (               ),  // write mask
+    .ba2_din    (               ),
+    .ba2_dsn    (               ),  // write mask
+    .ba3_din    (               ),
+    .ba3_dsn    (               ),  // write mask
     .rdy        ( ba_rdy        ),
     .dok        ( ba_dok        ),
     .dst        ( ba_dst        ),

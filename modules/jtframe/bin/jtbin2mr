@@ -11,7 +11,7 @@ a MiSTer device in the network.
 
 Usage:
 
-jtbin2mr.sh [-l|--local]
+jtbin2mr [-l|--local]
 
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
 -m, --mr        MiSTer host name or IP address

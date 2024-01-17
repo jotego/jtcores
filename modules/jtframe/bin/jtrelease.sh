@@ -1,11 +1,6 @@
 #!/bin/bash
 # Make a release to JTBIN from GitHub builds
 
-if [ ! -d "$JTBIN/.git" ]; then
-	echo "\$JTBIN must point to a git repository"
-	exit 0
-fi
-
 set -e
 
 HASH="$1"
@@ -39,8 +34,18 @@ if [ -d /media/$USER/POCKET ]; then
 	jtbin2sd &
 fi
 
-cd $JTBIN
-cp -r $DST/release/* .
+if ping -c 1 -q $MRHOST > /dev/null; then
+	jtbin2mr
+fi
+
+if [[ -n "$JTBIN" && -d "$JTBIN" ]]; then
+	cd $JTBIN
+	cp -r $DST/release/* .
+else
+	echo "Skipping JTBIN as \$JTBIN is not defined"
+	exit 0
+fi
+
 
 wait
 rm -rf $DST

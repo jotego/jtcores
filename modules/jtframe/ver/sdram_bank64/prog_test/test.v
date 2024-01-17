@@ -74,8 +74,8 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-reg         downloading;
-reg  [24:0] ioctl_addr;
+reg         ioctl_rom;
+reg  [25:0] ioctl_addr;
 wire [ 7:0] ioctl_dout;
 wire        ioctl_wr;
 wire [21:0] prog_addr;
@@ -101,14 +101,14 @@ always @(posedge clk, posedge rst) begin
 
         ioctl_addr <= 0;
         timer      <= 31;
-        downloading <= 0;
+        ioctl_rom <= 0;
     end else begin
         if( sdram_ack )
             lfsr <= { lfsr[0], lfsr[28], lfsr[27]^lfsr[0], lfsr[26:1] };
         timer <= timer-1;
         if( timer==1 ) begin
             ioctl_addr <= ioctl_addr+1;
-            downloading <= 1;
+            ioctl_rom <= 1;
             if( &ioctl_addr ) begin
                 $display("All 32MB written");
                 $finish;
@@ -129,6 +129,7 @@ jtframe_sdram64 #(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .rfsh       ( hblank        ),
+    .init       (               ),
     // Bank 0: allows R/W
     .ba0_addr   (               ),
     .ba1_addr   (               ),
@@ -136,18 +137,24 @@ jtframe_sdram64 #(
     .ba3_addr   (               ),
     .rd         ( 4'd0          ),
     .wr         ( 4'd0          ),
-    .din        (               ),
-    .din_m      (               ),  // write mask
+    .ba0_din    (               ),
+    .ba0_dsn    (               ),  // write mask
+    .ba1_din    (               ),
+    .ba1_dsn    (               ),  // write mask
+    .ba2_din    (               ),
+    .ba2_dsn    (               ),  // write mask
+    .ba3_din    (               ),
+    .ba3_dsn    (               ),  // write mask
     .rdy        (               ),
     .dok        (               ),
     .ack        (               ),
 
-    .prog_en    ( downloading   ),
+    .prog_en    ( ioctl_rom     ),
     .prog_addr  ( prog_addr     ),
     .prog_rd    ( prog_rd       ),
     .prog_wr    ( prog_we       ),
     .prog_din   ( prog_data     ),
-    .prog_din_m ( prog_mask     ),
+    .prog_dsn   ( prog_mask     ),
     .prog_ba    ( prog_ba       ),
     .prog_dst   (               ),
     .prog_dok   (               ),
@@ -174,7 +181,7 @@ jtframe_dwnld #(
     .BA3_START( 25'h3_000 )
 ) u_dwnld(
     .clk        ( clk           ),
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_dout ( ioctl_dout    ),
     .ioctl_wr   ( ioctl_wr      ),

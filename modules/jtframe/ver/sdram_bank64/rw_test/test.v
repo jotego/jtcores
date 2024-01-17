@@ -216,8 +216,14 @@ jtframe_sdram64 #(
     .ba3_addr   ( ba3_addr      ),
     .rd         ( rd            ),
     .wr         ( wr            ),
-    .din        ( ba0_din       ),
-    .din_m      ( ba0_din_m     ),  // write mask
+    .ba0_din    ( ba0_din       ),
+    .ba0_dsn    ( ba0_din_m     ),  // write mask
+    .ba1_din    (               ),
+    .ba1_dsn    (               ),  // write mask
+    .ba2_din    (               ),
+    .ba2_dsn    (               ),  // write mask
+    .ba3_din    (               ),
+    .ba3_dsn    (               ),  // write mask
     .rdy        ( rdy           ),
     .dok        ( dok           ),
     .ack        ( ack           ),
