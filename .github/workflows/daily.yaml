@@ -1,7 +1,8 @@
-name: Compile all (MiSTer,Pocket,SiDi)
+name: Compile all
 
 on:
   workflow_dispatch:
+  pull_request:
   repository_dispatch:
     types: rebuild
   schedule:
@@ -9,13 +10,16 @@ on:
 jobs:
   list_cores:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: 'recursive'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        token: ${{ secrets.PAT }}
     - id: generate-matrix
       run: |
         cd cores
@@ -30,6 +34,38 @@ jobs:
         CORES="$CORES ]"
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
+
+  compile_cores13:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: jotego/jtcore13
+    needs:
+      - list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+      - id: compile
+        run: |
+          # Compilation on Quartus 13
+          export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
+      - id: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: jtcores
+          path: release
+          retention-days: 1
 
   compile_cores20:
     runs-on: ubuntu-latest
@@ -68,7 +104,7 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Set zip file name
         run: |
-          echo ARTIFACT_NAME=mister_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
+          echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
       - name: Make zip file
         run: |
           ls -l release/*
