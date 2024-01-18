@@ -63,7 +63,7 @@ jobs:
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: jtcores
+          name: release
           path: release
           retention-days: 1
 
