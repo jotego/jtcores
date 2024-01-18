@@ -570,7 +570,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         rm -f $AUX
         # Report timing
         grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
-        if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
+        if [[ $? = 0 && -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
             FAIL=1
             report FAIL
             echo FAIL $PRJ

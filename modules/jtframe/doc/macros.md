@@ -88,6 +88,7 @@ JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default i
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
 JTFRAME_NO_DB15_OSD      | MiSTer  | Disables OSD control via DB15 controller
 JTFRAME_NO_MRA_DIP       |         | DIPs are not in an MRA file. Do not call it out from the config string.
+JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
 JTFRAME_OSD_FLIP         |         | flip option on OSD
