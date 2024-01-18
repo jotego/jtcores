@@ -93,5 +93,10 @@ else
         echo "Copy to MiSTer failed. Temporary files in " $TEMP
         exit 1
     fi
+    if [ -e $JTUTIL/jtbeta.zip ]; then
+        sshpass -p $MISTERPASSWD scp -r $JTUTIL/jtbeta.zip $MRUSER@${MRHOST}:/media/fat/games/mame
+    else
+        echo "Skipping jtbeta.zip copy"
+    fi
 fi
 rm -rf $TEMP
