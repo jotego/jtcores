@@ -32,7 +32,7 @@ parameter [ 5:0] CFG_BYTE   =6'd39  // location of the byte with encoder informa
     input                ioctl_wr,
     input                ioctl_ram,
     output reg [22:0]    prog_addr,
-    output     [15:0]    prog_data,
+    output reg [15:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg [ 1:0]    prog_ba,
     output reg           prog_we,
@@ -65,14 +65,12 @@ localparam [ 5:0] JOY_BYTE      = 6'h28;
 
 reg  [STARTW-1:0] starts;
 wire       [15:0] snd_start, pcm_start, gfx_start, qsnd_start;
-reg        [ 7:0] pre_data;
 reg        [ 1:0] kabuki_sr; // For 96MHz the write pulse must last two cycles
 
 assign snd_start  = starts[15: 0];
 assign pcm_start  = starts[31:16];
 assign gfx_start  = starts[47:32];
 assign qsnd_start = starts[63:48];
-assign prog_data  = {2{pre_data}};
 `ifdef CPS15
 assign kabuki_we  = kabuki_sr[0];
 `else
@@ -130,11 +128,15 @@ always @(*) begin
     end
 end
 
+wire [7:0] prog_byte = pang3 ? pang3_decrypt : ioctl_dout;
+reg  [7:0] prog_tmp;
+
 always @(posedge clk) begin
     if ( ioctl_wr && !ioctl_ram ) begin
-        pre_data  <= pang3 ?
-            pang3_decrypt : ioctl_dout;
-        prog_mask <= !ioctl_addr[0] ? 2'b10 : 2'b01;
+				if (!ioctl_addr[0]) prog_tmp <= prog_byte;
+        prog_data  <= !(is_cpu | is_snd | is_oki | is_gfx) ? {prog_byte, prog_byte} : 
+				              ioctl_addr[0] ? {prog_byte, prog_tmp} : prog_data;
+        prog_mask <= 2'b00;
         prog_addr <= is_cpu ? bulk_addr[23:1] + CPU_OFFSET : (
                      is_snd ?  snd_addr[23:1] + SND_OFFSET : (
                      is_oki ?  pcm_addr[23:1] + PCM_OFFSET :
@@ -159,7 +161,7 @@ always @(posedge clk) begin
                     {decrypt, pang3_bit} <= ioctl_dout[7:6];
             end else if(ioctl_addr>=FULL_HEADER) begin
                 cfg_we    <= 1'b0;
-                prog_we   <= ~is_qsnd;
+                if (ioctl_addr[0]) prog_we <= ~is_qsnd;
                 prom_we   <=  is_qsnd;
             end else if( ioctl_addr[5:0] == JOY_BYTE ) begin
                 joymode <= ioctl_dout[1:0]; // only CPS2
