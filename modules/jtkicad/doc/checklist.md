@@ -16,3 +16,5 @@
 - [ ]  ¿Hay información importante de los diferentes dispositivos en la PCB?
 - [ ]  ¿Se ha versionado la PCB en caso de sufrir cambios o mejoras?
 - [ ]  ¿Coincide  la lista BOM con el esquemático?
+- [ ]  ¿Se ha verificado visualmente VCC y VSS en cada integrado y como entradas de alimentación?
+- [ ]  ¿Concuerda con la hoja de datos VCC y VSS en los dispositivos?
