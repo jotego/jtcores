@@ -2703,7 +2703,7 @@
     (property "Value" "Conn_02x06_TB" (at 173.99 48.26 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Arcade:Molex_Mini-Fit_2x06_P4.20mm_Vertical" (at 175.26 46.99 0)
+    (property "Footprint" "Connector_Molex:Molex_Mini-Fit_Jr_5566-12A_2x06_P4.20mm_Vertical" (at 175.26 46.99 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 175.26 46.99 0)
