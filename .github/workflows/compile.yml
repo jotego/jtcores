@@ -2,7 +2,7 @@ name: Compile all cores
 
 on:
   workflow_dispatch:
-
+  pull_request:
   repository_dispatch:
     types: rebuild
 
@@ -47,7 +47,6 @@ jobs:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
-        target: [ sidi, mist, pocket ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -59,14 +58,15 @@ jobs:
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
           name: jtcores
           path: release
+          retention-days: 1
 
-  compile_cores17:
+  compile_cores20:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -82,22 +82,42 @@ jobs:
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
-      - id: submodules
-        run: |
-          git config --global --add safe.directory /__w/jtcores/jtcores
-          git submodule init
-          git submodule update --depth 1
-          cd modules
-          cd jt12
-          git submodule init
-          git submodule update --depth 1
-          cd ../..
       - id: compile
         run: |
-          # Compilation on Quartus 17
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} ${{ secrets.BETAKEY }}
+          # Compilation on Quartus 20.1
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20x xjtcore.sh ${{matrix.core}} mister pocket sidi
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: jtcores
+          name: release
           path: release
+          retention-days: 1
+
+  upload:
+    runs-on: ubuntu-latest
+    needs: [ compile_cores20 ]
+    if: ${{ always() }} # upload the results even if some core did not compile correctly
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+      - name: Set zip file name
+        run: |
+          echo ARTIFACT_NAME=mister_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
+      - name: Make zip file
+        run: |
+          ls -l release/*
+          echo ARTIFACT_NAME=$ARTIFACT_NAME
+          zip -r $ARTIFACT_NAME release
+          ls -l $ARTIFACT_NAME
+      - name: Upload bundle
+        uses: bayssmekanique/action-simple-file-upload@v2
+        with:
+          user: ${{ secrets.FTPUSER }}
+          password: ${{ secrets.FTPPASS }}
+          host: jotego.es
+          src: ${{ env.ARTIFACT_NAME }}
+          dest: ${{ env.ARTIFACT_NAME }}
+      - uses: geekyeggo/delete-artifact@v4
+        with:
+            name: $ARTIFACT_NAME
