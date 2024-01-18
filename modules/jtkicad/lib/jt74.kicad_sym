@@ -10686,7 +10686,7 @@
         (fill (type background))
       )
       (pin power_in line (at 0 12.7 270) (length 5.08) hide
-        (name "VSS" (effects (font (size 1.27 1.27))))
+        (name "VCC" (effects (font (size 1.27 1.27))))
         (number "16" (effects (font (size 1.27 1.27))))
       )
       (pin power_in line (at 0 -15.24 90) (length 5.08) hide
@@ -15370,7 +15370,7 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS30" (at -7.62 -15.24 0)
+    (property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS30" (at 1.27 -8.636 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "ki_locked" "" (at 0 0 0)
