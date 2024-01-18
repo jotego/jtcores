@@ -104,7 +104,7 @@ localparam [24:0] BA1_START  = `BA1_START,
                   PROM_START = `PROM_START;
 /* verilator lint_on WIDTH */
 
-wire       prom_we;
+wire       prom_we, header;
 wire       gfx_cs = LVBL;
 
 wire convert;
@@ -164,7 +164,7 @@ jtframe_dwnld #(
     .prog_rd      ( dwn_rd         ),
     .prog_ba      ( dwn_ba         ),
     .prom_we      ( prom_we        ),
-    .header       (                ),
+    .header       ( header         ),
     .sdram_ack    ( prog_ack       ),
     .gfx8_en      ( 1'b0           ),
     .gfx16_en     ( 1'b0           )
