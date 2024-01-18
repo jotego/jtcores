@@ -38,9 +38,9 @@ assign debug_view = debug_bus[7] ? st_main : mcu_st;
 assign ram_we     = ram_cs & ~main_wrn;
 assign dma_we     = {2{pre_dma_we}};
 
-assign vram_we    = {2{vram_cs  }} & main_dsn;
-assign scrram_we  = {2{scrram_cs}} & main_dsn;
-assign objram_we  = {2{objram_cs}} & main_dsn;
+assign vram_we    = {2{vram_cs   & ~main_wrn}} & ~main_dsn;
+assign scrram_we  = {2{scrram_cs & ~main_wrn}} & ~main_dsn;
+assign objram_we  = {2{objram_cs & ~main_wrn}} & ~main_dsn;
 
 // Remove this when bus contention is done
 assign sdtkn = 0;
