@@ -14,6 +14,7 @@ jtbin2sd.sh [-l|--local]
 
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
 -g, --git       Uses JTBIN as the target folder
+-r, --rom       Runs "jtframe mra" for each mra file found to get the main .rom files generated
 -s, --setname   Uses the given set name as the game to load on power up (core.arc file)
 -v, --verbose
 
@@ -26,6 +27,7 @@ LOCAL=1
 V=
 CNT=0
 SETNAME=
+RUNMRA=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -35,6 +37,8 @@ while [ $# -gt 0 ]; do
         -s|--setname)
             shift
             SETNAME=$1;;
+        -r|--rom)
+            RUNMRA=1;;
         -v|--verbose)
             V=-v;;
         -h|--help)
@@ -76,6 +80,11 @@ function cp_mist {
         cp -v "`ls $DST/*arc|head -n 1`" $DST/core.arc;
     fi
 }
+
+if [ -n "$RUNMRA" ]; then
+    RBF=`find $JTBIN/mra -name "*.mra" -print0 | xargs -0 -I_ xmllint --xpath '//rbf/text()' _ | sort | uniq | sed s/^jt//`
+    jtframe mra $RBF --mainonly
+fi
 
 for i in SIDI MIST POCKET; do
     DST=/media/$USER/$i
