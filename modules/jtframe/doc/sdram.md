@@ -24,10 +24,13 @@ In MiSTer, the IOCTL ID for cartridges is limited to 6 bits. That enforces a 6-b
 
 ## core_mod (JTFRAME options)
 
-Bit    |  Use
--------|---------
-0      | High for vertical games
-1      | 4-way joysticks
+Bit    |  Use                      | Set by
+-------|---------------------------|---------
+0      | High for vertical games   | mame.xml
+1      | 4-way joysticks           | JTFRAME_SUPPORT_4WAY
+2      | XOR with dip_flip         | mame.xml
+3      | dial input enable         | mame.xml
+4      | reverse the dial          | mame.xml
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
 

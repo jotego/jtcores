@@ -132,6 +132,7 @@ end
 `ifdef JTFRAME_VERTICAL
     // core_mod[0] = 0 horizontal game
     //             = 1 vertical game
+    // core_mod[2] = XOR with dip_flip
     // status[13]  = 0 Rotate screen
     //             = 1 no rotation
     wire tate;
