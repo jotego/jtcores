@@ -87,6 +87,9 @@ if [ -d /media/$USER/MiSTer_Data ]; then
     cp -r $TEMP/_JTBIN /media/$USER/MiSTer_Data || echo "Copy to MiSTer SD card failed"
 else
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/_JTBIN"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/nvram/*.nvm"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/dips/*"
     if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
         rm -rf $TEMP
     else
