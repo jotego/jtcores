@@ -45,13 +45,13 @@ wire [ 7:0] nc, pre_data;
 
 always @(*) begin
     post_data = prog_data;
-    if( ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<PCM_START ) begin
+    if( prog_addr[21:0] >= (SCR_START>>1) && prog_addr[21:0]<(PCM_START>>1) ) begin
         post_data = { prog_data[3:0], prog_data[7:4] };
     end
 end
 
 always @(posedge clk) begin
-    if( header && prog_we && ioctl_addr[1:0]==0 ) decode <= prog_data[0];
+    if( header && prog_we && prog_addr[1:0]==0 ) decode <= prog_data[0];
 end
 
 `ifndef NOMAIN
