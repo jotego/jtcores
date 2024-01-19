@@ -60,7 +60,7 @@ wire [ 1:0] {{.Name}}_dsn;
 {{- end}}
 wire        prom_we, header;
 wire [21:0] raw_addr, post_addr;
-wire [25:0] pre_addr, dwnld_addr;
+wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
 wire        pass_io;
@@ -72,6 +72,7 @@ wire {{ . }}; {{ end }}{{ end }}{{ end }}
 wire gfx8_en, gfx16_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
+assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - `JTFRAME_HEADER `else ioctl_addr `endif ;
 
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst        ( rst       ),
@@ -173,7 +174,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{- end}}
 {{- end}}
     // PROM writting
-    .ioctl_addr   ( ioctl_addr     ),
+    .ioctl_addr   ( ioctl_addr_noheader  ),
     .prog_addr    ( pass_io ? ioctl_addr[21:0] : raw_addr      ),
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
