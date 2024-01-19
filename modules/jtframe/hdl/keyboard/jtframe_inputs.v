@@ -22,7 +22,7 @@ module jtframe_inputs(
     input             vs,
     input             LHBL,
 
-    input             dip_flip,
+    input             rot_ccw,
     input             autofire0,
     input             dial_raw_en,
     input             dial_reverse,
@@ -189,7 +189,7 @@ function [9:0] apply_rotation;
     begin
     apply_rotation = {10{ACTIVE_LOW[0]}} ^
         (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        ~flip ?
+        flip ?
          { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
          { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
     end
@@ -228,7 +228,7 @@ endfunction
     assign game_test = key_test | joy_test;
 `endif
 
-assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~dip_flip, autofire );
+assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -257,9 +257,9 @@ always @(posedge clk, posedge rst) begin
         if( vsl && !vs ) `endif // make sure the experienced input while playing is the recorded one
         game_joy1  <= reorder(pre_order1);
 `endif
-        game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~dip_flip, autofire ));
-        game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~dip_flip, autofire ));
-        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~dip_flip, autofire ));
+        game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
+        game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~rot_ccw, autofire ));
+        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~rot_ccw, autofire ));
 
         soft_rst <= key_reset && !last_reset;
 
