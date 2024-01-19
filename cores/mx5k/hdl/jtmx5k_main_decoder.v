@@ -65,26 +65,26 @@ always @(*) begin // Decoder 051502 takes as inputs A[15:10]
     rom_addr = A[15:12]>=6 ? A[15:0] : { A[15], bank, A[12:0] };
 end
 
-always @(posedge clk) begin
+always @(*) begin
     case(1'b1)
-        rom_cs:  cpu_din <= rom_data;
-        ram_cs:  cpu_din <= ram_dout;
-        io_cs:   cpu_din <= port_in;
-        gfx1_cs: cpu_din <= pal_cs ? pal_dout : gfx1_dout;
-        default: cpu_din <= 8'hff;
+        rom_cs:  cpu_din = rom_data;
+        ram_cs:  cpu_din = ram_dout;
+        io_cs:   cpu_din = port_in;
+        gfx1_cs: cpu_din = pal_cs ? pal_dout : gfx1_dout;
+        default: cpu_din = 8'hff;
     endcase
 end
 
-always @(posedge clk) begin
+always @(*) begin
     case( A[4:2] )
         0:  case( A[1:0] )
-                0: port_in <= {2'b11, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
-                1: port_in <= {2'b11, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
-                2: port_in <= {2'b11, joystick2[6],   joystick1[6], dipsw_c[3:0] };
-                3: port_in <= {3'b111, cab_1p, service, coin };
+                0: port_in = {2'b11, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
+                1: port_in = {2'b11, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
+                2: port_in = {2'b11, joystick2[6],   joystick1[6], dipsw_c[3:0] };
+                3: port_in = {3'b111, cab_1p, service, coin };
             endcase
-        1: port_in <= A[0] ? dipsw_a : dipsw_b;
-        default: port_in <= 8'hFF;
+        1: port_in = A[0] ? dipsw_a : dipsw_b;
+        default: port_in = 8'hFF;
     endcase
 end
 
