@@ -437,12 +437,12 @@ function report {
         $PRJCOMMIT $JTFRAMECOMMIT >> $JTROOT/log/builds.log
 }
 
-# Define the CORENAME macro
-`eval parse_macros bash | grep CORENAME | tr -d \" `
+# Convert macros.def to environment variables
+eval `parse_macros bash`
 # lower case version
 corename=${CORENAME,,}
 
-if (eval parse_macros bash | grep JTFRAME_SKIP > /dev/null); then
+if [ -v JTFRAME_SKIP ]; then
     echo "Compilation skipped for $TARGET because of JTFRAME_SKIP"
     echo "Use -u JTFRAME_SKIP to override this."
     echo "PASS"
