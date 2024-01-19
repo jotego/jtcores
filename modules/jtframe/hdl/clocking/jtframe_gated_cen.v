@@ -83,6 +83,10 @@ always @(posedge clk) begin
         badcnt <= badcnt+1;
         if( &badcnt ) $finish;
     end
+    if( rst ) begin
+        badcnt <= 0;
+        bad    <= 0;
+    end
 end
 `endif
 
