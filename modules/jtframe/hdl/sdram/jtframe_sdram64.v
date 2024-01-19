@@ -307,6 +307,7 @@ jtframe_sdram64_bank #(
 ) u_prog(
     .rst        ( prog_rst   ),
     .clk        ( clk        ),
+    .help       ( 1'b0       ),
 
     // requests
     .addr       ( prog_addr  ),
