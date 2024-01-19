@@ -354,6 +354,7 @@ jtframe_sdram64_bank #(
 ) u_bank0(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
+    .help       ( help       ),
 
     // requests
     .addr       ( ba0_addr_l ),
@@ -401,6 +402,7 @@ jtframe_sdram64_bank #(
 ) u_bank1(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
+    .help       ( help       ),
 
     // requests
     .addr       ( ba1_addr_l ),
@@ -447,6 +449,7 @@ jtframe_sdram64_bank #(
 ) u_bank2(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
+    .help       ( help       ),
 
     // requests
     .addr       ( ba2_addr_l ),
@@ -493,6 +496,7 @@ jtframe_sdram64_bank #(
 ) u_bank3(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
+    .help       ( help       ),
 
     // requests
     .addr       ( ba3_addr_l ),
@@ -532,7 +536,7 @@ jtframe_sdram64_bank #(
 always @(*) begin
     rfsh_bg = &idle && (noreq | help) && rfsh_br;
     prog_bg = pre_br & !rfshing;
-    if( rfshing | help ) begin
+    if( rfshing ) begin
         bg=0;
     end else begin
         if( BAPRIO ) begin

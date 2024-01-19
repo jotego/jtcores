@@ -32,6 +32,7 @@ module jtframe_sdram64_bank #(
 )(
     input               rst,
     input               clk,
+    input               help,
 
     // requests
     input      [AW-1:0] addr,
@@ -153,7 +154,7 @@ end
 always @(*) begin
     rot_st  = { st[STW-2:0], st[STW-1] };
     next_st = st;
-    if( st[IDLE] ) begin
+    if( st[IDLE] & ~help) begin
         if(do_prech) next_st = rot_st;
         if(do_act  ) next_st = ONE<<ACT;
         if(do_read ) next_st = ONE<<READ;
@@ -191,7 +192,7 @@ generate
                 br <= 0;
             end else begin
                 br <= 0;
-                if( (st[IDLE] || next_st[IDLE] || next_st[PRE_ACT] || next_st[PRE_RD]) && rd_wr ) begin
+                if( ( ((st[IDLE] || next_st[IDLE])&&!help) || next_st[PRE_ACT] || next_st[PRE_RD]) && rd_wr ) begin
                     br <= 1;
                     if( next_st[PRE_RD] & (all_dbusy | (all_dbusy64&wr)) ) br <= 0; // Do not try to request
                 end
@@ -200,7 +201,7 @@ generate
     end else begin
         always @(*) begin
             br = 0;
-            if( (st[IDLE] || st[PRE_ACT] || st[PRE_RD]) && rd_wr ) begin
+            if( ( (st[IDLE]&&!help) || st[PRE_ACT] || st[PRE_RD]) && rd_wr ) begin
                 br = 1;
                 if( st[PRE_RD] & (all_dbusy | (all_dbusy64&wr)) ) br = 0; // Do not try to request
             end
