@@ -1,4 +1,4 @@
-name: MiSTer,Pocket & SiDi
+name: Pocket
 
 on:
   workflow_dispatch:
@@ -48,7 +48,7 @@ jobs:
       - id: compile
         run: |
           # Compilation on Quartus 20.1
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20x xjtcore.sh ${{matrix.core}} mister pocket sidi
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20x xjtcore.sh ${{matrix.core}} pocket
       - id: upload
         uses: actions/upload-artifact@v3
         with:
@@ -66,7 +66,7 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Set zip file name
         run: |
-          echo ARTIFACT_NAME=q20_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
+          echo ARTIFACT_NAME=pocket_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
       - name: Make zip file
         run: |
           ls -l release/*
