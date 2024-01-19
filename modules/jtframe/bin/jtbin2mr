@@ -90,6 +90,7 @@ else
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/nvram/*.nvm"
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/dips/*"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/inputs/*"
     if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
         rm -rf $TEMP
     else
