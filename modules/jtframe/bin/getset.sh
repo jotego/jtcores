@@ -56,6 +56,11 @@ function require {
 require "$CORES/$CORENAME/cfg/mame2mra.toml"
 require "$JTROOT/doc/mame.xml"
 
+if [ ! -d ~/.mame/roms ]; then
+    echo "Cannot find folder ~/.mame/roms"
+    exit 1
+fi
+
 AUX=`mktemp`
 if ! jtframe mra $CORENAME $* > $AUX; then
     cat $AUX
