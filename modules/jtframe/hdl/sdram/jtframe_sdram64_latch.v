@@ -33,6 +33,7 @@ module jtframe_sdram64_latch #(parameter LATCH=0, AW=22)(
     input      [  12:0] ba3_row,
     input         [3:0] rd,
     input         [3:0] wr,
+    input         [3:0] rdy,
     input               prog_en,
     input               prog_rd,
     input               prog_wr,
@@ -67,7 +68,7 @@ generate
                 match[1]   <= ba1_addr[RMSB:RLSB]===ba1_row;
                 match[2]   <= ba2_addr[RMSB:RLSB]===ba2_row;
                 match[3]   <= ba3_addr[RMSB:RLSB]===ba3_row;
-                wr_l       <= wr;
+                wr_l       <= wr & ~rdy;
                 rd_l       <= rd;
                 noreq      <= ~|{wr,rd,prog_rq};
             end

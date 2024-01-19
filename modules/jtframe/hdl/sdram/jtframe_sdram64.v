@@ -218,7 +218,7 @@ always @(posedge clk) begin
     sdram_ba      <= next_ba;
     sdram_a[10:0] <= next_a[10:0];
 
-    wr_l <= wr_aux;
+    wr_l <= wr_aux & ~ba_rdy;
 
 `ifndef VERILATOR
     dq_pad <= wr_cycle ? (prog_en ? prog_din : din) : 16'hzzzz;
@@ -247,6 +247,7 @@ end
 jtframe_sdram64_latch #(.LATCH(LATCH),.AW(AW)) u_latch(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .rdy        ( ba_rdy    ),
     .ba0_addr   ( ba0_addr  ),
     .ba1_addr   ( ba1_addr  ),
     .ba2_addr   ( ba2_addr  ),

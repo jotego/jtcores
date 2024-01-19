@@ -1,9 +1,6 @@
 #!/bin/bash
 
-echo "Running: sim.sh $*"
-
 SIM=iverilog
-#SIM=cvc64
 
 if [ $SIM = iverilog ]; then
     MACRO=-D
@@ -120,9 +117,12 @@ EOF
     shift
 done
 
-make || exit $?
+dd if=/dev/urandom of=sdram_bank0.bin bs=1M count=8 2> /dev/null
+dd if=/dev/urandom of=sdram_bank1.bin bs=1M count=8 2> /dev/null
+dd if=/dev/urandom of=sdram_bank2.bin bs=1M count=8 2> /dev/null
+dd if=/dev/urandom of=sdram_bank3.bin bs=1M count=8 2> /dev/null
 
-echo Extra arguments: "$EXTRA"
+if [ -n "$EXTRA" ]; then echo Extra arguments: "$EXTRA"; fi
 HDL=../../../hdl
 SIMEXE=$RANDOM_$RANDOM_$RANDOM.sim
 EXTRA="$EXTRA ${MACRO}JTFRAME_SDRAM_BANKS"

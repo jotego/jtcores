@@ -73,7 +73,7 @@ end
 wire init;
 wire rst_romrq = rst | init;
 
-reader #(.ROM("sdram_bank0.hex"),.DW(8)) u_read0(
+reader #(.ROM("sdram_bank0.bin"),.DW(8)) u_read0(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot0_cs   ),
@@ -82,7 +82,7 @@ reader #(.ROM("sdram_bank0.hex"),.DW(8)) u_read0(
     .data       ( slot0_dout )
 );
 
-reader #(.ROM("sdram_bank1.hex"),.DW(16)) u_read1(
+reader #(.ROM("sdram_bank1.bin"),.DW(16)) u_read1(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot1_cs   ),
@@ -91,7 +91,7 @@ reader #(.ROM("sdram_bank1.hex"),.DW(16)) u_read1(
     .data       ( slot1_dout )
 );
 
-reader #(.ROM("sdram_bank2.hex"),.DW(32)) u_read2(
+reader #(.ROM("sdram_bank2.bin"),.DW(32)) u_read2(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot2_cs   ),
@@ -228,7 +228,7 @@ end
 
 endmodule
 
-module reader #(parameter ROM="sdram_bank0.hex",DW=8)(
+module reader #(parameter ROM="sdram_bank0.bin",DW=8)(
     input             rst,
     input             clk,
     output reg        cs,
@@ -247,7 +247,10 @@ wire [DW-1:0] ref_addr=ref_buf[addr];
 integer file,rcnt;
 
 initial begin
-    $readmemh(ROM,ref_buf);
+    file=$fopen(ROM,"rb");
+    if(file==0) begin $display("Cannot open %s\nFAIL",ROM); $finish; end
+    rcnt = $fread(ref_buf,file);
+    $fclose(file);
 end
 
 always @(*) begin
