@@ -66,11 +66,13 @@ jobs:
       - name: Set zip file name
         run: |
           echo ARTIFACT_NAME=dummy_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
+          echo COMMIT_DATE=$(git show -s --format=%ci 2> /dev/null) >> "$GITHUB_ENV"
       - name: Make zip file
         run: |
           ls -l release/*
           echo ARTIFACT_NAME=$ARTIFACT_NAME
           zip -r $ARTIFACT_NAME release
+          touch -m -d "$COMMIT_DATE" "$ARTIFACT_NAME"
           ls -l $ARTIFACT_NAME
       - name: Upload bundle
         uses: bayssmekanique/action-simple-file-upload@v2
