@@ -65,6 +65,7 @@ wire          HS_negedge     = !HS &&  last_HS;
 wire [DW-1:0] next;
 wire [DW-1:0] dim2, dim4;
 reg [COLORW:0] ab;
+wire [COLORW*3-1:0] gated_pxl;
 
 wire          HB_posedge     =  HB && !last_HB;
 wire          HB_negedge     = !HB &&  last_HB;
@@ -120,8 +121,9 @@ always@(posedge clk or negedge rst_n) begin
     end
 end
 
-assign dim2 = blend( {DW{1'b0}}, preout);
-assign dim4 = blend( {DW{1'b0}}, dim2 );
+assign dim2      = blend( {DW{1'b0}}, preout);
+assign dim4      = blend( {DW{1'b0}}, dim2 );
+assign gated_pxl = (VB|HB) ? {3*COLORW{1'b0}} : base_pxl;
 
 // scan lines are black
 always @(posedge clk) begin
@@ -195,7 +197,7 @@ jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
     .we0    ( 1'b0           ),
     .q0     ( next           ),
     // Port 1: write
-    .data1  ( base_pxl       ),
+    .data1  ( gated_pxl      ),
     .addr1  ( {~line, wraddr}),
     .we1    ( pxl_cen        ),
     .q1     (                )
