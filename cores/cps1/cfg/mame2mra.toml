@@ -12,6 +12,10 @@ skip.setnames=[
 	"3wondersu",
 	"3wonders1",
 	"ffightjh",
+    # CPS1.5 bootlegs
+    "dinohunt",
+    "punisherbz",
+    "wofhfh",
     # bootlegs that won't boot (likely different hardware)
     "sf2level",
     "sf2dongb",
