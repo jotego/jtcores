@@ -14,6 +14,7 @@ skip.bootlegs=true
 mustbe.machines=[
     "baddudes",
     "hbarrel",
+    # "birdtry",
 ]
 
 [buttons]
@@ -51,6 +52,7 @@ regions = [
     # GFX3
     { name="gfx3",     start="GFX3_START", width=16, sequence=[3,1,2,0]  },
     { name="gfx3",     start="GFX3_START", width=16, sequence=[1,3,0,2], machine="hbarrel"  },
+    # { name="gfx3",     machine="birdtry", skip=true  },
 
     { name="gfx4",     start="BA3_START", width=32, no_offset=true, sort_even=true },
     { name="sub",      skip=true },
