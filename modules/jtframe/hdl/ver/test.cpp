@@ -644,9 +644,12 @@ SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
             // Reset the rest of the SDRAM bank
             if( pos<BANK_LEN )
                 memset( (void*)&banks[k][pos], 0, BANK_LEN-pos);
-        } else {
-            if( k<=MAXBANK ) fprintf( stderr, "WARNING: (test.cpp)%s not found\n", fname);
         }
+#ifndef _LOADROM
+        else {
+            if( k<=MAXBANK ) fprintf( stderr, "WARNING: (test.cpp) %s not found\n", fname);
+        }
+#endif
     }
 }
 

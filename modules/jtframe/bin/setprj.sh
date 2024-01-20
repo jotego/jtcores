@@ -70,6 +70,10 @@ function swcore {
         cd $1/$2
         return
     fi
+    if [ -d "$CORES/$1/$2" ]; then
+        cd "$CORES/$1/$2"
+        return
+    fi
     IFS=/ read -ra string <<< $(pwd)
     j="/"
     next=0
