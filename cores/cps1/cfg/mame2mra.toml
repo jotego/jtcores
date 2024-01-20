@@ -116,7 +116,11 @@ defaults=[
     { value="ff,fd,ff", setnames=[ "ghouls", "ghoulsu", "qadjr", "strider", "striderua", "strideruc" ] },
     { value="ff,ff,fa", setnames=[ "willow", "willowu", "willowuo" ] },
 ]
-delete=[{names=[ "Unused", "Unknown", "Coinage" ]}]
+delete=[
+    {names=[ "Unused", "Unknown", "Coinage", "Coin Slots", "Coin A", "Coin B", "2 Coins to Start, 1 to Continue" ]},
+    {setname="sf2accp2", names=["Shot Type"]},
+    {setname="forgottnj", names=["Freeze"]},
+]
 rename=[
     {name="2 Coins to Start, 1 to Continue", to="2 to start, 1 continue"},
     {name="Lives (Midnight Wanderers)", to="Lives (Mid.W.)"},
@@ -131,6 +135,10 @@ rename=[
     {name="Internal Diff. on Life Loss", to="Life Loss"},
     {name="2 Players Game", to="2P Game"},
     {name="Wisdom (questions to win game)", to="Questions"},
+    {name="Ken special rapid multiple shots", to="Ken rapid shots"},
+    {name="Ryu special rapid multiple shots", to="Ryu rapid shots"},
+    {name="Guile special rapid multiple shots", to="Guile rapid shots"},
+    {name="Blanka special rapid multiple shots", to="Blanka rapid shots"},
 ]
 extra=[
     { machine="pang3", name="Freeze", options="On,Off", bits="23" },
@@ -176,6 +184,7 @@ regions=[
     { name="bboardplds", skip=true },
     { name="cboardplds", skip=true },
     { name="timekeeper", skip=true },
+    { name="pal", skip=true },
 ]
 
 order = ["maincpu", "audiocpu","oki","gfx"]

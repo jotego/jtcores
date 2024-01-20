@@ -156,6 +156,15 @@ func Mame_version() string {
 	return "0" + mame_version[2:] // converts 0.232 to 0232
 }
 
+func (this *MachineXML)Dial() bool {
+	for _, each := range this.Input.Control {
+		if strings.ToLower(each.Type)=="dial" {
+			return true
+		}
+	}
+	return false
+}
+
 func FamilyName(machine *MachineXML) string {
 	if machine.Cloneof != "" {
 		return machine.Cloneof
