@@ -2,6 +2,7 @@ include ../../s16/cfg/macros.def
 
 [mist]
 -JTFRAME_CREDITS
+JTFRAME_NOSTA
 
 [all]
 S16B
@@ -33,7 +34,7 @@ VRAMW=19
 # it does not fit in SiDi anymore
 JTFRAME_SKIP
 
-#[mist|sidi]
+[mist|sidi]
 #JTFRAME_INPUT_RECORD
 
 # [mister]

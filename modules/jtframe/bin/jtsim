@@ -843,6 +843,6 @@ echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 # Open the image viewer for scene sims
 if which eom > /dev/null; then
     if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
-        eom frames/frame_00001.jpg &
+        eom `ls frames/frame_*.jpg | tail -n 1` &
     fi
 fi
