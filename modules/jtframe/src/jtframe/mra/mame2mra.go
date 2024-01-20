@@ -630,7 +630,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			}
 		}
 	}
-	pad := "Y,X,B,A,R,L,"
+	pad := "A,B,X,Y,L,R,"
 	for k := len(buttons); k < 6 && k < cfg.Buttons.Core; k++ {
 		buttons_str += "-,"
 	}
