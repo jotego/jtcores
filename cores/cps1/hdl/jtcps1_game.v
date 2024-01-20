@@ -72,7 +72,7 @@ wire [ 1:0] dsn;
 wire        cen16, cen12, cen8, cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        charger;
-wire        turbo, pcmfilter_en, video_flip;
+wire        turbo, video_flip;
 
 `ifdef JTCPS_TURBO
 assign turbo = 1;
@@ -84,7 +84,6 @@ assign turbo = 1;
     `endif
 `endif
 
-assign pcmfilter_en = status[1];
 assign debug_view   = { 7'd0, dump_flag };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
@@ -380,12 +379,6 @@ jtcps1_sound u_sound(
 
     .enable_adpcm   ( enable_psg    ),
     .enable_fm      ( enable_fm     ),
-    `ifdef MISTER
-        .fxlevel    ( dip_fxlevel   ),
-    `else
-        .fxlevel    ( 2'd2          ), // not enough bits in MiST's OSD
-    `endif
-    .pcmfilter_en   ( pcmfilter_en  ),
 
     // Interface with main CPU
     .snd_latch0     ( snd_latch0    ),
@@ -407,7 +400,8 @@ jtcps1_sound u_sound(
     .left           ( snd_left      ),
     .right          ( snd_right     ),
     .sample         ( sample        ),
-    .peak           ( game_led      )
+    .peak           ( game_led      ),
+    .debug_bus      ( debug_bus     )
 );
 `else
 assign snd_addr   = 0;
