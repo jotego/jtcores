@@ -13,10 +13,8 @@ names=[
 info = """ Header to identify the game
 """
 data = [
-    { setname="srumbler",  offset=0, data="00" },
-    { setname="srumbler2", offset=0, data="01" },
-    { setname="srumbler3", offset=0, data="02" },
-    { setname="rushcrsh",  offset=0, data="04" },
+    { setname="srumbler",  offset=0, data="00" }, # 00
+    { setnames=["srumbler2","srumbler3","rushcrsh"], offset=0, data="01" }, # 10
 ]
 
 [dipsw]

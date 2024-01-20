@@ -38,7 +38,7 @@ wire [CHARW-1:0] char_addr;
 wire [SCRW-1:0] scr_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cenfm, cpu_cen;
+wire        cenfm, cpu_cen, loud;
 
 wire [ 9:0] scr_hpos, scr_vpos;
 wire [ 8:0] vdump;
@@ -60,7 +60,7 @@ wire        bus_ack, bus_req, blcnten;
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
 assign obj_cs   = 1;
-assign debug_view = { 7'd0, flip };
+assign debug_view = { 3'd0, loud, 3'd0, flip };
 
 // Banks 1-3 unused for writting
 assign ba1_din=0, ba2_din=0, ba3_din=0,
@@ -235,7 +235,7 @@ u_video(
 `ifndef NOSOUND
 jtgng_sound #(
     .LAYOUT (10 ),
-    .PSG_ATT( 3 )   // Fx is very loud in this game
+    .PSG_ATT( 1 )   // Fx is very loud in this game
 ) u_fmcpu (
     .rst        (  rst24        ),
     .clk        (  clk24        ),
@@ -247,7 +247,7 @@ jtgng_sound #(
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
-    .psg_level  (  dip_fxlevel  ),
+    .psg_level  (  {loud,1'b0}  ),
     .rom_addr   (  snd_addr     ),
     .rom_cs     (  snd_cs       ),
     .rom_data   (  snd_data     ),
@@ -278,6 +278,7 @@ jtrumble_sdram #(
     .clk        ( clk       ),
 
     .LVBL       ( LVBL      ),
+    .loud       ( loud      ),
 
     // Main CPU
     .main_cs    ( main_cs   ),

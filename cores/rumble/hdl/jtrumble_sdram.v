@@ -27,6 +27,7 @@ module jtrumble_sdram #(
     input              clk,
 
     input              LVBL,
+    output         reg loud,        // the srumbler has low volume, the others are louder
 
     // Main CPU
     input              main_cs,
@@ -141,6 +142,7 @@ assign ba0_din_m = 3;
 reg last_dwn;
 
 always @(posedge clk) begin
+    if( header && ioctl_addr[3:0]==0 && ioctl_wr ) loud <= ioctl_dout[0];
     last_dwn   <= ioctl_rom;
     dwnld_busy <= ioctl_rom | last_dwn | convert;
 end
