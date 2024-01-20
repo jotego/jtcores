@@ -271,7 +271,7 @@ always @(posedge clk, posedge rst) begin
             dma_sub  <= 1;
             // the global offsets are changed by the CPU in the middle of the frame
             // so they must be registered during blanking
-            xoffset  <= pre_xos;
+            xoffset  <= pre_xos-9'd2;
             yoffset  <= pre_yos;
         end
         if( dma_bsy ) case(dma_st)
@@ -292,7 +292,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtshouse_obj_mmr u_mmr(
+jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cs         ( mmr_cs        ),

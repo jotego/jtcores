@@ -64,7 +64,7 @@ module jtshouse_scr(
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR= 16'h70,
+localparam [15:0] HSCR= 16'h73,
                   VSCR=-16'h07;
 
 reg  [15:0] hpos, vpos;
@@ -122,10 +122,10 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= -hscr[0][2:0]-HSCR[2:0];
-            hcnt1 <= -hscr[1][2:0]-HSCR[2:0];
-            hcnt2 <= -hscr[2][2:0]-HSCR[2:0];
-            hcnt3 <= -hscr[3][2:0]-HSCR[2:0];
+            hcnt0 <= -hscr[0][2:0]+HSCR[2:0];
+            hcnt1 <= -hscr[1][2:0]+HSCR[2:0];
+            hcnt2 <= -hscr[2][2:0]+HSCR[2:0];
+            hcnt3 <= -hscr[3][2:0]+HSCR[2:0];
             if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
         end
         if( vrender==9'h110 ) lin_row <= 1;

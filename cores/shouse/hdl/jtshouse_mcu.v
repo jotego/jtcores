@@ -224,7 +224,8 @@ jtframe_prom #(.AW(12),.SIMFILE("../../firmware/triram-mcu.bin")) u_prom(
 );
 `else
 assign mcu_dout = 0;
-assign wr       = 0;
+assign rnw      = 1;
+assign halted   = 0;
 assign mcu_addr = 0;
 assign eerom_we = 0;
 assign pcm_addr = 0;
