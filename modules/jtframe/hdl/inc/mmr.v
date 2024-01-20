@@ -59,7 +59,7 @@ always @(posedge clk, posedge rst) begin
         mmr[{{ . }}] <= 0;
         {{- end }}
     `else
-        for(i=0;i<SIZE-1;i++) mmr[i] <= mmr_init[i];
+        for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
     `endif {{ range .Regs }}{{ if .Wr_event }}
     {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
     dout <= 0; {{- end }}
@@ -82,9 +82,12 @@ reg [7:0] mmr_init[0:SIZE-1];
 initial begin
     f=$fopen("rest.bin","rb");
     err=$fseek(f,SEEK,0);
+    if( f!=0 && err!=0 ) begin
+        $display("Cannot seek file rest.bin to offset 0x%0X (%0d)",SEEK,SEEK);
+    end
     if( f!=0 ) begin
         fcnt=$fread(mmr_init,f);
-        $display("INFO: Read %d bytes for %m.mmr",fcnt);
+        $display("INFO: Read %d bytes for %m.mmr from offset %0d",fcnt,SEEK);
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
         end
