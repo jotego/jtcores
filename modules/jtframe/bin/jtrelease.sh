@@ -6,6 +6,7 @@ set -e
 HASH=
 SKIPROM=
 VERBOSE=
+BUILDS=/nobackup/core-builds
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -23,8 +24,10 @@ while [ $# -gt 0 ]; do
 
 	jtrelease.sh <hash> [arguments]
 
-	Copies a build from /nobackup/core-builds to the SD card,
+	Copies a build from $BUILDS to the SD card,
 	MiSTer and JTBIN ($JTBIN)
+
+	-l, --local		Do not copy to JTBIN
 
 EOF
 			exit 0;;
@@ -43,10 +46,11 @@ if [ -z "$HASH" ]; then
 	exit 1
 fi
 
-REF=/nobackup/core-builds/mister_${HASH:0:7}.zip
+REF=$BUILDS/${HASH:0:7}.zip
+if [ ! -e $REF ]; then REF=$BUILDS/mister_${HASH:0:7}.zip; fi
 
 if [ ! -e $REF ]; then
-	echo "No build $REF available"
+	echo "No build ${HASH:0:7} available"
 	exit 125
 fi
 
