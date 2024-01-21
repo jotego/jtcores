@@ -8,9 +8,7 @@ JTFRAME_COLORW=5
 JTFRAME_MRA_DIP
 # JTFRAME_STATUS
 JTFRAME_CREDITS
-JTFRAME_DEBUG
 JTFRAME_PLL=jtframe_pll6144
-JTFRAME_OSD_SND_EN
 
 # Clocking
 # Change the clock to 48MHz if problems are reported
