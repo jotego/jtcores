@@ -256,7 +256,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

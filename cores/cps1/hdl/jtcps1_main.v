@@ -417,7 +417,7 @@ wire [4:0] cen_den;
 assign cen_num = turbo ? 4'd1 : 4'd5;
 assign cen_den = turbo ? 5'd4 : 5'd24;
 
-jtframe_68kdtack u_dtack(
+jtframe_68kdtack_cen u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),

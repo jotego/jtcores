@@ -5,6 +5,7 @@ jtframe:
       - jtframe_m68k.v
       - jtframe_68kdma.v
       - jtframe_68kdtack.v
+      - jtframe_68kdtack_cen.v
       - jtframe_68kramcs.v
 modules:
   other:

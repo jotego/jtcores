@@ -215,7 +215,7 @@ jtframe_edge u_vbint(
     .q          ( pre_vb_int    )
 );
 
-jtframe_68kdtack #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

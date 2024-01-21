@@ -288,7 +288,7 @@ end
 // DTACK generation
 wire [15:0] fave, fworst;
 
-jtframe_68kdtack #(.W(8),.RECOVERY(1),.MFREQ(50_349)) u_dtack(
+jtframe_68kdtack_cen #(.W(8),.RECOVERY(1),.MFREQ(50_349)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

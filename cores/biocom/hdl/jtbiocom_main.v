@@ -376,7 +376,7 @@ wire DTACKn;
 localparam [3:0] DIV_NUM= GAME==0 ? 4'd1 : 4'd5;
 localparam [4:0] DIV_DEN= GAME==0 ? 5'd4 : 5'd24;
 
-jtframe_68kdtack u_dtack( // cen = 12 or 10 MHz
+jtframe_68kdtack_cen u_dtack( // cen = 12 or 10 MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
     .num        ( DIV_NUM    ),

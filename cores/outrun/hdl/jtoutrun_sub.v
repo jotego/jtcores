@@ -130,7 +130,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(8),.MFREQ(50_347)) u_dtack( // 10 MHz
+jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack( // 10 MHz
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

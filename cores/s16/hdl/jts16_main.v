@@ -571,7 +571,7 @@ wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_c
 wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok };
 wire bus_legit = 0;
 
-jtframe_68kdtack #(.W(8),.MFREQ(50_347)) u_dtack(
+jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

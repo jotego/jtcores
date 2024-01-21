@@ -370,7 +370,7 @@ always @* begin
     if( BUSn ) bus_busy=0;
 end
 
-jtframe_68kdtack u_dtack( // 48 -> 8MHz
+jtframe_68kdtack_cen u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
     .num        ( 4'd1       ),
