@@ -57,7 +57,6 @@ module jtkiwi_main(
     // ROM interface
     output     [16:0]   rom_addr,
     output reg          rom_cs,
-    input               rom_ok,
     input      [ 7:0]   rom_data,
     // Debug
     input      [ 7:0]   debug_bus,
@@ -173,7 +172,7 @@ jtframe_ff u_irq(
 
 // To do: add dev_busy to match the wait signal
 // when accessing the VRAM
-jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
+jtframe_z80_devwait #(.RECOVERY(0)) u_gamecpu(
     .rst_n    ( ~rst   ),
     .clk      ( clk    ),
     .cen      ( cen6   ),
@@ -197,7 +196,7 @@ jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
     .din      ( din    ),
     .dout     ( dout   ),
     .rom_cs   ( rom_cs ),
-    .rom_ok   ( rom_ok ),
+    .rom_ok   ( 1'b1   ),
     .dev_busy ( dev_busy )
 );
 

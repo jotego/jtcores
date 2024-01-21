@@ -4,8 +4,10 @@ params:
   - name: BRAM_OFFSET
 clocks:
   clk48:
-    - freq: 6000000
+    - freq: 12000000
+      gate: [ main, sub ]
       outputs:
+        - dummy12
         - cen6
         - cen3
         - cen1p5

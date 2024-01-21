@@ -41,8 +41,8 @@ assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_r
                                         kageki, kabuki, colprom_en, mcu_en } :
                     st_addr[7:6]==1 ? main_st :
                     st_addr[7:6]==2 ? gfx_st  : snd_st;
-assign colprom_we = prom_we && ioctl_addr[15:10]==0;
-assign mcuprom_we = prom_we && ioctl_addr >= `MCU_START;
+assign colprom_we = prom_we && prog_addr[15:10]==0;
+assign mcuprom_we = prom_we && prog_addr >= `MCU_START;
 assign st_dout    = debug_view;
 // Banked RAM
 assign bram_we    = bram_cs & ~cpu_rnw;
@@ -64,7 +64,7 @@ always @(posedge clk) begin
     end
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtkiwi_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -82,7 +82,6 @@ jtkiwi_main u_main(
     // Main CPU ROM
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
-    .rom_ok         ( main_ok       ),
     .rom_data       ( main_data     ),
 
     // Sub CPU access to shared RAM
@@ -219,7 +218,6 @@ jtkiwi_snd u_sound(
     .rom_addr   ( sub_addr      ),
     .rom_cs     ( sub_cs        ),
     .rom_data   ( sub_data      ),
-    .rom_ok     ( sub_ok        ),
 
     // Sound output
     .fx_level   ( dip_fxlevel   ),

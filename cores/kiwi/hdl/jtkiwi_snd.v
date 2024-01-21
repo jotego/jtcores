@@ -47,7 +47,6 @@ module jtkiwi_snd(
     // ROM interface
     output reg [15:0]   rom_addr,
     output reg          rom_cs,
-    input               rom_ok,
     input      [ 7:0]   rom_data,
 
     // Sub CPU (sound)
@@ -322,7 +321,7 @@ jtframe_ff u_irq(
     .sigedge( ~LVBL     )
 );
 
-jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
+jtframe_z80_devwait #(.RECOVERY(0)) u_gamecpu(
     .rst_n    ( comb_rstn      ),
     .clk      ( clk            ),
     .cen      ( cen6           ),
@@ -347,21 +346,21 @@ jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
     .din      ( din            ),
     .dout     ( dout           ),
     .rom_cs   ( rom_cs         ),
-    .rom_ok   ( rom_ok         ),
+    .rom_ok   ( 1'b1           ),
     .dev_busy ( dev_busy       )
 );
 
 `ifndef NOMCU
-`ifdef SIMULATION
-    reg mcu_rdl, mcu_wel;
+// `ifdef SIMULATION
+//     reg mcu_rdl, mcu_wel;
 
-    always @(posedge clk ) begin
-        mcu_rdl <= |mcu_rd;
-        mcu_wel <= |mcu_we;
-        if( mcu_we==0 && mcu_wel ) $display("Wr %X to   %X", dout, A);
-        if( mcu_rd==0 && mcu_rdl ) $display("Rd %X from %X",din, A);
-    end
-`endif
+//     always @(posedge clk ) begin
+//         mcu_rdl <= |mcu_rd;
+//         mcu_wel <= |mcu_we;
+//         if( mcu_we==0 && mcu_wel ) $display("Wr %X to   %X", dout, A);
+//         if( mcu_rd==0 && mcu_rdl ) $display("Rd %X from %X",din, A);
+//     end
+// `endif
 
 jtframe_i8742 #(
     .SIMFILE("../../firmware/arknoid2.bin")
