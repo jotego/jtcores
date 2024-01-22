@@ -153,6 +153,16 @@ Please support the development: https://patreon.com/jotego
 EOF
 }
 
+function has_parent {
+    p=`pwd`
+    while [ "$p" != "/" ]; do
+        parent=$(dirname "$p")
+        if [ $(basename "$parent") = "$1" ]; then return 0; fi
+        p=$parent
+    done
+    return 1
+}
+
 function clean_up {
     rm -f video.pipe frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
@@ -283,6 +293,11 @@ function set_mist_as_target {
 function set_zoom {
     export CONVERT_OPTIONS="-resize 200%x200% $CONVERT_OPTIONS"
 }
+
+if ! has_parent ver; then
+    echo "jtsim must be called from within the ver folder of the core"
+    exit 1
+fi
 
 while [ $# -gt 0 ]; do
 case "$1" in
