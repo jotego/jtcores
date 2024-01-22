@@ -400,28 +400,28 @@ end
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
             mcu_din <= 0;
-        end else if(mcu_br && !mcu_wr) begin
+        end else if(!BGACKn) begin
             mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
 
-    `ifdef SIMULATION
-    reg  mcu_busl;
-    wire nothing_cs = mcu_top == NOTHING_CS;
+    // `ifdef SIMULATION
+    // reg  mcu_busl;
+    // wire nothing_cs = mcu_top == NOTHING_CS;
 
-    always @(posedge clk) mcu_busl <= mcu_bus;
+    // always @(posedge clk) mcu_busl <= mcu_bus;
 
-    always @(posedge mcu_busl ) begin
-        $display("MCU access to %X (%s) %s ",A_full,mcu_wr ? "WR" : "RD",
-            ram_cs ? "RAM" : io_cs ? "IO" : pal_cs ? "PAL" :
-            char_cs ? "Char" : rom_cs ? "ROM" :
-            nothing_cs ? "Nothing" : "N/A");
-        //if(mcu_top==0) begin
-        //    $display("Unexpected MCU access");
-        //    $finish;
-        //end
-    end
-    `endif
+    // always @(posedge mcu_busl ) begin
+    //     $display("MCU access to %X (%s) %s ",A_full,mcu_wr ? "WR" : "RD",
+    //         ram_cs ? "RAM" : io_cs ? "IO" : pal_cs ? "PAL" :
+    //         char_cs ? "Char" : rom_cs ? "ROM" :
+    //         nothing_cs ? "Nothing" : "N/A");
+    //     //if(mcu_top==0) begin
+    //     //    $display("Unexpected MCU access");
+    //     //    $finish;
+    //     //end
+    // end
+    // `endif
 
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
