@@ -674,7 +674,7 @@ void JTSim::reset( int v ) {
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
-    game(g), sdram(g), dwn(g), sim_inputs(g), wav("snd.wav",48000,false)
+    game(g), sdram(g), dwn(g), sim_inputs(g), wav("test.wav",48000,false)
 {
     simtime   = 0;
     frame_cnt = 0;
