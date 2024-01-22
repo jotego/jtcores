@@ -119,8 +119,7 @@ jtroadf_main u_main(
     .ioctl_dout     ( prog_data     ),
     .ioctl_din      ( ioctl_din     ),
     .ioctl_wr       ( prog_we & ioctl_ram      ),
-    .ioctl_addr     ( ioctl_addr[15:0]),
-        .debug_bus  ( debug_bus ),
+    .ioctl_addr     ( ioctl_addr[15:0])
 );
 `else
     assign main_cs   = 0;

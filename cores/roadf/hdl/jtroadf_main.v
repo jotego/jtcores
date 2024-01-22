@@ -36,7 +36,6 @@ module jtroadf_main(
     input       [ 6:0]  joystick2,
     input       [ 6:0]  joystick3,
     input       [ 6:0]  joystick4,
-    input       [ 7:0]  debug_bus,
     input               service,
     input               is_hyper,
 
@@ -125,7 +124,6 @@ end
 
 function [2:0] rev3( input [6:0] x );
     rev3 = {x[4]&x[0], x[5]&x[2], x[6]&x[1]}; // merge buttons and directions
-    // rev3 = { x[debug_bus[1:0]],x[debug_bus[3:2]], x[debug_bus[5:4]] }; // R,,L
 endfunction
 
 always @(posedge clk) begin
