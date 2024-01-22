@@ -445,6 +445,8 @@ func GetSignals( file *LnFile ) vcdData {
                                 bracket_str = ""
                             } else {
                                 s.Name = tokens[4][0:bracket]
+                                bracket_str = tokens[4]
+                                bracket++
                             }
                         }
                         if bracket_str!="" {

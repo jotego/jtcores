@@ -147,15 +147,16 @@ Tetris         -         -         -         -         EPR12169  EPR12170  -    
 ***************************************************************************/
 
 #include "emu.h"
-#include "includes/segas16a.h"
-#include "includes/segaipt.h"
+#include "segas16a.h"
+#include "segaipt.h"
 
-#include "machine/fd1089.h"
-#include "machine/fd1094.h"
+#include "fd1089.h"
+#include "fd1094.h"
+
 #include "machine/nvram.h"
 #include "machine/segacrp2_device.h"
 #include "sound/dac.h"
-#include "sound/volt_reg.h"
+
 #include "speaker.h"
 
 
@@ -277,7 +278,7 @@ void segas16a_state::standard_io_w(offs_t offset, uint16_t data, uint16_t mem_ma
 			// the port C handshaking signals control the Z80 NMI,
 			// so we have to sync whenever we access this PPI
 			if (ACCESSING_BITS_0_7)
-				synchronize(TID_PPI_WRITE, ((offset & 3) << 8) | (data & 0xff));
+				machine().scheduler().synchronize(timer_expired_delegate(FUNC(segas16a_state::ppi_sync), this), ((offset & 3) << 8) | (data & 0xff));
 			return;
 	}
 	//logerror("%06X:standard_io_w - unknown write access to address %04X = %04X & %04X\n", m_maincpu->state_int(STATE_GENPC), offset * 2, data, mem_mask);
@@ -364,7 +365,7 @@ void segas16a_state::n7751_control_w(uint8_t data)
 	//
 	m_n7751->set_input_line(INPUT_LINE_RESET, (data & 0x01) ? CLEAR_LINE : ASSERT_LINE);
 	m_n7751->set_input_line(0, (data & 0x02) ? CLEAR_LINE : ASSERT_LINE);
-	machine().scheduler().boost_interleave(attotime::zero, attotime::from_usec(100));
+	machine().scheduler().perfect_quantum(attotime::from_usec(100));
 }
 
 
@@ -453,7 +454,7 @@ void segas16a_state::mcu_control_w(uint8_t data)
 
 	// apply an extra boost if the main CPU is just waking up
 	if ((m_mcu_control ^ data) & 0x40)
-		machine().scheduler().boost_interleave(attotime::zero, attotime::from_usec(10));
+		machine().scheduler().perfect_quantum(attotime::from_usec(10));
 
 	// remember the remaining bits, which control read/write access to main CPU space
 	m_mcu_control = data;
@@ -491,7 +492,9 @@ void segas16a_state::mcu_io_w(offs_t offset, uint8_t data)
 
 		// access text RAM
 		case 1:
-			if (offset >= 0x8000 && offset < 0x9000)
+			if (offset < 0x8000)
+				m_maincpu->space(AS_PROGRAM).write_byte(0x400001 ^ (offset & 0x7fff), data);
+			else if (offset < 0x9000)
 				m_maincpu->space(AS_PROGRAM).write_byte(0x410001 ^ (offset & 0xfff), data);
 			else
 				logerror("%03X: MCU movx write mode %02X offset %04X = %02X\n", m_mcu->pc(), m_mcu_control, offset, data);
@@ -541,8 +544,11 @@ uint8_t segas16a_state::mcu_io_r(address_space &space, offs_t offset)
 
 		// access text RAM
 		case 1:
-			if (offset >= 0x8000 && offset < 0x9000)
+			if (offset < 0x8000)
+				return m_maincpu->space(AS_PROGRAM).read_byte(0x400001 ^ (offset & 0x7fff));
+			else if (offset < 0x9000)
 				return m_maincpu->space(AS_PROGRAM).read_byte(0x410001 ^ (offset & 0xfff));
+
 			logerror("%03X: MCU movx read mode %02X offset %04X\n", m_mcu->pc(), m_mcu_control, offset);
 			return 0xff;
 
@@ -576,7 +582,7 @@ uint8_t segas16a_state::mcu_io_r(address_space &space, offs_t offset)
 //  handler, we hook this to execute it
 //-------------------------------------------------
 
-WRITE_LINE_MEMBER(segas16a_state::i8751_main_cpu_vblank_w)
+void segas16a_state::i8751_main_cpu_vblank_w(int state)
 {
 	// if we have a fake 8751 handler, call it on VBLANK
 	if (state && !m_i8751_vblank_hook.isnull())
@@ -589,7 +595,7 @@ WRITE_LINE_MEMBER(segas16a_state::i8751_main_cpu_vblank_w)
 
 		// boost interleave to ensure that the MCU can break the M68000 out of a STOP
 		if (state)
-			machine().scheduler().boost_interleave(attotime::zero, attotime::from_usec(100));
+			machine().scheduler().perfect_quantum(attotime::from_usec(100));
 	}
 }
 
@@ -600,13 +606,25 @@ WRITE_LINE_MEMBER(segas16a_state::i8751_main_cpu_vblank_w)
 //**************************************************************************
 
 //-------------------------------------------------
-//  machine_reset - reset the state of the machine
+//  machine_start
+//-------------------------------------------------
+
+void segas16a_state::machine_start()
+{
+	m_lamps.resolve();
+
+	m_i8751_sync_timer = timer_alloc(FUNC(segas16a_state::i8751_sync), this);
+}
+
+
+//-------------------------------------------------
+//  machine_reset
 //-------------------------------------------------
 
 void segas16a_state::machine_reset()
 {
 	// queue up a timer to either boost interleave or disable the MCU
-	synchronize(TID_INIT_I8751);
+	m_i8751_sync_timer->adjust(attotime::zero);
 	m_video_control = 0;
 	m_mcu_control = 0x00;
 	m_n7751_command = 0;
@@ -619,26 +637,22 @@ void segas16a_state::machine_reset()
 
 
 //-------------------------------------------------
-//  device_timer - handle device timers
+//  timer events
 //-------------------------------------------------
 
-void segas16a_state::device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr)
+TIMER_CALLBACK_MEMBER(segas16a_state::i8751_sync)
 {
-	switch (id)
-	{
-		// if we have a fake i8751 handler, disable the actual 8751, otherwise crank the interleave
-		case TID_INIT_I8751:
-			if (!m_i8751_vblank_hook.isnull())
-				m_mcu->suspend(SUSPEND_REASON_DISABLE, 1);
-			else if (m_mcu != nullptr)
-				machine().scheduler().boost_interleave(attotime::zero, attotime::from_msec(10));
-			break;
+	// if we have a fake i8751 handler, disable the actual 8751, otherwise crank the interleave
+	if (!m_i8751_vblank_hook.isnull())
+		m_mcu->suspend(SUSPEND_REASON_DISABLE, 1);
+	else if (m_mcu != nullptr)
+		machine().scheduler().perfect_quantum(attotime::from_msec(10));
+}
 
-		// synchronize writes to the 8255 PPI
-		case TID_PPI_WRITE:
-			m_i8255->write(param >> 8, param & 0xff);
-			break;
-	}
+TIMER_CALLBACK_MEMBER(segas16a_state::ppi_sync)
+{
+	// synchronize writes to the 8255 PPI
+	m_i8255->write(param >> 8, param & 0xff);
 }
 
 
@@ -1528,8 +1542,8 @@ static INPUT_PORTS_START( quartet )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP  ) PORT_8WAY
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
 
@@ -1538,8 +1552,8 @@ static INPUT_PORTS_START( quartet )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT) PORT_8WAY PORT_PLAYER(2)
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE2 )
 
@@ -1548,8 +1562,8 @@ static INPUT_PORTS_START( quartet )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(3)
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(3)
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(3)
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN3 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE3 )
 
@@ -1558,8 +1572,8 @@ static INPUT_PORTS_START( quartet )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(4)
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT) PORT_8WAY PORT_PLAYER(4)
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT) PORT_8WAY PORT_PLAYER(4)
-	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(4)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(4)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN4 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE4 )
 
@@ -1983,6 +1997,9 @@ void segas16a_state::system16a(machine_config &config)
 	m_i8255->out_pa_callback().set("soundlatch", FUNC(generic_latch_8_device::write));
 	m_i8255->out_pb_callback().set(FUNC(segas16a_state::misc_control_w));
 	m_i8255->out_pc_callback().set(FUNC(segas16a_state::tilemap_sound_w));
+	m_i8255->tri_pa_callback().set_constant(0);
+	m_i8255->tri_pb_callback().set_constant(0);
+	m_i8255->tri_pc_callback().set_constant(0);
 
 	// video hardware
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
@@ -2008,9 +2025,6 @@ void segas16a_state::system16a(machine_config &config)
 	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 0.43);
 
 	DAC_8BIT_R2R(config, "dac", 0).add_route(ALL_OUTPUTS, "speaker", 0.4); // unknown DAC
-	voltage_regulator_device &vref(VOLTAGE_REGULATOR(config, "vref", 0));
-	vref.add_route(0, "dac", 1.0, DAC_VREF_POS_INPUT);
-	vref.add_route(0, "dac", -1.0, DAC_VREF_NEG_INPUT);
 }
 
 
@@ -2055,6 +2069,9 @@ void segas16a_state::system16a_i8751(machine_config &config)
 	m_mcu->port_out_cb<1>().set(FUNC(segas16a_state::mcu_control_w));
 
 	m_screen->screen_vblank().set(FUNC(segas16a_state::i8751_main_cpu_vblank_w));
+
+	// prevent glitchy background scroll on quartet stage 18
+	config.set_maximum_quantum(attotime::from_hz(6000));
 }
 
 void segas16a_state::system16a_no7751(machine_config &config)
@@ -2065,10 +2082,9 @@ void segas16a_state::system16a_no7751(machine_config &config)
 	config.device_remove("n7751");
 	config.device_remove("n7751_8243");
 	config.device_remove("dac");
-	config.device_remove("vref");
 
 	YM2151(config.replace(), m_ymsnd, 4000000);
-	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 1.0);
+	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 0.5);
 }
 
 void segas16a_state::system16a_no7751p(machine_config &config)
@@ -2087,9 +2103,8 @@ void segas16a_state::system16a_i8751_no7751(machine_config &config)
     system16a_i8751(config);
     config.device_remove("n7751");
     config.device_remove("dac");
-    config.device_remove("vref");
 
-    YM2151(config.replace(), "ymsnd", 4000000).add_route(ALL_OUTPUTS, "speaker", 1.0);
+    YM2151(config.replace(), "ymsnd", 4000000).add_route(ALL_OUTPUTS, "speaker", 0.5);
 }
 */
 
@@ -2100,10 +2115,9 @@ void segas16a_state::system16a_fd1089a_no7751(machine_config &config)
 
 	config.device_remove("n7751");
 	config.device_remove("dac");
-	config.device_remove("vref");
 
 	YM2151(config.replace(), m_ymsnd, 4000000);
-	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 1.0);
+	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 0.5);
 }
 
 void segas16a_state::system16a_fd1089b_no7751(machine_config &config)
@@ -2113,10 +2127,9 @@ void segas16a_state::system16a_fd1089b_no7751(machine_config &config)
 
 	config.device_remove("n7751");
 	config.device_remove("dac");
-	config.device_remove("vref");
 
 	YM2151(config.replace(), m_ymsnd, 4000000);
-	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 1.0);
+	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 0.5);
 }
 
 void segas16a_state::system16a_fd1094_no7751(machine_config &config)
@@ -2126,10 +2139,9 @@ void segas16a_state::system16a_fd1094_no7751(machine_config &config)
 
 	config.device_remove("n7751");
 	config.device_remove("dac");
-	config.device_remove("vref");
 
 	YM2151(config.replace(), m_ymsnd, 4000000);
-	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 1.0);
+	m_ymsnd->add_route(ALL_OUTPUTS, "speaker", 0.5);
 }
 
 
@@ -2425,7 +2437,7 @@ ROM_START( alexkidd1 )
 
 	ROM_REGION( 0x2000, "maincpu:key", 0 ) // decryption key
 	ROM_LOAD( "317-0021.key", 0x0000, 0x2000, BAD_DUMP CRC(504388a3) SHA1(20625e9e99c08a28b253676cc843ae5228ec9d5b) )
-	ROM_END
+ROM_END
 
 
 //*************************************************************************************************************************
@@ -2827,7 +2839,7 @@ ROM_START( fantzonepr )
 	ROM_LOAD16_BYTE( "ic18-2614.bin",  0x10000, 0x8000, CRC(e05a1e25) SHA1(9691d9f0763b7483ee6912437902f22ab4b78a05) ) // MATCH
 
 	// these were missing, but it seems like they should be different?
-	ROM_LOAD16_BYTE( "ic23",  0x20001, 0x8000, BAD_DUMP CRC(531ca13f) SHA1(19e68bc515f6021e1145cff4f3f0e083839ee8f3) ) // misisng
+	ROM_LOAD16_BYTE( "ic23",  0x20001, 0x8000, BAD_DUMP CRC(531ca13f) SHA1(19e68bc515f6021e1145cff4f3f0e083839ee8f3) ) // missing
 	ROM_LOAD16_BYTE( "ic24",  0x20000, 0x8000, BAD_DUMP CRC(68807b49) SHA1(0a189da8cdd2090e76d6d06c55b478abce60542d) ) // missing
 
 	ROM_REGION( 0x10000, "soundcpu", 0 ) // sound CPU
@@ -3052,6 +3064,8 @@ ROM_END
 //
 //  CPU/Video/Sound Board: 171-5335
 //  ROM Board:             171-5336
+//  Sega game ID: 837-5934
+//     ROM board: 837-5935
 //
 ROM_START( quartet2 )
 	ROM_REGION( 0x40000, "maincpu", 0 ) // 68000 code
@@ -3367,6 +3381,7 @@ ROM_END
 //*************************************************************************************************************************
 //  Shinobi, Sega System 16A
 //  CPU: FD1094 (317-0050)
+//  Sega game ID: 834-6496 SHINOBI
 //
 ROM_START( shinobi1 )
 	ROM_REGION( 0x40000, "maincpu", 0 ) // 68000 code
@@ -3918,7 +3933,7 @@ void segas16a_state::init_aceattaca()
 void segas16a_state::init_dumpmtmt()
 {
 	init_generic();
-	m_i8751_vblank_hook = i8751_sim_delegate(&segas16a_state::dumpmtmt_i8751_sim, this);
+	m_i8751_vblank_hook = delegate(&segas16a_state::dumpmtmt_i8751_sim, this);
 }
 
 void segas16a_state::init_mjleague()
@@ -3943,7 +3958,7 @@ void segas16a_state::init_sjryukoa()
 {
 	init_generic();
 	m_custom_io_r = read16sm_delegate(*this, FUNC(segas16a_state::sjryuko_custom_io_r));
-	m_lamp_changed_w = lamp_changed_delegate(&segas16a_state::sjryuko_lamp_changed_w, this);
+	m_lamp_changed_w = delegate(&segas16a_state::sjryuko_lamp_changed_w, this);
 }
 
 
@@ -4005,7 +4020,6 @@ GAME( 1987, timescan1,  timescan, system16a_fd1089b,        timescan,        seg
 
 GAME( 1988, wb31,       wb3,      system16a_fd1094_no7751,  wb3,             segas16a_state,            init_generic,     ROT0,   "Sega / Westone", "Wonder Boy III - Monster Lair (set 1, Japan, System 16A) (FD1094 317-0084)", MACHINE_SUPPORTS_SAVE )
 GAME( 1988, wb35,       wb3,      system16a_fd1089a_no7751, wb3,             segas16a_state,            init_generic,     ROT0,   "Sega / Westone", "Wonder Boy III - Monster Lair (set 5, Japan, System 16A) (FD1089A 317-0086)", MACHINE_SUPPORTS_SAVE )
-
 
 GAME( 1988, wb31d,      wb3,      system16a_no7751,         wb3,             segas16a_state,            init_generic,     ROT0,   "bootleg", "Wonder Boy III - Monster Lair (set 1, Japan, System 16A) (bootleg of FD1094 317-0084 set)", MACHINE_SUPPORTS_SAVE )
 GAME( 1988, wb35d,      wb3,      system16a_no7751,         wb3,             segas16a_state,            init_generic,     ROT0,   "bootleg", "Wonder Boy III - Monster Lair (set 5, Japan, System 16A) (bootleg of FD1089A 317-0086 set)", MACHINE_SUPPORTS_SAVE )
