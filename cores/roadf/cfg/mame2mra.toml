@@ -23,6 +23,13 @@ rename = [
     { name="Number of Opponents", To ="Other cars"}
 ]
 
+[header]
+info = """ Header to identify the game"""
+data = [
+    { machine="roadf",    offset=0, data="00" },
+    { machine="hyperspt", offset=0, data="01" },
+]
+
 [ROM]
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra

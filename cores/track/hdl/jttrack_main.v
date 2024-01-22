@@ -117,15 +117,15 @@ always @(*) begin
     end
 end
 
-function [2:0] rev3( input [2:0] x );
-    rev3 = {x[0],x[1],x[2]};
+function [2:0] rev3( input [6:0] x );
+    rev3 = {x[4]&x[0], x[5]&x[2], x[6]&x[1]}; // merge buttons and directions
 endfunction
 
 always @(posedge clk) begin
     case( A[1:0] )
         0: cabinet <= { 3'b111, cab_1p[1:0], service, coin[1:0] };
-        1: cabinet <= {1'b1, rev3(joystick2[6:4]), cab_1p[2], rev3(joystick1[6:4]) };
-        2: cabinet <= {1'b1, rev3(joystick4[6:4]), cab_1p[3], rev3(joystick3[6:4]) };
+        1: cabinet <= {1'b1, rev3(joystick2), cab_1p[2], rev3(joystick1) };
+        2: cabinet <= {1'b1, rev3(joystick4), cab_1p[3], rev3(joystick3) };
         3: cabinet <= dipsw_a;
     endcase
     cpu_din <= rom_cs  ? rom_data  :
