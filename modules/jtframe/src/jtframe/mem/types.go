@@ -74,6 +74,7 @@ type BRAMBus struct {
 }
 
 type SDRAMBank struct {
+    Region  string
     Buses []SDRAMBus `yaml:"buses"`
     // Precalculated values
     MemType string

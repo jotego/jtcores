@@ -69,7 +69,7 @@ assign { dipsw_c, dipsw_b, dipsw_a } = ~24'd0;
 `endif
 
 wire [ 1:0] dsn;
-wire        cen16, cen12, cen8, cen10b;
+wire        cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        charger;
 wire        turbo, video_flip;
@@ -88,45 +88,18 @@ assign debug_view   = { 7'd0, dump_flag };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
-// CPU clock enable signals come from 48MHz domain
-jtframe_cen48 u_cen48(
-    .clk        ( clk48         ),
-    .cen16      ( cen16         ),
-    .cen12      ( cen12         ),
-    .cen8       ( cen8          ),
-    .cen6       (               ),
-    .cen4       (               ),
-    .cen4_12    (               ),
-    .cen3       (               ),
-    .cen3q      (               ),
-    .cen1p5     (               ),
-    // 180 shifted signals
-    .cen16b     (               ),
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
+jtframe_cen96 u_pxl_cen(
+    .clk    ( clk96     ),    // 96 MHz
+    .cen16  ( pxl2_cen  ),
+    .cen12  (           ),
+    .cen8   ( pxl_cen   ),
+    // Unused:
+    .cen6   (           ),
+    .cen6b  (           )
 );
+assign clk_gfx = clk96;
+assign rst_gfx = rst96;
 
-`ifdef JTFRAME_CLK96
-    jtframe_cen96 u_pxl_cen(
-        .clk    ( clk96     ),    // 96 MHz
-        .cen16  ( pxl2_cen  ),
-        .cen12  (           ),
-        .cen8   ( pxl_cen   ),
-        // Unused:
-        .cen6   (           ),
-        .cen6b  (           )
-    );
-    assign clk_gfx = clk96;
-    assign rst_gfx = rst96;
-`else
-    assign pxl2_cen = cen16;
-    assign pxl_cen  = cen8;
-    assign clk_gfx = clk;
-    assign rst_gfx = rst;
-`endif
 
 localparam REGSIZE=24;
 

@@ -47,6 +47,7 @@ if [ -z "$HASH" ]; then
 fi
 
 REF=$BUILDS/${HASH:0:7}.zip
+echo $REF
 if [ ! -e $REF ]; then REF=$BUILDS/mister_${HASH:0:7}.zip; fi
 
 if [ ! -e $REF ]; then
@@ -64,18 +65,25 @@ git submodule init $JTFRAME/target/pocket
 git submodule update $JTFRAME/target/pocket
 jtframe > /dev/null
 unzip $REF -d release
+if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
 jtframe mra `find release/{mister,sidi} -name "*rbf*" | xargs -l -I_ basename _ .rbf | sort | uniq | sed s/^jt//` $SKIPROM
 
 if [ -z "$SKIPROM" ]; then
 	jtbin2sd &
 fi
 
-jtbin2mr
-
 if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	echo "Copying to $JTBIN"
 	cd $JTBIN
+	if [ -d .git ]; then git checkout -b $(date +"%Y%m%d"); fi
 	cp -r $DST/release/* .
+	# remove games in beta phase for SiDi and MiST
+	for t in mist sidi; do
+		for i in $JTBIN/$t/*.rbf; do
+			corename=`basename $i .rbf`
+			if grep "${corename#jt}.*mister" $JTROOT/beta.yaml > /dev/null; then rm -v $i; fi
+		done
+	done
 else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
 	exit 0

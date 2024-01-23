@@ -13,6 +13,7 @@ Usage:
 
 jtbin2mr [-l|--local]
 
+-b, --branch    Creates a branch in JTBIN with the current date
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
 -m, --mr        MiSTer host name or IP address
 -g, --git       Uses JTBIN as the target folder
@@ -22,11 +23,13 @@ HELP
 }
 
 LOCAL=1
+BRANCH=
 V=
 
 while [ $# -gt 0 ]; do
     case "$1" in
         -l|--local) LOCAL=1;;
+        -b|--branch) BRANCH=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
         -m|--mr)
@@ -72,6 +75,12 @@ CORES=$ROOT/cores
 
 mkdir -p $CORES
 
+if [ ! -z "$BRANCH" ]; then
+    pushd .
+    git checkout --branch $(date +"%Y%m%d")
+    popd
+fi
+
 if [ -d $JTBIN/mister ]; then
     cp $JTBIN/mister/*.rbf $CORES
 fi
@@ -85,7 +94,7 @@ if [ -d /media/$USER/MiSTer_Data ]; then
     echo "MiSTer SD card detected"
     rm -rf /media/$USER/MiSTer_Data/_JTBIN
     cp -r $TEMP/_JTBIN /media/$USER/MiSTer_Data || echo "Copy to MiSTer SD card failed"
-else
+elif ping -c 1 -q $MRHOST > /dev/null; then
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/_JTBIN"
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/nvram/*.nvm"
@@ -101,5 +110,7 @@ else
     else
         echo "Skipping jtbeta.zip copy"
     fi
+else
+    echo "$MRHOST is not online"
 fi
 rm -rf $TEMP

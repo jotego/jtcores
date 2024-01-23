@@ -59,9 +59,21 @@ parameter [25:0] BA1_START = ~26'd0,
                  SWAB      = 0; // swap every pair of input bytes (SDRAM only)
 parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
                  GFX16B0   = 0; // bit 0 for HHVVVV sequence
+// automatic bank assignment based on a LUT sitting at the header start
+parameter        BALUT     = 0, // !=0 if there is an offset LUT to use for bank starts in the header
+                 LUTSH     = 0, // bit shift to apply to ioctl_addr for BALUT comparisons
+                 LUTDW     = 8; // bit width of each comparison
 
+`ifdef SIMULATION
+initial begin
+    if( BALUT>3 ) begin
+        $display("BALUT must be 0-3");
+        $finish;
+    end
+end
+`endif
 
-localparam       BA_EN     = (BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0);
+localparam       BA_EN     = BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0 || BALUT!=0;
 localparam       PROM_EN   = PROM_START!=~26'd0;
 /* verilator lint_on  WIDTH */
 reg  [ 7:0] data_out;
@@ -98,10 +110,6 @@ reg  [25:0] offset;
 reg  [25:0] eff_addr;
 
 always @(*) begin
-    bank = !BA_EN ? 2'd0 : (
-            part_addr >= BA3_START ? 2'd3 : (
-            part_addr >= BA2_START ? 2'd2 : (
-            part_addr >= BA1_START ? 2'd1 : 2'd0 )));
     case( bank )
         2'd0: offset = 0;
         2'd1: offset = BA1_START;
@@ -111,6 +119,31 @@ always @(*) begin
     endcase // bank
     eff_addr = part_addr-offset;
 end
+
+generate
+    if( BALUT==0 || !BA_EN ) begin
+        always @(*) begin
+            bank = !BA_EN ? 2'd0 : (
+                    part_addr >= BA3_START ? 2'd3 : (
+                    part_addr >= BA2_START ? 2'd2 : (
+                    part_addr >= BA1_START ? 2'd1 : 2'd0 )));
+        end
+    end else begin
+        reg [LUTDW*BALUT-1:0] ba_start=0; // BALUT must be 1-3
+        always @(posedge clk) begin
+            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[3:0]<(BALUT*LUTDW/8) ) begin
+                ba_start <= { ioctl_dout, ba_start[LUTDW*BALUT-1:8] };
+            end
+        end
+        always @* begin
+            bank = 2'd0;
+            if(            part_addr[LUTSH+:LUTDW] >= ba_start[0+:LUTDW]       ) bank = 2'd1;
+            if( BALUT>1 && part_addr[LUTSH+:LUTDW] >= ba_start[LUTDW*1+:LUTDW] ) bank = 2'd2;
+            if( BALUT>2 && part_addr[LUTSH+:LUTDW] >= ba_start[LUTDW*2+:LUTDW] ) bank = 2'd3;
+        end
+    end
+endgenerate
+
 
 always @(posedge clk) begin
     if ( ioctl_wr && ioctl_rom && !header ) begin

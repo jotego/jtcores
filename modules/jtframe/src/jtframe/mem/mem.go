@@ -257,26 +257,41 @@ func check_banks( macros map[string]string, cfg *MemConfig ) {
 			}
 		}
 	}
-	if len(cfg.SDRAM.Banks)>1  {
-		if macros["JTFRAME_BA1_START"]=="" {
-			fmt.Println("Missing JTFRAME_BA1_START")
-			bad = true
+	region_lut := false
+	for _, each := range cfg.SDRAM.Banks {
+		if each.Region != "" {
+			region_lut = true
+			break
 		}
-		check_we( 1, "JTFRAME_BA1_WEN" )
 	}
-	if len(cfg.SDRAM.Banks)>2 {
-		if macros["JTFRAME_BA2_START"]=="" {
-			fmt.Println("Missing JTFRAME_BA2_START")
-			bad = true
+	if !region_lut {
+		if len(cfg.SDRAM.Banks)>1  {
+			if macros["JTFRAME_BA1_START"]=="" {
+				fmt.Println("Missing JTFRAME_BA1_START")
+				bad = true
+			}
+			check_we( 1, "JTFRAME_BA1_WEN" )
 		}
-		check_we( 2, "JTFRAME_BA2_WEN" )
-	}
-	if len(cfg.SDRAM.Banks)>3 {
-		if macros["JTFRAME_BA3_START"]=="" {
-			fmt.Println("Missing JTFRAME_BA3_START")
-			bad = true
+		if len(cfg.SDRAM.Banks)>2 {
+			if macros["JTFRAME_BA2_START"]=="" {
+				fmt.Println("Missing JTFRAME_BA2_START")
+				bad = true
+			}
+			check_we( 2, "JTFRAME_BA2_WEN" )
 		}
-		check_we( 3, "JTFRAME_BA3_WEN" )
+		if len(cfg.SDRAM.Banks)>3 {
+			if macros["JTFRAME_BA3_START"]=="" {
+				fmt.Println("Missing JTFRAME_BA3_START")
+				bad = true
+			}
+			check_we( 3, "JTFRAME_BA3_WEN" )
+		}
+	} else {
+		if macros["JTFRAME_HEADER"]=="" {
+			fmt.Println(`Missing JTFRAME_HEADER but the SDRAM banks are pointing to a region.
+Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml
+`)
+		}
 	}
 	if bad {
 		os.Exit(1)
