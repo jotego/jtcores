@@ -23,6 +23,7 @@ JTFRAME_DIPBASE=8
 [mist]
 JTFRAME_SCAN2X_NOBLEND
 JTFRAME_OSD_NOCREDITS
+JTFRAME_NOSTA
 
 [sidi]
 # it does not fit in SiDi anymore

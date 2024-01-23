@@ -79,3 +79,6 @@ JTFRAME_ROTCCW
 
 # Debug - only mister
 # JTFRAME_IOCTL_RD=43008
+
+[mist]
+JTFRAME_NOSTA
