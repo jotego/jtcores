@@ -11,6 +11,7 @@ jtframe:
     get:
       - jtframe_uprate2_fir.yaml
       - jtframe_pole.v
+      - jtframe_dcrm.v
 modules:
   jt:
     - name: jt51

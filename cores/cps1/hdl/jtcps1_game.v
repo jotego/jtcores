@@ -134,7 +134,7 @@ localparam REGSIZE=24;
 wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
-
+/* verilator tracing_off */
 `ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst48             ),
@@ -214,7 +214,7 @@ always @(posedge clk_gfx) begin
 end
 
 assign dip_flip = video_flip;
-
+/* verilator tracing_off */
 jtcps1_video #(REGSIZE) u_video(
     .rst            ( rst_video     ),
     .clk            ( clk_gfx       ),
@@ -372,13 +372,10 @@ reg [3:0] rst_snd;
 always @(posedge clk) begin
     rst_snd <= { rst_snd[2:0], rst48 };
 end
-
+/* verilator tracing_on */
 jtcps1_sound u_sound(
     .rst            ( rst_snd[3]    ),
     .clk            ( clk48         ),
-
-    .enable_adpcm   ( enable_psg    ),
-    .enable_fm      ( enable_fm     ),
 
     // Interface with main CPU
     .snd_latch0     ( snd_latch0    ),
@@ -418,7 +415,7 @@ reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
 wire nc0, nc1, nc2, nc3;
-
+/* verilator tracing_off */
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),

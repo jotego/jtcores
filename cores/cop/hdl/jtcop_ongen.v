@@ -52,7 +52,7 @@ module jtcop_ongen(
 );
 
 parameter [7:0] OPL_GAIN = 8'h10,
-                PCM_GAIN = 8'h10,
+                PCM_GAIN = 8'h20,
                 PSG_GAIN = 8'h10;
 parameter       KARNOV   = 0;
 

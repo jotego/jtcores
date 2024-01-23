@@ -47,7 +47,7 @@ module jtpang_snd(
 );
 
 localparam [7:0] FM_GAIN  = 8'h10,
-                 PCM_GAIN = 8'h08;
+                 PCM_GAIN = 8'h18;
 
 wire signed [15:0] fm_snd;
 wire signed [13:0] pcm_snd;
@@ -69,7 +69,7 @@ jt2413 u_jt2413 (
 );
 /* verilator tracing_off */
 
-jt6295 #(.INTERPOL(0)) u_pcm (
+jt6295 #(.INTERPOL(1)) u_pcm (
     .rst     ( rst      ),
     .clk     ( clk      ),
     .cen     ( pcm_cen  ),

@@ -23,8 +23,6 @@ module jtcps1_sound(
     // Interface with main CPU
     input         [ 7:0] snd_latch0,
     input         [ 7:0] snd_latch1,
-    input                enable_adpcm,
-    input                enable_fm,
 
     // ROM
     output    reg [15:0] rom_addr,
@@ -46,21 +44,24 @@ module jtcps1_sound(
     input         [ 7:0] debug_bus
 );
 
-(*keep*) wire cen_fm, cen_fm2, cen_oki, nc, cpu_cen;
-wire signed [13:0] oki_pre, oki_pole;
+localparam [7:0] FMGAIN = 8'h06;
+
+wire cen_fm, cen_fm2, cen_oki, nc, cpu_cen;
+wire signed [13:0] oki_pre, oki_pole, oki_dcrm;
 wire signed [15:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 wire               peak_l, peak_r;
 wire               oki_sample;
+wire               pcm_en, fm_en;
+reg         [ 7:0] fmgain, pcmgain;
 
-localparam [7:0] FMGAIN = 8'h06;
-
-wire [7:0] fmgain  = enable_fm ? FMGAIN  : 8'h0;
-reg  [7:0] pcmgain;
+assign pcm_en = 1; //~debug_bus[0];
+assign fm_en  = 1; //~debug_bus[1];
 
 always @(posedge clk) begin
     peak <= peak_r | peak_l;
-    pcmgain <= enable_adpcm ? 8'h6 : 0;
+    pcmgain <= pcm_en ? 8'h16 : 8'h0;
+    fmgain  <= fm_en ? FMGAIN  : 8'h0;
 end
 
 jtframe_mixer #(.W1(16),.WOUT(16)) u_left(
@@ -230,7 +231,7 @@ jtframe_z80_romwait u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok & rom_ok2     )
 );
-
+/* verilator tracing_off */
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
@@ -252,7 +253,7 @@ jt51 u_jt51(
     .xleft      ( fm_left   ),
     .xright     ( fm_right  )
 );
-
+/* verilator tracing_on */
 assign adpcm_cs = 1'b1;
 
 jt6295 #(.INTERPOL(1)) u_adpcm(
@@ -273,12 +274,21 @@ jt6295 #(.INTERPOL(1)) u_adpcm(
     .sample     ( oki_sample)   // ~26kHz
 );
 
+jtframe_dcrm #(.SW(14),.SIGNED_INPUT(1))u_dcrm(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sample     ( oki_sample),
+    .din        ( oki_pre   ),
+    .dout       ( oki_dcrm  )
+);
+
 jtframe_pole #(.WS(14)) u_pole(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( oki_sample),
-    .a          ( 7'h53     ),
-    .sin        ( oki_pre   ),
+    .a          ( 7'h40     ),
+    // .a          ( debug_bus[7:1]     ),
+    .sin        ( oki_dcrm  ),
     .sout       ( oki_pole  )
 );
 
