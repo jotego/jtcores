@@ -1,10 +1,18 @@
 #!/bin/bash
 # Make a release to JTBIN from GitHub builds
 
+function on_error {
+	if [ -d $DST ]; then
+		echo "Deleting $DST"
+		rm -rf $DST;
+	fi
+}
+
+trap on_error ERR
 set -e
 
 HASH=
-SKIPROM=
+SKIPROM=--skipROM
 VERBOSE=
 BUILDS=/nobackup/core-builds
 
@@ -15,8 +23,8 @@ while [ $# -gt 0 ]; do
 		--host)
 			shift
 			export MRHOST=$1;;
-		-s|--skipROM)
-			SKIPROM=--skipROM;;
+		-r|skipROM)
+			SKIPROM=;;
 		-v|--verbose)
 			VERBOSE=1;;
 		-h|--help)
@@ -55,7 +63,7 @@ if [ ! -e $REF ]; then
 	exit 125
 fi
 
-DST=`mktemp -d`
+DST=`mktemp -d /tmp/jt_XXXXXX`
 git clone $JTROOT $DST
 cd $DST
 . setprj.sh
@@ -64,9 +72,20 @@ git checkout $HASH
 git submodule init $JTFRAME/target/pocket
 git submodule update $JTFRAME/target/pocket
 jtframe > /dev/null
-unzip $REF -d release
+echo "Unzipping $REF"
+unzip -q $REF -d release
 if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
-jtframe mra `find release/{mister,sidi} -name "*rbf*" | xargs -l -I_ basename _ .rbf | sort | uniq | sed s/^jt//` $SKIPROM
+
+# Regenerate the MRA files to include md5 sums
+rm -rf release/mra
+find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
+find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// > mister.cores
+jtframe mra $SKIPROM --md5 `cat pocket.cores`
+comm -3 pocket.cores mister.cores > other.cores
+if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
+	cat other.cores
+	jtframe mra $SKIPROM --md5 --skipPocket `cat other.cores`
+fi
 
 if [ -z "$SKIPROM" ]; then
 	jtbin2sd &
@@ -77,11 +96,13 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	cd $JTBIN
 	if [ -d .git ]; then git checkout -b $(date +"%Y%m%d"); fi
 	cp -r $DST/release/* .
-	# remove games in beta phase for SiDi and MiST
+	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi; do
 		for i in $JTBIN/$t/*.rbf; do
 			corename=`basename $i .rbf`
-			if grep "${corename#jt}.*mister" $JTROOT/beta.yaml > /dev/null; then rm -v $i; fi
+			if jtframe cfgstr ${corename#jt} -o bash -t mister | grep JTFRAME_UNLOCKKEY > /dev/null; then
+				rm -v $i;
+			fi
 		done
 	done
 else
