@@ -22,7 +22,6 @@ mkdir $JTUTIL
 printf "%08x" 0x$BETAKEY | xxd -r -p > $JTUTIL/beta.bin
 ls -l $JTUTIL/beta.bin
 
-MRADONE=
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     # Beta key is enabled for cores listed in beta.yaml
     for TARGET in $*; do
@@ -30,10 +29,8 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
             echo "Skipping $CORENAME for $TARGET because of JTFRAME_SKIP"
             continue
         fi
-        if [ -z "$MRADONE" ]; then
-            jtframe mra --skipROM $CORENAME
-            MRADONE=1
-        fi
+        if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
+        jtframe mra --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
         jtseed 4 $CORENAME -$TARGET --nodbg
     done
