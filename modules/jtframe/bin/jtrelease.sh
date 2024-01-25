@@ -14,7 +14,7 @@ set -e
 HASH=
 SKIPROM=--skipROM
 VERBOSE=
-BUILDS=/nobackup/core-builds
+BUILDS=/gdrive/jotego/core-builds
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -23,7 +23,7 @@ while [ $# -gt 0 ]; do
 		--host)
 			shift
 			export MRHOST=$1;;
-		-r|skipROM)
+		-r|--rom)
 			SKIPROM=;;
 		-v|--verbose)
 			VERBOSE=1;;
@@ -80,15 +80,11 @@ if [ -d release/release ]; then mv release/release/* release; rmdir release/rele
 rm -rf release/mra
 find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
 find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// > mister.cores
-jtframe mra $SKIPROM --md5 `cat pocket.cores`
+jtframe mra $SKIPROM --md5 --git `cat pocket.cores`
 comm -3 pocket.cores mister.cores > other.cores
 if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
 	cat other.cores
-	jtframe mra $SKIPROM --md5 --skipPocket `cat other.cores`
-fi
-
-if [ -z "$SKIPROM" ]; then
-	jtbin2sd &
+	jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores`
 fi
 
 if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
