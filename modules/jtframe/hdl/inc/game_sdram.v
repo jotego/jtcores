@@ -234,7 +234,11 @@ assign ioctl_dwn = ioctl_rom | ioctl_cart;
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
     .HEADER    ( `JTFRAME_HEADER   ),
-`endif
+`endif{{ if .Balut }}
+    .BALUT      ( {{.Balut}}    ),  // Using offsets in header for
+    .LUTSH      ( {{.Lutsh}}    ),  // bank assignment
+    .LUTDW      ( {{.Lutdw}}    ),
+{{else}}
 `ifdef JTFRAME_BA1_START
     .BA1_START ( BA1_START ),
 `endif
@@ -243,7 +247,7 @@ jtframe_dwnld #(
 `endif
 `ifdef JTFRAME_BA3_START
     .BA3_START ( BA3_START ),
-`endif
+`endif{{end}}
 `ifdef JTFRAME_PROM_START
     .PROM_START( PROM_START ),
 `endif
@@ -271,7 +275,6 @@ jtframe_dwnld #(
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
-`ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}

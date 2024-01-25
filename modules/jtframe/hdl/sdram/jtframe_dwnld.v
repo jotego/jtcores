@@ -129,9 +129,10 @@ generate
                     part_addr >= BA1_START ? 2'd1 : 2'd0 )));
         end
     end else begin
+        localparam BALUT_LEN=BALUT*LUTDW/8;
         reg [LUTDW*BALUT-1:0] ba_start=0; // BALUT must be 1-3
         always @(posedge clk) begin
-            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[3:0]<(BALUT*LUTDW/8) ) begin
+            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[6:0]<BALUT_LEN[6:0] ) begin
                 ba_start <= { ioctl_dout, ba_start[LUTDW*BALUT-1:8] };
             end
         end
@@ -143,7 +144,6 @@ generate
         end
     end
 endgenerate
-
 
 always @(posedge clk) begin
     if ( ioctl_wr && ioctl_rom && !header ) begin

@@ -345,7 +345,7 @@ reg [3:0] rst_snd;
 always @(posedge clk) begin
     rst_snd <= { rst_snd[2:0], rst48 };
 end
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtcps1_sound u_sound(
     .rst            ( rst_snd[3]    ),
     .clk            ( clk48         ),
@@ -388,7 +388,7 @@ reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
 wire nc0, nc1, nc2, nc3;
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),

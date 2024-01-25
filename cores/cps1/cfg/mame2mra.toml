@@ -176,7 +176,7 @@ regions=[
     { name="gfx", width=64 },
     # So far, Pang!3 is too specific. It needs to break each file in two and
     # merge them back in different locations. Instead of parsing MAME's XML
-    # the desigred parts are done manually:
+    # the desired parts are done manually:
     { name="gfx", width=64, machine="pang3", parts=[
         { name="pa3-01m.2c", crc="068a152c", map="00000021", length=0x100000, offset=0 },
         { name="pa3-07m.2f", crc="3a4a619d", map="00002100", length=0x100000, offset=0 },

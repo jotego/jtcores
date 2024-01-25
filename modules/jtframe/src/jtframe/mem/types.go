@@ -160,4 +160,5 @@ type MemConfig struct {
     Gfx8     string
     Gfx16    string
     Gfx8b0, Gfx16b0 int
+    Balut,Lutsh,Lutdw int
 }
