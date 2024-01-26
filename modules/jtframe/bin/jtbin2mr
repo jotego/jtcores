@@ -94,6 +94,9 @@ if [ -d /media/$USER/MiSTer_Data ]; then
     echo "MiSTer SD card detected"
     rm -rf /media/$USER/MiSTer_Data/_JTBIN
     cp -r $TEMP/_JTBIN /media/$USER/MiSTer_Data || echo "Copy to MiSTer SD card failed"
+    if [ -e $JTUTIL/jtbeta.zip ]; then
+        cp $JTUTIL/jtbeta.zip /media/$USER/MiSTer_Data/games/mame
+    fi
 elif ping -c 1 -q $MRHOST > /dev/null; then
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/_JTBIN"
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"

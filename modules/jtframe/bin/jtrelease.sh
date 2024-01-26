@@ -81,7 +81,11 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	echo "Copying to $JTBIN"
 	cd $JTBIN
 	if [ -d .git ]; then
-		git checkout -b $(date +"%Y%m%d");
+		BRANCH=jtcores_$HASH
+		git reset --hard
+		git clean -fd .
+		git branch -D $BRANCH || true
+		git checkout -b $BRANCH
 		rm -rf mist sidi pocket mister mra
 	fi
 	# Regenerate the MRA files to include md5 sums
