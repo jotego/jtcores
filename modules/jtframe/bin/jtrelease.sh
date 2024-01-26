@@ -72,6 +72,7 @@ git checkout $HASH
 git submodule init $JTFRAME/target/pocket
 git submodule update $JTFRAME/target/pocket
 jtframe > /dev/null
+jtutil > /dev/null
 echo "Unzipping $REF"
 unzip -q $REF -d release
 if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
@@ -101,6 +102,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	fi
 	# copy RBF files
 	cd $JTBIN
+	jtutil md5
 	cp -r $DST/release/* .
 	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi; do
