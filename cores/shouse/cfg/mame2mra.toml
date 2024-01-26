@@ -6,7 +6,7 @@ skip = { machines=[
     "blastoff",
     "blazer",
     "boxyboy",
-    # "dangseed",
+    "dangseed",
     "dspirit",
     "faceoff",
     "galaga88",
