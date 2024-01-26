@@ -76,21 +76,27 @@ echo "Unzipping $REF"
 unzip -q $REF -d release
 if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
 
-# Regenerate the MRA files to include md5 sums
-rm -rf release/mra
-find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
-find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// > mister.cores
-jtframe mra $SKIPROM --md5 --git `cat pocket.cores`
-comm -3 pocket.cores mister.cores > other.cores
-if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
-	cat other.cores
-	jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores`
-fi
 
 if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	echo "Copying to $JTBIN"
 	cd $JTBIN
-	if [ -d .git ]; then git checkout -b $(date +"%Y%m%d"); fi
+	if [ -d .git ]; then
+		git checkout -b $(date +"%Y%m%d");
+		rm -rf mist sidi pocket mister mra
+	fi
+	# Regenerate the MRA files to include md5 sums
+	cd $DST
+	rm -rf release/mra
+	find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
+	find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// > mister.cores
+	jtframe mra $SKIPROM --md5 --git `cat pocket.cores`
+	comm -3 pocket.cores mister.cores > other.cores
+	if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
+		cat other.cores
+		jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores`
+	fi
+	# copy RBF files
+	cd $JTBIN
 	cp -r $DST/release/* .
 	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi; do
@@ -101,10 +107,12 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 			fi
 		done
 	done
+	# new git commit
+	git add mist sidi pocket mister mra
+	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASH"
 else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
 	exit 0
 fi
 
-wait
 rm -rf $DST
