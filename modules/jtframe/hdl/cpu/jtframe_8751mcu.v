@@ -126,7 +126,7 @@ jtframe_dual_ram_cen #(.AW(7)) u_ramu(
     .clk0       ( clk               ),
     .cen0       ( 1'b1              ),
     .addr0      ( ram_prog_addr     ),
-    .data0      ( ram_prog_data     ),
+    .data0      ( ram_prog_din      ),
     .we0        ( ram_prog_we       ),
     .q0         (                   ),
     // Port 1
