@@ -47,7 +47,13 @@ module jtframe_8751mcu(
     input         clk_rom,
     input [11:0]  prog_addr,
     input [ 7:0]  prom_din,
-    input         prom_we
+    input         prom_we,
+
+    // RAM preload/reset
+    input         clk_ram,
+    input [ 6:0]  ram_prog_addr,
+    input [ 7:0]  ram_prog_din,
+    input         ram_prog_we
 );
 
 parameter ROMBIN="",
@@ -115,13 +121,21 @@ jtframe_dual_ram_cen #(.AW(12),.SIMFILE(ROMBIN)) u_prom(
     .q1     ( rom_data  )
 );
 
-jtframe_ram #(.AW(7),.CEN_RD(1)) u_ramu(
-    .clk        ( clk               ),
-    .cen        ( cen_eff           ),
-    .addr       ( ram_addr          ),
-    .data       ( ram_data          ),
-    .we         ( ram_we            ),
-    .q          ( ram_q             )
+jtframe_dual_ram_cen #(.AW(7)) u_ramu(
+    // Port 0
+    .clk0       ( clk               ),
+    .cen0       ( 1'b1              ),
+    .addr0      ( ram_prog_addr     ),
+    .data0      ( ram_prog_data     ),
+    .we0        ( ram_prog_we       ),
+    .q0         (                   ),
+    // Port 1
+    .clk1       ( clk               ),
+    .cen1       ( cen_eff           ),
+    .addr1      ( ram_addr          ),
+    .data1      ( ram_data          ),
+    .we1        ( ram_we            ),
+    .q1         ( ram_q             )
 );
 
 wire [ 7:0] pre_dout;
