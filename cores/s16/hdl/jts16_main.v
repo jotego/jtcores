@@ -160,12 +160,12 @@ assign IPLn  = mcu_en ? mcu_ctrl[2:0] : { irqn, 2'b11 };
 
 // No peripheral bus access for now
 assign cpu_addr = A[12:1];
-assign rom_addr = {1'b0, A[17:1]}; // only 256kB on System 16A
+assign rom_addr = {1'b0, ram_cs ? 4'd0 : A[17:14], A[13:1]}; // only 256kB on System 16A
 assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
                               && !io_cs  && !wdog_cs && pre_vram_cs && pre_ram_cs);
 
 always @(negedge clk) begin
-    cpu_rst <= rst | (~mcu_ctrl[6] & mcu_en);
+    cpu_rst <= rst | (mcu_ctrl[6] & mcu_en);
 end
 
 localparam [23:16] NOTHING_CS = 8'h0f; // this will not select rom_cs or anything else
@@ -184,7 +184,7 @@ always @(posedge clk, posedge rst) begin
             pre_ram_cs  <= 0;
             //rom_addr  <= 0;
     end else begin
-        if( BGACKn ? !ASn : mcu_acc ) begin
+        if( (!mcu_bus) ? !ASn : mcu_acc ) begin
             rom_cs    <= A[23:22]==0 && !A[18];         // 00-03
             char_cs   <= A[22] && A[18:16]==1;    // 41
             //if( !A[23] ) rom_addr <= A[17:1];
@@ -380,27 +380,30 @@ end
 
 
 `ifndef NOMCU
-    reg [1:0] mcu_aux;
+    reg [6:0] mcu_rst_addr;
+    reg       mcu_rst;
     reg [7:0] mcu_din;
     wire      mcu_br;
-    wire      mcu_rst;
 
-    assign mcu_bus = ~BGACKn;
+    assign mcu_bus = ~BGACKn | cpu_rst;
     assign mcu_br  = mcu_en & mcu_acc;
-    assign mcu_rst = mcu_aux[1];
 
     always @(posedge clk24, posedge rst24) begin
         if( rst24 ) begin
-            mcu_aux <= 3;
-        end else begin
-            mcu_aux <= mcu_en ? mcu_aux<<1 : 2'd3;
+            mcu_rst_addr <= 7'h7F;
+            mcu_rst <= 1'b1;
+        end else if (mcu_en) begin
+            if (|mcu_rst_addr)
+                mcu_rst_addr <= mcu_rst_addr - 1'd1;
+            else
+                mcu_rst <= 1'b0;
         end
     end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
             mcu_din <= 0;
-        end else if(!BGACKn) begin
+        end else if(mcu_bus) begin
             mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
@@ -426,20 +429,23 @@ end
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
 
+    always @(*) begin
+        case(mcu_ctrl[5:3])
+            0: mcu_top = mcu_addr[15:14]==2'b01 ? 8'hc7 : // work RAM
+                         mcu_addr[15:14]==2'b10 ? 8'hc4 : NOTHING_CS; // IO space
+            1: mcu_top = mcu_addr[15:12]==8     ? 8'h41 : NOTHING_CS; // text RAM
+            3: mcu_top = 8'h84; // Palette
+            5: mcu_top = 8'h0; // ROM 0
+            6: mcu_top = 8'h1; // ROM 1
+            7: mcu_top = 8'h2; // ROM 2
+            default: mcu_top = NOTHING_CS;
+        endcase
+    end
+
     // This is done by IC69 (a 82S153 programmable logic chip)
     always @(posedge clk) begin
-        case(mcu_ctrl[5:3])
-            0: mcu_top <= mcu_addr[15:14]==2'b01 ? 8'hc7 : // work RAM
-                          mcu_addr[15:14]==2'b10 ? 8'hc4 : NOTHING_CS; // IO space
-            1: mcu_top <= mcu_addr[15:12]==8     ? 8'h41 : NOTHING_CS; // text RAM
-            3: mcu_top <= 8'h84; // Palette
-            5: mcu_top <= 8'h0; // ROM 0
-            6: mcu_top <= 8'h1; // ROM 1
-            7: mcu_top <= 8'h2; // ROM 2
-            default: mcu_top <= NOTHING_CS;
-        endcase
         BGACKnl <= BGACKn;
-        if( !mcu_cen ) mcu_ok = (BRn & BGACKn) | (
+        if( !mcu_cen ) mcu_ok <= cpu_rst | (BRn & BGACKn) | (
             BGACKnl ? 1'b0   :
             rom_cs  ? rom_ok :
             ram_cs  ? ram_ok : 1'b1 );
@@ -456,7 +462,7 @@ end
         .cpu_BGn    ( BGn       ),
         .cpu_ASn    ( ASn       ),
         .cpu_DTACKn ( DTACKn    ),
-        .dev_br     ( mcu_br    )      // high to signal a bus request from a device
+        .dev_br     ( !cpu_rst & mcu_br )      // high to signal a bus request from a device
     );
 
     jtframe_8751mcu #(
@@ -474,7 +480,7 @@ end
         .int1n      ( ppib_dout[6]  ),
 
         .p0_i       ( mcu_din       ),
-        .p1_i       ( 8'hff         ),
+        .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
         .p3_i       ( 8'hff         ),
 
@@ -494,7 +500,13 @@ end
         .clk_rom    ( clk           ),
         .prog_addr  (prog_addr[11:0]),
         .prom_din   ( prog_data     ),
-        .prom_we    ( mcu_prog_we   )
+        .prom_we    ( mcu_prog_we   ),
+
+        // RAM reset
+        .clk_ram      ( clk24       ),
+        .ram_prog_addr( mcu_rst_addr),
+        .ram_prog_din ( 8'd0        ),
+        .ram_prog_we  ( mcu_rst     )
     );
 `else
     assign BRn   = 1;
@@ -511,7 +523,7 @@ end
 `endif
 
 jt8255 u_8255(
-    .rst       ( rst        ),
+    .rst       ( cpu_rst    ),
     .clk       ( clk        ),
 
     // CPU interface
@@ -551,7 +563,9 @@ end
 wire       inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 reg        last_vint;
 
-assign VPAn = inta_n | (mcu_en & mcu_ctrl[7]);
+// VPAn masking by the MCU is disabled, because mcu_ctrl[7] never goes down.
+// Maybe need to implement the missing logic to t0_i to make it work?
+assign VPAn = inta_n;// | (mcu_en & mcu_ctrl[7]);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
