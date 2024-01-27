@@ -69,6 +69,7 @@ cd $DST
 . setprj.sh
 cd $DST
 git checkout $HASH
+HASHLONG=`git rev-parse HEAD`
 git submodule init $JTFRAME/target/pocket
 git submodule update $JTFRAME/target/pocket
 jtframe > /dev/null
@@ -115,7 +116,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	done
 	# new git commit
 	git add mist sidi pocket mister mra
-	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASH"
+	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
 	exit 0
