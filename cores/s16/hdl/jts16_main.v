@@ -165,7 +165,7 @@ assign rom_addr = {1'b0, ram_cs ? 4'd0 : A[17:14], A[13:1]}; // only 256kB on Sy
 assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
                               && !io_cs  && !wdog_cs && pre_vram_cs && pre_ram_cs);
 
-always @(negedge clk) begin
+always @(posedge clk) begin
     cpu_rst <= rst | (mcu_ctrl[6] & mcu_en);
 end
 
