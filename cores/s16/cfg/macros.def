@@ -83,3 +83,6 @@ JTFRAME_ROTCCW
 
 [mist]
 JTFRAME_NOSTA
+
+[sidi]
+NOMCU
