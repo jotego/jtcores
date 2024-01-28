@@ -94,7 +94,13 @@ jtframe_8751mcu u_mcu(
     .clk_rom    ( clk_rom   ),
     .prog_addr  ( prog_addr ),
     .prom_din   ( prom_din  ),
-    .prom_we    ( prom_we   )
+    .prom_we    ( prom_we   ),
+
+    .clk_ram    ( 1'b0      ),
+    .ram_prog_addr( 7'd0    ),
+    .ram_prog_din( 8'd0     ),
+    .ram_prog_we ( 1'b0     )
+
 );
 
 endmodule
