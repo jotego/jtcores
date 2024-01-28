@@ -22,9 +22,9 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
 
 st_addr[7:4] |  Read
 -------------|-------------------------------------------------------
-  00_00      |  SDRAM stats
-  00_01      |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
-  01_??      |  Frame count in BCD (hundreds. Set st_addr[0] for tens/units)
+  00_??      |  Frame count in BCD (hundreds. Set st_addr[0] for tenths/units)
+  01_00      |  SDRAM stats
+  01_01      |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
   10_00      |  Audio output sample rate (BCD)
   10_01      |  dipsw[ 7: 0]
   10_10      |  dipsw[15: 8]

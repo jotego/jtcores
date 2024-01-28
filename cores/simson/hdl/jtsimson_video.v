@@ -20,6 +20,7 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
+    input             paroda,
 
     // Base Video
     input             pxl_cen,
@@ -34,6 +35,7 @@ module jtsimson_video(
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
     input             cpu_we,
+    input             pal_bank,
 
     output     [ 7:0] pal_dout,
     output     [ 7:0] tilesys_dout,
@@ -87,12 +89,13 @@ module jtsimson_video(
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
-wire [11:0] lyra_pxl, lyrb_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl, pal_addr;
 wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 
+assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
 
 // Debug
@@ -113,13 +116,14 @@ always @(posedge clk) begin
         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    .paroda     ( paroda    ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -215,7 +219,7 @@ jtsimson_obj u_obj(    // sprite logic
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h5000 ),
+    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     // .gfx_en     ( gfx_en    ),
@@ -233,7 +237,7 @@ jtsimson_colmix u_colmix(
     .lvbl       ( lvbl      ),
 
     // CPU interface
-    .cpu_addr   (cpu_addr[11:0]),
+    .cpu_addr   ( pal_addr  ),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),

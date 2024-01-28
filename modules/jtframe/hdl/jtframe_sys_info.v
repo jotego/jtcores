@@ -72,15 +72,15 @@ always @(posedge clk, posedge rst) begin
     end else begin
         LVBLl <= LVBL;
         case( st_addr[7:6] )
-            0: case(st_addr[5:4])
-                0: st_dout <= stats;
-                1: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
-                default: st_dout <= 0;
-            endcase
-            1: case( st_addr[1:0] )
+            0: case( st_addr[1:0] )
                 0: st_dout <= frame_bcd[15:8];
                 1: st_dout <= frame_bcd[7:0];
                 2: st_dout <= {4'd0, frame_bcd[19:16]};
+                default: st_dout <= 0;
+            endcase
+            1: case(st_addr[5:4])
+                0: st_dout <= stats;
+                1: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
                 default: st_dout <= 0;
             endcase
             2: case( st_addr[5:4] )

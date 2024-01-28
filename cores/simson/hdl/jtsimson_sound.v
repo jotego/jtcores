@@ -21,6 +21,8 @@ module jtsimson_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
+    input           paroda,
+
     input   [ 1:0]  fxlevel,
     input           enable_fm,
     input           enable_psg,
@@ -82,23 +84,23 @@ reg         [ 3:0]  pcm_msb;
 reg         [ 7:0]  fmgain, fxgain;
 
 
-assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
+assign rom_addr = paroda ? {1'd0,A[15:0]} : { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
 assign st_dout  = fm_dout;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
     af       = A[15:12]==4'hf;
     rom_cs   = mem_acc && !af;
-    ram_cs   = mem_acc && af && !A[11];
+    ram_cs   = mem_acc &&  af && !A[11];
     bank_cs  = 0;
     nmi_clr  = 0;
     fm_cs    = 0;
     pcm_cs   = 0;
     if( mem_acc && af ) case(A[11:9])
-        7: bank_cs = 1;
-        6: pcm_cs  = 1;
-        5: nmi_clr = 1;
         4: fm_cs   = 1;
+        5: nmi_clr = 1;
+        6: pcm_cs  = 1;
+        7: bank_cs = !paroda;     // unused in Parodius
         default:;
     endcase
 end
@@ -131,7 +133,7 @@ always @(posedge clk, posedge rst) begin
         peak <= peak_r | peak_l;
     end
 end
-
+/* verilator tracing_off */
 jtframe_edge #(.QSET(0)) u_edge (
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -171,7 +173,7 @@ jtframe_mixer #(.W0(16),.W1(14)) u_mix_r(
     .mixed  ( snd_r      ),
     .peak   ( peak_r     )
 );
-
+/* verilator tracing_on */
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -219,7 +221,7 @@ jt51 u_jt51(
     .xleft      ( fm_l      ),
     .xright     ( fm_r      )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jt053260 u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),

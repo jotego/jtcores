@@ -187,13 +187,22 @@ localparam POCKET=0;
                         f=$fopen(SIMFILE,"rb");
                         if( f != 0 ) begin
                             readcnt=$fread( mem, f );
-                            $display("INFO: Read %14s (%4d bytes/%2d%%) for %m",
-                                SIMFILE, readcnt, readcnt*100/(2**AW));
-                            if( readcnt != 2**AW )
-                                $display("      the memory was not filled by the file data");
+                            $display("-%-10s (%4d bytes) %m",
+                                SIMFILE, readcnt);
+                            if( readcnt != 2**AW && readcnt!=0)
+                                $display("\tthe memory was not filled by the file data");
                             $fclose(f);
                         end else begin
-                            $display("WARNING: %m cannot open file: %s", SIMFILE);
+                            f=$fopen(SIMFILE,"wb");
+                            if( f!=0 ) begin
+                                for( readcnt=0; readcnt<(2**AW)-1; readcnt=readcnt+2) begin
+                                    $fwrite(f,"%u",32'hffff);
+                                end
+                                $fclose(f);
+                                $display("Blank %s created",SIMFILE);
+                            end else begin
+                                $display("WARNING: %m cannot open file: %s", SIMFILE);
+                            end
                         end
                         end
                     else begin

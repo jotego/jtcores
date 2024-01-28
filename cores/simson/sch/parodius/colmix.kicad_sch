@@ -4516,7 +4516,7 @@
     (pin "27" (uuid a6ee4f5e-8c9d-468b-bea7-e5efbb64ab6d))
     (pin "28" (uuid cbfdfe4c-6dbe-403b-81d2-dd448e26b866))
     (pin "29" (uuid c04ba44b-6243-40c2-96c0-7f7a78f61caa))
-    (pin "29" (uuid c04ba44b-6243-40c2-96c0-7f7a78f61caa))
+    (pin "29" (uuid c04ba44b-6243-40c2-96c0-7f7a78f61cab))
     (pin "3" (uuid 97524121-06bb-469d-9b84-b9e76aa6a6f4))
     (pin "30" (uuid 274b44a3-c296-43d4-952a-ecf0152c6f70))
     (pin "31" (uuid cd70802f-c15d-43d5-8a3b-1d263a2285c3))

@@ -168,14 +168,14 @@ void parodius_state::videobank_w(uint8_t data)
 	if (data & 0xf8)
 		logerror("%04x: videobank = %02x\n", m_maincpu->pc(), data);
 
-	// bit 0 = select palette or work RAM at 0000-07ff
+	// bit 0 = select palette (0) or work RAM (1) at 0000-07ff
 	// bit 1 = select 052109 or 053245 at 2000-27ff
 	// bit 2 = select palette bank 0 or 1
 
 	if (data & 1)
-		m_bank0000->set_bank(2 + ((data & 4) >> 2));
+		m_bank0000->set_bank(2 + ((data & 4) >> 2));	// palette
 	else
-		m_bank0000->set_bank(0);
+		m_bank0000->set_bank(0);						// work RAM
 
 	m_view_2000.select((data & 2) >> 1);
 }

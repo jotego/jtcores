@@ -79,12 +79,14 @@ module jt053260 (
 
     reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
                   pan2_l, pan2_r, pan3_l, pan3_r;
-    wire          mmr_en;
+    reg           tst_rd, tst_rdl;
+    wire          mmr_en, tst_nx;
 
     assign sample = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
     assign mmr_en = addr[5:3]>=1 && addr[5:3]<=4;
     assign mmr_we = {4{ cs & ~wr_n & mmr_en }} &
                     { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
+    assign tst_nx = tst_rd & ~tst_rdl;
 
     function [13:0] acc( input [11:0] c0, c1, c2, c3 );
         acc = { {2{c0[11]}}, c0 } + { {2{c1[11]}}, c1 } + { {2{c2[11]}}, c2 } + { {2{c3[11]}}, c3 };
@@ -119,11 +121,14 @@ module jt053260 (
     // Interface with sound CPU
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            ps2m[0]   <= 0; ps2m[1]    <= 0;
+            ps2m[0] <= 0; ps2m[1] <= 0;
             ch0_pan <= 0; ch1_pan <= 0; ch2_pan <= 0; ch3_pan <= 0;
-            keyon  <= 4'hF; loop <= 0; mode    <= 0; adpcm_en <=0;
-            dout <= 0;
+            keyon   <= 4'hF; loop <= 0; mode    <= 0; adpcm_en <=0;
+            dout    <= 0;
+            tst_rd  <= 0;
+            tst_rdl <= 0;
         end else begin
+            tst_rdl <= tst_rd;
             if( cs ) begin
                 if ( !wr_n ) begin
                     case ( addr )
@@ -139,9 +144,14 @@ module jt053260 (
                 if (!rd_n) case ( addr )
                     0,1:     dout <= pm2s[addr[0]];
                     6'h29:   dout <= {4'd0,~over};
-                    6'h2E:   dout <= mode[0] ? roma_data : 8'd0;
+                    6'h2E:   begin
+                        if( !tst_rd ) dout <= mode[0] ? roma_data : 8'd0;
+                        tst_rd <= 1;
+                    end
                     default: dout <= 0;
                 endcase
+            end else begin
+                tst_rd <= 0;
             end
         end
     end
@@ -193,6 +203,8 @@ module jt053260 (
         .din      ( din         ),
         .we       ( mmr_we[0]   ),
 
+        .tst_en   ( mode[0]     ),
+        .tst_nx   ( tst_nx      ),
         .pan_l    ( pan0_l      ),
         .pan_r    ( pan0_r      ),
         .keyon    ( keyon[0]    ),
@@ -218,6 +230,8 @@ module jt053260 (
         .din      ( din         ),
         .we       ( mmr_we[1]   ),
 
+        .tst_en   ( 1'b0        ),
+        .tst_nx   ( 1'b0        ),
         .pan_l    ( pan1_l      ),
         .pan_r    ( pan1_r      ),
         .keyon    ( keyon[1]    ),
@@ -243,6 +257,8 @@ module jt053260 (
         .din      ( din         ),
         .we       ( mmr_we[2]   ),
 
+        .tst_en   ( 1'b0        ),
+        .tst_nx   ( 1'b0        ),
         .pan_l    ( pan2_l      ),
         .pan_r    ( pan2_r      ),
         .keyon    ( keyon[2]    ),
@@ -268,6 +284,8 @@ module jt053260 (
         .din      ( din         ),
         .we       ( mmr_we[3]   ),
 
+        .tst_en   ( 1'b0        ),
+        .tst_nx   ( 1'b0        ),
         .pan_l    ( pan3_l      ),
         .pan_r    ( pan3_r      ),
         .keyon    ( keyon[3]    ),
@@ -296,6 +314,8 @@ module jt053260_channel(
     input                    we,
 
     input                    keyon,
+    input                    tst_en,
+    input                    tst_nx,
     input                    loop,
     input                    adpcm_en,
     input             [ 6:0] pan_l, pan_r,
@@ -396,11 +416,15 @@ module jt053260_channel(
             rom_cs <= 1;
             if( cnt_up ) cnt <= cnt - 1'd1;
             if( !keyon ) begin
-                rom_addr  <= start+21'd1; // skip first byte for ADPCM
+                if(!tst_en || we) begin
+                    rom_addr <= start+21'd1; // skip first byte for ADPCM
+                end else if( tst_en && tst_nx ) begin
+                    rom_addr <= rom_addr+1'd1;
+                end
                 cnt       <= {1'd0, length};
                 adpcm_cnt <= 0;
                 pre_snd   <= 0;
-                rom_cs    <= 0;
+                rom_cs    <= tst_en;
                 pitch_cnt <= pitch;
                 cnt_up    <= 0;
             end else if( cen ) begin

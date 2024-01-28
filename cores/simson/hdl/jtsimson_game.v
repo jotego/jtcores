@@ -23,13 +23,15 @@ module jtsimson_game(
 /* verilator tracing_off */
 wire [ 7:0] snd2main, video_dump;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
+wire        pal_we, pal_bank,
+            cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
 wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs, io_nvram;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd, nvram_dump;
 wire [14:0] video_dumpa;
 reg  [ 7:0] debug_mux;
+reg         paroda; // 1 for Parodius
 wire        eep_dwn;
 
 assign debug_view = debug_mux;
@@ -40,6 +42,7 @@ assign ioctl_din  = io_nvram ?  nvram_dump : video_dump;
 assign video_dumpa= ioctl_addr[14:0]-15'h80;
 
 always @(posedge clk) begin
+    if( header && prog_we && prog_addr[1:0]==0 ) paroda <= prog_data[0];
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
@@ -49,12 +52,14 @@ always @(posedge clk) begin
 end
 
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen_ref        ( cen24         ), // should it be cen12?
     .cpu_cen        ( cpu_cen       ),
+
+    .paroda         ( paroda        ),
 
     .cpu_dout       ( cpu_dout      ),
     .cpu_we         ( cpu_we        ),
@@ -90,6 +95,7 @@ jtsimson_main u_main(
     .pcu_cs         ( pcu_cs        ),
     .init           ( init          ),
     .rmrd           ( rmrd          ),
+    .pal_bank       ( pal_bank      ),
     .pal_we         ( pal_we        ),
     .objcha_n       ( objcha_n      ),
     // To sound
@@ -106,17 +112,20 @@ jtsimson_main u_main(
     // DIP switches
     .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),
+    .dipsw          ( dipsw[19:0]   ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
+
+    .paroda     ( paroda        ),
     .fxlevel    ( dip_fxlevel   ),
     .enable_fm  ( enable_fm     ),
     .enable_psg ( enable_psg    ),
@@ -162,11 +171,12 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
     .clk            ( clk           ),
+    .paroda         ( paroda        ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),
@@ -186,6 +196,7 @@ jtsimson_video u_video (
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
 
+    .pal_bank       ( pal_bank      ),
     .pal_we         ( pal_we        ),
     .pcu_cs         ( pcu_cs        ),
     .tilesys_cs     ( tilesys_cs    ),

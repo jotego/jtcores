@@ -1,0 +1,30 @@
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, Output feedback output, Active low)
+18 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/JOYSTK  = AS  & A9  & A8  & A7  & i6  & /A6  & /A5  & /A4 
+
+/IOCS  = AS  & A9  & A8  & A7  & i6  & /A6  & /A5  & A4 
+
+/MISC  = AS  & A9  & A8  & A7  & i6  & A6  & /A5  & /A4 
+
+/o15 = A9  & A8  & A7  & i6 
+
+/PCU  = AS  & A9  & A8  & A7  & i6  & /A6  & A5  & A4 
+
+/OBJCFG  = AS  & A9  & A8  & A7  & i6  & /A6  & A5  & /A4 
+
+/VCS  = AS  & /A8  & A7  & i7  +
+       AS  & /A9  & A8  & i7  +
+       AS  & /i6  & i7  +
+       AS  & /A7  & i7 
+
+/o19 = AS  & A9  & A8  & A7  & i6  & A6  & /A5  & A4 
+
