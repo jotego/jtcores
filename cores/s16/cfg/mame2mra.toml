@@ -53,13 +53,8 @@ rename = [
 skip.bootlegs = true
 skip.descriptions = [ "16B", "Taito" ]
 skip.setnames=[
-    # won't boot
+    # missing controls
     "aceattac",
-    "bodyslam",
-    "dumpmtmt",
-    "quartet",
-    "quarteta",
-    "quartet2",
 ]
 main_setnames=[
     "aceattaca",
