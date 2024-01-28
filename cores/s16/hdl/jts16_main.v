@@ -108,6 +108,7 @@ module jts16_main(
 );
 
 localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
+                 GAME_QUARTET =`GAME_QUARTET ,
                  GAME_PASSSHT =`GAME_PASSSHT ,
                  GAME_SDIBL   =`GAME_SDIBL   ,
                  GAME_PASSSHT2=`GAME_PASSSHT2,
@@ -315,11 +316,14 @@ always @(posedge clk, posedge rst) begin
                             GAME_PASSSHT: begin
                                 cab_dout[7:6] <= cab_1p[3:2];
                             end
+                            GAME_QUARTET: begin
+                                cab_dout <= {service, coin[0], joystick1[4], joystick1[5], joystick1[1], joystick1[0], joystick1[3], joystick1[2] };
+                            end
                             default:;
                         endcase
                     end
                     1: begin
-                        case( game_id )
+                         case( game_id )
                             GAME_SDI: cab_dout <= sdi_joy( {trackball1[10:3],trackball0[10:3]} );
                             GAME_PASSSHT: begin
                                 if( !last_iocs ) port_cnt <= port_cnt + 2'd1;
@@ -336,39 +340,47 @@ always @(posedge clk, posedge rst) begin
                                 joyana1[15:14]==2'b10 ? ~3'b100 :
                                 joyana1[15:14]==2'b11 ? ~3'b010:
                                 joyana1[15:14]==2'b00 ? ~3'b001: ~3'b0 }; // accelerator
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[1], joystick2[4], joystick2[5], joystick2[1], joystick2[0], joystick2[3], joystick2[2] };
                             default: cab_dout <= sort1;
                         endcase
                     end
                     2: begin
-                        if( game_sdi ) begin
-                            cab_dout <= { sort2[7:4], sort1[7:4] };
-                        end
-                        if( game_afightan ) begin
-                            cab_dout <=  // right side of driving wheel (hot one)
-                              ~(joyana1[7] ? 8'h00 :
-                                joyana1[6] ? 8'h80 :
-                                joyana1[5] ? 8'h40 :
-                                joyana1[4] ? 8'h20 :
-                                joyana1[3] ? 8'h10 :
-                                joyana1[2] ? 8'h08 :
-                                joyana1[1] ? 8'h04 :
-                                joyana1[0] ? 8'h02 : 8'h01);
-                        end
+                         case( game_id )
+                            GAME_SDI: cab_dout <= { sort2[7:4], sort1[7:4] };
+                            GAME_AFIGHTAN:
+                                cab_dout <=  // right side of driving wheel (hot one)
+                                  ~(joyana1[7] ? 8'h00 :
+                                    joyana1[6] ? 8'h80 :
+                                    joyana1[5] ? 8'h40 :
+                                    joyana1[4] ? 8'h20 :
+                                    joyana1[3] ? 8'h10 :
+                                    joyana1[2] ? 8'h08 :
+                                    joyana1[1] ? 8'h04 :
+                                    joyana1[0] ? 8'h02 : 8'h01);
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[2], joystick3[4], joystick3[5], joystick3[1], joystick3[0], joystick3[3], joystick3[2] };
+                             default: ;
+                         endcase
                     end
                     3: begin
-                        cab_dout <=
-                            game_sdi ? sdi_joy( {trackball3[10:3],trackball2[10:3]} ) :
-                            game_afightan ? ~(   // left side of driving wheel (hot one)
-                                !joyana1[7] ? 8'h00 :
-                                !joyana1[6] ? 8'h80 :
-                                !joyana1[5] ? 8'h40 :
-                                !joyana1[4] ? 8'h20 :
-                                !joyana1[3] ? 8'h10 :
-                                !joyana1[2] ? 8'h08 :
-                                !joyana1[1] ? 8'h04 :
-                                !joyana1[0] ? 8'h02 : 8'h01
-                            ):
-                            sort2;
+                         case( game_id )
+                            GAME_SDI: cab_dout <= sdi_joy( {trackball3[10:3],trackball2[10:3]} );
+                            GAME_AFIGHTAN:
+                                cab_dout <= ~(   // left side of driving wheel (hot one)
+                                    !joyana1[7] ? 8'h00 :
+                                    !joyana1[6] ? 8'h80 :
+                                    !joyana1[5] ? 8'h40 :
+                                    !joyana1[4] ? 8'h20 :
+                                    !joyana1[3] ? 8'h10 :
+                                    !joyana1[2] ? 8'h08 :
+                                    !joyana1[1] ? 8'h04 :
+                                    !joyana1[0] ? 8'h02 : 8'h01
+                                );
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[3], joystick4[4], joystick4[5], joystick4[1], joystick4[0], joystick4[3], joystick4[2] };
+                            default: cab_dout <= sort2;
+                         endcase
                     end
                 endcase
             2'd2:
