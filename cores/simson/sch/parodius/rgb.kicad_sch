@@ -3638,7 +3638,7 @@
     (uuid ff4410c4-7329-4a7e-a136-4d81683bb309)
   )
 
-  (hierarchical_label "~{RESET}" (shape input) (at 93.98 172.72 180) (fields_autoplaced)
+  (hierarchical_label "~{WDOGRST}" (shape input) (at 93.98 172.72 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 097c5629-2b68-4ea8-9a13-014779646025)
   )
