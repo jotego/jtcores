@@ -392,25 +392,11 @@ end
 
 
 `ifndef NOMCU
-    reg [6:0] mcu_rst_addr;
-    reg       mcu_rst;
     reg [7:0] mcu_din;
     wire      mcu_br;
 
     assign mcu_bus = ~BGACKn | cpu_rst;
     assign mcu_br  = mcu_en & mcu_acc;
-
-    always @(posedge clk24, posedge rst24) begin
-        if( rst24 ) begin
-            mcu_rst_addr <= 7'h7F;
-            mcu_rst <= 1'b1;
-        end else if (mcu_en) begin
-            if (|mcu_rst_addr)
-                mcu_rst_addr <= mcu_rst_addr - 1'd1;
-            else
-                mcu_rst <= 1'b0;
-        end
-    end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
@@ -484,7 +470,7 @@ end
         .SYNC_INT   ( 1             ),
         .ROMBIN     ( "mcu.bin"     )
     ) u_mcu(
-        .rst        ( mcu_rst       ),
+        .rst        ( rst24         ),
         .clk        ( clk24         ),
         .cen        ( mcu_gated     ),
 
@@ -512,13 +498,7 @@ end
         .clk_rom    ( clk           ),
         .prog_addr  (prog_addr[11:0]),
         .prom_din   ( prog_data     ),
-        .prom_we    ( mcu_prog_we   ),
-
-        // RAM reset
-        .clk_ram      ( clk24       ),
-        .ram_prog_addr( mcu_rst_addr),
-        .ram_prog_din ( 8'd0        ),
-        .ram_prog_we  ( mcu_rst     )
+        .prom_we    ( mcu_prog_we   )
     );
 `else
     assign BRn   = 1;

@@ -201,12 +201,7 @@ jtkarnov_main u_main(
         .clk_rom    ( clk           ),
         .prog_addr  ( prog_addr[11:0] ),
         .prom_din   ( prog_data[7:0]),
-        .prom_we    ( mcu_we        ),
-
-        .clk_ram    ( 1'b0          ),
-        .ram_prog_addr( 7'd0        ),
-        .ram_prog_din( 8'd0         ),
-        .ram_prog_we ( 1'b0         )
+        .prom_we    ( mcu_we        )
     );
 `else
     assign mcu2main_irq = 0;

@@ -34,6 +34,7 @@ jtframe:
     get:
       - jtframe_dual_ram16.v
       - jtframe_ram.v
+      - jtframe_ram_rst.v
       - jtframe_obj_buffer.v
   - from: cpu
     get:
