@@ -44,7 +44,7 @@ reg rstl;
 
 always @(posedge clk) begin
     rstl <= rst;
-    if(!rstl) rst_cnt <= rst_cnt+1'd1;
+    if(rstl) rst_cnt <= rst_cnt+1'd1;
 end
 
 jtframe_dual_ram_cen #(
