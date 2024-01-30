@@ -290,7 +290,7 @@ always @(*) begin
         case( { A[13:12],A[5] } )
             2: case( A[2:1] )
                 0: cab_dout = 8'hff;
-                1: cab_dout = { 2'b11, joystick1[7], cab_1p[0], service, dip_test, coin };
+                1: cab_dout = { 2'b11, joystick1[6], cab_1p[0], service, dip_test, coin };
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;
                 default:;
