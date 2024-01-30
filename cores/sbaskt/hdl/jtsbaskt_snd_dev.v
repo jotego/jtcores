@@ -56,6 +56,7 @@ module jtsbaskt_snd_dev #(
     // Sound
     output     [15:0]   pcm_addr, // only 8kB ROMs actually used
     input      [ 7:0]   pcm_data,
+    input      [ 7:0]   debug_bus,
     input               pcm_ok,
 
     output signed [15:0] snd,
@@ -74,8 +75,9 @@ wire        vlm_ceng, vlm_me_b;
 wire [10:0] psg_snd;
 wire        iorq_n, m1_n;
 wire        rdy1;
-wire signed
-         [9:0] vlm_snd;
+wire signed [10:0] psg_pre;
+wire signed [ 9:0] vlm_snd, vlm_pre;
+wire signed [ 7:0] rdac_snd, rdac_s;
 
 assign vlm_mux = ~vlm_sel ? vlm_data :
                ~vlm_me_b ? pcm_data : 8'hff;
@@ -106,8 +108,42 @@ jt89 u_psg(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~psg_cs       ),
     .din    ( psg_data      ),
-    .sound  ( psg_snd       ),
+    .sound  ( psg_pre       ),
     .ready  ( rdy1          )
+);
+
+// Road Fighter/Super Basket board have software controlled RC filters
+// with fc = 220Hz for the DAC
+// and  fc = 720Hz for the JT89/VLM5030
+// the filter below do not try to be exact (yet)
+// but they capture the variable sound filtering in the game
+jtframe_pole #(.WS(11)) u_rc_psg(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // .a       ( debug_bus[4:0] ),
+    .a          ({{3{cap_en[2]}},2'd0}),
+    .sample     ( psg_cen   ),
+    .sin        ( psg_pre   ),
+    .sout       ( psg_snd   )
+);
+
+jtframe_pole #(.WS(8)) u_rc_dac(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // .a       ( debug_bus[3:0] ),
+    .a          ( {4{cap_en[1]}} ),
+    .sample     ( cnt[6]    ), // 14 kHz
+    .sin        ( rdac_s    ),
+    .sout       ( rdac_snd  )
+);
+
+jtframe_pole #(.WS(10)) u_vlm_psg(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .a          ({{3{cap_en[0]}},2'd0}),
+    .sample     ( psg_cen   ),
+    .sin        ( vlm_pre   ),
+    .sout       ( vlm_snd   )
 );
 
 `ifndef NOVLM
@@ -129,7 +165,7 @@ vlm5030_gl u_vlm(
     .o_bsy   ( vlm_bsy      ),
 
     .o_dao   (              ),
-    .o_audio ( vlm_snd      )
+    .o_audio ( vlm_pre      )
 );
 /* verilator lint_on PINMISSING */
 `else
@@ -147,8 +183,6 @@ vlm5030_gl u_vlm(
     end
 `endif
 
-wire signed [7:0] rdac_s;
-
 jtframe_dcrm #(.SW(8)) u_dcrm(
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -164,7 +198,7 @@ jtframe_mixer #(.W0(11),.W1(10),.W2(8)) u_mixer(
     // input signals
     .ch0    ( psg_snd   ),
     .ch1    ( vlm_snd   ),
-    .ch2    ( rdac_s    ),
+    .ch2    ( rdac_snd  ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( GAIN_PSG  ),

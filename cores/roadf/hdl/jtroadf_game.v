@@ -161,7 +161,8 @@ jtsbaskt_snd u_sound(
     .snd        ( snd       ),
     .sample     ( sample    ),
     .peak       ( game_led  ),
-    .debug_view ( st_snd    )
+    .debug_view ( st_snd    ),
+    .debug_bus  ( debug_bus )
 );
 `else
     assign snd_cs=0;

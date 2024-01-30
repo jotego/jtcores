@@ -38,6 +38,7 @@ module jtsbaskt_snd(
     output signed [15:0] snd,
     output               sample,
     output               peak,
+    input         [ 7:0] debug_bus,
     output        [ 7:0] debug_view
 );
 
@@ -68,6 +69,10 @@ always @(posedge clk, posedge rst) begin
         vlm_st   <= 0;
         vlm_sel  <= 0;
     end else begin
+        // filter location identical in Road Fighter and Super Basket
+        // A8 -> PSG filter
+        // A7 -> DAC filter
+        // A6 -> VLM filter
         if( vlm_ctrl_cs ) { cap_en, vlm_rst, vlm_st, vlm_sel } <= A[8:3];
     end
 end
@@ -149,7 +154,8 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
 
     .snd        ( snd       ),
     .sample     ( sample    ),
-    .peak       ( peak      )
+    .peak       ( peak      ),
+    .debug_bus  ( debug_bus )
 );
 
 
