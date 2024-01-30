@@ -155,7 +155,8 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
 
     .snd        ( snd       ),
     .sample     ( sample    ),
-    .peak       ( peak      )
+    .peak       ( peak      ),
+    .debug_bus  ( 8'd0      )
 );
 
 
