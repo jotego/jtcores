@@ -83,6 +83,7 @@ reg        hsel;
 
 reg  [9:0] eff_hscr;
 reg  [8:0] eff_vscr;
+reg  [8:0] hscr_adj;
 reg  [8:0] hdly;
 
 assign vrf      = flip ? 9'd223-vrender : vrender;
@@ -90,12 +91,13 @@ assign vrf      = flip ? 9'd223-vrender : vrender;
 always @(*) begin
     eff_hscr = rowscr_en ? rowscr : hscr[9:0];
     eff_vscr = colscr_en ? colscr : vscr[8:0];
-    if( rowscr_en || colscr_en ) eff_hscr = eff_hscr + 9'd8; // this is needed by Cotton
+    hscr_adj = 0;
+    if( rowscr_en || colscr_en ) hscr_adj = 9'd8; // this is needed by Cotton (and SDI)
     if( MODEL==0 ) begin
-        {hov, hpos } = {1'b0, hscan} - {1'b0, eff_hscr[8:0]} + PXL_DLY;// + { {2{debug_bus[7]}}, debug_bus};
+        {hov, hpos } = {1'b0, hscan} - {1'b0, eff_hscr[8:0]} - hscr_adj + PXL_DLY;// + { {2{debug_bus[7]}}, debug_bus};
         {vov, vpos } = vscan + {1'b0, eff_vscr[7:0]};
     end else begin
-        {hov, hpos } = {1'b1, hscan} - eff_hscr[9:0] + PXL_DLY[9:0];
+        {hov, hpos } = {1'b1, hscan} - eff_hscr[9:0] - hscr_adj + PXL_DLY[9:0];
         {vov, vpos } = vscan + eff_vscr[8:0];
     end
     scan_addr = { vpos[7:3], hpos[8:3] };
@@ -151,7 +153,7 @@ end
 
 reg [23:0] pxl_data;
 reg [ 7:0] attr;
-reg [ 1:0] scr_good;
+reg        scr_good;
 
 wire bank = map_data[13];
 wire [10:0] buf_data;
@@ -172,8 +174,8 @@ always @(posedge clk, posedge rst) begin
         vscan    <= 0;
     end else begin
         start_l <= start;
-        scr_good  <= { scr_good[0] & scr_ok, scr_ok };
-        if( scr_good==2'b01 ) pxl_data <= scr_data[23:0];
+        scr_good <= scr_ok;
+        if( {scr_good, scr_ok}==2'b01 ) pxl_data <= scr_data[23:0];
 
         if( (start && !start_l) ) begin
             vscan <= vrf;
@@ -196,13 +198,10 @@ always @(posedge clk, posedge rst) begin
             busy     <= ~8'd0;
             scr_addr <= { MODEL ? map_data[12:0] : { bank, map_data[11:0] }, // code
                         vpos[2:0] };
-            scr_good <= 2'd0;
-        end else if( busy!=0 && &scr_good && (pxl2_cen||!LHBL)) begin // This could work
+            scr_good <= 1'b0;
+        end else if( busy!=0 && scr_good && pxl2_cen) begin // This could work
             // without pxl2_cen, but it stresses the SDRAM too much, causing
             // glitches in the char layer.
-            // some games, like Cotton in the title screen would not finish some lines
-            // using pxl2_cen sort of a few pixels. Letting go of pxl2_cen during
-            // horizontal blanking speeds it enough to finish all lines
             pxl_data[23:16] <= pxl_data[23:16]<<1;
             pxl_data[15: 8] <= pxl_data[15: 8]<<1;
             pxl_data[ 7: 0] <= pxl_data[ 7: 0]<<1;
@@ -222,7 +221,7 @@ jtframe_linebuf #(.DW(11),.AW(9)) u_linebuf(
     // New data writes
     .wr_addr( hscan    ),
     .wr_data( buf_data ),
-    .we     ( busy[7]  ),
+    .we     ( busy[7] & pxl2_cen ),
     // Old data reads (and erases)
     .rd_addr( hdly     ),
     .rd_data( pxl      ),
