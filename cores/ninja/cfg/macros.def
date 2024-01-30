@@ -15,3 +15,10 @@ JTFRAME_CREDITS
 # the player orientation. This
 # feature requires the cheat engine
 JTFRAME_CHEAT
+
+[mist]
+-JTFRAME_CREDITS
+JTFRAME_NOSTA
+
+[sidi]
+JTFRAME_SKIP

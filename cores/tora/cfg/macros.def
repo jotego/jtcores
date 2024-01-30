@@ -28,7 +28,12 @@ JTFRAME_HEIGHT=224
 JTFRAME_ARX=48
 JTFRAME_ARY=41
 
-[mist|sidi]
+[mist]
 # necessary to make it fit
 -JTFRAME_CREDITS
 JTFRAME_OSD_NOLOGO
+JTFRAME_NOSTA
+
+[sidi]
+# won't fit
+JTFRAME_SKIP
