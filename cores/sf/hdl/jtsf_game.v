@@ -175,10 +175,9 @@ wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;
 wire        prom_we, prog_obj;
-reg         mcu_en, mcu_lock;
 
 // Optimize cache use for object ROMs
-assign prog_obj  = ioctl_addr[24:0]>=OBJ_START;
+assign prog_obj  = ioctl_addr[24:0]>=OBJ_START && ioctl_addr[24:0]<PROM_START;
 assign prog_addr = prog_obj ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
@@ -187,18 +186,6 @@ assign prog_addr = prog_obj ?
 always @(posedge clk) begin
     if( ioctl_addr==26'h19910 && ioctl_wr )
         game_id <= ioctl_dout==6;
-end
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        mcu_en   <= 0;
-        mcu_lock <= 0;
-    end else begin
-        if( prom_we && !mcu_lock ) begin
-            mcu_lock <= 1;
-            mcu_en   <= prog_data[7:0] != 8'hff;
-        end
-    end
 end
 
 jtframe_dwnld #(
@@ -361,10 +348,10 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
 `ifndef NOMCU
     jtsf_mcu u_mcu(
         .rst        ( rst24     ),
+        .clk        ( clk24     ),
         .clk_rom    ( clk       ),
         .rst_cpu    ( rst       ),
         .clk_cpu    ( clk       ),
-        .clk        ( clk24     ),
         // Main CPU interface
         .mcu_din    ( mcu_din   ),
         .mcu_dout   ( mcu_dout  ),
