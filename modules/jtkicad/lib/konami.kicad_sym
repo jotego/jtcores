@@ -3204,7 +3204,7 @@
         (number "97" (effects (font (size 1.27 1.27))))
       )
       (pin output inverted (at -34.29 44.45 270) (length 5.08)
-        (name "~{RESET}" (effects (font (size 1.27 1.27))))
+        (name "~{RST}" (effects (font (size 1.27 1.27))))
         (number "98" (effects (font (size 1.27 1.27))))
       )
       (pin output line (at 36.83 -49.53 90) (length 5.08)
