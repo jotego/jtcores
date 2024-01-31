@@ -16,18 +16,11 @@ module jt{{.Core}}_game_sdram(
 );
 
 /* verilator lint_off WIDTH */
-`ifdef JTFRAME_BA1_START
-    localparam [25:0] BA1_START=`JTFRAME_BA1_START;
-`endif
-`ifdef JTFRAME_BA2_START
-    localparam [25:0] BA2_START=`JTFRAME_BA2_START;
-`endif
-`ifdef JTFRAME_BA3_START
-    localparam [25:0] BA3_START=`JTFRAME_BA3_START;
-`endif
-`ifdef JTFRAME_PROM_START
-    localparam [25:0] PROM_START=`JTFRAME_PROM_START;
-`endif
+localparam [25:0] BA1_START  =`ifdef JTFRAME_BA1_START  `JTFRAME_BA1_START  `else 26'd0 `endif;
+localparam [25:0] BA2_START  =`ifdef JTFRAME_BA2_START  `JTFRAME_BA2_START  `else 26'd0 `endif;
+localparam [25:0] BA3_START  =`ifdef JTFRAME_BA3_START  `JTFRAME_BA3_START  `else 26'd0 `endif;
+localparam [25:0] PROM_START =`ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else 26'd0 `endif;
+localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `else 26'd0 `endif;
 /* verilator lint_on WIDTH */
 
 {{ range .Params }}
@@ -72,7 +65,7 @@ wire {{ . }}; {{ end }}{{ end }}{{ end }}
 wire gfx8_en, gfx16_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
-assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - `JTFRAME_HEADER `else ioctl_addr `endif ;
+assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst        ( rst       ),

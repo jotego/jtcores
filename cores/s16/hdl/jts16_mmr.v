@@ -109,29 +109,30 @@ endfunction
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scr1_pages      <= 0;
-        scr2_pages      <= 0;
-        scr1_pages_alt  <= 0;
-        scr1_pages_std  <= 0;
-        scr2_pages_alt  <= 0;
-        scr2_pages_std  <= 0;
-        scr1_vpos_alt   <= 0;
-        scr2_vpos_alt   <= 0;
-        scr1_hpos_alt   <= 0;
-        scr2_hpos_alt   <= 0;
-        scr1_vpos_std   <= 0;
-        scr2_vpos_std   <= 0;
-        scr1_hpos_std   <= 0;
-        scr2_hpos_std   <= 0;
-        scr1_vpos       <= 0;
-        scr2_vpos       <= 0;
-        scr1_hpos       <= 0;
-        scr2_hpos       <= 0;
+        scr1_pages <= 0;
+        scr2_pages <= 0;
+        scr1_vpos  <= 0;
+        scr2_vpos  <= 0;
+        scr1_hpos  <= 0;
+        scr2_hpos  <= 0;
         if( MODEL==0 ) begin
             scr1_pages_flip <= 0;
             scr2_pages_flip <= 0;
             scr1_pages_nofl <= 0;
             scr2_pages_nofl <= 0;
+        end else begin
+            scr1_pages_alt  <= 0;
+            scr1_pages_std  <= 0;
+            scr2_pages_alt  <= 0;
+            scr2_pages_std  <= 0;
+            scr1_vpos_alt   <= 0;
+            scr2_vpos_alt   <= 0;
+            scr1_hpos_alt   <= 0;
+            scr2_hpos_alt   <= 0;
+            scr1_vpos_std   <= 0;
+            scr2_vpos_std   <= 0;
+            scr1_hpos_std   <= 0;
+            scr2_hpos_std   <= 0;
         end
     end else begin
         if( MODEL==0 ) begin
