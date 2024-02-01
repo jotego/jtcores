@@ -28,6 +28,7 @@ module jtframe_ram_rq #(parameter
     SDRAMW = 22,
     AW     = 18,
     DW     = 8,
+    ERASE  = 1, // erase memory contents after a reset
     AUTOTOGGLE= // automatically toggles cs after a data delivery.
         `ifdef JTFRAME_SDRAM_TOGGLE
         1 `else 0 `endif ,
@@ -52,48 +53,63 @@ module jtframe_ram_rq #(parameter
     output reg          data_ok,    // strobe that signals that data is ready
     output reg [SDRAMW-1:0]   sdram_addr,
     input      [DW-1:0] wrdata,
-    output reg [DW-1:0] dout        // sends SDRAM data back to requester
+    output reg [DW-1:0] dout,       // sends SDRAM data back to requester
+    output              erase_bsy
 );
 
     wire  [SDRAMW-1:0] size_ext   = { {SDRAMW-AW{1'b0}}, addr };
 
-    reg    last_cs, pending;
-    wire   cs_posedge = addr_ok && !last_cs;
+    reg          last_cs, pending, erased;
+    reg [AW-1:0] erase_cnt;
+    wire         cs_posedge = addr_ok && !last_cs;
     // wire   cs_negedge = !addr_ok && last_cs;
+    assign erase_bsy = ERASE[0] && !erased;
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            last_cs <= 0;
-            req     <= 0;
-            data_ok <= 0;
-            pending <= 0;
-            dout    <= 0;
-            req_rnw <= 1;
+            last_cs   <= 0;
+            req       <= 0;
+            data_ok   <= 0;
+            pending   <= 0;
+            dout      <= 0;
+            req_rnw   <= 1;
+            erased    <= 0;
+            erase_cnt <= 0;
         end else begin
-            last_cs <= addr_ok;
-            if( !addr_ok ) data_ok <= 0;
-            if( we ) begin
-                if( cs_posedge && FASTWR ) begin
-                    data_ok <= 0;
-                    pending <= 1;
+            if( ERASE==1 && !erased ) begin
+                if( we ) begin
+                    {erased,erase_cnt}<= erase_cnt+1'd1;
+                    req <= 0;
+                end else begin
+                    req        <= 1;
+                    req_rnw    <= 0;
+                    sdram_addr <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
                 end
-                req <= 0;
-                if( FASTWR && !req_rnw ) begin
-                    data_ok <= 1;
+            end else begin
+                last_cs <= addr_ok;
+                if( !addr_ok ) data_ok <= 0;
+                if( we ) begin
+                    if( cs_posedge && FASTWR ) begin
+                        data_ok <= 0;
+                        pending <= 1;
+                    end
+                    req <= 0;
+                    if( FASTWR && !req_rnw ) begin
+                        data_ok <= 1;
+                    end
+                    if( dst ) begin // note byte selection for DW==8
+                        dout <= DW==8 && addr[0] ? din[15-:DW] : din[0+:DW];
+                        if( AUTOTOGGLE==1 ) last_cs <= 0; // forces a toggle
+                    end
+                    if( din_ok && (!FASTWR || req_rnw) ) data_ok <= 1;
+                end else if( cs_posedge || pending ) begin
+                    req        <= 1;
+                    req_rnw    <= ~wrin;
+                    data_ok    <= 0;
+                    pending    <= 0;
+                    sdram_addr <= size_ext + offset;
                 end
-                if( dst ) begin // note byte selection for DW==8
-                    dout <= DW==8 && addr[0] ? din[15-:DW] : din[0+:DW];
-                    if( AUTOTOGGLE==1 ) last_cs <= 0; // forces a toggle
-                end
-                if( din_ok && (!FASTWR || req_rnw) ) data_ok <= 1;
-            end else if( cs_posedge || pending ) begin
-                req        <= 1;
-                req_rnw    <= ~wrin;
-                data_ok    <= 0;
-                pending    <= 0;
-                sdram_addr <= size_ext + offset;
             end
-
         end
     end
 

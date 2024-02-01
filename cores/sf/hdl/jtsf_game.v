@@ -490,6 +490,7 @@ assign char_busy = 1'b0;
 `endif
 
 jtframe_ram1_2slots #(
+    .ERASE       (  0            ),
     .SLOT0_AW    ( RAMW          ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
 
@@ -513,6 +514,7 @@ jtframe_ram1_2slots #(
 
     .slot0_din   ( ram_din       ),
     .slot0_wrmask( ram_dsn       ),
+    .hold_rst    (               ),
 
     .slot0_addr  ( ram_addr      ),
     .slot1_addr  ( main_addr     ),

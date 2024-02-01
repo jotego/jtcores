@@ -18,6 +18,7 @@
 
 module jtframe_ram2_5slots #(parameter
     SDRAMW = 22,
+    ERASE  = 1, // erase memory contents after a reset
     SLOT0_FASTWR = 0,
     SLOT1_FASTWR = 0,
 
@@ -82,6 +83,7 @@ module jtframe_ram2_5slots #(parameter
     input               slot0_wen,
     input [SLOT0_DW-1:0] slot0_din,
     input [1:0]         slot0_wrmask,
+    output              hold_rst,     // signals a busy state so the game is kept in reset
 
     input               slot1_wen,
     input [SLOT1_DW-1:0] slot1_din,
@@ -108,7 +110,7 @@ localparam SW=5;
 
 wire [SW-1:0] req, slot_ok;
 wire [SW-1:0] slot_sel;
-wire [   1:0] req_rnw; // slots 0 & 1
+wire [   1:0] req_rnw, erase_bsy; // slots 0 & 1
 
 wire [SDRAMW-1:0] slot0_addr_req,
                   slot1_addr_req,
@@ -121,8 +123,9 @@ assign slot1_ok = slot_ok[1];
 assign slot2_ok = slot_ok[2];
 assign slot3_ok = slot_ok[3];
 assign slot4_ok = slot_ok[4];
+assign hold_rst =|erase_bsy;
 
-jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.FASTWR(SLOT0_FASTWR)) u_slot0(
+jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.FASTWR(SLOT0_FASTWR),.ERASE(ERASE)) u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .addr      ( slot0_addr             ),
@@ -138,10 +141,11 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.FASTWR(SLOT0_FASTW
     .dout      ( slot0_dout             ),
     .req       ( req[0]                 ),
     .data_ok   ( slot_ok[0]             ),
-    .we        ( slot_sel[0]            )
+    .we        ( slot_sel[0]            ),
+    .erase_bsy ( erase_bsy[0]           )
 );
 
-jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(SLOT1_FASTWR)) u_slot1(
+jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(SLOT1_FASTWR),.ERASE(ERASE)) u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .addr      ( slot1_addr             ),
@@ -157,7 +161,8 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(SLOT1_FASTW
     .dout      ( slot1_dout             ),
     .req       ( req[1]                 ),
     .data_ok   ( slot_ok[1]             ),
-    .we        ( slot_sel[1]            )
+    .we        ( slot_sel[1]            ),
+    .erase_bsy ( erase_bsy[1]           )
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
@@ -243,7 +248,8 @@ jtframe_ramslot_ctrl #(
     .sdram_addr     ( sdram_addr    ),
     .data_rdy       ( data_rdy      ),
     .data_write     ( data_write    ),
-    .sdram_wrmask   ( sdram_wrmask  )
+    .sdram_wrmask   ( sdram_wrmask  ),
+    .erase_bsy      ( hold_rst      )
 );
 
 `ifdef JTFRAME_SDRAM_CHECK

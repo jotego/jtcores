@@ -353,6 +353,7 @@ always @* begin
 end
 
 jtframe_ram2_6slots #(
+    .ERASE       (  0          ),
     // VRAM/RAM
     .SLOT0_DW    ( 16          ),
     .SLOT0_AW    ( 15          ),  // 64 kB (only 40 used)
@@ -411,6 +412,7 @@ jtframe_ram2_6slots #(
     .slot0_wen  ( ~main_rnw ),
     .slot0_din  ( main_dout ),
     .slot0_wrmask( dsn      ),
+    .hold_rst   (           ),
 
     .slot1_wen  ( ~ba2mcu_rnw ),
     .slot1_din  ({2{mcu_dout}}),

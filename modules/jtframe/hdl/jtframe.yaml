@@ -11,6 +11,7 @@ jtframe:
       - jtframe_sh.v
       - jtframe_sys_info.v
       - jtframe_bcd_cnt.v
+      - jtframe_rsthold.v
   - from: clocking
     get:
       - jtframe_gated_cen.v
