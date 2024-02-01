@@ -249,7 +249,7 @@ video_calc video_calc
 	.new_vmode(new_vmode),
 	.video_rotated(video_rotated),
 
-	.par_num(byte_cnt[3:0]),
+	.par_num(byte_cnt[4:0]),
 	.dout(vc_dout)
 );
 
@@ -516,7 +516,7 @@ always@(posedge clk_sys) begin : uio_block
 				'h22: RTC[(byte_cnt-6'd1)<<4 +:16] <= io_din;
 
 				//Video res.
-				'h23: if(!byte_cnt[MAX_W:4]) io_dout <= vc_dout;
+				'h23: if(!byte_cnt[MAX_W:5]) io_dout <= vc_dout;
 
 				//RTC
 				'h24: TIMESTAMP[(byte_cnt-6'd1)<<4 +:16] <= io_din;
