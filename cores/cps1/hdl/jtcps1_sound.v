@@ -47,7 +47,7 @@ module jtcps1_sound(
 localparam [7:0] FMGAIN = 8'h06;
 
 wire cen_fm, cen_fm2, cen_oki, nc, cpu_cen;
-wire signed [13:0] oki_pre, oki_pole, oki_dcrm;
+wire signed [13:0] oki_pre, oki_pole; //, oki_dcrm;
 wire signed [15:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 wire               peak_l, peak_r;
@@ -273,14 +273,14 @@ jt6295 #(.INTERPOL(1)) u_adpcm(
     .sound      ( oki_pre   ),
     .sample     ( oki_sample)   // ~26kHz
 );
-
+/*
 jtframe_dcrm #(.SW(14),.SIGNED_INPUT(1))u_dcrm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( oki_sample),
     .din        ( oki_pre   ),
     .dout       ( oki_dcrm  )
-);
+);*/
 
 jtframe_pole #(.WS(14)) u_pole(
     .rst        ( rst       ),
@@ -288,7 +288,7 @@ jtframe_pole #(.WS(14)) u_pole(
     .sample     ( oki_sample),
     .a          ( 7'h40     ),
     // .a          ( debug_bus[7:1]     ),
-    .sin        ( oki_dcrm  ),
+    .sin        ( oki_pre   ),
     .sout       ( oki_pole  )
 );
 
