@@ -115,7 +115,7 @@ jtframe_dual_ram_cen #(.AW(12),.SIMFILE(ROMBIN)) u_prom(
     .q1     ( rom_data  )
 );
 
-jtframe_ram_rst #(.AW(7)) u_ramu(
+jtframe_ram_rst #(.AW(7),.CEN_RD(1)) u_ramu(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .cen        ( cen_eff           ),
