@@ -1,48 +1,28 @@
-# Folder Setup
+# Environment variables
 
-JTFRAME projects require a specific folder and git usage so the tool flow works correctly. Examine some JT cores using it to see an example (like [JTKICKER](https://github.com/jotego/jtkicker)). This section covers a few concepts about JTFRAME's folder structure.
+Each time you want to work on your project you need to source the file *setprj.sh* from the jtcores folder in your work terminal. By sourcing this file you will get all the expected environment variables, bash functions, etc. that the tool flow needs, such as:
 
-## Using Git Submodules In Your Project
-
-JTFRAME is built around the idea of modular projects that facilitate reuse: jtframe for the general framework, jt51 for YM2151 sound, jtopl for OPL sound, etc. The best way to do this in a git project is to use git submodules.
-
-To start a new JTFRAME project, start by making an empty git project. And then:
-
-1. Optionally fork JTFRAME's repository to your own GitHub account
-2. Add it as a submodule to your git project in the modules folder:
-```
-mkdir modules
-cd modules
-git submodule add https://github.com/jotego/jtframe.git
-```
-3. Now you can refer to the RTL files in **jtframe/hdl**
-
-The advantages of a using a git submodule are:
-
-1. Your project contains a reference to a commit of the JTFRAME repository
-2. As long as you do not manually update the JTFRAME submodule, it will keep pointing to the same commit
-3. Each time you make a commit in your project, it will include a pointer to the JTFRAME commit used. So you will always know the JTFRAME that worked for you
-4. If JTFRAME is updated and you want to get the changes, simply update the submodule using git. The new JTFRAME commit used will be annotated in your project's next commit. So the history of your project will reflect that change too.
-5. JTFRAME files will be intact and you will use the files without altering them.
-
-Each time you want to work on your project you need to source the file in *modules/jtframe/bin/setprj.sh* from your work terminal. JT cores have a file conveniently called *setprj.sh* at the root of the project that sources it and may add some core-specific setup. By sourcing this file you will get all the expected environment variables, bash functions, etc. that the tool flow needs.
+- **JTROOT**, pointing to the folder from where you cloned jtcores
+- **CORES**, points to `$JTROOT/cores`
+- **JTFRAME**, points to `$JTROOT/modules/jtframe`
+- **MODULES**, points to `$JTROOT/modules/modules`
 
 ## Folder and File Locations
 
-JTFRAME expects a specific environment. The following folders should exist:
+The cores are compiled using the JTFRAME framework (located in $JTFRAME). It expects a specific folder setup:
 
 Folder   | Path            | Use
 ---------|-----------------|-----
-cores    | root            | container for each core folder
+cores    | $JTROOT         | container for each core folder
 foo      | cores           | container for core foo
 hdl      | cores/foo       | HDL and include files for core foo
 ver      | cores/foo       | verification files. A folder for each test bench
 cfg      | cores/foo       | configuration files (macros, RTL generation...)
 doc      | cores/foo       | documentation
-rom      | root            | ROM files used for simulation
-release  | root            | Do not add to git. Mock-up release folder for tests outside JTBIN
 modules  | modules         | container for each git submodule.
 jtframe  | modules/jtframe | JTFRAME repository as a git submodule
+rom      | $JTROOT         | Do not add to git. ROM files used for simulation
+release  | $JTROOT         | Do not add to git. Mock-up release folder for tests outside JTBIN
 
 ### JTBIN
 
