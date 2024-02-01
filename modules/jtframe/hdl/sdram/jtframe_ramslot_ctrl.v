@@ -30,6 +30,7 @@ module jtframe_ramslot_ctrl #(parameter
     input [(WRSW==0? 0:WRSW-1):0]    req_rnw,        // only for slot0
     input [DW1+DW0-1:0] slot_din,
     input [(WRSW==0? 1 : WRSW*2-1):0]  wrmask,   // only used if DW!=8
+    input               erase_bsy,
     output reg [SW-1:0] slot_sel,
     // SDRAM controller interface
     input               sdram_ack,
@@ -80,8 +81,8 @@ always @(posedge clk) begin
 
             for( i=0; i<SW; i=i+1 ) begin
                 if( acthot[i] ) begin
-                    if( i==0 )            data_write <= s0_din2[15:0];
-                    if( i==1 && WRSW==2 ) data_write <= s1_din2[15:0];
+                    if( i==0 )            data_write <= erase_bsy ? 16'd0 : s0_din2[15:0];
+                    if( i==1 && WRSW==2 ) data_write <= erase_bsy ? 16'd0 : s1_din2[15:0];
                     sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
                     if( i<WRSW ) begin // RAM slots
                         if( DW0==8 ) begin

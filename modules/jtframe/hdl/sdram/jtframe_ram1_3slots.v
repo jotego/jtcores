@@ -20,6 +20,7 @@
 
 module jtframe_ram1_3slots #(parameter
     SDRAMW = 22,
+    ERASE  = 1, // erase memory contents after a reset
     SLOT0_DW =16, SLOT1_DW = 8, SLOT2_DW = 8,
     SLOT0_AW = 8, SLOT1_AW = 8, SLOT2_AW = 8,
 
@@ -67,6 +68,7 @@ module jtframe_ram1_3slots #(parameter
     input               slot0_wen,
     input  [SLOT0_DW-1:0] slot0_din,
     input  [1:0]        slot0_wrmask,
+    output              hold_rst,     // signals a busy state so the game is kept in reset
 
     // Slot 1/2 cache can be cleared
     input               slot1_clr,
@@ -98,7 +100,7 @@ assign slot0_ok = slot_ok[0];
 assign slot1_ok = slot_ok[1];
 assign slot2_ok = slot_ok[2];
 
-jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW)) u_slot0(
+jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.ERASE(ERASE)) u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .addr      ( slot0_addr             ),
@@ -114,7 +116,8 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW)) u_slot0(
     .dout      ( slot0_dout             ),
     .req       ( req[0]                 ),
     .data_ok   ( slot_ok[0]             ),
-    .we        ( slot_sel[0]            )
+    .we        ( slot_sel[0]            ),
+    .erase_bsy ( hold_rst               )
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
@@ -177,7 +180,8 @@ jtframe_ramslot_ctrl #(
     .sdram_addr     ( sdram_addr    ),
     .data_rdy       ( data_rdy      ),
     .data_write     ( data_write    ),
-    .sdram_wrmask   ( sdram_wrmask  )
+    .sdram_wrmask   ( sdram_wrmask  ),
+    .erase_bsy      ( hold_rst      )
 );
 
 `ifdef JTFRAME_SDRAM_CHECK

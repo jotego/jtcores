@@ -259,7 +259,7 @@ jtframe_ramslot_ctrl #(
     .slot_addr_req  ({  slot5_addr_req, slot4_addr_req,
                         slot3_addr_req, slot2_addr_req,
                         slot1_addr_req, slot0_addr_req }),
-    .slot_sel       ( slot_sel  ),
+    .slot_sel       ( slot_sel      ),
     // SDRAM controller interface
     .sdram_ack      ( sdram_ack     ),
     .sdram_rd       ( sdram_rd      ),
@@ -267,6 +267,7 @@ jtframe_ramslot_ctrl #(
     .data_rdy       ( data_rdy      ),
 
     // RAM section ignored
+    .erase_bsy      (  1'b0         ),
     .req_rnw        (  1'b1         ),
     .slot_din       ( 16'd0         ),
     .wrmask         (  2'd0         ),

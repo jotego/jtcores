@@ -67,15 +67,34 @@ wire gfx8_en, gfx16_en, ioctl_dwn;
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 
+wire rst_h, rst24_h, rst48_h, hold_rst;
+
+jtframe_rsthold u_hold(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .hold   ( hold_rst  ),
+    .rst_h  ( rst_h     )
+`ifdef JTFRAME_CLK24 ,
+    .rst24  ( rst24     ),
+    .clk24  ( clk24     ),
+    .rst24_h( rst24_h   )
+`endif
+`ifdef JTFRAME_CLK48 ,
+    .rst48  ( rst48     ),
+    .clk48  ( clk48     ),
+    .rst48_h( rst48_h   )
+`endif
+);
+
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
-    .rst        ( rst       ),
+    .rst        ( rst_h     ),
     .clk        ( clk       ),
 `ifdef JTFRAME_CLK24
-    .rst24      ( rst24     ),
+    .rst24      ( rst24_h   ),
     .clk24      ( clk24     ),
 `endif
 `ifdef JTFRAME_CLK48
-    .rst48      ( rst48     ),
+    .rst48      ( rst48_h   ),
     .clk48      ( clk48     ),
 `endif
 {{- range $k,$v := .Clocks }} {{- range $v}}
@@ -266,6 +285,8 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
+{{ $holded := false }}
+{{ $holded_slot := false }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
@@ -298,7 +319,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}
-    {{- if .Rw }}
+    {{- if .Rw }}{{ if not $holded_slot }}
+    .hold_rst    ( hold_rst        ), {{ $holded_slot = true }}{{ $holded = true }}{{end}}
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
@@ -323,13 +345,12 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .data_rdy    ( ba_rdy[{{$bank}}]  ),
     .data_read   ( data_read  )
 );
-
 {{- if $is_rom }}
 assign ba_wr[{{$bank}}] = 0;
 assign ba{{$bank}}_din  = 0;
 assign ba{{$bank}}_dsn  = 3;
 {{- end}}{{- end }}{{end}}
-
+{{ if not $holded }}assign hold_rst=0;{{end}}
 {{ range $index, $each:=.Unused }}
 {{- with . -}}
 assign ba{{$index}}_addr = 0;

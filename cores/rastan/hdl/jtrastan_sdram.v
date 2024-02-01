@@ -150,6 +150,7 @@ assign ram_we   = ( ram_cs | vram_cs ) & ~main_rnw;
 
 // Bank 0: ROM, RAM, VRAM
 jtframe_ram1_4slots #(
+    .ERASE   (  0 ),
     // RAM
     .SLOT0_DW( 16 ),
     .SLOT0_AW( 17 ),
@@ -200,6 +201,7 @@ jtframe_ram1_4slots #(
     .slot0_wen  ( ram_we    ),
     .slot0_din  ( main_dout ),
     .slot0_wrmask( main_dsn ),
+    .hold_rst   (           ),
 
     // Slot 1-3 cache can be cleared
     .slot1_clr  ( 1'b0      ),
