@@ -87,10 +87,11 @@ jobs:
         run: |
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi
+          echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: release
+          name: ${{ env.ARTIFACT_NAME }}
           path: release
           retention-days: 1
 
