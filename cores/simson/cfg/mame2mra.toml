@@ -1,5 +1,5 @@
 [parse]
-sourcefile=[ "simpsons.cpp", "parodius.cpp" ]
+sourcefile=[ "simpsons.cpp" ] #, "parodius.cpp" ]
 
 
 [buttons]

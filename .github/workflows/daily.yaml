@@ -16,7 +16,7 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: 'recursive'
         token: ${{ secrets.PAT }}
@@ -49,7 +49,7 @@ jobs:
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -62,7 +62,7 @@ jobs:
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
           echo ARTIFACT_NAME=`git rev-parse --short HEAD` >> "$GITHUB_ENV"
       - id: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: release
@@ -80,7 +80,7 @@ jobs:
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -90,7 +90,7 @@ jobs:
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi
           echo ARTIFACT_NAME=`git rev-parse --short HEAD` >> "$GITHUB_ENV"
       - id: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: release
@@ -101,7 +101,7 @@ jobs:
     needs: [ compile_cores20 ]
     if: ${{ always() }} # upload the results even if some core did not compile correctly
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download all artifacts
         uses: actions/download-artifact@v2
       - name: Set zip file name
