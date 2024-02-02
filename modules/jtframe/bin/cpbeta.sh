@@ -40,34 +40,16 @@ fi
 mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
 mkdir -p $DEST/games/mame
 cp $JTUTIL/jtbeta.zip $DEST/games/mame
-for CORE in $JTROOT/release/mister/*; do
-    CORE=`basename $CORE`
-    if [ -e $JTROOT/release/mister/$CORE/releases/*.rbf ]; then
-        cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
-        cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
-        UPMR=1
-    fi
-    cp -r $JTROOT/release/mra "$DEST"
-    cp $JTROOT/README.md $DEST
-    if [ -s $JTROOT/cores/$CORE/README.md ]; then
-        cp $JTROOT/cores/$CORE/README.md $DEST/$CORE.md
-    fi
-done
+cp $JTBIN/mister/*rbf "$DEST"/_Arcade/cores
 
 # MiST, SiDi
-function cp_file {
-    if [ -d $JTROOT/release/$1 ]; then
-        cp -r $JTROOT/release/$1 $DEST
-    else
-        echo "Skipping $1"
-    fi
-}
-cp_file mist
-cp_file sidi
+cp -r $JTBIN/mra/* "$DEST"/_Arcade
+cp -r $JTBIN/{mist,sidi,mra} "$DEST"
 
 # Pocket
-mkdir -p $DEST/pocket
-cp -r $JTROOT/release/pocket/raw/* $DEST/pocket
+mkdir -p $DEST/pocket/Assets/jtpremium/common
+cp -r $JTBIN/pocket/raw/* $DEST/pocket
+unzip -q $JTUTIL/jtbeta.zip -d $DEST/pocket/Assets/jtpremium/common
 
 # Make zip files
 cd $DEST
@@ -79,18 +61,14 @@ Beta files for Patreon supporters.
 
 EOF
 function betazip {
-    cat zip_comment | zip -qr --test --archive-comment -9 $*
+    cat $DEST/zip_comment | zip -qr --test --archive-comment -9 $*
 }
-if [ -z "$UPMR" ]; then
-    echo "Skipping MiSTer"
-else
-    betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games *.md
-fi
-if [[ -d mist || -d sidi ]]; then
-    betazip jtfriday_${SHORTSTAMP}_other.zip  mra *.md mist sidi
-fi
-betazip jtfriday_${SHORTSTAMP}_pocket.zip mra *.md pocket
 
+betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games &
+betazip jtfriday_${SHORTSTAMP}_pocket.zip mra pocket &
+betazip jtfriday_${SHORTSTAMP}_other.zip  mra mist sidi &
+
+wait
 cp *.zip $JTROOT
 if [ -d "$JTFRIDAY" ]; then
     mkdir -p "$JTFRIDAY"/$SHORTSTAMP
@@ -99,9 +77,3 @@ fi
 
 cd $JTROOT
 rm -rf $DEST
-
-# Copies to SD and MiSTer
-cd $JTROOT
-jtbin2sd &
-jtbin2mr
-wait
