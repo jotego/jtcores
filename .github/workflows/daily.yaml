@@ -60,10 +60,11 @@ jobs:
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
+          echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: release
+          name: ${{ env.ARTIFACT_NAME }}
           path: release
           retention-days: 1
 
