@@ -6,7 +6,7 @@ bubl:   [ pocket ]
 "1942": [ pocket ]
 "1943": [ pocket ]
 # upcoming ports from MiSTer to Pocket
-# 1943: [ pocket ]
+# update the core's macros.def when making a new beta
 # biocom: [ pocket ]
 # commnd: [ pocket ]
 # flane: [ pocket ]
