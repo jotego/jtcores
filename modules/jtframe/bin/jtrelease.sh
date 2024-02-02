@@ -115,7 +115,9 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		done
 	done
 	# new git commit
-	git add mist sidi pocket mister mra
+	mkdir -p pocket/raw/Assets/jtpatreon/common
+	echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
+	git add mist sidi pocket mister mra md5 pocket/raw/Assets/jtpatreon/common/README.txt
 	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
