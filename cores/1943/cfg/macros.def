@@ -17,3 +17,6 @@ JTFRAME_CREDITS_PAGES=1
 # Leaving the logo and removing the credits is
 # not enough to make it fit. The logo must go out
 JTFRAME_OSD_NOLOGO
+
+[pocket]
+JTFRAME_SKIP
