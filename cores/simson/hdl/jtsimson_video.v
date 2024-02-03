@@ -116,7 +116,7 @@ always @(posedge clk) begin
         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -190,6 +190,7 @@ jtsimson_obj u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    .paroda     ( paroda    ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -244,12 +245,12 @@ jtsimson_colmix u_colmix(
     .pcu_cs     ( pcu_cs    ),
 
     // Final pixels
-    .lyrf_pxl   ( { 1'b0, lyrf_pxl[7:6], lyrf_pxl[3:0] } ),
-    .lyra_pxl   ( { 1'b0, lyra_pxl[7:6], lyra_pxl[3:0] } ),
-    .lyrb_pxl   ( { 1'b0, lyrb_pxl[7:6], lyrb_pxl[3:0] } ),
+    .lyrf_pxl   ( paroda ? { lyrf_pxl[7:5], lyrf_pxl[3:0] } : { 1'b0, lyrf_pxl[7:6], lyrf_pxl[3:0] } ),
+    .lyra_pxl   ( paroda ? { lyra_pxl[7:5], lyra_pxl[3:0] } : { 1'b0, lyra_pxl[7:6], lyra_pxl[3:0] } ),
+    .lyrb_pxl   ( paroda ? { lyrb_pxl[7:5], lyrb_pxl[3:0] } : { 1'b0, lyrb_pxl[7:6], lyrb_pxl[3:0] } ),
     .lyro_pxl   ( lyro_pxl  ),
 
-    .obj_prio   ( obj_prio  ),
+    .obj_prio   ( paroda ? {1'b1,debug_bus[1:0],2'd0} : obj_prio ),
     .obj_shd    ( obj_shd   ),
 
     .red        ( red       ),

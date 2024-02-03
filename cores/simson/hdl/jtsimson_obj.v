@@ -20,6 +20,8 @@ module jtsimson_obj(
     input             rst,
     input             clk,
 
+    input             paroda,
+
     input             pxl_cen,
     input             pxl2_cen,
     input      [ 8:0] hdump,
@@ -60,6 +62,7 @@ module jtsimson_obj(
 );
 
 wire [ 1:0] ram_we, pre_shd;
+wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
 wire [21:1] rmrd_addr;
@@ -96,8 +99,16 @@ assign cpu_din   = objcha_n ? ram_data :
 // - otherwise, output 0 for shadow bits and let the pen go through unaltered
 // - Some bits in upper byte of register 2 are unknown in MAME and could be
 //   related to selecting shadow pens
-assign pen15     = &pre_pxl[3:0];
-assign { shd, prio, pxl } = { pre_pxl[15:14] & {2{pen15}}, pre_pxl[13:4], (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0 };
+// 053244 (parodius) has 7 palette bits, top 2 used for priority
+assign pen15   = &pre_pxl[3:0];
+assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
+assign shd     = {pre_pxl[15]&~paroda, pre_pxl[14]} & {2{pen15}};
+assign prio    =  paroda ? {3'd0,pre_pxl[10:9]} : pre_pxl[13:9];
+assign pxl     = {pre_pxl[8:4], pen_eff};
+
+// assign       { shd, prio, pxl } =
+//     paroda ? { 1'b0, pre_pxl[14] & pen15,   pre_pxl[11:10], 2'd0, pre_pxl[9:4], pen_eff };
+//              { pre_pxl[15:14] & {2{pen15}}, pre_pxl[13:12], pre_pxl[11:4],      pen_eff };
 
 assign sorted = {
     rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
@@ -112,10 +123,11 @@ jt053246 u_scan(    // sprite logic
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 
+    .k44_en     ( paroda    ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( cpu_we    ),
-    .cpu_addr   (cpu_addr[2:1]),
+    .cpu_addr   (cpu_addr[3:1]),
     .cpu_dsn    ( cpu_dsn   ),
     .cpu_dout   ( cpu_dout  ),
     .rmrd_addr  ( rmrd_addr ),
@@ -191,6 +203,10 @@ jtframe_objdraw #(
 
 localparam RAMW=12;
 
+wire [RAMW:1] ram_a;
+
+assign ram_a = paroda ? { {RAMW-11{1'b0}}, cpu_addr[11:1] } : cpu_addr[RAMW:1];
+
 jtframe_dual_nvram16 #(
     .AW        ( RAMW       ),
     .SIMFILE_LO("obj_lo.bin"),
@@ -199,7 +215,7 @@ jtframe_dual_nvram16 #(
     // Port 0 - CPU access
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
-    .addr0  ( cpu_addr[RAMW:1] ),
+    .addr0  ( ram_a     ),
     .we0    ( ram_we    ),
     .q0     ( ram_data  ),
     // Port 1 - Video access

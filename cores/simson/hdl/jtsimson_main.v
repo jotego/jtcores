@@ -76,7 +76,7 @@ module jtsimson_main(
     // DIP switches
     input               dip_test,
     input               dip_pause,
-    input       [19:0]  dipsw,          // used by Parodius
+    input       [23:0]  dipsw,          // used by Parodius
     // Debug
     input       [ 7:0]  debug_bus,
     output reg  [ 7:0]  st_dout
@@ -234,9 +234,9 @@ always @(posedge clk, posedge rst) begin
             end
             if(io_cs) port_in <= dipsw[15:8];
             if( joystk_cs ) case( A[1:0] )
-                2'd0: port_in <= { joystick1[6:0],cab_1p[0] };
-                2'd1: port_in <= { joystick2[6:0],cab_1p[1] };
-                2'd2: port_in <= { dipsw[19:16], coin[1:0], 1'b1, service };
+                2'd0: port_in <= { joystick1[5:4],joystick1[6],joystick1[1:0],joystick1[3:2],cab_1p[0] };
+                2'd1: port_in <= { joystick2[5:4],joystick2[6],joystick2[1:0],joystick2[3:2],cab_1p[1] };
+                2'd2: port_in <= { dipsw[23:20], coin[1:0], 1'b1, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
         end else begin // simpsons
@@ -295,7 +295,7 @@ jtframe_edge #(.QSET(0)) u_firq (
 always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 // always @(posedge clk) rst_cmb <= rst | rst8;
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),
     .clk    ( clk       ),
@@ -340,6 +340,7 @@ jtkcpu u_cpu(
         objcha_n   = 1;
         snd_irq    = 0;
         mono       = 0;
+        pal_bank   = 0;
         st_dout    = 0;
     end
 `endif

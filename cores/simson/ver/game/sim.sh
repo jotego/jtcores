@@ -2,14 +2,7 @@
 
 OTHER=
 SCENE=
-
-if [ ! -e nvram.bin ]; then
-    cat <<EOF
-This system requires a valid nvram.bin file to boot up properly
-Use MAME's simpsons.12c.nv file for the "simpsons" set
-EOF
-    exit 0
-fi
+if [ $(basename $(pwd)) = parodius ]; then PARODIUS=1; else PARODIUS=;fi
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -26,11 +19,21 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [[ ! -e nvram.bin && -z "$PARODIUS" && -z "$SCENE" ]]; then
+    cat <<EOF
+This system requires a valid nvram.bin file to boot up properly
+Use MAME's simpsons.12c.nv file for the "simpsons" set
+EOF
+    exit 0
+fi
+
 if [ ! -z "$SCENE" ]; then
     TMP=`mktemp`
+    FNAME=SIMPSONS
+    if [ -n "$PARODIUS" ]; then FNAME=PARODIUS; fi
     # The first 128 bytes are NVRAM
-    dd if="scenes/$SCENE/SIMPSONS.RAM" of=nvram.bin bs=128 count=1 2> /dev/null
-    dd if="scenes/$SCENE/SIMPSONS.RAM" of=$TMP bs=128 skip=1 2> /dev/null
+    dd if=scenes/$SCENE/${FNAME}.RAM of=nvram.bin bs=128 count=1 2> /dev/null
+    dd if=scenes/$SCENE/${FNAME}.RAM of=$TMP bs=128 skip=1 2> /dev/null
     dd if=$TMP of=scr1.bin count=16         2> /dev/null
     dd if=$TMP of=scr0.bin count=16 skip=16 2> /dev/null
     dd if=$TMP of=pal.bin count=8 skip=32   2> /dev/null

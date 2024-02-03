@@ -86,7 +86,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		BRANCH=jtcores_$HASH
 		git reset --hard
 		git clean -fd .
-		git branch -D $BRANCH || true
+		git branch -D $BRANCH > /dev/null || true
 		git checkout -b $BRANCH
 		rm -rf mist sidi pocket mister mra
 	fi
@@ -98,7 +98,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	jtframe mra $SKIPROM --md5 --git `cat pocket.cores`
 	comm -3 pocket.cores mister.cores > other.cores
 	if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
-		cat other.cores
+		# cat other.cores
 		jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores`
 	fi
 	# copy RBF files
@@ -117,7 +117,8 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	# new git commit
 	mkdir -p pocket/raw/Assets/jtpatreon/common
 	echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
-	git add mist sidi pocket mister mra md5 pocket/raw/Assets/jtpatreon/common/README.txt
+	rm -f version.log
+	git add .
 	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 else
 	echo "Skipping JTBIN as \$JTBIN is not defined"

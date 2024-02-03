@@ -1,11 +1,11 @@
 [parse]
-sourcefile=[ "simpsons.cpp" ] #, "parodius.cpp" ]
+sourcefile=[ "simpsons.cpp", "parodius.cpp" ]
 
 
 [buttons]
 names = [
     { names="Attack,Jump", machine="simpsons" },
-    { names="power-up,shoot,missile/bell", machine="parodius" },
+    { names="shoot,missile/bell,power-up", machine="parodius" },
 ]
 
 [dipsw]
@@ -37,4 +37,11 @@ regions = [
 order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj" ]
 
 # Skips the RAM check
-patches = [{ setname="simpsons", offset=0x787fb, data="68 00 a9" }]  # jump from 88fb to 88a7
+patches = [{ setname="simpsons", offset=0x787fb, data="68 00 a9" }, # jump from 88fb to 88a7
+           # skip sound RAM/ROM test
+           { setname="parodius", offset=0x80011, data="00 00 00" },
+           { setname="parodius", offset=0x805e6, data="00 00 00" },
+           { setname="parodius", offset=0x805f8, data="00 00"    },
+           { setname="parodius", offset=0x8060d, data="00 00 00" },
+           { setname="parodius", offset=0x80615, data="00 00 00" },
+    ]

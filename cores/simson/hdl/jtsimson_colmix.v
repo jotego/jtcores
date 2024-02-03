@@ -105,7 +105,7 @@ jtcolmix_053251 u_prio(
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({obj_prio,1'b0}),
+    .pri1       ( {obj_prio,1'b0}),
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),

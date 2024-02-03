@@ -1,0 +1,108 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat Feb  3 06:30:55 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/game/test.fst"
+[dumpfile_mtime] "Fri Feb  2 16:28:18 2024"
+[dumpfile_size] 19893921
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/parodius/obj.gtkw"
+[timestart] 5909660000000
+[size] 1920 1052
+[pos] -1 -1
+*-30.867693 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[sst_width] 223
+[signals_width] 269
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.LVBL
+@800022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cfg[7:0]
+@1001200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_main.objreg_cs
+@c00022
+TOP.game_test.u_game.u_game.u_main.A[15:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(1)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(2)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(3)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(4)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(5)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(6)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(7)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(8)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(9)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(10)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(11)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(12)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(13)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(14)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(15)TOP.game_test.u_game.u_game.u_main.A[15:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cs
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.k44_en
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpu_addr[3:1]
+@c00028
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpu_dsn[1:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpu_dsn[1:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpu_dsn[1:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_en
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vs_sh[1:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vs
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_bsy
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_44
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.pxl2_cen
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_addr[13:1]
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_dout[15:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_we[1:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.dma_data[15:0]
+@c00023
+TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+@29
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(9)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(10)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(11)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+(12)TOP.game_test.u_game.u_game.u_video.u_obj.dma_addr[13:1]
+@1401201
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0

@@ -52,7 +52,7 @@ always @(posedge clk) begin
 end
 
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -112,13 +112,13 @@ jtsimson_main u_main(
     // DIP switches
     .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),
-    .dipsw          ( dipsw[19:0]   ),
+    .dipsw          ( dipsw[23:0]   ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -171,7 +171,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

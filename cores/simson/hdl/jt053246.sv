@@ -53,10 +53,11 @@ module jt053246(    // sprite logic
     input             pxl2_cen,
     input             pxl_cen,
 
+    input             k44_en,   // enable k053244/5 mode (default k053246/7)
     // CPU interface
     input             cs,
     input             cpu_we,
-    input      [ 2:1] cpu_addr,
+    input      [ 3:1] cpu_addr, // bit 3 only in k44 mode
     input      [15:0] cpu_dout,
     input      [ 1:0] cpu_dsn,
 
@@ -116,7 +117,7 @@ reg  [ 1:0] scan_sub;
 reg  [ 8:0] vlatch, ymove;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg         dma_clr, dma_wait, inzone, hs_l, done, hdone;
+reg         dma_44, dma_clr, dma_wait, inzone, hs_l, done, hdone;
 wire [15:0] scan_even, scan_odd;
 reg  [15:0] dma_bufd;
 reg  [ 3:0] size;
@@ -124,25 +125,28 @@ wire [15:0] dma_din;
 wire [11:1] dma_wr_addr;
 reg  [11:1] dma_bufa;
 wire [11:2] scan_addr;
-wire        last_obj;
+wire        last_obj, hs_pos;
 reg  [18:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
             vmir_eff, flicker, vs_l;
 wire        cpu_bsy;
-wire        ghf, gvf, dma_en;
+wire        ghf, gvf, mode8, dma_en;
 reg  [ 8:0] full_h, vscl, hscl, full_w;
 reg  [ 8:0] zoffset[0:255];
 
 assign ghf     = cfg[0]; // global flip
 assign gvf     = cfg[1];
+assign mode8   = cfg[2]; // guess, use it for 8-bit access for ROM checking (Parodius)
 assign cpu_bsy = cfg[3];
 assign dma_en  = cfg[4];
 assign vflip   = pre_vf ^ vmir_eff;
 assign hflip   = pre_hf ^ hmir;
+assign hs_pos  = hs & ~hsl;
 
 assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
 assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
+assign dma_44      = k44_en && cs && cpu_addr==3 && !cpu_dsn[0];
 
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
@@ -203,16 +207,16 @@ always @(posedge clk, posedge rst) begin
         flicker  <= 0;
     end else if( pxl2_cen ) begin
         hsl <= hs;
-        if( hs & ~hsl ) begin
+        if( hs_pos ) begin
             vs_sh    <= vs_sh<<1;
             vs_sh[0] <= vs;
-            if( vs_sh==2'b10 ) begin
-                dma_bsy <= dma_en;
-                dma_clr  <= 1;
-                dma_wait <= 1;
-                flicker  <= ~flicker;
-                dma_addr <= 0;
-            end
+        end
+        if( (vs_sh==2'b10 && hs_pos) || dma_44 ) begin
+            dma_bsy  <= dma_en | dma_44;
+            dma_clr  <= 1;
+            dma_wait <= 1;
+            flicker  <= ~flicker;
+            dma_addr <= 0;
         end
         // this implementation matches 8-bit speed, ie 595us vs 297.5us for 16-bit mode
         if( !dma_bsy ) begin
@@ -295,7 +299,10 @@ always @(posedge clk, posedge rst) begin
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
-                    { vmir, hmir, reserved, shd, attr } <= scan_even;
+                    if( k44_en )
+                        { vmir, hmir, shd[0], attr[6:0] } <= scan_even[9:0];
+                    else
+                        { vmir, hmir, reserved, shd, attr } <= scan_even;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
@@ -373,7 +380,7 @@ always @(posedge clk, posedge rst) begin
         st_dout <= 0;
     end else begin
         if( cs ) begin // note that the write signal is not checked
-            case( cpu_addr )
+            case( {cpu_addr[3] & k44_en, cpu_addr[2:1]} )
                 0: begin
                     if( !cpu_dsn[0] ) xoffset[ 7:0] <= cpu_dout[7:0];
                     if( !cpu_dsn[1] ) xoffset[ 9:8] <= cpu_dout[9:8];
@@ -383,12 +390,20 @@ always @(posedge clk, posedge rst) begin
                     if( !cpu_dsn[1] ) yoffset[9:8] <= cpu_dout[9:8];
                 end
                 2: begin
-                    if( !cpu_dsn[0] ) rmrd_addr[8:1] <= cpu_dout[7:0];
+                    if( !cpu_dsn[0] && !k44_en ) rmrd_addr[8:1] <= cpu_dout[7:0];
                     if( !cpu_dsn[1] ) cfg <= cpu_dout[15:8];
                 end
-                3: begin
+                3: if( !k44_en ) begin // related to dma_en, see above
                     if( !cpu_dsn[0] ) rmrd_addr[16: 9] <= cpu_dout[ 7:0];
                     if( !cpu_dsn[1] ) rmrd_addr[21:17] <= cpu_dout[12:8];
+                end
+                // k44_en only
+                4: begin
+                    if( !cpu_dsn[0] ) rmrd_addr[ 8: 1] <= cpu_dout[ 7:0];
+                    if( !cpu_dsn[1] ) rmrd_addr[16: 9] <= cpu_dout[15:8];
+                end
+                5: begin
+                    if( !cpu_dsn[0] ) rmrd_addr[21:17] <= cpu_dout[ 4:0];
                 end
             endcase
         end
