@@ -93,7 +93,7 @@ assign lyrb_cs = gfx_en[2];
 function [19:2] sort( input [7:0] col, input [12:0] pre );
     sort = paroda ?
         { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
-        { pre[11], col[5:0], pre[10:0] };
+        { pre[11],    col[5:0],                 pre[10:0] };
 endfunction
 
 always @* begin
