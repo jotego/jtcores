@@ -47,9 +47,11 @@ cp -r $JTBIN/mra/* "$DEST"/_Arcade
 cp -r $JTBIN/{mist,sidi,mra} "$DEST"
 
 # Pocket
-mkdir -p $DEST/pocket/Assets/jtpremium/common
+mkdir -p $DEST/pocket/Assets/jtpatreon/common
 cp -r $JTBIN/pocket/raw/* $DEST/pocket
-unzip -q $JTUTIL/jtbeta.zip -d $DEST/pocket/Assets/jtpremium/common
+unzip -q $JTUTIL/jtbeta.zip -d $DEST/pocket/Assets/jtpatreon/common
+mkdir $DEST/pocket/readme
+mv $DEST/pocket/*.txt $DEST/pocket/readme
 
 # Make zip files
 cd $DEST
