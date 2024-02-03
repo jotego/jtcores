@@ -323,7 +323,9 @@ jtkcpu u_cpu(
     assign pal_we    = 0;
     assign rom_addr  = 0;
     assign snd_wrn   = 1;
-    assign ioctl_din = 0;
+    assign nv_din    = 0;
+    assign nv_addr   = 0;
+    assign nv_we     = 0;
 
     initial begin
         init       = 0;
