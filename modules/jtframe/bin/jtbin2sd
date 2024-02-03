@@ -58,9 +58,9 @@ fi
 cd $JTBIN/mra
 
 function cp_mist {
-    cp $V $JTBIN/${i,,}/*rbf $DST
+    cp $V $JTBIN/$1/*rbf $DST
     # Get the main MRA as the core's arc for JTAG programming
-    for CORE in $JTBIN/mist/*rbf; do
+    for CORE in $JTBIN/$1/*rbf; do
         CORE=`basename $CORE .rbf`
         IFS=$'\n'
         for MRA in `find -name "*mra" -print0 | xargs -0 grep --files-with-matches --ignore-case $CORE`; do
@@ -87,7 +87,7 @@ if [ -n "$RUNMRA" ]; then
 fi
 
 for i in SIDI MIST POCKET; do
-    DST=/media/$USER/$i
+    DST=/media/$USER/${i^^}
     if [ ! -d $DST ]; then
         continue
     fi
@@ -97,7 +97,7 @@ for i in SIDI MIST POCKET; do
     if [ $i = POCKET ]; then
         cp -r $V $JTBIN/pocket/raw/* $DST
     else
-        cp_mist $i &
+        cp_mist ${i,,} &
     fi
     wait
     # Copy ROM files

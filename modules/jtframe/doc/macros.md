@@ -92,9 +92,8 @@ JTFRAME_NOSTA            |         | jtcore will not check STA and will produce 
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
 JTFRAME_OSD_FLIP         |         | flip option on OSD
-JTFRAME_OSD_LOAD         | MiSTer  | load option shown on OSD (off by default on MiSTer)
+JTFRAME_OSD_LOAD         | MiST(er)| load option shown on OSD (off by default on MiSTer)
 JTFRAME_OSD_NOCREDITS    |         | No credits option on OSD
-JTFRAME_OSD_NOLOAD       | MiST    | No load option on OSD (on by default on MiST)
 JTFRAME_OSD_NOLOGO       |         | Disables the JT logo as OSD background
 JTFRAME_OSD_SND_EN       |         | OSD option to enable/disable FX and FM channels
 JTFRAME_OSD_TEST         |         | Test option on OSD

@@ -28,7 +28,7 @@ In MiST, DIP switches are incorporated into the status word. As some bits in the
 Macro                | Effect
 ---------------------|----------------------------
 JTFRAME_SIM_DIPS     | 32-bit value of DIPs used in simulation only
-JTFRAME_OSD_NOLOAD   | Do not display _load file_
+JTFRAME_OSD_LOAD     | Display _load file_
 JTFRAME_OSD_NOCREDITS| Do not display _Credits_
 JTFRAME_OSD_FLIP     | Display flip option (only for vertical games)
 JTFRAME_OSD_NOSND    | Do not display sound options

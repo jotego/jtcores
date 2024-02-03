@@ -1,5 +1,5 @@
 P,CORE_NAME.dat;
-{{ if not .JTFRAME_OSD_NOLOAD }}    S0,DAT,Load ROM...; {{ end }}
+                                    S0,DAT,Load ROM...; {{ end }}
 {{ if .JTFRAME_VERTICAL }}
 {{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}
                                     O2,Rotate controls,No,Yes; {{ end }}

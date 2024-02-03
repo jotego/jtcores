@@ -1,6 +1,6 @@
 {{.CORENAME}};;
 
-{{ if not .JTFRAME_OSD_NOLOAD }}    F,rom; {{ end }}
+{{ if .JTFRAME_OSD_LOAD }}          F,rom; {{ end }}
 {{ if .JTFRAME_OSD60HZ }}           OJ,Force 60Hz, Off, On; {{ end }}
 {{ if .JTFRAME_VERTICAL }}
 {{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}
