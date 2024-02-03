@@ -57,6 +57,7 @@ type BRAMBus struct {
     Ioctl      struct {
         Save bool `yaml:"save"`
         Order int `yaml:"order"`
+        Restore bool `yaml:"restore"`
     } `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
@@ -124,10 +125,10 @@ type ClockCfg struct {
     Busy    string
 }
 
-type IoctlBus struct{
+type IoctlBus struct{ // not a YAML type
     DW, AW, AWl int
     Blocks, SkipBlocks, Size, SizekB int
-    Name, Dout, Ain, Aout string
+    Name, Dout, A, Amx, Din, We string
 }
 
 type Ioctl struct {

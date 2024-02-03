@@ -25,20 +25,17 @@ wire [ 7:0] snd2main, video_dump;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
 wire        pal_we, pal_bank,
             cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
-wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs, io_nvram;
+wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
-            st_main, st_video, st_snd, nvram_dump;
+            st_main, st_video, st_snd;
 wire [14:0] video_dumpa;
 reg  [ 7:0] debug_mux;
 reg         paroda; // 1 for Parodius
-wire        eep_dwn;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
-assign io_nvram   = ioctl_addr[14:0] < 15'h80;
-assign eep_dwn    = ioctl_ram && io_nvram;
-assign ioctl_din  = io_nvram ?  nvram_dump : video_dump;
+assign ioctl_din  = video_dump;
 assign video_dumpa= ioctl_addr[14:0]-15'h80;
 
 always @(posedge clk) begin
@@ -104,11 +101,10 @@ jtsimson_main u_main(
     .snd_wrn        ( snd_wrn       ),
     .mono           ( mono          ),
     // EEPROM
-    .ioctl_addr     (ioctl_addr[6:0]),
-    .ioctl_din      ( nvram_dump    ),
-    .ioctl_dout     ( ioctl_dout    ),
-    .ioctl_wr       ( ioctl_wr      ),
-    .eep_dwn        ( eep_dwn       ),
+    .nv_addr        ( nv_addr       ),
+    .nv_dout        ( nv_dout       ),
+    .nv_din         ( nv_din        ),
+    .nv_we          ( nv_we         ),
     // DIP switches
     .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),

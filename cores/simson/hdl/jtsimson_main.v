@@ -67,11 +67,10 @@ module jtsimson_main(
     output reg          mono,
     input       [ 7:0]  snd2main,
     // EEPROM
-    input       [ 6:0]  ioctl_addr,
-    input       [ 7:0]  ioctl_dout,
-    output      [ 7:0]  ioctl_din,
-    input               ioctl_wr,
-    input               eep_dwn,
+    output      [ 6:0]  nv_addr,
+    input       [ 7:0]  nv_dout,
+    output      [ 7:0]  nv_din,
+    output              nv_we,
 
     // DIP switches
     input               dip_test,
@@ -94,7 +93,7 @@ reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
             misc_cs, paro_aux, io_aux, unpaged;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
-wire        eep_rdy, eep_do, eep_we, firqn_ff;
+wire        eep_rdy, eep_do, firqn_ff;
 reg         eep_di, eep_clk, eep_cs, firqen, WOC1, WOC0,
             bankr;
 
@@ -102,7 +101,6 @@ assign dtack   = ~rom_cs | rom_ok;
 assign ram_we  = ram_cs & cpu_we;
 assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
-assign eep_we  = ioctl_wr & eep_dwn;
 
 always @(*) begin
     case( debug_bus[1:0] )
@@ -266,17 +264,16 @@ jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
     .rst        ( rst       ),
     .clk        ( clk       ),
     // chip interface
-    .sclk       ( eep_clk   ),       // serial clock
+    .sclk       ( eep_clk   ),         // serial clock
     .sdi        ( eep_di    ),         // serial data in
     .sdo        ( eep_do    ),         // serial data out
     .rdy        ( eep_rdy   ),
     .scs        ( eep_cs    ),         // chip select, active high. Goes low in between instructions
     // Dump access
-    .dump_clk   ( clk       ),
-    .dump_addr  ( ioctl_addr),
-    .dump_we    ( eep_we    ),
-    .dump_din   ( ioctl_din ),
-    .dump_dout  ( ioctl_dout),
+    .mem_addr   ( nv_addr   ),
+    .mem_din    ( nv_din    ),
+    .mem_we     ( nv_we     ),
+    .mem_dout   ( nv_dout   ),
     // NVRAM contents changed
     .dump_clr   ( 1'b0      ),
     .dump_flag  (           )

@@ -56,3 +56,9 @@ bram:
     data_width: 8
     rw: true
     addr: main_addr[12:0]
+  # EEROM
+  - name: nv
+    addr_width: 7
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }

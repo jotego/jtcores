@@ -415,8 +415,8 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .clk    ( clk  ),{{ if eq $bus.Data_width 8 }}
     .cen    ( 1'b1 ),{{end}}
     .addr   ( {{$bus.Addr}} ),
-    .data   ( {{if $bus.Din }}{{$bus.Din }}{{else}}{{$bus.Name}}_din {{end}} ),
-    .we     ( {{if $bus.We  }}{{$bus.We  }}{{else}}{{$bus.Name}}_we  {{end}} ),
+    .data   ( {{$bus.Din }} ),
+    .we     ( {{$bus.We  }} ),
     .q      ( {{$bus.Name}}_dout )
 );{{ end }}
 {{ end }}{{end}}
@@ -424,8 +424,11 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 {{- if .Ioctl.Dump }}
 /* verilator tracing_off */
 wire [7:0] ioctl_aux;
-{{- range $k, $v := .Ioctl.Buses }}{{ if $v.Aout }}
-wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}
+{{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
+wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
+wire [  1:0] {{$v.Name}}_wemx;{{ if $v.Amx }}{{end}}
+wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{end -}}
+{{end}}
 
 jtframe_ioctl_dump #(
     {{- $first := true}}
@@ -435,14 +438,22 @@ jtframe_ioctl_dump #(
 ) u_dump (
     .clk       ( clk        ),
     {{- range $k, $v := .Ioctl.Buses }}
-    .din{{$k}}      ( {{$v.Dout}} ),
-    .addrin_{{$k}}  ( {{$v.Ain}} ),
-    .addrout_{{$k}} ( {{$v.Aout}} ),
+    // dump {{$k}}
+    .dout{{$k}}        ( {{$v.Dout}} ),
+    .addr{{$k}}        ( {{$v.A}} ),
+    .addr{{$k}}_mx     ( {{$v.Amx}} ),
+    // restore
+    .din{{$k}}         ( {{$v.Din}} ),
+    .din{{$k}}_mx      ( {{with $v.Name}}{{.}}_dimx{{end}} ),
+    .we{{$k}}          ( {{if eq $v.DW 8 }}{ 1'b0,{{ $v.We }} }{{else}}{{$v.We}}{{end}}),
+    .we{{$k}}_mx       ( {{with $v.Name}}{{.}}_wemx{{end}} ),
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_aux  ( ioctl_aux ),
-    .ioctl_din  ( ioctl_din )
+    .ioctl_wr   ( ioctl_wr  ),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_dout ( ioctl_dout)
 );
 {{ end }}
 

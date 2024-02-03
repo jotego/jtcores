@@ -397,7 +397,8 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 		each := &cfg.BRAM[k]
 		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
 		if each.Addr == "" { each.Addr = each.Name + "_addr" }
-		if each.Din  == "" && each.Rw { each.Din  = each.Name + "_din"  }
+		if each.Din  == "" && each.Rw { each.Din = each.Name + "_din"  }
+		if each.We   == "" && each.Rw { each.We  = each.Name + "_we"   }
 		if each.Dout == "" {
 			if bram_rom {
 				each.Dout = each.Name + "_data"
@@ -485,22 +486,43 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	for _, each := range tosave {
 		if each == nil { continue }
 		each.Sim_file=true
-		i := each.Ioctl.Order
-		cfg.Ioctl.Buses[i].Name = each.Name
-		cfg.Ioctl.Buses[i].AW = each.Addr_width
-		cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
-		cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
-		cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
-		if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
-		cfg.Ioctl.Buses[i].DW = each.Data_width
-		cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
-		each.Addr = each.Name+"_amux"
-		dump_size += 1<<each.Addr_width
-		cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
-		cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
-		cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
-		cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
-		total_blocks += cfg.Ioctl.Buses[i].Blocks
+		ioinfo := &cfg.Ioctl.Buses[each.Ioctl.Order] // fill data for ioctl_dump module
+		ioinfo.Name = each.Name
+		ioinfo.AW   = each.Addr_width
+		ioinfo.AWl  = each.Data_width>>4
+		ioinfo.Amx  = each.Name+"_amux"
+		ioinfo.A    = each.Name+"_addr"
+		if each.Addr!="" { ioinfo.A = each.Addr }
+		ioinfo.DW   = each.Data_width
+		ioinfo.Dout = each.Name+"_dout"
+		ioinfo.Din  = each.Din
+		each.Addr   = each.Name+"_amux"
+		// restore
+		if ioinfo.DW==8 {
+			ioinfo.We = "1'b0"
+		} else {
+			ioinfo.We = "2'b0"
+		}
+		if each.Ioctl.Restore {
+			if each.Rw {
+				ioinfo.We = each.We
+				if each.We == "" {
+					ioinfo.We = "2'b0"
+				}
+			}
+			each.We  = each.Name+"_wemx"
+			if each.Data_width==8 {
+				each.We+="[0]"
+			}
+			each.Din = each.Name+"_dimx"
+		}
+		// size
+		dump_size     += 1<<each.Addr_width
+		ioinfo.Size   = 1<<each.Addr_width
+		ioinfo.SizekB = ioinfo.Size >> 10
+		ioinfo.Blocks = ioinfo.Size >> 8
+		ioinfo.SkipBlocks = total_blocks
+		total_blocks  += ioinfo.Blocks
 	}
 	cfg.Ioctl.SkipAll = total_blocks
 	if found {
@@ -515,7 +537,8 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 		if each.DW==0 {
 			each.DW=8
 			each.Dout = "8'd0"
-			each.Ain  = "1'd0"
+			each.A    = "1'b0"
+			each.We   = "1'b0"
 		}
 	}
 	// warn if JTFRAME_IOCTL_RD is below the required one
