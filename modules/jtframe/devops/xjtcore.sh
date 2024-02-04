@@ -33,5 +33,7 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
         jtframe mra --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
         jtseed 4 $CORENAME -$TARGET --nodbg
+        # recover hard disk space
+        rm -rf $CORES/$CORENAME/$TARGET
     done
 fi
