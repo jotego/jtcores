@@ -11,7 +11,7 @@
   )
 
   (lib_symbols
-    (symbol "konami:007786_internal" (in_bom yes) (on_board yes)
+    (symbol "ga_konami:007786_internal" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 50.8 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -2447,7 +2447,7 @@
     )
   )
 
-  (symbol (lib_id "konami:007786_internal") (at 208.28 168.91 0) (unit 1)
+  (symbol (lib_id "ga_konami:007786_internal") (at 208.28 168.91 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 7d562ed6-aef5-48ea-ada2-0474572e6b58)
     (property "Reference" "U1" (at 208.28 116.84 0)

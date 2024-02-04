@@ -11,7 +11,7 @@
   )
 
   (lib_symbols
-    (symbol "fujitsu-av:BD3" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:BD3" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -48,7 +48,7 @@
         )
       )
     )
-    (symbol "fujitsu-av:C41" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:C41" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 8.89 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -95,7 +95,7 @@
         )
       )
     )
-    (symbol "fujitsu-av:FJ4" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:FJ4" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 1.27 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -142,7 +142,7 @@
         )
       )
     )
-    (symbol "fujitsu-av:K2B" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:K2B" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -179,7 +179,7 @@
         )
       )
     )
-    (symbol "fujitsu-av:R3P" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:R3P" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -274,17 +274,20 @@
         )
       )
     )
-    (symbol "fujitsu-av:V1N" (in_bom yes) (on_board yes)
-      (property "Reference" "U" (at 0 5.08 0)
+    (symbol "ga_fujitsu_av:V1N" (in_bom yes) (on_board yes)
+      (property "Reference" "U" (at 0 2.54 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Value" "V1N" (at -0.6291 -0.0171 0)
+      (property "Value" "V1N" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "" (at 0 5.08 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (property "Datasheet" "" (at 0 5.08 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Inverter" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (symbol "V1N_1_1"
@@ -308,7 +311,7 @@
         )
       )
     )
-    (symbol "fujitsu-av:V2B" (in_bom yes) (on_board yes)
+    (symbol "ga_fujitsu_av:V2B" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -577,7 +580,7 @@
     (uuid f1e21812-3917-4088-b4c1-015bf814f67d)
   )
 
-  (symbol (lib_id "fujitsu-av:BD3") (at 161.29 73.66 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:BD3") (at 161.29 73.66 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 068e71f9-c965-43ea-81a8-11609ed722c3)
     (property "Reference" "E77" (at 161.29 69.85 0)
@@ -593,12 +596,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 93c6dfa8-21b8-418a-901a-0952ec9e6a0f))
-    (pin "" (uuid 93c6dfa8-21b8-418a-901a-0952ec9e6a0f))
+    (pin "" (uuid 93c6dfa8-21b8-418a-901a-0952ec9e6a10))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "E77") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "E77") (unit 1)
         )
@@ -606,7 +606,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:BD3") (at 151.13 73.66 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:BD3") (at 151.13 73.66 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 40f2731e-a11f-48bc-80ff-b7a1b93a979b)
     (property "Reference" "E70" (at 151.13 69.85 0)
@@ -622,12 +622,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 1192b7ff-7de2-45a6-86a6-cec9ec0ad2a1))
-    (pin "" (uuid 1192b7ff-7de2-45a6-86a6-cec9ec0ad2a1))
+    (pin "" (uuid 1192b7ff-7de2-45a6-86a6-cec9ec0ad2a2))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "E70") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "E70") (unit 1)
         )
@@ -635,7 +632,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:R3P") (at 121.92 158.75 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:R3P") (at 121.92 158.75 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 53619cb7-6c41-47e7-86d6-ae57464a3bc3)
     (property "Reference" "O56" (at 121.92 154.94 0)
@@ -651,17 +648,11 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf561))
-    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf561))
-    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf561))
-    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf561))
+    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf562))
+    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf563))
+    (pin "" (uuid 8b2c42ca-295a-40f6-aeb8-4ce07cfcf564))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "O56") (unit 1)
-        )
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/76f6e8fd-38f9-4f94-9d59-05dbfa5dc0cf"
-          (reference "O56") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "O56") (unit 1)
         )
@@ -669,7 +660,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:V2B") (at 128.27 97.79 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:V2B") (at 128.27 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 77b94301-67d3-442c-ab0b-7f1eebef9d09)
     (property "Reference" "I61" (at 128.27 93.98 0)
@@ -685,12 +676,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 9acaa6d8-b1f0-43e9-be93-4154d5083f59))
-    (pin "" (uuid 9acaa6d8-b1f0-43e9-be93-4154d5083f59))
+    (pin "" (uuid 9acaa6d8-b1f0-43e9-be93-4154d5083f5a))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "I61") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "I61") (unit 1)
         )
@@ -698,7 +686,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:FJ4") (at 129.54 116.84 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:FJ4") (at 129.54 116.84 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 99a7e819-4ae0-43d7-a0e1-f7a6fe76c3f7)
     (property "Reference" "O44" (at 129.54 111.76 0)
@@ -714,16 +702,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
-    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
-    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
-    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
-    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
-    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ca))
+    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425cb))
+    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425cc))
+    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425cd))
+    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425ce))
+    (pin "" (uuid 2402b79d-727f-40fc-9bcf-a6edbb6425cf))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "O44") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "O44") (unit 1)
         )
@@ -749,9 +734,6 @@
     (pin "1" (uuid a6e3313d-8541-4c29-b4d3-e02f952c4c44))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "#PWR06") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "#PWR06") (unit 1)
         )
@@ -759,7 +741,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:FJ4") (at 129.54 68.58 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:FJ4") (at 129.54 68.58 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid aa518892-ea41-44d8-b3ea-3b9cdb4c4716)
     (property "Reference" "G70" (at 129.54 63.5 0)
@@ -775,16 +757,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
-    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
-    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
-    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
-    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
-    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af04f))
+    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af050))
+    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af051))
+    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af052))
+    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af053))
+    (pin "" (uuid 155c34e0-0bc9-4f05-a7a6-8a8d706af054))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "G70") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "G70") (unit 1)
         )
@@ -792,7 +771,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:V1N") (at 110.49 67.31 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:V1N") (at 110.49 67.31 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid aa69b881-a1d1-4cbc-b795-c72708bc2eb1)
     (property "Reference" "H77" (at 110.49 63.5 0)
@@ -808,12 +787,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 9139e044-33f4-4c5c-b2ee-304f652b6483))
-    (pin "" (uuid 9139e044-33f4-4c5c-b2ee-304f652b6483))
+    (pin "" (uuid 9139e044-33f4-4c5c-b2ee-304f652b6484))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "H77") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "H77") (unit 1)
         )
@@ -821,7 +797,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:K2B") (at 140.97 67.31 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:K2B") (at 140.97 67.31 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bdf6d260-b856-4e09-b79c-678d2e1351f0)
     (property "Reference" "H78" (at 140.97 63.5 0)
@@ -837,12 +813,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid 4106719e-6883-42fd-a866-b454a8981d28))
-    (pin "" (uuid 4106719e-6883-42fd-a866-b454a8981d28))
+    (pin "" (uuid 4106719e-6883-42fd-a866-b454a8981d29))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "H78") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "H78") (unit 1)
         )
@@ -868,9 +841,6 @@
     (pin "1" (uuid 43b91e55-eb7f-42c0-adbc-11c01caae0b3))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "#PWR05") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "#PWR05") (unit 1)
         )
@@ -878,7 +848,7 @@
     )
   )
 
-  (symbol (lib_id "fujitsu-av:C41") (at 133.35 163.83 0) (unit 1)
+  (symbol (lib_id "ga_fujitsu_av:C41") (at 133.35 163.83 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d48cc3ba-833c-47ae-8c63-162ad1a6db70)
     (property "Reference" "O61" (at 133.35 154.94 0)
@@ -894,19 +864,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
-    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
-    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
-    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
-    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
-    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ad))
+    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669ae))
+    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669af))
+    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669b0))
+    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669b1))
+    (pin "" (uuid b792c52f-44d2-4ce9-8c7e-fc66c15669b2))
     (instances
       (project "007782"
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30"
-          (reference "O61") (unit 1)
-        )
-        (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/76f6e8fd-38f9-4f94-9d59-05dbfa5dc0cf"
-          (reference "O61") (unit 1)
-        )
         (path "/d023d805-0ce2-4eb9-996b-332dac2f8a30/43a2cc65-05a2-43db-809f-80cc922f6863"
           (reference "O61") (unit 1)
         )

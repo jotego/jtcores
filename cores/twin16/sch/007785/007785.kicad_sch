@@ -11,7 +11,7 @@
   )
 
   (lib_symbols
-    (symbol "konami:007785_internal" (in_bom yes) (on_board yes)
+    (symbol "ga_konami:007785_internal" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 5.08 72.39 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -98,7 +98,7 @@
           (name "VDD" (effects (font (size 1.27 1.27))))
           (number "23" (effects (font (size 1.27 1.27))))
         )
-        (pin output inverted (at 12.7 25.4 180) (length 5.08)
+        (pin output line (at 12.7 25.4 180) (length 5.08)
           (name "~{CLR}" (effects (font (size 1.27 1.27))))
           (number "24" (effects (font (size 1.27 1.27))))
         )
@@ -2732,9 +2732,6 @@
         (path "/febacb01-ad92-4cad-bd65-b3307345134a"
           (reference "M57") (unit 1)
         )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/e746970f-bce1-4ef7-9aaf-d0c882a50a25"
-          (reference "M57") (unit 1)
-        )
       )
     )
   )
@@ -2791,7 +2788,7 @@
     )
   )
 
-  (symbol (lib_id "konami:007785_internal") (at 151.13 142.24 0) (unit 1)
+  (symbol (lib_id "ga_konami:007785_internal") (at 151.13 142.24 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a5a3c771-aad3-4ad8-a073-b3229e58a1dc)
     (property "Reference" "U1" (at 156.21 69.85 0)
@@ -2800,10 +2797,10 @@
     (property "Value" "007785" (at 147.32 69.85 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 146.05 66.04 0)
+    (property "Footprint" "" (at 146.05 64.77 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 146.05 66.04 0)
+    (property "Datasheet" "" (at 146.05 64.77 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "36" (uuid 513d7190-8fc0-4a31-82ec-067468bc1e7b))
@@ -2945,9 +2942,6 @@
     (instances
       (project "007785"
         (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "G80") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/e746970f-bce1-4ef7-9aaf-d0c882a50a25"
           (reference "G80") (unit 1)
         )
       )
