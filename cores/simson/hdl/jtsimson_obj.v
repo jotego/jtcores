@@ -82,7 +82,7 @@ wire        pen15;
 
 wire irq_en, scr_hflip, scr_vflip;
 
-assign ram_we    = {2{cpu_we&ram_cs}} & ~{cpu_dsn[0],cpu_dsn[1]};
+assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6] } :
                               rmrd_addr[21:2];

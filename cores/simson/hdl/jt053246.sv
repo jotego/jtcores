@@ -279,7 +279,7 @@ always @(posedge clk, posedge rst) begin
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    if( !scan_even[15] || (scan_obj[6:0]==debug_bus[6:0] && flicker)) begin
+                    if( !scan_even[15] /*|| (scan_obj[6:0]==debug_bus[6:0] && flicker)*/) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -292,9 +292,8 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    //x <=  x - xoffset[8:0] // + { {2{debug_bus[7]}}, debug_bus };
-                    x <=  x + 10'h28;
-                    y <=  y /*- yoffset[8:0]*/ + 10'h380;
+                    x <=  x + xoffset + 10'h13; //{2'd0, debug_bus};
+                    y <=  y + yoffset + 10'h11e; //{2'b1,debug_bus};
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
@@ -390,8 +389,8 @@ always @(posedge clk, posedge rst) begin
                     if( !cpu_dsn[1] ) yoffset[9:8] <= cpu_dout[9:8];
                 end
                 2: begin
-                    if( !cpu_dsn[0] && !k44_en ) rmrd_addr[8:1] <= cpu_dout[7:0];
-                    if( !cpu_dsn[1] ) cfg <= cpu_dout[15:8];
+                    if( !cpu_dsn[0] ) cfg <= cpu_dout[15:8];
+                    if( !cpu_dsn[1] && !k44_en ) rmrd_addr[8:1] <= cpu_dout[7:0];
                 end
                 3: if( !k44_en ) begin // related to dma_en, see above
                     if( !cpu_dsn[0] ) rmrd_addr[16: 9] <= cpu_dout[ 7:0];

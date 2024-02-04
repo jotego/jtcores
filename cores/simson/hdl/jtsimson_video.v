@@ -203,7 +203,7 @@ jtsimson_obj u_obj(    // sprite logic
     .reg_cs     ( objreg_cs ),
     .cpu_addr   (cpu_addr[13:1]),
     .cpu_dout   ({2{cpu_dout}}),
-    .cpu_dsn    ({~cpu_addr[0],cpu_addr[0]}),
+    .cpu_dsn    ({cpu_addr[0],~cpu_addr[0]}), // Big endian
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( obj16_dout),
 
