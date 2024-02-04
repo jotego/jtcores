@@ -27,4 +27,7 @@
   (lib (name "texas_instruments")(type "KiCad")(uri "${MODULES}/jtkicad/lib/texas_instruments.kicad_sym")(options "0")(descr "texas_instruments"))
   (lib (name "namco")(type "KiCad")(uri "${MODULES}/jtkicad/lib/namco.kicad_sym")(options "0")(descr "namco"))
   (lib (name "taito")(type "KiCad")(uri "${MODULES}/jtkicad/lib/taito.kicad_sym")(options "0")(descr "taito"))
+  (lib (name "ga_konami")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_konami.kicad_sym")(options "0")(descr "Konami IC's - inside view"))
+  (lib (name "ga_fujitsu_av")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_fujitsu_av.kicad_sym")(options "0")(descr "Fujitsu gate array cell library"))
+  (lib (name "ga_oki_msm70v0000")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_oki_msm70v0000.kicad_sym")(options "0")(descr "OKI gate array cell library"))
 )
