@@ -1,7 +1,14 @@
 FROM jotego/jtcore-base
 LABEL maintainer=jotego@gmail.com
 
-COPY 20.1 /opt/intelFPGA_lite/20.1
+RUN mkdir -p /opt/intelFPGA_lite/20.1
+COPY 20.1/devdata   /opt/intelFPGA_lite/20.1/devdata
+COPY 20.1/ip        /opt/intelFPGA_lite/20.1/ip
+COPY 20.1/licenses  /opt/intelFPGA_lite/20.1/licenses
+COPY 20.1/logs      /opt/intelFPGA_lite/20.1/logs
+COPY 20.1/quartus   /opt/intelFPGA_lite/20.1/quartus
+COPY 20.1/uninstall /opt/intelFPGA_lite/20.1/uninstall
 ENV PATH $PATH:/opt/intelFPGA_lite/20.1/quartus/bin
+
 
 ENTRYPOINT ["bash"]
