@@ -2,6 +2,7 @@
 
 OTHER=
 SCENE=
+BATCH=
 if [ $(basename $(pwd)) = parodius ]; then PARODIUS=1; else PARODIUS=;fi
 
 while [ $# -gt 0 ]; do
@@ -9,11 +10,12 @@ while [ $# -gt 0 ]; do
         -s|--scene)
             shift
             SCENE=$1
-            OTHER="-d NOMAIN -d NOSOUND -video 2 -w"
+            OTHER="-d NOMAIN -d NOSOUND -zoom -video 2 -w"
             if [ ! -d scenes/$1 ]; then
                 echo "Cannot open folder $SCENE"
                 exit 1
             fi;;
+        --batch) BATCH=1;;
         *) OTHER="$OTHER $1";;
     esac
     shift
@@ -54,5 +56,10 @@ jtsim $OTHER
 
 if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
     rm -f scenes/$SCENE/frame*.jpg
-    cp frames/* scenes/$SCENE
+    cp `ls frames/*|tail -n 1` scenes/$SCENE/$SCENE.jpg
+    if which eom > /dev/null; then
+        if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg && -z "$BATCH" ]]; then
+            eom `ls frames/frame_*.jpg | tail -n 1` &
+        fi
+    fi
 fi

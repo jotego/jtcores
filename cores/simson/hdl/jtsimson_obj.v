@@ -84,10 +84,11 @@ wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign rom_cs    = ~objcha_n | pre_cs;
-assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6] } :
-                              rmrd_addr[21:2];
-assign cpu_din   = objcha_n ? ram_data :
-                   rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
+assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
+                      paroda ? { 2'd0, pre_addr[19:7], pre_addr[5], pre_addr[6],  pre_addr[4:2] } : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
+
+assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
+                    ram_data;
 
 // Shadow understanding so far
 // The 053251 color mixer lets shadow pass based on numerical priority only
@@ -102,15 +103,11 @@ assign cpu_din   = objcha_n ? ram_data :
 // 053244 (parodius) has 7 palette bits, top 2 used for priority
 assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
-assign shd     = {pre_pxl[15]&~paroda, pre_pxl[14]} & {2{pen15}};
-assign prio    =  paroda ? {3'd0,pre_pxl[10:9]} : pre_pxl[13:9];
+assign shd     = (paroda ? {1'b0,pre_pxl[11]  } : pre_pxl[15:14]) & {2{pen15}};
+assign prio    =  paroda ? {1'd1,pre_pxl[10:9],2'd0} : pre_pxl[13:9];
 assign pxl     = {pre_pxl[8:4], pen_eff};
 
-// assign       { shd, prio, pxl } =
-//     paroda ? { 1'b0, pre_pxl[14] & pen15,   pre_pxl[11:10], 2'd0, pre_pxl[9:4], pen_eff };
-//              { pre_pxl[15:14] & {2{pen15}}, pre_pxl[13:12], pre_pxl[11:4],      pen_eff };
-
-assign sorted = {
+assign sorted = paroda ? rom_data : {
     rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
     rom_data[14], rom_data[10], rom_data[6], rom_data[2], rom_data[30], rom_data[26], rom_data[22], rom_data[18],
     rom_data[13], rom_data[ 9], rom_data[5], rom_data[1], rom_data[29], rom_data[25], rom_data[21], rom_data[17],

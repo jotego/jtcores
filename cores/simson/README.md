@@ -69,6 +69,39 @@ Derived from Caius original [files](https://wiki.pldarchive.co.uk/index.php?titl
           /AS &  /i6 & //i7 +
 ```
 
+# K053246
+
+Based on 051960 (previous generation of sprite hardware)
+and MAME documentation
+
+256 sprites, 8x 16-bit data per sprite
+Sprite table = 256*8*2=4096 = (0x1000)
+DMA transfer takes 297.5us, and occurs 1 line after VS finishes
+The PCB may detect end of the DMA transfer and set
+an interrupt on it
+
+The chip can operate in either 8-bit or 16-bit mode, so it can
+connect to an 8-bit CPU (and RAM) or a 16-bit system
+Is the 8-bit mode set by an MMR?
+DMA A0 line max speed is 3MHz (166ns low, 166ns high)
+in 8-bit mode, not all 8 positions have low & high bytes read
+if all were read, DMA should last for 682.67us but it is 596.9us
+so 14 out of 16 bytes are read for each object
+MSB is read first, so the order is
+1,0,3,2,5,4,7,6,9,8,B,A,D,C
+Note that F,E are missing. Could they be enabled with some MMR?
+
+In X-Men (16-bit mode) DMA lasts for 298.7us, half the time
+than in 8-bit mode (595us, accounting for some inaccuracy in the measurement)
+
+This implementation has a first phase that clears out the internal buffer
+and then sprites are copied by their priority code into memory, so they
+naturally fall in order.
+The original one likely has the same clear phase but executed right after
+the vs edge and lasting for a whole line.
+The DMA timing has been matched with the original, despite of the different
+buffer-clear logic
+
 # Credits
 
 Special thanks to [Museo Arcade Vintage](https://museoarcadevintage.com/) for lending their Simpsons PCB to us during development.

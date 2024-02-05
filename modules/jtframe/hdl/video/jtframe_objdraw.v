@@ -55,7 +55,7 @@ module jtframe_objdraw #( parameter
     input               vflip,
     input      [PW-5:0] pal,
 
-    output     [CW+6:2] rom_addr,
+    output     [CW+6:2] rom_addr, // {code,H,Y}
     output              rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,

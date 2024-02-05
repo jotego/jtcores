@@ -45,7 +45,7 @@ module jtframe_draw#( parameter
     input               vflip,
     input      [PW-5:0] pal,
 
-    output     [CW+6:2] rom_addr,
+    output     [CW+6:2] rom_addr, // HVVVV format
     output reg          rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,
