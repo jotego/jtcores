@@ -103,7 +103,7 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access for ROM checking (P
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = k44_en && cs && cpu_addr==3 /*&& !cpu_dsn[1]*/;
-assign vflip     = gvf ^ pre_vf /*^ vmir_eff*/;
+assign vflip     = gvf ^ pre_vf ^ vmir_eff;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];

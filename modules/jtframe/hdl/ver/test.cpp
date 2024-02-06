@@ -70,6 +70,36 @@ using namespace std;
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
+uint32_t crcTable[256];
+
+void makeCRCTable() {
+    uint32_t crc;
+    for (uint32_t i = 0; i < 256; i++) {
+        crc = i;
+        for (uint32_t j = 0; j < 8; j++) {
+            crc = (crc & 1) ? (crc >> 1) ^ 0xEDB88320 : crc >> 1;
+        }
+        crcTable[i] = crc;
+    }
+}
+
+uint32_t calcCRC32( char *data, int len) {
+    uint32_t crc = 0xFFFFFFFF;
+    for (size_t i = 0; i < len; i++) {
+        uint8_t byte = (uint8_t)data[i];
+        crc = (crc >> 8) ^ crcTable[(crc ^ byte) & 0xFF];
+    }
+    return ~crc;
+}
+
+void storeCRC( char *data, int len ) {
+    uint32_t crc32 = calcCRC32(data,len);
+    ofstream of("frames/frames.crc",std::ios::app);
+    if( of.is_open() ) {
+        of << hex << crc32 << endl;
+    }
+}
+
 class WaveWritter {
     std::ofstream fsnd, fhex;
     std::string name;
@@ -874,9 +904,11 @@ void JTSim::video_dump() {
                     // converts image to jpg in a different fork
                     // I suppose a thread would be faster...
                     if( fork()==0 ) {
+                        int len = (activew*activeh)<<2;
+                        storeCRC(dump.prev_buffer(),len);
                         dump.fout.open("frame.raw",ios_base::binary);
                         if( dump.fout.good() ) {
-                            dump.fout.write( dump.prev_buffer(), (activew*activeh)<<2 );
+                            dump.fout.write( dump.prev_buffer(), len );
                             dump.fout.close();
                             char exes[512];
                             snprintf(exes,512,"convert -filter Point "
@@ -1000,13 +1032,13 @@ WaveWritter::~WaveWritter() {
     fsnd.write( (char*)&number32, 4);
 }
 
-
 ////////////////////////////////////////////////////
 // Main
 
 int main(int argc, char *argv[]) {
     VerilatedContext context;
     context.commandArgs(argc, argv);
+    makeCRCTable();
 
     fputs("Verilator sim starts\n", stderr);
     try {
