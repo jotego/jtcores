@@ -57,16 +57,17 @@ jtsim $OTHER
 if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
     rm -f scenes/$SCENE/frame*.jpg
     cp `ls frames/*jpg|tail -n 1` scenes/$SCENE/$SCENE.jpg
+    if which eom > /dev/null; then
+        if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg && -z "$BATCH" ]]; then
+            eom `ls frames/frame_*.jpg | tail -n 1` &
+        fi
+    fi
     if [ ! -e scenes/$SCENE/$SCENE.crc ]; then
         tail -n 1 frames/frames.crc > scenes/$SCENE/$SCENE.crc
     else
         if ! diff -q <(tail -n 1 frames/frames.crc) scenes/$SCENE/$SCENE.crc > /dev/null; then
             echo "WARNING: the image CRC has changed"
-        fi
-    fi
-    if which eom > /dev/null; then
-        if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg && -z "$BATCH" ]]; then
-            eom `ls frames/frame_*.jpg | tail -n 1` &
+            exit 1
         fi
     fi
 fi
