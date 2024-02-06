@@ -5473,10 +5473,10 @@
     (stroke (width 0.1524) (type solid))
     (fill (color 0 0 0 0.0000))
     (uuid 92d6dbb9-9ff6-4cee-b616-807a1eab1d93)
-    (property "Sheetname" "secondary " (at 231.14 163.1184 0)
+    (property "Sheetname" "sub_main" (at 231.14 163.1184 0)
       (effects (font (size 1.27 1.27)) (justify left bottom))
     )
-    (property "Sheetfile" "secondary.kicad_sch" (at 231.14 187.2746 0)
+    (property "Sheetfile" "sub_main.kicad_sch" (at 231.14 187.2746 0)
       (effects (font (size 1.27 1.27)) (justify left top))
     )
     (instances
