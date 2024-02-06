@@ -7027,7 +7027,7 @@
   (symbol (lib_id "Jumper:SolderJumper_2_Open") (at 245.11 92.71 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1a73a5e6-47cd-4617-9b26-37bc23921438)
-    (property "Reference" "JP9" (at 245.11 90.678 0)
+    (property "Reference" "JP5" (at 245.11 90.678 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "SJ" (at 240.03 93.98 0)
@@ -7044,7 +7044,7 @@
     (instances
       (project "fairyland"
         (path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/92d6dbb9-9ff6-4cee-b616-807a1eab1d93"
-          (reference "JP9") (unit 1)
+          (reference "JP5") (unit 1)
         )
       )
     )
