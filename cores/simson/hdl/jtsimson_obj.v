@@ -82,10 +82,15 @@ wire        pen15;
 
 wire irq_en, scr_hflip, scr_vflip;
 
+function [5:0] paroda_conv(input [5:0]x);
+    paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
+endfunction
+
 assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-                      paroda ? { 2'd0, pre_addr[19:7], pre_addr[5], pre_addr[6],  pre_addr[4:2] } : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
+    paroda ? { 2'd0, pre_addr[19:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
+    : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;

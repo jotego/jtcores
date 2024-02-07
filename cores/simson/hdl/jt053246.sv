@@ -45,7 +45,7 @@ module jt053246(    // sprite logic
     // There are 22 bits communicating both chips on the PCB
     output reg [ 9:0] attr,     // OC pins
     output            hflip,
-    output            vflip,
+    output reg        vflip,
     output reg [ 8:0] hpos,
     output     [ 3:0] ysub,
     output reg [ 9:0] hzoom,
@@ -93,6 +93,7 @@ wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 reg  [ 8:0] full_h, vscl, hscl, full_w;
 wire [ 7:0] cfg;
+wire [ 1:0] nx_mir, hsz, vsz;
 wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en;
 reg  [ 8:0] zoffset[0:255];
@@ -103,12 +104,12 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access for ROM checking (P
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = k44_en && cs && cpu_addr==3 /*&& !cpu_dsn[1]*/;
-assign vflip     = gvf ^ pre_vf ^ vmir_eff;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
 assign last_obj  = &{ k44_en | &scan_obj[7], scan_obj[6:0]};
-
+assign nx_mir    = k44_en ? scan_even[9:8] : scan_even[15:14];
+assign {vsz,hsz} = size;
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
@@ -132,34 +133,39 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
 endfunction
 
 always @* begin
-    ymove  = zmove( size[3:2], vscl );
+    ymove  = zmove( vsz, vscl );
     y2     = y + {1'b0,ymove};
     ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
     ydiff  = yz_add[6+:10];
     // assuming  mirroring applies to a single 16x16 tile, not the whole size
-    vmir_eff = vmir && size[3:2]==0 && !ydiff[3];
+    case( vsz )
+        0: vmir_eff = nx_mir[1] && ydiff[3]==0;
+        1: vmir_eff = nx_mir[1] && ydiff[4:3]==0;
+        2: vmir_eff = nx_mir[1] && ydiff[5:3]==0;
+        3: vmir_eff = nx_mir[1] && ydiff[6:3]==0;
+    endcase
     hmir_eff = hmir & hhalf;
-    case( size[3:2] )
+    case( vsz )
         0: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:4]==0; // 16
         1: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:5]==0; // 32
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
     if( y2[9] ) inzone=0;
-    case( size[1:0] )
+    case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
     if( y[9] ) inzone=0;
-    case( size[1:0] )
+    case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
         2: hsum = hmir ? {2'd0,hstep[0]^hflip}          : {1'd0,hstep[1:0]^{2{hflip}}};
         3: hsum = hmir ? ({1'b0,hstep[1:0]^{2{hflip}}}) : hstep[2:0]^{3{hflip}};
     endcase
-    case( size[3:2] )
+    case( vsz )
         0: vsum = 0;
         1: vsum = { 2'd0, ydiff[4]^vflip   };
         2: vsum = { 1'd0, ydiff[5:4]^{2{vflip}} };
@@ -178,6 +184,7 @@ always @(posedge clk, posedge rst) begin
         attr     <= 0;
         pre_vf   <= 0;
         pre_hf   <= 0;
+        vflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
         hz_keep  <= 0;
@@ -226,20 +233,19 @@ always @(posedge clk, posedge rst) begin
                     end
                 end
                 3: begin
+                    { vmir, hmir } <= nx_mir;
                     if( k44_en ) begin
                         x <= x + 10'h53;
                         y <= y - 10'hf;
-                        { vmir, hmir, shd[0], attr[6:0] } <= scan_even[9:0];
+                        { shd[0], attr[6:0] } <= scan_even[7:0];
                     end else
-                        { vmir, hmir, reserved, shd, attr } <= scan_even;
+                        { reserved, shd, attr } <= scan_even[13:0];
+                    vflip <= pre_vf ^ gvf ^ vmir_eff;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
-                     if( k44_en )
-                        {code[5],code[4],code[3]} <= {code[5],code[4],code[3]} + vsum;
-                    else
-                        {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
+                    {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
@@ -250,19 +256,16 @@ always @(posedge clk, posedge rst) begin
                     end
                 end
                 default: begin // in draw state
-                    case( size[1:0] )
+                    case( hsz )
                         1: if(hstep>=1) hhalf <= 1;
                         2: if(hstep>=2) hhalf <= 1;
                         3: if(hstep>=4) hhalf <= 1;
                     endcase
                     {indr, scan_sub} <= 5; // stay here
                     if( (!dr_start && !dr_busy) || !inzone ) begin
-                        if( k44_en )
-                            {code[2],code[1],code[0]} <= hcode + hsum;
-                        else
-                            {code[4],code[2],code[0]} <= hcode + hsum;
+                        {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos <= x[8:0] - zmove( size[1:0], hscl );
+                            hpos <= x[8:0] - zmove( hsz, hscl );
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
