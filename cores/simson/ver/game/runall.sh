@@ -3,7 +3,7 @@
 set -e
 
 for i in scenes/*; do
-    sim.sh -s $(basename $i) --batch
+    sim.sh -s $(basename $i) --batch $*
 done
 if [ -d all ]; then
     rm -rf all.old

@@ -196,7 +196,7 @@ end
 always @* begin
     cpu_din = rom_cs     ? rom_data  : // maximum priority
               ram_cs     ? ram_dout  :
-              (joystk_cs|eeprom_cs ) ? port_in : // io_cs must take precedence over tilesys_cs (?)
+              (joystk_cs|eeprom_cs|(io_cs&paroda) ) ? port_in :
               pal_cs     ? pal_dout  :
               tilesys_cs ? tilesys_dout :
               snd_cs     ? snd2main  :

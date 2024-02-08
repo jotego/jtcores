@@ -36,7 +36,8 @@ module jt053246_dma(
     output            dma_weh,
     output            dma_wel,
     output     [11:1] dma_wr_addr,
-    output     [15:0] dma_din
+    output     [15:0] dma_din,
+    output reg        flicker
 );
 
 wire        dma_we, hs_pos;
@@ -44,7 +45,6 @@ reg  [ 1:0] vs_sh;
 reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;
 reg         dma_clr, dma_wait, dma_ok, dma_44, hsl;
-// reg      flicker;
 
 assign dma_wel = dma_we & ~dma_wr_addr[1];
 assign dma_weh = dma_we &  dma_wr_addr[1];
@@ -55,9 +55,13 @@ assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
 
 // DMA logic
-always @(posedge clk) begin
-    if( dma_bsy ) dma_44 <= 0;
-    if( dma_trig ) dma_44 <= 1;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dma_44 <= 0;
+    end else begin
+        if( dma_bsy ) dma_44 <= 0;
+        if( dma_trig ) dma_44 <= 1;
+    end
 end
 
 always @(posedge clk, posedge rst) begin
@@ -71,7 +75,7 @@ always @(posedge clk, posedge rst) begin
         dma_bsy  <= 0;
         dma_wait <= 0;
         hsl      <= 0;
-        // flicker  <= 0;
+        flicker  <= 0;
     end else if( pxl2_cen ) begin
         hsl <= hs;
         if( hs_pos ) begin
@@ -82,7 +86,7 @@ always @(posedge clk, posedge rst) begin
             dma_bsy  <= dma_en | dma_44;
             dma_clr  <= 1;
             dma_wait <= !k44_en;
-            // flicker  <= ~flicker;
+            flicker  <= ~flicker;
             dma_addr <= 0;
         end
         // this implementation matches 8-bit speed, ie 595us vs 297.5us for 16-bit mode
@@ -101,7 +105,7 @@ always @(posedge clk, posedge rst) begin
             dma_bufd <= dma_data;
             if( k44_en ) dma_addr[13:11] <= 0;
             if( dma_addr[3:1]==0 ) begin
-                dma_bufa <= { ~k44_en & dma_data[7], dma_data[6:0], 3'd0 }; // LUT half as big for 053244
+                dma_bufa <= { ~k44_en & dma_data[7], k44_en ? -dma_data[6:0] : dma_data[6:0], 3'd0 }; // LUT half as big for 053244 and reversed order
                 dma_ok <= dma_data[15] && dma_data[7:0]!=0; // priority 0 is skipped. See Simpsons scene 4
             end
             dma_addr[12:1] <= dma_addr[12:1] + 1'd1;

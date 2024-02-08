@@ -78,8 +78,8 @@ localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_CFG   = 2; // interrupt control, ROM read
 
 reg  [18:0] yz_add;
-reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b;
-reg  [ 8:0] vlatch, ymove;
+reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b, xadj, yadj;
+reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
@@ -91,11 +91,10 @@ wire [15:0] scan_even, scan_odd, dma_din;
 wire [11:2] scan_addr;
 wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
-reg  [ 8:0] full_h, vscl, hscl, full_w;
 wire [ 7:0] cfg;
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
-            cpu_bsy, ghf, gvf, mode8, dma_en;
+            cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 reg  [ 8:0] zoffset[0:255];
 
 assign ghf       = cfg[0]; // global flip
@@ -110,10 +109,13 @@ assign ysub      = ydiff[3:0];
 assign last_obj  = &{ k44_en | &scan_obj[7], scan_obj[6:0]};
 assign nx_mir    = k44_en ? scan_even[9:8] : scan_even[15:14];
 assign {vsz,hsz} = size;
+
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
+    xadj <= xoffset + (k44_en ? 10'h013 + 10'h53 : 10'h013);
+    yadj <= yoffset + (k44_en ? 10'h11e - 10'h0f : 10'h11e);
     vscl <= zoffset[ vzoom[7:0] ];
     hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -137,12 +139,13 @@ always @* begin
     y2     = y + {1'b0,ymove};
     ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
     ydiff  = yz_add[6+:10];
-    // assuming  mirroring applies to a single 16x16 tile, not the whole size
+    // test ver/game/scene/1 -> shadow, scan_obj 9
+    // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3]==0;
-        1: vmir_eff = nx_mir[1] && ydiff[4:3]==0;
-        2: vmir_eff = nx_mir[1] && ydiff[5:3]==0;
-        3: vmir_eff = nx_mir[1] && ydiff[6:3]==0;
+        0: vmir_eff = nx_mir[1] && ydiff[3]==k44_en;
+        1: vmir_eff = nx_mir[1] && ydiff[4]==k44_en;
+        2: vmir_eff = nx_mir[1] && ydiff[5]==k44_en;
+        3: vmir_eff = nx_mir[1] && ydiff[6]==k44_en;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -190,6 +193,7 @@ always @(posedge clk, posedge rst) begin
         hz_keep  <= 0;
         indr     <= 0;
         hhalf    <= 0;
+        shd      <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         vs_l <= vs;
@@ -210,7 +214,9 @@ always @(posedge clk, posedge rst) begin
                     if( k44_en ) code[15:14] <= 0;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    if( !scan_even[15] /*|| (scan_obj[6:0]==debug_bus[6:0] && flicker)*/) begin
+                    // if( !scan_even[15]  || scan_obj[6:0]!=9  ) begin
+                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
+                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -223,20 +229,21 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x + xoffset + 10'h13; //{2'd0, debug_bus};
-                    y <=  y + yoffset + 10'h11e; //{2'b1,debug_bus};
+                    x <=  x + xadj;
+                    y <=  y + yadj;
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
-                    if( k44_en ) begin
-                        vzoom <= 10'h40;
-                        hzoom <= 10'h40;
+                    if( k44_en ) begin //
+                        if(scan_odd>16'h3ff) hzoom <= 10'h3ff;
+                        if(scan_even>16'h3ff) begin
+                            vzoom <= 10'h3ff;
+                            if( sq ) hzoom <= 10'h3ff;
+                        end
                     end
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     if( k44_en ) begin
-                        x <= x + 10'h53;
-                        y <= y - 10'hf;
                         { shd[0], attr[6:0] } <= scan_even[7:0];
                     end else
                         { reserved, shd, attr } <= scan_even[13:0];
@@ -305,7 +312,9 @@ jt053246_dma u_dma(
     .dma_weh    ( dma_weh   ),
     .dma_wel    ( dma_wel   ),
     .dma_wr_addr(dma_wr_addr),
-    .dma_din    ( dma_din   )
+    .dma_din    ( dma_din   ),
+
+    .flicker    ( flicker   )  // debug
 );
 
 jt053246_mmr u_mmr(

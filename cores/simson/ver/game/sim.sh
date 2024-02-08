@@ -3,6 +3,7 @@
 OTHER=
 SCENE=
 BATCH=
+CRC=
 if [ $(basename $(pwd)) = parodius ]; then PARODIUS=1; else PARODIUS=;fi
 
 while [ $# -gt 0 ]; do
@@ -15,6 +16,8 @@ while [ $# -gt 0 ]; do
                 echo "Cannot open folder $SCENE"
                 exit 1
             fi;;
+        --crc)
+            CRC=1;;
         --batch) BATCH=1;;
         *) OTHER="$OTHER $1";;
     esac
@@ -62,7 +65,7 @@ if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
             eom `ls frames/frame_*.jpg | tail -n 1` &
         fi
     fi
-    if [ ! -e scenes/$SCENE/$SCENE.crc ]; then
+    if [[ ! -e scenes/$SCENE/$SCENE.crc || $CRC = 1 ]]; then
         tail -n 1 frames/frames.crc > scenes/$SCENE/$SCENE.crc
     else
         if ! diff -q <(tail -n 1 frames/frames.crc) scenes/$SCENE/$SCENE.crc > /dev/null; then

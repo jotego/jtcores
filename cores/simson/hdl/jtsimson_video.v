@@ -251,7 +251,7 @@ jtsimson_colmix u_colmix(
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( obj_shd   ),
+    .obj_shd    ( paroda ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

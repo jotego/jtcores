@@ -393,7 +393,7 @@ void k05324x_device::sprites_draw( bitmap_ind16 &bitmap, const rectangle &clipre
 			if (zoomx > 0x2000)
 				continue;
 			if (zoomx)
-				zoomx = (0x400000 + zoomx / 2) / zoomx;
+				zoomx = (0x40'0000 + zoomx / 2) / zoomx;
 			else
 				zoomx = 2 * 0x400000;
 //          else zoomx = zoomy; /* workaround for TMNT2 */
