@@ -75,7 +75,7 @@
     "files": [
       {
         "name": "fairyland.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
@@ -83,18 +83,6 @@
           "pos_y": 0,
           "size_x": 964,
           "size_y": 1052
-        }
-      },
-      {
-        "name": "fairyland.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 1919,
-          "pos_y": 28,
-          "size_x": 1280,
-          "size_y": 622
         }
       }
     ]
