@@ -111,6 +111,8 @@ always @(*) begin
         2'd2: { scanlines, bw_en, blend_en } = { 3'd0, 2'd3 }; // analogue
         2'd3: { scanlines, bw_en, blend_en } = { 3'd1, 2'd3 }; // analogue + scan lines
     endcase // status[4:3]
+    `ifdef JTFRAME_FEEDTHRU
+    { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; `endif
 end
 `endif
 
