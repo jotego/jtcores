@@ -22,7 +22,6 @@ module jtbubl_sound(
     input             clk,
     input             cen3,   //  3   MHz
 
-    input      [ 1:0] fx_level,
     input             tokio,
     // Interface with main CPU
     input      [ 7:0] snd_latch,
@@ -40,7 +39,8 @@ module jtbubl_sound(
     // Sound output
     output signed [15:0] snd,
     output            sample,
-    output            peak
+    output            peak,
+    input   [ 7:0]    debug_bus
 );
 
 wire        [15:0] A;
@@ -48,14 +48,14 @@ wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
 wire               mreq_n, rfsh_n;
-reg         [ 7:0]  din;
+reg         [ 7:0] din, fm0_gain, fm1_gain, psg_gain;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
 wire               nmi_n;
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg_snd;
-wire signed [ 9:0] psg2x; // DC-removed version of psg0
+wire signed [ 9:0] psg_dcrm; // DC-removed version of psg0
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
@@ -167,33 +167,23 @@ jt49_dcrm2 #(.sw(10)) u_dcrm (
     .cen    (  cen3     ),
     .rst    (  rst      ),
     .din    (  psg_snd  ),
-    .dout   (  psg2x    )
+    .dout   (  psg_dcrm )
 );
-
-// Both FM chips have the same gain according to the schematics
-// YM2203 to YM3526 ratio = 8:1
-
-reg  [7:0] fm0_gain, psg_gain;
-
-wire [7:0] fm1_gain = tokio ? 8'h40 : 8'h10; // YM3526
 
 always @(posedge clk) begin
     if( tokio ) begin
-        case( fx_level )
-            2'd0: psg_gain <= 8'h01;
-            2'd1: psg_gain <= 8'h02;
-            2'd2: psg_gain <= 8'h04;
-            2'd3: psg_gain <= 8'h08;
-        endcase
-        fm0_gain <= fm1_gain;
+        fm0_gain <= 8'h20;      // YM2203
+        fm1_gain <= 8'h40;      // YM3526
+        psg_gain <= 8'h02;
+        // fm1_gain <= {6'd0,debug_bus[3],1'b1}<<debug_bus[2:0];
+        // psg_gain <= {6'd0,debug_bus[7],1'b1}<<debug_bus[6:4];
     end else begin
-        case( fx_level )
-            2'd0: fm0_gain <= 8'h18;
-            2'd1: fm0_gain <= 8'h30;
-            2'd2: fm0_gain <= 8'h60;
-            2'd3: fm0_gain <= 8'hC0;
-        endcase
-        psg_gain <= fm0_gain;
+        // Both FM chips have the same gain according to the schematics
+        fm1_gain <= 8'h10;      // YM2203 FX
+        fm1_gain <= 8'h08;      // YM3526 music
+        psg_gain <= 8'h10;      // seems unused in Bubble Bobble
+        // fm1_gain <= {6'd0,debug_bus[3],1'b1}<<debug_bus[2:0];
+        // psg_gain <= {6'd0,debug_bus[7],1'b1}<<debug_bus[6:4];
     end
 end
 
@@ -203,7 +193,7 @@ jtframe_mixer #(.W2(10),.W3(8)) u_mixer(
     .cen    ( cen3         ),
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
-    .ch2    ( psg2x        ),
+    .ch2    ( psg_dcrm     ),
     .ch3    ( 8'd0         ),
     .gain0  ( fm0_gain     ), // YM2203 - Fx
     .gain1  ( fm1_gain     ), // YM3526 - Music

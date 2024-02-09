@@ -166,7 +166,6 @@ jtbubl_sound u_sound(
     .clk        ( clk           ), // 24 MHz
     .rstn       ( snd_rstn_eff  ),
     .cen3       ( cen3          ),
-    .fx_level   ( dip_fxlevel   ),
 
     .tokio      ( tokio         ),
     // communication with main CPU
@@ -185,7 +184,8 @@ jtbubl_sound u_sound(
     // Sound output
     .snd        ( snd           ),
     .sample     ( sample        ),
-    .peak       ( game_led      )
+    .peak       ( game_led      ),
+    .debug_bus  ( debug_bus     )
 );
 `else
 assign snd_cs   = 0;
