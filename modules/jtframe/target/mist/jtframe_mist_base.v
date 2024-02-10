@@ -18,7 +18,10 @@
 
 module jtframe_mist_base #(parameter
     SIGNED_SND      = 1'b0,
-    COLORW          = 4
+    COLORW          = 4,
+    VGA_BITS        = 6,
+    QSPI            = 1'b0,
+    HDMI            = 1'b0
 ) (
     input           rst,
     input           clk_sys,
@@ -37,19 +40,30 @@ module jtframe_mist_base #(parameter
     input           vs,
     input           pxl_cen,
     // Scan-doubler video
-    input   [5:0]   scan2x_r,
-    input   [5:0]   scan2x_g,
-    input   [5:0]   scan2x_b,
+    input   [7:0]   scan2x_r,
+    input   [7:0]   scan2x_g,
+    input   [7:0]   scan2x_b,
     input           scan2x_hs,
     input           scan2x_vs,
+    input           scan2x_de,
     output          scan2x_enb, // scan doubler enable bar = scan doubler disable.
     input           scan2x_clk,
     // Final video: VGA+OSD or base+OSD depending on configuration
-    output  [5:0]   VIDEO_R,
-    output  [5:0]   VIDEO_G,
-    output  [5:0]   VIDEO_B,
+    output [VGA_BITS-1:0]   VIDEO_R,
+    output [VGA_BITS-1:0]   VIDEO_G,
+    output [VGA_BITS-1:0]   VIDEO_B,
     output          VIDEO_HS,
     output          VIDEO_VS,
+    // HDMI pins
+    output    [7:0] HDMI_R,
+    output    [7:0] HDMI_G,
+    output    [7:0] HDMI_B,
+    output          HDMI_HS,
+    output          HDMI_VS,
+    output          HDMI_PCLK,
+    output          HDMI_DE,
+    inout           HDMI_SDA,
+    inout           HDMI_SCL,
     // SPI interface to arm io controller
     inout           SPI_DO,
     input           SPI_DI,
@@ -58,6 +72,10 @@ module jtframe_mist_base #(parameter
     input           SPI_SS3,    // OSD interface
     input           SPI_SS4,
     input           CONF_DATA0,
+    // QSPI interface to ARM
+    input           QCSn,
+    input           QSCK,
+    input     [3:0] QDAT,
     // control
     output [63:0]   status,
     output [31:0]   joystick1,
@@ -90,6 +108,11 @@ module jtframe_mist_base #(parameter
     input   [15:0]  snd_right,
     output          snd_pwm_left,
     output          snd_pwm_right,
+    output          I2S_BCK,
+    output          I2S_LRCK,
+    output          I2S_DATA,
+    output          SPDIF,
+
     // Direct joystick connection (Neptuno / MC)
     input   [5:0]   joy1_bus,
     input   [5:0]   joy2_bus,
@@ -123,9 +146,7 @@ assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
 assign ioctl_cheat = ioctl_index == IDX_CHEAT && ioctl_download;
 
-// unsupported by the firmware
-assign joyana_l2 = 0;
-assign joyana_r2 = 0;
+// unsupported by user_io
 assign joyana_l3 = 0;
 assign joyana_r3 = 0;
 assign joyana_l4 = 0;
@@ -188,6 +209,48 @@ assign snd_pwm_left  = 0;
 assign snd_pwm_right = 0;
 `endif
 
+`ifndef SIMULATION
+    `ifndef NOSOUND
+
+wire [31:0] clk_rate;
+`ifdef JTFRAME_CLK96
+assign clk_rate = 32'd96_000_000;
+`else
+`ifdef JTFRAME_SDRAM96
+assign clk_rate = 32'd96_000_000;
+`else
+assign clk_rate = 32'd48_000_000;
+`endif
+`endif
+
+wire [19:0] snd_padded_left = snd_padded(snd_left);
+wire [19:0] snd_padded_right = snd_padded(snd_right);
+
+i2s i2s (
+    .reset(1'b0),
+    .clk(clk_sys),
+    .clk_rate(clk_rate),
+
+    .sclk(I2S_BCK),
+    .lrclk(I2S_LRCK),
+    .sdata(I2S_DATA),
+
+    .left_chan(snd_padded_left[19:4]),
+    .right_chan(snd_padded_right[19:4])
+);
+
+spdif spdif
+(
+    .clk_i(clk_sys),
+    .rst_i(1'b0),
+    .clk_rate_i(clk_rate),
+    .spdif_o(SPDIF),
+    .sample_i({snd_padded_right[19:4], snd_padded_left[19:4]})
+);
+
+    `endif
+`endif
+
 `ifndef JTFRAME_MIST_DIRECT
 `define JTFRAME_MIST_DIRECT 1'b1
 `endif
@@ -205,12 +268,21 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
     .q      ( cfg_dout  )
 );
 
+wire        i2c_start;
+wire        i2c_read;
+wire  [6:0] i2c_addr;
+wire  [7:0] i2c_subaddr;
+wire  [7:0] i2c_dout;
+wire  [7:0] i2c_din;
+wire        i2c_ack;
+wire        i2c_end;
+
 `ifndef NEPTUNO
     wire [1:0]  buttons;
     assign but_coin    = { 3'b0, buttons[0] };
     assign but_start   = { 3'b0, buttons[1] };
 
-    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT)) u_userio(
+    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(32'h0 /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
         .clk_sys        ( clk_sys   ),
 
         // config string
@@ -228,8 +300,8 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
         .joystick_3     ( joystick4 ),
         .buttons        ( buttons   ),
         // Analog joysticks
-        .joystick_analog_0(joyana_l1),
-        .joystick_analog_1(joyana_r1),
+        .joystick_analog_0({joyana_r2[7:0], joyana_r2[15:8], joyana_l2}),
+        .joystick_analog_1({joyana_r1[7:0], joyana_r1[15:8], joyana_l1}),
 
         .status         ( status    ),
         .ypbpr          ( ypbpr     ),
@@ -240,6 +312,15 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
         .ps2_kbd_data   ( ps2_kbd_data ),
         // Core variant
         .core_mod       ( core_mod  ),
+        // i2c bridge
+        .i2c_start      (i2c_start  ),
+        .i2c_read       (i2c_read   ),
+        .i2c_addr       (i2c_addr   ),
+        .i2c_subaddr    (i2c_subaddr),
+        .i2c_dout       (i2c_dout   ),
+        .i2c_din        (i2c_din    ),
+        .i2c_ack        (i2c_ack    ),
+        .i2c_end        (i2c_end    ),
         // unused ports:
         .serial_strobe  ( 1'b0      ),
         .serial_data    ( 8'd0      ),
@@ -281,13 +362,17 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
 `endif
 
 `ifndef NEPTUNO
-    data_io #(.ROM_DIRECT_UPLOAD(1'b1)) u_datain (
+    data_io #(.ROM_DIRECT_UPLOAD(1'b1), .USE_QSPI(QSPI)) u_datain (
         .clkref_n           ( 1'b0              ),
         .SPI_SCK            ( SPI_SCK           ),
         .SPI_SS2            ( SPI_SS2           ),
         .SPI_SS4            ( SPI_SS4           ),
         .SPI_DI             ( SPI_DI            ),
         .SPI_DO             ( SPI_DO            ),
+
+        .QCSn               ( QCSn              ),
+        .QSCK               ( QSCK              ),
+        .QDAT               ( QDAT              ),
 
         .clk_sys            ( clk_rom           ),
         .ioctl_download     ( ioctl_download    ),
@@ -299,7 +384,24 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
         .ioctl_upload       ( ioctl_upload      ),
         // Unused:
         .ioctl_fileext      (                   ),
-        .ioctl_filesize     (                   )
+        .ioctl_filesize     (                   ),
+
+        .hdd_clk            ( 1'b0              ),
+        .hdd_cmd_req        (                   ),
+        .hdd_cdda_req       (                   ),
+        .hdd_dat_req        (                   ),
+        .hdd_cdda_wr        (                   ),
+        .hdd_status_wr      (                   ),
+        .hdd_addr           (                   ),
+        .hdd_wr             (                   ),
+
+        .hdd_data_out       (                   ),
+        .hdd_data_in        (                   ),
+        .hdd_data_rd        (                   ),
+        .hdd_data_wr        (                   ),
+
+        .hdd0_ena           (                   ),
+        .hdd1_ena           (                   )
     );
 
     assign JOY_SELECT=0;
@@ -383,34 +485,32 @@ end
 
 `ifndef BYPASS_OSD
 // include the on screen display
-wire [5:0] osd_r_o;
-wire [5:0] osd_g_o;
-wire [5:0] osd_b_o;
+wire [VGA_BITS-1:0] osd_r_o;
+wire [VGA_BITS-1:0] osd_g_o;
+wire [VGA_BITS-1:0] osd_b_o;
 wire       HSync = scan2x_enb ? ~hs : scan2x_hs;
 wire       VSync = scan2x_enb ? ~vs : scan2x_vs;
 wire       HSync_osd, VSync_osd;
 wire       CSync_osd = ~(HSync_osd ^ VSync_osd);
 
-function [5:0] extend_color;
+localparam m = VGA_BITS/COLORW;
+localparam n = VGA_BITS%COLORW;
+
+function [VGA_BITS-1:0] extend_color;
     input [COLORW-1:0] a;
-    case( COLORW )
-        3: extend_color = { a, a[2:0] };
-        4: extend_color = { a, a[3:2] };
-        5: extend_color = { a, a[4] };
-        6: extend_color = a;
-        7: extend_color = a[6:1];
-        8: extend_color = a[7:2];
-    endcase
+    if (n>0)
+        extend_color = { {m{a}}, a[COLORW-1 -:n] };
+    else
+        extend_color = { {m{a}} };
 endfunction
 
-wire [5:0] game_r6 = extend_color( game_r );
-wire [5:0] game_g6 = extend_color( game_g );
-wire [5:0] game_b6 = extend_color( game_b );
+wire [VGA_BITS-1:0] game_r6 = extend_color( game_r );
+wire [VGA_BITS-1:0] game_g6 = extend_color( game_g );
+wire [VGA_BITS-1:0] game_b6 = extend_color( game_b );
 
 
-osd #(0,0,6'b01_11_01) osd (
+osd #(0,0,6'b01_11_01,VGA_BITS) osd (
    .clk_sys    ( scan2x_enb ? clk_sys : scan2x_clk ),
-
    // spi for OSD
    .SPI_DI     ( SPI_DI       ),
    .SPI_SCK    ( SPI_SCK      ),
@@ -418,24 +518,26 @@ osd #(0,0,6'b01_11_01) osd (
 
    .rotate     ( osd_rotate   ),
 
-   .R_in       ( scan2x_enb ? game_r6 : scan2x_r ),
-   .G_in       ( scan2x_enb ? game_g6 : scan2x_g ),
-   .B_in       ( scan2x_enb ? game_b6 : scan2x_b ),
+   .R_in       ( scan2x_enb ? game_r6 : scan2x_r[7:8-VGA_BITS] ),
+   .G_in       ( scan2x_enb ? game_g6 : scan2x_g[7:8-VGA_BITS] ),
+   .B_in       ( scan2x_enb ? game_b6 : scan2x_b[7:8-VGA_BITS] ),
    .HSync      ( HSync        ),
    .VSync      ( VSync        ),
+   .DE         (              ),
 
    .R_out      ( osd_r_o      ),
    .G_out      ( osd_g_o      ),
    .B_out      ( osd_b_o      ),
    .HSync_out  ( HSync_osd    ),
    .VSync_out  ( VSync_osd    ),
+   .DE_out     (              ),
 
    .osd_shown  ( osd_shown    )
 );
 
 wire       HSync_out, VSync_out, CSync_out;
 
-RGBtoYPbPr #(6) u_rgb2ypbpr(
+RGBtoYPbPr #(VGA_BITS) u_rgb2ypbpr(
     .clk       ( scan2x_enb ? clk_sys : scan2x_clk ),
     .ena       ( ypbpr     ),
     .red_in    ( osd_r_o   ),
@@ -465,4 +567,52 @@ assign VIDEO_HS = hs;
 assign VIDEO_VS = vs;
 `endif
 
+generate if (HDMI) begin
+i2c_master #(96_000_000) i2c_master (
+    .CLK         (clk_sys),
+    .I2C_START   (i2c_start),
+    .I2C_READ    (i2c_read),
+    .I2C_ADDR    (i2c_addr),
+    .I2C_SUBADDR (i2c_subaddr),
+    .I2C_WDATA   (i2c_dout),
+    .I2C_RDATA   (i2c_din),
+    .I2C_END     (i2c_end),
+    .I2C_ACK     (i2c_ack),
+
+    //I2C bus
+    .I2C_SCL     (HDMI_SCL),
+    .I2C_SDA     (HDMI_SDA)
+);
+
+osd #(0,0,6'b01_11_01,8) hdmi_osd (
+   .clk_sys    ( scan2x_clk ),
+
+   // spi for OSD
+   .SPI_DI     ( SPI_DI       ),
+   .SPI_SCK    ( SPI_SCK      ),
+   .SPI_SS3    ( SPI_SS3      ),
+
+   .rotate     ( osd_rotate   ),
+
+   .R_in       ( scan2x_r[7:0]),
+   .G_in       ( scan2x_g[7:0]),
+   .B_in       ( scan2x_b[7:0]),
+   .DE         ( scan2x_de    ),
+   .HSync      ( scan2x_hs    ),
+   .VSync      ( scan2x_vs    ),
+
+   .R_out      ( HDMI_R       ),
+   .G_out      ( HDMI_G       ),
+   .B_out      ( HDMI_B       ),
+   .HSync_out  ( HDMI_HS      ),
+   .VSync_out  ( HDMI_VS      ),
+   .DE_out     ( HDMI_DE      ),
+   .osd_shown  (              )
+);
+
+assign HDMI_PCLK = scan2x_clk;
+
+end
+
+endgenerate
 endmodule

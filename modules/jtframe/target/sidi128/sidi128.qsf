@@ -1,0 +1,420 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2013 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus II 64-Bit
+# Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
+# Date created = 21:06:00  February 29, 2020
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		xxx_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus II software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+
+# Project-Wide Assignments
+# ========================
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name LAST_QUARTUS_VERSION "22.1std.2 Lite Edition"
+set_global_assignment -name SMART_RECOMPILE ON
+
+# Pin & Location Assignments
+# ==========================
+set_location_assignment PIN_AB9 -to LED
+set_location_assignment PIN_G21 -to CLOCK_27[0]
+set_location_assignment PIN_G22 -to CLOCK_27[1]
+set_location_assignment PIN_R1 -to VGA_R[7]
+set_location_assignment PIN_R2 -to VGA_R[6]
+set_location_assignment PIN_R3 -to VGA_R[5]
+set_location_assignment PIN_P1 -to VGA_R[4]
+set_location_assignment PIN_P2 -to VGA_R[3]
+set_location_assignment PIN_N1 -to VGA_R[2]
+set_location_assignment PIN_N2 -to VGA_R[1]
+set_location_assignment PIN_M1 -to VGA_R[0]
+
+set_location_assignment PIN_W2 -to VGA_B[7]
+set_location_assignment PIN_V3 -to VGA_B[6]
+set_location_assignment PIN_W1 -to VGA_B[5]
+set_location_assignment PIN_V2 -to VGA_B[4]
+set_location_assignment PIN_V1 -to VGA_B[3]
+set_location_assignment PIN_U2 -to VGA_B[2]
+set_location_assignment PIN_U1 -to VGA_B[1]
+set_location_assignment PIN_T3 -to VGA_B[0]
+
+set_location_assignment PIN_AB4 -to VGA_G[7]
+set_location_assignment PIN_AB3 -to VGA_G[6]
+set_location_assignment PIN_Y6 -to VGA_G[5]
+set_location_assignment PIN_AA4 -to VGA_G[4]
+set_location_assignment PIN_Y4 -to VGA_G[3]
+set_location_assignment PIN_Y3 -to VGA_G[2]
+set_location_assignment PIN_Y2 -to VGA_G[1]
+set_location_assignment PIN_Y1 -to VGA_G[0]
+
+set_location_assignment PIN_J2 -to VGA_VS
+set_location_assignment PIN_J1 -to VGA_HS
+set_location_assignment PIN_A16 -to AUDIO_L
+set_location_assignment PIN_A17 -to AUDIO_R
+
+set_location_assignment PIN_A4 -to HDMI_R[7]
+set_location_assignment PIN_A3 -to HDMI_R[6]
+set_location_assignment PIN_B4 -to HDMI_R[5]
+set_location_assignment PIN_B3 -to HDMI_R[4]
+set_location_assignment PIN_B2 -to HDMI_R[3]
+set_location_assignment PIN_B1 -to HDMI_R[2]
+set_location_assignment PIN_C4 -to HDMI_R[1]
+set_location_assignment PIN_C3 -to HDMI_R[0]
+
+set_location_assignment PIN_H3 -to HDMI_B[7]
+set_location_assignment PIN_H2 -to HDMI_B[6]
+set_location_assignment PIN_H1 -to HDMI_B[5]
+set_location_assignment PIN_G3 -to HDMI_B[4]
+set_location_assignment PIN_F2 -to HDMI_B[3]
+set_location_assignment PIN_F1 -to HDMI_B[2]
+set_location_assignment PIN_E1 -to HDMI_B[1]
+set_location_assignment PIN_E2 -to HDMI_B[0]
+
+set_location_assignment PIN_D2 -to HDMI_G[7]
+set_location_assignment PIN_D1 -to HDMI_G[6]
+set_location_assignment PIN_E6 -to HDMI_G[5]
+set_location_assignment PIN_E4 -to HDMI_G[4]
+set_location_assignment PIN_E3 -to HDMI_G[3]
+set_location_assignment PIN_J4 -to HDMI_G[2]
+set_location_assignment PIN_J6 -to HDMI_G[1]
+set_location_assignment PIN_H4 -to HDMI_G[0]
+
+set_location_assignment PIN_B6 -to HDMI_VS
+set_location_assignment PIN_A6 -to HDMI_HS
+set_location_assignment PIN_A5 -to HDMI_DE
+set_location_assignment PIN_E5 -to HDMI_PCLK
+set_location_assignment PIN_B8 -to HDMI_INT
+set_location_assignment PIN_B9 -to HDMI_SDA
+set_location_assignment PIN_B10 -to HDMI_SCL
+set_location_assignment PIN_A10 -to HDMI_RST
+
+set_location_assignment PIN_A9 -to HDMI_MCLK
+set_location_assignment PIN_B7 -to HDMI_BCK
+set_location_assignment PIN_A7 -to HDMI_LRCK
+set_location_assignment PIN_C6 -to HDMI_SDATA
+
+set_location_assignment PIN_A8 -to SPDIF
+
+set_location_assignment PIN_AA7 -to SPI_DO
+set_location_assignment PIN_AB6 -to SPI_DI
+set_location_assignment PIN_T1 -to SPI_SCK
+set_location_assignment PIN_AB7 -to SPI_SS2
+set_location_assignment PIN_AA13 -to SPI_SS3
+set_location_assignment PIN_K1 -to CONF_DATA0
+
+set_location_assignment PIN_E12 -to SDRAM_A[0]
+set_location_assignment PIN_F13 -to SDRAM_A[1]
+set_location_assignment PIN_G18 -to SDRAM_A[2]
+set_location_assignment PIN_J18 -to SDRAM_A[3]
+set_location_assignment PIN_J22 -to SDRAM_A[4]
+set_location_assignment PIN_J21 -to SDRAM_A[5]
+set_location_assignment PIN_H21 -to SDRAM_A[6]
+set_location_assignment PIN_H20 -to SDRAM_A[7]
+set_location_assignment PIN_H22 -to SDRAM_A[8]
+set_location_assignment PIN_H19 -to SDRAM_A[9]
+set_location_assignment PIN_E11 -to SDRAM_A[10]
+set_location_assignment PIN_F21 -to SDRAM_A[11]
+set_location_assignment PIN_E21 -to SDRAM_A[12]
+set_location_assignment PIN_B15 -to SDRAM_DQ[0]
+set_location_assignment PIN_B16 -to SDRAM_DQ[1]
+set_location_assignment PIN_B17 -to SDRAM_DQ[2]
+set_location_assignment PIN_B18 -to SDRAM_DQ[3]
+set_location_assignment PIN_A19 -to SDRAM_DQ[4]
+set_location_assignment PIN_A20 -to SDRAM_DQ[5]
+set_location_assignment PIN_C19 -to SDRAM_DQ[6]
+set_location_assignment PIN_C17 -to SDRAM_DQ[7]
+set_location_assignment PIN_D21 -to SDRAM_DQ[8]
+set_location_assignment PIN_D19 -to SDRAM_DQ[9]
+set_location_assignment PIN_B19 -to SDRAM_DQ[10]
+set_location_assignment PIN_C21 -to SDRAM_DQ[11]
+set_location_assignment PIN_C22 -to SDRAM_DQ[12]
+set_location_assignment PIN_C20 -to SDRAM_DQ[13]
+set_location_assignment PIN_B22 -to SDRAM_DQ[14]
+set_location_assignment PIN_B21 -to SDRAM_DQ[15]
+set_location_assignment PIN_E14 -to SDRAM_BA[0]
+set_location_assignment PIN_F11 -to SDRAM_BA[1]
+set_location_assignment PIN_D22 -to SDRAM_DQMH
+set_location_assignment PIN_B13 -to SDRAM_DQML
+set_location_assignment PIN_D15 -to SDRAM_nRAS
+set_location_assignment PIN_C13 -to SDRAM_nCAS
+set_location_assignment PIN_D18 -to SDRAM_nWE
+set_location_assignment PIN_D13 -to SDRAM_nCS
+set_location_assignment PIN_E22 -to SDRAM_CKE
+set_location_assignment PIN_B20 -to SDRAM_CLK
+
+set_location_assignment PIN_AB14 -to SDRAM2_A[0]
+set_location_assignment PIN_Y13 -to SDRAM2_A[1]
+set_location_assignment PIN_AA14 -to SDRAM2_A[2]
+set_location_assignment PIN_AB13 -to SDRAM2_A[3]
+set_location_assignment PIN_AA20 -to SDRAM2_A[4]
+set_location_assignment PIN_AA21 -to SDRAM2_A[5]
+set_location_assignment PIN_AA22 -to SDRAM2_A[6]
+set_location_assignment PIN_AA19 -to SDRAM2_A[7]
+set_location_assignment PIN_Y22 -to SDRAM2_A[8]
+set_location_assignment PIN_W20 -to SDRAM2_A[9]
+set_location_assignment PIN_AA15 -to SDRAM2_A[10]
+set_location_assignment PIN_W21 -to SDRAM2_A[11]
+set_location_assignment PIN_W22 -to SDRAM2_A[12]
+set_location_assignment PIN_M20 -to SDRAM2_DQ[0]
+set_location_assignment PIN_M19 -to SDRAM2_DQ[1]
+set_location_assignment PIN_N20 -to SDRAM2_DQ[2]
+set_location_assignment PIN_M16 -to SDRAM2_DQ[3]
+set_location_assignment PIN_M21 -to SDRAM2_DQ[4]
+set_location_assignment PIN_R22 -to SDRAM2_DQ[5]
+set_location_assignment PIN_V22 -to SDRAM2_DQ[6]
+set_location_assignment PIN_U14 -to SDRAM2_DQ[7]
+set_location_assignment PIN_U20 -to SDRAM2_DQ[8]
+set_location_assignment PIN_U21 -to SDRAM2_DQ[9]
+set_location_assignment PIN_U22 -to SDRAM2_DQ[10]
+set_location_assignment PIN_T19 -to SDRAM2_DQ[11]
+set_location_assignment PIN_T20 -to SDRAM2_DQ[12]
+set_location_assignment PIN_R19 -to SDRAM2_DQ[13]
+set_location_assignment PIN_P21 -to SDRAM2_DQ[14]
+set_location_assignment PIN_P22 -to SDRAM2_DQ[15]
+set_location_assignment PIN_Y15 -to SDRAM2_BA[0]
+set_location_assignment PIN_Y14 -to SDRAM2_BA[1]
+set_location_assignment PIN_T18 -to SDRAM2_DQMH
+set_location_assignment PIN_V15 -to SDRAM2_DQML
+set_location_assignment PIN_W14 -to SDRAM2_nRAS
+set_location_assignment PIN_V13 -to SDRAM2_nCAS
+set_location_assignment PIN_AB15 -to SDRAM2_nWE
+set_location_assignment PIN_W13 -to SDRAM2_nCS
+set_location_assignment PIN_V21 -to SDRAM2_CKE
+set_location_assignment PIN_T16 -to SDRAM2_CLK
+
+set_location_assignment PIN_AB11 -to QSCK
+set_location_assignment PIN_AA10 -to QCSn
+set_location_assignment PIN_AA8 -to QDAT[0]
+set_location_assignment PIN_AB8 -to QDAT[1]
+set_location_assignment PIN_AA9 -to QDAT[2]
+set_location_assignment PIN_AB10 -to QDAT[3]
+
+set_location_assignment PIN_A15 -to I2S_LRCK
+set_location_assignment PIN_A14 -to I2S_BCK
+set_location_assignment PIN_A13 -to I2S_DATA
+
+set_location_assignment PIN_W19 -to AUDIO_IN
+
+set_location_assignment PIN_AB16 -to EXP1
+set_location_assignment PIN_AB18 -to EXP2
+set_location_assignment PIN_AA3 -to EXP3
+set_location_assignment PIN_AA5 -to EXP4
+set_location_assignment PIN_Y7 -to EXP5
+set_location_assignment PIN_Y8 -to EXP6
+set_location_assignment PIN_Y10 -to EXP7
+set_location_assignment PIN_W6 -to EXP8
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_A[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_BA[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_BA[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQMH
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQML
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nRAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nCAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nWE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nCS
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_DQ[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_A[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_BA[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_BA[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_DQMH
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_DQML
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_nRAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_nCAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_nWE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM2_nCS
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM2_DQ[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM2_DQ[*]
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_R[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_G[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_B[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_HS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_VS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_DE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SPDIF
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_BCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_LRCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_DATA
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_BCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_LRCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_SDATA
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_BA[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQML
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQMH
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nRAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nCAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nWE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nCS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_CKE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_CLK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_A[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_DQ[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_BA[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_DQML
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_DQMH
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_nRAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_nCAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_nWE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_nCS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_CKE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM2_CLK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_HS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_VS
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to AUDIO_L
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to AUDIO_R
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to SPI_DO
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to LED
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_BCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_LRCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_DATA
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to SPDIF
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_R[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_G[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_B[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_PCLK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_DE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_HS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_VS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_SDA
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_SCL
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to HDMI_RST
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_BCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_LRCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_SDATA
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_MCLK
+
+# Classic Timing Assignments
+# ==========================
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
+
+# Analysis & Synthesis Assignments
+# ================================
+set_global_assignment -name TOP_LEVEL_ENTITY mist_top
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE ON
+set_global_assignment -name VHDL_INPUT_VERSION VHDL_1993
+set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
+
+# Fitter Assignments
+# ==================
+set_global_assignment -name DEVICE 10CL120YF484C8G
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+set_global_assignment -name ENABLE_NCE_PIN OFF
+set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+
+# Assembler Assignments
+# =====================
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+
+# SignalTap II Assignments
+# ========================
+set_global_assignment -name ENABLE_SIGNALTAP OFF
+
+# Power Estimation Assignments
+# ============================
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+
+# Advanced I/O Timing Assignments
+# ===============================
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+
+# start DESIGN_PARTITION(Top)
+# ---------------------------
+
+# Incremental Compilation Assignments
+# ===================================
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+# end DESIGN_PARTITION(Top)
+# -------------------------
+
+# ---------------------------
+set_global_assignment -name VERILOG_MACRO "NO_DIRECT_UPLOAD=1"
+set_global_assignment -name VERILOG_MACRO "USE_QSPI=1"
+set_global_assignment -name VERILOG_MACRO "DUAL_SDRAM=1"
+set_global_assignment -name VERILOG_MACRO "I2S_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "I2S_AUDIO_HDMI=1"
+set_global_assignment -name VERILOG_MACRO "SPDIF_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "VGA_8BIT=1"
+set_global_assignment -name VERILOG_MACRO "USE_HDMI=1"
+set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
+set_global_assignment -name AUTO_MERGE_PLLS OFF
+
+set_global_assignment -name QIP_FILE game.qip
+
+# SiDi also defines MiST
+set_global_assignment -name VERILOG_MACRO "MIST=1"
+
+set_global_assignment -name SEARCH_PATH "../hdl"
+set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"

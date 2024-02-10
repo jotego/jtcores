@@ -1,0 +1,8 @@
+here:
+  - ../mist/target.yaml
+jtframe:
+  - from: video
+    get:
+      - jtframe_lfbuf_bram.v
+      - jtframe_lfbuf_bram_ctrl.v
+      - jtframe_lfbuf_line.v
