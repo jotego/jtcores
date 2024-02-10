@@ -376,7 +376,7 @@ u_frame(
     .SPI_SS3        ( SPI_SS3        ),
     .SPI_SS4        ( SPI_SS4        ),
     .CONF_DATA0     ( CONF_DATA0     ),
-    `ifdef USE_QSPI
+    `ifdef MIST_USE_QSPI
     .QSCK           ( QSCK           ),
     .QCSn           ( QCSn           ),
     .QDAT           ( QDAT           ),
