@@ -24,7 +24,10 @@ module jtframe_mist #(parameter
     COLORW                 = 4,
     VIDEO_WIDTH            = 384,
     VIDEO_HEIGHT           = 224,
-    SDRAMW                 = 23
+    SDRAMW                 = 23,
+    VGA_BITS               = 6,
+    QSPI                   = 1'b0,
+    HDMI                   = 1'b0
 )(
     input              clk_sys,
     input              clk_rom,
@@ -44,9 +47,19 @@ module jtframe_mist #(parameter
     // LED
     input        [1:0] game_led,
     // MiST VGA pins
-    output       [5:0] VGA_R, VGA_G, VGA_B,
+    output [VGA_BITS-1:0] VGA_R, VGA_G, VGA_B,
     output             VGA_HS,
     output             VGA_VS,
+    // HDMI pins
+    output       [7:0] HDMI_R,
+    output       [7:0] HDMI_G,
+    output       [7:0] HDMI_B,
+    output             HDMI_HS,
+    output             HDMI_VS,
+    output             HDMI_PCLK,
+    output             HDMI_DE,
+    inout              HDMI_SDA,
+    inout              HDMI_SCL,
     // ROM programming
     input [SDRAMW-1:0] prog_addr,
     input       [15:0] prog_data,
@@ -86,6 +99,10 @@ module jtframe_mist #(parameter
     input              SPI_SS3,
     input              SPI_SS4,
     input              CONF_DATA0,
+    // QSPI interface to ARM
+    input              QCSn,
+    input              QSCK,
+    input        [3:0] QDAT,
     // Buttons for MC2(+)
     input       [ 3:0] BUTTON_n,
     // PS2 are input pins for Neptuno
@@ -117,6 +134,11 @@ module jtframe_mist #(parameter
     input              snd_sample,
     output             AUDIO_L,
     output             AUDIO_R,
+    output             I2S_BCK,
+    output             I2S_LRCK,
+    output             I2S_DATA,
+    output             SPDIF,
+
     // joystick
     output       [9:0] game_joystick1, game_joystick2, game_joystick3, game_joystick4,
     output       [3:0] game_coin, game_start,
@@ -155,7 +177,7 @@ wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
 
 wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
-wire          scan2x_hs, scan2x_vs, scan2x_clk;
+wire          scan2x_hs, scan2x_vs, scan2x_de, scan2x_clk;
 wire          scan2x_enb;
 wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
@@ -187,7 +209,10 @@ end
 
 jtframe_mist_base #(
     .SIGNED_SND     ( SIGNED_SND    ),
-    .COLORW         ( COLORW        )
+    .COLORW         ( COLORW        ),
+    .VGA_BITS       ( VGA_BITS      ),
+    .QSPI           ( QSPI          ),
+    .HDMI           ( HDMI          )
 ) u_base(
     .rst            ( rst           ),
     .sdram_init     ( sdram_init    ),
@@ -206,11 +231,12 @@ jtframe_mist_base #(
     .vs             ( vs            ),
     .pxl_cen        ( pxl_cen       ),
     // Scan-doubler video
-    .scan2x_r       ( scan2x_r[7:2] ),
-    .scan2x_g       ( scan2x_g[7:2] ),
-    .scan2x_b       ( scan2x_b[7:2] ),
+    .scan2x_r       ( scan2x_r      ),
+    .scan2x_g       ( scan2x_g      ),
+    .scan2x_b       ( scan2x_b      ),
     .scan2x_hs      ( scan2x_hs     ),
     .scan2x_vs      ( scan2x_vs     ),
+    .scan2x_de      ( scan2x_de     ),
     .scan2x_enb     ( scan2x_enb    ),
     .scan2x_clk     ( scan2x_clk    ),
     // MiST VGA pins (includes OSD)
@@ -219,6 +245,16 @@ jtframe_mist_base #(
     .VIDEO_B        ( VGA_B         ),
     .VIDEO_HS       ( VGA_HS        ),
     .VIDEO_VS       ( VGA_VS        ),
+    // HDMI pins
+    .HDMI_R         ( HDMI_R        ),
+    .HDMI_G         ( HDMI_G        ),
+    .HDMI_B         ( HDMI_B        ),
+    .HDMI_HS        ( HDMI_HS       ),
+    .HDMI_VS        ( HDMI_VS       ),
+    .HDMI_PCLK      ( HDMI_PCLK     ),
+    .HDMI_DE        ( HDMI_DE       ),
+    .HDMI_SDA       ( HDMI_SDA      ),
+    .HDMI_SCL       ( HDMI_SCL      ),
     // SPI interface to arm io controller
     .SPI_DO         ( SPI_DO        ),
     .SPI_DI         ( SPI_DI        ),
@@ -232,6 +268,9 @@ jtframe_mist_base #(
     .SPI_SS4        (               ),
 `endif
     .CONF_DATA0     ( CONF_DATA0    ),
+    .QCSn           ( QCSn          ),
+    .QSCK           ( QSCK          ),
+    .QDAT           ( QDAT          ),
     // control
     .status         ( status        ),
     .joystick1      ( joystick1     ),
@@ -270,6 +309,11 @@ jtframe_mist_base #(
     .snd_right      ( board_right   ),
     .snd_pwm_left   ( AUDIO_L       ),
     .snd_pwm_right  ( AUDIO_R       ),
+    .I2S_BCK        ( I2S_BCK       ),
+    .I2S_LRCK       ( I2S_LRCK      ),
+    .I2S_DATA       ( I2S_DATA      ),
+    .SPDIF          ( SPDIF         ),
+
     // ROM load from SPI
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_dout     ( ioctl_dout    ),
@@ -466,6 +510,7 @@ jtframe_board #(
     .scan2x_b       ( scan2x_b        ),
     .scan2x_hs      ( scan2x_hs       ),
     .scan2x_vs      ( scan2x_vs       ),
+    .scan2x_de      ( scan2x_de       ),
     .scan2x_enb     ( scan2x_enb      ),
     .scan2x_clk     ( scan2x_clk      ),
     // Debug
@@ -478,7 +523,6 @@ jtframe_board #(
     .hdmi_arx       (                 ),
     .hdmi_ary       (                 ),
     .scan2x_cen     (                 ),
-    .scan2x_de      (                 ),
     .scan2x_sl      (                 )
 );
 

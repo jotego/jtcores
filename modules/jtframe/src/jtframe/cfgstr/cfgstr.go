@@ -72,7 +72,7 @@ func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string) {
 	var tpath string
 	if cfg.Template == "" {
 		tfolder := cfg.Target
-		if cfg.Target == "sidi" { // SiDi shares the config string with MiST
+		if cfg.Target == "sidi" || cfg.Target == "sidi128" { // SiDi shares the config string with MiST
 			tfolder = "mist"
 		}
 		if cfg.Target == "pocket" { // Pocket doesn't have a config string

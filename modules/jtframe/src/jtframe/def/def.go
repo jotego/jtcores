@@ -209,7 +209,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	switch cfg.Target {
 	case "mist", "sidi", "neptuno":
 		macros["SEPARATOR"] = ""
-	case "mister", "sockit","de1soc","de10std":
+	case "mister", "sockit","de1soc","de10std","sidi128":
 		macros["SEPARATOR"] = "-;"
 	}
 	// Adds a macro with the target name

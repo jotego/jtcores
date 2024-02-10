@@ -14,19 +14,21 @@ module osd (
 	input  [1:0] rotate, //[0] - rotate [1] - left or right
 
 	// VGA signals coming from core
-	input  [5:0] R_in,
-	input  [5:0] G_in,
-	input  [5:0] B_in,
+	input [OSD_BITS-1:0] R_in,
+	input [OSD_BITS-1:0] G_in,
+	input [OSD_BITS-1:0] B_in,
 	input        HSync,
 	input        VSync,
+	input        DE,
 
 	// VGA signals going to video connector
-	output reg [5:0] R_out,
-	output reg [5:0] G_out,
-	output reg [5:0] B_out,
+	output reg [OSD_BITS-1:0] R_out,
+	output reg [OSD_BITS-1:0] G_out,
+	output reg [OSD_BITS-1:0] B_out,
 
 	output reg       HSync_out,
 	output reg       VSync_out,
+	output reg       DE_out,
 
 	output reg	 osd_shown
 );
@@ -42,6 +44,7 @@ module osd (
 parameter [9:0] OSD_X_OFFSET = 10'd0;
 parameter [9:0] OSD_Y_OFFSET = 10'd0;
 parameter [5:0] OSD_COLOR    = `JTFRAME_OSDCOLOR;
+parameter       OSD_BITS     = 6;
 
 localparam [9:0] OSD_WIDTH   = 10'd256;
 localparam [9:0] OSD_HEIGHT  = 10'd128;
@@ -261,11 +264,12 @@ always @(posedge clk_sys) begin
 
 	end
 
-	R_out <= !osd_de ? R_in : { {2{osd_pixel}}, OSD_COLOR[5:4]^{1'b0,back_pixel}, R_in[5:4]};
-	G_out <= !osd_de ? G_in : { {2{osd_pixel}}, OSD_COLOR[3:2]^{1'b0,back_pixel}, G_in[5:4]};
-	B_out <= !osd_de ? B_in : { {2{osd_pixel}}, OSD_COLOR[1:0]^{1'b0,back_pixel}, B_in[5:4]};
+	R_out <= !osd_de ? R_in : { {2{osd_pixel}}, OSD_COLOR[5:4]^{1'b0,back_pixel}, R_in[OSD_BITS-1:4]};
+	G_out <= !osd_de ? G_in : { {2{osd_pixel}}, OSD_COLOR[3:2]^{1'b0,back_pixel}, G_in[OSD_BITS-1:4]};
+	B_out <= !osd_de ? B_in : { {2{osd_pixel}}, OSD_COLOR[1:0]^{1'b0,back_pixel}, B_in[OSD_BITS-1:4]};
 	HSync_out <= HSync;
 	VSync_out <= VSync;
+	DE_out <= DE;
 end
 
 `ifndef JTFRAME_OSD_NOLOGO
