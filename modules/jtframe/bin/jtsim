@@ -56,6 +56,7 @@ MACOS=NO
 KEEP_FX68K=
 SED="sed -i"
 SHAUP=
+FRAMERATE=
 START_TIME=$(date +%s)
 UNDEF=
 FAST=
@@ -100,6 +101,7 @@ Please support the development: https://patreon.com/jotego
                the matching file automatically
     -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
     -frame     Number of frames to simulate
+    -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
     -gates     Gate-level simulation
     -fx68k     Keep FX68K files for Icarus Verilog
     -inputs    Defines SIM_INPUTS macro:
@@ -345,6 +347,10 @@ case "$1" in
         fi
         ;;
     -fast) FAST=1;;
+    -frate)
+        shift
+        FRAMERATE=$1
+        add_macro JTFRAME_SIM_VIDEO;;
     -inputs)
         if [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
@@ -843,8 +849,15 @@ if [ ! -z "$SETNAME" ]; then
 fi
 
 if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
-    FRAMERATE=30
-    if has_macro JTFRAME_SIM_VIDEO; then FRAMERATE=60; fi
+    if [ -z "$FRAMERATE" ]; then
+        FRAMERATE=30
+        echo "Define and export FRAMERATE"
+        if has_macro JTFRAME_SIM_VIDEO; then
+            FRAMERATE=60;
+        elif [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 2000 ]; then
+            echo "Large number of frames... maybe enable JTFRAME_SIM_VIDEO to create a full video"
+        fi
+    fi
     ffmpeg -y -framerate $FRAMERATE \
         -pattern_type glob -i frames/'frame_*.jpg' \
         -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \

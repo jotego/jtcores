@@ -382,69 +382,24 @@ jtframe_mouse u_mouse(
 `ifdef JTFRAME_INPUT_RECORD
     localparam RECAW=`JTFRAME_INPUT_RECORD_AW;
 
-    reg  [ 7:0] recin, rec_l, fdiff;
-    reg         rec_clrd;
-    reg  [RECAW-1:0] reca;
-    wire [ 7:0] rec_data = { pre_order1[5:0], {2{ACTIVE_LOW[0]}}^{game_start[0], game_coin[0]} };
-    reg  [ 1:0] recwsh;
-    wire [ 7:0] recmux = !rec_clrd ? (!reca[0] ? 8'hff: 8'h0 ) :
-                         recwsh[0] ?            recin : fdiff;
-    wire        rec_we = recwsh!= 0 || !rec_clrd;
+jtframe_rec_inputs #(
+    .RECAW     ( RECAW      ),
+    .ACTIVE_LOW( ACTIVE_LOW )
+) u_rec(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
 
-    always @(posedge clk, posedge rst) begin
-        if( rst ) begin
-            reca     <= 0;
-            recin    <= 0;
-            rec_l    <= 0;
-            recwsh   <= 0;
-            fdiff    <= 0;
-            rec_clrd <= 0;
-        end else begin
-            if( !rec_clrd ) begin
-                reca <= reca+1'd1;
-                if( &reca ) rec_clrd <= 1;
-            end else begin
-                recwsh <= recwsh>>1;
-                if( vsl && !vs && dip_pause) begin
-                    if( &fdiff || rec_data != rec_l ) begin
-                        rec_l <= rec_data;
-                        recin <= rec_data ^ rec_l;
-                        recwsh <= 2;
-                    end else begin
-                        fdiff <= fdiff +1'd1;
-                    end
-                end
-                case( recwsh )
-                    2: begin
-                        reca  <= reca+1'd1;
-                    end
-                    1: begin
-                        reca <= reca+1'd1;
-                        fdiff <= 0;
-                    end
-                    default:;
-                endcase
-            end
-        end
-    end
+    .vs             ( vs            ),
+    .dip_pause      ( dip_pause     ),
 
-    // 1st byte = number of frames before applying the value change
-    // 2nd byte = input bits that changed are set high
-    // see "jtutil inputs" in "src/jtutil/inputs.go" for conveting to sim_inputs.hex
-    jtframe_dual_ram #(.AW(RECAW) ) u_record( // 2kB, set in jtdef.go
-        // Port 0: record
-        .clk0   ( clk            ),
-        .data0  ( recmux         ),
-        .addr0  ( reca           ),
-        .we0    ( rec_we         ),
-        .q0     (                ),
-        // Port 1: readout
-        .clk1   ( clk            ),
-        .data1  ( 8'd0           ),
-        .addr1  (ioctl_addr[RECAW-1:0]),
-        .we1    ( 1'b0           ),
-        .q1     ( ioctl_merged   )
-    );
+    .game_start     ( game_start    ),
+    .game_coin      ( game_coin     ),
+    .joystick       (pre_order1[5:0]),
+
+    .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_merged   ( ioctl_merged  )
+);
+
 `else assign ioctl_merged = ioctl_din; `endif
 `else assign ioctl_merged = ioctl_din; `endif
 

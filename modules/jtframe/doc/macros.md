@@ -61,7 +61,7 @@ JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
 JTFRAME_HEADER           |         | Set to the length of the ROM file header
 JTFRAME_HEIGHT           |         | Sets the video height
-JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. See [debug.md](debug.md)
+JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_INTERPOL2        |         | Enables a x2 FIR interpolation filter for audio. The game 'sample' output must be well defined
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer

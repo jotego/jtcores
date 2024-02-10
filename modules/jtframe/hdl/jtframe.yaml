@@ -23,6 +23,7 @@ jtframe:
       - jtframe_keyboard.v
       - jtframe_4wayjoy.v
       - jtframe_inputs.v
+      - jtframe_rec_inputs.v
       - jtframe_paddle.v
       - jtframe_mouse.v
       - jtframe_dial.v

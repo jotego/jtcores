@@ -861,7 +861,7 @@ void JTSim::clock(int n) {
             game.debug_bus++;
 #endif
         }
-        if( !game.LVBL && last_LVBL ) sim_inputs.next();    // sim inputs are applied when entering blanking
+        if( !game.LVBL && last_LVBL && !game.rst ) sim_inputs.next();    // sim inputs are applied when entering blanking
         last_LVBL = game.LVBL;
         last_VS   = game.VS;
 
