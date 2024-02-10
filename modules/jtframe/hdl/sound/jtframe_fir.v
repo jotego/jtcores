@@ -46,6 +46,11 @@ reg       st;
 reg signed [35:0] acc_l, acc_r;
 reg signed [15:0] coeff;
 reg signed [31:0] p_l, p_r;
+wire       [ 8:0] ram_idx, ptr_l, ptr_r; // using a wire prevents a false warning from Quartus
+
+assign ram_idx = {2'd0, cnt   };
+assign ptr_l   = {2'd1, pt_rd };
+assign ptr_r   = {2'd2, pt_rd };
 
 function signed [35:0] ext;
     input signed [31:0] p;
@@ -89,10 +94,10 @@ always@(posedge clk, posedge rst) begin
             if( cnt < KMAX ) begin
                 st <= ~st;
                 if( st == 0 ) begin
-                    coeff <= ram[ {2'd0, cnt } ];
+                    coeff <= ram[ ram_idx ];
                 end else begin
-                    p_l <= ram[ {2'd1, pt_rd } ] * coeff;
-                    p_r <= ram[ {2'd2, pt_rd } ] * coeff;
+                    p_l <= ram[ ptr_l ] * coeff;
+                    p_r <= ram[ ptr_r ] * coeff;
                     acc_l <= acc_l + ext(p_l);
                     acc_r <= acc_r + ext(p_r);
                     cnt <= cnt+7'd1;

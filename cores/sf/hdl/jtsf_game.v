@@ -41,24 +41,24 @@ localparam
     MCUW  = 12, // 4kB
     OBJW  = 21;
 
-localparam [24:0] MAIN_OFFSET = 25'h0,
-                  RAM_OFFSET  = 25'h4_0000,
+localparam        MAIN_OFFSET = 22'h0,
+                  RAM_OFFSET  = 22'h4_0000,
                   // Bank 1
                   BA1_START   = 25'h6_0000,
-                  SND_OFFSET  = 25'h0,
-                  SND2_OFFSET = 25'h8000 >> 1,
-                  MCU_OFFSET  = 25'h4_8000 >> 1,
+                  SND_OFFSET  = 22'h0,
+                  SND2_OFFSET = 22'h8000 >> 1,
+                  MCU_OFFSET  = 22'h4_8000 >> 1,
                   // Bank 2
                   BA2_START   = 25'hA_8000,
-                  MAP1_OFFSET = 25'h0,
-                  MAP2_OFFSET = 25'h2_0000 >> 1,
-                  CHAR_OFFSET = 25'h4_0000 >> 1,
+                  MAP1_OFFSET = 22'h0,
+                  MAP2_OFFSET = 22'h2_0000 >> 1,
+                  CHAR_OFFSET = 22'h4_0000 >> 1,
                   // Bank 3
                   BA3_START   = 25'hE_C000,
-                  SCR1_OFFSET = 25'h0,
-                  SCR2_OFFSET = 25'h10_0000 >> 1,
+                  SCR1_OFFSET = 22'h0,
+                  SCR2_OFFSET = 22'h10_0000 >> 1,
                   OBJ_START   = 25'h26_C000,
-                  OBJ_OFFSET  = 25'h18_0000 >> 1,
+                  OBJ_OFFSET  = 22'h18_0000 >> 1,
                   PROM_START  = 25'h42_C000;
 
 wire [ 8:0] V;
@@ -217,9 +217,6 @@ jtframe_dwnld #(
 
 wire [15:0] scrposh, scrposv, dmaout;
 wire        UDSWn, LDSWn;
-wire [ 1:0] dsn;
-
-assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (

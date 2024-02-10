@@ -59,6 +59,7 @@ reg  [5:0]   post_scan;
 reg          line_obj_we;
 
 localparam lineA=1'b0, lineB=1'b1;
+localparam THREE=3;
 wire [DW-1:0] q_a, q_b;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
@@ -145,7 +146,7 @@ always @(posedge clk, posedge rst)
                         post_scan <= post_scan+1'b1;
                         if( !extend[0] ) begin
                             // advance to next obj
-                            pre_scan <= pre_scan + 'd3;
+                            pre_scan <= pre_scan + THREE[AW-1:0];
                             trf_state  <= SEARCH;
                             line_obj_we <= 1'b0;
                         end else begin

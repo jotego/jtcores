@@ -73,8 +73,10 @@ module jtframe_ram_rq #(parameter
             pending   <= 0;
             dout      <= 0;
             req_rnw   <= 1;
-            erased    <= 0;
-            erase_cnt <= 0;
+            if( ERASE==1 ) begin
+                erased    <= 0;
+                erase_cnt <= 0;
+            end
         end else begin
             if( ERASE==1 && !erased ) begin
                 if( we ) begin
