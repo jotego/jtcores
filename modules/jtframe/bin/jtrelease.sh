@@ -90,6 +90,8 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		git checkout -b $BRANCH
 		rm -rf mist sidi pocket mister mra
 	fi
+	# refresh schematics
+	jtframe sch --git &
 	# Regenerate the MRA files to include md5 sums
 	cd $DST
 	rm -rf release/mra
@@ -114,6 +116,9 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 			fi
 		done
 	done
+	# delete non-arcade PCB schematics
+	wait
+	rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
 	# new git commit
 	mkdir -p pocket/raw/Assets/jtpatreon/common
 	echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
