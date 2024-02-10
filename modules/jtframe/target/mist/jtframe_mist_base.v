@@ -19,7 +19,7 @@
 module jtframe_mist_base #(parameter
     SIGNED_SND      = 1'b0,
     COLORW          = 4,
-    VGA_BITS        = 6,
+    VGA_DW          = 6,
     QSPI            = 1'b0,
     HDMI            = 1'b0
 ) (
@@ -49,9 +49,9 @@ module jtframe_mist_base #(parameter
     output          scan2x_enb, // scan doubler enable bar = scan doubler disable.
     input           scan2x_clk,
     // Final video: VGA+OSD or base+OSD depending on configuration
-    output [VGA_BITS-1:0]   VIDEO_R,
-    output [VGA_BITS-1:0]   VIDEO_G,
-    output [VGA_BITS-1:0]   VIDEO_B,
+    output [VGA_DW-1:0] VIDEO_R,
+    output [VGA_DW-1:0] VIDEO_G,
+    output [VGA_DW-1:0] VIDEO_B,
     output          VIDEO_HS,
     output          VIDEO_VS,
     // HDMI pins
@@ -485,18 +485,18 @@ end
 
 `ifndef BYPASS_OSD
 // include the on screen display
-wire [VGA_BITS-1:0] osd_r_o;
-wire [VGA_BITS-1:0] osd_g_o;
-wire [VGA_BITS-1:0] osd_b_o;
+wire [VGA_DW-1:0] osd_r_o;
+wire [VGA_DW-1:0] osd_g_o;
+wire [VGA_DW-1:0] osd_b_o;
 wire       HSync = scan2x_enb ? ~hs : scan2x_hs;
 wire       VSync = scan2x_enb ? ~vs : scan2x_vs;
 wire       HSync_osd, VSync_osd;
 wire       CSync_osd = ~(HSync_osd ^ VSync_osd);
 
-localparam m = VGA_BITS/COLORW;
-localparam n = VGA_BITS%COLORW;
+localparam m = VGA_DW/COLORW;
+localparam n = VGA_DW%COLORW;
 
-function [VGA_BITS-1:0] extend_color;
+function [VGA_DW-1:0] extend_color;
     input [COLORW-1:0] a;
     if (n>0)
         extend_color = { {m{a}}, a[COLORW-1 -:n] };
@@ -504,12 +504,12 @@ function [VGA_BITS-1:0] extend_color;
         extend_color = { {m{a}} };
 endfunction
 
-wire [VGA_BITS-1:0] game_r6 = extend_color( game_r );
-wire [VGA_BITS-1:0] game_g6 = extend_color( game_g );
-wire [VGA_BITS-1:0] game_b6 = extend_color( game_b );
+wire [VGA_DW-1:0] game_r6 = extend_color( game_r );
+wire [VGA_DW-1:0] game_g6 = extend_color( game_g );
+wire [VGA_DW-1:0] game_b6 = extend_color( game_b );
 
 
-osd #(0,0,6'b01_11_01,VGA_BITS) osd (
+osd #(0,0,6'b01_11_01,VGA_DW) osd (
    .clk_sys    ( scan2x_enb ? clk_sys : scan2x_clk ),
    // spi for OSD
    .SPI_DI     ( SPI_DI       ),
@@ -518,9 +518,9 @@ osd #(0,0,6'b01_11_01,VGA_BITS) osd (
 
    .rotate     ( osd_rotate   ),
 
-   .R_in       ( scan2x_enb ? game_r6 : scan2x_r[7:8-VGA_BITS] ),
-   .G_in       ( scan2x_enb ? game_g6 : scan2x_g[7:8-VGA_BITS] ),
-   .B_in       ( scan2x_enb ? game_b6 : scan2x_b[7:8-VGA_BITS] ),
+   .R_in       ( scan2x_enb ? game_r6 : scan2x_r[7-:VGA_DW] ),
+   .G_in       ( scan2x_enb ? game_g6 : scan2x_g[7-:VGA_DW] ),
+   .B_in       ( scan2x_enb ? game_b6 : scan2x_b[7-:VGA_DW] ),
    .HSync      ( HSync        ),
    .VSync      ( VSync        ),
    .DE         (              ),
@@ -537,7 +537,7 @@ osd #(0,0,6'b01_11_01,VGA_BITS) osd (
 
 wire       HSync_out, VSync_out, CSync_out;
 
-RGBtoYPbPr #(VGA_BITS) u_rgb2ypbpr(
+RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .clk       ( scan2x_enb ? clk_sys : scan2x_clk ),
     .ena       ( ypbpr     ),
     .red_in    ( osd_r_o   ),
