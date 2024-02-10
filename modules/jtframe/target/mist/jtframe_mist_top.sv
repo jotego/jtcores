@@ -141,11 +141,11 @@ localparam bit HDMI = 0;
 `endif
 
 // remove this if the 2nd chip is actually used
-`ifdef DUAL_SDRAM
+`ifdef MIST_DUAL_SDRAM
 assign SDRAM2_A = 13'hZZZZ;
 assign SDRAM2_BA = 0;
-assign SDRAM2_DQML = 0;
-assign SDRAM2_DQMH = 0;
+assign SDRAM2_DQML = 1;
+assign SDRAM2_DQMH = 1;
 assign SDRAM2_CKE = 0;
 assign SDRAM2_CLK = 0;
 assign SDRAM2_nCS = 1;
