@@ -223,10 +223,10 @@ set_location_assignment PIN_A13 -to I2S_DATA
 
 set_location_assignment PIN_W19 -to AUDIO_IN
 
-set_location_assignment PIN_AB16 -to EXP1
-set_location_assignment PIN_AB18 -to EXP2
-set_location_assignment PIN_AA3 -to EXP3
-set_location_assignment PIN_AA5 -to EXP4
+set_location_assignment PIN_AB16 -to UART_RX
+set_location_assignment PIN_AB18 -to UART_TX
+set_location_assignment PIN_AA3 -to MIDI_IN
+set_location_assignment PIN_AA5 -to MIDI_OUT
 set_location_assignment PIN_Y7 -to EXP5
 set_location_assignment PIN_Y8 -to EXP6
 set_location_assignment PIN_Y10 -to EXP7
@@ -400,14 +400,14 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 # -------------------------
 
 # ---------------------------
-set_global_assignment -name VERILOG_MACRO "NO_DIRECT_UPLOAD=1"
-set_global_assignment -name VERILOG_MACRO "USE_QSPI=1"
-set_global_assignment -name VERILOG_MACRO "DUAL_SDRAM=1"
-set_global_assignment -name VERILOG_MACRO "I2S_AUDIO=1"
-set_global_assignment -name VERILOG_MACRO "I2S_AUDIO_HDMI=1"
-set_global_assignment -name VERILOG_MACRO "SPDIF_AUDIO=1"
-set_global_assignment -name VERILOG_MACRO "VGA_8BIT=1"
-set_global_assignment -name VERILOG_MACRO "USE_HDMI=1"
+set_global_assignment -name VERILOG_MACRO "MIST_NO_DIRECT_UPLOAD=1"
+set_global_assignment -name VERILOG_MACRO "MIST_USE_QSPI=1"
+set_global_assignment -name VERILOG_MACRO "MIST_DUAL_SDRAM=1"
+set_global_assignment -name VERILOG_MACRO "MIST_I2S_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "MIST_I2S_AUDIO_HDMI=1"
+set_global_assignment -name VERILOG_MACRO "MIST_SPDIF_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "MIST_VGA_8BIT=1"
+set_global_assignment -name VERILOG_MACRO "MIST_USE_HDMI=1"
 set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
 set_global_assignment -name AUTO_MERGE_PLLS OFF
 

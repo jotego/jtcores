@@ -25,7 +25,7 @@ module jtframe_mist #(parameter
     VIDEO_WIDTH            = 384,
     VIDEO_HEIGHT           = 224,
     SDRAMW                 = 23,
-    VGA_BITS               = 6,
+    VGA_DW                 = 6,
     QSPI                   = 1'b0,
     HDMI                   = 1'b0
 )(
@@ -47,7 +47,7 @@ module jtframe_mist #(parameter
     // LED
     input        [1:0] game_led,
     // MiST VGA pins
-    output [VGA_BITS-1:0] VGA_R, VGA_G, VGA_B,
+    output [VGA_DW-1:0] VGA_R, VGA_G, VGA_B,
     output             VGA_HS,
     output             VGA_VS,
     // HDMI pins
@@ -210,7 +210,7 @@ end
 jtframe_mist_base #(
     .SIGNED_SND     ( SIGNED_SND    ),
     .COLORW         ( COLORW        ),
-    .VGA_BITS       ( VGA_BITS      ),
+    .VGA_DW         ( VGA_DW        ),
     .QSPI           ( QSPI          ),
     .HDMI           ( HDMI          )
 ) u_base(

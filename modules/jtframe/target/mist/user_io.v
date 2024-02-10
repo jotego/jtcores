@@ -143,7 +143,7 @@ assign no_csync = but_sw[6];
 assign conf_addr = byte_cnt;
 
 // bit 4 indicates ROM direct upload capability
-wire [7:0] core_type = ARCHIE ? 8'ha6 : ROM_DIRECT_UPLOAD ? 8'hb4 : 8'ha4;
+wire [7:0] core_type = (ARCHIE == 1) ? 8'ha6 : (ROM_DIRECT_UPLOAD == 1) ? 8'hb4 : 8'ha4;
 
 reg [W:0] drive_sel;
 always begin
@@ -272,7 +272,7 @@ reg  [7:0] kbd_out_status = 0;
 reg  [7:0] kbd_out_data_r = 0;
 reg        kbd_out_data_available = 0;
 
-generate if (ARCHIE) begin
+generate if (ARCHIE == 1) begin
 always@(negedge spi_sck or posedge SPI_SS_IO) begin : archie_kbd_out
 	if(SPI_SS_IO == 1) begin
 		kbd_out_data_r <= 0;
@@ -300,7 +300,7 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 
 			spi_byte_out <= 0;
 			case({(!byte_cnt) ? {sbuf, SPI_MOSI} : cmd})
-			8'h04: if (ARCHIE) begin
+			8'h04: if (ARCHIE == 1) begin
 					if(byte_cnt == 0) spi_byte_out <= kbd_out_status;
 					else              spi_byte_out <= kbd_out_data_r;
 				end
@@ -411,7 +411,7 @@ always @(posedge clk_sys) begin : cmd_block
 	ps2_mouse_tx_strobe <= 0;
 	i2c_start <= 0;
 
-	if(ARCHIE) begin
+	if(ARCHIE == 1) begin
 		if (kbd_out_strobe) kbd_out_data_available <= 1;
 		key_pressed <= 0;
 		key_extended <= 0;
@@ -440,7 +440,7 @@ always @(posedge clk_sys) begin : cmd_block
 				// accept the incoming keyboard data only if there's place for the full packet
 				kbd_fifo_ok <= ps2_kbd_fifo_ok;
 		end else begin
-			if (ARCHIE) begin
+			if (ARCHIE == 1) begin
 				if(acmd == 8'h04) kbd_out_data_available <= 0;
 				if(acmd == 8'h05) begin
 					key_strobe <= 1;
@@ -456,7 +456,7 @@ always @(posedge clk_sys) begin : cmd_block
 				8'h62: if (abyte_cnt < 5) joystick_2[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h63: if (abyte_cnt < 5) joystick_3[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h64: if (abyte_cnt < 5) joystick_4[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
-				8'h70,8'h71: if (!ARCHIE) begin
+				8'h70,8'h71: if (ARCHIE == 0) begin
 					// store incoming ps2 mouse bytes
 					if (abyte_cnt < 4 && mouse_fifo_ok) begin
 						ps2_mouse_tx_strobe <= 1;
@@ -475,7 +475,7 @@ always @(posedge clk_sys) begin : cmd_block
 						mouse_strobe <= 1;
 					end
 				end
-				8'h05: if (!ARCHIE) begin
+				8'h05: if (ARCHIE == 0) begin
 					// store incoming ps2 keyboard bytes
 					if (kbd_fifo_ok) ps2_kbd_tx_strobe <= 1;
 					if (abyte_cnt == 1) begin
@@ -700,7 +700,7 @@ always@(posedge clk_sys) begin : ps2_txrx
 		if(ps2_tx_state == 0) begin
 			ps2_data_o <= 1;
 			// data in fifo present?
-			if(ps2_wptr != ps2_rptr && (ps2_clk_i | !PS2_BIDIR)) begin
+			if(ps2_wptr != ps2_rptr && (ps2_clk_i | PS2_BIDIR == 0)) begin
 				// load tx register from fifo
 				ps2_tx_shift_reg <= ps2_fifo[ps2_rptr];
 				ps2_r_inc <= 1'b1;
@@ -740,7 +740,7 @@ always@(posedge clk_sys) begin : ps2_txrx
 		end
 	end
 
-	if (PS2_BIDIR) begin
+	if (PS2_BIDIR == 1) begin
 
 		ps2_clk_iD <= ps2_clk_i;
 		ps2_dat_iD <= ps2_data_i;

@@ -21,13 +21,13 @@ module mist_top(
     input    [1:0]  CLOCK_27,
 
     output          LED,
-    output   [VGA_BITS-1:0] VGA_R,
-    output   [VGA_BITS-1:0] VGA_G,
-    output   [VGA_BITS-1:0] VGA_B,
+    output   [VGA_DW-1:0] VGA_R,
+    output   [VGA_DW-1:0] VGA_G,
+    output   [VGA_DW-1:0] VGA_B,
     output          VGA_HS,
     output          VGA_VS,
 
-`ifdef USE_HDMI
+`ifdef MIST_USE_HDMI
     output          HDMI_RST,
     output    [7:0] HDMI_R,
     output    [7:0] HDMI_G,
@@ -48,12 +48,12 @@ module mist_top(
     input           SPI_SS3,
     input           CONF_DATA0,
 
-    `ifdef USE_QSPI
+    `ifdef MIST_USE_QSPI
     input           QSCK,
     input           QCSn,
     inout     [3:0] QDAT,
     `endif
-    `ifndef NO_DIRECT_UPLOAD
+    `ifndef MIST_NO_DIRECT_UPLOAD
     input           SPI_SS4,
     `endif
 
@@ -69,7 +69,7 @@ module mist_top(
     output          SDRAM_CLK,
     output          SDRAM_CKE,
 
-    `ifdef DUAL_SDRAM
+    `ifdef MIST_DUAL_SDRAM
     output   [12:0] SDRAM2_A,
     inout    [15:0] SDRAM2_DQ,
     output          SDRAM2_DQML,
@@ -85,18 +85,18 @@ module mist_top(
 
     output          AUDIO_L,
     output          AUDIO_R,
-    `ifdef I2S_AUDIO
+    `ifdef MIST_I2S_AUDIO
     output          I2S_BCK,
     output          I2S_LRCK,
     output          I2S_DATA,
     `endif
-    `ifdef I2S_AUDIO_HDMI
+    `ifdef MIST_I2S_AUDIO_HDMI
     output          HDMI_MCLK,
     output          HDMI_BCK,
     output          HDMI_LRCK,
     output          HDMI_SDATA,
     `endif
-    `ifdef SPDIF_AUDIO
+    `ifdef MIST_SPDIF_AUDIO
     output          SPDIF,
     `endif
 
@@ -113,27 +113,27 @@ module mist_top(
 
 );
 
-`ifdef NO_DIRECT_UPLOAD
+`ifdef MIST_NO_DIRECT_UPLOAD
 localparam bit DIRECT_UPLOAD = 0;
 wire SPI_SS4 = 1;
 `else
 localparam bit DIRECT_UPLOAD = 1;
 `endif
 
-`ifdef USE_QSPI
+`ifdef MIST_USE_QSPI
 localparam bit QSPI = 1;
 assign QDAT = 4'hZ;
 `else
 localparam bit QSPI = 0;
 `endif
 
-`ifdef VGA_8BIT
-localparam VGA_BITS = 8;
+`ifdef MIST_VGA_8BIT
+localparam VGA_DW = 8;
 `else
-localparam VGA_BITS = 6;
+localparam VGA_DW = 6;
 `endif
 
-`ifdef USE_HDMI
+`ifdef MIST_USE_HDMI
 assign HDMI_RST = 1'b1;
 localparam bit HDMI = 1;
 `else
@@ -281,7 +281,7 @@ localparam DIPBASE=16;
 
 assign game_led[1] = 1'b0; // Let system LED info go through too
 
-`ifdef I2S_AUDIO_HDMI
+`ifdef MIST_I2S_AUDIO_HDMI
 assign HDMI_MCLK = 0;
 always @(posedge clk_sys) begin
     HDMI_BCK <= I2S_BCK;
@@ -298,7 +298,7 @@ jtframe_mist #(
     .COLORW       ( COLORW         ),
     .VIDEO_WIDTH  ( `JTFRAME_WIDTH ),
     .VIDEO_HEIGHT ( `JTFRAME_HEIGHT),
-    .VGA_BITS     ( VGA_BITS       ),
+    .VGA_DW       ( VGA_DW         ),
     .QSPI         ( QSPI           ),
     .HDMI         ( HDMI           )
 )
@@ -326,7 +326,7 @@ u_frame(
     .VGA_HS         ( VGA_HS         ),
     .VGA_VS         ( VGA_VS         ),
     // HDMI pins
-`ifdef USE_HDMI
+`ifdef MIST_USE_HDMI
     .HDMI_R         ( HDMI_R         ),
     .HDMI_G         ( HDMI_G         ),
     .HDMI_B         ( HDMI_B         ),
@@ -433,7 +433,7 @@ u_frame(
     .snd_sample     ( sample         ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
-    `ifdef I2S_AUDIO
+    `ifdef MIST_I2S_AUDIO
     .I2S_BCK        ( I2S_BCK        ),
     .I2S_LRCK       ( I2S_LRCK       ),
     .I2S_DATA       ( I2S_DATA       ),
@@ -442,7 +442,7 @@ u_frame(
     .I2S_LRCK       (                ),
     .I2S_DATA       (                ),
     `endif
-    `ifdef SPDIF_AUDIO
+    `ifdef MIST_SPDIF_AUDIO
     .SPDIF          ( SPDIF          ),
     `else
     .SPDIF          (                ),

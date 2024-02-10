@@ -148,7 +148,7 @@ always@(negedge SPI_SCK or posedge SPI_SS2) begin : SPI_TRANSMITTER
 			endcase
 		end
 
-		reg_do <= (!cnt[3] & ENABLE_IDE) ? cmdcode[~cnt[2:0]] : oe ? dout_r[~cnt[2:0]] : 1'bZ;
+		reg_do <= (!cnt[3] && ENABLE_IDE == 1) ? cmdcode[~cnt[2:0]] : oe ? dout_r[~cnt[2:0]] : 1'bZ;
 	end
 end
 
@@ -224,7 +224,7 @@ always@(posedge SPI_SCK, posedge SPI_SS2) begin : SPI_RECEIVER
 end
 
 // direct SD Card->FPGA transfer
-generate if (ROM_DIRECT_UPLOAD || ENABLE_IDE) begin
+generate if (ROM_DIRECT_UPLOAD == 1 || ENABLE_IDE == 1) begin
 
 always@(posedge SPI_SCK, posedge SPI_SS4) begin : SPI_DIRECT_RECEIVER
 	reg  [6:0] sbuf2;
@@ -260,7 +260,7 @@ end
 endgenerate
 
 // QSPI receiver
-generate if (USE_QSPI) begin
+generate if (USE_QSPI == 1) begin
 
 always@(negedge QSCK, posedge QCSn) begin : QSPI_RECEIVER
 	reg [1:0] nibble;
@@ -281,7 +281,7 @@ always@(negedge QSCK, posedge QCSn) begin : QSPI_RECEIVER
 				cmd_got <= 1;
 				if ({data_w3[3:0], QDAT} == QSPI_WRITE) cmd_write <= 1;
 			end
-		end else if ((DOUT_16 && &nibble) || (!DOUT_16 & nibble[0])) begin
+		end else if ((DOUT_16 == 1 && &nibble) || (DOUT_16 == 0 && nibble[0])) begin
 			if (cmd_write) rclk3 <= ~rclk3;
 		end
 	end
@@ -327,7 +327,7 @@ always@(posedge clk_sys) begin : DATA_OUT
 		wr_int <= 0;
 		wr_int_direct <= 0;
 		if (wr_int || wr_int_direct) begin
-			if (DOUT_16) begin
+			if (DOUT_16 == 1) begin
 				if (addr[0]) begin
 					ioctl_dout <= {ioctl_dout_next, tmp};
 					ioctl_wr <= 1;
@@ -361,7 +361,7 @@ always@(posedge clk_sys) begin : DATA_OUT
 		rd_int <= uploading_reg;
 	end
 	// direct transfer receiver
-	if (rclk2D ^ rclk2D2 && filepos != ioctl_filesize && downloading_reg) begin
+	if ((rclk2D ^ rclk2D2) & (filepos != ioctl_filesize) & downloading_reg) begin
 		filepos <= filepos + 1'd1;
 		wr_int_direct <= 1;
 	end
@@ -370,7 +370,7 @@ always@(posedge clk_sys) begin : DATA_OUT
 		ioctl_dout <= data_w3;
 		ioctl_wr <= 1;
 		ioctl_addr <= addr;
-		if (DOUT_16)
+		if (DOUT_16 == 1)
 			addr <= addr + 2'd2;
 		else
 			addr <= addr + 1'd1;
@@ -379,7 +379,7 @@ always@(posedge clk_sys) begin : DATA_OUT
 end
 
 // IDE handling
-generate if (ENABLE_IDE) begin
+generate if (ENABLE_IDE == 1) begin
 
 reg  [1:0] int_hdd0_ena;
 reg  [1:0] int_hdd1_ena;
@@ -534,7 +534,7 @@ always@(posedge hdd_clk) begin : IDE_OUT
 			int_hdd_data_out[7:0] <= data_ide;
 		end
 	end
-	if (rclk2D ^ rclk2D2 && !downloading_reg) begin
+	if ((rclk2D ^ rclk2D2) & ~downloading_reg) begin
 		loword <= ~loword;
 		if (!loword)
 			int_hdd_data_out[15:8] <= data_w2;
