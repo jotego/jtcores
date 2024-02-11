@@ -65,7 +65,7 @@ module jtkicker_main(
     output               sample,
     output               peak
 );
-
+`ifndef NOMAIN
 reg  [ 7:0] cabinet, cpu_din;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
@@ -260,5 +260,20 @@ jtframe_mixer #(.W0(11),.W1(11)) u_mixer(
     .mixed  ( snd       ),
     .peak   ( peak      )
 );
-
+`else
+assign cpu_cen  = 0;
+assign cpu_dout = 0;
+assign cpu_rnw  = 1;
+assign peak     = 0;
+assign rom_addr = 0;
+assign sample   = 0;
+assign snd      = 0;
+initial flip    = 0;
+initial obj1_cs = 0;
+initial obj2_cs = 0;
+initial pal_sel = 0;
+initial rom_cs  = 0;
+initial vram_cs = 0;
+initial vscr_cs = 0;
+`endif
 endmodule
