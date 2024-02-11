@@ -18,7 +18,7 @@
 
 // The implementation of the KEY chips follows MAME's namcos1_m.cpp
 // These chips won't impact any timing accuracy
-/* verilator tracing_off */
+/* verilator tracing_on */
 module jtshouse_key(
     input               rst,
     input               clk,
@@ -80,7 +80,10 @@ always @(posedge clk or posedge rst) begin
         rng     <= 'h9d14abd7;
     end else begin
         cs_l    <= cs;
-        if( cs && ~rnw ) mmr[addr[6:4]] <= din;
+        if( cs && ~rnw ) begin
+            if(!cs_l) $display("KEY: %X <- %X",addr[6:4], din);
+            mmr[addr[6:4]] <= din;
+        end
         if( up_rng ) rng <= nx_rng;
         // do not use "case" to avoid Quartus warning
              if( sel[0] ) dout <= cfg[1];     // key ID
@@ -91,5 +94,17 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
+`ifdef SIMULATION
+reg [2:0] addrl;
+reg       rnwl;
+
+always @(posedge clk) begin
+    addrl <= addr[6:4];
+    rnwl  <= rnw;
+    if( !cs && cs_l && rnwl ) begin
+        $display("KEY: %X => %X",addrl, dout);
+    end
+end
+`endif
 
 endmodule

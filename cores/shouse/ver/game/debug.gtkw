@@ -1,12 +1,12 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sat Jan 13 19:04:47 2024
+[*] Sun Feb 11 17:13:28 2024
 [*]
-[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/bad.fst"
-[dumpfile_mtime] "Sat Jan 13 19:02:50 2024"
-[dumpfile_size] 591629472
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/blastoff/test.fst"
+[dumpfile_mtime] "Sun Feb 11 11:43:28 2024"
+[dumpfile_size] 2046513411
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/debug.gtkw"
-[timestart] 2161893355860
+[timestart] 2161800000000
 [size] 1920 1052
 [pos] -1 -1
 *-37.420696 -1 2841468156532 3300199662060 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -14,9 +14,12 @@
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mapper.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.u_63701.
 [treeopen] TOP.game_test.u_game.u_game.u_mcu.u_63701.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
 [sst_width] 223
 [signals_width] 228
 [sst_expanded] 1
@@ -24,18 +27,18 @@
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
-TOP.game_test.u_game.u_game.coin[1:0]
-TOP.game_test.u_game.u_game.cab_1p[1:0]
-@200
--
+TOP.game_test.u_game.u_game.u_main.u_mcpu.alu_busy
+@29
+TOP.game_test.u_game.u_game.u_main.u_mcpu.stack_busy
 @22
-TOP.game_test.u_game.u_game.u_triram.awa[10:0]
-TOP.game_test.u_game.u_game.u_triram.awd[7:0]
-@200
--
-@28
-TOP.game_test.u_game.u_game.u_mcu.u_63701.u_mcu.irq
-TOP.game_test.u_game.u_game.u_mcu.u_63701.u_mcu.irq_ocf
-TOP.game_test.u_game.u_game.u_mcu.cab_cs
+TOP.game_test.u_game.u_game.u_main.u_mcpu.a[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.b[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.cc[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.dp[7:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.pc[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.s[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.u[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.x[15:0]
+TOP.game_test.u_game.u_game.u_main.u_mcpu.y[15:0]
 [pattern_trace] 1
 [pattern_trace] 0

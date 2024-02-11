@@ -180,7 +180,7 @@ always @(posedge clk, negedge rstn ) begin
         endcase
     end
 end
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
