@@ -372,6 +372,10 @@
     [
       "92d6dbb9-9ff6-4cee-b616-807a1eab1d93",
       "sub_main"
+    ],
+    [
+      "f566b6cb-2bad-4085-a0a3-8260db2e02fc",
+      "amplifiers"
     ]
   ],
   "text_variables": {}
