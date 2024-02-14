@@ -367,13 +367,15 @@ always@(posedge clk_sys) begin : DATA_OUT
 	end
 	// QSPI transfer receiver
 	if (rclk3D ^ rclk3D2) begin
-		ioctl_dout <= data_w3;
 		ioctl_wr <= 1;
 		ioctl_addr <= addr;
-		if (DOUT_16 == 1)
+		if (DOUT_16 == 1) begin
 			addr <= addr + 2'd2;
-		else
+			ioctl_dout <= data_w3;
+		end else begin
 			addr <= addr + 1'd1;
+			ioctl_dout <= data_w3[7:0];
+		end
 	end
 
 end

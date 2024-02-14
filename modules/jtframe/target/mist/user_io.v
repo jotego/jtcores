@@ -270,9 +270,11 @@ end
 
 reg  [7:0] kbd_out_status = 0;
 reg  [7:0] kbd_out_data_r = 0;
-reg        kbd_out_data_available = 0;
 
 generate if (ARCHIE == 1) begin
+
+reg        kbd_out_data_available = 0;
+
 always@(negedge spi_sck or posedge SPI_SS_IO) begin : archie_kbd_out
 	if(SPI_SS_IO == 1) begin
 		kbd_out_data_r <= 0;
