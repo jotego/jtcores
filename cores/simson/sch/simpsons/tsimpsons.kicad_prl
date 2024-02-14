@@ -72,6 +72,19 @@
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "tsimpsons.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 476,
+          "pos_y": 28,
+          "size_x": 968,
+          "size_y": 1024
+        }
+      }
+    ]
   }
 }
