@@ -1660,6 +1660,10 @@
     )
   )
 
+  (text "CP2A\nPAG. 19 SCH" (at 205.74 66.04 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 4f31376f-186c-4143-b9ce-f6f37d4b3ad2)
+  )
   (text "These schematics cover the missing pages in the original \nones published by the maker. Signal names existing in the\noriginal pages have been preserved. New signal names try\nto follow the maker style or are taken from similar schematics \nof the same maker."
     (at 299.72 252.73 0)
     (effects (font (size 2.032 2.032)) (justify left bottom))
