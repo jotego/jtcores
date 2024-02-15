@@ -23,8 +23,11 @@ module jtsimson_main(
     output              cpu_cen,
 
     input               paroda,
+    input               simson,
+    input               vendetta,
 
     output      [ 7:0]  cpu_dout,
+    output      [15:0]  cpu_addr,
     output reg          init,
 
     output reg  [18:0]  rom_addr,
@@ -46,6 +49,7 @@ module jtsimson_main(
 
     // From video
     input               rst8,
+    input               LVBL,
     input               irq_n,  // from tile map
     input               dma_bsy,
 
@@ -82,25 +86,28 @@ module jtsimson_main(
 );
 `ifndef NOMAIN
 
-wire [ 7:0] Aupper;
+wire [ 7:0] Aupper, hip_dout;
 reg  [ 7:0] cpu_din, port_in;reg  [ 3:0] bank;
 wire [15:0] A, pcbad;
 wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
             berr_l, prog_cs, eeprom_cs, joystk_cs,
-            out_cs, basel_cs,
+            out_cs, basel_cs, cr_cs, stsw_cs, hip_cs,
             i6n, i7n, paro_i6n, paro_i7n,
-            misc_cs, paro_aux, io_aux, unpaged;
+            misc_cs, paro_aux, io_aux, unpaged,
+            vend_i7n, vend_i6n, vend_aux;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
-wire        eep_rdy, eep_do, firqn_ff;
-reg         eep_di, eep_clk, eep_cs, firqen, WOC1, WOC0,
+wire        eep_rdy, eep_do, irq_mx, firqn_ff, irqn_ff, cab_rd;
+reg         eep_di, eep_clk, eep_cs, irqen, firqen, WOC1, WOC0,
             bankr;
 
 assign dtack   = ~rom_cs | rom_ok;
 assign ram_we  = ram_cs & cpu_we;
 assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
+assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs|(io_cs&paroda);
+assign cpu_addr= A[15:0];
 
 always @(*) begin
     case( debug_bus[1:0] )
@@ -119,22 +126,25 @@ wire bad_cs =
         { 3'd0, rom_cs     } +
         { 3'd0, pal_cs     } +
         { 3'd0, ram_cs     } +
-        { 3'd0, io_cs      } +
+        { 3'd0, io_cs & ~vendetta } +
         { 3'd0, objsys_cs  } +
         { 3'd0, objreg_cs  } +
         { 3'd0, pcu_cs     } +
         { 3'd0, joystk_cs  } +
         { 3'd0, basel_cs   } +
-        { 3'd0, out_cs     } +
+        { 3'd0, out_cs & simson } +
         { 3'd0, snd_cs     } +
         { 3'd0, snd_irq    } +
+        { 3'd0, stsw_cs    } +
         { 3'd0, tilesys_cs } > 1;
 wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs,
-    objreg_cs, pcu_cs, joystk_cs, tilesys_cs, eeprom_cs, basel_cs, out_cs, snd_cs, snd_irq };
+    objreg_cs, pcu_cs, joystk_cs, tilesys_cs, eeprom_cs, basel_cs, out_cs, snd_cs, snd_irq, stsw_cs };
 `endif
 
 always @(*) begin
     rom_addr[12: 0] = A[12:0];
+    eeprom_cs       = 0;
+    prog_cs         = 0;
     // used only by simpsons
     i6n = ~(A[15:10]==7 || (!init && A[15:10]==6'h1f ));
     i7n = ~((A[15:10]==7 && !WOC0) || (
@@ -149,10 +159,37 @@ always @(*) begin
     out_cs   = misc_cs && A[3:2]==0;
     basel_cs = misc_cs && A[3:2]==1;
     unpaged  = A[15:13]>=5;
-    if( paroda ) begin
-        eeprom_cs = 0;
-        prog_cs   = 0;
+    // used only by vendetta
+    hip_cs  = 0;
+    cr_cs   = 0;
+    stsw_cs = 0;
+    vend_i7n = A[15:10]==6'b010111; // 5C...
+    vend_i6n = A[15:14]==1 && ( A[12] || !WOC0 || (!init && A[13]));
+    vend_aux =&{ A[9:7], vend_i7n };
+    // Simpsons by default:
+    banked_cs  =  init && A[15:13]==3 && !Aupper[4]; // 6000~7FFF
+    prog_cs    = (init && A[14:13]==3 &&  Aupper[4]) || A[15];
+    ram_cs     = A[15:13]==2 && init;
+    // after second decoder:
+    pal_cs     = A[15:12]==0 && WOC0; // COLOCS in sch
+    objsys_cs  = A[15:13]==1 && WOC1 && init;
+    eeprom_cs  = io_aux && A[6:4]==3'b000;
+    joystk_cs  = io_aux && A[6:4]==3'b001;
+    objreg_cs  = io_aux && A[6:4]==3'b010;
+    pcu_cs     = io_aux && A[6:4]==3'b011; // 053251
+    io_cs      = io_aux && A[6:4]==3'b100;
+    tilesys_cs = (~i6n & (~A[9] | ~A[8] | ~A[7] | (A[6]&(A[5]|A[4])))) | (i6n^i7n);
 
+    snd_irq    = io_cs && A[3:1]==2;
+    snd_cs     = io_cs && A[3:1]==3;
+
+    rom_cs     = prog_cs | banked_cs;
+    rom_addr[16:13] = A[15] ? {2'b11,A[14:13]} : Aupper[3:0];
+    rom_addr[17]    = A[15] | Aupper[5];
+    rom_addr[18]    = ~banked_cs;
+    if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
+
+    if( paroda ) begin
         joystk_cs  = paro_aux && A[6:4]==3'b000;
         io_cs      = paro_aux && A[6:4]==3'b001;
         objreg_cs  = paro_aux && A[6:4]==3'b010;
@@ -168,38 +205,39 @@ always @(*) begin
         rom_addr[16:13] = banked_cs ? {~Aupper[2:0], A[15]} : {1'b1,A[15:13]};
         rom_addr[17] = !Aupper[3]||!banked_cs;
         rom_addr[18] = 0;
-    end else begin
-        banked_cs  =  init && A[15:13]==3 && !Aupper[4]; // 6000~7FFF
-        prog_cs    = (init && A[14:13]==3 &&  Aupper[4]) || A[15];
-        ram_cs     = A[15:13]==2 && init;
-        // after second decoder:
-        pal_cs     = A[15:12]==0 && WOC0; // COLOCS in sch
-        objsys_cs  = A[15:13]==1 && WOC1 && init;
-        eeprom_cs  = io_aux && A[6:4]==3'b000;
-        joystk_cs  = io_aux && A[6:4]==3'b001;
-        objreg_cs  = io_aux && A[6:4]==3'b010;
-        pcu_cs     = io_aux && A[6:4]==3'b011; // 053251
-        io_cs      = io_aux && A[6:4]==3'b100;
-        tilesys_cs = (~i6n & (~A[9] | ~A[8] | ~A[7] | (A[6]&(A[5]|A[4])))) | (i6n^i7n);
-
-        snd_irq    = io_cs && A[3:1]==2;
+    end
+    if( vendetta ) begin
+        // PAL U22
+        tilesys_cs =(vend_i6n && !vend_i7n) || vend_i7n && (!A[9]||!A[8]||!A[7]);
+        hip_cs     = vend_aux && A[6:5]==2'b00;
+        io_cs      = vend_aux && A[6:4]==3'b110;
+        pcu_cs     = vend_aux && A[6:4]==3'b010;
+        objreg_cs  = vend_aux && A[6:4]==3'b011;
+        stsw_cs    = vend_aux && A[6:4]==3'b101;
+        joystk_cs  = vend_aux && A[6:4]==3'b100;
+        // PAL U21
+        rom_cs     = A[15] || (A[14:13]==0);
+        pal_cs     = A[15:12]==6 && WOC0;
+        objsys_cs  = A[15:12]==4 && WOC0;
+        ram_cs     = A[15:13]==1;
+        // Decoder U25
+        cr_cs      = io_cs && A[3:1]==4;    // goes to obj
         snd_cs     = io_cs && A[3:1]==3;
-
-        rom_cs     = prog_cs | banked_cs;
-        rom_addr[16:13] = A[15] ? {2'b11,A[14:13]} : Aupper[3:0];
-        rom_addr[17]    = A[15] | Aupper[5];
-        rom_addr[18]    = ~banked_cs;
-        if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
+        snd_irq    = io_cs && A[3:1]==2;
+        // ROM address
+        rom_addr[17:13] = A[15] ? {3'b111,A[14:13]} : Aupper[4:0]; // 2Mbit ROM in PCB. Schematics only show a 1Mbit connection
+        rom_addr[18]    = 0;
     end
 end
 
 always @* begin
-    cpu_din = rom_cs     ? rom_data  : // maximum priority
-              ram_cs     ? ram_dout  :
-              (joystk_cs|eeprom_cs|(io_cs&paroda) ) ? port_in :
-              pal_cs     ? pal_dout  :
+    cpu_din = rom_cs     ? rom_data     : // maximum priority
+              ram_cs     ? ram_dout     :
+              cab_rd     ? port_in      :
+              pal_cs     ? pal_dout     :
+              hip_cs     ? hip_dout     : // vendetta only
               tilesys_cs ? tilesys_dout :
-              snd_cs     ? snd2main  :
+              snd_cs     ? snd2main     :
               objsys_cs  ? objsys_dout  : 8'h00;
 end
 
@@ -211,6 +249,8 @@ always @(posedge clk, posedge rst) begin
         berr_l    <= 0;
         WOC0      <= 0;
         WOC1      <= 0;
+        // vendetta only:
+        irqen     <= 0;
         // simpsons only:
         firqen    <= 0;
         eep_di    <= 0;
@@ -237,7 +277,21 @@ always @(posedge clk, posedge rst) begin
                 2'd2: port_in <= { dipsw[23:20], coin[1:0], 1'b1, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
-        end else begin // simpsons
+        end else if( vendetta ) begin
+            if( io_cs ) case( A[3:1] )
+                0: { objcha_n, init, rmrd } <= {~cpu_dout[5], cpu_dout[4:3]}; // bit 2 named but unused, bits 1:0 are coin counters
+                1: { irqen, eep_di, eep_clk, eep_cs, mono, WOC1, WOC0 } <= cpu_dout[6:0];
+                // 4: CRCS ?
+                // 5: AFR (watchdog)
+                default:;
+            endcase
+            if( joystk_cs ) case( A[1:0] )
+                2'd0: port_in <= { coin[0], joystick1[6:3],joystick1[0],joystick1[1] };
+                2'd1: port_in <= { coin[1], joystick2[6:3],joystick2[0],joystick2[1] };
+                2'd2: port_in <= { coin[2], joystick3[6:3],joystick3[0],joystick3[1] };
+                2'd3: port_in <= { coin[3], joystick4[6:3],joystick4[0],joystick4[1] };
+            endcase
+        end else if( simson ) begin
             if( io_cs ) case( A[3:1] )
                 0: { objcha_n, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
                 1: { eep_di, eep_clk, eep_cs, firqen, WOC1, WOC0 } <= { cpu_dout[7], cpu_dout[4:0] };
@@ -245,7 +299,6 @@ always @(posedge clk, posedge rst) begin
                 // 5: AFR (watchdog)
                 default:;
             endcase
-
             if( joystk_cs ) case( A[1:0] )
                 2'd0: port_in <= { cab_1p[0], joystick1[6:0] };
                 2'd1: port_in <= { cab_1p[1], joystick2[6:0] };
@@ -253,10 +306,13 @@ always @(posedge clk, posedge rst) begin
                 2'd3: port_in <= { cab_1p[3], joystick4[6:0] };
             endcase
         end
+        // only simson
         if( eeprom_cs ) port_in <= A[0] ? { WOC1, WOC0, eep_rdy, eep_do,
                                             eep_di, eep_clk, eep_cs, dip_test } // real PCB */
                                         //{ 2'b11, eep_rdy, eep_do, 3'b111, dip_test } // use for MAME comparisons
                                         : { {4{service}}, coin };
+        // only vendetta
+        if( stsw_cs   ) port_in <= A[0] ? { {4{service}}, cab_1p } : { 4'hf, dma_bsy, dip_test, eep_rdy, eep_do };
     end
 end
 
@@ -279,6 +335,15 @@ jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
     .dump_flag  (           )
 );
 
+// Vendetta does not use the interrupt from the tile mapper
+jtframe_edge #(.QSET(0)) u_irq (
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( ~LVBL     ),
+    .clr    ( ~irqen    ),
+    .q      ( irqn_ff   )
+);
+
 jtframe_edge #(.QSET(0)) u_firq (
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -291,8 +356,19 @@ jtframe_edge #(.QSET(0)) u_firq (
 // there is a reset for the first 8 frames, skip it in sims
 always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 // always @(posedge clk) rst_cmb <= rst | rst8;
+assign irq_mx = (vendetta ? irqn_ff : irq_n) | ~dip_pause;
 
-/* verilator tracing_off */
+// only used in Vendetta
+jtk054000 u_hip(
+    .rst    ( rst_cmb   ),
+    .clk    ( clk       ),
+    .cs     ( hip_cs    ),
+    .addr   ( A[4:0]    ),
+    .we     ( cpu_we    ),
+    .din    ( cpu_dout  ),
+    .dout   ( hip_dout  )
+);
+
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),
     .clk    ( clk       ),
@@ -302,7 +378,7 @@ jtkcpu u_cpu(
     .halt   ( berr_l    ),
     .dtack  ( dtack     ),
     .nmi_n  ( 1'b1      ),
-    .irq_n  ( irq_n | ~dip_pause ),
+    .irq_n  ( irq_mx    ),
     .firq_n ( firqn_ff  ),
     .pcbad  ( pcbad     ),
     .buserror( buserror ),

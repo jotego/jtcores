@@ -67,8 +67,6 @@ This text can be used in GitHub to generate a check list to use during code deve
 
 ## Beta core publishing
 
-Use jtbeta for compiling. The files will be created in $JTROOT/release, and then copied to $JTFRIDAY and $JTBIN
-
 **JTBIN checks**
 - [ ] No files for non-beta RBF in JTBIN
 - [ ] JTBIN has been comitted and pushed

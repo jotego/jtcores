@@ -1,0 +1,19 @@
+Equations:
+
+/JOYSTK  = AS  & A9  & A8  & A7  & /i7 & A6  & /A5  & /A4 
+
+/STSW  = AS  & A9  & A8  & A7  & /i7 & A6  & /A5  & A4 
+
+/OBJREG  = AS  & A9  & A8  & A7  & /i7 & /A6  & A5  & A4 
+
+/PCUCS  = AS  & A9  & A8  & A7  & /i7 & /A6  & A5  & /A4 
+
+/IOCS  = A9  & A8  & A7  & /i7 & A6  & A5  & /A4 
+
+/HIPCS  = AS  & A9  & A8  & A7  & /i7 & /A6  & /A5 
+
+/VRAMCS  = AS  & /i6 & i7 +
+       AS  & /A9  & /i7 +
+       AS  & /A8  & /i7 +
+       AS  & /A7  & /i7
+

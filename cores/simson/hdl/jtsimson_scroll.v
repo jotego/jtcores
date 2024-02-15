@@ -23,6 +23,7 @@ module jtsimson_scroll(
     input             pxl2_cen,
 
     input             paroda,
+    input             simson,
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -91,9 +92,9 @@ assign lyra_cs = gfx_en[1];
 assign lyrb_cs = gfx_en[2];
 
 function [19:2] sort( input [7:0] col, input [12:0] pre );
-    sort = paroda ?
-        { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
-        { pre[11],    col[5:0],                 pre[10:0] };
+    sort = paroda ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
+           simson ? { pre[11],    col[5:0],                 pre[10:0] } :
+                    { pre[11], col[3:2], col[5:4],col[1:0], pre[10:0] };
 endfunction
 
 always @* begin
@@ -105,7 +106,7 @@ end
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 function [7:0] cgate( input [7:0] c);
-    cgate = paroda ? {c[7:5],5'd0} : { c[7:6], 6'd0 };
+    cgate = simson ? { c[7:6], 6'd0 } : {c[7:5],5'd0};
 endfunction
 
 jt052109 u_tilemap(

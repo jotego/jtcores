@@ -20,6 +20,7 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
+    input             simson,
     input             paroda,
 
     // Base Video
@@ -116,7 +117,7 @@ always @(posedge clk) begin
         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -124,6 +125,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .pxl2_cen   ( pxl2_cen  ),
 
     .paroda     ( paroda    ),
+    .simson     ( simson    ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -227,6 +229,11 @@ jtsimson_obj u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
+function [6:0] lyrcol( input [7:0] pxl );
+    lyrcol = paroda ? {       pxl[7:5], pxl[3:0] } :
+                      { 1'b0, pxl[7:6], pxl[3:0] };
+endfunction
+
 /* verilator tracing_on */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
@@ -245,9 +252,9 @@ jtsimson_colmix u_colmix(
     .pcu_cs     ( pcu_cs    ),
 
     // Final pixels
-    .lyrf_pxl   ( paroda ? { lyrf_pxl[7:5], lyrf_pxl[3:0] } : { 1'b0, lyrf_pxl[7:6], lyrf_pxl[3:0] } ), // scroll layers swapped in Parodius
-    .lyra_pxl   ( paroda ? { lyrb_pxl[7:5], lyrb_pxl[3:0] } : { 1'b0, lyra_pxl[7:6], lyra_pxl[3:0] } ),
-    .lyrb_pxl   ( paroda ? { lyra_pxl[7:5], lyra_pxl[3:0] } : { 1'b0, lyrb_pxl[7:6], lyrb_pxl[3:0] } ),
+    .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
+    .lyra_pxl   ( lyrcol( paroda ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
+    .lyrb_pxl   ( lyrcol( paroda ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),

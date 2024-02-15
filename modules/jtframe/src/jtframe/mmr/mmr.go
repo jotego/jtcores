@@ -32,9 +32,10 @@ type MMRdef struct {
 	Size int
 	Regs []Register
 	Read_only bool
+	No_core_name bool `yaml:"no_core_name"`
 	// Added by jtframe
 	AMSB int
-	Core string
+	Module string
 	Seq []int
 }
 
@@ -44,7 +45,7 @@ func convert( corename, hdl_path string, cfg MMRdef ) {
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
-	fname := fmt.Sprintf("jt%s_%s_mmr.v",corename,cfg.Name)
+	fname := fmt.Sprintf("%s.v",cfg.Module)
 	outpath := filepath.Join(hdl_path,fname)
 	e := os.WriteFile(outpath, buffer.Bytes(), 0644)
 	if e!=nil {
@@ -70,7 +71,11 @@ func Generate( corename string, verbose bool ) {
 	sanity_check(cfg)
 	hdl_path := filepath.Join(os.Getenv("CORES"), corename, "hdl")
 	for k, _ := range cfg {
-		cfg[k].Core=corename
+		if cfg[k].No_core_name {
+			cfg[k].Module=fmt.Sprintf("jt%s_mmr", cfg[k].Name )
+		} else {
+			cfg[k].Module=fmt.Sprintf("jt%s_%s_mmr",corename, cfg[k].Name )
+		}
 		cfg[k].AMSB=int(math.Ceil(math.Log2(float64(cfg[k].Size)))-1)
 		cfg[k].Seq=make([]int,cfg[k].Size)
 		for i:=0;i<cfg[k].Size;i++ { cfg[k].Seq[i]=i }

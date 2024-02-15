@@ -1,0 +1,34 @@
+- name: k054000
+  no_core_name: true
+  size: 24
+  regs:
+    - name: dx
+      dw: 8
+      at: 4
+    - name: o0x
+      at: "1,2,3"
+      dw: 24
+    - name: o0w
+      at: 6
+      dw: 8
+    - name: o0h
+      at: 7
+      dw: 8
+    - name: dy
+      dw: 8
+      at: 12
+    - name: o0y
+      at: "9,10,11"
+      dw: 24
+    - name: o1x
+      at: "0x15,0x16,0x17"
+      dw: 24
+    - name: o1w
+      at: 0xe
+      dw: 8
+    - name: o1h
+      at: 0xf
+      dw: 8
+    - name: o1y
+      at: "0x11,0x12,0x13"
+      dw: 24

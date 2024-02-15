@@ -331,7 +331,7 @@ case "$1" in
         ;;
     -dipsw)
         shift
-        if [ -e $ROM/$1.dip ]; then
+        if [ -s $ROM/$1.dip ]; then
             echo "Using rom/$1.dip"
             add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$1.dip)
         else
@@ -491,7 +491,7 @@ require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
-if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
+if [[ -z "$SETNAME" && -s $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
     AUX=$(basename `pwd`)
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
     if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi
@@ -505,7 +505,7 @@ if [ ! -z "$SETNAME" ]; then
         cd "$SETNAME"
     fi
     if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
-    if [ -e $ROM/$SETNAME.dip ]; then
+    if [ -s $ROM/$SETNAME.dip ]; then
         if ! has_macro JTFRAME_SIM_DIPS; then
             # Not all systems have DIPs
             DIPS=`cat $ROM/$SETNAME.dip`

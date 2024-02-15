@@ -13,6 +13,9 @@ game:
       - jt053246_dma.v
       - jt053246_mmr.v
       - jtcolmix_053251.v
+      # Vendetta
+      - jtk054000.v
+      - jtk054000_mmr.v
   - from: aliens
     get:
       - jt052109.v

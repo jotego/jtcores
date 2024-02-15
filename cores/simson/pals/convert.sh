@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Parodius
 jedutil -view ParodiusDa_053884.PAL1.F6.jed gal16v8 > parodius-pal1.txt
 jedutil -view ParodiusDa_053885.PAL2.G6.jed gal16v8 > parodius-pal2.txt
 jedutil -view ParodiusDa_053886.PAL3.H6.jed gal16v8 > parodius-pal3.txt
@@ -35,3 +37,23 @@ do
 done
 
 sed -i "s/\/\///g" parodius-pal?.txt
+
+# Vendetta
+jedutil -view Vendetta-054242.jed gal16v8 > vendetta-u21.txt
+jedutil -view Vendetta-054243.jed gal16v8 > vendetta-u22.txt
+sed -i -e "1,14d" -e "/\.oe = vcc$/d" vendetta-*.txt
+
+for EACH in "i1:\/AS" "i2:INIT" "i3:A15" "i4:A14" "i5:A13" "i6:A12" "i7:A11" "i8:A10" "i9:W0C1" "i11:W0C0" \
+			"o19:BUFFEN" "o17:PROGCS" "o16:COLOCS" "o15:OBJCS" "o14:WORKCS" \
+			"o13:i6" "o12:i7"
+do
+	rename vendetta-u21.txt
+done
+
+for EACH in "i1:AS" "i2:RMRD" "i3:A9" "i4:A8" "i5:A7" "i8:A6" "i9:A5" "i11:A4" \
+			"o12:JOYSTK" "o13:STSW" "o14:OBJREG" "o15:PCUCS" "o16:CCUCS" "o17:IOCS" "o18:HIPCS" "o19:VRAMCS"
+do
+	rename vendetta-u22.txt
+done
+
+sed -i "s/\/\///g" vendetta-*.txt

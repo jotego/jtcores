@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 20-10-2023 */
 
-module jt{{.Core}}_{{.Name}}_mmr(
+module {{ .Module }}(
     input             rst,
     input             clk,
 

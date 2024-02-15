@@ -21,7 +21,7 @@ module jtsimson_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
-    input           paroda,
+    input           simson,
 
     input   [ 1:0]  fxlevel,
     input           enable_fm,
@@ -84,7 +84,7 @@ reg         [ 3:0]  pcm_msb;
 reg         [ 7:0]  fmgain, fxgain;
 
 
-assign rom_addr = paroda ? {1'd0,A[15:0]} : { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
+assign rom_addr = simson ? { A[15] ? bank : { 2'd0, A[14] }, A[13:0] } : {1'd0,A[15:0]};
 assign st_dout  = fm_dout;
 
 always @(*) begin
@@ -100,7 +100,7 @@ always @(*) begin
         4: fm_cs   = 1;
         5: nmi_clr = 1;
         6: pcm_cs  = 1;
-        7: bank_cs = !paroda;     // unused in Parodius
+        7: bank_cs = simson;     // unused in Parodius
         default:;
     endcase
 end
