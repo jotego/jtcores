@@ -10072,7 +10072,7 @@
       )
       (pin power_in line (at 0 -6.35 90) (length 2.54)
         (name "-V" (effects (font (size 1.27 1.27))))
-        (number "15" (effects (font (size 1.27 1.27))))
+        (number "7" (effects (font (size 1.27 1.27))))
       )
     )
   )
