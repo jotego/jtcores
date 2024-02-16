@@ -287,11 +287,11 @@
       )
     )
   )
-  (symbol "M51944BSL" (in_bom yes) (on_board yes)
+  (symbol "M5194X" (in_bom yes) (on_board yes)
     (property "Reference" "U" (at -2.54 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "M51944BSL" (at 2.54 -7.62 0)
+    (property "Value" "M5194X" (at 2.54 -7.62 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 2.54 8.89 0)
@@ -303,7 +303,7 @@
     (property "ki_description" "Voltage detecting, system resetting ic series" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (symbol "M51944BSL_1_1"
+    (symbol "M5194X_1_1"
       (rectangle (start -6.35 6.35) (end -1.27 -6.35)
         (stroke (width 0) (type default))
         (fill (type background))
