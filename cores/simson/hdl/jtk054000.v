@@ -37,7 +37,8 @@ wire [23:0] o0x, o0y, o1x, o1y;
 wire [ 7:0] o0h, o0w, o1h, o1w, dx, dy;
 
 // adjusted
-reg        [23:0] a0x, a0y, addx, addy;
+reg        [23:0] a0x, a0y;
+reg        [ 8:0] addx, addy;
 reg signed [23:0] subx, suby;
 
 function [8:0] abs( input [8:0] a );
