@@ -38,22 +38,23 @@ wire [ 7:0] o0h, o0w, o1h, o1w, dx, dy;
 
 // adjusted
 reg        [23:0] a0x, a0y, addx, addy;
-wire       [ 8:0] lx, ly;
 reg signed [23:0] subx, suby;
 
-assign lx   = subx[8:0];
-assign ly   = suby[8:0];
+function [8:0] abs( input [8:0] a );
+    abs = a[8] ? -a : a;
+endfunction
+
 assign dout = {7'd0, hit};
 
 always @(posedge clk) begin
     a0x  <= o0x+{{16{dx[7]}},dx};
     a0y  <= o0y+{{16{dy[7]}},dy};
     subx <= a0x - o1x;
-    addx <= a0x + o1x;
+    addx <= o0w + o1w;
     suby <= a0y - o1y;
-    addy <= a0y + o1y;
-    hitx <= subx>511 || subx<-1024 || lx>addx[8:0];
-    hity <= suby>511 || suby<-1024 || ly>addy[8:0];
+    addy <= o0h + o1h;
+    hitx <= subx>511 || subx<-1024 || abs(subx[8:0])>addx[8:0];
+    hity <= suby>511 || suby<-1024 || abs(suby[8:0])>addy[8:0];
     hit  <= hitx | hity;
 end
 

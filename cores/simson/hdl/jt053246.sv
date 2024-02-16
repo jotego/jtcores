@@ -78,7 +78,7 @@ localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_CFG   = 2; // interrupt control, ROM read
 
 reg  [18:0] yz_add;
-reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b, xadj, yadj;
+reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -114,8 +114,8 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset + (k44_en ? 10'h013 + 10'h53 : 10'h013);
-    yadj <= yoffset + (k44_en ? 10'h11e - 10'h0f : 10'h11f);
+    xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
+    yadj <= yoffset - (k44_en ? 10'h101 : 10'h1e1);
     vscl <= zoffset[ vzoom[7:0] ];
     hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -123,6 +123,8 @@ always @(posedge clk) begin
                               // opposite to the one in Aliens, which always
                               // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
+    yw0   = y - yadj;
+    ywrap = yw0 > 10'h200 ? yw0+10'h121 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
@@ -214,9 +216,8 @@ always @(posedge clk, posedge rst) begin
                     if( k44_en ) code[15:14] <= 0;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=9  ) begin
                     // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
-                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
+                    if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -229,8 +230,8 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x + xadj;
-                    y <=  y + yadj;
+                    x <=  x - xadj;
+                    y <=  ywrap;
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                     if( k44_en ) begin //

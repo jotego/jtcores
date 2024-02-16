@@ -71,7 +71,7 @@ if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
         tail -n 1 frames/frames.crc > scenes/$SCENE/$SCENE.crc
     else
         if ! diff -q <(tail -n 1 frames/frames.crc) scenes/$SCENE/$SCENE.crc > /dev/null; then
-            echo "WARNING: the image CRC has changed"
+            echo "WARNING: the image CRC has changed for scene $SCENE"
             exit 1
         fi
     fi
