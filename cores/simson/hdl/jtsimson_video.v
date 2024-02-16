@@ -225,7 +225,7 @@ jtsimson_obj u_obj(    // sprite logic
     .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
-    // .gfx_en     ( gfx_en    ),
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
 

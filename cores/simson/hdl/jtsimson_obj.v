@@ -54,6 +54,7 @@ module jtsimson_obj(
     output     [ 8:0] pxl,
 
     // debug
+    input      [ 3:0] gfx_en,
     input             ioctl_ram,
     input      [13:0] ioctl_addr,
     output     [ 7:0] dump_ram,
@@ -110,7 +111,7 @@ assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
 assign shd     = (paroda ? {1'b0,pre_pxl[11]  } : pre_pxl[15:14]) & {2{pen15}};
 assign prio    =  paroda ? {1'd1,pre_pxl[10:9],2'd0} : pre_pxl[13:9];
-assign pxl     = {pre_pxl[8:4], pen_eff};
+assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
 assign sorted = paroda ? rom_data : {
     rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],

@@ -115,7 +115,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset + (k44_en ? 10'h013 + 10'h53 : 10'h013);
-    yadj <= yoffset + (k44_en ? 10'h11e - 10'h0f : 10'h11e);
+    yadj <= yoffset + (k44_en ? 10'h11e - 10'h0f : 10'h11f);
     vscl <= zoffset[ vzoom[7:0] ];
     hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */

@@ -286,10 +286,10 @@ always @(posedge clk, posedge rst) begin
                 default:;
             endcase
             if( joystk_cs ) case( A[1:0] )
-                2'd0: port_in <= { coin[0], joystick1[6:3],joystick1[0],joystick1[1] };
-                2'd1: port_in <= { coin[1], joystick2[6:3],joystick2[0],joystick2[1] };
-                2'd2: port_in <= { coin[2], joystick3[6:3],joystick3[0],joystick3[1] };
-                2'd3: port_in <= { coin[3], joystick4[6:3],joystick4[0],joystick4[1] };
+                2'd0: port_in <= { coin[0], joystick1[6:2],joystick1[0],joystick1[1] };
+                2'd1: port_in <= { coin[1], joystick2[6:2],joystick2[0],joystick2[1] };
+                2'd2: port_in <= { coin[2], joystick3[6:2],joystick3[0],joystick3[1] };
+                2'd3: port_in <= { coin[3], joystick4[6:2],joystick4[0],joystick4[1] };
             endcase
         end else if( simson ) begin
             if( io_cs ) case( A[3:1] )
@@ -393,6 +393,7 @@ jtkcpu u_cpu(
 `else
     assign cpu_cen   = 0;
     assign cpu_dout  = 0;
+    assign cpu_addr  = 0;
     assign ram_we    = 0;
     assign cpu_we    = 0;
     assign st_dout   = 0;

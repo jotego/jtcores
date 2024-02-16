@@ -613,14 +613,15 @@ osd #(0,0,6'b01_11_01,8) hdmi_osd (
 assign HDMI_PCLK = scan2x_clk;
 
 end else begin
-  assign HDMI_SCL = 1'bZ;
-  assign HDMI_SDA = 1'bZ;
-  assign HDMI_R = 8'd0;
-  assign HDMI_G = 8'd0;
-  assign HDMI_B = 8'd0;
-  assign HDMI_HS = 1'b0;
-  assign HDMI_VS = 1'b0;
-  assign HDMI_DE = 1'b0;
+  assign HDMI_PCLK = 1'b0;
+  assign HDMI_SCL  = 1'bZ;
+  assign HDMI_SDA  = 1'bZ;
+  assign HDMI_R    = 8'd0;
+  assign HDMI_G    = 8'd0;
+  assign HDMI_B    = 8'd0;
+  assign HDMI_HS   = 1'b0;
+  assign HDMI_VS   = 1'b0;
+  assign HDMI_DE   = 1'b0;
 end
 
 endgenerate
