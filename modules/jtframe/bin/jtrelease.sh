@@ -107,6 +107,9 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	cd $JTBIN
 	jtutil md5
 	cp -r $DST/release/* .
+	# note that the beta zip files are generated before the commit
+	# in order to have the MiST and SiDi cores too
+	cpbeta.sh
 	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi; do
 		for i in $JTBIN/$t/*.rbf; do
