@@ -121,7 +121,7 @@ always @* begin
     if(ioctl_addr>=MAP1_START ) begin
         if( ioctl_addr < SCR1_START) begin // MAP1+MAP2
             post_addr[3:0] = {prog_addr[2:0],prog_addr[3]};
-        end else if( ioctl_addr < PROM_START ) begin
+        end else if( ioctl_addr >= OBJ_START && ioctl_addr < PROM_START ) begin
             post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
         end
     end
