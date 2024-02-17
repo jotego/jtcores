@@ -258,9 +258,9 @@ jt1943_video #(
 ) u_video(
     .rst           ( rst           ),
     .clk           ( clk           ),
-    .cen12         ( cen12         ),
+    .pxl2_cen      ( cen12         ),
+    .pxl_cen       ( cen6          ),
     .cen8          ( cen8          ),
-    .cen6          ( cen6          ),
     .cen3          ( cen3          ),
     .cpu_cen       ( cpu_cen       ),
     .cpu_AB        ( cpu_AB[10:0]  ),
