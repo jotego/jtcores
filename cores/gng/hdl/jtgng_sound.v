@@ -430,23 +430,13 @@ jt03 u_fm1(
     //.debug_bus ( debug_bus ),
     .debug_view( fm1_debug )
 );
-
-`ifdef SIMULATION
-    integer fsnd;
-    initial begin
-        fsnd=$fopen("fm_sound.raw","wb");
-    end
-    always @(posedge sample) begin
-        $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
-    end
-`endif
 `else
-    initial snd2_latch=0;
-    initial debug_view=0;
-    initial rom_cs=0;
-    assign rom_addr=0;
-    assign ym_snd=0;
-    assign sample=0;
-    assign peak=0;
+    initial snd2_latch = 0;
+    initial debug_view = 0;
+    initial rom_cs     = 0;
+    assign  rom_addr   = 0;
+    assign  ym_snd     = 0;
+    assign  sample     = 0;
+    assign  peak       = 0;
 `endif
 endmodule // jtgng_sound
