@@ -2,14 +2,16 @@ params:
   - { name: CHAR_OFFSET,  value: "`CHAR_START>>1"  }
   - { name: MAP2_OFFSET,  value: "(`MAP2_START-`MAP1_START)>>1"  }
   - { name: SCR2_OFFSET,  value: "(`SCR2_START-`SCR1_START)>>1"  }
-# clocks:
-#   clk48:
-#     - freq: 12000000
-#       outputs:
-#         - cen12
-#         - cen6
-#         - cen3
-#         - cen1p5
+clocks:
+  clk48:
+    - freq: 6000000
+      outputs:
+        - cen6
+        - cen3
+        - cen1p5
+    - freq: 8000000
+      outputs:
+        - cen8
 download:
   post_addr: true
 sdram:

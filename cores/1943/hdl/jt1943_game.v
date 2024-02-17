@@ -35,32 +35,10 @@ wire [7:0] cpu_dout, chram_dout;
 wire rd;
 wire [7:0] dipsw_a, dipsw_b;
 
-wire cen12, cen8, cen6, cen3, cen1p5;
 wire LHBL_obj, LVBL_obj;
 wire preLHBL, preLVBL;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen1p5 ( cen1p5    ),
-    .cen3   ( cen3      ),
-    .cen6   ( cen6      ),
-    .cen8   ( cen8      ),
-    .cen12  ( cen12     ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen16  (           ),
-    .cen16b (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5b(           )
-);
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -253,9 +231,9 @@ jtgng_sound u_sound (
 jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
+    .pxl_cen    ( pxl_cen       ),
+    .pxl2_cen   ( pxl2_cen      ),
     .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),

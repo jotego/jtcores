@@ -46,9 +46,9 @@ module jt1943_video #( parameter
 ) (
     input               rst,
     input               clk,
-    input               cen12,
+    input               pxl_cen,
+    input               pxl2_cen,
     input               cen8,
-    input               cen6,
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
@@ -160,7 +160,7 @@ jtgng_char #(
     .PALETTE_SIMFILE(CHAR_PAL   )
 ) u_char (
     .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
+    .pxl_cen    ( pxl_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
@@ -194,7 +194,7 @@ jt1943_scroll #(
 u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen6         ( cen6          ),
+    .cen6         ( pxl_cen       ),
     .LHBL         ( preLHBL       ),
     .V128         ( {1'b0, V[7:0]}),
     .H            ( hadj          ),
@@ -231,7 +231,7 @@ generate
         ) u_scroll2 (
             .rst          ( rst           ),
             .clk          ( clk           ),
-            .cen6         ( cen6          ),
+            .cen6         ( pxl_cen       ),
             .LHBL         ( preLHBL       ),
             .V128         ( {1'b0, V[7:0]}),
             .H            ( hadj          ),
@@ -288,8 +288,8 @@ u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .dma_cen        ( cen8          ),  // 8MHz!!
-    .draw_cen       ( cen12         ),
-    .pxl_cen        ( cen6          ),
+    .draw_cen       ( pxl2_cen      ),
+    .pxl_cen        ( pxl_cen       ),
     // screen
     .HINIT          ( HINIT         ),
     .LHBL           ( LHBL_obj      ),
@@ -339,7 +339,7 @@ jt1943_colmix #(
 u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen6         ( cen6          ),
+    .cen6         ( pxl_cen       ),
     .preLHBL      ( preLHBL       ),
     .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
