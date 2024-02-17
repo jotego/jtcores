@@ -4,7 +4,6 @@ game:
       - jt1943_game.v
       - jt1943_main.v
       - jt1943_colmix.v
-      - jt1943_prom_we.v
       - jt1943_video.v
       - jt1943_security.v
       - jt1943_scroll.yaml

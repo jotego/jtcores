@@ -1,0 +1,55 @@
+params:
+  - { name: CHAR_OFFSET,  value: "`CHAR_START>>1"  }
+  - { name: MAP2_OFFSET,  value: "(`MAP2_START-`MAP1_START)>>1"  }
+  - { name: SCR2_OFFSET,  value: "(`SCR2_START-`SCR1_START)>>1"  }
+# clocks:
+#   clk48:
+#     - freq: 12000000
+#       outputs:
+#         - cen12
+#         - cen6
+#         - cen3
+#         - cen1p5
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+      - name: char
+        addr_width: 15
+        data_width: 16
+        offset: CHAR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: map1
+        addr_width: 15
+        data_width: 16
+      - name: map2
+        addr_width: 15
+        data_width: 16
+        offset: MAP2_OFFSET
+    - buses:
+      - name: scr1
+        addr_width: 18
+        data_width: 16
+        cs: LVBL
+      - name: scr2
+        addr_width: 16
+        data_width: 16
+        offset: SCR2_OFFSET
+        cs: LVBL
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        cs: 1'b1
+bram:
+  - name: snd
+    addr_width: 15
+    data_width: 8
+    sim_file: true
+    rom:
+      offset: "`SND_START>>1"

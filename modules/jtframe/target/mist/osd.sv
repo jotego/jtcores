@@ -225,8 +225,10 @@ wire [7:0] osd_byte = osd_buffer[osd_buffer_addr];
 reg        osd_pixel;
 
 `ifdef SIMULATION
+`ifndef JTFRAME_OSD_NOLOGO
 // Disable OSD background for simulation
 `define JTFRAME_OSD_NOLOGO
+`endif
 `endif
 
 `ifndef JTFRAME_OSD_NOLOGO
