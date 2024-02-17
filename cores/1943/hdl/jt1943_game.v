@@ -304,8 +304,10 @@ jtframe_prom #(.AW(14),.DW(8),.SIMFILE("audio_hi.bin")) u_prom1(
     .q      ( snd_data1         )
 );
 `else
-    assign snd    = 0;
-    assign sample = 0;
+    assign snd        = 0;
+    assign sample     = 0;
+    assign game_led   = 0;
+    assign debug_view = 0;
 `endif
 
 jt1943_video u_video(
