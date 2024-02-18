@@ -5,8 +5,8 @@
   (paper "A3")
 
   (title_block
-    (title "Dark Adventure / Gradius 2")
-    (date "2023-05-11")
+    (title "Twin 16")
+    (date "2024-02-18")
     (company "Konami GX687 / GX785")
     (comment 1 "Ulf Skutnabba, twitter: @skutis77")
   )
@@ -196,6 +196,18 @@
       (property "Datasheet" "~" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
+      (property "Sim.Library" "${KICAD7_SYMBOL_DIR}/Simulation_SPICE.sp" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Sim.Name" "kicad_builtin_opamp_quad" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Sim.Device" "SUBCKT" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Sim.Pins" "1=out1 2=in1- 3=in1+ 4=vcc 5=in2+ 6=in2- 7=out2 8=out3 9=in3- 10=in3+ 11=vee 12=in4+ 13=in4- 14=out4" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
       (property "ki_locked" "" (at 0 0 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -354,99 +366,62 @@
         )
       )
     )
-    (symbol "power:+12V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
-      (property "Reference" "#PWR" (at 0 -3.81 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Value" "+12V" (at 0 3.556 0)
+    (symbol "arcade:R_POT" (in_bom yes) (on_board yes)
+      (property "Reference" "U" (at 3.81 6.35 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Footprint" "" (at 0 0 0)
+      (property "Value" "R_POT" (at 10.16 3.81 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at 13.97 6.35 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "" (at 0 0 0)
+      (property "Datasheet" "" (at 13.97 6.35 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_keywords" "power-flag" (at 0 0 0)
+      (property "ki_description" "3-Pin Potentiometer" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_description" "Power symbol creates a global label with name \"+12V\"" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "+12V_0_1"
+      (symbol "R_POT_0_1"
+        (rectangle (start -1.016 2.54) (end 1.016 -2.54)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
         (polyline
           (pts
-            (xy -0.762 1.27)
-            (xy 0 2.54)
+            (xy 2.54 0)
+            (xy 1.524 0)
           )
           (stroke (width 0) (type default))
           (fill (type none))
         )
         (polyline
           (pts
-            (xy 0 0)
-            (xy 0 2.54)
+            (xy 1.143 0)
+            (xy 2.286 0.508)
+            (xy 2.286 -0.508)
+            (xy 1.143 0)
           )
           (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 2.54)
-            (xy 0.762 1.27)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
+          (fill (type outline))
         )
       )
-      (symbol "+12V_1_1"
-        (pin power_in line (at 0 0 90) (length 0) hide
-          (name "+12V" (effects (font (size 1.27 1.27))))
+      (symbol "R_POT_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27)
+          (name "" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 0 -3.81 90) (length 1.27)
+          (name "" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 3.81 0 180) (length 1.27)
+          (name "" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
         )
       )
     )
-    (symbol "power:GND" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
-      (property "Reference" "#PWR" (at 0 -6.35 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Value" "GND" (at 0 -3.81 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "power-flag" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Power symbol creates a global label with name \"GND\" , ground" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "GND_0_1"
-        (polyline
-          (pts
-            (xy 0 0)
-            (xy 0 -1.27)
-            (xy 1.27 -1.27)
-            (xy 0 -2.54)
-            (xy -1.27 -1.27)
-            (xy 0 -1.27)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "GND_1_1"
-        (pin power_in line (at 0 0 270) (length 0) hide
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
-    (symbol "skutis-kicad:MB3722" (in_bom yes) (on_board yes)
+    (symbol "fujitsu:MB3722" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at -6.35 12.7 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -456,7 +431,10 @@
       (property "Footprint" "" (at -33.02 -25.4 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "https://datasheetspdf.com/pdf-file/791667/Fujitsu/MB3722/1" (at -33.02 -25.4 0)
+      (property "Datasheet" "https://datasheetspdf.com/pdf-file/791667/Fujitsu/MB3722/1" (at 2.54 -25.4 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "5.8W Dual Audio Power Amplifier" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (symbol "MB3722_0_1"
@@ -516,55 +494,95 @@
         )
       )
     )
-    (symbol "skutis-kicad:R_Potentiometer" (in_bom yes) (on_board yes)
-      (property "Reference" "U" (at 3.81 6.35 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Value" "R_Potentiometer" (at 10.16 3.81 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 13.97 6.35 0)
+    (symbol "power:+12V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "#PWR" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "" (at 13.97 6.35 0)
+      (property "Value" "+12V" (at 0 3.556 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "R_Potentiometer_0_1"
+      (property "Datasheet" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_keywords" "global power" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Power symbol creates a global label with name \"+12V\"" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "+12V_0_1"
         (polyline
           (pts
-            (xy 2.54 0)
-            (xy 1.524 0)
+            (xy -0.762 1.27)
+            (xy 0 2.54)
           )
           (stroke (width 0) (type default))
           (fill (type none))
         )
         (polyline
           (pts
-            (xy 1.143 0)
-            (xy 2.286 0.508)
-            (xy 2.286 -0.508)
-            (xy 1.143 0)
+            (xy 0 0)
+            (xy 0 2.54)
           )
           (stroke (width 0) (type default))
-          (fill (type outline))
+          (fill (type none))
         )
-        (rectangle (start 1.016 2.54) (end -1.016 -2.54)
-          (stroke (width 0.254) (type default))
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke (width 0) (type default))
           (fill (type none))
         )
       )
-      (symbol "R_Potentiometer_1_1"
-        (pin passive line (at 0 3.81 270) (length 1.27)
-          (name "1" (effects (font (size 1.27 1.27))))
+      (symbol "+12V_1_1"
+        (pin power_in line (at 0 0 90) (length 0) hide
+          (name "+12V" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
-        (pin passive line (at 0 -3.81 90) (length 1.27)
-          (name "2" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (symbol "power:GND" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "#PWR" (at 0 -6.35 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Value" "GND" (at 0 -3.81 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_keywords" "global power" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Power symbol creates a global label with name \"GND\" , ground" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "GND_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 -1.27)
+            (xy 1.27 -1.27)
+            (xy 0 -2.54)
+            (xy -1.27 -1.27)
+            (xy 0 -1.27)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
         )
-        (pin passive line (at 3.81 0 180) (length 1.27)
-          (name "3" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (symbol "GND_1_1"
+        (pin power_in line (at 0 0 270) (length 0) hide
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
         )
       )
     )
@@ -1066,7 +1084,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 222.25 140.97 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 024701ce-d677-4517-9b8e-8ecb305b28f3)
-    (property "Reference" "C9" (at 219.71 133.35 90)
+    (property "Reference" "A_C9" (at 219.71 133.35 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100uF" (at 219.71 135.89 90)
@@ -1083,16 +1101,16 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C9") (unit 1)
+          (reference "A_C9") (unit 1)
         )
       )
     )
   )
 
   (symbol (lib_id "Device:C_Polarized") (at 106.68 165.1 90) (mirror x) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 03304aff-7f2a-4fe3-a091-af27f2af1611)
-    (property "Reference" "C16" (at 105.791 157.48 90)
+    (property "Reference" "A_C16" (at 105.791 157.48 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "4.7uF" (at 105.791 160.02 90)
@@ -1109,7 +1127,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C16") (unit 1)
+          (reference "A_C16") (unit 1)
         )
       )
     )
@@ -1143,7 +1161,7 @@
   (symbol (lib_id "Device:R") (at 54.61 153.67 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 092b9241-66be-46ee-86ae-964b3472fea2)
-    (property "Reference" "R16" (at 54.61 147.32 90)
+    (property "Reference" "A_R16" (at 54.61 147.32 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 54.61 149.86 90)
@@ -1160,7 +1178,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R16") (unit 1)
+          (reference "A_R16") (unit 1)
         )
       )
     )
@@ -1169,7 +1187,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 254 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 0d300249-8392-467a-b8ba-50172d57dd71)
-    (property "Reference" "C3" (at 257.81 127.3809 0)
+    (property "Reference" "ACAP_C3" (at 257.81 127.3809 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1000uF" (at 257.81 129.9209 0)
@@ -1186,7 +1204,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C3") (unit 1)
+          (reference "ACAP_C3") (unit 1)
         )
       )
     )
@@ -1223,7 +1241,7 @@
   (symbol (lib_id "Device:C") (at 289.56 167.64 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 1416aea3-d9e8-49dd-abd6-70ac1b634234)
-    (property "Reference" "CCC5" (at 293.37 166.3699 0)
+    (property "Reference" "A_C5" (at 293.37 166.3699 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100nF" (at 293.37 168.9099 0)
@@ -1240,7 +1258,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "CCC5") (unit 1)
+          (reference "A_C5") (unit 1)
         )
       )
     )
@@ -1249,7 +1267,7 @@
   (symbol (lib_id "Device:R") (at 54.61 119.38 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 14722fbd-990c-46f4-9341-c9e203547eb5)
-    (property "Reference" "R12" (at 54.61 113.03 90)
+    (property "Reference" "A_R12" (at 54.61 113.03 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "7.5k" (at 54.61 115.57 90)
@@ -1266,7 +1284,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R12") (unit 1)
+          (reference "A_R12") (unit 1)
         )
       )
     )
@@ -1275,7 +1293,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 303.53 163.83 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 17297bf2-d35c-44d9-845a-d05166341d48)
-    (property "Reference" "C1" (at 303.53 168.91 90)
+    (property "Reference" "A_C1" (at 303.53 168.91 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1000uF" (at 303.53 171.45 90)
@@ -1292,7 +1310,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C1") (unit 1)
+          (reference "A_C1") (unit 1)
         )
       )
     )
@@ -1326,7 +1344,7 @@
   (symbol (lib_id "Device:Opamp_Quad") (at 83.82 121.92 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 224a3875-f4ea-48aa-aac4-3655a2908c35)
-    (property "Reference" "E3" (at 83.82 111.76 0)
+    (property "Reference" "A_E3" (at 83.82 111.76 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "uPC324" (at 83.82 114.3 0)
@@ -1336,6 +1354,18 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 83.82 121.92 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Library" "${KICAD7_SYMBOL_DIR}/Simulation_SPICE.sp" (at 83.82 121.92 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Name" "kicad_builtin_opamp_quad" (at 83.82 121.92 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Device" "SUBCKT" (at 83.82 121.92 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Pins" "1=out1 2=in1- 3=in1+ 4=vcc 5=in2+ 6=in2- 7=out2 8=out3 9=in3- 10=in3+ 11=vee 12=in4+ 13=in4- 14=out4" (at 83.82 121.92 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 067c9302-e2c3-4a0d-a194-93b3084c8b2d))
@@ -1355,7 +1385,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "E3") (unit 2)
+          (reference "A_E3") (unit 2)
         )
       )
     )
@@ -1364,7 +1394,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 240.03 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 252aa065-045d-4d19-9d65-e7fb2118fbaf)
-    (property "Reference" "C14" (at 243.84 170.5609 0)
+    (property "Reference" "A_C14" (at 243.84 170.5609 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10uF" (at 243.84 173.1009 0)
@@ -1381,7 +1411,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C14") (unit 1)
+          (reference "A_C14") (unit 1)
         )
       )
     )
@@ -1390,7 +1420,7 @@
   (symbol (lib_id "Device:R") (at 54.61 163.83 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2d975beb-a7ed-4ceb-9f58-c8e1710c439a)
-    (property "Reference" "R22" (at 54.61 157.48 90)
+    (property "Reference" "A_R22" (at 54.61 157.48 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "7.5k" (at 54.61 160.02 90)
@@ -1407,7 +1437,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R22") (unit 1)
+          (reference "A_R22") (unit 1)
         )
       )
     )
@@ -1416,7 +1446,7 @@
   (symbol (lib_id "Device:R") (at 93.98 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2f213603-ccce-4eec-b441-1e5d5fcfa4f3)
-    (property "Reference" "RR52" (at 96.52 116.8399 0)
+    (property "Reference" "A_R52" (at 96.52 116.8399 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "3.3k" (at 96.52 119.3799 0)
@@ -1433,7 +1463,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "RR52") (unit 1)
+          (reference "A_R52") (unit 1)
         )
       )
     )
@@ -1442,7 +1472,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 106.68 121.92 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 3b76e60b-bcbc-449b-af3e-ff5b7068c122)
-    (property "Reference" "C15" (at 105.791 114.3 90)
+    (property "Reference" "A_C15" (at 105.791 114.3 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "4.7uF" (at 105.791 116.84 90)
@@ -1459,16 +1489,16 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C15") (unit 1)
+          (reference "A_C15") (unit 1)
         )
       )
     )
   )
 
   (symbol (lib_id "Device:R") (at 114.3 121.92 90) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 44bc70b0-3b15-4a08-add6-e69f87b1652d)
-    (property "Reference" "R14" (at 114.3 115.57 90)
+    (property "Reference" "A_R14" (at 114.3 115.57 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "10k" (at 114.3 118.11 90)
@@ -1485,7 +1515,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R14") (unit 1)
+          (reference "A_R14") (unit 1)
         )
       )
     )
@@ -1494,7 +1524,7 @@
   (symbol (lib_id "Device:C") (at 181.61 161.29 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4628bb8a-c925-4a8d-95cc-c67539b5a7fa)
-    (property "Reference" "C12" (at 185.42 160.0199 0)
+    (property "Reference" "A_C12" (at 185.42 160.0199 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100nF" (at 185.42 162.5599 0)
@@ -1511,7 +1541,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C12") (unit 1)
+          (reference "A_C12") (unit 1)
         )
       )
     )
@@ -1545,7 +1575,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 222.25 156.21 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4f7fad94-b7bb-47ed-8b3a-3f3ba25b6c97)
-    (property "Reference" "C10" (at 219.71 161.29 90)
+    (property "Reference" "ACAP_C10" (at 217.17 161.29 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100uF" (at 219.71 163.83 90)
@@ -1562,7 +1592,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C10") (unit 1)
+          (reference "ACAP_C10") (unit 1)
         )
       )
     )
@@ -1571,7 +1601,7 @@
   (symbol (lib_id "Device:C") (at 181.61 143.51 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 52fe21d3-39fd-4cc3-a8a5-a413e37f5b37)
-    (property "Reference" "C11" (at 185.42 142.2399 0)
+    (property "Reference" "A_C11" (at 185.42 142.2399 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100nF" (at 185.42 144.7799 0)
@@ -1588,7 +1618,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C11") (unit 1)
+          (reference "A_C11") (unit 1)
         )
       )
     )
@@ -1597,7 +1627,7 @@
   (symbol (lib_id "Device:R") (at 54.61 140.97 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 53d6f7e6-84b0-46a2-b26c-a967ec99cbc5)
-    (property "Reference" "R19" (at 54.61 134.62 90)
+    (property "Reference" "A_R19" (at 54.61 134.62 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "5.1k" (at 54.61 137.16 90)
@@ -1614,7 +1644,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R19") (unit 1)
+          (reference "A_R19") (unit 1)
         )
       )
     )
@@ -1623,7 +1653,7 @@
   (symbol (lib_id "Device:C") (at 289.56 143.51 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 54dc7726-cc84-47ba-a547-5d4f708a75de)
-    (property "Reference" "C6" (at 293.37 142.2399 0)
+    (property "Reference" "A_C6" (at 293.37 142.2399 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100nF" (at 293.37 144.7799 0)
@@ -1640,7 +1670,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C6") (unit 1)
+          (reference "A_C6") (unit 1)
         )
       )
     )
@@ -1699,13 +1729,13 @@
     )
   )
 
-  (symbol (lib_id "skutis-kicad:R_Potentiometer") (at 170.18 157.48 0) (mirror x) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+  (symbol (lib_id "arcade:R_POT") (at 170.18 157.48 0) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 5f2c0ce6-261e-48da-849f-ff55d813fbd6)
-    (property "Reference" "R52" (at 167.64 156.2099 0)
+    (property "Reference" "APOT_R52" (at 167.64 156.21 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "1k" (at 167.64 158.7499 0)
+    (property "Value" "1k" (at 167.64 158.75 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Footprint" "" (at 184.15 163.83 0)
@@ -1720,7 +1750,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R52") (unit 1)
+          (reference "APOT_R52") (unit 1)
         )
       )
     )
@@ -1729,7 +1759,7 @@
   (symbol (lib_id "Device:R") (at 83.82 134.62 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 60889662-e8c2-4740-9032-cf1316de1450)
-    (property "Reference" "R13" (at 83.82 128.27 90)
+    (property "Reference" "A_R13" (at 83.82 128.27 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "12k" (at 83.82 130.81 90)
@@ -1746,25 +1776,25 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R13") (unit 1)
+          (reference "A_R13") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "skutis-kicad:MB3722") (at 237.49 149.86 0) (unit 1)
+  (symbol (lib_id "fujitsu:MB3722") (at 237.49 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 69593ae7-8ef7-4100-8c59-3615e793453d)
-    (property "Reference" "DD1" (at 239.5094 133.35 0)
+    (property "Reference" "A_D1" (at 239.6841 133.35 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "MB3722" (at 239.5094 135.89 0)
+    (property "Value" "MB3722" (at 239.6841 135.89 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "" (at 204.47 175.26 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "https://datasheetspdf.com/pdf-file/791667/Fujitsu/MB3722/1" (at 204.47 175.26 0)
+    (property "Datasheet" "https://datasheetspdf.com/pdf-file/791667/Fujitsu/MB3722/1" (at 240.03 175.26 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid a9584fc2-2f47-4a5a-a7dd-ed6d527aca1a))
@@ -1782,16 +1812,16 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "DD1") (unit 1)
+          (reference "A_D1") (unit 1)
         )
       )
     )
   )
 
   (symbol (lib_id "Device:R") (at 83.82 179.07 90) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 69a19c40-3f7c-4700-8c37-8163dbe95e4c)
-    (property "Reference" "R21" (at 83.82 172.72 90)
+    (property "Reference" "A_R21" (at 83.82 172.72 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "12k" (at 83.82 175.26 90)
@@ -1808,7 +1838,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R21") (unit 1)
+          (reference "A_R21") (unit 1)
         )
       )
     )
@@ -1817,7 +1847,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 260.35 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 69d62ac9-910b-4ec7-ba10-3362704b92c7)
-    (property "Reference" "C7" (at 264.16 151.5109 0)
+    (property "Reference" "A_C7" (at 264.16 151.5109 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100uF" (at 264.16 154.0509 0)
@@ -1834,7 +1864,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C7") (unit 1)
+          (reference "A_C7") (unit 1)
         )
       )
     )
@@ -1843,7 +1873,7 @@
   (symbol (lib_id "Device:R") (at 289.56 151.13 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6fde0540-ac12-4e4b-b5a4-73545305bebb)
-    (property "Reference" "R6" (at 292.1 149.8599 0)
+    (property "Reference" "A_R6" (at 292.1 149.8599 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1" (at 292.1 152.3999 0)
@@ -1860,7 +1890,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R6") (unit 1)
+          (reference "A_R6") (unit 1)
         )
       )
     )
@@ -1892,9 +1922,9 @@
   )
 
   (symbol (lib_id "Device:C_Polarized") (at 260.35 143.51 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 756fd35c-d006-48e2-8c1d-d4f728ff2c39)
-    (property "Reference" "C8" (at 264.16 141.3509 0)
+    (property "Reference" "A_C8" (at 264.16 141.3509 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100uF" (at 264.16 143.8909 0)
@@ -1911,7 +1941,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C8") (unit 1)
+          (reference "A_C8") (unit 1)
         )
       )
     )
@@ -1970,7 +2000,7 @@
   (symbol (lib_id "Device:C_Polarized") (at 303.53 139.7 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 831dde20-187f-4da7-aa49-44f961894310)
-    (property "Reference" "C2" (at 302.641 132.08 90)
+    (property "Reference" "ACAP_C2" (at 302.641 132.08 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1000uF" (at 302.641 134.62 90)
@@ -1987,19 +2017,19 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "C2") (unit 1)
+          (reference "ACAP_C2") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "skutis-kicad:R_Potentiometer") (at 170.18 139.7 0) (mirror x) (unit 1)
+  (symbol (lib_id "arcade:R_POT") (at 170.18 139.7 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 882f39b3-1611-4b81-8ac6-1e3c52d7acf3)
-    (property "Reference" "R53" (at 167.64 138.4299 0)
+    (property "Reference" "APOT_R53" (at 167.64 138.43 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "1k" (at 167.64 140.9699 0)
+    (property "Value" "1k" (at 167.64 140.97 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Footprint" "" (at 184.15 146.05 0)
@@ -2014,7 +2044,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R53") (unit 1)
+          (reference "APOT_R53") (unit 1)
         )
       )
     )
@@ -2023,7 +2053,7 @@
   (symbol (lib_id "Device:R") (at 54.61 107.95 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 8c787451-20ea-42f5-9822-8ff970050057)
-    (property "Reference" "R17" (at 54.61 101.6 90)
+    (property "Reference" "A_R17" (at 54.61 101.6 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1k" (at 54.61 104.14 90)
@@ -2040,7 +2070,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R17") (unit 1)
+          (reference "A_R17") (unit 1)
         )
       )
     )
@@ -2124,7 +2154,7 @@
   (symbol (lib_id "Device:Opamp_Quad") (at 83.82 165.1 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 9d57933c-9c0f-4f78-9a20-33fd03376339)
-    (property "Reference" "FF3" (at 83.82 154.94 0)
+    (property "Reference" "A_F3" (at 83.82 154.94 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "uPC324" (at 83.82 157.48 0)
@@ -2134,6 +2164,18 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 83.82 165.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Library" "${KICAD7_SYMBOL_DIR}/Simulation_SPICE.sp" (at 83.82 165.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Name" "kicad_builtin_opamp_quad" (at 83.82 165.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Device" "SUBCKT" (at 83.82 165.1 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Sim.Pins" "1=out1 2=in1- 3=in1+ 4=vcc 5=in2+ 6=in2- 7=out2 8=out3 9=in3- 10=in3+ 11=vee 12=in4+ 13=in4- 14=out4" (at 83.82 165.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 6d5a0fa9-de8c-4430-8f4d-fb646442b6c5))
@@ -2153,16 +2195,16 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "FF3") (unit 1)
+          (reference "A_F3") (unit 1)
         )
       )
     )
   )
 
   (symbol (lib_id "Device:R") (at 93.98 161.29 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid a474eb4e-1bf8-4030-bc69-a9027b6d7e3a)
-    (property "Reference" "RR53" (at 96.52 160.0199 0)
+    (property "Reference" "A_R53" (at 96.52 160.0199 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "3.3k" (at 96.52 162.5599 0)
@@ -2179,7 +2221,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "RR53") (unit 1)
+          (reference "A_R53") (unit 1)
         )
       )
     )
@@ -2213,7 +2255,7 @@
   (symbol (lib_id "Device:R") (at 54.61 185.42 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ac212e56-d38e-4b47-9c1d-c4475be7dced)
-    (property "Reference" "R20" (at 54.61 179.07 90)
+    (property "Reference" "A_R20" (at 54.61 179.07 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "5.1k" (at 54.61 181.61 90)
@@ -2230,7 +2272,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R20") (unit 1)
+          (reference "A_R20") (unit 1)
         )
       )
     )
@@ -2239,7 +2281,7 @@
   (symbol (lib_id "Device:R") (at 289.56 175.26 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid af778289-fb70-4041-a9f3-2115d61251b6)
-    (property "Reference" "R7" (at 292.1 173.9899 0)
+    (property "Reference" "A_R7" (at 292.1 173.9899 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1" (at 292.1 176.5299 0)
@@ -2256,16 +2298,16 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R7") (unit 1)
+          (reference "A_R7") (unit 1)
         )
       )
     )
   )
 
   (symbol (lib_id "Device:R") (at 114.3 165.1 90) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid b0350656-2669-4ba3-8bd8-019dd8eda95b)
-    (property "Reference" "R26" (at 114.3 158.75 90)
+    (property "Reference" "A_R26" (at 114.3 158.75 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "10k" (at 114.3 161.29 90)
@@ -2282,7 +2324,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R26") (unit 1)
+          (reference "A_R26") (unit 1)
         )
       )
     )
@@ -2291,7 +2333,7 @@
   (symbol (lib_id "Device:R") (at 54.61 173.99 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid b6099955-cbb1-4a8a-bef9-44b15377f3f0)
-    (property "Reference" "R31" (at 54.61 167.64 90)
+    (property "Reference" "A_R31" (at 54.61 167.64 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "5.1k" (at 54.61 170.18 90)
@@ -2308,7 +2350,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R31") (unit 1)
+          (reference "A_R31") (unit 1)
         )
       )
     )
@@ -2342,7 +2384,7 @@
   (symbol (lib_id "Device:R") (at 54.61 129.54 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid c5a7ed3d-0b72-410c-b236-91fa683c0ac9)
-    (property "Reference" "R11" (at 54.61 123.19 90)
+    (property "Reference" "A_R11" (at 54.61 123.19 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "5.1k" (at 54.61 125.73 90)
@@ -2359,7 +2401,7 @@
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/41dd11ad-11c0-40be-a45e-85d12cb65bb9"
-          (reference "R11") (unit 1)
+          (reference "A_R11") (unit 1)
         )
       )
     )
