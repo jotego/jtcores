@@ -14,8 +14,8 @@ import (
 )
 
 // save2disk = false is uselful to update the md5 calculation only
-func mra2rom(root *XMLNode, verbose, save2disk bool) {
-	save_rom(root, verbose, save2disk )
+func mra2rom(root *XMLNode, verbose, save2disk bool, zippath string) {
+	save_rom(root, verbose, save2disk, zippath )
 	if save2disk {
 		save_coremod(root, verbose)
 	}
@@ -33,7 +33,7 @@ func save_coremod(root *XMLNode, verbose bool) {
 	rom_file(setname, ".mod", rombytes)
 }
 
-func save_rom(root *XMLNode, verbose, save2disk bool) {
+func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
@@ -43,7 +43,7 @@ func save_rom(root *XMLNode, verbose, save2disk bool) {
 	rombytes := make([]byte, 0)
 	var zf []*zip.ReadCloser
 	for _, each := range strings.Split(xml_rom.GetAttr("zip"), "|") {
-		aux := get_zipfile(each)
+		aux := get_zipfile(each, zippath )
 		if aux != nil {
 			zf = append(zf, aux)
 		}

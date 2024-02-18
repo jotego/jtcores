@@ -18,7 +18,7 @@ type Args struct {
     Show_platform                bool
     MainOnly,PrintNames          bool
     JTbin                        bool // copy to JTbin & disable debug features
-    Author, URL                  string
+    Author, URL, Rom_path        string
     // private
     firmware_dir string
     macros       map[string]string

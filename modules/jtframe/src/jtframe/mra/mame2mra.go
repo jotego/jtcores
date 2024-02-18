@@ -131,10 +131,13 @@ extra_loop:
 					})
 					old_deleted = true
 				}
-				if !args.SkipROM {
-					mra2rom(d.mra_xml,args.Verbose, true)
-				} else if args.Md5 {
-					mra2rom(d.mra_xml,args.Verbose, false)
+				if !args.SkipROM || args.Md5 {
+					if !exists(args.Rom_path) {
+						fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
+						os.Exit(1)
+					} else {
+						mra2rom(d.mra_xml,args.Verbose, !args.SkipROM, args.Rom_path)
+					}
 				}
 				// Do not merge dump_mra and the OR in the same line, or the compiler may skip
 				// calling dump_mra if main_copied is already set
