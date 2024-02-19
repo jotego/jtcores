@@ -10524,11 +10524,11 @@
       )
     )
     (symbol "MC3301P_5_1"
-      (pin power_in line (at 0 5.08 270) (length 2.54)
+      (pin power_in line (at 0 7.62 270) (length 5.08)
         (name "+V" (effects (font (size 1.27 1.27))))
         (number "14" (effects (font (size 1.27 1.27))))
       )
-      (pin power_in line (at 0 -6.35 90) (length 2.54)
+      (pin power_in line (at 0 -8.89 90) (length 5.08)
         (name "-V" (effects (font (size 1.27 1.27))))
         (number "7" (effects (font (size 1.27 1.27))))
       )
