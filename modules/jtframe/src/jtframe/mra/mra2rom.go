@@ -53,7 +53,7 @@ func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	}
 	parts2rom(zf, xml_rom, &rombytes, verbose)
 	if rombytes == nil {
-		fmt.Printf("\tNo .rom created for %s\n", setname.text)
+		fmt.Printf("No .rom created for %s\n\n", setname.text)
 		return
 	}
 	update_md5(xml_rom, rombytes)
@@ -129,7 +129,7 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 			data := interleave2rom(zf, each, verbose)
 			if data == nil {
 				*rb = nil
-				fmt.Printf("\t.rom processing stopped\n")
+				// fmt.Printf("\t.rom processing stopped\n")
 				return // abort
 			}
 			*rb = append(*rb, data...)
@@ -162,6 +162,7 @@ func readrom(allzips []*zip.ReadCloser, n *XMLNode, verbose bool) (rdin []byte) 
 	crc = crc & 0xffffffff
 	var f *zip.File
 lookup:
+	// try to find the file using CRC
 	for _, each := range allzips {
 		for _, file := range each.File {
 			if file.CRC32 == uint32(crc) {
@@ -171,8 +172,22 @@ lookup:
 		}
 	}
 	if f == nil {
-		fmt.Printf("Warning: cannot find file %s (%s) in zip\n", n.GetAttr("name"), n.GetAttr("crc"))
-		return nil
+		// try again just by file name
+		fname := n.GetAttr("name")
+		fmt.Printf("\tcannot find file %s (%s) in zip by CRC\n", n.GetAttr("name"), n.GetAttr("crc"))
+lookup_name:
+		for _, each := range allzips {
+			for _, file := range each.File {
+				if file.Name == fname {
+					f = file
+					break lookup_name
+				}
+			}
+		}
+		if f == nil {
+			fmt.Printf("\tcannot find file %s by name either\n", fname)
+			return nil
+		}
 	}
 	offset, _ := strconv.ParseInt(n.GetAttr("offset"), 0, 32)
 	lenght, _ := strconv.ParseInt(n.GetAttr("length"), 0, 32)

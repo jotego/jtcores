@@ -683,6 +683,7 @@ mist_dump.v \
 fi
 
 # Link to hex filters in module files as needed
+ln -srf $JTFRAME/hdl/sound/uprate2.hex
 if grep -q jtframe_jt49_filters filtered.f; then
     ln -srf $JTFRAME/hdl/sound/firjt49.hex
 fi
