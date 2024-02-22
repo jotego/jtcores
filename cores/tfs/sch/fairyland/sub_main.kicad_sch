@@ -6724,7 +6724,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 20898699-2654-4376-a0b3-e582f0dfd8c6)
   )
-  (hierarchical_label "CONNRP5B" (shape input) (at 153.67 251.46 180) (fields_autoplaced)
+  (hierarchical_label "MAB10" (shape input) (at 153.67 251.46 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 25f210a0-8710-4a6f-894a-226935c32d3e)
   )
