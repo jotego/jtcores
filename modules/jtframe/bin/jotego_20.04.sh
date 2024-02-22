@@ -87,6 +87,10 @@ git config --global alias.p pull
 git config --global alias.b bisect
 git config --global alias.su "submodule update"
 git config --global alias.r "reset --hard"
+# handling of EOL characters
+git config --global core.whitespace cr-at-eol
+git config --global core.autocrlf input
+# aim for a linear history 
 git config pull.rebase true
 
 # Go
