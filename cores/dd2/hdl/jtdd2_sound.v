@@ -63,7 +63,7 @@ assign rom_addr = A[14:0];
 wire mreq_n;
 
 localparam [7:0] FMGAIN  = 8'h10,
-                 PCMGAIN = 8'h20;
+                 PCMGAIN = 8'h10;
 
 jtframe_mixer #(.W0(16),.W1(16),.W2(14),.W3(14), .WOUT(16)) u_mixer(
     .rst    ( rst           ),
@@ -175,7 +175,7 @@ jt51 u_jt51(
 
 assign adpcm_cs = 1'b1;
 
-jt6295 #(.INTERPOL(1)) u_adpcm(
+jt6295 #(.INTERPOL(2)) u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_oki   ),

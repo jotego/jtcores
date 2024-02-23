@@ -88,7 +88,6 @@ assign debug_view   = { 7'd0, dump_flag };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
-/* verilator tracing_off */
 jtframe_cen96 u_pxl_cen(
     .clk    ( clk96     ),    // 96 MHz
     .cen16  ( pxl2_cen  ),
@@ -108,6 +107,7 @@ localparam REGSIZE=24;
 wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
+/* verilator tracing_off */
 `ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst48             ),
@@ -345,7 +345,7 @@ reg [3:0] rst_snd;
 always @(posedge clk) begin
     rst_snd <= { rst_snd[2:0], rst48 };
 end
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtcps1_sound u_sound(
     .rst            ( rst_snd[3]    ),
     .clk            ( clk48         ),
@@ -384,11 +384,11 @@ assign sample     = 0;
 assign game_led   = 0;
 `endif
 
-/* verilator tracing_off */
 reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
 wire nc0, nc1, nc2, nc3;
+/* verilator tracing_on */
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),

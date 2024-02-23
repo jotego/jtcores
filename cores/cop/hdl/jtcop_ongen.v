@@ -52,7 +52,7 @@ module jtcop_ongen(
 );
 
 parameter [7:0] OPL_GAIN = 8'h10,
-                PCM_GAIN = 8'h20,
+                PCM_GAIN = 8'h10,
                 PSG_GAIN = 8'h10;
 parameter       KARNOV   = 0;
 
@@ -137,7 +137,7 @@ always @(posedge clk) begin
     cen_oki <= cen_sh[0] & cen_opl & adpcm_ok;
 end
 
-jt6295 #(.INTERPOL(1)) u_adpcm(
+jt6295 #(.INTERPOL(2)) u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_oki   ),  // 1MHz

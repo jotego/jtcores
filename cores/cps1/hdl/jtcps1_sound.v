@@ -49,7 +49,7 @@ localparam [7:0] FMGAIN = 8'h06;
 wire cen_fm, cen_fm2, cen_oki, nc, cpu_cen;
 wire signed [13:0] oki_pre, oki_pole; //, oki_dcrm;
 wire signed [15:0] adpcm_snd;
-wire signed [15:0] fm_left, fm_right, pre_left, pre_right;
+wire signed [15:0] fm_left, fm_right;
 wire               peak_l, peak_r;
 wire               oki_sample;
 wire               pcm_en, fm_en;
@@ -58,11 +58,9 @@ reg         [ 7:0] fmgain, pcmgain;
 assign pcm_en = 1; //~debug_bus[0];
 assign fm_en  = 1; //~debug_bus[1];
 
-/* verilator tracing_off */
-
 always @(posedge clk) begin
     peak <= peak_r | peak_l;
-    pcmgain <= pcm_en ? 8'h1c : 8'h0; // debug_bus;
+    pcmgain <= pcm_en ? 8'h0b : 8'h0;
     fmgain  <= fm_en ? FMGAIN  : 8'h0;
 end
 
@@ -249,33 +247,13 @@ jt51 u_jt51(
     .irq_n      ( int_n     ),  // I do not synchronize this signal
     // Low resolution output (same as real chip)
     .sample     ( sample    ), // marks new output sample
-    .left       ( pre_left  ),
-    .right      ( pre_right ),
+    .left       (           ),
+    .right      (           ),
     // Full resolution output
     .xleft      ( fm_left   ),
     .xright     ( fm_right  )
 );
-
-// jtframe_pole #(.WS(16)) u_fmpl(
-//     .rst        ( rst       ),
-//     .clk        ( clk       ),
-//     .sample     ( sample    ),
-//     // .a          ( 7'h40     ),
-//     .a          ( debug_bus ),
-//     .sin        ( pre_left  ),
-//     .sout       ( fm_left   )
-// );
-
-// jtframe_pole #(.WS(16)) u_fmpr(
-//     .rst        ( rst       ),
-//     .clk        ( clk       ),
-//     .sample     ( sample    ),
-//     // .a          ( 7'h40     ),
-//     .a          ( debug_bus ),
-//     .sin        ( pre_right ),
-//     .sout       ( fm_right  )
-// );
-
+/* verilator tracing_on */
 assign adpcm_cs = 1'b1;
 
 jt6295 #(.INTERPOL(0)) u_adpcm(
@@ -293,12 +271,8 @@ jt6295 #(.INTERPOL(0)) u_adpcm(
     .rom_ok     ( adpcm_ok  ),
     // Sound output
     .sound      ( oki_pre   ),
-    // .sound      ( adpcm_snd[15:2] ),
     .sample     ( oki_sample)   // ~26kHz
 );
-
-assign adpcm_snd[1:0]=adpcm_snd[14:13];
-
 /*
 jtframe_dcrm #(.SW(14),.SIGNED_INPUT(1))u_dcrm(
     .rst        ( rst       ),
@@ -308,28 +282,25 @@ jtframe_dcrm #(.SW(14),.SIGNED_INPUT(1))u_dcrm(
     .dout       ( oki_dcrm  )
 );*/
 
-jtframe_pole #(.WA(8),.WS(14)) u_pole(
+jtframe_pole #(.WS(14)) u_pole(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( oki_sample),
-    .a          ( 8'h90     ),
-    // .a          ( debug_bus ),
+    .a          ( 7'h40     ),
+    // .a          ( debug_bus[7:1]     ),
     .sin        ( oki_pre   ),
-    // .sout       ( oki_pole  )
-    .sout       ( adpcm_snd[15:2] )
+    .sout       ( oki_pole  )
 );
 
-/*
 jtframe_uprate2_fir u_fir1(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .sample     ( oki_sample     ),
     .upsample   (                ), // ~52kHz, close to JT51's 55kHz
-    // .l_in       ({oki_pole,2'd0} ),
-    .l_in       ({oki_pre,2'd0} ),
+    .l_in       ({oki_pole,2'd0} ),
     .r_in       (     16'd0      ),
     .l_out      ( adpcm_snd      ),
     .r_out      (                )
 );
-*/
+
 endmodule
