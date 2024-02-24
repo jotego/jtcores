@@ -91,6 +91,9 @@ wire [6:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [3:0] cc;
+wire       char_en = CHRON & gfx_en[0],
+           scr_en  = SCRON & gfx_en[1],
+           obj_en  = SCRON & gfx_en[3];
 
 jtgng_char #(
     .HOFFSET ( 0),
@@ -117,7 +120,7 @@ jtgng_char #(
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_on    ( 1'b1          ),
+    .char_on    ( char_en       ),
     .char_pxl   ( char_pxl      ),
     // unused
     .dseln      (               ),
@@ -141,6 +144,7 @@ jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
+    .scr_en     ( scr_en        ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
@@ -209,7 +213,7 @@ u_obj (
     .prog_din   (             ),
     .prom_hi_we ( 1'b0        ),
     .prom_lo_we ( 1'b0        ),
-    .OBJON      ( 1'b1        )
+    .OBJON      ( obj_en      )
 );
 `else
 assign blcnten = 1'b0;
@@ -236,14 +240,6 @@ jtbtiger_colmix u_colmix (
     .prog_addr    ( prog_addr     ),
     .prom_prior_we( prom_prior_we ),
     .prom_din     ( prom_din      ),
-
-    // Layer control
-    .CHRON        ( CHRON         ),
-    .SCRON        ( SCRON         ),
-    .OBJON        ( OBJON         ),
-
-    // DEBUG
-    .gfx_en       ( gfx_en        ),
 
     // CPU interface
     .AB           ( cpu_AB[9:0]   ),

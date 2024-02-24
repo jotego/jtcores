@@ -26,8 +26,6 @@ module jtbtiger_game(
 assign prog_rd    = 1'b0;
 assign dwnld_busy = ioctl_rom;
 
-parameter CLK_SPEED=48;
-
 wire [8:0] V;
 wire [8:0] H;
 wire HINIT;
@@ -122,6 +120,8 @@ wire [ 8:0] obj_AB;
 wire [ 7:0] main_ram;
 
 wire [4:0] prom_we;
+
+assign debug_view = { 5'd0, OBJON, SCRON, CHRON };
 
 jtbtiger_prom_we u_prom_we(
     .clk         ( clk           ),
@@ -270,7 +270,7 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .peak           ( game_led       ),
     // Unused
     .snd2_latch     (                ),
-    .debug_view     ( debug_view     ),
+    .debug_view     (                ),
     .debug_bus      ( debug_bus      )
 );
 

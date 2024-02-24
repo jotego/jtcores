@@ -20,8 +20,9 @@ module jtbtiger_scroll #(parameter
     HOFFSET  = 9'd0
 ) (
     input              clk,
-    (* direct_enable *) input pxl_cen,
+    input              pxl_cen,
     input              cpu_cen,
+    input              scr_en,
     input       [11:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
@@ -117,7 +118,7 @@ u_tile4 (
     .SV         (  VS[4:0]    ),
     .attr       (  dout_high  ),
     .id         (  dout_low   ),
-    .SCxON      (  1'b1       ),
+    .SCxON      (  scr_en     ),
     .flip       (  flip       ),
     // Palette PROMs
     .prog_addr  ( 8'd0        ),
