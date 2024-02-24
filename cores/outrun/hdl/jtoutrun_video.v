@@ -391,8 +391,7 @@ jtoutrun_colmix u_colmix(
     .pxl_cen   ( pxl_cen        ),
     .pxl2_cen  ( pxl2_cen       ),
 
-    //.video_en  ( video_en       ),
-    .video_en  ( 1'b1           ),
+    .video_en  ( video_en       ),
     .tmap_addr ( tmap_addr      ),
     .shadow    ( shadow         ),
     // CPU interface

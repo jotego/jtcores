@@ -249,11 +249,12 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        obj_cfg  <= 0;
         video_en <= 1;
         adc_ch   <= 0;
         snd_rstb <= 1;
         mute     <= 0;
+`ifndef SHANON
+        obj_cfg  <= 0;  `endif
     end else begin
         if( adc_wr ) { dacana1, dacana1b } <= { joyana1, joyana1b };
 `ifdef SHANON // super hang-on

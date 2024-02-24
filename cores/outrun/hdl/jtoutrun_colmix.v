@@ -112,7 +112,7 @@ always @(posedge clk) if(pxl_cen) begin
     shadowl  <= shadow;
     objl     <= obj_pxl;
 
-    gated <= //!video_en ? 15'd0 :
+    gated <= !video_en ? 15'd0 :
          !shadowl     ? { rpal, gpal, bpal }                      : // no shade effect
           pal_out[15] ? { light(rpal), light(gpal), light(bpal) } : // brighter
                         { dim(rpal), dim(gpal), dim(bpal) };        // dimmer
