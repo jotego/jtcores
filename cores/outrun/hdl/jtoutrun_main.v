@@ -247,14 +247,24 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`ifndef SHANON
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        obj_cfg  <= 0;
+    end else begin
+        obj_cfg  <= ppic_dout[7:6]; // obj_cfg[1] -> object engine, obj_cfg[0] -> colmix
+    end
+end
+`else
+initial obj_cfg = 0;
+`endif
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         video_en <= 1;
         adc_ch   <= 0;
         snd_rstb <= 1;
         mute     <= 0;
-`ifndef SHANON
-        obj_cfg  <= 0;  `endif
     end else begin
         if( adc_wr ) { dacana1, dacana1b } <= { joyana1, joyana1b };
 `ifdef SHANON // super hang-on
@@ -270,7 +280,6 @@ always @(posedge clk, posedge rst) begin
             endcase
         end
 `else // (Turbo) Out Run
-        obj_cfg  <= ppic_dout[7:6]; // obj_cfg[1] -> object engine, obj_cfg[0] -> colmix
         video_en <= ppic_dout[5];
         adc_ch   <= ppic_dout[4:2];
         snd_rstb <= ppic_dout[0];
