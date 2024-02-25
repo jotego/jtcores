@@ -303,38 +303,38 @@ always @(negedge LVBL) begin
         //FAKE0+1: fake_latch <= 8'h2;
         //FAKE0+2: fake_latch <= 8'h0;
         // KOD
-        //FAKE0: fake_latch <= 8'h6;
+        FAKE0: fake_latch0 <= 8'h6;
         // Magic Sword
         //FAKE0: fake_latch <= 8'h1e;
         //FAKE1: fake_latch <= 8'h0;
         //FAKE1+1: fake_latch <= 8'h4;
         //FAKE1+2: fake_latch <= 8'h0;
         // SF2, Chun Li
-        FAKE0: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'hf0;
-        end
+        // FAKE0: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'hf0;
+        // end
 
-        FAKE0+10: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'hff;
-        end
-        FAKE0+11: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'hf7;
-        end
-        FAKE0+12: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'hff;
-        end
-        FAKE0+13: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'h06;
-        end
-        FAKE0+14: begin
-            fake_latch1 <= 8'h00;
-            fake_latch0 <= 8'hff;
-        end
+        // FAKE0+10: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'hff;
+        // end
+        // FAKE0+11: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'hf7;
+        // end
+        // FAKE0+12: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'hff;
+        // end
+        // FAKE0+13: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'h06;
+        // end
+        // FAKE0+14: begin
+        //     fake_latch1 <= 8'h00;
+        //     fake_latch0 <= 8'hff;
+        // end
 
         //default: fake_latch <= 8'hff;
     endcase

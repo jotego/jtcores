@@ -34,7 +34,7 @@ module jtpang_obj(
     input       [ 7:0] dma_din,
     output reg  [ 8:0] dma_addr,
 
-    output reg  [16:0] rom_addr,
+    output reg  [17:2] rom_addr,
     input       [31:0] rom_data,
     output reg         rom_cs,
     input              rom_ok,
@@ -178,7 +178,7 @@ always @(posedge clk, posedge rst) begin
                     rom_data[25], rom_data[29], rom_data[17], rom_data[21],
                     rom_data[24], rom_data[28], rom_data[16], rom_data[20]
                 };
-                rom_addr[1] <= 1;
+                rom_addr[2] <= 1;
                 buf_we      <= 1;
                 wait_ok     <= 0;
                 if( dr_pxl[3] ) rom_cs <= 0;
@@ -194,7 +194,7 @@ always @(posedge clk, posedge rst) begin
             end
         end else if( dr_start ) begin
             dr_busy  <= 1;
-            rom_addr <= { dr_code, dr_vsub, 2'b0 };
+            rom_addr <= { dr_code, dr_vsub, 1'b0 };
             rom_cs   <= 1;
             dr_pxl   <= 0;
             buf_addr <= dr_xpos;

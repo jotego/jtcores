@@ -113,32 +113,15 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     // cabinet I/O
     .cab_1p   ( cab_1p  ),
     .coin     ( coin    ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
-    `ifdef JTFRAME_4PLAYERS
-    .joystick3      ( joystick3     ),
-    .joystick4      ( joystick4     ),
-    `endif
-`ifdef JTFRAME_ANALOG
-    .joyana_l1    ( joyana_l1        ),
-    .joyana_l2    ( joyana_l2        ),
-    `ifdef JTFRAME_ANALOG_DUAL
-        .joyana_r1    ( joyana_r1        ),
-        .joyana_r2    ( joyana_r2        ),
-    `endif
-    `ifdef JTFRAME_4PLAYERS
-        .joyana_l3( joyana_l3        ),
-        .joyana_l4( joyana_l4        ),
-        `ifdef JTFRAME_ANALOG_DUAL
-            .joyana_r3( joyana_r3        ),
-            .joyana_r4( joyana_r4        ),
-        `endif
-    `endif
-`endif
-`ifdef JTFRAME_DIAL
-    .dial_x         ( dial_x        ),
-    .dial_y         ( dial_y        ),
-`endif
+    .joystick1    ( joystick1        ), .joystick2    ( joystick2        ), `ifdef JTFRAME_4PLAYERS
+    .joystick3    ( joystick3        ), .joystick4    ( joystick4        ), `endif `ifdef JTFRAME_MOUSE
+    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), `endif `ifdef JTFRAME_SPINNER
+    .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif `ifdef JTFRAME_ANALOG
+    .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ), `ifdef JTFRAME_ANALOG_DUAL
+    .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ), `endif `ifdef JTFRAME_4PLAYERS
+    .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ), `ifdef JTFRAME_ANALOG_DUAL
+    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `endif `endif `endif `ifdef JTFRAME_DIAL
+    .dial_x       ( dial_x           ), .dial_y       ( dial_y           ), `endif
     // DIP switches
     .status         ( status        ),
     .dipsw          ( dipsw         ),

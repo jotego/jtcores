@@ -44,12 +44,12 @@ data = [
     { machine="qsangoku", offset=0, data="23 45 67 01 23 45 67 01 18 28 18" },
     { machine="block",    offset=0, data="02 46 13 57 64 20 75 31 00 02 01" },
     # GFX encoding
-    { machine="marukin",  offset=14, data="01" },
+    { machine="marukin", offset=14, data="01" },
     # Input type
-    { setname="blockbl",   offset=15, data="01" },
-    { setname="blockj",   offset=15, data="01" },
-    { setname="blockr1",   offset=15, data="01" },
-    { setname="blockr2",   offset=15, data="01" },
+    { setname="blockbl", offset=15, data="01" },
+    { setname="blockj",  offset=15, data="01" },
+    { setname="blockr1", offset=15, data="01" },
+    { setname="blockr2", offset=15, data="01" },
     { setname="block",   offset=15, data="03" },
     { machine="qtono1",  offset=15, data="02" },
     { machine="cworld",  offset=15, data="02" }
@@ -62,16 +62,16 @@ delete=[{names=["Unused","Unknown"]}]
 [ROM]
 regions = [
     { name="maincpu",  No_offset=true   },
-    { name="oki", No_offset=true, start="PCM_START" },
+    { name="oki", No_offset=true, start="JTFRAME_BA1_START" },
 
-    { name="chars", start="CHAR_START", width=16, No_offset=true, sort_even=true },
-    { machine="pkladies", name="chars", width=16, start="CHAR_START", No_offset=true },
-    { machine="mgakuen2", name="chars", start="CHAR_START", No_offset=true },
-    { machine="marukin", name="chars", start="CHAR_START", No_offset=true },
-    { machine="cworld", name="chars", width=16, start="CHAR_START", No_offset=true, name_sort=[
+    {                     name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true, sort_even=true },
+    { machine="pkladies", name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true },
+    { machine="mgakuen2", name="chars", start="JTFRAME_BA2_START",           No_offset=true },
+    { machine="marukin",  name="chars", start="JTFRAME_BA2_START",           No_offset=true },
+    { machine="cworld",   name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true, name_sort=[
         "cw08.bin", "cw18.bin", "cw09.bin", "cw19.bin", "cw10.bin", "cw20.bin",
         "cw11.bin", "cw21.bin"] },
-    { name="sprites", start="OBJ_START", width=16, No_offset=true, sort_even=true },
+    { name="sprites", start="JTFRAME_BA3_START", width=16, No_offset=true, sort_even=true },
     { name="eeprom", eeprom=true },
 # Unused
     { name="plds", skip=true },

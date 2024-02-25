@@ -6,7 +6,6 @@ game:
       - jtpang_video.v
       - jtpang_colmix.v
       - jtpang_char.v
-      - jtpang_sdram.v
       - jtpang_obj.v
       - jtpang_snd.v
 jtframe:
