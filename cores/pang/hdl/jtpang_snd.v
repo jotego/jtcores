@@ -50,7 +50,7 @@ localparam [7:0] FM_GAIN  = 8'h10,
                  PCM_GAIN = 8'h0c;
 
 wire signed [15:0] fm_snd;
-wire signed [13:0] pcm_snd;
+wire signed [13:0] pcm_snd, pcm_raw;
 wire               pcm_wrn;
 
 assign pcm_wrn = wr_n | ~pcm_cs;
@@ -65,11 +65,11 @@ jt2413 u_jt2413 (
     .cs_n  ( ~fm_cs     ),
     .wr_n  ( wr_n       ),
     .snd   ( fm_snd     ),
-    .sample( sample     )
+    .sample(            )
 );
 /* verilator tracing_off */
 
-jt6295 #(.INTERPOL(2)) u_pcm (
+jt6295 u_pcm (
     .rst     ( rst      ),
     .clk     ( clk      ),
     .cen     ( pcm_cen  ),
@@ -80,8 +80,17 @@ jt6295 #(.INTERPOL(2)) u_pcm (
     .rom_addr( rom_addr ),
     .rom_data( rom_data ),
     .rom_ok  ( rom_ok   ),
-    .sound   ( pcm_snd  ),
-    .sample  (          )
+    .sound   ( pcm_raw  ),
+    .sample  ( sample   )
+);
+
+jtframe_pole #(.WA(8), .WS(14)) u_pole(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sample     ( sample    ),
+    .a          ( 8'hba     ),  // pole at 2.4 kHz for a 48kHz sample rate
+    .sin        ( pcm_raw   ),
+    .sout       ( pcm_snd   )
 );
 
 jtframe_mixer #(.W1(14)) u_mixer(

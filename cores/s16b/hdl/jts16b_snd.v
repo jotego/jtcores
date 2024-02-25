@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 5-7-2021 */
 
-`ifndef NOSOUND
-
 module jts16b_snd(
     input                rst,
     input                clk,
@@ -56,7 +54,7 @@ module jts16b_snd(
     output               sample,
     output               peak
 );
-
+`ifndef NOSOUND
 localparam [7:0] FMGAIN=8'h08;
 
 wire [15:0] A;
@@ -74,7 +72,7 @@ reg  [ 5:0] rom_msb;
 
 
 wire signed [15:0] fm_left, fm_right, mixed;
-wire signed [ 8:0] pcm_raw, pcm_snd;
+wire signed [ 8:0] pcm_raw, pcm_x, pcm_snd;
 wire [7:0] fmgain;
 
 assign fmgain   = enable_fm ? FMGAIN : 8'h0;
@@ -280,20 +278,37 @@ jt7759 u_pcm(
     .sound      ( pcm_raw   )
 );
 
-// where a = exp(-wc/T ), a<1
-// wc = radian frequency
+// pole location derived from schematics
+// 1st pole at 4822 Hz
+// uses the YM2151 as sampling signal, which runs at 62.5 kHz
+jtframe_pole #(.WA(8),.WS(9)) u_pole1(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sample     ( sample    ),
+    .a          ( 8'h9d     ),
+    .sin        ( pcm_raw   ),
+    .sout       ( pcm_x     )
+);
 
-wire [3:0] pole_a = 4'd10; // pole at 4kHz
-
-jtframe_pole #(.WS(9)) u_pole(
+// 2nd pole at 2122 Hz
+jtframe_pole #(.WA(8),.WS(9)) u_pole2(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( sample    ),      // uses the YM2151 as sampling signal
-    .a          ( pole_a    ),
-    .sin        ( pcm_raw   ),
+    .a          ( 8'hce     ),
+    .sin        ( pcm_x     ),
     .sout       ( pcm_snd   )
 );
 
-endmodule
-
+`else
+assign mapper_rd  = 0;
+assign mapper_wr  = 0;
+assign mapper_din = 0;
+assign key_addr   = 0;
+assign snd        = 0;
+assign sample     = 0;
+assign peak       = 0;
+initial rom_addr  = 0;
+initial rom_cs    = 0;
 `endif
+endmodule

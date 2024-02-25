@@ -69,10 +69,10 @@ Even with the right clock enable, there is still hiss occasionally in MiST(er). 
 
 The OKI PCM input clock is 1MHz, depending on the SS input setting, this gives two sampling frequencies:
 
-SS | Fs (Hz) | 4xFs  |    a    |  1-a
----|---------|-------|---------|--------
-0  | 6097.5  | 24390 | 0.8200  | 0.1800
-1  | 7575.7  | 30303 | 0.8524  | 0.1476
+SS | Fs (Hz) |
+---|---------|
+0  | 6097.5  |
+1  | 7575.7  |
 
 The original board has a first-order low pass filter at 770 Hz, this can be implemented with a first order IIR filter:
 
@@ -80,7 +80,15 @@ y[k] = a * y[k-1] + (1-a) * x[k]
 
 where a = exp(-wc/T )
 wc = 2*pi*770 = 4838 rad/s
-T  = 1/4Fs
+T  = 1/Fs
+
+SS | Fs (kHz) |    a    |  1-a
+---|----------|---------|--------
+0  | 48.0     | 0.9041  | 0.0959
+
+As an 8-bit decimal number, _a_ would be $E7
+
+The filtering must be done at a higher sampling rate and should be independent of the SS input.
 
 # QSound
 

@@ -137,7 +137,7 @@ always @(posedge clk) begin
     cen_oki <= cen_sh[0] & cen_opl & adpcm_ok;
 end
 
-jt6295 #(.INTERPOL(2)) u_adpcm(
+jt6295 #(.INTERPOL(2),.SAMPLE(1)) u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_oki   ),  // 1MHz

@@ -33,6 +33,7 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
+      - jtframe_pole.v
 modules:
   jt:
     - name: jt6295

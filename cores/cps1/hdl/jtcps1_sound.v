@@ -44,30 +44,35 @@ module jtcps1_sound(
     input         [ 7:0] debug_bus
 );
 
-localparam [7:0] FMGAIN = 8'h06;
-
-wire cen_fm, cen_fm2, cen_oki, nc, cpu_cen;
-wire signed [13:0] oki_pre, oki_pole; //, oki_dcrm;
-wire signed [15:0] adpcm_snd;
+wire signed [13:0] oki_pre, oki_pole, adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
-wire               peak_l, peak_r;
-wire               oki_sample;
-wire               pcm_en, fm_en;
-reg         [ 7:0] fmgain, pcmgain;
+reg         [ 7:0] fmgain, pcmgain, din, cmd_latch, dev_latch, mem_latch;
+wire        [ 7:0] ram_dout, dout, oki_dout, fm_dout;
+wire        [15:0] A;
+reg                fm_cs, latch0_cs, latch1_cs, ram_cs, oki_cs, oki7_cs, bank_cs,
+                   oki7, bank, latch_cs, dev_cs, mem_cs, rom_ok2;
+wire               cen_fm, cen_fm2, cen_oki, nc, cpu_cen, io_cs,
+                   peak_l, peak_r, pcm_en, fm_en, iorq_n, m1_n,
+                   mreq_n, int_n, WRn, oki_wrn, rd_n, wr_n, RAM_we;
 
-assign pcm_en = 1; //~debug_bus[0];
-assign fm_en  = 1; //~debug_bus[1];
+assign RAM_we   = ram_cs && !WRn;
+assign WRn      = wr_n | mreq_n;
+assign adpcm_cs = 1'b1;
+assign oki_wrn  = ~(oki_cs & ~WRn);
+assign pcm_en   = 1; //~debug_bus[0];
+assign fm_en    = 1; //~debug_bus[1];
+assign io_cs    = !mreq_n && A[15:12] == 4'b1111;
 
 always @(posedge clk) begin
-    peak <= peak_r | peak_l;
-    pcmgain <= pcm_en ? 8'h0b : 8'h0;
-    fmgain  <= fm_en ? FMGAIN  : 8'h0;
+    peak    <= peak_r | peak_l;
+    pcmgain <= pcm_en ? 8'h08 : 8'h0;
+    fmgain  <= fm_en  ? 8'h08 : 8'h0;
 end
 
-jtframe_mixer #(.W1(16),.WOUT(16)) u_left(
+jtframe_mixer #(.W1(14),.WOUT(16)) u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .cen    ( 1'b1      ),
+    .cen    ( sample    ),
     // input signals
     .ch0    ( fm_left   ),
     .ch1    ( adpcm_snd ),
@@ -82,10 +87,10 @@ jtframe_mixer #(.W1(16),.WOUT(16)) u_left(
     .peak   ( peak_l    )
 );
 
-jtframe_mixer #(.W1(16),.WOUT(16)) u_right(
+jtframe_mixer #(.W1(14),.WOUT(16)) u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .cen    ( 1'b1      ),
+    .cen    ( sample    ),
     // input signals
     .ch0    ( fm_right  ),
     .ch1    ( adpcm_snd ),
@@ -114,21 +119,6 @@ jtframe_frac_cen u_okicen(
     .cenb       (                   )
 );
 
-(*keep*) wire [15:0] A;
-(*keep*) reg  fm_cs, latch0_cs, latch1_cs, ram_cs, oki_cs, oki7_cs, bank_cs;
-(*keep*) reg  oki7;
-(*keep*) wire mreq_n, int_n;
-wire WRn, oki_wrn;
-
-reg  bank;
-wire  io_cs = !mreq_n && A[15:12] == 4'b1111;
-
-wire [7:0] oki_dout;
-wire rd_n;
-wire wr_n;
-
-assign oki_wrn = ~(oki_cs & ~WRn);
-
 always @(posedge clk) begin
     if ( rst ) begin
         rom_cs    <= 1'b0;
@@ -153,11 +143,6 @@ always @(posedge clk) begin
     end
 end
 
-wire RAM_we = ram_cs && !WRn;
-wire [7:0] ram_dout, dout, fm_dout;
-
-assign WRn = wr_n | mreq_n;
-
 always @(posedge clk, posedge rst) begin
     if(rst) begin
         bank <= 1'b0;
@@ -180,9 +165,6 @@ jtframe_ram #(.AW(11)) u_ram(
 // As we operate much faster than cen_fm, the input data mux is done
 // in two clock cycles. Data will always be ready before next cen_fm pulse
 //
-reg [7:0] din, cmd_latch, dev_latch, mem_latch;
-reg       latch_cs, dev_cs, mem_cs, rom_ok2;
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         din     <= 8'hff;
@@ -204,9 +186,6 @@ always @(posedge clk, posedge rst) begin
         endcase
     end
 end
-
-wire iorq_n, m1_n;
-// wire irq_ack = !iorq_n && !m1_n;
 
 jtframe_z80_romwait u_cpu(
     .rst_n      ( ~rst        ),
@@ -246,7 +225,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( int_n     ),  // I do not synchronize this signal
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
@@ -254,8 +233,6 @@ jt51 u_jt51(
     .xright     ( fm_right  )
 );
 /* verilator tracing_on */
-assign adpcm_cs = 1'b1;
-
 jt6295 #(.INTERPOL(0)) u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -271,36 +248,16 @@ jt6295 #(.INTERPOL(0)) u_adpcm(
     .rom_ok     ( adpcm_ok  ),
     // Sound output
     .sound      ( oki_pre   ),
-    .sample     ( oki_sample)   // ~26kHz
+    .sample     ( sample    )   // 48 kHz
 );
-/*
-jtframe_dcrm #(.SW(14),.SIGNED_INPUT(1))u_dcrm(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .sample     ( oki_sample),
-    .din        ( oki_pre   ),
-    .dout       ( oki_dcrm  )
-);*/
 
-jtframe_pole #(.WS(14)) u_pole(
+jtframe_pole #(.WA(8), .WS(14)) u_pole(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .sample     ( oki_sample),
-    .a          ( 7'h40     ),
-    // .a          ( debug_bus[7:1]     ),
+    .sample     ( sample    ),
+    .a          ( 8'he7     ),  // pole at 770 Hz for a 48kHz sample rate
     .sin        ( oki_pre   ),
-    .sout       ( oki_pole  )
-);
-
-jtframe_uprate2_fir u_fir1(
-    .rst        ( rst            ),
-    .clk        ( clk            ),
-    .sample     ( oki_sample     ),
-    .upsample   (                ), // ~52kHz, close to JT51's 55kHz
-    .l_in       ({oki_pole,2'd0} ),
-    .r_in       (     16'd0      ),
-    .l_out      ( adpcm_snd      ),
-    .r_out      (                )
+    .sout       ( adpcm_snd )
 );
 
 endmodule
