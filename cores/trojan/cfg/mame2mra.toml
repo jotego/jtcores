@@ -5,6 +5,7 @@ mraauthor=["jotego"]
 sourcefile=[ "lwings.cpp" ]
 skip.bootlegs=true
 skip.Machines=[ "avengers", "fball", "sectionz", "lwings"]
+skip.Setnames=[ "trojanlt" ] # location test ROM has a different arrangement
 [buttons]
 names=[
     { names="Attack,Jump" },
@@ -17,16 +18,14 @@ offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3", "proms"
 [ROM]
 regions=[
     { name="maincpu", sequence=[1,2,0] },
-    { name="gfx1", start="CHAR_START" },
-    { name="gfx5", reverse=true },
-    { name="gfx4", width=16, no_offset=true },
-    { name="gfx2", width=32, sequence=[
-        6,4,2,0,
-        7,5,3,1
-    ] },
-    { name="gfx3", width=16, sequence=[
-        0,4, 1,5, 2,6, 3,7 ] },
-
+    { name="soundcpu", start="JTFRAME_BA1_START" },
+    { name="adpcm",    start="SND2_START" },
+    { name="gfx5",     start="JTFRAME_BA2_START", reverse=true },
+    { name="gfx4",     start="SCR2_START", width=16, no_offset=true },
+    { name="gfx1",     start="JTFRAME_BA3_START", reverse=true },
+    { name="gfx2",     start="SCR_START",  width=32, sequence=[6,4,2,0,7,5,3,1] },
+    { name="gfx3",     start="OBJ_START",  width=16, sequence=[4,0,5,1,6,2,7,3] },
+    { name="proms",    start="JTFRAME_PROM_START" },
 ]
 
 order=[ "maincpu", "soundcpu", "adpcm",

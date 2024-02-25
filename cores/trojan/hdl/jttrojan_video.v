@@ -28,7 +28,6 @@ module jttrojan_video #(
     input               cen3,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
-    input               game_sel,
     output      [ 8:0]  V,
     output      [ 8:0]  H,
     input               RnW,
