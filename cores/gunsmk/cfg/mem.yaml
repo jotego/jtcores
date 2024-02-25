@@ -1,0 +1,44 @@
+params:
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
+  - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1"  }
+# clocks:
+#   clk48:
+#     - freq: 6000000
+#       outputs:
+#         - cen6
+#         - cen3
+#         - cen1p5
+#     - freq: 8000000
+#       outputs:
+#         - cen8
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+      - name: char
+        addr_width: 14
+        data_width: 16
+        offset: CHAR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: map
+        addr_width: 15
+        data_width: 16
+    - buses:
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        cs: LVBL
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        offset: OBJ_OFFSET
+        cs: 1'b1

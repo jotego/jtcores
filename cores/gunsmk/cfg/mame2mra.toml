@@ -17,8 +17,12 @@ names=[
 
 [ROM]
 regions=[
-    { name="tiles", no_offset=true, sequence=[0,4,1,5,2,6,3,7] },
-    { name="sprites", no_offset=true, sequence=[0,4,1,5,2,6,3,7] },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="chars",    start="CHAR_START", reverse=true },
+    { name="bgtiles",  start="JTFRAME_BA2_START", reverse=true },
+    { name="tiles",    start="JTFRAME_BA3_START", width=16, no_offset=true, sequence=[4,0,5,1,6,2,7,3]  },
+    { name="sprites",  start="OBJ_START",         width=16, no_offset=true, sequence=[4,0,5,1,6,2,7,3]  },
+    { name="proms",    start="JTFRAME_PROM_START" },
 ]
 
 order=[

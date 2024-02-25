@@ -21,51 +21,53 @@ module jtgunsmk_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
-
-parameter CLK_SPEED=48;
-
-wire [8:0] V;
-wire [8:0] H;
-wire HINIT;
-
-wire [12:0] cpu_AB;
-wire snd_cs, map1_cs;
-wire char_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire cpu_cen;
-wire char_busy;
+wire [15:0] pre_obj_addr;
+wire [12:0] cpu_AB, obj_AB;
+wire [ 8:0] V, H;
+wire [ 7:0] cpu_dout, char_dout, scr_dout, snd_latch, main_ram;
 wire [ 2:0] obj_bank;
+wire        char_cs, flip, cpu_cen, char_busy, HINIT,
+            cen12, cen6, cen3, cen8, cen1p5,
+            LHBL_obj, LVBL_obj, preLHBL, preLVBL,
+            wr_n, rd_n, sres_b, nc,
+            CHON, OBJON, SCRON, OKOUT, blcnten, bus_req, bus_ack;
+reg         video_flip;
 
-// ROM data
-wire [15:0] char_data;
-wire [15:0] scr_data;
-wire [15:0] obj_data, map_data;
-wire [ 7:0] main_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [16:0] main_addr;
-wire [14:0] snd_addr;
-wire [13:0] map_addr;
-wire [12:0] char_addr;
-wire [16:0] scr_addr;
-reg  [16:0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
+wire prom_red_we   = prom_we && ioctl_addr[11:8]==0;
+wire prom_green_we = prom_we && ioctl_addr[11:8]==1;
+wire prom_blue_we  = prom_we && ioctl_addr[11:8]==2;
+wire prom_char_we  = prom_we && ioctl_addr[11:8]==3;
+wire prom_scrlo_we = prom_we && ioctl_addr[11:8]==4;
+wire prom_scrhi_we = prom_we && ioctl_addr[11:8]==5;
+wire prom_objlo_we = prom_we && ioctl_addr[11:8]==6;
+wire prom_objhi_we = prom_we && ioctl_addr[11:8]==7;
+wire prom_prior_we = prom_we && ioctl_addr[11:8]==9;
 
+wire [7:0] scrposv;
+wire [15:0] scrposh;
 
-wire main_ok, snd_ok;
-wire cen12, cen6, cen3, cen1p5;
+localparam [25:0]   MAP1_START = `JTFRAME_BA2_START,
+                    SCR1_START = `JTFRAME_BA3_START,
+                    OBJ_START  = `OBJ_START,
+                    PROM_START = `JTFRAME_PROM_START;
+
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
+assign obj_addr[14:1]  = pre_obj_addr[13:0];
+assign obj_addr[17:15] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
 
-wire cen8;
+always @* begin
+    post_addr = prog_addr;
+    if(ioctl_addr>=MAP1_START ) begin
+        if( ioctl_addr < SCR1_START) begin // MAP1+MAP2
+            post_addr[3:0] = {prog_addr[2:0],prog_addr[3]};
+        end else if( ioctl_addr >= OBJ_START && ioctl_addr < PROM_START ) begin
+            post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
+        end
+    end
+end
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -76,7 +78,6 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    )
 );
 /* verilator lint_on PINMISSING */
-wire LHBL_obj, LVBL_obj, preLHBL, preLVBL;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -92,58 +93,6 @@ jtgng_timer u_timer(
     .VS        ( VS       ),
     .Vinit     (          )
 );
-
-wire wr_n, rd_n;
-// sound
-wire sres_b;
-wire [7:0] snd_latch;
-
-wire        main_cs;
-wire CHON, OBJON, SCRON;
-// OBJ
-wire OKOUT, blcnten, bus_req, bus_ack;
-wire [12:0] obj_AB;
-wire [ 7:0] main_ram;
-
-wire [12:0] prom_we;
-
-jt1943_prom_we #(
-        .SND_BRAM   ( 0          ), // Sound ROM goes into the SDRAM
-        .SNDADDR    ( 22'h1_8000 ),
-        .CHARADDR   ( 22'h2_0000 ),
-        .MAP1ADDR   ( 22'h2_4000 ),
-        .SCR1ADDR   ( 22'h2_C000 ),
-        .OBJADDR    ( 22'h6_C000 ),
-        .PROMADDR   ( 22'hA_C000 ))
-u_prom_we(
-    .clk         ( clk           ),
-    .ioctl_rom   ( ioctl_rom     ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  (ioctl_addr[21:0]),
-    .ioctl_dout  ( ioctl_dout    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .prom_we     ( prom_we       ),
-    .sdram_ack   ( sdram_ack     )
-);
-
-wire prom_red_we   = prom_we[0];
-wire prom_green_we = prom_we[1];
-wire prom_blue_we  = prom_we[2];
-wire prom_char_we  = prom_we[3];
-wire prom_scrlo_we = prom_we[4];
-wire prom_scrhi_we = prom_we[5];
-wire prom_objlo_we = prom_we[6];
-wire prom_objhi_we = prom_we[7];
-wire prom_prior_we = prom_we[9];
-
-wire [7:0] scrposv;
-wire [15:0] scrposh;
 
 jtgunsmk_main u_main(
     .rst        ( rst           ),
@@ -194,8 +143,8 @@ jtgunsmk_main u_main(
     .joystick2  ( joystick2     ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_a    ( dipsw[ 7:0]   ),
+    .dipsw_b    ( dipsw[15:8]   )
 );
 
 jtgng_sound u_sound (
@@ -224,12 +173,6 @@ jtgng_sound u_sound (
     .debug_bus      ( debug_bus      ),
     .debug_view     ( debug_view     )
 );
-
-wire scr_ok, map1_ok, char_ok, obj_ok;
-
-wire nc;
-wire [15:0] pre_obj_addr;
-reg         video_flip;
 
 always @(posedge clk)
     video_flip <= dip_flip; // Original Gun Smoke did not have this DIP bit.
@@ -291,8 +234,8 @@ jt1943_video #(
     // Scroll maps
     .map1_addr     ( map_addr      ),
     .map1_data     ( map_data      ),
-    .map1_ok       ( map1_ok       ),
-    .map1_cs       ( map1_cs       ),
+    .map1_ok       ( map_ok        ),
+    .map1_cs       ( map_cs        ),
     .map2_ok       ( 1'b1          ),
     .map2_cs       (               ),
     .map2_addr     (               ),
@@ -343,80 +286,4 @@ jt1943_video #(
     .blue          ( blue          )
 );
 
-always @(*) begin
-    obj_addr[13:0]  = pre_obj_addr[13:0];
-    obj_addr[16:14] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
-end
-
-// Scroll data: Z, Y, X
-/* verilator lint_off PINMISSING */
-jtframe_rom #(
-    .SLOT0_AW    ( 13              ), // char
-    .SLOT0_DW    ( 16              ),
-    .SLOT0_OFFSET( 22'h2_0000 >> 1 ),
-
-    .SLOT1_AW    ( 14              ), // map
-    .SLOT1_DW    ( 16              ),
-    .SLOT1_OFFSET( 22'h2_4000 >> 1 ),
-
-    .SLOT2_AW    ( 17              ), // scroll
-    .SLOT2_DW    ( 16              ),
-    .SLOT2_OFFSET( 22'h2_C000 >> 1 ),
-
-    .SLOT6_AW    ( 15              ), // sound
-    .SLOT6_DW    (  8              ),
-    .SLOT6_OFFSET( 22'h1_8000 >> 1 ),
-
-    .SLOT7_AW    ( 17              ), // main
-    .SLOT7_DW    (  8              ),
-    .SLOT7_OFFSET(  0              ),
-
-    .SLOT8_AW     ( 17              ),
-    .SLOT8_DW     ( 16              ),
-    .SLOT8_OFFSET ((22'h2_C000 >> 1) + 22'h2_0000 )
-
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ), // char
-    .slot1_cs    ( map1_cs       ), // map
-    .slot2_cs    ( LVBL          ), // scroll
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( map1_ok       ),
-    .slot2_ok    ( scr_ok        ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( map_addr      ),
-    .slot2_addr  ( scr_addr      ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( map_data      ),
-    .slot2_dout  ( scr_data      ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
-);
-/* verilator lint_on PINMISSING */
 endmodule
