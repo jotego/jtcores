@@ -12,13 +12,14 @@ names=[
 
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true, sequence=[1,2,3,4,0]},
-    { name="audiocpu" },
-    { name="chars", sequence=[0,0], no_offset=true },
-    { name="tiles", sequence=[2,3,0,1], no_offset=true },
-    { name="sprites", no_offset=true },
-    { name="mcu" },
-    { name="proms" }
+    { name="maincpu", no_offset=true, sequence=[1,2,3,4,0]                     },
+    { name="audiocpu", start="JTFRAME_BA1_START"                               },
+    { name="chars",    start="CHAR_START", reverse=true, no_offset=true        },
+    { name="tiles",    start="JTFRAME_BA2_START", sequence=[2,0,3,1], width=16 },
+    # { name="sprites",  start="JTFRAME_BA3_START", sequence=[0,2,1,3], width=16 },
+    { name="sprites",  start="JTFRAME_BA3_START", sequence=[2,0,3,1], width=16 },
+    { name="mcu",      start="JTFRAME_PROM_START"                              },
+    { name="proms"                                                             }
 ]
 
 order=[

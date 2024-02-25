@@ -5,7 +5,6 @@ game:
       - jtbtiger_game.v
       - jtbtiger_video.v
       - jtbtiger_mcu.v
-      - jtbtiger_prom_we.v
       - jtbtiger_colmix.v
       - jtbtiger_scroll.v
   - from: gng
