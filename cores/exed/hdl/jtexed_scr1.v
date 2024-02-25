@@ -41,7 +41,7 @@ module jtexed_scr1 #(parameter
     output reg        map1_cs,
     input             map1_ok,
 
-    output reg [13:0] rom1_addr,
+    output reg [14:2] rom1_addr,
     input      [31:0] rom1_data,
     input             rom1_ok,
     // Output pixel
@@ -85,7 +85,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             if(map1_ok) begin
                 map1_cs <= 0;
-                rom1_addr <= { map1_data, veff[3:0], heff[3]^flip, 1'b0 }; // 8+4+1+1=14
+                rom1_addr <= { map1_data, veff[3:0], heff[3]^flip }; // 8+4+1+1=14
             end
             if( flip ) begin
                 pxl_w <= pxl_w >> 1;

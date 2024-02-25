@@ -41,16 +41,15 @@ mem.yaml syntax
 
 # Include other .yaml files
 include: [ "file0", "file1",... ]
-# Map SDRAM addresses during download
-download:
-pre_addr: false   # modify the address value going into the downloader
-post_addr: false  # modify the address value going into the SDRAM
-post_data: false  # modify the data byte going into the SDRAM
-noswab: false     # Reverse all bytes, avoid using it and modify the MRA instead
 # Parameters to be used in the sdram section
 params: [ {name:vSCR_OFFSET, value: "32'h10000"}, ... ]
-# Past additional ports to the game module
-download: { pre_addr: true, post_addr: true, post_data: true, noswab: true }
+# Map SDRAM addresses during download by
+# passing additional ports to the game module
+download:
+    pre_addr: false   # modify the address value going into the downloader
+    post_addr: false  # modify the address value going into the SDRAM
+    post_data: false  # modify the data byte going into the SDRAM
+    noswab: false     # Reverse all bytes, avoid using it and modify the MRA instead
 # Connect addtional output ports from the game module
 ports:
     - { name: foo_data, msb: 15, lsb: 0, input:true }

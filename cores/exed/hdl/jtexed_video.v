@@ -45,7 +45,7 @@ module jtexed_video #(
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
-    output      [13:0]  scr1_addr,
+    output      [14:2]  scr1_addr,
     input       [31:0]  scr1_data,
     input               scr1_ok,
     input       [10:0]  scr1_hpos,
@@ -56,7 +56,7 @@ module jtexed_video #(
     input               map1_ok,
     output              map1_cs,
     // SCROLL 2
-    output      [12:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
+    output      [13:2]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [31:0]  scr2_data,
     input               scr2_ok,
     output      [11:0]  map2_addr, //  8kB in 8 bits or 4kW in 16 bits

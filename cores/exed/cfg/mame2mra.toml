@@ -10,13 +10,13 @@ names=[ { names="Shot,Bomb"} ]
 [ROM]
 regions = [
     { name="maincpu" },
-    { name="audiocpu",   start="SND_START"  },
-    { name="tilerom",    start="MAP_START"  },
+    { name="audiocpu",   start="JTFRAME_BA1_START"  },
+    { name="tilerom",    start="JTFRAME_BA2_START"  },
     { name="chars",      start="CHAR_START", reverse=true },
-    { name="16x16tiles", start="SCR1_START", width=16, reverse=true, no_offset=true  },
+    { name="16x16tiles", start="JTFRAME_BA3_START", width=16, reverse=true, no_offset=true  },
     { name="32x32tiles", start="SCR2_START" },
     { name="sprites",    start="OBJ_START", width=16, reverse=true, no_offset=true  },
-    { name="proms",      start="PROM_START" }
+    { name="proms",      start="JTFRAME_PROM_START" }
 ]
 
 order = [

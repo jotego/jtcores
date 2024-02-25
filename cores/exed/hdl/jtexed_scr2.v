@@ -40,7 +40,7 @@ module jtexed_scr2 #(parameter
     output reg        map2_cs,
     input             map2_ok,
 
-    output reg [12:0] rom2_addr,
+    output reg [13:2] rom2_addr,
     input      [31:0] rom2_data,
     input             rom2_ok,
     // Output pixel
@@ -97,7 +97,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             if(map2_ok) begin
                 map2_cs <= 0;
-                rom2_addr <= { map2_data[5:0], V[4:0]^{5{vflip}}, heff[4]^~hflip, 1'b0 }; // 6+5+1+1 = 13
+                rom2_addr <= { map2_data[5:0], V[4:0]^{5{vflip}}, heff[4]^~hflip }; // 6+5+1+1 = 13
             end
             if( hflip2 ) begin
                 pxl_lsb <= pxl_lsb >> 1;
