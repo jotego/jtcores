@@ -3,10 +3,9 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "gng.cpp" ]
-skip.Setnames=["diamond"]
+skip.Setnames=["diamond","gngbl"]
 
 [buttons]
-core=2 # max number of buttons supported by the core
 names=[
     { names="Fire,Jump" }
 ]
@@ -19,13 +18,20 @@ Rename = [
 
 [ROM]
 regions=[
-    { name="maincpu", sequence=[1,0,2], no_offset=true },
+    {                    name="maincpu", sequence=[1,0,2],     no_offset=true },
     { setname="gngprot", name="maincpu", sequence=[1,2,0,3,4], no_offset=true },
-    { setname="gnga", name="maincpu", sequence=[1,2,0,3,4], no_offset=true },
-    { name="tiles", sequence=[2,3,4,5,0,1,0,1], no_offset=true },
-    { name="sprites", sequence=[0,1,2,2,3,4,5,5], no_offset=true },
-    { name="proms", skip=true },
-    { name="plds", skip=true }
+    { setname="gnga",    name="maincpu", sequence=[1,2,0,3,4], no_offset=true },
+    { name="chars",      start="JTFRAME_BA1_START", reverse=true },
+    { name="audiocpu",   start="SND_START" },
+    { name="tiles",      start="JTFRAME_BA2_START", sequence=[4,2,0,0,5,3,1,1], no_offset=true, width=32 },
+    { name="sprites",    start="JTFRAME_BA3_START", sequence=[3,0,4,1,5,2],     no_offset=true, width=16 },
+    { name="proms",      skip=true },
+    { name="plds",       skip=true }
 ]
 
 order = [ "maincpu", "chars", "audiocpu", "tiles", "sprites" ]
+
+patches = [
+    # skip the RAM/ROM test
+    { setname="gng", offset=0xA07A, data="12 12 12" }
+]

@@ -63,6 +63,7 @@ cores/*/sidi/*
 cores/*/sidi128/*
 cores/*/sockit/*
 cores/*/ver/regrun
+cores/*/ver/*/frames
 cores/*/zxuno/*
 cores/*/hdl/*_mmr.v
 default.dip

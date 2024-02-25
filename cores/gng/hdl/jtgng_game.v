@@ -21,35 +21,15 @@ module jtgng_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [ 8:0] V, H;
-wire [ 7:0] cpu_dout, char_dout, scr_dout, st_snd;
-
-wire [12:0] cpu_AB;
-wire        snd_cs, char_cs, flip, HINIT;
-wire        char_busy, scr_busy, block_flash, preLHBL, preLVBL;
-
-// ROM data
-wire [15:0] char_data;
-wire [23:0] scr_data;
-wire [15:0] obj_data;
-wire [ 7:0] main_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [16:0] main_addr;
-wire [14:0] snd_addr;
-wire [12:0] char_addr;
-wire [14:0] scr_addr;
-wire [15:0] obj_addr;
-
-wire        main_ok, snd_ok;
-wire        cen6, cen3, cen1p5, cen1p5b;
-wire        LHBL_obj, LVBL_obj;
-
-wire        RnW, blue_cs, redgreen_cs, bus_ack, bus_req;
 wire [15:0] sdram_din;
-wire [12:0] wr_row;
-wire [ 8:0] wr_col;
-wire        main_cs;
+wire [12:0] wr_row, cpu_AB;
+wire [ 8:0] V, H, wr_col;
+wire [ 7:0] cpu_dout, char_dout, scr_dout, st_snd;
+wire        char_cs, flip, HINIT;
+wire        char_busy, scr_busy, block_flash, preLHBL, preLVBL;
+wire        cen6, cen3, cen1p5, cen1p5b,
+            LHBL_obj, LVBL_obj,
+            RnW, blue_cs, redgreen_cs, bus_ack, bus_req;
 // OBJ
 wire [ 8:0] obj_AB;
 wire        OKOUT, blcnten;
@@ -61,15 +41,19 @@ wire [ 7:0] snd_latch;
 wire        scr_cs;
 wire [ 8:0] scr_hpos, scr_vpos;
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
-
 assign block_flash = status[13];
 assign dip_flip    = flip;
 assign debug_view  = debug_bus[7] ? st_snd :
             { 3'd0, ~sres_b, 2'd0, blcnten, OKOUT };
+
+localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START;
+
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr >= OBJ_START ) begin
+        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
+    end
+end
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -104,21 +88,6 @@ jtgng_timer u_timer(
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          )
-);
-
-jtgng_prom_we u_prom_we(
-    .clk         ( clk           ),
-    .ioctl_rom   ( ioctl_rom     ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  (ioctl_addr[21:0]),
-    .ioctl_dout  ( ioctl_dout    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-    .sdram_ack   ( sdram_ack     )
 );
 
 `ifndef NOMAIN
@@ -227,9 +196,6 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     assign st_snd     = 0;
 `endif
 
-wire char_ok, scr1_ok, scr2_ok, obj_ok;
-wire scr_ok = scr1_ok & scr2_ok;
-
 /* verilator tracing_off */
 jtgng_video #(.GNGPAL(1)) u_video(
     .rst        ( rst           ),
@@ -253,7 +219,7 @@ jtgng_video #(.GNGPAL(1)) u_video(
     .scr_cs     ( scr_cs        ),
     .scr_dout   ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
-    .scr_data   ( scr_data      ),
+    .scr_data   ( scr_data[23:0]),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
@@ -293,84 +259,4 @@ jtgng_video #(.GNGPAL(1)) u_video(
     .prom_din     ( 4'd0 )
 );
 
-wire [7:0] scr_nc; // no connect
-
-// Scroll data: Z, Y, X
-jtframe_rom #(
-    .SLOT0_AW    ( 13              ), // Char
-    .SLOT0_DW    ( 16              ),
-    .SLOT0_OFFSET( 22'h1_4000 >> 1 ),
-
-    .SLOT1_AW    ( 15              ), // Scroll bytes 0-1
-    .SLOT1_DW    ( 16              ),
-    .SLOT1_OFFSET( 22'h2_0000 >> 1 ),
-
-    .SLOT2_AW    ( 15              ), // Scroll byte 2
-    .SLOT2_DW    ( 16              ),
-    .SLOT2_OFFSET( (22'h2_0000 >> 1) + 22'h0_8000 ),
-
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT6_DW    (  8              ),
-    .SLOT6_OFFSET( 22'h1_8000 >> 1 ),
-
-    .SLOT7_AW    ( 17              ),
-    .SLOT7_DW    (  8              ),
-    .SLOT7_OFFSET(  0              ), // Main
-
-    .SLOT8_AW    ( 16              ), // objects
-    .SLOT8_DW    ( 16              ),
-    .SLOT8_OFFSET( 22'h4_0000 >> 1 )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ),
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr1_ok       ),
-    .slot2_ok    ( scr2_ok       ),
-    .slot3_ok    (               ),
-    .slot4_ok    (               ),
-    .slot5_ok    (               ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
-    .slot2_addr  ( scr_addr      ),
-    .slot3_addr  (               ),
-    .slot4_addr  (               ),
-    .slot5_addr  (               ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data[15:0]),
-    .slot2_dout  ( { scr_nc, scr_data[23:16]       } ),
-    .slot3_dout  (               ),
-    .slot4_dout  (               ),
-    .slot5_dout  (               ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .data_dst    ( data_dst      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
-);
-
-endmodule // jtgng
+endmodule

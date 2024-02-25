@@ -3,7 +3,6 @@ game:
     get:
       - jtgng_main.v
       - jtgng_game.v
-      - jtgng_prom_we.v
       - jtgng_video.v
       - jtgng_video.yaml
       - jtgng_dual_ram.v
