@@ -85,7 +85,7 @@ jtframe_rsthold u_hold(
     .rst48_h( rst48_h   )
 `endif
 );
-
+/* verilator tracing_on */
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst        ( rst_h     ),
     .clk        ( clk       ),
@@ -217,7 +217,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
     .gfx_en      ( gfx_en        )
 );
-
+/* verilator tracing_off */
 assign dwnld_busy = ioctl_rom | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};

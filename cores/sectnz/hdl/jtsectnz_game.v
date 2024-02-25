@@ -21,118 +21,54 @@ module jtsectnz_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
-
-wire [8:0] V;
-wire [8:0] H;
-
+wire [15:0] scr_part;
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs, blue_cs, redgreen_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
+wire [10:0] scr_hpos, scr_vpos;
+wire [ 8:0] V, H, obj_AB;
+wire [ 7:0] cpu_dout, char_dout, scr_dout, main_ram, snd_latch;
+wire        rd, cpu_cen, char_busy, scr_busy, scr_cs, RnW, sres_b, snd_int,
+            flip, char_cs, blue_cs, redgreen_cs, scr0,
+            cen12, cen6, cen3, cen1p5,
+            OKOUT, blcnten, bus_req, bus_ack;
+reg         game_cfg;
 
-localparam SCRW=18, OBJW=17;
+assign debug_view = { 6'd0, flip, game_cfg };
+assign pxl2_cen   = cen12;
+assign pxl_cen    = cen6;
+assign dip_flip   = flip^game_cfg;
+assign scr_part   = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
+                           { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
 
-// ROM data
-wire [15:0] char_data, scr_data;
-wire [15:0] obj_data;
-wire [ 7:0] main_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [16:0] main_addr;
-wire [14:0] snd_addr;
-wire [13:0] char_addr;
-wire [SCRW-1:0] scr_addr;
-wire [OBJW-1:0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
+localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START;
 
-wire main_ok, snd_ok, obj_ok;
-wire cen12, cen6, cen3, cen1p5;
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr >= OBJ_START ) begin
+        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
+    end
+end
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
+always @(posedge clk) begin
+    if( header && prog_addr[4:0]==0 && prog_we ) game_cfg <= prog_data[0];
+end
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~flip;
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    // unused:
-    .cen16  (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5b(           )
-);
-/* verilator lint_on PINMISSING */
-wire RnW;
-// sound
-wire sres_b, snd_int;
-wire [7:0] snd_latch;
-
-wire        main_cs;
-// OBJ
-wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
-wire [ 7:0] main_ram, game_cfg;
-
-localparam [21:0] CPU_OFFSET  = 22'h0;
-localparam [21:0] SND_OFFSET  = 22'h1_8000 >> 1;
-localparam [21:0] CHAR_OFFSET = 22'h2_0000 >> 1;
-localparam [21:0] SCR_OFFSET  = 22'h4_0000 >> 1;
-localparam [21:0] OBJ_OFFSET  = 22'h8_0000 >> 1;
-
-jtsectnz_prom_we #(
-    .CPU_OFFSET     ( CPU_OFFSET    ),
-    .SND_OFFSET     ( SND_OFFSET    ),
-    .CHAR_OFFSET    ( CHAR_OFFSET   ),
-    .SCR_OFFSET     ( SCR_OFFSET    ),
-    .OBJ_OFFSET     ( OBJ_OFFSET    ))
-u_prom_we(
-    .clk         ( clk           ),
-    .ioctl_rom   ( ioctl_rom     ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr[21:0] ),
-    .ioctl_dout  ( ioctl_dout    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .sdram_ack   ( sdram_ack     ),
-    .game_cfg    ( game_cfg      )
-);
-
-wire scr_cs;
-wire [10:0] scr_hpos, scr_vpos;
-
+    .cen1p5 ( cen1p5    )
+);/* verilator lint_on PINMISSING */
 
 `ifndef NOMAIN
-
 jtcommnd_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .cen_sel    ( game_cfg[0]   ),
+    .cen_sel    ( game_cfg      ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -184,8 +120,8 @@ jtcommnd_main #(.GAME(1)) u_main(
     .prog_din   ( 4'd0          ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       ),
+    .dipsw_a    ( dipsw[ 7:0]   ),
+    .dipsw_b    ( dipsw[15:8]   ),
     // Unused
     .snd2_latch (               ),
     .char_on    (               ),
@@ -209,7 +145,7 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-jtgng_sound #(.LAYOUT(0)) u_sound (
+jtgng_sound #(.LAYOUT(0),.PSG_ATT(1)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -234,7 +170,7 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     .peak           ( game_led       ),
     .snd2_latch     (                ),
     .debug_bus      ( 8'd0           ),
-    .debug_view     ( debug_view     )
+    .debug_view     (                )
 );
 `else
 assign snd_addr = 15'd0;
@@ -242,12 +178,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, char_ok;
-
-jtsectnz_video #(
-    .SCRW   ( SCRW      )
-)
-u_video(
+jtsectnz_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
@@ -255,7 +186,7 @@ u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
-    .game_sel   ( game_cfg[0]   ),
+    .game_sel   ( game_cfg      ),
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
@@ -274,8 +205,8 @@ u_video(
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scr_dout   ( scr_dout      ),
-    .scr_addr   ( scr_addr      ),
-    .scr_data   ( scr_data      ),
+    .scr_addr   ({scr_addr,scr0}),
+    .scr_data   ( scr_part      ),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos[8:0] ),
     .scr_vpos   ( scr_vpos[8:0] ),
@@ -306,78 +237,6 @@ u_video(
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
-);
-
-// Scroll data: Z, Y, X
-jtframe_rom #(
-    .SLOT0_AW    ( 14              ), // Char
-    .SLOT1_AW    ( SCRW            ), // Scroll
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT7_AW    ( 17              ), // Main
-    .SLOT8_AW    ( OBJW            ), // OBJ
-
-    .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 16              ), // Scroll
-    .SLOT6_DW    (  8              ), // Sound
-    .SLOT7_DW    (  8              ), // Main
-    .SLOT8_DW    ( 16              ), // OBJ
-
-    .SLOT0_OFFSET( CHAR_OFFSET ),
-    .SLOT1_OFFSET( SCR_OFFSET  ),
-    .SLOT6_OFFSET( SND_OFFSET  ),
-    .SLOT7_OFFSET( CPU_OFFSET  ),
-    .SLOT8_OFFSET( OBJ_OFFSET  )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ), // Char
-    .slot1_cs    ( LVBL          ), // Scroll
-    .slot2_cs    ( 1'b0          ),
-    .slot3_cs    ( 1'b0          ),
-    .slot4_cs    ( 1'b0          ),
-    .slot5_cs    ( 1'b0          ),
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ), // OBJ
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr_ok        ),
-    .slot2_ok    (               ),
-    .slot3_ok    (               ),
-    .slot4_ok    (               ),
-    .slot5_ok    (               ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
-    .slot2_addr  (               ),
-    .slot3_addr  (               ),
-    .slot4_addr  (               ),
-    .slot5_addr  (               ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data      ),
-    .slot2_dout  (               ),
-    .slot3_dout  (               ),
-    .slot4_dout  (               ),
-    .slot5_dout  (               ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
 );
 
 endmodule
