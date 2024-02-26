@@ -18,8 +18,6 @@
 
 module jtsf_video #(
     parameter CHARW = 13,
-    parameter MAP1W = 15,
-    parameter MAP2W = 15,
     parameter SCR1W = 19,
     parameter SCR2W = 18,
     parameter OBJW  = 21
@@ -54,15 +52,15 @@ module jtsf_video #(
     input       [15:0]  scr1_data,
     input               scr1_ok,
     input       [15:0]  scr1posh,
-    output [MAP1W-1:0]  map1_addr,
+    output      [16:2]  map1_addr,
     input       [31:0]  map1_data,
     input               map1_ok,
     // SCROLL 2 - ROM
-    output [SCR2W-1:0]  scr2_addr,
+    output      [19:2]  scr2_addr,
     input       [15:0]  scr2_data,
     input               scr2_ok,
     input       [15:0]  scr2posh,
-    output [MAP2W-1:0]  map2_addr,
+    output      [16:2]  map2_addr,
     input       [31:0]  map2_data,
     input               map2_ok,
     // OBJ

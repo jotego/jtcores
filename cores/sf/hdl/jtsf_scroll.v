@@ -25,7 +25,6 @@ module jtsf_scroll #( parameter
     PXLW            = 8,
     HOFFSET         = 0,
     // MAP SIZE
-    MAPAW           = 16, // address width
     MAPDW           = 32  // data width
 )(
     input                rst,
@@ -38,7 +37,7 @@ module jtsf_scroll #( parameter
     input                SCxON,
     input                flip,
     // Map ROM
-    output reg [MAPAW-1:0] map_addr,
+    output reg      [16:2] map_addr,
     input      [MAPDW-1:0] map_data,
     input                  map_ok,
     // Gfx ROM
