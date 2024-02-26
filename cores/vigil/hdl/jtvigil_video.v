@@ -37,7 +37,7 @@ module jtvigil_video(
 
     input  [ 8:0] scr1pos,
     input         scr1_ramcs,
-    output [16:0] scr1_addr,
+    output [17:2] scr1_addr,
     input  [31:0] scr1_data,
     output [ 7:0] scr1_dout,
     output        scr1_cs,
@@ -45,14 +45,14 @@ module jtvigil_video(
 
     input  [10:0] scr2pos,
     input  [ 2:0] scr2col,
-    output [17:0] scr2_addr,
+    output [19:2] scr2_addr,
     input  [31:0] scr2_data,
     output        scr2_cs,
     input         scr2_ok,
     input         scr2enb,
 
     input         oram_cs,
-    output [17:0] obj_addr,
+    output [18:2] obj_addr,
     input  [31:0] obj_data,
     output        obj_cs,
     input         obj_ok,

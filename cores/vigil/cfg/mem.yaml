@@ -1,0 +1,31 @@
+params:
+  - { name: PCM_OFFSET,  value: "(`PCM_START -`JTFRAME_BA1_START)>>1"}
+  - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA2_START)>>1"}
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: pcm
+        addr_width: 16
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: scr1
+        addr_width: 18
+        data_width: 32
+      - name: scr2
+        addr_width: 20
+        data_width: 32
+        offset: SCR2_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 19
+        data_width: 32

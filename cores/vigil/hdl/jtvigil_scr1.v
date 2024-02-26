@@ -33,7 +33,7 @@ module jtvigil_scr1(
     input  [ 8:0] v,
     input         hs,
     input  [ 8:0] scrpos,
-    output [16:0] rom_addr,
+    output [17:2] rom_addr,
     input  [31:0] rom_data, // 32/4 = 8 pixels
     output        rom_cs,
     input         rom_ok,
@@ -56,7 +56,7 @@ reg  [ 7:0] pre_code, code, attr;
 
 assign ram_we   = scr1_cs & ~main_rnw;
 assign rom_cs   = ~hs; // do not read while HS can occur
-assign rom_addr = { 1'b0, attr[7:4], code, v[2:0], 1'b0 };
+assign rom_addr = { 1'b0, attr[7:4], code, v[2:0] };
 assign pxl = { pal, flip ?
     {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7] } :
     {pxl_data[24], pxl_data[16], pxl_data[ 8], pxl_data[0] } };

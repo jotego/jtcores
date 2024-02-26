@@ -28,7 +28,7 @@ module jtvigil_scr2(
     input         LVBL,
     input         HS,
     input  [10:0] scrpos,
-    output [17:0] rom_addr,
+    output [19:2] rom_addr,
     input  [31:0] rom_data, // 32/4 = 8 pixels
     output        rom_cs,
     input         rom_ok,

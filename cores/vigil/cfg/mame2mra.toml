@@ -19,12 +19,12 @@ rename=[ { name="Invulnerability (Cheat)", to="Cheat"} ]
 [ROM]
 regions = [
     { name="maincpu", no_offset=true   },
-    { name="soundcpu", start="BA1_START" },
+    { name="soundcpu", start="JTFRAME_BA1_START" },
     { name="m72",      start="PCM_START" },
 
-    { name="gfx1", start="BA2_START", width=16, no_offset=true },
+    { name="gfx1", start="JTFRAME_BA2_START", width=16, no_offset=true },
     { name="gfx3", start="SCR2_START", no_offset=true }, # Background images
-    { name="gfx2", start="BA3_START", width=16, no_offset=true, sort_even=true },
+    { name="gfx2", start="JTFRAME_BA3_START", width=16, no_offset=true, sort_even=true },
     { name="plds", skip=true },
     { name="proms", skip=true }
 ]

@@ -4,7 +4,6 @@ game:
       - jtvigil_game.v
       - jtvigil_main.v
       - jtvigil_snd.v
-      - jtvigil_sdram.v
       - jtvigil_video.v
       - jtvigil_scr1.v
       - jtvigil_scr2.v

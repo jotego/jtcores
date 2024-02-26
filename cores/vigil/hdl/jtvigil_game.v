@@ -20,18 +20,11 @@ module jtvigil_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+localparam [24:0] SCR2_START  = `SCR2_START;
+
 wire        cpu_cen, fm_cen;
 // video signals
 wire        v1;
-
-// SDRAM interface
-wire        main_cs, scr1_cs, scr2_cs, obj_cs, pcm_cs, snd_cs;
-wire [17:0] main_addr, scr2_addr, obj_addr;
-wire [15:0] pcm_addr, snd_addr;
-wire [16:0] scr1_addr;
-wire [ 7:0] main_data, snd_data, pcm_data;
-wire [31:0] scr1_data, scr2_data, obj_data;
-wire        main_ok, scr1_ok, scr2_ok, obj_ok, pcm_ok, snd_ok;
 
 // CPU interface
 wire [ 7:0] main_dout, pal_dout, scr1_dout;
@@ -42,23 +35,23 @@ wire [ 8:0] scr1pos;
 wire [10:0] scr2pos;
 wire [ 2:0] scr2col;
 wire        flip, scr2enb;
+wire        is_tiles, is_obj;
 
 // Cabinet inputs
-wire [ 7:0] dipsw_a, dipsw_b;
-
-
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip             = ~flip;
-assign ba_wr                = 0;
-assign ba0_din              = 0;
-assign ba0_dsn              = 3;
-assign ba1_din              = 0;
-assign ba1_dsn              = 3;
-assign ba2_din              = 0;
-assign ba2_dsn              = 3;
-assign ba3_din              = 0;
-assign ba3_dsn              = 3;
 assign debug_view           = 0; // scr1pos[8:1]; //{ flip, 4'd0, scr2col};
+
+assign is_tiles   = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
+assign is_obj     = prog_ba==3;
+
+always @* begin
+    post_addr = prog_addr;
+    // moves the H address bit to the LSBs
+    if( is_tiles )
+        post_addr[3:0] = { prog_addr[2:0], prog_addr[3] };
+    if( is_obj )
+        post_addr[5:0] = { prog_addr[3:0], prog_addr[5:4] };
+end
 
 jtframe_cen3p57 #(.CLK24(1)) u_cencpu(
     .clk        ( clk24     ),
@@ -103,8 +96,8 @@ jtvigil_main u_main(
     // DIP switches
     .flip        ( flip       ),
     .dip_pause   ( dip_pause  ),
-    .dipsw_a     ( dipsw_a    ),
-    .dipsw_b     ( dipsw_b    )
+    .dipsw_a     ( dipsw[ 7:0]),
+    .dipsw_b     ( dipsw[15:8])
 );
 
 jtvigil_video u_video(
@@ -193,75 +186,6 @@ jtvigil_snd u_sound(
     .sample     ( sample    ),
     .peak       ( game_led  ),
     .debug_bus  ( debug_bus )
-);
-
-jtvigil_sdram u_sdram(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-
-    // Main CPU
-    .main_cs    ( main_cs   ),
-    .main_addr  ( main_addr ),
-    .main_data  ( main_data ),
-    .main_ok    ( main_ok   ),
-
-    // Sound CPU
-    .snd_addr   ( snd_addr  ),
-    .snd_cs     ( snd_cs    ),
-    .snd_data   ( snd_data  ),
-    .snd_ok     ( snd_ok    ),
-
-    // PCM ROM
-    .pcm_addr (pcm_addr ),
-    .pcm_cs   (pcm_cs   ),
-    .pcm_data (pcm_data ),
-    .pcm_ok   (pcm_ok   ),
-
-    // Scroll
-    .scr1_cs    ( scr1_cs   ),
-    .scr1_ok    ( scr1_ok   ),
-    .scr1_addr  ( scr1_addr ),
-    .scr1_data  ( scr1_data ),
-
-    .scr2_cs    ( scr2_cs   ),
-    .scr2_ok    ( scr2_ok   ),
-    .scr2_addr  ( scr2_addr ),
-    .scr2_data  ( scr2_data ),
-
-    // Sprite interface
-    .obj_ok     ( obj_ok    ),
-    .obj_cs     ( obj_cs    ),
-    .obj_addr   ( obj_addr  ),
-    .obj_data   ( obj_data  ),
-
-    // Bank 0: allows R/W
-    .ba0_addr    ( ba0_addr      ),
-    .ba1_addr    ( ba1_addr      ),
-    .ba2_addr    ( ba2_addr      ),
-    .ba3_addr    ( ba3_addr      ),
-    .ba_rd       ( ba_rd         ),
-    .ba_ack      ( ba_ack        ),
-    .ba_dst      ( ba_dst        ),
-    .ba_dok      ( ba_dok        ),
-    .ba_rdy      ( ba_rdy        ),
-
-    .data_read   ( data_read     ),
-
-    // ROM load
-    .ioctl_rom   ( ioctl_rom     ),
-    .dwnld_busy  ( dwnld_busy    ),
-
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_dout    ),
-    .ioctl_wr    ( ioctl_wr      ),
-    .prog_addr   ( prog_addr     ),
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_ba     ( prog_ba       ),
-    .prog_we     ( prog_we       ),
-    .prog_rd     ( prog_rd       ),
-    .prog_ack    ( prog_ack      ),
-    .prog_rdy    ( prog_rdy      )
 );
 
 endmodule
