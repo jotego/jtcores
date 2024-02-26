@@ -54,7 +54,7 @@ module jtkchamp_obj(
 
     output              rom_cs,
     input               rom_ok,
-    output reg   [14:0] rom_addr,
+    output reg   [16:2] rom_addr,
     input        [31:0] rom_data,
     input        [ 7:0] debug_bus,
 

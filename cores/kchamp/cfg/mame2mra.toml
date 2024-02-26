@@ -15,11 +15,10 @@ extra=[
 
 [ROM]
 regions = [
-    { name="audiocpu", start="SND_START" },
-
-    { name="gfx1", start="CHAR_START", width=16, sort_even=true },
-    { name="gfx2", start="OBJ_START", no_offset=true },
-    { name="proms", start="JTFRAME_PROM_START" }
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="gfx1",     start="JTFRAME_BA2_START", width=16, sort_even=true },
+    { name="gfx2",     start="JTFRAME_BA3_START", no_offset=true },
+    { name="proms",    start="JTFRAME_PROM_START" }
 ]
 
 order = [
