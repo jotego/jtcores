@@ -10130,7 +10130,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 34d2707c-d0f7-4f61-a097-37db1d9cf423)
   )
-  (hierarchical_label "S_EXTAL" (shape input) (at 53.34 199.39 180) (fields_autoplaced)
+  (hierarchical_label "MCU_EXTAL" (shape input) (at 53.34 199.39 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 3eed1198-2067-4bac-8692-bcf7650ee7e9)
   )
