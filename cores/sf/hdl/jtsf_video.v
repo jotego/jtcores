@@ -17,12 +17,12 @@
     Date: 9-8-2020 */
 
 module jtsf_video #(
-    parameter CHARW = 17,
-    parameter MAP1W = 14,
-    parameter MAP2W = 14,
-    parameter SCR1W = 17,
-    parameter SCR2W = 17,
-    parameter OBJW  = 17
+    parameter CHARW = 13,
+    parameter MAP1W = 15,
+    parameter MAP2W = 15,
+    parameter SCR1W = 19,
+    parameter SCR2W = 18,
+    parameter OBJW  = 21
 )(
     input               rst,
     input               clk,

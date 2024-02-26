@@ -32,16 +32,16 @@ delete=[
 [ROM]
 regions=[
     { name="maincpu", width=16, no_offset=true },
-    { name="audiocpu", reverse=true },
-    { name="audio2", reverse=true },
-    { name="tilerom", width=16, sequence=[3,2,1,0]},
-    { name="gfx4", no_offset=true },
-    { name="gfx2", width=16, sequence=[4,0,5,1,6,2,7,3], no_offset=true },
-    { name="gfx1", width=16, sequence=[2,0,3,1], no_offset=true },
-    { name="gfx3", width=16, sequence=[7,0,8,1,9,2,10,3,11,4,12,5,13,6], no_offset=true },
-    { name="protcpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START", reverse=true },
+    { name="audio2",   start="SND2_START",        reverse=true },
+    { name="tilerom",  start="JTFRAME_BA2_START", width=16, sequence=[3,2,1,0]},
+    { name="gfx4",     start="CHAR_START",        no_offset=true },
+    { name="gfx2",     start="JTFRAME_BA3_START", width=16, sequence=[4,0,5,1,6,2,7,3], no_offset=true },
+    { name="gfx1",     start="SCR2_START",        width=16, sequence=[2,0,3,1], no_offset=true },
+    { name="gfx3",     start="OBJ_START",         width=16, sequence=[7,0,8,1,9,2,10,3,11,4,12,5,13,6], no_offset=true },
+    { name="protcpu",  start="JTFRAME_PROM_START" },
     { name="proms", skip=true },
-    { name="plds", skip=true }
+    { name="plds",  skip=true }
 ]
 
 order=["maincpu","audiocpu", "audio2",

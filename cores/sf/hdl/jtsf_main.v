@@ -30,7 +30,7 @@
 
 
 module jtsf_main #(
-    parameter MAINW = 18,
+    parameter MAINW = 19,
               RAMW  = 15
 ) (
     input              rst,
