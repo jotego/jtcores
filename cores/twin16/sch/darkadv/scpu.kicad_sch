@@ -8306,7 +8306,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 776c885b-f622-43f3-b4ec-e18379172ff0)
   )
-  (text "Only used on PWB(A)302190B\nGoes to CN2:24.\nOn PWB(A)302190A CN2:24 is connected to GND."
+  (text "Only used on PWB(A)302190B\nGoes to CN2:A23.\nOn PWB(A)302190A CN2:A23 is connected to GND."
     (at 67.31 53.34 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8e30e080-1b0b-46aa-a488-058679d3fbb6)

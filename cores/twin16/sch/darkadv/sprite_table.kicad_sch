@@ -6872,7 +6872,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid cd5cc0bf-f618-4a73-98e1-33a4b4b1c246)
   )
-  (text "On PWB(A) 302190A CHAPAGE \n(CN2:24) is connected to GND"
+  (text "On PWB(A) 302190A CHAPAGE \n(CN2:A23) is connected to GND"
     (at 341.63 35.56 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid d4e10ad6-307f-47e7-8cdb-87c25393ca81)
