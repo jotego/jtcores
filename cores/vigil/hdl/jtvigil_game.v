@@ -41,8 +41,8 @@ wire        is_tiles, is_obj;
 assign dip_flip             = ~flip;
 assign debug_view           = 0; // scr1pos[8:1]; //{ flip, 4'd0, scr2col};
 
-assign is_tiles   = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
-assign is_obj     = prog_ba==3;
+assign is_tiles = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
+assign is_obj   = prog_ba==3;
 
 always @* begin
     post_addr = prog_addr;

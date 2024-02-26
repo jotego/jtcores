@@ -45,7 +45,7 @@ module jtvigil_video(
 
     input  [10:0] scr2pos,
     input  [ 2:0] scr2col,
-    output [19:2] scr2_addr,
+    output [18:2] scr2_addr,
     input  [31:0] scr2_data,
     output        scr2_cs,
     input         scr2_ok,
