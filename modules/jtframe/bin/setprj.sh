@@ -66,39 +66,40 @@ function swcore {
         echo Have you forgot to define JTROOT?
         return
     fi
-    if [ `pwd` = "$JTROOT/cores" ]; then
-        cd $1/$2
+    if [ ! -z "$2" ]; then
+        cd $JTROOT/cores/$1/$2
         return
     fi
-    if [ -d "$CORES/$1/$2" ]; then
-        cd "$CORES/$1/$2"
+    if [ -z "$1" ]; then
+        echo "Use swcore <corename>"
+        return 1
+    fi
+    if [ ! -d "$JTROOT/cores/$1" ]; then
+        echo "No folder for $1 core"
+        return 1
+    fi
+    # get the location relative to $CORES/corename
+    local cores=$(realpath $JTROOT/cores)
+    local cur=`pwd`
+    cur="${cur#$cores/}"
+    if [ "$cur" = `pwd` ]; then
+        # not in a core folder
+        cd $JTROOT/cores/$1/$2
         return
     fi
-    IFS=/ read -ra string <<< $(pwd)
-    j="/"
-    next=0
-    good=
-    for i in ${string[@]};do
-        if [ $next = 0 ]; then
-            j=${j}${i}/
+    # extract the path after the current core
+    cur="${cur#*/}"
+    cd "$JTROOT/cores/$1"
+
+    # replicate as much as possible from the previous location
+    IFS=/ read -ra folders <<< $cur
+    for i in ${folders[@]};do
+        if [ -d $i ]; then
+            cd $i
         else
-            next=0
-            j=${j}$1/
-        fi
-        if [ "$i" = cores ]; then
-            next=1
-            good=1
+            break
         fi
     done
-    if [[ $good && -d $j ]]; then
-        cd $j
-    else
-        cd $JTROOT/cores/$1
-    fi
-    if [ $# = 2 ]; then
-        cd $2
-    fi
-    pwd
 }
 
 if [ "$1" != "--quiet" ]; then
