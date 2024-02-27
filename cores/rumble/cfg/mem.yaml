@@ -1,0 +1,28 @@
+params:
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1"}
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 14
+        data_width: 16
+        cs: LVBL
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        cs: LVBL
+        offset: SCR_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 32

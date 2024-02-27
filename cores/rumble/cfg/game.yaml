@@ -4,7 +4,6 @@ game:
       - jtrumble_game.v
       - jtrumble_main.v
       - jtrumble_video.v
-      - jtrumble_sdram.v
       - jtrumble_colmix.v
       - jtrumble_banks.v
   - from: gng

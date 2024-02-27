@@ -20,52 +20,44 @@ module jtrumble_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam MAINW=18, RAMW=13, CHARW=13, SCRW=17, OBJW=17;
-
-// ROM data
-wire [15:0] char_data;
-wire [15:0] scr_data;
-wire [15:0] obj_data, obj_pre;
-wire [ 7:0] main_data, obj_din;
-wire [ 7:0] snd_data, snd_latch;
-wire [ 7:0] cpu_dout, scr_dout, char_dout;
+wire [16:0] obj_prea;
+wire [15:0] obj_sort;
+wire [ 7:0] obj_din, snd_latch, cpu_dout, scr_dout, char_dout;
 // ROM address
-wire [17:0] main_addr;
 wire [12:0] cpu_AB;
-wire [14:0] snd_addr;
 wire [ 8:0] obj_AB;
-wire [CHARW-1:0] char_addr;
-wire [SCRW-1:0] scr_addr;
-wire [OBJW-1:0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
-wire        cenfm, cpu_cen, loud;
+wire        cenfm, cpu_cen;
+reg         loud;
 
 wire [ 9:0] scr_hpos, scr_vpos;
 wire [ 8:0] vdump;
 wire        scr_busy, char_busy;
 
 wire        main_rnw;
-wire        main_ok, snd_ok, char_ok, scr_ok,
-            obj_ok;
-wire        main_cs, snd_cs, obj_cs,
-            pal_cs, char_cs, scr_cs;
+wire        pal_cs, char_cs, scr_cs;
 
 wire [ 1:0] prom_bank;
-wire        prom_prior_we;
+wire        prom_prio;
 
 wire        vmid, cen24_8, cen24_4, cen24_2;
 wire        sres_b, flip;
 wire        bus_ack, bus_req, blcnten;
 
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
-assign dip_flip = flip;
-assign obj_cs   = 1;
+assign dip_flip   = flip;
+assign obj_cs     = 1;
 assign debug_view = { 3'd0, loud, 3'd0, flip };
+assign obj_sort   = obj_prea[0] ? { obj_data[24+:4], obj_data[16+:4], obj_data[8+:4], obj_data[0+:4] } : { obj_data[28+:4], obj_data[20+:4], obj_data[12+:4], obj_data[4+:4] };
+assign obj_addr   = obj_prea[16:1];
+assign prom_prio  = prom_we && prog_addr[9:8]==2'b10;
 
-// Banks 1-3 unused for writting
-assign ba1_din=0, ba2_din=0, ba3_din=0,
-       ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
-assign ba_wr[3:1]=0;
+always @* begin
+    post_addr = prog_addr;
+    if(prog_ba==3 && !prom_we) post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
+end
+
+always @(posedge clk) begin
+    if( header && prog_addr[3:0]==0 && prog_we ) loud <= prog_data[0];
+end
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
@@ -157,8 +149,8 @@ jtrumble_main u_main(
     // DIP switches
     .service     ( service      ),
     .dip_pause   ( dip_pause    ),
-    .dipsw_a     ( dipsw_a      ),
-    .dipsw_b     ( dipsw_b      )
+    .dipsw_a     ( dipsw[ 7:0]  ),
+    .dipsw_b     ( dipsw[15:8]  )
 );
 `else
     assign main_cs  = 0;
@@ -172,12 +164,7 @@ jtrumble_main u_main(
     assign cpu_AB   = 0;
 `endif
 
-jtrumble_video #(
-    .CHARW  ( CHARW     ),
-    .SCRW   ( SCRW      ),
-    .OBJW   ( OBJW      )
-)
-u_video(
+jtrumble_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
@@ -206,8 +193,8 @@ u_video(
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
     // OBJ
-    .obj_addr   ( obj_addr      ),
-    .obj_data   ( obj_data      ),
+    .obj_addr   ( obj_prea      ),
+    .obj_data   ( obj_sort      ),
     .obj_ok     ( obj_ok        ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -216,7 +203,7 @@ u_video(
     .dma_data   ( obj_din       ),
     // PROMs
     .prog_addr  ( prog_addr[7:0]),
-    .prom_prior_we(prom_prior_we),
+    .prom_prio  ( prom_prio     ),
     .prom_din   ( prog_data[3:0]),
     // Sync
     .vmid       ( vmid          ),
@@ -266,85 +253,5 @@ jtgng_sound #(
     assign game_led   = 0;
 //    assign debug_view = 0;
 `endif
-
-jtrumble_sdram #(
-    .MAINW  ( MAINW ),
-    .RAMW   ( RAMW  ),
-    .CHARW  ( CHARW ),
-    .SCRW   ( SCRW  ),
-    .OBJW   ( OBJW  )
-) u_sdram(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-
-    .LVBL       ( LVBL      ),
-    .loud       ( loud      ),
-
-    // Main CPU
-    .main_cs    ( main_cs   ),
-    .main_addr  ( main_addr ),
-    .main_data  ( main_data ),
-
-    .main_ok    ( main_ok   ),
-    .main_dout  ( cpu_dout  ),
-
-    // Sound CPU
-    .snd_addr   ( snd_addr  ),
-    .snd_cs     ( snd_cs    ),
-    .snd_data   ( snd_data  ),
-    .snd_ok     ( snd_ok    ),
-
-    // Char interface
-    .char_ok    ( char_ok   ),
-    .char_addr  ( char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
-    .char_data  ( char_data ),
-
-    // Scroll 1
-    .scr1_ok    ( scr_ok    ),
-    .scr1_addr  ( scr_addr  ),
-    .scr1_data  ( scr_data  ),
-
-    // Sprite interface
-    .obj_ok     ( obj_ok    ),
-    .obj_cs     ( obj_cs    ),
-    .obj_addr   ( obj_addr  ),
-    .obj_data   ( obj_data  ),
-
-    // Bank 0: allows R/W
-    .ba0_addr   ( ba0_addr  ),
-    .ba1_addr   ( ba1_addr  ),
-    .ba2_addr   ( ba2_addr  ),
-    .ba3_addr   ( ba3_addr  ),
-    .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr[0]  ),
-    .ba_ack     ( ba_ack    ),
-    .ba_dst     ( ba_dst    ),
-    .ba_rdy     ( ba_rdy    ),
-    .ba0_din    ( ba0_din   ),
-    .ba0_din_m  ( ba0_dsn   ),
-
-    .data_read  ( data_read ),
-
-    // ROM load
-    .ioctl_rom  ( ioctl_rom  ),
-    .dwnld_busy (dwnld_busy  ),
-
-    // PROM
-    .prom_banks ( prom_bank  ),
-    .prom_prior_we(prom_prior_we),
-
-    .ioctl_addr ( ioctl_addr ),
-    .ioctl_dout ( ioctl_dout ),
-    .ioctl_wr   ( ioctl_wr   ),
-    .prog_addr  ( prog_addr  ),
-    .prog_data  ( prog_data  ),
-    .prog_mask  ( prog_mask  ),
-    .prog_ba    ( prog_ba    ),
-    .prog_we    ( prog_we    ),
-    .prog_rd    ( prog_rd    ),
-    .prog_ack   ( prog_ack   ),
-    .prog_dst   ( prog_dst   ),
-    .prog_rdy   ( prog_rdy   )
-);
 
 endmodule
