@@ -64,6 +64,8 @@ module jtkiwi_snd(
     output reg          ram_cs,
     input      [ 7:0]   ram_dout,
     input               mshramen,
+    output reg          pal_cs,
+    input      [ 7:0]   pal_dout,
 
     // DIP switches
     input               dip_pause,
@@ -91,7 +93,7 @@ wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, portb_dout,
 reg  [ 1:0] bank, dial_rst;
 wire [15:0] A;
 wire [ 9:0] psg_snd;
-reg         bank_cs, fm_cs, cab_cs, mcu_cs, dial_cs,
+reg         bank_cs, fm_cs, cab_cs, mcu_cs, dial_cs, kabuki_dipsnd,
             dev_busy, fm_busy, fmcs_l,
             mcu_rstn, comb_rstn=0;
 wire signed [15:0] fm_snd;
@@ -151,11 +153,13 @@ end
 always @(posedge clk) begin
     rom_cs  <= mem_acc &&  A[15:12]  < 4'ha;
     bank_cs <= mem_acc &&  A[15:12] == 4'ha; // this cleans the watchdog counter - not implemented
-    fm_cs   <= mem_acc &&  A[15:12] == 4'hb;
+    fm_cs   <= mem_acc &&  A[15:12] == 4'hb && !kabuki;
+    kabuki_dipsnd <= mem_acc && A[15:12] == 4'hb && kabuki;
     cab_cs  <= mem_acc &&  A[15:12] == 4'hc && !mcu_en;
     mcu_cs  <= mem_acc &&  A[15:12] == 4'hc &&  mcu_en;
     ram_cs  <= mem_acc && (A[15:12] == 4'hd || A[15:12] == 4'he);
     dial_cs <= mem_acc &&  A[15:12] == 4'hf;
+    pal_cs  <= mem_acc &&  A[15:12] == 4'hf && A[11:10] == 2'b10 && kabuki;
 end
 
 always @(posedge clk, negedge comb_rstn) begin
@@ -176,6 +180,8 @@ always @(posedge clk, negedge comb_rstn) begin
     end
 end
 
+wire [7:0] kabuki_dipsw = A[0] ? dipsw[15:8] : dipsw[7:0];
+
 always @(posedge clk) begin
     if( !dip_pause )
         cab_dout <= 8'hff; // do not let inputs disturb the pause
@@ -183,7 +189,7 @@ always @(posedge clk) begin
         case( A[2:0] )
             0: cab_dout <= { cab_1p[0], joystick1 };
             1: cab_dout <= { cab_1p[1], joystick2 };
-            2: cab_dout <= kageki ?
+            2: cab_dout <= (kabuki | kageki) ?
                 { 2'h3, coin[1], coin[0], 2'h3, tilt, service } :
                 { 4'hf, coin[0], coin[1],       tilt, service };
             // 3: cab_dout <= { 7'h7f, ~coin[0] };
@@ -196,7 +202,10 @@ always @(posedge clk) begin
            fm_cs  ? fm_dout  :
            mcu_cs ? mcu_dout :
            cab_cs ? cab_dout :
-           dial_cs? dial_dout: 8'h00;
+           pal_cs ? pal_dout :
+           (kabuki_dipsnd & !A[2]) ? kabuki_dipsw :
+           dial_cs ? dial_dout :
+           8'h00;
 end
 
 always @(posedge clk) begin
