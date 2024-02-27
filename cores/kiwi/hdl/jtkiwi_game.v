@@ -146,7 +146,7 @@ jtkiwi_video u_video(
 
     .pal2_cs        ( pal2_cs       ),
     .cpu2_dout      ( shr_din       ),
-    .cpu2_rnw       ( shr_rnw       ),
+    .cpu2_rnw       ( sub_rnw       ),
     .cpu2_addr      ( shr_addr[9:0] ),
 
     // SDRAM
@@ -225,6 +225,11 @@ jtkiwi_snd u_sound(
     .rom_addr   ( sub_addr      ),
     .rom_cs     ( sub_cs        ),
     .rom_data   ( sub_data      ),
+
+    .audiocpu_addr ( audiocpu_addr ),
+    .audiocpu_cs   ( audiocpu_cs   ),
+    .audiocpu_data ( audiocpu_data ),
+    .audiocpu_ok   ( audiocpu_ok   ),
 
     // Sound output
     .fx_level   ( dip_fxlevel   ),

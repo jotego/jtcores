@@ -42,7 +42,7 @@ data=[
     { machines=["drtoppel"], data="03" },
     { machines=["extrmatn","plumppop" ], data="03" }, # MCU - Color PROM
     { machines=["arknoid2"], data="03 03" }, # MCU - Color PROM, Service XOR, Button aid
-    { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
+    { machine="kabukiz",  data="04 04" }, # Kabuki Z sound subsystem
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
 ]
 
