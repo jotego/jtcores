@@ -13,8 +13,8 @@ skip = { setnames = [
     "chukataiu",
 
     # Three Z80
-    "kabukiz",
-    "kabukizj",
+    #"kabukiz",
+    #"kabukizj",
     "tnzs",
     "tnzsj",
     # Korean hack on mostly unrelated hardware

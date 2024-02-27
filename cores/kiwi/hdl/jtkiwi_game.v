@@ -27,7 +27,7 @@ wire [ 8:0] hdump;
 wire [ 1:0] eff_coin;
 wire [12:0] shr_addr, cpu_addr;
 
-wire        bram_cs, vram_cs,  pal_cs, flip;
+wire        bram_cs, vram_cs,  pal_cs, pal2_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
             button_aid, // merges 1P, coin and
             colprom_we, mcuprom_we, eff_service;
@@ -143,6 +143,12 @@ jtkiwi_video u_video(
 
     .pal_cs         ( pal_cs        ),
     .pal_dout       ( pal_dout      ),
+
+    .pal2_cs        ( pal2_cs       ),
+    .cpu2_dout      ( shr_din       ),
+    .cpu2_rnw       ( shr_rnw       ),
+    .cpu2_addr      ( shr_addr[9:0] ),
+
     // SDRAM
     .scr_addr       ( scr_addr      ),
     .scr_data       ( scr_data      ),
@@ -207,7 +213,8 @@ jtkiwi_snd u_sound(
     .cpu_rnw    ( sub_rnw       ),
     .ram_cs     ( shr_cs        ),
     .mshramen   ( mshramen      ),
-
+    .pal_cs     ( pal2_cs       ),
+    .pal_dout   ( pal_dout      ),
     // MCU
     .mcu_en     ( mcu_en        ),
     .prog_addr  ( prog_addr[10:0]),
