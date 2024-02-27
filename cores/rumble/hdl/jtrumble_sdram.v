@@ -105,18 +105,15 @@ localparam [24:0] BA1_START  = `BA1_START,
                   PROM_START = `PROM_START;
 /* verilator lint_on WIDTH */
 
-wire       prom_we, header;
-wire       gfx_cs = LVBL;
+wire [31:0] obj_raw;
+wire        prom_we, header;
+wire        gfx_cs = LVBL;
 
 wire convert;
 
-wire [21:0] conv_addr, dwn_addr;
-wire [15:0] dwn_data;
-wire [ 7:0] conv_data;
-wire [ 1:0] conv_mask, dwn_mask, dwn_ba;
-wire        conv_we,   dwn_we,
-            conv_rd,   dwn_rd;
+wire [21:0] dwn_addr;
 
+assign obj_data = obj_addr[0] ? { obj_raw[24+:4], obj_raw[16+:4], obj_raw[8+:4], obj_raw[0+:4] } : { obj_raw[28+:4], obj_raw[20+:4], obj_raw[12+:4], obj_raw[4+:4] };
 //always @(*) begin
 //    prog_addr = raw_prog;
 //    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
@@ -128,23 +125,14 @@ assign prom_prior_we = prom_we && prog_addr[9:8]==2'b10;
 assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
 
-assign prog_addr = convert ? conv_addr : (
-        { dwn_addr[21:6], (dwn_ba==3 && !prom_we) ? { dwn_addr[4:1], dwn_addr[5], dwn_addr[0] }: dwn_addr[5:0] });
-assign prog_data = convert ? {2{conv_data}} : dwn_data;
-assign prog_mask = convert ? conv_mask : dwn_mask;
-assign prog_we   = convert ? conv_we   : dwn_we;
-assign prog_rd   = convert ? conv_rd   : dwn_rd;
-assign prog_ba   = convert ? 2'd3      : dwn_ba;
+assign prog_addr = { dwn_addr[21:6], (prog_ba==3 && !prom_we) ? { dwn_addr[4:1], dwn_addr[5], dwn_addr[0] }: dwn_addr[5:0] };
 assign ba_wr     = 0;
 assign ba0_din   = 0;
 assign ba0_din_m = 3;
 
-reg last_dwn;
-
 always @(posedge clk) begin
     if( header && ioctl_addr[3:0]==0 && ioctl_wr ) loud <= ioctl_dout[0];
-    last_dwn   <= ioctl_rom;
-    dwnld_busy <= ioctl_rom | last_dwn | convert;
+    dwnld_busy <= ioctl_rom;
 end
 
 jtframe_dwnld #(
@@ -160,49 +148,17 @@ jtframe_dwnld #(
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
     .prog_addr    ( dwn_addr       ),
-    .prog_data    ( dwn_data       ),
-    .prog_mask    ( dwn_mask       ), // active low
-    .prog_we      ( dwn_we         ),
-    .prog_rd      ( dwn_rd         ),
-    .prog_ba      ( dwn_ba         ),
+    .prog_data    ( prog_data      ),
+    .prog_mask    ( prog_mask      ), // active low
+    .prog_we      ( prog_we        ),
+    .prog_rd      ( prog_rd        ),
+    .prog_ba      ( prog_ba        ),
     .prom_we      ( prom_we        ),
     .header       ( header         ),
     .sdram_ack    ( prog_ack       ),
     .gfx8_en      ( 1'b0           ),
     .gfx16_en     ( 1'b0           )
 );
-
-`ifdef SIMULATION
-`ifndef LOADROM
-    `define SKIPOBJ32
-`endif
-`endif
-
-`ifndef SKIPOBJ32
-jtgng_obj32 #(
-    .OBJ_START( 22'd0     ),
-    .OBJ_END  ( 22'h40000 )
-) u_obj32(
-    .clk         ( clk          ),
-    .ioctl_rom   ( ioctl_rom    ),
-    .sdram_dout  ( data_read    ),
-    .convert     ( convert      ),
-    .prog_addr   ( conv_addr    ),
-    .prog_data   ( conv_data    ),
-    .prog_mask   ( conv_mask    ), // active low
-    .prog_we     ( conv_we      ),
-    .prog_rd     ( conv_rd      ),
-    .sdram_ack   ( prog_ack     ),
-    .data_ok     ( prog_rdy     )   // using prog_dst would corrupt the graphics
-);
-`else
-assign conv_addr = 0;
-assign conv_data = 0;
-assign conv_we   = 0;
-assign conv_rd   = 0;
-assign conv_mask = 0;
-assign convert   = 0;
-`endif
 
 /* xxx tracing_off */
 // main CPU ROM
@@ -284,14 +240,14 @@ jtframe_rom_2slots #(
 
 // Objects
 jtframe_rom_1slot #(
-    .SLOT0_DW(  16),
+    .SLOT0_DW(  32),
     .SLOT0_AW(OBJW)
 ) u_bank3(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .slot0_addr ( obj_addr  ),
-    .slot0_dout ( obj_data  ),
+    .slot0_addr ({obj_addr[OBJW-1:1],1'b0}),
+    .slot0_dout ( obj_raw   ),
     .slot0_cs   ( obj_cs    ),
     .slot0_ok   ( obj_ok    ),
 
