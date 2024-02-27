@@ -20,10 +20,10 @@ rename=[
 # or arguments passed to mame2mra
 regions = [
     { name="maincpu", width=16, reverse=true, no_offset=true },
-    { name="audiocpu", start="SND_START" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="adpcm", start="PCM_START"    },
-    { name="pc080sn", start="SCR_START", width=16, no_offset=true  },
-    { name="pc090oj", start="OBJ_START", width=16, no_offset=true  }
+    { name="pc080sn", start="JTFRAME_BA2_START", width=16, no_offset=true  },
+    { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  }
 ]
 
 order = [

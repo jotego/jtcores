@@ -7,7 +7,6 @@ game:
       - jtrastan_colmix.v
       - jtrastan_scr.v
       - jtrastan_tilemap.v
-      - jtrastan_sdram.v
       - jtrastan_obj.v
       - jtrastan_snd.v
       - jtrastan_pc060.v

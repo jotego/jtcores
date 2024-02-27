@@ -34,12 +34,12 @@ module jtrastan_tilemap #( parameter
     input    [ 8:0] vpos,
 
     // VRAM is stored in the SDRAM
-    output   [14:0] ram_addr,
+    output   [15:2] ram_addr,
     input    [31:0] ram_data,
     input           ram_ok,
     output reg      ram_cs,
 
-    output reg [18:0] rom_addr,
+    output reg [19:2] rom_addr,
     input      [31:0] rom_data,
     input             rom_ok,
     output reg        rom_cs,
@@ -59,7 +59,7 @@ wire [ 3:0] cur_pxl;
 reg  [ 2:0] buf_cnt;
 
 assign hinit    = hdump==(9'd320+9'd60);
-assign ram_addr = { RAM_MSB[0], 1'b0, vscan[8:3], hscan, 1'b0 }; // 14 bits
+assign ram_addr = { RAM_MSB[0], 1'b0, vscan[8:3], hscan }; // 14 bits
 assign dr_start = ram_ok && !dr_busy && !scan_wait;
 assign { code, attr } = ram_data;
 assign cur_pxl  = hflip ? pxl_data[31:28] : pxl_data[3:0];
@@ -110,7 +110,7 @@ always @(posedge clk, posedge rst) begin
         if( dr_start ) begin
             hflip    <= attr[14];
             cur_pal  <= attr[6:0];
-            rom_addr <= { code[14:0], vscan[2:0]^{3{attr[15]}}, 1'b0 }; // 15+3+1=19
+            rom_addr <= { code[14:0], vscan[2:0]^{3{attr[15]}} }; // 15+3+1=19
             rom_cs   <= 1;
             dr_busy  <= 1;
             buf_cnt  <= 3'd7;

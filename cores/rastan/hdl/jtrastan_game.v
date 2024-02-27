@@ -20,40 +20,21 @@ module jtrastan_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [18:1] main_addr;
-wire [15:0] main_dout, main_data, ram_data, oram_dout, pal_dout;
+wire [15:0] oram_dout, pal_dout;
 wire [ 1:0] main_dsn;
-wire        main_cs, obj_cs, ram_cs, vram_cs, main_rnw,
-            ram_ok, main_ok;
+wire        sub_cs, obj_cs, ram_cs, vram_cs, main_rnw;
 wire        scr_cs, pal_cs, sdakn, odakn;
 wire [ 2:0] obj_pal;
-
-wire [14:0] scr0ram_addr, scr1ram_addr;
-wire [31:0] scr0ram_data, scr1ram_data, orom_data;
-wire        scr0ram_ok, scr1ram_ok, orom_ok;
-wire        scr0ram_cs, scr1ram_cs, orom_cs;
-
-wire [18:0] scr0rom_addr, scr1rom_addr, orom_addr;
-wire [31:0] scr0rom_data, scr1rom_data;
-wire        scr0rom_ok, scr1rom_ok,
-            scr0rom_cs, scr1rom_cs;
-wire [15:0] snd_addr, pcm_addr;
-wire [ 7:0] snd_data, pcm_data, dipsw_b, dipsw_a;
-wire        snd_cs, pcm_cs, snd_ok, pcm_ok, sub_cs;
 
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] sn_dout;
 
-assign      dip_flip = flip;
-assign      { dipsw_b, dipsw_a } = dipsw[15:0];
-assign      ba1_dsn=3;
-assign      ba2_dsn=3;
-assign      ba3_dsn=3;
-assign      ba1_din=0;
-assign      ba2_din=0;
-assign      ba3_din=0;
-assign   ba_wr[3:1]=0;
+assign dip_flip = flip;
+assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
+assign ram_we   = xram_cs & ~main_rnw;
+assign xram_cs  = ram_cs | vram_cs;
+assign ram_dsn  = main_dsn;
 
 `ifndef NOMAIN
 jtrastan_main u_main(
@@ -102,8 +83,8 @@ jtrastan_main u_main(
 
     .dip_test   ( dip_test  ),
     .dip_pause  ( dip_pause ),
-    .dipsw_a    ( dipsw_a   ),
-    .dipsw_b    ( dipsw_b   )
+    .dipsw_a    (dipsw[ 7:0]),
+    .dipsw_b    (dipsw[15:8])
 );
 `else
 assign main_addr = 0;
@@ -222,96 +203,6 @@ jtrastan_video u_video(
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_din  ( ioctl_din ),
     .debug_view ( debug_view)
-);
-
-jtrastan_sdram u_sdram(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-
-    .main_addr  ( main_addr ),
-    .main_data  ( main_data ),
-    .main_dsn   ( main_dsn  ),
-    .main_dout  ( main_dout ),
-    .main_cs    ( main_cs   ),
-    .main_rnw   ( main_rnw  ),
-    .ram_cs     ( ram_cs    ),
-    .vram_cs    ( vram_cs   ),
-    .ram_data   ( ram_data  ),
-    .ram_ok     ( ram_ok    ),
-    .main_ok    ( main_ok   ),
-
-    // Sound
-    .snd_addr   ( snd_addr      ),
-    .snd_cs     ( snd_cs        ),
-    .snd_ok     ( snd_ok        ),
-    .snd_data   ( snd_data      ),
-
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_ok     ( pcm_ok        ),
-    .pcm_data   ( pcm_data      ),
-
-    // GFX ROMs
-    .scr0rom_addr   ( scr0rom_addr  ),
-    .scr0rom_data   ( scr0rom_data  ),
-    .scr0rom_cs     ( scr0rom_cs    ),
-    .scr0rom_ok     ( scr0rom_ok    ),
-
-    .scr1rom_addr   ( scr1rom_addr  ),
-    .scr1rom_data   ( scr1rom_data  ),
-    .scr1rom_cs     ( scr1rom_cs    ),
-    .scr1rom_ok     ( scr1rom_ok    ),
-    .scr0ram_addr   ( scr0ram_addr  ),
-
-    // VRAM
-    .scr0ram_data   ( scr0ram_data  ),
-    .scr0ram_cs     ( scr0ram_cs    ),
-    .scr0ram_ok     ( scr0ram_ok    ),
-    .scr1ram_addr   ( scr1ram_addr  ),
-
-    .scr1ram_data   ( scr1ram_data  ),
-    .scr1ram_cs     ( scr1ram_cs    ),
-    .scr1ram_ok     ( scr1ram_ok    ),
-
-    .orom_addr  ( orom_addr ),
-    .orom_data  ( orom_data ),
-    .orom_cs    ( orom_cs   ),
-    .orom_ok    ( orom_ok   ),
-
-    // SDRAM interface
-    .ioctl_rom  ( ioctl_rom ),
-    .dwnld_busy ( dwnld_busy),
-
-    // Bank 0: allows R/W
-    .ba0_addr   ( ba0_addr  ),
-    .ba1_addr   ( ba1_addr  ),
-    .ba2_addr   ( ba2_addr  ),
-    .ba3_addr   ( ba3_addr  ),
-    .ba0_din    ( ba0_din   ),
-    .ba0_din_m  ( ba0_dsn   ),  // write mask
-    .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr[0]  ),
-    .ba_ack     ( ba_ack    ),
-    .ba_dst     ( ba_dst    ),
-    .ba_dok     ( ba_dok    ),
-    .ba_rdy     ( ba_rdy    ),
-
-    .data_read  ( data_read ),
-    // ROM LOAD
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_dout ( ioctl_dout),
-    .ioctl_wr   ( ioctl_wr  ),
-    .ioctl_ram  ( ioctl_ram ),
-    .prog_addr  ( prog_addr ),
-    .prog_data  ( prog_data ),
-    .prog_mask  ( prog_mask ),
-    .prog_ba    ( prog_ba   ),
-    .prog_we    ( prog_we   ),
-    .prog_rd    ( prog_rd   ),
-    .prog_ack   ( prog_ack  ),
-    .prog_dst   ( prog_dst  ),
-    .prog_dok   ( prog_dok  ),
-    .prog_rdy   ( prog_rdy  )
 );
 
 endmodule
