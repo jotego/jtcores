@@ -1,0 +1,43 @@
+params:
+  - { name: STAR_OFFSET, value: "(`STAR_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA2_START)>>1" }
+  - { name: MAP_OFFSET,  value: "(`MAP_START -`JTFRAME_BA3_START)>>1" }
+download:
+  post_addr: true
+  noswab: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+      - name: star
+        addr_width: 15
+        data_width: 8
+        offset: STAR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: char
+        addr_width: 15
+        data_width: 16
+        cs: LVBL
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        offset: SCR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        cs: 1'b1
+      - name: map
+        addr_width: 15
+        data_width: 16
+        offset: MAP_OFFSET
+
+

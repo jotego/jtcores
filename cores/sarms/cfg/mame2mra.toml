@@ -29,18 +29,18 @@ defaults=[
 
 [rom]
 regions=[
-    { name="maincpu", reverse=true  },
-    { name="audiocpu", reverse=true  },
-    { name="user1", reverse=true  }, # starfield
-    { name="gfx1"   },
+    { name="maincpu",                                reverse=true  },
+    { name="audiocpu",    start="JTFRAME_BA1_START", reverse=true  },
+    { name="user1",       start="STAR_START",        reverse=true  }, # starfield
+    { name="gfx1",        start="JTFRAME_BA2_START"                },
     # GFX2
-    { name="gfx2"  },
-    { machine="sidearms", name="gfx2", width=16, sequence=[0,4,1,5,2,6,3,7] },
+    { name="gfx2",        start="SCR_START"  },
+    { machine="sidearms", start="SCR_START", name="gfx2", width=16, sequence=[0,4,1,5,2,6,3,7] },
     # GFX3
-    { name="gfx3" },
-    { machine="sidearms", name="gfx3", width=16, sequence=[0,4,1,5,2,6,3,7] },
-    { name="gfx4"   },
-    { name="proms"   },
+    { name="gfx3",        start="JTFRAME_BA3_START"  },
+    { machine="sidearms", start="JTFRAME_BA3_START", name="gfx3", width=16, sequence=[0,4,1,5,2,6,3,7] },
+    { name="gfx4",        start="MAP_START"          },
+    { name="proms",       start="JTFRAME_PROM_START" },
 ]
 
 order = [ "maincpu","audiocpu", "user1",
