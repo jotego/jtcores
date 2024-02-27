@@ -25,6 +25,9 @@ sdram:
           data_width: 8
     # Bank 2 for audio
     - buses:
+        - name: audiocpu
+          addr_width: 17
+          data_width: 8
         - name: pcm
           addr_width: 16
           data_width: 8

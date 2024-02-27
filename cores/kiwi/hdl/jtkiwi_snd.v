@@ -49,6 +49,12 @@ module jtkiwi_snd(
     output reg          rom_cs,
     input      [ 7:0]   rom_data,
 
+    // Audio CPU (Z80)
+    output     [16:0]   audiocpu_addr,
+    output              audiocpu_cs,
+    input      [ 7:0]   audiocpu_data,
+    input               audiocpu_ok,
+
     // Sub CPU (sound)
     input               snd_rstn,
 
@@ -88,7 +94,7 @@ module jtkiwi_snd(
 wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n,
             fmint_n, int_n, cpu_cen, rfsh_n;
 reg  [ 7:0] din, cab_dout, psg_gain, fm_gain, pcm_gain, p1_din, porta_din;
-wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, portb_dout,
+wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, porta_dout, portb_dout,
             dial_dout, p1_dout;
 reg  [ 1:0] bank, dial_rst;
 wire [15:0] A;
@@ -138,7 +144,7 @@ always @(posedge clk) begin
         2'd3: psg_gain <= 8'h09;
     endcase
     if( !psg_en ) psg_gain <= 0;
-    pcm_gain <= kageki ? 8'h0A : 8'h0;
+    pcm_gain <= (kabuki | kageki) ? 8'h0A : 8'h0;
     fm_gain  <= !fm_en ? 8'h0 : kageki ? 8'h20 : 8'h30;
 end
 
@@ -303,7 +309,7 @@ jtframe_dcrm u_dcrm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( pcm_cen   ),
-    .din        ( pcm_re    ),
+    .din        ( kabuki ? portb_dout : pcm_re ),
     .dout       ( pcm_dcrm  )
 );
 
@@ -340,7 +346,7 @@ jtframe_z80_devwait #(.RECOVERY(0)) u_gamecpu(
     .nmi_n    ( 1'b1           ),
 `else
     .int_n    ( int_n          ),
-    .nmi_n    ( fmint_n        ),
+    .nmi_n    ( kabuki | fmint_n ),
 `endif
     .busrq_n  ( 1'b1           ),
     .m1_n     ( m1_n           ),
@@ -420,6 +426,76 @@ always @(posedge clk) begin
     end else porta_din <= dipsw[7:0];
 end
 
+// Kabuki sound CPU
+wire        snd_mreq_n, snd_m1_n, snd_iorq_n, snd_rd_n, snd_wr_n, snd_rfsh_n, snd_cpu_cen;
+reg         snd_int_n;
+reg  [ 7:0] snd_latch;
+wire [ 7:0] snd_dout, snd_ram_dout;
+wire [15:0] snd_A;
+wire  [2:0] snd_bank = porta_dout[2:0];
+reg         snd_rom_cs, snd_ram_cs, snd_bank_cs, snd_fm_cs, snd_latch_cs;
+assign      audiocpu_cs = snd_rom_cs | snd_bank_cs;
+assign      audiocpu_addr = {snd_bank_cs ? snd_bank[2:0] : {2'd0, snd_A[14]}, snd_A[13:0]};
+
+always @(posedge clk) begin
+    snd_rom_cs  <= ~snd_mreq_n && snd_rfsh_n && !snd_A[15];
+    snd_ram_cs  <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:13] == 3'b111; // E000-FFFF
+    snd_bank_cs <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:14] == 2'b10;  // 8000-BFFF
+    snd_fm_cs   <= ~snd_iorq_n && snd_m1_n && !snd_A[1];
+    snd_latch_cs<= ~snd_iorq_n && snd_m1_n &&  snd_A[1];
+
+    if (kabuki_dipsnd && !A[1]) begin
+        snd_int_n <= 0;
+        snd_latch <= dout;
+    end
+    if (snd_latch_cs) snd_int_n <= 1;
+end
+
+wire [7:0] snd_din =
+    (snd_rom_cs | snd_bank_cs) ? audiocpu_data :
+    snd_ram_cs ? snd_ram_dout :
+    snd_fm_cs  ? fm_dout :
+    snd_latch_cs ? snd_latch : 8'hFF;
+
+jtframe_z80_devwait #(.RECOVERY(0)) u_sndcpu(
+    .rst_n    ( comb_rstn & kabuki ),
+    .clk      ( clk            ),
+    .cen      ( cen6           ),
+    .cpu_cen  ( snd_cpu_cen    ),
+`ifdef NOINT
+    .int_n    ( 1'b1           ),
+    .nmi_n    ( 1'b1           ),
+`else
+    .int_n    ( snd_int_n      ),
+    .nmi_n    ( fmint_n        ),
+`endif
+    .busrq_n  ( 1'b1           ),
+    .m1_n     ( snd_m1_n       ),
+    .mreq_n   ( snd_mreq_n     ),
+    .iorq_n   ( snd_iorq_n     ),
+    .rd_n     ( snd_rd_n       ),
+    .wr_n     ( snd_wr_n       ),
+    .rfsh_n   ( snd_rfsh_n     ),
+    .halt_n   (                ),
+    .busak_n  (                ),
+    .A        ( snd_A          ),
+    .din      ( snd_din        ),
+    .dout     ( snd_dout       ),
+    .rom_cs   ( audiocpu_cs    ),
+    .rom_ok   ( audiocpu_ok    ),
+    .dev_busy ( dev_busy       )
+);
+
+jtframe_ram #(.AW(13)) u_sndram(
+    .clk    ( clk          ),
+    .cen    ( 1'b1         ),
+    // Main CPU
+    .addr   ( snd_A[12:0]  ),
+    .data   ( snd_dout     ),
+    .we     ( snd_ram_cs & ~snd_wr_n ),
+    .q      ( snd_ram_dout )
+);
+
 // only used by Arkanoid 2
 jt4701 u_dial(
     .rst    ( rst       ),
@@ -451,11 +527,11 @@ jt03 u_2203(
     .rst        ( ~comb_rstn ),
     .clk        ( clk        ),
     .cen        ( fm_cen     ),
-    .din        ( dout       ),
+    .din        ( kabuki ? snd_dout : dout ),
     .dout       ( fm_dout    ),
-    .addr       ( A[0]       ),
-    .cs_n       ( ~fm_cs     ),
-    .wr_n       ( wr_n       ),
+    .addr       ( kabuki ? snd_A[0] : A[0] ),
+    .cs_n       ( ~fm_cs & ~snd_fm_cs ),
+    .wr_n       ( kabuki ? snd_wr_n : wr_n ),
     .psg_snd    ( psg_snd    ),
     .fm_snd     ( fm_snd     ),
     .snd_sample ( sample     ),
@@ -464,7 +540,7 @@ jt03 u_2203(
     .IOA_in     ( porta_din  ),
     .IOB_in     ( dipsw[15:8]),
     .IOA_oe     (            ),
-    .IOA_out    (            ),
+    .IOA_out    ( porta_dout ),
     .IOB_out    ( portb_dout ),
     .IOB_oe     (            ),
     // unused outputs
