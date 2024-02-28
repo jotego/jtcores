@@ -31,6 +31,7 @@ module jtkiwi_snd(
     // MCU
     input               mcu_en,
     input               kabuki,
+    input               kabuki_mod,
     input               kageki,
     input      [10:0]   prog_addr,  // 2kB
     input      [ 7:0]   prog_data,
@@ -165,7 +166,7 @@ always @(posedge clk) begin
     mcu_cs  <= mem_acc &&  A[15:12] == 4'hc &&  mcu_en;
     ram_cs  <= mem_acc && (A[15:12] == 4'hd || A[15:12] == 4'he);
     dial_cs <= mem_acc &&  A[15:12] == 4'hf;
-    pal_cs  <= mem_acc &&  A[15:12] == 4'hf && A[11:10] == 2'b10 && kabuki;
+    pal_cs  <= mem_acc &&  A[15:12] == 4'hf && (A[11] ^ kabuki_mod) && !A[10] && kabuki;
 end
 
 always @(posedge clk, negedge comb_rstn) begin
@@ -439,8 +440,8 @@ assign      audiocpu_addr = {snd_bank_cs ? snd_bank[2:0] : {2'd0, snd_A[14]}, sn
 
 always @(posedge clk) begin
     snd_rom_cs  <= ~snd_mreq_n && snd_rfsh_n && !snd_A[15];
-    snd_ram_cs  <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:13] == 3'b111; // E000-FFFF
-    snd_bank_cs <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:14] == 2'b10;  // 8000-BFFF
+    snd_ram_cs  <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:14] == 2'b11 && (snd_A[13] ^ kabuki_mod); // E000-FFFF or C000-DFFF
+    snd_bank_cs <= ~snd_mreq_n && snd_rfsh_n &&  snd_A[15:14] == 2'b10 && !kabuki_mod;  // 8000-BFFF
     snd_fm_cs   <= ~snd_iorq_n && snd_m1_n && !snd_A[1];
     snd_latch_cs<= ~snd_iorq_n && snd_m1_n &&  snd_A[1];
 

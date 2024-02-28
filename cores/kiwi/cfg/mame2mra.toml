@@ -12,11 +12,6 @@ skip = { setnames = [
     "chukataija",
     "chukataiu",
 
-    # Three Z80
-    #"kabukiz",
-    #"kabukizj",
-    "tnzs",
-    "tnzsj",
     # Korean hack on mostly unrelated hardware
     "jpopnics",
 ] }
@@ -25,7 +20,7 @@ main_setnames=[ "tnzso" ]
 [header]
 info="""bit 0 = MCU
              bit 1 = color PROM
-             bit 2 = Kabuzi Z (specific sound features)
+             bit 2 = Kabuki Z (specific sound features)
              bit 3 = Kageki   (specific sound features)
              bit 4 = banked RAM
              bit 5 = coin XOR
@@ -34,7 +29,8 @@ info="""bit 0 = MCU
              Byte 1:
              bit 0 = service XOR
              bit 1 = button aid
-             bit 2 = 3 MHz for FM module                 """
+             bit 2 = 3 MHz for FM module
+             bit 3 = Kabuki Z with different memory map  """
 data=[
     { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1 04" }, # HB dly, Banked RAM, MCU, 3MHz FM
     { machines=["chukatai"], data="41" }, # MCU
@@ -42,7 +38,8 @@ data=[
     { machines=["drtoppel"], data="03" },
     { machines=["extrmatn","plumppop" ], data="03" }, # MCU - Color PROM
     { machines=["arknoid2"], data="03 03" }, # MCU - Color PROM, Service XOR, Button aid
-    { machine="kabukiz",  data="04 04" }, # Kabuki Z sound subsystem
+    { machine="kabukiz",  data="14 04" }, # Kabuki Z sound subsystem, Banked RAM, 3MHz FM
+    { setnames=["tnzs","tnzsj"],  data="94 0C" }, # Kabuki Z sound subsystem (with mod), Banked RAM, 3MHz FM, HB dly
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
 ]
 

@@ -33,7 +33,7 @@ wire        cpu_rnw, vctrl_cs, vflag_cs,
             colprom_we, mcuprom_we, eff_service;
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
-            kageki=0, kabuki=0, service_xor=0,
+            kageki=0, kabuki=0, kabuki_mod = 0, service_xor=0,
             colprom_en=0, mcu_en=0, aid_en, fast_fm=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
@@ -60,7 +60,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { fast_fm, aid_en, service_xor } <= prog_data[2:0];
+            { kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[3:0];
     end
 end
 
@@ -186,8 +186,10 @@ jtkiwi_snd u_sound(
     // Game variations
 `ifdef NOKABUKIZ
     .kabuki     ( 1'b0          ),
+    .kabuki_mod ( 1'b0          ),
 `else
     .kabuki     ( kabuki        ),
+    .kabuki_mod ( kabuki_mod    ), // different memory map for TNZS
 `endif
     .kageki     ( kageki        ),
 
