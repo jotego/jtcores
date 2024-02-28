@@ -184,7 +184,11 @@ jtkiwi_snd u_sound(
     .psg_en     ( enable_psg    ),
 
     // Game variations
+`ifdef NOKABUKIZ
+    .kabuki     ( 1'b0          ),
+`else
     .kabuki     ( kabuki        ),
+`endif
     .kageki     ( kageki        ),
 
     // PCM
