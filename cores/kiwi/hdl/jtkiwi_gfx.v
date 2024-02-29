@@ -78,7 +78,7 @@ reg         scan_cen, done, dr_start, dr_busy,
 reg  [ 2:0] st;
 reg  [13:0] code;
 reg  [ 1:0] cen_cnt;
-wire        tm_page;
+wire        tm_page, obj_bufb;
 wire [15:0] vram_dout, code_dout, col_xmsb;
 wire [ 3:0] col_cfg;
 wire [ 1:0] col0;
@@ -96,7 +96,7 @@ assign flip     = ~cfg[0][6]; // only flip y?
 assign video_en = cfg[0][4]; // uncertain
 assign col0     = cfg[0][1:0]; // start column in the tilemap VRAM
 assign tm_page  = cfg[1][6];
-// assign obj_page = cfg[1][5]; // ?
+assign obj_bufb = cfg[1][5];
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
 assign cpu_din  = yram_cs ? yram_dout :
@@ -197,7 +197,7 @@ jtkiwi_obj u_obj(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( tm_page   ),
+    .page       ( tm_page ^ ~obj_bufb),
 
     .lut_addr   ( lut_addr  ),
     .lut_data   ( code_dout ),
@@ -224,6 +224,50 @@ jtkiwi_obj u_obj(
 // memory for the CPU
 // In MAME the lower half is called spritecodelow
 // and the upper spritecodehigh
+
+reg  [9:0] copy_addr;
+reg        lvbl_old;
+reg        copy_st;
+reg        copy_obj = 0;
+reg        copy_tm = 0;
+reg        copy_start = 0;
+wire       copy = copy_obj | copy_tm;
+
+// DMA when cfg[1][5] == 0
+// Sprite DMA starts with VBLANK
+// Tilemap DMA starts with writing to cfg[1]
+always @(posedge clk) begin
+    if (cfg_cs && cpu_addr[1:0] == 1 && !cpu_rnw && !cpu_dout[5]) copy_start <= 1;
+    lvbl_old <= LVBL;
+
+    if (~obj_bufb && lvbl_old && !LVBL) begin
+        // Start sprite copy
+        copy_addr <= 0;
+        copy_obj <= 1;
+        copy_st <= 0;
+    end else if (copy_start && !copy) begin
+        // Start tilemap copy
+        copy_start <= 0;
+        copy_addr <= 0;
+        copy_tm <= 1;
+        copy_st <= 0;
+    end else if (copy) begin
+        copy_st <= ~copy_st;
+        if (!copy_st) begin
+            // read phase
+            ;
+        end else begin
+            // write phase
+            copy_addr <= copy_addr + 1'd1;
+            if (&copy_addr) begin
+                copy_addr <= 0;
+                copy_obj <= 0;
+                copy_tm <= 0;
+            end
+        end
+    end
+end
+
 jtframe_dual_ram16 #(.AW(12),
     .SIMFILE_LO("vram_lo.bin"),
     .SIMFILE_HI("vram_hi.bin")
@@ -231,9 +275,11 @@ jtframe_dual_ram16 #(.AW(12),
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
     // Main CPU
-    .addr0  ( cpu_addr[11:0] ),
-    .data0  ( {2{cpu_dout}}  ),
-    .we0    ( vram_we    ),
+    // probably the CPU should be WAIT-ed during DMA access, but it's
+    // very fast, thus there's no overlap with CPU VRAM access
+    .addr0  ( copy ? {copy_tm ^ tm_page ^ copy_st, copy_tm, copy_addr} : cpu_addr[11:0] ),
+    .data0  ( copy ? vram_dout : {2{cpu_dout}}  ),
+    .we0    ( copy ? {2{copy_st}} : vram_we ),
     .q0     ( vram_dout  ),
     // GFX
     .addr1  ( code_addr  ),
