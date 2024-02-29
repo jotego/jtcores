@@ -2,7 +2,7 @@
 
   (uuid 404ce94a-22cc-43d5-a8dd-0d29647fdc17)
 
-  (paper "A0")
+  (paper "A3")
 
   (title_block
     (title "The Fairyland Story")
@@ -5423,7 +5423,7 @@
     (stroke (width 0) (type default))
     (uuid 01c34909-52ad-49ca-99e5-d08a54c95ded)
   )
-  (bus (pts (xy 375.92 48.26) (xy 358.14 48.26))
+  (bus (pts (xy 364.49 48.26) (xy 358.14 48.26))
     (stroke (width 0) (type default))
     (uuid 02789a75-4f00-49d5-82a8-7284e3fd6163)
   )
@@ -9153,10 +9153,6 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 3315a34b-3395-40a6-a7d5-895746fc8151)
   )
-  (label "MAB[11..0]" (at 375.92 48.26 180) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid 336a5476-d503-4928-9486-50404f8cfda6)
-  )
   (label "MA10" (at 307.34 123.19 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 33dd2341-a6ce-4caf-88b4-11ef21d69348)
@@ -10241,6 +10237,10 @@
   (hierarchical_label "PC2" (shape bidirectional) (at 88.9 227.33 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid d1c744a9-9116-4ba0-b068-c2f6a3b07832)
+  )
+  (hierarchical_label "MAB[11..0]" (shape output) (at 364.49 48.26 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid d9a7a944-72b6-47e5-81c5-63e5fdca0ef6)
   )
   (hierarchical_label "PB1" (shape output) (at 88.9 204.47 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
