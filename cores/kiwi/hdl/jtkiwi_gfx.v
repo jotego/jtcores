@@ -47,12 +47,12 @@ module jtkiwi_gfx(
     output     [ 7:0]   cpu_din,
 
     // SDRAM interface
-    output     [19:2]   scr_addr,
+    output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
     input               scr_ok,
     output              scr_cs,
 
-    output     [19:2]   obj_addr,
+    output     [20:2]   obj_addr,
     input      [31:0]   obj_data,
     input               obj_ok,
     output              obj_cs,

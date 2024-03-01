@@ -26,7 +26,7 @@ module jtkiwi_draw(
 
     input               draw,
     output reg          busy,
-    input      [12:0]   code,
+    input      [13:0]   code,
     input      [ 8:0]   xpos,
     input      [ 3:0]   ysub,
     input               flip,
@@ -35,7 +35,7 @@ module jtkiwi_draw(
     input               vflip,
     input      [ 4:0]   pal,
 
-    output     [19:2]   rom_addr,
+    output     [20:2]   rom_addr,
     output reg          rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,
