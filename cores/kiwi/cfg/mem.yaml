@@ -38,10 +38,10 @@ sdram:
     # JTFRAME-managed logic for simplicity
     - buses:
         - name: scr
-          addr_width: 20
+          addr_width: 21
           data_width: 32
         - name: obj
-          addr_width: 20
+          addr_width: 21
           data_width: 32
 bram:
   - name: bram
