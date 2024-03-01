@@ -145,8 +145,9 @@ always @(posedge clk) begin
         2'd3: psg_gain <= 8'h09;
     endcase
     if( !psg_en ) psg_gain <= 0;
-    pcm_gain <= (kabuki | kageki) ? 8'h0A : 8'h0;
-    fm_gain  <= !fm_en ? 8'h0 : kageki ? 8'h20 : 8'h30;
+    pcm_gain <= kabuki ? 8'h04 : kageki ? 8'h0A : 8'h0;
+    fm_gain  <= kabuki ? 8'h60 : kageki ? 8'h20 : 8'h30;
+    if( !fm_en ) fm_gain <= 0;
 end
 
 always @(posedge clk) begin

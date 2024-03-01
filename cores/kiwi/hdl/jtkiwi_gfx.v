@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received a dma_bsy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
@@ -225,44 +225,44 @@ jtkiwi_obj u_obj(
 // In MAME the lower half is called spritecodelow
 // and the upper spritecodehigh
 
-reg  [9:0] copy_addr;
-reg        lvbl_old;
-reg        copy_st;
-reg        copy_obj = 0;
-reg        copy_tm = 0;
-reg        copy_start = 0;
-wire       copy = copy_obj | copy_tm;
+reg  [9:0] dma_addr;
+reg        LVBLl;
+reg        dma_st;
+reg        dma_obj = 0;
+reg        dma_tm = 0;
+reg        dma_start = 0;
+wire       dma_bsy = dma_obj | dma_tm;
 
 // DMA when cfg[1][5] == 0
 // Sprite DMA starts with VBLANK
 // Tilemap DMA starts with writing to cfg[1]
 always @(posedge clk) begin
-    if (cfg_cs && cpu_addr[1:0] == 1 && !cpu_rnw && !cpu_dout[5]) copy_start <= 1;
-    lvbl_old <= LVBL;
+    if (cfg_cs && cpu_addr[1:0] == 1 && !cpu_rnw && !cpu_dout[5]) dma_start <= 1;
+    LVBLl <= LVBL;
 
-    if (~obj_bufb && lvbl_old && !LVBL) begin
-        // Start sprite copy
-        copy_addr <= 0;
-        copy_obj <= 1;
-        copy_st <= 0;
-    end else if (copy_start && !copy) begin
-        // Start tilemap copy
-        copy_start <= 0;
-        copy_addr <= 0;
-        copy_tm <= 1;
-        copy_st <= 0;
-    end else if (copy) begin
-        copy_st <= ~copy_st;
-        if (!copy_st) begin
+    if (~obj_bufb && LVBLl && !LVBL) begin
+        // Start sprite dma_bsy
+        dma_addr <= 0;
+        dma_obj <= 1;
+        dma_st <= 0;
+    end else if (dma_start && !dma_bsy) begin
+        // Start tilemap dma_bsy
+        dma_start <= 0;
+        dma_addr <= 0;
+        dma_tm <= 1;
+        dma_st <= 0;
+    end else if (dma_bsy && pxl_cen ) begin // executed at 6MHz. Needs confirmation from PCB measurements
+        dma_st <= ~dma_st;
+        if (!dma_st) begin
             // read phase
             ;
         end else begin
             // write phase
-            copy_addr <= copy_addr + 1'd1;
-            if (&copy_addr) begin
-                copy_addr <= 0;
-                copy_obj <= 0;
-                copy_tm <= 0;
+            dma_addr <= dma_addr + 1'd1;
+            if (&dma_addr) begin
+                dma_addr <= 0;
+                dma_obj <= 0;
+                dma_tm <= 0;
             end
         end
     end
@@ -277,9 +277,9 @@ jtframe_dual_ram16 #(.AW(12),
     // Main CPU
     // probably the CPU should be WAIT-ed during DMA access, but it's
     // very fast, thus there's no overlap with CPU VRAM access
-    .addr0  ( copy ? {copy_tm ^ tm_page ^ copy_st, copy_tm, copy_addr} : cpu_addr[11:0] ),
-    .data0  ( copy ? vram_dout : {2{cpu_dout}}  ),
-    .we0    ( copy ? {2{copy_st}} : vram_we ),
+    .addr0  ( dma_bsy ? {dma_tm ^ tm_page ^ dma_st, dma_tm, dma_addr} : cpu_addr[11:0] ),
+    .data0  ( dma_bsy ? vram_dout : {2{cpu_dout}}  ),
+    .we0    ( dma_bsy ? {2{dma_st}} : vram_we ),
     .q0     ( vram_dout  ),
     // GFX
     .addr1  ( code_addr  ),
