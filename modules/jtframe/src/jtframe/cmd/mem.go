@@ -40,7 +40,9 @@ one of the names in the $JTFRAME/target folder (mist, mister, etc.).
 mem.yaml syntax
 
 # Include other .yaml files
-include: [ "file0", "file1",... ]
+include:
+    - game: cop
+    - file: ../../cop/cfg/mem.yaml
 # Parameters to be used in the sdram section
 params: [ {name:vSCR_OFFSET, value: "32'h10000"}, ... ]
 # Map SDRAM addresses during download by

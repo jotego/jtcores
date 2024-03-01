@@ -123,10 +123,10 @@ end
 generate
     if( BALUT==0 || !BA_EN ) begin
         always @(*) begin
-            bank = !BA_EN ? 2'd0 : (
+            bank = !BA_EN ? 2'd0 : ( /* verilator lint_off UNSIGNED */
                     part_addr >= BA3_START ? 2'd3 : (
                     part_addr >= BA2_START ? 2'd2 : (
-                    part_addr >= BA1_START ? 2'd1 : 2'd0 )));
+                    part_addr >= BA1_START ? 2'd1 : 2'd0 ))); /* verilator lint_on UNSIGNED */
         end
     end else begin
         localparam BALUT_LEN=BALUT*LUTDW/8;

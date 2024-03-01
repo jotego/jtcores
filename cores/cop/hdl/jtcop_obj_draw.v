@@ -38,7 +38,7 @@ module jtcop_obj_draw(
 
     // ROM interface
     output reg         rom_cs,
-    output reg [17:0]  rom_addr,
+    output reg [17:1]  rom_addr,
     input      [31:0]  rom_data,
     input              rom_ok,    
 
@@ -182,7 +182,7 @@ always @(posedge clk, posedge rst) begin
         if( draw ) begin
             draw_busy <= 1;
             half      <= 0;
-            rom_addr <= { id, ~hflip, veff[3:0]^{4{vflip}}, 1'b0 }; // 17 bits
+            rom_addr <= { id, ~hflip, veff[3:0]^{4{vflip}} }; // 16 bits
             draw_cnt <= 0;
             ncnt     <= nsize;
             rom_cs   <= 1;

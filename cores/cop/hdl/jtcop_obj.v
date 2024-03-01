@@ -45,7 +45,7 @@ module jtcop_obj(
 
     // ROM interface
     output             rom_cs,
-    output     [17:0]  rom_addr,
+    output     [17:1]  rom_addr,
     input      [31:0]  rom_data,
     input              rom_ok,
 

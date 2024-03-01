@@ -84,7 +84,7 @@ module jtcop_bac06 #(
 
     // ROMs
     output reg        rom_cs,
-    output reg [17:0] rom_addr,
+    output reg [17:1] rom_addr,
     input      [31:0] rom_data,
     input             rom_ok,
 
@@ -429,9 +429,9 @@ always @(posedge clk, posedge rst) begin
             draw_busy <= 1;
             half      <= 0;
             if( tile16_en )
-                rom_addr <= { tile_id, 1'b1, veff[3:0], 1'b0 };
+                rom_addr <= { tile_id, 1'b1, veff[3:0] };
             else
-                rom_addr <= { 2'd0, tile_id, veff[2:0], 1'b0 };
+                rom_addr <= { 2'd0, tile_id, veff[2:0] };
             draw_cnt <= 0;
             rom_cs   <= 1;
             rom_good <= 0;

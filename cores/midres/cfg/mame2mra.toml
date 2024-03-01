@@ -29,15 +29,15 @@ regions = [
     { name="audiocpu", start="SND_START", No_offset=true  },
     { name="oki",      start="PCM_START" },
 
-    { name="gfx1",     start="BA2_START", width=16, No_offset=true },
+    { name="gfx1",     start="JTFRAME_BA2_START", width=16, No_offset=true },
     { name="gfx2",     start="GFX2_START",width=16, No_offset=true,  name_sort=[
     "fl09", "fl07", "fl08", "fl06"] },
     { name="gfx3",     width=16, No_offset=true },
 
-    { name="gfx4",     start="BA3_START", width=32, No_offset=true, name_sort=[
+    { name="gfx4",     start="JTFRAME_BA3_START", width=32, No_offset=true, name_sort=[
         "fl01","fl03","fl00","fl02"] },
 
-    { name="gfx4",     start="BA3_START", width=32, No_offset=true, sort_even=true },
+    { name="gfx4",     start="JTFRAME_BA3_START", width=32, No_offset=true, sort_even=true },
     { name="sub",      start="MCU_START" },
     { name="mcu",      start="MCU_START" },
     { name="proms",    start="JTFRAME_PROM_START" },

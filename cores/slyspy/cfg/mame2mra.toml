@@ -29,7 +29,7 @@ regions = [
     { name="oki",      start="PCM_START" },
 
     # GFX1
-    { name="gfx1",     start="BA2_START", width=16, no_offset=true },
+    { name="gfx1",     start="JTFRAME_BA2_START", width=16, no_offset=true },
 
     # GFX2
     { name="gfx2",     start="GFX2_START",width=16, no_offset=true,  ext_sort=[
@@ -38,7 +38,7 @@ regions = [
     # GFX3
     { name="gfx3",     start="GFX3_START", width=16, no_offset=true },
 
-    { name="gfx4",     start="BA3_START", width=32, no_offset=true, sort_even=true },
+    { name="gfx4",     start="JTFRAME_BA3_START", width=32, no_offset=true, sort_even=true },
     { name="sub",      start="MCU_START" },
     { name="mcu",      start="MCU_START" },
     { name="proms",    start="JTFRAME_PROM_START" },
