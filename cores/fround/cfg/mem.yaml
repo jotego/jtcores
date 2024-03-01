@@ -13,6 +13,14 @@ clocks:
       outputs:
         - cen_640
         - cen_320
+audio:
+  - name: fm
+    stereo: true
+  - name: pcm
+    data_width: 12
+    rout: 100k
+    res: 20k
+    cap: 470p
 sdram:
   banks:
     -

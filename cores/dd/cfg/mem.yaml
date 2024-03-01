@@ -25,6 +25,14 @@ clocks:
       outputs:
         - mcu_cen12
         - mcu_cen6
+audio:
+  - name: fm
+    stereo: true
+  - name: pcm
+    data_width: 16
+    rout: 
+    res: 
+    cap:      
 sdram:
   banks:
     - buses:

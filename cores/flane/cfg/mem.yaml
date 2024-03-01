@@ -10,6 +10,14 @@ clocks:
         - cen6
         - cen3
         - cen1p5
+audio:
+  - name: uk
+    stereo: uk
+  - name: uk
+    data_width: uk 
+    rout: uk
+    res: uk
+    cap: uk   
 sdram:
   banks:
     - buses:

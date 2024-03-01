@@ -10,6 +10,13 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
+audio:
+  - name: fm
+    stereo: true
+  - name: pcm
+    data_width: 14
+    rout: 1000Ω
+    cap: 33p
 sdram:
   banks:
     - buses:

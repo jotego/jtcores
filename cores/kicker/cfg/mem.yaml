@@ -11,7 +11,11 @@ clocks:
         - cpu4
         - ti1
         - ti2
-
+audio:
+  - name: psg
+    rout: uk
+    res: 1k
+    cap: 470      
 download:
   post_addr: true
   noswab: true
