@@ -44,8 +44,8 @@ module jtcps1_sound(
     input         [ 7:0] debug_bus
 );
 
-wire signed [13:0] oki_pre, oki_pole, adpcm_snd;
-wire signed [15:0] fm_left, fm_right;
+wire signed [13:0] oki_pre;
+wire signed [15:0] fm_left, fm_right, adpcm_snd;
 reg         [ 7:0] fmgain, pcmgain, din, cmd_latch, dev_latch, mem_latch;
 wire        [ 7:0] ram_dout, dout, oki_dout, fm_dout;
 wire        [15:0] A;
@@ -69,7 +69,7 @@ always @(posedge clk) begin
     fmgain  <= fm_en  ? 8'h08 : 8'h0;
 end
 
-jtframe_mixer #(.W1(14),.WOUT(16)) u_left(
+jtframe_mixer u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( sample    ),
@@ -87,7 +87,7 @@ jtframe_mixer #(.W1(14),.WOUT(16)) u_left(
     .peak   ( peak_l    )
 );
 
-jtframe_mixer #(.W1(14),.WOUT(16)) u_right(
+jtframe_mixer u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( sample    ),
@@ -251,13 +251,26 @@ jt6295 #(.INTERPOL(0)) u_adpcm(
     .sample     ( sample    )   // 48 kHz
 );
 
-jtframe_pole #(.WA(8), .WS(14)) u_pole(
+jtframe_fir #(
+    .KMAX   ( 11            ),
+    .COEFFS ( "fir770.hex"  )
+) u_fir(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( sample    ),
-    .a          ( 8'he7     ),  // pole at 770 Hz for a 48kHz sample rate
-    .sin        ( oki_pre   ),
-    .sout       ( adpcm_snd )
+    .l_in       ({oki_pre,oki_pre[12:11]}),
+    .r_in       ( 16'd0     ),
+    .l_out      ( adpcm_snd ),
+    .r_out      (           )
 );
+
+// jtframe_pole #(.WA(8), .WS(14)) u_pole(
+//     .rst        ( rst       ),
+//     .clk        ( clk       ),
+//     .sample     ( sample    ),
+//     .a          ( 8'he7     ),  // pole at 770 Hz for a 48kHz sample rate
+//     .sin        ( oki_pre   ),
+//     .sout       ( adpcm_snd )
+// );
 
 endmodule
