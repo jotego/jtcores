@@ -17,25 +17,23 @@ clocks:
         - cen_80
         - cen_40
         - cen_20
-audio:
-  - name: fm
-    stereo: true
-  - name: pcm
-    data_width: 12
-    rout: 100k
-    res: 20k
-    cap: 470p  
-  -name : upd 
-    data_width: 9
-    rout: uk
-    res: 4.7k
-    cap: 10nF  
-  -name : ttl # por verificar
-    data_width: 16
-    res: 1k
-    cap: 33nF 
-
-        
+# audio:
+#   - name: fm
+#     stereo: true
+#   - name: pcm
+#     data_width: 12
+#     rout: 100k
+#     res: 20k
+#     cap: 470p
+#   -name : upd
+#     data_width: 9
+#     rout: uk
+#     res: 4.7k
+#     cap: 10nF
+#   -name : ttl # por verificar
+#     data_width: 16
+#     res: 1k
+#     cap: 33nF
 sdram:
   banks:
     - buses:

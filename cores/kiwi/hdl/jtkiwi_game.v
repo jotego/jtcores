@@ -111,7 +111,7 @@ jtkiwi_main u_main(
     .st_dout        ( main_st       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtkiwi_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -168,9 +168,8 @@ jtkiwi_video u_video(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( gfx_st        )
 );
-/* verilator tracing_on */
 
-
+/* verilator tracing_off */
 jtkiwi_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

@@ -18,9 +18,8 @@ audio:
     stereo: true
   - name: pcm
     data_width: 12
-    rout: 100k
-    res: 20k
-    cap: 470p
+    rc:
+      - { r: 120k, c: 470p }
 sdram:
   banks:
     - buses:

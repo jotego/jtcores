@@ -14,7 +14,7 @@ skip = { setnames = [
 
     # Korean hack on mostly unrelated hardware
     "jpopnics",
-], machine="kabukiz" }
+]}
 
 [header]
 info="""bit 0 = MCU

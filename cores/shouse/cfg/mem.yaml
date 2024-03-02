@@ -8,14 +8,14 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-audio:
-  - name: fm
-    stereo: true
-  - name: pcm
-    data_width: 11
-    rout:uk
-    res: uk
-    cap: uk
+# audio:
+#   - name: fm
+#     stereo: true
+#   - name: pcm
+#     data_width: 11
+#     rout:uk
+#     res: uk
+#     cap: uk
 sdram:
   banks:
     - buses:

@@ -1,13 +1,13 @@
 download:
   pre_addr: true
-audio:
-  - name: fm
-    stereo: true
-  - name: pcm
-    data_width: 12
-    rout:uk
-    res: uk
-    cap: uk    
+# audio:
+#   - name: fm
+#     stereo: true
+#   - name: pcm
+#     data_width: 12
+#     rout:uk
+#     res: uk
+#     cap: uk
 sdram:
   banks:
     - buses:
