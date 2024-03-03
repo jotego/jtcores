@@ -146,6 +146,7 @@ rename=[
 ]
 extra=[
     { machine="pang3", name="Freeze", options="On,Off", bits="23" },
+    { name="PCB type", options="88617A,89626A", bits="24" },
 ]
 
 [rom]

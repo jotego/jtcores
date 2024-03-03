@@ -113,6 +113,7 @@ JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump 
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
+JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
 JTFRAME_STATUS           |         | Game module will receive an 8-bit address and can output 8-bit data in response
 JTFRAME_STEREO           |         | Enables stereo sound (snd_left/right outputs from game module instead of single snd)
 JTFRAME_SUPPORT_4WAY     |         | Enables support for 4-way joysticks if the MRA sets it

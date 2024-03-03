@@ -72,7 +72,7 @@ wire [ 1:0] dsn;
 wire        cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        charger;
-wire        turbo, video_flip;
+wire        turbo, video_flip, filter_old;
 
 `ifdef JTCPS_TURBO
 assign turbo = 1;
@@ -84,7 +84,8 @@ assign turbo = 1;
     `endif
 `endif
 
-assign debug_view   = { 7'd0, dump_flag };
+assign filter_old   = dipsw[24];
+assign debug_view   = { 6'd0, dump_flag, filter_old };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
@@ -350,6 +351,8 @@ jtcps1_sound u_sound(
     .rst            ( rst_snd[3]    ),
     .clk            ( clk48         ),
 
+    .filter_old     ( filter_old    ),
+    .dip_fxlevel    ( dip_fxlevel   ),
     // Interface with main CPU
     .snd_latch0     ( snd_latch0    ),
     .snd_latch1     ( snd_latch1    ),
