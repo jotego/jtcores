@@ -15,8 +15,9 @@ clocks:
         - cen_fm2
 audio:
   - name: fm
-    stereo: true
+    module: jt51
   - name: pcm
+    module: jt007232
     data_width: 12
     rc:
       - { r: 120k, c: 470p }

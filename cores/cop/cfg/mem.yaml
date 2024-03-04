@@ -10,17 +10,15 @@ params:
 download:
   post_addr: true
   post_data: true
-# audio:
-#   - name: fm
-#     stereo: true
-#   - name: pcm
-#     data_width: ?
-#     rout: uk
-#     res: 10k
-#     cap: 10nF
-#     #segunda etapa
-#     res: 20k
-#     cap: 150pF
+audio:
+  - name: fm
+    module: jt03
+  - name: pcm
+    data_width: 14
+    module: jt6295
+    rc:
+      - { r: 10k, c: 10n  }
+      - { r: 20k, c: 150p }
 sdram:
   banks:
     - buses:
