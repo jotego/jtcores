@@ -58,7 +58,9 @@ always @(posedge clk, posedge rst) begin
         last_prod <= ZERO;
     end else begin
         if(sample)
-            sout <= last_prod + prod[WS+WA-1:WA];
+            // a==0 comparison added for logic simplification in jtframe_rcmix
+            // when the filter is not used and a is constant
+            sout <= a==0 ? sin : last_prod + prod[WS+WA-1:WA];
         else
             last_prod <= prod[WS+WA-1:WA];
     end
