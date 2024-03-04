@@ -11,6 +11,14 @@ function on_error {
 trap on_error ERR
 set -e
 
+function pocket_zip {
+	cd $JTBIN/pocket/raw
+	zip -r jotego.$1.zip $1.txt Assets/$1 Cores/jotego.$1 \
+		Platforms/$1.json Platforms/_images/$1.bin Presets/jotego.$1
+	mv jotego.$1.zip $JTBIN/pocket/zips
+	cd -
+}
+
 HASH=
 SKIPROM=--skipROM
 VERBOSE=
@@ -105,8 +113,13 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	fi
 	# copy RBF files
 	cd $JTBIN
-	jtutil md5
 	cp -r $DST/release/* .
+	mkdir -p $JTBIN/pocket/zips
+	for core in `find pocket/raw -name "*.rbf_r"`; do
+		core=`basename $core .rbf_r`
+		pocket_zip $core
+	done
+	jtutil md5
 	# note that the beta zip files are generated before the commit
 	# in order to have the MiST and SiDi cores too
 	cpbeta.sh
