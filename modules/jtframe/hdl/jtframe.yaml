@@ -61,4 +61,4 @@ jtframe:
     get:
       - jtframe_mixer_en.v
       - jtframe_mixer.v
-      - jtframe_fir.yaml
+      - jtframe_iir2.v
