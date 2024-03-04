@@ -1,13 +1,11 @@
 download:
   pre_addr: true
-# audio:
-#   - name: fm
-#     stereo: true
-#   - name: pcm
-#     data_width: 12
-#     rout:uk
-#     res: uk
-#     cap: uk
+audio: #Aparentemente este chip tiene el filtro integrado
+  - name: pcm
+    module: jt5205
+    data_width: 12
+    rc:
+      - { r: , c:  }
 sdram:
   banks:
     - buses:

@@ -12,11 +12,13 @@ clocks:
         - cen_fm2
 audio:
   - name: fm
-    stereo: true
+    stereo: true  
+    data_width: 16
   - name: pcm
+    module: jt053260
     data_width: 14
-    rout: 1000Ω
-    cap: 33p
+    rc:
+      - { r: 1000Ω, c: 33p }
 sdram:
   banks:
     - buses:

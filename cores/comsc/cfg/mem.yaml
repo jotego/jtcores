@@ -1,10 +1,14 @@
 include: [ game: contra ]
 game: "contra"
 audio:
-  - name: fm
-    stereo: true
-  - name: pcm
+  - name: fm_snd
     data_width: 9
-    rout: uk
-    res: 5.7k
-    cap: 10nF
+  - name: pcm
+    module: jt7759
+    data_width: 9
+    rc:
+      - { r: 5.7k, c: 10n }  
+  - name: psg_snd
+    module: jt03
+    data_width: 10
+  

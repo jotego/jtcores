@@ -77,12 +77,12 @@
         "name": "exterm.kicad_sch",
         "open": false,
         "window": {
-          "display": 1,
+          "display": 0,
           "maximized": true,
-          "pos_x": 961,
-          "pos_y": 28,
-          "size_x": 970,
-          "size_y": 1024
+          "pos_x": 2091,
+          "pos_y": 50,
+          "size_x": 972,
+          "size_y": 1052
         }
       }
     ]

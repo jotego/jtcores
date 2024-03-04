@@ -11,6 +11,20 @@ clocks:
         - cen6
         - cen3
         - cen1p5
+audio: 
+  - name: fm
+    module: jt03
+    data_width: 16
+    rc:
+      - { r: 6.2k , c: 10n }
+  - name: psg
+    module: 
+    data_width: 10
+  - name: upd4701 #only used by Arkanoid 2
+    module: jt4701
+    data_width: 8  
+
+
 sdram:
   # post_addr: true
   banks:
