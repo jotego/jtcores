@@ -77,7 +77,7 @@
         "name": "kunio.kicad_sch",
         "open": false,
         "window": {
-          "display": 0,
+          "display": 1,
           "maximized": true,
           "pos_x": 961,
           "pos_y": 28,
