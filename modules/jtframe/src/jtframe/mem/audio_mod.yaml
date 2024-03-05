@@ -1,0 +1,17 @@
+# Default module definitions
+jt49:     { data_width: 10, unsigned: true, dcrm: true }
+jt007232: { data_width: 12                 }
+jt7759:   { data_width:  9                 }
+jt5205:   { data_width: 12                 }
+jt6295:   { data_width: 14                 }
+jt89:     { data_width: 11                 }
+vlm5030:  { data_width: 10                 }
+HUC6280:  { data_width: 24, stereo: true   }
+jt053260: { data_width: 14, stereo: true   }
+# FM chips
+jt03:     { data_width: 16                 }  # only FM, declare PSG part as jt49
+jt51:     { data_width: 16, stereo: true   }
+# OPL
+jtopl:    { data_width: 16                 }
+jtopl2:   { data_width: 16                 }
+jt2413:   { data_width: 16                 }

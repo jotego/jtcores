@@ -27,7 +27,7 @@
 
 module jtframe_gated_cen #( parameter
     W     =  2,
-    MFREQ = 48000,
+    MFREQ = `ifdef JTFRAME_MCLK `JTFRAME_MCLK `else 48000 `endif,
     NUM   = 1,
     DEN   = 8,
     CW    = $clog2(DEN+NUM*2)+4

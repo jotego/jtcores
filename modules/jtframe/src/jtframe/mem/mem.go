@@ -47,11 +47,13 @@ func (this Args) get_path(fname string, prefix bool ) string {
 	return filepath.Join(out_path, fname)
 }
 
-// Template helper functions
+// Template helper functions: implementation of "Bus" interface (see types.go)
 func (bus SDRAMBus) Get_aw() int { return bus.Addr_width }
 func (bus BRAMBus)  Get_aw() int { return bus.Addr_width }
+func (bus AudioCh)  Get_aw() int { return bus.Data_width }
 func (bus SDRAMBus) Get_dw() int { return bus.Data_width }
 func (bus BRAMBus)  Get_dw() int { return bus.Data_width }
+func (bus AudioCh)  Get_dw() int { return bus.Data_width }
 func (bus SDRAMBus) Get_dname() string { return bus.Name+"_data" }
 func (bus BRAMBus)  Get_dname() string {
 	if bus.ROM.Offset!="" {
@@ -60,10 +62,13 @@ func (bus BRAMBus)  Get_dname() string {
 		return bus.Name+"_dout"
 	}
 }
+func (bus AudioCh) Get_dname() string { return bus.Name }
 func (bus SDRAMBus) Is_wr() bool { return bus.Rw }
+func (bus AudioCh)  Is_wr() bool { return false }
 func (bus BRAMBus)  Is_wr() bool { return bus.Rw || bus.Dual_port.Rw }
 func (bus SDRAMBus) Is_nbits(n int) bool { return bus.Data_width==n }
 func (bus BRAMBus)  Is_nbits(n int) bool { return bus.Data_width==n }
+func (bus AudioCh)  Is_nbits(n int) bool { return bus.Data_width==n }
 
 func addr_range(bus Bus) string {
 	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
@@ -654,6 +659,8 @@ func Run(args Args) {
 	fill_gfx_sort( macros, &cfg )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
+	// Audio configuration
+	make_audio( macros, &cfg )
 	// Execute the template
 	cfg.Core = args.Core
 	make_sdram(args, &cfg)

@@ -27,8 +27,7 @@
 // Select gain for each signal
 
 module jtframe_rcmix #(parameter
-    W0=16,W1=16,W2=16,W3=16,W4=12,WOUT=16,
-    N0=1, N1=1, N2=1, N3=1, N4=1,   // signed input
+    W0=16,W1=16,W2=16,W3=16,W4=16,WOUT=16,
     ST=32'h1f, // Stereo. Bitwise per channel (bit 0 high for stereo channel 0, etc.)
     DC=0, // dc removal. Bitwise per channel (bit 0 high for removal in channel 0, etc.)
     // Do not set externally:
@@ -51,7 +50,9 @@ module jtframe_rcmix #(parameter
     output reg               peak   // overflow signal (time enlarged)
 );
 
-localparam CH=5, W=WOUT*(SOUT+1);
+localparam CH=5, W=WOUT*(SOUT+1),
+           MFREQ = `ifdef JTFRAME_MCLK `JTFRAME_MCLK `else 48000 `endif,
+           SFREQ = 192000;  // sampling frequency
 
 wire signed [WOUT*(SOUT+1)*CH-1:0]
     sc,     // scale to WOUT bits
@@ -59,14 +60,40 @@ wire signed [WOUT*(SOUT+1)*CH-1:0]
     p1,     // after 1st pole
     p2,     // after 2nd pole
     pre;    // pre-amplified
-reg  signed [WOUT*(SOUT+1)*CH-1:0] prel;
+reg  signed [ WOUT*(SOUT+1)*CH-1:0] prel;
 reg  signed [(WOUT+3)*(SOUT+1)-1:0] lsum, sum;
-wire cen;   // 48 kHz
+wire cen, nc;   // sampling frequency
+
+// cen generation
+reg [9:0] m,n;
+integer tn,tm,err,f,berr;
+
+initial begin
+    berr = SFREQ;
+    for(tm=1;tm<1023;tm=tm+1) begin
+        tn = MFREQ/tm;
+        err = SFREQ-MFREQ*tn/tm;
+        if( err<0 ) err=-err;
+        if( err<berr ) begin
+            berr = err;
+            n    = tn[9:0];
+            m    = tm[9:0];
+        end
+    end
+end
 
 assign mixed[WOUT-1:0] = sum[WOUT-1:0];
 generate
     if(SOUT==1) assign mixed[((SOUT+1)*WOUT-1)-:WOUT] = sum[((SOUT+1)*WOUT-1)-:WOUT];
 endgenerate
+
+jtframe_frac_cen u_cen(
+    .clk    ( clk       ),
+    .n      ( n         ),
+    .m      ( m         ),
+    .cen    ({nc,cen}   ),
+    .cenb   (           )
+);
 
 function [WOUT+2:0] ext;
     input [WOUT-1:0] a;
@@ -164,11 +191,11 @@ always @(posedge clk) if(cen) begin
         sum[WOUT-1:0] <= lsum[WOUT-1:0];
     end
     if(SOUT==1) begin
-        lsum[(WOUT+2)+:WOUT+3] <= ext(prel[WOUT+:WOUT])+ext(prel[(W+WOUT)+:WOUT])+ext(prel[(W*2+WOUT)+:WOUT])+
+        lsum[(WOUT+3)+:WOUT+3] <= ext(prel[WOUT+:WOUT])+ext(prel[(W+WOUT)+:WOUT])+ext(prel[(W*2+WOUT)+:WOUT])+
                                  ext(prel[(W*3+WOUT)+:WOUT])+ext(prel[(W*4+WOUT)+:WOUT]);
         if( ^lsum[WOUT*2+2:WOUT*2-1] ) begin
             peak <= 1;
-            lsum[(WOUT*2-1)-:WOUT] <= { lsum[WOUT*2+2], {WOUT-1{~lsum[WOUT*2+2]}}};
+            sum[(WOUT*2-1)-:WOUT] <= { lsum[WOUT*2+2], {WOUT-1{~lsum[WOUT*2+2]}}};
         end else begin
             sum[WOUT*2-1-:WOUT] <= lsum[(WOUT*2-1)-:WOUT];
         end
@@ -181,23 +208,29 @@ module jtframe_rcmix_scale #(parameter WIN=10,WOUT=16,SIN=0,SOUT=0)(
     input      signed [ WIN-1:0] x,
     output reg signed [WOUT-1:0] y
 );
-    localparam WD=WOUT-WIN;
+    localparam WDS=WOUT/2 < WIN ? WOUT/2 : WOUT/2-WIN;
     initial begin
         if( WIN[0] || WOUT[0] ) begin
             $display("ERROR: WIN and WOUT must be even numbers in %m");
+            $finish;
+        end
+        if( WOUT<WIN ) begin
+            $display("ERROR: WOUT must be larger than WIN in %m");
             $finish;
         end
     end
     always @* begin
         y = 0;
         if( SIN==1 ) begin
-            y[WOUT-1-:WOUT/2]=x[WIN-1-:WIN/2];
-            y[0+:WOUT/2]=x[0+:WIN/2];
+            y[WOUT-1-:WIN/2]=x[WIN-1-:WIN/2];
+            y[0+:WIN/2]=x[0+:WIN/2];
+        end else begin
+            if( SOUT==0 ) begin
+                y = {x,{WOUT-WIN{1'b0}}};
+            end else begin
+                y[WOUT-1  -:WDS] = x[WIN-1-:WDS];
+                y[WOUT/2-1-:WDS] = x[WIN-1-:WDS];
+            end
         end
     end
-    /* verilator lint_off width */
-    // assign y = SIN==0 && SOUT==0 ? { x, {WOUT-WIN{1'b0}}}  : // skips the sign bit
-    //            SIN==0 && SOUT==1 ? {2{ x, {(WOUT-WIN)/2{1'b0}} }} :
-    //            { x[WIN-1-:WH],, x[WH-1:0],x[WH-2-:(WOUT/2-WH)]};
-    /* verilator lint_on width */
 endmodule

@@ -2,6 +2,11 @@
     {{- range $v }}
     input {{ .OutStr }}, // {{ .Comment }} Hz {{ end }}
 {{end}}
+    // Audio channels {{ range .Audio }}
+    {{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}
+{{- end}}
     // Memory ports
     input   [21:0]  prog_addr,
     input   [ 7:0]  prog_data,

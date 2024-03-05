@@ -138,6 +138,24 @@ type Ioctl struct {
     Buses [6]IoctlBus
 }
 
+type AudioRC struct {
+    R   string `yaml:"r"`
+    C   string `yaml:"c"`
+}
+
+type AudioCh struct {
+    Name       string `yaml:"name"`
+    Module     string `yaml:"module"`
+    RC         []AudioRC `yaml:"rc"`
+    DCrm       bool   `yaml:"dcrm"`
+    // These two are filled from Module, if the Module is present
+    Stereo     bool   `yaml:"stereo"`
+    Unsigned   bool   `yaml:"unsigned"`
+    Data_width int    `yaml:"data_width"`
+    // Derived from RC information
+    Pole       string
+}
+
 type MemConfig struct {
     Include  []Include   `yaml:"include"`
     Download DownloadCfg `yaml:"download"`
@@ -146,6 +164,7 @@ type MemConfig struct {
     Params   []Param     `yaml:"params"`
     Ports    []Port      `yaml:"ports"`
     Game     string      `yaml:"game"` // optional: Overrides using Core as the jt<core>_game module
+    Audio    []AudioCh   `yaml:"audio"`
     // There will be other memory models supported here
     // Like DDR, BRAM, etc.
     // This part does not go in the YAML file
@@ -158,6 +177,7 @@ type MemConfig struct {
     Unused   [4]bool // true for unused banks
     // Derived information
     Ioctl    Ioctl
+    Stereo   bool
     Gfx8     string
     Gfx16    string
     Gfx8b0, Gfx16b0 int
