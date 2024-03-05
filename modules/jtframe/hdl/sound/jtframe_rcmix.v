@@ -178,19 +178,26 @@ end
 endmodule
 
 module jtframe_rcmix_scale #(parameter WIN=10,WOUT=16,SIN=0,SOUT=0)(
-    input  signed [ WIN-1:0] x,
-    output signed [WOUT-1:0] y
+    input      signed [ WIN-1:0] x,
+    output reg signed [WOUT-1:0] y
 );
-    localparam WH = WIN/2;
+    localparam WD=WOUT-WIN;
     initial begin
         if( WIN[0] || WOUT[0] ) begin
             $display("ERROR: WIN and WOUT must be even numbers in %m");
             $finish;
         end
     end
+    always @* begin
+        y = 0;
+        if( SIN==1 ) begin
+            y[WOUT-1-:WOUT/2]=x[WIN-1-:WIN/2];
+            y[0+:WOUT/2]=x[0+:WIN/2];
+        end
+    end
     /* verilator lint_off width */
-    assign y = SIN==0 && SOUT==0 ? { x, {WOUT-WIN{1'b0}}}  : // skips the sign bit
-               SIN==0 && SOUT==1 ? {2{ x, {(WOUT-WIN)/2{1'b0}} }} :
-               { x[WIN-1-:WH],x[WIN-2:(WOUT/2-WH)], x[WH-1:0],x[WH-2-:(WOUT/2-WH)]};
+    // assign y = SIN==0 && SOUT==0 ? { x, {WOUT-WIN{1'b0}}}  : // skips the sign bit
+    //            SIN==0 && SOUT==1 ? {2{ x, {(WOUT-WIN)/2{1'b0}} }} :
+    //            { x[WIN-1-:WH],, x[WH-1:0],x[WH-2-:(WOUT/2-WH)]};
     /* verilator lint_on width */
 endmodule
