@@ -18,17 +18,13 @@ clocks:
         - cen_40
         - cen_20
 audio:
-  - name: fm
-    stereo: true  
-    data_width: 16
+  - name: fm  
   - name: pcm
     module: jt053260, jt007232 #por verificar
-    data_width: 12
     rc:
       - { r: 120k, c: 470p }
   - name: upd
     module: jt7759 
-    data_width: 9
     rc:
       - { r: 4.7k, c: 10n }
   - name: ttl #por verificar

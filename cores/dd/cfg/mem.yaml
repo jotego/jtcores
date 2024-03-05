@@ -26,11 +26,8 @@ clocks:
         - mcu_cen12
         - mcu_cen6
 audio: #Aparentemente este chip tiene el o los filtros integrados
-  - name: fm
-    stereo: true
   - name: pcm
     module: jt5205
-    data_width: 16
   rc:
       - { r: , c:  }     
 sdram:

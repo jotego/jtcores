@@ -11,10 +11,9 @@ clocks:
         - cpu4
         - ti1
         - ti2
-audio: #verificar
-  - name: psg
-    data_width: 
-    module: 76489
+audio: 
+  - name: psg 
+    module: jt89
     rc:
       - { r: 1k, c: 470p }     
 download:

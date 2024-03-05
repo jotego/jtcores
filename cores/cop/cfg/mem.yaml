@@ -14,7 +14,6 @@ audio:
   - name: fm
     module: jt03
   - name: pcm
-    data_width: 14
     module: jt6295
     rc:
       - { r: 10k, c: 10n  }

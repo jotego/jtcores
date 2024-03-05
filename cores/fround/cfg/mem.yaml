@@ -13,18 +13,13 @@ clocks:
       outputs:
         - cen_640
         - cen_320
-audio: #por verificar todo
-  - name: fm
-    stereo: true  
-    data_width: 16
+audio:  
   - name: pcm
-    module: jt007232 
-    data_width: 12 
+    module: jt007232  
     rc:
       - { r: 120k, c: 470p }
   - name: upd
     module: jt7759 
-    data_width: 9
     rc:
       - { r: 5.7k, c: 10n }
   - name: ttl 

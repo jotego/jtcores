@@ -15,7 +15,6 @@ audio: #No hay sch para consultar
     module: 
   - name: 
     module: 
-    data_width: 
     rc:
       - { r: , c: }   
 sdram:

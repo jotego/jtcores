@@ -18,7 +18,7 @@ audio:
     module: jt053260
     data_width: 14
     rc:
-      - { r: 1000Ω, c: 33p }
+      - { r: 1k, c: 33p }
 sdram:
   banks:
     - buses:

@@ -3,9 +3,6 @@ include:
 game: cop
 audio: #No hay sch para consultar
   - name: 
-    data_width: 
-  - name: 
     module:
-    data_width: 
     rc:
       - { r: , c: }

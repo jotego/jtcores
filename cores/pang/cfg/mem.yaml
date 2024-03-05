@@ -1,5 +1,15 @@
 download:
   post_addr: true
+audio:
+  - name: pcm
+    module: jt6295
+    rc:
+      - { r: 20k, c: 3.3n  }
+  - name: u_jt2413
+    module: jt2413
+    rc:
+      - { r: 4.72k, c: 15n  }
+      - { r: 11.2k, c: 1n  } #revisar
 sdram:
   banks:
     - buses: [ { name: main, addr_width: 20, data_width:  8 } ]

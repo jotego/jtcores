@@ -13,11 +13,8 @@ clocks:
         - cen3
         - cen1p5
 audio: #Aparentemente este chip tiene el filtro integrado
-  - name: fm_snd
-    data_width: 16
   - name: pcm
     module: jt5205
-    data_width: 12
     rc:
       - { r: , c: }
 sdram:

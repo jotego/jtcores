@@ -9,15 +9,12 @@ clocks:
 audio:
   - name: snd_fm
     module: jtopl2
-    data_width: 16
   - name: pcm
     module: jt007232
-    data_width: 12
     rc:
       - { r: 120k, c: 470p }
   - name: scc_snd
     module: jt051649 
-    data_width: 12
 sdram:
   banks:
     - buses:

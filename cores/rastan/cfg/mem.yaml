@@ -2,6 +2,14 @@ params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
   - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
+audio:
+  - name: fm
+    module: jt51 #ym3012 rc: { r: 18k, c: 10n  } (21-b6)
+  - name: pcm
+    module: jt5205
+    rc:
+      - { r: 8.6k, c: 10n  }
+      - { r: 10.2k, c: 68n }
 sdram:
   banks:
     - buses:
