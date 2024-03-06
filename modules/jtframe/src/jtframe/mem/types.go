@@ -154,6 +154,7 @@ type AudioCh struct {
     Data_width int    `yaml:"data_width"`
     // Derived from RC information
     Pole       string
+    Fcut       [2]int
 }
 
 type MemConfig struct {

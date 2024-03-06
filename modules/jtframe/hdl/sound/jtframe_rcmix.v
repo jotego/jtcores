@@ -29,10 +29,12 @@
 module jtframe_rcmix #(parameter
     W0=16,W1=16,W2=16,W3=16,W4=16,WOUT=16,
     ST=32'h1f, // Stereo. Bitwise per channel (bit 0 high for stereo channel 0, etc.)
-    DC=0, // dc removal. Bitwise per channel (bit 0 high for removal in channel 0, etc.)
+    DC=0,      // dc removal. Bitwise per channel (bit 0 high for removal in channel 0, etc.)
+    STEREO=1,  // module output
     // Do not set externally:
-    SOUT={31'd0,ST[5:0]!=0},    // is the output stereo?
-    CW=8              // pole coefficient resolution
+    SOUT={31'd0,ST[4:0]!=0},    // calculations in stereo?
+    CW=8,             // pole coefficient resolution
+    WMX=STEREO==1?WOUT*2:WOUT
 )(
     input                    rst,
     input                    clk,
@@ -46,8 +48,8 @@ module jtframe_rcmix #(parameter
     input  [CW*2*5-1:0] poles, // concatenate the bits for each pole coefficient
     // gain for each channel in 4.4 fixed point format
     input  [5*8-1:0] gains,  // concatenate all gains {gain4, gain3,..., gain0}
-    output signed [(SOUT+1)*WOUT-1:0] mixed,
-    output reg               peak   // overflow signal (time enlarged)
+    output signed [WMX-1:0] mixed,
+    output reg              peak   // overflow signal (time enlarged)
 );
 
 localparam CH=5, W=WOUT*(SOUT+1),
@@ -61,7 +63,8 @@ wire signed [WOUT*(SOUT+1)*CH-1:0]
     p2,     // after 2nd pole
     pre;    // pre-amplified
 reg  signed [ WOUT*(SOUT+1)*CH-1:0] prel;
-reg  signed [(WOUT+3)*(SOUT+1)-1:0] lsum, sum;
+reg  signed [(WOUT+3)*(SOUT+1)-1:0] lsum;
+reg  signed [ W-1:0] sum;
 wire cen, nc;   // sampling frequency
 
 // cen generation
@@ -82,7 +85,19 @@ initial begin
     end
 end
 
-assign mixed[WOUT-1:0] = sum[WOUT-1:0];
+reg signed [WOUT:0] mono;
+always @* begin
+    mono = sum[WOUT-1:0]+sum[W-1-:WOUT];
+    case( {STEREO[0],SOUT[0]} )
+        // module output is mono
+        2'b00: mixed[WOUT-1:0] = sum[WOUT-1:0];
+        2'b01: mixed[WOUT-1:0] = mono[WOUT:1]; /* verilator lint_off WIDTHTRUNC */
+        // module output is stereo
+        2'b10: mixed = {2{sum[WOUT-1:0]}};
+        2'b11: mixed = sum; /* verilator lint_on WIDTHTRUNC */
+    endcase
+end
+
 generate
     if(SOUT==1) assign mixed[((SOUT+1)*WOUT-1)-:WOUT] = sum[((SOUT+1)*WOUT-1)-:WOUT];
 endgenerate

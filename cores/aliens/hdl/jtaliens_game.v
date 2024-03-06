@@ -147,7 +147,11 @@ jtaliens_sound u_sound(
     .pcmb_ok    ( pcmb_ok       ),
 
     // Sound output
-    .snd        ( snd           ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .fm_gain    ( fm_gain       ),
+    .pcm        ( pcm           ),
+    .pcm_gain   ( pcm_gain      ),
     .sample     ( sample        ),
     .peak       ( game_led      ),
     // Debug

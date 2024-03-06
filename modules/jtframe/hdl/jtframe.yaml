@@ -62,3 +62,6 @@ jtframe:
       - jtframe_mixer_en.v
       - jtframe_mixer.v
       - jtframe_iir2.v
+      - jtframe_rcmix.v
+      - jtframe_pole.v
+      - jtframe_dcrm.v
