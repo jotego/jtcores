@@ -9,4 +9,4 @@ audio:
     rc:
       - { r: 139k, c: 47n }
       - { r: 10k, c: 330p }
-      - { r: 1k,   c: 47n } #76489 generador de sonido
+      - { r: 1k,   c: 47n } #76489 generador de sonido?
