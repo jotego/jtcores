@@ -5,6 +5,13 @@ params:
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
 download:
   post_addr: true
+audio:
+  - name: fm
+    module:
+  - name: pcm
+    module: 
+    rc:
+      - { r: , c:  }
 sdram:
   banks:
     - buses:

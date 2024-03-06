@@ -30,6 +30,14 @@ clocks:
       outputs:
         - mcu_cen
         - cen_nc4
+audio:
+  - name: fm
+    module: jt51 
+  - name: u_pcm
+    module: jt7759 #upd7751?
+    rc:
+      - { r: 27.8k, c: 2.2n }
+      - { r: 10.2k, c: 10n  }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

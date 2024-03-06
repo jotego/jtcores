@@ -8,6 +8,13 @@ params:
 download:
   post_addr: true
   noswab: true
+audio: #No hay sch para consultar
+  - name: fm
+    module: 
+  - name: pcm
+    module: 
+    rc:
+      - { r: , c:  }
 sdram:
   banks:
     - buses:

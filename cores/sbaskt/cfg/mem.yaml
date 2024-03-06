@@ -20,6 +20,13 @@ clocks:
       outputs:
         - snd
         - psg
+audio:
+  - name: u_psg
+    module: jt89
+    module: vlm5030
+    rc:
+      - { r: 10k, c: 47n  }    
+      - { r: 10k, c: 330p }    
 
 download:
   post_data: true

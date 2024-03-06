@@ -15,12 +15,12 @@ clocks:
       outputs:
         - snd
         - psg
-#audio:
-#  - name: fm
-#    module: ylm5030 
-#    rc:
-#      -{ r: 10k, c: 47p  }
-#      -{ r: 10k, c: 330p  }     
+audio:
+    - name: fm
+      module: vlm5030 
+      rc:
+        -{ r: 10k, c: 47p  }
+        -{ r: 10k, c: 330p  }     
 download:
   post_addr: true
   post_data: true

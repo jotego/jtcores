@@ -3,6 +3,14 @@ params:
   - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA2_START)>>1"}
 download:
   post_addr: true
+audio:
+  - name: fm
+    module: jt51
+    rc:
+      - { r: 4.7k, c: 2.2n } 1.54
+      - { r: 20k,  c: 1n   } 7.96
+      - { r: 4.7k, c: 10n  } 3.39 #3014
+      - { r: 20k,  c: 4.7n } 1.69 #3014
 sdram:
   banks:
     - buses:

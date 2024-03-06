@@ -2,6 +2,13 @@ params:
   - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA1_START)>>1" }
   - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA2_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
+audio:
+  - name: pcm
+    module: jt5205
+    rc:
+      - { r: 15k, c: 470p } 
+      - { r: 10k, c: 22n  } #20k?
+      - { r: 10k, c: 6.8n } 
 sdram:
   banks:
     - buses:

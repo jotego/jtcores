@@ -21,9 +21,8 @@ clocks:
 audio:
   - name: fm
     module: jt51
-    # ic 11 pag 1
-     rc:
-      - { r: 10k, c: 0.1n  }        
+    rc:
+      - { r: 66k, c: 100n  }        
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

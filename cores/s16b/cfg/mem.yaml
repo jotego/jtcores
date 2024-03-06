@@ -1,2 +1,10 @@
 include: [ {game: s16 } ]
 game: s16
+audio:
+  - name: fm
+    module: jt51
+  - name: u_pcm
+    module: jt7759
+    rc:
+      - { r: 15.07k, c: 2.2n }
+      - { r: 7.5k, c: 10n    }
