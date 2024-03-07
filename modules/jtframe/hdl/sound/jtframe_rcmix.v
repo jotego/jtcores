@@ -16,7 +16,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 20-12-2019
+    Date: 4-3-2024
 
 */
 
@@ -29,39 +29,46 @@
 module jtframe_rcmix #(parameter
     W0=16,W1=16,W2=16,W3=16,W4=16,WOUT=16,
     ST=32'h1f, // Stereo. Bitwise per channel (bit 0 high for stereo channel 0, etc.)
-    DC=0,      // dc removal. Bitwise per channel (bit 0 high for removal in channel 0, etc.)
-    STEREO=1,  // module output
+    DCRM0=0,DCRM1=0,DCRM2=0,DCRM3=0,DCRM4=0,      // dc removal
+    STEREO0=1,STEREO1=1,STEREO2=1,STEREO3=1,STEREO4=1,
     // Do not set externally:
     SOUT={31'd0,ST[4:0]!=0},    // calculations in stereo?
-    CW=8,             // pole coefficient resolution
-    WMX=STEREO==1?WOUT*2:WOUT
+    WC=8,             // pole coefficient resolution
+    WMX=STEREO==1?WOUT*2:WOUT,
+    WS0=STEREO0==1?W0*2:W0,
+    WS1=STEREO1==1?W1*2:W1,
+    WS2=STEREO2==1?W2*2:W2,
+    WS3=STEREO3==1?W3*2:W3,
+    WS4=STEREO4==1?W4*2:W4
 )(
-    input                    rst,
-    input                    clk,
+    input                   rst,
+    input                   clk,
     // input signals
-    input  signed [({31'd0,ST[0]}+32'd1)*W0-1:0] ch0,  // for stereo signals, concatenate {left,right}
-    input  signed [({31'd0,ST[1]}+32'd1)*W1-1:0] ch1,
-    input  signed [({31'd0,ST[2]}+32'd1)*W2-1:0] ch2,
-    input  signed [({31'd0,ST[3]}+32'd1)*W3-1:0] ch3,
-    input  signed [({31'd0,ST[4]}+32'd1)*W4-1:0] ch4,
+    input  signed [WS0-1:0] ch0,  // for stereo signals, concatenate {left,right}
+    input  signed [WS1-1:0] ch1,
+    input  signed [WS2-1:0] ch2,
+    input  signed [WS3-1:0] ch3,
+    input  signed [WS4-1:0] ch4,
     // up to 2 pole coefficients per input (unsigned numbers, only decimal part)
-    input  [CW*2*5-1:0] poles, // concatenate the bits for each pole coefficient
+    input  [WC*2-1:0] p0,p1,p2,p3,p4, // concatenate the bits for each pole coefficient
     // gain for each channel in 4.4 fixed point format
-    input  [5*8-1:0] gains,  // concatenate all gains {gain4, gain3,..., gain0}
-    output signed [WMX-1:0] mixed,
+    input  [5*8-1:0] g0,g1,g2,g3,g4,  // concatenate all gains {gain4, gain3,..., gain0}
+    output reg signed [WMX-1:0] mixed,
     output reg              peak   // overflow signal (time enlarged)
 );
 
 localparam CH=5, W=WOUT*(SOUT+1),
+           WP=((ST[0]?2:1)+(ST[1]?2:1)+(ST[2]?2:1)+(ST[3]?2:1)+(ST[4]?2:1))*WOUT,
            MFREQ = `ifdef JTFRAME_MCLK `JTFRAME_MCLK `else 48000 `endif,
            SFREQ = 192000;  // sampling frequency
 
-wire signed [WOUT*(SOUT+1)*CH-1:0]
+wire signed [WP-1:0]
     sc,     // scale to WOUT bits
     dc,     // dc removal
     p1,     // after 1st pole
     p2,     // after 2nd pole
     pre;    // pre-amplified
+wire signed [WOUT-1:0] sc0, sc1, sc2, sc3, sc4;
 reg  signed [ WOUT*(SOUT+1)*CH-1:0] prel;
 reg  signed [(WOUT+3)*(SOUT+1)-1:0] lsum;
 reg  signed [ W-1:0] sum;
@@ -115,84 +122,12 @@ function [WOUT+2:0] ext;
     ext = { {3{a[WOUT-1]}}, a };
 endfunction
 
-jtframe_rcmix_scale #(W0*({31'b0,ST[0]}+32'd1),W,ST[0],SOUT) u_sc0 ( ch0, sc[W*0+:W] );
-jtframe_rcmix_scale #(W1*({31'b0,ST[1]}+32'd1),W,ST[1],SOUT) u_sc1 ( ch1, sc[W*1+:W] );
-jtframe_rcmix_scale #(W2*({31'b0,ST[2]}+32'd1),W,ST[2],SOUT) u_sc2 ( ch2, sc[W*2+:W] );
-jtframe_rcmix_scale #(W3*({31'b0,ST[3]}+32'd1),W,ST[3],SOUT) u_sc3 ( ch3, sc[W*3+:W] );
-jtframe_rcmix_scale #(W4*({31'b0,ST[4]}+32'd1),W,ST[4],SOUT) u_sc4 ( ch4, sc[W*4+:W] );
+jtframe_sndchain #(.W(W0),.DCRM(DC0),.STEREO(STEREO0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(ch0), .sout(ft0));
+jtframe_sndchain #(.W(W1),.DCRM(DC1),.STEREO(STEREO1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(ch1), .sout(ft1));
+jtframe_sndchain #(.W(W2),.DCRM(DC2),.STEREO(STEREO2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(ch2), .sout(ft2));
+jtframe_sndchain #(.W(W3),.DCRM(DC3),.STEREO(STEREO3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(ch3), .sout(ft3));
+jtframe_sndchain #(.W(W4),.DCRM(DC4),.STEREO(STEREO4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(ch4), .sout(ft4));
 
-generate
-    genvar k;
-    for(k=0;k<CH;k=k+1) begin
-        // DC removal
-        if( DC[k] ) begin
-            jtframe_dcrm #(.SW(WOUT),.SIGNED_INPUT(1)) u_dcrm(
-                .rst    ( rst           ),
-                .clk    ( clk           ),
-                .sample ( cen           ),
-                .din    ( sc[W*k+:WOUT] ),
-                .dout   ( dc[W*k+:WOUT] )
-            );
-            if( ST[k]) begin // if stereo in origin, apply DC removal to left channel
-                jtframe_dcrm #(.SW(WOUT),.SIGNED_INPUT(1)) u_dcrm_l(
-                    .rst    ( rst           ),
-                    .clk    ( clk           ),
-                    .sample ( cen           ),
-                    .din    ( sc[(W*k+WOUT)+:WOUT] ),
-                    .dout   ( dc[(W*k+WOUT)+:WOUT] )
-                );
-            end else if(SOUT==1) begin // if the output is stereo but the input isn't:
-                assign dc[(W*k+WOUT)+:WOUT]=dc[W*k+:WOUT];
-            end
-        end else begin
-            assign dc[W*k+:W]=sc[W*k+:W]; // no dc removal
-        end
-        // Filters
-        jtframe_pole #(.WS(WOUT),.WA(CW)) u_pole1(
-                .rst    ( rst           ),
-                .clk    ( clk           ),
-                .sample ( cen           ),
-                .a      (poles[2*k*CW+:CW]),
-                .sin    ( dc[W*k+:WOUT] ),
-                .sout   ( p1[W*k+:WOUT] )
-        );
-        if( ST[k] ) begin
-            jtframe_pole #(.WS(WOUT),.WA(CW)) u_pole1_l(
-                    .rst    ( rst           ),
-                    .clk    ( clk           ),
-                    .sample ( cen           ),
-                    .a      (poles[2*k*CW+:CW]),
-                    .sin    ( dc[(W*k+WOUT)+:WOUT] ),
-                    .sout   ( p1[(W*k+WOUT)+:WOUT] )
-            );
-        end else if(SOUT==1) begin // if the output is stereo but the input isn't:
-            assign p1[(W*k+WOUT)+:WOUT]=p1[W*k+:WOUT];
-        end
-        jtframe_pole #(.WS(WOUT),.WA(CW)) u_pole2(
-                .rst    ( rst           ),
-                .clk    ( clk           ),
-                .sample ( cen           ),
-                .a      (poles[(2*k+1)*CW+:CW]),
-                .sin    ( p1[W*k+:WOUT] ),
-                .sout   ( p2[W*k+:WOUT] )
-        );
-        if( ST[k] ) begin
-            jtframe_pole #(.WS(WOUT),.WA(CW)) u_pole2_l(
-                    .rst    ( rst           ),
-                    .clk    ( clk           ),
-                    .sample ( cen           ),
-                    .a      (poles[(2*k+1)*CW+:CW] ),
-                    .sin    ( p1[(W*k+WOUT)+:WOUT] ),
-                    .sout   ( p2[(W*k+WOUT)+:WOUT] )
-            );
-        end else if(SOUT==1) begin // if the output is stereo but the input isn't:
-            assign p2[(W*k+WOUT)+:WOUT]=p1[W*k+:WOUT];
-        end
-        // Gain
-        assign pre[W*k+:WOUT] = gains[8*k+:8]*p2[W*k+:WOUT];
-        if(SOUT==1) assign pre[(W*k+WOUT)+:WOUT] = gains[8*k+:8]*p2[(W*k+WOUT)+:WOUT];
-    end
-endgenerate
 
 always @(posedge clk) if(cen) begin
     prel <= pre;
@@ -217,35 +152,4 @@ always @(posedge clk) if(cen) begin
     end
 end
 
-endmodule
-
-module jtframe_rcmix_scale #(parameter WIN=10,WOUT=16,SIN=0,SOUT=0)(
-    input      signed [ WIN-1:0] x,
-    output reg signed [WOUT-1:0] y
-);
-    localparam WDS=WOUT/2 < WIN ? WOUT/2 : WOUT/2-WIN;
-    initial begin
-        if( WIN[0] || WOUT[0] ) begin
-            $display("ERROR: WIN and WOUT must be even numbers in %m");
-            $finish;
-        end
-        if( WOUT<WIN ) begin
-            $display("ERROR: WOUT must be larger than WIN in %m");
-            $finish;
-        end
-    end
-    always @* begin
-        y = 0;
-        if( SIN==1 ) begin
-            y[WOUT-1-:WIN/2]=x[WIN-1-:WIN/2];
-            y[0+:WIN/2]=x[0+:WIN/2];
-        end else begin
-            if( SOUT==0 ) begin
-                y = {x,{WOUT-WIN{1'b0}}};
-            end else begin
-                y[WOUT-1  -:WDS] = x[WIN-1-:WDS];
-                y[WOUT/2-1-:WDS] = x[WIN-1-:WDS];
-            end
-        end
-    end
 endmodule
