@@ -41,9 +41,9 @@ module jtcastle_sound(
     input           pcmb_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] snd_fm,
+    output signed [11:0] pcm_snd, scc_snd, 
+    output        [ 7:0] scc_snd_gain, pcm_gain, snd_fm_gain                   
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, scc_dout;
@@ -52,7 +52,6 @@ reg         [ 7:0]  cpu_din;
 reg         [ 3:0]  banks;
 wire                m1_n, mreq_n, rd_n, wr_n, int_n, nmi_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, scc_cs, dac_cs, bank_cs;
-wire signed [15:0]  snd_fm;
 wire                cen_fm2,     // 1.8 MHz
                     cen_fm,     //  3.6 MHz
                     cen2_fm,    //  7.2 MHz
@@ -60,8 +59,6 @@ wire                cen_fm2,     // 1.8 MHz
 wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
-wire signed [11:0]  pcm_snd;
-wire signed [11:0]  scc_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
@@ -123,22 +120,6 @@ always @(posedge clk, posedge rst) begin
         if( bank_cs ) banks <= cpu_dout[3:0];
     end
 end
-
-jtframe_mixer #(.W0(16),.W1(12),.W2(12)) u_mixer(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( snd_fm     ),
-    .ch1    ( scc_snd    ),
-    .ch2    ( pcm_snd    ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( 8'h08      ),
-    .gain1  ( 8'h06      ),
-    .gain2  ( fxgain     ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd        ),
-    .peak   ( peak       )
-);
 
 jtframe_ff u_ff(
     .clk      ( clk         ),

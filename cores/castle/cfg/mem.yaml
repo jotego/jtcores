@@ -9,7 +9,7 @@ clocks:
 audio:
   - name: snd_fm
     module: jtopl2
-  - name: pcm
+  - name: pcm_snd
     module: jt007232
     rc:
       - { r: 120k, c: 470p }

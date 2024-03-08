@@ -171,10 +171,13 @@ jtcastle_sound u_sound(
     .pcmb_data  ( pcmb_data     ),
     .pcmb_ok    ( pcmb_ok       ),
     // Sound output
-    .snd        ( snd           ), // channels reversed in
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
-    .debug_bus  ( debug_bus     )
+    .snd_fm     ( snd_fm        ), // channels reversed in
+    .pcm_snd    ( pcm_snd       ),
+    .scc_snd    ( scc_snd       ),
+    .scc_snd_gain(scc_snd_gain  ),
+    .pcm_gain    (pcm_gain      ),
+    .snd_fm_gain (snd_fm_gain   ),
+    .debug_bus   (debug_bus     )
 );
 
 endmodule
