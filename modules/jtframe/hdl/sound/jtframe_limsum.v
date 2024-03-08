@@ -20,18 +20,41 @@
 
 */
 
+// Limiter summer of signed inputs of equal bit width
+// the output will be clipped (limited) if the sum does not fit in W bits
+// peak is set when the output is clipped
 module jtframe_limsum #(parameter
-	W = 16,
-	K = 5
+    W = 16,
+    K = 5
 )(
-	input		      rst,
-	input		      clk,
-	input		      cen,
-	input	[W*K-1:0] parts,
-	output    [W-1:0] sum,
-	output			  peak
+    input             rst,
+    input             clk,
+    input             cen,
+    input   [W*K-1:0] parts,
+    output reg signed [W-1:0] sum,
+    output reg        peak
 );
 
-assign sum=0, peak=0;
+localparam WS = W+$clog2(K)+1;
+reg signed [WS-1:0] full;
+wire v = ^full[WS-1:W-1];
+
+function [WS-1:0] ext(input [W-1:0] a);
+    ext = { {WS-W{a[W-1]}}, a };
+endfunction
+
+integer k;
+always @* begin
+    for(k=0;k<K;k=k+1) full = k==0? ext(parts[W-1:0]) : full+ext(parts[W*k+:W]);
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        sum <= 0;
+    end else begin
+        peak <= v;
+        sum  <= v ? {full[WS-1],{W-1{~full[WS-1]}}} : full[W-1:0];
+    end
+end
 
 endmodule
