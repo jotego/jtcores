@@ -65,7 +65,6 @@ reg         [ 3:0]  pcm_bank;
 wire        [ 1:0]  ct;
 reg         [ 3:0]  pcm_msb;
 
-
 assign rom_addr = A[14:0];
 assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, pcm_msb };
 
@@ -137,11 +136,15 @@ end
 
 always @(*) begin
     case( fxlevel )
-        0: pcm_gain = 8'h02;
-        1: pcm_gain = 8'h04;
-        2: pcm_gain = 8'h08;
-        3: pcm_gain = 8'h10;
+        0: pcm_gain = 8'h30; // spaced by sqrt(2)
+        1: pcm_gain = 8'h44;
+        2: pcm_gain = 8'h60;
+        3: pcm_gain = 8'h88;
     endcase
+`ifdef SIMULATION
+    pcm_gain=8'h60;
+`endif
+    // pcm_gain=debug_bus;
 end
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(

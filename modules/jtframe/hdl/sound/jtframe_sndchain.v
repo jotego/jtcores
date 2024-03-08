@@ -39,90 +39,107 @@ module jtframe_sndchain #(parameter
     output reg signed [WOS-1:0] sout     // for stereo output: { left, right }
 );
 
-localparam WM  = WS+9,
-           WD  =  4;    // decimal part
+localparam WM  = WOS+9,
+           WD  = 4;    // decimal part
 
-wire signed [WS-1:0] dc, p1, p2;
-wire signed [WM-1:0] mul_l, mul_r;
-wire signed [   8:0] sgain;
-wire        [WC-1:0] c1, c2;
+reg  signed [WOS-1:0] sext;
+wire signed [WOS-1:0] dc, p1, p2;
+wire signed [ WM-1:0] mul_l, mul_r;
+wire signed [    8:0] sgain;
+wire        [ WC-1:0] c1, c2;
+
+initial begin
+    if( W>WO ) begin
+        $display("Maximum allowed signal width is %d\n",WO);
+        $finish;
+    end
+end
 
 assign c1    = poles[WC-1:0],
        c2    = poles[WC+:WC];
 assign sgain = {1'b0,gain};
-assign mul_r = p2[   0+:W]*sgain;
-assign mul_l = p2[WS-1-:W]*sgain;
+assign mul_r = $signed(p2[    0+:WO])*sgain;
+assign mul_l = $signed(p2[WOS-1-:WO])*sgain;
+
+function over(input [WM-WO-WD:0]signs);
+    over = |signs & ~&signs;
+endfunction
+
+always @* begin
+    sext[    0+:WO]={sin[   0+:W], {WO-W{1'b0}}};
+    sext[WOS-1-:WO]={sin[WS-1-:W], {WO-W{1'b0}}};
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         sout <= 0;
     end else begin
         sout[0+:WO] <= mul_r[WD+:WO];
-        if(^mul_r[WM-1:W+WD-1]) sout[0+:WO] <= { mul_r[WM-1], {WO-1{~mul_r[WM-1]}}};
+        if(over(mul_r[WM-1:WO+WD-1])) sout[0+:WO] <= { mul_r[WM-1], {WO-1{~mul_r[WM-1]}}};
         if(STEREO==1) begin
             sout[WOS-1-:WO] <= mul_l[WD+:WO];
-            if(^mul_l[WM-1:W+WD-1]) sout[WOS-1-:WO] <= { mul_l[WM-1], {WO-1{~mul_l[WM-1]}}};
+            if(over(mul_l[WM-1:WO+WD-1])) sout[WOS-1-:WO] <= { mul_l[WM-1], {WO-1{~mul_l[WM-1]}}};
         end
     end
 end
 
 generate
     if( DCRM==1 ) begin
-        jtframe_dcrm #(.SW(W),.SIGNED_INPUT(1)) u_dcrm(
+        jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(1)) u_dcrm(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
-            .din    ( sin[W-1:0]    ),
-            .dout   ( dc[W-1:0]     )
+            .din    ( sext[WO-1:0]  ),
+            .dout   ( dc[WO-1:0]    )
         );
         if( STEREO==1 ) begin
-            jtframe_dcrm #(.SW(W),.SIGNED_INPUT(1)) u_dcrm_l(
+            jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(1)) u_dcrm_l(
                 .rst    ( rst           ),
                 .clk    ( clk           ),
                 .sample ( cen           ),
-                .din    ( sin[WS-1-:W]  ),
-                .dout   ( dc[WS-1-:W]   )
+                .din    (sext[WOS-1-:WO]),
+                .dout   ( dc[WOS-1-:WO] )
             );            
         end
     end else begin
-        assign dc = sin;
+        assign dc = sext;
     end
 endgenerate    
 
 generate
     // 1st pole
-    jtframe_pole #(.WS(W),.WA(WC)) u_pole1(
+    jtframe_pole #(.WS(WO),.WA(WC)) u_pole1(
         .rst    ( rst           ),
         .clk    ( clk           ),
         .sample ( cen           ),
         .a      ( c1            ),
-        .sin    ( dc[0+:W]      ),
-        .sout   ( p1[0+:W]      )
+        .sin    ( dc[0+:WO]      ),
+        .sout   ( p1[0+:WO]      )
     );    
-    jtframe_pole #(.WS(W),.WA(WC)) u_pole2(
+    jtframe_pole #(.WS(WO),.WA(WC)) u_pole2(
         .rst    ( rst           ),
         .clk    ( clk           ),
         .sample ( cen           ),
         .a      ( c2            ),
-        .sin    ( p1[0+:W]      ),
-        .sout   ( p2[0+:W]      )
+        .sin    ( p1[0+:WO]      ),
+        .sout   ( p2[0+:WO]      )
     );     
     if( STEREO==1 ) begin
-        jtframe_pole #(.WS(W),.WA(WC)) u_pole1_l(
+        jtframe_pole #(.WS(WO),.WA(WC)) u_pole1_l(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
             .a      ( c1            ),
-            .sin    ( dc[(WS-1)-:W] ),
-            .sout   ( p1[(WS-1)-:W] )
+            .sin    (dc[(WOS-1)-:WO]),
+            .sout   (p1[(WOS-1)-:WO])
         );        
-        jtframe_pole #(.WS(W),.WA(WC)) u_pole2_l(
+        jtframe_pole #(.WS(WO),.WA(WC)) u_pole2_l(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
             .a      ( c2            ),
-            .sin    ( p1[(WS-1)-:W] ),
-            .sout   ( p2[(WS-1)-:W] )
+            .sin    (p1[(WOS-1)-:WO]),
+            .sout   (p2[(WOS-1)-:WO])
         );             
     end
 endgenerate

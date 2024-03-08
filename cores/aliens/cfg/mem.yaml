@@ -16,8 +16,12 @@ clocks:
 audio:
   - name: fm
     module: jt51
+    rsum: 3.05k // 6.1k, but both channels are summed
+    rc:
+      - { r: 1k, c: 33p }
   - name: pcm
     module: jt007232
+    rsum: 12.25k
     rc:
       - { r: 120k, c: 470p }
 sdram:

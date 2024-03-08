@@ -37,7 +37,8 @@ module jtframe_limsum #(parameter
 
 localparam WS = W+$clog2(K)+1;
 reg signed [WS-1:0] full;
-wire v = ^full[WS-1:W-1];
+wire       [WS-W:0] signs = full[WS-1:W-1];
+wire v = |signs & ~&signs; // overflow
 
 function [WS-1:0] ext(input [W-1:0] a);
     ext = { {WS-W{a[W-1]}}, a };

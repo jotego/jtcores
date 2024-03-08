@@ -57,7 +57,7 @@ end
 //     end
 // end
 
-/* verilator Tracing_Off */
+/* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),

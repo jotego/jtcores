@@ -497,16 +497,16 @@ jtframe_rcmix #(
     .ch2    ( {{ if $ch2.Name }}{{ if $ch2.Stereo }}{ {{$ch2.Name}}_l,{{$ch2.Name}}_r }{{ else }}{{ $ch2.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch3    ( {{ if $ch3.Name }}{{ if $ch3.Stereo }}{ {{$ch3.Name}}_l,{{$ch3.Name}}_r }{{ else }}{{ $ch3.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch4    ( {{ if $ch4.Name }}{{ if $ch4.Stereo }}{ {{$ch4.Name}}_l,{{$ch4.Name}}_r }{{ else }}{{ $ch4.Name }}{{end}}{{else}}16'd0{{end}} ),
-    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 1}}, {{ index $ch4.Fcut 0 }} {{end}}
-    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 1}}, {{ index $ch3.Fcut 0 }} {{end}}
-    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 1}}, {{ index $ch2.Fcut 0 }} {{end}}
-    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}16'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 1}}, {{ index $ch1.Fcut 0 }} {{end}}
-    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}16'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 1}}, {{ index $ch0.Fcut 0 }} {{end}}
-    .g4     ( {{if $ch4.Name}}{{$ch4.Name}}_gain{{else}}8'h00{{end}}),
-    .g3     ( {{if $ch3.Name}}{{$ch3.Name}}_gain{{else}}8'h00{{end}}),
-    .g2     ( {{if $ch2.Name}}{{$ch2.Name}}_gain{{else}}8'h00{{end}}),
-    .g1     ( {{if $ch1.Name}}{{$ch1.Name}}_gain{{else}}8'h00{{end}}),
+    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}16'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 0}}, {{ index $ch0.Fcut 1 }} {{end}}
+    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}16'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 0}}, {{ index $ch1.Fcut 1 }} {{end}}
+    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}}, {{ index $ch2.Fcut 1 }} {{end}}
+    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}}, {{ index $ch3.Fcut 1 }} {{end}}
+    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}}, {{ index $ch4.Fcut 1 }} {{end}}
     .g0     ( {{if $ch0.Name}}{{$ch0.Name}}_gain{{else}}8'h00{{end}}),
+    .g1     ( {{if $ch1.Name}}{{$ch1.Name}}_gain{{else}}8'h00{{end}}),
+    .g2     ( {{if $ch2.Name}}{{$ch2.Name}}_gain{{else}}8'h00{{end}}),
+    .g3     ( {{if $ch3.Name}}{{$ch3.Name}}_gain{{else}}8'h00{{end}}),
+    .g4     ( {{if $ch4.Name}}{{$ch4.Name}}_gain{{else}}8'h00{{end}}),
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
     .peak ( game_led )
 );
