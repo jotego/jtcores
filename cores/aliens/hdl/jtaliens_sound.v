@@ -46,8 +46,6 @@ module jtaliens_sound(
     output signed [15:0] fm_l, fm_r,
     output signed [11:0] pcm,
     output reg    [ 7:0] fm_gain, pcm_gain,
-    output               sample,
-    output               peak,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -186,7 +184,7 @@ jt51 u_jt51(
     .ct2        ( ct[1]     ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
@@ -234,7 +232,6 @@ assign  pcma_addr= 0;
 assign  pcmb_addr= 0;
 assign  rom_addr = 0;
 assign  snd      = 0;
-assign  peak     = 0;
 assign  sample   = 0;
 assign  st_dout  = 0;
 `endif

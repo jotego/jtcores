@@ -31,23 +31,24 @@ module jtframe_freq_cen #(parameter
 localparam MFREQ = `ifdef JTFRAME_MCLK `JTFRAME_MCLK `else 48000 `endif;
 
 reg [WC-1:0] m,n;
-integer tn,tm,err,berr;
+integer tn,tm,err,berr,eff;
 wire    nc;
 
 initial begin
-    berr = SFREQ;
+    berr = MFREQ;
     for(tm=1;tm<(1<<WC)-1;tm=tm+1) begin
-        tn = MFREQ/tm;
-        err = SFREQ-MFREQ*tn/tm;
+        tn = SFREQ*tm/MFREQ;
+        eff= MFREQ*tn/tm;
+        err = SFREQ-eff;
         if( err<0 ) err=-err;
         if( err<berr ) begin
             berr = err;
             n    = tn[9:0];
             m    = tm[9:0];
-            if( err==0 ) break;
+            // $display("%0d/%0d = %0d (%d)",tn,tm,eff,err);
         end
-    end
-    $display("%m effective frequency %d kHz", (n*MFREQ[WC-1:0])/m);
+    end /* verilator lint_off WIDTHEXPAND */
+    $display("%m effective frequency %0d kHz", n*MFREQ/m); /* verilator lint_on WIDTHEXPAND */
 end
 
 jtframe_frac_cen #(.WC(WC)) u_cen(

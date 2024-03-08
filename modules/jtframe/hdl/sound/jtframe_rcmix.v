@@ -28,20 +28,18 @@
 
 module jtframe_rcmix #(parameter
     W0=16,W1=16,W2=16,W3=16,W4=16,
-    ST=32'h1f, // Stereo. Bitwise per channel (bit 0 high for stereo channel 0, etc.)
-    DCRM0=0,DCRM1=0,DCRM2=0,DCRM3=0,DCRM4=0,      // dc removal
     STEREO =1, // is the output stereo?
+    DCRM0=0,DCRM1=0,DCRM2=0,DCRM3=0,DCRM4=0,      // dc removal
     STEREO0=1,STEREO1=1,STEREO2=1,STEREO3=1,STEREO4=1, // are the input channels stereo?
     // Do not set externally:
     WOUT=16,
-    SOUT={31'd0,ST[4:0]!=0},    // calculations in stereo?
-    WC=8,             // pole coefficient resolution
-    WMX=STEREO==1?WOUT*2:WOUT,
-    WS0=STEREO0==1?W0*2:W0,
-    WS1=STEREO1==1?W1*2:W1,
-    WS2=STEREO2==1?W2*2:W2,
-    WS3=STEREO3==1?W3*2:W3,
-    WS4=STEREO4==1?W4*2:W4
+    WC  =8,             // pole coefficient resolution
+    WMX=STEREO ==1?WOUT*2:WOUT,
+    WS0=STEREO0==1?  W0*2:W0,
+    WS1=STEREO1==1?  W1*2:W1,
+    WS2=STEREO2==1?  W2*2:W2,
+    WS3=STEREO3==1?  W3*2:W3,
+    WS4=STEREO4==1?  W4*2:W4
 )(
     input                   rst,
     input                   clk,
@@ -55,11 +53,12 @@ module jtframe_rcmix #(parameter
     input  [WC*2-1:0] p0,p1,p2,p3,p4, // concatenate the bits for each pole coefficient
     // gain for each channel in 4.4 fixed point format
     input       [7:0] g0,g1,g2,g3,g4,  // concatenate all gains {gain4, gain3,..., gain0}
-    output reg signed [WMX-1:0] mixed,
-    output reg              peak   // overflow signal (time enlarged)
+    output              sample,
+    output signed [WMX-1:0] mixed,
+    output                  peak   // overflow signal (time enlarged)
 );
 
-localparam SFREQ = 192000,              // sampling frequency
+localparam SFREQ = 192,              // sampling frequency in kHz
            STEFF0 = STEREO0 && STEREO,
            STEFF1 = STEREO1 && STEREO,
            STEFF2 = STEREO2 && STEREO,
@@ -76,14 +75,21 @@ localparam SFREQ = 192000,              // sampling frequency
            WO3    = STEFF3==1 ? 2*WOUT : WOUT,
            WO4    = STEFF4==1 ? 2*WOUT : WOUT;
 
-wire signed [WE0-1:0] sm0, ft0;
-wire signed [WE1-1:0] sm1, ft1;
-wire signed [WE2-1:0] sm2, ft2;
-wire signed [WE3-1:0] sm3, ft3;
-wire signed [WE4-1:0] sm4, ft4;
+wire signed [WE0-1:0] sm0;
+wire signed [WE1-1:0] sm1;
+wire signed [WE2-1:0] sm2;
+wire signed [WE3-1:0] sm3;
+wire signed [WE4-1:0] sm4;
+wire signed [WO0-1:0] ft0;
+wire signed [WO1-1:0] ft1;
+wire signed [WO2-1:0] ft2;
+wire signed [WO3-1:0] ft3;
+wire signed [WO4-1:0] ft4;
 wire signed    [15:0] left, right;
 wire                  peak_l, peak_r;
 wire                  cen;          // sampling frequency
+
+assign sample=cen;
 
 jtframe_freq_cen #(.SFREQ(SFREQ)) u_cen(.clk(clk),.cen(cen));
 
@@ -129,8 +135,7 @@ generate
         assign peak = peak_l | peak_r;
         assign mixed[WMX-1-:WOUT] = left;
     end else begin
-        assign left = right,
-               peak = peak_r;
+        assign peak = peak_r;
     end
 endgenerate
 
@@ -154,7 +159,7 @@ localparam [1:0] ST2MONO  =2'b10,
 
 always @* begin
     case( {SIN[0], SOUT[0]} )
-        STEREO:  sout        = sin;
+        STEREO:  sout        = sin[WO-1:0];
         ST2MONO: sout[W-1:0] = mono[W:1];
         default: sout[W-1:0] = sin[W-1:0];
     endcase

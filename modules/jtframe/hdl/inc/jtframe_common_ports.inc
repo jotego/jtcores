@@ -22,7 +22,6 @@
 `endif
     output   [`JTFRAME_COLORW-1:0]  red, green, blue,
     output          LHBL, LVBL, HS, VS,
-    output          game_led,
     // cabinet I/O
 `ifdef JTFRAME_4PLAYERS
     input   [ 3:0]  cab_1p, coin,
@@ -70,13 +69,6 @@
     output          uart_tx,
     input           uart_rx,
 `endif
-    // Sound output
-`ifndef JTFRAME_STEREO
-    output  signed [15:0] snd,
-`else
-    output  signed [15:0] snd_left, snd_right,
-`endif
-    output          sample,
     // Debug
 `ifdef JTFRAME_STATUS
     input      [7:0] st_addr,

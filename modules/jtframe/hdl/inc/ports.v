@@ -7,7 +7,15 @@
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}
     output [7:0] {{.Name}}_gain,
-{{end}}{{- end}}
+{{end}}{{- end}}{{ if eq (len .Audio) 0 }}
+    // Sound output
+`ifndef JTFRAME_STEREO
+    output  signed [15:0] snd,
+`else
+    output  signed [15:0] snd_left, snd_right,
+`endif
+    output          sample,
+{{ end }}
     // Memory ports
     input   [21:0]  prog_addr,
     input   [ 7:0]  prog_data,

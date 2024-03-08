@@ -16,6 +16,7 @@ jtframe:
     get:
       - jtframe_gated_cen.v
       - jtframe_frac_cen.v
+      - jtframe_freq_cen.v
       - jtframe_freqinfo.v
       - jtframe_pxlcen.v
   - from: keyboard
@@ -63,5 +64,7 @@ jtframe:
       - jtframe_mixer.v
       - jtframe_iir2.v
       - jtframe_rcmix.v
+      - jtframe_limsum.v
+      - jtframe_sndchain.v
       - jtframe_pole.v
       - jtframe_dcrm.v

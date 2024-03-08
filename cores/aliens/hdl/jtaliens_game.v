@@ -57,7 +57,7 @@ end
 //     end
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -152,8 +152,6 @@ jtaliens_sound u_sound(
     .fm_gain    ( fm_gain       ),
     .pcm        ( pcm           ),
     .pcm_gain   ( pcm_gain      ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

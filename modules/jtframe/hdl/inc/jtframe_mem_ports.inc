@@ -37,4 +37,12 @@
     `ifdef JTFRAME_SDRAM_LARGE
         output [22:0] `else output [21:0]
     `endif
-                    prog_addr   // no comma here, end of port list
+                    prog_addr,  // no comma here, end of port list
+    // Sound output
+`ifndef JTFRAME_STEREO
+    output  signed [15:0] snd,
+`else
+    output  signed [15:0] snd_left, snd_right,
+`endif
+    output          game_led,
+    output          sample
