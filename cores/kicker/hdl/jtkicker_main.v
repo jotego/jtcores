@@ -61,9 +61,8 @@ module jtkicker_main(
     input      [3:0]    dipsw_c,
 
     // Sound
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output    [10:0]    ti1_snd, ti2_snd,
+    output    [ 7:0]    ti1_snd_gain, ti2_snd_gain
 );
 `ifndef NOMAIN
 reg  [ 7:0] cabinet, cpu_din;
@@ -80,7 +79,6 @@ wire        VMA;
 assign irq_trigger = ~LVBL & dip_pause;
 assign nmi_trigger =  V16;
 assign cpu_rnw     = RnW;
-assign sample      = ti1_cen;
 assign rom_addr    = A;
 
 always @(*) begin
@@ -181,7 +179,6 @@ jtframe_ff u_nmi(
 );
 
 reg  [ 7:0] ti1_data, ti2_data;
-wire [10:0] ti1_snd,  ti2_snd;
 wire        rdy1, rdy2;
 
 always @(posedge clk, posedge rst) begin
@@ -242,24 +239,8 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
-
-jtframe_mixer #(.W0(11),.W1(11)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( ti1_cen   ),
-    // input signals
-    .ch0    ( ti1_snd   ),
-    .ch1    ( ti2_snd   ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h18     ),
-    .gain1  ( 8'h18     ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
+assign ti1_snd_gain = 8'h18; 
+assign ti2_snd_gain = 8'h18;
 `else
 assign cpu_cen  = 0;
 assign cpu_dout = 0;

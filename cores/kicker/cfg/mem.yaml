@@ -12,10 +12,14 @@ clocks:
         - ti1
         - ti2
 audio: 
-  - name: psg 
+  - name: ti1_snd
     module: jt89
     rc:
-      - { r: 1k, c: 470p }     
+      - { r: 1k, c: 470p } 
+  - name: ti2_snd
+    module: jt89
+    rc:
+      - { r: 1k, c: 470p }         
 download:
   post_addr: true
   noswab: true

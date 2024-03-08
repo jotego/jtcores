@@ -105,9 +105,10 @@ end
     .pcm_data       ( pcm_data      ),
     .pcm_ok         ( pcm_ok        ),
 `endif
-    .snd            ( snd           ),
-    .sample         ( sample        ),
-    .peak           ( game_led      )
+    .ti1_snd        ( ti1_snd       ), 
+    .ti2_snd        ( ti2_snd       ), 
+    .ti1_snd_gain   ( ti1_snd_gain  ), 
+    .ti2_snd_gain   ( ti2_snd_gain  )
 );
 
 `ifndef PCM
