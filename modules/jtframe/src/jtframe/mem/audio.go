@@ -88,8 +88,10 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		os.Exit(1)
 	}
 	// fill up to 5 channels
-	for k:=len(cfg.Audio);k<5;k++ {
-		cfg.Audio = append(cfg.Audio, AudioCh{} )
+	if len(cfg.Audio)>0 {
+		for k:=len(cfg.Audio);k<5;k++ {
+			cfg.Audio = append(cfg.Audio, AudioCh{} )
+		}
 	}
 	_, cfg.Stereo = macros["JTFRAME_STEREO"]
 }
