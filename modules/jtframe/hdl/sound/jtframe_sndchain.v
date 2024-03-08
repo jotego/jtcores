@@ -26,7 +26,7 @@ module jtframe_sndchain #(parameter
     STEREO=1, 
     WC=8,           // width for each pole coefficient
     // do not set
-    WS=STEREO==1?W*2:W,
+    WS  = STEREO==1?2*W :W,
     WO  = 16,
     WOS = STEREO==1?2*WO:WO
 )(
