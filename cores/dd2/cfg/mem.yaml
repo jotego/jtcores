@@ -26,11 +26,6 @@ clocks:
     - freq: 1056000
       outputs:
         - cen_oki
-audio: #No hay sch para consultar
-  - name: pcm
-    module: jt6295
-  rc:
-      - { r: , c:  }   
 sdram:
   banks:
     - buses:

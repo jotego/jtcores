@@ -10,13 +10,6 @@ clocks:
         - cen6
         - cen3
         - cen1p5
-audio: #No hay sch para consultar
-  - name: fm
-    module: 
-  - name: 
-    module: 
-    rc:
-      - { r: , c: }   
 sdram:
   banks:
     - buses:
