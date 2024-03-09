@@ -77,8 +77,8 @@ module jt007232(
     output            romb_cs,
     input             romb_ok,
     // sound output - scaled by register 12
-    output signed [11:0] snda,
-    output signed [11:0] sndb,
+    output reg signed [11:0] snda,
+    output reg signed [11:0] sndb,
     output signed [11:0] snd,
     // debug
     input         [ 7:0] debug_bus,

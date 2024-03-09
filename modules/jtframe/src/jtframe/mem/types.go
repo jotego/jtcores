@@ -146,6 +146,8 @@ type AudioRC struct {
 type AudioCh struct {
     Name       string `yaml:"name"`
     Module     string `yaml:"module"`
+    Rsum       string `yaml:"rsum"`
+    Pre        float64 `yaml:"pre"` // pre-amplifier gain
     RC         []AudioRC `yaml:"rc"`
     DCrm       bool   `yaml:"dcrm"`
     // These two are filled from Module, if the Module is present
@@ -155,6 +157,13 @@ type AudioCh struct {
     // Derived from RC information
     Pole       string
     Fcut       [2]int
+    Gain       string
+    gain       float64
+}
+
+type Audio struct {
+    Rsum    string `yaml:"rsum"`
+    Channels []AudioCh `yaml:"channels"`
 }
 
 type MemConfig struct {
@@ -165,7 +174,7 @@ type MemConfig struct {
     Params   []Param     `yaml:"params"`
     Ports    []Port      `yaml:"ports"`
     Game     string      `yaml:"game"` // optional: Overrides using Core as the jt<core>_game module
-    Audio    []AudioCh   `yaml:"audio"`
+    Audio    Audio       `yaml:"audio"`
     // There will be other memory models supported here
     // Like DDR, BRAM, etc.
     // This part does not go in the YAML file

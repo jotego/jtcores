@@ -19,7 +19,6 @@
 module jtcastle_sound(
     input           clk,        // 24 MHz
     input           rst,
-    input   [ 1:0]  fxlevel,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -101,17 +100,6 @@ always @(*) begin
         latch_cs:    cpu_din = snd_latch;
         fm_cs:       cpu_din = fm_dout;
         default:     cpu_din = 8'hff;
-    endcase
-end
-
-reg [7:0] fxgain;
-
-always @(*) begin
-    case( fxlevel )
-        0: fxgain = 8'h08;
-        1: fxgain = 8'h0C;
-        2: fxgain = 8'h10;
-        3: fxgain = 8'h14;
     endcase
 end
 

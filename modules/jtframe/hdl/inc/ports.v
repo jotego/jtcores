@@ -2,12 +2,10 @@
     {{- range $v }}
     input {{ .OutStr }}, // {{ .Comment }} Hz {{ end }}
 {{end}}
-    // Audio channels {{ range .Audio }}{{ if .Name }}
-    {{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
+    // Audio channels
+    {{ range .Audio.Channels }}{{ if .Name }}{{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
-    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}
-    output [7:0] {{.Name}}_gain,
-{{end}}{{- end}}{{ if eq (len .Audio) 0 }}
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifndef JTFRAME_STEREO
     output  signed [15:0] snd,

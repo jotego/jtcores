@@ -141,6 +141,8 @@ endgenerate
 
 endmodule
 
+// converts stereo to mono by a clipping adder
+// or leaves the signal as stereo if the output can take stereo
 module jtframe_st2mono #(parameter
     W    = 12,
     SIN  = 1,
@@ -153,14 +155,16 @@ module jtframe_st2mono #(parameter
     output reg [WO-1:0] sout
 );
 
-wire [W:0] mono = {sin[W-1],sin[0+:W]}+{sin[WI-1],sin[WI-1-:W]};
+wire [W:0] raw = {sin[W-1],sin[0+:W]}+{sin[WI-1],sin[WI-1-:W]};
+reg [W-1:0] mono;
 localparam [1:0] ST2MONO  =2'b10,
                  STEREO   =2'b11;
 
 always @* begin
+    mono = raw[W]!=raw[W-1] ? { raw[W], {W-1{~raw[W]}}} : raw[W-1:0];
     case( {SIN[0], SOUT[0]} )
         STEREO:  sout        = sin[WO-1:0];
-        ST2MONO: sout[W-1:0] = mono[W:1];
+        ST2MONO: sout[W-1:0] = mono;
         default: sout[W-1:0] = sin[W-1:0];
     endcase
 end

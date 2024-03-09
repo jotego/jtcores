@@ -30,11 +30,9 @@ parameter {{.Name}} = {{ if .Value }}{{.Value}}{{else}}`{{.Name}}{{ end}};
 `ifndef JTFRAME_IOCTL_RD
 wire ioctl_ram = 0;
 `endif
-// Audio channels {{ range .Audio }}{{ if .Name }}
+// Audio channels {{ range .Audio.Channels }}{{ if .Name }}
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
-wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}
-wire [7:0] {{.Name}}_gain;
-{{end}}{{- end}}
+wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{- end}}
 // Additional ports
 {{range .Ports}}wire {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}};
 {{end}}
@@ -102,12 +100,11 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst48      ( rst48_h   ),
     .clk48      ( clk48     ),
 `endif
-    // Audio channels {{ range .Audio }}{{ if .Name }}
-    {{ if .Stereo }}.{{.Name}}_l   ( {{.Name}}_l    ),
+    // Audio channels {{ range .Audio.Channels -}}
+    {{ if .Name }}{{ if .Stereo }}.{{.Name}}_l   ( {{.Name}}_l    ),
     .{{.Name}}_r   ( {{.Name}}_r    ),{{ else }}
-    .{{.Name}}     ( {{.Name}}      ),{{ end }}
-    .{{.Name}}_gain( {{.Name}}_gain ),{{end}}
-{{- end}}{{ if eq (len .Audio) 0 }}
+    .{{.Name}}     ( {{.Name}}      ),{{ end }}{{end}}
+{{- end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifdef JTFRAME_STEREO
     .snd_left       ( snd_left      ),
@@ -465,12 +462,12 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
     .fworst (              )
 ); /* verilator tracing_off */
 {{ end }}{{ end }}{{ end }}
-{{ if .Audio }}`ifndef NOSOUND/* verilator tracing_on */
-{{- $ch0 := (index .Audio 0) -}}
-{{- $ch1 := (index .Audio 1) -}}
-{{- $ch2 := (index .Audio 2) -}}
-{{- $ch3 := (index .Audio 3) -}}
-{{- $ch4 := (index .Audio 4) }}
+{{ if .Audio.Channels }}`ifndef NOSOUND/* verilator tracing_on */
+{{- $ch0 := (index .Audio.Channels 0) -}}
+{{- $ch1 := (index .Audio.Channels 1) -}}
+{{- $ch2 := (index .Audio.Channels 2) -}}
+{{- $ch3 := (index .Audio.Channels 3) -}}
+{{- $ch4 := (index .Audio.Channels 4) }}
 jtframe_rcmix #(
     {{ if $ch0.Name }}.W0({{$ch0.Data_width}}),{{end}}{{ if $ch1.Name }}
     .W1({{$ch1.Data_width}}),{{end}}{{ if $ch2.Name }}
@@ -502,11 +499,11 @@ jtframe_rcmix #(
     .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}}, {{ index $ch2.Fcut 1 }} {{end}}
     .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}}, {{ index $ch3.Fcut 1 }} {{end}}
     .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}}, {{ index $ch4.Fcut 1 }} {{end}}
-    .g0     ( {{if $ch0.Name}}{{$ch0.Name}}_gain{{else}}8'h00{{end}}),
-    .g1     ( {{if $ch1.Name}}{{$ch1.Name}}_gain{{else}}8'h00{{end}}),
-    .g2     ( {{if $ch2.Name}}{{$ch2.Name}}_gain{{else}}8'h00{{end}}),
-    .g3     ( {{if $ch3.Name}}{{$ch3.Name}}_gain{{else}}8'h00{{end}}),
-    .g4     ( {{if $ch4.Name}}{{$ch4.Name}}_gain{{else}}8'h00{{end}}),
+    .g0     ( {{ $ch0.Gain }} ),
+    .g1     ( {{ $ch1.Gain }} ),
+    .g2     ( {{ $ch2.Gain }} ),
+    .g3     ( {{ $ch3.Gain }} ),
+    .g4     ( {{ $ch4.Gain }} ),
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
     .peak ( game_led )
 );

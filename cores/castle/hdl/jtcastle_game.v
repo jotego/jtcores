@@ -151,7 +151,6 @@ jtcastle_video u_video (
 jtcastle_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),

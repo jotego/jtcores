@@ -47,15 +47,34 @@ func calc_a( rc AudioRC, fs float64 ) (string,int) {
 	return fmt.Sprintf("%02X",int(a)),fc
 }
 
-func make_audio( macros map[string]string, cfg *MemConfig ) {
+func read_modules() map[string]AudioCh {
 	var modules map[string]AudioCh
-	const fs = float64(192000)
 	buf, e := os.ReadFile(filepath.Join(os.Getenv("JTFRAME"),"src","jtframe","mem","audio_mod.yaml"))
 	must(e)
 	must(yaml.Unmarshal(buf,&modules))
+	return modules
+}
+
+func make_audio( macros map[string]string, cfg *MemConfig ) {
+	modules := read_modules()
+	const fs = float64(192000)
 	// assign information derived from the module type
-	for k,_ := range cfg.Audio {
-		ch := &cfg.Audio[k]
+	var rmin float64
+	for _,ch := range cfg.Audio.Channels {
+		if ch.Rsum=="" {
+			fmt.Printf("rsum missing for audio channel %s\n",ch.Name)
+			os.Exit(1)
+		}
+		rsum := eng2float(ch.Rsum)
+		if rsum<=0 {
+			fmt.Printf("rsum must be >0 in audio channel %s\n",ch.Name)
+			os.Exit(1)
+		}
+		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
+	}
+	var gmax float64
+	for k,_ := range cfg.Audio.Channels {
+		ch := &cfg.Audio.Channels[k]
 		if ch.Name=="" {
 			fmt.Printf("ERROR: anonymous audio channels are not allowed in mem.yaml\n")
 			os.Exit(1)
@@ -71,7 +90,7 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		ch.Unsigned   = mod.Unsigned
 		ch.Stereo     = mod.Stereo
 		ch.DCrm		  = mod.DCrm
-		if ch.RC==nil { ch.RC = mod.RC }
+		// if ch.RC==nil { ch.RC = mod.RC }
 		// Derive pole information
 		p0 := "00"
 		p1 := "00"
@@ -82,15 +101,28 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 			os.Exit(1)
 		}
 		ch.Pole=fmt.Sprintf("16'h%s%s",p1,p0)
+		ch.gain=rmin/eng2float(ch.Rsum)
+		if ch.Pre > 0 { ch.gain *= ch.Pre }
+		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)
+		// if (int(gint)>>4) > 15 {
+		// 	fmt.Printf("Gain unbalance among audio channels is too large")
+		// 	os.Exit(1)
+		// }
+		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
-	if len(cfg.Audio)>5 {
-		fmt.Printf("ERROR: Audio configuration requires %d channels\n",len(cfg.Audio))
+	for k,_ := range cfg.Audio.Channels {
+		ch := &cfg.Audio.Channels[k]
+		ch.gain /= gmax
+		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*16)&0xff)
+	}
+	if len(cfg.Audio.Channels)>5 {
+		fmt.Printf("ERROR: Audio configuration requires %d channels\n",len(cfg.Audio.Channels))
 		os.Exit(1)
 	}
 	// fill up to 5 channels
-	if len(cfg.Audio)>0 {
-		for k:=len(cfg.Audio);k<5;k++ {
-			cfg.Audio = append(cfg.Audio, AudioCh{} )
+	if len(cfg.Audio.Channels)>0 {
+		for k:=len(cfg.Audio.Channels);k<5;k++ {
+			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}
 	_, cfg.Stereo = macros["JTFRAME_STEREO"]
