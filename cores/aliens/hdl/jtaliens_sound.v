@@ -95,7 +95,7 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
-    fm_gain = 8'h0C;
+    fm_gain = 8'h18;
     case( cfg )
         ALIENS,CRIMFGHT: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
@@ -112,8 +112,8 @@ always @(*) begin
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
         end
     endcase
-    if( cfg==SCONTRA  ) fm_gain = 8'h10;
-    if( cfg==THUNDERX ) fm_gain = 8'h08;
+    if( cfg==SCONTRA  ) fm_gain = 8'h20;
+    if( cfg==THUNDERX ) fm_gain = 8'h10;
 end
 
 always @(*) begin
@@ -136,13 +136,13 @@ end
 
 always @(*) begin
     case( fxlevel )
-        0: pcm_gain = 8'h30; // spaced by sqrt(2)
-        1: pcm_gain = 8'h44;
-        2: pcm_gain = 8'h60;
-        3: pcm_gain = 8'h88;
+        3: pcm_gain = 8'h11;
+        2: pcm_gain = 8'h0c;
+        1: pcm_gain = 8'h08;
+        0: pcm_gain = 8'h06; // spaced by sqrt(2)
     endcase
 `ifdef SIMULATION
-    pcm_gain=8'h60;
+    pcm_gain=8'h0c;
 `endif
     // pcm_gain=debug_bus;
 end

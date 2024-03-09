@@ -14,19 +14,11 @@ clocks:
         - cen_640
         - cen_320
 audio:  
-  - name: pcm
-    module: jt007232  
-    rc:
-      - { r: 120k, c: 470p }
-  - name: upd
-    module: jt7759 
-    rc:
-      - { r: 5.7k, c: 10n }
-  - name: ttl 
-    module: ym3012 
-    data_width: 16
-    rc:
-      - { r: 1k, c: 33n }
+  rsum: 12k
+  channels:
+    - { name: fm,  module: jt51,     rsum: 3.0k, rc: [ { r: 666,  c:  33n } ] } # 1k || (1k+1k)
+    - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.8 }
+    - { name: upd, module: jt7759,   rsum: 8.5k, rc: [ { r: 5.7k, c:  10n } ], pre: 0.5 }
 sdram:
   banks:
     -

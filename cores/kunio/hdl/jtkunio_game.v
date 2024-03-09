@@ -107,9 +107,8 @@ jtkunio_sound u_sound(
     .pcm_cs     ( pcm_cs        ),
     .pcm_ok     ( pcm_ok        ),
 
-    .peak       ( game_led      ),
-    .sample     ( sample        ),
-    .sound      ( snd           )
+    .pcm        ( pcm           ),
+    .fm         ( fm            )
 );
 
 jtkunio_video u_video(

@@ -12,11 +12,14 @@ clocks:
       outputs:
         - cen3
         - cen1p5
-audio: #Aparentemente este chip tiene el filtro integrado
+audio:
   - name: pcm
     module: jt5205
-    rc:
-      - { r: , c: }
+    dcrm: true
+    rsum: 4.7k
+  - name: fm
+    module: jtopl2
+    rsum: 2.2k
 sdram:
   # post_addr: true
   banks:

@@ -41,9 +41,8 @@ module jtcastle_sound(
     input           pcmb_ok,
 
     // Sound output
-    output signed [15:0] snd_fm,
-    output signed [11:0] pcm_snd, scc_snd, 
-    output        [ 7:0] scc_snd_gain, pcm_gain, snd_fm_gain                   
+    output signed [15:0] fm,
+    output signed [11:0] pcm_a, pcm_b, scc
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, scc_dout;
@@ -62,6 +61,9 @@ wire        [ 7:0]  div_dout;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
+// assign fm_gain  = 8'h08;
+// assign scc_gain = 8'h06;
+// assign pcm_gain = fxgain;
 
 // This connection is done through the NE output
 // of the 007232 on the board by using a latch
@@ -170,8 +172,8 @@ jtopl2 u_opl(
     .wr_n       ( wr_n      ), // write
     .irq_n      ( nmi_n     ),
     // combined output
-    .snd        ( snd_fm    ),
-    .sample     ( sample    )  // marks new output sample
+    .snd        ( fm        ),
+    .sample     (           )  // marks new output sample
 );
 
 jt007232 u_pcm(
@@ -196,10 +198,10 @@ jt007232 u_pcm(
     .romb_dout  ( pcmb_data ),
     .romb_cs    ( pcmb_cs   ),
     .romb_ok    ( pcmb_ok   ),
-    // sound output - raw
-    .snda       (           ),
-    .sndb       (           ),
-    .snd        ( pcm_snd   ),
+    // sound output
+    .snda       ( pcm_a     ),
+    .sndb       ( pcm_b     ),
+    .snd        (           ),
     .swap_gains ( 1'b0      ),
     // debug
     .debug_bus  ( 8'd0      ),
@@ -215,7 +217,7 @@ jt051649 u_scc(
     .addr       ( {4'b1001, A[11:0] }), // bits 10-8 ignored
     .din        ( cpu_dout  ),
     .dout       ( scc_dout  ),
-    .snd        ( scc_snd   )
+    .snd        ( scc   )
 );
 
 `else

@@ -7,14 +7,12 @@ clocks:
         - cen24
         - cen12
 audio:
-  - name: snd_fm
-    module: jtopl2
-  - name: pcm_snd
-    module: jt007232
-    rc:
-      - { r: 120k, c: 470p }
-  - name: scc_snd
-    module: jt051649 
+  rsum: 1k
+  channels:
+    - { name: fm,    module: jtopl2,   rsum: 3.2k, rc: [{ r: 687,   c:  33n }] } # 1k || (1k+1.2k)
+    - { name: scc,   module: jt051649, rsum: 8.2k, rc: [{ r: 100k,  c: 330p }] } # r is a guess, must measure 051671
+    - { name: pcm_a, module: jt007232, rsum: 1.5k, rc: [{ r: 19.6k, c: 470p }], pre: 0.164 }
+    - { name: pcm_b, module: jt007232, rsum: 1.0k, rc: [{ r: 19.6k, c: 470p }], pre: 0.164 } # different rsum
 sdram:
   banks:
     - buses:

@@ -18,7 +18,7 @@ audio:
     module: jt51
     rsum: 3.05k // 6.1k, but both channels are summed
     rc:
-      - { r: 1k, c: 33p }
+      - { r: 1k, c: 33n }
   - name: pcm
     module: jt007232
     rsum: 12.25k

@@ -13,13 +13,15 @@ clocks:
         - ti2
 audio: 
   - name: ti1_snd
+    rsum: 220
     module: jt89
     rc:
-      - { r: 1k, c: 470p } 
+      - { r: 1k, c: 4.70n } # temporary value
   - name: ti2_snd
+    rsum: 220
     module: jt89
     rc:
-      - { r: 1k, c: 470p }         
+      - { r: 1k, c: 4.70n }
 download:
   post_addr: true
   noswab: true

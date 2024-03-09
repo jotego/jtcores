@@ -45,6 +45,8 @@
 // This is specially bad in the code 7 to 8 transition
 // I am not modelling this effect as the music probably sounds better
 // using the linear model rather than the *authentic* one
+// It is also used with a proper R2R ladder in some games, like Haunted Castle
+// so the response is linear for those ones
 
 module jt007232(
     input             rst,
@@ -74,10 +76,10 @@ module jt007232(
     input      [ 7:0] romb_dout,
     output            romb_cs,
     input             romb_ok,
-    // sound output - raw
-    output signed [ 7:0] snda,
-    output signed [ 7:0] sndb,
-    output reg signed [11:0] snd,      // snd_a + snd, scaled by register 12
+    // sound output - scaled by register 12
+    output signed [11:0] snda,
+    output signed [11:0] sndb,
+    output signed [11:0] snd,
     // debug
     input         [ 7:0] debug_bus,
     output reg    [ 7:0] st_dout
@@ -93,6 +95,7 @@ parameter REG12A=1, // location of CHA gain, the gain device is external to the
 
 reg [7:0] mmr[0:13]; // Not all bits are used
 
+wire signed [ 7:0] rawa, rawb;
 // Channel A control
 wire [11:0] cha_pres = { mmr[1][3:0], mmr[0] };
 wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
@@ -113,19 +116,24 @@ wire signed [4:0] chb_gain = {1'b0, ~(REG12A[0]^swap_gains) ? mmr[12][7:4] : mmr
 
 wire [3:0] addrj = INVA0==1 ? (addr^4'b1) : addr; // addr LSB may be inverted
 
-reg signed [11:0] cha_amp, chb_amp;
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd     <= 0;
-        cha_amp <= 0;
-        chb_amp <= 0;
+        snda <= 0;
+        sndb <= 0;
     end else begin
-        cha_amp <= snda * cha_gain;
-        chb_amp <= sndb * chb_gain;
-        snd     <= cha_amp + chb_amp; // snda/b already had one filling bit
+        snda <= rawa * cha_gain;
+        sndb <= rawb * chb_gain;
     end
 end
+
+jtframe_limsum #(.W(12),.K(2)) u_limsum(
+    .rst    ( rst   ),
+    .clk    ( clk   ),
+    .cen    ( 1'b1  ),
+    .parts  ( {snda, sndb } ),
+    .sum    ( snd   ),
+    .peak   (       )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -202,7 +210,7 @@ jt007232_channel u_cha(
     .rom_cs     ( roma_cs   ),
     .rom_ok     ( roma_ok   ),
     .rom_dout   ( roma_dout ),
-    .snd        ( snda      )
+    .snd        ( rawa      )
 );
 
 jt007232_channel u_chb(
@@ -221,7 +229,7 @@ jt007232_channel u_chb(
     .rom_cs     ( romb_cs   ),
     .rom_ok     ( romb_ok   ),
     .rom_dout   ( romb_dout ),
-    .snd        ( sndb      )
+    .snd        ( rawb      )
 );
 
 

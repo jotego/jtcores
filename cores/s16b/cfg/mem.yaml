@@ -3,8 +3,10 @@ game: s16
 audio:
   - name: fm
     module: jt51
+    rsum: 23.5k # 47k || 47k
   - name: u_pcm
     module: jt7759
+    rsum: 10k
     rc:
       - { r: 15.07k, c: 2.2n }
       - { r: 7.5k, c: 10n    }
