@@ -1,5 +1,5 @@
 # Default module definitions
-jt49:     { data_width: 10, unsigned: true, dcrm: true }
+jt49:     { data_width: 10, unsigned: true, dcrm: true } # assumes 10kOhm load resistor
 jt007232: { data_width: 12                 }
 jt7759:   { data_width:  9                 }
 jt5205:   { data_width: 12                 } # internal RC filter?

@@ -11,13 +11,12 @@ download:
   post_addr: true
   post_data: true
 audio:
-  - name: fm
-    module: jt03
-  - name: pcm
-    module: jt6295
-    rc:
-      - { r: 10k, c: 10n  }
-      - { r: 20k, c: 150p }
+  rsum: 10k
+  channels:
+    - { name: opn, module: jt03,   rsum: 56k }
+    - { name: opl, module: jtopl2, rsum: 56k }
+    - { name: psg, module: jt49,   rsum: 66k } # adding load resistor (10k) to ground, TBC
+    - { name: pcm, module: jt6295, rsum: 10k, rc: [{ r: 10k, c: 10n  }, { r: 2.5k, c: 1n }] } # equivalent filter
 sdram:
   banks:
     - buses:

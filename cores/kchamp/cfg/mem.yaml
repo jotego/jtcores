@@ -1,10 +1,9 @@
 download:
   pre_addr: true
-audio: #Aparentemente este chip tiene el filtro integrado
-  - name: pcm
-    module: jt5205
-    rc:
-      - { r: , c:  }
+# audio:
+#   rsum: 10k
+#   channels:
+#     - { name: pcm, module: jt5205, rsum: 100k }
 sdram:
   banks:
     - buses:

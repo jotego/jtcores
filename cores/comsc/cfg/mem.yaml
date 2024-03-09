@@ -1,12 +1,10 @@
 include: [ game: contra ]
 game: "contra"
 audio:
-  - name: fm_snd
-    module: jt03
-  - name: pcm
-    module: jt7759
-    rc:
-      - { r: 5.7k, c: 10n }  
-  - name: psg_snd
-    module: jt49
+  rsum: 2.7k
+  channels:
+    - { name: fm,  module: jt03,   rsum: 5.9k, rc: [{ r: 830,  c: 33n }]  }
+    - { name: pcm, module: jt7759, rsum: 10k,  rc: [{ r: 5.7k, c: 10n }], pre: 0.5  }
+    # PSG filter is enabled per channel by bits 2:0 of YM2203's port A
+    - { name: psg, module: jt49,   rsum: 4.7k, rc: [{ r: 762,  c: 22n }], pre: 0.42 }  # 4.2kOhm load resistor
   

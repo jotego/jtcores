@@ -1,8 +1,3 @@
 include:
   - game: cop
 game: cop
-audio: #No hay sch para consultar
-  - name: 
-    module:
-    rc:
-      - { r: , c: }

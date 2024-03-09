@@ -1,11 +1,3 @@
 include:
   - game: cop
 game: cop
-audio:
-  - name: fm
-    module: jt03
-  - name: pcm
-    module: jt6295
-    rc:
-      - { r: 10k, c: 10n  }
-      - { r: 20k, c: 150p }

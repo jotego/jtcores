@@ -8,19 +8,19 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-audio: #Aparentemente este chip tiene el filtro integrado
-  - name: fm
-    module: jt51
-    stereo: true
-    data_width: 16
-  - name: pcm
-    module: 
-    data_width: 11
-    rc:
-      - { r: , c: }
-  - name: cus_30
-    module: jtcus30
-    data_width: 13
+# audio:
+#   - name: fm
+#     module: jt51
+#     stereo: true
+#     data_width: 16
+#   - name: pcm
+#     module:
+#     data_width: 11
+#     rc:
+#       - { r: , c: }
+#   - name: cus_30
+#     module: jtcus30
+#     data_width: 13
 sdram:
   banks:
     - buses:

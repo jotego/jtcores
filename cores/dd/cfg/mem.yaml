@@ -25,11 +25,12 @@ clocks:
       outputs:
         - mcu_cen12
         - mcu_cen6
-audio: #Aparentemente este chip tiene el o los filtros integrados
-  - name: pcm
-    module: jt5205
-  rc:
-      - { r: , c:  }     
+audio:
+  rsum: 10k
+  channels:
+    - { name: pcm_a, module: jt5205, rsum: 20k }
+    - { name: pcm_b, module: jt5205, rsum: 20k }
+    - { name: fm,    module: jt51,   rsum: 47k, rc: {[ r: 100k, c: 3.3n ]}} # temp. value for YM3012 output res.
 sdram:
   banks:
     - buses:
