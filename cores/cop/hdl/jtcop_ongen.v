@@ -46,40 +46,16 @@ module jtcop_ongen(
     input         [ 7:0] adpcm_data,
     input                adpcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] opn, opl,
+    output signed [13:0] pcm,
+    output        [ 9:0] psg
 );
 
-parameter [7:0] OPL_GAIN = 8'h10,
-                PCM_GAIN = 8'h10,
-                PSG_GAIN = 8'h10;
 parameter       KARNOV   = 0;
 
 wire signed [15:0] opl_snd, opn_snd;
 wire signed [15:0] adpcm_snd;
 wire signed [13:0] oki_pre;
-wire        [ 9:0] psg_snd, psgac_snd;
-wire               oki_sample;
-
-reg  [ 7:0] opn_gain;
-
-always @(posedge clk) begin
-    if( KARNOV )
-        case( fxlevel )
-            0: opn_gain = 8'h08;
-            1: opn_gain = 8'h10;
-            2: opn_gain = 8'h18;
-            3: opn_gain = 8'h20;
-        endcase
-    else
-        case( fxlevel )
-            0: opn_gain = 8'h18;
-            1: opn_gain = 8'h20;
-            2: opn_gain = 8'h28;
-            3: opn_gain = 8'h30;
-        endcase
-end
 
 /* verilator tracing_on */
 jtopl2 u_opl(
@@ -92,8 +68,8 @@ jtopl2 u_opl(
     .wr_n   ( cpu_rnw   ),
     .dout   ( opl_dout  ),
     .irq_n  ( opl_irqn  ),
-    .snd    ( opl_snd   ),
-    .sample ( sample    )
+    .snd    ( opl       ),
+    .sample (           )
 );
 /* verilator tracing_off */
 jt03 u_2203(
@@ -119,8 +95,8 @@ jt03 u_2203(
     .psg_A  (           ),
     .psg_B  (           ),
     .psg_C  (           ),
-    .fm_snd ( opn_snd    ),
-    .psg_snd( psg_snd   ),
+    .fm_snd ( opn       ),
+    .psg_snd( psg       ),
     .snd    (           ),
     .snd_sample()
 );
@@ -137,7 +113,7 @@ always @(posedge clk) begin
     cen_oki <= cen_sh[0] & cen_opl & adpcm_ok;
 end
 
-jt6295 #(.INTERPOL(2),.SAMPLE(1)) u_adpcm(
+jt6295 u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_oki   ),  // 1MHz
@@ -151,52 +127,15 @@ jt6295 #(.INTERPOL(2),.SAMPLE(1)) u_adpcm(
     .rom_data   ( adpcm_data),
     .rom_ok     ( adpcm_ok  ),
     // Sound output
-    .sound      ( oki_pre   ),
-    .sample     ( oki_sample)   // ~26kHz
-);
-
-jtframe_uprate2_fir u_fir1(
-    .rst        ( rst            ),
-    .clk        ( clk            ),
-    .sample     ( oki_sample     ),
-    .upsample   (                ), // ~52kHz, close to JT51's 55kHz
-    .l_in       ({oki_pre,2'd0}  ),
-    .r_in       (     16'd0      ),
-    .l_out      ( adpcm_snd      ),
-    .r_out      (                )
+    .sound      ( pcm       ),
+    .sample     (           )
 );
 `else
     assign adpcm_snd  = 0;
     assign adpcm_addr = 0;
     assign adpcm_cs   = 0;
     assign oki_dout   = 0;
+    assign pcm        = 0;
 `endif
-
-jtframe_dcrm #(.SW(10)) u_dcrm(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .sample ( cen_opn   ),
-    .din    ( psg_snd   ),
-    .dout   ( psgac_snd )
-);
-
-jtframe_mixer_en #(.W3(10),.WOUT(16)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen_opn   ),
-    // input signals
-    .ch0    ( opn_snd   ),
-    .ch1    ( opl_snd   ),
-    .ch2    ( adpcm_snd ),
-    .ch3    ( psgac_snd ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( opn_gain  ),
-    .gain1  ( OPL_GAIN  ),
-    .gain2  ( PCM_GAIN  ),
-    .gain3  ( PSG_GAIN  ),
-    .ch_en  ( { 2'b11, enable_fm, enable_psg } ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
 
 endmodule

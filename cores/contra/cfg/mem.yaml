@@ -20,7 +20,7 @@ clocks:
 audio:
   rsum: 500
   channels:
-    - { name: fm, module: jt51, rsum: 2k, rc: [{r: 10k, c: 3.3n}, {r: 500, c: 33n }]} # YM3012
+    - { name: fm, module: jt51, rsum: 2k, rc: [{r: 1y, c: 3.3n}, {r: 500, c: 33n }]} # YM3012
 sdram:
   banks:
     - buses:

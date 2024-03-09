@@ -4,7 +4,7 @@ audio:
   rsum: 1.7k
   channels:
     - { name: pcm, module: jt6295, rsum: 22k, rc: [{r: 20k,   c: 3.3n}], pre: 0.1 }
-    - { name: fm, module: jt2413,  rsum: 22k, rc: [{r: 2.19k, c: 15n },  {r: 11.2k, c: 1n}], pre: 0.1 }
+    - { name:  fm, module: jt2413,  rsum: 22k, rc: [{r: 2.19k, c: 15n },  {r: 11.2k, c: 1n}], pre: 0.1 }
 sdram:
   banks:
     - buses: [ { name: main, addr_width: 20, data_width:  8 } ]

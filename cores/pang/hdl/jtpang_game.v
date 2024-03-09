@@ -178,9 +178,8 @@ jtpang_snd u_snd(
     .rom_data   ( pcm_data      ),
     .rom_ok     ( pcm_ok        ),
 
-    .peak       ( game_led      ),
-    .sample     ( sample        ),
-    .snd        ( snd           )
+    .fm         ( fm            ),
+    .pcm        ( pcm           )
 );
 `else
     assign pcm_addr = 0;

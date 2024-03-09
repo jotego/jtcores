@@ -26,6 +26,7 @@ func eng2float( s string ) float64 {
 	s=s[len(sm):]
 	if len(s)==0 { return mant }
 	switch(s[0]) {
+	case 'y': return 2000	// YM3012 output impedance
 	case 'p': return mant*1e-12
 	case 'n': return mant*1e-9
 	case 'u': return mant*1e-6
@@ -80,16 +81,18 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 			os.Exit(1)
 		}
 		mod, fnd := modules[ch.Module]
-		if !fnd {
+		if !fnd && ch.Module!="" {
 			fmt.Printf("Warning: ignored module statement %s for audio channel %s in mem.yaml\n",
 			ch.Module, ch.Name )
 			continue
 		}
-		// copy module information
-		ch.Data_width = mod.Data_width
-		ch.Unsigned   = mod.Unsigned
-		ch.Stereo     = mod.Stereo
-		ch.DCrm		  = mod.DCrm
+		if fnd {
+			// copy module information
+			ch.Data_width = mod.Data_width
+			ch.Unsigned   = mod.Unsigned
+			ch.Stereo     = mod.Stereo
+			ch.DCrm		  = mod.DCrm
+		}
 		// if ch.RC==nil { ch.RC = mod.RC }
 		// Derive pole information
 		p0 := "00"

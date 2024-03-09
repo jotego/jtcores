@@ -326,9 +326,11 @@ jtcop_snd u_sound(
     .adpcm_data ( adpcm_data),
     .adpcm_ok   ( adpcm_ok  ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // Sound channels
+    .opn        ( opn       ),
+    .opl        ( opl       ),
+    .psg        ( psg       ),
+    .pcm        ( pcm       ),
     .status     ( st_snd    )
 );
 /* verilator tracing_off */

@@ -560,6 +560,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         | grep -v "\.we_a.*has no driver or initial value" \
         | grep -v "Warning: RST port on the PLL" \
         | grep -v "Warning: OUTCLK port on the PLL" \
+        | grep -v "Can't pack node.*to I/O pin" \
         | grep -v "Warning \(10762\)" > $AUX
         if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
             # There are many warnings coming from sys_top when HDMI is disabled, ignore them.

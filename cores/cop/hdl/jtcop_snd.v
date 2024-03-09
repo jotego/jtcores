@@ -43,9 +43,9 @@ module jtcop_snd(
     input         [ 7:0] adpcm_data,
     input                adpcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    output signed [15:0] opn, opl,
+    output signed [13:0] pcm,
+    output        [ 9:0] psg,
 
     output        [ 7:0] status
 );
@@ -212,9 +212,10 @@ jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
     .adpcm_data ( adpcm_data    ),
     .adpcm_ok   ( adpcm_ok      ),
 
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( peak          )
+    .opn        ( opn           ),
+    .opl        ( opl           ),
+    .pcm        ( pcm           ),
+    .psg        ( psg           )
 );
 
 `else
@@ -222,9 +223,10 @@ jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
     assign  rom_addr   = 0;
     assign  adpcm_addr = 0;
     assign  adpcm_cs   = 0;
-    assign  snd        = 0;
-    assign  sample     = 0;
-    assign  peak       = 0;
+    assign  opn        = 0;
+    assign  opl        = 0;
+    assign  pcm        = 0;
+    assign  psg        = 0;
     assign  status     = 0;
     initial snd_bank   = 0;
 `endif

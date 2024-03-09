@@ -41,9 +41,8 @@ module jtpang_snd(
     input       [ 7:0] rom_data,
     input              rom_ok,
 
-    output             peak,
-    output             sample,
-    output signed [15:0] snd
+    output signed [15:0] fm,
+    output signed [13:0] pcm
 );
 
 localparam [7:0] FM_GAIN  = 8'h10,
@@ -64,7 +63,7 @@ jt2413 u_jt2413 (
     .addr  ( a0         ),
     .cs_n  ( ~fm_cs     ),
     .wr_n  ( wr_n       ),
-    .snd   ( fm_snd     ),
+    .snd   ( fm         ),
     .sample(            )
 );
 /* verilator tracing_off */
@@ -80,33 +79,8 @@ jt6295 u_pcm (
     .rom_addr( rom_addr ),
     .rom_data( rom_data ),
     .rom_ok  ( rom_ok   ),
-    .sound   ( pcm_raw  ),
-    .sample  ( sample   )
-);
-
-jtframe_pole #(.WA(8), .WS(14)) u_pole(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .sample     ( sample    ),
-    .a          ( 8'hba     ),  // pole at 2.4 kHz for a 48kHz sample rate
-    .sin        ( pcm_raw   ),
-    .sout       ( pcm_snd   )
-);
-
-jtframe_mixer #(.W1(14)) u_mixer(
-    .rst  ( rst         ),
-    .clk  ( clk         ),
-    .cen  ( fm_cen      ),
-    .ch0  ( fm_snd      ),
-    .ch1  ( pcm_snd     ),
-    .ch2  (             ),
-    .ch3  (             ),
-    .gain0( FM_GAIN     ),
-    .gain1( PCM_GAIN    ),
-    .gain2( 8'd0        ),
-    .gain3( 8'd0        ),
-    .mixed( snd         ),
-    .peak ( peak        )
+    .sound   ( pcm      ),
+    .sample  (          )
 );
 
 /* verilator tracing_on */

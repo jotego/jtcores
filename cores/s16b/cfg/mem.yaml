@@ -3,5 +3,5 @@ game: s16
 audio:
   rsum: 47k
   channels:
-    - { name: fm,  module: jt51,   rsum: 47k, rc: [{ r:10k, c: 1.5n }]}  # assuming 10k for YM3012
+    - { name: fm,  module: jt51,   rsum: 47k, rc: [{ r: 1y, c: 1.5n }]}
     - { name: pcm, module: jt7759, rsum: 10k, rc: [{ r: 15.07k, c: 2.2n }, { r: 7.5k, c: 10n }]}
