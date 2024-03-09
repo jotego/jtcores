@@ -31,13 +31,10 @@ clocks:
         - mcu_cen
         - cen_nc4
 audio:
-  - name: fm
-    module: jt51 
-  - name: u_pcm
-    module: jt7759 #upd7751?
-    rc:
-      - { r: 27.8k, c: 2.2n }
-      - { r: 10.2k, c: 10n  }
+  rsum: 4.7k
+  channels:
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 100k, c: 1.5n}]} # assuming 100k for YM3012
+    - { name: pcm, rsum: 10k, rc: [{ r: 4.92k, c: 2.2n }, { r: 10.2k, c: 10n  }]}
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

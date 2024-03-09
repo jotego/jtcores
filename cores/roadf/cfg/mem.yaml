@@ -16,11 +16,11 @@ clocks:
         - snd
         - psg
 audio:
-    - name: fm
-      module: vlm5030 
-      rc:
-        -{ r: 10k, c: 47p  }
-        -{ r: 10k, c: 330p  }     
+  rsum: 1k
+  channels:
+    - { name: vlm, module: vlm5030, rsum: 1k,    rc: [{ r:  10k, c: 47p }, { r: 2.5k, c: 1n  }], pre: 17.44 } # equivalent filter
+    - { name: psg, module: jt89,    rsum: 1.22k, rc: [{ r:  180, c: 220n}], rc_en: true }
+    - { name: rdac,                 rsum: 3.3k   rc: [{ r: 3.3k, c: 220n}], rc_en: true }
 download:
   post_addr: true
   post_data: true

@@ -3,13 +3,10 @@ params:
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
   - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
 audio:
-  - name: fm
-    module: jt51 #ym3012 rc: { r: 18k, c: 10n  } (21-b6)
-  - name: pcm
-    module: jt5205
-    rc:
-      - { r: 8.6k, c: 10n  }
-      - { r: 10.2k, c: 68n }
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt51,   rsum: 10k,  rc: [{ r: 100k, c: 1n   }]}  # output impedance of YM3012=100kOhm??
+    - { name: pcm, module: jt5205, rsum: 9.1k, rc: [{ r: 8.6k, c: 10n  }, { r: 10.2k, c: 68n }]}
 sdram:
   banks:
     - buses:
