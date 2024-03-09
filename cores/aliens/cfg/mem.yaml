@@ -14,16 +14,10 @@ clocks:
         - cen_fm
         - cen_fm2
 audio:
-  - name: fm
-    module: jt51
-    rsum: 3.05k // 6.1k, but both channels are summed
-    rc:
-      - { r: 1k, c: 33n }
-  - name: pcm
-    module: jt007232
-    rsum: 12.25k
-    rc:
-      - { r: 120k, c: 470p }
+  rsum: 10k
+  channels:
+    - {name: fm,  module: jt51,     rsum:  6.2k,  rc: [{ r:  859,   c: 33n  }, {r: 100k, c: 2.2n }]} # output impedance of YM3012=100kOhm??
+    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 19.65k, c: 470p }]}
 sdram:
   banks:
     - buses:
