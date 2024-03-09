@@ -1,7 +1,7 @@
 (kicad_symbol_lib (version 20220914) (generator kicad_symbol_editor)
   (symbol "DRAM64K4B" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (at 0 21.59 0)
-      (effects (font (size 1.4986 1.4986)))
+      (effects (font (size 1.27 1.27)))
     )
     (property "Value" "DRAM64K4B" (at 0 19.05 0)
       (effects (font (size 1.27 1.27)))
