@@ -2,11 +2,7 @@ include:
     - game: kicker
 game: "kicker"
 audio:
-  - name: fm
-    module: jt89
-  - name: u_vlm
-    module: vlm5030
-    rc:
-      - { r: 139k, c: 47n }
-      - { r: 10k, c: 330p }
-      - { r: 1k,   c: 47n } #76489 generador de sonido?
+  rsum: 1k
+  channels:
+    - { name: psg, module: jt89,    rsum: 1.22k, rc: [{ r:  180, c: 47n}]}
+    - { name: vlm, module: vlm5030, rsum: 1k,    rc: [{ r:  10k, c: 47p }, { r: 2.5k, c: 1n  }], pre: 17.44 } # equivalent filter
