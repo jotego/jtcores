@@ -5,8 +5,8 @@ params:
 audio:
   rsum: 33k
   channels:
-    - { name: fm0, module: jt03,   rsum: 58k, rc: [{ r:100k, c: 1n }]}  # assuming 100k for YM3012
-    - { name: fm1, module: jt03,   rsum: 58k, rc: [{ r:100k, c: 1n }]}  # assuming 100k for YM3012
+    - { name: fm0, module: jt03,   rsum: 58k, rc: [{ r:10k, c: 1n }]}  # assuming 10k for YM3012
+    - { name: fm1, module: jt03,   rsum: 58k, rc: [{ r:10k, c: 1n }]}  # assuming 10k for YM3012
     - { name: pcm, module: jt5205, rsum: 58k, rc: [{r: 10k, c: 22n}, {r: 25k, c: 6.8n}]} # eq. filter, unknown RSUM see https://github.com/jotego/jtcores/issues/576
 sdram:
   banks:

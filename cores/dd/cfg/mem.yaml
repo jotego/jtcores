@@ -30,7 +30,7 @@ audio:
   channels:
     - { name: pcm_a, module: jt5205, rsum: 20k }
     - { name: pcm_b, module: jt5205, rsum: 20k }
-    - { name: fm,    module: jt51,   rsum: 47k, rc: {[ r: 100k, c: 3.3n ]}} # temp. value for YM3012 output res.
+    - { name: fm,    module: jt51,   rsum: 47k, rc: {[ r: 10k, c: 3.3n ]}} # temp. value for YM3012 output res.
 sdram:
   banks:
     - buses:
