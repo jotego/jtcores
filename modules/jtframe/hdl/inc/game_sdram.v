@@ -100,10 +100,11 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst48      ( rst48_h   ),
     .clk48      ( clk48     ),
 `endif
-    // Audio channels {{ range .Audio.Channels -}}
+    // Audio channels
+    {{ range .Audio.Channels -}}
     {{ if .Name }}{{ if .Stereo }}.{{.Name}}_l   ( {{.Name}}_l    ),
-    .{{.Name}}_r   ( {{.Name}}_r    ),{{ else }}
-    .{{.Name}}     ( {{.Name}}      ),{{ end }}{{end}}
+    .{{.Name}}_r   ( {{.Name}}_r    ),{{ else -}}
+    .{{.Name}}     ( {{.Name}}      ),{{ end }}{{ end }}
 {{- end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifdef JTFRAME_STEREO
@@ -499,11 +500,11 @@ jtframe_rcmix #(
     .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}}, {{ index $ch2.Fcut 1 }} {{end}}
     .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}}, {{ index $ch3.Fcut 1 }} {{end}}
     .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}}, {{ index $ch4.Fcut 1 }} {{end}}
-    .g0     ( {{ $ch0.Gain }} ),
-    .g1     ( {{ $ch1.Gain }} ),
-    .g2     ( {{ $ch2.Gain }} ),
-    .g3     ( {{ $ch3.Gain }} ),
-    .g4     ( {{ $ch4.Gain }} ),
+    .g0     ( {{ $ch0.Gain }} ), {{with $ch0.Name}}// {{.}}{{end}}
+    .g1     ( {{ $ch1.Gain }} ), {{with $ch1.Name}}// {{.}}{{end}}
+    .g2     ( {{ $ch2.Gain }} ), {{with $ch2.Name}}// {{.}}{{end}}
+    .g3     ( {{ $ch3.Gain }} ), {{with $ch3.Name}}// {{.}}{{end}}
+    .g4     ( {{ $ch4.Gain }} ), {{with $ch4.Name}}// {{.}}{{end}}
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
     .peak ( game_led )
 );

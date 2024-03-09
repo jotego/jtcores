@@ -42,11 +42,13 @@ module jtcontra_sound(
     input           pcm_ok,
     // Sound output
     output signed [15:0] fm_l,
-    output signed [15:0] fm_r
+    output signed [15:0] fm_r,
+    output        [ 7:0] st_dout
 );
 
 assign pcm_addr = 0;
 assign pcm_cs   = 0;
+assign st_dout  = 0;
 
 `ifndef NOSOUND
 wire [ 7:0] cpu_dout, ram_dout, fm_dout;

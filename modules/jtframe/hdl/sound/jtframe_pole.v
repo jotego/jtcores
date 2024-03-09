@@ -40,7 +40,7 @@ module jtframe_pole #(parameter
     output reg signed [WS-1:0] sout
 );
 
-localparam [WS-1:0] ONE=1<<WA;//{ {WS-WA-1{1'b0}}, 1'b1, {WA{1'b0}}};
+localparam [WS-1:0] ONE={ {WS-WA-1{1'b0}}, 1'b1, {WA{1'b0}}};
 reg signed [WS-1:0] factor, last_prod, fmux;
 
 wire signed [   WS-1:0] aext = { {WS-WA{1'b0}}, a };

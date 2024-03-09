@@ -29,7 +29,7 @@ localparam GAME=`JTCONTRA_PCB;
 
 wire        snd_irq;
 
-wire [ 7:0] snd_latch;
+wire [ 7:0] snd_latch, st_snd;
 
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 3:0] dipsw_c;
@@ -47,11 +47,9 @@ assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = debug_mux;
 
 always @(posedge clk) begin
-    case( debug_bus[7:6] )
-        0: debug_mux <= st_video;
-        1: debug_mux <= dipsw_a;
-        2: debug_mux <= dipsw_b;
-        3: debug_mux <= {4'd0, dipsw_c};
+    case( debug_bus[7] )
+        0: debug_mux <= st_snd;
+        1: debug_mux <= st_video;
     endcase
 end
 
@@ -184,9 +182,15 @@ jtcontra_sound u_sound(
 `ifdef COMSC
     .cen_fm     ( cen3          ),
     .cen_fm2    ( cen1p5        ),
+    .fm         ( fm            ),
+    .psg        ( psg           ),
+    .pcm        ( pcm           ),
 `else
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
+    // Sound output
+    .fm_l       ( fm_r          ), // R/L channels reversed in
+    .fm_r       ( fm_l          ), // the real PCB too
 `endif
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
@@ -201,9 +205,7 @@ jtcontra_sound u_sound(
     .pcm_cs     ( pcm_cs        ),
     .pcm_data   ( pcm_data      ),
     .pcm_ok     ( pcm_ok        ),
-    // Sound output
-    .fm_l       ( fm_r          ), // R/L channels reversed in
-    .fm_r       ( fm_l          )  // the real PCB too
+    .st_dout    ( st_snd        )
 );
 
 endmodule

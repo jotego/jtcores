@@ -59,7 +59,7 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 	modules := read_modules()
 	const fs = float64(192000)
 	// assign information derived from the module type
-	var rmin float64
+	rmin := 0.0
 	for _,ch := range cfg.Audio.Channels {
 		if ch.Rsum=="" {
 			fmt.Printf("rsum missing for audio channel %s\n",ch.Name)
@@ -110,9 +110,10 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		// }
 		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
+	rsum := eng2float(cfg.Audio.Rsum)
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
-		ch.gain /= gmax
+		ch.gain = ch.gain/gmax*rmin/rsum
 		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*16)&0xff)
 	}
 	if len(cfg.Audio.Channels)>5 {

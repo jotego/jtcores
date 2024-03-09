@@ -84,8 +84,8 @@ always @(posedge clk, posedge rst) begin
 end
 
 generate
-    if( DCRM==1 ) begin
-        jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(1)) u_dcrm(
+    if( DCRM==1 ) begin // Use the dc removal to convert from unsigned to signed
+        jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(0)) u_dcrm(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
@@ -93,7 +93,7 @@ generate
             .dout   ( dc[WO-1:0]    )
         );
         if( STEREO==1 ) begin
-            jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(1)) u_dcrm_l(
+            jtframe_dcrm #(.SW(WO),.SIGNED_INPUT(0)) u_dcrm_l(
                 .rst    ( rst           ),
                 .clk    ( clk           ),
                 .sample ( cen           ),

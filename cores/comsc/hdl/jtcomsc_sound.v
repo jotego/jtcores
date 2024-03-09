@@ -39,13 +39,13 @@ module jtcontra_sound(
     input           pcm_ok,
 
     // Sound output
-    output signed [15:0] snd_left,
-    output signed [15:0] snd_right,
-    output               sample,
-    output               peak
+    output signed [15:0] fm,
+    output signed [ 8:0] pcm,
+    output        [ 9:0] psg,
+    output        [ 7:0] st_dout
 );
 `ifndef NOSOUND
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
+wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, porta, pre_a, pre_b, pre_c;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din, pcm_latch;
 wire                m1_n, mreq_n, rd_n, wr_n, int_n, iorq_n, rfsh_n;
@@ -54,7 +54,6 @@ reg                 ram_cs, latch_cs, fm_cs, irq_cs, pcm_busy_cs;
 reg                 pcm_rst_cs, pcm_latch_cs;
 reg                 pcm_rstn, pcm_play;
 wire signed [15:0]  fm_snd;
-wire        [ 9:0]  psg_snd;
 wire                cen_640, cen_320;
 wire                cpu_cen, irq_ack;
 reg                 pcm_play_cs;
@@ -64,8 +63,8 @@ wire signed [ 8:0]  pcm_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
-assign snd_right = snd_left;
 assign comb_rst  = ~pcm_rstn | rst;
+assign st_dout   = porta;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -103,30 +102,6 @@ always @(posedge clk, posedge rst) begin
         if( pcm_play_cs && !wr_n  ) pcm_play  <= ~cpu_dout[1];
     end
 end
-
-jt49_dcrm2 #(.sw(10)) u_dcrm (
-    .clk    (  clk      ),
-    .cen    (  cen_fm   ),
-    .rst    (  rst      ),
-    .din    (  psg_snd  ),
-    .dout   (  psg2x    )
-);
-
-jtframe_mixer #(.W0(16),.W1(9),.W2(10)) u_mixer(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_snd     ),
-    .ch1    ( pcm_snd    ),
-    .ch2    ( psg2x      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( 8'h30      ),
-    .gain1  ( 8'h10      ),
-    .gain2  ( 8'h08      ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_left   ),
-    .peak   ( peak       )
-);
 
 jtframe_ff u_ff(
     .clk      ( clk         ),
@@ -184,9 +159,9 @@ jt03 u_fm(
     .addr       ( A[0]       ),
     .cs_n       ( ~fm_cs     ),
     .wr_n       ( wr_n       ),
-    .psg_snd    ( psg_snd    ),
-    .fm_snd     ( fm_snd     ),
-    .snd_sample ( sample     ),
+    .psg_snd    ( psg        ),
+    .fm_snd     ( fm         ),
+    .snd_sample (            ),
     .dout       ( fm_dout    ),
     // unused outputs
     .irq_n      (            ),
@@ -195,7 +170,7 @@ jt03 u_fm(
     .psg_C      (            ),
     .IOA_in     ( 8'd0       ),
     .IOB_in     ( 8'd0       ),
-    .IOA_out    (            ),
+    .IOA_out    ( porta      ),
     .IOB_out    (            ),
     .IOA_oe     (            ),
     .IOB_oe     (            ),
@@ -217,7 +192,7 @@ jt7759 u_pcm(
     .rom_addr   ( pcm_addr  ),
     .rom_data   ( pcm_data  ),
     .rom_ok     ( pcm_ok    ),
-    .sound      ( pcm_snd   ),
+    .sound      ( pcm       ),
     // unused
     .drqn       (           )
 );
@@ -230,9 +205,5 @@ always @(negedge snd_irq) $display("INFO: sound latch %X", snd_latch );
     assign pcm_cs   = 0;
     assign rom_addr = 0;
     assign pcm_addr = 0;
-    assign snd_left = 0;
-    assign snd_right= 0;
-    assign sample   = 0;
-    assign peak     = 0;
 `endif
 endmodule
