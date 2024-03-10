@@ -45,7 +45,7 @@ func eng2float( s string ) float64 {
 	case "G": return mant*1e9
 	case "T": return mant*1e12
 	default: {
-		fmt.Printf("Unknown suffix %s\n in %s (mem.yaml)\n",s,input)
+		fmt.Printf("ERROR: unknown suffix %s\n in %s (mem.yaml)\n",s,input)
 		os.Exit(1)
 	}
 	}

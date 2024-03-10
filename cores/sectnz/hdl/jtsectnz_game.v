@@ -145,7 +145,7 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-jtgng_sound #(.LAYOUT(0),.PSG_ATT(1)) u_sound (
+jtgng_sound #(.LAYOUT(0)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -154,20 +154,17 @@ jtgng_sound #(.LAYOUT(0),.PSG_ATT(1)) u_sound (
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     // unused
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
     .snd2_latch     (                ),
     .debug_bus      ( 8'd0           ),
     .debug_view     (                )

@@ -1,12 +1,7 @@
+include:
+  - file: audio
 params:
   - { name: SND_OFFSET, value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
-audio:
-  rsum: 4k
-  channels:
-    - { name: psg0, module: jt49, rsum: 5.7k, pre: 0.1ay }
-    - { name: psg1, module: jt49, rsum: 5.7k, pre: 0.1ay }
-    - { name: fm0,  module: jt03, rsum: 10k, rc: [{ r: ym142,  c: 1n }]}
-    - { name: fm1,  module: jt03, rsum: 10k, rc: [{ r: ym142,  c: 1n }]}
 download:
   post_addr: true
 sdram:

@@ -1,3 +1,6 @@
+include:
+  - file: audio
+    game: gng
 params:
   - { name: CHAR_OFFSET,  value: "`CHAR_START>>1"  }
   - { name: MAP2_OFFSET,  value: "(`MAP2_START-`MAP1_START)>>1"  }
@@ -12,13 +15,6 @@ clocks:
     - freq: 8000000
       outputs:
         - cen8
-audio:
-  rsum: 4k
-  channels:
-    - { name: psg0, module: jt49, rsum: 5.7k, pre: 0.1ay }
-    - { name: psg1, module: jt49, rsum: 5.7k, pre: 0.1ay }
-    - { name: fm0,  module: jt03, rsum: 10k, rc: [{ r: 1ym14,  c: 1n }]}
-    - { name: fm1,  module: jt03, rsum: 10k, rc: [{ r: 1ym14,  c: 1n }]}
 download:
   post_addr: true
 sdram:

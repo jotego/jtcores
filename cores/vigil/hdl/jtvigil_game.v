@@ -163,9 +163,6 @@ jtvigil_snd u_sound(
     .fm_cen     ( fm_cen    ),
     .v1         ( v1        ),
 
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-
     // From main CPU
     .main_dout  ( main_dout ),
     .latch_wr   ( latch_wr  ),
@@ -182,9 +179,9 @@ jtvigil_snd u_sound(
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .pcm        ( pcm       ),
     .debug_bus  ( debug_bus )
 );
 

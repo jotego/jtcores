@@ -44,9 +44,9 @@ module jtcop_snd(
     input         [ 7:0] adpcm_data,
     input                adpcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    output signed [15:0] opn, opl,
+    output signed [13:0] pcm,
+    output        [ 9:0] psg,
     output        [ 7:0] status
 );
 
@@ -181,7 +181,7 @@ HUC6280 u_huc(
     .AUD_RDATA  (           )
 );
 /* verilator tracing_on */
-jtcop_ongen #(.PCM_GAIN(8'h30)) u_ongen(
+jtcop_ongen u_ongen( // .PCM_GAIN(8'h30)
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_opn    ( cen_opn       ),
@@ -211,9 +211,10 @@ jtcop_ongen #(.PCM_GAIN(8'h30)) u_ongen(
     .adpcm_data ( adpcm_data    ),
     .adpcm_ok   ( adpcm_ok      ),
 
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( peak          )
+    .opn        ( opn           ),
+    .opl        ( opl           ),
+    .psg        ( psg           ),
+    .pcm        ( pcm           )
 );
 
 endmodule
