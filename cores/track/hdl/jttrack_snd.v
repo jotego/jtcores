@@ -35,9 +35,13 @@ module jttrack_snd(
     input      [ 7:0]   pcm_data,
     input               pcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    // sound output
+    output signed [10:0] psg,
+    output signed [ 9:0] vlm,
+    output signed [ 7:0] rdac,
+    output        [ 1:0] vlm_rcen,
+    output        [ 1:0] psg_rcen,
+    output               rdac_rcen,
     output        [ 7:0] debug_view
 );
 
@@ -153,9 +157,12 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( peak      ),
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
     .debug_bus  ( 8'd0      )
 );
 

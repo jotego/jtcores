@@ -33,10 +33,6 @@ module jtcop_ongen(
     input                oki_wrn,
     output        [ 7:0] oki_dout,
 
-    input                enable_psg,
-    input                enable_fm,
-    input         [ 1:0] fxlevel,
-
     input                opn_cs,
     output               opn_irqn,
     output        [ 7:0] opn_dout,
@@ -50,8 +46,6 @@ module jtcop_ongen(
     output signed [13:0] pcm,
     output        [ 9:0] psg
 );
-
-parameter       KARNOV   = 0;
 
 wire signed [15:0] opl_snd, opn_snd;
 wire signed [15:0] adpcm_snd;

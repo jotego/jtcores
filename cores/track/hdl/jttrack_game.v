@@ -139,10 +139,13 @@ jttrack_snd u_sound(
     .pcm_addr   ( pcm_addr  ),
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
-
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // sound output
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
     .debug_view (debug_view )
 );
 `else

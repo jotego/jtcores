@@ -276,10 +276,6 @@ jtcop_snd #(.KARNOV(1)) u_sound(
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-    .fxlevel    (dip_fxlevel),
-
     // From main CPU
     .snreq      ( snreq     ),
     .latch      ( snd_latch ),
@@ -297,9 +293,11 @@ jtcop_snd #(.KARNOV(1)) u_sound(
     .adpcm_data (           ),
     .adpcm_ok   (           ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // Sound channels
+    .opn        ( opn       ),
+    .opl        ( opl       ),
+    .psg        ( psg       ),
+    .pcm        (           ),
     .status     ( st_snd    )
 );
 

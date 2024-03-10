@@ -22,10 +22,6 @@ module jtcop_snd(
     input                cen_opn,
     input                cen_opl,
 
-    input                enable_psg,
-    input                enable_fm,
-    input         [ 1:0] fxlevel,
-
     // From main CPU
     input                snreq,  // sound interrupt from main CPU
     input         [ 7:0] latch,
@@ -182,7 +178,7 @@ jtframe_ram #(.AW(11)) u_ram(
     .q      ( ram_dout      )
 );
 
-jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
+jtcop_ongen u_ongen(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_opn    ( cen_opn       ),
@@ -203,9 +199,6 @@ jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
     .oki_wrn    ( oki_wrn       ),
     .oki_dout   ( oki_dout      ),
 
-    .enable_psg ( enable_psg    ),
-    .enable_fm  ( enable_fm     ),
-    .fxlevel    ( fxlevel       ),
     // ADPCM ROM
     .adpcm_addr ( adpcm_addr    ),
     .adpcm_cs   ( adpcm_cs      ),

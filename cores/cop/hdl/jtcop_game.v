@@ -305,10 +305,6 @@ jtcop_snd u_sound(
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-    .fxlevel    (dip_fxlevel),
-
     // From main CPU
     .snreq      ( snreq     ),
     .latch      ( snd_latch ),

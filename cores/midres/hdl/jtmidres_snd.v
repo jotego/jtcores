@@ -23,10 +23,6 @@ module jtcop_snd(
     input                cen_opn,
     input                cen_opl,
 
-    input                enable_psg,
-    input                enable_fm,
-    input         [ 1:0] fxlevel,
-
     // From main CPU
     input                snreq,  // sound interrupt from main CPU
     input         [ 7:0] latch,
@@ -202,9 +198,6 @@ jtcop_ongen u_ongen( // .PCM_GAIN(8'h30)
     .oki_wrn    ( oki_wrn       ),
     .oki_dout   ( oki_dout      ),
 
-    .enable_psg ( enable_psg    ),
-    .enable_fm  ( enable_fm     ),
-    .fxlevel    ( fxlevel       ),
     // ADPCM ROM
     .adpcm_addr ( adpcm_addr    ),
     .adpcm_cs   ( adpcm_cs      ),
