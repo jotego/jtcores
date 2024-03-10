@@ -46,8 +46,10 @@ This is the total number of frames since the last reset. The count gets halted d
 
 st_addr[0]  |  Read
 ------------|-----------
-  0         | lower 8 bits (BCD)
-  1         | upper 8 bits (BCD)
+  0         | bits 15- 8 (BCD)
+  1         | bits  7- 0 (BCD)
+  2         | bits 23-16 (BCD)
+  3         | sound channel enable bits
 
 ### Sample Rate
 

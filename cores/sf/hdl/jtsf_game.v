@@ -278,7 +278,6 @@ jtsf_main u_main (
 jtsf_sound u_sound (
     .rst            ( snd_rst        ),
     .clk            ( clk            ),
-    .pcm_level      ( dip_fxlevel    ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .snd_nmi_n      ( snd_nmi_n      ),
@@ -293,10 +292,9 @@ jtsf_sound u_sound (
     .rom2_cs        ( snd2_cs        ),
     .rom2_ok        ( snd2_ok        ),
     // sound output
-    .left           ( snd_left       ),
-    .right          ( snd_right      ),
-    .sample         ( sample         ),
-    .peak           ( game_led       )
+    .fm_l           ( fm_l           ),
+    .fm_r           ( fm_r           ),
+    .pcm            ( pcm            )
 );
 
 `ifndef NOVIDEO

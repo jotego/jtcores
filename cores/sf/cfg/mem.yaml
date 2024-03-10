@@ -5,6 +5,17 @@ params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA2_START)>>1"}
   - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA3_START)>>1"}
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1"}
+# Sound effects via FM seem too loud compared to music
+# but that's the way the game is
+# Some PCM samples seem to have been recorded with clipping
+# old FMGAIN=08, PCMGAIN=08
+audio:
+  rsum: 27k
+  missing_info: yes # see https://github.com/jotego/jtcores/issues/575
+  channels:
+    - { name: fm,    module: jt51, rsum: 27k, rc: [{r: 1ym12, c: 3.3n }]}
+    - { name: pcm, data_width: 13, rsum: 27k }
+
 download:
   post_addr: true
   noswab: true

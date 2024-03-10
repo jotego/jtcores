@@ -153,14 +153,14 @@ jtsbaskt_snd u_sound(
     .main_dout  ( cpu_dout  ),
     .m2s_data   ( m2s_data  ),
     .m2s_irq    ( m2s_irq   ),
-    // Sound
-    .pcm_addr   ( pcm_addr  ),
-    .pcm_data   ( pcm_data  ),
-    .pcm_ok     ( pcm_ok    ),
-
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // sound output
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
+    // debug
     .debug_view ( st_snd    ),
     .debug_bus  ( debug_bus )
 );

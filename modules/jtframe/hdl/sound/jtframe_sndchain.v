@@ -36,17 +36,19 @@ module jtframe_sndchain #(parameter
     input            [WC*2-1:0] poles,   // 8-bit coefficients for two poles
     input                 [7:0] gain,    // 4.4 fixed point format
     input      signed [ WS-1:0] sin,     // for stereo input: { left, right }
-    output reg signed [WOS-1:0] sout     // for stereo output: { left, right }
+    output reg signed [WOS-1:0] sout,    // for stereo output: { left, right }
+    output reg                  peak     // overflow (signal clipped)
 );
 
 localparam WM  = WOS+9,
            WD  = 4;    // decimal part
 
-reg  signed [WOS-1:0] sext;
+reg  signed [WOS-1:0] scld;
 wire signed [WOS-1:0] dc, p1, p2;
 wire signed [ WM-1:0] mul_l, mul_r;
 wire signed [    8:0] sgain;
 wire        [ WC-1:0] c1, c2;
+wire                  over_r, over_l;
 
 initial begin
     if( W>WO ) begin
@@ -55,30 +57,35 @@ initial begin
     end
 end
 
-assign c1    = poles[WC-1:0],
-       c2    = poles[WC+:WC];
-assign sgain = {1'b0,gain};
-assign mul_r = $signed(p2[    0+:WO])*sgain;
-assign mul_l = $signed(p2[WOS-1-:WO])*sgain;
+assign c1     = poles[WC-1:0],
+       c2     = poles[WC+:WC];
+assign sgain  = {1'b0,gain};
+assign mul_r  = $signed(p2[    0+:WO])*sgain;
+assign mul_l  = $signed(p2[WOS-1-:WO])*sgain;
+assign over_r = over(mul_r[WM-1:WO+WD-1]),
+       over_l = over(mul_l[WM-1:WO+WD-1]);
 
 function over(input [WM-WO-WD:0]signs);
     over = |signs & ~&signs;
 endfunction
 
 always @* begin
-    sext[    0+:WO]={sin[   0+:W], {WO-W{1'b0}}};
-    sext[WOS-1-:WO]={sin[WS-1-:W], {WO-W{1'b0}}};
+    scld[    0+:WO]={sin[   0+:W], {WO-W{1'b0}}};
+    scld[WOS-1-:WO]={sin[WS-1-:W], {WO-W{1'b0}}};
 end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         sout <= 0;
+        peak <= 0;
     end else begin
         sout[0+:WO] <= mul_r[WD+:WO];
-        if(over(mul_r[WM-1:WO+WD-1])) sout[0+:WO] <= { mul_r[WM-1], {WO-1{~mul_r[WM-1]}}};
+        if(over_r) sout[0+:WO] <= { mul_r[WM-1], {WO-1{~mul_r[WM-1]}}};
+        peak <= over_r;
         if(STEREO==1) begin
             sout[WOS-1-:WO] <= mul_l[WD+:WO];
-            if(over(mul_l[WM-1:WO+WD-1])) sout[WOS-1-:WO] <= { mul_l[WM-1], {WO-1{~mul_l[WM-1]}}};
+            if(over_l) sout[WOS-1-:WO] <= { mul_l[WM-1], {WO-1{~mul_l[WM-1]}}};
+            peak <= over_r | over_l;
         end
     end
 end
@@ -89,7 +96,7 @@ generate
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
-            .din    ( sext[WO-1:0]  ),
+            .din    ( scld[WO-1:0]  ),
             .dout   ( dc[WO-1:0]    )
         );
         if( STEREO==1 ) begin
@@ -97,12 +104,12 @@ generate
                 .rst    ( rst           ),
                 .clk    ( clk           ),
                 .sample ( cen           ),
-                .din    (sext[WOS-1-:WO]),
+                .din    (scld[WOS-1-:WO]),
                 .dout   ( dc[WOS-1-:WO] )
             );            
         end
     end else begin
-        assign dc = sext;
+        assign dc = scld;
     end
 endgenerate    
 

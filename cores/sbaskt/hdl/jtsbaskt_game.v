@@ -39,7 +39,7 @@ reg         decode;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
-assign debug_view = debug_snd;
+assign debug_view = {3'd0, vlm_rcen, psg_rcen, rdac_rcen };
 
 wire [ 7:0] nc, pre_data;
 
@@ -129,19 +129,27 @@ jtsbaskt_snd u_sound(
     .pcm_addr   ( pcm_addr  ),
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
-
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // sound output
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
+    // debug
     .debug_bus  ( debug_bus ),
     .debug_view ( debug_snd )
 );
 `else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign pcm_addr=0;
-    assign snd=0;
-    assign sample=0;
+    assign snd_cs    = 0;
+    assign snd_addr  = 0;
+    assign pcm_addr  = 0;
+    assign psg       = 0;
+    assign vlm       = 0;
+    assign rdac      = 0;
+    assign vlm_rcen  = 0;
+    assign psg_rcen  = 0;
+    assign rdac_rcen = 0;
 `endif
 
 /* verilator tracing_off */

@@ -58,26 +58,22 @@ module jtsbaskt_snd_dev #(
     input      [ 7:0]   pcm_data,
     input      [ 7:0]   debug_bus,
     input               pcm_ok,
-
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    // sound output
+    output     signed [10:0] psg,
+    output     signed [ 9:0] vlm,
+    output reg signed [ 7:0] rdac,
+    output            [ 1:0] vlm_rcen,
+    output            [ 1:0] psg_rcen,
+    output                   rdac_rcen
 );
 
-localparam [7:0] GAIN_PSG  = 8'h18;
-localparam [7:0] GAIN_VLM  = 8'h18;
-localparam [7:0] GAIN_RDAC = 8'h08;
-
-reg  [ 7:0] psg_data, vlm_data, rdac;
+reg  [ 7:0] psg_data, vlm_data;
 wire [ 7:0] vlm_mux, dout;
 wire        irq_ack, int_n;
 wire        vlm_ceng, vlm_me_b;
 wire [10:0] psg_snd;
 wire        iorq_n, m1_n;
 wire        rdy1;
-wire signed [10:0] psg_pre;
-wire signed [ 9:0] vlm_snd, vlm_pre;
-wire signed [ 7:0] rdac_snd, rdac_s;
 
 assign vlm_mux = ~vlm_sel ? vlm_data :
                ~vlm_me_b ? pcm_data : 8'hff;
@@ -85,7 +81,6 @@ assign pcm_addr[15:13]=0;
 assign irq_ack = ~iorq_n & ~m1_n;
 assign vlm_ceng = snd_cen & ( vlm_me_b | pcm_ok );
 assign rom_addr = A[13:0];
-assign sample   = psg_cen;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -108,7 +103,7 @@ jt89 u_psg(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~psg_cs       ),
     .din    ( psg_data      ),
-    .sound  ( psg_pre       ),
+    .sound  ( psg           ),
     .ready  ( rdy1          )
 );
 
@@ -117,34 +112,9 @@ jt89 u_psg(
 // and  fc = 720Hz for the JT89/VLM5030
 // the filter below do not try to be exact (yet)
 // but they capture the variable sound filtering in the game
-jtframe_pole #(.WS(11)) u_rc_psg(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    // .a       ( debug_bus[4:0] ),
-    .a          ({{3{cap_en[2]}},2'd0}),
-    .sample     ( psg_cen   ),
-    .sin        ( psg_pre   ),
-    .sout       ( psg_snd   )
-);
-
-jtframe_pole #(.WS(8)) u_rc_dac(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    // .a       ( debug_bus[3:0] ),
-    .a          ( {4{cap_en[1]}} ),
-    .sample     ( cnt[6]    ), // 14 kHz
-    .sin        ( rdac_s    ),
-    .sout       ( rdac_snd  )
-);
-
-jtframe_pole #(.WS(10)) u_vlm_psg(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .a          ({{3{cap_en[0]}},2'd0}),
-    .sample     ( psg_cen   ),
-    .sin        ( vlm_pre   ),
-    .sout       ( vlm_snd   )
-);
+assign vlm_rcen  = {1'b1,cap_en[0]};
+assign rdac_rcen =  cap_en[1];
+assign psg_rcen  = {1'b1,cap_en[2]};
 
 `ifndef NOVLM
 wire [ 2:0] pcm_nc;
@@ -163,9 +133,8 @@ vlm5030_gl u_vlm(
     .o_me_l  ( vlm_me_b     ),
     .o_mte   (              ),
     .o_bsy   ( vlm_bsy      ),
-
     .o_dao   (              ),
-    .o_audio ( vlm_pre      )
+    .o_audio ( vlm          )
 );
 /* verilator lint_on PINMISSING */
 `else
@@ -174,7 +143,7 @@ vlm5030_gl u_vlm(
 
     assign vlm_bsy = busy_dummy;
     assign pcm_addr = 0;
-    assign vlm_snd  = 0;
+    assign vlm      = 0;
     assign vlm_me_b = 0;
 
     always @(posedge clk) begin
@@ -182,32 +151,6 @@ vlm5030_gl u_vlm(
         if( cnt_cs && !cnt_csl ) busy_dummy <= ~busy_dummy;
     end
 `endif
-
-jtframe_dcrm #(.SW(8)) u_dcrm(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .sample ( cnt[6]    ),  // 14 kHz
-    .din    ( rdac      ),
-    .dout   ( rdac_s    )
-);
-
-jtframe_mixer #(.W0(11),.W1(10),.W2(8)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( psg_cen   ),
-    // input signals
-    .ch0    ( psg_snd   ),
-    .ch1    ( vlm_snd   ),
-    .ch2    ( rdac_snd  ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( GAIN_PSG  ),
-    .gain1  ( GAIN_VLM  ),
-    .gain2  ( GAIN_RDAC ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
 
 jtframe_ff u_irq(
     .rst      ( rst         ),
@@ -222,7 +165,6 @@ jtframe_ff u_irq(
 );
 
 /* verilator tracing_off */
-
 jtframe_sysz80 #(.RAM_AW(RAM_AW)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),

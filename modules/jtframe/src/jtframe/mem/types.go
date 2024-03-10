@@ -93,7 +93,7 @@ type SDRAMCfg struct {
 }
 
 type Include struct {
-    Game string `yaml:"game"` // if not null, it will load from that game folder
+    Game string `yaml:"game"` // if not null, it will load from that game cfg folder
     File string `yaml:"file"` // if null, mem.yaml will be used
 }
 
@@ -154,8 +154,11 @@ type AudioCh struct {
     Stereo     bool   `yaml:"stereo"`
     Unsigned   bool   `yaml:"unsigned"`
     Data_width int    `yaml:"data_width"`
+    Rc_en      bool   `yaml:"rc_en"`
     // Derived from RC information
+    Filters    int      // number of RC filters (each one is made of two poles)
     Pole       string
+    rcen       string
     Fcut       [2]int
     Gain       string
     gain       float64

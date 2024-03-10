@@ -6,7 +6,8 @@
     {{if .Audio.Mute}}output mute,
     {{end}}{{ range .Audio.Channels }}{{ if .Name }}{{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
-    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}{{end}}{{if .Rc_en}}
+    output {{if gt .Filters 1}}[{{sub .Filters 1}}:0] {{end}}{{.Name}}_rcen,{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifndef JTFRAME_STEREO
     output  signed [15:0] snd,

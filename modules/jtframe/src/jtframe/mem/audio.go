@@ -55,6 +55,7 @@ func eng2float( s string ) float64 {
 func calc_a( rc AudioRC, fs float64 ) (string,int) {
 	r := eng2float(rc.R)
 	c := eng2float(rc.C)
+	if r==0 || c==0 { return "00",0 }
 	wc := 1.0/(r*c*fs)
 	fc := int(math.Round(1.0/(2*math.Pi*r*c)))
 	a := math.Round(math.Exp(-wc)*256)
@@ -108,15 +109,27 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		}
 		// if ch.RC==nil { ch.RC = mod.RC }
 		// Derive pole information
-		p0 := "00"
-		p1 := "00"
-		if len(ch.RC)>=1 { p0,ch.Fcut[0] = calc_a(ch.RC[0], fs) }
-		if len(ch.RC)>=2 { p1,ch.Fcut[1] = calc_a(ch.RC[1], fs) }
-		if len(ch.RC)>2 {
-			fmt.Printf("ERROR: Only two RC poles are supported")
-			os.Exit(1)
+		ch.Filters=0
+		for k:=0; k<len(ch.RC); {
+			p0 := "00"
+			p1 := "00"
+			if k  <len(ch.RC) { p0,ch.Fcut[0] = calc_a(ch.RC[k  ], fs) }
+			if k+1<len(ch.RC) { p1,ch.Fcut[1] = calc_a(ch.RC[k+1], fs) }
+			hex := fmt.Sprintf("16'h%s%s",p1,p0)
+			if ch.Rc_en {
+				if k==0 && len(ch.RC)<3 {
+					ch.Pole=fmt.Sprintf("%s%s_rcen?%s : ",ch.Pole,ch.Name,hex)
+				} else {
+					ch.Pole=fmt.Sprintf("%s%s_rcen[%d]?%s : ",ch.Pole,ch.Name,k>>1,hex)
+				}
+			} else {
+				ch.Pole=hex
+			}
+			ch.Filters+=1
+			k+=2
+			if !ch.Rc_en { break } // only first two poles taken unless rc_en is set to true
 		}
-		ch.Pole=fmt.Sprintf("16'h%s%s",p1,p0)
+		if ch.Rc_en { ch.Pole=fmt.Sprintf("%s16'h0",ch.Pole) }
 		ch.gain=rmin/eng2float(ch.Rsum)
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)

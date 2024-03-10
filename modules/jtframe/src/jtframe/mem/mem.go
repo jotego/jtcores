@@ -33,6 +33,7 @@ import (
 	"github.com/jotego/jtframe/def"
 
 	"gopkg.in/yaml.v2"
+	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
 func (this Args) get_path(fname string, prefix bool ) string {
@@ -127,8 +128,11 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 		if fname == "" {
 			fname = "mem"
 		}
+		if strings.HasSuffix(fname,".yaml") {
+			fname = fname[0:len(fname)-5]
+		}
+		if each.Game == "" { each.Game=core }
 		parse_file(each.Game, fname, cfg, args)
-		fmt.Println(each.Game, fname)
 	}
 	// Reload the YAML to overwrite values that the included files may have set
 	err_yaml = yaml.Unmarshal(buf, cfg)
@@ -171,7 +175,7 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 
 func make_sdram( finder path_finder, cfg *MemConfig) {
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
-	t := template.Must(template.New("game_sdram.v").Funcs(funcMap).ParseFiles(tpath))
+	t := template.Must(template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
@@ -184,7 +188,7 @@ func add_game_ports(args Args, cfg *MemConfig) {
 	found := false
 
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
-	t := template.Must(template.New("ports.v").Funcs(funcMap).ParseFiles(tpath))
+	t := template.Must(template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	outpath := "jt" + args.Core + "_game.v"
@@ -566,7 +570,7 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 func make_dump2bin( args Args, cfg *MemConfig ) {
 	if len( cfg.Ioctl.Buses )==0 { return }
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
-	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).ParseFiles(tpath))
+	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file

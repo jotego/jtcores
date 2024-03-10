@@ -27,6 +27,7 @@ module jtframe_sys_info(
     input               game_led,
     input               LVBL,
     input         [6:0] core_mod,
+    input         [4:0] snd_en,
     input         [1:0] dial_x,
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
@@ -76,7 +77,7 @@ always @(posedge clk, posedge rst) begin
                 0: st_dout <= frame_bcd[15:8];
                 1: st_dout <= frame_bcd[7:0];
                 2: st_dout <= {4'd0, frame_bcd[19:16]};
-                default: st_dout <= 0;
+                3: st_dout <= {3'd0, snd_en};
             endcase
             1: case(st_addr[5:4])
                 0: st_dout <= stats;

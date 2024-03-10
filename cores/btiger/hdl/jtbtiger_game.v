@@ -50,7 +50,7 @@ assign prom[1] = prom_we &&  mcuover && ioctl_addr[10:8]==1;
 assign prom[2] = prom_we &&  mcuover && ioctl_addr[10:8]==2;
 assign prom[3] = prom_we &&  mcuover && ioctl_addr[10:8]==3;
 assign prom[4] = prom_we && !mcuover;
-
+/* verilator tracing_off */
 always @(posedge clk) pause <= ~dip_pause;
 
 always @* begin
@@ -59,7 +59,6 @@ always @* begin
         post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
     end
 end
-
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),

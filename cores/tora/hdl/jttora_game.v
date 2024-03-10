@@ -251,10 +251,6 @@ jttora_sound u_sound (
     .snd_din        ( snd_din        ),
     .snd_dout       ( snd_dout       ),
     .snd_mcu_wr     ( snd_mcu_wr     ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -266,9 +262,11 @@ jttora_sound u_sound (
     .rom2_cs        ( snd2_cs        ),
     .rom2_ok        ( snd2_ok        ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
+    .pcm            ( pcm            ),
     .debug_view     ( st_snd         )
 );
 

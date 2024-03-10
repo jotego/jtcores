@@ -57,7 +57,7 @@ module jtframe_rcmix #(parameter
     input       [7:0] g0,g1,g2,g3,g4,  // concatenate all gains {gain4, gain3,..., gain0}
     output              sample,
     output reg signed [WMX-1:0] mixed,
-    output              peak   // overflow signal
+    output reg          peak   // overflow signal
 );
 
 localparam SFREQ = 192,              // sampling frequency in kHz
@@ -87,6 +87,7 @@ wire signed [WO1-1:0] ft1;
 wire signed [WO2-1:0] ft2;
 wire signed [WO3-1:0] ft3;
 wire signed [WO4-1:0] ft4;
+wire           [ 4:0] v;        // overflow in sound chain
 wire signed    [15:0] left, right;
 wire                  peak_l, peak_r;
 wire                  cen;          // sampling frequency
@@ -102,11 +103,11 @@ jtframe_st2mono #(.W(W2),.SIN(STEREO2),.SOUT(STEREO)) u_st2(.sin(ch2),.sout(sm2)
 jtframe_st2mono #(.W(W3),.SIN(STEREO3),.SOUT(STEREO)) u_st3(.sin(ch3),.sout(sm3));
 jtframe_st2mono #(.W(W4),.SIN(STEREO4),.SOUT(STEREO)) u_st4(.sin(ch4),.sout(sm4));
 
-jtframe_sndchain #(.W(W0),.DCRM(DCRM0),.STEREO(STEFF0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0));
-jtframe_sndchain #(.W(W1),.DCRM(DCRM1),.STEREO(STEFF1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1));
-jtframe_sndchain #(.W(W2),.DCRM(DCRM2),.STEREO(STEFF2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2));
-jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3));
-jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4));
+jtframe_sndchain #(.W(W0),.DCRM(DCRM0),.STEREO(STEFF0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
+jtframe_sndchain #(.W(W1),.DCRM(DCRM1),.STEREO(STEFF1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
+jtframe_sndchain #(.W(W2),.DCRM(DCRM2),.STEREO(STEFF2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2), .peak(v[2]));
+jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3), .peak(v[3]));
+jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
 
 
 jtframe_limsum #(.W(WOUT),.K(5)) u_right(
@@ -136,10 +137,12 @@ generate
             .sum    ( left  ),
             .peak   ( peak_l)
         );
-        assign peak = peak_l | peak_r;
-        always @(posedge clk) mixed[WMX-1-:WOUT] <= mute ? {WOUT{1'b0}} : left;
+        always @(posedge clk) begin
+            mixed[WMX-1-:WOUT] <= mute ? {WOUT{1'b0}} : left;
+            peak <= | {peak_l, peak_r, v};
+        end
     end else begin
-        assign peak = peak_r;
+        always @(posedge clk) peak <= | {peak_r, v};
     end
 endgenerate
 

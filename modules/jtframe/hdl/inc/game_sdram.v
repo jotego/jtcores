@@ -32,7 +32,8 @@ wire ioctl_ram = 0;
 `endif
 // Audio channels {{ range .Audio.Channels }}{{ if .Name }}
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
-wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{- end}}
+wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{if .Rc_en}}
+wire {{if gt .Filters 1}}[{{sub .Filters 1}}:0] {{end}}{{.Name}}_rcen;{{end}}{{- end}}
 wire mute{{ if not .Audio.Mute }}=1'b0{{end}};
 // Additional ports
 {{range .Ports}}wire {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}};
@@ -106,8 +107,9 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{end}}{{ range .Audio.Channels -}}
     {{ if .Name }}{{ if .Stereo }}.{{.Name}}_l   ( {{.Name}}_l    ),
     .{{.Name}}_r   ( {{.Name}}_r    ),{{ else -}}
-    .{{.Name}}     ( {{.Name}}      ),{{ end }}{{ end }}
-{{- end}}{{ if eq (len .Audio.Channels) 0 }}
+    .{{.Name}}     ( {{.Name}}      ),{{ end }}{{ end }}{{if .Rc_en}}
+    .{{.Name}}_rcen( {{.Name}}_rcen ),
+{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifdef JTFRAME_STEREO
     .snd_left       ( snd_left      ),

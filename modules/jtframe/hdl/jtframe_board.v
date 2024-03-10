@@ -390,6 +390,7 @@ jtframe_keyboard u_keyboard(
             .game_led   ( game_led[0]   ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
+            .snd_en     ( snd_en        ),
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),

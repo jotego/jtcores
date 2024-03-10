@@ -1,0 +1,14 @@
+audio:
+  rsum: 400
+  missing_info: true # missing VLM5030's output impedance
+  channels:
+    # vlm's pre is 82/(4.7+VLM5030's Rout)
+    - { name: vlm, module: vlm5030, rsum: 1k, pre: 2, rc: [
+        { r:  10k, c: 47n }, { r: 1k, c: 220n}, # both filters active
+        { r:  10k, c: 47n }],  # only 1st filter
+      rc_en: true }
+    - { name: psg, module: jt89, rsum: 1.22k, rc: [
+        { r: 2.23k, c: 100n}, { r: 2.2k,  c: 220n}, # both enabled
+        { r: 2.23k, c: 100n}],                      # only 1st filter
+      rc_en: true }
+    - { name: rdac, data_width: 8, unsigned: true, rsum: 3.3k,  rc: [{ r: 3.3k, c: 220n}], rc_en: true, pre: 0.5 }
