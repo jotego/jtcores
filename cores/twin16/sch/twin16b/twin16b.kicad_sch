@@ -3113,10 +3113,6 @@
     (uuid bbe5e56c-b3e0-4515-944a-2ac229fd0088)
   )
 
-  (text "9" (at 218.44 19.05 0)
-    (effects (font (size 3.81 3.81)) (justify left bottom))
-    (uuid 1576be5e-983c-4d26-9259-1538ba72e0fa)
-  )
   (text "PWB(C) is used when sprite ROMs P13,P16,P15 and P18 \non PWB(B) are not mounted."
     (at 138.43 87.63 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
