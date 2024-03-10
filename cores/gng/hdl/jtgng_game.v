@@ -160,7 +160,7 @@ assign scr_vpos    = 9'd0;
 `endif
 
 `ifndef NOSOUND
-jtgng_sound #(.PSG_ATT(1)) u_sound (
+jtgng_sound u_sound (
     .rst            ( rst        ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),
