@@ -147,7 +147,7 @@ type AudioCh struct {
     Name       string `yaml:"name"`
     Module     string `yaml:"module"`
     Rsum       string `yaml:"rsum"`
-    Pre        float64 `yaml:"pre"` // pre-amplifier gain
+    Pre        string `yaml:"pre"` // pre-amplifier gain
     RC         []AudioRC `yaml:"rc"`
     DCrm       bool   `yaml:"dcrm"`
     // These two are filled from Module, if the Module is present
@@ -163,6 +163,7 @@ type AudioCh struct {
 
 type Audio struct {
     Rsum    string `yaml:"rsum"`
+    Mute    bool   `yaml:"mute"`
     Channels []AudioCh `yaml:"channels"`
 }
 

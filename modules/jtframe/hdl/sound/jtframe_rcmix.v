@@ -43,6 +43,7 @@ module jtframe_rcmix #(parameter
 )(
     input                   rst,
     input                   clk,
+    input                   mute,
     // input signals
     input  signed [WS0-1:0] ch0,  // for stereo signals, concatenate {left,right}
     input  signed [WS1-1:0] ch1,
@@ -54,8 +55,8 @@ module jtframe_rcmix #(parameter
     // gain for each channel in 4.4 fixed point format
     input       [7:0] g0,g1,g2,g3,g4,  // concatenate all gains {gain4, gain3,..., gain0}
     output              sample,
-    output signed [WMX-1:0] mixed,
-    output                  peak   // overflow signal (time enlarged)
+    output reg signed [WMX-1:0] mixed,
+    output              peak   // overflow signal
 );
 
 localparam SFREQ = 192,              // sampling frequency in kHz
@@ -116,7 +117,7 @@ jtframe_limsum #(.W(WOUT),.K(5)) u_right(
     .peak   ( peak_r)
 );
 
-assign mixed[WOUT-1:0] = right;
+always @(posedge clk) mixed[WOUT-1:0] <= mute ? {WOUT{1'b0}} : right;
 
 generate
     if( STEREO==1 ) begin
@@ -133,7 +134,7 @@ generate
             .peak   ( peak_l)
         );
         assign peak = peak_l | peak_r;
-        assign mixed[WMX-1-:WOUT] = left;
+        always @(posedge clk) mixed[WMX-1-:WOUT] <= mute ? {WOUT{1'b0}} : left;
     end else begin
         assign peak = peak_r;
     end

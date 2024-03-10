@@ -25,16 +25,20 @@ func eng2float( s string ) float64 {
 	mant,_ := strconv.ParseFloat(sm,64)
 	s=s[len(sm):]
 	if len(s)==0 { return mant }
-	switch(s[0]) {
-	case 'y': return 2000	// YM3012 output impedance
-	case 'p': return mant*1e-12
-	case 'n': return mant*1e-9
-	case 'u': return mant*1e-6
-	case 'm': return mant*1e-3
-	case 'k': return mant*1e3
-	case 'M': return mant*1e6
-	case 'G': return mant*1e9
-	case 'T': return mant*1e12
+	switch(s) {
+	// output impedance of sound chips
+	case "y":  return mant*2000	// YM3012 output impedance (seen with YM2151)
+	case "y2": return mant*8000	// YM3014 output impedance (seen with YM2203)
+	case "ay": return mant*2.0	// gain for an AY-3-8910 connected to 10 kOhm
+	// standard suffixes
+	case "p": return mant*1e-12
+	case "n": return mant*1e-9
+	case "u": return mant*1e-6
+	case "m": return mant*1e-3
+	case "k": return mant*1e3
+	case "M": return mant*1e6
+	case "G": return mant*1e9
+	case "T": return mant*1e12
 	}
 	return mant
 }
@@ -105,7 +109,7 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		}
 		ch.Pole=fmt.Sprintf("16'h%s%s",p1,p0)
 		ch.gain=rmin/eng2float(ch.Rsum)
-		if ch.Pre > 0 { ch.gain *= ch.Pre }
+		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)
 		// if (int(gint)>>4) > 15 {
 		// 	fmt.Printf("Gain unbalance among audio channels is too large")

@@ -52,7 +52,7 @@ wire [ 1:0] sub_dsn;
 wire [15:0] sub_dout, road_dout, sub_din; // not SDRAM signals
 // Sound CPU
 wire [ 7:0] sndmap_din, sndmap_dout;
-wire        sndmap_rd, sndmap_wr, sndmap_pbf, snd_rstb, mute;
+wire        sndmap_rd, sndmap_wr, sndmap_pbf, snd_rstb;
 
 // PCM
 wire        snd_clip;
@@ -77,7 +77,6 @@ reg  [7:0] st_mux;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign main_dswn            = {2{main_rnw}} | main_dsn;
-assign game_led             = snd_clip;
 assign debug_view           = st_dout;
 assign st_dout              = st_mux;
 
@@ -316,12 +315,6 @@ jtoutrun_snd u_sound(
     .cen_pcm    ( cen_pcm   ),   // 2MHz
     .game_id    ( game_id   ),
 
-    // options
-    .fxlevel    (dip_fxlevel),
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-    .mute       ( mute      ),
-
     // Mapper device 315-5195
     .mapper_rd  ( sndmap_rd ),
     .mapper_wr  ( sndmap_wr ),
@@ -341,10 +334,10 @@ jtoutrun_snd u_sound(
     .pcm_ok     ( pcm_ok    ),
 
     // Sound output
-    .snd_left   ( snd_left  ),
-    .snd_right  ( snd_right ),
-    .sample     ( sample    ),
-    .peak       ( snd_clip  ),
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .pcm_l      ( pcm_l     ),
+    .pcm_r      ( pcm_r     ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );

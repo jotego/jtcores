@@ -137,7 +137,6 @@ jtmx5k_sound u_sound(
     .clk        ( clk24         ), // 24 MHz
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
-    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -156,9 +155,9 @@ jtmx5k_sound u_sound(
     .pcmb_dout  ( pcmb_data     ),
     .pcmb_ok    ( pcmb_ok       ),
     // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      )
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           )
 );
 
 endmodule

@@ -23,9 +23,6 @@ module jtsimson_sound(
     input           cen_fm2,
     input           simson,
 
-    input   [ 1:0]  fxlevel,
-    input           enable_fm,
-    input           enable_psg,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  main_dout,
@@ -59,9 +56,8 @@ module jtsimson_sound(
     output          pcmd_cs,
     input           pcmd_ok,
     // Sound output
-    output signed [15:0] snd_l, snd_r,
-    output               sample,
-    output reg           peak,
+    output signed [15:0] fm_l,  fm_r,
+    output signed [13:0] pcm_l, pcm_r,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -75,14 +71,10 @@ reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
                     peak_l, peak_r, nmi_n;
 reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs;
-wire signed [15:0]  fm_l, fm_r;
-wire                cpu_cen;
+wire                cpu_cen, sample;
 reg                 mem_acc, af, nmi_clr;
 reg         [ 2:0]  bank;
-wire signed [13:0]  pcm_l, pcm_r;
 reg         [ 3:0]  pcm_msb;
-reg         [ 7:0]  fmgain, fxgain;
-
 
 assign rom_addr = simson ? { A[15] ? bank : { 2'd0, A[14] }, A[13:0] } : {1'd0,A[15:0]};
 assign st_dout  = fm_dout;
@@ -118,19 +110,8 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bank   <= 0;
-        peak   <= 0;
-        fmgain <= 0;
     end else begin
-        fmgain <= enable_fm ? FMGAIN : 8'd0;
-        case( fxlevel )
-            0: fxgain <= 8'h18;
-            1: fxgain <= 8'h20;
-            2: fxgain <= 8'h28;
-            3: fxgain <= 8'h30;
-        endcase
-        if( !enable_psg ) fxgain <= 0;
         if( bank_cs ) bank <= cpu_dout[2:0];
-        peak <= peak_r | peak_l;
     end
 end
 /* verilator tracing_off */
@@ -142,37 +123,6 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
-jtframe_mixer #(.W0(16),.W1(14)) u_mix_l(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_l       ),
-    .ch1    ( pcm_l      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fxgain     ),
-    .gain2  ( 8'd0       ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_l      ),
-    .peak   ( peak_l     )
-);
-
-jtframe_mixer #(.W0(16),.W1(14)) u_mix_r(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_r       ),
-    .ch1    ( pcm_r      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fxgain     ),
-    .gain2  ( 8'd0       ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_r      ),
-    .peak   ( peak_r     )
-);
 /* verilator tracing_on */
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
@@ -214,7 +164,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample and NMI
+    .sample     ( sample    ),
     .left       (           ),
     .right      (           ),
     // Full resolution output

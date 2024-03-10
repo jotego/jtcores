@@ -33,6 +33,7 @@ wire ioctl_ram = 0;
 // Audio channels {{ range .Audio.Channels }}{{ if .Name }}
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
 wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{- end}}
+wire mute{{ if not .Audio.Mute }}=1'b0{{end}};
 // Additional ports
 {{range .Ports}}wire {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}};
 {{end}}
@@ -101,7 +102,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .clk48      ( clk48     ),
 `endif
     // Audio channels
-    {{ range .Audio.Channels -}}
+    {{if .Audio.Mute}}.mute( mute ),
+    {{end}}{{ range .Audio.Channels -}}
     {{ if .Name }}{{ if .Stereo }}.{{.Name}}_l   ( {{.Name}}_l    ),
     .{{.Name}}_r   ( {{.Name}}_r    ),{{ else -}}
     .{{.Name}}     ( {{.Name}}      ),{{ end }}{{ end }}
@@ -489,6 +491,7 @@ jtframe_rcmix #(
 ) u_rcmix(
     .rst    ( rst       ),
     .clk    ( clk       ),
+    .mute   ( mute      ),
     .sample ( sample    ),
     .ch0    ( {{ if $ch0.Name }}{{ if $ch0.Stereo }}{ {{$ch0.Name}}_l,{{$ch0.Name}}_r }{{ else }}{{ $ch0.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch1    ( {{ if $ch1.Name }}{{ if $ch1.Stereo }}{ {{$ch1.Name}}_l,{{$ch1.Name}}_r }{{ else }}{{ $ch1.Name }}{{end}}{{else}}16'd0{{end}} ),

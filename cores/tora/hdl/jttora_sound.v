@@ -30,10 +30,6 @@ module jttora_sound(
     input   [7:0]   snd_din,
     output  [7:0]   snd_dout,
     output          snd_mcu_wr,
-    // Sound control
-    input           enable_psg,
-    input           enable_fm,
-    input   [ 1:0]  psg_level,
     // ROM
     output  [14:0]  rom_addr,
     output          rom_cs,
@@ -46,24 +42,18 @@ module jttora_sound(
     input           rom2_ok,
 
     // Sound output
-    output signed [15:0] ym_snd,
-    output               sample,
-    output  reg          peak,
+    output signed [15:0] fm0, fm1,
+    output signed [11:0] pcm,
     output        [ 7:0] debug_view
 );
 `ifndef NOSOUND
-wire signed [15:0] fm_snd;
-wire signed [11:0] adpcm_snd, prepcm_snd;
 wire        [ 7:0] snd2_latch;
-wire               fm_peak, mix_peak;
 
 // It looks like the sound CPU never interacts with the MCU
 // So I do not bother to fully connect it
 assign snd_mcu_wr = 1'b0;
 assign snd_dout   = 8'd0;
 assign adpcm_snd  = jap ? prepcm_snd : 12'd0;
-
-always @(posedge clk) peak <= mix_peak | fm_peak;
 
 jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .rst        (  rst          ),

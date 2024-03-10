@@ -65,9 +65,8 @@ module jtyiear_main(
     input      [ 7:0]   pcm_data,
     input               pcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [ 9:0] vlm,
+    output signed [10:0] ti1
 );
 
 reg  [ 7:0] cabinet, cpu_din;
@@ -88,13 +87,10 @@ reg         vlm_data_cs, vlm_cont,
             vlm_st, vlm_rst, vlm_sel;
 reg   [7:0] vlm_data;
 wire  [7:0] vlm_mux;
-wire signed
-      [9:0] vlm_snd;
 
 assign irq_trigger = ~LVBL & dip_pause;
 assign nmi_trigger =  V16;
 assign cpu_rnw     = RnW;
-assign sample      = ti2_cen;
 assign rom_addr    = A;
 
 always @(*) begin
@@ -203,7 +199,6 @@ jtframe_ff u_nmi(
 );
 
 reg  [ 7:0] ti1_data;
-wire [10:0] ti1_snd;
 wire        rdy1;
 
 always @(posedge clk, posedge rst) begin
@@ -221,7 +216,7 @@ jt89 u_ti1(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~ti1_cs       ),
     .din    ( ti1_data      ),
-    .sound  ( ti1_snd       ),
+    .sound  ( ti1           ),
     .ready  ( rdy1          )
 );
 
@@ -279,31 +274,13 @@ vlm5030_gl u_vlm(
     .o_bsy   ( vlm_bsy      ),
 
     .o_dao   (              ),
-    .o_audio ( vlm_snd      ),
+    .o_audio ( vlm          ),
     // Unused test pins
     .i_tst1  ( 1'b0         ),
     .o_tst2  (              ),
     .i_tst3  ( 1'b0         ),
     .o_tst4  (              ),
     .i_vref  ( 1'b0         )
-);
-
-jtframe_mixer #(.W0(11),.W1(10)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( ti1_cen   ),
-    // input signals
-    .ch0    ( ti1_snd   ),
-    .ch1    ( vlm_snd   ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h18     ),
-    .gain1  ( 8'h18     ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
 );
 
 endmodule

@@ -3,7 +3,8 @@
     input {{ .OutStr }}, // {{ .Comment }} Hz {{ end }}
 {{end}}
     // Audio channels
-    {{ range .Audio.Channels }}{{ if .Name }}{{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
+    {{if .Audio.Mute}}output mute,
+    {{end}}{{ range .Audio.Channels }}{{ if .Name }}{{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
     output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
     // Sound output

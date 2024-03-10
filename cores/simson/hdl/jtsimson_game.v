@@ -130,9 +130,6 @@ jtsimson_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
 
     .simson     ( simson        ),
-    .fxlevel    ( dip_fxlevel   ),
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .main_dout  ( cpu_dout      ),
@@ -166,10 +163,10 @@ jtsimson_sound u_sound(
     .pcmd_cs    ( pcmd_cs       ),
     .pcmd_ok    ( pcmd_ok       ),
     // Sound output
-    .snd_l      ( snd_left      ),
-    .snd_r      ( snd_right     ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm_l      ( pcm_l         ),
+    .pcm_r      ( pcm_r         ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

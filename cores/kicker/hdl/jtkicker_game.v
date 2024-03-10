@@ -104,11 +104,12 @@ end
     .pcm_addr       ( pcm_addr      ),
     .pcm_data       ( pcm_data      ),
     .pcm_ok         ( pcm_ok        ),
+    .vlm            ( vlm           ),
+    .ti1            ( ti1           )
+`else
+    .ti1            ( ti1           ),
+    .ti2            ( ti2           )
 `endif
-    .ti1_snd        ( ti1_snd       ), 
-    .ti2_snd        ( ti2_snd       ), 
-    .ti1_snd_gain   ( ti1_snd_gain  ), 
-    .ti2_snd_gain   ( ti2_snd_gain  )
 );
 
 `ifndef PCM

@@ -61,8 +61,7 @@ module jtkicker_main(
     input      [3:0]    dipsw_c,
 
     // Sound
-    output    [10:0]    ti1_snd, ti2_snd,
-    output    [ 7:0]    ti1_snd_gain, ti2_snd_gain
+    output    [10:0]    ti1, ti2
 );
 `ifndef NOMAIN
 reg  [ 7:0] cabinet, cpu_din;
@@ -198,7 +197,7 @@ jt89 u_ti1(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~ti1_cs       ),
     .din    ( ti1_data      ),
-    .sound  ( ti1_snd       ),
+    .sound  ( ti1           ),
     .ready  ( rdy1          )
 );
 
@@ -209,7 +208,7 @@ jt89 u_ti2(
     .wr_n   ( rdy2          ),
     .cs_n   ( ~ti2_cs       ),
     .din    ( ti2_data      ),
-    .sound  ( ti2_snd       ),
+    .sound  ( ti2           ),
     .ready  ( rdy2          )
 );
 
@@ -238,17 +237,13 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
 );
-
-assign ti1_snd_gain = 8'h18; 
-assign ti2_snd_gain = 8'h18;
 `else
 assign cpu_cen  = 0;
 assign cpu_dout = 0;
 assign cpu_rnw  = 1;
-assign peak     = 0;
 assign rom_addr = 0;
-assign sample   = 0;
-assign snd      = 0;
+assign ti1      = 0;
+assign ti2      = 0;
 initial flip    = 0;
 initial obj1_cs = 0;
 initial obj2_cs = 0;

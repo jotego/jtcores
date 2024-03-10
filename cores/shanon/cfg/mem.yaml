@@ -22,6 +22,7 @@ clocks:
         - cen_nc
 audio:
   rsum: 22k
+  mute: true
   channels:
     - { name: fm,  module: jt51,                 rsum: 100k, rc: [{ r:  1y, c: 1.5n  }] } # assuming 10k for YM3012's output impedance
     - { name: pcm, data_width: 16, stereo: true, rsum:  47k, rc: [{ r: 100, c: 100n  }], pre: 0.43 }
