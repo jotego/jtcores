@@ -182,9 +182,9 @@ jtbubl_sound u_sound(
     .rom_ok     ( snd_ok        ),
 
     // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm03       ( fm03          ),
+    .fm26       ( fm26          ),
+    .psg        ( psg           ),
     .debug_bus  ( debug_bus     )
 );
 `else

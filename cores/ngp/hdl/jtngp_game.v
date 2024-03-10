@@ -29,7 +29,7 @@ reg  [ 7:0] st_mux;
 reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
-wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
+wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn;
 wire        hirq, virq, main_int5, pwr_button, poweron, halted;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
@@ -98,7 +98,7 @@ jtngp_main u_main(
     .snd_nmi    ( snd_nmi   ),
     .snd_irq    ( snd_irq   ),
     .snd_rstn   ( snd_rstn  ),
-    .snd_en     ( snd_en    ),
+    .snd_en     ( mute_enb  ),
     .snd_ack    ( snd_ack   ),
     .snd_dacl   ( snd_dacl  ),
     .snd_dacr   ( snd_dacr  ),
@@ -154,7 +154,7 @@ jtngp_snd u_snd(
     .clk        ( clk       ),
     .cen3       ( cen3      ),
 
-    .snd_en     ( snd_en    ),
+    .snd_en     ( mute_enb  ),
     .snd_dacl   ( snd_dacl  ),
     .snd_dacr   ( snd_dacr  ),
 

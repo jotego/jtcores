@@ -130,6 +130,7 @@ jtframe_limsum #(.W(12),.K(2)) u_limsum(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( 1'b1  ),
+    .en     ( 2'b11 ),
     .parts  ( {snda, sndb } ),
     .sum    ( snd   ),
     .peak   (       )

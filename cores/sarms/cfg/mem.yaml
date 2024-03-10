@@ -2,6 +2,13 @@ params:
   - { name: STAR_OFFSET, value: "(`STAR_START-`JTFRAME_BA1_START)>>1" }
   - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA2_START)>>1" }
   - { name: MAP_OFFSET,  value: "(`MAP_START -`JTFRAME_BA3_START)>>1" }
+audio:
+  rsum: 56k
+  channels:
+    - { name: psg0, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: psg1, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: 10000para14,  c: 100n }]}
+    - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: 10000para14,  c: 100n }]}
 download:
   post_addr: true
   noswab: true

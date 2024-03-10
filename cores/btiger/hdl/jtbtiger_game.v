@@ -191,7 +191,7 @@ jtbtiger_mcu u_mcu(
 assign mcu_dout = 8'hff;
 `endif
 
-jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
+jtgng_sound #(.LAYOUT(4)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cenfm          ),
@@ -200,19 +200,16 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( 1'b0           ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     // Unused
     .snd2_latch     (                ),
     .debug_view     (                ),

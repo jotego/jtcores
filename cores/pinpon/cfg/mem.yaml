@@ -10,7 +10,11 @@ clocks:
         - cpu4
         - ti1
         - ti2
-
+audio:
+  rsum: 220
+  channels:
+    # temporary value for RC filter
+    - { name: ti1, module: jt89, rsum: 220, rc: [{ r: 1.22k, c: 4.70n }] }
 download:
   pre_addr: true
 sdram:

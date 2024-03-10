@@ -220,10 +220,8 @@ jtrumble_video u_video(
 );
 
 `ifndef NOSOUND
-jtgng_sound #(
-    .LAYOUT (10 ),
-    .PSG_ATT( 1 )   // Fx is very loud in this game
-) u_fmcpu (
+// Fx is very loud in this game
+jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .rst        (  rst24        ),
     .clk        (  clk24        ),
     .cen3       (  cen24_4      ),
@@ -232,25 +230,27 @@ jtgng_sound #(
     .snd_latch  (  snd_latch    ),
     .snd2_latch (               ),
     .snd_int    (  1'b1         ), // unused
-    .enable_psg (  enable_psg   ),
-    .enable_fm  (  enable_fm    ),
-    .psg_level  (  {loud,1'b0}  ),
+    // .psg_level  (  {loud,1'b0}  ),
     .rom_addr   (  snd_addr     ),
     .rom_cs     (  snd_cs       ),
     .rom_data   (  snd_data     ),
     .rom_ok     (  snd_ok       ),
-    .ym_snd     (  snd          ),
-    .sample     (  sample       ),
-    .peak       (  game_led     ),
+    // sound output
+    .fm0        ( fm0           ),
+    .fm1        ( fm1           ),
+    .psg0       ( psg0          ),
+    .psg1       ( psg1          ),
     .debug_bus  ( debug_bus     ),
     .debug_view (               )
 );
 `else
-    assign snd_addr   = 0;
-    assign snd_cs     = 0;
-    assign snd        = 0;
-    assign sample     = 0;
-    assign game_led   = 0;
+    assign snd_addr = 0;
+    assign snd_cs   = 0;
+    assign snd      = 0;
+    assign fm0      = 0;
+    assign fm1      = 0;
+    assign psg0     = 0;
+    assign psg1     = 0;
 //    assign debug_view = 0;
 `endif
 

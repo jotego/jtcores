@@ -37,9 +37,8 @@ module jtbubl_sound(
     input             rom_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output            sample,
-    output            peak,
+    output signed [15:0] fm03, fm26,
+    output        [ 9:0] psg,
     input   [ 7:0]    debug_bus
 );
 
@@ -48,14 +47,12 @@ wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
 wire               mreq_n, rfsh_n;
-reg         [ 7:0] din, fm0_gain, fm1_gain, psg_gain;
+reg         [ 7:0] din;
+// reg         [ 7:0] fm0_gain, fm1_gain, psg_gain;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
 wire               nmi_n;
-wire signed [15:0] fm0_snd,  fm1_snd;
-wire        [ 9:0] psg_snd;
-wire signed [ 9:0] psg_dcrm; // DC-removed version of psg0
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
@@ -162,46 +159,18 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rom_ok     ( 1'b1        )   // SDRAM gating managed in mem.yaml
 );
 
-jt49_dcrm2 #(.sw(10)) u_dcrm (
-    .clk    (  clk      ),
-    .cen    (  cen3     ),
-    .rst    (  rst      ),
-    .din    (  psg_snd  ),
-    .dout   (  psg_dcrm )
-);
-
-always @(posedge clk) begin
-    if( tokio ) begin
-        fm0_gain <= 8'h20;      // YM2203
-        fm1_gain <= 8'h40;      // YM3526
-        psg_gain <= 8'h02;
-        // fm1_gain <= {6'd0,debug_bus[3],1'b1}<<debug_bus[2:0];
-        // psg_gain <= {6'd0,debug_bus[7],1'b1}<<debug_bus[6:4];
-    end else begin
-        // Both FM chips have the same gain according to the schematics
-        fm1_gain <= 8'h10;      // YM2203 FX
-        fm1_gain <= 8'h08;      // YM3526 music
-        psg_gain <= 8'h10;      // seems unused in Bubble Bobble
-        // fm1_gain <= {6'd0,debug_bus[3],1'b1}<<debug_bus[2:0];
-        // psg_gain <= {6'd0,debug_bus[7],1'b1}<<debug_bus[6:4];
-    end
-end
-
-jtframe_mixer #(.W2(10),.W3(8)) u_mixer(
-    .rst    ( rst          ),
-    .clk    ( clk          ),
-    .cen    ( cen3         ),
-    .ch0    ( fm0_snd      ),
-    .ch1    ( fm1_snd      ),
-    .ch2    ( psg_dcrm     ),
-    .ch3    ( 8'd0         ),
-    .gain0  ( fm0_gain     ), // YM2203 - Fx
-    .gain1  ( fm1_gain     ), // YM3526 - Music
-    .gain2  ( psg_gain     ), // PSG - Unused in Bubble Bobble - Used in Tokio
-    .gain3  ( 8'd0         ),
-    .mixed  ( snd          ),
-    .peak   ( peak         )
-);
+// always @(posedge clk) begin
+//     if( tokio ) begin
+//         fm0_gain <= 8'h20;      // YM2203
+//         fm1_gain <= 8'h40;      // YM3526
+//         psg_gain <= 8'h02;
+//     end else begin
+//         // Both FM chips have the same gain according to the schematics
+//         fm1_gain <= 8'h10;      // YM2203 FX
+//         fm1_gain <= 8'h08;      // YM3526 music
+//         psg_gain <= 8'h10;      // seems unused in Bubble Bobble
+//     end
+// end
 
 jt03 u_2203(
     .rst        ( ~snd_rstn  ),
@@ -212,9 +181,9 @@ jt03 u_2203(
     .addr       ( A[0]       ),
     .cs_n       ( ~fm0_cs    ),
     .wr_n       ( wr_n       ),
-    .psg_snd    ( psg_snd    ),
-    .fm_snd     ( fm0_snd    ),
-    .snd_sample ( sample     ),
+    .psg_snd    ( psg        ),
+    .fm_snd     ( fm03       ),
+    .snd_sample (            ),
     .irq_n      ( intn_fm0   ),
     // unused outputs
     .IOA_oe     (            ),
@@ -240,18 +209,8 @@ jtopl u_opl(
     .cs_n       ( ~fm1_cs    ),
     .wr_n       ( wr_n       ),
     .irq_n      ( intn_fm1   ),
-    .snd        ( fm1_snd    ),
+    .snd        ( fm26       ),
     .sample     (            )
 );
-
-`ifdef SIMULATION
-    integer fsnd;
-    initial begin
-        fsnd=$fopen("fm_sound.raw","wb");
-    end
-    always @(posedge sample) begin
-        $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
-    end
-`endif
 
 endmodule

@@ -186,12 +186,13 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     .snd2_latch     (            )
 );
 `else
-    assign snd_addr   = 0;
-    assign sample     = 0;
-    assign game_led   = 0;
-    assign snd_cs     = 0;
-    assign snd        = 0;
-    assign st_snd     = 0;
+    assign snd_addr = 0;
+    assign snd_cs   = 0;
+    assign fm0      = 0;
+    assign fm1      = 0;
+    assign psg0     = 0;
+    assign psg1     = 0;
+    assign st_snd   = 0;
 `endif
 
 /* verilator tracing_off */

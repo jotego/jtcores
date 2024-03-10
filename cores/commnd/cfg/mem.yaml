@@ -8,6 +8,13 @@ clocks:
         - cen6
         - cen3
         - cen1p5
+audio:
+  rsum: 27k
+  channels:
+    - { name: psg0, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: psg1, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: fm0,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }]}
+    - { name: fm1,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }]}
 download:
   post_addr: true
 sdram:

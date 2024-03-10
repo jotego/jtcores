@@ -56,8 +56,7 @@ module jtpinpon_main(
     input               dip_test,
 
     // Sound
-    output signed [10:0] snd,
-    output               sample
+    output signed [10:0] snd
 );
 
 reg  [ 7:0] cabinet, cpu_din;
@@ -72,7 +71,6 @@ reg         gfx_sel;
 assign irq_trigger = ~LVBL & dip_pause; // this should match line 224
 assign nmi_trigger =  V16; // check in sch/PCB
 assign cpu_rnw     = wr_n;
-assign sample      = ti1_cen;
 assign rom_addr    = A[14:0];
 assign flip        = 0;
 assign gated_cen   = gfx_sel & (oram_cs | vram_cs) ? 1'b0 : ti1_cen; // bus contention as the original board
@@ -168,7 +166,6 @@ jtframe_ff u_nmi(
 );
 
 reg  [ 7:0] ti1_data;
-wire [10:0] ti1_snd;
 wire        rdy1;
 
 always @(posedge clk, posedge rst) begin

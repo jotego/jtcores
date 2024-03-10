@@ -211,19 +211,17 @@ jtgng_sound u_sound (
     .snd_latch      ( snd_latch  ),
     .snd2_latch     (            ),
     .snd_int        ( V[5]       ),
-    // sound control
-    .enable_psg     ( enable_psg ),
-    .enable_fm      ( enable_fm  ),
-    .psg_level      ( dip_fxlevel),
     // ROM
     .rom_addr       ( snd_addr   ),
     .rom_data       ( snd_data   ),
     .rom_cs         (            ),
     .rom_ok         ( 1'b1       ),
     // sound output
-    .ym_snd         ( snd        ),
-    .sample         ( sample     ),
-    .peak           ( game_led   ),
+    // sound output
+    .fm0            ( fm0        ),
+    .fm1            ( fm1        ),
+    .psg0           ( psg0       ),
+    .psg1           ( psg1       ),
     .debug_bus      ( debug_bus  ),
     .debug_view     ( debug_view )
 );

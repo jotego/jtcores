@@ -31,6 +31,7 @@ module jtframe_limsum #(parameter
     input             clk,
     input             cen,
     input   [W*K-1:0] parts,
+    input   [K-1:0]   en,
     output reg signed [W-1:0] sum,
     output reg        peak
 );
@@ -40,13 +41,13 @@ reg signed [WS-1:0] full;
 wire       [WS-W:0] signs = full[WS-1:W-1];
 wire v = |signs & ~&signs; // overflow
 
-function [WS-1:0] ext(input [W-1:0] a);
-    ext = { {WS-W{a[W-1]}}, a };
+function [WS-1:0] ext(input en, input [W-1:0] a);
+    ext = en ? { {WS-W{a[W-1]}}, a } : {WS{1'b0}};
 endfunction
 
 integer k;
 always @* begin
-    for(k=0;k<K;k=k+1) full = k==0? ext(parts[W-1:0]) : full+ext(parts[W*k+:W]);
+    for(k=0;k<K;k=k+1) full = k==0? ext(en[k],parts[W-1:0]) : full+ext(en[k],parts[W*k+:W]);
 end
 
 always @(posedge clk, posedge rst) begin

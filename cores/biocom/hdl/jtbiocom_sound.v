@@ -39,9 +39,8 @@ module jtbiocom_sound(
     input           rom_ok,
 
     // Sound output
-    output  signed [15:0] left,
-    output  signed [15:0] right,
-    output                sample
+    output  signed [15:0] fm_l,
+    output  signed [15:0] fm_r
 );
 
 parameter LAYOUT  = 3, // 9 for SF
@@ -162,20 +161,20 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( int_n     ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( left      ),
-    .xright     ( right     )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 `else // NOSOUND
     assign snd_dout   = 0;
     assign snd_mcu_wr = 0;
     assign snd_mcu_rd = 0;
-    assign left       = 0;
-    assign right      = 0;
+    assign fm_l       = 0;
+    assign fm_r       = 0;
     assign sample     = 0;
     initial begin
         rom_addr = 0;

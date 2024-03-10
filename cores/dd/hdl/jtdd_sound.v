@@ -155,7 +155,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( firq_n    ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output

@@ -1,5 +1,14 @@
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
+# similar to gng, but jt49 not as loud
+# unknown value for jt49's resistors
+audio:
+  rsum: 56k
+  channels:
+    - { name: psg0, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: psg1, module: jt49, rsum: 56k, pre: 0.1ay }
+    - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: 1ym14,  c: 1n }]}
+    - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: 1ym14,  c: 1n }]}
 download:
   post_addr: true
 sdram:

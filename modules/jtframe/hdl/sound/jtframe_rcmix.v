@@ -50,6 +50,7 @@ module jtframe_rcmix #(parameter
     input  signed [WS2-1:0] ch2,
     input  signed [WS3-1:0] ch3,
     input  signed [WS4-1:0] ch4,
+    input  [4:0]            ch_en,
     // up to 2 pole coefficients per input (unsigned numbers, only decimal part)
     input  [WC*2-1:0] p0,p1,p2,p3,p4, // concatenate the bits for each pole coefficient
     // gain for each channel in 4.4 fixed point format
@@ -112,6 +113,7 @@ jtframe_limsum #(.W(WOUT),.K(5)) u_right(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( cen   ),
+    .en     ( ch_en ),
     .parts  ( {ft4[WOUT-1:0], ft3[WOUT-1:0], ft2[WOUT-1:0], ft1[WOUT-1:0], ft0[WOUT-1:0]} ),
     .sum    ( right ),
     .peak   ( peak_r)
@@ -125,6 +127,7 @@ generate
             .rst    ( rst   ),
             .clk    ( clk   ),
             .cen    ( cen   ),
+            .en     ( ch_en ),
             .parts  ( {ft4[WO4-1-:WOUT],
                        ft3[WO3-1-:WOUT],
                        ft2[WO2-1-:WOUT],

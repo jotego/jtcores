@@ -33,7 +33,7 @@ clocks:
 audio:
   rsum: 4.7k
   channels:
-    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1y, c: 1.5n}]}
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1ym12, c: 1.5n}]}
     - { name: pcm, rsum: 10k, rc: [{ r: 4.92k, c: 2.2n }, { r: 10.2k, c: 10n  }]}
 sdram:
   banks:

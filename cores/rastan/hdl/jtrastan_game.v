@@ -127,9 +127,9 @@ jtrastan_snd u_sound(
     .pcm_ok     ( pcm_ok        ),
     .pcm_data   ( pcm_data      ),
 
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      )
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           )
 );
 `else
 assign snd_cs = 0;
@@ -137,8 +137,6 @@ assign snd_addr = 0;
 assign pcm_addr = 0;
 assign pcm_cs = 0;
 assign snd    = 0;
-assign sample = 0;
-assign game_led=0;
 assign sn_dout =0;
 `endif
 

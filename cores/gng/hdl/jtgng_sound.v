@@ -54,7 +54,6 @@ module jtgng_sound(
     output reg [ 7:0] debug_view
 );
 parameter       LAYOUT=0;
-parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
 `ifndef NOSOUND
     // 0 GnG, most games
     // 1 Commando:

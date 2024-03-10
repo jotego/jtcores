@@ -117,6 +117,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
     .game_led       ( game_led      ),
     .sample         ( sample        ), {{ end }}
+    .snd_en         ( snd_en        ),
 {{- range $k,$v := .Clocks }} {{- range $v}}
     {{- range .Outputs }}
     .{{ . }}    ( {{ . }}    ), {{end}}{{end}}
@@ -493,6 +494,7 @@ jtframe_rcmix #(
     .clk    ( clk       ),
     .mute   ( mute      ),
     .sample ( sample    ),
+    .ch_en  ( snd_en    ),
     .ch0    ( {{ if $ch0.Name }}{{ if $ch0.Stereo }}{ {{$ch0.Name}}_l,{{$ch0.Name}}_r }{{ else }}{{ $ch0.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch1    ( {{ if $ch1.Name }}{{ if $ch1.Stereo }}{ {{$ch1.Name}}_l,{{$ch1.Name}}_r }{{ else }}{{ $ch1.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch2    ( {{ if $ch2.Name }}{{ if $ch2.Stereo }}{ {{$ch2.Name}}_l,{{$ch2.Name}}_r }{{ else }}{{ $ch2.Name }}{{end}}{{else}}16'd0{{end}} ),

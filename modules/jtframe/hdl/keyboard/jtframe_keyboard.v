@@ -45,6 +45,7 @@ module jtframe_keyboard(
     output     alt,
     // debug features
     output reg [3:0] key_gfx,
+    output reg [4:0] key_snd,
     output reg       debug_plus,
     output reg       debug_minus
 );
@@ -155,11 +156,12 @@ always @(posedge clk) begin
                     9'h04: key_reset   <= !key_released; // F3
                     9'h46: key_service <= !key_released; //  9
                     // Debug keys
-                    // GFX enable
-                    9'h0_83: key_gfx[0] <= !key_released; // F7: CHAR enable
-                    9'h0_0a: key_gfx[1] <= !key_released; // F8: SCR1 enable
-                    9'h0_01: key_gfx[2] <= !key_released; // F9: SCR2 enable
-                    9'h0_09: key_gfx[3] <= !key_released; // F10:OBJ  enable
+                    // GFX/Sound channels enable
+                    9'h0_83: if( !shift ) key_gfx[0] <= !key_released; else key_snd[0] <= !key_released; // F7: CHAR enable
+                    9'h0_0a: if( !shift ) key_gfx[1] <= !key_released; else key_snd[1] <= !key_released; // F8: SCR1 enable
+                    9'h0_01: if( !shift ) key_gfx[2] <= !key_released; else key_snd[2] <= !key_released; // F9: SCR2 enable
+                    9'h0_09: if( !shift ) key_gfx[3] <= !key_released; else key_snd[3] <= !key_released; // F10:OBJ  enable
+                    9'h0_78: if(  shift ) key_snd[4] <= !key_released; // shift+F11:ch[4]  enable
 
                     9'h0_5b: debug_plus  <= !key_released;
                     9'h0_4a: debug_minus <= !key_released;

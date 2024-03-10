@@ -171,6 +171,7 @@ module jtframe_board #(parameter
     input        [31:0] timestamp,
     // GFX enable
     output        [3:0] gfx_en,
+    output        [4:0] snd_en,
     output        [7:0] debug_bus,
     input         [7:0] debug_view
 );
@@ -242,6 +243,7 @@ wire         cheat_led, pre_pause;
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
+wire   [4:0] key_snd;
 wire   [1:0] sensty;
 wire         key_service, key_tilt;
 wire         locked;
@@ -336,6 +338,7 @@ jtframe_keyboard u_keyboard(
     .ctrl        ( key_ctrl      ),
     .alt         ( key_alt       ),
     .key_gfx     ( key_gfx       ),
+    .key_snd     ( key_snd       ),
     .debug_plus  ( debug_plus    ),
     .debug_minus ( debug_minus   )
 );
@@ -351,6 +354,7 @@ jtframe_keyboard u_keyboard(
             .shift       ( key_shift   | board_shift ),
             .ctrl        ( key_ctrl    | board_ctrl  ),
             .alt         ( key_alt     | board_alt   ),
+            .key_snd     ( key_snd                   ),
             .key_gfx     ( key_gfx     | board_gfx   ),
             .key_digit   ( key_digit   | board_digit ),
             .debug_plus  ( debug_plus  | board_plus  ),
@@ -370,6 +374,7 @@ jtframe_keyboard u_keyboard(
             .bout        ( dbg_b         ),
 
             .gfx_en      ( gfx_en        ),
+            .snd_en      ( snd_en        ),
             .debug_bus   ( debug_bus     ),
             .debug_view  ( debug_view    ),
             .sys_info    ( sys_info      ),
@@ -401,6 +406,7 @@ jtframe_keyboard u_keyboard(
         );
     `else
         assign gfx_en    = 4'b1111;
+        assign snd_en    = 5'h1f;
         assign debug_bus =  0;
         assign dbg_r = pre2x_r;
         assign dbg_g = pre2x_g;

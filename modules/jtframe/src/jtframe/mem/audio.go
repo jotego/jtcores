@@ -19,17 +19,22 @@ func must( e error ) {
 }
 
 func eng2float( s string ) float64 {
+	const ym14=5000.0
+	const ym12=2000.0
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
 	s = strings.TrimSpace(s)
+	input := s
 	sm := re.FindString(s)
 	mant,_ := strconv.ParseFloat(sm,64)
 	s=s[len(sm):]
 	if len(s)==0 { return mant }
+	if sm=="" && s!="" { mant = 1.0 }
 	switch(s) {
 	// output impedance of sound chips
-	case "y":  return mant*2000	// YM3012 output impedance (seen with YM2151)
-	case "y2": return mant*8000	// YM3014 output impedance (seen with YM2203)
-	case "ay": return mant*2.0	// gain for an AY-3-8910 connected to 10 kOhm
+	case "ym12": return mant*ym12	// YM3012 output impedance (seen with YM2151)
+	case "ym14": return mant*ym14	// YM3014 output impedance (seen with YM2203)
+	case "para14": return mant*ym14/(mant+ym14) // parallel of a resistor with YM3014's output impedance
+	case "ay": return mant*4.0	// gain for an AY-3-8910 connected to 10 kOhm
 	// standard suffixes
 	case "p": return mant*1e-12
 	case "n": return mant*1e-9
@@ -39,6 +44,10 @@ func eng2float( s string ) float64 {
 	case "M": return mant*1e6
 	case "G": return mant*1e9
 	case "T": return mant*1e12
+	default: {
+		fmt.Printf("Unknown suffix %s\n in %s (mem.yaml)\n",s,input)
+		os.Exit(1)
+	}
 	}
 	return mant
 }

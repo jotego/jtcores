@@ -169,27 +169,26 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .snd_latch      ( snd_latch      ),
     .snd2_latch     (                ),
     .snd_int        (                ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     .debug_bus      ( 8'd0           ),
     .debug_view     ( debug_view     )
 );
 `else
-assign snd_addr  = 0;
-assign snd_cs    = 0;
-assign snd       = 0;
-assign sample    = 0;
+    assign snd_addr = 0;
+    assign snd_cs   = 0;
+    assign fm0      = 0;
+    assign fm1      = 0;
+    assign psg0     = 0;
+    assign psg1     = 0;
 `endif
 
 jtsarms_video u_video(

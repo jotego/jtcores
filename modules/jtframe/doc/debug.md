@@ -6,6 +6,10 @@ If JTFRAME_RELEASE is not defined, the debug features can be used. Also check [t
 
 keys F7-F10 will toggle bits in the gfx_en bus. After reset all bits are high. These bits are meant to be used to enable/disable graphic layers.
 
+## Sound Channel Enable Bus
+
+Shift + keys F7-F11 will toggle bits in the snd_en bus. These bits are handled automatically by games using **mem.yaml** to define audio. Each key will toggle on and off and audio channel during test builds.
+
 ## Generic 8-bit Debug bus
 
 If JTFRAME_RELEASE is not defined, keys + and - (in a Spanish keyboard layout) will increase and decrease the 8-bit debug_bus.

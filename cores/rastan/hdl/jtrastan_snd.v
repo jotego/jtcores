@@ -40,15 +40,11 @@ module jtrastan_snd(
     input                pcm_ok,
     input         [ 7:0] pcm_data,
 
-    output signed [15:0] snd,
-    output               peak,
-    output               sample
+    output signed [15:0] fm_l, fm_r,
+    output signed [11:0] pcm
 );
 
-localparam [7:0] FM_GAIN = 8'h08,
-                 PCM_GAIN= 8'h06;
-
-wire               cen4, cen2, pcm_cen, nc, mute;
+wire               cen4, cen2, pcm_cen, nc;
 wire signed [15:0] pre_snd, left_opm, right_opm;
 wire signed [11:0] pcm_snd;
 wire               int_n;
@@ -66,8 +62,6 @@ reg         [ 7:0] din;
 wire               main_cs;
 
 assign main_cs    = sn_rd | sn_we;
-assign snd        = mute ? 16'd0 : pre_snd;
-assign mute       = 0;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm_nibble = !nibble_sel ? pcm_data[7:4] : pcm_data[3:0];
 
@@ -221,12 +215,12 @@ jt51 u_jt51(
     .ct2    ( ct2       ),
     .irq_n  ( int_n     ),
     // Low resolution output (same as real chip)
-    .sample ( sample    ),
+    .sample (           ),
     .left   (           ),
     .right  (           ),
     // Full resolution output
-    .xleft  ( left_opm  ),
-    .xright ( right_opm )
+    .xleft  ( fm_l      ),
+    .xright ( fm_r      )
 );
 
 jt5205 u_5205( // 8kHz, 4 bits/sample
@@ -235,28 +229,10 @@ jt5205 u_5205( // 8kHz, 4 bits/sample
     .cen    ( pcm_cen   ),
     .sel    ( 2'b10     ),
     .din    ( pcm_nibble),
-    .sound  ( pcm_snd   ),
+    .sound  ( pcm       ),
     .sample (           ),
     .irq    (           ),
     .vclk_o ( vclk      )
-);
-
-jtframe_mixer #(.W0(12)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen4      ),
-    // input signals
-    .ch0    ( pcm_snd   ),
-    .ch1    ( left_opm  ),
-    .ch2    ( right_opm ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( PCM_GAIN  ),
-    .gain1  ( FM_GAIN   ),
-    .gain2  ( FM_GAIN   ),
-    .gain3  ( 8'd0      ),
-    .mixed  ( pre_snd   ),
-    .peak   ( peak      )
 );
 
 endmodule

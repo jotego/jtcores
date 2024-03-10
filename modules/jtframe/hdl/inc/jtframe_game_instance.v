@@ -192,6 +192,7 @@ u_game(
     .snd_right   ( snd_right      ),
 `endif
     .sample      ( sample         ),
+    .snd_en      ( snd_en         ),
     // Debug
 `ifdef JTFRAME_STATUS
     .st_addr     ( st_addr        ),
