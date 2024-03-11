@@ -46,8 +46,8 @@ module jtgng_sound(
     input            rom_ok,
 
     // Sound output
-    output  signed [15:0] fm0, fm1,
-    output         [ 9:0] psg0, psg1,
+    output signed [15:0] fm0, fm1,
+    output        [ 9:0] psg0, psg1,
 
     // Debug
     input      [ 7:0] debug_bus,

@@ -218,12 +218,7 @@ jtfround_video u_video (
 );
 
 /* verilator tracing_off */
-jttmnt_sound #( // -1.5dB compared to MIA, same balance
-    .MONO_FM    ( 8'h18 ),
-    .MONO_PCM   ( 8'h06 ),
-    .MONO_UPD   ( 8'h0C ),
-    .MONO_TTL   ( 8'h00 )
-) u_sound(
+jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
@@ -274,10 +269,13 @@ jttmnt_sound #( // -1.5dB compared to MIA, same balance
     .title_cs   (               ),
     .title_ok   ( 1'b1          ),
     // Sound output
-    .snd_left   ( snd           ),
-    .snd_right  (               ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           ),
+    .upd        ( upd           ),
+    .k60_l      (               ),
+    .k60_r      (               ),
+    .title      (               ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

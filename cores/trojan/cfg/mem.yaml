@@ -5,13 +5,17 @@ params:
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
 download:
   post_addr: true
-# audio:
-#   - name: fm
-#     module:
-#   - name: pcm
-#     module:
-#     rc:
-#       - { r: , c:  }
+audio:
+  rsum: 4k
+  missing_info: true # all numbers are educated guesses
+  channels:
+    # from gng
+    - { name: psg0, module: jt49,   rsum: 5.7k, pre: 0.1ay }
+    - { name: psg1, module: jt49,   rsum: 5.7k, pre: 0.1ay }
+    - { name: fm0,  module: jt03,   rsum: 10k, rc: [{ r: ym14,  c: 1n }]}
+    - { name: fm1,  module: jt03,   rsum: 10k, rc: [{ r: ym14,  c: 1n }]}
+    # guess
+    - { name: pcm,  module: jt5205, rsum: 10k, rc: [{ r: 10k,   c: 22n }]} # arbitrary value
 sdram:
   banks:
     - buses:

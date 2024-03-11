@@ -225,10 +225,13 @@ jttmnt_sound u_sound(
     .title_addr ( title_addr    ),
     .title_ok   ( title_ok      ),
     // Sound output
-    .snd_left   ( snd_left      ),
-    .snd_right  ( snd_right     ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           ),
+    .upd        ( upd           ),
+    .k60_l      (               ),
+    .k60_r      (               ),
+    .title      ( title         ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

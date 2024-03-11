@@ -69,21 +69,16 @@ module jttmnt_sound(
     input           title_ok,
 
     // Sound output
-    output reg signed [15:0] snd_left, snd_right,
-    output               sample,
-    output reg           peak,
+    output reg signed [15:0] title,
+    output     signed [15:0] fm_l,  fm_r,
+    output     signed [13:0] k60_l, k60_r,
+    output     signed [11:0] pcm,
+    output     signed [ 8:0] upd,
     // Debug
     input         [ 7:0] debug_bus,
     output        [ 7:0] st_dout
 );
-
-parameter [7:0] MONO_FM  = 8'h20,
-                MONO_PCM = 8'h08,
-                MONO_UPD = 8'h10,
-                MONO_TTL = 8'h08;
-
 `ifndef NOSOUND
-
 `include "game_id.inc"
 
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, k60_dout;
@@ -92,28 +87,19 @@ wire        [16:0]  k32a_addr, k32b_addr;
 wire        [20:0]  k60a_addr, k60b_addr;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    k60a_cs, k60b_cs, k32a_cs, k32b_cs;
+                    k60a_cs, k60b_cs, k32a_cs, k32b_cs, cpu_cen, sample;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs, k60_cs;
-wire signed [15:0]  fm_left, fm_right, pre_mono, pre_l, pre_r;
-wire signed [13:0]  k60_l, k60_r;
-wire signed [16:0]  fm_mono;
-wire signed [ 8:0]  upd_snd;
-wire                cpu_cen, peak_mono, peak_l, peak_r;
 reg                 mem_acc, mem_upper;
 reg         [ 3:0]  pcm_bank;
-wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
 reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rstn;
 reg         [ 7:0]  upd_latch;
 wire                upd_bsyn;
-reg signed  [15:0]  title_snd; // bit 0 is always discarded
-wire signed [15:0]  snd_mix;
 wire                upper4k;
 reg                 upd_rst, k7232_rst, k53260_rst, k60, nmi_clr;
 
 assign rom_addr = A[14:0];
 assign title_cs = 1;
-assign fm_mono  = fm_left+fm_right;
 assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
 assign pcma_addr = k60 ? k60a_addr : { 4'd0, k32a_addr };
@@ -128,17 +114,11 @@ always @(posedge clk) begin
        upd_rst    <= 1;
        k7232_rst  <= 1;
        k53260_rst <= rst;
-       peak       <= peak_l | peak_r;
-       snd_left   <= pre_l;
-       snd_right  <= pre_r;
     end else begin  // 007232, Title, ADPCM
        k60        <= 0;
        upd_rst    <= ~upd_rstn | rst;
        k7232_rst  <= rst;
        k53260_rst <= 1;
-       peak       <= peak_mono;
-       snd_left   <= pre_mono;
-       snd_right  <= pre_mono;
     end
 end
 
@@ -215,66 +195,17 @@ wire signed [15:0] title_raw = { ~title_data[12], title_data[11:3], 6'd0 };
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         title_addr <= 0;
-        title_snd  <= 0;
+        title      <= 0;
     end else if( cen_20 ) begin
         if( !title_rstn ) begin
             title_addr <= 0;
-            title_snd  <= 0;
+            title      <= 0;
         end else begin
             title_addr <= title_addr + 1'd1;
-            title_snd  <= title_raw >>> ~title_data[15:13];
+            title      <= title_raw >>> ~title_data[15:13];
         end
     end
 end
-
-/* verilator tracing_on */
-jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    (fm_mono[16:1]),
-    .ch1    ( pcm_snd    ),
-    .ch2    ( upd_snd    ),
-    .ch3    ( title_snd  ),
-    .gain0  ( MONO_FM    ), // music
-    .gain1  ( MONO_PCM   ), // percussion
-    .gain2  ( MONO_UPD   ), // voices (fire! hang on April)
-    .gain3  ( MONO_TTL   ), // theme song
-    .mixed  ( pre_mono   ),
-    .peak   ( peak_mono  )
-);
-
-jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_l(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_left    ),
-    .ch1    ( k60_l      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( 8'h10      ), // music
-    .gain1  ( 8'h60      ), // PCM
-    .gain2  ( 8'h00      ),
-    .gain3  ( 8'h00      ),
-    .mixed  ( pre_l      ),
-    .peak   ( peak_l     )
-);
-
-jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_r(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_right   ),
-    .ch1    ( k60_r      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( 8'h10      ), // music
-    .gain1  ( 8'h60      ), // PCM
-    .gain2  ( 8'h00      ),
-    .gain3  ( 8'h00      ),
-    .mixed  ( pre_r      ),
-    .peak   ( peak_r     )
-);
 
 /* verilator tracing_off */
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
@@ -321,8 +252,8 @@ jt51 u_jt51(
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 /* verilator tracing_on */
@@ -397,7 +328,7 @@ jt007232 u_k7232(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm_snd   ),
+    .snd        ( pcm       ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_pcm    )
@@ -417,11 +348,10 @@ jt7759 u_upd(
     .rom_addr   ( upd_addr  ),
     .rom_data   ( upd_data  ),
     .rom_ok     ( upd_ok    ),
-    .sound      ( upd_snd   ),
+    .sound      ( upd       ),
     // unused
     .drqn       (           )
 );
-
 `else
 assign  main_din   = 0;
 assign  pcma_addr  = 0;

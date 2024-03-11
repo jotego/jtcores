@@ -32,7 +32,7 @@ module jts16_game(
 
     wire [7:0] sndmap_din, sndmap_dout;
     wire       sndmap_rd, sndmap_wr, sndmap_pbf;
-
+    assign mute = 0;
 `endif
 
 // clock enable signals
