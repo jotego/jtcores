@@ -82,7 +82,6 @@ always @(posedge clk, negedge rstn_t48 ) begin
     end
 end
 
-`ifndef NOMCU
 t48_core u_mcu(
     .reset_i        ( rstn_t48  ),
     .xtal_i         ( clk       ),
@@ -155,7 +154,6 @@ t8243_sync_notri u_8243(
     .p7_o           ( pext7     ),
     .p7_en_o        (           )
 );
-`endif
 
 jtframe_prom #(.SIMFILE("7751.bin")) u_prom(
     .clk    ( clk           ),

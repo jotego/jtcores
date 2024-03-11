@@ -1,6 +1,6 @@
 module github.com/jotego/jtframe
 
-go 1.19
+go 1.21
 
 require (
 	github.com/komkom/toml v0.1.2

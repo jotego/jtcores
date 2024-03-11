@@ -495,23 +495,26 @@ jtframe_rcmix #(
     .DCRM2  ( {{if $ch2.DCrm   }}1{{else}}0{{end}}),
     .DCRM3  ( {{if $ch3.DCrm   }}1{{else}}0{{end}}),
     .DCRM4  ( {{if $ch4.DCrm   }}1{{else}}0{{end}}),
-    .STEREO ( {{if .Stereo}}     1{{else}}0{{end}})
+    .STEREO ( {{if .Stereo}}     1{{else}}0{{end}}),
+    // Fractional cen for 192kHz
+    .FRACW( {{ .Audio.FracW }}), .FRACN({{.Audio.FracN}}), .FRACM({{.Audio.FracM}})
 ) u_rcmix(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .mute   ( mute      ),
     .sample ( sample    ),
     .ch_en  ( snd_en    ),
+    .gpole  ( {{ .Audio.GlobalPole }} ), {{ if ne .Audio.GlobalFcut 0 }} // {{ .Audio.GlobalFcut }} Hz {{ end }}
     .ch0    ( {{ if $ch0.Name }}{{ if $ch0.Stereo }}{ {{$ch0.Name}}_l,{{$ch0.Name}}_r }{{ else }}{{ $ch0.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch1    ( {{ if $ch1.Name }}{{ if $ch1.Stereo }}{ {{$ch1.Name}}_l,{{$ch1.Name}}_r }{{ else }}{{ $ch1.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch2    ( {{ if $ch2.Name }}{{ if $ch2.Stereo }}{ {{$ch2.Name}}_l,{{$ch2.Name}}_r }{{ else }}{{ $ch2.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch3    ( {{ if $ch3.Name }}{{ if $ch3.Stereo }}{ {{$ch3.Name}}_l,{{$ch3.Name}}_r }{{ else }}{{ $ch3.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch4    ( {{ if $ch4.Name }}{{ if $ch4.Stereo }}{ {{$ch4.Name}}_l,{{$ch4.Name}}_r }{{ else }}{{ $ch4.Name }}{{end}}{{else}}16'd0{{end}} ),
-    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}16'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 0}}, {{ index $ch0.Fcut 1 }} {{end}}
-    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}16'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 0}}, {{ index $ch1.Fcut 1 }} {{end}}
-    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}}, {{ index $ch2.Fcut 1 }} {{end}}
-    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}}, {{ index $ch3.Fcut 1 }} {{end}}
-    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}}, {{ index $ch4.Fcut 1 }} {{end}}
+    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}16'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 0}} Hz, {{ index $ch0.Fcut 1 }} Hz {{end}}
+    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}16'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 0}} Hz, {{ index $ch1.Fcut 1 }} Hz {{end}}
+    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}} Hz, {{ index $ch2.Fcut 1 }} Hz {{end}}
+    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}} Hz, {{ index $ch3.Fcut 1 }} Hz {{end}}
+    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}} Hz, {{ index $ch4.Fcut 1 }} Hz {{end}}
     .g0     ( {{ $ch0.Gain }} ), {{with $ch0.Name}}// {{.}}{{end}}
     .g1     ( {{ $ch1.Gain }} ), {{with $ch1.Name}}// {{.}}{{end}}
     .g2     ( {{ $ch2.Gain }} ), {{with $ch2.Name}}// {{.}}{{end}}

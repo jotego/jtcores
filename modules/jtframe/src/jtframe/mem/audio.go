@@ -72,9 +72,9 @@ func read_modules() map[string]AudioCh {
 }
 
 func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
-	const scale = 32767	// 16 bits, signed
+	const scale = 0x7FFF	// 16 bits, signed
 	if ch.Fir=="" { return }
-	coeff := make([]int,0,128)
+	coeff := make([]int,128)
 	fname := filepath.Join(os.Getenv("CORES"),core,"cfg",ch.Fir)
 	f, e := os.Open(fname)
 	must(e)
@@ -91,7 +91,7 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 			os.Exit(1)
 		}
 		c *= scale
-		coeff = append(coeff,int(c))
+		coeff[cnt] = int(c)
 		cnt+=1
 		if cnt>127 {
 			fmt.Printf("Too many coefficients for FIR filter. Max is 127\n")
@@ -110,6 +110,7 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 	for _, each := range coeff {
 		fmt.Fprintf(f,"%04X\n",each&0xffff)
 	}
+	for k:=0;k<512-128;k+=1 { fmt.Fprintln(f,"0000")} // fill the rest of file
 	f.Close()
 }
 
@@ -142,7 +143,16 @@ func make_rc( ch *AudioCh, fs float64 ) {
 	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s16'h0",ch.Pole) }
 }
 
+func fill_audio_clock( macros map[string]string, cfg *Audio ) {
+	aux, _ := macros["JTFRAME_MCLK"]
+	fmhz, _ := strconv.Atoi(aux)
+	fmhz *= 1000
+	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
+	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
+}
+
 func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) {
+	fill_audio_clock( macros, &cfg.Audio )
 	modules := read_modules()
 	const fs = float64(192000)
 	// assign information derived from the module type
@@ -159,6 +169,8 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		}
 		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
 	}
+	cfg.Audio.GlobalPole, cfg.Audio.GlobalFcut = calc_a(cfg.Audio.RC, fs)
+	cfg.Audio.GlobalPole = fmt.Sprintf("8'h%s",cfg.Audio.GlobalPole)
 	var gmax float64
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]

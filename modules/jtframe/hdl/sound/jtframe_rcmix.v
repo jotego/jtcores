@@ -33,6 +33,8 @@ module jtframe_rcmix #(parameter
     STEREO0=1,STEREO1=1,STEREO2=1,STEREO3=1,STEREO4=1, // are the input channels stereo?
     // Path to FIR filter coefficient files. Enabling FIR will disable the 2-pole filters
     FIR0="",FIR1="",FIR2="",FIR3="",FIR4="",
+    // Fractional divider
+    FRACW=12, FRACN = 1, FRACM=262,
     // Do not set externally:
     WOUT=16,
     WC  =8,             // pole coefficient resolution
@@ -55,6 +57,7 @@ module jtframe_rcmix #(parameter
     input  [4:0]            ch_en,
     // up to 2 pole coefficients per input (unsigned numbers, only decimal part)
     input  [WC*2-1:0] p0,p1,p2,p3,p4, // concatenate the bits for each pole coefficient
+    input  [WC  -1:0] gpole,          // allow for one global pole
     // gain for each channel in 4.4 fixed point format
     input       [7:0] g0,g1,g2,g3,g4,  // concatenate all gains {gain4, gain3,..., gain0}
     output              sample,
@@ -90,13 +93,20 @@ wire signed [WO2-1:0] ft2;
 wire signed [WO3-1:0] ft3;
 wire signed [WO4-1:0] ft4;
 wire           [ 4:0] v;        // overflow in sound chain
-wire signed    [15:0] left, right;
+wire signed    [15:0] left, right, pre_l, pre_r;
 wire                  peak_l, peak_r;
 wire                  cen;          // sampling frequency
 
 assign sample=cen;
 
-jtframe_freq_cen #(.SFREQ(SFREQ)) u_cen(.clk(clk),.cen(cen));
+wire nc;
+jtframe_frac_cen #(.WC(FRACW)) u_cen(
+    .clk    ( clk       ),
+    .n      ( FRACN     ),
+    .m      ( FRACM     ),
+    .cen    ({nc,cen}   ),
+    .cenb   (           )
+);
 
 // convert to mono if the system is mono, otherwise kept as stereo
 jtframe_st2mono #(.W(W0),.SIN(STEREO0),.SOUT(STEREO)) u_st0(.sin(ch0),.sout(sm0));
@@ -118,8 +128,18 @@ jtframe_limsum #(.W(WOUT),.K(5)) u_right(
     .cen    ( cen   ),
     .en     ( ch_en ),
     .parts  ( {ft4[WOUT-1:0], ft3[WOUT-1:0], ft2[WOUT-1:0], ft1[WOUT-1:0], ft0[WOUT-1:0]} ),
-    .sum    ( right ),
+    .sum    ( pre_r ),
     .peak   ( peak_r)
+);
+
+// Global RC
+jtframe_pole #(.WS(16),.WA(WC)) u_pole1(
+    .rst    ( rst   ),
+    .clk    ( clk   ),
+    .sample ( cen   ),
+    .a      ( gpole ),
+    .sin    ( pre_r ),
+    .sout   ( right )
 );
 
 always @(posedge clk) mixed[WOUT-1:0] <= mute ? {WOUT{1'b0}} : right;
@@ -136,9 +156,19 @@ generate
                        ft2[WO2-1-:WOUT],
                        ft1[WO1-1-:WOUT],
                        ft0[WO0-1-:WOUT] } ),
-            .sum    ( left  ),
+            .sum    ( pre_l ),
             .peak   ( peak_l)
         );
+        // Global RC
+        jtframe_pole #(.WS(16),.WA(WC)) u_pole1(
+            .rst    ( rst   ),
+            .clk    ( clk   ),
+            .sample ( cen   ),
+            .a      ( gpole ),
+            .sin    ( pre_l ),
+            .sout   ( left  )
+        );
+
         always @(posedge clk) begin
             mixed[WMX-1-:WOUT] <= mute ? {WOUT{1'b0}} : left;
             peak <= | {peak_l, peak_r, v};

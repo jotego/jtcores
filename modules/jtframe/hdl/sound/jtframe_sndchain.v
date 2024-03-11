@@ -58,8 +58,6 @@ initial begin
     end
 end
 
-assign c1     = poles[WC-1:0],
-       c2     = poles[WC+:WC];
 assign sgain  = {1'b0,gain};
 assign mul_r  = $signed(p2[    0+:WO])*sgain;
 assign mul_l  = $signed(p2[WOS-1-:WO])*sgain;
@@ -116,6 +114,8 @@ endgenerate
 
 generate
     if( FIR=="" ) begin
+        assign c1 = poles[WC-1:0],
+               c2 = poles[WC+:WC];
         // 1st pole
         jtframe_pole #(.WS(WO),.WA(WC)) u_pole1(
             .rst    ( rst           ),

@@ -31,12 +31,14 @@ clocks:
         - mcu_cen
         - cen_nc4
 audio:
-  rsum: 4.7k
+  rsum: 10k
   mute: true
-  rc: [ { r: 47k, c:1n } ]
+  rc: { r: 47k, c: 1n }
   channels:
     - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1ym12, c: 1.5n}]}
-    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv } # roughly equivalent to original 4th order filter
+    # 0.8 because of TTL output not reaching the supply fully
+    # roughly equivalent to original 4th order filter
+    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv, pre: 0.8 }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

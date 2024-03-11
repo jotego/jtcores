@@ -169,8 +169,13 @@ type AudioCh struct {
 type Audio struct {
     Rsum    string `yaml:"rsum"`
     Mute    bool   `yaml:"mute"`
-    RC       []AudioRC `yaml:"rc"`
+    RC         AudioRC `yaml:"rc"`
     Channels []AudioCh `yaml:"channels"`
+    // Fractional divider information to generate 192kHz clock
+    FracW,FracN,FracM int
+    // Derived information
+    GlobalPole string
+    GlobalFcut int
 }
 
 type MemConfig struct {
