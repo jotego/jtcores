@@ -45,7 +45,6 @@ module jtaliens_sound(
     // Sound output
     output signed [15:0] fm_l, fm_r,
     output signed [11:0] pcm,
-    output reg    [ 7:0] fm_gain, pcm_gain,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -95,7 +94,7 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
-    fm_gain = 8'h18;
+    // fm_gain = 8'h18;
     case( cfg )
         ALIENS,CRIMFGHT: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
@@ -112,8 +111,8 @@ always @(*) begin
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
         end
     endcase
-    if( cfg==SCONTRA  ) fm_gain = 8'h20;
-    if( cfg==THUNDERX ) fm_gain = 8'h10;
+    // if( cfg==SCONTRA  ) fm_gain = 8'h20;
+    // if( cfg==THUNDERX ) fm_gain = 8'h10;
 end
 
 always @(*) begin
@@ -132,19 +131,6 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( bank_cs ) pcm_bank <= cpu_dout[3:0];
     end
-end
-
-always @(*) begin
-    case( fxlevel )
-        3: pcm_gain = 8'h11;
-        2: pcm_gain = 8'h0c;
-        1: pcm_gain = 8'h08;
-        0: pcm_gain = 8'h06; // spaced by sqrt(2)
-    endcase
-`ifdef SIMULATION
-    pcm_gain=8'h0c;
-`endif
-    // pcm_gain=debug_bus;
 end
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(

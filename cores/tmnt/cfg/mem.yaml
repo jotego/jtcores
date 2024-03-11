@@ -20,10 +20,10 @@ clocks:
 audio:
   rsum: 12k
   channels:
-    - { name: fm,  module: jt51,              rsum: 2.56k, rc: [ { r: 609,    c:  33n } ] }
-    - { name: pcm, module: jt007232,          rsum: 2.4k,  rc: [ { r: 19.65k, c: 470p } ], pre: 0.42 } # 120k || (47k||47k)
-    - { name: ttl, data_width: 16,            rsum: 7.6k,  rc: [ { r: 868,    c:  33n } ] } # 1k || (1k+5.6k)
-    - { name: upd, module: jt7759 , pre: 0.5, rsum: 3k,    rc: [ { r: 5.7k,   c:  10n } ] }
+    - { name: fm,    module: jt51,              rsum: 2.56k, rc: [ { r: 609,    c:  33n } ] }
+    - { name: pcm,   module: jt007232,          rsum: 2.4k,  rc: [ { r: 19.65k, c: 470p } ], pre: 0.42 } # 120k || (47k||47k)
+    - { name: title, data_width: 16,            rsum: 7.6k,  rc: [ { r: 868,    c:  33n } ] } # 1k || (1k+5.6k)
+    - { name: upd,   module: jt7759 , pre: 0.5, rsum: 3k,    rc: [ { r: 5.7k,   c:  10n } ] }
 sdram:
   banks:
     - buses:

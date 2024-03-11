@@ -149,9 +149,7 @@ jtaliens_sound u_sound(
     // Sound output
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
-    .fm_gain    ( fm_gain       ),
     .pcm        ( pcm           ),
-    .pcm_gain   ( pcm_gain      ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
