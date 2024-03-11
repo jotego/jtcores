@@ -149,6 +149,7 @@ type AudioCh struct {
     Rsum       string `yaml:"rsum"`
     Pre        string `yaml:"pre"` // pre-amplifier gain
     RC         []AudioRC `yaml:"rc"`
+    Fir        string `yaml:"fir"` // CSV file containing filter coefficients
     DCrm       bool   `yaml:"dcrm"`
     // These two are filled from Module, if the Module is present
     Stereo     bool   `yaml:"stereo"`
@@ -156,6 +157,7 @@ type AudioCh struct {
     Data_width int    `yaml:"data_width"`
     Rc_en      bool   `yaml:"rc_en"`
     // Derived from RC information
+    Firhex     string   // name for file with FIR filter coefficients in hexadecimal
     Filters    int      // number of RC filters (each one is made of two poles)
     Pole       string
     rcen       string
@@ -167,6 +169,7 @@ type AudioCh struct {
 type Audio struct {
     Rsum    string `yaml:"rsum"`
     Mute    bool   `yaml:"mute"`
+    RC       []AudioRC `yaml:"rc"`
     Channels []AudioCh `yaml:"channels"`
 }
 

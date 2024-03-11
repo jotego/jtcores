@@ -63,6 +63,7 @@ jtframe:
       - jtframe_mixer_en.v
       - jtframe_mixer.v
       - jtframe_iir2.v
+      - jtframe_fir.v
       - jtframe_rcmix.v
       - jtframe_limsum.v
       - jtframe_sndchain.v

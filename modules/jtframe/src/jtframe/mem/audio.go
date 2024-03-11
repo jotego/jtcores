@@ -1,6 +1,7 @@
 package mem
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"os"
@@ -70,7 +71,78 @@ func read_modules() map[string]AudioCh {
 	return modules
 }
 
-func make_audio( macros map[string]string, cfg *MemConfig ) {
+func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
+	const scale = 32767	// 16 bits, signed
+	if ch.Fir=="" { return }
+	coeff := make([]int,0,128)
+	fname := filepath.Join(os.Getenv("CORES"),core,"cfg",ch.Fir)
+	f, e := os.Open(fname)
+	must(e)
+	scanner := bufio.NewScanner(f)
+	cnt:=0
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		comment := strings.Index(line,"#")
+		if comment==0 || line=="" { continue }
+		if comment!=-1 { line = line[0:comment] }
+		c, e := strconv.ParseFloat(line,64)
+		if e!=nil {
+			fmt.Printf("Cannot parse float number in file %s\n",ch.Fir)
+			os.Exit(1)
+		}
+		c *= scale
+		coeff = append(coeff,int(c))
+		cnt+=1
+		if cnt>127 {
+			fmt.Printf("Too many coefficients for FIR filter. Max is 127\n")
+			os.Exit(1)
+		}
+	}
+	f.Close()
+	// Save the file
+	fname = ch.Fir
+	if i:=strings.LastIndex(fname,"."); i!=-1 { fname = fname[0:i] }
+	fname += ".hex"
+	ch.Firhex=fname
+	fname = filepath.Join(outpath,fname)
+	f, e = os.Create(fname)
+	must(e)
+	for _, each := range coeff {
+		fmt.Fprintf(f,"%04X\n",each&0xffff)
+	}
+	f.Close()
+}
+
+func make_rc( ch *AudioCh, fs float64 ) {
+	if ch.Fir != "" {
+		ch.Pole = "16'h00"
+		ch.Filters = 1	// the FIR one
+		return
+	}
+	ch.Filters=0
+	for k:=0; k<len(ch.RC); {
+		p0 := "00"
+		p1 := "00"
+		if k  <len(ch.RC) { p0,ch.Fcut[0] = calc_a(ch.RC[k  ], fs) }
+		if k+1<len(ch.RC) { p1,ch.Fcut[1] = calc_a(ch.RC[k+1], fs) }
+		hex := fmt.Sprintf("16'h%s%s",p1,p0)
+		if ch.Rc_en {
+			if k==0 && len(ch.RC)<3 {
+				ch.Pole=fmt.Sprintf("%s%s_rcen?%s : ",ch.Pole,ch.Name,hex)
+			} else {
+				ch.Pole=fmt.Sprintf("%s%s_rcen[%d]?%s : ",ch.Pole,ch.Name,k>>1,hex)
+			}
+		} else {
+			ch.Pole=hex
+		}
+		ch.Filters+=1
+		k+=2
+		if !ch.Rc_en { break } // only first two poles taken unless rc_en is set to true
+	}
+	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s16'h0",ch.Pole) }
+}
+
+func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) {
 	modules := read_modules()
 	const fs = float64(192000)
 	// assign information derived from the module type
@@ -109,27 +181,8 @@ func make_audio( macros map[string]string, cfg *MemConfig ) {
 		}
 		// if ch.RC==nil { ch.RC = mod.RC }
 		// Derive pole information
-		ch.Filters=0
-		for k:=0; k<len(ch.RC); {
-			p0 := "00"
-			p1 := "00"
-			if k  <len(ch.RC) { p0,ch.Fcut[0] = calc_a(ch.RC[k  ], fs) }
-			if k+1<len(ch.RC) { p1,ch.Fcut[1] = calc_a(ch.RC[k+1], fs) }
-			hex := fmt.Sprintf("16'h%s%s",p1,p0)
-			if ch.Rc_en {
-				if k==0 && len(ch.RC)<3 {
-					ch.Pole=fmt.Sprintf("%s%s_rcen?%s : ",ch.Pole,ch.Name,hex)
-				} else {
-					ch.Pole=fmt.Sprintf("%s%s_rcen[%d]?%s : ",ch.Pole,ch.Name,k>>1,hex)
-				}
-			} else {
-				ch.Pole=hex
-			}
-			ch.Filters+=1
-			k+=2
-			if !ch.Rc_en { break } // only first two poles taken unless rc_en is set to true
-		}
-		if ch.Rc_en { ch.Pole=fmt.Sprintf("%s16'h0",ch.Pole) }
+		make_rc(  ch, fs )
+		make_fir( core, outpath, ch, fs )
 		ch.gain=rmin/eng2float(ch.Rsum)
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)

@@ -479,7 +479,12 @@ jtframe_rcmix #(
     .W1({{$ch1.Data_width}}),{{end}}{{ if $ch2.Name }}
     .W2({{$ch2.Data_width}}),{{end}}{{ if $ch3.Name }}
     .W3({{$ch3.Data_width}}),{{end}}{{ if $ch4.Name }}
-    .W4({{$ch4.Data_width}}),{{end}}
+    .W4({{$ch4.Data_width}}),{{end}}{{ with $ch0.Firhex}}
+    .FIR0("{{$ch0.Firhex}}"),{{end}}{{ with $ch1.Firhex}}
+    .FIR1("{{$ch1.Firhex}}"),{{end}}{{ with $ch2.Firhex}}
+    .FIR2("{{$ch2.Firhex}}"),{{end}}{{ with $ch3.Firhex}}
+    .FIR3("{{$ch3.Firhex}}"),{{end}}{{ with $ch4.Firhex}}
+    .FIR4("{{$ch4.Firhex}}"),{{end}}
     .STEREO0( {{if $ch0.Stereo }}1{{else}}0{{end}}),
     .STEREO1( {{if $ch1.Stereo }}1{{else}}0{{end}}),
     .STEREO2( {{if $ch2.Stereo }}1{{else}}0{{end}}),

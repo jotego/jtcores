@@ -31,6 +31,8 @@ module jtframe_rcmix #(parameter
     STEREO =1, // is the output stereo?
     DCRM0=0,DCRM1=0,DCRM2=0,DCRM3=0,DCRM4=0,      // dc removal
     STEREO0=1,STEREO1=1,STEREO2=1,STEREO3=1,STEREO4=1, // are the input channels stereo?
+    // Path to FIR filter coefficient files. Enabling FIR will disable the 2-pole filters
+    FIR0="",FIR1="",FIR2="",FIR3="",FIR4="",
     // Do not set externally:
     WOUT=16,
     WC  =8,             // pole coefficient resolution
@@ -103,11 +105,11 @@ jtframe_st2mono #(.W(W2),.SIN(STEREO2),.SOUT(STEREO)) u_st2(.sin(ch2),.sout(sm2)
 jtframe_st2mono #(.W(W3),.SIN(STEREO3),.SOUT(STEREO)) u_st3(.sin(ch3),.sout(sm3));
 jtframe_st2mono #(.W(W4),.SIN(STEREO4),.SOUT(STEREO)) u_st4(.sin(ch4),.sout(sm4));
 
-jtframe_sndchain #(.W(W0),.DCRM(DCRM0),.STEREO(STEFF0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
-jtframe_sndchain #(.W(W1),.DCRM(DCRM1),.STEREO(STEFF1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
-jtframe_sndchain #(.W(W2),.DCRM(DCRM2),.STEREO(STEFF2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2), .peak(v[2]));
-jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3), .peak(v[3]));
-jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
+jtframe_sndchain #(.W(W0),.DCRM(DCRM0),.STEREO(STEFF0),.FIR(FIR0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
+jtframe_sndchain #(.W(W1),.DCRM(DCRM1),.STEREO(STEFF1),.FIR(FIR1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
+jtframe_sndchain #(.W(W2),.DCRM(DCRM2),.STEREO(STEFF2),.FIR(FIR2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2), .peak(v[2]));
+jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3),.FIR(FIR3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3), .peak(v[3]));
+jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4),.FIR(FIR4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
 
 
 jtframe_limsum #(.W(WOUT),.K(5)) u_right(

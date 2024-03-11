@@ -32,11 +32,11 @@ clocks:
         - cen_nc4
 audio:
   rsum: 4.7k
-  missing_data: true  # the real PCM filter is more agressive, 4th order, fcut=3.3kHz. Implement a FIR one with
   mute: true
+  rc: [ { r: 47k, c:1n } ]
   channels:
     - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1ym12, c: 1.5n}]}
-    - { name: pcm, data_width: 8, rsum: 10k, rc: [{ r: 4.92k, c: 2.2n }, { r: 10.2k, c: 10n  }]}
+    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv } # roughly equivalent to original 4th order filter
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

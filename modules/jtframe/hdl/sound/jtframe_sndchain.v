@@ -23,6 +23,7 @@
 module jtframe_sndchain #(parameter
     W=12,
     DCRM=1,
+    FIR="",
     STEREO=1, 
     WC=8,           // width for each pole coefficient
     // do not set
@@ -114,40 +115,57 @@ generate
 endgenerate    
 
 generate
-    // 1st pole
-    jtframe_pole #(.WS(WO),.WA(WC)) u_pole1(
-        .rst    ( rst           ),
-        .clk    ( clk           ),
-        .sample ( cen           ),
-        .a      ( c1            ),
-        .sin    ( dc[0+:WO]      ),
-        .sout   ( p1[0+:WO]      )
-    );    
-    jtframe_pole #(.WS(WO),.WA(WC)) u_pole2(
-        .rst    ( rst           ),
-        .clk    ( clk           ),
-        .sample ( cen           ),
-        .a      ( c2            ),
-        .sin    ( p1[0+:WO]      ),
-        .sout   ( p2[0+:WO]      )
-    );     
-    if( STEREO==1 ) begin
-        jtframe_pole #(.WS(WO),.WA(WC)) u_pole1_l(
+    if( FIR=="" ) begin
+        // 1st pole
+        jtframe_pole #(.WS(WO),.WA(WC)) u_pole1(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
             .a      ( c1            ),
-            .sin    (dc[(WOS-1)-:WO]),
-            .sout   (p1[(WOS-1)-:WO])
-        );        
-        jtframe_pole #(.WS(WO),.WA(WC)) u_pole2_l(
+            .sin    ( dc[0+:WO]      ),
+            .sout   ( p1[0+:WO]      )
+        );
+        jtframe_pole #(.WS(WO),.WA(WC)) u_pole2(
             .rst    ( rst           ),
             .clk    ( clk           ),
             .sample ( cen           ),
             .a      ( c2            ),
-            .sin    (p1[(WOS-1)-:WO]),
-            .sout   (p2[(WOS-1)-:WO])
-        );             
+            .sin    ( p1[0+:WO]      ),
+            .sout   ( p2[0+:WO]      )
+        );
+        if( STEREO==1 ) begin
+            jtframe_pole #(.WS(WO),.WA(WC)) u_pole1_l(
+                .rst    ( rst           ),
+                .clk    ( clk           ),
+                .sample ( cen           ),
+                .a      ( c1            ),
+                .sin    (dc[(WOS-1)-:WO]),
+                .sout   (p1[(WOS-1)-:WO])
+            );
+            jtframe_pole #(.WS(WO),.WA(WC)) u_pole2_l(
+                .rst    ( rst           ),
+                .clk    ( clk           ),
+                .sample ( cen           ),
+                .a      ( c2            ),
+                .sin    (p1[(WOS-1)-:WO]),
+                .sout   (p2[(WOS-1)-:WO])
+            );
+        end
+    end else begin
+        wire [WO-1:0] fir_l, fir_r;
+        jtframe_fir #(.COEFFS(FIR)) u_fir(
+            .rst    ( rst           ),
+            .clk    ( clk           ),
+            .sample ( cen           ),
+            .l_in   ( dc[0+:WO]     ),
+            .r_in   (dc[(WOS-1)-:WO]),
+            .l_out  ( fir_l         ),
+            .r_out  ( fir_r         )
+        );
+        assign p2[0+:WO] = fir_r;
+        if( STEREO==1 ) begin
+            assign p2[(WOS-1)-:WO] = fir_l;
+        end
     end
 endgenerate
 

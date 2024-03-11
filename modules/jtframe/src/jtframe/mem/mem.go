@@ -664,7 +664,7 @@ func Run(args Args) {
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Audio configuration
-	make_audio( macros, &cfg )
+	make_audio( macros, &cfg, args.Core, args.get_path("",false) )
 	// Execute the template
 	cfg.Core = args.Core
 	make_sdram(args, &cfg)
