@@ -1,9 +1,10 @@
 include: [ {game: s16 } ]
 game: s16
 audio:
-  rsum: 47k
+  rsum: 10k
   missing_info: true # measure jt7759 output impedance and calculate FIR filter
-  rc: [ { r: 47k, c:1n } ]
+  rc: { r: 47k, c:1n }
   channels:
     - { name: fm,  module: jt51,   rsum: 47k, rc: [{ r: 1ym12, c: 1.5n }]}
-    - { name: pcm, module: jt7759, rsum: 10k, rc: [{ r: 15.07k, c: 2.2n }, { r: 7.5k, c: 10n }]}
+    # roughly equivalent to original 4th order filter
+    - { name: pcm, module: jt7759, rsum: 10k, fir: fir_s16a.csv }

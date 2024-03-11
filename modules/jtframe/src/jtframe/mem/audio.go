@@ -151,6 +151,17 @@ func fill_audio_clock( macros map[string]string, cfg *Audio ) {
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }
 
+func fill_global_pole( cfg *Audio, fs float64 ) {
+	if cfg.RC.R=="" || cfg.RC.C=="" {
+		// add a pole at 20kHz for all cores
+		cfg.RC.R="8k"
+		cfg.RC.C="1n"
+	}
+	cfg.GlobalPole, cfg.GlobalFcut = calc_a(cfg.RC, fs)
+	cfg.GlobalPole = fmt.Sprintf("8'h%s",cfg.GlobalPole)
+}
+
+
 func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) {
 	fill_audio_clock( macros, &cfg.Audio )
 	modules := read_modules()
@@ -169,8 +180,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		}
 		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
 	}
-	cfg.Audio.GlobalPole, cfg.Audio.GlobalFcut = calc_a(cfg.Audio.RC, fs)
-	cfg.Audio.GlobalPole = fmt.Sprintf("8'h%s",cfg.Audio.GlobalPole)
+	fill_global_pole( &cfg.Audio, fs )
 	var gmax float64
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
@@ -208,7 +218,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
 		ch.gain = ch.gain/gmax*rmin/rsum
-		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*16)&0xff)
+		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*32)&0xff)
 	}
 	if len(cfg.Audio.Channels)>5 {
 		fmt.Printf("ERROR: Audio configuration requires %d channels\n",len(cfg.Audio.Channels))

@@ -42,7 +42,7 @@ module jtframe_sndchain #(parameter
 );
 
 localparam WM  = WOS+9,
-           WD  = 4;    // decimal part
+           WD  = 5;    // decimal part
 
 reg  signed [WOS-1:0] scld;
 wire signed [WOS-1:0] dc, p1, p2;
