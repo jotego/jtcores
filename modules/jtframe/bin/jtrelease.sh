@@ -80,12 +80,16 @@ git checkout $HASH
 HASHLONG=`git rev-parse HEAD`
 git submodule init $JTFRAME/target/pocket
 git submodule update $JTFRAME/target/pocket
+cd $JTFRAME/src/jtframe
+go mod tidy
 jtframe > /dev/null
+cd $JTFRAME/src/jtutil
+go mod tidy
 jtutil > /dev/null
+cd $DST
 echo "Unzipping $REF"
 unzip -q $REF -d release
 if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
-
 
 if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	echo "Copying to $JTBIN"
@@ -94,7 +98,8 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		BRANCH=jtcores_$HASH
 		git reset --hard
 		git clean -fd .
-		git branch -D $BRANCH > /dev/null || true
+		git checkout master
+		git branch -D $BRANCH 2> /dev/null || true
 		git checkout -b $BRANCH
 		rm -rf mist sidi pocket mister mra
 	fi
