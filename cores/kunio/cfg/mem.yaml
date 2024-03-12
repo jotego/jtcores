@@ -15,6 +15,7 @@ clocks:
 audio:
   rsum: 5k  # TBC
   channels:
+    # fm may need a pre-gain value. See issue https://github.com/jotego/jtcores/issues/581
     - { name: fm,  module: jtopl2, rsum: 2.2k }
     - { name: pcm, module: jt5205, rsum: 4.7k, dcrm: true }
 sdram:
