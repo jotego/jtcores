@@ -88,9 +88,8 @@ jtflane_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       ),
     // Sound
-    .snd            ( snd           ),
-    .sample         ( sample        ),
-    .peak           ( game_led      )
+    .pcm0           ( pcm0          ),
+    .pcm1           ( pcm1          )
 );
 `else
 assign main_cs = 0;
