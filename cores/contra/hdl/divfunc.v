@@ -59,7 +59,8 @@ module divfunc
     	genvar i;
     	for (i=0;i<XLEN;i=i+1) begin:gen_div
 
-            wire [i:0]      m = dividend[i]>>(XLEN-i-1);
+            wire `N(XLEN) maux= dividend[i]>>(XLEN-i-1);
+            wire [i:0]      m = maux[i:0];
             wire [i:0]      n = divisor[i][i:0];
     	    wire            q = (|(divisor[i]>>(i+1))) ? 1'b0 : ( m>=n );
     	    wire [i:0]      t = q ? (m - n) : m;
@@ -71,7 +72,7 @@ module divfunc
                 ready[i+1] <= ready[i];
 
                 `FFx(dividend[i+1],0)
-                dividend[i+1] <= d;
+                dividend[i+1] <= d[XLEN-1:0];
 
                 `FFx(divisor[i+1],0)
                 divisor[i+1] <= divisor[i];
