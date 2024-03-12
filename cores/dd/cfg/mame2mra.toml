@@ -32,9 +32,11 @@ Names = [
 [dipsw]
 # Flip screen not supported
 delete=[{names=["Unused","Unknown"]}]
-bitcnt = 16
 rename = [
     { name="Bonus Life", to="Bonus" },
+]
+extra=[
+    { machine="ddragon", name="PCM antialiasing", options="off,on", bits="16" }
 ]
 
 [ROM]

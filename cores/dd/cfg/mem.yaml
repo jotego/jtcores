@@ -26,11 +26,13 @@ clocks:
         - mcu_cen12
         - mcu_cen6
 audio:
-  rsum: 10k
+  rsum: 20k
   channels:
-    - { name: pcm_a, module: jt5205, rsum: 20k }
-    - { name: pcm_b, module: jt5205, rsum: 20k }
-    - { name: fm,    module: jt51,   rsum: 47k, rc: [{ r: 1ym12, c: 3.3n }]} # temp. value for YM3012 output res.
+    # the original does not have PCM filter, so this will be an option enabled
+    # by the user
+    - { name: pcm_a, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
+    - { name: pcm_b, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
+    - { name: fm,    module: jt51,   rsum: 47k, rc: [{ r: 1ym12, c: 3.3n }]}
 sdram:
   banks:
     - buses:
