@@ -13,8 +13,8 @@ audio:
   channels:
     - { name: psg0, module: jt49, rsum: 56k, pre: 0.1ay }
     - { name: psg1, module: jt49, rsum: 56k, pre: 0.1ay }
-    - { name: fm0,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }]}
-    - { name: fm1,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }]}
+    - { name: fm0,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }, { r: 4.7k, c: 1.5n }]}
+    - { name: fm1,  module: jt03, rsum: 27k, rc: [{ r: 1ym14,  c: 1n }, { r: 4.7k, c: 1.5n }]}
 download:
   post_addr: true
 sdram:

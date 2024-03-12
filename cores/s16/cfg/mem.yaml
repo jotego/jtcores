@@ -37,8 +37,9 @@ audio:
   channels:
     - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1ym12, c: 1.5n}]}
     # 0.8 because of TTL output not reaching the supply fully
-    # roughly equivalent to original 4th order filter
-    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv, pre: 0.8 }
+    # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
+    # 3.6Vpp/5V = 0.72
+    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv, pre: 0.72s }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
