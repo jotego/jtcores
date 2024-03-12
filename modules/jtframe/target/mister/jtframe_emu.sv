@@ -343,7 +343,7 @@ wire [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
 
 wire        rst_req   = sys_rst | status[0] | buttons[1];
 wire [15:0] snd_left, snd_right;
-wire [ 4:0] snd_en;
+wire [ 5:0] snd_en;
 
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;

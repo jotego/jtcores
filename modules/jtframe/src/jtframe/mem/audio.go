@@ -220,13 +220,14 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		ch.gain = ch.gain/gmax*rmin/rsum
 		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*32)&0xff)
 	}
-	if len(cfg.Audio.Channels)>5 {
-		fmt.Printf("ERROR: Audio configuration requires %d channels\n",len(cfg.Audio.Channels))
+	const MaxCh=6
+	if len(cfg.Audio.Channels)>MaxCh {
+		fmt.Printf("ERROR: Audio configuration requires %d channels, but maximum supported is %d\n",len(cfg.Audio.Channels),MaxCh)
 		os.Exit(1)
 	}
-	// fill up to 5 channels
+	// fill up to 6 channels
 	if len(cfg.Audio.Channels)>0 {
-		for k:=len(cfg.Audio.Channels);k<5;k++ {
+		for k:=len(cfg.Audio.Channels);k<MaxCh;k++ {
 			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}

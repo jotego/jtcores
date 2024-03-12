@@ -201,7 +201,7 @@ wire [COLORW-1:0] blue;
 
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
-wire [ 4:0] snd_en;
+wire [ 5:0] snd_en;
 wire        sample;
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;

@@ -54,7 +54,7 @@ module jtframe_mister #(parameter
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
     input                snd_sample,
-    output [ 4:0]   snd_en,
+    output [ 5:0]   snd_en,
     // SDRAM interface
     inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits

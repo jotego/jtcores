@@ -45,7 +45,7 @@ module jtframe_keyboard(
     output     alt,
     // debug features
     output reg [3:0] key_gfx,
-    output reg [4:0] key_snd,
+    output reg [5:0] key_snd,
     output reg       debug_plus,
     output reg       debug_minus
 );
@@ -162,6 +162,7 @@ always @(posedge clk) begin
                     9'h0_01: if( !shift ) key_gfx[2] <= !key_released; else key_snd[2] <= !key_released; // F9: SCR2 enable
                     9'h0_09: if( !shift ) key_gfx[3] <= !key_released; else key_snd[3] <= !key_released; // F10:OBJ  enable
                     9'h0_78: if(  shift ) key_snd[4] <= !key_released; // shift+F11:ch[4]  enable
+                    9'h0_07: if(  shift ) key_snd[5] <= !key_released; // shift+F12:ch[5]  enable
 
                     9'h0_5b: debug_plus  <= !key_released;
                     9'h0_4a: debug_minus <= !key_released;
