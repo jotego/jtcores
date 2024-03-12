@@ -59,7 +59,7 @@ assign bdir[0]  = ~(sen[1] | wrn) | ~sen[2];
 assign bc1[0]   = ~(sen[1] | rdn) | ~sen[2];
 assign bdir[1]  = ~(sen[3] | wrn) | ~sen[4];
 assign bc1[1]   = ~(sen[3] | rdn) | ~sen[4];
-assign st_dout  = { 1'b0, |filter_en[11:10], |filter_en[9:8], |filter_en[7:6],
+assign st_dout  = { 2'b0, |filter_en[11:10], |filter_en[9:8], |filter_en[7:6],
                     |filter_en[5:4], |filter_en[3:2], |filter_en[1:0] };
 
 function [3:0] dec( input [1:0] e );

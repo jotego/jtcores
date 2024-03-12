@@ -8,7 +8,7 @@ keys F7-F10 will toggle bits in the gfx_en bus. After reset all bits are high. T
 
 ## Sound Channel Enable Bus
 
-Shift + keys F7-F11 will toggle bits in the snd_en bus. These bits are handled automatically by games using **mem.yaml** to define audio. Each key will toggle on and off and audio channel during test builds.
+Shift + keys F7-F12 will toggle bits in the snd_en bus. These bits are handled automatically by games using **mem.yaml** to define audio. Each key will toggle on and off and audio channel during test builds.
 
 ## Generic 8-bit Debug bus
 

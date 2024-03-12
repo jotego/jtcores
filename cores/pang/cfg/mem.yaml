@@ -1,10 +1,13 @@
 download:
   post_addr: true
 audio:
-  rsum: 1.7k
+  rsum: 10k
   channels:
-    - { name: pcm, module: jt6295, rsum: 22k, rc: [{r: 20k,   c: 3.3n}], pre: 0.1 }
-    - { name:  fm, module: jt2413,  rsum: 22k, rc: [{r: 2.19k, c: 15n },  {r: 11.2k, c: 1n}], pre: 0.1 }
+    - { name: pcm, module: jt6295, rsum: 10k, rc: [{r: 10k, c: 3.3n}, { r: 10k, c: 2.8n } ], pre: 0.1 }
+    # 2nd order filter at 20kHz on the board, replaced with
+    # a 1st order for the channel. There is another global 1st order filter at 20kHz
+    # together, they make up for an equivalent filter
+    - { name:  fm, module: jt2413, rsum: 22k, rc: [{r:  8k, c: 1.0n}], pre: 0.1 }
 sdram:
   banks:
     - buses: [ { name: main, addr_width: 20, data_width:  8 } ]

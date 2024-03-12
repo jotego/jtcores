@@ -154,12 +154,13 @@ always @(posedge clk) mixed[WOUT-1:0] <= mute ? {WOUT{1'b0}} : right;
 
 generate
     if( STEREO==1 ) begin
-        jtframe_limsum #(.W(WOUT),.K(5)) u_left(
+        jtframe_limsum #(.W(WOUT),.K(6)) u_left(
             .rst    ( rst   ),
             .clk    ( clk   ),
             .cen    ( cen   ),
             .en     ( ch_en ),
-            .parts  ( {ft4[WO4-1-:WOUT],
+            .parts  ( {ft5[WO5-1-:WOUT],
+                       ft4[WO4-1-:WOUT],
                        ft3[WO3-1-:WOUT],
                        ft2[WO2-1-:WOUT],
                        ft1[WO1-1-:WOUT],
