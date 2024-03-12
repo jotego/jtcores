@@ -36,21 +36,23 @@ module jtkchamp_snd(
     input       [ 7:0] rom_data,
     input              rom_ok,
 
-    output signed [15:0] snd,
-    output             sample,
-    output             peak
+    output     signed [11:0] pcm,
+    output reg signed [ 7:0] dac,
+    output            [ 7:0] psg0a,
+    output            [ 8:0] psg0bc,
+    output            [ 9:0] psg1
 );
-
-localparam [7:0] PSG_GAIN = 8'h04,
-                 PCM_GAIN = 8'h0c,
-                 DAC_GAIN = 8'h02;
+`ifndef NOSOUND
+// localparam [7:0] PSG_GAIN = 8'h04,
+//                  PCM_GAIN = 8'h0c,
+//                  DAC_GAIN = 8'h02;
 
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n,
             wcen, vcen, int_n, tempo_n;
 reg         nmi_on, iord_cs, iowr_cs, pcm_cs, ctrl_cs,
             latch_cs, dac_cs, pcm_nmin;
-reg  [ 7:0] cpu_din, pcm_data, dac_gain, pcm_gain;
-wire [ 7:0] psg0_dout, psg1_dout;
+reg  [ 7:0] cpu_din, pcm_data;
+wire [ 7:0] psg0_dout, psg1_dout, psg0b, psg0c;
 reg  [ 1:0] ctrl;
 wire [15:0] A;
 wire [ 7:0] ram_dout, cpu_dout;
@@ -58,15 +60,12 @@ wire [ 3:0] pcm_din;
 reg         ram_cs, pcm_sel, tempo_en;
 reg  [ 1:0] bdir, bc1;
 // sound signals
-reg  signed [ 7:0] dac;
-wire        [ 9:0] snd0, snd1;
-wire signed [ 9:0] ac0, ac1;
-wire signed [11:0] pcm_snd;
 wire        nmi_n;
 
 assign rom_addr = A;
 assign pcm_din  = pcm_sel ? pcm_data[7:4] : pcm_data[3:0];
 assign nmi_n    = enc ? pcm_nmin : tempo_n;
+assign psg0bc   = {1'b0,psg0b}+{1'b0,psg0c};
 
 always @* begin
     iord_cs   = !iorq_n && !rd_n;
@@ -99,11 +98,10 @@ always @(posedge clk, posedge rst) begin
         pcm_data <= 0;
         pcm_sel  <= 0;
         pcm_nmin <= 1;
-        dac_gain <= 0;
         tempo_en <= 0;
     end else begin
-        dac_gain <=  enc ? 8'h0 : DAC_GAIN;
-        pcm_gain <= !enc ? 8'h0 : PCM_GAIN;
+        // dac_gain <=  enc ? 8'h0 : DAC_GAIN;
+        // pcm_gain <= !enc ? 8'h0 : PCM_GAIN;
         if( dac_cs ) dac <= cpu_dout-8'd127;
         if( pcm_cs  ) pcm_data <= cpu_dout;
         if( ctrl_cs ) begin
@@ -125,22 +123,6 @@ always @* begin
               bc1[1]   ? psg1_dout :
               latch_cs ? snd_latch : 8'hff;
 end
-
-jtframe_mixer #(.W0(10),.W1(10),.W2(12),.W3(8)) u_mixer (
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( psg_cen   ),
-    .ch0    ( snd0      ),
-    .ch1    ( snd1      ),
-    .ch2    ( pcm_snd   ),
-    .ch3    ( dac       ),  // used on kchamp set. It sounds too slow (same as MAME). The speed is set directly by the CPU clock
-    .gain0  ( PSG_GAIN  ),
-    .gain1  ( PSG_GAIN  ),
-    .gain2  ( pcm_gain  ),
-    .gain3  ( dac_gain  ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
 
 jtframe_ff u_int (
     .clk    (clk     ),
@@ -164,23 +146,6 @@ jtframe_ff u_nmi (
     .set    (        ),
     .clr    (~tempo_en),
     .sigedge( v6     )
-);
-
-
-jtframe_dcrm #(.SW(10)) u_dcrm0(
-    .rst    ( rst    ),
-    .clk    ( clk    ),
-    .sample ( sample ),
-    .din    ( snd0   ),
-    .dout   ( ac0    )
-);
-
-jtframe_dcrm #(.SW(10)) u_dcrm1(
-    .rst    ( rst    ),
-    .clk    ( clk    ),
-    .sample ( sample ),
-    .din    ( snd1   ),
-    .dout   ( ac1    )
 );
 
 jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
@@ -220,13 +185,13 @@ jt49_bus u_psg0(
 
     .sel        ( 1'b1      ), // if sel is low, the clock is divided by 2
     .dout       ( psg0_dout ),
-    .sound      ( snd0      ),  // combined channel output
-    .sample     ( sample    ),
+    .A          ( psg0a     ),
+    .B          ( psg0b     ),
+    .C          ( psg0c     ),
 
     // Unused
-    .A          (           ),
-    .B          (           ),
-    .C          (           ),
+    .sound      (           ),  // combined channel output
+    .sample     (           ),
     .IOA_in     ( 8'd0      ),
     .IOA_out    (           ),
     .IOA_oe     (           ),
@@ -246,7 +211,7 @@ jt49_bus u_psg1(
 
     .sel        ( 1'b1      ), // if sel is low, the clock is divided by 2
     .dout       ( psg1_dout ),
-    .sound      ( snd1      ),  // combined channel output
+    .sound      ( psg1      ),  // combined channel output
     .sample     (           ),
 
     // Unused
@@ -267,10 +232,18 @@ jt5205 u_pcm(
     .cen        ( pcm_cen   ),
     .sel        ( 2'd0      ),
     .din        ( pcm_din   ),
-    .sound      ( pcm_snd   ),
+    .sound      ( pcm       ),
     .sample     (           ),
     .vclk_o     ( vcen      ),
     .irq        (           )
 );
-
+`else
+    assign rom_cs   = 0;
+    assign rom_addr = 0;
+    assign pcm      = 0;
+    assign dac      = 0;
+    assign psg0a    = 0;
+    assign psg0bc   = 0;
+    assign psg1     = 0;
+`endif
 endmodule

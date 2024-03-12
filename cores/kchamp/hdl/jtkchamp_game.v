@@ -61,7 +61,7 @@ always @(posedge clk) begin
 end
 
 // The sound CPU clock speed on the discrete DAC systems is a guess
-// The 3MHz that the schematics show for the OKI version result in
+// The 3MHz that the schematics shown for the OKI version result in
 // very slow voice effects for the DAC ones. Using 3.57MHz, an educated guess,
 // gives more decent sound
 
@@ -132,7 +132,6 @@ jtkchamp_main u_main(
     assign main_flip = 1;
 `endif
 
-`ifndef NOSOUND
 jtkchamp_snd u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
@@ -151,17 +150,12 @@ jtkchamp_snd u_sound(
     .snd_rstn   ( snd_rstn  ),
     .snd_req    ( snd_req   ),
     // Sound
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  )
+    .pcm        ( pcm       ),
+    .dac        ( dac       ),
+    .psg0a      ( psg0a     ),
+    .psg0bc     ( psg0bc    ),
+    .psg1       ( psg1      )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign snd=0;
-    assign sample=0;
-    assign game_led=0;
-`endif
 
 jtkchamp_video u_video(
     .rst        ( rst       ),
