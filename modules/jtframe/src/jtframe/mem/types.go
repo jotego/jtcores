@@ -147,7 +147,9 @@ type AudioCh struct {
     Name       string `yaml:"name"`
     Module     string `yaml:"module"`
     Rsum       string `yaml:"rsum"`
-    Pre        string `yaml:"pre"` // pre-amplifier gain
+    Rout       string `yaml:"rout"` // output impedance
+    Pre        string `yaml:"pre"`  // pre-amplifier gain
+    Vpp        string `yaml:"vpp`   // peak-to-peak voltage range, 1.0=>5V
     RC         []AudioRC `yaml:"rc"`
     Fir        string `yaml:"fir"` // CSV file containing filter coefficients
     DCrm       bool   `yaml:"dcrm"`

@@ -12,6 +12,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var rout float64
+
 func must( e error ) {
 	if e!=nil {
 		fmt.Println(e)
@@ -20,8 +22,6 @@ func must( e error ) {
 }
 
 func eng2float( s string ) float64 {
-	const ym14=5000.0
-	const ym12=2000.0
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
 	s = strings.TrimSpace(s)
 	input := s
@@ -32,10 +32,9 @@ func eng2float( s string ) float64 {
 	if sm=="" && s!="" { mant = 1.0 }
 	switch(s) {
 	// output impedance of sound chips
-	case "ym12": return mant*ym12	// YM3012 output impedance (seen with YM2151)
-	case "ym14": return mant*ym14	// YM3014 output impedance (seen with YM2203)
-	case "para14": return mant*ym14/(mant+ym14) // parallel of a resistor with YM3014's output impedance
-	case "ay": return mant*4.0	// gain for an AY-3-8910 connected to 10 kOhm
+	case "para": return mant*rout/(mant+rout) // parallel of a resistor with module's output impedance
+	case "ay": return mant*4.0		// gain for an AY-3-8910 connected to 10 kOhm
+	case "rout": return mant*rout
 	// standard suffixes
 	case "p": return mant*1e-12
 	case "n": return mant*1e-9
@@ -190,16 +189,19 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		}
 		mod, fnd := modules[ch.Module]
 		if !fnd && ch.Module!="" {
-			fmt.Printf("Warning: ignored module statement %s for audio channel %s in mem.yaml\n",
+			fmt.Printf("Error: unknown module statement %s for audio channel %s in mem.yaml\n",
 			ch.Module, ch.Name )
-			continue
+			os.Exit(1)
 		}
 		if fnd {
 			// copy module information
 			ch.Data_width = mod.Data_width
 			ch.Unsigned   = mod.Unsigned
 			ch.Stereo     = mod.Stereo
-			ch.DCrm		  = mod.DCrm
+			ch.DCrm       = mod.DCrm
+			ch.Vpp		  = mod.Vpp
+			rout          = 0
+			rout          = eng2float(mod.Rout)
 		}
 		// if ch.RC==nil { ch.RC = mod.RC }
 		// Derive pole information
@@ -207,6 +209,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		make_fir( core, outpath, ch, fs )
 		ch.gain=rmin/eng2float(ch.Rsum)
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
+		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
 		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)
 		// if (int(gint)>>4) > 15 {
 		// 	fmt.Printf("Gain unbalance among audio channels is too large")
