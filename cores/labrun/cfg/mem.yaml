@@ -1,6 +1,13 @@
 params:
   - { name: GFX_OFFSET, value: "22'h2_0000>>1"}
-
+audio:
+  rsum: 2.7k
+  missing_info: true # no schematic for this, following Combat School's ones
+  channels:
+    - { name: psg0, module: jt49, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1 }  # 1 kOhm load resistor
+    - { name: psg1, module: jt49, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1 }  # 1 kOhm load resistor
+    - { name: fm0,  module: jt03, rsum: 5.9k, rc: [{ r: 830,  c: 33n }]  }
+    - { name: fm1,  module: jt03, rsum: 5.9k, rc: [{ r: 830,  c: 33n }]  }
 clocks:
   clk24:
     - freq: 12000000

@@ -88,9 +88,10 @@ jtlabrun_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       ),
     // Sound
-    .snd            ( snd           ),
-    .sample         ( sample        ),
-    .peak           ( game_led      )
+    .fm0            ( fm0           ),
+    .fm1            ( fm1           ),
+    .psg0           ( psg0          ),
+    .psg1           ( psg1          )
 );
 `else
 assign main_cs = 0;
