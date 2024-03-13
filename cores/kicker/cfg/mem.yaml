@@ -13,10 +13,11 @@ clocks:
         - ti2
 audio: 
   rsum: 220
+  rc: { r: 1k, c: 100n }
   channels:
-    # temporary value for RC filter
-    - { name: ti1, module: jt89, rsum: 220, rc: [{ r: 1.22k, c: 4.70n }] }
-    - { name: ti2, module: jt89, rsum: 220, rc: [{ r: 1.22k, c: 4.70n }] }
+    # equivalent filter
+    - { name: ti1, module: jt89, rsum: 220, rc: [{ r: 2k, c: 100n }, { r: 1.25k, c: 47n }] }
+    - { name: ti2, module: jt89, rsum: 220, rc: [{ r: 2k, c: 100n }, { r: 1.25k, c: 47n }] }
 download:
   post_addr: true
   noswab: true

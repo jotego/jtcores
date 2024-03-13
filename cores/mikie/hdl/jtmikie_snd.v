@@ -28,36 +28,41 @@ module jtmikie_snd(
     input       [ 7:0]  main_latch,
     input               m2s_on,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [10:0] psg1, psg2,
+    output reg    [ 7:0] rdac,
+    output        [ 1:0] psg1_rcen,
+    output        [ 3:0] psg2_rcen,
+    output               rdac_rcen,
+    output        [ 7:0] st_dout
 );
-
+`ifndef NOSOUND
 localparam CNTW=14;
-localparam [7:0] PSG_GAIN = 8'h0C,
-                 DAC_GAIN = 8'H08;
 
-reg  [ 7:0] psg_data, din, rdac;
+reg  [ 7:0] psg_data, din;
 wire [ 7:0] ram_dout, dout;
 wire        irq_ack, int_n;
 wire        psg1_cen, psg2_cen;
-wire [10:0] psg1_snd, psg2_snd;
 reg         ram_cs;
 wire        mreq_n, iorq_n, m1_n;
 wire [15:0] A;
-reg  [ 3:0] snd_en;
+reg  [ 3:0] rc_en;
 wire        rdy1, rdy2;
-reg         latch_cs, cnt_cs, rdac_cs, snden_cs,
+reg         latch_cs, cnt_cs, rdac_cs, rcen_cs,
             psgdata_cs, psg1_cs, psg2_cs;
 reg  [CNTW-1:0] cnt;
 wire [CNTW-1:0] cnt_sel;
 wire signed
          [9:0] vlm_snd;
 
-assign irq_ack = ~iorq_n & ~m1_n;
-assign rom_addr = A[13:0];
-assign sample   = psg1_cen;
-assign cnt_sel  = cnt>>8;
+assign irq_ack   = ~iorq_n & ~m1_n;
+assign rom_addr  = A[13:0];
+assign cnt_sel   = cnt>>8;
+assign rdac_rcen = rc_en[3];
+assign psg1_rcen = { rc_en[2], 1'b1 };
+assign psg2_rcen = rc_en[1:0]==1 ? 4'b0010 :
+                   rc_en[1:0]==2 ? 4'b0100 :
+                   rc_en[1:0]==3 ? 4'b1000 : 4'b0001;
+assign st_dout   = { 4'd0, rc_en };
 
 jtframe_cen3p57 u_cen3p57(
     .clk      ( clk      ),
@@ -70,32 +75,32 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         psg_data <= 0;
         cnt      <= 0;
-        snd_en   <= 0;
+        rc_en    <= 0;
     end else begin
-        if( psg2_cen    ) cnt<=cnt+1'd1;
-        if( psgdata_cs  ) psg_data <= dout;
-        if( rdac_cs     ) rdac <= dout;
-        if( snden_cs    ) snd_en <= A[6:3];
+        if( psg2_cen   ) cnt<=cnt+1'd1;
+        if( psgdata_cs ) psg_data <= dout;
+        if( rdac_cs    ) rdac  <= dout;
+        if( rcen_cs    ) rc_en <= A[6:3];
     end
 end
 
 always @* begin
-    rom_cs      = 0;
-    ram_cs      = 0;
-    psgdata_cs  = 0;
-    psg1_cs     = 0;
-    psg2_cs     = 0;
-    rdac_cs     = 0;
-    snden_cs    = 0;
-    cnt_cs      = 0;
-    latch_cs    = 0;
+    rom_cs     = 0;
+    ram_cs     = 0;
+    psgdata_cs = 0;
+    psg1_cs    = 0;
+    psg2_cs    = 0;
+    rdac_cs    = 0;
+    rcen_cs    = 0;
+    cnt_cs     = 0;
+    latch_cs   = 0;
     if( !mreq_n ) begin
         case(A[15:13])
             0,1: rom_cs    = 1;
             2: ram_cs      = 1; // 4000
             4: case({A[0],A[1],A[2]}) // 8000
                 0: psgdata_cs = 1; // 0
-                4: snden_cs   = 1; // 1
+                4: rcen_cs    = 1; // 1
                 2: psg2_cs    = 1; // 2
                 6: latch_cs   = 1; // 3
                 1: psg1_cs    = 1; // 4
@@ -123,7 +128,7 @@ jt89 u_psg1(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~psg1_cs      ),
     .din    ( psg_data      ),
-    .sound  ( psg1_snd      ),
+    .sound  ( psg1          ),
     .ready  ( rdy1          )
 );
 
@@ -134,36 +139,8 @@ jt89 u_psg2(
     .wr_n   ( rdy2          ),
     .cs_n   ( ~psg2_cs      ),
     .din    ( psg_data      ),
-    .sound  ( psg2_snd      ),
+    .sound  ( psg2          ),
     .ready  ( rdy2          )
-);
-
-wire signed [7:0] rdac_s;
-
-jtframe_dcrm #(.SW(8)) u_dcrm(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .sample ( cnt[6]    ),  // 14 kHz
-    .din    ( rdac      ),
-    .dout   ( rdac_s    )
-);
-
-jtframe_mixer #(.W0(11),.W1(11),.W2(8)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( psg1_cen  ),
-    // input signals
-    .ch0    ( psg1_snd  ),
-    .ch1    ( psg2_snd  ),
-    .ch2    ( rdac_s    ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( PSG_GAIN  ),
-    .gain1  ( PSG_GAIN  ),
-    .gain2  ( DAC_GAIN  ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
 );
 
 jtframe_ff u_irq(
@@ -205,5 +182,14 @@ jtframe_sysz80 #(.RAM_AW(10)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
-
+`else
+    initial rom_cs    = 0;
+    initial rdac      = 0;
+    assign  rom_addr  = 0;
+    assign  psg1      = 0;
+    assign  psg2      = 0;
+    assign  psg1_rcen = 0;
+    assign  psg2_rcen = 0;
+    assign  dac_rcen  = 0;
+`endif
 endmodule
