@@ -6,7 +6,7 @@ params:
 download:
   post_addr: true
 audio:
-  rsum: 4k
+  rsum: 10k
   missing_info: true # all numbers are educated guesses
   channels:
     # from gng

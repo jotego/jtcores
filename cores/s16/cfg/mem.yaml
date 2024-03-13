@@ -39,7 +39,7 @@ audio:
     # 0.8 because of TTL output not reaching the supply fully
     # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
     # 3.6Vpp/5V = 0.72
-    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv, pre: 0.72 }
+    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_s16a.csv, vpp: 0.72, pre: 0.1 }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
