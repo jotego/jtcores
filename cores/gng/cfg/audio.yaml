@@ -1,7 +1,7 @@
 audio:
   rsum: 4k
   channels:
-    - { name: psg0, module: jt49, rsum: 5.7k, pre: 0.1ay }
-    - { name: psg1, module: jt49, rsum: 5.7k, pre: 0.1ay }
+    - { name: psg0, module: jt49, rsum: 5.7k }
+    - { name: psg1, module: jt49, rsum: 5.7k }
     - { name: fm0,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}
     - { name: fm1,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}

@@ -1,5 +1,8 @@
 # Default module definitions
-jt49:     { data_width: 10, unsigned: true, dcrm: true, vpp: 0.66 } # assumes 10kOhm load resistor, vpp is a guess
+# jt49: 10 kOhm load resistor -> 2.25V -> vpp = 0.45
+# jt49:  1 kOhm load resistor -> 0.92V -> vpp = 0.18
+# using 1 kOhm for vpp, as it is more typical
+jt49:     { data_width: 10, unsigned: true, dcrm: true, vpp: 0.18 }
 jt007232: { data_width: 12, vpp: 0.5       }
 jt7759:   { data_width:  9, vpp: 0.5       }
 jt5205:   { data_width: 12, vpp: 0.5       } # internal RC filter?

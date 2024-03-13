@@ -16,7 +16,7 @@ audio:
   channels:
     - { name: fm03, module: jt03,  rsum: 6.2k, rc: [{ r: 1rout, c: 1n }] }
     - { name: fm26, module: jtopl, rsum: 6.2k, rc: [{ r: 1rout, c: 1n }] }
-    - { name: psg,  module: jt49,  rsum: 8.2k, pre: 0.1ay }
+    - { name: psg,  module: jt49,  rsum: 8.2k }
 sdram:
   banks:
     - buses:

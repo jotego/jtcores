@@ -15,7 +15,7 @@ audio:
   channels:
     - { name: opn, module: jt03,   rsum: 56k }
     - { name: opl, module: jtopl2, rsum: 56k }
-    - { name: psg, module: jt49,   rsum: 66k } # adding load resistor (10k) to ground, TBC
+    - { name: psg, module: jt49,   rsum: 66k, vpp: 0.45 } # adding load resistor (10k) to ground
     - { name: pcm, module: jt6295, rsum: 10k } #, rc: [{ r: 8k, c: 8n  }, { r: 10k, c: 4n }] } # equivalent filter
 sdram:
   banks:
