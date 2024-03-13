@@ -77,12 +77,12 @@
         "name": "kicker.kicad_sch",
         "open": false,
         "window": {
-          "display": 0,
+          "display": 1,
           "maximized": true,
-          "pos_x": 2091,
-          "pos_y": 50,
+          "pos_x": 318,
+          "pos_y": 118,
           "size_x": 972,
-          "size_y": 1052
+          "size_y": 1024
         }
       }
     ]
