@@ -183,7 +183,12 @@ jtcontra_sound u_sound(
     .cen_fm     ( cen3          ),
     .cen_fm2    ( cen1p5        ),
     .fm         ( fm            ),
-    .psg        ( psg           ),
+    .psga       ( psga          ),
+    .psgb       ( psgb          ),
+    .psgc       ( psgc          ),
+    .psga_rcen  ( psga_rcen     ),
+    .psgb_rcen  ( psgb_rcen     ),
+    .psgc_rcen  ( psgc_rcen     ),
     .pcm        ( pcm           ),
 `else
     .cen_fm     ( cen_fm        ),
