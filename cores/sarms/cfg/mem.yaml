@@ -7,8 +7,8 @@ audio:
   channels:
     - { name: psg0, module: jt49, rsum: 56k, pre: 0.1ay }
     - { name: psg1, module: jt49, rsum: 56k, pre: 0.1ay }
-    - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: 10000para14,  c: 100n }]}
-    - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: 10000para14,  c: 100n }]}
+    - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: 10000para,  c: 100n }]}
+    - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: 10000para,  c: 100n }]}
 download:
   post_addr: true
   noswab: true

@@ -63,6 +63,7 @@ module jtframe_rcmix #(parameter
     // gain for each channel in 4.4 fixed point format
     input       [7:0] g0,g1,g2,g3,g4,g5,  // concatenate all gains {gain4, gain3,..., gain0}
     output              sample,
+    output reg  [5:0]   vu,     // "volume unit", signals channel activity
     output reg signed [WMX-1:0] mixed,
     output reg          peak   // overflow signal
 );
@@ -114,6 +115,15 @@ jtframe_frac_cen #(.WC(FRACW)) u_cen(
     .cen    ({nc,cen}   ),
     .cenb   (           )
 );
+
+always @(posedge clk) if(cen) begin
+    vu[0] <= ch0!=0;
+    vu[1] <= ch1!=0;
+    vu[2] <= ch2!=0;
+    vu[3] <= ch3!=0;
+    vu[4] <= ch4!=0;
+    vu[5] <= ch5!=0;
+end
 
 // convert to mono if the system is mono, otherwise kept as stereo
 jtframe_st2mono #(.W(W0),.SIN(STEREO0),.SOUT(STEREO)) u_st0(.sin(ch0),.sout(sm0));

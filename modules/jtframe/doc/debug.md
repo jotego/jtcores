@@ -24,19 +24,18 @@ It is recommended to remove the *debug_bus* once the core is stable. When the co
 
 By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_view* to *sys_info*. This 8-bit signals carries information from modules inside JTFRAME, aside from core-specific information. This is available as long as **JTFRAME_RELEASE** was not used for compilation. The *debug_bus* selects which information to display. Note that *sys_info* is shown in a **reddish color**, while *debug_view* is shown in white.
 
-st_addr[7:4] |  Read
+  st_addr    |  Read
 -------------|-------------------------------------------------------
-  00_??      |  Frame count in BCD (hundreds. Set st_addr[0] for tenths/units)
-  01_00      |  SDRAM stats
-  01_01      |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
-  10_00      |  Audio output sample rate (BCD)
-  10_01      |  dipsw[ 7: 0]
-  10_10      |  dipsw[15: 8]
-  10_11      |  dipsw[23:16]
-  11_00      | { core_mod[3:0], dial_x, game_led, dip_flip }
-  11_01      |  mouse_dx[8:1]
-  11_10      |  mouse_dy[8:1]
-  11_11      |  mouse_f
+  00??_????  |  Frame count in BCD (hundreds. Set st_addr[0] for tenths/units)
+  01??_????  |  Audio information (see below)
+  0111_00??  |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
+  0111_0100  |  dipsw[ 7: 0]
+  0111_0101  |  dipsw[15: 8]
+  0111_0110  |  dipsw[23:16]
+  1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
+  1101_????  |  mouse_dx[8:1]
+  1110_????  |  mouse_dy[8:1]
+  1111_????  |  mouse_f
 
 See core_mod description [here](osd.md)
 
@@ -51,16 +50,21 @@ st_addr[0]  |  Read
   2         | bits 23-16 (BCD)
   3         | sound channel enable bits
 
-### Sample Rate
+### Audio Information
 
 If the core exercises the *sample* signal, JTFRAME can report the current sample rate.
 
-st_addr     |  Read
-------------|-----------
-  X         | rate in kHz (BCD)
+st_addr[5:4] |  Read
+-------------|-----------
+  0          | Sound VU (signals sound activity per channel)
+  1          | Channel enable bits
+  2          | Sample rate in kHz (BCD)
 
+### SDRAM, IOCTL and DIPSW
 
-### SDRAM Information
+IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
+
+#### SDRAM Information
 
 The number of SDRAM access done in a frame gets displayed. See [jtframe_sdram_stats](../hdl/sdram/jtframe_sdram_stats.v) for details. Note that the access count is divided by 4096, for display convenience. The SDRAM stats are as follow depending on the value of *st_addr* (which is the same as the debug_bus in MiST).
 

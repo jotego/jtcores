@@ -678,6 +678,7 @@ u_game(
     `endif
     .sample      ( sample         ),
     .snd_en      ( 6'h3f          ),
+    .snd_vu      (                ),
     // Debug
 `ifdef JTFRAME_STATUS
     .st_addr     ( st_addr        ),

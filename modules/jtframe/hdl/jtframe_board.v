@@ -172,6 +172,7 @@ module jtframe_board #(parameter
     // GFX enable
     output        [3:0] gfx_en,
     output        [5:0] snd_en,
+    input         [5:0] snd_vu,
     output        [7:0] debug_bus,
     input         [7:0] debug_view
 );
@@ -391,6 +392,7 @@ jtframe_keyboard u_keyboard(
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
             .snd_en     ( snd_en        ),
+            .snd_vu     ( snd_vu        ),
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),

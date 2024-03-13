@@ -6,8 +6,8 @@ audio:
   rsum: 39k
   missing_info: true  # rsum unknown for all pieces due to unmarked resistor array and resistor
   channels:
-    - { name: fm0,  module: jt03,   rsum: 39k, rc: [{ r:1ym12, c: 1n }]}
-    - { name: fm1,  module: jt03,   rsum: 39k, rc: [{ r:1ym12, c: 1n }]}
+    - { name: fm0,  module: jt03,   rsum: 39k, rc: [{ r:1rout, c: 1n }]}
+    - { name: fm1,  module: jt03,   rsum: 39k, rc: [{ r:1rout, c: 1n }]}
     - { name: psg0, module: jt49,   rsum: 56k, pre: 0.1ay }
     - { name: psg1, module: jt49,   rsum: 56k, pre: 0.1ay }
     - { name: pcm,  module: jt5205, rsum: 56k, rc: [{r: 10k, c: 22n}, {r: 25k, c: 6.8n}]} # eq. filter, unknown RSUM see https://github.com/jotego/jtcores/issues/576

@@ -13,7 +13,7 @@ audio:
   rsum: 27k
   missing_info: yes # see https://github.com/jotego/jtcores/issues/575
   channels:
-    - { name: fm,    module: jt51, rsum: 27k, rc: [{r: 1ym12, c: 3.3n }]}
+    - { name: fm,    module: jt51, rsum: 27k, rc: [{r: 1rout, c: 3.3n }]}
     - { name: pcm, data_width: 13, rsum: 27k }
 
 download:

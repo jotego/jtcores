@@ -28,6 +28,7 @@ module jtframe_sys_info(
     input               LVBL,
     input         [6:0] core_mod,
     input         [5:0] snd_en,
+    input         [5:0] snd_vu,
     input         [1:0] dial_x,
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
@@ -73,23 +74,28 @@ always @(posedge clk, posedge rst) begin
     end else begin
         LVBLl <= LVBL;
         case( st_addr[7:6] )
-            0: case( st_addr[1:0] )
+            0: casez( st_addr[1:0] )
                 0: st_dout <= frame_bcd[15:8];
                 1: st_dout <= frame_bcd[7:0];
                 2: st_dout <= {4'd0, frame_bcd[19:16]};
-                3: st_dout <= {2'd0, snd_en};
-            endcase
-            1: case(st_addr[5:4])
-                0: st_dout <= stats;
-                1: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
                 default: st_dout <= 0;
             endcase
-            2: case( st_addr[5:4] )
-                0: st_dout <= srate;
-                1: st_dout <= dipsw[ 0+:8];
-                2: st_dout <= dipsw[ 8+:8];
-                3: st_dout <= dipsw[16+:8];
+            1: case(st_addr[5:4])
+                0: st_dout <= {2'd0, snd_vu};
+                1: st_dout <= {2'd0, snd_en};
+                2: st_dout <= srate;
+                3: case(st_addr[3:2])
+                    0: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
+                    1: case(st_addr[1:0])
+                        0: st_dout <= dipsw[ 0+:8];
+                        1: st_dout <= dipsw[ 8+:8];
+                        2: st_dout <= dipsw[16+:8];
+                        default: st_dout <= 0;
+                    endcase
+                    default: st_dout <= 0;
+                endcase
             endcase
+            2: st_dout <= stats;
             3: case( st_addr[5:4] )
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
                 1: st_dout <= mouse_dx[8:1];

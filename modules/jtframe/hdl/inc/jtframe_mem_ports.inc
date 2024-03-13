@@ -44,5 +44,6 @@
 `else
     output  signed [15:0] snd_left, snd_right,
 `endif
+    output  [ 5:0]  snd_vu,
     output          game_led,
     output          sample

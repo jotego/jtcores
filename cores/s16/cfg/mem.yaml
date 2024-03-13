@@ -35,7 +35,7 @@ audio:
   mute: true
   rc: { r: 47k, c: 1n }
   channels:
-    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1ym12, c: 1.5n}]}
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}]}
     # 0.8 because of TTL output not reaching the supply fully
     # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
     # 3.6Vpp/5V = 0.72

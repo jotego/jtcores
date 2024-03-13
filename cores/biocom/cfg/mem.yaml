@@ -19,7 +19,7 @@ clocks:
 audio:
   rsum: 27k
   channels:
-    - { name: fm, module: jt51, rsum: 27k, rc: [{r: 1ym12, c: 3.3n }]}
+    - { name: fm, module: jt51, rsum: 27k, rc: [{r: 1rout, c: 3.3n }]}
 download:
   post_addr: true
 sdram:

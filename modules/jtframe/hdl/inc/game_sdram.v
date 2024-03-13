@@ -109,7 +109,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}_r   ( {{.Name}}_r    ),{{ else -}}
     .{{.Name}}     ( {{.Name}}      ),{{ end }}{{ end }}{{if .Rc_en}}
     .{{.Name}}_rcen( {{.Name}}_rcen ),
-{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
+{{end}}{{ end}}
+    {{ if eq (len .Audio.Channels) 0 }}
     // Sound output
 `ifdef JTFRAME_STEREO
     .snd_left       ( snd_left      ),
@@ -529,9 +530,12 @@ jtframe_rcmix #(
     .g4     ( {{ $ch4.Gain }} ), {{with $ch4.Name}}// {{.}}{{end}}
     .g5     ( {{ $ch5.Gain }} ), {{with $ch5.Name}}// {{.}}{{end}}
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
-    .peak ( game_led )
+    .peak ( game_led ),
+    .vu   ( snd_vu   )
 );
 `else
 assign {{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}=0;
-`endif{{ end }}
+`endif{{ else }}
+assign snd_vu = 0;
+{{ end }}
 endmodule

@@ -5,7 +5,7 @@ params:
 audio:
   rsum: 10k
   channels:
-    - { name: fm,  module: jt51,   rsum: 10k,  rc: [{ r: 1ym12, c: 1n   }]}  # output impedance of YM3012=10kOhm??
+    - { name: fm,  module: jt51,   rsum: 10k,  rc: [{ r: 1rout, c: 1n   }]}  # output impedance of YM3012=10kOhm??
     - { name: pcm, module: jt5205, rsum: 9.1k, rc: [{ r: 8.6k, c: 10n  }, { r: 10.2k, c: 68n }]}
 sdram:
   banks:

@@ -84,6 +84,7 @@ assign turbo = 1;
     `endif
 `endif
 
+assign snd_vu       = 0;
 assign filter_old   = dipsw[24];
 assign debug_view   = { 6'd0, dump_flag, filter_old };
 assign ba1_din=0, ba2_din=0, ba3_din=0,

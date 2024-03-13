@@ -17,7 +17,7 @@ clocks:
 audio:
   rsum: 12k
   channels:
-    - {name: fm,  module: jt51,     rsum: 3k, rc: [{ r:  666,   c: 33n  }, {r: 1ym12, c: 2.2n }]} # 1y = YM3012's Rout
+    - {name: fm,  module: jt51,     rsum: 3k, rc: [{ r:  666,   c: 33n  }, {r: 1rout, c: 2.2n }]} # 1y = YM3012's Rout
     - {name: pcm, module: jt007232, rsum: 2k,   rc: [{ r: 19.65k, c: 470p }]}
 sdram:
   banks:
