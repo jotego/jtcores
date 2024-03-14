@@ -2,6 +2,7 @@ params:
   - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1"}
 audio:
   # these values work well for the alternatives, but not for the main one
+  # the main set volume is adjusted in the core
   rsum: 56k
   channels:
     - { name: psg0, module: jt49, rsum: 56k }

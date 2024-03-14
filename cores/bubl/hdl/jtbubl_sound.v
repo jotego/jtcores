@@ -32,14 +32,14 @@ module jtbubl_sound(
     input             main_flag,
     // ROM
     output     [14:0] rom_addr,
-    output  reg       rom_cs,
+    output reg        rom_cs,
     input      [ 7:0] rom_data,
     input             rom_ok,
 
     // Sound output
     output signed [15:0] fm03, fm26,
-    output        [ 9:0] psg,
-    input   [ 7:0]    debug_bus
+    output reg    [ 9:0] psg,
+    input         [ 7:0] debug_bus
 );
 
 wire        [15:0] A;
@@ -48,7 +48,7 @@ wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
 wire               mreq_n, rfsh_n;
 reg         [ 7:0] din;
-// reg         [ 7:0] fm0_gain, fm1_gain, psg_gain;
+wire        [ 9:0] pre_psg;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
@@ -59,6 +59,9 @@ assign int_n      = intn_fm0 & intn_fm1;
 assign rom_addr   = A[14:0];
 assign nmi_n      = snd_flag | ~nmi_en;
 assign flag_clr   = (io_cs && !rd_n && A[1:0]==2'b0) || ~snd_rstn;
+
+always @(posedge clk) psg <= tokio ? pre_psg>>2 : pre_psg;
+
 
 always @(*) begin
     rom_cs = !mreq_n && !A[15];
@@ -181,7 +184,7 @@ jt03 u_2203(
     .addr       ( A[0]       ),
     .cs_n       ( ~fm0_cs    ),
     .wr_n       ( wr_n       ),
-    .psg_snd    ( psg        ),
+    .psg_snd    ( pre_psg    ),
     .fm_snd     ( fm03       ),
     .snd_sample (            ),
     .irq_n      ( intn_fm0   ),

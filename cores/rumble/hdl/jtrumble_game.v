@@ -221,6 +221,12 @@ jtrumble_video u_video(
 
 `ifndef NOSOUND
 // Fx is very loud in this game
+wire signed [15:0] pre_fm0,  pre_fm1;
+wire        [ 9:0] pre_psg0, pre_psg1;
+assign {psg0,psg1} = loud ? {pre_psg0>>1,pre_psg1>>1} : {pre_psg0,pre_psg1};
+assign fm0         = { pre_fm0[15], pre_fm0[14:0]<<loud};
+assign fm1         = { pre_fm1[15], pre_fm1[14:0]<<loud};
+
 jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .rst        (  rst24        ),
     .clk        (  clk24        ),
@@ -230,16 +236,15 @@ jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .snd_latch  (  snd_latch    ),
     .snd2_latch (               ),
     .snd_int    (  1'b1         ), // unused
-    // .psg_level  (  {loud,1'b0}  ),
     .rom_addr   (  snd_addr     ),
     .rom_cs     (  snd_cs       ),
     .rom_data   (  snd_data     ),
     .rom_ok     (  snd_ok       ),
     // sound output
-    .fm0        ( fm0           ),
-    .fm1        ( fm1           ),
-    .psg0       ( psg0          ),
-    .psg1       ( psg1          ),
+    .fm0        ( pre_fm0       ),
+    .fm1        ( pre_fm1       ),
+    .psg0       ( pre_psg0      ),
+    .psg1       ( pre_psg1      ),
     .debug_bus  ( debug_bus     ),
     .debug_view (               )
 );
