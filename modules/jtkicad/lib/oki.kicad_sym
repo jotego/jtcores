@@ -892,7 +892,7 @@
     (property "Footprint" "" (at 0 0 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "https://console5.com/techwiki/images/f/f8/MSM5205.pdf" (at 0 0 90)
+    (property "Datasheet" "https://console5.com/techwiki/images/f/f8/MSM5205.pdf" (at 5.08 -19.05 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "OKI-M5205_0_0"
