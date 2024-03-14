@@ -68,10 +68,23 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "sf.kicad_prl",
+    "filename": "ym2203.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "ym2203.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 2461,
+          "pos_y": 149,
+          "size_x": 974,
+          "size_y": 1052
+        }
+      }
+    ]
   }
 }
