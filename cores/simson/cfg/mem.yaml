@@ -11,9 +11,9 @@ clocks:
         - cen_fm
         - cen_fm2
 audio:
-  rsum: 5k
+  rsum: 69k
   channels:
-    # both FM and PCM and mixed inside K053260, then converted with the same YM3012 DAC
+    # both FM and PCM are mixed inside K053260, then converted with the same YM3012 DAC
     - { name: fm,  module: jt51,     rsum: 69k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 33n } ]}
     - { name: pcm, module: jt053260, rsum: 69k, rc: [ { r: 10k, c: 2.2n }, { r: 985, c: 33n } ]}
 sdram:

@@ -63,8 +63,6 @@ module jtsimson_sound(
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
-localparam  [ 7:0]  FMGAIN=8'h08;
-
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
