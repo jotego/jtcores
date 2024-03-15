@@ -5,7 +5,7 @@ audio:
   channels:
     - { name: fm,   module: jt03,   rsum: 5.9k, rc: [{ r: 830,  c: 33n }]  }
     # the PCM volume seems a bit too low for voices, but the circuit seems correct
-    - { name: pcm,   module: jt7759, rsum: 10k,  rc: [{ r: 5.7k, c: 10n }], pre: 0.5  }
+    - { name: pcm,   module: jt7759, rsum: 10k,  rc: [{ r: 4.2k, c: 10n }], pre: 0.5  } # equivalent pole
     - { name: psga,  data_width: 8, unsigned: true, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1, rc_en: true }  # 1 kOhm load resistor
     - { name: psgb,  data_width: 8, unsigned: true, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1, rc_en: true }  # 1 kOhm load resistor
     - { name: psgc,  data_width: 8, unsigned: true, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1, rc_en: true }  # 1 kOhm load resistor

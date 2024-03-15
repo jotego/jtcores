@@ -10,9 +10,11 @@ audio:
   rsum: 1k
   channels:
     - { name: fm,    module: jtopl2,   rsum: 3.2k, rc: [{ r: 687,   c:  33n }] } # 1k || (1k+1.2k)
-    - { name: scc,   module: jt051649, rsum: 8.2k, rc: [{ r: 100k,  c: 330p }] } # r is a guess, must measure 051671
-    - { name: pcm_a, module: jt007232, rsum: 1.5k, rc: [{ r: 19.6k, c: 470p }], pre: 0.164 }
-    - { name: pcm_b, module: jt007232, rsum: 1.0k, rc: [{ r: 19.6k, c: 470p }], pre: 0.164 } # different rsum
+    - { name: scc,   module: jt051649, rsum: 8.2k, rc: [{ r: rout,  c: 330p }] } # r is a guess, must measure 051671
+    # gain: 0.164 (first stage), 10/12=0.83 (second stage), total=0.136
+    #  the capacitor value is too small. It is shown as 470PF in schematics
+    - { name: pcm_a, module: jt007232, rsum: 1.5k, rc: [{ r: 19.6k, c: 470p }], pre: 0.136 }
+    - { name: pcm_b, module: jt007232, rsum: 1.0k, rc: [{ r: 19.6k, c: 470p }], pre: 0.136 } # different rsum
 sdram:
   banks:
     - buses:

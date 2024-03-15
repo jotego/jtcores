@@ -16,9 +16,9 @@ clocks:
 audio:  
   rsum: 12k
   channels:
-    - { name: fm,  module: jt51,     rsum: 3.0k, rc: [ { r: 666,  c:  33n } ] } # 1k || (1k+1k)
+    - { name: fm,  module: jt51,     rsum: 3.0k, rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
     - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.8 }
-    - { name: upd, module: jt7759,   rsum: 8.5k, rc: [ { r: 5.7k, c:  10n } ], pre: 0.5 }
+    - { name: upd, module: jt7759,   rsum: 8.5k, fir: fir_192k_4k.csv, pre: 0.5 }
 sdram:
   banks:
     -

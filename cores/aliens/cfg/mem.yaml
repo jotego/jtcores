@@ -17,7 +17,7 @@ audio:
   rsum: 10k
   channels:
     - {name: fm,  module: jt51,     rsum:  6.2k,  rc: [{ r:  859,   c: 33n  }, {r: 1rout, c: 2.2n }]}
-    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 19.65k, c: 470p }]}
+    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 33k, c: 470p }], pre: 0.28 }
 sdram:
   banks:
     - buses:

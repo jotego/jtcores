@@ -1,6 +1,3 @@
-include:
-  - file: audio
-    game: gng
 params:
   - { name: CHAR_OFFSET,  value: "`CHAR_START>>1"  }
   - { name: MAP2_OFFSET,  value: "(`MAP2_START-`MAP1_START)>>1"  }
@@ -15,6 +12,16 @@ clocks:
     - freq: 8000000
       outputs:
         - cen8
+# resistor values are not shown in the schematics, likely to be
+# - 1kOhm load for PSG (six of them)
+# - 56kOhm for summing resistors
+audio:
+  rsum: 56k
+  channels:
+    - { name: psg0, module: jt49, rsum: 56k }
+    - { name: psg1, module: jt49, rsum: 56k }
+    - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: rout,  c: 1n }]}
 download:
   post_addr: true
 sdram:

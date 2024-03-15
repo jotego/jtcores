@@ -18,9 +18,10 @@ clocks:
         - cen_fm
         - cen_fm2
 audio:
-  rsum: 500
+  rsum: 2k
   channels:
-    - { name: fm, module: jt51, rsum: 2k, rc: [{r: 1rout, c: 3.3n}, {r: 500, c: 33n }]} # YM3012
+    # the 3.3nF capacitor seems too large. Shown as 3300PM in schematics
+    - { name: fm, module: jt51, rsum: 2k, rc: [{r: rout, c: 3.3n}, {r: 500, c: 33n }]} # YM3012
 sdram:
   banks:
     - buses:
