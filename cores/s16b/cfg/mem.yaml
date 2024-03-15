@@ -7,4 +7,4 @@ audio:
   channels:
     - { name: fm,  module: jt51,   rsum: 47k, rc: [{ r: 1rout, c: 1.5n }]}
     # roughly equivalent to original 4th order filter
-    - { name: pcm, module: jt7759, rsum: 10k, fir: fir_s16a.csv, pre: 0.56 }
+    - { name: pcm, module: jt7759, rsum: 10k, fir: fir_192k_4k.csv, pre: 0.56 }

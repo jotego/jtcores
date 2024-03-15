@@ -24,6 +24,7 @@ import (
 	"github.com/jotego/jtframe/mem"
 
 	"github.com/spf13/cobra"
+	"github.com/jotego/jtframe/common"
 )
 
 var mem_args mem.Args
@@ -32,7 +33,7 @@ var mem_args mem.Args
 var memCmd = &cobra.Command{
 	Use:   "mem <core-name>",
 	Short: "Parses the core's YAML file to generate RTL files",
-	Long: doc2string("jtframe-mem.md"),
+	Long: common.Doc2string("jtframe-mem.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		mem_args.Core = args[0]
         // Check that the core folder exist

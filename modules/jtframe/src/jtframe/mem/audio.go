@@ -10,16 +10,11 @@ import (
 	"strconv"
 	"path/filepath"
 	"gopkg.in/yaml.v2"
+
+	"github.com/jotego/jtframe/common"
 )
 
 var rout float64
-
-func must( e error ) {
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-}
 
 func eng2float( s string ) float64 {
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
@@ -65,8 +60,8 @@ func calc_a( rc AudioRC, fs float64 ) (string,int) {
 func read_modules() map[string]AudioCh {
 	var modules map[string]AudioCh
 	buf, e := os.ReadFile(filepath.Join(os.Getenv("JTFRAME"),"src","jtframe","mem","audio_mod.yaml"))
-	must(e)
-	must(yaml.Unmarshal(buf,&modules))
+	common.Must(e)
+	common.Must(yaml.Unmarshal(buf,&modules))
 	return modules
 }
 
@@ -74,9 +69,13 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 	const scale = 0x7FFF	// 16 bits, signed
 	if ch.Fir=="" { return }
 	coeff := make([]int,128)
-	fname := filepath.Join(os.Getenv("CORES"),core,"cfg",ch.Fir)
+	fname := common.Find_in_folders( ch.Fir,
+		[]string{
+			filepath.Join(os.Getenv("CORES"),core,"cfg"),
+			filepath.Join(os.Getenv("JTFRAME"),"hdl","sound"),
+		}, true)
 	f, e := os.Open(fname)
-	must(e)
+	common.Must(e)
 	scanner := bufio.NewScanner(f)
 	cnt:=0
 	for scanner.Scan() {
@@ -105,7 +104,7 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 	ch.Firhex=fname
 	fname = filepath.Join(outpath,fname)
 	f, e = os.Create(fname)
-	must(e)
+	common.Must(e)
 	for _, each := range coeff {
 		fmt.Fprintf(f,"%04X\n",each&0xffff)
 	}

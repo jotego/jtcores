@@ -5,6 +5,7 @@
 *.cfg
 *.fmt
 *.fst
+*.gtkw
 *.hex
 *.jdi
 *.jpg

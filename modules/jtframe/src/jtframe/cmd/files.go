@@ -20,13 +20,14 @@ package cmd
 import (
 	jtfiles "github.com/jotego/jtframe/files"
 	"github.com/spf13/cobra"
+	"github.com/jotego/jtframe/common"
 )
 
 // filesCmd represents the files command
 var filesCmd = &cobra.Command{
 	Use:   "files <sim|syn|plain> <core-name>",
 	Short: "Generates the project compilation and simulation files",
-	Long: doc2string("jtframe-files.md"),
+	Long: common.Doc2string("jtframe-files.md"),
 	Run:  run_files,
 	Args: cobra.ExactArgs(2),
 }
