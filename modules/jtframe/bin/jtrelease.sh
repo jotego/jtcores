@@ -150,5 +150,5 @@ else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
 	exit 0
 fi
-
+cpbeta.sh
 rm -rf $DST
