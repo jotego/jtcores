@@ -46,4 +46,3 @@ MCU_OFFSET         =0x040000
 
 [mister]
 # OSD_VOL cannot be used on MiST because of JTFRAME_DIAL
-JTFRAME_OSD_VOL
