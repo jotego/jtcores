@@ -32,7 +32,8 @@ audio:
     # by the user
     - { name: pcm_a, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
     - { name: pcm_b, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
-    - { name: fm,    module: jt51,   rsum: 47k, rc: [{ r: 1rout, c: 3.3n }]}
+    # relaxing it from 3.3nF to 0.25nF until we measure rout
+    - { name: fm,    module: jt51,   rsum: 47k, rc: [{ r: 1rout, c: 0.25n }]}
 sdram:
   banks:
     - buses:
