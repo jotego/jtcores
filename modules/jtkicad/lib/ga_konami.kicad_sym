@@ -1971,9 +1971,6 @@
       )
     )
     (symbol "052535_internal_1_1"
-      (text "R-2R\nDAC" (at -1.27 1.27 0)
-        (effects (font (size 1.27 1.27)))
-      )
       (pin power_out line (at -7.62 -2.54 0) (length 2.54)
         (name "VCC" (effects (font (size 1.27 1.27))))
         (number "1" (effects (font (size 1.27 1.27))))
