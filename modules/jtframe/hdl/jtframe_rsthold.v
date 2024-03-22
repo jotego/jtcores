@@ -33,13 +33,13 @@ module jtframe_rsthold(
 `endif    
 );
 
-reg hold24, hold48;
-
 always @(negedge clk)   rst_h   <= rst   || hold;
 `ifdef JTFRAME_CLK24
+reg hold24;
 always @(posedge clk24) hold24  <= hold;
 always @(negedge clk24) rst24_h <= rst24 || hold24; `endif
 `ifdef JTFRAME_CLK48
+reg hold48;
 always @(posedge clk48) hold48  <= hold;
 always @(negedge clk48) rst48_h <= rst48 || hold; `endif
 
