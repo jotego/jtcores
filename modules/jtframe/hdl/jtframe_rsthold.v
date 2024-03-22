@@ -41,6 +41,6 @@ always @(negedge clk24) rst24_h <= rst24 || hold24; `endif
 `ifdef JTFRAME_CLK48
 reg hold48;
 always @(posedge clk48) hold48  <= hold;
-always @(negedge clk48) rst48_h <= rst48 || hold; `endif
+always @(negedge clk48) rst48_h <= rst48 || hold48; `endif
 
 endmodule
