@@ -25,6 +25,7 @@ module jt053246(    // sprite logic
     input             pxl_cen,
 
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
+    input             simson,   // enables temporary hack for The Simpsons
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -301,6 +302,7 @@ jt053246_dma u_dma(
     .dma_en     ( dma_en    ),
     .dma_trig   ( dma_trig  ),
     .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
+    .simson     ( simson    ),
 
     .hs         ( hs        ),
     .vs         ( vs        ),

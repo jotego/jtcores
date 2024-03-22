@@ -193,6 +193,7 @@ jtsimson_obj u_obj(    // sprite logic
     .pxl2_cen   ( pxl2_cen  ),
 
     .paroda     ( paroda    ),
+    .simson     ( simson    ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),

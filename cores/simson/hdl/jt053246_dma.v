@@ -24,6 +24,7 @@ module jt053246_dma(
     input             dma_en,
     input             dma_trig,
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
+    input             simson,
 
     input             hs,
     input             vs,
@@ -109,7 +110,7 @@ always @(posedge clk, posedge rst) begin
                 // I was skipping it before, but priority 0 is used in Vendetta and it must take priority
                 // over the rest (see scene vendetta/3)
                 dma_bufa <= { ~k44_en & dma_data[7], k44_en ? -dma_data[6:0] : dma_data[6:0], 3'd0 }; // LUT half as big for 053244 and reversed order
-                dma_ok <= dma_data[15];
+                dma_ok <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
             end
             dma_addr[12:1] <= dma_addr[12:1] + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
