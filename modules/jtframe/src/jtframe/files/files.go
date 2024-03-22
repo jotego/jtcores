@@ -317,6 +317,9 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 		case FRAME:
 			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
 		case TARGET:
+			if each.From=="" {
+				each.From = macros["TARGET"]
+			}
 			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
 		case MODULE:
 			path = filepath.Join(os.Getenv("MODULES"), each.From)
