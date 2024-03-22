@@ -70,9 +70,7 @@ u_game(
     .clk48       ( clk48          ),
     .rst48       ( rst48          ), `endif `ifdef JTFRAME_CLK24
     .clk24       ( clk24          ),
-    .rst24       ( rst24          ), `endif `ifdef JTFRAME_CLK6
-    .clk6        ( clk6           ),
-    .rst6        ( rst6           ), `endif
+    .rst24       ( rst24          ), `endif
     // Video
     .pxl2_cen    ( pxl2_cen       ),
     .pxl_cen     ( pxl_cen        ),

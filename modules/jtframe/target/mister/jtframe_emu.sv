@@ -192,11 +192,11 @@ wire [1:0] dial_x, dial_y;
 
 ////////////////////   CLOCKS   ///////////////////
 
-wire clk_sys, clk_rom, clk96, clk96sh, clk48, clk48sh, clk24, clk6;
+wire clk_sys, clk_rom, clk96, clk96sh, clk48, clk48sh, clk24;
 wire game_rst, game_service, game_tilt, rst, rst_n;
 wire clk_pico;
 wire pxl2_cen, pxl_cen;
-wire rst96, rst48, rst24, rst6;
+wire rst96, rst48, rst24;
 wire pll_locked;
 reg  pll_rst = 1'b0;
 wire sys_rst;
@@ -244,7 +244,7 @@ end
     .outclk_0   ( clk48      ),
     .outclk_1   ( clk48sh    ),
     .outclk_2   ( clk24      ),
-    .outclk_3   ( clk6       ),
+    .outclk_3   (            ),
     .outclk_4   ( clk96      ),
     .outclk_5   ( clk96sh    )
 );
@@ -265,12 +265,6 @@ jtframe_rst_sync u_reset24(
     .rst        ( game_rst  ),
     .clk        ( clk24     ),
     .rst_sync   ( rst24     )
-);
-
-jtframe_rst_sync u_reset6(
-    .rst        ( game_rst ),
-    .clk        ( clk6     ),
-    .rst_sync   ( rst6     )
 );
 
 `ifdef JTFRAME_SDRAM96

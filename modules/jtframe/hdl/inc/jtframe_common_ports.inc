@@ -3,9 +3,6 @@
 // enabled via macros defined in cfg/macros.def
     input           rst,
     input           clk,        // always matched to the SDRAM clock
-`ifdef JTFRAME_CLK6
-    input           rst6,  clk6,
-`endif
 `ifdef JTFRAME_CLK24
     input           rst24, clk24,
 `endif

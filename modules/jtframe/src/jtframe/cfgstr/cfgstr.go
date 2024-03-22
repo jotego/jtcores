@@ -130,7 +130,6 @@ func dump_cpp(def map[string]string) {
 		"JTFRAME_CLK24": false,
 		"JTFRAME_CLK48": false,
 		"JTFRAME_CLK96": false,
-		"JTFRAME_CLK6":  false,
 		"JTFRAME_SDRAM96": false,
 	}
 	for k, v := range def {

@@ -23,7 +23,6 @@ module jtframe_mist_clocks(
     output  clk96,
     output  clk48,
     output  clk24,
-    output  clk6,
     output  pll_locked,
 
     // System clocks
@@ -35,8 +34,7 @@ module jtframe_mist_clocks(
     input   game_rst,
     output  rst96,
     output  rst48,
-    output  rst24,
-    output  rst6
+    output  rst24
 );
 
 `ifndef JTFRAME_PLL
@@ -82,14 +80,14 @@ assign pll_locked = pll0_lock & pll1_lock & pll2_lock;
 
 // clk_rom is used for SDRAM access
 // clk_sys is for video
-// clk96, clk24 and clk6 inputs to the core can be enabled via macros
+// clk96, clk24 inputs to the core can be enabled via macros
 `JTFRAME_GAMEPLL u_pll_game (
     .inclk0 ( pll_base    ),
     .c0     ( clk96       ),
     .c1     ( clk48       ), // 48 MHz
     .c2     ( SDRAM_CLK   ), // 96 or 48 MHz shifted
     .c3     ( clk24       ),
-    .c4     ( clk6        ),
+    .c4     (             ),
     .locked ( pll1_lock   )
 );
 
@@ -122,12 +120,5 @@ jtframe_rst_sync u_reset24(
     .clk        ( clk24     ),
     .rst_sync   ( rst24     )
 );
-
-jtframe_rst_sync u_reset6(
-    .rst        ( game_rst ),
-    .clk        ( clk6     ),
-    .rst_sync   ( rst6     )
-);
-
 
 endmodule

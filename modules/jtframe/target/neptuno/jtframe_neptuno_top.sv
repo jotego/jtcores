@@ -175,7 +175,7 @@ module neptuno_top(
     localparam SDRAMW=22; // 32 MB
 `endif
 
-wire          rst, rst_n, clk_sys, clk_rom, clk6, clk24, clk48, clk96;
+wire          rst, rst_n, clk_sys, clk_rom, clk24, clk48, clk96;
 wire [63:0]   status;
 wire [31:0]   joystick1, joystick2;
 wire [24:0]   ioctl_addr;
@@ -233,7 +233,7 @@ wire        sample;
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
 wire [3:0] game_coin, game_start;
 wire       game_rst, game_service, game_tilt;
-wire       rst96, rst48, rst24, rst6;
+wire       rst96, rst48, rst24;
 wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -283,7 +283,6 @@ jtframe_mist_clocks u_clocks(
     .clk96      ( clk96          ),
     .clk48      ( clk48          ),
     .clk24      ( clk24          ),
-    .clk6       ( clk6           ),
     .pll_locked ( pll_locked     ),
 
     // System clocks
@@ -295,8 +294,7 @@ jtframe_mist_clocks u_clocks(
     .game_rst   ( game_rst       ),
     .rst96      ( rst96          ),
     .rst48      ( rst48          ),
-    .rst24      ( rst24          ),
-    .rst6       ( rst6           )
+    .rst24      ( rst24          )
 );
 
 assign clk_pico = clk48;

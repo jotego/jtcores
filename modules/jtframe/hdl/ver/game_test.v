@@ -534,10 +534,6 @@ u_game(
     .clk24       ( clk24          ),
     .rst24       ( rst            ),
 `endif
-`ifdef JTFRAME_CLK6
-    .clk6        ( clk6           ),
-    .rst6        ( rst            ),
-`endif
     // Video
     .pxl2_cen    ( pxl2_cen       ),
     .pxl_cen     ( pxl_cen        ),
