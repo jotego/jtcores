@@ -2,29 +2,29 @@
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[
     # Key type 3
-    "blastoff",
-    "rompers", # hangs up after notice - vertical game
-    "ws",      # needs 2-byte key ID
-    "dangseed",
-    "tankfrce",
-    "pistoldm",
+    #"blastoff",
+    #"rompers", # hangs up after notice - vertical game
+    #"ws",      # needs 2-byte key ID
+    #"dangseed",
+    #"tankfrce",
+    #"pistoldm",
 
     # Others
-    "bakutotu",
-    "berabohm",
-    "blazer",
-    "boxyboy",
-    "dspirit",
-    "faceoff",
-    "galaga88",
-    "mmaze",
-    "pacmania",
+    #"bakutotu",
+    #"berabohm",
+    #"blazer",
+    #"boxyboy",
+    #"dspirit",
+    #"faceoff",
+    #"galaga88",
+    #"mmaze",
+    #"pacmania",
     "puzlclub",
-    "quester",
-    "shadowld",
-    "wldcourt",
+    #"quester",
+    #"shadowld",
+    #"wldcourt",
 ], setnames=[
-    "ws90"
+    #"ws90"
 ] }
 
 [header]
@@ -34,13 +34,30 @@ Byte 2: addr for key ID
 Byte 3: addr for RNG
 Byte 4: addr for nibble swap data write
 Byte 5: addr for nibble swap read
+Byte 6: addr for lower nibble read
+Byte 7: addr for upper nibble read
 """
 data= [
-    { machine="splatter", data="03 B5 03 04" },
-    { machine="blastoff", data="03 B7 00 07 03 05" },
-    { setname="ws89",     data="03 B8 02 00" },
-    # { machine="dangseed", data="03 34 01 06 ff 05 ff 00 04" },
-    # { machine="rompers",  data="03 B6 07 00" },
+    { machine="dspirit",  data="01 36" },
+    { machine="wldcourt", data="01 35" },
+    { machine="blazer",   data="01 13" },
+    { machine="puzlclub", data="01 35" },
+
+    { machine="pacmania", data="02 12" },
+    { machine="mmaze",    data="02 25" },
+    { machine="galaga88", data="02 31" },
+    { machine="ws",       data="02 07" },
+    { machine="bakutotu", data="02 22" },
+
+    { machine="splatter", data="03 B5 03 04 FF FF FF FF" },
+    { machine="rompers",  data="03 B6 07 FF FF FF FF FF" },
+    { machine="blastoff", data="03 B7 00 07 03 05 FF FF" },
+    { setname="ws89",     data="03 B8 02 FF FF FF FF FF" },
+    { setname="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
+    { machine="dangseed", data="03 34 06 FF 05 FF 00 04" },
+    { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
+    { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },
+    { machine="boxyboy",  data="03 37 02 03 00 FF 04 FF" },
 ]
 
 [buttons]
