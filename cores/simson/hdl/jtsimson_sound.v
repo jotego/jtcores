@@ -57,7 +57,7 @@ module jtsimson_sound(
     input           pcmd_ok,
     // Sound output
     output signed [15:0] fm_l,  fm_r,
-    output signed [13:0] pcm_l, pcm_r,
+    output signed [15:0] pcm_l, pcm_r,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout

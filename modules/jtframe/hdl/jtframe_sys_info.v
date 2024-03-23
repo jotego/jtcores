@@ -81,7 +81,7 @@ always @(posedge clk, posedge rst) begin
                 default: st_dout <= 0;
             endcase
             1: case(st_addr[5:4])
-                0: st_dout <= {2'd0, snd_vu};
+                0: st_dout <= {2'd0, snd_vu & snd_en };
                 1: st_dout <= {2'd0, snd_en};
                 2: st_dout <= srate;
                 3: case(st_addr[3:2])

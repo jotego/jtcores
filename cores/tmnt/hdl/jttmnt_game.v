@@ -51,7 +51,7 @@ always @(posedge clk) begin
         game_id <= prog_data[2:0];
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -107,7 +107,7 @@ jttmnt_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -173,7 +173,7 @@ jttmnt_video u_video (
 );
 
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -229,8 +229,8 @@ jttmnt_sound u_sound(
     .fm_r       ( fm_r          ),
     .pcm        ( pcm           ),
     .upd        ( upd           ),
-    .k60_l      (               ),
-    .k60_r      (               ),
+    .k60_l      ( k60_l         ),
+    .k60_r      ( k60_r         ),
     .title      ( title         ),
     // Debug
     .debug_bus  ( debug_bus     ),

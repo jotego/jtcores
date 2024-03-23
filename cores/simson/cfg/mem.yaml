@@ -16,7 +16,7 @@ audio:
     # both FM and PCM are mixed inside K053260, then converted with the same YM3012 DAC
     # it looks like the relative gain inside the YM3012 is not 1:1
     # FM sounds too loud if left the same gain for both
-    - { name: fm,  module: jt51,     rsum: 100k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 33n } ]}
+    - { name: fm,  module: jt51,     rsum: 50k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 33n } ]}
     - { name: pcm, module: jt053260, rsum: 50k, rc: [ { r: 10k, c: 2.2n }, { r: 985, c: 33n } ]}
 sdram:
   banks:

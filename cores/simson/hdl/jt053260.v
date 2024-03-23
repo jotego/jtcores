@@ -53,8 +53,8 @@ module jt053260 (
     input             [ 7:0] romd_data,
     output                   romd_cs,
 
-    output reg signed [13:0] snd_l,
-    output reg signed [13:0] snd_r,
+    output reg signed [15:0] snd_l,
+    output reg signed [15:0] snd_r,
     output                   sample
     // unsupported pins
     // input               st1,
@@ -74,7 +74,7 @@ module jt053260 (
     reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
     wire          ch0_sample, ch1_sample, ch2_sample, ch3_sample;
-    wire signed [11:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
+    wire signed [15:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
                        ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r;
 
     reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
@@ -88,8 +88,10 @@ module jt053260 (
                     { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
     assign tst_nx = tst_rd & ~tst_rdl;
 
-    function [13:0] acc( input [11:0] c0, c1, c2, c3 );
-        acc = { {2{c0[11]}}, c0 } + { {2{c1[11]}}, c1 } + { {2{c2[11]}}, c2 } + { {2{c3[11]}}, c3 };
+    function signed [15:0] acc( input signed [15:0] c0, c1, c2, c3 );
+        reg [17:0] sum;
+        sum = { {2{c0[15]}}, c0 } + { {2{c1[15]}}, c1 } + { {2{c2[15]}}, c2 } + { {2{c3[15]}}, c3 };
+        acc = sum[17:16]=={2{sum[15]}} ? sum[15:0] : {sum[17],{15{~sum[17]}}};
     endfunction
 
     always @(posedge clk, posedge rst) begin
@@ -323,8 +325,8 @@ module jt053260_channel(
 
     output reg        [20:0] rom_addr,
     output reg               rom_cs,
-    output reg signed [11:0] snd_l,
-    output reg signed [11:0] snd_r,
+    output reg signed [15:0] snd_l,
+    output reg signed [15:0] snd_r,
     output                   over,
     output                   sample
 );
@@ -395,8 +397,8 @@ module jt053260_channel(
     always @(posedge clk) begin
         vol_l <= volume * pan_l;
         vol_r <= volume * pan_r;
-        snd_l <= mul_l[15-:12];
-        snd_r <= mul_r[15-:12];
+        snd_l <= mul_l;
+        snd_r <= mul_r;
         if( !keyon ) begin
             snd_l <= snd_l >>> 1;
             snd_r <= snd_r >>> 1;

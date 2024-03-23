@@ -12,7 +12,7 @@
 jt49:     { data_width: 10, unsigned: true, dcrm: true, vpp: 0.6 }
 # jt007232: resistor DAC is external
 jt007232: { data_width: 12, vpp: 1.0       }
-jt7759:   { data_width:  9, vpp: 0.5       }
+jt7759:   { data_width:  9, vpp: 1.0       }
 # jt5205: 4, 6, 8kHz sampling rates
 # vpp: 1 unloaded, LM1558 opamp's Rin=0.3~1M Ohm (1MOhm typ)
 jt5205:   { data_width: 12, vpp: 0.9, rout: 100k }
@@ -24,7 +24,7 @@ jt6295:   { data_width: 14, vpp: 1.0, rout: 100k  }
 jt89:     { data_width: 11, vpp: 0.66      } # vpp is a guess
 vlm5030:  { data_width: 10, vpp: 0.5, rout: 81.25    }
 HUC6280:  { data_width: 24,           stereo: true   }
-jt053260: { data_width: 14, vpp: 0.5, stereo: true   }
+jt053260: { data_width: 16, vpp: 0.5, stereo: true   }
 # jt051649, vpp and rout are a guess, it uses an external DAC
 # 051671
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
