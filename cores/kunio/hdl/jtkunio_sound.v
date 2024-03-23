@@ -38,7 +38,7 @@ module jtkunio_sound(
 
     // Sound output
     output signed [11:0] pcm,
-    output signed [12:0] fm
+    output signed [15:0] fm
 );
 `ifndef NOSOUND
 wire        [ 7:0] cpu_dout, ram_dout, fm_dout;

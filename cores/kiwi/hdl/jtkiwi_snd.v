@@ -103,7 +103,7 @@ wire [ 9:0] psg_snd;
 reg         bank_cs, fm_cs, cab_cs, mcu_cs, dial_cs, kabuki_dipsnd,
             dev_busy, fm_busy, fmcs_l,
             mcu_rstn, comb_rstn=0;
-wire signed [12:0] fm_snd;
+wire signed [15:0] fm_snd;
 wire        mem_acc, mcu_comb_rst;
 wire  [1:0] mcu_we, mcu_rd;
 
@@ -549,10 +549,11 @@ jt03 u_2203(
     .psg_A      (            ),
     .psg_B      (            ),
     .psg_C      (            ),
+    .snd        (            ),
     .debug_view (            )
 );
 
-jtframe_mixer #(.W0(13),.W1(10),.W2(8)) u_mixer(
+jtframe_mixer #(.W1(10),.W2(8)) u_mixer(
     .rst    ( rst          ),
     .clk    ( clk          ),
     .cen    ( cen1p5       ),

@@ -221,11 +221,11 @@ jtrumble_video u_video(
 
 `ifndef NOSOUND
 // Fx is very loud in this game
-wire signed [12:0] pre_fm0,  pre_fm1;
+wire signed [15:0] pre_fm0,  pre_fm1;
 wire        [ 9:0] pre_psg0, pre_psg1;
 assign {psg0,psg1} = loud ? {pre_psg0>>1,pre_psg1>>1} : {pre_psg0,pre_psg1};
-assign fm0         = { pre_fm0[12], pre_fm0[11:0]<<loud};
-assign fm1         = { pre_fm1[12], pre_fm1[11:0]<<loud};
+assign fm0         = { pre_fm0[15], pre_fm0[14:0]<<loud};
+assign fm1         = { pre_fm1[15], pre_fm1[14:0]<<loud};
 
 jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .rst        (  rst24        ),

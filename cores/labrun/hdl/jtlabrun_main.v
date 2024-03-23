@@ -56,7 +56,7 @@ module jtlabrun_main(
     input      [7:0]    dipsw_b,
     input      [3:0]    dipsw_c,
     // Sound
-    output signed [12:0] fm0, fm1,
+    output signed [15:0] fm0, fm1,
     output        [ 9:0] psg0, psg1
 );
 
@@ -211,6 +211,7 @@ jt03 u_fm0(
     .IOB_out    (            ),
     .IOA_oe     (            ),
     .IOB_oe     (            ),
+    .snd        (            ),
     .debug_view (            )
 );
 
@@ -238,6 +239,7 @@ jt03 u_fm1(
     .IOB_out    (            ),
     .IOA_oe     (            ),
     .IOB_oe     (            ),
+    .snd        (            ),
     .debug_view (            )
 );
 
