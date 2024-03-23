@@ -94,9 +94,9 @@ always @(posedge clk, negedge srst_n) begin
         {cwa,cwd} <= 0;
     end else begin
         if(xwe) {awa, awd }<={xaddr,xdout};
-        if(snd_cs &  srnw)    {sra,srd}<={saddr,alt_din};
+        if(snd_cs &  srnw)    {sra,srd}<={saddr,xdin};
         if(snd_cs & ~srnw)    {swa,swd}<={saddr,sdout};
-        if(mcu_cs &  mcu_rnw) {cra,crd}<={mcu_addr,alt_din};
+        if(mcu_cs &  mcu_rnw) {cra,crd}<={mcu_addr,xdin};
         if(mcu_cs & ~mcu_rnw) {cwa,cwd}<={mcu_addr,mcu_dout};
     end
 end
