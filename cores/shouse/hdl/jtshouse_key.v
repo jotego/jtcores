@@ -46,8 +46,8 @@ wire [7:0] mmr_mux;
 reg        up_rng, cs_l;
 
 // for protection type 1/2
-wire [15:0] quotient;
-wire [15:0] remainder;
+wire [31:0] quotient;
+wire [31:0] remainder;
 reg  [15:0] div_h;
 reg         div_start;
 wire        dbz;
@@ -110,7 +110,7 @@ always @(posedge clk or posedge rst) begin
             if( cs && ~rnw && addr[7:2] == 0 ) begin
                 if(!cs_l) begin
                     $display("KEY: %X <- %X",addr[1:0], din);
-                    mmr[addr[1:0]] <= din;
+                    mmr[addr[2:0]] <= din;
                     div_start <= 1;
                 end
             end
@@ -125,7 +125,7 @@ always @(posedge clk or posedge rst) begin
             if( cs && ~rnw && addr[7:2] == 0 ) begin
                 if(!cs_l) begin
                     $display("KEY: %X <- %X",addr[1:0], din);
-                    mmr[addr[1:0]] <= din;
+                    mmr[addr[2:0]] <= din;
                     if (addr[1:0] == 3) begin
                         div_h <= {mmr[4], mmr[5]};
                         div_start <= 1;
@@ -198,7 +198,7 @@ module divu_int #(parameter WIDTH=5) ( // width of numbers in bits
     reg [WIDTH-1:0] b1;             // copy of divisor
     reg [WIDTH-1:0] quo, quo_next;  // intermediate quotient
     reg [WIDTH:0] acc, acc_next;    // accumulator (1 bit wider)
-    reg [$clog2(WIDTH)-1:0] i;      // iteration counter
+    reg [$clog2(WIDTH):0] i;        // iteration counter
 
     // division algorithm iteration
     always @(*) begin
