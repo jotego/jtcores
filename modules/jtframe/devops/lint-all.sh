@@ -52,6 +52,7 @@ fi
 
 if [ -z "$FAIL" ]; then
     echo "lint-all: PASS"
+    rm lint*.log
 else
     echo "lint-all: FAIL"
     exit 1

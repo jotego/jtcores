@@ -1,5 +1,5 @@
 audio:
-  rsum: 4k
+  rsum: 10k
   channels:
     - { name: psg0, module: jt49, rsum: 5.7k }
     - { name: psg1, module: jt49, rsum: 5.7k }
