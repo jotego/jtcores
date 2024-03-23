@@ -39,7 +39,7 @@ module jtcontra_sound(
     input           pcm_ok,
 
     // Sound output
-    output signed [15:0] fm,
+    output signed [12:0] fm,
     output signed [ 8:0] pcm,
     output        [ 7:0] psga, psgb, psgc,
     output               psga_rcen, psgb_rcen, psgc_rcen,
@@ -176,8 +176,7 @@ jt03 u_fm(
     .IOB_in     ( 8'd0       ),
     .IOA_oe     (            ),
     .IOB_oe     (            ),
-    .debug_view (            ),
-    .snd        (            )
+    .debug_view (            )
 );
 
 jt7759 u_pcm(

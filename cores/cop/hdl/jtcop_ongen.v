@@ -42,7 +42,7 @@ module jtcop_ongen(
     input         [ 7:0] adpcm_data,
     input                adpcm_ok,
 
-    output signed [15:0] opn, opl,
+    output signed [12:0] opn, opl,
     output signed [13:0] pcm,
     output        [ 9:0] psg
 );
@@ -91,7 +91,6 @@ jt03 u_2203(
     .psg_C  (           ),
     .fm_snd ( opn       ),
     .psg_snd( psg       ),
-    .snd    (           ),
     .snd_sample()
 );
 

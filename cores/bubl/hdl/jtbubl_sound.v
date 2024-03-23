@@ -37,7 +37,7 @@ module jtbubl_sound(
     input             rom_ok,
 
     // Sound output
-    output signed [15:0] fm03, fm26,
+    output signed [12:0] fm03, fm26,
     output reg    [ 9:0] psg,
     input         [ 7:0] debug_bus
 );
@@ -198,7 +198,6 @@ jt03 u_2203(
     .psg_A      (            ),
     .psg_B      (            ),
     .psg_C      (            ),
-    .snd        (            ),
     .debug_view (            )
 );
 

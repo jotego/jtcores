@@ -46,7 +46,7 @@ module jtgng_sound(
     input            rom_ok,
 
     // Sound output
-    output signed [15:0] fm0, fm1,
+    output signed [12:0] fm0, fm1,
     output        [ 9:0] psg0, psg1,
 
     // Debug
@@ -338,7 +338,6 @@ jt03 u_fm0(
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
-    .snd    (            ),
     //.debug_bus ( debug_bus ),
     .debug_view( fm0_debug )
 );
@@ -366,7 +365,6 @@ jt03 u_fm1(
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
-    .snd    (            ),
     .snd_sample(         ),
     //.debug_bus ( debug_bus ),
     .debug_view( fm1_debug )

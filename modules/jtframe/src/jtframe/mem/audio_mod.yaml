@@ -23,9 +23,9 @@ jt053260: { data_width: 14, vpp: 0.5, stereo: true   }
 # 051671
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
 # FM chips with external DAC
-jt03:     { data_width: 16, rout: 81.25k, vpp: 0.5 }  # only FM, declare PSG part as jt49
+jt03:     { data_width: 13, rout: 81.25k, vpp: 0.5 }  # only FM, declare PSG part as jt49
 jt51:     { data_width: 16, rout: 81.25k, vpp: 0.5, stereo: true   }
-jtopl:    { data_width: 16, rout: 81.25k, vpp: 0.5  }
 # OPL
-jtopl2:   { data_width: 16, vpp: 0.5       }
-jt2413:   { data_width: 16, vpp: 0.5       }
+jtopl:    { data_width: 13, rout: 81.25k, vpp: 0.5  }
+jtopl2:   { data_width: 13, vpp: 0.5       }
+jt2413:   { data_width: 13, vpp: 0.5       }

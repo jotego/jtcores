@@ -42,7 +42,7 @@ module jttora_sound(
     input           rom2_ok,
 
     // Sound output
-    output signed [15:0] fm0, fm1,
+    output signed [12:0] fm0, fm1,
     output        [ 9:0] psg0, psg1,
     output signed [11:0] pcm,
     output        [ 7:0] debug_view

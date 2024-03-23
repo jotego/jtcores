@@ -40,7 +40,7 @@ module jtcastle_sound(
     input           pcmb_ok,
 
     // Sound output
-    output signed [15:0] fm,
+    output signed [12:0] fm,
     output signed [11:0] pcm_a, pcm_b, scc
 );
 `ifndef NOSOUND

@@ -41,14 +41,14 @@ module jtpang_snd(
     input       [ 7:0] rom_data,
     input              rom_ok,
 
-    output signed [15:0] fm,
+    output signed [12:0] fm,
     output signed [13:0] pcm
 );
 
 localparam [7:0] FM_GAIN  = 8'h10,
                  PCM_GAIN = 8'h0c;
 
-wire signed [15:0] fm_snd;
+wire signed [12:0] fm_snd;
 wire signed [13:0] pcm_snd, pcm_raw;
 wire               pcm_wrn;
 
