@@ -30,9 +30,3 @@ jtframe:
   - from: ram
     get:
       - jtframe_prom.v
-target:
-  - get:
-    - sys/sys_top.sdc
-  - when: JTFRAME_SDRAM96
-    get:
-      - sys/sdram_clk96.sdc

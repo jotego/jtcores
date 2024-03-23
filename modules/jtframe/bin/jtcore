@@ -412,19 +412,19 @@ function copy_templates {
         parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
     fi
     # Copy SDC file and SDRAM constraints
-    # if is_mister_family; then
-    #     if grep JTFRAME_SDRAM96 $QSF; then
-    #         cp $JTFRAME/target/$TARGET/sys/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
-    #     else
-    #         cp $JTFRAME/target/$TARGET/sys/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
-    #         cat $JTFRAME/target/$TARGET/slew_rate.tcl >> $QSF
-    #     fi
-    #     cat $JTFRAME/target/$TARGET/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-    #     # Adds local SDC file if exists (only MiSTer)
-    #     if [ -e $PRJPATH/$TARGET/$corename.sdc ]; then
-    #         cat <(echo -e "\n") $PRJPATH/$TARGET/$corename.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-    #     fi
-    # fi
+    if is_mister_family; then
+        if grep JTFRAME_SDRAM96 $QSF; then
+            cp $JTFRAME/target/$TARGET/sys/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
+        else
+            cp $JTFRAME/target/$TARGET/sys/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
+            cat $JTFRAME/target/$TARGET/slew_rate.tcl >> $QSF
+        fi
+        cat $JTFRAME/target/$TARGET/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
+        # Adds local SDC file if exists (only MiSTer)
+        if [ -e $PRJPATH/$TARGET/$corename.sdc ]; then
+            cat <(echo -e "\n") $PRJPATH/$TARGET/$corename.sdc >> $PRJPATH/$TARGET/sys_top.sdc
+        fi
+    fi
 }
 
 
