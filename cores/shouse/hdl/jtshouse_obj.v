@@ -154,12 +154,16 @@ always @(posedge clk, posedge rst) begin
                     end
                 end
                 1: begin // read 13, 12
-                    { xpos[7:0], attr[6:0], xpos[8] } <= oram_dout;
+                    attr[6:0] <= oram_dout[7:1];
+                    xpos      <= ({oram_dout[0], oram_dout[15:8]}+xoffset)^{9{flip}};
                     scan_sub   <= 1;
                 end
                 2: begin // read 11, 10
-                    { code[7:0], hsize, hflip, hos, code[10:8] } <= oram_dout;
-                    xpos <= xpos + xoffset + 9'h43;
+                    code  <= { oram_dout[2:0], oram_dout[15:8] };
+                    hsize <= oram_dout[7:6];
+                    hos   <= oram_dout[4:3];
+                    hflip <= oram_dout[5]^flip;
+                    xpos  <= xpos + (flip?9'h35:9'h43);
                 end
                 3: begin
                     if( !dr_bsy ) begin

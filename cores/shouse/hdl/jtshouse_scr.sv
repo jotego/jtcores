@@ -141,7 +141,7 @@ always @* begin
                            {7'd0,    hcnt}-hscr[mlyr[1:0]]+HSCR};
     if( flip ) begin
         hpos = -hpos;
-        vpos = -vpos;
+        // vpos = -vpos;
     end
     // Determines the active layer
     win = 0; // Keep the line order (priority):

@@ -194,7 +194,7 @@ jtshouse_mcu u_mcu(
     .snd        ( pcm       ),
     .debug_bus  ( debug_bus )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_sound u_sound(
     .srst_n     ( srst_n    ),
     .clk        ( clk       ),
@@ -264,7 +264,7 @@ jtshouse_triram u_triram(
 
     .debug_bus  ( debug_bus )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
