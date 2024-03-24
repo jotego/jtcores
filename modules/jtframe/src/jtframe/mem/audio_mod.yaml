@@ -30,8 +30,20 @@ jt053260: { data_width: 16, vpp: 0.5, stereo: true   }
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
 # FM chips with external DAC
 jt03:     { data_width: 16, rout: 81.25k, vpp: 0.5 }  # only FM, declare PSG part as jt49
-jt51:     { data_width: 16, rout: 81.25k, vpp: 0.5, stereo: true   }
-jtopl:    { data_width: 16, rout: 81.25k, vpp: 0.5  }
+# YM3012's output impedance is a guess
+jt51:     { data_width: 16, rout: 20k, vpp: 0.5, stereo: true   }
 # OPL
+jtopl:    { data_width: 16, rout: 81.25k, vpp: 0.5  }
 jtopl2:   { data_width: 16, vpp: 0.5       }
 jt2413:   { data_width: 16, vpp: 0.5       }
+# Namco
+# data_width is probably too much, pre tries to compensate that a bit
+# rout is a guess based on Pac-Mania schematics
+# internal capacitance might not exist at all, and if it does it may be
+# much lower than 0.4nF
+# Pac-Mania schematics do not have a external filter for CUS30, but they
+# have a very good filter for the crude PCM DACs. Is the output of CUS30
+# different from samples? Is it more like a wave table at high sampling rate?
+# CUS30 goes into CUS99, which is the real DAC, should the module name here
+# be CUS99 instead of CUS30?
+jtcus30:  { data_width: 13, rout: 47k, stereo: true, vpp: 2.0 }

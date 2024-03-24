@@ -193,7 +193,7 @@ jtshouse_mcu u_mcu(
     .pcm_ok     ( pcm_ok    ),
     .bus_busy   ( busy[1]   ),
 
-    .snd        ( pcm_snd   ),
+    .snd        ( pcm       ),
     .debug_bus  ( debug_bus )
 );
 /* verilator tracing_on */
@@ -227,11 +227,10 @@ jtshouse_sound u_sound(
     .rom_ok     ( snd_ok    ),
     .bus_busy   ( busy[2]   ),
 
-    .pcm_snd    ( pcm_snd   ),
-    .left       ( snd_left  ),
-    .right      ( snd_right ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .cus30_l    ( cus30_l   ),
+    .cus30_r    ( cus30_r   ),
     .debug_bus  ( debug_bus )
 );
 /* verilator tracing_off */

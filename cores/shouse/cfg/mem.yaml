@@ -8,19 +8,14 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-# audio:
-#   - name: fm
-#     module: jt51
-#     stereo: true
-#     data_width: 16
-#   - name: pcm
-#     module:
-#     data_width: 11
-#     rc:
-#       - { r: , c: }
-#   - name: cus_30
-#     module: jtcus30
-#     data_width: 13
+audio:
+  rsum: 18k
+  channels:
+    - { name: fm, module: jt51, rsum: 18k, rc: [{ r: 1rout, c: 2.2n }] }
+    # pre-amplification by 1.5kOhm / 1kOhm from R2R. The R2R output impedance
+    # is not clear from schematics. Must measure it
+    - { name: pcm, data_width: 11, dcrm: true, rsum: 47k, fir: fir_192k_4k.csv, pre: 1.5, vpp: 1.0 }
+    - { name: cus30, module: jtcus30, rsum: 47k, rc: [{ r: rout, c: 0.4n }] }
 sdram:
   banks:
     - buses:

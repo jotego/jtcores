@@ -47,31 +47,22 @@ module jtshouse_sound(
     input               rom_ok,
     output              bus_busy,
 
-    input  signed[10:0] pcm_snd,
-    output signed[15:0] left, right,
-    output              sample,
-    output              peak,
+    output signed[15:0] fm_l, fm_r,
+    output signed[12:0] cus30_l, cus30_r,
     input        [ 7:0] debug_bus
 );
 `ifndef NOSOUND
-localparam [7:0] FMGAIN =8'h0C,
-                 PCMGAIN=8'h10,
-                 CUS30G =8'h20;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
-wire [11:0] snd_l, snd_r;
-wire [12:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst, bsel;
-wire        AVMA, firq_n, peak_l, peak_r;
+wire        AVMA, firq_n;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
-wire signed [15:0] fm_l, fm_r;
 
 assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
-assign peak     = peak_r | peak_l;
 assign ram_we   = ram_cs & ~rnw;
 `ifdef SIMULATION
 wire bad_cs = tri_cs && A[10:0]==0;
@@ -170,7 +161,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( firq_n    ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
@@ -178,41 +169,6 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer #(.W1(11),.W2(13)) u_right(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_r      ),
-    .ch1    ( pcm_snd   ),
-    .ch2    ( cus30_r   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN    ),
-    .gain1  ( PCMGAIN   ),
-    .gain2  ( CUS30G    ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( right     ),
-    .peak   ( peak_r    )
-);
-
-jtframe_mixer #(.W1(11),.W2(13)) u_left(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_l      ),
-    .ch1    ( pcm_snd   ),
-    .ch2    ( cus30_l   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN    ),
-    .gain1  ( PCMGAIN   ),
-    .gain2  ( CUS30G    ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( left      ),
-    .peak   ( peak_l    )
-);
 /* verilator tracing_on */
 mc6809i u_cpu(
     .nRESET     ( srst_n    ),
@@ -248,7 +204,6 @@ assign cpu_dout = 0;
 assign rom_addr = 0;
 assign bus_busy = 0;
 assign left = 0, right=0;
-assign sample = 0;
 assign peak = 0;
 `endif
 endmodule
