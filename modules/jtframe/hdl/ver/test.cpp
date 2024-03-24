@@ -896,7 +896,7 @@ void JTSim::video_dump() {
                 activeh= cnth[1];
                 cnth[0]=0; cnth[1]=0;
                 dump.reset();
-                int CCW = (coremod&2)>>2;
+                int CCW = (coremod&4)>>2;
 #ifndef _JTFRAME_OSD_FLIP
                 CCW ^= game.dip_flip&1;
 #endif
