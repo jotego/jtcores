@@ -535,6 +535,9 @@ jtframe_rcmix #(
 );
 `else
 assign {{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}=0;
+assign snd_vu   = 0;
+assign game_led = 0;
+assign sample   = 0;
 `endif{{ else }}
 assign snd_vu = 0;
 {{ end }}

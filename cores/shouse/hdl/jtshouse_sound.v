@@ -195,15 +195,17 @@ mc6809i u_cpu(
     .RegData    (           )
 );
 `else
-initial tri_cs=0;
-initial rom_cs=0;
+initial tri_cs  = 0;
+initial rom_cs  = 0;
 assign c30_dout = 0;
-assign rnw = 0;
-assign ram_we = 0;
+assign rnw      = 0;
+assign ram_we   = 0;
 assign cpu_dout = 0;
 assign rom_addr = 0;
 assign bus_busy = 0;
-assign left = 0, right=0;
-assign peak = 0;
+assign fm_l     = 0;
+assign fm_r     = 0;
+assign cus30_l  = 0;
+assign cus30_r  = 0;
 `endif
 endmodule
