@@ -181,6 +181,9 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 				case FRAME:
 					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
 				case TARGET:
+					if newfl.From == "" {
+						newfl.From=macros["TARGET"]
+					}
 					path = os.Getenv("JTFRAME") + "/target/" + newfl.From + "/"
 				default:
 					path = os.Getenv("MODULES") + "/" + newfl.From + "/"
@@ -317,6 +320,9 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 		case FRAME:
 			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
 		case TARGET:
+			if each.From == "" {
+				each.From=macros["TARGET"]
+			}
 			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
 		case MODULE:
 			path = filepath.Join(os.Getenv("MODULES"), each.From)
