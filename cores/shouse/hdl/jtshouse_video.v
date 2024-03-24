@@ -23,6 +23,7 @@ module jtshouse_video(
     input             pxl_cen,
     input             pxl2_cen,
     output     [ 8:0] hdump,
+    output            flip,
 
     input      [14:0] cpu_addr,
     input             cpu_rnw,
@@ -79,9 +80,8 @@ wire [ 7:0] st_scr, st_obj, st_colmix,
             iodin_obj, iodin_scr;
 wire [10:0] scr_pxl,  obj_pxl;
 wire [ 2:0] scr_prio, obj_prio;
-wire        flip, pre_scrcs, pre_maskcs;
+wire        pre_scrcs, pre_maskcs;
 
-assign flip = 0;
 assign scr_cs  = pre_scrcs  & gfx_en[0];
 assign mask_cs = pre_maskcs & gfx_en[0];
 

@@ -29,7 +29,7 @@ module jtshouse_obj(
 
     input             hs,
     input             lvbl,
-    input             flip,
+    output            flip,
     input      [ 8:0] vrender,
     input      [ 8:0] hdump,
 
@@ -302,6 +302,7 @@ jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .dout       (               ),
     .xoffset    ( pre_xos       ),
     .yoffset    ( pre_yos       ),
+    .flip       ( flip          ),
     .dma_on     ( dma_on        ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     ),
