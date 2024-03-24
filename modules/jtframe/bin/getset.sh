@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # This file is part of JT_FRAME.
 # JTFRAME program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +39,7 @@ if [ -z "$JTROOT" ]; then
 fi
 
 CORENAME=$1
-SETNAME=$2
+SETNAME="$2"
 shift
 shift
 # The rest of the arguments are passed to jtframe
@@ -87,9 +86,12 @@ esac
 
 # Get the DIP switch configuration
 cd $ROM
-DIPSW=$(xmlstarlet sel -t -m misterromdescription -m switches -v @default "$(cat $MATCHES)")
+# copy the mra file to a temporary file with a name that will not contain '
+# because xmlstarlet fails with '
+AUX=`mktemp`
+cp "$(cat $MATCHES)" $AUX
+DIPSW=$(xmlstarlet sel -t -m misterromdescription -m switches -v @default $AUX)
 DIPSW=$(echo $DIPSW | tr , '\n' | tac | tr -t '\n' ' ')
 printf "%s%s%s%s" $DIPSW > $SETNAME.dip
 
-rm -f $MATCHES
-
+rm -f $MATCHES $AUX
