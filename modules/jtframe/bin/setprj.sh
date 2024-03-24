@@ -21,6 +21,7 @@ fi
 
 # derived variables
 export CORES=$JTROOT/cores
+RLS=$JTROOT/release
 # Adds all core names to the auto-completion list of bash
 ALLCORES=$(ls $CORES| tr '\n' ' ')
 complete -W "$ALLCORES" jtcore

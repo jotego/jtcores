@@ -75,6 +75,7 @@ func init() {
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
 	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
 	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
+	flag.BoolVar(&mra_args.Nodbg, "nodbg", false, "Do not parse games in debug phase")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar(&mra_args.PrintNames, "names", false, "Print out the title of each game supported")
 	flag.BoolVar(&mra_args.SkipPocket, "skipPocket", false, "Do not generate JSON files for the Pocket")

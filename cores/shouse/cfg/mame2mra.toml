@@ -1,30 +1,30 @@
 [parse]
 sourcefile=[ "namcos1.cpp" ]
-skip = { machines=[
-    # Key type 3
-    #"blastoff",
-    #"rompers", # hangs up after notice - vertical game
-    #"ws",      # needs 2-byte key ID
-    #"dangseed",
-    #"tankfrce",
-    #"pistoldm",
+skip = { machines=[ "puzlclub" ] }
 
+debug = { machines=[
+    # Key type 3
+    "rompers", # hangs up after notice - vertical game
+    "ws",      # needs 2-byte key ID
+    "dangseed",
+    "tankfrce",
+    "pistoldm",
+    "blastoff",
     # Others
-    #"bakutotu",
-    #"berabohm",
-    #"blazer",
-    #"boxyboy",
-    #"dspirit",
-    #"faceoff",
-    #"galaga88",
-    #"mmaze",
-    #"pacmania",
-    "puzlclub",
-    #"quester",
-    #"shadowld",
-    #"wldcourt",
+    "bakutotu",
+    "berabohm",
+    "blazer",
+    "boxyboy",
+    "dspirit",
+    "faceoff",
+    "galaga88",
+    "mmaze",
+    "pacmania",
+    "quester",
+    "shadowld",
+    "wldcourt",
 ], setnames=[
-    #"ws90"
+    "ws90"
 ] }
 
 [header]

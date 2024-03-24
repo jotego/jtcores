@@ -20,6 +20,10 @@ TOML elements (see full reference in mame2mra.go)
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
 skip.Setnames=["willskip1","willskip2"]
 skip.Bootlegs=true # to skip bootlegs
+debug={ # do not parse when --nodbg is set
+	machines=[ "1942", "1943" ]
+	setnames=[ "gng" ]
+}
 mustbe.devices=[ "i8751"... ]
 mustbe.machines=[ "machine name"... ]
 # Promote an alternative set as the main one

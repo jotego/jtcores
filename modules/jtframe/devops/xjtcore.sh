@@ -30,7 +30,7 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
             continue
         fi
         if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
-        jtframe mra --skipROM $SKIPPOCKET $CORENAME
+        jtframe mra --nodbg --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
         jtseed 4 $CORENAME -$TARGET --nodbg
         # recover hard disk space

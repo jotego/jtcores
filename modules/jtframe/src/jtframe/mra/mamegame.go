@@ -129,9 +129,11 @@ type ParseCfg struct {
 	Older	int	// minimum year allow to parse
 	Skip struct {
 		Selectable
-		Pocket		 Selectable
 		Descriptions []string
 		Bootlegs     bool
+	}
+	Debug struct { // the games here will not be parsed if JTFRAME_RELEASE is set
+		Selectable
 	}
 	Mustbe struct { // If any of these conditions are met, the game will be parsed
 		// empty arrays or strings are not used for comparison

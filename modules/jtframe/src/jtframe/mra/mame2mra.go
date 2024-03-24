@@ -201,15 +201,13 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 			return true
 		}
 	}
-	for _, each := range mra_cfg.Parse.Skip.Setnames {
-		if each == machine.Name {
-			if args.Verbose {
-				fmt.Println("Skipping ", machine.Description, "for matching setname")
-			}
-			return true
-		}
-	}
 	if m:=mra_cfg.Parse.Skip.Match(machine);m>1 {
+		if args.Verbose {
+			fmt.Printf("Skipping %s for level %d matching\n", machine.Description, m)
+		}
+		return true
+	}
+	if m:=mra_cfg.Parse.Debug.Match(machine);m>1 && args.Nodbg {
 		if args.Verbose {
 			fmt.Printf("Skipping %s for level %d matching\n", machine.Description, m)
 		}
