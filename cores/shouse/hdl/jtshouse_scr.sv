@@ -99,6 +99,11 @@ assign rom_ok    = scr_ok & mlyr==7;
 assign hs_edge   = hs & ~hs_l;
 assign mask_good = mask_ok|~mask_cs;
 
+`ifdef SIMULATION
+wire [15:0] hscr0=hscr[0], hscr1=hscr[1], hscr2 = hscr[2], hscr3 = hscr[3],
+            vscr0=vscr[0], vscr1=vscr[1], vscr2 = vscr[2], vscr3 = vscr[3];
+`endif
+
 // Horizontal counter that waits for SDRAM
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -139,10 +144,10 @@ always @* begin
     else
         { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]]+VSCR,
                            {7'd0,    hcnt}-hscr[mlyr[1:0]]+HSCR};
-    if( flip ) begin
-        hpos = -hpos;
-        // vpos = -vpos;
-    end
+    // if( flip ) begin
+    //     hpos = -hpos;
+    //     // vpos = -vpos;
+    // end
     // Determines the active layer
     win = 0; // Keep the line order (priority):
     if( mask[1][7] ) win = 1;
