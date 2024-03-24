@@ -412,8 +412,8 @@ case "$1" in
         if [ ! -e "$SCENE" ]; then
             SCENE="scenes/$SCENE"
         fi
-        if [[ -e "$SCENE" && -x dump2bin.sh ]]; then
-            dump2bin.sh "$SCENE" 2> /dev/null
+        if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
+            ../game/dump2bin.sh "$SCENE" 2> /dev/null
             add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
             set_zoom
             rm -rf video.bin frame_*.jpg frame.raw frames
