@@ -43,7 +43,7 @@ module jtshouse_scr(
     // Mask readout (SDRAM)
     output reg        mask_cs,
     input             mask_ok,
-    output reg [16:0] mask_addr,
+    output     [16:0] mask_addr,
     input      [ 7:0] mask_data,
     // Tile readout (SDRAM)
     output            scr_cs,
@@ -68,7 +68,8 @@ localparam [15:0] HSCR= 16'h73,
                   VSCR=-16'h07;
 
 reg  [15:0] hpos, vpos;
-reg  [ 2:0] mlyr, mst;
+reg  [ 2:0] mlyr, mask_asub;
+reg  [ 1:0] mst;
 reg  [ 5:0] mreq, attr;
 wire [ 2:0] tcnt;
 // mapped by priority
@@ -98,6 +99,7 @@ assign buf_we    = alt_cen & ~done;
 assign rom_ok    = scr_ok & mlyr==7;
 assign hs_edge   = hs & ~hs_l;
 assign mask_good = mask_ok|~mask_cs;
+assign mask_addr = { tmap_data[13:0], mask_asub };
 
 `ifdef SIMULATION
 wire [15:0] hscr0=hscr[0], hscr1=hscr[1], hscr2 = hscr[2], hscr3 = hscr[3],
@@ -111,7 +113,7 @@ always @(posedge clk, posedge rst) begin
         hcnt <= 0;
         done <= 0;
         lin_row <= 0;
-        alt_cen <= 0;
+        alt_cen <= 1;
     end else begin
         alt_cen <= ~alt_cen & rom_ok;
         if( hcnt < HEND && alt_cen) begin
@@ -185,38 +187,39 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         mask_cs   <= 0;
-        mask_addr <= 0;
+        mask_asub <= 0;
         bpxl      <= 0;
         bprio     <= 0;
         attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
     end else if(vrender<9'h1f0 && vrender>'h10e) begin
-        if( mlyr!=7 ) mst <= mst+3'd1;
+        if( mlyr!=7 ) mst <= mst+2'd1;
 
         case( mst )
-            0: // Tile map RAM address
-            case( mlyr )
-                0: tmap_addr <= { 2'd0, vpos[3+:6], hpos[3+:6] };
-                1: tmap_addr <= { 2'd1, vpos[3+:6], hpos[3+:6] };
-                2: tmap_addr <= { 2'd2, vpos[3+:6], hpos[3+:6] };
-                3: tmap_addr <= { 3'd6, vpos[3+:5], hpos[3+:6] };
-                // fixed tile maps are packed in memory and do not fit into a H-V binary split
-                4: tmap_addr <= { 4'b1110, linear };
-                5: tmap_addr <= { 4'b1111, linear };
-                default:;
-            endcase
-            3: begin
-                mask_addr <= { tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0] }; // 17 bits
+            0: begin // Tile map RAM address
+                case( mlyr )
+                    0: tmap_addr <= { 2'd0, vpos[3+:6], hpos[3+:6] };
+                    1: tmap_addr <= { 2'd1, vpos[3+:6], hpos[3+:6] };
+                    2: tmap_addr <= { 2'd2, vpos[3+:6], hpos[3+:6] };
+                    3: tmap_addr <= { 3'd6, vpos[3+:5], hpos[3+:6] };
+                    // fixed tile maps are packed in memory and do not fit into a H-V binary split
+                    4: tmap_addr <= { 4'b1110, linear };
+                    5: tmap_addr <= { 4'b1111, linear };
+                    default:;
+                endcase
+                mask_asub <= mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0];
+            end
+            1: begin
                 mask_cs   <= 1;
             end
-            5: if(mask_ok) begin
+            2: if(mask_ok) begin
                 mask[cfg_prio[mlyr]] <= mask_data;
                 info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
                 mreq[mlyr] <= 0;
                 mask_cs    <= 0;
                 mst        <= 0;
-            end else mst <= 5;
+            end else mst <= 2;
             default:;
         endcase
         if( alt_cen ) begin
