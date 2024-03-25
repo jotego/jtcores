@@ -41,13 +41,13 @@ module jtshouse_colmix(
     output     [ 7:0] red, green, blue,
     // Debug
     input      [ 3:0] ioctl_addr,
-    input      [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
 );
 
-wire [ 7:0] st_mmr;
+wire [ 7:0] st_mmr, mmr_dout;
 wire [12:0] scr_rgb, obj_rgb;
 reg         mmr_cs, r_cs, g_cs, b_cs;
 wire        blank, lyr_sel;
@@ -105,7 +105,7 @@ jtshouse_cus116_mmr u_mmr(
     .clk    ( clk           ),
 
     .cs     ( mmr_cs        ),
-    .addr   ( cpu_addr[2:0] ),
+    .addr   ( cpu_addr[3:0] ),
     .rnw    ( cpu_rnw       ),
     .din    ( cpu_dout      ),
     .dout   ( mmr_dout      ),

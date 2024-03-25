@@ -41,8 +41,6 @@ module jtshouse_scr(
     output reg [14:1] tmap_addr,
     input      [15:0] tmap_data,
     // Mask readout (SDRAM)
-    output reg        mask_cs,
-    input             mask_ok,
     output     [16:0] mask_addr,
     input      [ 7:0] mask_data,
     // Tile readout (SDRAM)
@@ -68,8 +66,7 @@ localparam [15:0] HSCR= 16'h73,
                   VSCR=-16'h07;
 
 reg  [15:0] hpos, vpos;
-reg  [ 2:0] mlyr, mask_asub;
-reg  [ 1:0] mst;
+reg  [ 2:0] mlyr, mask_asub, mst;
 reg  [ 5:0] mreq, attr;
 wire [ 2:0] tcnt;
 // mapped by priority
@@ -81,7 +78,7 @@ reg  [ 9:0] lin_row;   // linear "row" count (does not count during blanks)
 reg  [ 9:0] linear;    // linear position ("row"+col)
 reg  [ 2:0] bprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
 reg         hs_l, done, alt_cen, vs_l;
-wire        buf_we, rom_ok, hs_edge, mask_good;
+wire        buf_we, rom_ok, hs_edge;
 
 // Layer configuration
 wire [3:0][15:0] hscr, vscr;
@@ -98,7 +95,6 @@ assign tcnt      = hcnt[2:0];
 assign buf_we    = alt_cen & ~done;
 assign rom_ok    = scr_ok & mlyr==7;
 assign hs_edge   = hs & ~hs_l;
-assign mask_good = mask_ok|~mask_cs;
 assign mask_addr = { tmap_data[13:0], mask_asub };
 
 `ifdef SIMULATION
@@ -186,7 +182,6 @@ end
 // Pixel drawing
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        mask_cs   <= 0;
         mask_asub <= 0;
         bpxl      <= 0;
         bprio     <= 0;
@@ -194,8 +189,7 @@ always @(posedge clk, posedge rst) begin
         mreq      <= 0;
         mst       <= 0;
     end else if(vrender<9'h1f0 && vrender>'h10e) begin
-        if( mlyr!=7 ) mst <= mst+2'd1;
-
+        if( mlyr!=7 ) mst <= mst+3'd1;
         case( mst )
             0: begin // Tile map RAM address
                 case( mlyr )
@@ -210,16 +204,12 @@ always @(posedge clk, posedge rst) begin
                 endcase
                 mask_asub <= mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0];
             end
-            1: begin
-                mask_cs   <= 1;
-            end
-            2: if(mask_ok) begin
+            4: begin
                 mask[cfg_prio[mlyr]] <= mask_data;
                 info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
                 mreq[mlyr] <= 0;
-                mask_cs    <= 0;
                 mst        <= 0;
-            end else mst <= 2;
+            end
             default:;
         endcase
         if( alt_cen ) begin

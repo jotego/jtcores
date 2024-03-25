@@ -34,10 +34,10 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: mask
-          addr_width: 17
-          data_width: 8
-          cache_size: 8
+        # - name: mask
+        #   addr_width: 17
+        #   data_width: 8
+        #   cache_size: 8
         - name: scr # 4-byte burst here
           addr_width: 20
           data_width: 8
@@ -47,6 +47,12 @@ sdram:
           addr_width: 20
           data_width: 32
 bram:
+  - name: mask
+    addr_width: 17
+    data_width: 8
+    # make a symbolic link: `ln -s sdram_bank2.bin mask.bin`
+    sim_file: true
+    rom: { offset: "{2'd2,22'd0}" }
   - name: ram
     addr_width: 15  # the PCB seems to support 17 bits too
     data_width: 8

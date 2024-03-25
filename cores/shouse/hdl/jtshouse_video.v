@@ -45,8 +45,6 @@ module jtshouse_video(
     output     [14:1] tmap_addr,
     input      [15:0] tmap_data,
     // Scroll mask readout (SDRAM)
-    output            mask_cs,
-    input             mask_ok,
     output     [16:0] mask_addr,
     input      [ 7:0] mask_data,
     // Scroll tile readout (SDRAM)
@@ -83,7 +81,6 @@ wire [ 2:0] scr_prio, obj_prio;
 wire        pre_scrcs, pre_maskcs;
 
 assign scr_cs  = pre_scrcs  & gfx_en[0];
-assign mask_cs = pre_maskcs & gfx_en[0];
 
 always @(posedge clk) begin
     case( debug_bus[6:5] )
@@ -148,8 +145,6 @@ jtshouse_scr u_scroll(
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
     // Mask readout (SDRAM)
-    .mask_cs    ( pre_maskcs),
-    .mask_ok    ( mask_ok   ),
     .mask_addr  ( mask_addr ),
     .mask_data  ( mask_data ),
     // Tile readout (SDRAM)

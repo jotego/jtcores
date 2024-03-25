@@ -308,8 +308,6 @@ jtshouse_video u_video(
     // .tmap_data  ( tmap_dout ),
     .tmap_data  ( {tmap_dout[7:0],tmap_dout[15:8]} ),
     // Scroll mask readout (SDRAM)
-    .mask_cs    ( mask_cs   ),
-    .mask_ok    ( mask_ok   ),
     .mask_addr  ( mask_addr ),
     .mask_data  ( mask_data ),
     // Scroll tile readout (SDRAM)
