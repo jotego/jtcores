@@ -535,39 +535,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 	}
-	// NVRAM
-	if cfg.ROM.Nvram.length != 0 {
-		add_nvram := len(cfg.ROM.Nvram.Machines) == 0
-		if !add_nvram {
-			for _, each := range cfg.ROM.Nvram.Machines {
-				if machine.Name == each {
-					add_nvram = true
-					break
-				}
-			}
-		}
-		if add_nvram {
-			var raw *RawData
-			for k, each := range cfg.ROM.Nvram.Defaults {
-				if each.Machine == "" && each.Setname == "" && raw == nil {
-					raw = &cfg.ROM.Nvram.Defaults[k]
-				}
-				if each.Match(machine)>0 {
-					raw = &cfg.ROM.Nvram.Defaults[k]
-				}
-				if each.Setname == machine.Name {
-					raw = &cfg.ROM.Nvram.Defaults[k]
-					break
-				}
-			}
-			if raw != nil {
-				rawbytes := rawdata2bytes(raw.Data)
-				root.AddNode("rom").AddAttr("index", "2").SetText("\n" + hexdump(rawbytes, 16))
-			}
-			n := root.AddNode("nvram").AddAttr("index", "2")
-			n.AddIntAttr("size", cfg.ROM.Nvram.length)
-		}
-	}
+	make_nvram(&root,machine,cfg)
 	// coreMOD
 	coremod := make_coreMOD(&root, machine, cfg)
 	// DIP switches

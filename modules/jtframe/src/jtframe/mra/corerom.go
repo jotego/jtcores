@@ -12,6 +12,17 @@ import (
 	"strings"
 )
 
+func zipName(machine *MachineXML, cfg Mame2MRA) string {
+	zipname := machine.Name + ".zip"
+	if len(machine.Cloneof) > 0 {
+		zipname += "|" + machine.Cloneof + ".zip"
+	}
+	if len(cfg.Global.Zip.Alt) > 0 {
+		zipname += "|" + cfg.Global.Zip.Alt
+	}
+	return zipname
+}
+
 func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	if len(machine.Rom) == 0 {
 		return
@@ -21,14 +32,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	}
 	// Create nodes
 	p := root.AddNode("rom").AddAttr("index", "0")
-	zipname := machine.Name + ".zip"
-	if len(machine.Cloneof) > 0 {
-		zipname += "|" + machine.Cloneof + ".zip"
-	}
-	if len(cfg.Global.Zip.Alt) > 0 {
-		zipname += "|" + cfg.Global.Zip.Alt
-	}
-	p.AddAttr("zip", zipname)
+	p.AddAttr("zip", zipName(machine,cfg))
 	p.AddAttr("md5", "None") // We do not know the value yet
 	if cfg.ROM.Ddr_load {
 		p.AddAttr("address", "0x30000000")
@@ -63,7 +67,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	var previous StartNode
 	for _, reg := range regions {
 		reg_cfg := find_region_cfg(machine, reg, cfg, args.Verbose)
-		if reg_cfg.Skip {
+		if reg_cfg.Skip || reg_cfg.Name=="nvram" {
 			continue
 		}
 		// Warn about unsorted regions

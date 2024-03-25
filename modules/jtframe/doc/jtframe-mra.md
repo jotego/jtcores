@@ -81,6 +81,7 @@ dial = [
 ]
 
 [ROM]
+# these MAME ROM regions make up the .rom file (index 1 in MiSTer)
 # only specify regions that need parameters
 ddr_load=true
 regions = [
@@ -90,6 +91,7 @@ regions = [
 	{ name=plds, skip=true },
 	{ name=gfx1, skip=true, remove=[ "notwanted"... ] }, # remove specific files from the dump
 	{ name=proms, files=[ {name="myname", crc="12345678", size=0x200 }... ] }	# Replace mame.xml information with specific files
+	# regions called "nvram" are automatically skipped
 ]
 # this is the order in the MRA file
 order = [ "maincpu", "soundcpu", "gfx1", "gfx2" ]
@@ -99,6 +101,8 @@ nvram = {
 	data=[
 		{ machine="...", setname="...", data="00 22 33..." },...
 	]
+	# if a ROM region with the name "nvram" exists, and no default data
+	# was specified, it will be loaded here
 }
 # split ROM regions in two halves. Each ROM file is split in two
 # and each half is merged independently
