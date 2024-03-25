@@ -26,15 +26,15 @@ module {{ .Module }}(
     input       [7:0] din, {{ if not .Read_only }}
     output reg  [7:0] dout, {{- end }}
     {{ range .Regs }}
-    output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ .Dw }}-1:0]{{end}} {{ .Name }},
+    output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ sub .Dw 1 }}:0]{{end}} {{ .Name }},
     {{- end }}
 
     // IOCTL dump
     input      [{{.AMSB}}:0] ioctl_addr,
-    output reg [ 7:0] ioctl_din,
+    output reg [7:0] ioctl_din,
     // Debug
-    input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    input      [7:0] debug_bus,
+    output reg [7:0] st_dout
 );
 
 parameter SIMFILE="rest.bin",

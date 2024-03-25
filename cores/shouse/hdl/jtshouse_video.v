@@ -77,7 +77,7 @@ module jtshouse_video(
 
 wire [ 8:0] vdump, vrender, vrender1;
 wire [ 7:0] st_scr, st_obj, st_colmix,
-            iodin_obj, iodin_scr;
+            iodin_obj, iodin_scr, iodin_col;
 wire [10:0] scr_pxl,  obj_pxl;
 wire [ 2:0] scr_prio, obj_prio;
 wire        pre_scrcs, pre_maskcs;
@@ -247,6 +247,8 @@ jtshouse_colmix u_colmix(
     .green      ( green     ),
     .blue       ( blue      ),
     // Debug
+    .ioctl_addr (ioctl_addr[3:0]),
+    .ioctl_din  ( iodin_col ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_colmix )

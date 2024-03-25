@@ -52,3 +52,13 @@
       dw: 0o240 # 20 bits per channel
       desc: "frequency"
       at: "001[3:0],002,003,011[3:0],012,013,021[3:0],022,023,031[3:0],032,033,041[3:0],042,043,051[3:0],052,053,061[3:0],062,063,071[3:0],072,073"
+
+- name: cus116
+  size: 16
+  regs:
+    - { name: left,  desc: "left   clip",        dw: 16, at: "0,1" }
+    - { name: right, desc: "right  clip",        dw: 16, at: "2,3" }
+    - { name: top,   desc: "top    clip",        dw: 16, at: "4,5" }
+    - { name: bottom,desc: "bottom clip",        dw: 16, at: "6,7" }
+    - { name: hirq,  desc: "H pos. for IRQ (?)", dw: 16, at: "8,9" }
+    - { name: virq,  desc: "V pos. for IRQ",     dw: 16, at: "10,11" }

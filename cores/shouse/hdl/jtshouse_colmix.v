@@ -40,16 +40,18 @@ module jtshouse_colmix(
     output reg [ 7:0] pal_dout,
     output     [ 7:0] red, green, blue,
     // Debug
+    input      [ 3:0] ioctl_addr,
+    input      [ 7:0] ioctl_din,
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
 );
 
-reg  [ 7:0] mmr[0:15];
-wire [ 8:0] virq, hirq;
+wire [ 7:0] st_mmr;
 wire [12:0] scr_rgb, obj_rgb;
 reg         mmr_cs, r_cs, g_cs, b_cs;
 wire        blank, lyr_sel;
+wire [15:0] left, right, top, bottom, hirq, virq;
 
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 assign scr_rgb  = { 2'b01, scr_pxl };
@@ -60,9 +62,7 @@ assign rgb_addr = lyr_sel ? obj_rgb : scr_rgb;
 assign rpal_we = ~cpu_rnw & r_cs;
 assign gpal_we = ~cpu_rnw & g_cs;
 assign bpal_we = ~cpu_rnw & b_cs;
-assign st_dout = mmr[debug_bus[3:0]];
-assign virq    = { mmr[10][0], mmr[11] };
-assign hirq    = { mmr[ 8][0], mmr[ 9] };
+assign st_dout = st_mmr;
 
 `ifdef GRAY
 assign red   = blank ? 8'd0 : {8{scr_pxl[0]}};
@@ -75,24 +75,22 @@ assign blue  = blank ? 8'd0 : blue_dout;
 `endif
 assign blank = ~(lhbl & lvbl);
 
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         pal_dout    <= 0;
         raster_irqn <= 1;
     end else begin
-        raster_irqn <= !(vdump==virq && hdump==hirq);
+        raster_irqn <= !(vdump==virq[8:0] && hdump==hirq[8:0]);
         pal_dout <= r_cs ? rpal_dout :
                     g_cs ? gpal_dout :
-                    b_cs ? bpal_dout : mmr[cpu_addr[3:0]];
-        if( mmr_cs & ~cpu_rnw ) mmr[cpu_addr[3:0]] <= cpu_dout;
+                    b_cs ? bpal_dout : mmr_dout;
     end
 end
 
 always @* begin
-    r_cs = 0;
-    g_cs = 0;
-    b_cs = 0;
+    r_cs   = 0;
+    g_cs   = 0;
+    b_cs   = 0;
     mmr_cs = 0;
     if(cs) case( cpu_addr[14:11] )
         0, 4, 8,12: r_cs = 1;
@@ -101,5 +99,30 @@ always @* begin
         default:  mmr_cs = 1;
     endcase
 end
+
+jtshouse_cus116_mmr u_mmr(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+
+    .cs     ( mmr_cs        ),
+    .addr   ( cpu_addr[2:0] ),
+    .rnw    ( cpu_rnw       ),
+    .din    ( cpu_dout      ),
+    .dout   ( mmr_dout      ),
+
+    .left   ( left          ),
+    .right  ( right         ),
+    .top    ( top           ),
+    .bottom ( bottom        ),
+    .hirq   ( hirq          ),
+    .virq   ( virq          ),
+
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_mmr        )
+);
 
 endmodule

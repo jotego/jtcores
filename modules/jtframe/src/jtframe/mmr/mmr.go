@@ -12,6 +12,7 @@ import(
 	"text/template"
 
 	"gopkg.in/yaml.v2"
+	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
 type Chunk struct {
@@ -41,7 +42,7 @@ type MMRdef struct {
 
 func convert( corename, hdl_path string, cfg MMRdef ) {
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "mmr.v")
-	t := template.Must(template.New("mmr.v").ParseFiles(tpath))
+	t := template.Must(template.New("mmr.v").Funcs(sprig.FuncMap()).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
