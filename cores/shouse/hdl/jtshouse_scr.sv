@@ -68,7 +68,7 @@ localparam [15:0] HSCR= 16'h73,
 reg  [15:0] hpos, vpos;
 reg  [ 2:0] mlyr, mask_asub, mst;
 reg  [ 5:0] mreq, attr;
-wire [ 2:0] tcnt;
+wire [ 2:0] hsub;
 // mapped by priority
 reg  [ 7:0] nx_mask[0:7], mask[0:7];
 reg  [22:0] info[0:7];
@@ -91,7 +91,7 @@ integer     i;
 `endif
 
 assign scr_cs    = 1;
-assign tcnt      = hcnt[2:0];
+assign hsub      = hcnt[2:0];
 assign buf_we    = alt_cen & ~done;
 assign rom_ok    = scr_ok & mlyr==7;
 assign hs_edge   = hs & ~hs_l;
@@ -169,16 +169,6 @@ always @* begin // Mask reload - keep in its own always block
     end
 end
 
-// reg [2:0] hos, vos, vmos;
-
-// always @* begin
-//     hos = hos+debug_bus[2:0];
-//     vos = vos+debug_bus[2:0];
-//     if( mlyr>=4 ) begin
-//         hos=
-//     end
-// end
-
 // Pixel drawing
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -189,7 +179,8 @@ always @(posedge clk, posedge rst) begin
         mreq      <= 0;
         mst       <= 0;
     end else if(vrender<9'h1f0 && vrender>'h10e) begin
-        if( mlyr!=7 ) mst <= mst+3'd1;
+        // Reads mask data for the layer set in mlyr
+        mst <= mlyr==7 ? 3'd0 : mst+3'd1;
         case( mst )
             0: begin // Tile map RAM address
                 case( mlyr )
@@ -202,11 +193,12 @@ always @(posedge clk, posedge rst) begin
                     5: tmap_addr <= { 4'b1111, linear };
                     default:;
                 endcase
-                mask_asub <= mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0];
             end
+            // the mask for the fixed layers is one byte off, hence the +3'd1
+            1: mask_asub <= mlyr<4 ? vpos[2:0] : vpos[2:0]+3'd1;
             4: begin
                 mask[cfg_prio[mlyr]] <= mask_data;
-                info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
+                info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};
                 mreq[mlyr] <= 0;
                 mst        <= 0;
             end
@@ -223,7 +215,7 @@ always @(posedge clk, posedge rst) begin
                 if( !cfg_enb[5] ) mreq[5] <= 1;
             end
             // next pixel information
-            { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+tcnt };
+            { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+hsub };
             for( i=0; i<8; i=i+1 ) mask[i] <= mask[i] << 1;
             buf_a <= hcnt;
             // current pixel
