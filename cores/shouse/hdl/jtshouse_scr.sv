@@ -56,6 +56,7 @@ module jtshouse_scr(
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 7:0] debug_bus,
+    input      [ 3:0] gfx_en,
     output     [ 7:0] st_dout
 );
 
@@ -206,11 +207,11 @@ always @(posedge clk, posedge rst) begin
         endcase
         if( alt_cen ) begin
             linear <= lin_row + {4'd0,hcnt[3+:6]};
-            if( hcnt0==7 && !cfg_enb[0] ) mreq[0] <= 1; // do not request disabled layers
-            if( hcnt1==7 && !cfg_enb[1] ) mreq[1] <= 1;
-            if( hcnt2==7 && !cfg_enb[2] ) mreq[2] <= 1;
-            if( hcnt3==7 && !cfg_enb[3] ) mreq[3] <= 1;
-            if( hcnt[2:0]==7 ) begin
+            if( hcnt0==7 && !cfg_enb[0] && gfx_en[1] ) mreq[0] <= 1; // do not request disabled layers
+            if( hcnt1==7 && !cfg_enb[1] && gfx_en[1] ) mreq[1] <= 1;
+            if( hcnt2==7 && !cfg_enb[2] && gfx_en[1] ) mreq[2] <= 1;
+            if( hcnt3==7 && !cfg_enb[3] && gfx_en[1] ) mreq[3] <= 1;
+            if( hcnt[2:0]==7 && gfx_en[2] ) begin
                 if( !cfg_enb[4] ) mreq[4] <= 1;
                 if( !cfg_enb[5] ) mreq[5] <= 1;
             end

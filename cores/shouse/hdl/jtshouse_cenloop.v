@@ -40,7 +40,7 @@ wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
 reg     [1:0] blank=0;
-reg           aux_snd, aux2;
+reg           aux_snd;
 wire          bsyg = busy==0 || rst;
 
 assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
@@ -53,15 +53,18 @@ assign cen_mcu  =|cpu_cen[3:0];
 assign cen_sndq = cpu_cen[1];
 
 always @(posedge clk) begin
-   {aux2,cen_snd,aux_snd} <= {cen_snd,aux_snd,cpu_cen[3]};
+   {cen_snd,aux_snd} <= {aux_snd,cpu_cen[3]};
     snd_sel <= cen_mcu & cen_sub;
 end
 
 `ifdef SIMULATION
-always @*
-if( aux2 && cen_mcu ) begin
-    $display("Tri RAM clash possible");
-    $stop;
+reg aux2;
+always @(posedge clk) aux2 <= cen_snd;
+always @* begin
+    if( aux2 && cen_mcu ) begin
+        $display("Tri RAM clash possible");
+        $stop;
+    end
 end
 `endif
 

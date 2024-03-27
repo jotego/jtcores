@@ -159,6 +159,7 @@ jtshouse_scr u_scroll(
     .ioctl_addr ( ioctl_addr[4:0]),
     .ioctl_din  ( iodin_scr ),
     // Debug
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
 );
