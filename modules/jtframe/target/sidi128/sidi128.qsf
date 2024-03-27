@@ -328,6 +328,9 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_LRCK
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_SDATA
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to HDMI_MCLK
 
+set_location_assignment PLL_2 -to "u_clocks|u_pll_game|altpll_component|auto_generated|pll1"
+set_location_assignment PLL_4 -to "u_clocks2|u_pll_game|altpll_component|auto_generated|pll1"
+
 # Classic Timing Assignments
 # ==========================
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0

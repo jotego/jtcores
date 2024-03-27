@@ -140,8 +140,8 @@ localparam bit HDMI = 1;
 localparam bit HDMI = 0;
 `endif
 
-// remove this if the 2nd chip is actually used
 `ifdef MIST_DUAL_SDRAM
+`ifndef JTFRAME_LF_SDRAM_BUFFER
 assign SDRAM2_A = 13'hZZZZ;
 assign SDRAM2_BA = 0;
 assign SDRAM2_DQML = 1;
@@ -153,6 +153,7 @@ assign SDRAM2_DQ = 16'hZZZZ;
 assign SDRAM2_nCAS = 1;
 assign SDRAM2_nRAS = 1;
 assign SDRAM2_nWE = 1;
+`endif
 `endif
 
 `ifdef JTFRAME_SDRAM_LARGE
@@ -528,6 +529,67 @@ assign UART_TX = game_tx,
     reg pxl1_cen;
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
 
+`ifdef JTFRAME_LF_SDRAM_BUFFER
+
+    wire pll_locked2, clk_rom2;
+
+    jtframe_mist_clocks u_clocks2(
+        .clk_ext    ( CLOCK_27[0]    ),    // 27MHz for MiST, 50MHz for Neptuno
+
+        // PLL outputs
+        .clk96      ( ),
+        .clk48      ( ),
+        .clk24      ( ),
+        .pll_locked ( pll_locked2 ),
+
+        // System clocks
+        .clk_sys    ( ),
+        .clk_rom    ( clk_rom2   ),
+        .SDRAM_CLK  ( SDRAM2_CLK ),
+
+        // reset signals
+        .game_rst   ( ),
+        .rst96      ( ),
+        .rst48      ( ),
+        .rst24      ( )
+);
+
+    jtframe_lfbuf_sdr u_lf_buf(
+        .rst        ( rst           ),
+        .clk        ( clk_rom2      ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_we      ( ln_we         ),
+
+        .init_n     ( pll_locked2   ),
+        .SDRAM_A    ( SDRAM2_A      ),
+        .SDRAM_DQ   ( SDRAM2_DQ     ),
+        .SDRAM_DQML ( SDRAM2_DQML   ),
+        .SDRAM_DQMH ( SDRAM2_DQMH   ),
+        .SDRAM_nWE  ( SDRAM2_nWE    ),
+        .SDRAM_nCAS ( SDRAM2_nCAS   ),
+        .SDRAM_nRAS ( SDRAM2_nRAS   ),
+        .SDRAM_nCS  ( SDRAM2_nCS    ),
+        .SDRAM_BA   ( SDRAM2_BA     ),
+        .SDRAM_CKE  ( SDRAM2_CKE    ),
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`else
     // line-frame buffer.
     jtframe_lfbuf_bram u_lf_buf(
         .rst        ( rst           ),
@@ -552,6 +614,7 @@ assign UART_TX = game_tx,
         .st_addr    ( st_addr       ),
         .st_dout    ( st_lpbuf      )
     );
+`endif
 `endif
 
 endmodule
