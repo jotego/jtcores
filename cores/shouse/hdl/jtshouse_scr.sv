@@ -101,6 +101,9 @@ assign mask_addr = { tmap_data[13:0], mask_asub };
 `ifdef SIMULATION
 wire [15:0] hscr0=hscr[0], hscr1=hscr[1], hscr2 = hscr[2], hscr3 = hscr[3],
             vscr0=vscr[0], vscr1=vscr[1], vscr2 = vscr[2], vscr3 = vscr[3];
+wire [ 2:0] cfg_prio0 = cfg_prio[0], cfg_prio3 = cfg_prio[3],
+            cfg_prio1 = cfg_prio[1], cfg_prio4 = cfg_prio[4],
+            cfg_prio2 = cfg_prio[2], cfg_prio5 = cfg_prio[5];
 `endif
 
 // Horizontal counter that waits for SDRAM
