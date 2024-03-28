@@ -12546,7 +12546,7 @@
         (name "O0a" (effects (font (size 1.27 1.27))))
         (number "18" (effects (font (size 1.27 1.27))))
       )
-      (pin input line (at -12.7 -12.7 0) (length 5.08)
+      (pin input inverted (at -12.7 -12.7 0) (length 5.08)
         (name "OEb" (effects (font (size 1.27 1.27))))
         (number "19" (effects (font (size 1.27 1.27))))
       )
