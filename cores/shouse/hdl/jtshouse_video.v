@@ -73,6 +73,14 @@ module jtshouse_video(
     output reg [ 7:0] st_dout
 );
 
+localparam [8:0]
+    V_START  = 9'h0F8,
+    VB_START = 9'h0F8,
+    VB_END   = 9'h120,
+    VS_START = 9'h108,
+    VS_END   = 9'h110,
+    VCNT_END = 9'h1FF;
+
 wire [ 8:0] vdump, vrender, vrender1;
 wire [ 7:0] st_scr, st_obj, st_colmix,
             iodin_obj, iodin_scr, iodin_col;
@@ -83,7 +91,7 @@ wire        pre_scrcs, pre_maskcs;
 assign scr_cs  = pre_scrcs  & gfx_en[0];
 
 always @(posedge clk) begin
-    case( debug_bus[6:5] )
+    case( debug_bus[5:4] )
         0: st_dout <= st_scr;
         1: st_dout <= st_obj;
         2: st_dout <= st_colmix;
@@ -91,7 +99,7 @@ always @(posedge clk) begin
     endcase
     case(ioctl_addr[5])
         0: ioctl_din = iodin_scr;
-        1: ioctl_din = iodin_obj;
+        1: ioctl_din = ioctl_addr[4] ? iodin_col : iodin_obj;
     endcase
 end
 
@@ -104,12 +112,12 @@ jtframe_vtimer #(
     .HS_START   ( 9'h17f    ), // HS starts 32 pixels after HB
     .HS_END     ( 9'h01f    ), // 32 pixel wide
 
-    .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
-    .VB_START   ( 9'h1EF    ),
-    .VB_END     ( 9'h10F    ),
-    .VS_START   ( 9'h1F7    ), // 8 lines wide, 8 lines after VB start
-    .VS_END     ( 9'h1FF    ), // 60.6 Hz according to MAME
-    .VCNT_END   ( 9'h1FF    )
+    .V_START    ( V_START   ), // 224 visible, 40 blank, 264 total
+    .VB_START   ( VB_START  ),
+    .VB_END     ( VB_END    ),
+    .VS_START   ( VS_START  ), // 8 lines wide, 8 lines after VB start
+    .VS_END     ( VS_END    ), // 60.6 Hz according to MAME
+    .VCNT_END   ( VCNT_END  )
 ) u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -125,7 +133,7 @@ jtframe_vtimer #(
     .VS         ( vs        )
 );
 
-jtshouse_scr u_scroll(
+jtshouse_scr #(.VB_END(VB_END)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
@@ -164,7 +172,7 @@ jtshouse_scr u_scroll(
     .st_dout    ( st_scr    )
 );
 
-jtshouse_obj u_obj(
+jtshouse_obj #(.VB_START(VB_START),.VB_END(VB_END)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
@@ -200,7 +208,7 @@ jtshouse_obj u_obj(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_obj    ),
     // MMR dump
-    .ioctl_addr ( ioctl_addr[2:0]),
+    .ioctl_addr ( ioctl_addr[3:0]),
     .ioctl_din  ( iodin_obj )
 );
 
@@ -211,6 +219,7 @@ jtshouse_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
+    .hs         ( hs        ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     .raster_irqn(raster_irqn),

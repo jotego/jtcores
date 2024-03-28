@@ -346,7 +346,8 @@ jtframe_keyboard u_keyboard(
 
     `ifndef JTFRAME_RELEASE
         wire [7:0] sys_info;
-        wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
+        // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
+        wire       flip_info = 0;
 
         jtframe_debug #(.COLORW(COLORW)) u_debug(
             .clk         ( clk_sys       ),

@@ -22,7 +22,7 @@
       dw: 18
       at: "035[2:0],034[2:0],033[2:0],032[2:0],031[2:0],030[2:0]"
 - name: obj
-  size: 8
+  size: 16
   regs:
     - { name: xoffset, desc: "global x offset",        dw: 9, at: "4[0],5"            }
     - { name: flip,    desc: flip,                     dw: 1, at: "6[0]"              }
@@ -56,9 +56,9 @@
 - name: cus116
   size: 16
   regs:
-    - { name: left,  desc: "left   clip",        dw: 16, at: "0,1" }
-    - { name: right, desc: "right  clip",        dw: 16, at: "2,3" }
-    - { name: top,   desc: "top    clip",        dw: 16, at: "4,5" }
-    - { name: bottom,desc: "bottom clip",        dw: 16, at: "6,7" }
-    - { name: hirq,  desc: "H pos. for IRQ (?)", dw: 16, at: "8,9" }
-    - { name: virq,  desc: "V pos. for IRQ",     dw: 16, at: "10,11" }
+    - { name: left,  desc: "left   clip",        dw:  9, at: "0[0],1" }
+    - { name: right, desc: "right  clip",        dw:  9, at: "2[0],3" }
+    - { name: top,   desc: "top    clip",        dw:  9, at: "4[0],5" }
+    - { name: bottom,desc: "bottom clip",        dw:  9, at: "6[0],7" }
+    - { name: hirq,  desc: "H pos. for IRQ (?)", dw: 16, at: "8,9"    }
+    - { name: virq,  desc: "V pos. for IRQ",     dw: 16, at: "10,11"  }

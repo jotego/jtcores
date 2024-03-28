@@ -52,14 +52,16 @@ module jtshouse_obj(
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout,
     // IOCTL dump
-    input      [ 2:0] ioctl_addr,
+    input      [ 3:0] ioctl_addr,
     output     [ 7:0] ioctl_din
 );
+
+parameter [8:0] VB_START=9'h0F8, VB_END=9'h110;
 
 // Registers
 wire [ 7:0] pre_yos;
 wire [ 8:0] pre_xos;
-reg  [ 7:0] yoffset;
+reg  [ 8:0] yoffset;
 reg  [ 8:0] xoffset;
 wire        mmr_cs;
 // DMA
@@ -94,9 +96,9 @@ assign rom_swap = {
 };
 
 always @* begin
-    ypos  = 9'h28+{1'b0,oram_dout[15:8]}+{1'b0,yoffset};
+    ypos  = {1'b0,oram_dout[15:8]}+yoffset;
     ydiff = ypos+{1'b0,vrender[7:0]};
-    if(debug_bus[4]) ydiff[8] = 0;
+    // if(debug_bus[4]) ydiff[8] = 0;
     case(vsize)
         0: inzone = ydiff[8-:5]==0; // 16 pxl
         1: inzone = ydiff[8-:6]==0; //  8 pxl
@@ -193,7 +195,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
-        if( hs && !hs_l && vrender<9'h1f0 && vrender>'h10e ) begin
+        if( hs && !hs_l && vrender>(VB_END-9'd1) ) begin
             scan_bsy <= 1;
             scan_sub <= 3;
             scan_obj <= 0;
@@ -275,8 +277,8 @@ always @(posedge clk, posedge rst) begin
             dma_sub  <= 1;
             // the global offsets are changed by the CPU in the middle of the frame
             // so they must be registered during blanking
-            xoffset  <= pre_xos-9'd2;
-            yoffset  <= pre_yos;
+            xoffset  <= pre_xos-9'd2; //+{debug_bus[7],debug_bus};
+            yoffset  <= {1'b0,pre_yos}+9'h11;
         end
         if( dma_bsy ) case(dma_st)
             2: begin
@@ -300,7 +302,7 @@ jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cs         ( mmr_cs        ),
-    .addr       ( cpu_addr[2:0] ),
+    .addr       ( cpu_addr[3:0] ),
     .rnw        ( cpu_rnw       ),
     .din        ( cpu_dout      ),
     .dout       (               ),

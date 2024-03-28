@@ -22,6 +22,7 @@ module jtshouse_colmix(
 
     input             pxl_cen, lvbl, lhbl,
     input      [ 8:0] hdump, vdump,
+    input             hs,
     output reg        raster_irqn,
 
     // pixels
@@ -49,9 +50,12 @@ module jtshouse_colmix(
 
 wire [ 7:0] st_mmr, mmr_dout;
 wire [12:0] scr_rgb, obj_rgb;
-reg         mmr_cs, r_cs, g_cs, b_cs;
+reg         mmr_cs, r_cs, g_cs, b_cs,
+            vwin, // in vertical   window
+            hwin; // in horizontal window
 wire        blank, lyr_sel;
-wire [15:0] left, right, top, bottom, hirq, virq;
+wire [15:0] hirq, virq;
+wire [ 8:0] left, right, top, bottom, hadj;
 
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 assign scr_rgb  = { 2'b01, scr_pxl };
@@ -63,6 +67,7 @@ assign rpal_we = ~cpu_rnw & r_cs;
 assign gpal_we = ~cpu_rnw & g_cs;
 assign bpal_we = ~cpu_rnw & b_cs;
 assign st_dout = st_mmr;
+assign hadj    = hdump+9'd10;
 
 `ifdef GRAY
 assign red   = blank ? 8'd0 : {8{scr_pxl[0]}};
@@ -73,7 +78,7 @@ assign red   = blank ? 8'd0 : red_dout;
 assign green = blank ? 8'd0 : green_dout;
 assign blue  = blank ? 8'd0 : blue_dout;
 `endif
-assign blank = ~(lhbl & lvbl);
+assign blank = ~(lhbl & lvbl) | ~vwin | ~hwin;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -84,6 +89,8 @@ always @(posedge clk, posedge rst) begin
         pal_dout <= r_cs ? rpal_dout :
                     g_cs ? gpal_dout :
                     b_cs ? bpal_dout : mmr_dout;
+        if( hs ) vwin <= {1'b0,vdump[7:0]}>top && {1'b0,vdump[7:0]}<bottom;
+        if( pxl_cen ) hwin <= hadj>left && hadj<right;
     end
 end
 
@@ -100,7 +107,7 @@ always @* begin
     endcase
 end
 
-jtshouse_cus116_mmr u_mmr(
+jtshouse_cus116_mmr #(.SEEK(48)) u_mmr(
     .rst    ( rst           ),
     .clk    ( clk           ),
 

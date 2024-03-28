@@ -60,25 +60,28 @@ module jtshouse_scr(
     output     [ 7:0] st_dout
 );
 
+parameter  [ 8:0] VB_END = 9'h120;
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR= 16'h73,
-                  VSCR=-16'h07;
+localparam [15:0] HSCR0= 16'h70,
+                  HSCR1= HSCR0+16'h1,
+                  HSCR2= HSCR0+16'h2,
+                  HSCR3= HSCR0+16'h4,
+                  VSCR =-16'd24;
 
-reg  [15:0] hpos, vpos;
+reg  [15:0] hoff, hpos, vpos;
 reg  [ 2:0] mlyr, mask_asub, mst;
 reg  [ 5:0] mreq, attr;
 wire [ 2:0] hsub;
-// mapped by priority
-reg  [ 7:0] nx_mask[0:7], mask[0:7];
-reg  [22:0] info[0:7];
+reg  [ 7:0] mask[0:5];
+reg  [22:0] info[0:5];
 reg  [ 8:0] hcnt, buf_a;
 reg  [10:0] bpxl;
 reg  [ 9:0] lin_row;   // linear "row" count (does not count during blanks)
 reg  [ 9:0] linear;    // linear position ("row"+col)
-reg  [ 2:0] bprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
-reg         hs_l, done, alt_cen, vs_l;
+reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
+reg         hs_l, done, alt_cen, vs_l, opaque;
 wire        buf_we, rom_ok, hs_edge;
 
 // Layer configuration
@@ -86,7 +89,7 @@ wire [3:0][15:0] hscr, vscr;
 wire [5:0][ 2:0] cfg_pal, cfg_prio;
 wire [5:0]       cfg_enb;
 
-integer     i;
+integer     i, j;
 `ifdef SIMULATION
     reg       miss;
 `endif
@@ -129,36 +132,39 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= -hscr[0][2:0]+HSCR[2:0];
-            hcnt1 <= -hscr[1][2:0]+HSCR[2:0];
-            hcnt2 <= -hscr[2][2:0]+HSCR[2:0];
-            hcnt3 <= -hscr[3][2:0]+HSCR[2:0];
+            hcnt0 <= -hscr[0][2:0]+HSCR0[2:0];
+            hcnt1 <= -hscr[1][2:0]+HSCR1[2:0];
+            hcnt2 <= -hscr[2][2:0]+HSCR2[2:0];
+            hcnt3 <= -hscr[3][2:0]+HSCR3[2:0];
             if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
         end
-        if( vrender==9'h110 ) lin_row <= 1;
+        if( vrender==9'h121 ) lin_row <= 1;
         done <= hcnt==HEND;
     end
 end
 
 always @* begin
+    case( mlyr[1:0] )
+        0: hoff = HSCR0;
+        1: hoff = HSCR1;
+        2: hoff = HSCR2;
+        3: hoff = HSCR3;
+    endcase
     if( mlyr>3 )
         { vpos, hpos } = { 7'd0, vrender, 7'd0, hcnt };
     else
         { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]]+VSCR,
-                           {7'd0,    hcnt}-hscr[mlyr[1:0]]+HSCR};
+                           {7'd0,    hcnt}-hscr[mlyr[1:0]]+hoff};
     // if( flip ) begin
     //     hpos = -hpos;
     //     // vpos = -vpos;
     // end
     // Determines the active layer
-    win = 0; // Keep the line order (priority):
-    if( mask[1][7] ) win = 1;
-    if( mask[2][7] ) win = 2;
-    if( mask[3][7] ) win = 3;
-    if( mask[4][7] ) win = 4;
-    if( mask[5][7] ) win = 5;
-    if( mask[6][7] ) win = 6;
-    if( mask[7][7] ) win = 7;
+    win    = 5;
+    cprio  = 0;
+    opaque = 0;
+    for( j=5; j>=0; j=j-1 )
+        if( !opaque || (cfg_prio[j]>cprio && mask[j][7])) { opaque, win, cprio } = { mask[j][7], j[2:0], cfg_prio[j] };
 end
 
 always @* begin // Mask reload - keep in its own always block
@@ -182,7 +188,7 @@ always @(posedge clk, posedge rst) begin
         attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
-    end else if(vrender<9'h1f0 && vrender>'h10e) begin
+    end else if(vrender>(VB_END-9'd2)) begin
         // Reads mask data for the layer set in mlyr
         mst <= mlyr==7 ? 3'd0 : mst+3'd1;
         case( mst )
@@ -201,8 +207,8 @@ always @(posedge clk, posedge rst) begin
             // the mask for the fixed layers is one byte off, hence the +3'd1
             1: mask_asub <= mlyr<4 ? vpos[2:0] : vpos[2:0]+3'd1;
             4: begin
-                mask[cfg_prio[mlyr]] <= mask_data;
-                info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};
+                mask[mlyr] <= mask_data;
+                info[mlyr] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};
                 mreq[mlyr] <= 0;
                 mst        <= 0;
             end
@@ -220,7 +226,7 @@ always @(posedge clk, posedge rst) begin
             end
             // next pixel information
             { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+hsub };
-            for( i=0; i<8; i=i+1 ) mask[i] <= mask[i] << 1;
+            for( i=0; i<6; i=i+1 ) mask[i] <= mask[i] << 1;
             buf_a <= hcnt;
             // current pixel
             { bprio, bpxl } <= { attr, scr_data };

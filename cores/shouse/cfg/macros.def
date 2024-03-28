@@ -27,8 +27,9 @@ JTFRAME_PROM_START=0x690000
 
 # Minimum 2kB for EEROM
 # Add 32 bytes (scroll MMR)
-# Add  8 bytes (object MMR)
-JTFRAME_IOCTL_RD=63528
+# Add 16 bytes (object MMR)
+# Add 16 bytes (colmix MMR)
+JTFRAME_IOCTL_RD=63552
 
 [mist|sidi]
 # not enough BRAM
