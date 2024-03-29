@@ -64,11 +64,11 @@ parameter  [ 8:0] VB_END = 9'h120;
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR0= 16'h70,
+localparam [15:0] HSCR0= 16'h71,
                   HSCR1= HSCR0+16'h1,
                   HSCR2= HSCR0+16'h2,
                   HSCR3= HSCR0+16'h4,
-                  VSCR =-16'd24;
+                  VSCR =-16'd26;
 
 reg  [15:0] hoff, hpos, vpos;
 reg  [ 2:0] mlyr, mask_asub, mst;
@@ -136,9 +136,10 @@ always @(posedge clk, posedge rst) begin
             hcnt1 <= -hscr[1][2:0]+HSCR1[2:0];
             hcnt2 <= -hscr[2][2:0]+HSCR2[2:0];
             hcnt3 <= -hscr[3][2:0]+HSCR3[2:0];
-            if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
+            if(vrender[2:0]==2) lin_row <= vrender[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
+            // if(vrender[2:0]==7) lin_row <= vrender[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
+            // if(vrender==9'h120 ) lin_row <= 1;
         end
-        if( vrender==9'h121 ) lin_row <= 1;
         done <= hcnt==HEND;
     end
 end
@@ -188,7 +189,7 @@ always @(posedge clk, posedge rst) begin
         attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
-    end else if(vrender>(VB_END-9'd2)) begin
+    end else begin
         // Reads mask data for the layer set in mlyr
         mst <= mlyr==7 ? 3'd0 : mst+3'd1;
         case( mst )
@@ -204,8 +205,9 @@ always @(posedge clk, posedge rst) begin
                     default:;
                 endcase
             end
-            // the mask for the fixed layers is one byte off, hence the +3'd1
-            1: mask_asub <= mlyr<4 ? vpos[2:0] : vpos[2:0]+3'd1;
+            // vpos for the fixed layers has a relationship with the linear counter
+            // changing the octal LSB of the linear start requires an adjustment here
+            1: mask_asub <= mlyr<4 ? vpos[2:0] : vpos[2:0]+3'd6;
             4: begin
                 mask[mlyr] <= mask_data;
                 info[mlyr] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};

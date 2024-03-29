@@ -36,8 +36,8 @@ module jtshouse_obj(
     // Video RAM
     output     [11:1] oram_addr,
     input      [15:0] oram_dout,
-    output reg        oram_we,
-    output reg [15:0] oram_din,
+    output            oram_we,
+    output     [15:0] oram_din,
 
     // Object tile readout (SDRAM)
     output            rom_cs,
@@ -59,34 +59,28 @@ module jtshouse_obj(
 parameter [8:0] VB_START=9'h0F8, VB_END=9'h110;
 
 // Registers
-wire [ 7:0] pre_yos;
 wire [ 8:0] pre_xos;
-reg  [ 8:0] yoffset;
+wire [ 7:0] yoffset;
 reg  [ 8:0] xoffset;
 wire        mmr_cs;
-// DMA
-reg         nx_dma, dma_bsy, hs_l, lvbl_l;
-reg  [ 6:0] dma_obj;
-reg  [ 2:0] oram_sub, dma_sub;
-reg  [ 1:0] dma_st;
-wire        dma_on, vb_edge;
 // LUT Scan
 wire [ 1:0] vsize, vos;
 wire [17:2] pre_addr;
 reg  [10:0] code;
 reg  [ 9:0] attr;
-reg  [ 8:0] xpos;
+reg  [ 9:0] xpos;
 reg  [ 8:0] ydiff, ypos;
 reg  [ 6:0] scan_obj;
+wire [ 6:0] dma_obj;
 reg  [ 4:0] ysub, nx_ysub;
+wire [ 2:0] oram_sub;
 reg  [ 1:0] scan_sub, dr_vmsb, st, hsize, hos,
-            dr_hmsb, nx_hmsb, dr_hsize, dr_hos;
-reg         inzone, vflip, hflip, draw, cen, scan_bsy, half;
-wire        dr_bsy;
+            dr_hmsb, nx_hmsb, dr_hsize;
+reg         inzone, vflip, hflip, draw, cen, scan_bsy, half, hs_l;
+wire        dr_bsy, dma_bsy, dma_on;
 wire [31:0] rom_swap;
 
 assign {vos, vsize } = oram_dout[4:1];
-assign vb_edge = ~lvbl & lvbl_l;
 assign mmr_cs  = &{ cs, cpu_addr[11:4] };
 assign rom_swap = {
     rom_data[24+:4], rom_data[28+:4],
@@ -97,6 +91,12 @@ assign rom_swap = {
 
 always @* begin
     ypos  = {1'b0,oram_dout[15:8]}+yoffset;
+    if( flip ) case(vsize)
+        0: ypos = ypos + 9'o776; // 16
+        1: ypos = ypos + 9'o766; //  8
+        2: ypos = ypos + 9'o16;  // 32
+        3: ypos = ypos + 9'o762; //  4
+    endcase
     ydiff = ypos+{1'b0,vrender[7:0]};
     // if(debug_bus[4]) ydiff[8] = 0;
     case(vsize)
@@ -114,7 +114,7 @@ always @* begin
     case( hsize )
         0: nx_hmsb = { hos[1], 1'b0}; // 16 pxl
         1,3: nx_hmsb = hos; // 8/4 pxl
-        default: nx_hmsb = { hflip, 1'b0 };
+        default: nx_hmsb = { hflip, 1'b0 }; // 32 pxl
     endcase
 end
 
@@ -126,6 +126,9 @@ assign rom_addr  = { pre_addr[17-:11],
             pre_addr[2+:3],  // V4/2/1
             dr_hsize[0] ? dr_hmsb[0] : pre_addr[6] /* H8 */ };
 
+always @(posedge clk) begin
+    xoffset  <= pre_xos-9'd2; //+{debug_bus[7],debug_bus};
+end
 // LUT scan
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -157,24 +160,26 @@ always @(posedge clk, posedge rst) begin
                 end
                 1: begin // read 13, 12
                     attr[6:0] <= oram_dout[7:1];
-                    xpos      <= ({oram_dout[0], oram_dout[15:8]}+xoffset)^{9{flip}};
+                    xpos      <= ({1'b0,oram_dout[0], oram_dout[15:8]}+xoffset)^{10{flip}};
                     scan_sub   <= 1;
                 end
                 2: begin // read 11, 10
                     code  <= { oram_dout[2:0], oram_dout[15:8] };
                     hsize <= oram_dout[7:6];
-                    hos   <= oram_dout[4:3];
+                    hos   <= oram_dout[4:3]; // H offset
                     hflip <= oram_dout[5]^flip;
-                    xpos  <= xpos + (flip?9'h35:9'h43);
+                    xpos  <= xpos + (!flip?10'h43:(
+                                    oram_dout[7:6]==0?10'h45:
+                                    oram_dout[7:6]==1?10'h4d:
+                                    oram_dout[7:6]==2?10'h35:10'h51));
                 end
                 3: begin
-                    if( !dr_bsy ) begin
+                    if( !dr_bsy && xpos[9]) begin
                         dr_vmsb  <= ysub[4:3]^{2{vflip}};
                         dr_hmsb  <= nx_hmsb;
                         dr_hsize <= hsize;
-                        dr_hos   <= hos;
                         draw     <= 1;
-                        if( half ) begin
+                        if( half ) begin // half of 32-pxl object
                             half <= 0;
                             xpos <= xpos + 9'h10;
                             dr_hmsb[1] <= ~dr_hmsb[1];
@@ -205,6 +210,21 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+jtshouse_obj_dma u_dma(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .dma_on     ( dma_on    ),
+    .dma_bsy    ( dma_bsy   ),
+    .dma_obj    ( dma_obj   ),
+    .oram_sub   ( oram_sub  ),
+    .oram_dout  ( oram_dout ),
+    .oram_we    ( oram_we   ),
+    .oram_din   ( oram_din  )
+);
+
 jtframe_objdraw #(
     .CW         (  11   ),
     .PW         (  14   ),
@@ -224,7 +244,7 @@ jtframe_objdraw #(
     .draw       ( draw      ),
     .busy       ( dr_bsy    ),
     .code       ( code      ),
-    .xpos       ( xpos      ),
+    .xpos       ( xpos[8:0] ),
     .ysub       ( ysub[3:0] ),
     // no zoom
     .hzoom      ( 6'd0      ),
@@ -242,62 +262,6 @@ jtframe_objdraw #(
     .pxl        ({prio, pxl})
 );
 
-// DMA - sequence length NOT measured on PCB yet
-always @* begin
-    case( {oram_we, dma_sub} )
-        4'b0_001: oram_sub = 3'b010; // 4-5
-        4'b0_010: oram_sub = 3'b011; // 6-7
-        4'b0_100: oram_sub = 3'b100; // 8-9
-
-        4'b1_001: oram_sub = 3'b101; // 10-11
-        4'b1_010: oram_sub = 3'b110; // 12-13
-        4'b1_100: oram_sub = 3'b111; // 14-15
-        default:  oram_sub = 3'b111;
-    endcase
-end
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        nx_dma   <= 0;
-        dma_bsy  <= 0;
-        dma_st   <= 0;
-        dma_obj  <= 0;
-        dma_sub  <= 0;
-        lvbl_l   <= 0;
-    end else begin
-        dma_st <= dma_st+2'd1;
-        lvbl_l <= lvbl;
-
-        if( dma_on `ifdef SIMSCENE || (hs&&lvbl) `endif ) nx_dma <= 1;
-        if( nx_dma && vb_edge ) begin
-            nx_dma   <= 0;
-            dma_bsy  <= 1;
-            dma_st   <= 0;
-            dma_obj  <= 0;
-            dma_sub  <= 1;
-            // the global offsets are changed by the CPU in the middle of the frame
-            // so they must be registered during blanking
-            xoffset  <= pre_xos-9'd2; //+{debug_bus[7],debug_bus};
-            yoffset  <= {1'b0,pre_yos}+9'h11;
-        end
-        if( dma_bsy ) case(dma_st)
-            2: begin
-                oram_din <= oram_dout;
-                oram_we  <= 1;
-            end
-            3: begin
-                oram_we <= 0;
-                if( dma_sub[2] ) begin
-                    dma_obj <= dma_obj+7'd1;
-                    if( &dma_obj[6:1] ) dma_bsy <= 0;
-                end
-                dma_sub <= { dma_sub[1:0], dma_sub[2] };
-            end
-            default:;
-        endcase
-    end
-end
-
 jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -307,7 +271,7 @@ jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .din        ( cpu_dout      ),
     .dout       (               ),
     .xoffset    ( pre_xos       ),
-    .yoffset    ( pre_yos       ),
+    .yoffset    ( yoffset       ),
     .flip       ( flip          ),
     .dma_on     ( dma_on        ),
     .ioctl_addr ( ioctl_addr    ),
