@@ -180,7 +180,7 @@ wire bdir0, bc0;
 
 assign {bc0, bdir0} = bcdir(ay0_cs);
 
-jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
+jt49_bus #(.COMP(3'b10)) u_ay0( // note that input ports are not multiplexed
     .rst_n  ( ay_rstn   ),
     .clk    ( clk       ),
     .clk_en ( cen1p5    ),
@@ -258,7 +258,7 @@ generate
         wire bdir1, bc1;
         assign {bc1, bdir1} = bcdir(ay1_cs);
 
-        jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
+        jt49_bus #(.COMP(3'b10)) u_ay1( // note that input ports are not multiplexed
             .rst_n  ( ay_rstn   ),
             .clk    ( clk       ),
             .clk_en ( cen1p5    ),
