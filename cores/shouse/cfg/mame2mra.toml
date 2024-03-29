@@ -17,7 +17,6 @@ debug = { machines=[
     "boxyboy",
     "dspirit",
     "faceoff",
-    "galaga88",
     "mmaze",
     "pacmania",
     "quester",

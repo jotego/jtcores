@@ -227,7 +227,7 @@ always @(posedge clk, posedge rst) begin
                 if( !cfg_enb[5] ) mreq[5] <= 1;
             end
             // next pixel information
-            { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+hsub };
+            { attr, scr_addr } <= { cprio, info[win][3+:20], info[win][2:0]+hsub };
             for( i=0; i<6; i=i+1 ) mask[i] <= mask[i] << 1;
             buf_a <= hcnt;
             // current pixel

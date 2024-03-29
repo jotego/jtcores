@@ -45,6 +45,7 @@ MACROPREFIX=+define+
 # All command line macros separated by commas, this is used
 # in calls to jtframe
 ALLMACROS=
+BATCH=
 VERILATOR_SAFE=
 EXTRA=
 SHOWCMD=
@@ -85,6 +86,7 @@ JTFRAME simulation tool. (c) Jose Tejada 2019-2022, @topapate
 Please support the development: https://patreon.com/jotego
 
     -args      Additional arguments for the simulator
+    -batch     Tells jtsim that it is being run by a batch process
     -d         Add specific Verilog macros for the simulation.
                Call jtmacros to display all macros.
     -dbgbus x  Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
@@ -304,6 +306,7 @@ fi
 while [ $# -gt 0 ]; do
 case "$1" in
     -args) shift; SIMULATOR_EXTRA="$SIMULATOR_EXTRA $1";;
+    -batch) BATCH=1;;
     -dbgbus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
@@ -873,9 +876,14 @@ SECONDS=$[$COMPILE_TIME % 60]
 
 echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 
-# Open the image viewer for scene sims
-if which eom > /dev/null; then
-    if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
+if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
+    if [ ! -z "$BATCH" ]; then
+        SCNNUM=$(basename $(dirname $SCENE))
+        set -v
+        mv `ls frames/frame_*.jpg | tail -n 1` `dirname $SCENE`/$SCNNUM.jpg
+        set +v
+    elif which eom > /dev/null; then
+        # Open the image viewer for scene sims
         eom `ls frames/frame_*.jpg | tail -n 1` &
     fi
 fi

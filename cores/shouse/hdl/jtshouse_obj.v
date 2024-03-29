@@ -69,7 +69,7 @@ wire [17:2] pre_addr;
 reg  [10:0] code;
 reg  [ 9:0] attr;
 reg  [ 9:0] xpos;
-reg  [ 8:0] ydiff, ypos;
+reg  [ 8:0] ydiff, ypos, xraw;
 reg  [ 6:0] scan_obj;
 wire [ 6:0] dma_obj;
 reg  [ 4:0] ysub, nx_ysub;
@@ -160,6 +160,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 1: begin // read 13, 12
                     attr[6:0] <= oram_dout[7:1];
+                    // xraw      <= {oram_dout[0], oram_dout[15:8]};
                     xpos      <= ({1'b0,oram_dout[0], oram_dout[15:8]}+xoffset)^{10{flip}};
                     scan_sub   <= 1;
                 end
@@ -174,7 +175,7 @@ always @(posedge clk, posedge rst) begin
                                     oram_dout[7:6]==2?10'h35:10'h51));
                 end
                 3: begin
-                    if( !dr_bsy && xpos[9]) begin
+                    if( !dr_bsy ) begin
                         dr_vmsb  <= ysub[4:3]^{2{vflip}};
                         dr_hmsb  <= nx_hmsb;
                         dr_hsize <= hsize;
