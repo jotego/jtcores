@@ -422,7 +422,8 @@ case "$1" in
             rm -rf video.bin frame_*.jpg frame.raw frames
             VIDEO_DUMP=TRUE
         else
-            echo "ignoring -scene in jtsim as scene file $SCENE or dump2bin.sh were not found"
+            echo "Scene file $SCENE or dump2bin.sh were not found"
+            exit 1
         fi
         ;;
     -shaup) SHAUP=1;;

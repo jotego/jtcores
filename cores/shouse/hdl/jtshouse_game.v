@@ -67,7 +67,7 @@ always @* begin
     endcase
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_cenloop u_cen(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -83,7 +83,7 @@ jtshouse_cenloop u_cen(
     .fave       ( fave      ),
     .fworst     (           )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_key u_key(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -99,7 +99,7 @@ jtshouse_key u_key(
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -150,7 +150,7 @@ jtshouse_main u_main(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtshouse_mcu u_mcu(
     .game_rst   ( rst       ),
     .rstn       ( srst_n    ),

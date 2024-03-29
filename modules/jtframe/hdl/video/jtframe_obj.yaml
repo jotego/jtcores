@@ -3,6 +3,7 @@ jtframe:
     get:
       - jtframe_draw.v
       - jtframe_objdraw.v
+      - jtframe_objdraw_trunc.v
       - jtframe_objdraw_gate.v
   - from: ram
     get:

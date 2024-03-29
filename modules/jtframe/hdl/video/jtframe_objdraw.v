@@ -19,6 +19,7 @@
 // wrapper for jtframe_objdraw_gate that hides the
 // buffer data ports (buf_pred and buf_din that let
 // the core modify the data before storing it)
+// object width is always 16 pixels
 
 module jtframe_objdraw #( parameter
     CW    = 12,
@@ -91,6 +92,7 @@ module jtframe_objdraw #( parameter
         .code           ( code          ),
         .xpos           ( xpos          ),
         .ysub           ( ysub          ),
+        .trunc          ( 2'd0          ), // always 16 pixels
         .hzoom          ( hzoom         ),
         .hz_keep        ( hz_keep       ),
         .hflip          ( hflip         ),

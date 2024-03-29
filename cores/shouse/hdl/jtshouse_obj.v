@@ -74,7 +74,7 @@ reg  [ 6:0] scan_obj;
 wire [ 6:0] dma_obj;
 reg  [ 4:0] ysub, nx_ysub;
 wire [ 2:0] oram_sub;
-reg  [ 1:0] scan_sub, dr_vmsb, st, hsize, hos,
+reg  [ 1:0] scan_sub, dr_vmsb, st, hsize, hos, trunc,
             dr_hmsb, nx_hmsb, dr_hsize;
 reg         inzone, vflip, hflip, draw, cen, scan_bsy, half, hs_l;
 wire        dr_bsy, dma_bsy, dma_on;
@@ -179,6 +179,11 @@ always @(posedge clk, posedge rst) begin
                         dr_vmsb  <= ysub[4:3]^{2{vflip}};
                         dr_hmsb  <= nx_hmsb;
                         dr_hsize <= hsize;
+                        case( hsize )
+                            1: trunc <= 2'b10;
+                            3: trunc <= 2'b11;
+                            default: trunc <= 0;
+                        endcase
                         draw     <= 1;
                         if( half ) begin // half of 32-pxl object
                             half <= 0;
@@ -201,7 +206,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
-        if( hs && !hs_l && vrender>(VB_END-9'd1) ) begin
+        if( hs && !hs_l && (vrender>9'h11E || vrender<9'hfc) ) begin
             scan_bsy <= 1;
             scan_sub <= 3;
             scan_obj <= 0;
@@ -226,7 +231,7 @@ jtshouse_obj_dma u_dma(
     .oram_din   ( oram_din  )
 );
 
-jtframe_objdraw #(
+jtframe_objdraw_trunc #(
     .CW         (  11   ),
     .PW         (  14   ),
     // SWAPH =  0,
@@ -250,6 +255,7 @@ jtframe_objdraw #(
     // no zoom
     .hzoom      ( 6'd0      ),
     .hz_keep    ( 1'd0      ),
+    .trunc      ( trunc     ),
 
     .hflip      ( hflip     ),
     .vflip      ( vflip     ),

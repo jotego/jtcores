@@ -163,6 +163,7 @@ jtframe_objdraw_gate #(
     .hs         ( hs        ),
     .flip       ( flip      ),
     .hdump      ( hdump     ),
+    .trunc      ( 2'd0      ),
 
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),

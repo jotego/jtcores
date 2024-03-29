@@ -36,6 +36,7 @@ module jtframe_draw#( parameter
     input    [CW-1:0]   code,
     input      [ 8:0]   xpos,
     input      [ 3:0]   ysub,
+    input      [ 1:0]   trunc, // 00=no trunc, 10 = 8 pixels, 11 = 4 pixels
 
     // optional zoom, keep at zero for no zoom
     input    [ZW-1:0]   hzoom,
@@ -67,7 +68,9 @@ wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
 reg             cen=0, moveon, readon;
+wire            msb;
 
+assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
 assign ysubf   = ysub^{4{vflip}};
 assign buf_din = { pal, pxl };
 assign pxl     = hflip ?
@@ -136,7 +139,9 @@ always @(posedge clk, posedge rst) begin
                 end
                 if( moveon ) buf_addr <= buf_addr+1'd1;
                 rom_lsb  <= ~hflip;
-                if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0;
+                if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0; // 16 pixels
+                if( cnt[2:0]==7 && trunc==2'b10      ) busy <= 0; //  8 pixels
+                if( cnt[1:0]==3 && trunc==2'b11      ) busy <= 0; //  4 pixels
             end
         end
     end

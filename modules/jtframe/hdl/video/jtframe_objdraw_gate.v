@@ -59,6 +59,8 @@ module jtframe_objdraw_gate #( parameter
     input    [CW-1:0]   code,
     input      [ 8:0]   xpos,
     input      [ 3:0]   ysub,
+    // Truncate to first 8 or 4 bits
+    input      [ 1:0]   trunc, // 00=no trunc, 10 = 8 pixels, 11 = 4 pixels
     // optional zoom, keep at zero for no zoom
     input    [ZW-1:0]   hzoom,
     input               hz_keep, // set at 1 for the first tile
@@ -182,6 +184,7 @@ jtframe_draw #(
     .code       ( dr_code   ),
     .xpos       ( dr_xpos   ),
     .ysub       ( dr_ysub   ),
+    .trunc      ( trunc     ),
     .hz_keep    ( dr_hz_keep),
     .hzoom      ( dr_hzoom  ),
     .hflip      ( dr_hflip  ),
