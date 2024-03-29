@@ -43,5 +43,4 @@ modules:
   other:
     - get:
       - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.yaml
-      - jt12/jt89/hdl/jt89.yaml
+      - jt89/hdl/jt89.yaml
