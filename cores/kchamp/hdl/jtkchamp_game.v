@@ -42,7 +42,7 @@ wire [ 7:0] pre_data;
 
 assign flip       = ~dip_flip ^ ~main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
-assign link_joys  = dipsw[8];
+assign link_joys  = `ifdef POCKET 1'b0 `else dipsw[8] `endif ;
 
 wire        is_obj = prog_ba==3 && ioctl_addr[21:0]<PROM_START[21:0];
 
