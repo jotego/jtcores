@@ -28,14 +28,13 @@ jt053260: { data_width: 16, vpp: 0.5, stereo: true   }
 # jt051649, vpp and rout are a guess, it uses an external DAC
 # 051671
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
-# FM chips with external DAC
-jt03:     { data_width: 16, rout: 81.25k, vpp: 0.5 }  # only FM, declare PSG part as jt49
 # YM3012's output impedance is a guess
-jt51:     { data_width: 16, rout: 20k, vpp: 0.5, stereo: true   }
-# OPL
-jtopl:    { data_width: 16, rout: 81.25k, vpp: 0.5  }
-jtopl2:   { data_width: 16, vpp: 0.5       }
-jt2413:   { data_width: 16, vpp: 0.5       }
+jt51:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
+# FM chips connected to YM3014 DAC
+jt03:     { data_width: 16, rout: 6.5k, vpp: 0.5 }  # only FM, declare PSG part as jt49
+jtopl:    { data_width: 16, rout: 6.5k, vpp: 0.5 }
+jtopl2:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
+jt2413:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 # Namco
 # data_width is probably too much, pre tries to compensate that a bit
 # rout is a guess based on Pac-Mania schematics

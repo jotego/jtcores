@@ -60,8 +60,8 @@ parameter [8:0] VB_START=9'h0F8, VB_END=9'h110;
 
 // Registers
 wire [ 8:0] pre_xos;
-wire [ 7:0] yoffset;
-reg  [ 8:0] xoffset;
+wire [ 7:0] pre_yos;
+reg  [ 8:0] xoffset,yoffset;
 wire        mmr_cs;
 // LUT Scan
 wire [ 1:0] vsize, vos;
@@ -128,6 +128,7 @@ assign rom_addr  = { pre_addr[17-:11],
 
 always @(posedge clk) begin
     xoffset  <= pre_xos-9'd3; //+{debug_bus[7],debug_bus};
+    yoffset  <= pre_yos+9'd2;
 end
 // LUT scan
 always @(posedge clk, posedge rst) begin
@@ -206,7 +207,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
-        if( hs && !hs_l && vrender>9'h11E ) begin
+        if( hs && !hs_l ) begin
             scan_bsy <= 1;
             scan_sub <= 3;
             scan_obj <= 0;
@@ -278,7 +279,7 @@ jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .din        ( cpu_dout      ),
     .dout       (               ),
     .xoffset    ( pre_xos       ),
-    .yoffset    ( yoffset       ),
+    .yoffset    ( pre_yos       ),
     .flip       ( flip          ),
     .dma_on     ( dma_on        ),
     .ioctl_addr ( ioctl_addr    ),

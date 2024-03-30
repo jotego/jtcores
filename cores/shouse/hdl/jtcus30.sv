@@ -85,7 +85,7 @@ reg         noise;
 reg  [7:0][CW-1:A0] cnt_no; // old value of counter when noise was last produced
 
 assign sample = ch==0 && cen120;
-assign wdata  = (cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4])^{ debug_bus[1],3'd0};
+assign wdata  = cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4];
 
 // `ifdef SIMULATION
 // reg [7:0][3:0] wav;
@@ -127,8 +127,8 @@ always @(posedge clk, posedge rst ) begin
             ramp <= 4'd7*({1'b0,rvol[ch_l][3:1]});
             cnt_no[ch_l] <= cnt[ch_l][CW-1:A0];
         end else begin
-            lamp <= { wdata[3] & debug_bus[0], wdata } * { 1'b0, lvol[ch_l] };
-            ramp <= { wdata[3] & debug_bus[0], wdata } * { 1'b0, rvol[ch_l] };
+            lamp <= { wdata[3], wdata } * { 1'b0, lvol[ch_l] };
+            ramp <= { wdata[3], wdata } * { 1'b0, rvol[ch_l] };
         end
 
         // accumulator and output

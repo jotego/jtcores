@@ -3,6 +3,7 @@
 *.bak
 *.bin
 *.cfg
+*.dip
 *.fmt
 *.fst
 *.gtkw

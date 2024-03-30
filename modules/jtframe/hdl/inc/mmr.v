@@ -80,16 +80,19 @@ end
 integer f, fcnt, err;
 reg [7:0] mmr_init[0:SIZE-1];
 initial begin
-    f=$fopen("rest.bin","rb");
+    f=$fopen(SIMFILE,"rb");
     err=$fseek(f,SEEK,0);
     if( f!=0 && err!=0 ) begin
         $display("Cannot seek file rest.bin to offset 0x%0X (%0d)",SEEK,SEEK);
     end
     if( f!=0 ) begin
         fcnt=$fread(mmr_init,f);
-        $display("INFO: Read %d bytes for %m.mmr from offset %0d",fcnt,SEEK);
+        $display("MMR %m - read %0d bytes from offset %0d",fcnt,SEEK);
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
+        end else begin{{ range .Regs }}{{ if not .Wr_event }}
+            $display("\t{{.Name}} = %X",{ {{range .Chunks}} mmr[{{.Byte}}][{{if eq .Msb .Lsb}}{{.Msb}}{{else}}{{.Msb}}:{{.Lsb}}{{end}}],{{end}}{0{1'b0}}});
+            {{- end }}{{ end }}
         end
     end
     $fclose(f);

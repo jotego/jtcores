@@ -188,7 +188,7 @@ initial begin
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
             readcnt=$fread( mem, f );
-            $display("INFO: PROM download: %6X bytes loaded from file (%m)", readcnt, SIMFILE);
+            $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
             $fclose(f);
             if( dumpcnt >= readcnt ) begin
                 $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);
