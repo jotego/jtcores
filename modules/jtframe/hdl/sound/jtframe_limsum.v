@@ -25,7 +25,7 @@
 // peak is set when the output is clipped
 module jtframe_limsum #(parameter
     W = 16,
-    K = 5
+    K = 5   // number of input signals
 )(
     input             rst,
     input             clk,

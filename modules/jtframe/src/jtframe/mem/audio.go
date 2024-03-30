@@ -217,10 +217,12 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
 	rsum := eng2float(cfg.Audio.Rsum)
+	const FRAC_BITS=6
+	const INTEGER=1<<FRAC_BITS
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
 		ch.gain = ch.gain/gmax*rmin/rsum
-		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*32)&0xff)
+		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*INTEGER)&0xff)
 	}
 	const MaxCh=6
 	if len(cfg.Audio.Channels)>MaxCh {

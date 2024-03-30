@@ -35,14 +35,14 @@ module jtframe_sndchain #(parameter
     input                       clk,
     input                       cen,     // sample frequency
     input            [WC*2-1:0] poles,   // 8-bit coefficients for two poles
-    input                 [7:0] gain,    // 4.4 fixed point format
+    input                 [7:0] gain,    // n.m fixed point format (see WD below)
     input      signed [ WS-1:0] sin,     // for stereo input: { left, right }
     output reg signed [WOS-1:0] sout,    // for stereo output: { left, right }
     output reg                  peak     // overflow (signal clipped)
 );
 
 localparam WM  = WOS+9,
-           WD  = 5;    // decimal part
+           WD  = 6;    // decimal part
 
 reg  signed [WOS-1:0] scld;
 wire signed [WOS-1:0] dc, p1, p2;
