@@ -65,8 +65,8 @@ localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
 localparam [15:0] HSCR0= 16'h71,
-                  HSCR1= HSCR0+16'h1,
-                  HSCR2= HSCR0+16'h2,
+                  HSCR1= HSCR0+16'h2,
+                  HSCR2= HSCR0+16'h3,
                   HSCR3= HSCR0+16'h4,
                   VSCR =-16'd26;
 

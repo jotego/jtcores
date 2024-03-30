@@ -53,15 +53,21 @@ wire [12:0] scr_rgb, obj_rgb;
 reg         mmr_cs, r_cs, g_cs, b_cs,
             vwin, // in vertical   window
             hwin; // in horizontal window
-wire        blank, lyr_sel;
+wire        blank, lyr_sel, sh_en, obj_win, obj_shd, obj_opq;
 wire [15:0] hirq, virq;
 wire [ 8:0] left, right, top, bottom, hadj;
 
-assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
-assign scr_rgb  = { 2'b01, scr_pxl };
+// Could the shadow be modulated by obj_pxl[3:0] too?
+// Pac-Mania sets it to different values...
+assign scr_rgb  = { sh_en ? 2'b10 : 2'b01, scr_pxl }; // palette bank depends on the shadows
 assign obj_rgb  = { 2'b00, obj_pxl };
-assign lyr_sel  = (obj_prio>=scr_prio && obj_pxl[3:0]!='hf) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
+assign obj_win  = obj_prio>=scr_prio && obj_opq;
+assign obj_shd  = &obj_pxl[10:4];
+assign obj_opq  = ~&obj_pxl[3:0];
+assign lyr_sel  = (obj_win && !obj_shd) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
+assign sh_en    =  obj_win &&  obj_shd;
 assign rgb_addr = lyr_sel ? obj_rgb : scr_rgb;
+assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 
 assign rpal_we = ~cpu_rnw & r_cs;
 assign gpal_we = ~cpu_rnw & g_cs;
