@@ -186,7 +186,7 @@ jtshouse_obj #(.VB_START(VB_START),.VB_END(VB_END)) u_obj(
     .hs         ( hs        ),
     .lvbl       ( lvbl      ),
     .flip       ( flip      ),
-    .vrender    ( vrender1  ),
+    .vrender    ( vdump     ),
     .hdump      ( hdump     ),
 
     // Video RAM

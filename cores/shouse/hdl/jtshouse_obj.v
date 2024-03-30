@@ -127,7 +127,7 @@ assign rom_addr  = { pre_addr[17-:11],
             dr_hsize[0] ? dr_hmsb[0] : pre_addr[6] /* H8 */ };
 
 always @(posedge clk) begin
-    xoffset  <= pre_xos-9'd2; //+{debug_bus[7],debug_bus};
+    xoffset  <= pre_xos-9'd3; //+{debug_bus[7],debug_bus};
 end
 // LUT scan
 always @(posedge clk, posedge rst) begin
@@ -206,7 +206,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
-        if( hs && !hs_l && (vrender>9'h11E || vrender<9'hfc) ) begin
+        if( hs && !hs_l && vrender>9'h11E ) begin
             scan_bsy <= 1;
             scan_sub <= 3;
             scan_obj <= 0;
