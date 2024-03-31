@@ -78,7 +78,8 @@ set_output_delay -clock  SDRAM2_CLK -min -0.8 \
 # Set Multicycle Path
 #**************************************************************
 
-set_multicycle_path -hold -end -from  [get_clocks {SDRAM2_CLK}]  -to  [get_clocks {u_clocks2|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
+set_multicycle_path -setup -end -from  [get_clocks {SDRAM2_CLK}]  -to  [get_clocks {u_clocks2|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
+set_multicycle_path -setup -end -from  [get_clocks {SDRAM2_CLK}]  -to  [get_clocks {u_clocks2|u_pll_game|altpll_component|auto_generated|pll1|clk[0]}] 2
 
 #**************************************************************
 # Set Maximum Delay

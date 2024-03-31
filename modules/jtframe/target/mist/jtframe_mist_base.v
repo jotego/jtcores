@@ -60,7 +60,6 @@ module jtframe_mist_base #(parameter
     output    [7:0] HDMI_B,
     output          HDMI_HS,
     output          HDMI_VS,
-    output          HDMI_PCLK,
     output          HDMI_DE,
     inout           HDMI_SDA,
     inout           HDMI_SCL,
@@ -610,10 +609,7 @@ osd #(0,0,6'b01_11_01,8) hdmi_osd (
    .osd_shown  (              )
 );
 
-assign HDMI_PCLK = scan2x_clk;
-
 end else begin
-  assign HDMI_PCLK = 1'b0;
   assign HDMI_SCL  = 1'bZ;
   assign HDMI_SDA  = 1'bZ;
   assign HDMI_R    = 8'd0;

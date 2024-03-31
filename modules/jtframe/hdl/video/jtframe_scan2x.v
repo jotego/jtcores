@@ -39,6 +39,7 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     input       pxl2_cen,
     input       [COLORW*3-1:0]    base_pxl,
     input       HS,
+    input       VS,
     input       HB,
     input       VB,
     input [1:0] sl_mode,  // scanline modes
@@ -46,6 +47,7 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
 
     output  reg [COLORW*3-1:0]    x2_pxl,
     output  reg x2_HS,
+    output  reg x2_VS,
     output      x2_DE
 );
 
@@ -53,10 +55,10 @@ localparam AW=HLEN<=512 ? 9:10;
 localparam DW=COLORW*3;
 
 reg  [DW-1:0] preout;
-reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth, hb_rise, hb_fall, vb_rise, vb_fall;
+reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth, hb_rise, hb_fall, vb_rise, vb_fall, vs_rise, vs_fall;
 reg           scanline;
-reg           last_HS, last_HB, last_VB;
-reg           vb_rising, vb_falling;
+reg           last_HS, last_VS, last_HB, last_VB;
+reg           vb_rising, vb_falling, vs_rising, vs_falling;
 reg           line;
 reg           x2_HB, x2_VB;
 
@@ -71,6 +73,8 @@ wire          HB_posedge     =  HB && !last_HB;
 wire          HB_negedge     = !HB &&  last_HB;
 wire          VB_posedge     =  VB && !last_VB;
 wire          VB_negedge     = !VB &&  last_VB;
+wire          VS_posedge     =  VS && !last_VS;
+wire          VS_negedge     = !VS &&  last_VS;
 
 function [COLORW-1:0] ave(
         input [COLORW-1:0] a,
@@ -168,6 +172,7 @@ end
 always @(posedge clk) if(pxl2_cen) begin
     last_HB <= HB;
     last_VB <= VB;
+    last_VS <= VS;
     if (HB_posedge) hb_rise <= wraddr;
     if (HB_negedge) hb_fall <= wraddr;
     if (VB_posedge) begin
@@ -180,10 +185,22 @@ always @(posedge clk) if(pxl2_cen) begin
         vb_falling <= 1;
         vb_rising <= 0;
     end
+    if (VS_posedge) begin
+        vs_rise <= wraddr;
+        vs_rising <= 1;
+        vs_falling <= 0;
+    end
+    if (VS_negedge) begin
+        vs_fall <= wraddr;
+        vs_falling <= 1;
+        vs_rising <= 0;
+    end
     if (rdaddr == hb_rise) x2_HB <= 1;
     if (rdaddr == hb_fall) x2_HB <= 0;
     if (vb_rising && rdaddr == vb_rise) x2_VB <= 1;
     if (vb_falling && rdaddr == vb_fall) x2_VB <= 0;
+    if (vs_rising && rdaddr == vs_rise) x2_VS <= 1;
+    if (vs_falling && rdaddr == vs_fall) x2_VS <= 0;
 end
 
 assign x2_DE = ~(x2_VB | x2_HB);

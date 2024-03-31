@@ -263,7 +263,7 @@ always @( posedge clk, posedge rst ) begin
             end
 
             WRITE: begin
-                SDRAM_A <= fb_addr;
+                SDRAM_A <= fb_addr - 1'd1;
                 { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
                 sdram_cmd <= CMD_WRITE;
                 sdram_oe <= 1;
