@@ -1,10 +1,11 @@
-Parses the core's YAML file to generate RTL files.
+# Parses the core's YAML file to generate RTL files.
+
 The YAML file name must be mem.yaml and be stored in cores/corename/cfg
 The output files are stored in cores/corename/target where target is
 one of the names in the $JTFRAME/target folder (mist, mister, etc.).
 
-mem.yaml syntax
-
+## mem.yaml Syntax
+```
 # Include other .yaml files
 include:
     - game: cop
@@ -73,3 +74,4 @@ bram:
       sim_file: required if load is skipped
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
+```
