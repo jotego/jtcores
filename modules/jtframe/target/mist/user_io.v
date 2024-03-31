@@ -502,15 +502,15 @@ always @(posedge clk_sys) begin : cmd_block
 					else if(abyte_cnt == 2) begin
 						// second byte is x axis
 						if(stick_idx == 0)
-							joystick_analog_0[15:8] <= spi_byte_in;
-						else if(stick_idx == 1)
-							joystick_analog_1[15:8] <= spi_byte_in;
-					end else if(abyte_cnt == 3) begin
-						// third byte is y axis
-						if(stick_idx == 0)
 							joystick_analog_0[7:0] <= spi_byte_in;
 						else if(stick_idx == 1)
 							joystick_analog_1[7:0] <= spi_byte_in;
+					end else if(abyte_cnt == 3) begin
+						// third byte is y axis
+						if(stick_idx == 0)
+							joystick_analog_0[15:8] <= spi_byte_in;
+						else if(stick_idx == 1)
+							joystick_analog_1[15:8] <= spi_byte_in;
 					end else if(abyte_cnt == 4) begin
 						// fourth byte is 2nd x axis
 						if(stick_idx == 0)
