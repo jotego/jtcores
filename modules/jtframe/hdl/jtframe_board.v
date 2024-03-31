@@ -940,9 +940,10 @@ endfunction
     // can only use this
     wire [CLROUTW*3-1:0] rgbx2;
     wire [CLROUTW*3-1:0] game_rgb = { r_ana, g_ana, b_ana };
+    wire scan2x_vsin = bw_en ? vs_ana : vs;
     wire scan2x_hsin = bw_en ? hs_ana : hs;
-    wire scan2x_hbin = bw_en ? ~lvbl_ana : ~pre2x_LHBL;
-    wire scan2x_vbin = bw_en ? ~lhbl_ana : ~pre2x_LVBL;
+    wire scan2x_hbin = bw_en ? ~lhbl_ana : ~pre2x_LHBL;
+    wire scan2x_vbin = bw_en ? ~lvbl_ana : ~pre2x_LVBL;
 
     // Note that VIDEO_WIDTH must include blanking for jtframe_scan2x
     jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
@@ -956,14 +957,16 @@ endfunction
         .pxl2_cen   ( pxl2_cen       ),
         .base_pxl   ( game_rgb       ),
         .HS         ( scan2x_hsin    ),
+        .VS         ( scan2x_vsin    ),
         .HB         ( scan2x_hbin    ),
         .VB         ( scan2x_vbin    ),
         // outputs
         .x2_pxl     ( rgbx2          ),
         .x2_HS      ( scan2x_hs      ),
+        .x2_VS      ( scan2x_vs      ),
         .x2_DE      ( scan2x_de      )
     );
-    assign scan2x_vs    = bw_en ? vs_ana : vs;
+
     assign scan2x_r     = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
     assign scan2x_g     = extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
     assign scan2x_b     = extend8( rgbx2[CLROUTW-1:0] );

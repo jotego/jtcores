@@ -253,7 +253,6 @@ jtframe_mist_base #(
     .HDMI_B         ( HDMI_B        ),
     .HDMI_HS        ( HDMI_HS       ),
     .HDMI_VS        ( HDMI_VS       ),
-    .HDMI_PCLK      ( HDMI_PCLK     ),
     .HDMI_DE        ( HDMI_DE       ),
     .HDMI_SDA       ( HDMI_SDA      ),
     .HDMI_SCL       ( HDMI_SCL      ),
@@ -328,6 +327,8 @@ jtframe_mist_base #(
     .debug_bus      ( debug_bus     ),
     .debug_view     ( mist_view     )
 );
+
+assign HDMI_PCLK = clk_pico;
 
 jtframe_board #(
     .BUTTONS               ( BUTTONS               ),
