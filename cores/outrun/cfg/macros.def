@@ -8,6 +8,8 @@ JTFRAME_ANALOG
 JTFRAME_ANALOG_DUAL
 JTFRAME_STEREO
 
+JTFRAME_DIPBASE=24
+
 # This game is skipped for
 # all platforms except Pocket, MiSTer & family, NeptUNO and SiDi128
 JTFRAME_SKIP
@@ -62,7 +64,7 @@ JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=3
 JTFRAME_CREDITS_HSTART=32
 
-[mister|sockit|de1soc|de10std]
+[mister|sockit|de1soc|de10std|sidi128]
 # Controller options have only been tested on MiSTer
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 #JTFRAME_CHEAT
