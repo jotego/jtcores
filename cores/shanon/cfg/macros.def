@@ -14,3 +14,7 @@ SHANON=1
 
 # This system does not fit in MiST because of the 32kB used for road memory
 # Disabled the OSD logo or the credits won't make it fit
+
+[sidi128]
+-JTFRAME_SDRAM96
+-JTFRAME_LF_SDRAM_BUFFER
