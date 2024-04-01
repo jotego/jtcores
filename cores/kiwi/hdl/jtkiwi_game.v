@@ -179,9 +179,6 @@ jtkiwi_snd u_sound(
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .LVBL       ( LVBL          ),
-    .fm_en      ( enable_fm     ),
-    .psg_en     ( enable_psg    ),
-
     // Game variations
 `ifdef NOKABUKIZ
     .kabuki     ( 1'b0          ),
@@ -237,10 +234,9 @@ jtkiwi_snd u_sound(
     .audiocpu_ok   ( audiocpu_ok   ),
 
     // Sound output
-    .fx_level   ( dip_fxlevel   ),
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm         ( fm            ),
+    .psg        ( psg           ),
+    .pcm        ( pcm           ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_addr    ( st_addr       ),

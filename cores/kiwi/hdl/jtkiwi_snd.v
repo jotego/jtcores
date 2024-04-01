@@ -24,8 +24,6 @@ module jtkiwi_snd(
     input               cen1p5,
 
     input               LVBL,
-    input               fm_en,
-    input               psg_en,
     input               fast_fm,
 
     // MCU
@@ -76,15 +74,14 @@ module jtkiwi_snd(
 
     // DIP switches
     input               dip_pause,
-    input      [ 1:0]   fx_level,
     input               service,
     input               tilt,
     input      [15:0]   dipsw,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    output signed [15:0] fm,
+    output        [ 9:0] psg,
+    output        [ 7:0] pcm,
     // Debug
     input      [ 7:0]    debug_bus,
     input      [ 7:0]    st_addr,
@@ -92,18 +89,16 @@ module jtkiwi_snd(
 );
 `ifndef NOSOUND
 
-wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n,
+wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n, sample,
             fmint_n, int_n, cpu_cen, rfsh_n;
 reg  [ 7:0] din, cab_dout, psg_gain, fm_gain, pcm_gain, p1_din, porta_din;
 wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, porta_dout, portb_dout,
             dial_dout, p1_dout;
 reg  [ 1:0] bank, dial_rst;
 wire [15:0] A;
-wire [ 9:0] psg_snd;
 reg         bank_cs, fm_cs, cab_cs, mcu_cs, dial_cs, kabuki_dipsnd,
             dev_busy, fm_busy, fmcs_l,
             mcu_rstn, comb_rstn=0;
-wire signed [15:0] fm_snd;
 wire        mem_acc, mcu_comb_rst;
 wire  [1:0] mcu_we, mcu_rd;
 
@@ -122,6 +117,7 @@ assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 assign mcu_we   = {2{mcu_cs & ~wr_n}} & { A[0], ~A[0] };
 assign mcu_rd   = {2{mcu_cs & ~rd_n}} & { A[0], ~A[0] };
+assign pcm      = kabuki ? portb_dout : pcm_re;
 
 assign irq_ack = /*!m1_n &&*/ !iorq_n; // The original PCB just uses iorq_n,
     // the orthodox way to do it is to use m1_n too
@@ -135,19 +131,6 @@ end
 
 always @* begin
     dev_busy = mshramen & ram_cs | fm_busy;
-end
-
-always @(posedge clk) begin
-    case( fx_level )
-        2'd0: psg_gain <= 8'h02;
-        2'd1: psg_gain <= 8'h05;
-        2'd2: psg_gain <= 8'h07;
-        2'd3: psg_gain <= 8'h09;
-    endcase
-    if( !psg_en ) psg_gain <= 0;
-    pcm_gain <= kabuki ? 8'h04 : kageki ? 8'h0A : 8'h0;
-    fm_gain  <= kabuki ? 8'h60 : kageki ? 8'h20 : 8'h30;
-    if( !fm_en ) fm_gain <= 0;
 end
 
 always @(posedge clk) begin
@@ -306,14 +289,6 @@ always @(posedge clk, negedge comb_rstn) begin
         end
     end
 end
-
-jtframe_dcrm u_dcrm(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .sample     ( pcm_cen   ),
-    .din        ( kabuki ? portb_dout : pcm_re ),
-    .dout       ( pcm_dcrm  )
-);
 
 `ifdef SIMULATION
     integer line_cnt=1;
@@ -534,8 +509,8 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .addr       ( kabuki ? snd_A[0] : A[0] ),
     .cs_n       ( ~fm_cs & ~snd_fm_cs ),
     .wr_n       ( kabuki ? snd_wr_n : wr_n ),
-    .psg_snd    ( psg_snd    ),
-    .fm_snd     ( fm_snd     ),
+    .psg_snd    ( psg        ),
+    .fm_snd     ( fm         ),
     .snd_sample ( sample     ),
     .irq_n      ( fmint_n    ),
     // IO ports
@@ -552,24 +527,6 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .snd        (            ),
     .debug_view (            )
 );
-
-jtframe_mixer #(.W1(10),.W2(8)) u_mixer(
-    .rst    ( rst          ),
-    .clk    ( clk          ),
-    .cen    ( cen1p5       ),
-    .ch0    ( fm_snd       ),
-    .ch1    ( psg_snd      ),
-    .ch2    ( pcm_dcrm     ),
-    .ch3    ( 16'd0        ),
-    .gain0  ( fm_gain      ), // YM2203
-    .gain1  ( psg_gain     ), // PSG
-    .gain2  ( pcm_gain     ),
-    .gain3  ( 8'd0         ),
-    .mixed  ( snd          ),
-    .peak   ( peak         )
-);
-/* verilator tracing_on */
-
 `else
     initial begin
         rom_addr = 0;
@@ -582,6 +539,5 @@ jtframe_mixer #(.W1(10),.W2(8)) u_mixer(
     assign cpu_rnw  = 1;
     assign snd      = 0;
     assign sample   = 0;
-    assign peak     = 0;
 `endif
 endmodule
