@@ -91,7 +91,7 @@ module jtkiwi_snd(
 
 wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n, sample,
             fmint_n, int_n, cpu_cen, rfsh_n;
-reg  [ 7:0] din, cab_dout, psg_gain, fm_gain, pcm_gain, p1_din, porta_din;
+reg  [ 7:0] din, cab_dout, psg_gain, p1_din, porta_din;
 wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, porta_dout, portb_dout,
             dial_dout, p1_dout;
 reg  [ 1:0] bank, dial_rst;
@@ -237,8 +237,8 @@ always @(posedge clk) begin
         2: case( st_addr[1:0])
             0: st_dout <= { pcm_st, portb_dout[5:0] };
             1: st_dout <= pcm_addr[15:8];
-            2: st_dout <= pcm_gain;
-            3: st_dout <= pcm_re;
+            2: st_dout <= pcm_re;
+            default: st_dout <= 0;
         endcase
         3: case( st_addr[1:0] )
             0: st_dout <= p1_din;
