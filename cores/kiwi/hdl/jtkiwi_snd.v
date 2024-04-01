@@ -525,7 +525,7 @@ reg fm_cen;
 
 always @(negedge clk) fm_cen <= fast_fm ? cen3 : cen1p5;
 
-jt03 u_2203(
+jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~comb_rstn ),
     .clk        ( clk        ),
     .cen        ( fm_cen     ),
