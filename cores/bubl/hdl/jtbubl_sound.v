@@ -175,7 +175,7 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
 //     end
 // end
 
-jt03 u_2203(
+jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~snd_rstn  ),
     .clk        ( clk        ),
     .cen        ( cen3       ),
