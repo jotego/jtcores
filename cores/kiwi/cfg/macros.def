@@ -38,8 +38,12 @@ JTFRAME_ARX=5
 JTFRAME_ARY=4
 CORE_OSD=OD,Button aid,Off,On
 
-[mist|sidi]
+[mist]
 -JTFRAME_CREDITS
 NOCREDITS
 JTFRAME_OSD_NOCREDITS
 NOKABUKIZ
+
+[sidi]
+# does not fit any more
+JTFRAME_SKIP
