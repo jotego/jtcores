@@ -35,6 +35,7 @@ module jtaliens_scroll(
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
     output     [ 7:0] tile_dout,
+    output reg        cpu_rom_dtack,
     output            rst8,     // reset signal at 8th frame
 
     // control
@@ -67,6 +68,8 @@ module jtaliens_scroll(
     input      [ 7:0] lyra_cg,
     input      [ 7:0] lyrb_cg,
 
+    input             lyra_ok,
+
     // Final pixels
     output            lyrf_blnk_n,
     output            lyra_blnk_n,
@@ -94,10 +97,12 @@ wire [ 2:0] hsub_a, hsub_b;
 wire        hflip_en;
 
 assign lyrf_cs = gfx_en[0];
-assign lyra_cs = gfx_en[1];
+assign lyra_cs = (gfx_en[1] & ~rmrd) | (rmrd & gfx_cs);
 assign lyrb_cs = gfx_en[2];
 
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
+
+always @(posedge clk) cpu_rom_dtack <= ~(rmrd & gfx_cs) | lyra_ok;
 
 jt052109 u_tilemap(
     .rst        ( rst       ),
