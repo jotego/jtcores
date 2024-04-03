@@ -78,7 +78,10 @@ wire        flip, buf_sha;
 wire [18:0] pre_addr;
 wire [17:0] romrd_addr;
 wire [11:0] buf_pred, buf_din;
+wire        rom_cs_draw;
+reg  [31:0] rom_data_latch;
 
+assign rom_cs = rom_cs_draw | romrd;
 assign blank_n = pxl[3:0]!=0 && gfx_en[3];
 assign buf_din = { buf_sha, buf_pred[10:4], buf_sha ? 4'h0 : buf_pred[3:0] };
 assign shadow  = pxl[11];
@@ -92,10 +95,10 @@ always @* begin
     if( romrd ) begin
         rom_addr = { code_eff[13], romrd_addr };
         case(cpu_addr[1:0])
-            0: cpu_din = rom_data[  0 +: 8];
-            1: cpu_din = rom_data[  8 +: 8];
-            2: cpu_din = rom_data[ 16 +: 8];
-            3: cpu_din = rom_data[ 24 +: 8];
+            3: cpu_din = rom_data[  0 +: 8];
+            2: cpu_din = rom_data[  8 +: 8];
+            1: cpu_din = rom_data[ 16 +: 8];
+            0: cpu_din = rom_data[ 24 +: 8];
         endcase
     end
 end
@@ -178,7 +181,7 @@ jtframe_objdraw_gate #(
     .pal        ( pal_eff   ),
 
     .rom_addr   ( pre_addr  ),
-    .rom_cs     ( rom_cs    ),
+    .rom_cs     ( rom_cs_draw ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),
 

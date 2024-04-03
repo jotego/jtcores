@@ -50,6 +50,7 @@ module jtaliens_main(
     input               nmi_n,
 
     input      [7:0]    tilesys_dout, objsys_dout,
+    input               tilesys_rom_dtack,
     input      [7:0]    pal_dout,
 
     // To video
@@ -92,7 +93,7 @@ reg         rst_cmb, eff_nmi_n,
             pmc_start, pmc_cs, pmc_bk;
 wire        norA65, norA43, eff_firqn, pmc_out0;
 
-assign dtack     = ~rom_cs | rom_ok;
+assign dtack     = (~rom_cs | rom_ok) & tilesys_rom_dtack;
 assign ram_we    = ram_cs & cpu_we;
 assign pal_we    = pal_cs & cpu_we;
 assign norA65    = ~|A[6:5],

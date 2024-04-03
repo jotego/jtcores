@@ -36,6 +36,7 @@ module jtaliens_video(
     input      [ 7:0] cpu_dout,
     output     [ 7:0] pal_dout,
     output     [ 7:0] tilesys_dout,
+    output            tilesys_rom_dtack,
     output     [ 7:0] objsys_dout,
     input             pal_we,
     input             cpu_we,
@@ -66,6 +67,7 @@ module jtaliens_video(
     output            lyrb_cs,
     output            lyro_cs,
 
+    input             lyra_ok,
     input             lyro_ok,
 
     input      [31:0] lyrf_data,
@@ -194,6 +196,7 @@ jtaliens_scroll u_scroll(
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
     .tile_dout  ( tilesys_dout ),
+    .cpu_rom_dtack ( tilesys_rom_dtack),
 
     // control
     .rmrd       ( rmrd      ),
@@ -228,6 +231,8 @@ jtaliens_scroll u_scroll(
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
+
+    .lyra_ok    ( lyra_ok   ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),

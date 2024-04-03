@@ -62,7 +62,7 @@ module jt051960(    // sprite logic
     // ROM check
 
     output            romrd,
-    output reg [17:0] romrd_addr,
+    output     [17:0] romrd_addr,
 
     // shadow
     input      [11:0] pxl,
@@ -153,9 +153,9 @@ always @* begin
     endcase
 end
 
-always @(posedge clk) begin
-    if( cs && !cpu_addr[10] ) romrd_addr <= { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr[9:2] }; // 2+8+8=18
-end
+reg [9:2] cpu_addr_l;
+always @(posedge clk) if (romrd & cs & cpu_addr[10]) cpu_addr_l <= cpu_addr[9:2];
+assign romrd_addr = { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr_l }; // 2+8+8=18
 
 // DMA logic
 always @(posedge clk, posedge rst) begin
