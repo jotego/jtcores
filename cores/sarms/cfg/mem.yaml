@@ -7,8 +7,12 @@ audio:
   channels:
     - { name: psg0, module: jt03_psg, rsum: 56k }
     - { name: psg1, module: jt03_psg, rsum: 56k }
-    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }], pre: 0.9 }
-    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }], pre: 0.9 }
+    # sch. R9, R10, R4 and R12 are not populated on the original PCB according to Twitter user @system11b 
+    # this makes sense as the filtering is excessive. I am assuming that the 100nF capacitor is not there
+    # either. Otherwise it would result in a Fc = 252 Hz, which can only be wrong.
+    # hence, no filter added to the model
+    - { name: fm0,  module: jt03_fm,  rsum: 56k }
+    - { name: fm1,  module: jt03_fm,  rsum: 56k }
 download:
   post_addr: true
   noswab: true
