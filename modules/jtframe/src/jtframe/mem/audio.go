@@ -59,7 +59,7 @@ func calc_a( rc AudioRC, fs float64 ) (string,int) {
 
 func read_modules() map[string]AudioCh {
 	var modules map[string]AudioCh
-	buf, e := os.ReadFile(filepath.Join(os.Getenv("JTFRAME"),"src","jtframe","mem","audio_mod.yaml"))
+	buf, e := os.ReadFile(filepath.Join(os.Getenv("JTFRAME"),"hdl","sound","audio_mod.yaml"))
 	common.Must(e)
 	common.Must(yaml.Unmarshal(buf,&modules))
 	return modules
