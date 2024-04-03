@@ -7,8 +7,8 @@ audio:
   channels:
     - { name: psg0, module: jt03_psg, rsum: 56k }
     - { name: psg1, module: jt03_psg, rsum: 56k }
-    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }]}
-    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }]}
+    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }], pre: 0.9 }
+    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [{ r: 10000para,  c: 100n }], pre: 0.9 }
 download:
   post_addr: true
   noswab: true
