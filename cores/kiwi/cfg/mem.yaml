@@ -19,8 +19,8 @@ audio:
     # on board FM gain 0.067 / PCM gain 0.039
     # normalized gain FM 1.0 / PCM 0.58
     # filters cut-off freq above 20kHz, so ignored
-    - { name:  fm, module: jt03, rsum: 1 }
-    - { name: psg, module: jt49, rsum: 1, pre: 0.58 }
+    - { name:  fm, module: jt03,     rsum: 1 }
+    - { name: psg, module: jt03_psg, rsum: 1, pre: 0.58 }
     # there is a 2nd order filter on the board but the component values
     # are not right in the schematics (so far). Using the FIR filter for now
     - { name: pcm, dcrm: true,   rsum: 1, vpp: 1.0, data_width: 8, fir: fir_192k_4k.csv }

@@ -1,11 +1,10 @@
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
 audio:
-  rsum: 47k
-  missing_info: true # unknown value for jt49's resistors, assuming same filtering as gng
+  missing_info: true # unknown value for PSG resistors, assuming same filtering as gng
   channels:
-    - { name: psg0, module: jt49, rsum: 68k }
-    - { name: psg1, module: jt49, rsum: 68k }
+    - { name: psg0, module: jt03_psg, rsum: 68k }
+    - { name: psg1, module: jt03_psg, rsum: 68k }
     - { name: fm0,  module: jt03, rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
     - { name: fm1,  module: jt03, rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
 download:

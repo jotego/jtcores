@@ -8,8 +8,8 @@ audio:
   # the main set volume is adjusted in the core
   rsum: 56k
   channels:
-    - { name: psg0, module: jt49, rsum: 56k }
-    - { name: psg1, module: jt49, rsum: 56k }
+    - { name: psg0, module: jt03_psg, rsum: 56k }
+    - { name: psg1, module: jt03_psg, rsum: 56k }
     - { name: fm0,  module: jt03, rsum: 56k, rc: [{ r: rout,  c: 1n }]}
     - { name: fm1,  module: jt03, rsum: 56k, rc: [{ r: rout,  c: 1n }]}
 download:

@@ -10,10 +10,10 @@ audio:
   missing_info: true # all numbers are educated guesses
   channels:
     # from gng
-    - { name: psg0, module: jt49,   rsum: 5.7k }
-    - { name: psg1, module: jt49,   rsum: 5.7k }
-    - { name: fm0,  module: jt03,   rsum: 10k, rc: [{ r: rout,  c: 1n }]}
-    - { name: fm1,  module: jt03,   rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: psg0, module: jt03_psg, rsum: 5.7k }
+    - { name: psg1, module: jt03_psg, rsum: 5.7k }
+    - { name: fm0,  module: jt03,     rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03,     rsum: 10k, rc: [{ r: rout,  c: 1n }]}
     # guess
     - { name: pcm,  module: jt5205, rsum: 10k, rc: [{ r: 10k,   c: 22n }]} # arbitrary value
 sdram:

@@ -18,7 +18,7 @@ audio:
     - { name: opn, module: jt03,   rsum: 56k }
     - { name: opl, module: jtopl2, rsum: 56k }
     # three channels joined after 1kOhm x 3 res, then 470 Ohm to ground
-    - { name: psg, module: jt49,   rsum: 56.5k, att: 0.047ay }
+    - { name: psg, module: jt03_psg,   rsum: 56.5k, att: 0.047ay }
 sdram:
   banks:
     - buses:

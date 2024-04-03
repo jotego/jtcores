@@ -1,11 +1,9 @@
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
 audio:
-  rsum: 4k
-  missing_info: yes # rsum not verified on PCB
   channels:
-    - { name: psg0, module: jt49, rsum: 10k }
-    - { name: psg1, module: jt49, rsum: 10k }
+    - { name: psg0, module: jt03_psg, rsum: 10k }
+    - { name: psg1, module: jt03_psg, rsum: 10k }
     - { name: fm0,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}
     - { name: fm1,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}
 download:
