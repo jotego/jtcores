@@ -3,5 +3,5 @@ audio:
   channels:
     - { name: psg0, module: jt03_psg, rsum: 5.7k }
     - { name: psg1, module: jt03_psg, rsum: 5.7k }
-    - { name: fm0,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}
-    - { name: fm1,  module: jt03, rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm0,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}

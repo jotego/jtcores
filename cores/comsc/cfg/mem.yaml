@@ -3,7 +3,7 @@ game: "contra"
 audio:
   rsum: 2.7k
   channels:
-    - { name: fm,   module: jt03,   rsum: 5.9k, rc: [{ r: 830,  c: 33n }], pre: 0.3  }
+    - { name: fm,   module: jt03_fm,   rsum: 5.9k, rc: [{ r: 830,  c: 33n }], pre: 0.3  }
     - { name: pcm,   module: jt7759, rsum: 10k,  fir: fir_192k_4k.csv, pre: 0.5  } # equivalent pole
     - { name: psga,  data_width: 8, unsigned: true, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1, rc_en: true }  # 1 kOhm load resistor
     - { name: psgb,  data_width: 8, unsigned: true, rsum: 4.4k, rc: [{ r: 762,  c: 22n }], pre: 0.1, rc_en: true }  # 1 kOhm load resistor

@@ -5,8 +5,8 @@ audio:
   channels:
     - { name: psg0, module: jt03_psg, rsum: 68k }
     - { name: psg1, module: jt03_psg, rsum: 68k }
-    - { name: fm0,  module: jt03, rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
-    - { name: fm1,  module: jt03, rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
+    - { name: fm0,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
 download:
   post_addr: true
 sdram:

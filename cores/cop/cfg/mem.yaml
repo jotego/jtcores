@@ -13,7 +13,7 @@ download:
 audio:
   rsum: 10k
   channels:
-    - { name: opn, module: jt03,     rsum: 56k }
+    - { name: opn, module: jt03_fm,  rsum: 56k }
     - { name: opl, module: jtopl2,   rsum: 56k }
     - { name: psg, module: jt03_psg, rsum: 66k, vpp: 0.45 } # adding load resistor (10k) to ground
     # 10 kOHm at the LPF output, another 10k on the summing node
