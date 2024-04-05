@@ -537,7 +537,14 @@ jtframe_rcmix #(
 assign {{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}=0;
 assign snd_vu   = 0;
 assign game_led = 0;
-assign sample   = 0;
+wire ncs;
+jtframe_frac_cen #(.WC({{ .Audio.FracW }})) u_cen192(
+    .clk    ( clk       ),
+    .n      ( {{.Audio.FracN}} ),
+    .m      ( {{.Audio.FracM}} ),
+    .cen    ( {  ncs,sample }  ), // sample is always 192 kHz
+    .cenb   (                  )
+);
 `endif{{ else }}
 assign snd_vu = 0;
 {{ end }}

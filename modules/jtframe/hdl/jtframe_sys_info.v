@@ -21,15 +21,18 @@
 module jtframe_sys_info(
     input               rst_sys,
     input               clk,
-    input               sample,
     input               dip_pause,
     input               dip_flip,
     input               game_led,
     input               LVBL,
     input         [6:0] core_mod,
+    // sound
+    input               sample,
     input         [5:0] snd_en,
     input         [5:0] snd_vu,
-    input         [1:0] dial_x,
+    input signed [15:0] snd_l, snd_r,
+    output              vu_peak,
+
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
     // IOCTL
@@ -37,6 +40,7 @@ module jtframe_sys_info(
     input               ioctl_rom,
     input               ioctl_cart,
     // mouse
+    input         [1:0] dial_x,
     input         [8:0] mouse_dx,
     input         [8:0] mouse_dy,
     input         [7:0] mouse_f,
@@ -60,6 +64,8 @@ reg         sl, LVBLl;
 wire        sample_clr, sample_up;
 // SDRAM stats
 wire [ 7:0] stats;
+// sound
+wire [ 7:0] vu_dB;
 
 assign frame_up   = LVBL & ~LVBLl & dip_pause;
 assign sample_clr = freq_cnt == MFREQ-1;
@@ -81,8 +87,11 @@ always @(posedge clk, posedge rst) begin
                 default: st_dout <= 0;
             endcase
             1: case(st_addr[5:4])
-                0: st_dout <= {2'd0, snd_vu & snd_en };
-                1: st_dout <= {2'd0, snd_en};
+                0: st_dout <= vu_dB;
+                1: case(st_addr[0])
+                    0: st_dout <= {2'd0, snd_vu & snd_en };
+                    1: st_dout <= {2'd0, snd_en};
+                endcase
                 2: st_dout <= srate;
                 3: case(st_addr[3:2])
                     0: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
@@ -95,7 +104,7 @@ always @(posedge clk, posedge rst) begin
                     default: st_dout <= 0;
                 endcase
             endcase
-            2: st_dout <= stats;
+            2: st_dout <= stats; // SDRAM stats
             3: case( st_addr[5:4] )
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
                 1: st_dout <= mouse_dx[8:1];
@@ -139,6 +148,17 @@ jtframe_sdram_stats u_stats(
     .LVBL       ( LVBL          ),
     .st_addr    ( st_addr       ),
     .st_dout    ( stats         )
+);
+
+jtframe_vumeter vumeter(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( sample        ),
+    // input signals
+    .l          ( snd_l         ),
+    .r          ( snd_r         ),
+    .vu         ( vu_dB         ),
+    .peak       ( vu_peak       )
 );
 
 endmodule

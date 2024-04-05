@@ -302,14 +302,17 @@ jtframe_reset u_reset(
     .game_rst_n ( game_rst_n    )
 );
 
+wire       vu_peak;
+wire [1:0] game_led_peak = game_led | { 1'b0, vu_peak };
+
 jtframe_led u_led(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .LVBL       ( LVBL          ),
-    .ioctl_rom  ( dwnld_busy     ),
+    .ioctl_rom  ( dwnld_busy    ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
-    .game_led   ( game_led      ),
+    .game_led   ( game_led_peak ),
     .cheat_led  ( cheat_led     ),
     .led        ( led           )
 );
@@ -386,14 +389,19 @@ jtframe_keyboard u_keyboard(
         jtframe_sys_info u_info(
             .rst_sys    ( game_rst      ),
             .clk        ( clk_sys       ),
-            .sample     ( snd_sample    ),
             .dip_pause  ( dip_pause     ),
             .dip_flip   ( dip_flip      ),
             .game_led   ( game_led[0]   ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
+            // sound
+            .sample     ( snd_sample    ),
             .snd_en     ( snd_en        ),
             .snd_vu     ( snd_vu        ),
+            .snd_l      ( snd_lin       ),
+            .snd_r      ( snd_rin       ),
+            .vu_peak    ( vu_peak       ),
+
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),

@@ -56,8 +56,9 @@ If the core exercises the *sample* signal, JTFRAME can report the current sample
 
 st_addr[5:4] |  Read
 -------------|-----------
-  0          | Sound VU (signals sound activity per channel)
-  1          | Channel enable bits
+  0          | 8-bit VU (average power)
+  1/0        | 1-bit VU (signals sound activity per channel)
+  1/1        | Channel enable bits
   2          | Sample rate in kHz (BCD)
 
 ### SDRAM, IOCTL and DIPSW

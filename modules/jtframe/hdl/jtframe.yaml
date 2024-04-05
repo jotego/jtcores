@@ -68,3 +68,4 @@ jtframe:
       - jtframe_sndchain.v
       - jtframe_pole.v
       - jtframe_dcrm.v
+      - jtframe_vumeter.sv
