@@ -35,7 +35,7 @@ reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
 wire        prc_snd, snd_sel, flip,
             cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
-wire        obus_cs, ram_cs, dma_we, mcu_halt;
+wire        obus_cs, ram_cs, dma_we, mcu_halt, sndfix_n;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -56,6 +56,7 @@ assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
 assign dip_flip = flip;
+assign sndfix_n = dipsw[8];
 
 always @* begin
     case( debug_bus[7:6] )
@@ -204,6 +205,7 @@ jtshouse_sound u_sound(
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),
+    .sndfix_n   ( sndfix_n  ),
 
     .bc30_cs    ( bc30_cs   ),
     .baddr      ( baddr[9:0]),

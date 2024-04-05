@@ -89,6 +89,12 @@ rename=[
     {name="CPU #0&1 Kick Watchdog in IRQ (step2of2)", to="Debug IRQ 2/2"},
 ]
 
+extra=[
+    # Halt the sound CPU while YM2151 is busy. Not present in the original
+    # Fixes issues in some games due to the poorly designed sound driver
+    { name="*Sound fix", options="On,Off", bits="8" }
+]
+
 [ROM]
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra

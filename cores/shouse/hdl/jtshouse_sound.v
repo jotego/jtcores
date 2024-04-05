@@ -25,6 +25,7 @@ module jtshouse_sound(
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
+    input               sndfix_n,
 
     // main/sub bus
     input               bc30_cs,
@@ -58,12 +59,17 @@ wire [ 7:0] fm_dout;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst, bsel;
-wire        AVMA, firq_n;
+wire        AVMA, firq_n, halt_n;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 
 assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
 assign ram_we   = ram_cs & ~rnw;
+// halt_n in the original is always high. This is a hack to
+// prevent bad writes to the YM2151, which occur because the software
+// sound driver is not correctly designed
+// See https://github.com/jotego/jtcores/issues/597
+assign halt_n   = sndfix_n | ~fm_dout[7];
 `ifdef SIMULATION
 wire bad_cs = tri_cs && A[10:0]==0;
 wire reply_cs = tri_cs && A[10:0]=='h2f && ~rnw;
@@ -146,7 +152,6 @@ jtcus30 u_wav(
     .debug_bus(debug_bus)
 );
 
-/* verilator tracing_off  */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock
@@ -169,7 +174,6 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-/* verilator tracing_on */
 mc6809i u_cpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
@@ -184,7 +188,7 @@ mc6809i u_cpu(
     .nIRQ       ( irq_n     ),
     .nFIRQ      ( firq_n    ),
     .nNMI       ( 1'b1      ),
-    .nHALT      ( 1'b1      ),
+    .nHALT      ( halt_n    ),
     // unused
     .BS         (           ),
     .BA         (           ),
