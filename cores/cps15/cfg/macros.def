@@ -12,5 +12,9 @@ JTFRAME_DIPBASE=16
 
 JTFRAME_CREDITS
 
+# FIR filter gain currently broken
+# disabled for now
+NOFIR
+
 [sidi]
 JTFRAME_NOSTA
