@@ -165,7 +165,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 	modules := read_modules()
 	const fs = float64(192000)
 	// assign information derived from the module type
-	rmin := 0.0
+	var rmin,rmax float64
 	for _,ch := range cfg.Audio.Channels {
 		if ch.Rsum=="" {
 			fmt.Printf("rsum missing for audio channel %s\n",ch.Name)
@@ -177,6 +177,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 			os.Exit(1)
 		}
 		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
+		if rsum>0 && rsum > rmax { rmax=rsum }
 	}
 	fill_global_pole( &cfg.Audio, fs )
 	var gmax float64
@@ -217,8 +218,8 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
 	rsum := eng2float(cfg.Audio.Rsum)
-	if rsum==0 { rsum = rmin }
-	const FRAC_BITS=6
+	if rsum==0 { rsum = rmax }
+	const FRAC_BITS=7 // must match jtframe_sndchain.WD
 	const INTEGER=1<<FRAC_BITS
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]

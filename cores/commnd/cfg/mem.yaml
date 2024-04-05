@@ -9,7 +9,6 @@ clocks:
         - cen3
         - cen1p5
 audio:
-  rsum: 27k
   channels:
     - { name: psg0, module: jt03_psg, rsum: 56k }
     - { name: psg1, module: jt03_psg, rsum: 56k }
