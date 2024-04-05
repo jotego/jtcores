@@ -2,13 +2,12 @@ simson: [ mister, pocket ]
 tmnt:   [ mister, pocket ]
 shouse: [ mister, pocket ]
 ngp:    [ mister, pocket ]
-"1943": [ pocket ]
-mx5k: [ pocket ]
-kchamp: [ pocket ]
+mx5k:   [ pocket ]
+kchamp: [ pocket ] # 29th Apr '24
+commnd: [ pocket ] #  5th May '24
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
 # biocom: [ pocket ]
-# commnd: [ pocket ]
 # flane: [ pocket ]
 # kchamp: [ pocket ]
 # ktiger: [ pocket ]
