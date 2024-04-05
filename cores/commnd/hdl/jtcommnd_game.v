@@ -94,6 +94,7 @@ jtcommnd_main u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+    .cen_sel     ( 1'b1         ),  // select 6 MHz see issue #22
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -150,7 +151,6 @@ jtcommnd_main u_main(
     .char_on     (              ),
     .snd2_latch  (              ),
     .scr2_hpos   (              ),
-    .cen_sel     (              ),
     .scr1_on     (              ),
     .scr2_on     (              ),
     .obj_on      (              ),

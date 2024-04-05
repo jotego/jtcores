@@ -116,8 +116,8 @@ assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
 
-assign cpu_cen = GAME!=0 ? cen6 // Commando
-    : (cen_sel ? cen6 // Legendary Wings
+assign cpu_cen = GAME!=0 ? cen6
+    : (cen_sel ? cen6 // Legendary Wings / Commando
         : cen3 ); // Section Z
 assign bus_ack = ~busak_n;
 
