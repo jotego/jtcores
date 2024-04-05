@@ -18,7 +18,6 @@ debug = { machines=[
     "dspirit",
     "faceoff",
     "mmaze",
-    "pacmania",
     "quester",
     "shadowld",
     "wldcourt",
