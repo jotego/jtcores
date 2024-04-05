@@ -60,7 +60,17 @@ always @(posedge clk, posedge rst) begin
         l2r2 <= ml[31-:16]+mr[31-:16];
         acc  <= v ? '1 : nx_acc;
         cnt  <= cnt+1;
-        if(over) vu <= acc[W-1-:8];
+        if(over) casez(acc[W-1-:8])
+            8'b0000_0001: vu <= 8'h01;
+            8'b0000_001?: vu <= 8'h03;
+            8'b0000_01??: vu <= 8'h07;
+            8'b0000_1???: vu <= 8'h0f;
+            8'b0001_????: vu <= 8'h1f;
+            8'b001?_????: vu <= 8'h3f;
+            8'b01??_????: vu <= 8'h7f;
+            8'b1???_????: vu <= 8'hff;
+            default:      vu <= 0;
+        endcase
         // peak
         if( &peak_cnt ) begin
             peak <= 0;
