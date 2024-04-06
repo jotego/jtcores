@@ -77,8 +77,6 @@ reg         [23:0] cpu2dsp;
 reg                dsp_irq; // UR6B in schematics
 reg         [ 1:0] dsp_datasel;
 reg  signed [15:0] reg_left, reg_right, pre_l, pre_r;
-wire signed [15:0] fxd_l, fxd_r;
-wire               resample48;
 
 // DSP16 wires
 wire [15:0] dsp_ab, dsp_pbus_out;
@@ -110,9 +108,9 @@ jtcps15_qsnd_cen u_dspcen(
     // sound resample
     .l_in        ( pre_l       ),
     .r_in        ( pre_r       ),
-    .l_out       ( fxd_l       ),
-    .r_out       ( fxd_r       ),
-    .resample48  ( resample48  )
+    .l_out       ( left        ),
+    .r_out       ( right       ),
+    .resample48  ( sample      )
 );
 
 `else
@@ -312,24 +310,6 @@ always @(posedge clk48, posedge rst) begin
         end
     end
 end
-
-// The uprate filter runs at 48MHz to ease synthesis
-`ifndef NOFIR
-jtframe_uprate2_fir uprate(
-    .rst     ( dsp_rst       ),
-    .clk     ( clk48         ),
-    .sample  ( resample48    ),
-    .upsample( sample        ),
-    .l_in    ( fxd_l         ),
-    .r_in    ( fxd_r         ),
-    .l_out   ( left          ),
-    .r_out   ( right         )
-);
-`else
-assign sample = resample48;
-assign left   = fxd_l;
-assign right  = fxd_r;
-`endif
 
 reg [12:0] vol_lut[0:39];
 reg [ 5:0] vol_st;
