@@ -104,10 +104,7 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 	filename = jtfiles.GetFilename(core, filename, "")
 	buf, err := os.ReadFile(filename)
 	if err != nil {
-		if args.Verbose {
-			log.Printf("jtframe mem: no memory file (%s)", filename)
-		}
-		return false
+		log.Fatal("jtframe mem:", err)
 	}
 	if args.Verbose {
 		fmt.Println("Read ", filename)

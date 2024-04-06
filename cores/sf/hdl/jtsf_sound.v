@@ -38,7 +38,7 @@ module jtsf_sound #(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [12:0] pcm
+    output signed [11:0] pcm0, pcm1
 );
 `ifndef NOSOUND
 wire               cen1p5, adpcm_sample;
@@ -117,7 +117,8 @@ jtsf_adpcm u_adpcmcpu(
     .rom2_data  ( rom2_data     ),
     .rom2_ok    ( rom2_ok       ),
     // Sound output
-    .snd        ( pcm           ),
+    .pcm0       ( pcm0          ),
+    .pcm1       ( pcm1          ),
     .sample     ( adpcm_sample  )
 );
 `else

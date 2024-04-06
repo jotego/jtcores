@@ -294,7 +294,8 @@ jtsf_sound u_sound (
     // sound output
     .fm_l           ( fm_l           ),
     .fm_r           ( fm_r           ),
-    .pcm            ( pcm            )
+    .pcm0           ( pcm0           ),
+    .pcm1           ( pcm1           )
 );
 
 `ifndef NOVIDEO

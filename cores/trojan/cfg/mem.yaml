@@ -6,16 +6,19 @@ params:
 download:
   post_addr: true
 audio:
-  rsum: 10k
-  missing_info: true # all numbers are educated guesses
+  rsum: 2.4k # gain up the volume a bit
   channels:
-    # from gng
-    - { name: psg0, module: jt03_psg, rsum: 5.7k }
-    - { name: psg1, module: jt03_psg, rsum: 5.7k }
+    # fm/psg from gng (see include), missing page 4/9 in schematics
+    - { name: psg0, module: jt03_psg, rsum: 4.9k }
+    - { name: psg1, module: jt03_psg, rsum: 4.9k }
     - { name: fm0,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
     - { name: fm1,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
-    # guess
-    - { name: pcm,  module: jt5205,   rsum: 10k, rc: [{ r: 10k,   c: 22n }]} # arbitrary value
+    # from Trojan schematics, page 5/9
+    # original filter is a 1st order loaded with a 2nd order Sallen-Key
+    # this is equivalent, especially around the cut-off frequency
+    # rsum is not visible in schematics, so the 1.2kOhm is a guess
+    # the pre-gain is accurate though
+    - { name: pcm,  module: jt5205,   rsum: 1.2k, rc: [{r: 7k, c: 22n},{r: 10k, c: 22n}], pre: 0.3 }
 sdram:
   banks:
     - buses:

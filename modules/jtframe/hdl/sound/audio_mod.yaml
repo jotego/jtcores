@@ -1,4 +1,8 @@
 # Default module definitions
+# vpp is the normalized amplitude for a 5V supply
+# i.e. YM3014 outputs from 1/4*VDD to 3/4*VDD, so its vpp is 0.5
+#     MSM5205 outputs goes from 0 to 5V, so its vpp is 1.0
+
 # jt49: 10 kOhm load resistor -> 2.25V -> vpp = 0.45
 # jt49:  1 kOhm load resistor -> 0.92V -> vpp = 0.18
 # using 1 kOhm for vpp, as it is more typical
@@ -17,20 +21,26 @@ jt03_psg: { data_width: 10, unsigned: true, dcrm: true, vpp: 0.72, rout: 253 }
 # jt007232: resistor DAC is external
 jt007232: { data_width: 12, vpp: 1.0       }
 jt7759:   { data_width:  9, vpp: 1.0       }
+
+# OKI compatible
 # jt5205: 4, 6, 8kHz sampling rates
-# vpp: 1 unloaded, LM1558 opamp's Rin=0.3~1M Ohm (1MOhm typ)
-jt5205:   { data_width: 12, vpp: 0.9, rout: 100k }
+# vpp: 1 unloaded (0-5V), LM1558 opamp's Rin=0.3~1M Ohm (1MOhm typ)
+# rout (100k) from data sheet
+jt5205:   { data_width: 12, vpp: 1.0, rout: 100k }
 # jt6295: rout is a guess, should be confirmed
 # vpp: 1.0 according to data sheet
 # internal 12bit DAC, multiplexed for 4 channels, reduces
 # gain by 4, equivalent to the extra 2 bits from jt6295's accumulator
 jt6295:   { data_width: 14, vpp: 1.0, rout: 100k  }
+
 jt89:     { data_width: 11, vpp: 0.66      } # vpp is a guess
 vlm5030:  { data_width: 10, vpp: 0.5, rout: 81.25    }
 HUC6280:  { data_width: 24,           stereo: true   }
 # jt051649, vpp and rout are a guess, it uses an external DAC
 # 051671
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
+
+# FM chips using Yamaha's DACs
 # YM3012's output impedance is a guess
 jt51:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
 jt053260: { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
@@ -39,6 +49,7 @@ jt03_fm:  { data_width: 16, rout: 6.5k, vpp: 0.5 }  # only FM, declare PSG part 
 jtopl:    { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jtopl2:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jt2413:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
+
 # Namco
 # data_width is probably too much, pre tries to compensate that a bit
 # rout is a guess based on Pac-Mania schematics
