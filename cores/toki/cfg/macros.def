@@ -1,0 +1,101 @@
+[all]
+CORENAME=TOKI
+GAMETOP=jttoki_game_sdram
+
+JTFRAME_RELEASE
+JTFRAME_OSD_FLIP=0
+JTFRAME_SDRAM_BANKS
+### Screen parameters
+
+JTFRAME_COLORW=4
+JTFRAME_PXLCLK=6
+JTFRAME_HEIGHT=224
+JTFRAME_WIDTH=256
+
+### Audio section
+
+#JTFRAME_ADPCM
+JTFRAME_OSD_SND_EN
+JTFRAME_OSD_VOL
+
+### PCB Configuration
+
+JTFRAME_BUTTONS=2
+
+### OSD Options
+
+JTFRAME_OSD_NOLOAD
+JTFRAME_OSD_NOLOGO
+
+JTFRAME_CLK96
+JTFRAME_CLK48
+JTFRAME_SDRAM96
+
+JTFRAME_BA1_START =0x280000
+#start offset of 2nd bank buses in bytes 
+
+[mister]
+JTFRAME_CREDITS
+JTFRAME_CREDITS_PAGES=2
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+#* CPU / 68K
+  #width : 16 bits interleave
+  #mra address : 0x00000-0x5FFFF      
+  #size : 0x60000 (393216)
+  #files :  6e.m10 (131072) |
+           #4e.k10 (131072) |----> interleaved
+
+           #5.m12  (65536)  |
+           #3.k12  (65536)  |----> interleaved
+    
+#* AUDIO CPU / Z80
+ # width : 8 bits
+ # mra address :  0x60000-0x80000 
+ # size : 131072
+ # files : 8.m3 (8192)
+         # zero filled (0xe000)
+         # 7.m7 (65536)  
+
+#* GFX 1 (chars)
+ # width : 8 bits
+ # mra address : 0x80000:0xa0000
+ # size : 131072
+ # files : 1.c5 (65536)
+         # 2.c3 (65536)
+  
+#* GFX 2 (sprites/ obj)
+ # width : 8 bits
+ # mra address : 0xa0000:0x1a0000 
+ # size :  1048576
+ # files : toki\_obj2.c22 (524288)
+         # toki\_obj2.c20 (524288)
+
+#* GFX 3 (tiles1)
+ # width : 8 bits
+ # mra address : 0x1a0000:0x220000
+ # size : 524288
+ # files : toki\_bk1.cd8 (524288)
+ 
+#* GFX 4 (tiles2)
+ # width : 8 bits
+ # mra address :  0x220000:0x2a0000
+ # size : 524288
+ # files : toki\_bk2.ef8 (524288)
+
+#* OKI (ADPCM)
+ # witdh : 8 bits
+ # mra address : 0x2a0000:0x2c0000
+ # size : 131072
+ # files : 9.m1 (131072)
+
+#* PROM (video)
+ # width : 8 bits
+ # mra address : 0x2c0000:0x2c0200 
+ # size : 512
+ # files : prom26.b6 (512)
+   #       prom27.j3 (512)
+
+
+

@@ -1,0 +1,48 @@
+params:
+  # gfx bank 1
+  - { name: GFX_1_OFFSET,     value:  "22'h30000" } #divide by 2 for 16 bits ram 
+  - { name: GFX_2_OFFSET,     value:  "22'h40000" }
+  - { name: GFX_3_OFFSET,     value:  "22'hc0000" }
+  - { name: GFX_4_OFFSET,     value:  "22'h100000"}
+  #audio bank 1
+  - { name: BANK_OFFSET,      value: "22'h1000" } # start after 8.m3 (2nd bank start at + BA1_START )
+  - { name: OKI_OFFSET,       value: "22'h9000" } # start at 8.m3 + 7.m7 / 2 
+clocks:
+  clk48:
+    - freq:  1000000
+      outputs:
+        - oki
+sdram:
+  banks:
+    - buses:
+        - name: cpu_rom 
+          addr_width: 19
+          data_width: 16
+        - name: gfx1_rom
+          addr_width: 17
+          data_width: 16
+          offset : GFX_1_OFFSET
+        - name: gfx2_rom
+          addr_width: 20
+          data_width: 16
+          offset : GFX_2_OFFSET
+        - name: gfx3_rom
+          addr_width: 19
+          data_width: 16
+          offset : GFX_3_OFFSET
+        - name: gfx4_rom
+          addr_width: 19
+          data_width: 16
+          offset : GFX_4_OFFSET
+    - buses:
+        - name: z80_rom
+          addr_width: 13 # 8.m3
+          data_width: 8 
+        - name: bank_rom 
+          addr_width: 16 # 7.m7  
+          data_width: 8 
+          offset: BANK_OFFSET 
+        - name: pcm_rom 
+          addr_width: 17 # 9.m1 
+          data_width: 8 
+          offset: OKI_OFFSET 
