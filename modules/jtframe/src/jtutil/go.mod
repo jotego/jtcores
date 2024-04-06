@@ -1,6 +1,8 @@
 module jtutil
 
-go 1.19
+go 1.21
+
+toolchain go1.21.3
 
 require (
 	github.com/PaesslerAG/gval v1.2.2

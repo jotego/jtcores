@@ -519,7 +519,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
-        jtframe mem $PRJ --target=$TARGET || exit $?
+        if [ -e $PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET || exit $?; fi
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
