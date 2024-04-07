@@ -3,7 +3,7 @@ params:
   - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA2_START)>>1" }
   - { name: MAP_OFFSET,  value: "(`MAP_START -`JTFRAME_BA3_START)>>1" }
 audio:
-  rsum: 56k
+  rsum: 200k
   channels:
     - { name: psg0, module: jt03_psg, rsum: 56k }
     - { name: psg1, module: jt03_psg, rsum: 56k }
