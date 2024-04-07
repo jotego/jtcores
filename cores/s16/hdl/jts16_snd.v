@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 16-3-2021 */
 
-`ifndef NOSOUND
-
 module jts16_snd(
     input                rst,
     input                clk,
@@ -50,7 +48,7 @@ module jts16_snd(
     output signed [15:0] fm_l, fm_r,
     output signed [ 7:0] pcm
 );
-
+`ifndef NOSOUND
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs;
 wire        mreq_n, iorq_n, int_n, nmi_n;
@@ -176,6 +174,13 @@ jts16_pcm u_pcm(
     // Sound output
     .snd        ( pcm       )
 );
-
-endmodule
+`else
+assign  ack      = 0;
+assign  rom_addr = 0;
+assign  pcm_addr = 0;
+assign  pcm_cs   = 0;
+assign  fm_l     = 0;
+assign  pcm      = 0;
+initial rom_cs   = 0;
 `endif
+endmodule
