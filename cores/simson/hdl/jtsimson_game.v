@@ -163,10 +163,8 @@ jtsimson_sound u_sound(
     .pcmd_cs    ( pcmd_cs       ),
     .pcmd_ok    ( pcmd_ok       ),
     // Sound output
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
-    .pcm_l      ( pcm_l         ),
-    .pcm_r      ( pcm_r         ),
+    .snd_l      ( snd_l         ),
+    .snd_r      ( snd_r         ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

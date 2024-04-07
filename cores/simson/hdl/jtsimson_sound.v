@@ -56,13 +56,13 @@ module jtsimson_sound(
     output          pcmd_cs,
     input           pcmd_ok,
     // Sound output
-    output signed [15:0] fm_l,  fm_r,
-    output signed [15:0] pcm_l, pcm_r,
+    output signed [15:0] snd_l, snd_r,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
+wire signed [15:0]  fm_l,  fm_r;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
@@ -210,8 +210,10 @@ jt053260 u_pcm(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
-    .snd_l      ( pcm_l     ),
-    .snd_r      ( pcm_r     ),
+    .aux_l      ( fm_l      ),
+    .aux_r      ( fm_r      ),
+    .snd_l      ( snd_l     ),
+    .snd_r      ( snd_r     ),
     .sample     (           )
 );
 `else
