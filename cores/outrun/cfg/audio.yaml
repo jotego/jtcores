@@ -1,5 +1,4 @@
 audio:
-  rsum: 22k
   mute: true
   channels:
     - { name: fm,  module: jt51,   rsum: 100k, rc: [{ r:  1rout, c: 1.5n }] }

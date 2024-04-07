@@ -224,7 +224,12 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
 		ch.gain = ch.gain/gmax*rmin/rsum
-		ch.Gain = fmt.Sprintf("8'h%02X",int(ch.gain*INTEGER)&0xff)
+		intg := int(ch.gain*INTEGER)
+		if (intg&^0xff)!=0 {
+			fmt.Printf("Error: cannot fit audio gain in 8 bits\n")
+			os.Exit(1)
+		}
+		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
 	}
 	const MaxCh=6
 	if len(cfg.Audio.Channels)>MaxCh {
