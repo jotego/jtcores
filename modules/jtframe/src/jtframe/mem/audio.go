@@ -210,7 +210,7 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		ch.gain=rmin/eng2float(ch.Rsum)
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
-		// fmt.Printf("%6s - %f - %s %f -> %f\n",ch.Name,ch.Pre,ch.Rsum,rmin,ch.gain)
+		// fmt.Printf("%6s - pre=%f - rsum=%s rmin=%f -> gain=%f\n",ch.Name,eng2float(ch.Pre),ch.Rsum,rmin,ch.gain)
 		// if (int(gint)>>4) > 15 {
 		// 	fmt.Printf("Gain unbalance among audio channels is too large")
 		// 	os.Exit(1)

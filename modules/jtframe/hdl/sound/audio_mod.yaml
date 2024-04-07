@@ -44,6 +44,7 @@ jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
 # YM3012's output impedance is a guess
 jt51:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
 jt053260: { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
+ym3014:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 # FM chips connected to YM3014 DAC
 jt03_fm:  { data_width: 16, rout: 6.5k, vpp: 0.5 }  # only FM, declare PSG part as jt03_psg
 jtopl:    { data_width: 16, rout: 6.5k, vpp: 0.5 }
