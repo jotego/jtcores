@@ -163,11 +163,11 @@ jt51 u_jt51(
     .irq_n      (           ),
     // Low resolution output (same as real chip)
     .sample     ( sample    ),
-    .left       (           ),
-    .right      (           ),
+    .left       ( fm_l      ),
+    .right      ( fm_r      ),
     // Full resolution output
-    .xleft      ( fm_l      ),
-    .xright     ( fm_r      )
+    .xleft      (           ),
+    .xright     (           )
 );
 /* verilator tracing_off */
 jt053260 u_pcm(
