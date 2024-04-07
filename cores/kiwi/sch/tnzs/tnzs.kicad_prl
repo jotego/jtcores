@@ -72,19 +72,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "tnzs.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2091,
-          "pos_y": 50,
-          "size_x": 972,
-          "size_y": 1052
-        }
-      }
-    ]
+    "files": []
   }
 }

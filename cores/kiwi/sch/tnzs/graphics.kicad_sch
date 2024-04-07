@@ -6,7 +6,7 @@
 
   (title_block
     (title "The NewZealand Story - P0-043A")
-    (date "2022-11-16")
+    (date "2024-04-07")
     (company "Ulf Skutnabba, twitter @skutis77")
   )
 
@@ -9750,7 +9750,7 @@
     )
     (pin "1" (uuid 77ecb771-1633-4e4d-a4c8-5ef622097cff))
     (pin "11" (uuid c10190e3-559a-4be3-8bf3-657c31c66517))
-    (pin "11" (uuid c10190e3-559a-4be3-8bf3-657c31c66517))
+    (pin "11" (uuid c10190e3-559a-4be3-8bf3-657c31c66518))
     (pin "12" (uuid fd9a1974-3a7f-4655-a66e-877bf3c2d140))
     (pin "13" (uuid 57931706-c346-4a7a-a088-d7fce4a080b2))
     (pin "14" (uuid 3ad5ce09-4485-426d-8c30-b2754707e711))
