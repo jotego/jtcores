@@ -30,6 +30,10 @@ JTFRAME_BA1_START =0x280000
 # won't fit
 JTFRAME_SKIP
 
+[pocket]
+# not passing STA :-(
+JTFRAME_SKIP
+
 [mister]
 JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=2
