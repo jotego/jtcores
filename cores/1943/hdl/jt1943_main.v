@@ -87,7 +87,7 @@ module jt1943_main #(
     input              dip_pause,
     output reg         coin_cnt
 );
-
+`ifndef NOMAIN
 localparam CHON_BIT  = GAME==0 ? 7 : 6;
 localparam FLIP_BIT  = GAME==0 ? 6 : 7;
 localparam SRES_BIT  = GAME==0 ? 5 : 4;
@@ -423,5 +423,30 @@ jtframe_z80 u_cpu(
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
-
+`else
+    assign  cpu_dout    = 0;
+    assign  cpu_AB      = 0;
+    assign  ram_dout    = 0;
+    assign  bus_ack     = 0;
+    assign  rd_n        = 1;
+    assign  wr_n        = 1;
+    initial flip        = 0;
+    initial sres_b      = 0;
+    initial snd_latch   = 0;
+    initial char_cs     = 0;
+    initial CHON        = 0;
+    initial crposv      = 0;
+    initial scr1posh    = 0;
+    initial scr2posh    = 0;
+    initial SC1ON       = 0;
+    initial SC2ON       = 0;
+    initial OBJON       = 0;
+    initial blue_cs     = 0;
+    initial redgreen_cs = 0;
+    initial eres_n      = 0;
+    initial OKOUT       = 0;
+    initial rom_cs      = 0;
+    initial rom_addr    = 0;
+    initial coin_cnt    = 0;
+`endif
 endmodule

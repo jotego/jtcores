@@ -22,20 +22,16 @@ module jtsarms_game(
 
 localparam [25:0] MAP_START  = `MAP_START;
 
-wire [8:0] V, H;
-
+wire [ 8:0] V, H;
+wire [13:0] nc;
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout, scr_dout,
             dipsw_a, dipsw_b, dipsw_c;
-wire        char_cs, blue_cs, redgreen_cs;
-wire        eres_n, wrerr_n;
-wire        flip;
-wire        star_hscan, star_vscan;
-wire        rd, cpu_cen;
-wire        char_wait;
-wire        star_fix_n, is_obj;
-
-wire        CHON, SCRON, STARON, OBJON,
+wire        char_cs, blue_cs, redgreen_cs,
+            eres_n, wrerr_n,
+            flip, star_hscan, star_vscan, rd, cpu_cen,
+            char_wait, star_fix_n, is_obj,
+            CHON, SCRON, STARON, OBJON,
             cen16, cen12, cen8, cen6, cen4, cen3;
 
 assign dip_flip           = flip;
@@ -85,9 +81,6 @@ always @* begin
     if(is_obj) post_addr[5:1] = { prog_addr[4:1],prog_addr[5]} ;
 end
 
-
-`ifndef NOMAIN
-wire [13:0] nc;
 jt1943_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -148,17 +141,7 @@ jt1943_main #(.GAME(1)) u_main(
     // unused
     .coin_cnt   (               )
 );
-`else
-assign main_addr   = 18'd0;
-assign char_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign wr_n        = 1'b1;
-assign scr_hpos    = 16'd0;
-assign scr_vpos    = 16'd0;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound #(.LAYOUT(8)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -182,14 +165,6 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .debug_bus      ( 8'd0           ),
     .debug_view     ( debug_view     )
 );
-`else
-    assign snd_addr = 0;
-    assign snd_cs   = 0;
-    assign fm0      = 0;
-    assign fm1      = 0;
-    assign psg0     = 0;
-    assign psg1     = 0;
-`endif
 
 jtsarms_video u_video(
     .rst        ( rst           ),
