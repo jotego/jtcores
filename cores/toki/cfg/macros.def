@@ -26,6 +26,10 @@ JTFRAME_SDRAM96
 JTFRAME_BA1_START =0x280000
 #start offset of 2nd bank buses in bytes 
 
+[mist|sidi]
+# won't fit
+JTFRAME_SKIP
+
 [mister]
 JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=2
