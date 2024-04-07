@@ -24,7 +24,6 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
-      - jtframe_uprate2_fir.yaml
       - jtframe_dcrm.v
       - jtframe_pole.v
   - from: sdram
