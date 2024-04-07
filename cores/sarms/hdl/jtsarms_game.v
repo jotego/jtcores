@@ -20,7 +20,8 @@ module jtsarms_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [25:0] MAP_START  = `MAP_START;
+localparam [25:0] MAP_START  = `MAP_START,
+                  SCR_START  = `SCR_START;
 
 wire [ 8:0] V, H;
 wire [13:0] nc;
@@ -30,7 +31,7 @@ wire [ 7:0] cpu_dout, char_dout, scr_dout,
 wire        char_cs, blue_cs, redgreen_cs,
             eres_n, wrerr_n,
             flip, star_hscan, star_vscan, rd, cpu_cen,
-            char_wait, star_fix_n, is_obj,
+            char_wait, star_fix_n, is_obj, is_scr,
             CHON, SCRON, STARON, OBJON,
             cen16, cen12, cen8, cen6, cen4, cen3;
 
@@ -75,10 +76,12 @@ wire [15:0] scr_hpos, scr_vpos;
 
 assign cpu_cen = cen8;
 assign is_obj  = prog_ba==3 && ioctl_addr<MAP_START;
+assign is_scr  = prog_ba==2 && ioctl_addr>SCR_START;
 
 always @* begin
     post_addr = prog_addr;
     if(is_obj) post_addr[5:1] = { prog_addr[4:1],prog_addr[5]} ;
+    if(is_scr) post_addr[7:1] = { prog_addr[5:1],prog_addr[7:6]} ;
 end
 
 jt1943_main #(.GAME(1)) u_main(
