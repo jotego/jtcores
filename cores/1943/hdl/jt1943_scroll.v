@@ -32,6 +32,7 @@ module jt1943_scroll #( parameter
     // MAP SIZE
     MAPAW           = LAYOUT==9 ? 16 : 14, // address width
     MAPDW           = LAYOUT==9 ? 32 : 16, // data width
+    MAPCACHE        = 1,
     parameter [8:0] HOFFSET   = 9'd5,
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 9'd16 : 9'd8  // vertical offset bit width,
 )(
@@ -106,30 +107,44 @@ wire [MAPDW-1:0] mapper_data;
 
 assign tiler_en = ~cache_busy & SCxON;
 
-jt1943_map_cache #(
-    .MAPAW( MAPAW ),
-    .MAPDW( MAPDW ),
-    .SHW  ( SHW   )
-) u_mapcache(
-    .rst        ( rst       ),
-    .clk        ( clk       ),  // >12 MHz
-    .pxl_cen    ( cen6      ),
-    .mapper_cen ( mapper_cen),
-    .LHBL       ( LHBLd     ),
-    .H          ( H         ),
-    .SH         ( SH        ),
+generate
+    if( MAPCACHE==1 ) begin
+        jt1943_map_cache #(
+            .MAPAW( MAPAW ),
+            .MAPDW( MAPDW ),
+            .SHW  ( SHW   )
+        ) u_mapcache(
+            .rst        ( rst       ),
+            .clk        ( clk       ),  // >12 MHz
+            .pxl_cen    ( cen6      ),
+            .mapper_cen ( mapper_cen),
+            .LHBL       ( LHBLd     ),
+            .H          ( H         ),
+            .SH         ( SH        ),
 
-    .map_h      ( mapper_h  ), // H256-H1
-    .busy       ( cache_busy),
+            .map_h      ( mapper_h  ), // H256-H1
+            .busy       ( cache_busy),
 
-    // Map ROM to SDRAM
-    .map_data   ( map_data  ),
-    .map_ok     ( map_ok    ),
-    .map_cs     ( map_cs    ),
-    .row_start  ( row_start ),
-    // Map ROM from mapper
-    .mapper_data(mapper_data)
-);
+            // Map ROM to SDRAM
+            .map_data   ( map_data  ),
+            .map_ok     ( map_ok    ),
+            .map_cs     ( map_cs    ),
+            .row_start  ( row_start ),
+            // Map ROM from mapper
+            .mapper_data(mapper_data)
+        );
+    end else begin
+        reg [15:0] prefetch;
+        assign mapper_data = prefetch;
+        assign mapper_cen  = cen6;
+        assign cache_busy  = 0;
+        assign map_cs      = 1;
+        assign mapper_h    = H+9'd32;
+        always @(posedge clk) if(SH[4:0]==7) begin
+            prefetch <= map_data;
+        end
+    end
+endgenerate
 
 jt1943_map #(
     .HOFFSET    ( HOFFSET   ),

@@ -197,10 +197,6 @@ always @(posedge clk) if(cen6) begin
                             SV[4:0]^{5{scr_vflip}},
                             HS[4:3]^{2{scr_hflip^flip}},
                             HS[2]^scr_hflip };
-            // scr_addr  <= { attr[0], id, // AS=1+8+2+5+1=17 bits
-            //                 HS[4:3]^{2{scr_hflip^flip}},
-            //                 SV[4:0]^{5{scr_vflip}},
-            //                 HS[2]^scr_hflip };
         end
         9: begin // Street Fighter, 16x16 tiles
             scr_attr0 <= attr[3:0]; // how many bits?

@@ -188,7 +188,8 @@ jt1943_scroll #(
     .AS8MASK    ( 1'b0        ),
     .ROM_AW     ( SCRW        ),
     .PALETTE    ( 0           ),
-    .LAYOUT     ( LAYOUT      )
+    .LAYOUT     ( LAYOUT      ),
+    .MAPCACHE   ( 0           )
 ) u_scroll (
     .rst          ( rst           ),
     .clk          ( clk           ),
