@@ -47,7 +47,7 @@ module jts16_obj(
 
 /* verilator lint_off WIDTH */
 parameter        MODEL=0;  // 0 = S16A, 1 = S16B
-localparam [8:0] PXL_DLY=MODEL ? 9'd19 : 9'd14;
+parameter  [8:0] PXL_DLY=MODEL ? 9'd19 : 9'd14;
 /* verilator lint_on WIDTH */
 
 // Object scan

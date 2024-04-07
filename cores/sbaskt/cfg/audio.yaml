@@ -1,5 +1,5 @@
 audio:
-  rsum: 400
+  rsum: 1k
   missing_info: true # double check VLM5030's output impedance
   channels:
     # vlm's pre is 82/(4.7+VLM5030's Rout), VLM5030's might be 55 kOhm based on rough measurements

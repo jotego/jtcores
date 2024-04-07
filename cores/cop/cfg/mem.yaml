@@ -11,7 +11,7 @@ download:
   post_addr: true
   post_data: true
 audio:
-  rsum: 10k
+  rsum: 20k
   channels:
     - { name: opn, module: jt03_fm,  rsum: 56k }
     - { name: opl, module: jtopl2,   rsum: 56k }
