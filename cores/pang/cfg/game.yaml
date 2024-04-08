@@ -25,6 +25,7 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
+      - jtframe_obj.yaml
   - from: cpu
     get:
       - jtframe_z80.yaml

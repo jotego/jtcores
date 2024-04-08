@@ -1,5 +1,3 @@
-download:
-  post_addr: true
 audio:
   channels:
     # PCM had its own potentiometer, before it the gain is 0.1

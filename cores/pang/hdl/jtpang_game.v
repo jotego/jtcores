@@ -51,7 +51,6 @@ assign debug_view = { 6'd0, ctrl_type };// debug_bus[0] ? mouse_1p[15:8] : mouse
 assign dip_flip   = flip;
 assign pcm_cs     = 1;
 // ROM download
-assign is_obj     = prog_ba==3;
 assign kabuki_we  = ioctl_wr && header && ioctl_addr[3:0]<11;
 
 // The sound uses the 24 MHz clock
@@ -62,13 +61,6 @@ jtframe_frac_cen #( .W( 4), .WC( 4)) u_cen24(
     .cen  ( cen24  ),
     .cenb (        )
 );
-
-always @* begin
-    post_addr = prog_addr;
-    if( is_obj ) begin
-        post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
-    end
-end
 
 always @(posedge clk) begin
     if( kabuki_we && ioctl_addr[3:0]==0 )
