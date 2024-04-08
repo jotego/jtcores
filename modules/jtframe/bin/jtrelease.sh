@@ -104,21 +104,24 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		rm -rf mist sidi pocket mister mra
 	fi
 	# refresh schematics
+	echo "Refreshing schematics"
 	jtframe sch --git &
 	# Regenerate the MRA files to include md5 sums
+	echo "MRA regeneration including md5 sums"
 	cd $DST
 	rm -rf release/mra
 	find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
-	find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// > mister.cores
+	find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
 	jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
 	comm -3 pocket.cores mister.cores > other.cores
 	if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
 		# cat other.cores
 		jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores` --nodbg
 	fi
-	# copy RBF files
+	echo "Copy RBF files to $JTBIN"
 	cd $JTBIN
 	cp -r $DST/release/* .
+	echo "Make Pocket zip files"
 	mkdir -p $JTBIN/pocket/zips
 	for core in `find pocket/raw -name "*.rbf_r"`; do
 		core=`basename $core .rbf_r`
@@ -127,6 +130,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	jtutil md5
 	# note that the beta zip files are generated before the commit
 	# in order to have the MiST and SiDi cores too
+	echo "Create zip files for JTFriday"
 	cpbeta.sh
 	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi; do
@@ -137,10 +141,10 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 			fi
 		done
 	done
-	# delete non-arcade PCB schematics
+	echo "Delete non-arcade PCB schematics"
 	wait
 	rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
-	# new git commit
+	echo "Commit to git"
 	mkdir -p pocket/raw/Assets/jtpatreon/common
 	echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
 	rm -f version.log
