@@ -57,7 +57,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if( prog_addr==0 && prog_we ) enc <= prog_data==8'h69;
+    if( ioctl_addr==0 && prog_we ) enc <= prog_data==8'h69;
 end
 
 // The sound CPU clock speed on the discrete DAC systems is a guess
