@@ -122,6 +122,7 @@ always @(posedge clk, posedge rst) begin
             sub_cnt   <= 0;
             drawn     <= 0;
             scan_done <= 0;
+            scan_cen  <= 0;
         end
         if( scan_cen ) begin
             dr_start <= 0;
