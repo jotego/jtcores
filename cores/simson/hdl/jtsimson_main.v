@@ -54,6 +54,7 @@ module jtsimson_main(
     input               dma_bsy,
 
     input      [7:0]    tilesys_dout, objsys_dout,
+    input               tilesys_rom_dtack,
     input      [7:0]    pal_dout,
 
     // To video
@@ -102,7 +103,7 @@ wire        eep_rdy, eep_do, irq_mx, firqn_ff, irqn_ff, cab_rd;
 reg         eep_di, eep_clk, eep_cs, irqen, firqen, WOC1, WOC0,
             bankr;
 
-assign dtack   = ~rom_cs | rom_ok;
+assign dtack   = (~rom_cs | rom_ok) & tilesys_rom_dtack;
 assign ram_we  = ram_cs & cpu_we;
 assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
@@ -137,7 +138,7 @@ wire bad_cs =
         { 3'd0, snd_irq    } +
         { 3'd0, stsw_cs    } +
         { 3'd0, tilesys_cs } > 1;
-wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs,
+wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, cr_cs,
     objreg_cs, pcu_cs, joystk_cs, tilesys_cs, eeprom_cs, basel_cs, out_cs, snd_cs, snd_irq, stsw_cs };
 `endif
 
@@ -145,6 +146,7 @@ always @(*) begin
     rom_addr[12: 0] = A[12:0];
     eeprom_cs       = 0;
     prog_cs         = 0;
+    cr_cs           = 0;
     // used only by simpsons
     i6n = ~(A[15:10]==7 || (!init && A[15:10]==6'h1f ));
     i7n = ~((A[15:10]==7 && !WOC0) || (
@@ -161,7 +163,6 @@ always @(*) begin
     unpaged  = A[15:13]>=5;
     // used only by vendetta
     hip_cs  = 0;
-    cr_cs   = 0;
     stsw_cs = 0;
     vend_i7n = A[15:10]==6'b010111; // 5C...
     vend_i6n = A[15:14]==1 && ( A[12] || !WOC0 || (!init && A[13]));
@@ -170,6 +171,7 @@ always @(*) begin
     banked_cs  =  init && A[15:13]==3 && !Aupper[4]; // 6000~7FFF
     prog_cs    = (init && A[14:13]==3 &&  Aupper[4]) || A[15];
     ram_cs     = A[15:13]==2 && init;
+    cr_cs      = io_cs && A[3:1] == 4;
     // after second decoder:
     pal_cs     = A[15:12]==0 && WOC0; // COLOCS in sch
     objsys_cs  = A[15:13]==1 && WOC1 && init;
@@ -190,6 +192,7 @@ always @(*) begin
     if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
 
     if( paroda ) begin
+        cr_cs      = 0;
         joystk_cs  = paro_aux && A[6:4]==3'b000;
         io_cs      = paro_aux && A[6:4]==3'b001;
         objreg_cs  = paro_aux && A[6:4]==3'b010;
@@ -221,7 +224,6 @@ always @(*) begin
         objsys_cs  = A[15:12]==4 && WOC0;
         ram_cs     = A[15:13]==1;
         // Decoder U25
-        cr_cs      = io_cs && A[3:1]==4;    // goes to obj
         snd_cs     = io_cs && A[3:1]==3;
         snd_irq    = io_cs && A[3:1]==2;
         // ROM address
@@ -238,7 +240,7 @@ always @* begin
               hip_cs     ? hip_dout     : // vendetta only
               tilesys_cs ? tilesys_dout :
               snd_cs     ? snd2main     :
-              objsys_cs  ? objsys_dout  : 8'h00;
+              (objsys_cs | cr_cs) ? objsys_dout  : 8'h00;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -265,6 +267,8 @@ always @(posedge clk, posedge rst) begin
         if( buserror ) berr_l <= 1;
         if( paroda ) begin
             objcha_n <= 1;
+            //in k053244 actually
+            //if(objreg_cs && cpu_addr[3:0] == 5) objcha_n <= !cpu_dout[4];
             if(basel_cs) {pal_bank,WOC1,WOC0} <= cpu_dout[2:0];
             if(out_cs && cpu_we) begin
                 {bankr, rmrd } <= cpu_dout[4:3]; // coin counters are 1:0 here, unconnected brightness in bits 7:5
@@ -281,7 +285,7 @@ always @(posedge clk, posedge rst) begin
             if( io_cs ) case( A[3:1] )
                 0: { objcha_n, init, rmrd } <= {~cpu_dout[5], cpu_dout[4:3]}; // bit 2 named but unused, bits 1:0 are coin counters
                 1: { irqen, eep_di, eep_clk, eep_cs, mono, WOC1, WOC0 } <= cpu_dout[6:0];
-                // 4: CRCS ?
+                // 4: CRCS
                 // 5: AFR (watchdog)
                 default:;
             endcase
@@ -295,7 +299,7 @@ always @(posedge clk, posedge rst) begin
             if( io_cs ) case( A[3:1] )
                 0: { objcha_n, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
                 1: { eep_di, eep_clk, eep_cs, firqen, WOC1, WOC0 } <= { cpu_dout[7], cpu_dout[4:0] };
-                // 4: CRCS ?
+                // 4: CRCS
                 // 5: AFR (watchdog)
                 default:;
             endcase
