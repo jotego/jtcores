@@ -79,7 +79,6 @@ wire [18:0] pre_addr;
 wire [17:0] romrd_addr;
 wire [11:0] buf_pred, buf_din;
 wire        rom_cs_draw;
-reg  [31:0] rom_data_latch;
 
 assign rom_cs = rom_cs_draw | romrd;
 assign blank_n = pxl[3:0]!=0 && gfx_en[3];
