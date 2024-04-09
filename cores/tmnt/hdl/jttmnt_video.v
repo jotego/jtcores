@@ -41,7 +41,6 @@ module jttmnt_video(
     output     [15:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
-    output reg        odtac,
     output reg        vdtac,
     input             pcu_cs,
     input             pal_cs,
@@ -111,8 +110,8 @@ reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ormrd;
-wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
-reg         pre_odtac, pre_vdtac, sort_en, ioctl_mmr;
+wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we, pre_vdtac;
+reg         sort_en, ioctl_mmr;
 wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
@@ -145,18 +144,7 @@ end
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
 
-always @(posedge clk) begin
-    if( pxl2_cen ) begin
-        if( q ) begin
-            pre_odtac <= 0;
-            pre_vdtac <= 0;
-        end
-        odtac <= pre_odtac;
-        vdtac <= pre_vdtac;
-    end
-    if( !objsys_cs /* || (ormrd && !lyro_ok) */ ) { pre_odtac, odtac } <= 1;
-    if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
-end
+always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 
 function [31:0] sort( input [31:0] x, input sort_en );
     sort= sort_en ? {
@@ -286,7 +274,7 @@ jtaliens_scroll #(
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
     .tile_dout  ( tilesys_dout ),
-
+    .cpu_rom_dtack( pre_vdtac ),
     // control
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
@@ -322,6 +310,8 @@ jtaliens_scroll #(
     .lyrf_data  ( sort(lyrf_data, sort_en) ),
     .lyra_data  ( sort(lyra_data, sort_en) ),
     .lyrb_data  ( sort(lyrb_data, sort_en) ),
+
+    .lyra_ok    ( lyra_ok ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
