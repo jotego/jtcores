@@ -29,6 +29,7 @@ wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
+wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [14:0] video_dumpa;
 reg  [ 7:0] debug_mux;
@@ -91,6 +92,7 @@ jtsimson_main u_main(
     .dma_bsy        ( dma_bsy       ),
 
     .tilesys_dout   ( tilesys_dout  ),
+    .tilesys_rom_dtack ( tilesys_rom_dtack ),
     .objsys_dout    ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
     // To video
@@ -195,6 +197,7 @@ jtsimson_video u_video (
 
     .pal_dout       ( pal_dout      ),
     .tilesys_dout   ( tilesys_dout  ),
+    .tilesys_rom_dtack ( tilesys_rom_dtack ),
     .objsys_dout    ( objsys_dout   ),
 
     .pal_bank       ( pal_bank      ),
@@ -223,6 +226,7 @@ jtsimson_video u_video (
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
+    .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
     // pixels
     .red            ( red           ),
