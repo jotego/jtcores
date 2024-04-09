@@ -24,7 +24,7 @@ module jttmnt_game(
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
-wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
+wire        cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout,
             st_main, st_video, st_snd;
@@ -60,7 +60,6 @@ jttmnt_main u_main(
     .game_id        ( game_id       ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
-    .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      ( tile_nmin     ),
@@ -138,7 +137,6 @@ jttmnt_video u_video (
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( ram_din       ),
-    .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
