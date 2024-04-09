@@ -364,15 +364,11 @@ assign  pcmc_cs    = 0;
 assign  pcmd_addr  = 0;
 assign  pcmd_cs    = 0;
 assign  rom_addr   = 0;
-assign  sample     = 0;
 assign  st_dout    = 0;
 assign  title_cs   = 0;
 assign  upd_addr   = 0;
 assign  upd_cs     = 0;
-initial peak       = 0;
 initial rom_cs     = 0;
-initial snd_left   = 0;
-initial snd_right  = 0;
 initial title_addr = 0;
 `endif
 endmodule

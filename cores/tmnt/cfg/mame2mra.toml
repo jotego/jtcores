@@ -51,7 +51,6 @@ regions = [
 
     { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
     { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
-    { machine="punkshot", name="k051960",   start="JTFRAME_BA3_START", width=32 }, # sprites
     { name="proms",     start="JTFRAME_PROM_START" }, # last one is the priority encoder
     { machine="mia", name="proms", start="JTFRAME_PROM_START", sequence=[0,0] }, # repeat it so it falls in the right location
 ]
