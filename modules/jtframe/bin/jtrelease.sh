@@ -101,7 +101,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 		git checkout master
 		git branch -D $BRANCH 2> /dev/null || true
 		git checkout -b $BRANCH
-		rm -rf mist sidi pocket mister mra
+		rm -rf mist sidi* pocket mister mra
 	fi
 	# refresh schematics
 	echo "Refreshing schematics"
@@ -111,7 +111,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	cd $DST
 	rm -rf release/mra
 	find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
-	find release/{mister,sidi,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
+	find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
 	jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
 	comm -3 pocket.cores mister.cores > other.cores
 	if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
@@ -133,7 +133,7 @@ if [[ -n "$JTBIN" && -d "$JTBIN" && "$JTBIN" != "$DST/release" ]]; then
 	echo "Create zip files for JTFriday"
 	cpbeta.sh
 	echo "Removing games in beta phase for SiDi and MiST"
-	for t in mist sidi; do
+	for t in mist sidi sidi128; do
 		for i in $JTBIN/$t/*.rbf; do
 			corename=`basename $i .rbf`
 			if jtframe cfgstr ${corename#jt} -o bash -t mister | grep JTFRAME_UNLOCKKEY > /dev/null; then

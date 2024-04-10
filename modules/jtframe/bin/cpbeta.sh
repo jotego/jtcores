@@ -44,7 +44,7 @@ cp $JTBIN/mister/*rbf "$DEST"/_Arcade/cores
 
 # MiST, SiDi
 cp -r $JTBIN/mra/* "$DEST"/_Arcade
-cp -r $JTBIN/{mist,sidi,mra} "$DEST"
+cp -r $JTBIN/{mist,sidi,sidi128,mra} "$DEST"
 
 # Pocket
 mkdir -p $DEST/pocket/Assets/jtpatreon/common
@@ -68,7 +68,7 @@ function betazip {
 
 betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games &
 betazip jtfriday_${SHORTSTAMP}_pocket.zip mra pocket &
-betazip jtfriday_${SHORTSTAMP}_other.zip  mra mist sidi &
+betazip jtfriday_${SHORTSTAMP}_other.zip  mra mist sidi* &
 
 wait
 cp *.zip $JTROOT
