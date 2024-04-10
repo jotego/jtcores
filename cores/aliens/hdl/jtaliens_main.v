@@ -282,7 +282,10 @@ always @(posedge clk, posedge rst) begin
                         endcase
                     end
                     5: port_in <= A[0] ? dipsw[15:8] : dipsw[7:0];
-                    6: { pmc_start, pmc_bk, rmrd } <= cpu_dout[2:0];
+                    6: begin
+                        { pmc_start, pmc_bk, rmrd } <= cpu_dout[2:0];
+                        port_in <= cpu_dout; // required by Thunder Cross ROM test
+                    end
                     default:;
                 endcase
             end
