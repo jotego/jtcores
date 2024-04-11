@@ -110,6 +110,10 @@ set_clock_groups -asynchronous -group [get_clocks {QSCK}] -group [get_clocks {*|
 #**************************************************************
 
 set_false_path -to [get_ports {SPDIF}]
+set_false_path -to [get_ports {HDMI_BCK HDMI_LRCK HDMI_SDATA}]
+set_false_path -to [get_ports {I2S_BCK I2S_LRCK I2S_DATA}]
+set_false_path -to [get_ports {HDMI_SCL HDMI_SDA}]
+set_false_path -from [get_ports HDMI_SDA]
 
 #**************************************************************
 # Set Multicycle Path
