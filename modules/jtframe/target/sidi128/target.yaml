@@ -6,6 +6,7 @@ target:
     get:
       - sidi128.sdc
       - pllgame/jtframe_pllgame.qip
+      - pllgame96/jtframe_pllgame96.qip
 jtframe:
   - from: video
     get:
