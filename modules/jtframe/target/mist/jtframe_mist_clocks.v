@@ -83,11 +83,18 @@ assign pll_locked = pll0_lock & pll1_lock & pll2_lock;
 // clk96, clk24 inputs to the core can be enabled via macros
 `JTFRAME_GAMEPLL u_pll_game (
     .inclk0 ( pll_base    ),
+`ifdef SIDI128
     .c0     ( clk96       ),
     .c1     ( clk48       ), // 48 MHz
     .c2     ( SDRAM_CLK   ), // 96 or 48 MHz shifted
     .c3     ( clk24       ),
     .c4     (             ),
+`else
+    .c0     ( SDRAM_CLK   ), // 96 or 48 MHz shifted
+    .c1     ( clk48       ), // 48 MHz
+    .c2     ( clk96       ),
+    .c3     ( clk24       ),
+`endif
     .locked ( pll1_lock   )
 );
 

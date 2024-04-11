@@ -17,12 +17,15 @@ set_time_format -unit ns -decimal_places 3
 # Create Generated Clock
 #**************************************************************
 
+create_generated_clock -name SDRAM_CLK -source \
+    [get_pins {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[0]}] \
+    -divide_by 1 \
+    [get_ports SDRAM_CLK]
+
 create_generated_clock -name SDRAM2_CLK -source \
-    [get_pins {u_clocks2|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] \
+    [get_pins {u_clocks2|u_pll_game|altpll_component|auto_generated|pll1|clk[0]}] \
     -divide_by 1 \
     [get_ports SDRAM2_CLK]
-
-
 
 #**************************************************************
 # Set Clock Latency
