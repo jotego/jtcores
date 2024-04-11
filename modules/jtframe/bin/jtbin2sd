@@ -91,7 +91,7 @@ if [ -n "$RUNMRA" ]; then
     jtframe mra $RBF $MAINONLY
 fi
 
-for i in SIDI MIST POCKET; do
+for i in SIDI128 SIDI MIST POCKET; do
     DST=/media/$USER/${i^^}
     if [ ! -d $DST ]; then
         continue
