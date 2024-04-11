@@ -4,7 +4,7 @@
 // MODULE: altpll 
 
 // ============================================================
-// File Name: jtframe_pllgame.v
+// File Name: jtframe_pllgame96.v
 // Megafunction Name(s):
 // 			altpll
 //
@@ -32,7 +32,7 @@
 //refer to the applicable agreement for further details, at
 //https://fpgasoftware.intel.com/eula.
 
-module jtframe_pllgame (
+module jtframe_pllgame96 (
 	inclk0,
 	c0,
 	c1,
@@ -76,7 +76,7 @@ endmodule
 // Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE3 STRING "50.00000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "48.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "96.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "48.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "96.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "24.000000"
@@ -113,7 +113,7 @@ endmodule
 // Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "2"
 // Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "1"
 // Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "0"
-// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "48.00000000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "96.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "48.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "100.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "100.00000000"
@@ -146,7 +146,7 @@ endmodule
 // Retrieval info: PRIVATE: PLL_PFDENA_CHECK STRING "0"
 // Retrieval info: PRIVATE: PLL_TARGET_HARCOPY_CHECK NUMERIC "0"
 // Retrieval info: PRIVATE: PRIMARY_CLK_COMBO STRING "inclk0"
-// Retrieval info: PRIVATE: RECONFIG_FILE STRING "jtframe_pllgame.mif"
+// Retrieval info: PRIVATE: RECONFIG_FILE STRING "jtframe_pllgame96.mif"
 // Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: SCAN_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: SELF_RESET_LOCK_LOSS STRING "0"
@@ -178,7 +178,7 @@ endmodule
 // Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
 // Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "1"
+// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "2"
 // Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 // Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
@@ -254,12 +254,12 @@ endmodule
 // Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
 // Retrieval info: CONNECT: c3 0 0 0 0 @clk 0 0 1 3
 // Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame.ppf TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame.inc FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame.cmp FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96.ppf TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96.inc FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96.cmp FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96.bsf FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtframe_pllgame96_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON

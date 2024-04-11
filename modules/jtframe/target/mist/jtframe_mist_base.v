@@ -211,16 +211,32 @@ assign snd_pwm_right = 0;
 `ifndef SIMULATION
     `ifndef NOSOUND
 
-wire [31:0] clk_rate;
+reg [31:0] clk_rate;
+always @(*) begin
+`ifdef JTFRAME_PLL6144
+    clk_rate = 32'd6144000;
+`else
+`ifdef JTFRAME_PLL6293
+    clk_rate = 32'd6289772;
+`else
+`ifdef JTFRAME_PLL6671
+    clk_rate = 32'd6671000;
+`else
+    clk_rate = 32'd6000000;
+`endif
+`endif
+`endif
+
 `ifdef JTFRAME_CLK96
-assign clk_rate = 32'd96_000_000;
+    clk_rate = clk_rate * 8 * 2;
 `else
 `ifdef JTFRAME_SDRAM96
-assign clk_rate = 32'd96_000_000;
+    clk_rate = clk_rate * 8 * 2;
 `else
-assign clk_rate = 32'd48_000_000;
+    clk_rate = clk_rate * 8;
 `endif
 `endif
+end
 
 wire [19:0] snd_padded_left = snd_padded(snd_left);
 wire [19:0] snd_padded_right = snd_padded(snd_right);
