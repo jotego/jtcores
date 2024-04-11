@@ -1,6 +1,11 @@
-here:
-  - ../mist/target.yaml
-  - sidi128.sdc
+target:
+  - from: mist
+    get:
+      - target.yaml
+  - from: sidi128
+    get:
+      - sidi128.sdc
+      - pllgame/jtframe_pllgame.qip
 jtframe:
   - from: video
     get:

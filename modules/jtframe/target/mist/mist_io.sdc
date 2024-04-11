@@ -18,18 +18,7 @@ set_time_format -unit ns -decimal_places 3
 create_clock -name {CLOCK_27[0]} -period 37.037 -waveform { 0.000 18.518 } [get_ports {CLOCK_27[0]}]
 create_clock -name {SPI_SCK}  -period 41.666 -waveform { 20.8 41.666 } [get_ports {SPI_SCK}]
 
-
-#**************************************************************
-# Create Generated Clock
-#**************************************************************
-
 derive_pll_clocks -create_base_clocks
-
-create_generated_clock -name SDRAM_CLK -source \
-    [get_pins {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] \
-    -divide_by 1 \
-    [get_ports SDRAM_CLK]
-
 
 
 #**************************************************************
