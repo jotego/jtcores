@@ -144,7 +144,6 @@ func make_rc( ch *AudioCh, fs float64 ) {
 func fill_audio_clock( macros map[string]string, cfg *Audio ) {
 	aux, _ := macros["JTFRAME_MCLK"]
 	fmhz, _ := strconv.Atoi(aux)
-	fmhz *= 1000
 	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }

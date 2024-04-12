@@ -74,7 +74,7 @@ JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for obj
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
-JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in kHz
+JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in Hz
 JTFRAME_MFREQ            |         | Automatically set to the master clock in kHz. Depends on JTFRAME_PLL
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load

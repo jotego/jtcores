@@ -49,7 +49,7 @@ module jtframe_sys_info(
     output reg    [7:0] st_dout
 );
 
-parameter MFREQ = `JTFRAME_MCLK;
+parameter MFREQ = `JTFRAME_MCLK/1000;
 
 reg rst;
 

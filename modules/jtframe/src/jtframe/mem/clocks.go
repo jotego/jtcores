@@ -36,7 +36,6 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 	mode96 := defined("JTFRAME_SDRAM96") || defined("JTFRAME_CLK96")
 	aux, _ := macros["JTFRAME_MCLK"]
 	fmhz, _ := strconv.Atoi(aux)
-	fmhz *= 1000
 
 	for key, list := range cfg.Clocks {
 		for k, v := range list {

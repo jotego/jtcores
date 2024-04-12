@@ -313,17 +313,26 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
 	// name as a macro on its own too
-	mclk := 48000
-	if pll, e := macros["JTFRAME_PLL"]; e {
-		macros[strings.ToUpper(pll)] = ""
-		freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
-		if freq_str == "" {
-			log.Fatal("JTFRAME: macro JTFRAME_PLL=", pll, " is not well formed. It should contain the pixel clock in kHz")
+	mclk := 48000000
+	if pll, f := macros["JTFRAME_PLL"]; f {
+		var freq int
+		pll=strings.ToUpper(pll)
+		switch(pll) {
+		case "JTFRAME_PLL6144": freq=6144230
+		case "JTFRAME_PLL6293": freq=6289772
+		case "JTFRAME_PLL6671": freq=6673954
+		default: {
+				macros[pll] = ""
+				freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
+				if freq_str == "" {
+					log.Fatal("JTFRAME: macro JTFRAME_PLL=", pll, " is not well formed. It should contain the pixel clock in kHz")
+				}
+				freq, _ = strconv.Atoi(freq_str)
+			}
 		}
-		freq, _ := strconv.Atoi(freq_str)
 		mclk = freq*8
 	}
-	if Defined(macros,"JTFRAME_SDRAM96") || Defined(macros,"JTFRAME_CLK96") {
+	if Defined(macros,"JTFRAME_CLK96") {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)

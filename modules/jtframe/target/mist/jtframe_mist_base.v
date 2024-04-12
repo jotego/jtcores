@@ -209,33 +209,17 @@ assign snd_pwm_right = 0;
 `endif
 
 `ifndef SIMULATION
-    `ifndef NOSOUND
+`ifndef NOSOUND
 
-reg [31:0] clk_rate;
-always @(*) begin
-`ifdef JTFRAME_PLL6144
-    clk_rate = 32'd6144000;
-`elsif JTFRAME_PLL6293
-    clk_rate = 32'd6289772;
-`elsif JTFRAME_PLL6671
-    clk_rate = 32'd6671000;
-`else
-    clk_rate = 32'd6000000;
-`endif
-
-    clk_rate = clk_rate * 8;
-`ifdef JTFRAME_CLK96
-    clk_rate = clk_rate * 2;
-`endif
-end
+localparam [31:0] CLKRATE = `JTFRAME_MCLK;
 
 wire [19:0] snd_padded_left  = snd_padded(snd_left);
 wire [19:0] snd_padded_right = snd_padded(snd_right);
 
-i2s i2s (
+i2s i2s(
     .reset(1'b0),
     .clk(clk_sys),
-    .clk_rate(clk_rate),
+    .clk_rate(CLKRATE),
 
     .sclk(I2S_BCK),
     .lrclk(I2S_LRCK),
@@ -245,16 +229,16 @@ i2s i2s (
     .right_chan( snd_padded_right[18-:16])
 );
 
-spdif spdif
-(
+spdif spdif(
     .clk_i(clk_sys),
     .rst_i(1'b0),
-    .clk_rate_i(clk_rate),
+    .clk_rate_i(CLKRATE),
     .spdif_o(SPDIF),
     .sample_i({snd_padded_right[19:4], snd_padded_left[19:4]})
 );
-
-    `endif
+`else
+assign I2S_DATA=0, SPDIF=0;
+`endif
 `endif
 
 `ifndef JTFRAME_MIST_DIRECT

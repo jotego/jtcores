@@ -52,7 +52,7 @@ module jtframe_68kdtack_cen
 #(parameter W=5,
             RECOVERY=1,
             WD=6,
-            MFREQ=`JTFRAME_MCLK  // clk input frequency in kHz
+            MFREQ=`JTFRAME_MCLK/1000  // clk input frequency in kHz
 )(
     input         rst,
     input         clk,
