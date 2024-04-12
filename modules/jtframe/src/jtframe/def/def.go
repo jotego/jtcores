@@ -318,9 +318,18 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		var freq int
 		pll=strings.ToUpper(pll)
 		switch(pll) {
-		case "JTFRAME_PLL6144": freq=6144230
-		case "JTFRAME_PLL6293": freq=6289772
-		case "JTFRAME_PLL6671": freq=6673954
+		case "JTFRAME_PLL6144": switch(cfg.Target) {
+			case "MISTER": freq=6143465
+			default:       freq=6144230
+		}
+		case "JTFRAME_PLL6293": switch(cfg.Target) {
+			case "MISTER": freq=6293402 // ideally 6.293700
+			default:       freq=6289772
+		}
+		case "JTFRAME_PLL6671": switch(cfg.Target) {
+			case "MISTER": freq=6670673
+			default:       freq=6673954
+		}
 		default: {
 				macros[pll] = ""
 				freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
