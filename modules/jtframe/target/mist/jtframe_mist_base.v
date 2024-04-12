@@ -226,8 +226,6 @@ always @(*) begin
     clk_rate = clk_rate * 8;
 `ifdef JTFRAME_CLK96
     clk_rate = clk_rate * 2;
-`elsif JTFRAME_SDRAM96
-    clk_rate = clk_rate * 2;
 `endif
 end
 
