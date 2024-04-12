@@ -215,26 +215,19 @@ reg [31:0] clk_rate;
 always @(*) begin
 `ifdef JTFRAME_PLL6144
     clk_rate = 32'd6144000;
-`else
-`ifdef JTFRAME_PLL6293
+`elsif JTFRAME_PLL6293
     clk_rate = 32'd6289772;
-`else
-`ifdef JTFRAME_PLL6671
+`elsif JTFRAME_PLL6671
     clk_rate = 32'd6671000;
 `else
     clk_rate = 32'd6000000;
 `endif
-`endif
-`endif
 
-`ifdef JTFRAME_CLK96
-    clk_rate = clk_rate * 8 * 2;
-`else
-`ifdef JTFRAME_SDRAM96
-    clk_rate = clk_rate * 8 * 2;
-`else
     clk_rate = clk_rate * 8;
-`endif
+`ifdef JTFRAME_CLK96
+    clk_rate = clk_rate * 2;
+`elsif JTFRAME_SDRAM96
+    clk_rate = clk_rate * 2;
 `endif
 end
 

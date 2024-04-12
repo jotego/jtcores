@@ -5,6 +5,7 @@ target:
   - from: sidi128
     get:
       - sidi128.sdc
+      - pll6144/jtframe_pll6144.qip
       - pllgame/jtframe_pllgame.qip
       - pllgame96/jtframe_pllgame96.qip
 jtframe:
