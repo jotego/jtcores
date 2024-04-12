@@ -119,8 +119,6 @@ set_false_path -from [get_ports HDMI_SDA]
 # Set Multicycle Path
 #**************************************************************
 
-set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
-
 set_multicycle_path -hold -end -to [get_clocks {HDMI_CLK}]  -from  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
 set_multicycle_path -hold -end -to [get_clocks {HDMI_CLK}]  -from  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] 2
 
