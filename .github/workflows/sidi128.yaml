@@ -56,7 +56,7 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} sidi128
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3-node20
         with:
           name: release
           path: release
