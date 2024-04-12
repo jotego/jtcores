@@ -61,7 +61,7 @@ jobs:
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3-node20
         with:
           name: release
           path: release
@@ -88,7 +88,7 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3-node20
         with:
           name: release
           path: release
