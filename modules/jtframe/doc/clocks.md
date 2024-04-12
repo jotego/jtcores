@@ -74,12 +74,14 @@ clk_sys is normally 48MHz, even if clk_rom is 96MHz. It can be set to 96MHz with
 
 Games can move these frequencies by replacing the PLL (using the **JTFRAME_PLL** macro) but the changes should be within ±10% of the expected values.
 
-JTFRAME_PLL     |    Base clock    | Pixel clocks  | Used on
-----------------|------------------|---------------|-------------
-jtframe_pll6000 |    48/96         | 8 and 6 MHz   | Most JT cores. Used by default
-jtframe_pll6144 |    49.152        | 6.144         | JTKICKER, JTTWIN16, JTFROUND, JTSHOUSE, JTTWIN16, JTVIGIL
-jtframe_pll6293 |    50.3496       | 6.2937        | JTS16, JTOUTRUN, JTSHANON
-jtframe_pll6671 |    53.372        | 6.671         | JTRASTAN
+JTFRAME_PLL     | PCB crystal |   Base clock    | Pixel clocks  | Used on
+----------------|-------------|-----------------|---------------|-------------
+jtframe_pll6000 |             |   48/96         | 8 and 6 MHz   | Most JT cores. Used by default
+jtframe_pll6144 | 18.43200    |   49.152        | 6.144         | JTKICKER, JTTWIN16, JTFROUND, JTSHOUSE, JTTWIN16, JTVIGIL
+jtframe_pll6293 | 25.1748     |   50.3496       | 6.2937        | JTS16, JTOUTRUN, JTSHANON
+jtframe_pll6671 | 26.68600    |   53.372        | 6.671         | JTRASTAN
+
+These final frequencies have a slight error with respect to the PCB. For 6.144 and 6.2937MHz, it could be solved by adding one more PLL stage for an external clock of 27MHz. For 6.671MHz, there is no fractional solution in two stages for either a 27 or a 50MHz input clock.
 
 For example, to use a 6.144 MHz pixel clock use `JTFRAME_PLL=jtframe_pll6144` in the .def file.
 
