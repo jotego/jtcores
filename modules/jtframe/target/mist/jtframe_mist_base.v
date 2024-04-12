@@ -213,7 +213,7 @@ assign snd_pwm_right = 0;
 
 localparam [31:0] CLKRATE = `JTFRAME_MCLK;
 
-wire [19:0] snd_padded_left  = snd_padded(snd_left);
+wire [19:0] snd_padded_left = snd_padded(snd_left);
 wire [19:0] snd_padded_right = snd_padded(snd_right);
 
 i2s i2s(
@@ -225,8 +225,8 @@ i2s i2s(
     .lrclk(I2S_LRCK),
     .sdata(I2S_DATA),
 
-    .left_chan ( snd_padded_left[ 18-:16]),
-    .right_chan( snd_padded_right[18-:16])
+    .left_chan(snd_padded_left[19:4]),
+    .right_chan(snd_padded_right[19:4])
 );
 
 spdif spdif(
