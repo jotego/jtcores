@@ -81,7 +81,7 @@ localparam IDLE    = 0,
            // AUTOPRECH 1+2(1)
            PRE_ACT = HF ? 3:2,
            ACT     = PRE_ACT+1,
-           PRE_RD  = PRE_ACT + (HF ? 3:2),
+           PRE_RD  = PRE_ACT + (HF ? 2:1),
            READ    = PRE_RD+1,
            DST     = READ + (SHIFTED ? 1 : 2) ,
            DTICKS  = BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
