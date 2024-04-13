@@ -179,7 +179,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_D
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[0]
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_location_assignment PLL_1 -to "jtgng_pll0:u_pll_game|altpll:altpll_component"
+set_location_assignment PLL_1 -to "u_clocks|u_pll_game|altpll_component|auto_generated|pll1"
 set_global_assignment -name CDF_FILE jtag.cdf
 
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
