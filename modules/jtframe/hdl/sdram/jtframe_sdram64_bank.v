@@ -79,7 +79,7 @@ localparam ROW=13,
 // states
 localparam IDLE    = 0,
            // AUTOPRECH 1+2(1)
-           PRE_ACT = HF ? 3:2,
+           PRE_ACT = HF ? 2:1,
            ACT     = PRE_ACT+1,
            PRE_RD  = PRE_ACT + (HF ? 2:1),
            READ    = PRE_RD+1,
