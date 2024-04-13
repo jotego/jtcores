@@ -37,8 +37,13 @@ var updateCmd = &cobra.Command{
 	Short: "Updates compiled files for cores or prepares GitHub action files",
 	Long: `JTUPDATE (c) Jose Tejada 2022-2023
 
-A tool to run parallel compilations of FPGA cores and
-update schematic files.
+Lists the tasks needed to:compilations
+
+- extract MRA files
+- compile FPGA cores
+- generate schematic PDF files
+
+This list is used by the jtupdate script to run the tasks in parallel.
 
 Arguments after -- are sent to jtcore directly.
 
