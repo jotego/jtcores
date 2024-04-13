@@ -15,10 +15,13 @@ jtframe:
       - jtframe_scan2x.v
 target:
   - from: mist
-    unless: SIDI128
+    unless: SIDI128,SIDI,POCKET
     get:
       - pllgame/jtframe_pllgame.qip
       - pllgame96/jtframe_pllgame96.qip
+  - from: mist
+    unless: SIDI128
+    get:
       - sdram_clk.sdc
       # PLLs
       - pll6000/jtframe_pll6000.qip

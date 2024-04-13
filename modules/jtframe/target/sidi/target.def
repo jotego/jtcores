@@ -1,0 +1,2 @@
+# SDRAM clk has a large positive phase shift for 48MHz-based cores
+JTFRAME_SHIFT=1

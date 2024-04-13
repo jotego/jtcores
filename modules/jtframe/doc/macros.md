@@ -110,6 +110,7 @@ JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input
 JTFRAME_SDRAM_BANKS      |         | Game module ports will support interleaved bank access
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
+JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a large positive shift
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!

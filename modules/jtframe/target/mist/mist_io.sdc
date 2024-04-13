@@ -68,7 +68,7 @@ set_false_path -from [get_keepers {jtframe_mist:u_frame|jtframe_board:u_board|jt
 # Set Multicycle Path
 #**************************************************************
 
-# set_multicycle_path -from [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] -to [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] -start 2
+# set_multicycle_path -from [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] -to [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[0]}] -start 2
 
 #**************************************************************
 # Set Maximum Delay
