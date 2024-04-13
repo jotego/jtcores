@@ -121,7 +121,7 @@ module jtframe_pllgame (
 		altpll_component.clk2_divide_by = 1,
 		altpll_component.clk2_duty_cycle = 50,
 		altpll_component.clk2_multiply_by = 1,
-		altpll_component.clk2_phase_shift = "5000",
+		altpll_component.clk2_phase_shift = "0",
 		altpll_component.clk3_divide_by = 2,
 		altpll_component.clk3_duty_cycle = 50,
 		altpll_component.clk3_multiply_by = 1,

@@ -717,14 +717,15 @@ jtframe_sdram64 #(
     .PROG_LEN     ( PROG_LEN      ),
     .MISTER       ( MISTER        ),
 `ifdef JTFRAME_SDRAM96
-    .HF(1),
-    .SHIFTED(0)
+    .HF(1)
 `else
-    .HF(0),
+    .HF(0)
+    `ifdef MISTER
     `ifdef JTFRAME_180SHIFT
-        .SHIFTED(0)
+        ,.SHIFTED(0)
     `else
-        .SHIFTED(1)
+        ,.SHIFTED(1)
+    `endif
     `endif
 `endif
 ) u_sdram(
