@@ -25,7 +25,7 @@ MAXREPS=100
 SEED=0
 
 re='^[0-9]+$'
-if [[ $1 =~ $re ]] ; then
+if [[ $1 =~ $re && $1 != 194? ]] ; then
    MAXREPS=$1
    shift
 else
