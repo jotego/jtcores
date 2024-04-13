@@ -34,7 +34,7 @@ wire ioctl_ram = 0;
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
 wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{if .Rc_en}}
 wire {{if gt .Filters 1}}[{{sub .Filters 1}}:0] {{end}}{{.Name}}_rcen;{{end}}{{- end}}
-wire mute{{ if not .Audio.Mute }}=1'b0{{end}};
+wire mute;
 // Additional ports
 {{range .Ports}}wire {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}};
 {{end}}
@@ -475,7 +475,8 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
 {{- $ch2 := (index .Audio.Channels 2) -}}
 {{- $ch3 := (index .Audio.Channels 3) -}}
 {{- $ch4 := (index .Audio.Channels 4) -}}
-{{- $ch5 := (index .Audio.Channels 5) }}
+{{- $ch5 := (index .Audio.Channels 5) }}{{ if not .Audio.Mute }}
+assign mute=0;{{end}}
 jtframe_rcmix #(
     {{ if $ch0.Name }}.W0({{$ch0.Data_width}}),{{end}}{{ if $ch1.Name }}
     .W1({{$ch1.Data_width}}),{{end}}{{ if $ch2.Name }}
