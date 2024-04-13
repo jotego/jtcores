@@ -1,2 +1,8 @@
-here:
-  - ../mist/target.yaml
+target:
+  - from: sidi
+    get:
+      - pllgame/jtframe_pllgame.qip
+  - from: mist
+    get:
+      - target.yaml
+      - pllgame96/jtframe_pllgame96.qip

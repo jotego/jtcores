@@ -45,7 +45,7 @@ type Config struct {
 	Verbose bool
 }
 
-func parse_def(path string, cfg Config, macros *map[string]string) {
+func parse_def(path string, target string, macros map[string]string) {
 	if path == "" {
 		return
 	}
@@ -76,8 +76,8 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 				section = strings.TrimSpace(s)
 				var m bool
 				var e error
-				if m,e = filepath.Match(section,cfg.Target); m {
-					section = cfg.Target
+				if m,e = filepath.Match(section,target); m {
+					section = target
 					break
 				}
 				if e!=nil {
@@ -87,7 +87,7 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 			}
 			continue
 		}
-		if section == "all" || section == cfg.Target {
+		if section == "all" || section == target {
 			// Look for keywords
 			words := strings.SplitN(line, " ", 2)
 			if words[0] == "include" {
@@ -98,7 +98,7 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 				if slash != -1 && inc[0] != '/' {
 					inc = path[0:slash+1] + inc
 				}
-				parse_def(inc, cfg, macros)
+				parse_def(inc, target, macros)
 				continue
 			}
 			words = strings.SplitN(line, "=", 2)
@@ -106,20 +106,20 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 			if key[0] == '-' {
 				// Removes key
 				key = key[1:]
-				delete(*macros, key)
+				delete(macros, key)
 			} else {
 				if len(words) > 1 {
 					val := strings.TrimSpace(words[1])
 					if len(key) > 2 && key[len(key)-1] == '+' {
 						key = key[0 : len(key)-1]
-						old, e := (*macros)[key]
+						old, e := macros[key]
 						if e {
 							val = old + val
 						}
 					}
-					(*macros)[key] = val
+					macros[key] = val
 				} else {
-					(*macros)[key] = "1"
+					macros[key] = "1"
 				}
 			}
 		}
@@ -200,10 +200,20 @@ func str2macro( a string ) string {
 	return strings.ToUpper(a)
 }
 
+func parse_target( target string, macros map[string]string) {
+	fname := filepath.Join(os.Getenv("JTFRAME"), "target", target, "target.def")
+	f, e := os.Open(fname)
+	f.Close()
+	if e==nil {
+		parse_def(fname, target, macros)
+	}
+}
+
 func Make_macros(cfg Config) (macros map[string]string) {
 	macros = make(map[string]string)
-	parse_def(DefPath(cfg), cfg, &macros)
-	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml") )
+	parse_target(cfg.Target, macros)
+	parse_def(DefPath(cfg), cfg.Target, macros)
+	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml"))
 	f.Close()
 	mem_managed := e == nil // Using RTL generation for the memory
 	switch cfg.Target {
@@ -247,6 +257,8 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_DIPBASE":      "16",
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DIALEMU_LEFT":  "5",
+		"JTFRAME_SHIFT":	     "0",
+		"JTFRAME_180SHIFT":	     "0",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": cfg.Core,
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),

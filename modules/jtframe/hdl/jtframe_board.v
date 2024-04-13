@@ -203,6 +203,7 @@ module jtframe_board #(parameter
 `else
     localparam BA3_AUTOPRECH = 0;
 `endif
+    localparam SDRAM_SHIFT = `JTFRAME_SHIFT ^^ `JTFRAME_180SHIFT;
 
 // sdram bank lengths
 localparam
@@ -717,16 +718,11 @@ jtframe_sdram64 #(
     .PROG_LEN     ( PROG_LEN      ),
     .MISTER       ( MISTER        ),
 `ifdef JTFRAME_SDRAM96
-    .HF(1)
+    .HF(1),
+    .SHIFTED(0)
 `else
-    .HF(0)
-    `ifdef MISTER
-    `ifdef JTFRAME_180SHIFT
-        ,.SHIFTED(0)
-    `else
-        ,.SHIFTED(1)
-    `endif
-    `endif
+    .HF(0),
+    .SHIFTED      ( SDRAM_SHIFT   )
 `endif
 ) u_sdram(
     .rst        ( rst           ),

@@ -177,6 +177,8 @@ SDRAM clock can be shifted with respect to the internal clock (clk_rom in the di
 
 ![SDRAM clock forwarded](sdram_dly.png)
 
+For small shifts, the synthesizer will be able to align the SDRAM data and clock with the internal core clok (clk_rom). But if the shift is large enough, the SDRAM may be operating at a different state and the SDRAM controller has to adjust the state count to reflect that. This is achieved by defining the macro **JTFRAME_SHIFT**. Ideally, the shift needed should be close to zero. But, some platforms synthesize better using SDRAM shifts. This cannot be changed per-core, but per-target. If the target platform shifts the clock, it will define the macro in its _target.def_ file and set the gamepll settings accordingly.
+
 # SDRAM Controller
 
 There are three different SDRAM controllers in JTFRAME. They all work and are stable, however only the latest one is connected to jtframe_board. The others are left for reference.
