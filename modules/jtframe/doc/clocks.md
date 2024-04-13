@@ -59,7 +59,7 @@ For each output listed, the result frequency is divided by 2. Thus cpu4_cen will
 
 You can specify several clock domains, clk24, clk48, etc. If you move _cen_ signals from one domain to another, make sure the right clock is used in the _game_ module too for each respective _cen_.
 
-# Internal JTFRAME clocks
+# Internal JTFRAME Clocks
 
 The clocks passed to the target subsystem (jtframe_mist, jtframe_mister or jtframe_neptuno) are three:
 
@@ -72,7 +72,7 @@ clk_pico  | picoBlaze clock         | 48MHz
 clk_rom is controlled by the macros **JTFRAME_SDRAM96**
 clk_sys is normally 48MHz, even if clk_rom is 96MHz. It can be set to 96MHz with **JTFRAME_CLK96**.
 
-Games can move these frequencies by replacing the PLL (using the **JTFRAME_PLL** macro) but the changes should be within ±10% of the expected values.
+Games can move these frequencies by replacing the PLL (using the **JTFRAME_PLL** macro) but the changes should be within ±10% of the expected values. For example, to use a 6.144 MHz pixel clock use `JTFRAME_PLL=jtframe_pll6144` in the .def file.
 
 JTFRAME_PLL     | PCB crystal |   Base clock    | Pixel clocks  | Used on
 ----------------|-------------|-----------------|---------------|-------------
@@ -83,7 +83,9 @@ jtframe_pll6671 | 26.68600    |   53.372        | 6.671         | JTRASTAN
 
 These final frequencies have a slight error with respect to the PCB. For 6.144 and 6.2937MHz, it could be solved by adding one more PLL stage for an external clock of 27MHz. For 6.671MHz, there is no fractional solution in two stages for either a 27 or a 50MHz input clock.
 
-For example, to use a 6.144 MHz pixel clock use `JTFRAME_PLL=jtframe_pll6144` in the .def file.
+In order to test all clocks and all SDRAM settings quickly, run:
+
+`jtupdate 1942 kicker shanon rastan cps1 -t sidi128 --jobs 2`
 
 The game module input clocks are multiples of the base clock:
 
