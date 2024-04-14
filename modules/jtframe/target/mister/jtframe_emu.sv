@@ -281,38 +281,40 @@ jtframe_rst_sync u_reset24(
 
 assign clk_pico = clk48;
 
-`ifndef JTFRAME_180SHIFT
-    `ifdef JTFRAME_SDRAM96
-    assign SDRAM_CLK   = clk96sh;
-    `else
-    assign SDRAM_CLK   = clk48sh;
-    `endif
-`else
-    altddio_out
-    #(
-        .extend_oe_disable("OFF"),
-        .intended_device_family("Cyclone V"),
-        .invert_output("OFF"),
-        .lpm_hint("UNUSED"),
-        .lpm_type("altddio_out"),
-        .oe_reg("UNREGISTERED"),
-        .power_up_high("OFF"),
-        .width(1)
-    )
-    sdramclk_ddr
-    (
-        .datain_h(1'b0),
-        .datain_l(1'b1),
-        .outclock(clk_rom),
-        .dataout(SDRAM_CLK),
-        .aclr(1'b0),
-        .aset(1'b0),
-        .oe(1'b1),
-        .outclocken(1'b1),
-        .sclr(1'b0),
-        .sset(1'b0)
-    );
-`endif
+generate
+    if( `JTFRAME_180SHIFT == 0 ) begin
+        `ifdef JTFRAME_SDRAM96
+        assign SDRAM_CLK   = clk96sh;
+        `else
+        assign SDRAM_CLK   = clk48sh;
+        `endif
+    end else begin
+        altddio_out
+        #(
+            .extend_oe_disable("OFF"),
+            .intended_device_family("Cyclone V"),
+            .invert_output("OFF"),
+            .lpm_hint("UNUSED"),
+            .lpm_type("altddio_out"),
+            .oe_reg("UNREGISTERED"),
+            .power_up_high("OFF"),
+            .width(1)
+        )
+        sdramclk_ddr
+        (
+            .datain_h(1'b0),
+            .datain_l(1'b1),
+            .outclock(clk_rom),
+            .dataout(SDRAM_CLK),
+            .aclr(1'b0),
+            .aset(1'b0),
+            .oe(1'b1),
+            .outclocken(1'b1),
+            .sclr(1'b0),
+            .sset(1'b0)
+        );
+    end
+endgenerate
 
 ///////////////////////////////////////////////////
 
