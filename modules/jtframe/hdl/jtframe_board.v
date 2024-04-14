@@ -421,6 +421,7 @@ jtframe_keyboard u_keyboard(
         assign gfx_en    = 4'b1111;
         assign snd_en    = 6'h3f;
         assign debug_bus =  0;
+        assign vu_peak   =  0;
         assign dbg_r = pre2x_r;
         assign dbg_g = pre2x_g;
         assign dbg_b = pre2x_b;
