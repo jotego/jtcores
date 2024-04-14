@@ -87,6 +87,7 @@ assign pll_locked = pll0_lock & pll1_lock & pll2_lock;
     .c1     ( clk48       ), // 48 MHz
     .c2     ( clk96       ),
     .c3     ( clk24       ),
+    .c4     (             ),
     .locked ( pll1_lock   )
 );
 
