@@ -530,7 +530,7 @@ assign UART_TX = game_tx,
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
 
 `ifdef JTFRAME_LF_SDRAM_BUFFER
-
+    // implement video buffer in the second SDRAM chip (sidi128)
     wire pll_locked2, clk_rom2;
 
     jtframe_mist_clocks u_clocks2(
@@ -552,7 +552,7 @@ assign UART_TX = game_tx,
         .rst96      ( ),
         .rst48      ( ),
         .rst24      ( )
-);
+    );
 
     jtframe_lfbuf_sdr u_lf_buf(
         .rst        ( rst           ),
@@ -590,7 +590,7 @@ assign UART_TX = game_tx,
         .st_dout    ( st_lpbuf      )
     );
 `else
-    // line-frame buffer.
+    // line-frame buffer
     jtframe_lfbuf_bram u_lf_buf(
         .rst        ( rst           ),
         .clk        ( clk_rom       ),

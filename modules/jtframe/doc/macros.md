@@ -72,6 +72,7 @@ JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  r
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for objects
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
+JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in Hz
