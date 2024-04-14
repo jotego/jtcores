@@ -60,6 +60,8 @@ module jtcps15_sound(
     output               sample
 );
 
+localparam LATCH=`ifdef KABUKI_LATCH 1 `else 0 `endif ;
+
 wire        cpu_cen, cen_extra;
 wire [ 7:0] dec_dout, ram_dout, cpu_dout, bus_din;
 wire [15:0] A, bus_A;
@@ -134,7 +136,7 @@ wire bank_access = rom_cs & A[15];
 
 reg [1:0] ram_ok;
 reg  main_busnl;
-wire bus_equ;
+wire bus_equ, op_ok;
 
 assign bus_equ     = main_busn == main_busnl;
 assign ram_we      = ram_cs && !bus_wrn;
@@ -146,6 +148,7 @@ assign main_busakn = main_busn_dly | main_busn | busrq_n |
     //(rom_cs & ~(rom_ok & rom_okl)) |
     (rom_cs & ~last_romcs);
 assign main_waitn  = rom_cs ? rom_ok & rom_okl : bus_equ & ram_ok[0];
+assign op_ok       = (LATCH==0 || A[15]) ? rom_ok : rom_okl & rom_ok;
 
 always @(posedge clk48) begin
     main_busnl <= main_busn;
@@ -249,7 +252,7 @@ jtframe_ram #(.AW(13)) u_z80ram( // 8 kB!
     .q      ( ram_dout      )
 );
 
-jtframe_kabuki u_kabuki(
+jtframe_kabuki #(LATCH) u_kabuki(
     .clk        ( clk48       ),    // Uses same clock as u_prom_we
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
@@ -284,7 +287,7 @@ jtframe_z80_romwait u_cpu(
     .dout       ( cpu_dout    ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      )
+    .rom_ok     ( op_ok       )
 );
 
 reg last_vol_up, last_vol_down;
