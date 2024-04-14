@@ -23,5 +23,9 @@ JTFRAME_IOCTL_RD=16384
 # This core needs 114 M10K blocks just for the CPU
 JTFRAME_SKIP
 
+[sidi128]
+# struggles with timing in the microcode memory
+JTFRAME_SKIP
+
 [pocket]
 JTFRAME_JOY_B1B0
