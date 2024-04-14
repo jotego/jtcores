@@ -4,7 +4,7 @@ game:
       - jtcommnd_main.v
   - from: exed
     get:
-      - *.v
+      - "*.v"
   - from: gng
     get:
       - jtgng_video.v
