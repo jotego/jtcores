@@ -50,14 +50,13 @@ module jtexed_scr1 #(parameter
     input       [7:0] debug_bus
 );
 
-reg  [11:0] heff, veff, hadv;
+reg  [11:0] heff, veff;
 wire [10:0] hpos_adj = hpos + HOFFSET[10:0];
 wire [ 7:0] VF = V[7:0]^{8{flip}};
 
 always @(*) begin
     heff = hpos_adj + { {2{HF[9]}}, HF };
     if( flip ) heff = heff - 12'd11;
-    hadv = flip ? heff /*- 16'h8*/ : heff + 12'h8;
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, VF };
 end

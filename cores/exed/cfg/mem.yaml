@@ -1,3 +1,10 @@
+audio:
+  rc: { r: 2k, c: 10n }
+  channels:
+    - { name: psg0, module: jt49, rsum: 22k }
+    - { name: psg1, module: jt89, rsum: 10k }
+    - { name: psg2, module: jt89, rsum: 10k }
+
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA2_START)>>1" }
   - { name: MAP2_OFFSET, value: "(`MAP2_START-`JTFRAME_BA2_START)>>1" }

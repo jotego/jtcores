@@ -1,3 +1,8 @@
+audio:
+  rsum: 40k
+  channels:
+    - { name: psg0, module: jt49, rsum: 10k }
+    - { name: psg1, module: jt49, rsum: 10k }
 params:
   - { name: OBJ_OFFSET }
 clocks:

@@ -51,7 +51,7 @@ module jtexed_scr2 #(parameter
 
 reg  [15:0] heff, hadv;
 reg  [ 9:0] Hfix;
-wire [15:0] hpos_adj = hpos + HOFFSET;
+wire [15:0] hpos_adj = hpos + HOFFSET[15:0];
 
 wire hflip = map2_data[6]^flip;
 wire vflip = ~(map2_data[7]^~flip);

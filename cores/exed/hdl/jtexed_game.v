@@ -44,7 +44,6 @@ reg  [11:0] prom;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
-assign sample=1'b1;
 
 always @(*) begin
     prom = 0;
@@ -186,30 +185,22 @@ assign scr1_vpos   = 0;
 assign cpu_cen     = cen3;
 `endif
 
-jt1942_sound #(.EXEDEXES(1)) u_sound (
+jtexed_sound u_sound(
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
     .sres_b         ( 1'b1           ),
-    .game_id        ( 2'd0           ),
     .main_dout      ( cpu_dout       ),
-    .main_latch0_cs ( 1'b0           ),
-    .main_latch1_cs ( 1'b0           ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
     .rom_cs         ( snd_cs         ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_ok         ( snd_ok         ),
-    .snd            ( snd            ),
-    .sample         (                ),
-    .peak           ( game_led       ),
-    // pins used for Higemaru but unused here
-    .main_a0        ( 1'b0           ),
-    .main_ay0_cs    ( 1'b0           ),
-    .main_ay1_cs    ( 1'b0           ),
-    .main_wr_n      ( 1'b1           )
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
+    .psg2           ( psg2           )
 );
 
 jtexed_video u_video(

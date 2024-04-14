@@ -308,7 +308,7 @@ generate
         reg  [8:0] posx2;
 
         always @(posedge clk ) if (cen) begin // do not gate by !rom_wait
-            pospal <= objpal1;
+            pospal <= objpal1[PALW-1:0];
             posx2  <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
                 new_pxl <= prom_dout;

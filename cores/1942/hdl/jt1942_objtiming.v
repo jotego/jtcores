@@ -54,7 +54,7 @@ reg [4:0] auxcnt;
 always @(*) begin
     objcnt = auxcnt;
     if( (V[7]^flip) && auxcnt> 'hf && game_id==0)
-        objcnt[3] = objcnt[3]^1;
+        objcnt[3] = objcnt[3]^1'b1;
 end
 
 always @(posedge clk) begin

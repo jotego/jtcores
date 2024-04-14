@@ -239,7 +239,7 @@ always @(posedge clk, negedge t80_rst_n) begin
                 2'd0: scr_hpos[7:0] <= cpu_dout;
                 2'd1: begin
                     scr_hpos[8]    <= cpu_dout[0];
-                    scr_hpos[10:9] <= GAME==EXEDEXES ? cpu_dout[2:1] : 0;
+                    scr_hpos[10:9] <= GAME==EXEDEXES ? cpu_dout[2:1] : 2'd0;
                 end
                 2'd2: scr_vpos[7:0] <= cpu_dout;
                 2'd3: scr_vpos[10:8]<= cpu_dout[2:0] & (GAME==EXEDEXES?3'b111:3'b001);

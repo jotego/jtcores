@@ -170,11 +170,9 @@ jt1942_sound u_sound (
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_ok         ( snd_ok         ),
-    .snd            ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
-    // Unused
-    .snd_latch      (                )
+    // sound output
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           )
 );
 /* verilator tracing_on */
 jt1942_video u_video(

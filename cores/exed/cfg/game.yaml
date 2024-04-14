@@ -4,14 +4,7 @@ game:
       - jtcommnd_main.v
   - from: exed
     get:
-      - jtexed_game.v
-      - jtexed_video.v
-      - jtexed_scr1.v
-      - jtexed_scr2.v
-      - jtexed_colmix.v
-  - from: 1942
-    get:
-      - jt1942_sound.v
+      - *.v
   - from: gng
     get:
       - jtgng_video.v
