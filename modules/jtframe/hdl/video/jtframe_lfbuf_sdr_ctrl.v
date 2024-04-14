@@ -90,7 +90,7 @@ localparam CMD_PRECHARGE       = 4'b0010;
 localparam CMD_AUTO_REFRESH    = 4'b0001;
 localparam CMD_LOAD_MODE       = 4'b0000;
 
-reg           vsl, lhbl_l, ln_done_l, do_wr;
+reg           lhbl_l, ln_done_l, do_wr;
 reg  [   2:0] st;
 reg  [HW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
@@ -138,10 +138,8 @@ always @( posedge clk, posedge rst ) begin
         hlim   <= 0;
         hcnt   <= 0;
         lhbl_l <= 0;
-        vsl    <= 0;
     end else if(pxl_cen) begin
         lhbl_l  <= lhbl;
-        vsl     <= vs;
         hcnt    <= hcnt+1'd1;
         if( ~lhbl & lhbl_l ) begin // enters blanking
             hcnt   <= 0;
