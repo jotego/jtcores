@@ -138,7 +138,7 @@ jtshouse_scr #(.VB_END(VB_END)) u_scroll(
     .clk        ( clk       ),
 
     .hdump      ( hdump     ),
-    .vrender    ( vrender   ),
+    .vdump      ( vdump     ),
     .hs         ( hs        ),
     .vs         ( vs        ),
     .flip       ( flip      ),
