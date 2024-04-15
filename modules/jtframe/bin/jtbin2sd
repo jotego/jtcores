@@ -154,3 +154,14 @@ if [ -d /media/$USER/POCKET ]; then
         fi
     done
 fi
+
+# Make it a bit nicer for MiST systems
+for i in MIST SIDI SIDI128; do
+    # Hide RBF files, boots only from ARC files
+    fatattr +h /media/$USER/$i/*.rbf
+    # Mapping for 8BitDo M30gyu
+    cat > /media/$USER/$i/MISTCFG.INI <<EOF
+[CFG]
+JOYSTICK_REMAP="0CA3,0024,1,2,4,8,100,20,10,80,200,40,1000,800,0,400,0,0"
+EOF
+done
