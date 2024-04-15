@@ -95,7 +95,7 @@ always @(posedge clk, posedge rst) begin
         pal_dout <= r_cs ? rpal_dout :
                     g_cs ? gpal_dout :
                     b_cs ? bpal_dout : mmr_dout;
-        if( hs ) vwin <= {1'b0,vdump[7:0]}>top && {1'b0,vdump[7:0]}<bottom;
+        if( hs ) vwin <= {1'b0,vdump[7:0]}>=top && {1'b0,vdump[7:0]}<bottom;
         if( pxl_cen ) hwin <= hadj>=left && hadj<=right;
     end
 end
