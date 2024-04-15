@@ -223,8 +223,6 @@ assign  pcma_addr= 0, pcmb_addr=0, pcmc_addr=0, pcmd_addr=0;
 assign  rom_addr = 0;
 assign  snd_l    = 0;
 assign  snd_r    = 0;
-initial peak     = 0;
-assign  sample   = 0;
 assign  st_dout  = 0;
 assign  main_din = 0;
 `endif
