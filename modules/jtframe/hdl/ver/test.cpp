@@ -581,7 +581,7 @@ void SDRAM::update() {
             ba_addr[ cur_ba ] &= ~0x1ff;
             ba_addr[ cur_ba ] |= (dut.SDRAM_A & 0x1ff);
             if( dut.SDRAM_nWE ) { // enque read
-                rd_st[ cur_ba ] = burst_len+1;
+                rd_st[ cur_ba ] = burst_len+2;
             } else {
                 int dqm = dut.SDRAM_DQM;
                 // cout << "Write bank " << cur_ba <<
