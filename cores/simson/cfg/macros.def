@@ -28,9 +28,11 @@ JTFRAME_PROM_START=0x6E0000
 JTFRAME_IOCTL_RD=128
 # JTFRAME_INPUT_RECORD
 
-[mist|sidi]
+[mist|sidi*]
 # debugging content: 128 + 24 kB + 16
 JTFRAME_IOCTL_RD=24736
+
+[mist|sidi]
 # OSD credits cannot be used when
 # DIP base is less than 13
 -JTFRAME_CREDITS
