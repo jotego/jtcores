@@ -32,11 +32,12 @@ JTFRAME_SKIP
 
 [pocket]
 # not passing STA :-(
+# and missing .toml file for now
 JTFRAME_SKIP
 
 [mister]
-JTFRAME_CREDITS
-JTFRAME_CREDITS_PAGES=2
+# not meeting STA yet. See issue #605 and #606
+JTFRAME_NOSTA
 JTFRAME_ARX=4
 JTFRAME_ARY=3
 
