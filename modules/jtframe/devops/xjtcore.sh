@@ -1,4 +1,6 @@
 #!/bin/bash
+# usage:
+# xjtcore <corename> [--debug] target-names...
 set -e
 
 git config --global --add safe.directory /jtcores
@@ -9,8 +11,15 @@ export JTFRAME=$JTROOT/modules/jtframe
 source $JTFRAME/bin/setprj.sh > /dev/null
 export PATH=$PATH:/usr/local/go/bin
 
+# 1st argument is the core name
 CORENAME=$1
 shift
+# next argument can select debug mode, which is on by default
+NODBG=--nodbg
+if [ $1 = --debug ]; then
+    NODBG=
+    shift
+fi
 
 if [ -z "$BETAKEY" ]; then
     BETAKEY=`printf "%04X%04X" $RANDOM $RANDOM`
@@ -22,6 +31,7 @@ mkdir $JTUTIL
 printf "%08x" 0x$BETAKEY | xxd -r -p > $JTUTIL/beta.bin
 ls -l $JTUTIL/beta.bin
 
+
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     # Beta key is enabled for cores listed in beta.yaml
     for TARGET in $*; do
@@ -30,9 +40,9 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
             continue
         fi
         if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
-        jtframe mra --nodbg --skipROM $SKIPPOCKET $CORENAME
+        jtframe mra $NODBG --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
-        jtseed 4 $CORENAME -$TARGET --nodbg
+        jtseed 4 $CORENAME -$TARGET $NODBG
         # recover hard disk space
         rm -rf $CORES/$CORENAME/$TARGET
     done
