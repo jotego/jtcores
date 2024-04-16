@@ -14,6 +14,12 @@ names = [
     { names="Shoot,Jump" }
 ]
 
+[dipsw]
+# too long for MiST OSD:
+delete=[
+    { Names=["coinage"] }
+]
+
 [ROM]
 regions=[
     { name="maincpu", no_offset=true, width=16, reverse=true },
