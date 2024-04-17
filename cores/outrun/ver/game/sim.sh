@@ -23,14 +23,14 @@ if [ ! -z "$SCENE" ]; then
         exit 1
     fi
     dd if=$DUMP of=aux.bin count=16
-    drop1 -l < aux.bin > pal_lo.bin
-    drop1    < aux.bin > pal_hi.bin
+    jtutil drop1 -l < aux.bin > pal_lo.bin
+    jtutil drop1    < aux.bin > pal_hi.bin
     dd if=$DUMP of=aux.bin count=16 skip=16
-    drop1 -l < aux.bin > roadram_lo.bin
-    drop1    < aux.bin > roadram_hi.bin
+    jtutil drop1 -l < aux.bin > roadram_lo.bin
+    jtutil drop1    < aux.bin > roadram_hi.bin
     dd if=$DUMP of=obj.bin count=8 skip=32
-    drop1 -l < aux.bin > obj_lo.bin
-    drop1    < aux.bin > obj_hi.bin
+    jtutil drop1 -l < aux.bin > obj_lo.bin
+    jtutil drop1    < aux.bin > obj_hi.bin
     rm -f aux.bin
     EXTRA="-d NOMAIN -d NOSOUND -d NOMCU"
 fi

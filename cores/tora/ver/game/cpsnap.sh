@@ -55,14 +55,14 @@ EOF
 
 # Characters:
 # Convert character MAME memory dump to input files
-if ! which drop1; then
-    echo Cannot locate drop1 command.
+if ! which jtutil drop1; then
+    echo Cannot locate jtutil drop1 command.
     echo is \$JTUTIL/bin in your PATH?
     exit 1
 fi
 
-dd if=tora_char.bin 2>/dev/null | drop1    > $SCENE/char_lo.bin
-dd if=tora_char.bin 2>/dev/null | drop1 -l > $SCENE/char_hi.bin
+dd if=tora_char.bin 2>/dev/null | jtutil drop1    > $SCENE/char_lo.bin
+dd if=tora_char.bin 2>/dev/null | jtutil drop1 -l > $SCENE/char_hi.bin
 
 # Palette
 if [ ! -e pal_bin2hex ]; then
