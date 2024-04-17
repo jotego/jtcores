@@ -19,7 +19,7 @@ type Args struct {
     MainOnly,PrintNames          bool
     JTbin                        bool // copy to JTbin & disable debug features
     Nodbg                        bool // do not parse games in the debug section
-    Author, URL, Rom_path        string
+    URL, Rom_path        string
     // private
     firmware_dir string
     macros       map[string]string
@@ -191,6 +191,7 @@ type Mame2MRA struct {
     Global struct {
         Info      []Info
         Mraauthor []string
+        Webpage, Twitter   string
         Platform  string // Used by the Pocket target
         Zip       struct {
             Alt string

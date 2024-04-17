@@ -82,7 +82,6 @@ func init() {
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP(&mra_args.JTbin, "git", "g", false, "Save files to JTBIN")
 	flag.StringVar(&mra_args.Buttons, "buttons", "", "Buttons used by the game -upto six-")
-	flag.StringVar(&mra_args.Author, "author", "jotego", "Core author")
 	flag.StringVar(&mra_args.URL, "url", "https://patreon.com/jotego", "Author's URL")
 	flag.StringVar(&mra_args.Rom_path,"path",filepath.Join(os.Getenv("HOME"), ".mame", "roms"),"Path to MAME .zip files")
 }
