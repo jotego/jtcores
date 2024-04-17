@@ -190,7 +190,7 @@ type DipswCfg struct {
 type Mame2MRA struct {
     Global struct {
         Info      []Info
-        Mraauthor []string
+        Author []string
         Webpage, Twitter   string
         Platform  string // Used by the Pocket target
         Zip       struct {

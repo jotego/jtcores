@@ -1,5 +1,5 @@
 [global]
-mraauthor=["jotego","atrac17"]
+author=["jotego","atrac17"]
 
 [parse]
 sourcefile=[ "segas16a.cpp" ]

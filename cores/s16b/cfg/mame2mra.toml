@@ -1,6 +1,6 @@
 [global]
 # info = [ {tag="mameversion", value="0229"} ]
-mraauthor=["jotego","atrac17"]
+author=["jotego","atrac17"]
 
 [parse]
 sourcefile=[ "segas16b.cpp" ]

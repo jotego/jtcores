@@ -462,7 +462,7 @@ func slice2csv( ss []string ) string {
 func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
 	root := XMLNode{name: "misterromdescription"}
 	n := root.AddNode("about")
-	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Mraauthor), "jotego"))
+	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Author), "jotego"))
 	n.AddAttr("webpage", notEmpty(cfg.Global.Webpage,   "https://patreon.com/jotego"))
 	n.AddAttr("twitter", notEmpty(cfg.Global.Twitter,   "@topapate"))
 	n.AddAttr("source", "https://github.com/jotego/jtcores")
