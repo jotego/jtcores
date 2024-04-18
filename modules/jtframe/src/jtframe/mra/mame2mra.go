@@ -742,6 +742,9 @@ func parse_toml(args *Args) (mra_cfg Mame2MRA) {
 		fmt.Println(json_enc)
 		os.Exit(1)
 	}
+	if len(mra_cfg.Global.Author)==0 {
+		mra_cfg.Global.Author=[]string{"jotego"}
+	}
 	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_DIPBASE"])
 	// Set the number of buttons to the definition in the macros.def
 	if mra_cfg.Buttons.Core == 0 {
