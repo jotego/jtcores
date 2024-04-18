@@ -6,7 +6,7 @@ debug = { machines=[
     # Key type 3
     "rompers", # hangs up after notice - vertical game
     "ws",      # needs 2-byte key ID
-    "dangseed",
+    # "dangseed",
     "tankfrce",
     "pistoldm",
     "blastoff",
@@ -15,7 +15,7 @@ debug = { machines=[
     "berabohm",
     "blazer",
     "boxyboy",
-    "dspirit",
+    # "dspirit",
     "faceoff",
     "mmaze",
     "quester",
