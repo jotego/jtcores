@@ -95,15 +95,13 @@ extra=[
 ]
 
 [ROM]
-# values starting with $ refer to macro definitions in the .def file
-# or arguments passed to mame2mra
 regions = [
     { name="user1" },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="voice",    start="PCM_START"  },
     { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
-    { name="c123tmap",         start="SCR_START", width=32 },
-    { name="sprite",           start="JTFRAME_BA3_START", width=32 },
+    { name="c123tmap",         start="SCR_START"         },
+    { name="sprite",           start="JTFRAME_BA3_START" },
     { name="mcu",              start="JTFRAME_PROM_START"  },
 ]
 
