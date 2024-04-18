@@ -4,18 +4,14 @@ skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
     # Key type 3
-    "rompers", # hangs up after notice - vertical game
+    "rompers",
     "ws",      # needs 2-byte key ID
-    # "dangseed",
     "tankfrce",
-    "pistoldm",
-    "blastoff",
     # Others
     "bakutotu",
     "berabohm",
     "blazer",
     "boxyboy",
-    # "dspirit",
     "faceoff",
     "mmaze",
     "quester",
