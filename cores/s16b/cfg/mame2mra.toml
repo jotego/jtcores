@@ -1,6 +1,7 @@
 [global]
 # info = [ {tag="mameversion", value="0229"} ]
-author=["jotego","atrac17"]
+# atrac17 helped with the first set of MRA files
+author=["jotego"]
 
 [parse]
 sourcefile=[ "segas16b.cpp" ]
