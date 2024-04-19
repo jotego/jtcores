@@ -436,7 +436,7 @@ module jt053260_channel(
             if( cnt_up ) cnt <= cnt - 1'd1;
             if( !keyon ) begin
                 if(!tst_en || we) begin
-                    rom_addr <= start;
+                    rom_addr <= start+21'd1;
                 end else if( tst_en && tst_nx ) begin
                     rom_addr <= rom_addr+1'd1;
                 end
