@@ -17,7 +17,7 @@
     Date: 25-9-2019 */
 
 module jtframe_board #(parameter
-    BUTTONS                 = 2, // number of buttons used by the game
+    BUTTONS                 = 2, // the location of coin, 1P and pause will be set after these buttons
     // coin and start buttons will be mapped.
     GAME_INPUTS_ACTIVE_LOW  = 1'b1,
     COLORW                  = 4,

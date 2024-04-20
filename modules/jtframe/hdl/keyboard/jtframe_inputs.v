@@ -145,8 +145,8 @@ jtframe_4wayjoy u_4way_4p(
 );
 
 localparam START_BIT  = 6+(BUTTONS-2);
-localparam COIN_BIT   = 7+(BUTTONS-2);
-localparam PAUSE_BIT  = 8+(BUTTONS-2);
+localparam COIN_BIT   = START_BIT+1;
+localparam PAUSE_BIT  = COIN_BIT+1;
 
 reg        last_pause, last_osd_pause, last_joypause, last_reset;
 wire       joy_pause, joy_test;

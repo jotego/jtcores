@@ -293,7 +293,9 @@ end
 jtframe_mist #(
     .SDRAMW       ( SDRAMW         ),
     .SIGNED_SND   ( `JTFRAME_SIGNED_SND    ),
-    .BUTTONS      ( `JTFRAME_BUTTONS  ),
+    // as MiST firmware can remap buttons, leaving it fixed here
+    // means the same game pad mapping will work for all games the same
+    .BUTTONS      ( 6              ),
     .DIPBASE      ( DIPBASE        ),
     .COLORW       ( COLORW         ),
     .VIDEO_WIDTH  ( `JTFRAME_WIDTH ),
