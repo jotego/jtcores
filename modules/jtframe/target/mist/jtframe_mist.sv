@@ -27,7 +27,8 @@ module jtframe_mist #(parameter
     SDRAMW                 = 23,
     VGA_DW                 = 6,
     QSPI                   = 1'b0,
-    HDMI                   = 1'b0
+    HDMI                   = 1'b0,
+    XOR_ROT                = 1'b0
 )(
     input              clk_sys,
     input              clk_rom,
@@ -337,7 +338,8 @@ jtframe_board #(
     .VIDEO_WIDTH           ( VIDEO_WIDTH           ),
     .VIDEO_HEIGHT          ( VIDEO_HEIGHT          ),
     .SDRAMW                ( SDRAMW                ),
-    .MISTER                ( 0                     )
+    .MISTER                ( 0                     ),
+    .XOR_ROT               ( XOR_ROT               )
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),

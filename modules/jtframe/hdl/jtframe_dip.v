@@ -45,6 +45,8 @@ module jtframe_dip(
     output reg [ 1:0]  dip_fxlevel
 );
 
+parameter XOR_ROT=0;
+
 // "T0,RST;", // 15
 // "O1,Pause,OFF,ON;",
 // "-;",
@@ -149,7 +151,7 @@ generate
         assign rot_control = 1'b0;
     end else begin // MiST derivativatives are always vertical
         assign tate   = 1'b1 & core_mod[0];
-        assign rot_control = status[2];
+        assign rot_control = status[2]^XOR_ROT[0];
     end
 endgenerate
     wire   swap_ar = ~tate | ~core_mod[0];

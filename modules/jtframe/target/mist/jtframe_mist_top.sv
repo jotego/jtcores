@@ -302,7 +302,8 @@ jtframe_mist #(
     .VIDEO_HEIGHT ( `JTFRAME_HEIGHT),
     .VGA_DW       ( VGA_DW         ),
     .QSPI         ( QSPI           ),
-    .HDMI         ( HDMI           )
+    .HDMI         ( HDMI           ),
+    .XOR_ROT      ( 1'b1           )    // control rotation is on by default for MiST platforms as there is no hardware rotation
 )
 u_frame(
     .clk_sys        ( clk_sys        ),

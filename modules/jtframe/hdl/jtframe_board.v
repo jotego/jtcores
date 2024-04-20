@@ -24,7 +24,8 @@ module jtframe_board #(parameter
     SDRAMW                  = 22,
     VIDEO_WIDTH             = 384,
     VIDEO_HEIGHT            = 224,
-    MISTER                  = 1
+    MISTER                  = 1,
+    XOR_ROT                 = 0
 )(
     output              rst,
     output              rst_n,
@@ -530,7 +531,7 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
-jtframe_dip u_dip(
+jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .core_mod   ( core_mod      ),
