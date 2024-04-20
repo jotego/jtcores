@@ -5,20 +5,13 @@ skip = { machines=[ "puzlclub" ] }
 debug = { machines=[
     # Key type 3
     "rompers",
-    "ws",      # needs 2-byte key ID
-    "tankfrce",
     # Others
     "bakutotu",
     "berabohm",
-    "blazer",
     "boxyboy",
-    "faceoff",
     "mmaze",
     "quester",
     "shadowld",
-    "wldcourt",
-], setnames=[
-    "ws90"
 ] }
 
 [header]
