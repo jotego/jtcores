@@ -44,7 +44,7 @@ data= [
     { machine="rompers",  data="03 B6 07 FF FF FF FF FF" },
     { machine="blastoff", data="03 B7 00 07 03 05 FF FF" },
     { setname="ws89",     data="03 B8 02 FF FF FF FF FF" },
-    { setname="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
+    { machine="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
     { machine="dangseed", data="03 34 06 FF 05 FF 00 04" },
     { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
     { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },
