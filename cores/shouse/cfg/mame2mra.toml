@@ -12,6 +12,10 @@ debug = { machines=[
     "mmaze",
     "quester",
     "shadowld",
+], setnames=[
+    # key custom error (maybe related to being 4 players?)
+    "tankfrcej",
+    "tankfrce4",
 ] }
 
 [header]
