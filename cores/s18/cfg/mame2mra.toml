@@ -31,6 +31,18 @@ data = [
     { offset=0x11, dev="fd1094",  data="01" },
     { offset=0x12, dev="mc8123",  data="01" },
     { offset=0x13, dev="i8751",   data="01" },
+
+    # 5874 board
+    { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },
+    # 5987 board
+    # ddcrewu, ddcrew1, ddcrewj might be different
+    { machines=["cltchitr", "desertbr", "ddcrew"], offset=0x18, data="17" },
+    # single-game boards
+    { machine="hamaway",  offset=0x18, data="17" },
+    { machine="lghost",   offset=0x18, data="17" },
+    { machine="shdancer", offset=0x18, data="17" },
+    # wwally's machine may be in a different MAME file, not segas18
+    { machine="wwally",   offset=0x18, data="17" },
 ]
 
 [ROM]
