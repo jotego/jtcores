@@ -39,14 +39,14 @@ if [ ! -z "$SCENE" ]; then
 	    exit 1
 	fi
 
-	drop1    < $GAME/char${SCENE}.bin > char_hi.bin
-	drop1 -l < $GAME/char${SCENE}.bin > char_lo.bin
+	jtutil drop1    < $GAME/char${SCENE}.bin > char_hi.bin
+	jtutil drop1 -l < $GAME/char${SCENE}.bin > char_lo.bin
 
-	drop1    < $GAME/pal${SCENE}.bin > pal_hi.bin
-	drop1 -l < $GAME/pal${SCENE}.bin > pal_lo.bin
+	jtutil drop1    < $GAME/pal${SCENE}.bin > pal_hi.bin
+	jtutil drop1 -l < $GAME/pal${SCENE}.bin > pal_lo.bin
 
-	drop1    < $GAME/obj${SCENE}.bin > obj_hi.bin
-	drop1 -l < $GAME/obj${SCENE}.bin > obj_lo.bin
+	jtutil drop1    < $GAME/obj${SCENE}.bin > obj_hi.bin
+	jtutil drop1 -l < $GAME/obj${SCENE}.bin > obj_lo.bin
 
     hexdump -v -e '/1 "%02X "' -s 0xe00 $GAME/char${SCENE}.bin > mmr.hex
 

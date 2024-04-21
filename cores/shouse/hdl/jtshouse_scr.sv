@@ -28,7 +28,7 @@ module jtshouse_scr(
     input             hs,
     input             vs,
     input       [8:0] hdump,
-    input       [8:0] vrender,
+    input       [8:0] vdump,
     input             flip,
 
     input             cs,
@@ -64,11 +64,12 @@ parameter  [ 8:0] VB_END = 9'h120;
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR0= 16'h71,
-                  HSCR1= HSCR0+16'h2,
-                  HSCR2= HSCR0+16'h3,
-                  HSCR3= HSCR0+16'h4,
-                  VSCR =-16'd26;
+localparam [15:0] VSCR =-16'd28;
+
+wire [15:0] hoff0 = flip ? 16'h71 : -16'h0f;
+wire [15:0] hoff1 = flip ? hoff0 + 16'h2 : hoff0 - 16'h2;
+wire [15:0] hoff2 = flip ? hoff0 + 16'h3 : hoff0 - 16'h3;
+wire [15:0] hoff3 = flip ? hoff0 + 16'h4 : hoff0 - 16'h4;
 
 reg  [15:0] hoff, hpos, vpos;
 reg  [ 2:0] mlyr, mask_asub, mst;
@@ -132,11 +133,12 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= -hscr[0][2:0]+HSCR0[2:0];
-            hcnt1 <= -hscr[1][2:0]+HSCR1[2:0];
-            hcnt2 <= -hscr[2][2:0]+HSCR2[2:0];
-            hcnt3 <= -hscr[3][2:0]+HSCR3[2:0];
-            if(vrender[2:0]==2) lin_row <= vrender[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
+            hcnt0 <= (-hscr[0][2:0] ^ {3{~flip}})+hoff0[2:0];
+            hcnt1 <= (-hscr[1][2:0] ^ {3{~flip}})+hoff1[2:0];
+            hcnt2 <= (-hscr[2][2:0] ^ {3{~flip}})+hoff2[2:0];
+            hcnt3 <= (-hscr[3][2:0] ^ {3{~flip}})+hoff3[2:0];
+
+            if(vdump[2:0]==0) lin_row <= vdump[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
             // if(vrender[2:0]==7) lin_row <= vrender[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
             // if(vrender==9'h120 ) lin_row <= 1;
         end
@@ -146,20 +148,18 @@ end
 
 always @* begin
     case( mlyr[1:0] )
-        0: hoff = HSCR0;
-        1: hoff = HSCR1;
-        2: hoff = HSCR2;
-        3: hoff = HSCR3;
+        0: hoff = hoff0;
+        1: hoff = hoff1;
+        2: hoff = hoff2;
+        3: hoff = hoff3;
     endcase
+
     if( mlyr>3 )
-        { vpos, hpos } = { 7'd0, vrender, 7'd0, hcnt };
+        { vpos, hpos } = { 7'd0, vdump, 7'd0, hcnt };
     else
-        { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]]+VSCR,
-                           {7'd0,    hcnt}-hscr[mlyr[1:0]]+hoff};
-    // if( flip ) begin
-    //     hpos = -hpos;
-    //     // vpos = -vpos;
-    // end
+        { vpos, hpos } = { {7'd0, vdump}-(vscr[mlyr[1:0]] ^ {16{~flip}}) + (flip ? VSCR : -VSCR + 16'd219),
+                           {7'd0,  hcnt}-(hscr[mlyr[1:0]] ^ {16{~flip}}) + hoff};
+
     // Determines the active layer
     win    = 5;
     cprio  = 0;
@@ -207,7 +207,7 @@ always @(posedge clk, posedge rst) begin
             end
             // vpos for the fixed layers has a relationship with the linear counter
             // changing the octal LSB of the linear start requires an adjustment here
-            1: mask_asub <= mlyr<4 ? vpos[2:0] : vpos[2:0]+3'd6;
+            1: mask_asub <= vpos[2:0];
             4: begin
                 mask[mlyr] <= mask_data;
                 info[mlyr] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};

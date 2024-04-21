@@ -1,5 +1,6 @@
 [global]
-mraauthor=["jotego,atrac17"]
+# atrac17 helped with the first set of MRA files
+author=["jotego"]
 zip.alt="qsound.zip"
 
 [parse]

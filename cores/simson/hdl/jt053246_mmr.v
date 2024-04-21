@@ -48,6 +48,8 @@ initial begin
         $fclose(f);
         $display("Read %1d bytes for 053246 MMR", fcnt);
         mmr_init[5][4] = 1; // enable DMA, which will be low if the game was paused for the dump
+        $display("xoffset=%X",{ mmr_init[1][1:0], mmr_init[0] });
+        $display("yoffset=%X",{ mmr_init[3][1:0], mmr_init[2] });
     end
 end
 `endif

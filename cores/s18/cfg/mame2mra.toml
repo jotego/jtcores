@@ -1,0 +1,46 @@
+[parse]
+sourcefile=[ "segas18.cpp" ]
+
+debug = { machines=[
+	"astorm",
+	"bloxeed",
+	"cltchitr",
+	"ddcrew",
+	"desertbr",
+	"hamaway",
+	"lghost",
+	"mwalk",
+	"pontoon",
+	"shdancer",
+	"wwallyj",
+]}
+
+[DIPSW]
+Delete=[
+	# too long
+	{ Names=["Credits needed"] },
+	{ Names=["Game Time P1"]   },
+	{ Names=["Game Time P2"]   },
+]
+
+[header]
+# follows the same structure as JTS16's
+data = [
+    { offset=0x10, dev="fd1089a", data="01" },
+    { offset=0x10, dev="fd1089b", data="02" },
+    { offset=0x11, dev="fd1094",  data="01" },
+    { offset=0x12, dev="mc8123",  data="01" },
+    { offset=0x13, dev="i8751",   data="01" },
+]
+
+[ROM]
+regions = [
+	{ name="maincpu", width=16 },
+	{ name="maincpu:key" },
+	{ name="soundcpu", start="JTFRAME_BA1_START" },
+	{ name="tiles", start="JTFRAME_BA2_START" },
+	{ name="sprites", start="JTFRAME_BA3_START", width=16 },
+	{ name="mcu" },
+]
+
+order=["maincpu","maincpu:key","soundcpu","tiles", "sprites", "mcu"]

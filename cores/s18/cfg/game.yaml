@@ -1,0 +1,18 @@
+game:
+  - from: s18
+    get:
+      - *.v
+  - from: s16b
+    get:
+      - jts16b_mapper.v
+  - from: s16
+    get:
+      - jts16_fd1094.v
+      - jts16_fd1094_dec.v
+      - jts16_fd1094_ctrl.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_8751.yaml
+      - jtframe_z80.yaml

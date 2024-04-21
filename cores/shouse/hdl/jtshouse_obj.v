@@ -90,25 +90,28 @@ assign rom_swap = {
 };
 
 always @* begin
-    ypos  = {1'b0,oram_dout[15:8]}+yoffset;
-    if( flip ) case(vsize)
-        0: ypos = ypos + 9'o776; // 16
-        1: ypos = ypos + 9'o766; //  8
-        2: ypos = ypos + 9'o16;  // 32
-        3: ypos = ypos + 9'o762; //  4
+    case(vsize)
+        0: ypos = -(oram_dout[15:8] - 8'd16); // 16
+        1: ypos = -(oram_dout[15:8] - 8'd24); //  8
+        2: ypos = -(oram_dout[15:8]);         // 32
+        3: ypos = -(oram_dout[15:8] - 8'd28); //  4
     endcase
-    ydiff = ypos+{1'b0,vrender[7:0]};
-    // if(debug_bus[4]) ydiff[8] = 0;
+
+    ydiff = (vrender[7:0] + yoffset + 8'h10) - ypos;
+    ydiff[8] = 0;
+
     case(vsize)
         0: inzone = ydiff[8-:5]==0; // 16 pxl
         1: inzone = ydiff[8-:6]==0; //  8 pxl
         2: inzone = ydiff[8-:4]==0; // 32 pxl
         3: inzone = ydiff[8-:7]==0; //  4 pxl
     endcase
+
     nx_ysub = ydiff[4:0];
     case( vsize )
-        0:   nx_ysub[4]   = vos[1];
+        0:   nx_ysub[4:3] = {vos[1], ydiff[3] ^ oram_dout[0]};
         1,3: nx_ysub[4:3] = vos[1:0];
+        2:   nx_ysub[4:3] = ydiff[4:3] ^ {2{oram_dout[0]}};
         default:;
     endcase
     case( hsize )
@@ -127,9 +130,10 @@ assign rom_addr  = { pre_addr[17-:11],
             dr_hsize[0] ? dr_hmsb[0] : pre_addr[6] /* H8 */ };
 
 always @(posedge clk) begin
-    xoffset  <= pre_xos-9'd3; //+{debug_bus[7],debug_bus};
-    yoffset  <= pre_yos+9'd2;
+    xoffset  <= pre_xos-(flip ? 9'd3 : 9'd75); //+{debug_bus[7],debug_bus};
+    yoffset  <= pre_yos+(flip ? 9'd1 : -9'd1);
 end
+
 // LUT scan
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -177,7 +181,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 3: begin
                     if( !dr_bsy ) begin
-                        dr_vmsb  <= ysub[4:3]^{2{vflip}};
+                        dr_vmsb  <= ysub[4:3];
                         dr_hmsb  <= nx_hmsb;
                         dr_hsize <= hsize;
                         case( hsize )
@@ -213,6 +217,7 @@ always @(posedge clk, posedge rst) begin
             scan_obj <= 0;
             st       <= 0;
             cen      <= 0;
+            half     <= 0;
         end
     end
 end

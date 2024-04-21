@@ -17,14 +17,15 @@
     Date: 25-9-2019 */
 
 module jtframe_board #(parameter
-    BUTTONS                 = 2, // number of buttons used by the game
+    BUTTONS                 = 2, // the location of coin, 1P and pause will be set after these buttons
     // coin and start buttons will be mapped.
     GAME_INPUTS_ACTIVE_LOW  = 1'b1,
     COLORW                  = 4,
     SDRAMW                  = 22,
     VIDEO_WIDTH             = 384,
     VIDEO_HEIGHT            = 224,
-    MISTER                  = 1
+    MISTER                  = 1,
+    XOR_ROT                 = 0
 )(
     output              rst,
     output              rst_n,
@@ -530,7 +531,7 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
-jtframe_dip u_dip(
+jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .core_mod   ( core_mod      ),

@@ -26,7 +26,7 @@ module jtframe_dip(
     output reg [12:0]  hdmi_arx,
     output reg [12:0]  hdmi_ary,
     output reg [ 1:0]  rotate,
-    output             rot_control, // rotate player control inputs
+    output reg         rot_control, // rotate player control inputs
     output reg         en_mixing,
     output reg [ 2:0]  scanlines,
     output reg         bw_en,
@@ -44,6 +44,8 @@ module jtframe_dip(
     inout              dip_flip,    // this might be set by the core
     output reg [ 1:0]  dip_fxlevel
 );
+
+parameter XOR_ROT=0;
 
 // "T0,RST;", // 15
 // "O1,Pause,OFF,ON;",
@@ -146,17 +148,17 @@ generate
             wire status_roten= ~status[2];
         `endif
         assign tate = (!MISTER || status_roten) && core_mod[0]; // 1 if screen is vertical (tate in Japanese)
-        assign rot_control = 1'b0;
+        initial rot_control = 0;
     end else begin // MiST derivativatives are always vertical
         assign tate   = 1'b1 & core_mod[0];
-        assign rot_control = status[2];
+        always @(posedge clk) rot_control = (status[2]^XOR_ROT[0])&core_mod[0];
     end
 endgenerate
     wire   swap_ar = ~tate | ~core_mod[0];
 `else
-    wire   tate   = 1'b0;
-    assign rot_control = 1'b0;
-    wire   swap_ar = 1'b1;
+    wire    tate        = 0;
+    initial rot_control = 0;
+    wire    swap_ar     = 1;
 `endif
 
 // all signals that are not direct re-wirings are latched

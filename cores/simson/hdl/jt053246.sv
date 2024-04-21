@@ -116,7 +116,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
-    yadj <= yoffset - (k44_en ? 10'h101 : 10'h1e1);
+    yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
     vscl <= zoffset[ vzoom[7:0] ];
     hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -124,7 +124,7 @@ always @(posedge clk) begin
                               // opposite to the one in Aliens, which always
                               // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
-    yw0   = y - yadj;
+    yw0   = y + yadj;
     ywrap = yw0 > 10'h200 ? yw0+10'h121 : yw0;
 end
 

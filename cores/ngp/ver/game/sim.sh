@@ -16,8 +16,8 @@ INPUTS=
 
 rm -f *_lo.bin *_hi.bin pal.bin regsram.bin
 
-drop1 -l < rom.bin > rom_lo.bin
-drop1    < rom.bin > rom_hi.bin
+jtutil drop1 -l < rom.bin > rom_lo.bin
+jtutil drop1    < rom.bin > rom_hi.bin
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -29,8 +29,8 @@ while [ $# -gt 0 ]; do
                 fi
             fi
             go run fixnvram.go  # prevents running the setup
-            drop1 -l < nvram.bin > nvram_lo.bin
-            drop1    < nvram.bin > nvram_hi.bin
+            jtutil drop1 -l < nvram.bin > nvram_lo.bin
+            jtutil drop1    < nvram.bin > nvram_hi.bin
             # Change reset vector, so it does not wait for the power-up button press
             printf "\x18" | dd of=rom_hi.bin bs=1 seek=`printf "%d" 0x7f80` count=1 conv=notrunc
             printf "\x00" | dd of=rom_lo.bin bs=1 seek=`printf "%d" 0x7f80` count=1 conv=notrunc
@@ -77,8 +77,8 @@ if [ -z "$INPUTS" ]; then
 fi
 
 function split {
-    cat ${1}ram.bin | drop1    > ${1}_hi.bin
-    cat ${1}ram.bin | drop1 -l > ${1}_lo.bin
+    cat ${1}ram.bin | jtutil drop1    > ${1}_hi.bin
+    cat ${1}ram.bin | jtutil drop1 -l > ${1}_lo.bin
 }
 
 if [ -n "$SCENE" ]; then

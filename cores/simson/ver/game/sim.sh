@@ -46,8 +46,8 @@ if [ ! -z "$SCENE" ]; then
     dd if=$TMP of=pal.bin count=8 skip=32   2> /dev/null
     dd if=$TMP of=obj.bin count=8 skip=40   2> /dev/null
     dd if=/dev/zero of=obj.bin conv=notrunc oflag=append count=8 2> /dev/null
-    drop1 -l < obj.bin > obj_lo.bin
-    drop1    < obj.bin > obj_hi.bin
+    jtutil drop1 -l < obj.bin > obj_lo.bin
+    jtutil drop1    < obj.bin > obj_hi.bin
     # MMR
     dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((48*512/8))   2> /dev/null
     dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((48*512/8+2)) 2> /dev/null

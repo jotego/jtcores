@@ -10,6 +10,7 @@ fi
 
 export JTROOT=$(pwd)
 export JTFRAME=$JTROOT/modules/jtframe
+export TARGET=$JTFRAME/target
 # . path comes before JTFRAME/bin as setprj.sh
 # can be in the working directory and in JTFRAME/bin
 PATH=$PATH:.:$JTFRAME/bin

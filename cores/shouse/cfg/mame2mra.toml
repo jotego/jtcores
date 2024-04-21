@@ -4,25 +4,18 @@ skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
     # Key type 3
-    "rompers", # hangs up after notice - vertical game
-    "ws",      # needs 2-byte key ID
-    "dangseed",
-    "tankfrce",
-    "pistoldm",
-    "blastoff",
+    "rompers",
     # Others
     "bakutotu",
     "berabohm",
-    "blazer",
     "boxyboy",
-    "dspirit",
-    "faceoff",
     "mmaze",
     "quester",
     "shadowld",
-    "wldcourt",
 ], setnames=[
-    "ws90"
+    # key custom error (maybe related to being 4 players?)
+    "tankfrcej",
+    "tankfrce4",
 ] }
 
 [header]
@@ -51,7 +44,7 @@ data= [
     { machine="rompers",  data="03 B6 07 FF FF FF FF FF" },
     { machine="blastoff", data="03 B7 00 07 03 05 FF FF" },
     { setname="ws89",     data="03 B8 02 FF FF FF FF FF" },
-    { setname="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
+    { machine="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
     { machine="dangseed", data="03 34 06 FF 05 FF 00 04" },
     { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
     { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },
@@ -95,15 +88,13 @@ extra=[
 ]
 
 [ROM]
-# values starting with $ refer to macro definitions in the .def file
-# or arguments passed to mame2mra
 regions = [
     { name="user1" },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="voice",    start="PCM_START"  },
     { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
-    { name="c123tmap",         start="SCR_START", width=32 },
-    { name="sprite",           start="JTFRAME_BA3_START", width=32 },
+    { name="c123tmap",         start="SCR_START"         },
+    { name="sprite",           start="JTFRAME_BA3_START" },
     { name="mcu",              start="JTFRAME_PROM_START"  },
 ]
 

@@ -438,14 +438,34 @@ func mra_name(machine *MachineXML, cfg Mame2MRA) string {
 	return machine.Description
 }
 
+func notEmpty( a, b string ) string {
+	if a!="" {
+		return a
+	} else {
+		return b
+	}
+}
+
+func slice2csv( ss []string ) string {
+	csv := ""
+	for k, token := range ss {
+		if k > 0 {
+			csv += ","
+		}
+		csv += token
+	}
+	return csv
+}
+
 // Do not pass the macros to make_mra, but instead modifiy the configuration
 // based on the macros in parse_toml
 func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
 	root := XMLNode{name: "misterromdescription"}
-	n := root.AddNode("about").AddAttr("author", "jotego")
-	n.AddAttr("webpage", "https://patreon.com/jotego")
-	n.AddAttr("source", "https://github.com/jotego")
-	n.AddAttr("twitter", "@topapate")
+	n := root.AddNode("about")
+	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Author), "jotego"))
+	n.AddAttr("webpage", notEmpty(cfg.Global.Webpage,   "https://patreon.com/jotego"))
+	n.AddAttr("twitter", notEmpty(cfg.Global.Twitter,   "@topapate"))
+	n.AddAttr("source", "https://github.com/jotego/jtcores")
 	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
 	root.AddNode("setname", machine.Name)
 	corename := set_rbfname(&root, machine, cfg, args).text[2:] // corename = RBF, skipping the JT part
@@ -473,17 +493,6 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	})
 	for _, t := range info {
 		root.AddNode(t.Tag, t.Value)
-	}
-	// MRA author
-	if len(cfg.Global.Mraauthor) > 0 {
-		authors := ""
-		for k, a := range cfg.Global.Mraauthor {
-			if k > 0 {
-				authors += ","
-			}
-			authors += a
-		}
-		root.AddNode("mraauthor", authors)
 	}
 	// ROM load
 	make_ROM(&root, machine, cfg, args)
@@ -732,6 +741,9 @@ func parse_toml(args *Args) (mra_cfg Mame2MRA) {
 		fmt.Println("jtframe mra: problem while parsing TOML file after JSON transformation:\n\t", err)
 		fmt.Println(json_enc)
 		os.Exit(1)
+	}
+	if len(mra_cfg.Global.Author)==0 {
+		mra_cfg.Global.Author=[]string{"jotego"}
 	}
 	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_DIPBASE"])
 	// Set the number of buttons to the definition in the macros.def

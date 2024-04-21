@@ -2,7 +2,7 @@ P,CORE_NAME.dat;
                                     S0,DAT,Load ROM...; {{ end }}
 {{ if .JTFRAME_VERTICAL }}
 {{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}
-                                    O2,Rotate controls,No,Yes; {{ end }}
+                                    O2,Rotate controls,Yes,No; {{ end }}
                                     O34,Video Mode, pass thru, linear, analogue, dark;
 {{ if .JTFRAME_OSD_VOL }}           O67,FX volume, high, very high, very low, low; {{ end }}
 {{ if .JTFRAME_OSD_SND_EN }}        O8,FX,On,Off; O9,FM,On,Off; {{ end }}

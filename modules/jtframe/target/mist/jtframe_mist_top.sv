@@ -293,14 +293,17 @@ end
 jtframe_mist #(
     .SDRAMW       ( SDRAMW         ),
     .SIGNED_SND   ( `JTFRAME_SIGNED_SND    ),
-    .BUTTONS      ( `JTFRAME_BUTTONS  ),
+    // as MiST firmware can remap buttons, leaving it fixed here
+    // means the same game pad mapping will work for all games the same
+    .BUTTONS      ( 6              ),
     .DIPBASE      ( DIPBASE        ),
     .COLORW       ( COLORW         ),
     .VIDEO_WIDTH  ( `JTFRAME_WIDTH ),
     .VIDEO_HEIGHT ( `JTFRAME_HEIGHT),
     .VGA_DW       ( VGA_DW         ),
     .QSPI         ( QSPI           ),
-    .HDMI         ( HDMI           )
+    .HDMI         ( HDMI           ),
+    .XOR_ROT      ( 1'b1           )    // control rotation is on by default for MiST platforms as there is no hardware rotation
 )
 u_frame(
     .clk_sys        ( clk_sys        ),

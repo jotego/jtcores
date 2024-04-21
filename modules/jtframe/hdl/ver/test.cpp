@@ -32,6 +32,7 @@
 // fork
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #ifdef _DUMP
     #include "verilated_vcd_c.h"
@@ -1055,6 +1056,10 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
+        // wait until all child processes created with fork() are completed
+        // before exiting.
+        while(wait(NULL) != -1);
+
         if( sim.get_frame()>1 ) fputc('\n',stderr);
     } catch( const char *error ) {
         fputs(error,stderr);
