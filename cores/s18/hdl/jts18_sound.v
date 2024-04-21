@@ -31,10 +31,11 @@ module jts18_sound(
     input  [7:0]         mapper_dout,
     input                mapper_pbf, // pbf signal == buffer full ?
 
-    // PROM
-    input         [ 9:0] prog_addr,
-    input                prom_we,
-    input         [ 7:0] prog_data,
+    // ROM
+    output        [20:0] rom_addr,
+    input         [ 7:0] rom_data,
+    input                rom_ok,
+    output reg           rom_cs,
 
     // ADPCM RAM
     output        [15:0] pcm_addr,
@@ -50,56 +51,59 @@ module jts18_sound(
 
 wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n;
 wire [15:0] A;
-wire [ 7:0] dout, ram_dout;
-reg  [ 7:0] din;
-reg         ram_cs, rom_cs;
+wire [ 7:0] dout, ram_dout, din, pcmctl_dout;
+reg  [ 7:0] bank, dmux;
+reg         ram_cs, bkreg_cs, pcmctl_cs;
 
 assign io_wrn     = iorq_n | wr_n;
 assign mapper_rd  = mapper_cs && !rd_n;
 assign mapper_wr  = mapper_cs && !wr_n;
 assign mapper_din = cpu_dout;
+assign din        = rom_cs ? rom_data : dmux;
 
 // ROM bank address
 always @(*) begin
-    rom_addr = { 4'd0, A[14:0] };
-    if( bank_cs ) begin
-        rom_addr[15:14] = rom_msb[1:0];
-        casez( ~rom_msb[5:2] ) // A11-A8 refer to the ROM label in the PCB:
-            4'b1000: rom_addr[17:16] = 3; // A11 at top
-            4'b0100: rom_addr[17:16] = 2; // A10
-            4'b0010: rom_addr[17:16] = 1; // A9
-            4'b0001: rom_addr[17:16] = 0; // A8
-            default: rom_addr[17:16] = 0;
-        endcase
-            default: // 5521 & 5704
-                rom_addr[17:14] = rom_msb[3:0];
-        endcase
-        rom_addr = rom_addr + 19'h10000;
-    end
+    rom_addr = { 5'd0, A };
+    if( bank_cs ) rom_addr[20-:8] = bank;
 end
 
 wire underA = A[15:12]<4'ha;
 wire underC = A[15:12]<4'hc;
 
 always @(*) begin
-    ram_cs  = !mreq_n && &A[15:13];
-    bank_cs = !mreq_n && (!underA && underC);
-    pcm_cs  = !mreq_n && (!underC && A[15:12]<4'he);
-    rom_cs  = !mreq_n &&   underC;
+    ram_cs    = !mreq_n && &A[15:13];
+    bank_cs   = !mreq_n && (!underA && underC);
+    pcmctl_cs = !mreq_n && (!underC && A[15:12]<4'he);
+    rom_cs    = !mreq_n &&   underC;
 
     // Port Map
-    { fm0_cs, fm1_cs, breg_cs, mapper_cs } = 0;
+    { fm0_cs, fm1_cs, bkreg_cs, mapper_cs } = 0;
     if( !iorq_n && m1_n ) begin
         case( A[7:4] )
             4'h8: fm0_cs    = 1;
             4'h9: fm1_cs    = 1;
-            4'ha: breg_cs   = 1;
+            4'ha: bkreg_cs   = 1;
             4'hc: mapper_cs = 1;
             default:;
         endcase
     end
 end
 
+always @(posedge clk) begin
+    dmux <= fm0_cs    ? fm0_dout    :
+            fm1_cs    ? fm1_dout    :
+            mapper_cs ? mapper_dout :
+            ram_cs    ? ram_data    :
+            pcm_cs    ? pcmctl_dout : 8'hff;
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        bank <= 0;
+    end else begin
+        if( bkreg_cs && !wr_n ) bank <= dout;
+    end
+end
 
 jt12 u_fm0(
     .rst        ( rst           ),
