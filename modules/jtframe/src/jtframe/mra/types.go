@@ -277,3 +277,33 @@ type ParsedMachine struct {
     def_dipsw string
     coremod   int
 }
+
+// Configure whether to parse or not a machine
+type ParseCfg struct {
+    All        bool // parse all games
+    Sourcefile []string
+    Main_setnames []string // setname to be used as the main ones to copy in mister/releases
+    Rename     []struct {
+        Setname string
+        Name    string
+    }
+    Older   int // minimum year allow to parse
+    Skip struct {
+        Selectable
+        Descriptions []string
+        Bootlegs     bool
+    }
+    Debug struct { // the games here will not be parsed if JTFRAME_RELEASE is set
+        Selectable
+    }
+    Mustbe struct { // If any of these conditions are met, the game will be parsed
+        // empty arrays or strings are not used for comparison
+        // Descriptions []string
+        // Setnames     []string
+        Machines []string
+        Devices  []string // list of devices the game must contain to be parsed
+    }
+    Parents []struct {
+        Name, Description string
+    }
+}
