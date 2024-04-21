@@ -93,11 +93,9 @@ bit     |  meaning                | Enabled with macro
 49-52   | CRT H scaling factor    | MiSTer only, visibility masked
 53-56   | CRT H offset            | MiSTer only
 57-60   | CRT V offset            | MiSTer only
-61-63   | Reserved for forks      | JTFRAME forks can use these bits%
+61-63   |    -- free --           |
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
-
-% JTFRAME will not expand to use bits 61 to 63 in MiSTer, so developers creating custom forks can use them. This can be used to provide custom inputs, for instance.
 
 %% If JTFRAME_OSD60HZ is defined and the status word bit is low, MiSTer will disable the Scan FX options. This options should be used when the pixel clock is produced by a fractional divider, and thus it's very jittery. Some displays do good with this, some don't. This is less important for MiST because the PLL is less troublesome there. In MiSTer, all hell breaks loose in the HDMI subsystem for some game PLL settings.
 
