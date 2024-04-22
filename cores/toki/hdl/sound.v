@@ -118,7 +118,6 @@ z80_cs u_z80cs(
 //
 // Decypher z80 ROM 8.m3
 //
-reg [15:0] decrypt_rom_addr;
 wire [7:0] decrypt_rom_data;
 wire       decrypt_rom_ok;
 reg        decrypt_rom_cs_seibu;
@@ -128,6 +127,7 @@ wire       z80_mreq_n;
 wire       z80_wait_n;
 
 sei80bu u_sei80bu(
+  .clk(clk48),
   .z80_rom_addr({3'd0, z80_rom_addr}),
   .z80_rom_data(z80_rom_data),
   .z80_rom_ok(z80_rom_ok), 
