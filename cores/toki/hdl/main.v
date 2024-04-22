@@ -322,7 +322,8 @@ always @(posedge clk, posedge rst) begin
       cpu_din <= cpu_rom_cs ? cpu_rom_data[15:0] :  
                  ram_cs     ? ram_do[15:0] :
                  palette_cs ? palette_do[15:0] :
-                 sprite_cs  ? sprite_do[15:0] :  
+                 sprite_cs  ? sprite_do[15:0] : 
+                 vram_cs    ? vram_do[15:0] : 
                  dsw_cs     ? dipsw[15:0] : 
                  inputs_cs  ? {1'b1,1'b1,p2_button2,p2_button1,p2_right,p2_left,p2_down,p2_up,
                                1'b1,1'b1,p1_button2,p1_button1,p1_right,p1_left,p1_down,p1_up} :
@@ -440,13 +441,15 @@ dual_ram_buffer16 #(.W(10)) u_palette_ram(
 // because during dipswitch (only) vram is reset at each frame
 // that make cpu write to vram longer than a vblank period
 //
+wire [15:0] vram_do;
+
 dual_ram_buffer16 #(.W(10)) u_vram_ram(
   .clk(clk),
   .trigger(vblank),
   .we({vram_cs && !cpu_wr && !cpu_uds_n , vram_cs && !cpu_wr && !cpu_lds_n }),
   .addr_in(cpu_a[10:1]), 
   .data(cpu_dout[15:0]),
-  .q_in(),
+  .q_in(vram_do),
 
   .addr_out(vram_addr[10:1]),
   .q(vram_out[15:0])
