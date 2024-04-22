@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 5-7-2021 */
 
-module jts18b_main(
+module jts18_main(
     input              rst,
     input              clk,
     input              rst24,
@@ -305,8 +305,7 @@ jtframe_8751mcu #(
     .prom_we    ( mcu_prog_we   )
 );
 
-
-// System 16B memory map
+// System 18 memory map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
