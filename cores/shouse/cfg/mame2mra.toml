@@ -18,6 +18,30 @@ debug = { machines=[
     "tankfrce4",
 ] }
 
+[buttons]
+names = [
+    # { machine="bakutotu",  names="" },
+    # { machine="berabohm",  names="" },
+    # { machine="blastoff",  names="" },
+    # { machine="blazer",    names="" },
+    # { machine="boxyboy",   names="" },
+    # { machine="dangseed",  names="" },
+    # { machine="dspirit",   names="" },
+    # { machine="faceoff",   names="" },
+    # { machine="galaga88",  names="" },
+    # { machine="mmaze",     names="" },
+    { machine="pacmania",  names="Jump" },
+    # { machine="pistoldm",  names="" },
+    # { machine="puzlclub",  names="" },
+    # { machine="quester",   names="" },
+    # { machine="rompers",   names="" },
+    # { machine="shadowld",  names="" },
+    { machine="splatter",  names="Attack,Jump" },
+    # { machine="tankfrce",  names="" },
+    # { machine="wldcourt",  names="" },
+    # { machine="ws",        names="" },
+]
+
 [header]
 info="""Byte 0: protection type
 Byte 1: key ID
