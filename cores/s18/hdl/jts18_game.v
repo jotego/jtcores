@@ -20,20 +20,8 @@ module jts18_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-`ifndef S16B
-    localparam SNDW=15;
-    wire [7:0] sndmap_dout=0;
-    wire       mute_n;
-
-    assign snd_addr[18:15]=0;
-    assign mute = ~mute_n;
-`else
-    localparam SNDW=19;
-
-    wire [7:0] sndmap_din, sndmap_dout;
-    wire       sndmap_rd, sndmap_wr, sndmap_pbf;
-    assign mute = 0;
-`endif
+localparam [24:0] MCU_PROM = `MCU_START,
+                  KEY_PROM = `JTFRAME_PROM_START;
 
 // clock enable signals
 wire    cpu_cen, cpu_cenb;
@@ -58,21 +46,12 @@ wire [ 1:0] dsn;
 wire        UDSWn, LDSWn, main_rnw;
 wire        char_cs, scr1_cs, pal_cs, objram_cs;
 
-// Sound CPU
-wire [SNDW-1:0] pre_snd_addr;
-wire        mc8123_we; // only for S16B2 core
-wire        snd_clip;
-
-// PCM
-wire        n7751_prom;
-
 // Protection
-wire        key_we, fd1089_we;
-wire        dec_en, dec_type,
-            fd1089_en, fd1094_en, mc8123_en;
+wire        key_we;
+reg         fd1094_en;
 wire        mcu_en, mcu_we;
 wire [ 7:0] key_data;
-wire [12:0] key_addr, key_mcaddr;
+wire [12:0] key_addr;
 
 wire [ 7:0] snd_latch;
 wire        snd_irqn, snd_ack;
@@ -80,48 +59,46 @@ wire        snd_irqn, snd_ack;
 wire        flip, video_en, sound_en;
 
 // Cabinet inputs
-wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] game_id;
 
 // Status report
 wire [7:0] st_video, st_main;
 reg  [7:0] st_mux;
 
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
-assign dsn                  = { UDSWn, LDSWn };
-assign debug_view           = st_dout;
-assign st_dout              = st_mux;
-assign xram_dsn             = dsn;
-assign xram_we              = ~main_rnw;
-assign xram_din             = main_dout;
+assign dsn        = { UDSWn, LDSWn };
+assign debug_view = st_dout;
+assign st_dout    = st_mux;
+assign xram_dsn   = dsn;
+assign xram_we    = ~main_rnw;
+assign xram_din   = main_dout;
+assign mcu_we     = prom_we && prog_addr[21:13]==MCU_PROM[21:13];
+assign fd_we      = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
         0: st_mux <= st_video;
-        1: case( st_addr[3:0] )
+        1: st_mux <= st_main;
+        2: case( st_addr[3:0] )
                 0: st_mux <= sndmap_dout;
                 1: st_mux <= {2'd0, tile_bank};
                 2: st_mux <= game_id;
-                3: st_mux <= { 3'd0, dec_type, mc8123_en, fd1089_en, fd1094_en, dec_en };
+                3: st_mux <= { 7'd0, fd1094_en };
             endcase
-        2: st_mux <= st_main;
-        3: st_mux <= st_addr[0] ? dipsw_b : dipsw_a;
+        default: st_mux <= 0;
     endcase
 end
 
-reg rstx;
-
-always @(negedge clk, posedge rst) begin
-    if( rst ) begin
-        rstx <= 1;
-    end else begin
-        if( vrender==9'hf0 ) rstx <= 0; // f0 goldnaxe ok
+always @(posedge clk) begin
+    if( header && prog_we ) begin
+        if( prog_addr[4:0]==5'h11 ) fd1094_en <= prog_data[0];
+        if( prog_addr[4:0]==5'h13 ) mcu_en    <= prog_data[0];
+        if( prog_addr[4:0]==5'h18 ) game_id   <= prog_data;
     end
 end
 
 /* xxxverilator tracing_off */
 jts18_main u_main(
-    .rst        ( rstx      ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .clk_rom    ( clk       ),  // same clock - at least for now
     .cpu_cen    ( cpu_cen   ),
@@ -173,16 +150,12 @@ jts18_main u_main(
     .rom_data    ( main_data  ),
     .rom_ok      ( main_ok    ),
     // Decoder configuration
-    .dec_en      ( dec_en     ),
-    .fd1089_en   ( fd1089_en  ),
     .fd1094_en   ( fd1094_en  ),
     .key_we      ( key_we     ),
-    .fd1089_we   ( fd1089_we  ),
-    .dec_type    ( dec_type   ),
     .key_addr    ( key_addr   ),
     .key_data    ( key_data   ),
     // MCU
-    .rst24       ( rstx       ),
+    .rst24       ( rst        ),
     .clk24       ( clk24      ),  // To ease MCU compilation
     .mcu_cen     ( mcu_cen    ),
     .mcu_en      ( mcu_en     ),
@@ -199,8 +172,8 @@ jts18_main u_main(
     .prog_data   ( prog_data[ 7:0] ),
     // DIP switches
     .dip_test    ( dip_test   ),
-    .dipsw_a     ( dipsw_a    ),
-    .dipsw_b     ( dipsw_b    ),
+    .dipsw_a     ( dipsw[7:0] ),
+    .dipsw_b     ( dipsw[15:0]),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
@@ -314,62 +287,6 @@ jts18_video u_video(
     .st_addr    ( st_addr   ),
     .st_dout    ( st_video  ),
     .scr_bad    ( scr_bad   )
-);
-
-jts16_mem u_mem(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-
-    .vrender    ( vrender   ),
-    .LVBL       ( LVBL      ),
-    .game_id    ( game_id   ),
-    .tile_bank  ( tile_bank ),
-    .gfx_cs     ( gfx_cs    ),
-    .n7751_prom ( n7751_prom),
-
-    .dec_en     ( dec_en    ),
-    .fd1089_en  ( fd1089_en ),
-    .fd1094_en  ( fd1094_en ),
-    .mc8123_en  ( mc8123_en ),
-    .dec_type   ( dec_type  ),
-    .key_we     ( key_we    ),
-    .fd1089_we  ( fd1089_we ),
-    .key_addr   ( key_addr  ),
-    .key_mcaddr ( key_mcaddr),
-    .key_data   ( key_data  ),
-
-    // i8751 MCU
-    .mcu_we     ( mcu_we    ),
-    .mcu_en     ( mcu_en    ),
-
-    // Main CPU
-    .main_cs    ( main_cs   ),
-    .vram_cs    ( vram_cs   ),
-    .ram_cs     ( ram_cs    ),
-    .main_addr  ( main_addr ),
-    .xram_cs    ( xram_cs   ),
-    .xram_addr  ( xram_addr ),
-
-    // Sound CPU
-    .mc8123_we  ( mc8123_we ),
-
-    // video addresses before gating and banking
-    .char_addr  ( pre_char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
-    .scr1_addr  ( pre_scr1_addr ),
-    .scr2_addr  ( pre_scr2_addr ),
-    .obj_addr   ( pre_obj_addr  ),
-
-    // and after:
-    .char_adj   ( char_addr  ),
-    .scr1_adj   ( scr1_addr  ),
-    .scr2_adj   ( scr2_addr  ),
-    .obj_addr_g ( obj_addr   ),
-
-    .prog_addr  ( prog_addr  ),
-    .prog_data  ( prog_data  ),
-    .prog_we    ( prog_we    ),
-    .prom_we    ( prom_we    ),
-    .header     ( header     )
 );
 
 endmodule

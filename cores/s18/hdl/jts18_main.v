@@ -78,13 +78,9 @@ module jts18_main(
     input              rom_ok,
 
     // Decoder configuration
-    input              dec_en,
-    input              fd1089_en,
     input              fd1094_en,
-    input              dec_type,
     input       [12:0] prog_addr,
     input              key_we,
-    input              fd1089_we,
     input       [ 7:0] prog_data,
     output      [12:0] key_addr,
     input       [ 7:0] key_data,
@@ -136,14 +132,12 @@ wire [ 7:0] st_mapper, st_timer;
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-wire        BRn, BGACKn, BGn;
-wire        ASn, UDSn, LDSn, BUSn;
-wire        ok_dly;
+wire        BRn, BGACKn, BGn,
+            ASn, UDSn, LDSn, BUSn, cpu_RnW, ok_dly;
 reg         sdram_ok;
-wire [15:0] rom_dec, cpu_dout_raw, mul_dout, cmp_dout, cmp2_dout;
+wire [15:0] rom_dec, cpu_dout_raw;
 
-reg         io_cs, mul_cs, cmp_cs, cmp2_cs, wdog_cs, tbank_cs;
-wire        cpu_RnW;
+reg         io_cs, wdog_cs;
 
 assign UDSWn = RnW | UDSn;
 assign LDSWn = RnW | LDSn;
@@ -160,41 +154,6 @@ wire [15:0] mcu_addr;
 wire [ 1:0] mcu_intn;
 wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
-
-reg  [ 1:0] act_enc;
-
-wire pcb_5797;
-reg  pcb_5358L;
-
-assign pcb_5797 = game_id[5]; // MVP, etc.
-
-always @(posedge clk) begin
-    pcb_5358L <= game_id==8'h10 || game_id==8'h13 || game_id==8'h15 || game_id==8'h1a;
-
-    st_dout <= st_addr[5:4]==2'b11 ? st_timer : st_mapper;
-end
-
-always @(*) begin
-    case( active[2:0] )
-        3'b001: act_enc = 0;
-        3'b010: act_enc = 1;
-        3'b100: act_enc = 2;
-        default: act_enc = 0;
-    endcase
-    casez( game_id[7:3] )
-        5'b001?_?: // 5797
-            rom_addr = A[18:1];
-        5'b0001_?: // 5358
-            if( pcb_5358L ) // 5358 large
-                rom_addr = { act_enc, A[16:1] };
-            else // 5358 small
-                rom_addr = { 1'b0, act_enc, A[15:1] };
-        5'b0000_1: // Korean
-            rom_addr = {1'b0, A[17:1]};
-        default: // 5521 & 5704
-            rom_addr = { act_enc[0], A[17:1] }; //  18:0 = 512kB
-    endcase
-end
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs;
 wire bus_busy  = |{ rom_cs, ram_cs, vram_cs } & ~sdram_ok;
@@ -266,8 +225,7 @@ jts16b_mapper u_mapper(
     .st_addr    ( st_addr        ),
     .st_dout    ( st_mapper      )
 );
-
-
+/*
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
@@ -303,7 +261,7 @@ jtframe_8751mcu #(
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data     ),
     .prom_we    ( mcu_prog_we   )
-);
+);*/
 
 // System 18 memory map
 always @(posedge clk, posedge rst) begin
@@ -313,14 +271,10 @@ always @(posedge clk, posedge rst) begin
             objram_cs <= 0; // 2 kB
             pal_cs    <= 0; // 4 kB
             io_cs     <= 0;
-            mul_cs    <= 0;
-            cmp_cs    <= 0;
-            cmp2_cs   <= 0;
             wdog_cs   <= 0;
 
             vram_cs   <= 0; // 32kB
             ram_cs    <= 0;
-            tbank_cs  <= 0;
             sdram_ok  <= 0;
     end else begin
         if( ASn )
@@ -329,29 +283,14 @@ always @(posedge clk, posedge rst) begin
             sdram_ok <= rom_cs ? ok_dly : ram_ok;
         end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
-            rom_cs    <= (pcb_5797 ? active[0] : |active[2:0]) && RnW;
+            rom_cs    <= |active[2:0] && RnW;
             char_cs   <= active[REG_VRAM] && A[16];
 
             objram_cs <= active[REG_ORAM];
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
 
-            if( pcb_5797 ) begin
-                if( active[1] ) begin
-                    case(A[13:12])
-                        0: mul_cs <= 1;
-                        1: begin
-                            cmp_cs <= 1;
-                        end
-                        2: tbank_cs <= !RnW;
-                    endcase
-                end
-                if( active[2] ) begin
-                    cmp2_cs <= 1;
-                end
-            end else begin
-                tbank_cs <= active[2] && !RnW; // PCB 171-5521/5704
-            end
+
             // jtframe_ramrq requires cs to toggle to
             // process a new request. BUSn will toggle for
             // read-modify-writes
@@ -363,13 +302,9 @@ always @(posedge clk, posedge rst) begin
             objram_cs <= 0;
             pal_cs    <= 0;
             io_cs     <= 0;
-            mul_cs    <= 0;
-            cmp_cs    <= 0;
-            cmp2_cs   <= 0;
             wdog_cs   <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
-            tbank_cs  <= 0;
         end
     end
 end
@@ -388,52 +323,6 @@ always @(posedge clk, posedge rst) begin
                 tile_bank[2:0] <= cpu_dout[2:0];
     end
 end
-
-jts16b_mul u_mul(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .A      ( A         ),
-    .dsn    ({UDSn,LDSn}),
-    .rnw    ( RnW       ),
-    .cs     ( mul_cs    ),
-    .din    ( cpu_dout  ),
-    .dout   ( mul_dout  )
-);
-
-jts16b_timer u_timer1(
-    .rst      ( rst             ),
-    .clk      ( clk             ),
-    .A        ( A               ),
-    .dsn      ({UDSn,LDSn}      ),
-    .rnw      ( RnW             ),
-    .cs       ( cmp_cs          ),
-    .din      ( cpu_dout        ),
-    .dout     ( cmp_dout        ),
-    // unused
-    .cnt_up   ( 1'b0            ),
-    .main_irqn(                 ),
-    .snd_irq  (                 ),
-
-    .st_addr  ( debug_bus[3:0]  ),
-    .st_dout  ( st_timer        )
-);
-
-jts16b_timer u_timer2(
-    .rst      ( rst             ),
-    .clk      ( clk             ),
-    .A        ( A               ),
-    .dsn      ({UDSn,LDSn}      ),
-    .rnw      ( RnW             ),
-    .cs       ( cmp2_cs         ),
-    .din      ( cpu_dout        ),
-    .dout     ( cmp2_dout       ),
-    // unused
-    .cnt_up   ( 1'b0            ),
-    .main_irqn(                 ),
-    .snd_irq  (                 ),
-    .st_addr  ( 4'd0            ),
-    .st_dout  (                 )
-);
 
 jts16b_cabinet u_cabinet(
     .rst            ( rst           ),
@@ -489,22 +378,10 @@ always @(posedge clk) begin
                     pal_cs             ? pal_dout  :
                     objram_cs          ? obj_dout  :
                     io_cs              ? { 8'hff, cab_dout } :
-                    mul_cs             ? mul_dout  :
-                    cmp_cs             ? cmp_dout  :
-                    cmp2_cs            ? cmp2_dout :
                     none_cs            ? mapper_dout :
                                          16'hffff;
     end
 end
-
-// Shared by FD1094 and FD1089
-wire [12:0] key_1094, key_1089;
-wire [15:0] dec_1094, dec_1089;
-wire        ok_1094, ok_1089;
-
-assign key_addr= fd1094_en ? key_1094 : key_1089;
-assign rom_dec = fd1094_en ? dec_1094 : dec_1089;
-assign ok_dly  = fd1094_en ? ok_1094  : ok_1089;
 
 jts16_fd1094 u_dec1094(
     .rst        ( rst       ),
@@ -516,48 +393,21 @@ jts16_fd1094 u_dec1094(
     .prog_data  ( prog_data ),
 
     // Key access
-    .key_addr   ( key_1094  ),
+    .key_addr   ( key_addr  ),
     .key_data   ( key_data  ),
 
     // Operation
-    .dec_en     ( dec_en    ),
+    .dec_en     ( fd1094_en ),
     .FC         ( FC        ),
     .ASn        ( ASn       ),
 
     .addr       ( A         ),
     .enc        ( rom_data  ),
-    .dec        ( dec_1094  ),
+    .dec        ( rom_dec   ),
 
     .dtackn     ( DTACKn    ),
     .rom_ok     ( rom_ok    ),
-    .ok_dly     ( ok_1094   )
-);
-
-wire op_n = FC[1:0]!=2'b10; // low for CPU OP requests
-
-jts16_fd1089 u_dec1089(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-
-    // Configuration
-    .prog_addr  ( prog_addr ),
-    .fd1089_we  ( fd1089_we ),
-    .prog_data  ( prog_data ),
-
-    // Key access
-    .key_addr   ( key_1089  ),
-    .key_data   ( key_data  ),
-
-    // Operation
-    .dec_type   ( dec_type  ), // 0=a, 1=b
-    .dec_en     ( dec_en    ),
-    .rom_ok     ( rom_ok    ),
-    .ok_dly     ( ok_1089   ),
-
-    .op_n       ( op_n      ),     // OP (0) or data (1)
-    .addr       ( A         ),
-    .enc        ( rom_data  ),
-    .dec        ( dec_1089  )
+    .ok_dly     ( ok_dly    )
 );
 
 jtframe_m68k u_cpu(
@@ -590,33 +440,5 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( cpu_ipln    ) // VBLANK
 );
-
-// Debug
-`ifdef MISTER
-`ifndef NOSHADOW
-jts16_shadow #(.VRAMW(15)) u_shadow(
-    .clk        ( clk       ),
-    .clk_rom    ( clk_rom   ),
-
-    // Capture SDRAM bank 0 inputs
-    .addr       ( A[15:1]   ),
-    .char_cs    ( char_cs   ),    //  4k
-    .vram_cs    ( vram_cs   ),    // 64k
-    .pal_cs     ( pal_cs    ),    //  4k
-    .objram_cs  ( objram_cs ),    //  2k
-    .din        ( cpu_dout  ),
-    .dswn       ( {UDSWn, LDSWn} ),  // write mask -active low
-
-    .tile_bank  ( tile_bank ),
-    // Let data be dumped via NVRAM interface
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
-);
-`else
-assign ioctl_din = 0;
-`endif
-`else
-assign ioctl_din = 0;
-`endif
 
 endmodule

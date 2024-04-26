@@ -37,23 +37,23 @@ data = [
     { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },
     # 5987 board
     # ddcrewu, ddcrew1, ddcrewj might be different
-    { machines=["cltchitr", "desertbr", "ddcrew"], offset=0x18, data="17" },
+    { machines=["cltchitr", "desertbr", "ddcrew"], offset=0x18, data="04" },
     # single-game boards
-    { machine="hamaway",  offset=0x18, data="17" },
-    { machine="lghost",   offset=0x18, data="17" },
-    { machine="shdancer", offset=0x18, data="17" },
+    { machine="hamaway",  offset=0x18, data="08" },
+    { machine="lghost",   offset=0x18, data="10" },
+    { machine="shdancer", offset=0x18, data="20" },
     # wwally's machine may be in a different MAME file, not segas18
-    { machine="wwally",   offset=0x18, data="17" },
+    { machine="wwally",   offset=0x18, data="40" },
 ]
 
 [ROM]
 regions = [
 	{ name="maincpu", width=16 },
-	{ name="maincpu:key" },
-	{ name="soundcpu", start="JTFRAME_BA1_START" },
-	{ name="tiles", start="JTFRAME_BA2_START" },
-	{ name="sprites", start="JTFRAME_BA3_START", width=16 },
-	{ name="mcu" },
+	{ name="soundcpu",    start="JTFRAME_BA1_START" },
+	{ name="tiles",       start="JTFRAME_BA2_START" },
+	{ name="sprites",     start="JTFRAME_BA3_START", width=16 },
+	{ name="maincpu:key", start="JTFRAME_PROM_START" },
+	{ name="mcu",         start="MCU_START" },
 ]
 
-order=["maincpu","maincpu:key","soundcpu","tiles", "sprites", "mcu"]
+order=["maincpu","soundcpu","tiles", "sprites", "maincpu:key", "mcu"]
