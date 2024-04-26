@@ -75,11 +75,6 @@ data= [
     { machine="boxyboy",  data="03 37 02 03 00 FF 04 FF" },
 ]
 
-[buttons]
-names=[
-    { machine="splatter", names="Attack,Jump" },
-]
-
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename=[
