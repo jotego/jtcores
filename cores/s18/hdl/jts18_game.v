@@ -187,29 +187,29 @@ jts18_main u_main(
 jts18_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen_fm     ( cen_fm    ),  //  8 MHz
+    .cen_pcm    ( cen_pcm   ),  // 10 MHz
 
-    .cen_fm     ( cen_fm    ),   // 4MHz or 5MHz
-    .cen_fm2    ( cen_fm2   ),   // 2MHz
-    .cen_snd    ( cen_snd   ),  // 5MHz
-    .cen_pcm    ( cen_pcm   ),  // 640kHz
-    // .cen_snd    ( mcu_cen   ),  // 8MHz - keeps the tempo in Cotton but it isn't the right value
     .mapper_rd  ( sndmap_rd ),
     .mapper_wr  ( sndmap_wr ),
     .mapper_din ( sndmap_din),
     .mapper_dout(sndmap_dout),
     .mapper_pbf ( sndmap_pbf),
-    .game_id    ( game_id   ),
+    // .game_id    ( game_id   ),
     // ROM
     .rom_addr   ( snd_addr  ),
     .rom_cs     ( snd_cs    ),
     .rom_data   ( snd_data  ),
     .rom_ok     ( snd_ok    ),
-    // ADPCM RAM
-    .pcm_addr   ( pcm_addr  ),
-    .pcm_cs0    ( pcm_cs0   ),
-    .pcm_cs1    ( pcm_cs1   ),
-    .pcm_dout   ( pcm_dout  ),
-    .pcm_din    ( pcm_din   ),
+    // ADPCM RAM -- read only
+    .pcm0_addr  ( pcm_addr  ),
+    .pcm0_dout  ( pcm_dout  ),
+    .pcm0_din   ( pcm_din   ),
+    // ADPCM RAM -- R/W by sound CPU
+    .pcm1_addr  ( pcm1_addr ),
+    .pcm1_dout  ( pcm1_dout ),
+    .pcm1_din   ( pcm1_din  ),
+    .pcm1_we    ( pcm1_we   ),
     // Sound output
     .fm_l       ( fm_l      ),
     .fm_r       ( fm_r      ),

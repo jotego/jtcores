@@ -39,5 +39,9 @@ sdram:
     - { name: obj, addr_width: 21, data_width: 16 }
 
 bram:
-  - { name: pcmram0, addr_width: 15, addr: pcm_addr, data_width: 8, rw: true }
-  - { name: pcmram1, addr_width: 15, addr: pcm_addr, data_width: 8, rw: true }
+  - name: pcm
+    addr_width: 16
+    data_width: 8
+    dual_port:
+      name: pcm1
+      rw: true
