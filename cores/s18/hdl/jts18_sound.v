@@ -38,27 +38,31 @@ module jts18_sound(
     output reg           rom_cs,
 
     // ADPCM RAM
-    output        [15:0] pcm_addr,
-    output               pcm_cs0,
-    output               pcm_cs1,
-    input         [ 7:0] pcm_dout,
-    output        [ 7:0] pcm_din,
+    output        [15:0] pcm0_addr,
+    input         [ 7:0] pcm0_dout,
+    output        [ 7:0] pcm0_din,
+
+    output        [15:0] pcm1_addr,
+    output               pcm1_we,
+    input         [ 7:0] pcm1_dout,
+    output        [ 7:0] pcm1_din,
 
     // Sound output
     output signed [15:0] fm0, fm1,
-    output signed [ 7:0] pcm
+    output signed [ 9:0] pcm
 );
 
-wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n;
+wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n;
 wire [15:0] A;
-wire [ 7:0] dout, ram_dout, din, pcmctl_dout;
+wire [ 7:0] dout, ram_dout, din, pcmctl_dout, fm0_dout, fm1_dout;
 reg  [ 7:0] bank, dmux;
-reg         ram_cs, bkreg_cs, pcmctl_cs;
+reg         ram_cs, bkreg_cs, bank_cs, pcmctl_cs, mapper_cs,
+            fm0_cs, fm1_cs, pcm_cs;
 
 assign io_wrn     = iorq_n | wr_n;
 assign mapper_rd  = mapper_cs && !rd_n;
 assign mapper_wr  = mapper_cs && !wr_n;
-assign mapper_din = cpu_dout;
+assign mapper_din = dout;
 assign din        = rom_cs ? rom_data : dmux;
 
 // ROM bank address
@@ -93,7 +97,7 @@ always @(posedge clk) begin
     dmux <= fm0_cs    ? fm0_dout    :
             fm1_cs    ? fm1_dout    :
             mapper_cs ? mapper_dout :
-            ram_cs    ? ram_data    :
+            ram_cs    ? ram_dout    :
             pcm_cs    ? pcmctl_dout : 8'hff;
 end
 
@@ -143,7 +147,33 @@ jt12 u_fm1(
     .snd_sample (               )
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtpcm568 u_pcm(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( cen_pcm       ),
+
+    // CPU interface
+    .wr         ( ~wr_n         ),
+    .cs         ( pcm_cs        ),
+    .addr       ( A[12:0]       ),
+    .din        ( dout          ),
+    .dout       ( pcmctl_dout   ),
+
+    // ADPCM RAM
+    // Access by PCM logic
+    .ram0_addr  ( pcm0_addr     ),
+    .ram0_dout  ( pcm0_dout     ),
+    .ram0_din   ( pcm0_din      ),
+    // Access by CPU
+    .ram1_addr  ( pcm1_addr     ),
+    .ram1_we    ( pcm1_we       ),
+    .ram1_dout  ( pcm1_dout     ),
+    .ram1_din   ( pcm1_din      ),
+
+    .snd        ( pcm           )
+);
+
+jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
