@@ -86,7 +86,7 @@ always @(*) begin
         case( A[7:4] )
             4'h8: fm0_cs    = 1;
             4'h9: fm1_cs    = 1;
-            4'ha: bkreg_cs   = 1;
+            4'ha: bkreg_cs  = 1;
             4'hc: mapper_cs = 1;
             default:;
         endcase

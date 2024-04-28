@@ -11,6 +11,7 @@
     (company "JOTEGO")
     (comment 1 "patreon.com/jotego")
     (comment 2 "Esperanza Triana")
+    (comment 3 "Sound subsystem")
   )
 
   (lib_symbols
@@ -6119,7 +6120,7 @@
     (stroke (width 0) (type default))
     (uuid 123ba461-e16f-401a-9d72-60f5a140bc5d)
   )
-  (wire (pts (xy 259.08 67.31) (xy 260.35 67.31))
+  (wire (pts (xy 259.08 67.31) (xy 260.985 67.31))
     (stroke (width 0) (type default))
     (uuid 14ef3351-ec43-4701-9923-060db2c74647)
   )
@@ -6296,7 +6297,7 @@
     (stroke (width 0) (type default))
     (uuid 26d44a55-2c3d-497a-b58d-35772e687ecd)
   )
-  (wire (pts (xy 260.35 67.31) (xy 260.35 90.17))
+  (wire (pts (xy 260.985 67.31) (xy 260.985 90.17))
     (stroke (width 0) (type default))
     (uuid 27c88424-63b4-4e5f-b56f-1a9c90263fc6)
   )
@@ -7432,7 +7433,7 @@
     (uuid c88e4d08-e521-4995-b226-3159519c5347)
   )
 
-  (wire (pts (xy 260.35 90.17) (xy 232.41 90.17))
+  (wire (pts (xy 260.985 90.17) (xy 232.41 90.17))
     (stroke (width 0) (type default))
     (uuid c9018788-6276-433c-bc89-87de14e444e6)
   )
@@ -10416,7 +10417,7 @@
     (stroke (width 0.1524) (type solid))
     (fill (color 0 0 0 0.0000))
     (uuid b398a842-3d5e-489d-9599-44252b4dd919)
-    (property "Sheetname" "comm_snd" (at 140.97 158.75 0)
+    (property "Sheetname" "PCM" (at 140.97 158.75 0)
       (effects (font (size 1.27 1.27)) (justify left bottom))
     )
     (property "Sheetfile" "comm_snd.kicad_sch" (at 140.97 175.26 0)

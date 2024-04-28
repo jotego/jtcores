@@ -11,6 +11,7 @@
     (company "JOTEGO")
     (comment 1 "patreon.com/jotego")
     (comment 2 "Esperanza Triana")
+    (comment 3 "Memory Mapper")
   )
 
   (lib_symbols

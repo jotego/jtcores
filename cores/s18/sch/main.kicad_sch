@@ -4194,7 +4194,7 @@
     )
   )
 
-  (text "10MHz" (at 54.61 38.1 0)
+  (text "10MHz" (at 54.61 39.37 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 81d8bf73-c761-4008-8bea-6bd0f41b96cb)
   )
