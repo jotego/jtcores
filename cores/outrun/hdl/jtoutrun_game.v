@@ -54,9 +54,6 @@ wire [15:0] sub_dout, road_dout, sub_din; // not SDRAM signals
 wire [ 7:0] sndmap_din, sndmap_dout;
 wire        sndmap_rd, sndmap_wr, sndmap_pbf, snd_rstb;
 
-// PCM
-wire        snd_clip;
-
 // Protection
 wire        key_we, fd1089_we;
 reg         dec_en, dec_type,
@@ -346,12 +343,13 @@ jtoutrun_snd u_sound(
     assign pcm_cs    = 0;
     assign pcm_addr  = 0;
     assign snd_addr  = 0;
-    assign snd_clip  = 0;
-    assign sample    = 0;
-    assign snd_left  = 0;
-    assign snd_right = 0;
+    assign fm_l      = 0;
+    assign fm_r      = 0;
+    assign pcm_l     = 0;
+    assign pcm_r     = 0;
     assign sndmap_rd = 0;
     assign sndmap_wr = 0;
+    assign sndmap_din= 0;
     assign st_snd    = 0;
 `endif
 /* verilator tracing_on */

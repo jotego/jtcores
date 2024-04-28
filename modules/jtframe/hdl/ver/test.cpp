@@ -449,7 +449,8 @@ class JTSim {
     int color8(int c) {
         switch(_JTFRAME_COLORW) {
             case 8: return c;
-            case 5: return (c<<3) | ((c>>2)&3);
+            case 6: return (c<<2) | ((c>>3)&3);
+            case 5: return (c<<3) | ((c>>2)&7);
             case 4: return (c<<4) | c;
             default: return c;
         }

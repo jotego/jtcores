@@ -16,7 +16,9 @@
     Version: 1.0
     Date: 10-7-2022 */
 
-module jtoutrun_video(
+module jtoutrun_video #(
+    parameter CW = `JTFRAME_COLORW
+)(
     input              rst,
     input              clk,
     input              pxl2_cen,  // pixel clock enable (2x)
@@ -102,9 +104,9 @@ module jtoutrun_video(
     output     [ 8:0]  hdump,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
-    output     [ 4:0]  red,
-    output     [ 4:0]  green,
-    output     [ 4:0]  blue,
+    output   [CW-1:0]  red,
+    output   [CW-1:0]  green,
+    output   [CW-1:0]  blue,
 
 `ifdef JTFRAME_LF_BUFFER
     output     [ 8:0]  ln_addr,
