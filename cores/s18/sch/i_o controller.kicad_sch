@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "System 18  MODEL 837-7178")
+    (title "SEGA System 18  MODEL 837-7178")
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
@@ -5935,7 +5935,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid b3a6cc90-6797-4cb3-ad99-d32358a4ca5b)
   )
-  (hierarchical_label "SRAMAIN_~{CS2}" (shape bidirectional) (at 68.58 43.18 90) (fields_autoplaced)
+  (hierarchical_label "~{MRST}" (shape bidirectional) (at 68.58 43.18 90) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid b747fd71-ac72-41c4-9f2d-cb05d113d90e)
   )
