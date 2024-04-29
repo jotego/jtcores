@@ -3829,7 +3829,7 @@
     (uuid ff66b150-e400-4d5a-90d7-1e3ab808ec66)
   )
 
-  (hierarchical_label "MAIN_AD[15..0]" (shape input) (at 220.98 82.55 180) (fields_autoplaced)
+  (hierarchical_label "MAIN_DB[15..0]" (shape input) (at 220.98 82.55 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 112d2105-30e6-415a-bcd0-2912e32d2c37)
   )
@@ -4178,7 +4178,7 @@
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 18a2d0b1-8d07-4e5e-a2ab-9785e57c33ff)
     )
-    (pin "MAIN_AD[15..0]" input (at 223.52 82.55 180)
+    (pin "MAIN_DB[15..0]" input (at 223.52 82.55 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid 65193544-ac43-4200-9bc5-81a0f4727146)
     )

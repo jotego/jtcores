@@ -45,3 +45,7 @@ bram:
     dual_port:
       name: pcm1
       rw: true
+  - { name: pal, addr_width: 12, data_width: 16, rw: false,
+      ioctl: { save: true, order: 0 },
+      dual_port: { name: main, rw: true }
+    }
