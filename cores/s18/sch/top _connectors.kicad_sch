@@ -4757,7 +4757,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 9a8385ce-eb06-4335-8677-ba045e1f8be9)
   )
-  (hierarchical_label "MAPP_WR_H" (shape output) (at 262.89 67.31 0) (fields_autoplaced)
+  (hierarchical_label "~{VS}" (shape input) (at 262.89 67.31 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid a0552dfe-c6a0-4ae3-9e3e-43ffb162cc27)
   )
