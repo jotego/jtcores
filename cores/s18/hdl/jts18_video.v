@@ -19,8 +19,5 @@
 module jts18_video(
 );
 
-ym7101 u_vdp(
-    .MCLK       ( clk       ),      // 48 MHz
-);
 
 endmodule
