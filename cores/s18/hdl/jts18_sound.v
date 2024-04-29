@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 19-3-2024 */
+    Date: 20-4-2024 */
 
 module jts18_sound(
     input                rst,
