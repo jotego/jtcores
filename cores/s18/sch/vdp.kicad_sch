@@ -11,6 +11,7 @@
     (company "JOTEGO")
     (comment 1 "patreon.com/jotego")
     (comment 2 "Esperanza Triana")
+    (comment 3 "Megadrive VDP")
   )
 
   (lib_symbols
@@ -2881,7 +2882,7 @@
     )
   )
 
-  (text "SEGA GENESIS VDP" (at 116.84 111.125 0)
+  (text "SEGA MEGADRIVE VDP" (at 116.84 111.125 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8a31097f-117a-43e1-82da-6451671bf25c)
   )
