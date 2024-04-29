@@ -3845,7 +3845,7 @@
     (stroke (width 0) (type solid))
     (fill (color 0 0 0 0.0000))
     (uuid 00000000-0000-0000-0000-000064bae739)
-    (property "Sheetname" "blanking" (at 217.17 24.6884 0)
+    (property "Sheetname" "video_mux" (at 217.17 24.6884 0)
       (effects (font (size 1.27 1.27)) (justify left bottom))
     )
     (property "Sheetfile" "blanking.kicad_sch" (at 217.17 61.5446 0)

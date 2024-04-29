@@ -5046,7 +5046,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS08") (at 33.02 130.81 0) (mirror y) (unit 2)
+  (symbol (lib_id "jt74:74LS08") (at 33.02 130.81 0) (mirror y) (unit 2) (convert 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 00000000-0000-0000-0000-0000630f6ca1)
     (property "Reference" "D7" (at 33.02 129.54 0)

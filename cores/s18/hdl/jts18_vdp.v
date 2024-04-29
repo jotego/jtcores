@@ -17,7 +17,9 @@
     Date: 29-4-2024 */
 
 module jts18_vdp(
+    input              rst,
     input              clk,
+    output             ed_clk,
 
     // Main CPU interface
     input       [23:1] main_addr,
@@ -28,15 +30,20 @@ module jts18_vdp(
     input       [ 1:0] main_dsn,
     output             dtackn,
     // Video output
+    output             hs,
+    output             vs,
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue
 );
 
-wire       ras1, cas1, we0, oe1, sc, se0, ad, dtack;
+wire       ras1, cas1, we0, oe1, sc, se0, ad, dtack,
+           vs_n;
 wire [7:0] sd;
+reg        rst_n;
 
 assign dtackn = ~dtack;
+assign vs     = ~vs_n;
 
 assign RD =
     (~ym_RD_d ? ym_RD_o : RD_mem);
@@ -46,12 +53,21 @@ assign AD =
     (~vram1_AD_d ? vram1_AD_o : 8'h0) |
     ((ym_AD_d & vram1_AD_d) ? AD_mem : 8'h0);
 
+always @(negedge clk) rst_n <= rst;
+
 ym7101 u_vdp(
+    .RESET      ( rst_n     ),
     .MCLK       ( clk       ),      // 48 MHz
+    .EDCLK_i    ( 1'b0      ),
+    .EDCLK_o    ( ed_clk    ),
+    .EDCLK_d    (           ),
     // M68000
     .CA_i       ( main_addr ),
+    .CA_o       (           ),
+    .CA_d       (           ),
     .CD_i       ( main_dout ),
     .CD_o       ( main_din  ),
+    .CD_d       (           ),
     .RW         ( main_rnw  ),
     .LDS        (main_dsn[0]),
     .UDS        (main_dsn[1]),
@@ -71,6 +87,8 @@ ym7101 u_vdp(
     .WR         ( 1'b1      ),
     // VRAM
     .AD_o       ( ad        ),
+    .AD_i       ( ad        ),
+    .AD_d       (           ),
     .SD         ( sd        ),
     .SE1        (           ),
     .RAS1       ( ras1      ),
@@ -84,7 +102,17 @@ ym7101 u_vdp(
     .SEL0       ( 1'b1      ),      // always use M68k
     .HL         ( 1'b1      ),
     .PAL        ( 1'b1      ),
-    // analog outputs
+    // other unconnected pins
+    .RA         (           ),
+    .RD_d       (           ),
+    .RD_o       (           ),
+    .RD_i       (           ),
+    // video and sound outputs
+    .HSYNC_i    ( 1'b1      ),
+    .HSYNC_pull ( hs        ),
+    .CSYNC_i    ( 1'b1      ),
+    .CSYNC_pull (           ),
+    .VSYNC      ( vs_n      ),
     .SOUND      (           ),
     .DAC_R      ( red       ),
     .DAC_G      ( green     ),
@@ -105,6 +133,6 @@ vram u_vram(
     .RD_d       ( vram_AD_d ),
     .SD_o       ( vram_SD_o ),
     .SD_d       ( vram_SD_d )
-    );
+);
 
 endmodule
