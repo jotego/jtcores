@@ -238,14 +238,6 @@ func add_game_ports(args Args, cfg *MemConfig) {
 	}
 }
 
-func get_macros( core, target string ) (map[string]string) {
-	var def_cfg def.Config
-	def_cfg.Target = target
-	def_cfg.Core = core
-	// def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	return def.Make_macros(def_cfg)
-}
-
 func check_banks( macros map[string]string, cfg *MemConfig ) {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
@@ -653,7 +645,7 @@ func Run(args Args) {
 		// normally ok
 		return
 	}
-	macros := get_macros( args.Core, args.Target )
+	macros := def.Get_Macros( args.Core, args.Target )
 	check_banks( macros, &cfg )
 	fill_implicit_ports( macros, &cfg, args.Verbose )
 	make_ioctl( macros, &cfg, args.Verbose )

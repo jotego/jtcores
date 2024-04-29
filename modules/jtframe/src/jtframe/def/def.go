@@ -390,3 +390,11 @@ func Replace_Macros(path string, macros map[string]string) string {
 	}
 	return builder.String()
 }
+
+func Get_Macros( core, target string ) (map[string]string) {
+	var def_cfg Config
+	def_cfg.Target = target
+	def_cfg.Core = core
+	// def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
+	return Make_macros(def_cfg)
+}
