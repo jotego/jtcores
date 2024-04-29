@@ -553,7 +553,7 @@
         (name "~{VSYNC}" (effects (font (size 1.27 1.27))))
         (number "41" (effects (font (size 1.27 1.27))))
       )
-      (pin bidirectional inverted (at 45.72 -12.7 180) (length 2.54)
+      (pin input inverted (at 45.72 -12.7 180) (length 2.54)
         (name "~{CSYNC}" (effects (font (size 1.27 1.27))))
         (number "42" (effects (font (size 1.27 1.27))))
       )
