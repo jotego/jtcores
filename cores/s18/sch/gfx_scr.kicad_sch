@@ -4797,7 +4797,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 11593b2d-e74a-4c59-8511-7bcccb023485)
   )
-  (hierarchical_label "PALCOL" (shape input) (at 41.91 128.27 0) (fields_autoplaced)
+  (hierarchical_label "VIDEOEN" (shape input) (at 41.91 128.27 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 1d07d410-17d6-4927-bfe8-54c8b81afa53)
   )
