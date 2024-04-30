@@ -14,21 +14,23 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 7-3-2021 */
+    Date: 29-4-2024 */
 
-module jts16_video(
+// 315-5361/2 video subsystem
+// equivalent to System 16B 
+// same palette and DAC logic as Super Hang-On
+
+module jts18_video16(
     input              rst,
     input              clk,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
 
     input              video_en,
-    input [7:0]        game_id,
 
     // CPU interface
     input              dip_pause,
     input              char_cs,
-    input              pal_cs,
     input              objram_cs,
     input      [12:1]  cpu_addr,
     input      [15:0]  cpu_dout,
@@ -79,9 +81,9 @@ module jts16_video(
     output             hstart,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
-    output     [ 4:0]  red,
-    output     [ 4:0]  green,
-    output     [ 4:0]  blue,
+    output     [ 5:0]  red,
+    output     [ 5:0]  green,
+    output     [ 5:0]  blue,
 
     // Debug
     input      [ 3:0]  gfx_en,
@@ -91,25 +93,6 @@ module jts16_video(
     output     [ 7:0]  st_dout,
     output             scr_bad
 );
-
-localparam MODEL = `ifdef S16B 1; `else 0; `endif
-
-wire [ 8:0] hdump;
-wire        preLHBL, preLVBL;
-reg         alt_en, alt_objbank; // 171-5358 boards have a different GFX layout
-wire        flipx;
-
-// video layers
-wire [11:0] obj_pxl;
-wire [10:0] pal_addr;
-wire        shadow;
-
-always @(posedge clk) begin
-    // Dunkshot, Sukeban and Time Scanner use a different
-    // encoding for in tile map bytes.
-    alt_en      <= MODEL && (game_id==8'h1b || game_id==8'h1c || game_id==8'h14);
-    alt_objbank <= MODEL && game_id[4];
-end
 
 jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .rst        ( rst       ),
@@ -129,9 +112,9 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Other configuration
     .flip       ( flip      ),
     .ext_flip   ( ext_flip  ),
-    .colscr_en  ( 1'b0      ),  // unconnected in MODEL 1
-    .rowscr_en  ( 1'b0      ),
-    .alt_en     ( 1'b0      ),
+    .colscr_en  ( colscr_en ),
+    .rowscr_en  ( rowscr_en ),
+    .alt_en     ( alt_en    ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),
@@ -206,31 +189,20 @@ jts16_obj #(.MODEL(MODEL)) u_obj(
     .debug_bus ( debug_bus      )
 );
 
-jts16_colmix u_colmix(
-    .rst       ( rst            ),
-    .clk       ( clk            ),
-    .pxl2_cen  ( pxl2_cen       ),
-    .pxl_cen   ( pxl_cen        ),
-
-    .video_en  ( video_en       ),
-
-    .pal_addr  ( pal_addr       ),
-    .shadow    ( shadow         ),
-    // CPU interface
-    .pal_cs    ( pal_cs         ),
-    .cpu_addr  ( cpu_addr[11:1] ),
-    .cpu_dout  ( cpu_dout       ),
-    .dswn      ( dsn            ),
-    .cpu_din   ( pal_dout       ),
-
-    .preLVBL   ( preLVBL        ),
-    .preLHBL   ( preLHBL        ),
-
-    .LHBL      ( LHBL           ),
-    .LVBL      ( LVBL           ),
-    .red       ( red            ),
-    .green     ( green          ),
-    .blue      ( blue           )
+// Model of 315-5242 DAC
+jtshanon_coldac u_dac(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .rin        ( rpal      ),
+    .gin        ( gpal      ),
+    .bin        ( bpal      ),
+    .sh         ( shadow    ),
+    .en         ( video_en  ),
+    .hilo       (pal_out[15]),
+    .rout       ( pr        ),
+    .gout       ( pg        ),
+    .bout       ( pb        )
 );
+
 
 endmodule
