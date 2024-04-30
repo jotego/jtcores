@@ -21,7 +21,7 @@ debug = { machines=[
 [buttons]
 names = [
     # { machine="bakutotu",  names="" },
-    # { machine="berabohm",  names="" },
+     { machine="berabohm",  names="Attack,Jump" },
     # { machine="blastoff",  names="" },
     # { machine="blazer",    names="" },
     # { machine="boxyboy",   names="" },
