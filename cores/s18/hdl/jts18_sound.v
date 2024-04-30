@@ -77,7 +77,7 @@ wire underC = A[15:12]<4'hc;
 always @(*) begin
     ram_cs    = !mreq_n && &A[15:13];
     bank_cs   = !mreq_n && (!underA && underC);
-    pcmctl_cs = !mreq_n && (!underC && A[15:12]<4'he);
+    pcmctl_cs = ~&A[15:14]; //!mreq_n && (!underC && A[15:12]<4'he);
     rom_cs    = !mreq_n &&   underC;
 
     // Port Map
@@ -86,7 +86,7 @@ always @(*) begin
         case( A[7:4] )
             4'h8: fm0_cs    = 1;
             4'h9: fm1_cs    = 1;
-            4'ha: bkreg_cs  = 1;
+            4'ha: bkreg_cs  = ~wr_n;
             4'hc: mapper_cs = 1;
             default:;
         endcase
@@ -105,7 +105,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bank <= 0;
     end else begin
-        if( bkreg_cs && !wr_n ) bank <= dout;
+        if( bkreg_cs ) bank <= dout;
     end
 end
 
