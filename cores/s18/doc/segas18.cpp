@@ -1384,8 +1384,8 @@ void segas18_state::system18(machine_config &config)
 	m_io->in_pc_callback().set_ioport("P3");
 	m_io->out_pd_callback().set(FUNC(segas18_state::misc_outputs_w));
 	m_io->in_pe_callback().set_ioport("SERVICE");
-	m_io->in_pf_callback().set_ioport("COINAGE");
-	m_io->in_pg_callback().set_ioport("DSW");
+	m_io->in_pf_callback().set_ioport("COINAGE"); // SW1
+	m_io->in_pg_callback().set_ioport("DSW");     // SW2
 	m_io->out_ph_callback().set(FUNC(segas18_state::rom_5874_bank_w));
 	m_io->out_cnt1_callback().set(m_segaic16vid, FUNC(segaic16_video_device::set_display_enable));
 	m_io->out_cnt2_callback().set(FUNC(segas18_state::set_vdp_enable));
