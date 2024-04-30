@@ -61,15 +61,13 @@ module jts18_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
-    input       [ 7:0] joystick4,
     input       [15:0] joyana1,
     input       [15:0] joyana1b,
     input       [15:0] joyana2,
     input       [15:0] joyana2b,
     input       [15:0] joyana3,
-    input       [15:0] joyana4,
-    input       [ 3:0] cab_1p,
-    input       [ 3:0] coin,
+    input       [ 2:0] cab_1p,
+    input       [ 2:0] coin,
     input              service,
     // ROM access
     output reg         rom_cs,
@@ -87,8 +85,7 @@ module jts18_main(
 
     // DIP switches
     input              dip_test,
-    input    [7:0]     dipsw_a,
-    input    [7:0]     dipsw_b,
+    input       [15:0] dipsw,
 
     // MCU enable and ROM programming
     input              mcu_en,
@@ -126,7 +123,7 @@ localparam [2:0] REG_RAM  = 3,
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer;
+wire [ 7:0] st_mapper, st_timer, io_dout;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -323,6 +320,34 @@ always @(posedge clk, posedge rst) begin
                 tile_bank[2:0] <= cpu_dout[2:0];
     end
 end
+
+jts18_io u_ioctl(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .addr       ( {A[13],A[5:1]}),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( io_dout       ),
+    .we         ( io_we         ),
+    // eight 8-bit ports
+    .pa_i       ( {joystick1[3:0],joystick1[7:4]} ),
+    .pb_i       ( {joystick2[3:0],joystick2[7:4]} ),
+    .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
+    .pd_o       (               ),
+    .ph_o       ( tile_bank     ),
+    .pf_i       ( dipsw[ 7:0]   )
+    .pg_i       ( dipsw[15:0]   )
+    // unused
+    .pa_o       (               ),
+    .pb_o       (               ),
+    .pc_o       (               ),
+    .pd_i       ( 8'd0          ),
+    .pf_o       (               ),
+    .pg_o       (               ),
+    .ph_i       ( 8'd0          ),
+    // three output pins
+    output      [2:0] coin_cnt
+);
+
 
 jts16b_cabinet u_cabinet(
     .rst            ( rst           ),

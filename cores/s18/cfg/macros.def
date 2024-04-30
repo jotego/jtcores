@@ -8,6 +8,10 @@ MCU_START         =0x1002000
 
 JTFRAME_HEADER=32
 
+# inputs
+JTFRAME_JOY_LRUD
+JTFRAME_4PLAYERS
+
 # move along nothing to see here
 JTFRAME_SKIP
 

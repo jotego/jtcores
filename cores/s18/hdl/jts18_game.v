@@ -134,15 +134,13 @@ jts18_main u_main(
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
-    .joystick4   ( joystick4  ),
     .joyana1     ( joyana_l1  ),
     .joyana1b    ( joyana_r1  ),
     .joyana2     ( joyana_l2  ),
     .joyana2b    ( joyana_r2  ),
     .joyana3     ( joyana_l3  ),
-    .joyana4     ( joyana_l4  ),
-    .cab_1p      ( cab_1p     ),
-    .coin        (  coin      ),
+    .cab_1p      ( cab_1p[2:0]),
+    .coin        (   coin[2:0]),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),
@@ -172,8 +170,7 @@ jts18_main u_main(
     .prog_data   ( prog_data[ 7:0] ),
     // DIP switches
     .dip_test    ( dip_test   ),
-    .dipsw_a     ( dipsw[7:0] ),
-    .dipsw_b     ( dipsw[15:0]),
+    .dipsw       ( dipsw[15:0]),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
