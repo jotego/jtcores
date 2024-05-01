@@ -156,11 +156,11 @@ wire JETA_A, GYPU,  HORA,  BULU,  CAGA, HUTO, GYVE, DUDO, CUFO,
       FYXA,  JUSO,  GETY,  AGYD,  ARAX, ENAS, COXA, HATE, HUWU,
       G0ADJ, G1ADJ, G2ADJ, G3ADJ, G4ADJ;
 
-assign grey[0] = ^{~FYXA, ~&{~GETY, JUSO}}; // HYJA, FENY
-assign grey[1] = ^{~&{~&{~FYXA, JUSO}, ~GETY}, ~&{~ARAX, AGYD}};    // CUNY, BUHE, BYVO
-assign grey[2] = ^{~&{~ARAX, ~&{AGYD, GETY}, ~&{~FYXA, JUSO, AGYD}}, ~&{~COXA, ENAS}};  // BEPE, ACOB, COHU, DODO
-assign grey[3] = ^{~&{~COXA, ~&{ENAS, ARAX}, ~&{AGYD, ENAS, GETY}, ~&{~FYXA, JUSO, AGYD, ENAS}}, ~&{HUWU, HATE}};   // EHON, BOGO, HORO, AMYG, CAJO, DAPA
-assign grey[4] = &{HUWU, ~&{HATE, COXA}, ~&{ENAS, HATE, ARAX}, ~&{AGYD, JUSO, ~FYXA, HATE, ENAS}, ~&{AGYD, ENAS, HATE, GETY}};  // GOXY, FUBY, ATYH, FAVO, GEHA
+assign gray[0] = ^{~FYXA, ~&{~GETY, JUSO}}; // HYJA, FENY
+assign gray[1] = ^{~&{~&{~FYXA, JUSO}, ~GETY}, ~&{~ARAX, AGYD}};    // CUNY, BUHE, BYVO
+assign gray[2] = ^{~&{~ARAX, ~&{AGYD, GETY}, ~&{~FYXA, JUSO, AGYD}}, ~&{~COXA, ENAS}};  // BEPE, ACOB, COHU, DODO
+assign gray[3] = ^{~&{~COXA, ~&{ENAS, ARAX}, ~&{AGYD, ENAS, GETY}, ~&{~FYXA, JUSO, AGYD, ENAS}}, ~&{HUWU, HATE}};   // EHON, BOGO, HORO, AMYG, CAJO, DAPA
+assign gray[4] = &{HUWU, ~&{HATE, COXA}, ~&{ENAS, HATE, ARAX}, ~&{AGYD, JUSO, ~FYXA, HATE, ENAS}, ~&{AGYD, ENAS, HATE, GETY}};  // GOXY, FUBY, ATYH, FAVO, GEHA
 
 assign JETA_A = ~&{rin[0], bin[0]};
 assign GYPU   = ~&{rin[1], bin[1]};
