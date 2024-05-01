@@ -4,14 +4,14 @@ skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
     # Key type 3
-    "rompers",
+    # "rompers",
     # Others
     "bakutotu",
     "berabohm",
-    "boxyboy",
+    # "boxyboy",
     "mmaze",
     "quester",
-    "shadowld",
+    # "shadowld",
 ], setnames=[
     # key custom error (maybe related to being 4 players?)
     "tankfrcej",
