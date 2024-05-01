@@ -125,7 +125,6 @@ jts16_obj_draw #(.MODEL(MODEL)) u_draw(
     .busy      ( dr_busy        ),
     .xpos      ( dr_xpos        ),
     .offset    ( dr_offset      ),
-    //.bank      ( bank_aux       ),
     .bank      ( dr_bank        ),
     .prio      ( dr_prio        ),
     .pal       ( dr_pal         ),

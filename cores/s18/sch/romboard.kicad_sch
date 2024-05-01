@@ -1643,7 +1643,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 42442362-5799-48e4-b3b7-506c7f9d0af9)
   )
-  (hierarchical_label "JPOBJ[3..0]" (shape bidirectional) (at 95.25 166.37 0) (fields_autoplaced)
+  (hierarchical_label "JPOBJ[3..0]" (shape input) (at 95.25 166.37 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 47d566ae-5f22-4f97-89ec-468aa69d18ef)
   )

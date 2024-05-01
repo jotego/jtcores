@@ -27,25 +27,22 @@ module jts18_video16(
     input              pxl_cen,   // pixel clock enable
 
     input              video_en,
+    input              gray_n,
 
     // CPU interface
     input              dip_pause,
     input              char_cs,
     input              objram_cs,
-    input      [12:1]  cpu_addr,
-    input      [15:0]  cpu_dout,
+    input      [12:1]  addr,
+    input      [15:0]  din,
     input      [ 1:0]  dsn,
 
     output     [15:0]  char_dout,
-    output     [15:0]  pal_dout,
     output     [15:0]  obj_dout,
     output             vint,
 
     // Other configuration
     input              flip,
-    inout              ext_flip,
-    input              colscr_en,
-    input              rowscr_en,
 
     // SDRAM interface
     input              char_ok,
@@ -70,7 +67,7 @@ module jts18_video16(
 
     input              obj_ok,
     output             obj_cs,
-    output     [19:0]  obj_addr,
+    output     [20:1]  obj_addr,
     input      [15:0]  obj_data,
 
     // Video signal
@@ -78,7 +75,6 @@ module jts18_video16(
     output             VS,
     output             LHBL,
     output             LVBL,
-    output             hstart,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
     output     [ 5:0]  red,
@@ -103,15 +99,15 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
-    .cpu_addr   ( cpu_addr  ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_addr   ( addr      ),
+    .cpu_dout   ( din       ),
     .dswn       ( dsn       ),
     .char_dout  ( char_dout ),
     .vint       ( vint      ),
 
     // Other configuration
     .flip       ( flip      ),
-    .ext_flip   ( ext_flip  ),
+    .ext_flip   (           ),
     .colscr_en  ( colscr_en ),
     .rowscr_en  ( rowscr_en ),
     .alt_en     ( alt_en    ),
@@ -138,7 +134,7 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .VS         ( VS        ),
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),
-    .hstart     ( hstart    ),
+    .hstart     (           ),
     .flipx      ( flipx     ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
@@ -168,8 +164,8 @@ jts16_obj #(.MODEL(MODEL)) u_obj(
 
     // CPU interface
     .cpu_obj_cs( objram_cs      ),
-    .cpu_addr  ( cpu_addr[10:1] ),
-    .cpu_dout  ( cpu_dout       ),
+    .cpu_addr  ( addr[10:1]     ),
+    .cpu_dout  ( din            ),
     .dswn      ( dsn            ),
     .cpu_din   ( obj_dout       ),
 
@@ -198,6 +194,7 @@ jtshanon_coldac u_dac(
     .bin        ( bpal      ),
     .sh         ( shadow    ),
     .en         ( video_en  ),
+    .gray_n     ( gray_n    ),
     .hilo       (pal_out[15]),
     .rout       ( pr        ),
     .gout       ( pg        ),

@@ -239,11 +239,11 @@ jtframe_8751mcu #(
     .clk        ( clk24         ),
     .cen        ( mcu_cen       ),
 
-    .int0n      ( mcu_intn[0]   ),
+    .int0n      ( 1'b1          ),
     .int1n      ( mcu_intn[1]   ),
 
     .p0_i       ( mcu_din       ),
-    .p1_i       ( sys_inputs    ),
+    .p1_i       ( coinage       ),
     .p2_i       ( 8'hff         ),
     .p3_i       ( 8'hff         ),
 

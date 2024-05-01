@@ -3364,6 +3364,11 @@
     )
   )
 
+  (text "Same memory layout\nas in System 16B" (at 30.48 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c399ba64-c5a5-4d0f-afae-9b9231a1db13)
+  )
+
   (label "MAIN_DB'0" (at 142.24 135.89 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 011819d0-6819-4abf-a6da-3c8283293580)

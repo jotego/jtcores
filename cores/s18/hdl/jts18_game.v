@@ -41,7 +41,7 @@ wire [20:1] pre_obj_addr;
 
 // CPU interface
 wire [12:1] cpu_addr;
-wire [15:0] main_dout, char_dout, pal_dout, obj_dout;
+wire [15:0] main_dout, char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn;
 wire        UDSWn, LDSWn, main_rnw;
 wire        char_cs, scr1_cs, pal_cs, objram_cs;
@@ -56,7 +56,8 @@ wire [12:0] key_addr;
 wire [ 7:0] snd_latch;
 wire        snd_irqn, snd_ack;
 
-wire        flip, video_en, sound_en;
+wire [ 7:0] tile_bank;
+wire        flip, video_en, sound_en, gray_n;
 
 // Cabinet inputs
 wire [ 7:0] game_id;
@@ -219,22 +220,25 @@ jts18_video u_video(
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
-    .gfx_en     ( gfx_en    ),
 
     .video_en   ( video_en  ),
-    .game_id    ( game_id   ),
+    .vdp_en     ( vdp_en    ),
+    .gfx_en     ( gfx_en    ),
+    .gray_n     ( gray_n    ),
+    .tile_bank  ( tile_bank ),
+
+    // .game_id    ( game_id   ),
     // CPU interface
-    .cpu_addr   ( cpu_addr  ),
+    .addr       ( cpu_addr  ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
     .objram_cs  ( objram_cs ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
-    .cpu_dout   ( main_dout ),
+    .din        ( main_dout ),
     .dsn        ( dsn       ),
     .char_dout  ( char_dout ),
-    .pal_dout   ( pal_dout  ),
     .obj_dout   ( obj_dout  ),
 
     .flip       ( flip      ),

@@ -22,20 +22,23 @@ module jts18_video(
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
 
+    input              vdp_en,
     input              video_en,
-
+    input              gray_n,
+    input     [ 7:0]   tile_bank,
 
     // CPU interface
     input              dip_pause,
     input              char_cs,
     input              objram_cs,
-    input      [12:1]  cpu_addr,
-    input      [15:0]  cpu_dout,
+    input      [23:1]  addr,
+    input      [15:0]  din,
     input      [ 1:0]  dsn,
+    output             vdp_dtackn,
 
     output     [15:0]  char_dout,
-    output     [15:0]  pal_dout,
     output     [15:0]  obj_dout,
+    output     [15:0]  vdp_dout,
     output             vint,
 
     // Other configuration
@@ -52,7 +55,7 @@ module jts18_video(
     input      [15:0]  map1_data,
 
     input              scr1_ok,
-    output     [17:2]  scr1_addr, // 1 bank + 12 addr + 3 vertical = 15 bits
+    output     [21:2]  scr1_addr, // 1 bank + 12 addr + 3 vertical = 15 bits
     input      [31:0]  scr1_data,
 
     input              map2_ok,
@@ -60,12 +63,12 @@ module jts18_video(
     input      [15:0]  map2_data,
 
     input              scr2_ok,
-    output     [17:2]  scr2_addr, // 1 bank + 12 addr + 3 vertical = 15 bits
+    output     [21:2]  scr2_addr, // 1 bank + 12 addr + 3 vertical = 15 bits
     input      [31:0]  scr2_data,
 
     input              obj_ok,
     output             obj_cs,
-    output     [19:0]  obj_addr,
+    output     [20:1]  obj_addr,
     input      [15:0]  obj_data,
 
     // Video signal
@@ -73,23 +76,25 @@ module jts18_video(
     output             VS,
     output             LHBL,
     output             LVBL,
-    output             hstart,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
-    output     [ 4:0]  red,
-    output     [ 4:0]  green,
-    output     [ 4:0]  blue,
+    output     [ 7:0]  red,
+    output     [ 7:0]  green,
+    output     [ 7:0]  blue,
 
     // Debug
     input      [ 3:0]  gfx_en,
     input      [ 7:0]  debug_bus,
     // status dump
     input      [ 7:0]  st_addr,
-    output     [ 7:0]  st_dout,
-    output             scr_bad
+    output     [ 7:0]  st_dout
 );
 
-wire [5:0] r16, g16, b16;
+wire [5:0] s16_r, s16_g, s16_b;
+wire [7:0] vdp_r, vdp_g, bdp_b;
+
+assign scr1_addr[21-:4] = tile_bank[3:0];
+assign scr2_addr[21-:4] = tile_bank[7:4];
 
 jts18_video16 u_video16(
     .rst        ( rst       ),
@@ -98,91 +103,108 @@ jts18_video16 u_video16(
     .pxl_cen    ( pxl_cen   ),
 
     .video_en   ( video_en  ),
+    .flip       ( flip      ),
+    .gray_n     ( gray_n    ),
 
     // CPU interface
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
     .objram_cs  ( objram_cs ),
-    .cpu_addr   ( cpu_addr  ),
-    .cpu_dout   ( cpu_dout  ),
+    .addr       ( addr[12:1]),
+    .din        ( din       ),
     .dsn        ( dsn       ),
 
-    output     [15:0]  char_dout,
-    output     [15:0]  pal_dout,
-    output     [15:0]  obj_dout,
-    output             vint,
-
-    // Other configuration
-    input              flip,
-    inout              ext_flip,
+    .char_dout  ( char_dout ),
+    .obj_dout   ( obj_dout  ),
+    .vint       ( vint      ),
 
     // SDRAM interface
-    input              char_ok,
-    output     [13:2]  char_addr, // 9 addr + 3 vertical + 2 horizontal = 14 bits
-    input      [31:0]  char_data,
+    .char_ok    ( char_ok   ),
+    .char_addr  ( char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
+    .char_data  ( char_data ),
 
-    .map1_ok        ( map1_ok       ),
-    .map1_addr      ( map1_addr     ), // 3 pages + 11 addr = 14 (32 kB)
-    .map1_data      ( map1_data     ),
+    .map1_ok    ( map1_ok   ),
+    .map1_addr  ( map1_addr ), // 3 pages + 11 addr = 14 (32 kB)
+    .map1_data  ( map1_data ),
 
-    .scr1_ok        ( scr1_ok       ),
-    .scr1_addr      ( scr1_addr     ), // 1 bank + 12 addr + 3 vertical = 15 bits
-    .scr1_data      ( scr1_data     ),
+    .scr1_ok    ( scr1_ok   ),
+    .scr1_addr  (scr1_addr[17:2]), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr1_data  ( scr1_data ),
 
-    .map2_ok        ( map2_ok       ),
-    .map2_addr      ( map2_addr     ), // 3 pages + 11 addr = 14 (32 kB)
-    .map2_data      ( map2_data     ),
+    .map2_ok    ( map2_ok   ),
+    .map2_addr  ( map2_addr ), // 3 pages + 11 addr = 14 (32 kB)
+    .map2_data  ( map2_data ),
 
-    .scr2_ok        ( scr2_ok       ),
-    .scr2_addr      ( scr2_addr     ), // 1 bank + 12 addr + 3 vertical = 15 bits
-    .scr2_data      ( scr2_data     ),
+    .scr2_ok    ( scr2_ok   ),
+    .scr2_addr  (scr2_addr[17:2]), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr2_data  ( scr2_data ),
 
-    input              obj_ok,
-    output             obj_cs,
-    output     [19:0]  obj_addr,
-    input      [15:0]  obj_data,
+    .obj_ok     ( obj_ok    ),
+    .obj_cs     ( obj_cs    ),
+    .obj_addr   ( obj_addr  ),
+    .obj_data   ( obj_data  ),
 
     // Video signal
-    output             HS,
-    output             VS,
-    output             LHBL,
-    output             LVBL,
-    output             hstart,
-    output     [ 8:0]  vdump,
-    output     [ 8:0]  vrender,
-    .red            ( r16           ),
-    .green          ( g16           ),
-    .blue           ( b16           ),
+    .HS         ( HS        ),
+    .VS         ( VS        ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .vdump      (           ),
+    .vrender    (           ),
+    .red        ( s16_r     ),
+    .green      ( s16_g     ),
+    .blue       ( s16_b     ),
 
     // Debug
-    .gfx_en         ( gfx_en        ),
-    .debug_bus      ( debug_bus     ),
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus ),
     // status dump
-    .st_addr        ( st_addr       ),
-    .st_dout        (               ),
-    .scr_bad        (               )
+    .st_addr    ( st_addr   ),
+    .st_dout    ( st_dout   ),
+    .scr_bad    (           )
 );
 
 // Megadrive VDP
 jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    output             ed_clk,
+    .ed_clk     (           ),
 
     // Main CPU interface
-    input       [23:1] main_addr,
-    input       [15:0] main_dout,
-    output      [15:0] main_din,
-    input              main_rnw,
-    input              main_asn,
-    input       [ 1:0] main_dsn,
-    output             dtackn,
+    .addr       ( addr      ),
+    .din        ( din       ),
+    .dout       ( vdp_dout  ),
+    .rnw        ( rnw       ),
+    .asn        ( asn       ),
+    .dsn        ( dsn       ),
+    .dtackn     ( vdp_dtackn),
     // Video output
-    output             hs,
-    output             vs,
-    output      [ 7:0] red,
-    output      [ 7:0] green,
-    output      [ 7:0] blue
+    .hs         (           ),
+    .vs         (           ),
+    .red        ( vdp_r     ),
+    .green      ( vdp_g     ),
+    .blue       ( vdp_b     )
+);
+
+jts18_colmix u_colmix(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl2_cen   ( pxl2_cen  ),
+    .pxl_cen    ( pxl_cen   ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .LHBL_dly   ( LHBL_dly  ),
+    .LVBL_dly   ( LVBL_dly  ),
+    .gfx_en     ( gfx_en    ),
+    .s16_r      ( s16_r     ),
+    .s16_g      ( s16_g     ),
+    .s16_b      ( s16_b     ),
+    .vdp_r      ( vdp_r     ),
+    .vdp_g      ( vdp_g     ),
+    .vdp_b      ( vdp_b     ),
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      )
 );
 
 endmodule

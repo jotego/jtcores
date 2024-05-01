@@ -26,13 +26,14 @@ module jtshanon_coldac(
     input            pxl_cen,
     input      [4:0] rin, gin, bin,
     input            en,
+    input            gray_n,
     input            sh,
     input            hilo,
     output reg [5:0] rout, gout, bout
 );
 
 reg [5:0] lvl;
-reg [4:0] act;
+reg [4:0] act, gray;
 reg [3:0] cnt;
 
 always @(posedge clk) begin
@@ -45,6 +46,7 @@ always @(posedge clk) begin
     if( cnt[1] ) {act, rout} <= {bin, lvl};
     if( cnt[2] )       gout  <=       lvl;
     if( cnt[3] )       bout  <=       lvl;
+    if( !gray_n ) act <= gray;
     if( !en ) {rout,gout,bout} <= 0;
     casez( {act,sh,hilo})
         // normal tones
@@ -148,5 +150,42 @@ always @(posedge clk) begin
         {5'd31, 2'b11}: lvl <= 63;
     endcase
 end
+
+// gray out logic comes directly from Furrtek's model
+wire JETA_A, GYPU,  HORA,  BULU,  CAGA, HUTO, GYVE, DUDO, CUFO,
+      FYXA,  JUSO,  GETY,  AGYD,  ARAX, ENAS, COXA, HATE, HUWU,
+      G0ADJ, G1ADJ, G2ADJ, G3ADJ, G4ADJ;
+
+assign grey[0] = ^{~FYXA, ~&{~GETY, JUSO}}; // HYJA, FENY
+assign grey[1] = ^{~&{~&{~FYXA, JUSO}, ~GETY}, ~&{~ARAX, AGYD}};    // CUNY, BUHE, BYVO
+assign grey[2] = ^{~&{~ARAX, ~&{AGYD, GETY}, ~&{~FYXA, JUSO, AGYD}}, ~&{~COXA, ENAS}};  // BEPE, ACOB, COHU, DODO
+assign grey[3] = ^{~&{~COXA, ~&{ENAS, ARAX}, ~&{AGYD, ENAS, GETY}, ~&{~FYXA, JUSO, AGYD, ENAS}}, ~&{HUWU, HATE}};   // EHON, BOGO, HORO, AMYG, CAJO, DAPA
+assign grey[4] = &{HUWU, ~&{HATE, COXA}, ~&{ENAS, HATE, ARAX}, ~&{AGYD, JUSO, ~FYXA, HATE, ENAS}, ~&{AGYD, ENAS, HATE, GETY}};  // GOXY, FUBY, ATYH, FAVO, GEHA
+
+assign JETA_A = ~&{rin[0], bin[0]};
+assign GYPU   = ~&{rin[1], bin[1]};
+assign HORA   = ~|{rin[1], bin[1]};
+assign BULU   = ~&{rin[2], bin[2]};
+assign CAGA   = ~|{rin[2], bin[2]};
+assign HUTO   = ~&{rin[3], bin[3]};
+assign GYVE   = ~|{rin[3], bin[3]};
+assign DUDO   = ~&{rin[4], bin[4]};
+assign CUFO   =    rin[4] |bin[4];
+
+assign FYXA   =    gin[0] &G0ADJ;
+assign JUSO   = ~&{gin[1], G1ADJ};
+assign GETY   = ~|{gin[1], G1ADJ};
+assign AGYD   = ~&{gin[2], G2ADJ};
+assign ARAX   = ~|{gin[2], G2ADJ};
+assign ENAS   = ~&{gin[3], G3ADJ};
+assign COXA   = ~|{gin[3], G3ADJ};
+assign HATE   = ~&{gin[4], G4ADJ};
+assign HUWU   =    gin[4] |G4ADJ;
+
+assign G0ADJ = ^{JETA_A, ~&{~HORA, GYPU}};  // GUTO, EROP
+assign G1ADJ = ^{~&{~&{JETA_A, GYPU}, ~HORA}, ~&{~CAGA, BULU}}; // DOCY, COPU, DUFY
+assign G2ADJ = ^{~&{~CAGA, ~&{BULU, HORA}, ~&{JETA_A, GYPU, BULU}}, ~&{~GYVE, HUTO}};   // ATOK, ETYB, BYXO, HAXO, HUNA
+assign G3ADJ = ^{~&{~GYVE, ~&{HUTO, CAGA}, ~&{BULU, HUTO, HORA}, ~&{JETA_A, GYPU, BULU, HUTO}}, ~&{CUFO, DUDO}};    // BEWA, DAMY, BOCA, DYJU, ETEC, GYLO
+assign G4ADJ = &{CUFO, ~&{DUDO, GYVE}, ~&{HUTO, DUDO, CAGA}, ~&{BULU, GYPU, JETA_A, DUDO, HUTO}, ~&{BULU, HUTO, DUDO, HORA}};   // FERO, JYSA, CUGO, FUGU, JANO
 
 endmodule

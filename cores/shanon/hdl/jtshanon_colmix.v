@@ -125,6 +125,7 @@ jtshanon_coldac u_dac(
     .bin        ( bpal      ),
     .sh         ( shadow    ),
     .en         ( video_en  ),
+    .gray_n     ( 1'b1      ),
     .hilo       (pal_out[15]),
     .rout       ( pr        ),
     .gout       ( pg        ),
