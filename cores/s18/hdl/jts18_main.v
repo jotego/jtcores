@@ -39,11 +39,12 @@ module jts18_main(
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
+    // video control
     output             flip,
-    output             video_en,
-    output             colscr_en,
-    output             rowscr_en,
-    output reg  [ 5:0] tile_bank,
+    output             gray_n,
+    output             vdp_en,
+    output             vid16_en,
+    output      [ 7:0] tile_bank,
 
     // RAM access
     output reg         ram_cs,
@@ -123,7 +124,7 @@ localparam [2:0] REG_RAM  = 3,
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, io_dout;
+wire [ 7:0] st_mapper, st_timer, io_dout, misc_o, coinage;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -136,16 +137,21 @@ wire [15:0] rom_dec, cpu_dout_raw;
 
 reg         io_cs, wdog_cs;
 
-assign UDSWn = RnW | UDSn;
-assign LDSWn = RnW | LDSn;
-assign BUSn  = LDSn & UDSn;
+assign UDSWn   = RnW | UDSn;
+assign LDSWn   = RnW | LDSn;
+assign BUSn    = LDSn & UDSn;
+assign gray_n  = misc_o[6];
+assign flip    = misc_o[5];
+// MSB 7-6 are select inputs, used in Wally
+// It may be safe to connect to button 0
+assign coinage = { 2'b11, cab_1p[0], cab_1p[1], service, dip_test, coin[1:0] };
 
 // No peripheral bus access for now
 assign cpu_addr = A[12:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
 //                               && !io_cs  && !wdog_cs && vram_cs && ram_cs);
 
-wire [ 7:0] active, mcu_din, mcu_dout, sys_inputs, cab_dout;
+wire [ 7:0] active, mcu_din, mcu_dout, sys_inputs, io_dout;
 wire        mcu_wr, mcu_acc;
 wire [15:0] mcu_addr;
 wire [ 1:0] mcu_intn;
@@ -306,21 +312,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-assign colscr_en   = 0;
-assign rowscr_en   = 0;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        tile_bank <= 0;
-    end else begin
-        if( tbank_cs && !LDSWn )
-            if( A[1] )
-                tile_bank[5:3] <= cpu_dout[2:0];
-            else
-                tile_bank[2:0] <= cpu_dout[2:0];
-    end
-end
-
 jts18_io u_ioctl(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -332,7 +323,8 @@ jts18_io u_ioctl(
     .pa_i       ( {joystick1[3:0],joystick1[7:4]} ),
     .pb_i       ( {joystick2[3:0],joystick2[7:4]} ),
     .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
-    .pd_o       (               ),
+    .pd_o       ( misc_o        ),
+    .pe_o       ( coinage       ),
     .ph_o       ( tile_bank     ),
     .pf_i       ( dipsw[ 7:0]   )
     .pg_i       ( dipsw[15:0]   )
@@ -341,56 +333,15 @@ jts18_io u_ioctl(
     .pb_o       (               ),
     .pc_o       (               ),
     .pd_i       ( 8'd0          ),
+    .pe_i       ( 8'd0          ),
     .pf_o       (               ),
     .pg_o       (               ),
     .ph_i       ( 8'd0          ),
     // three output pins
-    output      [2:0] coin_cnt
+    .aux0       (               ),
+    .aux1       ( vid16_en      ),
+    .aux2       ( vdp_en        )
 );
-
-
-jts16b_cabinet u_cabinet(
-    .rst            ( rst           ),
-    .clk            ( clk           ),
-    .LHBL           ( LHBL          ),
-    .game_id        ( game_id       ),
-
-    // CPU
-    .A              ( A             ),
-    .cpu_dout       ( cpu_dout      ),
-    .LDSWn          ( LDSWn         ),
-    .UDSWn          ( UDSWn         ),
-    .LDSn           ( LDSn          ),
-    .UDSn           ( UDSn          ),
-    .io_cs          ( io_cs         ),
-
-    // DIP switches
-    .dip_test       ( dip_test      ),
-    .dipsw_a        ( dipsw_a       ),
-    .dipsw_b        ( dipsw_b       ),
-
-    // cabinet I/O
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
-    .joystick3      ( joystick3     ),
-    .joystick4      ( joystick4     ),
-    .joyana1        ( joyana1       ),
-    .joyana1b       ( joyana1b      ),
-    .joyana2        ( joyana2       ),
-    .joyana2b       ( joyana2b      ),
-    .joyana3        ( joyana3       ),
-    .joyana4        ( joyana4       ),
-    .cab_1p   ( cab_1p  ),
-    .coin     ( coin    ),
-    .service        ( service       ),
-
-    .sys_inputs     ( sys_inputs    ),
-    .cab_dout       ( cab_dout      ),
-    .flip           ( flip          ),
-    .video_en       ( video_en      ),
-    .debug_bus      ( debug_bus     )
-);
-
 
 // Data bus input
 always @(posedge clk) begin
@@ -402,7 +353,7 @@ always @(posedge clk) begin
                     char_cs            ? char_dout :
                     pal_cs             ? pal_dout  :
                     objram_cs          ? obj_dout  :
-                    io_cs              ? { 8'hff, cab_dout } :
+                    io_cs              ? io_dout   :
                     none_cs            ? mapper_dout :
                                          16'hffff;
     end

@@ -32,7 +32,9 @@ module jts18_io(
     output      [7:0] pa_o, pb_o, pc_o, pd_o,
                       pe_o, pf_o, pg_o, ph_o,
     // three output pins
-    output      [2:0] coin_cnt
+    output            aux0,
+    output            aux1,
+    output            aux2
 );
 
 reg [7:0] pout[0:7];
@@ -48,8 +50,9 @@ assign pf_o = dir[5] ? pout[5] : pf_i;
 assign pg_o = dir[6] ? pout[6] : pg_i;
 assign ph_o = dir[7] ? pout[7] : ph_i;
 
-assign coin_cnt[1:0] = cnt[1:0];
-assign coin_cnt[2]   = cnt[3] ? 1'b0 : cnt[2]; // should output a clock when cnt[3] is high
+assign aux0 = cnt[0];
+assign aux1 = cnt[1];
+assign aux2 = cnt[3] ? 1'b0 : cnt[2]; // should output a clock when cnt[3] is high
     // d4,5: CNT2 clock divider (0= CLK/4, 1= CLK/8, 2= CLK/16, 3= CLK/2)
     // d6,7: CKOT clock divider (0= CLK/4, 1= CLK/8, 2= CLK/16, 3= CLK/2)
     // TODO..

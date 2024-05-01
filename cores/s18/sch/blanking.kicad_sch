@@ -2854,7 +2854,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e4870454-863b-44a7-a828-ff97814bf7e4)
   )
-  (hierarchical_label "IOC_CLK" (shape input) (at 45.72 189.23 180) (fields_autoplaced)
+  (hierarchical_label "~{VDP_MIX}" (shape input) (at 45.72 189.23 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid f080421e-b094-44df-8d85-78b2a1fd82f7)
   )

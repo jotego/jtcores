@@ -4828,7 +4828,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid bb15034f-dec6-4419-8635-04b963b76427)
   )
-  (hierarchical_label "SCR_~{A}-B" (shape input) (at 60.96 135.89 180) (fields_autoplaced)
+  (hierarchical_label "SCR_SEL" (shape input) (at 60.96 135.89 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid bb613792-385b-4617-84fb-6c428d8a22c0)
   )

@@ -4725,7 +4725,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 603b622f-e0d9-47e3-aee8-02b474706790)
   )
-  (hierarchical_label "SCR_~{A}-B" (shape bidirectional) (at 49.53 67.31 180) (fields_autoplaced)
+  (hierarchical_label "SCR_SEL" (shape bidirectional) (at 49.53 67.31 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 6100e15e-6ac9-4eda-b536-e229afaf5c26)
   )

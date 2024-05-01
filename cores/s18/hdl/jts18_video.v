@@ -163,4 +163,26 @@ jts18_video16 u_video16(
     .scr_bad        (               )
 );
 
+// Megadrive VDP
+jts18_vdp u_vdp(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    output             ed_clk,
+
+    // Main CPU interface
+    input       [23:1] main_addr,
+    input       [15:0] main_dout,
+    output      [15:0] main_din,
+    input              main_rnw,
+    input              main_asn,
+    input       [ 1:0] main_dsn,
+    output             dtackn,
+    // Video output
+    output             hs,
+    output             vs,
+    output      [ 7:0] red,
+    output      [ 7:0] green,
+    output      [ 7:0] blue
+);
+
 endmodule
