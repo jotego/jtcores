@@ -23,7 +23,8 @@ JTFRAME_JOY_LRUD
 JTFRAME_4PLAYERS
 JTFRAME_BUTTONS=4
 
-# move along nothing to see here
+[sidi|mist|neptuno|mc*]
+# won't fit
 JTFRAME_SKIP
 
 # Game codes

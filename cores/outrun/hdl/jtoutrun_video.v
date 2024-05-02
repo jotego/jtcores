@@ -231,7 +231,6 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
 
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .cpu_addr   ( cpu_addr[12:1] ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( main_dswn ),

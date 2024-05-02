@@ -320,7 +320,7 @@ func expand_glob( name string ) []string {
 		os.Exit(1)
 	}
 	if len(matches)==0 {
-		fmt.Printf("Warning: no matches for %s\n",each)
+		fmt.Printf("Warning: no matches for %s\n",name)
 		return nil
 	}
 	return matches
