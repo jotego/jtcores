@@ -32,9 +32,10 @@ module jtshanon_coldac(
     output reg [5:0] rout, gout, bout
 );
 
-reg [5:0] lvl;
-reg [4:0] act, gray;
-reg [3:0] cnt;
+reg  [5:0] lvl;
+reg  [4:0] act;
+wire [4:0] gray;
+reg  [3:0] cnt;
 
 always @(posedge clk) begin
     cnt <= cnt<<1;
