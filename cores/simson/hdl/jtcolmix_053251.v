@@ -89,8 +89,10 @@ always @* begin
 end
 
 function opaque( input full, input [7:0] col );
+begin
     opaque = ~|col[3:0];
     if(full) opaque = opaque & ~|col[7:4];
+end
 endfunction
 
 `ifdef SIMULATION
