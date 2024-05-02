@@ -45,43 +45,19 @@ module jtdd2_sound(
     input           adpcm_ok,
 
     // Sound output
-    output     signed [15:0] sound,
-    output                   sample,
-    output                   peak
+    output signed [15:0] fm_l, fm_r,
+    output signed [13:0] pcm
 );
 `ifndef NOSOUND
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, oki_dout;
 wire [15:0] A;
 reg  [ 7:0] cpu_din;
 wire        wr_n, int_n, nmi_n;
-wire signed [13:0] adpcm_snd;
-wire signed [15:0] fm_left, fm_right;
 reg ram_cs, latch_cs, oki_cs, fm_cs;
 wire oki_wrn = oki_cs & ~wr_n;
 assign rom_addr = A[14:0];
 
 wire mreq_n;
-
-localparam [7:0] FMGAIN  = 8'h10,
-                 PCMGAIN = 8'h10;
-
-jtframe_mixer #(.W0(16),.W1(16),.W2(14),.W3(14), .WOUT(16)) u_mixer(
-    .rst    ( rst           ),
-    .clk    ( clk           ),
-    .cen    ( cen_fm2       ),
-    // input signals
-    .ch0    ( fm_left       ),
-    .ch1    ( fm_right      ),
-    .ch2    ( adpcm_snd     ),
-    .ch3    ( adpcm_snd     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN        ),
-    .gain1  ( FMGAIN        ),
-    .gain2  ( PCMGAIN       ),
-    .gain3  ( PCMGAIN       ),
-    .mixed  ( sound         ),
-    .peak   ( peak          )
-);
 
 always @(*) begin
     ram_cs   = 1'b0;
@@ -165,12 +141,12 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( int_n     ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 assign adpcm_cs = 1'b1;
@@ -190,12 +166,12 @@ jt6295 #(.INTERPOL(2)) u_adpcm(
     .rom_ok     ( adpcm_ok  ),
     // Sound output
     .sample     (           ),
-    .sound      ( adpcm_snd )
+    .sound      ( pcm       )
 );
 `else // NOSOUND
-assign sample     = 0;
-assign sound      = 0;
-assign peak       = 0;
+assign fm_l       = 0;
+assign fm_r       = 0;
+assign pcm        = 0;
 initial rom_cs    = 0;
 assign rom_addr   = 0;
 assign adpcm_cs   = 0;

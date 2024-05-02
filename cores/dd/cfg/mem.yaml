@@ -26,13 +26,15 @@ clocks:
         - mcu_cen12
         - mcu_cen6
 audio:
-  rsum: 20k
   channels:
-    # the original does not have PCM filter, so this will be an option enabled
-    # by the user
-    - { name: pcm_a, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
-    - { name: pcm_b, module: jt5205, rsum: 20k, rc: [{ r: 10k, 4n }], rc_en: true }
-    - { name: fm,    module: jt51,   rsum: 47k, rc: [{ r: 1rout, c: 3.3n }]}
+    # the sound circuitry is all messed up in the schematics:
+    # - too much gain for PCM
+    # - no antialiasing filter
+    # - too much filtering for FM
+    # I am assuming using a more sensible circuit here:
+    - { name: pcm_a, module: jt5205, rsum: 40k, rc: [{ r: 10k, 4n }] }
+    - { name: pcm_b, module: jt5205, rsum: 40k, rc: [{ r: 10k, 4n }] }
+    - { name: fm,    module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }]}
 sdram:
   banks:
     - buses:

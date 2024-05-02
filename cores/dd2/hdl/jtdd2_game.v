@@ -187,9 +187,9 @@ jtdd2_sound u_sound(
     .adpcm_ok    ( adpcm_ok      ),
 
     // Sound output
-    .sound       ( snd           ),
-    .sample      ( sample        ),
-    .peak        ( game_led      )
+    .fm_l        ( fm_l          ),
+    .fm_r        ( fm_r          ),
+    .pcm         ( pcm           )
 );
 /* verilator tracing_off */
 jtdd_video u_video(
