@@ -10,9 +10,22 @@ game:
       - jts16_fd1094.v
       - jts16_fd1094_dec.v
       - jts16_fd1094_ctrl.v
+      - tilemap.yaml
+      - obj.yaml
+  - from: shanon
+    get:
+      - jtshanon_coldac.v
 jtframe:
   - from: cpu
     get:
       - jtframe_m68k.yaml
       - jtframe_8751.yaml
       - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v
+modules:
+  jt:
+    - name: jt12

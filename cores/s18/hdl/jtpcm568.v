@@ -59,6 +59,7 @@ assign regwr     = cs && wr && !addr[12];
 
 // temporary
 assign ram0_addr = 0;
+assign snd       = 0;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -81,7 +82,7 @@ end
 
 generate
     genvar k;
-    for(k=0;k<8;k=k+1) begin
+    for(k=0;k<8;k=k+1) begin : channels
         assign chwr[k] = regwr && addr[2:0]==k;
 
         jtpcm568_ch u_ch(

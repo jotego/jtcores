@@ -26,6 +26,10 @@
  *
  */
 /* verilator lint_off PINMISSING */
+/* verilator lint_off WIDTHEXPAND */
+/* verilator lint_off WIDTHTRUNC */
+/* verilator lint_off SELRANGE */
+/* verilator lint_off UNOPTFLAT */
 module ym7101
 	(
 	input MCLK,
@@ -5206,7 +5210,7 @@ module ym7101
 	assign w769 = hclk1 & (w97 | w772);
 	
 	assign w770 = (~w705 ? {l418[2:0], l417, l416, l415, l414, l413 } : 11'h0) |
-		(~w706 ? l425 : 11'h0) |
+		(~w706 ? {2'd0,l425} : 11'h0) |
 		(~w707 ? l424 : 11'h0);
 	
 	ym_slatch sl413(.MCLK(MCLK), .en(w769), .inp(sprdata_hflip_o), .val(l413));

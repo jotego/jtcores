@@ -70,4 +70,4 @@ jtcus30:  { data_width: 13, rout: 47k, stereo: true, vpp: 2.0 }
 
 # SEGA
 # place holder values
-jtpcm568: { data_width: 8, rout: 100k, vpp: 1.0 }
+jtpcm568: { data_width: 10, rout: 100k, vpp: 1.0 }

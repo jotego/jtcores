@@ -93,10 +93,13 @@ module jts18_video16(
     output             scr_bad
 );
 
+localparam MODEL=1;
+
 // video layers
 wire [11:0] obj_pxl;
 wire [ 4:0] rpal, gpal, bpal;
-wire        shadow;
+wire [ 8:0] hdump;
+wire        shadow, hstart, flipx;
 
 assign rpal  = { pal_dout[ 3:0], pal_dout[12] };
 assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
@@ -119,9 +122,9 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Other configuration
     .flip       ( flip      ),
     .ext_flip   (           ),
-    .colscr_en  ( colscr_en ),
-    .rowscr_en  ( rowscr_en ),
-    .alt_en     ( alt_en    ),
+    .colscr_en  ( 1'b0      ),
+    .rowscr_en  ( 1'b0      ),
+    .alt_en     ( 1'b0      ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),
@@ -143,9 +146,9 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Video signal
     .HS         ( HS        ),
     .VS         ( VS        ),
-    .preLHBL    ( preLHBL   ),
-    .preLVBL    ( preLVBL   ),
-    .hstart     (           ),
+    .preLHBL    ( LHBL      ),
+    .preLVBL    ( LVBL      ),
+    .hstart     ( hstart    ),
     .flipx      ( flipx     ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
@@ -171,7 +174,7 @@ jts16_obj #(.MODEL(MODEL)) u_obj(
     .rst       ( rst            ),
     .clk       ( clk            ),
     .pxl_cen   ( pxl_cen        ),
-    .alt_bank  ( alt_objbank    ),
+    .alt_bank  ( 1'b0           ),
 
     // CPU interface
     .cpu_obj_cs( objram_cs      ),
@@ -206,10 +209,10 @@ jtshanon_coldac u_dac(
     .sh         ( shadow    ),
     .en         ( video_en  ),
     .gray_n     ( gray_n    ),
-    .hilo       (pal_out[15]),
-    .rout       ( pr        ),
-    .gout       ( pg        ),
-    .bout       ( pb        )
+    .hilo       (pal_dout[15]),
+    .rout       ( red       ),
+    .gout       ( green     ),
+    .bout       ( blue      )
 );
 
 endmodule

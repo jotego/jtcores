@@ -76,13 +76,14 @@ always @(posedge clk, posedge rst) begin
             9: dout <= "E";
            10: dout <= "G";
            11: dout <= "A";
-           12,13: dout <= cnt;
-           14,15: dout <= dir;
+           6'hc,6'he: dout <= cnt;
+           6'hd,6'hf: dout <= dir;
+           default: dout <= 8'hff;
         endcase
         if( we ) casez(addr)
-            4'b0???: if(dir[addr[2:0]]) pout[addr[2:0]] <= din;
-            4'he: cnt <= din;
-            4'hf: dir <= din;
+            6'b00_0???: if(dir[addr[2:0]]) pout[addr[2:0]] <= din;
+            6'h0e: cnt <= din;
+            6'h0f: dir <= din;
             default:;
         endcase
     end

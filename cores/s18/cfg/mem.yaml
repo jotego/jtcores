@@ -34,9 +34,9 @@ sdram:
 
   # Bank 2 for tile graphics
   - buses:
-    - { name: char, addr_width: 20, data_width: 32, cs: gfx_cs }
-    - { name: scr1, addr_width: 20, data_width: 32, cs: gfx_cs }
-    - { name: scr2, addr_width: 20, data_width: 32, cs: gfx_cs }
+    - { name: char, addr_width: 14, data_width: 32, cs: gfx_cs }
+    - { name: scr1, addr_width: 22, data_width: 32, cs: gfx_cs }
+    - { name: scr2, addr_width: 22, data_width: 32, cs: gfx_cs }
 
   # Bank 3 objects
   - buses:
@@ -53,5 +53,5 @@ bram:
       rw: true
   - { name: pal, addr_width: 12, data_width: 16, rw: false,
       ioctl: { save: true, order: 0 },
-      dual_port: { name: main, rw: true, we: pal_we, dout: pal_dout }
+      dual_port: { name: main, rw: true, we: pal_we }
     }

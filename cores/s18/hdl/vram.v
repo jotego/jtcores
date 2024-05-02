@@ -62,9 +62,10 @@ module vram
 		end
 		for (i = 0; i < 8*32; i = i + 1)
 		begin : l2
-			jtframe_mem #(.DW(8),.AW(8)) u_mem(
+			jtframe_ram #(.DW(8),.AW(8)) u_mem(
 				.clk	( MCLK		),
 				.cen	( 1'b1		),
+				.addr   ( mem_addr  ),
 				.data	( RD_i		),
 				.we		( wr && (addr[7:5] == i[5+:3]) && mem_be[i[4:0]] ),
 				.q		( mem_o[(8*i)+:8] )

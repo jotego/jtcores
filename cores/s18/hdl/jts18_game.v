@@ -34,34 +34,32 @@ wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
+reg  [18:1] xa;
 
 // CPU interface
-wire [12:1] cpu_addr;
+wire [23:1] cpu_addr;
 wire [15:0] char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
 wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
 
 // Protection
-wire        key_we;
-reg         fd1094_en;
-wire        mcu_en, mcu_we;
+wire        key_we, mcu_we;
+reg         fd1094_en, mcu_en;
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
 
 wire [ 7:0] sndmap_din, sndmap_dout;
 wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
 
-// Cabinet inputs
-wire [ 7:0] game_id;
-
 // Status report
 wire [7:0] st_video, st_main;
-reg  [7:0] st_mux;
+reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
 assign debug_view = st_mux;
+assign st_dout    = st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
@@ -70,6 +68,8 @@ assign key_we     = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
 assign xram_cs    = ram_cs | vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
+assign ioctl_din  = 0;
+assign xram_addr  = xa;
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
@@ -77,7 +77,7 @@ always @(posedge clk) begin
         1: st_mux <= st_main;
         2: case( st_addr[3:0] )
                 0: st_mux <= sndmap_dout;
-                1: st_mux <= {2'd0, tile_bank};
+                1: st_mux <= tile_bank;
                 2: st_mux <= game_id;
                 3: st_mux <= { 6'd0, mcu_en, fd1094_en };
             endcase
@@ -94,11 +94,11 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    xram_addr = 0;
-    xram_addr[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
+    xa = 0;
+    xa[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
     // Mask RAM address
-    if( ram_cs  ) xram_addr[VRAMW-2:14]=0; // only 16kB for RAM
-    if( vram_cs ) xram_addr[VRAMW-2:16]=0;
+    if( ram_cs  ) xa[VRAMW-2:14]=0; // only 16kB for RAM
+    if( vram_cs ) xa[VRAMW-2:16]=0;
 end
 
 /* xxxverilator tracing_off */
@@ -123,7 +123,7 @@ jts18_main u_main(
     .pal_cs     ( pal_cs    ),
     .objram_cs  ( objram_cs ),
     .char_dout  ( char_dout ),
-    .pal_dout   ( pal_dout  ),
+    .pal_dout   ( pal2main_data  ),
     .obj_dout   ( obj_dout  ),
     .vdp_dout   ( vdp_dout  ),
     .vdp_dtackn ( vdp_dtackn),

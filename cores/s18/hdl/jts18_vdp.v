@@ -38,20 +38,12 @@ module jts18_vdp(
 );
 
 wire       ras1, cas1, we0, we1,
-           oe1, sc, se0, ad, dtack, vs_n;
-wire [7:0] sd;
+           oe1, sc, se0, dtack, vs_n;
+wire [7:0] sd, ad, vram_dout;
 reg        rst_n;
 
 assign dtackn = ~dtack;
 assign vs     = ~vs_n;
-
-assign RD =
-    (~ym_RD_d ? ym_RD_o : RD_mem);
-
-assign AD =
-    (~ym_AD_d ? ym_AD_o : 8'h0) |
-    (~vram1_AD_d ? vram1_AD_o : 8'h0) |
-    ((ym_AD_d & vram1_AD_d) ? AD_mem : 8'h0);
 
 always @(negedge clk) rst_n <= rst;
 /* verilator lint_off PINMISSING */
@@ -87,7 +79,7 @@ ym7101 u_vdp(
     .WR         ( 1'b1      ),
     // VRAM
     .AD_o       ( ad        ),
-    .AD_i       ( ad        ),
+    .AD_i       ( vram_dout ),
     .AD_d       (           ),
     .SD         ( sd        ),
     .SE1        (           ),
@@ -129,10 +121,10 @@ vram u_vram(
     .SE         ( se0       ),
     .AD         ( ad        ),
     .RD_i       ( ad        ),
-    .RD_o       ( vram_AD_o ),
-    .RD_d       ( vram_AD_d ),
-    .SD_o       ( vram_SD_o ),
-    .SD_d       ( vram_SD_d )
+    .RD_o       ( vram_dout ),
+    .RD_d       (           ),
+    .SD_o       ( sd        ),
+    .SD_d       (           )
 );
 /* verilator lint_on PINMISSING */
 endmodule

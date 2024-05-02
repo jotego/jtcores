@@ -16,7 +16,10 @@
  */
 
 // ym3438, ym7101, fc1004 common cells
-
+/* verilator lint_off PINMISSING */
+/* verilator lint_off WIDTHEXPAND */
+/* verilator lint_off WIDTHTRUNC */
+/* verilator lint_off SELRANGE */
 module ym_sr_bit #(parameter SR_LENGTH = 1)
 	(
 	input MCLK,

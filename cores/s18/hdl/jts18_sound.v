@@ -31,7 +31,7 @@ module jts18_sound(
     input                mapper_pbf, // pbf signal == buffer full ?
 
     // ROM
-    output        [20:0] rom_addr,
+    output reg    [20:0] rom_addr,
     input         [ 7:0] rom_data,
     input                rom_ok,
     output reg           rom_cs,
@@ -54,7 +54,7 @@ wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n, nmi_n;
 wire [15:0] A;
 wire [ 7:0] dout, ram_dout, din, pcmctl_dout, fm0_dout, fm1_dout;
 reg  [ 7:0] bank, dmux;
-reg         ram_cs, bkreg_cs, bank_cs, pcmctl_cs, mapper_cs,
+reg         ram_cs, bkreg_cs, bank_cs, mapper_cs,
             fm0_cs, fm1_cs, pcm_cs;
 
 assign io_wrn     = iorq_n | wr_n;
@@ -77,10 +77,10 @@ wire underA = A[15:12]<4'ha;
 wire underC = A[15:12]<4'hc;
 
 always @(*) begin
-    ram_cs    = !mreq_n && &A[15:13];
-    bank_cs   = !mreq_n && (!underA && underC);
-    pcmctl_cs = ~&A[15:14]; //!mreq_n && (!underC && A[15:12]<4'he);
-    rom_cs    = !mreq_n &&   underC;
+    ram_cs  = !mreq_n && &A[15:13];
+    bank_cs = !mreq_n && (!underA && underC);
+    pcm_cs  = ~&A[15:14]; //!mreq_n && (!underC && A[15:12]<4'he);
+    rom_cs  = !mreq_n &&   underC;
 
     // Port Map
     { fm0_cs, fm1_cs, bkreg_cs, mapper_cs } = 0;
@@ -134,7 +134,7 @@ jt12 u_fm1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_fm        ),
-    .din        ( cpu_dout      ),
+    .din        ( dout          ),
     .addr       ( A[1:0]        ),
     .cs_n       ( ~fm1_cs       ),
     .wr_n       ( io_wrn        ),
@@ -182,7 +182,7 @@ jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       (             ),
+    .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),

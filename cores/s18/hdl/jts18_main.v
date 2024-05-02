@@ -57,7 +57,7 @@ module jts18_main(
     output             LDSn,
     output             RnW,
     output             ASn,
-    output      [12:1] cpu_addr,
+    output      [23:1] cpu_addr,
 
     // cabinet I/O
     input       [ 7:0] joystick1,
@@ -68,7 +68,7 @@ module jts18_main(
     input              service,
     // ROM access
     output reg         rom_cs,
-    output reg  [18:1] rom_addr,
+    output      [18:1] rom_addr,
     input       [15:0] rom_data,
     input              rom_ok,
 
@@ -86,7 +86,6 @@ module jts18_main(
     input              dip_test,
     input       [15:0] dipsw,
 
-
     // Sound - Mapper interface
     input              sndmap_rd,
     input              sndmap_wr,
@@ -97,7 +96,7 @@ module jts18_main(
     // status dump
     input       [ 7:0] debug_bus,
     input       [ 7:0] st_addr,
-    output reg  [ 7:0] st_dout
+    output      [ 7:0] st_dout
 );
 
 //  Region 0 - Program ROM
@@ -134,11 +133,12 @@ assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
 assign coinage = { 2'b11, cab_1p[0], cab_1p[1], service, dip_test, coin[1:0] };
-
+assign st_dout = 0;
 // No peripheral bus access for now
-assign cpu_addr = A[12:1];
+assign cpu_addr = A[23:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
 //                               && !io_cs  && !wdog_cs && vram_cs && ram_cs);
+assign rom_addr = 0;
 
 wire [ 7:0] active, mcu_din, mcu_dout;
 wire        mcu_wr, mcu_acc;
@@ -218,7 +218,6 @@ jts16b_mapper u_mapper(
     .st_dout    ( st_mapper      )
 );
 
-/*
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
@@ -254,7 +253,7 @@ jtframe_8751mcu #(
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data     ),
     .prom_we    ( mcu_prog_we   )
-);*/
+);
 
 // System 18 memory map
 always @(posedge clk, posedge rst) begin
@@ -314,16 +313,16 @@ jts18_io u_ioctl(
     .pb_i       ( {joystick2[3:0],joystick2[7:4]} ),
     .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
     .pd_o       ( misc_o        ),
-    .pe_o       ( coinage       ),
+    .pe_i       ( coinage       ),
     .ph_o       ( tile_bank     ),
     .pf_i       ( dipsw[ 7:0]   ),
-    .pg_i       ( dipsw[15:0]   ),
+    .pg_i       ( dipsw[15:8]   ),
     // unused
     .pa_o       (               ),
     .pb_o       (               ),
     .pc_o       (               ),
     .pd_i       ( 8'd0          ),
-    .pe_i       ( 8'd0          ),
+    .pe_o       (               ),
     .pf_o       (               ),
     .pg_o       (               ),
     .ph_i       ( 8'd0          ),
@@ -343,7 +342,7 @@ always @(posedge clk) begin
                     char_cs            ? char_dout :
                     pal_cs             ? pal_dout  :
                     objram_cs          ? obj_dout  :
-                    io_cs              ? io_dout   :
+                    io_cs              ? {8'hff,io_dout} :
                     none_cs            ? mapper_dout :
                                          16'hffff;
     end
