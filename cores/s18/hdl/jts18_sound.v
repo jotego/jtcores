@@ -22,7 +22,6 @@ module jts18_sound(
 
     input                cen_fm,    //  8 MHz
     input                cen_pcm,   // 10 MHz
-    input                nmi_n,     // from mapper
 
     // Mapper device 315-5195
     output               mapper_rd,
@@ -40,7 +39,6 @@ module jts18_sound(
     // ADPCM RAM
     output        [15:0] pcm0_addr,
     input         [ 7:0] pcm0_dout,
-    output        [ 7:0] pcm0_din,
 
     output        [15:0] pcm1_addr,
     output               pcm1_we,
@@ -48,11 +46,11 @@ module jts18_sound(
     output        [ 7:0] pcm1_din,
 
     // Sound output
-    output signed [15:0] fm0, fm1,
+    output signed [15:0] fm0_l, fm0_r, fm1_l, fm1_r,
     output signed [ 9:0] pcm
 );
 
-wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n;
+wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n, nmi_n;
 wire [15:0] A;
 wire [ 7:0] dout, ram_dout, din, pcmctl_dout, fm0_dout, fm1_dout;
 reg  [ 7:0] bank, dmux;
@@ -64,6 +62,10 @@ assign mapper_rd  = mapper_cs && !rd_n;
 assign mapper_wr  = mapper_cs && !wr_n;
 assign mapper_din = dout;
 assign din        = rom_cs ? rom_data : dmux;
+assign nmi_n      = ~mapper_pbf;
+// right channel is disconnected on the PCB
+assign fm0_r      = 0;
+assign fm1_r      = 0;
 
 // ROM bank address
 always @(*) begin
@@ -124,7 +126,7 @@ jt12 u_fm0(
     .en_hifi_pcm( 1'b1          ),
     // combined output
     .snd_right  (               ),
-    .snd_left   ( fm0           ),
+    .snd_left   ( fm0_l         ),
     .snd_sample (               )
 );
 
@@ -143,7 +145,7 @@ jt12 u_fm1(
     .en_hifi_pcm( 1'b1          ),
     // combined output
     .snd_right  (               ),
-    .snd_left   ( fm1           ),
+    .snd_left   ( fm1_l         ),
     .snd_sample (               )
 );
 
@@ -163,7 +165,6 @@ jtpcm568 u_pcm(
     // Access by PCM logic
     .ram0_addr  ( pcm0_addr     ),
     .ram0_dout  ( pcm0_dout     ),
-    .ram0_din   ( pcm0_din      ),
     // Access by CPU
     .ram1_addr  ( pcm1_addr     ),
     .ram1_we    ( pcm1_we       ),

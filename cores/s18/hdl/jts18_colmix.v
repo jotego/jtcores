@@ -23,8 +23,8 @@ module jts18_colmix(
     input              pxl2_cen,  // pixel clock enable (2x)
     input              LHBL,
     input              LVBL,
-    input              LHBL_dly,
-    input              LVBL_dly,    
+    output             LHBL_dly,
+    output             LVBL_dly,
     input        [3:0] gfx_en,
     input        [5:0] s16_r, s16_g, s16_b,
     input        [7:0] vdp_r, vdp_g, vdp_b,

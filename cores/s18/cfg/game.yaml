@@ -1,7 +1,7 @@
 game:
   - from: s18
     get:
-      - *.v
+      - "*.v"
   - from: s16b
     get:
       - jts16b_mapper.v

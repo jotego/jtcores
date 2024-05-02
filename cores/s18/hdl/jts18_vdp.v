@@ -37,8 +37,8 @@ module jts18_vdp(
     output      [ 7:0] blue
 );
 
-wire       ras1, cas1, we0, oe1, sc, se0, ad, dtack,
-           vs_n;
+wire       ras1, cas1, we0, we1,
+           oe1, sc, se0, ad, dtack, vs_n;
 wire [7:0] sd;
 reg        rst_n;
 
@@ -54,7 +54,7 @@ assign AD =
     ((ym_AD_d & vram1_AD_d) ? AD_mem : 8'h0);
 
 always @(negedge clk) rst_n <= rst;
-
+/* verilator lint_off PINMISSING */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk       ),      // 48 MHz
@@ -94,7 +94,7 @@ ym7101 u_vdp(
     .RAS1       ( ras1      ),
     .CAS1       ( cas1      ),
     .WE0        ( we0       ),      // shouldn't it be we1?
-    .WE1        (           ),
+    .WE1        ( we1       ),
     .OE1        ( oe1       ),
     .SE0        ( se0       ),
     .SC         ( sc        ),
@@ -134,5 +134,5 @@ vram u_vram(
     .SD_o       ( vram_SD_o ),
     .SD_d       ( vram_SD_d )
 );
-
+/* verilator lint_on PINMISSING */
 endmodule

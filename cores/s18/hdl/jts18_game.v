@@ -22,29 +22,25 @@ module jts18_game(
 
 localparam [24:0] MCU_PROM = `MCU_START,
                   KEY_PROM = `JTFRAME_PROM_START;
+localparam VRAMW = 19;
 
 // clock enable signals
 wire    cpu_cen, cpu_cenb;
 
 // video signals
 wire [ 8:0] vrender;
-wire        hstart, vint;
-wire        colscr_en, rowscr_en;
-wire [ 5:0] tile_bank;
-wire        scr_bad;
+wire [ 7:0] tile_bank;
+wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
-wire [13:2] pre_char_addr;
-wire [17:2] pre_scr1_addr, pre_scr2_addr;
-wire [20:1] pre_obj_addr;
 
 // CPU interface
 wire [12:1] cpu_addr;
-wire [15:0] main_dout, char_dout, obj_dout, vdp_dout;
-wire [ 1:0] dsn;
-wire        UDSWn, LDSWn, main_rnw;
-wire        char_cs, scr1_cs, pal_cs, objram_cs;
+wire [15:0] char_dout, obj_dout, vdp_dout;
+wire [ 1:0] dsn, dswn;
+wire        UDSn, LDSn, main_rnw, vdp_dtackn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
 
 // Protection
 wire        key_we;
@@ -53,11 +49,8 @@ wire        mcu_en, mcu_we;
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
 
-wire [ 7:0] snd_latch;
-wire        snd_irqn, snd_ack;
-
-wire [ 7:0] tile_bank;
-wire        flip, video_en, sound_en, gray_n;
+wire [ 7:0] sndmap_din, sndmap_dout;
+wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
 
 // Cabinet inputs
 wire [ 7:0] game_id;
@@ -66,14 +59,17 @@ wire [ 7:0] game_id;
 wire [7:0] st_video, st_main;
 reg  [7:0] st_mux;
 
-assign dsn        = { UDSWn, LDSWn };
-assign debug_view = st_dout;
-assign st_dout    = st_mux;
-assign xram_dsn   = dsn;
+assign dsn        = { UDSn, LDSn };
+assign dswn       = {2{main_rnw}} | dsn;
+assign debug_view = st_mux;
+assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
 assign mcu_we     = prom_we && prog_addr[21:13]==MCU_PROM[21:13];
-assign fd_we      = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
+assign key_we     = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
+assign xram_cs    = ram_cs | vram_cs;
+assign gfx_cs     = LVBL || vrender==0 || vrender[8];
+assign pal_we     = ~dswn & {2{pal_cs}};
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
@@ -83,7 +79,7 @@ always @(posedge clk) begin
                 0: st_mux <= sndmap_dout;
                 1: st_mux <= {2'd0, tile_bank};
                 2: st_mux <= game_id;
-                3: st_mux <= { 7'd0, fd1094_en };
+                3: st_mux <= { 6'd0, mcu_en, fd1094_en };
             endcase
         default: st_mux <= 0;
     endcase
@@ -97,6 +93,14 @@ always @(posedge clk) begin
     end
 end
 
+always @(*) begin
+    xram_addr = 0;
+    xram_addr[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
+    // Mask RAM address
+    if( ram_cs  ) xram_addr[VRAMW-2:14]=0; // only 16kB for RAM
+    if( vram_cs ) xram_addr[VRAMW-2:16]=0;
+end
+
 /* xxxverilator tracing_off */
 jts18_main u_main(
     .rst        ( rst       ),
@@ -105,11 +109,15 @@ jts18_main u_main(
     .cpu_cen    ( cpu_cen   ),
     .cpu_cenb   ( cpu_cenb  ),
     .game_id    ( game_id   ),
-    .LHBL       ( LHBL      ),
     // Video
     .vint       ( vint      ),
-    .video_en   ( video_en  ),
-    // Video circuitry
+    .flip       ( flip      ),
+    .gray_n     ( gray_n    ),
+    .vdp_en     ( vdp_en    ),
+    .vid16_en   ( vid16_en  ),
+    .tile_bank  ( tile_bank ),
+
+    // Video memory
     .vram_cs    ( vram_cs   ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
@@ -117,29 +125,24 @@ jts18_main u_main(
     .char_dout  ( char_dout ),
     .pal_dout   ( pal_dout  ),
     .obj_dout   ( obj_dout  ),
+    .vdp_dout   ( vdp_dout  ),
+    .vdp_dtackn ( vdp_dtackn),
 
-    .flip       ( flip      ),
-    .colscr_en  ( colscr_en ),
-    .rowscr_en  ( rowscr_en ),
     // RAM access
     .ram_cs     ( ram_cs    ),
     .ram_data   ( xram_data ),
     .ram_ok     ( xram_ok   ),
     // CPU bus
     .cpu_dout   ( main_dout ),
-    .UDSWn      ( UDSWn     ),
-    .LDSWn      ( LDSWn     ),
+    .UDSn       ( UDSn      ),
+    .LDSn       ( LDSn      ),
     .RnW        ( main_rnw  ),
+    .ASn        ( asn       ),
     .cpu_addr   ( cpu_addr  ),
     // cabinet I/O
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
-    .joyana1     ( joyana_l1  ),
-    .joyana1b    ( joyana_r1  ),
-    .joyana2     ( joyana_l2  ),
-    .joyana2b    ( joyana_r2  ),
-    .joyana3     ( joyana_l3  ),
     .cab_1p      ( cab_1p[2:0]),
     .coin        (   coin[2:0]),
     .service     ( service    ),
@@ -148,11 +151,12 @@ jts18_main u_main(
     .rom_addr    ( main_addr  ),
     .rom_data    ( main_data  ),
     .rom_ok      ( main_ok    ),
+    // PROM (FD1094 and MCU)
+    .prog_addr   ( prog_addr[12:0] ),
+    .prog_data   ( prog_data[ 7:0] ),
     // Decoder configuration
     .fd1094_en   ( fd1094_en  ),
     .key_we      ( key_we     ),
-    .key_addr    ( key_addr   ),
-    .key_data    ( key_data   ),
     // MCU
     .rst24       ( rst        ),
     .clk24       ( clk24      ),  // To ease MCU compilation
@@ -166,19 +170,13 @@ jts18_main u_main(
     .sndmap_din  ( sndmap_din ),
     .sndmap_dout (sndmap_dout ),
     .sndmap_pbf  ( sndmap_pbf ),
-    .tile_bank   ( tile_bank  ),
-    .prog_addr   ( prog_addr[12:0] ),
-    .prog_data   ( prog_data[ 7:0] ),
     // DIP switches
     .dip_test    ( dip_test   ),
     .dipsw       ( dipsw[15:0]),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
-    .st_dout     ( st_main    ),
-    // NVRAM dump
-    .ioctl_din   ( `ifdef JTFRAME_IOCTL_RD ioctl_din `endif ),
-    .ioctl_addr  ( prog_addr[16:0] )
+    .st_dout     ( st_main    )
 );
 
 /* xxxverilator tracing_off */
@@ -202,15 +200,16 @@ jts18_sound u_sound(
     // ADPCM RAM -- read only
     .pcm0_addr  ( pcm_addr  ),
     .pcm0_dout  ( pcm_dout  ),
-    .pcm0_din   ( pcm_din   ),
     // ADPCM RAM -- R/W by sound CPU
     .pcm1_addr  ( pcm1_addr ),
     .pcm1_dout  ( pcm1_dout ),
     .pcm1_din   ( pcm1_din  ),
     .pcm1_we    ( pcm1_we   ),
     // Sound output
-    .fm_l       ( fm_l      ),
-    .fm_r       ( fm_r      ),
+    .fm0_l      ( fm0_l     ),
+    .fm0_r      ( fm0_r     ),
+    .fm1_l      ( fm1_l     ),
+    .fm1_r      ( fm1_r     ),
     .pcm        ( pcm       )
 );
 
@@ -221,7 +220,9 @@ jts18_video u_video(
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 
-    .video_en   ( video_en  ),
+    .flip       ( flip      ),
+    .ext_flip   ( dip_flip  ),
+    .vid16_en   ( vid16_en  ),
     .vdp_en     ( vdp_en    ),
     .gfx_en     ( gfx_en    ),
     .gray_n     ( gray_n    ),
@@ -231,24 +232,26 @@ jts18_video u_video(
     // CPU interface
     .addr       ( cpu_addr  ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .objram_cs  ( objram_cs ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
     .din        ( main_dout ),
     .dsn        ( dsn       ),
+    .asn        ( asn       ),
+    .rnw        ( main_rnw  ),
     .char_dout  ( char_dout ),
     .obj_dout   ( obj_dout  ),
+    .vdp_dout   ( vdp_dout  ),
+    .vdp_dtackn ( vdp_dtackn),
 
-    .flip       ( flip      ),
-    .ext_flip   ( dip_flip  ),
-    .colscr_en  ( colscr_en ),
-    .rowscr_en  ( rowscr_en ),
+    // palette RAM
+    .pal_addr   ( pal_addr  ),
+    .pal_dout   ( pal_dout  ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),
-    .char_addr  ( pre_char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
+    .char_addr  ( char_addr ),
     .char_data  ( char_data ),
 
     .map1_ok    ( map1_ok   ),
@@ -256,7 +259,7 @@ jts18_video u_video(
     .map1_data  ( map1_data ),
 
     .scr1_ok    ( scr1_ok   ),
-    .scr1_addr  ( pre_scr1_addr ),
+    .scr1_addr  ( scr1_addr ),
     .scr1_data  ( scr1_data ),
 
     .map2_ok    ( map2_ok   ),
@@ -264,12 +267,12 @@ jts18_video u_video(
     .map2_data  ( map2_data ),
 
     .scr2_ok    ( scr2_ok   ),
-    .scr2_addr  ( pre_scr2_addr ),
+    .scr2_addr  ( scr2_addr ),
     .scr2_data  ( scr2_data ),
 
     .obj_ok     ( obj_ok    ),
     .obj_cs     ( obj_cs    ),
-    .obj_addr   ( pre_obj_addr  ),
+    .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
 
     // Video signal
@@ -277,17 +280,14 @@ jts18_video u_video(
     .VS         ( VS        ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .vdump      (           ),
     .vrender    ( vrender   ),
-    .hstart     ( hstart    ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_addr    ( st_addr   ),
-    .st_dout    ( st_video  ),
-    .scr_bad    ( scr_bad   )
+    .st_dout    ( st_video  )
 );
 
 endmodule

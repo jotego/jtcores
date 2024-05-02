@@ -4742,7 +4742,7 @@
     (uuid ffbd7bb4-4b36-4ab5-a672-3bc2a9f98c1d)
   )
 
-  (hierarchical_label "MAIN_AB[23..1]" (shape bidirectional) (at 180.34 22.86 0) (fields_autoplaced)
+  (hierarchical_label "MAIN_AB[23..1]" (shape output) (at 180.34 22.86 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 006ba26f-ce97-41cd-889b-38c545b8bd7d)
   )

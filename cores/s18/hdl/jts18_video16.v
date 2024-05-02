@@ -81,6 +81,9 @@ module jts18_video16(
     output     [ 5:0]  green,
     output     [ 5:0]  blue,
 
+    // palette RAM
+    output     [10:0]  pal_addr,
+    input      [15:0]  pal_dout,
     // Debug
     input      [ 3:0]  gfx_en,
     input      [ 7:0]  debug_bus,
@@ -90,6 +93,15 @@ module jts18_video16(
     output             scr_bad
 );
 
+// video layers
+wire [11:0] obj_pxl;
+wire [ 4:0] rpal, gpal, bpal;
+wire        shadow;
+
+assign rpal  = { pal_dout[ 3:0], pal_dout[12] };
+assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
+assign bpal  = { pal_dout[11:8], pal_dout[14] };
+
 jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -98,7 +110,6 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
 
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .cpu_addr   ( addr      ),
     .cpu_dout   ( din       ),
     .dswn       ( dsn       ),
@@ -200,6 +211,5 @@ jtshanon_coldac u_dac(
     .gout       ( pg        ),
     .bout       ( pb        )
 );
-
 
 endmodule

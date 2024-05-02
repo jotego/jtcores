@@ -28,23 +28,23 @@ module jts18_main(
     output             cpu_cenb,
     input  [7:0]       game_id,
 
-    // Video
+    // video control
     input              vint,
-    input              LHBL,
+    output             flip,
+    output             gray_n,
+    output             vdp_en,
+    output             vid16_en,
+    output      [ 7:0] tile_bank,
 
-    // Video circuitry
+    // Video memory
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
-    // video control
-    output             flip,
-    output             gray_n,
-    output             vdp_en,
-    output             vid16_en,
-    output      [ 7:0] tile_bank,
+    input       [15:0] vdp_dout,
+    input              vdp_dtackn,
 
     // RAM access
     output reg         ram_cs,
@@ -53,20 +53,16 @@ module jts18_main(
     input              ram_ok,
     // CPU bus
     output      [15:0] cpu_dout,
-    output             UDSWn,
-    output             LDSWn,
+    output             UDSn,
+    output             LDSn,
     output             RnW,
+    output             ASn,
     output      [12:1] cpu_addr,
 
     // cabinet I/O
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
-    input       [15:0] joyana1,
-    input       [15:0] joyana1b,
-    input       [15:0] joyana2,
-    input       [15:0] joyana2b,
-    input       [15:0] joyana3,
     input       [ 2:0] cab_1p,
     input       [ 2:0] coin,
     input              service,
@@ -76,21 +72,20 @@ module jts18_main(
     input       [15:0] rom_data,
     input              rom_ok,
 
+    // PROM programming
+    input       [12:0] prog_addr,
+    input       [ 7:0] prog_data,
     // Decoder configuration
     input              fd1094_en,
-    input       [12:0] prog_addr,
     input              key_we,
-    input       [ 7:0] prog_data,
-    output      [12:0] key_addr,
-    input       [ 7:0] key_data,
+    // MCU enable and ROM programming
+    input              mcu_en,
+    input              mcu_prog_we,
 
     // DIP switches
     input              dip_test,
     input       [15:0] dipsw,
 
-    // MCU enable and ROM programming
-    input              mcu_en,
-    input              mcu_prog_we,
 
     // Sound - Mapper interface
     input              sndmap_rd,
@@ -98,10 +93,6 @@ module jts18_main(
     input    [7:0]     sndmap_din,
     output   [7:0]     sndmap_dout,
     output             sndmap_pbf, // pbf signal == buffer full ?
-
-    // NVRAM - debug
-    input       [16:0] ioctl_addr,
-    output      [ 7:0] ioctl_din,
 
     // status dump
     input       [ 7:0] debug_bus,
@@ -124,24 +115,22 @@ localparam [2:0] REG_RAM  = 3,
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, io_dout, misc_o, coinage;
+wire [ 7:0] st_mapper, st_timer, io_dout, misc_o, coinage, key_data;
+wire [12:0] key_addr;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
 
 wire        BRn, BGACKn, BGn,
-            ASn, UDSn, LDSn, BUSn, cpu_RnW, ok_dly;
-reg         sdram_ok;
+            BUSn, cpu_RnW, ok_dly, io_we;
+reg         sdram_ok, io_cs, wdog_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
-reg         io_cs, wdog_cs;
-
-assign UDSWn   = RnW | UDSn;
-assign LDSWn   = RnW | LDSn;
 assign BUSn    = LDSn & UDSn;
 assign gray_n  = misc_o[6];
 assign flip    = misc_o[5];
+assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
 assign coinage = { 2'b11, cab_1p[0], cab_1p[1], service, dip_test, coin[1:0] };
@@ -151,7 +140,7 @@ assign cpu_addr = A[12:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
 //                               && !io_cs  && !wdog_cs && vram_cs && ram_cs);
 
-wire [ 7:0] active, mcu_din, mcu_dout, sys_inputs, io_dout;
+wire [ 7:0] active, mcu_din, mcu_dout;
 wire        mcu_wr, mcu_acc;
 wire [15:0] mcu_addr;
 wire [ 1:0] mcu_intn;
@@ -224,10 +213,11 @@ jts16b_mapper u_mapper(
 
     .active     ( active         ),
     .debug_bus  ( debug_bus      ),
-    //.debug_bus  ( 8'd0           ),
+  //.debug_bus  ( 8'd0           ),
     .st_addr    ( st_addr        ),
     .st_dout    ( st_mapper      )
 );
+
 /*
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
@@ -326,8 +316,8 @@ jts18_io u_ioctl(
     .pd_o       ( misc_o        ),
     .pe_o       ( coinage       ),
     .ph_o       ( tile_bank     ),
-    .pf_i       ( dipsw[ 7:0]   )
-    .pg_i       ( dipsw[15:0]   )
+    .pf_i       ( dipsw[ 7:0]   ),
+    .pg_i       ( dipsw[15:0]   ),
     // unused
     .pa_o       (               ),
     .pb_o       (               ),
@@ -384,6 +374,16 @@ jts16_fd1094 u_dec1094(
     .dtackn     ( DTACKn    ),
     .rom_ok     ( rom_ok    ),
     .ok_dly     ( ok_dly    )
+);
+
+jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
+    .clk    ( clk       ),
+    .cen    ( 1'b1      ),
+    .data   ( prog_data ),
+    .rd_addr( key_addr  ),
+    .wr_addr( prog_addr[12:0] ),
+    .we     ( key_we    ),
+    .q      ( key_data  )
 );
 
 jtframe_m68k u_cpu(

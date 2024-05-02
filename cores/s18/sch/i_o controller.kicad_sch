@@ -5578,7 +5578,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 1de78c06-7d73-418e-be24-0b9848c44cd6)
   )
-  (hierarchical_label "MAIN_AB[13..1]" (shape bidirectional) (at 30.48 38.1 180) (fields_autoplaced)
+  (hierarchical_label "MAIN_AB[13..1]" (shape input) (at 30.48 38.1 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 20cb54c9-4e01-4265-ba08-585c45a0f563)
   )

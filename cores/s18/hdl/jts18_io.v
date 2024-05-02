@@ -72,10 +72,10 @@ always @(posedge clk, posedge rst) begin
             5: dout <= pf_o;
             6: dout <= pg_o;
             7: dout <= ph_o;
-            8: dout <= 'S';
-            9: dout <= 'E';
-           10: dout <= 'G';
-           11: dout <= 'A';
+            8: dout <= "S";
+            9: dout <= "E";
+           10: dout <= "G";
+           11: dout <= "A";
            12,13: dout <= cnt;
            14,15: dout <= dir;
         endcase

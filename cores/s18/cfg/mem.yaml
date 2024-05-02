@@ -1,18 +1,23 @@
+params:
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
 audio:
   channels:
-    - { name: fm0, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ]}
-    - { name: fm1, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ]}
+    - { name: fm0, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
+    - { name: fm1, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
     # the filter is a guess, the schematics need more work around it
     # probably needs to support more than 4kHz
-    - { name: pcm, rsum: 10k, module: jtpcm568, fir: fir_192k_4k ]}
+    - { name: pcm, rsum: 10k, module: jtpcm568, fir: fir_192k_4k.csv }
 clocks:
   clk48:
-  - freq: 8000000
-    outputs:
-    - cen_fm
-  - freq: 10000000
-    outputs:
-    - cen_pcm
+    - freq: 8000000
+      outputs:
+      - cen_fm
+    - freq: 10000000
+      outputs:
+      - cen_pcm
+  clk24:
+    - freq: 8000000
+      outputs: [ mcu_cen ]
 # using s16's for now
 sdram:
   banks:
@@ -25,8 +30,7 @@ sdram:
 
   # Bank 1 for sound & frame buffer
   - buses:
-    - { name: snd, addr_width: 19, data_width: 8 }
-    - { name: pcm, addr_width: 17, data_width: 8, offset: PCM_OFFSET }
+    - { name: snd, addr_width: 21, data_width: 8 }
 
   # Bank 2 for tile graphics
   - buses:
@@ -44,8 +48,10 @@ bram:
     data_width: 8
     dual_port:
       name: pcm1
+      din: pcm1_din
+      dout: pcm1_dout
       rw: true
   - { name: pal, addr_width: 12, data_width: 16, rw: false,
       ioctl: { save: true, order: 0 },
-      dual_port: { name: main, rw: true }
+      dual_port: { name: main, rw: true, we: pal_we, dout: pal_dout }
     }

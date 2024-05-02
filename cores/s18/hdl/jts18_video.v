@@ -22,10 +22,14 @@ module jts18_video(
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
 
+    // video configuration
+    input              flip,
+    inout              ext_flip,
     input              vdp_en,
-    input              video_en,
+    input              vid16_en,
     input              gray_n,
-    input     [ 7:0]   tile_bank,
+    input      [ 7:0]  tile_bank,
+    output     [ 8:0]  vrender,
 
     // CPU interface
     input              dip_pause,
@@ -34,6 +38,8 @@ module jts18_video(
     input      [23:1]  addr,
     input      [15:0]  din,
     input      [ 1:0]  dsn,
+    input              rnw,
+    input              asn,
     output             vdp_dtackn,
 
     output     [15:0]  char_dout,
@@ -41,9 +47,9 @@ module jts18_video(
     output     [15:0]  vdp_dout,
     output             vint,
 
-    // Other configuration
-    input              flip,
-    inout              ext_flip,
+    // palette RAM
+    output     [10:0]  pal_addr,
+    input      [15:0]  pal_dout,
 
     // SDRAM interface
     input              char_ok,
@@ -76,8 +82,6 @@ module jts18_video(
     output             VS,
     output             LHBL,
     output             LVBL,
-    output     [ 8:0]  vdump,
-    output     [ 8:0]  vrender,
     output     [ 7:0]  red,
     output     [ 7:0]  green,
     output     [ 7:0]  blue,
@@ -91,7 +95,8 @@ module jts18_video(
 );
 
 wire [5:0] s16_r, s16_g, s16_b;
-wire [7:0] vdp_r, vdp_g, bdp_b;
+wire [7:0] vdp_r, vdp_g, vdp_b;
+wire       LHBL_dly, LVBL_dly;
 
 assign scr1_addr[21-:4] = tile_bank[3:0];
 assign scr2_addr[21-:4] = tile_bank[7:4];
@@ -102,17 +107,19 @@ jts18_video16 u_video16(
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 
-    .video_en   ( video_en  ),
+    .video_en   ( vid16_en  ),
     .flip       ( flip      ),
     .gray_n     ( gray_n    ),
 
+    .pal_addr   ( pal_addr  ),
+    .pal_dout   ( pal_dout  ),
     // CPU interface
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
     .objram_cs  ( objram_cs ),
     .addr       ( addr[12:1]),
     .din        ( din       ),
-    .dsn        ( dsn       ),
+    .dsn        ( dsn | {2{rnw}}),
 
     .char_dout  ( char_dout ),
     .obj_dout   ( obj_dout  ),
@@ -150,7 +157,7 @@ jts18_video16 u_video16(
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .vdump      (           ),
-    .vrender    (           ),
+    .vrender    ( vrender   ),
     .red        ( s16_r     ),
     .green      ( s16_g     ),
     .blue       ( s16_b     ),

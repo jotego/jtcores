@@ -1,12 +1,12 @@
 params:
-  - { name: MCU_PROM,    value: "`MCU_START"     }
-  - { name: N7751_PROM,  value: "`N7751_START"   }
-  - { name: KEY_PROM,    value: "`MAINKEY_START" }
-  - { name: MC8123_PROM, value: "`SNDKEY_START"  }
-  - { name: FD_PROM,     value: "`FD1089_START"  }
+  # - { name: MCU_PROM,    value: "`MCU_START"     }
+  # - { name: N7751_PROM,  value: "`N7751_START"   }
+  # - { name: KEY_PROM,    value: "`MAINKEY_START" }
+  # - { name: MC8123_PROM, value: "`SNDKEY_START"  }
+  # - { name: FD_PROM,     value: "`FD1089_START"  }
   - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
-  - { name: SRAM_OFFSET, value: 22'h18_0000 }
+  # - { name: SRAM_OFFSET, value: 22'h18_0000 }
 clocks:
   clk48:
     - freq: 4000000

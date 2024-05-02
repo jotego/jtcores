@@ -4,12 +4,12 @@ skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
     # Key type 3
-    # "rompers",
+    "rompers", # problems with music
     # Others
     "bakutotu",
     "berabohm",
     # "boxyboy",
-    "mmaze",
+    # "mmaze",
     "quester",
     # "shadowld",
 ], setnames=[

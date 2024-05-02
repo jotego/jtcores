@@ -3353,7 +3353,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 1944df50-63cc-4d0f-b6d2-a08157d7b50a)
   )
-  (hierarchical_label "MAIN_AB[23..1]" (shape bidirectional) (at 80.01 17.78 180) (fields_autoplaced)
+  (hierarchical_label "MAIN_AB[23..1]" (shape input) (at 80.01 17.78 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 256dccf6-8597-482b-b937-e25347215cab)
   )

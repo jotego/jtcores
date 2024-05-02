@@ -31,11 +31,10 @@ module jtpcm568(
     output        [ 7:0] dout,
 
     // ADPCM RAM
-    // Access by PCM logic
+    // Access by PCM logic (read only)
     output        [15:0] ram0_addr,
-    output        [ 7:0] ram0_din,
     input         [ 7:0] ram0_dout,
-    // Access by CPU
+    // Access by CPU via PCM (RW)
     output        [15:0] ram1_addr,
     output        [ 7:0] ram1_din,
     input         [ 7:0] ram1_dout,
@@ -59,7 +58,7 @@ assign dout      = addr[12] ? ram1_dout : chdout[{chsel,3'd0}+:8];
 assign regwr     = cs && wr && !addr[12];
 
 // temporary
-assign ram0_addr = 0, ram0_din=0;
+assign ram0_addr = 0;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
