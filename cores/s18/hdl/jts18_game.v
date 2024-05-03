@@ -41,7 +41,7 @@ wire [23:1] cpu_addr;
 wire [15:0] char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, vdp_cs, asn;
 
 // Protection
 wire        key_we, mcu_we;
@@ -97,8 +97,8 @@ always @(*) begin
     xa = 0;
     xa[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
     // Mask RAM address
-    if( ram_cs  ) xa[VRAMW-2:14]=0; // only 16kB for RAM
-    if( vram_cs ) xa[VRAMW-2:16]=0;
+    if( ram_cs  ) xa[VRAMW-2:14]=0; // 16kB for RAM
+    if( vram_cs ) xa[VRAMW-2:16]=0; // 64kB for VRAM
 end
 
 /* xxxverilator tracing_off */
@@ -122,6 +122,7 @@ jts18_main u_main(
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
     .objram_cs  ( objram_cs ),
+    .vdp_cs     ( vdp_cs    ),
     .char_dout  ( char_dout ),
     .pal_dout   ( pal2main_data  ),
     .obj_dout   ( obj_dout  ),

@@ -40,6 +40,7 @@ module jts18_main(
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
+    output reg         vdp_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
@@ -68,7 +69,7 @@ module jts18_main(
     input              service,
     // ROM access
     output reg         rom_cs,
-    output      [18:1] rom_addr,
+    output reg  [20:1] rom_addr,
     input       [15:0] rom_data,
     input              rom_ok,
 
@@ -106,10 +107,15 @@ module jts18_main(
 //  Region 6 - Color RAM
 //  Region 7 - I/O area
 localparam [2:0] REG_RAM  = 3,
-                 REG_VRAM = 4,
-                 REG_ORAM = 5,
+                 REG_ORAM = 4,
+                 REG_VRAM = 5,
                  REG_PAL  = 6,
                  REG_IO   = 7;
+localparam       PCB_5874 = 0,  // refers to the bit in game_id
+                 PCB_5987 = 2,
+                 PCB_7525 = 3,  // hamaway
+                 PCB_7248 = 5;  // shdancer
+
 
 wire [23:1] A,cpu_A;
 wire        BERRn;
@@ -138,7 +144,6 @@ assign st_dout = 0;
 assign cpu_addr = A[23:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
 //                               && !io_cs  && !wdog_cs && vram_cs && ram_cs);
-assign rom_addr = 0;
 
 wire [ 7:0] active, mcu_din, mcu_dout;
 wire        mcu_wr, mcu_acc;
@@ -147,8 +152,8 @@ wire [ 1:0] mcu_intn;
 wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
-wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs;
-wire bus_busy  = |{ rom_cs, ram_cs, vram_cs } & ~sdram_ok;
+wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
+wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
@@ -256,6 +261,15 @@ jtframe_8751mcu #(
 );
 
 // System 18 memory map
+always @* begin
+    rom_addr = A[20:1];
+    if(active[0]) begin
+        if(game_id[PCB_5874]|game_id[PCB_7248]) rom_addr[20:19]=0;
+        if(game_id[PCB_7525]|game_id[PCB_5987]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
+    end
+    // assuming that if active[1] is set, then A is already pointing after 512kB
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
@@ -263,10 +277,11 @@ always @(posedge clk, posedge rst) begin
             objram_cs <= 0; // 2 kB
             pal_cs    <= 0; // 4 kB
             io_cs     <= 0;
+            vdp_cs    <= 0;
             wdog_cs   <= 0;
 
-            vram_cs   <= 0; // 32kB
-            ram_cs    <= 0;
+            vram_cs   <= 0; // 64kB
+            ram_cs    <= 0; // 16kB
             sdram_ok  <= 0;
     end else begin
         if( ASn )
@@ -275,7 +290,8 @@ always @(posedge clk, posedge rst) begin
             sdram_ok <= rom_cs ? ok_dly : ram_ok;
         end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
-            rom_cs    <= |active[2:0] && RnW;
+            rom_cs    <= (active[0] || (active[1] && !game_id[PCB_7248])) && RnW;
+            vdp_cs    <= game_id[PCB_7248] ? active[1] : active[2];
             char_cs   <= active[REG_VRAM] && A[16];
 
             objram_cs <= active[REG_ORAM];
@@ -294,6 +310,7 @@ always @(posedge clk, posedge rst) begin
             objram_cs <= 0;
             pal_cs    <= 0;
             io_cs     <= 0;
+            vdp_cs    <= 0;
             wdog_cs   <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
@@ -343,6 +360,7 @@ always @(posedge clk) begin
                     pal_cs             ? pal_dout  :
                     objram_cs          ? obj_dout  :
                     io_cs              ? {8'hff,io_dout} :
+                    vdp_cs             ? vdp_dout    :
                     none_cs            ? mapper_dout :
                                          16'hffff;
     end

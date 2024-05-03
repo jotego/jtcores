@@ -2886,7 +2886,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8a31097f-117a-43e1-82da-6451671bf25c)
   )
-  (text "Frame buffer memory (128kB split in two chips)\n65,536 x 4-bit DRAM port\n   256 x 4-bit serial access\n"
+  (text "Frame buffer memory (64kB split in two chips)\n65,536 x 4-bit DRAM port\n   256 x 4-bit serial access\n"
     (at 15.24 122.555 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid dbf5e001-d7f4-471d-b96a-6497f917c241)
