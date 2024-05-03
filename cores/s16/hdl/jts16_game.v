@@ -122,7 +122,7 @@ end
 `ifndef S16B
 assign key_mcaddr=0;
 `endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOMAIN
 `JTS16_MAIN u_main(
     .rst        ( rstx      ),

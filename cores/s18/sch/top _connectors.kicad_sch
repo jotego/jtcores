@@ -4751,7 +4751,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 625bd9ac-9d1c-44b8-8b95-e2e9b9204cc3)
   )
-  (hierarchical_label "VDP~{DTAK}" (shape output) (at 49.53 95.25 180) (fields_autoplaced)
+  (hierarchical_label "VDP~{DTAK}" (shape input) (at 49.53 95.25 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 6c8550cc-9e3b-4e44-96fe-e38b6e9c5f08)
   )

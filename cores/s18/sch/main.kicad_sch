@@ -5417,7 +5417,7 @@
     (property "Reference" "M11" (at 21.59 38.1 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "Crystal 20GHz" (at 26.67 48.26 90)
+    (property "Value" " 20MHz" (at 22.86 49.53 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "" (at 19.05 38.1 0)

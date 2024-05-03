@@ -94,7 +94,7 @@ reg         risefall=0, wait1;
     wire rstl=0;
 `endif
 
-assign halt = !rstl && RECOVERY==1 && !ASn && waitsh==0 && (bus_cs && bus_busy && !bus_legit);
+assign halt = !rstl && RECOVERY==1 && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
 
 
 always @(posedge clk) begin : dtack_gen
@@ -154,7 +154,7 @@ always @(posedge clk, posedge rst) begin
         fworst   <= 0;
     end else begin
         freq_cnt <= freq_cnt + 1'd1;
-        if(cpu_cen) fout_cnt<=fout_cnt+1'd1;
+        if(cpu_cen && !halt) fout_cnt<=fout_cnt+1'd1;
         if( freq_cnt == MFREQ[15:0]-16'd1 ) begin // updated every 1ms
             freq_cnt <= 0;
             fout_cnt <= 0;

@@ -41,7 +41,7 @@ wire [23:1] cpu_addr;
 wire [15:0] char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, vdp_cs, asn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
 
 // Protection
 wire        key_we, mcu_we;
@@ -86,10 +86,10 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if( header && prog_we ) begin
-        if( prog_addr[4:0]==5'h11 ) fd1094_en <= prog_data[0];
-        if( prog_addr[4:0]==5'h13 ) mcu_en    <= prog_data[0];
-        if( prog_addr[4:0]==5'h18 ) game_id   <= prog_data;
+    if( header && ioctl_wr ) begin
+        if( ioctl_addr[4:0]==5'h11 ) fd1094_en <= ioctl_dout[0];
+        if( ioctl_addr[4:0]==5'h13 ) mcu_en    <= ioctl_dout[0];
+        if( ioctl_addr[4:0]==5'h18 ) game_id   <= ioctl_dout;
     end
 end
 
@@ -122,7 +122,6 @@ jts18_main u_main(
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
     .objram_cs  ( objram_cs ),
-    .vdp_cs     ( vdp_cs    ),
     .char_dout  ( char_dout ),
     .pal_dout   ( pal2main_data  ),
     .obj_dout   ( obj_dout  ),

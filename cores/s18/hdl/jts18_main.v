@@ -40,7 +40,6 @@ module jts18_main(
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
-    output reg         vdp_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
@@ -129,7 +128,7 @@ wire [23:0] A_full = {A,1'b0};
 
 wire        BRn, BGACKn, BGn,
             BUSn, cpu_RnW, ok_dly, io_we;
-reg         sdram_ok, io_cs, wdog_cs;
+reg         sdram_ok, io_cs, wdog_cs, vdp_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
 assign BUSn    = LDSn & UDSn;
