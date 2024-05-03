@@ -75,7 +75,7 @@ always @(posedge clk, posedge rst) begin
             else
                 bank  <= din[3:0];
         end
-        8: chen_b = din;
+        8: chen_b <= din;
         endcase
     end
 end
