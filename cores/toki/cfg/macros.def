@@ -4,9 +4,6 @@
 CORENAME=JTTOKI
 # GAMETOP=jttoki_game_sdram
 
-# not meeting STA yet. See issue #605 and #606
-JTFRAME_NOSTA
-
 JTFRAME_OSD_FLIP=0
 JTFRAME_SDRAM_BANKS
 ### Screen parameters
@@ -34,9 +31,6 @@ JTFRAME_BA1_START =0x280000
 [mist|sidi]
 # won't fit
 JTFRAME_SKIP
-
-[pocket]
-JTFRAME_NOSTA
 
 [mister]
 JTFRAME_ARX=4
