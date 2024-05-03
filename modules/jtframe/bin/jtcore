@@ -168,7 +168,7 @@ function parse_args {
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 GIT=FALSE
                 TARGET=mister;;
-            --nodbg)      MACROS="$MACROS JTFRAME_RELEASE";;
+            --nodbg)      MACROS="$MACROS JTFRAME_RELEASE=1";;
             --nosta)      SKIPTIMING=1;;
             --sim)        SIM=TRUE;;
             --showmacros) SHOWMACROS=1;;
@@ -359,7 +359,7 @@ function escape_bars {
     echo ${1//\//\\/}
 }
 
-function parse_macros {
+function macros2def {
     local MM=""
     for i in $MACROS; do
         MM="$i,$MM"
@@ -367,6 +367,10 @@ function parse_macros {
     if [ ! -z "$MM" ]; then
         MM="--def $MM"
     fi
+    echo $MM
+}
+
+function umacros2undef {
     local UM=""
     for i in $UNMACROS; do
         UM="$i,$UM"
@@ -374,22 +378,21 @@ function parse_macros {
     if [ ! -z "$UM" ]; then
         UM="--undef $UM"
     fi
+    echo $UM
+}
+
+function parse_macros {
     if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` $MM $UM --output $* > /dev/stderr
+        echo jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $* > /dev/stderr
     fi
-    jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` $MM $UM --output $*
+    jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $*
 }
 
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 function copy_templates {
-    datestr=$(date "+%H:%M:%S %B %e, %Y")
-    # Replace core name and path to modules
-    # do not leave a space in the line below sedstr!
-    sedstr='s/${CORENAME}/'$corename'/g;s/${DATE}/'${datestr}'/g;s/${MODULES}/'$(escape_bars ${MODULES})'/g;s/${PRJPATH}/'$(escape_bars ${PRJPATH})'/g;'\
-'s/${OUTPUTDIR}/'${OUTPUTDIR}'/g;s/${TARGET}/'${TARGET}'/g'
-    sed "$sedstr" $JTFRAME/target/$TARGET/$TARGET.qpf > $PRJPATH/$TARGET/$corename.qpf
-    sed "$sedstr" $JTFRAME/target/$TARGET/$TARGET.qsf > $PRJPATH/$TARGET/$corename.qsf
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` > $PRJPATH/$TARGET/$corename.qpf
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` > $PRJPATH/$TARGET/$corename.qsf
     # TCL in HDL folder is always appended
     TCL=$PRJPATH/cfg/$corename.tcl
     MACROS_FILE=$PRJPATH/cfg/macros.def

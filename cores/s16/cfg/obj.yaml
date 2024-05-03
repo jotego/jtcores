@@ -1,0 +1,14 @@
+game:
+  - from: s16
+    get:
+      - jts16_obj.v
+      - jts16_obj_ram.v
+      - jts16_obj_draw.v
+      - jts16_obj_scan.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_linebuf.v

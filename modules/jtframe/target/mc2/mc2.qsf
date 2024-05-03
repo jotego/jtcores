@@ -255,5 +255,4 @@ set_global_assignment -name VERILOG_MACRO "NEPTUNO=1"
 
 # set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to SPI_SCK
 set_global_assignment -name SEARCH_PATH "../hdl"
-set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
-# Leave the blank line
+set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"

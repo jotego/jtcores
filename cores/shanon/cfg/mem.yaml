@@ -58,3 +58,4 @@ sdram:
 # The ROAD 32kB memory must go in BRAM to guarantee correct data reads at 48 MHz
 bram:
   - { name: rd0, addr_width: 15, data_width: 16, rom: { offset: RD0_OFFSET } }
+

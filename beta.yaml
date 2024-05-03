@@ -1,8 +1,6 @@
-simson: [ mister, pocket ]
 shouse: [ mister, pocket ]
 ngp:    [ mister, pocket ]
-kchamp: [ pocket ] # 29th Apr '24
-commnd: [ pocket ] #  5th May '24
+s18:    [ mister, pocket ]
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
 # biocom: [ pocket ]

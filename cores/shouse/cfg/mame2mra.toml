@@ -4,19 +4,43 @@ skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
     # Key type 3
-    "rompers",
+    "rompers", # problems with music
     # Others
     "bakutotu",
     "berabohm",
-    "boxyboy",
-    "mmaze",
+    # "boxyboy",
+    # "mmaze",
     "quester",
-    "shadowld",
+    # "shadowld",
 ], setnames=[
     # key custom error (maybe related to being 4 players?)
     "tankfrcej",
     "tankfrce4",
 ] }
+
+[buttons]
+names = [
+    { machine="bakutotu",  names="Gun Shot" },
+    { machine="berabohm",  names="Attack,Jump" },
+    { machine="blastoff",  names="Missile Type Change,Missile Shot" },
+    { machine="blazer",    names="Side Missile,Forward Missile" },
+    { machine="boxyboy",   names="Increase Speed,Takeback" },
+    { machine="dangseed",  names="Shot,Bomber" },
+    { machine="dspirit",   names="Fire Ground,Fire Air" },
+    { machine="faceoff",   names="Shot,Pass/Shoot" },
+    { machine="galaga88",  names="Fire" },
+    { machine="mmaze",     names="Jump,Shot" },
+    { machine="pacmania",  names="Jump" },
+    { machine="pistoldm",  names="Shot/Bomber" },
+    { machine="puzlclub",  names="Get Stuck" },
+    { machine="quester",   names="Start" },
+    { machine="rompers",   names="Knock Down Stone Wall" },
+    { machine="shadowld",  names="Jump,Telekinesis Launch" },
+    { machine="splatter",  names="Attack,Jump" },
+    { machine="tankfrce",  names="Shot" },
+    { machine="wldcourt",  names="Slow Serve/Return,Quick Serve/Return" },
+    { machine="ws",        names="Base Running/Checkmate,Batting/Throw,Timeout" },
+]
 
 [header]
 info="""Byte 0: protection type
@@ -49,11 +73,6 @@ data= [
     { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
     { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },
     { machine="boxyboy",  data="03 37 02 03 00 FF 04 FF" },
-]
-
-[buttons]
-names=[
-    { machine="splatter", names="Attack,Jump" },
 ]
 
 [dipsw]

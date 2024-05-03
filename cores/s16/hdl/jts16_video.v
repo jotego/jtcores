@@ -119,7 +119,6 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
 
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( dsn       ),
@@ -129,9 +128,9 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Other configuration
     .flip       ( flip      ),
     .ext_flip   ( ext_flip  ),
-    .colscr_en  ( colscr_en ),
-    .rowscr_en  ( rowscr_en ),
-    .alt_en     ( alt_en    ),
+    .colscr_en  ( 1'b0      ),  // unconnected in MODEL 1
+    .rowscr_en  ( 1'b0      ),
+    .alt_en     ( 1'b0      ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),

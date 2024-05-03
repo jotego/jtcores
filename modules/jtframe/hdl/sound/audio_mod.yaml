@@ -53,6 +53,8 @@ jt03_fm:  { data_width: 16, rout: 6.5k, vpp: 0.5 }  # only FM, declare PSG part 
 jtopl:    { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jtopl2:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jt2413:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
+# FM chips with internal DAC
+jt12:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
 
 # Namco
 # data_width is probably too much, pre tries to compensate that a bit
@@ -65,3 +67,7 @@ jt2413:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 # CUS30 goes into CUS99, which is the real DAC, should the module name here
 # be CUS99 instead of CUS30?
 jtcus30:  { data_width: 13, rout: 47k, stereo: true, vpp: 2.0 }
+
+# SEGA
+# place holder values
+jtpcm568: { data_width: 10, rout: 100k, vpp: 1.0 }

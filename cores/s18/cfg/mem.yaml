@@ -1,43 +1,54 @@
+params:
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
 audio:
   channels:
-    - { name: fm0, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ]}
-    - { name: fm1, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ]}
+    - { name: fm0, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
+    - { name: fm1, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
     # the filter is a guess, the schematics need more work around it
     # probably needs to support more than 4kHz
-    - { name: pcm, rsum: 10k, module: jtpcm568, fir: fir_192k_4k ]}
+    - { name: pcm, rsum: 10k, module: jtpcm568, fir: fir_192k_4k.csv }
 clocks:
   clk48:
-  - freq: 8000000
-    outputs:
-    - cen_fm
-  - freq: 10000000
-    outputs:
-    - cen_pcm
+    - freq: 8000000
+      outputs:
+      - cen_fm
+    - freq: 10000000
+      outputs:
+      - cen_pcm
+  clk24:
+    - freq: 8000000
+      outputs: [ mcu_cen ]
 # using s16's for now
 sdram:
   banks:
-  # Bank 0 for the main and sub CPUs
+  # Bank 0 for the main and video memory
   - buses:
     - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
-    - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+    - { name: main,   addr_width: 21, data_width: 16 }
     - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
     - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
-
-  # Bank 1 for sound & frame buffer
+  # Bank 1 for sound
   - buses:
-    - { name: snd, addr_width: 19, data_width: 8 }
-    - { name: pcm, addr_width: 17, data_width: 8, offset: PCM_OFFSET }
-
+    - { name: snd, addr_width: 21, data_width: 8 }
   # Bank 2 for tile graphics
   - buses:
-    - { name: char, addr_width: 20, data_width: 32, cs: gfx_cs }
-    - { name: scr1, addr_width: 20, data_width: 32, cs: gfx_cs }
-    - { name: scr2, addr_width: 20, data_width: 32, cs: gfx_cs }
-
+    - { name: char, addr_width: 14, data_width: 32, cs: gfx_cs }
+    - { name: scr1, addr_width: 22, data_width: 32, cs: gfx_cs }
+    - { name: scr2, addr_width: 22, data_width: 32, cs: gfx_cs }
   # Bank 3 objects
   - buses:
     - { name: obj, addr_width: 21, data_width: 16 }
 
 bram:
-  - { name: pcmram0, addr_width: 15, addr: pcm_addr, data_width: 8, rw: true }
-  - { name: pcmram1, addr_width: 15, addr: pcm_addr, data_width: 8, rw: true }
+  - name: pcm
+    addr_width: 16
+    data_width: 8
+    dual_port:
+      name: pcm1
+      din: pcm1_din
+      dout: pcm1_dout
+      rw: true
+  - { name: pal, addr_width: 12, data_width: 16, rw: false,
+      ioctl: { save: true, order: 0 },
+      dual_port: { name: main, rw: true, we: pal_we }
+    }

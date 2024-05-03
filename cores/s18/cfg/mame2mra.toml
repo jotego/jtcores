@@ -14,6 +14,22 @@ debug = { machines=[
 	"shdancer",
 	"wwallyj",
 ]}
+skip.bootlegs=true
+
+[buttons]
+names = [
+	# { machine="astorm",		names="" },
+	# { machine="bloxeed",	names="" },
+	# { machine="cltchitr",	names="" },
+	# { machine="ddcrew",		names="" },
+	# { machine="desertbr",	names="" },
+	# { machine="hamaway",	names="" },
+	# { machine="lghost",		names="" },
+	# { machine="mwalk",		names="" },
+	# { machine="pontoon",	names="" },
+	{ machine="shdancer",	names="Attack,Jump,Magic" },
+	# { machine="wwallyj",	names="" },
+]
 
 [DIPSW]
 Delete=[
@@ -36,23 +52,24 @@ data = [
     { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },
     # 5987 board
     # ddcrewu, ddcrew1, ddcrewj might be different
-    { machines=["cltchitr", "desertbr", "ddcrew"], offset=0x18, data="17" },
-    # single-game boards
-    { machine="hamaway",  offset=0x18, data="17" },
-    { machine="lghost",   offset=0x18, data="17" },
-    { machine="shdancer", offset=0x18, data="17" },
     # wwally's machine may be in a different MAME file, not segas18
-    { machine="wwally",   offset=0x18, data="17" },
+    { machines=["cltchitr", "desertbr", "ddcrew", "wwally"], offset=0x18, data="04" },
+    # single-game boards
+    { machine="hamaway",  offset=0x18, data="08" }, # 837-7525
+    { machine="lghost",   offset=0x18, data="10" }, # 171-5873B
+    { machine="shdancer", offset=0x18, data="20" }, # 837-7248-01
 ]
 
 [ROM]
 regions = [
 	{ name="maincpu", width=16 },
-	{ name="maincpu:key" },
-	{ name="soundcpu", start="JTFRAME_BA1_START" },
-	{ name="tiles", start="JTFRAME_BA2_START" },
-	{ name="sprites", start="JTFRAME_BA3_START", width=16 },
-	{ name="mcu" },
+	{ name="soundcpu",    start="JTFRAME_BA1_START" },
+	{ name="tiles",       start="JTFRAME_BA2_START", sequence=[0,1,2,2], width=32 },
+	# ROM order might be wrong for hamaway tiles
+	{ name="tiles",       start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sequence=[0,2,4,4,1,3,5,5], len=0x200000, machine="hamaway"},
+	{ name="sprites",     start="JTFRAME_BA3_START", width=16, reverse=true },
+	{ name="maincpu:key", start="JTFRAME_PROM_START" },
+	{ name="mcu",         start="MCU_START" },
 ]
 
-order=["maincpu","maincpu:key","soundcpu","tiles", "sprites", "mcu"]
+order=["maincpu","soundcpu","tiles", "sprites", "maincpu:key", "mcu"]

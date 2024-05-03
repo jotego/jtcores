@@ -40,7 +40,7 @@ reg                turbo_l=0;
 
 assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
 assign dip_flip   = flip;
-assign debug_view = { 6'd0, turbo, pcm_a_rcen };
+assign debug_view = { 7'd0, turbo };
 assign scr_cs     = LVBL;
 assign main_dout  = cpu_dout;
 assign oram_we    = oram_cs & ~cpu_wrn;
@@ -48,8 +48,6 @@ assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 assign mcu_cen    = turbo_l ? mcu_cen12 : mcu_cen6;
 assign cpu_cen    = turbo_l ? cen6 : cen3;
-assign pcm_a_rcen = dipsw[16];
-assign pcm_b_rcen = dipsw[16];
 
 always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
 

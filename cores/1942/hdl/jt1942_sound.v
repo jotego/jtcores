@@ -157,8 +157,10 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
 );
 
 function [1:0] bcdir( input cs );
+begin
     bcdir[0] = cs       & ~(hige ? main_wr_n : wr_n); // bdir pin
     bcdir[1] = bcdir[0] &  (hige ? main_a0   :~A[0]); // bc pin
+end
 endfunction
 
 wire bdir0, bc0;

@@ -36,9 +36,7 @@ JTFRAME_BA1_START =0x280000
 JTFRAME_SKIP
 
 [pocket]
-# not passing STA :-(
-# and missing .toml file for now
-JTFRAME_SKIP
+JTFRAME_NOSTA
 
 [mister]
 JTFRAME_ARX=4

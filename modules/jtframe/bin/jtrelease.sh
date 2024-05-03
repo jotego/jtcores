@@ -22,7 +22,6 @@ function pocket_zip {
 HASH=
 SKIPROM=--skipROM
 VERBOSE=
-BUILDS=/gdrive/jotego/core-builds
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -37,14 +36,17 @@ while [ $# -gt 0 ]; do
 			VERBOSE=1;;
 		-h|--help)
 			cat<<EOF
+jtrelease.sh <hash> [arguments]
 
-	jtrelease.sh <hash> [arguments]
+Copies a build to the SD card,MiSTer and JTBIN $JTBIN
+Either the full path to the file is provided, or just the
+hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
 
-	Copies a build from $BUILDS to the SD card,
-	MiSTer and JTBIN ($JTBIN)
-
-	-l, --local		Do not copy to JTBIN
-
+-h, --help		This help screen
+-l, --local		Do not copy to JTBIN
+--host			MiSTer host name
+-r, --rom		Regenerate ROM files
+-v, --verbose   Verbose
 EOF
 			exit 0;;
 		*) if [[ -z "$HASH" && ${1:0:1} != - ]]; then
@@ -57,17 +59,23 @@ EOF
 	shift
 done
 
+if [ ! -z "$JTBUILDS" ]; then
+	if [ ! -d "$JTBUILDS" ]; then echo "$JTBUILDS is not a valid path"; exit 1; fi
+	JTBUILDS=${JTBUILDS}/
+fi
+
 if [ -z "$HASH" ]; then
 	echo "Use jtrelease.sh git-hash"
 	exit 1
 fi
 
-REF=$BUILDS/${HASH:0:7}.zip
+REF=${JTBUILDS}${HASH:0:7}.zip
 echo $REF
-if [ ! -e $REF ]; then REF=$BUILDS/mister_${HASH:0:7}.zip; fi
+if [ ! -e $REF ]; then REF=${JTBUILDS}mister_${HASH:0:7}.zip; fi
 
 if [ ! -e $REF ]; then
 	echo "No build ${HASH:0:7} available"
+	echo "Tried path: $REF"
 	exit 125
 fi
 

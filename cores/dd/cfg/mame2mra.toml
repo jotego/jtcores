@@ -35,9 +35,6 @@ delete=[{names=["Unused","Unknown"]}]
 rename = [
     { name="Bonus Life", to="Bonus" },
 ]
-extra=[
-    { machine="ddragon", name="PCM antialiasing", options="off,on", bits="16" }
-]
 
 [ROM]
 regions=[

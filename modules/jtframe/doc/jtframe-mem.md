@@ -64,6 +64,7 @@ bram:
       dual_port:
         name: main
         [din:]
+        [dout:]
         rw: true
         [cs:]
     # BRAM used as ROM. Note that data gets downloaded

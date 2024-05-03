@@ -1,7 +1,7 @@
 game:
   - from: shanon
     get:
-      - jtshanon_colmix.v
+      - "*.v"
   - from: outrun
     get:
       - common.yaml

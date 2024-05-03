@@ -4,6 +4,7 @@ CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
 SHANON=1
 -JTFRAME_LF_BUFFER
+JTFRAME_COLORW=6
 
 # System 16B Objects don't work
 # well with 64-bit bursts. I just
