@@ -361,7 +361,7 @@ always @(posedge clk) begin
                     io_cs              ? {8'hff,io_dout} :
                     vdp_cs             ? vdp_dout    :
                     none_cs            ? mapper_dout :
-                                         16'hffff;
+                                         cpu_din;
     end
 end
 
