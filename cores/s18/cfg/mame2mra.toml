@@ -18,14 +18,14 @@ skip.bootlegs=true
 
 [buttons]
 names = [
-	# { machine="astorm",		names="" },
-	# { machine="bloxeed",	names="" },
-	# { machine="cltchitr",	names="" },
-	# { machine="ddcrew",		names="" },
-	# { machine="desertbr",	names="" },
-	# { machine="hamaway",	names="" },
-	# { machine="lghost",		names="" },
-	# { machine="mwalk",		names="" },
+	{ machine="astorm",		names="Attack,Roll,Special" },
+        { machine="bloxeed",	names="Change Direction Block" },
+        { machine="cltchitr",	names="Change Pitcher/Bunt,Checkmate/Advance Base,Pitching/Swing Bat" },
+        { machine="ddcrew",		names="Attack,Jump" },
+        { machine="desertbr",	names="Shot,Run,Bomb" },
+        { machine="hamaway",	names="Foward Shot with Missile,Foward Shot,Bomb" },
+        { machine="lghost",		names="Laser Gun,Special Weapon" },
+        { machine="mwalk",		names="Shot,Dance" },
 	# { machine="pontoon",	names="" },
 	{ machine="shdancer",	names="Attack,Jump,Magic" },
 	# { machine="wwallyj",	names="" },
