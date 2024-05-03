@@ -622,18 +622,17 @@ for i in $CORES/$SYSNAME/hdl/*.hex; do
     fi
 done
 
-if [ -e $MODULES/fx68k ]; then
-    # These files are read by the FX68K module but they must be in the
-    # simulation folder. Forgetting to have them there results in X everywhere
-    ln -sfr $MODULES/fx68k/microrom.mem
-    ln -sfr $MODULES/fx68k/nanorom.mem
-fi
-
 if [ $GATES = NO ]; then
     # Prepare all file lists
     jtframe mem $SYSNAME --target "$TARGET" --local || exit $?
     jtframe mmr $SYSNAME || exit $?
     jtframe files sim $SYSNAME --rel --local --target "$TARGET" --macro "$ALLMACROS" || exit $?
+    if grep --quiet fx68k game.f; then
+        # These files are read by the FX68K module but they must be in the
+        # simulation folder. Forgetting to have them there results in X everywhere
+        ln -sfr $MODULES/fx68k/microrom.mem
+        ln -sfr $MODULES/fx68k/nanorom.mem
+    fi
     # Remove duplicated lines
     rm -f tmp.f
     rm -f game_env.f
