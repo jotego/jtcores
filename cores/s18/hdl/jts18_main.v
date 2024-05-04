@@ -128,7 +128,7 @@ wire [23:0] A_full = {A,1'b0};
 
 wire        BRn, BGACKn, BGn,
             BUSn, cpu_RnW, ok_dly, io_we;
-reg         sdram_ok, io_cs, wdog_cs, vdp_cs;
+reg         sdram_ok, io_cs, vdp_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
 assign BUSn    = LDSn & UDSn;
@@ -142,7 +142,7 @@ assign st_dout = 0;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
-//                               && !io_cs  && !wdog_cs && vram_cs && ram_cs);
+//                               && !io_cs  && vram_cs && ram_cs);
 
 wire [ 7:0] active, mcu_din, mcu_dout;
 wire        mcu_wr, mcu_acc;
@@ -159,7 +159,7 @@ reg  [15:0] cpu_din;
 wire [15:0] mapper_dout;
 wire        none_cs;
 
-jts16b_mapper u_mapper(
+jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .pxl_cen    ( pxl_cen        ),
@@ -222,6 +222,7 @@ jts16b_mapper u_mapper(
     .st_dout    ( st_mapper      )
 );
 
+`ifndef NOMCU
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
@@ -258,6 +259,12 @@ jtframe_8751mcu #(
     .prom_din   ( prog_data     ),
     .prom_we    ( mcu_prog_we   )
 );
+`else
+assign mcu_dout = 0;
+assign mcu_wr   = 0;
+assign mcu_acc  = 0;
+assign mcu_addr = 0;
+`endif
 
 // System 18 memory map
 always @* begin
@@ -277,7 +284,6 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= 0; // 4 kB
             io_cs     <= 0;
             vdp_cs    <= 0;
-            wdog_cs   <= 0;
 
             vram_cs   <= 0; // 64kB
             ram_cs    <= 0; // 16kB
@@ -310,7 +316,6 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= 0;
             io_cs     <= 0;
             vdp_cs    <= 0;
-            wdog_cs   <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
         end
@@ -361,7 +366,7 @@ always @(posedge clk) begin
                     io_cs              ? {8'hff,io_dout} :
                     vdp_cs             ? vdp_dout    :
                     none_cs            ? mapper_dout :
-                                         cpu_din;
+                                         16'hffff;
     end
 end
 

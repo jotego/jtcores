@@ -108,6 +108,8 @@ module jts16b_mapper(
     output reg [ 7:0] st_dout
 );
 
+parameter FNUM = 7'd29, FDEN = 8'd146;
+
 reg  [ 1:0] dtack_cyc;    // number of DTACK cycles
 reg  [ 7:0] mmr[0:31];
 reg         bus_rq;
@@ -298,8 +300,8 @@ jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .bus_legit  ( 1'b0      ),
     .ASn        ( cpu_asn || cpu_fc[1:0]==2'b11  ),  // BUSn = ASn | (LDSn & UDSn)
     .DSn        ( cpu_dsn   ),
-    .num        ( 7'd29     ),  // numerator
-    .den        ( 8'd146    ),  // denominator
+    .num        ( FNUM      ),  // numerator
+    .den        ( FDEN      ),  // denominator
     .DTACKn     ( cpu_dtackn ),
     .wait2      ( dtack_cyc==2 ),
     .wait3      ( dtack_cyc==3 ),

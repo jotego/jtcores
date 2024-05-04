@@ -62,7 +62,7 @@ data = [
 
 [ROM]
 regions = [
-    { name="maincpu", width=16 },
+    { name="maincpu", width=16, reverse=true },
     { name="soundcpu",    start="JTFRAME_BA1_START" },
     { name="tiles",       start="JTFRAME_BA2_START", sequence=[0,1,2,2], width=32 },
     # ROM order might be wrong for hamaway tiles
