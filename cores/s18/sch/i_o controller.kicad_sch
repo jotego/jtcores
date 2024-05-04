@@ -5580,7 +5580,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 263bc3ba-5165-4bc9-9d5d-fa8193996152)
   )
-  (hierarchical_label "SCR_A[15..0]" (shape output) (at 228.6 120.65 0) (fields_autoplaced)
+  (hierarchical_label "SCR_A[18..15]" (shape output) (at 228.6 120.65 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 411e2e32-9cd1-4f22-bd40-3efe650328cf)
   )

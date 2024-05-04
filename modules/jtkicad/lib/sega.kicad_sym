@@ -2351,7 +2351,7 @@
         (number "157" (effects (font (size 1.27 1.27))))
       )
       (pin output line (at -59.69 -43.18 0) (length 5.08)
-        (name "SCR_A15" (effects (font (size 1.27 1.27))))
+        (name "SCR_SEL" (effects (font (size 1.27 1.27))))
         (number "158" (effects (font (size 1.27 1.27))))
       )
       (pin output line (at -59.69 -45.72 0) (length 5.08)
