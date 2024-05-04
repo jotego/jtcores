@@ -55,6 +55,18 @@ The current contents of the SDRAM can be dumped at the beginning of each frame (
 
 To simulate the SDRAM load operation use **-load** on sim.sh. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
 
+## SDRAM Preparation
+
+The core needs to have a SDRAM with the game ROM loaded into it. The most basic way is to have a file named **rom.bin** in the simulation folder. `jtsim -load` will download that file to the core and produce four files called **sdram_bank?.bin** with the SDRAM contents after the download is done.
+
+The ROM download process is slow but normally you only need to run it once to produce the sdram files. After that, calling `jtsim` will load those files directly to the SDRAM simulation model.
+
+`jtsim -setname game` will create the .rom file for the given name in the **$JTROOT/rom** folder and make a symbolic link to it called **rom.bin** in the simulation folder. It will then proceed to load the rom.
+
+As the .rom download can sometimes be very slow and it does not require any core CPU, you can often use `jtsim -load -d NOMAIN -q` in order to simulate without the main and sound CPUs. Somecores will also take `-d NOMCU` to skip the MCU simulation. After creating the sdram files, a regular simulation with CPUs can be executed.
+
+The fastest method to produce the sdram files is to run `jtutil sdram` from the simulation folder. This will work for cores that do not execute data transformations during downloading. It will simply skip the header and use the bank start definitions in **macros.def** to split the .rom file into four sdram files.
+
 ## Simulator Speed
 
 Comparison run on [Roc'n Rope](https://github.com/jotego/jtkicker) core for ten frames plus ROM loading.
