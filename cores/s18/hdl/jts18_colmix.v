@@ -39,8 +39,8 @@ assign ex_b = {s16_b,s16_b[5:4]};
 
 assign LHBL_dly = LHBL;
 assign LVBL_dly = LVBL;
-assign red      = gfx_en[2] ? vdp_r : ex_r;
-assign green    = gfx_en[2] ? vdp_g : ex_g;
-assign blue     = gfx_en[2] ? vdp_b : ex_b;
+assign red      = gfx_en[2] ? ex_r : vdp_r;
+assign green    = gfx_en[2] ? ex_g : vdp_g;
+assign blue     = gfx_en[2] ? ex_b : vdp_b;
 
 endmodule

@@ -137,7 +137,7 @@ assign flip    = misc_o[5];
 assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
-assign coinage = { 2'b11, cab_1p[0], cab_1p[1], service, dip_test, coin[1:0] };
+assign coinage = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
 assign st_dout = 0;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];
@@ -152,7 +152,7 @@ wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
-wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
+wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok); // | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;

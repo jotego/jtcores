@@ -54,7 +54,11 @@ jtopl:    { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jtopl2:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 jt2413:   { data_width: 16, rout: 6.5k, vpp: 0.5 }
 # FM chips with internal DAC
-jt12:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
+# jt12: is audio output rail to rail? Other YM DAC are 1/4VDD to 3/4 VDD
+# the DAC is time multiplexed, so each channel maximum amplitude is 1/6
+# but jt12 uses 12 bits instead of 9, so it's already attenuating by 1/32
+# in order to compensate for it, 0.5*32/6=2.6
+jt12:     { data_width: 16, rout: 6.5k, vpp: 2.6, stereo: true   }
 
 # Namco
 # data_width is probably too much, pre tries to compensate that a bit
