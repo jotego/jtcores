@@ -4406,12 +4406,6 @@
     (uuid ff001abf-6adf-448e-9865-05a658b6bf77)
   )
 
-  (arc (start 63.5 31.75) (mid 66.3464 35.0346) (end 66.04 39.37)
-    (stroke (width 0) (type default))
-    (fill (type none))
-    (uuid 65c24119-1ea6-43a7-aba1-82c5b54af1ee)
-  )
-
   (image (at 275.59 173.99) (scale 0.198066)
     (uuid a6577052-a916-4ccb-8742-511a14a1a040)
     (data
@@ -4919,10 +4913,6 @@
     (at 41.91 152.4 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b9e185dc-ad75-456c-8508-878a9b4c40ff)
-  )
-  (text "should it be AB12?" (at 63.5 33.02 0)
-    (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid d5464e34-2415-4636-a936-f732c6c0ff07)
   )
 
   (label "VSS" (at 198.12 71.12 0) (fields_autoplaced)

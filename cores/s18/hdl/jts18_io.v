@@ -34,7 +34,9 @@ module jts18_io(
     // three output pins
     output            aux0,
     output            aux1,
-    output            aux2
+    output            aux2,
+    input       [7:0] debug_bus,
+    output reg  [7:0] st_dout
 );
 
 reg [7:0] pout[0:7];
@@ -56,6 +58,14 @@ assign aux2 = cnt[3] ? 1'b0 : cnt[2]; // should output a clock when cnt[3] is hi
     // d4,5: CNT2 clock divider (0= CLK/4, 1= CLK/8, 2= CLK/16, 3= CLK/2)
     // d6,7: CKOT clock divider (0= CLK/4, 1= CLK/8, 2= CLK/16, 3= CLK/2)
     // TODO..
+
+always @(posedge clk) begin
+    casez(debug_bus[3:0])
+        4'b0???: st_dout <= pout[debug_bus[2:0]];
+        4'b1??0: st_dout <= dir;
+        4'b1??1: st_dout <= cnt;
+    endcase
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -81,7 +91,7 @@ always @(posedge clk, posedge rst) begin
            default: dout <= 8'hff;
         endcase
         if( we ) casez(addr)
-            6'b00_0???: if(dir[addr[2:0]]) pout[addr[2:0]] <= din;
+            6'b00_0???: pout[addr[2:0]] <= din;
             6'h0e: cnt <= din;
             6'h0f: dir <= din;
             default:;

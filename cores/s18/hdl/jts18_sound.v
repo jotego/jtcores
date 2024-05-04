@@ -49,6 +49,7 @@ module jts18_sound(
     output signed [15:0] fm0_l, fm0_r, fm1_l, fm1_r,
     output signed [ 9:0] pcm
 );
+`ifndef NOSOUND
 
 wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n, nmi_n;
 wire [15:0] A;
@@ -201,5 +202,20 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(1)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
-
+`else
+initial rom_addr  = 0;
+initial rom_cs    = 0;
+assign mapper_rd  = 0;
+assign mapper_wr  = 0;
+assign mapper_din = 0;
+assign pcm0_addr  = 0;
+assign pcm1_addr  = 0;
+assign pcm1_we    = 0;
+assign pcm1_din   = 0;
+assign fm0_l      = 0;
+assign fm0_r      = 0;
+assign fm1_l      = 0;
+assign fm1_r      = 0;
+assign pcm        = 0;
+`endif
 endmodule

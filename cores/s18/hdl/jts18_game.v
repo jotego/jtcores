@@ -59,7 +59,6 @@ reg  [7:0] st_mux, game_id;
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
 assign debug_view = st_mux;
-assign st_dout    = st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
@@ -72,16 +71,15 @@ assign ioctl_din  = 0;
 assign xram_addr  = xa;
 
 always @(posedge clk) begin
-    case( st_addr[7:4] )
-        0: st_mux <= tile_bank;
-        1: st_mux <= st_main;
-        2: case( st_addr[3:0] )
+    case( debug_bus[7:6] )
+        0: st_mux <= st_main;
+        1: st_mux <= st_video;
+        2: case( debug_bus[1:0] )
                 0: st_mux <= sndmap_dout;
                 1: st_mux <= tile_bank;
                 2: st_mux <= game_id;
-                3: st_mux <= { 6'd0, mcu_en, fd1094_en };
+                3: st_mux <= { vid16_en, vdp_en, 4'd0, mcu_en, fd1094_en };
             endcase
-        3: st_mux <= st_video;
         default: st_mux <= 0;
     endcase
 end
@@ -176,11 +174,11 @@ jts18_main u_main(
     .dipsw       ( dipsw[15:0]),
     // Status report
     .debug_bus   ( debug_bus  ),
-    .st_addr     ( st_addr    ),
+    .st_addr     ( debug_bus  ),
     .st_dout     ( st_main    )
 );
 
-/* xxxverilator tracing_off */
+/* verilator tracing_off */
 jts18_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -214,7 +212,7 @@ jts18_sound u_sound(
     .pcm        ( pcm       )
 );
 
-/* xxxverilator tracing_off */
+/* verilator tracing_off */
 jts18_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -287,7 +285,7 @@ jts18_video u_video(
     .blue       ( blue      ),
     // debug
     .debug_bus  ( debug_bus ),
-    .st_addr    ( st_addr   ),
+    .st_addr    ( debug_bus ),
     .st_dout    ( st_video  )
 );
 

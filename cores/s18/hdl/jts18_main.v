@@ -119,7 +119,7 @@ localparam       PCB_5874 = 0,  // refers to the bit in game_id
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, io_dout, misc_o, coinage, key_data;
+wire [ 7:0] st_mapper, st_timer, st_io, io_dout, misc_o, coinage, key_data;
 wire [12:0] key_addr;
 
 `ifdef SIMULATION
@@ -138,7 +138,7 @@ assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
 assign coinage = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
-assign st_dout = 0;
+assign st_dout = st_io;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];
 // assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
@@ -350,7 +350,10 @@ jts18_io u_ioctl(
     // three output pins
     .aux0       (               ),
     .aux1       ( vid16_en      ),
-    .aux2       ( vdp_en        )
+    .aux2       ( vdp_en        ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_io         )
 );
 
 // Data bus input
