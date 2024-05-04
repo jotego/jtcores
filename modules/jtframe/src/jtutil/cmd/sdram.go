@@ -32,6 +32,9 @@ jtframe sdram will split the .rom file in the right number of sdram*bin files by
 inspecting the definitions of JTFRAME_BA?_START, JTFRAME_PROM_START and
 JTFRAME_HEADER.
 
+jtframe sdram will also link a rom.bin file to the .rom file used. If rom.bin
+already existed, it will be deleted and re-created as a link.
+
 The result will only be correct for cores that do not transform download data on
 the fly and that do not depend on the header for SDRAM bank assignment. These
 features can be partially support in future development.`,
@@ -58,6 +61,7 @@ features can be partially support in future development.`,
 		}
 		core := filepath.Base(filepath.Join(wd,".."))
 		extract_sdram(core,game)
+		make_symlink(game)
 	},
 	Args: cobra.MaximumNArgs(1),
 }
@@ -161,4 +165,10 @@ func extract_sdram( core, game string ) {
 	}
 	nx_bank  = bank_start(macros,"JTFRAME_PROM_START")+header
 	nx_start = dump("sdram_bank3.bin",rom,nx_start,nx_bank)
+}
+
+func make_symlink( game string ) {
+	src := filepath.Join(must_env("JTROOT"),"rom",game+".rom")
+	os.Remove("rom.bin")
+	os.Symlink(src,"rom.bin")
 }
