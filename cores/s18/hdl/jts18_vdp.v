@@ -28,7 +28,7 @@ module jts18_vdp(
     input              rnw,
     input              asn,
     input       [ 1:0] dsn,
-    output             dtackn,
+    output reg         dtackn,
     // Video output
     output             hs,
     output             vs,
@@ -42,8 +42,20 @@ wire       ras1, cas1, we0, we1,
 wire [7:0] sd, ad, vram_dout;
 reg        rst_n;
 
-assign dtackn = ~dtack;
+// assign dtackn = ~dtack;
 assign vs     = ~vs_n;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dtackn <= 0;
+    end else begin
+        if( asn ) begin
+            dtackn <= 1;
+        end else begin
+            if( dtack ) dtackn <= 0;
+        end
+    end
+end
 
 always @(negedge clk) rst_n <= rst;
 /* verilator lint_off PINMISSING */

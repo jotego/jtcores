@@ -174,7 +174,9 @@ jtpcm568 u_pcm(
     .snd        ( pcm           )
 );
 
-jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
+// Need more than 48MHz clock for using RECOVERY
+// on an 8MHz Z80
+jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(1)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
