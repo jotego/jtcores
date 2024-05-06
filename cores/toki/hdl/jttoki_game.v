@@ -233,8 +233,6 @@ toki_sound u_sound(
   .clk(clk),
   .clk48(clk48),
 
-  .oki_cen(oki_cen),
-
   .coin_input(coin),
 
   .snd(snd),
