@@ -192,11 +192,12 @@ public:
     }
     void parse_inputs( unsigned v ) {
         v = ~v;
-        auto coin_l  = dut.coin&3;
-        dut.dip_test     = (v & 0x800) ? 1 : 0;
-        dut.cab_1p = 0xc | ((v>>2)&3);
-        dut.coin   = 0xc | (v&3);
-        dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
+        auto coin_l   = dut.coin&3;
+        dut.dip_test  = (v & 0x800) ? 1 : 0;
+        dut.service   = (v & 0x002) ? 1 : 0;
+        dut.cab_1p    = 0xc | ((v>>2)&3);
+        dut.coin      = 0xe | (v&1);
+        dut.joystick1 = 0x30f | ((v>>4)&0xf0); // buttons 1~4
         v >>= 4;    // directions:
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
 #ifdef _JTFRAME_JOY_LRUD

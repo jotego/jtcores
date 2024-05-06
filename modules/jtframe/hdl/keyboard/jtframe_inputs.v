@@ -247,7 +247,7 @@ always @(posedge clk, posedge rst) begin
         // as indicated in the instance parameter
 
 `ifdef SIM_INPUTS
-        game_coin  <= {4{ACTIVE_LOW[0]}} ^ { 2'b0, sim_inputs[frame_cnt][1:0] };
+        game_coin  <= {4{ACTIVE_LOW[0]}} ^ { 3'b0, sim_inputs[frame_cnt][0] };
         game_start <= {4{ACTIVE_LOW[0]}} ^ { 2'b0, sim_inputs[frame_cnt][3:2] };
         game_joy1  <= reorder({10{ACTIVE_LOW[0]}} ^ { 3'd0, sim_inputs[frame_cnt][10:4] });
 `else
@@ -299,6 +299,9 @@ always @(posedge clk, posedge rst) begin
             game_pause   <= 0;
             game_service <= ACTIVE_LOW[0];
         end
+`ifdef SIM_INPUTS
+        game_service <= ACTIVE_LOW[0] ^ sim_inputs[frame_cnt][1];
+`endif
     end
 end
 
