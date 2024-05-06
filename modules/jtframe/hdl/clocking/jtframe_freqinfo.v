@@ -30,6 +30,9 @@ module jtframe_freqinfo #(parameter
 
 wire cnt_event;
 wire cen, ms;
+reg  [15:0] freq_cnt;
+wire [DIGITS*4-1:0] fout_cnt;
+reg         pulse_l;
 
 assign ms = freq_cnt == MFREQ-1;
 
@@ -52,10 +55,6 @@ generate
 endgenerate
 
 // Frequency reporting
-reg  [15:0] freq_cnt;
-wire [DIGITS*4-1:0] fout_cnt;
-reg         pulse_l;
-
 assign cnt_event = pulse & ~pulse_l;
 
 always @(posedge clk, posedge rst) begin
