@@ -1,7 +1,10 @@
 // taken and tweaked from MiSTer sys/
 
-module i2s
-(
+module i2s #(parameter
+	// Clock Setting
+	I2S_Freq = 48_000,     // 48 KHz
+	AUDIO_DW = 16
+)(
 	input        reset,
 	input        clk,
 	input [31:0] clk_rate,
@@ -14,16 +17,16 @@ module i2s
 	input [AUDIO_DW-1:0]	right_chan
 );
 
-// Clock Setting
-parameter I2S_Freq = 48_000;     // 48 KHz
-parameter AUDIO_DW = 16;
 
 localparam I2S_FreqX2 = I2S_Freq*2*AUDIO_DW*2;
 
 reg  [31:0] cnt;
 wire [31:0] cnt_next = cnt + I2S_FreqX2;
-
 reg         ce;
+reg  [ 4:0] bit_cnt = 1;
+
+reg [AUDIO_DW-1:0] left;
+reg [AUDIO_DW-1:0] right;
 
 always @(posedge clk) begin
 	ce <= 0;
@@ -36,11 +39,6 @@ end
 
 
 always @(posedge clk) begin
-	reg  [4:0] bit_cnt = 1;
-
-	reg [AUDIO_DW-1:0] left;
-	reg [AUDIO_DW-1:0] right;
-
 	if (reset) begin
 		bit_cnt <= 1;
 		lrclk   <= 1;

@@ -17,7 +17,9 @@
     Date: 22-2-2019 */
 
 // This is the MiST top level
-module mist_top(
+module mist_top #(parameter
+    VGA_DW = `ifdef MIST_VGA_8BIT 8 `else 6 `endif
+)(
     input    [1:0]  CLOCK_27,
 
     output          LED,
@@ -125,12 +127,6 @@ localparam bit QSPI = 1;
 assign QDAT = 4'hZ;
 `else
 localparam bit QSPI = 0;
-`endif
-
-`ifdef MIST_VGA_8BIT
-localparam VGA_DW = 8;
-`else
-localparam VGA_DW = 6;
 `endif
 
 `ifdef MIST_USE_HDMI

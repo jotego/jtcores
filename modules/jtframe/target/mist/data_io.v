@@ -21,8 +21,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-module data_io
-(
+module data_io #( parameter
+	START_ADDR = 27'd0,
+	ROM_DIRECT_UPLOAD = 1'b0,
+	USE_QSPI = 1'b0,
+	ENABLE_IDE = 1'b0,
+	DOUT_16 = 1'b0
+)(
 	input             clk_sys,
 	input             SPI_SCK,
 	input             SPI_SS2,
@@ -74,12 +79,6 @@ initial begin
     ioctl_index = 8'h1;
 end
 `endif
-
-parameter START_ADDR = 27'd0;
-parameter ROM_DIRECT_UPLOAD = 1'b0;
-parameter USE_QSPI = 1'b0;
-parameter ENABLE_IDE = 1'b0;
-parameter DOUT_16 = 1'b0;
 
 ///////////////////////////////   DOWNLOADING   ///////////////////////////////
 

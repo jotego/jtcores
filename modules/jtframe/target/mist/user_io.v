@@ -22,7 +22,15 @@
 
 // parameter STRLEN and the actual length of conf_str have to match
  
-module user_io (
+module user_io #( parameter
+	STRLEN            = 0,    // config string length
+	PS2DIV            = 100,  // master clock divider for psk2_kbd/mouse clk
+	ROM_DIRECT_UPLOAD = 0,    // direct upload used for file uploads from the ARM
+	SD_IMAGES         = 2,    // number of block-access images (max. 4 supported in current firmware)
+	PS2BIDIR          = 0,    // bi-directional PS2 interface
+	FEATURES          = 0,    // requested features from the firmware
+	ARCHIE            = 0
+)(
 	input [(8*STRLEN)-1:0] conf_str,
 	output       [9:0]  conf_addr, // RAM address for config string, if STRLEN=0
 	input        [7:0]  conf_chr,
@@ -113,14 +121,6 @@ module user_io (
 	input               serial_strobe
 );
 
-parameter STRLEN=0; // config string length
-parameter PS2DIV=100; // master clock divider for psk2_kbd/mouse clk
-parameter ROM_DIRECT_UPLOAD=0; // direct upload used for file uploads from the ARM
-parameter SD_IMAGES=2; // number of block-access images (max. 4 supported in current firmware)
-parameter PS2BIDIR=0; // bi-directional PS2 interface
-parameter FEATURES=0; // requested features from the firmware
-parameter ARCHIE=0;
-
 `ifdef SIMULATION
        localparam W = 1;
 `else
@@ -134,6 +134,11 @@ reg [9:0]     byte_cnt;   // counts bytes
 reg [7:0]     but_sw;
 reg [2:0]     stick_idx;
 
+// SPI receiver IO -> FPGA
+reg       spi_receiver_strobe_r = 0;
+reg       spi_transfer_end_r = 1;
+reg [7:0] spi_byte_in;
+
 assign buttons = but_sw[1:0];
 assign switches = but_sw[3:2];
 assign scandoubler_disable = but_sw[4];
@@ -146,7 +151,7 @@ assign conf_addr = byte_cnt;
 wire [7:0] core_type = (ARCHIE == 1) ? 8'ha6 : (ROM_DIRECT_UPLOAD == 1) ? 8'hb4 : 8'ha4;
 
 reg [W:0] drive_sel;
-always begin
+always begin : b0
 	integer i;
 	drive_sel = 0;
 	for(i = 0; i < SD_IMAGES; i = i + 1) if(sd_rd[i] | sd_wr[i]) drive_sel = i[W:0];
@@ -159,7 +164,7 @@ wire spi_sck = SPI_CLK;
 
 // ---------------- PS2 ---------------------
 reg ps2_clk;
-always @(posedge clk_sys) begin
+always @(posedge clk_sys) begin : b1
 	integer cnt;
 	cnt <= cnt + 1'd1;
 	if(cnt == PS2DIV) begin
@@ -270,10 +275,11 @@ end
 
 reg  [7:0] kbd_out_status = 0;
 reg  [7:0] kbd_out_data_r = 0;
+reg        kbd_out_data_available;
 
 generate if (ARCHIE == 1) begin
 
-reg        kbd_out_data_available = 0;
+initial kbd_out_data_available = 0;
 
 always@(negedge spi_sck or posedge SPI_SS_IO) begin : archie_kbd_out
 	if(SPI_SS_IO == 1) begin
@@ -356,12 +362,6 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 		end
 	end
 end
-
-// SPI receiver IO -> FPGA
-
-reg       spi_receiver_strobe_r = 0;
-reg       spi_transfer_end_r = 1;
-reg [7:0] spi_byte_in;
 
 // Read at spi_sck clock domain, assemble bytes for transferring to clk_sys
 always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_receiver

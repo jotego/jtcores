@@ -1,7 +1,12 @@
 // A simple OSD implementation. Can be hooked up between a cores
 // VGA output and the physical VGA pins
 
-module osd (
+module osd #(
+	parameter [9:0] OSD_X_OFFSET = 10'd0,
+	parameter [9:0] OSD_Y_OFFSET = 10'd0,
+	parameter [5:0] OSD_COLOR    = `ifdef JTFRAME_OSDCOLOR `JTFRAME_OSDCOLOR `else 6'b101010 `endif ,
+	parameter       OSD_DW       = 6
+)(
 	// OSDs pixel clock, should be synchronous to cores pixel clock to
 	// avoid jitter.
 	input        clk_sys,
@@ -40,11 +45,6 @@ module osd (
         `define JTFRAME_OSDCOLOR (6'h3c)
     `endif
 `endif
-
-parameter [9:0] OSD_X_OFFSET = 10'd0;
-parameter [9:0] OSD_Y_OFFSET = 10'd0;
-parameter [5:0] OSD_COLOR    = `JTFRAME_OSDCOLOR;
-parameter       OSD_DW       = 6;
 
 localparam [9:0] OSD_WIDTH   = 10'd256;
 localparam [9:0] OSD_HEIGHT  = 10'd128;

@@ -55,7 +55,7 @@ end
 
 assign I2C_RDATA = rdata;
 
-always @(posedge CLK) begin
+always @(posedge CLK) begin : b0
 	reg old_clk;
 	reg old_st;
 	reg rd;
