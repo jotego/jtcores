@@ -58,7 +58,7 @@ wire [ 63:0] chdout, chenv, chpan;
 wire [127:0] chfd,   chls;
 wire [215:0] chsa;
 reg          mute_n, chenb_II, chenb_III, sign_III, loop,
-             sign_IV, sign_V, ov_l, ov_r;
+             sign_IV, sign_V;
 reg  [  7:0] env_II, pan_II, pan_III;
 wire         regwr;
 reg  [  2:0] chI, chII, chIII;
@@ -144,8 +144,6 @@ always @(posedge clk, posedge rst) begin
         env_II    <= 0;
         envmul    <= 0;
         loop      <= 0;
-        ov_l      <= 0;
-        ov_r      <= 0;
         sum_l     <= 0;
         sum_r     <= 0;
         ram0_addr <= 0;
