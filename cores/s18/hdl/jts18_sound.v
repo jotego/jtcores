@@ -80,7 +80,7 @@ wire underC = A[15:12]<4'hc;
 always @(*) begin
     ram_cs  = !mreq_n && &A[15:13];
     bank_cs = !mreq_n && (!underA && underC);
-    pcm_cs  = ~&A[15:14]; //!mreq_n && (!underC && A[15:12]<4'he);
+    pcm_cs  = !mreq_n && (!underC && A[15:12]<4'he);
     rom_cs  = !mreq_n &&   underC;
 
     // Port Map
@@ -111,7 +111,7 @@ always @(posedge clk, posedge rst) begin
         if( bkreg_cs ) bank <= dout;
     end
 end
-
+/* verilator tracing_off */
 jt12 u_fm0(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -149,7 +149,7 @@ jt12 u_fm1(
     .snd_left   ( fm1_l         ),
     .snd_sample (               )
 );
-
+/* verilator tracing_on */
 jtpcm568 u_pcm(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -172,7 +172,8 @@ jtpcm568 u_pcm(
     .ram1_dout  ( pcm1_dout     ),
     .ram1_din   ( pcm1_din      ),
 
-    .snd        ( pcm           )
+    .snd_l      ( pcm           ),
+    .snd_r      (               )
 );
 
 // Need more than 48MHz clock for using RECOVERY

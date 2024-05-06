@@ -27,12 +27,32 @@ module jtpcm568_ch(
     input                wr,
     input         [ 2:0] addr,
     input         [ 7:0] din,
-    output reg    [ 7:0] dout
+    output reg    [ 7:0] dout,
+    // status
+    output reg    [ 7:0] env, pan,
+    output reg    [15:0] fd,
+    // sound address and actions
+    output reg    [26:0] sa, // 16 (integer) + 11 (fractional)
+    input                sel,
+    input                loop,
+    input                mute,
+    input         [26:0] sanx
 );
 
-reg [ 7:0] env, pan, staddr;
-reg [15:0] fd, ls;
+reg [15:0] ls;  // loop position
+reg [ 7:0] staddr;
 
+// sound address
+always @(posedge clk or posedge rst) begin
+    if(rst) begin
+        sa  <= 0;
+    end else if( cen && sel) begin
+        sa <= sanx;
+        if( mute || loop ) sa <= {staddr,19'd0};
+    end
+end
+
+// registers
 always @(posedge clk or posedge rst) begin
     if(rst) begin
         fd     <= 0;

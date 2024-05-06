@@ -2,11 +2,12 @@ params:
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
 audio:
   channels:
-    - { name: fm0, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
-    - { name: fm1, rsum: 22k, module: jt12,  pre: 0.47, rc: [{r: 100k, c: 1n } ] }
-    # the filter is a guess, the schematics need more work around it
-    # probably needs to support more than 4kHz
-    - { name: pcm, rsum: 10k, module: jtpcm568, fir: fir_192k_4k.csv }
+    - { name: fm0, rsum: 22k, module: jt12, pre: 0.47 }
+    - { name: fm1, rsum: 22k, module: jt12, pre: 0.47 }
+    # I think the audio section of the schematics is not well
+    # extracted. There seems to be a clear 1-order RC filter at the end
+    # of it, though
+    - { name: pcm, rsum: 22k, module: jtpcm568, rc: [{r: 6.8k, c: 3.9n}] }
 clocks:
   clk48:
     - freq: 8000000

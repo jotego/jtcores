@@ -41,7 +41,8 @@ HUC6280:  { data_width: 24,           stereo: true   }
 jt051649: { data_width: 12, vpp: 0.5, rout: 100k     }
 
 # Ricoh
-jtpcm658: { data_width: 10, vpp: 1.0 }
+# from S18, vpp is a guess assuming multiplexed DAC over 8 channels
+jtpcm658: { data_width: 10, vpp: 0.125, stereo: true }
 
 # FM chips using Yamaha's DACs
 # YM3012's output impedance is a guess

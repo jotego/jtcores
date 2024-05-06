@@ -2530,6 +2530,11 @@
     )
   )
 
+  (text "only left channel\nused, same as FM" (at 241.3 92.71 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 8876cca5-7e7a-4646-a303-4f1b7b35030e)
+  )
+
   (label "RAMA2" (at 55.88 58.42 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 00933214-1e55-496d-bedf-76104cf1da40)
