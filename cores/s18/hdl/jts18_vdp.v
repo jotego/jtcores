@@ -37,13 +37,35 @@ module jts18_vdp(
     output      [ 7:0] blue
 );
 
-wire       ras1, cas1, we0, we1,
-           oe1, sc, se0, dtack, vs_n;
-wire [7:0] sd, ad, vram_dout;
-reg        rst_n;
+wire        ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
+            oe1, sc, se0, dtack, vs_n, CD_d,
+            ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d;
+wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
+            RD, AD, SD, ym_RD_o, ym_AD_o;
+reg  [ 7:0] RD_mem, AD_mem, SD_mem;
+wire [15:0] CD;
+reg         rst_n;
 
 // assign dtackn = ~dtack;
 assign vs     = ~vs_n;
+assign SPA_B  = ~SPA_B_pull;
+assign CD     = CD_d ? din : dout;
+assign RD =
+    (~ym_RD_d ? ym_RD_o : 8'h0);// |
+    // (~vram2_RD_d ? vram2_RD_o : 8'h0) |
+    // ((ym_RD_d & vram2_RD_d) ? RD_mem : 8'h0);
+assign AD =
+    (~ym_AD_d ? ym_AD_o : 8'h0) |
+    (~vram1_AD_d ? vram1_AD_o : 8'h0) |
+    ((ym_AD_d & vram1_AD_d) ? AD_mem : 8'h0);
+assign SD =
+    vram1_SD_d ? SD_mem : vram1_SD_o;
+
+always @(posedge clk) begin
+    RD_mem <= RD;
+    AD_mem <= AD;
+    SD_mem <= SD;
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -56,22 +78,25 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+reg clk2=0;
+always @(posedge clk) clk2 <= ~clk2;
 
 always @(negedge clk) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
-    .MCLK       ( clk       ),      // 48 MHz
-    .EDCLK_i    ( 1'b0      ),
+    .MCLK       ( clk       ),
+    .MCLK_e     ( clk2      ),
+    .EDCLK_i    ( ed_clk    ),
     .EDCLK_o    ( ed_clk    ),
     .EDCLK_d    (           ),
     // M68000
     .CA_i       ( addr      ),
     .CA_o       (           ),
     .CA_d       (           ),
-    .CD_i       ( din       ),
+    .CD_i       ( CD        ),
     .CD_o       ( dout      ),
-    .CD_d       (           ),
+    .CD_d       ( CD_d      ),
     .RW         ( rnw       ),
     .LDS        ( dsn[0]    ),
     .UDS        ( dsn[1]    ),
@@ -90,10 +115,10 @@ ym7101 u_vdp(
     .RD         ( 1'b1      ),
     .WR         ( 1'b1      ),
     // VRAM
-    .AD_o       ( ad        ),
-    .AD_i       ( vram_dout ),
-    .AD_d       (           ),
-    .SD         ( sd        ),
+    .AD_o       ( ym_AD_o   ),
+    .AD_i       ( AD        ),
+    .AD_d       ( ym_AD_d   ),
+    .SD         ( SD        ),
     .SE1        (           ),
     .RAS1       ( ras1      ),
     .CAS1       ( cas1      ),
@@ -106,11 +131,19 @@ ym7101 u_vdp(
     .SEL0       ( 1'b1      ),      // always use M68k
     .HL         ( 1'b1      ),
     .PAL        ( 1'b1      ),
+    .ext_test_2 ( 1'b0      ),
+    .CLK1_o     ( CLK1_o    ),
+    .CLK1_i     ( CLK1_o    ),
+    .BGACK_i    ( 1'b1      ),
+    .INTAK      ( 1'b1      ),
+    .SPA_B_i    (SPA_B      ),
+    .SPA_B_pull (SPA_B_pull ),
+    .vdp_cramdot_dis( 1'b0  ),
     // other unconnected pins
     .RA         (           ),
-    .RD_d       (           ),
-    .RD_o       (           ),
-    .RD_i       (           ),
+    .RD_d       ( ym_RD_d   ),
+    .RD_o       ( ym_RD_o   ),
+    .RD_i       ( RD        ),
     // video and sound outputs
     .HSYNC_i    ( 1'b1      ),
     .HSYNC_pull ( hs        ),
@@ -124,19 +157,19 @@ ym7101 u_vdp(
 );
 
 vram u_vram(
-    .MCLK       ( clk       ),
+    .MCLK       ( clk     ),
     .RAS        ( ras1      ),
     .CAS        ( cas1      ),
     .WE         ( we1       ),
     .OE         ( oe1       ),
     .SC         ( sc        ),
     .SE         ( se0       ),
-    .AD         ( ad        ),
-    .RD_i       ( ad        ),
-    .RD_o       ( vram_dout ),
-    .RD_d       (           ),
-    .SD_o       ( sd        ),
-    .SD_d       (           )
+    .AD         ( AD        ),
+    .RD_i       ( AD        ),
+    .RD_o       ( vram1_AD_o),
+    .RD_d       ( vram1_AD_d),
+    .SD_o       ( vram1_SD_o),
+    .SD_d       ( vram1_SD_d)
 );
 /* verilator lint_on PINMISSING */
 endmodule
