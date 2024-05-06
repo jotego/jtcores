@@ -57,7 +57,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(negedge clk) rst_n <= rst;
+always @(negedge clk) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
