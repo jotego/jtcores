@@ -302,7 +302,7 @@ jtcps1_video #(REGSIZE) u_video(
 jtcps15_sound u_sound(
     .rst        ( rst               ),
     .clk48      ( clk48             ),
-    .clk96      ( clk96             ),
+    .clk96      ( clk               ),
     .cen8       ( cen8              ),
     .vol_up     ( 1'b0              ),
     .vol_down   ( 1'b0              ),
