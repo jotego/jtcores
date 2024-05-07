@@ -457,23 +457,7 @@ wire        i2c_end;
     assign ioctl_upload     = 0;
 `endif
 
-// OSD will only get simulated if SIMULATE_OSD is defined
-`ifndef SIMULATE_OSD
-`ifndef SCANDOUBLER_DISABLE
-`ifdef SIMULATION
-`define BYPASS_OSD
-`endif
-`endif
-`endif
-
-`ifdef SIMULATION
-initial begin
-    $display("INFO: use -d SIMULATE_OSD to simulate the MiST OSD")
-end
-`endif
-
-
-`ifndef BYPASS_OSD
+`ifndef SIMULATION
 // include the on screen display
 wire [VGA_DW-1:0] osd_r_o;
 wire [VGA_DW-1:0] osd_g_o;
