@@ -7,6 +7,11 @@ params:
   #audio bank 1
   - { name: BANK_OFFSET,      value: "22'h1000" } # start after 8.m3 (2nd bank start at + BA1_START )
   - { name: OKI_OFFSET,       value: "22'h9000" } # start at 8.m3 + 7.m7 / 2 
+clocks:
+  clk48:
+    - freq:  1000000
+      outputs:
+        - oki
 sdram:
   banks:
     - buses:
