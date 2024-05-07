@@ -82,6 +82,9 @@ assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 
 wire rst_h, rst24_h, rst48_h, hold_rst;
+`ifdef JTFRAME_CLK96
+wire clk48=clk;
+`endif
 /* verilator tracing_off */
 jtframe_rsthold u_hold(
     .rst    ( rst       ),
@@ -110,6 +113,10 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `ifdef JTFRAME_CLK48
     .rst48      ( rst48_h   ),
     .clk48      ( clk48     ),
+`endif
+`ifdef JTFRAME_CLK96
+    .rst96      ( rst96     ),
+    .clk96      ( clk96     ),
 `endif
     // Audio channels
     {{if .Audio.Mute}}.mute( mute ),

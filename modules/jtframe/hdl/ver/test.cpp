@@ -795,17 +795,22 @@ JTSim::~JTSim() {
 void JTSim::clock(int n) {
     static int ticks=0;
     static int last_dwnd=0;
+#ifdef _JTFRAME_CLK96
+    n <<= 2;
+#endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-        game.clk = 1;
 #ifdef _JTFRAME_CLK24    // not supported together with _JTFRAME_CLK96
         game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
 #endif
 #ifdef _JTFRAME_CLK48
-        game.clk48 = 1-game.clk48;
+    game.clk48 = 1-game.clk48;
 #endif
 #ifdef _JTFRAME_CLK96
-        game.clk96 = game.clk;
+        game.clk96 = 1;
+        game.clk   = 1-game.clk;
+#else
+        game.clk = 1;
 #endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
@@ -834,9 +839,10 @@ void JTSim::clock(int n) {
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
-        game.clk = 0;
 #ifdef _JTFRAME_CLK96
-        game.clk96 = game.clk;
+        game.clk96 = 0;
+#else
+        game.clk = 0;
 #endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
@@ -876,7 +882,8 @@ void JTSim::clock(int n) {
 void JTSim::video_dump() {
     static int LHBLl, LVBLl;
     static int cntw[2], cnth[2];
-    if( game.pxl_cen ) {
+    static int last_pxlcen=0;
+    if( game.pxl_cen && !last_pxlcen ) {
         // Dump the video
         if( game.LHBL && game.LVBL && frame_cnt>0 ) {
             const int MASK = (1<<_JTFRAME_COLORW)-1;
@@ -937,6 +944,7 @@ void JTSim::video_dump() {
         }
         LHBLl = game.LHBL;
     }
+    last_pxlcen = game.pxl_cen;
 }
 
 void JTSim::update_wav() {
@@ -1048,7 +1056,7 @@ int main(int argc, char *argv[]) {
         UUT game{&context};
         JTSim sim(game, argc, argv);
         while( !sim.done() ) {
-            sim.clock(1'000); // if the clock is 48MHz, this will dump at 48kHz
+            sim.clock(1'000); // this will dump at 48kHz sampling rate
             sim.update_wav(); // Other clock rates will not have exact wav dumps
             if( sim.get_frame()==2 ) {
                 if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
