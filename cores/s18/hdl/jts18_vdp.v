@@ -37,7 +37,7 @@ module jts18_vdp(
     output      [ 7:0] green,
     output      [ 7:0] blue
 );
-
+`ifndef NOVDP
 wire        ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
             oe1, sc, se0, dtack, vs_n, CD_d,
             ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d;
@@ -173,4 +173,14 @@ vram u_vram(
     .SD_d       ( vram1_SD_d)
 );
 /* verilator lint_on PINMISSING */
+`else
+    initial dtackn = 0;
+    assign  ed_clk = 0;
+    assign  dout   = 0;
+    assign  hs     = 0;
+    assign  vs     = 0;
+    assign  red    = 0;
+    assign  green  = 0;
+    assign  blue   = 0;
+`endif
 endmodule

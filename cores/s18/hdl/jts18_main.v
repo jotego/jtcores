@@ -98,7 +98,7 @@ module jts18_main(
     input       [ 7:0] st_addr,
     output      [ 7:0] st_dout
 );
-
+`ifndef NOMAIN
 //  Region 0 - Program ROM
 //  Region 3 - 68000 work RAM
 //  Region 4 - Object RAM
@@ -440,5 +440,29 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( cpu_ipln    ) // VBLANK
 );
-
+`else
+    initial char_cs     = 0;
+    initial pal_cs      = 0;
+    initial objram_cs   = 0;
+    initial ram_cs      = 0;
+    initial vram_cs     = 0;
+    initial rom_cs      = 0;
+    initial rom_addr    = 0;
+    assign  cpu_cen     = 0;
+    assign  cpu_cenb    = 0;
+    assign  flip        = 0;
+    assign  gray_n      = 0;
+    assign  vdp_en      = 0;
+    assign  vid16_en    = 0;
+    assign  tile_bank   = 0;
+    assign  cpu_dout    = 0;
+    assign  UDSn        = 0;
+    assign  LDSn        = 0;
+    assign  RnW         = 0;
+    assign  ASn         = 0;
+    assign  cpu_addr    = 0;
+    assign  sndmap_dout = 0;
+    assign  sndmap_pbf  = 0;
+    assign  st_dout     = 0;
+`endif
 endmodule
