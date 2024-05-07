@@ -308,9 +308,7 @@ jtframe_sdram64 #(
 `ifdef JTFRAME_BA3_WEN
     .BA3_WEN      ( 1             ), `endif
 `ifdef JTFRAME_SDRAM96
-    .HF(1),
-    .SHIFTED(1)     // This is different from jtframe_board's in order to work
-                    // in the verilator test bench
+    .HF(1)
 `else
     .HF(0),
     `ifdef JTFRAME_180SHIFT
