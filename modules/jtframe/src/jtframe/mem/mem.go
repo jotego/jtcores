@@ -104,7 +104,12 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 	filename = jtfiles.GetFilename(core, filename, "")
 	buf, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatal("jtframe mem:", err)
+		if filepath.Base(filename)=="mem.yaml" {
+			fmt.Println("jtframe mem:", err)
+			os.Exit(0)
+		} else {
+			log.Fatal("jtframe mem:", err)
+		}
 	}
 	if args.Verbose {
 		fmt.Println("Read ", filename)
