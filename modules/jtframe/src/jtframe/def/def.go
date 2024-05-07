@@ -353,7 +353,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		}
 		mclk = freq*8
 	}
-	if Defined(macros,"JTFRAME_CLK96") {
+	if Defined(macros,"JTFRAME_CLK96") || Defined(macros,"JTFRAME_SDRAM96") {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
