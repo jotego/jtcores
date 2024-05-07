@@ -2,7 +2,7 @@
 # support for core names not starting with JT
 # seems incomplete at the moment
 CORENAME=JTTOKI
-# GAMETOP=jttoki_game_sdram
+GAMETOP=jttoki_game_sdram
 
 JTFRAME_OSD_FLIP=0
 JTFRAME_SDRAM_BANKS

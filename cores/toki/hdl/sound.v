@@ -41,8 +41,6 @@ module toki_sound(
   input             clk,
   input             clk48,
 
-  input             oki_cen,
-
   input       [1:0] coin_input,
 
   output     [15:0] snd,
@@ -343,6 +341,19 @@ jtframe_ram #(.AW(11)) u_z80_cpu_ram(
     .q(z80_ram_dout[7:0])
 );
 
+///////// JT6295 CLOCK /////////////////////////////
+//
+// Generate 1 MHz clock
+//
+wire cen_oki;
+
+jtframe_frac_cen u_frac_cen(
+  .clk(clk48),
+  .n(1),
+  .m(48),
+  .cen(cen_oki)
+);
+
 ///////// OKIM6295   /////////////////////// 
 //
 // ADPCM sound effects 
@@ -360,7 +371,7 @@ assign pcm_rom_addr = { adpcm_rom_addr[16], adpcm_rom_addr[13], adpcm_rom_addr[1
 jt6295 #(.INTERPOL(1))  u_adpcm(
     .rst(rst),
     .clk(clk48),
-    .cen(oki_cen),
+    .cen(cen_oki),
     .ss(1'b1), // pin7 high, select low sample rate
      //CPU interface
     .wrn(~oki_wr),   // wr selected
