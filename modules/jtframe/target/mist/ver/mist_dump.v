@@ -45,15 +45,13 @@ module mist_dump(
         `else
             $display("Dumping selected signals");
             `ifndef NOMAIN
-                $dumpvars(1,mist_test.UUT.u_game.u_main);
+                $dumpvars(1,mist_test.UUT.u_game.u_game.u_main);
             `endif
             `ifndef NOSOUND
-                $dumpvars(1,mist_test.UUT.u_game.u_sound);
+                $dumpvars(1,mist_test.UUT.u_game.u_game.u_sound);
             `endif
-            $dumpvars(1,mist_test.UUT.u_game.u_sdram);
-            $dumpvars(1,mist_test.UUT.u_game.u_sdram.u_dwnld);
             `ifndef NOVIDEO
-                $dumpvars(1,mist_test.UUT.u_game.u_video);
+                $dumpvars(1,mist_test.UUT.u_game.u_game.u_video);
             `endif
             $dumpvars(1,mist_test.frame_cnt);
         `endif
@@ -72,12 +70,10 @@ module mist_dump(
         `else
             $display("NC Verilog: will dump selected signals");
             $shm_probe(frame_cnt);
-            $shm_probe(UUT.u_game,"A");
-            $shm_probe(UUT.u_game.u_main,"A");
-            $shm_probe(UUT.u_game.u_sdram,"A");
-            $shm_probe(UUT.u_game.u_sdram.u_dwnld,"A");
-            // $shm_probe(UUT.u_game.u_sound,"A");
-            // $shm_probe(UUT.u_game.u_video,"A");
+            $shm_probe(UUT.u_game.u_game."A");
+            $shm_probe(UUT.u_game.u_game.u_main,"A");
+            // $shm_probe(UUT.u_game.u_game.u_sound,"A");
+            // $shm_probe(UUT.u_game.u_game.u_video,"A");
         `endif
     end
 `endif

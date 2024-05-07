@@ -466,7 +466,7 @@ wire        i2c_end;
 `endif
 `endif
 
-`ifdef SIMINFO
+`ifdef SIMULATION
 initial begin
     $display("INFO: use -d SIMULATE_OSD to simulate the MiST OSD")
 end

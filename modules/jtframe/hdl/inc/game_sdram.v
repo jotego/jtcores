@@ -27,6 +27,15 @@ localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `els
 parameter {{.Name}} = {{ if .Value }}{{.Value}}{{else}}`{{.Name}}{{ end}};
 {{- end}}
 
+{{- if .Ioctl.Dump }}
+/* verilator tracing_off */
+wire [7:0] ioctl_aux;
+{{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
+wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
+wire [  1:0] {{$v.Name}}_wemx;{{if $v.Amx}}
+wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{ end }}{{end -}}
+{{end}}{{end}}
+
 `ifndef JTFRAME_IOCTL_RD
 wire ioctl_ram = 0;
 `endif
@@ -421,12 +430,6 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 
 {{- if .Ioctl.Dump }}
 /* verilator tracing_off */
-wire [7:0] ioctl_aux;
-{{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
-wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
-wire [  1:0] {{$v.Name}}_wemx;{{ if $v.Amx }}{{end}}
-wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{end -}}
-{{end}}
 
 jtframe_ioctl_dump #(
     {{- $first := true}}
