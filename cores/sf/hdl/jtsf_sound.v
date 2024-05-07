@@ -128,6 +128,7 @@ jtsf_adpcm u_adpcmcpu(
     assign rom2_cs   = 0;
     assign fm_l      = 0;
     assign fm_r      = 0;
-    assign pcm       = 0;
+    assign pcm0      = 0;
+    assign pcm1      = 0;
 `endif
 endmodule

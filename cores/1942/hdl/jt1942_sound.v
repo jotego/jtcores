@@ -212,8 +212,9 @@ jt49_bus #(.COMP(3'b10)) u_ay1( // note that input ports are not multiplexed
     .A(), .B(), .C()
 );
 `else
-    initial rom_cs = 0;
+    initial rom_cs   = 0;
     assign  rom_addr = 0;
-    assign  snd = 0;
+    assign  psg0     = 0;
+    assign  psg1     = 0;
 `endif
 endmodule
