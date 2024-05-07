@@ -29,7 +29,7 @@
 /* verilator lint_off WIDTHEXPAND */
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off SELRANGE */
-/* verilator lint_off UNOPTFLAT */
+/* xxverilator lint_off UNOPTFLAT */
 /* verilator tracing_off */
 module ym7101
 	(
@@ -265,7 +265,7 @@ module ym7101
 	wire dff9_l2;
 	wire w29;
 	wire w30;
-	wire w31;
+	reg  w31;
 	wire dff10_l2;
 	wire dff11_l2;
 	wire w32;
@@ -275,7 +275,7 @@ module ym7101
 	wire w36;
 	wire w37;
 	wire dff12_l2;
-	wire w38;
+	reg  w38;
 	wire dff13_l2;
 	wire dff14_l2;
 	wire dff15_l2;
@@ -2524,7 +2524,7 @@ module ym7101
 	
 	assign w30 = w34 & dff10_l2;
 	
-	assign w31 = reset_comb | dff21_l2 | dff13_l2;
+	always @(posedge MCLK) w31 <= reset_comb | dff21_l2 | dff13_l2;
 	
 	ym7101_dff dff10(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff11_l2), .rst(w33), .outp(dff10_l2));
 	ym7101_dff dff11(.MCLK(MCLK), .clk(cpu_clk1), .inp(w36), .rst(w33), .outp(dff11_l2));
@@ -2543,7 +2543,7 @@ module ym7101
 	
 	ym7101_dff dff12(.MCLK(MCLK), .clk(w37), .inp(1'h1), .rst(w10), .outp(dff12_l2));
 	
-	assign w38 = dff12_l2 | reset_comb;
+	always @(posedge MCLK) w38 <= dff12_l2 | reset_comb;
 	
 	ym7101_dff dff13(.MCLK(MCLK), .clk(w34), .inp(w44), .rst(w38), .outp(dff13_l2));
 	

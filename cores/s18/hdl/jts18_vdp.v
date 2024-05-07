@@ -18,7 +18,8 @@
 
 module jts18_vdp(
     input              rst,
-    input              clk,
+    input              clk96,
+    input              clk48,
     output             ed_clk,
 
     // Main CPU interface
@@ -61,13 +62,13 @@ assign AD =
 assign SD =
     vram1_SD_d ? SD_mem : vram1_SD_o;
 
-always @(posedge clk) begin
+always @(posedge clk96) begin
     RD_mem <= RD;
     AD_mem <= AD;
     SD_mem <= SD;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk96, posedge rst) begin
     if( rst ) begin
         dtackn <= 0;
     end else begin
@@ -78,16 +79,16 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-reg clk2=0;
-always @(posedge clk) clk2 <= ~clk2;
+// reg clk2=0;
+// always @(posedge clk96) clk2 <= ~clk2;
 
-always @(negedge clk) rst_n <= ~rst;
+always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
-    .MCLK       ( clk       ),
-    .MCLK_e     ( clk2      ),
-    .EDCLK_i    ( ed_clk    ),
+    .MCLK       ( clk96     ),
+    .MCLK_e     ( clk48     ),
+    .EDCLK_i    ( 1'b0      ),
     .EDCLK_o    ( ed_clk    ),
     .EDCLK_d    (           ),
     // M68000
@@ -157,7 +158,7 @@ ym7101 u_vdp(
 );
 
 vram u_vram(
-    .MCLK       ( clk     ),
+    .MCLK       ( clk96     ),
     .RAS        ( ras1      ),
     .CAS        ( cas1      ),
     .WE         ( we1       ),

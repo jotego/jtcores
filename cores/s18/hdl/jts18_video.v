@@ -18,6 +18,7 @@
 
 module jts18_video(
     input              rst,
+    input              clk96,
     input              clk,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
@@ -174,7 +175,8 @@ jts18_video16 u_video16(
 // Megadrive VDP
 jts18_vdp u_vdp(
     .rst        ( rst       ),
-    .clk        ( clk       ),
+    .clk96      ( clk96     ),
+    .clk48      ( clk       ),
     .ed_clk     (           ),
 
     // Main CPU interface

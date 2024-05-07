@@ -100,7 +100,7 @@ always @(*) begin
     if( vram_cs ) xa[VRAMW-2:16]=0; // 64kB for VRAM
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -178,7 +178,7 @@ jts18_main u_main(
     .st_dout     ( st_main    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -212,10 +212,11 @@ jts18_sound u_sound(
     .pcm        ( pcm       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .clk96      ( clk96     ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 

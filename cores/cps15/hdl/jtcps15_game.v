@@ -104,19 +104,9 @@ jtframe_cen48 u_cen48(
     .cen3qb     (               ),
     .cen1p5b    (               )
 );
-/* verilator lint_on PINMISSING */
-jtframe_cen96 u_pxl_cen(
-    .clk    ( clk96     ),    // 96 MHz
-    .cen16  ( pxl2_cen  ),
-    .cen12  (           ),
-    .cen8   ( pxl_cen   ),
-    // Unused:
-    .cen6   (           ),
-    .cen6b  (           )
-);
 
-assign clk_gfx = clk96;
-assign rst_gfx = rst96;
+assign clk_gfx = clk;
+assign rst_gfx = rst;
 
 localparam REGSIZE=24;
 

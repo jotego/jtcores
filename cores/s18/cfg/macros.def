@@ -1,5 +1,6 @@
 # 48 MHz clock
 CORENAME=JTS18
+JTFRAME_CLK96
 JTFRAME_CLK24
 
 # screen
