@@ -275,12 +275,11 @@ end
 
 reg  [7:0] kbd_out_status = 0;
 reg  [7:0] kbd_out_data_r = 0;
-reg        kbd_out_data_available;
-
-generate if (ARCHIE == 1) begin
+reg        kbd_out_data_available = 0;
 
 initial kbd_out_data_available = 0;
 
+// only used in Archie:
 always@(negedge spi_sck or posedge SPI_SS_IO) begin : archie_kbd_out
 	if(SPI_SS_IO == 1) begin
 		kbd_out_data_r <= 0;
@@ -290,8 +289,6 @@ always@(negedge spi_sck or posedge SPI_SS_IO) begin : archie_kbd_out
 		kbd_out_data_r <= kbd_out_data;
 	end
 end
-end
-endgenerate
 
 always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 	reg [31:0] sd_lba_r;
