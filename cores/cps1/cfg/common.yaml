@@ -43,7 +43,6 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cen48.v
-      - jtframe_cen96.v
       - jtframe_frac_cen.v
   - from: sound
     get:

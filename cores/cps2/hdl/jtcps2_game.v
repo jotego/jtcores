@@ -110,23 +110,12 @@ jtframe_cen48 u_cen48(
     .cen1p5b    (               )
 );
 
-jtframe_cen96 u_pxl_cen(
-    .clk    ( clk96     ),    // 96 MHz
-    .cen16  ( pxl2_cen  ),
-    .cen12  (           ),
-    .cen8   ( pxl_cen   ),
-    // Unused:
-    .cen6   (           ),
-    .cen6b  (           )
-);
-
-assign clk_gfx = clk96;
-assign rst_gfx = rst96;
+assign clk_gfx = clk;
+assign rst_gfx = rst;
 // reg [1:0] aux;
 // assign cpu_cen = cen12;
 // always @(posedge clk48 ) aux<={ aux[0], cen12};
 // assign cpu_cenb = aux==2'b10;
-
 
 localparam REGSIZE=24;
 
@@ -137,7 +126,7 @@ wire busack_cpu;
 `ifndef NOMAIN
 jtcps2_main u_main(
     .rst        ( rst48             ),
-    .clk_rom    ( clk96             ),
+    .clk_rom    ( clk               ),
     .clk        ( clk48             ),
     .cpu_cen    ( cpu_cen           ),
     // Timing
@@ -365,7 +354,7 @@ wire vol_down = ~(coin[0] | joystick1[2]);
 jtcps15_sound u_sound(
     .rst        ( qsnd_rst          ),
     .clk48      ( clk48             ),
-    .clk96      ( clk96             ),
+    .clk96      ( clk               ),
     .cen8       ( cen8              ),
     .vol_up     ( vol_up            ),
     .vol_down   ( vol_down          ),

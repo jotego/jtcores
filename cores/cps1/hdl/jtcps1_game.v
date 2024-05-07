@@ -90,18 +90,8 @@ assign debug_view   = { 6'd0, dump_flag, filter_old };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
-jtframe_cen96 u_pxl_cen(
-    .clk    ( clk96     ),    // 96 MHz
-    .cen16  ( pxl2_cen  ),
-    .cen12  (           ),
-    .cen8   ( pxl_cen   ),
-    // Unused:
-    .cen6   (           ),
-    .cen6b  (           )
-);
-assign clk_gfx = clk96;
-assign rst_gfx = rst96;
-
+assign clk_gfx = clk;
+assign rst_gfx = rst;
 
 localparam REGSIZE=24;
 
