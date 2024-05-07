@@ -149,7 +149,7 @@ The user port supports:
 
 Depending on the three macros above are set or unset, the OSD menu will show different options in MiSTer.
 
-## MOD BYTE
+# MOD BYTE
 
 Some JTFRAME features are configured via an ARC or MRA file. This is used to share a common RBF file among several games. The mod byte is introduced in the MRA file using this syntax:
 
@@ -172,5 +172,7 @@ Bit  |    Meaning            | Default value
  2   |  1 = CCW rotation     | Set by jtframe mra
  3   |  1 = unfiltered dial  | Dial signals are sent raw to the core
  4   |  1 = dial reverse     | Reverse dial direction
+ 5   |  1 = expand blanking  |     0
+ 6   |    0/1=>8/16 pixels   | Magnitude of the blanking expansion
 
  The vertical screen bit is only read if JTFRAME was compiled with the **JTFRAME_VERTICAL** macro. This macro enables support for vertical games in the RBF. Then the same RBF can switch between horizontal and vertical games by using the MOD byte.

@@ -144,6 +144,7 @@ type HeaderCfg struct {
         Start   int // Start location for the offset table
         Regions []string
     }
+    Frames []FrameCfg // indicates that the game draws a black frame around the active video
     // Filled automatically
     Len int
 }
@@ -185,6 +186,11 @@ type DipswCfg struct {
         Name, To string   // Will make Name <- To
         Values   []string // Will rename the values if present
     }
+}
+
+type FrameCfg struct {
+    Selectable
+    Width int
 }
 
 type Mame2MRA struct {

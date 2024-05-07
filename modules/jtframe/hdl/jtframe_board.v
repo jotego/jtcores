@@ -247,7 +247,7 @@ wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty;
+wire   [1:0] sensty, frame_blank;
 wire         key_service, key_tilt;
 wire         locked;
 wire         autofire0, dial_raw_en, dial_reverse;
@@ -266,6 +266,7 @@ assign autofire0 = `ifdef JTFRAME_AUTOFIRE0 status[18] `else 0 `endif;
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
+// assign frame_blank  = core_mod[6:5];
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
 assign base_LHBL = pre2x_LHBL;

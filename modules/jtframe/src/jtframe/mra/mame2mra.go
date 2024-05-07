@@ -638,6 +638,15 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 			}
 		}
 	}
+	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
+		return cfg.Header.Frames[k].Match(machine)
+	}); frame_idx >= 0 {
+		switch cfg.Header.Frames[frame_idx].Width {
+		case 0: break
+		case 8: coremod |= 1<<5
+		case 16: coremod |= 3<<5
+		}
+	}
 	n := root.AddNode("rom").AddAttr("index", "1")
 	n = n.AddNode("part")
 	n.SetText(fmt.Sprintf("%02X", coremod))
