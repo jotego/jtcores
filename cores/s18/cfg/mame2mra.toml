@@ -2,18 +2,20 @@
 sourcefile=[ "segas18.cpp" ]
 
 debug = { machines=[
-    "astorm",
     "bloxeed",
     "cltchitr",
     "ddcrew",
     "desertbr",
     "hamaway",
     "lghost",
-    "mwalk",
-    "pontoon",
     "wwallyj",
+    # VDP
+    "astorm",
+    # MCU
+    "mwalk",
 ]}
 skip.bootlegs=true
+skip.setnames=["pontoon"] # incomplete machine description in MAME
 
 [buttons]
 names = [
@@ -25,9 +27,8 @@ names = [
     { machine="hamaway",    names="Land Shot,Air Shot with Missile,Bomb" },
     { machine="lghost",     names="Laser Gun,Special Weapon" },
     { machine="mwalk",      names="Dance with Bomb,Shot" },
-    # { machine="pontoon",  names="" },
     { machine="shdancer",   names="Jump,Attack,Magic with Bomb" },
-    { machine="wwallyj",  names="Select" },
+    { machine="wwallyj",    names="Select" },
 ]
 
 [DIPSW]
