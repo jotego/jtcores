@@ -2,17 +2,19 @@
 sourcefile=[ "segas18.cpp" ]
 
 debug = { machines=[
+    # ok with no VDP?
     "bloxeed",
-    "cltchitr",
-    "ddcrew",
-    "desertbr",
-    "hamaway",
+    # gun input missing
     "lghost",
-    "wwallyj",
-    # VDP
-    "astorm",
+    # requires VDP
+    "astorm",   # some sprites are not visible
+    "cltchitr", # boots up to hang up soon after with no VDP
+    "hamaway",  # boots up to hang up soon after with no VDP
+    "ddcrew",   # does not boot
+    "desertbr", # does not boot
+    "wwallyj",  # does not boot
     # MCU
-    "mwalk",
+    "mwalk",    # does not boot
 ]}
 skip.bootlegs=true
 skip.setnames=["pontoon"] # incomplete machine description in MAME
