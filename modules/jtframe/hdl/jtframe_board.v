@@ -251,7 +251,7 @@ wire   [5:0] key_snd;
 wire   [1:0] sensty, frame_blank;
 wire         key_service, key_tilt;
 wire         locked;
-wire         autofire0, dial_raw_en, dial_reverse;
+wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
 
 wire [COLORW-1:0] pre2x_r, pre2x_g, pre2x_b,
                   dbg_r, dbg_g, dbg_b;
@@ -386,6 +386,8 @@ jtframe_keyboard u_keyboard(
 
             .gfx_en      ( gfx_en        ),
             .snd_en      ( snd_en        ),
+            .snd_vol     ( snd_vol       ),
+            .snd_mode    ( snd_mode      ),
             .debug_bus   ( debug_bus     ),
             .debug_view  ( debug_view    ),
             .sys_info    ( sys_info      ),
@@ -407,6 +409,7 @@ jtframe_keyboard u_keyboard(
             .snd_l      ( snd_lin       ),
             .snd_r      ( snd_rin       ),
             .snd_vol    ( snd_vol       ),
+            .snd_mode   ( snd_mode      ),
             .vu_peak    ( vu_peak       ),
 
             .dial_x     ( dial_x        ),
