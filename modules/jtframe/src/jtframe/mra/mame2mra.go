@@ -546,7 +546,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	}
 	make_nvram(&root,machine,cfg)
 	// coreMOD
-	coremod := make_coreMOD(&root, machine, cfg)
+	coremod := make_coreMOD(&root, machine, cfg, args.macros)
 	// DIP switches
 	def_dipsw := make_switches(&root, machine, cfg, args)
 	// Buttons
@@ -619,7 +619,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	n.AddIntAttr("count", count)
 }
 
-func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
+func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[string]string) int {
 	coremod := 0
 	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
 		root.AddNode("Vertical game").comment = true
@@ -638,18 +638,39 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 			}
 		}
 	}
+	// compare screen size with MAME
+	cw,_ := strconv.ParseInt(macros["JTFRAME_WIDTH"],10,32)
+	ch,_ := strconv.ParseInt(macros["JTFRAME_HEIGHT"],10,32)
+	wdiff := (int(cw)-machine.Display.Width)/2
+	hdiff := (int(ch)-machine.Display.Height)/2
+	if wdiff<0 || hdiff<0 {
+		wdiff=0
+		hdiff=0
+		// fmt.Printf("%s: MAME reports %dx%d but core uses %dx%d\n", machine.Name, machine.Display.Width,machine.Display.Height,cw,ch)
+	}
+	explicit := false
 	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
 		return cfg.Header.Frames[k].Match(machine)
 	}); frame_idx >= 0 {
-		switch cfg.Header.Frames[frame_idx].Width {
+		wdiff = cfg.Header.Frames[frame_idx].Width
+		explicit = true
+	}
+	if hdiff != 0 && !explicit {
+		fmt.Printf("%s: needs to remove top/bottom frame (%d pixels total)\n",machine.Name, hdiff)
+	}
+	switch wdiff {
 		case 0: break
-		case 8: coremod |= 1<<5
+		case 8:  coremod |= 1<<5
 		case 16: coremod |= 3<<5
+		default: if wdiff>0 {
+			fmt.Printf("%s: unsupported black frame of %d pixels around the image\nDefine one explicitly in the TOML file.\n",machine.Name,wdiff)
 		}
 	}
-	n := root.AddNode("rom").AddAttr("index", "1")
-	n = n.AddNode("part")
-	n.SetText(fmt.Sprintf("%02X", coremod))
+	rom := root.AddNode("rom").AddAttr("index", "1")
+	if wdiff>0 || hdiff>0 {
+		rom.AddNode(fmt.Sprintf("black frame %dx%d",wdiff,hdiff)).comment = true
+	}
+	rom.AddNode("part").SetText(fmt.Sprintf("%02X", coremod))
 	return coremod
 }
 

@@ -17,6 +17,13 @@ rename = [
     {  name="Allow Continue", To="Continue" },
 ]
 
+[header]
+frames = [
+    # the black frame is not symmetrical but 16 left/8 right
+    # so this will still leave 8 on the left side
+    { width=8 },
+]
+
 [ROM]
 regions = [
     { name="maincpu",  no_offset=true, sequence=[1,0] }, # First 32kB go to $8000, the rest are banked at $6000

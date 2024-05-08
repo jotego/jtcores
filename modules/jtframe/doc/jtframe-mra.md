@@ -72,6 +72,17 @@ data = [
 # region offset table at "start" byte in the header
 offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 
+# if there are black bars on the side of the image
+# because of black tiles rendered by the software in some games, but not all
+# this can be removed by the framework. In some cases, the value will be taken
+# from MAME correctly, but in others with assymetrical bands, a compromise
+# value must be set here.
+# MAME may have wrong information too. The explicit definition here will
+# override the calculation derived from MAME.
+frames = [
+    { width=8 },
+]
+
 [buttons]
 names=[
 	{ setname="...", machine="...", names="shot,jump" }

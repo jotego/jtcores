@@ -23,11 +23,6 @@ data = [
     { machine="vendetta", offset=0, data="02" },
 ]
 
-frames = [
-    { width=16 },
-    { machine="vendetta", width=8 },
-]
-
 [ROM]
 regions = [
     { name="maincpu",  sequence=[0,2,1,3], machine="simpsons" }, # First 32kB go to $8000, the rest are banked at $6000
