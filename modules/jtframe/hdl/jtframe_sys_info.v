@@ -28,6 +28,7 @@ module jtframe_sys_info(
     input         [6:0] core_mod,
     // sound
     input               sample,
+    input         [7:0] snd_vol,
     input         [5:0] snd_en,
     input         [5:0] snd_vu,
     input signed [15:0] snd_l, snd_r,
@@ -88,11 +89,12 @@ always @(posedge clk, posedge rst) begin
             endcase
             1: case(st_addr[5:4])
                 0: st_dout <= vu_dB;
-                1: case(st_addr[0])
+                1: case(st_addr[1:0])
                     0: st_dout <= {2'd0, snd_vu & snd_en };
                     1: st_dout <= {2'd0, snd_en};
+                    2: st_dout <= srate;
                 endcase
-                2: st_dout <= srate;
+                2: st_dout <= snd_vol;
                 3: case(st_addr[3:2])
                     0: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
                     1: case(st_addr[1:0])

@@ -137,6 +137,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .game_led       ( game_led      ),
     .sample         ( sample        ), {{ end }}
     .snd_en         ( snd_en        ),
+    .snd_vol        ( snd_vol       ),
 {{- range $k,$v := .Clocks }} {{- range $v}}
     {{- range .Outputs }}
     .{{ . }}    ( {{ . }}    ), {{end}}{{end}}
@@ -477,7 +478,7 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
     .cen    ( { {{ .OutStr }} } ),
     .fave   (              ),
     .fworst (              )
-); /* verilator tracing_off */
+); /* verilator tracing_on */
 {{ end }}{{ end }}{{ end }}
 {{ if .Audio.Channels }}`ifndef NOSOUND
 {{- $ch0 := (index .Audio.Channels 0) -}}
@@ -540,6 +541,7 @@ jtframe_rcmix #(
     .g3     ( {{ $ch3.Gain }} ), {{with $ch3.Name}}// {{.}}{{end}}
     .g4     ( {{ $ch4.Gain }} ), {{with $ch4.Name}}// {{.}}{{end}}
     .g5     ( {{ $ch5.Gain }} ), {{with $ch5.Name}}// {{.}}{{end}}
+    .gain   ( snd_vol         ),
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
     .peak ( game_led ),
     .vu   ( snd_vu   )

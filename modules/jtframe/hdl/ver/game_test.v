@@ -672,6 +672,7 @@ u_game(
     `endif
     .sample      ( sample         ),
     .snd_en      ( 6'h3f          ),
+    .snd_vol     ( 8'h40          ),
     .snd_vu      (                ),
     // Debug
 `ifdef JTFRAME_STATUS

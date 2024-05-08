@@ -2,17 +2,25 @@
 
 JTFRAME maps the traditional MAME keyboard inputs to the game module. Apart from the player controls, the following keys are used:
 
-Key     |   Action
---------|-----------
-  1-4   |  1P, 2P, 3P, 4P
-  5-8   |  coin slots
-  P     |  Pause, press SERVICE (9) while in pause to advance one frame
-  9     |  Service
-  T     |  Tilt
- F2     |  Test mode
- F3     |  Reset
- F7-F10 |  gfx_en control see [debug.md](debug.md)
- +/-    |  debug_bus control see [debug.md](debug.md)
+Key           |   Action
+--------------|-----------
+  1-4         |  1P, 2P, 3P, 4P
+  5-8         |  coin slots
+  P           |  Pause, press SERVICE (9) while in pause to advance one frame
+  9           |  Service
+  T           |  Tilt
+ F2           |  Test mode
+ F3           |  Reset
+ F4           |  Increase volume
+ F5           |  Decrease volume
+
+ ## Keys available in debug builds
+
+ Key          | Action
+--------------|-----------
+ F7-F10       | gfx_en control see [debug.md](debug.md)
+ shift+F7-F12 | sound channel mute
+ +/-          | debug_bus control see [debug.md](debug.md)
 
  Most games ignore the *tilt* input. One that reacts to it is [Insector X](https://github.com/jotego/jtbubl), which shows the word *TILT* on screen and then reboots.
 

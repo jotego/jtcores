@@ -48,6 +48,7 @@ module jtframe_board #(parameter
     // Audio
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
+    output        [ 7:0] snd_vol,
     input                snd_sample,
     // ROM access from game
     input  [SDRAMW-1:0] ba0_addr,ba1_addr,ba2_addr,ba3_addr,
@@ -237,8 +238,8 @@ wire  [ 2:0] scanlines;
 wire         bw_en, blend_en;
 wire         en_mixing;
 wire         osd_pause;
-wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt;
-
+wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt,
+             vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
@@ -346,6 +347,8 @@ jtframe_keyboard u_keyboard(
     .alt         ( key_alt       ),
     .key_gfx     ( key_gfx       ),
     .key_snd     ( key_snd       ),
+    .vol_up      ( vol_up        ),
+    .vol_down    ( vol_down      ),
     .debug_plus  ( debug_plus    ),
     .debug_minus ( debug_minus   )
 );
@@ -403,6 +406,7 @@ jtframe_keyboard u_keyboard(
             .snd_vu     ( snd_vu        ),
             .snd_l      ( snd_lin       ),
             .snd_r      ( snd_rin       ),
+            .snd_vol    ( snd_vol       ),
             .vu_peak    ( vu_peak       ),
 
             .dial_x     ( dial_x        ),
@@ -450,6 +454,15 @@ jtframe_keyboard u_keyboard(
     assign dbg_g       = pre2x_g;
     assign dbg_b       = pre2x_b;
 `endif
+
+jtframe_volume u_volume(
+    .rst            ( game_rst        ),
+    .clk            ( clk_sys         ),
+    .vs             ( vs              ),
+    .up             ( vol_up          ),
+    .down           ( vol_down        ),
+    .vol            ( snd_vol         )
+);
 
 jtframe_inputs #(
     .BUTTONS   ( BUTTONS                ),

@@ -89,7 +89,8 @@ Please support the development: https://patreon.com/jotego
     -batch     Tells jtsim that it is being run by a batch process
     -d         Add specific Verilog macros for the simulation.
                Call jtmacros to display all macros.
-    -dbgbus x  Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
+    -debug_bus x
+               Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
     -dir       Create directory for the simulation. Use with -setname
     -deep      Save all signals for scope verification. See -w below.
     -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
@@ -107,8 +108,11 @@ Please support the development: https://patreon.com/jotego
     -gates     Gate-level simulation
     -fx68k     Keep FX68K files for Icarus Verilog
     -inputs    Defines SIM_INPUTS macro:
-               Game cabinet inputs will be taken from a sim_inputs.hex
-               file. Each line contains a byte with the input status.
+               Game cabinet inputs will be taken from sim_inputs.hex or
+               from the file name after -inputs. Note that in if you specify
+               a file, then sim_inputs.hex will get overwritten with that file.
+
+               Each line contains a byte with the input status.
                All bits are read as active high. They are inverted
                if necessary by JTFRAME logic,
                The format is:
@@ -307,7 +311,7 @@ while [ $# -gt 0 ]; do
 case "$1" in
     -args) shift; SIMULATOR_EXTRA="$SIMULATOR_EXTRA $1";;
     -batch) BATCH=1;;
-    -dbgbus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
+    -debug_bus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
     -sysname) shift;; # ignore here
@@ -355,7 +359,10 @@ case "$1" in
         FRAMERATE=$1
         add_macro JTFRAME_SIM_VIDEO;;
     -inputs)
-        if [ ! -e sim_inputs.hex ]; then
+        if [[ $2 != -* ]]; then
+            shift
+            cp $1 sim_inputs.hex
+        elif [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
             exit 1
         fi

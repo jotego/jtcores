@@ -191,6 +191,7 @@ u_game(
 `endif
     .sample      ( sample         ),
     .snd_en      ( snd_en         ),
+    .snd_vol     ( snd_vol        ),
     .snd_vu      ( snd_vu         ),
     // Debug
 `ifdef JTFRAME_STATUS

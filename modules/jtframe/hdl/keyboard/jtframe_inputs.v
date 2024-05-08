@@ -68,6 +68,7 @@ module jtframe_inputs(
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
+
     // input data recording
     input       [12:0] ioctl_addr,
     input       [ 7:0] ioctl_din,

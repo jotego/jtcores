@@ -20,7 +20,7 @@
 
 */
 
-// Limiter summer of signed inputs of equal bit width
+// Limiting summer of signed inputs of equal bit width
 // the output will be clipped (limited) if the sum does not fit in W bits
 // peak is set when the output is clipped
 module jtframe_limsum #(parameter
@@ -52,7 +52,8 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        sum <= 0;
+        sum  <= 0;
+        peak <= 0;
     end else begin
         peak <= v;
         sum  <= v ? {full[WS-1],{W-1{~full[WS-1]}}} : full[W-1:0];

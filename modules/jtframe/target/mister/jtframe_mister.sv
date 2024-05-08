@@ -56,6 +56,7 @@ module jtframe_mister #(parameter
     input                snd_sample,
     output [ 5:0]   snd_en,
     input  [ 5:0]   snd_vu,
+    output [ 7:0]   snd_vol,
     // SDRAM interface
     inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
@@ -625,6 +626,7 @@ jtframe_board #(
     .snd_sample     ( snd_sample      ),
     .snd_en         ( snd_en          ),
     .snd_vu         ( snd_vu          ),
+    .snd_vol        ( snd_vol         ),
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),

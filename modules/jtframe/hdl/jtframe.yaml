@@ -65,7 +65,9 @@ jtframe:
       - jtframe_fir.v
       - jtframe_rcmix.v
       - jtframe_limsum.v
+      - jtframe_limmul.v
       - jtframe_sndchain.v
       - jtframe_pole.v
       - jtframe_dcrm.v
+      - jtframe_volume.v
       - jtframe_vumeter.sv

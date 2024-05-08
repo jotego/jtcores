@@ -135,6 +135,7 @@ module jtframe_mist #(parameter
     input              snd_sample,
     output      [ 5:0] snd_en,
     input       [ 5:0] snd_vu,
+    output      [ 7:0] snd_vol,
     output             AUDIO_L,
     output             AUDIO_R,
     output             I2S_BCK,
@@ -364,6 +365,7 @@ jtframe_board #(
     .snd_sample     ( snd_sample      ),
     .snd_en         ( snd_en          ),
     .snd_vu         ( snd_vu          ),
+    .snd_vol        ( snd_vol         ),
     // base video with OSD/debug information
     .base_rgb       (                 ),
     .base_LHBL      (                 ),

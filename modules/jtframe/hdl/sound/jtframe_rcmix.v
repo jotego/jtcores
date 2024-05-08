@@ -62,6 +62,7 @@ module jtframe_rcmix #(parameter
     input  [WC  -1:0] gpole,          // allow for one global pole
     // gain for each channel in 4.4 fixed point format
     input       [7:0] g0,g1,g2,g3,g4,g5,  // concatenate all gains {gain4, gain3,..., gain0}
+    input       [7:0] gain,               // global gain
     output              sample,
     output reg  [5:0]   vu,     // "volume unit", signals channel activity
     output reg signed [WMX-1:0] mixed,
@@ -101,8 +102,8 @@ wire signed [WO3-1:0] ft3;
 wire signed [WO4-1:0] ft4;
 wire signed [WO5-1:0] ft5;
 wire           [ 5:0] v;        // overflow in sound chain
-wire signed    [15:0] left, right, pre_l, pre_r;
-wire                  peak_l, peak_r;
+wire signed    [15:0] left, right, pre_l, pre_r, mul_l, mul_r;
+wire                  peak_l, peak_r, pks_l, pks_r;
 wire                  cen;          // sampling frequency
 
 assign sample=cen;
@@ -147,6 +148,17 @@ jtframe_limsum #(.W(WOUT),.K(6)) u_right(
     .en     ( ch_en ),
     .parts  ( {ft5[WOUT-1:0], ft4[WOUT-1:0], ft3[WOUT-1:0], ft2[WOUT-1:0], ft1[WOUT-1:0], ft0[WOUT-1:0]} ),
     .sum    ( pre_r ),
+    .peak   ( pks_r )
+);
+
+jtframe_limmul #(.W(16)) u_gain(
+    .rst    ( rst   ),
+    .clk    ( clk   ),
+    .cen    ( cen   ),
+    .gain   ( gain  ),
+    .sin    ( pre_r ),
+    .mul    ( mul_r ),
+    .peaked ( pks_r ),
     .peak   ( peak_r)
 );
 
@@ -156,14 +168,14 @@ jtframe_pole #(.WS(16),.WA(WC)) u_pole1(
     .clk    ( clk   ),
     .sample ( cen   ),
     .a      ( gpole ),
-    .sin    ( pre_r ),
+    .sin    ( mul_r ),
     .sout   ( right )
 );
 
 always @(posedge clk) mixed[WOUT-1:0] <= mute ? {WOUT{1'b0}} : right;
 
 generate
-    if( STEREO==1 ) begin
+    if( STEREO==1 ) begin : leftch
         jtframe_limsum #(.W(WOUT),.K(6)) u_left(
             .rst    ( rst   ),
             .clk    ( clk   ),
@@ -176,15 +188,27 @@ generate
                        ft1[WO1-1-:WOUT],
                        ft0[WO0-1-:WOUT] } ),
             .sum    ( pre_l ),
+            .peak   ( pks_l )
+        );
+
+        jtframe_limmul #(.W(16)) u_gain(
+            .rst    ( rst   ),
+            .clk    ( clk   ),
+            .cen    ( cen   ),
+            .gain   ( gain  ),
+            .sin    ( pre_l ),
+            .mul    ( mul_l ),
+            .peaked ( pks_l ),
             .peak   ( peak_l)
         );
+
         // Global RC
         jtframe_pole #(.WS(16),.WA(WC)) u_pole1(
             .rst    ( rst   ),
             .clk    ( clk   ),
             .sample ( cen   ),
             .a      ( gpole ),
-            .sin    ( pre_l ),
+            .sin    ( mul_l ),
             .sout   ( left  )
         );
 

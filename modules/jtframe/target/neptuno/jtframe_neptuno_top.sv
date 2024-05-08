@@ -226,7 +226,8 @@ wire [COLORW-1:0] blue;
 
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
-wire [ 5:0] snd_en, snd_vu,
+wire [ 5:0] snd_en, snd_vu;
+wire [ 7:0] snd_vol;
 wire        sample;
 
 
@@ -458,6 +459,7 @@ u_frame(
     .snd_sample     ( sample         ),
     .snd_en         ( snd_en         ),
     .snd_vu         ( snd_vu         ),
+    .snd_vol        ( snd_vol        ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick

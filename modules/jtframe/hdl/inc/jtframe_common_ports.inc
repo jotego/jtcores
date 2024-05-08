@@ -54,6 +54,7 @@
     // Sound control
     input           enable_fm, enable_psg,
     input   [ 5:0]  snd_en,
+    input   [ 7:0]  snd_vol,
     // DIP switches
     input   [31:0]  status, dipsw,
     input           dip_pause, dip_test, service, tilt,

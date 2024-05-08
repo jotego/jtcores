@@ -199,6 +199,7 @@ wire [COLORW-1:0] blue;
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
+wire [ 7:0] snd_vol;
 wire        sample;
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
@@ -432,6 +433,7 @@ u_frame(
     .snd_sample     ( sample         ),
     .snd_en         ( snd_en         ),
     .snd_vu         ( snd_vu         ),
+    .snd_vol        ( snd_vol        ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     `ifdef MIST_I2S_AUDIO
