@@ -76,8 +76,8 @@ jtrastan_main u_main(
 
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
-    .cab_1p     ( cab_1p    ),
-    .coin       ( coin      ),
+    .cab_1p     (cab_1p[1:0]),
+    .coin       ( coin[1:0] ),
     .tilt       ( tilt      ),
     .service    ( service   ),
 

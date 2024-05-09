@@ -71,8 +71,8 @@ jtkunio_main u_main(
 
     .joystick1   ( joystick1[6:0]),
     .joystick2   ( joystick2[6:0]),
-    .start       ( cab_1p       ),
-    .coin        ( coin         ),
+    .start       ( cab_1p[1:0]  ),
+    .coin        ( coin[1:0]    ),
     .dipsw_a     ( dipsw[ 7:0]  ),
     .dipsw_b     ( dipsw[15:8]  ),
     .service     ( service      ),

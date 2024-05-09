@@ -86,8 +86,8 @@ jtvigil_main u_main(
     // cabinet I/O
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
-    .cab_1p      ( cab_1p     ),
-    .coin        (  coin      ),
+    .cab_1p      ( cab_1p[1:0]),
+    .coin        ( coin[1:0]  ),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),

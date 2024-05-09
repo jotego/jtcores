@@ -145,10 +145,8 @@ public:
         dut.dip_pause=1;
         dut.joystick1 = 0xff;
         dut.joystick2 = 0xff;
-#ifdef _JTFRAME_4PLAYERS
         dut.joystick3 = 0xff;
         dut.joystick4 = 0xff;
-#endif
         dut.cab_1p = 0xf;
         dut.coin   = 0xf;
         dut.service      = 1;

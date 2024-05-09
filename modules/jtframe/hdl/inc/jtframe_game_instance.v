@@ -18,7 +18,7 @@
 
 // Game instantiation. Shared by all target top-level modules
 
-localparam STARTW=`ifdef JTFRAME_4PLAYERS 4 `else 2 `endif;
+localparam STARTW=4;
 
 `ifdef SIMULATION
 assign sim_hb         = ~LHBL;
@@ -85,16 +85,16 @@ u_game(
 
     // Inputs
     .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
-    .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_4PLAYERS
-    .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `endif `ifdef JTFRAME_PADDLE
-    .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ), `ifdef JTFRAME_4PLAYERS
-    .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `endif `ifdef JTFRAME_MOUSE
+    .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ),
+    .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_PADDLE
+    .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ),
+    .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
     .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif `ifdef JTFRAME_ANALOG
-    .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ), `ifdef JTFRAME_ANALOG_DUAL
-    .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ), `endif `ifdef JTFRAME_4PLAYERS
+    .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ), `ifdef JTFRAME_ANALOG_DUAL
-    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `endif `endif `endif `ifdef JTFRAME_DIAL
+    .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
+    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `endif `endif `ifdef JTFRAME_DIAL
     .dial_x       ( dial_x           ), .dial_y       ( dial_y           ), `endif
     // Sound control
     .enable_fm   ( enable_fm      ),

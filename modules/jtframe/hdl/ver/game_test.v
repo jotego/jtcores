@@ -247,12 +247,7 @@ assign SDRAM_DQM= { SDRAM_DQMH, SDRAM_DQML };
 `endif
 
 localparam GAME_BUTTONS=`JTFRAME_BUTTONS;
-
-`ifdef JTFRAME_4PLAYERS
-localparam STARTW=4;
-`else
 localparam STARTW=2;
-`endif
 
 `ifndef JTFRAME_STEREO
 assign snd_right = snd_left;
@@ -542,15 +537,13 @@ u_game(
     .HS          ( HS             ),
     .VS          ( VS             ),
 
-    .cab_1p( cab_1p[STARTW-1:0] ),
-    .coin  ( coin[STARTW-1:0]  ),
+    .cab_1p      ( cab_1p         ),
+    .coin        ( coin           ),
     // Joysticks
-    .joystick1    ( joystick1[GAME_BUTTONS+3:0]   ),
-    .joystick2    ( joystick2[GAME_BUTTONS+3:0]   ),
-    `ifdef JTFRAME_4PLAYERS
-    .joystick3    ( joystick3[GAME_BUTTONS+3:0]   ),
-    .joystick4    ( joystick4[GAME_BUTTONS+3:0]   ),
-    `endif
+    .joystick1   ( joystick1[GAME_BUTTONS+3:0]   ),
+    .joystick2   ( joystick2[GAME_BUTTONS+3:0]   ),
+    .joystick3   ( joystick3[GAME_BUTTONS+3:0]   ),
+    .joystick4   ( joystick4[GAME_BUTTONS+3:0]   ),
 
 `ifdef JTFRAME_DIAL
     .dial_x (2'd0), .dial_y(2'd0), `endif
@@ -558,17 +551,13 @@ u_game(
 `ifdef JTFRAME_ANALOG
     .joyana_l1    ( joyana_l1        ),
     .joyana_l2    ( joyana_l2        ),
+    .joyana_l3    ( joyana_l3        ),
+    .joyana_l4    ( joyana_l4        ),
     `ifdef JTFRAME_ANALOG_DUAL
-        .joyana_r1    ( joyana_r1        ),
-        .joyana_r2    ( joyana_r2        ),
-    `endif
-    `ifdef JTFRAME_4PLAYERS
-        .joyana_l3( joyana_l3        ),
-        .joyana_l4( joyana_l4        ),
-        `ifdef JTFRAME_ANALOG_DUAL
-            .joyana_r3( joyana_r3        ),
-            .joyana_r4( joyana_r4        ),
-        `endif
+        .joyana_r1( joyana_r1        ),
+        .joyana_r2( joyana_r2        ),
+        .joyana_r3( joyana_r3        ),
+        .joyana_r4( joyana_r4        ),
     `endif
 `endif
 

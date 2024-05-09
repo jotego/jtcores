@@ -128,8 +128,8 @@ jt1943_main #(.GAME(1)) u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),

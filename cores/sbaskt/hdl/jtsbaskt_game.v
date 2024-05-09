@@ -68,8 +68,8 @@ jtsbaskt_main u_main(
     .ram_dout       ( ram_dout      ),
     .ram_we         ( ram_we        ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

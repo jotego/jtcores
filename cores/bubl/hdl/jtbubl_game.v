@@ -89,8 +89,8 @@ jtbubl_main u_main(
     .main_latch     ( main_latch    ),
     .snd_rst        ( snd_rst       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

@@ -20,15 +20,10 @@
     output   [`JTFRAME_COLORW-1:0]  red, green, blue,
     output          LHBL, LVBL, HS, VS,
     // cabinet I/O
-`ifdef JTFRAME_4PLAYERS
     input   [ 3:0]  cab_1p, coin,
     input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2, joystick3, joystick4,
-`else
-    input   [ 1:0]  cab_1p, coin,
-    input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2,
-`endif
 `ifdef JTFRAME_PADDLE
-    input   [ 7:0]  paddle_0, paddle_1, `ifdef JTFRAME_4PLAYERS paddle_2, paddle_3, `endif
+    input   [ 7:0]  paddle_0, paddle_1, paddle_2, paddle_3,
 `endif
 `ifdef JTFRAME_DIAL
     input   [ 1:0]  dial_x, dial_y,
@@ -40,15 +35,9 @@
     input   [ 7:0]  spinner_1p, spinner_2p,
 `endif
 `ifdef JTFRAME_ANALOG
-    input   [15:0]  joyana_l1, joyana_l2,
+    input   [15:0]  joyana_l1, joyana_l2, joyana_l3, joyana_l4,
     `ifdef JTFRAME_ANALOG_DUAL
-        input   [15:0]  joyana_r1, joyana_r2,
-    `endif
-    `ifdef JTFRAME_4PLAYERS
-        input   [15:0]  joyana_l3, joyana_l4,
-        `ifdef JTFRAME_ANALOG_DUAL
-            input   [15:0]  joyana_r3, joyana_r4,
-        `endif
+        input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
     `endif
 `endif
     // Sound control

@@ -95,7 +95,7 @@ toki_main  u_main(
   .vpos(vpos),
 
   // Input
-  .start_button(cab_1p),
+  .start_button(cab_1p[1:0]),
   .joystick1(joystick1),
   .joystick2(joystick2),
 
@@ -234,7 +234,7 @@ toki_sound u_sound(
 
   .oki_cen(oki_cen),
 
-  .coin_input(coin),
+  .coin_input(coin[1:0]),
 
   .snd(snd),
   .fxlevel(dip_fxlevel),

@@ -99,19 +99,9 @@ assign game_paddle_2 = board_paddle_2;
 always @(posedge clk) begin
     joy1_sync <= { board_joy1[15:4], joy4way1p[3:0] };
     joy2_sync <= { board_joy2[15:4], joy4way2p[3:0] };
+    joy3_sync <= { board_joy3[15:4], joy4way3p[3:0] };
+    joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
 end
-
-`ifdef JTFRAME_4PLAYERS
-    always @(posedge clk) begin
-        joy3_sync <= { board_joy3[15:4], joy4way3p[3:0] };
-        joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
-    end
-`else
-    initial begin
-        joy3_sync = 0;
-        joy4_sync = 0;
-    end
-`endif
 
 jtframe_4wayjoy u_4way_1p(
     .rst        ( rst               ),

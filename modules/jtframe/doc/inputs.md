@@ -26,8 +26,7 @@ Key           |   Action
 
 # Joysticks
 
-By default JTFRAME supports two joysticks only and will try to connect to game modules based on this assumption. For games that need four joysticks, define the macro **JTFRAME_4PLAYERS**.
-Note that the registers containing the coin and start button inputs are always passed as 4 bits, but the game can just ignore the 2 MSB if it only supports two players.
+JTFRAME supports four joysticks. Registers containing the coin and start button inputs are 4 bit long, but the game can just ignore the 2 MSB if it only supports two players.
 
 The digital controllers (joysticks) are mapped as:
 
