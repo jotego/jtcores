@@ -35,10 +35,9 @@ names = [
 
 [DIPSW]
 Delete=[
+    { Names=["Unused"] },
     # too long
-    { Names=["Credits needed"] },
-    { Names=["Game Time P1"]   },
-    { Names=["Game Time P2"]   },
+    { Names=["Credits needed", "Game Time P1", "Game Time P2"] },
 ]
 
 [header]

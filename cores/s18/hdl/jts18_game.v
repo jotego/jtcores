@@ -72,14 +72,14 @@ assign xram_addr  = xa;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: st_mux <= st_main;
-        1: st_mux <= st_video;
-        2: case( debug_bus[1:0] )
-                0: st_mux <= sndmap_dout;
-                1: st_mux <= tile_bank;
-                2: st_mux <= game_id;
-                3: st_mux <= { vid16_en, vdp_en, 4'd0, mcu_en, fd1094_en };
+        0: case( debug_bus[1:0] )
+                0: st_mux <= tile_bank;
+                1: st_mux <= game_id;
+                2: st_mux <= { vid16_en, vdp_en, 4'd0, mcu_en, fd1094_en };
+                3: st_mux <= sndmap_dout;
             endcase
+        1: st_mux <= st_video;
+        2: st_mux <= st_main;
         default: st_mux <= 0;
     endcase
 end
