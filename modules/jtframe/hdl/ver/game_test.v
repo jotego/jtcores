@@ -92,7 +92,6 @@ module game_test(
     output  signed [15:0] snd_left,
     output  signed [15:0] snd_right,
     output          sample,
-    output          game_led,
     input           enable_psg,
     input           enable_fm,
 
@@ -542,8 +541,6 @@ u_game(
     .LVBL        ( LVBL           ),
     .HS          ( HS             ),
     .VS          ( VS             ),
-    // LED
-    .game_led    ( game_led       ),
 
     .cab_1p( cab_1p[STARTW-1:0] ),
     .coin  ( coin[STARTW-1:0]  ),
@@ -674,6 +671,7 @@ u_game(
     .snd_en      ( 6'h3f          ),
     .snd_vol     ( 8'h40          ),
     .snd_vu      (                ),
+    .snd_peak    (                ),
     // Debug
 `ifdef JTFRAME_STATUS
     .st_addr     ( st_addr        ),

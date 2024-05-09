@@ -200,7 +200,7 @@ wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
 wire [ 7:0] snd_vol;
-wire        sample;
+wire        snd_peak, sample;
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
 wire [3:0] game_coin, game_start;
@@ -261,7 +261,7 @@ jtframe_mist_clocks u_clocks(
 assign clk_pico = clk48;
 
 wire [ 7:0] debug_bus, debug_view;
-wire [ 1:0] dip_fxlevel, game_led;
+wire [ 1:0] dip_fxlevel;
 wire        enable_fm, enable_psg;
 wire        dip_pause, dip_flip, dip_test;
 wire        pxl_cen, pxl2_cen;
@@ -275,8 +275,6 @@ localparam DIPBASE=`JTFRAME_DIPBASE;
 `else
 localparam DIPBASE=16;
 `endif
-
-assign game_led[1] = 1'b0; // Let system LED info go through too
 
 `ifdef MIST_I2S_AUDIO_HDMI
 assign HDMI_MCLK = 0;
@@ -347,8 +345,6 @@ u_frame(
     .HDMI_SDA       (                ),
     .HDMI_SCL       (                ),
 `endif
-    // LED
-    .game_led       ( game_led       ),
     // UART
 `ifndef JTFRAME_UART
     .uart_rx        ( UART_RX        ),
@@ -434,6 +430,7 @@ u_frame(
     .snd_en         ( snd_en         ),
     .snd_vu         ( snd_vu         ),
     .snd_vol        ( snd_vol        ),
+    .snd_peak       ( snd_peak       ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     `ifdef MIST_I2S_AUDIO

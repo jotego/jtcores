@@ -68,7 +68,6 @@ wire [15:0] z80_sound_latch_1;
 wire [15:0] z80_sound_latch_2;
 
 assign debug_view = 0;
-assign game_led   = 0;
 assign sample     = 0;
 
 //////// MAIN ////////////

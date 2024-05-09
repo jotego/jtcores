@@ -43,13 +43,13 @@ module jtframe_board #(parameter
     input        [ 6:0] core_mod,
     // LED
     input               osd_shown,
-    input        [ 1:0] game_led,
     output              led,
     // Audio
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
     output        [ 7:0] snd_vol,
     input                snd_sample,
+    input                snd_peak,
     // ROM access from game
     input  [SDRAMW-1:0] ba0_addr,ba1_addr,ba2_addr,ba3_addr,
     input         [3:0] ba_rd,   ba_wr,
@@ -307,7 +307,7 @@ jtframe_reset u_reset(
 );
 
 wire       vu_peak;
-wire [1:0] game_led_peak = game_led | { 1'b0, vu_peak };
+wire [1:0] led_peak = { 1'b1, vu_peak | snd_peak };
 
 jtframe_led u_led(
     .rst        ( rst           ),
@@ -316,7 +316,7 @@ jtframe_led u_led(
     .ioctl_rom  ( dwnld_busy    ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
-    .game_led   ( game_led_peak ),
+    .game_led   ( led_peak      ),
     .cheat_led  ( cheat_led     ),
     .led        ( led           )
 );
@@ -399,7 +399,7 @@ jtframe_keyboard u_keyboard(
             .clk        ( clk_sys       ),
             .dip_pause  ( dip_pause     ),
             .dip_flip   ( dip_flip      ),
-            .game_led   ( game_led[0]   ),
+            .game_led   ( led_peak      ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
             // sound
@@ -462,6 +462,7 @@ jtframe_volume u_volume(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
+    .peak           ( snd_peak        ),
     .up             ( vol_up          ),
     .down           ( vol_down        ),
     .vol            ( snd_vol         )

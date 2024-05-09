@@ -83,8 +83,9 @@ assign turbo = 1;
 assign turbo = status[6];
 `endif
 
-assign skip_en = status[7];
-assign snd_vu  = 0;
+assign skip_en  = status[7];
+assign snd_vu   = 0;
+assign snd_peak = 0;
 
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
@@ -333,7 +334,7 @@ jtcps1_video #(REGSIZE) u_video(
 
     // Watched signals
     .watch_vram_cs  ( main_vram_cs  ),
-    .watch          ( game_led      )
+    .watch          (               )
 );
 
 // Sound CPU cannot be disabled as there is

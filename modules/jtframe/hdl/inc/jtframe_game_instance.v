@@ -83,9 +83,6 @@ u_game(
     .VS          ( vs             ), `ifdef JTFRAME_INTERLACED
     .field       ( field          ), `endif
 
-    // LED
-    .game_led    ( game_led[0]    ),
-
     // Inputs
     .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
     .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_4PLAYERS
@@ -193,6 +190,7 @@ u_game(
     .snd_en      ( snd_en         ),
     .snd_vol     ( snd_vol        ),
     .snd_vu      ( snd_vu         ),
+    .snd_peak    ( snd_peak       ),
     // Debug
 `ifdef JTFRAME_STATUS
     .st_addr     ( st_addr        ),

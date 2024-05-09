@@ -33,7 +33,6 @@ module jtframe_mister #(parameter
     inout  [47:0]   HPS_BUS,
     output [ 1:0]   buttons,
     // LED
-    input  [ 1:0]   game_led,
     // Extension port (fake USB3)
     input      [6:0] USER_IN,
     output reg [6:0] USER_OUT,
@@ -54,6 +53,7 @@ module jtframe_mister #(parameter
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
     input                snd_sample,
+    input                snd_peak,
     output [ 5:0]   snd_en,
     input  [ 5:0]   snd_vu,
     output [ 7:0]   snd_vol,
@@ -627,6 +627,7 @@ jtframe_board #(
     .snd_en         ( snd_en          ),
     .snd_vu         ( snd_vu          ),
     .snd_vol        ( snd_vol         ),
+    .snd_peak       ( snd_peak        ),
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),
@@ -696,7 +697,6 @@ jtframe_board #(
     .rotate         ( rotate          ),
     // LED
     .osd_shown      ( 1'b0            ),
-    .game_led       ( game_led        ),
     .led            ( LED             ),
     // UART
     .uart_rx        ( uart_rx         ),

@@ -364,7 +364,7 @@ jtcps1_sound u_sound(
     .left           ( snd_left      ),
     .right          ( snd_right     ),
     .sample         ( sample        ),
-    .peak           ( game_led      ),
+    .peak           ( snd_peak      ),
     .debug_bus      ( debug_bus     )
 );
 `else

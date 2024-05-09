@@ -45,8 +45,6 @@ module jtframe_mist #(parameter
     input              vs,
     inout              pxl2_cen,
     inout              pxl_cen,
-    // LED
-    input        [1:0] game_led,
     // MiST VGA pins
     output [VGA_DW-1:0] VGA_R, VGA_G, VGA_B,
     output             VGA_HS,
@@ -133,6 +131,7 @@ module jtframe_mist #(parameter
     // Sound
     input       [15:0] snd_left, snd_right,
     input              snd_sample,
+    input              snd_peak,
     output      [ 5:0] snd_en,
     input       [ 5:0] snd_vu,
     output      [ 7:0] snd_vol,
@@ -366,6 +365,7 @@ jtframe_board #(
     .snd_en         ( snd_en          ),
     .snd_vu         ( snd_vu          ),
     .snd_vol        ( snd_vol         ),
+    .snd_peak       ( snd_peak        ),
     // base video with OSD/debug information
     .base_rgb       (                 ),
     .base_LHBL      (                 ),
@@ -435,7 +435,6 @@ jtframe_board #(
     .rotate         ( rotate          ),
     // LED
     .osd_shown      ( osd_shown       ),
-    .game_led       ( game_led        ),
     .led            ( LED             ),
     // UART
     .uart_rx        ( uart_rx         ),

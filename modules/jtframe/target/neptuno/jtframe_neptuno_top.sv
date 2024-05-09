@@ -228,7 +228,7 @@ wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
 wire [ 7:0] snd_vol;
-wire        sample;
+wire        sample, snd_peak;
 
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
@@ -302,7 +302,7 @@ assign clk_pico = clk48;
 
 
 wire [7:0] debug_bus, debug_view;
-wire [1:0] dip_fxlevel, game_led;
+wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 wire       pxl_cen, pxl2_cen;
@@ -333,8 +333,6 @@ localparam DIPBASE=16;
     assign ba3_din    = 0;
     assign ba3_dsn    = 3;
 `endif
-
-assign game_led[1] = 1'b0; // Let system LED info go through too
 
 jtframe_mist #(
     .SDRAMW       ( SDRAMW         ),
@@ -372,8 +370,6 @@ u_frame(
     .VGA_B          ( VGA_B          ),
     .VGA_HS         ( VGA_HS         ),
     .VGA_VS         ( VGA_VS         ),
-    // LED
-    .game_led       ( game_led       ),
     // SDRAM interface
     .SDRAM_DQ       ( SDRAM_DQ       ),
     .SDRAM_A        ( SDRAM_A        ),
@@ -460,6 +456,7 @@ u_frame(
     .snd_en         ( snd_en         ),
     .snd_vu         ( snd_vu         ),
     .snd_vol        ( snd_vol        ),
+    .snd_peak       ( snd_peak       ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick

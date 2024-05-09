@@ -66,7 +66,7 @@ wire        main2qs_cs, main_busakn, main_waitn;
 wire        sclk, sdi, sdo, scs;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = ~24'd0;
-assign game_led = 0;
+assign snd_peak = 0;
 
 wire [ 1:0] dsn;
 wire        cen16, cen12, cen8, cen10b;

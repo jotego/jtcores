@@ -20,23 +20,31 @@ module jtframe_volume(
     input            rst,
     input            clk,
     input            vs,
+    input            peak,
     input            up,
     input            down,
     output reg [7:0] vol
 );
 
-reg lock, vs_l;
+reg lock, vs_l, peaked;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        vol  <= 8'h40;
-        vs_l <= 0;
-        lock <= 0;
+        vol    <= 8'h40;
+        vs_l   <= 0;
+        lock   <= 0;
+        peaked <= 0;
     end else begin      
         vs_l <= vs;  
+        if(  peak ) peaked <= 1;
         if( !lock ) begin
-            if( ~&vol && up   ) vol <= vol+8'd1;
-            if(  |vol && down ) vol <= vol-8'd1;
+            if( ~&vol && up && !peaked ) begin
+                vol <= vol+8'd1;
+            end
+            if(  |vol && down ) begin
+                vol <= vol-8'd1;
+                peaked <= 0;
+            end
             lock <= 1;
         end
         if( vs && !vs_l ) lock <= 0;

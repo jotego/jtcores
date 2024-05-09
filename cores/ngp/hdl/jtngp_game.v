@@ -35,7 +35,6 @@ reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
 assign debug_view = st_mux;
-assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;

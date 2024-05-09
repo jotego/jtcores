@@ -134,7 +134,6 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `else
     .snd            ( snd           ),
 `endif
-    .game_led       ( game_led      ),
     .sample         ( sample        ), {{ end }}
     .snd_en         ( snd_en        ),
     .snd_vol        ( snd_vol       ),
@@ -543,13 +542,13 @@ jtframe_rcmix #(
     .g5     ( {{ $ch5.Gain }} ), {{with $ch5.Name}}// {{.}}{{end}}
     .gain   ( snd_vol         ),
     .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
-    .peak ( game_led ),
+    .peak ( snd_peak ),
     .vu   ( snd_vu   )
 );
 `else
 assign {{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}=0;
 assign snd_vu   = 0;
-assign game_led = 0;
+assign snd_peak = 0;
 wire ncs;
 jtframe_frac_cen #(.WC({{ .Audio.FracW }})) u_cen192(
     .clk    ( clk       ),
@@ -559,6 +558,7 @@ jtframe_frac_cen #(.WC({{ .Audio.FracW }})) u_cen192(
     .cenb   (                  )
 );
 `endif{{ else }}
-assign snd_vu = 0;
+assign snd_vu   = 0;
+assign snd_peak = 0;
 {{ end }}
 endmodule

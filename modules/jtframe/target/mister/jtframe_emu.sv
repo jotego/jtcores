@@ -319,7 +319,7 @@ endgenerate
 ///////////////////////////////////////////////////
 
 wire [63:0] status;
-wire [ 1:0] buttons, game_led;
+wire [ 1:0] buttons;
 
 wire [ 1:0] dip_fxlevel;
 wire        enable_fm, enable_psg;
@@ -341,6 +341,7 @@ wire        rst_req   = sys_rst | status[0] | buttons[1];
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
 wire [ 7:0] snd_vol;
+wire        snd_peak;
 
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
@@ -395,8 +396,6 @@ wire              hs, vs, sample;
 wire              ioctl_ram;
 wire              game_rx, game_tx;
 
-assign game_led[1] = 1'b1;
-
 `ifndef JTFRAME_UART
     assign game_tx = 1;
 `endif
@@ -433,8 +432,6 @@ u_frame(
     .status         ( status         ),
     .HPS_BUS        ( HPS_BUS        ),
     .buttons        ( buttons        ),
-    // LED
-    .game_led       ( game_led       ),
     // Extension port (fake USB3)
     .USER_OUT       ( USER_OUT       ),
     .USER_IN        ( USER_IN        ),
@@ -463,6 +460,7 @@ u_frame(
     .snd_en         ( snd_en         ),
     .snd_vu         ( snd_vu         ),
     .snd_vol        ( snd_vol        ),
+    .snd_peak       ( snd_peak       ),
     // line-frame buffer
     .game_vrender   ( game_vrender   ),
     .game_hdump     ( game_hdump     ),

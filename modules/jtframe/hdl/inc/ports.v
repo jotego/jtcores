@@ -14,7 +14,6 @@
 `else
     output  signed [15:0] snd_left, snd_right,
 `endif
-    output          game_led,
     output          sample,
 {{ end }}
     // Memory ports
