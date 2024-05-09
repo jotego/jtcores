@@ -100,6 +100,8 @@ jtkchamp_main u_main(
     .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
+    .joystick3      ( joystick3     ),
+    .joystick4      ( joystick4     ),
     // GFX
     .cpu_dout       ( cpu_dout      ),
     .cpu_rnw        ( cpu_rnw       ),
