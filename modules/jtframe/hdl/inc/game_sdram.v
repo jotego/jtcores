@@ -477,7 +477,7 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
     .cen    ( { {{ .OutStr }} } ),
     .fave   (              ),
     .fworst (              )
-); /* verilator tracing_on */
+); /* verilator tracing_off */
 {{ end }}{{ end }}{{ end }}
 {{ if .Audio.Channels }}`ifndef NOSOUND
 {{- $ch0 := (index .Audio.Channels 0) -}}

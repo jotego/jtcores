@@ -1,4 +1,3 @@
-#set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) ../../hdl/jtframe.qip                 ]
 here:
   - jtframe_emu.sv
   - jtframe_mister.sv
