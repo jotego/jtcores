@@ -13,11 +13,12 @@ debug = { machines=[
     "ddcrew",   # does not boot
     "desertbr", # does not boot
     "wwallyj",  # does not boot
-    # MCU
+    # MCU (enable it in macros.def)
     "mwalk",    # does not boot
+    # incomplete machine description in MAME
+    "pontoon",
 ]}
 skip.bootlegs=true
-skip.setnames=["pontoon"] # incomplete machine description in MAME
 
 [buttons]
 names = [

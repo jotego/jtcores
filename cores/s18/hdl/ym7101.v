@@ -30,7 +30,7 @@
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off SELRANGE */
 /* xxverilator lint_off UNOPTFLAT */
-/* verilator tracing_off */
+/* verilator tracing_on */
 module ym7101
 	(
 	input MCLK,
@@ -2279,7 +2279,7 @@ module ym7101
 			prescaler_dff6 <= prescaler_dff5;
 			prescaler_dff7 <= ~(prescaler_dff5 & prescaler_dff6);
 			
-			prescaler_dff8 <= prescaler_dff11;
+			pres<caler_dff8 <= prescaler_dff11;
 			prescaler_dff9 <= prescaler_dff8;
 			prescaler_dff10 <= ~(prescaler_dff8 & prescaler_dff9);
 			prescaler_dff11 <= prescaler_dff10;

@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2023 nukeykt
- *
- * This file is part of Nuked-MD.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
-*/
-
 module vram
 	(
 	input MCLK,
@@ -60,25 +43,17 @@ module vram
 		begin : l1
 			assign mem_be[i] = addr[4:0] == i;
 		end
-		for (i = 0; i < 8*32; i = i + 1)
+		for (i = 0; i < 8; i = i + 1)
 		begin : l2
-			jtframe_ram #(.DW(8),.AW(8)) u_mem(
-				.clk	( MCLK		),
-				.cen	( 1'b1		),
-				.addr   ( mem_addr  ),
-				.data	( RD_i		),
-				.we		( wr && (addr[7:5] == i[5+:3]) && mem_be[i[4:0]] ),
-				.q		( mem_o[(8*i)+:8] )
-			);
-			// vram_ip mem
-			// 	(
-			// 	.clock(MCLK),
-			// 	.address(mem_addr),
-			// 	.byteena(mem_be),
-			// 	.data({32{RD_i}}),
-			// 	.wren(wr & (addr[7:5] == i)),
-			// 	.q(mem_o[(256*(i+1)-1):(256*i)])
-			// 	);
+			vram_ip mem
+				(
+				.clock(MCLK),
+				.address(mem_addr),
+				.byteena(mem_be),
+				.data({32{RD_i}}),
+				.wren(wr & (addr[7:5] == i)),
+				.q(mem_o[(256*(i+1)-1):(256*i)])
+				);
 		end
 		for (i = 0; i < 256; i = i + 1)
 		begin : l3

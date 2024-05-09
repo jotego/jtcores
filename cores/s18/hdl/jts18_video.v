@@ -18,10 +18,13 @@
 
 module jts18_video(
     input              rst,
-    input              clk96,
     input              clk,
+    input              clk48,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
+    // pixel clock enable at 48 MHz
+    input              pxl2_48cen,
+    input              pxl_48cen,
 
     // video configuration
     input              flip,
@@ -97,16 +100,26 @@ module jts18_video(
 
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
-wire       LHBL_dly, LVBL_dly;
+wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48;
 
 assign scr1_addr[21-:4] = tile_bank[3:0];
 assign scr2_addr[21-:4] = tile_bank[7:4];
 
+// always @(posedge clk) begin
+//     if(pxl_cen) begin
+//         HS <= HS48;
+//         VS <= VS48;
+//         LHBL <= LHBL48;
+//         LVBL <= LVBL48;
+//     end
+// end
+
+/* verilator tracing_off */
 jts18_video16 u_video16(
     .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl2_cen   ( pxl2_cen  ),
-    .pxl_cen    ( pxl_cen   ),
+    .clk        ( clk48     ),
+    .pxl2_cen   ( pxl2_48cen),
+    .pxl_cen    ( pxl_48cen ),
 
     .video_en   ( vid16_en  ),
     .flip       ( flip      ),
@@ -173,10 +186,11 @@ jts18_video16 u_video16(
 );
 
 // Megadrive VDP
+/* verilator tracing_on */
 jts18_vdp u_vdp(
     .rst        ( rst       ),
-    .clk96      ( clk96     ),
-    .clk48      ( clk       ),
+    .clk96      ( clk       ),
+    .clk48      ( clk48     ),
     .ed_clk     (           ),
 
     // Main CPU interface
@@ -192,7 +206,8 @@ jts18_vdp u_vdp(
     .vs         (           ),
     .red        ( vdp_r     ),
     .green      ( vdp_g     ),
-    .blue       ( vdp_b     )
+    .blue       ( vdp_b     ),
+    .debug_bus  ( debug_bus )
 );
 
 jts18_colmix u_colmix(

@@ -35,24 +35,27 @@ module jts18_vdp(
     output             vs,
     output      [ 7:0] red,
     output      [ 7:0] green,
-    output      [ 7:0] blue
+    output      [ 7:0] blue,
+    input       [ 7:0] debug_bus
 );
 `ifndef NOVDP
-wire        ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
+wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
             oe1, sc, se0, dtack, vs_n, CD_d,
-            ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d;
+            ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d,
+            CSYNC_pull;
 wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] RD_mem, AD_mem, SD_mem;
 wire [15:0] CD;
 reg         rst_n;
 
+// _d signals: 0 for output, 1 for input
 // assign dtackn = ~dtack;
 assign vs     = ~vs_n;
 assign SPA_B  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
-assign RD =
-    (~ym_RD_d ? ym_RD_o : 8'h0);// |
+assign RD = ym_RD_o;
+    // (~ym_RD_d ? ym_RD_o : 8'h0) |
     // (~vram2_RD_d ? vram2_RD_o : 8'h0) |
     // ((ym_RD_d & vram2_RD_d) ? RD_mem : 8'h0);
 assign AD =
@@ -81,16 +84,19 @@ always @(posedge clk96, posedge rst) begin
 end
 // reg clk2=0;
 // always @(posedge clk96) clk2 <= ~clk2;
+wire EDCLK_d, EDCLK_o, BGACK_pull;
+assign ed_clk = (~EDCLK_d & EDCLK_o);
 
 always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
+/* verilator tracing_on */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk96     ),
     .MCLK_e     ( clk48     ),
-    .EDCLK_i    ( 1'b0      ),
-    .EDCLK_o    ( ed_clk    ),
-    .EDCLK_d    (           ),
+    .EDCLK_i    ( ed_clk    ),
+    .EDCLK_o    ( EDCLK_o   ),
+    .EDCLK_d    ( EDCLK_d   ),
     // M68000
     .CA_i       ( addr      ),
     .CA_o       (           ),
@@ -104,7 +110,7 @@ ym7101 u_vdp(
     .AS         ( asn       ),
     .IPL1_pull  (           ),
     .IPL2_pull  (           ),
-    .DTACK_i    ( dtackn    ),
+    .DTACK_i    ( /*dtackn*/ ~dtack    ),
     .DTACK_pull ( dtack     ),
     // Z80 interface is disabled
     .BR_pull    (           ),
@@ -121,6 +127,8 @@ ym7101 u_vdp(
     .AD_d       ( ym_AD_d   ),
     .SD         ( SD        ),
     .SE1        (           ),
+    .RAS0       ( ras0      ),
+    .CAS0       ( cas0      ),
     .RAS1       ( ras1      ),
     .CAS1       ( cas1      ),
     .WE0        ( we0       ),      // shouldn't it be we1?
@@ -135,7 +143,8 @@ ym7101 u_vdp(
     .ext_test_2 ( 1'b0      ),
     .CLK1_o     ( CLK1_o    ),
     .CLK1_i     ( CLK1_o    ),
-    .BGACK_i    ( 1'b1      ),
+    .BGACK_i    (~BGACK_pull),
+    .BGACK_pull ( BGACK_pull),
     .INTAK      ( 1'b1      ),
     .SPA_B_i    (SPA_B      ),
     .SPA_B_pull (SPA_B_pull ),
@@ -146,10 +155,10 @@ ym7101 u_vdp(
     .RD_o       ( ym_RD_o   ),
     .RD_i       ( RD        ),
     // video and sound outputs
-    .HSYNC_i    ( 1'b1      ),
+    .HSYNC_i    ( ~hs       ),
     .HSYNC_pull ( hs        ),
-    .CSYNC_i    ( 1'b1      ),
-    .CSYNC_pull (           ),
+    .CSYNC_i    (~CSYNC_pull),
+    .CSYNC_pull ( CSYNC_pull),
     .VSYNC      ( vs_n      ),
     .SOUND      (           ),
     .DAC_R      ( red       ),
@@ -161,7 +170,7 @@ vram u_vram(
     .MCLK       ( clk96     ),
     .RAS        ( ras1      ),
     .CAS        ( cas1      ),
-    .WE         ( we1       ),
+    .WE         ( we0       ),
     .OE         ( oe1       ),
     .SC         ( sc        ),
     .SE         ( se0       ),

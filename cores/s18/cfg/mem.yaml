@@ -12,10 +12,14 @@ clocks:
   clk48:
     - freq: 8000000
       outputs:
-      - cen_fm
+        - cen_fm
     - freq: 10000000
       outputs:
-      - cen_pcm
+        - cen_pcm
+    - freq: 12000000
+      outputs:
+        - pxl2_48cen
+        - pxl_48cen
   clk24:
     - freq: 8000000
       outputs: [ mcu_cen ]

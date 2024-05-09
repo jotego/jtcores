@@ -254,7 +254,7 @@ jtframe_8751mcu #(
     .x_acc      ( mcu_acc       ),
 
     // ROM programming
-    .clk_rom    ( clk           ),
+    .clk_rom    ( clk_rom       ),
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data     ),
     .prom_we    ( mcu_prog_we   )
