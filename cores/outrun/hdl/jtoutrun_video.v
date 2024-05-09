@@ -223,7 +223,7 @@ jtoutrun_road u_road(
     .ioctl_addr ( ioctl_addr )
 );
 /* verilator tracing_off */
-jts16_tilemap #(.MODEL(1)) u_tilemap(
+jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
