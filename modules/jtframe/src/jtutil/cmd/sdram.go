@@ -89,8 +89,9 @@ func must_env( env string ) string {
 	return v
 }
 
-func dump( name string, rom []byte, p0,p1 int) int {
-	if p1<=0 { p1 = len(rom)	}
+func dump( name string, rom []byte, p0,p1, lim int) int {
+	if p1<=0 { p1 = lim	}
+	if p1<p0 { return -1 }
 	if p1<=0 { return p0 }
 	if p1>len(rom) {
 		fmt.Println("ROM file is too short to produce file",name)
@@ -142,8 +143,12 @@ func extract_sdram( core, game string ) {
 	rom := read_rom(game)
 	macros := def.Get_Macros( core, "mist" )
 	header   := bank_start(macros,"JTFRAME_HEADER")
+	prom_start := bank_start(macros,"JTFRAME_PROM_START")+header
+	if prom_start == 0 {
+		prom_start = len(rom)
+	}
 	nx_bank  := bank_start(macros,"JTFRAME_BA1_START")+header
-	nx_start := dump("sdram_bank0.bin",rom,header,nx_bank)
+	nx_start := dump("sdram_bank0.bin",rom,header,nx_bank, prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank1.bin")
 		os.Remove("sdram_bank2.bin")
@@ -151,20 +156,19 @@ func extract_sdram( core, game string ) {
 		return
 	}
 	nx_bank  = bank_start(macros,"JTFRAME_BA2_START")+header
-	nx_start = dump("sdram_bank1.bin",rom,nx_start,nx_bank)
+	nx_start = dump("sdram_bank1.bin",rom,nx_start,nx_bank, prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
 	nx_bank  = bank_start(macros,"JTFRAME_BA3_START")+header
-	nx_start = dump("sdram_bank2.bin",rom,nx_start,nx_bank)
+	nx_start = dump("sdram_bank2.bin",rom,nx_start,nx_bank, prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_bank  = bank_start(macros,"JTFRAME_PROM_START")+header
-	nx_start = dump("sdram_bank3.bin",rom,nx_start,nx_bank)
+	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start)
 }
 
 func make_symlink( game string ) {
