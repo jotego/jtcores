@@ -263,11 +263,13 @@ wire [ 1:0] bax_dsn;
 wire [ 3:0] bax_rdy, bax_dst;
 wire [SDRAMW-1:0] bax_addr;
 
+wire LHBLs;
+
 assign autofire0 = `ifdef JTFRAME_AUTOFIRE0 status[18] `else 0 `endif;
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
-// assign frame_blank  = core_mod[6:5];
+assign frame_blank  = core_mod[6:5];
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
 assign base_LHBL = pre2x_LHBL;
@@ -468,6 +470,22 @@ jtframe_volume u_volume(
     .vol            ( snd_vol         )
 );
 
+jtframe_short_blank #(
+    .WIDTH      ( VIDEO_WIDTH     ),
+    .HEIGHT     ( VIDEO_HEIGHT    )
+) u_short_blank (
+    .clk        ( clk_sys         ),
+    .pxl_cen    ( pxl_cen         ),
+    .LHBL       ( LHBL            ),
+    .LVBL       ( LVBL            ),
+    .h_en       ( frame_blank[0]  ),
+    .v_en       ( 1'b0            ),
+    .wide       ( frame_blank[1]  ),
+    .HS         ( hs              ),
+    .hb_out     ( LHBLs           ),
+    .vb_out     (                 )
+);
+
 jtframe_inputs #(
     .BUTTONS   ( BUTTONS                ),
     .ACTIVE_LOW( GAME_INPUTS_ACTIVE_LOW )
@@ -475,7 +493,7 @@ jtframe_inputs #(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
-    .LHBL           ( LHBL            ),
+    .LHBL           ( LHBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
     .rot_ccw        ( rotate[1]       ),
     .autofire0      ( autofire0       ),
@@ -799,7 +817,7 @@ jtframe_sdram64 #(
 
     // Common signals
     .dout       ( sdram_dout    ),
-    .rfsh       ( ~LHBL         )
+    .rfsh       ( ~LHBLs        )
 );
 
 `ifdef SIMULATION
@@ -852,7 +870,7 @@ jtframe_sdram64 #(
         .pxl_cen    ( pxl_cen       ),
 
         // input image
-        .HB         ( LHBL          ),
+        .HB         ( LHBLs         ),
         .VB         ( LVBL          ),
         .rgb_in     ( { game_r, game_g, game_b } ),
         `ifdef JTFRAME_CREDITS_NOROTATE
@@ -891,7 +909,7 @@ jtframe_sdram64 #(
     );
 `else
     assign { pre2x_r, pre2x_g, pre2x_b } = { game_r, game_g, game_b };
-    assign { pre2x_LHBL, pre2x_LVBL    } = { LHBL, LVBL };
+    assign { pre2x_LHBL, pre2x_LVBL    } = { LHBLs, LVBL };
 `endif
 
 // By pass scan2x in simulation by default
@@ -916,7 +934,7 @@ jtframe_sdram64 #(
     assign scan2x_vs   = vs;
     assign scan2x_clk  = clk_sys;
     assign scan2x_cen  = pxl_cen;
-    assign scan2x_de   = LVBL && LHBL;
+    assign scan2x_de   = LVBL && LHBLs;
     assign scan2x_sl   = 2'd0;
 `else
 

@@ -34,6 +34,7 @@ jtframe:
       - jtframe_resync.v
       - jtframe_credits.v
       - jtframe_wirebw.v
+      - jtframe_short_blank.v
   - from: sdram
     get:
       - jtframe_dwnld.v
