@@ -241,7 +241,7 @@ jtshouse_triram u_triram(
 
     .snd_cen    ( cen_snd   ),
     .mcu_cen    ( cen_mcu   ),
-    .snd_sel    ( snd_sel   ),
+    .snd_sel    ( cen_sndq  ),
 
     .baddr      ( baddr[10:0]   ),
     .mcu_addr   ( eerom_addr    ),
