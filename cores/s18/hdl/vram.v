@@ -1,3 +1,28 @@
+module vram_ip
+(
+	input	  [7:0] address,
+	input	 [31:0] byteena,
+	input	        clock,
+	input	[255:0] data,
+	input	        wren,
+	output reg [255:0] q
+);
+
+reg [255:0] mem0[0:255];
+
+genvar k;
+
+generate
+	for(k=0;k<32;k=k+1) begin
+		always @(posedge clock) begin
+			if( byteena[k] && wren ) mem0[address][k*8+:8]<=data[k*8+:8];
+			q <= mem0[address];
+		end
+	end
+endgenerate
+
+endmodule
+
 module vram
 	(
 	input MCLK,

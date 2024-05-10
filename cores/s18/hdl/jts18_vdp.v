@@ -145,7 +145,7 @@ ym7101 u_vdp(
     .CLK1_i     ( CLK1_o    ),
     .BGACK_i    (~BGACK_pull),
     .BGACK_pull ( BGACK_pull),
-    .INTAK      ( 1'b1      ),
+    .INTAK      ( 1'b0      ),
     .SPA_B_i    (SPA_B      ),
     .SPA_B_pull (SPA_B_pull ),
     .vdp_cramdot_dis( 1'b0  ),
