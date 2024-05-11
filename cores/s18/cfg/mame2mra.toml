@@ -2,6 +2,8 @@
 sourcefile=[ "segas18.cpp" ]
 
 debug = { machines=[
+    # tile banks messed up
+    "shdancer",
     # ok with no VDP?
     "bloxeed",
     # gun input missing

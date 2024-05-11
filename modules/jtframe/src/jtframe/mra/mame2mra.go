@@ -155,8 +155,8 @@ extra_loop:
 	}
 	dump_setnames( args.Def_cfg.Core, valid_setnames )
 	if !main_copied {
-		fmt.Printf("ERROR (%s): No single MRA was highlighted as the main one. Set it in the TOML file parse.main key\n", args.Def_cfg.Core)
-		os.Exit(1)
+		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Def_cfg.Core)
+		os.Exit(0)
 	}
 	if !args.SkipPocket {
 		pocket_save()
