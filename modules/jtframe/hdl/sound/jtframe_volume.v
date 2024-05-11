@@ -30,7 +30,7 @@ reg lock, vs_l, peaked;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        vol    <= 8'h40;
+        vol    <= 8'h80; // matching value in game_test.v
         vs_l   <= 0;
         lock   <= 0;
         peaked <= 0;

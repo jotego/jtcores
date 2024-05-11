@@ -15,13 +15,15 @@ clocks:
 # resistor values are not shown in the schematics, likely to be
 # - 1kOhm load for PSG (six of them)
 # - 56kOhm for summing resistors
+# adjusting the values so 1943 main set won't saturate when shooting
+# the other sets seem to have that fixed in software
 audio:
-  rsum: 56k
+  rsum: 100k
   channels:
     - { name: psg0, module: jt03_psg, rsum: 56k }
     - { name: psg1, module: jt03_psg, rsum: 56k }
-    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [{ r: rout,  c: 1n }]}
-    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm0,  module: jt03_fm,  rsum: 50k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 50k, rc: [{ r: rout,  c: 1n }]}
 download:
   post_addr: true
 sdram:
