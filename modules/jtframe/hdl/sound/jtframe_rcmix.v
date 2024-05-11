@@ -192,7 +192,7 @@ generate
             .peak   ( pks_l )
         );
 
-        jtframe_limmul #(.WI(WOUT),.WO(WOUT)) u_gain(
+        jtframe_limmul #(.WI(WOUT+1),.WO(WOUT)) u_gain(
             .rst    ( rst   ),
             .clk    ( clk   ),
             .cen    ( cen   ),
