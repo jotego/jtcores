@@ -55,8 +55,7 @@ always @(posedge clk, posedge rst) begin
         peak <= 0;
     end else if(cen) begin
         peak <= v | peaked;
-        mul  <= peaked ? sin :
-                     v ? {full[FW-1],{W-1{~full[FW-1]}}} : full[MSB-:W];
+        mul  <= v ? {full[FW-1],{W-1{~full[FW-1]}}} : full[MSB-:W];
     end
 end
 
