@@ -21,4 +21,4 @@ jobs:
     - id: linter
       run: |
         # pwd will be: /home/runner/work/jtcores/jtcores
-        docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/lint-all.sh
+        docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/lint-all.sh
