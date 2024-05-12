@@ -18,7 +18,7 @@
 
 module jtframe_freqinfo #(parameter
     KHZ   = 1,      // set to 1 to output kHz, set to 0 to output Hz
-    MFREQ = 48_000, // clk input frequency in kHz
+    MFREQ = `JTFRAME_MCLK/1000, // clk input frequency in kHz
     DIGITS = 4      // count up to 9999 kHz, change to 5 for 10MHz and above
 )(
     input             rst,
@@ -34,7 +34,7 @@ reg  [15:0] freq_cnt;
 wire [DIGITS*4-1:0] fout_cnt;
 reg         pulse_l;
 
-assign ms = freq_cnt == MFREQ-1;
+assign ms = freq_cnt == MFREQ[15:0]-16'd1;
 
 generate
     if( KHZ==1 )
@@ -73,7 +73,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_bcd_cnt #(.DIGITS(DIGITS)) u_bcd(
+jtframe_bcd_cnt #(.DIGITS(DIGITS),.WRAP(0)) u_bcd(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .clr        ( ms        ),

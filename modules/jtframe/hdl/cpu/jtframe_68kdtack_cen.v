@@ -69,9 +69,8 @@ module jtframe_68kdtack_cen
     input         wait3, // high for 3 wait states
 
     output reg    DTACKn,
-    output reg [15:0] fave, // average cpu_cen frequency in kHz
-    output reg [15:0] fworst, // average cpu_cen frequency in kHz
-    input             frst
+    output  [15:0] fave, // average cpu_cen frequency in kHz
+    output  [15:0] fworst  // average cpu_cen frequency in kHz
 );
 /* verilator lint_off WIDTH */
 
@@ -143,26 +142,15 @@ end
 /* verilator lint_on WIDTH */
 
 // Frequency reporting
-reg [15:0] freq_cnt=0, fout_cnt;
-initial fworst = 16'hffff;
+wire [3:0] nc1, nc2;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        freq_cnt <= 0;
-        fout_cnt <= 0;
-        fave     <= 0;
-        fworst   <= 0;
-    end else begin
-        freq_cnt <= freq_cnt + 1'd1;
-        if(cpu_cen && !halt) fout_cnt<=fout_cnt+1'd1;
-        if( freq_cnt == MFREQ[15:0]-16'd1 ) begin // updated every 1ms
-            freq_cnt <= 0;
-            fout_cnt <= 0;
-            fave <= fout_cnt;
-            if( fworst > fout_cnt ) fworst <= fout_cnt;
-        end
-        if( frst ) fworst <= 16'hffff;
-    end
-end
+// MFREQ=96MHz but clk is 48MHz, hence using MFREQ/2
+jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ/2)) u_freq(
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .pulse  ( cpu_cen && !halt  ),
+    .fave   ( { fave, nc1 }     ),
+    .fworst ( { fworst, nc2 }   )
+);
 
 endmodule

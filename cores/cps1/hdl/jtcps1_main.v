@@ -77,7 +77,8 @@ module jtcps1_main(
     input              dip_test,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
-    input    [7:0]     dipsw_c
+    input    [7:0]     dipsw_c,
+    output   [15:0]    fave
     // QSound
     `ifdef CPS15 ,
     output reg         eeprom_sclk,
@@ -433,9 +434,8 @@ jtframe_68kdtack_cen u_dtack(
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // unused
-    .fave       (           ),
-    .fworst     (           ),
-    .frst       (           )
+    .fave       ( fave      ),
+    .fworst     (           )
 );
 
 // interrupt generation
