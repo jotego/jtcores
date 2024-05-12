@@ -52,6 +52,7 @@ module jtframe_68kdtack_cen
 #(parameter W=5,
             RECOVERY=1,
             WD=6,
+            WAIT1=0,    // set to 1 to always wait for 1 cpu_cen
             MFREQ=`JTFRAME_MCLK/1000  // clk input frequency in kHz
 )(
     input         rst,
@@ -108,7 +109,7 @@ always @(posedge clk) begin : dtack_gen
             DTACKn <= 1;
             wait1  <= 1; // gives a clock cycle to bus_busy to toggle
             waitsh <= {wait3,wait2};
-        end else if( !ASn ) begin
+        end else if( !ASn && (cpu_cen || WAIT1==0) ) begin
             wait1 <= 0;
             if( cpu_cen ) waitsh <= waitsh>>1;
             if( waitsh==0 && !wait1 ) begin
