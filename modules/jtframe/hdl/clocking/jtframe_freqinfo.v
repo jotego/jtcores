@@ -28,13 +28,15 @@ module jtframe_freqinfo #(parameter
     output reg [DIGITS*4-1:0] fworst  // worst case registered (BCD)
 );
 
+localparam BW=$clog2(MFREQ-1);
+
 wire cnt_event;
 wire cen, ms;
-reg  [15:0] freq_cnt;
+reg  [BW-1:0] freq_cnt;
 wire [DIGITS*4-1:0] fout_cnt;
 reg         pulse_l;
 
-assign ms = freq_cnt == MFREQ[15:0]-16'd1;
+assign ms = freq_cnt == MFREQ[BW-1:0]-1'd1;
 
 generate
     if( KHZ==1 )
