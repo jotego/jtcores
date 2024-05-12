@@ -122,8 +122,6 @@ always @* begin
     cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt} +num2;
 end
 
-
-
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( rst ) cencnt <= 0;
@@ -144,8 +142,7 @@ end
 // Frequency reporting
 wire [3:0] nc1, nc2;
 
-// MFREQ=96MHz but clk is 48MHz, hence using MFREQ/2
-jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ/2)) u_freq(
+jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),
     .clk    ( clk               ),
     .pulse  ( cpu_cen && !halt  ),
