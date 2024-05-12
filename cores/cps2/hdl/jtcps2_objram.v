@@ -67,6 +67,7 @@ reg  [15:0] din_x, din_y;
 
 wire [   1:0] wex, wey, wecode, weattr;
 wire [AW-3:0] wr_addr, gfx_addr;
+reg  [AW-3:0] clr_addr;
 
 wire [9:0] next_offy = { cfg_dsn[1] ? off_y[9:8] : cpu_dout[9:8],
                          cfg_dsn[0] ? off_y[7:0] : cpu_dout[7:0] };
@@ -112,6 +113,16 @@ always @(posedge clk_cpu, posedge rst) begin
     end
 end
 
+reg           asel;
+wire [AW-3:0] amux;
+
+assign amux = asel ? clr_addr : gfx_addr;
+
+always @(posedge clk_gfx) begin
+    asel <= rst;
+    clr_addr <= clr_addr+1'd1;
+end
+
 jtframe_dual_ram16 #(
     .AW(AW-2)
     // ,.SIMFILE_LO("objx_lo.bin"), .SIMFILE_HI("objx_hi.bin")
@@ -125,8 +136,8 @@ jtframe_dual_ram16 #(
     .q0         (              ),
     // Port 1: GFX
     .data1      ( 16'd0        ),
-    .addr1      ( gfx_addr     ),
-    .we1        ( 2'b0         ),
+    .addr1      ( amux         ),
+    .we1        ( {2{asel}}    ),
     .q1         ( obj_x        )
 );
 
@@ -143,8 +154,8 @@ jtframe_dual_ram16 #(
     .q0         (              ),
     // Port 1: GFX
     .data1      ( 16'd0        ),
-    .addr1      ( gfx_addr     ),
-    .we1        ( 2'b0         ),
+    .addr1      ( amux         ),
+    .we1        ( {2{asel}}    ),
     .q1         ( obj_y        )
 );
 
