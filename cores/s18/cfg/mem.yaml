@@ -7,6 +7,8 @@ audio:
     # I think the audio section of the schematics is not well
     # extracted. There seems to be a clear 1-order RC filter at the end
     # of it, though
+    # the sampling frequency is about 26kHz for a clock of 10MHz
+    # add a FIR filter at 13kHz?
     - { name: pcm, rsum: 22k, module: jtpcm568, rc: [{r: 6.8k, c: 3.9n}] }
 clocks:
   clk48:
