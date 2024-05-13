@@ -32,8 +32,9 @@ module jtshouse_key(
     input               prog_en,
     input               prog_wr,
     input         [2:0] prog_addr,
-    input         [7:0] prog_data
+    input         [7:0] prog_data,
 
+    output        [1:0] io_mode
 );
 
 // The random number generator follows MAME's implementation
@@ -51,8 +52,8 @@ wire [31:0] remainder;
 reg  [15:0] div_h;
 reg         div_start;
 wire        dbz;
-wire [31:0] a = cfg[0] == 1 ? {16'h0, mmr[1], mmr[2]} : {div_h, mmr[2], mmr[3]};
-wire [31:0] b = cfg[0] == 1 ? {24'h0, mmr[0]} : {16'h0, mmr[0], mmr[1]};
+wire [31:0] a = cfg[0][1:0] == 1 ? {16'h0, mmr[1], mmr[2]} : {div_h, mmr[2], mmr[3]};
+wire [31:0] b = cfg[0][1:0] == 1 ? {24'h0, mmr[0]} : {16'h0, mmr[0], mmr[1]};
 
 divu_int #(32) divu_int (
     .clk(clk),
@@ -67,6 +68,8 @@ divu_int #(32) divu_int (
     .val(quotient),
     .rem(remainder)
 );
+
+assign io_mode = cfg[0][5:4];
 
 integer i, rng, nx_rng;
 
@@ -105,7 +108,7 @@ always @(posedge clk or posedge rst) begin
     end else begin
         cs_l    <= cs;
         div_start <= 0;
-        case (cfg[0]) // protection type
+        case (cfg[0][1:0]) // protection type
         1: begin
             if( cs && ~rnw && addr[7:2] == 0 ) begin
                 if(!cs_l) begin

@@ -36,6 +36,7 @@ wire signed [10:0] pcm_snd;
 wire        prc_snd, snd_sel, flip,
             cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
 wire        obus_cs, ram_cs, dma_we, mcu_halt, sndfix_n;
+wire [ 1:0] io_mode;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -98,7 +99,9 @@ jtshouse_key u_key(
     .prog_en    ( header    ),
     .prog_wr    ( prog_we   ),
     .prog_addr  ( prog_addr[2:0] ),
-    .prog_data  ( prog_data )
+    .prog_data  ( prog_data ),
+
+    .io_mode    ( io_mode   )
 );
 /* verilator tracing_off */
 jtshouse_main u_main(
@@ -167,10 +170,13 @@ jtshouse_mcu u_mcu(
     .ram_dout   ( tri_mcu   ),
     .halted     ( mcu_halt  ),
     // cabinet I/O
+    .io_mode    (io_mode    ),
     .cab_1p     (cab_1p[1:0]),
     .coin       ( coin[1:0] ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
+    .joystick3  ( joystick3 ),
+    .joystick4  ( joystick4 ),
     .dipsw      ( dipsw[7:0]),
     .service    ( service   ),
     .dip_test   ( dip_test  ),

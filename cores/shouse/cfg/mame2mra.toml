@@ -21,7 +21,7 @@ debug = { machines=[
 [buttons]
 names = [
     { machine="bakutotu",  names="Gun Shot" },
-    { machine="berabohm",  names="Attack,Jump" },
+    { machine="berabohm",  names="Small Jump,Mid Jump,High Jump,Weak Attack,Mid Attack,Strong Attack" },
     { machine="blastoff",  names="Missile Shot,Missile Type Change" },
     { machine="blazer",    names="Forward Missile,Side Missile" },
     { machine="boxyboy",   names="Try Again,Takeback" },
@@ -43,7 +43,7 @@ names = [
 ]
 
 [header]
-info="""Byte 0: protection type
+info="""Byte 0: bit 0-1: protection type, bit 4-5: control type (0 - normal, 1 - faceoff 4p, 2 - berabohm, 3 - quester)
 Byte 1: key ID
 Byte 2: addr for key ID
 Byte 3: addr for RNG
@@ -53,6 +53,11 @@ Byte 6: addr for lower nibble read
 Byte 7: addr for upper nibble read
 """
 data= [
+
+    { machine="faceoff",  data="10" },
+    { machine="quester",  data="30" },
+    { machine="berabohm", data="20" },
+
     { machine="dspirit",  data="01 36" },
     { machine="wldcourt", data="01 35" },
     { machine="blazer",   data="01 13" },
@@ -69,6 +74,7 @@ data= [
     { machine="blastoff", data="03 B7 00 07 03 05 FF FF" },
     { setname="ws89",     data="03 B8 02 FF FF FF FF FF" },
     { machine="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
+    { setname="tankfrce4",data="13 B9 05 FF 01 FF 02 FF" },
     { machine="dangseed", data="03 34 06 FF 05 FF 00 04" },
     { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
     { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },

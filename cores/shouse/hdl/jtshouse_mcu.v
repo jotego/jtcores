@@ -35,10 +35,13 @@ module jtshouse_mcu(
     output             halted,      // signals an decoding error too
     // Ports
     // cabinet I/O
+    input       [1:0]  io_mode,
     input       [1:0]  cab_1p,
     input       [1:0]  coin,
-    input       [6:0]  joystick1,
-    input       [6:0]  joystick2,
+    input       [9:0]  joystick1,
+    input       [9:0]  joystick2,
+    input       [9:0]  joystick3,
+    input       [9:0]  joystick4,
     input       [7:0]  dipsw,
     input              service,
     input              dip_test,
@@ -81,6 +84,10 @@ reg  [ 1:0] pcm_msb;
 reg  [10:0] amp1, amp0;
 reg         init_done;
 wire        wr;
+reg         cab_csl;
+reg  [ 5:0] strb_count;
+reg  [ 2:0] berabohm_btn;
+reg  [ 7:0] berabohm_force;
 
 function [2:0] gain( input [1:0] g);
     case( g )
@@ -132,6 +139,17 @@ always @(posedge clk) begin
     if( cen ) sample_cnt <= sample_cnt+1'd1;
 end
 
+always @(*) begin
+    case (strb_count[4:3])
+        0: berabohm_btn = ~joystick1[6:4];
+        1: berabohm_btn = ~joystick1[9:7];
+        2: berabohm_btn = ~joystick2[6:4];
+        3: berabohm_btn = ~joystick2[9:7];
+        default: ;
+    endcase
+    berabohm_force = berabohm_btn[0] ? 8'h7f : berabohm_btn[1] ? 8'h48 : berabohm_btn[2] ? 8'h40 : 8'h00;
+end
+
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
@@ -143,6 +161,7 @@ always @(posedge clk, negedge rstn ) begin
         lvbl_l   <= 0;
         mix      <= 0;
         init_done<= 0;
+        strb_count<=0;
     end else begin
         lvbl_l <= lvbl;
         // The IRQ is held until VB ends or the CPU acknowledges it with a write at Fxxx
@@ -159,8 +178,24 @@ always @(posedge clk, negedge rstn ) begin
         mix  <= {1'b0, amp1}+{1'b0, amp0};
         if( sample ) snd <= mix[11] != 0 ? 11'h7ff : mix[10:0];
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
-        cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
-                           { cab_1p[0], joystick1 };
+        cab_csl <= cab_cs;
+        if (cab_csl & !cab_cs) strb_count <= strb_count + 1'd1;
+        case (io_mode)
+            1: begin
+                // 4p
+            end
+            2: begin
+                // berabohm
+                cab_dout <= A[0] ? { cab_1p[1], strb_count[2], 1'b0, &strb_count[4:3], joystick2[3:0] }:
+                                   strb_count[5] ? { cab_1p[0], 3'd0, joystick1[3:0] } : berabohm_force;
+                if (strb_count == 40) strb_count <= 0;
+            end
+            3: begin
+                //quester
+            end
+            default: cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
+                                        { cab_1p[0], joystick1 };
+        endcase
         if( ram_cs && A[10:0]==0 && wr && cen ) init_done <= mcu_dout=='ha6;
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
