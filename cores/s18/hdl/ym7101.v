@@ -341,7 +341,7 @@ module ym7101
 	wire w68;
 	wire w69;
 	wire l15;
-	wire w70;
+	wire cs;
 	wire w71;
 	wire w72;
 	wire w73;
@@ -389,7 +389,7 @@ module ym7101
 	wire w114;
 	wire w115;
 	wire w116;
-	wire w117;
+	wire dtack_pull_n;
 	wire w118;
 	wire l17;
 	wire w119;
@@ -428,7 +428,6 @@ module ym7101
 	wire w144;
 	wire w145;
 	wire t18, t18_n;
-	wire w146;
 	wire t19;
 	wire t20;
 	wire w147;
@@ -436,7 +435,7 @@ module ym7101
 	wire w149;
 	wire t21;
 	wire w150;
-	wire w151;
+	wire cdd_n;
 	wire w152;
 	wire w153;
 	wire w154;
@@ -2670,7 +2669,7 @@ module ym7101
 	
 	ym_sr_bit sr15(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cnt1_of & ~w68), .sr_out(l15));
 	
-	assign w70 = cpu_sel & (io_address & 23'h738070) == 23'h600000;
+	assign cs = cpu_sel & (io_address & 23'h738070) == 23'h600000;
 	
 	assign w71 = ~cpu_sel & reg_test0[2] & w142;
 
@@ -2738,7 +2737,7 @@ module ym7101
 	assign w115 = reg_8b_b6 & w30;
 	assign w116 = w115 | w24;
 	
-	assign w117 = ~(w24 | w125 | w128 | w129 | w133); // dtack
+	assign dtack_pull_n = ~(w24 | w125 | w128 | w129 | w133); // dtack
 	
 	assign w118 = (w1 & 1'h0) | (w32 & w116) | w19;
 	
@@ -2756,9 +2755,9 @@ module ym7101
 	
 	assign w123 = reg_lsm0_latch ? w355[8] : w355[0];
 	
-	assign w124 = w70 & cpu_as & w158;
+	assign w124 = cs & cpu_as & w158;
 	
-	assign w125 = cpu_sel & w146;
+	assign w125 = cpu_sel & (w126 | w127 | w137 | w164 | w165);
 	
 	assign w126 = w152 & w162;
 	
@@ -2815,9 +2814,7 @@ module ym7101
 	assign w145 = w154 & t25 & w192 & reg_m5;
 	
 	ym7101_rs_trig rs18(.MCLK(MCLK), .set(w145), .rst(w144), .q(t18), .nq(t18_n));
-	
-	assign w146 = w126 | w127 | w137 | w164 | w165;
-	
+
 	ym7101_rs_trig rs19(.MCLK(MCLK), .set(cpu_uds), .rst(w183), .q(t19));
 	
 	ym7101_rs_trig rs20(.MCLK(MCLK), .set(cpu_lds), .rst(w183), .q(t20));
@@ -2832,7 +2829,7 @@ module ym7101
 	
 	assign w150 = t21 & w153;
 	
-	assign w151 = w152 | w47;
+	assign cdd_n = w152 | w47;
 	
 	assign w152 = w113 | w135 | w142;
 	
@@ -3428,7 +3425,7 @@ module ym7101
 	assign RAS0 = ~io_ras0;
 	assign BR_pull = ~w42;
 	assign BGACK_pull = ~w64;
-	assign DTACK_pull = ~w117;
+	assign DTACK_pull = ~dtack_pull_n;
 	assign RA = w103[7:0];
 	assign INT_pull = ~w122;
 	
@@ -7088,7 +7085,7 @@ module ym7101
 	
 	// io bus
 	
-	wire vdp_data_dir = ~w151 | ext_test_2;
+	wire vdp_data_dir = ~cdd_n | ext_test_2;
 	wire vdp_address_dir = ~w267 | ext_test_2;
 	
 	wire [22:0] io_address_val =
