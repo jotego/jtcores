@@ -177,6 +177,8 @@ jtshouse_mcu u_mcu(
     .joystick2  ( joystick2 ),
     .joystick3  ( joystick3 ),
     .joystick4  ( joystick4 ),
+    .dial1      ( dial_x    ),
+    .dial2      ( dial_y    ),
     .dipsw      ( dipsw[7:0]),
     .service    ( service   ),
     .dip_test   ( dip_test  ),
