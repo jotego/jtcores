@@ -191,7 +191,6 @@ jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk96      ( clk       ),
     .clk48      ( clk48     ),
-    .ed_clk     (           ),
 
     // Main CPU interface
     .addr       ( addr      ),

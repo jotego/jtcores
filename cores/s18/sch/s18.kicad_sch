@@ -4773,7 +4773,7 @@
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 9d7d386b-29ea-4c24-9c7e-b718203953cd)
     )
-    (pin "EDCK" output (at 359.41 212.09 0)
+    (pin "EDCK" bidirectional (at 359.41 212.09 0)
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 8fd3be5b-1ec1-4a7d-9e10-d974858d6c4b)
     )
