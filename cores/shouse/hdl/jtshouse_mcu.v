@@ -42,6 +42,8 @@ module jtshouse_mcu(
     input       [9:0]  joystick2,
     input       [9:0]  joystick3,
     input       [9:0]  joystick4,
+    input       [1:0]  dial1,
+    input       [1:0]  dial2,
     input       [7:0]  dipsw,
     input              service,
     input              dip_test,
@@ -88,6 +90,11 @@ reg         cab_csl;
 reg  [ 5:0] strb_count;
 reg  [ 2:0] berabohm_btn;
 reg  [ 7:0] berabohm_force;
+reg  [ 7:0] dial1_out;
+reg  [ 7:0] dial2_out;
+reg  [ 1:0] dial_strb;
+reg  [ 1:0] dial1_l, dial2_l;
+reg         a0_l;
 
 function [2:0] gain( input [1:0] g);
     case( g )
@@ -150,6 +157,38 @@ always @(*) begin
     berabohm_force = berabohm_btn[0] ? 8'h7f : berabohm_btn[1] ? 8'h48 : berabohm_btn[2] ? 8'h40 : 8'h00;
 end
 
+always @(posedge clk) begin
+    if (!rstn) begin
+        dial1_out <= 8'h00;
+        dial2_out <= 8'h00;
+    end else begin
+        dial1_l <= dial1;
+        case ({dial1_l, dial1})
+            4'b0001 : dial1_out <= dial1_out - 1'd1;
+            4'b0010 : dial1_out <= dial1_out + 1'd1;
+            4'b0100 : dial1_out <= dial1_out + 1'd1;
+            4'b0111 : dial1_out <= dial1_out - 1'd1;
+            4'b1000 : dial1_out <= dial1_out - 1'd1;
+            4'b1011 : dial1_out <= dial1_out + 1'd1;
+            4'b1101 : dial1_out <= dial1_out + 1'd1;
+            4'b1110 : dial1_out <= dial1_out - 1'd1;
+            default: ;
+        endcase
+        dial2_l <= dial2;
+        case ({dial2_l, dial2})
+            4'b0001 : dial2_out <= dial2_out - 1'd1;
+            4'b0010 : dial2_out <= dial2_out + 1'd1;
+            4'b0100 : dial2_out <= dial2_out + 1'd1;
+            4'b0111 : dial2_out <= dial2_out - 1'd1;
+            4'b1000 : dial2_out <= dial2_out - 1'd1;
+            4'b1011 : dial2_out <= dial2_out + 1'd1;
+            4'b1101 : dial2_out <= dial2_out + 1'd1;
+            4'b1110 : dial2_out <= dial2_out - 1'd1;
+            default: ;
+        endcase
+    end
+end
+
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
@@ -162,6 +201,7 @@ always @(posedge clk, negedge rstn ) begin
         mix      <= 0;
         init_done<= 0;
         strb_count<=0;
+        dial_strb<= 0;
     end else begin
         lvbl_l <= lvbl;
         // The IRQ is held until VB ends or the CPU acknowledges it with a write at Fxxx
@@ -179,7 +219,11 @@ always @(posedge clk, negedge rstn ) begin
         if( sample ) snd <= mix[11] != 0 ? 11'h7ff : mix[10:0];
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_csl <= cab_cs;
-        if (cab_csl & !cab_cs) strb_count <= strb_count + 1'd1;
+        a0_l <= A[0];
+        if (cab_csl & !cab_cs) begin
+            strb_count <= strb_count + 1'd1;
+            if (!a0_l) dial_strb[1] <= ~dial_strb[1]; else if (!dial_strb[1]) dial_strb[0] <= ~dial_strb[0];
+        end
         case (io_mode)
             1: begin
                 // 4p
@@ -192,6 +236,8 @@ always @(posedge clk, negedge rstn ) begin
             end
             3: begin
                 //quester
+                cab_dout <= A[0] ? ({cab_1p[1], 1'b0, dial_strb[0], joystick2[4], dial_strb[0] ? dial2_out[7:4] : dial1_out[7:4]}) :
+                                   ({cab_1p[0], dial_strb[1], 1'b0, joystick1[4], dial_strb[0] ? dial2_out[3:0] : dial1_out[3:0]});
             end
             default: cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
                                         { cab_1p[0], joystick1 };
