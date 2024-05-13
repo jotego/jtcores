@@ -658,7 +658,7 @@ u_game(
     `endif
     .sample      ( sample         ),
     .snd_en      ( 6'h3f          ),
-    .snd_vol     ( 8'h40          ),
+    .snd_vol     ( 8'h80          ), // matching value in jtframe_volume.v
     .snd_vu      (                ),
     .snd_peak    (                ),
     // Debug

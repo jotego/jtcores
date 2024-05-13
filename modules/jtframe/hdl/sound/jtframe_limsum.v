@@ -24,30 +24,31 @@
 // the output will be clipped (limited) if the sum does not fit in W bits
 // peak is set when the output is clipped
 module jtframe_limsum #(parameter
-    W = 16,
+    WI = 16,
+    WO = WI,
     K = 5   // number of input signals
 )(
     input             rst,
     input             clk,
     input             cen,
-    input   [W*K-1:0] parts,
+    input   [WI*K-1:0] parts,
     input   [K-1:0]   en,
-    output reg signed [W-1:0] sum,
+    output reg signed [WO-1:0] sum,
     output reg        peak
 );
 
-localparam WS = W+$clog2(K)+1;
+localparam WS = WI+$clog2(K)+1;
 reg signed [WS-1:0] full;
-wire       [WS-W:0] signs = full[WS-1:W-1];
+wire       [WS-WO:0] signs = full[WS-1:WO-1];
 wire v = |signs & ~&signs; // overflow
 
-function [WS-1:0] ext(input en, input [W-1:0] a);
-    ext = en ? { {WS-W{a[W-1]}}, a } : {WS{1'b0}};
+function [WS-1:0] ext(input en, input [WI-1:0] a);
+    ext = en ? { {WS-WI{a[WI-1]}}, a } : {WS{1'b0}};
 endfunction
 
 integer k;
 always @* begin
-    for(k=0;k<K;k=k+1) full = k==0? ext(en[k],parts[W-1:0]) : full+ext(en[k],parts[W*k+:W]);
+    for(k=0;k<K;k=k+1) full = k==0? ext(en[k],parts[WI-1:0]) : full+ext(en[k],parts[WI*k+:WI]);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -56,7 +57,7 @@ always @(posedge clk, posedge rst) begin
         peak <= 0;
     end else begin
         peak <= v;
-        sum  <= v ? {full[WS-1],{W-1{~full[WS-1]}}} : full[W-1:0];
+        sum  <= v ? {full[WS-1],{WO-1{~full[WS-1]}}} : full[WO-1:0];
     end
 end
 

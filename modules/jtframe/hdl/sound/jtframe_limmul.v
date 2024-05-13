@@ -25,29 +25,30 @@
 // if the result does not fit in W bits
 // peak is set and the output is clipped
 module jtframe_limmul #(parameter
-    W  = 16,
+    WI = 16,
+    WO = WI,
     WD = 7  // decimal part of the gain input (1.7=8 bits)
 )(
-    input                     rst,
-    input                     clk,
-    input                     cen,
-    input  signed     [W-1:0] sin,
-    input             [  7:0] gain,
-    input                     peaked,
+    input                      rst,
+    input                      clk,
+    input                      cen,
+    input  signed     [WI-1:0] sin,
+    input             [   7:0] gain,
+    input                      peaked,
 
-    output reg signed [W-1:0] mul,
-    output        reg         peak
+    output reg signed [WO-1:0] mul,
+    output        reg          peak
 );
 
-localparam FW=W+9, MSB=FW-1-(8-WD);
+localparam FW=WI+9, MSB=FW-1-(10-WD);
 
 wire signed [FW-1:0] full;
 wire signed [   8:0] sgain;
-wire          v;
+wire      [FW-1:MSB] signs = full[FW-1:MSB];
+wire v = |signs & ~&signs; // overflow
 
 assign sgain = {1'b0,gain};
 assign full  = sin * sgain;
-assign v     = {FW-1-MSB{full[FW-1]}}!=full[FW-2:MSB];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -55,8 +56,7 @@ always @(posedge clk, posedge rst) begin
         peak <= 0;
     end else if(cen) begin
         peak <= v | peaked;
-        mul  <= peaked ? sin :
-                     v ? {full[FW-1],{W-1{~full[FW-1]}}} : full[MSB-:W];
+        mul  <= v ? {full[FW-1],{WO-1{~full[FW-1]}}} : full[MSB-:WO];
     end
 end
 

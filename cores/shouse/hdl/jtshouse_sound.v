@@ -86,7 +86,7 @@ always @* begin
         4'b00??: rom_cs   = 1;
         4'b0100: fm_cs    = 1;
         4'b0101: cus30_cs = 1;
-        4'b0111: tri_cs   = !A[11]; // unclear whether bit A[11] is used in the decoding or not
+        4'b0111: tri_cs   = 1;
         4'b100?: ram_cs   = 1;
         4'b11??: begin
             if( !rnw ) reg_cs = 1;

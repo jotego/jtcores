@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # Copies the contents of JTBIN to a test folder
 # in MiSTer
 
@@ -25,6 +25,12 @@ HELP
 LOCAL=1
 BRANCH=
 V=
+BUILD=
+
+if [ -z "$JTROOT" ]; then
+    echo "JTROOT is undefined"
+    exit 1
+fi
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -41,11 +47,24 @@ while [ $# -gt 0 ]; do
             show_help
             exit 1;;
         *)
-            echo "Unknown argument $1"
-            exit 1;;
+            BUILD="$JTBUILDS/$1.zip"
+            if [ ! -e "$BUILD" ]; then
+                echo "Unknown argument $1"
+                exit 1
+            fi;;
     esac
     shift
 done
+
+if [ ! -z "$BUILD" ]; then
+    rm -rf $JTROOT/release
+    if unzip -l $BUILD | grep '\brelease/' > /dev/null; then
+        unzip -q $BUILD -d $JTROOT
+    else
+        mkdir $JTROOT/release
+        unzip -q $BUILD -d $JTROOT/release
+    fi
+fi
 
 if  pwd | grep "$JTBIN"; then
     echo "Copying from JTBIN as the current working dir is JTBIN"

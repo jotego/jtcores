@@ -386,7 +386,6 @@ jtframe_68kdtack_cen u_dtack( // 48 -> 8MHz
     .wait2      ( 1'd0       ),
     .wait3      ( 1'd0       ),
     // unused
-    .frst       ( 1'd0       ),
     .fave       (            ),
     .fworst     (            )
 );

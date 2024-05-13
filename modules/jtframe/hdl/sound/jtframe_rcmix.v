@@ -102,7 +102,8 @@ wire signed [WO3-1:0] ft3;
 wire signed [WO4-1:0] ft4;
 wire signed [WO5-1:0] ft5;
 wire           [ 5:0] v;        // overflow in sound chain
-wire signed    [15:0] left, right, pre_l, pre_r, mul_l, mul_r;
+wire signed    [15:0] left, right, mul_l, mul_r;
+wire signed    [16:0] pre_l, pre_r; // extra bit to allow reduction in the final gain stage
 wire                  peak_l, peak_r, pks_l, pks_r;
 wire                  cen;          // sampling frequency
 
@@ -141,7 +142,7 @@ jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3),.FIR(FIR3)) u_ch3(.rst(rs
 jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4),.FIR(FIR4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
 jtframe_sndchain #(.W(W5),.DCRM(DCRM5),.STEREO(STEFF5),.FIR(FIR5)) u_ch5(.rst(rst),.clk(clk),.cen(cen),.poles(p5),.gain(g5),.sin(sm5), .sout(ft5), .peak(v[5]));
 
-jtframe_limsum #(.W(WOUT),.K(6)) u_right(
+jtframe_limsum #(.WI(WOUT),.WO(WOUT+1),.K(6)) u_right(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( cen   ),
@@ -151,7 +152,7 @@ jtframe_limsum #(.W(WOUT),.K(6)) u_right(
     .peak   ( pks_r )
 );
 
-jtframe_limmul #(.W(16)) u_gain(
+jtframe_limmul #(.WI(WOUT+1),.WO(WOUT)) u_gain(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( cen   ),
@@ -176,7 +177,7 @@ always @(posedge clk) mixed[WOUT-1:0] <= mute ? {WOUT{1'b0}} : right;
 
 generate
     if( STEREO==1 ) begin : leftch
-        jtframe_limsum #(.W(WOUT),.K(6)) u_left(
+        jtframe_limsum #(.WI(WOUT),.WO(WOUT+1),.K(6)) u_left(
             .rst    ( rst   ),
             .clk    ( clk   ),
             .cen    ( cen   ),
@@ -191,7 +192,7 @@ generate
             .peak   ( pks_l )
         );
 
-        jtframe_limmul #(.W(16)) u_gain(
+        jtframe_limmul #(.WI(WOUT+1),.WO(WOUT)) u_gain(
             .rst    ( rst   ),
             .clk    ( clk   ),
             .cen    ( cen   ),

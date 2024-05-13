@@ -232,8 +232,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       ( fave      ),
-    .fworst     (           ),
-    .frst       ( 1'b0      )
+    .fworst     (           )
 );
 
 jtframe_m68k u_cpu(

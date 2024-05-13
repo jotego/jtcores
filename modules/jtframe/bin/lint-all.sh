@@ -12,8 +12,9 @@ FAIL=
 cd $CORES
 
 for i in *; do
+    if [ ! -d $i ]; then continue; fi
     LOG=lint-$i.log
-    $JTFRAME/devops/lint-one.sh $i 2&> $LOG
+    $JTFRAME/bin/lint-one.sh $i 2&> $LOG
     if [ -e $LOG ]; then
         if grep %Warning- $LOG > /dev/null; then
             echo "Warnings for $i"
@@ -52,8 +53,9 @@ fi
 
 if [ -z "$FAIL" ]; then
     echo "lint-all: PASS"
-    rm lint*.log
 else
     echo "lint-all: FAIL"
     exit 1
 fi
+
+rm -f lint*.log

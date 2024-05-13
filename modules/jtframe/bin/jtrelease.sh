@@ -71,11 +71,14 @@ fi
 
 REF=${JTBUILDS}${HASH:0:7}.zip
 echo $REF
-if [ ! -e $REF ]; then REF=${JTBUILDS}mister_${HASH:0:7}.zip; fi
+if [ ! -e $REF ]; then
+	echo "path `pwd`/$REF failed"
+	REF=${JTBUILDS}mister_${HASH:0:7}.zip;
+fi
 
 if [ ! -e $REF ]; then
 	echo "No build ${HASH:0:7} available"
-	echo "Tried path: $REF"
+	echo "Tried path: `pwd`/$REF"
 	exit 125
 fi
 

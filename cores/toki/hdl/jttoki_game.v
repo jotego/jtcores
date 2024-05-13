@@ -69,6 +69,7 @@ wire [15:0] z80_sound_latch_2;
 
 assign debug_view = 0;
 assign sample     = 0;
+assign dip_flip   = 0;
 
 //////// MAIN ////////////
 //

@@ -393,8 +393,7 @@ jtframe_68kdtack_cen u_dtack( // cen = 12 or 10 MHz
     .wait3      ( 1'b0       ),
     // Unused
     .fave       (            ),
-    .fworst     (            ),
-    .frst       (            )
+    .fworst     (            )
 );
 
 // interrupt generation

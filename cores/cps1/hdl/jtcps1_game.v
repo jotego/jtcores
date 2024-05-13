@@ -68,6 +68,7 @@ wire        sclk, sdi, sdo, scs;
 assign { dipsw_c, dipsw_b, dipsw_a } = ~24'd0;
 `endif
 
+wire [15:0] fave;
 wire [ 1:0] dsn;
 wire        cen10b;
 wire        cpu_cen, cpu_cenb;
@@ -86,7 +87,8 @@ assign turbo = 1;
 
 assign snd_vu       = 0;
 assign filter_old   = dipsw[24];
-assign debug_view   = { 6'd0, dump_flag, filter_old };
+assign debug_view   = debug_bus[0] ? fave[7:0] : fave[15:8];
+    //{ 6'd0, dump_flag, filter_old };
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
@@ -99,7 +101,7 @@ localparam REGSIZE=24;
 wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst48             ),
@@ -155,7 +157,8 @@ jtcps1_main u_main(
     .dip_test    ( dip_test         ),
     .dipsw_a     ( dipsw_a          ),
     .dipsw_b     ( dipsw_b          ),
-    .dipsw_c     ( dipsw_c          )
+    .dipsw_c     ( dipsw_c          ),
+    .fave        ( fave             )
 );
 `else
 assign ram_addr      = 0;

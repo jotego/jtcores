@@ -594,8 +594,7 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       ( fave      ),
-    .fworst     ( fworst    ),
-    .frst       ( rst       )
+    .fworst     ( fworst    )
 );
 
 // Shared by FD1094 and FD1089

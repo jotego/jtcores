@@ -77,7 +77,8 @@ module jtcps1_main(
     input              dip_test,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
-    input    [7:0]     dipsw_c
+    input    [7:0]     dipsw_c,
+    output   [15:0]    fave
     // QSound
     `ifdef CPS15 ,
     output reg         eeprom_sclk,
@@ -417,7 +418,7 @@ wire [4:0] cen_den;
 assign cen_num = turbo ? 4'd1 : 4'd5;
 assign cen_den = turbo ? 5'd4 : 5'd24;
 
-jtframe_68kdtack_cen u_dtack(
+jtframe_68kdtack_cen #(.MFREQ(48000),.WAIT1(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
@@ -433,9 +434,8 @@ jtframe_68kdtack_cen u_dtack(
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // unused
-    .fave       (           ),
-    .fworst     (           ),
-    .frst       (           )
+    .fave       ( fave      ),
+    .fworst     (           )
 );
 
 // interrupt generation

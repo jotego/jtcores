@@ -52,6 +52,7 @@ module jtframe_68kdtack_cen
 #(parameter W=5,
             RECOVERY=1,
             WD=6,
+            WAIT1=0,    // set to 1 to always wait for 1 cpu_cen
             MFREQ=`JTFRAME_MCLK/1000  // clk input frequency in kHz
 )(
     input         rst,
@@ -69,9 +70,8 @@ module jtframe_68kdtack_cen
     input         wait3, // high for 3 wait states
 
     output reg    DTACKn,
-    output reg [15:0] fave, // average cpu_cen frequency in kHz
-    output reg [15:0] fworst, // average cpu_cen frequency in kHz
-    input             frst
+    output  [15:0] fave, // average cpu_cen frequency in kHz
+    output  [15:0] fworst  // average cpu_cen frequency in kHz
 );
 /* verilator lint_off WIDTH */
 
@@ -109,7 +109,7 @@ always @(posedge clk) begin : dtack_gen
             DTACKn <= 1;
             wait1  <= 1; // gives a clock cycle to bus_busy to toggle
             waitsh <= {wait3,wait2};
-        end else if( !ASn ) begin
+        end else if( !ASn && (cpu_cen || WAIT1==0) ) begin
             wait1 <= 0;
             if( cpu_cen ) waitsh <= waitsh>>1;
             if( waitsh==0 && !wait1 ) begin
@@ -122,8 +122,6 @@ end
 always @* begin
     cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt} +num2;
 end
-
-
 
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
@@ -143,26 +141,14 @@ end
 /* verilator lint_on WIDTH */
 
 // Frequency reporting
-reg [15:0] freq_cnt=0, fout_cnt;
-initial fworst = 16'hffff;
+wire [3:0] nc1, nc2;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        freq_cnt <= 0;
-        fout_cnt <= 0;
-        fave     <= 0;
-        fworst   <= 0;
-    end else begin
-        freq_cnt <= freq_cnt + 1'd1;
-        if(cpu_cen && !halt) fout_cnt<=fout_cnt+1'd1;
-        if( freq_cnt == MFREQ[15:0]-16'd1 ) begin // updated every 1ms
-            freq_cnt <= 0;
-            fout_cnt <= 0;
-            fave <= fout_cnt;
-            if( fworst > fout_cnt ) fworst <= fout_cnt;
-        end
-        if( frst ) fworst <= 16'hffff;
-    end
-end
+jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .pulse  ( cpu_cen && !halt  ),
+    .fave   ( { fave, nc1 }     ),
+    .fworst ( { fworst, nc2 }   )
+);
 
 endmodule

@@ -123,7 +123,7 @@ jtframe_dual_ram #(.AW(11)) u_ram(
     .clk1   ( clk   ),
     .data1  ( xdout ),
     .addr1  ( xaddr ),
-    .we1    ( xwe && (xaddr !=0 || xdout == 8'ha6) ), // see https://github.com/jotego/jtcores/issues/410
+    .we1    ( xwe && (xaddr !=0 || xdout == 8'ha6 || xsel) ), // see https://github.com/jotego/jtcores/issues/410
     .q1     ( xdin  )
 );
 

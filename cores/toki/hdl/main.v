@@ -218,8 +218,7 @@ jtframe_68kdtack_cen  u_dtack(
     .wait3      (1'b0),
     // unused
     .fave       (),
-    .fworst     (),
-    .frst       ()
+    .fworst     ()
 );
 
 jtframe_68kdma #(.BW(1)) u_arbitration(

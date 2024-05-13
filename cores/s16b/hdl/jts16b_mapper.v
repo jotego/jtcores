@@ -306,8 +306,7 @@ jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .wait2      ( dtack_cyc==2 ),
     .wait3      ( dtack_cyc==3 ),
     .fave       ( fave      ),
-    .fworst     ( fworst    ),
-    .frst       ( 1'b0      )
+    .fworst     ( fworst    )
 );
 
 always @(posedge clk) begin

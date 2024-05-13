@@ -126,7 +126,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_limsum #(.W(12),.K(2)) u_limsum(
+jtframe_limsum #(.WI(12),.K(2)) u_limsum(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( 1'b1  ),
