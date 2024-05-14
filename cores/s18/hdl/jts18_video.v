@@ -190,7 +190,6 @@ jts18_video16 u_video16(
 jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk96      ( clk       ),
-    .clk48      ( clk48     ),
 
     // Main CPU interface
     .addr       ( addr      ),

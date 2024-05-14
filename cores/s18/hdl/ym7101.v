@@ -63,7 +63,7 @@ module ym7101
 	input HL,
 	input SEL0,
 	input PAL,
-	input RESET,
+	input RESET, // active low
 	//input SEL1,
 	input CLK1_i,
 	output CLK1_o,

@@ -19,7 +19,6 @@
 module jts18_vdp(
     input              rst,
     input              clk96,
-    input              clk48,
 
     // Main CPU interface
     input       [23:1] addr,
@@ -82,8 +81,8 @@ always @(posedge clk96, posedge rst) begin
         end
     end
 end
-// reg clk2=0;
-// always @(posedge clk96) clk2 <= ~clk2;
+reg clk2=0;
+always @(posedge clk96) clk2 <= ~clk2;
 wire EDCLK_d, EDCLK_o, BGACK_pull;
 
 always @(negedge clk96) rst_n <= ~rst;
@@ -92,7 +91,7 @@ always @(negedge clk96) rst_n <= ~rst;
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk96     ),
-    .MCLK_e     ( clk48     ),
+    .MCLK_e     ( clk2      ),
     .EDCLK_i    ( edclk_l   ),
     .EDCLK_o    ( EDCLK_o   ),
     .EDCLK_d    ( EDCLK_d   ),
