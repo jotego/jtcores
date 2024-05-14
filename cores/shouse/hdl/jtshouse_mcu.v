@@ -95,6 +95,7 @@ reg  [ 7:0] dial2_out;
 reg  [ 1:0] dial_strb;
 reg  [ 1:0] dial1_l, dial2_l;
 reg         a0_l;
+reg  [ 5:0] inp_latch1, inp_latch2;
 
 function [2:0] gain( input [1:0] g);
     case( g )
@@ -202,6 +203,8 @@ always @(posedge clk, negedge rstn ) begin
         init_done<= 0;
         strb_count<=0;
         dial_strb<= 0;
+        inp_latch1<=6'h1f;
+        inp_latch2<=6'h1f;
     end else begin
         lvbl_l <= lvbl;
         // The IRQ is held until VB ends or the CPU acknowledges it with a write at Fxxx
@@ -221,12 +224,36 @@ always @(posedge clk, negedge rstn ) begin
         cab_csl <= cab_cs;
         a0_l <= A[0];
         if (cab_csl & !cab_cs) begin
-            strb_count <= strb_count + 1'd1;
+            if (a0_l) strb_count <= strb_count + 1'd1;
             if (!a0_l) dial_strb[1] <= ~dial_strb[1]; else if (!dial_strb[1]) dial_strb[0] <= ~dial_strb[0];
         end
         case (io_mode)
             1: begin
                 // 4p
+                if (strb_count[2:0] == 3'b111) begin
+                    cab_dout <= A[0] ? { cab_1p[1], 4'h0, strb_count[5:3] } :
+                                       { cab_1p[0], 1'b0, inp_latch1 };
+                    if(A[0]) case (strb_count[5:3])
+                        0: begin
+                            inp_latch1 <= {1'b0, joystick1[4:0]};
+                            inp_latch2 <= {joystick4[2:0], 3'd0};
+                        end
+                        3:begin
+                            inp_latch1 <= {1'b0, joystick3[4:0]};
+                        end
+                        4:begin
+                            inp_latch1 <= {1'b0, joystick2[4:0]};
+                            inp_latch2 <= {1'b0, joystick4[4:3], 3'd0};
+                        end
+                        default: begin
+                            inp_latch1 <= 6'h1f;
+                            inp_latch2 <= 6'h1f;
+                        end
+                    endcase
+                end else begin
+                    cab_dout <= A[0] ? { cab_1p[1], 1'b1, inp_latch2 } :
+                                       { cab_1p[0], 1'b0, inp_latch1 };
+                end
             end
             2: begin
                 // berabohm
@@ -239,8 +266,8 @@ always @(posedge clk, negedge rstn ) begin
                 cab_dout <= A[0] ? ({cab_1p[1], 1'b0, dial_strb[0], joystick2[4], dial_strb[0] ? dial2_out[7:4] : dial1_out[7:4]}) :
                                    ({cab_1p[0], dial_strb[1], 1'b0, joystick1[4], dial_strb[0] ? dial2_out[3:0] : dial1_out[3:0]});
             end
-            default: cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
-                                        { cab_1p[0], joystick1 };
+            default: cab_dout <= A[0] ? { cab_1p[1], joystick2[6:0] }:
+                                        { cab_1p[0], joystick1[6:0] };
         endcase
         if( ram_cs && A[10:0]==0 && wr && cen ) init_done <= mcu_dout=='ha6;
         if( reg_cs ) case(A[11:10])
