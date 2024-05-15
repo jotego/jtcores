@@ -73,8 +73,10 @@ betazip jtfriday_${SHORTSTAMP}_other.zip  mra mist sidi* &
 wait
 cp *.zip $JTROOT
 if [ -d "$JTFRIDAY" ]; then
-    mkdir -p "$JTFRIDAY"/$SHORTSTAMP
-    cp *.zip "$JTFRIDAY"/$SHORTSTAMP
+    ZIPDEST="$JTFRIDAY"/$SHORTSTAMP
+    mkdir -p "$ZIPDEST"
+    cp *.zip "$ZIPDEST"
+    cp $JTUTIL/jtbeta.zip "$ZIPDEST"
 fi
 
 cd $JTROOT
