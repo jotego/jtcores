@@ -10,7 +10,6 @@
     (rev "J. Tejada")
     (company "JOTEGO")
     (comment 1 "JOTEGO")
-    (comment 2 "Drawn by: JOTEGO")
   )
 
   (lib_symbols
