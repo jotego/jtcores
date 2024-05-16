@@ -32,7 +32,7 @@ names = [
     { machine="lghost",     names="Laser Gun,Special Weapon" },
     { machine="mwalk",      names="Dance with Bomb,Shot" },
     { machine="shdancer",   names="Jump,Attack,Magic with Bomb" },
-    { machine="wwallyj",    names="Select" },
+    { machine="wwallyj",    names="Confirm" },
 ]
 
 [DIPSW]
