@@ -36,18 +36,19 @@ func parse_folder( corename string, cores_fs fs.FS, path string) {
 	if e != nil {
 		return
 	}
-	for _, k := range entries {
-		if k.IsDir() {
-			parse_folder( k.Name(), cores_fs, filepath.Join(path,k.Name()) )
-		} else if k.Name() == corename+".kicad_sch" {
-			// fullpath := filepath.Join( path, k.Name() )
-			os.Chdir(filepath.Join("cores",path))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			parse_folder( entry.Name(), cores_fs, filepath.Join(path,entry.Name()) )
+		} else if strings.HasSuffix(entry.Name(),".kicad_pro") {
+			sch_name := strings.TrimSuffix(entry.Name(),".kicad_pro")
+			os.Chdir(filepath.Join(os.Getenv("CORES"),path))
 			cmd_args := []string{
 				"kicad-cli","sch","export","pdf",
-				"--output", filepath.Join(output_folder,corename+".pdf"), k.Name(),
+				"--output", filepath.Join(output_folder,sch_name+".pdf"), sch_name+".kicad_sch",
 			}
 			if verbose {
-				fmt.Printf("Running %s\n\tin %s\n", strings.Join(cmd_args," "), path)
+				cwd,_:=os.Getwd()
+				fmt.Printf("Running:\n\t%s\n\tin %s\n", strings.Join(cmd_args," "), cwd)
 			}
 			cmd := exec.Command( cmd_args[0], cmd_args[1:]... )
 			e = cmd.Run()
