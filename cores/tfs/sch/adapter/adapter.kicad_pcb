@@ -2592,7 +2592,6 @@
   (gr_text "G" (at 159.5 63.9 90) (layer "F.SilkS") (tstamp 0ae5fdf8-3817-4805-8d1f-e2a94ffe7b67)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom))
   )
-  (gr_text "E.Triana" (at 148.2 159.1) (layer "F.SilkS") (tstamp 1ad89435-7c05-4ef7-8411-ea3dcba7e8de)
     (effects (font (size 1 1) (thickness 0.15)) (justify left bottom))
   )
   (gr_text "PARTS \nSIDE" (at 149.66 112.04) (layer "F.SilkS") (tstamp 251d29c1-62d4-4b53-8af7-f311863f5cb4)

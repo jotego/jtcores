@@ -11,7 +11,6 @@
     (rev "José Tejada G.")
     (company "CUS 315-0042 SEGA")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "Esperanza Triana")
     (comment 3 "JOTEGO")
   )
 
@@ -3715,7 +3714,6 @@
   (gr_text "www.patreon.com/jotego" (at 82.456961 97.341678) (layer "F.SilkS") (tstamp b87084c2-6e8d-4fee-92dc-fa97e47dc2e4)
     (effects (font (size 1 1) (thickness 0.15)) (justify left bottom))
   )
-  (gr_text "E.Triana\n\n" (at 82.456961 97.531678) (layer "F.SilkS") (tstamp cf6ca914-771b-46c6-9723-ae2e0564c100)
     (effects (font (size 1 1) (thickness 0.125)) (justify left bottom))
   )
 
