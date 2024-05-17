@@ -1,0 +1,48 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri May 17 16:08:20 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/test.fst"
+[dumpfile_mtime] "Fri May 17 15:58:07 2024"
+[dumpfile_size] 143742664
+[savefile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/debug.gtkw"
+[timestart] 16122510000
+[size] 1920 1052
+[pos] -1 -1
+*-21.761580 16131590000 36307165776 16131769584 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 223
+[signals_width] 219
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@23
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.PC[31:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.IPLn[2:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A7[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D7[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.SSP[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
