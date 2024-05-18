@@ -159,69 +159,6 @@ reg  [15:0] cpu_din;
 wire [15:0] mapper_dout;
 wire        none_cs;
 
-jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
-    .rst        ( rst            ),
-    .clk        ( clk            ),
-    .pxl_cen    ( pxl_cen        ),
-    .cpu_cen    ( cpu_cen        ),
-    .cpu_cenb   ( cpu_cenb       ),
-    .vint       ( vint           ),
-
-    .addr       ( cpu_A          ),
-    .cpu_dout   ( cpu_dout_raw   ),
-    .cpu_dsn    ( cpu_dsn        ),
-    .bus_dsn    ( {UDSn,  LDSn}  ),
-    .bus_cs     ( bus_cs         ),
-    .bus_busy   ( bus_busy       ),
-    // effective bus signals
-    .addr_out   ( A              ),
-
-    .none       ( none_cs        ),
-    .mapper_dout( mapper_dout    ),
-
-    // Bus sharing
-    .bus_dout   ( cpu_din        ),
-    .bus_din    ( cpu_dout       ),
-    .cpu_rnw    ( cpu_RnW        ),
-    .bus_rnw    ( RnW            ),
-    .bus_asn    ( ASn            ),
-
-    // M68000 control
-    .cpu_berrn  ( BERRn          ),
-    .cpu_brn    ( BRn            ),
-    .cpu_bgn    ( BGn            ),
-    .cpu_bgackn ( BGACKn         ),
-    .cpu_dtackn ( DTACKn         ),
-    .cpu_asn    ( cpu_asn        ),
-    .cpu_fc     ( FC             ),
-    .cpu_ipln   ( cpu_ipln       ),
-    .cpu_vpan   ( cpu_vpan       ),
-    .cpu_haltn  ( cpu_haltn      ),
-    .cpu_rst    ( cpu_rst        ),
-
-    // Sound CPU
-    .sndmap_rd  ( sndmap_rd      ),
-    .sndmap_wr  ( sndmap_wr      ),
-    .sndmap_din ( sndmap_din     ),
-    .sndmap_dout( sndmap_dout    ),
-    .sndmap_pbf ( sndmap_pbf     ),
-
-    // MCU side
-    .mcu_en     ( mcu_en         ),
-    .mcu_dout   ( mcu_dout       ),
-    .mcu_din    ( mcu_din        ),
-    .mcu_intn   ( mcu_intn       ),
-    .mcu_addr   ( mcu_addr       ),
-    .mcu_wr     ( mcu_wr         ),
-    .mcu_acc    ( mcu_acc        ),
-
-    .active     ( active         ),
-    .debug_bus  ( debug_bus      ),
-  //.debug_bus  ( 8'd0           ),
-    .st_addr    ( st_addr        ),
-    .st_dout    ( st_mapper      )
-);
-
 `ifndef NOMCU
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
@@ -372,7 +309,7 @@ always @(posedge clk) begin
                                          16'hffff;
     end
 end
-
+/* verilator tracing_off */
 jts16_fd1094 u_dec1094(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -410,6 +347,69 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
     .q      ( key_data  )
 );
 
+jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
+    .rst        ( rst            ),
+    .clk        ( clk            ),
+    .pxl_cen    ( pxl_cen        ),
+    .cpu_cen    ( cpu_cen        ),
+    .cpu_cenb   ( cpu_cenb       ),
+    .vint       ( vint           ),
+
+    .addr       ( cpu_A          ),
+    .cpu_dout   ( cpu_dout_raw   ),
+    .cpu_dsn    ( cpu_dsn        ),
+    .bus_dsn    ( {UDSn,  LDSn}  ),
+    .bus_cs     ( bus_cs         ),
+    .bus_busy   ( bus_busy       ),
+    // effective bus signals
+    .addr_out   ( A              ),
+
+    .none       ( none_cs        ),
+    .mapper_dout( mapper_dout    ),
+
+    // Bus sharing
+    .bus_dout   ( cpu_din        ),
+    .bus_din    ( cpu_dout       ),
+    .cpu_rnw    ( cpu_RnW        ),
+    .bus_rnw    ( RnW            ),
+    .bus_asn    ( ASn            ),
+
+    // M68000 control
+    .cpu_berrn  ( BERRn          ),
+    .cpu_brn    ( BRn            ),
+    .cpu_bgn    ( BGn            ),
+    .cpu_bgackn ( BGACKn         ),
+    .cpu_dtackn ( DTACKn         ),
+    .cpu_asn    ( cpu_asn        ),
+    .cpu_fc     ( FC             ),
+    .cpu_ipln   ( cpu_ipln       ),
+    .cpu_vpan   ( cpu_vpan       ),
+    .cpu_haltn  ( cpu_haltn      ),
+    .cpu_rst    ( cpu_rst        ),
+
+    // Sound CPU
+    .sndmap_rd  ( sndmap_rd      ),
+    .sndmap_wr  ( sndmap_wr      ),
+    .sndmap_din ( sndmap_din     ),
+    .sndmap_dout( sndmap_dout    ),
+    .sndmap_pbf ( sndmap_pbf     ),
+
+    // MCU side
+    .mcu_en     ( mcu_en         ),
+    .mcu_dout   ( mcu_dout       ),
+    .mcu_din    ( mcu_din        ),
+    .mcu_intn   ( mcu_intn       ),
+    .mcu_addr   ( mcu_addr       ),
+    .mcu_wr     ( mcu_wr         ),
+    .mcu_acc    ( mcu_acc        ),
+
+    .active     ( active         ),
+    .debug_bus  ( debug_bus      ),
+  //.debug_bus  ( 8'd0           ),
+    .st_addr    ( st_addr        ),
+    .st_dout    ( st_mapper      )
+);
+/* verilator tracing_on */
 jtframe_m68k u_cpu(
     .RESETn     (             ),
     .clk        ( clk         ),
