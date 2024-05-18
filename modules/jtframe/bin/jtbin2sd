@@ -10,17 +10,15 @@ a SD card with the name of the target device.
 
 Usage:
 
-jtbin2sd.sh [-l|--local]
+jtbin2sd.sh [setname] [-l|--local]
+
+Optionally indicate the setname to be used as the game to load on power up (core.arc file)
 
 -a, --all       Regenerate all .rom files (including alternates)
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
 -g, --git       Uses JTBIN as the target folder
 -r, --rom       Runs "jtframe mra" for each mra file found to get the main .rom files generated
--s, --setname   Uses the given set name as the game to load on power up (core.arc file)
 -v, --verbose
-
-future options:
--s, --setname   Uses the given setname as the core.arc
 HELP
 }
 
@@ -36,9 +34,6 @@ while [ $# -gt 0 ]; do
         -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
-        -s|--setname)
-            shift
-            SETNAME=$1;;
         -r|--rom)
             RUNMRA=1;;
         -a|--all)
@@ -49,7 +44,18 @@ while [ $# -gt 0 ]; do
         -h|--help)
             show_help
             exit 1;;
-        *) echo "Unknown argument $1"; exit 1;;
+        *)
+        if [[ "$1" = -* ]]; then
+            echo "Unknown argument $1"
+            exit 1
+        fi
+        if [ -z "$SETNAME" ]; then
+            SETNAME=$1
+        else
+            echo "Unknown argument $1"
+            echo "Setname was already set to $SETNAME"
+            exit 1
+        fi;;
     esac
     shift
 done
