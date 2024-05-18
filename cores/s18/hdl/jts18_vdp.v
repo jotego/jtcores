@@ -79,6 +79,7 @@ always @(posedge clk48, posedge rst) begin
                         cnt <= 0;
                     end
                     3'd3: ptr[ 0+:16] <= din;
+                    default:;
                 endcase
             end else begin
                 case( addr[3:1] )
