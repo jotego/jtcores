@@ -81,7 +81,8 @@ always @(posedge clk, posedge rst) begin
         st_dout   <= 0;
         snd_mode  <= 0;
     end else begin
-        LVBLl <= LVBL;
+        LVBLl    <= LVBL;
+        snd_mode <= 0;
         case( st_addr[7:6] )
             0: casez( st_addr[1:0] )
                 0: st_dout <= frame_bcd[15:8];

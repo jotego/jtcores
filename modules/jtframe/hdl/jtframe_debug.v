@@ -62,6 +62,7 @@ reg        last_p, last_m;
 integer    cnt;
 reg  [3:0] gfx_l;
 reg  [5:0] snd_l;
+reg        hex_sel;
 wire [3:0] eff_gfx;
 reg  [7:0] view_mux;
 reg        last_digit, vtoggle_l;
@@ -88,6 +89,7 @@ always @(posedge clk, posedge rst) begin
         snd_l      <= 0;
         view_sel   <= 0;
         view_mux   <= 0;
+        hex_sel    <= 0;
     end else begin
         last_p     <= debug_plus;
         last_m     <= debug_minus;
@@ -100,9 +102,9 @@ always @(posedge clk, posedge rst) begin
             view_sel <= view_sel==2 ? 2'd0 : view_sel+1'd1;
         end
         case( view_sel )
-            default:     view_mux <= debug_view;
-            SYS_INFO:    view_mux <= sys_info;
-            TARGET_INFO: view_mux <= target_info;
+            default:     { hex_sel, view_mux } <= { 1'b0,     debug_view };
+            SYS_INFO:    { hex_sel, view_mux } <= { snd_mode, sys_info };
+            TARGET_INFO: { hex_sel, view_mux } <= { 1'b0,     target_info };
         endcase
 
         if( ctrl && (debug_plus||debug_minus) ) begin
@@ -203,7 +205,7 @@ wire [3:0] display_bit_bus, display_bit_view, display_nibble_bus, display_nibble
 wire [4:0] font_pixel;
 wire [7:0] nibble_mux;
 
-assign nibble_mux          = snd_mode ? snd_vol : debug_bus;
+assign nibble_mux          = hex_sel ? snd_vol : debug_bus;
 assign display_bit_bus     = { 3'h0, debug_bus[ ~heff[5:3] ] };
 assign display_bit_view    = { 3'h0, view_mux[ ~heff[5:3] ] };
 assign display_nibble_bus  = heff[3] ? nibble_mux[3:0] : nibble_mux[7:4];
