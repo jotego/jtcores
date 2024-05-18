@@ -34,7 +34,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	p := root.AddNode("rom").AddAttr("index", "0")
 	p.AddAttr("zip", zipName(machine,cfg))
 	p.AddAttr("md5", "None") // We do not know the value yet
-	if cfg.ROM.Ddr_load {
+	if _,found := args.macros["JTFRAME_MR_DDRLOAD"]; found {
 		p.AddAttr("address", "0x30000000")
 	}
 	regions := cfg.ROM.Order

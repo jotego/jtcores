@@ -60,7 +60,6 @@ data = [
 ]
 
 [ROM]
-ddr_load=true
 regions = [
     { name="maincpu", width=16, reverse=true },
     { name="soundcpu",    start="JTFRAME_BA1_START" },

@@ -243,7 +243,6 @@ type Mame2MRA struct {
     Header HeaderCfg
 
     ROM struct {
-        Ddr_load bool
         Firmware string     // Used for consoles by the Pocket target
         Regions  []RegCfg
         Order    []string
