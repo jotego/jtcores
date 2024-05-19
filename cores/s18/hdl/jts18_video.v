@@ -100,10 +100,13 @@ module jts18_video(
 
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
-wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48;
+wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
+           scr1_sel, scr2_sel;
 
-assign scr1_addr[21-:4] = tile_bank[3:0];
-assign scr2_addr[21-:4] = tile_bank[7:4];
+assign scr1_addr[21]=0;
+assign scr2_addr[21]=0;
+assign scr1_addr[20-:4] = scr1_sel ? tile_bank[7:4] : tile_bank[3:0];
+assign scr2_addr[20-:4] = scr2_sel ? tile_bank[7:4] : tile_bank[3:0];
 
 // always @(posedge clk) begin
 //     if(pxl_cen) begin
@@ -149,7 +152,7 @@ jts18_video16 u_video16(
     .map1_data  ( map1_data ),
 
     .scr1_ok    ( scr1_ok   ),
-    .scr1_addr  (scr1_addr[17:2]), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr1_addr  ({scr1_sel,scr1_addr[16:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
     .scr1_data  ( scr1_data ),
 
     .map2_ok    ( map2_ok   ),
@@ -157,7 +160,7 @@ jts18_video16 u_video16(
     .map2_data  ( map2_data ),
 
     .scr2_ok    ( scr2_ok   ),
-    .scr2_addr  (scr2_addr[17:2]), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr2_addr  ({scr2_sel,scr2_addr[16:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
     .scr2_data  ( scr2_data ),
 
     .obj_ok     ( obj_ok    ),
