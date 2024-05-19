@@ -37,3 +37,6 @@ JTFRAME_IOCTL_RD=63552
 [mist|sidi]
 # not enough BRAM
 JTFRAME_SKIP
+
+[mister]
+JTFRAME_MR_DDRLOAD
