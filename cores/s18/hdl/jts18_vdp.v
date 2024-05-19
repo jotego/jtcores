@@ -38,17 +38,17 @@ module jts18_vdp(
 );
 `ifndef NOVDP
 wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
-            oe1, sc, se0, dtack, vs_n, CD_d,
+            oe1, sc, se0, vs_n, CD_d,
             ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d,
-            CSYNC_pull;
+            CSYNC_pull, dtack_pull;
 wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] RD_mem, AD_mem, SD_mem;
 wire [15:0] CD;
 reg         rst_n, edclk_l;
+reg  [ 2:0] edclk_cnt;
 
 // _d signals: 0 for output, 1 for input
-// assign dtackn = ~dtack;
 assign vs     = ~vs_n;
 assign SPA_B  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
@@ -67,20 +67,12 @@ always @(posedge clk96) begin
     RD_mem <= RD;
     AD_mem <= AD;
     SD_mem <= SD;
-    edclk_l <= EDCLK_d | EDCLK_o;
+    edclk_cnt <= edclk_cnt + 1'd1;
+    edclk_l <= EDCLK_d ? EDCLK_o : edclk_cnt[2]; // 12 MHz input (reverse rule for _d)
 end
 
-always @(posedge clk96, posedge rst) begin
-    if( rst ) begin
-        dtackn <= 0;
-    end else begin
-        if( asn ) begin
-            dtackn <= 1;
-        end else begin
-            if( dtack ) dtackn <= 0;
-        end
-    end
-end
+always @(posedge clk96) dtackn <= ~dtack_pull;
+
 reg clk2=0;
 always @(posedge clk96) clk2 <= ~clk2;
 wire EDCLK_d, EDCLK_o, BGACK_pull;
@@ -108,8 +100,8 @@ ym7101 u_vdp(
     .AS         ( asn       ),
     .IPL1_pull  (           ),
     .IPL2_pull  (           ),
-    .DTACK_i    ( /*dtackn*/ ~dtack    ),
-    .DTACK_pull ( dtack     ),
+    .DTACK_i    ( ~dtackn   ),
+    .DTACK_pull ( dtack_pull),
     // Z80 interface is disabled
     .BR_pull    (           ),
     .INT_pull   (           ),
@@ -181,13 +173,61 @@ vram u_vram(
 );
 /* verilator lint_on PINMISSING */
 `else
-    initial dtackn = 0;
-    assign  ed_clk = 0;
-    assign  dout   = 0;
-    assign  hs     = 0;
-    assign  vs     = 0;
-    assign  red    = 0;
-    assign  green  = 0;
-    assign  blue   = 0;
+reg [15:0] mem;
+reg [ 7:0] mmr[0:31];
+reg [31:0] ptr;
+reg        csl;
+wire cs;
+integer cnt;
+
+assign hs=0, vs=0;
+assign red=0, green=0, blue=0;
+assign cs=(addr>>4 == 23'h60_000) && !asn;
+assign dout=mem|{{8{dsn[1]}},{8{dsn[0]}}};
+
+//always @(posedge clk96) st_dout <= debug_bus[0] ? mem[0+:8] : mem[8+:8];
+
+always @(posedge clk96, posedge rst) begin
+    if( rst ) begin
+        mem <= 0;
+        cnt <= 0;
+        csl <= 0;
+        dtackn <= 0;
+    end else begin
+        dtackn <= 0;
+        csl <= cs;
+        if(cs) begin
+            if( !rnw ) begin
+                case( addr[3:1] )
+                    3'd0: begin
+                        if(!dsn[0]) mem[0+:8]<=din[0+:8];
+                        if(!dsn[1]) mem[8+:8]<=din[8+:8];
+                        if( cs && !csl ) begin
+                            $display("%X <- %X",ptr,din);
+                            cnt <= cnt+1;
+                        end
+                    end
+                    3'd2: if( din[15:13]==3'b100) begin
+                        mmr[din[12:8]]<=din[7:0];
+                    end else begin
+                        ptr[16+:16] <= din;
+                        cnt <= 0;
+                    end
+                    3'd3: ptr[ 0+:16] <= din;
+                    default:;
+                endcase
+            end else begin
+                case( addr[3:1] )
+                    3'd0: if( cs && !csl ) begin
+                        cnt <= cnt+1;
+                        $display("%X -> %X",ptr,mem);
+                    end
+                    default:;
+                endcase
+            end
+        end
+    end
+end
+
 `endif
 endmodule
