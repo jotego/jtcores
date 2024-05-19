@@ -6,7 +6,7 @@ skip = { machine="esckids" }
 names = [
     { names="Attack,Jump", machine="simpsons" },
     { names="Punch,Kick",  machine="vendetta" },
-    { names="shoot,missile/bell,power-up", machine="parodius" },
+    { names="Power-up,Shoot,Missile/Bell", machine="parodius" },
 ]
 
 [dipsw]

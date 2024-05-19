@@ -276,8 +276,8 @@ always @(posedge clk, posedge rst) begin
             end
             if(io_cs) port_in <= dipsw[15:8];
             if( joystk_cs ) case( A[1:0] )
-                2'd0: port_in <= { joystick1[5:4],joystick1[6],joystick1[1:0],joystick1[3:2],cab_1p[0] };
-                2'd1: port_in <= { joystick2[5:4],joystick2[6],joystick2[1:0],joystick2[3:2],cab_1p[1] };
+                2'd0: port_in <= { joystick1[6:4],joystick1[1:0],joystick1[3:2],cab_1p[0] };
+                2'd1: port_in <= { joystick2[6:4],joystick2[1:0],joystick2[3:2],cab_1p[1] };
                 2'd2: port_in <= { dipsw[23:20], coin[1:0], 1'b1, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
