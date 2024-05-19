@@ -1,0 +1,112 @@
+         \BJTS18\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+       PCB loaned by
+        amoore2600
+
+  Based on our own PCB
+  schematics, measurements
+  and MAME docs. Check out
+  the schematics in JTBIN
+
+        Reviewed by
+    the \RJTAlpha team\W
+
+\R___Known issues___\W
+ - MCU/MegaDrive VDP
+  still not supported
+
+ \B______ \RDIRECTORS\B _______\W
+Bender          Chris Gelatt
+Filip Kindt     Frederic Mahe
+    Fulvio Venturelli
+Jeffrey Pierce  John Lange
+    Ksenia Anastasia
+Martin Birkeldh Martin Donlon
+    Porkchop Express
+    Pramod Somashekar
+Rysha           Tulio Adriano
+Ulf Skutnabba   f3bandit
+
+
+       \BThanks to\W
+\RAhmed Alkaabi   Andrea Bogazzi
+\RArcade Express  Bob Gallardo
+\RBrian Sallee    Conor Nash
+\RDan Avedikian   Daniel Bauza
+\RER              Eric
+\REric Lewis      Halla
+\RJim Sprigler    Keith Nieves
+\RKyle Mickley    M. Fornasini
+\RNick Taylor     PD Lee
+\RPelayo Marinas  Peter Vessenes
+\RR. Martinazzo   Renaissance 2K
+\RRetroWilly      Robert Moran
+\R    Sayit BELET
+\R    Tatton Partington
+\RTony Escobar    Tony Mika
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways
+Ayoub Zebian    Blackstar
+Bryan Adams     Carrboroman
+Chris Doyle     Chris Harvey
+Christian       DMG
+Dan Bayley      Daniel Cortes
+Darren Chell    Dave Sasser
+David Moylan    Dean Winger
+Don Gafford     Ed Balan
+Eduardo Javier  EmperorStorky
+Fred Jorge      Gareth Jones
+    Gus Douboulidis
+    Hendrik Osterholz
+    Henrik Nordstrom
+    Hugues Gelszinnis
+    INAKI ECHEVARRIA
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef
+Joe Tassone     Joeri van
+John Casey      John Figueroa
+John Silva      Jose Pulgar
+Josh O'Roake    Juan Sandoval
+JuanRa          Keith F. Kelly
+    Kenneth Basteiro
+Kent Pendragon  Leslie Law
+    Lionel LENOBLE
+    Lukas Hinterleitner
+M. Ferguson     Marcus Hogue
+Matt Hargett    Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan
+Nima            Nunzio Mannino
+Oliver Jaksch   Oscar Laguna
+Peter Bray      Retro_Brewz
+Richard MS      Rob Jenkins
+Robert MacLean  Robert Mullings
+Roman Buser     Shane Lynch
+Steven Wilson   SwitchOver
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Victor Gomariz  Vitor Duarte
+albertprime     amoore2600
+hyp36rmax       ultimatekd
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it
+
+      -   A. Pocket  -
+    Unzip jtbeta.zip into
+    Assets/jtpatreon/common
