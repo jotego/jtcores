@@ -35,7 +35,7 @@ module vram
 	reg [15:0] addr;
 	reg dt;
 	reg [7:0] addr_ser;
-	reg [2047:0] ser;
+	reg [7:0] addr_ser_page;
 	
 	reg o_OE;
 	reg o_RAS;
@@ -46,47 +46,20 @@ module vram
 	wire cas = ~RAS & ~CAS;
 	wire wr = ~RAS & ~CAS & ~WE;
 	wire rd = ~RAS & ~CAS & ~OE & ~dt;
-	
-	wire [7:0] mem_addr = addr[15:8];
-	wire [31:0] mem_be;
-	wire [2047:0] mem_o;
-	
-	wire [7:0] slice_s[0:255];
-	wire [7:0] slice_p[0:255];
-	
-	genvar i;
-	generate
-		for (i = 0; i < 32; i = i + 1)
-		begin : l1
-			assign mem_be[i] = addr[4:0] == i;
-		end
-		for (i = 0; i < 8*32; i = i + 1)
-		begin : l2
-			jtframe_ram #(.DW(8),.AW(8)) u_mem(
-				.clk	( MCLK		),
-				.cen	( 1'b1		),
-				.addr   ( mem_addr  ),
-				.data	( RD_i		),
-				.we		( wr && (addr[7:5] == i[5+:3]) && mem_be[i[4:0]] ),
-				.q		( mem_o[(8*i)+:8] )
-			);
-			// vram_ip mem
-			// 	(
-			// 	.clock(MCLK),
-			// 	.address(mem_addr),
-			// 	.byteena(mem_be),
-			// 	.data({32{RD_i}}),
-			// 	.wren(wr & (addr[7:5] == i)),
-			// 	.q(mem_o[(256*(i+1)-1):(256*i)])
-			// 	);
-		end
-		for (i = 0; i < 256; i = i + 1)
-		begin : l3
-			assign slice_p[i] = mem_o[(8*(i+1)-1):(8*i)];
-			assign slice_s[i] = ser[(8*(i+1)-1):(8*i)]; 
-		end
-	endgenerate
-	
+
+	reg [7:0] mem[65536];
+	reg [7:0] ser_o;
+
+	always @(posedge MCLK) begin
+		if (wr) begin
+			mem[addr] <= RD_i;
+			RD_o <= RD_i;
+		end else
+			RD_o <= mem[addr];
+
+		ser_o <= mem[{addr_ser_page, addr_ser}];
+	end
+
 	assign RD_d = ~o_valid;
 	assign SD_d = SE;
 	
@@ -99,12 +72,12 @@ module vram
 		if (dt & !o_OE & OE)
 		begin
 			addr_ser <= addr[7:0];
-			ser <= mem_o;
+			addr_ser_page <= addr[15:8];
 		end
 		else if (~o_SC & SC)
 		begin
 			addr_ser <= addr_ser + 8'h1;
-			vram_ser <= slice_s[addr_ser];
+			vram_ser <= ser_o;
 		end
 		if (o_RAS & ~RAS)
 		begin
@@ -115,15 +88,9 @@ module vram
 		begin
 			addr[7:0] <= AD;
 		end
-		if (dt & !o_OE & OE)
-		begin
-			addr_ser <= addr[7:0];
-			ser <= mem_o;
-		end
 		
 		if (rd)
 		begin
-			RD_o <= slice_p[addr[7:0]];
 			o_valid <= 1'h1;
 		end
 		else if (CAS | OE)

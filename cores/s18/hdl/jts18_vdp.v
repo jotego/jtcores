@@ -27,10 +27,12 @@ module jts18_vdp(
     input              rnw,
     input              asn,
     input       [ 1:0] dsn,
-    output reg         dtackn,
+    output             dtackn,
     // Video output
     output             hs,
     output             vs,
+    output             vde,
+    output             hde,
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue,
@@ -40,7 +42,7 @@ module jts18_vdp(
 wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
             oe1, sc, se0, vs_n, CD_d,
             ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d,
-            CSYNC_pull, dtack_pull;
+            CSYNC_pull, HSYNC_pull, dtack_pull;
 wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] RD_mem, AD_mem, SD_mem;
@@ -71,7 +73,9 @@ always @(posedge clk96) begin
     edclk_l <= EDCLK_d ? EDCLK_o : edclk_cnt[2]; // 12 MHz input (reverse rule for _d)
 end
 
-always @(posedge clk96) dtackn <= ~dtack_pull;
+reg [1:0] dtackr;
+always @(posedge clk96) dtackr <= {dtackr[0], dtack_pull};//dtackn <= ~dtack_pull;
+assign dtackn = !dtackr[0];
 
 reg clk2=0;
 always @(posedge clk96) clk2 <= ~clk2;
@@ -100,7 +104,7 @@ ym7101 u_vdp(
     .AS         ( asn       ),
     .IPL1_pull  (           ),
     .IPL2_pull  (           ),
-    .DTACK_i    ( ~dtackn   ),
+    .DTACK_i    ( dtackr[1] ),
     .DTACK_pull ( dtack_pull),
     // Z80 interface is disabled
     .BR_pull    (           ),
@@ -129,7 +133,7 @@ ym7101 u_vdp(
     // configuration
     .SEL0       ( 1'b1      ),      // always use M68k
     .HL         ( 1'b1      ),
-    .PAL        ( 1'b1      ),
+    .PAL        ( 1'b0      ),
     .ext_test_2 ( 1'b0      ),
     .CLK1_o     ( CLK1_o    ),
     .CLK1_i     ( CLK1_o    ),
@@ -145,15 +149,19 @@ ym7101 u_vdp(
     .RD_o       ( ym_RD_o   ),
     .RD_i       ( RD        ),
     // video and sound outputs
-    .HSYNC_i    ( ~hs       ),
-    .HSYNC_pull ( hs        ),
+    .HSYNC_i    (~HSYNC_pull),
+    .HSYNC_pull ( HSYNC_pull),
     .CSYNC_i    (~CSYNC_pull),
     .CSYNC_pull ( CSYNC_pull),
-    .VSYNC      ( vs_n      ),
+    .VSYNC      (           ), // used as pixel clock output via test register setting
     .SOUND      (           ),
     .DAC_R      ( red       ),
     .DAC_G      ( green     ),
-    .DAC_B      ( blue      )
+    .DAC_B      ( blue      ),
+    .vdp_hsync2 ( hs        ), // hsync without 'fast' lines in vblank
+    .vdp_vsync2 ( vs_n      ), // vsync regardless of test bit
+    .vdp_de_h   ( hde       ),
+    .vdp_de_v   ( vde       )
 );
 
 vram u_vram(

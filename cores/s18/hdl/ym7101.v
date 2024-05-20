@@ -116,6 +116,7 @@ module ym7101
 	output vdp_m2, // v28/v30
 	output vdp_lcb,
 	output vdp_psg_clk1,
+	output vdp_vsync2,
 	output vdp_hsync2,
 	input  vdp_cramdot_dis,
 	output vdp_dma_oe_early,
@@ -7225,6 +7226,7 @@ module ym7101
 	ym_sr_bit vdp_hsync2_delay3_sr(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vdp_hsync2_1), .sr_out(vdp_hsync2_delay3));
 	
 	assign vdp_hsync2 = vdp_hsync2_delay3;
+	assign vdp_vsync2 = w373;
 	
 	assign w1076_dp = { color_pal, color_index };
 	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617_dp(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w1076_dp), .data_out(l617_dp));
