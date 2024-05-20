@@ -29,7 +29,7 @@ fi
 
 cd $JTUTIL
 BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
-echo -n $BETAKEY > beta.bin
+echo -n $BETAKEY | xxd -r -p > beta.bin
 zip jtbeta.zip beta.bin
 
 echo "Beta key updated in \$JTUTIL"
