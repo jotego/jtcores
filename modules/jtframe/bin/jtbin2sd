@@ -15,7 +15,6 @@ jtbin2sd.sh [setname] [-l|--local]
 Optionally indicate the setname to be used as the game to load on power up (core.arc file)
 
 -a, --all       Regenerate all .rom files (including alternates)
--l, --local     Uses JTROOT/release instead of JTBIN (default)
 -g, --git       Uses JTBIN as the target folder
 -r, --rom       Runs "jtframe mra" for each mra file found to get the main .rom files generated
 -v, --verbose
@@ -31,7 +30,6 @@ MAINONLY=--mainonly
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
         -r|--rom)

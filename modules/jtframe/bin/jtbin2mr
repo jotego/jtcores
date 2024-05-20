@@ -9,21 +9,22 @@ cat<<HELP
 Copies the contents of JTBIN or the release folder to
 a MiSTer device in the network.
 
+If called with a git hash, extracts the contents of
+\$JTBUILDS/hash.zip to \$JTROOT/release first and then
+copies it to MiSTer.
+
 Usage:
 
-jtbin2mr [-l|--local]
+jtbin2mr [build hash]
 
--b, --branch    Creates a branch in JTBIN with the current date
--l, --local     Uses JTROOT/release instead of JTBIN (default)
 -m, --mr        MiSTer host name or IP address
--g, --git       Uses JTBIN as the target folder
+-g, --git       Uses JTBIN as the source folder, rather than \$JTROOT/release
 -h, --help      Help
 -v, --verbose
 HELP
 }
 
 LOCAL=1
-BRANCH=
 V=
 BUILD=
 
@@ -34,8 +35,6 @@ fi
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -l|--local) LOCAL=1;;
-        -b|--branch) BRANCH=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
         -m|--mr)
@@ -49,6 +48,7 @@ while [ $# -gt 0 ]; do
         *)
             BUILD="$JTBUILDS/$1.zip"
             if [ ! -e "$BUILD" ]; then
+                echo "Cannot find $BUILD"
                 echo "Unknown argument $1"
                 exit 1
             fi;;
@@ -72,7 +72,6 @@ elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
 
-
 if [ -z "$MISTERPASSWD" ]; then
     echo "Define the MiSTer password in the environment variable MISTERPASSWD"
     exit 1
@@ -93,12 +92,6 @@ ROOT=$TEMP/_JTBIN
 CORES=$ROOT/cores
 
 mkdir -p $CORES
-
-if [ ! -z "$BRANCH" ]; then
-    pushd .
-    git checkout --branch $(date +"%Y%m%d")
-    popd
-fi
 
 if [ -d $JTBIN/mister ]; then
     cp $JTBIN/mister/*.rbf $CORES

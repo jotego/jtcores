@@ -28,7 +28,7 @@ if [[ -z "$JTROOT" || ! -d "$JTROOT" ]]; then
 fi
 
 cd $JTUTIL
-BETAKEY=$(printf "%04X" $RANDOM)
+BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
 echo -n $BETAKEY > beta.bin
 zip jtbeta.zip beta.bin
 
