@@ -51,11 +51,8 @@ module vram
 	reg [7:0] ser_o;
 
 	always @(posedge MCLK) begin
-		if (wr) begin
-			mem[addr] <= RD_i;
-			RD_o <= RD_i;
-		end else
-			RD_o <= mem[addr];
+		RD_o <= mem[addr];
+		if (wr) mem[addr] <= RD_i;
 
 		ser_o <= mem[{addr_ser_page, addr_ser}];
 	end
