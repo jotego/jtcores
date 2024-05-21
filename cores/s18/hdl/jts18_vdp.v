@@ -47,6 +47,7 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] RD_mem, AD_mem, SD_mem;
 wire [15:0] CD;
+wire        EDCLK_d, EDCLK_o, BGACK_pull;
 reg         rst_n, edclk_l;
 reg  [ 2:0] edclk_cnt;
 
@@ -79,7 +80,6 @@ assign dtackn = !dtackr[0];
 
 reg clk2=0;
 always @(posedge clk96) clk2 <= ~clk2;
-wire EDCLK_d, EDCLK_o, BGACK_pull;
 
 always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */

@@ -103,7 +103,7 @@ end
 /* verilator tracing_on */
 jts18_main u_main(
     .rst        ( rst       ),
-    .clk        ( clk48     ),
+    .clk        ( clk       ),
     .clk_rom    ( clk       ),  // same clock - at least for now
     .cpu_cen    ( cpu_cen   ),
     .cpu_cenb   ( cpu_cenb  ),
@@ -181,7 +181,7 @@ jts18_main u_main(
 /* verilator tracing_off */
 jts18_sound u_sound(
     .rst        ( rst       ),
-    .clk        ( clk48     ),
+    .clk        ( clk       ),
     .cen_fm     ( cen_fm    ),  //  8 MHz
     .cen_pcm    ( cen_pcm   ),  // 10 MHz
 
@@ -215,8 +215,8 @@ jts18_sound u_sound(
 /* verilator tracing_on */
 jts18_video u_video(
     .rst        ( rst       ),
-    .clk        ( clk       ),
-    .clk48      ( clk48     ),
+    .clk96      ( clk96     ),
+    .clk48      ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_48cen ( pxl2_48cen),

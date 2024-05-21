@@ -18,7 +18,7 @@
 
 module jts18_video(
     input              rst,
-    input              clk,
+    input              clk96,
     input              clk48,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
@@ -199,7 +199,7 @@ jts18_video16 u_video16(
 /* verilator tracing_on */
 jts18_vdp u_vdp(
     .rst        ( rst       ),
-    .clk96      ( clk       ),
+    .clk96      ( clk96     ),
 
     // Main CPU interface
     .addr       ( addr      ),
@@ -222,7 +222,7 @@ jts18_vdp u_vdp(
 
 jts18_colmix u_colmix(
     .rst        ( rst       ),
-    .clk        ( clk       ),
+    .clk        ( clk48     ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
