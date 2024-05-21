@@ -1,5 +1,5 @@
-# 48 MHz clock
 CORENAME=JTS18
+JTFRAME_SIM96
 
 # Debug
 NOMCU

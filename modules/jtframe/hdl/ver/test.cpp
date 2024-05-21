@@ -696,7 +696,9 @@ SDRAM::~SDRAM() {
 
 void JTSim::reset( int v ) {
     game.rst = v;
+#ifdef _JTFRAME_SIM96
     game.rst96 = v;
+#endif
     game.rst24 = v;
 }
 
@@ -713,8 +715,10 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     // Derive the clock speed from _JTFRAME_PLL
 #ifdef _JTFRAME_PLL
     semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
-#else
+#elif _JTFRAME_SIM96 || _JTFRAME_SDRAM96
     semi_period = (vluint64_t)(10416/2); // 96MHz
+#else
+    semi_period = (vluint64_t)10416; // 48MHz
 #endif
     fprintf(stderr,"Simulation clock period set to %d ps (%f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
 #ifdef _LOADROM
@@ -753,7 +757,9 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     reset(1);
     clock(48);
     game.sdram_rst = 0;
+#ifdef _JTFRAME_SIM96
     game.rst96 = 0;
+#endif
     clock(10);
     // Wait for the SDRAM initialization
     for( int k=0; k<1000 && game.sdram_init==1; k++ ) clock(1000);
@@ -785,15 +791,21 @@ JTSim::~JTSim() {
 void JTSim::clock(int n) {
     static int ticks=0;
     static int last_dwnd=0;
+#ifdef _JTFRAME_SIM96
     n <<= 2;
+#endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-        game.clk24 = (ticks & 2) == 0 ? 0 : 1;
+        game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
 #ifdef _JTFRAME_CLK48
     game.clk48 = 1-game.clk48;
 #endif
+#ifdef _JTFRAME_SIM96
         game.clk96 = 1;
         game.clk   = 1-game.clk;
+#else
+        game.clk = 1;
+#endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
@@ -821,7 +833,11 @@ void JTSim::clock(int n) {
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
+#ifdef _JTFRAME_SIM96
         game.clk96 = 0;
+#else
+        game.clk = 0;
+#endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
