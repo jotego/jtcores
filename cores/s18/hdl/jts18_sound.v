@@ -122,7 +122,7 @@ jt12 u_fm0(
     .wr_n       ( io_wrn        ),
 
     .dout       ( fm0_dout      ),
-    .irq_n      (               ),
+    .irq_n      ( int_n         ),
     // configuration
     .en_hifi_pcm( 1'b1          ),
     // combined output
@@ -141,7 +141,7 @@ jt12 u_fm1(
     .wr_n       ( io_wrn        ),
 
     .dout       ( fm1_dout      ),
-    .irq_n      ( int_n         ),
+    .irq_n      (               ),
     // configuration
     .en_hifi_pcm( 1'b1          ),
     // combined output
