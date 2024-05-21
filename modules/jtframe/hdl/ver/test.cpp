@@ -713,10 +713,8 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     // Derive the clock speed from _JTFRAME_PLL
 #ifdef _JTFRAME_PLL
     semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
-#elif _JTFRAME_CLK96 || _JTFRAME_SDRAM96
-    semi_period = (vluint64_t)(10416/2); // 96MHz
 #else
-    semi_period = (vluint64_t)10416; // 48MHz
+    semi_period = (vluint64_t)(10416/2); // 96MHz
 #endif
     fprintf(stderr,"Simulation clock period set to %d ps (%f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
 #ifdef _LOADROM
@@ -787,22 +785,15 @@ JTSim::~JTSim() {
 void JTSim::clock(int n) {
     static int ticks=0;
     static int last_dwnd=0;
-#ifdef _JTFRAME_CLK96
     n <<= 2;
-#endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-        // clk24 not supported together with _JTFRAME_CLK96
-        game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
+        game.clk24 = (ticks & 2) == 0 ? 0 : 1;
 #ifdef _JTFRAME_CLK48
     game.clk48 = 1-game.clk48;
 #endif
-#ifdef _JTFRAME_CLK96
         game.clk96 = 1;
         game.clk   = 1-game.clk;
-#else
-        game.clk = 1;
-#endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
@@ -830,11 +821,7 @@ void JTSim::clock(int n) {
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
-#ifdef _JTFRAME_CLK96
         game.clk96 = 0;
-#else
-        game.clk = 0;
-#endif
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
