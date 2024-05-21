@@ -90,12 +90,10 @@ jtframe_rsthold u_hold(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .hold   ( hold_rst  ),
-    .rst_h  ( rst_h     )
-`ifdef JTFRAME_CLK24 ,
+    .rst_h  ( rst_h     ),
     .rst24  ( rst24     ),
     .clk24  ( clk24     ),
     .rst24_h( rst24_h   )
-`endif
 `ifdef JTFRAME_CLK48 ,
     .rst48  ( rst48     ),
     .clk48  ( clk48     ),
@@ -106,18 +104,14 @@ jtframe_rsthold u_hold(
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .rst        ( rst_h     ),
     .clk        ( clk       ),
-`ifdef JTFRAME_CLK24
     .rst24      ( rst24_h   ),
     .clk24      ( clk24     ),
-`endif
 `ifdef JTFRAME_CLK48
     .rst48      ( rst48_h   ),
     .clk48      ( clk48     ),
 `endif
-`ifdef JTFRAME_CLK96
     .rst96      ( rst96     ),
     .clk96      ( clk96     ),
-`endif
     // Audio channels
     {{if .Audio.Mute}}.mute( mute ),
     {{end}}{{ range .Audio.Channels -}}

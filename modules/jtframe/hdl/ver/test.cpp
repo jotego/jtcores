@@ -696,12 +696,8 @@ SDRAM::~SDRAM() {
 
 void JTSim::reset( int v ) {
     game.rst = v;
-#ifdef _JTFRAME_CLK96
     game.rst96 = v;
-#endif
-#ifdef _JTFRAME_CLK24
     game.rst24 = v;
-#endif
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
@@ -759,9 +755,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     reset(1);
     clock(48);
     game.sdram_rst = 0;
-#ifdef _JTFRAME_CLK96
     game.rst96 = 0;
-#endif
     clock(10);
     // Wait for the SDRAM initialization
     for( int k=0; k<1000 && game.sdram_init==1; k++ ) clock(1000);
@@ -798,9 +792,8 @@ void JTSim::clock(int n) {
 #endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-#ifdef _JTFRAME_CLK24    // not supported together with _JTFRAME_CLK96
+        // clk24 not supported together with _JTFRAME_CLK96
         game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
-#endif
 #ifdef _JTFRAME_CLK48
     game.clk48 = 1-game.clk48;
 #endif

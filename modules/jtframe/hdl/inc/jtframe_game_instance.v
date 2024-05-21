@@ -64,13 +64,13 @@ assign sim_dwnld_busy = dwnld_busy;
 u_game(
     .rst         ( game_rst       ),
     // The main clock is always the same one as the SDRAM
-    .clk         ( clk_rom        ), `ifdef JTFRAME_CLK96
+    .clk         ( clk_rom        ),
     .clk96       ( clk96          ),
-    .rst96       ( rst96          ), `endif `ifdef JTFRAME_CLK48
+    .rst96       ( rst96          ), `ifdef JTFRAME_CLK48
     .clk48       ( clk48          ),
-    .rst48       ( rst48          ), `endif `ifdef JTFRAME_CLK24
+    .rst48       ( rst48          ), `endif
     .clk24       ( clk24          ),
-    .rst24       ( rst24          ), `endif
+    .rst24       ( rst24          ),
     // Video
     .pxl2_cen    ( pxl2_cen       ),
     .pxl_cen     ( pxl_cen        ),

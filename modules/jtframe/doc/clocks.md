@@ -4,10 +4,10 @@ Games are expected to operate on a 48MHz clock using clock enable signals. There
 
  clock input | Macro Needed
 -------------|--------------
+clk96        | Always present
+clk24        | Always present
 clk          | 48MHz unless JTFRAME_SDRAM96 is defined, then 96MHz
-clk96        | JTFRAME_CLK96
 clk48        | JTFRAME_CLK48
-clk24        | JTFRAME_CLK24
 
 Note that although clk24 is obtained without affecting the main clock input, if **JTFRAME_SDRAM96** is defined, the main clock input moves up from 48MHz to 96MHz. The 48MHz clock can the be obtained from clk48 if **JTFRAME_CLK48** is defined too. This implies that the SDRAM will be clocked at 96MHz instead of 48MHz. The constraints in the SDC files have to match this clock variation.
 
