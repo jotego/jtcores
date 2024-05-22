@@ -54,6 +54,8 @@ reg         rst_n, edclk_l, clk2=0;
 reg  [ 2:0] edclk_cnt;
 reg  [ 1:0] dtackr;
 
+initial st_dout = 0;
+
 assign vs     = ~vs_n;
 assign SPA_B  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
