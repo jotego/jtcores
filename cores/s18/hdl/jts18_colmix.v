@@ -49,8 +49,8 @@ jtframe_blank #(.DLY(2),.DW(24)) u_blank(
     .LHBL       ( LHBL_dly  ),
     .LVBL       ( LVBL_dly  ),
     .preLBL     (           ),
-    .rgb_in     (     ),
-    .rgb_out    ( {red,green,blue}   )
+    .rgb_in     ( { pr,   pg,  pb} ),
+    .rgb_out    ( {red,green,blue} )
 );
 
 endmodule
