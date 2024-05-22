@@ -237,7 +237,7 @@ spdif spdif(
     .sample_i({snd_padded_right[19:4], snd_padded_left[19:4]})
 );
 `else
-assign I2S_DATA=0, SPDIF=0;
+assign I2S_DATA=0, SPDIF=0, I2S_BCK=0, I2S_LRCK=0;
 `endif
 `endif
 

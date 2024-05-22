@@ -31,16 +31,26 @@ module jts18_colmix(
     output       [7:0] red,   green, blue
 );
 
-wire [7:0] ex_r, ex_g, ex_b;
+wire [7:0] ex_r, ex_g, ex_b, pr, pg, pb;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
 
-assign LHBL_dly = LHBL;
-assign LVBL_dly = LVBL;
-assign red      = gfx_en[2] ? ex_r : vdp_r;
-assign green    = gfx_en[2] ? ex_g : vdp_g;
-assign blue     = gfx_en[2] ? ex_b : vdp_b;
+assign pr = gfx_en[2] ? ex_r : vdp_r;
+assign pg = gfx_en[2] ? ex_g : vdp_g;
+assign pb = gfx_en[2] ? ex_b : vdp_b;
+
+jtframe_blank #(.DLY(2),.DW(24)) u_blank(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .preLHBL    ( LHBL      ),
+    .preLVBL    ( LVBL      ),
+    .LHBL       ( LHBL_dly  ),
+    .LVBL       ( LVBL_dly  ),
+    .preLBL     (           ),
+    .rgb_in     (     ),
+    .rgb_out    ( {red,green,blue}   )
+);
 
 endmodule

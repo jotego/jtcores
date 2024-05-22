@@ -30,7 +30,7 @@
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off SELRANGE */
 /* xxverilator lint_off UNOPTFLAT */
-/* verilator tracing_off */
+/* verilator tracing_on */
 module ym7101
 	(
 	input MCLK,
@@ -63,7 +63,7 @@ module ym7101
 	input HL,
 	input SEL0,
 	input PAL,
-	input RESET,
+	input RESET, // active low
 	//input SEL1,
 	input CLK1_i,
 	output CLK1_o,
@@ -116,6 +116,7 @@ module ym7101
 	output vdp_m2, // v28/v30
 	output vdp_lcb,
 	output vdp_psg_clk1,
+	output vdp_vsync2,
 	output vdp_hsync2,
 	input  vdp_cramdot_dis,
 	output vdp_dma_oe_early,
@@ -246,7 +247,7 @@ module ym7101
 	wire w14;
 	wire w15;
 	wire w16;
-	wire w17; // nc
+	// wire w17; // nc
 	wire w18;
 	wire w19;
 	wire w20;
@@ -341,7 +342,7 @@ module ym7101
 	wire w68;
 	wire w69;
 	wire l15;
-	wire w70;
+	wire cs;
 	wire w71;
 	wire w72;
 	wire w73;
@@ -389,7 +390,7 @@ module ym7101
 	wire w114;
 	wire w115;
 	wire w116;
-	wire w117;
+	wire dtack_pull_n;
 	wire w118;
 	wire l17;
 	wire w119;
@@ -428,7 +429,6 @@ module ym7101
 	wire w144;
 	wire w145;
 	wire t18, t18_n;
-	wire w146;
 	wire t19;
 	wire t20;
 	wire w147;
@@ -436,7 +436,7 @@ module ym7101
 	wire w149;
 	wire t21;
 	wire w150;
-	wire w151;
+	wire cdd_n;
 	wire w152;
 	wire w153;
 	wire w154;
@@ -572,7 +572,7 @@ module ym7101
 	wire w259;
 	wire w260;
 	wire w261;
-	wire w262; // nc
+	// wire w262; // nc
 	wire w263;
 	wire w264;
 	wire w265;
@@ -2279,7 +2279,7 @@ module ym7101
 			prescaler_dff6 <= prescaler_dff5;
 			prescaler_dff7 <= ~(prescaler_dff5 & prescaler_dff6);
 			
-			prescaler_dff8 <= prescaler_dff11;
+			pres<caler_dff8 <= prescaler_dff11;
 			prescaler_dff9 <= prescaler_dff8;
 			prescaler_dff10 <= ~(prescaler_dff8 & prescaler_dff9);
 			prescaler_dff11 <= prescaler_dff10;
@@ -2487,7 +2487,7 @@ module ym7101
 	
 	assign w16 = (~l7 & w13) | (l8 & w13);
 	
-	assign w17 = l2 & l8;
+	// assign w17 = l2 & l8;
 	
 	assign w18 = w267 & l4 & l8;
 	
@@ -2670,7 +2670,7 @@ module ym7101
 	
 	ym_sr_bit sr15(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cnt1_of & ~w68), .sr_out(l15));
 	
-	assign w70 = cpu_sel & (io_address & 23'h738070) == 23'h600000;
+	assign cs = cpu_sel & (io_address & 23'h738070) == 23'h600000;
 	
 	assign w71 = ~cpu_sel & reg_test0[2] & w142;
 
@@ -2738,7 +2738,7 @@ module ym7101
 	assign w115 = reg_8b_b6 & w30;
 	assign w116 = w115 | w24;
 	
-	assign w117 = ~(w24 | w125 | w128 | w129 | w133); // dtack
+	assign dtack_pull_n = ~(w24 | w125 | w128 | w129 | w133); // dtack
 	
 	assign w118 = (w1 & 1'h0) | (w32 & w116) | w19;
 	
@@ -2756,9 +2756,9 @@ module ym7101
 	
 	assign w123 = reg_lsm0_latch ? w355[8] : w355[0];
 	
-	assign w124 = w70 & cpu_as & w158;
+	assign w124 = cs & cpu_as & w158;
 	
-	assign w125 = cpu_sel & w146;
+	assign w125 = cpu_sel & (w126 | w127 | w137 | w164 | w165);
 	
 	assign w126 = w152 & w162;
 	
@@ -2815,9 +2815,7 @@ module ym7101
 	assign w145 = w154 & t25 & w192 & reg_m5;
 	
 	ym7101_rs_trig rs18(.MCLK(MCLK), .set(w145), .rst(w144), .q(t18), .nq(t18_n));
-	
-	assign w146 = w126 | w127 | w137 | w164 | w165;
-	
+
 	ym7101_rs_trig rs19(.MCLK(MCLK), .set(cpu_uds), .rst(w183), .q(t19));
 	
 	ym7101_rs_trig rs20(.MCLK(MCLK), .set(cpu_lds), .rst(w183), .q(t20));
@@ -2832,7 +2830,7 @@ module ym7101
 	
 	assign w150 = t21 & w153;
 	
-	assign w151 = w152 | w47;
+	assign cdd_n = w152 | w47;
 	
 	assign w152 = w113 | w135 | w142;
 	
@@ -3069,7 +3067,7 @@ module ym7101
 	
 	assign w261 = w149 | 1'h0;
 	
-	assign w262 = w248 & w300;
+	// assign w262 = w248 & w300;
 	
 	assign w263 = w248 & l46;
 	
@@ -3428,7 +3426,7 @@ module ym7101
 	assign RAS0 = ~io_ras0;
 	assign BR_pull = ~w42;
 	assign BGACK_pull = ~w64;
-	assign DTACK_pull = ~w117;
+	assign DTACK_pull = ~dtack_pull_n;
 	assign RA = w103[7:0];
 	assign INT_pull = ~w122;
 	
@@ -7088,7 +7086,7 @@ module ym7101
 	
 	// io bus
 	
-	wire vdp_data_dir = ~w151 | ext_test_2;
+	wire vdp_data_dir = ~cdd_n | ext_test_2;
 	wire vdp_address_dir = ~w267 | ext_test_2;
 	
 	wire [22:0] io_address_val =
@@ -7228,6 +7226,7 @@ module ym7101
 	ym_sr_bit vdp_hsync2_delay3_sr(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vdp_hsync2_1), .sr_out(vdp_hsync2_delay3));
 	
 	assign vdp_hsync2 = vdp_hsync2_delay3;
+	assign vdp_vsync2 = w373;
 	
 	assign w1076_dp = { color_pal, color_index };
 	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617_dp(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w1076_dp), .data_out(l617_dp));

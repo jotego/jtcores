@@ -514,18 +514,14 @@ u_game(
     .rst         ( rst            ),
     // The main clock is always the same one as the SDRAM
     .clk         ( clk_rom        ),
-`ifdef JTFRAME_CLK96
     .clk96       ( clk96          ),
     .rst96       ( rst            ),
-`endif
 `ifdef JTFRAME_CLK48
     .clk48       ( clk48          ),
     .rst48       ( rst            ),
 `endif
-`ifdef JTFRAME_CLK24
     .clk24       ( clk24          ),
     .rst24       ( rst            ),
-`endif
     // Video
     .pxl2_cen    ( pxl2_cen       ),
     .pxl_cen     ( pxl_cen        ),

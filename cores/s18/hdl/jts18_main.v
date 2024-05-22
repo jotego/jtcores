@@ -152,7 +152,7 @@ wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
-wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok); // | (vdp_cs & vdp_dtackn);
+wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
@@ -191,7 +191,7 @@ jtframe_8751mcu #(
     .x_acc      ( mcu_acc       ),
 
     // ROM programming
-    .clk_rom    ( clk           ),
+    .clk_rom    ( clk_rom       ),
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data     ),
     .prom_we    ( mcu_prog_we   )

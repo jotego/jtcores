@@ -47,9 +47,7 @@ JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 b
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
 JTFRAME_CHEAT            |         | Enables the [cheat engine](cheat.md)
 JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
-JTFRAME_CLK24            |         | Adds an additional clock input
 JTFRAME_CLK48            |         | Adds an additional clock input
-JTFRAME_CLK96            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
@@ -198,6 +196,7 @@ JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
+JTFRAME_SIM96            |verilator| Produces the clk96 clock input to the game module when JTFRAME_SDRAM96 is not set
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMSCENE                 |         | Set when jtsim is called with -scene
 SIMULATION               |         | Enables simulation features

@@ -215,14 +215,12 @@ jts18_sound u_sound(
 /* verilator tracing_on */
 jts18_video u_video(
     .rst        ( rst       ),
-    .clk        ( clk       ),
-`ifdef JTFRAME_CLK96
     .clk96      ( clk96     ),
-`else
-    .clk96      ( 1'b0      ),
-`endif
+    .clk48      ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_48cen ( pxl2_48cen),
+    .pxl_48cen  ( pxl_48cen ),
 
     .flip       ( flip      ),
     .ext_flip   ( dip_flip  ),
