@@ -27,6 +27,7 @@ jtframe:
       - jtframe_lfbuf_line.v
       - jtframe_logo.v
       - jtframe_tilemap.v
+      - jtframe_linebuf.v
   - from: ram
     get:
       - jtframe_prom.v

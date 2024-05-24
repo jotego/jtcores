@@ -3,7 +3,8 @@
 module test;
 
 reg clk;
-wire [8:0] vdump, vrender, vrender1, H;
+wire [ 8:0] vdump, vrender, vrender1, H;
+wire [11:0] rgb_o;
 wire Hinit, Vinit, LHBL, LVBL, HS, VS,
      pxl2_cen, pxl_cen;
 
@@ -63,9 +64,9 @@ jtframe_hsize uut(
     .offset     ( 5'd0      ),
     .enable     ( en        ),
 
-    .r_in       ( rgb       ),
-    .g_in       ( rgb       ),
-    .b_in       ( rgb       ),
+    .r_in       ( {3'b0,vdump[8]}),
+    .g_in       ( vdump[7:4]),
+    .b_in       ( vdump[3:0]),
     .HS_in      ( HS        ),
     .VS_in      ( VS        ),
     .HB_in      ( ~LHBL     ),
@@ -75,9 +76,9 @@ jtframe_hsize uut(
     .VS_out     (           ),
     .HB_out     (           ),
     .VB_out     (           ),
-    .r_out      (           ),
-    .g_out      (           ),
-    .b_out      (           )
+    .r_out      (rgb_o[11:8] ),
+    .g_out      (rgb_o[7:4] ),
+    .b_out      (rgb_o[3:0] )
 );
 
 jtframe_vtimer #(
@@ -88,22 +89,22 @@ jtframe_vtimer #(
     .HS_START( 312 ),
     .VS_START( 253 ),
     .VS_END  ( 256 )
-    /*.HCNT_START ( 9'h020    ),
-    .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h029    ),
-    .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
-    .HS_START   ( 9'h034    ),
+    // .HCNT_START ( 9'h020    ),
+    // .HCNT_END   ( 9'h19F    ),
+    // .HB_START   ( 9'h029    ),
+    // .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
+    // .HS_START   ( 9'h034    ),
 
-    .V_START    ( 9'h0F8    ),
-    .VB_START   ( 9'h1EF    ),
-    .VB_END     ( 9'h10F    ),  //  2.56 ms
-    .VS_START   ( 9'h1FF    ),  // ~512.5us, measured on X-Men PCB
-    .VS_END     ( 9'h0FF    ),
-    .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)*/
+    // .V_START    ( 9'h0F8    ),
+    // .VB_START   ( 9'h1EF    ),
+    // .VB_END     ( 9'h10F    ),  //  2.56 ms
+    // .VS_START   ( 9'h1FF    ),  // ~512.5us, measured on X-Men PCB
+    // .VS_END     ( 9'h0FF    ),
+    // .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
 ) u_timer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      (           ),
+    .vdump      ( vdump     ),
     .vrender    (           ),
     .vrender1   (           ),
     .H          (           ),
