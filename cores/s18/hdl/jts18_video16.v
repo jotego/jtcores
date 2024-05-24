@@ -105,7 +105,7 @@ assign rpal  = { pal_dout[ 3:0], pal_dout[12] };
 assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 
-jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
+jts16_tilemap #(.MODEL(MODEL),.SCR1_DLY(10'd9),.SCR2_DLY(10'd17)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
