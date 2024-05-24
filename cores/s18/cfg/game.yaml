@@ -3,6 +3,7 @@ game:
     get:
       - "*.v"
       - "*.sv"
+      - ../syn/timing.sdc
   - from: s16b
     get:
       - jts16b_mapper.v
