@@ -111,7 +111,7 @@ assign bus_busy    = pcm_cs & ~pcm_ok;
 assign eerom_we    = epr_cs & wr;
 assign pcm_addr    = {bank, pcm_msb, A[15],A[13:0]};
 assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
-assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
+assign p1_din      = { 1'b1, service, dip_test, coin[0], coin[1], 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
 

@@ -7,14 +7,11 @@ debug = { machines=[
     "rompers", # problems with music
     # Others
     "bakutotu",
-    "berabohm",
-    # "boxyboy",
-    # "mmaze",
-    "quester",
-    # "shadowld",
+    # "berabohm",
+    # "quester",
 ], setnames=[
-    # key custom error (maybe related to being 4 players?)
-    "tankfrcej",
+    # "tankfrcej",
+    # see issue #626
     "tankfrce4",
 ] }
 
