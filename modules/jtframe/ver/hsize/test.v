@@ -9,14 +9,16 @@ wire Hinit, Vinit, LHBL, LVBL, HS, VS,
      pxl2_cen, pxl_cen;
 
 reg en=1;
-reg [1:0] cen_cnt=0,vs_cnt=0;
-reg [3:0] scale=8;
+reg [1:0] cen_cnt=0;
+reg [2:0] vs_cnt=0;
+reg [3:0] scale=5;
 reg       HSl, VSl,LHBLl;
 
 assign pxl2_cen = cen_cnt[0];
 assign pxl_cen  = cen_cnt==3;
 
-reg [3:0] linecnt=0;
+reg [1:0] linecnt=0;
+reg fin=0;
 
 initial begin
     clk = 0;
@@ -45,12 +47,13 @@ always @(posedge clk) begin
     if(   LHBL               ) rgb_cnt <= rgb_cnt+1'd1;
     if(  ~LHBL /*&  ~LHBLl*/ ) rgb_cnt <= 0; 
     //if( ~LHBL & LHBLl ) rgb_max <= rgb_cnt;
-    if( HS & ~HSl) {scale, linecnt } <= {scale, linecnt } + 1'd1;
+    //if( HS & ~HSl) {scale, linecnt } <= {scale, linecnt } + 1'd1;
     if( VS & ~VSl ) begin
+        #100 {fin,scale, linecnt } <= {fin,scale, linecnt } + 1'd1;
         en <= en+1'b1;
         vs_cnt <= vs_cnt+1;
     end;
-    if (vs_cnt==3) $finish;
+    if (fin || vs_cnt==12) #100 $finish;
 end
 
 initial #(16600*1000*4) $finish;
@@ -62,7 +65,7 @@ jtframe_hsize uut(
 
     .scale      ( scale     ),
     .offset     ( 5'd0      ),
-    .enable     ( en        ),
+    .enable     ( 1'b1      ),
 
     .r_in       ( {3'b0,vdump[8]}),
     .g_in       ( vdump[7:4]),
@@ -119,7 +122,7 @@ jtframe_vtimer #(
 initial begin
     $dumpfile("test.lxt");
     $dumpvars;
-    #10000000 $finish;
+   // #10000000 $finish;
 end
 
 endmodule
