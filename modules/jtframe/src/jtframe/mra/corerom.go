@@ -563,16 +563,26 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 			m.AddAttr("offset", fmt.Sprintf("0x%X", rom_len))
 			*pos += rom_len
 		} else {
-			if reg_cfg.Rom_len != 0 { // length attribute is sometimes needed because the dump size might be wrong
-				m.AddAttr("length", fmt.Sprintf("0x%X", reg_cfg.Rom_len))
-			}
-			if reg_cfg.Rom_len == r.Size*2 {
-				if pp != nil {
-					p.InsertNode(*pp)
-				} else {
-					p.InsertNode(*m)
+			filled := false
+			if reg_cfg.Rom_len!=0 && r.Size!=0 {
+				mirror_cnt := reg_cfg.Rom_len / r.Size
+				// fill with mirror images of the current file when it makes sense
+				// some games expect to have these mirrors either during game play or ROM checks
+				// examples in jtshouse core: quester, wldcourt, ws89. See issue #656
+				if (mirror_cnt==2 || mirror_cnt==4 || mirror_cnt==8) && reg_cfg.Rom_len%mirror_cnt==0 {
+					filled = true
+					for k:=1;k<mirror_cnt;k=k+1 {
+						if pp != nil {
+							p.InsertNode(*pp)
+						} else {
+							p.InsertNode(*m)
+						}
+						*pos += r.Size
+					}
 				}
-				*pos += r.Size
+			}
+			if reg_cfg.Rom_len != 0 && !filled { // length attribute is sometimes needed because the dump size might be wrong
+				m.AddAttr("length", fmt.Sprintf("0x%X", reg_cfg.Rom_len))
 			}
 			*pos += r.Size
 		}
