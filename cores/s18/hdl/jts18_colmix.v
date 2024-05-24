@@ -41,7 +41,7 @@ assign pr = gfx_en[2] ? ex_r : vdp_r;
 assign pg = gfx_en[2] ? ex_g : vdp_g;
 assign pb = gfx_en[2] ? ex_b : vdp_b;
 
-jtframe_blank #(.DLY(2),.DW(24)) u_blank(
+jtframe_blank #(.DLY(4),.DW(24)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( LHBL      ),
