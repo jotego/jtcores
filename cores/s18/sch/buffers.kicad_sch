@@ -1941,7 +1941,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 110ba8ec-1187-4ed0-bd35-27ec08e3ac74)
   )
-  (text "EDCK looks floating during\nMoonwalker normal operation"
+  (text "EDCK: bursts of 16MHz (low 0.8V high 2V)\nfollowed by bursts of 12MHz (proper amplitude)"
     (at 232.41 82.55 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 360599aa-cf06-41b2-b298-50685fe5141c)
@@ -1966,7 +1966,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 81b1ec30-e04e-4822-973a-d0f943d363e5)
   )
-  (text "wrong?" (at 184.15 83.82 0)
+  (text "8 MHz\nfrom VDP's ~{VSYNC} pin" (at 168.91 83.82 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 9ba16071-e2a6-4d7b-b4f3-f21d083d235a)
   )
@@ -2043,7 +2043,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 86a51beb-c13b-4596-a1ff-2e78eb40e0cd)
   )
-  (label "~{HB}" (at 170.18 85.09 0) (fields_autoplaced)
+  (label "~{HB}" (at 148.59 81.28 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8764ebdf-bbd4-46ff-90d9-9aba8c62bda7)
   )
