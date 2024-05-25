@@ -12,32 +12,26 @@ Outputs:
 17 (Registered, Output feedback registered, Active high)
 18 (Registered, Output feedback registered, Active high)
 
+pin 1 = clk = 48MHz
+
 Equations:
 
 o12 = /rf15
-o12.oe = vcc
 
-rf13 := /i2 & rf15 +
-        i2 & rf13 & /rf16 +
-        i2 & /i3 & i4 & rf16 +
-        i2 & /i4 & rf13 & rf17 +
-        i2 & /i4 & /rf13 & rf16 & /rf17
-rf13.oe = OE
+rf13 :=  rst & rf15 +
+        /rst & rf13 & /rf16 +
+        /rst & /i3 & i4 & rf16 +
+        /rst & /i4 & rf13 & rf17 +
+        /rst & /i4 & /rf13 & rf16 & /rf17
 
-rf14 := i2 & /i4 & /rf14 +
-        i2 & i4 & rf17 +
-        i2 & /i4 & rf18
-rf14.oe = OE
+preEDCK := /rst & /i4 & ( /preEDCK + EDCK ) +
+           /rst &  i4 & rf17
 
 rf15 := i6 & /rf15
-rf15.oe = OE
 
-rf16 := i2 & /rf17
-rf16.oe = OE
+# generate 12 MHz at rf17
+rf16 := /rst & /rf17
+rf17 := /rst & rf16
 
-rf17 := i2 & rf16
-rf17.oe = OE
-
-rf18 := i2 & /rf14
-rf18.oe = OE
+EDCK := /rst & /preEDCK
 
