@@ -20,6 +20,7 @@ module jts18_vdp(
     input              rst,
     input              clk96,
     input              clk48,
+    input              s16b_vs,
     // Main CPU interface
     input       [23:1] addr,
     input       [15:0] din,
@@ -50,8 +51,8 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
-wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, cen12x;
-reg         rst_n, edclk_l, clk2=0;
+wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, cen12x, reg_m5;
+reg         rst_n, edclk_l, clk2=0, wait_vs;
 reg  [ 1:0] dtackr;
 reg         clk10=0, clk12x=0;
 
@@ -76,8 +77,10 @@ always @(posedge clk96) begin
     AD_mem    <= AD;
     SD_mem    <= SD;
     edclk_l   <= debug_bus[0]^EDCLK_d ? EDCLK_o : clk12x; // 8/16 MHz input (reverse rule for _d)
-    if(cen20 ) clk10  <= ~clk10;
-    if(cen12x) clk12x <= ~clk12x;
+    if( cen20  ) clk10  <= ~clk10;
+    if( cen12x ) clk12x <= ~clk12x & ~wait_vs;
+    if( reg_m5 && !s16b_vs && vs) wait_vs <= 1;
+    if(!reg_m5 ||  s16b_vs      ) wait_vs <= 0;
 end
 
 always @(posedge clk96) dtackr <= {dtackr[0], dtack_pull};//dtackn <= ~dtack_pull;
@@ -94,6 +97,7 @@ ym7101 u_vdp(
     .EDCLK_i    ( edclk_l   ),
     .EDCLK_o    ( EDCLK_o   ),
     .EDCLK_d    ( EDCLK_d   ),
+    .reg_m5     ( reg_m5    ), // high when the VDP accepts the external pixel clock
     // M68000
     .CA_i       ( addr      ),
     .CA_o       (           ),
