@@ -101,7 +101,7 @@ module jts18_video(
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
 wire [7:0] st_s16, st_vdp;
-wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde;
+wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel;
@@ -226,6 +226,7 @@ jts18_vdp u_vdp(
     .red        ( vdp_r     ),
     .green      ( vdp_g     ),
     .blue       ( vdp_b     ),
+    .spa_b      ( vdp_spa_b ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_vdp    )
 );

@@ -33,6 +33,7 @@ module jts18_vdp(
     output             vs,
     output             vde,
     output             hde,
+    output             spa_b,
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue,
@@ -41,7 +42,7 @@ module jts18_vdp(
     output reg  [ 7:0] st_dout
 );
 `ifndef NOVDP
-wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
+wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull,
             oe1, sc, se0, vs_n, CD_d,
             ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d,
             CSYNC_pull, HSYNC_pull, dtack_pull;
@@ -57,7 +58,7 @@ reg  [ 1:0] dtackr;
 initial st_dout = 0;
 
 assign vs     = ~vs_n;
-assign SPA_B  = ~SPA_B_pull;
+assign spa_b  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
 assign RD     = ym_RD_o;
 assign dtackn = !dtackr[0];
@@ -141,7 +142,7 @@ ym7101 u_vdp(
     .BGACK_i    (~BGACK_pull),
     .BGACK_pull ( BGACK_pull),
     .INTAK      ( 1'b0      ),
-    .SPA_B_i    (SPA_B      ),
+    .SPA_B_i    (spa_b      ),
     .SPA_B_pull (SPA_B_pull ),
     .vdp_cramdot_dis( 1'b0  ),
     // other unconnected pins
@@ -193,7 +194,7 @@ assign hs=0, vs=0;
 assign red=0, green=0, blue=0;
 assign cs=(addr>>4 == 23'h60_000) && !asn;
 assign dout=mem|{{8{dsn[1]}},{8{dsn[0]}}};
-assign dtackn=0, vde=0, hde=0;
+assign dtackn=0, vde=0, hde=0, vdp_spa_b=0;
 
 always @(posedge clk48) st_dout <= debug_bus[0] ? mem[0+:8] : mem[8+:8];
 
