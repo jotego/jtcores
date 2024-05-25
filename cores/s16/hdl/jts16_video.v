@@ -93,8 +93,6 @@ module jts16_video(
 );
 
 localparam MODEL = `ifdef S16B 1; `else 0; `endif
-parameter [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
-parameter [9:0] SCR1_DLY= SCR2_DLY;
 
 wire [ 8:0] hdump;
 wire        preLHBL, preLVBL;
@@ -113,7 +111,7 @@ always @(posedge clk) begin
     alt_objbank <= MODEL && game_id[4];
 end
 
-jts16_tilemap #(.MODEL(MODEL),.SCR1_DLY(SCR1_DLY),.SCR2_DLY(SCR2_DLY)) u_tilemap(
+jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
