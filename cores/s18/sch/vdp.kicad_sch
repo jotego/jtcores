@@ -2903,7 +2903,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid f1947184-c784-41a6-a4fb-4ae7ed3b2a64)
   )
-  (text "~57Hz" (at 185.42 102.235 0)
+  (text "57.2Hz / 8MHz" (at 185.42 102.235 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid f26751dd-5d4b-4e20-a4d8-0b4fe50210ba)
   )

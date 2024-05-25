@@ -50,10 +50,10 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
-wire        EDCLK_d, EDCLK_o, BGACK_pull;
+wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, cen12x;
 reg         rst_n, edclk_l, clk2=0;
-reg  [ 2:0] edclk_cnt;
 reg  [ 1:0] dtackr;
+reg         clk10=0, clk12x=0;
 
 initial st_dout = 0;
 
@@ -75,8 +75,9 @@ always @(posedge clk96) begin
     // RD_mem    <= RD;
     AD_mem    <= AD;
     SD_mem    <= SD;
-    edclk_cnt <= edclk_cnt + 1'd1;
-    edclk_l   <= EDCLK_d ? EDCLK_o : edclk_cnt[2]; // 12 MHz input (reverse rule for _d)
+    edclk_l   <= debug_bus[0]^EDCLK_d ? EDCLK_o : clk12x; // 8/16 MHz input (reverse rule for _d)
+    if(cen20 ) clk10  <= ~clk10;
+    if(cen12x) clk12x <= ~clk12x;
 end
 
 always @(posedge clk96) dtackr <= {dtackr[0], dtack_pull};//dtackn <= ~dtack_pull;
@@ -138,7 +139,7 @@ ym7101 u_vdp(
     .PAL        ( 1'b0      ),
     .ext_test_2 ( 1'b0      ),
     .CLK1_o     ( CLK1_o    ),
-    .CLK1_i     ( CLK1_o    ),
+    .CLK1_i     ( clk10     ),
     .BGACK_i    (~BGACK_pull),
     .BGACK_pull ( BGACK_pull),
     .INTAK      ( 1'b0      ),
@@ -182,6 +183,23 @@ vram u_vram(
     .SD_d       ( vram1_SD_d)
 );
 /* verilator lint_on PINMISSING */
+
+jtframe_frac_cen #(.WC(5)) u_cen20(
+    .clk    ( clk96     ),
+    .n      ( 5'd5      ),
+    .m      ( 5'd24     ),
+    .cen    ( {nc,cen20}),
+    .cenb   (           )
+);
+
+jtframe_frac_cen #(.WC(7)) u_cen12x(
+    .clk    ( clk96     ),
+    .n      ( 7'd21     ),
+    .m      ( 7'd80     ),
+    .cen    ({nc2,cen12x}),
+    .cenb   (           )
+);
+
 `else
 reg [15:0] mem;
 reg [ 7:0] mmr[0:31];
