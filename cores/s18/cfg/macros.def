@@ -4,9 +4,6 @@ JTFRAME_SIM96
 # Debug
 NOMCU
 
-# disabling until the VDP gets fixed
-JTFRAME_NOSTA
-
 # screen
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=224
