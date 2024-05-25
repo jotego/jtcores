@@ -192,6 +192,12 @@ jtframe_frac_cen #(.WC(5)) u_cen20(
     .cenb   (           )
 );
 
+// The VDP pixel clock is set in the PCB at
+// 12MHz for 56.66us
+// 16MHz for 10   us
+// Giving an average of ~12.6MHz
+// I use a more "constant" clock, although there is still jitter
+// not sure how the VS signal gets aligned between the VDP and S16B yet
 jtframe_frac_cen #(.WC(7)) u_cen12x(
     .clk    ( clk96     ),
     .n      ( 7'd21     ),
