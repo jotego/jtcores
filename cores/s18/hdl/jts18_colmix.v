@@ -19,7 +19,8 @@
 module jts18_colmix(
     input              rst,
     input              clk,
-    input              pxl_cen, 
+    input              vdp_en,
+    input              pxl_cen,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              LHBL,
     input              LVBL,
@@ -44,6 +45,7 @@ always @(posedge clk) begin
     pr <= s16_blank ? vdp_r : ex_r;
     pg <= s16_blank ? vdp_g : ex_g;
     pb <= s16_blank ? vdp_b : ex_b;
+    if(!vdp_en) {pr,pg,pb} <= {ex_r,ex_g,ex_b};
 end
 
 jtframe_blank #(.DLY(4),.DW(24)) u_blank(

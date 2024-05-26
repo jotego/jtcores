@@ -30,7 +30,7 @@
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off SELRANGE */
 /* xxverilator lint_off UNOPTFLAT */
-/* verilator tracing_on */
+/* xxxverilator tracing_on */
 module ym7101
 	(
 	input MCLK,

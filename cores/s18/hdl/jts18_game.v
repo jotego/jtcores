@@ -58,7 +58,7 @@ reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
-assign debug_view = st_mux;
+assign debug_view = st_video; //st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;

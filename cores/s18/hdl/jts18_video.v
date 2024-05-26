@@ -104,9 +104,9 @@ wire [7:0] st_s16, st_vdp;
 wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
-           scr1_sel, scr2_sel;
+           scr1_sel, scr2_sel, vdp_on;
 
-assign st_dout = st_vdp;
+assign st_dout = {3'd0, vdp_en, 3'd0,vdp_on};
 assign scr1_addr[21]=0;
 assign scr2_addr[21]=0;
 assign scr1_addr[20-:4] = scr1_sel ? tile_bank[7:4] : tile_bank[3:0];
@@ -211,6 +211,8 @@ jts18_vdp u_vdp(
     .clk96      ( clk96     ),
     .clk48      ( clk48     ),
     .s16b_vs    ( VS        ),
+    .s16b_hs    ( HS        ),
+    .pxl_cen    ( pxl_cen   ),
     // Main CPU interface
     .addr       ( addr      ),
     .din        ( din       ),
@@ -228,6 +230,7 @@ jts18_vdp u_vdp(
     .green      ( vdp_g     ),
     .blue       ( vdp_b     ),
     .spa_b      ( vdp_spa_b ),
+    .video_en   ( vdp_on    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_vdp    )
 );
@@ -237,6 +240,7 @@ jts18_colmix u_colmix(
     .clk        ( clk48     ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
+    .vdp_en     ( vdp_en    ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .LHBL_dly   ( LHBL_dly  ),

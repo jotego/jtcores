@@ -2907,6 +2907,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid f26751dd-5d4b-4e20-a4d8-0b4fe50210ba)
   )
+  (text "~{HSYNC} pin is\nlikely connected\nto HS from the other\nchips"
+    (at 213.995 98.425 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid f59590ff-e3b7-4a27-b26f-15a4ebf65684)
+  )
   (text "dot clock" (at 156.21 72.39 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid f8108df5-9a3c-4f7a-9aad-32745b3cefa7)

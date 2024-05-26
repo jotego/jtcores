@@ -10,7 +10,7 @@
     (rev "José Tejada")
     (company "JOTEGO")
     (comment 1 "patreon.com/jotego")
-    (comment 2 "VDP pixel clock generation")
+    (comment 2 "VDP pixel clock and csync generation")
   )
 
   (lib_symbols
@@ -1922,6 +1922,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 06fa190f-8b69-449f-a68b-3abf949870cd)
   )
+  (text "~{CSYNC}=~{HS}^VS" (at 147.32 124.46 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 0c40d501-b551-49a2-9ac8-b82136b323bd)
+  )
   (text "piggyback\npins 1-2" (at 148.59 52.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 110ba8ec-1187-4ed0-bd35-27ec08e3ac74)
@@ -1992,6 +1996,11 @@
   (text "IC74" (at 140.97 144.78 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e69c4852-c112-4483-be1f-f04ce1894674)
+  )
+  (text "Removing IC74 breaks the\nHS/VS alignment between\nthe two video chipsets.\nThe VDP video appears \nshifted on the screen.\n\nBut the HS/VS rate is not\naffected, so the VDP image\nstill looks stable."
+    (at 116.205 172.085 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid fdf39bbb-e124-4de0-808c-2b236f0b6d27)
   )
   (text "IC72" (at 140.97 100.33 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))

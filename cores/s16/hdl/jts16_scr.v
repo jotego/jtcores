@@ -109,7 +109,6 @@ always @(*) begin
     endcase
     if( MODEL==0 ) page[3]=0; // Only 3-bit pages for System 16A
     hdly = flip ? 9'hc0 -hdump : hdump;
-    //if( debug_bus!=0 ) page=debug_bus[3:0];
 end
 
 reg [1:0] map_st;
