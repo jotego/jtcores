@@ -29,7 +29,7 @@ wire [12:0] cpu_addr;
 
 // SDRAM
 wire [ 9:0] scrpos;
-wire        flip, prom_we;
+wire        flip;
 
 assign dip_flip   = flip;
 assign debug_view = 0;

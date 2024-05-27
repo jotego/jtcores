@@ -55,7 +55,7 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
 wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, slow, hs_sh,
-            cen12x, clk16, clk12, reg_m5, csync, hsync;
+            cen12x, clk16, clk12, reg_m5, csync, hsync, s16_cs;
 reg         rst_n, edclk_l, clk2=0, hsl, clk12xl;
 reg  [ 1:0] dtackr;
 reg  [ 2:0] cnt8=0, cnt6=0;
@@ -239,7 +239,7 @@ assign hs=0, vs=0;
 assign red=0, green=0, blue=0;
 assign cs=(addr>>4 == 23'h60_000) && !asn;
 assign dout=mem|{{8{dsn[1]}},{8{dsn[0]}}};
-assign dtackn=0, vde=0, hde=0, vdp_spa_b=0;
+assign dtackn=0, vde=0, hde=0, spa_b=0, video_en=0;
 
 always @(posedge clk48) st_dout <= debug_bus[0] ? mem[0+:8] : mem[8+:8];
 

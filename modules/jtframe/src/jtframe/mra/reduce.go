@@ -41,7 +41,7 @@ func collect_sources(verbose bool) []string {
 				if verbose {
 					fmt.Println("Parsing ", args)
 				}
-				cfg := parse_toml(&args)
+				cfg := ParseToml( args.Toml_path, args.macros, args.Def_cfg.Core, args.Verbose)
 				sources = append(sources, cfg.Parse.Sourcefile...)
 			}
 		}

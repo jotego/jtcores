@@ -366,30 +366,30 @@ func Make_macros(cfg Config) (macros map[string]string) {
 }
 
 // Replaces all the macros (marked with a $) in the file
-func Replace_Macros(path string, macros map[string]string) string {
-	if len(path) == 0 {
-		return ""
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal("Cannot open " + path)
-	}
-	defer file.Close()
+// func Replace_Macros(path string, macros map[string]string) string {
+// 	if len(path) == 0 {
+// 		return ""
+// 	}
+// 	file, err := os.Open(path)
+// 	if err != nil {
+// 		log.Fatal("Cannot open " + path)
+// 	}
+// 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+// 	scanner := bufio.NewScanner(file)
 
-	var builder strings.Builder
+// 	var builder strings.Builder
 
-	for scanner.Scan() {
-		s := scanner.Text()
-		for k, v := range macros {
-			s = strings.ReplaceAll(s, "$"+k, v)
-		}
-		builder.WriteString(s)
-		builder.WriteString("\n")
-	}
-	return builder.String()
-}
+// 	for scanner.Scan() {
+// 		s := scanner.Text()
+// 		for k, v := range macros {
+// 			s = strings.ReplaceAll(s, "$"+k, v)
+// 		}
+// 		builder.WriteString(s)
+// 		builder.WriteString("\n")
+// 	}
+// 	return builder.String()
+// }
 
 func Get_Macros( core, target string ) (map[string]string) {
 	var def_cfg Config
