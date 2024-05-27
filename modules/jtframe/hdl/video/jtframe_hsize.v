@@ -52,13 +52,13 @@ localparam VW = 9; // Max 512 pixels including blanking
 localparam SW = 8;
 
 wire [COLORW*3-1:0] rgb_out, rgb_in;
-reg  [    VW-1:0] wrcnt, rd_out, rgbcnt,  hmax;
-reg  [      VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0, rgb_z=0;
-wire [ VW+SW-2:0] summand;
-reg  [    VW-1:0] hb0, hb1;
+reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
+reg  [        VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0;
+reg  [      SW-2:0] rdfrac=0,rgbfrac=0;
+wire [   VW+SW-2:0] summand;
+reg  [      VW-1:0] hb0, hb1;
 
-reg  VSl, HSl, LHBl, LHBll, VBl, VBll,qq,cp;
-reg  [SW-2:0] rdfrac=0,rgbfrac=0;
+reg  VSl, HSl, LHBl, LHBll, VBl, pass, over;
 
 assign rgb_in  = {r_in, g_in, b_in};
 assign summand = {{VW{1'b0}},~scale[3],{SW-6{scale[3]}},scale};
@@ -71,36 +71,39 @@ always @(posedge clk) if(pxl_cen) begin
     HB_out <= HB_in;
     HS_out <= HS_in;
     VB_out <= VB_in;
-    VS_out <= VS_in;
 
     // VB must be adjusted to prevent the bottom line from being washed out
-    if( ~HB_in & ~LHBl ) {VBll, VBl} <= {VBl, VB_in};
+    if( ~HB_in & ~LHBl ) {VB_out, VBl} <= {VBl, VB_in};
     if(  HS_in & ~HSl ) begin
-        wrcnt <= 0;
-        hmax  <= wrcnt;
-        VSl   <= VS_in;        
-        if( enable ) VS_out <= VSl;
+        wrcnt  <= 0;
+        hmax   <= wrcnt;
+        VSl    <= VS_in;        
+        VS_out <= VSl;
     end else begin
-        wrcnt <= wrcnt + 1'd1;
+        wrcnt  <= wrcnt + 1'd1;
+    end
+    if( !enable) begin 
+        VB_out <= VB_in;
+        VS_out <= VS_in;
     end
     // Register when HB toggles
     if(  LHBl   & ~LHBll  ) hb1 <= wrcnt;
     if(  HB_in  &  LHBl   ) hb0 <= wrcnt;
     // colour output
-    {r_out,g_out,b_out} <= enable ? (!HB_out && qq ? rgb_out : {3*COLORW{1'b0}}) : rgb_in;
+    {r_out,g_out,b_out} <= enable ? (!HB_out && pass ? rgb_out : {3*COLORW{1'b0}}) : rgb_in;
 end
 
 always @(posedge clk) if(pxl2_cen) begin
     {rdcnt,rdfrac} <= {rdcnt,rdfrac} + {1'b0,summand};
-    qq             <= (rgbcnt <= hb0) && (rgbcnt >= hb1);
-    if( ~HS_in &  HSl)     cp <= 1;
-    if(  HS_in & ~HSl & cp) begin 
+    pass           <= (rgbcnt <= hb0) && (rgbcnt >= hb1);
+    if( ~HS_in &  HSl)     over <= 1;
+    if(  HS_in & ~HSl & over) begin 
         {rdcnt,rdfrac} <= { {VW-4{offset[4]}}, offset,{SW-1{1'b0}} };
         rdcnt_l        <= rdcnt;
         rgbcnt         <= rgbcnt_i[VW-1:0]; 
         rgbfrac        <= 0;  
         rgbcnt_i       <= ({1'b0,hmax}-rdcnt_l)>>1;
-        cp             <= 0; //Avoids this step being done twice in the same HS
+        over           <= 0; //Avoids this step being done twice in the same HS
     end else begin 
         {rgbcnt,rgbfrac} <= {rgbcnt,rgbfrac} + summand;
     end
