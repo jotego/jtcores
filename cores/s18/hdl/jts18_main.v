@@ -135,7 +135,7 @@ wire [15:0] rom_dec, cpu_dout_raw;
 assign BUSn    = LDSn & UDSn;
 assign gray_n  = misc_o[6];
 assign flip    = misc_o[5];
-assign io_we   = io_cs && !RnW && !LDSn && !A[12];
+assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
 assign coinage = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
@@ -264,7 +264,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         vdp_prio <= 0;
     end else begin
-        if( io_cs && !RnW && !LDSn && A[12] ) vdp_prio <= cpu_dout[2:0];
+        if( io_cs && !RnW && !LDSn && A[13] && !A[12] ) vdp_prio <= cpu_dout[2:0];
     end
 end
 
