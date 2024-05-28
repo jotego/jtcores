@@ -38,6 +38,7 @@ module jts18_vdp(
     output             vde,
     output             hde,
     output             spa_b,
+    output             ys_n,
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue,
@@ -193,6 +194,7 @@ ym7101 u_vdp(
     .CSYNC_pull ( CSYNC_pull),
     .VSYNC      (           ), // used as pixel clock output via test register setting
     .SOUND      (           ),
+    .YS         ( ys_n      ), // /blank
     .DAC_R      ( red       ),
     .DAC_G      ( green     ),
     .DAC_B      ( blue      ),

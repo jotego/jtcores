@@ -29,6 +29,7 @@ wire    cpu_cen, cpu_cenb;
 // video signals
 wire [ 8:0] vrender;
 wire [ 7:0] tile_bank;
+wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 
 // SDRAM interface
@@ -57,7 +58,7 @@ reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
-assign debug_view = st_video; //st_mux;
+assign debug_view = { 5'd0, vdp_prio }; //st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
@@ -112,6 +113,7 @@ jts18_main u_main(
     .flip       ( flip      ),
     .gray_n     ( gray_n    ),
     .vdp_en     ( vdp_en    ),
+    .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
     .tile_bank  ( tile_bank ),
 
@@ -226,6 +228,7 @@ jts18_video u_video(
     .vid16_en   ( vid16_en  ),
     .vdp_en     ( vdp_en    ),
     .gfx_en     ( gfx_en    ),
+    .vdp_prio   ( vdp_prio  ),
     .gray_n     ( gray_n    ),
     .tile_bank  ( tile_bank ),
 

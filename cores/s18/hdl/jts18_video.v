@@ -49,6 +49,7 @@ module jts18_video(
     output     [15:0]  char_dout,
     output     [15:0]  obj_dout,
     output     [15:0]  vdp_dout,
+    input      [ 2:0]  vdp_prio,
     output             vint,
 
     // palette RAM
@@ -101,7 +102,7 @@ module jts18_video(
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
 wire [7:0] st_s16, st_vdp;
-wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b;
+wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel, vdp_on;
@@ -230,6 +231,7 @@ jts18_vdp u_vdp(
     .green      ( vdp_g     ),
     .blue       ( vdp_b     ),
     .spa_b      ( vdp_spa_b ),
+    .ys_n       ( vdp_ysn   ),
     .video_en   ( vdp_on    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_vdp    )
@@ -240,7 +242,12 @@ jts18_colmix u_colmix(
     .clk        ( clk48     ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
+    // VDP
     .vdp_en     ( vdp_en    ),
+    .vdp_ysn    ( vdp_ysn   ),
+    .vdp_prio   ( vdp_prio  ),
+    .vid16_en   ( vid16_en  ),
+
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .LHBL_dly   ( LHBL_dly  ),
