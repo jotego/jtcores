@@ -51,12 +51,12 @@ module jtframe_hsize #( parameter
 localparam VW = 9; // Max 512 pixels including blanking
 localparam SW = 8;
 
+wire [   VW+SW-2:0] summand;
 wire [COLORW*3-1:0] rgb_out, rgb_in;
-reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
 reg  [        VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0;
 reg  [      SW-2:0] rdfrac=0,rgbfrac=0;
-wire [   VW+SW-2:0] summand;
 reg  [      VW-1:0] hb0, hb1;
+reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
 
 reg  VSl, HSl, LHBl, LHBll, VBl, pass, over;
 
