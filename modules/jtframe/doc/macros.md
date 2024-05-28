@@ -104,7 +104,6 @@ JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
-JTFRAME_SDRAM_BANKS      |         | Game module ports will support interleaved bank access
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
 JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a large positive shift

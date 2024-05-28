@@ -12,7 +12,6 @@ JTFRAME_CREDITS
 # 4 pages, automatically requires 8 pages
 # in memory
 JTFRAME_CREDITS_PAGES=5
-JTFRAME_SDRAM_BANKS
 
 # ROM offsets
 SND_START=0x10000

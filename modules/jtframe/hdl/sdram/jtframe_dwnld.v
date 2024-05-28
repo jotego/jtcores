@@ -37,10 +37,8 @@ module jtframe_dwnld(
     output     [15:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    `ifdef JTFRAME_SDRAM_BANKS
     output               prog_rd,
     output reg [ 1:0]    prog_ba,
-    `endif
 
     input                gfx8_en,   // HHVVV  -> VVVHH
     input                gfx16_en,  // HHVVVV -> VVVVHH
@@ -81,10 +79,7 @@ wire        is_prom;
 reg  [25:0] part_addr;
 
 assign prog_data = {2{data_out}};
-
-`ifdef JTFRAME_SDRAM_BANKS
 assign prog_rd   = 0;
-`endif
 
 `ifdef JTFRAME_DWNLD_PROM_ONLY
     initial $display("WARNING: JTFRAME_DWNLD_PROM_ONLY has been deprecated. Remove it from the simulation script");
@@ -158,9 +153,7 @@ always @(posedge clk) begin
             prog_addr <= eff_addr[22:1];
             prom_we   <= 0;
             prog_we   <= 1;
-            `ifdef JTFRAME_SDRAM_BANKS
             prog_ba   <= bank;
-            `endif
         end
         data_out  <= ioctl_dout;
         prog_mask <= (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
@@ -181,9 +174,7 @@ parameter [31:0] GAME_ROM_LEN = `GAME_ROM_LEN;
 integer          f, readcnt, dumpcnt;
 reg       [ 7:0] mem[0:`GAME_ROM_LEN];
 
-`ifdef JTFRAME_SDRAM_BANKS
 initial prog_ba=0;
-`endif
 
 initial begin
     dumpcnt = PROM_START+HEADER;

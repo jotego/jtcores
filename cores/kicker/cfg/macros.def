@@ -3,7 +3,6 @@ include common.def
 
 CORENAME=JTKICKER
 GAMETOP=jtkicker_game_sdram
-JTFRAME_SDRAM_BANKS
 
 VIDEO_MODULE=jtkicker_video
 MAIN_MODULE=jtkicker_main
