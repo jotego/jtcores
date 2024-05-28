@@ -4804,7 +4804,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid b1b8375c-efe8-4ac6-8279-036b1c74e059)
   )
-  (hierarchical_label "OBJCOL[11..0]" (shape bidirectional) (at 208.28 128.27 0) (fields_autoplaced)
+  (hierarchical_label "OBJCOL[11..0]" (shape input) (at 208.28 128.27 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid ba28af54-8666-46be-8f2e-5909ad49d6a5)
   )

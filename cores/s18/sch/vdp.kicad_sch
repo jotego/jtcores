@@ -2894,6 +2894,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8b3b5d0a-361b-438c-8d47-aa157ce97585)
   )
+  (text "VDP_AB should have a pullup?" (at 187.96 104.775 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid ab683a33-2225-447f-bc47-6d9e982edcdb)
+  )
   (text "Frame buffer memory (64kB split in two chips)\n65,536 x 4-bit DRAM port\n   256 x 4-bit serial access\n"
     (at 15.24 122.555 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
