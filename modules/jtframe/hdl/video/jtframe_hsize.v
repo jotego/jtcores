@@ -17,7 +17,7 @@
     Date: 1-8-2021 */
 
 // Applies horizontal scaling to an analogue signal
-
+  
 module jtframe_hsize #( parameter
     COLORW     =4     // bits per colour
     //VIDEO_WIDTH=256   // screen pixel width (excluding blanking)
