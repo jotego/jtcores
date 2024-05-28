@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"github.com/spf13/cobra"
 	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/mra"
 )
 
 // sdramCmd represents the sdram command
@@ -139,31 +140,50 @@ func read_rom( game string ) []byte {
 	return rom
 }
 
-func extract_sdram( core, game string ) {
-	rom := read_rom(game)
-	macros := def.Get_Macros( core, "mist" )
-	header   := bank_start(macros,"JTFRAME_HEADER")
-	prom_start := bank_start(macros,"JTFRAME_PROM_START")+header
-	if prom_start == 0 {
-		prom_start = len(rom)
+func bankOffset( core string, macros map[string]string, rom []byte ) (offsets [5]int) {
+	header  := bank_start(macros,"JTFRAME_HEADER")
+	mra_cfg := mra.ParseToml(mra.TomlPath(core), macros, core, false)
+	offsets[1] = bank_start(macros,"JTFRAME_BA1_START")+header
+	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
+	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
+	offsets[4] = bank_start(macros,"JTFRAME_PROM_START")+header
+	if offsets[4] == 0 {
+		offsets[4] = len(rom)
 	}
-	nx_bank  := bank_start(macros,"JTFRAME_BA1_START")+header
-	nx_start := dump("sdram_bank0.bin",rom,header,nx_bank, prom_start)
+	hinfo := &mra_cfg.Header.Offset
+	for k:=1; k<len(hinfo.Regions)&&k<5; k++ {
+		var pos int
+		pos  = int(rom[hinfo.Start+(k<<1)])<<8
+		pos |= int(rom[hinfo.Start+(k<<1)+1])
+		pos <<= hinfo.Bits
+		offsets[k]=pos+header
+	}
+	for _, each := range offsets {
+		fmt.Printf("%X\n",each)
+	}
+	return offsets
+}
+
+func extract_sdram( core, game string ) {
+	rom        := read_rom(game)
+	macros     := def.Get_Macros( core, "mist" )
+	offsets    := bankOffset(core,macros,rom)
+	header     := bank_start(macros,"JTFRAME_HEADER")
+	prom_start := offsets[4]
+	nx_start := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank1.bin")
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_bank  = bank_start(macros,"JTFRAME_BA2_START")+header
-	nx_start = dump("sdram_bank1.bin",rom,nx_start,nx_bank, prom_start)
+	nx_start = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_bank  = bank_start(macros,"JTFRAME_BA3_START")+header
-	nx_start = dump("sdram_bank2.bin",rom,nx_start,nx_bank, prom_start)
+	nx_start = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start)
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
 		return
