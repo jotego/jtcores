@@ -237,12 +237,8 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	if ! exists {
 		fmt.Fprintf(os.Stderr, "CORENAME not specified in cfg/macros.def. Defaults to %s\n", cfg.Core)
 	}
-	// Memory templates require JTFRAME_SDRAM_BANKS and JTFRAME_MEMGEN
+	// Memory templates require JTFRAME_MEMGEN
 	if mem_managed {
-		_, exists = macros["JTFRAME_SDRAM_BANKS"]
-		if !exists && mem_managed {
-			macros["JTFRAME_SDRAM_BANKS"] = ""
-		}
 		macros["JTFRAME_MEMGEN"] = ""
 	}
 	// Macros with default values
@@ -366,30 +362,30 @@ func Make_macros(cfg Config) (macros map[string]string) {
 }
 
 // Replaces all the macros (marked with a $) in the file
-func Replace_Macros(path string, macros map[string]string) string {
-	if len(path) == 0 {
-		return ""
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal("Cannot open " + path)
-	}
-	defer file.Close()
+// func Replace_Macros(path string, macros map[string]string) string {
+// 	if len(path) == 0 {
+// 		return ""
+// 	}
+// 	file, err := os.Open(path)
+// 	if err != nil {
+// 		log.Fatal("Cannot open " + path)
+// 	}
+// 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+// 	scanner := bufio.NewScanner(file)
 
-	var builder strings.Builder
+// 	var builder strings.Builder
 
-	for scanner.Scan() {
-		s := scanner.Text()
-		for k, v := range macros {
-			s = strings.ReplaceAll(s, "$"+k, v)
-		}
-		builder.WriteString(s)
-		builder.WriteString("\n")
-	}
-	return builder.String()
-}
+// 	for scanner.Scan() {
+// 		s := scanner.Text()
+// 		for k, v := range macros {
+// 			s = strings.ReplaceAll(s, "$"+k, v)
+// 		}
+// 		builder.WriteString(s)
+// 		builder.WriteString("\n")
+// 	}
+// 	return builder.String()
+// }
 
 func Get_Macros( core, target string ) (map[string]string) {
 	var def_cfg Config

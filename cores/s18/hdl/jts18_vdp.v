@@ -20,6 +20,9 @@ module jts18_vdp(
     input              rst,
     input              clk96,
     input              clk48,
+    input              pxl_cen,
+    input              s16b_hs,
+    input              s16b_vs,
     // Main CPU interface
     input       [23:1] addr,
     input       [15:0] din,
@@ -29,10 +32,12 @@ module jts18_vdp(
     input       [ 1:0] dsn,
     output             dtackn,
     // Video output
+    output             video_en,
     output             hs,
     output             vs,
     output             vde,
     output             hde,
+    output             spa_b,
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue,
@@ -41,7 +46,7 @@ module jts18_vdp(
     output reg  [ 7:0] st_dout
 );
 `ifndef NOVDP
-wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull, SPA_B,
+wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull,
             oe1, sc, se0, vs_n, CD_d,
             ym_RD_d, ym_AD_d, vram1_AD_d, vram1_SD_d,
             CSYNC_pull, HSYNC_pull, dtack_pull;
@@ -49,18 +54,28 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
-wire        EDCLK_d, EDCLK_o, BGACK_pull;
-reg         rst_n, edclk_l, clk2=0;
-reg  [ 2:0] edclk_cnt;
+wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, slow, hs_sh,
+            cen12x, clk16, clk12, reg_m5, csync, hsync, s16_cs;
+reg         rst_n, edclk_l, clk2=0, hsl, clk12xl;
 reg  [ 1:0] dtackr;
+reg  [ 2:0] cnt8=0, cnt6=0;
+reg  [ 7:0] hbcnt=0, hsaux;
+reg         clk10=0, clk12x=0;
 
 initial st_dout = 0;
 
 assign vs     = ~vs_n;
-assign SPA_B  = ~SPA_B_pull;
+assign spa_b  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
 assign RD     = ym_RD_o;
 assign dtackn = !dtackr[0];
+assign clk16  = cnt6<3;
+assign clk12  = cnt8[2];
+assign slow   = hbcnt==8'ha2;//+debug_bus;
+assign video_en = reg_m5;
+assign s16_cs = ~s16b_hs ^ s16b_vs;
+assign csync  = ~CSYNC_pull &  s16_cs;
+assign hsync  = ~HSYNC_pull & ~s16b_hs;
 
 // _d signals: 0 for output, 1 for input
 assign AD =
@@ -70,12 +85,33 @@ assign AD =
 assign SD =
     vram1_SD_d ? SD_mem : vram1_SD_o;
 
+jtframe_sh #(.W(1)) u_sh(
+    .clk    ( clk48   ),
+    .clk_en ( pxl_cen ),
+    .din    ( s16b_hs ),
+    .drop   ( hs_sh   )
+);
+
 always @(posedge clk96) begin
     // RD_mem    <= RD;
     AD_mem    <= AD;
     SD_mem    <= SD;
-    edclk_cnt <= edclk_cnt + 1'd1;
-    edclk_l   <= EDCLK_d ? EDCLK_o : edclk_cnt[2]; // 12 MHz input (reverse rule for _d)
+    edclk_l   <= EDCLK_d ? EDCLK_o : clk12x; // 8/16 MHz input (reverse rule for _d)
+    if( cen20  ) clk10  <= ~clk10;
+end
+
+// The VDP pixel clock is set in the PCB at
+// 12MHz for 56.66us
+// 16MHz for 10   us
+// Giving an average of ~12.6MHz
+always @(posedge clk96) begin
+    hsl <= hs;
+    clk12xl  <= clk12x;
+    cnt6 <= cnt6==5 ? 3'd0 : cnt6+3'd1;
+    cnt8 <= cnt8 + 3'd1;
+    clk12x <= slow ? clk12 : clk16;
+    if( hs && !hsl ) hbcnt <= 0;
+    if( !slow && clk12x && !clk12xl ) hbcnt <= hbcnt + 1'd1;
 end
 
 always @(posedge clk96) dtackr <= {dtackr[0], dtack_pull};//dtackn <= ~dtack_pull;
@@ -84,7 +120,7 @@ always @(posedge clk96) clk2 <= ~clk2;
 
 always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
-/* xxxverilator tracing_on */
+/* verilator tracing_off */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk96     ),
@@ -92,6 +128,7 @@ ym7101 u_vdp(
     .EDCLK_i    ( edclk_l   ),
     .EDCLK_o    ( EDCLK_o   ),
     .EDCLK_d    ( EDCLK_d   ),
+    .reg_m5     ( reg_m5    ), // high when the VDP accepts the external pixel clock
     // M68000
     .CA_i       ( addr      ),
     .CA_o       (           ),
@@ -137,11 +174,11 @@ ym7101 u_vdp(
     .PAL        ( 1'b0      ),
     .ext_test_2 ( 1'b0      ),
     .CLK1_o     ( CLK1_o    ),
-    .CLK1_i     ( CLK1_o    ),
+    .CLK1_i     ( clk10     ),
     .BGACK_i    (~BGACK_pull),
     .BGACK_pull ( BGACK_pull),
     .INTAK      ( 1'b0      ),
-    .SPA_B_i    (SPA_B      ),
+    .SPA_B_i    (spa_b      ),
     .SPA_B_pull (SPA_B_pull ),
     .vdp_cramdot_dis( 1'b0  ),
     // other unconnected pins
@@ -150,9 +187,9 @@ ym7101 u_vdp(
     .RD_o       ( ym_RD_o   ),
     .RD_i       ( RD        ),
     // video and sound outputs
-    .HSYNC_i    (~HSYNC_pull),
+    .HSYNC_i    ( hsync     ),
     .HSYNC_pull ( HSYNC_pull),
-    .CSYNC_i    (~CSYNC_pull),
+    .CSYNC_i    ( csync     ),
     .CSYNC_pull ( CSYNC_pull),
     .VSYNC      (           ), // used as pixel clock output via test register setting
     .SOUND      (           ),
@@ -181,6 +218,15 @@ vram u_vram(
     .SD_d       ( vram1_SD_d)
 );
 /* verilator lint_on PINMISSING */
+
+jtframe_frac_cen #(.WC(5)) u_cen20(
+    .clk    ( clk96     ),
+    .n      ( 5'd5      ),
+    .m      ( 5'd24     ),
+    .cen    ( {nc,cen20}),
+    .cenb   (           )
+);
+
 `else
 reg [15:0] mem;
 reg [ 7:0] mmr[0:31];
@@ -193,7 +239,7 @@ assign hs=0, vs=0;
 assign red=0, green=0, blue=0;
 assign cs=(addr>>4 == 23'h60_000) && !asn;
 assign dout=mem|{{8{dsn[1]}},{8{dsn[0]}}};
-assign dtackn=0, vde=0, hde=0;
+assign dtackn=0, vde=0, hde=0, spa_b=0, video_en=0;
 
 always @(posedge clk48) st_dout <= debug_bus[0] ? mem[0+:8] : mem[8+:8];
 

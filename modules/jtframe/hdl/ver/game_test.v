@@ -140,8 +140,6 @@ module game_test(
 
 `ifdef JTFRAME_BA0_AUTOPRECH
     localparam BA0_AUTOPRECH = `JTFRAME_BA0_AUTOPRECH;
-`elsif JTFRAME_SDRAM_BANKS
-    localparam BA0_AUTOPRECH = 0;
 `else
     // if only one bank is used, it makes to precharge as default option
     localparam BA0_AUTOPRECH = 1;
@@ -224,26 +222,6 @@ assign SDRAM_DQM= { SDRAM_DQMH, SDRAM_DQML };
 
 `ifndef JTFRAME_IOCTL_RD
     assign ioctl_din = 0;
-`endif
-
-`ifndef JTFRAME_SDRAM_BANKS
-    wire [ 7:0] prog_data8;
-    assign prog_data = {2{prog_data8}};
-    assign ba_rd[3:1] = 0;
-    assign ba_wr      = 0;
-    assign prog_ba    = 0;
-    // tie down unused bank signals
-    assign ba1_addr   = 0;
-    assign ba2_addr   = 0;
-    assign ba3_addr   = 0;
-    assign ba0_din    = 0;
-    assign ba0_dsn    = 3;
-    assign ba1_din    = 0;
-    assign ba1_dsn    = 3;
-    assign ba2_din    = 0;
-    assign ba2_dsn    = 3;
-    assign ba3_din    = 0;
-    assign ba3_dsn    = 3;
 `endif
 
 localparam GAME_BUTTONS=`JTFRAME_BUTTONS;
@@ -575,7 +553,6 @@ u_game(
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( data_read      ),
 
-`ifdef JTFRAME_SDRAM_BANKS
     // Bank 0: allows R/W
     .ba0_addr   ( ba0_addr      ),
     .ba1_addr   ( ba1_addr      ),
@@ -602,15 +579,6 @@ u_game(
     .prog_dok   ( prog_dok      ),
     .prog_dst   ( prog_dst      ),
     .prog_data  ( prog_data     ),
-`else
-    .sdram_req  ( ba_rd[0]      ),
-    .sdram_addr ( ba0_addr      ),
-    .data_dst   ( ba_dst[0] | prog_dst ),
-    .data_rdy   ( ba_rdy[0] | prog_rdy ),
-    .sdram_ack  ( ba_ack[0] | prog_ack ),
-
-    .prog_data  ( prog_data8    ),
-`endif
 
     // common ROM-load interface
     .prog_addr  ( prog_addr     ),

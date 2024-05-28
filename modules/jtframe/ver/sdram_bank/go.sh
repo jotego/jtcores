@@ -102,7 +102,6 @@ done
 make || exit $?
 
 echo Extra arguments: "$EXTRA"
-EXTRA="$EXTRA ${MACRO}JTFRAME_SDRAM_BANKS"
 $SIM test.v ../../hdl/sdram/jtframe_sdram{_bank*,_stats}.v ../../hdl/ver/mt48lc16m16a2.v \
     -o sim ${MACRO}JTFRAME_SDRAM_test.BANKS ${MACRO}SIMULATION $DUMP $EXTRA \
     ${MACRO}SDRAM_SHIFT=$SDRAM_SHIFT \

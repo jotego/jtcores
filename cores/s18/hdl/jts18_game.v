@@ -20,8 +20,7 @@ module jts18_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [24:0] MCU_PROM = `MCU_START,
-                  KEY_PROM = `JTFRAME_PROM_START;
+localparam [24:0] MCU_START = `MCU_START;
 localparam VRAMW = 19;
 
 // clock enable signals
@@ -58,12 +57,12 @@ reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
-assign debug_view = st_mux;
+assign debug_view = st_video; //st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
-assign mcu_we     = prom_we && prog_addr[21:13]==MCU_PROM[21:13];
-assign key_we     = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
+assign mcu_we     = prom_we && prog_addr[15:12]>=MCU_START[15:12];
+assign key_we     = prom_we && prog_addr[15:12]<=MCU_START[15:12];
 assign xram_cs    = ram_cs | vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};

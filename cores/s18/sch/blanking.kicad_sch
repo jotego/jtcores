@@ -2837,7 +2837,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid b29a29df-f420-4872-90d4-c614386b7659)
   )
-  (hierarchical_label "VDP_A{slash}B" (shape tri_state) (at 68.58 151.13 0) (fields_autoplaced)
+  (hierarchical_label "VDP_A{slash}B" (shape input) (at 68.58 151.13 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid b6e24ff1-68a1-41a8-894e-6f1ce4672153)
   )

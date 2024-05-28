@@ -199,9 +199,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
     .prog_ba      ( prog_ba        ), // prog_ba supplied in case it helps re-mapping addresses
-`ifdef JTFRAME_PROM_START
     .prom_we      ( prom_we        ),
-`endif
     {{- with .Download.Pre_addr }}
     // SDRAM address mapper during downloading
     .pre_addr     ( pre_addr       ),
@@ -257,7 +255,6 @@ jtframe_dwnld #(
 `endif{{ if .Balut }}
     .BALUT      ( {{.Balut}}    ),  // Using offsets in header for
     .LUTSH      ( {{.Lutsh}}    ),  // bank assignment
-    .LUTDW      ( {{.Lutdw}}    ),
 {{else}}
 `ifdef JTFRAME_BA1_START
     .BA1_START ( BA1_START ),

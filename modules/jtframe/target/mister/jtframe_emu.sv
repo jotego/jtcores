@@ -351,9 +351,6 @@ wire          ioctl_rom, ioctl_cart, dwnld_busy;
 
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0]   prog_data;
-`ifndef JTFRAME_SDRAM_BANKS
-wire [ 7:0]   prog_data8;
-`endif
 wire [ 1:0]   prog_mask, prog_ba;
 wire          prog_we, prog_rd, prog_rdy, prog_ack, prog_dst, prog_dok;
 
@@ -363,25 +360,6 @@ wire [ 3:0] ba_rd, ba_rdy, ba_ack, ba_dst, ba_dok, ba_wr;
 wire [15:0] ba0_din, ba1_din, ba2_din, ba3_din;
 wire [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn;
 wire [15:0] sdram_dout;
-
-`ifndef JTFRAME_SDRAM_BANKS
-    // tie down unused bank signals
-    assign prog_data  = {2{prog_data8}};
-    assign ba_rd[3:1] = 0;
-    assign ba_wr      = 0;
-    assign prog_ba    = 0;
-    assign ba1_addr   = 0;
-    assign ba2_addr   = 0;
-    assign ba3_addr   = 0;
-    assign ba0_din    = 0;
-    assign ba1_din    = 0;
-    assign ba2_din    = 0;
-    assign ba3_din    = 0;
-    assign ba0_dsn    = 3;
-    assign ba1_dsn    = 3;
-    assign ba2_dsn    = 3;
-    assign ba3_dsn    = 3;
-`endif
 
 wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1,  paddle_2,  paddle_3,  paddle_4,
@@ -404,10 +382,6 @@ wire              game_rx, game_tx;
 assign AUDIO_S = 1'b1; // Assume signed by default
 `else
 assign AUDIO_S = `JTFRAME_SIGNED_SND;
-`endif
-
-`ifndef JTFRAME_SDRAM_BANKS
-assign prog_data = {2{prog_data8}};
 `endif
 
 // Line-Frame buffer

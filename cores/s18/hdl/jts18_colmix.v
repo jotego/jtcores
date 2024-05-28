@@ -19,7 +19,8 @@
 module jts18_colmix(
     input              rst,
     input              clk,
-    input              pxl_cen, 
+    input              vdp_en,
+    input              pxl_cen,
     input              pxl2_cen,  // pixel clock enable (2x)
     input              LHBL,
     input              LVBL,
@@ -31,17 +32,23 @@ module jts18_colmix(
     output       [7:0] red,   green, blue
 );
 
-wire [7:0] ex_r, ex_g, ex_b, pr, pg, pb;
+wire [7:0] ex_r, ex_g, ex_b;
+reg  [7:0] pr, pg, pb;
+wire       s16_blank;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
+assign s16_blank = {ex_r,ex_g,ex_b}==0;
 
-assign pr = gfx_en[2] ? ex_r : vdp_r;
-assign pg = gfx_en[2] ? ex_g : vdp_g;
-assign pb = gfx_en[2] ? ex_b : vdp_b;
+always @(posedge clk) begin
+    pr <= s16_blank ? vdp_r : ex_r;
+    pg <= s16_blank ? vdp_g : ex_g;
+    pb <= s16_blank ? vdp_b : ex_b;
+    if(!vdp_en) {pr,pg,pb} <= {ex_r,ex_g,ex_b};
+end
 
-jtframe_blank #(.DLY(2),.DW(24)) u_blank(
+jtframe_blank #(.DLY(4),.DW(24)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( LHBL      ),
@@ -49,8 +56,8 @@ jtframe_blank #(.DLY(2),.DW(24)) u_blank(
     .LHBL       ( LHBL_dly  ),
     .LVBL       ( LVBL_dly  ),
     .preLBL     (           ),
-    .rgb_in     (     ),
-    .rgb_out    ( {red,green,blue}   )
+    .rgb_in     ( { pr,   pg,  pb} ),
+    .rgb_out    ( {red,green,blue} )
 );
 
 endmodule

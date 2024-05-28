@@ -31,6 +31,7 @@ import (
 
 	"github.com/jotego/jtframe/files"
 	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/mra"
 
 	"gopkg.in/yaml.v2"
 	"github.com/Masterminds/sprig/v3"	// more template functions
@@ -260,14 +261,7 @@ func check_banks( macros map[string]string, cfg *MemConfig ) {
 			}
 		}
 	}
-	region_lut := false
-	for _, each := range cfg.SDRAM.Banks {
-		if each.Region != "" {
-			region_lut = true
-			break
-		}
-	}
-	if !region_lut {
+	if cfg.Balut==0 {
 		if len(cfg.SDRAM.Banks)>1  {
 			if macros["JTFRAME_BA1_START"]=="" {
 				fmt.Println("Missing JTFRAME_BA1_START")
@@ -651,6 +645,7 @@ func Run(args Args) {
 		return
 	}
 	macros := def.Get_Macros( args.Core, args.Target )
+	bankOffset( &cfg, macros, args.Core )
 	check_banks( macros, &cfg )
 	fill_implicit_ports( macros, &cfg, args.Verbose )
 	make_ioctl( macros, &cfg, args.Verbose )
@@ -664,4 +659,11 @@ func Run(args Args) {
 	make_sdram(args, &cfg)
 	add_game_ports(args, &cfg)
 	make_dump2bin(args, &cfg )
+}
+
+func bankOffset( cfg *MemConfig, macros map[string]string, corename string) {
+	mra_cfg := mra.ParseToml( mra.TomlPath(corename), macros, corename, false )
+	if len(mra_cfg.Header.Offset.Regions)==0 { return }
+	cfg.Balut = 1
+	cfg.Lutsh = mra_cfg.Header.Offset.Bits
 }

@@ -120,5 +120,4 @@ jtframe_linebuf #(.DW(COLORW*3), .AW(VW)) u_line(
     .rd_gated (              ),
     .rd_data  ( rgb_out      )
     );
-
 endmodule

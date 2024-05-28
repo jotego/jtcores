@@ -22,9 +22,7 @@
     input           prog_we,
     input   [ 1:0]  prog_ba,
     input   [25:0]  ioctl_addr,
-`ifdef JTFRAME_PROM_START
     input           prom_we,
-`endif
 {{- if .Download.Post_addr }}
     output reg [21:0] post_addr,
 {{end}}

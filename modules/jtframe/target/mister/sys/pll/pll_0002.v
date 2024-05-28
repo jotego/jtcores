@@ -1,24 +1,4 @@
-`ifndef SDRAM_SHIFT
-// 5ns works with both 32 and 128 MB modules
-// valid values for 48 MHz
-// 0 260 520 729 1041 1250 1475 1736 1996 2256 2500 2734 2994 3255 3515 3750 3993
-// 4253 4513 4774 5000 5208 5520 5729 5989 6250 6510 6770 6979 7291 7500 7725 7986
-// 8246 8506 8750 8984 9244 9505 9765 10000 10243 10329
-
-// valid values for 96 MHz
-// 0 -520 -1041 -1475 -1996 -2517 -2994 -3515 -3993 -4253 -4513 -4774 -5034
-// -5208 (-180 deg)
-
-	`ifndef JTFRAME_SDRAM96
-		// 48 MHz clock
-		`define SDRAM_SHIFT "5520 ps"
-	`else
-		// 96 MHz clock
-		//`define SDRAM_SHIFT "-3515 ps"
-		`define SDRAM_SHIFT "-5034"
-	`endif
-`endif
-
+`timescale 1ns/10ps
 module  pll_0002(
 
 	// interface 'refclk'
@@ -58,7 +38,7 @@ module  pll_0002(
 		.phase_shift0("0 ps"),
 		.duty_cycle0(50),
 		.output_clock_frequency1("48.000000 MHz"),
-		.phase_shift1(`SDRAM_SHIFT),
+		.phase_shift1("5555 ps"),
 		.duty_cycle1(50),
 		.output_clock_frequency2("24.000000 MHz"),
 		.phase_shift2("0 ps"),
@@ -70,7 +50,7 @@ module  pll_0002(
 		.phase_shift4("0 ps"),
 		.duty_cycle4(50),
 		.output_clock_frequency5("96.000000 MHz"),
-		.phase_shift5(`SDRAM_SHIFT),
+		.phase_shift5("-5034 ps"),
 		.duty_cycle5(50),
 		.output_clock_frequency6("0 MHz"),
 		.phase_shift6("0 ps"),

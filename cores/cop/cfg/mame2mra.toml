@@ -33,7 +33,6 @@ regions = [
     { name="oki",      start="PCM_START" },
 
     # GFX1
-    # { machine="midres", name="gfx1",     start=$BA2_START, width=16, No_offset=true, reverse=true },
     { name="gfx1",     start="JTFRAME_BA2_START", width=16, No_offset=true },
 
     # GFX2

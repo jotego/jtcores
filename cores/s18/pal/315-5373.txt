@@ -25,11 +25,20 @@ o18 = video_en & /i2 +
       video_en & i3 & /i6 &                 prio3 & prio2 & prio0 +
       video_en & i3 & i4 & i5 & i8 &        prio3 +
       video_en & i3 & i4 & i5 & i9 &        prio3 +
+      video_en & i3 & i4 & i5 & /i6 & /i7 & prio3 +
       video_en & i3 & /i7 &                 prio3 & prio2 +
       video_en & i3 & i4 & /i6 & /i7 &      prio3 & prio1 +
-      video_en & i3 & i4 & /i7 &            prio3 & prio1 & prio0 +
-      video_en & i3 & i4 & i5 & /i6 & /i7 & prio3
+      video_en & i3 & i4 & /i7 &            prio3 & prio1 & prio0
 
+--> simplified to see prio - ix relationships
+
+                           prio3 & prio2 & prio1 & prio0 + // 15
+(i8 + i9 + /i6 + /i7) &    prio3 & prio2 & prio1         + // 14
+i3 & /i6 &                 prio3 & prio2 &         prio0 + // 13
+i3 & (i8 + i9 + /i7) &     prio3 & prio2                 + // 12
+i3 & i4 & /i7 &            prio3 &         prio1 & prio0 + // 11
+i3&i4&(i8+i9+(/i6 & /i7))& prio3 &         prio1         + // 10
+i3&i4&i5&(i8+i9+(/i6&/i7))&prio3                           //  8
 
 Arcade VDP selected otherwise
 /o19 = o18

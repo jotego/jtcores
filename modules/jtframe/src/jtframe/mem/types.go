@@ -75,7 +75,6 @@ type BRAMBus struct {
 }
 
 type SDRAMBank struct {
-    Region  string
     Buses []SDRAMBus `yaml:"buses"`
     // Precalculated values
     MemType string
@@ -205,5 +204,5 @@ type MemConfig struct {
     Gfx8     string
     Gfx16    string
     Gfx8b0, Gfx16b0 int
-    Balut,Lutsh,Lutdw int
+    Balut,Lutsh int
 }

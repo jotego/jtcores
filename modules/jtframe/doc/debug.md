@@ -32,6 +32,7 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
   0111_0100  |  dipsw[ 7: 0]
   0111_0101  |  dipsw[15: 8]
   0111_0110  |  dipsw[23:16]
+  10??_????  |  SDRAM stats
   1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
   1101_????  |  mouse_dx[8:1]
   1110_????  |  mouse_dy[8:1]
@@ -43,12 +44,11 @@ See core_mod description [here](osd.md)
 
 This is the total number of frames since the last reset. The count gets halted during pause.
 
-st_addr[0]  |  Read
-------------|-----------
-  0         | bits 15- 8 (BCD)
-  1         | bits  7- 0 (BCD)
-  2         | bits 23-16 (BCD)
-  3         | sound channel enable bits
+st_addr[1:0] |  Read
+-------------|-----------
+  0          | bits 15- 8 (BCD)
+  1          | bits  7- 0 (BCD)
+  2          | bits 23-16 (BCD)
 
 ### Audio Information
 

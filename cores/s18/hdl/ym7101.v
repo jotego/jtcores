@@ -30,7 +30,7 @@
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off SELRANGE */
 /* xxverilator lint_off UNOPTFLAT */
-/* verilator tracing_on */
+/* xxxverilator tracing_on */
 module ym7101
 	(
 	input MCLK,
@@ -74,6 +74,7 @@ module ym7101
 	input EDCLK_i,
 	output EDCLK_o,
 	output EDCLK_d,
+	output reg_m5,
 	input [15:0] CD_i,
 	output [15:0] CD_o,
 	output CD_d,
@@ -2159,7 +2160,7 @@ module ym7101
 	wire reg_rs1; // h40
 	wire reg_81_b0;
 	wire reg_81_b1;
-	wire reg_m5;
+	// wire reg_m5;
 	wire reg_m2;
 	wire reg_m1;
 	wire reg_ie0;

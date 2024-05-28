@@ -1,0 +1,37 @@
+Inputs:
+
+2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19
+
+Outputs:
+
+12 (Combinatorial, Output feedback output, Active high)
+13 (Registered, Output feedback registered, Active high)
+14 (Registered, Output feedback registered, Active high)
+15 (Registered, Output feedback registered, Active high)
+16 (Registered, Output feedback registered, Active high)
+17 (Registered, Output feedback registered, Active high)
+18 (Registered, Output feedback registered, Active high)
+
+pin 1 = clk = 48MHz
+
+Equations:
+
+o12 = /rf15
+
+rf13 :=  rst & rf15 +
+        /rst & rf13 & /rf16 +
+        /rst & /i3 & i4 & rf16 +
+        /rst & /i4 & rf13 & rf17 +
+        /rst & /i4 & /rf13 & rf16 & /rf17
+
+preEDCK := /rst & /i4 & ( /preEDCK + EDCK ) +
+           /rst &  i4 & rf17
+
+rf15 := i6 & /rf15
+
+# generate 12 MHz at rf17
+rf16 := /rst & /rf17
+rf17 := /rst & rf16
+
+EDCK := /rst & /preEDCK
+

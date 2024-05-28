@@ -124,7 +124,7 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .ext_flip   (           ),
     .colscr_en  ( 1'b0      ),
     .rowscr_en  ( 1'b0      ),
-    .alt_en     ( debug_bus[4] ),
+    .alt_en     ( 1'b0      ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),

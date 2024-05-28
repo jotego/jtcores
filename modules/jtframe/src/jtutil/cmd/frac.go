@@ -37,6 +37,11 @@ var fracCmd = &cobra.Command{
 		must(e)
 		out, e  := strconv.ParseFloat(args[1],64)
 		must(e)
+		if out>in {
+			x := out
+			out = in
+			in = x
+		}
 		fracRun( in, out )
 	},
 	Args: cobra.MinimumNArgs(2),

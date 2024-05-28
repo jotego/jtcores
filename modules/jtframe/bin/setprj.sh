@@ -171,6 +171,7 @@ function hexdiff {
     sdiff --suppress-common-lines <(xxd $1) <(xxd $2)
 }
 
+# starts gtkwave and opens the test dump file in the current folder
 function gw {
     if [ -e test.lxt ]; then
         gtkwave test.lxt &
@@ -183,6 +184,16 @@ function gw {
     else
         echo "No test.lxt, test.fst, test.vcd in the current folder"
     fi
+}
+
+# generates a list of valid core names based on the existance of the TOML file
+function get_cores {
+    find "$CORES" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+      if [ -e "$dir/cfg/mame2mra.toml" ]; then
+        dir=$(basename "$dir")
+        echo -n "$dir "
+      fi
+    done
 }
 
 # check that git hooks are present

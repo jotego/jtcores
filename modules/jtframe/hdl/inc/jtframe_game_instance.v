@@ -123,7 +123,6 @@ u_game(
     .ln_v         ( ln_v             ),
     .ln_we        ( ln_we            ), `endif
 
-`ifdef JTFRAME_SDRAM_BANKS
     // Bank 0: allows R/W
     .ba0_addr   ( ba0_addr      ),
     .ba1_addr   ( ba1_addr      ),
@@ -150,15 +149,6 @@ u_game(
     .prog_dok   ( prog_dok      ),
     .prog_dst   ( prog_dst      ),
     .prog_data  ( prog_data     ),
-`else
-    .sdram_req  ( ba_rd[0]      ),
-    .sdram_addr ( ba0_addr      ),
-    .data_dst   ( ba_dst[0] | prog_dst ),
-    .data_rdy   ( ba_rdy[0] | prog_rdy ),
-    .sdram_ack  ( ba_ack[0] | prog_ack ),
-
-    .prog_data  ( prog_data8    ),
-`endif
 
     // common ROM-load interface
     .prog_addr  ( prog_addr     ),

@@ -22,22 +22,8 @@ reg [2:0] fin=0;
 
 initial begin
     clk = 0;
-    forever #5 clk=~clk;    
+    forever #5 clk=~clk;
 end
-
-reg cen2=0;
-always @(negedge clk) cen2 <= ~cen2;
-
-reg [3:0] rgb=0;
-reg [1:0] filter=0;
-
-always @(posedge clk) if (cen2) begin
-    if( ~LHBL) {rgb,filter} <= 0;
-    else {rgb,filter} <= {rgb,filter} + 1'd1;
-end
-
-reg [10:0] rgb_cnt=0;
-reg [10:0] rgb_max;
 
 always @(posedge clk) begin
     cen_cnt <= cen_cnt + 1'd1;
@@ -55,14 +41,12 @@ always @(posedge clk) begin
     if (fin[2] || vs_cnt==3) #100 $finish;
 end
 
-initial #(16600*1000*4) $finish;
-
 jtframe_hsize uut(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .scale      ( /*scale*/ 1'd0    ),
+    .scale      ( scale     ),
     .offset     ( 5'd0      ),
     .enable     ( en        ),
     .r_in       ( {3'b0,vdump[8]}),
@@ -90,18 +74,6 @@ jtframe_vtimer #(
     .HS_START( 312 ),
     .VS_START( 253 ),
     .VS_END  ( 256 )
-    // .HCNT_START ( 9'h020    ),
-    // .HCNT_END   ( 9'h19F    ),
-    // .HB_START   ( 9'h029    ),
-    // .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
-    // .HS_START   ( 9'h034    ),
-
-    // .V_START    ( 9'h0F8    ),
-    // .VB_START   ( 9'h1EF    ),
-    // .VB_END     ( 9'h10F    ),  //  2.56 ms
-    // .VS_START   ( 9'h1FF    ),  // ~512.5us, measured on X-Men PCB
-    // .VS_END     ( 9'h0FF    ),
-    // .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
 ) u_timer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

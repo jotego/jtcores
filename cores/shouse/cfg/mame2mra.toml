@@ -7,14 +7,11 @@ debug = { machines=[
     "rompers", # problems with music
     # Others
     "bakutotu",
-    "berabohm",
-    # "boxyboy",
-    # "mmaze",
-    "quester",
-    # "shadowld",
+    # "berabohm",
+    # "quester",
 ], setnames=[
-    # key custom error (maybe related to being 4 players?)
-    "tankfrcej",
+    # "tankfrcej",
+    # see issue #626
     "tankfrce4",
 ] }
 
@@ -43,7 +40,7 @@ names = [
 ]
 
 [header]
-info="""Byte 0: bit 0-1: protection type, bit 4-5: control type (0 - normal, 1 - faceoff 4p, 2 - berabohm, 3 - quester)
+info="""Byte 0: bit 0-1: protection type, bit 4-5: control type (0 - normal, 1 - faceoff 4p, 2 - berabohm, 3 - quester), bit 6: 64/128kB Program ROMs
 Byte 1: key ID
 Byte 2: addr for key ID
 Byte 3: addr for RNG
@@ -114,7 +111,7 @@ extra=[
 
 [ROM]
 regions = [
-    { name="user1" },
+    { name="user1", rom_len=0x20000 },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="voice",    start="PCM_START"  },
     { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
