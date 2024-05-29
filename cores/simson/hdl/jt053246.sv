@@ -82,7 +82,7 @@ reg  [18:0] yz_add;
 reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg  [ 3:0] size;
+reg  [ 3:0] size, p_vzoom, p_hzoom;//
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
 reg         inzone, hs_l, done, hdone,
@@ -96,7 +96,8 @@ wire [ 7:0] cfg;
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
-reg  [ 8:0] zoffset[0:255];
+reg  [ 8:0] zoffset [0:255];
+reg  [ 3:0] pzoffset[0:15  ];
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
@@ -117,8 +118,8 @@ always @(negedge clk) cen2 <= ~cen2;
 always @(posedge clk) begin
     xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
     yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
-    vscl <= zoffset[ vzoom[7:0] ];
-    hscl <= zoffset[ hzoom[7:0] ];
+    vscl <= (k44_en && |p_vzoom)? red_offset(p_vzoom, vzoom[7:4]): zoffset[ vzoom[7:0] ];
+    hscl <= (k44_en && |p_hzoom)? red_offset(p_hzoom, hzoom[7:4]): zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                               // opposite to the one in Aliens, which always
@@ -136,6 +137,15 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
         3: zmove = scl<<1;
     endcase
 endfunction
+
+function [3:0] red_offset( input [3:0] pzm, input [3:0] zoom);
+    case( pzm )
+        1:       red_offset = pzoffset[zoom];
+        2:       red_offset = 3;
+        4,3:     red_offset = 2;
+        default: red_offset = 1;
+    endcase
+endfunction 
 
 always @* begin
     ymove  = zmove( vsz, vscl );
@@ -193,6 +203,8 @@ always @(posedge clk, posedge rst) begin
         vflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
+        p_vzoom  <= 0;
+        p_hzoom  <= 0;
         hz_keep  <= 0;
         indr     <= 0;
         hhalf    <= 0;
@@ -235,13 +247,15 @@ always @(posedge clk, posedge rst) begin
                     y <=  ywrap;
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
-                    if( k44_en ) begin //
+                    p_vzoom <= scan_even[11:8];
+                    p_hzoom <= sq ? scan_even[11:8] : scan_odd[11:8];
+/*                    if( k44_en ) begin //
                         if(scan_odd>16'h3ff) hzoom <= 10'h3ff;
                         if(scan_even>16'h3ff) begin
                             vzoom <= 10'h3ff;
                             if( sq ) hzoom <= 10'h3ff;
                         end
-                    end
+                    end*/
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
@@ -366,6 +380,10 @@ jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
     .we1    ( 2'b0           ),
     .q1     ( scan_odd       )
 );
+
+initial pzoffset ='{
+    8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4
+};
 
 initial zoffset ='{                             //  octal count
     511, 511, 511, 511, 511, 410, 341, 293,     //   0-  7
