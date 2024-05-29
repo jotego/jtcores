@@ -49,7 +49,7 @@ module jt053246(    // sprite logic
     output reg        vflip,
     output reg [ 8:0] hpos,
     output     [ 3:0] ysub,
-    output reg [ 9:0] hzoom,
+    output reg [11:0] hzoom,//Cambios
     output reg        hz_keep,
 
     // base video
@@ -79,10 +79,11 @@ localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_CFG   = 2; // interrupt control, ROM read
 
 reg  [18:0] yz_add;
-reg  [ 9:0] vzoom, y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
+reg  [11:0] vzoom/*,hzoomb*/;
+reg  [ 9:0] /*vzoom,*/ y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg  [ 3:0] size, p_vzoom, p_hzoom;//
+reg  [ 3:0] size/*, p_vzoom, p_hzoom*/;//
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
 reg         inzone, hs_l, done, hdone,
@@ -97,7 +98,7 @@ wire [ 1:0] nx_mir, hsz, vsz;
 wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 reg  [ 8:0] zoffset [0:255];
-reg  [ 3:0] pzoffset[0:15  ];
+reg  [ 8:0] pzoffset[0:15 ];
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
@@ -118,8 +119,8 @@ always @(negedge clk) cen2 <= ~cen2;
 always @(posedge clk) begin
     xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
     yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
-    vscl <= (k44_en && |p_vzoom)? red_offset(p_vzoom, vzoom[7:4]): zoffset[ vzoom[7:0] ];
-    hscl <= (k44_en && |p_hzoom)? red_offset(p_hzoom, hzoom[7:4]): zoffset[ hzoom[7:0] ];
+    vscl <= k44_en? red_offset(vzoom): zoffset[ vzoom[7:0] ];
+    hscl <= k44_en? red_offset(hzoom): zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                               // opposite to the one in Aliens, which always
@@ -138,9 +139,10 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
     endcase
 endfunction
 
-function [3:0] red_offset( input [3:0] pzm, input [3:0] zoom);
-    case( pzm )
-        1:       red_offset = pzoffset[zoom];
+function [8:0] red_offset( input [11:0] zoom);
+    case( zoom[11:8] )
+        0:       red_offset = zoffset [zoom[7:0]];
+        1:       red_offset = pzoffset[zoom[7:4]];
         2:       red_offset = 3;
         4,3:     red_offset = 2;
         default: red_offset = 1;
@@ -203,8 +205,6 @@ always @(posedge clk, posedge rst) begin
         vflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
-        p_vzoom  <= 0;
-        p_hzoom  <= 0;
         hz_keep  <= 0;
         indr     <= 0;
         hhalf    <= 0;
@@ -245,10 +245,11 @@ always @(posedge clk, posedge rst) begin
                 2: begin
                     x <=  x - xadj;
                     y <=  ywrap;
-                    vzoom <= scan_even[9:0];
-                    hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
-                    p_vzoom <= scan_even[11:8];
-                    p_hzoom <= sq ? scan_even[11:8] : scan_odd[11:8];
+                    vzoom <= scan_even[11:0];
+                    hzoom<= sq ? scan_even[11:0] : scan_odd[11:0];
+                    //hzoom <= sq ? scan_even[ 9:0] : scan_odd[ 9:0];
+                    // p_vzoom <= scan_even[11:8];
+                    // p_hzoom <= sq ? scan_even[11:8] : scan_odd[11:8];
 /*                    if( k44_en ) begin //
                         if(scan_odd>16'h3ff) hzoom <= 10'h3ff;
                         if(scan_even>16'h3ff) begin
