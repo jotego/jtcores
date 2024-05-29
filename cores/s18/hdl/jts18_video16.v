@@ -75,12 +75,16 @@ module jts18_video16(
     output             VS,
     output             LHBL,
     output             LVBL,
+    output     [ 8:0]  hdump,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
     output     [ 5:0]  red,
     output     [ 5:0]  green,
     output     [ 5:0]  blue,
 
+    // priority bits
+    output     [ 1:0]  obj_prio,
+    output             fix, sa, sb, tprio,
     // palette RAM
     output     [10:0]  pal_addr,
     input      [15:0]  pal_dout,
@@ -98,12 +102,12 @@ localparam MODEL=1;
 // video layers
 wire [11:0] obj_pxl;
 wire [ 4:0] rpal, gpal, bpal;
-wire [ 8:0] hdump;
 wire        shadow, hstart, flipx;
 
 assign rpal  = { pal_dout[ 3:0], pal_dout[12] };
 assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
+assign obj_prio = obj_pxl[11:10];
 
 jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .rst        ( rst       ),
@@ -165,9 +169,10 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .st_dout    ( st_dout   ),
     .scr_bad    ( scr_bad   ),
     // Active layer
-    .fix        (           ),
-    .sa         (           ),
-    .sb         (           )
+    .fix        ( fix       ),
+    .sa         (  sa       ),
+    .sb         (  sb       ),
+    .tprio      ( tprio     )
 );
 
 jts16_obj #(.MODEL(MODEL)) u_obj(

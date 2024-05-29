@@ -21,6 +21,9 @@ module jts18_vdp(
     input              clk96,
     input              clk48,
     input              pxl_cen,
+    // S16 video
+    input       [ 8:0] hdump,
+    input       [ 8:0] vdump,
     input              s16b_hs,
     input              s16b_vs,
     // Main CPU interface
@@ -55,13 +58,13 @@ wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
-wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, slow, hs_sh,
+wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, slow,
             cen12x, clk16, clk12, reg_m5, csync, hsync, s16_cs;
 reg         rst_n, edclk_l, clk2=0, hsl, clk12xl;
 reg  [ 1:0] dtackr;
 reg  [ 2:0] cnt8=0, cnt6=0;
 reg  [ 7:0] hbcnt=0, hsaux;
-reg         clk10=0, clk12x=0;
+reg         clk10=0, clk12x=0, vs_eff, hsn_eff;
 
 initial st_dout = 0;
 
@@ -74,9 +77,10 @@ assign clk16  = cnt6<3;
 assign clk12  = cnt8[2];
 assign slow   = hbcnt==8'ha2;//+debug_bus;
 assign video_en = reg_m5;
-assign s16_cs = ~s16b_hs ^ s16b_vs;
+assign hs_eff = s16b_hs;
+assign s16_cs = hsn_eff ^ vs_eff;
 assign csync  = ~CSYNC_pull &  s16_cs;
-assign hsync  = ~HSYNC_pull & ~s16b_hs;
+assign hsync  = ~HSYNC_pull & hsn_eff;
 
 // _d signals: 0 for output, 1 for input
 assign AD =
@@ -86,12 +90,14 @@ assign AD =
 assign SD =
     vram1_SD_d ? SD_mem : vram1_SD_o;
 
-jtframe_sh #(.W(1)) u_sh(
-    .clk    ( clk48   ),
-    .clk_en ( pxl_cen ),
-    .din    ( s16b_hs ),
-    .drop   ( hs_sh   )
-);
+always @(posedge clk48) if(pxl_cen) begin
+    if( vdump==9'he8 ) vs_eff  <= 1;
+    if( vdump==9'heb ) vs_eff  <= 0;
+    if( hdump==9'h76 ) hsn_eff <= 0;
+    if( hdump==9'h94 ) hsn_eff <= 1;
+    // if( hdump==9'h70+{1'b0,debug_bus} ) hsn_eff <= 0;
+    // if( hdump==9'h8e+{1'b0,debug_bus} ) hsn_eff <= 1;
+end
 
 always @(posedge clk96) begin
     // RD_mem    <= RD;

@@ -95,6 +95,7 @@ module jts16_tilemap(
     output             fix,     // CHAR selected (?)
     output             sa,      // SCR1 selected (?)
     output             sb,      // SCR2 selected (?)
+    output             tprio,   // priority bit of selected tile map layer
     // Set top priority
     input              set_fix,
 
@@ -353,6 +354,7 @@ jts16_prio u_prio(
     .sa        ( sa             ),
     .sb        ( sb             ),
     .fix       ( fix            ),
+    .tprio     ( tprio          ),
 
     .pal_addr  ( pal_addr       ),
     .shadow    ( shadow         ),

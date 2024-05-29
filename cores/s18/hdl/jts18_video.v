@@ -102,10 +102,13 @@ module jts18_video(
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
 wire [7:0] st_s16, st_vdp;
+wire [8:0] hdump, vdump;
 wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
-           scr1_sel, scr2_sel, vdp_on;
+           scr1_sel, scr2_sel, vdp_on,
+           sa, sb, fix;
+wire [1:0] obj_prio;
 
 assign st_dout = {3'd0, vdp_en, 3'd0,vdp_on};
 assign scr1_addr[21]=0;
@@ -114,10 +117,10 @@ assign scr1_addr[20-:4] = scr1_sel ? tile_bank[7:4] : tile_bank[3:0];
 assign scr2_addr[20-:4] = scr2_sel ? tile_bank[7:4] : tile_bank[3:0];
 
 `ifndef NOVDP
-assign VS   = gfx_en[2] ? scr_vs   : vdp_vs;
-assign HS   = gfx_en[2] ? scr_hs   : vdp_hs;
-assign LVBL = gfx_en[2] ? scr_lvbl : vdp_vde;
-assign LHBL = gfx_en[2] ? scr_lhbl : vdp_hde;
+assign VS   = scr_vs;   // gfx_en[2] ? scr_vs   : vdp_vs;
+assign HS   = scr_hs;   // gfx_en[2] ? scr_hs   : vdp_hs;
+assign LVBL = scr_lvbl; // gfx_en[2] ? scr_lvbl : vdp_vde;
+assign LHBL = scr_lhbl; // gfx_en[2] ? scr_lhbl : vdp_hde;
 `else
 assign VS   = scr_vs;
 assign HS   = scr_hs;
@@ -186,11 +189,16 @@ jts18_video16 u_video16(
     .obj_data   ( obj_data  ),
 
     // Video signal
+    .sa         ( sa        ),
+    .sb         ( sb        ),
+    .fix        ( fix       ),
+    .obj_prio   ( obj_prio  ),
     .HS         ( scr_hs    ),
     .VS         ( scr_vs    ),
     .LHBL       ( scr_lhbl  ),
     .LVBL       ( scr_lvbl  ),
-    .vdump      (           ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
     .vrender    ( vrender   ),
     .red        ( s16_r     ),
     .green      ( s16_g     ),
@@ -211,6 +219,9 @@ jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk96      ( clk96     ),
     .clk48      ( clk48     ),
+    // S16 video
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
     .s16b_vs    ( VS        ),
     .s16b_hs    ( HS        ),
     .pxl_cen    ( pxl_cen   ),
@@ -247,6 +258,11 @@ jts18_colmix u_colmix(
     .vdp_ysn    ( vdp_ysn   ),
     .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
+    // S16 Video priority
+    .sa         ( sa        ),
+    .sb         ( sb        ),
+    .fix        ( fix       ),
+    .obj_prio   ( obj_prio  ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
