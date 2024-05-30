@@ -49,7 +49,7 @@ module jt053246(    // sprite logic
     output reg        vflip,
     output reg [ 8:0] hpos,
     output     [ 3:0] ysub,
-    output reg [ 9:0] hzoom,//Cambios
+    output reg [11:0] hzoom,
     output reg        hz_keep,
 
     // base video
@@ -79,8 +79,8 @@ localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_CFG   = 2; // interrupt control, ROM read
 
 reg  [18:0] yz_add;
-reg  [11:0] vzoom,hzoomb;
-reg  [ 9:0] /*vzoom,*/ y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
+reg  [11:0] vzoom;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -120,7 +120,7 @@ always @(posedge clk) begin
     xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
     yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
     vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
-    hscl <= k44_en? red_offset(hzoomb,zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
+    hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -205,7 +205,6 @@ always @(posedge clk, posedge rst) begin
         vflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
-        hzoomb   <= 0;
         hz_keep  <= 0;
         indr     <= 0;
         hhalf    <= 0;
@@ -247,21 +246,11 @@ always @(posedge clk, posedge rst) begin
                     x <=  x - xadj;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
-                    hzoom <= sq ? scan_even[ 9:0] : scan_odd[ 9:0];
-                    hzoomb <= sq ? scan_even[11:0] : scan_odd[11:0];
-/*                    if( !k44_en) begin
-                        vzoom <= scan_even[11:0] << 2;
-                        hzoom <= sq ? (scan_even[11:0] << 2) : (scan_odd[11:0] << 2);
-                    end*/
-                    // p_vzoom <= scan_even[11:8];
-                    // p_hzoom <= sq ? scan_even[11:8] : scan_odd[11:8];
-/*                    if( k44_en ) begin //
-                        if(scan_odd>16'h3ff) hzoom <= 10'h3ff;
-                        if(scan_even>16'h3ff) begin
-                            // vzoom <= 10'h3ff;
-                            if( sq ) hzoom <= 10'h3ff;
-                        end
-                    end*/
+                    hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
+                    if( !k44_en) begin
+                        vzoom <= {2'b0,scan_even[9:0]};
+                        hzoom <= sq ? {2'b0,scan_even[9:0]}  : ({2'b0,scan_odd[:0]});
+                    end
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
