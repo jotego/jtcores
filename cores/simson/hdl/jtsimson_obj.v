@@ -174,7 +174,7 @@ jt053246 u_scan(    // sprite logic
 
 jtframe_objdraw #(
     .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
-    .ZW(10),.ZI(6),.ZENLARGE(1), //ZW=12?
+    .ZW(10),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
     .rst        ( rst       ),
