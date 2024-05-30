@@ -248,8 +248,8 @@ always @(posedge clk, posedge rst) begin
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
                     if( !k44_en) begin
-                        vzoom <= {2'b0,scan_even[9:0]};
-                        hzoom <= sq ? {2'b0,scan_even[9:0]}  : ({2'b0,scan_odd[:0]});
+                        vzoom[11:10] <= 0;
+                        hzoom[11:10] <= 0;
                     end
                 end
                 3: begin
