@@ -77,7 +77,6 @@ assign clk16  = cnt6<3;
 assign clk12  = cnt8[2];
 assign slow   = hbcnt==8'ha2;//+debug_bus;
 assign video_en = reg_m5;
-assign hs_eff = s16b_hs;
 assign s16_cs = hsn_eff ^ vs_eff;
 assign csync  = ~CSYNC_pull &  s16_cs;
 assign hsync  = ~HSYNC_pull & hsn_eff;

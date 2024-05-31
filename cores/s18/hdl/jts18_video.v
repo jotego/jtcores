@@ -193,6 +193,7 @@ jts18_video16 u_video16(
     .sb         ( sb        ),
     .fix        ( fix       ),
     .obj_prio   ( obj_prio  ),
+    .tprio      (           ),
     .HS         ( scr_hs    ),
     .VS         ( scr_vs    ),
     .LHBL       ( scr_lhbl  ),
