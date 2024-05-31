@@ -27,6 +27,7 @@ module jts18_main(
     input              mcu_cen,
     output             cpu_cenb,
     input  [7:0]       game_id,
+    input              cab3,
 
     // video control
     input              vint,
@@ -138,7 +139,9 @@ assign flip    = misc_o[5];
 assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
-assign coinage = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+assign coinage = cab3 ?
+    { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
+    {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
 assign st_dout = st_io;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];

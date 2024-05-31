@@ -48,6 +48,8 @@ data = [
     { offset=0x11, dev="fd1094",  data="01" },
     { offset=0x12, dev="mc8123",  data="01" },
     { offset=0x13, dev="i8751",   data="01" },
+    # special controls
+    { offset=0x14, setnames=["astorm3","astormu"], data="01" },
 
     # 5874 board
     { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },
