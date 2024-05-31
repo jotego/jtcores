@@ -19,14 +19,14 @@ skip.machine="pontoon"
 
 [buttons]
 names = [
-    { machine="astorm",     names="Roll,Attack,Special" },
+    { machine="astorm",     names="Attack,Roll,Special" },
     { machine="bloxeed",    names="Change Direction Block" },
     { machine="cltchitr",   names="Checkmate/Advance Base,Bunt/Timeout,Pitching/Swing Bat" },
-    { machine="ddcrew",     names="Jump,Attack" },
-    { machine="desertbr",   names="Speed Run,Shot,Bomb" },
+    { machine="ddcrew",     names="Attack,Jump" },
+    { machine="desertbr",   names="Shot,Speed Run,Bomb" },
     { machine="hamaway",    names="Land Shot,Air Shot with Missile,Bomb" },
     { machine="lghost",     names="Laser Gun,Special Weapon" },
-    { machine="mwalk",      names="Dance with Bomb,Shot" },
+    { machine="mwalk",      names="Shot,Dance with Bomb" },
     { machine="shdancer",   names="Attack,Jump,Magic with Bomb" },
     { machine="wwallyj",    names="Confirm" },
 ]
