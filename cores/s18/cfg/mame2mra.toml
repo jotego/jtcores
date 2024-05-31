@@ -5,7 +5,6 @@ debug = { machines=[
     # gun input missing
     "lghost",
     # requires VDP
-    "astorm",   # some sprites are not visible
     "cltchitr", # boots up to hang up soon after with no VDP
     "hamaway",  # boots up to hang up soon after with no VDP
     "ddcrew",   # does not boot
