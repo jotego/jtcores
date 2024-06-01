@@ -98,6 +98,13 @@ func dump( name string, rom []byte, p0,p1, lim, fill int) int {
 		fmt.Println("ROM file is too short to produce file",name)
 		os.Exit(1)
 	}
+	if( p1==p0 && fill==0 ) {
+		e := os.Remove(name)
+		if e==nil {
+			fmt.Println("Removed file",name)
+		}
+		return p1
+	}
 	e := os.WriteFile( name, rom[p0:p1],0664 )
 	must(e)
 	// complement up to 8MB
@@ -123,6 +130,14 @@ func bank_start(macros map[string]string, name string) int {
 	return int(n)
 }
 
+func swap_bytes( rom []byte, start int ) {
+	for k:=start;k<len(rom);k+=2 {
+		aux     := rom[k]
+		rom[k]   = rom[k+1]
+		rom[k+1] = aux
+	}
+}
+
 func read_rom( game string ) []byte {
 	rom, e := os.ReadFile( filepath.Join(must_env("JTROOT"),"rom",game+".rom") )
 	must(e)
@@ -131,11 +146,7 @@ func read_rom( game string ) []byte {
 		os.Exit(1)
 	}
 	// swap the bytes so the sdram.bin files get written correctly as 16-bit words
-	for k:=0;k<len(rom);k+=2 {
-		aux     := rom[k]
-		rom[k]   = rom[k+1]
-		rom[k+1] = aux
-	}
+	swap_bytes(rom,0)
 	return rom
 }
 
@@ -196,7 +207,10 @@ func extract_sdram( core, game string ) {
 		return
 	}
 	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
-	// extra regions
+	// extra regions (read with prom_we set)
+	if len(reg)>4 { // undo the swap that was needed for the SDRAM part of the ROM file
+		swap_bytes(rom,offsets[4])
+	}
 	for k:=4; k<len(reg);k++ {
 		nx := 0
 		if k+1 < len(reg) {

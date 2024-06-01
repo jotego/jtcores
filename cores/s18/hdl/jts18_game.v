@@ -65,7 +65,7 @@ assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
 assign mcu_we     = prom_we && prog_addr[15:12]>=MCU_START[15:12];
-assign key_we     = prom_we && prog_addr[15:12]<=MCU_START[15:12];
+assign key_we     = prom_we && prog_addr[15:12]< MCU_START[15:12];
 assign xram_cs    = ram_cs | vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};

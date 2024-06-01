@@ -2,7 +2,6 @@ CORENAME=JTS18
 JTFRAME_SIM96
 
 # Debug
-NOMCU
 JTFRAME_NOSTA
 
 # screen
@@ -22,10 +21,6 @@ JTFRAME_IOCTL_RD=4096
 JTFRAME_JOY_LRUD
 JTFRAME_BUTTONS=4
 
-[sidi|mist|neptuno|mc*]
-# won't fit
-JTFRAME_SKIP
-
 # Game codes
 # 5874
 GAME_ASTORM  =0x01
@@ -44,3 +39,7 @@ GAME_WWALLY  =0x40
 
 [mister]
 JTFRAME_MR_DDRLOAD
+
+[sidi|mist|neptuno|mc*]
+# won't fit
+JTFRAME_SKIP

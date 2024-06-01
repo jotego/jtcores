@@ -246,7 +246,7 @@ assign hs=0, vs=0;
 assign red=0, green=0, blue=0;
 assign cs=(addr>>4 == 23'h60_000) && !asn;
 assign dout=mem|{{8{dsn[1]}},{8{dsn[0]}}};
-assign dtackn=0, vde=0, hde=0, spa_b=0, video_en=0;
+assign dtackn=0, vde=0, hde=0, spa_b=0, video_en=0, ys_n=0;
 
 always @(posedge clk48) st_dout <= debug_bus[0] ? mem[0+:8] : mem[8+:8];
 
