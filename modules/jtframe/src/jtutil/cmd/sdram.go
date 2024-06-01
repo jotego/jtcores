@@ -90,7 +90,7 @@ func must_env( env string ) string {
 	return v
 }
 
-func dump( name string, rom []byte, p0,p1, lim int) int {
+func dump( name string, rom []byte, p0,p1, lim, fill int) int {
 	if p1<=0 { p1 = lim	}
 	if p1<p0 { return -1 }
 	if p1<=0 { return p0 }
@@ -101,12 +101,11 @@ func dump( name string, rom []byte, p0,p1, lim int) int {
 	e := os.WriteFile( name, rom[p0:p1],0664 )
 	must(e)
 	// complement up to 8MB
-	const EIGHT=8*1024*1024
 	sz := p1-p0
-	if sz >= EIGHT { return p1 }
+	if sz >= fill { return p1 }
 	f, e := os.OpenFile(name,os.O_APPEND|os.O_WRONLY,0664)
 	must(e)
-	blank := make([]byte,EIGHT-sz)
+	blank := make([]byte,fill-sz)
 	_, e = f.Write(blank)
 	must(e)
 	f.Close()
@@ -140,9 +139,15 @@ func read_rom( game string ) []byte {
 	return rom
 }
 
-func bankOffset( core string, macros map[string]string, rom []byte ) (offsets [5]int) {
+func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []string) {
 	header  := bank_start(macros,"JTFRAME_HEADER")
 	mra_cfg := mra.ParseToml(mra.TomlPath(core), macros, core, false)
+	reg_cnt := len(mra_cfg.Header.Offset.Regions)
+	if reg_cnt < 5 {
+		reg_cnt=5
+	}
+	offsets := make([]int,reg_cnt)
+	// Default values from macros (if defined)
 	offsets[1] = bank_start(macros,"JTFRAME_BA1_START")+header
 	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
 	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
@@ -150,45 +155,56 @@ func bankOffset( core string, macros map[string]string, rom []byte ) (offsets [5
 	if offsets[4] == 0 {
 		offsets[4] = len(rom)
 	}
+	// final values from header (if defined)
 	hinfo := &mra_cfg.Header.Offset
-	for k:=1; k<len(hinfo.Regions)&&k<5; k++ {
+	for k:=1; k<len(hinfo.Regions); k++ {
 		var pos int
 		pos  = int(rom[hinfo.Start+(k<<1)])<<8
 		pos |= int(rom[hinfo.Start+(k<<1)+1])
 		pos <<= hinfo.Bits
 		offsets[k]=pos+header
+		if verbose {
+			fmt.Printf("%-20s %X\n",hinfo.Regions[k], offsets[k])
+		}
 	}
-	for _, each := range offsets {
-		fmt.Printf("%X\n",each)
-	}
-	return offsets
+	return offsets,hinfo.Regions
 }
 
 func extract_sdram( core, game string ) {
+	const EIGHT=8*1024*1024
 	rom        := read_rom(game)
 	macros     := def.Get_Macros( core, "mist" )
-	offsets    := bankOffset(core,macros,rom)
+	offsets,reg:= bankOffset(core,macros,rom)
 	header     := bank_start(macros,"JTFRAME_HEADER")
 	prom_start := offsets[4]
-	nx_start := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start)
+	nx_start := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank1.bin")
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_start = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start)
+	nx_start = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_start = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start)
+	nx_start = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start)
+	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
+	// extra regions
+	for k:=4; k<len(reg);k++ {
+		nx := 0
+		if k+1 < len(reg) {
+			nx = offsets[k+1]
+		}
+		dump(reg[k],rom,offsets[k],nx,len(rom),0)
+	}
+
 }
 
 func make_symlink( game string ) {
