@@ -42,6 +42,10 @@ module jtpcm568_ch(
 reg [15:0] ls;  // loop position
 reg [ 7:0] staddr;
 
+`ifdef SIMULATION
+wire looped = loop & cen & sel;
+`endif
+
 // sound address
 always @(posedge clk or posedge rst) begin
     if(rst) begin
