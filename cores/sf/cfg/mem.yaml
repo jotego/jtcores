@@ -23,7 +23,6 @@ audio:
 
 download:
   post_addr: true
-  noswab: true
 sdram:
   banks:
     - buses:

@@ -7,39 +7,38 @@ Outputs:
 18 (Combinatorial, Output feedback output, Active high)
 19 (Combinatorial, Output feedback output, Active low)
 
-equations from PLD archive did not use i14 but prio3.
-The PCB connects PRIO3 to i14 and has i13 open.
-I'm assuming the equations have prio3 where it should be i14.
+/YS = VDP's transparent output (blank)
 
 Mega Drive VDP selection
-o18 = video_en & /i2 +
-      video_en &                            prio3 & prio2 & prio1 & prio0 +
-      video_en & i8 &                       prio3 & prio2 & prio1 +
-      video_en & i9 &                       prio3 & prio2 & prio1 +
-      video_en & i3 & i8 &                  prio3 & prio2 +
-      video_en & i3 & i9 &                  prio3 & prio2 +
-      video_en & /i6 &                      prio3 & prio2 & prio1 +
-      video_en & /i7 &                      prio3 & prio2 & prio1 +
-      video_en & i3 & i4 & i8 &             prio3 &         prio1 +
-      video_en & i3 & i4 & i9 &             prio3 &         prio1 +
-      video_en & i3 & /i6 &                 prio3 & prio2 & prio0 +
-      video_en & i3 & i4 & i5 & i8 &        prio3 +
-      video_en & i3 & i4 & i5 & i9 &        prio3 +
-      video_en & i3 & i4 & i5 & /i6 & /i7 & prio3 +
-      video_en & i3 & /i7 &                 prio3 & prio2 +
-      video_en & i3 & i4 & /i6 & /i7 &      prio3 & prio1 +
-      video_en & i3 & i4 & /i7 &            prio3 & prio1 & prio0
-
---> simplified to see prio - ix relationships
-
-                           prio3 & prio2 & prio1 & prio0 + // 15
-(i8 + i9 + /i6 + /i7) &    prio3 & prio2 & prio1         + // 14
-i3 & /i6 &                 prio3 & prio2 &         prio0 + // 13
-i3 & (i8 + i9 + /i7) &     prio3 & prio2                 + // 12
-i3 & i4 & /i7 &            prio3 &         prio1 & prio0 + // 11
-i3&i4&(i8+i9+(/i6 & /i7))& prio3 &         prio1         + // 10
-i3&i4&i5&(i8+i9+(/i6&/i7))&prio3                           //  8
+o18 = i1 & /i2 +
+      i1 & i13 & i15 & i16 & i17 +
+      i1 & i8 & i13 & i15 & i16 +
+      i1 & i9 & i13 & i15 & i16 +
+      i1 & i3 &  i8 & i13 & i15 +
+      i1 & i3 &  i9 & i13 & i15 +
+      i1 & i3 & /i7 & i13 & i15 +
+      i1 & /i6 & i13 & i15 & i16 +
+      i1 & /i7 & i13 & i15 & i16 +
+      i1 & i3 & i4 & i8 & i13 & i16 +
+      i1 & i3 & i4 & i9 & i13 & i16 +
+      i1 & i3 & /i6 & i13 & i15 & i17 +
+      i1 & i3 & i4 & i5 & i8 & i13 +
+      i1 & i3 & i4 & i5 & i9 & i13 +
+      i1 & i3 & i4 & /i6 & /i7 & i13 & i16 +
+      i1 & i3 & i4 & /i7 & i13 & i16 & i17 +
+      i1 & i3 & i4 & i5 & /i6 & /i7 & i13
 
 Arcade VDP selected otherwise
 /o19 = o18
 
+using priority signals p[2:0]:
+                                p2 & p1 & p0 +
+(i8+i9+/i6+/i7) &               p2 & p1      +
+i3 & (i8+i9+/i7)&               p2           +
+i3 & /i6 &                      p2 &      p0 +
+i3 & i4 & /i7 &                      p1 & p0 +
+i3 & i4 & (i8+i9+(/i6 & /i7))&       p1      +
+i3 & i4 & i5 & i13 & (i8+i9+(/i6 & /i7))
+
+Using signal names in schematics:
+vdp_sel=

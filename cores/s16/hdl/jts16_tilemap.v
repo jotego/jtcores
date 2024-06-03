@@ -95,6 +95,7 @@ module jts16_tilemap(
     output             fix,     // CHAR selected (?)
     output             sa,      // SCR1 selected (?)
     output             sb,      // SCR2 selected (?)
+    output             tprio,   // priority bit of selected tile map layer
     // Set top priority
     input              set_fix,
 
@@ -162,11 +163,10 @@ jtframe_vtimer #(
     .VB_START  ( 9'h0DF ),
     .VB_END    ( 9'h105 ),
     .VCNT_END  ( 9'h105 ), // 262 lines
-    //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hEF   ),
-    //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h080 ),
-    .HS_END   ( 9'h09E )  // 4.8us measured in PCB
+    .VS_START  ( 9'hEF  ),
+    .VS_END    ( 9'hF3  ), // 4 lines
+    .HS_START  ( 9'h080 ),
+    .HS_END    ( 9'h09E )  // 4.8us measured in PCB
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
@@ -353,6 +353,7 @@ jts16_prio u_prio(
     .sa        ( sa             ),
     .sb        ( sb             ),
     .fix       ( fix            ),
+    .tprio     ( tprio          ),
 
     .pal_addr  ( pal_addr       ),
     .shadow    ( shadow         ),

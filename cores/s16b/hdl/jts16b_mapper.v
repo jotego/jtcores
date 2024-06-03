@@ -175,10 +175,13 @@ assign cpu_haltn = ~mmr[2][1] | cpu_sel;
 assign cpu_berrn = 1;
 assign sndmap_dout = mmr[3];
 
-reg rst_aux, status_msb;
+reg rst_aux, status_msb, rst_req;
 
 always @(negedge clk) begin
-    { cpu_rst, rst_aux } <= { rst_aux, (mmr[2][0]&~cpu_sel) | rst };
+    rst_req <= (mmr[2][0]&~cpu_sel) | rst;
+    if( rst_req ) cpu_rst <= 1;
+    else if( !last_vint && vint && !bus_mcu ) cpu_rst <= 0;
+    // { cpu_rst, rst_aux } <= { rst_aux, (mmr[2][0]&~cpu_sel) | rst };
 end
 
 wire [15:0] mcu_addr_s;
@@ -345,7 +348,7 @@ always @(posedge clk) begin
                 wrmem   <= 0;
                 rdmem   <= 0;
                 bus_rq  <= 0;
-                if(!cpu_rst && cpu_haltn) bus_mcu <= 0;
+                /*if(!cpu_rst && cpu_haltn)*/ bus_mcu <= 0;
                 if( rdmem ) begin
                     {mmr[0], mmr[1]} <= bus_dout;
                     `ifdef SIMULATION

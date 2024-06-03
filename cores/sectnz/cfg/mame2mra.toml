@@ -14,7 +14,6 @@ names=[
 [header]
 data=[ { machine="sectionz", offset=0, data="00" },
        { machine="lwings",   offset=0, data="01" } ]
-offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3"]}
 
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus"}]

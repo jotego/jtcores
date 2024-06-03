@@ -20,6 +20,10 @@
 `define JTFRAME_BUTTONS 2
 `endif
 
+`ifndef JTFRAME_SIM_SNDEN
+`define JTFRAME_SIM_SNDEN 6'h3f
+`endif
+
 // Top level for verilator simulations
 
 module game_test(
@@ -621,7 +625,7 @@ u_game(
     .snd_right   ( snd_right      ),
     `endif
     .sample      ( sample         ),
-    .snd_en      ( 6'h3f          ),
+    .snd_en      (`JTFRAME_SIM_SNDEN),
     .snd_vol     ( 8'h80          ), // matching value in jtframe_volume.v
     .snd_vu      (                ),
     .snd_peak    (                ),
