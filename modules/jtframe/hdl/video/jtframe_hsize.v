@@ -104,7 +104,6 @@ always @(posedge clk) if(pxls_cen) begin
         rdcnt    <= { {VW-4{offset[4]}}, offset};
         rdcnt_l  <= rdcnt;
         rgbcnt   <= rgbcnt_i[VW-1:0]; 
-        rgbfrac  <= 0;  
         rgbcnt_i <= ({1'b0,hmax}-rdcnt_l)>>1;
         over     <= 0; //Avoids this step being done twice in the same HS
     end else begin 
