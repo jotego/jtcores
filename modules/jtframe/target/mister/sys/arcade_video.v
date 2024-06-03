@@ -65,12 +65,12 @@ always @(posedge CLK_VIDEO) begin
 	reg old_ce;
 	old_ce <= ce_pix;
 	CE <= 0;
-	if(~old_ce & ce_pix) begin
+	RGB_fix <= RGB_in;
+	if(~old_ce & ce_pix) begin //Cambios
 		CE <= 1;
 		HS <= hs_fix;
 		if(~HS & hs_fix) VS <= vs_fix;
 
-		RGB_fix <= RGB_in;
 		HBL <= HBlank;
 		if(HBL & ~HBlank) VBL <= VBlank;
 	end
@@ -300,6 +300,7 @@ always @(posedge CLK_VIDEO) begin
 	reg [13:0] hcnt = 0;
 	reg old_vs, old_de;
 
+	ram_data <= {8'd0,VGA_B,VGA_G,VGA_R};
 	ram_wr <= 0;
 	if(CE_PIXEL && FB_EN) begin
 		old_vs <= VGA_VS;
@@ -313,7 +314,6 @@ always @(posedge CLK_VIDEO) begin
 		end
 		if(VGA_DE) begin
 			ram_wr <= 1;
-			ram_data <= {8'd0,VGA_B,VGA_G,VGA_R};
 			ram_addr <= next_addr;
 			next_addr <=
 				do_flip    ? next_addr-3'd4 :

@@ -416,7 +416,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk) if(pxl_cen) begin
+always @(posedge clk) /*if(pxl_cen)*/ begin
     { HB_out, VB_out } <= { HB, VB };
     // if HOFFSET != 0 and the game is vertical, the full horizontal length
     // of the screen is used. Otherwise, the credits will start at HOFFSET

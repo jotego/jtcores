@@ -92,14 +92,15 @@ end
 reg req_line_reset;
 reg [DWIDTH:0] r_d, g_d, b_d;
 always @(posedge clk_vid) begin
-	if(ce_x1i) begin
+	//if(ce_x1i) begin
 		req_line_reset <= hb_in;
 		r_d <= r_in;
 		g_d <= g_in;
 		b_d <= b_in;
-	end
+	//end
 end
 
+`ifndef JTFRAME_NOHQ2X
 Hq2x #(.LENGTH(LENGTH), .HALF_DEPTH(HALF_DEPTH)) Hq2x
 (
 	.clk(clk_vid),
@@ -115,6 +116,9 @@ Hq2x #(.LENGTH(LENGTH), .HALF_DEPTH(HALF_DEPTH)) Hq2x
 	.hblank(hbo[0]&hbo[8]),
 	.outpixel({b_out,g_out,r_out})
 );
+`else 
+assign {b_out,g_out,r_out} = {b_d,g_d,r_d};
+`endif
 
 reg  [7:0] pix_out_cnt = 0;
 wire [7:0] pc_out = pix_out_cnt + 1'b1;

@@ -9,6 +9,7 @@ wire Hinit, Vinit, LHBL, LVBL, HS, VS,
      pxl2_cen, pxl_cen;
 
 reg en=0;
+reg [11:0] rgb_cnt;
 reg [1:0] cen_cnt=0;
 reg [2:0] vs_cnt=0;
 reg [3:0] scale=0;

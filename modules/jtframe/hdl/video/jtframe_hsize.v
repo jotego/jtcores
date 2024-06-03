@@ -25,6 +25,7 @@ module jtframe_hsize #( parameter
     input              clk,
     input              pxl_cen,
     input              pxl2_cen,
+    //output             pxl_str,
 
     input        [3:0] scale,
     input        [4:0] offset,
@@ -57,11 +58,21 @@ reg  [        VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0;
 reg  [      SW-2:0] rdfrac=0,rgbfrac=0;
 reg  [      VW-1:0] hb0, hb1;
 reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
+reg  [         5:0] pxl_str=1;
+reg  pxls_cen;
 
 reg  VSl, HSl, LHBl, LHBll, VBl, pass, over;
 
 assign rgb_in  = {r_in, g_in, b_in};
 assign summand = {{VW{1'b0}},~scale[3],{SW-6{scale[3]}},scale};
+
+always @(posedge clk) begin 
+    pxl_str  <= {pxl_str[4:0],pxl_str[5]};
+    pxls_cen <= pxl_str[5]; //8 Hz para un reloj de 48 Hz
+    pass     <= (rgbcnt <= hb0) && (rgbcnt >= hb1);
+    // colour output
+    {r_out,g_out,b_out} <= enable ? (!HB_out && pass ? rgb_out : {3*COLORW{1'b0}}) : rgb_in;
+end
 
 always @(posedge clk) if(pxl_cen) begin
     HSl    <=  HS_in;
@@ -70,6 +81,7 @@ always @(posedge clk) if(pxl_cen) begin
     HB_out <= HB_in;
     HS_out <= HS_in;
     VB_out <= VB_in;
+
 
     // VB must be adjusted to prevent the bottom line from being washed out
     if( ~HB_in & ~LHBl ) {VB_out, VBl} <= {VBl, VB_in};
@@ -88,13 +100,11 @@ always @(posedge clk) if(pxl_cen) begin
     // Register when HB toggles
     if(  LHBl   & ~LHBll  ) hb1 <= wrcnt;
     if(  HB_in  &  LHBl   ) hb0 <= wrcnt;
-    // colour output
-    {r_out,g_out,b_out} <= enable ? (!HB_out && pass ? rgb_out : {3*COLORW{1'b0}}) : rgb_in;
 end
 
-always @(posedge clk) if(pxl2_cen) begin
-    {rdcnt,rdfrac} <= {rdcnt,rdfrac} + {1'b0,summand};
-    pass           <= (rgbcnt <= hb0) && (rgbcnt >= hb1);
+always @(posedge clk) if(pxls_cen) begin
+/*    {rdcnt,rdfrac} <= {rdcnt,rdfrac} + {1'b0,summand};*/
+    rdcnt <= rdcnt + 1'd1;
     if( ~HS_in &  HSl)     over <= 1;
     if(  HS_in & ~HSl & over) begin 
         {rdcnt,rdfrac} <= { {VW-4{offset[4]}}, offset,{SW-1{1'b0}} };
@@ -104,7 +114,8 @@ always @(posedge clk) if(pxl2_cen) begin
         rgbcnt_i       <= ({1'b0,hmax}-rdcnt_l)>>1;
         over           <= 0; //Avoids this step being done twice in the same HS
     end else begin 
-        {rgbcnt,rgbfrac} <= {rgbcnt,rgbfrac} + summand;
+/*        {rgbcnt,rgbfrac} <= {rgbcnt,rgbfrac} + summand;*/
+        rgbcnt <= rgbcnt +1'd1;
     end
 end
 
