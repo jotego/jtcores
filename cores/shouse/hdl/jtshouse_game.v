@@ -172,7 +172,7 @@ jtshouse_mcu u_mcu(
     // cabinet I/O
     .io_mode    (io_mode    ),
     .cab_1p     (cab_1p[1:0]),
-    .coin       ( coin[1:0] ),
+    .coin       ( coin[3:0] ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .joystick3  ( joystick3 ),
