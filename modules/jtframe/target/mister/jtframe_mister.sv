@@ -563,7 +563,7 @@ hps_io #( .STRLEN(0), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
         .pxl_cen    ( pxl1_cen  ),
         .pxl2_cen   ( pxl2_cen  ),
 
-        .scale      ( hsize_scale  ),
+        .scale      ( 4'd0/*hsize_scale*/  ),
         .offset     ( 5'd0         ),
         .enable     ( hsize_enable ),
 

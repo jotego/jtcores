@@ -52,10 +52,8 @@ module jtframe_hsize #( parameter
 localparam VW = 9; // Max 512 pixels including blanking
 localparam SW = 8;
 
-wire [   VW+SW-2:0] summand;
 wire [COLORW*3-1:0] rgb_out, rgb_in;
 reg  [        VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0;
-reg  [      SW-2:0] rdfrac=0,rgbfrac=0;
 reg  [      VW-1:0] hb0, hb1;
 reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
 reg  [         5:0] pxl_str=1;
@@ -64,7 +62,6 @@ reg  pxls_cen;
 reg  VSl, HSl, LHBl, LHBll, VBl, pass, over;
 
 assign rgb_in  = {r_in, g_in, b_in};
-assign summand = {{VW{1'b0}},~scale[3],{SW-6{scale[3]}},scale};
 
 always @(posedge clk) begin 
     pxl_str  <= {pxl_str[4:0],pxl_str[5]};
@@ -81,8 +78,6 @@ always @(posedge clk) if(pxl_cen) begin
     HB_out <= HB_in;
     HS_out <= HS_in;
     VB_out <= VB_in;
-
-
     // VB must be adjusted to prevent the bottom line from being washed out
     if( ~HB_in & ~LHBl ) {VB_out, VBl} <= {VBl, VB_in};
     if(  HS_in & ~HSl ) begin
@@ -103,18 +98,16 @@ always @(posedge clk) if(pxl_cen) begin
 end
 
 always @(posedge clk) if(pxls_cen) begin
-/*    {rdcnt,rdfrac} <= {rdcnt,rdfrac} + {1'b0,summand};*/
     rdcnt <= rdcnt + 1'd1;
     if( ~HS_in &  HSl)     over <= 1;
     if(  HS_in & ~HSl & over) begin 
-        {rdcnt,rdfrac} <= { {VW-4{offset[4]}}, offset,{SW-1{1'b0}} };
-        rdcnt_l        <= rdcnt;
-        rgbcnt         <= rgbcnt_i[VW-1:0]; 
-        rgbfrac        <= 0;  
-        rgbcnt_i       <= ({1'b0,hmax}-rdcnt_l)>>1;
-        over           <= 0; //Avoids this step being done twice in the same HS
+        rdcnt    <= { {VW-4{offset[4]}}, offset};
+        rdcnt_l  <= rdcnt;
+        rgbcnt   <= rgbcnt_i[VW-1:0]; 
+        rgbfrac  <= 0;  
+        rgbcnt_i <= ({1'b0,hmax}-rdcnt_l)>>1;
+        over     <= 0; //Avoids this step being done twice in the same HS
     end else begin 
-/*        {rgbcnt,rgbfrac} <= {rgbcnt,rgbfrac} + summand;*/
         rgbcnt <= rgbcnt +1'd1;
     end
 end
@@ -124,10 +117,10 @@ jtframe_linebuf #(.DW(COLORW*3), .AW(VW)) u_line(
     .LHBL     (~HS_in        ),
     // Port 0: writes 
     .wr_data  ( rgb_in       ),
-    .wr_addr  ( wrcnt ),
+    .wr_addr  ( wrcnt        ),
     .we       ( pxl_cen      ),
     // Port 1
-    .rd_addr  (rgbcnt),
+    .rd_addr  (rgbcnt        ),
     .rd_gated (              ),
     .rd_data  ( rgb_out      )
     );

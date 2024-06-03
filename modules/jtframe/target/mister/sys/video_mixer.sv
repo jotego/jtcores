@@ -203,17 +203,17 @@ always @(posedge CLK_VIDEO) begin
 	vs  <= scandoubler ?  vs_sd :  vs_g;
 	hs  <= scandoubler ?  hs_sd :  hs_g;
 
-	//if(CE_PIXEL) begin
-		VGA_R <= r;
-		VGA_G <= g;
-		VGA_B <= b;
+	VGA_R <= r;
+	VGA_G <= g;
+	VGA_B <= b;
 
+	if(CE_PIXEL) begin
 		VGA_VS <= vs;
 		VGA_HS <= hs;
 
 		old_hde <= hde;
 		if(old_hde ^ hde) VGA_DE <= vde & hde;
-	//end
+	end
 end
 
 endmodule
