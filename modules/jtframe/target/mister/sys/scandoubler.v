@@ -92,11 +92,10 @@ end
 reg req_line_reset;
 reg [DWIDTH:0] r_d, g_d, b_d;
 always @(posedge clk_vid) begin
-	if(ce_x1i) /*begin*/ req_line_reset <= hb_in;
+	if( ce_x1i ) req_line_reset <= hb_in;
 	r_d <= r_in;
 	g_d <= g_in;
 	b_d <= b_in;
-	//end
 end
 
 `ifndef JTFRAME_NOHQ2X

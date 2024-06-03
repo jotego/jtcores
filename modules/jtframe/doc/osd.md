@@ -90,7 +90,6 @@ bit     |  meaning                | Enabled with macro
 42-45   | Crop offset   (MiSTer)  | MiSTer only
 46-47   | Scaling style (MiSTer)  | MiSTer only
 48      | CRT H scaling enable    | MiSTer only
-49-52   | CRT H scaling factor    | MiSTer only, visibility masked
 53-56   | CRT H offset            | MiSTer only
 57-60   | CRT V offset            | MiSTer only
 61-63   |    -- free --           |

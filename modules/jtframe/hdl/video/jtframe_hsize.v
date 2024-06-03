@@ -25,10 +25,6 @@ module jtframe_hsize #( parameter
     input              clk,
     input              pxl_cen,
     input              pxl2_cen,
-    //output             pxl_str,
-
-    input        [3:0] scale,
-    input        [4:0] offset,
     input              enable,
 
     input [COLORW-1:0] r_in,
@@ -101,7 +97,7 @@ always @(posedge clk) if(pxls_cen) begin
     rdcnt <= rdcnt + 1'd1;
     if( ~HS_in &  HSl)     over <= 1;
     if(  HS_in & ~HSl & over) begin 
-        rdcnt    <= { {VW-4{offset[4]}}, offset};
+        rdcnt    <= 0;
         rdcnt_l  <= rdcnt;
         rgbcnt   <= rgbcnt_i[VW-1:0]; 
         rgbcnt_i <= ({1'b0,hmax}-rdcnt_l)>>1;

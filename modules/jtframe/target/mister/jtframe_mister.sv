@@ -236,7 +236,6 @@ wire        hs_resync, vs_resync;
 
 // Horizontal scaling for CRT
 wire        hsize_enable;
-wire [3:0]  hsize_scale;
 wire        hsize_hs, hsize_vs, hsize_hb, hsize_vb;
 wire [COLORW-1:0] hsize_r, hsize_g, hsize_b;
 
@@ -286,7 +285,6 @@ assign { voffset, hoffset } = status[60:53];
 
 // Horizontal scaling for CRT
 assign hsize_enable = status[48];
-assign hsize_scale  = status[52:49];
 
 assign game_paddle_3 = paddle_3;
 assign game_paddle_4 = paddle_4;
@@ -379,7 +377,6 @@ assign status_menumask[15:6] = 0,
     `else
        status_menumask[3]    = 1,
 `endif
-       status_menumask[2]    = ~hsize_enable,    // horizontal scaling
        status_menumask[0]    = direct_video;
 
 always @(posedge clk_sys) begin
@@ -562,9 +559,6 @@ hps_io #( .STRLEN(0), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
         .clk        ( clk_sys   ),
         .pxl_cen    ( pxl1_cen  ),
         .pxl2_cen   ( pxl2_cen  ),
-
-        .scale      ( 4'd0/*hsize_scale*/  ),
-        .offset     ( 5'd0         ),
         .enable     ( hsize_enable ),
 
         .r_in       ( game_r    ),

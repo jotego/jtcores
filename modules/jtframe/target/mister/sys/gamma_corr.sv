@@ -107,18 +107,18 @@ always @(posedge clk_vid) begin
 	reg [7:0] R_gamma, G_gamma;
 	reg       hs,vs,hb,vb,de;
 
-	//if(ce_pix) begin
-		{gamma_index_r,gamma_index_g,gamma_index_b} <= RGB_in;
+	{gamma_index_r,gamma_index_g,gamma_index_b} <= RGB_in;
+	RGB_out  <= gamma_en ? {gamma_curve_r[gamma_index_r],gamma_curve_g[gamma_index_g],gamma_curve_b[gamma_index_b]}
+                        : {gamma_index_r,gamma_index_g,gamma_index_b};
+	if(ce_pix) begin
 		hs <= HSync; vs <= VSync;
 		hb <= HBlank; vb <= VBlank;
 		de <= DE;
 
-		RGB_out  <= gamma_en ? {gamma_curve_r[gamma_index_r],gamma_curve_g[gamma_index_g],gamma_curve_b[gamma_index_b]}
-	                        : {gamma_index_r,gamma_index_g,gamma_index_b};
 		HSync_out <= hs; VSync_out <= vs;
 		HBlank_out <= hb; VBlank_out <= vb;
 		DE_out <= de;
-	//end
+	end
 end
 
 endmodule

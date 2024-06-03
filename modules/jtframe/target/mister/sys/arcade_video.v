@@ -66,7 +66,7 @@ always @(posedge CLK_VIDEO) begin
 	old_ce <= ce_pix;
 	CE <= 0;
 	RGB_fix <= RGB_in;
-	if(~old_ce & ce_pix) begin //Cambios
+	if(~old_ce & ce_pix) begin
 		CE <= 1;
 		HS <= hs_fix;
 		if(~HS & hs_fix) VS <= vs_fix;
