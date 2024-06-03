@@ -65,7 +65,8 @@ reg  [ 1:0] dtackr;
 reg  [ 2:0] cnt8=0, cnt6=0;
 reg  [ 7:0] hbcnt=0, hsaux;
 reg         clk10=0, clk12x=0, vs_eff, hsn_eff;
-
+reg         rnw_r, asn_r;
+reg  [ 1:0] dsn_r;
 initial st_dout = 0;
 
 assign vs     = ~vs_n;
@@ -124,6 +125,12 @@ always @(posedge clk96) dtackr <= {dtackr[0], dtack_pull};//dtackn <= ~dtack_pul
 
 always @(posedge clk96) clk2 <= ~clk2;
 
+always @(posedge clk96) begin
+    asn_r <= asn;
+    dsn_r <= dsn;
+    rnw_r <= rnw;
+end
+
 always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
 /* verilator tracing_off */
@@ -142,10 +149,10 @@ ym7101 u_vdp(
     .CD_i       ( CD        ),
     .CD_o       ( dout      ),
     .CD_d       ( CD_d      ),
-    .RW         ( rnw       ),
-    .LDS        ( dsn[0]    ),
-    .UDS        ( dsn[1]    ),
-    .AS         ( asn       ),
+    .RW         ( rnw_r     ),
+    .LDS        ( dsn_r[0]  ),
+    .UDS        ( dsn_r[1]  ),
+    .AS         ( asn_r     ),
     .IPL1_pull  (           ),
     .IPL2_pull  (           ),
     .DTACK_i    ( dtackr[1] ),
