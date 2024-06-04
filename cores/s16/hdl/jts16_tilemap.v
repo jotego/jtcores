@@ -169,6 +169,7 @@ jtframe_vtimer #(
     .HS_START  ( 9'h080 ),
     .HS_END    ( HS_END )  // 4.8us measured in PCB
 ) u_timer(
+    .debug_bus ( debug_bus),
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
     .vdump     ( vdump    ),
@@ -180,7 +181,7 @@ jtframe_vtimer #(
     .VS        ( VS       ),
     .Vinit     (          ),
     .vrender   ( vrender  ),
-    .vrender1  (          )
+    .vrender1  (          ),
 );
 
 jts16_mmr #(.MODEL(MODEL)) u_mmr(
