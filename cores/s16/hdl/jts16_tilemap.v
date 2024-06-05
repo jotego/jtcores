@@ -181,7 +181,7 @@ jtframe_vtimer #(
     .VS        ( VS       ),
     .Vinit     (          ),
     .vrender   ( vrender  ),
-    .vrender1  (          ),
+    .vrender1  (          )
 );
 
 jts16_mmr #(.MODEL(MODEL)) u_mmr(
