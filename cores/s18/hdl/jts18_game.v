@@ -48,6 +48,8 @@ wire        key_we, mcu_we;
 reg         fd1094_en, mcu_en;
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
+// Cabinet type
+reg         cab3; // support for three players
 
 wire [ 7:0] sndmap_din, sndmap_dout;
 wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
@@ -63,7 +65,7 @@ assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
 assign mcu_we     = prom_we && prog_addr[15:12]>=MCU_START[15:12];
-assign key_we     = prom_we && prog_addr[15:12]<=MCU_START[15:12];
+assign key_we     = prom_we && prog_addr[15:12]< MCU_START[15:12];
 assign xram_cs    = ram_cs | vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
@@ -88,6 +90,7 @@ always @(posedge clk) begin
     if( header && ioctl_wr ) begin
         if( ioctl_addr[4:0]==5'h11 ) fd1094_en <= ioctl_dout[0];
         if( ioctl_addr[4:0]==5'h13 ) mcu_en    <= ioctl_dout[0];
+        if( ioctl_addr[4:0]==5'h14 ) cab3      <= ioctl_dout[0]; // support for three players
         if( ioctl_addr[4:0]==5'h18 ) game_id   <= ioctl_dout;
     end
 end
@@ -108,6 +111,7 @@ jts18_main u_main(
     .cpu_cen    ( cpu_cen   ),
     .cpu_cenb   ( cpu_cenb  ),
     .game_id    ( game_id   ),
+    .cab3       ( cab3      ),
     // Video
     .vint       ( vint      ),
     .flip       ( flip      ),

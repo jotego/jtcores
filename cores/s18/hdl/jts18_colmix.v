@@ -25,9 +25,11 @@ module jts18_colmix(
     input              LVBL,
     output             LHBL_dly,
     output             LVBL_dly,
-    // control
+    // S16B
+    input              vid16_en, sa, sb, fix,
+    input        [1:0] obj_prio,
+    // VDP
     input              vdp_en,
-    input              vid16_en,
     input        [2:0] vdp_prio,
     input              vdp_ysn,
     // color
@@ -50,10 +52,12 @@ assign s16_blank = {ex_r,ex_g,ex_b}==0;
 always @(posedge clk) begin
     case( vdp_prio )
         7: vdp_sel <= 1;
-        default: vdp_sel <= 0;
+        4: vdp_sel <= !fix && (sa || sb);
+        default: vdp_sel <= s16_blank;
     endcase
-    if( s16_blank ) vdp_sel <= 1;
-    if( !vid16_en || !vdp_en || !vdp_ysn ) vdp_sel <= 0;
+    if( !vdp_ysn  ) vdp_sel <= 0;
+    if( !vid16_en ) vdp_sel <= 1;
+    if( !vdp_en   ) vdp_sel <= 0;
     pr <= vdp_sel ? vdp_r : ex_r;
     pg <= vdp_sel ? vdp_g : ex_g;
     pb <= vdp_sel ? vdp_b : ex_b;

@@ -27,6 +27,7 @@ module jts18_main(
     input              mcu_cen,
     output             cpu_cenb,
     input  [7:0]       game_id,
+    input              cab3,
 
     // video control
     input              vint,
@@ -138,7 +139,9 @@ assign flip    = misc_o[5];
 assign io_we   = io_cs && !RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
-assign coinage = { 2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+assign coinage = cab3 ?
+    { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
+    {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
 assign st_dout = st_io;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];
@@ -165,13 +168,14 @@ jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
     .SYNC_P1    ( 1             ),
-    .SYNC_INT   ( 1             )
+    .SYNC_INT   ( 1             ),
+    .ROMBIN     ( "mcu"         )
 ) u_mcu(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
     .cen        ( mcu_cen       ),
 
-    .int0n      ( 1'b1          ),
+    .int0n      ( mcu_intn[0]   ),
     .int1n      ( mcu_intn[1]   ),
 
     .p0_i       ( mcu_din       ),
@@ -318,9 +322,9 @@ always @(posedge clk) begin
                                          16'hffff;
     end
 end
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts16_fd1094 u_dec1094(
-    .rst        ( rst       ),
+    .rst        ( cpu_rst   ),
     .clk        ( clk       ),
 
     // Configuration
@@ -346,7 +350,7 @@ jts16_fd1094 u_dec1094(
     .ok_dly     ( ok_dly    )
 );
 
-jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
+jtframe_prom #(.AW(13),.SIMFILE("maincpu:key")) u_key(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
@@ -355,7 +359,7 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
     .we     ( key_we    ),
     .q      ( key_data  )
 );
-
+/* verilator tracing_on */
 jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
     .rst        ( rst            ),
     .clk        ( clk            ),
@@ -418,7 +422,7 @@ jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
     .st_addr    ( st_addr        ),
     .st_dout    ( st_mapper      )
 );
-/* verilator tracing_on */
+/* xxverilator tracing_off */
 jtframe_m68k u_cpu(
     .RESETn     (             ),
     .clk        ( clk         ),

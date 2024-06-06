@@ -1,11 +1,10 @@
 shouse: [ mister, pocket ]
 ngp:    [ mister, pocket ]
 s18:    [ mister, pocket ]
+biocom: [ pocket ]
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
-# biocom: [ pocket ]
 # flane: [ pocket ]
-# kchamp: [ pocket ]
 # ktiger: [ pocket ]
 # labrun: [ pocket ]
 # midres: [ pocket ]

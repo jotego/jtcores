@@ -187,7 +187,7 @@ localparam POCKET=0;
                         f=$fopen(SIMFILE,"rb");
                         if( f != 0 ) begin
                             readcnt=$fread( mem, f );
-                            $display("-%-10s (%4d bytes) %m",
+                            $display("-%-12s (%4d bytes) %m",
                                 SIMFILE, readcnt);
                             if( readcnt != 2**AW && readcnt!=0)
                                 $display("\tthe memory was not filled by the file data");

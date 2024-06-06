@@ -5,7 +5,6 @@ debug = { machines=[
     # gun input missing
     "lghost",
     # requires VDP
-    "astorm",   # some sprites are not visible
     "cltchitr", # boots up to hang up soon after with no VDP
     "hamaway",  # boots up to hang up soon after with no VDP
     "ddcrew",   # does not boot
@@ -20,14 +19,14 @@ skip.machine="pontoon"
 
 [buttons]
 names = [
-    { machine="astorm",     names="Roll,Attack,Special" },
+    { machine="astorm",     names="Attack,Roll,Special" },
     { machine="bloxeed",    names="Change Direction Block" },
     { machine="cltchitr",   names="Checkmate/Advance Base,Bunt/Timeout,Pitching/Swing Bat" },
-    { machine="ddcrew",     names="Jump,Attack" },
-    { machine="desertbr",   names="Speed Run,Shot,Bomb" },
+    { machine="ddcrew",     names="Attack,Jump" },
+    { machine="desertbr",   names="Shot,Speed Run,Bomb" },
     { machine="hamaway",    names="Land Shot,Air Shot with Missile,Bomb" },
     { machine="lghost",     names="Laser Gun,Special Weapon" },
-    { machine="mwalk",      names="Dance with Bomb,Shot" },
+    { machine="mwalk",      names="Shot,Dance with Bomb" },
     { machine="shdancer",   names="Attack,Jump,Magic with Bomb" },
     { machine="wwallyj",    names="Confirm" },
 ]
@@ -49,6 +48,8 @@ data = [
     { offset=0x11, dev="fd1094",  data="01" },
     { offset=0x12, dev="mc8123",  data="01" },
     { offset=0x13, dev="i8751",   data="01" },
+    # special controls
+    { offset=0x14, setnames=["astorm3","astormu"], data="01" },
 
     # 5874 board
     { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },

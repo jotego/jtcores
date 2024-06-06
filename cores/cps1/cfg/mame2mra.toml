@@ -174,6 +174,18 @@ regions=[
                 "u11l1_17.bin", "u20", "u21", "u22", "u23", "vaj_22b.7f", "vaj_23b.8f", "vau_22a.7f", "vau_23a.8f", "wlm-32.8h",
             ], reverse=false },
     ] },
+    { name="maincpu",  reverse=true, setnames=["sf2qp1"],parts=[
+        { name="stfii-qkn-cps-17.33", crc="3a9458ee", length=0x40000, offset=0x0     },
+        { name="stfii-qkn-cps-17.34", crc="4ed215d8", length=0x40000, offset=0x40000 },
+        { name="stfii-qkn-cps-17.34", crc="4ed215d8", length=0x40000, offset=0x0     },
+        { name="stfii-qkn-cps-17.33", crc="3a9458ee", length=0x40000, offset=0x40000 },
+    ] },
+    { name="maincpu",  reverse=true, setnames=["sf2qp2"],parts=[
+        { name="qkn.33", crc="43aa343d", length=0x40000, offset=0x0     },
+        { name="qkn.34", crc="d03b553f", length=0x40000, offset=0x40000 },
+        { name="qkn.34", crc="d03b553f", length=0x40000, offset=0x0     },
+        { name="qkn.33", crc="43aa343d", length=0x40000, offset=0x40000 },
+    ] },
     { name="gfx", width=64 },
     # So far, Pang!3 is too specific. It needs to break each file in two and
     # merge them back in different locations. Instead of parsing MAME's XML
