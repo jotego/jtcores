@@ -127,7 +127,7 @@ always @(posedge clk) begin
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
     yw0   = y + yadj;
-    ywrap = yw0 > 10'h200 ? yw0+10'h187 : yw0;
+    ywrap = yw0 > 10'h200 ? yw0+10'h200 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
