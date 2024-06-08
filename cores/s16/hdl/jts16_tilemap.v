@@ -112,6 +112,7 @@ parameter MODEL = 1;
 // "The sprite X position defines the starting location of the sprite. The
 //  leftmost pixel of the screen is $00B6, and the rightmost is $1F5."
 parameter [8:0] HB_END = 9'h0bf;
+parameter       HS_END = 9'h09E; // for System 16B 4.8us measured in PCB
 
 parameter [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
 parameter [9:0] SCR1_DLY= SCR2_DLY;
@@ -166,7 +167,7 @@ jtframe_vtimer #(
     .VS_START  ( 9'hEF  ),
     .VS_END    ( 9'hF3  ), // 4 lines
     .HS_START  ( 9'h080 ),
-    .HS_END    ( 9'h09E )  // 4.8us measured in PCB
+    .HS_END    ( HS_END )  // 4.8us measured in PCB
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
