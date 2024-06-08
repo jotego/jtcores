@@ -82,7 +82,6 @@ bit     |  meaning                | Enabled with macro
 13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
 18      | Autofire button 0       | JTFRAME_AUTOFIRE0
-19      | 60 Hz option            | JTFRAME_OSD60HZ %%
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
@@ -96,8 +95,6 @@ bit     |  meaning                | Enabled with macro
 61-63   |    -- free --           |
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
-
-%% If JTFRAME_OSD60HZ is defined and the status word bit is low, MiSTer will disable the Scan FX options. This options should be used when the pixel clock is produced by a fractional divider, and thus it's very jittery. Some displays do good with this, some don't. This is less important for MiST because the PLL is less troublesome there. In MiSTer, all hell breaks loose in the HDMI subsystem for some game PLL settings.
 
 Option visibility in MiSTer is controlled in [jtframe_mister.sv](../target/mister/jtframe_mister.sv) using the `status_menumask` variable.
 

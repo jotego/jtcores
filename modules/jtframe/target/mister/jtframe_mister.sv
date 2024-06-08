@@ -213,6 +213,9 @@ wire [21:0] gamma_bus;
 wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
 
+wire [3*COLORW-1:0] base_rgb;
+wire        base_lhbl, base_lvbl;
+
 wire [ 3:0] hoffset, voffset;
 wire [31:0] cheat;
 wire        ioctl_cheat, ioctl_lock;
@@ -374,11 +377,7 @@ assign status_menumask[15:6] = 0,
        status_menumask[4]    = 1,   // hidden
        status_menumask[1]    = ~core_mod[0],  // shown for vertical games
 `endif
-`ifdef JTFRAME_OSD60HZ
-       status_menumask[3]    = status[19],      // Disables the Scan FX options if a core needs the 60Hz option but is not set
-    `else
-       status_menumask[3]    = 1,
-`endif
+       status_menumask[3]    = 1, // scan FX options (always shown)
        status_menumask[2]    = ~hsize_enable,    // horizontal scaling
        status_menumask[0]    = direct_video;
 
@@ -593,6 +592,53 @@ hps_io #( .STRLEN(0), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
     assign hsize_b  = game_b;
 `endif
 
+localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
+
+wire [VIDEO_DW-1:0] game_rgb;
+wire [COLORW-1:0] base_r, base_g, base_b;
+
+assign {base_r,base_g,base_b} = base_rgb;
+
+// arcade video does not support 15bpp colour, so for that
+// case we need to convert it to 24bpp
+generate
+    if( COLORW!=5 ) begin
+        assign game_rgb = base_rgb;
+    end else begin
+        assign game_rgb = {
+            base_r, base_r[4:2],
+            base_g, base_g[4:2],
+            base_b, base_b[4:2]   };
+    end
+endgenerate
+
+// VIDEO_WIDTH does not include blanking:
+arcade_video #(.WIDTH(VIDEO_WIDTH),.DW(VIDEO_DW))
+u_arcade_video(
+    .clk_video  ( clk_sys       ),
+    .ce_pix     ( pxl_cen       ),
+
+    .RGB_in     ( game_rgb      ),
+    .HBlank     ( ~base_lhbl   ),
+    .VBlank     ( ~base_lvbl   ),
+    .HSync      ( hs            ),
+    .VSync      ( vs            ),
+
+    .CLK_VIDEO  ( scan2x_clk    ),
+    .CE_PIXEL   ( scan2x_cen    ),
+    .VGA_R      ( scan2x_r      ),
+    .VGA_G      ( scan2x_g      ),
+    .VGA_B      ( scan2x_b      ),
+    .VGA_HS     ( scan2x_hs     ),
+    .VGA_VS     ( scan2x_vs     ),
+    .VGA_DE     ( raw_de        ),
+    .VGA_SL     ( scan2x_sl     ),
+
+    .gamma_bus  ( gamma_bus     ),
+    .fx         ( status[5:3]   ), // scanlines
+    .forced_scandoubler( force_scan2x )
+);
+
 jtframe_board #(
     .BUTTONS               ( BUTTONS              ),
     .GAME_INPUTS_ACTIVE_LOW(GAME_INPUTS_ACTIVE_LOW),
@@ -690,8 +736,6 @@ jtframe_board #(
     .dip_fxlevel    ( dip_fxlevel     ),
     .timestamp      ( timestamp       ),
     // screen
-    .gamma_bus      ( gamma_bus       ),
-    .direct_video   ( direct_video    ),
     .hdmi_arx       ( raw_arx         ),
     .hdmi_ary       ( raw_ary         ),
     .rotate         ( rotate          ),
@@ -701,17 +745,6 @@ jtframe_board #(
     // UART
     .uart_rx        ( uart_rx         ),
     .uart_tx        ( uart_tx         ),
-    // Scan doubler output
-    .scan2x_r       ( scan2x_r        ),
-    .scan2x_g       ( scan2x_g        ),
-    .scan2x_b       ( scan2x_b        ),
-    .scan2x_hs      ( scan2x_hs       ),
-    .scan2x_vs      ( scan2x_vs       ),
-    .scan2x_clk     ( scan2x_clk      ),
-    .scan2x_cen     ( scan2x_cen      ),
-    .scan2x_de      ( raw_de          ),
-    .scan2x_enb     ( ~force_scan2x   ),
-    .scan2x_sl      ( scan2x_sl       ),
 
     // SDRAM interface
     // Bank 0: allows R/W
@@ -770,7 +803,7 @@ jtframe_board #(
     .st_addr        ( st_addr         ),
     .st_dout        ( st_dout         ),
     .target_info    ( target_info     ),
-    // Base video
+    // input video
     .osd_rotate     ( rotate          ),
     .game_r         ( hsize_r         ),
     .game_g         ( hsize_g         ),
@@ -781,6 +814,10 @@ jtframe_board #(
     .vs             ( hsize_vs        ),
     .pxl_cen        ( pxl_cen         ),
     .pxl2_cen       ( pxl2_cen        ),
+    // output video with credits and debug informaiton
+    .base_lhbl      ( base_lhbl         ),
+    .base_lvbl      ( base_lvbl         ),
+    .base_rgb       ( base_rgb          ),
     // Debug
     .gfx_en         ( gfx_en          ),
     .debug_bus      ( debug_bus       ),
@@ -858,9 +895,6 @@ wire rot_clk;
     `ifndef JTFRAME_LF_BUFFER assign DDRAM_DIN=64'd0; `endif
     assign rot_clk = clk_rom;
 `endif
-
-
-
 
 `ifdef JTFRAME_LF_BUFFER
     // line-frame buffer. This won't work with fast DDR load or vertical games

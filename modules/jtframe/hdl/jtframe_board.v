@@ -142,11 +142,8 @@ module jtframe_board #(parameter
     inout               pxl2_cen, pxl_cen,
     // Base video after OSD and Debugger
     output [3*COLORW-1:0] base_rgb,
-    output              base_LHBL,
-    output              base_LVBL,
-    // HDMI outputs (only for MiSTer)
-    inout        [21:0] gamma_bus,
-    input               direct_video,
+    output              base_lhbl,
+    output              base_lvbl,
 
     // ROM ioctl_rom (cheat engine)
     input               prog_cheat,
@@ -154,16 +151,6 @@ module jtframe_board #(parameter
     input               ioctl_wr,
     input         [7:0] ioctl_dout,
     input        [12:0] ioctl_addr,
-
-    // scan doubler
-    input               scan2x_enb,
-    output        [7:0] scan2x_r, scan2x_g, scan2x_b,
-    output              scan2x_hs,
-    output              scan2x_vs,
-    output              scan2x_clk,
-    output              scan2x_cen,
-    output              scan2x_de,
-    output        [1:0] scan2x_sl,
 
     // Cheat Engine
     input        [31:0] cheat,
@@ -231,9 +218,6 @@ localparam
 `endif
     PROG_LEN = 32;
 
-wire  [ 2:0] scanlines;
-wire         bw_en, blend_en;
-wire         en_mixing;
 wire         osd_pause;
 wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
@@ -250,9 +234,8 @@ wire         key_service, key_tilt;
 wire         locked;
 wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
 
-wire [COLORW-1:0] pre2x_r, pre2x_g, pre2x_b,
+wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b;
-wire              pre2x_LHBL, pre2x_LVBL;
 
 wire [ 3:0] bax_rd, bax_wr, bax_ack;
 wire [15:0] bax_din;
@@ -269,8 +252,6 @@ assign dial_reverse = core_mod[4];
 assign frame_blank  = core_mod[6:5];
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
-assign base_LHBL = pre2x_LHBL;
-assign base_LVBL = pre2x_LVBL;
 
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
@@ -319,6 +300,73 @@ jtframe_led u_led(
     .cheat_led  ( cheat_led     ),
     .led        ( led           )
 );
+
+`ifdef JTFRAME_CREDITS
+    wire invert_inputs = GAME_INPUTS_ACTIVE_LOW[0];
+    wire toggle = |(game_start ^ {4{invert_inputs}});
+    reg  fast_scroll, show_credits;
+    wire hide_credits;
+
+
+    assign hide_credits = `ifdef JTFRAME_CREDITS_HIDEVERT core_mod[0] `else 0 `endif ;
+
+    always @(posedge clk_sys) begin
+        fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
+        show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
+    end
+
+    // To do: HS and VS should actually be delayed inside jtframe_credits too
+    jtframe_credits #(
+        .PAGES  ( `JTFRAME_CREDITS_PAGES ),
+        .COLW   ( COLORW                 ),
+        .BLKPOL (      0                 ) // 0 for active low signals
+    ) u_credits(
+        .rst        ( rst           ),
+        .clk        ( clk_sys       ),
+        .pxl_cen    ( pxl_cen       ),
+
+        // input image
+        .HB         ( LHBLs         ),
+        .VB         ( LVBL          ),
+        .rgb_in     ( { game_r, game_g, game_b } ),
+        `ifdef JTFRAME_CREDITS_NOROTATE
+            .rotate ( 2'd0          ),
+        `else
+            .rotate ( locked ? 2'd0 : { rotate[1], core_mod[0] }  ),
+        `endif
+        .toggle     ( toggle        ),
+        .fast_scroll( fast_scroll   ),
+
+        `ifdef JTFRAME_CHEAT
+            // Cheat CPU can control the video
+            .vram_din   ( vram_dout  ),
+            .vram_dout  ( vram_din   ),
+            .vram_addr  ( vram_addr  ),
+            .vram_we    ( vram_we    ),
+            .vram_ctrl  ( vram_ctrl  ),
+            .enable     ( vram_ctrl[0] | show_credits ),
+        `else
+            .vram_din   ( 8'h0  ),
+            .vram_dout  (       ),
+            .vram_addr  ( 8'h0  ),
+            .vram_we    ( 1'b0  ),
+            .vram_ctrl  ( 3'b0  ),
+            `ifdef JTFRAME_CREDITS_AON
+                .enable ( 1'b1          ),
+            `else
+                .enable ( show_credits  ),
+            `endif
+        `endif
+
+        // output image
+        .HB_out     ( base_lhbl      ),
+        .VB_out     ( base_lvbl      ),
+        .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
+    );
+`else
+    assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
+    assign { base_lhbl, base_lvbl    } = { LHBLs, LVBL };
+`endif
 
 `ifndef SIMULATION
 jtframe_keyboard u_keyboard(
@@ -374,11 +422,11 @@ jtframe_keyboard u_keyboard(
             // overlay the value on video
             .pxl_cen     ( pxl_cen       ),
             .dip_flip    ( flip_info     ),
-            .rin         ( pre2x_r       ),
-            .gin         ( pre2x_g       ),
-            .bin         ( pre2x_b       ),
-            .lhbl        ( pre2x_LHBL    ),
-            .lvbl        ( pre2x_LVBL    ),
+            .rin         ( crdts_r       ),
+            .gin         ( crdts_g       ),
+            .bin         ( crdts_b       ),
+            .lhbl        ( base_lhbl     ),
+            .lvbl        ( base_lvbl     ),
             .rout        ( dbg_r         ),
             .gout        ( dbg_g         ),
             .bout        ( dbg_b         ),
@@ -430,9 +478,9 @@ jtframe_keyboard u_keyboard(
         assign snd_en    = 6'h3f;
         assign debug_bus =  0;
         assign vu_peak   =  0;
-        assign dbg_r = pre2x_r;
-        assign dbg_g = pre2x_g;
-        assign dbg_b = pre2x_b;
+        assign dbg_r = crdts_r;
+        assign dbg_g = crdts_g;
+        assign dbg_b = crdts_b;
     `endif
 `else
     `ifndef JTFRAME_SIM_GFXEN
@@ -452,9 +500,9 @@ jtframe_keyboard u_keyboard(
     assign gfx_en      = `JTFRAME_SIM_GFXEN;
     assign debug_bus   = 0;
     assign key_gfx     = 0;
-    assign dbg_r       = pre2x_r;
-    assign dbg_g       = pre2x_g;
-    assign dbg_b       = pre2x_b;
+    assign dbg_r       = crdts_r;
+    assign dbg_g       = crdts_g;
+    assign dbg_b       = crdts_b;
 `endif
 
 jtframe_volume u_volume(
@@ -467,6 +515,7 @@ jtframe_volume u_volume(
     .vol            ( snd_vol         )
 );
 
+// crop software-drawn black frames around the image
 jtframe_short_blank #(
     .WIDTH      ( VIDEO_WIDTH     ),
     .HEIGHT     ( VIDEO_HEIGHT    )
@@ -475,8 +524,8 @@ jtframe_short_blank #(
     .pxl_cen    ( pxl_cen         ),
     .LHBL       ( LHBL            ),
     .LVBL       ( LVBL            ),
-    .h_en       ( frame_blank[0]  ),
     .v_en       ( 1'b0            ),
+    .h_en       ( frame_blank[0]  ),
     .wide       ( frame_blank[1]  ),
     .HS         ( hs              ),
     .hb_out     ( LHBLs           ),
@@ -573,10 +622,6 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),
     .rot_control( rot_control   ),
-    .en_mixing  ( en_mixing     ),
-    .scanlines  ( scanlines     ),
-    .blend_en   ( blend_en      ),
-    .bw_en      ( bw_en         ),
     .enable_fm  ( enable_fm     ),
     .enable_psg ( enable_psg    ),
     .osd_pause  ( osd_pause     ),
@@ -840,227 +885,6 @@ jtframe_sdram64 #(
         .sdram_ncs  ( SDRAM_nCS     )
     );
     `endif
-`endif
-
-`ifdef JTFRAME_CREDITS
-    wire invert_inputs = GAME_INPUTS_ACTIVE_LOW[0];
-    wire toggle = |(game_start ^ {4{invert_inputs}});
-    reg  fast_scroll, show_credits;
-    wire hide_credits;
-
-
-    assign hide_credits = `ifdef JTFRAME_CREDITS_HIDEVERT core_mod[0] `else 0 `endif ;
-
-    always @(posedge clk_sys) begin
-        fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
-        show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
-    end
-
-    // To do: HS and VS should actually be delayed inside jtframe_credits too
-    jtframe_credits #(
-        .PAGES  ( `JTFRAME_CREDITS_PAGES ),
-        .COLW   ( COLORW                 ),
-        .BLKPOL (      0                 ) // 0 for active low signals
-    ) u_credits(
-        .rst        ( rst           ),
-        .clk        ( clk_sys       ),
-        .pxl_cen    ( pxl_cen       ),
-
-        // input image
-        .HB         ( LHBLs         ),
-        .VB         ( LVBL          ),
-        .rgb_in     ( { game_r, game_g, game_b } ),
-        `ifdef JTFRAME_CREDITS_NOROTATE
-            .rotate ( 2'd0          ),
-        `else
-            .rotate ( locked ? 2'd0 : { rotate[1], core_mod[0] }  ),
-        `endif
-        .toggle     ( toggle        ),
-        .fast_scroll( fast_scroll   ),
-
-        `ifdef JTFRAME_CHEAT
-            // Cheat CPU can control the video
-            .vram_din   ( vram_dout  ),
-            .vram_dout  ( vram_din   ),
-            .vram_addr  ( vram_addr  ),
-            .vram_we    ( vram_we    ),
-            .vram_ctrl  ( vram_ctrl  ),
-            .enable     ( vram_ctrl[0] | show_credits ),
-        `else
-            .vram_din   ( 8'h0  ),
-            .vram_dout  (       ),
-            .vram_addr  ( 8'h0  ),
-            .vram_we    ( 1'b0  ),
-            .vram_ctrl  ( 3'b0  ),
-            `ifdef JTFRAME_CREDITS_AON
-                .enable ( 1'b1          ),
-            `else
-                .enable ( show_credits  ),
-            `endif
-        `endif
-
-        // output image
-        .HB_out     ( pre2x_LHBL      ),
-        .VB_out     ( pre2x_LVBL      ),
-        .rgb_out    ( {pre2x_r, pre2x_g, pre2x_b } )
-    );
-`else
-    assign { pre2x_r, pre2x_g, pre2x_b } = { game_r, game_g, game_b };
-    assign { pre2x_LHBL, pre2x_LVBL    } = { LHBLs, LVBL };
-`endif
-
-// By pass scan2x in simulation by default
-// enable it by defining JTFRAME_SIM_SCAN2X
-
-`ifdef SIMULATION
-    `ifdef NOVIDEO
-    `define JTFRAME_DONTSIM_SCAN2X
-    `endif
-    `ifndef JTFRAME_SIM_SCAN2X
-    `define JTFRAME_DONTSIM_SCAN2X
-    `endif
-`endif
-
-
-`ifdef JTFRAME_DONTSIM_SCAN2X
-    initial $display("INFO: Scan2x simulation bypassed");
-    assign scan2x_r    = pre2x_r;
-    assign scan2x_g    = pre2x_g;
-    assign scan2x_b    = pre2x_b;
-    assign scan2x_hs   = hs;
-    assign scan2x_vs   = vs;
-    assign scan2x_clk  = clk_sys;
-    assign scan2x_cen  = pxl_cen;
-    assign scan2x_de   = LVBL && LHBLs;
-    assign scan2x_sl   = 2'd0;
-`else
-
-// Limited bandwidth for video signal
-localparam CLROUTW = COLORW < 5 ? COLORW+1 : COLORW;
-
-wire [CLROUTW-1:0] r_ana, g_ana, b_ana;
-wire               hs_ana, vs_ana, lhbl_ana, lvbl_ana;
-wire               pxl_ana;
-
-jtframe_wirebw #(.WIN(COLORW), .WOUT(CLROUTW)) u_wirebw(
-    .clk        ( clk_sys   ),
-    .spl_in     ( pxl_cen   ),
-    .r_in       ( dbg_r     ),
-    .g_in       ( dbg_g     ),
-    .b_in       ( dbg_b     ),
-    .HS_in      ( hs        ),
-    .VS_in      ( vs        ),
-    .LHB_in     ( pre2x_LHBL),
-    .LVB_in     ( pre2x_LVBL),
-    .enable     ( bw_en     ),
-    // filtered video
-    .HS_out     ( hs_ana    ),
-    .VS_out     ( vs_ana    ),
-    .LHB_out    ( lhbl_ana  ),
-    .LVB_out    ( lvbl_ana  ),
-    .r_out      ( r_ana     ),
-    .g_out      ( g_ana     ),
-    .b_out      ( b_ana     )
-);
-
-function [7:0] extend8;
-    input [CLROUTW-1:0] a;
-    case( CLROUTW )
-        3: extend8 = { a, a, a[2:1] };
-        4: extend8 = { a, a         };
-        5: extend8 = { a, a[4:2]    };
-        6: extend8 = { a, a[5:4]    };
-        7: extend8 = { a, a[6]      };
-        8: extend8 = a;
-    endcase
-endfunction
-
-`ifndef MISTER
-    // This scan doubler takes very little memory. Some games in MiST
-    // can only use this
-    wire [CLROUTW*3-1:0] rgbx2;
-    wire [CLROUTW*3-1:0] game_rgb = { r_ana, g_ana, b_ana };
-    wire scan2x_vsin = bw_en ? vs_ana : vs;
-    wire scan2x_hsin = bw_en ? hs_ana : hs;
-    wire scan2x_hbin = bw_en ? ~lhbl_ana : ~pre2x_LHBL;
-    wire scan2x_vbin = bw_en ? ~lvbl_ana : ~pre2x_LVBL;
-
-    // Note that VIDEO_WIDTH must include blanking for jtframe_scan2x
-    jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
-        .rst_n      ( rst_n          ),
-        .clk        ( clk_sys        ),
-        .pxl_cen    ( pxl_cen        ),
-        // settings
-        .sl_mode    ( scanlines[1:0] ),
-        .blend_en   ( blend_en       ),
-        // video inputs
-        .pxl2_cen   ( pxl2_cen       ),
-        .base_pxl   ( game_rgb       ),
-        .HS         ( scan2x_hsin    ),
-        .VS         ( scan2x_vsin    ),
-        .HB         ( scan2x_hbin    ),
-        .VB         ( scan2x_vbin    ),
-        // outputs
-        .x2_pxl     ( rgbx2          ),
-        .x2_HS      ( scan2x_hs      ),
-        .x2_VS      ( scan2x_vs      ),
-        .x2_DE      ( scan2x_de      )
-    );
-
-    assign scan2x_r     = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
-    assign scan2x_g     = extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
-    assign scan2x_b     = extend8( rgbx2[CLROUTW-1:0] );
-    assign scan2x_cen   = pxl2_cen;
-    assign scan2x_clk   = clk_sys;
-    assign scan2x_sl    = scanlines[1:0];
-    // unused in MiST
-    assign gamma_bus    = 22'd0;
-`else // MiSTer do not take u_wirebw's output but u_debug's
-    localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
-
-    wire [VIDEO_DW-1:0] game_rgb;
-
-    // arcade video does not support 15bpp colour, so for that
-    // case we need to convert it to 24bpp
-    generate
-        if( COLORW!=5 ) begin
-            assign game_rgb = {dbg_r, dbg_g, dbg_b};
-        end else begin
-            assign game_rgb = {
-                dbg_r, dbg_r[4:2],
-                dbg_g, dbg_g[4:2],
-                dbg_b, dbg_b[4:2]   };
-        end
-    endgenerate
-
-    // VIDEO_WIDTH does not include blanking:
-    arcade_video #(.WIDTH(VIDEO_WIDTH),.DW(VIDEO_DW))
-    u_arcade_video(
-        .clk_video  ( clk_sys       ),
-        .ce_pix     ( pxl_cen       ),
-
-        .RGB_in     ( game_rgb      ),
-        .HBlank     ( ~pre2x_LHBL   ),
-        .VBlank     ( ~pre2x_LVBL   ),
-        .HSync      ( hs            ),
-        .VSync      ( vs            ),
-
-        .CLK_VIDEO  ( scan2x_clk    ),
-        .CE_PIXEL   ( scan2x_cen    ),
-        .VGA_R      ( scan2x_r      ),
-        .VGA_G      ( scan2x_g      ),
-        .VGA_B      ( scan2x_b      ),
-        .VGA_HS     ( scan2x_hs     ),
-        .VGA_VS     ( scan2x_vs     ),
-        .VGA_DE     ( scan2x_de     ),
-        .VGA_SL     ( scan2x_sl     ),
-
-        .gamma_bus  ( gamma_bus     ),
-        .fx         ( scanlines     ),
-        .forced_scandoubler( ~scan2x_enb )
-    );
-
-`endif
 `endif
 
 endmodule

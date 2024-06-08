@@ -19,6 +19,7 @@
 module jtframe_mist_base #(parameter
     SIGNED_SND      = 1'b0,
     COLORW          = 4,
+    VIDEO_WIDTH     = 384,
     VGA_DW          = 6,
     QSPI            = 1'b0,
     HDMI            = 1'b0
@@ -31,23 +32,13 @@ module jtframe_mist_base #(parameter
     output  [6:0]   core_mod,
     // Base video
     input   [1:0]   osd_rotate,
-    input [COLORW-1:0] game_r,
-    input [COLORW-1:0] game_g,
-    input [COLORW-1:0] game_b,
-    input           LHBL,
-    input           LVBL,
-    input           hs,
-    input           vs,
+    input           game_hs,
+    input           game_vs,
+    input           game_lhbl,
+    input           game_lvbl,
+    input [3*COLORW-1:0] game_rgb,
     input           pxl_cen,
-    // Scan-doubler video
-    input   [7:0]   scan2x_r,
-    input   [7:0]   scan2x_g,
-    input   [7:0]   scan2x_b,
-    input           scan2x_hs,
-    input           scan2x_vs,
-    input           scan2x_de,
-    output          scan2x_enb, // scan doubler enable bar = scan doubler disable.
-    input           scan2x_clk,
+    input           pxl2_cen,
     // Final video: VGA+OSD or base+OSD depending on configuration
     output [VGA_DW-1:0] VIDEO_R,
     output [VGA_DW-1:0] VIDEO_G,
@@ -141,6 +132,10 @@ wire        ypbpr, no_csync;
 wire [7:0]  ioctl_index;
 wire        ioctl_download, ioctl_upload;
 
+// Scan-doubler video
+wire [7:0]   scan2x_r, scan2x_g, scan2x_b;
+wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb, scan2x_clk;
+
 assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
 assign ioctl_cheat = ioctl_index == IDX_CHEAT && ioctl_download;
@@ -150,6 +145,7 @@ assign joyana_l3 = 0;
 assign joyana_r3 = 0;
 assign joyana_l4 = 0;
 assign joyana_r4 = 0;
+
 
 always @(posedge clk_sys) begin
     debug_view <= { osd_shown, 1'b0, osd_rotate, 1'b0, no_csync, ypbpr, scan2x_enb };
@@ -411,7 +407,7 @@ wire        i2c_end;
         .sdram_init     ( sdram_init    ),
         .clk_sys        ( clk_sys       ),
         .clk_rom        ( clk_rom       ),
-        .hs             ( hs            ),
+        .hs             ( game_hs       ),
 
         .SPI_SCK        ( SPI_SCK       ),
         .SPI_SS2        ( SPI_SS2       ),
@@ -457,89 +453,63 @@ wire        i2c_end;
     assign ioctl_upload     = 0;
 `endif
 
-`ifndef SIMULATION
-// include the on screen display
-wire [VGA_DW-1:0] osd_r_o;
-wire [VGA_DW-1:0] osd_g_o;
-wire [VGA_DW-1:0] osd_b_o;
-wire       HSync = scan2x_enb ? ~hs : scan2x_hs;
-wire       VSync = scan2x_enb ? ~vs : scan2x_vs;
-wire       HSync_osd, VSync_osd;
-wire       CSync_osd = ~(HSync_osd ^ VSync_osd);
+reg [1:0] scanlines;
+reg       bw_en, blend_en;
 
-localparam m = VGA_DW/COLORW;
-localparam n = VGA_DW%COLORW;
+always @(*) begin
+    case( status[4:3] )
+        2'd0: { scanlines, bw_en, blend_en } = { 2'd0, 2'd0 }; // pass thru
+        2'd1: { scanlines, bw_en, blend_en } = { 2'd0, 2'd1 }; // no scanlines, linear interpolation
+        2'd2: { scanlines, bw_en, blend_en } = { 2'd0, 2'd3 }; // analogue
+        2'd3: { scanlines, bw_en, blend_en } = { 2'd1, 2'd3 }; // analogue + scan lines
+    endcase // status[4:3]
+    `ifdef JTFRAME_FEEDTHRU
+    { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; `endif
+end
 
-function [VGA_DW-1:0] extend_color;
-    input [COLORW-1:0] a;
-    if (n>0)
-        extend_color = { {m{a}}, a[COLORW-1 -:n] };
-    else
-        extend_color = { {m{a}} };
-endfunction
-
-wire [VGA_DW-1:0] game_r6 = extend_color( game_r );
-wire [VGA_DW-1:0] game_g6 = extend_color( game_g );
-wire [VGA_DW-1:0] game_b6 = extend_color( game_b );
-
-
-osd #(0,0,6'b01_11_01,VGA_DW) osd (
-   .clk_sys    ( scan2x_enb ? clk_sys : scan2x_clk ),
-   // spi for OSD
-   .SPI_DI     ( SPI_DI       ),
-   .SPI_SCK    ( SPI_SCK      ),
-   .SPI_SS3    ( SPI_SS3      ),
-
-   .rotate     ( osd_rotate   ),
-
-   .R_in       ( scan2x_enb ? game_r6 : scan2x_r[7-:VGA_DW] ),
-   .G_in       ( scan2x_enb ? game_g6 : scan2x_g[7-:VGA_DW] ),
-   .B_in       ( scan2x_enb ? game_b6 : scan2x_b[7-:VGA_DW] ),
-   .HSync      ( HSync        ),
-   .VSync      ( VSync        ),
-   .DE         (              ),
-
-   .R_out      ( osd_r_o      ),
-   .G_out      ( osd_g_o      ),
-   .B_out      ( osd_b_o      ),
-   .HSync_out  ( HSync_osd    ),
-   .VSync_out  ( VSync_osd    ),
-   .DE_out     (              ),
-
-   .osd_shown  ( osd_shown    )
+jtframe_mist_video #(
+    .COLORW     ( COLORW        ),
+    .VGA_DW     ( VGA_DW        ),
+    .VIDEO_WIDTH( VIDEO_WIDTH   ))
+u_video(
+    .rst        ( rst           ),
+    .clk        ( clk_sys       ),
+    // base video
+    .pxl_cen    ( pxl_cen       ),
+    .pxl2_cen   ( pxl2_cen      ),
+    .game_hs    ( game_hs       ),
+    .game_vs    ( game_vs       ),
+    .game_lvbl  ( game_lvbl     ),
+    .game_lhbl  ( game_lhbl     ),
+    .game_rgb   ( game_rgb      ),
+    // SPI for OSD contents
+    .osd_di     ( SPI_DI        ),
+    .osd_sck    ( SPI_SCK       ),
+    .osd_ss3    ( SPI_SS3       ),
+    .osd_rotate ( osd_rotate    ),
+    .osd_shown  ( osd_shown     ),
+    // low pass filter for video
+    .bw_en      ( bw_en         ),
+    .blend_en   ( blend_en      ),
+    .scanlines  ( scanlines     ),
+    // video signal type
+    .ypbpr      ( ypbpr         ),
+    .no_csync   ( no_csync      ),
+    .scan2x_enb ( scan2x_enb    ), // scan doubler enable bar
+    // Scan-doubler video
+    .scan2x_r   ( scan2x_r      ),
+    .scan2x_g   ( scan2x_g      ),
+    .scan2x_b   ( scan2x_b      ),
+    .scan2x_hs  ( scan2x_hs     ),
+    .scan2x_vs  ( scan2x_vs     ),
+    .scan2x_de  ( scan2x_de     ),
+    // crt video
+    .video_hs   ( VIDEO_HS      ),
+    .video_vs   ( VIDEO_VS      ),
+    .video_r    ( VIDEO_R       ),
+    .video_g    ( VIDEO_G       ),
+    .video_b    ( VIDEO_B       )
 );
-
-wire       HSync_out, VSync_out, CSync_out;
-
-RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
-    .clk       ( scan2x_enb ? clk_sys : scan2x_clk ),
-    .ena       ( ypbpr     ),
-    .red_in    ( osd_r_o   ),
-    .green_in  ( osd_g_o   ),
-    .blue_in   ( osd_b_o   ),
-    .hs_in     ( HSync_osd ),
-    .vs_in     ( VSync_osd ),
-    .cs_in     ( CSync_osd ),
-    .red_out   ( VIDEO_R   ),
-    .green_out ( VIDEO_G   ),
-    .blue_out  ( VIDEO_B   ),
-    .hs_out    ( HSync_out ),
-    .vs_out    ( VSync_out ),
-    .cs_out    ( CSync_out )
-);
-
-// a minimig vga->scart cable expects a composite sync signal on the VIDEO_HS output.
-// and VCC on VIDEO_VS (to switch into rgb mode)
-assign VIDEO_HS = ( (~no_csync & scan2x_enb) | ypbpr) ? CSync_out : HSync_out;
-assign VIDEO_VS = ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1 : VSync_out;
-`else
-// for simulation only:
-assign VIDEO_R  = game_r;
-assign VIDEO_G  = game_g;
-assign VIDEO_B  = game_b;
-assign VIDEO_HS = hs;
-assign VIDEO_VS = vs;
-`endif
 
 generate if (HDMI) begin
 i2c_master #(96_000_000) i2c_master (

@@ -27,10 +27,6 @@ module jtframe_dip(
     output reg [12:0]  hdmi_ary,
     output reg [ 1:0]  rotate,
     output reg         rot_control, // rotate player control inputs
-    output reg         en_mixing,
-    output reg [ 2:0]  scanlines,
-    output reg         bw_en,
-    output reg         blend_en,
 
     output reg         enable_fm,
     output reg         enable_psg,
@@ -96,27 +92,6 @@ assign dip_test = ~game_test;
 `endif
 
 wire [1:0] ar = status[17:16];    // only MiSTer
-`ifdef MISTER
-always @(*) begin
-    scanlines = status[5:3];
-`ifdef JTFRAME_OSD60HZ
-    if ( !status[19] ) scanlines=0;
-`endif
-    bw_en     = 0;      // Old TV filter disabled in MiSTer, is not needed anymore
-    blend_en  = 0;
-end
-`else
-always @(*) begin
-    case( status[4:3] )
-        2'd0: { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; // pass thru
-        2'd1: { scanlines, bw_en, blend_en } = { 3'd0, 2'd1 }; // no scanlines, linear interpolation
-        2'd2: { scanlines, bw_en, blend_en } = { 3'd0, 2'd3 }; // analogue
-        2'd3: { scanlines, bw_en, blend_en } = { 3'd1, 2'd3 }; // analogue + scan lines
-    endcase // status[4:3]
-    `ifdef JTFRAME_FEEDTHRU
-    { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; `endif
-end
-`endif
 
 `ifdef POCKET
     assign osd_pause = osd_shown;
@@ -165,7 +140,6 @@ endgenerate
 always @(posedge clk) begin
     rotate      <= { dip_flip ^ core_mod[2], tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
     dip_fxlevel <= 2'b10 ^ status[7:6];
-    en_mixing   <= ~status[3];
     `ifndef JTFRAME_OSD_SND_EN
     enable_fm   <= 1;
     enable_psg  <= 1;

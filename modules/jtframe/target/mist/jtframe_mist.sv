@@ -179,9 +179,6 @@ reg  [63:0]   board_status;
 wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
 
-wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
-wire          scan2x_hs, scan2x_vs, scan2x_de, scan2x_clk;
-wire          scan2x_enb;
 wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
 
@@ -194,7 +191,8 @@ wire  [ 8:0]  bd_mouse_dx, bd_mouse_dy;
 wire          bd_mouse_st, bd_mouse_idx;
 wire  [ 7:0]  bd_mouse_f;
 wire  [ 7:0]  ioctl_merged, mist_view;
-
+wire  [3*COLORW-1:0] base_rgb;
+wire          base_lhbl, base_lvbl;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
@@ -225,23 +223,13 @@ jtframe_mist_base #(
     .osd_shown      ( osd_shown     ),
     // Base video
     .osd_rotate     ( rotate        ),
-    .game_r         ( game_r        ),
-    .game_g         ( game_g        ),
-    .game_b         ( game_b        ),
-    .LHBL           ( LHBL          ),
-    .LVBL           ( LVBL          ),
-    .hs             ( hs            ),
-    .vs             ( vs            ),
+    .game_rgb       ( base_rgb      ),
+    .game_lhbl      ( base_lhbl     ),
+    .game_lvbl      ( base_lvbl     ),
+    .game_hs        ( hs            ),
+    .game_vs        ( vs            ),
     .pxl_cen        ( pxl_cen       ),
-    // Scan-doubler video
-    .scan2x_r       ( scan2x_r      ),
-    .scan2x_g       ( scan2x_g      ),
-    .scan2x_b       ( scan2x_b      ),
-    .scan2x_hs      ( scan2x_hs     ),
-    .scan2x_vs      ( scan2x_vs     ),
-    .scan2x_de      ( scan2x_de     ),
-    .scan2x_enb     ( scan2x_enb    ),
-    .scan2x_clk     ( scan2x_clk    ),
+    .pxl2_cen       ( pxl2_cen      ),
     // MiST VGA pins (includes OSD)
     .VIDEO_R        ( VGA_R         ),
     .VIDEO_G        ( VGA_G         ),
@@ -366,10 +354,6 @@ jtframe_board #(
     .snd_vu         ( snd_vu          ),
     .snd_vol        ( snd_vol         ),
     .snd_peak       ( snd_peak        ),
-    // base video with OSD/debug information
-    .base_rgb       (                 ),
-    .base_LHBL      (                 ),
-    .base_LVBL      (                 ),
     // joystick
     .ps2_kbd_clk    ( ps2_clk         ),
     .ps2_kbd_data   ( ps2_dout        ),
@@ -501,8 +485,8 @@ jtframe_board #(
     .ioctl_din      ( ioctl_din       ),
     .ioctl_merged   ( ioctl_merged    ),
 
-    // Base video
     .osd_rotate     ( rotate          ),
+    // input video
     .game_r         ( game_r          ),
     .game_g         ( game_g          ),
     .game_b         ( game_b          ),
@@ -512,26 +496,17 @@ jtframe_board #(
     .vs             ( vs              ),
     .pxl_cen        ( pxl_cen         ),
     .pxl2_cen       ( pxl2_cen        ),
-    // Scan-doubler video
-    .scan2x_r       ( scan2x_r        ),
-    .scan2x_g       ( scan2x_g        ),
-    .scan2x_b       ( scan2x_b        ),
-    .scan2x_hs      ( scan2x_hs       ),
-    .scan2x_vs      ( scan2x_vs       ),
-    .scan2x_de      ( scan2x_de       ),
-    .scan2x_enb     ( scan2x_enb      ),
-    .scan2x_clk     ( scan2x_clk      ),
+    // output video with OSD/debug information
+    .base_rgb       ( base_rgb        ),
+    .base_lhbl      ( base_lhbl       ),
+    .base_lvbl      ( base_lvbl       ),
     // Debug
     .gfx_en         ( gfx_en          ),
     .debug_bus      ( debug_bus       ),
     .debug_view     ( debug_view      ),
     // Unused ports (MiSTer)
-    .gamma_bus      (                 ),
-    .direct_video   ( 1'b0            ),
     .hdmi_arx       (                 ),
-    .hdmi_ary       (                 ),
-    .scan2x_cen     (                 ),
-    .scan2x_sl      (                 )
+    .hdmi_ary       (                 )
 );
 
-endmodule // jtframe
+endmodule
