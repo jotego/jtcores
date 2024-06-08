@@ -56,7 +56,8 @@ data = [
     # 5987 board
     # ddcrewu, ddcrew1, ddcrewj might be different
     # wwally's machine may be in a different MAME file, not segas18
-    { machines=["cltchitr", "desertbr", "ddcrew", "wwally"], offset=0x18, data="04" },
+    { machines=["desertbr"], offset=0x18, data="02" }, # 5987 with 2MB ROM
+    { machines=["cltchitr", "ddcrew", "wwally"], offset=0x18, data="04" },
     # single-game boards
     { machine="hamaway",  offset=0x18, data="08" }, # 837-7525
     { machine="lghost",   offset=0x18, data="10" }, # 171-5873B
