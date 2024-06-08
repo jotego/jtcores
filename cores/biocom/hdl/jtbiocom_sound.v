@@ -175,7 +175,6 @@ jt51 u_jt51(
     assign snd_mcu_rd = 0;
     assign fm_l       = 0;
     assign fm_r       = 0;
-    assign sample     = 0;
     initial begin
         rom_addr = 0;
         rom_cs = 0;
