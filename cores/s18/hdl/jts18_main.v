@@ -114,8 +114,10 @@ localparam [2:0] REG_RAM  = 3,
                  REG_PAL  = 6,
                  REG_IO   = 7;
 localparam       PCB_5874 = 0,  // refers to the bit in game_id
+                 PCB_5987_DESERTBR = 1,
                  PCB_5987 = 2,
                  PCB_7525 = 3,  // hamaway
+                 PCB_5873 = 4,  // lghost
                  PCB_7248 = 5;  // shdancer
 
 
@@ -214,9 +216,13 @@ always @* begin
     rom_addr = A[20:1];
     if(active[0]) begin
         if(game_id[PCB_5874]|game_id[PCB_7248]) rom_addr[20:19]=0;
-        if(game_id[PCB_7525]|game_id[PCB_5987]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
+        if(game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
     end
-    // assuming that if active[1] is set, then A is already pointing after 512kB
+    // assuming that if active[1] is set, then A is already pointing after 512kB(or 1MB for Desert Breaker)
+    if(active[1]) begin
+        if(game_id[PCB_7525]|game_id[PCB_5873]|game_id[PCB_5987]) rom_addr[20:19]={1'b0, A[21]};
+        if(game_id[PCB_5987_DESERTBR]) rom_addr[20]=A[21];
+    end
 end
 
 always @* begin
