@@ -44,6 +44,7 @@ sdram:
   banks:
     # Bank 0 for the main and sub CPUs
     - buses:
+        # first 16kB of work RAM area saved as NVRAM
         - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
@@ -63,3 +64,10 @@ sdram:
     # Bank 3 objects
     - buses:
         - { name: obj, addr_width: 21, data_width: 16 }
+# bram:
+#   - name: wram
+#     addr_width: 14
+#     data_width: 16
+#     rw: true
+#     ioctl:
+#       save: true
