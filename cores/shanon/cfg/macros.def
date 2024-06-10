@@ -14,6 +14,7 @@ JTFRAME_COLORW=6
 -JTFRAME_BA3_LEN=64
 
 # This system does not fit in MiST because of the 32kB used for road memory
+# and the 32kB used for NVRAM
 # Disabled the OSD logo or the credits won't make it fit
 
 [sidi128]
