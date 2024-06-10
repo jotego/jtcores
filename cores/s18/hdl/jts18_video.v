@@ -33,10 +33,12 @@ module jts18_video(
     input              vid16_en,
     input              gray_n,
     input      [ 7:0]  tile_bank,
+    input      [ 7:0]  game_id,
     output     [ 8:0]  vrender,
 
     // CPU interface
     input              dip_pause,
+    input              bank_cs,
     input              char_cs,
     input              objram_cs,
     input      [23:1]  addr,
@@ -58,7 +60,7 @@ module jts18_video(
 
     // SDRAM interface
     input              char_ok,
-    output     [13:2]  char_addr, // 9 addr + 3 vertical + 2 horizontal = 14 bits
+    output     [21:2]  char_addr, // 9 addr + 3 vertical + 2 horizontal = 14 bits
     input      [31:0]  char_data,
 
     input              map1_ok,
@@ -79,7 +81,7 @@ module jts18_video(
 
     input              obj_ok,
     output             obj_cs,
-    output     [20:1]  obj_addr,
+    output     [22:1]  obj_addr,
     input      [15:0]  obj_data,
 
     // Video signal
@@ -99,6 +101,13 @@ module jts18_video(
     output     [ 7:0]  st_dout
 );
 
+localparam       PCB_5874 = 0,  // refers to the bit in game_id
+                 PCB_5987_DESERTBR = 1,
+                 PCB_5987 = 2,
+                 PCB_7525 = 3,  // hamaway
+                 PCB_5873 = 4,  // lghost
+                 PCB_7248 = 5;  // shdancer
+
 wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
 wire [7:0] st_s16, st_vdp;
@@ -109,12 +118,24 @@ wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel, vdp_on,
            sa, sb, fix;
 wire [1:0] obj_prio;
+wire [2:0] scr1_bank, scr2_bank;
+wire [3:0] obj_bank;
+(* ramstyle = "logic" *) reg  [7:0] tilebanks[16];
+
+wire       alt_gfx = game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]|game_id[PCB_7525];
+
+always @(posedge clk48)
+   if (bank_cs) tilebanks[addr[4:1]] <= game_id[PCB_7525] ? (din[7] ? {3'd0, din[4:0]} + 8'h20 : {3'd0, din[4:0]}) : din[7:0];
 
 assign st_dout = {3'd0, vdp_en, 3'd0,vdp_on};
-assign scr1_addr[21]=0;
-assign scr2_addr[21]=0;
-assign scr1_addr[20-:4] = scr1_sel ? tile_bank[7:4] : tile_bank[3:0];
-assign scr2_addr[20-:4] = scr2_sel ? tile_bank[7:4] : tile_bank[3:0];
+assign scr1_sel = scr1_bank[2];
+assign scr2_sel = scr2_bank[2];
+
+assign char_addr[21:14] = alt_gfx ? {tilebanks[0][6:0], 1'b0} : 8'd0;
+assign scr1_addr[21:15] = alt_gfx ? tilebanks[{1'b0, scr1_bank}][6:0] : {1'b0, scr1_sel ? tile_bank[7:4] : tile_bank[3:0], scr1_bank[1:0]};
+assign scr2_addr[21:15] = alt_gfx ? tilebanks[{1'b0, scr2_bank}][6:0] : {1'b0, scr2_sel ? tile_bank[7:4] : tile_bank[3:0], scr2_bank[1:0]};
+
+assign obj_addr[22:17] = (game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]) ? {tilebanks[{1'b1, obj_bank[3:1]}][4:0], obj_bank[0]} : {2'd0, obj_bank};
 
 `ifndef NOVDP
 assign VS   = scr_vs;   // gfx_en[2] ? scr_vs   : vdp_vs;
@@ -164,7 +185,7 @@ jts18_video16 u_video16(
 
     // SDRAM interface
     .char_ok    ( char_ok   ),
-    .char_addr  ( char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
+    .char_addr  ( char_addr[13:2] ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
     .char_data  ( char_data ),
 
     .map1_ok    ( map1_ok   ),
@@ -172,7 +193,7 @@ jts18_video16 u_video16(
     .map1_data  ( map1_data ),
 
     .scr1_ok    ( scr1_ok   ),
-    .scr1_addr  ({scr1_sel,scr1_addr[16:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr1_addr  ({scr1_bank,scr1_addr[14:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
     .scr1_data  ( scr1_data ),
 
     .map2_ok    ( map2_ok   ),
@@ -180,12 +201,12 @@ jts18_video16 u_video16(
     .map2_data  ( map2_data ),
 
     .scr2_ok    ( scr2_ok   ),
-    .scr2_addr  ({scr2_sel,scr2_addr[16:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
+    .scr2_addr  ({scr2_bank,scr2_addr[14:2]}), // 1 bank + 12 addr + 3 vertical = 15 bits
     .scr2_data  ( scr2_data ),
 
     .obj_ok     ( obj_ok    ),
     .obj_cs     ( obj_cs    ),
-    .obj_addr   ( obj_addr  ),
+    .obj_addr   ( {obj_bank, obj_addr[16:1]} ),
     .obj_data   ( obj_data  ),
 
     // Video signal

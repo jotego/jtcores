@@ -42,6 +42,7 @@ module jts18_main(
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
+    output reg         bank_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
@@ -250,12 +251,12 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
 
-
             // jtframe_ramrq requires cs to toggle to
             // process a new request. BUSn will toggle for
             // read-modify-writes
             vram_cs <= !BUSn && active[REG_VRAM] && !A[16];
             ram_cs  <= !BUSn && active[REG_RAM];
+            bank_cs <= (game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) && active[1] && !RnW;
         end else begin
             rom_cs    <= 0;
             char_cs   <= 0;
@@ -265,6 +266,7 @@ always @(posedge clk, posedge rst) begin
             vdp_cs    <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
+            bank_cs   <= 0;
         end
     end
 end

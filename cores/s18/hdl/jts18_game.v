@@ -40,7 +40,7 @@ wire [23:1] cpu_addr;
 wire [15:0] char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn;
 
 // Protection
 wire        key_we, mcu_we;
@@ -118,6 +118,7 @@ jts18_main u_main(
     .tile_bank  ( tile_bank ),
 
     // Video memory
+    .bank_cs    ( bank_cs   ),
     .vram_cs    ( vram_cs   ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
@@ -233,11 +234,12 @@ jts18_video u_video(
     .gray_n     ( gray_n    ),
     .tile_bank  ( tile_bank ),
 
-    // .game_id    ( game_id   ),
+    .game_id    ( game_id   ),
     // CPU interface
     .addr       ( cpu_addr  ),
     .char_cs    ( char_cs   ),
     .objram_cs  ( objram_cs ),
+    .bank_cs    ( bank_cs   ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
