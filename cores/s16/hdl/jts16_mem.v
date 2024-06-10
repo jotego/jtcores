@@ -35,11 +35,14 @@ module jts16_mem(
 
     // Main CPU
     input            main_cs,
+    input     [ 1:0] main_dsn,
+    input            main_rnw,
     input            vram_cs,
     input            ram_cs,
     input     [18:1] main_addr,
-    output           xram_cs,
+    output reg       xram_cs,
     output reg [18:1] xram_addr,
+    output reg [ 1:0] wram_we,
 
     // Sound CPU
     output           mc8123_we,
@@ -94,7 +97,6 @@ wire [12:0] key_mux;
 wire        fd_we;
 
 
-assign xram_cs    = ram_cs | vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign n7751_prom = prom_we && prog_addr[21:10]==N7751_PROM [21:10];
 assign fd_we      = prom_we && prog_addr[21:13]==KEY_PROM   [21:13];
@@ -115,13 +117,19 @@ end
 `endif
 
 always @(*) begin
+    xram_cs = vram_cs;
     xram_addr = 0;
     xram_addr[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
+    wram_we = {2{ram_cs&~main_rnw}} & ~main_dsn;
 `ifndef S16B
     if( ram_cs ) xram_addr[VRAMW-2:14]=0; // only 16kB for RAM
 `else
     // Mask RAM for System16B too, but no for System16C
-    if( ram_cs && !game_fantzn2x ) xram_addr[VRAMW-2:14]=0; // only 16kB for RAM
+    if( ram_cs && game_fantzn2x && xram_addr[VRAMW-2:14]!=0) begin
+        // RAM above 16kB
+        xram_cs = 1;
+        wram_we = 0;
+    end
     if( vram_cs ) xram_addr[VRAMW-2:16]=0;
 `endif
 end

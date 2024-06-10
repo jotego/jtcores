@@ -6,6 +6,7 @@ include ../../s16/cfg/macros.def
 
 [sidi]
 # remove more options to make it fit
+# NOMCU already added in s16
 JTFRAME_OSD_NOLOGO
 JTFRAME_FEEDTHRU
 -JTFRAME_OSD_SND_EN

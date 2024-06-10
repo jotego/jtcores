@@ -307,6 +307,10 @@ jtframe_8751mcu #(
 
 
 // System 16B memory map
+always @* begin
+    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok);
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
@@ -322,13 +326,7 @@ always @(posedge clk, posedge rst) begin
             vram_cs   <= 0; // 32kB
             ram_cs    <= 0;
             tbank_cs  <= 0;
-            sdram_ok  <= 0;
     end else begin
-        if( ASn )
-            sdram_ok <= 0;
-        else if( !BUSn ) begin
-            sdram_ok <= rom_cs ? ok_dly : ram_ok;
-        end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
             rom_cs    <= (pcb_5797 ? active[0] : |active[2:0]) && RnW;
             char_cs   <= active[REG_VRAM] && A[16];

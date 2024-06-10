@@ -50,6 +50,8 @@ wire        vram_cs, ram_cs;
 wire [13:2] pre_char_addr;
 wire [17:2] pre_scr1_addr, pre_scr2_addr;
 wire [20:1] pre_obj_addr;
+wire [15:0] ram_data;
+wire        ram_ok;
 
 // CPU interface
 wire [12:1] cpu_addr;
@@ -94,6 +96,14 @@ assign st_dout              = st_mux;
 assign xram_dsn             = dsn;
 assign xram_we              = ~main_rnw;
 assign xram_din             = main_dout;
+// dummy ports
+assign nvram_addr           = 0;
+assign nvram_we             = 0;
+assign nvram_din            = 0;
+// Work RAM (16kB)/ other RAM
+assign ram_ok               = ~xram_cs | xram_ok;
+assign ram_data             =  xram_cs ? xram_data : wram_dout;
+assign ioctl_din            = 0;
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
@@ -149,8 +159,8 @@ assign key_mcaddr=0;
     .rowscr_en  ( rowscr_en ),
     // RAM access
     .ram_cs     ( ram_cs    ),
-    .ram_data   ( xram_data ),
-    .ram_ok     ( xram_ok   ),
+    .ram_data   ( ram_data  ),
+    .ram_ok     ( ram_ok    ),
     // CPU bus
     .cpu_dout   ( main_dout ),
     .UDSWn      ( UDSWn     ),
@@ -217,7 +227,8 @@ assign key_mcaddr=0;
     .st_addr     ( st_addr    ),
     .st_dout     ( st_main    ),
     // NVRAM dump
-    .ioctl_din   ( `ifdef JTFRAME_IOCTL_RD ioctl_din `endif ),
+    // .ioctl_din   ( `ifdef JTFRAME_IOCTL_RD ioctl_din `endif ),
+    .ioctl_din   (            ),
 `ifdef S16B
     .ioctl_addr  ( prog_addr[16:0] )
 `else
@@ -433,11 +444,14 @@ jts16_mem u_mem(
 
     // Main CPU
     .main_cs    ( main_cs   ),
+    .main_rnw   ( main_rnw  ),
+    .main_dsn   ( dsn       ),
     .vram_cs    ( vram_cs   ),
     .ram_cs     ( ram_cs    ),
     .main_addr  ( main_addr ),
     .xram_cs    ( xram_cs   ),
     .xram_addr  ( xram_addr ),
+    .wram_we    ( wram_we   ),
 
     // Sound CPU
     .mc8123_we  ( mc8123_we ),

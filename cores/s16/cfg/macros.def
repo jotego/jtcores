@@ -60,7 +60,8 @@ GAME_FANTZN2X=0x43
 
 # 64kB VRAM + 16-256 RAM
 VRAMW=16
-
+# 16kB NVRAM
+JTFRAME_IOCTL_RD=16384
 # OSD options
 JTFRAME_OSD_TEST
 
@@ -74,7 +75,7 @@ JTFRAME_NOHQ2X
 # Needed for Action Fighter
 JTFRAME_ROTCCW
 
-# Debug - only mister
+# Debug - only mister (disabled in game module because of NVRAM)
 # JTFRAME_IOCTL_RD=43008
 
 [mist]
