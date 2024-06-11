@@ -21,7 +21,7 @@ module jts18_game(
 );
 
 localparam [24:0] MCU_START = `MCU_START;
-localparam VRAMW = 19;
+localparam VRAMW = 18;
 
 // clock enable signals
 wire    cpu_cen, cpu_cenb;
@@ -34,7 +34,6 @@ wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
-reg  [18:1] xa;
 
 // CPU interface
 wire [23:1] cpu_addr;
@@ -66,11 +65,16 @@ assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
 assign mcu_we     = prom_we && prog_addr[15:12]>=MCU_START[15:12];
 assign key_we     = prom_we && prog_addr[15:12]< MCU_START[15:12];
-assign xram_cs    = ram_cs | vram_cs;
+assign xram_cs    = vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign ioctl_din  = 0;
-assign xram_addr  = xa;
+assign xram_addr  = main_addr[15:1];
+// work RAM (non volatile)
+assign nvram_addr = 0;
+assign nvram_we   = 0;
+assign nvram_din  = 0;
+assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -93,14 +97,6 @@ always @(posedge clk) begin
         if( ioctl_addr[4:0]==5'h14 ) cab3      <= ioctl_dout[0]; // support for three players
         if( ioctl_addr[4:0]==5'h18 ) game_id   <= ioctl_dout;
     end
-end
-
-always @(*) begin
-    xa = 0;
-    xa[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
-    // Mask RAM address
-    if( ram_cs  ) xa[VRAMW-2:14]=0; // 16kB for RAM
-    if( vram_cs ) xa[VRAMW-2:16]=0; // 64kB for VRAM
 end
 
 /* verilator tracing_on */
@@ -134,8 +130,9 @@ jts18_main u_main(
 
     // RAM access
     .ram_cs     ( ram_cs    ),
-    .ram_data   ( xram_data ),
-    .ram_ok     ( xram_ok   ),
+    .ram_data   ( wram_dout ),
+    .vram_ok    ( xram_ok   ),
+    .vram_data  ( xram_data ),
     // CPU bus
     .cpu_dout   ( main_dout ),
     .UDSn       ( UDSn      ),

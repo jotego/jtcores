@@ -49,10 +49,11 @@ module jts18_main(
     input              vdp_dtackn,
 
     // RAM access
-    output reg         ram_cs,
     output reg         vram_cs,
-    input       [15:0] ram_data,   // coming from VRAM or RAM
-    input              ram_ok,
+    input              vram_ok,
+    input       [15:0] vram_data,
+    output reg         ram_cs,
+    input       [15:0] ram_data,
     // CPU bus
     output      [15:0] cpu_dout,
     output             UDSn,
@@ -156,7 +157,7 @@ wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
-wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
+wire bus_busy  = (|{ rom_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
@@ -218,6 +219,10 @@ always @* begin
     // assuming that if active[1] is set, then A is already pointing after 512kB
 end
 
+always @* begin
+    sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok);
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
@@ -229,13 +234,7 @@ always @(posedge clk, posedge rst) begin
 
             vram_cs   <= 0; // 64kB
             ram_cs    <= 0; // 16kB
-            sdram_ok  <= 0;
     end else begin
-        if( ASn )
-            sdram_ok <= 0;
-        else if( !BUSn ) begin
-            sdram_ok <= rom_cs ? ok_dly : ram_ok;
-        end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
             rom_cs    <= (active[0] || (active[1] && !game_id[PCB_7248])) && RnW;
             vdp_cs    <= game_id[PCB_7248] ? active[1] : active[2];
@@ -311,7 +310,8 @@ always @(posedge clk) begin
     if(rst) begin
         cpu_din <= 0;
     end else begin
-        cpu_din <= (ram_cs | vram_cs ) ? ram_data  :
+        cpu_din <=  ram_cs             ? ram_data  :
+                    vram_cs            ? vram_data :
                     rom_cs             ? rom_dec   :
                     char_cs            ? char_dout :
                     pal_cs             ? pal_dout  :
