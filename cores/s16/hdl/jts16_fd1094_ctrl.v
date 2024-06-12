@@ -37,7 +37,7 @@ reg [ 7:0] state;
 reg        irqmode;
 reg [ 1:0] stchange;
 reg [15:0] stcode;
-reg        dtacknl, other;
+reg        dtacknl;
 wire       stadv;
 
 assign st    = irqmode ? gkey0 : state;
@@ -77,10 +77,6 @@ always @(posedge clk, posedge rst) begin
             end
             // rte
             if( dec == 16'h4e73 ) irqmode <= 0;
-        end
-        if( !dtackn && dtacknl ) begin
-            other <= op_n;
-            if(other && op_n) stchange<=0;
         end
     end
 end
