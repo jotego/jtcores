@@ -619,10 +619,10 @@ u_arcade_video(
     .ce_pix     ( pxl_cen       ),
 
     .RGB_in     ( game_rgb      ),
-    .HBlank     ( ~base_lhbl   ),
-    .VBlank     ( ~base_lvbl   ),
-    .HSync      ( hs            ),
-    .VSync      ( vs            ),
+    .HBlank     ( ~base_lhbl    ),
+    .VBlank     ( ~base_lvbl    ),
+    .HSync      ( hsize_hs      ),
+    .VSync      ( hsize_vs      ),
 
     .CLK_VIDEO  ( scan2x_clk    ),
     .CE_PIXEL   ( scan2x_cen    ),
