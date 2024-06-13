@@ -21,9 +21,9 @@ module RGBtoYPbPr #(parameter WIDTH = 8)(
 	output reg cs_out
 );
 
-reg [8+WIDTH-1:0] r_y;
-reg [8+WIDTH-1:0] g_y;
-reg [8+WIDTH-1:0] b_y;
+reg [8+WIDTH-1:0] r_y=0;
+reg [8+WIDTH-1:0] g_y=0;
+reg [8+WIDTH-1:0] b_y=0;
 
 reg [8+WIDTH-1:0] r_b;
 reg [8+WIDTH-1:0] g_b;

@@ -31,10 +31,11 @@ target:
   - from: mist
     get:
       - jtframe_mist_clocks.v
+      - jtframe_mist_video.v
+      - osd.sv
+      - rgb2ypbpr.v
   - from: mist
     unless: POCKET
     get:
-      - mist_io.sdc
       - jtframe_mist_base.v
-      - osd.sv
-      - rgb2ypbpr.v
+      - mist_io.sdc

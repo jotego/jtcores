@@ -52,19 +52,21 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     output  reg [COLORW*3-1:0] x2_pxl,
     output  reg x2_hs,
     output  reg x2_vs,
-    output      x2_de
+    output      x2_de,
+    output  reg x2_HB,
+    output  reg x2_VB
 );
 
 localparam AW=HLEN<=512 ? 9:10;
 localparam DW=COLORW*3;
 
-reg  [DW-1:0] preout;
+reg  [DW-1:0] preout=0;
 reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth, hb_rise, hb_fall, vb_rise, vb_fall, vs_rise, vs_fall;
 reg           scanline;
 reg           last_HS, last_VS, last_HB, last_VB;
 reg           vb_rising, vb_falling, vs_rising, vs_falling;
-reg           line;
-reg           x2_HB, x2_VB;
+reg           line=0;
+//reg           x2_HB, x2_VB;
 
 wire          HS_posedge     =  x1_hs && !last_HS;
 wire          HS_negedge     = !x1_hs &&  last_HS;
@@ -107,7 +109,7 @@ localparam [CLKSTEPS-1:0] BLEND_ST = 2;
 `endif
 
 localparam [CLKSTEPS-1:0] PURE_ST  = 0;
-reg alt_pxl; // this is needed in case pxl2_cen and pxl_cen are not aligned.
+reg alt_pxl=0; // this is needed in case pxl2_cen and pxl_cen are not aligned.
 reg [CLKSTEPS-1:0] mixst;
 
 always@(posedge clk or posedge rst) begin

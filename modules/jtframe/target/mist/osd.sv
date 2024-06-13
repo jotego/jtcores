@@ -79,12 +79,12 @@ end
 `endif
 
 // the OSD has its own SPI interface to the io controller
-always@(posedge SPI_SCK, posedge SPI_SS3) begin
+always@(posedge SPI_SCK, posedge SPI_SS3) begin: io_ctrl
+
 	reg  [4:0] cnt;
 	reg [10:0] bcnt;
 	reg  [7:0] sbuf;
 	reg  [7:0] cmd;
-
 	if(SPI_SS3) begin
 		cnt  <= 0;
 		bcnt <= 0;
@@ -131,8 +131,9 @@ reg  [9:0] dsp_height;
 
 reg        doublescan;
 
+
 reg ce_pix;
-always @(negedge clk_sys) begin
+always @(negedge clk_sys) begin: horizontal_counter
 	integer cnt;
 	integer pixsz, pixcnt;
 	reg hs;
@@ -160,7 +161,7 @@ always @(posedge clk_sys) begin
 	doublescan <= dsp_height>350;
 end
 
-always @(posedge clk_sys) begin
+always @(posedge clk_sys) begin: sync
 	reg hsD, hsD2;
 	reg vsD, vsD2;
 

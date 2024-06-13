@@ -503,6 +503,8 @@ u_video(
     .scan2x_hs  ( scan2x_hs     ),
     .scan2x_vs  ( scan2x_vs     ),
     .scan2x_de  ( scan2x_de     ),
+    .scanx2_HB  (               ),
+    .scanx2_VB  (               ),
     // crt video
     .video_hs   ( VIDEO_HS      ),
     .video_vs   ( VIDEO_VS      ),

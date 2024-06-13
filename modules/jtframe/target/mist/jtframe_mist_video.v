@@ -50,6 +50,8 @@ module jtframe_mist_video #(parameter
     output             scan2x_hs,
     output             scan2x_vs,
     output             scan2x_de,
+    output             scan2x_HB,
+    output             scan2x_VB,
     // crt video
     output reg         video_hs,
     output reg         video_vs,
@@ -132,7 +134,9 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .x2_pxl     ( rgbx2          ),
     .x2_hs      ( scan2x_hs      ),
     .x2_vs      ( scan2x_vs      ),
-    .x2_de      ( scan2x_de      )
+    .x2_de      ( scan2x_de      ),
+    .x2_HB      ( scan2x_HB      ),
+    .x2_VB      ( scan2x_VB      )
 );
 
 assign scan2x_r = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
