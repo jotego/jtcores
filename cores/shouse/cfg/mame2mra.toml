@@ -3,16 +3,9 @@ sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[ "puzlclub" ] }
 
 debug = { machines=[
-    # Key type 3
-    "rompers", # problems with music
-    # Others
+    # problems with music/sound
+    "rompers",
     "bakutotu",
-    # "berabohm",
-    # "quester",
-], setnames=[
-    # "tankfrcej",
-    # see issue #626
-    "tankfrce4",
 ] }
 
 [buttons]
