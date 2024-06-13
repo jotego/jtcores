@@ -2,6 +2,7 @@ shouse: [ mister, pocket ]
 ngp:    [ mister, pocket ]
 s18:    [ mister, pocket ]
 biocom: [ pocket ]
+slyspy: [ pocket ]
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
 # flane: [ pocket ]
@@ -9,4 +10,3 @@ biocom: [ pocket ]
 # labrun: [ pocket ]
 # midres: [ pocket ]
 # rumble: [ pocket ]
-# slyspy: [ pocket ]
