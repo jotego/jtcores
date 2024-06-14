@@ -10,6 +10,7 @@ For I/O (SDRAM download, etc.) the following indexes are used
 | NVRAM           | 255  | 2      | 2               | nvram.bin |
 | Cheat ROM       | 16   | 16     | 16              |           |
 | Beta keys       | N/A  | 17     | 17              |           |
+| CRT-VGA Config  | N/A  | N/A    | 18              |           |
 | DIP switches    | N/A  | 254    | N/A             |           |
 | Cheat switches  | N/A  | 255    | N/A             |           |
 
@@ -314,3 +315,20 @@ AV sys | 3.0  | 8.25  | Same results with fan on/off
 The wider the difference is between max and min, the cleaner signals are.
 
 Most cores in the official MiSTer repository seem to use a strategy of a full 180º clock shift. This has the advantage of providing an accurate value of the clock at the pin as it can be generated using an IO primitive. However, it means that the last word of the burst is read with the bus at high impedance, so it has a higher potential for failures. It helps when timing cannot be met as it simplifies internal routing. Enable it with **JTFRAME_180SHIFT**
+
+## CRT-VGA Configuration (Pocket)
+
+For setting the configuration of an Analog video output in Analogue Pocket, a bus ([11:0] crt_config) has been set to carry the following information:
+
+
+Bit | Use                                        |
+----|--------------------------------------------|
+11  | Enable Analogic Video Output               |
+10  | Bypass Video Mist Module and direct assign |
+ 9  | Set YPbPr outout                           |
+8-6 | Unused                                     |
+ 5  | Enable Composite Sync                      |
+ 4  | Enable Bandwidth effect                    |
+ 3  | Enable Blendig effect                      |
+1,2 | Scanlines mode selection                   |
+ 0  | Scandoubler Enabler                        |
