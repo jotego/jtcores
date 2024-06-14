@@ -4,14 +4,13 @@ sourcefile=[ "segas18.cpp" ]
 debug = { machines=[
     # gun input missing
     "lghost",
-    # requires VDP
-    "cltchitr", # boots up to hang up soon after with no VDP
-    "hamaway",  # boots up to hang up soon after with no VDP
-    "ddcrew",   # does not boot
-    "desertbr", # does not boot
-    "wwallyj",  # does not boot
-    # MCU (enable it in macros.def)
-    "mwalk",    # does not boot
+    # VDP priority bad
+    "mwalk",    # bad music
+    "hamaway",
+    "desertbr",
+    # bad tile mapping
+    "wwallyj",
+    "ddcrew",
 ]}
 skip.bootlegs=true
 # incomplete machine description in MAME
