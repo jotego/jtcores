@@ -70,3 +70,6 @@ JTFRAME_CREDITS_HSTART=32
 # Controller options have only been tested on MiSTer
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 #JTFRAME_CHEAT
+
+[sidi128]
+JTFRAME_LF_SDRAM_BUFFER
