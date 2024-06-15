@@ -39,8 +39,6 @@ func Run(args Args) {
 	if args.Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
-	ex := NewExtractor(args.Xml_path)
-	parent_names := make(map[string]string)
 	// Set the RBF Name if blank
 	// if mra_cfg.Rbf.Name == "" {
 	// 	mra_cfg.Rbf.Name = "jt" + args.Def_cfg.Core
@@ -54,51 +52,11 @@ func Run(args Args) {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
 		return
 	}
-	var data_queue []ParsedMachine
 	if !args.SkipPocket {
 		pocket_init(mra_cfg, args)
 	}
-extra_loop:
-	for {
-		machine := ex.Extract(mra_cfg.Parse)
-		calc_DIP_bits( machine, mra_cfg.Dipsw )
-		if machine == nil {
-			break
-		}
-		if args.Verbose {
-			fmt.Print("#####################\n#####################\nFound", machine.Name)
-			if machine.Cloneof != "" {
-				fmt.Printf(" (%s)", machine.Cloneof)
-			}
-			fmt.Println()
-		}
-		cloneof := false
-		if machine.Cloneof != "" {
-			cloneof = true
-		} else {
-			parent_names[machine.Name] = machine.Description
-		}
-		if skip_game(machine, mra_cfg, args) {
-			continue extra_loop
-		}
-		for _, each := range mra_cfg.Global.Overrule {
-			if each.Match(machine)>0 {
-				if each.Rotate != 0 {
-					machine.Display.Rotate = each.Rotate
-				}
-			}
-		}
-		for _, reg := range mra_cfg.ROM.Regions {
-			for k, r := range machine.Rom {
-				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
-					machine.Rom[k].Region = reg.Rename
-				}
-			}
-		}
-		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
-		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
-		data_queue = append(data_queue, pm)
-	}
+	data_queue, parent_names := collect_machines( mra_cfg, args )
+
 	// Add explicit parents to the list
 	for _, p := range mra_cfg.Parse.Parents {
 		parent_names[p.Name] = p.Description
@@ -158,6 +116,53 @@ extra_loop:
 	if !args.SkipPocket {
 		pocket_save()
 	}
+}
+
+func collect_machines(mra_cfg Mame2MRA, args Args) (data_queue []ParsedMachine, parent_names map[string]string) {
+	ex := NewExtractor(args.Xml_path)
+	parent_names = make(map[string]string)
+extra_loop:
+	for {
+		machine := ex.Extract(mra_cfg.Parse)
+		calc_DIP_bits( machine, mra_cfg.Dipsw )
+		if machine == nil {
+			break
+		}
+		if args.Verbose {
+			fmt.Print("#####################\n#####################\nFound", machine.Name)
+			if machine.Cloneof != "" {
+				fmt.Printf(" (%s)", machine.Cloneof)
+			}
+			fmt.Println()
+		}
+		cloneof := false
+		if machine.Cloneof != "" {
+			cloneof = true
+		} else {
+			parent_names[machine.Name] = machine.Description
+		}
+		if skip_game(machine, mra_cfg, args) {
+			continue extra_loop
+		}
+		for _, each := range mra_cfg.Global.Overrule {
+			if each.Match(machine)>0 {
+				if each.Rotate != 0 {
+					machine.Display.Rotate = each.Rotate
+				}
+			}
+		}
+		for _, reg := range mra_cfg.ROM.Regions {
+			for k, r := range machine.Rom {
+				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
+					machine.Rom[k].Region = reg.Rename
+				}
+			}
+		}
+		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
+		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
+		data_queue = append(data_queue, pm)
+	}
+	return data_queue, parent_names
 }
 
 func dump_setnames( corefolder string, sn []string ) {
