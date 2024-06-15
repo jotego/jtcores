@@ -56,7 +56,20 @@ func Run(args Args) {
 		pocket_init(mra_cfg, args)
 	}
 	data_queue, parent_names := collect_machines( mra_cfg, args )
-
+	if len(mra_cfg.Parse.Sourcefile)==0 {
+		if mra_cfg.Parse.Machine.Name=="" {
+			fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
+			os.Exit(1)
+		}
+		machine := &mra_cfg.Parse.Machine
+		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
+		data_queue = append(data_queue,ParsedMachine{
+			machine: machine,
+			mra_xml: mra_xml,
+			def_dipsw: def_dipsw,
+			coremod: coremod,
+		})
+	}
 	// Add explicit parents to the list
 	for _, p := range mra_cfg.Parse.Parents {
 		parent_names[p.Name] = p.Description
@@ -658,7 +671,7 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[s
 		explicit = true
 	}
 	if hdiff != 0 && !explicit {
-		fmt.Printf("%s: needs to remove top/bottom frame (%d pixels total)\n",machine.Name, hdiff)
+		fmt.Printf("%s: core and MAME screen sizes differ. Remove top/bottom black frame (%d pixels total)\n",machine.Name, hdiff)
 	}
 	switch wdiff {
 		case 0: break

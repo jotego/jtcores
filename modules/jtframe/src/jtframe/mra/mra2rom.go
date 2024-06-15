@@ -25,7 +25,7 @@ func save_coremod(root *XMLNode, verbose bool) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "1" })
 	if xml_rom == nil || setname == nil {
-		fmt.Printf("Warning: malformed MRA file")
+		fmt.Println("Warning: no ROM files associated with machine")
 		return
 	}
 	rombytes := make([]byte, 0)
@@ -37,7 +37,7 @@ func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
-		fmt.Printf("Warning: malformed MRA file")
+		fmt.Println("Warning: no ROM files associated with machine")
 		return
 	}
 	rombytes := make([]byte, 0)

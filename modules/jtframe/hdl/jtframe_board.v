@@ -312,7 +312,9 @@ jtframe_led u_led(
 
     always @(posedge clk_sys) begin
         fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
+`ifndef JTFRAME_CREDITS_AON
         show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
+`endif
     end
 
     // To do: HS and VS should actually be delayed inside jtframe_credits too
