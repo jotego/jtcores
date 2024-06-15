@@ -118,7 +118,7 @@ func Run(args Args) {
 	}
 }
 
-func collect_machines(mra_cfg Mame2MRA, args Args) (data_queue []ParsedMachine, parent_names map[string]string) {
+func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
 	ex := NewExtractor(args.Xml_path)
 	parent_names = make(map[string]string)
 extra_loop:
@@ -160,9 +160,9 @@ extra_loop:
 		}
 		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
 		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
-		data_queue = append(data_queue, pm)
+		machines = append(machines, pm)
 	}
-	return data_queue, parent_names
+	return machines, parent_names
 }
 
 func dump_setnames( corefolder string, sn []string ) {
