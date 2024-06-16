@@ -68,7 +68,11 @@ always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { obj2_cs, cpu_addr, cpu_dou
 `endif
 // 256 bytes = 64 objects, extra 64 bytes in K2GE
 // the extra byte is mapped up in the BRAM
+`ifdef NGPC
 assign lut_addr = dr_start ? { 3'b100, scan_obj[5:1] } : { 1'b0, scan_addr };
+`else
+assign lut_addr = { 1'b0, scan_addr };
+`endif
 
 jtframe_dual_ram16 #(
     .AW         (  8          ),
