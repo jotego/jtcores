@@ -42,36 +42,37 @@ module jtngpc_colmix(
     input       [6:0] scr2_pxl,
     input       [8:0] obj_pxl,
 
-    output reg  [3:0] red,
-    output reg  [3:0] green,
-    output reg  [3:0] blue,
+    output      [3:0] red,
+    output      [3:0] green,
+    output      [3:0] blue,
     input       [7:0] debug_bus
     // gfx_en is handled at the scroll and obj modules
 );
 
 wire [15:0] mono_dout, cpal_dout;
 wire [11:0] rgb;
-reg  [ 8:0] pal_addr;
+reg  [ 8:1] pal_addr;
 wire [ 3:0] mono, mx_col, nc;
 wire [ 2:0] mx_pxl;
 wire [ 1:0] lyr, cpal_we;
+wire        mx_pal;
 
+// assign {green,blue,red} = rgb;
+assign {blue,green,red} = rgb;
 
 always @(posedge clk) begin
     cpu_din <= palrgb_cs ? cpal_dout : mono_dout;
 end
 
-always @(posedge clk) begin
-    red     <= mode ? mono : rgb[ 3:0];
-    blue    <= mode ? mono : rgb[ 7:4];
-    green   <= mode ? mono : rgb[11:8];
-    if( pxl_cen ) begin
+always @(posedge clk) if( pxl_cen ) begin
+    if( mode ) begin // monochrome
+        pal_addr <= { 2'b11, lyr, mx_pal, mx_pxl };
+    end else begin // color:
         pal_addr <= {lyr, mx_col, mx_pxl[1:0] };
         if( lyr==3 ) // background / out-of-window (oow)
             pal_addr[6-:4] <= {2'b11, oow, mx_pxl[2]};
     end
 end
-
 
 jtngp_colmix u_monochrome(
     .rst        ( rst       ),
@@ -101,6 +102,7 @@ jtngp_colmix u_monochrome(
     .lyr        ( lyr       ),
     .pxl        ( mx_pxl    ),
     .col        ( mx_col    ),
+    .pal        ( mx_pal    ),
 
     .red        ( mono      ),
     .green      (           ),
@@ -111,7 +113,7 @@ jtngp_colmix u_monochrome(
 // the original design does not accept byte access, but we do
 assign cpal_we = we & {2{palrgb_cs}};
 
-jtframe_dual_ram16 #(.AW(9)) u_colpal(
+jtframe_dual_ram16 #(.AW(8)) u_colpal(
     // Port 0
     .clk0       ( clk       ),
     .data0      ( cpu_dout  ),
@@ -120,7 +122,7 @@ jtframe_dual_ram16 #(.AW(9)) u_colpal(
     .q0         ( cpal_dout ),
     // Port 1
     .clk1       ( clk       ),
-    .data1      ( 8'd0      ),
+    .data1      ( 16'd0     ),
     .addr1      ( pal_addr  ),
     .we1        ( 2'b0      ),
     .q1         ( {nc,rgb}  )

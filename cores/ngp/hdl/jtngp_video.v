@@ -304,6 +304,12 @@ jtngp_obj u_obj(
 `ifdef NGPC
     .mode       ( mode      ),
     .palrgb_cs  ( palrgb_cs ),
+`else
+    // priority mixer output - ignored
+    .lyr        (           ),
+    .pxl        (           ),
+    .col        (           ),
+    .pal        (           ),
 `endif
     // Window
     .oow        ( oow       ),
@@ -318,10 +324,6 @@ jtngp_obj u_obj(
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    // priority mixer output - ignored
-    .lyr        (           ),
-    .pxl        (           ),
-    .col        (           ),
 
     .scr1_pxl   ( scr1_pxl  ),
     .scr2_pxl   ( scr2_pxl  ),

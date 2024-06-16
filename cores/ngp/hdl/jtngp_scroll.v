@@ -83,7 +83,7 @@ jtframe_dual_ram16 #(
     .q1     ( scan_dout )
 );
 
-assign pxl = en ? { pcol, pal, hflip ? pxl_data[1:0] : pxl_data[15:14] } : 3'd0;
+assign pxl = en ? { pcol, pal, hflip ? pxl_data[1:0] : pxl_data[15:14] } : 7'd0;
 
 // scanner
 always @(posedge clk, posedge rst) begin

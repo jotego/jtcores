@@ -44,7 +44,7 @@ module jtngp_obj(
 );
 
 wire [ 1:0] we;
-wire [ 8:0] lut_addr;
+wire [ 7:0] lut_addr;
 wire [ 6:0] scan_addr;
 reg  [ 5:0] scan_obj;
 reg  [ 2:0] scan_st;
@@ -69,7 +69,7 @@ always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { obj2_cs, cpu_addr, cpu_dou
 // 256 bytes = 64 objects, extra 64 bytes in K2GE
 // the extra byte is mapped up in the BRAM
 `ifdef NGPC
-assign lut_addr = dr_start ? { 3'b100, scan_obj[5:1] } : { 1'b0, scan_addr };
+assign lut_addr = scan_st==4 ? { 3'b100, scan_obj[5:1] } : { 1'b0, scan_addr };
 `else
 assign lut_addr = { 1'b0, scan_addr };
 `endif
@@ -141,9 +141,13 @@ always @(posedge clk, posedge rst) begin
         case( scan_st )
             2: begin
                 dr_attr_code <= scan_dout;
-                scan_st      <= 3;
+                scan_st      <= 4;
             end
-            3: begin
+            4: begin
+                col     <= scan_obj[1] ? scan_dout[8+:4] : scan_dout[0+:4];
+                scan_st <= 5;
+            end
+            5: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
                     chram_addr <= { dr_attr_code[8:0], vsub };
                     dr_start <= inzone && !hidden;
@@ -169,7 +173,7 @@ end
 reg  [15:0] obj_data;
 reg  [ 3:0] col;
 reg  [ 3:0] dr_cnt;
-wire [ 4:0] line_din;
+wire [ 8:0] line_din;
 reg         buff_we;
 
 assign line_din   = { col, prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
@@ -200,7 +204,6 @@ always @(posedge clk, posedge rst) begin
                 end
             end
         end else if( dr_start ) begin
-            col <= scan_obj[1] ? scan_dout[8+:4] : scan_dout[0+:4];
             { hflip, pal, prio } <= { dr_attr_code[15], dr_attr_code[13:11] };
             hpos     <= hlast;
             dr_busy  <= 1;

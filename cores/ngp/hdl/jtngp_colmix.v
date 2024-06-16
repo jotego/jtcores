@@ -44,6 +44,7 @@ module jtngp_colmix(
     output reg  [1:0] lyr,      // active layer: 00 sprite, 01 scr1, 10 scr2, 11 background
     output reg  [2:0] pxl,
     output reg  [3:0] col,
+    output reg        pal,
 
     output      [3:0] red,
     output      [3:0] green,
@@ -74,13 +75,13 @@ assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
         obj_blank  = obj_pxl[1:0]==0 || prio==0,
         scr_blank  = scr1_blank && scr2_blank,
+        obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
+        scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
+        scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]],
         scr_eff    = scr_blank ? {1'b1, bg_en ? bg_pal : 3'd0 } :
                      scr_order ?
             ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ):
-            ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),
-        obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
-        scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
-        scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
+            ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} );
 
 assign  red        = raw,
         blue       = raw,
@@ -94,6 +95,9 @@ always @* begin
     col     = scr_order ?
         (!scr2_blank ? scr2_pxl[6-:4] : scr1_pxl[6-:4]):
         (!scr1_blank ? scr1_pxl[6-:4] : scr2_pxl[6-:4]);
+    pal     = scr_order ?
+        (!scr2_blank ? scr2_pxl[2] : scr1_pxl[2]):
+        (!scr1_blank ? scr1_pxl[2] : scr2_pxl[2]);
     obj_sel = 0;
     if( !obj_blank ) begin
         case( prio )
@@ -109,6 +113,7 @@ always @* begin
     end else if( obj_sel ) begin
         lyr = 2'b00;
         col = obj_pxl[8-:4];
+        pal = obj_pxl[2];
         pxl = obj_palout;
     end
 end

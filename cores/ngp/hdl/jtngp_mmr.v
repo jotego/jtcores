@@ -136,7 +136,7 @@ always @(posedge clk, posedge rst) begin
         end
         if( mode_cs ) begin
             if(!dsn[0]) mode <= cpu_dout[7]; // 0 for k2ge, 1 for k1ge
-            cpu_din <= {mode,7'd0};
+            cpu_din <= {8'd0,mode,7'd0};
         end
     end
 end
