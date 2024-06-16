@@ -73,7 +73,7 @@ wire [ 7:0] hoffset, voffset,
             view_startx,view_starty;
 wire        scr_order, hirq_en, virq_en, lcd_neg, oow;
 
-wire [ 4:0] obj_pxl;
+wire [ 8:0] obj_pxl;
 wire [ 6:0] scr1_pxl, scr2_pxl; // color pal (4) + mono pal (1) + ink (2)
 wire [ 2:0] oowc;
 
@@ -110,7 +110,6 @@ end
 always @* begin
     regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
     pal_cs    = gfx_cs && in_range(14'h0100,14'h011A); // monochrome palette
-    palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
     rst_cs    = gfx_cs && cpu_addr[13:1]==13'h7e0>>1;
     obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
     obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
@@ -118,9 +117,11 @@ always @* begin
     scr2_cs   = gfx_cs && in_range(14'h1800,14'h2000); //              2nd half
     ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
 `ifdef NGPC
+    palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
     mode_cs   = gfx_cs && cpu_addr[13:1]==13'h7e2>>1;
 `else
     mode_cs   = 0;
+    palrgb_cs = 0;
 `endif
 end
 
@@ -293,15 +294,17 @@ jtngp_obj u_obj(
     .pxl        ( obj_pxl   )
 );
 /* verilator tracing_on */
-jtngp_colmix u_colmix(
+`COLMIX u_colmix(
     .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
     .lcd_neg    ( lcd_neg   ),
-    .scr_order  ( scr_order ), `ifdef NGPC
-    .mode       ( mode      ), `endif
-
+    .scr_order  ( scr_order ),
+`ifdef NGPC
+    .mode       ( mode      ),
+    .palrgb_cs  ( palrgb_cs ),
+`endif
     // Window
     .oow        ( oow       ),
     .oowc       ( oowc      ),
@@ -312,10 +315,13 @@ jtngp_colmix u_colmix(
     .cpu_dout   ( cpu_dout  ),
     .we         ( we        ),
     .pal_cs     ( pal_cs    ),
-    .palrgb_cs  ( palrgb_cs ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
+    // priority mixer output - ignored
+    .lyr        (           ),
+    .pxl        (           ),
+    .col        (           ),
 
     .scr1_pxl   ( scr1_pxl  ),
     .scr2_pxl   ( scr2_pxl  ),

@@ -1,18 +1,7 @@
 game:
   - from: ngp
     get:
-      - jtngp_game.v
-      - jtngp_main.v
-      - jtngp_chram.v
-      - jtngp_flash.v
-      - jtngp_video.v
-      - jtngp_vtimer.v
-      - jtngp_scroll.v
-      - jtngp_obj.v
-      - jtngp_colmix.v
-      - jtngp_snd.v
-      - jtngp_psg.v
-      - jtngp_mmr.v
+      - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v

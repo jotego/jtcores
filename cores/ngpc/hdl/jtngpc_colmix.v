@@ -16,8 +16,7 @@
     Version: 1.0
     Date: 20-5-2024 */
 
-// keep ngp name instead of ngpc for simplicity in instantiation
-module jtngp_colmix(
+module jtngpc_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -41,207 +40,73 @@ module jtngp_colmix(
 
     input       [6:0] scr1_pxl,
     input       [6:0] scr2_pxl,
-    input       [4:0] obj_pxl,
+    input       [8:0] obj_pxl,
 
-    output      [3:0] red,
-    output      [3:0] green,
-    output      [3:0] blue,
+    output reg  [3:0] red,
+    output reg  [3:0] green,
+    output reg  [3:0] blue,
     input       [7:0] debug_bus
     // gfx_en is handled at the scroll and obj modules
 );
 
-reg  [ 2:0] pxl;
-wire [ 1:0] prio = obj_pxl[4:3];
-// reg  [ 1:0] lyr;
-wire [ 3:0] scr_eff, nc;    // bit 3 set for background tilemap
-reg  [ 3:0] raw;
-wire [ 2:0] obj_palout, scr1_palout, scr2_palout;
-wire        scr1_blank, scr2_blank, scr_blank, obj_blank;
-
-// monochrome palette
-reg [2:0]  obj_pal0 [1:3];
-reg [2:0]  obj_pal1 [1:3];
-reg [2:0] scr1_pal0 [1:3];
-reg [2:0] scr1_pal1 [1:3];
-reg [2:0] scr2_pal0 [1:3];
-reg [2:0] scr2_pal1 [1:3];
-reg [2:0] bg_pal;
-reg [1:0] bg_en;
-
-// color palette
-wire [ 1:0] cpal_we;
-wire [15:0] cpal_dout;
+wire [15:0] mono_dout, cpal_dout;
 wire [11:0] rgb;
+reg  [ 8:0] pal_addr;
+wire [ 3:0] mono, mx_col, nc;
+wire [ 2:0] mx_pxl;
+wire [ 1:0] lyr, cpal_we;
 
-assign  scr1_blank = scr1_pxl[1:0]==0,
-        scr2_blank = scr2_pxl[1:0]==0,
-        obj_blank  = obj_pxl[1:0]==0 || prio==0,
-        scr_blank  = scr1_blank && scr2_blank,
-        scr_eff    = scr_blank ? {1'b1, bg_en==2'b10 ? bg_pal : 3'd0 } :
-                     scr_order ?
-            ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ) :
-            ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),
-        obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
-        scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
-        scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
 
-assign  red   = mode ? raw : rgb[ 3:0],
-        blue  = mode ? raw : rgb[ 7:4],
-        green = mode ? raw : rgb[11:8];
-
-always @* begin
-    // layer mixing
-    pxl = scr_eff[2:0];
-    // lyr[1] = 0;
-    // lyr[0] = scr_eff[3] ^ scr_order;
-    if( !obj_blank ) begin
-        // lyr[1] = 1;
-        case( prio )
-            3: pxl = obj_palout;
-            2: if( scr_eff[3] || scr_blank ) pxl = obj_palout;
-            1: if( scr_blank ) pxl = obj_palout;
-            default: ;  // do not draw the object
-        endcase
-    end
-    if( oow ) pxl = oowc;
+always @(posedge clk) begin
+    cpu_din <= palrgb_cs ? cpal_dout : mono_dout;
 end
 
-always @(posedge clk) if(pxl_cen) begin
-    raw <= LVBL ? { pxl[2:0], pxl[2] }^{4{~lcd_neg}} : 4'd0;
-end
-
-`ifdef SIMULATION
-reg [7:0] zeroval[0:24];
-integer f,cnt;
-
-initial begin
-    f = $fopen("pal.bin","rb");
-    if( f!=0 ) begin
-        cnt = $fread(zeroval,f);
-        $display("Read %0d bytes from pal.bin",cnt);
-        $fclose(f);
-    end else begin
-        $display("Could not open pal.bin");
+always @(posedge clk) begin
+    red     <= mode ? mono : rgb[ 3:0];
+    blue    <= mode ? mono : rgb[ 7:4];
+    green   <= mode ? mono : rgb[11:8];
+    if( pxl_cen ) begin
+        pal_addr <= {lyr, mx_col, mx_pxl[1:0] };
+        if( lyr==3 ) // background / out-of-window (oow)
+            pal_addr[6-:4] <= {2'b11, oow, mx_pxl[2]};
     end
 end
-`endif
 
-// palette writes
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-         obj_pal0[1] <= 7;  obj_pal0[2] <= 7;  obj_pal0[3] <= 7;
-         obj_pal1[1] <= 7;  obj_pal1[2] <= 7;  obj_pal1[3] <= 7;
-        scr1_pal0[1] <= 7; scr1_pal0[2] <= 7; scr1_pal0[3] <= 7;
-        scr1_pal1[1] <= 7; scr1_pal1[2] <= 7; scr1_pal1[3] <= 7;
-        scr2_pal0[1] <= 7; scr2_pal0[2] <= 7; scr2_pal0[3] <= 7;
-        scr2_pal1[1] <= 7; scr2_pal1[2] <= 7; scr2_pal1[3] <= 7;
-          bg_pal     <= 7;
-          bg_en      <= 0;
-`ifdef SIMULATION
-        if( cnt==25 ) begin
-             obj_pal0[1] <= zeroval[   1][2:0];
-             obj_pal0[2] <= zeroval[   2][2:0];
-             obj_pal0[3] <= zeroval[   3][2:0];
-             obj_pal1[1] <= zeroval[ 4+1][2:0];
-             obj_pal1[2] <= zeroval[ 4+2][2:0];
-             obj_pal1[3] <= zeroval[ 4+3][2:0];
-            scr1_pal0[1] <= zeroval[ 8+1][2:0];
-            scr1_pal0[2] <= zeroval[ 8+2][2:0];
-            scr1_pal0[3] <= zeroval[ 8+3][2:0];
-            scr1_pal1[1] <= zeroval[12+1][2:0];
-            scr1_pal1[2] <= zeroval[12+2][2:0];
-            scr1_pal1[3] <= zeroval[12+3][2:0];
-            scr2_pal0[1] <= zeroval[16+1][2:0];
-            scr2_pal0[2] <= zeroval[16+2][2:0];
-            scr2_pal0[3] <= zeroval[16+3][2:0];
-            scr2_pal1[1] <= zeroval[20+1][2:0];
-            scr2_pal1[2] <= zeroval[20+2][2:0];
-            scr2_pal1[3] <= zeroval[20+3][2:0];
-              bg_pal     <= zeroval[20+4][2:0];
-              bg_en      <= zeroval[20+4][7:6];
-        end
-`endif
-    end else begin
-        cpu_din <= 0;
-        case( cpu_addr[4:1] )
-            4'b0_000: cpu_din[10:8] <= obj_pal0[1];
-            4'b0_001: begin
-                cpu_din[ 2:0] <= obj_pal0[2];
-                cpu_din[10:8] <= obj_pal0[3];
-            end
-            4'b0_010: cpu_din[10:8] <= obj_pal1[1];
-            4'b0_011: begin
-                cpu_din[ 2:0] <= obj_pal1[2];
-                cpu_din[10:8] <= obj_pal1[3];
-            end
-            // Scroll 1
-            4'b0_100: cpu_din[10:8] <= scr1_pal0[1];
-            4'b0_101: begin
-                cpu_din[ 2:0] <= scr1_pal0[2];
-                cpu_din[10:8] <= scr1_pal0[3];
-            end
-            4'b0_110: cpu_din[10:8] <= scr1_pal1[1];
-            4'b0_111: begin
-                cpu_din[ 2:0] <= scr1_pal1[2];
-                cpu_din[10:8] <= scr1_pal1[3];
-            end
-            // Scroll 2
-            4'b1_000: cpu_din[10:8] <= scr2_pal0[1];
-            4'b1_001: begin
-                cpu_din[ 2:0] <= scr2_pal0[2];
-                cpu_din[10:8] <= scr2_pal0[3];
-            end
-            4'b1_010: cpu_din[10:8] <= scr2_pal1[1];
-            4'b1_011: begin
-                cpu_din[ 2:0] <= scr2_pal1[2];
-                cpu_din[10:8] <= scr2_pal1[3];
-            end
-            // Background
-            4'b1_100: {cpu_din[7:6], cpu_din[2:0]} <= {bg_en,bg_pal};
-            default:;
-        endcase
 
-        if( palrgb_cs ) cpu_din <= cpal_dout;
+jtngp_colmix u_monochrome(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
 
-        if( pal_cs ) case( cpu_addr[4:1] )
-            4'b0_000: if( we[1] ) obj_pal0[1] <= cpu_dout[10:8];
-            4'b0_001: begin
-                if( we[0] ) obj_pal0[2] <= cpu_dout[ 2:0];
-                if( we[1] ) obj_pal0[3] <= cpu_dout[10:8];
-            end
-            4'b0_010: if( we[1] ) obj_pal1[1] <= cpu_dout[10:8];
-            4'b0_011: begin
-                if( we[0] ) obj_pal1[2] <= cpu_dout[ 2:0];
-                if( we[1] ) obj_pal1[3] <= cpu_dout[10:8];
-            end
-            // Scroll 1
-            4'b0_100: if( we[1] ) scr1_pal0[1] <= cpu_dout[10:8];
-            4'b0_101: begin
-                if( we[0] ) scr1_pal0[2] <= cpu_dout[ 2:0];
-                if( we[1] ) scr1_pal0[3] <= cpu_dout[10:8];
-            end
-            4'b0_110: if( we[1] ) scr1_pal1[1] <= cpu_dout[10:8];
-            4'b0_111: begin
-                if( we[0] ) scr1_pal1[2] <= cpu_dout[ 2:0];
-                if( we[1] ) scr1_pal1[3] <= cpu_dout[10:8];
-            end
-            // Scroll 2
-            4'b1_000: if( we[1] ) scr2_pal0[1] <= cpu_dout[10:8];
-            4'b1_001: begin
-                if( we[0] ) scr2_pal0[2] <= cpu_dout[ 2:0];
-                if( we[1] ) scr2_pal0[3] <= cpu_dout[10:8];
-            end
-            4'b1_010: if( we[1] ) scr2_pal1[1] <= cpu_dout[10:8];
-            4'b1_011: begin
-                if( we[0] ) scr2_pal1[2] <= cpu_dout[ 2:0];
-                if( we[1] ) scr2_pal1[3] <= cpu_dout[10:8];
-            end
-            // Background
-            4'b1_100: if( we[0] ) {bg_en, bg_pal} <= {cpu_dout[7:6],cpu_dout[2:0]};
-            default:;
-        endcase
-    end
-end
+    .lcd_neg    ( lcd_neg   ),
+    .scr_order  ( scr_order ),
+    // Window
+    .oow        ( oow       ),
+    .oowc       ( oowc      ),
+
+    // CPU access
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_din    ( mono_dout ),
+    .cpu_dout   ( cpu_dout  ),
+    .we         ( we        ),
+    .pal_cs     ( pal_cs    ),
+
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+
+    .scr1_pxl   ( scr1_pxl  ),
+    .scr2_pxl   ( scr2_pxl  ),
+    .obj_pxl    ( obj_pxl   ),
+
+    .lyr        ( lyr       ),
+    .pxl        ( mx_pxl    ),
+    .col        ( mx_col    ),
+
+    .red        ( mono      ),
+    .green      (           ),
+    .blue       (           ),
+    .debug_bus  ( debug_bus )
+);
 
 // the original design does not accept byte access, but we do
 assign cpal_we = we & {2{palrgb_cs}};
@@ -256,7 +121,7 @@ jtframe_dual_ram16 #(.AW(9)) u_colpal(
     // Port 1
     .clk1       ( clk       ),
     .data1      ( 8'd0      ),
-    .addr1      ( 9'd0      ),
+    .addr1      ( pal_addr  ),
     .we1        ( 2'b0      ),
     .q1         ( {nc,rgb}  )
 );
