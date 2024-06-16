@@ -57,8 +57,9 @@ wire [ 1:0] dsn;
 
 // Memory map
 reg   ram_cs, obj_cs,  obj2_cs, pal_cs, palrgb_cs,
-      scr1_cs,  scr2_cs, regs_cs, rst_cs;
+      scr1_cs,  scr2_cs, regs_cs, rst_cs, mode_cs;
 reg   rstv;
+wire  mode;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
 wire [12:1] scr1_addr, scr2_addr, obj_addr;
@@ -73,7 +74,8 @@ wire [ 7:0] hoffset, voffset,
 wire        scr_order, hirq_en, virq_en, lcd_neg, oow;
 
 wire [ 4:0] obj_pxl;
-wire [ 2:0] scr1_pxl, scr2_pxl, oowc;
+wire [ 6:0] scr1_pxl, scr2_pxl; // color pal (4) + mono pal (1) + ink (2)
+wire [ 2:0] oowc;
 
 wire [15:0] regs_dout, fix_dout,
             obj_dout,  pal_dout,
@@ -115,13 +117,18 @@ always @* begin
     scr1_cs   = gfx_cs && in_range(14'h1000,14'h1800); // Scroll VRAM, 1st half
     scr2_cs   = gfx_cs && in_range(14'h1800,14'h2000); //              2nd half
     ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
+`ifdef NGPC
+    mode_cs   = gfx_cs && cpu_addr[13:1]==13'h7e2>>1;
+`else
+    mode_cs   = 0;
+`endif
 end
 
 always @* begin // do not register here
     cpu_din =  pal_cs   ? pal_dout  :
                scr1_cs  ? scr1_dout :
                scr2_cs  ? scr2_dout :
-               regs_cs  ? regs_dout :
+    (mode_cs | regs_cs) ? regs_dout :
                ram_cs   ? fix_dout : obj_dout;
 end
 /* verilator tracing_on */
@@ -164,6 +171,7 @@ jtngp_mmr u_mmr(
     .cpu_dout   ( cpu_dout    ),
     .dsn        ( dsn         ),
     .regs_cs    ( regs_cs     ),
+    .mode_cs    ( mode_cs     ),
     // video access
     .hoffset    ( hoffset     ),
     .voffset    ( voffset     ),
@@ -172,6 +180,7 @@ jtngp_mmr u_mmr(
     .scr2_hpos  ( scr2_hpos   ),
     .scr2_vpos  ( scr2_vpos   ),
     .scr_order  ( scr_order   ),
+    .mode       ( mode        ),
     // Window
     .view_width ( view_width  ),
     .view_height( view_height ), // it influences when interrupts occur too
@@ -290,7 +299,8 @@ jtngp_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
 
     .lcd_neg    ( lcd_neg   ),
-    .scr_order  ( scr_order ),
+    .scr_order  ( scr_order ), `ifdef NGPC
+    .mode       ( mode      ), `endif
 
     // Window
     .oow        ( oow       ),

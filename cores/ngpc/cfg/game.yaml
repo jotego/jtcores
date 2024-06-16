@@ -1,0 +1,54 @@
+game:
+  - from: ngp
+    get:
+      - jtngp_game.v
+      - jtngp_main.v
+      - jtngp_flash.v
+      - jtngp_vtimer.v
+      - jtngp_snd.v
+      - jtngp_psg.v
+      - jtngp_chram.v
+      - jtngp_scroll.v
+      - jtngp_mmr.v
+      - jtngp_obj.v
+  - from: ngpc
+    get:
+      - jtngp_video.v
+      - jtngpc_colmix.v
+jtframe:
+  - get:
+      - jtframe_edge.v
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+      - jtframe_rtc.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_ram16.v
+      - jtframe_obj_buffer.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+modules:
+  other:
+    - from: jt900h
+      get:
+        - hdl/jt95c061.v
+        - hdl/jt95c061_timer.v
+    - from: jt12
+      get:
+        - hdl/mixer/jt12_interpol.v
+        - hdl/mixer/jt12_comb.v
+  jt:
+    - name: jt900h
+    - name: jt89

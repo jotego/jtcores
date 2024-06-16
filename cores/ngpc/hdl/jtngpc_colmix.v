@@ -14,8 +14,9 @@
 
     Author: Jose Tejada Gomez. https://patreon.com/jotego
     Version: 1.0
-    Date: 23-3-2022 */
+    Date: 20-5-2024 */
 
+// keep ngp name instead of ngpc for simplicity in instantiation
 module jtngp_colmix(
     input             rst,
     input             clk,
@@ -25,6 +26,7 @@ module jtngp_colmix(
     input             scr_order,
     input      [ 2:0] oowc,
     input             oow,          // outside of window
+    input             mode,
 
     // CPU access
     input      [ 8:1] cpu_addr,
@@ -37,7 +39,7 @@ module jtngp_colmix(
     input             LHBL,
     input             LVBL,
 
-    input       [6:0] scr1_pxl, // only bits 2:0 used for scroll in monochrome
+    input       [6:0] scr1_pxl,
     input       [6:0] scr2_pxl,
     input       [4:0] obj_pxl,
 
@@ -51,7 +53,7 @@ module jtngp_colmix(
 reg  [ 2:0] pxl;
 wire [ 1:0] prio = obj_pxl[4:3];
 // reg  [ 1:0] lyr;
-wire [ 3:0] scr_eff;    // bit 3 set for background tilemap
+wire [ 3:0] scr_eff, nc;    // bit 3 set for background tilemap
 reg  [ 3:0] raw;
 wire [ 2:0] obj_palout, scr1_palout, scr2_palout;
 wire        scr1_blank, scr2_blank, scr_blank, obj_blank;
@@ -66,6 +68,11 @@ reg [2:0] scr2_pal1 [1:3];
 reg [2:0] bg_pal;
 reg [1:0] bg_en;
 
+// color palette
+wire [ 1:0] cpal_we;
+wire [15:0] cpal_dout;
+wire [11:0] rgb;
+
 assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
         obj_blank  = obj_pxl[1:0]==0 || prio==0,
@@ -78,9 +85,9 @@ assign  scr1_blank = scr1_pxl[1:0]==0,
         scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
         scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
 
-assign  red        = raw,
-        blue       = raw,
-        green      = raw;
+assign  red   = mode ? raw : rgb[ 3:0],
+        blue  = mode ? raw : rgb[ 7:4],
+        green = mode ? raw : rgb[11:8];
 
 always @* begin
     // layer mixing
@@ -194,6 +201,8 @@ always @(posedge clk, posedge rst) begin
             default:;
         endcase
 
+        if( palrgb_cs ) cpu_din <= cpal_dout;
+
         if( pal_cs ) case( cpu_addr[4:1] )
             4'b0_000: if( we[1] ) obj_pal0[1] <= cpu_dout[10:8];
             4'b0_001: begin
@@ -233,5 +242,23 @@ always @(posedge clk, posedge rst) begin
         endcase
     end
 end
+
+// the original design does not accept byte access, but we do
+assign cpal_we = we & {2{palrgb_cs}};
+
+jtframe_dual_ram16 #(.AW(9)) u_colpal(
+    // Port 0
+    .clk0       ( clk       ),
+    .data0      ( cpu_dout  ),
+    .addr0      ( cpu_addr  ),
+    .we0        ( cpal_we   ),
+    .q0         ( cpal_dout ),
+    // Port 1
+    .clk1       ( clk       ),
+    .data1      ( 8'd0      ),
+    .addr1      ( 9'd0      ),
+    .we1        ( 2'b0      ),
+    .q1         ( {nc,rgb}  )
+);
 
 endmodule
