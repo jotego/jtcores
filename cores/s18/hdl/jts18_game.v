@@ -31,6 +31,9 @@ wire [ 8:0] vrender;
 wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
+wire [ 2:0] crosshairs;
+wire [ 8:0] lg1_x, lg2_x;
+wire [ 8:0] lg1_y, lg2_y;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
@@ -145,6 +148,10 @@ jts18_main u_main(
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
+    .lg1_x       ( lg1_x      ),
+    .lg1_y       ( lg1_y      ),
+    .lg2_x       ( lg2_x      ),
+    .lg2_y       ( lg2_y      ),
     .cab_1p      ( cab_1p[2:0]),
     .coin        (   coin[2:0]),
     .service     ( service    ),
@@ -282,6 +289,8 @@ jts18_video u_video(
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
 
+    .lightguns  ( crosshairs),
+
     // Video signal
     .HS         ( HS        ),
     .VS         ( VS        ),
@@ -296,5 +305,34 @@ jts18_video u_video(
     .st_addr    ( debug_bus ),
     .st_dout    ( st_video  )
 );
+
+jts18_crosshair crosshair_left (
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .dx         ( mouse_1p[ 7: 0] ),
+    .dy         ( mouse_1p[15: 8] ),
+    .strobe     ( mouse_strobe[0] ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .x          ( lg1_x     ),
+    .y          ( lg1_y     ),
+    .crosshair  ( crosshairs[0] )
+);
+
+jts18_crosshair crosshair_center (
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .dx         ( mouse_2p[ 7: 0] ),
+    .dy         ( mouse_2p[15: 8] ),
+    .strobe     ( mouse_strobe[1] ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .x          ( lg2_x     ),
+    .y          ( lg2_y     ),
+    .crosshair  ( crosshairs[1] )
+);
+
+// 2 guns are supported right now
+assign crosshairs[2] = 0;
 
 endmodule

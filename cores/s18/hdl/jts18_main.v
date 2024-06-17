@@ -67,6 +67,10 @@ module jts18_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
+    input       [ 8:0] lg1_x,
+    input       [ 8:0] lg1_y,
+    input       [ 8:0] lg2_x,
+    input       [ 8:0] lg2_y,
     input       [ 2:0] cab_1p,
     input       [ 2:0] coin,
     input              service,
@@ -125,7 +129,7 @@ localparam       PCB_5874 = 0,  // refers to the bit in game_id
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, st_io, io_dout, misc_o, coinage, key_data;
+wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, misc_o, coinage, key_data;
 wire [12:0] key_addr;
 
 `ifdef SIMULATION
@@ -133,7 +137,7 @@ wire [23:0] A_full = {A,1'b0};
 `endif
 
 wire        BRn, BGACKn, BGn,
-            BUSn, cpu_RnW, ok_dly, io_we;
+            BUSn, cpu_RnW, ok_dly, io_we, io_rd;
 reg         sdram_ok, io_cs, vdp_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
@@ -141,6 +145,7 @@ assign BUSn    = LDSn & UDSn;
 assign gray_n  = misc_o[6];
 assign flip    = misc_o[5];
 assign io_we   = io_cs && !RnW && !LDSn;
+assign io_rd   = io_cs &&  RnW && !LDSn;
 // MSB 7-6 are select inputs, used in Wally
 // It may be safe to connect to button 0
 assign coinage = cab3 ?
@@ -166,6 +171,8 @@ wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
 wire [15:0] mapper_dout;
 wire        none_cs;
+
+reg   [7:0] p1, p2;
 
 `ifndef NOMCU
 jtframe_8751mcu #(
@@ -279,16 +286,59 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// M6253 4 channel 8 bit ADC for LaserGhost
+reg         m6253_shift_out;
+reg   [7:0] m6253_shift_reg;
+reg         io_rdl;
+
+function [7:0] lg_xscale(input [8:0] x); // 0-319 -> 0-255
+    reg [15:0] mult;
+    begin
+        mult = x * 8'd204;
+        lg_xscale = mult[15:8];
+    end
+endfunction
+
+always @(posedge clk) begin
+    io_rdl <= io_rd;
+
+    if (io_we && A[15:4] == 12'h301) begin
+        case (A[2:1])
+            0: m6253_shift_reg <= ~lg1_y[7:0];
+            1: m6253_shift_reg <= lg_xscale(lg1_x);
+            2: m6253_shift_reg <= ~lg2_y[7:0];
+            3: m6253_shift_reg <= lg_xscale(lg2_x);
+            default: ;
+        endcase
+    end
+    if (io_rd && !io_rdl && A[15:4] == 12'h301) begin
+        m6253_shift_out <= m6253_shift_reg[7];
+        m6253_shift_reg <= { m6253_shift_reg[6:0], 1'b0 };
+    end
+end
+
+assign io_dout = (A[15:4] == 12'h301) ? {m6253_shift_out, 7'h7f} : io5296_dout;
+
+always @(*) begin
+    if (game_id[PCB_5873]) begin
+        p1 = {4'b1111, joystick2[5:4], joystick1[5:4]};
+        p2 = 8'hff;
+    end else begin
+        p1 = {joystick1[3:0],joystick1[7:4]};
+        p2 = {joystick2[3:0],joystick2[7:4]};
+    end
+end
+
 jts18_io u_ioctl(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .addr       ( {A[13],A[5:1]}),
     .din        ( cpu_dout[7:0] ),
-    .dout       ( io_dout       ),
+    .dout       ( io5296_dout   ),
     .we         ( io_we         ),
     // eight 8-bit ports
-    .pa_i       ( {joystick1[3:0],joystick1[7:4]} ),
-    .pb_i       ( {joystick2[3:0],joystick2[7:4]} ),
+    .pa_i       ( p1            ),
+    .pb_i       ( p2            ),
     .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
     .pd_o       ( misc_o        ),
     .pe_i       ( coinage       ),
