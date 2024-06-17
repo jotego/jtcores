@@ -164,6 +164,7 @@ module jtframe_mister #(parameter
     output  [ 8:0]  spinner_1, spinner_2, spinner_3, spinner_4,
     // mouse
     output  [15:0]  mouse_1p,  mouse_2p,
+    output  [ 1:0]  mouse_strobe,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -721,6 +722,7 @@ jtframe_board #(
     .game_paddle_2  ( game_paddle_2   ),
     .mouse_1p       ( mouse_1p        ),
     .mouse_2p       ( mouse_2p        ),
+    .mouse_strobe   ( mouse_strobe    ),
     .spinner_1      ( spinner_1       ),
     .spinner_2      ( spinner_2       ),
     .dial_x         ( dial_x          ),

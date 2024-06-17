@@ -26,6 +26,7 @@
 `endif
 `ifdef JTFRAME_MOUSE
     input   [15:0]  mouse_1p, mouse_2p,
+    input   [ 1:0]  mouse_strobe,
 `endif
 `ifdef JTFRAME_SPINNER
     input   [ 7:0]  spinner_1p, spinner_2p,

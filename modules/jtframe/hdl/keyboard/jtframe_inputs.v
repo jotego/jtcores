@@ -63,6 +63,7 @@ module jtframe_inputs(
     input       [ 8:0] spinner_1,      spinner_2,
 
     output      [15:0] mouse_1p, mouse_2p,
+    output      [ 1:0] mouse_strobe,
     output      [ 7:0] game_paddle_1, game_paddle_2,
     output      [ 1:0] dial_x, dial_y,
 
@@ -367,6 +368,7 @@ jtframe_mouse u_mouse(
     .mouse_idx  ( bd_mouse_idx ),
     .mouse_1p   ( mouse_1p     ),
     .mouse_2p   ( mouse_2p     ),
+    .mouse_strobe(mouse_strobe ),
     .but_1p     ( mouse_but_1p ),
     .but_2p     ( mouse_but_2p )
 );

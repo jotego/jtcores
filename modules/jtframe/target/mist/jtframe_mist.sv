@@ -154,6 +154,7 @@ module jtframe_mist #(parameter
 
     // Mouse
     output      [15:0] mouse_1p, mouse_2p,
+    output      [ 1:0] mouse_strobe,
 
     // DIP and OSD settings
     output             enable_fm,
@@ -405,6 +406,7 @@ jtframe_board #(
     .game_paddle_2  ( paddle_2        ),
     .mouse_1p       ( mouse_1p        ),
     .mouse_2p       ( mouse_2p        ),
+    .mouse_strobe   ( mouse_strobe    ),
     // DIP and OSD settings
     .status         ( board_status    ),
     .dipsw          ( dipsw[23:0]     ),

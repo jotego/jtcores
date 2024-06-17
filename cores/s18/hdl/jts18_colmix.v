@@ -28,6 +28,8 @@ module jts18_colmix(
     // S16B
     input              vid16_en, sa, sb, fix,
     input        [1:0] obj_prio,
+    // Lightgun sights
+    input        [2:0] lightguns,
     // VDP
     input              vdp_en,
     input        [2:0] vdp_prio,
@@ -43,11 +45,13 @@ wire [7:0] ex_r, ex_g, ex_b;
 reg  [7:0] pr, pg, pb;
 wire       s16_blank;
 reg        vdp_sel;
+wire [2:0] lightgun_rgb;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
 assign s16_blank = {ex_r,ex_g,ex_b}==0;
+assign lightgun_rgb = lightguns;
 
 always @(posedge clk) begin
     case( vdp_prio )
@@ -58,9 +62,9 @@ always @(posedge clk) begin
     if( !vdp_ysn  ) vdp_sel <= 0;
     if( !vid16_en ) vdp_sel <= 1;
     if( !vdp_en   ) vdp_sel <= 0;
-    pr <= vdp_sel ? vdp_r : ex_r;
-    pg <= vdp_sel ? vdp_g : ex_g;
-    pb <= vdp_sel ? vdp_b : ex_b;
+    pr <= (vdp_sel ? vdp_r : ex_r) | {8{lightguns[0]}};
+    pg <= (vdp_sel ? vdp_g : ex_g) | {8{lightguns[1]}};
+    pb <= (vdp_sel ? vdp_b : ex_b) | {8{lightguns[2]}};
 end
 
 jtframe_blank #(.DLY(4),.DW(24)) u_blank(
