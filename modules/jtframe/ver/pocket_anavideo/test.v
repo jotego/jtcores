@@ -46,7 +46,7 @@ always @(posedge clk) begin
     if (fin[2] || vs_cnt==3) #100 $finish;
 end
 
-`define JTFRAME_SCAN2X_NOBLEND
+`define JTFRAME_SCAN2X_NOBLEND //Simulation not working properly without this
 
 jtframe_pocket_anavideo #(.COLORW(4)) u_analogvideo(
     .clk        ( clk      ),
@@ -76,31 +76,6 @@ jtframe_pocket_anavideo #(.COLORW(4)) u_analogvideo(
     .cart2_dir  ( cart2_dir),
     .cart3_dir  ( cart3_dir)
 );
-/*jtframe_hsize uut(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
-
-    .scale      ( scale     ),
-    .offset     ( 5'd0      ),
-    .enable     ( en        ),
-    .r_in       ( {3'b0,vdump[8]}),
-    .g_in       ( vdump[7:4]),
-    .b_in       ( vdump[3:0]),
-    .HS_in      ( HS        ),
-    .VS_in      ( VS        ),
-    .HB_in      ( ~LHBL     ),
-    .VB_in      ( ~LVBL     ),
-    // filtered video
-    .HS_out     (           ),
-    .VS_out     (           ),
-    .HB_out     (           ),
-    .VB_out     (           ),
-    .r_out      (rgb_o[11:8] ),
-    .g_out      (rgb_o[7:4] ),
-    .b_out      (rgb_o[3:0] )
-);
-*/
 
 localparam [8:0] VB_START = /*LAYOUT==3 ?*/ 9'd238 /*: 9'd239*/,
                  VB_END   = /*LAYOUT==3 ?*/ 9'd014 /*: 9'd015*/;
