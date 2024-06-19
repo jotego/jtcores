@@ -6,23 +6,30 @@
 import binascii
 
 class OptionType:
-    def __init__(self):
+    def __init__(self, exp1=True, skp=["u"]):
         self.options = ""
         self.dict = {}
         self.replace = {}
+        self.expect1 = exp1
+        self.skip = ''.join(skp)
+    def get_input(self):
+        inp = input(self.options).lower()
+        nf  = ""
+        if self.expect1 and len(inp)>1:
+            print(f"\nExpected input lenght: 1\nInput lenght found: {len(inp)}\nTry again.")
+            return self.get_input()
+        if self.replace:
+            for r in self.replace: inp = inp.replace( r,self.replace[r] )
+        for let in set(inp):
+            if let not in self.dict or let in self.skip:  nf += let
+            else:                                         self.dict[let][0] += 1
+        if nf: print(f"Sorry, could not find following options: '{nf.upper()}'. Inputs ignored\n")
+        return  inp
 
 def user_options(records, w_len=32, filename="test.bin"):
     final_num = ""
     for sel in records:
-        nf = "" #Options not found
-        sel_input = input(sel.options).lower()
-        #Replace unwanted values and evaluate selection
-        if sel.replace:
-            for r in sel.replace: sel_input = sel_input.replace( r,sel.replace[r] )
-        for let in set(sel_input):
-            if let not in sel.dict or let=="u":  nf += let
-            else:                                sel.dict[let][0] += 1
-        if nf: print(f"Sorry, could not find following options: '{nf.upper()}'. Inputs ignored\n")
+        sel_input = sel.get_input() # input(sel.options).lower()
         #Add options to Binary string
         for it in sel.dict:
             for s in sel.dict[it]:
@@ -39,7 +46,7 @@ def user_options(records, w_len=32, filename="test.bin"):
 
 
 # Crear el objeto 'crt' de la clase 'OptionType'
-crt = OptionType()
+crt = OptionType(exp1=False)
 
 crt.options ="""
 Please, select all options that apply by typing a string of the corresponding letters in the following table.
@@ -59,7 +66,7 @@ Letter | Option
    J   | Enable Blendig effect                      |
 ----------------------------------------------------|
 
-Your selection:   """
+Your selection:    """
 
 crt.dict = {
     "a" : [0],    "b" : [0],
@@ -70,8 +77,34 @@ crt.dict = {
 }
 crt.replace = {"h": "fg",}
 
+snac = OptionType()
 
-user_options([crt],filename="crtcfg.bin")
+snac.options = """
+Please, select the option corresponding to your controller.
+
+Letter | Option
+-------|--------------------------------------------|
+   A   | None                                       |
+   B   | DB15 Normal                                |
+   C   | NES                                        |
+   D   | SNES                                       |
+   E   | PCE 2BTN/6BTN                              |
+   F   | PCE Multitap                               |
+----------------------------------------------------|
+
+Your selection:    """
+
+snac.dict = {
+    "u" : [0,0,0],
+    "a" : [0],
+    "f" : [0],
+    "e" : [0],
+    "c" : [0],
+    "b" : [0],
+}
+snac.replace = {"a": "", "f":"ec","d":"cb"}
+
+user_options([crt, snac],filename="crtcfg.bin")
 
 
 """
@@ -86,3 +119,17 @@ Bit | Use                                        |
  3  | Enable Blendig effect                      |
 1,2 | Scanlines mode selection                   |
  0  | Scandoubler Enabler                        |"""
+
+
+# nums = ["1234","2413","3142","4321"]
+
+# for x in range(1,5):
+#     for y in range(1,5):
+#         if x == y: continue
+#         xy = str(x)+str(y)
+#         f = 0
+#         for n in nums:
+#             if n.find(xy) >= 0: f+=1
+#         if f == 0: print(f"{xy} not found in any block")
+#         if f > 1 : print(f"{xy} found {f} times")
+

@@ -9,7 +9,7 @@ wire Hinit, Vinit, LHBL, LVBL, HS, VS,
      pxl2_cen, pxl_cen;
 
 wire [ 7:0] cart3_out, cart2_out;
-wire [ 5:0] cart1_vid;
+wire [ 4:0] cart1_vid;
 wire        cart1_dir, cart2_dir, cart3_dir;
 
 reg en=0;
