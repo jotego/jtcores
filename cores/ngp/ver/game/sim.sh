@@ -70,7 +70,8 @@ while [ $# -gt 0 ]; do
             fi
             ;;
         -inputs)
-            OTHER="$OTHER $1"
+            OTHER="$OTHER $1 $2"
+            shift
             INPUTS=1;;
         *)
             OTHER="$OTHER $1";;
