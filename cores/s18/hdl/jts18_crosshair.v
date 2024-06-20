@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: Gyorgy Szombathelyi
+    Author: Gyorgy Szombathelyi Copyright: Miki Saito
 */
 
 module jts18_crosshair(
@@ -25,7 +25,7 @@ module jts18_crosshair(
     input        LHBL,
     output reg [8:0] x,
     output reg [8:0] y,
-    output       crosshair
+    output reg   crosshair
 );
 
 reg  [8:0] hcnt, vcnt;
@@ -70,7 +70,8 @@ always @(posedge clk) if (pxl_cen) begin
         hcnt <= hcnt + 1'd1;
 end
 
-assign crosshair = ((x_diff[8:3] == 0 || &x_diff[8:3]) && y_diff == 0) ||
-                   ((y_diff[8:3] == 0 || &y_diff[8:3]) && x_diff == 0);
+always @(posedge clk)
+    crosshair <= ((x_diff[8:3] == 0 || &x_diff[8:3]) && y_diff == 0) ||
+                 ((y_diff[8:3] == 0 || &y_diff[8:3]) && x_diff == 0);
 
 endmodule
