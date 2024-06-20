@@ -106,7 +106,7 @@ always @(posedge clk, posedge rst) begin
             if( joy2_on[1] ) mouse_2p[ 7:0] <= cv(-MOUSE_EMU_SENS<<1);
             if( joy2_on[2] ) mouse_2p[15:8] <= MOUSE_EMU_SENS[7:0];
             if( joy2_on[3] ) mouse_2p[15:8] <= cv(-MOUSE_EMU_SENS);
-            if( |joy2_on ) mouse_strobe[0] <= 1;
+            if( |joy2_on ) mouse_strobe[1] <= 1;
 
             // Stop the mouse when releasing the joystick
             if( joy1_off[1:0]!=0 ) mouse_1p[ 7:0] <= 0;
