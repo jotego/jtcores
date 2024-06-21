@@ -24,6 +24,10 @@ assign pxl_cen  = cen_cnt==3;
 reg [3:0] linecnt=0; 
 reg [2:0] fin=0;
 wire      rst = fin[1];
+reg       anv_en=0;
+
+initial #500 anv_en =1;
+
 
 initial begin
     clk = 0;
@@ -52,9 +56,9 @@ jtframe_pocket_anavideo #(.COLORW(4)) u_analogvideo(
     .clk        ( clk      ),
     .pxl_cen    ( pxl_cen  ),
     .pxl2_cen   ( pxl2_cen ),
-    .anv_en     ( 1'b1     ), // enable analogic video output
+    .anv_en     ( anv_en/*1'b1*/     ), // enable analogic video output
     .rst        ( rst      ),
-    .bypass     ( 1'b1     ),
+    .bypass     ( 1'b0     ),
     .game_r     ( {3'b0,vdump[8]}),
     .game_g     ( vdump[7:4]),
     .game_b     ( vdump[3:0]),
@@ -67,7 +71,7 @@ jtframe_pocket_anavideo #(.COLORW(4)) u_analogvideo(
     // video signal type
     .ypbpr      ( 1'b0/*ypbpr*/     ),
     .no_csync   ( 1'b1      ),
-    .scan2x_enb ( en/*1'b0*/),
+    .scan2x_enb ( /*en*/1'b0),
     //Output
     .cart3_out  ( cart3_out),
     .cart2_out  ( cart2_out),

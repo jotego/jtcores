@@ -49,12 +49,12 @@ module jtframe_mist_video #(parameter
     output  [7:0]      scan2x_b,
     output             scan2x_hs,
     output             scan2x_vs,
-    output             scan2x_de,
     output             scan2x_HB,
     output             scan2x_VB,
     // crt video
     output reg         video_hs,
     output reg         video_vs,
+    output             video_de,
     output [VGA_DW-1:0] video_r,
     output [VGA_DW-1:0] video_g,
     output [VGA_DW-1:0] video_b
@@ -107,6 +107,7 @@ endfunction
 
 // This scan doubler takes very little memory. Some games in MiST
 // can only use this
+wire scan2x_de;
 wire [CLROUTW*3-1:0] rgbx2;
 wire [CLROUTW*3-1:0] ana_rgb = { r_ana, g_ana, b_ana };
 wire scan2x_vsin = bw_en ? vs_ana : game_vs;
@@ -150,7 +151,7 @@ localparam n = VGA_DW%COLORW;
 wire [VGA_DW-1:0] osd_r_o;
 wire [VGA_DW-1:0] osd_g_o;
 wire [VGA_DW-1:0] osd_b_o;
-wire              VSync_osd, HSync_osd, CSync_osd;
+wire              VSync_osd, HSync_osd, CSync_osd, de_osd;
 
 assign CSync_osd = ~(HSync_osd ^ VSync_osd);
 
@@ -168,14 +169,14 @@ osd #(0,0,6'b01_11_01,VGA_DW) osd (
    .B_in       ( scan2x_b[7-:VGA_DW] ),
    .HSync      ( scan2x_hs    ),
    .VSync      ( scan2x_vs    ),
-   .DE         (              ),
+   .DE         ( scan2x_de    ),
 
    .R_out      ( osd_r_o      ),
    .G_out      ( osd_g_o      ),
    .B_out      ( osd_b_o      ),
    .HSync_out  ( HSync_osd    ),
    .VSync_out  ( VSync_osd    ),
-   .DE_out     (              ),
+   .DE_out     ( de_osd       ),
 
    .osd_shown  ( osd_shown    )
 );
@@ -191,12 +192,14 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .hs_in     ( HSync_osd ),
     .vs_in     ( VSync_osd ),
     .cs_in     ( CSync_osd ),
+    .de_in     ( de_osd    ),
     .red_out   ( video_r   ),
     .green_out ( video_g   ),
     .blue_out  ( video_b   ),
     .hs_out    ( HSync_out ),
     .vs_out    ( VSync_out ),
-    .cs_out    ( CSync_out )
+    .cs_out    ( CSync_out ),
+    .de_out    ( video_de  )
 );
 
 // a minimig vga->scart cable expects a composite sync signal on the VIDEO_HS output.

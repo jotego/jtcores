@@ -12,13 +12,15 @@ module RGBtoYPbPr #(parameter WIDTH = 8)(
 	input hs_in,
 	input vs_in,
 	input cs_in,
+	input de_in,
 
 	output [WIDTH-1:0] red_out,
 	output [WIDTH-1:0] green_out,
 	output [WIDTH-1:0] blue_out,
 	output reg hs_out,
 	output reg vs_out,
-	output reg cs_out
+	output reg cs_out,
+	output reg de_out
 );
 
 reg [8+WIDTH-1:0] r_y=0;
@@ -40,6 +42,7 @@ reg [8+WIDTH-1:0] r;
 reg hs_d;
 reg vs_d;
 reg cs_d;
+reg de_d;
 
 assign red_out   = r[8+WIDTH-1:8];
 assign green_out = y[8+WIDTH-1:8];
@@ -50,6 +53,7 @@ always @(posedge clk) begin
 	hs_d <= hs_in;		// Register sync, pixel clock, etc
 	vs_d <= vs_in;		// so they're delayed the same amount as the incoming video
 	cs_d <= cs_in;
+	de_d <= de_in;
 
 	if(ena) begin
 		// (Y  =  0.299*R + 0.587*G + 0.114*B)
@@ -80,6 +84,7 @@ always @(posedge clk) begin
 	hs_out <= hs_d;
 	vs_out <= vs_d;
 	cs_out <= cs_d;
+	de_out <= de_d;
 
 	if(ena) begin
 		y <= r_y + g_y + b_y;

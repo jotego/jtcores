@@ -66,6 +66,7 @@ reg           scanline;
 reg           last_HS, last_VS, last_HB, last_VB;
 reg           vb_rising, vb_falling, vs_rising, vs_falling;
 reg           line=0;
+reg           vchng=0, vwait=0;
 //reg           x2_HB, x2_VB;
 
 wire          HS_posedge     =  x1_hs && !last_HS;
@@ -178,15 +179,31 @@ always @(posedge clk) if(pxl2_cen) begin
     last_HB <= x1_hb;
     last_VB <= x1_vb;
     last_VS <= x1_vs;
-    if (HB_posedge) hb_rise <= wraddr;
-    if (HB_negedge) hb_fall <= wraddr;
+    if (HB_posedge) begin
+        hb_rise <= wraddr;
+        if( vwait && vb_falling ) vchng <= 1;
+        if( vchng && vb_rising  ) begin
+            {vwait, vchng} <= 2'b0;
+            vb_rise <= wraddr;
+        end
+    end
+    if (HB_negedge) begin
+        hb_fall <= wraddr;
+        if( vwait && vb_rising  ) vchng <= 1;
+        if( vchng && vb_falling ) begin
+            {vwait, vchng} <= 2'b0;
+            vb_fall <= wraddr;
+        end
+    end
     if (VB_posedge) begin
-        vb_rise <= wraddr;
+        vwait <= 1;
+        // vb_rise <= wraddr;
         vb_rising <= 1;
         vb_falling <= 0;
     end
     if (VB_negedge) begin
-        vb_fall <= wraddr;
+        vwait <= 1;
+        // vb_fall <= wraddr;
         vb_falling <= 1;
         vb_rising <= 0;
     end
