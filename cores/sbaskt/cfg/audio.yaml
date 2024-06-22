@@ -11,4 +11,4 @@ audio:
         { r: 2.23k, c: 100n}, { r: 2.2k,  c: 220n}, # both enabled
         { r: 2.23k, c: 100n}],                      # only 1st filter
       rc_en: true }
-    - { name: rdac, data_width: 8, unsigned: true, rsum: 3.3k,  rc: [{ r: 3.3k, c: 220n}], rc_en: true, pre: 0.5 }
+    - { name: rdac, data_width: 8, dcrm: true, rsum: 3.3k,  rc: [{ r: 3.3k, c: 220n}], rc_en: true, pre: 0.5 }
