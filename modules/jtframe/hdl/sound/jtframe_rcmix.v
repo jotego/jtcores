@@ -135,12 +135,12 @@ jtframe_st2mono #(.W(W3),.SIN(STEREO3),.SOUT(STEREO)) u_st3(.sin(ch3),.sout(sm3)
 jtframe_st2mono #(.W(W4),.SIN(STEREO4),.SOUT(STEREO)) u_st4(.sin(ch4),.sout(sm4));
 jtframe_st2mono #(.W(W5),.SIN(STEREO5),.SOUT(STEREO)) u_st5(.sin(ch5),.sout(sm5));
 
-jtframe_sndchain #(.W(W0),.DCRM(DCRM0),.STEREO(STEFF0),.FIR(FIR0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
-jtframe_sndchain #(.W(W1),.DCRM(DCRM1),.STEREO(STEFF1),.FIR(FIR1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
-jtframe_sndchain #(.W(W2),.DCRM(DCRM2),.STEREO(STEFF2),.FIR(FIR2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2), .peak(v[2]));
-jtframe_sndchain #(.W(W3),.DCRM(DCRM3),.STEREO(STEFF3),.FIR(FIR3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3), .peak(v[3]));
-jtframe_sndchain #(.W(W4),.DCRM(DCRM4),.STEREO(STEFF4),.FIR(FIR4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
-jtframe_sndchain #(.W(W5),.DCRM(DCRM5),.STEREO(STEFF5),.FIR(FIR5)) u_ch5(.rst(rst),.clk(clk),.cen(cen),.poles(p5),.gain(g5),.sin(sm5), .sout(ft5), .peak(v[5]));
+jtframe_sndchain #(.FILE("ch0.raw"),.W(W0),.DCRM(DCRM0),.STEREO(STEFF0),.FIR(FIR0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
+jtframe_sndchain #(.FILE("ch1.raw"),.W(W1),.DCRM(DCRM1),.STEREO(STEFF1),.FIR(FIR1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
+jtframe_sndchain #(.FILE("ch2.raw"),.W(W2),.DCRM(DCRM2),.STEREO(STEFF2),.FIR(FIR2)) u_ch2(.rst(rst),.clk(clk),.cen(cen),.poles(p2),.gain(g2),.sin(sm2), .sout(ft2), .peak(v[2]));
+jtframe_sndchain #(.FILE("ch3.raw"),.W(W3),.DCRM(DCRM3),.STEREO(STEFF3),.FIR(FIR3)) u_ch3(.rst(rst),.clk(clk),.cen(cen),.poles(p3),.gain(g3),.sin(sm3), .sout(ft3), .peak(v[3]));
+jtframe_sndchain #(.FILE("ch4.raw"),.W(W4),.DCRM(DCRM4),.STEREO(STEFF4),.FIR(FIR4)) u_ch4(.rst(rst),.clk(clk),.cen(cen),.poles(p4),.gain(g4),.sin(sm4), .sout(ft4), .peak(v[4]));
+jtframe_sndchain #(.FILE("ch5.raw"),.W(W5),.DCRM(DCRM5),.STEREO(STEFF5),.FIR(FIR5)) u_ch5(.rst(rst),.clk(clk),.cen(cen),.poles(p5),.gain(g5),.sin(sm5), .sout(ft5), .peak(v[5]));
 
 jtframe_limsum #(.WI(WOUT),.WO(WOUT+1),.K(6)) u_right(
     .rst    ( rst   ),

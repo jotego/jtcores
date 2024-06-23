@@ -85,3 +85,7 @@ Versions used:
 The advantage of ModelSim over the other two is mixed VHDL/Verilog simulations.
 
 Verilator simulations do not simulate the *target* but only the game top. SDRAM access is particularly faster in Verilator. Verilator does not simulate 4-state signals either.
+
+## Audio output
+
+By default, all audio output gets dumped to test.wav. If the **Audio** section of the **mem.yaml** file is used, then per-channel audio files can be generated too. In order to enable per-channel files, either request jtsim to dump waveforms `jtsim -w` or use the macro **JTFRAME_SIM_CH_RAW** so produce wave files without dumping logic waveforms.
