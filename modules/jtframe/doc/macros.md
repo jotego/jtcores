@@ -160,6 +160,8 @@ JTFRAME_SDRAM_REPACK     |         | Extra latch stage at SDRAM mux output
 
 # Clock Frequency Macros
 
+These macros are generated automatically by jtframe.
+
 Macro                    |  Usage
 -------------------------|----------------------
 JTFRAME_MCLK             | Automatic macro holding the master clock frequency in Hz
