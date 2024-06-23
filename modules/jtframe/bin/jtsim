@@ -896,5 +896,5 @@ fi
 
 # convert per-channel raw sound files to wav
 for i in ch?.raw; do
-    ffmpeg -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
+    ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
 done
