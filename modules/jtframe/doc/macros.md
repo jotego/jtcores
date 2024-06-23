@@ -72,7 +72,6 @@ JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buf
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
-JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in Hz
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
@@ -158,6 +157,14 @@ JTFRAME_SDRAM_LARGE      | MiSTer  | Enables 64MB access to SDRAM modules
 JTFRAME_SDRAM_MUXLATCH   |         | Extra latch for SDRAM mux for <64MHz operation
 JTFRAME_SDRAM_NO_DWNRFSH |         | No refresh during download (non-interleaved SDRAM controller)
 JTFRAME_SDRAM_REPACK     |         | Extra latch stage at SDRAM mux output
+
+# Clock Frequency Macros
+
+Macro                    |  Usage
+-------------------------|----------------------
+JTFRAME_MCLK             | Automatic macro holding the master clock frequency in Hz
+JTFRAME_NTSC             | 40-bit phase increment for [MikeS11's YC module](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder?tab=readme-ov-file)
+JTFRAME_PAL              | 40-bit phase increment for [MikeS11's YC module](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder?tab=readme-ov-file)
 
 # SDRAM64
 

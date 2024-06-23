@@ -353,12 +353,21 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
+	add_subcarrier_clk( macros, int64(mclk) )
 	// Set beta macros
 	if betas.IsBetaFor(cfg.Core, cfg.Target) {
 		macros["JTFRAME_UNLOCKKEY"] = fmt.Sprintf("%d",betas.Betakey)
 		macros["BETA"]= ""
 	}
 	return macros
+}
+
+func add_subcarrier_clk( macros map[string]string, mclk int64 ) {
+	var pal, ntsc int64
+	ntsc=((315<<40)/88)*1000000/mclk
+	pal=(443361875<<40)/100/mclk
+	macros["JTFRAME_PAL"] =fmt.Sprintf("%d",pal)
+	macros["JTFRAME_NTSC"]=fmt.Sprintf("%d",ntsc)
 }
 
 // Replaces all the macros (marked with a $) in the file
