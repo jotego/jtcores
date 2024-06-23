@@ -2,12 +2,6 @@
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[ "puzlclub" ] }
 
-debug = { machines=[
-    # problems with music/sound
-    "rompers",
-    "bakutotu",
-] }
-
 [buttons]
 names = [
     { machine="bakutotu",  names="Gun Shot" },
