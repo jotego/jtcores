@@ -167,7 +167,7 @@ reg  [15:0] cpu_din;
 wire [15:0] mapper_dout;
 wire        none_cs;
 
-reg   [7:0] p1, p2, coinage;
+reg   [7:0] p1, p2, p3, coinage;
 
 `ifndef NOMCU
 jtframe_8751mcu #(
@@ -289,7 +289,7 @@ reg         io_rdl;
 function [7:0] lg_xscale(input [8:0] x); // 0-319 -> 0-255
     reg [15:0] mult;
     begin
-        mult = x * 8'd204;
+        mult = x * (8'd204 + (x<160 ? (x[8:3]+x[8:5]) : 8'd50-(x[8:3]+x[8:5])));
         lg_xscale = mult[15:8];
     end
 endfunction
@@ -316,12 +316,14 @@ assign io_dout = (A[15:4] == 12'h301) ? {m6253_shift_out, 7'h7f} : io5296_dout;
 
 always @(*) begin
     if (game_id[PCB_5873]) begin
-        p1 = {4'b1111, joystick2[5:4], joystick1[5:4]};
+        p1 = {joystick3[4], joystick3[5], 2'b11, joystick2[5:4], joystick1[5:4]};
         p2 = 8'hff;
+        p3 = 8'hff;
         coinage = { coin[2], 2'b11, service, 1'b1, dip_test, coin[1:0] };
     end else begin
         p1 = {joystick1[3:0],joystick1[7:4]};
         p2 = {joystick2[3:0],joystick2[7:4]};
+        p3 = {joystick3[3:0],joystick3[7:4]};
         // MSB 7-6 are select inputs, used in Wally
         // It may be safe to connect to button 0
         coinage = cab3 ?
@@ -340,7 +342,7 @@ jts18_io u_ioctl(
     // eight 8-bit ports
     .pa_i       ( p1            ),
     .pb_i       ( p2            ),
-    .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
+    .pc_i       ( p3            ),
     .pd_o       ( misc_o        ),
     .pe_i       ( coinage       ),
     .ph_o       ( tile_bank     ),
