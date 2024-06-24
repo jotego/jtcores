@@ -71,7 +71,7 @@ always @(posedge clk) if (pxl_cen) begin
 end
 
 always @(posedge clk)
-    crosshair <= ((x_diff[8:3] == 0 || &x_diff[8:3]) && y_diff == 0) ||
-                 ((y_diff[8:3] == 0 || &y_diff[8:3]) && x_diff == 0);
+    crosshair <= ((x_diff[8:3] == 0 || (&x_diff[8:3] && |x_diff[2:0])) && y_diff == 0) ||
+                 ((y_diff[8:3] == 0 || (&y_diff[8:3] && |y_diff[2:0])) && x_diff == 0);
 
 endmodule
