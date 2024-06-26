@@ -43,6 +43,7 @@ module jtframe_mist_video #(parameter
     input              ypbpr,
     input              no_csync,
     input              scan2x_enb, // scan doubler enable bar
+    input              sog, //Sync-On-Green
     // Scan-doubler video
     output  [7:0]      scan2x_r,
     output  [7:0]      scan2x_g,
@@ -202,11 +203,30 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .de_out    ( video_de  )
 );
 
+yc_out u_yc(
+    .clk              ( clk        )
+    .PHASE_INC        (            )
+    .PAL_EN           ( 1'b1       )
+    .CVBS             (            )
+    .COLORBURST_RANGE (            )
+    .hsync            ( HSync_out  )
+    .vsync            ( Vsync_out  )
+    .csync            ( CSync_out  )
+    .dout             (            )
+    .hsync_o          (            )
+    .vsync_o          (            )
+    .csync_o          (            )
+    );
+
 // a minimig vga->scart cable expects a composite sync signal on the VIDEO_HS output.
 // and VCC on VIDEO_VS (to switch into rgb mode)
 always @(posedge clk) begin
     video_hs <= ( (~no_csync & scan2x_enb) | ypbpr) ? CSync_out : HSync_out;
     video_vs <= ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1 : VSync_out;
+    if( sog ) begin
+        video_hs <= 1'b1;
+        video_vs <= CSync_out;
+    end
 end
 
 endmodule
