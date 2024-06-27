@@ -96,6 +96,10 @@ extra=[
     { name="*Sound fix", options="On,Off", bits="8" }
 ]
 
+defaults=[
+    { machine="rompers", value="ff,fe" }, # bit 8 must be low for music to sound correctly
+]
+
 [ROM]
 regions = [
     { name="user1", rom_len=0x20000 },
