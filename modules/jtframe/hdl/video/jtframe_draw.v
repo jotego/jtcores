@@ -67,10 +67,10 @@ reg      [ 3:0] cnt, cnt_l;
 wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
-reg             cen=0, moveon, readon, write;
+reg             cen=0, moveon, readon, write,sng;
 wire            msb;
 
-reg      [ 3:0] status;
+// reg      [ 3:0] status;
 reg    [ZW-1:0] hzoom_l;
 
 assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
@@ -89,7 +89,7 @@ always @* begin
     if( ZENLARGE==1 ) begin
         readon = hzint >= 1; // tile pixels read (reduce)
         moveon = hzint <= 1; // buffer moves (enlarge)
-        write  = hzoom == hzoom_l ? (cnt != cnt_l) : 1'b1;
+        write  = hzoom != hzoom_l || hzoom < 12'h040 ? 1'b1 : (cnt != cnt_l);
         nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
         if( moveon ) nx_hz = nx_hz + hzoom  /*+ 12'h010*/;
     end else begin
@@ -111,7 +111,7 @@ always @(posedge clk, posedge rst) begin
         cnt_l    <= 0;
         hz_cnt   <= 0;
 
-        status   <= 0;
+        // status   <= 0;
     end else begin
         if( !busy ) begin
             if( draw ) begin
@@ -120,50 +120,54 @@ always @(posedge clk, posedge rst) begin
                 busy    <= 1;
                 cnt     <= 8;
                 //cnt_l    <= cnt;
-                status   <= 1;
+                // status   <= 1;
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
-                    status   <= 2;
+                    // status   <= 2;
                 end else begin
                     hz_cnt <= nx_hz;
-                    status   <= 3;
+                    // status   <= 3;
                 end
             end
         end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it
             // slows down the process. That wait is not needed while cnt[3]
             // is high, so it can be used to gain back some time
-            status   <= 4;
+            // status   <= 4;
             if( rom_ok && rom_cs && cnt[3]) begin
                 pxl_data <= rom_data;
                 cnt[3]   <= 0;
                 cnt_l    <= cnt;
-                status   <= 5;
+                // status   <= 5;
                 if( rom_lsb^hflip ) begin
                     rom_cs <= 0;
-                    status   <= 6;
+                    // status   <= 6;
                 end else begin
+                    // cnt      <= cnt+1'd1;
+                    sng <= 1;
                     rom_cs <= 1;
-                    status   <= 7;
+                    // status   <= 7;
                 end
             end
             if( !cnt[3] ) begin
                 hz_cnt   <= nx_hz;
-                status   <= 8;
-                if( readon ) begin
+                // status   <= 8;
+                if( readon | sng ) begin
                     cnt      <= cnt+1'd1;
                     // cnt_l    <= cnt;
                     pxl_data <= hflip ? pxl_data << 1 : pxl_data >> 1;
-                    status   <= 9;
+                    // status   <= 9;
                 end
                 if( moveon /*&& (cnt != cnt_l)*/) begin
                     hzoom_l <= hzoom;
                     cnt_l    <= cnt;
-                    status   <= 10;
+                    // status   <= 10;
                     if( write ) begin
+                        // if( sng ) begin cnt      <= cnt+1'd1;
                         buf_addr <= buf_addr+1'd1;
-                        status   <= 11;
+                        // status   <= 11;
+                        sng <= 0;
                     end
                 end
                 rom_lsb  <= ~hflip;
