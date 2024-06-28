@@ -61,17 +61,14 @@ localparam [ZW-1:0] HZONE = { {ZW-1{1'b0}},1'b1} << (ZI);
 // Each tile is 16x16 and comes from the same ROM
 // but it looks like the sprites have the two 8x16 halves swapped
 
-reg      [31:0] pxl_data;
-reg             rom_lsb;
-reg      [ 3:0] cnt, cnt_l;
-wire     [ 3:0] ysubf, pxl;
-reg    [ZW-1:0] hz_cnt, nx_hz;
+reg   [  31: 0] pxl_data;
+reg   [   3: 0] cnt, cnt_l;
+wire  [   3: 0] ysubf, pxl;
+reg   [ZW-1: 0] hz_cnt, nx_hz, hzoom_l;
 wire  [ZW-1:ZI] hzint;
-reg             cen=0, moveon, readon, write,sng;
+reg             rom_lsb;
+reg             cen=0, moveon, readon, write, sng;
 wire            msb;
-
-// reg      [ 3:0] status;
-reg    [ZW-1:0] hzoom_l;
 
 assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
 assign ysubf   = ysub^{4{vflip}};
@@ -89,12 +86,12 @@ always @* begin
     if( ZENLARGE==1 ) begin
         readon = hzint >= 1; // tile pixels read (reduce)
         moveon = hzint <= 1; // buffer moves (enlarge)
-        write  = hzoom != hzoom_l || hzoom < 12'h040 ? 1'b1 : (cnt != cnt_l);
-        nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
-        if( moveon ) nx_hz = nx_hz + hzoom  /*+ 12'h010*/;
+        write  = hzoom != hzoom_l || hzoom < 12'h040 ? 1'b1 : (cnt != cnt_l); // 0x040 is the normal size in simson core
+        nx_hz  = readon ? hz_cnt - HZONE : hz_cnt;
+        if( moveon ) nx_hz = nx_hz + hzoom;
     end else begin
         readon = 1;
-        write = 1;
+        write  = 1;
         { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
     end
 end
@@ -110,8 +107,6 @@ always @(posedge clk, posedge rst) begin
         cnt      <= 0;
         cnt_l    <= 0;
         hz_cnt   <= 0;
-
-        // status   <= 0;
     end else begin
         if( !busy ) begin
             if( draw ) begin
@@ -119,54 +114,39 @@ always @(posedge clk, posedge rst) begin
                 rom_cs  <= 1;
                 busy    <= 1;
                 cnt     <= 8;
-                //cnt_l    <= cnt;
-                // status   <= 1;
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
-                    // status   <= 2;
                 end else begin
                     hz_cnt <= nx_hz;
-                    // status   <= 3;
                 end
             end
-        end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
+        end else if( KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it
             // slows down the process. That wait is not needed while cnt[3]
             // is high, so it can be used to gain back some time
-            // status   <= 4;
             if( rom_ok && rom_cs && cnt[3]) begin
                 pxl_data <= rom_data;
                 cnt[3]   <= 0;
                 cnt_l    <= cnt;
-                // status   <= 5;
                 if( rom_lsb^hflip ) begin
                     rom_cs <= 0;
-                    // status   <= 6;
                 end else begin
-                    // cnt      <= cnt+1'd1;
-                    sng <= 1;
                     rom_cs <= 1;
-                    // status   <= 7;
+                    if( ZENLARGE ) sng <= 1;
                 end
             end
             if( !cnt[3] ) begin
                 hz_cnt   <= nx_hz;
-                // status   <= 8;
                 if( readon | sng ) begin
                     cnt      <= cnt+1'd1;
-                    // cnt_l    <= cnt;
                     pxl_data <= hflip ? pxl_data << 1 : pxl_data >> 1;
-                    // status   <= 9;
                 end
-                if( moveon /*&& (cnt != cnt_l)*/) begin
+                if( moveon ) begin
                     hzoom_l <= hzoom;
                     cnt_l    <= cnt;
-                    // status   <= 10;
                     if( write ) begin
-                        // if( sng ) begin cnt      <= cnt+1'd1;
                         buf_addr <= buf_addr+1'd1;
-                        // status   <= 11;
                         sng <= 0;
                     end
                 end
