@@ -56,18 +56,18 @@ module jtframe_draw#( parameter
     output     [PW-1:0] buf_din
 );
 
-localparam [ZW-1:0] HZONE = { {ZW-1{1'b0}},1'b1} << (ZI);
+localparam [ZW-1:0] HZONE = { {ZW-1{1'b0}},1'b1} << ZI;
 
 // Each tile is 16x16 and comes from the same ROM
 // but it looks like the sprites have the two 8x16 halves swapped
 
-reg   [  31: 0] pxl_data;
-reg   [   3: 0] cnt, cnt_l;
-wire  [   3: 0] ysubf, pxl;
-reg   [ZW-1: 0] hz_cnt, nx_hz, hzoom_l;
-wire  [ZW-1:ZI] hzint;
+reg      [31:0] pxl_data;
 reg             rom_lsb;
-reg             cen=0, moveon, readon, write, sng;
+reg      [ 3:0] cnt;
+wire     [ 3:0] ysubf, pxl;
+reg    [ZW-1:0] hz_cnt, nx_hz;
+wire  [ZW-1:ZI] hzint;
+reg             cen=0, moveon, readon, one_sz;
 wire            msb;
 
 assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
@@ -86,12 +86,11 @@ always @* begin
     if( ZENLARGE==1 ) begin
         readon = hzint >= 1; // tile pixels read (reduce)
         moveon = hzint <= 1; // buffer moves (enlarge)
-        write  = hzoom != hzoom_l || hzoom < 12'h040 ? 1'b1 : (cnt != cnt_l); // 0x040 is the normal size in simson core
-        nx_hz  = readon ? hz_cnt - HZONE : hz_cnt;
+        nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
         if( moveon ) nx_hz = nx_hz + hzoom;
+        if( one_sz ) {moveon, readon} = 2'b11;
     end else begin
         readon = 1;
-        write  = 1;
         { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
     end
 end
@@ -105,7 +104,6 @@ always @(posedge clk, posedge rst) begin
         pxl_data <= 0;
         busy     <= 0;
         cnt      <= 0;
-        cnt_l    <= 0;
         hz_cnt   <= 0;
     end else begin
         if( !busy ) begin
@@ -114,6 +112,7 @@ always @(posedge clk, posedge rst) begin
                 rom_cs  <= 1;
                 busy    <= 1;
                 cnt     <= 8;
+                one_sz  <= hzoom == HZONE;
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
@@ -121,35 +120,26 @@ always @(posedge clk, posedge rst) begin
                     hz_cnt <= nx_hz;
                 end
             end
-        end else if( KEEP_OLD==0 || cen || cnt[3] ) begin
+        end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it
             // slows down the process. That wait is not needed while cnt[3]
             // is high, so it can be used to gain back some time
             if( rom_ok && rom_cs && cnt[3]) begin
                 pxl_data <= rom_data;
                 cnt[3]   <= 0;
-                cnt_l    <= cnt;
                 if( rom_lsb^hflip ) begin
                     rom_cs <= 0;
                 end else begin
                     rom_cs <= 1;
-                    if( ZENLARGE ) sng <= 1;
                 end
             end
             if( !cnt[3] ) begin
                 hz_cnt   <= nx_hz;
-                if( readon | sng ) begin
+                if( readon ) begin
                     cnt      <= cnt+1'd1;
                     pxl_data <= hflip ? pxl_data << 1 : pxl_data >> 1;
                 end
-                if( moveon ) begin
-                    hzoom_l <= hzoom;
-                    cnt_l    <= cnt;
-                    if( write ) begin
-                        buf_addr <= buf_addr+1'd1;
-                        sng <= 0;
-                    end
-                end
+                if( moveon ) buf_addr <= buf_addr+1'd1;
                 rom_lsb  <= ~hflip;
                 if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0; // 16 pixels
                 if( cnt[2:0]==7 && trunc==2'b10      ) busy <= 0; //  8 pixels
