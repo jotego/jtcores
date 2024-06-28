@@ -177,32 +177,32 @@ jtframe_objdraw #(
     .ZW(12),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
 
-    .hs         ( hs        ),
-    .flip       ( 1'b0      ),
-    .hdump      ( hdump     ),
+    .hs         ( hs            ),
+    .flip       ( 1'b0          ),
+    .hdump      ( hdump         ),
 
-    .draw       ( dr_start  ),
-    .busy       ( dr_busy   ),
-    .code       ( code      ),
-    .xpos       ( hpos      ),
-    .ysub       ( ysub      ),
-    .hz_keep    ( hz_keep   ),
-    .hzoom      ( hzoom     ),
+    .draw       ( dr_start      ),
+    .busy       ( dr_busy       ),
+    .code       ( code          ),
+    .xpos       ( hpos          ),
+    .ysub       ( ysub          ),
+    .hz_keep    ( hz_keep       ),
+    .hzoom      ( hzoom         ),
 
-    .hflip      ( ~hflip    ),
-    .vflip      ( vflip     ),
+    .hflip      ( ~hflip        ),
+    .vflip      ( vflip         ),
     .pal        ({pre_shd, attr}),
 
-    .rom_addr   ( pre_addr  ),
-    .rom_cs     ( pre_cs    ),
-    .rom_ok     ( rom_ok    ),
-    .rom_data   ( sorted    ),
+    .rom_addr   ( pre_addr      ),
+    .rom_cs     ( pre_cs        ),
+    .rom_ok     ( rom_ok        ),
+    .rom_data   ( sorted        ),
 
-    .pxl        ( pre_pxl   )
+    .pxl        ( pre_pxl       )
 );
 
 

@@ -127,7 +127,7 @@ always @(posedge clk) begin
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
     yw0   = y + yadj;
-    ywrap = yw0 > 10'h200 ? yw0+10'h200 : yw0;
+    ywrap = yw0 > 10'h200 ? yw0 + 10'h1A0 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
@@ -283,7 +283,7 @@ always @(posedge clk, posedge rst) begin
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos <= x[8:0] - zmove( hsz, hscl ) - 9'b1;
+                            hpos <= x[8:0] - zmove( hsz, hscl );
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
@@ -294,6 +294,7 @@ always @(posedge clk, posedge rst) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
+                            // hz_keep <= 0;
                             if( last_obj ) done <= 1;
                         end
                     end
