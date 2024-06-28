@@ -377,7 +377,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
     .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
-    .data0  ( {{$bus.Name}}_din  ),
+    .data0  ( {{$bus.Din}}  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
     .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}

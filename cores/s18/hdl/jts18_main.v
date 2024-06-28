@@ -42,6 +42,7 @@ module jts18_main(
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
+    output reg         bank_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
@@ -49,10 +50,11 @@ module jts18_main(
     input              vdp_dtackn,
 
     // RAM access
-    output reg         ram_cs,
     output reg         vram_cs,
-    input       [15:0] ram_data,   // coming from VRAM or RAM
-    input              ram_ok,
+    input              vram_ok,
+    input       [15:0] vram_data,
+    output reg         ram_cs,
+    input       [15:0] ram_data,
     // CPU bus
     output      [15:0] cpu_dout,
     output             UDSn,
@@ -113,8 +115,10 @@ localparam [2:0] REG_RAM  = 3,
                  REG_PAL  = 6,
                  REG_IO   = 7;
 localparam       PCB_5874 = 0,  // refers to the bit in game_id
+                 PCB_5987_DESERTBR = 1,
                  PCB_5987 = 2,
                  PCB_7525 = 3,  // hamaway
+                 PCB_5873 = 4,  // lghost
                  PCB_7248 = 5;  // shdancer
 
 
@@ -156,7 +160,7 @@ wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
-wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
+wire bus_busy  = (|{ rom_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
@@ -213,9 +217,17 @@ always @* begin
     rom_addr = A[20:1];
     if(active[0]) begin
         if(game_id[PCB_5874]|game_id[PCB_7248]) rom_addr[20:19]=0;
-        if(game_id[PCB_7525]|game_id[PCB_5987]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
+        if(game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
     end
-    // assuming that if active[1] is set, then A is already pointing after 512kB
+    // assuming that if active[1] is set, then A is already pointing after 512kB(or 1MB for Desert Breaker)
+    if(active[1]) begin
+        if(game_id[PCB_7525]|game_id[PCB_5873]|game_id[PCB_5987]) rom_addr[20:19]={1'b0, A[21]};
+        if(game_id[PCB_5987_DESERTBR]) rom_addr[20]=A[21];
+    end
+end
+
+always @* begin
+    sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -229,13 +241,7 @@ always @(posedge clk, posedge rst) begin
 
             vram_cs   <= 0; // 64kB
             ram_cs    <= 0; // 16kB
-            sdram_ok  <= 0;
     end else begin
-        if( ASn )
-            sdram_ok <= 0;
-        else if( !BUSn ) begin
-            sdram_ok <= rom_cs ? ok_dly : ram_ok;
-        end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
             rom_cs    <= (active[0] || (active[1] && !game_id[PCB_7248])) && RnW;
             vdp_cs    <= game_id[PCB_7248] ? active[1] : active[2];
@@ -245,12 +251,12 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
 
-
             // jtframe_ramrq requires cs to toggle to
             // process a new request. BUSn will toggle for
             // read-modify-writes
             vram_cs <= !BUSn && active[REG_VRAM] && !A[16];
             ram_cs  <= !BUSn && active[REG_RAM];
+            bank_cs <= (game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) && active[1] && !RnW;
         end else begin
             rom_cs    <= 0;
             char_cs   <= 0;
@@ -260,6 +266,7 @@ always @(posedge clk, posedge rst) begin
             vdp_cs    <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
+            bank_cs   <= 0;
         end
     end
 end
@@ -311,7 +318,8 @@ always @(posedge clk) begin
     if(rst) begin
         cpu_din <= 0;
     end else begin
-        cpu_din <= (ram_cs | vram_cs ) ? ram_data  :
+        cpu_din <=  ram_cs             ? ram_data  :
+                    vram_cs            ? vram_data :
                     rom_cs             ? rom_dec   :
                     char_cs            ? char_dout :
                     pal_cs             ? pal_dout  :

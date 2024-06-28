@@ -197,7 +197,7 @@ function get_cores {
 }
 
 # check that git hooks are present
-cp --no-clobber $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
+cp --update $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
 
 # Recompiles jtframe quietly after each commit
 cd $JTFRAME

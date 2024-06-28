@@ -893,3 +893,8 @@ if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
         eom `ls frames/frame_*.jpg | tail -n 1` &
     fi
 fi
+
+# convert per-channel raw sound files to wav
+for i in ch?.raw; do
+    ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
+done

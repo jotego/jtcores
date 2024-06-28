@@ -2,19 +2,6 @@
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[ "puzlclub" ] }
 
-debug = { machines=[
-    # Key type 3
-    "rompers", # problems with music
-    # Others
-    "bakutotu",
-    # "berabohm",
-    # "quester",
-], setnames=[
-    # "tankfrcej",
-    # see issue #626
-    "tankfrce4",
-] }
-
 [buttons]
 names = [
     { machine="bakutotu",  names="Gun Shot" },
@@ -107,6 +94,10 @@ extra=[
     # Halt the sound CPU while YM2151 is busy. Not present in the original
     # Fixes issues in some games due to the poorly designed sound driver
     { name="*Sound fix", options="On,Off", bits="8" }
+]
+
+defaults=[
+    { machine="rompers", value="ff,fe" }, # bit 8 must be low for music to sound correctly
 ]
 
 [ROM]

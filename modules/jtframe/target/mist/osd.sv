@@ -142,7 +142,7 @@ always @(negedge clk_sys) begin
 
 	pixcnt <= pixcnt + 1;
 	if(pixcnt == pixsz) pixcnt <= 0;
-	ce_pix <= !pixcnt;
+	ce_pix <= pixcnt==0;
 
 	if(hs && ~HSync) begin
 		cnt    <= 0;
@@ -216,8 +216,8 @@ end
 
 wire [9:0] osd_hcnt    = h_cnt - h_osd_start;
 wire [9:0] osd_vcnt    = v_cnt - v_osd_start;
-wire [9:0] osd_hcnt_next  = osd_hcnt + 2'd1;  // one pixel offset for osd pixel
-wire [9:0] osd_hcnt_next2 = osd_hcnt + 2'd2;  // two pixel offset for osd byte address register
+wire [9:0] osd_hcnt_next  = osd_hcnt + 10'd1;  // one pixel offset for osd pixel
+wire [9:0] osd_hcnt_next2 = osd_hcnt + 10'd2;  // two pixel offset for osd byte address register
 reg        osd_de;
 
 reg [10:0] osd_buffer_addr;

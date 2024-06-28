@@ -112,7 +112,7 @@ always @(posedge clk or posedge rst) begin
         1: begin
             if( cs && ~rnw && addr[7:2] == 0 ) begin
                 if(!cs_l) begin
-                    $display("KEY: %X <- %X",addr[1:0], din);
+                    // $display("KEY: %X <- %X",addr[1:0], din);
                     mmr[addr[2:0]] <= din;
                     div_start <= 1;
                 end
@@ -127,7 +127,7 @@ always @(posedge clk or posedge rst) begin
         2: begin
             if( cs && ~rnw && addr[7:2] == 0 ) begin
                 if(!cs_l) begin
-                    $display("KEY: %X <- %X",addr[1:0], din);
+                    // $display("KEY: %X <- %X",addr[1:0], din);
                     mmr[addr[2:0]] <= din;
                     if (addr[1:0] == 3) begin
                         div_h <= {mmr[4], mmr[5]};
@@ -151,7 +151,7 @@ always @(posedge clk or posedge rst) begin
         end
         3: begin
             if( cs && ~rnw ) begin
-                if(!cs_l) $display("KEY: %X <- %X",addr[6:4], din);
+                // if(!cs_l) $display("KEY: %X <- %X",addr[6:4], din);
                 mmr[addr[6:4]] <= din;
             end
             if( up_rng ) rng <= nx_rng;
@@ -167,18 +167,18 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
-`ifdef SIMULATION
-reg [2:0] addrl;
-reg       rnwl;
+// `ifdef SIMULATION
+// reg [2:0] addrl;
+// reg       rnwl;
 
-always @(posedge clk) begin
-    addrl <= addr[6:4];
-    rnwl  <= rnw;
-    if( !cs && cs_l && rnwl ) begin
-        $display("KEY: %X => %X",addrl, dout);
-    end
-end
-`endif
+// always @(posedge clk) begin
+//     addrl <= addr[6:4];
+//     rnwl  <= rnw;
+//     if( !cs && cs_l && rnwl ) begin
+//         $display("KEY: %X => %X",addrl, dout);
+//     end
+// end
+// `endif
 
 endmodule
 

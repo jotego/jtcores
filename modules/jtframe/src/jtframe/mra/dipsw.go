@@ -271,3 +271,14 @@ func calc_DIP_bits( machine *MachineXML, cfg DipswCfg ) {
         max = each.msb
     }
 }
+
+// extract the bit mask for a string that contains a list of bit positions
+// separated by commas
+func dip_mask( bits string ) int {
+    mask := 0xffffffff
+    for _, each := range strings.Split(bits,",") {
+        k,_ := strconv.ParseInt(each,10,64)
+        mask &= ^(1<<k)
+    }
+    return mask
+}

@@ -28,6 +28,15 @@ sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf
 sudo apt install --yes parallel locate python3-pip
 sudo updatedb
 
+# KiCAD
+sudo add-apt-repository ppa:kicad/kicad-8.0-releases
+sudo apt update
+sudo apt install --yes kicad
+
+# Locale
+sudo apt install --yes locales locales-all
+sudo locale-gen en_US.UTF-8
+
 # open picoblaze assembler needed for assembling the cheat and beta code
 sudo pip install --upgrade opbasm
 
@@ -92,7 +101,7 @@ git config --global alias.r "reset --hard"
 # handling of EOL characters
 git config --global core.whitespace cr-at-eol
 git config --global core.autocrlf input
-# aim for a linear history 
+# aim for a linear history
 git config --global pull.rebase true
 
 # Go
@@ -105,7 +114,6 @@ echo export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin >> $HOME/.bashrc
 go install github.com/spf13/cobra-cli@latest
 go install golang.org/x/tools/cmd/goimports@latest
 go install golang.org/x/tools/cmd/godoc@latest
-
 
 # GitHub CLI
 type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)

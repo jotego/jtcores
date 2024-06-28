@@ -235,6 +235,8 @@ assign scr2_dout  = 0;
 /* verilator tracing_off */
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
     .VINV       (  0         ),
+    .HOFF       ( 9'h8       ),
+    .VOFF       ( 9'h1fe     ),
     .ROM_AW     ( 18         ),
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))

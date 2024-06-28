@@ -61,6 +61,8 @@ It is possible to save information on the SD card. You have to follow these step
 
 When **ioctl_ram** is high, JTFRAME expects **ioctl_din** to have the contents matching the address at **ioctl_addr**. There is no read strobe and read speed is controlled by the platform firmware, so it may be too fast for direct dumping off the SDRAM. Note that **ioctl_ram** is also high when the firmware is sending the NVRAM data to the core during the downloading phase. You can distinguish between the two scenarios by checking the **downloading** signal.
 
+If **ioctl_ram** comes from SDRAM, then care must be taken to toggle the sdram slot **cs** signal, as the *ram request* modules require **cs** to toggle to read new data.
+
 The write operation is triggered from the OSD *save settings* (MiSTer) or *Save NVRAM* (MiST) option. PocketFPGA support is not ready yet.
 
 ### Automatic SDRAM Dump

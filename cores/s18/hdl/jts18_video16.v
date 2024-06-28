@@ -109,7 +109,7 @@ assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 assign obj_prio = obj_pxl[11:10];
 
-jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
+jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),

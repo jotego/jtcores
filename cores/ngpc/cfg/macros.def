@@ -1,0 +1,3 @@
+include ../../ngp/cfg/macros.def
+CORENAME=JTNGPC
+COLMIX=jtngpc_colmix

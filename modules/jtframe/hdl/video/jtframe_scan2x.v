@@ -33,22 +33,26 @@
 // 2 = blank (zero)
 
 module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
-    input       rst_n,
+    input       rst,
     input       clk,
     input       pxl_cen,
     input       pxl2_cen,
-    input       [COLORW*3-1:0]    base_pxl,
-    input       HS,
-    input       VS,
-    input       HB,
-    input       VB,
+
+    // configuration
+    input       enb,      // enable bar
     input [1:0] sl_mode,  // scanline modes
     input       blend_en, // horizontal blending modes
 
-    output  reg [COLORW*3-1:0]    x2_pxl,
-    output  reg x2_HS,
-    output  reg x2_VS,
-    output      x2_DE
+    input [COLORW*3-1:0] x1_pxl,
+    input       x1_hs,
+    input       x1_vs,
+    input       x1_hb,
+    input       x1_vb,
+
+    output  reg [COLORW*3-1:0] x2_pxl,
+    output  reg x2_hs,
+    output  reg x2_vs,
+    output      x2_de
 );
 
 localparam AW=HLEN<=512 ? 9:10;
@@ -62,19 +66,19 @@ reg           vb_rising, vb_falling, vs_rising, vs_falling;
 reg           line;
 reg           x2_HB, x2_VB;
 
-wire          HS_posedge     =  HS && !last_HS;
-wire          HS_negedge     = !HS &&  last_HS;
+wire          HS_posedge     =  x1_hs && !last_HS;
+wire          HS_negedge     = !x1_hs &&  last_HS;
 wire [DW-1:0] next;
 wire [DW-1:0] dim2, dim4;
 reg [COLORW:0] ab;
 wire [COLORW*3-1:0] gated_pxl;
 
-wire          HB_posedge     =  HB && !last_HB;
-wire          HB_negedge     = !HB &&  last_HB;
-wire          VB_posedge     =  VB && !last_VB;
-wire          VB_negedge     = !VB &&  last_VB;
-wire          VS_posedge     =  VS && !last_VS;
-wire          VS_negedge     = !VS &&  last_VS;
+wire          HB_posedge     =  x1_hb && !last_HB;
+wire          HB_negedge     = !x1_hb &&  last_HB;
+wire          VB_posedge     =  x1_vb && !last_VB;
+wire          VB_negedge     = !x1_vb &&  last_VB;
+wire          VS_posedge     =  x1_vs && !last_VS;
+wire          VS_negedge     = !x1_vs &&  last_VS;
 
 function [COLORW-1:0] ave(
         input [COLORW-1:0] a,
@@ -106,13 +110,13 @@ localparam [CLKSTEPS-1:0] PURE_ST  = 0;
 reg alt_pxl; // this is needed in case pxl2_cen and pxl_cen are not aligned.
 reg [CLKSTEPS-1:0] mixst;
 
-always@(posedge clk or negedge rst_n) begin
-    if( !rst_n ) begin
+always@(posedge clk or posedge rst) begin
+    if( rst ) begin
         preout <= {DW{1'b0}};
     end else begin
         `ifndef JTFRAME_SCAN2X_NOBLEND
             // mixing can only be done if clk is at least 4x pxl2_cen
-            mixst <= { mixst[1:0],pxl2_cen};
+            mixst <= { mixst[0+:CLKSTEPS-1],pxl2_cen};
             if(mixst==BLEND_ST) begin
                 preout <= blend_en ?
                     blend( rdaddr=={AW{1'b0}} ? {DW{1'b0}} : preout, next) :
@@ -127,10 +131,10 @@ end
 
 assign dim2      = blend( {DW{1'b0}}, preout);
 assign dim4      = blend( {DW{1'b0}}, dim2 );
-assign gated_pxl = (VB|HB) ? {3*COLORW{1'b0}} : base_pxl;
+assign gated_pxl = (x1_vb|x1_hb) ? {3*COLORW{1'b0}} : x1_pxl;
 
 // scan lines are black
-always @(posedge clk) begin
+always @(posedge clk) if(pxl2_cen) begin
     if( scanline ) begin
         case( sl_mode )
             2'd0: x2_pxl <= preout;
@@ -139,40 +143,39 @@ always @(posedge clk) begin
             2'd3: x2_pxl <= {DW{1'b0}};
         endcase
     end else x2_pxl <= preout;
+    if( enb ) x2_pxl <= x1_pxl;
 end
 
 always @(posedge clk) if(pxl2_cen) begin
     alt_pxl <= ~alt_pxl;
-    if( alt_pxl ) last_HS <= HS;
+    if( alt_pxl ) last_HS <= x1_hs;
     if( alt_pxl & HS_posedge ) begin
         wraddr   <= {AW{1'b0}};
         rdaddr   <= {AW{1'b0}};
         hlen     <= wraddr;
         line     <= ~line;
         scanline <= 0;
-        x2_HS    <= 1;
+        x2_hs    <= 1;
     end else begin
         if(alt_pxl) wraddr <= wraddr + 1'd1;
         if( rdaddr == hlen ) begin
             rdaddr   <= {AW{1'b0}};
-            x2_HS    <= 1;
+            x2_hs    <= 1;
             scanline <= 1;
         end else begin
             rdaddr <= rdaddr+1'd1;
             if( rdaddr == hswidth ) begin
-                x2_HS <= 0;
+                x2_hs <= 0;
             end
         end
     end
     if( alt_pxl & HS_negedge ) begin
         hswidth <= wraddr;
     end
-end
 
-always @(posedge clk) if(pxl2_cen) begin
-    last_HB <= HB;
-    last_VB <= VB;
-    last_VS <= VS;
+    last_HB <= x1_hb;
+    last_VB <= x1_vb;
+    last_VS <= x1_vs;
     if (HB_posedge) hb_rise <= wraddr;
     if (HB_negedge) hb_fall <= wraddr;
     if (VB_posedge) begin
@@ -199,11 +202,13 @@ always @(posedge clk) if(pxl2_cen) begin
     if (rdaddr == hb_fall) x2_HB <= 0;
     if (vb_rising && rdaddr == vb_rise) x2_VB <= 1;
     if (vb_falling && rdaddr == vb_fall) x2_VB <= 0;
-    if (vs_rising && rdaddr == vs_rise) x2_VS <= 1;
-    if (vs_falling && rdaddr == vs_fall) x2_VS <= 0;
+    if (vs_rising && rdaddr == vs_rise) x2_vs <= 1;
+    if (vs_falling && rdaddr == vs_fall) x2_vs <= 0;
+
+    if( enb ) {x2_hs,x2_HB,x2_vs,x2_VB} <= {x1_hs,x1_hb,x1_vs,x1_vb};
 end
 
-assign x2_DE = ~(x2_VB | x2_HB);
+assign x2_de = ~(x2_VB | x2_HB);
 
 jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
     .clk0   ( clk            ),

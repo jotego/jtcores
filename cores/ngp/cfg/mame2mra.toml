@@ -4,7 +4,7 @@ sourcefile=[ "ngp.cpp" ]
 [ROM]
 order = ["maincpu"]
 firmware = "ngp.rom"
-carts =[ "ngp", "ngc" ]
+carts =[ "ngp" ]
 
 [buttons]
 names = [{names="A,B,Option"}]

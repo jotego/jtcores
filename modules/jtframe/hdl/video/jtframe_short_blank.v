@@ -16,7 +16,10 @@
     Version: 1.0
     Date: 03-05-2024 */
 
-// blank shortener
+// Makes blanking signals shorter
+// This is used when the game software draws black frames around the
+// image. Shortening the blanking signals will cause MiSTer/Pocket
+// platforms to crop the black frames
 module jtframe_short_blank #(parameter WIDTH=511, HEIGHT=264) (
     input   clk,
     input   pxl_cen,

@@ -28,6 +28,8 @@ module jtngp_mmr(
     input      [15:0] cpu_dout,
     input      [ 1:0] dsn,
     input             regs_cs,
+    input             mode_cs,
+    output reg        mode,
     // video access
     output reg [ 7:0] hoffset,      // sprite global horizontal offset
     output reg [ 7:0] voffset,      //               vertical
@@ -105,6 +107,7 @@ always @(posedge clk, posedge rst) begin
         view_startx <= 0;
         view_starty <= 0;
         cpu_din     <= 0;
+        mode        <= 0;
     end else begin
         cpu_din <= 0;
         if( regs_cs ) begin
@@ -130,6 +133,10 @@ always @(posedge clk, posedge rst) begin
                 7'h34>>1: `SETREG(scr2_vpos, scr2_hpos)
                 default:;
             endcase
+        end
+        if( mode_cs ) begin
+            if(!dsn[0]) mode <= cpu_dout[7]; // 0 for k2ge, 1 for k1ge
+            cpu_din <= {8'd0,mode,7'd0};
         end
     end
 end
