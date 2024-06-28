@@ -67,7 +67,7 @@ reg      [ 3:0] cnt;
 wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
-reg             cen=0, moveon, readon, one_sz;
+reg             cen=0, moveon, readon, no_zoom;
 wire            msb;
 
 assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
@@ -87,8 +87,8 @@ always @* begin
         readon = hzint >= 1; // tile pixels read (reduce)
         moveon = hzint <= 1; // buffer moves (enlarge)
         nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
-        if( moveon ) nx_hz = nx_hz + hzoom;
-        if( one_sz ) {moveon, readon} = 2'b11;
+        if( moveon  ) nx_hz = nx_hz + hzoom;
+        if( no_zoom ) {moveon, readon} = 2'b11;
     end else begin
         readon = 1;
         { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
@@ -105,6 +105,7 @@ always @(posedge clk, posedge rst) begin
         busy     <= 0;
         cnt      <= 0;
         hz_cnt   <= 0;
+        no_zoom  <= 0;
     end else begin
         if( !busy ) begin
             if( draw ) begin
@@ -112,7 +113,7 @@ always @(posedge clk, posedge rst) begin
                 rom_cs  <= 1;
                 busy    <= 1;
                 cnt     <= 8;
-                one_sz  <= hzoom == HZONE;
+                no_zoom <= hzoom == HZONE;
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
