@@ -895,6 +895,9 @@ if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
 fi
 
 # convert per-channel raw sound files to wav
-for i in ch?.raw; do
+shopt -s nullglob
+CHRAW=(ch?.waw)
+shopt -u nullglob
+for i in "${CHRAW[@]}"; do
     ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
 done
