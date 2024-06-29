@@ -6,3 +6,6 @@ NOTRACKBALL
 
 # Enable DEC1 core variations
 -JTFRAME_AUTOFIRE0
+
+[pocket]
+-JTFRAME_SKIP
