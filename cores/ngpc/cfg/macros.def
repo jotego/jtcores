@@ -1,3 +1,6 @@
 include ../../ngp/cfg/macros.def
 CORENAME=JTNGPC
 COLMIX=jtngpc_colmix
+
+# not ready yet
+JTFRAME_SKIP
