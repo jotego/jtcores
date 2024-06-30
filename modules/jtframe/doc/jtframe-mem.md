@@ -60,6 +60,7 @@ bram:
       [sim_file:]
       ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
         save: true # a dump2bin.sh file will be generated in the sim folder
+        restore: true # whether to load it upon core boot
         order: 0   # order in the file
       dual_port:
         name: main

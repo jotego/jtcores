@@ -65,6 +65,11 @@ module jtngp_main(
     // NVRAM
     output       [ 1:0] nvram_we, ram1_we,
     input        [15:0] nvram_dout, ram1_dout,
+    // RTC dump
+    input        [ 6:0] ioctl_addr,
+    input        [ 7:0] ioctl_dout,
+    output reg   [ 7:0] ioctl_din,
+    input               ioctl_wr,
 
     // Debug
     input        [ 7:0] debug_bus,
@@ -82,8 +87,8 @@ wire        int4, rd;
 // reg         cpu_cen=0;
 reg  [ 3:0] pwr_cnt;
 wire [ 3:0] porta_dout;
-wire        bus_busy;
-wire [ 7:0] rtc_sec, rtc_min, rtc_hour;
+wire        bus_busy, rtc_iowr;
+wire [ 7:0] rtc_sec, rtc_min, rtc_hour, rtc_dump;
 wire [ 2:0] rtc_we;
 
 // NVRAM
@@ -104,6 +109,7 @@ assign cpu_addr  = addr[20:1];
 assign nvram_we  = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
+assign rtc_iowr  = ioctl_wr && ioctl_addr[6];
 // assign cpu_clk   = cpu_cen & clk;
 assign snd_irq   = porta_dout[3];
 assign rtc_we[2] = io_cs && we[0] && addr[5:1]==5'b01_010; // 80+14 = 94 - hours
@@ -199,6 +205,9 @@ always @(posedge clk, posedge rst) begin
             if( we[0] ) ngp_ports[ { addr[5:1],1'b0} ] <= cpu_dout[ 7:0];
             if( we[1] ) ngp_ports[ { addr[5:1],1'b1} ] <= cpu_dout[15:8];
         end
+        // dump ports to IOCTL
+        if( ioctl_wr && !ioctl_addr[6] ) ngp_ports[ioctl_addr[5:0]]<=ioctl_dout;
+        ioctl_din <= ioctl_addr[6] ? rtc_dump : ngp_ports[ioctl_addr[5:0]];
     end
 end
 
@@ -216,11 +225,16 @@ jtframe_rtc u_rtc(
     .rst    ( rst           ),
     .clk    ( clk           ),
     .cen    ( rtc_cen       ),   // 1-second clock enable
-    .din    ( cpu_dout[7:0] ),
+    .din    ( we[1] ? cpu_dout[15:8] : cpu_dout[7:0] ),
     .we     ( rtc_we        ),    // overwrite hour, min, sec
     .sec    ( rtc_sec       ),
     .min    ( rtc_min       ),
-    .hour   ( rtc_hour      )
+    .hour   ( rtc_hour      ),
+    // IOCTL dump
+    .ioctl_addr(ioctl_addr[1:0]),
+    .ioctl_dout( ioctl_dout ),
+    .ioctl_din ( rtc_dump   ),
+    .ioctl_wr  ( rtc_iowr   )
 );
 
 `ifdef SIMULATION

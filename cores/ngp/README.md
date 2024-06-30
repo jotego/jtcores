@@ -28,7 +28,7 @@ Because of the awkward video timing, the system needs some sort of buffer to out
 
 # Cartridge Loading
 
-The first time you insert batteries into a NGP, the system will boot and present a menu. You can go through the set-up process or not. What matters is that when you press the power button in the actual machine, it will suspend the system but keep the memory alive. When you press the power button again, if there is a cartridge, it will not show the setup menu. The core needs the user to replicate this procedure in order to play games.
+The first time you insert batteries into a NGP, the system will boot and present a menu. You can go through the set-up process or not. What matters is that when you press the power button in the actual machine, it will suspend the system but keep the memory alive. When you press the power button again, if there is a cartridge, it will **not show the setup menu**. The core needs the user to replicate this procedure in order to play games.
 
 1. Load the core
 2. Use the virtual power button to _turn off_ the NGP

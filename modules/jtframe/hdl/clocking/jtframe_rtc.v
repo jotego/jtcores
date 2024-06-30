@@ -22,7 +22,12 @@ module jtframe_rtc(
     input            cen,   // 1024 Hz clock enable
     input      [7:0] din,
     input      [2:0] we,    // overwrite hour, min, sec
-    output reg [7:0] sec, min, hour // BCD
+    output reg [7:0] sec, min, hour, // BCD
+    // IOCTL dump
+    input      [1:0] ioctl_addr,
+    input      [7:0] ioctl_dout,
+    output reg [7:0] ioctl_din,
+    input            ioctl_wr
 );
 
 reg [9:0] cnt;
@@ -61,6 +66,18 @@ always @(posedge clk, posedge rst) begin
         if( we[0] ) sec  <= din;
         if( we[1] ) min  <= din;
         if( we[2] ) hour <= din;
+        if( ioctl_wr ) case(ioctl_addr)
+            0: sec  <= ioctl_dout;
+            1: min  <= ioctl_dout;
+            2: hour <= ioctl_dout;
+            default:;
+        endcase
+        case( ioctl_addr )
+            0: ioctl_din <= sec;
+            1: ioctl_din <= min;
+            2: ioctl_din <= hour;
+            3: ioctl_din <= 0;
+        endcase
     end
 end
 

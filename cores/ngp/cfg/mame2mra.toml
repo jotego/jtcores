@@ -5,6 +5,11 @@ sourcefile=[ "ngp.cpp" ]
 order = ["maincpu"]
 firmware = "ngp.rom"
 carts =[ "ngp" ]
+# bypass the settings menu:
+# patches=[
+# 	{ offset=0xff00, data="00 18" }
+# ]
+# it's better to simply power off the NGP and insert a cartridge
 
 [buttons]
 names = [{names="A,B,Option"}]

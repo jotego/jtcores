@@ -18,7 +18,12 @@ JTFRAME_CART_OFFSET=0x10000
 JTFRAME_BA1_START=0x10000
 JTFRAME_BA1_WEN
 
-JTFRAME_IOCTL_RD=16384
+#JTFRAME_IOCTL_RD=16384
+# RAM=12288, NGP ports=64 RTC=4
+# Although saving works (tested MiSTer) and data is loaded back correctly
+# it looks like the CPU is overwritting it on powerup, regardless of whether
+# the <patch offset="0xFF00">00 18</patch> is used to bypass the settings menu
+JTFRAME_IOCTL_RD=12356
 
 [mist|sidi|neptuno|mcp|mc2]
 # This core needs 114 M10K blocks just for the CPU
