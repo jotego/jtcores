@@ -368,6 +368,15 @@ func add_subcarrier_clk( macros map[string]string, mclk int64 ) {
 	pal=(443361875<<40)/100/mclk
 	macros["JTFRAME_PAL"] =fmt.Sprintf("%d",pal)
 	macros["JTFRAME_NTSC"]=fmt.Sprintf("%d",ntsc)
+	// burst length -- ntsc
+	calc_len := func( subcarrier float64 ) int64 {
+		ratio := float64(mclk)/subcarrier
+		start := int64(3.7 * ratio)
+		end   := int64((9.0+3.7) * ratio)
+		return (start << 10) | end
+	}
+	macros["JTFRAME_NTSC_LEN"]=fmt.Sprintf("%d",calc_len(315000000/88.0))
+	macros["JTFRAME_PAL_LEN" ]=fmt.Sprintf("%d",calc_len(4433618.75))
 }
 
 // Replaces all the macros (marked with a $) in the file

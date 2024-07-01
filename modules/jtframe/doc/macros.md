@@ -166,7 +166,9 @@ Macro                    |  Usage
 -------------------------|----------------------
 JTFRAME_MCLK             | Automatic macro holding the master clock frequency in Hz
 JTFRAME_NTSC             | 40-bit phase increment for [MikeS11's YC module](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder?tab=readme-ov-file)
-JTFRAME_PAL              | 40-bit phase increment for [MikeS11's YC module](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder?tab=readme-ov-file)
+JTFRAME_PAL              | 40-bit phase increment for YC module
+JTFRAME_PAL_LEN          | Use as COLORBURST_RANGE for YC module on PAL mode
+JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
 
 # SDRAM64
 
