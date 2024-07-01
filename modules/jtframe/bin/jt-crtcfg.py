@@ -7,11 +7,6 @@ import binascii
 import argparse
 import glob
 import os
-parser = argparse.ArgumentParser()
-parser.add_argument('--sd', action='store_true')
-args = parser.parse_args()
-sd   = False
-if args.sd==True: sd = args.sd
 
 def find_sd_card_path(sd_card_name):
     sd_path = glob.glob(f'/media/*/{sd_card_name}')
@@ -69,7 +64,11 @@ def user_options(records, w_len=32, filename="test.bin"):
     with open(filename, 'wb') as binary_file:
         binary_file.write(binascii.unhexlify(hex_str))
 
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--sd', action='store_true')
+args = parser.parse_args()
+sd   = False
+if args.sd==True: sd = args.sd
 # Crear el objeto 'crt' de la clase 'OptionType'
 crt = OptionType(exp1=False)
 

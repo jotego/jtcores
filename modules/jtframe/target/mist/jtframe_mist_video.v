@@ -204,17 +204,17 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
 );
 
 yc_out u_yc(
-    .clk              ( clk        )
-    .PHASE_INC        (            )
-    .PAL_EN           ( 1'b1       )
-    .CVBS             (            )
-    .COLORBURST_RANGE (            )
-    .hsync            ( HSync_out  )
-    .vsync            ( Vsync_out  )
-    .csync            ( CSync_out  )
-    .dout             (            )
-    .hsync_o          (            )
-    .vsync_o          (            )
+    .clk              ( clk        ),
+    .PHASE_INC        (            ),
+    .PAL_EN           ( 1'b1       ),
+    .CVBS             (            ),
+    .COLORBURST_RANGE (            ),
+    .hsync            ( HSync_out  ),
+    .vsync            ( Vsync_out  ),
+    .csync            ( CSync_out  ),
+    .dout             (            ),
+    .hsync_o          (            ),
+    .vsync_o          (            ),
     .csync_o          (            )
     );
 
