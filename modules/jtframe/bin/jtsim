@@ -880,9 +880,11 @@ CHRAW=(ch?.waw)
 shopt -u nullglob
 for i in "${CHRAW[@]}"; do
     if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
-        continue # the file is empty
+        echo "$i is empty, deleting it"
+    else
+        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav || continue
     fi
-    ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
+    rm -f $i
 done
 
 # Show simulation time
