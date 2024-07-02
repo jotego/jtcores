@@ -71,7 +71,10 @@ jtframe_pocket_anavideo #(.COLORW(4)) u_analogvideo(
     // video signal type
     .ypbpr      ( 1'b0/*ypbpr*/     ),
     .no_csync   ( 1'b1      ),
-    .scan2x_enb ( /*en*/1'b0),
+    .scan2x_en  ( /*en*/1'b0),
+    .cvideo_en  ( 1'b1      ),
+    .pal_en     ( 1'b0      ),
+    .blend_en   ( 1'b0      ),
     //Output
     .cart3_out  ( cart3_out),
     .cart2_out  ( cart2_out),

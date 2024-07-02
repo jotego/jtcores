@@ -326,7 +326,9 @@ Bit | Use                                        |
 11  | Enable Analogic Video Output               |
 10  | Bypass Video Mist Module and direct assign |
  9  | Set YPbPr outout                           |
-8-6 | Unused                                     |
+ 8  | Set Composite Video (default to NTSC)      |
+ 7  | Enable PAL Composite Video                 |
+ 6  | Unused                                     |
  5  | Enable Composite Sync                      |
  4  | Enable Bandwidth effect                    |
  3  | Enable Blendig effect                      |

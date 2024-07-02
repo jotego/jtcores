@@ -33,11 +33,11 @@ module yc_out
 	input         CVBS,
 	input  [16:0] COLORBURST_RANGE,
 
-	input	        hsync,
-	input	        vsync,
-	input	        csync,
+	input	      hsync,
+	input	      vsync,
+	input	      csync,
 
-	input	 [23:0] din,
+	input  [23:0] din,
 	output [23:0] dout,
 
 	output reg	  hsync_o,
@@ -220,7 +220,7 @@ always_ff @(posedge clk) begin
 	phase[1].y <= phase[0].y; phase[2].y <= phase[1].y; phase[3].y <= phase[2].y; phase[4].y <= phase[3].y; phase[5].y <= phase[4].y;
 
 	// Set Chroma / Luma output
-	C <= CVBS ? 8'd0 : phase[4].c[7:0];
+	C <= CVBS ?  8'd0 : phase[4].c[7:0];
 	Y <= CVBS ? ({1'b0, phase[5].y[17:11]} + {1'b0, phase[4].c[7:1]}) : phase[5].y[17:10];
 end
 
