@@ -874,6 +874,17 @@ if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
         -pix_fmt yuv420p test.mp4 > /dev/null
 fi
 
+# convert per-channel raw sound files to wav
+shopt -s nullglob
+CHRAW=(ch?.waw)
+shopt -u nullglob
+for i in "${CHRAW[@]}"; do
+    if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
+        continue # the file is empty
+    fi
+    ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
+done
+
 # Show simulation time
 END_TIME=$(date +%s)
 COMPILE_TIME=$[$END_TIME - $START_TIME]
@@ -894,10 +905,3 @@ if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
     fi
 fi
 
-# convert per-channel raw sound files to wav
-shopt -s nullglob
-CHRAW=(ch?.waw)
-shopt -u nullglob
-for i in "${CHRAW[@]}"; do
-    ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav && rm -f $i
-done
