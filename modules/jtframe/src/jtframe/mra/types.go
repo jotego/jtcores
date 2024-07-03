@@ -241,7 +241,12 @@ type Mame2MRA struct {
     // }
 
     Header HeaderCfg
-
+    Audio struct {
+        Volume []struct {
+            Selectable
+            Value int
+        }
+    }
     ROM struct {
         Firmware string     // Used for consoles by the Pocket target
         Regions  []RegCfg

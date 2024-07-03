@@ -6,8 +6,8 @@ For I/O (SDRAM download, etc.) the following indexes are used
 |:----------------|:-----|:-------|:----------------|:----------|
 | Main ROM        | 0    | 0      | 1               | rom.bin   |
 | JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
-| Cartridges      |      | 4      | 4               | cart.bin  |
 | NVRAM           | 255  | 2      | 2               | nvram.bin |
+| Cartridges      |      | 4      | 4               | cart.bin  |
 | Cheat ROM       | 16   | 16     | 16              |           |
 | Beta keys       | N/A  | 17     | 17              |           |
 | DIP switches    | N/A  | 254    | N/A             |           |
@@ -31,8 +31,21 @@ Bit    |  Use                      | Set by
 2      | XOR with dip_flip         | mame.xml
 3      | dial input enable         | mame.xml
 4      | reverse the dial          | mame.xml
+15-8   | sound volume              | mame2mra.toml's audio section
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
+
+The volume is defined in the TOML file **Audio** section like this:
+
+``` TOML
+[Audio]
+volume = [
+    { machine="secretag", value=0x70 },
+    { machine="bouldash", value=0x34 },
+]
+```
+
+A value of 0x80 means unity gain. Valid values range from 0x10 to 0xFF. If there is no **Audio** section, the framework will set the game to unity gain. Volume setting is not supported in the MiST family because of limitations in the *core_mod* assignment to just 7 bits.
 
 ## Cartridges
 

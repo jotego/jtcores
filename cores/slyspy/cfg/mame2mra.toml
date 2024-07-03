@@ -22,6 +22,12 @@ rename = [
     { name="L/R control related (keep off)", to="Unknown" }
 ]
 
+# [Audio]
+# volume = [
+#     { machine="secretag", value=0x70 },
+#     { machine="bouldash", value=0x34 },
+# ]
+
 [ROM]
 regions = [
     { name="maincpu",  width=16, reverse=true },

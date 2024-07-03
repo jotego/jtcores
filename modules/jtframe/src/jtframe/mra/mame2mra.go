@@ -634,61 +634,6 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	n.AddIntAttr("count", count)
 }
 
-func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[string]string) int {
-	coremod := 0
-	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
-		root.AddNode("Vertical game").comment = true
-		coremod |= 1
-		if machine.Display.Rotate != 90 {
-			coremod |= 4
-		}
-	}
-	for _, each := range cfg.Buttons.Dial {
-		if each.Match(machine)>0 {
-			if each.Raw {
-				coremod |= 1<<3
-			}
-			if each.Reverse {
-				coremod |= 1<<4
-			}
-		}
-	}
-	// compare screen size with MAME
-	cw,_ := strconv.ParseInt(macros["JTFRAME_WIDTH"],10,32)
-	ch,_ := strconv.ParseInt(macros["JTFRAME_HEIGHT"],10,32)
-	wdiff := (int(cw)-machine.Display.Width)/2
-	hdiff := (int(ch)-machine.Display.Height)/2
-	if wdiff<0 || hdiff<0 {
-		wdiff=0
-		hdiff=0
-		// fmt.Printf("%s: MAME reports %dx%d but core uses %dx%d\n", machine.Name, machine.Display.Width,machine.Display.Height,cw,ch)
-	}
-	explicit := false
-	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
-		return cfg.Header.Frames[k].Match(machine)
-	}); frame_idx >= 0 {
-		wdiff = cfg.Header.Frames[frame_idx].Width
-		explicit = true
-	}
-	if hdiff != 0 && !explicit {
-		fmt.Printf("%s: core and MAME screen sizes differ. Remove top/bottom black frame (%d pixels total)\n",machine.Name, hdiff)
-	}
-	switch wdiff {
-		case 0: break
-		case 8:  coremod |= 1<<5
-		case 16: coremod |= 3<<5
-		default: if wdiff>0 {
-			fmt.Printf("%s: unsupported black frame of %d pixels around the image\nDefine one explicitly in the TOML file.\n",machine.Name,wdiff)
-		}
-	}
-	rom := root.AddNode("rom").AddAttr("index", "1")
-	if wdiff>0 || hdiff>0 {
-		rom.AddNode(fmt.Sprintf("black frame %dx%d",wdiff,hdiff)).comment = true
-	}
-	rom.AddNode("part").SetText(fmt.Sprintf("%02X", coremod))
-	return coremod
-}
-
 func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 	for _, dev := range machine.Devices {
 		if strings.Contains(dev.Name, "fd1089") {
