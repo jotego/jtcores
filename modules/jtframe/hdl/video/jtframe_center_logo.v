@@ -50,15 +50,21 @@ reg  [ 8:0] hcnt=0,vcnt=0,
             hover=0, vover=9'd100;
 reg  [ 9:0] hdiff, vdiff;
 reg         lhbl_l, lvbl_l;
-wire        idpxl;
+wire        idpxl, blank;
 reg         inzone;
-wire [COLORW*3-1:0] logorgb;
+wire [COLORW*3-1:0] logorgb, logo_id_mx, bg;
+
+assign logo_id_mx = inzone ? logorgb : {3*COLORW{idpxl & SHOWHEX[0] }};
+assign blank      = logo_id_mx == 0;
+assign bg         = `ifdef BETA { {2*COLORW{1'b1}}, {COLORW{1'b0}}}; // yellowish
+                    `else {COLORW{1'b0}}; `endif
 
 always @(posedge clk) if( pxl_cen ) begin
     { hs_out, vs_out     } <= { hs, vs };
     { lhbl_out, lvbl_out } <= { lhbl, lvbl };
-    rgb_out <= !show_en ? rgb_in :                                    // regular video
-              inzone ? logorgb : {3*COLORW{idpxl & SHOWHEX[0] }};     // logo or chip ID
+    rgb_out <= !show_en ? rgb_in :     // regular video
+               !blank   ? logo_id_mx : // logo or chip ID
+                          bg;          // background color
 end
 
 always @* begin
