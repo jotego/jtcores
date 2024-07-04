@@ -34,6 +34,9 @@ target:
       - jtframe_mist_video.v
       - osd.sv
       - rgb2ypbpr.v
+  - from: mister
+    get:
+      - sys/yc_out.sv
   - from: mist
     unless: POCKET
     get:

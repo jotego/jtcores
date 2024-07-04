@@ -228,9 +228,6 @@ yc_out u_yc(
     .PAL_EN           ( pal_en     ),
     .CVBS             ( 1'b0       ),
     .COLORBURST_RANGE ( colorburst ),  /* 16'd42145 */
-    .CHRADD           ( 5'b0       ),
-    .CHRMUL           ( 5'b0       ),
-    .MULFLAG          ( 1'b0       ),
     .hsync            ( HSync_out  ),
     .vsync            ( VSync_out  ),
     .csync            ( CSync_out  ),
@@ -239,7 +236,7 @@ yc_out u_yc(
     .hsync_o          ( hsync_c    ),
     .vsync_o          ( vsync_c    ),
     .csync_o          ( csync_c    )
-    );
+);
 
 // a minimig vga->scart cable expects a composite sync signal on the VIDEO_HS output.
 // and VCC on VIDEO_VS (to switch into rgb mode)
