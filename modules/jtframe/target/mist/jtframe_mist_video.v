@@ -208,10 +208,10 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .de_out    ( video_de  )
 );
 
-wire [31:0] phase_inc;
-wire [26:0] colorburst;
 wire        hsync_c, vsync_c, csync_c;
 wire [23:0] colours;
+wire [26:0] colorburst;
+wire [31:0] phase_inc;
 
 localparam [31:0] JTFRAME_PAL  =`JTFRAME_PAL;
 localparam [31:0] JTFRAME_NTSC =`JTFRAME_NTSC;
@@ -219,22 +219,22 @@ localparam [16:0] JTFRAME_PAL_LEN = `JTFRAME_PAL_LEN;
 localparam [16:0] JTFRAME_NTSC_LEN = `JTFRAME_NTSC_LEN;
 
 assign phase_inc  = pal_en ? JTFRAME_PAL     : JTFRAME_NTSC;
-assign colorburst = {JTFRAME_NTSC_LEN, JTFRAME_PAL_LEN[9:0]};//pal_en ? JTFRAME_PAL_LEN : JTFRAME_NTSC_LEN;
+assign colorburst = {JTFRAME_NTSC_LEN, JTFRAME_PAL_LEN[9:0]}; // pal/ntsc selection for colorburst is donde in the module
 assign colours    = {video_r, video_r[5:4], video_g, video_g[5:4], video_b, video_b[5:4]};
 
 yc_out u_yc(
     .clk              ( clk        ),
-    .PHASE_INC        ( /*40'd80070078948>>1 */ {phase_inc,8'b0}  ),
+    .PHASE_INC        ( {phase_inc,8'b0} ), /* 40'd80070078948>>1 */
     .PAL_EN           ( pal_en     ),
     .CVBS             ( 1'b0       ),
-    .COLORBURST_RANGE ( colorburst /*16'd42145*/ ),
+    .COLORBURST_RANGE ( colorburst ),  /* 16'd42145 */
     .CHRADD           ( 5'b0       ),
     .CHRMUL           ( 5'b0       ),
     .MULFLAG          ( 1'b0       ),
     .hsync            ( HSync_out  ),
     .vsync            ( VSync_out  ),
     .csync            ( CSync_out  ),
-    .din              ( colours & {24{video_de}}   ),
+    .din              ( colours & {24{video_de}} ),
     .dout             ( yc_vid     ),
     .hsync_o          ( hsync_c    ),
     .vsync_o          ( vsync_c    ),
