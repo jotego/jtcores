@@ -331,7 +331,7 @@ always @(posedge clk) begin
     end
 end
 /* verilator tracing_on */
-jts16_fd1094 u_dec1094(
+jts16_fd1094 #(.SIMFILE("maincpu:key")) u_dec1094(
     .rst        ( cpu_rst   ),
     .clk        ( clk       ),
 

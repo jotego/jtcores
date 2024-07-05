@@ -36,9 +36,15 @@ JTFRAME_HEADER.
 jtframe sdram will also link a rom.bin file to the .rom file used. If rom.bin
 already existed, it will be deleted and re-created as a link.
 
+If the core uses the header for SDRAM bank assignment, special care
+must be taken for the PROM data as JTFRAME_PROM_START will not be defined. This
+utility will create a file for each ROM region after bank 3, so the core can
+directly load these files in simulation. You can also force the PROM load in
+simulation for these cores by setting the SIM_LOAD_PROM macro.
+
 The result will only be correct for cores that do not transform download data on
-the fly and that do not depend on the header for SDRAM bank assignment. These
-features can be partially support in future development.`,
+the fly.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var game string
 		wd, e := os.Getwd()
