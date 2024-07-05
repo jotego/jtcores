@@ -52,7 +52,8 @@ always @(posedge clk or posedge rst) begin
         sa  <= 0;
     end else if( cen && sel) begin
         sa <= sanx;
-        if( mute || loop ) sa <= {staddr,19'd0};
+        if( loop ) sa <= {ls,11'd0};
+        if( mute ) sa <= {staddr,19'd0};
     end
 end
 
