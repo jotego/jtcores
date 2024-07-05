@@ -876,7 +876,7 @@ fi
 
 # convert per-channel raw sound files to wav
 shopt -s nullglob
-CHRAW=(ch?.waw)
+CHRAW=(ch?.raw)
 shopt -u nullglob
 for i in "${CHRAW[@]}"; do
     if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
