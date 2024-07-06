@@ -45,13 +45,11 @@ wire [7:0] ex_r, ex_g, ex_b;
 reg  [7:0] pr, pg, pb;
 wire       s16_blank;
 reg        vdp_sel;
-wire [2:0] lightgun_rgb;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
 assign s16_blank = {ex_r,ex_g,ex_b}==0;
-assign lightgun_rgb = lightguns;
 
 always @(posedge clk) begin
     case( vdp_prio )

@@ -2,10 +2,8 @@
 sourcefile=[ "segas18.cpp" ]
 
 debug = { machines=[
-    # gun input missing
-    "lghost",
     # VDP priority bad
-    "mwalk",    # bad music
+    "lghost",    # light gun aim position a bit off
     "hamaway",
     "desertbr",
     # bad tile mapping
