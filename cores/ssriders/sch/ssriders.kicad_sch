@@ -1993,7 +1993,7 @@
     )
     (pin "1" (uuid 1a4d8945-650f-4c99-9a79-59d7677daf56))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR021") (unit 1)
         )
@@ -2028,7 +2028,7 @@
           (reference "#FLG02") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG02") (unit 1)
         )
@@ -2063,7 +2063,7 @@
           (reference "#FLG03") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG03") (unit 1)
         )
@@ -2098,7 +2098,7 @@
           (reference "#PWR01") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR01") (unit 1)
         )
@@ -2133,7 +2133,7 @@
           (reference "#FLG04") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG04") (unit 1)
         )
@@ -2168,7 +2168,7 @@
           (reference "#PWR02") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR02") (unit 1)
         )
@@ -2193,7 +2193,7 @@
     )
     (pin "1" (uuid ee45bcf4-31fd-496a-808f-113c3a72a8c1))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR020") (unit 1)
         )
@@ -2281,7 +2281,7 @@
           (reference "JM1") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "JM1") (unit 1)
         )
@@ -2372,7 +2372,7 @@
       (uuid 55e56a60-da96-483b-8e8d-852c964be278)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "7"))
       )
     )
@@ -2433,7 +2433,7 @@
       (uuid 4b525b33-e116-4c3c-ab7f-81d132bdbdc7)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "5"))
       )
     )
@@ -2514,7 +2514,7 @@
       (uuid bf2cfa1d-abce-4113-9f68-521054632da3)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "6"))
       )
     )
@@ -2631,7 +2631,7 @@
       (uuid e7777a03-c4ee-47e8-972e-c19c339881da)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "3"))
       )
     )
@@ -2740,7 +2740,7 @@
       (uuid 300d00a9-fe54-4139-8104-3c2d3e2f400a)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "2"))
       )
     )
@@ -2845,7 +2845,7 @@
       (uuid 747ffa91-6de7-40f6-8290-fd0cef2b0696)
     )
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "4"))
       )
     )

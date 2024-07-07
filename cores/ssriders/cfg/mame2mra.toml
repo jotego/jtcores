@@ -1,0 +1,43 @@
+[global]
+author=["jotego"]
+
+[parse]
+# this was moved to tmnt2.cpp after MAME 0.251
+sourcefile=[ "tmnt.cpp" ]
+skip = { bootlegs=true, machines=[
+	# in JTTMNT
+	"tmnt",
+	"mia",
+	"punkshot",
+	# not covered yet
+    "cuebrick",
+    "lgtnfght",
+    "blswhstl",
+    "glfgreat",
+    "tmnt2",
+    "qgakumon",
+    "thndrx2",
+    "prmrsocr",
+]}
+
+[buttons]
+names = [
+    { machine="ssriders", names="Shoot,Jump" },
+]
+
+[header]
+offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "k053245", "eeprom"] }
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true  },
+
+    { name="audiocpu"  },
+    { name="k053260"   },
+
+    { name="k052109", width=32 }, # tiles
+    { name="k053245", width=32, reverse=true }, # sprites
+    { name="eeprom"    },
+]
+
+order=["maincpu","audiocpu","k053260","k052109","k053245","eeprom"]

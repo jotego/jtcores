@@ -3867,7 +3867,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 1)
         )
@@ -3920,7 +3920,7 @@
           (reference "D10") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F3") (unit 1)
         )
@@ -3952,7 +3952,7 @@
     (pin "7" (uuid c719ad5b-b59f-451d-923a-d2457f82f89e))
     (pin "8" (uuid f5925ad1-59ef-4837-8b18-7489e421a4e1))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "RN11") (unit 1)
         )
@@ -3982,7 +3982,7 @@
           (reference "#PWR0106") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR03") (unit 1)
         )
@@ -4025,7 +4025,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 2)
         )
@@ -4068,7 +4068,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 1)
         )
@@ -4093,7 +4093,7 @@
     )
     (pin "1" (uuid 26b6828c-0fa8-4927-afeb-6d9ef43e4c49))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR015") (unit 1)
         )
@@ -4123,7 +4123,7 @@
           (reference "#PWR0107") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR010") (unit 1)
         )
@@ -4167,7 +4167,7 @@
     (pin "8" (uuid 102c1d72-6430-4391-8e94-d19d66f7548b))
     (pin "9" (uuid 890f0423-08b5-4520-b987-33cedbdf0214))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "E4") (unit 1)
         )
@@ -4236,7 +4236,7 @@
           (reference "D12") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4279,7 +4279,7 @@
           (reference "F11") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G15") (unit 4)
         )
@@ -4304,7 +4304,7 @@
     )
     (pin "1" (uuid 445c2339-3004-4804-a158-597cd4a8b3d1))
     (instances
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR016") (unit 1)
         )
@@ -4337,7 +4337,7 @@
           (reference "D9") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D1") (unit 1)
         )
@@ -4390,7 +4390,7 @@
           (reference "D8") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4433,7 +4433,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 2)
         )
@@ -4490,7 +4490,7 @@
           (reference "D14") (unit 1)
         )
       )
-      (project "sriders"
+      (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F2") (unit 1)
         )

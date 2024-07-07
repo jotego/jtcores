@@ -3,6 +3,7 @@ package mra
 import (
 	"bufio"
 	"fmt"
+	"log"
 
 	// "io/fs"
 	"os"
@@ -28,23 +29,29 @@ func collect_sources(verbose bool) []string {
 	}
 	for _, each := range cores_dir {
 		if each.IsDir() && each.Name() != "." {
-			cfg := filepath.Join(cores, each.Name(), "cfg")
+			cfg_path := filepath.Join(cores, each.Name(), "cfg")
 			args := Args{
 				Def_cfg: def.Config{
 					Core:    each.Name(),
 					Verbose: verbose,
 				},
-				Toml_path: filepath.Join(cfg, "mame2mra.toml"),
+				Toml_path: filepath.Join(cfg_path, "mame2mra.toml"),
 				Verbose:   verbose,
 			}
-			if exists(def.DefPath(args.Def_cfg)) && exists(args.Toml_path) {
-				if verbose {
-					fmt.Println("Parsing ", args)
-				}
-				cfg := ParseToml( args.Toml_path, args.macros, args.Def_cfg.Core, args.Verbose)
-				sources = append(sources, cfg.Parse.Sourcefile...)
+			if !exists(args.Toml_path) { continue }
+			if !exists(def.DefPath(args.Def_cfg)) {
+				log.SetFlags(0)
+				log.Println("Skipping",each.Name()," despite having TOML file as .def file was not found")
+				continue
 			}
+			args.macros = def.Make_macros(args.Def_cfg)
+			cfg := ParseToml( args.Toml_path, args.macros, args.Def_cfg.Core, args.Verbose)
+			sources = append(sources, cfg.Parse.Sourcefile...)
 		}
+	}
+	if verbose {
+		log.SetFlags(0)
+		log.Println("Source files:\n", sources)
 	}
 	return sources
 }
@@ -88,8 +95,7 @@ func filter(xml_in string, src []string) {
 	}
 }
 
-func Reduce(xml_in string) {
-	verbose := false
+func Reduce(xml_in string, verbose bool) {
 	src := collect_sources(verbose)
 	filter(xml_in, src)
 }

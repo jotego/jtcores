@@ -1,7 +1,10 @@
 Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
-otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used.
+otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used. The tool
+should be used to update $JTROOT/doc/mame.xml with new data each tiem a new
+core is added. The core folder should contain both the .def and .toml files,
+defining at least the MAME source file and the core name.
 
 Each repository is meant to have a reduced mame.xml file in $ROM as
 part of the source file commited in git.
