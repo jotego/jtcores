@@ -94,6 +94,11 @@ jtssriders_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
+    // EEPROM
+    .nv_addr        ( nv_addr       ),
+    .nv_dout        ( nv_dout       ),
+    .nv_din         ( nv_din        ),
+    .nv_we          ( nv_we         ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),

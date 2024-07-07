@@ -52,7 +52,12 @@ module jtssriders_main(
     // video configuration
     output reg           rmrd,
     output reg    [ 1:0] prio,
-
+    // EEPROM
+    output      [ 6:0]  nv_addr,
+    input       [ 7:0]  nv_dout,
+    output      [ 7:0]  nv_din,
+    output              nv_we,
+    // Cabinet
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
     input         [ 6:0] joystick3,
@@ -71,9 +76,10 @@ wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         cab_cs, snd_cs, punk_cab,
-            dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
+            dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en,
+            eep_di, eep_clk, eep_cs;
 reg  [15:0] cpu_din, cab_dout;
-wire        bus_cs, bus_busy, BUSn;
+wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux;
 
 `ifdef SIMULATION
@@ -182,6 +188,25 @@ end
 //         end
 //     end
 // end
+
+jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // chip interface
+    .sclk       ( eep_clk   ),         // serial clock
+    .sdi        ( eep_di    ),         // serial data in
+    .sdo        ( eep_do    ),         // serial data out
+    .rdy        ( eep_rdy   ),
+    .scs        ( eep_cs    ),         // chip select, active high. Goes low in between instructions
+    // Dump access
+    .mem_addr   ( nv_addr   ),
+    .mem_din    ( nv_din    ),
+    .mem_we     ( nv_we     ),
+    .mem_dout   ( nv_dout   ),
+    // NVRAM contents changed
+    .dump_clr   ( 1'b0      ),
+    .dump_flag  (           )
+);
 
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),

@@ -40,5 +40,7 @@ jtframe:
 modules:
   jt:
     - name: jt51
-
+  other:
+    - from: jteeprom
+      get: [ hdl/jt5911.sv ]
 
