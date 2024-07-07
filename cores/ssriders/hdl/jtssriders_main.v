@@ -51,7 +51,6 @@ module jtssriders_main(
 
     // video configuration
     output reg           rmrd,
-    output reg    [ 1:0] prio,
     // EEPROM
     output      [ 6:0]  nv_addr,
     input       [ 7:0]  nv_dout,
@@ -107,7 +106,7 @@ always @* begin
     iowr_cs  = 0;
     cab_cs   = 0;
     syswr_cs = 0;
-    vram_cs  = 0;
+    vram_cs  = 0; // tilesys_cs
     obj_cs   = 0;
     snd_cs   = 0;
     sndon    = 0;
@@ -127,7 +126,7 @@ always @* begin
                     snd_cs = !A[2]; // 053260
                     sndon  =  A[2];
                 end
-                7: prio_cs = 1;     // 053251
+                7: pcu_cs = 1;     // 053251
         endcase
         6: vram_cs = 1;
     endcase
@@ -143,8 +142,6 @@ always @(posedge clk) begin
                cab_cs  ? cab_dout :
                { 16'hffff };
 end
-
-always @(posedge rmrd) $display("RMRD high");
 
 always @(posedge clk) begin
     cab_dout[15:8] <= 0;

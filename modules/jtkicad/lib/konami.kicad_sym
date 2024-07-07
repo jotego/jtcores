@@ -9959,7 +9959,7 @@
         (number "13" (effects (font (size 1.27 1.27))))
       )
       (pin input line (at -46.99 -6.35 0) (length 5.08)
-        (name "ADA" (effects (font (size 1.27 1.27))))
+        (name "AD10" (effects (font (size 1.27 1.27))))
         (number "14" (effects (font (size 1.27 1.27))))
       )
       (pin input line (at -46.99 -3.81 0) (length 5.08)

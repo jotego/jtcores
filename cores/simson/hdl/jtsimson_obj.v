@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 24-7-2023 */
 
-module jtsimson_obj(
+module jtsimson_obj #(parameter RAMW=12)(
     input             rst,
     input             clk,
 
@@ -36,8 +36,9 @@ module jtsimson_obj(
     input             ram_cs,
     input             reg_cs,
     input             cpu_we,
+    input  [RAMW-1:0] ram_a,
     input      [15:0] cpu_dout, // 16-bit interface
-    input      [13:1] cpu_addr, // 16 kB (?)
+    input      [ 3:1] cpu_addr,
     output     [15:0] cpu_din,
     input      [ 1:0] cpu_dsn,
     output            dma_bsy,
@@ -132,7 +133,7 @@ jt053246 u_scan(    // sprite logic
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( cpu_we    ),
-    .cpu_addr   (cpu_addr[3:1]),
+    .cpu_addr   ( cpu_addr  ),
     .cpu_dsn    ( cpu_dsn   ),
     .cpu_dout   ( cpu_dout  ),
     .rmrd_addr  ( rmrd_addr ),
@@ -204,13 +205,6 @@ jtframe_objdraw #(
 
     .pxl        ( pre_pxl       )
 );
-
-
-localparam RAMW=12;
-
-wire [RAMW:1] ram_a;
-
-assign ram_a = paroda ? { {RAMW-11{1'b0}}, cpu_addr[11:1] } : cpu_addr[RAMW:1];
 
 jtframe_dual_nvram16 #(
     .AW        ( RAMW       ),

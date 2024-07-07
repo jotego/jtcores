@@ -35,20 +35,23 @@ module jtssriders_video(
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
     input      [15:0] cpu_dout,
-    output     [15:0] pal_dout,
-    output     [ 7:0] tilesys_dout,
-    output     [ 7:0] objsys_dout,
-    output reg        vdtac,
+    input             cpu_we,
+
     input             pcu_cs,
     input             pal_cs,
-    input             cpu_we,
-    input             tilesys_cs,
+    output     [15:0] pal_dout,
+    output     [ 7:0] tilesys_dout,
+
+    output            dma_bsy,
+    output     [ 7:0] objsys_dout,
     input             objsys_cs,
+
+    output reg        vdtac,
+    input             tilesys_cs,
     output            rst8,     // reset signal at 8th frame
 
     // control
     input             rmrd,     // Tile ROM read mode
-
     output            flip,
 
     // PROMs
@@ -90,32 +93,29 @@ module jtssriders_video(
     output reg [ 7:0] st_dout
 );
 
-`include "game_id.inc"
-
+wire [18:0] ca;
+wire [15:0] cpu_saddr;
+reg  [13:0] ocode_eff;
+wire [12:0] pre_f, pre_a, pre_b, ocode;
+wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl, lyro_sort;
+wire [10:0] cpu_oaddr;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
             lyrf_col, lyra_col, lyrb_col,
             opal,     cpu_d8,   mmr_pal,
             scr_mmr;
-wire [15:0] cpu_saddr;
-wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl, lyro_sort;
-wire [10:0] cpu_oaddr;
-wire [12:0] pre_f, pre_a, pre_b, ocode;
-reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
-wire [18:0] ca;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
-            e, q, ormrd;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n, ormrd;
 wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we, pre_vdtac;
-reg         sort_en, ioctl_mmr;
+reg         ioctl_mmr;
 wire        cpu_weg;
 
-assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
+assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:12], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
-assign cpu_weg   = cpu_we && cpu_dsn!=3;
+assign cpu_weg   = cpu_we &&  cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 assign lyro_sort = { lyro_pxl[11:4],
     sort_en ? lyro_pxl[3:0] : {lyro_pxl[0],lyro_pxl[1],lyro_pxl[2],lyro_pxl[3]} };
@@ -144,19 +144,6 @@ wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
-
-function [31:0] sort( input [31:0] x, input sort_en );
-    sort= sort_en ? {
-        x[31], x[27], x[23], x[19],
-        x[15], x[11], x[ 7], x[ 3],
-        x[30], x[26], x[22], x[18],
-        x[14], x[10], x[ 6], x[ 2],
-        x[29], x[25], x[21], x[17],
-        x[13], x[ 9], x[ 5], x[ 1],
-        x[28], x[24], x[20], x[16],
-        x[12], x[ 8], x[ 4], x[ 0]
-    } : x;
-endfunction
 
 function [31:0] sorto( input [31:0] x );
     sorto= {
@@ -198,10 +185,6 @@ always @* begin
         1:   oa = { ca[9:7], ca[5], ca[6], ca[4], ca[2:0] }; // 3+3+3=9
         0:   oa = { ca[9:4], ca[2:0] }; // 6+3=9
     endcase
-end
-
-always @(posedge clk) begin
-    sort_en <= game_id!=PUNKSHOT;
 end
 
 always @* begin
@@ -277,8 +260,8 @@ jtaliens_scroll #(
     .firq_n     (           ),
     .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
-    .q          ( q         ),
-    .e          ( e         ),
+    .q          (           ),
+    .e          (           ),
 
     // color byte connection
     .lyrf_col   ( lyrf_col  ),
@@ -298,9 +281,9 @@ jtaliens_scroll #(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( sort(lyrf_data, sort_en) ),
-    .lyra_data  ( sort(lyra_data, sort_en) ),
-    .lyrb_data  ( sort(lyrb_data, sort_en) ),
+    .lyrf_data  ( lyrf_data ),
+    .lyra_data  ( lyra_data ),
+    .lyrb_data  ( lyrb_data ),
 
     .lyra_ok    ( lyra_ok ),
 
@@ -323,12 +306,22 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
+localparam ORAMW=14;
+wire [ORAMW-1:1] oram_a;
+wire [15:0] obj16_dout;
+
+assign oram_a={cpu_addr[13:8],cpu_addr[6:5],cpu_addr[4:1]};
+assign objsys_dout = ~cpu_dsn[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
+
 /* verilator tracing_on */
-jtaliens_obj u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
+    .paroda     ( 1'b1      ),
+    .simson     ( 1'b0      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -337,48 +330,40 @@ jtaliens_obj u_obj(    // sprite logic
     .hdump      ( hdump     ),
     .vdump      ( vrender   ),
     // CPU interface
-    .cs         ( objsys_cs ),
-    .cpu_addr   ( cpu_oaddr ),
-    .cpu_dout   ( cpu_d8    ),
-    .cpu_we     ( cpu_weg   ),
-    .cpu_din    ( objsys_dout),
+    .ram_cs     ( objsys_cs ),
+    .reg_cs     ( objreg_cs ),
+    .ram_a      ( oram_a    ),
+    .cpu_addr   ( cpu_addr[4:2] ),
+    .cpu_dout   ({2{cpu_dout}}),
+    .cpu_dsn    ( cpu_dsn   ),
+    .cpu_we     ( cpu_we    ),
+    .cpu_din    ( obj16_dout),
 
-    .irq_n      ( obj_irqn  ),
-    .nmi_n      ( obj_nmin  ),
-    // external connection
-    .code       ( ocode     ),
-    .code_eff   ( ocode_eff ),
-    .pal        ( opal      ),
-    .pal_eff    ( opal_eff  ),
+    .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( ca        ),
-    .rom_data   ( odata     ),
+    .rom_addr   ( lyro_addr ),
+    .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
-    .romrd      ( ormrd     ),
+    .objcha_n   ( objcha_n  ),
     // pixel output
-    .pxl        ( { lyro_pxl[11:4], lyro_pxl[0], lyro_pxl[1], lyro_pxl[2], lyro_pxl[3] } ),
-    .blank_n    (lyro_blnk_n),
-    .shadow     ( shadow    ),
-
+    .pxl        ( lyro_pxl  ),
+    .shd        ( obj_shd   ),
+    .prio       ( obj_prio  ),
     // Debug
-    .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_mmr  ( ioctl_mmr ),
-    .ioctl_din  ( dump_obj  ),
-
+    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
+    .dump_ram   ( dump_obj  ),
+    .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
-    .st_dout    ( st_obj    )
+    .debug_bus  ( debug_bus )
 );
 
 /* verilator tracing_on */
-jttmnt_colmix #(.IOCTL_A0(1)) u_colmix(
+jtssriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .game_id    ( game_id   ),
-    .cpu_prio   ( cpu_prio  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -393,11 +378,6 @@ jttmnt_colmix #(.IOCTL_A0(1)) u_colmix(
     .cpu_dsn    ( cpu_dsn   ),
     .pal_cs     ( pal_cs    ),
     .pcu_cs     ( pcu_cs    ),
-
-    // PROMs
-    .prog_addr  (prog_addr[7:0]),
-    .prog_data  ( prog_data ),
-    .prom_we    ( prio_we   ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),

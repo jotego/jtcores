@@ -64,12 +64,9 @@ module jtssriders_colmix(
     input      [ 7:0] debug_bus
 );
 
-parameter IOCTL_A0=0;
-
 wire [ 1:0] prio_sel, cpu_palwe, k251_shd;
 wire [ 7:0] prio_addr;
 wire [15:0] pal_dout;
-reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [10:0] pal_addr;
@@ -81,31 +78,9 @@ assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
 // 8/16 bit interface
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
 assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
-
-// fround needs the reverse order
-assign ioctl_din = ioctl_addr[0]^IOCTL_A0[0] ? pal_dout[7:0] : pal_dout[15:8];
+assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
-always @* begin
-    case( game_id )
-        MIA:
-        case( prio_sel )
-            0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-            1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-            2: pxl[7:0] = lyro_pxl[7:0];
-            3: pxl[7:0] = { lyrf_pxl[4], lyrf_pxl[7], 2'd0, lyrf_pxl[3:0] };
-        endcase
-        // TMNT
-        default:
-        case( prio_sel )
-            0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-            1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-            2: pxl[7:0] = lyro_pxl[7:0];
-            3: pxl[7:0] = { 1'b0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
-        endcase
-    endcase
-    pxl[9:8] = { ~prio_sel[1], ~|{prio_sel[0], ~prio_sel[1]} };
-end
 
 function [7:0] dim75( input [7:0] d );
     dim75 = d - (d>>2);
@@ -132,16 +107,6 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.DW(3), .AW(8)) u_prio (
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prog_data     ),
-    .rd_addr( prio_addr     ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_we       ),
-    .q      ({shad,prio_sel})
-);
-
 // used in Punk Shot
 jtcolmix_053251 u_k251(
     .rst        ( rst       ),
@@ -158,7 +123,7 @@ jtcolmix_053251 u_k251(
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),
-    .ci1        ( { 1'd0, lyro_pxl[7:0] } ),
+    .ci1        ( { 2'd0, lyro_pxl[6:0] } ),
     .ci2        ( { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] } ),
     .ci4        ( { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] } ),
     .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),

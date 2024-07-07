@@ -4792,7 +4792,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS74") (at 297.18 152.4 0) (unit 2)
+  (symbol (lib_id "jt74:74LS74") (at 297.18 152.4 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ad7a9763-4e1a-4bbd-b9f7-b213bad2d47e)
     (property "Reference" "F19" (at 297.18 149.86 0)
@@ -4823,9 +4823,6 @@
     (pin "7" (uuid 42c7e8f7-f528-41af-963f-9a9abcf60d1e))
     (instances
       (project "paroda"
-        (path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
-          (reference "F19") (unit 2)
-        )
         (path "/0011ec10-82c4-4039-b424-337480f568e8/8a03793f-6726-4bf5-92b8-d0b53e67a444"
           (reference "F19") (unit 3)
         )

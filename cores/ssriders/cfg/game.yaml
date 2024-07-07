@@ -9,12 +9,13 @@ game:
       - jttmnt_colmix.v
   - from: simson
     get:
+      - jtsimson_obj.v
+      - jt053246.v      # OBJ scanner
       - jt053260.v
       - jtcolmix_053251.v
   - from: aliens
     get:
       - jtaliens_scroll.v
-      - jtaliens_obj.v
       - jt052109.v
       - jt051962.v
       - jt051960.v

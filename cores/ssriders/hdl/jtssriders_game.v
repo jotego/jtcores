@@ -29,9 +29,7 @@ wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout,
             st_main, st_video, st_snd;
 wire [15:0] pal_dout;
-wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-reg  [ 2:0] game_id;
 
 assign debug_view = debug_mux;
 assign ram_addr   = { main_addr[17], main_addr[13:1] };
@@ -84,12 +82,11 @@ jtssriders_main u_main(
     .oram_dout      ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
     // To video
-    .prio           ( prio          ),
     .rmrd           ( rmrd          ),
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
-    .pcu_cs         ( pcu_cs        ),
+    .pcu_cs         ( pcu_cs        ), // priority mixer
     // To sound
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
@@ -114,11 +111,9 @@ jtssriders_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
-    .game_id        ( game_id       ),
-    .cpu_prio       ( prio          ),
 
     .tile_irqn      ( tile_irqn     ),
-    .tile_nmin      ( tile_nmin     ),
+    .tile_nmin      (               ),
 
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),
