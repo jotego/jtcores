@@ -170,23 +170,18 @@ jtssriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-
 /* verilator tracing_on */
 jtssriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
-    .cen_640    ( cen_640       ),
-    .cen_20     ( cen_20        ),
-    .game_id    ( game_id       ),
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),
     .main_addr  ( main_addr[1]  ),
     .main_rnw   ( snd_wrn       ),
     .snd_irq    ( snd_irq       ),
-    .snd_latch  ( snd_latch     ),
     // ROM
     .rom_addr   ( snd_addr      ),
     .rom_cs     ( snd_cs        ),
@@ -216,12 +211,8 @@ jtssriders_sound u_sound(
     // Sound output
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
-    .pcm        ( pcm           ),
     .k60_l      ( k60_l         ),
-    .k60_r      ( k60_r         ),
-    // Debug
-    .debug_bus  ( debug_bus     ),
-    .st_dout    ( st_snd        )
+    .k60_r      ( k60_r         )
 );
 
 endmodule
