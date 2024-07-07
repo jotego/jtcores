@@ -1,3 +1,6 @@
+params:
+  - { name: RAM_OFFSET,   value: "22'h100000" }
+  - { name: PCM_OFFSET,   value: "22'h010000" }
 clocks:
   clk48:
     - freq: 16000000
@@ -18,12 +21,12 @@ sdram:
   banks:
     - buses:
         - name: ram
-          addr_width: 15
+          addr_width: 14
           data_width: 16
           offset: RAM_OFFSET
           rw: true
         - name: main
-          addr_width: 19
+          addr_width: 20
           data_width: 16
     - buses:
         - name: snd

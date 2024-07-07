@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 1-2-2023 */
+    Date: 7-7-2024 */
 
 module jtssriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -57,12 +57,10 @@ jtssriders_main u_main(
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
 
-    .game_id        ( game_id       ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
-    .tile_nmin      ( tile_nmin     ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -93,14 +91,12 @@ jtssriders_main u_main(
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
     // To sound
-    .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
-    .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
