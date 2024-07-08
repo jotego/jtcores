@@ -247,7 +247,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "sriders.kicad_pro",
+    "filename": "ssriders.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -349,7 +349,7 @@
     ],
     [
       "30ddccaa-8577-4b03-b520-f990d504cdd0",
-      "main2obj"
+      "protection"
     ]
   ],
   "text_variables": {}
