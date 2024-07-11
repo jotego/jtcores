@@ -6,6 +6,11 @@ sourcefile=[ "trackfld.cpp" ]
 skip.bootlegs=true
 skip.setnames=["mastkin","wizzquiz","wizzquiza","reaktor","trackfldu"]
 
+[Audio]
+volume = [
+    { machine="trackfld", value=0xB9 },
+]
+
 [buttons]
 core=3 # max number of buttons supported by the core
 names=[

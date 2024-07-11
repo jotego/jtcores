@@ -6,6 +6,12 @@ sourcefile=[ "dec0.cpp" ]
 skip.bootlegs=true
 mustbe.machines=[ "secretag", "bouldash" ]
 
+[Audio]
+volume = [
+    { machine="bouldash", value=0xFF },
+    { machine="secretag", value=0x70 },
+]
+
 [buttons]
 Names = [
     { names="Shot,Jump"},

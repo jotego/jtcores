@@ -14,6 +14,18 @@ skip.bootlegs=true
 # incomplete machine description in MAME
 skip.machine="pontoon"
 
+[Audio]
+volume = [
+    { machine="astorm", value=0x60 },
+    { machine="bloxeed", value=0xA7 },
+    { machine="cltchitr", value=0x68 },
+    { machine="ddcrew", value=0x7F },
+    { machine="desertbr", value=0x40 },
+    { machine="hamaway", value=0x51 },
+    { machine="mwalk", value=0x7B },
+    { machine="wwallyj", value=0x6E },
+]
+
 [buttons]
 names = [
     { machine="astorm",     names="Attack,Roll,Special" },

@@ -4,6 +4,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "kchamp.cpp" ]
 
+[Audio]
+volume = [
+    { machine="kchamp", value=0x1D },
+]
+
 [buttons]
 Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]
 

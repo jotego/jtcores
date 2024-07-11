@@ -27,6 +27,12 @@ skip.setnames=[
     "sboblboblf"
 ]
 
+[Audio]
+volume = [
+    { machine="bublbobl", value=0x83 },
+    { machine="tokio", value=0xB2 },
+]
+
 [header]
 info = """ Header to identify the PCB type
         Byte 0 = 0 for Bubble Bobble (MC6801 MCU)

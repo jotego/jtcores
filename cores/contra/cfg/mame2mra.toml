@@ -10,6 +10,11 @@ skip.setnames=[
     "contrabj1",
 ]
 
+[Audio]
+volume = [
+    { machine="contra", value=0x46 },
+]
+
 [buttons]
 names = [
     { names="Shoot,Jump" }

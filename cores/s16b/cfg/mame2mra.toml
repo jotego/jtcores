@@ -37,6 +37,30 @@ machines = [
 ]
 bootlegs = true
 
+[Audio]
+volume = [
+    { machine="aliensyn", value=0x92 },
+    { machine="altbeast", value=0xFF },
+    { machine="aurail", value=0xF4 },
+    { machine="bayroute", value=0x8F },
+    { machine="bullet", value=0xF3 },
+    { machine="cotton", value=0x70 },
+    { machine="dunkshot", value=0xA0 },
+    { machine="ddux", value=0xA9 },
+    { machine="eswat", value=0xFF },
+    { machine="exctleag", value=0xC2 },
+    { machine="fantzn2", value=0xFF },
+    { machine="fpoint", value=0xFF },
+    { machine="goldnaxe", value=0xA3 },
+    { machine="mvp", value=0xF1 },
+    { machine="riotcity", value=0xFC },
+    { machine="ryukyu", value=0xFF },
+    { machine="sonicbom", value=0xAD }, 
+    { machine="suprleag", value=0xF2 },
+    { machine="toryumon", value=0xFF },
+    { machine="tturfu", value=0x8A },
+    { machine="wrestwar", value=0x9C },
+]
 
 [buttons]
 #Sega System 16B

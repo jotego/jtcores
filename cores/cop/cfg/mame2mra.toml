@@ -9,6 +9,12 @@ mustbe.machines=[
     "robocop",
 ]
 
+[Audio]
+volume = [
+    { machine="hippodrm", value=0xFF },
+    { machine="robocop", value=0xFF },
+]    
+
 [buttons]
 Names = [
     { machine="robocop", names="Shot,Jump"},

@@ -2,6 +2,27 @@
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[ "puzlclub" ] }
 
+[Audio]
+volume = [
+    { machine="bakutotu", value=0x93 },
+    { machine="blastoff", value=0x67 },
+    { machine="blazer", value=0x69 },
+    { machine="berabohm", value=0xE7 },
+    { machine="dangseed", value=0xAC },
+    { machine="dspirit", value=0x4E },
+    { machine="galaga88", value=0x75 },
+    { machine="mmaze", value=0x40 },
+    { machine="pacmania", value=0xA8 },
+    { machine="pistoldm", value=0x6E },
+    { machine="wldcourt", value=0xC6 },
+    { machine="ws", value=0x8D },
+    { machine="quester", value=0x80 },
+    { machine="rompers", value=0x77 },
+    { machine="shadowld", value=0x7E },
+    { machine="splatter", value=0x5E },
+    { machine="tankfrce", value=0x8C },
+]
+
 [buttons]
 names = [
     { machine="bakutotu",  names="Gun Shot" },

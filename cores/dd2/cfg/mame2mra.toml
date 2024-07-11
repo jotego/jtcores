@@ -28,6 +28,11 @@ skip.setnames=[
     "stoffyu",
 ]
 
+[Audio]
+volume = [
+    { machine="ddragon2", value=0xFF },
+]
+
 [buttons]
 Names = [
     { names="Left Attack,Jump,Right Attack"},

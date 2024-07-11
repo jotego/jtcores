@@ -15,6 +15,11 @@ skip.Setnames=[
     "whizz",
 ]
 
+[Audio]
+volume = [
+    { machine="sidearms", value=0x41 },
+]
+
 [buttons]
 core=3 # max number of buttons supported by the core
 names=[

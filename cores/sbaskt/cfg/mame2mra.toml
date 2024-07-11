@@ -4,6 +4,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "sbasketb.cpp" ]
 
+[Audio]
+volume = [
+    { machine="sbasketb", value=0x7B },
+]
+
 [buttons]
 names=[
     { names="Bounce,Throw,Pass" }

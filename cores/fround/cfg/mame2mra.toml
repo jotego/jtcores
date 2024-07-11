@@ -13,6 +13,11 @@ skip = { machines=[
     "hpuncher",
 ] }
 
+[Audio]
+volume = [
+    { machine="fround", value=0xFA },
+]
+
 [buttons]
 names=[
     { machine="fround", names="Face Punch,Body Punch,Guard" },
