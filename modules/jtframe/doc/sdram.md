@@ -331,7 +331,7 @@ Bit | Use                                        |
  6  | Unused                                     |
  5  | Enable Composite Sync                      |
  4  | Enable Bandwidth effect                    |
- 3  | Enable Blendig effect                      |
+ 3  | Enable Sync-on-Green (SOG)                 |
 1,2 | Scanlines mode selection                   |
  0  | Scandoubler Enabler                        |
 

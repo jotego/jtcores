@@ -242,7 +242,7 @@ yc_out u_yc(
 // and VCC on VIDEO_VS (to switch into rgb mode)
 always @(posedge clk) begin
     video_hs <= ( (~no_csync & scan2x_enb) | ypbpr) ? CSync_out : HSync_out;
-    video_vs <= ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1 : VSync_out;
+    video_vs <= ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1      : VSync_out;
     if( sog ) begin
         video_hs <= 1'b1;
         video_vs <= CSync_out;

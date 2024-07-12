@@ -95,23 +95,20 @@ if args.release==True: rel = args.release
 crt = OptionType(exp1=False)
 
 crt.options ="""
-Please, select all options that apply by typing a string of the corresponding letters in the following table.
-For example: ADEG
+Please, select your prefered Video Option.
+For example: A for RGB video
 
 Letter | Option
 -------|--------------------------------------------|
-   A   | Enable Analogic Video Output               |
-   B   | Bypass Video (cancels other options)       |
-   C   | Set YPbPr output                           |
-   D   | Enable Composite Sync                      |
-   E   | Scandoubler Enabler                        |
-   F   | '--> Scanlines Light                       |
-   G   | '--> Scanlines Medium                      |
-   H   | '--> Scanlines Dark                        |
-   I   | '--> Enable Bandwidth effect               |
-   J   | '--> Enable Blendig effect                 |
-   K   | NTSC Composite Video Out                   |
-   L   | PAL  Composite Video Out                   |
+   A   | RBGS       (SCART)                         |
+   B   | RGsB                                       |
+   C   | YPbPr      (Component video)               |
+   D   | Y/C NTSC   (SVideo, Composite video)       |
+   E   | Y/C PAL    (SVideo, Composite video)       |
+   F   | Scandoubler RGBHV (SCANLINES  0%)          |
+   G   | Scandoubler RGBHV (SCANLINES 25%)          |
+   H   | Scandoubler RGBHV (SCANLINES 50%)          |
+   I   | Scandoubler RGBHV (SCANLINES 75%)          |
 ----------------------------------------------------|
 
 Your selection:    """
@@ -121,11 +118,13 @@ crt.dict = {
     "c" : [0],    "k" : [0],
     "l" : [0],    "u" : [0],
     "d" : [0],    "i" : [0],
-    "j" : [0],    "g" : [0],
-    "f" : [0],    "e" : [0],
+    "j" : [0],    "h" : [0],
+    "g" : [0],    "f" : [0],
 }
-crt.replace = {"h": "fg",
-               "l": "kl"}
+crt.replace = {"f": "af",  "h": "afh",
+               "g": "afg", "i": "afgh",
+               "e": "akl", "d": "ak" ,
+               "c": "acj", "b": "abj"}
 
 snac = OptionType()
 
@@ -158,5 +157,5 @@ snac.replace = {"a": "", "f":"ec","d":"cb"}
 
 filepath  = create_in_pocket(do=sd)
 filepath2 = create_in_release(do=rel)
-print(rel)
+# print(rel)
 user_options([crt, snac],filename=filepath, filename2=filepath2)
