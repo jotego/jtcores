@@ -20,7 +20,6 @@ module jtssriders_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input      [ 1:0] cpu_prio,
 
     // Base Video
     input             lhbl,
@@ -36,11 +35,6 @@ module jtssriders_colmix(
     input      [12:1] cpu_addr,
     output     [15:0] cpu_din,
 
-    // PROMs
-    input      [ 7:0] prog_addr,
-    input      [ 2:0] prog_data,
-    input             prom_we,
-
     // Final pixels
     input             lyrf_blnk_n,
     input             lyra_blnk_n,
@@ -50,7 +44,12 @@ module jtssriders_colmix(
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
+
     input             shadow,
+    input      [ 2:0] dim,
+    input             dimmod,
+    input             dimpol,
+
     output     [ 7:0] red,
     output     [ 7:0] green,
     output     [ 7:0] blue,
@@ -64,45 +63,63 @@ module jtssriders_colmix(
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] prio_sel, cpu_palwe, k251_shd;
-wire [ 7:0] prio_addr;
+wire [ 1:0] cpu_palwe;
 wire [15:0] pal_dout;
 reg  [15:0] pxl_aux;
+reg  [ 1:0] dim_cmn, dim_l;
 reg  [23:0] bgr;
 wire [10:0] pal_addr;
-wire        shad, pcu_we;
-reg         shl;
+wire        brit, shad, pcu_we;
 
-assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
-    lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 // 8/16 bit interface
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
 assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
 assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
+// function [7:0] dim75( input [7:0] d );
+//     dim75 = d - (d>>2);
+// endfunction
 
-function [7:0] dim75( input [7:0] d );
-    dim75 = d - (d>>2);
+// function [23:0] dim_rgb( input [14:0] cin, input [1:0] shade );
+//     reg [3:0] effsh;
+//     effsh = { ~({3{shade[0]}}&dim), shade[1] }
+//     dim = !shade? { dim75( {cin[14:10], cin[14:12]} ),
+//                     dim75( {cin[ 9: 5], cin[ 9: 7]} ),
+//                     dim75( {cin[ 4: 0], cin[ 4: 2]} ) } :
+//                  { cin[14:10], cin[14:12],
+//                    cin[ 9: 5], cin[ 9: 7],
+//                    cin[ 4: 0], cin[ 4: 2] };
+// endfunction
+
+function [7:0] ext8( input [4:0] cin );
+begin
+    ext8 = {cin,cin[4:2]};
+end
 endfunction
 
-function [23:0] dim( input [14:0] cin, input shade );
-    dim = !shade? { dim75( {cin[14:10], cin[14:12]} ),
-                    dim75( {cin[ 9: 5], cin[ 9: 7]} ),
-                    dim75( {cin[ 4: 0], cin[ 4: 2]} ) } :
-                 { cin[14:10], cin[14:12],
-                   cin[ 9: 5], cin[ 9: 7],
-                   cin[ 4: 0], cin[ 4: 2] };
-endfunction
+// 052535 output impedance 685 Ohm measured with floating inputs
+//        input pins impedance 460 Ohm
+always @* begin
+    case( {dimmod, dimpol} )
+        0: dim_cmn = {  shad, brit        };
+        1: dim_cmn = {  shad, brit | shad };
+        2: dim_cmn = { ~shad, brit        };
+        2: dim_cmn = { ~shad, brit |~shad };
+    endcase
+end
 
 always @(posedge clk) begin
     if( rst ) begin
-        bgr      <= 0;
-        shl      <= 0;
+        bgr   <= 0;
+        dim_l <= 0;
     end else begin
         if( pxl_cen ) begin
-            shl <= k251_shd[0];
-            bgr <= dim( pal_dout[14:0], shl);
+            dim_l <= dim_cmn;
+            //dim_rgb( pal_dout[14:0], dim_l);
+            bgr <= { ext8(pal_dout[14:10]),
+                     ext8(pal_dout[ 9: 5]),
+                     ext8(pal_dout[ 4: 0]) };
         end
     end
 end
@@ -129,13 +146,13 @@ jtcolmix_053251 u_k251(
     .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),
     // shadow
     .shd_in     ({1'b0,~shadow}), // why do we need the inversion?
-    .shd_out    ( k251_shd  ),
+    .shd_out    ( shad      ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
     .ioctl_din  ( dump_mmr  ),
 
     .cout       ( pal_addr  ),
-    .brit       (           ),
+    .brit       ( brit      ),
     .col_n      (           )
 );
 

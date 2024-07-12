@@ -3418,6 +3418,10 @@
     (effects (font (size 2.54 2.54)) (justify left bottom))
     (uuid 0d5b7165-8201-480a-afcd-8e845516ae41)
   )
+  (text "SHEET 09" (at 269.24 283.21 0)
+    (effects (font (size 4 4)) (justify left bottom))
+    (uuid 19de9826-d53c-4809-a19a-343c4d1fd544)
+  )
   (text "Communication between the main CPU \nand the object logic. "
     (at 160.02 62.23 0)
     (effects (font (size 2 2)) (justify left bottom))

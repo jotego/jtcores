@@ -51,6 +51,10 @@ module jtssriders_main(
 
     // video configuration
     output reg           rmrd,
+    output reg           dimmod,
+    output reg           dimpol,
+    output reg  [ 2:0]   dim,
+    output reg  [ 2:0]   cbnk,      // unconnected in ssriders
     // EEPROM
     output      [ 6:0]  nv_addr,
     input       [ 7:0]  nv_dout,
@@ -94,7 +98,7 @@ assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 
-assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
+assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
@@ -103,7 +107,8 @@ always @* begin
     rom_cs   = 0;
     ram_cs   = 0;
     pal_cs   = 0;
-    iowr_cs  = 0;
+    iowr_lo  = 0;
+    iowr_hi  = 0;
     cab_cs   = 0;
     syswr_cs = 0;
     vram_cs  = 0; // tilesys_cs
@@ -117,17 +122,22 @@ always @* begin
             0: ram_cs  = 1;
             1: pal_cs  = 1; // 14'xxxx
             2: obj_cs  = 1; // 18'xxxx (not all A bits go to OBJ chip 053245)
-            3:
+            3: if(!A[11]) case(A[10:8]) // decoder 13G (pdf page 16)
+                0,1: cab_cs  = 1;
+                2:   iowr_lo = 1; // EEPROM
+                3:   iowr_hi = 1;
+            endcase
         endcase
         5: case(A[19:16])
-            4'ha:
+            // 4'ha:
             4'hc: case(A[11:8])
                 6: begin
                     snd_cs = !A[2]; // 053260
                     sndon  =  A[2];
                 end
                 7: pcu_cs = 1;     // 053251
-        endcase
+                endcase
+            endcase
         6: vram_cs = 1;
     endcase
 end
@@ -168,23 +178,21 @@ always @(posedge clk) begin
     end
 end
 
-// always @(posedge clk, posedge rst) begin
-//     if( rst ) begin
-//         prio    <= 0;
-//         rmrd    <= 0;
-//         int16en <= 0;
-//     end else begin
-//         if( syswr_cs ) prio <= cpu_dout[3:2];
-//         if( iowr_cs  ) begin
-//             case(game_id)
-//                 PUNKSHOT:
-//                     { rmrd, sndon } <= cpu_dout[3:2];
-//                 default:
-//                     { rmrd, int16en, sndon } <= {cpu_dout[7], cpu_dout[5], cpu_dout[3]};
-//             endcase
-//         end
-//     end
-// end
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dim     <= 0;
+        rmrd    <= 0;
+        dimpol  <= 0;
+        dimmod  <= 0;
+        eep_di  <= 0;
+        eep_cs  <= 0;
+        eep_clk <= 0;
+        cbnk    <= 0;
+    end else begin
+        if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
+        if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
+    end
+end
 
 jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
     .rst        ( rst       ),

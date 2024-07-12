@@ -11795,6 +11795,9 @@
       )
     )
     (symbol "053251_1_1"
+      (text "30 pins top/bottom\n20 pins left/right" (at 0 -12.7 0)
+        (effects (font (size 1.27 1.27)))
+      )
       (pin input line (at -15.24 39.37 270) (length 5.08)
         (name "PR04" (effects (font (size 1.27 1.27))))
         (number "1" (effects (font (size 1.27 1.27))))

@@ -21,14 +21,14 @@ module jtssriders_game(
 );
 
 /* verilator tracing_off */
-wire [ 7:0] snd_latch;
-wire        snd_irq, rmrd, rst8;
+wire        snd_irq, rmrd, rst8, dimmod, dimpol;
 wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
 wire        cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn;
-wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
-            obj_dout,
-            st_main, st_video, st_snd;
 wire [15:0] pal_dout;
+wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
+            obj_dout, snd_latch,
+            st_main, st_video, st_snd;
+wire [ 2:0] dim;
 reg  [ 7:0] debug_mux;
 
 assign debug_view = debug_mux;
@@ -83,6 +83,11 @@ jtssriders_main u_main(
     .pal_dout       ( pal_dout      ),
     // To video
     .rmrd           ( rmrd          ),
+    .dimmod         ( dimmod        ),
+    .dimpol         ( dimpol        ),
+    .dim            ( dim           ),
+    .cbnk           (               ),
+
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
@@ -120,10 +125,6 @@ jtssriders_video u_video (
     .hs             ( HS            ),
     .vs             ( VS            ),
     .flip           ( dip_flip      ),
-    // PROMs
-    .prom_we        ( prom_we       ),
-    .prog_addr      ( prog_addr[8:0]),
-    .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( objsys_cs     ),
@@ -153,6 +154,10 @@ jtssriders_video u_video (
     .lyro_cs        ( lyro_cs       ),
     .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
+    // brightness
+    .dim            ( dim           ),
+    .dimmod         ( dimmod        ),
+    .dimpol         ( dimpol        ),
     // pixels
     .red            ( red           ),
     .green          ( green         ),

@@ -45,6 +45,7 @@ module jtssriders_video(
     output            dma_bsy,
     output     [ 7:0] objsys_dout,
     input             objsys_cs,
+    input             objreg_cs,
 
     output reg        vdtac,
     input             tilesys_cs,
@@ -52,12 +53,8 @@ module jtssriders_video(
 
     // control
     input             rmrd,     // Tile ROM read mode
+    input             objcha_n, // object ROM read mode
     output            flip,
-
-    // PROMs
-    input      [ 8:0] prog_addr,
-    input      [ 2:0] prog_data,
-    input             prom_we,
 
     // Tile ROMs
     output reg [19:2] lyrf_addr,
@@ -79,6 +76,10 @@ module jtssriders_video(
     input      [31:0] lyro_data,
 
     // Color
+    input      [ 2:0] dim,
+    input             dimmod,
+    input             dimpol,
+
     output     [ 7:0] red,
     output     [ 7:0] green,
     output     [ 7:0] blue,
@@ -163,17 +164,6 @@ wire [31:0] odata = sort_en ? sorto(
 // wire [3:0] opxls;
 
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
-
-// object encoding is different from what 051960 expects
-jtframe_prom #(.DW(3), .AW(8)) u_gfx (
-    .clk    ( clk        ),
-    .cen    ( 1'b1       ),
-    .data   ( prog_data  ),
-    .rd_addr( ca[11+:8]  ),
-    .wr_addr(prog_addr[7:0]),
-    .we     ( gfx_we     ),
-    .q      ( gfx_de     )
-);
 
 always @* begin
     // the game seems to use different encondigs depending on the ROM region
@@ -388,6 +378,11 @@ jtssriders_colmix u_colmix(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
     .lyro_pxl   ( lyro_sort ),
+
+    // shadow
+    .dimmod     ( dimmod    ),
+    .dimpol     ( dimpol    ),
+    .dim        ( dim       ),
     .shadow     ( shadow    ),
 
     .red        ( red       ),

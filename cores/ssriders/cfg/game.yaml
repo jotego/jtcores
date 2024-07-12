@@ -2,11 +2,8 @@ game:
   - from: ssriders
     get:
       - "*.v"
-  - from: tmnt
-    get:
-      - jttmnt_main.v
-      - jttmnt_video.v
-      - jttmnt_colmix.v
+  # - from: tmnt
+  #   get:
   - from: simson
     get:
       - jtsimson_obj.v
