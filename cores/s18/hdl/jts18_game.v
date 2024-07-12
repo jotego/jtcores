@@ -62,7 +62,7 @@ reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
-assign debug_view = { 5'd0, vdp_prio }; //st_mux;
+assign debug_view = st_mux;//{ 5'd0, vdp_prio }; // st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
@@ -91,6 +91,8 @@ always @(posedge clk) begin
         2: st_mux <= st_main;
         default: st_mux <= 0;
     endcase
+
+    st_mux <= st_video;
 end
 
 always @(posedge clk) begin
@@ -291,6 +293,7 @@ jts18_video u_video(
 
     .lightguns  ( crosshairs),
 
+    .joystick1   ( {joystick1[6],joystick1[5]}  ),
     // Video signal
     .HS         ( HS        ),
     .VS         ( VS        ),

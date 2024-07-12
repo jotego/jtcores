@@ -100,6 +100,7 @@ module jts18_video(
     input      [ 7:0]  debug_bus,
     // status dump
     input      [ 7:0]  st_addr,
+    input      [ 1:0]  joystick1,
     output     [ 7:0]  st_dout
 );
 
@@ -118,7 +119,7 @@ wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel, vdp_on,
-           sa, sb, fix;
+           sa, sb, fix, s1_pri, s2_pri;
 wire [1:0] obj_prio;
 wire [2:0] scr1_bank, scr2_bank;
 wire [3:0] obj_bank;
@@ -128,8 +129,8 @@ wire       alt_gfx = game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]|game_id[PCB_75
 
 always @(posedge clk48)
    if (bank_cs) tilebanks[addr[4:1]] <= game_id[PCB_7525] ? (din[7] ? {3'd0, din[4:0]} + 8'h20 : {3'd0, din[4:0]}) : din[7:0];
-
-assign st_dout = {3'd0, vdp_en, 3'd0,vdp_on};
+wire [7:0] st_show;
+assign st_dout = st_show;//{3'd0, vdp_en, 3'd0,vdp_on};
 assign scr1_sel = scr1_bank[2];
 assign scr2_sel = scr2_bank[2];
 
@@ -217,6 +218,8 @@ jts18_video16 u_video16(
     .fix        ( fix       ),
     .obj_prio   ( obj_prio  ),
     .tprio      (           ),
+    .s1_pri     ( s1_pri    ),
+    .s2_pri     ( s2_pri    ),
     .HS         ( scr_hs    ),
     .VS         ( scr_vs    ),
     .LHBL       ( scr_lhbl  ),
@@ -230,7 +233,7 @@ jts18_video16 u_video16(
 
     // Debug
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
+    .debug_bus  ( 8'b0/*debug_bus*/ ),
     // status dump
     .st_addr    ( st_addr   ),
     .st_dout    ( st_s16    ),
@@ -268,7 +271,7 @@ jts18_vdp u_vdp(
     .spa_b      ( vdp_spa_b ),
     .ys_n       ( vdp_ysn   ),
     .video_en   ( vdp_on    ),
-    .debug_bus  ( debug_bus ),
+    .debug_bus  ( 8'b0/*debug_bus*/ ),
     .st_dout    ( st_vdp    )
 );
 /* verilator tracing_off */
@@ -289,6 +292,8 @@ jts18_colmix u_colmix(
     .sb         ( sb        ),
     .fix        ( fix       ),
     .obj_prio   ( obj_prio  ),
+    .s1_pri     ( s1_pri    ),
+    .s2_pri     ( s2_pri    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
@@ -303,7 +308,10 @@ jts18_colmix u_colmix(
     .vdp_b      ( vdp_b     ),
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus ),
+    .st_show    ( st_show   ),
+    .joystick1  ( joystick1 )
 );
 
 endmodule

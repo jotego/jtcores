@@ -38,7 +38,7 @@ i3 & (i8+i9+/i7)&               p2           +
 i3 & /i6 &                      p2 &      p0 +
 i3 & i4 & /i7 &                      p1 & p0 +
 i3 & i4 & (i8+i9+(/i6 & /i7))&       p1      +
-i3 & i4 & i5 & i13 & (i8+i9+(/i6 & /i7))
+i3 & i4 & i5 & (i8+i9+(/i6 & /i7))
 
 Using signal names in schematics:
 vdp_sel=

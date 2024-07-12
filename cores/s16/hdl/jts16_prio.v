@@ -34,6 +34,8 @@ module jts16_prio(
     output reg         sb,
     output reg         fix,
     output reg         tprio,     // selected tile map priority
+    output reg         scr1_prio,
+    output reg         scr2_prio,
 
     output reg [10:0]  pal_addr,
     output reg         shadow,
@@ -97,6 +99,8 @@ always @(*) begin
     if( pal_addr[10] ) active=4'b1000; // OBJ
     { sb, sa, fix } = active[2:0];
     tprio = fix ? char_g[6] : sa ? scr1_g[10] : scr2_g[10];
+    scr1_prio = scr1_g[10];
+    scr2_prio = scr2_g[10];
 end
 
 endmodule
