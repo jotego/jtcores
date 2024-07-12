@@ -41,6 +41,7 @@ bootlegs = true
 volume = [
     { machine="aliensyn", value=0x92 },
     { machine="altbeast", value=0xFF },
+    { machine="afighter", value=0xFF },
     { machine="aurail", value=0xF4 },
     { machine="bayroute", value=0x8F },
     { machine="bullet", value=0xF3 },
@@ -55,10 +56,15 @@ volume = [
     { machine="mvp", value=0xF1 },
     { machine="riotcity", value=0xFC },
     { machine="ryukyu", value=0xFF },
-    { machine="sonicbom", value=0xAD }, 
+    { machine="sonicbom", value=0xAD },
     { machine="suprleag", value=0xF2 },
+    { machine="timescan", value=0xE1 },
     { machine="toryumon", value=0xFF },
     { machine="tturfu", value=0x8A },
+    { machine="wb3", value=0xEE },
+    { setname="wb32", value=0xFF },
+    { setname="wb33", value=0xFF },
+    { setname="wb34", value=0xFF },
     { machine="wrestwar", value=0x9C },
 ]
 
@@ -70,8 +76,8 @@ volume = [
 names = [
     { machine="aceattac", names="none" },
     { machine="afighter", names="Shot,Special Weapon" },
-    { setname="afightere",names="Shot,Weapon A, Weapong B, Weapon C" },
-    { setname="afighterf",names="Shot,Weapon A, Weapong B, Weapon C" },
+    { setname="afightere",names="Shot,Weapon A, Weapon B, Weapon C" },
+    { setname="afighterf",names="Shot,Weapon A, Weapon B, Weapon C" },
     { machine="aliensyn", names="Shot" },
     { machine="altbeast", names="Punch,Kick,Jump" },
     { machine="aurail",   names="Rapid Shot,Kite/Turn,Shield" },

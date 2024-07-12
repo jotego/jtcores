@@ -66,6 +66,7 @@ main_setnames=[
 volume = [
     { machine="aceattaca", value=0x8D },
     { machine="afighter", value=0x59 },
+    { machine="afighter", value=0x85 },
     { machine="alexkidd", value=0x43 },
     { machine="bodyslam", value=0x47 },
     { machine="fantzone", value=0x27 },
@@ -75,8 +76,9 @@ volume = [
     { machine="shinobi", value=0x7C },
     { machine="tetris", value=0x4C },
     { machine="passsht", value=0xC4 },
-    { machine="timescan", value=0xE1 },
-    { machine="wb3", value=0xEE },
+    { machine="timescan", value=0xE4 },
+    { setname="wb31", value=0xEE },
+    { setname="wb35", value=0xCA },
 ]
 
 [buttons]

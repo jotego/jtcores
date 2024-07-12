@@ -25,6 +25,7 @@ volume = [
     { machine="insectx", value=0xAD },
     { machine="kageki", value=0x86 },
     { machine="tnzs", value=0xFF },
+    { machine="kabukiz", value=0xFF },
 ]
 
 [header]
