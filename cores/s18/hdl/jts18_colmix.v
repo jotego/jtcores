@@ -55,20 +55,15 @@ assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
 assign s16_blank = {ex_r,ex_g,ex_b}==0;
 assign obj = {sa,sb,fix}==0;
-// assign vdp_blank = {vdp_r, vdp_g, vdp_b} == 0
 
 always @(posedge clk) begin
     // case( vdp_prio + debug_bus[6:4])
     //     7: vdp_sel <= 1;
-    //     // 6: vdp_sel <= !s1_pri || !s2_pri; //No funciona así
-    //     5: vdp_sel <= /*(!fix && (sa || sb)) || */!fix && !s1_pri && sa; //Funciona mayoritariamente bien
-    //     4: vdp_sel <= !fix && ( sa || sb ) /*&& (s1_pri || s2_pri)*/; //Funciona casi completamente. hay secciones donde se lía respecto a la capa del fondo y no pinta.
+    //     5: vdp_sel <= !fix && !s1_pri && sa;
+    //     4: vdp_sel <= !fix && ( sa || sb );
     //     default: vdp_sel <= s16_blank;
     // endcase
-    // vdp_sel <= vdp_prio  + debug_bus[6:4] > {sb,sa,!fix};
-    // if( vdp_prio == {sb,sa,fix}) vdp_sel <= !fix && (sa || sb) /*&& (s1_pri || s2_pri)*/;
 
-    // if( s1_pri /*| s2_pri */) vdp_sel <= 0;
     vdp_sel <= vdp_sel_o;
 
     if( !vdp_ysn  ) vdp_sel <= 0;

@@ -20,8 +20,8 @@ module jts18_vdp_pri(
     input            clk,
     input      [7:0] debug_bus,
     input      [2:0] vdp_prio,
-    input            i3, i6, // Tilemap0, Obj1
-    input            i4, i5, i7, i8, i9, //Tilemap 1, 2, Obj0, Tilemap 3, 4
+    input            i7, i6, // Obj0, Obj1
+    input            i3, i4, i5, i8, i9, //Tilemap 0, 1, 2, 3, 4
     output reg       vdp_sel,
     output     [6:0] acond
 );
