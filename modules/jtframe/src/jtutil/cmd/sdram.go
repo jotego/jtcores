@@ -98,6 +98,7 @@ func must_env( env string ) string {
 
 func dump( name string, rom []byte, p0,p1, lim, fill int) int {
 	if p1<=0 { p1 = lim	}
+	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
 	if p1<p0 { return -1 }
 	if p1<=0 { return p0 }
 	if p1>len(rom) {
@@ -122,6 +123,9 @@ func dump( name string, rom []byte, p0,p1, lim, fill int) int {
 	_, e = f.Write(blank)
 	must(e)
 	f.Close()
+	if verbose {
+		fmt.Printf("%s done. Next starts at %x\n",name,p1)
+	}
 	return p1
 }
 
@@ -169,7 +173,7 @@ func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []s
 	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
 	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
 	offsets[4] = bank_start(macros,"JTFRAME_PROM_START")+header
-	if offsets[4] == 0 {
+	if offsets[4] <= header {
 		offsets[4] = len(rom)
 	}
 	// final values from header (if defined)
@@ -181,7 +185,13 @@ func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []s
 		pos <<= hinfo.Bits
 		offsets[k]=pos+header
 		if verbose {
-			fmt.Printf("%-20s %X\n",hinfo.Regions[k], offsets[k])
+			fmt.Printf("%-4d %-20s %X\n",k,hinfo.Regions[k], offsets[k])
+		}
+	}
+	if verbose {
+		fmt.Println("Offsets")
+		for k, _ := range offsets {
+			fmt.Printf("%d %X\n",k,offsets[k])
 		}
 	}
 	return offsets,hinfo.Regions
