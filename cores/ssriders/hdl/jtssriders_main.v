@@ -78,10 +78,11 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         cab_cs, snd_cs, punk_cab,
-            dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en,
+reg         cab_cs, snd_cs, punk_cab, iowr_hi, iowr_lo,
+            dip_cs, dip3_cs, syswr_cs, int16en,
             eep_di, eep_clk, eep_cs;
-reg  [15:0] cpu_din, cab_dout;
+reg  [15:0] cpu_din;
+reg  [ 7:0] cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux;
 
@@ -103,6 +104,8 @@ assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
+// not following the PALs as the dumps from PLD Archive are not readable
+// with MAME's JEDUTIL
 always @* begin
     rom_cs   = 0;
     ram_cs   = 0;
@@ -113,6 +116,7 @@ always @* begin
     syswr_cs = 0;
     vram_cs  = 0; // tilesys_cs
     obj_cs   = 0;
+    objreg_cs= 0;
     snd_cs   = 0;
     sndon    = 0;
     pcu_cs   = 0;
@@ -126,10 +130,13 @@ always @* begin
                 0,1: cab_cs  = 1;
                 2:   iowr_lo = 1; // EEPROM
                 3:   iowr_hi = 1;
+                // 4: watchdog
+                // 5: TMNT2 RAM
+                // 8: protection rw
             endcase
         endcase
         5: case(A[19:16])
-            // 4'ha:
+            4'ha: objreg_cs = 1;
             4'hc: case(A[11:8])
                 6: begin
                     snd_cs = !A[2]; // 053260
@@ -138,7 +145,7 @@ always @* begin
                 7: pcu_cs = 1;     // 053251
                 endcase
             endcase
-        6: vram_cs = 1;
+        6: vram_cs = 1; // probably different at boot time
     endcase
 end
 
@@ -149,33 +156,19 @@ always @(posedge clk) begin
                vram_cs ? {2{vram_dout}} :
                pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
-               cab_cs  ? cab_dout :
+               cab_cs  ? {16'hff,cab_dout} :
                { 16'hffff };
 end
 
 always @(posedge clk) begin
     cab_dout[15:8] <= 0;
-    if(dip_cs) case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= 0;
-        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
-        ~2'd2: cab_dout[7:0] <= dipsw[15:8];
-        ~2'd3: cab_dout[7:0] <= dipsw[7:0];
+    case( A[2:1] )
+        ~2'd0: cab_dout <= { 1'b1, joystick1[6:0] };
+        ~2'd1: cab_dout <= { 1'b1, joystick2[6:0] };
+        ~2'd2: cab_dout <= { 1'b1, joystick3[6:0] };
+        ~2'd3: cab_dout <= { 1'b1, joystick4[6:0] };
     endcase
-    else case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
-        ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
-        ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
-        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
-                            { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
-    endcase
-    if( punk_cab ) begin // 16-bit interface
-        case( A[2:1] )
-            ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
-            ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
-            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
-            ~2'd3: cab_dout <= dipsw[15:0];
-        endcase
-    end
+    if(A[8]) cab_dout <= A[2] ? eep_do : { dip_test, cab_1p[1:0], {4{service}}, coin };
 end
 
 always @(posedge clk, posedge rst) begin

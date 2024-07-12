@@ -1590,52 +1590,52 @@ logerror("copy command %04x sprite %08x data %08x: %04x%04x %04x%04x  modifiers 
 
 void tmnt2_state::tmnt2_main_map(address_map &map)
 {
-	map(0x000000, 0x0fffff).rom();
-	map(0x104000, 0x107fff).ram().share("sunset_104000");   /* main RAM */
-	map(0x140000, 0x140fff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
-	map(0x180000, 0x183fff).ram().w(FUNC(tmnt2_state::k053245_scattered_word_w)).share("spriteram");   // k053245_scattered_word_r
-	map(0x1c0000, 0x1c0001).portr("P1");
-	map(0x1c0002, 0x1c0003).portr("P2");
-	map(0x1c0004, 0x1c0005).portr("P3");
-	map(0x1c0006, 0x1c0007).portr("P4");
-	map(0x1c0100, 0x1c0101).portr("COINS");
-	map(0x1c0102, 0x1c0103).r(FUNC(tmnt2_state::ssriders_eeprom_r));
-	map(0x1c0200, 0x1c0201).w(FUNC(tmnt2_state::ssriders_eeprom_w));    /* EEPROM and gfx control */
-	map(0x1c0300, 0x1c0301).w(FUNC(tmnt2_state::ssriders_1c0300_w));
-	map(0x1c0400, 0x1c0401).rw("watchdog", FUNC(watchdog_timer_device::reset16_r), FUNC(watchdog_timer_device::reset16_w));
-	map(0x1c0500, 0x1c057f).ram(); /* TMNT2 only (1J) unknown, mostly MCU blit offsets */
+	map(0x00'0000, 0x0fffff).rom();
+	map(0x10'4000, 0x107fff).ram().share("sunset_104000");   /* main RAM */
+	map(0x14'0000, 0x140fff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
+	map(0x18'0000, 0x183fff).ram().w(FUNC(tmnt2_state::k053245_scattered_word_w)).share("spriteram");   // k053245_scattered_word_r
+	map(0x1c'0000, 0x1c0001).portr("P1");
+	map(0x1c'0002, 0x1c0003).portr("P2");
+	map(0x1c'0004, 0x1c0005).portr("P3");
+	map(0x1c'0006, 0x1c0007).portr("P4");
+	map(0x1c'0100, 0x1c0101).portr("COINS");
+	map(0x1c'0102, 0x1c0103).r(FUNC(tmnt2_state::ssriders_eeprom_r));
+	map(0x1c'0200, 0x1c0201).w(FUNC(tmnt2_state::ssriders_eeprom_w));    /* EEPROM and gfx control */
+	map(0x1c'0300, 0x1c0301).w(FUNC(tmnt2_state::ssriders_1c0300_w));
+	map(0x1c'0400, 0x1c0401).rw("watchdog", FUNC(watchdog_timer_device::reset16_r), FUNC(watchdog_timer_device::reset16_w));
+	map(0x1c'0500, 0x1c057f).ram(); /* TMNT2 only (1J) unknown, mostly MCU blit offsets */
 //  map(0x1c0800, 0x1c0801).r(FUNC(tmnt2_state::ssriders_protection_r)); /* protection device */
-	map(0x1c0800, 0x1c081f).w(FUNC(tmnt2_state::tmnt2_1c0800_w)).share("tmnt2_1c0800");  /* protection device */
-	map(0x5a0000, 0x5a001f).rw(FUNC(tmnt2_state::k053244_word_noA1_r), FUNC(tmnt2_state::k053244_word_noA1_w));
-	map(0x5c0600, 0x5c0603).rw(m_k053260, FUNC(k053260_device::main_read), FUNC(k053260_device::main_write)).umask16(0x00ff);
-	map(0x5c0604, 0x5c0605).w(FUNC(tmnt2_state::ssriders_soundkludge_w));
-	map(0x5c0700, 0x5c071f).w(m_k053251, FUNC(k053251_device::write)).umask16(0x00ff);
-	map(0x600000, 0x603fff).rw(FUNC(tmnt2_state::k052109_word_r), FUNC(tmnt2_state::k052109_word_w));
+	map(0x1c'0800, 0x1c081f).w(FUNC(tmnt2_state::tmnt2_1c0800_w)).share("tmnt2_1c0800");  /* protection device */
+	map(0x5a'0000, 0x5a001f).rw(FUNC(tmnt2_state::k053244_word_noA1_r), FUNC(tmnt2_state::k053244_word_noA1_w));
+	map(0x5c'0600, 0x5c0603).rw(m_k053260, FUNC(k053260_device::main_read), FUNC(k053260_device::main_write)).umask16(0x00ff);
+	map(0x5c'0604, 0x5c0605).w(FUNC(tmnt2_state::ssriders_soundkludge_w));
+	map(0x5c'0700, 0x5c071f).w(m_k053251, FUNC(k053251_device::write)).umask16(0x00ff);
+	map(0x60'0000, 0x603fff).rw(FUNC(tmnt2_state::k052109_word_r), FUNC(tmnt2_state::k052109_word_w));
 }
 
 void tmnt2_state::ssriders_main_map(address_map &map)
 {
-	map(0x000000, 0x0bffff).rom();
-	map(0x104000, 0x107fff).ram(); /* main RAM */
-	map(0x140000, 0x140fff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
-	map(0x180000, 0x183fff).rw(FUNC(tmnt2_state::k053245_scattered_word_r), FUNC(tmnt2_state::k053245_scattered_word_w)).share("spriteram");
-	map(0x1c0000, 0x1c0001).portr("P1");
-	map(0x1c0002, 0x1c0003).portr("P2");
-	map(0x1c0004, 0x1c0005).portr("P3");
-	map(0x1c0006, 0x1c0007).portr("P4");
-	map(0x1c0100, 0x1c0101).portr("COINS");
-	map(0x1c0102, 0x1c0103).r(FUNC(tmnt2_state::ssriders_eeprom_r));
-	map(0x1c0200, 0x1c0201).w(FUNC(tmnt2_state::ssriders_eeprom_w));    /* EEPROM and gfx control */
-	map(0x1c0300, 0x1c0301).w(FUNC(tmnt2_state::ssriders_1c0300_w));
-	map(0x1c0400, 0x1c0401).rw("watchdog", FUNC(watchdog_timer_device::reset16_r), FUNC(watchdog_timer_device::reset16_w));
-	map(0x1c0500, 0x1c057f).ram(); /* TMNT2 only (1J) unknown */
-	map(0x1c0800, 0x1c0801).r(FUNC(tmnt2_state::ssriders_protection_r));
-	map(0x1c0800, 0x1c0803).w(FUNC(tmnt2_state::ssriders_protection_w));
-	map(0x5a0000, 0x5a001f).rw(FUNC(tmnt2_state::k053244_word_noA1_r), FUNC(tmnt2_state::k053244_word_noA1_w));
-	map(0x5c0600, 0x5c0603).rw(m_k053260, FUNC(k053260_device::main_read), FUNC(k053260_device::main_write)).umask16(0x00ff);
-	map(0x5c0604, 0x5c0605).w(FUNC(tmnt2_state::ssriders_soundkludge_w));
-	map(0x5c0700, 0x5c071f).w(m_k053251, FUNC(k053251_device::write)).umask16(0x00ff);
-	map(0x600000, 0x603fff).rw(FUNC(tmnt2_state::k052109_word_r), FUNC(tmnt2_state::k052109_word_w));
+	map(0x00'0000, 0x0bffff).rom();
+	map(0x10'4000, 0x107fff).ram(); /* main RAM */
+	map(0x14'0000, 0x140fff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
+	map(0x18'0000, 0x183fff).rw(FUNC(tmnt2_state::k053245_scattered_word_r), FUNC(tmnt2_state::k053245_scattered_word_w)).share("spriteram");
+	map(0x1c'0000, 0x1c0001).portr("P1");
+	map(0x1c'0002, 0x1c0003).portr("P2");
+	map(0x1c'0004, 0x1c0005).portr("P3");
+	map(0x1c'0006, 0x1c0007).portr("P4");
+	map(0x1c'0100, 0x1c0101).portr("COINS");
+	map(0x1c'0102, 0x1c0103).r(FUNC(tmnt2_state::ssriders_eeprom_r));
+	map(0x1c'0200, 0x1c0201).w(FUNC(tmnt2_state::ssriders_eeprom_w));    /* EEPROM and gfx control */
+	map(0x1c'0300, 0x1c0301).w(FUNC(tmnt2_state::ssriders_1c0300_w));
+	map(0x1c'0400, 0x1c0401).rw("watchdog", FUNC(watchdog_timer_device::reset16_r), FUNC(watchdog_timer_device::reset16_w));
+	map(0x1c'0500, 0x1c057f).ram(); /* TMNT2 only (1J) unknown */
+	map(0x1c'0800, 0x1c0801).r(FUNC(tmnt2_state::ssriders_protection_r));
+	map(0x1c'0800, 0x1c0803).w(FUNC(tmnt2_state::ssriders_protection_w));
+	map(0x5a'0000, 0x5a001f).rw(FUNC(tmnt2_state::k053244_word_noA1_r), FUNC(tmnt2_state::k053244_word_noA1_w));
+	map(0x5c'0600, 0x5c0603).rw(m_k053260, FUNC(k053260_device::main_read), FUNC(k053260_device::main_write)).umask16(0x00ff);
+	map(0x5c'0604, 0x5c0605).w(FUNC(tmnt2_state::ssriders_soundkludge_w));
+	map(0x5c'0700, 0x5c071f).w(m_k053251, FUNC(k053251_device::write)).umask16(0x00ff);
+	map(0x60'0000, 0x603fff).rw(FUNC(tmnt2_state::k052109_word_r), FUNC(tmnt2_state::k052109_word_w));
 }
 
 void sunsetbl_state::sunsetbl_main_map(address_map &map)
