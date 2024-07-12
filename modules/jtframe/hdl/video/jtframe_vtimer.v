@@ -40,7 +40,6 @@
 module jtframe_vtimer(
     input               clk,
     input               pxl_cen,
-    input       [7:0]   debug_bus,
     output  reg [8:0]   vdump,
     output  reg [8:0]   vrender,    // 1 line ahead of vdump
     output  reg [8:0]   vrender1,   // 2 lines ahead
@@ -115,13 +114,13 @@ always @(posedge clk) if(pxl_cen) begin
     if( HJUMP[0] )
         H <= H==9'hFF ? 9'h180 : (H+9'd1);
     else
-        H <= H == HCNT_END  ? HCNT_START : (H+9'd1);
+        H <= H == HCNT_END ? HCNT_START : (H+9'd1);
 end
 
 always @(posedge clk) if(pxl_cen) begin
     if( H == H_VNEXT ) begin
         Vinit    <= vdump==VB_END;
-        vrender1 <= vrender1== VCNT_END ? V_START : vrender1 + 9'd1;
+        vrender1 <= vrender1==VCNT_END ? V_START : vrender1 + 9'd1;
         vrender  <= vrender1;
         vdump    <= vrender;
     end
@@ -142,10 +141,10 @@ always @(posedge clk) if(pxl_cen) begin
         HS <= 1;
     end
 
-    if (H== ( HS_END + {{3{debug_bus[3]}}, debug_bus[3:0], 2'b0} ) ) begin
+    if (H==HS_END) begin
         HS <= 0;
         if (vdump==VS_START) VS <= 1;
-        if (vdump== ( VS_END + {{5{debug_bus[7]}}, debug_bus[7:4]} ) ) VS <= 0;
+        if (vdump==VS_END  ) VS <= 0;
     end
 end
 
