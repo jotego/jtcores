@@ -336,6 +336,7 @@ jtframe_dial u_dial(
     .joystick2  ( game_joy2     ),
     .mouse_st   ( bd_mouse_st    ),
     .mouse_dx   ( bd_mouse_dx   ),
+    .mouse_dy   ( bd_mouse_dy   ),
 
     .dial_x     ( dial_x        ),
     .dial_y     ( dial_y        )

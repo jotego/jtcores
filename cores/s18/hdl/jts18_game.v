@@ -154,6 +154,8 @@ jts18_main u_main(
     .lg1_y       ( lg1_y      ),
     .lg2_x       ( lg2_x      ),
     .lg2_y       ( lg2_y      ),
+    .dial_x      ( dial_x     ),
+    .dial_y      ( dial_y     ),
     .cab_1p      ( cab_1p[2:0]),
     .coin        (   coin[2:0]),
     .service     ( service    ),
