@@ -71,6 +71,8 @@ module jts18_main(
     input       [ 8:0] lg1_y,
     input       [ 8:0] lg2_x,
     input       [ 8:0] lg2_y,
+    input       [ 1:0] dial_x,
+    input       [ 1:0] dial_y,
     input       [ 2:0] cab_1p,
     input       [ 2:0] coin,
     input              service,
@@ -168,6 +170,10 @@ wire [15:0] mapper_dout;
 wire        none_cs;
 
 reg   [7:0] p1, p2, p3, coinage;
+
+wire        dial_cs;
+wire        dial_rst;
+wire  [7:0] dial_dout;
 
 `ifndef NOMCU
 jtframe_8751mcu #(
@@ -312,7 +318,32 @@ always @(posedge clk) begin
     end
 end
 
-assign io_dout = (A[15:4] == 12'h301) ? {m6253_shift_out, 7'h7f} : io5296_dout;
+// for wwally
+assign dial_rst = io_we && A[15:3] == {12'h300, 1'd0};
+assign dial_cs = io_cs & A[15:3] == {12'h300, 1'd0}; // only one trackball
+
+jt4701 u_trackball(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .x_in   ( {dial_x[0], dial_x[1]} ),
+    .y_in   ( {dial_y[0], dial_y[1]} ),
+    .rightn (           ),
+    .leftn  (           ),
+    .middlen(           ),
+    .x_rst  (dial_rst   ),
+    .y_rst  (dial_rst   ),
+    .csn    ( ~dial_cs  ),
+    .uln    ( A[1]      ),
+    .xn_y   ( A[2]      ),
+    .cfn    (           ),
+    .sfn    (           ),
+    .dout   ( dial_dout ),
+    .dir    (           )
+);
+
+assign io_dout = (A[15:4] == 12'h301) ? {m6253_shift_out, 7'h7f} :
+                              dial_cs ? dial_dout :
+                                        io5296_dout;
 
 always @(*) begin
     if (game_id[PCB_5873]) begin
