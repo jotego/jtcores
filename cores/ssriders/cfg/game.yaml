@@ -7,7 +7,7 @@ game:
   - from: simson
     get:
       - jtsimson_obj.v
-      - jt053246.v      # OBJ scanner
+      - jt053246*      # OBJ scanner
       - jt053260.v
       - jtcolmix_053251.v
   - from: aliens
@@ -35,6 +35,9 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_nvram16.v
 modules:
   jt:
     - name: jt51

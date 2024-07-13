@@ -21,9 +21,10 @@ module jtssriders_game(
 );
 
 /* verilator tracing_off */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol;
-wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
-wire        cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn;
+wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
+            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
+            BGACKn, prot_irqn, objreg_cs;
 wire [15:0] pal_dout;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout, snd_latch,
@@ -44,10 +45,10 @@ always @(posedge clk) begin
     endcase
 end
 
-always @(posedge clk) begin
-    if( prog_addr==0 && prog_we && header )
-        game_id <= prog_data[2:0];
-end
+// always @(posedge clk) begin
+//     if( prog_addr==0 && prog_we && header )
+//         game_id <= prog_data[2:0];
+// end
 
 /* verilator tracing_off */
 jtssriders_main u_main(
@@ -59,6 +60,10 @@ jtssriders_main u_main(
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
+
+    // protection chip
+    .BGACKn         ( BGACKn        ),
+    .prot_irqn      ( prot_irqn     ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -76,7 +81,7 @@ jtssriders_main u_main(
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
     .joystick4      ( joystick4     ),
-    .service        ( service       ),
+    .service        ( {4{service}}  ),
 
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( objsys_dout   ),
@@ -87,6 +92,8 @@ jtssriders_main u_main(
     .dimpol         ( dimpol        ),
     .dim            ( dim           ),
     .cbnk           (               ),
+    .dma_bsy        ( dma_bsy       ),
+    .objreg_cs      ( objreg_cs     ),
 
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
@@ -128,6 +135,7 @@ jtssriders_video u_video (
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( objsys_cs     ),
+    .objreg_cs      ( objreg_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
@@ -139,6 +147,7 @@ jtssriders_video u_video (
     .objsys_dout    ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
+    .dma_bsy        ( dma_bsy       ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

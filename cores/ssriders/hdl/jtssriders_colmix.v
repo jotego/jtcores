@@ -36,10 +36,6 @@ module jtssriders_colmix(
     output     [15:0] cpu_din,
 
     // Final pixels
-    input             lyrf_blnk_n,
-    input             lyra_blnk_n,
-    input             lyrb_blnk_n,
-    input             lyro_blnk_n,
     input      [ 7:0] lyrf_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,

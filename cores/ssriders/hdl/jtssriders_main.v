@@ -24,6 +24,7 @@ module jtssriders_main(
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
+    input                BGACKn,
     // 8-bit interface
     output               cpu_we,
     output reg           pal_cs,
@@ -50,16 +51,18 @@ module jtssriders_main(
     input                prot_irqn,
 
     // video configuration
+    output reg           objreg_cs,
     output reg           rmrd,
     output reg           dimmod,
     output reg           dimpol,
     output reg  [ 2:0]   dim,
     output reg  [ 2:0]   cbnk,      // unconnected in ssriders
+    input                dma_bsy,
     // EEPROM
-    output      [ 6:0]  nv_addr,
-    input       [ 7:0]  nv_dout,
-    output      [ 7:0]  nv_din,
-    output              nv_we,
+    output      [ 6:0]   nv_addr,
+    input       [ 7:0]   nv_dout,
+    output      [ 7:0]   nv_din,
+    output               nv_we,
     // Cabinet
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
@@ -67,7 +70,7 @@ module jtssriders_main(
     input         [ 6:0] joystick4,
     input         [ 3:0] cab_1p,
     input         [ 3:0] coin,
-    input                service,
+    input         [ 3:0] service,
     input                dip_pause,
     input                dip_test,
     output        [ 7:0] st_dout,
@@ -79,7 +82,7 @@ wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         cab_cs, snd_cs, punk_cab, iowr_hi, iowr_lo,
-            dip_cs, dip3_cs, syswr_cs, int16en,
+            dip_cs, dip3_cs, syswr_cs, int16en, HALTn,
             eep_di, eep_clk, eep_cs;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -100,7 +103,7 @@ assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_we   = ~RnW;
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
-assign VPAn     = ~( A[23] & ~ASn );
+assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
@@ -137,7 +140,7 @@ always @* begin
         endcase
         5: case(A[19:16])
             4'ha: objreg_cs = 1;
-            4'hc: case(A[11:8])
+            4'hc: case(A[11:8]) // 13G
                 6: begin
                     snd_cs = !A[2]; // 053260
                     sndon  =  A[2];
@@ -150,25 +153,26 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                obj_cs  ? {2{oram_dout}} :
                vram_cs ? {2{vram_dout}} :
                pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
-               cab_cs  ? {16'hff,cab_dout} :
+               cab_cs  ? {8'hff,cab_dout} :
                { 16'hffff };
 end
 
 always @(posedge clk) begin
-    cab_dout[15:8] <= 0;
-    case( A[2:1] )
-        ~2'd0: cab_dout <= { 1'b1, joystick1[6:0] };
-        ~2'd1: cab_dout <= { 1'b1, joystick2[6:0] };
-        ~2'd2: cab_dout <= { 1'b1, joystick3[6:0] };
-        ~2'd3: cab_dout <= { 1'b1, joystick4[6:0] };
+    cab_dout <= A[2] ? { dip_test, 2'b11, IPLn[0], LVBL, ~dma_bsy, eep_rdy, eep_do }:
+                       { service, coin };
+    if(!A[8]) case( A[2:1] )
+        ~2'd0: cab_dout <= { cab_1p[0], joystick1[6:0] };
+        ~2'd1: cab_dout <= { cab_1p[1], joystick2[6:0] };
+        ~2'd2: cab_dout <= { cab_1p[2], joystick3[6:0] };
+        ~2'd3: cab_dout <= { cab_1p[3], joystick4[6:0] };
     endcase
-    if(A[8]) cab_dout <= A[2] ? eep_do : { dip_test, cab_1p[1:0], {4{service}}, coin };
 end
 
 always @(posedge clk, posedge rst) begin
@@ -206,6 +210,8 @@ jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
     .dump_flag  (           )
 );
 
+// The board seems to control DTACKn with combinational logic
+// DTACKn follows ASn with a delay of ~15.6ns
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -248,9 +254,9 @@ jtframe_m68k u_cpu(
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
-    .HALTn      ( dip_pause   ),
+    .HALTn      ( HALTn       ),
     .BRn        ( 1'b1        ),
-    .BGACKn     ( 1'b1        ),
+    .BGACKn     ( BGACKn      ),
     .BGn        (             ),
 
     .DTACKn     ( dtac_mux    ),

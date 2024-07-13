@@ -53,7 +53,6 @@ module jtssriders_video(
 
     // control
     input             rmrd,     // Tile ROM read mode
-    input             objcha_n, // object ROM read mode
     output            flip,
 
     // Tile ROMs
@@ -94,36 +93,29 @@ module jtssriders_video(
     output reg [ 7:0] st_dout
 );
 
-wire [18:0] ca;
 wire [15:0] cpu_saddr;
-reg  [13:0] ocode_eff;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl, lyro_sort;
+wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [10:0] cpu_oaddr;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal,
-            lyrf_col, lyra_col, lyrb_col,
-            opal,     cpu_d8,   mmr_pal,
-            scr_mmr;
-reg  [ 7:0] opal_eff;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n, ormrd;
-wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we, pre_vdtac;
+wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
+            lyra_col, dump_obj, scr_mmr,  obj_mmr,
+            lyrb_col, dump_pal, opal,     cpu_d8, mmr_pal;
+wire [ 4:0] obj_prio;
+wire        lyrf_blnk_n, obj_irqn,
+            lyra_blnk_n, obj_nmin,
+            lyrb_blnk_n, shadow,
+            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 reg         ioctl_mmr;
-wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:12], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
-assign gfx_we    = prom_we & ~prog_addr[8];
-assign prio_we   = prom_we &  prog_addr[8];
 assign cpu_weg   = cpu_we &&  cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
-assign lyro_sort = { lyro_pxl[11:4],
-    sort_en ? lyro_pxl[3:0] : {lyro_pxl[0],lyro_pxl[1],lyro_pxl[2],lyro_pxl[3]} };
 
 // Debug
 always @* begin
-    st_dout = debug_bus[5] ? st_obj : st_scr;
+    st_dout = debug_bus[5] ? obj_mmr : st_scr;
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
     ioctl_mmr = 0;
     if( ioctl_addr<'h4000 )
@@ -138,11 +130,10 @@ always @* begin
         ioctl_mmr = 1;
         ioctl_din = dump_obj;  // 7 bytes, MMR 580F
     end else
-        ioctl_din = { 6'd0, cpu_prio }; // 1 byte, 5810
+        ioctl_din = 8'd0;
 end
 
 wire [2:0] gfx_de;
-reg  [9:1] oa; // see sch object page (A column)
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 
@@ -158,50 +149,16 @@ function [31:0] sorto( input [31:0] x );
         x[31], x[27], x[23], x[19] };
 endfunction
 
-wire [31:0] odata = sort_en ? sorto(
-    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } ) :
-      lyro_data;
 // wire [3:0] opxls;
 
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
-
-always @* begin
-    // the game seems to use different encondigs depending on the ROM region
-    case( gfx_de )
-        7:   oa = { ca[8], ca[6], ca[4], ca[2:0], ca[9], ca[7], ca[5] }; // 9
-        5,6: oa = { ca[9:8], ca[6], ca[4], ca[2:0], ca[7], ca[5] }; // 9
-        4:   oa = { ca[9], ca[7], ca[8], ca[6], ca[4], ca[2:0], ca[5] }; // 9
-        2,3: oa = { ca[9:6], ca[4], ca[2:0], ca[5] }; // 4+1+3+1=9
-        1:   oa = { ca[9:7], ca[5], ca[6], ca[4], ca[2:0] }; // 3+3+3=9
-        0:   oa = { ca[9:4], ca[2:0] }; // 6+3=9
-    endcase
-end
 
 always @* begin
     lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
     lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
     lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
 
-    case(game_id)
-        MIA: begin
-        opal_eff  = opal;
-        ocode_eff = { 1'b0, ocode };
-        lyro_addr = { ca[18:8],  &ca[17:14] ? {ca[7:6],ca[4],ca[2],ca[1:0] } :
-                                              {ca[6],  ca[4],ca[2:0],ca[7] },ca[5],ca[3] };
-        end
 
-        PUNKSHOT: begin
-        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-        ocode_eff = { opal[4], ocode };
-        lyro_addr = ca;
-        end
-
-        default: begin // TMNT
-        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-        ocode_eff = { opal[4], ocode };
-        lyro_addr = { ca[18:10], oa, ca[3] };
-        end
-    endcase
 end
 
 function [7:0] cgate( input [7:0] c);
@@ -304,6 +261,8 @@ assign oram_a={cpu_addr[13:8],cpu_addr[6:5],cpu_addr[4:1]};
 assign objsys_dout = ~cpu_dsn[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 /* verilator tracing_on */
+wire [1:0] nc;
+
 jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -324,7 +283,7 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .reg_cs     ( objreg_cs ),
     .ram_a      ( oram_a    ),
     .cpu_addr   ( cpu_addr[4:2] ),
-    .cpu_dout   ({2{cpu_dout}}),
+    .cpu_dout   ( cpu_dout  ),
     .cpu_dsn    ( cpu_dsn   ),
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( obj16_dout),
@@ -335,11 +294,11 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
-    .objcha_n   ( objcha_n  ),
+    .objcha_n   ( 1'b1      ),
     // pixel output
-    .pxl        ( lyro_pxl  ),
-    .shd        ( obj_shd   ),
-    .prio       ( obj_prio  ),
+    .pxl        ( lyro_pxl[8:0]  ),
+    .shd        (           ),
+    .prio       ({lyro_pxl[11:9],nc}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
@@ -370,14 +329,10 @@ jtssriders_colmix u_colmix(
     .pcu_cs     ( pcu_cs    ),
 
     // Final pixels
-    .lyrf_blnk_n(lyrf_blnk_n),
-    .lyra_blnk_n(lyra_blnk_n),
-    .lyrb_blnk_n(lyrb_blnk_n),
-    .lyro_blnk_n(lyro_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( lyro_sort ),
+    .lyro_pxl   ( lyro_pxl  ),
 
     // shadow
     .dimmod     ( dimmod    ),

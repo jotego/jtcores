@@ -1,10 +1,10 @@
+# Remember to update JTFRAME_SKIP when adding
+# or removing betas
 ngpc:   [ mister, pocket ]
 s18:    [ mister, pocket ]
 ssriders: [ mister, pocket ]
 slyspy: [ pocket ]
 flane: [ pocket ]
-# Remembet to update JTFRAME_SKIP when adding
-# or removing betas
 
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
