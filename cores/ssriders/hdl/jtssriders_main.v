@@ -24,7 +24,9 @@ module jtssriders_main(
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
+    input                BRn,
     input                BGACKn,
+    output               BGn,
     // 8-bit interface
     output               cpu_we,
     output reg           pal_cs,
@@ -81,8 +83,7 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         cab_cs, snd_cs, punk_cab, iowr_hi, iowr_lo,
-            dip_cs, dip3_cs, syswr_cs, int16en, HALTn,
+reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -93,7 +94,7 @@ wire        dtac_mux;
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign main_addr= A[18:1];
+assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { tile_irqn, 1'b1, prot_irqn };
 assign bus_cs   = rom_cs | ram_cs;
@@ -116,7 +117,6 @@ always @* begin
     iowr_lo  = 0;
     iowr_hi  = 0;
     cab_cs   = 0;
-    syswr_cs = 0;
     vram_cs  = 0; // tilesys_cs
     obj_cs   = 0;
     objreg_cs= 0;
@@ -126,7 +126,7 @@ always @* begin
     if(!ASn) case(A[23:20])
         0: rom_cs = 1;
         1: case(A[19:18])
-            0: ram_cs  = 1;
+            0: ram_cs  = A[14];
             1: pal_cs  = 1; // 14'xxxx
             2: obj_cs  = 1; // 18'xxxx (not all A bits go to OBJ chip 053245)
             3: if(!A[11]) case(A[10:8]) // decoder 13G (pdf page 16)
@@ -136,7 +136,9 @@ always @* begin
                 // 4: watchdog
                 // 5: TMNT2 RAM
                 // 8: protection rw
+                default:;
             endcase
+            default:;
         endcase
         5: case(A[19:16])
             4'ha: objreg_cs = 1;
@@ -146,9 +148,12 @@ always @* begin
                     sndon  =  A[2];
                 end
                 7: pcu_cs = 1;     // 053251
+                default:;
                 endcase
+            default:;
             endcase
         6: vram_cs = 1; // probably different at boot time
+        default:;
     endcase
 end
 
@@ -255,9 +260,9 @@ jtframe_m68k u_cpu(
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
     .HALTn      ( HALTn       ),
-    .BRn        ( 1'b1        ),
+    .BRn        ( BRn         ),
     .BGACKn     ( BGACKn      ),
-    .BGn        (             ),
+    .BGn        ( BGn         ),
 
     .DTACKn     ( dtac_mux    ),
     .IPLn       ( IPLn        ) // VBLANK

@@ -16,7 +16,10 @@
     Version: 1.0
     Date: 24-7-2023 */
 
-module jtsimson_obj #(parameter RAMW=12)(
+module jtsimson_obj #(parameter
+    RAMW   = 12,
+    A0_INV =  0
+)(
     input             rst,
     input             clk,
 
@@ -122,7 +125,7 @@ assign sorted = paroda ? rom_data : {
     rom_data[12], rom_data[ 8], rom_data[4], rom_data[0], rom_data[28], rom_data[24], rom_data[20], rom_data[16]
 };
 
-jt053246 u_scan(    // sprite logic
+jt053246 #(.A0_INV(A0_INV)) u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),

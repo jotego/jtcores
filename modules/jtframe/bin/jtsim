@@ -880,7 +880,7 @@ CHRAW=(ch?.raw)
 shopt -u nullglob
 for i in "${CHRAW[@]}"; do
     if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
-        echo "$i is empty, deleting it"
+        echo "$i is empty, deleting it" > /dev/null
     else
         ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav || continue
     fi

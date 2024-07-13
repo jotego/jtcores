@@ -62,10 +62,10 @@ module jtssriders_colmix(
 wire [ 1:0] cpu_palwe;
 wire [15:0] pal_dout;
 reg  [15:0] pxl_aux;
-reg  [ 1:0] dim_cmn, dim_l;
+reg  [ 1:0] dim_cmn; //, dim_l;
 reg  [23:0] bgr;
 wire [10:0] pal_addr;
-wire        brit, shad, pcu_we;
+wire        brit, shad, pcu_we, nc;
 
 // 8/16 bit interface
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
@@ -101,17 +101,17 @@ always @* begin
         0: dim_cmn = {  shad, brit        };
         1: dim_cmn = {  shad, brit | shad };
         2: dim_cmn = { ~shad, brit        };
-        2: dim_cmn = { ~shad, brit |~shad };
+        3: dim_cmn = { ~shad, brit |~shad };
     endcase
 end
 
 always @(posedge clk) begin
     if( rst ) begin
         bgr   <= 0;
-        dim_l <= 0;
+        // dim_l <= 0;
     end else begin
         if( pxl_cen ) begin
-            dim_l <= dim_cmn;
+            // dim_l <= dim_cmn;
             //dim_rgb( pal_dout[14:0], dim_l);
             bgr <= { ext8(pal_dout[14:10]),
                      ext8(pal_dout[ 9: 5]),
@@ -142,7 +142,7 @@ jtcolmix_053251 u_k251(
     .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),
     // shadow
     .shd_in     ({1'b0,~shadow}), // why do we need the inversion?
-    .shd_out    ( shad      ),
+    .shd_out    ({ nc, shad }  ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
     .ioctl_din  ( dump_mmr  ),

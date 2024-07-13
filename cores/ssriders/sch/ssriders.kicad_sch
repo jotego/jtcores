@@ -2376,7 +2376,7 @@
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid c832c559-ee73-443f-8dad-7b9742631845)
     )
-    (pin "IO" input (at 307.34 200.66 180)
+    (pin "~{IO}" input (at 307.34 200.66 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid adef59bc-8eb2-4907-bd7d-337533b78764)
     )

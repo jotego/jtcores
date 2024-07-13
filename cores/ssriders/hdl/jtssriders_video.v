@@ -59,7 +59,7 @@ module jtssriders_video(
     output reg [19:2] lyrf_addr,
     output reg [19:2] lyra_addr,
     output reg [19:2] lyrb_addr,
-    output reg [20:2] lyro_addr,
+    output     [20:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -96,7 +96,6 @@ module jtssriders_video(
 wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
-wire [10:0] cpu_oaddr;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_col, dump_obj, scr_mmr,  obj_mmr,
@@ -106,10 +105,8 @@ wire        lyrf_blnk_n, obj_irqn,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, shadow,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
-reg         ioctl_mmr;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:12], cpu_addr[11:1] };
-assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign cpu_weg   = cpu_we &&  cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
@@ -117,7 +114,6 @@ assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 always @* begin
     st_dout = debug_bus[5] ? obj_mmr : st_scr;
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
-    ioctl_mmr = 0;
     if( ioctl_addr<'h4000 )
         ioctl_din = dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
@@ -127,7 +123,6 @@ always @* begin
     else if( ioctl_addr<'h5808 )
         ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
     else if (ioctl_addr<'h5810) begin
-        ioctl_mmr = 1;
         ioctl_din = dump_obj;  // 7 bytes, MMR 580F
     end else
         ioctl_din = 8'd0;
@@ -157,8 +152,6 @@ always @* begin
     lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
     lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
     lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
-
-
 end
 
 function [7:0] cgate( input [7:0] c);
@@ -253,8 +246,8 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
-localparam ORAMW=14;
-wire [ORAMW-1:1] oram_a;
+localparam ORAMW=12;
+wire [ORAMW:1] oram_a;
 wire [15:0] obj16_dout;
 
 assign oram_a={cpu_addr[13:8],cpu_addr[6:5],cpu_addr[4:1]};
@@ -262,8 +255,9 @@ assign objsys_dout = ~cpu_dsn[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big en
 
 /* verilator tracing_on */
 wire [1:0] nc;
+wire       nc2, nc3;
 
-jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(ORAMW),.A0_INV(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -290,14 +284,14 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( lyro_addr ),
+    .rom_addr   ({nc2,lyro_addr}),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     .objcha_n   ( 1'b1      ),
     // pixel output
     .pxl        ( lyro_pxl[8:0]  ),
-    .shd        (           ),
+    .shd        ({nc3,shadow}),
     .prio       ({lyro_pxl[11:9],nc}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),

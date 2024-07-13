@@ -24,24 +24,24 @@ module jtssriders_game(
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
-            BGACKn, prot_irqn, objreg_cs;
+            BGn, BRn, BGACKn, prot_irqn, objreg_cs;
 wire [15:0] pal_dout;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout, snd_latch,
-            st_main, st_video, st_snd;
+            st_main, st_video;
 wire [ 2:0] dim;
 reg  [ 7:0] debug_mux;
 
 assign debug_view = debug_mux;
-assign ram_addr   = { main_addr[17], main_addr[13:1] };
+assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= { 7'd0, dip_flip };
+        0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        2: debug_mux <= st_snd;
-        3: debug_mux <= st_main;
+        2: debug_mux <= { 7'd0, dip_flip };
+        default: debug_mux <= 0;
     endcase
 end
 
@@ -50,7 +50,7 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtssriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -63,6 +63,8 @@ jtssriders_main u_main(
 
     // protection chip
     .BGACKn         ( BGACKn        ),
+    .BRn            ( BRn           ),
+    .BGn            ( BGn           ),
     .prot_irqn      ( prot_irqn     ),
 
     .main_addr      ( main_addr     ),
@@ -116,7 +118,16 @@ jtssriders_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-/* verilator tracing_off */
+jtssriders_prot u_prot(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .irqn   ( prot_irqn ),
+    .BRn    ( BRn       ),
+    .BGn    ( BGn       ),
+    .BGACKn ( BGACKn    )
+);
+
+/* verilator tracing_on */
 jtssriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

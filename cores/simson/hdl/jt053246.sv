@@ -74,6 +74,8 @@ module jt053246(    // sprite logic
     output     [ 7:0] st_dout
 );
 
+parameter A0_INV=0;
+
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
@@ -336,7 +338,7 @@ jt053246_mmr u_mmr(
     .k44_en     ( k44_en    ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
-    .cpu_addr   ( {cpu_addr, cpu_dsn[0]} ),
+    .cpu_addr   ( {cpu_addr, cpu_dsn[0]^A0_INV[0]} ),
     .cpu_dout   (cpu_dout[7:0]),
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
