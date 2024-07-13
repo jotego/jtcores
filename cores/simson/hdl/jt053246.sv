@@ -336,7 +336,7 @@ jt053246_mmr u_mmr(
     .k44_en     ( k44_en    ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
-    .cpu_addr   ( {cpu_addr, cpu_dsn[1]} ),
+    .cpu_addr   ( {cpu_addr, cpu_dsn[0]} ),
     .cpu_dout   (cpu_dout[7:0]),
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
