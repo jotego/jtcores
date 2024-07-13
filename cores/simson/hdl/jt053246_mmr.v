@@ -21,12 +21,11 @@ module jt053246_mmr(
     input             clk,
 
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
-    // CPU interface
+    // CPU interface - 8 bits!
     input             cs,
     input             cpu_we,
-    input      [ 3:1] cpu_addr, // bit 3 only in k44 mode
-    input      [15:0] cpu_dout,
-    input      [ 1:0] cpu_dsn,
+    input      [ 3:0] cpu_addr, // bit 3 only in k44 mode
+    input      [ 7:0] cpu_dout,
 
     output reg [ 7:0] cfg,
     output reg [ 9:0] xoffset,
@@ -70,28 +69,28 @@ always @(posedge clk, posedge rst) begin
         if( cs ) begin // note that the write signal is not checked
             case( {cpu_addr[3] & k44_en, cpu_addr[2:1]} )
                 0: begin
-                    if( !cpu_dsn[0] ) xoffset[ 7:0] <= cpu_dout[7:0];
-                    if( !cpu_dsn[1] ) xoffset[ 9:8] <= cpu_dout[9:8];
+                    if(  cpu_addr[0] ) xoffset[ 7:0] <= cpu_dout;
+                    if( !cpu_addr[0] ) xoffset[ 9:8] <= cpu_dout[1:0];
                 end
                 1: begin
-                    if( !cpu_dsn[0] ) yoffset[7:0] <= cpu_dout[7:0];
-                    if( !cpu_dsn[1] ) yoffset[9:8] <= cpu_dout[9:8];
+                    if(  cpu_addr[0] ) yoffset[7:0] <= cpu_dout;
+                    if( !cpu_addr[0] ) yoffset[9:8] <= cpu_dout[1:0];
                 end
                 2: begin
-                    if( !cpu_dsn[0] ) cfg <= cpu_dout[15:8];
-                    if( !cpu_dsn[1] && !k44_en ) rmrd_addr[8:1] <= cpu_dout[7:0];
+                    if(  cpu_addr[0] ) cfg <= cpu_dout;
+                    if( !cpu_addr[0] && !k44_en ) rmrd_addr[8:1] <= cpu_dout;
                 end
                 3: if( !k44_en ) begin // related to dma_en, see above
-                    if( !cpu_dsn[0] ) rmrd_addr[16: 9] <= cpu_dout[ 7:0];
-                    if( !cpu_dsn[1] ) rmrd_addr[21:17] <= cpu_dout[12:8];
+                    if(  cpu_addr[0] ) rmrd_addr[16: 9] <= cpu_dout;
+                    if( !cpu_addr[0] ) rmrd_addr[21:17] <= cpu_dout[4:0];
                 end
                 // k44_en only
                 4: begin
-                    if( !cpu_dsn[0] ) rmrd_addr[ 8: 1] <= cpu_dout[ 7:0];
-                    if( !cpu_dsn[1] ) rmrd_addr[16: 9] <= cpu_dout[15:8];
+                    if(  cpu_addr[0] ) rmrd_addr[ 8: 1] <= cpu_dout;
+                    if( !cpu_addr[0] ) rmrd_addr[16: 9] <= cpu_dout;
                 end
                 5: begin
-                    if( !cpu_dsn[0] ) rmrd_addr[21:17] <= cpu_dout[ 4:0];
+                    if(  cpu_addr[0] ) rmrd_addr[21:17] <= cpu_dout[4:0];
                 end
             endcase
         end
