@@ -76,10 +76,10 @@ always @(*) begin
     rom_cs   = mem_acc && !upper4k && !rd_n;
     mem_upper= mem_acc &&  upper4k;
 
-    ram_cs   = mem_upper && A[11:9]==0; // F0xx~F7FF
-    fm_cs    = mem_upper && A[11:9]==4; // F8xx
-    k60_cs   = mem_upper && A[11:9]==5; // FAxx
-    nmi_clr  = mem_upper && A[11:9]==6; // FCxx
+    ram_cs   = mem_upper && !A[11];      // F0xx~F7FF
+    fm_cs    = mem_upper &&  A[11:9]==4; // F8xx
+    k60_cs   = mem_upper &&  A[11:9]==5; // FAxx
+    nmi_clr  = mem_upper &&  A[11:9]==6; // FCxx
 end
 
 jtframe_edge #(.QSET(0)) u_edge (

@@ -126,10 +126,10 @@ always @* begin
     if(!ASn) case(A[23:20])
         0: rom_cs = 1;
         1: case(A[19:18])
-            0: ram_cs  = A[14];
+            0: ram_cs  = A[14] & ~BUSn;
             1: pal_cs  = 1; // 14'xxxx
             2: obj_cs  = 1; // 18'xxxx (not all A bits go to OBJ chip 053245)
-            3: if(!A[11]) case(A[10:8]) // decoder 13G (pdf page 16)
+            3: case(A[11:8]) // decoder 13G (pdf page 16)
                 0,1: cab_cs  = 1;
                 2:   iowr_lo = 1; // EEPROM
                 3:   iowr_hi = 1;
@@ -159,18 +159,17 @@ end
 
 always @(posedge clk) begin
     HALTn   <= dip_pause & ~rst;
-    cpu_din <= rom_cs  ? rom_data  :
-               ram_cs  ? ram_dout  :
-               obj_cs  ? {2{oram_dout}} :
-               vram_cs ? {2{vram_dout}} :
-               pal_cs  ? pal_dout       :
-               snd_cs  ? {8'd0,snd2main}:
-               cab_cs  ? {8'hff,cab_dout} :
-               { 16'hffff };
+    cpu_din <= rom_cs  ? rom_data        :
+               ram_cs  ? ram_dout        :
+               obj_cs  ? {2{oram_dout}}  :
+               vram_cs ? {2{vram_dout}}  :
+               pal_cs  ? pal_dout        :
+               snd_cs  ? {8'd0,snd2main} :
+               cab_cs  ? {8'd0,cab_dout} : 16'hffff;
 end
 
 always @(posedge clk) begin
-    cab_dout <= A[2] ? { dip_test, 2'b11, IPLn[0], LVBL, ~dma_bsy, eep_rdy, eep_do }:
+    cab_dout <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, ~dma_bsy, eep_rdy, eep_do }:
                        { service, coin };
     if(!A[8]) case( A[2:1] )
         ~2'd0: cab_dout <= { cab_1p[0], joystick1[6:0] };
