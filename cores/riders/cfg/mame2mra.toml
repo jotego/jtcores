@@ -52,3 +52,10 @@ nvram={	Defaults=[ { data="""\
 	00 00 00 00 00 00 fa 1a 90 64 45 41 43 00 05 e5"""}] }
 
 order=["maincpu","audiocpu","k053260","k052109","k053245"]
+
+patches=[
+	# skip the 54-frame wait after displaying the memory check
+	{setname="ssriders",offset=0x1a40,data="71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E"},
+	# skip wait after display the video grid
+	{setname="ssriders",offset=0x1392,data="71 4E"},
+]

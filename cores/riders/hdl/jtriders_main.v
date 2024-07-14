@@ -109,6 +109,7 @@ assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
+reg none_cs, wdog;
 // not following the PALs as the dumps from PLD Archive are not readable
 // with MAME's JEDUTIL
 always @* begin
@@ -125,17 +126,18 @@ always @* begin
     sndon    = 0;
     pcu_cs   = 0;
     prot_cs  = 0;
+    wdog     = 0;
     if(!ASn) case(A[23:20])
         0: rom_cs = 1;
         1: case(A[19:18])
             0: ram_cs  = A[14] & ~BUSn;
-            1: pal_cs  = 1; // 14'xxxx
-            2: obj_cs  = 1; // 18'xxxx (not all A bits go to OBJ chip 053245)
+            1: pal_cs  = 1;  // 14'xxxx
+            2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
             3: case(A[11:8]) // decoder 13G (pdf page 16)
-                0,1: cab_cs  = 1;
-                2:   iowr_lo = 1; // EEPROM
-                3:   iowr_hi = 1;
-                // 4: watchdog
+              0,1: cab_cs  = 1;
+                2: iowr_lo = 1; // EEPROM
+                3: iowr_hi = 1;
+                4: wdog    = 1;
                 // 5: TMNT2 RAM
                 8: prot_cs = 1;
                 default:;
@@ -149,7 +151,7 @@ always @* begin
                     snd_cs = !A[2]; // 053260
                     sndon  =  A[2];
                 end
-                7: pcu_cs = 1;     // 053251
+                7: pcu_cs = 1;      // 053251
                 default:;
                 endcase
             default:;
@@ -157,6 +159,8 @@ always @* begin
         6: vram_cs = 1; // probably different at boot time
         default:;
     endcase
+    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
+        cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
 end
 
 always @(posedge clk) begin
@@ -170,14 +174,21 @@ always @(posedge clk) begin
                cab_cs  ? {8'd0,cab_dout} : 16'hffff;
 end
 
+reg fake_dma=0, cabcs_l;
+
 always @(posedge clk) begin
-    cab_dout <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, ~dma_bsy, eep_rdy, eep_do }:
+    if( cpu_cen ) begin
+        cabcs_l <= cab_cs;
+        if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
+    end
+    cab_dout <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
                        { service, coin };
-    if(!A[8]) case( A[2:1] )
-        ~2'd0: cab_dout <= { cab_1p[0], joystick1[6:0] };
-        ~2'd1: cab_dout <= { cab_1p[1], joystick2[6:0] };
-        ~2'd2: cab_dout <= { cab_1p[2], joystick3[6:0] };
-        ~2'd3: cab_dout <= { cab_1p[3], joystick4[6:0] };
+    case( {A[8],A[2:1]} )
+        0: cab_dout <= { cab_1p[0], joystick1[6:0] };
+        1: cab_dout <= { cab_1p[1], joystick2[6:0] };
+        2: cab_dout <= { cab_1p[2], joystick3[6:0] };
+        3: cab_dout <= { cab_1p[3], joystick4[6:0] };
+        default:;
     endcase
 end
 

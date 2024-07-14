@@ -106,8 +106,8 @@ wire        lyrf_blnk_n, obj_irqn,
             lyrb_blnk_n, shadow,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
-assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:12], cpu_addr[11:1] };
-assign cpu_weg   = cpu_we &&  cpu_dsn!=3;
+assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
+assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
 // Debug
@@ -295,7 +295,7 @@ jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

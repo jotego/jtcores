@@ -3915,12 +3915,6 @@
     (pin "7" (uuid 9a115d42-efc3-4085-8da6-fd11ba84b3e1))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
-          (reference "F19") (unit 6)
-        )
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "F19") (unit 4)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "F19") (unit 6)
         )
@@ -4161,9 +4155,6 @@
     (pin "7" (uuid 498bb6d1-737c-4e09-98d3-672c7a034501))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "E18") (unit 3)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "E18") (unit 3)
         )
@@ -4206,9 +4197,6 @@
     (pin "9" (uuid 8585f52e-704e-448d-8948-0a9bd0bb22ee))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "K8") (unit 1)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "K8") (unit 1)
         )
@@ -4216,7 +4204,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS00") (at 327.66 143.51 0) (mirror y) (unit 2) (convert 2)
+  (symbol (lib_id "jt74:74LS00") (at 327.66 143.51 0) (mirror y) (unit 1) (convert 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8b47f7a5-d35e-4518-b406-f5f39c9fd448)
     (property "Reference" "D17" (at 327.66 142.24 0)
@@ -4247,9 +4235,6 @@
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963fd))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "D17") (unit 2)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "D17") (unit 1)
         )
@@ -4292,9 +4277,6 @@
     (pin "9" (uuid 0184ee1e-f60c-4032-9048-9681b942b5eb))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "J8") (unit 1)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "J8") (unit 1)
         )
@@ -4302,7 +4284,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS00") (at 304.8 146.05 180) (unit 2)
+  (symbol (lib_id "jt74:74LS00") (at 304.8 146.05 180) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid baaec96b-26ad-4924-8d26-98b0703cc4b1)
     (property "Reference" "D17" (at 304.8 147.32 0)
@@ -4333,9 +4315,6 @@
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963fe))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "D17") (unit 2)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "D17") (unit 3)
         )
@@ -4371,7 +4350,7 @@
   (symbol (lib_id "Logic_Programmable:PAL20RS10") (at 105.41 224.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e1d4f870-f98e-4f90-b381-b6ffa4fd7bb5)
-    (property "Reference" "U1" (at 96.52 205.74 0)
+    (property "Reference" "F5" (at 96.52 205.74 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "PAL20RS10" (at 110.49 205.74 0)
@@ -4409,9 +4388,6 @@
     (pin "9" (uuid 90353b33-cd5f-4107-996f-f697380e7098))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
-          (reference "U1") (unit 1)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "F5") (unit 1)
         )
@@ -4419,7 +4395,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS08") (at 304.8 132.08 180) (unit 3) (convert 2)
+  (symbol (lib_id "jt74:74LS08") (at 304.8 132.08 180) (unit 4) (convert 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e6d8e635-5244-4570-909f-dbd30280b469)
     (property "Reference" "E18" (at 304.8 133.35 0)
@@ -4450,9 +4426,6 @@
     (pin "7" (uuid 498bb6d1-737c-4e09-98d3-672c7a034502))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "E18") (unit 3)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "E18") (unit 4)
         )
@@ -4491,9 +4464,6 @@
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963ff))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
-          (reference "D17") (unit 2)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "D17") (unit 2)
         )

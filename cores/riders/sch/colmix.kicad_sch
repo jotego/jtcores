@@ -2471,9 +2471,6 @@
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "#PWR08") (unit 1)
         )
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
-          (reference "#PWR08") (unit 1)
-        )
       )
     )
   )
@@ -2603,9 +2600,6 @@
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "J4") (unit 1)
         )
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
-          (reference "J4") (unit 1)
-        )
       )
     )
   )
@@ -2634,9 +2628,6 @@
       )
       (project "ssriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
-          (reference "#PWR09") (unit 1)
-        )
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
           (reference "#PWR09") (unit 1)
         )
       )

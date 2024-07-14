@@ -77,15 +77,6 @@ fi
 echo -n > jtsim_vhdl.f
 echo -n > jtsim.f
 
-function abort {
-    rm -f video.raw video.pipe
-    echo -e "\e[0m"
-    echo
-}
-
-# Delete these files if there is a problem
-trap abort EXIT
-
 function show_help {
         cat << EOF
 JTFRAME simulation tool. (c) Jose Tejada 2019-2022, @topapate
@@ -182,6 +173,9 @@ function clean_up {
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
     if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
+    rm -f video.raw video.pipe
+    echo -e "\e[0m"
+    echo
 }
 
 trap "clean_up; exit 1" INT KILL

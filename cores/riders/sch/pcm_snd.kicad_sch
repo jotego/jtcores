@@ -8423,7 +8423,7 @@
   (symbol (lib_id "konami:065A08") (at 167.64 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e2fa17b0-ee4b-4a0f-a8ef-70d179fb1a2c)
-    (property "Reference" "L3" (at 167.64 81.28 0)
+    (property "Reference" "D1" (at 167.64 81.28 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "065A08" (at 167.64 83.82 0)
@@ -8479,12 +8479,6 @@
     (pin "9" (uuid 2bca349d-5a43-426a-aaad-d7426f4e1613))
     (instances
       (project "ssriders"
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
-          (reference "L3") (unit 1)
-        )
-        (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
-          (reference "L1") (unit 1)
-        )
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3646ae6b-b442-459b-90c3-3178fe7652f7"
           (reference "D1") (unit 1)
         )
