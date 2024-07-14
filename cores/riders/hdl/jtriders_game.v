@@ -192,7 +192,7 @@ jtssriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtssriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

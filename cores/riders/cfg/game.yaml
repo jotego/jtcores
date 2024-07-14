@@ -1,5 +1,5 @@
 game:
-  - from: ssriders
+  - from: riders
     get:
       - "*.v"
   # - from: tmnt
