@@ -128,7 +128,7 @@ jtriders_prot u_prot(
     .BGACKn ( BGACKn    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

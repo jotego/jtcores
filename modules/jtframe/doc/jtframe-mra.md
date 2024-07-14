@@ -72,7 +72,8 @@ data = [
 	...
 ]
 
-# region offset table at "start" byte in the header
+# region offset table at "start" byte in the header. This will also enable
+# the LUT parameters in jtframe_dwnld automatically
 offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 
 # if there are black bars on the side of the image

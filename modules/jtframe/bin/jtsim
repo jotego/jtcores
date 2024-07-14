@@ -77,8 +77,14 @@ fi
 echo -n > jtsim_vhdl.f
 echo -n > jtsim.f
 
+function abort {
+    rm -f video.raw video.pipe
+    echo -e "\e[0m"
+    echo
+}
+
 # Delete these files if there is a problem
-trap "rm -f video.raw video.pipe" EXIT
+trap abort EXIT
 
 function show_help {
         cat << EOF
