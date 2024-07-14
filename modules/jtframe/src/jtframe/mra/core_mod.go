@@ -64,7 +64,6 @@ func coreMOD_rotate(machine *MachineXML, coremod *int) bool {
 func coreMOD_audio(machine *MachineXML, cfg Mame2MRA, coremod *int) {
 	best := 0
 	for _, each := range cfg.Audio.Volume {
-		fmt.Println(each)
 		if lvl := each.Match(machine); lvl>best {
 			best = lvl
 			*coremod &= 0xff
