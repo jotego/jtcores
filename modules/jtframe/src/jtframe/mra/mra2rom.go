@@ -28,9 +28,19 @@ func save_coremod(root *XMLNode, verbose bool) {
 		fmt.Println("Warning: no ROM files associated with machine")
 		return
 	}
+	// main ROM file
 	rombytes := make([]byte, 0)
 	parts2rom(nil, xml_rom, &rombytes, verbose)
 	rom_file(setname, ".mod", rombytes)
+	// optional default NVRAM
+	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
+	if xml_nvram == nil || xml_nvram.text=="" { return }
+	nvrambytes := make([]byte,0,256)
+	for _, each := range strings.Split(strings.TrimSpace(xml_nvram.text)," ") {
+		aux, _ := strconv.ParseInt(each,16,32)
+		nvrambytes = append(nvrambytes,byte(aux))
+	}
+	rom_file(setname,".RAM",nvrambytes)
 }
 
 func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
