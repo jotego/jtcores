@@ -36,9 +36,13 @@ func save_coremod(root *XMLNode, verbose bool) {
 	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
 	if xml_nvram == nil || xml_nvram.text=="" { return }
 	nvrambytes := make([]byte,0,256)
-	for _, each := range strings.Split(strings.TrimSpace(xml_nvram.text)," ") {
+	k:=0
+	rep := strings.NewReplacer("\t", " ", "\n", " ")
+	for _, each := range strings.Split(rep.Replace(xml_nvram.text)," ") {
+		if each=="" { continue }
 		aux, _ := strconv.ParseInt(each,16,32)
 		nvrambytes = append(nvrambytes,byte(aux))
+		k++
 	}
 	rom_file(setname,".RAM",nvrambytes)
 }
