@@ -78,6 +78,9 @@ JTFRAME_ROTCCW
 # Debug - only mister (disabled in game module because of NVRAM)
 # JTFRAME_IOCTL_RD=43008
 
-[mist|sidi]
-# the core does not in these devices
+[sidi]
+# the core does not fit in these devices
 JTFRAME_SKIP
+
+[mist|sidi]
+-JTFRAME_CREDITS
