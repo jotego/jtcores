@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtssriders_game(
+module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
@@ -51,7 +51,7 @@ end
 // end
 
 /* verilator tracing_on */
-jtssriders_main u_main(
+jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
@@ -119,7 +119,7 @@ jtssriders_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-jtssriders_prot u_prot(
+jtriders_prot u_prot(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .irqn   ( prot_irqn ),
@@ -129,7 +129,7 @@ jtssriders_prot u_prot(
 );
 
 /* verilator tracing_on */
-jtssriders_video u_video (
+jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
     .clk            ( clk           ),
@@ -193,7 +193,7 @@ jtssriders_video u_video (
 );
 
 /* verilator tracing_off */
-jtssriders_sound u_sound(
+jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtssriders_video(
+module jtriders_video(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -296,7 +296,7 @@ jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
 );
 
 /* verilator tracing_on */
-jtssriders_colmix u_colmix(
+jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtssriders_main(
+module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,

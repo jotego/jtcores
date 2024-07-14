@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtssriders_colmix(
+module jtriders_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,

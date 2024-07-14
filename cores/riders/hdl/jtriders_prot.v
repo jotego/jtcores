@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 13-7-2024 */
 
-module jtssriders_prot(
+module jtriders_prot(
     input                rst,
     input                clk,
     output               irqn,

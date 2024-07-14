@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtssriders_sound(
+module jtriders_sound(
     input           rst,
     input           clk,
     input           cen_fm,
