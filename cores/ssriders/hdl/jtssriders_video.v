@@ -43,7 +43,7 @@ module jtssriders_video(
     output     [ 7:0] tilesys_dout,
 
     output            dma_bsy,
-    output     [ 7:0] objsys_dout,
+    output     [15:0] objsys_dout,
     input             objsys_cs,
     input             objreg_cs,
 
@@ -246,18 +246,11 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
-localparam ORAMW=12;
-wire [ORAMW:1] oram_a;
-wire [15:0] obj16_dout;
-
-assign oram_a={cpu_addr[13:8],cpu_addr[6:5],cpu_addr[4:1]};
-assign objsys_dout = ~cpu_dsn[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
-
 /* verilator tracing_on */
 wire [1:0] nc;
 wire       nc2, nc3;
 
-jtsimson_obj #(.RAMW(ORAMW),.A0_INV(1)) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -275,12 +268,12 @@ jtsimson_obj #(.RAMW(ORAMW),.A0_INV(1)) u_obj(    // sprite logic
     // CPU interface
     .ram_cs     ( objsys_cs ),
     .reg_cs     ( objreg_cs ),
-    .ram_a      ( oram_a    ),
-    .cpu_addr   ( cpu_addr[4:2] ),
+    .cpu_addr   ( cpu_addr[13:1]),
+    .mmr_addr   ( cpu_addr[4:2] ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_dsn    ( cpu_dsn   ),
     .cpu_we     ( cpu_we    ),
-    .cpu_din    ( obj16_dout),
+    .cpu_din    (objsys_dout),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM

@@ -191,7 +191,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
 
 localparam ORAMW=12;
 wire [ORAMW:1] oram_a;
-assign oram_a = paroda ? { {ORAMW-11{1'b0}}, cpu_addr[11:1] } : cpu_addr[ORAMW:1];
+assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
@@ -211,9 +211,9 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .vdump      ( vrender   ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
-    .ram_a      ( oram_a    ),
     .reg_cs     ( objreg_cs ),
-    .cpu_addr   (cpu_addr[3:1]),
+    .cpu_addr   ( oram_a    ),
+    .mmr_addr   (cpu_addr[3:1]),
     .cpu_dout   ({2{cpu_dout}}),
     .cpu_dsn    ({cpu_addr[0],~cpu_addr[0]}), // Big endian
     .cpu_we     ( cpu_we    ),

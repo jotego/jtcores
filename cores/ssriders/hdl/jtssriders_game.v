@@ -24,9 +24,9 @@ module jtssriders_game(
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
-            BGn, BRn, BGACKn, prot_irqn, objreg_cs;
-wire [15:0] pal_dout;
-wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
+            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs;
+wire [15:0] pal_dout, objsys_dout;
+wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
 wire [ 2:0] dim;
@@ -66,6 +66,7 @@ jtssriders_main u_main(
     .BRn            ( BRn           ),
     .BGn            ( BGn           ),
     .prot_irqn      ( prot_irqn     ),
+    .prot_cs        ( prot_cs       ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),

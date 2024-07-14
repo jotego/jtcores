@@ -41,7 +41,7 @@ module jtssriders_main(
     output reg           vram_cs,
     output reg           obj_cs,
 
-    input         [ 7:0] oram_dout,
+    input         [15:0] oram_dout,
     input         [ 7:0] vram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
@@ -51,6 +51,7 @@ module jtssriders_main(
     input                vdtac,
     input                tile_irqn,
     input                prot_irqn,
+    output reg           prot_cs,
 
     // video configuration
     output reg           objreg_cs,
@@ -123,6 +124,7 @@ always @* begin
     snd_cs   = 0;
     sndon    = 0;
     pcu_cs   = 0;
+    prot_cs  = 0;
     if(!ASn) case(A[23:20])
         0: rom_cs = 1;
         1: case(A[19:18])
@@ -135,7 +137,7 @@ always @* begin
                 3:   iowr_hi = 1;
                 // 4: watchdog
                 // 5: TMNT2 RAM
-                // 8: protection rw
+                8: prot_cs = 1;
                 default:;
             endcase
             default:;
@@ -161,7 +163,7 @@ always @(posedge clk) begin
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
-               obj_cs  ? {2{oram_dout}}  :
+               obj_cs  ? oram_dout       :
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
