@@ -1,8 +1,11 @@
 #!/bin/bash
+# use lint-one.sh core -u JTFRAME_SKIP
+# for cores in development phase
 
 CORE=$1
+shift
 
-eval `jtframe cfgstr $CORE --output bash --target mister`
+eval `jtframe cfgstr $CORE --output bash --target mister $*`
 
 if [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip || -v JTFRAME_SKIP ]]; then
     echo "Skipping $CORE"
@@ -19,7 +22,7 @@ if [ ! -e rom.bin ]; then
     DELROM=
 fi
 
-jtsim -lint
+jtsim -lint $*
 
 if [ -v DELROM ]; then
     rm -f rom.bin

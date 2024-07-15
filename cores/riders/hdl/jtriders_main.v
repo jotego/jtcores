@@ -42,6 +42,7 @@ module jtriders_main(
     output reg           obj_cs,
 
     input         [15:0] oram_dout,
+    input         [15:0] prot_dout,
     input         [ 7:0] vram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
@@ -168,6 +169,7 @@ always @(posedge clk) begin
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
                obj_cs  ? oram_dout       :
+               prot_cs ? prot_dout       :
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
