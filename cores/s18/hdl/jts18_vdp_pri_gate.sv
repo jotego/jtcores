@@ -33,10 +33,10 @@ wire [6:0] acond;
 always @( posedge clk ) begin
     {i7, i6}  <= obj_prio;
      i3 <= !fix;
-     i4 <= !sb;
-     i5 <= !sa;
-     i8 <= s2_pri;
-     i9 <= !obj;
+     i4 <= obj/*!sb*/;
+     i5 <= !sa && s1_pri;
+     i8 <= s1_pri && s2_pri/*s2_pri*/;
+     i9 <= !sb && s2_pri/*!obj*/;
  end
 
  assign st_show = 8'b0;
@@ -53,14 +53,21 @@ wire [6:0] acond_s;
 
 always @( posedge clk ) begin
     obj_bus   <= { obj_prio, ~obj_prio};
-    lyr_bus   <= { !obj, !sb, !fix, s1_pri, s2_pri};
+    lyr_bus   <= { !obj, s1_pri&s2_pri /*!sb*/, /*!fix*/ s2_pri^s1_pri, s1_pri, s2_pri};
     LVBL_l    <= LVBL;
     buttons_l <= buttons;
     acond_s <= acond;
 
     {i7, i6}  <= objs;
-    {i8, i9, i4, i3} <= {lyr_bus_out[0], lyr_bus_out[4:2]};
+    /*{i8, i9, i4, i3} <= {lyr_bus_out[0], lyr_bus_out[4:2]};*/
+    {i8, i4} <= {lyr_bus_out[4:3]};
+     i3 <= !fix;
      i5 <= !sa;
+     i9 <= !sb;
+     if( debug_bus[6] ) begin
+        i5 <= !sa && s1_pri;
+        i9 <= !sb && s2_pri;
+     end
 end
 
 assign st_show = debug_bus[7] ? {vdp_prio, obj_cnt} : (debug_bus[0]? {2'b0, acond_s} : {1'b0, lyr_cnt}) ;
@@ -119,10 +126,10 @@ jts18_vdp_pri u_eq(
     .vdp_prio ( vdp_prio    ),
     .i6       ( i6          ), // Obj1
     .i7       ( i7          ), // Obj0
-    .i3       ( i3          ), // Tilemap0'
-    .i4       ( i4          ), // Tilemap1'
+    .i3       ( i3  ^debug_bus[3]        ), // Tilemap0'
+    .i4       ( i4  ^debug_bus[1]        ), // Tilemap1'
     .i5       ( i5          ), // Tilemap2'
-    .i8       ( i8          ), // Tilemap3'
+    .i8       ( i8  ^debug_bus[2]        ), // Tilemap3'
     .i9       ( i9          ), // Tilemap4'
     .vdp_sel  ( vdp_sel     ),
     .acond    ( acond       )
