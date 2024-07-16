@@ -1,6 +1,6 @@
 params:
   - { name: RAM_OFFSET,   value: "22'h100000" }
-  - { name: PCM_OFFSET,   value: "22'h010000" }
+  - { name: PCM_OFFSET,   value: "22'h010000>>1" }
 clocks:
   clk48:
     - freq: 16000000
