@@ -65,7 +65,7 @@ always @(posedge clk) begin
     // endcase
 
     vdp_sel <= vdp_sel_o;
-
+    if( s16_blank & obj ) vdp_sel <= 1;
     if( !vdp_ysn  ) vdp_sel <= 0;
     if( !vid16_en ) vdp_sel <= 1;
     if( !vdp_en   ) vdp_sel <= 0;
@@ -86,7 +86,7 @@ jtframe_blank #(.DLY(4),.DW(24)) u_blank(
     .rgb_out    ( {red,green,blue} )
 );
 
-jts18_vdp_pri_test #( .VBLs(100)) u_vdp_test(
+jts18_vdp_pri_test #( .VBLs(80)) u_vdp_test(
     .clk        ( clk       ),
     .rst        ( rst       ),
     .debug_bus  ( debug_bus ),

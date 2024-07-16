@@ -39,7 +39,7 @@ always @* begin
     c4  = i3             && (          !i7  || i8 || i9 ) && p2;
     c3  = i3 && i4                  && !i7                      && p1 && p0;
     c2  = i3 && i4       && ( (!i6  && !i7) || i8 || i9 )       && p1;
-    c01 = i3 && i4 && i5 && ( (!i6  && !i7) || i8 || i9 );
+    c01 = !i3 && i4 && i5 && ( (!i6  && !i7) || i8 || i9 );
 end
 
 always @( posedge clk ) begin
