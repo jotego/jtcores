@@ -33,9 +33,9 @@ wire [6:0] acond;
 always @( posedge clk ) begin
     {i7, i6}  <= obj_prio;
      i3 <= !fix;
-     i4 <= obj;
+     i4 <=  obj;
      i5 <= !sa && s1_pri;
-     i8 <= s1_pri && s2_pri;
+     i8 <=  s1_pri && s2_pri;
      i9 <= !sb && s2_pri;
  end
 
@@ -49,11 +49,11 @@ reg  [3:0] obj_bus, obj_bus_out;
 reg  [1:0] buttons_l, objs;
 reg        LVBL_l, go, gof;
 wire [7:0] fin = VBLs;
-wire [6:0] acond_s;
+reg  [6:0] acond_s;
 
 always @( posedge clk ) begin
     obj_bus   <= { obj_prio, ~obj_prio};
-    lyr_bus   <= { s1_pri&s2_pri, !obj, s2_pri^s1_pri, s1_pri, s2_pri};
+    lyr_bus   <= { s1_pri&s2_pri, obj, s2_pri^s1_pri, s1_pri, s2_pri};
     LVBL_l    <= LVBL;
     buttons_l <= buttons;
     acond_s <= acond;
@@ -69,7 +69,7 @@ always @( posedge clk ) begin
      // end
 end
 
-assign st_show = debug_bus[7] ? {vdp_prio, obj_cnt} : (debug_bus[0]? {2'b0, acond_s} : {1'b0, lyr_cnt}) ;
+assign st_show = debug_bus[7] ? {vdp_prio, obj_cnt} : (debug_bus[0]? {1'b0, acond_s} : {1'b0, lyr_cnt}) ;
 
 always @( posedge clk, posedge rst) begin
     if( rst ) begin
@@ -90,7 +90,7 @@ always @( posedge clk, posedge rst) begin
             if( obj_cnt == 5'h17 ) obj_cnt <= 5'b0;
             if( lyr_cnt == 7'h77 ) lyr_cnt <= 7'b0;
         end
-        if( !buttons ) begin
+        if( buttons == 2'b0 ) begin
             obj_cnt <= 5'b0;
             lyr_cnt <= 7'b0;
             go      <= 1'b0;
@@ -102,15 +102,15 @@ end
 
 
 jtframe_sort u_sortobj(
-    .debug_bus( obj_cnt     ),
-    .busin    ( obj_bus     ),
-    .busout   ( obj_bus_out )
+    .debug_bus( {3'b0, obj_cnt} ),
+    .busin    ( obj_bus         ),
+    .busout   ( obj_bus_out     )
 );
 
 jtframe_sort5 u_sortlyr(
-    .debug_bus( lyr_cnt     ),
-    .busin    ( lyr_bus     ),
-    .busout   ( lyr_bus_out )
+    .debug_bus( {1'b0, lyr_cnt} ),
+    .busin    ( lyr_bus         ),
+    .busout   ( lyr_bus_out     )
 );
 
 always @* begin

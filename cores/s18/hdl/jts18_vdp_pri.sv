@@ -26,7 +26,7 @@ module jts18_vdp_pri(
     output     [6:0] acond
 );
 
-wire c01, c2, c3, c4, c5, c6, c7;
+reg c01, c2, c3, c4, c5, c6, c7;
 wire p2, p1, p0;
 assign {p2,p1,p0} = vdp_prio;
 assign acond = {c01, c2, c3, c4, c5, c6, c7};
