@@ -48,7 +48,7 @@ module jts18_colmix(
 wire [7:0] ex_r, ex_g, ex_b;
 reg  [7:0] pr, pg, pb;
 wire       s16_blank, vdp_blank, vdp_sel_o, obj;
-reg        vdp_sel;
+reg        vdp_sel, nblnk;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
@@ -63,9 +63,9 @@ always @(posedge clk) begin
     //     4: vdp_sel <= !fix && ( sa || sb );
     //     default: vdp_sel <= s16_blank;
     // endcase
-
+    nblnk <= s16_blank & obj;
     vdp_sel <= vdp_sel_o;
-    if( s16_blank & obj ) vdp_sel <= 1;
+    if( nblnk     ) vdp_sel <= 1;
     if( !vdp_ysn  ) vdp_sel <= 0;
     if( !vid16_en ) vdp_sel <= 1;
     if( !vdp_en   ) vdp_sel <= 0;
