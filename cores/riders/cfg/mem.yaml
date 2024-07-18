@@ -7,6 +7,7 @@ clocks:
       outputs:
         - cen_16
         - cen_8
+        - cen_4
     - freq: 3579545
       outputs:
         - cen_fm

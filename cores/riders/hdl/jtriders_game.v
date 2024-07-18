@@ -50,7 +50,7 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -137,7 +137,7 @@ jtriders_prot u_prot(
     .BGACKn ( BGACKn    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -205,6 +205,8 @@ jtriders_video u_video (
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen_8      ( cen_8         ),
+    .cen_4      ( cen_4         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     // communication with main CPU

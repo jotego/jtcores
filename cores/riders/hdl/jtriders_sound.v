@@ -19,6 +19,8 @@
 module jtriders_sound(
     input           rst,
     input           clk,
+    input           cen_8,
+    input           cen_4,
     input           cen_fm,
     input           cen_fm2,
     // communication with main CPU
@@ -61,15 +63,18 @@ module jtriders_sound(
 wire        [ 7:0]  cpu_dout, cpu_din, ram_dout, fm_dout, k60_dout;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, sample, upper4k;
+                    cpu_cen, sample, upper4k, cen_g;
 reg                 ram_cs, fm_cs,  k60_cs, mem_acc, mem_upper, nmi_clr;
 
-assign rom_addr = A[15:0];
+assign rom_addr =  A[15:0];
 assign upper4k  = &A[15:12];
 assign cpu_din  = rom_cs ? rom_data :
                   ram_cs ? ram_dout :
                   k60_cs ? k60_dout :
                   fm_cs  ? fm_dout  : 8'hff;
+assign cen_g    = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
+// this is not 100% accurate, but quite close. It does not seem to have much of
+// an effect anyway.
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -94,7 +99,7 @@ jtframe_edge #(.QSET(0)) u_edge (
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen_fm    ),
+    .cen        ( cen_g     ),
     .cpu_cen    ( cpu_cen   ),
     .int_n      ( ~snd_irq  ),
     .nmi_n      ( nmi_n     ),
