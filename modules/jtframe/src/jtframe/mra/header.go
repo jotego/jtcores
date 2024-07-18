@@ -2,6 +2,7 @@ package mra
 
 import (
 	"fmt"
+	"os"
 )
 
 func set_header_offset(headbytes []byte, pos int, reverse bool, bits, offset int) {
@@ -46,7 +47,11 @@ func bank_offset(headbytes []byte, reg_offsets map[string]int, cfg HeaderCfg) {
 func make_header(node *XMLNode, reg_offsets map[string]int,
 	total int, cfg HeaderCfg, machine *MachineXML) {
 	devs := machine.Devices
-	headbytes := make([]byte, max(cfg.Len,5))
+	headbytes := make([]byte, cfg.Len)
+	if cfg.Offset.Regions != nil && cfg.Len<5 {
+		fmt.Println("Header too short for containing offset regions. Make it at least 5:\nJTFRAME_HEADER = 5")
+		os.Exit(1)
+	}
 	for k := 0; k < cfg.Len; k++ {
 		headbytes[k] = byte(cfg.Fill)
 	}
