@@ -162,7 +162,7 @@ module jt053260 (
                 end
                 if (!rd_n) case ( addr )
                     0,1:     dout <= pm2s[addr[0]];
-                    6'h29:   dout <= {4'd0,over};
+                    6'h29:   dout <= {4'd0,~over};
                     6'h2E:   begin
                         if( !tst_rd ) dout <= mode[0] ? roma_data : 8'd0;
                         tst_rd <= 1;
