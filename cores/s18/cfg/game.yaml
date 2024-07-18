@@ -18,7 +18,7 @@ game:
     get:
       - jtshanon_coldac.v
 jtframe:
-  - unless: JTFRAME_RELEASE
+  - when: JTFRAME_VDPS18_TEST
     get:
     - jtframe_sort.v
   - from: cpu
