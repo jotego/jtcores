@@ -29,7 +29,7 @@ module jts18_vdp_pri_test #( parameter VBLs = 180)(
 reg        i3, i4, i5, i8, i9, i6, i7;
 wire [6:0] acond;
 
-`ifdef JTFRAME_RELEASE
+`ifndef JTFRAME_VDPS18_TEST
 always @( posedge clk ) begin
     {i7, i6}  <= obj_prio;
      i3 <= !fix;
