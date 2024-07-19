@@ -16,9 +16,10 @@
 #
 # Author: Jose Tejada Gomez. Twitter: @topapate
 # Date: 20-8-2022
-
+echo "$*"
 # Define colours if running on a terminal
 if [ -n "$TERM" ]; then
+    export TERM
     red=`tput setaf 1`
     green=`tput setaf 2`
     blue=`tput setaf 4`
