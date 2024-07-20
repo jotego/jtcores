@@ -33,11 +33,11 @@ module jtriders_prot(
     output               BGACKn
 );
 
-localparam [13:1] DATA = 13'h2d05, // 5a0a>>1
-                  CMD  = 13'h2c7e, // 58fc>>1
-                  V0   = 13'h2c0c, // 5818>>1
-                  V1   = 13'h2e58, // 5cb0>>1
-                  V2   = 13'h2064; // 40c8>>1
+localparam [13:1] DATA = 13'hd05, // 5a0a-4000>>1
+                  CMD  = 13'hc7e, // 58fc-4000>>1
+                  V0   = 13'hc0c, // 5818-4000>>1
+                  V1   = 13'he58, // 5cb0-4000>>1
+                  V2   = 13'h064; // 40c8-4000>>1
 
 reg [15:0] cmd, data, v0, v1, v2, vx;
 reg [ 5:0] calc;
@@ -49,7 +49,7 @@ assign BRn    = 1;
 assign BGACKn = 1;
 
 always @* begin
-    vx = (v2-32)>>3;
+    vx = (-v0-16'd32)>>3;
     vx = { 5'd0, vx[4:0], 6'd0 };
     vx = vx + v1 + v2 - 16'd6;
     vx = vx>>3;

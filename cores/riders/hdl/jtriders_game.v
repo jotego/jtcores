@@ -50,7 +50,7 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -201,7 +201,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
