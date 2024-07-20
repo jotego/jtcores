@@ -201,7 +201,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

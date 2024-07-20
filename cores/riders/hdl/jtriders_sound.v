@@ -144,7 +144,7 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jt053260 u_k53260(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -187,6 +187,8 @@ jt053260 u_k53260(
     // sound output - raw
     .aux_l      ( 16'd0     ),
     .aux_r      ( 16'd0     ),
+    // .aux_l      ( fm_l      ),
+    // .aux_r      ( fm_r      ),
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
     .sample     (           )

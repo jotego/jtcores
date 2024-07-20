@@ -31,9 +31,18 @@ Bit    |  Use                      | Set by
 2      | XOR with dip_flip         | mame.xml
 3      | dial input enable         | mame.xml
 4      | reverse the dial          | mame.xml
+5      | Horizontal frame bit 0    | mame.xml
+6      | H. frame bit 1            | mame.xml
 15-8   | sound volume              | mame2mra.toml's audio section
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
+
+H Frame | Meaning
+--------|---------
+00      |  No frame
+01      |  8-pixel frame
+10      | 16-pixel frame
+11      |  rserverd
 
 The volume is defined in the TOML file **Audio** section like this:
 

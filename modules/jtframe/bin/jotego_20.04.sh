@@ -14,7 +14,10 @@ sudo apt upgrade --yes
 
 sudo apt install --yes --install-suggests apt-transport-https nfs-common
 sudo apt install --yes --install-suggests build-essential git gtkwave figlet xmlstarlet \
-    sublime-text docker
+    sublime-text 
+# repository called docker in ubuntu 20.04, docker.io in ubuntu 24.04    
+sudo apt install --yes docker.io
+sudo apt install --yes python-is-python3
 
 # required by iverilog
 sudo apt install --yes flex gperf bison
@@ -69,11 +72,10 @@ make -j
 sudo mv mra /usr/local/bin/mra
 
 # Verilator
-sudo apt install git help2man perl python3 make autoconf g++ flex bison ccache
-sudo apt install libgoogle-perftools-dev numactl perl-doc
-sudo apt install libfl2  # Ubuntu only (ignore if gives error)
-sudo apt install libfl-dev  # Ubuntu only (ignore if gives error)
-sudo apt install zlib1g zlib1g-dev  # Ubuntu only (ignore if gives error)
+sudo apt install --yes git help2man perl python3 make autoconf g++ flex bison ccache
+sudo apt install --yes libgoogle-perftools-dev numactl perl-doc
+# Ubuntu only (ignore if alrea error)
+sudo apt install --yes libfl2 libfl-dev zlib1g zlib1g-dev 
 
 cd $HOME
 unset VERILATOR_ROOT
@@ -87,7 +89,7 @@ export VERILATOR_ROOT=`pwd`
 echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 
 # nice to have
-sudo apt install --yes htop
+sudo apt install --yes htop flameshot
 
 # git configuration
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/
