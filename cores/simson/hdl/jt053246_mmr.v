@@ -66,20 +66,20 @@ always @(posedge clk, posedge rst) begin
 `endif
         st_dout <= 0;
     end else begin
-        if( cs ) begin // note that the write signal is not checked
+        if( cs && cpu_we ) begin
             case( {cpu_addr[3] & k44_en, cpu_addr[2:0]} )
-                0: xoffset[7:0] <= cpu_dout;
-                1: xoffset[9:8] <= cpu_dout[1:0];
-                2: yoffset[7:0] <= cpu_dout;
-                3: yoffset[9:8] <= cpu_dout[1:0];
-                4: cfg <= cpu_dout;
-                5: if(!k44_en) rmrd_addr[ 8: 1] <= cpu_dout;
-                6: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout;
-                7: if(!k44_en) rmrd_addr[21:17] <= cpu_dout[4:0];
+                0: xoffset[9:8] <= cpu_dout[1:0];
+                1: xoffset[7:0] <= cpu_dout;
+                2: yoffset[9:8] <= cpu_dout[1:0];
+                3: yoffset[7:0] <= cpu_dout;
+                4: if(!k44_en) rmrd_addr[ 8: 1] <= cpu_dout;
+                5: cfg <= cpu_dout;
+                6: if(!k44_en) rmrd_addr[21:17] <= cpu_dout[4:0];
+                7: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout;
                 // k44_en only
-                8:  rmrd_addr[ 8: 1] <= cpu_dout;
-                9:  rmrd_addr[16: 9] <= cpu_dout;
-                10: rmrd_addr[21:17] <= cpu_dout[4:0];
+                8:  rmrd_addr[16: 9] <= cpu_dout;
+                9:  rmrd_addr[ 8: 1] <= cpu_dout;
+                11: rmrd_addr[21:17] <= cpu_dout[4:0];
             endcase
         end
         case( st_addr[2:0] )

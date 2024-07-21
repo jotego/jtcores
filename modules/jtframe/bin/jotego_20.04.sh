@@ -89,7 +89,7 @@ export VERILATOR_ROOT=`pwd`
 echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 
 # nice to have
-sudo apt install --yes htop flameshot
+sudo apt install --yes htop flameshot ghex
 
 # git configuration
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/

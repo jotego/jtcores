@@ -17,8 +17,7 @@
     Date: 24-7-2023 */
 
 module jtsimson_obj #(parameter
-    RAMW   = 12,
-    A0_INV =  0
+    RAMW   = 12
 )(
     input             rst,
     input             clk,
@@ -38,12 +37,14 @@ module jtsimson_obj #(parameter
     // CPU interface
     input             ram_cs,
     input             reg_cs,
-    input             cpu_we,
-    input      [15:0] cpu_dout, // 16-bit interface
-    input    [RAMW:1] cpu_addr,
-    input      [ 2:0] mmr_addr,
+    input             mmr_we,
+    input      [ 3:0] mmr_addr,
+    input      [ 7:0] mmr_din,
+
+    input      [15:0] ram_din, // 16-bit interface
+    input      [ 1:0] ram_we,
+    input    [RAMW:1] ram_addr,
     output     [15:0] cpu_din,
-    input      [ 1:0] cpu_dsn,
     output            dma_bsy,
 
     // ROM addressing
@@ -67,7 +68,7 @@ module jtsimson_obj #(parameter
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] ram_we, pre_shd;
+wire [ 1:0] pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
@@ -92,10 +93,9 @@ function [5:0] paroda_conv(input [5:0]x);
     paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
 endfunction
 
-assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-    paroda ? { 2'd0, pre_addr[19:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
+    paroda ? { 1'd0, pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
     : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
@@ -125,7 +125,7 @@ assign sorted = paroda ? rom_data : {
     rom_data[12], rom_data[ 8], rom_data[4], rom_data[0], rom_data[28], rom_data[24], rom_data[20], rom_data[16]
 };
 
-jt053246 #(.A0_INV(A0_INV)) u_scan(    // sprite logic
+jt053246 u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -135,10 +135,9 @@ jt053246 #(.A0_INV(A0_INV)) u_scan(    // sprite logic
     .simson     ( simson    ),
     // CPU interface
     .cs         ( reg_cs    ),
-    .cpu_we     ( cpu_we    ),
+    .cpu_we     ( mmr_we    ),
     .cpu_addr   ( mmr_addr  ),
-    .cpu_dsn    ( cpu_dsn   ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_dout   ( mmr_din   ),
     .rmrd_addr  ( rmrd_addr ),
 
     // External RAM
@@ -216,9 +215,9 @@ jtframe_dual_nvram16 #(
 ) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),
-    .data0  ( cpu_dout  ),
-    .addr0  ( cpu_addr  ),
-    .we0    ( ram_we    ),
+    .data0  ( ram_din   ),
+    .addr0  ( ram_addr  ),
+    .we0    ( ram_we & {2{ram_cs}} ),
     .q0     ( ram_data  ),
     // Port 1 - Video access
     .clk1   ( clk       ),

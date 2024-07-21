@@ -247,10 +247,13 @@ jtaliens_scroll #(
 );
 
 /* verilator tracing_on */
-wire [1:0] nc;
-wire       nc2, nc3;
+wire [ 1:0] nc;
+wire        nc2, nc3;
+wire [13:1] oaddr;
 
-jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
+assign oaddr = { cpu_addr[6:5], cpu_addr[1], cpu_addr[13:7], cpu_addr[4:2] };
+
+jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -267,13 +270,15 @@ jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
     .vdump      ( vrender   ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
-    .reg_cs     ( objreg_cs ),
-    .cpu_addr   ( cpu_addr[13:1]),
-    .mmr_addr   ( cpu_addr[4:2] ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_dsn    ( cpu_dsn   ),
-    .cpu_we     ( cpu_we    ),
+    .ram_addr   ( oaddr     ),
+    .ram_din    ( cpu_dout  ),
+    .ram_we     ( ~cpu_dsn & {2{cpu_we}} ),
     .cpu_din    (objsys_dout),
+
+    .reg_cs     ( objreg_cs ),
+    .mmr_addr   ( {cpu_addr[4:2], cpu_dsn[1]} ),
+    .mmr_din    ( cpu_dout[7:0] ),
+    .mmr_we     ( ~cpu_dsn[0]&cpu_we ),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
@@ -295,7 +300,7 @@ jtsimson_obj #(.RAMW(13),.A0_INV(1)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

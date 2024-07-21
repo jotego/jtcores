@@ -20,6 +20,22 @@ skip = { bootlegs=true, machines=[
     "prmrsocr",
 ]}
 
+# Problem loading NVRAM (at least in SiDi128)
+debug={setnames=[
+	"ssriderseaa",
+	"ssridersebd",
+	"ssridersebc",
+	"ssridersuda",
+	"ssridersuac",
+	"ssridersuab",
+	"ssridersubc",
+	"ssridersadd",
+	"ssridersabd",
+	"ssridersjad",
+	"ssridersjac",
+	"ssridersjbd",
+]}
+
 [buttons]
 names = [
     { machine="ssriders", names="Shoot,Jump" },
@@ -37,7 +53,7 @@ regions = [
     { name="k053260"   },
 
     { name="k052109", width=32 }, # tiles
-    { name="k053245", width=32, reverse=true }, # sprites
+    { name="k053245", width=32 }, # sprites
     { name="eeprom", skip=true }
 ]
 # default configuration to prevent from boot-up error

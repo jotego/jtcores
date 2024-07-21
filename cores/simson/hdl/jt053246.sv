@@ -29,9 +29,8 @@ module jt053246(    // sprite logic
     // CPU interface
     input             cs,
     input             cpu_we,
-    input      [ 3:1] cpu_addr, // bit 3 only in k44 mode
-    input      [15:0] cpu_dout,
-    input      [ 1:0] cpu_dsn,
+    input      [ 3:0] cpu_addr, // bit 3 only in k44 mode
+    input      [ 7:0] cpu_dout,
 
     // ROM check by CPU
     output     [21:1] rmrd_addr,
@@ -74,8 +73,6 @@ module jt053246(    // sprite logic
     output     [ 7:0] st_dout
 );
 
-parameter A0_INV=0;
-
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
@@ -107,7 +104,7 @@ assign gvf       = cfg[1];
 assign mode8     = cfg[2]; // guess, use it for 8-bit access for ROM checking (Parodius)
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
-assign dma_trig  = k44_en && cs && cpu_addr==3 /*&& !cpu_dsn[1]*/;
+assign dma_trig  = k44_en && cs && cpu_addr[2:1]==3;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
@@ -119,8 +116,8 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
-    yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
+    xadj <= xoffset - (k44_en ? 10'h06c /*10'h10c*/ : 10'd61); // {debug_bus,2'd0}
+    yadj <= yoffset + (k44_en ? 10'h10f /*10'h168*/ : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
     vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
     hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -269,7 +266,7 @@ always @(posedge clk, posedge rst) begin
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
-                    if( !inzone || x[9]) begin
+                    if( ~inzone | (x[9] & ~k44_en)) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -338,8 +335,8 @@ jt053246_mmr u_mmr(
     .k44_en     ( k44_en    ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
-    .cpu_addr   ( {cpu_addr, cpu_dsn[0]^A0_INV[0]} ),
-    .cpu_dout   (cpu_dout[7:0]),
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_dout   ( cpu_dout  ),
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
     .yoffset    ( yoffset   ),

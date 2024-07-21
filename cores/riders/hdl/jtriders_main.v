@@ -160,8 +160,10 @@ always @* begin
         6: vram_cs = 1; // probably different at boot time
         default:;
     endcase
+`ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
+`endif
 end
 
 always @(posedge clk) begin

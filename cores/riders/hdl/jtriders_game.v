@@ -50,7 +50,7 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -123,7 +123,9 @@ jtriders_main u_main(
 jtriders_prot u_prot(
     .rst    ( rst       ),
     .clk    ( clk       ),
+    .cen_16 ( cen_16    ),
 
+    .cs     ( prot_cs   ),
     .addr   ( ram_addr  ),
     .cpu_we ( cpu_we    ),
     .din    ( ram_din   ),
@@ -131,10 +133,15 @@ jtriders_prot u_prot(
     .ram_we ( ram_we    ),
     // .dsn    ( dsn       ),
 
-    .irqn   ( prot_irqn ),
-    .BRn    ( BRn       ),
-    .BGn    ( BGn       ),
-    .BGACKn ( BGACKn    )
+    // DMA
+    .oram_addr  (           ),
+    .oram_din   (           ),
+    .oram_dout  (objsys_dout),
+    .oram_we    (           ),
+    .irqn       ( prot_irqn ),
+    .BRn        ( BRn       ),
+    .BGn        ( BGn       ),
+    .BGACKn     ( BGACKn    )
 );
 
 /* verilator tracing_on */

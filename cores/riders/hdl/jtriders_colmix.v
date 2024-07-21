@@ -120,7 +120,6 @@ always @(posedge clk) begin
     end
 end
 
-// used in Punk Shot
 jtcolmix_053251 u_k251(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -136,7 +135,7 @@ jtcolmix_053251 u_k251(
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),
-    .ci1        ( { 2'd0, lyro_pxl[6:0] } ),
+    .ci1        ( lyro_pxl[8:0] ),
     .ci2        ( { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] } ),
     .ci4        ( { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] } ),
     .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),

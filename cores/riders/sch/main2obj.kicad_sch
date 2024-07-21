@@ -10884,7 +10884,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad And2"
 			(at 95.25 167.64 0)
 			(effects
 				(font
@@ -11628,7 +11628,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad And2"
 			(at 304.8 132.08 0)
 			(effects
 				(font

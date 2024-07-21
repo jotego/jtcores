@@ -19,7 +19,9 @@
 module jtriders_prot(
     input                rst,
     input                clk,
+    input                cen_16,
 
+    input                cs,
     input         [13:1] addr,
     // input         [ 1:0] dsn,
     input         [15:0] din,
@@ -27,10 +29,16 @@ module jtriders_prot(
     input                cpu_we,
     input                ram_we,
 
+    // DMA
+    output        [13:1] oram_addr,
+    output        [15:0] oram_din,
+    output               oram_we,
+    input         [15:0] oram_dout,
+
     output               irqn,
-    output               BRn,
+    output reg           BRn,
     input                BGn,
-    output               BGACKn
+    output reg           BGACKn
 );
 
 localparam [13:1] DATA = 13'hd05, // 5a0a-4000>>1
@@ -39,14 +47,65 @@ localparam [13:1] DATA = 13'hd05, // 5a0a-4000>>1
                   V1   = 13'he58, // 5cb0-4000>>1
                   V2   = 13'h064; // 40c8-4000>>1
 
-reg [15:0] cmd, data, v0, v1, v2, vx;
+reg [15:0] cmd, odma, v0, v1, v2, vx;
 reg [ 5:0] calc;
 
 assign irqn = 1; // always high on the PCB
+// DMA
+reg [ 6:0] logic_prio;
+reg [ 6:0] scan_addr;
+reg [15:0] cpdata;
+reg [ 1:0] st;
+reg        owr;
 
-// To do
-assign BRn    = 1;
-assign BGACKn = 1;
+assign oram_addr = !BGACKn ? {scan_addr,6'd0}+13'd6 : addr;
+assign oram_din  = !BGACKn ? din : cpdata;
+assign oram_we   = !BGACKn ? owr : cpu_we;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        BRn        <= 1;
+        BGACKn     <= 1;
+        logic_prio <= 0;
+        scan_addr  <= 0;
+        st         <= 0;
+        cpdata     <= 0;
+    end else begin
+        if( cs && cpu_we && addr==1 ) begin
+            BRn <= 0;
+            logic_prio <= 0;
+            scan_addr  <= 0;
+            st         <= 0;
+        end
+        if( !BGn && !BRn) begin
+            $display("DMA in progress");
+            {BRn, BGACKn} <= 2'b10;
+        end
+        if( !BGACKn && cen_16 ) begin
+            st <= st+2'd1;
+            case( st )
+            0: begin
+                owr <= 0;
+            end
+            2: begin // Write cpdata and advanced
+                cpdata <= oram_dout;
+                owr  <= 1;
+            end
+            3: begin
+                owr <= 0;
+                scan_addr <= scan_addr+7'd1;
+                if( &scan_addr ) begin
+                    logic_prio <= logic_prio<<1;
+                    scan_addr  <= 0;
+                    if( logic_prio[6] ) BGACKn <= 1;
+                end
+            end
+            endcase
+        end
+    end
+end
+
+// Data read
 
 always @* begin
     vx = (-v0-16'd32)>>3;
@@ -58,10 +117,10 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        { cmd, data, v0, v1, v2 } <= 0;
+        { cmd, odma, v0, v1, v2 } <= 0;
     end else if(ram_we) begin
         case(addr)
-            DATA: data <= din;
+            DATA: odma <= din;
             CMD:  cmd  <= din;
             V0:   v0   <=-din;
             V1:   v1   <= din;
@@ -75,11 +134,11 @@ always @(posedge clk) begin
     calc <= vx[5:0];
     case(cmd)
         16'h100b: dout <= 16'h64;
-        16'h6003: dout <= {12'd0,data[3:0]};
-        16'h6004: dout <= {11'd0,data[4:0]};
-        16'h6000: dout <= {15'd0,data[  0]};
-        16'h0000: dout <= { 8'd0,data[7:0]};
-        16'h6007: dout <= { 8'd0,data[7:0]};
+        16'h6003: dout <= {12'd0,odma[3:0]};
+        16'h6004: dout <= {11'd0,odma[4:0]};
+        16'h6000: dout <= {15'd0,odma[  0]};
+        16'h0000: dout <= { 8'd0,odma[7:0]};
+        16'h6007: dout <= { 8'd0,odma[7:0]};
         16'h8abc: dout <= {10'd0,calc};
         default:  dout <= 0;
     endcase

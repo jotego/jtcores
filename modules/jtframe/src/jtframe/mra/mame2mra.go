@@ -224,7 +224,7 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 	}
 	if m:=mra_cfg.Parse.Debug.Match(machine);m>1 && args.Nodbg {
 		if args.Verbose {
-			fmt.Printf("Skipping %s for level %d matching\n", machine.Description, m)
+			fmt.Printf("Skipping %s (debug phase) for level %d matching\n", machine.Description, m)
 		}
 		return true
 	}

@@ -13,7 +13,7 @@ clocks:
         - cen_fm
         - cen_fm2
 audio:
-  rsum: 1k
+  rsum: 1.5k
   channels:
     # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
     - { name: fm,    module: jt51,     rsum: 1k, rc: [ { r: 609, c: 33n } ] }

@@ -67,24 +67,17 @@
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
+  "git": {
+    "repo_password": "",
+    "repo_type": "",
+    "repo_username": "",
+    "ssh_key": ""
+  },
   "meta": {
-    "filename": "tsimpsons.kicad_prl",
+    "filename": "simpsons.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "tsimpsons.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 476,
-          "pos_y": 28,
-          "size_x": 968,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
