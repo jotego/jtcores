@@ -23,7 +23,7 @@ module jtriders_prot(
 
     input                cs,
     input         [13:1] addr,
-    // input         [ 1:0] dsn,
+    input         [ 1:0] dsn,
     input         [15:0] din,
     output reg    [15:0] dout,
     input                cpu_we,
@@ -108,27 +108,29 @@ end
 // Data read
 
 always @* begin
-    vx = (-v0-16'd32)>>3;
-    vx = { 5'd0, vx[4:0], 6'd0 };
+    vx = -v0-16'd32;
+    vx = { 5'd0, vx[3+:5], 6'd0 };
     vx = vx + v1 + v2 - 16'd6;
     vx = vx>>3;
     vx = vx+16'd12;
 end
 
+`define WR16(a) begin if(!dsn[0]) a[7:0]<=din[7:0]; if(!dsn[1]) a[15:8]<=din[15:8]; end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         { cmd, odma, v0, v1, v2 } <= 0;
     end else if(ram_we) begin
         case(addr)
-            DATA: odma <= din;
-            CMD:  cmd  <= din;
-            V0:   v0   <=-din;
-            V1:   v1   <= din;
-            V2:   v2   <= din;
+            DATA: `WR16( odma )
+            CMD:  `WR16( cmd  )
+            V0:   `WR16( v0   )
+            V1:   `WR16( v1   )
+            V2:   `WR16( v2   )
             default:;
         endcase
     end
 end
+`undef WR16
 
 always @(posedge clk) begin
     calc <= vx[5:0];

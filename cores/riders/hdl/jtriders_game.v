@@ -131,7 +131,7 @@ jtriders_prot u_prot(
     .din    ( ram_din   ),
     .dout   ( prot_dout ),
     .ram_we ( ram_we    ),
-    // .dsn    ( dsn       ),
+    .dsn    ( ram_dsn   ),
 
     // DMA
     .oram_addr  (           ),

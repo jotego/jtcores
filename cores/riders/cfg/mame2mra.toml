@@ -20,7 +20,7 @@ skip = { bootlegs=true, machines=[
     "prmrsocr",
 ]}
 
-# Problem loading NVRAM (at least in SiDi128)
+# Problem loading NVRAM
 debug={setnames=[
 	"ssriderseaa",
 	"ssridersebd",

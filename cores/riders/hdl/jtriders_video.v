@@ -99,7 +99,7 @@ wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_col, dump_obj, scr_mmr,  obj_mmr,
-            lyrb_col, dump_pal, opal,     cpu_d8, mmr_pal;
+            lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
 wire        lyrf_blnk_n, obj_irqn,
             lyra_blnk_n, obj_nmin,
@@ -111,21 +111,21 @@ assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
 // Debug
-always @* begin
-    st_dout = debug_bus[5] ? obj_mmr : st_scr;
+always @(posedge clk) begin
+    st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
     if( ioctl_addr<'h4000 )
-        ioctl_din = dump_scr;  // 16 kB 0000~3FFF
+        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
-        ioctl_din = dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h5800 )
-        ioctl_din = dump_obj;  // 2kB 5000~5800 (second half equal for 051960)
-    else if( ioctl_addr<'h5808 )
-        ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
-    else if (ioctl_addr<'h5810) begin
-        ioctl_din = dump_obj;  // 7 bytes, MMR 580F
-    end else
-        ioctl_din = 8'd0;
+        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+    else if( ioctl_addr<'h6000 )
+        ioctl_din <= dump_obj;  // 4kB 5000~5FFF
+    else if( ioctl_addr<'h6010 )//     6000~600F
+        ioctl_din <= pal_mmr;
+    else if( !ioctl_addr[3] )
+        ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
+    else
+        ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
 wire [2:0] gfx_de;
@@ -278,7 +278,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .reg_cs     ( objreg_cs ),
     .mmr_addr   ( {cpu_addr[4:2], cpu_dsn[1]} ),
     .mmr_din    ( cpu_dout[7:0] ),
-    .mmr_we     ( ~cpu_dsn[0]&cpu_we ),
+    .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
@@ -340,7 +340,7 @@ jtriders_colmix u_colmix(
     .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
-    .dump_mmr   ( mmr_pal   ),
+    .dump_mmr   ( pal_mmr   ),
 
     .debug_bus  ( debug_bus )
 );

@@ -116,8 +116,8 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - (k44_en ? 10'h06c /*10'h10c*/ : 10'd61); // {debug_bus,2'd0}
-    yadj <= yoffset + (k44_en ? 10'h10f /*10'h168*/ : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
+    xadj <= k44_en ? xoffset + 10'h66 /*{2'd0,debug_bus}*/ : xoffset - 10'd61; // 15<<2 for Riders
+    yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
     vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
     hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -242,7 +242,7 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x - xadj;
+                    x <=  k44_en ? x+xadj : x-xadj;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
