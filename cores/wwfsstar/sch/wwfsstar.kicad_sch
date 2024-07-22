@@ -4,6 +4,12 @@
 
   (paper "A3")
 
+  (title_block
+    (title "WWF Super Stars")
+    (company "JOTEGO")
+    (comment 1 "Leo Tejada")
+  )
+
   (lib_symbols
   )
 

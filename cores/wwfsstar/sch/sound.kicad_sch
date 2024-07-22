@@ -4,6 +4,12 @@
 
   (paper "A3")
 
+  (title_block
+    (title "WWF Super Stars")
+    (company "JOTEGO")
+    (comment 1 "Leo Tejada")
+  )
+
   (lib_symbols
     (symbol "74xx:74LS04" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 1.27 0)
