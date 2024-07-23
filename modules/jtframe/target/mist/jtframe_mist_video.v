@@ -52,6 +52,7 @@ module jtframe_mist_video #(parameter
     output  [7:0]      scan2x_b,
     output             scan2x_hs,
     output             scan2x_vs,
+    output             scan2x_de,
     output             scan2x_HB,
     output             scan2x_VB,
     // crt video
@@ -112,7 +113,6 @@ endfunction
 
 // This scan doubler takes very little memory. Some games in MiST
 // can only use this
-wire scan2x_de;
 wire [CLROUTW*3-1:0] rgbx2;
 wire [CLROUTW*3-1:0] ana_rgb = { r_ana, g_ana, b_ana };
 wire scan2x_enb  = cvideo_en ? 1'b1  : ~scan2x_en;
