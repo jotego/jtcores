@@ -47,9 +47,9 @@ module jtframe_mist_video #(parameter
     input              cvideo_en,
     input              pal_en,
     // Scan-doubler video
-    output  [7:0]      scan2x_r,
-    output  [7:0]      scan2x_g,
-    output  [7:0]      scan2x_b,
+    output reg [7:0]   scan2x_r,
+    output reg [7:0]   scan2x_g,
+    output reg [7:0]   scan2x_b,
     output             scan2x_hs,
     output             scan2x_vs,
     output             scan2x_de,
@@ -98,13 +98,15 @@ jtframe_wirebw #(.WIN(COLORW), .WOUT(CLROUTW)) u_wirebw(
 /* verilator lint_off SELRANGE */
 function [7:0] extend8;
     input [CLROUTW-1:0] a;
+    extend8[7-:CLROUTW] = a;
+    if( CLROUTW >= 8) extend8 = a[CLROUTW-1-: 8];
     case( CLROUTW )
-        3: extend8 = { a, a, a[2:1] };
-        4: extend8 = { a, a         };
-        5: extend8 = { a, a[4:2]    };
-        6: extend8 = { a, a[5:4]    };
-        7: extend8 = { a, a[6]      };
-        8: extend8 = a;
+        3: extend8[4:0] = { a[CLROUTW-1-:3], a[CLROUTW-1-:2]};
+        4: extend8[3:0] = { a[CLROUTW-1-:3], a[0]};
+        5: extend8[2:0] =   a[CLROUTW-1-:3];
+        6: extend8[1:0] =   a[CLROUTW-1-:2];
+        7: extend8[0]   =   a[CLROUTW-1];
+        default: ;
     endcase
 endfunction
 /* verilator lint_on WIDTHTRUNC */
@@ -146,9 +148,11 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .x2_VB      ( scan2x_VB      )
 );
 
-assign scan2x_r = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
-assign scan2x_g = extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
-assign scan2x_b = extend8( rgbx2[CLROUTW-1:0] );
+always @* begin
+    scan2x_r <= extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
+    scan2x_g <= extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
+    scan2x_b <= extend8( rgbx2[CLROUTW-1:0] );
+end
 
 // on-screen display
 localparam m = VGA_DW/COLORW;
@@ -208,10 +212,30 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .de_out    ( video_de  )
 );
 
+function [7:0] extend8v( input [VGA_DW-1:0] a);
+    extend8v[7-:VGA_DW] = a;
+    if( VGA_DW >= 8) extend8v = a[VGA_DW-1-: 8];
+    case( VGA_DW )
+        3: extend8v[4:0] = { a[VGA_DW-1-:3], a[VGA_DW-1-:2]};
+        4: extend8v[3:0] = { a[VGA_DW-1-:3], a[0]};
+        5: extend8v[2:0] =   a[VGA_DW-1-:3];
+        6: extend8v[1:0] =   a[VGA_DW-1-:2];
+        7: extend8v[0]   =   a[VGA_DW-1];
+        default: ;
+    endcase
+endfunction
+
 wire        hsync_c, vsync_c, csync_c;
 wire [23:0] colours;
 wire [26:0] colorburst;
 wire [31:0] phase_inc;
+reg  [ 7:0] video_r8, video_g8, video_b8;
+
+always @* begin
+    video_r8 = extend8v( video_r );
+    video_g8 = extend8v( video_g );
+    video_b8 = extend8v( video_b );
+end
 
 localparam [31:0] JTFRAME_PAL  =`JTFRAME_PAL;
 localparam [31:0] JTFRAME_NTSC =`JTFRAME_NTSC;
@@ -220,7 +244,7 @@ localparam [16:0] JTFRAME_NTSC_LEN = `JTFRAME_NTSC_LEN;
 
 assign phase_inc  = pal_en ? JTFRAME_PAL     : JTFRAME_NTSC;
 assign colorburst = {JTFRAME_NTSC_LEN, JTFRAME_PAL_LEN[9:0]}; // pal/ntsc selection for colorburst is donde in the module
-assign colours    = {video_r, video_r[5:4], video_g, video_g[5:4], video_b, video_b[5:4]};
+assign colours    = {video_r8, video_g8, video_b8};
 
 yc_out u_yc(
     .clk              ( clk        ),
