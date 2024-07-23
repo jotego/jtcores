@@ -134,7 +134,7 @@ wire        ioctl_download, ioctl_upload;
 
 // Scan-doubler video
 wire [7:0]   scan2x_r, scan2x_g, scan2x_b;
-wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb, scanx2_HB, scanx2_VB;
+wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb;
 
 assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
@@ -506,8 +506,8 @@ u_video(
     .scan2x_hs  ( scan2x_hs     ),
     .scan2x_vs  ( scan2x_vs     ),
     .scan2x_de  ( scan2x_de     ),
-    .scanx2_HB  ( scanx2_HB     ),
-    .scanx2_VB  ( scanx2_VB     ),
+    .scan2x_HB  (               ),
+    .scan2x_VB  (               ),
     // crt video
     .video_hs   ( VIDEO_HS      ),
     .video_vs   ( VIDEO_VS      ),
