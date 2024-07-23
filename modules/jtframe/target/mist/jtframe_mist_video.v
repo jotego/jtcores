@@ -42,20 +42,27 @@ module jtframe_mist_video #(parameter
     // video signal type
     input              ypbpr,
     input              no_csync,
-    input              scan2x_enb, // scan doubler enable bar
+    input              scan2x_en, // scan doubler enable
+    input              sog, //Sync-On-Green
+    input              cvideo_en,
+    input              pal_en,
     // Scan-doubler video
     output  [7:0]      scan2x_r,
     output  [7:0]      scan2x_g,
     output  [7:0]      scan2x_b,
     output             scan2x_hs,
     output             scan2x_vs,
-    output             scan2x_de,
+    output             scan2x_HB,
+    output             scan2x_VB,
     // crt video
     output reg         video_hs,
     output reg         video_vs,
+    output             video_de,
     output [VGA_DW-1:0] video_r,
     output [VGA_DW-1:0] video_g,
-    output [VGA_DW-1:0] video_b
+    output [VGA_DW-1:0] video_b,
+    // Composite video
+    output [23:0]      yc_vid
 );
 
 // Limited bandwidth for video signal
@@ -105,10 +112,12 @@ endfunction
 
 // This scan doubler takes very little memory. Some games in MiST
 // can only use this
+wire scan2x_de;
 wire [CLROUTW*3-1:0] rgbx2;
 wire [CLROUTW*3-1:0] ana_rgb = { r_ana, g_ana, b_ana };
-wire scan2x_vsin = bw_en ? vs_ana : game_vs;
-wire scan2x_hsin = bw_en ? hs_ana : game_hs;
+wire scan2x_enb  = cvideo_en ? 1'b1  : ~scan2x_en;
+wire scan2x_vsin = bw_en ?  vs_ana   :  game_vs;
+wire scan2x_hsin = bw_en ?  hs_ana   :  game_hs;
 wire scan2x_hbin = bw_en ? ~lhbl_ana : ~game_lhbl;
 wire scan2x_vbin = bw_en ? ~lvbl_ana : ~game_lvbl;
 
@@ -132,7 +141,9 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .x2_pxl     ( rgbx2          ),
     .x2_hs      ( scan2x_hs      ),
     .x2_vs      ( scan2x_vs      ),
-    .x2_de      ( scan2x_de      )
+    .x2_de      ( scan2x_de      ),
+    .x2_HB      ( scan2x_HB      ),
+    .x2_VB      ( scan2x_VB      )
 );
 
 assign scan2x_r = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
@@ -146,7 +157,7 @@ localparam n = VGA_DW%COLORW;
 wire [VGA_DW-1:0] osd_r_o;
 wire [VGA_DW-1:0] osd_g_o;
 wire [VGA_DW-1:0] osd_b_o;
-wire              VSync_osd, HSync_osd, CSync_osd;
+wire              VSync_osd, HSync_osd, CSync_osd, de_osd;
 
 assign CSync_osd = ~(HSync_osd ^ VSync_osd);
 
@@ -164,14 +175,14 @@ osd #(0,0,6'b01_11_01,VGA_DW) osd (
    .B_in       ( scan2x_b[7-:VGA_DW] ),
    .HSync      ( scan2x_hs    ),
    .VSync      ( scan2x_vs    ),
-   .DE         (              ),
+   .DE         ( scan2x_de    ),
 
    .R_out      ( osd_r_o      ),
    .G_out      ( osd_g_o      ),
    .B_out      ( osd_b_o      ),
    .HSync_out  ( HSync_osd    ),
    .VSync_out  ( VSync_osd    ),
-   .DE_out     (              ),
+   .DE_out     ( de_osd       ),
 
    .osd_shown  ( osd_shown    )
 );
@@ -187,19 +198,59 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .hs_in     ( HSync_osd ),
     .vs_in     ( VSync_osd ),
     .cs_in     ( CSync_osd ),
+    .de_in     ( de_osd    ),
     .red_out   ( video_r   ),
     .green_out ( video_g   ),
     .blue_out  ( video_b   ),
     .hs_out    ( HSync_out ),
     .vs_out    ( VSync_out ),
-    .cs_out    ( CSync_out )
+    .cs_out    ( CSync_out ),
+    .de_out    ( video_de  )
+);
+
+wire        hsync_c, vsync_c, csync_c;
+wire [23:0] colours;
+wire [26:0] colorburst;
+wire [31:0] phase_inc;
+
+localparam [31:0] JTFRAME_PAL  =`JTFRAME_PAL;
+localparam [31:0] JTFRAME_NTSC =`JTFRAME_NTSC;
+localparam [16:0] JTFRAME_PAL_LEN = `JTFRAME_PAL_LEN;
+localparam [16:0] JTFRAME_NTSC_LEN = `JTFRAME_NTSC_LEN;
+
+assign phase_inc  = pal_en ? JTFRAME_PAL     : JTFRAME_NTSC;
+assign colorburst = {JTFRAME_NTSC_LEN, JTFRAME_PAL_LEN[9:0]}; // pal/ntsc selection for colorburst is donde in the module
+assign colours    = {video_r, video_r[5:4], video_g, video_g[5:4], video_b, video_b[5:4]};
+
+yc_out u_yc(
+    .clk              ( clk        ),
+    .PHASE_INC        ( {phase_inc,8'b0} ), /* 40'd80070078948>>1 */
+    .PAL_EN           ( pal_en     ),
+    .CVBS             ( 1'b0       ),
+    .COLORBURST_RANGE ( colorburst ),  /* 16'd42145 */
+    .hsync            ( HSync_out  ),
+    .vsync            ( VSync_out  ),
+    .csync            ( CSync_out  ),
+    .din              ( colours & {24{video_de}} ),
+    .dout             ( yc_vid     ),
+    .hsync_o          ( hsync_c    ),
+    .vsync_o          ( vsync_c    ),
+    .csync_o          ( csync_c    )
 );
 
 // a minimig vga->scart cable expects a composite sync signal on the VIDEO_HS output.
 // and VCC on VIDEO_VS (to switch into rgb mode)
 always @(posedge clk) begin
     video_hs <= ( (~no_csync & scan2x_enb) | ypbpr) ? CSync_out : HSync_out;
-    video_vs <= ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1 : VSync_out;
+    video_vs <= ( (~no_csync & scan2x_enb) | ypbpr) ? 1'b1      : VSync_out;
+    if( sog ) begin
+        video_hs <= 1'b1;
+        video_vs <= CSync_out;
+    end
+    if( cvideo_en ) begin
+        video_hs <= csync_c;
+        video_vs <= 1'b1;
+    end
 end
 
 endmodule

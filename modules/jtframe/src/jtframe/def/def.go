@@ -364,8 +364,8 @@ func Make_macros(cfg Config) (macros map[string]string) {
 
 func add_subcarrier_clk( macros map[string]string, mclk int64 ) {
 	var pal, ntsc int64
-	ntsc=((315<<40)/88)*1000000/mclk
-	pal=(443361875<<40)/100/mclk
+	ntsc=((315<<32)/88)*1000000/mclk
+	pal=(443361875<<32)/100/mclk
 	macros["JTFRAME_PAL"] =fmt.Sprintf("%d",pal)
 	macros["JTFRAME_NTSC"]=fmt.Sprintf("%d",ntsc)
 	// burst length -- ntsc

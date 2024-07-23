@@ -495,7 +495,10 @@ u_video(
     // video signal type
     .ypbpr      ( ypbpr         ),
     .no_csync   ( no_csync      ),
-    .scan2x_enb ( scan2x_enb    ), // scan doubler enable bar
+    .scan2x_en  ( ~scan2x_enb   ), // scan doubler enable bar
+    .sog        ( 1'b0          ),
+    .cvideo_en  ( 1'b0          ),
+    .pal_en     ( 1'b0          ),
     // Scan-doubler video
     .scan2x_r   ( scan2x_r      ),
     .scan2x_g   ( scan2x_g      ),
@@ -503,12 +506,16 @@ u_video(
     .scan2x_hs  ( scan2x_hs     ),
     .scan2x_vs  ( scan2x_vs     ),
     .scan2x_de  ( scan2x_de     ),
+    .scanx2_HB  (               ),
+    .scanx2_VB  (               ),
     // crt video
     .video_hs   ( VIDEO_HS      ),
     .video_vs   ( VIDEO_VS      ),
+    .video_de   (               ),
     .video_r    ( VIDEO_R       ),
     .video_g    ( VIDEO_G       ),
-    .video_b    ( VIDEO_B       )
+    .video_b    ( VIDEO_B       ),
+    .yc_vid     (               )
 );
 
 generate if (HDMI) begin
