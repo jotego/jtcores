@@ -74,7 +74,7 @@ def user_options(records, w_len=32, filename="test.bin",filename2=None):
                 final_num += str(s)
     #Rellenar valores faltantes con 0 a la derecha
     if len(final_num) < w_len: final_num += "0"*(w_len-len(final_num))
-    hex_str = hex(int(final_num,2))[2:]
+    hex_str = hex(int(final_num,2))[2:].zfill(w_len // 4)
 
     #print(hex_str,len(final_num), final_num)
     # Guardar los datos binarios en un archivo
@@ -92,7 +92,7 @@ if args.sd==True: sd = args.sd
 rel   = False
 if args.release==True: rel = args.release
 # Crear el objeto 'crt' de la clase 'OptionType'
-crt = OptionType(exp1=False)
+crt = OptionType()
 
 crt.options ="""
 Please, select your prefered Video Option.
@@ -109,6 +109,7 @@ Letter | Option
    G   | Scandoubler RGBHV (SCANLINES 25%)          |
    H   | Scandoubler RGBHV (SCANLINES 50%)          |
    I   | Scandoubler RGBHV (SCANLINES 75%)          |
+   X   | Disable Analog Video                       |
 ----------------------------------------------------|
 
 Your selection:    """
@@ -124,7 +125,8 @@ crt.dict = {
 crt.replace = {"f": "af",  "h": "afh",
                "g": "afg", "i": "afgh",
                "e": "akl", "d": "ak" ,
-               "c": "acj", "b": "abj"}
+               "c": "acj", "b": "abj",
+               "x": ""}
 
 snac = OptionType()
 
@@ -152,10 +154,7 @@ snac.dict = {
     "b" : [0],
 }
 snac.replace = {"a": "", "f":"ec","d":"cb"}
-# filename = "crtcfg.bin"
-# commonpath = "/Assets/jtpatreon/common/"
 
 filepath  = create_in_pocket(do=sd)
 filepath2 = create_in_release(do=rel)
-# print(rel)
 user_options([crt, snac],filename=filepath, filename2=filepath2)
