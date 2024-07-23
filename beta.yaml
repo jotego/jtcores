@@ -1,12 +1,13 @@
-shouse: [ mister, pocket ]
-ngp:    [ mister, pocket ]
+# Remember to update JTFRAME_SKIP when adding
+# or removing betas
+ngpc:   [ mister, pocket ]
 s18:    [ mister, pocket ]
-biocom: [ pocket ]
+ssriders: [ mister, pocket ]
+slyspy: [ pocket ]
+flane: [ pocket ]
+
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
-# flane: [ pocket ]
-# ktiger: [ pocket ]
 # labrun: [ pocket ]
 # midres: [ pocket ]
 # rumble: [ pocket ]
-# slyspy: [ pocket ]

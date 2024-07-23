@@ -43,6 +43,8 @@ module jts16_fd1094(
     output            ok_dly
 );
 
+parameter SIMFILE="maincpu:key";
+
 wire [7:0] st,       // state
            gkey0;
 
@@ -68,7 +70,7 @@ jts16_fd1094_ctrl u_ctrl(
     .st         ( st        )
 );
 
-jts16_fd1094_dec u_dec(
+jts16_fd1094_dec #(.SIMFILE(SIMFILE)) u_dec(
     .rst        ( rst       ),
     .clk        ( clk       ),
 

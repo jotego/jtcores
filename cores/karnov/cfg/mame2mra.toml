@@ -6,6 +6,13 @@ beta = true
 sourcefile=[ "karnov.cpp" ]
 skip.bootlegs=true
 
+[Audio]
+volume = [
+    { machine="chelnov", value=0x48 },
+    { machine="karnov", value=0x82 },
+    { machine="wndrplnt", value=0x60 },
+]
+
 [buttons]
 Names = [ { machine="karnov",   names="Shoot,Jump,Twist"},
           { machine="wndrplnt", names="Fire,Bomb"},

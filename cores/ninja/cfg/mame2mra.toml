@@ -17,6 +17,12 @@ mustbe.machines=[
     # "birdtry",
 ]
 
+[Audio]
+volume = [
+    { machine="baddudesl", value=0xFF },
+    { machine="hbarrel", value=0xFF },
+]
+
 [buttons]
 Names = [
     { machine="baddudes", names="Attack,Jump"},

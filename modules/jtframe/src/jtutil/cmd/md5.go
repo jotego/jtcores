@@ -37,6 +37,7 @@ type MRAROM struct {
 }
 
 type MRA struct{
+	Name	string `xml:"name"`
 	Setname string `xml:"setname"`
 	Rbf     string `xml:"rbf"`
 	Rom     []MRAROM `xml:"rom"`

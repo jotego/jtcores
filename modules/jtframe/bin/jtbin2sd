@@ -122,10 +122,13 @@ for i in SIDI128 SIDI MIST POCKET; do
             done
         else
             # only copy .rom files for which there is an ARC file
+            # convert .RAM file names to uppercase when copying
             find $DST -name "*.arc" -print0 | xargs -0 grep -ho NAME=".*" | \
                 (while IFS= read -r LINE; do \
                     LINE=${LINE:5}; FN=$ROM/${LINE,,}.rom; \
-                    if [ -e "$FN" ]; then cp "$FN" $DST; fi \
+                    if [ -e "$FN" ]; then cp "$FN" $DST; fi; \
+                    FN=${FN%rom}RAM; \
+                    if [ -e "$FN" ]; then cp "$FN" $DST/$(basename ${FN^^}); fi \
                 done)
         fi
     else

@@ -9320,7 +9320,7 @@
     (pin "8" (uuid 2a34f918-a882-4525-aef3-3c82ef38b5cb))
     (pin "9" (uuid 6b653d29-db32-4d5d-bb57-4f7d209ca2e8))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "F?") (unit 1)
         )
@@ -9345,7 +9345,7 @@
     )
     (pin "1" (uuid db43f4df-20e1-423d-8cf1-3de6d67753f8))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "#PWR?") (unit 1)
         )
@@ -9397,7 +9397,7 @@
     (pin "8" (uuid e4f08824-a01a-4b7c-bdeb-d834e2edf89f))
     (pin "9" (uuid dfbf3dcf-a0b7-456d-a70a-4fd838eb7af4))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "C?") (unit 1)
         )
@@ -9461,7 +9461,7 @@
     (pin "8" (uuid 469a7f70-8894-4f54-80dc-23fe89103500))
     (pin "9" (uuid 4f2efc6d-fe63-4732-970b-d13aa8ce56ee))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "C?") (unit 1)
         )
@@ -9499,7 +9499,7 @@
     (pin "14" (uuid fd734851-1ac5-47b1-bb2a-23be86e06d3a))
     (pin "7" (uuid b0a7fd5b-ed60-4a79-8771-0f1a8ffc1d07))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "E?") (unit 1)
         )
@@ -9543,7 +9543,7 @@
     (pin "8" (uuid 63f5f642-9f61-4270-9bd0-24b4355a81ee))
     (pin "9" (uuid f2d8d78c-0d5e-4aea-998f-e482995f374a))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "C?") (unit 1)
         )
@@ -9727,7 +9727,7 @@
     (pin "98" (uuid 47683590-e83c-4e6f-9a95-293ed3a3e182))
     (pin "99" (uuid ee81edfb-47b0-4127-a76e-22fd2ef7b2ed))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "E?") (unit 1)
         )
@@ -9765,7 +9765,7 @@
     (pin "7" (uuid 38f3c154-d547-43f2-9c5f-406517c0bad0))
     (pin "9" (uuid cd233c16-b5c8-4050-92c0-b1d85efa7b90))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "F?") (unit 1)
         )
@@ -9793,7 +9793,7 @@
     (pin "3" (uuid 91902524-02bf-4cc1-b26a-4e6320e767fa))
     (pin "4" (uuid 3fab24c3-19b5-448c-b297-59916cb332c1))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "D?") (unit 1)
         )
@@ -9845,7 +9845,7 @@
     (pin "8" (uuid 61df3f18-50fc-43fd-ad17-06138cd4248a))
     (pin "9" (uuid d421edc0-8f82-4c17-bda9-8c553aa95d16))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "D?") (unit 1)
         )
@@ -9871,7 +9871,7 @@
     (pin "1" (uuid 2f4dc184-5c05-4f40-8439-3f0d7b856bdc))
     (pin "2" (uuid 95b39aa7-a145-4df6-bd7e-9a01e248520c))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "R?") (unit 1)
         )
@@ -9902,7 +9902,7 @@
     (pin "6" (uuid c3ba7b2f-3ccd-4ebe-b645-5416395a3328))
     (pin "7" (uuid 3eb5c614-beff-416e-8753-12bc9c2062f2))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "RN?") (unit 1)
         )
@@ -9940,7 +9940,7 @@
     (pin "14" (uuid 9def248b-7370-4fb2-a0a7-a7a9feec66e6))
     (pin "7" (uuid 37b88c6d-82e8-42aa-ac85-bac753c7d4d7))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "F?") (unit 1)
         )
@@ -9996,7 +9996,7 @@
     (pin "9a" (uuid c1f9b178-98b5-4010-a572-d281c0793b00))
     (pin "9b" (uuid d19eaef3-6de3-4e07-a9f3-fd566ec036f8))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "CN?") (unit 1)
         )
@@ -10034,7 +10034,7 @@
     (pin "7" (uuid fb48c0d5-3cda-4f5d-ba7a-a183845a6231))
     (pin "9" (uuid 754b1678-7220-436c-947d-f25fbcdb7246))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "D?") (unit 1)
         )
@@ -10067,7 +10067,7 @@
     (pin "8" (uuid 2a6c3917-87be-4287-8d5a-b9cf5f7c65b3))
     (pin "9" (uuid c00b9b56-9adb-4791-9f38-e1dbd1706146))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "RN?") (unit 1)
         )
@@ -10123,7 +10123,7 @@
     (pin "8" (uuid ee2b5146-39a7-4600-8901-c8e93b570d28))
     (pin "9" (uuid 31eba9db-0928-4f71-9e16-6de2682500f4))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "F?") (unit 1)
         )
@@ -10161,7 +10161,7 @@
     (pin "7" (uuid 55603359-1663-411d-941a-ecf2c8244ec5))
     (pin "9" (uuid f7ebf9f6-e051-4fd2-a108-f9d37c898859))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "F?") (unit 1)
         )
@@ -10209,7 +10209,7 @@
     (pin "8" (uuid b14f678d-8d70-4f9f-a75c-9640b04e3529))
     (pin "9" (uuid 5938781c-313b-4765-9bb2-8d910b6f10b9))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "D?") (unit 1)
         )
@@ -10234,7 +10234,7 @@
     )
     (pin "1" (uuid 25f6fcfe-8147-44df-8e31-40839b04aeaa))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "#FLG?") (unit 1)
         )
@@ -10259,7 +10259,7 @@
     )
     (pin "1" (uuid dff35975-c883-4b7f-a409-2221dcde6d01))
     (instances
-      (project "tsimpsons"
+      (project "simpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/20302e03-6f86-498a-9c32-af975ed10979"
           (reference "#PWR?") (unit 1)
         )

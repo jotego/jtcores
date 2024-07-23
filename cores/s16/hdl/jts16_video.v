@@ -174,6 +174,8 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .fix        (           ),
     .sa         (           ),
     .sb         (           ),
+    .s1_pri     (           ),
+    .s2_pri     (           ),
     .tprio      (           )
 );
 

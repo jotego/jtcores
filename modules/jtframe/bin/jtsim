@@ -16,9 +16,10 @@
 #
 # Author: Jose Tejada Gomez. Twitter: @topapate
 # Date: 20-8-2022
-
+echo "$*"
 # Define colours if running on a terminal
 if [ -n "$TERM" ]; then
+    export TERM
     red=`tput setaf 1`
     green=`tput setaf 2`
     blue=`tput setaf 4`
@@ -76,9 +77,6 @@ fi
 # set blank .f files
 echo -n > jtsim_vhdl.f
 echo -n > jtsim.f
-
-# Delete these files if there is a problem
-trap "rm -f video.raw video.pipe" EXIT
 
 function show_help {
         cat << EOF
@@ -176,6 +174,9 @@ function clean_up {
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
     if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
+    rm -f video.raw video.pipe
+    echo -e "\e[0m"
+    echo
 }
 
 trap "clean_up; exit 1" INT KILL
@@ -874,6 +875,19 @@ if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
         -pix_fmt yuv420p test.mp4 > /dev/null
 fi
 
+# convert per-channel raw sound files to wav
+shopt -s nullglob
+CHRAW=(ch?.raw)
+shopt -u nullglob
+for i in "${CHRAW[@]}"; do
+    if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
+        echo "$i is empty, deleting it" > /dev/null
+    else
+        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav || continue
+    fi
+    rm -f $i
+done
+
 # Show simulation time
 END_TIME=$(date +%s)
 COMPILE_TIME=$[$END_TIME - $START_TIME]
@@ -893,3 +907,4 @@ if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
         eom `ls frames/frame_*.jpg | tail -n 1` &
     fi
 fi
+

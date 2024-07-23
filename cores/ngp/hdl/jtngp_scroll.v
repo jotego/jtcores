@@ -39,7 +39,7 @@ module jtngp_scr #( parameter
     input      [15:0] chram_data,
     // video output
     input             en,
-    output     [ 2:0] pxl
+    output     [ 6:0] pxl
 );
 
 wire [ 1:0] we;
@@ -48,6 +48,7 @@ wire [15:0] scan_dout;
 reg  [15:0] pxl_data;
 reg  [ 8:0] heff;
 reg  [ 7:0] veff;
+reg  [ 3:0] pcol0, pcol;
 reg         hflip, pal, hflip0, pal0;
 
 assign we = ~dsn & {2{scr_cs}};
@@ -82,7 +83,7 @@ jtframe_dual_ram16 #(
     .q1     ( scan_dout )
 );
 
-assign pxl = en ? { pal, hflip ? pxl_data[1:0] : pxl_data[15:14] } : 3'd0;
+assign pxl = en ? { pcol, pal, hflip ? pxl_data[1:0] : pxl_data[15:14] } : 7'd0;
 
 // scanner
 always @(posedge clk, posedge rst) begin
@@ -96,9 +97,11 @@ always @(posedge clk, posedge rst) begin
             chram_addr <= { scan_dout[8:0], veff[2:0] ^ {3{scan_dout[14]}} };
             hflip0     <= scan_dout[15];
             pal0       <= scan_dout[13];
+            pcol0      <= scan_dout[12-:4]; // color palette
             pxl_data   <= chram_data;
             hflip      <= hflip0;
             pal        <= pal0;
+            pcol       <= pcol0;
             if( !heff[2] )
                 pxl_data <= hflip ? {2{chram_data[15:8]}} : {2{chram_data[7:0]}};
         end else begin

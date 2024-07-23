@@ -37,7 +37,7 @@ var mraCmd = &cobra.Command{
 	Long: common.Doc2string("jtframe-mra.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
-			mra.Reduce(args[0])
+			mra.Reduce(args[0], mra_args.Verbose)
 		} else { // regular operation, core names are separated by commas
 			if clear_folders {
 				root := os.Getenv("JTROOT")

@@ -16,7 +16,9 @@
     Version: 1.0
     Date: 24-7-2023 */
 
-module jtsimson_obj(
+module jtsimson_obj #(parameter
+    RAMW   = 12
+)(
     input             rst,
     input             clk,
 
@@ -35,11 +37,14 @@ module jtsimson_obj(
     // CPU interface
     input             ram_cs,
     input             reg_cs,
-    input             cpu_we,
-    input      [15:0] cpu_dout, // 16-bit interface
-    input      [13:1] cpu_addr, // 16 kB (?)
+    input             mmr_we,
+    input      [ 3:0] mmr_addr,
+    input      [ 7:0] mmr_din,
+
+    input      [15:0] ram_din, // 16-bit interface
+    input      [ 1:0] ram_we,
+    input    [RAMW:1] ram_addr,
     output     [15:0] cpu_din,
-    input      [ 1:0] cpu_dsn,
     output            dma_bsy,
 
     // ROM addressing
@@ -63,7 +68,7 @@ module jtsimson_obj(
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] ram_we, pre_shd;
+wire [ 1:0] pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
@@ -88,10 +93,9 @@ function [5:0] paroda_conv(input [5:0]x);
     paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
 endfunction
 
-assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-    paroda ? { 2'd0, pre_addr[19:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
+    paroda ? { 1'd0, pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
     : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
@@ -131,10 +135,9 @@ jt053246 u_scan(    // sprite logic
     .simson     ( simson    ),
     // CPU interface
     .cs         ( reg_cs    ),
-    .cpu_we     ( cpu_we    ),
-    .cpu_addr   (cpu_addr[3:1]),
-    .cpu_dsn    ( cpu_dsn   ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_we     ( mmr_we    ),
+    .cpu_addr   ( mmr_addr  ),
+    .cpu_dout   ( mmr_din   ),
     .rmrd_addr  ( rmrd_addr ),
 
     // External RAM
@@ -177,40 +180,33 @@ jtframe_objdraw #(
     .ZW(12),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
 
-    .hs         ( hs        ),
-    .flip       ( 1'b0      ),
-    .hdump      ( hdump     ),
+    .hs         ( hs            ),
+    .flip       ( 1'b0          ),
+    .hdump      ( hdump         ),
 
-    .draw       ( dr_start  ),
-    .busy       ( dr_busy   ),
-    .code       ( code      ),
-    .xpos       ( hpos      ),
-    .ysub       ( ysub      ),
-    .hz_keep    ( hz_keep   ),
-    .hzoom      ( hzoom     ),
+    .draw       ( dr_start      ),
+    .busy       ( dr_busy       ),
+    .code       ( code          ),
+    .xpos       ( hpos          ),
+    .ysub       ( ysub          ),
+    .hz_keep    ( hz_keep       ),
+    .hzoom      ( hzoom         ),
 
-    .hflip      ( ~hflip    ),
-    .vflip      ( vflip     ),
+    .hflip      ( ~hflip        ),
+    .vflip      ( vflip         ),
     .pal        ({pre_shd, attr}),
 
-    .rom_addr   ( pre_addr  ),
-    .rom_cs     ( pre_cs    ),
-    .rom_ok     ( rom_ok    ),
-    .rom_data   ( sorted    ),
+    .rom_addr   ( pre_addr      ),
+    .rom_cs     ( pre_cs        ),
+    .rom_ok     ( rom_ok        ),
+    .rom_data   ( sorted        ),
 
-    .pxl        ( pre_pxl   )
+    .pxl        ( pre_pxl       )
 );
-
-
-localparam RAMW=12;
-
-wire [RAMW:1] ram_a;
-
-assign ram_a = paroda ? { {RAMW-11{1'b0}}, cpu_addr[11:1] } : cpu_addr[RAMW:1];
 
 jtframe_dual_nvram16 #(
     .AW        ( RAMW       ),
@@ -219,9 +215,9 @@ jtframe_dual_nvram16 #(
 ) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),
-    .data0  ( cpu_dout  ),
-    .addr0  ( ram_a     ),
-    .we0    ( ram_we    ),
+    .data0  ( ram_din   ),
+    .addr0  ( ram_addr  ),
+    .we0    ( ram_we & {2{ram_cs}} ),
     .q0     ( ram_data  ),
     // Port 1 - Video access
     .clk1   ( clk       ),

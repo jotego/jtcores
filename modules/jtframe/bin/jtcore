@@ -550,7 +550,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
             echo "Warning: latch inferred"
         fi
         # Report FPGA usage
-        if [ -e $RPTPATH/*.fit.summary ]; then
+        if [ $(find $RPTPATH -name "*.fit.summary"|wc -l) -gt 0 ]; then
             grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary
             grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
         fi

@@ -134,7 +134,7 @@ wire        ioctl_download, ioctl_upload;
 
 // Scan-doubler video
 wire [7:0]   scan2x_r, scan2x_g, scan2x_b;
-wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb, scan2x_clk;
+wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb;
 
 assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
@@ -536,7 +536,7 @@ i2c_master #(96_000_000) i2c_master (
 );
 
 osd #(0,0,6'b01_11_01,8) hdmi_osd (
-   .clk_sys    ( scan2x_clk ),
+   .clk_sys    ( clk_sys      ),
 
    // spi for OSD
    .SPI_DI     ( SPI_DI       ),

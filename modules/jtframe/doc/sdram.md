@@ -1,4 +1,4 @@
-# IOCTL Indexes
+l# IOCTL Indexes
 
 For I/O (SDRAM download, etc.) the following indexes are used
 
@@ -32,8 +32,30 @@ Bit    |  Use                      | Set by
 2      | XOR with dip_flip         | mame.xml
 3      | dial input enable         | mame.xml
 4      | reverse the dial          | mame.xml
+5      | Horizontal frame bit 0    | mame.xml
+6      | H. frame bit 1            | mame.xml
+15-8   | sound volume              | mame2mra.toml's audio section
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
+
+H Frame | Meaning
+--------|---------
+00      |  No frame
+01      |  8-pixel frame
+10      | 16-pixel frame
+11      |  rserverd
+
+The volume is defined in the TOML file **Audio** section like this:
+
+``` TOML
+[Audio]
+volume = [
+    { machine="secretag", value=0x70 },
+    { machine="bouldash", value=0x34 },
+]
+```
+
+A value of 0x80 means unity gain. Valid values range from 0x10 to 0xFF. If there is no **Audio** section, the framework will set the game to unity gain. Volume setting is not supported in the MiST family because of limitations in the *core_mod* assignment to just 7 bits.
 
 ## Cartridges
 

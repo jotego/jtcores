@@ -42,6 +42,7 @@ module jts18_main(
     output reg         char_cs,
     output reg         pal_cs,
     output reg         objram_cs,
+    output reg         bank_cs,
     input       [15:0] char_dout,
     input       [15:0] pal_dout,
     input       [15:0] obj_dout,
@@ -49,10 +50,11 @@ module jts18_main(
     input              vdp_dtackn,
 
     // RAM access
-    output reg         ram_cs,
     output reg         vram_cs,
-    input       [15:0] ram_data,   // coming from VRAM or RAM
-    input              ram_ok,
+    input              vram_ok,
+    input       [15:0] vram_data,
+    output reg         ram_cs,
+    input       [15:0] ram_data,
     // CPU bus
     output      [15:0] cpu_dout,
     output             UDSn,
@@ -65,6 +67,12 @@ module jts18_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
+    input       [ 8:0] lg1_x,
+    input       [ 8:0] lg1_y,
+    input       [ 8:0] lg2_x,
+    input       [ 8:0] lg2_y,
+    input       [ 1:0] dial_x,
+    input       [ 1:0] dial_y,
     input       [ 2:0] cab_1p,
     input       [ 2:0] coin,
     input              service,
@@ -113,15 +121,17 @@ localparam [2:0] REG_RAM  = 3,
                  REG_PAL  = 6,
                  REG_IO   = 7;
 localparam       PCB_5874 = 0,  // refers to the bit in game_id
+                 PCB_5987_DESERTBR = 1,
                  PCB_5987 = 2,
                  PCB_7525 = 3,  // hamaway
+                 PCB_5873 = 4,  // lghost
                  PCB_7248 = 5;  // shdancer
 
 
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, st_io, io_dout, misc_o, coinage, key_data;
+wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, misc_o, key_data;
 wire [12:0] key_addr;
 
 `ifdef SIMULATION
@@ -129,7 +139,7 @@ wire [23:0] A_full = {A,1'b0};
 `endif
 
 wire        BRn, BGACKn, BGn,
-            BUSn, cpu_RnW, ok_dly, io_we;
+            BUSn, cpu_RnW, ok_dly, io_we, io_rd;
 reg         sdram_ok, io_cs, vdp_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
@@ -137,11 +147,7 @@ assign BUSn    = LDSn & UDSn;
 assign gray_n  = misc_o[6];
 assign flip    = misc_o[5];
 assign io_we   = io_cs && !RnW && !LDSn;
-// MSB 7-6 are select inputs, used in Wally
-// It may be safe to connect to button 0
-assign coinage = cab3 ?
-    { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
-    {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+assign io_rd   = io_cs &&  RnW && !LDSn;
 assign st_dout = st_io;
 // No peripheral bus access for now
 assign cpu_addr = A[23:1];
@@ -156,12 +162,18 @@ wire [ 2:0] cpu_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | vdp_cs;
-wire bus_busy  = (|{ rom_cs, ram_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
+wire bus_busy  = (|{ rom_cs, vram_cs } & ~sdram_ok) | (vdp_cs & vdp_dtackn);
 wire cpu_rst, cpu_haltn, cpu_asn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din;
 wire [15:0] mapper_dout;
 wire        none_cs;
+
+reg   [7:0] p1, p2, p3, coinage;
+
+wire        dial_cs;
+wire        dial_rst;
+wire  [7:0] dial_dout;
 
 `ifndef NOMCU
 jtframe_8751mcu #(
@@ -213,9 +225,17 @@ always @* begin
     rom_addr = A[20:1];
     if(active[0]) begin
         if(game_id[PCB_5874]|game_id[PCB_7248]) rom_addr[20:19]=0;
-        if(game_id[PCB_7525]|game_id[PCB_5987]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
+        if(game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) rom_addr[20]=0; // may need extra masking for smaller ROM sizes
     end
-    // assuming that if active[1] is set, then A is already pointing after 512kB
+    // assuming that if active[1] is set, then A is already pointing after 512kB(or 1MB for Desert Breaker)
+    if(active[1]) begin
+        if(game_id[PCB_7525]|game_id[PCB_5873]|game_id[PCB_5987]) rom_addr[20:19]={1'b0, A[21]};
+        if(game_id[PCB_5987_DESERTBR]) rom_addr[20]=A[21];
+    end
+end
+
+always @* begin
+    sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -229,13 +249,7 @@ always @(posedge clk, posedge rst) begin
 
             vram_cs   <= 0; // 64kB
             ram_cs    <= 0; // 16kB
-            sdram_ok  <= 0;
     end else begin
-        if( ASn )
-            sdram_ok <= 0;
-        else if( !BUSn ) begin
-            sdram_ok <= rom_cs ? ok_dly : ram_ok;
-        end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
             rom_cs    <= (active[0] || (active[1] && !game_id[PCB_7248])) && RnW;
             vdp_cs    <= game_id[PCB_7248] ? active[1] : active[2];
@@ -245,12 +259,12 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
 
-
             // jtframe_ramrq requires cs to toggle to
             // process a new request. BUSn will toggle for
             // read-modify-writes
             vram_cs <= !BUSn && active[REG_VRAM] && !A[16];
             ram_cs  <= !BUSn && active[REG_RAM];
+            bank_cs <= (game_id[PCB_7525]|game_id[PCB_5987]|game_id[PCB_5987_DESERTBR]) && active[1] && !RnW;
         end else begin
             rom_cs    <= 0;
             char_cs   <= 0;
@@ -260,6 +274,7 @@ always @(posedge clk, posedge rst) begin
             vdp_cs    <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
+            bank_cs   <= 0;
         end
     end
 end
@@ -272,17 +287,93 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// M6253 4 channel 8 bit ADC for LaserGhost
+reg         m6253_shift_out;
+reg   [7:0] m6253_shift_reg;
+reg         io_rdl;
+
+function [7:0] lg_xscale(input [8:0] x); // 0-319 -> 0-255
+    reg [15:0] mult;
+    begin
+        mult = x * (16'd204 + (x<160 ? ({10'd0, x[8:3]}+{11'd0, x[8:4]}+{12'd0, x[8:5]}) : 16'd70-({10'd0, x[8:3]}+{11'd0, x[8:4]}+{12'd0, x[8:5]})));
+        lg_xscale = mult[15:8];
+    end
+endfunction
+
+always @(posedge clk) begin
+    io_rdl <= io_rd;
+
+    if (io_we && A[15:4] == 12'h301) begin
+        case (A[2:1])
+            0: m6253_shift_reg <= ~lg1_y[7:0];
+            1: m6253_shift_reg <= lg_xscale(lg1_x);
+            2: m6253_shift_reg <= ~lg2_y[7:0];
+            3: m6253_shift_reg <= lg_xscale(lg2_x);
+            default: ;
+        endcase
+    end
+    if (io_rd && !io_rdl && A[15:4] == 12'h301) begin
+        m6253_shift_out <= m6253_shift_reg[7];
+        m6253_shift_reg <= { m6253_shift_reg[6:0], 1'b0 };
+    end
+end
+
+// for wwally
+assign dial_rst = io_we && A[15:3] == {12'h300, 1'd0};
+assign dial_cs = io_cs & A[15:3] == {12'h300, 1'd0}; // only one trackball
+
+jt4701 u_trackball(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .x_in   ( {dial_x[0], dial_x[1]} ),
+    .y_in   ( {dial_y[0], dial_y[1]} ),
+    .rightn (           ),
+    .leftn  (           ),
+    .middlen(           ),
+    .x_rst  (dial_rst   ),
+    .y_rst  (dial_rst   ),
+    .csn    ( ~dial_cs  ),
+    .uln    ( A[1]      ),
+    .xn_y   ( A[2]      ),
+    .cfn    (           ),
+    .sfn    (           ),
+    .dout   ( dial_dout ),
+    .dir    (           )
+);
+
+assign io_dout = (A[15:4] == 12'h301) ? {m6253_shift_out, 7'h7f} :
+                              dial_cs ? dial_dout :
+                                        io5296_dout;
+
+always @(*) begin
+    if (game_id[PCB_5873]) begin
+        p1 = {joystick3[4], joystick3[5], 2'b11, joystick2[5:4], joystick1[5:4]};
+        p2 = 8'hff;
+        p3 = 8'hff;
+        coinage = { coin[2], 2'b11, service, 1'b1, dip_test, coin[1:0] };
+    end else begin
+        p1 = {joystick1[3:0],joystick1[7:4]};
+        p2 = {joystick2[3:0],joystick2[7:4]};
+        p3 = {joystick3[3:0],joystick3[7:4]};
+        // MSB 7-6 are select inputs, used in Wally
+        // It may be safe to connect to button 0
+        coinage = cab3 ?
+            { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
+            {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+    end
+end
+
 jts18_io u_ioctl(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .addr       ( {A[13],A[5:1]}),
     .din        ( cpu_dout[7:0] ),
-    .dout       ( io_dout       ),
+    .dout       ( io5296_dout   ),
     .we         ( io_we         ),
     // eight 8-bit ports
-    .pa_i       ( {joystick1[3:0],joystick1[7:4]} ),
-    .pb_i       ( {joystick2[3:0],joystick2[7:4]} ),
-    .pc_i       ( {joystick3[3:0],joystick3[7:4]} ),
+    .pa_i       ( p1            ),
+    .pb_i       ( p2            ),
+    .pc_i       ( p3            ),
     .pd_o       ( misc_o        ),
     .pe_i       ( coinage       ),
     .ph_o       ( tile_bank     ),
@@ -311,7 +402,8 @@ always @(posedge clk) begin
     if(rst) begin
         cpu_din <= 0;
     end else begin
-        cpu_din <= (ram_cs | vram_cs ) ? ram_data  :
+        cpu_din <=  ram_cs             ? ram_data  :
+                    vram_cs            ? vram_data :
                     rom_cs             ? rom_dec   :
                     char_cs            ? char_dout :
                     pal_cs             ? pal_dout  :
@@ -323,7 +415,7 @@ always @(posedge clk) begin
     end
 end
 /* verilator tracing_on */
-jts16_fd1094 u_dec1094(
+jts16_fd1094 #(.SIMFILE("maincpu:key")) u_dec1094(
     .rst        ( cpu_rst   ),
     .clk        ( clk       ),
 

@@ -21,7 +21,7 @@ module jts18_game(
 );
 
 localparam [24:0] MCU_START = `MCU_START;
-localparam VRAMW = 19;
+localparam VRAMW = 18;
 
 // clock enable signals
 wire    cpu_cen, cpu_cenb;
@@ -31,17 +31,19 @@ wire [ 8:0] vrender;
 wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
+wire [ 2:0] crosshairs;
+wire [ 8:0] lg1_x, lg2_x;
+wire [ 8:0] lg1_y, lg2_y;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
-reg  [18:1] xa;
 
 // CPU interface
 wire [23:1] cpu_addr;
 wire [15:0] char_dout, obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, asn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn;
 
 // Protection
 wire        key_we, mcu_we;
@@ -60,17 +62,22 @@ reg  [7:0] st_mux, game_id;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
-assign debug_view = { 5'd0, vdp_prio }; //st_mux;
+assign debug_view = st_mux;//{ 5'd0, vdp_prio }; // st_mux;
 assign xram_dsn   = dswn;
 assign xram_we    = ~main_rnw;
 assign xram_din   = main_dout;
 assign mcu_we     = prom_we && prog_addr[15:12]>=MCU_START[15:12];
 assign key_we     = prom_we && prog_addr[15:12]< MCU_START[15:12];
-assign xram_cs    = ram_cs | vram_cs;
+assign xram_cs    = vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign ioctl_din  = 0;
-assign xram_addr  = xa;
+assign xram_addr  = main_addr[15:1];
+// work RAM (non volatile)
+assign nvram_addr = 0;
+assign nvram_we   = 0;
+assign nvram_din  = 0;
+assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -84,6 +91,8 @@ always @(posedge clk) begin
         2: st_mux <= st_main;
         default: st_mux <= 0;
     endcase
+
+    st_mux <= st_video;
 end
 
 always @(posedge clk) begin
@@ -93,14 +102,6 @@ always @(posedge clk) begin
         if( ioctl_addr[4:0]==5'h14 ) cab3      <= ioctl_dout[0]; // support for three players
         if( ioctl_addr[4:0]==5'h18 ) game_id   <= ioctl_dout;
     end
-end
-
-always @(*) begin
-    xa = 0;
-    xa[VRAMW-1:1] = { ram_cs, main_addr[VRAMW-2:1] }; // RAM is mapped up
-    // Mask RAM address
-    if( ram_cs  ) xa[VRAMW-2:14]=0; // 16kB for RAM
-    if( vram_cs ) xa[VRAMW-2:16]=0; // 64kB for VRAM
 end
 
 /* verilator tracing_on */
@@ -122,6 +123,7 @@ jts18_main u_main(
     .tile_bank  ( tile_bank ),
 
     // Video memory
+    .bank_cs    ( bank_cs   ),
     .vram_cs    ( vram_cs   ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
@@ -134,8 +136,9 @@ jts18_main u_main(
 
     // RAM access
     .ram_cs     ( ram_cs    ),
-    .ram_data   ( xram_data ),
-    .ram_ok     ( xram_ok   ),
+    .ram_data   ( wram_dout ),
+    .vram_ok    ( xram_ok   ),
+    .vram_data  ( xram_data ),
     // CPU bus
     .cpu_dout   ( main_dout ),
     .UDSn       ( UDSn      ),
@@ -147,6 +150,12 @@ jts18_main u_main(
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
+    .lg1_x       ( lg1_x      ),
+    .lg1_y       ( lg1_y      ),
+    .lg2_x       ( lg2_x      ),
+    .lg2_y       ( lg2_y      ),
+    .dial_x      ( dial_x     ),
+    .dial_y      ( dial_y     ),
     .cab_1p      ( cab_1p[2:0]),
     .coin        (   coin[2:0]),
     .service     ( service    ),
@@ -236,11 +245,12 @@ jts18_video u_video(
     .gray_n     ( gray_n    ),
     .tile_bank  ( tile_bank ),
 
-    // .game_id    ( game_id   ),
+    .game_id    ( game_id   ),
     // CPU interface
     .addr       ( cpu_addr  ),
     .char_cs    ( char_cs   ),
     .objram_cs  ( objram_cs ),
+    .bank_cs    ( bank_cs   ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
@@ -283,6 +293,9 @@ jts18_video u_video(
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
 
+    .lightguns  ( crosshairs),
+
+    .joystick1   ( {joystick1[6],joystick1[5]}  ),
     // Video signal
     .HS         ( HS        ),
     .VS         ( VS        ),
@@ -297,5 +310,34 @@ jts18_video u_video(
     .st_addr    ( debug_bus ),
     .st_dout    ( st_video  )
 );
+
+jts18_crosshair crosshair_left (
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .dx         ( mouse_1p[ 7: 0] ),
+    .dy         ( mouse_1p[15: 8] ),
+    .strobe     ( mouse_strobe[0] ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .x          ( lg1_x     ),
+    .y          ( lg1_y     ),
+    .crosshair  ( crosshairs[0] )
+);
+
+jts18_crosshair crosshair_center (
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .dx         ( mouse_2p[ 7: 0] ),
+    .dy         ( mouse_2p[15: 8] ),
+    .strobe     ( mouse_strobe[1] ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .x          ( lg2_x     ),
+    .y          ( lg2_y     ),
+    .crosshair  ( crosshairs[1] )
+);
+
+// 2 guns are supported right now
+assign crosshairs[2] = 0;
 
 endmodule

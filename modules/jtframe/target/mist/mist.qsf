@@ -164,6 +164,8 @@ set_global_assignment -name FORCE_SYNCH_CLEAR ON
 set_global_assignment -name QIP_FILE game.qip
 
 set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION ON
+set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION OFF
+set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
 
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"

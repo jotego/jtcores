@@ -39,8 +39,6 @@ func Run(args Args) {
 	if args.Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
-	ex := NewExtractor(args.Xml_path)
-	parent_names := make(map[string]string)
 	// Set the RBF Name if blank
 	// if mra_cfg.Rbf.Name == "" {
 	// 	mra_cfg.Rbf.Name = "jt" + args.Def_cfg.Core
@@ -54,50 +52,23 @@ func Run(args Args) {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
 		return
 	}
-	var data_queue []ParsedMachine
 	if !args.SkipPocket {
 		pocket_init(mra_cfg, args)
 	}
-extra_loop:
-	for {
-		machine := ex.Extract(mra_cfg.Parse)
-		calc_DIP_bits( machine, mra_cfg.Dipsw )
-		if machine == nil {
-			break
+	data_queue, parent_names := collect_machines( mra_cfg, args )
+	if len(mra_cfg.Parse.Sourcefile)==0 {
+		if mra_cfg.Parse.Machine.Name=="" {
+			fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
+			os.Exit(1)
 		}
-		if args.Verbose {
-			fmt.Print("#####################\n#####################\nFound", machine.Name)
-			if machine.Cloneof != "" {
-				fmt.Printf(" (%s)", machine.Cloneof)
-			}
-			fmt.Println()
-		}
-		cloneof := false
-		if machine.Cloneof != "" {
-			cloneof = true
-		} else {
-			parent_names[machine.Name] = machine.Description
-		}
-		if skip_game(machine, mra_cfg, args) {
-			continue extra_loop
-		}
-		for _, each := range mra_cfg.Global.Overrule {
-			if each.Match(machine)>0 {
-				if each.Rotate != 0 {
-					machine.Display.Rotate = each.Rotate
-				}
-			}
-		}
-		for _, reg := range mra_cfg.ROM.Regions {
-			for k, r := range machine.Rom {
-				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
-					machine.Rom[k].Region = reg.Rename
-				}
-			}
-		}
+		machine := &mra_cfg.Parse.Machine
 		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
-		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
-		data_queue = append(data_queue, pm)
+		data_queue = append(data_queue,ParsedMachine{
+			machine: machine,
+			mra_xml: mra_xml,
+			def_dipsw: def_dipsw,
+			coremod: coremod,
+		})
 	}
 	// Add explicit parents to the list
 	for _, p := range mra_cfg.Parse.Parents {
@@ -160,6 +131,53 @@ extra_loop:
 	}
 }
 
+func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
+	ex := NewExtractor(args.Xml_path)
+	parent_names = make(map[string]string)
+extra_loop:
+	for {
+		machine := ex.Extract(mra_cfg.Parse)
+		calc_DIP_bits( machine, mra_cfg.Dipsw )
+		if machine == nil {
+			break
+		}
+		if args.Verbose {
+			fmt.Print("#####################\n#####################\nFound", machine.Name)
+			if machine.Cloneof != "" {
+				fmt.Printf(" (%s)", machine.Cloneof)
+			}
+			fmt.Println()
+		}
+		cloneof := false
+		if machine.Cloneof != "" {
+			cloneof = true
+		} else {
+			parent_names[machine.Name] = machine.Description
+		}
+		if skip_game(machine, mra_cfg, args) {
+			continue extra_loop
+		}
+		for _, each := range mra_cfg.Global.Overrule {
+			if each.Match(machine)>0 {
+				if each.Rotate != 0 {
+					machine.Display.Rotate = each.Rotate
+				}
+			}
+		}
+		for _, reg := range mra_cfg.ROM.Regions {
+			for k, r := range machine.Rom {
+				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
+					machine.Rom[k].Region = reg.Rename
+				}
+			}
+		}
+		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
+		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
+		machines = append(machines, pm)
+	}
+	return machines, parent_names
+}
+
 func dump_setnames( corefolder string, sn []string ) {
 	fname := filepath.Join(os.Getenv("CORES"), corefolder, "ver")
 	os.MkdirAll(fname,0775)
@@ -206,7 +224,7 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 	}
 	if m:=mra_cfg.Parse.Debug.Match(machine);m>1 && args.Nodbg {
 		if args.Verbose {
-			fmt.Printf("Skipping %s for level %d matching\n", machine.Description, m)
+			fmt.Printf("Skipping %s (debug phase) for level %d matching\n", machine.Description, m)
 		}
 		return true
 	}
@@ -614,61 +632,6 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	n.AddAttr("names", buttons_str)
 	n.AddAttr("default", pad+"Start,Select,-")
 	n.AddIntAttr("count", count)
-}
-
-func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[string]string) int {
-	coremod := 0
-	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
-		root.AddNode("Vertical game").comment = true
-		coremod |= 1
-		if machine.Display.Rotate != 90 {
-			coremod |= 4
-		}
-	}
-	for _, each := range cfg.Buttons.Dial {
-		if each.Match(machine)>0 {
-			if each.Raw {
-				coremod |= 1<<3
-			}
-			if each.Reverse {
-				coremod |= 1<<4
-			}
-		}
-	}
-	// compare screen size with MAME
-	cw,_ := strconv.ParseInt(macros["JTFRAME_WIDTH"],10,32)
-	ch,_ := strconv.ParseInt(macros["JTFRAME_HEIGHT"],10,32)
-	wdiff := (int(cw)-machine.Display.Width)/2
-	hdiff := (int(ch)-machine.Display.Height)/2
-	if wdiff<0 || hdiff<0 {
-		wdiff=0
-		hdiff=0
-		// fmt.Printf("%s: MAME reports %dx%d but core uses %dx%d\n", machine.Name, machine.Display.Width,machine.Display.Height,cw,ch)
-	}
-	explicit := false
-	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
-		return cfg.Header.Frames[k].Match(machine)
-	}); frame_idx >= 0 {
-		wdiff = cfg.Header.Frames[frame_idx].Width
-		explicit = true
-	}
-	if hdiff != 0 && !explicit {
-		fmt.Printf("%s: needs to remove top/bottom frame (%d pixels total)\n",machine.Name, hdiff)
-	}
-	switch wdiff {
-		case 0: break
-		case 8:  coremod |= 1<<5
-		case 16: coremod |= 3<<5
-		default: if wdiff>0 {
-			fmt.Printf("%s: unsupported black frame of %d pixels around the image\nDefine one explicitly in the TOML file.\n",machine.Name,wdiff)
-		}
-	}
-	rom := root.AddNode("rom").AddAttr("index", "1")
-	if wdiff>0 || hdiff>0 {
-		rom.AddNode(fmt.Sprintf("black frame %dx%d",wdiff,hdiff)).comment = true
-	}
-	rom.AddNode("part").SetText(fmt.Sprintf("%02X", coremod))
-	return coremod
 }
 
 func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {

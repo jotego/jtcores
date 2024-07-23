@@ -13,6 +13,11 @@ names=[
     { names="Kick,Jump" }
 ]
 
+[Audio]
+volume = [
+    { machine="kicker", value=0xE3 },
+]
+
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename = [ {name="Bonus Life", to="Bonus"} ]

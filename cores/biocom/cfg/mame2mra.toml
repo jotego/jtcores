@@ -5,6 +5,11 @@ author=["jotego"]
 sourcefile=[ "bionicc.cpp" ]
 # skip.Setnames=["bioniccbl2"]
 
+[Audio]
+volume = [
+    { machine="bionicc", value=0x40 },
+    ]
+    
 [buttons]
 names=[
     { names="Shoot,Arm" }

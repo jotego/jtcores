@@ -33,7 +33,7 @@ module jtpcm568(
     input         [ 7:0] din,
     output        [ 7:0] dout,
 
-    // ADPCM RAM
+    // ADPCM RAM - ram0/ram1 represent different ports to the same memory
     // Access by PCM logic (read only)
     output reg    [15:0] ram0_addr,
     input         [ 7:0] ram0_dout,
@@ -131,7 +131,9 @@ always @(posedge clk) begin
     ch_cen <= cencnt==0 && cen;
 end
 
-wire [7:0] envmx = (chenb_II || lstop)? 8'd0 : env_II;
+reg  [63:0] last;
+wire [ 7:0] envmx = chenb_II ?      8'd0 : env_II;
+wire [ 7:0] actmx = lstop    ? last[7:0] : ram0_dout; // repeat the last sample on loop conditions
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -151,6 +153,7 @@ always @(posedge clk, posedge rst) begin
         sign_III  <= 0;
         sign_IV   <= 0;
         sign_V    <= 0;
+        last      <= 0;
     end else if(ch_cen) begin
         chI   <= chI+3'd1;
         chII  <= chI;
@@ -162,12 +165,13 @@ always @(posedge clk, posedge rst) begin
         env_II    <= enmx;
         pan_II    <= panmx;
         // II
-        envmul    <= {1'b0, ram0_dout[6:0]}*envmx;
-        sign_III  <= ram0_dout[7];
+        envmul    <= {1'b0, actmx[6:0]}*envmx;
+        sign_III  <= actmx[7];
         pan_III   <= pan_II;
         chenb_III <= chenb_II;
         loop      <= lstop;    // update channel counter
         sanx      <= chsa_II + {11'd0,fdmx};
+        last      <= {ram0_dout,last[63:8]};
         // III
         mul_l     <= envmul*pan_III[3:0];
         mul_r     <= envmul*pan_III[7:4];

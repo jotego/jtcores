@@ -84,7 +84,7 @@ module jts18_video16(
 
     // priority bits
     output     [ 1:0]  obj_prio,
-    output             fix, sa, sb, tprio,
+    output             fix, sa, sb, tprio, s1_pri, s2_pri,
     // palette RAM
     output     [10:0]  pal_addr,
     input      [15:0]  pal_dout,
@@ -109,7 +109,7 @@ assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 assign obj_prio = obj_pxl[11:10];
 
-jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0)) u_tilemap(
+jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),.SCR2_DLY(10'd17),.SCR1_DLY(10'd9)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -172,7 +172,9 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0)) u_tilemap(
     .fix        ( fix       ),
     .sa         (  sa       ),
     .sb         (  sb       ),
-    .tprio      ( tprio     )
+    .tprio      ( tprio     ),
+    .s1_pri     ( s1_pri    ),
+    .s2_pri     ( s2_pri    )
 );
 
 jts16_obj #(.MODEL(MODEL)) u_obj(

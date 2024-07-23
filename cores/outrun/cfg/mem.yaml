@@ -24,7 +24,7 @@ sdram:
   banks:
     # Bank 0 for the main and sub CPUs
     - buses:
-        - { name: xram,   addr_width: 17, data_width: 16, offset: VRAM_OFFSET, rw: true }
+        - { name: xram,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: subram, addr_width: 15, data_width: 16, offset: SRAM_OFFSET, rw: true }
         - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
@@ -52,6 +52,20 @@ sdram:
 bram:
   - { name: rd0, addr_width: 15, data_width: 16, rom: { offset: RD0_OFFSET } }
   - { name: rd1, addr_width: 15, data_width: 16, rom: { offset: RD1_OFFSET } }
+  # 32kB of work RAM area saved as NVRAM
+  - name: nvram
+    addr_width: 15
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      restore: true
+    dual_port:
+      name: wram
+      rw: true
+      addr: main_addr[14:1]
+      din: xram_din
+      dout: wram_dout
 # bram:
 #   - { name: palram, addr_width: 14, data_width: 16, simfile: pal,
 #       nvram: {

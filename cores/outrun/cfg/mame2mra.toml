@@ -13,6 +13,11 @@ Names = [
     { machine="shangon", names="Accelerate,Brake,-,Supercharger"},
 ]
 
+[Audio]
+volume = [
+    { machine="outrun", value=0xEC },
+    { machine="toutrun", value=0xA9 },
+]
 
 [dipsw]
 delete=[{names=["Unused","Unknown","Credits"]}]

@@ -540,7 +540,7 @@ u_game(
 `endif
 
 `ifdef JTFRAME_MOUSE
-    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), `endif
+    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), .mouse_strobe( 2'd0 ), `endif
 
     // Sound control
     .enable_fm   ( enable_fm      ),

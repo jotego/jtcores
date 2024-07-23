@@ -5,6 +5,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "flkatck.cpp" ]
 
+[Audio]
+volume = [
+    { machine="mx5000", value=0xFF },
+]
+
 [buttons]
 names = [
     { names="Shot,Bomb" }

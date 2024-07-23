@@ -16,10 +16,10 @@ delete=[{names=["Unused","Unknown"]}]
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra
 regions = [
-    { name="maincpu", reverse=true },
-    { name="tiles", width=16, no_offset=true }, # start=$GFX1_START
-    { name="sprites", width=16, no_offset=true, Sort_even=true }, # start=$GFX2_START
-    { name="vlm", reverse=true },
+    { name="maincpu" },
+    { name="tiles", width=16, no_offset=true, reverse=true }, # start=$GFX1_START
+    { name="sprites", width=16, no_offset=true, Sort_even=true, reverse=true }, # start=$GFX2_START
+    { name="vlm"},
 ]
 
 order = [

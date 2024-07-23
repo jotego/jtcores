@@ -29,9 +29,8 @@ module jt053246(    // sprite logic
     // CPU interface
     input             cs,
     input             cpu_we,
-    input      [ 3:1] cpu_addr, // bit 3 only in k44 mode
-    input      [15:0] cpu_dout,
-    input      [ 1:0] cpu_dsn,
+    input      [ 3:0] cpu_addr, // bit 3 only in k44 mode
+    input      [ 7:0] cpu_dout,
 
     // ROM check by CPU
     output     [21:1] rmrd_addr,
@@ -105,7 +104,7 @@ assign gvf       = cfg[1];
 assign mode8     = cfg[2]; // guess, use it for 8-bit access for ROM checking (Parodius)
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
-assign dma_trig  = k44_en && cs && cpu_addr==3 /*&& !cpu_dsn[1]*/;
+assign dma_trig  = k44_en && cs && cpu_addr[2:1]==3;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
@@ -117,7 +116,7 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - (k44_en ? 10'd108 : 10'd61);
+    xadj <= k44_en ? xoffset + 10'h66 /*{2'd0,debug_bus}*/ : xoffset - 10'd61; // 15<<2 for Riders
     yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
     vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
     hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
@@ -127,7 +126,7 @@ always @(posedge clk) begin
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
     yw0   = y + yadj;
-    ywrap = yw0 > 10'h200 ? yw0+10'h200 : yw0;
+    ywrap = yw0 > 10'h200 ? yw0 + 10'h1A0 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
@@ -243,7 +242,7 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x - xadj;
+                    x <=  k44_en ? x+xadj : x-xadj;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
@@ -267,7 +266,7 @@ always @(posedge clk, posedge rst) begin
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
-                    if( !inzone || x[9]) begin
+                    if( ~inzone | (x[9] & ~k44_en)) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -283,7 +282,7 @@ always @(posedge clk, posedge rst) begin
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos <= x[8:0] - zmove( hsz, hscl ) - 9'b1;
+                            hpos <= x[8:0] - zmove( hsz, hscl );
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
@@ -294,6 +293,7 @@ always @(posedge clk, posedge rst) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
+                            // hz_keep <= 0;
                             if( last_obj ) done <= 1;
                         end
                     end
@@ -337,7 +337,6 @@ jt053246_mmr u_mmr(
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_dsn    ( cpu_dsn   ),
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
     .yoffset    ( yoffset   ),

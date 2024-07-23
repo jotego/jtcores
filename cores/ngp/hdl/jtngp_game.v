@@ -29,18 +29,17 @@ reg  [ 7:0] st_mux;
 reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
-wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn;
+wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest;
 wire        hirq, virq, main_int5, pwr_button, poweron, halted;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
 assign debug_view = st_mux;
-
+assign ioctl_rest = ioctl_ram && ioctl_wr && ioctl_addr[13:0]>14'h3000; // ports and RTC are dumped after 12kB of RAM
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
 assign {pxl_cen,pxl2_cen}={v1_cen,v0_cen}; // ideally the framework should do this for me
 assign pwr_button = coin[0] & ~&{~ioctl_cart,cart_l,halted}; // active low, positive edge triggered
-assign ioctl_din  = 0;
 
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 
@@ -114,6 +113,12 @@ jtngp_main u_main(
     // Firmware access
     .rom_data   ( rom_data  ),
 
+    // RTC dump
+    .ioctl_addr ( ioctl_addr[6:0]),
+    .ioctl_dout ( ioctl_dout),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_wr   ( ioctl_rest),
+
     // NVRAM
     .nvram_dout ( nvram_dout),
     .nvram_we   ( nvram_we  ),
@@ -123,7 +128,7 @@ jtngp_main u_main(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_flash u_flash(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -175,7 +180,7 @@ jtngp_snd u_snd(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

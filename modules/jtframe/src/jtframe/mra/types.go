@@ -241,7 +241,12 @@ type Mame2MRA struct {
     // }
 
     Header HeaderCfg
-
+    Audio struct {
+        Volume []struct {
+            Selectable
+            Value int
+        }
+    }
     ROM struct {
         Firmware string     // Used for consoles by the Pocket target
         Regions  []RegCfg
@@ -287,6 +292,7 @@ type ParsedMachine struct {
 type ParseCfg struct {
     All        bool // parse all games
     Sourcefile []string
+    Machine    MachineXML // Explicit Machine
     Main_setnames []string // setname to be used as the main ones to copy in mister/releases
     Rename     []struct {
         Setname string

@@ -2,6 +2,13 @@
 sourcefile=[ "simpsons.cpp", "parodius.cpp", "vendetta.cpp" ]
 skip = { machine="esckids" }
 
+[Audio]
+volume = [
+    { machine="parodius", value=0xB0 },
+    { machine="simpsons", value=0x53 },
+    { machine="vendetta", value=0x67 },
+]
+
 [buttons]
 names = [
     { names="Attack,Jump", machine="simpsons" },
@@ -49,3 +56,15 @@ patches = [
    { setname="parodius", offset=0x8060d, data="00 00 00" },
    { setname="parodius", offset=0x80615, data="00 00 00" },
 ]
+
+nvram={ Defaults=[ { machine="simpsons", data="""\
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 03
+00 00 00 00 00 00 00 00 00 00 00 00 3f 3f 10 10
+"""}]}

@@ -5,6 +5,11 @@ author=["jotego"]
 sourcefile=[ "vigilant.cpp" ]
 skip = { bootlegs=true, setnames = [ "bowmen", "kikcubic", "kikcubicb", "buccanrs", "buccanrsa", "buccanrsb" ] }
 
+[Audio]
+volume = [
+    { machine="vigilant", value=0x59 }, 
+]
+
 [buttons]
 Names = [ { names="Punch, Kick "} ]
 

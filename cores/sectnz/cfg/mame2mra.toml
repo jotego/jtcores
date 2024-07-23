@@ -5,6 +5,12 @@ author=["jotego"]
 sourcefile=[ "lwings.cpp" ]
 skip.Machines=[ "avengers", "trojan", "fball" ]
 
+[Audio]
+volume = [
+    { machine="lwings", value=0x40 },
+    { machine="sectionz", value=0x21 },
+]
+
 [buttons]
 names=[
     { machine="sectionz", names="Shoot,Turn" },

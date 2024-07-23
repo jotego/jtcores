@@ -18,6 +18,9 @@ game:
     get:
       - jtshanon_coldac.v
 jtframe:
+  - when: JTFRAME_VDPS18_TEST
+    get:
+    - jtframe_sort.v
   - from: cpu
     get:
       - jtframe_m68k.yaml

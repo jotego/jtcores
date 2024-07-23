@@ -5,6 +5,11 @@ author=["jotego"]
 sourcefile=[ "segaorun.cpp" ]
 skip.descriptions=[ "Out Run" ]
 
+[Audio]
+volume = [
+    { machine="shangon", value=0xD9 },
+]
+
 [buttons]
 Names = [
     { machine="outrun",  names="Accelerate,Brake,Gear (Low / High)"},

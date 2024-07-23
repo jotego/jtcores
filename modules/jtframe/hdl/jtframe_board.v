@@ -106,6 +106,7 @@ module jtframe_board #(parameter
     // Mouse & Paddle
     input        [ 8:0] bd_mouse_dx, bd_mouse_dy,
     output       [15:0] mouse_1p,    mouse_2p,
+    output       [ 1:0] mouse_strobe,
     input        [ 7:0] bd_mouse_f,       // flags
     input               bd_mouse_idx,
     input               bd_mouse_st,
@@ -312,7 +313,9 @@ jtframe_led u_led(
 
     always @(posedge clk_sys) begin
         fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
+`ifndef JTFRAME_CREDITS_AON
         show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
+`endif
     end
 
     // To do: HS and VS should actually be delayed inside jtframe_credits too
@@ -594,6 +597,7 @@ jtframe_inputs #(
     .game_paddle_2  ( game_paddle_2   ),
     .mouse_1p       ( mouse_1p        ),
     .mouse_2p       ( mouse_2p        ),
+    .mouse_strobe   ( mouse_strobe    ),
     .spinner_1      ( spinner_1       ),
     .spinner_2      ( spinner_2       ),
     .dial_x         ( dial_x          ),

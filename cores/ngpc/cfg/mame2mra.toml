@@ -1,0 +1,10 @@
+[parse]
+sourcefile=[ "ngp.cpp" ]
+
+[ROM]
+order = ["maincpu"]
+firmware = "ngpc.rom"
+carts =[ "ngp", "ngc" ]
+
+[buttons]
+names = [{names="A,B,Option"}]

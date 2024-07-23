@@ -14,7 +14,10 @@ sudo apt upgrade --yes
 
 sudo apt install --yes --install-suggests apt-transport-https nfs-common
 sudo apt install --yes --install-suggests build-essential git gtkwave figlet xmlstarlet \
-    sublime-text docker
+    sublime-text 
+# repository called docker in ubuntu 20.04, docker.io in ubuntu 24.04    
+sudo apt install --yes docker.io
+sudo apt install --yes python-is-python3
 
 # required by iverilog
 sudo apt install --yes flex gperf bison
@@ -25,8 +28,17 @@ sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf
     qtchooser qt5-qmake
 
 # jtcore and jtupdate
-sudo apt install --yes parallel locate python3-pip
+sudo apt install --yes parallel locate python3-pip fatattr sshpass
 sudo updatedb
+
+# KiCAD
+sudo add-apt-repository ppa:kicad/kicad-8.0-releases
+sudo apt update
+sudo apt install --yes kicad
+
+# Locale
+sudo apt install --yes locales locales-all
+sudo locale-gen en_US.UTF-8
 
 # open picoblaze assembler needed for assembling the cheat and beta code
 sudo pip install --upgrade opbasm
@@ -60,11 +72,10 @@ make -j
 sudo mv mra /usr/local/bin/mra
 
 # Verilator
-sudo apt install git help2man perl python3 make autoconf g++ flex bison ccache
-sudo apt install libgoogle-perftools-dev numactl perl-doc
-sudo apt install libfl2  # Ubuntu only (ignore if gives error)
-sudo apt install libfl-dev  # Ubuntu only (ignore if gives error)
-sudo apt install zlib1g zlib1g-dev  # Ubuntu only (ignore if gives error)
+sudo apt install --yes git help2man perl python3 make autoconf g++ flex bison ccache
+sudo apt install --yes libgoogle-perftools-dev numactl perl-doc
+# Ubuntu only (ignore if alrea error)
+sudo apt install --yes libfl2 libfl-dev zlib1g zlib1g-dev 
 
 cd $HOME
 unset VERILATOR_ROOT
@@ -78,7 +89,7 @@ export VERILATOR_ROOT=`pwd`
 echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 
 # nice to have
-sudo apt install --yes htop
+sudo apt install --yes htop flameshot ghex
 
 # git configuration
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/
@@ -92,7 +103,7 @@ git config --global alias.r "reset --hard"
 # handling of EOL characters
 git config --global core.whitespace cr-at-eol
 git config --global core.autocrlf input
-# aim for a linear history 
+# aim for a linear history
 git config --global pull.rebase true
 
 # Go
@@ -105,7 +116,6 @@ echo export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin >> $HOME/.bashrc
 go install github.com/spf13/cobra-cli@latest
 go install golang.org/x/tools/cmd/goimports@latest
 go install golang.org/x/tools/cmd/godoc@latest
-
 
 # GitHub CLI
 type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)

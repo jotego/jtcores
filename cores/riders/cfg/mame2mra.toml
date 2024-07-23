@@ -1,0 +1,77 @@
+[global]
+author=["jotego"]
+
+[parse]
+# this was moved to tmnt2.cpp after MAME 0.251
+sourcefile=[ "tmnt.cpp" ]
+skip = { bootlegs=true, machines=[
+	# in JTTMNT
+	"tmnt",
+	"mia",
+	"punkshot",
+	# not covered yet
+    "cuebrick",
+    "lgtnfght",
+    "blswhstl",
+    "glfgreat",
+    "tmnt2",
+    "qgakumon",
+    "thndrx2",
+    "prmrsocr",
+]}
+
+# Problem loading NVRAM
+debug={setnames=[
+	"ssriderseaa",
+	"ssridersebd",
+	"ssridersebc",
+	"ssridersuda",
+	"ssridersuac",
+	"ssridersuab",
+	"ssridersubc",
+	"ssridersadd",
+	"ssridersabd",
+	"ssridersjad",
+	"ssridersjac",
+	"ssridersjbd",
+]}
+
+[buttons]
+names = [
+    { machine="ssriders", names="Shoot,Jump" },
+]
+
+[header]
+offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "k053245"] }
+
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true  },
+
+    { name="audiocpu"  },
+    { name="k053260"   },
+
+    { name="k052109", width=32 }, # tiles
+    { name="k053245", width=32 }, # sprites
+    { name="eeprom", skip=true }
+]
+# default configuration to prevent from boot-up error
+nvram={	Defaults=[ { data="""\
+	00 00 01 01 01 01 ff 00 00 00 00 00 00 00 00 00
+	03 ff 00 03 01 00 00 20 00 00 00 02 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 fa 19 90 64 45 41 43 00 05 e6"""}] }
+
+order=["maincpu","audiocpu","k053260","k052109","k053245"]
+
+patches=[
+	# skip the 54-frame wait after displaying the memory check
+	{setname="ssriders",offset=0x1a40,data="71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E"},
+	# skip wait after display the video grid
+	{setname="ssriders",offset=0x1392,data="71 4E"},
+]

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # Make a release to JTBIN from GitHub builds
 
 function on_error {
@@ -9,7 +9,6 @@ function on_error {
 }
 
 trap on_error ERR
-set -e
 
 function pocket_zip {
 	cd $JTBIN/pocket/raw
@@ -20,6 +19,7 @@ function pocket_zip {
 }
 
 HASH=
+LAST=
 SKIPROM=--skipROM
 VERBOSE=
 
@@ -27,6 +27,8 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		-l|--local)
 			unset JTBIN;;
+		--last)
+			LAST="--last";;
 		--host)
 			shift
 			export MRHOST=$1;;
@@ -44,6 +46,7 @@ hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
 
 -h, --help		This help screen
 -l, --local		Do not copy to JTBIN
+    --last      Use last friday's date, instead of next's
 --host			MiSTer host name
 -r, --rom		Regenerate ROM files
 -v, --verbose   Verbose
@@ -165,5 +168,5 @@ else
 	echo "Skipping JTBIN as \$JTBIN is not defined"
 	exit 0
 fi
-cpbeta.sh
+cpbeta.sh $LAST
 rm -rf $DST

@@ -1,0 +1,72 @@
+params:
+  - { name: RAM_OFFSET,   value: "22'h100000" }
+  - { name: PCM_OFFSET,   value: "22'h010000>>1" }
+clocks:
+  clk48:
+    - freq: 16000000
+      outputs:
+        - cen_16
+        - cen_8
+        - cen_4
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+audio:
+  rsum: 1.5k
+  channels:
+    # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
+    - { name: fm,    module: jt51,     rsum: 1k, rc: [ { r: 609, c: 33n } ] }
+    - { name: k60,   module: jt053260, rsum: 1k, rc: [ { r: 609, c: 33n } ] }
+sdram:
+  banks:
+    - buses:
+        - name: ram
+          addr_width: 14
+          data_width: 16
+          offset: RAM_OFFSET
+          rw: true
+        - name: main
+          addr_width: 20
+          data_width: 16
+    - buses:
+        - name: snd
+          addr_width: 16
+          data_width: 8
+        - name: pcma
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmc
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmd
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: lyrf
+          addr_width: 20
+          data_width: 32
+        - name: lyra
+          addr_width: 20
+          data_width: 32
+        - name: lyrb
+          addr_width: 20
+          data_width: 32
+    - buses:
+        - name: lyro
+          addr_width: 21
+          data_width: 32
+bram:
+  # EEROM
+  - name: nv
+    addr_width: 7
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }

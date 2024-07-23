@@ -4,6 +4,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "hcastle.cpp" ]
 
+[Audio]
+volume = [
+      { machine="hcastle", value=0x47 },
+]  
+
 [buttons]
 names = [
     { names="Attack,Jump" }
