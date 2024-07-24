@@ -103,8 +103,8 @@ u_game(
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
     .ioctl_cart  ( ioctl_cart     ),
-    .ioctl_wr    ( ioctl_wr       ), `ifdef JTFRAME_IOCTL_RD
-    .ioctl_ram   ( ioctl_ram      ),
+    .ioctl_wr    ( ioctl_wr       ),
+    .ioctl_ram   ( ioctl_ram      ), `ifdef JTFRAME_IOCTL_RD
     .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
     .ioctl_rom   ( ioctl_rom      ),

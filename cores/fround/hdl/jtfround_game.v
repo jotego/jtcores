@@ -30,7 +30,7 @@ wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] scr_bank;
 wire [19:1] cpu_addr;
 wire [ 1:0] prio;
-reg  [ 7:0] debug_mux, ioctl_mux;
+reg  [ 7:0] debug_mux;
 wire        oram_wex;
 // reg  [ 2:0] game_id;
 
@@ -40,6 +40,10 @@ assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
 assign vram_addr[12:1] = main_addr[12:1];
 assign oram_we = {2{oram_wex}};
+
+`ifdef JTFRAME_IOCTL_RD
+reg  [ 7:0] ioctl_mux;
+
 assign ioctl_din = ioctl_mux;
 
 always @(posedge clk) begin
@@ -58,6 +62,7 @@ always @(posedge clk) begin
         default: ioctl_mux <= 0;
     endcase
 end
+`endif
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )

@@ -36,9 +36,6 @@ wire [  1:0] {{$v.Name}}_wemx;{{if $v.Amx}}
 wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{ end }}{{end -}}
 {{end}}{{end}}
 
-`ifndef JTFRAME_IOCTL_RD
-wire ioctl_ram = 0;
-`endif
 // Audio channels {{ range .Audio.Channels }}{{ if .Name }}
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
 wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{if .Rc_en}}
@@ -215,10 +212,10 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .header       ( header         ),
 `endif
 `ifdef JTFRAME_IOCTL_RD
-    .ioctl_ram    ( ioctl_ram      ),
     .ioctl_din    ( {{.Ioctl.DinName}}      ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ), `endif
+    .ioctl_ram    ( ioctl_ram      ),
     .ioctl_cart   ( ioctl_cart     ),
     // Debug
     .debug_bus    ( debug_bus      ),
@@ -451,7 +448,11 @@ jtframe_ioctl_dump #(
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_aux  ( ioctl_aux ),
     .ioctl_wr   ( ioctl_wr  ),
+`ifdef JTFRAME_IOCTL_RD
     .ioctl_din  ( ioctl_din ),
+`else
+    .ioctl_din  (           ),
+`endif
     .ioctl_dout ( ioctl_dout)
 );
 {{ end }}
