@@ -31,6 +31,10 @@ module jtriders_video(
     output            tile_irqn,
     output            tile_nmin,
 
+    // Object DMA
+    input      [13:1] oram_addr,
+    input      [ 1:0] oram_we,
+    input      [15:0] oram_din,
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
@@ -158,7 +162,7 @@ function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
 endfunction
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 // extra blanking added to help MiSTer output
 // on real hardware, it would've been manually
 // adjusted on the CRT.
@@ -249,9 +253,6 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 1:0] nc;
 wire        nc2, nc3;
-wire [13:1] oaddr;
-
-assign oaddr = { cpu_addr[6:5], cpu_addr[1], cpu_addr[13:7], cpu_addr[4:2] };
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -270,9 +271,9 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .vdump      ( vrender   ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
-    .ram_addr   ( oaddr     ),
-    .ram_din    ( cpu_dout  ),
-    .ram_we     ( ~cpu_dsn & {2{cpu_we}} ),
+    .ram_addr   ( oram_addr ),
+    .ram_din    ( oram_din  ),
+    .ram_we     ( oram_we   ),
     .cpu_din    (objsys_dout),
 
     .reg_cs     ( objreg_cs ),
@@ -300,7 +301,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

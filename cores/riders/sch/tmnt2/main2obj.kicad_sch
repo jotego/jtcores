@@ -7,7 +7,7 @@
 	(title_block
 		(title "Teenage Mutant Ninja Turtles: Turtles in Time")
 		(date "2023-08-11")
-		(rev "José Tejada G.")
+		(rev "José Tejada")
 		(company "KONAMI PWB 352359C")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
@@ -3989,14 +3989,6 @@
 					)
 				)
 				(text "*"
-					(at -17.78 -29.21 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
 					(at -15.24 -36.83 0)
 					(effects
 						(font
@@ -4029,14 +4021,6 @@
 					)
 				)
 				(text "*"
-					(at 20.32 -11.43 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
 					(at 21.59 -8.89 0)
 					(effects
 						(font
@@ -4060,7 +4044,7 @@
 						)
 					)
 				)
-				(text "KONAMI\n053991\n"
+				(text "KONAMI\n053990/1\n"
 					(at 2.54 6.35 0)
 					(effects
 						(font
@@ -4076,8 +4060,8 @@
 						)
 					)
 				)
-				(text "MAIN CPU - OBJ. GENERATOR"
-					(at 2.54 1.27 0)
+				(text "OBJ TABLE\nDECODING"
+					(at 2.54 -1.27 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4100,15 +4084,7 @@
 						)
 					)
 				)
-				(text "PULL_DOWN"
-					(at 19.05 -16.51 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(pin input inverted
+				(pin tri_state inverted
 					(at -31.75 -21.59 0)
 					(length 5.08)
 					(name "~{AS}"
@@ -4144,7 +4120,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 21.59 0)
 					(length 5.08)
 					(name "MAIN_A17"
@@ -4162,7 +4138,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 19.05 0)
 					(length 5.08)
 					(name "MAIN_A16"
@@ -4180,7 +4156,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 16.51 0)
 					(length 5.08)
 					(name "MAIN_A15"
@@ -4198,7 +4174,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 13.97 0)
 					(length 5.08)
 					(name "MAIN_A14"
@@ -4216,7 +4192,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 11.43 0)
 					(length 5.08)
 					(name "MAIN_A13"
@@ -4234,7 +4210,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 8.89 0)
 					(length 5.08)
 					(name "MAIN_A12"
@@ -4252,7 +4228,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 6.35 0)
 					(length 5.08)
 					(name "MAIN_A11"
@@ -4288,7 +4264,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 3.81 0)
 					(length 5.08)
 					(name "MAIN_A10"
@@ -4324,7 +4300,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 1.27 0)
 					(length 5.08)
 					(name "MAIN_A9"
@@ -4342,7 +4318,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -1.27 0)
 					(length 5.08)
 					(name "MAIN_A8"
@@ -4360,7 +4336,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -3.81 0)
 					(length 5.08)
 					(name "MAIN_A7"
@@ -4378,7 +4354,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -6.35 0)
 					(length 5.08)
 					(name "MAIN_A6"
@@ -4396,7 +4372,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -8.89 0)
 					(length 5.08)
 					(name "MAIN_A5"
@@ -4450,7 +4426,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -11.43 0)
 					(length 5.08)
 					(name "MAIN_A4"
@@ -4468,7 +4444,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -13.97 0)
 					(length 5.08)
 					(name "MAIN_A3"
@@ -4486,7 +4462,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -16.51 0)
 					(length 5.08)
 					(name "MAIN_A2"
@@ -4504,7 +4480,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 36.83 0)
 					(length 5.08)
 					(name "MAIN_A23"
@@ -4522,7 +4498,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 -19.05 0)
 					(length 5.08)
 					(name "MAIN_A1"
@@ -4702,7 +4678,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 34.29 0)
 					(length 5.08)
 					(name "MAIN_A22"
@@ -4900,7 +4876,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 31.75 0)
 					(length 5.08)
 					(name "MAIN_A21"
@@ -5008,10 +4984,10 @@
 						)
 					)
 				)
-				(pin power_in line
-					(at -7.62 -44.45 90)
+				(pin input line
+					(at -12.7 -44.45 90)
 					(length 5.08)
-					(name "VSS"
+					(name "UK"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5045,7 +5021,7 @@
 					)
 				)
 				(pin power_in line
-					(at -10.16 -44.45 90)
+					(at -7.62 -44.45 90)
 					(length 5.08)
 					(name "VSS"
 						(effects
@@ -5062,10 +5038,10 @@
 						)
 					)
 				)
-				(pin output inverted
-					(at 31.75 -11.43 180)
+				(pin power_in line
+					(at 5.08 44.45 270)
 					(length 5.08)
-					(name "~{IPL1}?"
+					(name "VCC"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5083,7 +5059,7 @@
 				(pin input inverted
 					(at -31.75 -29.21 0)
 					(length 5.08)
-					(name "~{SYSRES}"
+					(name "~{RESET}"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5098,7 +5074,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 29.21 0)
 					(length 5.08)
 					(name "MAIN_A20"
@@ -5152,7 +5128,7 @@
 						)
 					)
 				)
-				(pin input inverted
+				(pin tri_state inverted
 					(at -31.75 -24.13 0)
 					(length 5.08)
 					(name "~{UDS}"
@@ -5170,7 +5146,7 @@
 						)
 					)
 				)
-				(pin input inverted
+				(pin tri_state inverted
 					(at -31.75 -26.67 0)
 					(length 5.08)
 					(name "~{LDS}"
@@ -5188,10 +5164,10 @@
 						)
 					)
 				)
-				(pin output line
+				(pin tri_state line
 					(at 31.75 -16.51 180)
 					(length 5.08)
-					(name "UK"
+					(name "R~{W}"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5206,7 +5182,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 26.67 0)
 					(length 5.08)
 					(name "MAIN_A19"
@@ -5224,7 +5200,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin tri_state line
 					(at -31.75 24.13 0)
 					(length 5.08)
 					(name "MAIN_A18"
@@ -5646,6 +5622,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6a2e3b4f-1790-496a-a761-e191745e6e24")
+	)
+	(junction
+		(at 185.42 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7b74390a-ee1a-400d-a334-a34fb91c1260")
 	)
 	(junction
 		(at 177.8 170.18)
@@ -7188,16 +7170,6 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 137.16) (xy 236.22 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55790573-0106-4452-8fb8-fa2e13a3f108")
-	)
-	(wire
-		(pts
 			(xy 140.97 129.54) (xy 151.13 129.54)
 		)
 		(stroke
@@ -7548,6 +7520,16 @@
 	)
 	(wire
 		(pts
+			(xy 170.18 170.18) (xy 175.26 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "885bf4d3-d02e-4530-9fc0-00f301336e64")
+	)
+	(wire
+		(pts
 			(xy 246.38 119.38) (xy 233.68 119.38)
 		)
 		(stroke
@@ -7655,6 +7637,16 @@
 			(type default)
 		)
 		(uuid "992a05e2-5955-40fe-81bf-e75b0ddcf8cb")
+	)
+	(wire
+		(pts
+			(xy 185.42 81.28) (xy 187.96 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9977d3d3-9587-42d3-90a4-c630bd95d9f8")
 	)
 	(wire
 		(pts
@@ -7865,16 +7857,6 @@
 			(type default)
 		)
 		(uuid "a9877747-2b86-4fa2-a5d4-b62b64c8bf9c")
-	)
-	(wire
-		(pts
-			(xy 172.72 170.18) (xy 175.26 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a9e89d99-8a09-43d1-812b-091368b36486")
 	)
 	(wire
 		(pts
@@ -8585,16 +8567,6 @@
 			(type default)
 		)
 		(uuid "f7bebc70-2cd8-4e09-aa6b-09c65b2d7b16")
-	)
-	(wire
-		(pts
-			(xy 236.22 134.62) (xy 236.22 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f88a2c61-f58d-460b-a801-e73803ee87a3")
 	)
 	(bus
 		(pts
@@ -9344,17 +9316,6 @@
 			(justify right bottom)
 		)
 		(uuid "63cf57e0-9bec-4f8c-b6fa-19097892ea92")
-	)
-	(label "VCC"
-		(at 236.22 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "65ca469a-708f-44a5-9fc6-4127bdbbdd26")
 	)
 	(label "MAIN_A7"
 		(at 140.97 129.54 0)

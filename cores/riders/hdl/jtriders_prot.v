@@ -20,6 +20,7 @@ module jtriders_prot(
     input                rst,
     input                clk,
     input                cen_16,
+    input                cen_8,
 
     input                cs,
     input         [13:1] addr,
@@ -30,10 +31,13 @@ module jtriders_prot(
     input                ram_we,
 
     // DMA
+
+    input                objsys_cs,
+    output               oram_cs,
     output        [13:1] oram_addr,
     output        [15:0] oram_din,
-    output               oram_we,
     input         [15:0] oram_dout,
+    output        [ 1:0] oram_we,
 
     output               irqn,
     output reg           BRn,
@@ -52,28 +56,43 @@ reg [ 5:0] calc;
 
 assign irqn = 1; // always high on the PCB
 // DMA
-reg [ 6:0] logic_prio;
+reg [ 7:0] hw_prio,logic_prio;
 reg [ 6:0] scan_addr;
-reg [15:0] cpdata;
 reg [ 1:0] st;
 reg        owr;
 
-assign oram_addr = !BGACKn ? {scan_addr,6'd0}+13'd6 : addr;
-assign oram_din  = !BGACKn ? din : cpdata;
-assign oram_we   = !BGACKn ? owr : cpu_we;
+// signal order expected at object chip pins
+// function [13:1] conv( input [6:0] a);
+// begin
+//     reg [8:0] b;
+//     b = {a,2'd0};
+//     conv={b[8:2],2'd0,b[2:0],1'b0};
+// end
+// endfunction
+
+function [13:1] conv13( input[13:1] a);
+begin
+    conv13 = { a[6:5], a[1], a[13:7], a[4:2] };
+end
+endfunction
+
+assign oram_addr = !BGACKn ? conv13({3'd0,scan_addr,3'd0}) : conv13(addr);
+assign oram_din  = !BGACKn ? {8'd0,hw_prio}  : din;
+assign oram_we   = !BGACKn ? {1'b0, /*owr*/1'b0}     : ~dsn & {2{cpu_we}};
+assign oram_cs   = !BGACKn ? 1'b1            : objsys_cs;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         BRn        <= 1;
         BGACKn     <= 1;
         logic_prio <= 0;
+        hw_prio    <= 0;
         scan_addr  <= 0;
         st         <= 0;
-        cpdata     <= 0;
     end else begin
-        if( cs && cpu_we && addr==1 ) begin
+        if( cs && cpu_we && addr[7:1]==1 ) begin
             BRn <= 0;
-            logic_prio <= 0;
+            logic_prio <= 1;
             scan_addr  <= 0;
             st         <= 0;
         end
@@ -81,23 +100,23 @@ always @(posedge clk, posedge rst) begin
             $display("DMA in progress");
             {BRn, BGACKn} <= 2'b10;
         end
-        if( !BGACKn && cen_16 ) begin
+        if( !BGACKn && cen_8 ) begin
             st <= st+2'd1;
             case( st )
             0: begin
                 owr <= 0;
             end
-            2: begin // Write cpdata and advanced
-                cpdata <= oram_dout;
-                owr  <= 1;
+            2: begin
+                if(oram_dout[15:8]==logic_prio) owr  <= 1;
             end
             3: begin
                 owr <= 0;
                 scan_addr <= scan_addr+7'd1;
+                if( owr ) hw_prio <= hw_prio+8'd1;
                 if( &scan_addr ) begin
                     logic_prio <= logic_prio<<1;
                     scan_addr  <= 0;
-                    if( logic_prio[6] ) BGACKn <= 1;
+                    if( logic_prio[7] ) BGACKn <= 1;
                 end
             end
             endcase

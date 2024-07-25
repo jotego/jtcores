@@ -53889,14 +53889,6 @@
 				)
 			)
 			(text "*"
-				(at -17.78 -29.21 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
 				(at -15.24 -36.83 0)
 				(effects
 					(font
@@ -53929,14 +53921,6 @@
 				)
 			)
 			(text "*"
-				(at 20.32 -11.43 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
 				(at 21.59 -8.89 0)
 				(effects
 					(font
@@ -53960,7 +53944,7 @@
 					)
 				)
 			)
-			(text "KONAMI\n053991\n"
+			(text "KONAMI\n053990/1\n"
 				(at 2.54 6.35 0)
 				(effects
 					(font
@@ -53976,8 +53960,8 @@
 					)
 				)
 			)
-			(text "MAIN CPU - OBJ. GENERATOR"
-				(at 2.54 1.27 0)
+			(text "OBJ TABLE\nDECODING"
+				(at 2.54 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -54000,15 +53984,7 @@
 					)
 				)
 			)
-			(text "PULL_DOWN"
-				(at 19.05 -16.51 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(pin input inverted
+			(pin tri_state inverted
 				(at -31.75 -21.59 0)
 				(length 5.08)
 				(name "~{AS}"
@@ -54044,7 +54020,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 21.59 0)
 				(length 5.08)
 				(name "MAIN_A17"
@@ -54062,7 +54038,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 19.05 0)
 				(length 5.08)
 				(name "MAIN_A16"
@@ -54080,7 +54056,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 16.51 0)
 				(length 5.08)
 				(name "MAIN_A15"
@@ -54098,7 +54074,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 13.97 0)
 				(length 5.08)
 				(name "MAIN_A14"
@@ -54116,7 +54092,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 11.43 0)
 				(length 5.08)
 				(name "MAIN_A13"
@@ -54134,7 +54110,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 8.89 0)
 				(length 5.08)
 				(name "MAIN_A12"
@@ -54152,7 +54128,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 6.35 0)
 				(length 5.08)
 				(name "MAIN_A11"
@@ -54188,7 +54164,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 3.81 0)
 				(length 5.08)
 				(name "MAIN_A10"
@@ -54224,7 +54200,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 1.27 0)
 				(length 5.08)
 				(name "MAIN_A9"
@@ -54242,7 +54218,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -1.27 0)
 				(length 5.08)
 				(name "MAIN_A8"
@@ -54260,7 +54236,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -3.81 0)
 				(length 5.08)
 				(name "MAIN_A7"
@@ -54278,7 +54254,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -6.35 0)
 				(length 5.08)
 				(name "MAIN_A6"
@@ -54296,7 +54272,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -8.89 0)
 				(length 5.08)
 				(name "MAIN_A5"
@@ -54350,7 +54326,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -11.43 0)
 				(length 5.08)
 				(name "MAIN_A4"
@@ -54368,7 +54344,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -13.97 0)
 				(length 5.08)
 				(name "MAIN_A3"
@@ -54386,7 +54362,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -16.51 0)
 				(length 5.08)
 				(name "MAIN_A2"
@@ -54404,7 +54380,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 36.83 0)
 				(length 5.08)
 				(name "MAIN_A23"
@@ -54422,7 +54398,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 -19.05 0)
 				(length 5.08)
 				(name "MAIN_A1"
@@ -54602,7 +54578,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 34.29 0)
 				(length 5.08)
 				(name "MAIN_A22"
@@ -54800,7 +54776,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 31.75 0)
 				(length 5.08)
 				(name "MAIN_A21"
@@ -54908,10 +54884,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at -7.62 -44.45 90)
+			(pin input line
+				(at -12.7 -44.45 90)
 				(length 5.08)
-				(name "VSS"
+				(name "UK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -54945,7 +54921,7 @@
 				)
 			)
 			(pin power_in line
-				(at -10.16 -44.45 90)
+				(at -7.62 -44.45 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -54962,10 +54938,10 @@
 					)
 				)
 			)
-			(pin output inverted
-				(at 31.75 -11.43 180)
+			(pin power_in line
+				(at 5.08 44.45 270)
 				(length 5.08)
-				(name "~{IPL1}?"
+				(name "VCC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -54983,7 +54959,7 @@
 			(pin input inverted
 				(at -31.75 -29.21 0)
 				(length 5.08)
-				(name "~{SYSRES}"
+				(name "~{RESET}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -54998,7 +54974,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 29.21 0)
 				(length 5.08)
 				(name "MAIN_A20"
@@ -55052,7 +55028,7 @@
 					)
 				)
 			)
-			(pin input inverted
+			(pin tri_state inverted
 				(at -31.75 -24.13 0)
 				(length 5.08)
 				(name "~{UDS}"
@@ -55070,7 +55046,7 @@
 					)
 				)
 			)
-			(pin input inverted
+			(pin tri_state inverted
 				(at -31.75 -26.67 0)
 				(length 5.08)
 				(name "~{LDS}"
@@ -55088,10 +55064,10 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 31.75 -16.51 180)
 				(length 5.08)
-				(name "UK"
+				(name "R~{W}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -55106,7 +55082,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 26.67 0)
 				(length 5.08)
 				(name "MAIN_A19"
@@ -55124,7 +55100,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin tri_state line
 				(at -31.75 24.13 0)
 				(length 5.08)
 				(name "MAIN_A18"

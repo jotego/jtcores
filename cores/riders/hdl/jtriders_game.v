@@ -24,17 +24,19 @@ module jtriders_game(
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs;
-wire [15:0] pal_dout, objsys_dout, prot_dout;
+            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
+wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
+wire [13:1] oram_addr;
+reg  [ 7:0] debug_mux;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
 wire [ 2:0] dim;
-reg  [ 7:0] debug_mux;
+wire [ 1:0] oram_we;
 
 assign debug_view = debug_mux;
-assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
+assign ram_addr   = main_addr[13:1];
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -88,7 +90,7 @@ jtriders_main u_main(
     .service        ( {4{service}}  ),
 
     .vram_dout      ( tilesys_dout  ),
-    .oram_dout      ( objsys_dout   ),
+    .oram_dout      ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     // To video
     .rmrd           ( rmrd          ),
@@ -120,24 +122,27 @@ jtriders_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
+/* verilator tracing_on */
 jtriders_prot u_prot(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen_16 ( cen_16    ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen_16     ( cen_16    ),
+    .cen_8      ( cen_8     ),
 
-    .cs     ( prot_cs   ),
-    .addr   ( ram_addr  ),
-    .cpu_we ( cpu_we    ),
-    .din    ( ram_din   ),
-    .dout   ( prot_dout ),
-    .ram_we ( ram_we    ),
-    .dsn    ( ram_dsn   ),
-
+    .cs         ( prot_cs   ),
+    .addr       (main_addr[13:1]),
+    .cpu_we     ( cpu_we    ),
+    .din        ( ram_din   ), // = cpu_dout
+    .dout       ( prot_dout ),
+    .ram_we     ( ram_we    ),
+    .dsn        ( ram_dsn   ),
     // DMA
-    .oram_addr  (           ),
-    .oram_din   (           ),
-    .oram_dout  (objsys_dout),
-    .oram_we    (           ),
+    .objsys_cs  ( objsys_cs ),
+    .oram_cs    ( oram_cs   ),
+    .oram_addr  ( oram_addr ),
+    .oram_din   ( oram_din  ),
+    .oram_dout  ( oram_dout ),
+    .oram_we    ( oram_we   ),
     .irqn       ( prot_irqn ),
     .BRn        ( BRn       ),
     .BGn        ( BGn       ),
@@ -160,9 +165,13 @@ jtriders_video u_video (
     .hs             ( HS            ),
     .vs             ( VS            ),
     .flip           ( dip_flip      ),
+    // Object DMA
+    .oram_we        ( oram_we       ),
+    .oram_din       ( oram_din      ),
+    .oram_addr      ( oram_addr     ),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
-    .objsys_cs      ( objsys_cs     ),
+    .objsys_cs      ( oram_cs       ),
     .objreg_cs      ( objreg_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
@@ -172,7 +181,7 @@ jtriders_video u_video (
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
-    .objsys_dout    ( objsys_dout   ),
+    .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .dma_bsy        ( dma_bsy       ),
