@@ -368,11 +368,11 @@ Bit | Use                              |
 4-0 | SNAC type of controller/adapter  |
 
 
-| BUS VALUE |  SNAC Adapter    |  FUNCTION                |
-|------------------------------|--------------------------|
-|   0x0     |  None            |  disables SNAC interface |
-|   0x1     |  DB15 Normal     |  1/2 players             |
-|   0x2     |  NES             |  1/2 players             |
-|   0x3     |  SNES            |  1/2 players             |
-|   0x4     |  PCE 2BTN/6BTN   |  1 player                |
-|   0x6     |  PCE Multitap    |  allows 4 players        |
+ BUS VALUE |  SNAC Adapter    |  FUNCTION                |
+-----------|------------------|--------------------------|
+   0x0     |  None            |  disables SNAC interface |
+   0x1     |  DB15 Normal     |  1/2 players             |
+   0x2     |  NES             |  1/2 players             |
+   0x3     |  SNES            |  1/2 players             |
+   0x4     |  PCE 2BTN/6BTN   |  1 player                |
+   0x6     |  PCE Multitap    |  allows 4 players        |
