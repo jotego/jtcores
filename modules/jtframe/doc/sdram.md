@@ -1,4 +1,4 @@
-l# IOCTL Indexes
+# IOCTL Indexes
 
 For I/O (SDRAM download, etc.) the following indexes are used
 
