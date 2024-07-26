@@ -174,7 +174,7 @@
 			)
 			(uuid "3ea64842-f2e8-453a-9cc1-b8baf007b227")
 		)
-		(pin "JT5" input
+		(pin "~{DTACK}" input
 			(at 279.4 78.74 180)
 			(effects
 				(font
@@ -271,7 +271,7 @@
 			)
 			(uuid "ff5e5931-b61c-4929-9029-c69b113ba238")
 		)
-		(pin "JT5" input
+		(pin "~{DTACK}" input
 			(at 241.3 78.74 180)
 			(effects
 				(font
