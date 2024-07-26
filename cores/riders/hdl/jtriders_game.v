@@ -146,7 +146,9 @@ jtriders_prot u_prot(
     .irqn       ( prot_irqn ),
     .BRn        ( BRn       ),
     .BGn        ( BGn       ),
-    .BGACKn     ( BGACKn    )
+    .BGACKn     ( BGACKn    ),
+
+    .debug_bus  ( debug_bus )
 );
 
 /* verilator tracing_off */

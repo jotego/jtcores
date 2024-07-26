@@ -42,7 +42,9 @@ module jtriders_prot(
     output               irqn,
     output reg           BRn,
     input                BGn,
-    output reg           BGACKn
+    output reg           BGACKn,
+
+    input         [ 7:0] debug_bus
 );
 
 localparam [13:1] DATA = 13'hd05, // 5a0a-4000>>1
@@ -56,6 +58,7 @@ reg signed [15:0] v0,v1,v2,vx0,vx1,vx2,vsum,c,vcalc,calc;
 
 assign irqn = 1; // always high on the PCB
 // DMA
+reg [13:1] dma_addr;
 reg [ 7:0] hw_prio,logic_prio;
 reg [ 6:0] scan_addr;
 reg [ 1:0] st;
@@ -76,10 +79,10 @@ begin
 end
 endfunction
 
-assign oram_addr = !BGACKn ? conv13({3'd0,scan_addr,3'd0}) : conv13(addr);
-assign oram_din  = !BGACKn ? {8'd0,hw_prio}  : din;
-assign oram_we   = !BGACKn ? {1'b0, /*owr*/1'b0}     : ~dsn & {2{cpu_we}};
-assign oram_cs   = !BGACKn ? 1'b1            : objsys_cs;
+assign oram_addr = !BGACKn ? dma_addr     : conv13(addr);
+assign oram_din  = !BGACKn ? {2{hw_prio}} : din;
+assign oram_we   = !BGACKn ? {1'b0,owr}   : ~dsn & {2{cpu_we}};
+assign oram_cs   = !BGACKn ? 1'b1         : objsys_cs;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -88,11 +91,13 @@ always @(posedge clk, posedge rst) begin
         logic_prio <= 0;
         hw_prio    <= 0;
         scan_addr  <= 0;
+        dma_addr   <= 0;
         st         <= 0;
     end else begin
         if( cs && cpu_we && addr[7:1]==1 ) begin
             BRn <= 0;
             logic_prio <= 1;
+            hw_prio    <= 1;
             scan_addr  <= 0;
             st         <= 0;
         end
@@ -104,10 +109,14 @@ always @(posedge clk, posedge rst) begin
             st <= st+2'd1;
             case( st )
             0: begin
-                owr <= 0;
+                dma_addr <= conv13({ scan_addr, 6'd3 });
+                owr      <= 0;
             end
             2: begin
-                if(oram_dout[15:8]==logic_prio) owr  <= 1;
+                if( oram_dout[15:8]==logic_prio) begin
+                    dma_addr <= {3'd0,scan_addr,3'd0};
+                    owr      <= 1;
+                end
             end
             3: begin
                 owr <= 0;
