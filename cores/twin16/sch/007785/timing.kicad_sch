@@ -9,7 +9,7 @@
   )
 
   (lib_symbols
-    (symbol "oki-msm70v000:2AD" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:2AD" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -58,7 +58,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:2NR" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:2NR" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -139,7 +139,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:2OR" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:2OR" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -220,7 +220,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:3AD" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:3AD" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -273,7 +273,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:3NR" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:3NR" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -358,7 +358,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:4AD" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:4AD" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -426,7 +426,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:D1A" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:D1A" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -463,7 +463,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:D1N" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:D1N" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -500,7 +500,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:D2A" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:D2A" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -537,7 +537,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:DF" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:DF" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 2.54 6.35 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -584,7 +584,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:DFR" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:DFR" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 6.35 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -627,7 +627,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:INV" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:INV" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -664,7 +664,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:JKFR" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:JKFR" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 6.35 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -711,7 +711,7 @@
         )
       )
     )
-    (symbol "oki-msm70v000:LFX" (in_bom yes) (on_board yes)
+    (symbol "ga_oki_msm70v0000:LFX" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 0 3.81 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -2209,7 +2209,7 @@
     (uuid ff87de64-5c81-455b-a343-ebc99deabd64)
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 236.22 138.43 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 236.22 138.43 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 04a316d4-8a19-4bc8-8ec3-68cecbd64796)
     (property "Reference" "O109" (at 236.22 134.62 0)
@@ -2235,7 +2235,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 281.94 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 281.94 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0b36e24e-18ca-439a-a0c4-8ac128d10d20)
     (property "Reference" "G69" (at 284.48 163.83 0)
@@ -2265,7 +2265,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 57.15 101.6 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 57.15 101.6 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0b47ac11-cb90-4bcc-b49e-64672276d3c6)
     (property "Reference" "R33" (at 57.15 95.25 0)
@@ -2294,7 +2294,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 78.74 101.6 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 78.74 101.6 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0da0b0a7-0ccc-48ed-8487-6b90764fbb00)
     (property "Reference" "O28" (at 78.74 95.25 0)
@@ -2323,7 +2323,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 100.33 153.67 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 100.33 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0ff0e6a2-550b-4fb7-9c4f-d601adefc3bf)
     (property "Reference" "S58" (at 100.33 147.32 0)
@@ -2352,7 +2352,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 251.46 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 251.46 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 107c97bc-fe0f-45b1-99a0-8b4f517d83f8)
     (property "Reference" "J68" (at 254 163.83 0)
@@ -2382,7 +2382,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 168.91 123.19 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 168.91 123.19 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 185abeb8-c17b-4a9b-918d-f184ecc00bfe)
     (property "Reference" "M53" (at 168.91 127 0)
@@ -2408,7 +2408,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1N") (at 347.98 130.81 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1N") (at 347.98 130.81 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1d35a79b-6c92-4f28-b391-c0179ad61db9)
     (property "Reference" "V138" (at 347.98 127 0)
@@ -2434,7 +2434,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 121.92 172.72 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 121.92 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1f8bb49e-0e67-43cf-bd97-db75b82c1a54)
     (property "Reference" "N60" (at 124.46 166.37 0)
@@ -2464,7 +2464,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 121.92 83.82 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 121.92 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 267ab2f3-c601-40a6-9ad4-85c79a6c3ba8)
     (property "Reference" "A36" (at 121.92 77.47 0)
@@ -2493,7 +2493,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 200.66 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 200.66 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 315627ae-6952-45bd-a25a-605a0aa02364)
     (property "Reference" "L72" (at 203.2 163.83 0)
@@ -2523,7 +2523,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 100.33 83.82 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 100.33 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 39c47df1-9f3a-4f9a-b1f9-b2cce27409ed)
     (property "Reference" "B43" (at 100.33 77.47 0)
@@ -2552,7 +2552,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 160.02 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 160.02 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3d4c1910-aac6-4848-88cb-49c24b2509db)
     (property "Reference" "A105" (at 160.02 114.3 0)
@@ -2578,7 +2578,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 170.18 106.68 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 170.18 106.68 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 40030651-9379-49d6-a5ac-3d59d2bd650e)
     (property "Reference" "C140" (at 170.18 102.87 0)
@@ -2604,7 +2604,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2AD") (at 172.72 97.79 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2AD") (at 172.72 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 43c71dbf-85b6-412f-8045-5a081f2de718)
     (property "Reference" "G60" (at 172.72 93.98 0)
@@ -2631,7 +2631,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2AD") (at 375.92 208.28 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2AD") (at 375.92 208.28 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4672b501-ea20-4b87-9a58-1fef430d2cf9)
     (property "Reference" "K62" (at 375.92 204.47 0)
@@ -2658,7 +2658,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 100.33 101.6 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 100.33 101.6 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 47366121-a0aa-4f1b-8075-0b2debe5a3e5)
     (property "Reference" "Q35" (at 100.33 95.25 0)
@@ -2687,7 +2687,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 170.18 114.3 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 170.18 114.3 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 49e8e932-cdc6-46e8-94b8-7d77c81bfbdc)
     (property "Reference" "I120" (at 171.45 116.84 0)
@@ -2713,7 +2713,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 297.18 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 297.18 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4a0acc4e-fd9e-41ee-a449-59aec82af60d)
     (property "Reference" "M69" (at 299.72 163.83 0)
@@ -2743,7 +2743,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 153.67 85.09 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 153.67 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4a30c12c-140e-429b-b90b-8d51916a356e)
     (property "Reference" "A26" (at 153.67 81.28 0)
@@ -2769,7 +2769,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:JKFR") (at 160.02 149.86 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:JKFR") (at 160.02 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4fd30515-ec50-4e30-9eee-29e5c421938c)
     (property "Reference" "O38" (at 160.02 143.51 0)
@@ -2799,7 +2799,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 27.94 171.45 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 27.94 171.45 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 50fa353a-5c0f-4de4-b585-9035bbc01ca6)
     (property "Reference" "A47" (at 27.94 165.1 0)
@@ -2828,7 +2828,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 57.15 153.67 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 57.15 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 574fc7f7-2ebd-44b2-89bc-60d06a48ed83)
     (property "Reference" "P61" (at 57.15 147.32 0)
@@ -2857,7 +2857,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 148.59 135.89 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 148.59 135.89 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5b7ac94e-79e6-49ff-b616-0694fd61dbb9)
     (property "Reference" "H42" (at 148.59 132.08 0)
@@ -2883,7 +2883,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1N") (at 236.22 106.68 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1N") (at 236.22 106.68 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 61a809e9-8467-4abf-aae4-5982a12fa5c0)
     (property "Reference" "A117" (at 236.22 102.87 0)
@@ -2909,7 +2909,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 78.74 153.67 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 78.74 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6499311f-47be-4950-be6c-8f7a610b795b)
     (property "Reference" "Q52" (at 78.74 147.32 0)
@@ -2938,7 +2938,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:LFX") (at 139.7 177.8 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:LFX") (at 139.7 177.8 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 676949b1-e37f-47cf-94f2-8e80e61bf338)
     (property "Reference" "S68" (at 139.7 173.99 0)
@@ -2963,7 +2963,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 100.33 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 100.33 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 698449fa-f224-4957-9175-b85399f63c8f)
     (property "Reference" "U50" (at 100.33 111.76 0)
@@ -2992,7 +2992,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 167.64 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 167.64 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6b462c05-40ea-4c96-818c-fc5864b38229)
     (property "Reference" "L60" (at 170.18 163.83 0)
@@ -3022,7 +3022,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 57.15 83.82 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 57.15 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6b46682d-a436-41e7-92e7-e143d1139e1f)
     (property "Reference" "D48" (at 57.15 77.47 0)
@@ -3051,7 +3051,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:4AD") (at 375.92 149.86 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:4AD") (at 375.92 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 71f0f0d2-2aff-43ef-9eab-26492affe36e)
     (property "Reference" "O54" (at 375.92 144.78 0)
@@ -3080,7 +3080,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 121.92 137.16 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 121.92 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7966fec5-d6f5-4579-9290-e1ed16a45680)
     (property "Reference" "L48" (at 123.19 130.81 0)
@@ -3110,7 +3110,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:LFX") (at 55.88 180.34 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:LFX") (at 55.88 180.34 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8379b11b-5a17-4029-b258-1be50c63740f)
     (property "Reference" "O51" (at 55.88 176.53 0)
@@ -3135,7 +3135,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 121.92 153.67 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 121.92 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 83babf75-831a-41b4-b422-9217c8b5e95f)
     (property "Reference" "P50" (at 121.92 147.32 0)
@@ -3164,7 +3164,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 346.71 172.72 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 346.71 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 959cc4c7-632e-4f8f-9644-80f04fa13979)
     (property "Reference" "T64" (at 346.71 166.37 0)
@@ -3193,7 +3193,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 266.7 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 266.7 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 97c2ecf0-1633-4e0c-b80a-af54cfc7b9c2)
     (property "Reference" "H66" (at 269.24 163.83 0)
@@ -3223,7 +3223,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 57.15 137.16 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 57.15 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 97e2ede6-9afb-4ab4-96c9-50afa7e1fef4)
     (property "Reference" "H51" (at 58.42 130.81 0)
@@ -3253,7 +3253,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 312.42 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 312.42 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9a85e847-d533-42db-a4b2-17134356e953)
     (property "Reference" "P72" (at 314.96 163.83 0)
@@ -3283,7 +3283,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 365.76 209.55 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 365.76 209.55 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9afaa7ae-e2c8-4a4d-b09a-a8b3897748da)
     (property "Reference" "J89" (at 365.76 205.74 0)
@@ -3309,7 +3309,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 121.92 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 121.92 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9cc77df5-0cef-4409-bd8f-c5fc3d78d40c)
     (property "Reference" "F44" (at 121.92 111.76 0)
@@ -3338,7 +3338,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 100.33 172.72 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 100.33 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9dd161e8-71ab-4828-9f11-f8ff48272713)
     (property "Reference" "R61" (at 102.87 166.37 0)
@@ -3368,7 +3368,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 78.74 172.72 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 78.74 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a07e03c8-ef0e-411e-ba03-111631cd5928)
     (property "Reference" "O59" (at 81.28 166.37 0)
@@ -3398,7 +3398,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 168.91 130.81 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 168.91 130.81 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a0cda854-5e0d-4238-985e-b3a2425c279e)
     (property "Reference" "S50" (at 168.91 134.62 0)
@@ -3424,7 +3424,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1N") (at 236.22 128.27 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1N") (at 236.22 128.27 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a548bb1e-1006-49a6-95c6-961233d5a8d6)
     (property "Reference" "N138" (at 236.22 124.46 0)
@@ -3450,7 +3450,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 184.15 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 184.15 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a813b7f4-af65-4a6d-a77c-a086aba90e30)
     (property "Reference" "K71" (at 186.69 163.83 0)
@@ -3480,7 +3480,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:LFX") (at 41.91 144.78 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:LFX") (at 41.91 144.78 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a89e53f4-ce04-49c6-9272-248af9354b0a)
     (property "Reference" "J44" (at 41.91 140.97 0)
@@ -3505,7 +3505,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 78.74 137.16 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 78.74 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b5d71f11-3e57-40a0-97e1-25f15285d10f)
     (property "Reference" "J47" (at 80.01 130.81 0)
@@ -3535,7 +3535,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:3NR") (at 143.51 85.09 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:3NR") (at 143.51 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b997a582-967e-4f02-9b78-1616a37dadd9)
     (property "Reference" "A31" (at 143.51 81.28 0)
@@ -3563,7 +3563,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:3AD") (at 156.21 168.91 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:3AD") (at 156.21 168.91 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b9bfc343-b298-4920-89cc-d39d344f4d66)
     (property "Reference" "N38" (at 156.21 165.1 0)
@@ -3591,7 +3591,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 100.33 137.16 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 100.33 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid beb40119-96fc-46df-9786-692b31fc8a04)
     (property "Reference" "K51" (at 101.6 130.81 0)
@@ -3621,7 +3621,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 386.08 208.28 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 386.08 208.28 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid cb877b07-62bc-4f61-ba1e-7616a51a14f1)
     (property "Reference" "R97" (at 386.08 204.47 0)
@@ -3647,7 +3647,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2AD") (at 149.86 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2AD") (at 149.86 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ce396dfb-e80a-4ca4-9788-84216fe4860b)
     (property "Reference" "B32" (at 149.86 114.3 0)
@@ -3674,7 +3674,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 218.44 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 218.44 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ce933432-8032-4390-9a20-4577dd16d94b)
     (property "Reference" "N78" (at 220.98 163.83 0)
@@ -3704,7 +3704,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2AD") (at 142.24 147.32 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2AD") (at 142.24 147.32 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d2cbd18f-19bc-49cb-a1b2-37f94d6a2fea)
     (property "Reference" "N34" (at 142.24 143.51 0)
@@ -3731,7 +3731,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 78.74 83.82 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 78.74 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d3a027df-525a-49dd-a9d0-672bce0097d0)
     (property "Reference" "C43" (at 78.74 77.47 0)
@@ -3760,7 +3760,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 236.22 116.84 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 236.22 116.84 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d5be3a10-0f5d-437b-b6b8-cb2284b0b544)
     (property "Reference" "J112" (at 236.22 113.03 0)
@@ -3786,7 +3786,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1N") (at 386.08 198.12 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1N") (at 386.08 198.12 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d801e976-4580-490e-95e7-3b40d8eef035)
     (property "Reference" "W91" (at 386.08 194.31 0)
@@ -3812,7 +3812,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 121.92 101.6 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 121.92 101.6 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid de7e2816-62d3-44cd-aba1-1b3945e084e3)
     (property "Reference" "N42" (at 121.92 95.25 0)
@@ -3841,7 +3841,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 57.15 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 57.15 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid deade490-016c-4454-98be-9297b90bb9e4)
     (property "Reference" "T49" (at 57.15 111.76 0)
@@ -3870,7 +3870,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 327.66 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 327.66 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid df9a555c-8244-489a-99af-bcdc5a5e710f)
     (property "Reference" "S71" (at 330.2 163.83 0)
@@ -3900,7 +3900,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DFR") (at 78.74 118.11 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DFR") (at 78.74 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e118e2b4-0780-4703-afe0-c4b962f69788)
     (property "Reference" "V56" (at 78.74 111.76 0)
@@ -3929,7 +3929,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:INV") (at 341.63 182.88 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:INV") (at 341.63 182.88 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e2efc47c-281d-4096-8847-094cb2e02d48)
     (property "Reference" "L44" (at 341.63 179.07 0)
@@ -3955,7 +3955,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:DF") (at 234.95 170.18 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:DF") (at 234.95 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e3d7c8b9-bc2f-4723-b5a8-4633fd612ea8)
     (property "Reference" "Q68" (at 237.49 163.83 0)
@@ -3985,7 +3985,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2NR") (at 143.51 96.52 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2NR") (at 143.51 96.52 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f027d8d3-3213-46be-8d68-cac9b3c6ad2e)
     (property "Reference" "G32" (at 143.51 92.71 0)
@@ -4012,7 +4012,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D2A") (at 358.14 173.99 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D2A") (at 358.14 173.99 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f1e51d89-6bc6-4722-82e1-c10014fb4afe)
     (property "Reference" "J58" (at 358.14 177.8 0)
@@ -4038,7 +4038,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:D1A") (at 347.98 115.57 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:D1A") (at 347.98 115.57 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f3385298-ee8c-4a6e-85a3-337388599803)
     (property "Reference" "W139" (at 347.98 111.76 0)
@@ -4064,7 +4064,7 @@
     )
   )
 
-  (symbol (lib_id "oki-msm70v000:2OR") (at 49.53 171.45 0) (unit 1)
+  (symbol (lib_id "ga_oki_msm70v0000:2OR") (at 49.53 171.45 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid fd230f72-a970-4007-8624-bd12105eb008)
     (property "Reference" "L30" (at 49.53 167.64 0)
