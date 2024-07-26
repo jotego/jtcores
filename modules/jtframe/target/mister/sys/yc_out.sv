@@ -202,13 +202,10 @@ always_ff @(posedge clk) begin
 
 			// Calculate for chroma (Note: "PAL SWITCH" routine flips V * COS(Wt) every other line)
 		if (PAL_EN) begin
-			if (PAL_FLIP) begin
-				phase[4].c <= {12'b0,vref} + phase[3].u - phase[3].v;
-			 end else begin
-				phase[4].c <= {12'b0,vref} + phase[3].u + phase[3].v;
-				PAL_line_count <= 1'd1;
-		end end else
-				phase[4].c <= {12'b0,vref} + phase[3].u + phase[3].v;
+			if (PAL_FLIP) phase[4].c <= {12'b0,vref} + phase[3].u - phase[3].v;
+			else phase[4].c <= {12'b0,vref} + phase[3].u + phase[3].v;
+			PAL_line_count <= 1'd1;
+		end else phase[4].c <= {12'b0,vref} + phase[3].u + phase[3].v;
 	end
 
 	// Adjust sync timing correctly

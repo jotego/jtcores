@@ -126,7 +126,7 @@ crt.replace = {"f": "af",  "h": "afh",
                "g": "afg", "i": "afgh",
                "e": "akl", "d": "ak" ,
                "c": "acj", "b": "abj",
-               "x": ""}
+               "x": "",    "a": "ad"}
 
 snac = OptionType()
 
