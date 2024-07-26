@@ -29,7 +29,7 @@ sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf
     qtchooser qt5-qmake
 
 # jtcore and jtupdate
-sudo apt install --yes parallel locate python3-pip fatattr sshpass
+sudo apt install --yes parallel locate python3-pip fatattr sshpass gawk libxml2-utils
 sudo updatedb
 
 # KiCAD
