@@ -439,7 +439,7 @@ uint16_t tmnt2_state::punkshot_kludge_r()
 uint16_t tmnt2_state::ssriders_protection_r(address_space &space)
 {
 	int data = space.read_word(0x105a0a);
-	int cmd = space.read_word(0x1058fc);
+	int cmd  = space.read_word(0x1058fc);
 
 	switch (cmd)
 	{

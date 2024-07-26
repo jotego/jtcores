@@ -51,8 +51,8 @@ localparam [13:1] DATA = 13'hd05, // 5a0a-4000>>1
                   V1   = 13'he58, // 5cb0-4000>>1
                   V2   = 13'h064; // 40c8-4000>>1
 
-reg [15:0] cmd, odma, v0, v1, v2, vx;
-reg [ 5:0] calc;
+reg        [15:0] cmd, odma;
+reg signed [15:0] v0,v1,v2,vx0,vx1,vx2,vsum,c,vcalc,calc;
 
 assign irqn = 1; // always high on the PCB
 // DMA
@@ -125,13 +125,19 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Data read
-
+// MAME does a convoluted operation that seems to rely on the upper 16 bits
+// being zero and getting set to 1 when v0 is negative. That changes the /8
+// result by 1, which then creates a 0x40 difference in the final value
+// This implementation does not rely on phantom bits. In any case, we need
+// more information to accurately implement this chip
 always @* begin
-    vx = -v0-16'd32;
-    vx = { 5'd0, vx[3+:5], 6'd0 };
-    vx = vx + v1 + v2 - 16'd6;
-    vx = vx>>3;
-    vx = vx+16'd12;
+    c     = 0;
+    vx0   = (v0+16'd32)>>3;
+    vx1   = -vx0;
+    vx2   = {5'd0,vx1[4:0],6'd0};
+    vsum  = v1+v2-16'd6;
+    c[0]  = vsum[15] & (|vsum[2:0]);
+    vcalc = vx2+(((vsum>>3)+c+16'd12)&16'h3f);
 end
 
 `define WR16(a) begin if(!dsn[0]) a[7:0]<=din[7:0]; if(!dsn[1]) a[15:8]<=din[15:8]; end
@@ -152,7 +158,7 @@ end
 `undef WR16
 
 always @(posedge clk) begin
-    calc <= vx[5:0];
+    calc <= vcalc;
     case(cmd)
         16'h100b: dout <= 16'h64;
         16'h6003: dout <= {12'd0,odma[3:0]};
@@ -160,8 +166,8 @@ always @(posedge clk) begin
         16'h6000: dout <= {15'd0,odma[  0]};
         16'h0000: dout <= { 8'd0,odma[7:0]};
         16'h6007: dout <= { 8'd0,odma[7:0]};
-        16'h8abc: dout <= {10'd0,calc};
-        default:  dout <= 0;
+        16'h8abc: dout <= calc;
+        default:  dout <= 16'hffff;
     endcase
 end
 

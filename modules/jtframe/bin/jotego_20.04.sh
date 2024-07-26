@@ -5,7 +5,7 @@
 
 set -e
 
-# Sublime
+# Sublime Text
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 
@@ -21,6 +21,7 @@ sudo apt install --yes python-is-python3
 
 # required by iverilog
 sudo apt install --yes flex gperf bison
+
 
 # required by MAME
 sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf-dev \
@@ -87,6 +88,15 @@ autoconf
 make -j $((`nproc`*4/5))
 export VERILATOR_ROOT=`pwd`
 echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
+
+# Icarus Verilog
+git clone git@github.com:steveicarus/iverilog.git
+cd iverilog
+git checkout v12_0
+sh autoconf.sh
+./configure
+make -j $((`nproc`*4/5))
+sudo make install
 
 # nice to have
 sudo apt install --yes htop flameshot ghex

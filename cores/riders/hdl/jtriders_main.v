@@ -95,7 +95,7 @@ wire        dtac_mux;
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
-
+/* verilator tracing_off */
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { tile_irqn, 1'b1, prot_irqn };

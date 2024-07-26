@@ -35,7 +35,7 @@ wire [ 2:0] dim;
 wire [ 1:0] oram_we;
 
 assign debug_view = debug_mux;
-assign ram_we     = cpu_we;
+assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
 
 always @(posedge clk) begin
@@ -52,7 +52,7 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -134,7 +134,7 @@ jtriders_prot u_prot(
     .cpu_we     ( cpu_we    ),
     .din        ( ram_din   ), // = cpu_dout
     .dout       ( prot_dout ),
-    .ram_we     ( ram_we    ),
+    .ram_we     ( ram_we    ), // includes ram_cs as part of ram_we
     .dsn        ( ram_dsn   ),
     // DMA
     .objsys_cs  ( objsys_cs ),
@@ -149,7 +149,7 @@ jtriders_prot u_prot(
     .BGACKn     ( BGACKn    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
