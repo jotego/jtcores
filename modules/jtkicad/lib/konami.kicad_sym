@@ -12139,24 +12139,6 @@
 					)
 				)
 			)
-			(pin input line
-				(at -11.43 50.8 0)
-				(length 5.08)
-				(name "E1V1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "31"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin power_in line
 				(at 8.89 -45.72 180)
 				(length 2.54)
@@ -12175,7 +12157,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -38.1 0)
 				(length 5.08)
 				(name "VD0"
@@ -12193,7 +12175,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -35.56 0)
 				(length 5.08)
 				(name "VD1"
@@ -12211,7 +12193,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -33.02 0)
 				(length 5.08)
 				(name "VD2"
@@ -12229,7 +12211,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -30.48 0)
 				(length 5.08)
 				(name "VD3"
@@ -12247,7 +12229,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -27.94 0)
 				(length 5.08)
 				(name "VD4"
@@ -12265,7 +12247,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -25.4 0)
 				(length 5.08)
 				(name "VD5"
@@ -12283,7 +12265,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -22.86 0)
 				(length 5.08)
 				(name "VD6"
@@ -12319,7 +12301,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -20.32 0)
 				(length 5.08)
 				(name "VD7"
@@ -12337,7 +12319,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -17.78 0)
 				(length 5.08)
 				(name "VD8"
@@ -12355,7 +12337,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -15.24 0)
 				(length 5.08)
 				(name "VD9"
@@ -12373,7 +12355,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -12.7 0)
 				(length 5.08)
 				(name "VD10"
@@ -12391,7 +12373,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -10.16 0)
 				(length 5.08)
 				(name "VD11"
@@ -12409,7 +12391,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at -11.43 -7.62 0)
 				(length 5.08)
 				(name "VD12"
@@ -12546,24 +12528,6 @@
 					)
 				)
 				(number "51"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 8.89 -50.8 180)
-				(length 2.54)
-				(name "TES"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "52"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -12870,6 +12834,44 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+		)
+		(symbol "007780_1_0"
+			(pin input line
+				(at -11.43 50.8 0)
+				(length 5.08)
+				(name "E1V2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "31"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at 8.89 -50.8 180)
+				(length 2.54)
+				(name "TES"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "52"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 		)
