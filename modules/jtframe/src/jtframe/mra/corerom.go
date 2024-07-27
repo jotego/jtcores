@@ -175,21 +175,6 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[s
 	}
 }
 
-func rawdata2bytes(rawstr string) []byte {
-	rawbytes := make([]byte, 0, 1024)
-	datastr := strings.ReplaceAll(rawstr, "\n", " ")
-	datastr = strings.ReplaceAll(datastr, "\t", " ")
-	datastr = strings.TrimSpace(datastr)
-	for _, hexbyte := range strings.Split(datastr, " ") {
-		if hexbyte == "" {
-			continue
-		}
-		conv, _ := strconv.ParseInt(hexbyte, 16, 0)
-		rawbytes = append(rawbytes, byte(conv))
-	}
-	return rawbytes
-}
-
 func make_frac(parent *XMLNode, reg_cfg *RegCfg, reg_roms []MameROM) int {
 	dumped := 0
 	if (len(reg_roms) % reg_cfg.Frac.Parts) != 0 {
