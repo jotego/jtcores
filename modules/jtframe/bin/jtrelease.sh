@@ -13,7 +13,7 @@ trap on_error ERR
 function pocket_zip {
 	cd $JTBIN/pocket/raw
 	zip -r jotego.$1.zip $1.txt Assets/$1 Cores/jotego.$1 \
-		Platforms/$1.json Platforms/_images/$1.bin Presets/jotego.$1
+		Platforms/$1.json Platforms/_images/$1.bin Presets/jotego.$1 Saves/$1
 	mv jotego.$1.zip $JTBIN/pocket/zips
 	cd -
 }
