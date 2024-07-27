@@ -32,19 +32,14 @@ func save_coremod(root *XMLNode, verbose bool) {
 	rombytes := make([]byte, 0)
 	parts2rom(nil, xml_rom, &rombytes, verbose)
 	rom_file(setname, ".mod", rombytes)
+}
+
+func save_nvram(root *XMLNode) {
+	setname := root.GetNode("setname")
 	// optional default NVRAM
 	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
 	if xml_nvram == nil || xml_nvram.text=="" { return }
-	nvrambytes := make([]byte,0,256)
-	k:=0
-	rep := strings.NewReplacer("\t", " ", "\n", " ")
-	for _, each := range strings.Split(rep.Replace(xml_nvram.text)," ") {
-		if each=="" { continue }
-		aux, _ := strconv.ParseInt(each,16,32)
-		nvrambytes = append(nvrambytes,byte(aux))
-		k++
-	}
-	rom_file(setname,".RAM",nvrambytes)
+	rom_file(setname,".RAM",rawdata2bytes(xml_nvram.text))
 }
 
 func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {

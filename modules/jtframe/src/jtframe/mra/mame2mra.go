@@ -108,6 +108,7 @@ func Run(args Args) {
 						mra2rom(d.mra_xml,args.Verbose, !args.SkipROM, args.Rom_path)
 					}
 				}
+				save_nvram(d.mra_xml)
 				// Do not merge dump_mra and the OR in the same line, or the compiler may skip
 				// calling dump_mra if main_copied is already set
 				dumped := dump_mra(args, d.machine, mra_cfg, d.mra_xml, parent_names)
