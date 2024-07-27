@@ -31,15 +31,17 @@ func save_coremod(root *XMLNode, verbose bool) {
 	// main ROM file
 	rombytes := make([]byte, 0)
 	parts2rom(nil, xml_rom, &rombytes, verbose)
-	rom_file(setname, ".mod", rombytes)
+	rom_file(setname.text, ".mod", rombytes)
 }
 
 func save_nvram(root *XMLNode) {
 	setname := root.GetNode("setname")
 	// optional default NVRAM
 	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
+	if xml_nvram == nil { return }
+	xml_nvram = xml_nvram.GetNode("part")
 	if xml_nvram == nil || xml_nvram.text=="" { return }
-	rom_file(setname,".RAM",rawdata2bytes(xml_nvram.text))
+	rom_file( strings.ToUpper(setname.text),".RAM",rawdata2bytes(xml_nvram.text))
 }
 
 func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
@@ -71,13 +73,13 @@ func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	}
 	if save2disk {
 		patchrom(xml_rom, &rombytes)
-		rom_file(setname, ".rom", rombytes)
+		rom_file(setname.text, ".rom", rombytes)
 	}
 }
 
-func rom_file(setname *XMLNode, ext string, rombytes []byte) {
+func rom_file(setname string, ext string, rombytes []byte) {
 	os.MkdirAll( filepath.Join(os.Getenv("JTROOT"), "rom"), 0775 )
-	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", setname.text+ext)
+	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", setname+ext)
 	fout, err := os.Create(fout_name)
 	if err != nil {
 		fmt.Println(err)
