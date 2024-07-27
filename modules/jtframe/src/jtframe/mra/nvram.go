@@ -40,7 +40,7 @@ func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
 	}
 	if raw != nil {
 		rawbytes := rawdata2bytes(raw.Data)
-		root.AddNode("rom").AddAttr("index", "2").SetText("\n" + hexdump(rawbytes, 16))
+		root.AddNode("rom").AddAttr("index", "2").AddNode("part").SetText("\n" + hexdump(rawbytes, 16))
 		return true
 	}
 	return false
