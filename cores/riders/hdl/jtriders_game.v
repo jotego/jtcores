@@ -40,9 +40,10 @@ assign ram_addr   = main_addr[13:1];
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= st_main;
-        1: debug_mux <= st_video;
-        2: debug_mux <= { 7'd0, dip_flip };
+        //0: debug_mux <= { 7'd0, dip_flip };
+        0: debug_mux <= { 2'b0, dimpol, dimmod, 1'b0, dim };
+        1: debug_mux <= st_main;
+        2: debug_mux <= st_video;
         default: debug_mux <= 0;
     endcase
 end

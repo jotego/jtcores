@@ -62,8 +62,13 @@ module jtriders_colmix(
 wire [ 1:0] cpu_palwe;
 wire [15:0] pal_dout;
 reg  [15:0] pxl_aux;
-reg  [ 1:0] dim_cmn; //, dim_l;
+reg  [ 1:0] dim_cmn;
+reg  [ 4:0] pal_dmux;
+reg  [ 3:0] bsel; // bright selection
 reg  [23:0] bgr;
+reg         st;
+wire [ 7:0] r8, bg8;
+reg  [ 7:0] b8, g8;
 wire [10:0] pal_addr;
 wire        brit, shad, pcu_we, nc;
 
@@ -73,50 +78,34 @@ assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
 assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
-// function [7:0] dim75( input [7:0] d );
-//     dim75 = d - (d>>2);
-// endfunction
-
-// function [23:0] dim_rgb( input [14:0] cin, input [1:0] shade );
-//     reg [3:0] effsh;
-//     effsh = { ~({3{shade[0]}}&dim), shade[1] }
-//     dim = !shade? { dim75( {cin[14:10], cin[14:12]} ),
-//                     dim75( {cin[ 9: 5], cin[ 9: 7]} ),
-//                     dim75( {cin[ 4: 0], cin[ 4: 2]} ) } :
-//                  { cin[14:10], cin[14:12],
-//                    cin[ 9: 5], cin[ 9: 7],
-//                    cin[ 4: 0], cin[ 4: 2] };
-// endfunction
-
-function [7:0] ext8( input [4:0] cin );
-begin
-    ext8 = {cin,cin[4:2]};
-end
-endfunction
-
-// 052535 output impedance 685 Ohm measured with floating inputs
-//        input pins impedance 460 Ohm
 always @* begin
-    case( {dimmod, dimpol} )
-        0: dim_cmn = {  shad, brit        };
-        1: dim_cmn = {  shad, brit | shad };
-        2: dim_cmn = { ~shad, brit        };
-        3: dim_cmn = { ~shad, brit |~shad };
+    // LUT generated with
+    // jtutil bright --dark --brw 4 --rout 50 --bpp 5
+    case( {dimpol, dimmod} )
+        3,2: dim_cmn[1] = ~shad;
+        1,0: dim_cmn[1] =  shad;
+    endcase
+    case( {dimpol, dimmod} )
+        3,1: dim_cmn[0] = brit | dim_cmn[1];
+        2,0: dim_cmn[0] = brit;
     endcase
 end
 
 always @(posedge clk) begin
     if( rst ) begin
         bgr   <= 0;
-        // dim_l <= 0;
+        bsel  <= 0;
+        st    <= 0;
     end else begin
+        st        <= ~st;
+        bsel[3]   <= dim_cmn[1];
+        bsel[2:0] <= ~({3{dim_cmn[0]}}&dim);
+        pal_dmux  <= st ? pal_dout[14:10] : pal_dout[9:5]; // blue (msb), green (middle)
+        if( st ) b8 <= bg8; else g8 <= bg8;
         if( pxl_cen ) begin
-            // dim_l <= dim_cmn;
-            //dim_rgb( pal_dout[14:0], dim_l);
-            bgr <= { ext8(pal_dout[14:10]),
-                     ext8(pal_dout[ 9: 5]),
-                     ext8(pal_dout[ 4: 0]) };
+            bgr <= { b8, g8, r8 };
         end
+        if(debug_bus[7]) bsel <= debug_bus[3:0];
     end
 end
 
@@ -185,6 +174,21 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
     .sel_b  ( ioctl_ram     ),
     .we_b   ( 1'b0          ),
     .q1     ( pal_dout[15:8] )
+);
+
+jtframe_dual_ram #(.AW(9),.SYNFILE("collut.hex")) u_lut(
+    // Port 0
+    .clk0   ( clk           ),
+    .data0  ( 8'd0          ),
+    .addr0  ( {bsel,pal_dout[4:0]} ),
+    .we0    ( 1'b0          ),
+    .q0     ( r8            ),
+    // Port 1
+    .clk1   ( clk           ),
+    .data1  ( 8'd0          ),
+    .addr1  ( {bsel,pal_dmux} ),
+    .we1    ( 1'b0          ),
+    .q1     ( bg8           )
 );
 
 endmodule

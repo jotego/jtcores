@@ -127,8 +127,8 @@ for i in SIDI128 SIDI MIST POCKET; do
                 (while IFS= read -r LINE; do \
                     LINE=${LINE:5}; FN=$ROM/${LINE,,}.rom; \
                     if [ -e "$FN" ]; then cp "$FN" $DST; fi; \
-                    FN=${FN%rom}RAM; \
-                    if [ -e "$FN" ]; then cp "$FN" $DST/$(basename ${FN^^}); fi \
+                    FN=$ROM/${LINE^^}.RAM; \
+                    if [ -e "$FN" ]; then cp "$FN" $DST; fi \
                 done)
         fi
     else
