@@ -87,7 +87,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -96,10 +96,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -114,16 +114,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -132,10 +132,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -150,10 +150,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -259,7 +259,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -3.81 0)
+				(at -5.08 3.81 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -268,28 +268,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -304,16 +286,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 3.81 0)
+				(at -5.08 -1.27 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -322,10 +304,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -3.81 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -340,10 +340,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -410,24 +410,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 1.27 0)
-				(length 2.54)
-				(name "A"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 3.81 0)
 				(length 2.54)
 				(name "B"
@@ -437,10 +419,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 1.27 0)
+				(length 2.54)
+				(name "A"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -455,10 +455,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -473,10 +473,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -491,10 +491,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -561,19 +561,19 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -2.54 0)
+				(at -6.35 6.35 0)
 				(length 2.54)
-				(name "A1"
+				(name "B2"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -588,10 +588,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -606,28 +606,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -6.35 6.35 0)
+				(at -6.35 -2.54 0)
 				(length 2.54)
-				(name "B2"
+				(name "A1"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -642,10 +642,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -660,28 +660,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "6"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 -6.35 180)
-				(length 2.54)
-				(name "S1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -696,10 +678,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 -6.35 180)
+				(length 2.54)
+				(name "S1"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -766,132 +766,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -6.35 0)
-				(length 2.54)
-				(name "A1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "A2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 3.81 0)
-				(length 2.54)
-				(name "A3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 8.89 0)
-				(length 2.54)
-				(name "A4"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -3.81 0)
-				(length 2.54)
-				(name "B1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 1.27 0)
-				(length 2.54)
-				(name "B2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 6.35 0)
-				(length 2.54)
-				(name "B3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 11.43 0)
 				(length 2.54)
 				(name "B4"
@@ -901,28 +775,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -8.89 0)
-				(length 2.54)
-				(name "CI"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -937,64 +793,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 -3.81 180)
-				(length 2.54)
-				(name "S1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 -1.27 180)
-				(length 2.54)
-				(name "S2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 1.27 180)
-				(length 2.54)
-				(name "S3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1009,10 +811,208 @@
 						)
 					)
 				)
-				(number ""
+				(number "11"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 1.27 180)
+				(length 2.54)
+				(name "S3"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 -1.27 180)
+				(length 2.54)
+				(name "S2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 -3.81 180)
+				(length 2.54)
+				(name "S1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 8.89 0)
+				(length 2.54)
+				(name "A4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 6.35 0)
+				(length 2.54)
+				(name "B3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 3.81 0)
+				(length 2.54)
+				(name "A3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 1.27 0)
+				(length 2.54)
+				(name "B2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "A2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -3.81 0)
+				(length 2.54)
+				(name "B1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -6.35 0)
+				(length 2.54)
+				(name "A1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -8.89 0)
+				(length 2.54)
+				(name "CI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1104,24 +1104,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.54)
 				(name ""
@@ -1131,10 +1113,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1149,10 +1149,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1229,10 +1229,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1247,10 +1247,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1327,10 +1327,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1345,10 +1345,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1394,7 +1394,7 @@
 			)
 		)
 		(property "Description" "4-bit Binary Asynchronous Counter"
-			(at 0 0 0)
+			(at 0 -3.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1424,10 +1424,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1442,10 +1442,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1460,10 +1460,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1478,10 +1478,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1496,10 +1496,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1514,10 +1514,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "6"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1563,7 +1563,7 @@
 			)
 		)
 		(property "Description" "4-bit Binary Synchronous Counter"
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1581,24 +1581,6 @@
 				)
 				(fill
 					(type background)
-				)
-			)
-			(pin input line
-				(at -6.35 5.08 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
 				)
 			)
 			(pin input inverted
@@ -1619,6 +1601,24 @@
 					)
 				)
 			)
+			(pin input line
+				(at -6.35 5.08 0)
+				(length 2.54)
+				(name "CK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
 			(pin output line
 				(at 6.35 5.08 180)
 				(length 2.54)
@@ -1629,10 +1629,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1647,10 +1647,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1665,10 +1665,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1683,10 +1683,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1732,7 +1732,7 @@
 			)
 		)
 		(property "Description" "4-bit Binary Synchronous Up Counter"
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1753,78 +1753,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -7.62 0)
-				(length 2.54)
-				(name "CI"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -2.54 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -15.24 90)
-				(length 2.54)
-				(name "CL"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 -7.62 180)
-				(length 2.54)
-				(name "CO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 10.16 0)
 				(length 2.54)
 				(name "DA"
@@ -1834,100 +1762,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 7.62 0)
-				(length 2.54)
-				(name "DB"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 5.08 0)
-				(length 2.54)
-				(name "DC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 2.54 0)
-				(length 2.54)
-				(name "DD"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -5.08 0)
-				(length 2.54)
-				(name "EN"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at -6.35 0 0)
-				(length 2.54)
-				(name "L"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1942,10 +1780,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1960,10 +1798,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "11"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1978,10 +1816,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "12"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -1996,10 +1834,172 @@
 						)
 					)
 				)
-				(number ""
+				(number "13"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 -7.62 180)
+				(length 2.54)
+				(name "CO"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 7.62 0)
+				(length 2.54)
+				(name "DB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 5.08 0)
+				(length 2.54)
+				(name "DC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "DD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 0 0)
+				(length 2.54)
+				(name "L"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "CK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -5.08 0)
+				(length 2.54)
+				(name "EN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -7.62 0)
+				(length 2.54)
+				(name "CI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -15.24 90)
+				(length 2.54)
+				(name "CL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2066,78 +2066,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -7.62 0)
-				(length 2.54)
-				(name "CI"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -2.54 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -15.24 90)
-				(length 2.54)
-				(name "CL"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 -7.62 180)
-				(length 2.54)
-				(name "CO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 10.16 0)
 				(length 2.54)
 				(name "DA"
@@ -2147,100 +2075,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 7.62 0)
-				(length 2.54)
-				(name "DB"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 5.08 0)
-				(length 2.54)
-				(name "DC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 2.54 0)
-				(length 2.54)
-				(name "DD"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -5.08 0)
-				(length 2.54)
-				(name "EN"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at -6.35 0 0)
-				(length 2.54)
-				(name "L"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2255,10 +2093,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2273,10 +2111,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "11"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2291,10 +2129,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "12"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2309,10 +2147,172 @@
 						)
 					)
 				)
-				(number ""
+				(number "13"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 -7.62 180)
+				(length 2.54)
+				(name "CO"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 7.62 0)
+				(length 2.54)
+				(name "DB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 5.08 0)
+				(length 2.54)
+				(name "DC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "DD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 0 0)
+				(length 2.54)
+				(name "L"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "CK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -5.08 0)
+				(length 2.54)
+				(name "EN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -7.62 0)
+				(length 2.54)
+				(name "CI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -15.24 90)
+				(length 2.54)
+				(name "CL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2502,7 +2502,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -2.54 0)
+				(at -8.89 2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -2511,10 +2511,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2529,16 +2529,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -8.89 2.54 0)
+				(at -8.89 -2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -2547,10 +2547,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2565,10 +2565,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2614,7 +2614,7 @@
 			)
 		)
 		(property "Description" "2-wide 2-AND 4-input AND-OR-Inverter"
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2794,7 +2794,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -5.08 0)
+				(at -8.89 2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -2803,28 +2803,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -2.54 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2839,16 +2821,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -8.89 2.54 0)
+				(at -8.89 -2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -2857,10 +2839,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -5.08 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2875,10 +2875,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -2944,42 +2944,6 @@
 					(type background)
 				)
 			)
-			(pin input inverted
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "CL"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin input line
 				(at -6.35 1.27 0)
 				(length 2.54)
@@ -2990,10 +2954,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3008,10 +2990,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -7.62 90)
+				(length 2.54)
+				(name "CL"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3026,10 +3026,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3044,10 +3044,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "6"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3093,7 +3093,7 @@
 			)
 		)
 		(property "Description" "Positive Edge Clocked DFF with CLEAR"
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3114,24 +3114,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 1.27 0)
 				(length 2.54)
 				(name "D"
@@ -3141,10 +3123,46 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -7.62 90)
+				(length 2.54)
+				(name "CL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3159,28 +3177,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "~{CL}"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3195,10 +3195,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3265,24 +3265,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 1.27 0)
 				(length 2.54)
 				(name "D"
@@ -3292,10 +3274,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3310,10 +3310,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3328,10 +3328,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3398,24 +3398,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 1.27 0)
 				(length 2.54)
 				(name "D"
@@ -3425,10 +3407,46 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 7.62 270)
+				(length 2.54)
+				(name "S"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3443,28 +3461,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 7.62 270)
-				(length 2.54)
-				(name "S"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3479,10 +3479,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3549,24 +3549,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 1.27 0)
 				(length 2.54)
 				(name "D"
@@ -3576,10 +3558,46 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -7.62 90)
+				(length 2.54)
+				(name "R"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3594,10 +3612,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3612,28 +3630,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "~{R}"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3700,42 +3700,6 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -5.08 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -11.43 90)
-				(length 2.54)
-				(name "CL"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -6.35 6.35 0)
 				(length 2.54)
 				(name "DA"
@@ -3745,64 +3709,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 3.81 0)
-				(length 2.54)
-				(name "DB"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 1.27 0)
-				(length 2.54)
-				(name "DC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "DD"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3817,46 +3727,100 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at 6.35 3.81 180)
+			(pin input line
+				(at -6.35 3.81 0)
 				(length 2.54)
-				(name "QB"
+				(name "DB"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at 6.35 1.27 180)
+			(pin input line
+				(at -6.35 1.27 0)
 				(length 2.54)
-				(name "QC"
+				(name "DC"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "DD"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 -5.08 0)
+				(length 2.54)
+				(name "CK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at 0 -11.43 90)
+				(length 2.54)
+				(name "CL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3871,10 +3835,46 @@
 						)
 					)
 				)
-				(number ""
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 1.27 180)
+				(length 2.54)
+				(name "QC"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 3.81 180)
+				(length 2.54)
+				(name "QB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -3941,42 +3941,6 @@
 				)
 			)
 			(pin input inverted
-				(at -6.35 -1.27 0)
-				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -8.89 90)
-				(length 2.54)
-				(name "CL"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
 				(at -6.35 1.27 0)
 				(length 2.54)
 				(name "J"
@@ -3986,10 +3950,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4004,28 +3986,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
-			(pin output line
-				(at 6.35 1.27 180)
+			(pin input inverted
+				(at 0 -8.89 90)
 				(length 2.54)
-				(name "Q"
+				(name "CL"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4040,10 +4022,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 1.27 180)
+				(length 2.54)
+				(name "Q"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4110,27 +4110,9 @@
 				)
 			)
 			(pin input inverted
-				(at -6.35 0 0)
+				(at 0 7.62 270)
 				(length 2.54)
-				(name "CK"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input inverted
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "CL"
+				(name "PR"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4155,10 +4137,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 0 0)
+				(length 2.54)
+				(name "CK"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4173,46 +4173,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input inverted
-				(at 0 7.62 270)
+				(at 0 -7.62 90)
 				(length 2.54)
-				(name "PR"
+				(name "CL"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 2.54 180)
-				(length 2.54)
-				(name "Q"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4227,10 +4209,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 6.35 2.54 180)
+				(length 2.54)
+				(name "Q"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4359,24 +4359,6 @@
 					(type background)
 				)
 			)
-			(pin input line
-				(at -5.08 0 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin output line
 				(at -5.08 3.81 0)
 				(length 2.54)
@@ -4387,10 +4369,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4405,10 +4405,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4423,10 +4423,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4503,10 +4503,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4521,10 +4521,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4601,10 +4601,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4619,10 +4619,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4722,24 +4722,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.54)
 				(name ""
@@ -4749,10 +4731,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4767,10 +4767,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4908,24 +4908,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -4935,10 +4917,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -4953,10 +4953,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5048,24 +5048,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.54)
 				(name ""
@@ -5075,10 +5057,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5093,10 +5093,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5188,24 +5188,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.54)
 				(name ""
@@ -5215,10 +5197,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5233,10 +5233,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5328,24 +5328,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.54)
 				(name ""
@@ -5355,10 +5337,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5373,10 +5373,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5468,7 +5468,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5477,10 +5477,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5495,16 +5495,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5513,10 +5513,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5531,10 +5531,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5626,7 +5626,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5635,10 +5635,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5653,16 +5653,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5671,10 +5671,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5689,10 +5689,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5810,7 +5810,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -3.81 0)
+				(at -5.08 3.81 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5819,28 +5819,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5855,16 +5837,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 3.81 0)
+				(at -5.08 -1.27 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -5873,10 +5855,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -3.81 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -5891,10 +5891,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6012,7 +6012,7 @@
 				)
 			)
 			(pin input line
-				(at -3.81 -3.81 0)
+				(at -3.81 3.81 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6021,28 +6021,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -3.81 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6057,16 +6039,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -3.81 3.81 0)
+				(at -3.81 -1.27 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6075,10 +6057,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -3.81 -3.81 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6093,10 +6093,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6202,7 +6202,7 @@
 				)
 			)
 			(pin input line
-				(at -2.54 -6.35 0)
+				(at -2.54 6.35 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6211,64 +6211,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 -3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6283,16 +6229,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -2.54 6.35 0)
+				(at -2.54 1.27 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6301,10 +6247,64 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6319,10 +6319,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "7"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6428,7 +6428,7 @@
 				)
 			)
 			(pin input line
-				(at -2.54 -8.89 0)
+				(at -2.54 8.89 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6437,100 +6437,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 -6.35 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 -3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -2.54 3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6545,16 +6455,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -2.54 8.89 0)
+				(at -2.54 3.81 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -6563,10 +6473,100 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -2.54 -8.89 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6581,10 +6581,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "9"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6630,7 +6630,7 @@
 			)
 		)
 		(property "Description" "Tri·State Output Buffer True"
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6661,10 +6661,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6679,10 +6679,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6697,10 +6697,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6830,24 +6830,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -6857,10 +6839,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -6875,10 +6875,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7008,24 +7008,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -7035,10 +7017,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7053,10 +7053,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7186,24 +7186,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -7213,10 +7195,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7231,10 +7231,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7378,7 +7378,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7387,10 +7387,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7405,16 +7405,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7423,10 +7423,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7441,10 +7441,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7588,7 +7588,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7597,10 +7597,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7615,16 +7615,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7633,10 +7633,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7651,10 +7651,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7798,7 +7798,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -2.54 0)
+				(at -5.08 2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7807,10 +7807,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7825,16 +7825,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 2.54 0)
+				(at -5.08 -2.54 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -7843,10 +7843,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -7861,10 +7861,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8020,7 +8020,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -3.81 0)
+				(at -5.08 3.81 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8029,28 +8029,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8065,16 +8047,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 3.81 0)
+				(at -5.08 -1.27 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8083,10 +8065,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -3.81 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8101,10 +8101,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "5"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8260,7 +8260,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -6.35 0)
+				(at -5.08 6.35 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8269,64 +8269,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -3.81 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8341,16 +8287,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 6.35 0)
+				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8359,10 +8305,64 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -3.81 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -6.35 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8377,10 +8377,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "7"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8536,7 +8536,7 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -8.89 0)
+				(at -5.08 8.89 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8545,100 +8545,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -6.35 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -3.81 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -5.08 3.81 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8653,16 +8563,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -5.08 8.89 0)
+				(at -5.08 3.81 0)
 				(length 2.794)
 				(name ""
 					(effects
@@ -8671,10 +8581,100 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -3.81 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -6.35 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -8.89 0)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8689,10 +8689,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "9"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8738,7 +8738,7 @@
 			)
 		)
 		(property "Description" "Dual 2:1 Selector"
-			(at 0 0 0)
+			(at 0 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8768,10 +8768,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8786,10 +8786,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8804,10 +8804,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8822,10 +8822,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 -5.08 0)
+				(length 2.54)
+				(name "S1"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -8840,64 +8858,46 @@
 						)
 					)
 				)
-				(number ""
+				(number "6"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
-			(pin input line
-				(at -6.35 -5.08 0)
-				(length 2.54)
-				(name "~{S1}"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
+			(pin output inverted
 				(at 6.35 5.08 180)
 				(length 2.54)
-				(name "~{X0}"
+				(name "X0"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "7"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
-			(pin output line
+			(pin output inverted
 				(at 6.35 0 180)
 				(length 2.54)
-				(name "~{X1}"
+				(name "X1"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "8"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -9125,7 +9125,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -6.35 0)
+				(at -8.89 6.35 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -9134,64 +9134,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -9206,16 +9152,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -8.89 6.35 0)
+				(at -8.89 1.27 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -9224,10 +9170,64 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -9242,10 +9242,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "7"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -9521,150 +9521,6 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -10.16 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -7.62 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -5.08 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -2.54 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 0 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 2.54 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 5.08 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 7.62 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -8.89 10.16 0)
 				(length 2.54)
 				(name ""
@@ -9674,10 +9530,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -9692,10 +9548,154 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 7.62 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 5.08 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 2.54 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 0 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -2.54 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -5.08 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -7.62 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -10.16 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10043,7 +10043,7 @@
 				)
 			)
 			(pin input line
-				(at -10.16 -13.97 0)
+				(at -10.16 13.97 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -10052,28 +10052,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -11.43 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10088,16 +10070,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 -6.35 0)
+				(at -10.16 -11.43 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -10106,16 +10088,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "11"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 -3.81 0)
+				(at -10.16 -13.97 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -10124,136 +10106,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "12"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 6.35 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 8.89 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 11.43 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 13.97 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10268,10 +10124,154 @@
 						)
 					)
 				)
-				(number ""
+				(number "13"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 11.43 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 8.89 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10317,7 +10317,7 @@
 			)
 		)
 		(property "Description" "Power 4-AND 2-wide Multiplexer"
-			(at 0 0 0)
+			(at 0 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10533,7 +10533,7 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -8.89 0)
+				(at -8.89 8.89 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -10542,100 +10542,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -6.35 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 1.27 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 3.81 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10650,16 +10560,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -8.89 8.89 0)
+				(at -8.89 3.81 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -10668,10 +10578,100 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 1.27 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -8.89 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -10686,10 +10686,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "9"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11133,7 +11133,7 @@
 				)
 			)
 			(pin input line
-				(at -10.16 -19.05 0)
+				(at -10.16 19.05 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11142,100 +11142,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -16.51 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -13.97 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -11.43 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -8.89 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 -6.35 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11250,16 +11160,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 -1.27 0)
+				(at -10.16 -6.35 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11268,16 +11178,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "11"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 1.27 0)
+				(at -10.16 -8.89 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11286,16 +11196,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "12"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 3.81 0)
+				(at -10.16 -11.43 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11304,16 +11214,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "13"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 6.35 0)
+				(at -10.16 -13.97 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11322,16 +11232,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "14"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 8.89 0)
+				(at -10.16 -16.51 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11340,16 +11250,16 @@
 						)
 					)
 				)
-				(number ""
+				(number "15"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -10.16 11.43 0)
+				(at -10.16 -19.05 0)
 				(length 2.54)
 				(name ""
 					(effects
@@ -11358,64 +11268,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "16"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 13.97 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 16.51 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -10.16 19.05 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11430,10 +11286,154 @@
 						)
 					)
 				)
-				(number ""
+				(number "17"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 16.51 0)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 13.97 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 11.43 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 8.89 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 6.35 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 3.81 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -1.27 0)
+				(length 2.54)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11509,82 +11509,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 11.43 0)
-				(length 2.54)
-				(name "A2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -6.35 0)
-				(length 2.54)
-				(name "B1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 -8.89 0)
-				(length 2.54)
-				(name "B2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 6.35 0)
-				(length 2.54)
-				(name "S2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11599,10 +11527,100 @@
 						)
 					)
 				)
-				(number ""
+				(number "10"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin output inverted
+				(at 6.35 0 180)
+				(length 2.54)
+				(name "X"
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 11.43 0)
+				(length 2.54)
+				(name "A2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 8.89 0)
+				(length 2.54)
+				(name "S1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -6.35 6.35 0)
+				(length 2.54)
+				(name "S2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
+				(at -6.35 1.27 0)
+				(length 2.54)
+				(name "S5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11617,82 +11635,64 @@
 						)
 					)
 				)
-				(number ""
+				(number "6"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
-				(at -6.35 8.89 0)
+				(at -6.35 -6.35 0)
 				(length 2.54)
-				(name "~{S1}"
+				(name "B1"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "7"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
 			)
 			(pin input line
+				(at -6.35 -8.89 0)
+				(length 2.54)
+				(name "B2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input inverted
 				(at -6.35 -11.43 0)
 				(length 2.54)
-				(name "~{S3}"
+				(name "S3"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number ""
+				(number "9"
 					(effects
 						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -6.35 1.27 0)
-				(length 2.54)
-				(name "~{S5}"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 0 180)
-				(length 2.54)
-				(name "~{X}"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11769,10 +11769,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0 0)
 						)
 					)
 				)
@@ -11787,10 +11787,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11867,10 +11867,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -11885,10 +11885,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "2"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -12030,24 +12030,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -12057,10 +12039,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -12075,10 +12075,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -12220,24 +12220,6 @@
 				)
 			)
 			(pin input line
-				(at -5.08 -1.27 0)
-				(length 2.794)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
 				(at -5.08 1.27 0)
 				(length 2.794)
 				(name ""
@@ -12247,10 +12229,28 @@
 						)
 					)
 				)
-				(number ""
+				(number "1"
+					(effects
+						(font
+							(size 0.0 0.0)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 -1.27 0)
+				(length 2.794)
+				(name ""
 					(effects
 						(font
 							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 0.0 0.0)
 						)
 					)
 				)
@@ -12265,10 +12265,10 @@
 						)
 					)
 				)
-				(number ""
+				(number "3"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 0.0 0.0)
 						)
 					)
 				)
