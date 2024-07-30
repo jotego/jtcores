@@ -111,10 +111,10 @@ jtriders_main u_main(
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
     // EEPROM
-    .nv_addr        ( nv_addr       ),
-    .nv_dout        ( nv_dout       ),
-    .nv_din         ( nv_din        ),
-    .nv_we          ( nv_we         ),
+    .nv_addr        ( nvram_addr    ),
+    .nv_dout        ( nvram_dout    ),
+    .nv_din         ( nvram_din     ),
+    .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
