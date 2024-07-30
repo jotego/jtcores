@@ -9,6 +9,7 @@ import (
 
 	"os"
 	"strconv"
+	"strings"
 	"path/filepath"
 	"github.com/spf13/cobra"
 	"github.com/jotego/jtframe/def"
@@ -238,7 +239,15 @@ func extract_sdram( core, game string ) {
 }
 
 func make_symlink( game string ) {
+	// Link ROM files
 	src := filepath.Join(must_env("JTROOT"),"rom",game+".rom")
 	os.Remove("rom.bin")
 	os.Symlink(src,"rom.bin")
+	// Link NVRAM files
+	src = filepath.Join(must_env("JTROOT"),"rom",strings.ToUpper(game+".RAM"))
+	f, e := os.Open(src)
+	defer f.Close()
+	if e!=nil { return } // No RAM file
+	os.Remove("nvram.bin")
+	os.Symlink(src,"nvram.bin")
 }
