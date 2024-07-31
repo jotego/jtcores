@@ -49,12 +49,21 @@ wire [7:0] ex_r, ex_g, ex_b;
 reg  [7:0] pr, pg, pb;
 wire       s16_blank, vdp_blank, vdp_sel_o, obj;
 reg        vdp_sel, nblnk;
+reg  [4:0] tilemap_l, tilemap_l2;
+reg  [1:0] obj_prio_l, obj_prio_l2;
 
 assign ex_r = {s16_r,s16_r[5:4]};
 assign ex_g = {s16_g,s16_g[5:4]};
 assign ex_b = {s16_b,s16_b[5:4]};
 assign s16_blank = {ex_r,ex_g,ex_b}==0;
-assign obj = {sa,sb,fix}==0;
+assign obj = {tilemap_l2[4:2]}==0;
+
+always @(posedge clk) if (pxl_cen) begin
+    tilemap_l <= {sa, sb, fix, s1_pri, s2_pri};
+    tilemap_l2 <= tilemap_l;
+    obj_prio_l <= obj_prio;
+    obj_prio_l2 <= obj_prio_l;
+end
 
 always @(posedge clk) begin
     // case( vdp_prio + debug_bus[6:4])
@@ -91,13 +100,13 @@ jts18_vdp_pri_test #( .VBLs(80)) u_vdp_test(
     .rst        ( rst       ),
     .debug_bus  ( debug_bus ),
     .vdp_prio   ( vdp_prio  ),
-    .obj_prio   ( obj_prio  ),
+    .obj_prio   ( obj_prio_l2 ),
     .buttons    ( joystick1 ),
-    .sa         ( sa        ),
-    .sb         ( sb        ),
-    .fix        ( fix       ),
-    .s1_pri     ( s1_pri    ),
-    .s2_pri     ( s2_pri    ),
+    .sa         ( tilemap_l2[4] ),
+    .sb         ( tilemap_l2[3] ),
+    .fix        ( tilemap_l2[2] ),
+    .s1_pri     ( tilemap_l2[1] ),
+    .s2_pri     ( tilemap_l2[0] ),
     .obj        ( obj       ),
     .LVBL       ( LVBL      ),
     .vdp_sel    ( vdp_sel_o ),
