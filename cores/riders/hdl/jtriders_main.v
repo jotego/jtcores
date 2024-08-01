@@ -54,6 +54,10 @@ module jtriders_main(
     input                prot_irqn,
     output reg           prot_cs,
 
+    // Object RAM containing ROM address MSB bits, used in tmnt2
+    output               omsb_we,
+    output      [ 8:0]   omsb_addr,
+    input       [ 7:0]   omsb_dout,
     // video configuration
     output reg           objreg_cs,
     output reg           rmrd,
@@ -86,7 +90,7 @@ wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
-            eep_di, eep_clk, eep_cs;
+            eep_di, eep_clk, eep_cs, omsb_cs;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
@@ -104,6 +108,8 @@ assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
+assign omsb_we  = omsb_cs && cpu_we && !LDSn;
+assign omsb_addr= { cbnk, A[6:1] };
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
@@ -121,6 +127,7 @@ always @* begin
     iowr_hi  = 0;
     cab_cs   = 0;
     vram_cs  = 0; // tilesys_cs
+    omsb_cs  = 0;
     obj_cs   = 0;
     objreg_cs= 0;
     snd_cs   = 0;
@@ -139,7 +146,7 @@ always @* begin
                 2: iowr_lo = 1; // EEPROM
                 3: iowr_hi = 1;
                 4: wdog    = 1;
-                // 5: TMNT2 RAM
+                5: omsb_cs = 1;
                 8: prot_cs = 1;
                 default:;
             endcase
@@ -175,6 +182,7 @@ always @(posedge clk) begin
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
+               omsb_cs ? {8'd0,omsb_dout}:
                cab_cs  ? {8'd0,cab_dout} : 16'hffff;
 end
 

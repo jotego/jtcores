@@ -42,6 +42,10 @@ names = [
 ]
 
 [header]
+info="Offsets for each ROM region. Byte 15 = game selection."
+data = [
+	{ machine="tmnt2", offset=15, data="01" }
+]
 offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "k053245"] }
 
 [ROM]

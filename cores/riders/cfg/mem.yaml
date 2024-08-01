@@ -64,6 +64,15 @@ sdram:
           addr_width: 21
           data_width: 32
 bram:
+  # RAM holding the MSB bits of the object tile ROM address
+  - name: omsb
+    addr_width: 9
+    data_width: 8
+    rw: true
+    dual_port:
+      name: oaread
+      dout: oaread_dout
+      rw: false
   # EEROM
   - name: nvram
     addr_width: 7

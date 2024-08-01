@@ -23,11 +23,12 @@ module jtriders_game(
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
-            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
+            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
+reg  [ 2:0] game_id;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
@@ -37,6 +38,8 @@ wire [ 1:0] oram_we;
 assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
+assign omsb_din   = ram_din[7:0];
+assign oaread_en  = game_id[0];
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -48,10 +51,10 @@ always @(posedge clk) begin
     endcase
 end
 
-// always @(posedge clk) begin
-//     if( prog_addr==0 && prog_we && header )
-//         game_id <= prog_data[2:0];
-// end
+always @(posedge clk) begin
+    if( prog_addr[3:0]==15 && prog_we && header )
+        game_id <= prog_data[2:0];
+end
 
 /* verilator tracing_on */
 jtriders_main u_main(
@@ -93,6 +96,10 @@ jtriders_main u_main(
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
+    // Object MSB RAM
+    .omsb_we        ( omsb_we       ),
+    .omsb_addr      ( omsb_addr     ),
+    .omsb_dout      ( omsb_dout     ),
     // To video
     .rmrd           ( rmrd          ),
     .dimmod         ( dimmod        ),
@@ -172,6 +179,10 @@ jtriders_video u_video (
     .oram_we        ( oram_we       ),
     .oram_din       ( oram_din      ),
     .oram_addr      ( oram_addr     ),
+    // RAM with ROM MSB address for tile ROM
+    .oaread_en      ( oaread_en     ),
+    .oaread_dout    ( oaread_dout   ),
+    .oaread_addr    ( oaread_addr   ),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( oram_cs       ),

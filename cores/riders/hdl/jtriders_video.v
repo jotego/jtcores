@@ -59,6 +59,11 @@ module jtriders_video(
     input             rmrd,     // Tile ROM read mode
     output            flip,
 
+    // RAM with ROM MSB address for tile ROM
+    input             oaread_en,
+    output     [ 8:0] oaread_addr,
+    input      [ 7:0] oaread_dout,
+
     // Tile ROMs
     output reg [19:2] lyrf_addr,
     output reg [19:2] lyra_addr,
@@ -97,6 +102,7 @@ module jtriders_video(
     output reg [ 7:0] st_dout
 );
 
+wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
@@ -107,13 +113,16 @@ wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
 wire [ 4:0] obj_prio;
 wire        lyrf_blnk_n, obj_irqn,
             lyra_blnk_n, obj_nmin,
-            lyrb_blnk_n, shadow,
+            lyrb_blnk_n, shadow,   lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
-
+// Object ROM address MSB might come from a RAM
+assign oaread_addr = lyro_prea[21:13];
+assign lyro_addr = oaread_en ? {oaread_dout, lyro_prea[12:2]} : lyro_prea[20:2];
+assign lyro_cs   = lyro_precs;
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
@@ -252,7 +261,7 @@ jtaliens_scroll #(
 
 /* verilator tracing_on */
 wire [ 1:0] nc;
-wire        nc2, nc3;
+wire        nc3;
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -283,10 +292,10 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ({nc2,lyro_addr}),
+    .rom_addr   ( lyro_prea ),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
-    .rom_cs     ( lyro_cs   ),
+    .rom_cs     (lyro_precs ),
     .objcha_n   ( 1'b1      ),
     // pixel output
     .pxl        ( lyro_pxl[8:0]  ),
