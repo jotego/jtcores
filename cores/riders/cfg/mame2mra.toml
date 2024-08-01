@@ -33,7 +33,7 @@ debug={setnames=[
 	"ssridersjad",
 	"ssridersjac",
 	"ssridersjbd",
-]}
+], machines=[ "tmnt2" ]}
 
 [buttons]
 names = [
