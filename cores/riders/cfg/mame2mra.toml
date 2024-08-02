@@ -3,7 +3,7 @@ author=["jotego"]
 
 [parse]
 # this was moved to tmnt2.cpp after MAME 0.251
-sourcefile=[ "tmnt.cpp" ]
+sourcefile=[ "tmnt.cpp", "xmen.cpp", "asterix.cpp" ]
 skip = { bootlegs=true, machines=[
 	# in JTTMNT
 	"tmnt",
@@ -17,6 +17,8 @@ skip = { bootlegs=true, machines=[
     "qgakumon",
     "thndrx2",
     "prmrsocr",
+    # dual screen not supported
+    "xmen6p",
 ]}
 
 # Problem loading NVRAM
@@ -33,7 +35,7 @@ debug={setnames=[
 	"ssridersjad",
 	"ssridersjac",
 	"ssridersjbd",
-], machines=[ "tmnt2" ]}
+], machines=[ "tmnt2", "xmen", "asterix" ]}
 
 [buttons]
 names = [
