@@ -90,11 +90,11 @@ wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
-            eep_di, eep_clk, eep_cs, omsb_cs;
+            eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
-wire        dtac_mux;
+wire        dtac_mux, intdma;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -102,7 +102,6 @@ wire [23:0] A_full = {A,1'b0};
 /* verilator tracing_off */
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = { tile_irqn, 1'b1, prot_irqn };
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
@@ -173,7 +172,23 @@ always @* begin
 `endif
 end
 
+jtframe_ff u_ff(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( 1'b1      ),
+    .din        ( 1'b0      ),
+    .q          ( intdma    ),
+    .qn         (           ),
+    .set        ( intdma_enb),
+    .clr        ( 1'b0      ),
+    .sigedge    ( dma_bsy   )
+);
+
 always @(posedge clk) begin
+    case( game )
+        XMEN:    IPLn <=
+        default: IPLn <= { tile_irqn, 1'b1, prot_irqn };
+    endcase
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
@@ -214,6 +229,7 @@ always @(posedge clk, posedge rst) begin
         eep_cs  <= 0;
         eep_clk <= 0;
         cbnk    <= 0;
+        intdma_enb <= 1;
     end else begin
         if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
         if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];

@@ -28,6 +28,7 @@ module jtriders_video(
     output            hs,
     output            vs,
 
+    output            obj_irqn,
     output            tile_irqn,
     output            tile_nmin,
 

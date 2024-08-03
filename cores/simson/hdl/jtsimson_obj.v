@@ -87,7 +87,7 @@ wire [11:0] hzoom;
 wire [31:0] sorted;
 wire        pen15;
 
-wire irq_en, scr_hflip, scr_vflip;
+wire scr_hflip, scr_vflip;
 
 function [5:0] paroda_conv(input [5:0]x);
     paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
