@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -102,7 +101,7 @@ func patchrom(n *XMLNode, rb *[]byte) {
 		if each.name != "patch" {
 			continue
 		}
-		data := text2data(each)
+		data := rawdata2bytes(each.text)
 		k, err := strconv.ParseInt(each.GetAttr("offset"), 0, 32)
 		if err != nil {
 			fmt.Println(err)
@@ -125,7 +124,7 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 				if rep == 0 {
 					rep = 1
 				}
-				data := text2data(each)
+				data := rawdata2bytes(each.text)
 				// fmt.Printf("Adding rep x len(data) = $%x x $%x\n",rep,len(data))
 				for ; rep > 0; rep-- {
 					*rb = append(*rb, data...)
@@ -146,23 +145,6 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 			*rb = append(*rb, data...)
 		}
 	}
-}
-
-func text2data(n *XMLNode) (data []byte) {
-	data = make([]byte, 0)
-	re := regexp.MustCompile("[ \n\t]")
-	for _, token := range re.Split(n.text, -1) {
-		if token == "" {
-			continue
-		}
-		token = strings.TrimSpace(strings.ToLower(token))
-		v, err := strconv.ParseInt(token, 16, 16)
-		if err != nil {
-			fmt.Println(err)
-		}
-		data = append(data, byte(v&0xff))
-	}
-	return data
 }
 
 func readrom(allzips []*zip.ReadCloser, n *XMLNode, verbose bool) (rdin []byte) {

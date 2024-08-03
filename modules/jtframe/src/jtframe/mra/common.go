@@ -14,6 +14,8 @@ func must(e error) {
 	}
 }
 
+// converts a string of hexadecimal bytes (like those seem in MRA files)
+// to an actual byte slice
 func rawdata2bytes(rawstr string) []byte {
 	rawbytes := make([]byte, 0, 1024)
 	datastr := strings.ReplaceAll(rawstr, "\n", " ")
