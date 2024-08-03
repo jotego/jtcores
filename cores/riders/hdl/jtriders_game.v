@@ -61,6 +61,7 @@ jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
+    .game_id        ( game_id       ),
 
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),

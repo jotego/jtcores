@@ -20,6 +20,7 @@ module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
+    input         [ 2:0] game_id,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -85,16 +86,20 @@ module jtriders_main(
     input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
+`include "game_id.vh"
+
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
-wire [ 2:0] FC, IPLn;
+wire [ 2:0] FC;
+reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
-            eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb;
+            eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb,
+            xmen;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
-wire        dtac_mux, intdma;
+wire        dtac_mux, intdma, IPLn1;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -114,6 +119,7 @@ assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
+assign IPLn1    = ~intdma | tile_irqn;
 
 reg none_cs, wdog;
 // not following the PALs as the dumps from PLD Archive are not readable
@@ -172,23 +178,20 @@ always @* begin
 `endif
 end
 
-jtframe_ff u_ff(
+jtframe_edge u_ff(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( 1'b1      ),
-    .din        ( 1'b0      ),
-    .q          ( intdma    ),
-    .qn         (           ),
-    .set        ( intdma_enb),
-    .clr        ( 1'b0      ),
-    .sigedge    ( dma_bsy   )
+    .edgeof     ( dma_bsy   ),
+    .clr        ( intdma_enb),
+    .q          ( intdma    )
 );
 
 always @(posedge clk) begin
-    case( game )
-        XMEN:    IPLn <=
-        default: IPLn <= { tile_irqn, 1'b1, prot_irqn };
-    endcase
+    xmen <= game_id == XMEN;
+
+    IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & IPLn1 }
+                 : { tile_irqn, 1'b1, prot_irqn };
+
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :

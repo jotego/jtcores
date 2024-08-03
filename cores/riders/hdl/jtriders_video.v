@@ -28,7 +28,6 @@ module jtriders_video(
     output            hs,
     output            vs,
 
-    output            obj_irqn,
     output            tile_irqn,
     output            tile_nmin,
 
@@ -112,7 +111,7 @@ wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_col, dump_obj, scr_mmr,  obj_mmr,
             lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
-wire        lyrf_blnk_n, obj_irqn,
+wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, shadow,   lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;

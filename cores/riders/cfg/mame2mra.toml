@@ -19,6 +19,8 @@ skip = { bootlegs=true, machines=[
     "prmrsocr",
     # dual screen not supported
     "xmen6p",
+    # ROM regions names
+    "asterix",
 ]}
 
 # Problem loading NVRAM
@@ -35,7 +37,7 @@ debug={setnames=[
 	"ssridersjad",
 	"ssridersjac",
 	"ssridersjbd",
-], machines=[ "tmnt2", "xmen", "asterix" ]}
+], machines=[ "tmnt2", "xmen"]}
 
 [buttons]
 names = [
@@ -46,23 +48,27 @@ names = [
 [header]
 info="Offsets for each ROM region. Byte 15 = game selection."
 data = [
-	{ machine="tmnt2", offset=15, data="01" }
+	{ machine="tmnt2", offset=15, data="01" },
+	{ machine="xmen",  offset=15, data="02" },
 ]
-offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "k053245"] }
+offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
 
 [ROM]
 regions = [
     { name="maincpu", width=16, reverse=true  },
 
     { name="audiocpu"  },
-    { name="k053260"   },
+    { name="k053260", rename="pcm", machines=[ "ssriders", "tmnt2" ]   },
+    { name="k054539", rename="pcm", machines=[ "xmen" ] },
 
     { name="k052109", width=32 }, # tiles
-    { name="k053245", width=32 }, # sprites
+    # sprites
+    { name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2" ] },
+    { name="k053246", width=64, rename="obj", machines=[ "xmen" ] },
     { name="eeprom", skip=true }
 ]
 # default configuration to prevent from boot-up error
-nvram={	Defaults=[ { machine="ssriders", data="""\
+nvram={	Defaults=[ { setname="ssriders", data="""\
 	00 00 01 01 01 01 ff 00 00 00 00 00 00 00 00 00
 	03 ff 00 03 01 00 00 20 00 00 00 02 00 00 00 00
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -80,9 +86,18 @@ nvram={	Defaults=[ { machine="ssriders", data="""\
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
+    { machine="xmen", data="""\
+	02 40 fd bf 02 03 00 01 03 00 00 17 00 01 00 00
+	00 00 00 00 00 00 00 00 21 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
 ] }
 
-order=["maincpu","audiocpu","k053260","k052109","k053245"]
+order=["maincpu","audiocpu","pcm","k052109","obj"]
 
 patches=[
 	# skip the 54-frame wait after displaying the memory check

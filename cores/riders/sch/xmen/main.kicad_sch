@@ -7,7 +7,7 @@
 	(title_block
 		(title "X-men")
 		(date "2023-07-17")
-		(rev "José Tejada G.")
+		(rev "José Tejada")
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
@@ -21030,6 +21030,7 @@
 		(lib_id "jt74:74LS00")
 		(at 92.71 58.42 0)
 		(unit 3)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
