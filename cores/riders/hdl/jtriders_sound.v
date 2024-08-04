@@ -115,10 +115,10 @@ always @(*) begin
     end else begin // xmen
         rom_cs  = mem_acc && ((!A[15] && A[14]) || !A[14]) && !rd_n;
         ram_cs  = mem_acc && A[15:13]==3'b110;
-        fm_cs   = mem_acc && A[15:12]==4'b1 &&  A[9];
-        k39_cs  = mem_acc && A[15:12]==4'b1 && !A[9];
-        k21_cs  = mem_acc && A[15:12]==4'hf && !A[9];
-        bank_we = mem_acc && A[15:12]==4'hf &&  A[9] && !A[10];
+        fm_cs   = mem_acc && A[15:12]==4'he &&  A[11];
+        k39_cs  = mem_acc && A[15:12]==4'he && !A[11];
+        k21_cs  = mem_acc && A[15:12]==4'hf && !A[11];
+        bank_we = mem_acc && A[15:12]==4'hf &&  A[11] && !A[10];
     end
 end
 
