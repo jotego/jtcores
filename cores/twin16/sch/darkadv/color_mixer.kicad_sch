@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Twin 16")
-		(date "2024-02-26")
+		(date "2024-08-04")
 		(company "Konami GX687 / GX785")
 		(comment 1 "Ulf Skutnabba, twitter: @skutis77")
 	)
@@ -9111,6 +9111,17 @@
 			(justify left bottom)
 		)
 		(uuid "2fe22050-d922-40e0-a0a6-9a141b4d8df4")
+	)
+	(label "~{CBLK'}"
+		(at 302.26 138.43 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "31b65a86-dc4c-442b-bb32-18f89dbe8a08")
 	)
 	(label "COLOR1"
 		(at 250.19 148.59 0)

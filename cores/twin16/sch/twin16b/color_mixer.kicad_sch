@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Twin 16 - Rev B")
-		(date "2024-03-10")
+		(date "2024-08-04")
 		(company "Konami GX785/GX870/GX808/GX903")
 		(comment 1 "Ulf Skutnabba, twitter: @skutis77")
 	)
@@ -9599,17 +9599,6 @@
 		)
 		(uuid "18b3beef-990c-4bd3-8efb-483ff8df5c97")
 	)
-	(text "U7:5 (CBLK')"
-		(exclude_from_sim no)
-		(at 321.31 172.72 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1aac4cae-e374-4ebb-8ec0-a264c8c77bbe")
-	)
 	(text "Konami 007789\n\ni11 (1C6) and i5 (PI2) is not used\n\n~o15 = OCD0 & OCD1 & OCD2 & OCD3 | ~OCD0 & ~OCD1 & ~OCD2 & ~OCD3\n\no16 = OCD0 & OCD1 & OCD2 & OCD3\n\nSELA = 1C |\n      PI0 & ~PI1 & FX |\n      ~PI1 & OCD0 & OCD1 & OCD2 & OCD3 & FX |\n      ~PI1 & ~OCD0 & ~OCD1 & ~OCD2 & ~OCD3 & FX |\n      PI1 & ~2C0 & OCD0 & OCD1 & OCD2 & OCD3 & ~2C1 & ~2C2 & ~2C3 |\n      PI1 & ~2C0 & ~OCD0 & ~OCD1 & ~OCD2 & ~OCD3 & ~2C1 & ~2C2 & ~2C3\n\n~SELB = ~1C & OCD0 & OCD1 & OCD2 & OCD3 |\n       ~1C & ~OCD0 & ~OCD1 & ~OCD2 & ~OCD3 |\n       ~1C & PI0 & ~PI1 & FX |\n       ~1C & PI0 & PI1 & 2C0 & BUS |\n       ~1C & PI0 & PI1 & BUS & 2C1 |\n       ~1C & PI0 & PI1 & BUS & 2C2 |\n       ~1C & PI0 & PI1 & BUS & 2C3\n\n~~{SHADOW} = ~1C & ~PI1 & OCD0 & OCD1 & OCD2 & OCD3 |\n       ~1C & ~PI0 & OCD0 & OCD1 & OCD2 & OCD3 & ~FX |\n       ~1C & PI0 & OCD0 & OCD1 & OCD2 & OCD3 & ~BUS |\n       ~1C & PI0 & ~2C0 & OCD0 & OCD1 & OCD2 & OCD3 & ~2C1 & ~2C2 & ~2C3"
 		(exclude_from_sim no)
 		(at 21.59 171.45 0)
@@ -10885,6 +10874,17 @@
 			(justify left bottom)
 		)
 		(uuid "c4b3608b-0956-452b-98d0-7b55bd9308a8")
+	)
+	(label "~{CBLK'}"
+		(at 271.78 210.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c6fa9094-06cc-4686-9fcc-d6e3215d6d9a")
 	)
 	(label "AB7"
 		(at 264.16 129.54 0)
