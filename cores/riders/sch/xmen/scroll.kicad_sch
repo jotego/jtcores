@@ -11,7 +11,6 @@
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
-		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "065A08_1"
@@ -19211,7 +19210,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 105.41) (xy 34.29 104.14)
+			(xy 31.75 104.14) (xy 34.29 104.14)
 		)
 		(stroke
 			(width 0)
@@ -19461,7 +19460,7 @@
 	)
 	(wire
 		(pts
-			(xy 16.51 105.41) (xy 17.78 105.41)
+			(xy 15.24 104.14) (xy 16.51 104.14)
 		)
 		(stroke
 			(width 0)
@@ -19471,7 +19470,7 @@
 	)
 	(wire
 		(pts
-			(xy 16.51 99.06) (xy 16.51 105.41)
+			(xy 15.24 97.79) (xy 15.24 104.14)
 		)
 		(stroke
 			(width 0)
@@ -28674,7 +28673,7 @@
 		(uuid "cc068f9c-72e4-4292-93d9-9eb8b2788c04")
 	)
 	(label "OBJCLK12"
-		(at 16.51 99.06 0)
+		(at 15.24 97.79 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -31092,7 +31091,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS04")
-		(at 25.4 105.41 0)
+		(at 24.13 104.14 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -31100,7 +31099,7 @@
 		(dnp no)
 		(uuid "9c2dba35-5961-4635-9440-924db4eca366")
 		(property "Reference" "H11"
-			(at 25.4 104.14 0)
+			(at 24.13 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31108,7 +31107,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 25.4 106.68 0)
+			(at 24.13 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31116,7 +31115,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 25.4 105.41 0)
+			(at 24.13 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31125,7 +31124,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 25.4 105.41 0)
+			(at 24.13 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31134,7 +31133,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 25.4 105.41 0)
+			(at 24.13 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)

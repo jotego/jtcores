@@ -11,7 +11,6 @@
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
-		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "74xx:74LS07"
@@ -8997,6 +8996,16 @@
 	)
 	(wire
 		(pts
+			(xy 298.45 81.28) (xy 298.45 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "48494ed0-8a33-42ab-8ee6-541ad6a26708")
+	)
+	(wire
+		(pts
 			(xy 110.49 68.58) (xy 101.6 68.58)
 		)
 		(stroke
@@ -9087,7 +9096,7 @@
 	)
 	(wire
 		(pts
-			(xy 314.96 83.82) (xy 303.53 83.82)
+			(xy 314.96 83.82) (xy 298.45 83.82)
 		)
 		(stroke
 			(width 0)
@@ -9527,7 +9536,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.49 81.28) (xy 292.1 81.28)
+			(xy 237.49 81.28) (xy 298.45 81.28)
 		)
 		(stroke
 			(width 0)
@@ -11794,16 +11803,6 @@
 			(type default)
 		)
 		(uuid "fc9479f7-2458-4bc6-a6d5-e97c6b796e6f")
-	)
-	(wire
-		(pts
-			(xy 303.53 83.82) (xy 292.1 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fca58ab8-aab9-4aa4-a759-b32835f21cfe")
 	)
 	(wire
 		(pts

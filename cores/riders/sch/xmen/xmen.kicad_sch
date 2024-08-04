@@ -11,7 +11,6 @@
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
-		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_01x15"
@@ -17311,44 +17310,6 @@
 			(project "xmen"
 				(path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00"
 					(page "8")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 248.92 194.31)
-		(size 38.1 12.7)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "37dc8809-3935-48e7-b293-3c55e11a0109")
-		(property "Sheetname" "description"
-			(at 248.92 193.5984 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "description.kicad_sch"
-			(at 248.92 207.5946 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "xmen"
-				(path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00"
-					(page "10")
 				)
 			)
 		)

@@ -11,7 +11,6 @@
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
-		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "arcade:HM6116P-3"
@@ -6006,16 +6005,6 @@
 	)
 	(wire
 		(pts
-			(xy 207.01 154.94) (xy 207.01 153.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1040cbec-3df9-4130-a3df-99f5a6de1b49")
-	)
-	(wire
-		(pts
 			(xy 148.59 180.34) (xy 148.59 208.28)
 		)
 		(stroke
@@ -7216,7 +7205,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 157.48) (xy 222.25 157.48)
+			(xy 227.33 156.21) (xy 222.25 156.21)
 		)
 		(stroke
 			(width 0)
@@ -7486,7 +7475,7 @@
 	)
 	(wire
 		(pts
-			(xy 207.01 160.02) (xy 205.74 160.02)
+			(xy 207.01 158.75) (xy 205.74 158.75)
 		)
 		(stroke
 			(width 0)
@@ -7846,7 +7835,7 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 160.02) (xy 205.74 156.21)
+			(xy 205.74 158.75) (xy 205.74 156.21)
 		)
 		(stroke
 			(width 0)
@@ -10905,7 +10894,7 @@
 		(uuid "da2b4df8-e1a6-469b-ab10-ad5a14983f0a")
 	)
 	(label "SHAD"
-		(at 227.33 157.48 180)
+		(at 227.33 156.21 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12193,7 +12182,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS32")
-		(at 214.63 157.48 0)
+		(at 214.63 156.21 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12201,7 +12190,7 @@
 		(dnp no)
 		(uuid "82cabab5-7a20-449d-92b5-e74a8720e48b")
 		(property "Reference" "F18"
-			(at 214.63 156.21 0)
+			(at 214.63 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12209,7 +12198,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 214.63 158.75 0)
+			(at 214.63 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12217,7 +12206,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 214.63 157.48 0)
+			(at 214.63 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12226,7 +12215,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 214.63 157.48 0)
+			(at 214.63 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12235,7 +12224,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 214.63 157.48 0)
+			(at 214.63 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)

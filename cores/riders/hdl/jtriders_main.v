@@ -140,38 +140,50 @@ always @* begin
     pcu_cs   = 0;
     prot_cs  = 0;
     wdog     = 0;
-    if(!ASn) case(A[23:20])
-        0: rom_cs = 1;
-        1: case(A[19:18])
-            0: ram_cs  = A[14] & ~BUSn;
-            1: pal_cs  = 1;  // 14'xxxx
-            2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
-            3: case(A[11:8]) // decoder 13G (pdf page 16)
-              0,1: cab_cs  = 1;
-                2: iowr_lo = 1; // EEPROM
-                3: iowr_hi = 1;
-                4: wdog    = 1;
-                5: omsb_cs = 1;
-                8: prot_cs = 1;
+    if(!ASn) begin
+        // tmnt2/ssriders
+        if(!xmen) case(A[23:20])
+            0: rom_cs = 1;
+            1: case(A[19:18])
+                0: ram_cs  = A[14] & ~BUSn;
+                1: pal_cs  = 1;  // 14'xxxx
+                2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
+                3: case(A[11:8]) // decoder 13G (pdf page 16)
+                  0,1: cab_cs  = 1;
+                    2: iowr_lo = 1; // EEPROM
+                    3: iowr_hi = 1;
+                    4: wdog    = 1;
+                    5: omsb_cs = 1;
+                    8: prot_cs = 1;
+                    default:;
+                endcase
                 default:;
             endcase
-            default:;
-        endcase
-        5: case(A[19:16])
-            4'ha: objreg_cs = 1;
-            4'hc: case(A[11:8]) // 13G
-                6: begin
-                    snd_cs = !A[2]; // 053260
-                    sndon  =  A[2];
-                end
-                7: pcu_cs = 1;      // 053251
+            5: case(A[19:16])
+                4'ha: objreg_cs = 1;
+                4'hc: case(A[11:8]) // 13G
+                    6: begin
+                        snd_cs = !A[2]; // 053260
+                        sndon  =  A[2];
+                    end
+                    7: pcu_cs = 1;      // 053251
+                    default:;
+                    endcase
                 default:;
                 endcase
+            6: vram_cs = 1; // probably different at boot time
             default:;
+        endcase
+        // xmen
+        if(!xmen) case(A[23:20])
+            0: rom_cs = 1;
+            1: case(A[19:16])
+                0:
+                1: ram_cs = A[15:14]==0 && !BUSn;
+                8: vram_cs = 1;
             endcase
-        6: vram_cs = 1; // probably different at boot time
-        default:;
-    endcase
+        endcase
+    end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};

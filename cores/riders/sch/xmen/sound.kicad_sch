@@ -11,7 +11,6 @@
 		(company "KONAMI PWB353018A GX065")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
-		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "74LS74_1"
@@ -22377,7 +22376,7 @@
 		)
 		(uuid "de098e5b-e218-4d83-ba3f-6c36a4766372")
 	)
-	(text "Note: 1. A-1 is least significant address.\nWhen BHE is 'low', D14 to D8 goes the high \nimpedance state."
+	(text "Note: 1. A-1 is least significant address.\nWhen BHE is 'low', D14-D8 are set to high \nimpedance."
 		(exclude_from_sim no)
 		(at 336.55 85.09 0)
 		(effects
