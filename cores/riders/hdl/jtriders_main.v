@@ -20,7 +20,7 @@ module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input         [ 2:0] game_id,
+    input                xmen,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -33,6 +33,8 @@ module jtriders_main(
     output reg           pal_cs,
     output reg           pcu_cs,
     // Sound interface
+    output               pair_we,   // K054321 (some latches)
+    input         [ 7:0] pair_dout, // K054321 (X-Men)
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
     output reg           sndon,     // irq trigger
@@ -88,8 +90,6 @@ module jtriders_main(
     input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
-`include "game_id.vh"
-
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
@@ -97,7 +97,7 @@ wire [ 2:0] FC;
 reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb,
-            xmen,   sndon_r;
+            sndon_r, pair_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux, intdma, IPLn1;
@@ -121,6 +121,7 @@ assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 assign IPLn1    = ~intdma | tile_irqn;
+assign pair_we  = pair_cs && !RnW && !LDSn;
 
 reg none_cs, wdog;
 // not following the PALs as the dumps from PLD Archive are not readable
@@ -140,6 +141,7 @@ always @* begin
     sndon    = xmen ? sndon_r : 1'b0;
     pcu_cs   = 0;
     prot_cs  = 0;
+    pair_cs  = 0;
     wdog     = 0;
     if(!ASn) begin
         // tmnt2/ssriders
@@ -188,6 +190,7 @@ always @* begin
             // cr_cs = iowr_hi && A[3:2]==3;
             wdog    = iowr_hi && !RnW;
             objreg_cs = iowr_lo && A[6:5]==1;
+            pair_cs   = iowr_lo && A[6:5]==2;
             pcu_cs    = iowr_lo && A[6:5]==3;
         end
     end
@@ -206,8 +209,6 @@ jtframe_edge u_ff(
 );
 
 always @(posedge clk) begin
-    xmen <= game_id == XMEN;
-
     IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & IPLn1 }
                  : { tile_irqn, 1'b1, prot_irqn };
 
@@ -219,6 +220,7 @@ always @(posedge clk) begin
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
+               pair_cs ? {8'd0,pair_dout}:
                omsb_cs ? {8'd0,omsb_dout}:
                cab_cs  ? cab_dout        : 16'hffff;
 end

@@ -11468,7 +11468,7 @@
 		)
 		(uuid "13223f75-a953-44c9-9214-15343f04fef5")
 	)
-	(label "SND~{PAL5}"
+	(label "~{SLATCHES}"
 		(at 222.25 43.18 180)
 		(fields_autoplaced yes)
 		(effects
@@ -13151,7 +13151,7 @@
 		)
 		(uuid "773150b8-f831-4361-a68f-9602360b01fe")
 	)
-	(label "SND~{PAL5}"
+	(label "~{SLATCHES}"
 		(at 151.13 101.6 0)
 		(fields_autoplaced yes)
 		(effects
@@ -17267,7 +17267,7 @@
 			)
 			(uuid "f8c24d9f-b6b8-4d53-964e-8daa6b34ea97")
 		)
-		(pin "SND~{PAL5}" output
+		(pin "~{SLATCHES}" output
 			(at 205.74 43.18 0)
 			(effects
 				(font
@@ -17683,7 +17683,7 @@
 			)
 			(uuid "b4eb9273-5090-4108-b931-c6fb25173b63")
 		)
-		(pin "SND~{PAL5}" input
+		(pin "~{SLATCHES}" input
 			(at 167.64 101.6 180)
 			(effects
 				(font

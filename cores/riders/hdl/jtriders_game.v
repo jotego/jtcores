@@ -19,18 +19,19 @@
 module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
-
+`include "game_id.vh"
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
+            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
+reg         xmen;
 wire [ 7:0] tilesys_dout, snd2main,
-            obj_dout, snd_latch,
+            obj_dout, snd_latch, pair_dout,
             st_main, st_video;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
@@ -44,7 +45,7 @@ assign oaread_en  = game_id[0];
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         //0: debug_mux <= { 7'd0, dip_flip };
-        0: debug_mux <= { mute, 1'b0, dimpol, dimmod, 1'b0, dim };
+        0: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
         1: debug_mux <= st_main;
         2: debug_mux <= st_video;
         default: debug_mux <= 0;
@@ -52,8 +53,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if( prog_addr[3:0]==15 && prog_we && header )
-        game_id <= prog_data[2:0];
+    if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
+    xmen <= game_id == XMEN;
 end
 
 /* verilator tracing_on */
@@ -61,7 +62,7 @@ jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
-    .game_id        ( game_id       ),
+    .xmen           ( xmen          ),
 
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
@@ -120,6 +121,8 @@ jtriders_main u_main(
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
     .mute           ( mute          ),
+    .pair_we        ( pair_we       ),
+    .pair_dout      ( pair_dout     ),
     // EEPROM
     .nv_addr        ( nvram_addr    ),
     .nv_dout        ( nvram_dout    ),
@@ -243,10 +246,14 @@ jtriders_sound u_sound(
     .cen_4      ( cen_4         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
+
+    .xmen       ( xmen          ),
+    .pair_we    ( pair_we       ),
+    .pair_dout  ( pair_dout     ),
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),
-    .main_addr  ( main_addr[1]  ),
+    .main_addr  ( main_addr[4:1]),
     .main_rnw   ( snd_wrn       ),
     .snd_irq    ( snd_irq       ),
     // ROM

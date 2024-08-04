@@ -31,7 +31,7 @@ sdram:
           data_width: 16
     - buses:
         - name: snd
-          addr_width: 16
+          addr_width: 17
           data_width: 8
         - name: pcma
           addr_width: 21

@@ -5709,7 +5709,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)"
+			(property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)"
 				(at 0 -33.02 0)
 				(effects
 					(font
@@ -6160,7 +6160,7 @@
 				(pin input inverted
 					(at -25.4 6.35 0)
 					(length 5.08)
-					(name "SND~{PAL5}"
+					(name "SND~{CS}"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -12742,7 +12742,7 @@
 		)
 		(uuid "6711553f-9ff0-438b-9fe1-48a3650f858b")
 	)
-	(label "SND~{PAL5}"
+	(label "~{SLATCHES}"
 		(at 101.6 71.12 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13708,7 +13708,7 @@
 		)
 		(uuid "e9925c48-1347-41f1-a520-753b402ff0cf")
 	)
-	(hierarchical_label "SND~{PAL5}"
+	(hierarchical_label "~{SLATCHES}"
 		(shape input)
 		(at 177.8 55.88 180)
 		(fields_autoplaced yes)
@@ -13910,7 +13910,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)"
+		(property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)"
 			(at 212.09 90.17 0)
 			(effects
 				(font

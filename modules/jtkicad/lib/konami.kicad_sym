@@ -62593,7 +62593,7 @@
 			(pin input inverted
 				(at -25.4 6.35 0)
 				(length 5.08)
-				(name "SND~{PAL5}"
+				(name "SND~{CS}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64855,14 +64855,6 @@
 			)
 			(text "SIGNAL AND PIN8 HYDRID TO Z80/WAIT"
 				(at 26.67 -44.45 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "SND PAL"
-				(at -43.18 19.05 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -67206,7 +67198,7 @@
 			(pin input inverted
 				(at -59.69 19.05 0)
 				(length 5.08)
-				(name "~{UK0}"
+				(name "~{CS}"
 					(effects
 						(font
 							(size 1.27 1.27)
