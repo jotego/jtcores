@@ -6374,6 +6374,16 @@
 		)
 		(uuid "1bd77aac-f30f-4006-a4aa-6a53b90da397")
 	)
+	(wire
+		(pts
+			(xy 236.22 82.55) (xy 252.73 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1cb4713d-efeb-485b-a99f-be5485e7ef65")
+	)
 	(bus
 		(pts
 			(xy 149.86 191.77) (xy 152.4 191.77)
@@ -8826,6 +8836,16 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 85.09) (xy 252.73 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c747ccbd-1e9e-463a-a41e-dda55e30c943")
+	)
+	(wire
+		(pts
 			(xy 140.97 176.53) (xy 140.97 189.23)
 		)
 		(stroke
@@ -10313,6 +10333,17 @@
 		)
 		(uuid "0cd5ac1d-2819-4fbb-96ca-66e8ae826c7e")
 	)
+	(label "OBJCHA"
+		(at 236.22 85.09 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0d04aef4-8778-49a3-980f-943215359487")
+	)
 	(label "XOBJROMD25"
 		(at 149.86 226.06 90)
 		(fields_autoplaced yes)
@@ -10719,6 +10750,17 @@
 			(justify right bottom)
 		)
 		(uuid "320cf84c-45f9-4d92-952f-d51c3a580798")
+	)
+	(label "CR~{CS}"
+		(at 236.22 82.55 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "33367ed2-580a-4ade-8b93-7af9d8a0ceae")
 	)
 	(label "XOBJROMD13"
 		(at 149.86 271.78 90)
@@ -14942,7 +14984,7 @@
 	)
 	(sheet
 		(at 252.73 54.61)
-		(size 38.1 27.94)
+		(size 38.1 35.56)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -14962,7 +15004,7 @@
 			)
 		)
 		(property "Sheetfile" "objects.kicad_sch"
-			(at 252.73 83.1346 0)
+			(at 252.73 90.7546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15149,6 +15191,26 @@
 				(justify left)
 			)
 			(uuid "b46aa2ab-bb30-4910-b366-e965b85dbe33")
+		)
+		(pin "CR~{CS}" input
+			(at 252.73 82.55 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "54b94af7-1eed-461f-8d12-571811997f24")
+		)
+		(pin "OBJCHA" input
+			(at 252.73 85.09 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "d957719e-c089-4956-855d-2b6c9f52fe0b")
 		)
 		(instances
 			(project "simpsons"

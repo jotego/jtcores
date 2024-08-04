@@ -17773,7 +17773,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 63.5) (xy 102.87 63.5)
+			(xy 99.06 63.5) (xy 102.87 63.5)
 		)
 		(stroke
 			(width 0)
@@ -26599,17 +26599,6 @@
 		)
 		(uuid "1b93de14-1cd9-47e5-a6a6-73901fed381a")
 	)
-	(label "CR~{CS}"
-		(at 93.98 63.5 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1bfb0956-b123-46d9-8ccd-d09f44b54884")
-	)
 	(label "OBJROMD'6"
 		(at 156.21 232.41 180)
 		(fields_autoplaced yes)
@@ -26961,17 +26950,6 @@
 			(justify right bottom)
 		)
 		(uuid "2a249f80-15e0-4726-ad57-136eb46496b5")
-	)
-	(label "OBJCHA"
-		(at 266.7 63.5 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2a32b909-c904-44b0-a697-8af856169e33")
 	)
 	(label "YOBJROMD5"
 		(at 78.74 170.18 180)
@@ -31858,6 +31836,18 @@
 		)
 		(uuid "0224afdd-f2c8-45c0-b644-8d0a097ab505")
 	)
+	(hierarchical_label "OBJCHA"
+		(shape input)
+		(at 266.7 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "04b616a7-9b95-4c67-ae2b-02fedbfea4d2")
+	)
 	(hierarchical_label "XOBJROMD[31..0]"
 		(shape output)
 		(at 168.91 142.24 0)
@@ -31941,6 +31931,18 @@
 			(justify right)
 		)
 		(uuid "86a3e7fd-da71-4bbb-9214-80ac902c3bb3")
+	)
+	(hierarchical_label "CR~{CS}"
+		(shape input)
+		(at 99.06 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8b3b8904-f005-4a8e-af6a-a79c07e31536")
 	)
 	(hierarchical_label "YOBJROMD[31..0]"
 		(shape output)

@@ -12313,7 +12313,7 @@
 		)
 		(uuid "14c35de6-1438-40c5-b701-26a010ea96d6")
 	)
-	(label "MYUTB"
+	(label "MUTEB"
 		(at 300.99 59.69 180)
 		(fields_autoplaced yes)
 		(effects
@@ -13215,7 +13215,7 @@
 		)
 		(uuid "cb8eb473-b271-4670-b3f6-4e274dcaac39")
 	)
-	(label "MYUTB"
+	(label "MUTEB"
 		(at 101.6 101.6 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13281,7 +13281,7 @@
 		)
 		(uuid "d6b0125b-df03-4e42-bbb9-170cc10c1d45")
 	)
-	(label "MYUTB"
+	(label "MUTEB"
 		(at 151.13 240.03 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13552,7 +13552,7 @@
 		)
 		(uuid "18f0a5b2-d642-4bdf-855d-1e52cf53a05d")
 	)
-	(hierarchical_label "MYUT"
+	(hierarchical_label "MUTE"
 		(shape input)
 		(at 260.35 59.69 180)
 		(fields_autoplaced yes)

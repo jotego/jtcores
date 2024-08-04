@@ -36,6 +36,7 @@ module jtriders_main(
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
     output reg           sndon,     // irq trigger
+    output reg           mute,
 
     output reg           rom_cs,
     output reg           ram_cs,
@@ -61,6 +62,7 @@ module jtriders_main(
     input       [ 7:0]   omsb_dout,
     // video configuration
     output reg           objreg_cs,
+    output reg           objcha_n,
     output reg           rmrd,
     output reg           dimmod,
     output reg           dimpol,
@@ -95,9 +97,8 @@ wire [ 2:0] FC;
 reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb,
-            xmen;
-reg  [15:0] cpu_din;
-reg  [ 7:0] cab_dout;
+            xmen,   sndon_r;
+reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux, intdma, IPLn1;
 
@@ -136,7 +137,7 @@ always @* begin
     obj_cs   = 0;
     objreg_cs= 0;
     snd_cs   = 0;
-    sndon    = 0;
+    sndon    = xmen ? sndon_r : 1'b0;
     pcu_cs   = 0;
     prot_cs  = 0;
     wdog     = 0;
@@ -174,15 +175,21 @@ always @* begin
             6: vram_cs = 1; // probably different at boot time
             default:;
         endcase
-        // xmen
-        if(!xmen) case(A[23:20])
-            0: rom_cs = 1;
-            1: case(A[19:16])
-                0:
-                1: ram_cs = A[15:14]==0 && !BUSn;
-                8: vram_cs = 1;
-            endcase
-        endcase
+        // xmen (from PAL equations)
+        if(xmen) begin
+            rom_cs  = ~A[20];
+            ram_cs  =  A[20:14]==7'b1000100;
+            obj_cs  =  A[20:14]==7'b1000000;
+            pal_cs  =  A[20:13]==8'b10000010;
+            vram_cs = ~A[23] & A[20] & A[19];
+            iowr_lo =  A[20:13]==8'b10000100; // IO1 in schematics
+            iowr_hi =  A[20:13]==8'b10000101; // IO2 in schematics
+            cab_cs  = iowr_hi && !A[3];
+            // cr_cs = iowr_hi && A[3:2]==3;
+            wdog    = iowr_hi && !RnW;
+            objreg_cs = iowr_lo && A[6:5]==1;
+            pcu_cs    = iowr_lo && A[6:5]==3;
+        end
     end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
@@ -213,7 +220,7 @@ always @(posedge clk) begin
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
                omsb_cs ? {8'd0,omsb_dout}:
-               cab_cs  ? {8'd0,cab_dout} : 16'hffff;
+               cab_cs  ? cab_dout        : 16'hffff;
 end
 
 reg fake_dma=0, cabcs_l;
@@ -223,15 +230,24 @@ always @(posedge clk) begin
         cabcs_l <= cab_cs;
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
-    cab_dout <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
-                       { service, coin };
-    case( {A[8],A[2:1]} )
-        0: cab_dout <= { cab_1p[0], joystick1[6:0] };
-        1: cab_dout <= { cab_1p[1], joystick2[6:0] };
-        2: cab_dout <= { cab_1p[2], joystick3[6:0] };
-        3: cab_dout <= { cab_1p[3], joystick4[6:0] };
-        default:;
-    endcase
+    if(!xmen) begin
+        cab_dout[15:8] <= 0;
+        cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
+                           { service, coin };
+        case( {A[8],A[2:1]} )
+            0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+            1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+            2: cab_dout[7:0] <= { cab_1p[2], joystick3[6:0] };
+            3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
+            default:;
+        endcase
+    end else begin // xmen
+        cab_dout <= A[1] ? { coin[2], joystick3[6:0], coin[0], joystick1[6:0] }:
+                           { coin[3], joystick4[6:0], coin[1], joystick2[6:0] };
+        if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
+                2'b11, cab_1p[0], cab_1p[1], cab_1p[2], cab_1p[3],
+                service[1:0], 2'b11, service[3:2], eep_do, eep_rdy };
+    end
 end
 
 always @(posedge clk, posedge rst) begin
@@ -244,14 +260,29 @@ always @(posedge clk, posedge rst) begin
         eep_cs  <= 0;
         eep_clk <= 0;
         cbnk    <= 0;
+        sndon_r <= 0;
+        mute    <= 0;
+        objcha_n<= 1;
         intdma_enb <= 1;
     end else begin
-        if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
-        if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
+        if(!xmen) begin
+            if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
+            if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
+        end else begin // xmen
+            if( iowr_lo && A[6:5]==0 ) begin
+                if( !LDSn ) { intdma_enb, eep_cs, eep_clk, eep_di } <= cpu_dout[5:2];
+                if( !UDSn ) begin
+                    mute     <=  cpu_dout[11];
+                    sndon_r  <=  cpu_dout[10];
+                    rmrd     <=  cpu_dout[9];
+                    objcha_n <= ~cpu_dout[8];
+                end
+            end
+        end
     end
 end
 
-jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
+jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .rst        ( rst       ),
     .clk        ( clk       ),
     // chip interface

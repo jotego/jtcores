@@ -22,7 +22,7 @@ module jtriders_game(
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
-            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
@@ -44,7 +44,7 @@ assign oaread_en  = game_id[0];
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         //0: debug_mux <= { 7'd0, dip_flip };
-        0: debug_mux <= { 2'b0, dimpol, dimmod, 1'b0, dim };
+        0: debug_mux <= { mute, 1'b0, dimpol, dimmod, 1'b0, dim };
         1: debug_mux <= st_main;
         2: debug_mux <= st_video;
         default: debug_mux <= 0;
@@ -109,6 +109,7 @@ jtriders_main u_main(
     .cbnk           (               ),
     .dma_bsy        ( dma_bsy       ),
     .objreg_cs      ( objreg_cs     ),
+    .objcha_n       ( objcha_n      ),
 
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
@@ -118,6 +119,7 @@ jtriders_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
+    .mute           ( mute          ),
     // EEPROM
     .nv_addr        ( nvram_addr    ),
     .nv_dout        ( nvram_dout    ),
@@ -188,6 +190,7 @@ jtriders_video u_video (
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( oram_cs       ),
     .objreg_cs      ( objreg_cs     ),
+    .objcha_n       ( objcha_n      ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),

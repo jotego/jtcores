@@ -50,6 +50,7 @@ module jtriders_video(
     output     [15:0] objsys_dout,
     input             objsys_cs,
     input             objreg_cs,
+    input             objcha_n,
 
     output reg        vdtac,
     input             tilesys_cs,
@@ -296,7 +297,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     (lyro_precs ),
-    .objcha_n   ( 1'b1      ),
+    .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl[8:0]  ),
     .shd        ({nc3,shadow}),

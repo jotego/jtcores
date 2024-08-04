@@ -17,10 +17,11 @@ skip = { bootlegs=true, machines=[
     "qgakumon",
     "thndrx2",
     "prmrsocr",
-    # dual screen not supported
-    "xmen6p",
     # ROM regions names
     "asterix",
+], setnames=[
+    # dual screen not supported
+    "xmen6p", "xmen6pu",
 ]}
 
 debug={machines=["tmnt2", "xmen"]}
