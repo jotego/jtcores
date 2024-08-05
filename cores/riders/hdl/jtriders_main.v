@@ -248,7 +248,7 @@ always @(posedge clk) begin
                            { coin[3], joystick4[6:0], coin[1], joystick2[6:0] };
         if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
                 2'b11, cab_1p[0], cab_1p[1], cab_1p[2], cab_1p[3],
-                eep_do, eep_rdy, 2'b11, service };
+                eep_rdy, eep_do, 2'b11, service };
     end
 end
 
