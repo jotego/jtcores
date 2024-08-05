@@ -183,7 +183,8 @@ endfunction
 // It also makes the grid look squared, wihtout nothing hanging off the sides
 jtaliens_scroll #(
     .HB_EXTRAL( 9'd8 ),
-    .HB_EXTRAR( 9'd8 )
+    .HB_EXTRAR( 9'd8 ),
+    .FULLRAM  (`FULLRAM)
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -261,7 +262,7 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 wire [ 1:0] nc;
 wire        nc3;
 
@@ -312,7 +313,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

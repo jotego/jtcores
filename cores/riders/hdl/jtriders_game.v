@@ -136,7 +136,7 @@ jtriders_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_prot u_prot(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -239,7 +239,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

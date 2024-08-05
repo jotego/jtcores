@@ -33339,6 +33339,14 @@
 			)
 		)
 		(symbol "052109_1_1"
+			(text "30 pins per side"
+				(at 0 -11.43 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 			(pin power_in line
 				(at -26.67 -49.53 90)
 				(length 5.08)

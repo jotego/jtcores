@@ -91,6 +91,7 @@ module jtaliens_scroll(
 
 parameter [8:0] HB_EXTRAL=0,
                 HB_EXTRAR=0;
+parameter       FULLRAM  =0; // Enables the three possible memory chips
 
 wire [ 7:0] tilemap_dout, tilerom_dout;
 wire [ 2:0] hsub_a, hsub_b;
@@ -104,7 +105,7 @@ assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 always @(posedge clk) cpu_rom_dtack <= ~(rmrd & gfx_cs) | lyra_ok;
 
-jt052109 u_tilemap(
+jt052109 #(.FULLRAM(FULLRAM)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

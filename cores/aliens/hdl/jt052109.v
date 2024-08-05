@@ -83,6 +83,8 @@ module jt052109(
     output reg [ 7:0] st_dout
 );
 
+parameter FULLRAM=0;
+
 // MMR go from 1C00 to 1F00
 localparam [15:0] REGBASE = 16'h1C00;
 // bits 9-7 of address select the register
@@ -91,7 +93,7 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
                   REG_INT   = 2, // 1D00 interrupt control, only 3 bits used
                   REG_BANK0 = 3, // 1D80
                   REG_RMRD  = 4, // 1E00 bank selector during test
-                  REG_FLIP  = 5, // 1E80                    only 1 bit used
+                  REG_FLIP  = 5, // 1E80                    only 3 bit used
                   REG_BANK1 = 6; // 1F00
 
 // REG_CFG bits 1:0 act as a memory mapper, allowing up to 3 RAM chips
@@ -116,15 +118,15 @@ reg  [ 7:0] mmr[0:6], col_cfg,
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
 reg  [ 8:0] hdumpf;
 wire [ 7:0] bank0, bank1, cfg, int_en,
-            cpu_attr, cpu_code;
+            cpu_attr, cpu_extra,
+            cpu_code, ram0_dout, ram1_dout;
 reg  [10:0] map_a, map_b, vc;
 reg  [12:0] vaddr, vaddr_nx;
 reg  [ 1:0] col_aux;
 reg  [ 1:0] cab,         // tile address MSB
             ba_lsb,      // bank lower 2 bits
             rscra, rscrb;// row scroll
-reg  [ 2:1] we;
-reg  [ 2:0] vsub_a, vsub_b, vmux, cs, rst_cnt;
+reg  [ 2:0] we, vsub_a, vsub_b, vmux, cs, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
 wire        rd_vpos, rd_hpos, scrlyr_sel;
 reg         v4_l, rd_rowscr, vflip;
@@ -150,36 +152,40 @@ assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
+assign scan_dout[15:8] = ram1_dout;
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
            range1 = range[3:0],
            range2 = range[4:1];
+// range0 and range2 are always $2000 apart
+// range1 is $4000 below range0
 
 always @(posedge clk) begin // 3MHz signals
     if( pxl_cen  ) q <= ~q;
-    if( pxl2_cen ) e <= q;
+    if( pxl2_cen ) e <=  q;
 end
 
 // CPU Memory Mapper
 always @* begin
     casez( cpu_addr[15:13] )
-        0: range = 6'b111110;    // 0000~1FFF
-        1: range = 6'b111101;    // 2000~3FFF
-        2: range = 6'b111011;    // 4000~5FFF
-        3: range = 6'b110111;    // 6000~7FFF
-        4: range = 6'b101111;    // 8000~9FFF
-        5: range = 6'b011111;    // A000~BFFF
-        default: range = 6'b111111;
+          0: range = 6'b111110;    // 0000~1FFF
+          1: range = 6'b111101;    // 2000~3FFF
+          2: range = 6'b111011;    // 4000~5FFF
+          3: range = 6'b110111;    // 6000~7FFF
+          4: range = 6'b101111;    // 8000~9FFF
+          5: range = 6'b011111;    // A000~BFFF
+    default: range = 6'b111111;
     endcase
     cs[0] = ~range0[~cfg[1:0]];
     cs[1] = ~range1[~cfg[1:0]];
     cs[2] = ~range2[~cfg[1:0]];
     // WARNING: these are external connections and could change on
     // some games. If so, cs[2:0] should go out and re-tied at an upper level
-    cpu_din = cs[1] ? cpu_attr : cpu_code;
+    we[0]   = cs[0] & cpu_we & gfx_cs;
     we[1]   = cs[1] & cpu_we & gfx_cs;
     we[2]   = cs[2] & cpu_we & gfx_cs;
+    cpu_din = cs[2] ? cpu_extra : cs[1] ? cpu_attr : cpu_code;
 end
 
 reg ca, cb;
@@ -376,6 +382,26 @@ always @(posedge clk) begin
     end
 end
 
+initial $display("FULLRAM=%d",`FULLRAM);
+generate if(FULLRAM==1) begin
+    jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
+        // Port 0: CPU
+        .clk0   ( clk            ),
+        .data0  ( cpu_dout       ),
+        .addr0  ( cpu_addr[12:0] ),
+        .we0    ( we[0]          ),
+        .q0     ( cpu_extra      ),
+        // Port 1
+        .clk1   ( clk            ),
+        .addr1a ( vaddr          ),
+        .addr1b (ioctl_addr[12:0]),
+        .sel_b  ( ioctl_ram      ),
+        .data1  ( 8'd0           ),
+        .we_b   ( 1'b0           ),
+        .q1     ( ram0_dout      )  // color
+    );
+end endgenerate
+
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     // Port 0: CPU
     .clk0   ( clk            ),
@@ -390,7 +416,7 @@ jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     .sel_b  ( ioctl_ram      ),
     .data1  ( 8'd0           ),
     .we_b   ( 1'b0           ),
-    .q1     ( scan_dout[15:8])  // color
+    .q1     ( ram1_dout      )  // color
 );
 
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr1.bin")) u_code(

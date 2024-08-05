@@ -19,6 +19,7 @@
 // Frame buffer built on top of two line buffers
 
 // This module is not fully tested yet
+/* verilator lint_off MODDUP */
 module jtframe_lfbuf_sdr #(parameter
     DW      =  16,
     VW      =   8,

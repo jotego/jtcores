@@ -109,7 +109,7 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -180,7 +180,7 @@ always @* begin
         // xmen (from PAL equations)
         if(xmen) begin
             rom_cs  = ~A[20];
-            ram_cs  =  A[20:14]==7'b1000100;
+            ram_cs  =  A[20:14]==7'b1000100 & ~BUSn;
             obj_cs  =  A[20:14]==7'b1000000;
             pal_cs  =  A[20:13]==8'b10000010;
             vram_cs = ~A[23] & A[20] & A[19];
@@ -248,7 +248,7 @@ always @(posedge clk) begin
                            { coin[3], joystick4[6:0], coin[1], joystick2[6:0] };
         if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
                 2'b11, cab_1p[0], cab_1p[1], cab_1p[2], cab_1p[3],
-                service[1:0], 2'b11, service[3:2], eep_do, eep_rdy };
+                eep_do, eep_rdy, 2'b11, service };
     end
 end
 

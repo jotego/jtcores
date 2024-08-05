@@ -299,6 +299,11 @@ function set_mist_as_target {
     TARGET=mist
 }
 
+function set_sidi128_as_target {
+    TOP=mist_test
+    TARGET=sidi128
+}
+
 function set_zoom {
     export CONVERT_OPTIONS="-filter point -resize 200% $CONVERT_OPTIONS"
 }
@@ -398,9 +403,8 @@ case "$1" in
         TARGET=pocket
         ;;
     #################### MiST setup
-    -mist)
-        set_mist_as_target
-        ;;
+    -mist) set_mist_as_target;;
+    -sidi128) set_sidi128_as_target;;
     #################### MiSTer setup
     -mister|-mr)
         TOP=mister_test
@@ -485,7 +489,7 @@ esac
 done
 
 if [ -z "$TARGET" ]; then
-    set_mist_as_target
+    set_sidi128_as_target
 fi
 
 echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
