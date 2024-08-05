@@ -184,8 +184,8 @@ always @* begin
             obj_cs  =  A[20:14]==7'b1000000;
             pal_cs  =  A[20:13]==8'b10000010;
             vram_cs = ~A[23] & A[20] & A[19];
-            iowr_lo =  A[20:13]==8'b10000100; // IO1 in schematics
-            iowr_hi =  A[20:13]==8'b10000101; // IO2 in schematics
+            iowr_lo =  A[20:13]==8'b1_0000_100; // IO1 in schematics
+            iowr_hi =  A[20:13]==8'b1_0000_101; // IO2 in schematics
             cab_cs  = iowr_hi && !A[3];
             // cr_cs = iowr_hi && A[3:2]==3;
             wdog    = iowr_hi && !RnW;
@@ -209,7 +209,7 @@ jtframe_edge u_ff(
 );
 
 always @(posedge clk) begin
-    IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & IPLn1 }
+    IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & tile_irqn }
                  : { tile_irqn, 1'b1, prot_irqn };
 
     HALTn   <= dip_pause & ~rst;

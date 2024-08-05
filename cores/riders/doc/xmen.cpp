@@ -394,7 +394,7 @@ void xmen_state::base_main_map(address_map &map)
 {
 	map(0x000000, 0x0fffff).rom();
 	map(0x100000, 0x100fff).rw(m_k053246, FUNC(k053247_device::k053247_word_r), FUNC(k053247_device::k053247_word_w));
-	map(0x101000, 0x101fff).ram();
+	map(0x101000, 0x101fff).ram(); // Object RAM 5J/6J
 	map(0x104000, 0x104fff).ram().w("palette", FUNC(palette_device::write16)).share("palette");
 	map(0x108000, 0x108001).w(FUNC(xmen_state::eeprom_w));
 	map(0x108020, 0x108027).w(m_k053246, FUNC(k053247_device::k053246_w));

@@ -131,7 +131,7 @@ jtframe_edge #(.QSET(0)) u_edge (
 );
 
 /* verilator tracing_off */
-jtframe_sysz80 #(.RAM_AW(13),.CLR_INT(1)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(`SND_RAMW),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_g     ),

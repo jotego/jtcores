@@ -20,6 +20,7 @@ module jtriders_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             xmen,
 
     // Base Video
     input             lhbl,
@@ -59,7 +60,10 @@ module jtriders_colmix(
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] cpu_palwe;
+wire [ 5:0] pri1;
+wire [ 8:0] ci0, ci2;
+wire [ 7:0] ci3, ci4;
+wire [ 1:0] cpu_palwe, shd_out;
 wire [15:0] pal_dout;
 reg  [15:0] pxl_aux;
 reg  [ 1:0] dim_cmn;
@@ -77,6 +81,14 @@ assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
 assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
 assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+
+// 053251 wiring
+assign pri1      = xmen ? { lyro_pxl[11-:5], 1'd0} : {1'b1, lyro_pxl[10:9], 3'd0};
+assign ci0       = xmen ? { lyra_pxl[6:4], lyra_pxl[11:10], lyra_pxl[3:0] } : 9'd0;
+assign ci2       = xmen ? { lyrb_pxl[11:10], lyrb_pxl[6:0] } : { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
+assign shad      = xmen ? |shd_out : shd_out[0];
 
 always @* begin
     // LUT generated with
@@ -105,7 +117,8 @@ always @(posedge clk) begin
         if( pxl_cen ) begin
             bgr <= { b8, g8, r8 };
         end
-        if(debug_bus[7]) bsel <= debug_bus[3:0];
+        if( xmen )         bsel <= { ~shad, 3'b111 };
+        if( debug_bus[7] ) bsel <= debug_bus[3:0];
     end
 end
 
@@ -120,17 +133,17 @@ jtcolmix_053251 u_k251(
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({1'b1, lyro_pxl[10:9], 3'd0 }),
+    .pri1       ( pri1      ),
     .pri2       ( 6'h3f     ),
     // color inputs
-    .ci0        ( 9'd0      ),
+    .ci0        ( ci0       ),
     .ci1        ( lyro_pxl[8:0] ),
-    .ci2        ( { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] } ),
-    .ci4        ( { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] } ),
-    .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),
+    .ci2        ( ci2       ),
+    .ci3        ( ci3       ),
+    .ci4        ( ci4       ),
     // shadow
     .shd_in     ({1'b0,~shadow}), // why do we need the inversion?
-    .shd_out    ({ nc, shad }  ),
+    .shd_out    ( shd_out   ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
     .ioctl_din  ( dump_mmr  ),

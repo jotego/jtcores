@@ -17981,7 +17981,7 @@
 			)
 			(uuid "4fb6c1a4-4bc7-4b2f-afad-2bb29df05d45")
 		)
-		(pin "M_R{slash}~{W}" output
+		(pin "R{slash}~{W}" output
 			(at 287.02 116.84 0)
 			(effects
 				(font

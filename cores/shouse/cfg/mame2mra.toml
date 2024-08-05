@@ -1,3 +1,6 @@
+[global]
+orientation = { fixed=true }
+
 [parse]
 sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[ "puzlclub" ] }

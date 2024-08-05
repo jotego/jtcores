@@ -21,6 +21,7 @@ module jtriders_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
+    input             xmen,
 
     // Base Video
     output            lhbl,
@@ -172,7 +173,7 @@ function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
 endfunction
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 // extra blanking added to help MiSTer output
 // on real hardware, it would've been manually
 // adjusted on the CRT.
@@ -311,11 +312,12 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .xmen       ( xmen      ),
 
     // Base Video
     .lhbl       ( lhbl      ),
