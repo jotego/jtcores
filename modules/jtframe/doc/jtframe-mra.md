@@ -19,6 +19,9 @@ debugging in MiST without affecting the MRA generation.
 TOML elements (see full reference in mame2mra.go)
 
 ```
+[global]
+Orientation={ Fixed=true } # use when rotation CW/CCW information from MAME is not reliable
+
 [parse]
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
 skip.Setnames=["willskip1","willskip2"]

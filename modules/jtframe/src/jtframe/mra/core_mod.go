@@ -50,10 +50,10 @@ func coreMOD_dial(machine *MachineXML, cfg Mame2MRA, coremod *int) {
 	}
 }
 
-func coreMOD_rotate(machine *MachineXML, coremod *int) bool {
+func coreMOD_rotate(machine *MachineXML, fixed bool, coremod *int) bool {
 	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
 		*coremod |= 1
-		if machine.Display.Rotate != 90 {
+		if machine.Display.Rotate != 90 && !fixed {
 			*coremod |= 4
 		}
 		return true
@@ -77,8 +77,7 @@ func coreMOD_audio(machine *MachineXML, cfg Mame2MRA, coremod *int) {
 
 func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[string]string) int {
 	coremod := 0
-	vertical := coreMOD_rotate(machine, &coremod)
-	coreMOD_rotate(machine, &coremod)
+	vertical := coreMOD_rotate(machine, cfg.Global.Orientation.Fixed, &coremod)
 	coreMOD_dial(machine, cfg, &coremod)
 	wdiff, hdiff := coreMOD_screenSize(machine, cfg, macros, &coremod)
 	coreMOD_audio(machine, cfg, &coremod)

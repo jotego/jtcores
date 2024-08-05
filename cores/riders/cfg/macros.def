@@ -11,3 +11,10 @@ JTFRAME_HEIGHT=224
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
+
+# 13 bits needed for X-Men
+SND_RAMW=13
+
+# But MiST/SiDi cannot handle that much
+[mist|sidi]
+SND_RAMW=11

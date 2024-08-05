@@ -202,6 +202,9 @@ type Mame2MRA struct {
         Zip       struct {
             Alt string
         }
+        Orientation struct {
+            Fixed bool
+        }
         Overrule []Overrule_t  // overrules values in MAME XML
     }
 
