@@ -11406,6 +11406,16 @@
 		)
 		(uuid "9300069b-fe9a-488e-a9a1-eb6a591189dd")
 	)
+	(text "switch\nbutton"
+		(exclude_from_sim no)
+		(at 279.146 67.056 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "9ec40a0a-724a-45ef-9a2f-a3c329c6e0ad")
+	)
 	(text "ON"
 		(exclude_from_sim no)
 		(at 328.93 116.84 0)
