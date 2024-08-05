@@ -11627,7 +11627,7 @@
 		(uuid "19624557-dab7-4358-933c-a3ef1ab67fe1")
 	)
 	(label "B8"
-		(at 322.58 138.43 0)
+		(at 322.58 151.13 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -11935,7 +11935,7 @@
 		(uuid "44641583-863a-4c52-87d0-a81d8a4d7059")
 	)
 	(label "B3"
-		(at 322.58 146.05 0)
+		(at 322.58 143.51 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12100,7 +12100,7 @@
 		(uuid "6133293f-5352-4010-a2ba-2336179ca882")
 	)
 	(label "B7"
-		(at 322.58 140.97 0)
+		(at 322.58 148.59 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12562,7 +12562,7 @@
 		(uuid "a3d29980-2848-4cdd-8b0b-76f5926cfbd0")
 	)
 	(label "B1"
-		(at 322.58 151.13 0)
+		(at 322.58 138.43 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12672,7 +12672,7 @@
 		(uuid "b4191cb0-b778-4628-b551-405991163bad")
 	)
 	(label "B4"
-		(at 322.58 143.51 0)
+		(at 322.58 146.05 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12947,7 +12947,7 @@
 		(uuid "d3fd2d1c-3867-42a4-96bc-64c87dce81d5")
 	)
 	(label "B2"
-		(at 322.58 148.59 0)
+		(at 322.58 140.97 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
