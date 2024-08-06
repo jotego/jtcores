@@ -45,9 +45,9 @@ assign oaread_en  = game_id[0];
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         //0: debug_mux <= { 7'd0, dip_flip };
-        0: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
         1: debug_mux <= st_main;
         2: debug_mux <= st_video;
+        3: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
         default: debug_mux <= 0;
     endcase
 end
@@ -239,7 +239,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

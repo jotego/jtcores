@@ -64,13 +64,14 @@ module jtriders_sound(
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
 );
 `ifndef NOSOUND
-wire        [ 7:0]  cpu_dout, cpu_din, ram_dout, fm_dout, k60_dout, latch_dout;
+wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
+                    k60_dout, k39_dout, latch_dout;
 wire        [ 3:0]  rom_hi;
 reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     cpu_cen, sample, upper4k, cen_g, fm_intn, latch_we,
-                    latch_intn, int_n, nmi_trig, nmi_clr;
+                    latch_intn, int_n, nmi_trig, nmi_clr, k39_we;
 reg                 ram_cs, fm_cs,  k60_cs, k39_cs, mem_acc, mem_upper,
                     nmi_clrr, bank_we, nmi_cs, k21_cs;
 
@@ -81,9 +82,11 @@ assign rom_hi   = A[15]? bank       : {3'd0, A[14]};
 assign rom_addr = xmen ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
 assign upper4k  = &A[15:12];
 assign latch_we = k21_cs && !wr_n;
+assign k39_we   = k39_cs && !wr_n;
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
                   k60_cs ? k60_dout   :
+                  k39_cs ? k39_dout   :
                   k21_cs ? latch_dout :
                   fm_cs  ? fm_dout    : 8'hff;
 assign cen_g    = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
@@ -180,6 +183,19 @@ jt51 u_jt51(
 );
 
 /* verilator tracing_on */
+jt054539 u_k54539(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // CPU interface
+    .addr       ({A[9],A[7:0]}),
+    .din        ( cpu_dout  ),
+    .dout       ( k39_dout  ),
+    .we         ( k39_we    ),
+    // ROM
+    .rom_data   ( 8'd0      )
+);
+
+/* verilator tracing_off */
 jt053260 u_k53260(
     .rst        ( rst       ),
     .clk        ( clk       ),

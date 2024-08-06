@@ -7781,87 +7781,7 @@
 					)
 				)
 				(text "*"
-					(at -49.53 29.21 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 31.75 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 34.29 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 36.83 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 39.37 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 41.91 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 44.45 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 46.99 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -49.53 49.53 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
 					(at -39.37 13.97 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -38.1 39.37 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8181,14 +8101,6 @@
 					)
 				)
 				(text "Z80 SND"
-					(at -43.18 39.37 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "Z80 SND"
 					(at 39.37 31.75 0)
 					(effects
 						(font
@@ -8202,6 +8114,25 @@
 						(font
 							(size 1.27 1.27)
 						)
+					)
+				)
+			)
+			(symbol "054539_1_0"
+				(text "Register\n access"
+					(at -43.18 39.37 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(text "what about A8? \nmaybe pin 41?"
+					(at -46.482 30.48 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+						(justify left)
 					)
 				)
 			)
