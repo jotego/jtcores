@@ -12,7 +12,7 @@
 	(lib_symbols)
 	(bus
 		(pts
-			(xy 231.14 66.04) (xy 241.3 66.04)
+			(xy 180.34 129.54) (xy 190.5 129.54)
 		)
 		(stroke
 			(width 0)
@@ -22,7 +22,7 @@
 	)
 	(bus
 		(pts
-			(xy 193.04 66.04) (xy 203.2 66.04)
+			(xy 142.24 129.54) (xy 152.4 129.54)
 		)
 		(stroke
 			(width 0)
@@ -30,9 +30,19 @@
 		)
 		(uuid "4ee51b11-014f-4987-b9c6-650eb94f444d")
 	)
+	(wire
+		(pts
+			(xy 222.25 134.62) (xy 228.6 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "622abab7-ad2f-4081-aa98-5f86d603f5de")
+	)
 	(bus
 		(pts
-			(xy 269.24 66.04) (xy 279.4 66.04)
+			(xy 218.44 129.54) (xy 228.6 129.54)
 		)
 		(stroke
 			(width 0)
@@ -42,7 +52,7 @@
 	)
 	(bus
 		(pts
-			(xy 231.14 68.58) (xy 241.3 68.58)
+			(xy 180.34 132.08) (xy 190.5 132.08)
 		)
 		(stroke
 			(width 0)
@@ -50,8 +60,28 @@
 		)
 		(uuid "bbdc95a5-5d01-4ab6-817b-6b2d7897cbc9")
 	)
+	(wire
+		(pts
+			(xy 215.9 137.16) (xy 222.25 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddd007c1-290a-4145-a51c-fc7c6a46bad6")
+	)
+	(wire
+		(pts
+			(xy 222.25 137.16) (xy 222.25 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa59aa0d-c9ed-4329-b53c-16e683e0425b")
+	)
 	(label "MD[0..7]"
-		(at 193.04 66.04 0)
+		(at 142.24 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -62,7 +92,7 @@
 		(uuid "2956a82c-e366-4bcc-914e-a22a898b6a1f")
 	)
 	(label "MA[1..23]"
-		(at 231.14 66.04 0)
+		(at 180.34 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -73,7 +103,7 @@
 		(uuid "886ef895-1ca1-4cd7-9266-21c9d5c002d1")
 	)
 	(label "MD[0..7]"
-		(at 269.24 66.04 0)
+		(at 218.44 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -84,7 +114,7 @@
 		(uuid "d5ee9dc9-8a39-4122-87c5-4d17bd7787ba")
 	)
 	(label "MD[0..15]"
-		(at 231.14 68.58 0)
+		(at 180.34 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -95,7 +125,7 @@
 		(uuid "fc57ac4b-fd95-42a2-86b8-133dbf816140")
 	)
 	(sheet
-		(at 279.4 63.5)
+		(at 228.6 127)
 		(size 25.4 25.4)
 		(fields_autoplaced yes)
 		(stroke
@@ -107,7 +137,7 @@
 		)
 		(uuid "2b44afe5-199d-4815-a082-e94757fbcfe2")
 		(property "Sheetname" "char"
-			(at 279.4 62.7884 0)
+			(at 228.6 126.2884 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -116,7 +146,7 @@
 			)
 		)
 		(property "Sheetfile" "char.kicad_sch"
-			(at 279.4 89.4846 0)
+			(at 228.6 152.9846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -125,7 +155,7 @@
 			)
 		)
 		(pin "MD[0..7]" bidirectional
-			(at 279.4 66.04 180)
+			(at 228.6 129.54 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -134,55 +164,95 @@
 			)
 			(uuid "6bd9feed-1178-4e8e-a51e-24ec2a9eacec")
 		)
-		(pin "MD[8..15]" bidirectional
-			(at 279.4 68.58 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "0812137e-fc6a-4e98-aeee-db6fb2856135")
-		)
 		(pin "~{R}WB" input
-			(at 279.4 71.12 180)
+			(at 228.6 147.32 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "e326c1f9-3265-4f1a-b87a-2100662f7888")
+			(uuid "4464515d-ae83-4083-af6e-b4b393d2ddad")
 		)
-		(pin "Salida?" input
-			(at 279.4 73.66 180)
+		(pin "IC50_14" input
+			(at 228.6 137.16 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "e7c64b85-0e86-4333-bc30-b764430e477b")
+			(uuid "d68b5409-4963-4655-9cb4-692061c67ec9")
 		)
-		(pin "Salida?2" input
-			(at 279.4 76.2 180)
+		(pin "IC50_15" input
+			(at 228.6 139.7 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "3ea64842-f2e8-453a-9cc1-b8baf007b227")
+			(uuid "959397a5-af52-4e15-bef5-b3012b9b6a02")
 		)
-		(pin "~{DTACK}" input
-			(at 279.4 78.74 180)
+		(pin "CII14" passive
+			(at 228.6 134.62 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "84cac389-6fc0-46ac-ae54-77cce8576303")
+			(uuid "49d5f24c-2ba5-439b-a5b9-31db287764db")
+		)
+		(pin "~{AS}" input
+			(at 228.6 144.78 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "8b8c2bd0-41e5-4db9-b68e-ffb5b54f7a03")
+		)
+		(pin "IC48_13" input
+			(at 228.6 142.24 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "4a2b360c-184d-4677-a525-f76bebe7574d")
+		)
+		(pin "IC37_11" output
+			(at 254 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "cfdae8ac-2414-41da-b769-4e9a91b0b93c")
+		)
+		(pin "IC37_3" output
+			(at 254 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "cd394b02-b4cd-40ea-93c6-b8d430b5dced")
+		)
+		(pin "IC27_19" output
+			(at 254 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "998702a7-d6f8-4294-921c-2d994268861e")
 		)
 		(instances
 			(project "wwfsstar"
@@ -193,7 +263,7 @@
 		)
 	)
 	(sheet
-		(at 241.3 63.5)
+		(at 190.5 127)
 		(size 25.4 25.4)
 		(stroke
 			(width 0.1524)
@@ -204,7 +274,7 @@
 		)
 		(uuid "50fdd19b-ac4b-4056-8d66-992b35bef780")
 		(property "Sheetname" "main"
-			(at 241.3 62.7884 0)
+			(at 190.5 126.2884 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -213,7 +283,7 @@
 			)
 		)
 		(property "Sheetfile" "main.kicad_sch"
-			(at 241.3 90.17 0)
+			(at 190.5 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -222,7 +292,7 @@
 			)
 		)
 		(pin "MA[1..23]" output
-			(at 241.3 66.04 180)
+			(at 190.5 129.54 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -232,7 +302,7 @@
 			(uuid "169756cf-511f-4507-b854-1cc2ccecbdec")
 		)
 		(pin "MD[0..15]" bidirectional
-			(at 241.3 68.58 180)
+			(at 190.5 132.08 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -241,45 +311,105 @@
 			)
 			(uuid "119cc370-3bc2-419b-971c-5114dee727d6")
 		)
-		(pin "~{R}WB" output
-			(at 241.3 71.12 180)
+		(pin "IC50_15" output
+			(at 215.9 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
-			(uuid "b0aed698-c9a2-4993-aba0-8c6c746e7d15")
+			(uuid "1d0d4005-6a3d-4cce-a6b6-649b31b575ce")
 		)
-		(pin "Salida?" input
-			(at 241.3 73.66 180)
+		(pin "IC50_14" output
+			(at 215.9 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
-			(uuid "50e6ef50-e6e2-49dd-adc8-c3799ec9fcc7")
+			(uuid "d87d4ed8-4fdf-4f14-9860-02225d33d0b8")
 		)
-		(pin "Salida?2" input
-			(at 241.3 76.2 180)
+		(pin "IC37_11" input
+			(at 190.5 144.78 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "ff5e5931-b61c-4929-9029-c69b113ba238")
+			(uuid "2182cd5a-9a56-4c07-ab83-41430dc3b7fb")
+		)
+		(pin "~{AS}" output
+			(at 215.9 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "cb2e59f2-e254-4c0f-b838-b370850c6aff")
+		)
+		(pin "IC27_19" input
+			(at 190.5 142.24 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "618c2b89-1f97-4b42-9ef1-9177fb80086d")
 		)
 		(pin "~{DTACK}" input
-			(at 241.3 78.74 180)
+			(at 190.5 149.86 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "7e711127-5746-442e-8b8b-383f00fa4643")
+			(uuid "12d778d0-5e78-4cb0-b341-c7c6c6115536")
+		)
+		(pin "IC37_3" input
+			(at 190.5 147.32 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "33caf662-b287-431e-a2ab-26f5ef75d6cd")
+		)
+		(pin "~{R}WB" output
+			(at 215.9 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "943ac639-d276-48e0-a241-d23ae02fc00e")
+		)
+		(pin "IC48_13" output
+			(at 215.9 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "5a556c72-b020-4af1-968d-2f238955aac9")
+		)
+		(pin "CII14" output
+			(at 215.9 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "8abeb828-795e-42e2-a80b-fa9e229c3bea")
 		)
 		(instances
 			(project "wwfsstar"
@@ -290,7 +420,7 @@
 		)
 	)
 	(sheet
-		(at 203.2 63.5)
+		(at 152.4 127)
 		(size 25.4 25.4)
 		(fields_autoplaced yes)
 		(stroke
@@ -302,7 +432,7 @@
 		)
 		(uuid "80543143-79bc-4377-b1d2-9be4e3eb8bc1")
 		(property "Sheetname" "sound"
-			(at 203.2 62.7884 0)
+			(at 152.4 126.2884 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -311,7 +441,7 @@
 			)
 		)
 		(property "Sheetfile" "sound.kicad_sch"
-			(at 203.2 89.4846 0)
+			(at 152.4 152.9846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -320,7 +450,7 @@
 			)
 		)
 		(pin "MD[0..7]" input
-			(at 203.2 66.04 180)
+			(at 152.4 129.54 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -330,24 +460,24 @@
 			(uuid "ca2468f4-b5ad-4fed-b6b4-9db9826a2bf0")
 		)
 		(pin "~{RST}" input
-			(at 203.2 68.58 180)
+			(at 152.4 147.32 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "4d253b3a-401d-458d-9aee-eefb0e479b8b")
+			(uuid "dd0d8c58-fa53-4aa8-a61a-699c85b98569")
 		)
 		(pin "SLATCH" input
-			(at 203.2 71.12 180)
+			(at 152.4 149.86 180)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "82edd091-abb0-4d6a-b603-db7822ac274a")
+			(uuid "f11e0421-00ff-4467-a72e-610df8fa595f")
 		)
 		(instances
 			(project "wwfsstar"
