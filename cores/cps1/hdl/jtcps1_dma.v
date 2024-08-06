@@ -483,11 +483,13 @@ always @(posedge clk) begin
                         end
                         if( |cur_task[PAL5:PAL0] ) begin
                             pal_cnt <= pal_cnt + 9'd1;
-                            if( &pal_cnt ) begin
+                            if( &pal_wr_cnt ) begin
                                 tasks[PAL5:PAL0] <= tasks[PAL5:PAL0] & ~cur_task[PAL5:PAL0];
                                 adv <= 1;
                                 // Update palette page
                                 pal_wr_page <= pal_wr_page+3'd1;
+                            end
+                            if( &pal_cnt ) begin
                                 pal_rd_page<=pal_rd_page+3'd1;
                             end
                         end
