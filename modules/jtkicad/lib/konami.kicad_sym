@@ -30277,7 +30277,7 @@
 					)
 				)
 			)
-			(pin output clock
+			(pin output line
 				(at 46.99 26.67 180)
 				(length 5.08)
 				(name "M6"
@@ -30619,7 +30619,7 @@
 					)
 				)
 			)
-			(pin output clock
+			(pin output line
 				(at 46.99 24.13 180)
 				(length 5.08)
 				(name "M12"
