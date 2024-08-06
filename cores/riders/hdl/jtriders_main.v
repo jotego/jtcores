@@ -204,7 +204,7 @@ jtframe_edge #(.QSET(0)) u_ff(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .edgeof     ( dma_bsy   ),
-    .clr        ( intdma_enb),
+    .clr        (~intdma_enb),
     .q          ( intdma    )
 );
 

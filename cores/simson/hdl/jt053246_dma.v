@@ -21,6 +21,7 @@ module jt053246_dma(
     input             clk,
     input             pxl2_cen,
 
+    input             mode8,
     input             dma_en,
     input             dma_trig,
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
@@ -86,11 +87,10 @@ always @(posedge clk, posedge rst) begin
         if(!dma_bsy && ((vs_sh==2'b10 && hs_pos) || dma_44) ) begin
             dma_bsy  <= dma_en | dma_44;
             dma_clr  <= 1;
-            dma_wait <= !k44_en;
+            dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
             flicker  <= ~flicker;
             dma_addr <= 0;
         end
-        // this implementation matches 8-bit speed, ie 595us vs 297.5us for 16-bit mode
         if( !dma_bsy ) begin
             dma_addr <= 0;
             dma_bufa <= 0;

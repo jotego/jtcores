@@ -40,6 +40,7 @@ module jtsimson_obj #(parameter
     input             mmr_we,
     input      [ 3:0] mmr_addr,
     input      [15:0] mmr_din,
+    input      [ 1:0] mmr_dsn,
 
     input      [15:0] ram_din, // 16-bit interface
     input      [ 1:0] ram_we,
@@ -138,6 +139,7 @@ jt053246 u_scan(    // sprite logic
     .cpu_we     ( mmr_we    ),
     .cpu_addr   ( mmr_addr  ),
     .cpu_dout   ( mmr_din   ),
+    .cpu_dsn    ( mmr_dsn   ),
     .rmrd_addr  ( rmrd_addr ),
 
     // External RAM

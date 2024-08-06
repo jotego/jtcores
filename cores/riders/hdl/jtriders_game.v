@@ -46,9 +46,8 @@ assign oaread_en  = game_id[0];
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        //0: debug_mux <= { 7'd0, dip_flip };
-        1: debug_mux <= st_main;
-        2: debug_mux <= st_video;
+        0: debug_mux <= st_main;
+        1: debug_mux <= st_video;
         3: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
         default: debug_mux <= 0;
     endcase

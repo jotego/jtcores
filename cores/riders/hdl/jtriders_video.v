@@ -268,7 +268,6 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
-wire bad_reg = objreg_cs && cpu_dsn==0;
 assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
@@ -295,8 +294,9 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
 
     .reg_cs     ( objreg_cs ),
     .mmr_addr   ( ommra     ),
-    .mmr_din    ( cpu_dout[7:0] ),
+    .mmr_din    ( cpu_dout  ),
     .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
+    .mmr_dsn    ( cpu_dsn   ),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM

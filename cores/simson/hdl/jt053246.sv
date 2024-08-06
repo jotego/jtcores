@@ -31,6 +31,7 @@ module jt053246(    // sprite logic
     input             cpu_we,
     input      [ 3:0] cpu_addr, // bit 3 only in k44 mode
     input      [15:0] cpu_dout,
+    input      [ 1:0] cpu_dsn,  // only used for MMR in 16-bit mode
 
     // ROM check by CPU
     output     [21:1] rmrd_addr,
@@ -308,6 +309,7 @@ jt053246_dma u_dma(
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    .mode8      ( mode8     ),
     .dma_en     ( dma_en    ),
     .dma_trig   ( dma_trig  ),
     .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
@@ -337,6 +339,7 @@ jt053246_mmr u_mmr(
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
+    .cpu_dsn    ( cpu_dsn   ),
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
     .yoffset    ( yoffset   ),
