@@ -382,7 +382,6 @@ always @(posedge clk) begin
     end
 end
 
-initial $display("FULLRAM=%d",`FULLRAM);
 generate if(FULLRAM==1) begin
     jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
         // Port 0: CPU

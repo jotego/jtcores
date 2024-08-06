@@ -570,6 +570,7 @@ u_frame(
     // Mouse inputs
     .mouse_1p       ( mouse_1p       ),
     .mouse_2p       ( mouse_2p       ),
+    .mouse_strobe   ( mouse_strobe   ),
     .LED            ( LED_USER       ),
     // Dial emulation
     .dial_x         ( dial_x         ),

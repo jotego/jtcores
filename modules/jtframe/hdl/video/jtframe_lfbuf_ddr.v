@@ -17,7 +17,7 @@
     Date: 30-10-2022 */
 
 // Frame buffer built on top of two line buffers
-
+/* verilator lint_off MODDUP */
 // This module is not fully tested yet
 module jtframe_lfbuf_ddr #(parameter
     DW      =  16,

@@ -3,9 +3,10 @@
 # for cores in development phase
 
 CORE=$1
+TARGET=mister
 shift
 
-eval `jtframe cfgstr $CORE --output bash --target mister $*`
+eval `jtframe cfgstr $CORE --output bash --target $TARGET $*`
 
 if [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip || -v JTFRAME_SKIP ]]; then
     echo "Skipping $CORE"
@@ -22,7 +23,7 @@ if [ ! -e rom.bin ]; then
     DELROM=
 fi
 
-jtsim -lint $*
+jtsim -lint -$TARGET $*
 
 if [ -v DELROM ]; then
     rm -f rom.bin

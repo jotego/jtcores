@@ -30,6 +30,9 @@ parameter {{.Name}} = {{ if .Value }}{{.Value}}{{else}}`{{.Name}}{{ end}};
 {{- if .Ioctl.Dump }}
 /* verilator tracing_off */
 wire [7:0] ioctl_aux;
+`ifndef JTFRAME_IOCTL_RD
+    assign ioctl_aux=0;
+`endif
 {{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
 wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
 wire [  1:0] {{$v.Name}}_wemx;{{if $v.Amx}}

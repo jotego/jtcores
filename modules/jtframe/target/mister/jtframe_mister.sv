@@ -654,6 +654,8 @@ jtframe_board #(
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
+    .sdram_init     (                 ),
+
     .pll_locked     ( pll_locked      ),
 
     .ioctl_cart     ( ioctl_cart      ),
@@ -805,6 +807,10 @@ jtframe_board #(
     .st_addr        ( st_addr         ),
     .st_dout        ( st_dout         ),
     .target_info    ( target_info     ),
+
+    // input data recording
+    .ioctl_din      (                 ),
+    .ioctl_merged   (                 ),
     // input video
     .osd_rotate     ( rotate          ),
     .game_r         ( hsize_r         ),
