@@ -182,9 +182,9 @@ always @* begin
     cs[2] = ~range2[~cfg[1:0]];
     // WARNING: these are external connections and could change on
     // some games. If so, cs[2:0] should go out and re-tied at an upper level
-    we[0]   = cs[2] & cpu_we & gfx_cs;
+    we[0]   = cs[0] & cpu_we & gfx_cs;
     we[1]   = cs[1] & cpu_we & gfx_cs;
-    we[2]   = cs[0] & cpu_we & gfx_cs;
+    we[2]   = cs[2] & cpu_we & gfx_cs; // xmen requires we[0]~cs[2] and we[2]~cs[0], why?
     cpu_din = cs[2] ? cpu_extra : cs[1] ? cpu_attr : cpu_code;
 end
 

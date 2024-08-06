@@ -35,8 +35,9 @@ names = [
 [header]
 info="Offsets for each ROM region. Byte 15 = game selection."
 data = [
-	{ machine="tmnt2", offset=15, data="01" },
-	{ machine="xmen",  offset=15, data="02" },
+	{ machine="ssriders", offset=15, data="00" },
+	{ machine="tmnt2",    offset=15, data="01" },
+	{ machine="xmen",     offset=15, data="02" },
 ]
 offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
 
@@ -62,6 +63,9 @@ patches=[
 	{setname="ssriders",offset=0x1a40,data="71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E"},
 	# skip wait after displaying the video grid
 	{setname="ssriders",offset=0x1392,data="71 4E"},
+	# skip the very long wait after the memory check
+	{setname="xmen",offset=0x21b0,data="71 4E 71 4E"},
+	{setname="xmen",offset=0x21c6,data="71 4E 71 4E 71 4E"},
 ]
 
 # default configuration to prevent from boot-up error

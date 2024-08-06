@@ -41,8 +41,9 @@ module jtriders_colmix(
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
+    input      [ 1:0] lyro_pri,
 
-    input             shadow,
+    input      [ 1:0] shadow,
     input      [ 2:0] dim,
     input             dimmod,
     input             dimpol,
@@ -60,11 +61,8 @@ module jtriders_colmix(
     input      [ 7:0] debug_bus
 );
 
-wire [ 5:0] pri1;
-wire [ 8:0] ci0, ci2;
-wire [ 7:0] ci3, ci4;
-wire [ 1:0] cpu_palwe, shd_out;
 wire [15:0] pal_dout;
+wire [ 1:0] cpu_palwe;
 reg  [15:0] pxl_aux;
 reg  [ 1:0] dim_cmn;
 reg  [ 4:0] pal_dmux;
@@ -75,6 +73,11 @@ wire [ 7:0] r8, bg8;
 reg  [ 7:0] b8, g8;
 wire [10:0] pal_addr;
 wire        brit, shad, pcu_we, nc;
+// 053251 inputs
+wire [ 5:0] pri1;
+wire [ 8:0] ci0, ci2;
+wire [ 7:0] ci3, ci4;
+wire [ 1:0] shd_out, shd_in;
 
 // 8/16 bit interface
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
@@ -83,12 +86,13 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = xmen ? { lyro_pxl[11-:5], 1'd0} : {1'b1, lyro_pxl[10:9], 3'd0};
+assign pri1      = xmen ? { lyro_pxl[11:9], lyro_pri, 1'b0} : {1'b1, lyro_pxl[10:9], 3'd0};
 assign ci0       = xmen ? { lyra_pxl[6:4], lyra_pxl[11:10], lyra_pxl[3:0] } : 9'd0;
 assign ci2       = xmen ? { lyrb_pxl[11:10], lyrb_pxl[6:0] } : { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
 assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
 assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
 assign shad      = xmen ? |shd_out : shd_out[0];
+assign shd_in    = xmen ?  shadow  : {1'b0,~shadow[0]};
 
 always @* begin
     // LUT generated with
@@ -142,7 +146,7 @@ jtcolmix_053251 u_k251(
     .ci3        ( ci3       ),
     .ci4        ( ci4       ),
     // shadow
-    .shd_in     ({1'b0,~shadow}), // why do we need the inversion?
+    .shd_in     ( shd_in    ), // why do we need the inversion?
     .shd_out    ( shd_out   ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),

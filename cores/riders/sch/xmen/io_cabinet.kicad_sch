@@ -11416,6 +11416,17 @@
 		)
 		(uuid "9ec40a0a-724a-45ef-9a2f-a3c329c6e0ad")
 	)
+	(text "13C label is\nduplicated on\nthe PCB"
+		(exclude_from_sim no)
+		(at 246.634 207.01 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a218dbda-4077-45fd-94d4-68e889d60a9a")
+	)
 	(text "ON"
 		(exclude_from_sim no)
 		(at 328.93 116.84 0)
@@ -14116,7 +14127,7 @@
 		(dnp no)
 		(uuid "1f0f8041-d1cc-441e-9221-f607a9bfccbe")
 		(property "Reference" "CC13"
-			(at 259.08 200.66 0)
+			(at 258.826 173.736 0)
 			(effects
 				(font
 					(size 1.27 1.27)

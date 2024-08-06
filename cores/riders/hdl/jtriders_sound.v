@@ -23,6 +23,7 @@ module jtriders_sound(
     input           cen_4,
     input           cen_fm,
     input           cen_fm2,
+    input           cen_pcm,
 
     input           xmen,
     input           pair_we,
@@ -186,6 +187,7 @@ jt51 u_jt51(
 jt054539 u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen        ( cen_pcm   ),
     // CPU interface
     .addr       ({A[9],A[7:0]}),
     .din        ( cpu_dout  ),

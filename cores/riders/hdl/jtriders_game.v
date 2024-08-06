@@ -19,7 +19,9 @@
 module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
-`include "game_id.vh"
+
+localparam [2:0] XMEN=3'd2, SSRIDERS=3'd0;
+
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
@@ -29,7 +31,7 @@ wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         xmen;
+reg         xmen, ssriders;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
@@ -54,7 +56,8 @@ end
 
 always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
-    xmen <= game_id == XMEN;
+    xmen     <= game_id == XMEN;
+    ssriders <= game_id == SSRIDERS;
 end
 
 /* verilator tracing_on */
@@ -172,7 +175,9 @@ jtriders_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
+
     .xmen           ( xmen          ),
+    .ssriders       ( ssriders      ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -239,7 +244,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -247,6 +252,7 @@ jtriders_sound u_sound(
     .cen_4      ( cen_4         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
+    .cen_pcm    ( cen_pcm       ),
 
     .xmen       ( xmen          ),
     .pair_we    ( pair_we       ),

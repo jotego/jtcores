@@ -19,6 +19,7 @@
 module jt054539(
     input                rst,
     input                clk,
+    input                cen, // 18.432 MHz
     // CPU interface
     input          [8:0] addr,
     input          [7:0] din,

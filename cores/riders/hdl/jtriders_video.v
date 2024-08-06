@@ -21,6 +21,8 @@ module jtriders_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
+
+    input             ssriders,
     input             xmen,
 
     // Base Video
@@ -113,9 +115,10 @@ wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_col, dump_obj, scr_mmr,  obj_mmr,
             lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
+wire [ 1:0] shadow;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
-            lyrb_blnk_n, shadow,   lyro_precs,
+            lyrb_blnk_n, lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
@@ -262,9 +265,11 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
-wire [ 1:0] nc;
-wire        nc3;
+/* verilator tracing_on */
+wire [ 1:0] lyro_pri;
+wire [ 3:0] ommra;
+wire bad_reg = objreg_cs && cpu_dsn==0;
+assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -272,7 +277,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( 1'b1      ),
+    .paroda     ( ssriders  ),
     .simson     ( 1'b0      ),
     // Base Video (inputs)
     .hs         ( hs        ),
@@ -289,7 +294,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .cpu_din    (objsys_dout),
 
     .reg_cs     ( objreg_cs ),
-    .mmr_addr   ( {cpu_addr[4:2], cpu_dsn[1]} ),
+    .mmr_addr   ( ommra     ),
     .mmr_din    ( cpu_dout[7:0] ),
     .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
 
@@ -302,8 +307,8 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl[8:0]  ),
-    .shd        ({nc3,shadow}),
-    .prio       ({lyro_pxl[11:9],nc}),
+    .shd        ( shadow    ),
+    .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
@@ -339,6 +344,7 @@ jtriders_colmix u_colmix(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
     .lyro_pxl   ( lyro_pxl  ),
+    .lyro_pri   ( lyro_pri  ),
 
     // shadow
     .dimmod     ( dimmod    ),

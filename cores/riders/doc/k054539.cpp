@@ -524,7 +524,7 @@ void k054539_device::device_start()
 	    values smaller than those of the hihats. Needless to say the two K054539 chips
 	    in Mystic Warriors are completely out of balance. Rather than forcing a
 	    "one size fits all" function to the voltab the current invert exponential
-	    appraoch seems most appropriate.
+	    approach seems most appropriate.
 	*/
 	// Factor the 1/4 for the number of channels in the volume (1/8 is too harsh, 1/2 gives clipping)
 	// vol=0 -> no attenuation, vol=0x40 -> -36dB

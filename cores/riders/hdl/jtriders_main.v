@@ -200,7 +200,7 @@ always @* begin
 `endif
 end
 
-jtframe_edge u_ff(
+jtframe_edge #(.QSET(0)) u_ff(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .edgeof     ( dma_bsy   ),
