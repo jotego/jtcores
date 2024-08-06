@@ -36,7 +36,9 @@ reg  [ 2:0] game_id;
 assign debug_view = debug_mux;
 assign ram_addr   = { main_addr[17], main_addr[13:1] };
 assign ram_we     = cpu_we;
-
+`ifndef JTFRAME_IOCTL_RD
+wire [ 7:0] ioctl_din;
+`endif
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= { 7'd0, dip_flip };

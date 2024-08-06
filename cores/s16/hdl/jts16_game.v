@@ -225,14 +225,7 @@ assign key_mcaddr=0;
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
-    .st_dout     ( st_main    ),
-    // NVRAM dump
-    // .ioctl_din   ( `ifdef JTFRAME_IOCTL_RD ioctl_din `endif ),
-    .ioctl_din   (            ),
-`ifdef S16B
-    .ioctl_addr  ( prog_addr[16:0] )
-`else
-    .ioctl_addr  ( prog_addr[15:0] ) `endif
+    .st_dout     ( st_main    )
 );
 `else
     assign flip      = 0;

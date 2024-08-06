@@ -97,10 +97,6 @@ module jts16_main(
     input              mcu_en,
     input              mcu_prog_we,
 
-    // NVRAM - debug
-    input       [15:0] ioctl_addr,
-    output      [ 7:0] ioctl_din,
-
     // status dump - debug
     input       [ 7:0] debug_bus,
     input       [ 7:0] st_addr,
@@ -702,32 +698,5 @@ always @(posedge clk) begin
         7: st_dout <= mcu_addr[15:8];
     endcase
 end
-
-// Debug
-`ifdef MISTER
-    `ifndef JTFRAME_RELEASE
-    `ifndef BETA
-    jts16_shadow u_shadow(
-        .clk        ( clk       ),
-        .clk_rom    ( clk_rom   ),
-
-        // Capture SDRAM bank 0 inputs
-        .addr       ( A[14:1]   ),
-        .char_cs    ( char_cs   ),    //  4k
-        .vram_cs    ( vram_cs   ),    // 32k
-        .pal_cs     ( pal_cs    ),     //  4k
-        .objram_cs  ( objram_cs ),  //  2k
-        .din        ( cpu_dout  ),
-        .dswn       ( {UDSWn, LDSWn} ),  // write mask -active low
-
-        // Let data be dumped via NVRAM interface
-        .ioctl_addr ( ioctl_addr),
-        .ioctl_din  ( ioctl_din )
-    );
-    `endif
-    `endif
-`else
-    assign ioctl_din = 0;
-`endif
 
 endmodule

@@ -399,6 +399,8 @@ generate if(FULLRAM==1) begin
         .we_b   ( 1'b0           ),
         .q1     ( ram0_dout      )  // color
     );
+end else begin
+    assign cpu_extra=0;
 end endgenerate
 
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
