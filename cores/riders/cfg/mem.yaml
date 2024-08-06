@@ -54,13 +54,13 @@ sdram:
           offset: PCM_OFFSET
     - buses:
         - name: lyrf
-          addr_width: 20
+          addr_width: 21
           data_width: 32
         - name: lyra
-          addr_width: 20
+          addr_width: 21
           data_width: 32
         - name: lyrb
-          addr_width: 20
+          addr_width: 21
           data_width: 32
     - buses:
         - name: lyro

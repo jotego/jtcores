@@ -69,9 +69,9 @@ module jtriders_video(
     input      [ 7:0] oaread_dout,
 
     // Tile ROMs
-    output reg [19:2] lyrf_addr,
-    output reg [19:2] lyra_addr,
-    output reg [19:2] lyrb_addr,
+    output reg [20:2] lyrf_addr,
+    output reg [20:2] lyra_addr,
+    output reg [20:2] lyrb_addr,
     output     [20:2] lyro_addr,
 
     output            lyrf_cs,
@@ -167,9 +167,15 @@ endfunction
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
 
 always @* begin
-    lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
-    lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
-    lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+    if( !xmen ) begin
+        lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
+        lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
+        lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+    end else begin // xmen
+        lyrf_addr = { lyrf_col[7:0], pre_f[10:0] };
+        lyra_addr = { lyra_col[7:0], pre_a[10:0] };
+        lyrb_addr = { lyrb_col[7:0], pre_b[10:0] };
+    end
 end
 
 function [7:0] cgate( input [7:0] c);
