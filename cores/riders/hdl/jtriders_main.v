@@ -227,6 +227,12 @@ end
 
 reg fake_dma=0, cabcs_l;
 
+function [6:0] swap( input [6:0] joy );
+begin
+    swap = { joy[6:4],joy[1:0],joy[3:2]};
+end
+endfunction
+
 always @(posedge clk) begin
     if( cpu_cen ) begin
         cabcs_l <= cab_cs;
@@ -244,10 +250,10 @@ always @(posedge clk) begin
             default:;
         endcase
     end else begin // xmen
-        cab_dout <= A[1] ? { coin[2], joystick3[6:0], coin[0], joystick1[6:0] }:
-                           { coin[3], joystick4[6:0], coin[1], joystick2[6:0] };
+        cab_dout <= A[1] ? { coin[2], swap(joystick3[6:0]), coin[0], swap(joystick1[6:0]) }:
+                           { coin[3], swap(joystick4[6:0]), coin[1], swap(joystick2[6:0]) };
         if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
-                2'b11, cab_1p[0], cab_1p[1], cab_1p[2], cab_1p[3],
+                2'b11, cab_1p[3:0],
                 eep_rdy, eep_do, 2'b11, service };
     end
 end
