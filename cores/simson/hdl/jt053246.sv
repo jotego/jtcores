@@ -30,7 +30,7 @@ module jt053246(    // sprite logic
     input             cs,
     input             cpu_we,
     input      [ 3:0] cpu_addr, // bit 3 only in k44 mode
-    input      [ 7:0] cpu_dout,
+    input      [15:0] cpu_dout,
 
     // ROM check by CPU
     output     [21:1] rmrd_addr,
@@ -101,7 +101,7 @@ reg  [ 3:0] pzoffset[0:15 ];
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
-assign mode8     = cfg[2]; // guess, use it for 8-bit access for ROM checking (Parodius)
+assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = k44_en && cs && cpu_addr[2:1]==3;

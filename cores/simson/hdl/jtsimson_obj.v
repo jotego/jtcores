@@ -39,7 +39,7 @@ module jtsimson_obj #(parameter
     input             reg_cs,
     input             mmr_we,
     input      [ 3:0] mmr_addr,
-    input      [ 7:0] mmr_din,
+    input      [15:0] mmr_din,
 
     input      [15:0] ram_din, // 16-bit interface
     input      [ 1:0] ram_we,

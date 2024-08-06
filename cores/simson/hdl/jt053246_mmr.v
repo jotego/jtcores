@@ -73,7 +73,7 @@ always @(posedge clk, posedge rst) begin
                 2: yoffset[9:8] <= cpu_dout[1:0];
                 3: yoffset[7:0] <= cpu_dout;
                 4: if(!k44_en) rmrd_addr[ 8: 1] <= cpu_dout;
-                5: cfg <= cpu_dout;
+                5: cfg <= cpu_dout; // $34 (simpsons), $ (vendetta) $30/20 (xmen)
                 6: if(!k44_en) rmrd_addr[21:17] <= cpu_dout[4:0];
                 7: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout;
                 // k44_en only
