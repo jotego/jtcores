@@ -231,16 +231,24 @@ FDN CC52(TRIG_NMI, 1'b0, REG1D00[0], NMI,);
 // VRAM and registers mapping / hardware configuration
 // I don't really understand how this works, but it does
 // Since this is PCB-related, it makes sense that REG1C00[4:0] is set at startup and never changed again
-wire A126; // Selects RAM[2]
+wire CPU_VRAM_CS2; // Selects RAM[2]
+// JT: all games tested so farhave REG1C00[4] set and REG1C00[3:2]==0
+// REG1C00	game
+// 50		xmen
+// 13		punkshot, scontra, ssriders, gbusters, mia, tmnt, tmnt2, thunderx
+// 12		aliens, vendetta, parodius, crimfght
+// This must be why all these games connect:
+// 	RAM2 to lower VD
+// 	RAM1 to upper VD
 assign B123 = |{CPU_VRAM_CS0, RDEN, ~REG1C00[4]};
-assign B129 = |{A126, RDEN, ~REG1C00[4]};
+assign B129 = |{CPU_VRAM_CS2, RDEN, ~REG1C00[4]};
 assign B121 = ~REG1C00[4] & REG1C00[3];
 assign B119 = ~REG1C00[4] & REG1C00[2];
 assign A154 = ~|{CPU_VRAM_CS1, RDEN};
 
 assign B137 = ~&{A154, ~B119, ~B121};
-assign B143 = ~&{A154, ~B119, B121};
-assign B139 = ~&{A154, B119, ~B121};
+assign B143 = ~&{A154, ~B119,  B121};
+assign B139 = ~&{A154,  B119, ~B121};
 assign VD_SEL = B129 & B139;	// VRAM upper/lower read select
 assign DB_DIR = B137 & B123 & B143 & VD_SEL;
 
@@ -281,8 +289,8 @@ assign CPU_VRAM_CS0 = ~A111_OUT;
 assign RWE[0] = WRP | CPU_VRAM_CS0;
 
 T5A A106(range[1], range[2], range[4], range[3], REG1C00[0], REG1C00[1], A106_OUT);
-assign A126 = ~A106_OUT;
-assign RWE[2] = WRP | A126;
+assign CPU_VRAM_CS2 = ~A106_OUT; // A126
+assign RWE[2] = WRP | CPU_VRAM_CS2;
 
 T5A A100(range[0], range[1], range[3], range[2], REG1C00[0], REG1C00[1], A100_OUT);
 assign CPU_VRAM_CS1 = ~A100_OUT;

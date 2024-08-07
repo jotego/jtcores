@@ -24775,6 +24775,16 @@
 		)
 		(uuid "6a126415-a9af-4f70-aad9-a4a7a7f74d26")
 	)
+	(text "RAM1"
+		(exclude_from_sim no)
+		(at 264.16 219.456 0)
+		(effects
+			(font
+				(size 1.905 1.905)
+			)
+		)
+		(uuid "abd0d06b-9291-47bf-85e0-bc0a82ea5299")
+	)
 	(text "VSS"
 		(exclude_from_sim no)
 		(at 189.23 175.26 0)
@@ -24785,6 +24795,26 @@
 			(justify left bottom)
 		)
 		(uuid "c0badb15-4295-41ba-8097-ea16b0fe67f0")
+	)
+	(text "RAM2"
+		(exclude_from_sim no)
+		(at 205.486 272.542 0)
+		(effects
+			(font
+				(size 1.905 1.905)
+			)
+		)
+		(uuid "c8bd0414-a6a7-49d9-8c61-adee0f9e6478")
+	)
+	(text "RAM0"
+		(exclude_from_sim no)
+		(at 205.486 219.456 0)
+		(effects
+			(font
+				(size 1.905 1.905)
+			)
+		)
+		(uuid "d1e6a8ee-194b-42a7-9205-fac8c727cb1a")
 	)
 	(text "VSS"
 		(exclude_from_sim no)

@@ -20,7 +20,9 @@ module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [2:0] XMEN=3'd2, SSRIDERS=3'd0;
+localparam [2:0] SSRIDERS = 3'd0,
+                 TMNT2    = 3'd1,
+                 XMEN     = 3'd2;
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
@@ -31,7 +33,7 @@ wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         xmen, ssriders;
+reg         ssriders, tmnt2, xmen;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
@@ -42,7 +44,7 @@ assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
 assign omsb_din   = ram_din[7:0];
-assign oaread_en  = game_id[0];
+assign oaread_en  = tmnt2;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -57,6 +59,7 @@ always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
     xmen     <= game_id == XMEN;
     ssriders <= game_id == SSRIDERS;
+    tmnt2    <= game_id == TMNT2;
 end
 
 /* verilator tracing_on */

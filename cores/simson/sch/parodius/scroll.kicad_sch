@@ -22781,7 +22781,7 @@
 		(uuid "0086ff72-a200-493f-a020-9beb8634708e")
 	)
 	(label "~{ROE1}"
-		(at 179.07 210.82 0)
+		(at 179.07 264.16 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22979,7 +22979,7 @@
 		(uuid "08bc8310-9aae-4e70-9e70-4ef714b2e354")
 	)
 	(label "~{RWE1}"
-		(at 179.07 208.28 0)
+		(at 179.07 261.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23298,7 +23298,7 @@
 		(uuid "1b6ffdbe-8dbf-4c27-9f02-db33f3fdc998")
 	)
 	(label "~{ROE2}"
-		(at 179.07 264.16 0)
+		(at 179.07 210.82 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -24332,7 +24332,7 @@
 		(uuid "656db05d-7b8d-4026-b49c-1c1d4206ad69")
 	)
 	(label "~{RCS1}"
-		(at 179.07 203.2 0)
+		(at 179.07 256.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -25861,7 +25861,7 @@
 		(uuid "bd4c881e-f02f-41be-9a38-0f15f7fda9fe")
 	)
 	(label "~{RWE2}"
-		(at 179.07 261.62 0)
+		(at 179.07 208.28 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -26961,7 +26961,7 @@
 		(uuid "f73d528f-55d8-4004-8c1b-158a9c8f1326")
 	)
 	(label "VSS"
-		(at 179.07 256.54 0)
+		(at 179.07 203.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

@@ -67,9 +67,9 @@ module jt052109(
     output reg [12:0] lyrf_addr,
     output reg [12:0] lyra_addr,
     output reg [12:0] lyrb_addr,
-    output reg [ 7:0] lyrf_col,
-    output reg [ 7:0] lyra_col,
-    output reg [ 7:0] lyrb_col,
+    output reg [ 7:0] lyrf_col, lyrf_extra,
+    output reg [ 7:0] lyra_col, lyra_extra,
+    output reg [ 7:0] lyrb_col, lyrb_extra,
 
     output reg         e, q,        // 3MHz signals, Q is 1/4 wave ahead
 
@@ -117,19 +117,19 @@ reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
 reg  [ 8:0] hdumpf;
-wire [ 7:0] bank0, bank1, cfg, int_en,
-            cpu_attr, cpu_extra,
-            cpu_code, ram0_dout, ram1_dout;
+wire [ 7:0] bank0, bank1, cfg, int_en, ram0_dout,
+            cpu_ram1, cpu_ram0, cpu_ram2;
 reg  [10:0] map_a, map_b, vc;
 reg  [12:0] vaddr, vaddr_nx;
 reg  [ 1:0] col_aux;
 reg  [ 1:0] cab,         // tile address MSB
             ba_lsb,      // bank lower 2 bits
-            rscra, rscrb;// row scroll
+            rscra, rscrb,// row scroll
+            col_sel;
 reg  [ 2:0] we, vsub_a, vsub_b, vmux, cs, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
 wire        rd_vpos, rd_hpos, scrlyr_sel;
-reg         v4_l, rd_rowscr, vflip;
+reg         v4_l, rd_rowscr, vflip, ca, cb;
 wire        cscra_en, cscrb_en, reg_we,
             rscra_en, rscrb_en, vflip_en;
 wire [ 2:0] reg_addr;
@@ -152,7 +152,6 @@ assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
-assign scan_dout[15:8] = ram1_dout;
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
@@ -165,6 +164,10 @@ always @(posedge clk) begin // 3MHz signals
     if( pxl_cen  ) q <= ~q;
     if( pxl2_cen ) e <=  q;
 end
+
+`ifdef SIMULATION
+    wire not_implemented = cfg[4:2]!=3'b100;
+`endif
 
 // CPU Memory Mapper
 always @* begin
@@ -180,15 +183,16 @@ always @* begin
     cs[0] = ~range0[~cfg[1:0]];
     cs[1] = ~range1[~cfg[1:0]];
     cs[2] = ~range2[~cfg[1:0]];
-    // WARNING: these are external connections and could change on
-    // some games. If so, cs[2:0] should go out and re-tied at an upper level
+    // in all systems so far, this is the connection (external to 052109)
+    // RAM0/1 -> upper VD
+    // RAM2   -> lower VD
+    // cfg[4:2] are also used to determine how to connect the memories, but
+    // all games tested so far set cfg[4:2]==3'b100, so we assume that case.
     we[0]   = cs[0] & cpu_we & gfx_cs;
     we[1]   = cs[1] & cpu_we & gfx_cs;
-    we[2]   = cs[2] & cpu_we & gfx_cs; // xmen requires we[0]~cs[2] and we[2]~cs[0], why?
-    cpu_din = cs[2] ? cpu_extra : cs[1] ? cpu_attr : cpu_code;
+    we[2]   = cs[2] & cpu_we & gfx_cs;
+    cpu_din = cs[2] ? cpu_ram2 : cs[1] ? cpu_ram1 : cpu_ram0;
 end
-
-reg ca, cb;
 
 always @* begin
     hdumpf = rd_rowscr || !flip ? hdump : ~hdump+9'd1;
@@ -221,22 +225,22 @@ always @* begin
 end
 
 always @* begin
-    col_cfg = scan_dout[15:8];
-    if( rmrd ) col_cfg = mmr[REG_RMRD];
-    case(col_cfg[3:2])
+    col_sel = scan_dout[11:10];
+    case(col_sel)
         0: { cab, col_aux } = bank0[3:0];
         1: { cab, col_aux } = bank0[7:4];
         2: { cab, col_aux } = bank1[3:0];
         3: { cab, col_aux } = bank1[7:4];
     endcase
-    if( !cfg[5] & !rmrd ) col_cfg[3:2] = col_aux;
     // ROM address
     case( hdump[1:0] )
         1: vmux = vsub_a;
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
-    vflip = col_cfg[1] & vflip_en; // must be after rmrd check, as it changes col_cfg
+    col_cfg = rmrd ? mmr[REG_RMRD] :
+        { scan_dout[15:12], cfg[5]?scan_dout[11:10]:col_aux, scan_dout[9:8] };
+    vflip = col_cfg[1] & vflip_en;
     vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
 
@@ -298,7 +302,7 @@ end
 jtframe_edge #(.QSET(0)) u_irq(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( ~lvbl     ),
+    .edgeof (~lvbl      ),
     .clr    (~int_en[2] ),
     .q      ( irq_n     )
 );
@@ -340,7 +344,7 @@ always @(posedge clk) begin
         lyrf_col  <= 0;
         lyra_col  <= 0;
         lyrb_col  <= 0;
-        lyrf_addr  <= 0;
+        lyrf_addr <= 0;
         lyra_addr <= 0;
         lyrb_addr <= 0;
         // hposa     <= 0;
@@ -365,9 +369,9 @@ always @(posedge clk) begin
                     if( rd_vpos || cscrb_en )
                         vposb <= scan_dout[ 7:0];
                 end
-                1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
-                2: begin lyrb_col  <= col_cfg; lyrb_addr <= { cab, vc };end
-                3: begin lyrf_col <= col_cfg; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
+                1: begin lyra_col <= col_cfg; lyra_extra <= ram0_dout; lyra_addr <= { cab, vc }; end
+                2: begin lyrb_col <= col_cfg; lyrb_extra <= ram0_dout; lyrb_addr <= { cab, vc }; end
+                3: begin lyrf_col <= col_cfg; lyrf_extra <= ram0_dout; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase else case( hdump[1:0] ) // row scroll position reading
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];
                 1: if( rd_hpos || rscra_en ) hposa[8]   <= scan_dout[8];
@@ -376,7 +380,7 @@ always @(posedge clk) begin
             endcase
         end
         if( rmrd ) begin
-            lyra_col <= col_cfg;
+            lyra_col  <= col_cfg;
             lyra_addr <= { cab, cpu_addr[12:2] };
         end
     end
@@ -389,7 +393,7 @@ generate if(FULLRAM==1) begin
         .data0  ( cpu_dout       ),
         .addr0  ( cpu_addr[12:0] ),
         .we0    ( we[0]          ),
-        .q0     ( cpu_extra      ),
+        .q0     ( cpu_ram0      ),
         // Port 1
         .clk1   ( clk            ),
         .addr1a ( vaddr          ),
@@ -397,10 +401,10 @@ generate if(FULLRAM==1) begin
         .sel_b  ( ioctl_ram      ),
         .data1  ( 8'd0           ),
         .we_b   ( 1'b0           ),
-        .q1     ( ram0_dout      )  // color
+        .q1     ( ram0_dout      )  // extra bits, used for addressing in xmen
     );
 end else begin
-    assign cpu_extra=0;
+    assign cpu_ram0  = 0;
 end endgenerate
 
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
@@ -409,7 +413,7 @@ jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     .data0  ( cpu_dout       ),
     .addr0  ( cpu_addr[12:0] ),
     .we0    ( we[1]          ),
-    .q0     ( cpu_attr       ),
+    .q0     ( cpu_ram1       ),
     // Port 1
     .clk1   ( clk            ),
     .addr1a ( vaddr          ),
@@ -417,7 +421,7 @@ jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     .sel_b  ( ioctl_ram      ),
     .data1  ( 8'd0           ),
     .we_b   ( 1'b0           ),
-    .q1     ( ram1_dout      )  // color
+    .q1     ( scan_dout[15:8])  // color - RAM1 always connected to VD[15:8]
 );
 
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
@@ -426,7 +430,7 @@ jtframe_dual_nvram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     .data0  ( cpu_dout       ),
     .addr0  ( cpu_addr[12:0] ),
     .we0    ( we[2]          ),
-    .q0     ( cpu_code       ),
+    .q0     ( cpu_ram2       ),
     // Port 1
     .clk1   ( clk            ),
     .addr1a ( vaddr          ),
@@ -434,7 +438,7 @@ jtframe_dual_nvram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     .sel_b  ( ioctl_ram      ),
     .data1  ( 8'd0           ),
     .we_b   ( 1'b0           ),
-    .q1     ( scan_dout[ 7:0])  // code
+    .q1     ( scan_dout[ 7:0])  // code - RAM2 always connected to VD[7:0]
 );
 
 endmodule

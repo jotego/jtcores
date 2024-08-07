@@ -9896,7 +9896,7 @@
 		)
 		(uuid "4026e020-6fc5-4fcd-8892-b876ab2e298a")
 	)
-	(label "MCO~{OE}"
+	(label "~{COLOE}"
 		(at 307.34 119.38 0)
 		(fields_autoplaced yes)
 		(effects
@@ -10435,7 +10435,7 @@
 		)
 		(uuid "97c5fa75-e5f8-4ae4-80c3-15baa8807b79")
 	)
-	(label "MCO~{OE}"
+	(label "~{COLOE}"
 		(at 307.34 170.18 0)
 		(fields_autoplaced yes)
 		(effects

@@ -111,9 +111,9 @@ wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] lyrf_col, dump_scr, lyrf_pxl, st_scr,
-            lyra_col, dump_obj, scr_mmr,  obj_mmr,
-            lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
+wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
+            lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr,
+            lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
 wire        lyrf_blnk_n,
@@ -121,13 +121,13 @@ wire        lyrf_blnk_n,
             lyrb_blnk_n, lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
-assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
+assign cpu_saddr = xmen ? cpu_addr       : { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
+assign cpu_d8    = xmen ? cpu_dout[ 7:0] : ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr = oaread_en ? {oaread_dout, lyro_prea[12:2]} : lyro_prea[20:2];
-assign lyro_cs   = lyro_precs;
+assign lyro_addr   = oaread_en ? {oaread_dout, lyro_prea[12:2]} : lyro_prea[20:2];
+assign lyro_cs     = lyro_precs;
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
@@ -150,21 +150,17 @@ wire [2:0] gfx_de;
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 
-function [31:0] sorto( input [31:0] x );
-    sorto= {
-        x[12], x[ 8], x[ 4], x[ 0],
-        x[28], x[24], x[20], x[16],
-        x[13], x[ 9], x[ 5], x[ 1],
-        x[29], x[25], x[21], x[17],
-        x[14], x[10], x[ 6], x[ 2],
-        x[30], x[26], x[22], x[18],
-        x[15], x[11], x[ 7], x[ 3],
-        x[31], x[27], x[23], x[19] };
-endfunction
-
-// wire [3:0] opxls;
-
-// jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
+// function [31:0] sorto( input [31:0] x );
+//     sorto= {
+//         x[12], x[ 8], x[ 4], x[ 0],
+//         x[28], x[24], x[20], x[16],
+//         x[13], x[ 9], x[ 5], x[ 1],
+//         x[29], x[25], x[21], x[17],
+//         x[14], x[10], x[ 6], x[ 2],
+//         x[30], x[26], x[22], x[18],
+//         x[15], x[11], x[ 7], x[ 3],
+//         x[31], x[27], x[23], x[19] };
+// endfunction
 
 always @* begin
     if( !xmen ) begin
@@ -172,14 +168,14 @@ always @* begin
         lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
         lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
     end else begin // xmen
-        lyrf_addr = { lyrf_col[7:0], pre_f[10:0] };
-        lyra_addr = { lyra_col[7:0], pre_a[10:0] };
-        lyrb_addr = { lyrb_col[7:0], pre_b[10:0] };
+        lyrf_addr = { lyrf_extra, pre_f[10:0] };
+        lyra_addr = { lyra_extra, pre_a[10:0] };
+        lyrb_addr = { lyrb_extra, pre_b[10:0] };
     end
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = { c[7:5], 5'd0 };
+    cgate = xmen ? c[7:0] : { c[7:5], 5'd0 };
 endfunction
 
 /* verilator tracing_on */
@@ -229,6 +225,10 @@ jtaliens_scroll #(
     .e          (           ),
 
     // color byte connection
+    .lyrf_extra ( lyrf_extra),
+    .lyra_extra ( lyra_extra),
+    .lyrb_extra ( lyrb_extra),
+
     .lyrf_col   ( lyrf_col  ),
     .lyra_col   ( lyra_col  ),
     .lyrb_col   ( lyrb_col  ),
