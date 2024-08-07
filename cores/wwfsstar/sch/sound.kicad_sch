@@ -14075,6 +14075,19 @@
 		(uuid 2549ae75-4312-4f2b-882e-3a4216468b4b)
 	)
 	(rectangle
+		(start 95.25 215.9)
+		(end 107.95 222.25)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 3853a2ee-2c42-4588-8bea-afb567515f85)
+	)
+	(rectangle
 		(start 199.39 140.97)
 		(end 212.09 147.32)
 		(stroke
@@ -14110,6 +14123,19 @@
 			(type none)
 		)
 		(uuid 7454bbad-0324-4a3e-96fa-4246c6d1d46e)
+	)
+	(rectangle
+		(start 147.32 106.68)
+		(end 160.02 113.03)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 9ad82014-9cba-47bc-8e63-2c18e4806cfe)
 	)
 	(rectangle
 		(start 101.6 156.21)
@@ -14164,6 +14190,19 @@
 			(color 255 255 255 1)
 		)
 		(uuid d940363b-43a6-4ba2-bec3-cee5b7aa853d)
+	)
+	(rectangle
+		(start 83.82 166.37)
+		(end 96.52 172.72)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid de830653-4f10-49ef-a3d2-52d8c8958f12)
 	)
 	(rectangle
 		(start 276.86 97.79)
@@ -14273,6 +14312,19 @@
 		)
 		(uuid "66e183c8-8b6f-4e14-8a46-e3b13b3aa179")
 	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 83.82 171.45 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "73a08561-12e4-48bd-beb3-e8e6969cbb00")
+	)
 	(text "C42"
 		(exclude_from_sim no)
 		(at 104.14 160.02 0)
@@ -14322,6 +14374,19 @@
 	)
 	(text "DONE"
 		(exclude_from_sim no)
+		(at 147.32 111.76 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "adba178e-b9ef-4390-97fd-07ae55efd00c")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
 		(at 198.12 203.2 0)
 		(effects
 			(font
@@ -14356,6 +14421,19 @@
 			(justify left bottom)
 		)
 		(uuid "d74da7ee-3c09-45e0-bec4-e7e4bfc3badb")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 95.25 220.98 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "dd74cdfc-d6cc-4d19-9eb1-780fa16638a5")
 	)
 	(label "VSS"
 		(at 200.66 85.09 180)
