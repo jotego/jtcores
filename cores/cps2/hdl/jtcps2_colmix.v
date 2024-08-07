@@ -73,7 +73,7 @@ end
 
 always @(posedge clk) if(pxl_cen) begin
     pxl <= !obj_en ? scr_pxl :
-        ( (mux_sel || scr_pxl == 12'hFFF) ? scr_pxl : {3'd0, obj_pxl[8:0]} );
+        ( (mux_sel || (scr_pxl == 12'hFFF && obj_pxl == 12'hFFF)) ? scr_pxl : {3'd0, obj_pxl[8:0]} );
 end
 
 `ifdef PRIO_SIM
