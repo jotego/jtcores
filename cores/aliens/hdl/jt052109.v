@@ -405,6 +405,7 @@ generate if(FULLRAM==1) begin
     );
 end else begin
     assign cpu_ram0  = 0;
+    assign ram0_dout = 0;
 end endgenerate
 
 jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(

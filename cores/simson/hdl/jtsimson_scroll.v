@@ -149,6 +149,10 @@ jt052109 u_tilemap(
     // tile ROM addressing
     // original pins: { CAB2,CAB1,VC[10:0] }
     // [2:0] tile row (8 lines)
+    .lyrf_extra (           ),
+    .lyra_extra (           ),
+    .lyrb_extra (           ),
+
     .lyrf_addr  ( pre_f     ),
     .lyra_addr  ( pre_a     ),
     .lyrb_addr  ( pre_b     ),
