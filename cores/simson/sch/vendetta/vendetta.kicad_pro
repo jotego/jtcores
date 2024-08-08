@@ -387,7 +387,7 @@
     },
     "net_format_name": "",
     "page_layout_descr_file": "",
-    "plot_directory": "",
+    "plot_directory": "/home/jtejada/Desktop/borrame/",
     "spice_current_sheet_as_root": false,
     "spice_external_command": "spice \"%I\"",
     "spice_model_current_sheet_as_root": true,
@@ -400,7 +400,7 @@
   "sheets": [
     [
       "db9c9104-7f8c-4243-9845-0cbbdefe7984",
-      ""
+      "Root"
     ],
     [
       "08d81ea2-2e00-4cd5-bb3e-d56395f4ef95",

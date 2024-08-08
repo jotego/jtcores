@@ -9,8 +9,9 @@
 		(date "2023-08-01")
 		(rev "José Tejada.")
 		(company "KONAMI PWB352346B GX072")
-		(comment 1 "www.patreon.com/jotego")
-		(comment 2 "JOTEGO")
+		(comment 1 "github.com/jotego/jtcores/tree/master/cores/simson/sch/simpsons")
+		(comment 2 "www.patreon.com/jotego")
+		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "052535_1"

@@ -26,6 +26,7 @@ module jt053246(    // sprite logic
 
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
     input             simson,   // enables temporary hack for The Simpsons
+    input             xmen,     // enables yoffset for xmen
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -117,8 +118,11 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= k44_en ? xoffset + 10'h66 /*{2'd0,debug_bus}*/ : xoffset - 10'd61; // 15<<2 for Riders
-    yadj <= yoffset + (k44_en ? 10'h10f : {5'o10, simson, 4'hf} ); // 10'h11f for Simpsons, 10'h10f for Vendetta (and Parodius)
+    xadj <= k44_en ? xoffset + 10'h66 /*{2'd0,debug_bus}*/:
+                     xoffset - 10'd61 /*{debug_bus,2'd0}*/; // 15<<2 for Riders
+    yadj <= yoffset + (k44_en ? 10'h10f :
+                       xmen   ? 10'h107 :
+                       simson ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
     vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
     hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */

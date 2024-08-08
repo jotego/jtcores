@@ -24,6 +24,7 @@ module jtsimson_obj #(parameter
 
     input             paroda,
     input             simson,
+    input             xmen,
 
     input             pxl_cen,
     input             pxl2_cen,
@@ -134,6 +135,7 @@ jt053246 u_scan(    // sprite logic
 
     .k44_en     ( paroda    ),
     .simson     ( simson    ),
+    .xmen       ( xmen      ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),

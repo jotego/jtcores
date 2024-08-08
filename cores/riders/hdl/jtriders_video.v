@@ -72,7 +72,7 @@ module jtriders_video(
     output reg [20:2] lyrf_addr,
     output reg [20:2] lyra_addr,
     output reg [20:2] lyrb_addr,
-    output     [20:2] lyro_addr,
+    output     [21:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -126,7 +126,9 @@ assign cpu_saddr = xmen ? cpu_addr       : { cpu_addr[16:15], cpu_dsn[1], cpu_ad
 assign cpu_d8    = xmen ? cpu_dout[ 7:0] : ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr   = oaread_en ? {oaread_dout, lyro_prea[12:2]} : lyro_prea[20:2];
+assign lyro_addr   = xmen      ? lyro_prea :
+                     oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
+                                 {1'b0,lyro_prea[20:2]};
 assign lyro_cs     = lyro_precs;
 // Debug
 always @(posedge clk) begin
@@ -274,7 +276,11 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
+wire [13:1] orama;
+
 assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
+// xmen never exercises cpu_addr[13], although it is connected to the RAM
+assign orama = xmen ? cpu_addr[13:1] : oram_addr;
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -284,6 +290,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
 
     .paroda     ( ssriders  ),
     .simson     ( 1'b0      ),
+    .xmen       ( xmen      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -293,7 +300,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .vdump      ( vrender   ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
-    .ram_addr   ( oram_addr ),
+    .ram_addr   ( orama     ),
     .ram_din    ( oram_din  ),
     .ram_we     ( oram_we   ),
     .cpu_din    (objsys_dout),

@@ -873,10 +873,12 @@ if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
             echo "Large number of frames... maybe enable JTFRAME_SIM_VIDEO to create a full video"
         fi
     fi
-    ffmpeg -y -framerate $FRAMERATE \
+    if [[ "$VIDEO_DUMP" = TRUE ]]; then
+        ffmpeg -y -framerate $FRAMERATE \
         -pattern_type glob -i frames/'frame_*.jpg' \
         -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
         -pix_fmt yuv420p test.mp4 > /dev/null
+    fi
 fi
 
 # convert per-channel raw sound files to wav

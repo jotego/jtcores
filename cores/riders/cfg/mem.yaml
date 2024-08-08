@@ -64,7 +64,7 @@ sdram:
           data_width: 32
     - buses:
         - name: lyro
-          addr_width: 21
+          addr_width: 22
           data_width: 32
 bram:
   # RAM holding the MSB bits of the object tile ROM address

@@ -5,12 +5,13 @@
 	(uuid "b2baf9e3-1f8e-47a8-a7df-bc8e2f129133")
 	(paper "A3")
 	(title_block
-		(title "X-men")
+		(title "X-Men")
 		(date "2023-07-17")
 		(rev "José Tejada")
 		(company "KONAMI PWB353018A GX065")
-		(comment 1 "www.patreon.com/jotego")
-		(comment 2 "JOTEGO")
+		(comment 1 "github.com/jotego/jtcores/tree/master/cores/simson/sch/simpsons")
+		(comment 2 "www.patreon.com/jotego")
+		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "74xx:74LS07"

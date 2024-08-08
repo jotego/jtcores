@@ -76,7 +76,10 @@ always @(posedge clk, posedge rst) begin
                 2: yoffset[9:8] <= cpu_dout[1:0];
                 3: yoffset[7:0] <= cpu_dout[7:0];
                 4: if(!k44_en) rmrd_addr[ 8: 1] <= cpu_dout[7:0];
-                5: cfg <= cpu_dout[7:0]; // $34 (simpsons/vendetta) $30/20 (xmen)
+                5: begin
+                    cfg <= cpu_dout[7:0]; // $34 (simpsons/vendetta) $30/20 (xmen)
+                    $display("OBJ CFG=%X",cpu_dout);
+                end
                 6: if(!k44_en) rmrd_addr[21:17] <= cpu_dout[4:0];
                 7: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout[7:0];
                 // k44_en only
@@ -94,7 +97,10 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     if( !cpu_dsn[1] ) rmrd_addr[8:1] <= cpu_dout[15:8];
-                    if( !cpu_dsn[0] ) cfg <= cpu_dout[7:0];
+                    if( !cpu_dsn[0] ) begin
+                        cfg <= cpu_dout[7:0];
+                        $display("OBJ CFG=%X",cpu_dout[7:0]);
+                    end
                 end
                 3: begin
                     if( !cpu_dsn[1] ) rmrd_addr[21:17] <= cpu_dout[12:8];

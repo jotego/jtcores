@@ -7,10 +7,11 @@
 	(title_block
 		(title "Sunset Riders")
 		(date "2023-08-29")
-		(rev "José Tejada G.")
+		(rev "José Tejada")
 		(company "KONAMI PWB 352359C")
-		(comment 1 "www.patreon.com/jotego")
-		(comment 2 "JOTEGO")
+		(comment 1 "github.com/jotego/jtcores/tree/master/cores/riders/sch/ssriders")
+		(comment 2 "www.patreon.com/jotego")
+		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "arcade:JAMMA_CONN"

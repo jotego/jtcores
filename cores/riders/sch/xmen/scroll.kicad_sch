@@ -5,12 +5,13 @@
 	(uuid "abc30ef3-e593-422c-9858-3eddb919dc50")
 	(paper "A3")
 	(title_block
-		(title "X-men")
+		(title "X-Men")
 		(date "2023-07-17")
 		(rev "José Tejada")
 		(company "KONAMI PWB353018A GX065")
-		(comment 1 "www.patreon.com/jotego")
-		(comment 2 "JOTEGO")
+		(comment 1 "github.com/jotego/jtcores/tree/master/cores/simson/sch/simpsons")
+		(comment 2 "www.patreon.com/jotego")
+		(comment 3 "JOTEGO")
 	)
 	(lib_symbols
 		(symbol "065A08_1"
@@ -12291,12 +12292,6 @@
 		(color 0 0 0 0)
 		(uuid "f1a41b8d-6b3a-49af-8c62-dd41f12cb09a")
 	)
-	(junction
-		(at 334.01 34.29)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fff5eab3-8d7a-4f40-bc95-242b3e577583")
-	)
 	(no_connect
 		(at 127 62.23)
 		(uuid "012b3247-fd7e-4226-9959-07d550a70b3a")
@@ -18644,16 +18639,6 @@
 		)
 		(uuid "55f8f359-6a4b-42ee-962d-81c550cf4ff9")
 	)
-	(wire
-		(pts
-			(xy 334.01 29.21) (xy 334.01 34.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "56146297-1229-4a3e-bdb0-e2deed4f91eb")
-	)
 	(bus
 		(pts
 			(xy 81.28 280.67) (xy 83.82 280.67)
@@ -19693,16 +19678,6 @@
 			(type default)
 		)
 		(uuid "77f5af83-194c-4e37-9e6a-490598cf8224")
-	)
-	(wire
-		(pts
-			(xy 334.01 34.29) (xy 335.28 34.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "77fbaff6-7d86-4d7a-8000-011105c0bdbc")
 	)
 	(wire
 		(pts
@@ -23866,7 +23841,7 @@
 	)
 	(wire
 		(pts
-			(xy 332.74 34.29) (xy 334.01 34.29)
+			(xy 332.74 34.29) (xy 335.28 34.29)
 		)
 		(stroke
 			(width 0)
@@ -26764,7 +26739,7 @@
 		(uuid "64663e8d-d8d9-40ed-af9a-7843ee18bffd")
 	)
 	(label "VCC"
-		(at 334.01 29.21 0)
+		(at 330.2 34.29 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

@@ -40773,14 +40773,6 @@
 			)
 		)
 		(symbol "053245_1_1"
-			(text "EN"
-				(at 34.29 36.83 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
 			(pin power_in line
 				(at -46.99 -36.83 0)
 				(length 5.08)
@@ -41357,7 +41349,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at -46.99 36.83 0)
 				(length 5.08)
 				(name "TEST"
@@ -41486,7 +41478,7 @@
 			(pin output inverted
 				(at 34.29 46.99 270)
 				(length 5.08)
-				(name "CPU"
+				(name "NCPU"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -41684,7 +41676,7 @@
 			(pin no_connect line
 				(at 36.83 46.99 270)
 				(length 5.08)
-				(name "N.C"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43003,168 +42995,8 @@
 					(type background)
 				)
 			)
-			(text "*"
-				(at 36.83 -20.32 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -17.78 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 12.7 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 15.24 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
-				(at 36.83 17.78 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "BUFF MAIN DATA BUS"
-				(at 24.13 17.78 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "CLK FF OBJROM"
-				(at 26.67 20.32 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "DECODER"
-				(at -32.258 35.306 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
 			(text "GENERATOR TO DRAWING"
 				(at -1.27 -33.02 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "IO"
-				(at -32.512 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -43211,72 +43043,26 @@
 					)
 				)
 			)
-			(text "TILE DRAWING"
-				(at -26.924 18.923 0)
+		)
+		(symbol "053246_1_0"
+			(text "ROM CHECK"
+				(at -30.226 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(text "TILE DRAWING CLK"
-				(at -24.892 11.43 0)
+			(text "See Konami's Racing Force\nschematics for symbol reference"
+				(at 0.254 -8.128 0)
 				(effects
 					(font
-						(size 1.27 1.27)
+						(size 0.762 0.762)
 					)
 				)
 			)
 		)
 		(symbol "053246_1_1"
-			(text "*"
-				(at -37.338 30.861 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "*"
-				(at -37.211 28.067 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "*"
-				(at -31.369 29.21 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "Lower data select"
-				(at -29.718 30.353 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "MAIN"
-				(at -29.718 29.21 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "Upper data select"
-				(at -29.718 28.067 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
 			(pin power_in line
 				(at 46.99 22.86 180)
 				(length 5.08)
@@ -43298,7 +43084,7 @@
 			(pin input clock
 				(at -46.99 12.7 0)
 				(length 5.08)
-				(name "M12"
+				(name "C12M"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43314,9 +43100,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -12.7 0)
+				(at -46.99 -5.08 0)
 				(length 5.08)
-				(name "A7"
+				(name "EN4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43350,9 +43136,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -10.16 0)
+				(at -46.99 -2.54 0)
 				(length 5.08)
-				(name "A6"
+				(name "EN3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43368,9 +43154,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -7.62 0)
+				(at -46.99 0 0)
 				(length 5.08)
-				(name "A5"
+				(name "EN2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43386,9 +43172,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -5.08 0)
+				(at -46.99 2.54 0)
 				(length 5.08)
-				(name "A4"
+				(name "EN1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43404,9 +43190,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -2.54 0)
+				(at -46.99 5.08 0)
 				(length 5.08)
-				(name "A3"
+				(name "EN0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43440,9 +43226,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -36.83 -48.26 90)
+				(at -46.99 -27.94 0)
 				(length 5.08)
-				(name "A"
+				(name "EA5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43458,9 +43244,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -22.86 0)
+				(at -46.99 -25.4 0)
 				(length 5.08)
-				(name "A11"
+				(name "EA4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43476,9 +43262,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 0 0)
+				(at -46.99 -22.86 0)
 				(length 5.08)
-				(name "A2"
+				(name "EA3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43512,9 +43298,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 2.54 0)
+				(at -46.99 -20.32 0)
 				(length 5.08)
-				(name "A1"
+				(name "EA2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43547,10 +43333,10 @@
 					)
 				)
 			)
-			(pin input inverted
-				(at -46.99 5.08 0)
+			(pin tri_state line
+				(at -46.99 -17.78 0)
 				(length 5.08)
-				(name "~{LDS}"
+				(name "EA1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43566,9 +43352,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -25.4 0)
+				(at -46.99 -15.24 0)
 				(length 5.08)
-				(name "A12"
+				(name "EA0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43586,7 +43372,7 @@
 			(pin tri_state inverted
 				(at -46.99 7.62 0)
 				(length 5.08)
-				(name "~{RD}"
+				(name "~{EDE}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43601,10 +43387,10 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin no_connect line
 				(at -34.29 -48.26 90)
 				(length 5.08)
-				(name "A"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43637,10 +43423,10 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at 46.99 -30.48 180)
 				(length 5.08)
-				(name "UK"
+				(name "TEST"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43655,10 +43441,10 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin input line
 				(at 46.99 -27.94 180)
 				(length 5.08)
-				(name "UK"
+				(name "CROC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43676,7 +43462,7 @@
 			(pin input line
 				(at -46.99 17.78 0)
 				(length 5.08)
-				(name "VSYNC"
+				(name "VBLK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43694,7 +43480,7 @@
 			(pin input clock
 				(at -46.99 10.16 0)
 				(length 5.08)
-				(name "M6"
+				(name "DCKD"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43715,7 +43501,7 @@
 				(name "VCC"
 					(effects
 						(font
-							(size 1.27 1.27)
+							(size 1.016 1.016)
 						)
 					)
 				)
@@ -43730,7 +43516,7 @@
 			(pin tri_state line
 				(at 46.99 17.78 180)
 				(length 5.08)
-				(name "D15"
+				(name "ED15"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43748,7 +43534,7 @@
 			(pin tri_state line
 				(at 46.99 15.24 180)
 				(length 5.08)
-				(name "D14"
+				(name "ED14"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43766,7 +43552,7 @@
 			(pin tri_state line
 				(at 46.99 12.7 180)
 				(length 5.08)
-				(name "D13"
+				(name "ED13"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43802,7 +43588,7 @@
 			(pin tri_state line
 				(at 46.99 10.16 180)
 				(length 5.08)
-				(name "D12"
+				(name "ED12"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43820,7 +43606,7 @@
 			(pin tri_state line
 				(at 46.99 7.62 180)
 				(length 5.08)
-				(name "D11"
+				(name "ED11"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43838,7 +43624,7 @@
 			(pin tri_state line
 				(at 46.99 5.08 180)
 				(length 5.08)
-				(name "D10"
+				(name "ED10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43856,7 +43642,7 @@
 			(pin input inverted
 				(at -46.99 35.56 0)
 				(length 5.08)
-				(name "~{REG}"
+				(name "~{SOBJ}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43874,7 +43660,7 @@
 			(pin tri_state line
 				(at 46.99 2.54 180)
 				(length 5.08)
-				(name "D9"
+				(name "ED9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43910,7 +43696,7 @@
 			(pin tri_state line
 				(at 46.99 0 180)
 				(length 5.08)
-				(name "D8"
+				(name "ED8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43928,7 +43714,7 @@
 			(pin tri_state line
 				(at 46.99 -2.54 180)
 				(length 5.08)
-				(name "D7"
+				(name "ED7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43946,7 +43732,7 @@
 			(pin tri_state line
 				(at 46.99 -5.08 180)
 				(length 5.08)
-				(name "D6"
+				(name "ED6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43964,7 +43750,7 @@
 			(pin tri_state line
 				(at 46.99 -7.62 180)
 				(length 5.08)
-				(name "D5"
+				(name "ED5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43982,7 +43768,7 @@
 			(pin tri_state line
 				(at 46.99 -10.16 180)
 				(length 5.08)
-				(name "D4"
+				(name "ED4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44000,7 +43786,7 @@
 			(pin tri_state line
 				(at 46.99 -12.7 180)
 				(length 5.08)
-				(name "D3"
+				(name "ED3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44018,7 +43804,7 @@
 			(pin tri_state line
 				(at 46.99 -15.24 180)
 				(length 5.08)
-				(name "D2"
+				(name "ED2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44036,7 +43822,7 @@
 			(pin tri_state line
 				(at 46.99 -17.78 180)
 				(length 5.08)
-				(name "D1"
+				(name "ED1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44054,7 +43840,7 @@
 			(pin input inverted
 				(at -46.99 33.02 0)
 				(length 5.08)
-				(name "~{RESET}"
+				(name "~{NRES}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44072,7 +43858,7 @@
 			(pin tri_state line
 				(at 46.99 -20.32 180)
 				(length 5.08)
-				(name "D0"
+				(name "ED0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44108,7 +43894,7 @@
 			(pin input line
 				(at -26.67 -48.26 90)
 				(length 5.08)
-				(name "G2D0"
+				(name "HP0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44126,7 +43912,7 @@
 			(pin input line
 				(at -24.13 -48.26 90)
 				(length 5.08)
-				(name "G2D1"
+				(name "HP1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44144,7 +43930,7 @@
 			(pin input line
 				(at -21.59 -48.26 90)
 				(length 5.08)
-				(name "G2D2"
+				(name "HP2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44162,7 +43948,7 @@
 			(pin input line
 				(at -19.05 -48.26 90)
 				(length 5.08)
-				(name "G2D3"
+				(name "HP3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44180,7 +43966,7 @@
 			(pin input line
 				(at -16.51 -48.26 90)
 				(length 5.08)
-				(name "G2D4"
+				(name "HP4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44198,7 +43984,7 @@
 			(pin input line
 				(at -13.97 -48.26 90)
 				(length 5.08)
-				(name "G2D5"
+				(name "HP5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44216,7 +44002,7 @@
 			(pin input line
 				(at -11.43 -48.26 90)
 				(length 5.08)
-				(name "G2D6"
+				(name "HP6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44234,7 +44020,7 @@
 			(pin input line
 				(at -8.89 -48.26 90)
 				(length 5.08)
-				(name "G2D7"
+				(name "HP7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44270,7 +44056,7 @@
 			(pin input line
 				(at -6.35 -48.26 90)
 				(length 5.08)
-				(name "G2D8"
+				(name "HP8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44306,7 +44092,7 @@
 			(pin input line
 				(at -3.81 -48.26 90)
 				(length 5.08)
-				(name "G2D9"
+				(name "HP9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44324,7 +44110,7 @@
 			(pin input line
 				(at -1.27 -48.26 90)
 				(length 5.08)
-				(name "G2D10"
+				(name "HP10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44342,7 +44128,7 @@
 			(pin input line
 				(at 1.27 -48.26 90)
 				(length 5.08)
-				(name "G2D11"
+				(name "HP11"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44360,7 +44146,7 @@
 			(pin input line
 				(at 3.81 -48.26 90)
 				(length 5.08)
-				(name "G2D12"
+				(name "HP12"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44396,7 +44182,7 @@
 			(pin input line
 				(at 6.35 -48.26 90)
 				(length 5.08)
-				(name "G2D13"
+				(name "HP13"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44414,7 +44200,7 @@
 			(pin input line
 				(at 8.89 -48.26 90)
 				(length 5.08)
-				(name "G2D14"
+				(name "HP14"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44432,7 +44218,7 @@
 			(pin input line
 				(at 11.43 -48.26 90)
 				(length 5.08)
-				(name "G2D15"
+				(name "HP15"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44468,7 +44254,7 @@
 			(pin input line
 				(at 13.97 -48.26 90)
 				(length 5.08)
-				(name "G2D16"
+				(name "HP16"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44504,7 +44290,7 @@
 			(pin input line
 				(at 16.51 -48.26 90)
 				(length 5.08)
-				(name "G2D17"
+				(name "HP17"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44522,7 +44308,7 @@
 			(pin input line
 				(at 19.05 -48.26 90)
 				(length 5.08)
-				(name "G2D18"
+				(name "HP18"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44540,7 +44326,7 @@
 			(pin input line
 				(at 21.59 -48.26 90)
 				(length 5.08)
-				(name "G2D19"
+				(name "HP19"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44558,7 +44344,7 @@
 			(pin input line
 				(at 24.13 -48.26 90)
 				(length 5.08)
-				(name "G2D20"
+				(name "RF"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44576,7 +44362,7 @@
 			(pin input line
 				(at 26.67 -48.26 90)
 				(length 5.08)
-				(name "G2D21"
+				(name "RFC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44594,7 +44380,7 @@
 			(pin no_connect line
 				(at 46.99 -22.86 180)
 				(length 5.08)
-				(name "N.C"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44612,7 +44398,7 @@
 			(pin no_connect line
 				(at 46.99 -25.4 180)
 				(length 5.08)
-				(name "N.C"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44627,10 +44413,10 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin output line
 				(at -31.75 -48.26 90)
 				(length 5.08)
-				(name "UK"
+				(name "D6R"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44648,7 +44434,7 @@
 			(pin input line
 				(at -46.99 25.4 0)
 				(length 5.08)
-				(name "MAIN_A2"
+				(name "A2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44702,7 +44488,7 @@
 			(pin output inverted
 				(at 29.21 -48.26 90)
 				(length 5.08)
-				(name "YH~{OE}"
+				(name "~{SET0}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44720,7 +44506,7 @@
 			(pin output inverted
 				(at 31.75 -48.26 90)
 				(length 5.08)
-				(name "YL~{OE}"
+				(name "~{SET1}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44738,7 +44524,7 @@
 			(pin output inverted
 				(at 34.29 -48.26 90)
 				(length 5.08)
-				(name "XH~{OE}"
+				(name "~{SET2}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44756,7 +44542,7 @@
 			(pin output inverted
 				(at 36.83 -48.26 90)
 				(length 5.08)
-				(name "XL~{OE}"
+				(name "~{SET3}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44774,7 +44560,7 @@
 			(pin output clock
 				(at 46.99 20.32 180)
 				(length 5.08)
-				(name "CLK"
+				(name "SCK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44789,10 +44575,10 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin no_connect line
 				(at -29.21 -48.26 90)
 				(length 5.08)
-				(name "UK"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44810,7 +44596,7 @@
 			(pin output line
 				(at 26.67 45.72 270)
 				(length 5.08)
-				(name "OBJROMA0"
+				(name "CA0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44828,7 +44614,7 @@
 			(pin output line
 				(at 24.13 45.72 270)
 				(length 5.08)
-				(name "OBJROMA1"
+				(name "CA1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44846,7 +44632,7 @@
 			(pin input line
 				(at -46.99 22.86 0)
 				(length 5.08)
-				(name "MAIN_A1"
+				(name "A1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44864,7 +44650,7 @@
 			(pin output line
 				(at 21.59 45.72 270)
 				(length 5.08)
-				(name "OBJROMA2"
+				(name "CA2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44900,7 +44686,7 @@
 			(pin output line
 				(at 19.05 45.72 270)
 				(length 5.08)
-				(name "OBJROMA3"
+				(name "CA3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44918,7 +44704,7 @@
 			(pin output line
 				(at 16.51 45.72 270)
 				(length 5.08)
-				(name "OBJROMA4"
+				(name "CA4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44936,7 +44722,7 @@
 			(pin output line
 				(at 13.97 45.72 270)
 				(length 5.08)
-				(name "OBJROMA5"
+				(name "CA5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44954,7 +44740,7 @@
 			(pin output line
 				(at 11.43 45.72 270)
 				(length 5.08)
-				(name "OBJROMA6"
+				(name "CA6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44990,7 +44776,7 @@
 			(pin output line
 				(at 8.89 45.72 270)
 				(length 5.08)
-				(name "OBJROMA7"
+				(name "CA7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45008,7 +44794,7 @@
 			(pin output line
 				(at 6.35 45.72 270)
 				(length 5.08)
-				(name "OBJROMA8"
+				(name "CA8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45026,7 +44812,7 @@
 			(pin output line
 				(at 3.81 45.72 270)
 				(length 5.08)
-				(name "OBJROMA9"
+				(name "CA9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45062,7 +44848,7 @@
 			(pin output line
 				(at 1.27 45.72 270)
 				(length 5.08)
-				(name "OBJROMA10"
+				(name "CA10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45098,7 +44884,7 @@
 			(pin output line
 				(at -1.27 45.72 270)
 				(length 5.08)
-				(name "OBJROMA11"
+				(name "CA11"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45116,7 +44902,7 @@
 			(pin output line
 				(at -3.81 45.72 270)
 				(length 5.08)
-				(name "OBJROMA12"
+				(name "CA12"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45134,7 +44920,7 @@
 			(pin output line
 				(at -6.35 45.72 270)
 				(length 5.08)
-				(name "OBJROMA13"
+				(name "CA13"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45152,7 +44938,7 @@
 			(pin output line
 				(at -8.89 45.72 270)
 				(length 5.08)
-				(name "OBJROMA14"
+				(name "CA14"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45170,7 +44956,7 @@
 			(pin output line
 				(at -11.43 45.72 270)
 				(length 5.08)
-				(name "OBJROMA15"
+				(name "CA15"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45188,7 +44974,7 @@
 			(pin output line
 				(at -13.97 45.72 270)
 				(length 5.08)
-				(name "OBJROMA16"
+				(name "CA16"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45206,7 +44992,7 @@
 			(pin output line
 				(at -16.51 45.72 270)
 				(length 5.08)
-				(name "OBJROMA17"
+				(name "CA17"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45224,7 +45010,7 @@
 			(pin output line
 				(at -19.05 45.72 270)
 				(length 5.08)
-				(name "OBJROMA18"
+				(name "CA18"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45242,7 +45028,7 @@
 			(pin input line
 				(at -46.99 15.24 0)
 				(length 5.08)
-				(name "OCHARA"
+				(name "CRKB"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45260,7 +45046,7 @@
 			(pin output line
 				(at -21.59 45.72 270)
 				(length 5.08)
-				(name "OBJROMA19"
+				(name "CA19"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45293,10 +45079,10 @@
 					)
 				)
 			)
-			(pin tri_state line
-				(at -46.99 -27.94 0)
+			(pin no_connect line
+				(at -46.99 -30.48 0)
 				(length 5.08)
-				(name "A?"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45311,10 +45097,10 @@
 					)
 				)
 			)
-			(pin tri_state line
-				(at -46.99 -30.48 0)
+			(pin no_connect line
+				(at -46.99 -33.02 0)
 				(length 5.08)
-				(name "A?"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45329,10 +45115,10 @@
 					)
 				)
 			)
-			(pin tri_state line
-				(at -46.99 -33.02 0)
+			(pin no_connect line
+				(at -46.99 -35.56 0)
 				(length 5.08)
-				(name "A?"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45347,10 +45133,10 @@
 					)
 				)
 			)
-			(pin tri_state line
-				(at -46.99 -35.56 0)
+			(pin no_connect line
+				(at -46.99 -38.1 0)
 				(length 5.08)
-				(name "A?"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45365,10 +45151,10 @@
 					)
 				)
 			)
-			(pin tri_state line
-				(at -46.99 -38.1 0)
+			(pin no_connect line
+				(at -36.83 -48.26 90)
 				(length 5.08)
-				(name "A?"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45384,9 +45170,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -20.32 0)
+				(at -46.99 -12.7 0)
 				(length 5.08)
-				(name "A10"
+				(name "EN7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45402,9 +45188,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -17.78 0)
+				(at -46.99 -10.16 0)
 				(length 5.08)
-				(name "A9"
+				(name "EN6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45420,9 +45206,9 @@
 				)
 			)
 			(pin tri_state line
-				(at -46.99 -15.24 0)
+				(at -46.99 -7.62 0)
 				(length 5.08)
-				(name "A8"
+				(name "EN5"
 					(effects
 						(font
 							(size 1.27 1.27)
