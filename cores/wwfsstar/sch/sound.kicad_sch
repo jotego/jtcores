@@ -8378,6 +8378,10 @@
 		(uuid "388ba7e6-ec78-4f4a-8b0b-d0b224007ffe")
 	)
 	(no_connect
+		(at 52.07 143.51)
+		(uuid "4ffcb8c3-4bb6-4025-ac43-bb7bb5cc6ba0")
+	)
+	(no_connect
 		(at 115.57 92.71)
 		(uuid "516370ac-aa05-4ca1-b357-afdd77f77c2b")
 	)
@@ -8400,6 +8404,10 @@
 	(no_connect
 		(at 100.33 210.82)
 		(uuid "c81633b7-5f82-4792-83cd-518e3c3f3f59")
+	)
+	(no_connect
+		(at 52.07 146.05)
+		(uuid "e3d1f129-1ac6-4a25-a474-df1af388b74e")
 	)
 	(no_connect
 		(at 115.57 67.31)

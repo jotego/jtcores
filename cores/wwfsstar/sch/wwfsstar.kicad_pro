@@ -558,6 +558,14 @@
     [
       "50fdd19b-ac4b-4056-8d66-992b35bef780",
       "main"
+    ],
+    [
+      "978f5dee-7fc6-4d0d-afaa-c4a84490655b",
+      "io"
+    ],
+    [
+      "141ccbf2-6950-44b7-b948-ff1ea1c54eb6",
+      "color mixer"
     ]
   ],
   "text_variables": {}
