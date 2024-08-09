@@ -32730,9 +32730,9 @@
 		)
 		(uuid "c08df54e-2d8a-41d4-878a-9978fa977283")
 	)
-	(text "~{CBLK'} is at the color mixer 007327, it is\nshifted one pixel clock when coming from the DFF."
+	(text "~{CBLK''} is at the output of color mixer 007593.\nCBLK' is shifted inside the 007593 one pixel clock.\n"
 		(exclude_from_sim no)
-		(at 119.38 275.59 0)
+		(at 120.65 274.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)

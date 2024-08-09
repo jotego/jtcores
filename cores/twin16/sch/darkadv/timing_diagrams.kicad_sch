@@ -31894,17 +31894,6 @@
 		)
 		(uuid "364b6fb6-b1b1-46d3-9bdd-767f554ba28b")
 	)
-	(text "~{CBLK'} is at the color mixer 007327, it is\nshifted one pixel clock when coming from the DFF."
-		(exclude_from_sim no)
-		(at 119.38 274.32 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3696ca1d-1b9e-441c-b72a-d941b9ddea1f")
-	)
 	(text "f = 16kHz / 2 = 8kHz"
 		(exclude_from_sim no)
 		(at 96.8375 120.3325 0)
@@ -32366,6 +32355,17 @@
 			(justify left bottom)
 		)
 		(uuid "7fdd76ce-f570-475b-b5c2-c3d9a9ad543c")
+	)
+	(text "~{CBLK''} is at the output of color mixer 007327.\nCBLK' is shifted inside the 007327 one pixel clock.\n"
+		(exclude_from_sim no)
+		(at 120.65 273.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "807a2545-b550-48c8-8316-0cdbd2bbfe2e")
 	)
 	(text "f = CLK2 / 16 = 384kHz"
 		(exclude_from_sim no)
