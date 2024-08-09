@@ -221,7 +221,7 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .mmr_addr   (cpu_addr[3:0]),
     .mmr_din    ({8'd0,cpu_dout}),
     .mmr_we     ( cpu_we    ),
-    .mmr_dsn    ( 2'b11     ), // unused
+    .mmr_dsn    ({1'b1,cpu_addr[0]}),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
