@@ -17,11 +17,9 @@ SND_RAMW=13
 FULLRAM=1
 
 # But MiST/SiDi cannot handle that much
-[mist]
+[mist|sidi]
 SND_RAMW=11
 FULLRAM=0
+NODIMMING
+-JTFRAME_CREDITS
 
-[sidi]
-SND_RAMW=11
-FULLRAM=0
-#JTFRAME_SKIP

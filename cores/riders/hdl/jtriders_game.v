@@ -60,6 +60,7 @@ always @(posedge clk) begin
     xmen     <= game_id == XMEN;
     ssriders <= game_id == SSRIDERS;
     tmnt2    <= game_id == TMNT2;
+    if( `FULLRAM == 0 ) xmen <= 0;
 end
 
 /* verilator tracing_on */

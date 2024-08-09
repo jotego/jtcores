@@ -202,6 +202,7 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
 
     .paroda     ( paroda    ),
     .simson     ( simson    ),
+    .xmen       ( 1'b0      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),

@@ -107,6 +107,17 @@ always @* begin
     endcase
 end
 
+function [7:0] conv58(input [4:0] cin );
+begin
+    conv58 = {cin, cin[4-:3]};
+end
+endfunction
+
+// remember to delete this once the dimming is ready:
+`ifdef JTFRAME_RELEASE
+    `define NODIMMING
+`endif
+
 always @(posedge clk) begin
     if( rst ) begin
         bgr   <= 0;
@@ -119,7 +130,11 @@ always @(posedge clk) begin
         pal_dmux  <= st ? pal_dout[14:10] : pal_dout[9:5]; // blue (msb), green (middle)
         if( st ) b8 <= bg8; else g8 <= bg8;
         if( pxl_cen ) begin
+`ifdef NODIMMING
+            bgr <= {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])};
+`else
             bgr <= { b8, g8, r8 };
+`endif
         end
         if( xmen )         bsel <= { ~shad, 3'b111 };
         if( debug_bus[7] ) bsel <= debug_bus[3:0];

@@ -27,3 +27,10 @@ Due to limitations in the internal RAM memory of small FPGA devices, X-Men will 
 # Game Configuration
 
 This game does not use DIP switches but a small EEPROM to save the configuration. Access to the configuration by pressing F2 on your keyboard or pressing button 1 and coin in the Analogue Pocket. Follow the game menu to alter the configuration from that point on.
+
+# Board Differences
+
+Game           | Object Chipset            | Sound Chipset             | Remarks
+---------------|---------------------------|---------------------------|---------------------
+xmen		   | 053246/053247             | 054539/054321             | same object chipset as simpsons
+ssriders       | 053244/053245             | 053260                    | protection chip for object RAM

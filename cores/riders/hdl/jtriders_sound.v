@@ -183,19 +183,45 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-/* verilator tracing_on */
-jt054539 u_k54539(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen_pcm   ),
-    // CPU interface
-    .addr       ({A[9],A[7:0]}),
-    .din        ( cpu_dout  ),
-    .dout       ( k39_dout  ),
-    .we         ( k39_we    ),
-    // ROM
-    .rom_data   ( 8'd0      )
-);
+generate if( `FULLRAM==1 ) begin
+    // X-Men
+    /* verilator tracing_on */
+    jt054539 u_k54539(
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( cen_pcm   ),
+        // CPU interface
+        .addr       ({A[9],A[7:0]}),
+        .din        ( cpu_dout  ),
+        .dout       ( k39_dout  ),
+        .we         ( k39_we    ),
+        // ROM
+        .rom_data   ( 8'd0      )
+    );
+
+    jt054321 u_54321(
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .maddr      ( main_addr ),
+        .mdout      ( main_dout ),
+        .mdin       ( pair_dout ),
+        .mwe        ( pair_we   ),
+
+        .saddr      ( A[1:0]    ),
+        .sdout      ( cpu_dout  ),
+        .sdin       ( latch_dout),
+        .swe        ( latch_we  ),
+
+        // Z80 bus control
+        .snd_on     ( snd_irq   ),
+        .siorq_n    ( iorq_n    ),
+        .int_n      ( latch_intn)
+    );
+end else begin
+    assign k39_dout   = 0;
+    assign latch_dout = 0;
+    assign latch_intn = 1;
+end endgenerate
 
 /* verilator tracing_off */
 jt053260 u_k53260(
@@ -245,26 +271,6 @@ jt053260 u_k53260(
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
     .sample     (           )
-);
-
-// X-Men
-jt054321 u_54321(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .maddr      ( main_addr ),
-    .mdout      ( main_dout ),
-    .mdin       ( pair_dout ),
-    .mwe        ( pair_we   ),
-
-    .saddr      ( A[1:0]    ),
-    .sdout      ( cpu_dout  ),
-    .sdin       ( latch_dout),
-    .swe        ( latch_we  ),
-
-    // Z80 bus control
-    .snd_on     ( snd_irq   ),
-    .siorq_n    ( iorq_n    ),
-    .int_n      ( latch_intn)
 );
 `else
 assign  main_din   = 0;
