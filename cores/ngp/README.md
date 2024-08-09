@@ -36,6 +36,11 @@ The first time you insert batteries into a NGP, the system will boot and present
 
 If you want to load a new game while the core is working, go directly to step 2.
 
+The Neo Geo Pocket is not forwards compatible with all Neo Geo Pocket Color games. For a compatibility list, see:
+https://www.neo-geo.com/pocket/
+
+If you have a .ngc file which does not load, this is probably why.
+
 # Simulation & Debugging
 
 In order to simulate with a cartridge, this has to be named `cart.bin`. The firmware should be called `rom.bin`. Check out [JTFRAME documentation](../../modules/jtframe/doc/sdram.md)
