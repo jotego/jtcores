@@ -61,7 +61,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_44 <= 0;
     end else begin
-        if( dma_bsy ) dma_44 <= 0;
+        if( dma_bsy  ) dma_44 <= 0;
         if( dma_trig ) dma_44 <= 1;
     end
 end
