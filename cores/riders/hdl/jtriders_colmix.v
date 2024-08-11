@@ -71,11 +71,12 @@ reg  [23:0] bgr;
 reg         st;
 wire [ 7:0] r8, bg8;
 reg  [ 7:0] b8, g8;
+reg  [13:0] xmen_o;
 wire [10:0] pal_addr;
 wire        brit, shad, pcu_we, nc;
 // 053251 inputs
 wire [ 5:0] pri1;
-wire [ 8:0] ci0, ci2;
+wire [ 8:0] ci0, ci1, ci2;
 wire [ 7:0] ci3, ci4;
 wire [ 1:0] shd_out, shd_in;
 
@@ -86,8 +87,9 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = xmen ? { lyro_pxl[11: 9], lyro_pri, 1'b0} : {1'b1, lyro_pxl[10:9], 3'd0};
+assign pri1      = xmen ? { xmen_o[11: 9], xmen_o[13:12], 1'b0} : {1'b1, xmen_o[10:9], 3'd0};
 assign ci0       = xmen ? {lyra_pxl[6:4],lyra_pxl[11:10],lyra_pxl[3:0]} :  9'd0;
+assign ci1       = xmen ?   xmen_o[8:0] : lyro_pxl[8:0];
 assign ci2       = xmen ? {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]} : {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
 assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
 assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
@@ -125,6 +127,10 @@ wire nodimming = 0;
 `endif
 
 always @(posedge clk) begin
+    if(pxl_cen) xmen_o <= {lyro_pri, lyro_pxl};
+end
+
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bgr   <= 0;
         bsel  <= 0;
@@ -160,7 +166,7 @@ jtcolmix_053251 u_k251(
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( ci0       ),
-    .ci1        ( lyro_pxl[8:0] ),
+    .ci1        ( ci1       ),
     .ci2        ( ci2       ),
     .ci3        ( ci3       ),
     .ci4        ( ci4       ),

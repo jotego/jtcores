@@ -11,8 +11,9 @@ JTFRAME_HEIGHT=224
 JTFRAME_OSD_TEST
 
 # make Magneto's circle round
-JTFRAME_ARX=5
-JTFRAME_ARY=4
+# 4:3 looks too narrow
+JTFRAME_ARX=12
+JTFRAME_ARY=8
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128

@@ -276,11 +276,13 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
+wire [ 8:0] vmux;
 wire [13:1] orama;
 
 assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
 // xmen never exercises cpu_addr[13], although it is connected to the RAM
 assign orama = xmen ? cpu_addr[13:1] : oram_addr;
+assign vmux  = xmen ? vdump : vrender;
 
 jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -297,7 +299,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vrender   ),
+    .vdump      ( vmux      ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
     .ram_addr   ( orama     ),
