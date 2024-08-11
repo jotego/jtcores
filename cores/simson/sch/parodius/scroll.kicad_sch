@@ -22758,7 +22758,7 @@
 		)
 		(uuid "a90e99ff-6c56-4915-9da9-68c0545d053f")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 116.84 27.94 0)
 		(effects
@@ -27535,7 +27535,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "19fd4cfe-6459-4879-97fe-e8ac6023ce2e")
 		(property "Reference" "RA8"
 			(at 27.94 24.13 0)
@@ -28688,7 +28688,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "67ea7ccb-b5c2-46dd-ace7-9fd3e319bba1")
 		(property "Reference" "RA10"
 			(at 92.71 24.13 0)
@@ -29198,7 +29198,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "6faa0376-1c72-4baf-aed7-5a71247b31a8")
 		(property "Reference" "RA13"
 			(at 49.53 24.13 0)
@@ -29493,7 +29493,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "7e6f3b48-3f9e-4572-80a8-f50bc3a26c16")
 		(property "Reference" "CN7"
 			(at 146.05 54.61 0)
@@ -30271,7 +30271,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "f6ff5102-cd81-473c-bb78-bac551d27643")
 		(property "Reference" "RA12"
 			(at 71.12 24.13 0)

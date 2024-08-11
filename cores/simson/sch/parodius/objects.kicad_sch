@@ -22773,7 +22773,7 @@
 		)
 		(uuid "29667396-c311-4d40-88e5-93dbcfbb3815")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 298.45 27.94 0)
 		(effects

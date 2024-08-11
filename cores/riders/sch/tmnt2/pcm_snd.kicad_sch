@@ -14812,7 +14812,7 @@
 		)
 		(uuid "a1574b28-eaa1-48c7-8225-10fd5416c98c")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 107.95 161.29 0)
 		(effects

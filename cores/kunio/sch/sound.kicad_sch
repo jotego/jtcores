@@ -7963,7 +7963,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 1600d7a0-e601-41bf-b347-00ea4ac3cb2a)
   )
-  (text "NOT MOUNTED\n" (at 317.5 143.51 0)
+  (text "NOT POPULATED\n" (at 317.5 143.51 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b03bc945-136b-4d0b-bacd-11050cf74235)
   )

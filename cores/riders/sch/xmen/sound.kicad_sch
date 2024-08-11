@@ -21768,7 +21768,7 @@
 		)
 		(uuid "5a099f7b-47fe-46da-953f-6d5764a928a1")
 	)
-	(text "NOT MOUNTED\n"
+	(text "NOT POPULATED\n"
 		(exclude_from_sim no)
 		(at 381 212.09 0)
 		(effects
@@ -21835,7 +21835,7 @@
 		)
 		(uuid "df4ac6e0-145f-4b23-8003-9d9de145d04d")
 	)
-	(text "NOT MOUNTED\n"
+	(text "NOT POPULATED\n"
 		(exclude_from_sim no)
 		(at 382.27 44.45 0)
 		(effects

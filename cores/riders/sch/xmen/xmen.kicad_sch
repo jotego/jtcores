@@ -11135,7 +11135,7 @@
 			"GbwAAAAASUVORK5CYII="
 		)
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 85.09 162.56 0)
 		(effects

@@ -9512,7 +9512,7 @@
 			"GbwAAAAASUVORK5CYII="
 		)
 	)
-	(text "NOT MOUNTED\n"
+	(text "NOT POPULATED\n"
 		(exclude_from_sim no)
 		(at 73.66 247.65 0)
 		(effects
@@ -9545,7 +9545,7 @@
 		)
 		(uuid "1a9363f6-829f-4613-98c9-6c4fb818b85d")
 	)
-	(text "NOT MOUNTED\n"
+	(text "NOT POPULATED\n"
 		(exclude_from_sim no)
 		(at 72.39 177.8 0)
 		(effects

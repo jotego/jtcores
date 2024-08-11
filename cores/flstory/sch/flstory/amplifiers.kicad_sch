@@ -3109,7 +3109,7 @@
     (effects (font (size 0.762 0.762)) (justify left bottom))
     (uuid 4181aad4-3a9e-4993-be3e-c64d93530a11)
   )
-  (text "UK TEST? M12\nNOT MOUNTED" (at 265.43 69.215 0)
+  (text "UK TEST? M12\nNOT POPULATED" (at 265.43 69.215 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e296c844-357a-4755-b2db-7721fe57b461)
   )

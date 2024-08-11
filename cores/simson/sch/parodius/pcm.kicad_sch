@@ -14591,7 +14591,7 @@
 		)
 		(uuid "3505b3ee-81fd-43bd-8bf2-178fd613ee19")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 161.29 24.13 0)
 		(effects
@@ -18493,7 +18493,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "8ed4c18a-86db-476d-b896-8b9057c3b379")
 		(property "Reference" "CN5"
 			(at 110.49 49.53 0)

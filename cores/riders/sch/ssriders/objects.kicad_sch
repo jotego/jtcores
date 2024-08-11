@@ -29618,7 +29618,7 @@
 		)
 		(uuid "0bbffd7f-b37a-4bb8-8f61-b707f0282d36")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 96.52 193.04 0)
 		(effects
@@ -29630,7 +29630,7 @@
 		)
 		(uuid "2d2baa96-5c7a-404f-b8d0-461fe45aa56a")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 304.8 15.24 0)
 		(effects
@@ -29653,7 +29653,7 @@
 		)
 		(uuid "84ad22ba-c37d-4ee5-841b-44c3b59c930e")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 256.54 217.17 0)
 		(effects
@@ -29665,7 +29665,7 @@
 		)
 		(uuid "87f33f28-5afb-41ef-9f2b-b5ce1627767f")
 	)
-	(text "NOT MOUNTED"
+	(text "NOT POPULATED"
 		(exclude_from_sim no)
 		(at 93.98 102.87 0)
 		(effects
