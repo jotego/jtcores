@@ -30,6 +30,7 @@ debug={machines=["tmnt2", "xmen"]}
 names = [
     { machine="ssriders", names="Shoot,Jump" },
     { machine="tmnt2",    names="Shoot,Jump" },
+    { machine="xmen",     names="Attack,Jump,Mutant Power" },
 ]
 
 [header]
