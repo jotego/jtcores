@@ -33,4 +33,4 @@ This game does not use DIP switches but a small EEPROM to save the configuration
 Game           | Object Chipset            | Sound Chipset             | Remarks
 ---------------|---------------------------|---------------------------|---------------------
 xmen		   | 053246/053247             | 054539/054321             | same object chipset as simpsons
-ssriders       | 053244/053245             | 053260                    | protection chip for object RAM
+ssriders       | 053244/053245             | 053260                    | objects like parodius. Protection chip for object RAM

@@ -463,14 +463,14 @@ assign COL_MUX = F130 ? COL_ATTR_B : COL_ATTR_A;
 reg [1:0] COL_MUX_A;
 always @(*) begin
 	case(COL_MUX[3:2])
-		2'd0: {CAB, COL_MUX_A} <= REG1D80[3:0];
-		2'd1: {CAB, COL_MUX_A} <= REG1D80[7:4];
-		2'd2: {CAB, COL_MUX_A} <= REG1F00[3:0];
-		2'd3: {CAB, COL_MUX_A} <= REG1F00[7:4];
+		2'd0: {CAB, COL_MUX_A} = REG1D80[3:0];
+		2'd1: {CAB, COL_MUX_A} = REG1D80[7:4];
+		2'd2: {CAB, COL_MUX_A} = REG1F00[3:0];
+		2'd3: {CAB, COL_MUX_A} = REG1F00[7:4];
 	endcase
 end
 
 assign COL = RMRD ? RMRD_BANK :
-           { COL_MUX[7:4], REG1C00[5] ? COL_MUX[3:2] : COL_MUX_A, COL_MUX[1:0]};
+           { COL_MUX[7:4], REG1C00[6] ? COL_MUX[3:2] : COL_MUX_A, COL_MUX[1:0]};
 
 endmodule

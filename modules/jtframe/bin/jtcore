@@ -293,7 +293,7 @@ if [ ${PRJ:0:1} = - ]; then
     exit 1
 fi
 
-if [ -e $JTROOT/cores/$PRJ ]; then
+if [ -d $JTROOT/cores/$PRJ ]; then
     PRJPATH=$JTROOT/cores/$PRJ
 else
     echo -e "${rBG}ERROR:${NC}${wBG} Cannot find a valid project path${NC}"

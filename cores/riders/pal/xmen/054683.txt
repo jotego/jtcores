@@ -1,3 +1,5 @@
+Main CPU address decoding
+
 /PROG = /A20
 
 /WKCS = AS & A20 & /A19 & /A18 & /A17 & A16 & /A15 & /A14

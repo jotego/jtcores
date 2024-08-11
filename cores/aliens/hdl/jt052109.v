@@ -149,7 +149,7 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
     // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; //instead?
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
-assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
+assign reg_we      = &{we[1],cpu_addr[12:10]};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
 
@@ -188,9 +188,7 @@ always @* begin
     // RAM2   -> lower VD
     // cfg[4:2] are also used to determine how to connect the memories, but
     // all games tested so far set cfg[4:2]==3'b100, so we assume that case.
-    we[0]   = cs[0] & cpu_we & gfx_cs;
-    we[1]   = cs[1] & cpu_we & gfx_cs;
-    we[2]   = cs[2] & cpu_we & gfx_cs;
+    we = cs & {3{cpu_we & gfx_cs}};
     cpu_din = cs[2] ? cpu_ram2 : cs[1] ? cpu_ram1 : cpu_ram0;
 end
 
@@ -239,7 +237,7 @@ always @* begin
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
     col_cfg = rmrd ? mmr[REG_RMRD] :
-        { scan_dout[15:12], cfg[5]?scan_dout[11:10]:col_aux, scan_dout[9:8] };
+        { scan_dout[15:12], cfg[6]?scan_dout[11:10]:col_aux, scan_dout[9:8] };
     vflip = col_cfg[1] & vflip_en;
     vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
@@ -387,7 +385,7 @@ always @(posedge clk) begin
 end
 
 generate if(FULLRAM==1) begin
-    jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
+    jtframe_dual_nvram #(.AW(13)) u_attr(
         // Port 0: CPU
         .clk0   ( clk            ),
         .data0  ( cpu_dout       ),

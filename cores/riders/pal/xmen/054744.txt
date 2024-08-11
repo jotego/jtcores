@@ -1,3 +1,5 @@
+Sound CPU address decoding
+
 /o15 = /RFSH & MREQ & A15 & A14 & A13 & A12 & /A11
 /o12 = A15 & A14 & A13 & /A12 & A11 & A10 +
        M1 & /A15 & A14 +

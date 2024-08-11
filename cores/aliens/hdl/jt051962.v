@@ -131,8 +131,8 @@ jtframe_vtimer #(
     .VS         ( vs        )
 );
 
-function [3:0] colidx( input hf, input [31:0] data );
-    colidx = hf ? {data[24],data[16],data[ 8],data[0]} :
+function [3:0] flip4( input hf, input [31:0] data );
+    flip4 = hf ? {data[24],data[16],data[ 8],data[0]} :
                   {data[31],data[23],data[15],data[7]};
 endfunction
 
@@ -152,9 +152,9 @@ always @(posedge clk) begin
 end
 
 // note the nibble inversion for color bits
-assign lyrf_pxl = gfx_en[0] ? { colf[7:4],            colidx(  flip, pxlf_data) } :  8'd0;
-assign lyra_pxl = gfx_en[1] ? { cola[3:0], cola[7:4], colidx(hflipa, pxla_data) } : 12'd0;
-assign lyrb_pxl = gfx_en[2] ? { colb[3:0], colb[7:4], colidx(hflipb, pxlb_data) } : 12'd0;
+assign lyrf_pxl = gfx_en[0] ? { colf[7:4],            flip4(  flip, pxlf_data) } :  8'd0;
+assign lyra_pxl = gfx_en[1] ? { cola[3:0], cola[7:4], flip4(hflipa, pxla_data) } : 12'd0;
+assign lyrb_pxl = gfx_en[2] ? { colb[3:0], colb[7:4], flip4(hflipb, pxlb_data) } : 12'd0;
 
 assign lyrf_blnk_n = lyrf_pxl[3:0]!=0 & gfx_en[0];
 assign lyra_blnk_n = lyra_pxl[3:0]!=0 & gfx_en[1];

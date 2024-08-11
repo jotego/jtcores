@@ -9754,7 +9754,7 @@
 		)
 		(uuid "3062e0c2-b35e-4560-8d1b-cc5495457115")
 	)
-	(label "PRI1"
+	(label "OPRI1"
 		(at 120.65 90.17 270)
 		(fields_autoplaced yes)
 		(effects
@@ -10117,7 +10117,7 @@
 		)
 		(uuid "5c00b569-58a6-4235-8ef9-22d69667f0bb")
 	)
-	(label "PRI4"
+	(label "OPRI4"
 		(at 91.44 110.49 0)
 		(fields_autoplaced yes)
 		(effects
@@ -10656,7 +10656,7 @@
 		)
 		(uuid "b6bab6cb-6b6b-498e-99ef-d8d05eb73da1")
 	)
-	(label "PRI3"
+	(label "OPRI3"
 		(at 115.57 90.17 270)
 		(fields_autoplaced yes)
 		(effects
@@ -10689,7 +10689,7 @@
 		)
 		(uuid "bc0ca48f-3333-455c-9b01-36322e0bd30a")
 	)
-	(label "PRI0"
+	(label "OPRI0"
 		(at 123.19 90.17 270)
 		(fields_autoplaced yes)
 		(effects
@@ -11096,7 +11096,7 @@
 		)
 		(uuid "febe5e4d-fc4e-4290-bc63-4b33dee7caca")
 	)
-	(label "PRI2"
+	(label "OPRI2"
 		(at 118.11 90.17 270)
 		(fields_autoplaced yes)
 		(effects
@@ -11203,7 +11203,7 @@
 		)
 		(uuid "6831b6ec-0ce3-4e2b-828f-7222b3c841c3")
 	)
-	(hierarchical_label "PRI[4..0]"
+	(hierarchical_label "OPRI[4..0]"
 		(shape input)
 		(at 76.2 87.63 180)
 		(fields_autoplaced yes)

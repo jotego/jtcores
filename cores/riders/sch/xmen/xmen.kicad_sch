@@ -13900,7 +13900,7 @@
 		)
 		(uuid "a524a2fd-9dd1-4354-ba4d-d1e14269ab02")
 	)
-	(label "PRI[4..0]"
+	(label "OPRI[4..0]"
 		(at 384.81 38.1 180)
 		(fields_autoplaced yes)
 		(effects
@@ -14120,7 +14120,7 @@
 		)
 		(uuid "b29e70c6-cae2-4fa2-b7bc-d58ed869b8a2")
 	)
-	(label "PRI[4..0]"
+	(label "OPRI[4..0]"
 		(at 232.41 157.48 0)
 		(fields_autoplaced yes)
 		(effects
@@ -18878,7 +18878,7 @@
 			)
 			(uuid "8e7e5d11-bce9-4cb4-87e6-7fe3e3d68ab0")
 		)
-		(pin "PRI[4..0]" output
+		(pin "OPRI[4..0]" output
 			(at 368.3 38.1 0)
 			(effects
 				(font
@@ -19196,7 +19196,7 @@
 			)
 			(uuid "5c614ebe-7179-4c48-8473-82ba6217b8ad")
 		)
-		(pin "PRI[4..0]" input
+		(pin "OPRI[4..0]" input
 			(at 248.92 157.48 180)
 			(effects
 				(font
