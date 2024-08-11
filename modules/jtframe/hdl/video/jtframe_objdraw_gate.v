@@ -74,8 +74,8 @@ module jtframe_objdraw_gate #( parameter
     input               rom_ok,
     input      [31:0]   rom_data,
 
-    output     [PW-1:0] buf_pred,   // line buffer data can be altered on
-    input      [PW-1:0] buf_din,    // the fed back through these ports
+    output     [PW-1:0] buf_pred,   // line buffer data to be altered and
+    input      [PW-1:0] buf_din,    // then fed back through these ports
 
     output     [PW-1:0] pxl
 );
