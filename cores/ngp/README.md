@@ -58,6 +58,8 @@ MiSTer scaler automatically handles the awkward video format. This means that th
 
 The analog video output will not work without a frame buffer because the line period is 83.82us, very far from the typical 64us required. If the system was ignorant of the video output, it would be possible to output at a different rate but the CPU has access to the video circuitry internals and knows at which point of the line the graphics hardware is working. Therefore, only HDMI output is supported.
 
+Place your game files in the folder `games/NeoGeoPocket` together with the firmware. Name the firmware file `boot.rom`.
+
 ## MAME
 
 Supply the cartridge name with `-cart`. It is possible to boot with no cartridge too.
