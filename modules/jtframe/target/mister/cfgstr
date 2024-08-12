@@ -37,5 +37,5 @@ P1oEF,Scale,Normal,V-Integer,Narrower HV-Integer,Wider HV-Integer;
     {{ else }}                      o5,User port,Off,DB15 Joystick; {{ end }}
 {{ if .JTFRAME_CREDITS }} OC,Show credits in pause,On,Off; {{ end }}
 R0,Reset;
-{{ with .CORE_KEYMAP }} {{ . }} {{ end }}
+{{ with .MISTER_EXTRA }} {{ . }} {{ end }}
 V,v{{ .COMMIT }};
