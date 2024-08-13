@@ -8220,6 +8220,12 @@
 		(uuid "1a250d95-5b99-4ed7-91e6-3c388f6152c7")
 	)
 	(junction
+		(at 30.48 114.3)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "24ed91f8-5403-444f-a521-64602dfb24fb")
+	)
+	(junction
 		(at 48.26 257.81)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -8344,12 +8350,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d3a1ebf6-f9e0-460f-9350-7f94ae8c7500")
-	)
-	(junction
-		(at 25.4 116.84)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e3a65a07-a473-470c-a7b6-43ea7be8a4bd")
 	)
 	(junction
 		(at 35.56 257.81)
@@ -9558,7 +9558,7 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 107.95) (xy 25.4 107.95)
+			(xy 34.29 105.41) (xy 30.48 105.41)
 		)
 		(stroke
 			(width 0)
@@ -10688,6 +10688,16 @@
 	)
 	(wire
 		(pts
+			(xy 30.48 114.3) (xy 34.29 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "40e653c1-7fc6-44a9-95c2-4bddcceee39f")
+	)
+	(wire
+		(pts
 			(xy 308.61 72.39) (xy 313.69 72.39)
 		)
 		(stroke
@@ -10878,7 +10888,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 111.76) (xy 38.1 111.76)
+			(xy 31.75 109.22) (xy 34.29 109.22)
 		)
 		(stroke
 			(width 0)
@@ -11838,7 +11848,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 114.3) (xy 58.42 114.3)
+			(xy 49.53 111.76) (xy 54.61 111.76)
 		)
 		(stroke
 			(width 0)
@@ -12778,16 +12788,6 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 116.84) (xy 38.1 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b5ed6f85-7067-45e4-800c-ee7e22f17168")
-	)
-	(wire
-		(pts
 			(xy 55.88 168.91) (xy 52.07 168.91)
 		)
 		(stroke
@@ -13458,7 +13458,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 105.41) (xy 53.34 105.41)
+			(xy 54.61 102.87) (xy 49.53 102.87)
 		)
 		(stroke
 			(width 0)
@@ -13838,7 +13838,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 116.84) (xy 25.4 116.84)
+			(xy 24.13 114.3) (xy 30.48 114.3)
 		)
 		(stroke
 			(width 0)
@@ -14008,7 +14008,7 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 107.95) (xy 25.4 116.84)
+			(xy 30.48 105.41) (xy 30.48 114.3)
 		)
 		(stroke
 			(width 0)
@@ -14018,7 +14018,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 102.87) (xy 38.1 102.87)
+			(xy 31.75 100.33) (xy 34.29 100.33)
 		)
 		(stroke
 			(width 0)
@@ -15401,7 +15401,7 @@
 		(uuid "4e39b349-3b0e-4d58-8a2d-71aee1c5f5ab")
 	)
 	(label "~{WR}"
-		(at 33.02 102.87 0)
+		(at 31.75 100.33 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16446,7 +16446,7 @@
 		(uuid "b729c554-3018-4487-b1d1-407bf8a21124")
 	)
 	(label "~{MREQ}"
-		(at 17.78 116.84 0)
+		(at 24.13 114.3 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16622,7 +16622,7 @@
 		(uuid "c11d4c54-0220-4251-805a-aa3294a0d27d")
 	)
 	(label "~{SRD}"
-		(at 58.42 114.3 180)
+		(at 54.61 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16644,7 +16644,7 @@
 		(uuid "c4c590b4-066b-4c62-9ad4-8b13eaa7dbb4")
 	)
 	(label "~{RD}"
-		(at 33.02 111.76 0)
+		(at 31.75 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16853,7 +16853,7 @@
 		(uuid "d2531270-2c60-446e-add1-b3aab318c19a")
 	)
 	(label "~{SWR}"
-		(at 58.42 105.41 180)
+		(at 54.61 102.87 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -17348,7 +17348,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "01961838-8443-4b73-899b-fe43dd9ac9d8")
-		(property "Reference" "IC1"
+		(property "Reference" "IC14"
 			(at 48.26 67.31 90)
 			(effects
 				(font
@@ -17438,7 +17438,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/80543143-79bc-4377-b1d2-9be4e3eb8bc1"
-					(reference "IC1")
+					(reference "IC14")
 					(unit 1)
 				)
 			)
@@ -18668,7 +18668,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NO SE"
+		(property "Value" "33u"
 			(at 63.5 58.42 0)
 			(effects
 				(font
@@ -19087,7 +19087,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 45.72 114.3 0)
+		(at 41.91 111.76 0)
 		(unit 1)
 		(convert 2)
 		(exclude_from_sim no)
@@ -19096,7 +19096,7 @@
 		(dnp no)
 		(uuid "6b86f5a5-08cc-4189-94e2-6b7dc2a9add1")
 		(property "Reference" "IC59"
-			(at 45.72 113.03 0)
+			(at 41.91 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19104,7 +19104,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 45.72 115.57 0)
+			(at 41.91 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19112,7 +19112,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 45.72 114.3 0)
+			(at 41.91 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19121,7 +19121,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 45.72 114.3 0)
+			(at 41.91 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19130,7 +19130,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 45.72 114.3 0)
+			(at 41.91 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19457,7 +19457,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 45.72 105.41 0)
+		(at 41.91 102.87 0)
 		(unit 4)
 		(convert 2)
 		(exclude_from_sim no)
@@ -19466,7 +19466,7 @@
 		(dnp no)
 		(uuid "6da8f1b9-d259-43b5-9b73-16d07d866aed")
 		(property "Reference" "IC59"
-			(at 45.72 104.14 0)
+			(at 41.91 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19474,7 +19474,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 45.72 106.68 0)
+			(at 41.91 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19482,7 +19482,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 45.72 105.41 0)
+			(at 41.91 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19491,7 +19491,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 45.72 105.41 0)
+			(at 41.91 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19500,7 +19500,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 45.72 105.41 0)
+			(at 41.91 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20089,7 +20089,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9a220ab5-ad0c-4fc7-92fb-572772062c6e")
-		(property "Reference" "IC1"
+		(property "Reference" "IC14"
 			(at 49.53 40.64 0)
 			(effects
 				(font
@@ -20177,7 +20177,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/80543143-79bc-4377-b1d2-9be4e3eb8bc1"
-					(reference "IC1")
+					(reference "IC14")
 					(unit 2)
 				)
 			)
