@@ -110,11 +110,13 @@ if [ -d /media/$USER/MiSTer_Data ]; then
         cp $JTUTIL/jtbeta.zip /media/$USER/MiSTer_Data/games/mame
     fi
 elif ping -c 1 -q $MRHOST > /dev/null; then
-    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/_JTBIN"
-    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"
-    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/nvram/*.nvm"
-    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/dips/*"
+    MRCMD="sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST"
+    $MRCMD "rm -rf /media/fat/_JTBIN"
+    $MRCMD "rm -rf /media/fat/config/*.{cfg,CFG}"
+    $MRCMD "rm -rf /media/fat/config/nvram/*.nvm"
+    $MRCMD "rm -rf /media/fat/config/dips/*"
     if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
+        $MRCMD "cp /media/fat/_JTBIN/cores/neogeopocket.rbf /media/fat/_Console/NeoGeoPocket.rbf"
         rm -rf $TEMP
     else
         echo "Copy to MiSTer failed. Temporary files in " $TEMP
