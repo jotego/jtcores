@@ -63,6 +63,7 @@ always @(posedge clk) begin
             default: st_mux <= 0;
         endcase
     endcase
+    st_mux <= { cab_1p[1:0], coin[1:0], 1'b0,joystick1[6:4] };
 end
 /* verilator tracing_on */
 jtngp_main u_main(

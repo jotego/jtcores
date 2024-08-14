@@ -11,7 +11,7 @@ JTFRAME_SKIP
 [mist|sidi]
 JTFRAME_NOSTA
 
-[all]
+[*]
 S16B
 
 # instance names

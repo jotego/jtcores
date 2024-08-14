@@ -2,7 +2,7 @@
 
 Macros are expected in the file *cores/corename/cfg/macros.def*. From there, other files can be included. The *macros.def* file accepts target-specific macros. Check for examples in JT cores, such as [kicker](https://github.com/jotego/jtkicker).
 
-Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools.
+Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools. Macros are available for verilog files and also verilator C++ files. For C++, the macro name is added an initial underscore, so `ABC` becomes `_ABC`
 
 Macros in *macros.def* can have different values for a given target platform, using the following syntax:
 
@@ -15,9 +15,33 @@ FOO=6
 [mist*]
 # and in mist/mister platforms, it will be 7
 FOO=7
+[*]
+# matches all targets
 ```
 
 The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
+
+Macro files can include other macro files with `include <path-to-def-file>`. Note that the path is relative to the current .def file being parsed.
+
+Macro declarations starting with `debug` are not parsed for release compilations:
+
+```
+[*]
+debug SHOWINFO
+ABC
+```
+
+Will ignore SHOWINFO when JTFRAME_RELEASE is defined. ABC will always be defined.
+
+Macros can be removed by preceding them with a minus sign:
+
+```
+ABC
+[mist]
+-ABC
+```
+
+Will remove the ABC macro for the MiST target.
 
 # System Name
 

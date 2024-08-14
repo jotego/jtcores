@@ -20,6 +20,7 @@ package def
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -45,6 +46,27 @@ type Config struct {
 	Verbose bool
 }
 
+// returns true if the .def file section changes
+// each section is marked with [target-name]
+// multiple valid targets can be listed separated with | as in [sidi|mister]
+// Glob (use of * and ?) matching will select the current target
+func extract_section( line string, target string, section *string ) (bool,error) {
+	if line[0] != '[' { return false, nil }
+	idx := strings.Index(line, "]")
+	if idx == -1 { return false, errors.New("Unclosed bracket. Expecting ]") }
+	sections := strings.Split(strings.TrimSpace(line[1:idx]), "|")
+	for _, name := range sections {
+		*section = strings.TrimSpace(name)
+		found, e := filepath.Match(*section,target)
+		if found {
+			*section = target
+			return true, nil
+		}
+		if e!=nil { return false, e }
+	}
+	return true, nil
+}
+
 func parse_def(path string, target string, macros map[string]string) {
 	if path == "" {
 		return
@@ -56,71 +78,59 @@ func parse_def(path string, target string, macros map[string]string) {
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
-	section := "all"
+	section := target
 	linecnt := 0
 
 	for scanner.Scan() {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
-		if len(line) == 0 || line[0] == '#' {
+		if len(line) == 0 || line[0] == '#' { continue }
+		change, e := extract_section(line, target, &section)
+		if change { continue }
+		if e!=nil {
+			fmt.Println("Malformed expression at line ", linecnt, " of file ", path)
+			fmt.Println(e)
+			os.Exit(1)
+		}
+		if section != target { continue }
+		// Look for keywords
+		words := strings.SplitN(line, " ", 2)
+		words[0] = strings.ToLower(words[0])
+		if words[0] == "include" {
+			// Include files are relative to the calling file,
+			// unless they start with /
+			slash := strings.LastIndex(path, "/")
+			inc := words[1]
+			if slash != -1 && inc[0] != '/' {
+				inc = path[0:slash+1] + inc
+			}
+			parse_def(inc, target, macros)
 			continue
 		}
-		if line[0] == '[' {
-			idx := strings.Index(line, "]")
-			if idx == -1 {
-				fmt.Println("Malformed expression at line ", linecnt, " of file ", path)
-				log.Fatal("Bad def file")
-			}
-			sections := strings.Split(strings.TrimSpace(line[1:idx]), "|")
-			for _, s := range sections {
-				section = strings.TrimSpace(s)
-				var m bool
-				var e error
-				if m,e = filepath.Match(section,target); m {
-					section = target
-					break
-				}
-				if e!=nil {
-					fmt.Printf("Malformed expression in .def file: %s\n", section)
-					os.Exit(1)
-				}
-			}
-			continue
+		// lines starting with debug are not parsed for release builds
+		if words[0] == "debug" {
+			if _, fnd := macros["JTFRAME_RELEASE"]; fnd { continue }
+			line=line[5:] // remove the debug word from the line
 		}
-		if section == "all" || section == target {
-			// Look for keywords
-			words := strings.SplitN(line, " ", 2)
-			if words[0] == "include" {
-				// Include files are relative to the calling file,
-				// unless they start with /
-				slash := strings.LastIndex(path, "/")
-				inc := words[1]
-				if slash != -1 && inc[0] != '/' {
-					inc = path[0:slash+1] + inc
-				}
-				parse_def(inc, target, macros)
-				continue
-			}
-			words = strings.SplitN(line, "=", 2)
-			key := strings.ToUpper(strings.TrimSpace(words[0]))
-			if key[0] == '-' {
-				// Removes key
-				key = key[1:]
-				delete(macros, key)
-			} else {
-				if len(words) > 1 {
-					val := strings.TrimSpace(words[1])
-					if len(key) > 2 && key[len(key)-1] == '+' {
-						key = key[0 : len(key)-1]
-						old, e := macros[key]
-						if e {
-							val = old + val
-						}
+		words = strings.SplitN(line, "=", 2)
+		key := strings.ToUpper(strings.TrimSpace(words[0]))
+		if key[0] == '-' {
+			// Removes key
+			key = key[1:]
+			delete(macros, key)
+		} else {
+			if len(words) > 1 {
+				val := strings.TrimSpace(words[1])
+				if len(key) > 2 && key[len(key)-1] == '+' {
+					key = key[0 : len(key)-1]
+					old, e := macros[key]
+					if e {
+						val = old + val
 					}
-					macros[key] = val
-				} else {
-					macros[key] = "1"
 				}
+				macros[key] = val
+			} else {
+				macros[key] = "1"
 			}
 		}
 	}

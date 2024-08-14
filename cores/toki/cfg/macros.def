@@ -1,4 +1,4 @@
-[all]
+[*]
 # support for core names not starting with JT
 # seems incomplete at the moment
 CORENAME=JTTOKI

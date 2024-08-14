@@ -1,4 +1,4 @@
-[all]
+[*]
 # Clocks
 JTFRAME_CLK48
 JTFRAME_SDRAM96

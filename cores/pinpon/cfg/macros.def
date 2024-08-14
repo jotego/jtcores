@@ -1,4 +1,4 @@
-[all]
+[*]
 include ../../kicker/cfg/common.def
 
 CORENAME=JTPINPON

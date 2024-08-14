@@ -1,4 +1,4 @@
-[all]
+[*]
 include common.def
 
 CORENAME=JTKICKER
