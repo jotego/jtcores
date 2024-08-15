@@ -3936,6 +3936,18 @@
 		)
 		(uuid "fde456da-c868-4b0a-9326-c2ffe9b309d2")
 	)
+	(hierarchical_label "IC82_12"
+		(shape passive)
+		(at 86.36 226.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "057fc952-aa29-4a9f-a63f-8f233605a210")
+	)
 	(hierarchical_label "IC7_13"
 		(shape passive)
 		(at 99.06 170.18 0)
@@ -3984,6 +3996,18 @@
 		)
 		(uuid "0a8dbbe6-57df-4bdc-b220-356ed4775b10")
 	)
+	(hierarchical_label "IC44_2"
+		(shape passive)
+		(at 99.06 200.66 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1091f8a0-3413-4ab7-9be0-a0e5bed9eaf3")
+	)
 	(hierarchical_label "IC94_11"
 		(shape passive)
 		(at 86.36 205.74 180)
@@ -4007,6 +4031,30 @@
 			(justify right)
 		)
 		(uuid "1ae6bc09-e737-4ad3-a02b-74b76d9c8378")
+	)
+	(hierarchical_label "IC50_13"
+		(shape passive)
+		(at 86.36 198.12 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2419b27f-a92f-4fb3-b876-2d50fc7c2010")
+	)
+	(hierarchical_label "IC3_6"
+		(shape passive)
+		(at 86.36 208.28 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2664d560-ea8c-4cb6-8609-7df6f49793c2")
 	)
 	(hierarchical_label "IC7_3"
 		(shape passive)
@@ -4164,6 +4212,30 @@
 		)
 		(uuid "4e8988a9-d8d7-4e48-8a3a-9b322974f97e")
 	)
+	(hierarchical_label "IC67_15"
+		(shape passive)
+		(at 86.36 215.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4ed165e3-2387-4fba-aeb9-b261a9475716")
+	)
+	(hierarchical_label "IC44_1"
+		(shape passive)
+		(at 86.36 195.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "51b0fbf2-b956-40db-b8b2-35b0ab2be93a")
+	)
 	(hierarchical_label "IC9_10"
 		(shape passive)
 		(at 86.36 180.34 180)
@@ -4175,6 +4247,30 @@
 			(justify right)
 		)
 		(uuid "52ed7077-3aeb-4cd0-8b5a-b3d1480f2293")
+	)
+	(hierarchical_label "IC58_10"
+		(shape passive)
+		(at 86.36 187.96 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5329d084-4c81-4aac-9082-ad0bac0a0fd2")
+	)
+	(hierarchical_label "IC72_1"
+		(shape passive)
+		(at 99.06 195.58 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "556fd54c-9c7b-4f9a-ad0f-f101118ba6f2")
 	)
 	(hierarchical_label "IC10_10"
 		(shape passive)
@@ -4200,7 +4296,7 @@
 		)
 		(uuid "623d8cc9-81b7-4edf-b268-397100b5d577")
 	)
-	(hierarchical_label "IC29_6"
+	(hierarchical_label "MA9"
 		(shape passive)
 		(at 86.36 133.35 180)
 		(fields_autoplaced yes)
@@ -4248,6 +4344,18 @@
 		)
 		(uuid "8c1a1cdc-95b0-49c7-bdcd-5701dc127a49")
 	)
+	(hierarchical_label "IC58_11"
+		(shape passive)
+		(at 99.06 185.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8fd98e32-e1c8-4a5f-ad8a-339e71163383")
+	)
 	(hierarchical_label "IC11_10"
 		(shape passive)
 		(at 99.06 193.04 0)
@@ -4271,6 +4379,18 @@
 			(justify left)
 		)
 		(uuid "a6cd0642-3f09-4ad9-9c46-0a3527ed20bf")
+	)
+	(hierarchical_label "~{RST}"
+		(shape passive)
+		(at 99.06 205.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a79767cf-e87b-4ca5-9154-42aea81e815c")
 	)
 	(hierarchical_label "IC4_7"
 		(shape passive)
@@ -4368,6 +4488,30 @@
 		)
 		(uuid "c07e1cac-153f-49cc-9bf2-0550c0b66b57")
 	)
+	(hierarchical_label "IC67_12"
+		(shape passive)
+		(at 86.36 218.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c0b4a6d7-38ad-490c-8e3a-96429cb3f0ee")
+	)
+	(hierarchical_label "IC38_1"
+		(shape passive)
+		(at 99.06 198.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c99bfc2c-5090-40f2-a67f-0a2f0c1f1cb5")
+	)
 	(hierarchical_label "IC11_11"
 		(shape passive)
 		(at 86.36 135.89 180)
@@ -4382,7 +4526,7 @@
 	)
 	(hierarchical_label "IC66_11"
 		(shape passive)
-		(at 86.36 208.28 180)
+		(at 86.36 210.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4390,7 +4534,19 @@
 			)
 			(justify right)
 		)
-		(uuid "f44b09ea-f067-47d5-a8b6-3708e473a67b")
+		(uuid "f125a536-85f5-4677-ab1f-e5b8498d8368")
+	)
+	(hierarchical_label "IC50_12"
+		(shape passive)
+		(at 86.36 200.66 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f1d4cdd2-c546-43da-9fc8-57d74b9ac37f")
 	)
 	(hierarchical_label "IC4_3"
 		(shape passive)
