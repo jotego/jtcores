@@ -1,55 +1,4 @@
-# Macro Definition
-
-Macros are expected in the file *cores/corename/cfg/macros.def*. From there, other files can be included. The *macros.def* file accepts target-specific macros. Check for examples in JT cores, such as [kicker](https://github.com/jotego/jtkicker).
-
-Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools. Macros are available for verilog files and also verilator C++ files. For C++, the macro name is added an initial underscore, so `ABC` becomes `_ABC`
-
-Macros in *macros.def* can have different values for a given target platform, using the following syntax:
-
-```
-# defines FOO as 4
-FOO=4
-[sidi]
-# but in the sidi platform, it will become 6
-FOO=6
-[mist*]
-# and in mist/mister platforms, it will be 7
-FOO=7
-[*]
-# matches all targets
-```
-
-The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
-
-Macro files can include other macro files with `include <path-to-def-file>`. Note that the path is relative to the current .def file being parsed.
-
-Macro declarations starting with `debug` are not parsed for release compilations:
-
-```
-[*]
-debug SHOWINFO
-ABC
-```
-
-Will ignore SHOWINFO when JTFRAME_RELEASE is defined. ABC will always be defined.
-
-Macros can be removed by preceding them with a minus sign:
-
-```
-ABC
-[mist]
--ABC
-```
-
-Will remove the ABC macro for the MiST target.
-
 # System Name
-
-There are two macros that define the core name the FPGA will use when communicating with the rest of the target platform. This is the name that MiST(er) display in the side of the OSD menu under some circumstances. It is also the name used for compilation files and the RBF file name. If undefined, the core folder name will be used. CORENAME is a way of using a different name for the core folder and the core itself.
-
-The core's game module that connects to the target top module is set by GAMETOP. If undefined, it will default to $CORENAME_game (or $CORENAME_game_sdram when cfg/mem.yaml exists). $CORENAME is used in lower case for the GAMETOP.
-
-A macro for the core folder name in capitals is always defined and can be used in `ifdef` statements when a file is common to several cores.
 
 Macro         |  Usage                  | Default Value
 --------------|-------------------------|------------------
@@ -255,4 +204,3 @@ JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vert
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text
-

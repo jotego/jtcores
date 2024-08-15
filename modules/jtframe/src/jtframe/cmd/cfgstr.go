@@ -32,7 +32,7 @@ var extra_def, extra_undef string
 var cfgstrCmd = &cobra.Command{
 	Use:   "cfgstr <core-name>",
 	Short: `Parses the macros.def file in the cfg folder`,
-	Long: common.Doc2string("macros.md"),
+	Long: common.Doc2string("jtframe-cfgstr.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg.Core = args[0]
 		cfgstr.Run(cfg, args, extra_def, extra_undef)

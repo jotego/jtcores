@@ -85,6 +85,8 @@ func parse_def(path string, target string, macros map[string]string) {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
 		if len(line) == 0 || line[0] == '#' { continue }
+
+		// parse new sections
 		change, e := extract_section(line, target, &section)
 		if change { continue }
 		if e!=nil {
@@ -93,6 +95,7 @@ func parse_def(path string, target string, macros map[string]string) {
 			os.Exit(1)
 		}
 		if section != target { continue }
+
 		// Look for keywords
 		words := strings.SplitN(line, " ", 2)
 		words[0] = strings.ToLower(words[0])
@@ -114,25 +117,35 @@ func parse_def(path string, target string, macros map[string]string) {
 		}
 		words = strings.SplitN(line, "=", 2)
 		key := strings.ToUpper(strings.TrimSpace(words[0]))
+		// Removes key
 		if key[0] == '-' {
-			// Removes key
 			key = key[1:]
 			delete(macros, key)
-		} else {
-			if len(words) > 1 {
-				val := strings.TrimSpace(words[1])
-				if len(key) > 2 && key[len(key)-1] == '+' {
-					key = key[0 : len(key)-1]
-					old, e := macros[key]
-					if e {
-						val = old + val
-					}
+			continue
+		}
+		// macro set without content
+		if len(words) ==1 {
+			macros[key] = "1"
+			continue
+		}
+		val := strings.TrimSpace(words[1])
+		// += will concatenate string values or add up integer values
+		if len(key) > 2 && key[len(key)-1] == '+' {
+			key = key[0 : len(key)-1]
+			old, found := macros[key]
+			if found {
+				oldint, err1 := strconv.ParseInt(old,0,64)
+				newint, err2 := strconv.ParseInt(val,0,64)
+				if err1==nil && err2==nil {
+					// integer addition
+					val=fmt.Sprintf("%d",oldint+newint)
+				} else {
+					// string concatenation
+					val = old + val
 				}
-				macros[key] = val
-			} else {
-				macros[key] = "1"
 			}
 		}
+		macros[key] = val
 	}
 	return
 }
