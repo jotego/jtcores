@@ -235,6 +235,15 @@ func parse_target( target string, macros map[string]string) {
 func Make_macros(cfg Config) (macros map[string]string) {
 	macros = make(map[string]string)
 	parse_target(cfg.Target, macros)
+	// Add macros in cfg.add
+	for _, def := range cfg.Add {
+		split := strings.SplitN(def, "=", 2)
+		if len(split) == 2 {
+			macros[split[0]] = split[1]
+		} else {
+			macros[split[0]] = "1"
+		}
+	}
 	parse_def(DefPath(cfg), cfg.Target, macros)
 	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml"))
 	f.Close()
@@ -331,15 +340,6 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	// Delete macros listed in cfg.discard
 	for _, undef := range cfg.Discard {
 		delete(macros, undef)
-	}
-	// Add macros in cfg.add
-	for _, def := range cfg.Add {
-		split := strings.SplitN(def, "=", 2)
-		if len(split) == 2 {
-			macros[split[0]] = split[1]
-		} else {
-			macros[split[0]] = "1"
-		}
 	}
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
