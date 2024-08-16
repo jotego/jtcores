@@ -6357,7 +6357,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "77e4d7b4-ccea-49ad-bcbf-30addc392c1d")
-		(property "Reference" "IC1"
+		(property "Reference" "IC69"
 			(at 250.19 210.82 0)
 			(effects
 				(font
@@ -6445,7 +6445,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/0eed0e12-7f29-43c8-9187-1dba333c6bd2"
-					(reference "IC1")
+					(reference "IC69")
 					(unit 2)
 				)
 			)
@@ -6678,7 +6678,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c69a7870-8cea-413f-b8b8-d837f20c714a")
-		(property "Reference" "IC1"
+		(property "Reference" "IC69"
 			(at 250.19 151.13 0)
 			(effects
 				(font
@@ -6766,7 +6766,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/0eed0e12-7f29-43c8-9187-1dba333c6bd2"
-					(reference "IC1")
+					(reference "IC69")
 					(unit 3)
 				)
 			)

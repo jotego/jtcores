@@ -556,28 +556,28 @@
       "bottom"
     ],
     [
+      "db7b559e-8001-4890-bfc1-c178d66af43a",
+      "sound"
+    ],
+    [
       "e23a4357-b221-46f5-8d95-f07964f6206a",
       "char"
-    ],
-    [
-      "338d9dc1-eb27-47ab-afaf-2f1b9b524392",
-      "Char pixels"
-    ],
-    [
-      "0eed0e12-7f29-43c8-9187-1dba333c6bd2",
-      "color mixer"
-    ],
-    [
-      "4797cad5-7c95-436c-9a22-46696e0ab579",
-      "io"
     ],
     [
       "3712bf97-ae54-4a8f-a69b-762d5add97b7",
       "main"
     ],
     [
-      "db7b559e-8001-4890-bfc1-c178d66af43a",
-      "sound"
+      "4797cad5-7c95-436c-9a22-46696e0ab579",
+      "io"
+    ],
+    [
+      "0eed0e12-7f29-43c8-9187-1dba333c6bd2",
+      "color mixer"
+    ],
+    [
+      "338d9dc1-eb27-47ab-afaf-2f1b9b524392",
+      "Char pixels"
     ]
   ],
   "text_variables": {}
