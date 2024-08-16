@@ -46,6 +46,20 @@
 		)
 		(uuid cbf49602-ae34-4fa5-b109-202ed2a56ea1)
 	)
+	(text "THIS IS THE LATEST VERSION"
+		(exclude_from_sim no)
+		(at 210.82 64.77 0)
+		(effects
+			(font
+				(face "Carlito")
+				(size 10.16 10.16)
+				(thickness 0.508)
+				(bold yes)
+				(color 255 0 0 1)
+			)
+		)
+		(uuid "9ce8c6a3-9767-4350-bbfd-a0565e7ac961")
+	)
 	(sheet
 		(at 217.17 72.39)
 		(size 127 127)

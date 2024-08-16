@@ -1398,6 +1398,434 @@
 				)
 			)
 		)
+		(symbol "74xx:74LS05"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "74LS05"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Inverter Open Collect"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_locked" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "TTL not inv OpenCol"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "DIP*W7.62mm*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "74LS05_1_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_2_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_3_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_4_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_5_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_6_0"
+				(polyline
+					(pts
+						(xy -3.81 3.81) (xy -3.81 -3.81) (xy 3.81 0) (xy -3.81 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin open_collector inverted
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 3.81)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_7_0"
+				(pin power_in line
+					(at 0 12.7 270)
+					(length 5.08)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -12.7 90)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "74LS05_7_1"
+				(rectangle
+					(start -5.08 7.62)
+					(end 5.08 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+		)
 		(symbol "74xx:74LS10"
 			(pin_names
 				(offset 1.016)
@@ -12569,16 +12997,6 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 148.59) (xy 267.97 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18d9df6c-457f-4a2f-9650-46a261e9a2a7")
-	)
-	(wire
-		(pts
 			(xy 52.07 77.47) (xy 57.15 77.47)
 		)
 		(stroke
@@ -12626,16 +13044,6 @@
 			(type default)
 		)
 		(uuid "1c06c4b3-6563-40b4-bf05-7c2c60f99523")
-	)
-	(wire
-		(pts
-			(xy 67.31 278.13) (xy 67.31 283.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1c5b5905-9595-4197-885c-7ba4a0b80166")
 	)
 	(wire
 		(pts
@@ -13879,16 +14287,6 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 138.43) (xy 267.97 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67a2911f-4407-4a1e-9851-3d70051a591a")
-	)
-	(wire
-		(pts
 			(xy 158.75 125.73) (xy 165.1 125.73)
 		)
 		(stroke
@@ -13966,16 +14364,6 @@
 			(type default)
 		)
 		(uuid "6c1d3cc5-5f16-450f-8ec9-363063222aab")
-	)
-	(wire
-		(pts
-			(xy 67.31 262.89) (xy 67.31 257.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6ccde396-ff15-4fc8-972e-ba3bd809c9b8")
 	)
 	(wire
 		(pts
@@ -15439,16 +15827,6 @@
 	)
 	(wire
 		(pts
-			(xy 267.97 138.43) (xy 267.97 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d00ab559-ec2f-4710-9276-962b9ccd497e")
-	)
-	(wire
-		(pts
 			(xy 303.53 36.83) (xy 308.61 36.83)
 		)
 		(stroke
@@ -16563,6 +16941,16 @@
 		)
 		(uuid "6a3a1c99-781b-4fd1-90f9-e7f0508244df")
 	)
+	(text "Seguir pistas "
+		(exclude_from_sim no)
+		(at 242.57 110.49 0)
+		(effects
+			(font
+				(size 3.81 3.81)
+			)
+		)
+		(uuid "74b04f9e-e10d-4e83-a170-53b5a2ad027b")
+	)
 	(text "DONE"
 		(exclude_from_sim no)
 		(at 185.42 92.71 0)
@@ -16589,9 +16977,9 @@
 		)
 		(uuid "940d580e-1a05-41a4-a777-91ecd41ce5f1")
 	)
-	(text "no encuentro nada"
+	(text "unable to track"
 		(exclude_from_sim no)
-		(at 278.13 143.51 0)
+		(at 262.89 137.16 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20103,7 +20491,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "02b237cc-8f0f-4acd-995f-59f2100481df")
-		(property "Reference" "IC18"
+		(property "Reference" "IC82"
 			(at 87.2841 16.51 0)
 			(effects
 				(font
@@ -20193,7 +20581,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC18")
+					(reference "IC82")
 					(unit 1)
 				)
 			)
@@ -20208,7 +20596,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "049706da-d0cc-42bc-ae2a-0058393d9ae0")
-		(property "Reference" "IC54"
+		(property "Reference" "IC49"
 			(at 182.88 166.37 0)
 			(effects
 				(font
@@ -20314,7 +20702,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC54")
+					(reference "IC49")
 					(unit 1)
 				)
 			)
@@ -20329,7 +20717,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0799c92f-c3e0-40f0-8e65-e47c584ae868")
-		(property "Reference" "IC4"
+		(property "Reference" "IC18"
 			(at 358.14 179.07 0)
 			(effects
 				(font
@@ -20417,7 +20805,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC4")
+					(reference "IC18")
 					(unit 4)
 				)
 			)
@@ -20432,7 +20820,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0906f495-5e8e-42ca-9249-9f124efc5540")
-		(property "Reference" "IC47"
+		(property "Reference" "IC65"
 			(at 66.04 33.02 0)
 			(effects
 				(font
@@ -20528,7 +20916,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC47")
+					(reference "IC65")
 					(unit 1)
 				)
 			)
@@ -20543,7 +20931,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "09fe8c84-4726-4de6-8276-be2bf5b86808")
-		(property "Reference" "IC45"
+		(property "Reference" "IC66"
 			(at 36.83 60.96 0)
 			(effects
 				(font
@@ -20633,7 +21021,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC45")
+					(reference "IC66")
 					(unit 1)
 				)
 			)
@@ -20648,7 +21036,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0f6cb74f-de5e-4e96-bdd4-b0933db76a5b")
-		(property "Reference" "IC52"
+		(property "Reference" "IC2"
 			(at 184.15 96.52 0)
 			(effects
 				(font
@@ -20748,7 +21136,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC52")
+					(reference "IC2")
 					(unit 1)
 				)
 			)
@@ -20763,7 +21151,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "18ca57aa-4798-4d4c-a297-20d4dcc7b81e")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 227.33 180.34 0)
 			(effects
 				(font
@@ -20852,7 +21240,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 3)
 				)
 			)
@@ -20867,7 +21255,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1b068b1a-a8ab-4011-8cc7-eb9e034f14af")
-		(property "Reference" "IC57"
+		(property "Reference" "IC48"
 			(at 241.3 133.35 0)
 			(effects
 				(font
@@ -20955,7 +21343,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC57")
+					(reference "IC48")
 					(unit 1)
 				)
 			)
@@ -20970,7 +21358,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "240be089-16bb-4571-b5a7-e561d7790457")
-		(property "Reference" "IC44"
+		(property "Reference" "IC1"
 			(at 33.02 269.24 0)
 			(effects
 				(font
@@ -21058,113 +21446,8 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC44")
+					(reference "IC1")
 					(unit 5)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS05")
-		(at 100.33 321.31 0)
-		(unit 4)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "26e27386-2c72-4e2e-a1fe-b4e5ae4b2a9c")
-		(property "Reference" "IC48"
-			(at 96.52 321.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "74LS05"
-			(at 100.33 314.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 321.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 100.33 321.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inverter Open Collect"
-			(at 100.33 321.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "7"
-			(uuid "70e5f970-a2e9-4fec-be1e-0e635c18304f")
-		)
-		(pin "14"
-			(uuid "e84ea33a-c4ba-4b9a-9b88-57a1d2936f64")
-		)
-		(pin "13"
-			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c48")
-		)
-		(pin "10"
-			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5ee")
-		)
-		(pin "11"
-			(uuid "30da350a-0d53-43fb-a562-0d176689813e")
-		)
-		(pin "9"
-			(uuid "3697f910-5f6f-4ec1-b23b-7278efb752f6")
-		)
-		(pin "1"
-			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4c")
-		)
-		(pin "8"
-			(uuid "8aaea368-0867-47bf-a3a5-fd7809fc5c00")
-		)
-		(pin "4"
-			(uuid "9322c65b-98d9-4f18-9b94-937c527a4316")
-		)
-		(pin "3"
-			(uuid "59967be7-822b-4a07-a9cd-e4c231183d6f")
-		)
-		(pin "2"
-			(uuid "3198686d-8179-4525-86cb-01bfb5d84e81")
-		)
-		(pin "6"
-			(uuid "1b810f82-3319-4efd-9441-c3d33085db80")
-		)
-		(pin "12"
-			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5b9")
-		)
-		(pin "5"
-			(uuid "2a880051-5642-419c-bdc7-dd806394799b")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
-					(unit 4)
 				)
 			)
 		)
@@ -21179,8 +21462,8 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2821937c-a8ed-4065-98cd-410e7ed2e2c6")
-		(property "Reference" "IC48"
-			(at 81.28 113.03 0)
+		(property "Reference" "IC83"
+			(at 81.28 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21189,7 +21472,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 81.28 110.49 0)
+			(at 81.28 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21269,7 +21552,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
+					(reference "IC83")
 					(unit 2)
 				)
 			)
@@ -21285,7 +21568,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3229f7a0-d3d3-4705-a57d-834eb3917237")
-		(property "Reference" "IC62"
+		(property "Reference" "IC30"
 			(at 342.9 226.06 0)
 			(effects
 				(font
@@ -21381,7 +21664,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC62")
+					(reference "IC30")
 					(unit 1)
 				)
 			)
@@ -21396,7 +21679,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3a1587bb-9e3d-450b-a9cc-51acce1a2838")
-		(property "Reference" "IC13"
+		(property "Reference" "IC3"
 			(at 341.63 181.61 0)
 			(effects
 				(font
@@ -21485,7 +21768,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC13")
+					(reference "IC3")
 					(unit 1)
 				)
 			)
@@ -21500,7 +21783,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "411a24fe-8c4e-4676-badc-c909cd58f874")
-		(property "Reference" "IC3"
+		(property "Reference" "IC37"
 			(at 227.33 190.5 0)
 			(effects
 				(font
@@ -21588,7 +21871,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC3")
+					(reference "IC37")
 					(unit 4)
 				)
 			)
@@ -21604,7 +21887,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "42ecd112-344e-4e36-8c3e-1bbd98b4affa")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 205.74 189.23 0)
 			(effects
 				(font
@@ -21693,7 +21976,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 4)
 				)
 			)
@@ -21708,7 +21991,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4c292636-81ce-4c9c-b576-251d86409172")
-		(property "Reference" "IC63"
+		(property "Reference" "IC15"
 			(at 358.14 25.4 0)
 			(effects
 				(font
@@ -21838,7 +22121,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC63")
+					(reference "IC15")
 					(unit 1)
 				)
 			)
@@ -21854,8 +22137,8 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4eee6c75-6f5a-434b-ba48-a861c8158909")
-		(property "Reference" "IC48"
-			(at 81.28 123.19 0)
+		(property "Reference" "IC83"
+			(at 81.28 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21864,7 +22147,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 81.28 120.65 0)
+			(at 81.28 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21944,7 +22227,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
+					(reference "IC83")
 					(unit 1)
 				)
 			)
@@ -21959,7 +22242,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "55f99e94-148b-4ebe-9dbc-c7cf966708bc")
-		(property "Reference" "IC46"
+		(property "Reference" "IC17"
 			(at 354.33 99.06 0)
 			(effects
 				(font
@@ -22047,111 +22330,8 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC46")
+					(reference "IC17")
 					(unit 3)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS05")
-		(at 67.31 270.51 0)
-		(unit 7)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5f9e0913-bfdb-4e5b-853d-4d5826c7b37f")
-		(property "Reference" "IC48"
-			(at 67.31 269.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS05"
-			(at 67.31 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 67.31 270.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 67.31 270.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inverter Open Collect"
-			(at 67.31 270.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "7"
-			(uuid "3cecc70c-2ac8-48d8-80dc-1611707b2cda")
-		)
-		(pin "14"
-			(uuid "0e84fb72-96be-4eee-b657-b02c9f08bf21")
-		)
-		(pin "13"
-			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4b")
-		)
-		(pin "10"
-			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f1")
-		)
-		(pin "11"
-			(uuid "30da350a-0d53-43fb-a562-0d1766898141")
-		)
-		(pin "9"
-			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7f9")
-		)
-		(pin "1"
-			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4e")
-		)
-		(pin "8"
-			(uuid "f6c79261-3d64-425c-a6ce-db882fd65374")
-		)
-		(pin "4"
-			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
-		)
-		(pin "3"
-			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
-		)
-		(pin "2"
-			(uuid "3198686d-8179-4525-86cb-01bfb5d84e83")
-		)
-		(pin "6"
-			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
-		)
-		(pin "12"
-			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bc")
-		)
-		(pin "5"
-			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
-					(unit 7)
 				)
 			)
 		)
@@ -22165,7 +22345,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6373ebd9-0c26-4f41-a66b-383a91cf19da")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 19.05 269.24 0)
 			(effects
 				(font
@@ -22255,7 +22435,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 7)
 				)
 			)
@@ -22271,7 +22451,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6650fac9-57a6-4627-a8dd-fcbc5246c3c8")
-		(property "Reference" "IC55"
+		(property "Reference" "IC35"
 			(at 241.3 21.59 0)
 			(effects
 				(font
@@ -22413,114 +22593,8 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC55")
+					(reference "IC35")
 					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS05")
-		(at 100.33 326.39 0)
-		(mirror y)
-		(unit 5)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6b7d7757-1ce4-4830-a423-ff05b8611e57")
-		(property "Reference" "IC48"
-			(at 104.14 326.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "74LS05"
-			(at 100.33 320.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 326.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 100.33 326.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inverter Open Collect"
-			(at 100.33 326.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "7"
-			(uuid "70e5f970-a2e9-4fec-be1e-0e635c183052")
-		)
-		(pin "14"
-			(uuid "e84ea33a-c4ba-4b9a-9b88-57a1d2936f67")
-		)
-		(pin "13"
-			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4c")
-		)
-		(pin "10"
-			(uuid "0daf0b80-c3a0-4e51-a9e2-1dc4e660ab21")
-		)
-		(pin "11"
-			(uuid "2751688a-b359-405b-a36c-0e3216d02654")
-		)
-		(pin "9"
-			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7fa")
-		)
-		(pin "1"
-			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4f")
-		)
-		(pin "8"
-			(uuid "f6c79261-3d64-425c-a6ce-db882fd65375")
-		)
-		(pin "4"
-			(uuid "9322c65b-98d9-4f18-9b94-937c527a4319")
-		)
-		(pin "3"
-			(uuid "59967be7-822b-4a07-a9cd-e4c231183d72")
-		)
-		(pin "2"
-			(uuid "3198686d-8179-4525-86cb-01bfb5d84e84")
-		)
-		(pin "6"
-			(uuid "1b810f82-3319-4efd-9441-c3d33085db84")
-		)
-		(pin "12"
-			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bd")
-		)
-		(pin "5"
-			(uuid "2a880051-5642-419c-bdc7-dd806394799f")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
-					(unit 5)
 				)
 			)
 		)
@@ -22534,7 +22608,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6c982d8b-faad-48ea-8cab-2ac7687e58d4")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 227.33 171.45 0)
 			(effects
 				(font
@@ -22622,7 +22696,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 2)
 				)
 			)
@@ -22637,7 +22711,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6ea63c01-c78b-4358-8d08-ed465144dd17")
-		(property "Reference" "IC3"
+		(property "Reference" "IC37"
 			(at 350.52 208.28 0)
 			(effects
 				(font
@@ -22725,7 +22799,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC3")
+					(reference "IC37")
 					(unit 3)
 				)
 			)
@@ -22740,7 +22814,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7948663a-c2f7-4f76-8baa-0e40006aea6b")
-		(property "Reference" "IC50"
+		(property "Reference" "IC75"
 			(at 182.88 25.4 0)
 			(effects
 				(font
@@ -22846,7 +22920,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC50")
+					(reference "IC75")
 					(unit 1)
 				)
 			)
@@ -22862,7 +22936,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "85da5cbf-8cab-425e-b89d-f9b48485a8bd")
-		(property "Reference" "IC3"
+		(property "Reference" "IC37"
 			(at 227.33 199.39 0)
 			(effects
 				(font
@@ -22950,7 +23024,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC3")
+					(reference "IC37")
 					(unit 1)
 				)
 			)
@@ -22965,7 +23039,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8764facf-88c9-4deb-b9e0-f87bfcc74a03")
-		(property "Reference" "IC46"
+		(property "Reference" "IC17"
 			(at 354.33 88.9 0)
 			(effects
 				(font
@@ -23053,7 +23127,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC46")
+					(reference "IC17")
 					(unit 1)
 				)
 			)
@@ -23069,7 +23143,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "889f3e25-4cd0-48a5-aca4-81b15e8106f8")
-		(property "Reference" "IC58"
+		(property "Reference" "IC34"
 			(at 280.67 21.59 0)
 			(effects
 				(font
@@ -23211,7 +23285,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC58")
+					(reference "IC34")
 					(unit 1)
 				)
 			)
@@ -23226,7 +23300,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "90381c22-0a68-4f98-bc15-e0bc14af0cd7")
-		(property "Reference" "IC46"
+		(property "Reference" "IC17"
 			(at 354.33 107.95 0)
 			(effects
 				(font
@@ -23314,7 +23388,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC46")
+					(reference "IC17")
 					(unit 2)
 				)
 			)
@@ -23329,7 +23403,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "90509941-a51e-4727-a85a-3fd7eecc902b")
-		(property "Reference" "IC11"
+		(property "Reference" "IC36"
 			(at 335.28 200.66 0)
 			(effects
 				(font
@@ -23408,7 +23482,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC11")
+					(reference "IC36")
 					(unit 1)
 				)
 			)
@@ -23423,7 +23497,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a7b76439-9a37-4f56-b1f1-3b42386cba0c")
-		(property "Reference" "IC12"
+		(property "Reference" "IC25"
 			(at 335.28 215.9 0)
 			(effects
 				(font
@@ -23511,114 +23585,8 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC12")
+					(reference "IC25")
 					(unit 2)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS05")
-		(at 100.33 316.23 0)
-		(mirror y)
-		(unit 3)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a95b6647-ddfd-4bb1-8bbf-a81bd44d5597")
-		(property "Reference" "IC48"
-			(at 104.14 316.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "74LS05"
-			(at 100.33 309.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 316.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 100.33 316.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inverter Open Collect"
-			(at 100.33 316.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "7"
-			(uuid "70e5f970-a2e9-4fec-be1e-0e635c183053")
-		)
-		(pin "14"
-			(uuid "e84ea33a-c4ba-4b9a-9b88-57a1d2936f68")
-		)
-		(pin "13"
-			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4d")
-		)
-		(pin "10"
-			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f2")
-		)
-		(pin "11"
-			(uuid "30da350a-0d53-43fb-a562-0d1766898142")
-		)
-		(pin "9"
-			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7fb")
-		)
-		(pin "1"
-			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a50")
-		)
-		(pin "8"
-			(uuid "f6c79261-3d64-425c-a6ce-db882fd65376")
-		)
-		(pin "4"
-			(uuid "9322c65b-98d9-4f18-9b94-937c527a431a")
-		)
-		(pin "3"
-			(uuid "59967be7-822b-4a07-a9cd-e4c231183d73")
-		)
-		(pin "2"
-			(uuid "3198686d-8179-4525-86cb-01bfb5d84e85")
-		)
-		(pin "6"
-			(uuid "f6687a74-a9eb-4816-ab43-19f6436f66d9")
-		)
-		(pin "12"
-			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5be")
-		)
-		(pin "5"
-			(uuid "de126845-de94-4fd5-9e99-73c1d7cea698")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
-					(unit 3)
 				)
 			)
 		)
@@ -23632,7 +23600,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "aa8b7c50-ffd7-45e6-b56f-a93293b5ff14")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 205.74 203.2 0)
 			(effects
 				(font
@@ -23721,7 +23689,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 5)
 				)
 			)
@@ -23736,7 +23704,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ab208313-ecdd-4993-9db8-63bb4f8d4efb")
-		(property "Reference" "IC44"
+		(property "Reference" "IC1"
 			(at 318.77 107.95 0)
 			(effects
 				(font
@@ -23824,7 +23792,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC44")
+					(reference "IC1")
 					(unit 3)
 				)
 			)
@@ -23839,7 +23807,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "af885198-35fa-48dc-af05-e90186e48690")
-		(property "Reference" "IC45"
+		(property "Reference" "IC66"
 			(at 53.34 269.24 0)
 			(effects
 				(font
@@ -23929,7 +23897,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC45")
+					(reference "IC66")
 					(unit 3)
 				)
 			)
@@ -23944,7 +23912,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b9d1d207-c8cb-48a6-8d35-eeb30bb9c3ef")
-		(property "Reference" "IC51"
+		(property "Reference" "IC62"
 			(at 182.88 62.23 0)
 			(effects
 				(font
@@ -24050,7 +24018,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC51")
+					(reference "IC62")
 					(unit 1)
 				)
 			)
@@ -24066,7 +24034,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bacb70e1-29cf-48b5-ae8a-4fd9d92caf00")
-		(property "Reference" "IC60"
+		(property "Reference" "IC59"
 			(at 299.72 198.12 0)
 			(effects
 				(font
@@ -24154,7 +24122,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC60")
+					(reference "IC59")
 					(unit 2)
 				)
 			)
@@ -24169,7 +24137,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bf1d56fb-0527-4fc2-ade6-2e135487de73")
-		(property "Reference" "IC44"
+		(property "Reference" "IC1"
 			(at 318.77 99.06 0)
 			(effects
 				(font
@@ -24257,7 +24225,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC44")
+					(reference "IC1")
 					(unit 2)
 				)
 			)
@@ -24272,7 +24240,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c515cc9f-6928-4511-a38e-0adb7b413f98")
-		(property "Reference" "IC44"
+		(property "Reference" "IC1"
 			(at 318.77 90.17 0)
 			(effects
 				(font
@@ -24360,7 +24328,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC44")
+					(reference "IC1")
 					(unit 1)
 				)
 			)
@@ -24375,7 +24343,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c8e42d36-2ff1-4007-97a9-a4bc6c133cd4")
-		(property "Reference" "IC44"
+		(property "Reference" "IC1"
 			(at 318.77 116.84 0)
 			(effects
 				(font
@@ -24463,7 +24431,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC44")
+					(reference "IC1")
 					(unit 4)
 				)
 			)
@@ -24478,7 +24446,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c9c92ca9-10dd-4a50-983c-cc43abcec389")
-		(property "Reference" "IC59"
+		(property "Reference" "IC50"
 			(at 280.67 99.06 0)
 			(effects
 				(font
@@ -24566,7 +24534,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC59")
+					(reference "IC50")
 					(unit 1)
 				)
 			)
@@ -24581,7 +24549,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cb5c95c1-be27-48d7-b65f-c094fff85d89")
-		(property "Reference" "IC56"
+		(property "Reference" "IC93"
 			(at 241.3 99.06 0)
 			(effects
 				(font
@@ -24681,7 +24649,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC56")
+					(reference "IC93")
 					(unit 1)
 				)
 			)
@@ -24698,7 +24666,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d691c51a-df50-4311-a9ec-4fc50ad27d4b")
-		(property "Reference" "IC60"
+		(property "Reference" "IC59"
 			(at 299.72 207.01 0)
 			(effects
 				(font
@@ -24786,7 +24754,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC60")
+					(reference "IC59")
 					(unit 3)
 				)
 			)
@@ -24801,7 +24769,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d916a931-53da-4ae8-b5f2-d9b9233d080a")
-		(property "Reference" "IC4"
+		(property "Reference" "IC18"
 			(at 80.01 76.2 0)
 			(effects
 				(font
@@ -24889,7 +24857,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC4")
+					(reference "IC18")
 					(unit 1)
 				)
 			)
@@ -24905,7 +24873,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "dae8ffc6-52c3-43de-a8e8-07879e4e4291")
-		(property "Reference" "IC49"
+		(property "Reference" "IC63"
 			(at 122.8441 22.86 0)
 			(effects
 				(font
@@ -25145,7 +25113,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC49")
+					(reference "IC63")
 					(unit 1)
 				)
 			)
@@ -25161,7 +25129,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "df34ed7a-ece0-4d8e-a864-3a003bff07e8")
-		(property "Reference" "IC25"
+		(property "Reference" "IC64"
 			(at 21.59 250.19 0)
 			(effects
 				(font
@@ -25250,7 +25218,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC25")
+					(reference "IC64")
 					(unit 6)
 				)
 			)
@@ -25265,7 +25233,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e19f50db-49a1-4837-9913-66d5ec78a15d")
-		(property "Reference" "IC45"
+		(property "Reference" "IC66"
 			(at 36.83 36.83 0)
 			(effects
 				(font
@@ -25355,7 +25323,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC45")
+					(reference "IC66")
 					(unit 2)
 				)
 			)
@@ -25370,7 +25338,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e305ca42-993e-4b13-810c-fb087ff91cdf")
-		(property "Reference" "IC53"
+		(property "Reference" "IC27"
 			(at 182.88 130.81 0)
 			(effects
 				(font
@@ -25470,7 +25438,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC53")
+					(reference "IC27")
 					(unit 1)
 				)
 			)
@@ -25485,7 +25453,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e618072f-d274-46a7-a4bb-1a7a62582cd4")
-		(property "Reference" "IC12"
+		(property "Reference" "IC25"
 			(at 64.77 73.66 0)
 			(effects
 				(font
@@ -25573,113 +25541,8 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC12")
+					(reference "IC25")
 					(unit 3)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS05")
-		(at 100.33 331.47 0)
-		(unit 6)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "eec74f44-72e6-4181-87ce-025c6604f21d")
-		(property "Reference" "IC48"
-			(at 96.52 331.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "74LS05"
-			(at 100.33 325.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 331.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 100.33 331.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inverter Open Collect"
-			(at 100.33 331.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "7"
-			(uuid "70e5f970-a2e9-4fec-be1e-0e635c183054")
-		)
-		(pin "14"
-			(uuid "e84ea33a-c4ba-4b9a-9b88-57a1d2936f69")
-		)
-		(pin "13"
-			(uuid "cd03e0e9-5ecd-45a6-abe7-019f7c643db4")
-		)
-		(pin "10"
-			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f3")
-		)
-		(pin "11"
-			(uuid "30da350a-0d53-43fb-a562-0d1766898143")
-		)
-		(pin "9"
-			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7fc")
-		)
-		(pin "1"
-			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a51")
-		)
-		(pin "8"
-			(uuid "f6c79261-3d64-425c-a6ce-db882fd65377")
-		)
-		(pin "4"
-			(uuid "9322c65b-98d9-4f18-9b94-937c527a431b")
-		)
-		(pin "3"
-			(uuid "59967be7-822b-4a07-a9cd-e4c231183d74")
-		)
-		(pin "2"
-			(uuid "3198686d-8179-4525-86cb-01bfb5d84e86")
-		)
-		(pin "6"
-			(uuid "1b810f82-3319-4efd-9441-c3d33085db85")
-		)
-		(pin "12"
-			(uuid "16baa0ec-96d5-4160-89a2-1ba688023f44")
-		)
-		(pin "5"
-			(uuid "2a880051-5642-419c-bdc7-dd80639479a0")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC48")
-					(unit 6)
 				)
 			)
 		)
@@ -25693,7 +25556,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ef49d276-0d56-4f9a-b5e4-41aa1c8e86da")
-		(property "Reference" "IC61"
+		(property "Reference" "IC16"
 			(at 321.31 25.4 0)
 			(effects
 				(font
@@ -25823,8 +25686,111 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC61")
+					(reference "IC16")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 67.31 270.51 0)
+		(unit 7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f52ab661-b636-4cdb-946d-f8d28b7a2160")
+		(property "Reference" "IC83"
+			(at 67.31 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 67.31 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "fd36c12c-6894-420e-8035-0381f87e6265")
+		)
+		(pin "14"
+			(uuid "b22baae1-8f08-45a4-a7af-c9b30bc2dd64")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4b")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f1")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898141")
+		)
+		(pin "9"
+			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7f9")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4e")
+		)
+		(pin "8"
+			(uuid "f6c79261-3d64-425c-a6ce-db882fd65374")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e83")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bc")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC83")
+					(unit 7)
 				)
 			)
 		)
@@ -25838,7 +25804,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ff9c543f-e1f4-4fae-9dff-e0000c0f11f6")
-		(property "Reference" "IC46"
+		(property "Reference" "IC17"
 			(at 44.45 269.24 0)
 			(effects
 				(font
@@ -25926,7 +25892,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC46")
+					(reference "IC17")
 					(unit 4)
 				)
 			)

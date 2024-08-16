@@ -2874,6 +2874,19 @@
 		(uuid 42913f1b-9d77-4d65-aed3-1933e7ebd8e9)
 	)
 	(rectangle
+		(start 303.53 167.64)
+		(end 316.23 173.99)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 4429b1e9-2fbe-461c-b0f8-bb9e4c6cec34)
+	)
+	(rectangle
 		(start 142.24 205.74)
 		(end 154.94 212.09)
 		(stroke
@@ -2911,6 +2924,19 @@
 			(justify left bottom)
 		)
 		(uuid "381a0325-6b39-43fc-ae56-c4f096bf88c1")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 303.53 172.72 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "3e639e03-0da7-4d97-be96-f03357f0a440")
 	)
 	(text "DONE"
 		(exclude_from_sim no)
@@ -3773,7 +3799,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "123be72a-d39f-45f9-81df-8113640e56d5")
-		(property "Reference" "IC80"
+		(property "Reference" "IC56"
 			(at 247.65 134.62 0)
 			(effects
 				(font
@@ -3861,7 +3887,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC80")
+					(reference "IC56")
 					(unit 1)
 				)
 			)
@@ -3876,7 +3902,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1973d232-9507-4a38-a1c3-136c17c6a993")
-		(property "Reference" "IC79"
+		(property "Reference" "IC70"
 			(at 189.23 177.8 0)
 			(effects
 				(font
@@ -3970,7 +3996,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC79")
+					(reference "IC70")
 					(unit 1)
 				)
 			)
@@ -3985,7 +4011,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1f2c9b5d-18e7-4e9a-a098-6109d380ae17")
-		(property "Reference" "IC81"
+		(property "Reference" "IC55"
 			(at 295.91 139.7 0)
 			(effects
 				(font
@@ -4085,7 +4111,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC81")
+					(reference "IC55")
 					(unit 1)
 				)
 			)
@@ -4100,7 +4126,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "38e1a0ef-385e-41ae-83e0-7d04f3caa730")
-		(property "Reference" "IC77"
+		(property "Reference" "IC44"
 			(at 134.62 176.53 0)
 			(effects
 				(font
@@ -4188,7 +4214,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC77")
+					(reference "IC44")
 					(unit 1)
 				)
 			)
@@ -4203,7 +4229,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7b1538e3-be17-496b-8143-2f4692aaa1dd")
-		(property "Reference" "IC78"
+		(property "Reference" "IC57"
 			(at 189.23 123.19 0)
 			(effects
 				(font
@@ -4297,7 +4323,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC78")
+					(reference "IC57")
 					(unit 1)
 				)
 			)
@@ -4313,7 +4339,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "cf489baf-0612-424e-82ad-f29f4e481154")
-		(property "Reference" "IC76"
+		(property "Reference" "IC58"
 			(at 134.62 99.06 0)
 			(effects
 				(font
@@ -4455,7 +4481,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/e23a4357-b221-46f5-8d95-f07964f6206a/338d9dc1-eb27-47ab-afaf-2f1b9b524392"
-					(reference "IC76")
+					(reference "IC58")
 					(unit 1)
 				)
 			)
