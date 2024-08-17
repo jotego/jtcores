@@ -34,7 +34,8 @@ be attempted. If a signal is not matched to MAME, manually add it with the alias
 command.
 
 The comparison is interactive, although a script can also be run to help in
-debugging sessions. Type help to obtain the list of commands.
+debugging sessions. Type help to obtain the list of commands. The session
+commands are stored in the file trace.ses (and overwritten each time).
 
 The VCD comparison will not be done while these signals are high:
 

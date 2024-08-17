@@ -12,6 +12,9 @@ import(
 )
 
 func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
+    fses, e := os.Create("trace.ses") // echo all session commands to a file
+    defer fses.Close()
+    must(e)
     // Read from stdin initially
     nested := make([]*bufio.Scanner,1)
     nested[0] = bufio.NewScanner(os.Stdin)
@@ -59,6 +62,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             break
         }
         lt := scn.Text()
+        fmt.Fprintln(fses,lt)
         if k:=strings.Index(lt,"#"); k!=-1 { lt=lt[0:k] }
         tokens := strings.Fields(lt)
         if len(tokens)==0 { continue }
@@ -274,6 +278,7 @@ il,ignore-list      shows the list of ignored variables
 match-trace         moves MAME forward until it matches simulation
 match-vcd           moves the simulation forward until it matches MAME data
 mt,mt-trace foo     moves MAME forward until the given condition is met
+                    start hex numbers with $ for comparison
 mv,mv-vcd foo       moves simulation forward until the given condition is met
 p,print             evaluates an expression. Use to test conditions
 q,quit              quits the program

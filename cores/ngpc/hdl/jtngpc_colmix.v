@@ -29,7 +29,7 @@ module jtngpc_colmix(
 
     // CPU access
     input      [ 8:1] cpu_addr,
-    output reg [15:0] cpu_din,
+    output     [15:0] cpu_din,
     input      [15:0] cpu_dout,
     input      [ 1:0] we,
     input             pal_cs,
@@ -59,10 +59,7 @@ wire        mx_pal;
 
 // assign {green,blue,red} = rgb;
 assign {blue,green,red} = rgb;
-
-always @(posedge clk) begin
-    cpu_din <= palrgb_cs ? cpal_dout : mono_dout;
-end
+assign cpu_din = palrgb_cs ? cpal_dout : mono_dout; // do not register! extra clock cycle breaks 2nd logo screen
 
 always @(posedge clk) if( pxl_cen ) begin
     if( mode ) begin // monochrome

@@ -2,5 +2,10 @@ include ../../ngp/cfg/macros.def
 CORENAME=JTNGPC
 COLMIX=jtngpc_colmix
 
+[mister]
+# keep using JTNGPC during beta phase
+CORENAME=JTNGPC
+GAMETOP=jtngpc_game_sdram
+
 # not ready yet
 JTFRAME_SKIP
