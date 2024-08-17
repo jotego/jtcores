@@ -35,6 +35,7 @@ module jtngp_video(
 
     output              hirq,
     output              virq,
+    output              mode,
 
     output              HS,
     output              VS,
@@ -59,7 +60,6 @@ wire [ 1:0] dsn;
 reg   ram_cs, obj_cs,  obj2_cs, pal_cs, palrgb_cs,
       scr1_cs,  scr2_cs, regs_cs, rst_cs, mode_cs;
 reg   rstv;
-wire  mode;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
 wire [12:1] scr1_addr, scr2_addr, obj_addr;
@@ -112,16 +112,17 @@ always @* begin
     pal_cs    = gfx_cs && in_range(14'h0100,14'h011A); // monochrome palette
     rst_cs    = gfx_cs && cpu_addr[13:1]==13'h7e0>>1;
     obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
-    obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
     scr1_cs   = gfx_cs && in_range(14'h1000,14'h1800); // Scroll VRAM, 1st half
     scr2_cs   = gfx_cs && in_range(14'h1800,14'h2000); //              2nd half
     ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
 `ifdef NGPC
+    obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
     palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
     mode_cs   = gfx_cs && cpu_addr[13:1]==13'h7e2>>1;
 `else
-    mode_cs   = 0;
+    obj2_cs   = 0;
     palrgb_cs = 0;
+    mode_cs   = 0;
 `endif
 end
 
@@ -305,6 +306,7 @@ jtngp_obj u_obj(
     .mode       ( mode      ),
     .palrgb_cs  ( palrgb_cs ),
 `else
+    .mode       ( 1'b1      ),
     // priority mixer output - ignored
     .lyr        (           ),
     .pxl        (           ),

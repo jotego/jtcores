@@ -81,6 +81,7 @@ jtngp_colmix u_monochrome(
     // Window
     .oow        ( oow       ),
     .oowc       ( oowc      ),
+    .mode       ( mode      ),
 
     // CPU access
     .cpu_addr   ( cpu_addr  ),
@@ -110,7 +111,11 @@ jtngp_colmix u_monochrome(
 // the original design does not accept byte access, but we do
 assign cpal_we = we & {2{palrgb_cs}};
 
-jtframe_dual_ram16 #(.AW(8)) u_colpal(
+jtframe_dual_ram16 #(
+    .AW(8),
+    .SIMFILE_LO("pal_lo.bin"),
+    .SIMFILE_HI("pal_hi.bin")
+) u_colpal(
     // Port 0
     .clk0       ( clk       ),
     .data0      ( cpu_dout  ),

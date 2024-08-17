@@ -29,7 +29,7 @@ reg  [ 7:0] st_mux;
 reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
-wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest;
+wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest, mode;
 wire        hirq, virq, main_int5, pwr_button, poweron, halted;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
@@ -60,7 +60,7 @@ always @(posedge clk) begin
             0: st_mux <= { rst, poweron, pwr_button, ioctl_cart, ~flash0_rdy, snd_nmi, snd_irq, snd_rstn };
             1: st_mux <= snd_latch;
             2: st_mux <= main_latch;
-            default: st_mux <= 0;
+            3: st_mux <= { mode, 7'd0 };
         endcase
     endcase
 end
@@ -200,6 +200,7 @@ jtngp_video u_video(
 
     .hirq       ( hirq      ),
     .virq       ( virq      ),
+    .mode       ( mode      ),
 
     .HS         ( HS        ),
     .VS         ( VS        ),

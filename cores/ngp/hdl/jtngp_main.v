@@ -287,10 +287,12 @@ jt95c061 u_mcu(
     .st_dout    ( st_cpu    )
 ); // NOMAIN
 `else
-    assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq, nvram_we, ram1_we } = 0;
+    assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs,
+        snd_irq, nvram_we, ram1_we, halted, ioctl_din } = 0;
     initial begin
         snd_rstn = 1;
-        { poweron, gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, st_dout } = 0;
+        { poweron, gfx_cs, snd_nmi, snd_en, snd_latch,
+            snd_dacl, snd_dacr, st_dout } = 0;
     end
 `endif
 endmodule
