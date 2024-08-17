@@ -790,7 +790,7 @@ verilator)
     TRACE=$(if [ ! -z "$DUMP" ]; then echo --trace; fi)
     if [ -z "$CPPFLAGS" ]; then
         if [[ ! -z "$MAXFRAME" && "$MAXFRAME" -gt 600 ]]; then
-            export CPPFLAGS=-O2
+            export CPPFLAGS="-O2 -march=native"
             echo "Using CPPFLAGS=$CPPFLAGS for faster simulation"
         else
             export CPPFLAGS=-O1
