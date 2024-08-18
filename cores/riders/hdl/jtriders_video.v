@@ -142,10 +142,11 @@ always @(posedge clk) begin
         ioctl_din <= dump_obj;  // 8kB 5000~6FFF
     else if( ioctl_addr<'h7010 )//     7000~700F
         ioctl_din <= pal_mmr;
-    else if( !ioctl_addr[3] )
+    else if( ioctl_addr<'h7018 )
         ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
-    else
+    else if( ioctl_addr<'h7020 )
         ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
+    else ioctl_din <= {2'd0,dimpol, dimmod, 1'b0, dim}; // 7020
 end
 
 wire [2:0] gfx_de;

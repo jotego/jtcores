@@ -362,11 +362,22 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
+    reg [7:0] saved[0:0];
+    integer f,fcnt=0;
+
+    initial begin
+        f=$fopen("dim.bin","rb");
+        if( f!=0 ) begin
+            fcnt=$fread(saved,f);
+            $fclose(f);
+            $display("Read %1d bytes for dimming configuration", fcnt);
+            {dimmod,dimpol,dim} = {saved[0][5:4],saved[0][2:0]};
+        end else begin
+            {dimmod,dimpol,dim} = 0;
+        end
+    end
     initial begin
         cbnk      = 0;
-        dim       = 0;
-        dimmod    = 0;
-        dimpol    = 0;
         obj_cs    = 0;
         objcha_n  = 1;
         objreg_cs = 0;

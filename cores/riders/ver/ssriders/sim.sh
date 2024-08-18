@@ -54,6 +54,7 @@ if [ ! -z "$SCENE" ]; then
     dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((56*512/8))   2> /dev/null
     dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((56*512/8+2)) 2> /dev/null
     dd if=$TMP of=obj_mmr.bin bs=8 count=1 skip=$((56*512/8+3)) 2> /dev/null
+    dd if=$TMP of=dim.bin     bs=1 count=1 skip=$((56*512+4*8)) 2> /dev/null
     rm -f $TMP
 else
     rm -f {scr?,pal,obj_??,???_mmr}.bin
