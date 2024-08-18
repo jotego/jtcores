@@ -135,7 +135,7 @@ always @(posedge clk, posedge rst) begin
             // assign module outputs
             col_n   <= col4_n;
             cout    <= mix4;
-            shd_out <= shd_sel ? shd_l : 2'b0;
+            shd_out <= shd_sel ? ~shd_l : 2'b0;
             brit    <= mix4p < ~mmr[5];
             // start pipeline
             st <= 0;
@@ -162,7 +162,7 @@ always @(posedge clk, posedge rst) begin
                 col4_n<= l4 ? pre_n[4] : col3_n;
             end
             5: begin
-                shd_sel <= shd_p < mix4p;
+                shd_sel <= mix4p < shd_p;
             end
             default:;
         endcase
