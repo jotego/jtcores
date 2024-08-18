@@ -100,6 +100,8 @@ Please support the development: https://patreon.com/jotego
                If the simulation is run from a folder whose name matches a
                .dip file in $ROM, and -dipsw is not set, then jtsim will load
                the matching file automatically
+    -dump n    Uses IOCTL interface to dump the core contents. Sets ioctl_ram,
+               requires JTFRAME_IOCTL_RD. Dumping will start at frame n
     -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
     -frame     Number of frames to simulate
     -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
@@ -350,6 +352,9 @@ case "$1" in
         else
             add_macro JTFRAME_SIM_DIPS=0x${1#0x}
         fi;;
+    -dump)
+        shift
+        add_macro "JTFRAME_SIM_IODUMP=$1";;
     -test)
         add_macro DIP_TEST;;
     -gates)

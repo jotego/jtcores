@@ -363,15 +363,22 @@ jtframe_m68k u_cpu(
 );
 `else
     initial begin
-        sndon   = 0;
-        obj_cs  = 0;
-        pal_cs  = 0;
-        pcu_cs  = 0;
-        prio    = 0;
-        ram_cs  = 0;
-        rmrd    = 0;
-        rom_cs  = 0;
-        vram_cs = 0;
+        cbnk      = 0;
+        dim       = 0;
+        dimmod    = 0;
+        dimpol    = 0;
+        obj_cs    = 0;
+        objcha_n  = 1;
+        objreg_cs = 0;
+        pal_cs    = 0;
+        pcu_cs    = 0;
+        ram_cs    = 0;
+        rmrd      = 0;
+        rom_cs    = 0;
+        sndon     = 0;
+        vram_cs   = 0;
+        mute      = 0;
+        prot_cs   = 0;
     end
     assign
         cpu_dout  = 0,
@@ -379,6 +386,13 @@ jtframe_m68k u_cpu(
         main_addr = 0,
         ram_dsn   = 0,
         snd_wrn   = 0,
-        st_dout   = 0;
+        st_dout   = 0,
+        nv_addr   = 0,
+        nv_din    = 0,
+        omsb_addr = 0,
+        omsb_we   = 0,
+        pair_we   = 0,
+        BGn       = 0,
+        nv_we     = 0;
 `endif
 endmodule

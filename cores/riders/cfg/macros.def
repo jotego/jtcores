@@ -17,6 +17,7 @@ JTFRAME_ARY=8
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
+debug JTFRAME_IOCTL_RD+=28704
 
 # More RAM needed for X-Men
 SND_RAMW=13

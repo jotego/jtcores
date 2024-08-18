@@ -138,14 +138,14 @@ always @(posedge clk) begin
         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h6000 )
-        ioctl_din <= dump_obj;  // 4kB 5000~5FFF
-    else if( ioctl_addr<'h6010 )//     6000~600F
+    else if( ioctl_addr<'h7000 )
+        ioctl_din <= dump_obj;  // 8kB 5000~6FFF
+    else if( ioctl_addr<'h7010 )//     7000~700F
         ioctl_din <= pal_mmr;
     else if( !ioctl_addr[3] )
-        ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
+        ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
     else
-        ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
+        ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
 end
 
 wire [2:0] gfx_de;
@@ -333,7 +333,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

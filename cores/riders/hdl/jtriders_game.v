@@ -30,6 +30,7 @@ wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
+wire [14:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
@@ -45,6 +46,7 @@ assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
 assign omsb_din   = ram_din[7:0];
 assign oaread_en  = tmnt2;
+assign video_dumpa= ioctl_addr[14:0]-15'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -63,7 +65,7 @@ always @(posedge clk) begin
     if( `FULLRAM == 0 ) xmen <= 0;
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -240,7 +242,7 @@ jtriders_video u_video (
     .blue           ( blue          ),
     // Debug
     .debug_bus      ( debug_bus     ),
-    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_addr     ( video_dumpa   ),
     .ioctl_din      ( ioctl_din     ),
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
