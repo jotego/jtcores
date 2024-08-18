@@ -131,11 +131,13 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scan_obj  <= 0;
         scan_st   <= 0;
-        HSl     <= 0;
+        HSl       <= 0;
         dr_start  <= 0;
         hlast     <= 0;
         vlast     <= 0;
         chram_addr<= 0;
+        dr_col    <= 0;
+        col       <= 0;
     end else if( cen ) begin
         HSl <= HS;
         dr_start <= 0;
@@ -150,10 +152,15 @@ always @(posedge clk, posedge rst) begin
             end
             5: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
-                    chram_addr <= { dr_attr_code[8:0], vsub };
-                    dr_start <= inzone && !hidden;
-                    hlast    <= scan_dout[7:0] + (hchain ? hlast : hoffset );
-                    vlast    <= ypos;
+                    if( inzone && !hidden ) begin
+                        dr_start   <= 1;
+                        dr_col     <= col;
+                        chram_addr <= { dr_attr_code[8:0], vsub };
+                    end else begin
+                        dr_start <= 0;
+                    end
+                    hlast <= scan_dout[7:0] + (hchain ? hlast : hoffset );
+                    vlast <= ypos;
                     // if( !hidden && vrender<10) begin
                     //     $display("(%d) -- %d (%d) -> %d",vrender,ypos, ydelta, inzone);
                     // end
@@ -172,12 +179,12 @@ always @(posedge clk, posedge rst) begin
 end
 
 reg  [15:0] obj_data;
-reg  [ 3:0] col;
+reg  [ 3:0] col, dr_col;
 reg  [ 3:0] dr_cnt;
 wire [ 8:0] line_din;
 reg         buff_we;
 
-assign line_din   = { col, prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
+assign line_din   = { dr_col, prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
 
 // drawing
 always @(posedge clk, posedge rst) begin
