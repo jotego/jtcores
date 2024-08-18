@@ -21,6 +21,8 @@
 *.mp4
 *.mra
 *.nvm
+*.ngp
+*.ngc
 *.ods#
 *.old
 *.p
