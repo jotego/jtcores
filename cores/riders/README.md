@@ -22,7 +22,7 @@ This FPGA core is compatible with the following arcade PCBs:
 - TMNT Turtles in Time
 - X-Men (not on MiST devices)
 
-Due to limitations in the internal RAM memory of small FPGA devices, X-Men will not run on MiST FPGAs.
+Due to limitations in the internal RAM memory of small FPGA devices, X-Men will not run on MiST FPGAs. The SiDi version of the core does not feature the video bright feature of the original board.
 
 # Game Configuration
 
