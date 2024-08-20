@@ -63,7 +63,7 @@ reg         pal_half;
 reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };
-assign shd      = ~|pre_shd;
+assign shd      = |pre_shd;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign ioctl_din = pal_dout;
 
