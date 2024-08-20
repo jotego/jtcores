@@ -547,11 +547,19 @@ EOF
         enable_load
     fi
     if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+else
+    SETNAME=$(basename $(pwd))
+    if [ $SETNAME = game ]; then unset SETNAME; fi
 fi
 
+# Create a rom.bin link when possible, exit otherwise unless in lint mode
 if [[ ! -s rom.bin && -z "$LINT" ]]; then
-    echo "ERROR: file rom.bin is not valid."
-    exit 1
+    if [[ ! -z "$SETNAME" && -e $ROM/$SETNAME.rom ]]; then
+        ln -sr $ROM/$SETNAME.rom
+    else
+        echo "ERROR: file rom.bin is not valid."
+        exit 1
+    fi
 fi
 
 # Add a local copy of the dump file if it doesn't exist
