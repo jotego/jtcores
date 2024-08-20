@@ -2999,7 +2999,7 @@
 		)
 		(uuid "0061c8fd-2fed-4a35-bfcc-a6c694a09c71")
 	)
-	(label "IC57_12"
+	(label "PXLB1"
 		(at 227.33 148.59 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3076,7 +3076,7 @@
 		)
 		(uuid "1124ab13-f847-45d1-9398-35d605b6fcf1")
 	)
-	(label "IC57_12"
+	(label "PXLB1"
 		(at 209.55 114.3 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3142,7 +3142,7 @@
 		)
 		(uuid "3e12ece9-9a51-48cd-ad40-4c7efb0ec2be")
 	)
-	(label "IC70_15"
+	(label "PXLA2"
 		(at 227.33 138.43 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3219,7 +3219,7 @@
 		)
 		(uuid "62ee640a-ccf7-408c-8606-d99615c369e9")
 	)
-	(label "IC70_13"
+	(label "PXLA3"
 		(at 209.55 166.37 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3296,7 +3296,7 @@
 		)
 		(uuid "867da488-f196-4ec8-84d8-eb58ee4a974a")
 	)
-	(label "IC70_13"
+	(label "PXLA3"
 		(at 227.33 140.97 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3329,7 +3329,7 @@
 		)
 		(uuid "9a1f2613-5e17-4182-8c56-b425b7f1a6c4")
 	)
-	(label "IC70_15"
+	(label "PXLA2"
 		(at 209.55 161.29 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3472,7 +3472,7 @@
 		)
 		(uuid "c1e3e15b-031d-4f3e-9d2b-2487f141e39d")
 	)
-	(label "IC70_14"
+	(label "PXLB2"
 		(at 209.55 163.83 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3571,7 +3571,7 @@
 		)
 		(uuid "dbfc6417-e46a-46ac-b867-ecbdefa8f424")
 	)
-	(label "IC70_12"
+	(label "PXLB3"
 		(at 227.33 153.67 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3648,7 +3648,7 @@
 		)
 		(uuid "f2385439-aa59-4ff1-abbf-c47ae1bbb80f")
 	)
-	(label "IC70_14"
+	(label "PXLB2"
 		(at 227.33 151.13 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3659,7 +3659,7 @@
 		)
 		(uuid "fde1054b-eff4-45f5-9f1f-6fa52a4e8689")
 	)
-	(label "IC70_12"
+	(label "PXLB3"
 		(at 209.55 168.91 180)
 		(fields_autoplaced yes)
 		(effects
