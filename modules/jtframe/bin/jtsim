@@ -555,7 +555,7 @@ fi
 # Create a rom.bin link when possible, exit otherwise unless in lint mode
 if [[ ! -s rom.bin && -z "$LINT" ]]; then
     if [[ ! -z "$SETNAME" && -e $ROM/$SETNAME.rom ]]; then
-        ln -sr $ROM/$SETNAME.rom
+        ln -sr $ROM/$SETNAME.rom rom.bin
     else
         echo "ERROR: file rom.bin is not valid."
         exit 1
