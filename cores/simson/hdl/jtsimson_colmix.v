@@ -63,7 +63,7 @@ reg         pal_half;
 reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };
-assign shd      = |pre_shd;
+assign shd      = ~|pre_shd;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign ioctl_din = pal_dout;
 
@@ -114,7 +114,7 @@ jtcolmix_053251 u_prio(
     .ci3        ({1'b0,lyra_pxl}),
     .ci4        ({1'b0,lyrb_pxl}),
     // shadow
-    .shd_in     ( obj_shd   ),
+    .shd_in     ( ~obj_shd   ),
     .shd_out    ( pre_shd   ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
