@@ -6,9 +6,7 @@ game:
   #   get:
   - from: simson
     get:
-      - jtsimson_obj44.v
       - jt053246*      # OBJ scanner
-      - jt053244.sv
       - jt053260.v
       - jtcolmix_053251.v
   - from: aliens

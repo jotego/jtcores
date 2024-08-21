@@ -91,14 +91,14 @@ wire        pen15;
 
 wire scr_hflip, scr_vflip;
 
-/*function [5:0] paroda_conv(input [5:0]x);
+function [5:0] paroda_conv(input [5:0]x);
     paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
-endfunction*/
+endfunction
 
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-/*    paroda ? { 1'd0, pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
-    : */{ pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
+    paroda ? { 1'd0, pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] }
+    : { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;
@@ -116,11 +116,11 @@ assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
 // 053244 (parodius) has 7 palette bits, top 2 used for priority
 assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
-assign shd     = (/*paroda ? {1'b0,pre_pxl[11]  } :*/ pre_pxl[15:14]) & {2{pen15}};
-assign prio    =  /*paroda ? {1'd1,pre_pxl[10:9],2'd0} :*/ pre_pxl[13:9];
+assign shd     = (paroda ? {1'b0,pre_pxl[11]  } : pre_pxl[15:14]) & {2{pen15}};
+assign prio    =  paroda ? {1'd1,pre_pxl[10:9],2'd0} : pre_pxl[13:9];
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
-assign sorted = /*paroda ? rom_data : */{
+assign sorted = paroda ? rom_data : {
     rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
     rom_data[14], rom_data[10], rom_data[6], rom_data[2], rom_data[30], rom_data[26], rom_data[22], rom_data[18],
     rom_data[13], rom_data[ 9], rom_data[5], rom_data[1], rom_data[29], rom_data[25], rom_data[21], rom_data[17],

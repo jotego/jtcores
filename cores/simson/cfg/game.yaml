@@ -10,7 +10,6 @@ game:
       - jtsimson_colmix.v
       - jt053260.v
       - jt053246.sv
-#      - jt053244.sv
       - jt053246_dma.v
       - jt053246_mmr.v
       - jtcolmix_053251.v
