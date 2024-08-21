@@ -366,7 +366,7 @@ jtframe_m68k u_cpu(
     integer f,fcnt=0;
 
     initial begin
-        f=$fopen("dim.bin","rb");
+        f=$fopen("other.bin","rb");
         if( f!=0 ) begin
             fcnt=$fread(saved,f);
             $fclose(f);

@@ -79,8 +79,8 @@ module jt051960(    // sprite logic
     // Debug
     input      [10:0] ioctl_addr,
     input             ioctl_ram,
-    input             ioctl_mmr,
     output     [ 7:0] ioctl_din,
+    output     [ 7:0] dump_reg,
 
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -128,7 +128,8 @@ assign ysub = ydiff[3:0];
 assign busy_g = busy_l | dr_busy;
 assign sha_cfg = mmr[REG_SHA][2:0];
 assign shadow = &{(pxl[11]|sha_cfg[1]),~sha_cfg[2],pxl[3:0]}^sha_cfg[0];
-assign ioctl_din = ioctl_mmr ? mmr[ioctl_addr[2:0]] : dma_data;
+assign ioctl_din = dma_data;
+assign dump_reg  = mmr[ioctl_addr[2:0]];
 
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */

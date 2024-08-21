@@ -95,7 +95,7 @@ module jtaliens_video(
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
-            lyrf_col, lyra_col, lyrb_col,
+            lyrf_col, lyra_col, lyrb_col, obj_mmr,
             opal, opal_eff;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
@@ -129,7 +129,7 @@ always @(posedge clk) begin
     else if( !ioctl_addr[3] )
         ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
     else if (ioctl_addr[2:0]!=7)
-        ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
+        ioctl_din <= obj_mmr;   // 7 bytes, MMR 4C0E
     else
         ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
 end
@@ -298,7 +298,7 @@ jtaliens_obj u_obj(    // sprite logic
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_obj  ),
-    .ioctl_mmr  ( 1'b0      ),
+    .dump_reg   ( obj_mmr   ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),

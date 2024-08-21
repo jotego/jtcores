@@ -42,21 +42,22 @@ if [ $NVRAM = 1 ]; then
 	dd if=scenes/$SCENE/$FNAME of=nvram.bin bs=128 count=1 2> /dev/null
 	dd if=scenes/$SCENE/$FNAME of=$TMP      bs=128 skip=1  2> /dev/null
 else
-	TMP=$FNAME
+	TMP=scenes/$SCENE/$FNAME
 fi
-dd if=$TMP of=scr1.bin count=16         2> /dev/null
-dd if=$TMP of=scr0.bin count=16 skip=16 2> /dev/null
-dd if=$TMP of=pal.bin  count=8  skip=32 2> /dev/null
-jtutil drop1    < pal.bin > pal_lo.bin
-jtutil drop1 -l < pal.bin > pal_hi.bin
-dd if=$TMP      of=obj.bin count=16 skip=40   				  2> /dev/null
-dd if=/dev/zero of=obj.bin count=16 conv=notrunc oflag=append 2> /dev/null
-jtutil drop1 -l < obj.bin > obj_lo.bin
-jtutil drop1    < obj.bin > obj_hi.bin
+dd if=$TMP      of=scr1.bin count=16                           2> /dev/null # 8kB
+dd if=$TMP      of=scr0.bin count=16 skip=16                   2> /dev/null # 8kB
+dd if=$TMP      of=pal.bin  count=8  skip=32                   2> /dev/null # 4kB
+dd if=$TMP      of=obj.bin  count=16 skip=40                   2> /dev/null # 8kB
+dd if=/dev/zero of=obj.bin  count=16 conv=notrunc oflag=append 2> /dev/null # 8kB blank
 # MMR
 dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((56*512/8))   2> /dev/null
 dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((56*512/8+2)) 2> /dev/null
 dd if=$TMP of=obj_mmr.bin bs=8 count=1 skip=$((56*512/8+3)) 2> /dev/null
-dd if=$TMP of=dim.bin     bs=1 count=1 skip=$((56*512+4*8)) 2> /dev/null
+dd if=$TMP of=other.bin   bs=1 count=1 skip=$((56*512+4*8)) 2> /dev/null
+# convert to dual 8-bit dumps
+jtutil drop1 -l < pal.bin > pal_lo.bin
+jtutil drop1    < pal.bin > pal_hi.bin
+jtutil drop1 -l < obj.bin > obj_lo.bin
+jtutil drop1    < obj.bin > obj_hi.bin
 
 if [ $NVRAM = 1 ]; then rm -f $TMP; fi

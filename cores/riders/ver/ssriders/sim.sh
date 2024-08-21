@@ -33,32 +33,7 @@ EOF
     exit 0
 fi
 
-if [ ! -z "$SCENE" ]; then
-    TMP=`mktemp`
-    # FNAME=SSRIDERS
-    if [ -n "$SSRIDERS" ]; then FNAME=SSRIDERS; fi
-    # if [ -n "$VENDETTA" ]; then FNAME=VENDETTA; fi
-    # The first 128 bytes are NVRAM
-    dd if=scenes/$SCENE/${FNAME}.RAM of=nvram.bin bs=128 count=1 2> /dev/null
-    dd if=scenes/$SCENE/${FNAME}.RAM of=$TMP bs=128 skip=1 2> /dev/null
-    dd if=$TMP of=scr1.bin count=16         2> /dev/null
-    dd if=$TMP of=scr0.bin count=16 skip=16 2> /dev/null
-    dd if=$TMP of=pal.bin count=8 skip=32   2> /dev/null
-    jtutil drop1    < pal.bin > pal_lo.bin
-    jtutil drop1 -l < pal.bin > pal_hi.bin
-    dd if=$TMP of=obj.bin count=16 skip=40   2> /dev/null
-    dd if=/dev/zero of=obj.bin conv=notrunc oflag=append count=16 2> /dev/null
-    jtutil drop1 -l < obj.bin > obj_lo.bin
-    jtutil drop1    < obj.bin > obj_hi.bin
-    # MMR
-    dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((56*512/8))   2> /dev/null
-    dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((56*512/8+2)) 2> /dev/null
-    dd if=$TMP of=obj_mmr.bin bs=8 count=1 skip=$((56*512/8+3)) 2> /dev/null
-    dd if=$TMP of=dim.bin     bs=1 count=1 skip=$((56*512+4*8)) 2> /dev/null
-    rm -f $TMP
-else
-    rm -f {scr?,pal,obj_??,???_mmr}.bin
-fi
+../game/dump_split.sh --scene "$SCENE" --nvram
 
 jtsim $OTHER
 

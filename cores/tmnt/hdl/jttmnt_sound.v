@@ -368,7 +368,9 @@ assign  st_dout    = 0;
 assign  title_cs   = 0;
 assign  upd_addr   = 0;
 assign  upd_cs     = 0;
+assign  {k60_l, k60_r, pcm, upd, fm_l, fm_r } = 0;
 initial rom_cs     = 0;
 initial title_addr = 0;
+initial title      = 0;
 `endif
 endmodule

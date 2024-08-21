@@ -18,6 +18,9 @@ game:
       - jt051962.v
       - jt051960.v
       # - jt051937.v
+  - from: riders
+    get:
+      - jtriders_dump.v
   - from: flane
     get:
       - jt007232.v

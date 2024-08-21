@@ -61,8 +61,8 @@ module jtaliens_obj(
     // Debug
     input      [10:0] ioctl_addr,
     input             ioctl_ram,
-    input             ioctl_mmr,
     output     [ 7:0] ioctl_din,
+    output     [ 7:0] dump_reg,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -150,7 +150,7 @@ jt051960 u_scan(    // sprite logic
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din ),
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_mmr  ( ioctl_mmr ),
+    .dump_reg   ( dump_reg  ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )
 );

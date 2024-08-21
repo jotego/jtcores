@@ -184,7 +184,7 @@ jtcolmix_053251 u_k251(
 
 // this does not follow the same arrangement of the original
 // it's only important if you try to load a dump from MAME
-jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramlo(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout[7:0] ),
@@ -201,7 +201,7 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
     .q1     ( pal_dout[ 7:0])
 );
 
-jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramhi(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout[15:8]),

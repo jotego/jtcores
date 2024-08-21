@@ -86,21 +86,20 @@ module jttmnt_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 `include "game_id.inc"
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal,
+            dump_scr, dump_obj, dump_pal, dump_other,
             lyrf_col, lyra_col, lyrb_col,
-            opal,     cpu_d8,   mmr_pal,
-            scr_mmr;
+            opal,     cpu_d8,   pal_mmr,  obj_mmr, scr_mmr;
 wire [15:0] cpu_saddr;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl, lyro_sort;
 wire [10:0] cpu_oaddr;
@@ -122,26 +121,24 @@ assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 assign lyro_sort = { lyro_pxl[11:4],
     sort_en ? lyro_pxl[3:0] : {lyro_pxl[0],lyro_pxl[1],lyro_pxl[2],lyro_pxl[3]} };
+assign dump_other= { 6'd0, cpu_prio };
 
-// Debug
-always @* begin
-    st_dout = debug_bus[5] ? st_obj : st_scr;
-    // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
-    ioctl_mmr = 0;
-    if( ioctl_addr<'h4000 )
-        ioctl_din = dump_scr;  // 16 kB 0000~3FFF
-    else if( ioctl_addr<'h5000 )
-        ioctl_din = dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h5800 )
-        ioctl_din = dump_obj;  // 2kB 5000~5800 (second half equal for 051960)
-    else if( ioctl_addr<'h5808 )
-        ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
-    else if (ioctl_addr<'h5810) begin
-        ioctl_mmr = 1;
-        ioctl_din = dump_obj;  // 7 bytes, MMR 580F
-    end else
-        ioctl_din = { 6'd0, cpu_prio }; // 1 byte, 5810
-end
+jtriders_dump u_dump(
+    .clk            ( clk           ),
+    .dump_scr       ( dump_scr      ),
+    .dump_obj       ( dump_obj      ),
+    .dump_pal       ( dump_pal      ),
+    .pal_mmr        ( pal_mmr       ),
+    .scr_mmr        ( scr_mmr       ),
+    .obj_mmr        ( obj_mmr       ),
+    .other          ( dump_other    ),
+    .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_din      ( ioctl_din     ),
+
+    .debug_bus      ( debug_bus     ),
+    .st_scr         ( st_scr        ),
+    .st_dout        ( st_dout       )
+);
 
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
@@ -379,8 +376,8 @@ jtaliens_obj u_obj(    // sprite logic
     // Debug
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_mmr  ( ioctl_mmr ),
     .ioctl_din  ( dump_obj  ),
+    .dump_reg   ( obj_mmr   ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
@@ -433,7 +430,7 @@ jttmnt_colmix #(.IOCTL_A0(1)) u_colmix(
     .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
-    .dump_mmr   ( mmr_pal   ),
+    .dump_mmr   ( pal_mmr   ),
 
     .debug_bus  ( debug_bus )
 );

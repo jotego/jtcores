@@ -99,11 +99,11 @@ module jtriders_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 wire [21:2] lyro_prea;
@@ -112,7 +112,7 @@ wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
-            lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr,
+            lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
@@ -130,26 +130,25 @@ assign lyro_addr   = xmen      ? lyro_prea :
                      oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
                                  {1'b0,lyro_prea[20:2]};
 assign lyro_cs     = lyro_precs;
-// Debug
-always @(posedge clk) begin
-    st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
-    // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
-    if( ioctl_addr<'h4000 )
-        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    else if( ioctl_addr<'h5000 )
-        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h7000 )
-        ioctl_din <= dump_obj;  // 8kB 5000~6FFF
-    else if( ioctl_addr<'h7010 )//     7000~700F
-        ioctl_din <= pal_mmr;
-    else if( ioctl_addr<'h7018 )
-        ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
-    else if( ioctl_addr<'h7020 )
-        ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
-    else ioctl_din <= {2'd0,dimpol, dimmod, 1'b0, dim}; // 7020
-end
+assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 
-wire [2:0] gfx_de;
+jtriders_dump u_dump(
+    .clk            ( clk           ),
+    .dump_scr       ( dump_scr      ),
+    .dump_obj       ( dump_obj      ),
+    .dump_pal       ( dump_pal      ),
+    .pal_mmr        ( pal_mmr       ),
+    .scr_mmr        ( scr_mmr       ),
+    .obj_mmr        ( obj_mmr       ),
+    .other          ( dump_other    ),
+
+    .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_din      ( ioctl_din     ),
+
+    .debug_bus      ( debug_bus     ),
+    .st_scr         ( st_scr        ),
+    .st_dout        ( st_dout       )
+);
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 

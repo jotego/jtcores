@@ -28,9 +28,8 @@ JTFRAME_IOCTL_RD=128
 JTFRAME_OSD_TEST
 # JTFRAME_INPUT_RECORD
 
-[mist|sidi*]
 # debugging content: 128 + 24 kB + 16
-JTFRAME_IOCTL_RD=24736
+debug JTFRAME_IOCTL_RD=24736
 
 [mist|sidi]
 # OSD credits cannot be used when
