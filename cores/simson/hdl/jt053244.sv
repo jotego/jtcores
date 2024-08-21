@@ -18,7 +18,7 @@
 
 // See JTSIMSON's README.md
 
-module jt053246(    // sprite logic
+module jt053244(    // sprite logic
     input             rst,
     input             clk,
     input             pxl2_cen,
@@ -108,25 +108,23 @@ assign gvf       = cfg[1];
 assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
-assign dma_trig  = k44_en && cs && cpu_addr[2:1]==3;
+assign dma_trig  = /*k44_en &&*/ cs && cpu_addr[2:1]==3;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
-assign last_obj  = &{ k44_en | &scan_obj[7], scan_obj[6:1], scan_obj[0]/*|k44_en */};
-assign nx_mir    = k44_en ? scan_even[9:8] : scan_even[15:14];
+assign last_obj  = &{ /*k44_en | &scan_obj[7],*/ scan_obj[6:1], scan_obj[0]/*|k44_en */};
+assign nx_mir    = /*k44_en ?*/ scan_even[9:8]/* : scan_even[15:14]*/;
 assign {vsz,hsz} = size;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= /*k44_en ? xoffset + 10'h66*/ /*{2'd0,debug_bus}*/ /*:*/
-                     xoffset - 10'd61 /*{debug_bus,2'd0}*/; // 15<<2 for Riders
-    yadj <= yoffset + (/*k44_en ? 10'h10f :*/
-                       xmen   ? 10'h107 :
-                       simson ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
-    vscl <= /*k44_en? red_offset(vzoom, zoffset,pzoffset):*/  zoffset[ vzoom[7:0] ];
-    hscl <= /*k44_en? red_offset(hzoom, zoffset,pzoffset):*/  zoffset[ hzoom[7:0] ];
+    xadj <=/* k44_en ?*/ xoffset + 10'h66 /*{2'd0,debug_bus} :*/
+                     /*xoffset - 10'd61*/ /*{debug_bus,2'd0}*/; // 15<<2 for Riders
+    yadj <= yoffset + 10'h10f; // Vendetta (and Parodius)
+    vscl <= red_offset(vzoom, zoffset,pzoffset);
+    hscl <= red_offset(hzoom, zoffset,pzoffset);
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -163,10 +161,10 @@ always @* begin
     // test ver/game/scene/1 -> shadow, scan_obj 9
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && !ydiff[3]/*==k44_en*/;
-        1: vmir_eff = nx_mir[1] && !ydiff[4]/*==k44_en*/;
-        2: vmir_eff = nx_mir[1] && !ydiff[5]/*==k44_en*/;
-        3: vmir_eff = nx_mir[1] && !ydiff[6]/*==k44_en*/;
+        0: vmir_eff = nx_mir[1] && ydiff[3]/*==k44_en*/;
+        1: vmir_eff = nx_mir[1] && ydiff[4]/*==k44_en*/;
+        2: vmir_eff = nx_mir[1] && ydiff[5]/*==k44_en*/;
+        3: vmir_eff = nx_mir[1] && ydiff[6]/*==k44_en*/;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -228,7 +226,7 @@ always @(posedge clk, posedge rst) begin
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
-            if( scan_obj!=0 /*&& !k44_en */) $display("Obj scan did not finish. Last obj %X",scan_obj);
+            // if( scan_obj!=0 && !k44_en ) $display("Obj scan did not finish. Last obj %X",scan_obj);
             phase <= 4'd2;
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
@@ -237,7 +235,7 @@ always @(posedge clk, posedge rst) begin
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
-                    code    <= scan_odd;
+                    code    <= {2'b0, scan_odd[13:0]};
                     pri <= scan_even[6:0];
                     // if( k44_en ) code[15:14] <= 0;
                     hstep   <= 0;
@@ -260,22 +258,22 @@ always @(posedge clk, posedge rst) begin
                     phase <= 4'd6;
                 end
                 2: begin
-                    x <=  /*k44_en ? x+xadj:*/ x-xadj;
+                    x <=  /*k44_en ?*/ x+xadj/*-10'h4 *//*: x-xadj*/;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
                     phase <= 4'd7;
-                    // if( !k44_en) begin
+/*                    if( !k44_en) begin
                         vzoom[11:10] <= 0;
                         hzoom[11:10] <= 0;
-                    // end
+                    end*/
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     // if( k44_en ) begin
-                    //     { shd[0], attr[6:0] } <= scan_even[7:0];
+                        { shd[0], attr[6:0] } <= scan_even[7:0];
                     // end else
-                        { reserved, shd, attr } <= scan_even[13:0];
+                    //     { reserved, shd, attr } <= scan_even[13:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
                     phase <= 4'd8;
                 end
@@ -287,7 +285,7 @@ always @(posedge clk, posedge rst) begin
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
-                    if( ~inzone | (x[9] /*& ~k44_en*/)) begin
+                    if( ~inzone /*| (x[9] & ~k44_en)*/) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -404,9 +402,9 @@ jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
     .q1     ( scan_odd       )
 );
 
-// initial pzoffset ='{
-//     8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4
-// };
+initial pzoffset ='{
+    8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4
+};
 
 initial zoffset ='{                             //  octal count
     511, 511, 511, 511, 511, 410, 341, 293,     //   0-  7

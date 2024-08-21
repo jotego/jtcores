@@ -284,7 +284,7 @@ assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
 assign orama = xmen ? cpu_addr[13:1] : oram_addr;
 assign vmux  = xmen ? vdump : vrender;
 
-jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
+jtsimson_obj44 #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
