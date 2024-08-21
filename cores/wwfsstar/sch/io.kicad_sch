@@ -4630,6 +4630,19 @@
 		)
 		(uuid e9a9f673-ffc7-4bf4-9e4c-69ecc3d919fb)
 	)
+	(rectangle
+		(start 68.58 135.89)
+		(end 81.28 142.24)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid f8118bb2-4427-4903-906e-bada41bbecb7)
+	)
 	(text "COIN"
 		(exclude_from_sim no)
 		(at 99.06 90.17 90)
@@ -4639,6 +4652,19 @@
 			)
 		)
 		(uuid "2256feb6-29b4-45bc-95ae-bc92f62b11a0")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 68.58 140.97 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "2fb8ce41-c227-489a-9a38-d67988288e53")
 	)
 	(text "?"
 		(exclude_from_sim no)
