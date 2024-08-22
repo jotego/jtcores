@@ -21,7 +21,6 @@ module jtsimson_video(
     output            rst8,     // reset signal at 8th frame
     input             clk,
     input             simson,
-    input             paroda,
 
     // Base Video
     input             pxl_cen,
@@ -98,7 +97,7 @@ wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 
-assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
+assign pal_addr    = { cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
@@ -126,7 +125,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( paroda    ),
+    .paroda     ( 1'b0      ),
     .simson     ( simson    ),
     // Base Video
     .lhbl       ( lhbl      ),
@@ -191,7 +190,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
 
 localparam ORAMW=12;
 wire [ORAMW:1] oram_a;
-assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
+assign oram_a = { cpu_addr[12], cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
@@ -200,7 +199,6 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( paroda    ),
     .simson     ( simson    ),
     .xmen       ( 1'b0      ),
     // Base Video (inputs)
@@ -244,8 +242,7 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
 );
 
 function [6:0] lyrcol( input [7:0] pxl );
-    lyrcol = paroda ? {       pxl[7:5], pxl[3:0] } :
-                      { 1'b0, pxl[7:6], pxl[3:0] };
+    lyrcol = { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 
 /* verilator tracing_on */
@@ -267,12 +264,12 @@ jtsimson_colmix u_colmix(
 
     // Final pixels
     .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
-    .lyra_pxl   ( lyrcol( paroda ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
-    .lyrb_pxl   ( lyrcol( paroda ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
+    .lyra_pxl   ( lyrcol( lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
+    .lyrb_pxl   ( lyrcol( lyrb_pxl[7:0] ) ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( paroda ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
+    .obj_shd    ( obj_shd ), // shadow resistors are not mounted in the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

@@ -22,7 +22,7 @@ module jtsimson_main(
     input               cen_ref,
     output              cpu_cen,
 
-    input               paroda,
+    // input               paroda,
     input               simson,
     input               vendetta,
 
@@ -107,7 +107,7 @@ assign dtack   = (~rom_cs | rom_ok) & tilesys_rom_dtack;
 assign ram_we  = ram_cs & cpu_we;
 assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
-assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs|(io_cs&paroda);
+assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs/*|(io_cs&paroda)*/;
 assign cpu_addr= A[15:0];
 
 always @(*) begin
@@ -191,24 +191,24 @@ always @(*) begin
     rom_addr[18]    = ~banked_cs;
     if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
 
-    if( paroda ) begin
-        cr_cs      = 0;
-        joystk_cs  = paro_aux && A[6:4]==3'b000;
-        io_cs      = paro_aux && A[6:4]==3'b001;
-        objreg_cs  = paro_aux && A[6:4]==3'b010;
-        pcu_cs     = paro_aux && A[6:4]==3'b011; // 053251
-        tilesys_cs = paro_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || paro_i6n );
-        snd_irq    = misc_cs && A[3:2]==2;
-        snd_cs     = misc_cs && A[3:2]==3;
-        ram_cs     = A[15:13]==0 && |{A[12:11],~WOC0};
-        pal_cs     = A[15:11]==0 && WOC0;
-        objsys_cs  = A[15:11]==4 && WOC1;
-        banked_cs  = A[15:13]==4 || (A[15:13]==3 && bankr); // 6000~7FFF on bankr, 8000~9FFF always
-        rom_cs     = banked_cs || A[15];
-        rom_addr[16:13] = banked_cs ? {~Aupper[2:0], A[15]} : {1'b1,A[15:13]};
-        rom_addr[17] = !Aupper[3]||!banked_cs;
-        rom_addr[18] = 0;
-    end
+    // if( paroda ) begin
+    //     cr_cs      = 0;
+    //     joystk_cs  = paro_aux && A[6:4]==3'b000;
+    //     io_cs      = paro_aux && A[6:4]==3'b001;
+    //     objreg_cs  = paro_aux && A[6:4]==3'b010;
+    //     pcu_cs     = paro_aux && A[6:4]==3'b011; // 053251
+    //     tilesys_cs = paro_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || paro_i6n );
+    //     snd_irq    = misc_cs && A[3:2]==2;
+    //     snd_cs     = misc_cs && A[3:2]==3;
+    //     ram_cs     = A[15:13]==0 && |{A[12:11],~WOC0};
+    //     pal_cs     = A[15:11]==0 && WOC0;
+    //     objsys_cs  = A[15:11]==4 && WOC1;
+    //     banked_cs  = A[15:13]==4 || (A[15:13]==3 && bankr); // 6000~7FFF on bankr, 8000~9FFF always
+    //     rom_cs     = banked_cs || A[15];
+    //     rom_addr[16:13] = banked_cs ? {~Aupper[2:0], A[15]} : {1'b1,A[15:13]};
+    //     rom_addr[17] = !Aupper[3]||!banked_cs;
+    //     rom_addr[18] = 0;
+    // end
     if( vendetta ) begin
         // PAL U22
         tilesys_cs =(vend_i6n && !vend_i7n) || vend_i7n && (!A[9]||!A[8]||!A[7]);
@@ -265,7 +265,7 @@ always @(posedge clk, posedge rst) begin
         bankr     <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
-        if( paroda ) begin
+/*        if( paroda ) begin
             objcha_n <= 1;
             //in k053244 actually
             //if(objreg_cs && cpu_addr[3:0] == 5) objcha_n <= !cpu_dout[4];
@@ -281,7 +281,7 @@ always @(posedge clk, posedge rst) begin
                 2'd2: port_in <= { dipsw[23:20], coin[1:0], 1'b1, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
-        end else if( vendetta ) begin
+        end else */if( vendetta ) begin
             if( io_cs ) case( A[3:1] )
                 0: { objcha_n, init, rmrd } <= {~cpu_dout[5], cpu_dout[4:3]}; // bit 2 named but unused, bits 1:0 are coin counters
                 1: { irqen, eep_di, eep_clk, eep_cs, mono, WOC1, WOC0 } <= cpu_dout[6:0];
