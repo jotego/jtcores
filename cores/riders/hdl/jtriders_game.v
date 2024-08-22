@@ -21,7 +21,7 @@ module jtriders_game(
 );
 
 localparam [2:0] SSRIDERS = 3'd0,
-                 TMNT2    = 3'd1,
+                 TMNT2    = 3'd1;
                  // XMEN     = 3'd2;
 
 /* verilator tracing_off */
