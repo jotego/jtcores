@@ -24,7 +24,6 @@ module jt053244(    // sprite logic
     input             pxl2_cen,
     input             pxl_cen,
 
-    input             k44_en,   // enable k053244/5 mode (default k053246/7)
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -98,8 +97,6 @@ wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
-reg  [ 6:0] pri;
-reg         active;
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
@@ -226,11 +223,8 @@ always @(posedge clk, posedge rst) begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
                     code    <= {2'b0, scan_odd[13:0]};
-                    pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
-                        active = scan_even[15];
                     if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -283,7 +277,7 @@ always @(posedge clk, posedge rst) begin
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
-                        /*if( scan_obj<= 8'h7B) */dr_start <= inzone; //ELIMINAR
+                        dr_start <= inzone;
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
@@ -306,7 +300,7 @@ jt053246_dma u_dma(
     .mode8      ( mode8     ),
     .dma_en     ( dma_en    ),
     .dma_trig   ( dma_trig  ),
-    .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
+    .k44_en     ( 1'b1      ),   // enable k053244/5 mode (default k053246/7)
     .simson     ( 1'b0      ),
     .reverse    ( 1'b0      ),
 
@@ -329,7 +323,7 @@ jt053246_dma u_dma(
 jt053246_mmr u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .k44_en     ( k44_en    ),
+    .k44_en     ( 1'b1      ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),
