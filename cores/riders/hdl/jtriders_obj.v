@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 24-7-2023 */
+    Date: 21-8-2024 */
 
 module jtriders_obj #(parameter
     RAMW   = 12
@@ -23,8 +23,8 @@ module jtriders_obj #(parameter
     input             clk,
 
     input             paroda,
-    input             simson,
-    input             xmen,
+    // input             simson,
+    // input             xmen,
 
     input             pxl_cen,
     input             pxl2_cen,
@@ -128,8 +128,8 @@ jt053244 u_scan(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
 
     .k44_en     ( paroda    ),
-    .simson     ( simson    ),
-    .xmen       ( xmen      ),
+    // .simson     ( simson    ),
+    // .xmen       ( xmen      ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),
