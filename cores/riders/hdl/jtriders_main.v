@@ -20,7 +20,7 @@ module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input                xmen,
+    // input                xmen,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -138,14 +138,14 @@ always @* begin
     obj_cs   = 0;
     objreg_cs= 0;
     snd_cs   = 0;
-    sndon    = xmen ? sndon_r : 1'b0;
+    sndon    = /*xmen ? sndon_r :*/ 1'b0;
     pcu_cs   = 0;
     prot_cs  = 0;
     pair_cs  = 0;
     wdog     = 0;
     if(!ASn) begin
         // tmnt2/ssriders
-        if(!xmen) case(A[23:20])
+        /*if(!xmen)*/ case(A[23:20])
             0: rom_cs = 1;
             1: case(A[19:18])
                 0: ram_cs  = A[14] & ~BUSn;
@@ -178,7 +178,7 @@ always @* begin
             default:;
         endcase
         // xmen (from PAL equations)
-        if(xmen) begin
+/*        if(xmen) begin
             rom_cs  = ~A[20];
             ram_cs  =  A[20:14]==7'b1000100 & ~BUSn;
             obj_cs  =  A[20:14]==7'b1000000;
@@ -192,7 +192,7 @@ always @* begin
             objreg_cs = iowr_lo && A[6:5]==1;
             pair_cs   = iowr_lo && A[6:5]==2;
             pcu_cs    = iowr_lo && A[6:5]==3;
-        end
+        end*/
     end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
@@ -209,8 +209,8 @@ jtframe_edge #(.QSET(0)) u_ff(
 );
 
 always @(posedge clk) begin
-    IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & tile_irqn }
-                 : { tile_irqn, 1'b1, prot_irqn };
+    IPLn <= /*xmen ? { intdma | ~IPLn1, IPLn1, intdma & tile_irqn }
+                 : */{ tile_irqn, 1'b1, prot_irqn };
 
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
@@ -238,7 +238,7 @@ always @(posedge clk) begin
         cabcs_l <= cab_cs;
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
-    if(!xmen) begin
+    // if(!xmen) begin
         cab_dout[15:8] <= 0;
         cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
                            { service, coin };
@@ -249,13 +249,13 @@ always @(posedge clk) begin
             3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
             default:;
         endcase
-    end else begin // xmen
-        cab_dout <= A[1] ? { coin[2], swap(joystick3[6:0]), coin[0], swap(joystick1[6:0]) }:
-                           { coin[3], swap(joystick4[6:0]), coin[1], swap(joystick2[6:0]) };
-        if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
-                2'b11, cab_1p[3:0],
-                eep_rdy, eep_do, 2'b11, service };
-    end
+    // end else begin // xmen
+    //     cab_dout <= A[1] ? { coin[2], swap(joystick3[6:0]), coin[0], swap(joystick1[6:0]) }:
+    //                        { coin[3], swap(joystick4[6:0]), coin[1], swap(joystick2[6:0]) };
+    //     if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
+    //             2'b11, cab_1p[3:0],
+    //             eep_rdy, eep_do, 2'b11, service };
+    // end
 end
 
 always @(posedge clk, posedge rst) begin
@@ -273,20 +273,20 @@ always @(posedge clk, posedge rst) begin
         objcha_n<= 1;
         intdma_enb <= 1;
     end else begin
-        if(!xmen) begin
+        // if(!xmen) begin
             if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
             if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
-        end else begin // xmen
-            if( iowr_lo && A[6:5]==0 ) begin
-                if( !LDSn ) { intdma_enb, eep_cs, eep_clk, eep_di } <= cpu_dout[5:2];
-                if( !UDSn ) begin
-                    mute     <=  cpu_dout[11];
-                    sndon_r  <=  cpu_dout[10];
-                    rmrd     <=  cpu_dout[9];
-                    objcha_n <= ~cpu_dout[8];
-                end
-            end
-        end
+        // end else begin // xmen
+        //     if( iowr_lo && A[6:5]==0 ) begin
+        //         if( !LDSn ) { intdma_enb, eep_cs, eep_clk, eep_di } <= cpu_dout[5:2];
+        //         if( !UDSn ) begin
+        //             mute     <=  cpu_dout[11];
+        //             sndon_r  <=  cpu_dout[10];
+        //             rmrd     <=  cpu_dout[9];
+        //             objcha_n <= ~cpu_dout[8];
+        //         end
+        //     end
+        // end
     end
 end
 

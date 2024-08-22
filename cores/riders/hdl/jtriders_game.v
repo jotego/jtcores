@@ -22,7 +22,7 @@ module jtriders_game(
 
 localparam [2:0] SSRIDERS = 3'd0,
                  TMNT2    = 3'd1,
-                 XMEN     = 3'd2;
+                 // XMEN     = 3'd2;
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
@@ -34,7 +34,7 @@ wire [14:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         ssriders, tmnt2, xmen;
+reg         ssriders, tmnt2/*, xmen*/;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
@@ -52,17 +52,17 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
+        3: debug_mux <= { mute, 1'b0/*xmen*/, dimpol, dimmod, 1'b0, dim };
         default: debug_mux <= 0;
     endcase
 end
 
 always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
-    xmen     <= game_id == XMEN;
+    // xmen     <= game_id == XMEN;
     ssriders <= game_id == SSRIDERS;
     tmnt2    <= game_id == TMNT2;
-    if( `FULLRAM == 0 ) xmen <= 0;
+    // if( `FULLRAM == 0 ) xmen <= 0;
 end
 
 /* verilator tracing_off */
@@ -70,7 +70,7 @@ jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
-    .xmen           ( xmen          ),
+    // .xmen           ( xmen          ),
 
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
@@ -181,7 +181,7 @@ jtriders_video u_video (
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
 
-    .xmen           ( xmen          ),
+    // .xmen           ( xmen          ),
     .ssriders       ( ssriders      ),
 
     .tile_irqn      ( tile_irqn     ),
@@ -259,7 +259,7 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
-    .xmen       ( xmen          ),
+    .xmen       ( /*xmen*/1'b0  ),
     .pair_we    ( pair_we       ),
     .pair_dout  ( pair_dout     ),
     // communication with main CPU
