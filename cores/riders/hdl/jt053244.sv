@@ -24,6 +24,7 @@ module jt053244(    // sprite logic
     input             pxl2_cen,
     input             pxl_cen,
 
+    input             k44_en,   // enable k053244/5 mode (default k053246/7)
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -97,6 +98,8 @@ wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
+reg  [ 6:0] pri;
+reg         active;
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
@@ -167,14 +170,14 @@ always @* begin
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( y2[9] || yz_add[16] ) inzone=0;
+    if( /*y2[9] ||*/ yz_add[16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
-    if( y[9] ) inzone=0;
+    // if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
@@ -188,6 +191,8 @@ always @* begin
         3: vsum = ydiff[6:4]^{3{vflip}};
     endcase
 end
+
+/*BORRAR*/ reg [3:0] phase;
 
 // Table scan
 always @(posedge clk, posedge rst) begin
@@ -207,28 +212,37 @@ always @(posedge clk, posedge rst) begin
         indr     <= 0;
         hhalf    <= 0;
         shd      <= 0;
+        phase   <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         vs_l <= vs;
         dr_start <= 0;
+        phase <= 4'd1;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
+            phase <= 4'd2;
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
+            phase <= 4'd3;
             case( {indr, scan_sub} )
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
                     code    <= {2'b0, scan_odd[13:0]};
+                    pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;
+                    phase <= 4'd4;
+                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
+                        active = scan_even[15];
                     if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
+                        phase <= 4'd5;
                     end
                 end
                 1: begin
@@ -236,22 +250,26 @@ always @(posedge clk, posedge rst) begin
                     x <= ghf ? -scan_odd[ 9:0] : scan_odd[ 9:0];
                     hcode <= {code[4],code[2],code[0]};
                     hstep <= 0;
+                    phase <= 4'd6;
                 end
                 2: begin
                     x <=  x+xadj;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
+                    phase <= 4'd7;
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     { shd[0], attr[6:0] } <= scan_even[7:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    phase <= 4'd8;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
+                    phase <= 4'd9;
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
@@ -259,6 +277,7 @@ always @(posedge clk, posedge rst) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
+                        phase <= 4'd10;
                     end
                 end
                 default: begin // in draw state
@@ -268,21 +287,26 @@ always @(posedge clk, posedge rst) begin
                         3: if(hstep>=4) hhalf <= 1;
                     endcase
                     {indr, scan_sub} <= 5; // stay here
+                    phase <= 4'd11;
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
+                        phase <= 4'd12;
                         if( hstep==0 ) begin
                             hpos <= x[8:0] - zmove( hsz, hscl );
+                            phase <= 4'd13;
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
+                            phase <= 4'd14;
                         end
                         hstep <= hstep + 1'd1;
-                        dr_start <= inzone;
+                        /*if( scan_obj<= 8'h7B) */dr_start <= inzone; //ELIMINAR
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
                             // hz_keep <= 0;
+                            phase <= 4'd15;
                             if( last_obj ) done <= 1;
                         end
                     end
@@ -300,7 +324,7 @@ jt053246_dma u_dma(
     .mode8      ( mode8     ),
     .dma_en     ( dma_en    ),
     .dma_trig   ( dma_trig  ),
-    .k44_en     ( 1'b1      ),   // enable k053244/5 mode (default k053246/7)
+    .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
     .simson     ( 1'b0      ),
     .reverse    ( 1'b0      ),
 
@@ -323,7 +347,7 @@ jt053246_dma u_dma(
 jt053246_mmr u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .k44_en     ( 1'b1      ),
+    .k44_en     ( k44_en    ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),

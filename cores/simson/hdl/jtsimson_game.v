@@ -33,7 +33,7 @@ wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [14:0] video_dumpa;
 reg  [ 7:0] debug_mux;
-reg         simson, vendetta;
+reg         simson, paroda, vendetta;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -43,7 +43,7 @@ assign video_dumpa= ioctl_addr[14:0]-15'h80;
 always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) begin
         simson   <= prog_data[1:0]==0;
-        // paroda   <= prog_data[1:0]==1;
+        paroda   <= prog_data[1:0]==1;
         vendetta <= prog_data[1:0]==2;
     end
     case( debug_bus[7:6] )
@@ -62,7 +62,7 @@ jtsimson_main u_main(
     .cpu_cen        ( cpu_cen       ),
 
     .simson         ( simson        ),
-    // .paroda         ( paroda        ),
+    .paroda         ( paroda        ),
     .vendetta       ( vendetta      ),
 
     .cpu_addr       ( cpu_addr      ),
@@ -179,6 +179,7 @@ jtsimson_video u_video (
     .clk            ( clk           ),
 
     .simson         ( simson        ),
+    .paroda         ( paroda        ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),

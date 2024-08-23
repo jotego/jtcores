@@ -290,7 +290,7 @@ jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    // .paroda     ( ssriders  ),
+    .paroda     ( ssriders  ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),

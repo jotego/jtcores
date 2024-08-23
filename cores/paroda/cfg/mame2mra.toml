@@ -1,0 +1,47 @@
+[parse]
+sourcefile=[ "parodius.cpp" ]
+
+[Audio]
+volume = [
+    { machine="parodius", value=0xB0 },
+]
+
+[buttons]
+names = [
+    { names="Power-up,Shoot,Missile/Bell", machine="parodius" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[header]
+info = """ Header to identify the PCB type
+        Byte 0 = 1 - Parodius
+                 """
+data = [
+    { machine="parodius", offset=0, data="01" },
+]
+
+[ROM]
+regions = [
+    { name="maincpu",  machine="parodius" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="k053260",  start="PCM_START", rename="pcm", machine ="parodius", sequence=[0,0] },
+    { name="k052109",  start="JTFRAME_BA2_START", width=32, rename="tiles" }, # tiles
+    { name="k053245",  start="JTFRAME_BA3_START", width=32, rename="obj", machine="parodius" }, # sprites
+    { name="eeprom",   skip=true },
+    { name="plds",     skip=true },
+]
+
+order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj" ]
+
+# Skips the RAM check
+patches = [
+   # skip sound RAM/ROM test
+   { setname="parodius", offset=0x80011, data="00 00 00" },
+   { setname="parodius", offset=0x805e6, data="00 00 00" },
+   { setname="parodius", offset=0x805f8, data="00 00"    },
+   { setname="parodius", offset=0x8060d, data="00 00 00" },
+   { setname="parodius", offset=0x80615, data="00 00 00" },
+]
+

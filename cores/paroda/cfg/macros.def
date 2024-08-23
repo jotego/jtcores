@@ -1,0 +1,4 @@
+include ../../simson/cfg/macros.def
+CORENAME=JTPARODA
+
+PARODA
