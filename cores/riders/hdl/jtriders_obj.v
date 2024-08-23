@@ -68,7 +68,7 @@ module jtriders_obj #(parameter
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] pre_shd;
+wire        pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
@@ -79,7 +79,7 @@ wire [15:0] pre_pxl;
 // Draw module
 wire        dr_start, dr_busy;
 wire [15:0] code;
-wire [ 9:0] attr;     // OC pins
+wire [ 6:0] attr;     // OC pins
 wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 8:0] hpos;
 wire [ 3:0] ysub;
@@ -192,7 +192,7 @@ jtframe_objdraw #(
 
     .hflip      ( ~hflip        ),
     .vflip      ( vflip         ),
-    .pal        ({pre_shd, attr}),
+    .pal        ({1'b0,pre_shd, 3'b0, attr}),
 
     .rom_addr   ( pre_addr      ),
     .rom_cs     ( pre_cs        ),

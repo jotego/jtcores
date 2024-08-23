@@ -16,14 +16,11 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtriders_video(
+module jtxmen_video(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
-
-    input             ssriders,
-    // input             xmen,
 
     // Base Video
     output            lhbl,
@@ -62,11 +59,6 @@ module jtriders_video(
     // control
     input             rmrd,     // Tile ROM read mode
     output            flip,
-
-    // RAM with ROM MSB address for tile ROM
-    input             oaread_en,
-    output     [ 8:0] oaread_addr,
-    input      [ 7:0] oaread_dout,
 
     // Tile ROMs
     output reg [20:2] lyrf_addr,
@@ -119,19 +111,15 @@ wire [ 1:0] shadow;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
-            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, paroda;
+            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = /*xmen ? cpu_addr       :*/ { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
-assign cpu_d8    = /*xmen ? cpu_dout[ 7:0] :*/ ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
+assign cpu_saddr = cpu_addr;
+assign cpu_d8    = cpu_dout[ 7:0]  ;
 // Object ROM address MSB might come from a RAM
-assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr   = /*xmen      ? lyro_prea :*/
-                     oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
-                                 {1'b0,lyro_prea[20:2]};
+assign lyro_addr   = lyro_prea;
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
-assign paroda = ssriders | oaread_en;
 
 jtriders_dump u_dump(
     .clk            ( clk           ),
@@ -166,19 +154,13 @@ always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 // endfunction
 
 always @* begin
-    // if( !xmen ) begin
-        lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
-        lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
-        lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
-    // end else begin // xmen
-    //     lyrf_addr = { lyrf_extra, pre_f[10:0] };
-    //     lyra_addr = { lyra_extra, pre_a[10:0] };
-    //     lyrb_addr = { lyrb_extra, pre_b[10:0] };
-    // end
+        lyrf_addr = { lyrf_extra, pre_f[10:0] };
+        lyra_addr = { lyra_extra, pre_a[10:0] };
+        lyrb_addr = { lyrb_extra, pre_b[10:0] };
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = /*xmen ? c[7:0] : */{ c[7:5], 5'd0 };
+    cgate =  c[7:0];
 endfunction
 
 /* verilator tracing_on */
@@ -191,7 +173,8 @@ endfunction
 // It also makes the grid look squared, wihtout nothing hanging off the sides
 jtaliens_scroll #(
     .HB_EXTRAL( 9'd8 ),
-    .HB_EXTRAR( 9'd8 )
+    .HB_EXTRAR( 9'd8 ),
+    .FULLRAM  (`FULLRAM)
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -279,18 +262,19 @@ wire [ 3:0] ommra;
 wire [ 8:0] vmux;
 wire [13:1] orama;
 
-assign ommra = /*xmen ? {cpu_addr[3:1],cpu_dsn[1]} : */{cpu_addr[4:2], cpu_dsn[1]};
+assign ommra = {cpu_addr[3:1],cpu_dsn[1]};
 // xmen never exercises cpu_addr[13], although it is connected to the RAM
-assign orama = /*xmen ? cpu_addr[13:1] :*/ oram_addr;
-assign vmux  = /*xmen ? vdump :*/ vrender;
+assign orama = cpu_addr[13:1];
+assign vmux  = vdump;
 
-jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( paroda    ),
+    .simson     ( 1'b0      ),
+    .xmen       ( 1'b1      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -336,7 +320,7 @@ jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .xmen       ( /*xmen*/1'b0      ),
+    .xmen       ( 1'b1      ),
 
     // Base Video
     .lhbl       ( lhbl      ),

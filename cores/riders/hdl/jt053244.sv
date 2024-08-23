@@ -43,7 +43,7 @@ module jt053244(    // sprite logic
     // ROM addressing 22 bits in total
     output reg [15:0] code,
     // There are 22 bits communicating both chips on the PCB
-    output reg [ 9:0] attr,     // OC pins
+    output reg [ 6:0] attr,     // OC pins
     output            hflip,
     output reg        vflip,
     output reg [ 8:0] hpos,
@@ -61,7 +61,7 @@ module jt053244(    // sprite logic
 
     // shadow
     input      [ 8:0] pxl,
-    output reg [ 1:0] shd,
+    output reg        shd,
 
     // indr module / 051937
     output reg        dr_start,
@@ -99,7 +99,6 @@ wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
 reg  [ 6:0] pri;
-reg         active;
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
@@ -192,7 +191,6 @@ always @* begin
     endcase
 end
 
-/*BORRAR*/ reg [3:0] phase;
 
 // Table scan
 always @(posedge clk, posedge rst) begin
@@ -212,21 +210,17 @@ always @(posedge clk, posedge rst) begin
         indr     <= 0;
         hhalf    <= 0;
         shd      <= 0;
-        phase   <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         vs_l <= vs;
         dr_start <= 0;
-        phase <= 4'd1;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
-            phase <= 4'd2;
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
-            phase <= 4'd3;
             case( {indr, scan_sub} )
                 0: begin
                     hhalf <= 0;
@@ -235,14 +229,11 @@ always @(posedge clk, posedge rst) begin
                     pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;
-                    phase <= 4'd4;
                     // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
-                        active = scan_even[15];
                     if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
-                        phase <= 4'd5;
                     end
                 end
                 1: begin
@@ -250,26 +241,22 @@ always @(posedge clk, posedge rst) begin
                     x <= ghf ? -scan_odd[ 9:0] : scan_odd[ 9:0];
                     hcode <= {code[4],code[2],code[0]};
                     hstep <= 0;
-                    phase <= 4'd6;
                 end
                 2: begin
                     x <=  x+xadj;
                     y <=  ywrap;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
-                    phase <= 4'd7;
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
-                    { shd[0], attr[6:0] } <= scan_even[7:0];
+                    { shd, attr } <= scan_even[7:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
-                    phase <= 4'd8;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
-                    phase <= 4'd9;
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
@@ -277,7 +264,6 @@ always @(posedge clk, posedge rst) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
-                        phase <= 4'd10;
                     end
                 end
                 default: begin // in draw state
@@ -287,26 +273,21 @@ always @(posedge clk, posedge rst) begin
                         3: if(hstep>=4) hhalf <= 1;
                     endcase
                     {indr, scan_sub} <= 5; // stay here
-                    phase <= 4'd11;
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
-                        phase <= 4'd12;
                         if( hstep==0 ) begin
                             hpos <= x[8:0] - zmove( hsz, hscl );
-                            phase <= 4'd13;
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
-                            phase <= 4'd14;
                         end
                         hstep <= hstep + 1'd1;
-                        /*if( scan_obj<= 8'h7B) */dr_start <= inzone; //ELIMINAR
+                        dr_start <= inzone; //ELIMINAR
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
                             // hz_keep <= 0;
-                            phase <= 4'd15;
                             if( last_obj ) done <= 1;
                         end
                     end

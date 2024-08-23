@@ -16,24 +16,23 @@
     Version: 1.0
     Date: 7-7-2024 */
 
-module jtriders_game(
+module jtxmen_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [2:0] SSRIDERS = 3'd0,
-                 TMNT2    = 3'd1;
+localparam [2:0] XMEN     = 3'd2;
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
-            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
-            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
+            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [14:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         ssriders, tmnt2;
+reg         xmen;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
@@ -43,27 +42,25 @@ wire [ 1:0] oram_we;
 assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
-assign omsb_din   = ram_din[7:0];
-assign oaread_en  = tmnt2;
 assign video_dumpa= ioctl_addr[14:0]-15'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { 2'b0, dimpol, dimmod, 1'b0, dim };
+        3: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
         default: debug_mux <= 0;
     endcase
 end
 
 always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
-    ssriders <= game_id == SSRIDERS;
-    tmnt2    <= game_id == TMNT2;
+    xmen     <= game_id == XMEN;
+    if( `FULLRAM == 0 ) xmen <= 0;
 end
 
 /* verilator tracing_off */
-jtriders_main u_main(
+jtxmen_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
@@ -102,10 +99,6 @@ jtriders_main u_main(
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
-    // Object MSB RAM
-    .omsb_we        ( omsb_we       ),
-    .omsb_addr      ( omsb_addr     ),
-    .omsb_dout      ( omsb_dout     ),
     // To video
     .rmrd           ( rmrd          ),
     .dimmod         ( dimmod        ),
@@ -114,6 +107,7 @@ jtriders_main u_main(
     .cbnk           (               ),
     .dma_bsy        ( dma_bsy       ),
     .objreg_cs      ( objreg_cs     ),
+    .objcha_n       ( objcha_n      ),
 
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
@@ -123,6 +117,7 @@ jtriders_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
+    .mute           ( mute          ),
     .pair_we        ( pair_we       ),
     .pair_dout      ( pair_dout     ),
     // EEPROM
@@ -168,14 +163,12 @@ jtriders_prot u_prot(
 );
 
 /* verilator tracing_on */
-jtriders_video u_video (
+jtxmen_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
-
-    .ssriders       ( ssriders      ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -189,15 +182,11 @@ jtriders_video u_video (
     .oram_we        ( oram_we       ),
     .oram_din       ( oram_din      ),
     .oram_addr      ( oram_addr     ),
-    // RAM with ROM MSB address for tile ROM
-    .oaread_en      ( oaread_en     ),
-    .oaread_dout    ( oaread_dout   ),
-    .oaread_addr    ( oaread_addr   ),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( oram_cs       ),
     .objreg_cs      ( objreg_cs     ),
-    .objcha_n       ( 1'b1          ),
+    .objcha_n       ( objcha_n      ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
@@ -252,7 +241,7 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
-    .xmen       ( 1'b0          ),
+    .xmen       ( xmen          ),
     .pair_we    ( pair_we       ),
     .pair_dout  ( pair_dout     ),
     // communication with main CPU

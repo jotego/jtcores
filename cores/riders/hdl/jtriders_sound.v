@@ -135,7 +135,7 @@ jtframe_edge #(.QSET(0)) u_edge (
 );
 
 /* verilator tracing_off */
-jtframe_sysz80 #(.RAM_AW(`SND_RAMW),.CLR_INT(1)) u_cpu(
+jtframe_sysz80 #(`ifdef SND_RAMW .RAM_AW(`SND_RAMW), `endif .CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_g     ),
@@ -221,7 +221,9 @@ end else begin
     assign k39_dout   = 0;
     assign latch_dout = 0;
     assign latch_intn = 1;
+    assign pair_dout  = 0;
 end endgenerate
+
 
 /* verilator tracing_off */
 jt053260 u_k53260(
