@@ -17731,17 +17731,6 @@
 		)
 		(uuid "ecb09857-f063-4205-8780-e091b514d328")
 	)
-	(label "~{RST}"
-		(at 22.86 135.89 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "eceea167-7cfa-4d20-b535-fb02b9c3cb39")
-	)
 	(label "A12"
 		(at 172.72 72.39 0)
 		(fields_autoplaced yes)
