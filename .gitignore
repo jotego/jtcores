@@ -95,6 +95,7 @@ ncverilog.*
 obj_dir
 old/*
 old
+ref
 release.bak/*
 release/*
 rom

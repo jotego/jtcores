@@ -203,4 +203,4 @@ JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vertical game
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
-JTFRAME_CREDITS_PAGES    |         | number of pages of credits text
+JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)

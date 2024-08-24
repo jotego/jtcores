@@ -95,7 +95,13 @@ always @(posedge clk, posedge rst) begin
         end
         if( busy && (!rom_cs || rom_ok) ) begin
             if( cnt==7 && rom_cs ) begin
-                pxl_data <= PACKED ? rom_data : {
+                pxl_data <= PACKED==1 ? rom_data
+                : PACKED==2 ? {
+                    rom_data[27:24], rom_data[31:28],
+                    rom_data[19:16], rom_data[23:20],
+                    rom_data[11: 8], rom_data[15:12],
+                    rom_data[ 3: 0], rom_data[ 7:4]
+                } : {
                     rom_data[27], rom_data[31], rom_data[19], rom_data[23],
                     rom_data[26], rom_data[30], rom_data[18], rom_data[22],
                     rom_data[25], rom_data[29], rom_data[17], rom_data[21],
@@ -133,7 +139,7 @@ assign buf_clr = pxl_cen && hread < { 1'b1, HOFFSET };
 reg [7:0] buf_al;
 reg       buf_wel;
 
-jtframe_obj_buffer #(.AW(8),.DW(4), .ALPHA(0)) u_buffer(
+jtframe_obj_buffer #(.AW(8),.DW(4),.ALPHA(0)) u_buffer(
     .clk    ( clk       ),
     .LHBL   ( ~hinit_x  ),  // change buffer right before writting the new line
     .flip   ( 1'b0      ),

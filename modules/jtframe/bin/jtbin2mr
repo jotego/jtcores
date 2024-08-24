@@ -116,7 +116,9 @@ elif ping -c 1 -q $MRHOST > /dev/null; then
     $MRCMD "rm -rf /media/fat/config/nvram/*.nvm"
     $MRCMD "rm -rf /media/fat/config/dips/*"
     if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
-        $MRCMD "cp /media/fat/_JTBIN/cores/neogeopocket.rbf /media/fat/_Console/NeoGeoPocket.rbf"
+        if [ -e $JTBIN/mister/neogeopocket.rbf ]; then
+            $MRCMD "cp /media/fat/_JTBIN/cores/neogeopocket.rbf /media/fat/_Console/NeoGeoPocket.rbf"
+        fi
         rm -rf $TEMP
     else
         echo "Copy to MiSTer failed. Temporary files in " $TEMP

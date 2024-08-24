@@ -40,7 +40,7 @@ module jtyiear_colmix(
     input         [3:0] gfx_en
 );
 
-parameter BLANK_DLY=8, LOWONLY=0;
+parameter BLANK_DLY=8, LOWONLY=0,SIMFILE="407c10.1g";
 
 reg  [4:0] mux;
 wire       obj_blank = obj_pxl[3:0]==0 || !gfx_en[3];
@@ -61,7 +61,7 @@ assign {red,green,blue} = { rgb[2:0], rgb[2], // red
 jtframe_prom #(
     .DW     ( 8         ),
     .AW     ( 5         ),
-    .SIMFILE("407c10.1g")
+    .SIMFILE( SIMFILE   )
 ) u_pal(
     .clk    ( clk       ),
     .cen    ( pxl_cen   ),
