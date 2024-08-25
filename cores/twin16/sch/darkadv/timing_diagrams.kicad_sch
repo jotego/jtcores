@@ -31982,7 +31982,7 @@
 		)
 		(uuid "4c1ec7cd-a23e-4180-9e4b-9091165280f1")
 	)
-	(text "~{VBLK} (~{CBLK'})"
+	(text "~{VBLK} (~{CBLK''})"
 		(exclude_from_sim no)
 		(at 106.68 257.81 0)
 		(effects
@@ -32246,7 +32246,7 @@
 		)
 		(uuid "7620343e-77a3-4cda-b5e6-2e264e435bd6")
 	)
-	(text "~{HBLK} (~{CBLK'})"
+	(text "~{HBLK} (~{CBLK''})"
 		(exclude_from_sim no)
 		(at 106.68 228.6 0)
 		(effects
