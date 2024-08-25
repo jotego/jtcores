@@ -308,6 +308,10 @@ func Make_macros(cfg Config) (macros map[string]string) {
 			macros["GAMETOP"] = strings.ToLower(macros["CORENAME"]+"_game_sdram")
 		}
 	}
+	// for JTFRAME_VERTICAL define MISTER_FB
+	if _, exists = macros["JTFRAME_VERTICAL"]; exists {
+		macros["MISTER_FB"] = ""
+	}
 	// If JTFRAME_INPUT_RECORD exists, set the right NVRAM length
 	if _, f := macros["JTFRAME_INPUT_RECORD"]; f {
 		const JTFRAME_INPUT_RECORD_AW=12 // 4kB of recording, up to 2048 key strokes

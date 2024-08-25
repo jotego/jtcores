@@ -24,25 +24,16 @@
 // Use buffer to access SD card. It's time-critical part.
 //
 // WIDE=1 for 16 bit file I/O
-// VDNUM 1-4
-
-
-// JTFRAME version:
-// This module has been modified to always offer an 8-bit interface to the core
-// Regardless of whether WIDE is 1 or 0
-
-module hps_io #(parameter STRLEN=0, PS2DIV=0, WIDE=0, VDNUM=1, PS2WE=0)
+// VDNUM 1..10
+// BLKSZ 0..7: 0 = 128, 1 = 256, 2 = 512(default), .. 7 = 16384
+//
+module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, BLKSZ=2, PS2WE=0, STRLEN=$size(CONF_STR)>>3)
 (
 	input             clk_sys,
 	inout      [48:0] HPS_BUS,
 
-	// parameter STRLEN and the actual length of conf_str have to match
-	input [(8*STRLEN)-1:0] conf_str,
-	output [9:0] cfg_addr,
-	input  [7:0] cfg_dout,
-
 	// buttons up to 32
-	input      [15:0] joy_raw,		// DB15 joystick
+	input      [15:0] joy_raw,              // DB15 joystick
 	output reg [31:0] joystick_0,
 	output reg [31:0] joystick_1,
 	output reg [31:0] joystick_2,
@@ -51,14 +42,14 @@ module hps_io #(parameter STRLEN=0, PS2DIV=0, WIDE=0, VDNUM=1, PS2WE=0)
 	output reg [31:0] joystick_5,
 
 	// analog -127..+127, Y: [15:8], X: [7:0]
-	output reg [15:0] joystick_l_analog_0,	// left analogue stick
+	output reg [15:0] joystick_l_analog_0,
 	output reg [15:0] joystick_l_analog_1,
 	output reg [15:0] joystick_l_analog_2,
 	output reg [15:0] joystick_l_analog_3,
 	output reg [15:0] joystick_l_analog_4,
 	output reg [15:0] joystick_l_analog_5,
 
-	output reg [15:0] joystick_r_analog_0,	// right analogue stick
+	output reg [15:0] joystick_r_analog_0,
 	output reg [15:0] joystick_r_analog_1,
 	output reg [15:0] joystick_r_analog_2,
 	output reg [15:0] joystick_r_analog_3,
@@ -88,71 +79,6 @@ module hps_io #(parameter STRLEN=0, PS2DIV=0, WIDE=0, VDNUM=1, PS2WE=0)
 	output reg  [8:0] spinner_4,
 	output reg  [8:0] spinner_5,
 
-	output      [1:0] buttons,
-	output            forced_scandoubler,
-	output            direct_video,
-	input             video_rotated,
-
-	output reg [127:0] status,
-	input     [127:0] status_in,
-	input             status_set,
-	input      [15:0] status_menumask,
-
-	input             info_req,
-	input       [7:0] info,
-
-	//toggle to force notify of video mode change
-	input             new_vmode,
-
-	// SD config
-	output reg [VD:0] img_mounted,  // signaling that new image has been mounted
-	output reg        img_readonly, // mounted as read only. valid only for active bit in img_mounted
-	output reg [63:0] img_size,     // size of image in bytes. valid only for active bit in img_mounted
-
-	// SD block level access
-	input      [31:0] sd_lba,
-	input      [VD:0] sd_rd,       // only single sd_rd can be active at any given time
-	input      [VD:0] sd_wr,       // only single sd_wr can be active at any given time
-	output reg        sd_ack,
-
-	// do not use in new projects.
-	// CID and CSD are fake except CSD image size field.
-	input             sd_conf,
-	output reg        sd_ack_conf,
-
-	// SD byte level access. Signals for 2-PORT altsyncram.
-	output reg [AW:0] sd_buff_addr,
-	output reg [DW:0] sd_buff_dout,
-	input      [DW:0] sd_buff_din,
-	output reg        sd_buff_wr,
-	input      [15:0] sd_req_type,
-
-	// ARM -> FPGA download
-	output reg        ioctl_download = 0, // signal indicating an active download
-	output reg [15:0] ioctl_index,        // menu index used to upload the file
-	output reg        ioctl_wr,
-	output reg [26:0] ioctl_addr,         // in WIDE mode address will be incremented by 2
-	output reg [ 7:0] ioctl_dout,
-	output reg        ioctl_upload = 0,   // signal indicating an active upload
-	input      [ 7:0] ioctl_din,
-	output reg        ioctl_rd,
-	output reg [31:0] ioctl_file_ext,
-	input             ioctl_wait,
-
-	// [15]: 0 - unset, 1 - set. [1:0]: 0 - none, 1 - 32MB, 2 - 64MB, 3 - 128MB
-	// [14]: debug mode: [8]: 1 - phase up, 0 - phase down. [7:0]: amount of shift.
-	output reg [15:0] sdram_sz,
-
-	// RTC MSM6242B layout
-	output reg [64:0] RTC,
-
-	// Seconds since 1970-01-01 00:00:00
-	output reg [32:0] TIMESTAMP,
-
-	// UART flags
-	output reg  [7:0] uart_mode,
-	output reg [31:0] uart_speed,
-
 	// ps2 keyboard emulation
 	output            ps2_kbd_clk_out,
 	output            ps2_kbd_data_out,
@@ -176,7 +102,69 @@ module hps_io #(parameter STRLEN=0, PS2DIV=0, WIDE=0, VDNUM=1, PS2WE=0)
 	output reg [24:0] ps2_mouse = 0,
 	output reg [15:0] ps2_mouse_ext = 0, // 15:8 - reserved(additional buttons), 7:0 - wheel movements
 
+	output      [1:0] buttons,
+	output            forced_scandoubler,
+	output            direct_video,
+	input             video_rotated,
+
+	//toggle to force notify of video mode change
+	input             new_vmode,
+
 	inout      [21:0] gamma_bus,
+
+	output reg [127:0] status,
+	input      [127:0] status_in,
+	input              status_set,
+	input       [15:0] status_menumask,
+
+	input             info_req,
+	input       [7:0] info,
+
+	// SD config
+	output reg [VD:0] img_mounted,  // signaling that new image has been mounted
+	output reg        img_readonly, // mounted as read only. valid only for active bit in img_mounted
+	output reg [63:0] img_size,     // size of image in bytes. valid only for active bit in img_mounted
+
+	// SD block level access
+	input      [31:0] sd_lba[VDNUM],
+	input       [5:0] sd_blk_cnt[VDNUM], // number of blocks-1, total size ((sd_blk_cnt+1)*(1<<(BLKSZ+7))) must be <= 16384!
+	input      [VD:0] sd_rd,
+	input      [VD:0] sd_wr,
+	output reg [VD:0] sd_ack,
+
+	// SD byte level access. Signals for 2-PORT altsyncram.
+	output reg [AW:0] sd_buff_addr,
+	output reg [DW:0] sd_buff_dout,
+	input      [DW:0] sd_buff_din[VDNUM],
+	output reg        sd_buff_wr,
+
+	// ARM -> FPGA download
+	output reg        ioctl_download = 0, // signal indicating an active download
+	output reg [15:0] ioctl_index,        // menu index used to upload the file
+	output reg        ioctl_wr,
+	output reg [26:0] ioctl_addr,         // in WIDE mode address will be incremented by 2
+	output reg [DW:0] ioctl_dout,
+	output reg        ioctl_upload = 0,   // signal indicating an active upload
+	input             ioctl_upload_req,   // request to save (must be supported on HPS side for specific core)
+	input       [7:0] ioctl_upload_index,
+	input      [DW:0] ioctl_din,
+	output reg        ioctl_rd,
+	output reg [31:0] ioctl_file_ext,
+	input             ioctl_wait,
+
+	// [15]: 0 - unset, 1 - set. [1:0]: 0 - none, 1 - 32MB, 2 - 64MB, 3 - 128MB
+	// [14]: debug mode: [8]: 1 - phase up, 0 - phase down. [7:0]: amount of shift.
+	output reg [15:0] sdram_sz,
+
+	// RTC MSM6242B layout
+	output reg [64:0] RTC,
+
+	// Seconds since 1970-01-01 00:00:00
+	output reg [32:0] TIMESTAMP,
+
+	// UART flags
+	output reg  [7:0] uart_mode,
+	output reg [31:0] uart_speed,
 
 	// for core-specific extensions
 	inout      [35:0] EXT_BUS
@@ -185,22 +173,16 @@ module hps_io #(parameter STRLEN=0, PS2DIV=0, WIDE=0, VDNUM=1, PS2WE=0)
 assign EXT_BUS[31:16] = HPS_BUS[31:16];
 assign EXT_BUS[35:33] = HPS_BUS[35:33];
 
-// it needs to cope with 1kByte of config string in the BRAM
-localparam MAX_W = $clog2((1024 > (STRLEN+1)) ? 1024 : (STRLEN+1))-1;
-
-localparam DW = WIDE ? 15 : 7;
-localparam AW = WIDE ?  7 : 8;
+localparam DW = (WIDE) ? 15 : 7;
+localparam AW = (WIDE) ? 12 : 13;
 localparam VD = VDNUM-1;
-localparam DWNLD_W=23;
 
 wire        io_strobe= HPS_BUS[33];
 wire        io_enable= HPS_BUS[34];
 wire        fp_enable= HPS_BUS[35];
-wire        io_wide  = WIDE ? 1'b1 : 1'b0;
+wire        io_wide  = (WIDE) ? 1'b1 : 1'b0;
 wire [15:0] io_din   = HPS_BUS[31:16];
 reg  [15:0] io_dout;
-
-reg [DWNLD_W-1:0] dwnld_st;
 
 assign HPS_BUS[37]   = ioctl_wait;
 assign HPS_BUS[36]   = clk_sys;
@@ -215,22 +197,18 @@ assign forced_scandoubler = cfg[4];
 //cfg[5] - ypbpr handled in sys_top
 assign direct_video = cfg[10];
 
-// command byte read by the io controller
-wire [15:0] sd_cmd =
-{
-	2'b00,
-	(VDNUM>=4) ? sd_wr[3] : 1'b0,
-	(VDNUM>=3) ? sd_wr[2] : 1'b0,
-	(VDNUM>=2) ? sd_wr[1] : 1'b0,
+reg [3:0] sdn;
+reg [3:0] sd_rrb = 0;
+always_comb begin
+	int n, i;
 
-	(VDNUM>=4) ? sd_rd[3] : 1'b0,
-	(VDNUM>=3) ? sd_rd[2] : 1'b0,
-	(VDNUM>=2) ? sd_rd[1] : 1'b0,
-
-	4'h5, sd_conf, 1'b1,
-	sd_wr[0],
-	sd_rd[0]
-};
+	sdn = 0;
+   for(i = VDNUM - 1; i >= 0; i = i - 1) begin
+		n = i + sd_rrb;
+		if(n >= VDNUM) n = n - VDNUM;
+		if(sd_wr[n] | sd_rd[n]) sdn = n[3:0];
+   end
+end
 
 /////////////////////////////////////////////////////////
 
@@ -255,6 +233,18 @@ video_calc video_calc
 
 /////////////////////////////////////////////////////////
 
+localparam MAX_W = $clog2((64 > (STRLEN+2)) ? 64 : (STRLEN+2))-1;
+
+wire [7:0] conf_byte;
+generate
+	if(CONF_STR_BRAM) begin
+		confstr_rom #(CONF_STR, STRLEN) confstr_rom(.*, .conf_addr(byte_cnt - 1'd1));
+	end
+	else begin
+		assign conf_byte = CONF_STR[{(STRLEN - byte_cnt),3'b000} +:8];
+	end
+endgenerate
+
 assign     gamma_bus[20:0] = {clk_sys, gamma_en, gamma_wr, gamma_wr_addr, gamma_value};
 reg        gamma_en;
 reg        gamma_wr;
@@ -266,8 +256,8 @@ wire       pressed  = (ps2_key_raw[15:8] != 8'hf0);
 wire       extended = (~pressed ? (ps2_key_raw[23:16] == 8'he0) : (ps2_key_raw[15:8] == 8'he0));
 
 reg [MAX_W:0] byte_cnt;
-
-assign cfg_addr = byte_cnt;
+reg   [3:0] sdn_ack;
+wire [15:0] disk = 16'd1 << io_din[11:8];
 
 always@(posedge clk_sys) begin : uio_block
 	reg [15:0] cmd;
@@ -276,18 +266,24 @@ always@(posedge clk_sys) begin : uio_block
 	reg  [3:0] pdsp_idx;
 	reg        ps2skip = 0;
 	reg  [3:0] stflg = 0;
-	reg [127:0] status_req;
+	reg[127:0] status_req;
 	reg        old_status_set = 0;
+	reg        old_upload_req = 0;
+	reg        upload_req = 0;
 	reg        old_info = 0;
 	reg  [7:0] info_n = 0;
 	reg [15:0] tmp1;
 	reg  [7:0] tmp2;
+	reg  [3:0] sdn_r;
 
 	old_status_set <= status_set;
 	if(~old_status_set & status_set) begin
 		stflg <= stflg + 1'd1;
 		status_req <= status_in;
 	end
+
+	old_upload_req <= ioctl_upload_req;
+	if(~old_upload_req & ioctl_upload_req) upload_req <= 1;
 
 	old_info <= info_req;
 	if(~old_info & info_req) info_n <= info;
@@ -313,7 +309,6 @@ always@(posedge clk_sys) begin : uio_block
 		cmd <= 0;
 		byte_cnt <= 0;
 		sd_ack <= 0;
-		sd_ack_conf <= 0;
 		io_dout <= 0;
 		ps2skip <= 0;
 		img_mounted <= 0;
@@ -326,17 +321,22 @@ always@(posedge clk_sys) begin : uio_block
 		if(byte_cnt == 0) begin
 			cmd <= io_din;
 
-			case(io_din)
-				'h19: sd_ack_conf <= 1;
-				'h17,
-				'h18: sd_ack <= 1;
-				'h29: io_dout <= {4'hA, stflg};
-				'h2B: io_dout <= {HPS_BUS[48:46],4'b0111};
-				'h2F: io_dout <= 1;
-				'h32: io_dout <= gamma_bus[21];
-				'h36: begin io_dout <= info_n; info_n <= 0; end
-				'h39: io_dout <= 1;
-				'h3E: io_dout <= 1; // shadow mask
+			casex(io_din)
+				  'h16: begin io_dout <= {1'b1, sd_blk_cnt[sdn], BLKSZ[2:0], sdn, sd_wr[sdn], sd_rd[sdn]}; sdn_r <= sdn; end
+				'h0X17,
+				'h0X18: begin sd_ack <= disk[VD:0]; sdn_ack <= io_din[11:8]; end
+				  'h29: io_dout <= {4'hA, stflg};
+`ifdef MISTER_DISABLE_ADAPTIVE
+				  'h2B: io_dout <= {HPS_BUS[48:46],4'b0110};
+`else
+				  'h2B: io_dout <= {HPS_BUS[48:46],4'b0111};
+`endif
+				  'h2F: io_dout <= 1;
+				  'h32: io_dout <= gamma_bus[21];
+				  'h36: begin io_dout <= info_n; info_n <= 0; end
+				  'h39: io_dout <= 1;
+				  'h3C: if(upload_req) begin io_dout <= {ioctl_upload_index, 8'd1}; upload_req <= 0; end
+				  'h3E: io_dout <= 1; // shadow mask
 				'h003F: io_dout <= joystick_0_rumble;
 				'h013F: io_dout <= joystick_1_rumble;
 				'h023F: io_dout <= joystick_2_rumble;
@@ -349,13 +349,8 @@ always@(posedge clk_sys) begin : uio_block
 			if(io_din == 5) ps2_key_raw <= 0;
 		end else begin
 
-			casez(cmd)
-				`ifndef JTFRAME_NO_DB15
-				`ifndef JTFRAME_NO_DB15_OSD
-				// Reading user_io raw joy
-				'h0f: io_dout <= joy_raw;
-				`endif
-				`endif
+			casex(cmd)
+                'h0f: io_dout <= joy_raw; // Reading user_io raw joy
 				// buttons and switches
 				'h01: cfg <= io_din;
 				'h02: if(byte_cnt==1) joystick_0[15:0] <= io_din; else joystick_0[31:16] <= io_din;
@@ -397,39 +392,31 @@ always@(posedge clk_sys) begin : uio_block
 						end
 
 				// reading config string, returning a byte from string
-				'h14: begin
-					io_dout[7:0] <= cfg_dout;
-				end
+				'h14: if(byte_cnt <= STRLEN) io_dout[7:0] <= conf_byte;
 
 				// reading sd card status
-				'h16: if(!byte_cnt[MAX_W:3]) begin
-							case(byte_cnt[2:0])
-								1: io_dout <= sd_cmd;
-								2: io_dout <= sd_lba[15:0];
-								3: io_dout <= sd_lba[31:16];
-								4: io_dout <= sd_req_type;
+				'h16: if(!byte_cnt[MAX_W:2]) begin
+							case(byte_cnt[1:0])
+								1: sd_rrb  <= (sd_rrb == VD) ? 4'd0 : (sd_rrb + 1'd1);
+								2: io_dout <= sd_lba[sdn_r][15:0];
+								3: io_dout <= sd_lba[sdn_r][31:16];
 							endcase
 						end
 
-				// send SD config IO -> FPGA
-				// flag that download begins
-				// sd card knows data is config if sd_dout_strobe is asserted
-				// with sd_ack still being inactive (low)
-				'h19,
 				// send sector IO -> FPGA
 				// flag that download begins
-				'h0?17: begin
+				'h0X17: begin
 							sd_buff_dout <= io_din[DW:0];
 							b_wr <= 1;
 						end
 
 				// reading sd card write data
-				'h0?18: begin
+				'h0X18: begin
 							if(~&sd_buff_addr) sd_buff_addr <= sd_buff_addr + 1'b1;
-							io_dout <= sd_buff_din;
+							io_dout <= sd_buff_din[sdn_ack];
 						end
 
-				// left analog joystick
+				// joystick left analog
 				'h1a: if(!byte_cnt[MAX_W:2]) begin
 							case(byte_cnt[1:0])
 								1: {pdsp_idx,stick_idx} <= io_din[7:0]; // first byte is joystick index
@@ -458,7 +445,7 @@ always@(posedge clk_sys) begin : uio_block
 							endcase
 						end
 
-				// right analog joystick
+				// joystick right analog
 				'h3d: if(!byte_cnt[MAX_W:2]) begin
 							case(byte_cnt[1:0])
 								1: stick_idx <= io_din[3:0]; // first byte is joystick index
@@ -644,40 +631,10 @@ always@(posedge clk_sys) begin : fio_block
 	reg        has_cmd;
 	reg [26:0] addr;
 	reg        wr;
-	reg		   wide_dwnl, wide_upld;
 
 	ioctl_rd <= 0;
 	ioctl_wr <= wr;
 	wr <= 0;
-
-	dwnld_st <= dwnld_st << 1;
-
-	// download data bit width conversion
-	if( dwnld_st[DWNLD_W-1] && ioctl_download) begin
-		wide_dwnl <= 0;
-		if( wide_dwnl ) begin
-			wr         <= 1;
-			ioctl_dout <= io_din[15:8];
-			ioctl_addr <= addr;
-			addr       <= addr + 1'd1;
-		end
-	end
-	// upload data bit width conversion
-	if( ioctl_upload ) begin
-		if( ioctl_rd ) begin
-			wide_upld   <= WIDE[0];
-			dwnld_st[0] <= 1;
-		end
-		if( dwnld_st[3] ) begin
-			fp_dout[ 7:0]<= ioctl_din;
-			ioctl_addr   <= ioctl_addr + 1'd1;
-		end
-		if( wide_upld && dwnld_st[8] ) begin
-			fp_dout[15:8]<= ioctl_din;
-			ioctl_addr   <= ioctl_addr + 1'd1;
-			wide_upld    <= 0;
-		end
-	end
 
 	if(~fp_enable) has_cmd <= 0;
 	else begin
@@ -709,28 +666,28 @@ always@(posedge clk_sys) begin : fio_block
 							cnt <= cnt + 1'd1;
 							case(cnt)
 								0:	if(io_din[7:0] == 8'hAA) begin
-										ioctl_addr   <= WIDE ? -27'd2 : -27'd1;
+										ioctl_addr <= 0;
 										ioctl_upload <= 1;
-										ioctl_rd     <= 1;
+										ioctl_rd <= 1;
 									end
 									else if(io_din[7:0]) begin
-										addr           <= 0;
+										addr <= 0;
 										ioctl_download <= 1;
 									end
 									else begin
 										if(ioctl_download) ioctl_addr <= addr;
 										ioctl_download <= 0;
-										ioctl_upload   <= 0;
+										ioctl_upload <= 0;
 									end
 
 								1: begin
 										ioctl_addr[15:0] <= io_din;
-										addr[15:0]       <= io_din;
+										addr[15:0] <= io_din;
 									end
 
 								2: begin
 										ioctl_addr[26:16] <= io_din[10:0];
-										addr[26:16]       <= io_din[10:0];
+										addr[26:16] <= io_din[10:0];
 									end
 							endcase
 						end
@@ -738,16 +695,14 @@ always@(posedge clk_sys) begin : fio_block
 					FIO_FILE_TX_DAT:
 						if(ioctl_download) begin
 							ioctl_addr <= addr;
-							ioctl_dout <= io_din[7:0];
+							ioctl_dout <= io_din[DW:0];
 							wr   <= 1;
-							addr <= addr + 1'd1;
-							if( WIDE ) begin
-								wide_dwnl   <= 1;
-								dwnld_st[0] <= 1;
-							end
+							addr <= addr + (WIDE ? 2'd2 : 2'd1);
 						end
 						else begin
-							ioctl_rd   <= 1;
+							ioctl_addr <= ioctl_addr + (WIDE ? 2'd2 : 2'd1);
+							fp_dout <= ioctl_din;
+							ioctl_rd <= 1;
 						end
 				endcase
 			end
@@ -902,4 +857,191 @@ end
 endmodule
 
 
+///////////////// calc video parameters //////////////////
+module video_calc
+(
+	input clk_100,
+	input clk_vid,
+	input clk_sys,
 
+	input ce_pix,
+	input de,
+	input hs,
+	input vs,
+	input vs_hdmi,
+	input f1,
+	input new_vmode,
+	input video_rotated,
+
+	input       [4:0] par_num,
+	output reg [15:0] dout
+);
+
+always @(posedge clk_sys) begin
+	case(par_num)
+		1: dout <= {video_rotated, |vid_int, vid_nres};
+		2: dout <= vid_hcnt[15:0];
+		3: dout <= vid_hcnt[31:16];
+		4: dout <= vid_vcnt[15:0];
+		5: dout <= vid_vcnt[31:16];
+		6: dout <= vid_htime[15:0];
+		7: dout <= vid_htime[31:16];
+		8: dout <= vid_vtime[15:0];
+		9: dout <= vid_vtime[31:16];
+	  10: dout <= vid_pix[15:0];
+	  11: dout <= vid_pix[31:16];
+	  12: dout <= vid_vtime_hdmi[15:0];
+	  13: dout <= vid_vtime_hdmi[31:16];
+	  14: dout <= vid_ccnt[15:0];
+	  15: dout <= vid_ccnt[31:16];
+	  16: dout <= vid_pixrep;
+	  17: dout <= vid_de_h;
+	  18: dout <= vid_de_v;
+	  default dout <= 0;
+	endcase
+end
+
+reg [31:0] vid_hcnt = 0;
+reg [31:0] vid_vcnt = 0;
+reg [31:0] vid_ccnt = 0;
+reg  [7:0] vid_nres = 0;
+reg  [1:0] vid_int  = 0;
+reg  [7:0] vid_pixrep;
+reg [15:0] vid_de_h;
+reg  [7:0] vid_de_v;
+
+always @(posedge clk_vid) begin
+	integer hcnt;
+	integer vcnt;
+	integer ccnt;
+	reg [7:0] pcnt;
+	reg [7:0] de_v;
+	reg [15:0] de_h;
+	reg old_vs = 0, old_hs = 0, old_hs_vclk = 0, old_de = 0, old_de_vclk = 0, old_de1 = 0, old_vmode = 0;
+	reg [3:0] resto = 0;
+	reg calch = 0;
+
+	if(calch & de) ccnt <= ccnt + 1;
+	pcnt <= pcnt + 1'd1;
+
+	old_hs_vclk <= hs;
+	de_h <= de_h + 1'd1;
+	if(old_hs_vclk & ~hs) de_h <= 1;
+
+	old_de_vclk <= de;
+	if(calch & ~old_de_vclk & de) vid_de_h <= de_h;
+
+	if(ce_pix) begin
+		old_vs <= vs;
+		old_hs <= hs;
+		old_de <= de;
+		old_de1 <= old_de;
+		pcnt <= 1;
+
+		if(~vs & ~old_de & de) vcnt <= vcnt + 1;
+		if(calch & de) hcnt <= hcnt + 1;
+		if(old_de & ~de) calch <= 0;
+		if(~old_de1 & old_de) vid_pixrep <= pcnt;
+		if(old_hs & ~hs) de_v <= de_v + 1'd1;
+		if(calch & ~old_de & de) vid_de_v <= de_v;
+
+		if(old_vs & ~vs) begin
+			vid_int <= {vid_int[0],f1};
+			if(~f1) begin
+				if(hcnt && vcnt) begin
+					old_vmode <= new_vmode;
+
+					//report new resolution after timeout
+					if(resto) resto <= resto + 1'd1;
+					if(vid_hcnt != hcnt || vid_vcnt != vcnt || old_vmode != new_vmode) resto <= 1;
+					if(&resto) vid_nres <= vid_nres + 1'd1;
+					vid_hcnt <= hcnt;
+					vid_vcnt <= vcnt;
+					vid_ccnt <= ccnt;
+				end
+				vcnt <= 0;
+				hcnt <= 0;
+				ccnt <= 0;
+				calch <= 1;
+				de_v <= 0;
+			end
+		end
+	end
+end
+
+reg [31:0] vid_htime = 0;
+reg [31:0] vid_vtime = 0;
+reg [31:0] vid_pix = 0;
+
+always @(posedge clk_100) begin
+	integer vtime, htime, hcnt;
+	reg old_vs, old_hs, old_vs2, old_hs2, old_de, old_de2;
+	reg calch = 0;
+
+	old_vs <= vs;
+	old_hs <= hs;
+
+	old_vs2 <= old_vs;
+	old_hs2 <= old_hs;
+
+	vtime <= vtime + 1'd1;
+	htime <= htime + 1'd1;
+
+	if(~old_vs2 & old_vs) begin
+		vid_pix <= hcnt;
+		vid_vtime <= vtime;
+		vtime <= 0;
+		hcnt <= 0;
+	end
+
+	if(old_vs2 & ~old_vs) calch <= 1;
+
+	if(~old_hs2 & old_hs) begin
+		vid_htime <= htime;
+		htime <= 0;
+	end
+
+	old_de   <= de;
+	old_de2  <= old_de;
+
+	if(calch & old_de) hcnt <= hcnt + 1;
+	if(old_de2 & ~old_de) calch <= 0;
+end
+
+reg [31:0] vid_vtime_hdmi;
+always @(posedge clk_100) begin
+	integer vtime;
+	reg old_vs, old_vs2;
+
+	old_vs <= vs_hdmi;
+	old_vs2 <= old_vs;
+
+	vtime <= vtime + 1'd1;
+
+	if(~old_vs2 & old_vs) begin
+		vid_vtime_hdmi <= vtime;
+		vtime <= 0;
+	end
+end
+
+endmodule
+
+module confstr_rom #(parameter CONF_STR, STRLEN)
+(
+	input      clk_sys,
+	input      [$clog2(STRLEN+1)-1:0] conf_addr,
+	output reg [7:0] conf_byte
+);
+
+reg [7:0] rom[STRLEN];
+
+initial begin
+	if( CONF_STR=="" )
+		$readmemh("cfgstr.hex",rom);
+	else
+		for(int i = 0; i < STRLEN; i++) rom[i] = CONF_STR[((STRLEN-i)*8)-1 -:8];
+end
+
+always @ (posedge clk_sys) conf_byte <= rom[conf_addr];
+
+endmodule

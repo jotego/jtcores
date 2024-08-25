@@ -13,6 +13,7 @@ here:
   - sys/sys.qip
   # PLLs
   - sys/pll.qip
+  - sys/pll_q17.qip
   - pll6144/jtframe_pll6144.qip
   - pll6293/jtframe_pll6293.qip
   - pll6671/jtframe_pll6671.qip
