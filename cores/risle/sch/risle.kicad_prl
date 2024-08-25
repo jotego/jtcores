@@ -67,24 +67,17 @@
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
+  "git": {
+    "repo_password": "",
+    "repo_type": "",
+    "repo_username": "",
+    "ssh_key": ""
+  },
   "meta": {
     "filename": "risle.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "risle.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2242,
-          "pos_y": 67,
-          "size_x": 974,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
