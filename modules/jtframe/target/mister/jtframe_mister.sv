@@ -30,7 +30,7 @@ module jtframe_mister #(parameter
     input           pll_locked,
     // interface with microcontroller
     output [63:0]   status,
-    inout  [47:0]   HPS_BUS,
+    inout  [48:0]   HPS_BUS,
     output [ 1:0]   buttons,
     // LED
     // Extension port (fake USB3)
@@ -481,26 +481,10 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
-wire [9:0] cfg_addr;
-wire [7:0] cfg_dout;
-
-jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
-    .clk    ( clk_rom   ),
-    .cen    ( 1'b1      ),
-    .data   (           ),
-    .addr   ( cfg_addr  ),
-    .we     ( 1'b0      ),
-    .q      ( cfg_dout  )
-);
-
-hps_io #( .STRLEN(0), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
+hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
-
-    .conf_str        (                ),
-    .cfg_addr        ( cfg_addr       ),
-    .cfg_dout        ( cfg_dout       ),
 
     .buttons         ( buttons        ),
     .status          ( status         ),

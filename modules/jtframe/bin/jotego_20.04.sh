@@ -22,6 +22,13 @@ sudo apt install --yes python-is-python3
 # required by iverilog
 sudo apt install --yes flex gperf bison
 
+# libpng12, required by Quartus 17
+wget https://downloads.sourceforge.net/libpng/libpng-1.2.59.tar.gz
+tar -xvzf libpng-1.2.59.tar.gz
+cd libpng-1.2.59
+./configure
+make
+sudo make install
 
 # required by MAME
 sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf-dev \
