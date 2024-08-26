@@ -363,7 +363,6 @@ always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 assign irq_mx = (vendetta ? irqn_ff : irq_n) | ~dip_pause;
 
 `ifndef PARODA
-
 // only used in Vendetta
 jtk054000 u_hip(
     .rst    ( rst_cmb   ),
