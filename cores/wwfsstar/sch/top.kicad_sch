@@ -4109,6 +4109,16 @@
 	)
 	(wire
 		(pts
+			(xy 219.71 135.89) (xy 208.28 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0e4e9645-e1f6-40b5-8ffc-aeaadf88a2c3")
+	)
+	(wire
+		(pts
 			(xy 50.8 172.72) (xy 59.69 172.72)
 		)
 		(stroke
@@ -4196,6 +4206,16 @@
 			(type default)
 		)
 		(uuid "1867c328-020e-4195-8137-bf5b9cfbf7b7")
+	)
+	(wire
+		(pts
+			(xy 176.53 133.35) (xy 182.88 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "190c65f1-3ef5-4a82-8d23-278f5ef6777d")
 	)
 	(wire
 		(pts
@@ -4306,6 +4326,16 @@
 			(type default)
 		)
 		(uuid "240596e3-f8c9-4598-b82e-e43f1be80440")
+	)
+	(wire
+		(pts
+			(xy 388.62 119.38) (xy 377.19 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "241b02a8-d8e7-4551-b35e-a830ec611f59")
 	)
 	(wire
 		(pts
@@ -6249,6 +6279,16 @@
 	)
 	(wire
 		(pts
+			(xy 219.71 133.35) (xy 208.28 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c93c57b6-0108-409b-aee9-e652568fcc6c")
+	)
+	(wire
+		(pts
 			(xy 194.31 184.15) (xy 185.42 184.15)
 		)
 		(stroke
@@ -6469,6 +6509,16 @@
 	)
 	(wire
 		(pts
+			(xy 330.2 119.38) (xy 341.63 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da0bcf20-38f3-4696-b91f-9ee07f57ba57")
+	)
+	(wire
+		(pts
 			(xy 223.52 74.93) (xy 233.68 74.93)
 		)
 		(stroke
@@ -6596,6 +6646,16 @@
 			(type default)
 		)
 		(uuid "e29e9f54-f5b8-4e0d-951b-ed9d57dcb7ba")
+	)
+	(wire
+		(pts
+			(xy 382.27 110.49) (xy 377.19 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e31f96f0-325a-4b99-9b5f-4647d2050454")
 	)
 	(wire
 		(pts
@@ -6736,6 +6796,16 @@
 			(type default)
 		)
 		(uuid "f1e579d3-59a0-4628-b00e-1e9a0bfc6a6c")
+	)
+	(wire
+		(pts
+			(xy 336.55 110.49) (xy 341.63 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f25b60fc-c185-4c62-bedb-0e0ae154b8c0")
 	)
 	(wire
 		(pts
@@ -7236,6 +7306,17 @@
 		)
 		(uuid "0da07c76-0e62-48e1-9432-b59b72e6a02f")
 	)
+	(label "SPEAKER_H"
+		(at 330.2 119.38 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0ea25957-0ff3-4000-bdc4-9cb9e8db64b0")
+	)
 	(label "IC14_13"
 		(at 50.8 190.5 0)
 		(fields_autoplaced yes)
@@ -7709,6 +7790,17 @@
 		)
 		(uuid "3f7c32a5-90aa-413c-ad23-c47eba8919d0")
 	)
+	(label "SPEAKER_L"
+		(at 388.62 119.38 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3fc93326-31e8-4879-bab1-bce18f6a08fe")
+	)
 	(label "OBJPXL4"
 		(at 52.07 123.19 0)
 		(fields_autoplaced yes)
@@ -8105,6 +8197,17 @@
 		)
 		(uuid "6c68336e-d42e-4ca5-ab2b-f539633dd199")
 	)
+	(label "~{RST}"
+		(at 176.53 133.35 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6c73a42c-8e78-41f5-96e1-890809364d6c")
+	)
 	(label "IC50_13"
 		(at 50.8 165.1 0)
 		(fields_autoplaced yes)
@@ -8170,6 +8273,17 @@
 			(justify right bottom)
 		)
 		(uuid "73c2f099-d914-4a10-b640-09b9cfac65c0")
+	)
+	(label "SPEAKER_H"
+		(at 219.71 133.35 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "75da55bb-c719-42a2-9f48-a78d9c8c6cd5")
 	)
 	(label "~{MPAL}"
 		(at 118.11 205.74 0)
@@ -8688,6 +8802,17 @@
 		)
 		(uuid "b6f7fdf3-2b0e-4214-8114-e61ad6c3e594")
 	)
+	(label "12V"
+		(at 336.55 110.49 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b703625e-dc61-48e0-838a-a786b657b75a")
+	)
 	(label "SYNC"
 		(at 128.27 162.56 180)
 		(fields_autoplaced yes)
@@ -8941,6 +9066,17 @@
 		)
 		(uuid "cce2891b-0f86-4a9e-bbe6-bc89762ca12f")
 	)
+	(label "SPEAKER_L"
+		(at 219.71 135.89 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cdcea4cc-2c07-4737-9a10-8796531c8b22")
+	)
 	(label "MA8"
 		(at 77.47 97.79 180)
 		(fields_autoplaced yes)
@@ -9061,6 +9197,17 @@
 			(justify left bottom)
 		)
 		(uuid "dbfba6ea-6fd1-469d-8cfa-9304f0060ec6")
+	)
+	(label "12V"
+		(at 382.27 110.49 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dd9d1a0c-814f-4c51-927d-97fb5f5f1835")
 	)
 	(label "UDS"
 		(at 118.11 198.12 0)
@@ -10476,6 +10623,74 @@
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06"
 					(reference "IC83")
 					(unit 3)
+				)
+			)
+		)
+	)
+	(sheet
+		(at 182.88 130.81)
+		(size 25.4 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "08725bbc-671d-4d92-a45d-82ad33bea028")
+		(property "Sheetname" "analog"
+			(at 182.88 130.0984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "analog.kicad_sch"
+			(at 182.88 156.7946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "~{RST}" input
+			(at 182.88 133.35 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "70ed18f9-b9b0-41d0-8cf0-3295745f6c3b")
+		)
+		(pin "SPEAKER_H" output
+			(at 208.28 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "a6adf905-a826-49e4-90a7-e087b91d8ced")
+		)
+		(pin "SPEAKER_L" output
+			(at 208.28 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "a6e911eb-e2dd-4d08-bd98-1029309dd864")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06"
+					(page "10")
 				)
 			)
 		)
