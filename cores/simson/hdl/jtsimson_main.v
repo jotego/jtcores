@@ -86,6 +86,7 @@ module jtsimson_main(
     output reg  [ 7:0]  st_dout
 );
 `ifndef NOMAIN
+
 wire [ 7:0] Aupper, hip_dout;
 reg  [ 7:0] cpu_din, port_in;reg  [ 3:0] bank;
 wire [15:0] A, pcbad;
@@ -230,6 +231,7 @@ always @(*) begin
         rom_addr[18]    = 0;
     end
 end
+
 always @* begin
     cpu_din = rom_cs     ? rom_data     : // maximum priority
               ram_cs     ? ram_dout     :
