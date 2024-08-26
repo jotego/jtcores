@@ -26,7 +26,8 @@ audio:
         { r: 2k, c: 100n }, { r: 1.25k, c: 470n }, # rc_en==2, adds 470nF stage
         { r: 2k, c: 100n }, { r: 1.25k, c: 517n }, # rc_en==4, 47 and 470nF stages
       ], rc_en: true }
-    - { name: rdac,  data_width: 8, unsigned: true, rsum: 220, rc: [{ r: 0.8k, c: 470n }], rc_en: true }
+      # the RDAC seems to be used for the applause only
+    - { name: rdac,  data_width: 8, rsum: 1k, rc: [{ r: 0.8k, c: 470n }], rc_en: true }
 sdram:
   banks:
     - buses:
