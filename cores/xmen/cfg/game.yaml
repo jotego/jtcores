@@ -4,7 +4,7 @@ game:
       - "*.v"
   - from: riders
     get:
-      - game.yaml
+      - common.yaml
   - from: simson
     get:
       - jt053246.sv

@@ -766,10 +766,10 @@ void JTSim::get_coremod() {
     coremod=0;
 #endif
     ifstream fin("core.mod",ios_base::binary);
-    char c;
+    char c[2];
     if(fin.good()) {
-        fin >> c;
-        coremod = ((int)c)&0xff;
+        fin.read(c,2);
+        coremod = ((int)c[0])&0xff;
     }
     // fprintf(stderr,"coremod=%X\n",coremod);
 }

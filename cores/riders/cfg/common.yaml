@@ -1,0 +1,49 @@
+game:
+  - from: riders
+    get:
+      - jt054321.v
+      - jt054539.v
+      - jtriders_colmix.v
+      - jtriders_dump.v
+      - jtriders_prot.v
+      - jtriders_sound.v
+  - from: simson
+    get:
+      - jt053246_dma.v
+      - jt053246_mmr.v
+      - jt053260.v
+      - jtcolmix_053251.v
+  - from: aliens
+    get:
+      - jtaliens_scroll.v
+      - jt052109.v
+      - jt051962.v
+      - jt051960.v
+      # - jt051937.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: cpu
+    unless: NOMAIN
+    get:
+      - jtframe_m68k.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_nvram16.v
+modules:
+  jt:
+    - name: jt51
+  other:
+    - from: jteeprom
+      get: [ hdl/jt5911.sv ]
