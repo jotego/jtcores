@@ -362,6 +362,8 @@ always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 // always @(posedge clk) rst_cmb <= rst | rst8;
 assign irq_mx = (vendetta ? irqn_ff : irq_n) | ~dip_pause;
 
+`ifndef PARODA
+
 // only used in Vendetta
 jtk054000 u_hip(
     .rst    ( rst_cmb   ),
@@ -372,6 +374,9 @@ jtk054000 u_hip(
     .din    ( cpu_dout  ),
     .dout   ( hip_dout  )
 );
+`else
+assign hip_dout = 8'b0;
+`endif
 
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),
