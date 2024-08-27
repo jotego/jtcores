@@ -94,7 +94,7 @@ wire [ 2:0] FC;
 reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs,
-            sndon_r, pair_cs;
+            pair_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux, intdma;
@@ -119,7 +119,7 @@ assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 assign pair_we  = pair_cs && !RnW && !LDSn;
 
-reg none_cs, wdog;
+reg none_cs/*, wdog*/;
 // not following the PALs as the dumps from PLD Archive are not readable
 // with MAME's JEDUTIL
 always @* begin
@@ -138,7 +138,7 @@ always @* begin
     pcu_cs   = 0;
     prot_cs  = 0;
     pair_cs  = 0;
-    wdog     = 0;
+    // wdog     = 0;
     if(!ASn) begin
         // tmnt2/ssriders
         case(A[23:20])
@@ -151,7 +151,7 @@ always @* begin
                   0,1: cab_cs  = 1;
                     2: iowr_lo = 1; // EEPROM
                     3: iowr_hi = 1;
-                    4: wdog    = 1;
+                    // 4: wdog    = 1;
                     5: omsb_cs = 1;
                     8: prot_cs = 1;
                     default:;
@@ -175,7 +175,7 @@ always @* begin
         endcase
     end
 `ifdef SIMULATION
-    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
+    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, /*wdog,*/
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
 `endif
 end
@@ -239,7 +239,6 @@ always @(posedge clk, posedge rst) begin
         eep_cs  <= 0;
         eep_clk <= 0;
         cbnk    <= 0;
-        sndon_r <= 0;
     end else begin
             if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
             if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];

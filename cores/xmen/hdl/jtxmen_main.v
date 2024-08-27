@@ -61,10 +61,6 @@ module jtxmen_main(
     output reg           objreg_cs,
     output reg           objcha_n,
     output reg           rmrd,
-    output reg           dimmod,
-    output reg           dimpol,
-    output reg  [ 2:0]   dim,
-    output reg  [ 2:0]   cbnk,      // unconnected in ssriders
     input                dma_bsy,
     // EEPROM
     output      [ 6:0]   nv_addr,
@@ -116,7 +112,7 @@ assign snd_wrn  = ~(snd_cs & ~RnW);
 assign IPLn1    = ~intdma | tile_irqn;
 assign pair_we  = pair_cs && !RnW && !LDSn;
 
-reg none_cs, wdog;
+reg none_cs;
 // not following the PALs as the dumps from PLD Archive are not readable
 // with MAME's JEDUTIL
 always @* begin
@@ -134,7 +130,6 @@ always @* begin
     pcu_cs   = 0;
     prot_cs  = 0;
     pair_cs  = 0;
-    wdog     = 0;
     if(!ASn) begin
     // xmen (from PAL equations)
         rom_cs  = ~A[20];
@@ -146,13 +141,12 @@ always @* begin
         iowr_hi =  A[20:13]==8'b1_0000_101; // IO2 in schematics
         cab_cs  = iowr_hi && !A[3];
         // cr_cs = iowr_hi && A[3:2]==3;
-        wdog    = iowr_hi && !RnW;
         objreg_cs = iowr_lo && A[6:5]==1;
         pair_cs   = iowr_lo && A[6:5]==2;
         pcu_cs    = iowr_lo && A[6:5]==3;
     end
 `ifdef SIMULATION
-    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
+    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi,
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
 `endif
 end
@@ -193,7 +187,6 @@ always @(posedge clk) begin
         cabcs_l <= cab_cs;
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
-    // xmen
     cab_dout <= A[1] ? { coin[2], swap(joystick3[6:0]), coin[0], swap(joystick1[6:0]) }:
                        { coin[3], swap(joystick4[6:0]), coin[1], swap(joystick2[6:0]) };
     if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
@@ -203,14 +196,10 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        dim     <= 0;
         rmrd    <= 0;
-        dimpol  <= 0;
-        dimmod  <= 0;
         eep_di  <= 0;
         eep_cs  <= 0;
         eep_clk <= 0;
-        cbnk    <= 0;
         sndon_r <= 0;
         mute    <= 0;
         objcha_n<= 1;
@@ -304,19 +293,18 @@ jtframe_m68k u_cpu(
     reg [7:0] saved[0:0];
     integer f,fcnt=0;
 
+    // initial begin
+    //     f=$fopen("other.bin","rb");
+    //     if( f!=0 ) begin
+    //         fcnt=$fread(saved,f);
+    //         $fclose(f);
+    //         $display("Read %1d bytes for dimming configuration", fcnt);
+    //         {dimmod,dimpol,dim} = {saved[0][5:4],saved[0][2:0]};
+    //     end else begin
+    //         {dimmod,dimpol,dim} = 0;
+    //     end
+    // end
     initial begin
-        f=$fopen("other.bin","rb");
-        if( f!=0 ) begin
-            fcnt=$fread(saved,f);
-            $fclose(f);
-            $display("Read %1d bytes for dimming configuration", fcnt);
-            {dimmod,dimpol,dim} = {saved[0][5:4],saved[0][2:0]};
-        end else begin
-            {dimmod,dimpol,dim} = 0;
-        end
-    end
-    initial begin
-        cbnk      = 0;
         obj_cs    = 0;
         objcha_n  = 1;
         objreg_cs = 0;

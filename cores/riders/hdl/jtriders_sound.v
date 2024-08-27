@@ -65,6 +65,7 @@ module jtriders_sound(
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
 );
 `ifndef NOSOUND
+localparam  [ 0:0] FULLRAM = `FULLRAM;
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
                     k60_dout, k39_dout, latch_dout;
 wire        [ 3:0]  rom_hi;
@@ -82,8 +83,6 @@ assign nmi_clr  = xmen ? nmi_clrr   : nmi_cs;
 assign rom_hi   = A[15]? bank       : {3'd0, A[14]};
 assign rom_addr = xmen ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
 assign upper4k  = &A[15:12];
-assign latch_we = k21_cs && !wr_n;
-assign k39_we   = k39_cs && !wr_n;
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
                   k60_cs ? k60_dout   :
@@ -183,9 +182,12 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-generate if( `FULLRAM==1 ) begin
+generate if( FULLRAM ) begin
     // X-Men
     /* verilator tracing_on */
+    assign latch_we = k21_cs && !wr_n;
+    assign k39_we   = k39_cs && !wr_n;
+
     jt054539 u_k54539(
         .rst        ( rst       ),
         .clk        ( clk       ),

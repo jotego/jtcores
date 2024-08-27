@@ -14,16 +14,17 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 7-7-2024 */
+    Date: 23-8-2024 */
 
 module jtxmen_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 localparam [2:0] XMEN     = 3'd2;
+localparam [0:0] FULLRAM  = `FULLRAM;
 
 /* verilator tracing_off */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
+wire        snd_irq, rmrd, rst8, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
@@ -36,7 +37,6 @@ reg         xmen;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
-wire [ 2:0] dim;
 wire [ 1:0] oram_we;
 
 assign debug_view = debug_mux;
@@ -48,7 +48,7 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { mute, xmen, dimpol, dimmod, 1'b0, dim };
+        3: debug_mux <= { mute, xmen, 6'b0 };
         default: debug_mux <= 0;
     endcase
 end
@@ -56,7 +56,7 @@ end
 always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
     xmen     <= game_id == XMEN;
-    if( `FULLRAM == 0 ) xmen <= 0;
+    if( FULLRAM == 0 ) xmen <= 0;
 end
 
 /* verilator tracing_off */
@@ -101,10 +101,6 @@ jtxmen_main u_main(
     .pal_dout       ( pal_dout      ),
     // To video
     .rmrd           ( rmrd          ),
-    .dimmod         ( dimmod        ),
-    .dimpol         ( dimpol        ),
-    .dim            ( dim           ),
-    .cbnk           (               ),
     .dma_bsy        ( dma_bsy       ),
     .objreg_cs      ( objreg_cs     ),
     .objcha_n       ( objcha_n      ),
@@ -215,9 +211,9 @@ jtxmen_video u_video (
     .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
     // brightness
-    .dim            ( dim           ),
-    .dimmod         ( dimmod        ),
-    .dimpol         ( dimpol        ),
+    .dim            (  3'b0         ),
+    .dimmod         (  1'b0         ),
+    .dimpol         (  1'b0         ),
     // pixels
     .red            ( red           ),
     .green          ( green         ),
