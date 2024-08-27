@@ -153,7 +153,7 @@ snac.dict = {
     "c" : [0],
     "b" : [0],
 }
-snac.replace = {"a": "", "f":"ec","d":"cb"}
+snac.replace = {"a": "", "e":"eb", "f":"ec","d":"cb"}
 
 filepath  = create_in_pocket(do=sd)
 filepath2 = create_in_release(do=rel)
