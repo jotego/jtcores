@@ -12652,10 +12652,6 @@
 					(reference "IC21")
 					(unit 2)
 				)
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
-					(reference "IC21")
-					(unit 2)
-				)
 			)
 		)
 	)
@@ -13255,10 +13251,6 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/0eed0e12-7f29-43c8-9187-1dba333c6bd2"
-					(reference "IC21")
-					(unit 1)
-				)
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
 					(reference "IC21")
 					(unit 1)
 				)
