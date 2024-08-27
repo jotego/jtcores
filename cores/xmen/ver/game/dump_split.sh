@@ -46,14 +46,15 @@ else
 fi
 dd if=$TMP      of=scr1.bin count=16                           2> /dev/null # 8kB
 dd if=$TMP      of=scr0.bin count=16 skip=16                   2> /dev/null # 8kB
-dd if=$TMP      of=pal.bin  count=8  skip=32                   2> /dev/null # 4kB
-dd if=$TMP      of=obj.bin  count=16 skip=40                   2> /dev/null # 8kB
+dd if=$TMP      of=scrx.bin count=16 skip=32                   2> /dev/null # 8kB
+dd if=$TMP      of=pal.bin  count=8  skip=48                   2> /dev/null # 4kB
+dd if=$TMP      of=obj.bin  count=16 skip=56                   2> /dev/null # 8kB
 dd if=/dev/zero of=obj.bin  count=16 conv=notrunc oflag=append 2> /dev/null # 8kB blank
 # MMR
-dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((56*512/8))   2> /dev/null
-dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((56*512/8+2)) 2> /dev/null
-dd if=$TMP of=obj_mmr.bin bs=8 count=1 skip=$((56*512/8+3)) 2> /dev/null
-dd if=$TMP of=other.bin   bs=1 count=1 skip=$((56*512+4*8)) 2> /dev/null
+dd if=$TMP of=pal_mmr.bin bs=8 count=2 skip=$((72*512/8))   2> /dev/null
+dd if=$TMP of=scr_mmr.bin bs=8 count=1 skip=$((72*512/8+2)) 2> /dev/null
+dd if=$TMP of=obj_mmr.bin bs=8 count=1 skip=$((72*512/8+3)) 2> /dev/null
+dd if=$TMP of=other.bin   bs=1 count=1 skip=$((72*512+4*8)) 2> /dev/null
 # convert to dual 8-bit dumps
 jtutil drop1 -l < pal.bin > pal_lo.bin
 jtutil drop1    < pal.bin > pal_hi.bin

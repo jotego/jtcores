@@ -89,7 +89,7 @@ module jtxmen_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -121,22 +121,23 @@ assign lyro_addr   = lyro_prea;
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 
-jtriders_dump u_dump(
-    .clk            ( clk           ),
-    .dump_scr       ( dump_scr      ),
-    .dump_obj       ( dump_obj      ),
-    .dump_pal       ( dump_pal      ),
-    .pal_mmr        ( pal_mmr       ),
-    .scr_mmr        ( scr_mmr       ),
-    .obj_mmr        ( obj_mmr       ),
-    .other          ( dump_other    ),
+jtriders_dump #(.FULLRAM(`FULLRAM)) u_dump(
+    .clk            ( clk             ),
+    .dump_scr       ( dump_scr        ),
+    .dump_obj       ( dump_obj        ),
+    .dump_pal       ( dump_pal        ),
+    .pal_mmr        ( pal_mmr         ),
+    .scr_mmr        ( scr_mmr         ),
+    .obj_mmr        ( obj_mmr         ),
+    .other          ( dump_other      ),
 
-    .ioctl_addr     ( ioctl_addr    ),
-    .ioctl_din      ( ioctl_din     ),
+    .ioctl_addr     ( ioctl_addr[14:0]),
+    .ioctl_extra    ( ioctl_addr[15]  ),
+    .ioctl_din      ( ioctl_din       ),
 
-    .debug_bus      ( debug_bus     ),
-    .st_scr         ( st_scr        ),
-    .st_dout        ( st_dout       )
+    .debug_bus      ( debug_bus       ),
+    .st_scr         ( st_scr          ),
+    .st_dout        ( st_dout         )
 );
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
@@ -158,10 +159,6 @@ always @* begin
         lyra_addr = { lyra_extra, pre_a[10:0] };
         lyrb_addr = { lyrb_extra, pre_b[10:0] };
 end
-
-function [7:0] cgate( input [7:0] c);
-    cgate =  c[7:0];
-endfunction
 
 /* verilator tracing_on */
 // extra blanking added to help MiSTer output
@@ -218,9 +215,9 @@ jtaliens_scroll #(
     .lyra_col   ( lyra_col  ),
     .lyrb_col   ( lyrb_col  ),
 
-    .lyrf_cg    (cgate(lyrf_col)),
-    .lyra_cg    (cgate(lyra_col)),
-    .lyrb_cg    (cgate(lyrb_col)),
+    .lyrf_cg    ( lyrf_col  ),
+    .lyra_cg    ( lyra_col  ),
+    .lyrb_cg    ( lyrb_col  ),
 
     // Tile ROMs
     .lyrf_addr  ( pre_f     ),

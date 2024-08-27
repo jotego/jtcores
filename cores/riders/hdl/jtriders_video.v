@@ -23,7 +23,6 @@ module jtriders_video(
     input             pxl2_cen,
 
     input             ssriders,
-    // input             xmen,
 
     // Base Video
     output            lhbl,
@@ -122,12 +121,11 @@ wire        lyrf_blnk_n,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, paroda;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = /*xmen ? cpu_addr       :*/ { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
-assign cpu_d8    = /*xmen ? cpu_dout[ 7:0] :*/ ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
+assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
+assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr   = /*xmen      ? lyro_prea :*/
-                     oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
+assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
                                  {1'b0,lyro_prea[20:2]};
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
@@ -144,6 +142,7 @@ jtriders_dump u_dump(
     .other          ( dump_other    ),
 
     .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_extra    ( 1'b0          ),
     .ioctl_din      ( ioctl_din     ),
 
     .debug_bus      ( debug_bus     ),
@@ -166,19 +165,13 @@ always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 // endfunction
 
 always @* begin
-    // if( !xmen ) begin
         lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
         lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
         lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
-    // end else begin // xmen
-    //     lyrf_addr = { lyrf_extra, pre_f[10:0] };
-    //     lyra_addr = { lyra_extra, pre_a[10:0] };
-    //     lyrb_addr = { lyrb_extra, pre_b[10:0] };
-    // end
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = /*xmen ? c[7:0] : */{ c[7:5], 5'd0 };
+    cgate = { c[7:5], 5'd0 };
 endfunction
 
 /* verilator tracing_on */
@@ -279,10 +272,9 @@ wire [ 3:0] ommra;
 wire [ 8:0] vmux;
 wire [13:1] orama;
 
-assign ommra = /*xmen ? {cpu_addr[3:1],cpu_dsn[1]} : */{cpu_addr[4:2], cpu_dsn[1]};
-// xmen never exercises cpu_addr[13], although it is connected to the RAM
-assign orama = /*xmen ? cpu_addr[13:1] :*/ oram_addr;
-assign vmux  = /*xmen ? vdump :*/ vrender;
+assign ommra = {cpu_addr[4:2], cpu_dsn[1]};
+assign orama = oram_addr;
+assign vmux  = vrender;
 
 jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
@@ -336,7 +328,7 @@ jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .xmen       ( /*xmen*/1'b0      ),
+    .xmen       ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),

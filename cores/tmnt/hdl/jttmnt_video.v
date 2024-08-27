@@ -133,6 +133,7 @@ jtriders_dump u_dump(
     .obj_mmr        ( obj_mmr       ),
     .other          ( dump_other    ),
     .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_extra    ( 1'b0          ),
     .ioctl_din      ( ioctl_din     ),
 
     .debug_bus      ( debug_bus     ),
