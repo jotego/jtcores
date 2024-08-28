@@ -1,0 +1,48 @@
+clocks:
+  clk48:
+    - freq: 3579545
+      outputs:
+        - psg1_cen
+        - psg2_cen
+  clk24:
+    - mul: 1
+      div: 3
+      outputs:
+        - cpudiv
+
+audio:
+  # like Mikie
+  rsum: 220
+  rc: { r: 1k, c: 100n }
+  channels:
+    # equivalent filter
+    - { name: psg1, module: jt89, rsum: 220, rc: [
+        { r: 2k, c: 100n }, { r:     0, c:    0 }, # always on
+        { r: 2k, c: 100n }, { r: 1.25k, c: 470n }, # optional 2nd capacitor
+      ], rc_en: true }
+    - { name: psg2, module: jt89, rsum: 220, rc: [
+        { r: 2k, c: 100n }, { r:     0, c:    0 }, # rc_en==0, always on RC only
+        { r: 2k, c: 100n }, { r: 1.25k, c:  47n }, # rc_en==1, adds 47nF stage
+        { r: 2k, c: 100n }, { r: 1.25k, c: 470n }, # rc_en==2, adds 470nF stage
+        { r: 2k, c: 100n }, { r: 1.25k, c: 517n }, # rc_en==4, 47 and 470nF stages
+      ], rc_en: true }
+      # the RDAC seems to be used for the applause only
+    - { name: rdac,  data_width: 8, rsum: 1k, rc: [{ r: 0.8k, c: 470n }], rc_en: true }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 14
+        data_width: 8
+    - buses:
+      - name: scr
+        addr_width: 14
+        data_width: 32
+    - buses:
+      - name: objrom
+        addr_width: 16
+        data_width: 32

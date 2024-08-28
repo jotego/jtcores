@@ -35,6 +35,7 @@ target:
       - osd.sv
       - rgb2ypbpr.v
   - from: mister
+    unless: VERILATOR
     get:
       - sys/yc_out.sv
   - from: mist

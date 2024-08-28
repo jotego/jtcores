@@ -1,0 +1,57 @@
+params:
+  - { name: RAM_OFFSET, value: "22'h10_0000" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START) >>1" }
+clocks:
+  # main and mcu do not share the gate because they are in different clock domains
+  # MC6809 module is problematic at 48MHz, hence using clk24
+  # Not a problem for accuracy as there is an NMI based handshaking between main and mcu
+  clk:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 1056000
+      outputs:
+        - cen_oki
+audio:
+  channels:
+    # temporary values
+    - { name: pcm, module: jt6295, rsum: 40k, rc: [{ r: 10k, 4n }] }
+    - { name: fm,  module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }]}
+sdram:
+  banks:
+    - buses:
+      - name: ram
+        addr_width: 18
+        data_width: 16
+        cs: xram_cs
+        din: main_dout
+        rw: true
+        offset: RAM_OFFSET
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+      - name: pcm
+        addr_width: 18
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: char
+        addr_width: 17
+        data_width: 32
+        # gfx_sort: hhvvv
+      - name: scr
+        addr_width: 19
+        data_width: 16
+        offset: SCR_OFFSET
+        # gfx_sort: hhvvvvx
+    - buses:
+      - name: obj
+        addr_width: 21
+        data_width: 32
+        # gfx_sort: hhvvvvx
