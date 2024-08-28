@@ -5,7 +5,6 @@ SCENE=
 BATCH=
 CRC=
 if [ $(basename $(pwd)) = ssriders ]; then SSRIDERS=1; else SSRIDERS=;fi
-#if [ $(basename $(pwd)) = vendetta ]; then VENDETTA=1; else VENDETTA=;fi
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -33,7 +32,7 @@ EOF
     exit 0
 fi
 
-../game/dump_split.sh --scene "$SCENE" --nvram
+../game/dump_split.sh --scene "$SCENE" --nvram --fullram --pal2
 
 jtsim $OTHER
 
