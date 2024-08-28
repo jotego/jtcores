@@ -14439,8 +14439,16 @@
 		(uuid "726f1f7f-383d-43bc-bd13-838067478c5b")
 	)
 	(no_connect
+		(at 254 114.3)
+		(uuid "ab47d6b2-afaf-4756-84fd-925353ada485")
+	)
+	(no_connect
 		(at 92.71 74.93)
 		(uuid "c0de432b-0489-4906-890b-896415cf8025")
+	)
+	(no_connect
+		(at 254 111.76)
+		(uuid "c5f7b562-4467-44e6-9221-cc07f23fdb6b")
 	)
 	(no_connect
 		(at 77.47 49.53)
@@ -15914,16 +15922,6 @@
 	)
 	(wire
 		(pts
-			(xy 171.45 203.2) (xy 176.53 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a8e99bd-45d5-454c-aa22-932abcc66e3f")
-	)
-	(wire
-		(pts
 			(xy 259.08 125.73) (xy 254 125.73)
 		)
 		(stroke
@@ -16111,16 +16109,6 @@
 			(type default)
 		)
 		(uuid "44dc15af-19b4-4aa7-a823-3aecfab9656a")
-	)
-	(wire
-		(pts
-			(xy 171.45 220.98) (xy 176.53 220.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "45f3e185-a86d-44a4-b86b-8740c346a74a")
 	)
 	(wire
 		(pts
@@ -17144,16 +17132,6 @@
 	)
 	(wire
 		(pts
-			(xy 171.45 210.82) (xy 176.53 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7b2a3e90-044d-4021-be80-1a61f21817f4")
-	)
-	(wire
-		(pts
 			(xy 143.51 74.93) (xy 148.59 74.93)
 		)
 		(stroke
@@ -17521,16 +17499,6 @@
 			(type default)
 		)
 		(uuid "90625fd3-0afa-44e5-8245-aa027259b1f8")
-	)
-	(wire
-		(pts
-			(xy 171.45 205.74) (xy 176.53 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "90766f98-a3d8-42ec-8e32-256a578efdd1")
 	)
 	(wire
 		(pts
@@ -19414,16 +19382,6 @@
 	)
 	(wire
 		(pts
-			(xy 171.45 208.28) (xy 176.53 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ee8f15e2-abaa-461b-8c2f-e5a47c991978")
-	)
-	(wire
-		(pts
 			(xy 143.51 52.07) (xy 148.59 52.07)
 		)
 		(stroke
@@ -19866,8 +19824,8 @@
 		(uuid 010a5bb1-e676-46da-adaf-ce5bf5d08afa)
 	)
 	(rectangle
-		(start 341.63 119.38)
-		(end 368.3 129.54)
+		(start 318.77 119.38)
+		(end 389.89 129.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -19878,8 +19836,8 @@
 		(uuid 0493d580-3868-440f-a901-5b87a5b8ca3c)
 	)
 	(rectangle
-		(start 341.63 85.09)
-		(end 368.3 95.25)
+		(start 318.77 85.09)
+		(end 389.89 95.25)
 		(stroke
 			(width 0)
 			(type default)
@@ -19903,8 +19861,8 @@
 		(uuid 20ea0d61-6480-4210-ae52-9722fb96cef8)
 	)
 	(rectangle
-		(start 341.63 107.95)
-		(end 368.3 118.11)
+		(start 318.77 107.95)
+		(end 389.89 118.11)
 		(stroke
 			(width 0)
 			(type default)
@@ -19954,8 +19912,8 @@
 		(uuid 7107ab2d-6404-45d3-99b5-a38ac8f2f9b5)
 	)
 	(rectangle
-		(start 341.63 96.52)
-		(end 368.3 106.68)
+		(start 318.77 96.52)
+		(end 389.89 106.68)
 		(stroke
 			(width 0)
 			(type default)
@@ -20058,7 +20016,7 @@
 	)
 	(text "Inconexo?"
 		(exclude_from_sim no)
-		(at 368.3 109.22 0)
+		(at 345.44 109.22 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20092,7 +20050,7 @@
 	)
 	(text "Inconexo?"
 		(exclude_from_sim no)
-		(at 368.3 86.36 0)
+		(at 345.44 86.36 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20100,17 +20058,6 @@
 			(justify right)
 		)
 		(uuid "649e3ab0-f2ad-46eb-896d-ac4d4ffc2085")
-	)
-	(text "Inconexo?"
-		(exclude_from_sim no)
-		(at 255.27 116.84 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "68d0204a-2dac-46c0-a7cb-314c3cf48d29")
 	)
 	(text "DONE"
 		(exclude_from_sim no)
@@ -20164,6 +20111,18 @@
 		)
 		(uuid "940d580e-1a05-41a4-a777-91ecd41ce5f1")
 	)
+	(text "DUDA 1: INCONEXOS?\n"
+		(exclude_from_sim no)
+		(at 189.23 217.17 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
+			)
+		)
+		(uuid "bd28e5f3-da0b-4291-a603-9ba1c641d8ec")
+	)
 	(text "DONE"
 		(exclude_from_sim no)
 		(at 196.85 55.88 0)
@@ -20179,7 +20138,7 @@
 	)
 	(text "Inconexo?"
 		(exclude_from_sim no)
-		(at 363.22 120.65 0)
+		(at 340.36 120.65 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20215,7 +20174,7 @@
 	)
 	(text "Inconexo?"
 		(exclude_from_sim no)
-		(at 368.3 97.79 0)
+		(at 345.44 97.79 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25409,6 +25368,109 @@
 		)
 	)
 	(symbol
+		(lib_id "74xx:74LS05")
+		(at 358.14 113.03 0)
+		(unit 6)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2822e787-78eb-4c2a-bc1f-5bba00d7c688")
+		(property "Reference" "IC83"
+			(at 358.14 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 358.14 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 358.14 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 358.14 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 358.14 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be885")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e93")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4c")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f2")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898142")
+		)
+		(pin "9"
+			(uuid "8807b435-077d-4c31-8481-4ccc526e4370")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4f")
+		)
+		(pin "8"
+			(uuid "2f7719f4-358e-40fa-a261-5fcdd25102f2")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e84")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bd")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC83")
+					(unit 6)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS25")
 		(at 78.74 270.51 0)
 		(unit 3)
@@ -26315,6 +26377,212 @@
 		)
 	)
 	(symbol
+		(lib_id "74xx:74LS05")
+		(at 381 123.19 0)
+		(unit 6)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "52831728-d838-470e-b2f3-f375e187a518")
+		(property "Reference" "IC72"
+			(at 381 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 381 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 381 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 381 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 381 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be885")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e93")
+		)
+		(pin "13"
+			(uuid "57c567be-6f0a-485c-bf97-8446bde49f05")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f2")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898142")
+		)
+		(pin "9"
+			(uuid "8807b435-077d-4c31-8481-4ccc526e4370")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4f")
+		)
+		(pin "8"
+			(uuid "2f7719f4-358e-40fa-a261-5fcdd25102f2")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e84")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
+		)
+		(pin "12"
+			(uuid "90a00c81-96db-4c40-891a-8b7be0601ecb")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC72")
+					(unit 6)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 358.14 90.17 0)
+		(unit 4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "532c5f40-3634-4a31-815d-058cecdd00ab")
+		(property "Reference" "IC83"
+			(at 358.14 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 358.14 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 358.14 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 358.14 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 358.14 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be885")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e93")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4c")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f2")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898142")
+		)
+		(pin "9"
+			(uuid "4bfbdf32-d4ab-495b-823b-6e15b2eab7fa")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4f")
+		)
+		(pin "8"
+			(uuid "f6c79261-3d64-425c-a6ce-db882fd65375")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e84")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bd")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC83")
+					(unit 4)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS10")
 		(at 163.83 125.73 0)
 		(unit 3)
@@ -26516,6 +26784,109 @@
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
 					(reference "IC84")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 381 90.17 0)
+		(unit 3)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "60a5f9e1-6873-4a64-b469-a735855a2398")
+		(property "Reference" "IC?"
+			(at 381 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 381 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 381 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 381 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 381 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be887")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e95")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4e")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f4")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898144")
+		)
+		(pin "9"
+			(uuid "9c0a03dc-dd46-4b78-a324-761668290e4a")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a51")
+		)
+		(pin "8"
+			(uuid "f2c24a60-3cb4-4eac-b124-4af0aefc33ce")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a431a")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d73")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e86")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db85")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bf")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd80639479a0")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC?")
+					(unit 3)
 				)
 			)
 		)
@@ -27286,7 +27657,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 354.33 124.46 0)
+		(at 331.47 124.46 0)
 		(unit 2)
 		(convert 2)
 		(exclude_from_sim no)
@@ -27295,7 +27666,7 @@
 		(dnp no)
 		(uuid "7d580be7-ca46-4c8b-b841-de9ceb3744c6")
 		(property "Reference" "IC18"
-			(at 354.33 123.19 0)
+			(at 331.47 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27303,7 +27674,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 354.33 125.73 0)
+			(at 331.47 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27311,7 +27682,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 354.33 124.46 0)
+			(at 331.47 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27320,7 +27691,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 354.33 124.46 0)
+			(at 331.47 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27329,7 +27700,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 354.33 124.46 0)
+			(at 331.47 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27494,7 +27865,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS10")
-		(at 354.33 90.17 0)
+		(at 331.47 90.17 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27502,7 +27873,7 @@
 		(dnp no)
 		(uuid "8764facf-88c9-4deb-b9e0-f87bfcc74a03")
 		(property "Reference" "IC17"
-			(at 354.33 88.9 0)
+			(at 331.47 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27510,7 +27881,7 @@
 			)
 		)
 		(property "Value" "74LS10"
-			(at 354.33 91.44 0)
+			(at 331.47 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27518,7 +27889,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 354.33 90.17 0)
+			(at 331.47 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27527,7 +27898,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS10"
-			(at 354.33 90.17 0)
+			(at 331.47 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27536,7 +27907,7 @@
 			)
 		)
 		(property "Description" "Triple 3-input NAND"
-			(at 354.33 90.17 0)
+			(at 331.47 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27749,6 +28120,109 @@
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
 					(reference "IC34")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 381 100.33 0)
+		(unit 4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8abb6b8c-79fc-41d0-bc51-929aa1bcfc07")
+		(property "Reference" "IC72"
+			(at 381 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 381 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 381 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 381 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 381 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be887")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e95")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4e")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f4")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898144")
+		)
+		(pin "9"
+			(uuid "4980d217-be71-4748-a885-33955a343027")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a51")
+		)
+		(pin "8"
+			(uuid "59db9afe-1da5-425a-973c-0140a372b640")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a431a")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d73")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e86")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db85")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bf")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd80639479a0")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC72")
+					(unit 4)
 				)
 			)
 		)
@@ -28269,7 +28743,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS00")
-		(at 354.33 113.03 0)
+		(at 331.47 113.03 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28277,7 +28751,7 @@
 		(dnp no)
 		(uuid "ab208313-ecdd-4993-9db8-63bb4f8d4efb")
 		(property "Reference" "IC1"
-			(at 354.33 111.76 0)
+			(at 331.47 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28285,7 +28759,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 354.33 114.3 0)
+			(at 331.47 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28293,7 +28767,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 354.33 113.03 0)
+			(at 331.47 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28302,7 +28776,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 354.33 113.03 0)
+			(at 331.47 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28311,7 +28785,7 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
-			(at 354.33 113.03 0)
+			(at 331.47 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28845,7 +29319,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS00")
-		(at 354.33 101.6 0)
+		(at 331.47 101.6 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28853,7 +29327,7 @@
 		(dnp no)
 		(uuid "bf1d56fb-0527-4fc2-ade6-2e135487de73")
 		(property "Reference" "IC1"
-			(at 354.33 100.33 0)
+			(at 331.47 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28861,7 +29335,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 354.33 102.87 0)
+			(at 331.47 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28869,7 +29343,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 354.33 101.6 0)
+			(at 331.47 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28878,7 +29352,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 354.33 101.6 0)
+			(at 331.47 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28887,7 +29361,7 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
-			(at 354.33 101.6 0)
+			(at 331.47 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29605,6 +30079,212 @@
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
 					(reference "IC84")
 					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 358.14 101.6 0)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cc62bb71-bff7-4107-a74c-778003af2bf9")
+		(property "Reference" "IC83"
+			(at 358.14 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 358.14 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 358.14 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 358.14 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 358.14 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be885")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e93")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4c")
+		)
+		(pin "10"
+			(uuid "1c71739c-53b6-4d1a-aea6-252fc8d3f5f2")
+		)
+		(pin "11"
+			(uuid "30da350a-0d53-43fb-a562-0d1766898142")
+		)
+		(pin "9"
+			(uuid "279acaf5-73f7-469a-b078-07175516c59a")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a4f")
+		)
+		(pin "8"
+			(uuid "2c882b62-6daa-497a-bd0b-6b2833ddd28e")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4318")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d71")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e84")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db83")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5bd")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799e")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC83")
+					(unit 5)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "74xx:74LS05")
+		(at 381 111.76 0)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d5c616db-999d-4fb8-a47f-80b428060b4f")
+		(property "Reference" "IC72"
+			(at 381 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS05"
+			(at 381 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 381 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
+			(at 381 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inverter Open Collect"
+			(at 381 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "7"
+			(uuid "96ea4b2a-fffc-40e2-84d7-ba11d39be886")
+		)
+		(pin "14"
+			(uuid "134a8eeb-91c9-4986-84b1-ae27fae46e94")
+		)
+		(pin "13"
+			(uuid "f9efe664-35a3-4b96-837f-2b6765c91c4d")
+		)
+		(pin "10"
+			(uuid "c8a17270-184e-48ae-8ebd-f1662dc96db1")
+		)
+		(pin "11"
+			(uuid "efdc4ec5-6348-49b9-9293-c5c79f66966e")
+		)
+		(pin "9"
+			(uuid "279acaf5-73f7-469a-b078-07175516c59a")
+		)
+		(pin "1"
+			(uuid "241594ee-0f87-4564-86d2-6ff2623a7a50")
+		)
+		(pin "8"
+			(uuid "2c882b62-6daa-497a-bd0b-6b2833ddd28e")
+		)
+		(pin "4"
+			(uuid "9322c65b-98d9-4f18-9b94-937c527a4319")
+		)
+		(pin "3"
+			(uuid "59967be7-822b-4a07-a9cd-e4c231183d72")
+		)
+		(pin "2"
+			(uuid "3198686d-8179-4525-86cb-01bfb5d84e85")
+		)
+		(pin "6"
+			(uuid "1b810f82-3319-4efd-9441-c3d33085db84")
+		)
+		(pin "12"
+			(uuid "b9afcb0c-add6-4a23-9ced-10dea1dcd5be")
+		)
+		(pin "5"
+			(uuid "2a880051-5642-419c-bdc7-dd806394799f")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06/3712bf97-ae54-4a8f-a69b-762d5add97b7"
+					(reference "IC72")
+					(unit 5)
 				)
 			)
 		)

@@ -2132,6 +2132,478 @@
 				)
 			)
 		)
+		(symbol "RAM_2016_1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 7.62 17.78 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "RAM_2016"
+				(at 1.27 17.78 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 6.35 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 6.35 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "RAM_2016_1_0_0"
+				(text "RAM 2kB"
+					(at 3.81 -11.43 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(symbol "RAM_2016_1_0_1"
+				(rectangle
+					(start -7.62 16.51)
+					(end 8.89 -17.78)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "RAM_2016_1_1_0"
+				(pin input line
+					(at -12.7 -3.81 0)
+					(length 5.08)
+					(name "A7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 11.43 180)
+					(length 5.08)
+					(name "D1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 8.89 180)
+					(length 5.08)
+					(name "D2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 6.35 180)
+					(length 5.08)
+					(name "D3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 3.81 180)
+					(length 5.08)
+					(name "D4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 1.27 180)
+					(length 5.08)
+					(name "D5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 -1.27 180)
+					(length 5.08)
+					(name "D6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 -3.81 180)
+					(length 5.08)
+					(name "D7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "17"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 1.27 -22.86 90)
+					(length 5.08)
+					(name "~{CS}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "18"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -11.43 0)
+					(length 5.08)
+					(name "A10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "19"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -1.27 0)
+					(length 5.08)
+					(name "A6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at -1.27 -22.86 90)
+					(length 5.08)
+					(name "~{OE}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "20"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 3.81 -22.86 90)
+					(length 5.08)
+					(name "~{WE}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "21"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -8.89 0)
+					(length 5.08)
+					(name "A9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "22"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -6.35 0)
+					(length 5.08)
+					(name "A8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "23"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 1.27 0)
+					(length 5.08)
+					(name "A5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 3.81 0)
+					(length 5.08)
+					(name "A4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 6.35 0)
+					(length 5.08)
+					(name "A3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 8.89 0)
+					(length 5.08)
+					(name "A2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 11.43 0)
+					(length 5.08)
+					(name "A1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 13.97 0)
+					(length 5.08)
+					(name "A0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 13.97 180)
+					(length 5.08)
+					(name "D0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "arcade:R2R4"
 			(pin_names
 				(offset 1.016)
@@ -2399,7 +2871,7 @@
 				(pin input line
 					(at -12.7 -3.81 0)
 					(length 5.08)
-					(name "A[7]"
+					(name "A7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2417,7 +2889,7 @@
 				(pin tri_state line
 					(at 13.97 11.43 180)
 					(length 5.08)
-					(name "D[1]"
+					(name "D1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2435,7 +2907,7 @@
 				(pin tri_state line
 					(at 13.97 8.89 180)
 					(length 5.08)
-					(name "D[2]"
+					(name "D2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2453,7 +2925,7 @@
 				(pin tri_state line
 					(at 13.97 6.35 180)
 					(length 5.08)
-					(name "D[3]"
+					(name "D3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2471,7 +2943,7 @@
 				(pin tri_state line
 					(at 13.97 3.81 180)
 					(length 5.08)
-					(name "D[4]"
+					(name "D4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2489,7 +2961,7 @@
 				(pin tri_state line
 					(at 13.97 1.27 180)
 					(length 5.08)
-					(name "D[5]"
+					(name "D5"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2507,7 +2979,7 @@
 				(pin tri_state line
 					(at 13.97 -1.27 180)
 					(length 5.08)
-					(name "D[6]"
+					(name "D6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2525,7 +2997,7 @@
 				(pin tri_state line
 					(at 13.97 -3.81 180)
 					(length 5.08)
-					(name "D[7]"
+					(name "D7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2561,7 +3033,7 @@
 				(pin input line
 					(at -12.7 -11.43 0)
 					(length 5.08)
-					(name "A[10]"
+					(name "A10"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2579,7 +3051,7 @@
 				(pin input line
 					(at -12.7 -1.27 0)
 					(length 5.08)
-					(name "A[6]"
+					(name "A6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2633,7 +3105,7 @@
 				(pin input line
 					(at -12.7 -8.89 0)
 					(length 5.08)
-					(name "A[9]"
+					(name "A9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2651,7 +3123,7 @@
 				(pin input line
 					(at -12.7 -6.35 0)
 					(length 5.08)
-					(name "A[8]"
+					(name "A8"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2669,7 +3141,7 @@
 				(pin input line
 					(at -12.7 1.27 0)
 					(length 5.08)
-					(name "A[5]"
+					(name "A5"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2687,7 +3159,7 @@
 				(pin input line
 					(at -12.7 3.81 0)
 					(length 5.08)
-					(name "A[4]"
+					(name "A4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2705,7 +3177,7 @@
 				(pin input line
 					(at -12.7 6.35 0)
 					(length 5.08)
-					(name "A[3]"
+					(name "A3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2723,7 +3195,7 @@
 				(pin input line
 					(at -12.7 8.89 0)
 					(length 5.08)
-					(name "A[2]"
+					(name "A2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2741,7 +3213,7 @@
 				(pin input line
 					(at -12.7 11.43 0)
 					(length 5.08)
-					(name "A[1]"
+					(name "A1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2759,7 +3231,7 @@
 				(pin input line
 					(at -12.7 13.97 0)
 					(length 5.08)
-					(name "A[0]"
+					(name "A0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2777,7 +3249,7 @@
 				(pin tri_state line
 					(at 13.97 13.97 180)
 					(length 5.08)
-					(name "D[0]"
+					(name "D0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -11999,6 +12471,7 @@
 		)
 	)
 	(symbol
+		(lib_name "RAM_2016_1")
 		(lib_id "arcade:RAM_2016")
 		(at 259.08 144.78 0)
 		(unit 1)

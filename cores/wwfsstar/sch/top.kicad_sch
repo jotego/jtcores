@@ -4109,16 +4109,6 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 135.89) (xy 208.28 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0e4e9645-e1f6-40b5-8ffc-aeaadf88a2c3")
-	)
-	(wire
-		(pts
 			(xy 50.8 172.72) (xy 59.69 172.72)
 		)
 		(stroke
@@ -4206,16 +4196,6 @@
 			(type default)
 		)
 		(uuid "1867c328-020e-4195-8137-bf5b9cfbf7b7")
-	)
-	(wire
-		(pts
-			(xy 176.53 133.35) (xy 182.88 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "190c65f1-3ef5-4a82-8d23-278f5ef6777d")
 	)
 	(wire
 		(pts
@@ -4739,6 +4719,16 @@
 	)
 	(wire
 		(pts
+			(xy 377.19 107.95) (xy 383.54 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47e2b590-7986-472f-88d7-4d2d8c93fde0")
+	)
+	(wire
+		(pts
 			(xy 118.11 214.63) (xy 132.08 214.63)
 		)
 		(stroke
@@ -4806,6 +4796,16 @@
 			(type default)
 		)
 		(uuid "4e344573-7bcc-4d42-a729-57c9c3f8d35f")
+	)
+	(wire
+		(pts
+			(xy 123.19 147.32) (xy 132.08 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ef5e00a-f30f-4438-8f89-bb74d10e275c")
 	)
 	(wire
 		(pts
@@ -5346,6 +5346,16 @@
 			(type default)
 		)
 		(uuid "779bc939-13ac-44f1-8be4-1304ae5c021e")
+	)
+	(wire
+		(pts
+			(xy 132.08 143.51) (xy 123.19 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77ad0a9e-db13-4ca0-a2f8-8802c38f75f9")
 	)
 	(wire
 		(pts
@@ -6079,6 +6089,16 @@
 	)
 	(wire
 		(pts
+			(xy 341.63 107.95) (xy 335.28 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab416f99-4948-4ddc-b1ab-91d972599bf8")
+	)
+	(wire
+		(pts
 			(xy 118.11 212.09) (xy 132.08 212.09)
 		)
 		(stroke
@@ -6276,16 +6296,6 @@
 			(type default)
 		)
 		(uuid "c75ee654-77d8-4fc3-bcf7-f32963040761")
-	)
-	(wire
-		(pts
-			(xy 219.71 133.35) (xy 208.28 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c93c57b6-0108-409b-aee9-e652568fcc6c")
 	)
 	(wire
 		(pts
@@ -7086,6 +7096,17 @@
 		)
 		(uuid "001667dc-15c0-4004-98b2-bd6600b8bf5d")
 	)
+	(label "12V"
+		(at 123.19 147.32 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0072e8b0-ae5a-4626-b652-b8755f237c3c")
+	)
 	(label "MD12"
 		(at 77.47 80.01 180)
 		(fields_autoplaced yes)
@@ -7338,6 +7359,17 @@
 			(justify left bottom)
 		)
 		(uuid "10a65cdd-8cf6-44ae-9f85-62f4e0cf67d7")
+	)
+	(label "(-)5V"
+		(at 383.54 107.95 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "132f6cb1-1415-4145-9b58-6cfdc69cdcab")
 	)
 	(label "IC67_15"
 		(at 50.8 182.88 0)
@@ -7635,6 +7667,17 @@
 			(justify right bottom)
 		)
 		(uuid "2eacc462-0332-4ae4-95af-2f8025450049")
+	)
+	(label "(-)5V"
+		(at 123.19 143.51 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2fc82ad8-db65-4645-bac9-f914fd26ae2d")
 	)
 	(label "2P_DOWN"
 		(at 223.52 82.55 0)
@@ -8197,17 +8240,6 @@
 		)
 		(uuid "6c68336e-d42e-4ca5-ab2b-f539633dd199")
 	)
-	(label "~{RST}"
-		(at 176.53 133.35 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6c73a42c-8e78-41f5-96e1-890809364d6c")
-	)
 	(label "IC50_13"
 		(at 50.8 165.1 0)
 		(fields_autoplaced yes)
@@ -8273,17 +8305,6 @@
 			(justify right bottom)
 		)
 		(uuid "73c2f099-d914-4a10-b640-09b9cfac65c0")
-	)
-	(label "SPEAKER_H"
-		(at 219.71 133.35 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "75da55bb-c719-42a2-9f48-a78d9c8c6cd5")
 	)
 	(label "~{MPAL}"
 		(at 118.11 205.74 0)
@@ -8758,6 +8779,17 @@
 		)
 		(uuid "ac893775-efbb-4920-81a9-615c3b301e9a")
 	)
+	(label "(-)5V"
+		(at 335.28 107.95 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "af60a326-14eb-45c7-a98c-cf4c89b78df9")
+	)
 	(label "IC68_10"
 		(at 218.44 115.57 180)
 		(fields_autoplaced yes)
@@ -9065,17 +9097,6 @@
 			(justify right bottom)
 		)
 		(uuid "cce2891b-0f86-4a9e-bbe6-bc89762ca12f")
-	)
-	(label "SPEAKER_L"
-		(at 219.71 135.89 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cdcea4cc-2c07-4737-9a10-8796531c8b22")
 	)
 	(label "MA8"
 		(at 77.47 97.79 180)
@@ -10628,74 +10649,6 @@
 		)
 	)
 	(sheet
-		(at 182.88 130.81)
-		(size 25.4 25.4)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "08725bbc-671d-4d92-a45d-82ad33bea028")
-		(property "Sheetname" "analog"
-			(at 182.88 130.0984 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "analog.kicad_sch"
-			(at 182.88 156.7946 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(pin "~{RST}" input
-			(at 182.88 133.35 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "70ed18f9-b9b0-41d0-8cf0-3295745f6c3b")
-		)
-		(pin "SPEAKER_H" output
-			(at 208.28 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "a6adf905-a826-49e4-90a7-e087b91d8ced")
-		)
-		(pin "SPEAKER_L" output
-			(at 208.28 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "a6e911eb-e2dd-4d08-bd98-1029309dd864")
-		)
-		(instances
-			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/196e9cfe-efe3-4c2b-8678-7a6099cf4b06"
-					(page "10")
-				)
-			)
-		)
-	)
-	(sheet
 		(at 132.08 168.91)
 		(size 53.34 53.34)
 		(fields_autoplaced yes)
@@ -11696,6 +11649,26 @@
 				(justify left)
 			)
 			(uuid "701088db-9c85-44e6-897b-772ec9ed5006")
+		)
+		(pin "(-)5V" input
+			(at 132.08 143.51 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "8126cce3-19dd-4de0-a9f3-19bc009e83af")
+		)
+		(pin "12V" passive
+			(at 132.08 147.32 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "cfe4989b-d0d9-4f7f-ae3b-44b4cf909de5")
 		)
 		(instances
 			(project "wwfsstar"
