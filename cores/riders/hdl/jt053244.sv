@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 30-7-2023 */
 
-// See JTSIMSON's README.md
-
 module jt053244(    // sprite logic
     input             rst,
     input             clk,
@@ -117,8 +115,8 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset + 10'h66 ; // 15<<2 for Riders
-    yadj <= yoffset + 10'h10f; // Vendetta (and Parodius)
+    xadj <= xoffset + 10'h66 ;
+    yadj <= yoffset + 10'h10f;
     vscl <= red_offset(vzoom, zoffset,pzoffset);
     hscl <= red_offset(hzoom, zoffset,pzoffset);
     /* verilator lint_off WIDTH */
@@ -139,6 +137,7 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
     endcase
 endfunction
 
+// Extra offset table for sprites in Reduction process
 function [8:0] red_offset( input [11:0] zoom, input [ 8:0] offset1 [0:255], input [3:0] offset2[0:15]);
     case( zoom[11:8] )
         0:       red_offset =       offset1 [zoom[7:0]];

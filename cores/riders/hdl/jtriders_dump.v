@@ -39,6 +39,8 @@ module jtriders_dump(
     output reg [ 7:0] st_dout
 );
 parameter FULLRAM = 0;
+localparam SCR_END = FULLRAM==1 ? 16'h6000 : 16'h4000,
+           PAL_END = SCR_END+16'h1000;
 wire [15:0] full_addr = {ioctl_extra, ioctl_addr};
 
 always @(posedge clk) begin
