@@ -1,1 +1,1 @@
-../../../xmen/ver/game/dump_split.sh
+../../../riders/ver/game/dump_split.sh
