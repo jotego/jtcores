@@ -1,7 +1,5 @@
 include ../../kicker/cfg/common.def
 
-JTFRAME_SKIP
-
 CORENAME=JTCIRCUS
 JTFRAME_VERTICAL
 
