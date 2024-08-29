@@ -7,6 +7,7 @@ ALL=
 TARGET=28833
 EXCLUDE="-a --all"
 ARGS=()
+BATCH=
 
 for arg in "$@"; do
     if [[ ! $EXCLUDE =~ $arg ]]; then
@@ -33,7 +34,7 @@ while [ $# -gt 0 ]; do
 			TARGET=$1;;
         # --crc)
             # CRC=1;;
-        # --batch) BATCH=1;;
+        --batch) BATCH=1;;
         *) OTHER="$OTHER $1";;
     esac
     shift
@@ -50,14 +51,17 @@ if [ -z "$FNAME" ]; then
 		echo "Cannot determine game name. Using dump.bin for scene data"
 		FNAME=dump.bin
 	else
-		echo "Using $FNAME as file name for scene data"
+		if [ -z $BATCH ]; then
+			echo "Using $FNAME as file name for scene data"
+		fi
 	fi
 fi
 
 if [ "$ALL" = "1" ]; then
 	for i in scenes/*; do
-	    addzeros.sh -s $(basename $i) "${ARGS[@]}"
+	    addzeros.sh -s $(basename $i) --batch "${ARGS[@]}"
 	done
+	exit 0
 fi
 
 DIV=$((1+(16+16+8+8)*4))
@@ -74,6 +78,6 @@ if [ $ADD -gt 0 ]; then
 	rm -f $TMP "${SCENE}.bin"
 else
 	echo "File $SCENE/$FNAME already reaches/surpasses target size. Skipping"
-	exit 0
+	exit 1
 fi
 
