@@ -60,7 +60,7 @@ if [ "$ALL" = "1" ]; then
 	done
 fi
 
-DIV=$((1+16+16+8+8))
+DIV=$((1+(16+16+8+8)*4))
 OR_FILE="scenes/$SCENE/$FNAME"
 ADD=$((TARGET -1 -$(stat --format=%s "$OR_FILE")))
 if [ $ADD -gt 0 ]; then

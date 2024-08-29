@@ -82,11 +82,11 @@ module jtsimson_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
@@ -102,22 +102,40 @@ assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
-always @(posedge clk) begin
-    st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
-    // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
-    if( ioctl_addr<'h4000 )
-        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    else if( ioctl_addr<'h5000 )
-        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h6000 )
-        ioctl_din <= dump_obj;  // 4kB 5000~5FFF
-    else if( ioctl_addr<'h6010 )//     6000~600F
-        ioctl_din <= pal_mmr;
-    else if( !ioctl_addr[3] )
-        ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
-    else
-        ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
-end
+// always @(posedge clk) begin
+//     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
+//     // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
+//     if( ioctl_addr<'h4000 )
+//         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+//     else if( ioctl_addr<'h5000 )
+//         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+//     else if( ioctl_addr<'h6000 )
+//         ioctl_din <= dump_obj;  // 4kB 5000~5FFF
+//     else if( ioctl_addr<'h6010 )//     6000~600F
+//         ioctl_din <= pal_mmr;
+//     else if( !ioctl_addr[3] )
+//         ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
+//     else
+//         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
+// end
+jtriders_dump u_dump(
+    .clk            ( clk             ),
+    .dump_scr       ( dump_scr        ),
+    .dump_obj       ( dump_obj        ),
+    .dump_pal       ( dump_pal        ),
+    .pal_mmr        ( pal_mmr         ),
+    .scr_mmr        ( scr_mmr         ),
+    .obj_mmr        ( obj_mmr         ),
+    .other          ( 8'b0            ),
+
+    .ioctl_addr     ( ioctl_addr[14:0]),
+    .ioctl_extra    ( 1'b0            ),
+    .ioctl_din      ( ioctl_din       ),
+
+    .debug_bus      ( debug_bus       ),
+    .st_scr         ( st_scr          ),
+    .st_dout        ( st_dout         )
+);
 
 /* verilator tracing_on */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(

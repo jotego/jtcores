@@ -53,9 +53,9 @@ else
 fi
 dd if=$TMP      of=scr1.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 dd if=$TMP      of=scr0.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
-if [ $FULLRAM = 1 ]; then;
+if [ $FULLRAM = 1 ]; then
 	dd if=$TMP      of=scrx.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
-fi;
+fi
 dd if=$TMP      of=pal.bin     count=8  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +8 ))   # 4kB
 dd if=$TMP      of=obj.bin     count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 dd if=/dev/zero of=obj.bin     count=16 conv=notrunc oflag=append 2> /dev/null; SKIP=$((SKIP*512/8)) # 8kB blank

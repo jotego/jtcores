@@ -1,0 +1,1 @@
+../simpsons/sim2.sh

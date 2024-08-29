@@ -23,6 +23,9 @@ game:
     get:
       - jt052109.v
       - jt051962.v
+  - from: riders
+    get:
+      - jtriders_dump.v
 jtframe:
   - get:
     - jtframe_edge.v
