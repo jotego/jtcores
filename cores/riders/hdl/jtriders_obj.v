@@ -22,8 +22,6 @@ module jtriders_obj #(parameter
     input             rst,
     input             clk,
 
-    input             paroda,
-
     input             pxl_cen,
     input             pxl2_cen,
     input      [ 8:0] hdump,
@@ -125,7 +123,7 @@ jt053244 u_scan(    // sprite logic
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 
-    .k44_en     ( paroda    ),
+    .k44_en     ( 1'b1      ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),

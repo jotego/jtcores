@@ -96,7 +96,7 @@ module jtriders_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -115,10 +115,11 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
+wire [ 3:0] obj_corr;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
-            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, paroda;
+            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
@@ -129,7 +130,6 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
                                  {1'b0,lyro_prea[20:2]};
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
-assign paroda = ssriders | oaread_en;
 
 jtriders_dump u_dump(
     .clk            ( clk           ),
@@ -142,8 +142,8 @@ jtriders_dump u_dump(
     .other          ( dump_other    ),
 
     .ioctl_addr     ( ioctl_addr    ),
-    .ioctl_extra    ( 1'b0          ),
     .ioctl_din      ( ioctl_din     ),
+    .obj_corr       ( obj_corr      ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),
@@ -282,7 +282,6 @@ jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( paroda    ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -316,7 +315,7 @@ jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
+    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} /*ioctl_addr[13:0]-14'h1000*/ ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

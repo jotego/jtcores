@@ -29,9 +29,9 @@ module jtriders_dump(
 
     input      [ 7:0] other,        // stand-alone byte coming from main CPU
 
-    input      [14:0] ioctl_addr,
-    input             ioctl_extra,
-    output reg [ 7:0] ioctl_din,    
+    input      [15:0] ioctl_addr,
+    output reg [ 7:0] ioctl_din,
+    output     [ 3:0] obj_corr,
 
     input      [ 7:0] debug_bus,
 
@@ -39,43 +39,31 @@ module jtriders_dump(
     output reg [ 7:0] st_dout
 );
 parameter FULLRAM = 0;
-localparam SCR_END = FULLRAM==1 ? 16'h6000 : 16'h4000,
-           PAL_END = SCR_END+16'h1000;
-wire [15:0] full_addr = {ioctl_extra, ioctl_addr};
+localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
+           PAL_END  = SCR_END +16'h1000,
+           OBJ_END  = PAL_END +16'h2000,
+           PMMR_END = OBJ_END +16'h0010,
+           SMMR_END = PMMR_END+16'h0008,
+           OMMR_END = SMMR_END+16'h0008;
+
+assign obj_corr = ioctl_addr[15:12] - PAL_END[15:12];
 
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
-    if( FULLRAM ) begin
-        // VRAM dumps - 24+4+1 = 29kB +17 bytes = 36897 bytes
-        if( full_addr<'h6000 )
-            ioctl_din <= dump_scr;  // 24 kB 0000~5FFF
-        else if( full_addr<'h7000 )
-            ioctl_din <= dump_pal;  // 4kB 6000~6FFF
-        else if( full_addr<'h9000 )
-            ioctl_din <= dump_obj;  // 8kB 7000~8FFF
-        else if( full_addr<'h9010 )//     9000~900F
-            ioctl_din <= pal_mmr;
-        else if( full_addr<'h9018 )
-            ioctl_din <= scr_mmr;  // 8 bytes, MMR 9017
-        else if( full_addr<'h9020 )
-            ioctl_din <= obj_mmr; // 7 bytes, MMR 901F
-        else ioctl_din <= other; // 9020
-    end else begin
-        // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
-        if( ioctl_addr<'h4000 )
-            ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-        else if( ioctl_addr<'h5000 )
-            ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-        else if( ioctl_addr<'h7000 )
-            ioctl_din <= dump_obj;  // 8kB 5000~6FFF
-        else if( ioctl_addr<'h7010 )//     7000~700F
-            ioctl_din <= pal_mmr;
-        else if( ioctl_addr<'h7018 )
-            ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
-        else if( ioctl_addr<'h7020 )
-            ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
-        else ioctl_din <= other; // 7020
-    end
+    // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
+    if( ioctl_addr < SCR_END )
+        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+    else if( ioctl_addr < PAL_END  )
+        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+    else if( ioctl_addr < OBJ_END  )
+        ioctl_din <= dump_obj;  // 8kB 5000~6FFF
+    else if( ioctl_addr < PMMR_END )//     7000~700F
+        ioctl_din <= pal_mmr;
+    else if( ioctl_addr < SMMR_END )
+        ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
+    else if( ioctl_addr < OMMR_END )
+        ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
+    else ioctl_din <= other; // 7020
 end
 
 endmodule

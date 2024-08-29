@@ -95,7 +95,7 @@ reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
             berr_l, prog_cs, eeprom_cs, joystk_cs,
             out_cs, basel_cs, cr_cs, stsw_cs, hip_cs,
             i6n, i7n, paro_i6n, paro_i7n,
-            misc_cs, paro_aux, io_aux, unpaged,
+            misc_cs, paro_aux, io_aux, // unpaged,
             vend_i7n, vend_i6n, vend_aux;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
@@ -160,7 +160,7 @@ always @(*) begin
     misc_cs  = paro_aux && A[6:4]==3'b100;
     out_cs   = misc_cs && A[3:2]==0;
     basel_cs = misc_cs && A[3:2]==1;
-    unpaged  = A[15:13]>=5;
+    // unpaged  = A[15:13]>=5;
     // used only by vendetta
     hip_cs  = 0;
     stsw_cs = 0;

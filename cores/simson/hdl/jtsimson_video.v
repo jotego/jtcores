@@ -80,7 +80,7 @@ module jtsimson_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -97,27 +97,13 @@ wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
+wire [ 3:0] obj_corr;
 
 assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
-// always @(posedge clk) begin
-//     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
-//     // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
-//     if( ioctl_addr<'h4000 )
-//         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-//     else if( ioctl_addr<'h5000 )
-//         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-//     else if( ioctl_addr<'h6000 )
-//         ioctl_din <= dump_obj;  // 4kB 5000~5FFF
-//     else if( ioctl_addr<'h6010 )//     6000~600F
-//         ioctl_din <= pal_mmr;
-//     else if( !ioctl_addr[3] )
-//         ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
-//     else
-//         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
-// end
+
 jtriders_dump u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
@@ -128,9 +114,9 @@ jtriders_dump u_dump(
     .obj_mmr        ( obj_mmr         ),
     .other          ( 8'b0            ),
 
-    .ioctl_addr     ( ioctl_addr[14:0]),
-    .ioctl_extra    ( 1'b0            ),
+    .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
+    .obj_corr       ( obj_corr        ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
@@ -218,7 +204,6 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .xmen       ( 1'b0      ),
 `else
 jtriders_obj #(.RAMW(ORAMW)) u_obj(
-    .paroda     ( paroda    ),
 `endif
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -258,7 +243,7 @@ jtriders_obj #(.RAMW(ORAMW)) u_obj(
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
+    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]}/*ioctl_addr[13:0]-14'h1000*/ ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

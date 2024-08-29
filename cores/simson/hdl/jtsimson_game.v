@@ -31,14 +31,14 @@ wire [ 7:0] tilesys_dout, objsys_dout,
             st_main, st_video, st_snd;
 wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
-wire [14:0] video_dumpa;
+wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
 reg         simson, paroda, vendetta;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
 assign ioctl_din  = video_dump;
-assign video_dumpa= ioctl_addr[14:0]-15'h80;
+assign video_dumpa= ioctl_addr[15:0]-16'h80;
 
 always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) begin
