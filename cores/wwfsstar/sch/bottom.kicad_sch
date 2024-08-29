@@ -42,8 +42,8 @@
 		(uuid ecdfe97f-d731-4b54-972a-9f9669f6a9b3)
 	)
 	(sheet
-		(at 128.27 69.85)
-		(size 12.7 12.7)
+		(at 187.96 115.57)
+		(size 25.4 25.4)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -53,8 +53,8 @@
 			(color 0 0 0 0.0000)
 		)
 		(uuid "23495fdc-7f05-498f-911a-96b6120e59cf")
-		(property "Sheetname" "untitled"
-			(at 128.27 69.1384 0)
+		(property "Sheetname" "object"
+			(at 187.96 114.8584 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63,7 +63,7 @@
 			)
 		)
 		(property "Sheetfile" "untitled.kicad_sch"
-			(at 128.27 83.1346 0)
+			(at 187.96 141.5546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -75,6 +75,82 @@
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f"
 					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 226.06 115.57)
+		(size 25.4 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "e6a3df50-9bb2-4bc8-8ffc-08ab5893909a")
+		(property "Sheetname" "timing"
+			(at 226.06 114.8584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "timing.kicad_sch"
+			(at 226.06 141.5546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f"
+					(page "13")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 187.96 153.67)
+		(size 25.4 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "e7a0aae4-7b24-4984-a77e-7cacd3a4055c")
+		(property "Sheetname" "scroll"
+			(at 187.96 152.9584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "scroll.kicad_sch"
+			(at 187.96 179.6546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f"
+					(page "12")
 				)
 			)
 		)

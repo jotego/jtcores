@@ -585,7 +585,19 @@
     ],
     [
       "23495fdc-7f05-498f-911a-96b6120e59cf",
-      "untitled"
+      "object"
+    ],
+    [
+      "e7a0aae4-7b24-4984-a77e-7cacd3a4055c",
+      "scroll"
+    ],
+    [
+      "e6a3df50-9bb2-4bc8-8ffc-08ab5893909a",
+      "timing"
+    ],
+    [
+      "2bd88400-dcec-4e92-9000-bb847eca835a",
+      "dual_line_buffer"
     ]
   ],
   "text_variables": {}
