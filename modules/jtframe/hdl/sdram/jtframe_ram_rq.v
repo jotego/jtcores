@@ -80,12 +80,14 @@ module jtframe_ram_rq #(parameter
         end else begin
             if( ERASE==1 && !erased ) begin
                 if( we ) begin
-                    {erased,erase_cnt}<= erase_cnt+1'd1;
                     req <= 0;
                 end else begin
                     req        <= 1;
                     req_rnw    <= 0;
-                    sdram_addr <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
+                    if(!req) begin
+                        sdram_addr <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
+                        {erased,erase_cnt}<= erase_cnt+1'd1;
+                    end
                 end
             end else begin
                 last_cs <= addr_ok;

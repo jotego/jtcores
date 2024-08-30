@@ -27,6 +27,7 @@ module jtcps1_sdram #( parameter
     input           clk_gfx,    // 96 MHz
     input           clk_cpu,    // 48 MHz
     input           LVBL,
+    output          hold_rst,
 
     input           ioctl_rom,
     output          dwnld_busy,
@@ -255,7 +256,7 @@ jtcps1_prom_we #(
 
 jtframe_ram1_5slots #(
     .SDRAMW      ( 23            ),
-    .ERASE       (  0            ),
+    .SLOT0_ERASE (  1            ),
     .SLOT0_AW    ( 17            ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
     .SLOT0_FASTWR(  0            ),
@@ -305,7 +306,7 @@ jtframe_ram1_5slots #(
 
     .slot0_din   ( main_dout     ),
     .slot0_wrmask( dsn           ),
-    .hold_rst    (               ),
+    .hold_rst    ( hold_rst      ),
 
     .slot0_addr  ( main_addr_x   ),
     .slot1_addr  ( vram_dma_addr ),

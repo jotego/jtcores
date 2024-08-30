@@ -20,7 +20,7 @@ module jtcps2_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        clk_gfx, rst_gfx;
+wire        clk_gfx, rst_gfx, hold_rst;
 wire        snd_cs, qsnd_cs,
             main_ram_cs, main_vram_cs, main_oram_cs, main_rom_cs,
             rom0_cs, rom1_cs,
@@ -76,6 +76,7 @@ wire [ 1:0] dsn;
 wire        cen16, cen16b, cen12, cen8, cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        turbo, skip_en, video_flip;
+reg         rst_game;
 
 `ifdef JTCPS_TURBO
 assign turbo = 1;
@@ -113,6 +114,9 @@ jtframe_cen48 u_cen48(
 
 assign clk_gfx = clk;
 assign rst_gfx = rst;
+
+always @(posedge clk) rst_game <= hold_rst | rst48;
+
 // reg [1:0] aux;
 // assign cpu_cen = cen12;
 // always @(posedge clk48 ) aux<={ aux[0], cen12};
@@ -126,7 +130,7 @@ wire busack_cpu;
 
 `ifndef NOMAIN
 jtcps2_main u_main(
-    .rst        ( rst48             ),
+    .rst        ( rst_game          ),
     .clk_rom    ( clk               ),
     .clk        ( clk48             ),
     .cpu_cen    ( cpu_cen           ),
@@ -411,6 +415,7 @@ jtcps1_sdram #(.CPS(2), .REGSIZE(REGSIZE)) u_sdram (
     .clk_gfx     ( clk_gfx       ),
     .clk_cpu     ( clk48         ),
     .LVBL        ( LVBL          ),
+    .hold_rst    ( hold_rst      ),
 
     .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),

@@ -104,7 +104,7 @@ wire [ 7:0] nvram0_dout, nvram1_dout;
 wire [ 7:0] st_cpu;
 
 // assign fwc       = (flash0_cs&~f0csl) | (flash1_cs&~f1csl) | ((flash0_cs||flash1_cs)&&addrl!=addr);
-assign bus_busy  = (flash0_cs & ~flash0_rdy);// | fwc; // the fwc part may not be needed
+assign bus_busy  = (flash0_cs & ~flash0_rdy) | (flash1_cs & ~flash1_rdy);// | fwc; // the fwc part may not be needed
 assign cpu_addr  = addr[20:1];
 // assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
 //        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
