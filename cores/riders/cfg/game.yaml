@@ -6,6 +6,7 @@ game:
       - jtriders_main.v
       - jt053244.sv
       - jtriders_obj.v
+      - jtriders_prot.v
       - common.yaml
   # - from: tmnt
   #   get:

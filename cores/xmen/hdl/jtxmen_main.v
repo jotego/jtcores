@@ -24,9 +24,6 @@ module jtxmen_main(
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
-    input                BRn,
-    input                BGACKn,
-    output               BGn,
     // 8-bit interface
     output               cpu_we,
     output reg           pal_cs,
@@ -45,7 +42,6 @@ module jtxmen_main(
     output reg           obj_cs,
 
     input         [15:0] oram_dout,
-    input         [15:0] prot_dout,
     input         [ 7:0] vram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
@@ -54,8 +50,6 @@ module jtxmen_main(
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
-    input                prot_irqn,
-    output reg           prot_cs,
 
     // video configuration
     output reg           objreg_cs,
@@ -106,7 +100,7 @@ assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_we   = ~RnW;
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
-assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
+assign VPAn     = ~&{ FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 assign IPLn1    = ~intdma | tile_irqn;
@@ -128,7 +122,6 @@ always @* begin
     snd_cs   = 0;
     sndon    = sndon_r;
     pcu_cs   = 0;
-    prot_cs  = 0;
     pair_cs  = 0;
     if(!ASn) begin
     // xmen (from PAL equations)
@@ -147,7 +140,7 @@ always @* begin
     end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi,
-        cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
+        cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs};
 `endif
 end
 
@@ -166,7 +159,6 @@ always @(posedge clk) begin
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
                obj_cs  ? oram_dout       :
-               prot_cs ? prot_dout       :
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
@@ -282,9 +274,9 @@ jtframe_m68k u_cpu(
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
     .HALTn      ( HALTn       ),
-    .BRn        ( BRn         ),
-    .BGACKn     ( BGACKn      ),
-    .BGn        ( BGn         ),
+    .BRn        ( 1'b1        ),
+    .BGACKn     ( 1'b1        ),
+    .BGn        (             ),
 
     .DTACKn     ( dtac_mux    ),
     .IPLn       ( IPLn        ) // VBLANK
@@ -316,7 +308,6 @@ jtframe_m68k u_cpu(
         sndon     = 0;
         vram_cs   = 0;
         mute      = 0;
-        prot_cs   = 0;
     end
     assign
         cpu_dout  = 0,

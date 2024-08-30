@@ -5,7 +5,6 @@ game:
       - jt054539.v
       - jtriders_colmix.v
       - jtriders_dump.v
-      - jtriders_prot.v
       - jtriders_sound.v
   - from: simson
     get:

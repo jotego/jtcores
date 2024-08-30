@@ -26,8 +26,8 @@ localparam [2:0] XMEN     = 3'd2;
 wire        snd_irq, rmrd, rst8, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
-wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
+            objreg_cs, pair_we;
+wire [15:0] pal_dout, oram_dout;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
@@ -67,14 +67,6 @@ jtxmen_main u_main(
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
-
-    // protection chip
-    .BGACKn         ( BGACKn        ),
-    .BRn            ( BRn           ),
-    .BGn            ( BGn           ),
-    .prot_irqn      ( prot_irqn     ),
-    .prot_cs        ( prot_cs       ),
-    .prot_dout      ( prot_dout     ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -127,34 +119,8 @@ jtxmen_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-/* verilator tracing_off */
-jtriders_prot u_prot(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen_16     ( cen_16    ),
-    .cen_8      ( cen_8     ),
-
-    .cs         ( prot_cs   ),
-    .addr       (main_addr[13:1]),
-    .cpu_we     ( cpu_we    ),
-    .din        ( ram_din   ), // = cpu_dout
-    .dout       ( prot_dout ),
-    .ram_we     ( ram_we    ), // includes ram_cs as part of ram_we
-    .dsn        ( ram_dsn   ),
-    // DMA
-    .objsys_cs  ( objsys_cs ),
-    .oram_cs    ( oram_cs   ),
-    .oram_addr  ( oram_addr ),
-    .oram_din   ( oram_din  ),
-    .oram_dout  ( oram_dout ),
-    .oram_we    ( oram_we   ),
-    .irqn       ( prot_irqn ),
-    .BRn        ( BRn       ),
-    .BGn        ( BGn       ),
-    .BGACKn     ( BGACKn    ),
-
-    .debug_bus  ( debug_bus )
-);
+assign oram_we   = ~ram_dsn & {2{cpu_we}};
+assign oram_addr = {main_addr[6:5], main_addr[1], main_addr[13:7], main_addr[4:2]};
 
 /* verilator tracing_on */
 jtxmen_video u_video (
@@ -174,11 +140,11 @@ jtxmen_video u_video (
     .flip           ( dip_flip      ),
     // Object DMA
     .oram_we        ( oram_we       ),
-    .oram_din       ( oram_din      ),
+    .oram_din       ( ram_din       ),
     .oram_addr      ( oram_addr     ),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
-    .objsys_cs      ( oram_cs       ),
+    .objsys_cs      ( objsys_cs     ),
     .objreg_cs      ( objreg_cs     ),
     .objcha_n       ( objcha_n      ),
     .tilesys_cs     ( tilesys_cs    ),
