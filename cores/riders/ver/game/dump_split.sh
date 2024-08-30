@@ -51,10 +51,11 @@ if [ $NVRAM = 1 ]; then
 else
 	TMP=scenes/$SCENE/$FNAME
 fi
+
 dd if=$TMP      of=scr1.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 dd if=$TMP      of=scr0.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 if [ $FULLRAM = 1 ]; then
-	dd if=$TMP      of=scrx.bin    count=16 skip=$SKIP  2> /dev/null; SKIP=$((SKIP +16))   # 8kB
+	dd if=$TMP  of=scrx.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 fi
 dd if=$TMP      of=pal.bin     count=8  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +8 ))   # 4kB
 dd if=$TMP      of=obj.bin     count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB

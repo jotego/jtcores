@@ -26,10 +26,4 @@ debug JTFRAME_IOCTL_RD+=36897
 
 # But MiST/SiDi cannot handle that much
 [mist|sidi]
-SND_RAMW=11
-FULLRAM=0
-NODIMMING
--JTFRAME_CREDITS
-
-[sidi]
-JTFRAME_OSD_NOLOGO
+JTFRAME_SKIP

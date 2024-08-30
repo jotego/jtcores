@@ -217,16 +217,16 @@ always @(posedge clk) begin
         cabcs_l <= cab_cs;
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
-        cab_dout[15:8] <= 0;
-        cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
-                           { service, coin };
-        case( {A[8],A[2:1]} )
-            0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
-            1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
-            2: cab_dout[7:0] <= { cab_1p[2], joystick3[6:0] };
-            3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
-            default:;
-        endcase
+    cab_dout[15:8] <= 0;
+    cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
+                       { service, coin };
+    case( {A[8],A[2:1]} )
+        0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+        1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+        2: cab_dout[7:0] <= { cab_1p[2], joystick3[6:0] };
+        3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
+        default:;
+    endcase
 end
 
 always @(posedge clk, posedge rst) begin
@@ -240,8 +240,8 @@ always @(posedge clk, posedge rst) begin
         eep_clk <= 0;
         cbnk    <= 0;
     end else begin
-            if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
-            if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
+        if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
+        if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
     end
 end
 

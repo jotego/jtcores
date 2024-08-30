@@ -13,11 +13,6 @@ JTFRAME_OSD_TEST
 FULLRAM=0
 SND_RAMW=11
 
-# make Magneto's circle round
-# 4:3 looks too narrow
-JTFRAME_ARX=12
-JTFRAME_ARY=8
-
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
 debug JTFRAME_IOCTL_RD+=28705

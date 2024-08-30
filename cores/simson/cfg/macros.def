@@ -28,8 +28,7 @@ JTFRAME_IOCTL_RD=128
 JTFRAME_OSD_TEST
 # JTFRAME_INPUT_RECORD
 
-# debugging content: 128 + 24 kB + 16
-# debug JTFRAME_IOCTL_RD=24736
+# debugging content: (128 +) 24 kB + 16
 debug JTFRAME_IOCTL_RD=28833
 
 [mist|sidi]

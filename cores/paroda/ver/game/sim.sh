@@ -5,7 +5,6 @@ SCENE=
 BATCH=
 CRC=
 if [ $(basename $(pwd)) = parodius ]; then PARODIUS=1; else PARODIUS=;fi
-if [ $(basename $(pwd)) = vendetta ]; then VENDETTA=1; else VENDETTA=;fi
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -25,7 +24,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [[ ! -e nvram.bin && -z "$PARODIUS" && -z "$VENDETTA" && -z "$SCENE" ]]; then
+if [[ ! -e nvram.bin && -z "$PARODIUS" && -z "$SCENE" ]]; then
     cat <<EOF
 This system requires a valid nvram.bin file to boot up properly
 Use MAME's simpsons.12c.nv file for the "simpsons" set
