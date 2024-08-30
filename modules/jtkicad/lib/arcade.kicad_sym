@@ -48371,7 +48371,7 @@
 			(pin input line
 				(at -12.7 -3.81 0)
 				(length 5.08)
-				(name "A[7]"
+				(name "A7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48389,7 +48389,7 @@
 			(pin tri_state line
 				(at 13.97 11.43 180)
 				(length 5.08)
-				(name "D[1]"
+				(name "D1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48407,7 +48407,7 @@
 			(pin tri_state line
 				(at 13.97 8.89 180)
 				(length 5.08)
-				(name "D[2]"
+				(name "D2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48425,7 +48425,7 @@
 			(pin tri_state line
 				(at 13.97 6.35 180)
 				(length 5.08)
-				(name "D[3]"
+				(name "D3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48443,7 +48443,7 @@
 			(pin tri_state line
 				(at 13.97 3.81 180)
 				(length 5.08)
-				(name "D[4]"
+				(name "D4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48461,7 +48461,7 @@
 			(pin tri_state line
 				(at 13.97 1.27 180)
 				(length 5.08)
-				(name "D[5]"
+				(name "D5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48479,7 +48479,7 @@
 			(pin tri_state line
 				(at 13.97 -1.27 180)
 				(length 5.08)
-				(name "D[6]"
+				(name "D6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48497,7 +48497,7 @@
 			(pin tri_state line
 				(at 13.97 -3.81 180)
 				(length 5.08)
-				(name "D[7]"
+				(name "D7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48533,7 +48533,7 @@
 			(pin input line
 				(at -12.7 -11.43 0)
 				(length 5.08)
-				(name "A[10]"
+				(name "A10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48551,7 +48551,7 @@
 			(pin input line
 				(at -12.7 -1.27 0)
 				(length 5.08)
-				(name "A[6]"
+				(name "A6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48605,7 +48605,7 @@
 			(pin input line
 				(at -12.7 -8.89 0)
 				(length 5.08)
-				(name "A[9]"
+				(name "A9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48623,7 +48623,7 @@
 			(pin input line
 				(at -12.7 -6.35 0)
 				(length 5.08)
-				(name "A[8]"
+				(name "A8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48641,7 +48641,7 @@
 			(pin input line
 				(at -12.7 1.27 0)
 				(length 5.08)
-				(name "A[5]"
+				(name "A5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48659,7 +48659,7 @@
 			(pin input line
 				(at -12.7 3.81 0)
 				(length 5.08)
-				(name "A[4]"
+				(name "A4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48677,7 +48677,7 @@
 			(pin input line
 				(at -12.7 6.35 0)
 				(length 5.08)
-				(name "A[3]"
+				(name "A3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48695,7 +48695,7 @@
 			(pin input line
 				(at -12.7 8.89 0)
 				(length 5.08)
-				(name "A[2]"
+				(name "A2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48713,7 +48713,7 @@
 			(pin input line
 				(at -12.7 11.43 0)
 				(length 5.08)
-				(name "A[1]"
+				(name "A1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48731,7 +48731,7 @@
 			(pin input line
 				(at -12.7 13.97 0)
 				(length 5.08)
-				(name "A[0]"
+				(name "A0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -48749,7 +48749,7 @@
 			(pin tri_state line
 				(at 13.97 13.97 180)
 				(length 5.08)
-				(name "D[0]"
+				(name "D0"
 					(effects
 						(font
 							(size 1.27 1.27)

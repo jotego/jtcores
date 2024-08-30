@@ -33,4 +33,5 @@
   (lib (name "jt_ram")(type "KiCad")(uri "${MODULES}/jtkicad/lib/jt_ram.kicad_sym")(options "0")(descr "RAM IC's"))
   (lib (name "jt_rom")(type "KiCad")(uri "${MODULES}/jtkicad/lib/jt_rom.kicad_sym")(options "0")(descr "ROM IC's"))
   (lib (name "jt_cpu")(type "KiCad")(uri "${MODULES}/jtkicad/lib/jt_cpu.kicad_sym")(options "0")(descr "CPU's"))
+  (lib (name "technos")(type "KiCad")(uri "/home/leo/jtcores/modules/jtkicad/lib/technos.kicad_sym")(options "")(descr ""))
 )
