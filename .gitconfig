@@ -1,0 +1,3 @@
+[merge "custom-no-merge"]
+	name = Custom merge driver that disables auto merge
+	driver = modules/jtframe/bin/merge-noop.sh %O %A %B
