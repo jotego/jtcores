@@ -22,7 +22,6 @@ module jt053244(    // sprite logic
     input             pxl2_cen,
     input             pxl_cen,
 
-    input             k44_en,   // enable k053244/5 mode (default k053246/7)
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -304,9 +303,8 @@ jt053246_dma u_dma(
     .mode8      ( mode8     ),
     .dma_en     ( dma_en    ),
     .dma_trig   ( dma_trig  ),
-    .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
+    .k44_en     ( 1'b1      ),   // enable k053244/5 mode (default k053246/7)
     .simson     ( 1'b0      ),
-    .reverse    ( 1'b0      ),
 
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -327,7 +325,7 @@ jt053246_dma u_dma(
 jt053246_mmr u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .k44_en     ( k44_en    ),
+    .k44_en     ( 1'b1      ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),

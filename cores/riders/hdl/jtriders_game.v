@@ -24,7 +24,7 @@ localparam [2:0] SSRIDERS = 3'd0,
                  TMNT2    = 3'd1;
 
 /* verilator tracing_off */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
+wire        snd_irq, rmrd, rst8, dimmod, dimpol,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
@@ -112,7 +112,6 @@ jtriders_main u_main(
     .dimpol         ( dimpol        ),
     .dim            ( dim           ),
     .cbnk           (               ),
-    .dma_bsy        ( dma_bsy       ),
     .objreg_cs      ( objreg_cs     ),
 
     .obj_cs         ( objsys_cs     ),
@@ -209,7 +208,7 @@ jtriders_video u_video (
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
-    .dma_bsy        ( dma_bsy       ),
+    .dma_bsy        (               ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

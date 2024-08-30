@@ -114,8 +114,8 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
-wire [ 1:0] shadow;
-wire [ 3:0] obj_corr;
+wire        shadow;
+wire [ 3:0] obj_amsb;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
@@ -143,7 +143,7 @@ jtriders_dump u_dump(
 
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
-    .obj_corr       ( obj_corr      ),
+    .obj_amsb       ( obj_amsb      ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),
@@ -315,7 +315,7 @@ jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} ),
+    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
@@ -354,7 +354,7 @@ jtriders_colmix u_colmix(
     .dimmod     ( dimmod    ),
     .dimpol     ( dimpol    ),
     .dim        ( dim       ),
-    .shadow     ( shadow    ),
+    .shadow     ( {1'b0,shadow} ),
 
     .red        ( red       ),
     .green      ( green     ),

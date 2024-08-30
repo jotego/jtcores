@@ -4,22 +4,7 @@ author=["jotego"]
 [parse]
 # this was moved to tmnt2.cpp after MAME 0.251
 sourcefile=[ "xmen.cpp" ]
-skip = { bootlegs=true, machines=[
-	# in JTTMNT
-	"tmnt",
-	"mia",
-	"punkshot",
-	# not covered yet
-    "cuebrick",
-    "lgtnfght",
-    "blswhstl",
-    "glfgreat",
-    "qgakumon",
-    "thndrx2",
-    "prmrsocr",
-    # ROM regions names
-    "asterix",
-], setnames=[
+skip = { bootlegs=true, setnames=[
     # dual screen not supported
     "xmen6p", "xmen6pu",
 ]}
@@ -47,7 +32,7 @@ regions = [
 
     { name="k052109", width=32 }, # tiles
     # sprites
-    { name="k053246", width=64, rename="obj", machines=[ "xmen" ] },
+    { name="k053246", width=64, rename="obj"},
     { name="eeprom", skip=true }
 ]
 

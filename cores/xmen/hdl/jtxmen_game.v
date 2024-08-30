@@ -21,7 +21,6 @@ module jtxmen_game(
 );
 
 localparam [2:0] XMEN     = 3'd2;
-localparam [0:0] FULLRAM  = `FULLRAM;
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dma_bsy,
@@ -56,7 +55,6 @@ end
 always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
     xmen     <= game_id == XMEN;
-    if( FULLRAM == 0 ) xmen <= 0;
 end
 
 /* verilator tracing_off */

@@ -134,7 +134,7 @@ jtriders_dump u_dump(
     .other          ( dump_other    ),
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
-    .obj_corr       (               ),
+    .obj_amsb       (               ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),

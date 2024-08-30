@@ -108,7 +108,7 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
-wire [ 3:0] obj_corr;
+wire [ 3:0] obj_amsb;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
@@ -122,7 +122,7 @@ assign lyro_addr   = lyro_prea;
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 
-jtriders_dump #(.FULLRAM(`FULLRAM)) u_dump(
+jtriders_dump #(.FULLRAM(1)) u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
     .dump_obj       ( dump_obj        ),
@@ -134,7 +134,7 @@ jtriders_dump #(.FULLRAM(`FULLRAM)) u_dump(
 
     .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
-    .obj_corr       ( obj_corr        ),
+    .obj_amsb       ( obj_amsb        ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
@@ -172,7 +172,7 @@ end
 jtaliens_scroll #(
     .HB_EXTRAL( 9'd8 ),
     .HB_EXTRAR( 9'd8 ),
-    .FULLRAM  (`FULLRAM)
+    .FULLRAM  (1)
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -306,7 +306,7 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} ),
+    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

@@ -97,13 +97,12 @@ wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
-wire [ 3:0] obj_corr;
+wire [ 3:0] obj_amsb;
 
 assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
-
 jtriders_dump u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
@@ -116,7 +115,7 @@ jtriders_dump u_dump(
 
     .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
-    .obj_corr       ( obj_corr        ),
+    .obj_amsb       ( obj_amsb        ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
@@ -198,7 +197,7 @@ wire [ORAMW:1] oram_a;
 assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
-`ifndef PARODA
+`ifdef SIMSON
 jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .simson     ( simson    ),
     .xmen       ( 1'b0      ),
@@ -243,7 +242,7 @@ jtriders_obj #(.RAMW(ORAMW)) u_obj(
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} ),
+    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

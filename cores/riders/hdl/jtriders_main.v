@@ -67,7 +67,6 @@ module jtriders_main(
     output reg           dimpol,
     output reg  [ 2:0]   dim,
     output reg  [ 2:0]   cbnk,      // unconnected in ssriders
-    input                dma_bsy,
     // EEPROM
     output      [ 6:0]   nv_addr,
     input       [ 7:0]   nv_dout,
@@ -97,7 +96,7 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             pair_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
-wire        dtac_mux, intdma;
+wire        dtac_mux;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -134,63 +133,52 @@ always @* begin
     obj_cs   = 0;
     objreg_cs= 0;
     snd_cs   = 0;
-    sndon    = 1'b0;
+    sndon    = 0;
     pcu_cs   = 0;
     prot_cs  = 0;
     pair_cs  = 0;
     // wdog     = 0;
-    if(!ASn) begin
         // tmnt2/ssriders
-        case(A[23:20])
-            0: rom_cs = 1;
-            1: case(A[19:18])
-                0: ram_cs  = A[14] & ~BUSn;
-                1: pal_cs  = 1;  // 14'xxxx
-                2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
-                3: case(A[11:8]) // decoder 13G (pdf page 16)
-                  0,1: cab_cs  = 1;
-                    2: iowr_lo = 1; // EEPROM
-                    3: iowr_hi = 1;
-                    // 4: wdog    = 1;
-                    5: omsb_cs = 1;
-                    8: prot_cs = 1;
-                    default:;
-                endcase
+    if(!ASn) case(A[23:20])
+        0: rom_cs = 1;
+        1: case(A[19:18])
+            0: ram_cs  = A[14] & ~BUSn;
+            1: pal_cs  = 1;  // 14'xxxx
+            2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
+            3: case(A[11:8]) // decoder 13G (pdf page 16)
+              0,1: cab_cs  = 1;
+                2: iowr_lo = 1; // EEPROM
+                3: iowr_hi = 1;
+                // 4: wdog    = 1;
+                5: omsb_cs = 1;
+                8: prot_cs = 1;
                 default:;
             endcase
-            5: case(A[19:16])
-                4'ha: objreg_cs = 1;
-                4'hc: case(A[11:8]) // 13G
-                    6: begin
-                        snd_cs = !A[2]; // 053260
-                        sndon  =  A[2];
-                    end
-                    7: pcu_cs = 1;      // 053251
-                    default:;
-                    endcase
-                default:;
-                endcase
-            6: vram_cs = 1; // probably different at boot time
             default:;
         endcase
-    end
+        5: case(A[19:16])
+            4'ha: objreg_cs = 1;
+            4'hc: case(A[11:8]) // 13G
+                6: begin
+                    snd_cs = !A[2]; // 053260
+                    sndon  =  A[2];
+                end
+                7: pcu_cs = 1;      // 053251
+                default:;
+                endcase
+            default:;
+            endcase
+        6: vram_cs = 1; // probably different at boot time
+        default:;
+    endcase
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, /*wdog,*/
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
 `endif
 end
 
-jtframe_edge #(.QSET(0)) u_ff(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .edgeof     ( dma_bsy   ),
-    .clr        ( 1'b0      ),
-    .q          ( intdma    )
-);
-
 always @(posedge clk) begin
     IPLn <= { tile_irqn, 1'b1, prot_irqn };
-
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
@@ -218,7 +206,7 @@ always @(posedge clk) begin
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
     cab_dout[15:8] <= 0;
-    cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
+    cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, fake_dma, eep_rdy, eep_do }:
                        { service, coin };
     case( {A[8],A[2:1]} )
         0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };

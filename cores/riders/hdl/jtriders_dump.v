@@ -31,7 +31,7 @@ module jtriders_dump(
 
     input      [15:0] ioctl_addr,
     output reg [ 7:0] ioctl_din,
-    output     [ 3:0] obj_corr,
+    output     [ 3:0] obj_amsb,
 
     input      [ 7:0] debug_bus,
 
@@ -46,7 +46,7 @@ localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
            SMMR_END = PMMR_END+16'h0008,
            OMMR_END = SMMR_END+16'h0008;
 
-assign obj_corr = ioctl_addr[15:12] - PAL_END[15:12];
+assign obj_amsb = ioctl_addr[15:12] - PAL_END[15:12];
 
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
