@@ -243,7 +243,7 @@ jtriders_obj #(.RAMW(ORAMW)) u_obj(
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]}/*ioctl_addr[13:0]-14'h1000*/ ),
+    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

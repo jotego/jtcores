@@ -315,7 +315,7 @@ jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} /*ioctl_addr[13:0]-14'h1000*/ ),
+    .ioctl_addr ( {obj_corr[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
