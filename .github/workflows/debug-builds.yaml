@@ -5,8 +5,8 @@ on:
   pull_request:
   repository_dispatch:
     types: rebuild
-  schedule:
-    - cron: '0 3 * * 4' # runs every Thursday night
+  # schedule:
+  #   - cron: '0 3 * * 4' # runs every Thursday night
 jobs:
   list_cores:
     runs-on: ubuntu-latest
