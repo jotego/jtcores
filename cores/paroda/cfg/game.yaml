@@ -1,0 +1,8 @@
+game:
+  - from: simson
+    get:
+      - game.yaml
+  - from: riders
+    get:
+      - jtriders_obj.v
+      - jt053244.sv

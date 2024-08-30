@@ -110,7 +110,7 @@ always @(posedge clk, posedge rst) begin
                 // I was skipping it before, but priority 0 is used in Vendetta and it must take priority
                 // over the rest (see scene vendetta/3)
                 // LUT half as big for 053244 and reversed order
-                dma_bufa <= { ~k44_en & dma_data[7], k44_en ? -dma_data[6:0] : dma_data[6:0], 3'd0 };
+                dma_bufa <= { ~k44_en & dma_data[7], dma_data[6:0], 3'd0 };
                 dma_ok   <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
             end
             dma_addr[12:1] <= dma_addr[12:1] + 1'd1;

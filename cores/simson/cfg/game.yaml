@@ -13,6 +13,9 @@ game:
       - jt053246_dma.v
       - jt053246_mmr.v
       - jtcolmix_053251.v
+  - from: simson
+    unless: PARODA
+    get:
       # Vendetta
       - jtk054000.v
       - jtk054000_mmr.v
@@ -20,6 +23,9 @@ game:
     get:
       - jt052109.v
       - jt051962.v
+  - from: riders
+    get:
+      - jtriders_dump.v
 jtframe:
   - get:
     - jtframe_edge.v

@@ -1,0 +1,11 @@
+game:
+  - from: xmen
+    get:
+      - "*.v"
+  - from: riders
+    get:
+      - common.yaml
+  - from: simson
+    get:
+      - jt053246.sv
+      - jtsimson_obj.v

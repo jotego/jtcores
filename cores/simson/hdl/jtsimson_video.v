@@ -80,13 +80,13 @@ module jtsimson_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
@@ -97,27 +97,30 @@ wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
+wire [ 3:0] obj_amsb;
 
 assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
-always @(posedge clk) begin
-    st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
-    // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
-    if( ioctl_addr<'h4000 )
-        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    else if( ioctl_addr<'h5000 )
-        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
-    else if( ioctl_addr<'h6000 )
-        ioctl_din <= dump_obj;  // 4kB 5000~5FFF
-    else if( ioctl_addr<'h6010 )//     6000~600F
-        ioctl_din <= pal_mmr;
-    else if( !ioctl_addr[3] )
-        ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
-    else
-        ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
-end
+jtriders_dump u_dump(
+    .clk            ( clk             ),
+    .dump_scr       ( dump_scr        ),
+    .dump_obj       ( dump_obj        ),
+    .dump_pal       ( dump_pal        ),
+    .pal_mmr        ( pal_mmr         ),
+    .scr_mmr        ( scr_mmr         ),
+    .obj_mmr        ( obj_mmr         ),
+    .other          ( 8'b0            ),
+
+    .ioctl_addr     ( ioctl_addr      ),
+    .ioctl_din      ( ioctl_din       ),
+    .obj_amsb       ( obj_amsb        ),
+
+    .debug_bus      ( debug_bus       ),
+    .st_scr         ( st_scr          ),
+    .st_dout        ( st_dout         )
+);
 
 /* verilator tracing_on */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
@@ -194,15 +197,18 @@ wire [ORAMW:1] oram_a;
 assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
-jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
+`ifdef SIMSON
+jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
+    .simson     ( simson    ),
+`else
+assign obj_shd[1] = 1'b0;
+jtriders_obj #(.RAMW(ORAMW)) u_obj(
+`endif
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( paroda    ),
-    .simson     ( simson    ),
-    .xmen       ( 1'b0      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -232,11 +238,15 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl  ),
+    `ifdef SIMSON
     .shd        ( obj_shd   ),
+    `else
+    .shd        ( obj_shd[0]),
+    `endif
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
+    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

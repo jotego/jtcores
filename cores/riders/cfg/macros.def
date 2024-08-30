@@ -10,23 +10,14 @@ JTFRAME_WIDTH=304
 JTFRAME_HEIGHT=224
 JTFRAME_OSD_TEST
 
-# make Magneto's circle round
-# 4:3 looks too narrow
-JTFRAME_ARX=12
-JTFRAME_ARY=8
+SND_RAMW=11
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
 debug JTFRAME_IOCTL_RD+=28705
 
-# More RAM needed for X-Men
-SND_RAMW=13
-FULLRAM=1
-
 # But MiST/SiDi cannot handle that much
 [mist|sidi]
-SND_RAMW=11
-FULLRAM=0
 NODIMMING
 -JTFRAME_CREDITS
 

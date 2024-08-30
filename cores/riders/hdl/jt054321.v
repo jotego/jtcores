@@ -36,7 +36,7 @@ module jt054321(
 );
 
 reg [7:0] snd_latch[0:2];
-reg [7:0] active;
+// reg [7:0] active;
 reg [5:0] vol;
 reg       sndon_l;
 
@@ -54,14 +54,14 @@ end
 always @(posedge clk, posedge rst) begin
     if(rst) begin
         vol          <= 0;
-        active       <= 0;
+        // active       <= 0;
         snd_latch[0] <= 0;
         snd_latch[1] <= 0;
         snd_latch[2] <= 0;
     end else begin
         // Main CPU
         if(mwe) case(maddr)
-            0: active <= mdout;
+            // 0: active <= mdout;
             2: vol <= 0;
             3: if( ~&vol ) vol <= vol+6'd1;
             6: snd_latch[0] <= mdout;

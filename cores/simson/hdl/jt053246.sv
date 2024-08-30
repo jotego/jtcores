@@ -24,9 +24,8 @@ module jt053246(    // sprite logic
     input             pxl2_cen,
     input             pxl_cen,
 
-    input             k44_en,   // enable k053244/5 mode (default k053246/7)
     input             simson,   // enables temporary hack for The Simpsons
-    input             xmen,     // enables yoffset for xmen
+    // input             xmen,     // enables yoffset for xmen
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -74,6 +73,7 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
+parameter XMEN = 0;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -96,7 +96,7 @@ wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 wire [ 7:0] cfg;
 wire [ 1:0] nx_mir, hsz, vsz;
-wire        dma_wel, dma_weh, dma_trig, last_obj, vb_rd,
+wire        dma_wel, dma_weh, last_obj, vb_rd,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
@@ -106,25 +106,22 @@ assign gvf       = cfg[1];
 assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
-assign dma_trig  = k44_en && cs && cpu_addr[2:1]==3;
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
-assign last_obj  = &{ k44_en | &scan_obj[7], scan_obj[6:0]};
-assign nx_mir    = k44_en ? scan_even[9:8] : scan_even[15:14];
+assign last_obj  = &scan_obj[7:0];
+assign nx_mir    = scan_even[15:14];
 assign {vsz,hsz} = size;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= k44_en ? xoffset + 10'h66 /*{2'd0,debug_bus}*/:
-                     xoffset - 10'd61 /*{debug_bus,2'd0}*/; // 15<<2 for Riders
-    yadj <= yoffset + (k44_en ? 10'h10f :
-                       xmen   ? 10'h107 :
-                       simson ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
-    vscl <= k44_en? red_offset(vzoom, zoffset,pzoffset):  zoffset[ vzoom[7:0] ];
-    hscl <= k44_en? red_offset(hzoom, zoffset,pzoffset):  zoffset[ hzoom[7:0] ];
+    xadj <= xoffset - 10'd61 /*{debug_bus,2'd0}*/;
+    yadj <= yoffset + (XMEN==1   ? 10'h107 :
+                       simson    ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
+    vscl <= zoffset[ vzoom[7:0] ];
+    hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -161,10 +158,10 @@ always @* begin
     // test ver/game/scene/1 -> shadow, scan_obj 9
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3]==k44_en;
-        1: vmir_eff = nx_mir[1] && ydiff[4]==k44_en;
-        2: vmir_eff = nx_mir[1] && ydiff[5]==k44_en;
-        3: vmir_eff = nx_mir[1] && ydiff[6]==k44_en;
+        0: vmir_eff = nx_mir[1] && !ydiff[3];
+        1: vmir_eff = nx_mir[1] && !ydiff[4];
+        2: vmir_eff = nx_mir[1] && !ydiff[5];
+        3: vmir_eff = nx_mir[1] && !ydiff[6];
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -222,7 +219,7 @@ always @(posedge clk, posedge rst) begin
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
-            if( scan_obj!=0 && !k44_en ) $display("Obj scan did not finish. Last obj %X",scan_obj);
+            if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
             case( {indr, scan_sub} )
@@ -230,7 +227,6 @@ always @(posedge clk, posedge rst) begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
                     code    <= scan_odd;
-                    if( k44_en ) code[15:14] <= 0;
                     hstep   <= 0;
                     hz_keep <= 0;
                     // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
@@ -247,21 +243,14 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  k44_en ? x+xadj : x-xadj;
+                    x <= x-xadj;
                     y <=  ywrap;
-                    vzoom <= scan_even[11:0];
-                    hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
-                    if( !k44_en) begin
-                        vzoom[11:10] <= 0;
-                        hzoom[11:10] <= 0;
-                    end
+                    vzoom <= {2'b0, scan_even[9:0]};
+                    hzoom <= sq ? {2'b0, scan_even[9:0]} : {2'b0, scan_odd[9:0]};
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
-                    if( k44_en ) begin
-                        { shd[0], attr[6:0] } <= scan_even[7:0];
-                    end else
-                        { reserved, shd, attr } <= scan_even[13:0];
+                    { reserved, shd, attr } <= scan_even[13:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
                 end
                 4: begin
@@ -271,7 +260,7 @@ always @(posedge clk, posedge rst) begin
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
-                    if( ~inzone | (x[9] & ~k44_en)) begin
+                    if( ~inzone | x[9] ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -315,8 +304,8 @@ jt053246_dma u_dma(
 
     .mode8      ( mode8     ),
     .dma_en     ( dma_en    ),
-    .dma_trig   ( dma_trig  ),
-    .k44_en     ( k44_en    ),   // enable k053244/5 mode (default k053246/7)
+    .dma_trig   ( 1'b0      ),
+    .k44_en     ( 1'b0      ),   // enable k053244/5 mode (default k053246/7)
     .simson     ( simson    ),
 
     .hs         ( hs        ),
@@ -338,7 +327,7 @@ jt053246_dma u_dma(
 jt053246_mmr u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .k44_en     ( k44_en    ),
+    .k44_en     ( 1'b0      ),
     .cs         ( cs        ),
     .cpu_we     ( cpu_we    ),
     .cpu_addr   ( cpu_addr  ),
@@ -381,10 +370,6 @@ jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
     .we1    ( 2'b0           ),
     .q1     ( scan_odd       )
 );
-
-initial pzoffset ='{
-    8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4
-};
 
 initial zoffset ='{                             //  octal count
     511, 511, 511, 511, 511, 410, 341, 293,     //   0-  7

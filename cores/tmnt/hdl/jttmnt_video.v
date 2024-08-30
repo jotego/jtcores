@@ -84,7 +84,7 @@ module jttmnt_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -134,6 +134,7 @@ jtriders_dump u_dump(
     .other          ( dump_other    ),
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
+    .obj_amsb       (               ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),

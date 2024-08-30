@@ -20,7 +20,6 @@ module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input                xmen,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -38,7 +37,6 @@ module jtriders_main(
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
     output reg           sndon,     // irq trigger
-    output reg           mute,
 
     output reg           rom_cs,
     output reg           ram_cs,
@@ -64,13 +62,11 @@ module jtriders_main(
     input       [ 7:0]   omsb_dout,
     // video configuration
     output reg           objreg_cs,
-    output reg           objcha_n,
     output reg           rmrd,
     output reg           dimmod,
     output reg           dimpol,
     output reg  [ 2:0]   dim,
     output reg  [ 2:0]   cbnk,      // unconnected in ssriders
-    input                dma_bsy,
     // EEPROM
     output      [ 6:0]   nv_addr,
     input       [ 7:0]   nv_dout,
@@ -96,11 +92,11 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC;
 reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
-            eep_di, eep_clk, eep_cs, omsb_cs, intdma_enb,
-            sndon_r, pair_cs;
+            eep_di, eep_clk, eep_cs, omsb_cs,
+            pair_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
-wire        dtac_mux, intdma, IPLn1;
+wire        dtac_mux;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -120,10 +116,9 @@ assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
-assign IPLn1    = ~intdma | tile_irqn;
 assign pair_we  = pair_cs && !RnW && !LDSn;
 
-reg none_cs, wdog;
+reg none_cs/*, wdog*/;
 // not following the PALs as the dumps from PLD Archive are not readable
 // with MAME's JEDUTIL
 always @* begin
@@ -138,80 +133,52 @@ always @* begin
     obj_cs   = 0;
     objreg_cs= 0;
     snd_cs   = 0;
-    sndon    = xmen ? sndon_r : 1'b0;
+    sndon    = 0;
     pcu_cs   = 0;
     prot_cs  = 0;
     pair_cs  = 0;
-    wdog     = 0;
-    if(!ASn) begin
+    // wdog     = 0;
         // tmnt2/ssriders
-        if(!xmen) case(A[23:20])
-            0: rom_cs = 1;
-            1: case(A[19:18])
-                0: ram_cs  = A[14] & ~BUSn;
-                1: pal_cs  = 1;  // 14'xxxx
-                2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
-                3: case(A[11:8]) // decoder 13G (pdf page 16)
-                  0,1: cab_cs  = 1;
-                    2: iowr_lo = 1; // EEPROM
-                    3: iowr_hi = 1;
-                    4: wdog    = 1;
-                    5: omsb_cs = 1;
-                    8: prot_cs = 1;
-                    default:;
-                endcase
+    if(!ASn) case(A[23:20])
+        0: rom_cs = 1;
+        1: case(A[19:18])
+            0: ram_cs  = A[14] & ~BUSn;
+            1: pal_cs  = 1;  // 14'xxxx
+            2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
+            3: case(A[11:8]) // decoder 13G (pdf page 16)
+              0,1: cab_cs  = 1;
+                2: iowr_lo = 1; // EEPROM
+                3: iowr_hi = 1;
+                // 4: wdog    = 1;
+                5: omsb_cs = 1;
+                8: prot_cs = 1;
                 default:;
             endcase
-            5: case(A[19:16])
-                4'ha: objreg_cs = 1;
-                4'hc: case(A[11:8]) // 13G
-                    6: begin
-                        snd_cs = !A[2]; // 053260
-                        sndon  =  A[2];
-                    end
-                    7: pcu_cs = 1;      // 053251
-                    default:;
-                    endcase
-                default:;
-                endcase
-            6: vram_cs = 1; // probably different at boot time
             default:;
         endcase
-        // xmen (from PAL equations)
-        if(xmen) begin
-            rom_cs  = ~A[20];
-            ram_cs  =  A[20:14]==7'b1000100 & ~BUSn;
-            obj_cs  =  A[20:14]==7'b1000000;
-            pal_cs  =  A[20:13]==8'b10000010;
-            vram_cs = ~A[23] & A[20] & A[19];
-            iowr_lo =  A[20:13]==8'b1_0000_100; // IO1 in schematics
-            iowr_hi =  A[20:13]==8'b1_0000_101; // IO2 in schematics
-            cab_cs  = iowr_hi && !A[3];
-            // cr_cs = iowr_hi && A[3:2]==3;
-            wdog    = iowr_hi && !RnW;
-            objreg_cs = iowr_lo && A[6:5]==1;
-            pair_cs   = iowr_lo && A[6:5]==2;
-            pcu_cs    = iowr_lo && A[6:5]==3;
-        end
-    end
+        5: case(A[19:16])
+            4'ha: objreg_cs = 1;
+            4'hc: case(A[11:8]) // 13G
+                6: begin
+                    snd_cs = !A[2]; // 053260
+                    sndon  =  A[2];
+                end
+                7: pcu_cs = 1;      // 053251
+                default:;
+                endcase
+            default:;
+            endcase
+        6: vram_cs = 1; // probably different at boot time
+        default:;
+    endcase
 `ifdef SIMULATION
-    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, wdog,
+    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, /*wdog,*/
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, sndon, pcu_cs, prot_cs};
 `endif
 end
 
-jtframe_edge #(.QSET(0)) u_ff(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .edgeof     ( dma_bsy   ),
-    .clr        (~intdma_enb),
-    .q          ( intdma    )
-);
-
 always @(posedge clk) begin
-    IPLn <= xmen ? { intdma | ~IPLn1, IPLn1, intdma & tile_irqn }
-                 : { tile_irqn, 1'b1, prot_irqn };
-
+    IPLn <= { tile_irqn, 1'b1, prot_irqn };
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
@@ -238,24 +205,16 @@ always @(posedge clk) begin
         cabcs_l <= cab_cs;
         if( !cab_cs && !cabcs_l ) fake_dma <= ~fake_dma;
     end
-    if(!xmen) begin
-        cab_dout[15:8] <= 0;
-        cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, /*~dma_bsy*/fake_dma, eep_rdy, eep_do }:
-                           { service, coin };
-        case( {A[8],A[2:1]} )
-            0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
-            1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
-            2: cab_dout[7:0] <= { cab_1p[2], joystick3[6:0] };
-            3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
-            default:;
-        endcase
-    end else begin // xmen
-        cab_dout <= A[1] ? { coin[2], swap(joystick3[6:0]), coin[0], swap(joystick1[6:0]) }:
-                           { coin[3], swap(joystick4[6:0]), coin[1], swap(joystick2[6:0]) };
-        if(A[3:2]==1) cab_dout <= { 1'b1, dip_test,
-                2'b11, cab_1p[3:0],
-                eep_rdy, eep_do, 2'b11, service };
-    end
+    cab_dout[15:8] <= 0;
+    cab_dout[7:0] <= A[1] ? { dip_test, 2'b11, IPLn[0], LVBL, fake_dma, eep_rdy, eep_do }:
+                       { service, coin };
+    case( {A[8],A[2:1]} )
+        0: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+        1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+        2: cab_dout[7:0] <= { cab_1p[2], joystick3[6:0] };
+        3: cab_dout[7:0] <= { cab_1p[3], joystick4[6:0] };
+        default:;
+    endcase
 end
 
 always @(posedge clk, posedge rst) begin
@@ -268,25 +227,9 @@ always @(posedge clk, posedge rst) begin
         eep_cs  <= 0;
         eep_clk <= 0;
         cbnk    <= 0;
-        sndon_r <= 0;
-        mute    <= 0;
-        objcha_n<= 1;
-        intdma_enb <= 1;
     end else begin
-        if(!xmen) begin
-            if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
-            if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
-        end else begin // xmen
-            if( iowr_lo && A[6:5]==0 ) begin
-                if( !LDSn ) { intdma_enb, eep_cs, eep_clk, eep_di } <= cpu_dout[5:2];
-                if( !UDSn ) begin
-                    mute     <=  cpu_dout[11];
-                    sndon_r  <=  cpu_dout[10];
-                    rmrd     <=  cpu_dout[9];
-                    objcha_n <= ~cpu_dout[8];
-                end
-            end
-        end
+        if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
+        if( iowr_hi  ) { dim, rmrd } <= cpu_dout[6:3];
     end
 end
 
@@ -379,7 +322,6 @@ jtframe_m68k u_cpu(
     initial begin
         cbnk      = 0;
         obj_cs    = 0;
-        objcha_n  = 1;
         objreg_cs = 0;
         pal_cs    = 0;
         pcu_cs    = 0;
@@ -388,7 +330,6 @@ jtframe_m68k u_cpu(
         rom_cs    = 0;
         sndon     = 0;
         vram_cs   = 0;
-        mute      = 0;
         prot_cs   = 0;
     end
     assign

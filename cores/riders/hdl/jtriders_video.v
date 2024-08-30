@@ -23,7 +23,6 @@ module jtriders_video(
     input             pxl2_cen,
 
     input             ssriders,
-    input             xmen,
 
     // Base Video
     output            lhbl,
@@ -53,7 +52,6 @@ module jtriders_video(
     output     [15:0] objsys_dout,
     input             objsys_cs,
     input             objreg_cs,
-    input             objcha_n,
 
     output reg        vdtac,
     input             tilesys_cs,
@@ -97,7 +95,7 @@ module jtriders_video(
     output     [ 7:0] blue,
 
     // Debug
-    input      [14:0] ioctl_addr,
+    input      [15:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -115,19 +113,19 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
 wire [ 4:0] obj_prio;
-wire [ 1:0] shadow;
+wire        shadow;
+wire [ 3:0] obj_amsb;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = xmen ? cpu_addr       : { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
-assign cpu_d8    = xmen ? cpu_dout[ 7:0] : ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
+assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
+assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr   = xmen      ? lyro_prea :
-                     oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
+assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
                                  {1'b0,lyro_prea[20:2]};
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
@@ -144,6 +142,7 @@ jtriders_dump u_dump(
 
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
+    .obj_amsb       ( obj_amsb      ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),
@@ -165,19 +164,13 @@ always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 // endfunction
 
 always @* begin
-    if( !xmen ) begin
         lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
         lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
         lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
-    end else begin // xmen
-        lyrf_addr = { lyrf_extra, pre_f[10:0] };
-        lyra_addr = { lyra_extra, pre_a[10:0] };
-        lyrb_addr = { lyrb_extra, pre_b[10:0] };
-    end
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = xmen ? c[7:0] : { c[7:5], 5'd0 };
+    cgate = { c[7:5], 5'd0 };
 endfunction
 
 /* verilator tracing_on */
@@ -190,8 +183,7 @@ endfunction
 // It also makes the grid look squared, wihtout nothing hanging off the sides
 jtaliens_scroll #(
     .HB_EXTRAL( 9'd8 ),
-    .HB_EXTRAR( 9'd8 ),
-    .FULLRAM  (`FULLRAM)
+    .HB_EXTRAR( 9'd8 )
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -279,20 +271,16 @@ wire [ 3:0] ommra;
 wire [ 8:0] vmux;
 wire [13:1] orama;
 
-assign ommra = xmen ? {cpu_addr[3:1],cpu_dsn[1]} : {cpu_addr[4:2], cpu_dsn[1]};
-// xmen never exercises cpu_addr[13], although it is connected to the RAM
-assign orama = xmen ? cpu_addr[13:1] : oram_addr;
-assign vmux  = xmen ? vdump : vrender;
+assign ommra = {cpu_addr[4:2], cpu_dsn[1]};
+assign orama = oram_addr;
+assign vmux  = vrender;
 
-jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
+jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .paroda     ( ssriders  ),
-    .simson     ( 1'b0      ),
-    .xmen       ( xmen      ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -319,14 +307,14 @@ jtsimson_obj #(.RAMW(13)) u_obj(    // sprite logic
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     (lyro_precs ),
-    .objcha_n   ( objcha_n  ),
+    .objcha_n   ( 1'b1      ),
     // pixel output
     .pxl        ( lyro_pxl[8:0]  ),
     .shd        ( shadow    ),
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
+    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
@@ -338,7 +326,7 @@ jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .xmen       ( xmen      ),
+    .xmen       ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -365,7 +353,7 @@ jtriders_colmix u_colmix(
     .dimmod     ( dimmod    ),
     .dimpol     ( dimpol    ),
     .dim        ( dim       ),
-    .shadow     ( shadow    ),
+    .shadow     ( {1'b0,shadow} ),
 
     .red        ( red       ),
     .green      ( green     ),

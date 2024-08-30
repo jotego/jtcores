@@ -1,1 +1,1 @@
-../game/sim.sh
+../simpsons/sim.sh

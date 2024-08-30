@@ -1,1 +1,0 @@
-../ssriders/sim.sh
