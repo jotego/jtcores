@@ -196,7 +196,6 @@ jtriders_video u_video (
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( oram_cs       ),
     .objreg_cs      ( objreg_cs     ),
-    .objcha_n       ( 1'b1          ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
