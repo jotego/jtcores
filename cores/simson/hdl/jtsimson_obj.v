@@ -17,13 +17,13 @@
     Date: 24-7-2023 */
 
 module jtsimson_obj #(parameter
-    RAMW   = 12
+    RAMW   = 12,
+    XMEN   = 0
 )(
     input             rst,
     input             clk,
 
     input             simson,
-    input             xmen,
 
     input             pxl_cen,
     input             pxl2_cen,
@@ -121,14 +121,14 @@ assign sorted = {
     rom_data[12], rom_data[ 8], rom_data[4], rom_data[0], rom_data[28], rom_data[24], rom_data[20], rom_data[16]
 };
 
-jt053246 u_scan(    // sprite logic
+jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
 
     .simson     ( simson    ),
-    .xmen       ( xmen      ),
+    // .xmen       ( xmen      ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),

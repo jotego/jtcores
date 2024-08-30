@@ -25,7 +25,6 @@ module jtriders_sound(
     input           cen_fm2,
     input           cen_pcm,
 
-    input           xmen,
     input           pair_we,
     // communication with main CPU
     input   [ 7:0]  main_dout,  // bus access for Punk Shot
@@ -65,7 +64,8 @@ module jtriders_sound(
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
 );
 `ifndef NOSOUND
-localparam  [ 0:0] FULLRAM = `FULLRAM;
+parameter   [ 0:0] FULLRAM = 0,
+                   XMEN = 0;
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
                     k60_dout, k39_dout, latch_dout;
 wire        [ 3:0]  rom_hi;
@@ -77,11 +77,11 @@ wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
 reg                 ram_cs, fm_cs,  k60_cs, k39_cs, mem_acc, mem_upper,
                     nmi_clrr, bank_we, nmi_cs, k21_cs;
 
-assign int_n    = xmen ? latch_intn : ~snd_irq;
-assign nmi_trig = xmen ? fm_intn    :  sample;
-assign nmi_clr  = xmen ? nmi_clrr   : nmi_cs;
+assign int_n    = XMEN==1 ? latch_intn : ~snd_irq;
+assign nmi_trig = XMEN==1 ? fm_intn    :  sample;
+assign nmi_clr  = XMEN==1 ? nmi_clrr   : nmi_cs;
 assign rom_hi   = A[15]? bank       : {3'd0, A[14]};
-assign rom_addr = xmen ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
+assign rom_addr = XMEN==1 ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
 assign upper4k  = &A[15:12];
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
@@ -109,7 +109,7 @@ always @(*) begin
     nmi_cs    = 0;
     mem_acc   = !mreq_n && rfsh_n;
     mem_upper = mem_acc && upper4k;
-    if(!xmen) begin
+    if( XMEN==0 ) begin
         rom_cs   = mem_acc   && !upper4k && !rd_n;
         ram_cs   = mem_upper && !A[11];      // F0xx~F7FF
         fm_cs    = mem_upper &&  A[11:9]==4; // F8xx

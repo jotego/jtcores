@@ -10,7 +10,6 @@ JTFRAME_WIDTH=304
 JTFRAME_HEIGHT=224
 JTFRAME_OSD_TEST
 
-FULLRAM=0
 SND_RAMW=11
 
 # default EEPROM needed to prevent game from booting upside down with error

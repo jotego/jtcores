@@ -198,9 +198,8 @@ assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 `ifdef SIMSON
-jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .simson     ( simson    ),
-    .xmen       ( 1'b0      ),
 `else
 assign obj_shd[1] = 1'b0;
 jtriders_obj #(.RAMW(ORAMW)) u_obj(

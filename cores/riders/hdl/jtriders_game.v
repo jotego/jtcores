@@ -250,7 +250,6 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
-    .xmen       ( 1'b0          ),
     .pair_we    ( pair_we       ),
     .pair_dout  ( pair_dout     ),
     // communication with main CPU

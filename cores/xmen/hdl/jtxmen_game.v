@@ -20,7 +20,7 @@ module jtxmen_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [2:0] XMEN     = 3'd2;
+// localparam [2:0] XMEN     = 3'd2;
 
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dma_bsy,
@@ -31,8 +31,8 @@ wire [15:0] pal_dout, oram_dout;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
-reg  [ 2:0] game_id;
-reg         xmen;
+// reg  [ 2:0] game_id;
+// reg         xmen;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video;
@@ -47,16 +47,16 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { mute, xmen, 6'b0 };
+        3: debug_mux <= { mute, /*xmen,*/ 7'b0 };
         default: debug_mux <= 0;
     endcase
 end
 
-always @(posedge clk) begin
+/*always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
     xmen     <= game_id == XMEN;
 end
-
+*/
 /* verilator tracing_off */
 jtxmen_main u_main(
     .rst            ( rst           ),
@@ -192,7 +192,7 @@ jtxmen_video u_video (
 );
 
 /* verilator tracing_off */
-jtriders_sound u_sound(
+jtriders_sound #(.FULLRAM(1), .XMEN(1)) u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_8      ( cen_8         ),
@@ -201,7 +201,6 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
-    .xmen       ( xmen          ),
     .pair_we    ( pair_we       ),
     .pair_dout  ( pair_dout     ),
     // communication with main CPU

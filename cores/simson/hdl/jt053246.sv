@@ -25,7 +25,7 @@ module jt053246(    // sprite logic
     input             pxl_cen,
 
     input             simson,   // enables temporary hack for The Simpsons
-    input             xmen,     // enables yoffset for xmen
+    // input             xmen,     // enables yoffset for xmen
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -73,6 +73,7 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
+parameter XMEN = 0;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -117,8 +118,8 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset - 10'd61 /*{debug_bus,2'd0}*/;
-    yadj <= yoffset + (xmen   ? 10'h107 :
-                       simson ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
+    yadj <= yoffset + (XMEN==1   ? 10'h107 :
+                       simson    ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
     vscl <= zoffset[ vzoom[7:0] ];
     hscl <= zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */

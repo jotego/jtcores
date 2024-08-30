@@ -4,7 +4,6 @@ OTHER=
 SCENE=
 BATCH=
 CRC=
-if [ $(basename $(pwd)) = parodius ]; then PARODIUS=1; else PARODIUS=;fi
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -23,14 +22,6 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
-
-if [[ ! -e nvram.bin && -z "$PARODIUS" && -z "$SCENE" ]]; then
-    cat <<EOF
-This system requires a valid nvram.bin file to boot up properly
-Use MAME's simpsons.12c.nv file for the "simpsons" set
-EOF
-    exit 0
-fi
 
 dump_split.sh --scene "$SCENE" --nvram
 
