@@ -128,7 +128,6 @@ jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
 
     .simson     ( simson    ),
-    // .xmen       ( xmen      ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),

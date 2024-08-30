@@ -25,7 +25,6 @@ module jt053246(    // sprite logic
     input             pxl_cen,
 
     input             simson,   // enables temporary hack for The Simpsons
-    // input             xmen,     // enables yoffset for xmen
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -156,7 +155,6 @@ always @* begin
     ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
     ydiff  = yz_add[6+:10];
     // test ver/game/scene/1 -> shadow, scan_obj 9
-    // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
         1: vmir_eff = nx_mir[1] && !ydiff[4];
