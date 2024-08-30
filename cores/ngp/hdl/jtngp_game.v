@@ -48,10 +48,12 @@ assign f1g_dout = cart_size[2] ? flash1_dout : 16'd0;
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 
 always @(posedge clk) begin
-    if( prog_ba==1 && !ioctl_ram && ioctl_wr )
-        cart_size <= ioctl_addr[21] ? 3'b100 :
-                     ioctl_addr[20] ? 3'b010 :
-                     ioctl_addr[19] ? 3'b001 : 3'b0;
+    if( ioctl_cart && !cart_l ) cart_size <= 0;
+    if( prog_ba==1 && !ioctl_ram && ioctl_wr ) begin
+        if( ioctl_addr[19] && cart_size<3'd1 ) cart_size <= 3'b001;
+        if( ioctl_addr[20] && cart_size<3'd2 ) cart_size <= 3'b010;
+        if( ioctl_addr[21] && cart_size<3'd4 ) cart_size <= 3'b100;
+    end
 end
 
 always @(posedge clk) begin
@@ -61,7 +63,7 @@ always @(posedge clk) begin
         1: st_mux <= st_video;
         2: st_mux <= st_snd;
         3: case( debug_bus[5:4] )
-            0: st_mux <= { rst, poweron, pwr_button, ioctl_cart, ~flash0_rdy, snd_nmi, snd_irq, snd_rstn };
+            0: st_mux <= { pwr_button, cart_size, poweron, snd_nmi, snd_irq, snd_rstn };
             1: st_mux <= snd_latch;
             2: st_mux <= main_latch;
             3: st_mux <= { mode, 7'd0 };
