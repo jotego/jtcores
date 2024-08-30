@@ -202,6 +202,7 @@ jtsimson_obj #(.RAMW((ORAMW))) u_obj(    // sprite logic
     .simson     ( simson    ),
     .xmen       ( 1'b0      ),
 `else
+assign obj_shd[1] = 1'b0;
 jtriders_obj #(.RAMW(ORAMW)) u_obj(
 `endif
     .rst        ( rst       ),
@@ -238,7 +239,11 @@ jtriders_obj #(.RAMW(ORAMW)) u_obj(
     .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl  ),
+    `ifdef SIMSON
     .shd        ( obj_shd   ),
+    `else
+    .shd        ( obj_shd[0]),
+    `endif
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
