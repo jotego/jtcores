@@ -47,6 +47,8 @@ module jtngp_main(
     input               flash0_rdy,
     input        [15:0] flash0_dout,
     output reg          flash1_cs,
+    input               flash1_rdy,
+    input        [15:0] flash1_dout,
 
     // Sound
     output reg          snd_nmi,
@@ -218,6 +220,7 @@ always @* begin
            ram1_cs   ? ram1_dout   :
            io_cs     ? io_dout     :
            flash0_cs ? flash0_dout :
+           flash1_cs ? flash1_dout :
            shd_cs    ? shd_dout    : 16'h0;
 end
 /* verilator tracing_off */

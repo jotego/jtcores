@@ -1,3 +1,5 @@
+params:
+  - { name: MB2, value: "22'h10_0000" }
 clocks:
   clk:
     - freq: 1024
@@ -25,9 +27,12 @@ sdram:
           addr_width: 21
           data_width: 16
           rw: true
-        # - name: cart1
-        #   addr_width: 20
-        #   data_width: 8
+          do_not_erase: true
+        - name: cart1
+          addr_width: 21
+          data_width: 16
+          # rw: true
+          offset: MB2
 
 bram: # 64+8+4+16=92kB
   - name: rom # 64 kB

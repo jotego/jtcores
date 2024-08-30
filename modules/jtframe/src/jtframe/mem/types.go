@@ -37,6 +37,7 @@ type SDRAMBus struct {
     Data_width int    `yaml:"data_width"`
     Cache_size int    `yaml:"cache_size"`
     Rw         bool   `yaml:"rw"`
+    Dont_erase bool   `yaml:"do_not_erase"`
     Dsn        string `yaml:"dsn"`  // optional name for dsn signal
     Din        string `yaml:"din"`  // optional name for din signal
     Cs         string `yaml:"cs"`

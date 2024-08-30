@@ -299,17 +299,18 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
     // {{.Name}}
-    {{- if not .Rw }}
-    {{- with .Offset }}
+    {{- if .Rw }}{{ with .Dont_erase }}
+    .SLOT{{$index}}_ERASE(0),{{end}}
+    {{- else}}{{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}
-`ifdef JTFRAME_BA2_LEN
+`ifdef JTFRAME_BA{{$bank}}_LEN
 {{- range $index, $each:=.Buses}}
-    {{- if not .Rw}}
+{{- if not .Rw}}
     ,.SLOT{{$index}}_DOUBLE(1){{ end }}
 {{- end}}
 `endif
