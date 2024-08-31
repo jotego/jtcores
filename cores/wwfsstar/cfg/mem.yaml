@@ -55,3 +55,12 @@ sdram:
         addr_width: 21
         data_width: 32
         # gfx_sort: hhvvvvx
+bram:
+  - name: cram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: main
+      dout: char16_dout
+      we:   cram_we
+      rw:   true

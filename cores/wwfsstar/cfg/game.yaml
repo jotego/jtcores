@@ -1,0 +1,8 @@
+game:
+  - from: wwfsstar
+    get: "*.v"
+jtframe:
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_tilemap.v

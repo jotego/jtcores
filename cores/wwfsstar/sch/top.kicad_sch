@@ -5485,16 +5485,6 @@
 		)
 		(uuid "8207d489-dc9a-448a-af70-8e16fa6f5975")
 	)
-	(bus
-		(pts
-			(xy 194.31 173.99) (xy 185.42 173.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8256a162-879a-4ff2-a864-1ca778d89546")
-	)
 	(wire
 		(pts
 			(xy 223.52 142.24) (xy 233.68 142.24)
@@ -6184,16 +6174,6 @@
 			(type default)
 		)
 		(uuid "ac46677e-8c11-462b-a143-0303806b8ca8")
-	)
-	(bus
-		(pts
-			(xy 218.44 52.07) (xy 208.28 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ac4d0320-c387-4ee7-8aff-8557b44e340f")
 	)
 	(wire
 		(pts
@@ -8053,17 +8033,6 @@
 		)
 		(uuid "559e1efb-e595-4668-a956-5b2bc24be1b4")
 	)
-	(label "PD[0..7]"
-		(at 194.31 173.99 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "559f901d-1d6f-484a-a06d-da28d296a1b0")
-	)
 	(label "IC14_13"
 		(at 223.52 170.18 0)
 		(fields_autoplaced yes)
@@ -9659,17 +9628,6 @@
 		)
 		(uuid "ed9f1b43-225c-4027-acab-b76b4c361b45")
 	)
-	(label "PD[0..7]"
-		(at 218.44 52.07 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "ef77c104-55eb-4162-87a5-64ea1d109d60")
-	)
 	(label "OBJPXL0"
 		(at 52.07 113.03 0)
 		(fields_autoplaced yes)
@@ -10823,7 +10781,7 @@
 	)
 	(sheet
 		(at 132.08 168.91)
-		(size 53.34 53.34)
+		(size 53.34 58.42)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -10843,7 +10801,7 @@
 			)
 		)
 		(property "Sheetfile" "colmix.kicad_sch"
-			(at 132.08 222.8346 0)
+			(at 132.08 227.9146 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10949,16 +10907,6 @@
 				(justify left)
 			)
 			(uuid "0145a7b1-1841-4797-953e-07f52b5a573e")
-		)
-		(pin "PD[0..7]" output
-			(at 185.42 173.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "79536b0f-d29e-4c2a-9480-00052246e63d")
 		)
 		(pin "~{CHSEQ2}" output
 			(at 185.42 177.8 0)
@@ -11277,16 +11225,6 @@
 			)
 			(uuid "762332a8-73b6-46dc-ac1d-aac18808d12e")
 		)
-		(pin "PD[0..7]" output
-			(at 208.28 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "f707d7f4-a2e5-4cfb-bb9b-9683a8645ea2")
-		)
 		(pin "MA[9..16]" output
 			(at 208.28 46.99 0)
 			(effects
@@ -11357,7 +11295,7 @@
 			)
 			(uuid "f53a5242-8f74-4916-89c6-7a1b4fdc8e16")
 		)
-		(pin "IC27_~{CE}" input
+		(pin "IC27_~{CE}" output
 			(at 132.08 59.69 180)
 			(effects
 				(font
