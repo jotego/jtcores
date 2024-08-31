@@ -24,7 +24,7 @@
 
 module jtframe_tilemap #( parameter
     SIZE         =  8,    // 8x8, 16x16 or 32x32
-    VA           = 10,
+    VA           = 10,    // VRAM bit width
     CW           = 12,
     PW           =  8,    // pixel width
     BPP          =  4,    // bits per pixel. Palette width = PW-BPP

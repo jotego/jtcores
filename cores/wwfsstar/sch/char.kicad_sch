@@ -10219,16 +10219,6 @@
 	)
 	(wire
 		(pts
-			(xy 158.75 92.71) (xy 158.75 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d52f91c7-9265-49b6-92e0-608fd4b386db")
-	)
-	(wire
-		(pts
 			(xy 238.76 201.93) (xy 231.14 201.93)
 		)
 		(stroke
@@ -10686,6 +10676,16 @@
 			(type default)
 		)
 		(uuid "f5900e53-9794-4e80-9d57-cd71d01ed75d")
+	)
+	(wire
+		(pts
+			(xy 152.4 93.98) (xy 158.75 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f632af79-a08f-423f-b81a-b8fa85b1032d")
 	)
 	(wire
 		(pts
@@ -12603,7 +12603,7 @@
 	)
 	(hierarchical_label "~{R}WB"
 		(shape input)
-		(at 158.75 92.71 180)
+		(at 152.4 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font

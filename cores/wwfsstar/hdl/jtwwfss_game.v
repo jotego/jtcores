@@ -26,9 +26,11 @@ wire [15:0] char_dout;
 wire [ 1:0] pal_wen;
 wire        snd_on;
 
-assign cram_addr = { main_addr[11:2];
 assign char_dout = {8'd0, main_addr[1] ? char16_dout[7:0] : char16_dout[15:8]};
 assign main2cram_din = {2{cpu_dout[7:0]}};
+
+assign scr_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
+assign main2vram_din = {2{cpu_dout[7:0]}};
 
 jtwwfss_main u_main(
     .rst        ( rst       ),
@@ -40,7 +42,7 @@ jtwwfss_main u_main(
     .main_dout  ( main_dout ),
     .main_rnw   ( main_rnw  ),
 
-    .scr_cs     ( scr_cs    ),
+    .scr_we     ( scr_we    ),
     .cram_we    ( cram_we   ),
     .pal_wen    ( pal_wen   ),
     .oram_cs    ( oram_cs   ),

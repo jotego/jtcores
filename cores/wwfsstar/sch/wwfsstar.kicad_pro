@@ -597,7 +597,23 @@
     ],
     [
       "0369dded-6695-4fd2-ac1e-b6c28a4a33e1",
-      "dual_line_buffer"
+      "dual line buffer"
+    ],
+    [
+      "36a67254-e339-4138-b84a-27ad7dff3eb5",
+      "object ROM"
+    ],
+    [
+      "fe5e7fba-113c-48f8-a7ed-1285d1e241ec",
+      "object RAM"
+    ],
+    [
+      "80439725-2fca-42c0-8039-dc406dce9f3d",
+      "scroll ROM"
+    ],
+    [
+      "acb5c676-080e-485c-9bec-146e406f7ba0",
+      "scroll RAM"
     ]
   ],
   "text_variables": {}

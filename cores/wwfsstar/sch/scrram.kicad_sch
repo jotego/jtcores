@@ -2,10 +2,10 @@
 	(version 20231120)
 	(generator "eeschema")
 	(generator_version "8.0")
-	(uuid "0c579745-85ad-4adc-a7aa-bdf6702fd75b")
+	(uuid "af2ea645-9798-4a64-9e2a-97fb4d91448f")
 	(paper "A3")
 	(title_block
-		(title "Dual line buffer")
+		(title "Scroll RAM")
 		(company "JOTEGO")
 	)
 	(lib_symbols
@@ -513,223 +513,48 @@
 			)
 		)
 	)
-	(junction
-		(at 104.14 146.05)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2d61db43-4946-40bc-8e4e-983351282b9b")
-	)
-	(junction
-		(at 104.14 140.97)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b409a450-47d2-4fb3-b6d8-1cc8a8ce354f")
-	)
-	(junction
-		(at 104.14 92.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c639a80d-928b-4051-9ca1-4cbde55051f7")
-	)
-	(junction
-		(at 104.14 87.63)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fab55b55-bb09-4adb-aaf2-b31884803d15")
-	)
 	(wire
 		(pts
-			(xy 104.14 140.97) (xy 104.14 146.05)
+			(xy 110.49 139.7) (xy 105.41 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "05bd2392-2b8a-4b5e-a935-09a10dc686c6")
+		(uuid "53108e83-4502-45a2-aa15-b2acb40f40e1")
 	)
 	(wire
 		(pts
-			(xy 104.14 138.43) (xy 104.14 140.97)
+			(xy 110.49 137.16) (xy 105.41 137.16)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "16a7d5f7-2199-4bad-9a40-c7fc7bdc3a83")
+		(uuid "5ea573c3-973c-4f74-b73e-5737027de9cc")
 	)
 	(wire
 		(pts
-			(xy 104.14 92.71) (xy 104.14 95.25)
+			(xy 82.55 139.7) (xy 87.63 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1acec6fd-4a1b-41d0-8f8f-7ef2fed7a5d1")
+		(uuid "a5dbdf05-12f7-45eb-85bc-c6ceebd514ea")
 	)
 	(wire
 		(pts
-			(xy 132.08 146.05) (xy 127 146.05)
+			(xy 82.55 137.16) (xy 87.63 137.16)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "24e5894d-adf5-44f8-bca8-b2b9acb8bdc1")
+		(uuid "c77b4468-2454-4e51-ae93-0ef3de330492")
 	)
-	(wire
-		(pts
-			(xy 104.14 87.63) (xy 104.14 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29a3402f-205b-4964-b280-d0171e553129")
-	)
-	(wire
-		(pts
-			(xy 132.08 95.25) (xy 127 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "315a5d05-de2c-45f0-8f92-5f25dce38bc4")
-	)
-	(wire
-		(pts
-			(xy 104.14 140.97) (xy 109.22 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3cd81737-2fe8-440f-8838-48de81a0c1cf")
-	)
-	(wire
-		(pts
-			(xy 104.14 85.09) (xy 104.14 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "423df762-00ac-4ab0-86d7-595caa456902")
-	)
-	(wire
-		(pts
-			(xy 104.14 92.71) (xy 109.22 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e425ce9-2edd-402d-ac88-75355a7fb49c")
-	)
-	(wire
-		(pts
-			(xy 104.14 87.63) (xy 109.22 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5ad8ee30-bab8-4124-890e-77edb8f656e2")
-	)
-	(wire
-		(pts
-			(xy 104.14 146.05) (xy 104.14 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "681dbfe1-1582-476e-b4aa-77becbc4ea7e")
-	)
-	(wire
-		(pts
-			(xy 104.14 138.43) (xy 109.22 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7cce8754-eebe-4441-bd3c-9456acd9ad47")
-	)
-	(wire
-		(pts
-			(xy 104.14 146.05) (xy 109.22 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a4c00cd-c277-47b5-88b7-0f136f0ea634")
-	)
-	(wire
-		(pts
-			(xy 104.14 85.09) (xy 109.22 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ab01c08-4fff-4f76-8382-9677362e7f08")
-	)
-	(wire
-		(pts
-			(xy 104.14 95.25) (xy 109.22 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a341add1-4945-4e03-b841-fe2b0ed8fdab")
-	)
-	(wire
-		(pts
-			(xy 132.08 148.59) (xy 127 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c8bbdcf4-e09c-4043-84a8-3486adaddc9a")
-	)
-	(wire
-		(pts
-			(xy 104.14 148.59) (xy 109.22 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5ec7ddc-3bc1-41d6-828d-d7856cbd26c2")
-	)
-	(wire
-		(pts
-			(xy 132.08 92.71) (xy 127 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f7c402a5-993f-4f84-8356-1f1a8b05ccbd")
-	)
-	(label "VCC"
-		(at 132.08 146.05 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "023e9112-c3b0-4845-9c3f-e1ad7c4aa21c")
-	)
-	(label "VSS"
-		(at 104.14 85.09 0)
+	(label "~{OE}"
+		(at 82.55 139.7 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -737,10 +562,21 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "51a2acd7-a8c5-4f31-8c0b-907f8822c1b1")
+		(uuid "19bd2bf1-c6d9-4f69-aa1c-e29a08b5c114")
 	)
 	(label "VSS"
-		(at 104.14 138.43 0)
+		(at 110.49 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3dfe48e6-aff2-4a5f-b3ca-ba3e7b286199")
+	)
+	(label "~{CS}"
+		(at 82.55 137.16 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -748,32 +584,10 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "87523385-3932-46d6-a490-55b170bb0a00")
-	)
-	(label "VSS"
-		(at 132.08 95.25 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "aa7c3131-8dbd-4751-8f44-9e2ef39392e8")
-	)
-	(label "VSS"
-		(at 132.08 148.59 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "c98264e3-86b7-48f6-97a1-9daeda52a0b2")
+		(uuid "400fe48a-a4d5-4205-9200-7f1dffb6ef47")
 	)
 	(label "VCC"
-		(at 132.08 92.71 180)
+		(at 110.49 137.16 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -781,20 +595,20 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "fd48b257-8a74-4c49-b894-f7c9fe5e4acf")
+		(uuid "93d12a54-3f1f-40d6-b0cd-c3b03488509b")
 	)
 	(symbol
 		(lib_id "jt_ram:SRAM2K8B")
-		(at 119.38 80.01 0)
+		(at 97.79 124.46 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "f718d5fb-6b07-4e6b-8110-c5b4d9cfe210")
-		(property "Reference" "IC45"
-			(at 119.38 54.61 0)
+		(uuid "1e25f201-16f3-4ddf-bd47-0055fbcb9455")
+		(property "Reference" "IC24"
+			(at 97.79 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -802,7 +616,7 @@
 			)
 		)
 		(property "Value" "SRAM2K8B"
-			(at 119.38 57.15 0)
+			(at 97.79 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -810,7 +624,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 123.19 58.42 0)
+			(at 101.6 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -819,7 +633,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheetspdf.com/datasheet/MCM2128.html"
-			(at 119.38 101.6 0)
+			(at 97.79 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -828,7 +642,7 @@
 			)
 		)
 		(property "Description" "SRAM 16kbit (2048-word x 8-bit)"
-			(at 119.38 80.01 0)
+			(at 97.79 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -837,215 +651,81 @@
 			)
 		)
 		(pin "3"
-			(uuid "84ca6673-be7a-4670-bae8-0a156b60ef68")
+			(uuid "168ca965-ee87-4a6d-b3ad-ec3271f0703b")
 		)
 		(pin "6"
-			(uuid "40132b31-325b-47ba-9309-59edba9587d8")
+			(uuid "11ca31aa-8b62-4bb6-b09a-d53bbe657c5d")
 		)
 		(pin "17"
-			(uuid "31b65240-d075-4551-b14b-044d22fdc6b2")
+			(uuid "4edf65b1-07a9-440c-85f2-6db7af6995fc")
 		)
 		(pin "18"
-			(uuid "1269eba9-8686-4bf3-921b-aea5a7cc4392")
+			(uuid "4a4f0f1d-e88f-49b9-a268-880b0a4c0f8e")
 		)
 		(pin "19"
-			(uuid "e4f9529d-c166-49cf-992b-b19af88b5a07")
+			(uuid "ef028a7b-b477-486b-8d91-b0079e32d66b")
 		)
 		(pin "23"
-			(uuid "56ce9ea5-86d7-4415-b61d-621c7982837e")
+			(uuid "3a318a6d-ef2c-4a62-bd39-e1e96252aef2")
 		)
 		(pin "24"
-			(uuid "1ecc2b69-15e1-4695-863a-74ef4651e155")
+			(uuid "ec0b7a3f-6834-4641-a0c4-235d5d7cc448")
 		)
 		(pin "4"
-			(uuid "6f09d966-9c94-4e4f-a8d4-5e6cb49becd6")
+			(uuid "206e276d-9a62-46b4-a444-70459fa1fdb5")
 		)
 		(pin "9"
-			(uuid "ce37e736-287d-4e94-9e7c-e35d27fa9739")
+			(uuid "4bfe8959-fc2c-4f9b-8b5d-d0ad4e7024a6")
 		)
 		(pin "5"
-			(uuid "51858208-f000-4595-afd8-4f183b6663ab")
+			(uuid "2c9b8627-8c85-4c9a-9c3c-2c7cb1c1e753")
 		)
 		(pin "7"
-			(uuid "6e571919-dc14-4bd1-8b15-f5f8a06cc0c3")
+			(uuid "20290e31-1c0b-49b2-92a5-d7b80d17cf1c")
 		)
 		(pin "8"
-			(uuid "609c1105-2554-42fa-a1a6-c5c9152ba21e")
+			(uuid "ec8c283a-af36-4395-b0a6-f7cb20f2f63e")
 		)
 		(pin "2"
-			(uuid "791b7256-d0ff-4386-ad37-e23b883552c0")
+			(uuid "d73b8d1d-9cb3-4e35-8ce9-69a547ba8026")
 		)
 		(pin "21"
-			(uuid "d0c3e62a-772a-43e3-b8f3-0cb6a7586c32")
+			(uuid "7498103a-89e4-41e7-87d6-de8f63c19b76")
 		)
 		(pin "15"
-			(uuid "d745e2ad-21ef-4947-8463-7725ece1f7c0")
+			(uuid "72537d52-af7b-497a-8bd7-f4a62056da38")
 		)
 		(pin "10"
-			(uuid "953c2ab8-e9e1-49c3-b18c-09020532f5bf")
+			(uuid "0d1b3925-3b49-451f-ace2-705c9c3ec29f")
 		)
 		(pin "20"
-			(uuid "8d74d21b-b386-4e7d-86fc-6dea65a9586f")
+			(uuid "6dafb9a6-8fb4-4ba4-af5a-4e2e90208730")
 		)
 		(pin "22"
-			(uuid "4405cf6a-6c05-4e17-8e9f-e71d7a80037c")
+			(uuid "c095a450-cf61-4eac-bba2-565236f71864")
 		)
 		(pin "1"
-			(uuid "8549e4ec-961a-48f3-ae92-dbe9a5a0a9f3")
+			(uuid "ca215ce4-7249-461d-8a8b-6cda5cab9e9b")
 		)
 		(pin "13"
-			(uuid "88f0e040-96b2-4018-9657-07d894213dda")
+			(uuid "fe48ece0-57fc-4fd4-8ff3-be013a137866")
 		)
 		(pin "14"
-			(uuid "2f21f1eb-6d4e-4749-86e4-a03e61e63603")
+			(uuid "cc3579df-dc2d-479f-82ad-1a073b4394bd")
 		)
 		(pin "11"
-			(uuid "7a9935fe-b0cc-487d-993e-59616ca9424c")
+			(uuid "3502f935-50da-448f-bc0d-f142b892ddcf")
 		)
 		(pin "12"
-			(uuid "3f9c8ae0-374f-4e04-9df5-82117bbf8084")
+			(uuid "4d472f16-276c-4f8d-a504-33ed0d1f6504")
 		)
 		(pin "16"
-			(uuid "80425f42-76a5-4a36-b021-e4fac837c9ce")
-		)
-		(instances
-			(project ""
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/35cc9afc-88f0-41c5-ae64-92beb6e5ab21/0369dded-6695-4fd2-ac1e-b6c28a4a33e1"
-					(reference "IC45")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt_ram:SRAM2K8B")
-		(at 119.38 133.35 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f85d7131-c1e7-4a71-883a-965fafa993ca")
-		(property "Reference" "IC48"
-			(at 119.38 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SRAM2K8B"
-			(at 119.38 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 123.19 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://datasheetspdf.com/datasheet/MCM2128.html"
-			(at 119.38 154.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "SRAM 16kbit (2048-word x 8-bit)"
-			(at 119.38 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "a0fd0889-4a37-4291-aa14-df49e8c5b491")
-		)
-		(pin "6"
-			(uuid "3527ceab-2eb9-4678-8b4f-0df782e85248")
-		)
-		(pin "17"
-			(uuid "5a82c7f4-9f48-4349-85f7-9eeded258fac")
-		)
-		(pin "18"
-			(uuid "fbce1739-46f6-4236-b87c-2e4b31a81f8c")
-		)
-		(pin "19"
-			(uuid "2e28895c-a539-402c-8bc2-70f6faa52061")
-		)
-		(pin "23"
-			(uuid "7c997c58-6dd1-46a5-a26f-a95bd50acb5b")
-		)
-		(pin "24"
-			(uuid "89180bad-c33a-4e29-98dc-87108630e815")
-		)
-		(pin "4"
-			(uuid "4415e87f-efd8-4d32-9c80-4f2321a36279")
-		)
-		(pin "9"
-			(uuid "5e741857-6f20-4812-b4c0-39956ba94b5b")
-		)
-		(pin "5"
-			(uuid "4b13ab36-1305-4667-834e-f9a6b00e3d19")
-		)
-		(pin "7"
-			(uuid "86ada557-e087-44d9-8565-8b898a4f249c")
-		)
-		(pin "8"
-			(uuid "dd0fbc87-b66d-41ab-9881-f41f96490e48")
-		)
-		(pin "2"
-			(uuid "03e29a55-9423-4f73-9a25-b9aa2f62e34b")
-		)
-		(pin "21"
-			(uuid "ba4c7dd6-4691-4aa3-ba86-ed81e2598b0a")
-		)
-		(pin "15"
-			(uuid "541b33ff-67a3-4fdf-ad82-ddee6204ac79")
-		)
-		(pin "10"
-			(uuid "01732e20-6c41-4338-8fa2-0d93cf5ab909")
-		)
-		(pin "20"
-			(uuid "e2b11b9e-e181-4d21-9a93-c36104c83543")
-		)
-		(pin "22"
-			(uuid "caa8b63e-3619-4517-aa7f-d6d39a262639")
-		)
-		(pin "1"
-			(uuid "b4ff6b56-144e-45d9-b524-af75c72a1b23")
-		)
-		(pin "13"
-			(uuid "04bf4010-c50c-4383-94d9-0284a106ce85")
-		)
-		(pin "14"
-			(uuid "5d0669c4-c00b-4aa7-a21f-03f62ab74b86")
-		)
-		(pin "11"
-			(uuid "05953733-7943-4238-b33d-b1ea1d0d5ec7")
-		)
-		(pin "12"
-			(uuid "bc496095-a24b-4b11-ae9f-f1884e262fdc")
-		)
-		(pin "16"
-			(uuid "af76cdf1-25d7-4248-a118-2ebbe21aedb1")
+			(uuid "3a70babd-6f02-4d18-b986-8ce0a4000307")
 		)
 		(instances
 			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/35cc9afc-88f0-41c5-ae64-92beb6e5ab21/0369dded-6695-4fd2-ac1e-b6c28a4a33e1"
-					(reference "IC48")
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/e7a0aae4-7b24-4984-a77e-7cacd3a4055c/acb5c676-080e-485c-9bec-146e406f7ba0"
+					(reference "IC24")
 					(unit 1)
 				)
 			)

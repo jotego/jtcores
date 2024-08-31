@@ -25,8 +25,8 @@ regions=[
     { name="audiocpu",  start="JTFRAME_BA1_START"  },
     { name="oki",       start="PCM_START"          },
     { name="fgtiles",   start="JTFRAME_BA2_START"  },
-    { name="bgtiles",   start="SCR_START"          },
-    { name="sprites",   start="JTFRAME_BA3_START"  },
+    { name="bgtiles",   start="SCR_START",         width=16, no_offset=true  },
+    { name="sprites",   start="JTFRAME_BA3_START", width=16, no_offset=true, sequence=[3,0,4,1,5,2]  },
 ]
 
 order=[

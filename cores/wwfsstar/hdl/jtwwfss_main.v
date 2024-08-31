@@ -27,8 +27,8 @@ module jtwwfss_main(
     output        [15:0] main_dout,
     output               main_rnw,
 
-    output reg           cram_we,
-    output reg           scr_cs,
+    output        [ 1:0] cram_we,
+    output        [ 1:0] scr_we,
     output reg    [ 1:0] pal_wen,
     output reg           oram_cs,
 
@@ -64,7 +64,7 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, BUSn;
 wire [ 2:0] FC, IPLn;
-reg         iord_cs, fix_cs, pal_cs, int6_clr, int5_clr;
+reg         iord_cs, fix_cs, pal_cs, int6_clr, int5_clr, scr_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
@@ -82,7 +82,8 @@ assign bus_busy  = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign bus_legit = 0; // fix_cs & ~sdakn;
 assign BUSn      = ASn | (LDSn & UDSn);
 
-assign cram_we   = fix_cs & ~RnW & ~LDSn;
+assign cram_we   = {1'b0, fix_cs & ~RnW & ~LDSn};
+assign scr_we    = {1'b0, scr_cs & ~RnW & ~LDSn};
 
 always @* begin
     rom_cs   = 0;

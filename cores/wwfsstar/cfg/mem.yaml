@@ -2,6 +2,7 @@ params:
   - { name: RAM_OFFSET, value: "22'h10_0000" }
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
   - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START) >>1" }
+game: wwfss
 clocks:
   # main and mcu do not share the gate because they are in different clock domains
   # MC6809 module is problematic at 48MHz, hence using clk24
@@ -44,23 +45,33 @@ sdram:
       - name: char
         addr_width: 17
         data_width: 32
-        # gfx_sort: hhvvv
+        gfx_sort: hhvvv
       - name: scr
         addr_width: 19
-        data_width: 16
+        data_width: 32
         offset: SCR_OFFSET
-        # gfx_sort: hhvvvvx
+        gfx_sort: hhvvvvx
     - buses:
       - name: obj
         addr_width: 21
         data_width: 32
-        # gfx_sort: hhvvvvx
+        gfx_sort: hhvvvvx
 bram:
   - name: cram
     addr_width: 11
     data_width: 16
     dual_port:
       name: main
+      din:  "{2{main_dout[7:0]]}"
       dout: char16_dout
       we:   cram_we
+      rw:   true
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: main
+      din:  "{2{main_dout[7:0]]}"
+      dout: scr16_dout
+      we:   scr_we
       rw:   true

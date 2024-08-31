@@ -24,15 +24,21 @@ module jtwwfss_video(
     input   [11:0] cpu_addr,
 
     // Char
+    output     [10:1]  cram_addr,
+    input      [15:0]  cram_data,
     output     [16:2]  char_addr,
     input      [31:0]  char_data,
     output             char_cs,
     input              char_ok,
-    output     [10:1]  cram_addr,
-    input      [15:0]  cram_data,
 
-    input          scr_cs,
-    output  [ 7:0] scr_dout,
+    // Scroll
+    output     [10:1]  vram_addr,
+    input      [15:0]  vram_data,
+    output     [19:2]  scr_addr,
+    input      [31:0]  scr_data,
+    output             scr_cs,
+    input              scr_ok,
+    input              scr_cs,
 
     input          oram_cs,
     output  [ 7:0] oram_dout,
@@ -44,14 +50,23 @@ module jtwwfss_video(
     input   [ 3:0] gfx_en
 );
 
-wire [ 6:0] char_pxl, scr_pxl,, obj_pxl;
+wire [ 6:0] char_pxl, scr_pxl, obj_pxl;
 wire        blankn;
 
-wire [31:0] char_sorted = {
+wire [31:0] char_sorted, scr_sorted;
+
+assign char_sorted = {
 char_data[ 6],char_data[ 7],char_data[14],char_data[15],char_data[22],char_data[23],char_data[30],char_data[31],
 char_data[ 4],char_data[ 5],char_data[12],char_data[13],char_data[20],char_data[21],char_data[28],char_data[29],
 char_data[ 2],char_data[ 3],char_data[10],char_data[11],char_data[18],char_data[19],char_data[26],char_data[27],
 char_data[ 0],char_data[ 1],char_data[ 8],char_data[ 9],char_data[16],char_data[17],char_data[24],char_data[25]
+};
+
+assign scr_sorted = {
+scr_data[12],scr_data[13],scr_data[14],scr_data[15],scr_data[28],scr_data[29],scr_data[30],scr_data[31],
+scr_data[ 8],scr_data[ 9],scr_data[10],scr_data[11],scr_data[24],scr_data[25],scr_data[26],scr_data[27],
+scr_data[ 4],scr_data[ 5],scr_data[ 6],scr_data[ 7],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
+scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],scr_data[18],scr_data[19]
 };
 
 assign blankn = LHBL & LVBL;
@@ -86,19 +101,16 @@ jtframe_tilemap #(
 );
 
 jtframe_scroll #(
-    .SIZE (16),
-    VA   = 10,
-    CW   = 12,
-    PW   =  8,
-    MAP_HW = 9,    // size of the map in pixels
-    MAP_VW = 9,
-    XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
+    .SIZE     (16),
+    .VA       (11),
+    .PW       ( 7),
+    .XOR_HFLIP( 1), // set to 1 so hflip gets ^ with flip
 )u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    input              hs,
+    .hs         ( hs        ),
 
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),
@@ -115,7 +127,7 @@ jtframe_scroll #(
     .vflip      ( 1'b0      ),
 
     .rom_addr   ( scr_addr  ),
-    .rom_data   ( scr_data  ),
+    .rom_data   ( scr_sorted),
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),      // ignored. It assumes that data is always right
 

@@ -27,7 +27,7 @@ module jtframe_scroll #( parameter
     VA   = 10,
     CW   = 12,
     PW   =  8,
-    MAP_HW = 9,    // size of the map in pixels
+    MAP_HW = 9,    // 2^MAP_HW = size of the map in pixels
     MAP_VW = 9,
     VR   = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
