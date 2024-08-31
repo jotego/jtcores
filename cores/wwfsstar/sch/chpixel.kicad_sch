@@ -4,6 +4,9 @@
 	(generator_version "8.0")
 	(uuid "15409f44-e9b2-4bd0-a204-5f78f7323507")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
 	(lib_symbols
 		(symbol "74xx:74LS194"
 			(pin_names
@@ -4611,7 +4614,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "EPROM 1Mbit (128k x 8bit) JEDEC pin out"
 			(at 134.62 133.35 0)
 			(effects
 				(font

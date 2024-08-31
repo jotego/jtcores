@@ -196,6 +196,7 @@ function [9:0] reorder;
 `ifdef JTFRAME_JOY_LRUD reorder[3:0]={joy_in[1:0],joy_in[3:2]}; `endif
 `ifdef JTFRAME_JOY_RLDU reorder[3:0]={joy_in[0], joy_in[1], joy_in[2], joy_in[3]}; `endif
 `ifdef JTFRAME_JOY_DURL reorder[3:0]={joy_in[2], joy_in[3], joy_in[0], joy_in[1]}; `endif
+`ifdef JTFRAME_JOY_DULR reorder[3:0]={joy_in[2], joy_in[3], joy_in[1], joy_in[0]}; `endif
 `ifdef JTFRAME_JOY_UDRL reorder[3:0]={joy_in[3:2], joy_in[0], joy_in[1]}; `endif
 `ifdef JTFRAME_JOY_B1B0 reorder[5:4]={joy_in[4], joy_in[5]}; `endif
     end

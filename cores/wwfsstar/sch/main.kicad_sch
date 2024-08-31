@@ -4,6 +4,9 @@
 	(generator_version "8.0")
 	(uuid "8168da4e-bcb7-4503-b9a0-f59e3f9d0ef7")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
 	(lib_symbols
 		(symbol "74xx:74LS00"
 			(pin_names
@@ -12858,6 +12861,14 @@
 				)
 			)
 			(symbol "SRAM8K8B_1_1"
+				(text "8kB\nRAM"
+					(at 2.794 -3.81 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 				(pin no_connect line
 					(at 7.62 -19.05 180)
 					(length 2.54)
@@ -14005,7 +14016,7 @@
 		)
 	)
 	(junction
-		(at 306.07 163.83)
+		(at 325.12 198.12)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "03581b80-1a53-4235-acc1-759284ba551d")
@@ -14023,7 +14034,7 @@
 		(uuid "08c8005a-b96b-46cf-8370-98a13b16de9a")
 	)
 	(junction
-		(at 323.85 186.69)
+		(at 342.9 220.98)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0b2a83da-358b-4910-94dd-73cedbe106a2")
@@ -14041,7 +14052,7 @@
 		(uuid "19466b9c-3abc-482e-b16c-4a283e0e3a63")
 	)
 	(junction
-		(at 290.83 158.75)
+		(at 309.88 193.04)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1b26365e-7b8b-43b8-9b22-1c1eeca734e6")
@@ -14053,7 +14064,13 @@
 		(uuid "1b7a4bb2-fd74-450b-ba51-be08276428f1")
 	)
 	(junction
-		(at 306.07 177.8)
+		(at 266.7 139.7)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1de6da84-999c-47ed-9288-cc8582f58432")
+	)
+	(junction
+		(at 325.12 212.09)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1de7ae9e-8eef-4f17-95bf-0b7c06ac6128")
@@ -14063,6 +14080,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "230aced1-a46e-4189-9493-259bd7d183e8")
+	)
+	(junction
+		(at 54.61 166.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "29a4d7c2-e055-4e70-933d-e934b05cc0f1")
 	)
 	(junction
 		(at 52.07 44.45)
@@ -14083,13 +14106,13 @@
 		(uuid "4247e5b4-4fa5-491a-9956-18f73150d477")
 	)
 	(junction
-		(at 323.85 204.47)
+		(at 342.9 238.76)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "43683738-7ae3-4ea2-be55-263d2550e895")
 	)
 	(junction
-		(at 52.07 154.94)
+		(at 52.07 166.37)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "44408f82-29c9-47bd-897e-95c5962f58ed")
@@ -14125,13 +14148,13 @@
 		(uuid "612ab014-3b77-4d83-9619-e5508fd6f5f7")
 	)
 	(junction
-		(at 228.6 137.16)
+		(at 228.6 140.97)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "764463b0-62df-462a-b33a-033b521afdcd")
 	)
 	(junction
-		(at 323.85 184.15)
+		(at 342.9 218.44)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "80e2f353-f559-4177-8724-5d9447e67ff5")
@@ -14149,7 +14172,7 @@
 		(uuid "8662645e-8e08-46ec-901b-944e02ef51a0")
 	)
 	(junction
-		(at 323.85 189.23)
+		(at 342.9 223.52)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "88329314-0efe-451f-b448-606c5e31e062")
@@ -14167,7 +14190,7 @@
 		(uuid "a4aca6ce-2dcc-413c-89c8-a13851977444")
 	)
 	(junction
-		(at 323.85 165.1)
+		(at 342.9 199.39)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "af24c9a5-78d3-4f4f-b03c-b8347514b1a6")
@@ -14185,7 +14208,7 @@
 		(uuid "ba380ff3-1ad1-4485-b59e-878fe861da90")
 	)
 	(junction
-		(at 306.07 153.67)
+		(at 325.12 187.96)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ba79ffe8-3525-4367-a812-b88c2dbef685")
@@ -14215,7 +14238,7 @@
 		(uuid "c440e4ea-4d1e-41cb-bda9-ee2d00663e2c")
 	)
 	(junction
-		(at 323.85 193.04)
+		(at 342.9 227.33)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d78deb04-75b7-4e43-aa12-f8634891e311")
@@ -14263,19 +14286,55 @@
 		(uuid "fedb8729-0c47-4f2f-8eff-39e3b05fa6dc")
 	)
 	(no_connect
+		(at 140.97 275.59)
+		(uuid "027f6a0f-10c2-4a19-b4a8-9dd1b65698f6")
+	)
+	(no_connect
+		(at 125.73 275.59)
+		(uuid "1372b350-982a-4fe6-b784-b15d811b5ba6")
+	)
+	(no_connect
+		(at 102.87 238.76)
+		(uuid "13b32ab0-bde6-4f58-92dc-917169e372d3")
+	)
+	(no_connect
 		(at 45.72 34.29)
 		(uuid "156119af-ca0f-4edb-a275-397ac701f059")
+	)
+	(no_connect
+		(at 140.97 252.73)
+		(uuid "29620cca-20c2-44e6-ad32-236a97c6056d")
+	)
+	(no_connect
+		(at 102.87 273.05)
+		(uuid "29e0ecdf-08c1-43c2-a82a-5380939fd8ab")
+	)
+	(no_connect
+		(at 125.73 252.73)
+		(uuid "2efe28e5-564b-493b-8c5f-6eafbbf6f046")
+	)
+	(no_connect
+		(at 125.73 264.16)
+		(uuid "4412b705-884f-4d4c-aa38-87b0af1b1c4a")
 	)
 	(no_connect
 		(at 92.71 49.53)
 		(uuid "4ddc7877-86fd-4605-bfc7-c8b1fc4bdbdb")
 	)
 	(no_connect
+		(at 102.87 278.13)
+		(uuid "4ee496b5-cd74-45aa-81ce-db2b67ef63c6")
+	)
+	(no_connect
 		(at 45.72 58.42)
 		(uuid "580bbc0a-1884-4468-9cea-7f156ac1007c")
 	)
 	(no_connect
-		(at 13.97 250.19)
+		(at 118.11 264.16)
+		(uuid "6c85963b-8d12-4b01-bad3-3cb0e3833439")
+	)
+	(no_connect
+		(at 125.73 232.41)
 		(uuid "7251e367-d59e-4dcc-9d71-a097d411f0be")
 	)
 	(no_connect
@@ -14283,7 +14342,23 @@
 		(uuid "726f1f7f-383d-43bc-bd13-838067478c5b")
 	)
 	(no_connect
-		(at 254 114.3)
+		(at 118.11 252.73)
+		(uuid "82501f24-13c3-4fa9-906f-ff94d98ade2f")
+	)
+	(no_connect
+		(at 102.87 241.3)
+		(uuid "8460e7f0-3f17-4146-b5cc-94c2a6bcd97e")
+	)
+	(no_connect
+		(at 102.87 250.19)
+		(uuid "91e0044e-38e7-4303-9b38-b251db302918")
+	)
+	(no_connect
+		(at 140.97 242.57)
+		(uuid "93456697-a7a5-49cb-b05f-9bee09943e71")
+	)
+	(no_connect
+		(at 300.99 139.7)
 		(uuid "ab47d6b2-afaf-4756-84fd-925353ada485")
 	)
 	(no_connect
@@ -14291,28 +14366,60 @@
 		(uuid "c0de432b-0489-4906-890b-896415cf8025")
 	)
 	(no_connect
-		(at 254 111.76)
+		(at 300.99 137.16)
 		(uuid "c5f7b562-4467-44e6-9221-cc07f23fdb6b")
+	)
+	(no_connect
+		(at 118.11 275.59)
+		(uuid "c653c849-ebf9-4c4e-92f4-43944be79f21")
 	)
 	(no_connect
 		(at 77.47 49.53)
 		(uuid "c659b4ba-72ba-4bd6-961c-88bbe4288260")
 	)
 	(no_connect
-		(at 29.21 250.19)
+		(at 140.97 264.16)
+		(uuid "c675a477-1870-4526-9420-9640643b7fce")
+	)
+	(no_connect
+		(at 140.97 232.41)
 		(uuid "c7b98153-3c2d-44da-b234-c506a38ad39d")
 	)
 	(no_connect
-		(at 74.93 161.29)
+		(at 102.87 266.7)
+		(uuid "cca96338-ba09-4912-8018-5a2bbda28563")
+	)
+	(no_connect
+		(at 118.11 241.3)
+		(uuid "ce25dabc-9833-4a4d-9618-9e4f8eef31df")
+	)
+	(no_connect
+		(at 74.93 177.8)
 		(uuid "cfa8f25f-d929-442b-8cc2-1ee01e9088d2")
 	)
 	(no_connect
-		(at 254 123.19)
+		(at 254 127)
 		(uuid "d31f9a24-4eef-4fae-b7af-ca80988ebe30")
+	)
+	(no_connect
+		(at 102.87 255.27)
+		(uuid "d58d9f05-6c41-427e-a00a-940b8ccd9730")
+	)
+	(no_connect
+		(at 102.87 261.62)
+		(uuid "d60930f7-1171-4705-aa66-e1abb51b501a")
+	)
+	(no_connect
+		(at 125.73 242.57)
+		(uuid "f7ae643b-b592-4e72-bb77-6115f40244a8")
 	)
 	(no_connect
 		(at 77.47 52.07)
 		(uuid "f9628697-ec78-42b3-960c-08773cad3380")
+	)
+	(no_connect
+		(at 102.87 243.84)
+		(uuid "fd94a3ce-8a9f-4df7-bc1c-ef262cf2e576")
 	)
 	(bus_entry
 		(at 209.55 97.79)
@@ -14826,7 +14933,7 @@
 	)
 	(wire
 		(pts
-			(xy 49.53 147.32) (xy 54.61 147.32)
+			(xy 49.53 158.75) (xy 54.61 158.75)
 		)
 		(stroke
 			(width 0)
@@ -14876,7 +14983,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 189.23) (xy 323.85 186.69)
+			(xy 342.9 223.52) (xy 342.9 220.98)
 		)
 		(stroke
 			(width 0)
@@ -14906,7 +15013,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 101.6) (xy 267.97 101.6)
+			(xy 320.04 121.92) (xy 314.96 121.92)
 		)
 		(stroke
 			(width 0)
@@ -14976,7 +15083,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 96.52) (xy 228.6 96.52)
+			(xy 270.51 121.92) (xy 275.59 121.92)
 		)
 		(stroke
 			(width 0)
@@ -15046,7 +15153,7 @@
 	)
 	(wire
 		(pts
-			(xy 321.31 186.69) (xy 323.85 186.69)
+			(xy 340.36 220.98) (xy 342.9 220.98)
 		)
 		(stroke
 			(width 0)
@@ -15116,7 +15223,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 165.1) (xy 323.85 166.37)
+			(xy 342.9 199.39) (xy 342.9 200.66)
 		)
 		(stroke
 			(width 0)
@@ -15143,6 +15250,16 @@
 			(type default)
 		)
 		(uuid "1a40ed84-3079-4cec-8e3c-2b798e6cce87")
+	)
+	(wire
+		(pts
+			(xy 81.28 182.88) (xy 81.28 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ac65eb5-76c6-4e5b-ab62-8fda4cd6c907")
 	)
 	(wire
 		(pts
@@ -15226,7 +15343,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 104.14) (xy 267.97 104.14)
+			(xy 320.04 124.46) (xy 314.96 124.46)
 		)
 		(stroke
 			(width 0)
@@ -15236,7 +15353,7 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 158.75) (xy 290.83 158.75)
+			(xy 306.07 193.04) (xy 309.88 193.04)
 		)
 		(stroke
 			(width 0)
@@ -15356,6 +15473,16 @@
 	)
 	(wire
 		(pts
+			(xy 269.24 144.78) (xy 266.7 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24ed9f8e-1966-4df6-9e26-1e22f0d4b8e5")
+	)
+	(wire
+		(pts
 			(xy 171.45 179.07) (xy 176.53 179.07)
 		)
 		(stroke
@@ -15396,7 +15523,7 @@
 	)
 	(wire
 		(pts
-			(xy 290.83 156.21) (xy 290.83 158.75)
+			(xy 309.88 190.5) (xy 309.88 193.04)
 		)
 		(stroke
 			(width 0)
@@ -15516,7 +15643,7 @@
 	)
 	(wire
 		(pts
-			(xy 49.53 154.94) (xy 52.07 154.94)
+			(xy 49.53 166.37) (xy 52.07 166.37)
 		)
 		(stroke
 			(width 0)
@@ -15606,7 +15733,7 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 154.94) (xy 54.61 154.94)
+			(xy 52.07 166.37) (xy 54.61 166.37)
 		)
 		(stroke
 			(width 0)
@@ -15656,7 +15783,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 177.8) (xy 306.07 186.69)
+			(xy 325.12 212.09) (xy 325.12 220.98)
 		)
 		(stroke
 			(width 0)
@@ -15716,7 +15843,7 @@
 	)
 	(wire
 		(pts
-			(xy 307.34 151.13) (xy 306.07 151.13)
+			(xy 326.39 185.42) (xy 325.12 185.42)
 		)
 		(stroke
 			(width 0)
@@ -15756,7 +15883,7 @@
 	)
 	(wire
 		(pts
-			(xy 259.08 125.73) (xy 254 125.73)
+			(xy 259.08 129.54) (xy 254 129.54)
 		)
 		(stroke
 			(width 0)
@@ -15766,17 +15893,7 @@
 	)
 	(wire
 		(pts
-			(xy 265.43 114.3) (xy 265.43 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b5d1e4c-9109-4b9c-97cb-71d357e2f1f0")
-	)
-	(wire
-		(pts
-			(xy 273.05 106.68) (xy 267.97 106.68)
+			(xy 320.04 127) (xy 314.96 127)
 		)
 		(stroke
 			(width 0)
@@ -15926,7 +16043,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 204.47) (xy 323.85 204.47)
+			(xy 337.82 238.76) (xy 342.9 238.76)
 		)
 		(stroke
 			(width 0)
@@ -15976,7 +16093,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 109.22) (xy 228.6 109.22)
+			(xy 270.51 134.62) (xy 275.59 134.62)
 		)
 		(stroke
 			(width 0)
@@ -15986,7 +16103,7 @@
 	)
 	(wire
 		(pts
-			(xy 327.66 179.07) (xy 323.85 179.07)
+			(xy 346.71 213.36) (xy 342.9 213.36)
 		)
 		(stroke
 			(width 0)
@@ -16086,7 +16203,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 168.91) (xy 323.85 168.91)
+			(xy 337.82 203.2) (xy 342.9 203.2)
 		)
 		(stroke
 			(width 0)
@@ -16126,7 +16243,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 163.83) (xy 323.85 165.1)
+			(xy 342.9 198.12) (xy 342.9 199.39)
 		)
 		(stroke
 			(width 0)
@@ -16186,7 +16303,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 212.09) (xy 323.85 212.09)
+			(xy 337.82 246.38) (xy 342.9 246.38)
 		)
 		(stroke
 			(width 0)
@@ -16366,7 +16483,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 138.43) (xy 259.08 138.43)
+			(xy 254 142.24) (xy 259.08 142.24)
 		)
 		(stroke
 			(width 0)
@@ -16406,7 +16523,17 @@
 	)
 	(wire
 		(pts
-			(xy 309.88 177.8) (xy 306.07 177.8)
+			(xy 300.99 124.46) (xy 309.88 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58007106-5a3c-4f9f-b939-fe2d602b337b")
+	)
+	(wire
+		(pts
+			(xy 328.93 212.09) (xy 325.12 212.09)
 		)
 		(stroke
 			(width 0)
@@ -16416,7 +16543,17 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 123.19) (xy 228.6 123.19)
+			(xy 266.7 139.7) (xy 275.59 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "589a2c00-98d5-410d-bf92-dc2e0ffcb141")
+	)
+	(wire
+		(pts
+			(xy 223.52 127) (xy 228.6 127)
 		)
 		(stroke
 			(width 0)
@@ -16506,7 +16643,7 @@
 	)
 	(wire
 		(pts
-			(xy 316.23 171.45) (xy 323.85 171.45)
+			(xy 335.28 205.74) (xy 342.9 205.74)
 		)
 		(stroke
 			(width 0)
@@ -16526,7 +16663,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 111.76) (xy 228.6 111.76)
+			(xy 270.51 137.16) (xy 275.59 137.16)
 		)
 		(stroke
 			(width 0)
@@ -16616,7 +16753,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 130.81) (xy 259.08 130.81)
+			(xy 254 134.62) (xy 259.08 134.62)
 		)
 		(stroke
 			(width 0)
@@ -16666,7 +16803,7 @@
 	)
 	(wire
 		(pts
-			(xy 259.08 128.27) (xy 254 128.27)
+			(xy 259.08 132.08) (xy 254 132.08)
 		)
 		(stroke
 			(width 0)
@@ -16686,7 +16823,7 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 161.29) (xy 52.07 161.29)
+			(xy 59.69 177.8) (xy 52.07 177.8)
 		)
 		(stroke
 			(width 0)
@@ -16766,7 +16903,7 @@
 	)
 	(wire
 		(pts
-			(xy 67.31 171.45) (xy 67.31 175.26)
+			(xy 67.31 187.96) (xy 67.31 191.77)
 		)
 		(stroke
 			(width 0)
@@ -16786,7 +16923,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 153.67) (xy 306.07 156.21)
+			(xy 325.12 187.96) (xy 325.12 190.5)
 		)
 		(stroke
 			(width 0)
@@ -16803,6 +16940,16 @@
 			(type default)
 		)
 		(uuid "701b65bf-a4d1-4f86-8208-634312f83223")
+	)
+	(wire
+		(pts
+			(xy 300.99 134.62) (xy 320.04 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "708e71db-58c8-4537-b731-111b0286c4c5")
 	)
 	(wire
 		(pts
@@ -16886,7 +17033,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 165.1) (xy 323.85 165.1)
+			(xy 337.82 199.39) (xy 342.9 199.39)
 		)
 		(stroke
 			(width 0)
@@ -16936,7 +17083,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 189.23) (xy 323.85 193.04)
+			(xy 342.9 223.52) (xy 342.9 227.33)
 		)
 		(stroke
 			(width 0)
@@ -16976,7 +17123,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 99.06) (xy 228.6 99.06)
+			(xy 270.51 124.46) (xy 275.59 124.46)
 		)
 		(stroke
 			(width 0)
@@ -17016,7 +17163,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 186.69) (xy 323.85 184.15)
+			(xy 342.9 220.98) (xy 342.9 218.44)
 		)
 		(stroke
 			(width 0)
@@ -17026,7 +17173,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 204.47) (xy 323.85 201.93)
+			(xy 342.9 238.76) (xy 342.9 236.22)
 		)
 		(stroke
 			(width 0)
@@ -17086,7 +17233,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 137.16) (xy 228.6 135.89)
+			(xy 228.6 140.97) (xy 228.6 139.7)
 		)
 		(stroke
 			(width 0)
@@ -17146,6 +17293,16 @@
 	)
 	(wire
 		(pts
+			(xy 266.7 144.78) (xy 266.7 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "867e44e7-6836-41a9-a2b1-5302d212b7bc")
+	)
+	(wire
+		(pts
 			(xy 176.53 53.34) (xy 176.53 54.61)
 		)
 		(stroke
@@ -17176,7 +17333,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 120.65) (xy 228.6 120.65)
+			(xy 223.52 124.46) (xy 228.6 124.46)
 		)
 		(stroke
 			(width 0)
@@ -17256,7 +17413,7 @@
 	)
 	(wire
 		(pts
-			(xy 290.83 143.51) (xy 287.02 143.51)
+			(xy 309.88 177.8) (xy 306.07 177.8)
 		)
 		(stroke
 			(width 0)
@@ -17273,6 +17430,16 @@
 			(type default)
 		)
 		(uuid "8beba845-ce1a-4054-8fea-3292cf14cc40")
+	)
+	(wire
+		(pts
+			(xy 27.94 36.83) (xy 30.48 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8bee20bd-2705-4ed6-b106-88995f3edb1e")
 	)
 	(wire
 		(pts
@@ -17376,7 +17543,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 166.37) (xy 74.93 166.37)
+			(xy 81.28 182.88) (xy 74.93 182.88)
 		)
 		(stroke
 			(width 0)
@@ -17396,7 +17563,7 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 166.37) (xy 290.83 166.37)
+			(xy 306.07 200.66) (xy 309.88 200.66)
 		)
 		(stroke
 			(width 0)
@@ -17446,7 +17613,7 @@
 	)
 	(wire
 		(pts
-			(xy 339.09 209.55) (xy 344.17 209.55)
+			(xy 358.14 243.84) (xy 363.22 243.84)
 		)
 		(stroke
 			(width 0)
@@ -17476,7 +17643,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 133.35) (xy 259.08 133.35)
+			(xy 254 137.16) (xy 259.08 137.16)
 		)
 		(stroke
 			(width 0)
@@ -17536,7 +17703,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 109.22) (xy 267.97 109.22)
+			(xy 320.04 129.54) (xy 314.96 129.54)
 		)
 		(stroke
 			(width 0)
@@ -17586,7 +17753,7 @@
 	)
 	(wire
 		(pts
-			(xy 321.31 151.13) (xy 321.31 140.97)
+			(xy 340.36 185.42) (xy 340.36 175.26)
 		)
 		(stroke
 			(width 0)
@@ -17636,7 +17803,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 163.83) (xy 59.69 163.83)
+			(xy 45.72 180.34) (xy 59.69 180.34)
 		)
 		(stroke
 			(width 0)
@@ -17666,7 +17833,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 133.35) (xy 323.85 148.59)
+			(xy 342.9 167.64) (xy 342.9 182.88)
 		)
 		(stroke
 			(width 0)
@@ -17856,7 +18023,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 156.21) (xy 323.85 156.21)
+			(xy 325.12 190.5) (xy 342.9 190.5)
 		)
 		(stroke
 			(width 0)
@@ -17886,7 +18053,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 193.04) (xy 323.85 196.85)
+			(xy 342.9 227.33) (xy 342.9 231.14)
 		)
 		(stroke
 			(width 0)
@@ -17996,6 +18163,16 @@
 	)
 	(wire
 		(pts
+			(xy 300.99 121.92) (xy 309.88 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "afcc0017-0b8e-436f-98ee-24b1f71b412b")
+	)
+	(wire
+		(pts
 			(xy 227.33 240.03) (xy 229.87 240.03)
 		)
 		(stroke
@@ -18096,7 +18273,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 96.52) (xy 267.97 96.52)
+			(xy 320.04 116.84) (xy 314.96 116.84)
 		)
 		(stroke
 			(width 0)
@@ -18126,7 +18303,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 158.75) (xy 323.85 158.75)
+			(xy 337.82 193.04) (xy 342.9 193.04)
 		)
 		(stroke
 			(width 0)
@@ -18146,7 +18323,7 @@
 	)
 	(wire
 		(pts
-			(xy 290.83 158.75) (xy 290.83 161.29)
+			(xy 309.88 193.04) (xy 309.88 195.58)
 		)
 		(stroke
 			(width 0)
@@ -18176,7 +18353,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 101.6) (xy 228.6 101.6)
+			(xy 270.51 127) (xy 275.59 127)
 		)
 		(stroke
 			(width 0)
@@ -18186,7 +18363,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 161.29) (xy 306.07 163.83)
+			(xy 325.12 195.58) (xy 325.12 198.12)
 		)
 		(stroke
 			(width 0)
@@ -18236,7 +18413,7 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 161.29) (xy 52.07 154.94)
+			(xy 52.07 177.8) (xy 52.07 166.37)
 		)
 		(stroke
 			(width 0)
@@ -18326,17 +18503,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 114.3) (xy 265.43 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c241c23a-43e1-4536-9d05-3a0d6fc23499")
-	)
-	(wire
-		(pts
-			(xy 323.85 204.47) (xy 323.85 207.01)
+			(xy 342.9 238.76) (xy 342.9 241.3)
 		)
 		(stroke
 			(width 0)
@@ -18416,7 +18583,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 163.83) (xy 306.07 177.8)
+			(xy 325.12 198.12) (xy 325.12 212.09)
 		)
 		(stroke
 			(width 0)
@@ -18446,7 +18613,7 @@
 	)
 	(wire
 		(pts
-			(xy 273.05 99.06) (xy 267.97 99.06)
+			(xy 320.04 119.38) (xy 314.96 119.38)
 		)
 		(stroke
 			(width 0)
@@ -18486,7 +18653,7 @@
 	)
 	(wire
 		(pts
-			(xy 67.31 182.88) (xy 72.39 182.88)
+			(xy 67.31 199.39) (xy 72.39 199.39)
 		)
 		(stroke
 			(width 0)
@@ -18506,6 +18673,16 @@
 	)
 	(wire
 		(pts
+			(xy 27.94 60.96) (xy 30.48 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd49db97-2c69-4b91-9675-4d932c2ed11f")
+	)
+	(wire
+		(pts
 			(xy 246.38 233.68) (xy 251.46 233.68)
 		)
 		(stroke
@@ -18513,6 +18690,16 @@
 			(type default)
 		)
 		(uuid "ce423ef1-5380-42fb-a499-90cc5947ae96")
+	)
+	(wire
+		(pts
+			(xy 54.61 166.37) (xy 81.28 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce819d18-e3f9-4d7c-9a33-5eda04e3dd46")
 	)
 	(wire
 		(pts
@@ -18566,7 +18753,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 161.29) (xy 323.85 161.29)
+			(xy 325.12 195.58) (xy 342.9 195.58)
 		)
 		(stroke
 			(width 0)
@@ -18616,27 +18803,7 @@
 	)
 	(wire
 		(pts
-			(xy 265.43 109.22) (xy 254 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d45603b4-d9aa-4f3b-9ebc-680618558a38")
-	)
-	(wire
-		(pts
-			(xy 223.52 114.3) (xy 228.6 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d4c10c6a-17c2-4371-a9a6-09bf3a3e9046")
-	)
-	(wire
-		(pts
-			(xy 223.52 125.73) (xy 228.6 125.73)
+			(xy 223.52 129.54) (xy 228.6 129.54)
 		)
 		(stroke
 			(width 0)
@@ -18706,7 +18873,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 138.43) (xy 306.07 138.43)
+			(xy 320.04 172.72) (xy 325.12 172.72)
 		)
 		(stroke
 			(width 0)
@@ -18736,7 +18903,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 137.16) (xy 228.6 138.43)
+			(xy 228.6 140.97) (xy 228.6 142.24)
 		)
 		(stroke
 			(width 0)
@@ -18826,7 +18993,7 @@
 	)
 	(wire
 		(pts
-			(xy 354.33 163.83) (xy 360.68 163.83)
+			(xy 373.38 198.12) (xy 379.73 198.12)
 		)
 		(stroke
 			(width 0)
@@ -18836,7 +19003,7 @@
 	)
 	(wire
 		(pts
-			(xy 339.09 171.45) (xy 339.09 166.37)
+			(xy 358.14 205.74) (xy 358.14 200.66)
 		)
 		(stroke
 			(width 0)
@@ -18876,7 +19043,7 @@
 	)
 	(wire
 		(pts
-			(xy 306.07 151.13) (xy 306.07 153.67)
+			(xy 325.12 185.42) (xy 325.12 187.96)
 		)
 		(stroke
 			(width 0)
@@ -18896,7 +19063,7 @@
 	)
 	(wire
 		(pts
-			(xy 339.09 161.29) (xy 339.09 156.21)
+			(xy 358.14 195.58) (xy 358.14 190.5)
 		)
 		(stroke
 			(width 0)
@@ -18966,7 +19133,7 @@
 	)
 	(wire
 		(pts
-			(xy 267.97 119.38) (xy 273.05 119.38)
+			(xy 314.96 139.7) (xy 320.04 139.7)
 		)
 		(stroke
 			(width 0)
@@ -18986,7 +19153,7 @@
 	)
 	(wire
 		(pts
-			(xy 327.66 193.04) (xy 323.85 193.04)
+			(xy 346.71 227.33) (xy 342.9 227.33)
 		)
 		(stroke
 			(width 0)
@@ -19106,7 +19273,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 153.67) (xy 323.85 153.67)
+			(xy 337.82 187.96) (xy 342.9 187.96)
 		)
 		(stroke
 			(width 0)
@@ -19156,7 +19323,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 137.16) (xy 228.6 137.16)
+			(xy 223.52 140.97) (xy 228.6 140.97)
 		)
 		(stroke
 			(width 0)
@@ -19186,7 +19353,7 @@
 	)
 	(wire
 		(pts
-			(xy 254 120.65) (xy 259.08 120.65)
+			(xy 254 124.46) (xy 259.08 124.46)
 		)
 		(stroke
 			(width 0)
@@ -19296,7 +19463,7 @@
 	)
 	(wire
 		(pts
-			(xy 260.35 135.89) (xy 254 135.89)
+			(xy 254 139.7) (xy 266.7 139.7)
 		)
 		(stroke
 			(width 0)
@@ -19316,7 +19483,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 179.07) (xy 323.85 184.15)
+			(xy 342.9 213.36) (xy 342.9 218.44)
 		)
 		(stroke
 			(width 0)
@@ -19336,7 +19503,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 133.35) (xy 228.6 133.35)
+			(xy 223.52 137.16) (xy 228.6 137.16)
 		)
 		(stroke
 			(width 0)
@@ -19516,7 +19683,7 @@
 	)
 	(wire
 		(pts
-			(xy 323.85 151.13) (xy 321.31 151.13)
+			(xy 342.9 185.42) (xy 340.36 185.42)
 		)
 		(stroke
 			(width 0)
@@ -19688,30 +19855,6 @@
 		(uuid 010a5bb1-e676-46da-adaf-ce5bf5d08afa)
 	)
 	(rectangle
-		(start 318.77 119.38)
-		(end 389.89 129.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 0493d580-3868-440f-a901-5b87a5b8ca3c)
-	)
-	(rectangle
-		(start 318.77 85.09)
-		(end 389.89 95.25)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 0da5896d-20cd-4d60-a80c-2b5842db7828)
-	)
-	(rectangle
 		(start 196.85 50.8)
 		(end 209.55 57.15)
 		(stroke
@@ -19723,18 +19866,6 @@
 			(color 255 255 255 1)
 		)
 		(uuid 20ea0d61-6480-4210-ae52-9722fb96cef8)
-	)
-	(rectangle
-		(start 318.77 107.95)
-		(end 389.89 118.11)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 2705e3d3-4dad-4c81-8e5f-4b781924a790)
 	)
 	(rectangle
 		(start 196.85 121.92)
@@ -19774,18 +19905,6 @@
 			(color 255 255 255 1)
 		)
 		(uuid 7107ab2d-6404-45d3-99b5-a38ac8f2f9b5)
-	)
-	(rectangle
-		(start 318.77 96.52)
-		(end 389.89 106.68)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 719b4ab0-e66d-4e9d-816a-b5d0da1b6ffd)
 	)
 	(rectangle
 		(start 323.85 74.93)
@@ -19878,16 +19997,16 @@
 		)
 		(uuid "19692058-a3e7-4f9d-96ce-ff4cb0b729d4")
 	)
-	(text "Inconexo?"
+	(text "every \n16 lines"
 		(exclude_from_sim no)
-		(at 345.44 109.22 0)
+		(at 24.384 40.132 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "28711c80-d881-4d9d-b361-3591d1c41767")
+		(uuid "349dfa9e-8573-4fb0-a90a-876e059d9a07")
 	)
 	(text "DONE"
 		(exclude_from_sim no)
@@ -19902,6 +20021,17 @@
 		)
 		(uuid "4525ce34-6c59-4592-9775-f906ce4b8f7a")
 	)
+	(text "power-on reset"
+		(exclude_from_sim no)
+		(at 43.18 124.206 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4bd00371-8aab-4eea-9ce5-bed71d21396f")
+	)
 	(text "10 MHz"
 		(exclude_from_sim no)
 		(at 91.44 30.48 0)
@@ -19912,16 +20042,16 @@
 		)
 		(uuid "4d1fbba7-22e4-4fa4-a323-e44847724ade")
 	)
-	(text "Inconexo?"
+	(text "piggyback\nsoldered"
 		(exclude_from_sim no)
-		(at 345.44 86.36 0)
+		(at 62.23 162.814 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "649e3ab0-f2ad-46eb-896d-ac4d4ffc2085")
+		(uuid "5655bfc3-6389-4d26-961e-cd21c8bbe4fe")
 	)
 	(text "DONE"
 		(exclude_from_sim no)
@@ -19975,18 +20105,6 @@
 		)
 		(uuid "940d580e-1a05-41a4-a777-91ecd41ce5f1")
 	)
-	(text "DUDA 1: INCONEXOS?\n"
-		(exclude_from_sim no)
-		(at 189.23 217.17 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-				(thickness 0.508)
-				(bold yes)
-			)
-		)
-		(uuid "bd28e5f3-da0b-4291-a603-9ba1c641d8ec")
-	)
 	(text "DONE"
 		(exclude_from_sim no)
 		(at 196.85 55.88 0)
@@ -19999,16 +20117,6 @@
 			(justify left bottom)
 		)
 		(uuid "dc4147a7-ae4b-488e-8bc8-243124e350f0")
-	)
-	(text "Inconexo?"
-		(exclude_from_sim no)
-		(at 340.36 120.65 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "ef9af690-f6fd-4a39-915d-0a4d827cd250")
 	)
 	(text "DONE"
 		(exclude_from_sim no)
@@ -20036,19 +20144,8 @@
 		)
 		(uuid "f3411e99-bac7-45bc-95d7-d6b81ca168fa")
 	)
-	(text "Inconexo?"
-		(exclude_from_sim no)
-		(at 345.44 97.79 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "fd268aa2-7eef-413e-84d1-895590a9aaf7")
-	)
 	(label "~{ROM}"
-		(at 259.08 120.65 180)
+		(at 259.08 124.46 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -20223,19 +20320,8 @@
 		)
 		(uuid "0b4e1e53-4a92-4763-9350-b5122425b05e")
 	)
-	(label "~{IO}"
-		(at 223.52 114.3 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0c02086c-fad1-494e-b821-268cae97313a")
-	)
 	(label "~{PAL}"
-		(at 259.08 133.35 180)
+		(at 259.08 137.16 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -20664,7 +20750,7 @@
 		(uuid "2ad5647f-cb6a-41a6-8949-945fb6ff2fa6")
 	)
 	(label "VSS"
-		(at 223.52 137.16 0)
+		(at 223.52 140.97 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -20840,7 +20926,7 @@
 		(uuid "34bf99fc-21bb-492f-92ac-7fbadc55e2d9")
 	)
 	(label "A18"
-		(at 223.52 120.65 0)
+		(at 223.52 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -20895,7 +20981,7 @@
 		(uuid "3da2ecde-f8ad-4bb0-9671-f9f42e2af6a5")
 	)
 	(label "VCC"
-		(at 223.52 133.35 0)
+		(at 223.52 137.16 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -20926,17 +21012,6 @@
 			(justify right bottom)
 		)
 		(uuid "431df405-8197-4074-a2e1-7b18ba2ebec8")
-	)
-	(label "CLK"
-		(at 59.69 161.29 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "43ea4c51-0bc5-4d9d-ac2d-0c41c33aabf7")
 	)
 	(label "D13"
 		(at 369.57 41.91 180)
@@ -20983,7 +21058,7 @@
 		(uuid "46b85012-97f7-4ddf-a82b-e4119fd2ba2d")
 	)
 	(label "MA1"
-		(at 223.52 96.52 0)
+		(at 270.51 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21104,7 +21179,7 @@
 		(uuid "51d8c6c6-7196-42eb-bf6d-7fa7d8e1e8f5")
 	)
 	(label "~{AS}"
-		(at 287.02 158.75 0)
+		(at 306.07 193.04 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21192,7 +21267,7 @@
 		(uuid "58b00ec2-ec66-430b-8791-9a39c42e2f0b")
 	)
 	(label "~{PAL}"
-		(at 287.02 166.37 0)
+		(at 306.07 200.66 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21203,7 +21278,7 @@
 		(uuid "58b42385-0017-44a5-b948-1f98a62dde6b")
 	)
 	(label "~{RST}"
-		(at 267.97 119.38 0)
+		(at 314.96 139.7 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21258,7 +21333,7 @@
 		(uuid "5aa6787b-9e49-4b59-9345-aff6e4735b1a")
 	)
 	(label "VPA"
-		(at 287.02 143.51 0)
+		(at 306.07 177.8 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21280,7 +21355,7 @@
 		(uuid "5aba6dca-5852-45f4-8992-8e74abb56de7")
 	)
 	(label "MA2"
-		(at 223.52 99.06 0)
+		(at 270.51 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21302,7 +21377,7 @@
 		(uuid "5b072fc3-9bfb-45b0-bb2f-f6ef39507f41")
 	)
 	(label "UDS"
-		(at 318.77 153.67 0)
+		(at 337.82 187.96 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21599,7 +21674,7 @@
 		(uuid "6cdc6f13-4531-4047-9e22-d68154eb36e2")
 	)
 	(label "~{ROM}"
-		(at 318.77 158.75 0)
+		(at 337.82 193.04 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21654,7 +21729,7 @@
 		(uuid "6faeb193-ac05-49d8-a000-68878dd9697d")
 	)
 	(label "VCC"
-		(at 38.1 156.21 0)
+		(at 38.1 172.72 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21731,7 +21806,7 @@
 		(uuid "738c78a9-d211-4afa-9763-e349a670fddf")
 	)
 	(label "MD3"
-		(at 267.97 104.14 0)
+		(at 314.96 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21753,7 +21828,7 @@
 		(uuid "75e871cc-2305-4e81-b0ea-b94b0c34dcb0")
 	)
 	(label "~{R}WB"
-		(at 318.77 212.09 0)
+		(at 337.82 246.38 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21764,7 +21839,7 @@
 		(uuid "77c2ddc7-0f37-42e1-aad2-1a4017e7925c")
 	)
 	(label "MD5"
-		(at 267.97 109.22 0)
+		(at 314.96 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21817,6 +21892,17 @@
 			(justify right bottom)
 		)
 		(uuid "7af986b4-e70e-49d7-a88d-36182883abae")
+	)
+	(label "~{IRQ6_CLR}"
+		(at 309.88 121.92 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7b7b6e7f-b10f-4f59-aa6c-51e065d192f3")
 	)
 	(label "MA4"
 		(at 264.16 36.83 0)
@@ -21907,7 +21993,7 @@
 		(uuid "8209ee79-c8d2-422f-8fc2-b10e12b156fb")
 	)
 	(label "~{RAM}"
-		(at 259.08 138.43 180)
+		(at 259.08 142.24 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21962,7 +22048,7 @@
 		(uuid "8643955f-5cf2-4b2b-8fc8-6e03414e7ea5")
 	)
 	(label "VCC"
-		(at 49.53 147.32 0)
+		(at 49.53 158.75 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -21973,7 +22059,7 @@
 		(uuid "87f5255a-1515-46e8-b408-d085f9d9b137")
 	)
 	(label "R~{W}B"
-		(at 318.77 168.91 0)
+		(at 337.82 203.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22017,7 +22103,7 @@
 		(uuid "8cf9d4f6-95df-4ef7-ba68-e53b4d320c23")
 	)
 	(label "VCC"
-		(at 67.31 173.99 0)
+		(at 67.31 190.5 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22127,7 +22213,7 @@
 		(uuid "9880fe15-a087-4cdb-9ec6-23a6e224ee6d")
 	)
 	(label "~{OBJ}"
-		(at 290.83 151.13 180)
+		(at 309.88 185.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22138,7 +22224,7 @@
 		(uuid "9948f64f-05bc-46bf-aed5-ab3072e58d17")
 	)
 	(label "VSS"
-		(at 38.1 171.45 0)
+		(at 38.1 187.96 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22259,7 +22345,7 @@
 		(uuid "a0341793-318c-43dd-948b-c29369bd45f7")
 	)
 	(label "MD0"
-		(at 267.97 96.52 0)
+		(at 314.96 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22302,8 +22388,8 @@
 		)
 		(uuid "a3f7d511-d1f4-4ce0-aee6-d43ebf3c5484")
 	)
-	(label "IC64_11"
-		(at 316.23 171.45 0)
+	(label "~{LDS'}"
+		(at 335.28 205.74 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22336,7 +22422,7 @@
 		(uuid "a5bea714-32d7-496a-a00f-cf5267851c55")
 	)
 	(label "A20"
-		(at 223.52 125.73 0)
+		(at 223.52 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22379,8 +22465,8 @@
 		)
 		(uuid "a7427b20-3850-4f5a-a883-5e17726c6332")
 	)
-	(label "IC64_11"
-		(at 223.52 111.76 0)
+	(label "~{LDS'}"
+		(at 270.51 137.16 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22490,7 +22576,7 @@
 		(uuid "ad1ef142-992c-4ec4-823d-e8e3bb0f6594")
 	)
 	(label "VCC"
-		(at 318.77 165.1 0)
+		(at 337.82 199.39 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22655,7 +22741,7 @@
 		(uuid "b425ef9f-eb33-4492-aaef-cffa4e8aee95")
 	)
 	(label "~{DTACK}"
-		(at 360.68 163.83 180)
+		(at 379.73 198.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22743,7 +22829,7 @@
 		(uuid "bb969617-b8ee-4ccb-b49c-2459da843778")
 	)
 	(label "A19"
-		(at 223.52 123.19 0)
+		(at 223.52 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22776,7 +22862,7 @@
 		(uuid "bc3741d1-4cf0-46ea-8924-1be2d506e464")
 	)
 	(label "MD1"
-		(at 267.97 99.06 0)
+		(at 314.96 119.38 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22787,7 +22873,7 @@
 		(uuid "bcf4e0c4-605e-49dd-8229-7dc3e3b3caf7")
 	)
 	(label "MD2"
-		(at 267.97 101.6 0)
+		(at 314.96 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22820,7 +22906,7 @@
 		(uuid "c0737085-f532-433c-9a99-800a5a63eef8")
 	)
 	(label "~{ROM}"
-		(at 300.99 138.43 0)
+		(at 320.04 172.72 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -22874,7 +22960,7 @@
 		)
 		(uuid "c432cde7-e008-4011-b0c1-d9d97e8cb79f")
 	)
-	(label "IC64_11"
+	(label "~{LDS'}"
 		(at 208.28 218.44 180)
 		(fields_autoplaced yes)
 		(effects
@@ -22996,7 +23082,7 @@
 		(uuid "c9845791-46aa-4db0-9eff-f3fdedf4673b")
 	)
 	(label "~{R}WB"
-		(at 223.52 109.22 0)
+		(at 270.51 134.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23106,7 +23192,7 @@
 		(uuid "d378c1f0-20a1-41fc-96cd-ee4baf7b3b63")
 	)
 	(label "MD4"
-		(at 267.97 106.68 0)
+		(at 314.96 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23138,6 +23224,17 @@
 		)
 		(uuid "d5dafd1e-2a53-4442-921b-a2f9001e33ea")
 	)
+	(label "~{IRQ5_CLR}"
+		(at 309.88 124.46 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d6ffe77a-15b2-4bff-82b4-7349cfaff0ac")
+	)
 	(label "PD7"
 		(at 207.01 186.69 180)
 		(fields_autoplaced yes)
@@ -23161,7 +23258,7 @@
 		(uuid "d9ef52a1-d909-4351-b2f7-248529484e17")
 	)
 	(label "~{OBJ}"
-		(at 259.08 130.81 180)
+		(at 259.08 134.62 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23216,7 +23313,7 @@
 		(uuid "ddb9a108-07ca-406a-9762-c1e25a2b827a")
 	)
 	(label "MA3"
-		(at 223.52 101.6 0)
+		(at 270.51 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23238,7 +23335,7 @@
 		(uuid "de703a39-3e03-48e3-9c09-66a244ce29d5")
 	)
 	(label "VSS"
-		(at 72.39 182.88 180)
+		(at 72.39 199.39 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23325,6 +23422,17 @@
 		)
 		(uuid "e54628ef-e161-4b95-99be-e1d0691b33a4")
 	)
+	(label "~{IRQ6_CLR}"
+		(at 38.1 71.12 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e55beb78-d017-42b1-8dea-428c10887b3e")
+	)
 	(label "VSS"
 		(at 254 77.47 180)
 		(fields_autoplaced yes)
@@ -23403,7 +23511,7 @@
 		(uuid "ead10ea2-e702-4e9e-852c-d5090d1c8def")
 	)
 	(label "CLK"
-		(at 81.28 166.37 180)
+		(at 81.28 182.88 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23545,6 +23653,17 @@
 		)
 		(uuid "f6c21b27-9748-455f-a131-b386c32f42b0")
 	)
+	(label "~{IRQ5_CLR}"
+		(at 38.1 46.99 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f701a1b5-f92c-4c09-8805-6db4b3f25da1")
+	)
 	(label "A1"
 		(at 148.59 29.21 180)
 		(fields_autoplaced yes)
@@ -23590,7 +23709,7 @@
 		(uuid "fa129dc2-283f-4b62-ad44-ea90b33ef227")
 	)
 	(label "~{UDW}"
-		(at 344.17 209.55 180)
+		(at 363.22 243.84 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23601,7 +23720,7 @@
 		(uuid "fa38eee2-d6bf-4e93-b621-7bafb039b9b3")
 	)
 	(label "UDS"
-		(at 318.77 204.47 0)
+		(at 337.82 238.76 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23612,7 +23731,7 @@
 		(uuid "fcfc2616-492b-4c7f-9730-db7668034e0b")
 	)
 	(label "VCC"
-		(at 67.31 156.21 180)
+		(at 67.31 172.72 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23655,9 +23774,9 @@
 		)
 		(uuid "fee14306-d14c-481e-aa93-c673569d5fe5")
 	)
-	(hierarchical_label "IC66_11"
+	(hierarchical_label "V8"
 		(shape input)
-		(at 30.48 36.83 180)
+		(at 27.94 36.83 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23669,7 +23788,7 @@
 	)
 	(hierarchical_label "IC25_5"
 		(shape input)
-		(at 323.85 173.99 180)
+		(at 342.9 208.28 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23681,7 +23800,7 @@
 	)
 	(hierarchical_label "IC67_15"
 		(shape output)
-		(at 298.45 109.22 0)
+		(at 345.44 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23703,21 +23822,9 @@
 		)
 		(uuid "2891eb6c-bb43-4f3e-9b83-c4603f6b4aaa")
 	)
-	(hierarchical_label "IC50_14"
+	(hierarchical_label "~{LOCK2}"
 		(shape output)
-		(at 254 99.06 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "311473b9-1786-41a0-8471-fd7fce12d3c1")
-	)
-	(hierarchical_label "IC67_5"
-		(shape output)
-		(at 298.45 99.06 0)
+		(at 345.44 119.38 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23727,9 +23834,9 @@
 		)
 		(uuid "365cea0d-28a7-4410-b96a-7a863748e93e")
 	)
-	(hierarchical_label "IC67_7"
+	(hierarchical_label "~{LOCK1}"
 		(shape output)
-		(at 298.45 101.6 0)
+		(at 345.44 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23741,7 +23848,7 @@
 	)
 	(hierarchical_label "IC68_10"
 		(shape output)
-		(at 327.66 179.07 0)
+		(at 346.71 213.36 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23753,7 +23860,7 @@
 	)
 	(hierarchical_label "SLATCH"
 		(shape output)
-		(at 254 106.68 0)
+		(at 300.99 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23765,7 +23872,7 @@
 	)
 	(hierarchical_label "IC50_13"
 		(shape output)
-		(at 254 101.6 0)
+		(at 300.99 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23787,21 +23894,9 @@
 		)
 		(uuid "45da0df9-f400-4a7d-9610-50cb86e0ee27")
 	)
-	(hierarchical_label "IC50_15"
-		(shape output)
-		(at 254 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "51973a58-2a37-4292-bd0c-70bfe75b306f")
-	)
 	(hierarchical_label "~{MPAL}"
 		(shape output)
-		(at 309.88 177.8 0)
+		(at 328.93 212.09 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23811,21 +23906,9 @@
 		)
 		(uuid "61aff06b-c9ee-4564-8410-742b8dbfd279")
 	)
-	(hierarchical_label "IC50_14"
-		(shape input)
-		(at 38.1 46.99 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "69faf6fb-c861-44fc-a06e-dc66d12510a9")
-	)
 	(hierarchical_label "IC67_12"
 		(shape output)
-		(at 298.45 106.68 0)
+		(at 345.44 127 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23861,7 +23944,7 @@
 	)
 	(hierarchical_label "IC27_~{CE}"
 		(shape output)
-		(at 339.09 199.39 0)
+		(at 358.14 233.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23883,9 +23966,9 @@
 		)
 		(uuid "79327186-0e16-4d18-a854-5a7367f74be0")
 	)
-	(hierarchical_label "IC80_2"
+	(hierarchical_label "~{~{VBLANK}}"
 		(shape input)
-		(at 30.48 60.96 180)
+		(at 27.94 60.96 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23897,7 +23980,7 @@
 	)
 	(hierarchical_label "IC59_6"
 		(shape output)
-		(at 307.34 151.13 0)
+		(at 326.39 185.42 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23909,7 +23992,7 @@
 	)
 	(hierarchical_label "~{CHDTACK}"
 		(shape input)
-		(at 323.85 133.35 180)
+		(at 342.9 167.64 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23918,18 +24001,6 @@
 			(justify right)
 		)
 		(uuid "ab7d5fdb-2e1c-4403-a051-028687b96cce")
-	)
-	(hierarchical_label "IC50_15"
-		(shape input)
-		(at 38.1 71.12 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ae24780b-5e58-4f6b-b8d8-e03bd4e4baf8")
 	)
 	(hierarchical_label "~{RST}"
 		(shape output)
@@ -23945,7 +24016,7 @@
 	)
 	(hierarchical_label "IC68_9"
 		(shape output)
-		(at 327.66 193.04 0)
+		(at 346.71 227.33 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23957,7 +24028,7 @@
 	)
 	(hierarchical_label "~{CHAR}"
 		(shape output)
-		(at 259.08 125.73 0)
+		(at 259.08 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -23969,7 +24040,7 @@
 	)
 	(hierarchical_label "IC28_~{CE}"
 		(shape output)
-		(at 339.09 186.69 0)
+		(at 358.14 220.98 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -24029,7 +24100,7 @@
 	)
 	(hierarchical_label "IC50_12"
 		(shape output)
-		(at 254 104.14 0)
+		(at 300.99 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -24053,7 +24124,7 @@
 	)
 	(hierarchical_label "~{SCR}"
 		(shape output)
-		(at 259.08 128.27 0)
+		(at 259.08 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -24077,7 +24148,7 @@
 	)
 	(hierarchical_label "~{IO}"
 		(shape output)
-		(at 260.35 135.89 0)
+		(at 269.24 144.78 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -24130,7 +24201,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit Bus Buffer 3-State outputs"
 			(at 189.23 215.9 0)
 			(effects
 				(font
@@ -24210,7 +24281,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 313.69 140.97 0)
+		(at 332.74 175.26 0)
 		(unit 4)
 		(convert 2)
 		(exclude_from_sim no)
@@ -24219,7 +24290,7 @@
 		(dnp no)
 		(uuid "0799c92f-c3e0-40f0-8e65-e47c584ae868")
 		(property "Reference" "IC18"
-			(at 313.69 139.7 0)
+			(at 332.74 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24227,7 +24298,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 313.69 142.24 0)
+			(at 332.74 176.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24235,7 +24306,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 313.69 140.97 0)
+			(at 332.74 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24244,7 +24315,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 313.69 140.97 0)
+			(at 332.74 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24252,8 +24323,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 313.69 140.97 0)
+		(property "Description" "Quad 2-input OR"
+			(at 332.74 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24355,7 +24426,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 77.47 105.41 0)
 			(effects
 				(font
@@ -24424,7 +24495,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Priority Encoder 3 to 8 cascadable"
 			(at 64.77 46.99 0)
 			(effects
 				(font
@@ -24535,7 +24606,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 38.1 60.96 0)
 			(effects
 				(font
@@ -24638,7 +24709,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 189.23 113.03 0)
 			(effects
 				(font
@@ -24857,7 +24928,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 238.76 213.36 0)
 			(effects
 				(font
@@ -24919,7 +24990,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS138")
-		(at 241.3 128.27 0)
+		(at 241.3 132.08 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -24927,7 +24998,7 @@
 		(dnp no)
 		(uuid "1b068b1a-a8ab-4011-8cc7-eb9e034f14af")
 		(property "Reference" "IC48"
-			(at 241.3 119.38 0)
+			(at 241.3 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24935,7 +25006,7 @@
 			)
 		)
 		(property "Value" "74LS138"
-			(at 241.3 139.7 0)
+			(at 241.3 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24943,7 +25014,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 241.3 128.27 0)
+			(at 241.3 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24952,7 +25023,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS138"
-			(at 241.3 128.27 0)
+			(at 241.3 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24961,7 +25032,7 @@
 			)
 		)
 		(property "Description" "Decoder 3 to 8 active low outputs"
-			(at 241.3 128.27 0)
+			(at 241.3 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25228,7 +25299,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS04")
-		(at 298.45 143.51 0)
+		(at 317.5 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -25236,7 +25307,7 @@
 		(dnp no)
 		(uuid "3a1587bb-9e3d-450b-a9cc-51acce1a2838")
 		(property "Reference" "IC3"
-			(at 297.18 142.24 0)
+			(at 316.23 176.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25244,7 +25315,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 294.64 144.78 0)
+			(at 313.69 179.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25253,7 +25324,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 298.45 143.51 0)
+			(at 317.5 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25262,7 +25333,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 298.45 143.51 0)
+			(at 317.5 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25270,8 +25341,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 298.45 143.51 0)
+		(property "Description" "Hex Inverter"
+			(at 317.5 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25373,7 +25444,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 238.76 224.79 0)
 			(effects
 				(font
@@ -25650,7 +25721,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 217.17 222.25 0)
 			(effects
 				(font
@@ -25712,7 +25783,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS00")
-		(at 331.47 199.39 0)
+		(at 350.52 233.68 0)
 		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
@@ -25721,7 +25792,7 @@
 		(dnp no)
 		(uuid "476ad02e-6019-402f-9b5b-8848c8cb49de")
 		(property "Reference" "IC68"
-			(at 331.47 198.12 0)
+			(at 350.52 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25729,7 +25800,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 331.47 200.66 0)
+			(at 350.52 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25737,7 +25808,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 199.39 0)
+			(at 350.52 233.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25746,7 +25817,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 331.47 199.39 0)
+			(at 350.52 233.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25754,8 +25825,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.47 199.39 0)
+		(property "Description" "quad 2-input NAND gate"
+			(at 350.52 233.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25857,7 +25928,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "SRAM 64kbit (8192-word x 8-bit)"
 			(at 355.6 50.8 0)
 			(effects
 				(font
@@ -26002,7 +26073,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 80.01 105.41 0)
 			(effects
 				(font
@@ -26028,7 +26099,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS05")
-		(at 381 123.19 0)
+		(at 133.35 275.59 0)
 		(unit 6)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26036,7 +26107,7 @@
 		(dnp no)
 		(uuid "52831728-d838-470e-b2f3-f375e187a518")
 		(property "Reference" "IC72"
-			(at 381 121.92 0)
+			(at 133.35 274.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26044,7 +26115,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 381 124.46 0)
+			(at 133.35 276.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26052,7 +26123,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 381 123.19 0)
+			(at 133.35 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26061,7 +26132,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 381 123.19 0)
+			(at 133.35 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26070,7 +26141,7 @@
 			)
 		)
 		(property "Description" "Inverter Open Collect"
-			(at 381 123.19 0)
+			(at 133.35 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26234,7 +26305,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS05")
-		(at 381 90.17 0)
+		(at 133.35 242.57 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26242,7 +26313,7 @@
 		(dnp no)
 		(uuid "60a5f9e1-6873-4a64-b469-a735855a2398")
 		(property "Reference" "IC?"
-			(at 381 88.9 0)
+			(at 133.35 241.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26250,7 +26321,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 381 91.44 0)
+			(at 133.35 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26258,7 +26329,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 381 90.17 0)
+			(at 133.35 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26267,7 +26338,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 381 90.17 0)
+			(at 133.35 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26276,7 +26347,7 @@
 			)
 		)
 		(property "Description" "Inverter Open Collect"
-			(at 381 90.17 0)
+			(at 133.35 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26380,7 +26451,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 21.59 270.51 0)
 			(effects
 				(font
@@ -26442,7 +26513,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS00")
-		(at 331.47 186.69 0)
+		(at 350.52 220.98 0)
 		(mirror x)
 		(unit 3)
 		(exclude_from_sim no)
@@ -26451,7 +26522,7 @@
 		(dnp no)
 		(uuid "63f15cec-4206-41ea-9516-1a96c0eb6cbc")
 		(property "Reference" "IC68"
-			(at 331.47 185.42 0)
+			(at 350.52 219.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26459,7 +26530,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 331.47 187.96 0)
+			(at 350.52 222.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26467,7 +26538,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 186.69 0)
+			(at 350.52 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26476,7 +26547,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 331.47 186.69 0)
+			(at 350.52 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26484,8 +26555,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.47 186.69 0)
+		(property "Description" "quad 2-input NAND gate"
+			(at 350.52 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26588,7 +26659,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "EPROM 1Mbit (128k x 8bit) JEDEC pin out"
 			(at 241.3 55.88 0)
 			(effects
 				(font
@@ -26704,7 +26775,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS74")
-		(at 67.31 163.83 0)
+		(at 67.31 180.34 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26713,7 +26784,7 @@
 		(fields_autoplaced yes)
 		(uuid "67c31211-3822-45ff-b8df-e59bf407f900")
 		(property "Reference" "IC82"
-			(at 69.5041 153.67 0)
+			(at 69.5041 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26722,7 +26793,7 @@
 			)
 		)
 		(property "Value" "74LS74"
-			(at 69.5041 156.21 0)
+			(at 69.5041 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26731,7 +26802,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 67.31 163.83 0)
+			(at 67.31 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26740,7 +26811,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74hc_hct74.pdf"
-			(at 67.31 163.83 0)
+			(at 67.31 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26749,7 +26820,7 @@
 			)
 		)
 		(property "Description" "Dual D Flip-flop, Set & Reset"
-			(at 67.31 163.83 0)
+			(at 67.31 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26851,7 +26922,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 238.76 204.47 0)
 			(effects
 				(font
@@ -26913,7 +26984,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS00")
-		(at 346.71 163.83 0)
+		(at 365.76 198.12 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26921,7 +26992,7 @@
 		(dnp no)
 		(uuid "6ea63c01-c78b-4358-8d08-ed465144dd17")
 		(property "Reference" "IC37"
-			(at 346.71 162.56 0)
+			(at 365.76 196.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26929,7 +27000,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 346.71 165.1 0)
+			(at 365.76 199.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26937,7 +27008,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 346.71 163.83 0)
+			(at 365.76 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26946,7 +27017,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 346.71 163.83 0)
+			(at 365.76 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26954,8 +27025,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 346.71 163.83 0)
+		(property "Description" "quad 2-input NAND gate"
+			(at 365.76 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27016,7 +27087,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 54.61 151.13 0)
+		(at 54.61 162.56 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -27025,7 +27096,7 @@
 		(dnp no)
 		(uuid "6ead6d88-dae0-407d-aab0-3371eb5cff99")
 		(property "Reference" "CFIX"
-			(at 57.15 152.4 0)
+			(at 57.15 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27034,7 +27105,7 @@
 			)
 		)
 		(property "Value" "33u"
-			(at 57.15 149.86 0)
+			(at 57.15 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27043,7 +27114,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 55.5752 147.32 0)
+			(at 55.5752 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27052,7 +27123,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 54.61 151.13 0)
+			(at 54.61 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27060,8 +27131,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 54.61 151.13 0)
+		(property "Description" "Unpolarized capacitor"
+			(at 54.61 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27127,7 +27198,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit Bus Buffer 3-State outputs"
 			(at 189.23 41.91 0)
 			(effects
 				(font
@@ -27207,7 +27278,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 331.47 124.46 0)
+		(at 110.49 275.59 0)
 		(unit 2)
 		(convert 2)
 		(exclude_from_sim no)
@@ -27216,7 +27287,7 @@
 		(dnp no)
 		(uuid "7d580be7-ca46-4c8b-b841-de9ceb3744c6")
 		(property "Reference" "IC18"
-			(at 331.47 123.19 0)
+			(at 110.49 274.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27224,7 +27295,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 331.47 125.73 0)
+			(at 110.49 276.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27232,7 +27303,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 124.46 0)
+			(at 110.49 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27241,7 +27312,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 331.47 124.46 0)
+			(at 110.49 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27249,8 +27320,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.47 124.46 0)
+		(property "Description" "Quad 2-input OR"
+			(at 110.49 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27353,7 +27424,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 238.76 233.68 0)
 			(effects
 				(font
@@ -27415,7 +27486,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS10")
-		(at 331.47 90.17 0)
+		(at 110.49 241.3 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27423,7 +27494,7 @@
 		(dnp no)
 		(uuid "8764facf-88c9-4deb-b9e0-f87bfcc74a03")
 		(property "Reference" "IC17"
-			(at 331.47 88.9 0)
+			(at 110.49 240.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27431,7 +27502,7 @@
 			)
 		)
 		(property "Value" "74LS10"
-			(at 331.47 91.44 0)
+			(at 110.49 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27439,7 +27510,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 90.17 0)
+			(at 110.49 241.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27448,7 +27519,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS10"
-			(at 331.47 90.17 0)
+			(at 110.49 241.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27457,7 +27528,7 @@
 			)
 		)
 		(property "Description" "Triple 3-input NAND"
-			(at 331.47 90.17 0)
+			(at 110.49 241.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27560,7 +27631,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "EPROM 1Mbit (128k x 8bit) JEDEC pin out"
 			(at 280.67 55.88 0)
 			(effects
 				(font
@@ -27676,7 +27747,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS05")
-		(at 381 100.33 0)
+		(at 133.35 252.73 0)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27684,7 +27755,7 @@
 		(dnp no)
 		(uuid "8abb6b8c-79fc-41d0-bc51-929aa1bcfc07")
 		(property "Reference" "IC72"
-			(at 381 99.06 0)
+			(at 133.35 251.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27692,7 +27763,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 381 101.6 0)
+			(at 133.35 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27700,7 +27771,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 381 100.33 0)
+			(at 133.35 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27709,7 +27780,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 381 100.33 0)
+			(at 133.35 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27718,7 +27789,7 @@
 			)
 		)
 		(property "Description" "Inverter Open Collect"
-			(at 381 100.33 0)
+			(at 133.35 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27882,7 +27953,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS30")
-		(at 331.47 156.21 0)
+		(at 350.52 190.5 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27890,7 +27961,7 @@
 		(dnp no)
 		(uuid "90509941-a51e-4727-a85a-3fd7eecc902b")
 		(property "Reference" "IC36"
-			(at 331.47 154.94 0)
+			(at 350.52 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27898,7 +27969,7 @@
 			)
 		)
 		(property "Value" "74LS30"
-			(at 331.47 157.48 0)
+			(at 350.52 191.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27906,7 +27977,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 156.21 0)
+			(at 350.52 190.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27915,7 +27986,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS30"
-			(at 331.47 156.21 0)
+			(at 350.52 190.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27923,8 +27994,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.47 156.21 0)
+		(property "Description" "8-input NAND"
+			(at 350.52 190.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28079,7 +28150,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS174")
-		(at 285.75 106.68 0)
+		(at 332.74 127 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28087,7 +28158,7 @@
 		(dnp no)
 		(uuid "a407858d-e41d-45d8-a3a1-05222476af19")
 		(property "Reference" "IC67"
-			(at 285.75 96.52 0)
+			(at 332.74 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28095,7 +28166,7 @@
 			)
 		)
 		(property "Value" "74LS174"
-			(at 288.29 120.65 0)
+			(at 335.28 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28103,7 +28174,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 285.75 106.68 0)
+			(at 332.74 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28112,7 +28183,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS174"
-			(at 287.02 125.73 0)
+			(at 334.01 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28121,7 +28192,7 @@
 			)
 		)
 		(property "Description" "Hex D-type Flip-Flop, reset"
-			(at 285.75 106.68 0)
+			(at 332.74 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28188,7 +28259,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS10")
-		(at 331.47 171.45 0)
+		(at 350.52 205.74 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28196,7 +28267,7 @@
 		(dnp no)
 		(uuid "a7b76439-9a37-4f56-b1f1-3b42386cba0c")
 		(property "Reference" "IC25"
-			(at 331.47 170.18 0)
+			(at 350.52 204.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28204,7 +28275,7 @@
 			)
 		)
 		(property "Value" "74LS10"
-			(at 331.47 172.72 0)
+			(at 350.52 207.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28212,7 +28283,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 171.45 0)
+			(at 350.52 205.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28221,7 +28292,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS10"
-			(at 331.47 171.45 0)
+			(at 350.52 205.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28229,8 +28300,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.47 171.45 0)
+		(property "Description" "Triple 3-input NAND"
+			(at 350.52 205.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28334,7 +28405,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 217.17 236.22 0)
 			(effects
 				(font
@@ -28396,7 +28467,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS00")
-		(at 331.47 113.03 0)
+		(at 110.49 264.16 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28404,7 +28475,7 @@
 		(dnp no)
 		(uuid "ab208313-ecdd-4993-9db8-63bb4f8d4efb")
 		(property "Reference" "IC1"
-			(at 331.47 111.76 0)
+			(at 110.49 262.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28412,7 +28483,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 331.47 114.3 0)
+			(at 110.49 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28420,7 +28491,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 113.03 0)
+			(at 110.49 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28429,7 +28500,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 331.47 113.03 0)
+			(at 110.49 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28438,7 +28509,7 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
-			(at 331.47 113.03 0)
+			(at 110.49 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28499,7 +28570,7 @@
 	)
 	(symbol
 		(lib_id "Oscillator:TG2520SMN-xx.xxxxxxMhz-xxxxNM")
-		(at 38.1 163.83 0)
+		(at 38.1 180.34 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -28508,7 +28579,7 @@
 		(fields_autoplaced yes)
 		(uuid "ac543ccd-434b-48d2-868b-507cebf2d0b9")
 		(property "Reference" "X3"
-			(at 31.75 162.5599 0)
+			(at 31.75 179.0699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28517,7 +28588,7 @@
 			)
 		)
 		(property "Value" "20.000MHz"
-			(at 31.75 165.0999 0)
+			(at 31.75 181.6099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28526,7 +28597,7 @@
 			)
 		)
 		(property "Footprint" "Oscillator:Oscillator_SMD_SeikoEpson_TG2520SMN-xxx-xxxxxx-4Pin_2.5x2.0mm"
-			(at 49.53 172.72 0)
+			(at 49.53 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28535,7 +28606,7 @@
 			)
 		)
 		(property "Datasheet" "https://support.epson.biz/td/api/doc_check.php?dl=app_TG2520SMN&lang=en"
-			(at 35.56 163.83 0)
+			(at 35.56 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28544,7 +28615,7 @@
 			)
 		)
 		(property "Description" "Crystal Oscillator Low Profile / High Stability TCXO"
-			(at 38.1 163.83 0)
+			(at 38.1 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28618,7 +28689,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 55.88 270.51 0)
 			(effects
 				(font
@@ -28891,7 +28962,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit Bus Buffer 3-State outputs"
 			(at 189.23 78.74 0)
 			(effects
 				(font
@@ -28971,7 +29042,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 298.45 153.67 0)
+		(at 317.5 187.96 0)
 		(unit 2)
 		(convert 2)
 		(exclude_from_sim no)
@@ -28980,7 +29051,7 @@
 		(dnp no)
 		(uuid "bacb70e1-29cf-48b5-ae8a-4fd9d92caf00")
 		(property "Reference" "IC59"
-			(at 298.45 152.4 0)
+			(at 317.5 186.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28988,7 +29059,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 298.45 154.94 0)
+			(at 317.5 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28996,7 +29067,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 298.45 153.67 0)
+			(at 317.5 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29005,7 +29076,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 298.45 153.67 0)
+			(at 317.5 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29013,8 +29084,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 298.45 153.67 0)
+		(property "Description" "Quad 2-input OR"
+			(at 317.5 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29075,7 +29146,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS00")
-		(at 331.47 101.6 0)
+		(at 110.49 252.73 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29083,7 +29154,7 @@
 		(dnp no)
 		(uuid "bf1d56fb-0527-4fc2-ade6-2e135487de73")
 		(property "Reference" "IC1"
-			(at 331.47 100.33 0)
+			(at 110.49 251.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29091,7 +29162,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 331.47 102.87 0)
+			(at 110.49 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29099,7 +29170,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 101.6 0)
+			(at 110.49 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29108,7 +29179,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 331.47 101.6 0)
+			(at 110.49 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29117,7 +29188,7 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
-			(at 331.47 101.6 0)
+			(at 110.49 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29348,7 +29419,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 67.31 179.07 180)
+		(at 67.31 195.58 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29356,7 +29427,7 @@
 		(dnp no)
 		(uuid "c5f93888-5795-4b14-8cf8-b87beb922468")
 		(property "Reference" "C61"
-			(at 64.77 180.34 0)
+			(at 64.77 196.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29365,7 +29436,7 @@
 			)
 		)
 		(property "Value" "25V"
-			(at 64.77 177.8 0)
+			(at 64.77 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29374,7 +29445,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 66.3448 175.26 0)
+			(at 66.3448 191.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29383,7 +29454,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 67.31 179.07 0)
+			(at 67.31 195.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29391,8 +29462,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 67.31 179.07 0)
+		(property "Description" "Unpolarized capacitor"
+			(at 67.31 195.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29417,7 +29488,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS00")
-		(at 331.47 209.55 0)
+		(at 350.52 243.84 0)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29425,7 +29496,7 @@
 		(dnp no)
 		(uuid "c8e42d36-2ff1-4007-97a9-a4bc6c133cd4")
 		(property "Reference" "IC1"
-			(at 331.47 208.28 0)
+			(at 350.52 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29433,7 +29504,7 @@
 			)
 		)
 		(property "Value" "74LS00"
-			(at 331.47 210.82 0)
+			(at 350.52 245.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29441,7 +29512,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 331.47 209.55 0)
+			(at 350.52 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29450,7 +29521,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls00"
-			(at 331.47 209.55 0)
+			(at 350.52 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29459,7 +29530,7 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
-			(at 331.47 209.55 0)
+			(at 350.52 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29520,7 +29591,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS138")
-		(at 241.3 104.14 0)
+		(at 288.29 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29528,7 +29599,7 @@
 		(dnp no)
 		(uuid "c9c92ca9-10dd-4a50-983c-cc43abcec389")
 		(property "Reference" "IC50"
-			(at 241.3 95.25 0)
+			(at 288.29 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29536,7 +29607,7 @@
 			)
 		)
 		(property "Value" "74LS138"
-			(at 241.3 115.57 0)
+			(at 288.29 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29544,7 +29615,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 241.3 104.14 0)
+			(at 288.29 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29553,7 +29624,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS138"
-			(at 241.3 104.14 0)
+			(at 288.29 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29562,7 +29633,7 @@
 			)
 		)
 		(property "Description" "Decoder 3 to 8 active low outputs"
-			(at 241.3 104.14 0)
+			(at 288.29 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29664,7 +29735,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 189.23 147.32 0)
 			(effects
 				(font
@@ -29841,7 +29912,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS05")
-		(at 381 111.76 0)
+		(at 133.35 264.16 0)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29849,7 +29920,7 @@
 		(dnp no)
 		(uuid "d5c616db-999d-4fb8-a47f-80b428060b4f")
 		(property "Reference" "IC72"
-			(at 381 110.49 0)
+			(at 133.35 262.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29857,7 +29928,7 @@
 			)
 		)
 		(property "Value" "74LS05"
-			(at 381 113.03 0)
+			(at 133.35 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29865,7 +29936,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 381 111.76 0)
+			(at 133.35 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29874,7 +29945,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS05"
-			(at 381 111.76 0)
+			(at 133.35 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29883,7 +29954,7 @@
 			)
 		)
 		(property "Description" "Inverter Open Collect"
-			(at 381 111.76 0)
+			(at 133.35 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29944,7 +30015,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS32")
-		(at 298.45 163.83 0)
+		(at 317.5 198.12 0)
 		(mirror x)
 		(unit 3)
 		(convert 2)
@@ -29954,7 +30025,7 @@
 		(dnp no)
 		(uuid "d691c51a-df50-4311-a9ec-4fc50ad27d4b")
 		(property "Reference" "IC59"
-			(at 298.45 162.56 0)
+			(at 317.5 196.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29962,7 +30033,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 298.45 165.1 0)
+			(at 317.5 199.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29970,7 +30041,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 298.45 163.83 0)
+			(at 317.5 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29979,7 +30050,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 298.45 163.83 0)
+			(at 317.5 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29987,8 +30058,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 298.45 163.83 0)
+		(property "Description" "Quad 2-input OR"
+			(at 317.5 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30091,7 +30162,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 80.01 77.47 0)
 			(effects
 				(font
@@ -30197,7 +30268,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "16/32-bit Microprocessor"
 			(at 118.11 85.09 0)
 			(effects
 				(font
@@ -30409,7 +30480,7 @@
 	)
 	(symbol
 		(lib_id "74xx:74LS04")
-		(at 21.59 250.19 0)
+		(at 133.35 232.41 0)
 		(mirror x)
 		(unit 6)
 		(exclude_from_sim no)
@@ -30418,7 +30489,7 @@
 		(dnp no)
 		(uuid "df34ed7a-ece0-4d8e-a864-3a003bff07e8")
 		(property "Reference" "IC64"
-			(at 21.59 250.19 0)
+			(at 133.35 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30426,7 +30497,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 21.59 251.46 0)
+			(at 133.35 233.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30435,7 +30506,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 21.59 250.19 0)
+			(at 133.35 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30444,7 +30515,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 21.59 250.19 0)
+			(at 133.35 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30452,8 +30523,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 21.59 250.19 0)
+		(property "Description" "Hex Inverter"
+			(at 133.35 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30557,7 +30628,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 38.1 36.83 0)
 			(effects
 				(font
@@ -30660,7 +30731,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 189.23 181.61 0)
 			(effects
 				(font
@@ -30775,7 +30846,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Triple 3-input NAND"
 			(at 64.77 74.93 0)
 			(effects
 				(font
@@ -30981,7 +31052,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "SRAM 64kbit (8192-word x 8-bit)"
 			(at 318.77 50.8 0)
 			(effects
 				(font
@@ -31085,7 +31156,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 49.53 151.13 180)
+		(at 49.53 162.56 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -31093,7 +31164,7 @@
 		(dnp no)
 		(uuid "f1a94a21-8286-4f5c-861f-363f6907d96b")
 		(property "Reference" "RFIX"
-			(at 41.91 149.86 0)
+			(at 41.91 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31102,7 +31173,7 @@
 			)
 		)
 		(property "Value" "47±1%"
-			(at 40.64 152.4 0)
+			(at 40.64 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31111,7 +31182,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 48.514 150.876 90)
+			(at 48.514 162.306 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31120,7 +31191,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 49.53 151.13 0)
+			(at 49.53 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31128,8 +31199,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 49.53 151.13 0)
+		(property "Description" "Resistor, US symbol"
+			(at 49.53 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31154,7 +31225,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS04")
-		(at 313.69 186.69 0)
+		(at 332.74 220.98 0)
 		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
@@ -31163,7 +31234,7 @@
 		(dnp no)
 		(uuid "fc68226d-3607-40c8-aa27-9a66ba8e34bd")
 		(property "Reference" "IC72"
-			(at 309.88 185.42 0)
+			(at 328.93 219.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31172,7 +31243,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 313.69 187.96 0)
+			(at 332.74 222.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31180,7 +31251,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 313.69 186.69 0)
+			(at 332.74 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31189,7 +31260,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 313.69 186.69 0)
+			(at 332.74 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -31198,7 +31269,7 @@
 			)
 		)
 		(property "Description" "Hex Inverter"
-			(at 313.69 186.69 0)
+			(at 332.74 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)

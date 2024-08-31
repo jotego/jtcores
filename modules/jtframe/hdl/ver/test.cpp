@@ -207,6 +207,9 @@ public:
 #ifdef _JTFRAME_JOY_DURL
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
 #endif
+#ifdef _JTFRAME_JOY_DULR
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | (v&3);
+#endif
 #ifdef _JTFRAME_JOY_UDRL
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
 #endif

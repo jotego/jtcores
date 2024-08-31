@@ -25,6 +25,7 @@ module jtwwfss_sound(
     input                cen_oki,
 
     // Interface with main CPU
+    input                snd_on,
     input         [ 7:0] snd_latch,
 
     // ROM
@@ -48,7 +49,7 @@ reg         [ 7:0] din;
 wire        [ 7:0] ram_dout, dout, oki_dout, fm_dout;
 wire        [15:0] A;
 reg                fm_cs, ram_cs, oki_cs, latch_cs;
-wire               iorq_n, m1_n, mreq_n, int_n, oki_wrn, rd_n, wr_n;
+wire               iorq_n, m1_n, mreq_n, int_n, oki_wrn, rd_n, wr_n, nmi_n;
 
 assign pcm_cs   = 1'b1;
 assign oki_wrn  = ~(oki_cs & ~wr_n);
@@ -74,6 +75,14 @@ always @(posedge clk) begin
            oki_cs   ? oki_dout  :
            latch_cs ? snd_latch : 8'h0
 end
+
+jtframe_edge #(.QSET(0)) u_edge(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( snd_on    ),
+    .clr    ( latch_cs  ),
+    .q      ( nmi_n     )
+);
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rst_n      ( ~rst        ),

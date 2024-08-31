@@ -4,353 +4,10 @@
 	(generator_version "8.0")
 	(uuid "e0b29eb4-0ef0-4aa6-bd77-9fb275c30910")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
 	(lib_symbols
-		(symbol "74LS157_1"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 5.08 16.51 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "74LS157"
-				(at 0 -16.51 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.alldatasheet.com/datasheet-pdf/pdf/27402/TI/74LS157.html"
-				(at 0 -19.05 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Quad 2 to 1 line Multiplexer"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "TTL MUX MUX2"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "DIP?16*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "74LS157_1_0_0"
-				(text "Quad Mux"
-					(at 0 13.97 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(symbol "74LS157_1_1_0"
-				(pin input line
-					(at -12.7 -11.43 0)
-					(length 5.08)
-					(name "SEL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 -5.08 0)
-					(length 5.08)
-					(name "I1c"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 7.62 0)
-					(length 5.08)
-					(name "I0c"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 -1.27 180)
-					(length 5.08)
-					(name "Zd"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 -7.62 0)
-					(length 5.08)
-					(name "I1d"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 5.08 0)
-					(length 5.08)
-					(name "I0d"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input inverted
-					(at -12.7 -13.97 0)
-					(length 5.08)
-					(name "~{G}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 12.7 0)
-					(length 5.08)
-					(name "I0a"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 0 0)
-					(length 5.08)
-					(name "I1a"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 6.35 180)
-					(length 5.08)
-					(name "Za"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 10.16 0)
-					(length 5.08)
-					(name "I0b"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -12.7 -2.54 0)
-					(length 5.08)
-					(name "I1b"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 3.81 180)
-					(length 5.08)
-					(name "Zb"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 1.27 180)
-					(length 5.08)
-					(name "Zc"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(symbol "74LS157_1_1_1"
-				(rectangle
-					(start -7.62 15.24)
-					(end 7.62 -17.78)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-		)
 		(symbol "74xx:74LS00"
 			(pin_names
 				(offset 1.016)
@@ -12860,7 +12517,7 @@
 		)
 		(uuid "14b3fa14-d290-4c53-ac85-67fa5b9a67e4")
 	)
-	(hierarchical_label "IC66_11"
+	(hierarchical_label "V8"
 		(shape output)
 		(at 212.09 186.69 0)
 		(fields_autoplaced yes)
@@ -13288,7 +12945,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 111.76 209.55 0)
 			(effects
 				(font
@@ -13393,7 +13050,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 185.42 199.39 0)
 			(effects
 				(font
@@ -13498,7 +13155,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 55.88 270.51 0)
 			(effects
 				(font
@@ -13601,7 +13258,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex D-type Flip-Flop, reset"
 			(at 257.81 154.94 0)
 			(effects
 				(font
@@ -13712,7 +13369,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 33.02 270.51 0)
 			(effects
 				(font
@@ -13817,7 +13474,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 78.74 270.51 0)
 			(effects
 				(font
@@ -13922,7 +13579,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 135.89 270.51 0)
 			(effects
 				(font
@@ -14025,7 +13682,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit D Flip-Flop, reset"
 			(at 313.69 157.48 0)
 			(effects
 				(font
@@ -14142,7 +13799,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 67.31 270.51 0)
 			(effects
 				(font
@@ -14348,7 +14005,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex D-type Flip-Flop, reset"
 			(at 257.81 119.38 0)
 			(effects
 				(font
@@ -14457,7 +14114,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit D Flip-Flop, reset"
 			(at 257.81 83.82 0)
 			(effects
 				(font
@@ -14574,7 +14231,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 153.67 201.93 0)
 			(effects
 				(font
@@ -14679,7 +14336,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Triple 3-input NAND"
 			(at 101.6 270.51 0)
 			(effects
 				(font
@@ -14782,7 +14439,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 171.45 83.82 0)
 			(effects
 				(font
@@ -14899,7 +14556,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Triple 3-input NAND"
 			(at 21.59 270.51 0)
 			(effects
 				(font
@@ -15003,7 +14660,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Triple 3-input NAND"
 			(at 223.52 193.04 0)
 			(effects
 				(font
@@ -15106,7 +14763,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 223.52 201.93 0)
 			(effects
 				(font
@@ -15338,7 +14995,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 200.66 190.5 0)
 			(effects
 				(font
@@ -15441,7 +15098,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit D Flip-Flop, reset"
 			(at 212.09 121.92 0)
 			(effects
 				(font
@@ -15557,7 +15214,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 111.76 172.72 0)
 			(effects
 				(font
@@ -15660,7 +15317,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 229.87 162.56 0)
 			(effects
 				(font
@@ -15764,7 +15421,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 185.42 190.5 0)
 			(effects
 				(font
@@ -15867,7 +15524,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 200.66 199.39 0)
 			(effects
 				(font
@@ -15972,7 +15629,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-input NAND"
 			(at 90.17 270.51 0)
 			(effects
 				(font
@@ -16068,7 +15725,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 130.81 201.93 0)
 			(effects
 				(font
@@ -16173,7 +15830,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 113.03 270.51 0)
 			(effects
 				(font
@@ -16234,7 +15891,6 @@
 		)
 	)
 	(symbol
-		(lib_name "74LS157_1")
 		(lib_id "jt74:74LS157")
 		(at 115.57 77.47 0)
 		(unit 1)
@@ -16279,7 +15935,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2 to 1 line Multiplexer"
 			(at 115.57 77.47 0)
 			(effects
 				(font
@@ -16382,7 +16038,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 185.42 208.28 0)
 			(effects
 				(font
@@ -16487,7 +16143,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 44.45 270.51 0)
 			(effects
 				(font
@@ -16590,7 +16246,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 109.22 195.58 0)
 			(effects
 				(font
@@ -16651,7 +16307,6 @@
 		)
 	)
 	(symbol
-		(lib_name "74LS157_1")
 		(lib_id "jt74:74LS157")
 		(at 115.57 111.76 0)
 		(unit 1)
@@ -16696,7 +16351,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2 to 1 line Multiplexer"
 			(at 115.57 111.76 0)
 			(effects
 				(font
@@ -16801,7 +16456,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 153.67 181.61 0)
 			(effects
 				(font
@@ -16905,7 +16560,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 109.22 186.69 0)
 			(effects
 				(font
@@ -17010,7 +16665,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2 to 1 line Multiplexer"
 			(at 115.57 146.05 0)
 			(effects
 				(font
@@ -17114,7 +16769,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 185.42 217.17 0)
 			(effects
 				(font

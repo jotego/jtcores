@@ -436,7 +436,7 @@ void wwfsstar_state::main_map(address_map &map)
 	map(0x180008, 0x180009).portr("SYSTEM");
 	map(0x180009, 0x180009).w(m_soundlatch, FUNC(generic_latch_8_device::write));
 	map(0x18000a, 0x18000b).w(FUNC(wwfsstar_state::flipscreen_w));
-	map(0x1c0000, 0x1c3fff).ram(); // Work RAM
+	map(0x1c0000, 0x1c3fff).ram(); // Work RAM (16kB)
 }
 
 void wwfsstar_state::sound_map(address_map &map)

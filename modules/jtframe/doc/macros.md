@@ -35,6 +35,7 @@ JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_INTERPOL2        |         | Enables a x2 FIR interpolation filter for audio. The game 'sample' output must be well defined
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
+JTFRAME_JOY_DULR         |         | Joystick lower 4 bits are:  down,  up,    left,  right
 JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, up,    down
 JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  down,  up
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)

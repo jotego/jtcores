@@ -4,6 +4,10 @@
 	(generator_version "8.0")
 	(uuid "c5fef117-7899-4c0b-b67c-0758e09af85c")
 	(paper "A3")
+	(title_block
+		(title "Bottom board")
+		(company "JOTEGO")
+	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x25_Odd_Even"
 			(pin_names
@@ -3153,7 +3157,7 @@
 		)
 		(uuid "0020627c-c03e-4f75-a4ae-3d1571a564f5")
 	)
-	(label "IC66_11"
+	(label "V8"
 		(at 49.53 196.85 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3615,7 +3619,7 @@
 		)
 		(uuid "7ebecd90-514c-4097-a0b7-0a6b185e2ef9")
 	)
-	(label "IC80_2"
+	(label "~{~{VBLANK}}"
 		(at 80.01 189.23 180)
 		(fields_autoplaced yes)
 		(effects
@@ -4110,7 +4114,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x25, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 66.04 119.38 0)
 			(effects
 				(font
@@ -4321,7 +4325,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x25, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 66.04 184.15 0)
 			(effects
 				(font
@@ -4490,8 +4494,8 @@
 		)
 	)
 	(sheet
-		(at 187.96 115.57)
-		(size 25.4 25.4)
+		(at 156.845 126.365)
+		(size 26.035 21.59)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -4500,9 +4504,9 @@
 		(fill
 			(color 0 0 0 0.0000)
 		)
-		(uuid "23495fdc-7f05-498f-911a-96b6120e59cf")
+		(uuid "35cc9afc-88f0-41c5-ae64-92beb6e5ab21")
 		(property "Sheetname" "object"
-			(at 187.96 114.8584 0)
+			(at 156.845 125.6534 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4510,8 +4514,8 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "untitled.kicad_sch"
-			(at 187.96 141.5546 0)
+		(property "Sheetfile" "object.kicad_sch"
+			(at 156.845 148.5396 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4522,7 +4526,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f"
-					(page "11")
+					(page "13")
 				)
 			)
 		)

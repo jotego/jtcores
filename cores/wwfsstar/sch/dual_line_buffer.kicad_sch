@@ -4,6 +4,10 @@
 	(generator_version "8.0")
 	(uuid "0c579745-85ad-4adc-a7aa-bdf6702fd75b")
 	(paper "A3")
+	(title_block
+		(title "Dual line buffer")
+		(company "JOTEGO")
+	)
 	(lib_symbols
 		(symbol "jt_ram:SRAM2K8B"
 			(exclude_from_sim no)
@@ -66,6 +70,14 @@
 				)
 			)
 			(symbol "SRAM2K8B_1_1"
+				(text "2kB\nRAM"
+					(at 2.54 -4.318 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 				(pin input line
 					(at -10.16 0 0)
 					(length 5.08)
@@ -503,7 +515,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 93.98) (xy 175.26 93.98)
+			(xy 180.34 92.71) (xy 175.26 92.71)
 		)
 		(stroke
 			(width 0)
@@ -533,7 +545,7 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 93.98) (xy 157.48 93.98)
+			(xy 152.4 92.71) (xy 157.48 92.71)
 		)
 		(stroke
 			(width 0)
@@ -553,7 +565,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 96.52) (xy 175.26 96.52)
+			(xy 180.34 95.25) (xy 175.26 95.25)
 		)
 		(stroke
 			(width 0)
@@ -563,7 +575,7 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 96.52) (xy 157.48 96.52)
+			(xy 152.4 95.25) (xy 157.48 95.25)
 		)
 		(stroke
 			(width 0)
@@ -582,7 +594,7 @@
 		(uuid "f7c402a5-993f-4f84-8356-1f1a8b05ccbd")
 	)
 	(label "VCC"
-		(at 180.34 93.98 180)
+		(at 180.34 92.71 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -593,7 +605,7 @@
 		(uuid "023e9112-c3b0-4845-9c3f-e1ad7c4aa21c")
 	)
 	(label "~{OE}"
-		(at 152.4 96.52 0)
+		(at 152.4 95.25 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -637,7 +649,7 @@
 		(uuid "aa7c3131-8dbd-4751-8f44-9e2ef39392e8")
 	)
 	(label "VSS"
-		(at 180.34 96.52 180)
+		(at 180.34 95.25 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -648,7 +660,7 @@
 		(uuid "c98264e3-86b7-48f6-97a1-9daeda52a0b2")
 	)
 	(label "~{CS}"
-		(at 152.4 93.98 0)
+		(at 152.4 92.71 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -796,7 +808,7 @@
 		)
 		(instances
 			(project ""
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/23495fdc-7f05-498f-911a-96b6120e59cf/2bd88400-dcec-4e92-9000-bb847eca835a"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/35cc9afc-88f0-41c5-ae64-92beb6e5ab21/0369dded-6695-4fd2-ac1e-b6c28a4a33e1"
 					(reference "IC45")
 					(unit 1)
 				)
@@ -805,7 +817,7 @@
 	)
 	(symbol
 		(lib_id "jt_ram:SRAM2K8B")
-		(at 167.64 81.28 0)
+		(at 167.64 80.01 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -814,7 +826,7 @@
 		(fields_autoplaced yes)
 		(uuid "f85d7131-c1e7-4a71-883a-965fafa993ca")
 		(property "Reference" "IC48"
-			(at 167.64 55.88 0)
+			(at 167.64 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -822,7 +834,7 @@
 			)
 		)
 		(property "Value" "SRAM2K8B"
-			(at 167.64 58.42 0)
+			(at 167.64 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -830,7 +842,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 171.45 59.69 0)
+			(at 171.45 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -839,7 +851,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheetspdf.com/datasheet/MCM2128.html"
-			(at 167.64 102.87 0)
+			(at 167.64 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -848,7 +860,7 @@
 			)
 		)
 		(property "Description" "SRAM 16kbit (2048-word x 8-bit)"
-			(at 167.64 81.28 0)
+			(at 167.64 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -930,7 +942,7 @@
 		)
 		(instances
 			(project "wwfsstar"
-				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/23495fdc-7f05-498f-911a-96b6120e59cf/2bd88400-dcec-4e92-9000-bb847eca835a"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/35cc9afc-88f0-41c5-ae64-92beb6e5ab21/0369dded-6695-4fd2-ac1e-b6c28a4a33e1"
 					(reference "IC48")
 					(unit 1)
 				)

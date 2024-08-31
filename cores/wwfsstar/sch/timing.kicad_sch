@@ -4,6 +4,9 @@
 	(generator_version "8.0")
 	(uuid "12520104-d321-47b7-801b-0444489e847a")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
 	(lib_symbols
 		(symbol "Device:Crystal_GND24"
 			(pin_names

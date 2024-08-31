@@ -20,7 +20,51 @@ module jtwwfss_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [7:0] snd_latch;
+wire [ 7:0] snd_latch;
+wire        snd_on;
+
+jtwwfss_main u_main(
+    .rst        ( rst       ),
+    .clk        ( clk       ), // 48 MHz
+    .LVBL       ( LVBL      ),
+
+    output        [18:1] main_addr,
+    output        [ 1:0] main_dsn,
+    output        [15:0] main_dout,
+    output               main_rnw,
+
+    output reg           fix_cs,
+    output reg           scr_cs,
+    output reg           pal_cs,
+    output reg           obj_cs,
+
+    input         [15:0] fix_dout,
+    input         [15:0] scr_dout,
+    input         [15:0] obj_dout,
+    input         [15:0] pal_dout,
+
+    output reg           ram_cs,
+    input                ram_ok,
+    input         [15:0] ram_dout,
+
+    output reg           rom_cs,
+    input                rom_ok,
+    input         [15:0] rom_data,
+
+    // Sound interface
+    .snd_on     ( snd_on        ),
+    .snd_latch  ( snd_latch     ),
+
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .dip_test   ( dip_test      ),
+    .dip_pause  ( dip_pause     ),
+    .dipsw_a    ( dipsw[ 7:0]   ),
+    .dipsw_b    ( dipsw[15:8]   )
+);
 
 jtwwfss_sound u_sound(
     .rst        ( rst       ),
@@ -31,6 +75,7 @@ jtwwfss_sound u_sound(
     .cen_oki    ( cen_oki   ),
 
     // Interface with main CPU
+    .snd_on     ( snd_on    ),
     .snd_latch  ( snd_latch ),
 
     // ROM
