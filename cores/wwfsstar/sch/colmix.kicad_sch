@@ -12273,7 +12273,6 @@
 		)
 	)
 	(symbol
-		(lib_name "jt74:74LS25")
 		(lib_id "jt74:74LS25")
 		(at 118.11 177.8 0)
 		(unit 1)

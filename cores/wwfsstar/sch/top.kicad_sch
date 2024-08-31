@@ -4357,7 +4357,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 111.76) (xy 233.68 111.76)
+			(xy 223.52 106.68) (xy 233.68 106.68)
 		)
 		(stroke
 			(width 0)
@@ -4687,6 +4687,16 @@
 	)
 	(wire
 		(pts
+			(xy 223.52 115.57) (xy 233.68 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4019b849-f1ed-4506-9405-72f84d95e0c2")
+	)
+	(wire
+		(pts
 			(xy 223.52 198.12) (xy 233.68 198.12)
 		)
 		(stroke
@@ -4777,7 +4787,7 @@
 	)
 	(wire
 		(pts
-			(xy 223.52 114.3) (xy 233.68 114.3)
+			(xy 223.52 109.22) (xy 233.68 109.22)
 		)
 		(stroke
 			(width 0)
@@ -5895,6 +5905,16 @@
 		)
 		(uuid "9d71582a-4e16-4516-9cd7-5acb587d9f23")
 	)
+	(wire
+		(pts
+			(xy 223.52 113.03) (xy 233.68 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ddeb2dc-e340-46a4-a866-47ea097dce0b")
+	)
 	(bus
 		(pts
 			(xy 49.53 128.27) (xy 49.53 130.81)
@@ -6137,6 +6157,16 @@
 	)
 	(wire
 		(pts
+			(xy 393.7 156.21) (xy 384.81 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aac45e9c-cc6d-4d84-b34b-b7b9c96fc452")
+	)
+	(wire
+		(pts
 			(xy 349.25 109.22) (xy 342.9 109.22)
 		)
 		(stroke
@@ -6204,6 +6234,16 @@
 			(type default)
 		)
 		(uuid "b10ed870-1923-4fa2-8a23-5af0015896d9")
+	)
+	(wire
+		(pts
+			(xy 340.36 156.21) (xy 349.25 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1ba6747-1aad-49c1-9183-1c3c195d3803")
 	)
 	(bus
 		(pts
@@ -7772,7 +7812,7 @@
 		(uuid "362f51f3-abdf-4a62-b7bf-fbef306f191f")
 	)
 	(label "SERVICE"
-		(at 223.52 114.3 0)
+		(at 223.52 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7935,6 +7975,17 @@
 			(justify left bottom)
 		)
 		(uuid "49c9cc02-aa70-4bc5-936f-ae71d06bb8c1")
+	)
+	(label "1P_BTN_3"
+		(at 340.36 156.21 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4b75ae03-d094-46a5-a4d9-cf5f671f33c4")
 	)
 	(label "IC28_~{CE}"
 		(at 218.44 83.82 180)
@@ -8442,6 +8493,17 @@
 		)
 		(uuid "7d99fce3-7382-400b-aa04-c4af81b43d61")
 	)
+	(label "1P_BTN_3"
+		(at 223.52 113.03 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7f4b6214-2892-42ee-a2d0-762ab5451bf1")
+	)
 	(label "OBJPXL2"
 		(at 52.07 118.11 0)
 		(fields_autoplaced yes)
@@ -8520,7 +8582,7 @@
 		(uuid "8461ffa1-84a5-4673-8f4d-7b412073ebb4")
 	)
 	(label "~{~{VBLANK}}"
-		(at 223.52 111.76 0)
+		(at 223.52 106.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8673,6 +8735,17 @@
 		)
 		(uuid "9ea6bfb8-6a67-4f0a-88d4-0033419a208b")
 	)
+	(label "2P_BTN_3"
+		(at 223.52 115.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9f66078e-0fd3-4904-9294-ed563c54a789")
+	)
 	(label "1P_RIGHT"
 		(at 223.52 63.5 0)
 		(fields_autoplaced yes)
@@ -8683,6 +8756,17 @@
 			(justify left bottom)
 		)
 		(uuid "a1e3cf02-a508-4447-ab81-26a20e5563c0")
+	)
+	(label "2P_BTN_3"
+		(at 393.7 156.21 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a365cdf6-c019-40db-b604-0748138df542")
 	)
 	(label "OBJPXL[0..6]"
 		(at 118.11 194.31 0)
@@ -11392,7 +11476,7 @@
 			)
 		)
 		(pin "~{~{VBLANK}}" input
-			(at 233.68 111.76 180)
+			(at 233.68 106.68 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11492,7 +11576,7 @@
 			(uuid "c95da9fb-ae52-4d58-ab9d-9e4355150034")
 		)
 		(pin "SERVICE" input
-			(at 233.68 114.3 180)
+			(at 233.68 109.22 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11690,6 +11774,26 @@
 				(justify left)
 			)
 			(uuid "23849d67-e4d8-418d-b9a8-16af88137072")
+		)
+		(pin "1P_BTN_3" input
+			(at 233.68 113.03 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "22e80989-fa10-4760-b8bf-52ab2e14af4d")
+		)
+		(pin "2P_BTN_3" input
+			(at 233.68 115.57 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "16c26eb0-4f9f-45b1-a1f3-0c316cb46b51")
 		)
 		(instances
 			(project "wwfsstar"
