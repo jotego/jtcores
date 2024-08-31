@@ -52,8 +52,6 @@ usage: jtcore <corename> [options]
 
     --corestamp     Sets the date string attached to the RBF file name. Defaults to today
     --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
-    --force | -f    Forces --git even if it is not clean.
-    --git           Output to $JTBIN. Defines JTFRAME_RELEASE
     -mrq            Compiles MiSTer with no HDMI nor logo but with sound
     --mrpasswd      Sets the SSH pasword to use on MiSTer
     --nodbg         Defines JTFRAME_RELEASE
@@ -80,8 +78,6 @@ EOF
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
-FORCE=
-GIT=FALSE
 MACROS=
 OUTPUTDIR=output_files
 PRJ=
@@ -137,26 +133,21 @@ function parse_args {
                     MACROS="$1 $MACROS"
                 fi
                 ;;
-            --force|-f) FORCE=TRUE;;
-            --git|-g) GIT=TRUE; MACROS="$MACROS JTFRAME_RELEASE";;
             --prog|-p) PROG=TRUE;;
             --prog-only | -w)
                 PROG=TRUE
                 SKIP_COMPILE=TRUE;;
             --quick|-q)
                 MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE;;
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             -qs)
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE;;
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             --skip | -s) SKIP_COMPILE=TRUE;;
             --quicker|-qq)
                 MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                TARGET=mister
-                GIT=FALSE;;
+                TARGET=mister;;
             -mr)
                 TARGET=mister;;
             --mrpasswd)
@@ -166,7 +157,6 @@ function parse_args {
             -mrq)
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE
                 TARGET=mister;;
             --nodbg)      MACROS="$MACROS JTFRAME_RELEASE=1";;
             --nosta)      SKIPTIMING=1;;
@@ -261,13 +251,6 @@ if is_dirty; then
     PRJCOMMIT="$(git rev-parse --short HEAD)-dirty"
 else
     PRJCOMMIT=`version_ok.sh`
-    if [[ $? != 0 && $GIT = TRUE ]]; then
-        cat << EOF
-Error: cannot use --git if there is no version tag for the commit
-Create the first version tag manually. Use jtmerge to create the tags after that
-EOF
-        exit 1
-    fi
 fi
 
 if [ "$VERBOSE" = -v ]; then echo "Using version tag $PRJCOMMIT"; fi
@@ -306,25 +289,9 @@ if [ -e $CORES/$PRJ/cfg/skip ]; then
     exit 0
 fi
 
-if [ $GIT = TRUE ]; then
-    is_dirty
-    if [[ $? = 0 && -z "$FORCE" ]]; then
-        echo "Error: cannot use -git if git isn't clean. Commit and try again"
-        git status --short
-        exit 1
-    fi
-    if [ ! -z $VERBOSE ]; then echo "Using $JTBIN as JTBIN"; fi
-else
-    # Use the local release folder
-    if [ ! -z $VERBOSE ]; then echo "Using 'release' as JTBIN"; fi
-    export JTBIN=$JTROOT/release
-    mkdir -p $JTBIN
-fi
-
-if [[ -z "$JTBIN" || ! -d "$JTBIN" ]]; then
-    echo "JTBIN ($JTBIN) is not valid"
-    exit 1
-fi
+# Use the local release folder
+export JTBIN=$JTROOT/release
+mkdir -p $JTBIN
 
 OUTPUTDIR=output_files
 
@@ -653,8 +620,8 @@ if [ $TARGET = pocket ]; then
     RBF=${RBF}_r
 fi
 
-# Copy to JTBIN  if --git is set
-if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
+# Copy to JTBIN
+if [[ "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
     BINFOLDER=$JTBIN/$TARGET
     if [ $TARGET = pocket ]; then
@@ -663,12 +630,8 @@ if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
     BINRBF=$BINFOLDER/$corename.$EXT
     mkdir -p $(dirname $BINRBF)
     cp -v $RBF $BINRBF || exit 1
-
-    cd $JTBIN
-    printf "%-12s %-12s %-24s %s\n" ${PRJ} ${TARGET} `date +%Y-%m-%d` $PRJCOMMIT >> $JTBIN/version.log
-    cd - > /dev/null
 elif [ ! -z "$VERBOSE" ]; then
-    echo "Skipping copy to JTBIN or release"
+    echo "Skipping copy to release"
 fi
 rm -f $corename.rbf
 
