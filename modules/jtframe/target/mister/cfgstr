@@ -1,4 +1,4 @@
-J{{.CORENAME}};;
+{{.CORENAME}};;
 {{ if .JTFRAME_OSD_LOAD }}          F,rom;                    {{ end }}
 {{ if .JTFRAME_CART_OFFSET }}       F4,ngpngc;                {{ end }}
 {{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}

@@ -132,6 +132,7 @@ find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uni
 find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
 jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
 comm -3 pocket.cores mister.cores > other.cores
+sed -i '/neogeopocket/d' other.cores
 if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
 	# cat other.cores
 	jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores` --nodbg
