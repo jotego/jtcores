@@ -29,13 +29,14 @@ module jtwwfss_main(
 
     output        [ 1:0] cram_we,
     output        [ 1:0] scr_we,
-    output reg    [ 1:0] pal_wen,
-    output reg           oram_cs,
+    output        [ 1:0] oram_we,
+    output        [ 1:0] pal_wen,
 
     input         [15:0] fix_dout,
     input         [15:0] scr_dout,
     input         [15:0] oram_dout,
     input         [15:0] pal_dout,
+    output reg    [ 8:0] scrx, scry,
 
     output reg           ram_cs,
     input                ram_ok,
@@ -54,7 +55,6 @@ module jtwwfss_main(
     input         [ 1:0] cab_1p,
     input         [ 1:0] coin,
     input                service,
-    input                dip_test,
     input                dip_pause,
     input         [ 7:0] dipsw_a,
     input         [ 7:0] dipsw_b
@@ -64,7 +64,7 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, BUSn;
 wire [ 2:0] FC, IPLn;
-reg         iord_cs, fix_cs, pal_cs, int6_clr, int5_clr, scr_cs;
+reg         iord_cs, fix_cs, pal_cs, int6_clr, int5_clr, scr_cs, oram_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
@@ -82,8 +82,9 @@ assign bus_busy  = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign bus_legit = 0; // fix_cs & ~sdakn;
 assign BUSn      = ASn | (LDSn & UDSn);
 
-assign cram_we   = {1'b0, fix_cs & ~RnW & ~LDSn};
-assign scr_we    = {1'b0, scr_cs & ~RnW & ~LDSn};
+assign cram_we   = {A[1],~A[1]} & {2{fix_cs  & ~RnW & ~LDSn}};
+assign scr_we    = {A[1],~A[1]} & {2{scr_cs  & ~RnW & ~LDSn}};
+assign oram_we   = {A[1],~A[1]} & {2{oram_cs & ~RnW & ~LDSn}};
 
 always @* begin
     rom_cs   = 0;
@@ -95,6 +96,8 @@ always @* begin
     int6_clr = 0;
     int5_clr = 0;
     snd_on   = 0;
+    scrx_cs  = 0;
+    scry_cs  = 0;
     if(!ASn) case(A[20:18])
         0: rom_cs  = 1;
         2: fix_cs  = 1;
@@ -106,8 +109,8 @@ always @* begin
             if(!LDSn) case(A[3:1] && !RnW)
                 0: int6_clr = 1;
                 1: int5_clr = 1;
-                // 2: ?
-                // 3: ?
+                2: scrx_cs  = 1;
+                3: scry_cs  = 1;
                 4: snd_on   = 1;
                 // 5: coin lock // 6-bit flip flop. MAME assigns flip to bit 0 but it is dangling on the PCB
             endcase
@@ -117,7 +120,9 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    if( snd_on ) snd_latch <= cpu_dout[7:0];
+    if( snd_on  ) snd_latch <= cpu_dout[7:0];
+    if( scrx_cs ) scrx <= cpu_dout[8:0];
+    if( scry_cs ) scry <= cpu_dout[8:0];
     cpu_din <= rom_cs    ? rom_data :
                ( ram_cs | fix_cs ) ? ram_dout :
                obj_cs    ? oram_dout :

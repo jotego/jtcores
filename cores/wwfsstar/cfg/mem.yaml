@@ -62,6 +62,7 @@ bram:
     data_width: 16
     dual_port:
       name: main
+      addr: "main_addr[11:2]"
       din:  "{2{main_dout[7:0]]}"
       dout: char16_dout
       we:   cram_we
@@ -71,7 +72,18 @@ bram:
     data_width: 16
     dual_port:
       name: main
+      addr: "main_addr[11:2]"
       din:  "{2{main_dout[7:0]]}"
       dout: scr16_dout
       we:   scr_we
+      rw:   true
+  - name: oram
+    addr_width: 9
+    data_width: 16
+    dual_port:
+      name: main
+      addr: "main_addr[9:2]"
+      din:  "{2{main_dout[7:0]]}"
+      dout: oram16_dout
+      we:   oram_we
       rw:   true

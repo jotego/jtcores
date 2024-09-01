@@ -17,40 +17,53 @@
     Date: 31-8-2024 */
 
 module jtwwfss_video(
+    input           rst,
     input           clk,
     input           pxl_cen,
+
+    output          LHBL,
+    output          LVBL,
+    output          v8,
 
     input   [15:0] cpu_dout,
     input   [11:0] cpu_addr,
 
     // Char
-    output     [10:1]  cram_addr,
-    input      [15:0]  cram_data,
-    output     [16:2]  char_addr,
-    input      [31:0]  char_data,
-    output             char_cs,
-    input              char_ok,
+    output  [10:1]  cram_addr,
+    input   [15:0]  cram_data,
+    output  [16:2]  char_addr,
+    input   [31:0]  char_data,
+    output          char_cs,
+    input           char_ok,
 
     // Scroll
-    output     [10:1]  vram_addr,
-    input      [15:0]  vram_data,
-    output     [19:2]  scr_addr,
-    input      [31:0]  scr_data,
-    output             scr_cs,
-    input              scr_ok,
-    input              scr_cs,
+    input   [ 8:0]  scrx, scry,
+    output  [10:1]  vram_addr,
+    input   [15:0]  vram_data,
+    output  [19:2]  scr_addr,
+    input   [31:0]  scr_data,
+    output          scr_cs,
+    input           scr_ok,
+    input           scr_cs,
 
-    input          oram_cs,
-    output  [ 7:0] oram_dout,
+    // Object
+    output  [ 9:1]  oram_addr,
+    input   [15:0]  oram_data,
+    output  [20:2]  obj_addr,
+    input   [31:0]  obj_data,
+    output          obj_cs,
+    input           obj_ok,
+    input           obj_cs,
 
-    input   [ 1:0] pal_wen,
-    output  [15:0] pal_dout,
+    input   [ 1:0]  pal_wen,
+    output  [15:0]  pal_dout,
 
-    output  [ 3:0] red, green, blue,
-    input   [ 3:0] gfx_en
+    output  [ 3:0]  red, green, blue,
+    input   [ 3:0]  gfx_en
 );
 
 wire [ 6:0] char_pxl, scr_pxl, obj_pxl;
+wire [ 8:0] hdump, vdump;
 wire        blankn;
 
 wire [31:0] char_sorted, scr_sorted;
@@ -70,6 +83,33 @@ scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],sc
 };
 
 assign blankn = LHBL & LVBL;
+assign v8     = vdump[3];
+
+jtframe_vtimer #(
+    .VB_START   ( 9'hf7     ),
+    .VB_END     ( 9'h7      ),
+    .VCNT_END   ( 9'd271    ),
+    .VS_START   ( 9'h106    ),
+    .HS_START   ( 9'h1ae    ),
+    .HB_START   ( 9'h184    ),
+    .HJUMP      ( 1         ),
+    .HB_END     ( 9'd4      ),
+    .HINIT      ( 9'd255    )
+)   u_vtimer(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .vdump      ( vdump     ),
+    .vrender    (           ),
+    .vrender1   (           ),
+    .H          ( hdump     ),
+    .Hinit      (           ),
+    .Vinit      (           ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .HS         ( HS        ),
+    .VS         ( VS        )
+);
+
 
 jtframe_tilemap #(
     .CW ( 12 ),

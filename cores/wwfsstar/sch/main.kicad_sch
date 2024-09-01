@@ -23325,7 +23325,7 @@
 		)
 		(uuid "4438b5a6-cb3d-4a1f-a6e1-8eb7a9a0467b")
 	)
-	(hierarchical_label "IC50_13"
+	(hierarchical_label "~{SCRX}"
 		(shape output)
 		(at 300.99 127 0)
 		(fields_autoplaced yes)
@@ -23541,7 +23541,7 @@
 		)
 		(uuid "dc65d090-3605-4171-b4fd-18f5fd021019")
 	)
-	(hierarchical_label "IC50_12"
+	(hierarchical_label "~{SCRY}"
 		(shape output)
 		(at 300.99 129.54 0)
 		(fields_autoplaced yes)

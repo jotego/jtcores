@@ -3432,7 +3432,7 @@
 		)
 		(uuid "55c04da8-dae5-459f-825b-49d9ab885f84")
 	)
-	(label "IC50_12"
+	(label "~{SCRY}"
 		(at 49.53 186.69 0)
 		(fields_autoplaced yes)
 		(effects
@@ -3828,7 +3828,7 @@
 		)
 		(uuid "ad99dbbe-c453-4279-b37d-c6ecaf52ba5a")
 	)
-	(label "IC50_13"
+	(label "~{SCRX}"
 		(at 49.53 184.15 0)
 		(fields_autoplaced yes)
 		(effects

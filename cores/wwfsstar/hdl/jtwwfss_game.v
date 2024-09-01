@@ -20,37 +20,40 @@ module jtwwfss_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [11:1] main_addr;
-wire [ 7:0] snd_latch;
 wire [15:0] char_dout;
+wire [11:1] main_addr;
+wire [ 8:0] scrx, scry;
+wire [ 7:0] snd_latch;
 wire [ 1:0] pal_wen;
 wire        snd_on;
 
 assign char_dout = {8'd0, main_addr[1] ? char16_dout[7:0] : char16_dout[15:8]};
-assign main2cram_din = {2{cpu_dout[7:0]}};
-
 assign scr_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
-assign main2vram_din = {2{cpu_dout[7:0]}};
+assign obj_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
 
 jtwwfss_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
     .LVBL       ( LVBL      ),
+    .v8         ( v8        ),
 
     .main_addr  ( main_addr ),
     .main_dsn   ( main_dsn  ),
     .main_dout  ( main_dout ),
     .main_rnw   ( main_rnw  ),
 
-    .scr_we     ( scr_we    ),
     .cram_we    ( cram_we   ),
+    .scr_we     ( scr_we    ),
+    .oram_we    ( oram_we   ),
     .pal_wen    ( pal_wen   ),
-    .oram_cs    ( oram_cs   ),
 
     .fix_dout   ( fix_dout  ),
     .scr_dout   ( scr_dout  ),
     .oram_dout  ( oram_dout ),
     .pal_dout   ( pal_dout  ),
+
+    .scrx       ( scrx      ),
+    .scry       ( scry      ),
 
     .ram_cs     ( ram_cs    ),
     .ram_ok     ( ram_ok    ),

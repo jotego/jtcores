@@ -312,7 +312,11 @@ void wwfsstar_state::draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprec
 
 	  10 bytes per sprite
 
-	  ---- ---- yyyy yyyy ---- ---- CCCC XYLE ---- ---- fFNN NNNN ---- ---- nnnn nnnn ---- ---- xxxx xxxx
+	  ---- ---- yyyy yyyy
+	  ---- ---- CCCC XYLE
+	  ---- ---- fFNN NNNN
+	  ---- ---- nnnn nnnn
+	  ---- ---- xxxx xxxx
 
 	  Yy = sprite Y Position
 	  Xx = sprite X Position
