@@ -29,6 +29,7 @@ module jtframe_ram_rq #(parameter
     AW     = 18,
     DW     = 8,
     ERASE  = 1, // erase memory contents after a reset
+    ERASE_AW = AW,
     AUTOTOGGLE= // automatically toggles cs after a data delivery.
         `ifdef JTFRAME_SDRAM_TOGGLE
         1 `else 0 `endif ,
@@ -60,7 +61,7 @@ module jtframe_ram_rq #(parameter
     wire  [SDRAMW-1:0] size_ext   = { {SDRAMW-AW{1'b0}}, addr };
 
     reg          last_cs, pending, erased;
-    reg [AW-1:0] erase_cnt;
+    reg [ERASE_AW-1:0] erase_cnt;
     wire         cs_posedge = addr_ok && !last_cs;
     // wire   cs_negedge = !addr_ok && last_cs;
     assign erase_bsy = ERASE[0] && !erased;
@@ -85,7 +86,7 @@ module jtframe_ram_rq #(parameter
                     req        <= 1;
                     req_rnw    <= 0;
                     if(!req) begin
-                        sdram_addr <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
+                        sdram_addr <= { {SDRAMW-ERASE_AW{1'b0}}, erase_cnt } + offset;
                         {erased,erase_cnt}<= erase_cnt+1'd1;
                     end
                 end

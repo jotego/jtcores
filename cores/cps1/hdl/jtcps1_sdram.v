@@ -257,6 +257,7 @@ jtcps1_prom_we #(
 jtframe_ram1_5slots #(
     .SDRAMW      ( 23            ),
     .SLOT0_ERASE (  1            ),
+    .SLOT0_ER_AW ( 20            ), // Erase 0x20_0000-0x2F_FFFF
     .SLOT0_AW    ( 17            ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
     .SLOT0_FASTWR(  0            ),
