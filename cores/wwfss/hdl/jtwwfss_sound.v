@@ -73,7 +73,7 @@ always @(posedge clk) begin
     din <= rom_cs   ? rom_data  :
            ram_cs   ? ram_dout  :
            oki_cs   ? oki_dout  :
-           latch_cs ? snd_latch : 8'h0
+           latch_cs ? snd_latch : 8'h0;
 end
 
 jtframe_edge #(.QSET(0)) u_edge(

@@ -25,7 +25,7 @@ wire [11:1] main_addr;
 wire [ 8:0] scrx, scry;
 wire [ 7:0] snd_latch;
 wire [ 1:0] pal_wen;
-wire        snd_on;
+wire        snd_on, v8;
 
 assign char_dout = {8'd0, main_addr[1] ? char16_dout[7:0] : char16_dout[15:8]};
 assign scr_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
@@ -75,6 +75,55 @@ jtwwfss_main u_main(
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
+);
+
+jtwwfss_video u_video(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
+    .v8         ( v8            ),
+
+    .cpu_dout   ( cpu_dout      ),
+    .cpu_addr   ( cpu_addr[9:1] ),
+
+    // Char
+    .cram_addr  ( cram_addr     ),
+    .cram_data  ( cram_data     ),
+    .char_addr  ( char_addr     ),
+    .char_data  ( char_data     ),
+    .char_cs    ( char_cs       ),
+    .char_ok    ( char_ok       ),
+
+    // Scroll
+    .scrx       ( scrx          ),
+    .scry       ( scry          ),
+    .vram_addr  ( vram_addr     ),
+    .vram_data  ( vram_data     ),
+    .scr_addr   ( scr_addr      ),
+    .scr_data   ( scr_data      ),
+    .scr_cs     ( scr_cs        ),
+    .scr_ok     ( scr_ok        ),
+    .scr_cs     ( scr_cs        ),
+
+    // Object
+    .oram_addr  ( oram_addr     ),
+    .oram_data  ( oram_data     ),
+    .obj_addr   ( obj_addr      ),
+    .obj_data   ( obj_data      ),
+    .obj_cs     ( obj_cs        ),
+    .obj_ok     ( obj_ok        ),
+    .obj_cs     ( obj_cs        ),
+
+    .pal_wen    ( pal_wen       ),
+    .pal_dout   ( pal_dout      ),
+
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+    .gfx_en     ( gfx_en        )
 );
 
 jtwwfss_sound u_sound(

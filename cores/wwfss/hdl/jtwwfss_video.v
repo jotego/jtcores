@@ -26,7 +26,7 @@ module jtwwfss_video(
     output          v8,
 
     input   [15:0] cpu_dout,
-    input   [11:0] cpu_addr,
+    input   [ 9:1] cpu_addr,
 
     // Char
     output  [10:1]  cram_addr,
@@ -155,7 +155,7 @@ jtframe_scroll #(
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),
     .blankn     ( blankn    ),  // if !blankn there are no ROM requests
-    input              flip,    // Screen flip
+    .flip       ( 1'b0      ),
     .scrx       ( scrx      ),
     .scry       ( scry      ),
 
@@ -179,7 +179,7 @@ jtwwfss_colmix u_colmix(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
 
-    .cpu_addr   ( cpu_addr[9:1] ),
+    .cpu_addr   ( cpu_addr      ),
     .cpu_dout   ( cpu_dout      ),
     .cpu_din    ( pal_dout      ),
     .pal_wen    ( pal_wen       ),

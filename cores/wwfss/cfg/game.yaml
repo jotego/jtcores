@@ -1,6 +1,7 @@
 game:
   - from: wwfsstar
-    get: "*.v"
+    get:
+      - "*.v"
 jtframe:
   - from: video
     get:
