@@ -87,7 +87,7 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = xmen ? { xmen_o[11: 9], xmen_o[13:12], 1'b0} : {1'b1, xmen_o[10:9], 3'd0};
+assign pri1      = xmen ? { xmen_o[11: 9], xmen_o[13:12], 1'b0} : {1'b1, lyro_pxl[10:9], 3'd0};
 assign ci0       = xmen ? {lyra_pxl[6:4],lyra_pxl[11:10],lyra_pxl[3:0]} :  9'd0;
 assign ci1       = xmen ?   xmen_o[8:0] : lyro_pxl[8:0];
 assign ci2       = xmen ? {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]} : {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
