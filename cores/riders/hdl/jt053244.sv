@@ -166,14 +166,14 @@ always @* begin
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( /*y2[9] ||*/ yz_add[16] ) inzone=0;
+    if( y2[9] || yz_add[16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
-    // if( y[9] ) inzone=0;
+    if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
