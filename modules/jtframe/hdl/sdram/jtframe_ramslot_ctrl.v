@@ -91,7 +91,7 @@ always @(posedge clk) begin
                         end else begin
                             sdram_addr  <= slot_addr_req[i*SDRAMW +: SDRAMW];
                             /* verilator lint_off WIDTH */
-                            sdram_wrmask<= wrmask>>(2*i); // ignore the warning in Quartus
+                            sdram_wrmask<= erase_bsy ? 2'd0 : wrmask>>(2*i); // ignore the warning in Quartus
                             /* verilator lint_on WIDTH */
                         end
                     end
