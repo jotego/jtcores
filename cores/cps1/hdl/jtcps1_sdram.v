@@ -218,7 +218,7 @@ assign ba_wr[3:1]  = 0;
 
 always @(*) begin
     // Top 3 bits of main_addr_x are always zero, but needed to set the
-    // SLOT extension to cover the ORAM/VRAM_OFFSET too
+    // SLOT extension to cover the ORAM/VRAM_OFFSET during the on-reset erase
     main_addr_x = {3'd0,main_ram_addr[17:1]};
     `ifdef CPS2
     if( main_oram_cs ) begin
