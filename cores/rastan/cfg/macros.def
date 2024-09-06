@@ -19,5 +19,5 @@ JTFRAME_CREDITS_HSTART=32
 # debugging
 JTFRAME_IOCTL_RD=1024
 
-[mist]
+[mist|mister]
 JTFRAME_NOSTA
