@@ -62,10 +62,10 @@ module jtcircus_obj(
 parameter [7:0] HOFFSET = 0;
 parameter REV_SCAN = 0;
 
-localparam FIX = 9'h2d;
+localparam FIX = 9'h2d, FIXF = 9'hde;
 
 wire [ 7:0] dma_din, scan_dout;
-wire        obj_we;
+wire        obj_we, obj_bl;
 reg  [ 7:0] scan_addr=0;
 reg         dma_we, dma_done;
 wire [ 9:0] eff_dma;
@@ -74,9 +74,8 @@ wire [ 3:0] pal_data, pre_pxl, pxl_dly;
 
 assign obj_we  = objram_cs & ~cpu_rnw;
 assign eff_dma = {1'b0,obj_frame,dma_addr};
-assign pxl     = hdumpf <= FIX ? 4'd0 :
-                           flip ? pre_pxl : pxl_dly;
-
+assign pxl     = obj_bl ? 4'd0 : flip ? pre_pxl : pxl_dly;
+assign obj_bl  = flip ? hdump>=FIXF : hdump <= FIX;
 jtframe_sh #(.W(4),.L(5)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
