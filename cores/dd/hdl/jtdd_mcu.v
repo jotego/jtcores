@@ -37,7 +37,8 @@ module jtdd_mcu(
     // PROM
     output     [13:0]  rom_addr,
     input      [ 7:0]  rom_data,
-    output             rom_cs
+    output             rom_cs,
+    input              rom_ok
 
 );
 
@@ -66,10 +67,12 @@ jtframe_ff u_nmi(
     .qn      (                )
 );
 
+wire cen = mcu_cen & (~rom_cs | rom_ok);
+
 jt63701y #(.ROMW(14),.MODE(2'd2)) u_63701(
     .rst        ( ~mcu_rstb     ),
     .clk        ( clk           ),
-    .cen        ( mcu_cen       ),
+    .cen        ( cen           ),
     // interrupts
     .nmi        ( nmi           ),
     // ports

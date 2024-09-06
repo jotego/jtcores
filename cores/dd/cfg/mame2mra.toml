@@ -60,5 +60,5 @@ order=[
 
 patches=[
     # skip ROM test and legal screen - it won't initialize the hi-score table
-    # { setname="ddragon", offset=0x20040, data="7e 80 63" },
+    { setname="ddragon", offset=0x20040, data="7e 80 63" },
 ]
