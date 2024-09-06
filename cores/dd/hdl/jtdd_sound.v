@@ -208,10 +208,8 @@ always @(negedge snd_irq) $display("INFO: sound latch %X", snd_latch );
 `endif
 
 `else // NOSOUND
-assign sample      = 0;
-assign sound       = 0;
-assign peak        = 0;
 initial rom_cs     = 0;
+assign  { fm_l, fm_r, pcm_a, pcm_b } = 0;
 assign rom_addr    = 0;
 assign adpcm0_cs   = 0;
 assign adpcm0_addr = 0;
