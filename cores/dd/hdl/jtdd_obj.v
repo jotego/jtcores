@@ -171,7 +171,6 @@ always @(posedge clk, posedge rst) begin
             end
             3'd6: begin
                 if( !dr_busy ) begin
-                    if(LAYOUT==WWFSS) xpos <= xpos + 9'd2; // small offset
                     draw <= 1;
                     if( !scan_done & ~&maxline ) begin
                         st       <= 3'd1;
@@ -206,7 +205,7 @@ jtframe_objdraw #(
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
     .code       ( { id_msb, id } ),
-    .xpos       ( xpos-9'h8 ),
+    .xpos       ( xpos-9'h6 ),
     .ysub       ( ypos[3:0] ),
     // optional zoom, keep at zero for no zoom
     .hzoom      ( 6'd0      ),
