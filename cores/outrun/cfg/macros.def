@@ -73,3 +73,6 @@ CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 
 [sidi128]
 JTFRAME_LF_SDRAM_BUFFER
+
+[mister]
+JTFRAME_NOSTA
