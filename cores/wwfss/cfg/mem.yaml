@@ -18,21 +18,20 @@ clocks:
 audio:
   channels:
     # temporary values
-    - { name: pcm, module: jt6295, rsum: 40k, rc: [{ r: 10k, 4n }] }
-    - { name: fm,  module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }]}
+    - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
+    - { name: fm,  module: jt51,   rsum: 40k, rc: [{ r: 1rout, c: 1.2n }]}
 sdram:
   banks:
     - buses:
       - name: ram
-        addr_width: 18
+        addr_width: 14
         data_width: 16
-        cs: xram_cs
         din: main_dout
         rw: true
         offset: RAM_OFFSET
       - name: main
         addr_width: 18
-        data_width: 8
+        data_width: 16
     - buses:
       - name: snd
         addr_width: 15
@@ -60,30 +59,49 @@ bram:
   - name: cram
     addr_width: 11
     data_width: 16
+    ioctl:
+      save: true
+      order: 0
     dual_port:
       name: main
       addr: "main_addr[11:2]"
-      din:  "{2{main_dout[7:0]]}"
+      din:  "{2{main_dout[7:0]}}"
       dout: char16_dout
       we:   cram_we
       rw:   true
   - name: vram
     addr_width: 11
     data_width: 16
+    ioctl:
+      save: true
+      order: 1
     dual_port:
       name: main
       addr: "main_addr[11:2]"
-      din:  "{2{main_dout[7:0]]}"
+      din:  "{2{main_dout[7:0]}}"
       dout: scr16_dout
       we:   scr_we
       rw:   true
   - name: oram
     addr_width: 9
-    data_width: 16
+    data_width: 8
+    ioctl:
+      save: true
+      order: 2
     dual_port:
       name: main
-      addr: "main_addr[9:2]"
-      din:  "{2{main_dout[7:0]]}"
-      dout: oram16_dout
+      addr: "main_addr[9:1]"
+      din:  "main_dout[7:0]"
       we:   oram_we
+      rw:   true
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    ioctl:
+      save: true
+      order: 3
+    dual_port:
+      name: main
+      addr: "main_addr[9:1]"
+      we:   pal_we
       rw:   true

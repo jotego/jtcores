@@ -29,9 +29,9 @@ module jtwwfss_sound(
     input         [ 7:0] snd_latch,
 
     // ROM
-    output    reg [14:0] rom_addr,
-    output    reg        rom_cs,
+    output        [14:0] rom_addr,
     input         [ 7:0] rom_data,
+    output    reg        rom_cs,
     input                rom_ok,
 
     // ADPCM ROM
@@ -42,9 +42,9 @@ module jtwwfss_sound(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [15:0] pcm
+    output signed [13:0] pcm
 );
-
+`ifndef NOSOUND
 reg         [ 7:0] din;
 wire        [ 7:0] ram_dout, dout, oki_dout, fm_dout;
 wire        [15:0] A;
@@ -53,14 +53,16 @@ wire               iorq_n, m1_n, mreq_n, int_n, oki_wrn, rd_n, wr_n, nmi_n;
 
 assign pcm_cs   = 1'b1;
 assign oki_wrn  = ~(oki_cs & ~wr_n);
+assign rom_addr = A[14:0];
 
 always @* begin
+    rom_cs   = !A[15];
     ram_cs   = 0;
     fm_cs    = 0;
     oki_cs   = 0;
     latch_cs = 0;
 
-    if( A[15:14]==2'b11 && !mreq_n ) case(A[13:12])
+    if( A[15:14]==2'b10 && !mreq_n ) case(A[13:11])
         0: ram_cs   = 1;
         1: fm_cs    = 1;
         3: oki_cs   = 1;
@@ -73,6 +75,7 @@ always @(posedge clk) begin
     din <= rom_cs   ? rom_data  :
            ram_cs   ? ram_dout  :
            oki_cs   ? oki_dout  :
+           fm_cs    ? fm_dout   :
            latch_cs ? snd_latch : 8'h0;
 end
 
@@ -128,8 +131,8 @@ jt51 u_jt51(
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 jt6295 #(.INTERPOL(0)) u_adpcm(
@@ -149,5 +152,12 @@ jt6295 #(.INTERPOL(0)) u_adpcm(
     .sound      ( pcm       ),
     .sample     (           )
 );
-
+`else
+    initial rom_cs   = 0;
+    assign  rom_addr = 0;
+    assign  pcm_addr = 0;
+    assign  pcm_cs   = 0;
+    assign  fm_l     = 0, fm_r = 0;
+    assign  pcm      = 0;
+`endif
 endmodule

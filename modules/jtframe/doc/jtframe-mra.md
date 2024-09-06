@@ -47,7 +47,7 @@ files=[
 
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
-delete=[ "name"... ]
+delete=[ { machine="..." names=[ "...", "..." ] }, ... ]
 # applies an offset to the bit position of MAME's DIP sw tag given by "name"
 # JTTMNT uses this for PunkShot
 offset=[

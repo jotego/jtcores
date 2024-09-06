@@ -37,6 +37,7 @@ module jtframe_tilemap #( parameter
     XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
+    HJUMP        = 1,  // see jtframe_scroll
     // localparam, do not modify:
     VW = SIZE==8 ? 3 : SIZE==16 ? 4:5,
     PALW         = PW-BPP,
@@ -68,7 +69,7 @@ module jtframe_tilemap #( parameter
 
 reg  [DW-1:0] pxl_data;
 reg [PALW-1:0]cur_pal, nx_pal;
-wire          vflip_g;
+wire          vflip_g, xhflip;
 reg           hflip_g, nx_hf;
 reg     [8:0] heff, hoff;
 wire    [8:0] veff;
@@ -94,7 +95,8 @@ end
 assign vflip_g   = (flip & XOR_VFLIP[0])^vflip;
 
 assign vram_addr[VA-1-:MAP_VW-VW]=veff[MAP_VW-1:VW];
-assign vram_addr[0+:MAP_HW-VW] = heff[MAP_HW-1:VW];
+assign vram_addr[   0+:MAP_HW-VW]=heff[MAP_HW-1:VW];
+assign xhflip = (flip & XOR_HFLIP[0])^hflip;
 
 always @* begin
     pxl[PW-1-:PALW] = cur_pal;
@@ -106,7 +108,11 @@ always @* begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+reg heff_l, hmsb_l;
+wire zero = heff[3] != heff_l // read the ROM every 8 pixels
+         || (hmsb_l!=hdump[7] && HJUMP==0); // identify a typical blanking end case
+
+always @(posedge clk) begin
     if( rst ) begin
         rom_cs   <= 0;
         rom_addr <= 0;
@@ -114,17 +120,19 @@ always @(posedge clk, posedge rst) begin
         cur_pal  <= 0;
         hflip_g  <= 0;
     end else if(pxl_cen) begin
-        if( heff[2:0]==0 ) begin
+        heff_l <= heff[3];
+        hmsb_l <= hdump[7];
+        if( zero ) begin
             rom_cs <= ~rst & blankn;
             rom_addr[0+:VW] <= veff[0+:VW]^{VW{vflip_g}};
             rom_addr[VR-1-:CW] <= code;
-            if( SIZE==16 ) rom_addr[VW]      <= heff[3];
-            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3];
+            if( SIZE==16 ) rom_addr[VW]      <= heff[3]^xhflip;
+            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip}};
             pxl_data <= rom_data;
             // draw information is eight pixels behind
             nx_pal   <= pal;
             cur_pal  <= nx_pal;
-            nx_hf    <= (flip & XOR_HFLIP[0])^hflip;
+            nx_hf    <= xhflip;
             hflip_g  <= nx_hf;
         end else begin
             pxl_data <= hflip_g ? (pxl_data>>1) : (pxl_data<<1);

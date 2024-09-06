@@ -38,7 +38,7 @@ wire       [ 8:0]  scrhpos, scrvpos;
 wire               turbo, mcu_cen, cpu_cen;
 reg                turbo_l=0;
 
-assign turbo      = debug_bus[0]; // `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
+assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
 assign dip_flip   = flip;
 assign debug_view = { 7'd0, turbo };
 assign scr_cs     = LVBL;

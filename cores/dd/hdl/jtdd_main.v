@@ -208,11 +208,8 @@ always @(posedge clk) begin
     case( A[3:0])
         4'd0:    cabinet_input <= { cab_1p, fix_joy(joystick1[5:0]) };
         4'd1:    cabinet_input <= { coin,   fix_joy(joystick2[5:0]) };
-        4'd2:    cabinet_input <= { 3'b111, mcu_ban, ~VBL, // Using ~VBL instead of VBL increases the game speed
-            // as observed by comparing the frame count at which the demo starts:
-            // 10 frames earlier in dd (~VBL faster than VBL)
-            //  8 frames earlier in dd2
-            joystick2[6], joystick1[6], service };
+        4'd2:    cabinet_input <= { 3'b111, mcu_ban, VBL,
+                                    joystick2[6], joystick1[6], service };
         4'd3:    cabinet_input <= dipsw_a;
         4'd4:    cabinet_input <= dipsw_b;
         default: cabinet_input <= 8'hff;

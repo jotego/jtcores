@@ -1784,8 +1784,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at -13.97 35.56 0)
+			(property "Reference" "IC13"
+				(at -2.54 -15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1793,8 +1793,8 @@
 					(justify left)
 				)
 			)
-			(property "Value" "Z80CPU"
-				(at 6.35 35.56 0)
+			(property "Value" "74LS157"
+				(at -2.54 -17.78 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1803,24 +1803,6 @@
 				)
 			)
 			(property "Footprint" ""
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "www.zilog.com/manage_directlink.php?filepath=docs/z80/um0080"
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "8-bit General Purpose Microprocessor, DIP-40"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1829,7 +1811,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "Z80 CPU uP"
+			(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS157"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1838,7 +1820,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "DIP* PDIP*"
+			(property "Description" "Quad 2 to 1 line Multiplexer"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1847,24 +1829,37 @@
 					(hide yes)
 				)
 			)
-			(symbol "Z80CPU_0_1"
-				(rectangle
-					(start -13.97 34.29)
-					(end 13.97 -34.29)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
+			(property "ki_locked" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
 					)
 				)
 			)
-			(symbol "Z80CPU_1_1"
-				(pin output line
-					(at 17.78 2.54 180)
-					(length 3.81)
-					(name "A11"
+			(property "ki_keywords" "TTL MUX MUX2"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "DIP?16*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Z80CPU_1_0"
+				(pin input line
+					(at -12.7 -15.24 0)
+					(length 5.08)
+					(name "S"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1879,10 +1874,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -27.94 180)
-					(length 3.81)
-					(name "D6"
+				(pin input line
+					(at -12.7 -2.54 0)
+					(length 5.08)
+					(name "I1c"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1897,10 +1892,10 @@
 						)
 					)
 				)
-				(pin power_in line
-					(at 0 38.1 270)
-					(length 3.81)
-					(name "VCC"
+				(pin input line
+					(at -12.7 0 0)
+					(length 5.08)
+					(name "I0c"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1915,10 +1910,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -17.78 180)
-					(length 3.81)
-					(name "D2"
+				(pin output line
+					(at 12.7 -7.62 180)
+					(length 5.08)
+					(name "Zd"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1933,10 +1928,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -30.48 180)
-					(length 3.81)
-					(name "D7"
+				(pin input line
+					(at -12.7 -10.16 0)
+					(length 5.08)
+					(name "I1d"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1951,10 +1946,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -12.7 180)
-					(length 3.81)
-					(name "D0"
+				(pin input line
+					(at -12.7 -7.62 0)
+					(length 5.08)
+					(name "I0d"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1969,10 +1964,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -15.24 180)
-					(length 3.81)
-					(name "D1"
+				(pin input inverted
+					(at -12.7 -17.78 0)
+					(length 5.08)
+					(name "E"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1987,10 +1982,10 @@
 						)
 					)
 				)
-				(pin input line
-					(at -17.78 12.7 0)
-					(length 3.81)
-					(name "~{INT}"
+				(pin power_in line
+					(at 0 22.86 270)
+					(length 5.08) hide
+					(name "VCC"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2006,63 +2001,9 @@
 					)
 				)
 				(pin input line
-					(at -17.78 15.24 0)
-					(length 3.81)
-					(name "~{NMI}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "17"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 -2.54 0)
-					(length 3.81)
-					(name "~{HALT}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "18"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 -17.78 0)
-					(length 3.81)
-					(name "~{MREQ}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "19"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 0 180)
-					(length 3.81)
-					(name "A12"
+					(at -12.7 15.24 0)
+					(length 5.08)
+					(name "I0a"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2077,190 +2018,10 @@
 						)
 					)
 				)
-				(pin output line
-					(at -17.78 -20.32 0)
-					(length 3.81)
-					(name "~{IORQ}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "20"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 -12.7 0)
-					(length 3.81)
-					(name "~{RD}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "21"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 -15.24 0)
-					(length 3.81)
-					(name "~{WR}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "22"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 -30.48 0)
-					(length 3.81)
-					(name "~{BUSACK}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "23"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
 				(pin input line
-					(at -17.78 0 0)
-					(length 3.81)
-					(name "~{WAIT}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "24"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -17.78 -27.94 0)
-					(length 3.81)
-					(name "~{BUSRQ}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "25"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -17.78 30.48 0)
-					(length 3.81)
-					(name "~{RESET}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "26"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 5.08 0)
-					(length 3.81)
-					(name "~{M1}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "27"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at -17.78 2.54 0)
-					(length 3.81)
-					(name "~{RFSH}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "28"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -38.1 90)
-					(length 3.81)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "29"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 -2.54 180)
-					(length 3.81)
-					(name "A13"
+					(at -12.7 12.7 0)
+					(length 5.08)
+					(name "I1a"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2276,189 +2037,9 @@
 					)
 				)
 				(pin output line
-					(at 17.78 30.48 180)
-					(length 3.81)
-					(name "A0"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "30"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 27.94 180)
-					(length 3.81)
-					(name "A1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "31"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 25.4 180)
-					(length 3.81)
-					(name "A2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "32"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 22.86 180)
-					(length 3.81)
-					(name "A3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "33"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 20.32 180)
-					(length 3.81)
-					(name "A4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "34"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 17.78 180)
-					(length 3.81)
-					(name "A5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "35"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 15.24 180)
-					(length 3.81)
-					(name "A6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "36"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 12.7 180)
-					(length 3.81)
-					(name "A7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "37"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 10.16 180)
-					(length 3.81)
-					(name "A8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "38"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 7.62 180)
-					(length 3.81)
-					(name "A9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "39"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 -5.08 180)
-					(length 3.81)
-					(name "A14"
+					(at 12.7 15.24 180)
+					(length 5.08)
+					(name "Za"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2473,28 +2054,10 @@
 						)
 					)
 				)
-				(pin output line
-					(at 17.78 5.08 180)
-					(length 3.81)
-					(name "A10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "40"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 -7.62 180)
-					(length 3.81)
-					(name "A15"
+				(pin input line
+					(at -12.7 7.62 0)
+					(length 5.08)
+					(name "I0b"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2509,10 +2072,10 @@
 						)
 					)
 				)
-				(pin input clock
-					(at -17.78 22.86 0)
-					(length 3.81)
-					(name "~{CLK}"
+				(pin input line
+					(at -12.7 5.08 0)
+					(length 5.08)
+					(name "I1b"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2527,10 +2090,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -22.86 180)
-					(length 3.81)
-					(name "D4"
+				(pin output line
+					(at 12.7 7.62 180)
+					(length 5.08)
+					(name "Zb"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2545,10 +2108,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -20.32 180)
-					(length 3.81)
-					(name "D3"
+				(pin power_in line
+					(at 0 -25.4 90)
+					(length 5.08) hide
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2563,10 +2126,10 @@
 						)
 					)
 				)
-				(pin bidirectional line
-					(at 17.78 -25.4 180)
-					(length 3.81)
-					(name "D5"
+				(pin output line
+					(at 12.7 0 180)
+					(length 5.08)
+					(name "Zc"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2578,6 +2141,27 @@
 							(font
 								(size 1.27 1.27)
 							)
+						)
+					)
+				)
+			)
+			(symbol "Z80CPU_1_1"
+				(rectangle
+					(start -7.62 17.78)
+					(end 7.62 -20.32)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(text "Mux\n"
+					(at -0.254 -12.7 0)
+					(effects
+						(font
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -19126,7 +18710,7 @@
 		(fields_autoplaced yes)
 		(uuid "72166cbb-9d35-4736-86cc-a86c105410b0")
 		(property "Reference" "IC13"
-			(at 135.5441 33.02 0)
+			(at 130.81 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19134,8 +18718,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Z80CPU"
-			(at 135.5441 35.56 0)
+		(property "Value" "74LS157"
+			(at 130.81 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19144,7 +18728,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 133.35 62.23 0)
+			(at 133.35 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19152,8 +18736,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "www.zilog.com/manage_directlink.php?filepath=docs/z80/um0080"
-			(at 133.35 62.23 0)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS157"
+			(at 133.35 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19161,7 +18745,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "8-bit General Purpose Microprocessor, DIP-40"
+		(property "Description" "Quad 2 to 1 line Multiplexer"
 			(at 133.35 72.39 0)
 			(effects
 				(font
@@ -19194,86 +18778,14 @@
 		(pin "16"
 			(uuid "66820025-510c-4491-b39f-c386e3e5eb2e")
 		)
-		(pin "17"
-			(uuid "74462ace-9a15-479f-9bcf-aad9a0da3e9e")
-		)
-		(pin "18"
-			(uuid "1195f866-0459-4879-b6a7-5689e9e9e0f1")
-		)
-		(pin "19"
-			(uuid "4fe07600-1c8c-4f53-804d-b837c7b9c3f4")
-		)
 		(pin "2"
 			(uuid "1df9db1c-c88b-4261-867b-430d6be83532")
-		)
-		(pin "20"
-			(uuid "1fb2d95c-9709-4daa-b123-bf5b8b1d7f46")
-		)
-		(pin "21"
-			(uuid "e94bd6b8-8143-4c3d-85be-5b3459776d23")
-		)
-		(pin "22"
-			(uuid "326e6c35-3345-4b2f-9c20-fc9da20a657b")
-		)
-		(pin "23"
-			(uuid "5502a373-174d-4f0e-a3f2-a153461e2f96")
-		)
-		(pin "24"
-			(uuid "423d6721-6dcf-4c95-a587-073b84117e4b")
-		)
-		(pin "25"
-			(uuid "0a8d8e26-d435-4353-a68f-2157f482c6fc")
-		)
-		(pin "26"
-			(uuid "062f1ed6-33a0-4cde-8246-56ae9f948415")
-		)
-		(pin "27"
-			(uuid "b048359b-2dbd-4784-a665-f6f83459b4ed")
-		)
-		(pin "28"
-			(uuid "dedc3662-3f06-42a2-be51-d63f91ae93da")
-		)
-		(pin "29"
-			(uuid "a0e319f9-63a6-425d-bc28-5762d678717f")
 		)
 		(pin "3"
 			(uuid "cf58afab-1104-4267-94b9-1e880399159d")
 		)
-		(pin "30"
-			(uuid "0590f346-eaee-49c6-8e71-17c5656a9550")
-		)
-		(pin "31"
-			(uuid "088dc6d8-dbfe-470b-8cfa-ad1dc254d0d6")
-		)
-		(pin "32"
-			(uuid "69ee86f5-d6da-4a74-b197-08654e75fbfb")
-		)
-		(pin "33"
-			(uuid "8f5d5419-7bff-44c1-981f-cc4f1fd5db48")
-		)
-		(pin "34"
-			(uuid "1bf7a56d-7436-4a5c-831c-cccc809a5aa4")
-		)
-		(pin "35"
-			(uuid "0ec3908d-73e9-4c18-ae54-14b688237ff7")
-		)
-		(pin "36"
-			(uuid "0d123880-3289-4ae4-9879-46165a351748")
-		)
-		(pin "37"
-			(uuid "744aa5a8-6498-4918-a222-58b6591dcc3f")
-		)
-		(pin "38"
-			(uuid "5b578f77-741b-4512-a8c7-182bb496ca8d")
-		)
-		(pin "39"
-			(uuid "e492cde6-1fc6-4b1e-ae00-b8fdd7c9266c")
-		)
 		(pin "4"
 			(uuid "6445daad-62f7-4e3d-8089-c1bd23c293e5")
-		)
-		(pin "40"
-			(uuid "ce2c80b6-9c89-47a9-9171-88fb3177d183")
 		)
 		(pin "5"
 			(uuid "59bac40d-749b-4b81-b2e5-bc9b5c0d4c97")

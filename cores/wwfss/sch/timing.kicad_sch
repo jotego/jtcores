@@ -265,20 +265,22 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "IC"
-				(at 0 1.524 0)
+			(property "Reference" "IC32"
+				(at 24.13 39.37 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
 			(property "Value" "TJ-001"
-				(at 0 -0.508 0)
+				(at 24.13 36.83 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
 			(property "Footprint" ""
@@ -1837,7 +1839,7 @@
 	)
 	(hierarchical_label "IC19_14"
 		(shape output)
-		(at 147.32 87.63 180)
+		(at 182.245 113.665 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1849,7 +1851,7 @@
 	)
 	(hierarchical_label "CP1"
 		(shape output)
-		(at 204.47 54.61 0)
+		(at 149.225 56.515 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1861,7 +1863,7 @@
 	)
 	(hierarchical_label "IC49_9"
 		(shape output)
-		(at 147.32 80.01 180)
+		(at 174.625 113.665 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1873,7 +1875,7 @@
 	)
 	(hierarchical_label "IC49_4"
 		(shape output)
-		(at 147.32 77.47 180)
+		(at 172.085 113.665 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1885,19 +1887,7 @@
 	)
 	(hierarchical_label "IC49_12"
 		(shape output)
-		(at 185.42 123.19 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d00110fd-b625-4a22-9f0c-13b4d93dd38b")
-	)
-	(hierarchical_label "CP2"
-		(shape output)
-		(at 195.58 44.45 90)
+		(at 217.805 75.565 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1905,11 +1895,23 @@
 			)
 			(justify left)
 		)
+		(uuid "d00110fd-b625-4a22-9f0c-13b4d93dd38b")
+	)
+	(hierarchical_label "CP2"
+		(shape output)
+		(at 139.065 65.405 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
 		(uuid "e5789e79-c803-4df3-8642-da263b8d7483")
 	)
 	(hierarchical_label "IC19_4'"
 		(shape output)
-		(at 147.32 74.93 180)
+		(at 169.545 113.665 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1921,7 +1923,7 @@
 	)
 	(symbol
 		(lib_id "technos:TJ-001")
-		(at 176.53 83.82 0)
+		(at 178.435 84.455 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1929,7 +1931,7 @@
 		(dnp no)
 		(uuid "7ae2e056-ab54-41e0-be26-179112b5fde9")
 		(property "Reference" "IC32"
-			(at 200.66 44.45 0)
+			(at 139.065 60.325 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1938,7 +1940,7 @@
 			)
 		)
 		(property "Value" "TJ-001"
-			(at 200.66 46.99 0)
+			(at 141.605 60.325 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1947,7 +1949,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 153.67 99.06 0)
+			(at 193.675 107.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1956,7 +1958,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 153.67 99.06 0)
+			(at 193.675 107.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1965,7 +1967,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 153.67 99.06 0)
+			(at 193.675 107.315 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -1686,7 +1686,7 @@
 		(uuid "48ae39ab-7b03-4463-a7b9-3fed55693092")
 	)
 	(junction
-		(at 335.28 109.22)
+		(at 335.28 110.49)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "49900715-9026-4ca9-909e-6bb8dcd69cbc")
@@ -1728,7 +1728,7 @@
 		(uuid "5368c5a7-9a33-4efd-9701-77a7aabec626")
 	)
 	(junction
-		(at 300.99 124.46)
+		(at 297.18 124.46)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5a011682-13d6-4376-a269-eed87b8aec6d")
@@ -1818,7 +1818,7 @@
 		(uuid "846697c2-6295-4fbd-8cbf-097c3066cfaf")
 	)
 	(junction
-		(at 335.28 116.84)
+		(at 335.28 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "87bae492-cf49-4d25-a8dd-8c0114d7e64a")
@@ -2045,7 +2045,7 @@
 	)
 	(wire
 		(pts
-			(xy 297.18 104.14) (xy 297.18 109.22)
+			(xy 297.18 104.14) (xy 297.18 110.49)
 		)
 		(stroke
 			(width 0)
@@ -2145,7 +2145,7 @@
 	)
 	(wire
 		(pts
-			(xy 321.31 140.97) (xy 300.99 140.97)
+			(xy 321.31 140.97) (xy 297.18 140.97)
 		)
 		(stroke
 			(width 0)
@@ -2205,7 +2205,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 116.84) (xy 307.34 116.84)
+			(xy 297.18 116.84) (xy 307.34 116.84)
 		)
 		(stroke
 			(width 0)
@@ -2465,7 +2465,7 @@
 	)
 	(wire
 		(pts
-			(xy 330.2 116.84) (xy 335.28 116.84)
+			(xy 330.2 118.11) (xy 335.28 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2615,7 +2615,7 @@
 	)
 	(wire
 		(pts
-			(xy 354.33 116.84) (xy 355.6 116.84)
+			(xy 354.33 118.11) (xy 355.6 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2785,7 +2785,7 @@
 	)
 	(wire
 		(pts
-			(xy 335.28 116.84) (xy 346.71 116.84)
+			(xy 335.28 118.11) (xy 346.71 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2855,7 +2855,7 @@
 	)
 	(wire
 		(pts
-			(xy 318.77 88.9) (xy 318.77 101.6)
+			(xy 318.77 88.9) (xy 318.77 102.87)
 		)
 		(stroke
 			(width 0)
@@ -2875,7 +2875,7 @@
 	)
 	(wire
 		(pts
-			(xy 304.8 109.22) (xy 307.34 109.22)
+			(xy 304.8 110.49) (xy 307.34 110.49)
 		)
 		(stroke
 			(width 0)
@@ -2955,7 +2955,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 124.46) (xy 307.34 124.46)
+			(xy 297.18 124.46) (xy 307.34 124.46)
 		)
 		(stroke
 			(width 0)
@@ -3005,7 +3005,7 @@
 	)
 	(wire
 		(pts
-			(xy 346.71 109.22) (xy 335.28 109.22)
+			(xy 346.71 110.49) (xy 335.28 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3035,7 +3035,7 @@
 	)
 	(wire
 		(pts
-			(xy 354.33 109.22) (xy 355.6 109.22)
+			(xy 354.33 110.49) (xy 355.6 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3505,7 +3505,7 @@
 	)
 	(wire
 		(pts
-			(xy 330.2 109.22) (xy 335.28 109.22)
+			(xy 330.2 110.49) (xy 335.28 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3655,7 +3655,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 124.46) (xy 300.99 133.35)
+			(xy 297.18 124.46) (xy 297.18 133.35)
 		)
 		(stroke
 			(width 0)
@@ -4121,7 +4121,7 @@
 	)
 	(hierarchical_label "SPEAKER_L"
 		(shape output)
-		(at 355.6 109.22 0)
+		(at 355.6 110.49 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4157,7 +4157,7 @@
 	)
 	(hierarchical_label "SPEAKER_H"
 		(shape output)
-		(at 355.6 116.84 0)
+		(at 355.6 118.11 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4766,7 +4766,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_US")
-		(at 350.52 116.84 90)
+		(at 350.52 118.11 90)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4775,7 +4775,7 @@
 		(dnp no)
 		(uuid "233658db-30ba-4ec9-887f-eef3ef8d6b50")
 		(property "Reference" "C67"
-			(at 355.6 121.92 90)
+			(at 355.6 123.19 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4784,7 +4784,7 @@
 			)
 		)
 		(property "Value" "1000μF"
-			(at 355.6 124.46 90)
+			(at 355.6 125.73 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4793,7 +4793,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 350.52 116.84 0)
+			(at 350.52 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4802,7 +4802,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 350.52 116.84 0)
+			(at 350.52 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4811,7 +4811,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
-			(at 350.52 116.84 0)
+			(at 350.52 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5833,8 +5833,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_US")
-		(at 300.99 109.22 270)
-		(mirror x)
+		(at 300.99 110.49 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5842,7 +5841,7 @@
 		(dnp no)
 		(uuid "675c47b8-7e8a-4ee0-b295-9d604fb5761d")
 		(property "Reference" "C72"
-			(at 298.45 113.03 90)
+			(at 298.45 106.68 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5851,7 +5850,7 @@
 			)
 		)
 		(property "Value" "10μF"
-			(at 298.45 115.57 90)
+			(at 298.45 104.14 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5860,7 +5859,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 300.99 109.22 0)
+			(at 300.99 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5869,7 +5868,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 300.99 109.22 0)
+			(at 300.99 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5878,7 +5877,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
-			(at 300.99 109.22 0)
+			(at 300.99 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5970,7 +5969,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_US")
-		(at 350.52 109.22 90)
+		(at 350.52 110.49 90)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5979,7 +5978,7 @@
 		(dnp no)
 		(uuid "6bfe0c87-8bf5-4474-8ae6-1f67344931a9")
 		(property "Reference" "C66"
-			(at 355.6 101.6 90)
+			(at 355.6 102.87 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5988,7 +5987,7 @@
 			)
 		)
 		(property "Value" "1000μF"
-			(at 356.87 104.14 90)
+			(at 356.87 105.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5997,7 +5996,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 350.52 109.22 0)
+			(at 350.52 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6006,7 +6005,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 350.52 109.22 0)
+			(at 350.52 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6015,7 +6014,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
-			(at 350.52 109.22 0)
+			(at 350.52 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7538,7 +7537,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 300.99 137.16 180)
+		(at 297.18 137.16 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7546,7 +7545,7 @@
 		(dnp no)
 		(uuid "b62022c8-4d1b-43c5-92a9-e9c017de841b")
 		(property "Reference" "C71"
-			(at 308.61 135.89 0)
+			(at 304.8 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7555,7 +7554,7 @@
 			)
 		)
 		(property "Value" "10nF"
-			(at 309.88 138.43 0)
+			(at 306.07 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7564,7 +7563,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 300.0248 133.35 0)
+			(at 296.2148 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7573,7 +7572,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 300.99 137.16 0)
+			(at 297.18 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7582,7 +7581,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 300.99 137.16 0)
+			(at 297.18 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7917,7 +7916,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_US")
-		(at 300.99 120.65 0)
+		(at 297.18 120.65 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7926,7 +7925,7 @@
 		(dnp no)
 		(uuid "c5ed5d52-d77c-4e2c-8cc9-69e318a8d65b")
 		(property "Reference" "C70"
-			(at 297.18 119.38 0)
+			(at 293.37 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7935,7 +7934,7 @@
 			)
 		)
 		(property "Value" "4.7μF"
-			(at 297.18 121.92 0)
+			(at 293.37 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7944,7 +7943,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 300.99 120.65 0)
+			(at 297.18 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7953,7 +7952,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 300.99 120.65 0)
+			(at 297.18 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7962,7 +7961,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
-			(at 300.99 120.65 0)
+			(at 297.18 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8122,7 +8121,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 335.28 113.03 0)
+		(at 335.28 114.3 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -8131,7 +8130,7 @@
 		(dnp no)
 		(uuid "d946670d-c444-4482-b990-bb4886109ebc")
 		(property "Reference" "C69"
-			(at 342.9 111.76 0)
+			(at 342.9 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8140,7 +8139,7 @@
 			)
 		)
 		(property "Value" "150 nF"
-			(at 345.44 114.3 0)
+			(at 345.44 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8149,7 +8148,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 334.3148 116.84 0)
+			(at 334.3148 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8158,7 +8157,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 335.28 113.03 0)
+			(at 335.28 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8167,7 +8166,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 335.28 113.03 0)
+			(at 335.28 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8261,7 +8260,7 @@
 	)
 	(symbol
 		(lib_id "jt74:M51516L")
-		(at 318.77 116.84 0)
+		(at 318.77 114.3 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8270,7 +8269,7 @@
 		(fields_autoplaced yes)
 		(uuid "e8261f0d-0b52-448e-9cd6-7e985c8dfe2b")
 		(property "Reference" "IC91"
-			(at 320.9641 99.06 0)
+			(at 320.9641 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8279,7 +8278,7 @@
 			)
 		)
 		(property "Value" "M51516L"
-			(at 320.9641 101.6 0)
+			(at 320.9641 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8288,7 +8287,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 314.96 124.46 0)
+			(at 314.96 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8297,7 +8296,7 @@
 			)
 		)
 		(property "Datasheet" "https://semiconductors.es/pdf-down/M/5/1/M51516L_ETC.pdf"
-			(at 320.04 111.252 0)
+			(at 320.04 108.712 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8306,7 +8305,7 @@
 			)
 		)
 		(property "Description" "AF BTL Power Amplifier 12 W. 9~16V"
-			(at 318.77 114.046 0)
+			(at 318.77 111.506 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -20,17 +20,39 @@ module jtwwfss_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:0] char_dout;
-wire [11:1] main_addr;
 wire [ 8:0] scrx, scry;
-wire [ 7:0] snd_latch;
-wire [ 1:0] pal_wen;
+wire [ 7:0] char_dout, scr_dout, snd_latch;
 wire        snd_on, v8;
+reg  [ 7:0] debug_mux;
+reg  [ 7:0] ioctl_mux;
 
-assign char_dout = {8'd0, main_addr[1] ? char16_dout[7:0] : char16_dout[15:8]};
-assign scr_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
-assign obj_dout  = {8'd0, main_addr[1] ? scr16_dout[7:0] : scr16_dout[15:8]};
+assign char_dout  = main_addr[1] ? char16_dout[7:0] : char16_dout[15:8];
+assign scr_dout   = main_addr[1] ?  scr16_dout[7:0] :  scr16_dout[15:8];
+assign ram_addr   = main_addr[13:1];
+assign debug_view = debug_mux;
+assign dip_flip   = 0;
+`ifndef JTFRAME_RELEASE
+assign ioctl_din  = ioctl_mux;
+`endif
 
+always @(posedge clk) begin
+    case (debug_bus[7:6])
+        0: debug_mux <= scrx[8:1];
+        1: debug_mux <= scry[8:1];
+        default: debug_mux <= 0;
+    endcase
+end
+
+always @* begin
+    case(ioctl_addr[1:0])
+        0: ioctl_mux = scrx[7:0];
+        1: ioctl_mux = {7'd0,scrx[8]};
+        2: ioctl_mux = scry[7:0];
+        3: ioctl_mux = {7'd0,scry[8]};
+    endcase
+end
+
+/* verilator tracing_off */
 jtwwfss_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
@@ -38,30 +60,30 @@ jtwwfss_main u_main(
     .v8         ( v8        ),
 
     .main_addr  ( main_addr ),
-    .main_dsn   ( main_dsn  ),
+    .main_dsn   ( ram_dsn   ),
     .main_dout  ( main_dout ),
-    .main_rnw   ( main_rnw  ),
+    .ram_we     ( ram_we    ),
 
     .cram_we    ( cram_we   ),
     .scr_we     ( scr_we    ),
     .oram_we    ( oram_we   ),
-    .pal_wen    ( pal_wen   ),
+    .pal_we     ( pal_we    ),
 
-    .fix_dout   ( fix_dout  ),
+    .fix_dout   ( char_dout ),
     .scr_dout   ( scr_dout  ),
-    .oram_dout  ( oram_dout ),
-    .pal_dout   ( pal_dout  ),
+    .oram_dout  ( oram2main_data ),
+    .pal_dout   ( pal2main_data  ),
 
     .scrx       ( scrx      ),
     .scry       ( scry      ),
 
     .ram_cs     ( ram_cs    ),
     .ram_ok     ( ram_ok    ),
-    .ram_dout   ( ram_dout  ),
+    .ram_dout   ( ram_data  ),
 
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_cs     ( main_cs   ),
+    .rom_ok     ( main_ok   ),
+    .rom_data   ( main_data ),
 
     // Sound interface
     .snd_on     ( snd_on        ),
@@ -69,29 +91,29 @@ jtwwfss_main u_main(
 
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
 );
-
+/* verilator tracing_on */
 jtwwfss_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
+    .flip       ( 1'b0          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .v8         ( v8            ),
-
-    .cpu_dout   ( cpu_dout      ),
-    .cpu_addr   ( cpu_addr[9:1] ),
 
     // Char
     .cram_addr  ( cram_addr     ),
-    .cram_data  ( cram_data     ),
+    .cram_data  ( cram_dout     ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
     .char_cs    ( char_cs       ),
@@ -101,23 +123,21 @@ jtwwfss_video u_video(
     .scrx       ( scrx          ),
     .scry       ( scry          ),
     .vram_addr  ( vram_addr     ),
-    .vram_data  ( vram_data     ),
+    .vram_data  ( vram_dout     ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_cs     ( scr_cs        ),
     .scr_ok     ( scr_ok        ),
-    .scr_cs     ( scr_cs        ),
 
     // Object
     .oram_addr  ( oram_addr     ),
-    .oram_data  ( oram_data     ),
+    .oram_data  ( oram_dout     ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_cs     ( obj_cs        ),
     .obj_ok     ( obj_ok        ),
-    .obj_cs     ( obj_cs        ),
 
-    .pal_wen    ( pal_wen       ),
+    .pal_addr   ( pal_addr      ),
     .pal_dout   ( pal_dout      ),
 
     .red        ( red           ),
@@ -125,7 +145,7 @@ jtwwfss_video u_video(
     .blue       ( blue          ),
     .gfx_en     ( gfx_en        )
 );
-
+/* verilator tracing_off */
 jtwwfss_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),

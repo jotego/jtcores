@@ -17,7 +17,11 @@
     Date: 2-12-2019 */
 
 
-module jtdd_video(
+module jtdd_video #(parameter
+    OBJ_LAYOUT = 0, // DD=0, DD2=1
+    // do not assign
+    OW = OBJ_LAYOUT==0 ? 19 : 20
+)(
     input              rst,
     input              clk,
     input              clk_cpu,
@@ -45,7 +49,7 @@ module jtdd_video(
     input      [15:0]  scr_data,
     input              scr_ok,
     // Object
-    output     [19:2]  obj_addr,
+    output   [OW-1:2]  obj_addr,
     input      [31:0]  obj_data,
     input              obj_ok,
     output             obj_cs,
@@ -145,7 +149,6 @@ jtframe_tilemap #(
     .pxl        ( char_pxl    )
 );
 
-`ifndef NOSCROLL
 jtdd_scroll u_scroll(
     .rst         ( rst              ),
     .clk         ( clk              ),
@@ -166,12 +169,10 @@ jtdd_scroll u_scroll(
     .rom_ok      ( scr_ok           ),
     .scr_pxl     ( scr_pxl          )
 );
-`else
-assign scr_addr = 17'd0;
-assign scr_pxl = 8'd0;
-`endif
 
-jtdd_obj u_obj(
+jtdd_obj #(
+    .LAYOUT      ( OBJ_LAYOUT       )
+)u_obj(
     .clk         ( clk              ),
     .rst         ( rst              ),
     .pxl_cen     ( pxl_cen          ),

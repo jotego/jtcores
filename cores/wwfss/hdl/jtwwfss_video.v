@@ -21,12 +21,12 @@ module jtwwfss_video(
     input           clk,
     input           pxl_cen,
 
+    input           flip,
     output          LHBL,
     output          LVBL,
+    output          VS,
+    output          HS,
     output          v8,
-
-    input   [15:0] cpu_dout,
-    input   [ 9:1] cpu_addr,
 
     // Char
     output  [10:1]  cram_addr,
@@ -40,31 +40,31 @@ module jtwwfss_video(
     input   [ 8:0]  scrx, scry,
     output  [10:1]  vram_addr,
     input   [15:0]  vram_data,
-    output  [19:2]  scr_addr,
+    output  [18:2]  scr_addr,
     input   [31:0]  scr_data,
     output          scr_cs,
     input           scr_ok,
-    input           scr_cs,
 
     // Object
-    output  [ 9:1]  oram_addr,
-    input   [15:0]  oram_data,
+    output  [ 8:0]  oram_addr,
+    input   [ 7:0]  oram_data,
     output  [20:2]  obj_addr,
     input   [31:0]  obj_data,
     output          obj_cs,
     input           obj_ok,
-    input           obj_cs,
 
-    input   [ 1:0]  pal_wen,
-    output  [15:0]  pal_dout,
+    output    [9:1] pal_addr,
+    input    [15:0] pal_dout,
 
     output  [ 3:0]  red, green, blue,
     input   [ 3:0]  gfx_en
 );
 
+wire [18:2]  scr_araw;
+wire [10:1] vram_araw;
+wire [ 8:0] hdump, vdump, vrender;
 wire [ 6:0] char_pxl, scr_pxl, obj_pxl;
-wire [ 8:0] hdump, vdump;
-wire        blankn;
+wire        nc;
 
 wire [31:0] char_sorted, scr_sorted;
 
@@ -82,24 +82,25 @@ scr_data[ 4],scr_data[ 5],scr_data[ 6],scr_data[ 7],scr_data[20],scr_data[21],sc
 scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],scr_data[18],scr_data[19]
 };
 
-assign blankn = LHBL & LVBL;
 assign v8     = vdump[3];
+assign vram_addr = { vram_araw[10], vram_araw[5], vram_araw[9:6], vram_araw[4:1] };
+assign scr_addr  = { scr_araw[18:7], scr_araw[5:2], scr_araw[6] };
 
 jtframe_vtimer #(
     .VB_START   ( 9'hf7     ),
     .VB_END     ( 9'h7      ),
     .VCNT_END   ( 9'd271    ),
     .VS_START   ( 9'h106    ),
-    .HS_START   ( 9'h1ae    ),
-    .HB_START   ( 9'h184    ),
+    .HS_START   ( 9'h1b5    ),
+    .HB_START   ( 9'h188    ),
     .HJUMP      ( 1         ),
-    .HB_END     ( 9'd4      ),
+    .HB_END     ( 9'd8      ),
     .HINIT      ( 9'd255    )
 )   u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .vdump      ( vdump     ),
-    .vrender    (           ),
+    .vrender    ( vrender   ),
     .vrender1   (           ),
     .H          ( hdump     ),
     .Hinit      (           ),
@@ -110,11 +111,10 @@ jtframe_vtimer #(
     .VS         ( VS        )
 );
 
-
 jtframe_tilemap #(
     .CW ( 12 ),
     .PW (  7 ),
-    .HDUMP_OFFSET( -2 )
+    .HDUMP_OFFSET( 0 )
 ) u_char(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -127,8 +127,8 @@ jtframe_tilemap #(
 
     .vram_addr  ( cram_addr ),
 
-    .code       (cram_data[10: 0]),
-    .pal        (cram_data[15:13]),
+    .code       (cram_data[11: 0]),
+    .pal        (cram_data[14:12]),
     .hflip      ( 1'b0        ),
     .vflip      ( 1'b0        ),
 
@@ -140,33 +140,36 @@ jtframe_tilemap #(
     .pxl        ( char_pxl    )
 );
 
+wire [8:0] hlin = hdump[8] ? hdump-9'h80 : hdump;
+
 jtframe_scroll #(
-    .SIZE     (16),
-    .VA       (11),
-    .PW       ( 7),
-    .XOR_HFLIP( 1), // set to 1 so hflip gets ^ with flip
-)u_scroll(
+    .SIZE        (   16 ),
+    .VA          (   10 ),
+    .PW          (    7 ),
+    .XOR_HFLIP   (    1 ), // set to 1 so hflip gets ^ with flip
+    .HJUMP       (    0 )
+) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .hs         ( hs        ),
+    .hs         ( HS        ),
 
     .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
-    .blankn     ( blankn    ),  // if !blankn there are no ROM requests
-    .flip       ( 1'b0      ),
+    .hdump      ( hlin      ),
+    .blankn     ( LVBL      ),  // if !blankn there are no ROM requests
+    .flip       ( flip      ),
     .scrx       ( scrx      ),
     .scry       ( scry      ),
 
-    .vram_addr  ( vram_addr ),
+    .vram_addr  ( vram_araw ),
 
-    .code       ( vram_dout[11:0] ),
-    .pal        ( vram_dout[14:12]),
-    .hflip      ( vram_dout[15]   ),
+    .code       ( vram_data[11:0] ),
+    .pal        ( vram_data[14:12]),
+    .hflip      ( vram_data[15]   ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( scr_addr  ),
+    .rom_addr   ( scr_araw  ),
     .rom_data   ( scr_sorted),
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),      // ignored. It assumes that data is always right
@@ -174,19 +177,40 @@ jtframe_scroll #(
     .pxl        ( scr_pxl   )
 );
 
+jtdd_obj #(.LAYOUT(2)) u_obj(
+    .clk         ( clk              ),
+    .rst         ( rst              ),
+    .pxl_cen     ( pxl_cen          ),
+    // screen
+    .hdump       ( hdump            ),
+    .VPOS        ( vrender[7:0]     ),
+    .flip        ( flip             ),
+    .HBL         ( ~LHBL            ),
+    .hs          ( HS               ),
+    // Video RAM
+    .oram_addr   ( oram_addr        ),
+    .oram_data   ( oram_data        ),
+    // ROM access
+    .rom_cs      ( obj_cs           ),
+    .rom_addr    ( obj_addr         ),
+    .rom_data    ( obj_data         ),
+    .rom_ok      ( obj_ok           ),
+    .pxl         ( {nc,obj_pxl}     ),
+
+    .debug_bus   ( 8'd0             )
+);
+
 jtwwfss_colmix u_colmix(
     .clk        ( clk           ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
 
-    .cpu_addr   ( cpu_addr      ),
-    .cpu_dout   ( cpu_dout      ),
-    .cpu_din    ( pal_dout      ),
-    .pal_wen    ( pal_wen       ),
-
     .char_pxl   ( char_pxl      ),
     .scr_pxl    ( scr_pxl       ),
     .obj_pxl    ( obj_pxl       ),
+
+    .pal_addr   ( pal_addr      ),
+    .pal_dout   ( pal_dout      ),
 
     .red        ( red           ),
     .green      ( green         ),
