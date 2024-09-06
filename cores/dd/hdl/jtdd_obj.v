@@ -57,6 +57,8 @@ localparam E = LAYOUT==WWFSS ? 0 : 7, // enable bit
            Y = LAYOUT==WWFSS ? 2 : 0, // y MSB
            L = LAYOUT==WWFSS ? 1 : 4; // Large sprite (16x32)
 
+localparam [8:0] HOFFSET = LAYOUT==WWFSS ? 9'd6 : 9'd10;
+
 // RAM area shared with CPU
 reg  [ 8:0] scan;
 reg  [ 2:0] offset;
@@ -205,7 +207,7 @@ jtframe_objdraw #(
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
     .code       ( { id_msb, id } ),
-    .xpos       ( xpos-9'h6 ),
+    .xpos       ( xpos-HOFFSET ),
     .ysub       ( ypos[3:0] ),
     // optional zoom, keep at zero for no zoom
     .hzoom      ( 6'd0      ),
