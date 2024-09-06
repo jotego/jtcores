@@ -140,8 +140,11 @@ wire [21:0] osd_h_hdr = (info || rot) ? osd_h : (osd_h + OSD_HDR);
 wire [8:0] logo_h, logo_v;
 wire [2:0] logo_rgb;
 wire       logo_blank;
-reg        logo_enb;
+reg        logo_enb, info_video;
 
+always @(posedge clk_video) begin
+    info_video <= info;
+end
 // pipeline the comparisons a bit
 always @(posedge clk_video) if(ce_pix) begin
     v_cnt_h <= v_cnt <= osd_t;
@@ -193,12 +196,12 @@ always @(posedge clk_video) begin : GEOMETRY
         if (h_cnt == h_osd_start) begin
             osd_de[0] <= osd_en[1] && osd_h && (
                           osd_vcnt[11] ? (osd_vcnt[7] && (osd_vcnt[6:0] >= 4) && (osd_vcnt[6:0] < 19)) :
-                                (info && (rot == 3)) ? !osd_vcnt[21:8] :
+                                (info_video && (rot == 3)) ? !osd_vcnt[21:8] :
                            (osd_vcnt < osd_h)
                                 );
             osd_hcnt <= 0;
             osd_hcnt2 <= 0;
-            if(info && rot == 1) osd_hcnt2 <= 22'd128-infoh;
+            if(info_video && rot == 1) osd_hcnt2 <= 22'd128-infoh;
         end
         if (osd_hcnt+1 == osd_w) osd_de[0] <= 0;
 
@@ -209,7 +212,7 @@ always @(posedge clk_video) begin : GEOMETRY
         if(de_in && !deD) begin
             h_cnt <= 0;
             v_cnt <= v_cnt + 1'd1;
-            h_osd_start <= info ? (rot[0] ? infoy : infox) : (((dsp_width - osd_w)>>1) - 2'd2);
+            h_osd_start <= info_video ? (rot[0] ? infoy : infox) : (((dsp_width - osd_w)>>1) - 2'd2);
 
             if(h_cnt > {dsp_width, 2'b00}) begin
                 v_cnt <= 1;
@@ -222,28 +225,28 @@ always @(posedge clk_video) begin : GEOMETRY
                     half <= 0;
                     if(v_cnt_h) begin
                         multiscan <= 0;
-                        v_osd_start <= info ? v_info_start_h : v_osd_start_h;
+                        v_osd_start <= info_video ? v_info_start_h : v_osd_start_h;
                         half <= 1;
                     end
                     else if(v_cnt_1 | (rot[0] & v_cnt_2)) begin
                         multiscan <= 0;
-                        v_osd_start <= info ? v_info_start_1 : v_osd_start_1;
+                        v_osd_start <= info_video ? v_info_start_1 : v_osd_start_1;
                     end
                     else if(rot[0] ? v_cnt_3 : v_cnt_2) begin
                         multiscan <= 1;
-                        v_osd_start <= info ? v_info_start_2 : v_osd_start_2;
+                        v_osd_start <= info_video ? v_info_start_2 : v_osd_start_2;
                     end
                     else if(rot[0] ? v_cnt_4 : v_cnt_3) begin
                         multiscan <= 2;
-                        v_osd_start <= info ? v_info_start_3 : v_osd_start_3;
+                        v_osd_start <= info_video ? v_info_start_3 : v_osd_start_3;
                     end
                     else if(rot[0] | v_cnt_4) begin
                         multiscan <= 3;
-                        v_osd_start <= info ? v_info_start_4 : v_osd_start_4;
+                        v_osd_start <= info_video ? v_info_start_4 : v_osd_start_4;
                     end
                     else begin
                         multiscan <= 4;
-                        v_osd_start <= info ? v_info_start_5 : v_osd_start_5;
+                        v_osd_start <= info_video ? v_info_start_5 : v_osd_start_5;
                     end
                 end
             end
@@ -252,12 +255,12 @@ always @(posedge clk_video) begin : GEOMETRY
             if(osd_div == multiscan) begin
                 osd_div <= 0;
                 if(~osd_vcnt[10]) osd_vcnt <= osd_vcnt + 1'd1 + half;
-                if(osd_vcnt == 'b100010011111 && ~info) osd_vcnt <= 0;
+                if(osd_vcnt == 'b100010011111 && ~info_video) osd_vcnt <= 0;
             end
             if(v_osd_start == v_cnt) begin
                 {osd_div,osd_vcnt} <= 0;
-                if(info && rot == 3) osd_vcnt <= 22'd256-infow;
-                else if(OSD_HDR && !rot) osd_vcnt <= {~info, 3'b000, ~info, 7'b0000000};
+                if(info_video && rot == 3) osd_vcnt <= 22'd256-infow;
+                else if(OSD_HDR && !rot) osd_vcnt <= {~info_video, 3'b000, ~info_video, 7'b0000000};
             end
         end
 
@@ -266,7 +269,7 @@ always @(posedge clk_video) begin : GEOMETRY
         osd_de[2:1] <= osd_de[1:0];
         logo_h   <= (osd_hcnt[8:0]-9'd8) ^ {9{~rot[0]& rot[1]}};
         logo_v   <= osd_vcnt[8:0] ^ {9{~rot[0]& rot[1]}};
-        logo_enb <= info || !highres; // do not use background for the info box
+        logo_enb <= info_video || !highres; // do not use background for the info box
 `ifdef JTFRAME_OSD_NOLOGO
         logo_enb <= 1;
 `endif

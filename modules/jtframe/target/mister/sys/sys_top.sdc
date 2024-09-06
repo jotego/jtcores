@@ -91,13 +91,6 @@ set_false_path -from FB_EN
 set_false_path -to deb_osd[0]
 set_false_path -from emu:emu|jtframe_mister:u_frame|jtframe_board:u_board|jtframe_led:u_led|led
 
-# set false path between Game clock <--> HDMI clock
-# set_false_path  -from  [get_clocks {emu|pll|jtframe_pll*_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}]  -to  [get_clocks {pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk}]
-# set_false_path  -to  [get_clocks {emu|pll|jtframe_pll*_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}]  -from [get_clocks {pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk}]
-# set_false_path  -from  [get_clocks {pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk}]  -to  [get_clocks {emu|pll|game_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}]
-# set_false_path  -from  [get_clocks {emu|pll|game_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}]  -to  [get_clocks {FPGA_CLK1_50}]
-# set_false_path  -from  [get_clocks {emu|pll|game_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}]  -to  [get_clocks {pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk}]
-
 set_false_path  -from  [get_clocks *]  -to  [get_clocks {sysmem|fpga_interfaces|clocks_resets*}]
 set_false_path  -from  [get_clocks *]  -to  [get_clocks {sysmem|fpga_interfaces|clocks_resets*}]
 
@@ -113,3 +106,13 @@ set_false_path  -from  [get_clocks {FPGA_CLK2_50}]  -to  [get_clocks {emu|pll|ga
 set_false_path -from [get_keepers {cfg_ready}] -to [get_keepers {vsd}]
 set_false_path -from [get_keepers {cfg_ready}] -to [get_keepers {vsd2}]
 set_false_path -from [get_keepers {cfg_ready}] -to [get_keepers {cfg_got}]
+
+# based on JTKICKER
+set_multicycle_path -setup -end -from [get_keepers {cfg_custom_p2[*]}] -to [get_keepers {adj_data[*]}] 2
+set_multicycle_path -setup -end -from [get_keepers {cfg_custom_p1[*]}] -to [get_keepers {adj_address[*]}] 2
+set_multicycle_path -setup -end -from [get_keepers {cfg_custom_t}]     -to [get_keepers {custd}] 2
+set_multicycle_path -setup -end -from [get_keepers {cfg_got}]          -to [get_keepers {gotd}] 2
+set_multicycle_path -setup -end -from [get_keepers {lowlat}]           -to [get_keepers {lowlat_clk1_50}] 2
+set_multicycle_path -setup -end -from [get_keepers {ascal:ascal|*}]    -to [get_keepers {*_clk1_50*}] 2
+set_multicycle_path -setup -end -from [get_clocks {emu|pll|game_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}] -to [get_keepers {lltune_clk1_50[*]}] 2
+set_false_path -from [get_keepers {cfg_done}] -to [get_keepers {lltune_clk1_50[*]}]
