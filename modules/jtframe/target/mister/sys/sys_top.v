@@ -679,7 +679,6 @@ wire         vbuf_write;
 wire  [23:0] hdmi_data;
 wire         hdmi_vs, hdmi_hs, hdmi_de, hdmi_vbl, hdmi_brd;
 wire         freeze;
-wire  [15:0] lltune;
 
 `ifndef MISTER_DEBUG_NOHDMI
 	wire clk_hdmi  = hdmi_clk_out;
@@ -964,31 +963,23 @@ always @(posedge clk_vid) begin
 end
 
 `ifndef MISTER_DEBUG_NOHDMI
-	reg			lowlat_clk1_50;
-	reg  [15:0] lltune_clk1_50;
-
-	// from clk_sys to FPGA_CLK1_50
-	always @(posedge FPGA_CLK1_50) begin
-		lowlat_clk1_50   <= lowlat;
-		lltune_clk1_50   <= {16{cfg_done}} & lltune;
-	end
-
+	wire [15:0] lltune;
 	pll_hdmi_adj pll_hdmi_adj
 	(
-		.clk	 	  ( FPGA_CLK1_50				),
-		.reset_na	  ( ~reset_req					),
+		.clk(FPGA_CLK1_50),
+		.reset_na(~reset_req),
 
-		.llena        ( lowlat_clk1_50 				),
-		.lltune       ( lltune_clk1_50          	),
-		.locked       ( led_locked 					),
-		.i_waitrequest( adj_waitrequest 			),
-		.i_write      ( adj_write 					),
-		.i_address    ( adj_address 				),
-		.i_writedata  ( adj_data          			),
-		.o_waitrequest( cfg_waitrequest 			),
-		.o_write      ( cfg_write 					),
-		.o_address    ( cfg_address 				),
-		.o_writedata  ( cfg_data					)
+		.llena(lowlat),
+		.lltune({16{cfg_done}} & lltune),
+		.locked(led_locked),
+		.i_waitrequest(adj_waitrequest),
+		.i_write(adj_write),
+		.i_address(adj_address),
+		.i_writedata(adj_data),
+		.o_waitrequest(cfg_waitrequest),
+		.o_write(cfg_write),
+		.o_address(cfg_address),
+		.o_writedata(cfg_data)
 	);
 `else
 	assign led_locked = 0;
@@ -1273,47 +1264,39 @@ hdmiclk_ddr
 	.sset(1'b0)
 );
 
-// hdmi_out_* in hdmi_tx_clk domain
-// hdmi_pre_* in clk_hdmi domain
-reg hdmi_out_hs, hdmi_pre_hs;
-reg hdmi_out_vs, hdmi_pre_vs;
-reg hdmi_out_de, hdmi_pre_de;
-reg [23:0] hdmi_out_d, hdmi_pre_d;
+reg hdmi_out_hs;
+reg hdmi_out_vs;
+reg hdmi_out_de;
+reg [23:0] hdmi_out_d;
 
-always @(posedge clk_hdmi) begin
-	reg [23:0] hdmi_dv_data, hdmi_pre_d;
+always @(posedge hdmi_tx_clk) begin
+	reg [23:0] hdmi_dv_data;
 	reg        hdmi_dv_hs, hdmi_dv_vs, hdmi_dv_de;
-	reg        hdmi_sel, cs_sel;
 
-	// from clk_sys domain into clk_hdmi
-	hdmi_sel     <= ~vga_fb & direct_video;
-	cs_sel       <= direct_video & csync_en;
-
-	// from clk_vid domain into clk_hdmi
+	reg hs,vs,de;
+	reg [23:0] d;
+	
 	hdmi_dv_data <= dv_data;
 	hdmi_dv_hs   <= dv_hs;
 	hdmi_dv_vs   <= dv_vs;
 	hdmi_dv_de   <= dv_de;
-
-
+	
 `ifndef MISTER_DEBUG_NOHDMI
-	hdmi_pre_hs <= hdmi_sel ? hdmi_dv_hs   : cs_sel ? hdmi_cs_osd : hdmi_hs_osd;
-	hdmi_pre_vs <= hdmi_sel ? hdmi_dv_vs   : hdmi_vs_osd;
-	hdmi_pre_de <= hdmi_sel ? hdmi_dv_de   : hdmi_de_osd;
-	hdmi_pre_d  <= hdmi_sel ? hdmi_dv_data : hdmi_data_osd;
+	hs <= (~vga_fb & direct_video) ? hdmi_dv_hs   : (direct_video & csync_en) ? hdmi_cs_osd : hdmi_hs_osd;
+	vs <= (~vga_fb & direct_video) ? hdmi_dv_vs   : hdmi_vs_osd;
+	de <= (~vga_fb & direct_video) ? hdmi_dv_de   : hdmi_de_osd;
+	d  <= (~vga_fb & direct_video) ? hdmi_dv_data : hdmi_data_osd;
 `else
-	hdmi_pre_hs <= hdmi_dv_hs;
-	hdmi_pre_vs <= hdmi_dv_vs;
-	hdmi_pre_de <= hdmi_dv_de;
-	hdmi_pre_d  <= hdmi_dv_data;
+	hs <= hdmi_dv_hs;
+	vs <= hdmi_dv_vs;
+	de <= hdmi_dv_de;
+	d  <= hdmi_dv_data;
 `endif
-end
 
-always @(posedge hdmi_tx_clk) begin
-	hdmi_out_hs <= hdmi_pre_hs;
-	hdmi_out_vs <= hdmi_pre_vs;
-	hdmi_out_de <= hdmi_pre_de;
-	hdmi_out_d  <= hdmi_pre_d;
+	hdmi_out_hs <= hs;
+	hdmi_out_vs <= vs;
+	hdmi_out_de <= de;
+	hdmi_out_d  <= d;
 end
 
 assign HDMI_TX_HS = hdmi_out_hs;
