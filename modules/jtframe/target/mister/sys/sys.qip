@@ -1,4 +1,4 @@
-set_global_assignment -name QIP_FILE           [join [list $::quartus(qip_path) pll_q [regexp -inline {[0-9]+} $quartus(version)] .qip] {}]
+# set_global_assignment -name QIP_FILE           [join [list $::quartus(qip_path) pll_q [regexp -inline {[0-9]+} $quartus(version)] .qip] {}]
 set_global_assignment -name VERILOG_FILE       [file join $::quartus(qip_path) sys_top.v ]
 set_global_assignment -name SDC_FILE           [file join $::quartus(qip_path) sys_top.sdc ]
 set_global_assignment -name VHDL_FILE          [file join $::quartus(qip_path) ascal.vhd ]

@@ -375,6 +375,9 @@ func Make_macros(cfg Config) (macros map[string]string) {
 			}
 		}
 		mclk = freq*8
+		macros[pll]=""	// define a macro with the PLL name
+	} else {
+		macros["JTFRAME_PLL6000"]=""
 	}
 	if Defined(macros,"JTFRAME_CLK96") || Defined(macros,"JTFRAME_SDRAM96") {
 		mclk *= 2

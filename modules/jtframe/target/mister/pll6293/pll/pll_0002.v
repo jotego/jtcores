@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-module  jtframe_pll6671_0002(
+module  pll_0002(
 
 	// interface 'refclk'
 	input wire refclk,
@@ -34,23 +34,23 @@ module  jtframe_pll6671_0002(
 		.reference_clock_frequency("50.0 MHz"),
 		.operation_mode("direct"),
 		.number_of_clocks(6),
-		.output_clock_frequency0("53.365384 MHz"),
+		.output_clock_frequency0("50.347222 MHz"),
 		.phase_shift0("0 ps"),
 		.duty_cycle0(50),
-		.output_clock_frequency1("53.365384 MHz"),
-		.phase_shift1("5495 ps"),
+		.output_clock_frequency1("50.347222 MHz"),
+		.phase_shift1("4965 ps"),
 		.duty_cycle1(50),
-		.output_clock_frequency2("26.682692 MHz"),
+		.output_clock_frequency2("25.173611 MHz"),
 		.phase_shift2("0 ps"),
 		.duty_cycle2(50),
-		.output_clock_frequency3("6.670673 MHz"),
+		.output_clock_frequency3("6.293402 MHz"),
 		.phase_shift3("0 ps"),
 		.duty_cycle3(50),
-		.output_clock_frequency4("106.730769 MHz"),
+		.output_clock_frequency4("100.694444 MHz"),
 		.phase_shift4("0 ps"),
 		.duty_cycle4(50),
-		.output_clock_frequency5("106.730769 MHz"),
-		.phase_shift5("-4954 ps"),
+		.output_clock_frequency5("100.694444 MHz"),
+		.phase_shift5("-5068 ps"),
 		.duty_cycle5(50),
 		.output_clock_frequency6("0 MHz"),
 		.phase_shift6("0 ps"),
