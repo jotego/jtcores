@@ -17,7 +17,7 @@ module pll (
 		output wire  locked    //  locked.export
 	);
 
-	pll_0002 game_pll (
+	pll_0002 pll_inst (
 		.refclk   (refclk),   //  refclk.clk
 		.rst      (rst),      //   reset.reset
 		.outclk_0 (outclk_0), // outclk0.clk
