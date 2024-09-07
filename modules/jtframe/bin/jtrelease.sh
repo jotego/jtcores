@@ -160,7 +160,15 @@ fi
 # note that the beta zip files are generated before the commit
 # in order to have the MiST and SiDi cores too
 echo "Create zip files for JTFriday"
-cpbeta.sh
+echo "Delete non-arcade PCB schematics"
+wait
+rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
+echo "Commit to git"
+mkdir -p pocket/raw/Assets/jtpatreon/common
+echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
+rm -f version.log
+cpbeta.sh $LAST
+
 echo "Removing games in beta phase for SiDi and MiST"
 for t in mist sidi sidi128; do
 	for i in $JTBIN/$t/*.rbf; do
@@ -170,17 +178,8 @@ for t in mist sidi sidi128; do
 		fi
 	done
 done
-echo "Delete non-arcade PCB schematics"
-wait
-rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
-echo "Commit to git"
-mkdir -p pocket/raw/Assets/jtpatreon/common
-echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
-rm -f version.log
 git add .
 git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
-
-cpbeta.sh $LAST
 
 # also mark the commit in jtcores as the current release
 cd $JTROOT
