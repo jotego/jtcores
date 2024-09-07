@@ -101,7 +101,6 @@ end
 
 reg  [7:0] pcm_good;
 reg  [1:0] pcm_rdy;
-reg        pcm_sample;
 
 assign pcm = 8'h80 - pcm_good;
 
@@ -110,14 +109,11 @@ always @(posedge clk, posedge rst) begin
         pcm_addr   <= 16'd0;
         cntcs_l    <= 0;
         pcm_good   <= 0;
-        pcm_sample <= 0;
     end else begin
         cntcs_l    <= cnt_cs;
         pcm_rdy    <= { pcm_rdy[0], pcm_ok };
-        pcm_sample <= 0;
         if( pcm_rdy==2'b01 && pcm_ok ) begin
             pcm_good   <= pcm_data;
-            pcm_sample <= 1;
         end
         if( hi_cs ) pcm_addr[15:8] <= cpu_dout;
         if( lo_cs ) pcm_addr[ 7:0] <= cpu_dout;
