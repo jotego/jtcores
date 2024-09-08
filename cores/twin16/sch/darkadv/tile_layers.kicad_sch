@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Twin 16")
-		(date "2024-08-04")
+		(date "2024-09-08")
 		(company "Konami GX687 / GX785")
 		(comment 1 "Ulf Skutnabba, twitter: @skutis77")
 	)
@@ -8505,7 +8505,7 @@
 					)
 				)
 				(pin power_in line
-					(at 11.43 -36.83 180)
+					(at 11.43 -33.02 180)
 					(length 5.08)
 					(name "VSS"
 						(effects
@@ -8918,8 +8918,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 11.43 -31.75 180)
+				(pin no_connect line
+					(at 11.43 -40.64 180)
 					(length 5.08)
 					(name "TES1"
 						(effects
@@ -8936,8 +8936,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 11.43 -34.29 180)
+				(pin no_connect line
+					(at 11.43 -43.18 180)
 					(length 5.08)
 					(name "TES2"
 						(effects
@@ -9135,7 +9135,7 @@
 					)
 				)
 				(pin power_in line
-					(at 11.43 -39.37 180)
+					(at 11.43 -35.56 180)
 					(length 5.08)
 					(name "VSS"
 						(effects
@@ -9771,12 +9771,6 @@
 		(uuid "18b5c243-887a-4f3c-b89f-d301346881a5")
 	)
 	(junction
-		(at 389.89 165.1)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "28003957-7888-4ef1-b0ac-396ff1afdb00")
-	)
-	(junction
 		(at 63.5 148.59)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9807,6 +9801,18 @@
 		(uuid "5666a4e3-3fb2-4d7e-affb-79401a1e2cd4")
 	)
 	(junction
+		(at 389.89 166.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5af6f43f-9b1d-46ab-8905-0c988f0e9ab3")
+	)
+	(junction
+		(at 389.89 163.83)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5e2143ca-a91e-4808-af24-50e6c897ff11")
+	)
+	(junction
 		(at 114.3 20.32)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9835,12 +9841,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "86d21487-36d3-4663-ae0a-ff710d79e733")
-	)
-	(junction
-		(at 389.89 167.64)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "955a91fe-f92a-4a37-b13a-62c2df223289")
 	)
 	(junction
 		(at 196.85 157.48)
@@ -9889,12 +9889,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c7fb06f9-a86b-4335-88f3-ecc72fe9b138")
-	)
-	(junction
-		(at 389.89 170.18)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cb0990bf-474f-4e44-bce7-201a8c58e240")
 	)
 	(junction
 		(at 111.76 157.48)
@@ -16286,6 +16280,16 @@
 	)
 	(wire
 		(pts
+			(xy 389.89 163.83) (xy 389.89 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e991570-87b1-417d-aa0d-227caef0a894")
+	)
+	(wire
+		(pts
 			(xy 116.84 78.74) (xy 124.46 78.74)
 		)
 		(stroke
@@ -18973,16 +18977,6 @@
 			(type default)
 		)
 		(uuid "65727d75-688e-48d9-85dc-73e36d19d0ae")
-	)
-	(wire
-		(pts
-			(xy 389.89 167.64) (xy 389.89 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "65f93f18-fadd-4826-8ed1-e868f0fd34eb")
 	)
 	(polyline
 		(pts
@@ -23854,6 +23848,16 @@
 		)
 		(uuid "c31b4f77-1607-482a-bbd9-fd7faf6bbf63")
 	)
+	(wire
+		(pts
+			(xy 389.89 166.37) (xy 389.89 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c321fa0e-cc79-4e40-9fda-f3a8754e2184")
+	)
 	(bus
 		(pts
 			(xy 109.22 128.27) (xy 109.22 130.81)
@@ -24753,16 +24757,6 @@
 			(type default)
 		)
 		(uuid "d259a193-2220-4076-86ad-bdbb2cfb1fe3")
-	)
-	(wire
-		(pts
-			(xy 389.89 162.56) (xy 389.89 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d2bb1672-70ba-484a-b9c5-8535bdca9ece")
 	)
 	(bus
 		(pts
@@ -27244,16 +27238,6 @@
 		)
 		(uuid "ff9cd984-8c15-4d94-be65-76910e741379")
 	)
-	(wire
-		(pts
-			(xy 389.89 165.1) (xy 389.89 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ffad65e6-eaa7-4d7a-8516-d01cec99aa38")
-	)
 	(polyline
 		(pts
 			(xy 120.015 219.71) (xy 123.825 219.71)
@@ -27540,7 +27524,7 @@
 	)
 	(text "1C[0:3]: Layer 1 Pixel color code\n1C[4:6]: Layer 1 Palette\n2C[0:3]: Layer 2 Pixel color code\n2C[4:6]: Layer 2 Palette"
 		(exclude_from_sim no)
-		(at 363.22 224.79 0)
+		(at 363.22 217.17 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27867,17 +27851,6 @@
 			(justify left bottom)
 		)
 		(uuid "cc93be1c-2a0e-419c-9fdb-6e79a929b022")
-	)
-	(text "V[13..15]: Palette\nV[15] = 0 : Tile layer 0 ??\nV[15] = 1 : Tile layer 1 ??"
-		(exclude_from_sim no)
-		(at 363.22 214.63 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cd78a05f-3030-4df8-a06c-277f5becd950")
 	)
 	(text "T"
 		(exclude_from_sim no)
@@ -40679,7 +40652,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 389.89 170.18 90)
+		(at 389.89 163.83 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -40688,7 +40661,7 @@
 		(fields_autoplaced yes)
 		(uuid "d48debae-3d4a-4c2e-97b7-7890d341ea44")
 		(property "Reference" "#PWR0257"
-			(at 396.24 170.18 0)
+			(at 396.24 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40697,7 +40670,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 393.7 170.1799 90)
+			(at 393.7 163.8299 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40706,7 +40679,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 389.89 170.18 0)
+			(at 389.89 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40715,7 +40688,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 389.89 170.18 0)
+			(at 389.89 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40724,7 +40697,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 389.89 170.18 0)
+			(at 389.89 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40788,7 +40761,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Konami custom pixel shift register and multiplexer"
 			(at 378.46 130.81 0)
 			(effects
 				(font

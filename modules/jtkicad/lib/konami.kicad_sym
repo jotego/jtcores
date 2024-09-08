@@ -13064,7 +13064,7 @@
 				)
 			)
 			(pin power_in line
-				(at 11.43 -36.83 180)
+				(at 11.43 -33.02 180)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -13477,8 +13477,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 11.43 -31.75 180)
+			(pin no_connect line
+				(at 11.43 -40.64 180)
 				(length 5.08)
 				(name "TES1"
 					(effects
@@ -13495,8 +13495,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 11.43 -34.29 180)
+			(pin no_connect line
+				(at 11.43 -43.18 180)
 				(length 5.08)
 				(name "TES2"
 					(effects
@@ -13694,7 +13694,7 @@
 				)
 			)
 			(pin power_in line
-				(at 11.43 -39.37 180)
+				(at 11.43 -35.56 180)
 				(length 5.08)
 				(name "VSS"
 					(effects
