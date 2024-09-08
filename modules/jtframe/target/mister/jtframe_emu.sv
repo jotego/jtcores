@@ -232,14 +232,10 @@ always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
     end
 end
 
-`ifndef JTFRAME_PLL
-    `define JTFRAME_PLL pll
-`endif
-
 // There are many false paths defined in the
 // SDC file between this PLL and the ones
 // used in sys_top
-`JTFRAME_PLL pll(
+pll pll(
     .refclk     ( CLK_50M    ),
     .rst        ( pll_rst    ),
     .locked     ( pll_locked ),
