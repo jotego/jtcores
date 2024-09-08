@@ -128,8 +128,8 @@ jtframe sch --git &
 echo "MRA regeneration including md5 sums"
 cd $DST
 rm -rf release/mra
-find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
-find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
+find release/pocket -name "*rbf_r" | xargs -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
+find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
 jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
 comm -3 pocket.cores mister.cores > other.cores
 sed -i '/neogeopocket/d' other.cores

@@ -11,14 +11,20 @@ here:
   - ../../hdl/clocking/jtframe_sync.v
   # Sys (MiSTer framework)
   - sys/sys.qip
-  # PLLs
-  - sys/pll.qip
   - sys/pll_q17.qip
-  - pll6144/jtframe_pll6144.qip
-  - pll6293/jtframe_pll6293.qip
-  - pll6671/jtframe_pll6671.qip
-  # DB15 support (Antonio Villena's MiSTer)
+  # DB15 support
   - joydb15.v
+
+# game PLL
+target:
+  - when: JTFRAME_PLL6000
+    get: [ sys/pll.qip ]
+  - when: JTFRAME_PLL6144
+    get: [ pll6144/pll.qip ]
+  - when: JTFRAME_PLL6293
+    get: [ pll6293/pll.qip ]
+  - when: JTFRAME_PLL6671
+    get: [ pll6671/pll.qip ]
 jtframe:
   - from: video
     get:
