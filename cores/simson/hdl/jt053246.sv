@@ -119,8 +119,8 @@ always @(posedge clk) begin
     xadj <= xoffset - 10'd61 /*{debug_bus,2'd0}*/;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
                        simson    ? 10'h11f : 10'h10f); // Vendetta
-    vscl <= rd_pzoffset(vzoom, zoffset, pzoffset);//|vzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ vzoom[7:0] ];
-    hscl <= rd_pzoffset(hzoom, zoffset, pzoffset);//|hzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ hzoom[7:0] ];
+    vscl <= rd_pzoffset(vzoom, zoffset, pzoffset);
+    hscl <= rd_pzoffset(hzoom, zoffset, pzoffset);
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -144,8 +144,7 @@ function [8:0] rd_pzoffset( input [11:0] zoom, input [ 8:0] offset1 [0:255], inp
         0:       rd_pzoffset =       offset1 [zoom[7:0]];
         1:       rd_pzoffset = {5'b0,offset2 [zoom[7:4]]};
         2:       rd_pzoffset =  9'd3;
-        /*4,*/3:     rd_pzoffset =  9'd2;
-        // default: rd_pzoffset =  9'd1;
+        3:       rd_pzoffset =  9'd2;
     endcase
 endfunction 
 
