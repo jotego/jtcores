@@ -118,7 +118,7 @@ always @(negedge clk) cen2 <= ~cen2;
 always @(posedge clk) begin
     xadj <= xoffset - 10'd61 /*{debug_bus,2'd0}*/;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
-                       simson    ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
+                       simson    ? 10'h11f : 10'h10f); // Vendetta
     vscl <= rd_pzoffset(vzoom, zoffset, pzoffset);//|vzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ vzoom[7:0] ];
     hscl <= rd_pzoffset(hzoom, zoffset, pzoffset);//|hzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
@@ -168,7 +168,7 @@ always @* begin
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( y2[9] || yz_add[16] ) inzone=0;
+    if( y2[9] || |yz_add[17:16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
