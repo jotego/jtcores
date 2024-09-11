@@ -319,7 +319,6 @@ jtframe_m68k u_cpu(
         nv_addr   = 0,
         nv_din    = 0,
         pair_we   = 0,
-        BGn       = 0,
         nv_we     = 0;
 `endif
 endmodule

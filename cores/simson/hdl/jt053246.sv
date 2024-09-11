@@ -119,8 +119,8 @@ always @(posedge clk) begin
     xadj <= xoffset - 10'd61 /*{debug_bus,2'd0}*/;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
                        simson    ? 10'h11f : 10'h10f); // Vendetta (and Parodius)
-    vscl <= zoffset[ vzoom[7:0] ];
-    hscl <= zoffset[ hzoom[7:0] ];
+    vscl <= rd_pzoffset(vzoom, zoffset, pzoffset);//|vzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ vzoom[7:0] ];
+    hscl <= rd_pzoffset(hzoom, zoffset, pzoffset);//|hzoom[9:8]? zoffset[ 8'hFF ] : zoffset[ hzoom[7:0] ];
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -139,13 +139,13 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
     endcase
 endfunction
 
-function [8:0] red_offset( input [11:0] zoom, input [ 8:0] offset1 [0:255], input [3:0] offset2[0:15]);
-    case( zoom[11:8] )
-        0:       red_offset =       offset1 [zoom[7:0]];
-        1:       red_offset = {5'b0,offset2 [zoom[7:4]]};
-        2:       red_offset =  9'd3;
-        4,3:     red_offset =  9'd2;
-        default: red_offset =  9'd1;
+function [8:0] rd_pzoffset( input [11:0] zoom, input [ 8:0] offset1 [0:255], input [3:0] offset2[0:15]);
+    case( zoom[9:8] )
+        0:       rd_pzoffset =       offset1 [zoom[7:0]];
+        1:       rd_pzoffset = {5'b0,offset2 [zoom[7:4]]};
+        2:       rd_pzoffset =  9'd3;
+        /*4,*/3:     rd_pzoffset =  9'd2;
+        // default: rd_pzoffset =  9'd1;
     endcase
 endfunction 
 
@@ -368,6 +368,10 @@ jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
     .we1    ( 2'b0           ),
     .q1     ( scan_odd       )
 );
+
+initial pzoffset ='{
+    8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4
+};
 
 initial zoffset ='{                             //  octal count
     511, 511, 511, 511, 511, 410, 341, 293,     //   0-  7
