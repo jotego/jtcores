@@ -101,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3.2.1-node20
       - name: Set zip file name
         run: |
           echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
