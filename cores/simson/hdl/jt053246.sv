@@ -80,7 +80,7 @@ localparam [2:0] REG_XOFF  = 0, // X offset
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, yw0;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -127,7 +127,6 @@ always @(posedge clk) begin
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
     yw0   = y + yadj;
-    ywrap = yw0 > 10'h200 ? yw0 + 10'h1A0 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
@@ -241,7 +240,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     x <= x-xadj;
-                    y <=  ywrap;
+                    y <=  yw0;
                     vzoom <= {2'b0, scan_even[9:0]};
                     hzoom <= sq ? {2'b0, scan_even[9:0]} : {2'b0, scan_odd[9:0]};
                 end
