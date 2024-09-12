@@ -16,10 +16,6 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-        token: ${{ secrets.PAT }}
     - id: generate-matrix
       run: |
         CORES="[ \"kicker\" \"roc\" ]"
