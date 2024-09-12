@@ -50,7 +50,7 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi sidi128
       - id: upload
-        uses: actions/upload-artifact@v3-node20
+        uses: actions/upload-artifact@v4
         with:
           name: release
           path: release
@@ -63,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download all artifacts
-        uses: actions/download-artifact@v3.2.1-node20
+        uses: actions/download-artifact@v4
       - name: Set zip file name
         run: |
           echo ARTIFACT_NAME=q20_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"

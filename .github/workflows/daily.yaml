@@ -61,9 +61,9 @@ jobs:
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
       - id: upload
-        uses: actions/upload-artifact@v3-node20
+        uses: actions/upload-artifact@v4
         with:
-          name: release
+          name: release-q13-${{ matrix.core }}
           path: release
           retention-days: 1
 
@@ -88,9 +88,9 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi sidi128
       - id: upload
-        uses: actions/upload-artifact@v3-node20
+        uses: actions/upload-artifact@v4
         with:
-          name: release
+          name: release-q20-${{ matrix.core }}
           path: release
           retention-days: 1
 
@@ -101,7 +101,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts
-        uses: actions/download-artifact@v3.2.1-node20
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: release-q*
+          merge-multiple: true
       - name: Set zip file name
         run: |
           echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"

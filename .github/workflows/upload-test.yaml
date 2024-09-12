@@ -1,4 +1,4 @@
-name: "Debug builds (SiDi128)"
+name: "Upload test"
 
 on:
   workflow_dispatch:
@@ -22,18 +22,9 @@ jobs:
         token: ${{ secrets.PAT }}
     - id: generate-matrix
       run: |
-        cd cores
-        # Get list of cores ready for compilation
-        CORES='['
-        for i in *; do
-          if [[ -e $i/cfg/macros.def && ! -e $i/cfg/skip ]]; then
-            if [ "$CORES" != '[' ]; then CORES="$CORES, "; fi
-            CORES="$CORES \"$i\""
-          fi
-        done
-        CORES="$CORES ]"
+        CORES="[ \"kicker\" \"roc\" ]"
         echo $CORES
-        echo "cores=${CORES}" >> $GITHUB_OUTPUT
+        echo "cores=" >> $GITHUB_OUTPUT
 
   compile_cores20:
     runs-on: ubuntu-latest
