@@ -24,7 +24,7 @@ jobs:
       run: |
         CORES="[ \"kicker\" \"roc\" ]"
         echo $CORES
-        echo "cores=" >> $GITHUB_OUTPUT
+        echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
   compile_cores20:
     runs-on: ubuntu-latest
