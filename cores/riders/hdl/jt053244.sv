@@ -116,8 +116,8 @@ always @(negedge clk) cen2 <= ~cen2;
 always @(posedge clk) begin
     xadj <= xoffset + 10'h66 ;
     yadj <= yoffset + 10'h10f;
-    vscl <= red_offset(vzoom, zoffset,pzoffset);
-    hscl <= red_offset(hzoom, zoffset,pzoffset);
+    vscl <= rd_pzoffset(vzoom, zoffset, pzoffset);
+    hscl <= rd_pzoffset(hzoom, zoffset, pzoffset);
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -137,13 +137,13 @@ function [8:0] zmove( input [1:0] sz, input[8:0] scl );
 endfunction
 
 // Extra offset table for sprites in Reduction process
-function [8:0] red_offset( input [11:0] zoom, input [ 8:0] offset1 [0:255], input [3:0] offset2[0:15]);
+function [8:0] rd_pzoffset( input [11:0] zoom, input [ 8:0] offset1 [0:255], input [3:0] offset2[0:15]);
     case( zoom[11:8] )
-        0:       red_offset =       offset1 [zoom[7:0]];
-        1:       red_offset = {5'b0,offset2 [zoom[7:4]]};
-        2:       red_offset =  9'd3;
-        4,3:     red_offset =  9'd2;
-        default: red_offset =  9'd1;
+        0:       rd_pzoffset =       offset1 [zoom[7:0]];
+        1:       rd_pzoffset = {5'b0,offset2 [zoom[7:4]]};
+        2:       rd_pzoffset =  9'd3;
+        4,3:     rd_pzoffset =  9'd2;
+        default: rd_pzoffset =  9'd1;
     endcase
 endfunction 
 

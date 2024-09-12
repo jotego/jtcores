@@ -63,9 +63,9 @@ module jtriders_sound(
     // Sound output
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
 );
-`ifndef NOSOUND
 parameter   [ 0:0] FULLRAM = 0,
                    XMEN = 0;
+`ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
                     k60_dout, k39_dout, latch_dout;
 wire        [ 3:0]  rom_hi;
