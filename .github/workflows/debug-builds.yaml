@@ -62,7 +62,7 @@ jobs:
           path: release
           retention-days: 15
 
-join_artifacts:
+  join_artifacts:
     runs-on: ubuntu-latest
     needs: [ compile_cores20 ]
     if: ${{ always() }} # upload the results even if some core did not compile correctly
