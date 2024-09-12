@@ -192,7 +192,7 @@ jtxmen_video u_video (
 );
 
 /* verilator tracing_off */
-jtriders_sound `ifndef NOSOUND #(.FULLRAM(1), .XMEN(1))`endif u_sound(
+jtriders_sound #(.FULLRAM(1), .XMEN(1)) u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_8      ( cen_8         ),
