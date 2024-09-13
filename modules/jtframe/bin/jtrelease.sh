@@ -147,16 +147,6 @@ for core in `find pocket/raw -name "*.rbf_r"`; do
 	pocket_zip $core
 done
 jtutil md5
-# .RAM files for required NVRAM content
-if [ $(find $ROM -name "*.RAM"|wc -l) -gt 0 ]; then
-	echo "Copy .RAM files for MiST platforms"
-	for i in mist sidi sidi128; do
-		if [ ! -d $JTBIN/$i ]; then continue; fi
-		cp -r $ROM/*.RAM $JTBIN/$i
-	done
-else
-	echo "No .RAM files found"
-fi
 # note that the beta zip files are generated before the commit
 # in order to have the MiST and SiDi cores too
 echo "Create zip files for JTFriday"

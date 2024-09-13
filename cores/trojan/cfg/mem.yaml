@@ -5,6 +5,20 @@ params:
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
 download:
   post_addr: true
+clocks:
+  clk48:
+    - freq: 12000000
+      outputs:
+        - cen12
+        - cen6
+        - cen3
+        - cen1p5
+    - freq: 8000000
+      outputs:
+        - cen8
+    - freq: 384000
+      outputs:
+        - cenp384
 audio:
   rsum: 2.4k # gain up the volume a bit
   channels:
@@ -30,7 +44,7 @@ sdram:
         addr_width: 15
         data_width: 8
       - name: snd2
-        addr_width: 14
+        addr_width: 15
         data_width: 8
         offset: SND2_OFFSET
     - buses:

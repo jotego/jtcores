@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -71,7 +72,9 @@ func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 		fmt.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
 	}
 	if save2disk {
-		patchrom(xml_rom, &rombytes)
+		if e := patchrom(xml_rom, &rombytes); e!=nil {
+			fmt.Printf("%s: %s\n", setname.text, e.Error())
+		}
 		rom_file(setname.text, ".rom", rombytes)
 	}
 }
@@ -96,7 +99,7 @@ func update_md5(n *XMLNode, rb []byte) {
 	n.AddAttr("asm_md5", fmt.Sprintf("%x", md5sum))
 }
 
-func patchrom(n *XMLNode, rb *[]byte) {
+func patchrom(n *XMLNode, rb *[]byte) error {
 	for _, each := range n.children {
 		if each.name != "patch" {
 			continue
@@ -106,11 +109,15 @@ func patchrom(n *XMLNode, rb *[]byte) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		if int(k)>len(*rb) {
+			return errors.New ("Cannot apply patch as it falls outside the .rom file length")
+		}
 		for _, each := range data {
 			(*rb)[k] = each
 			k++
 		}
 	}
+	return nil
 }
 
 func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
@@ -167,7 +174,7 @@ lookup:
 	if f == nil {
 		// try again just by file name
 		fname := n.GetAttr("name")
-		fmt.Printf("\tcannot find file %s (%s) in zip by CRC\n", n.GetAttr("name"), n.GetAttr("crc"))
+		if(verbose) { fmt.Printf("\tcannot find file %s (%s) in zip by CRC\n", n.GetAttr("name"), n.GetAttr("crc")) }
 lookup_name:
 		for _, each := range allzips {
 			for _, file := range each.File {
@@ -178,7 +185,7 @@ lookup_name:
 			}
 		}
 		if f == nil {
-			fmt.Printf("\tcannot find file %s by name either\n", fname)
+			fmt.Printf("\tcannot find file either %s by name or CRC (%s)\n", fname, n.GetAttr("crc"))
 			return nil
 		}
 	}

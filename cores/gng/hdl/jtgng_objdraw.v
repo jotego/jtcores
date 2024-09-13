@@ -49,6 +49,7 @@ module jtgng_objdraw #(parameter
     input       [3:0]  pxlcnt,
     output reg  [8:0]  posx,
     input              flip,
+    input              alt,
     // per-line sprite data
     input       [4:0]  objcnt,
     input    [DW-1:0]  objbuf_data,
@@ -174,8 +175,8 @@ end else begin
             6: begin // Trojan
                 id[10:8]  <= { objbuf_data[7], objbuf_data[5], objbuf_data[6] };
                 hover     <= objbuf_data[0];
-                obj_hflip <= objbuf_data[4];
-                obj_vflip <= 1;
+                obj_hflip <= alt ? 1'b0            : objbuf_data[4];
+                obj_vflip <= alt ? ~objbuf_data[4] : 1'b1;
                 objpal    <= objbuf_data[3:1];
             end
             8: begin // Side Arms

@@ -2,6 +2,8 @@ game:
   - from: trojan
     get:
       - jttrojan_game.v
+      - jttrojan_main.v
+      - jttrojan_mcu.v
       - jttrojan_video.v
       - jttrojan_sound.v
       - jttrojan_colmix.v
@@ -21,12 +23,13 @@ game:
       - jtgng_sound.yaml
       - jtgng_dual_ram.v
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_cen48.v
   - from: cpu
     get:
       - jtframe_z80.yaml
+      - jtframe_8751.yaml
+  - from: clocking
+    get:
+      - jtframe_crossclk_cen.v
   - from: ram
     get:
       - jtframe_ram.v

@@ -890,7 +890,7 @@ if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
         ffmpeg -y -framerate $FRAMERATE \
         -pattern_type glob -i frames/'frame_*.jpg' \
         -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
-        -pix_fmt yuv420p test.mp4 > /dev/null
+        -pix_fmt yuv420p test.mp4 > /dev/null 2>&1
     fi
 fi
 
@@ -902,7 +902,7 @@ for i in "${CHRAW[@]}"; do
     if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
         echo "$i is empty, deleting it" > /dev/null
     else
-        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav || continue
+        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav > /dev/null 2>&1 || continue
     fi
     rm -f $i
 done

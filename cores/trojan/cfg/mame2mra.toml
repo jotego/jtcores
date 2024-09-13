@@ -3,9 +3,9 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "lwings.cpp" ]
-skip.bootlegs=true
-skip.Machines=[ "avengers", "fball", "sectionz", "lwings"]
-skip.Setnames=[ "trojanlt" ] # location test ROM has a different arrangement
+skip.Machines=[ "fball", "sectionz", "lwings"]
+skip.Setnames=[ "trojanb", "trojanlt" ] # location test ROM has a different arrangement
+debug.setnames=[ "avengers", "avengersa", "avengersb", "avengersc", "buraiken" ]
 
 [Audio]
 volume = [
@@ -14,26 +14,46 @@ volume = [
 
 [buttons]
 names=[
-    { names="Attack,Jump" },
+    { machine="trojan",   names="Attack,Jump" },
+    { machine="avengers", names="Punch,Kick" },
 ]
 
 [header]
-data=[ {offset=0, data="02" } ]
+info="""Header byte 8:
+             bit 0 - Trojan
+             bit 1 - Avengers
+             bit 2 - MCU enable"""
+data=[ {machine="trojan",    offset=8, data="01" },
+       {setname="avengers",  offset=8, data="06" },
+       {setname="avengersb", offset=8, data="06" },
+       {setname="avengersc", offset=8, data="06" },
+       {setname="buraiken",  offset=8, data="06" },
+       {setname="buraikenb", offset=8, data="02" },
+]
 
 [ROM]
 regions=[
     { name="maincpu", sequence=[1,2,0] },
     { name="soundcpu", start="JTFRAME_BA1_START" },
-    { name="adpcm",    start="SND2_START" },
+    { name="adpcmcpu", start="SND2_START" },
     { name="gfx5",     start="JTFRAME_BA2_START", reverse=true },
     { name="gfx4",     start="SCR2_START", width=16, no_offset=true },
     { name="gfx1",     start="JTFRAME_BA3_START", reverse=true },
     { name="gfx2",     start="SCR_START",  width=32, sequence=[6,4,2,0,7,5,3,1] },
     { name="gfx3",     start="OBJ_START",  width=16, sequence=[4,0,5,1,6,2,7,3] },
-    { name="proms",    start="JTFRAME_PROM_START" },
+    { name="mcu",      start="JTFRAME_PROM_START" },
+    { name="proms",    skip=true }
 ]
 
-order=[ "maincpu", "soundcpu", "adpcm",
+order=[ "maincpu", "soundcpu", "adpcmcpu",
     "gfx5", "gfx4", "gfx1", "gfx2",
-    "gfx3","proms"
+    "gfx3","mcu"
+]
+
+patches=[
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8B84, data="02" },
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8481, data="00" },
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC84E0, data="00" },
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8483, data="a0" },
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC84C3, data="30" },
 ]

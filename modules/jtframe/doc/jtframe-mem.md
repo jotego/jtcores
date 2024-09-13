@@ -25,6 +25,19 @@ ports:
     - { name: foo_cs }
 # Instantiates a differente game module
 game: othergame
+
+# Generate clock-enable signals
+clocks:
+  clk48:
+    - freq: 24000000
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+
 # Details about the SDRAM usage
 sdram:
   banks:

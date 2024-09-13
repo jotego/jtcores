@@ -298,6 +298,7 @@ u_obj(
     .V              ( V[7:0]        ),
     .H              ( H             ),
     .flip           ( flip          ),
+    .alt            ( 1'b0          ),
     // CPU bus
     .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB             ( obj_DB        ),

@@ -264,6 +264,7 @@ jtgng_obj #(
     .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
+    .alt        ( 1'b0        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
     // SDRAM interface
