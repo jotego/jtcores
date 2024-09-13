@@ -152,6 +152,8 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     // unused
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                ),
     .snd2_latch     (                ),
     .debug_bus      ( 8'd0           ),
     .debug_view     (                )

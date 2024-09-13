@@ -78,7 +78,10 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .psg0       ( psg0          ),
     .psg1       ( psg1          ),
     .debug_bus  ( 8'd0          ),
-    .debug_view ( debug_view    )
+    .debug_view ( debug_view    ),
+    // unused
+    .mcu_sdin   ( 8'd0          ),
+    .mcu_srd    (               )
 );
 
 jttora_adpcm u_adpcmcpu(

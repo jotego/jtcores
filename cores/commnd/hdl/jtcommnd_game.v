@@ -180,6 +180,8 @@ jtgng_sound #(.LAYOUT(1)) u_sound (
     // Unused
     .debug_bus      ( debug_bus      ),
     .debug_view     (                ),
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                ),
     .snd2_latch     (                )
 );
 

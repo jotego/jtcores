@@ -166,7 +166,10 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     .debug_bus      ( 8'd0           ),
-    .debug_view     ( debug_view     )
+    .debug_view     ( debug_view     ),
+    // Unused
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                )
 );
 
 jtsarms_video u_video(

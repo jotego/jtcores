@@ -168,7 +168,10 @@ jtgng_sound u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     .debug_bus      ( debug_bus      ),
-    .debug_view     ( debug_view     )
+    .debug_view     ( debug_view     ),
+    // unused
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                )
 );
 
 always @(posedge clk)
