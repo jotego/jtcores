@@ -52,7 +52,7 @@ jobs:
       - id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: release
+          name: release-${{ matrix.core }}
           path: release
           retention-days: 1
 
@@ -64,6 +64,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: release-*
+          merge-multiple: true
       - name: Set zip file name
         run: |
           echo ARTIFACT_NAME=q20_`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
