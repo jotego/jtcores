@@ -19,6 +19,8 @@ main_setnames=["tturfu"]
 [parse.skip]
 descriptions = [ "16A", "Taito" ]
 setnames = [
+    # untested
+    "dddoor",
     # won't boot
     "aceattac", # one S16A set works
     # Boots in service mode and needs custom firmware

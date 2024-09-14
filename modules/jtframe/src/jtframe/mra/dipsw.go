@@ -2,6 +2,7 @@ package mra
 
 import(
     "fmt"
+    "path/filepath"
     "regexp"
     "sort"
     "strconv"
@@ -32,7 +33,7 @@ diploop:
         for _, each := range cfg.Dipsw.Delete {
             if each.Match(machine)>0 {
                 for _, name := range each.Names {
-                    if strings.ToLower(name) == strings.ToLower(ds.Name) {
+                    if match,_ := filepath.Match(strings.ToLower(name), strings.ToLower(ds.Name)); match {
                         if args.Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
                         continue diploop
                     }

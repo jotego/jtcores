@@ -2,14 +2,14 @@
 author=["jotego"]
 
 [parse]
-# this was moved to tmnt2.cpp after MAME 0.251
-sourcefile=[ "tmnt.cpp", "asterix.cpp" ]
+sourcefile=[ "tmnt2.cpp", "asterix.cpp" ]
 skip = { bootlegs=true, machines=[
 	# in JTTMNT
 	"tmnt",
 	"mia",
 	"punkshot",
 	# not covered yet
+	"blswhstl",
     "cuebrick",
     "lgtnfght",
     "blswhstl",
