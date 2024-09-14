@@ -33,32 +33,59 @@ var reduce, clear_folders bool
 // mraCmd represents the mra command
 var mraCmd = &cobra.Command{
 	Use:   "mra <core-name core-name...> or mra --reduce <path-to-mame.xml>",
-	Short: "Parses the core's TOML file to generate MRA files",
+	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
 	Long: common.Doc2string("jtframe-mra.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
 			mra.Reduce(args[0], mra_args.Verbose)
-		} else { // regular operation, core names are separated by commas
-			if clear_folders {
-				root := os.Getenv("JTROOT")
-				if root=="" {
-					fmt.Println("Environment variable JTROOT is not set")
-					os.Exit(1)
-				}
-				e := os.RemoveAll( filepath.Join(root,"release") )
-				if mra_args.Verbose && e!= nil { fmt.Println(nil) }
-				e = os.RemoveAll( filepath.Join(root,"rom") )
-				if mra_args.Verbose && e!= nil { fmt.Println(nil) }
-			}
-			mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
-			mra_args.Def_cfg.Target="mister"
-			for _, each := range args {
-				mra_args.Def_cfg.Core = each
-				mra.Run(mra_args)
-			}
+		} else { // regular operation, each core name is an argument
+			parse_cores(args)
 		}
 	},
 	Args: cobra.MinimumNArgs(1),
+}
+
+func parse_cores( corenames []string ) {
+	if clear_folders {
+		root := os.Getenv("JTROOT")
+		if root=="" {
+			fmt.Println("Environment variable JTROOT is not set")
+			os.Exit(1)
+		}
+		e := os.RemoveAll( filepath.Join(root,"release") )
+		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+		e = os.RemoveAll( filepath.Join(root,"rom") )
+		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+	}
+	mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
+	mra_args.Def_cfg.Target="mister"
+	entries, e := os.ReadDir(filepath.Join(os.Getenv("JTROOT"),"cores"))
+	if e != nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() { continue }
+		for _, pattern := range corenames {
+			if match,_ := filepath.Match(pattern, entry.Name()); !match { continue }
+			mra_args.Def_cfg.Core = entry.Name()
+			if !check_files(mra_args.Def_cfg.Core) {
+				fmt.Println("Skipping", mra_args.Def_cfg.Core,"missing def/toml")
+				continue
+			}
+			mra.Run(mra_args)
+		}
+	}
+}
+
+func check_files( corename string ) bool {
+	f, e := os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","macros.def"))
+	defer f.Close()
+	if e!= nil { return false }
+	f.Close()
+	f, e = os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","mame2mra.toml"))
+	if e!= nil { return false }
+	return true
 }
 
 func init() {
