@@ -6,6 +6,11 @@ extra=[
 	{name="Screen flip",options="Off,On",bits="16"},
 ]
 
+[buttons]
+names=[
+    { names="Jump"}
+]
+
 [ROM]
 regions = [
 	{ name="maincpu" },
