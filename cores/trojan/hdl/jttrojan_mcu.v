@@ -43,22 +43,33 @@ module jttrojan_mcu(
 );
 `ifndef NOMCU
 wire [ 7:0] p0_o, p2_o, p3_i, p3_o;
-reg         int0n /* P32 */, int1n /* P33 */, p36l;
+wire        ceng;
+reg         int0n /* P32 */, int1n /* P33 */, p36l, g=1;
 
-assign p3_i={2'b11,~mrd,LVBL,LVBL,~mwr,1'b1,~srd};
+assign p3_i = {2'b11,~mrd,LVBL,LVBL,~mwr,1'b1,~srd};
+assign ceng = cen & g; // this synchronization mechanism with the other
+// two CPUs is required because the 8751 core used is not cycle accurate.
+// If operated at the right speed, the MCU writes data to the main CPU
+// one byte each 70us, whereas the CPU wants to read it one byte per 55.6us
+// Some instructions, like INC DPTR, take too long on the 8751 core.
+// The solution taken here is to operate the 8751 very fast but halt it when
+// data has been written to the other CPUs. When data is read, the halt is
+// released.
 
 always @(posedge clk) begin
     p36l <= p3_o[6];
     if( p3_o[6] && !p36l ) begin
         to_main <= p0_o;
         to_snd  <= p2_o;
+        g       <= 0;
     end
+    if( mrd | srd ) g <= 1;
 end
 
-jtframe_8751mcu #(.DIVCEN(1)) u_mcu(
+jtframe_8751mcu u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen     ),
+    .cen        ( ceng      ),
     // external memory: connected to main CPU
     .x_din      ( 8'd0      ),
     .x_dout     (           ),

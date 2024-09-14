@@ -5,7 +5,6 @@ author=["jotego"]
 sourcefile=[ "lwings.cpp" ]
 skip.Machines=[ "fball", "sectionz", "lwings"]
 skip.Setnames=[ "trojanb", "trojanlt" ] # location test ROM has a different arrangement
-debug.setnames=[ "avengers", "avengersa", "avengersb", "avengersc", "buraiken" ]
 
 [Audio]
 volume = [

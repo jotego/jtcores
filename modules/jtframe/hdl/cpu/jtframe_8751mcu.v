@@ -137,6 +137,7 @@ always @(posedge clk) begin
     rom_addr <= pre_rom;
 end
 /* verilator tracing_off */
+// Oregano's 8051 core is not cycle accurate. It is slower than the original
 mc8051_core u_mcu(
     .reset      ( rst       ),
     .clk        ( clk       ),
