@@ -6,5 +6,9 @@ order = ["maincpu"]
 firmware = "ngpc.rom"
 carts =[ "ngp", "ngc" ]
 
+# skip menu patch by angel_killah
+patches=[ { offset=0x1b06,data="""00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00"""} ]
+
 [buttons]
 names = [{names="A,B,Option"}]
