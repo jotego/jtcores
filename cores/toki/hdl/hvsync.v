@@ -29,7 +29,7 @@ parameter H_TOTAL			  = 390;
 parameter VBLANK_START  = 240;
 parameter VBLANK_END		= 16;
 parameter VSYNC_START	  = VBLANK_START + 10;
-parameter VSYNC_END		  = VBLANK_START + 16;
+parameter VSYNC_END		  = VBLANK_START + 13;
 parameter V_TOTAL			  = 258;
 
 initial begin
