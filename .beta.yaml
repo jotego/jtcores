@@ -7,6 +7,7 @@ s18:    [ mister, pocket ]
 riders: [ mister, pocket ]
 circus: [ mister, pocket ]
 rumble: [ pocket ]
+midres: [ pocket ]
 
 # upcoming ports from MiSTer to Pocket
 # update the core's macros.def when making a new beta
