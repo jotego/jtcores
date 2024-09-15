@@ -81,6 +81,11 @@ endfunction
     |(layer_mask0[5:0] & layer_ctrl[5:0])
 };
 
+wire [1:0] layer0_sel = layer_ctrl[13:12];
+wire [1:0] layer1_sel = layer_ctrl[11:10];
+wire [1:0] layer2_sel = layer_ctrl[ 9: 8];
+wire [1:0] layer3_sel = layer_ctrl[ 7: 6];
+
 always @(posedge clk) star_en <= lyren[4:3];
 
 //reg [4:0] lyren2, lyren3;
@@ -95,9 +100,7 @@ wire [ 6:0] sta1_mask = { star1_pxl[6:4], star1_pxl[3:0] | {4{~lyren[4]}} };
 
 localparam QW = 14*5;
 reg [13:0] lyr5, lyr4, lyr3, lyr2, lyr1, lyr0;
-reg [QW-1:0] lyr_queue;
-reg [11:0] pre_pxl;
-reg [ 1:0] group;
+reg [13:0] lyr5_d, lyr4_d, lyr3_d, lyr2_d, lyr1_d, lyr0_d;
 
 `ifdef SIMULATION
 wire [2:0] lyr0_code = lyr0[11:9];
@@ -108,10 +111,10 @@ wire [2:0] lyr3_code = lyr3[11:9];
 always @(posedge clk) if(pxl_cen) begin
     lyr5 <= { 2'b00, STA1, 2'b0, sta1_mask };
     lyr4 <= { 2'b00, STA0, 2'b0, sta0_mask };
-    lyr3 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer_ctrl[ 7: 6] );
-    lyr2 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer_ctrl[ 9: 8] );
-    lyr1 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer_ctrl[11:10] );
-    lyr0 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer_ctrl[13:12] );
+    lyr3 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer3_sel );
+    lyr2 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer2_sel );
+    lyr1 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer1_sel );
+    lyr0 <= layer_mux( obj_mask, scr1_mask, scr2_mask, scr3_mask, layer0_sel );
     //lyren2[5:4] <= lyren[5:4];
     //lyren2[3] <= lyren[ layer_ctrl[7:6] ];
     //lyren2[2] <= lyren[ layer_ctrl[7:6] ];
@@ -119,16 +122,44 @@ always @(posedge clk) if(pxl_cen) begin
     //lyren2[0] <= lyren[ layer_ctrl[7:6] ];
 end
 
-reg has_priority, check_prio;
+wire [3:0] prio_color;
+wire [1:0] prio_group;
 
+// Make sure that sprite for prio is not on two layers
+wire [0:3] prio_lyr_obj = {
+        ( ~|layer0_sel &  |layer1_sel &  |layer2_sel &  |layer3_sel ),
+        (  |layer0_sel & ~|layer1_sel &  |layer2_sel &  |layer3_sel ),
+        (  |layer0_sel &  |layer1_sel & ~|layer2_sel &  |layer3_sel ),
+        (  |layer0_sel &  |layer1_sel &  |layer2_sel & ~|layer3_sel )
+};
+
+// The prio group and color of the lower layer
+assign { prio_group, prio_color } =
+        prio_lyr_obj[0] ? { lyr1_d[13:12], lyr1_d[3:0] } :
+        prio_lyr_obj[1] ? { lyr2_d[13:12], lyr2_d[3:0] } :
+        prio_lyr_obj[2] ? { lyr3_d[13:12], lyr3_d[3:0] } :
+                          {         2'b11,     4'b1111 };
+
+reg has_priority;
+
+// If lower layer has priority
 always @(*) begin
-    case( group )
-        2'd0: has_priority = prio0[ pre_pxl[3:0] ];
-        2'd1: has_priority = prio1[ pre_pxl[3:0] ];
-        2'd2: has_priority = prio2[ pre_pxl[3:0] ];
-        2'd3: has_priority = prio3[ pre_pxl[3:0] ];
+    case( prio_group )
+        2'd0: has_priority = prio0[ prio_color ];
+        2'd1: has_priority = prio1[ prio_color ];
+        2'd2: has_priority = prio2[ prio_color ];
+        2'd3: has_priority = prio3[ prio_color ];
     endcase
 end
+
+wire [0:5] lyr_has_color = {
+        (lyr0_d[3:0] != 4'hF && ~(prio_lyr_obj[0] & has_priority)),
+        (lyr1_d[3:0] != 4'hF && ~(prio_lyr_obj[1] & has_priority)),
+        (lyr2_d[3:0] != 4'hF && ~(prio_lyr_obj[2] & has_priority)),
+        (lyr3_d[3:0] != 4'hF && ~(prio_lyr_obj[3] & has_priority)),
+        (lyr4_d[3:0] != 4'hF),
+        (lyr5_d[3:0] != 4'hF)
+};
 
 `ifndef CPS2
 localparam [13:0] BLANK_PXL = { 2'b11, 12'hBFF }; // according to DL-0921 RE
@@ -138,27 +169,19 @@ localparam [13:0] BLANK_PXL = { 2'b11, 12'hBFF }; // according to DL-0921 RE
 localparam [13:0] BLANK_PXL = ~14'd0;
 `endif
 
-// This take 6 clock cycles to process the 6 layers
 always @(posedge clk) begin
     if(pxl_cen) begin
-        pxl               <= pre_pxl;
-        {group, pre_pxl } <= lyr5;
-        lyr_queue         <= { lyr0, lyr1, lyr2, lyr3, lyr4 };
-        check_prio        <= 1'b0;
-        //lyren3            <= lyren2;
-    end else begin
-        if( (pre_pxl[3:0]==4'hf ||
-            ( !(lyr_queue[11:9]==OBJ && has_priority && check_prio )
-                && lyr_queue[3:0] != 4'hf ))  )
-        begin
-            { group, pre_pxl } <= lyr_queue[13:0];
-            check_prio <= ~lyr_queue[11]; // not a star
-            lyr_queue <= { BLANK_PXL, lyr_queue[QW-1:14] };
-        end
-        else begin
-            check_prio <= 1'b0;
-            lyr_queue <= { BLANK_PXL, lyr_queue[QW-1:14] };
-        end
+        { lyr0_d, lyr1_d, lyr2_d, lyr3_d, lyr4_d, lyr5_d } <= { lyr0, lyr1, lyr2, lyr3, lyr4, lyr5 };
+
+        case (1'b1)
+            lyr_has_color[0] : pxl <= lyr0_d[11:0];
+            lyr_has_color[1] : pxl <= lyr1_d[11:0];
+            lyr_has_color[2] : pxl <= lyr2_d[11:0];
+            lyr_has_color[3] : pxl <= lyr3_d[11:0];
+            lyr_has_color[4] : pxl <= lyr4_d[11:0];
+            lyr_has_color[5] : pxl <= lyr5_d[11:0];
+            default: pxl <= BLANK_PXL[11:0];
+        endcase
     end
 end
 
