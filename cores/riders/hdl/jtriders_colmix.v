@@ -93,7 +93,7 @@ assign ci1       = xmen ?   xmen_o[8:0] : lyro_pxl[8:0];
 assign ci2       = xmen ? {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]} : {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
 assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
 assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-assign shad      = xmen ? |shd_out : shd_out[0];
+assign shad      = xmen ? |shd_out : ~shd_out[0];
 assign shd_in    = xmen ?  xmen_sh : {1'b0,shadow[0]};
 
 always @* begin

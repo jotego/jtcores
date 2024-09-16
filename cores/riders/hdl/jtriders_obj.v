@@ -112,7 +112,7 @@ assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
 // 053244 (parodius) has 7 palette bits, top 2 used for priority
 assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
-assign shd     =  pre_pxl[11] & pen15;
+assign shd     =  pre_pxl[14] & pen15;
 assign prio    =  {1'd1,pre_pxl[10:9],2'd0} ;
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
