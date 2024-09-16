@@ -36,6 +36,9 @@ mustbe.machines=[ "machine name"... ]
 # use when the main set doesn't work
 main_setnames=[ "setname"... ]
 
+[Pocket]
+display_modes=[ 0x61 ] # add extra display modes for Analogue Pocket
+
 [cheat]
 # Cheat file is read by default from cores/core/cheat/machine.s
 # It can disabled globally or skipped based on machine/setname

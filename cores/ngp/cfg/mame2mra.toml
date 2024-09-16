@@ -1,6 +1,9 @@
 [parse]
 sourcefile=[ "ngp.cpp" ]
 
+[Pocket]
+display_modes=[ 0x61 ]
+
 [ROM]
 order = ["maincpu"]
 firmware = "ngp.rom"
