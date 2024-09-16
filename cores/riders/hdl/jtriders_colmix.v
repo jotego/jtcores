@@ -94,7 +94,7 @@ assign ci2       = xmen ? {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]} : {2'd0,
 assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
 assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
 assign shad      = xmen ? |shd_out : shd_out[0];
-assign shd_in    = xmen ?  shadow  : {1'b0,shadow[0]};
+assign shd_in    = xmen ?  xmen_sh : {1'b0,shadow[0]};
 
 always @* begin
     // LUT generated with
@@ -126,8 +126,12 @@ wire nodimming = !xmen;
 wire nodimming = 0;
 `endif
 
+reg [1:0] xmen_sh;
 always @(posedge clk) begin
-    if(pxl_cen) xmen_o <= {lyro_pri, lyro_pxl};
+    if(pxl_cen) begin
+        xmen_o  <= {lyro_pri, lyro_pxl};
+        xmen_sh <= ~shadow;
+    end
 end
 
 always @(posedge clk, posedge rst) begin
