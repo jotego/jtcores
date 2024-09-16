@@ -314,9 +314,9 @@ jtframe_m68k u_cpu(
             fcnt=$fread(saved,f);
             $fclose(f);
             $display("Read %1d bytes for dimming configuration", fcnt);
-            {dimmod,dimpol,dim} = {saved[0][5:4],saved[0][2:0]};
+            {dimpol,dimmod,dim} = {saved[0][5:4],saved[0][2:0]};
         end else begin
-            {dimmod,dimpol,dim} = 0;
+            {dimpol,dimmod,dim} = 0;
         end
     end
     initial begin
