@@ -2,7 +2,7 @@
 sourcefile=[ "ngp.cpp" ]
 
 [Pocket]
-display_modes=[ 0x62 ]
+display_modes=[ 0x62, 0x63 ]
 
 [ROM]
 order = ["maincpu"]
