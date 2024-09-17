@@ -427,8 +427,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 {{ end }}{{end}}
 
 {{- if .Ioctl.Dump }}
-/* verilator tracing_off */
-
+`ifndef JTFRAME_SIM_IODUMP /* verilator tracing_off */ `endif
 jtframe_ioctl_dump #(
     {{- $first := true}}
     {{- range $k, $v := .Ioctl.Buses }}
