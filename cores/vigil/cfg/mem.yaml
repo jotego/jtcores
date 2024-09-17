@@ -1,6 +1,12 @@
 params:
   - { name: PCM_OFFSET,  value: "(`PCM_START -`JTFRAME_BA1_START)>>1"}
   - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA2_START)>>1"}
+clocks:
+  clk:
+    - freq: 3579545
+      outputs:
+        - cpu_cen
+        - fm_cen
 download:
   post_addr: true
 audio:
@@ -34,3 +40,26 @@ sdram:
       - name: obj
         addr_width: 19
         data_width: 32
+bram:
+  - name: vram
+    addr_width: 12
+    data_width: 8
+    rw: false
+    ioctl: { save: true, order: 0 }
+    dual_port:
+      name: scr1
+      addr: "main_addr[11:0]"
+      din:  main_dout
+      dout: scr1_dout
+      rw: true
+  - name: pal
+    addr_width: 11
+    data_width: 8
+    rw: false
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: pal1
+      addr: "main_addr[10:0]"
+      din:  main_dout
+      dout: pal1_dout
+      rw: true

@@ -22,12 +22,11 @@ module jtvigil_game(
 
 localparam [24:0] SCR2_START  = `SCR2_START;
 
-wire        cpu_cen, fm_cen;
 // video signals
 wire        v1;
 
 // CPU interface
-wire [ 7:0] main_dout, pal_dout, scr1_dout;
+reg  [ 7:0] dump_mux, debug_mux;
 wire        main_rnw, latch_wr, pal_cs, oram_cs, scr1_ramcs;
 
 // Scroll configuration
@@ -38,11 +37,14 @@ wire        flip, scr2enb;
 wire        is_tiles, is_obj;
 
 // Cabinet inputs
-assign dip_flip             = ~flip;
-assign debug_view           = 0; // scr1pos[8:1]; //{ flip, 4'd0, scr2col};
+assign dip_flip   = ~flip;
+assign debug_view = debug_mux;
 
-assign is_tiles = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
-assign is_obj   = prog_ba==3;
+assign is_tiles  = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
+assign is_obj    = prog_ba==3;
+assign pal1_we   = ~main_rnw & pal_cs;
+assign scr1_we   = ~main_rnw & scr1_ramcs;
+assign ioctl_din = dump_mux;
 
 always @* begin
     post_addr = prog_addr;
@@ -53,15 +55,25 @@ always @* begin
         post_addr[5:0] = { prog_addr[3:0], prog_addr[5:4] };
 end
 
-jtframe_cen3p57 #(.CLK24(1)) u_cencpu(
-    .clk        ( clk24     ),
-    .cen_3p57   ( cpu_cen   ),
-    .cen_1p78   ( fm_cen    )
-);
+always @(posedge clk) begin
+    case(ioctl_addr[1:0])
+        0: dump_mux <= scr1pos[7:0]; // for some reason this one gets dump as FF. Correct it manually in the file
+        1: dump_mux <= scr2pos[7:0];
+        2: dump_mux <= { 4'd0, scr2pos[10:8], scr1pos[8] };
+        3: dump_mux <= { 3'd0, flip, scr2enb, scr2col };
+    endcase
+    case(debug_bus[1:0])
+        0: debug_mux <= scr1pos[7:0];
+        1: debug_mux <= scr2pos[7:0];
+        2: debug_mux <= { 4'd0, scr2pos[10:8], scr1pos[8] };
+        3: debug_mux <= { 3'd0, flip, scr2enb, scr2col };
+    endcase
+end
 
+/* verilator tracing_off */
 jtvigil_main u_main(
-    .rst         ( rst24      ),
-    .clk         ( clk24      ),
+    .rst         ( rst        ),
+    .clk         ( clk        ),
     .cpu_cen     ( cpu_cen    ),
     // Video
     .LVBL        ( LVBL       ),
@@ -69,7 +81,7 @@ jtvigil_main u_main(
     .latch_wr    ( latch_wr   ),
     // Palette
     .pal_cs      ( pal_cs     ),
-    .pal_dout    ( pal_dout   ),
+    .pal_dout    ( pal1_dout  ),
     .scr_dout    ( scr1_dout  ),
     // Video circuitry
     .scr_cs      ( scr1_ramcs ),
@@ -99,27 +111,27 @@ jtvigil_main u_main(
     .dipsw_a     ( dipsw[ 7:0]),
     .dipsw_b     ( dipsw[15:8])
 );
-
+/* verilator tracing_on */
 jtvigil_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .clk_cpu    ( clk24     ),
+    .clk_cpu    ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
     .v1         ( v1        ),
 
     // CPU interface
-    .main_addr  ( main_addr[11:0] ),
+    .main_addr  ( main_addr[7:0] ),
     .main_dout  ( main_dout ),
     .main_rnw   ( main_rnw  ),
     // Scroll
     .scr1pos    ( scr1pos   ),
-    .scr1_ramcs ( scr1_ramcs),
     .scr1_cs    ( scr1_cs   ),
     .scr1_ok    ( scr1_ok   ),
     .scr1_addr  ( scr1_addr ),
     .scr1_data  ( scr1_data ),
-    .scr1_dout  ( scr1_dout ),
+    .vram_addr  ( vram_addr ),
+    .vram_dout  ( vram_dout ),
 
     .scr2pos    ( scr2pos   ),
     .scr2col    ( scr2col   ),
@@ -133,7 +145,7 @@ jtvigil_video u_video(
     .oram_cs    ( oram_cs   ),
 
     // Palette
-    .pal_cs     ( pal_cs    ),
+    .pal_addr   ( pal_addr  ),
     .pal_dout   ( pal_dout  ),
     .flip       ( flip      ),
 
@@ -157,8 +169,8 @@ jtvigil_video u_video(
 );
 
 jtvigil_snd u_sound(
-    .rst        ( rst24     ),
-    .clk        ( clk24     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
     .fm_cen     ( fm_cen    ),
     .v1         ( v1        ),
