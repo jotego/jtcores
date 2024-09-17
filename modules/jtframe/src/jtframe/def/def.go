@@ -287,6 +287,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_SHIFT":	     "0",
 		"JTFRAME_180SHIFT":	     "0",
+		"JTFRAME_DEBUG_VPOS":    "4",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": cfg.Core,
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
