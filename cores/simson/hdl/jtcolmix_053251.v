@@ -136,7 +136,7 @@ always @(posedge clk, posedge rst) begin
             col_n   <= col4_n;
             cout    <= mix4;
             shd_out <= shd_sel ? ~shd_l : 2'b0;
-            brit    <= mix4p < ~mmr[5];
+            brit    <= mix4p >= mmr[5];
             // start pipeline
             st <= 0;
         end
