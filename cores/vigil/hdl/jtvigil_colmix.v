@@ -70,7 +70,7 @@ module jtvigil_colmix(
 
 localparam OBJ=0, SCR=1;
 
-wire        obj_blank, scr1_blank, scr1_wins, score_row;
+wire        obj_blank, scr1_blank, scr1_wins;
 reg         sel;
 reg  [ 2:0] sub;
 reg  [ 7:0] pal_base;
@@ -80,7 +80,6 @@ assign obj_blank  = obj_pxl[3:0]==0 || !gfx_en[3];
 assign scr1_blank = scr1_pxl[3:0]==0 || !gfx_en[0];
 assign scr1_wins  = !scr1_blank && scr1_pxl[7:6]==3 && scr1_pxl[3];
 assign pal_addr   = { sel, sub[2:1], pal_base };
-assign score_row  = v < 9'd48;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -109,7 +108,7 @@ always @(posedge clk, posedge rst) begin
                 sel      <= SCR[0];
                 pal_base <=
                     (scr2enb || scr1_pxl[7] || scr1_pxl[6] ) ? scr1_pxl :
-                    scr1_blank ? { scr2col[2:1], score_row, scr2col[0], scr2_pxl } : scr1_pxl;
+                    scr1_blank ? { scr2col[2:1], v[7], scr2col[0], scr2_pxl } : scr1_pxl;
             end else begin
                 sel      <= OBJ[0];
                 pal_base <= obj_pxl;
