@@ -126,11 +126,11 @@ wire [3:0] prio_color;
 wire [1:0] prio_group;
 
 // Make sure that sprite for prio is not on two layers
-wire [0:3] prio_lyr_obj = {
-        ( ~|layer0_sel &  |layer1_sel &  |layer2_sel &  |layer3_sel ),
-        (  |layer0_sel & ~|layer1_sel &  |layer2_sel &  |layer3_sel ),
+wire [3:0] prio_lyr_obj = {
+        (  |layer0_sel &  |layer1_sel &  |layer2_sel & ~|layer3_sel ),
         (  |layer0_sel &  |layer1_sel & ~|layer2_sel &  |layer3_sel ),
-        (  |layer0_sel &  |layer1_sel &  |layer2_sel & ~|layer3_sel )
+        (  |layer0_sel & ~|layer1_sel &  |layer2_sel &  |layer3_sel ),
+        ( ~|layer0_sel &  |layer1_sel &  |layer2_sel &  |layer3_sel )
 };
 
 // The prio group and color of the lower layer
@@ -152,13 +152,13 @@ always @(*) begin
     endcase
 end
 
-wire [0:5] lyr_has_color = {
-        (lyr0_d[3:0] != 4'hF && ~(prio_lyr_obj[0] & has_priority)),
-        (lyr1_d[3:0] != 4'hF && ~(prio_lyr_obj[1] & has_priority)),
-        (lyr2_d[3:0] != 4'hF && ~(prio_lyr_obj[2] & has_priority)),
-        (lyr3_d[3:0] != 4'hF && ~(prio_lyr_obj[3] & has_priority)),
+wire [5:0] lyr_has_color = {
+        (lyr5_d[3:0] != 4'hF),
         (lyr4_d[3:0] != 4'hF),
-        (lyr5_d[3:0] != 4'hF)
+        (lyr3_d[3:0] != 4'hF && ~(prio_lyr_obj[3] & has_priority)),
+        (lyr2_d[3:0] != 4'hF && ~(prio_lyr_obj[2] & has_priority)),
+        (lyr1_d[3:0] != 4'hF && ~(prio_lyr_obj[1] & has_priority)),
+        (lyr0_d[3:0] != 4'hF && ~(prio_lyr_obj[0] & has_priority))
 };
 
 `ifndef CPS2
