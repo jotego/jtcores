@@ -70,7 +70,7 @@ reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
-wire        bus_cs, bus_busy, bus_legit, int5, int6;
+wire        bus_cs, bus_busy, bus_legit, int5, int6, c_button;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -91,6 +91,7 @@ assign scr_we    = {~A[1],A[1]} & {2{scr_cs  & ~RnW & ~LDSn}};
 assign oram_we   = oram_cs & ~RnW & ~LDSn;
 assign pal_we    = {2{pal_cs & ~RnW}} & ~main_dsn;
 assign ram_we    = ram_cs & ~RnW;
+assign c_button  = joystick1[6] & joystick2[6]; // used for 1p/2p vs CPU
 
 always @* begin
     rom_cs   = 0;
@@ -147,7 +148,7 @@ always @(posedge clk) begin
         0: cab_dout <= dipsw_a;
         1: cab_dout <= dipsw_a;
         2: cab_dout <= { cab_1p[0], joystick1[6:0] };
-        3: cab_dout <= { cab_1p[1], joystick2[6:0] };
+        3: cab_dout <= { cab_1p[1], c_button, joystick2[5:0] };
         4: cab_dout <= { 4'd0, service, coin, ~LVBL }; // should it be ~LVBL?
         default:;
     endcase

@@ -9,7 +9,7 @@ skip.bootlegs=true
 
 [buttons]
 Names = [
-    { names="Punch,Kick"},
+    { names="Punch,Kick,1P/2P vs CPU"},
 ]
 
 # [dipsw]
