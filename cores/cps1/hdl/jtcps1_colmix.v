@@ -122,12 +122,11 @@ always @(posedge clk) if(pxl_cen) begin
     //lyren2[0] <= lyren[ layer_ctrl[7:6] ];
 end
 
-wire [5:0] lyr_has_color;
-wire [3:0] prio_color, prio_lyr_obj;
+wire [3:0] prio_color;
 wire [1:0] prio_group;
 
 // Make sure that sprite for prio is not on two layers
-assign prio_lyr_obj = {
+wire [0:3] prio_lyr_obj = {
         ( ~|layer0_sel &  |layer1_sel &  |layer2_sel &  |layer3_sel ),
         (  |layer0_sel & ~|layer1_sel &  |layer2_sel &  |layer3_sel ),
         (  |layer0_sel &  |layer1_sel & ~|layer2_sel &  |layer3_sel ),
@@ -153,7 +152,7 @@ always @(*) begin
     endcase
 end
 
-assign lyr_has_color = {
+wire [0:5] lyr_has_color = {
         (lyr0_d[3:0] != 4'hF && ~(prio_lyr_obj[0] & has_priority)),
         (lyr1_d[3:0] != 4'hF && ~(prio_lyr_obj[1] & has_priority)),
         (lyr2_d[3:0] != 4'hF && ~(prio_lyr_obj[2] & has_priority)),
