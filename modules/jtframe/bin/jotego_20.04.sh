@@ -154,3 +154,6 @@ git clone --depth 1 --shallow-since="$(date --date='-2 weeks' +%F)" git@github.c
 git clone git@github.com:jotego/jtbeta.git
 git clone git@github.com:JTFPGA/jtutil.git
 EOF
+
+# USB Blaster
+jtblaster
