@@ -21,7 +21,7 @@ Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructio
 
 # Video Timing
 
-atrac17 measured the original PCB. His findings can be verified in the schematics, which are a bit hard to read but putting everything together, it makes sense.
+Measured on PCB and verified on the schematics, which are a bit hard to read but putting everything together, it makes sense.
 
 - Pixel clock is 6.144MHz
 - H: 256 active pixels, 128 blank pixels

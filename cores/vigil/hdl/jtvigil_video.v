@@ -77,7 +77,7 @@ wire [7:0] scr1_pxl, obj_pxl;
 
 assign v1 = v[0];
 
-// Measured on the original PCB by atrac17
+// Measured on the original PCB
 // Pixel clock is 6.144MHz
 // H: 256 active pixels, 128 blank pixels
 // HSync lasts for 32 pixels, from pixel 40 to 72.

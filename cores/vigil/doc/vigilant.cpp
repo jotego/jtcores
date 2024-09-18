@@ -7,9 +7,6 @@
 If you have any questions about how this driver works, don't hesitate to
 ask.  - Mike Balfour (mab22@po.cwru.edu)
 
-- Video timings were measured using a logic analyzer by atrac17 on an original PCB.
-  The results were reviewed by Jose Tejada (jotego)
-
 TS 2004.12.26.:
 - Buccaneers - incomplete dump, different sound hw (YM2203x2)
     (to enter test mode press any button durning memory test)

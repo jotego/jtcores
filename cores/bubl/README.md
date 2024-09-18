@@ -116,18 +116,17 @@ Andrew Boudreau       Gavin               Mike Parks
 Andy Palmer           Greg                Nailbomb
 Angelo Kanaris        Gregory Val         natalie
 Anthony Monaco        HFSPlay             Neil St Clair
-atrac17               Human0Target        Nico Stamp
-Ben Toman             hyp36rmax           Paweł Mandes
-Bob G                 Jesse Clark         Richard Eng
-Brent Fraser W.       Johan Smolinski     Richard Murillo
-Carrboroman           Justin D'Arcangelo  SNIPERMikeUK
-Clinton Cronin        Keith Duncan        Spank Minister
-Daniel Estreito       KnC                 Stephen Goldberg
-Darren Wootton        Lee Osborne         Steven Yedwab
-David Fleetwood       Luc JOLY            taal.M
-David Jones           Magnus Kvevlander   Thomas Irwin
-DrMnike               Matthew Woodford    Trifle
-Eric J Faulkes        M. Penkert-Hennig   VickiViperZabel
-Fabio Michelin        Michael Deshaies    Victor Bly
-                           XC-3730C
+Ben Toman             Human0Target        Nico Stamp
+Bob G                 hyp36rmax           Paweł Mandes
+Brent Fraser W.       Jesse Clark         Richard Eng
+Carrboroman           Johan Smolinski     Richard Murillo
+Clinton Cronin        Justin D'Arcangelo  SNIPERMikeUK
+Daniel Estreito       Keith Duncan        Spank Minister
+Darren Wootton        KnC                 Stephen Goldberg
+David Fleetwood       Lee Osborne         Steven Yedwab
+David Jones           Luc JOLY            taal.M
+DrMnike               Magnus Kvevlander   Thomas Irwin
+Eric J Faulkes        Matthew Woodford    Trifle
+Fabio Michelin        M. Penkert-Hennig   VickiViperZabel
+XC-3730C              Michael Deshaies    Victor Bly
 ```
