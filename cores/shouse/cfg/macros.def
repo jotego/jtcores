@@ -32,7 +32,8 @@ JTFRAME_PROM_START=0x690000
 # Add 32 bytes (scroll MMR)
 # Add 16 bytes (object MMR)
 # Add 16 bytes (colmix MMR)
-JTFRAME_IOCTL_RD=63552
+JTFRAME_IOCTL_RD=2048
+debug JTFRAME_IOCTL_RD+=61504
 
 [mist|sidi]
 # not enough BRAM
