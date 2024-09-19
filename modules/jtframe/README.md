@@ -22,6 +22,7 @@ You can show your appreciation through
 * [MiST derivatives](doc/mist.md)
 * [CPUs](doc/cpus.md)
 * [SDRAM and SD card](doc/sdram.md)
+* [The MOD Byte](doc/core_mod.md)
 * [The OSD](doc/osd.md)
 * [Clocking](doc/clocks.md)
 * [Video options](doc/video.md)
