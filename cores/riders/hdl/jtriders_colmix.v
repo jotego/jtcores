@@ -115,11 +115,6 @@ begin
 end
 endfunction
 
-// remember to delete this once the dimming is ready:
-`ifdef JTFRAME_RELEASE
-    `define NODIMMING
-`endif
-
 `ifdef NODIMMING
 wire nodimming = !xmen;
 `else
