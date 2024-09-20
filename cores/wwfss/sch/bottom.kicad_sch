@@ -3311,7 +3311,7 @@
 		)
 		(uuid "353a63d3-a13e-41e1-b63e-608ba055deaf")
 	)
-	(label "IC64_6"
+	(label "R~{W}_VID"
 		(at 52.07 129.54 0)
 		(fields_autoplaced yes)
 		(effects

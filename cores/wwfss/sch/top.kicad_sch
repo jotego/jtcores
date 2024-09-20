@@ -7505,7 +7505,7 @@
 		)
 		(uuid "1cc8ac51-c5ca-4162-9e4b-0accf5f06872")
 	)
-	(label "IC64_6"
+	(label "R~{W}_VID"
 		(at 218.44 97.79 180)
 		(fields_autoplaced yes)
 		(effects
@@ -9441,7 +9441,7 @@
 		)
 		(uuid "e1c55590-e1df-46f1-a7d8-07da4bb6a18a")
 	)
-	(label "IC64_6"
+	(label "R~{W}_VID"
 		(at 52.07 110.49 0)
 		(fields_autoplaced yes)
 		(effects
@@ -11175,7 +11175,7 @@
 			)
 			(uuid "2ba74bf6-f4f1-4450-9175-3964fa018e8c")
 		)
-		(pin "IC64_6" output
+		(pin "R~{W}_VID" output
 			(at 208.28 97.79 0)
 			(effects
 				(font

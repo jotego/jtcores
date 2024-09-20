@@ -265,26 +265,24 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "IC32"
-				(at 24.13 39.37 0)
+			(property "Reference" "IC"
+				(at -2.159 0.635 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
 			(property "Value" "TJ-001"
-				(at 24.13 36.83 0)
+				(at -0.127 0.635 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
 			(property "Footprint" ""
-				(at -22.86 -15.24 0)
+				(at 14.605 -22.225 90)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -293,7 +291,7 @@
 				)
 			)
 			(property "Datasheet" ""
-				(at -22.86 -15.24 0)
+				(at 14.605 -22.225 90)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -302,7 +300,7 @@
 				)
 			)
 			(property "Description" ""
-				(at -22.86 -15.24 0)
+				(at 14.605 -22.225 90)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -312,7 +310,7 @@
 			)
 			(symbol "TJ-001_1_0"
 				(pin input line
-					(at -29.21 29.21 0)
+					(at -29.845 -28.575 90)
 					(length 5.08)
 					(name "1"
 						(effects
@@ -329,8 +327,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 6.35 0)
+				(pin output line
+					(at -6.985 -28.575 90)
 					(length 5.08)
 					(name "10"
 						(effects
@@ -347,8 +345,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 3.81 0)
+				(pin output line
+					(at -4.445 -28.575 90)
 					(length 5.08)
 					(name "11"
 						(effects
@@ -366,7 +364,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 1.27 0)
+					(at -1.905 -28.575 90)
 					(length 5.08)
 					(name "12"
 						(effects
@@ -383,8 +381,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 -1.27 0)
+				(pin output line
+					(at 0.635 -28.575 90)
 					(length 5.08)
 					(name "13"
 						(effects
@@ -401,8 +399,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 -3.81 0)
+				(pin output line
+					(at 3.175 -28.575 90)
 					(length 5.08)
 					(name "14"
 						(effects
@@ -420,7 +418,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -6.35 0)
+					(at 5.715 -28.575 90)
 					(length 5.08)
 					(name "15"
 						(effects
@@ -438,7 +436,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -8.89 0)
+					(at 8.255 -28.575 90)
 					(length 5.08)
 					(name "16"
 						(effects
@@ -456,7 +454,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -11.43 0)
+					(at 10.795 -28.575 90)
 					(length 5.08)
 					(name "17"
 						(effects
@@ -474,7 +472,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -13.97 0)
+					(at 13.335 -28.575 90)
 					(length 5.08)
 					(name "18"
 						(effects
@@ -492,7 +490,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -16.51 0)
+					(at 15.875 -28.575 90)
 					(length 5.08)
 					(name "19"
 						(effects
@@ -509,8 +507,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 26.67 0)
+				(pin output line
+					(at -27.305 -28.575 90)
 					(length 5.08)
 					(name "2"
 						(effects
@@ -528,7 +526,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -19.05 0)
+					(at 18.415 -28.575 90)
 					(length 5.08)
 					(name "20"
 						(effects
@@ -546,7 +544,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -21.59 0)
+					(at 20.955 -28.575 90)
 					(length 5.08)
 					(name "21"
 						(effects
@@ -564,7 +562,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -24.13 0)
+					(at 23.495 -28.575 90)
 					(length 5.08)
 					(name "22"
 						(effects
@@ -581,8 +579,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 -26.67 0)
+				(pin output line
+					(at 26.035 -28.575 90)
 					(length 5.08)
 					(name "23"
 						(effects
@@ -600,7 +598,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 -29.21 0)
+					(at 28.575 -28.575 90)
 					(length 5.08)
 					(name "24"
 						(effects
@@ -618,7 +616,7 @@
 					)
 				)
 				(pin input line
-					(at -19.05 -39.37 90)
+					(at 38.735 -18.415 180)
 					(length 5.08)
 					(name "25"
 						(effects
@@ -636,7 +634,7 @@
 					)
 				)
 				(pin input line
-					(at -16.51 -39.37 90)
+					(at 38.735 -15.875 180)
 					(length 5.08)
 					(name "26"
 						(effects
@@ -654,7 +652,7 @@
 					)
 				)
 				(pin input line
-					(at -13.97 -39.37 90)
+					(at 38.735 -13.335 180)
 					(length 5.08)
 					(name "27"
 						(effects
@@ -671,8 +669,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -11.43 -39.37 90)
+				(pin output line
+					(at 38.735 -10.795 180)
 					(length 5.08)
 					(name "28"
 						(effects
@@ -690,7 +688,7 @@
 					)
 				)
 				(pin input line
-					(at -8.89 -39.37 90)
+					(at 38.735 -8.255 180)
 					(length 5.08)
 					(name "29"
 						(effects
@@ -708,7 +706,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 24.13 0)
+					(at -24.765 -28.575 90)
 					(length 5.08)
 					(name "3"
 						(effects
@@ -726,7 +724,7 @@
 					)
 				)
 				(pin input line
-					(at -6.35 -39.37 90)
+					(at 38.735 -5.715 180)
 					(length 5.08)
 					(name "30"
 						(effects
@@ -744,7 +742,7 @@
 					)
 				)
 				(pin input line
-					(at -3.81 -39.37 90)
+					(at 38.735 -3.175 180)
 					(length 5.08)
 					(name "31"
 						(effects
@@ -762,7 +760,7 @@
 					)
 				)
 				(pin input line
-					(at -1.27 -39.37 90)
+					(at 38.735 -0.635 180)
 					(length 5.08)
 					(name "32"
 						(effects
@@ -779,8 +777,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 1.27 -39.37 90)
+				(pin output line
+					(at 38.735 1.905 180)
 					(length 5.08)
 					(name "33"
 						(effects
@@ -798,7 +796,7 @@
 					)
 				)
 				(pin input line
-					(at 3.81 -39.37 90)
+					(at 38.735 4.445 180)
 					(length 5.08)
 					(name "34"
 						(effects
@@ -816,7 +814,7 @@
 					)
 				)
 				(pin input line
-					(at 6.35 -39.37 90)
+					(at 38.735 6.985 180)
 					(length 5.08)
 					(name "35"
 						(effects
@@ -833,8 +831,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 8.89 -39.37 90)
+				(pin output line
+					(at 38.735 9.525 180)
 					(length 5.08)
 					(name "36"
 						(effects
@@ -852,7 +850,7 @@
 					)
 				)
 				(pin input line
-					(at 11.43 -39.37 90)
+					(at 38.735 12.065 180)
 					(length 5.08)
 					(name "37"
 						(effects
@@ -870,7 +868,7 @@
 					)
 				)
 				(pin input line
-					(at 13.97 -39.37 90)
+					(at 38.735 14.605 180)
 					(length 5.08)
 					(name "38"
 						(effects
@@ -888,7 +886,7 @@
 					)
 				)
 				(pin input line
-					(at 16.51 -39.37 90)
+					(at 38.735 17.145 180)
 					(length 5.08)
 					(name "39"
 						(effects
@@ -906,7 +904,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 21.59 0)
+					(at -22.225 -28.575 90)
 					(length 5.08)
 					(name "4"
 						(effects
@@ -924,7 +922,7 @@
 					)
 				)
 				(pin input line
-					(at 19.05 -39.37 90)
+					(at 38.735 19.685 180)
 					(length 5.08)
 					(name "40"
 						(effects
@@ -942,7 +940,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 -29.21 180)
+					(at 28.575 28.575 270)
 					(length 5.08)
 					(name "41"
 						(effects
@@ -960,7 +958,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 -26.67 180)
+					(at 26.035 28.575 270)
 					(length 5.08)
 					(name "42"
 						(effects
@@ -977,8 +975,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -24.13 180)
+				(pin output line
+					(at 23.495 28.575 270)
 					(length 5.08)
 					(name "43"
 						(effects
@@ -995,8 +993,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -21.59 180)
+				(pin output line
+					(at 20.955 28.575 270)
 					(length 5.08)
 					(name "44"
 						(effects
@@ -1013,8 +1011,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -19.05 180)
+				(pin output line
+					(at 18.415 28.575 270)
 					(length 5.08)
 					(name "45"
 						(effects
@@ -1031,8 +1029,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -16.51 180)
+				(pin output line
+					(at 15.875 28.575 270)
 					(length 5.08)
 					(name "46"
 						(effects
@@ -1049,8 +1047,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -13.97 180)
+				(pin output line
+					(at 13.335 28.575 270)
 					(length 5.08)
 					(name "47"
 						(effects
@@ -1067,8 +1065,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -11.43 180)
+				(pin output line
+					(at 10.795 28.575 270)
 					(length 5.08)
 					(name "48"
 						(effects
@@ -1085,8 +1083,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -8.89 180)
+				(pin output line
+					(at 8.255 28.575 270)
 					(length 5.08)
 					(name "49"
 						(effects
@@ -1104,7 +1102,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 19.05 0)
+					(at -19.685 -28.575 90)
 					(length 5.08)
 					(name "5"
 						(effects
@@ -1121,8 +1119,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 -6.35 180)
+				(pin output line
+					(at 5.715 28.575 270)
 					(length 5.08)
 					(name "50"
 						(effects
@@ -1140,7 +1138,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 -3.81 180)
+					(at 3.175 28.575 270)
 					(length 5.08)
 					(name "51"
 						(effects
@@ -1158,7 +1156,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 -1.27 180)
+					(at 0.635 28.575 270)
 					(length 5.08)
 					(name "52"
 						(effects
@@ -1176,7 +1174,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 1.27 180)
+					(at -1.905 28.575 270)
 					(length 5.08)
 					(name "53"
 						(effects
@@ -1194,7 +1192,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 3.81 180)
+					(at -4.445 28.575 270)
 					(length 5.08)
 					(name "54"
 						(effects
@@ -1211,8 +1209,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 6.35 180)
+				(pin output line
+					(at -6.985 28.575 270)
 					(length 5.08)
 					(name "55"
 						(effects
@@ -1229,8 +1227,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 8.89 180)
+				(pin output line
+					(at -9.525 28.575 270)
 					(length 5.08)
 					(name "56"
 						(effects
@@ -1248,7 +1246,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 11.43 180)
+					(at -12.065 28.575 270)
 					(length 5.08)
 					(name "57"
 						(effects
@@ -1265,8 +1263,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 27.94 13.97 180)
+				(pin output line
+					(at -14.605 28.575 270)
 					(length 5.08)
 					(name "58"
 						(effects
@@ -1284,7 +1282,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 16.51 180)
+					(at -17.145 28.575 270)
 					(length 5.08)
 					(name "59"
 						(effects
@@ -1302,7 +1300,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 16.51 0)
+					(at -17.145 -28.575 90)
 					(length 5.08)
 					(name "6"
 						(effects
@@ -1320,7 +1318,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 19.05 180)
+					(at -19.685 28.575 270)
 					(length 5.08)
 					(name "60"
 						(effects
@@ -1338,7 +1336,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 21.59 180)
+					(at -22.225 28.575 270)
 					(length 5.08)
 					(name "61"
 						(effects
@@ -1356,7 +1354,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 24.13 180)
+					(at -24.765 28.575 270)
 					(length 5.08)
 					(name "62"
 						(effects
@@ -1374,7 +1372,7 @@
 					)
 				)
 				(pin input line
-					(at 27.94 26.67 180)
+					(at -27.305 28.575 270)
 					(length 5.08)
 					(name "63"
 						(effects
@@ -1392,7 +1390,7 @@
 					)
 				)
 				(pin output line
-					(at 27.94 29.21 180)
+					(at -29.845 28.575 270)
 					(length 5.08)
 					(name "CP"
 						(effects
@@ -1409,8 +1407,8 @@
 						)
 					)
 				)
-				(pin output line
-					(at 19.05 39.37 270)
+				(pin input clock
+					(at -40.005 19.685 0)
 					(length 5.08)
 					(name "CP"
 						(effects
@@ -1427,8 +1425,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 16.51 39.37 270)
+				(pin output line
+					(at -40.005 17.145 0)
 					(length 5.08)
 					(name "66"
 						(effects
@@ -1446,7 +1444,7 @@
 					)
 				)
 				(pin input line
-					(at 13.97 39.37 270)
+					(at -40.005 14.605 0)
 					(length 5.08)
 					(name "67"
 						(effects
@@ -1464,7 +1462,7 @@
 					)
 				)
 				(pin input line
-					(at 11.43 39.37 270)
+					(at -40.005 12.065 0)
 					(length 5.08)
 					(name "68"
 						(effects
@@ -1481,8 +1479,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 8.89 39.37 270)
+				(pin output line
+					(at -40.005 9.525 0)
 					(length 5.08)
 					(name "69"
 						(effects
@@ -1500,7 +1498,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 13.97 0)
+					(at -14.605 -28.575 90)
 					(length 5.08)
 					(name "7"
 						(effects
@@ -1518,7 +1516,7 @@
 					)
 				)
 				(pin input line
-					(at 6.35 39.37 270)
+					(at -40.005 6.985 0)
 					(length 5.08)
 					(name "70"
 						(effects
@@ -1536,7 +1534,7 @@
 					)
 				)
 				(pin input line
-					(at 3.81 39.37 270)
+					(at -40.005 4.445 0)
 					(length 5.08)
 					(name "71"
 						(effects
@@ -1554,7 +1552,7 @@
 					)
 				)
 				(pin input line
-					(at 1.27 39.37 270)
+					(at -40.005 1.905 0)
 					(length 5.08)
 					(name "72"
 						(effects
@@ -1572,7 +1570,7 @@
 					)
 				)
 				(pin input line
-					(at -1.27 39.37 270)
+					(at -40.005 -0.635 0)
 					(length 5.08)
 					(name "73"
 						(effects
@@ -1590,7 +1588,7 @@
 					)
 				)
 				(pin input line
-					(at -3.81 39.37 270)
+					(at -40.005 -3.175 0)
 					(length 5.08)
 					(name "74"
 						(effects
@@ -1608,7 +1606,7 @@
 					)
 				)
 				(pin input line
-					(at -6.35 39.37 270)
+					(at -40.005 -5.715 0)
 					(length 5.08)
 					(name "75"
 						(effects
@@ -1626,7 +1624,7 @@
 					)
 				)
 				(pin input line
-					(at -8.89 39.37 270)
+					(at -40.005 -8.255 0)
 					(length 5.08)
 					(name "76"
 						(effects
@@ -1643,8 +1641,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -11.43 39.37 270)
+				(pin output line
+					(at -40.005 -10.795 0)
 					(length 5.08)
 					(name "77"
 						(effects
@@ -1662,7 +1660,7 @@
 					)
 				)
 				(pin input line
-					(at -13.97 39.37 270)
+					(at -40.005 -13.335 0)
 					(length 5.08)
 					(name "78"
 						(effects
@@ -1680,7 +1678,7 @@
 					)
 				)
 				(pin input line
-					(at -16.51 39.37 270)
+					(at -40.005 -15.875 0)
 					(length 5.08)
 					(name "79"
 						(effects
@@ -1698,7 +1696,7 @@
 					)
 				)
 				(pin input line
-					(at -29.21 11.43 0)
+					(at -12.065 -28.575 90)
 					(length 5.08)
 					(name "8"
 						(effects
@@ -1716,7 +1714,7 @@
 					)
 				)
 				(pin input line
-					(at -19.05 39.37 270)
+					(at -40.005 -18.415 0)
 					(length 5.08)
 					(name "80"
 						(effects
@@ -1733,8 +1731,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -29.21 8.89 0)
+				(pin output line
+					(at -9.525 -28.575 90)
 					(length 5.08)
 					(name "9"
 						(effects
@@ -1754,8 +1752,8 @@
 			)
 			(symbol "TJ-001_1_1"
 				(rectangle
-					(start -24.13 34.29)
-					(end 22.86 -34.29)
+					(start -34.925 -23.495)
+					(end 33.655 23.495)
 					(stroke
 						(width 0)
 						(type default)
@@ -1765,7 +1763,7 @@
 					)
 				)
 				(text "DETERMINAR CADA PIN\n"
-					(at 0.254 -3.81 0)
+					(at 3.175 0.889 900)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1777,6 +1775,16 @@
 	)
 	(wire
 		(pts
+			(xy 198.12 52.07) (xy 198.12 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "08339e3c-7ae4-4308-8877-dcbcc7924274")
+	)
+	(wire
+		(pts
 			(xy 100.33 81.28) (xy 104.14 81.28)
 		)
 		(stroke
@@ -1784,6 +1792,76 @@
 			(type default)
 		)
 		(uuid "0875bbeb-4d87-492f-9b6a-03dcbdc87be5")
+	)
+	(wire
+		(pts
+			(xy 172.72 52.07) (xy 172.72 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b4e9928-e84e-4f7c-a0fb-675cba654702")
+	)
+	(wire
+		(pts
+			(xy 170.18 114.3) (xy 170.18 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0f4a1f5a-ff4f-44c0-a998-ccd986b7f592")
+	)
+	(wire
+		(pts
+			(xy 180.34 120.65) (xy 180.34 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17c57b0d-170e-4a18-83fd-b294268bd4fa")
+	)
+	(wire
+		(pts
+			(xy 187.96 52.07) (xy 187.96 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a89efff-7ee5-4469-885f-93fe2e17bd7d")
+	)
+	(wire
+		(pts
+			(xy 203.2 52.07) (xy 203.2 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24474be9-f317-4917-848e-fa81b6e7221c")
+	)
+	(wire
+		(pts
+			(xy 165.1 52.07) (xy 165.1 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27e74d88-a27a-4c43-9b62-21fab630677d")
+	)
+	(wire
+		(pts
+			(xy 175.26 114.3) (xy 175.26 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e19687e-5ea1-41b5-a721-3e971c467553")
 	)
 	(wire
 		(pts
@@ -1807,6 +1885,146 @@
 	)
 	(wire
 		(pts
+			(xy 134.62 66.04) (xy 139.7 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "53d4e03e-db18-404e-979c-8557900f723a")
+	)
+	(wire
+		(pts
+			(xy 193.04 52.07) (xy 193.04 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55352957-fc60-446a-a500-cb1c28187c03")
+	)
+	(wire
+		(pts
+			(xy 149.86 53.34) (xy 149.86 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7720244d-d78f-451a-8637-f1b6c62d18e5")
+	)
+	(wire
+		(pts
+			(xy 152.4 114.3) (xy 152.4 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88f3bb22-061d-4642-8018-f971b3eefc04")
+	)
+	(wire
+		(pts
+			(xy 205.74 114.3) (xy 205.74 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ca33d98-623c-4d3d-b5ed-0a264f28d706")
+	)
+	(wire
+		(pts
+			(xy 193.04 114.3) (xy 193.04 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9bd174ab-ddb2-4623-9f92-bc91613e44c4")
+	)
+	(wire
+		(pts
+			(xy 177.8 119.38) (xy 177.8 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a29b44e5-2cbe-4d8f-942c-2dc7c74321e4")
+	)
+	(wire
+		(pts
+			(xy 134.62 68.58) (xy 139.7 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7ab5acb-84a2-42e9-8ac8-61b55e6e8ed3")
+	)
+	(wire
+		(pts
+			(xy 218.44 83.82) (xy 224.79 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "accf1e41-a051-4dda-912b-81b672967ecb")
+	)
+	(wire
+		(pts
+			(xy 134.62 96.52) (xy 139.7 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c0b816d7-fe2f-4448-9863-8db8c5274412")
+	)
+	(wire
+		(pts
+			(xy 170.18 52.07) (xy 170.18 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c17bf619-0416-4706-a3ea-ea22250e9adb")
+	)
+	(wire
+		(pts
+			(xy 195.58 52.07) (xy 195.58 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c45f7c4e-bc60-4460-8d79-0209b74c725b")
+	)
+	(wire
+		(pts
+			(xy 185.42 52.07) (xy 185.42 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ca91f7cd-e8ce-4122-910e-51c008084ae0")
+	)
+	(wire
+		(pts
+			(xy 172.72 114.3) (xy 172.72 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cc9d784b-b067-4ace-914f-105e76b5a54c")
+	)
+	(wire
+		(pts
 			(xy 104.14 93.98) (xy 104.14 92.71)
 		)
 		(stroke
@@ -1814,6 +2032,66 @@
 			(type default)
 		)
 		(uuid "dbecce05-a3b7-46cc-9669-4e2c0b4ce4f6")
+	)
+	(wire
+		(pts
+			(xy 190.5 52.07) (xy 190.5 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc828f30-da04-47e1-8ff0-91655b6b599d")
+	)
+	(wire
+		(pts
+			(xy 134.62 76.2) (xy 139.7 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de0f7bf3-50d2-4afc-a337-d5dbf85b5485")
+	)
+	(wire
+		(pts
+			(xy 200.66 52.07) (xy 200.66 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dec47549-c3a3-446b-92d6-f3eca239a70e")
+	)
+	(wire
+		(pts
+			(xy 218.44 76.2) (xy 223.52 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecc04dc3-8f59-4359-9db1-08bab0dc64ef")
+	)
+	(wire
+		(pts
+			(xy 224.79 96.52) (xy 218.44 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f08427ea-33ab-415d-8b30-9c1075c847e3")
+	)
+	(wire
+		(pts
+			(xy 182.88 114.3) (xy 182.88 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f91b4087-3214-4c9e-8152-a76d63729a3c")
 	)
 	(label "VCC"
 		(at 100.33 81.28 0)
@@ -1827,6 +2105,50 @@
 		(uuid "0d4a22a0-89b3-46de-97a0-650c0ce6c01b")
 	)
 	(label "VSS"
+		(at 152.4 119.38 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "114a6725-dc10-4522-9c01-1dbe1308329c")
+	)
+	(label "VCC"
+		(at 224.79 83.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "49ec8a31-9e41-4a39-990a-e1df46304e91")
+	)
+	(label "VSS"
+		(at 205.74 115.57 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6f55804c-7c45-4413-bb54-1edb2d59d59b")
+	)
+	(label "VSS"
+		(at 177.8 119.38 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "79dcf5bd-6934-48b0-8a78-7a0475d05acc")
+	)
+	(label "VSS"
 		(at 109.22 93.98 180)
 		(fields_autoplaced yes)
 		(effects
@@ -1837,9 +2159,32 @@
 		)
 		(uuid "97aefca6-2542-4dfc-a702-dcb2a39e7546")
 	)
+	(label "VSS"
+		(at 193.04 115.57 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9daed6b0-ed9d-4f62-9ad0-4ba29670b3cc")
+	)
+	(hierarchical_label "IC34_6"
+		(shape output)
+		(at 193.04 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0d4e9039-0793-4df1-89e8-f76a9b415747")
+	)
 	(hierarchical_label "IC19_14"
 		(shape output)
-		(at 182.245 113.665 270)
+		(at 182.88 120.65 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1851,7 +2196,7 @@
 	)
 	(hierarchical_label "CP1"
 		(shape output)
-		(at 149.225 56.515 90)
+		(at 149.86 53.34 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1863,7 +2208,7 @@
 	)
 	(hierarchical_label "IC49_9"
 		(shape output)
-		(at 174.625 113.665 270)
+		(at 175.26 120.65 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1873,9 +2218,21 @@
 		)
 		(uuid "33122caf-5d09-45ee-9164-fb8d9a9e36bb")
 	)
+	(hierarchical_label "IC51_3"
+		(shape output)
+		(at 224.79 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "46cd2a4d-0da1-436c-a688-b98fa207823f")
+	)
 	(hierarchical_label "IC49_4"
 		(shape output)
-		(at 172.085 113.665 270)
+		(at 172.72 120.65 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1885,9 +2242,81 @@
 		)
 		(uuid "698325f2-09f3-41f3-98b8-159d98950f97")
 	)
+	(hierarchical_label "IC41_1"
+		(shape output)
+		(at 134.62 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "764a18e5-4c5f-4a56-ac2c-c157d74f44ab")
+	)
+	(hierarchical_label "IC34_2"
+		(shape output)
+		(at 190.5 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "76af2165-ab36-46c3-bdd5-59d4a6519dfe")
+	)
+	(hierarchical_label "IC42_10"
+		(shape output)
+		(at 180.34 120.65 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8298ba86-1f58-427a-85d9-6cc4c3fffffe")
+	)
+	(hierarchical_label "IC52_11"
+		(shape output)
+		(at 195.58 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "82eda0e6-9071-4e9f-9df4-dee5332821b4")
+	)
+	(hierarchical_label "IC34_15"
+		(shape output)
+		(at 187.96 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a2b5e4e8-193e-4c68-8636-9b8eed2f3a06")
+	)
+	(hierarchical_label "IC10_10"
+		(shape input)
+		(at 134.62 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c2157801-8a69-4f89-8f02-5ef24886a143")
+	)
 	(hierarchical_label "IC49_12"
 		(shape output)
-		(at 217.805 75.565 0)
+		(at 223.52 76.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1897,9 +2326,93 @@
 		)
 		(uuid "d00110fd-b625-4a22-9f0c-13b4d93dd38b")
 	)
+	(hierarchical_label "IC109_11"
+		(shape output)
+		(at 170.18 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d3321d7e-10bf-4820-8622-819114f4a523")
+	)
+	(hierarchical_label "IC111_11"
+		(shape output)
+		(at 172.72 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "db46fdb5-0af6-451f-924c-8f8fabfd3b88")
+	)
+	(hierarchical_label "IC110_11"
+		(shape output)
+		(at 165.1 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dc98f76e-e199-4829-92eb-75756717929c")
+	)
+	(hierarchical_label "IC93_2"
+		(shape input)
+		(at 134.62 76.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "dd593e01-4dfa-4c4a-8e1f-5fdf28f1d949")
+	)
+	(hierarchical_label "IC34_11"
+		(shape output)
+		(at 185.42 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "de60abcd-9ec3-426e-9ac7-0bb4ab8c3695")
+	)
+	(hierarchical_label "IC52_15"
+		(shape output)
+		(at 198.12 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e18bb6e2-523c-4d35-9e48-6f8e3db8fc40")
+	)
+	(hierarchical_label "IC52_6"
+		(shape output)
+		(at 203.2 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e52f3bb6-cd49-456c-83f7-c55261a4e61f")
+	)
 	(hierarchical_label "CP2"
 		(shape output)
-		(at 139.065 65.405 180)
+		(at 134.62 66.04 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1909,9 +2422,9 @@
 		)
 		(uuid "e5789e79-c803-4df3-8642-da263b8d7483")
 	)
-	(hierarchical_label "IC19_4'"
+	(hierarchical_label "IC49_1"
 		(shape output)
-		(at 169.545 113.665 270)
+		(at 170.18 120.65 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1921,9 +2434,21 @@
 		)
 		(uuid "ede9546b-48a2-46dd-994c-e14dde6a5242")
 	)
+	(hierarchical_label "IC52_2"
+		(shape output)
+		(at 200.66 52.07 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f211dbac-f58e-4619-b657-b1ca897154ba")
+	)
 	(symbol
 		(lib_id "technos:TJ-001")
-		(at 178.435 84.455 90)
+		(at 179.705 85.725 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1931,7 +2456,7 @@
 		(dnp no)
 		(uuid "7ae2e056-ab54-41e0-be26-179112b5fde9")
 		(property "Reference" "IC32"
-			(at 139.065 60.325 0)
+			(at 216.662 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1940,7 +2465,7 @@
 			)
 		)
 		(property "Value" "TJ-001"
-			(at 141.605 60.325 0)
+			(at 216.662 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1949,7 +2474,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 193.675 107.315 0)
+			(at 156.845 100.965 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1958,7 +2483,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 193.675 107.315 0)
+			(at 156.845 100.965 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1967,7 +2492,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 193.675 107.315 0)
+			(at 156.845 100.965 0)
 			(effects
 				(font
 					(size 1.27 1.27)
