@@ -57,7 +57,7 @@ localparam E = LAYOUT==WWFSS ? 0 : 7, // enable bit
            Y = LAYOUT==WWFSS ? 2 : 0, // y MSB
            L = LAYOUT==WWFSS ? 1 : 4; // Large sprite (16x32)
 
-localparam [8:0] HOFFSET = LAYOUT==WWFSS ? 9'd6 : 9'd10;
+localparam [8:0] HOFFSET = LAYOUT==WWFSS ? 9'd6 : 9'd9;
 
 // RAM area shared with CPU
 reg  [ 8:0] scan;
