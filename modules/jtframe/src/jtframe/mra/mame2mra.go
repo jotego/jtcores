@@ -560,7 +560,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 	}
-	make_nvram(&root,machine,cfg)
+	make_nvram(&root,machine,cfg,args.Def_cfg.Core)
 	// coreMOD
 	coremod := make_coreMOD(&root, machine, cfg, args.macros)
 	// DIP switches

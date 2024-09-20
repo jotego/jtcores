@@ -118,7 +118,9 @@ order = [ "maincpu", "soundcpu", "gfx1", "gfx2" ]
 # Default NVRAM contents, usually not needed
 nvram = {
 	machines=[ "supports nvram..." ] # NVRAM on all machines by default
-	data=[
+	# if a file with the machine or setname and .nvm extension exists in the
+	# cfg folder, its data will be set as the default NVRAM content
+	defaults=[
 		{ machine="...", setname="...", data="00 22 33..." },...
 	]
 	# if a ROM region with the name "nvram" exists, and no default data
