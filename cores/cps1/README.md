@@ -57,7 +57,7 @@ Pang! 3 and all CPS 1.5/2 games did not use DIP switches to configure the game, 
 
 # Issues
 
-Please report issues (here)[https://github.com/jotego/jtbin/issues].
+Please report issues (here)[https://github.com/jotego/jtcores/issues].
 
 ## QSound Hiss
 
