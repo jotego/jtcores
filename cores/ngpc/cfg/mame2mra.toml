@@ -10,8 +10,10 @@ firmware = "ngpc.rom"
 carts =[ "ngp", "ngc" ]
 
 # skip menu patch by angel_killah
-patches=[ { offset=0x1bc6,data="""00 00 00 00 00 00 00 00 00 00
-	00 00 00 00 00 00 00 00 00 00 00 00 00 00"""} ]
+# it seems to lock the core on FPGA, on simulation works fine
+# maybe it needs to have a cartridge already loaded
+# patches=[ { offset=0x1bc6,data="""00 00 00 00 00 00 00 00 00 00
+# 	00 00 00 00 00 00 00 00 00 00 00 00 00 00"""} ]
 
 [buttons]
 names = [{names="A,B,Option"}]
