@@ -41,7 +41,6 @@ bram: # 64+8+4+16=92kB
     sim_file: true
     rom:
       offset: 0
-
   - name: nvram
     addr_width: 13  # 8kB
     data_width: 16

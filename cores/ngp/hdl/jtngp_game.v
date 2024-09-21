@@ -22,7 +22,7 @@ module jtngp_game(
 
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] gfx_dout, shd_dout, flash0_dout, flash1_dout, f1g_dout;
-wire [ 7:0] snd_latch, main_latch,
+wire [ 7:0] snd_latch, main_latch, ioctl_pal, ioctl_main,
             st_video, st_main, st_snd;
 wire [ 1:0] cpu_we, shd_we;
 reg  [ 7:0] st_mux;
@@ -70,6 +70,9 @@ always @(posedge clk) begin
         endcase
     endcase
 end
+
+assign ioctl_din = ioctl_addr[7] ? ioctl_pal : ioctl_main;
+
 /* verilator tracing_on */
 jtngp_main u_main(
     .rst        ( rst       ),
@@ -124,7 +127,7 @@ jtngp_main u_main(
     // RTC dump
     .ioctl_addr ( ioctl_addr[6:0]),
     .ioctl_dout ( ioctl_dout),
-    .ioctl_din  ( ioctl_din ),
+    .ioctl_din  ( ioctl_main),
     .ioctl_wr   ( ioctl_rest),
 
     // NVRAM
@@ -243,6 +246,9 @@ jtngp_video u_video(
     .blue       ( blue      ),
     .gfx_en     ( gfx_en    ),
     // Debug
+    .ioctl_addr (ioctl_addr[8:0]),
+    .ioctl_din  ( ioctl_pal ),
+    .ioctl_dump ( ioctl_rest),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_video  )
 );

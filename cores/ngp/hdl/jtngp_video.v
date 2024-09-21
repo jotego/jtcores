@@ -46,6 +46,9 @@ module jtngp_video(
     output       [ 3:0] blue,
     input        [ 3:0] gfx_en,
     // Debug
+    input        [ 8:0] ioctl_addr,
+    output       [ 7:0] ioctl_din,
+    input               ioctl_dump,
     input        [ 7:0] debug_bus,
     output reg   [ 7:0] st_dout
 );
@@ -127,7 +130,7 @@ always @* begin
 end
 
 always @* begin // do not register here
-    cpu_din =  pal_cs   ? pal_dout  :
+    cpu_din =  pal_cs | palrgb_cs ? pal_dout  :
                scr1_cs  ? scr1_dout :
                scr2_cs  ? scr2_dout :
     (mode_cs | regs_cs) ? regs_dout :
@@ -331,10 +334,20 @@ jtngp_obj u_obj(
     .scr2_pxl   ( scr2_pxl  ),
     .obj_pxl    ( obj_pxl   ),
 
+`ifdef NGPC
+    .ioctl_addr ( ioctl_addr),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_dump ( ioctl_dump),
+`endif
+
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     .debug_bus  ( debug_bus )
 );
+
+`ifndef NGPC
+assign ioctl_din=0;
+`endif
 
 endmodule
