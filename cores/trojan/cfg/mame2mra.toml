@@ -50,6 +50,7 @@ order=[ "maincpu", "soundcpu", "adpcmcpu",
 ]
 
 patches=[
+    # fixes wrong MCU data
     { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8B84, data="02" },
     { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8481, data="00" },
     { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC84E0, data="00" },
