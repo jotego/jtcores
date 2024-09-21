@@ -1,5 +1,6 @@
 [parse]
 sourcefile=[ "ngp.cpp" ]
+skip.setname="ngp"
 
 [Pocket]
 display_modes=[ 0x62, 0x63 ]
