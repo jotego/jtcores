@@ -249,20 +249,6 @@ always @(A,bank) begin
     rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
 end
 
-reg       m1_l;
-reg [1:0] m1_wait;
-wire      cpug_cen;
-
-assign cpug_cen = cpu_cen & ~m1_wait[0];
-
-always @(posedge clk) begin
-    m1_l <= m1_n;
-    if(base_cen) m1_wait <= m1_wait >> 1;
-    if( !m1_n && m1_l ) begin
-        m1_wait <= 2'b11;
-    end
-end
-
 /////////////////////////////////////////////////////////////////
 jtframe_z80wait u_wait(
     .rst_n      ( t80_rst_n ),
@@ -312,7 +298,7 @@ end
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
     .clk        ( clk         ),
-    .cen        ( cpug_cen    ),
+    .cen        ( cpu_cen     ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
