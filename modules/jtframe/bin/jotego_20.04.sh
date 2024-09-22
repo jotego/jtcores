@@ -157,3 +157,6 @@ EOF
 
 # USB Blaster
 jtblaster
+
+# audio play and visualization
+sudo apt install mplayer audacity
