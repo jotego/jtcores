@@ -89,7 +89,7 @@ module jttrojan_main(
 // bit locations
 localparam FLIP = 0;
 localparam NMI  = 3;
-localparam SRES = 6;
+localparam SRES = 5;
 
 wire [15:0] A;
 reg  [ 7:0] cab_dout;
