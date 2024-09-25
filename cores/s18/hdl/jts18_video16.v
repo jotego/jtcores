@@ -86,7 +86,7 @@ module jts18_video16(
     output     [ 1:0]  obj_prio,
     output             fix, sa, sb, tprio, s1_pri, s2_pri,
     // palette RAM
-    output     [10:0]  pal_addr,
+    output     [11:1]  pal_addr,
     input      [15:0]  pal_dout,
     // Debug
     input      [ 3:0]  gfx_en,
