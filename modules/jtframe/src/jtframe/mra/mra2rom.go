@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -15,7 +16,8 @@ import (
 
 // save2disk = false is uselful to update the md5 calculation only
 func mra2rom(root *XMLNode, verbose, save2disk bool, zippath string) {
-	save_rom(root, verbose, save2disk, zippath )
+	e := save_rom(root, verbose, save2disk, zippath )
+	if e!=nil { fmt.Println(e) }
 	if save2disk {
 		save_coremod(root, verbose)
 	}
@@ -44,52 +46,60 @@ func save_nvram(root *XMLNode) {
 	rom_file( strings.ToUpper(setname.text),".RAM",rawdata2bytes(xml_nvram.text))
 }
 
-func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
+func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) error {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
 		fmt.Println("Warning: no ROM files associated with machine")
-		return
+		return nil
 	}
 	rombytes := make([]byte, 0)
 	var zf []*zip.ReadCloser
+	var zipe error
 	for _, each := range strings.Split(xml_rom.GetAttr("zip"), "|") {
-		aux := get_zipfile(each, zippath )
-		if aux != nil {
-			zf = append(zf, aux)
+		aux, e := get_zipfile(each, zippath )
+		if aux != nil { zf = append(zf, aux) }
+		if e   != nil {
+			if zipe != nil {
+				zipe = fmt.Errorf("%s, %s", each, zipe.Error())
+			} else {
+				zipe = fmt.Errorf("%s", each)
+			}
 		}
 	}
+	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s",setname.text, zipe.Error()) }
 	if verbose {
 		fmt.Println("**** Creating .rom file for", setname.text)
 	}
 	e := parts2rom(zf, xml_rom, &rombytes, verbose)
 	if e != nil { fmt.Println(setname.text,"\n",e)}
 	if rombytes == nil {
-		fmt.Printf("No .rom created for %s\n\n", setname.text)
-		return
+		return fmt.Errorf("No .rom created for %s\n\n", setname.text)
 	}
 	update_md5(xml_rom, rombytes)
 	if len(rombytes)%4 != 0 {
 		fmt.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
 	}
 	if save2disk {
-		if e := patchrom(xml_rom, &rombytes); e!=nil {
-			fmt.Printf("%s: %s\n", setname.text, e.Error())
+		var e error
+		if e = patchrom(xml_rom, &rombytes); e!=nil {
+			e = fmt.Errorf("%s: %w\n", setname.text, e)
 		}
-		rom_file(setname.text, ".rom", rombytes)
+		return comb_errors( e, rom_file(setname.text, ".rom", rombytes))
 	}
+	return nil
 }
 
-func rom_file(setname string, ext string, rombytes []byte) {
+func rom_file(setname string, ext string, rombytes []byte) error {
 	os.MkdirAll( filepath.Join(os.Getenv("JTROOT"), "rom"), 0775 )
 	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", setname+ext)
 	fout, err := os.Create(fout_name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	fout.Write(rombytes)
 	fout.Close()
+	return nil
 }
 
 func update_md5(n *XMLNode, rb []byte) {
@@ -183,7 +193,9 @@ lookup:
 lookup_name:
 		for _, each := range allzips {
 			for _, file := range each.File {
-				if file.Name == fname {
+				// only checking the file name, but it may be better to compare
+				// the subfolder where the file is, in order to match the setname
+				if path.Base(file.Name) == fname {
 					f = file
 					break lookup_name
 				}
