@@ -160,3 +160,7 @@ jtblaster
 
 # audio play and visualization
 sudo apt install mplayer audacity
+
+# Cross-Compiler
+# m68k-linux-gnu-gcc
+sudo apt install gcc-m68k-linux-gnu

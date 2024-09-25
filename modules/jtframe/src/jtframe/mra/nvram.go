@@ -17,10 +17,10 @@ func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename strin
 			}
 		}
 	}
-	if !nvram_file(root,machine,cfg,corename) { // look in cfg folder for matching file
-		if !nvram_verbatim(root, machine,cfg) { // explicit defaults in the TOML
-			nvram_rom(root,machine,cfg)  // get the defaults from MAME
-		}
+	if rawbytes, e := nvram_file(machine, corename); e==nil { // look in cfg folder for matching file
+		root.AddNode("rom").AddAttr("index", "2").AddNode("part").SetText("\n" + hexdump(rawbytes, 16))
+	} else if !nvram_verbatim(root, machine,cfg) { // explicit defaults in the TOML
+		nvram_rom(root,machine,cfg)  // get the defaults from MAME
 	}
 	if add_nvram {
 		n := root.AddNode("nvram").AddAttr("index", "2")
@@ -28,24 +28,22 @@ func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename strin
 	}
 }
 
-func nvram_file(root *XMLNode, machine *MachineXML, cfg Mame2MRA, core string) bool {
+func nvram_file( machine *MachineXML, core string) ([]byte, error) {
 	cfgdir := filepath.Join(os.Getenv("JTROOT"),"cores",core,"cfg")
 	fname := filepath.Join(cfgdir,machine.Name+".nvm")
 	f, e := os.Open(fname)
 	if e!=nil {
 		f.Close()
-		if machine.Cloneof=="" { return false }
+		if machine.Cloneof=="" { return nil, e }
 		fname := filepath.Join(cfgdir,machine.Cloneof+".nvm")
 		f, e = os.Open(fname)
 		if e!= nil {
 			f.Close()
-			return false	// not found
+			return nil,e	// not found
 		}
 	}
 	f.Close()
-	rawbytes, e := os.ReadFile(fname)
-	root.AddNode("rom").AddAttr("index", "2").AddNode("part").SetText("\n" + hexdump(rawbytes, 16))
-	return true
+	return os.ReadFile(fname)
 }
 
 func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
