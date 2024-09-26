@@ -8,4 +8,5 @@ game:
   - from: simson
     get:
       - jt053246.sv
+      - jt053246_scan.sv
       - jtsimson_obj.v

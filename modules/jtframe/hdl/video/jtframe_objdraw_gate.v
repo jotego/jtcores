@@ -199,7 +199,7 @@ jtframe_draw #(
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_sorted),
 
-    .buf_addr   ( buf_addr  ), //
+    .buf_addr   ( buf_addr  ),
     .buf_we     ( buf_we    ),
     .buf_din    ( buf_pred  )
 );

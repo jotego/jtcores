@@ -63,7 +63,6 @@ parameter XMEN = 0;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] x2, xpos;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
 reg  [ 8:0] vlatch, ymove, vscl, hscl, xmove;
 reg  [ 7:0] scan_obj; // max 256 objects
@@ -90,7 +89,7 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - (10'd61 + /*10'h3B0 +*/ {debug_bus,2'd0});
+    xadj <= xoffset - 10'd61;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
                        simson    ? 10'h11f : 10'h10f); // Vendetta
     vscl <= rd_pzoffset(vzoom[9:0]);
@@ -126,10 +125,6 @@ always @* begin : B
     ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
     ydiff  = yz_add[6+:10];
     // test ver/game/scene/1 -> shadow, scan_obj 9
-    // xmove  = zmove( hsz, hscl );
-    // x2     =  x - {1'b0, xmove};
-    // xout = hpos<9'h06B && hpos>9'h02C;//&hpos[8:7];
-    // xpos = {p,hpos} + 10'h10;
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
         1: vmir_eff = nx_mir[1] && !ydiff[4];
@@ -185,7 +180,6 @@ always @(posedge clk, posedge rst) begin : A
         shd      <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
-        // vs_l <= vs;
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
@@ -230,9 +224,6 @@ always @(posedge clk, posedge rst) begin : A
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
-                    // will !x[9] create problems in large sprites?
-                    // it is needed to prevent the police car from showing up
-                    // at the end of level 1 in Simpsons (see scene 3)
                     if( ~inzone ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
