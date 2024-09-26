@@ -46,7 +46,7 @@ module jt053246(    // sprite logic
     output reg [ 9:0] attr,     // OC pins
     output            hflip,
     output reg        vflip,
-    output reg [ 8:0] hpos,
+    output reg [ 9:0] hpos,
     output     [ 3:0] ysub,
     output reg [11:0] hzoom,
     output reg        hz_keep,
@@ -81,8 +81,8 @@ localparam [2:0] REG_XOFF  = 0, // X offset
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
 reg  [ 9:0] x2, xpos;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
-reg  [ 8:0] vlatch, ymove, vscl, hscl, xmove, hsdump;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, xtra, next_hpos;
+reg  [ 8:0] vlatch, ymove, vscl, hscl, xmove, hsdump, hdump_l, hmin, hmax;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
@@ -158,9 +158,13 @@ always @* begin
     xmove  = zmove( hsz, hscl );
     x2     =  x - {1'b0, xmove};
     // xout = !(p && hwait) ;// hpos[8:0] < 9'h05B ^ hpos[8:0] > 9'h020;//hpos<9'h06B && hpos>9'h02C;//&hpos[8:7];
-    xpos = {p,hpos} + 10'h10;
-    hstop = !x2[9] && ( xpos[8:4] >= 5'h18 ) && hsz==3;
-    hwait = !x[9]  && x2[9] &&( xpos[9:4] <  6'h39 ) && (hzoom < 12'h014)/*&& hpos[8]*//*&& ( xpos[9:4] >  6'h34 )*/ && hsz==3;
+    xpos = hpos + 10'h10;
+    hstop =  0;//!x2[9] && pass;//(xtra[8:0] > hmax);//!x2[9] && ( xpos[8:4] >= 5'h18 ) && hsz==3;
+    hwait =  0;//x2[9] && pass && (hpos[8:4]>);// x2[9] && (next_hpos[8:0] < hmax) && !hhalf;// x2[9] && pass && hstep==0/*!p*/;//!x[9]  && x2[9] &&( xpos[9:4] <  6'h39 ) && (hzoom < 12'h014)/*&& hpos[8]*//*&& ( xpos[9:4] >  6'h34 )*/ && hsz==3;
+    xtra =  next_hpos + {1'b0,hmin};
+    // pass = (x2[9]^(xtra[8:0] > hmax) )/*&!p|| hstep == 0*/;
+    // xout = !x2[9] && pass && indr;
+    // next_hpos = hstep==0 ? x2 : xpos;
 
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -182,6 +186,7 @@ always @* begin
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
+    // if( xout ) hdone = 1;
     if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
@@ -219,6 +224,11 @@ always @(posedge clk, posedge rst) begin
         hs_l <= hs;
         vs_l <= vs;
         dr_start <= 0;
+        // hwaitreg <= hwait;
+        hdump_l <= hdump;
+        if( hdump < hdump_l ) {hmin, hmax} <= {hdump, hdump_l};
+        next_hpos <= hstep==0 ? x2 : xpos;
+        pass <= (/*x2[9]^*/(xtra[8:4] >= hmax[8:4]) );
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
@@ -228,10 +238,8 @@ always @(posedge clk, posedge rst) begin
             if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
-            hwaitreg <= hwait;
             case( {indr, scan_sub} )
                 0: begin
-                    pass <= 0;
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
                     code    <= scan_odd;
@@ -268,7 +276,7 @@ always @(posedge clk, posedge rst) begin
                     // will !x[9] create problems in large sprites?
                     // it is needed to prevent the police car from showing up
                     // at the end of level 1 in Simpsons (see scene 3)
-                    if( ~inzone || x[9]&x2[9]/*|| x[9]*/ ) begin
+                    if( ~inzone /*|| x[9]&x2[9]*/ /*|| x[9]*/ ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -283,19 +291,17 @@ always @(posedge clk, posedge rst) begin
                     {indr, scan_sub} <= 5; // stay here
                     if( (!dr_start && !dr_busy) || !inzone || hstop ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
-                        // if( hwait&~pass ) {code[4],code[2],code[0]} <= 3'b111;
                         if( hstep==0 ) begin
-                            {p, hpos} <= x2;//x[8:0] - zmove( hsz, hscl );
+                            hpos <= x2 /*+ 10'h60*/;  //x[8:0] - zmove( hsz, hscl );
                             // if( hwait ) {p, hpos} <= x2 + 10'h10;
-                            pass <= 1;
                         end else begin
-                            {p,hpos} <= xpos;//{p,hpos} + 10'h10;
-                            hz_keep <= 1;
-                            // if( hwait & pass ) begin {p,hpos} <= xpos - 10'h30; pass <= 0; end
+                            hpos <= xpos;//{p,hpos} + 10'h10;
+                            hz_keep <= /*hwaitreg? hz_keep : */1;/*||hstep!=0*/ /*1*/;
                         end
-                        /*if(  !hwaitreg )*/ hstep <= hstep + 1'd1;//hz_keep <= 0;
+                        hstep <= hstep + 1'd1;
                         // hstep <= hstep + 1'd1;
-                        dr_start <= inzone&!hwait /*&~(hwait&&p)*/; //end//^hwait;
+                        dr_start <= inzone /*&~(hwait&&p)*/; //end//^hwait;
+                        // if( !hwait && hwaitreg ) begin {p, hpos} <= {1'b0,hmax - hpos}; hstep <= 1/*hstep -3'd3*/; end
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;

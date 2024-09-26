@@ -82,7 +82,7 @@ wire        dr_start, dr_busy;
 wire [15:0] code;
 wire [ 9:0] attr;     // OC pins
 wire        hflip, vflip, hz_keep, pre_cs;
-wire [ 8:0] hpos;
+wire [ 9:0] hpos;
 wire [ 3:0] ysub;
 wire [11:0] hzoom;
 wire [31:0] sorted;
@@ -172,7 +172,7 @@ jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
-    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
+    .AW(10),.CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
     .ZW(12),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
@@ -182,7 +182,7 @@ jtframe_objdraw #(
 
     .hs         ( hs            ),
     .flip       ( 1'b0          ),
-    .hdump      ( hdump         ),
+    .hdump      ( {1'b0,hdump}  ), // Desplazar para que pinte solo los centrales
 
     .draw       ( dr_start      ),
     .busy       ( dr_busy       ),
