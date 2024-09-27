@@ -7,10 +7,16 @@
 #define PAL  ((short int*)0X840000) /*  4kB */
 #define IO   ((short int*)0xE40000)
 
+// some GFX codes
+#define SOLID  ((short)2)
+#define BLANK  ((short)0)
+
 int main();
 void vblank();
 
 __attribute__((section(".data"))) volatile int frame_cnt=0;
+__attribute__((section(".data"))) short fg_page=0;
+__attribute__((section(".data"))) short bg_page=0;
 
 __attribute__((section(".vectors"))) const unsigned int vectors[] = {
 	0x00000000,	/* initial stack pointer */
@@ -44,9 +50,49 @@ __attribute__((section(".vectors"))) const unsigned int vectors[] = {
 	(unsigned int)vblank 	/*28: level 4 interrupt */
 };
 
-void clear_vram() {
+void clear_cram() {
+	short int* vram = CRAM;
+	short int* max  = CRAM+0x800;
+	for(;vram<max;) *vram++=0;
+}
+
+void fill_char(short code, short prio) {
+	short int* vram = CRAM;
+	short int* max  = CRAM+(0xE00>>1);
+	short clr = code;
+	if(prio!=0) clr|=0x8000;
+	for(short row=0;row<29;row++) {
+		short col=0;
+		for(;col<24;col++) *vram++ = 0;
+		for(;col<64;col++) *vram++ = clr; // visible area
+	}
+}
+
+void fill_vram(short code, short prio) {
 	short int* vram = VRAM;
-	for(int k=0;k<0x4000;k++) vram[k]=0;
+	short clr = code & 0x7fff;
+	if(prio!=0) clr|=0x8000;
+	for(int k=0;k<0x4000;k++) vram[k] = clr;
+}
+
+void fill_page(short page, short code, short prio) {
+	short int* vram = VRAM+(page&0xf)*64*32;
+	short clr = code & 0x7fff;
+	if(prio!=0) clr |= 0x8000;
+	for(int k=0;k<64*32;k++) vram[k] = clr;
+}
+
+// layer=0 -> foreground
+// layer=1 -> background
+void set_page(short layer, short page ) {
+	short int* vram = CRAM+(0xe80>>1);
+	if(layer==1) {
+		vram++;
+		bg_page = page;
+	} else {
+		fg_page = page;
+	}
+	*vram = page;
 }
 
 void fill_gray_palette() {
@@ -64,9 +110,10 @@ void fill_gray_palette() {
 		}
 }
 
+// prints on the text layer
 void print_at( unsigned char *str, int col, int row, unsigned short prio ) {
 	unsigned short int* vram = CRAM;
-	unsigned short int* max  = CRAM+(0x400*4/2);
+	unsigned short int* max  = CRAM+(0xE00>>1);
 	col += 24;
 	vram += col; // & 0x3f;
 	vram += (row&0x1f)<<6;
@@ -76,39 +123,55 @@ void print_at( unsigned char *str, int col, int row, unsigned short prio ) {
 	}
 }
 
-// void display_test() {
-// 	unsigned char sz[]="0";
-// 	for( int j=0;j<32; ) {
-// 		sz[0]='0'-1;
-// 		for(int k=0;k<10;k++) {
-// 			sz[0]++;
-// 			print_at(sz,j,k);
-// 			j++;
-// 		}
-// 	}
-// }
+// prints on the foreground layer
+void print_page( unsigned short page, unsigned char *str, int col, int row, unsigned short prio ) {
+	unsigned short int* vram = VRAM+(page&0xf)*64*32;
+	unsigned short int* max  = VRAM+(0x400*4/2);
+	col += 24;
+	vram += col; // & 0x3f;
+	vram += (row&0x1f)<<6;
+	if (prio!=0) prio=0x8000;
+	for( int k=0; str[k]!=0 && vram<max; k++ ) {
+		*vram++ = prio | str[k];
+	}
+}
 
 void enable_video() {
 	unsigned char *io = (unsigned char*)IO;
 	io[(0xe<<1)+1] = 2; // VDP disabled, S16 video enabled
 }
 
-void char_noprio() {
-	unsigned short int* vram = CRAM;
-	unsigned short int* max  = CRAM+(0x400*4/2);
-	for( ;vram<max;vram++ )	*vram = 0;
-	print_at("CHAR ONLY - NO PRIORITY",5,12,0);
+void char_test(unsigned short prio) {
+	fill_char(SOLID,prio);
+	fill_vram(BLANK,0);
+	print_at("FIXED LAYER",10,12,prio);
+	print_at(prio==0 ? "PRIORITY OFF" : "PRIORITY ON",10,13,prio);
 }
 
-void char_prio() {
-	unsigned short int* vram = CRAM;
-	unsigned short int* max  = CRAM+(0x400*4/2);
-	for( ;vram<max;vram++ )	*vram = 0x8000;
-	print_at("CHAR ONLY - PRIORITY",5,12,1);
+void fg_test(unsigned short prio) {
+	fill_char(BLANK,0);
+	fill_page(fg_page&0xf,SOLID,prio);
+	fill_page(bg_page&0xf,BLANK,0);
+	short pg = fg_page & 0xf;
+	print_page(pg, "FOREGROUND",10,12,prio);
+	print_page(pg, prio==0 ? "PRIORITY OFF" : "PRIORITY ON",10,13,prio);
+}
+
+void bg_test(unsigned short prio) {
+	fill_char(BLANK,0);
+	fill_page(fg_page&0xf,BLANK,0);
+	fill_page(bg_page&0xf,SOLID,prio);
+	short bg = bg_page & 0xf;
+	print_page(bg,"BACKGROUND",10,12,prio);
+	print_page(bg,prio==0 ? "PRIORITY OFF" : "PRIORITY ON",10,13,prio);
 }
 
 void __attribute__((interrupt)) vblank() {
 	frame_cnt++;
+	switch(frame_cnt&0x1f) {
+	case 0x00: char_test(0); break;
+	case 0x10: char_test(1); break;
+	}
 }
 
 void enable_interrupts() {
@@ -124,12 +187,12 @@ void enable_interrupts() {
 	);
 }
 
-void wait(int frames) {
-	while(frames--) {
-		int frame_l = frame_cnt;
-		while( frame_l==frame_cnt );
-	}
-}
+// void wait(int frames) {
+// 	while(frames--) {
+// 		int frame_l = frame_cnt;
+// 		while( frame_l==frame_cnt );
+// 	}
+// }
 
 int main() {
 	/*  same configuration as Shadow Dancer
@@ -139,10 +202,6 @@ int main() {
 		Do not compile with -O2 or -O3 as it will remove the initialization code
 	*/
 	volatile short *mapper = (short *)0xfe0020;
-	// set up the stack pointer ()
-	// __asm__ volatile (
-	// 	"move.l #0x1000000,%a7"
-	// );
 	*mapper++=0x02;
 	*mapper++=0x00;
 	*mapper++=0x0c;
@@ -161,13 +220,24 @@ int main() {
 	*mapper++=0xe4;
 	enable_interrupts();
 	enable_video();
-	clear_vram();
+	set_page(0,0x0123);
+	set_page(1,0x89AB);
+	clear_cram();
+	fill_vram(BLANK,0);
 	fill_gray_palette();
+	const short int pause=1;
 	while(1) {
-		char_noprio();
-		wait(30);
-		char_prio();
-		wait(30);
+		// wait(pause);
+	// 	// char_test(1);
+	// 	// wait(pause);
+	// 	fg_test(0);
+	// 	wait(pause);
+	// 	// fg_test(1);
+	// 	// wait(pause);
+	// 	bg_test(0);
+	// 	wait(pause);
+	// 	// bg_test(1);
+	// 	// wait(pause);
 	}
 	return 0;
 }

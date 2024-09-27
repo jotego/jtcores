@@ -5,6 +5,7 @@ function show_help {
 Generation of S18 compatible M68000 code from C sources.
 
 -m, --mame		test the code on MAME
+-d, --debug		test on MAME debugger
 -s, --sim		test the code on jtsim
 -h, --help		this help message
 
@@ -31,10 +32,12 @@ EOF
 
 SIM=
 MAME=
+DEBUG=-window
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-m|--mame) MAME=1;;
+		-d|--debug) MAME=1; DEBUG="-debug";;
 		-s|--sim) SIM=1;;
 		-h|--help)
 			show_help
@@ -61,9 +64,9 @@ if [ ! -z "$SIM" ]; then
 	jtframe mra s18 --path .
 	cd $CORES/s18/ver/shdancer
 	jtutil sdram
-	jtsim -video 6 -w -q -d NOMCU -d NOVDP
+	jtsim -video 30 -w -q -d NOMCU -d NOVDP
 fi
 
 if [ ! -z "$MAME" ]; then
-	mame shdancer -rompath . -debug
+	mame shdancer -rompath . $DEBUG -skip_gameinfo
 fi

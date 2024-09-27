@@ -16,13 +16,13 @@ SECTIONS
 		*(.rodata)
 	} > ROM
 
-	.data 0xff0000 : AT (0xff0000) {
+	.data 0xff0000 : AT (0x100+SIZEOF(.text)) {
 		_data_start = .;
 		*(.data)
 		_data_end = .;
 	} > RAM
 
-	.stack 0xff0000 : AT (0xff0000) {
+	.stack 0xff0000 : AT (SIZEOF(.text)) {
 		_stack_start = .;
 		*(.stack)
 		_stack_end = .;
