@@ -139,7 +139,7 @@ endgenerate
 always @* begin
     aeff = 0;
     hdf  = 0;
-    case( HJUMP )
+    case( HJUMP ) //1 and 2 only work using 9 bits
         1: begin
             aeff[8:0] = { buf_addr[8], buf_addr[8] ^ buf_addr[7], buf_addr[6:0] }; // 100~17F is translated to 180~1FF, and 180~1FF to 100~17F
             hdf  = hdump ^ { {AW-8{1'b0}}, flip&~hdump[8], {7{flip}} };
@@ -149,7 +149,7 @@ always @* begin
             hdf  = hdump ^ { {AW-8{1'b0}}, flip&hdump[8], {7{flip}} }; // untested line
         end
         default: begin
-            aeff[0+:AW] = buf_addr;
+            aeff = buf_addr;
             hdf  = flip ? ~hdfix+FLIP_OFFSET[8:0] : hdfix;
         end
     endcase
