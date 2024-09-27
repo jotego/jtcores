@@ -118,6 +118,8 @@ parameter       HS_END = 9'h09E; // for System 16B 4.8us measured in PCB
 
 parameter [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
 parameter [9:0] SCR1_DLY= SCR2_DLY;
+parameter [9:0] ROWSCR2_DLY = SCR2_DLY;
+parameter [9:0] ROWSCR1_DLY = SCR1_DLY;
 
 assign flipx    = flip;
 assign ext_flip = flip;
@@ -258,7 +260,7 @@ jts16_char #(.MODEL(MODEL)) u_char(
     .debug_bus ( debug_bus      )
 );
 
-jts16_scr #(.PXL_DLY(SCR1_DLY),.HB_END(HB_END),.MODEL(MODEL)) u_scr1(
+jts16_scr #(.PXL_DLY(SCR1_DLY),.ROW_PXL_DLY(ROWSCR1_DLY),.HB_END(HB_END),.MODEL(MODEL)) u_scr1(
     .rst       ( rst            ),
     .clk       ( clk            ),
     .pxl2_cen  ( pxl2_cen       ),
@@ -298,7 +300,7 @@ jts16_scr #(.PXL_DLY(SCR1_DLY),.HB_END(HB_END),.MODEL(MODEL)) u_scr1(
     .bad       ( scr1_bad       )
 );
 
-jts16_scr #(.PXL_DLY(SCR2_DLY[8:0]),.MODEL(MODEL)) u_scr2(
+jts16_scr #(.PXL_DLY(SCR2_DLY[8:0]),.ROW_PXL_DLY(ROWSCR2_DLY[8:0]),.MODEL(MODEL)) u_scr2(
     .rst       ( rst            ),
     .clk       ( clk            ),
     .pxl2_cen  ( pxl2_cen       ),

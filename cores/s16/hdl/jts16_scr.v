@@ -60,6 +60,7 @@ module jts16_scr(
 
 /* verilator lint_off WIDTH */
 parameter [9:0] PXL_DLY=0;
+parameter [9:0] ROW_PXL_DLY=PXL_DLY;
 parameter [8:0] HB_END=9'h70, HSCAN0 = 9'h70; //HB_END-9'd24-PXL_DLY[8:0];
 /* verilator lint_on WIDTH */
 parameter       MODEL=0;  // 0 = S16A, 1 = S16B
@@ -81,7 +82,7 @@ reg        done, draw;
 reg  [7:0] busy;
 reg        hsel;
 
-reg  [9:0] eff_hscr;
+reg  [9:0] eff_hscr, eff_hdly;
 reg  [8:0] eff_vscr;
 reg  [8:0] hscr_adj;
 reg  [8:0] hdly;
@@ -89,15 +90,16 @@ reg  [8:0] hdly;
 assign vrf      = flip ? 9'd223-vrender : vrender;
 
 always @(*) begin
-    eff_hscr = rowscr_en ? rowscr : hscr[9:0];
-    eff_vscr = colscr_en ? colscr : vscr[8:0];
+    eff_hscr = rowscr_en ? rowscr      : hscr[9:0];
+    eff_vscr = colscr_en ? colscr      : vscr[8:0];
+    eff_hdly = rowscr_en ? ROW_PXL_DLY : PXL_DLY;
     hscr_adj = 0;
     if( rowscr_en || colscr_en ) hscr_adj = 9'd8; // this is needed by Cotton (and SDI)
     if( MODEL==0 ) begin
-        {hov, hpos } = {1'b0, hscan} - {1'b0, eff_hscr[8:0]} - hscr_adj + PXL_DLY;// + { {2{debug_bus[7]}}, debug_bus};
+        {hov, hpos } = {1'b0, hscan} - {1'b0, eff_hscr[8:0]} - hscr_adj + eff_hdly; // + { {2{debug_bus[7]}}, debug_bus};
         {vov, vpos } = vscan + {1'b0, eff_vscr[7:0]};
     end else begin
-        {hov, hpos } = {1'b1, hscan} - eff_hscr[9:0] - hscr_adj + PXL_DLY[9:0];
+        {hov, hpos } = {1'b1, hscan} - eff_hscr[9:0] - hscr_adj + eff_hdly[9:0];
         {vov, vpos } = vscan + eff_vscr[8:0];
     end
     scan_addr = { vpos[7:3], hpos[8:3] };

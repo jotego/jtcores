@@ -309,7 +309,7 @@ jts18_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-    .debug_bus  ( debug_bus ),
+    .debug_bus  ( 8'b0/*debug_bus*/ ),
     .st_show    ( st_show   ),
     .joystick1  ( joystick1 )
 );
