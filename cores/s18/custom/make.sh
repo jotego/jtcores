@@ -1,8 +1,12 @@
 #!/bin/bash -e
 
-if [ $# -ne 0 ]; then
+function show_help {
 	cat <<EOF
 Generation of S18 compatible M68000 code from C sources.
+
+-m, --mame		test the code on MAME
+-s, --sim		test the code on jtsim
+-h, --help		this help message
 
 Steps:
 
@@ -16,17 +20,31 @@ Steps:
   target one.
 
 View the output contents with
-	unidasm custom.bin -arch m68000
+	unidasm custom -arch m68000
 Test it on mame
 	mame shdancer -rompath . -debug
 Test it on jtsim
 	jtutil sdram
 	jtsim
 EOF
-	exit 0
-fi
+}
 
-m68k-linux-gnu-gcc -m68000 -static -MMD -MP -O1 -c custom.c
+SIM=
+MAME=
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-m|--mame) MAME=1;;
+		-s|--sim) SIM=1;;
+		-h|--help)
+			show_help
+			exit 0;;
+	esac
+	shift
+done
+
+
+m68k-linux-gnu-gcc -m68000 -static -MMD -MP -O1 -ffreestanding -c custom.c
 m68k-linux-gnu-ld -o custom custom.o  --script=custom.ld --oformat=binary
 
 if [ ! -d shdancer ]; then
@@ -38,4 +56,14 @@ fi
 jtutil drop1 -l --pad $((256*1024)) < custom > shdancer/epr-12774b.a6
 jtutil drop1    --pad $((256*1024)) < custom > shdancer/epr-12773b.a5
 zip -qr shdancer.zip shdancer
-jtframe mra s18 --path .
+
+if [ ! -z "$SIM" ]; then
+	jtframe mra s18 --path .
+	cd $CORES/s18/ver/shdancer
+	jtutil sdram
+	jtsim -video 6 -w
+fi
+
+if [ ! -z "$MAME" ]; then
+	mame shdancer -rompath . -debug
+fi

@@ -3,6 +3,7 @@
 #define RAM  ((short int*)0Xff000)
 #define ORAM ((short int*)0x440000)
 #define VRAM ((short int*)0x400000) /* 16kB */
+#define CRAM ((short int*)0x410000) /*  4kB */
 #define PAL  ((short int*)0X840000) /*  4kB */
 #define IO   ((short int*)0xE40000)
 
@@ -29,6 +30,20 @@ void fill_gray_palette() {
 	for(int k=0;k<0x1000/8;k++)
 		for( int j=0;j<8;j++)
 			pal[k]=rgb[j];
+}
+
+void hello() {
+	unsigned char str[]="hello";
+	unsigned short int* vram = CRAM;
+	int j=0;
+	for( int k=0; k<0x400*4/2; k++ ) {
+		unsigned short c = str[j++];
+		if (c==0) {
+			j=0;
+			c=' ';
+		}
+		vram[k] = c;
+	}
 }
 
 int main() {
@@ -61,6 +76,7 @@ int main() {
 	*mapper++=0xe4;
 	clear_vram();
 	fill_gray_palette();
+	hello();
 	while(1);
 	return 0;
 }
