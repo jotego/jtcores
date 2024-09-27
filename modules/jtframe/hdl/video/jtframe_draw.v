@@ -20,6 +20,7 @@
 // It could be extended to 32x32 easily
 
 module jtframe_draw#( parameter
+    AW       =  9,    // Buffer with
     CW       = 12,    // code width
     PW       =  8,    // pixel width (lower four bits come from ROM)
     ZW       =  6,    // zoom step width
@@ -34,7 +35,7 @@ module jtframe_draw#( parameter
     input               draw,
     output reg          busy,
     input    [CW-1:0]   code,
-    input      [ 8:0]   xpos,
+    input    [AW-1:0]   xpos,
     input      [ 3:0]   ysub,
     input      [ 1:0]   trunc, // 00=no trunc, 10 = 8 pixels, 11 = 4 pixels
 
@@ -51,7 +52,7 @@ module jtframe_draw#( parameter
     input               rom_ok,
     input      [31:0]   rom_data,
 
-    output reg [ 8:0]   buf_addr,
+    output reg [AW-1:0] buf_addr,
     output              buf_we,
     output     [PW-1:0] buf_din
 );

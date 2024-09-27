@@ -28,6 +28,7 @@
 // The shadow bit must be the MSB
 
 module jtframe_objdraw_gate #( parameter
+    AW    =  9,    // Buffer with
     CW    = 12,    // code width
     PW    =  8,    // pixel width (lower four bits come from ROM)
     ZW    =  6,    // zoom step width - see description in jtframe_draw
@@ -52,12 +53,12 @@ module jtframe_objdraw_gate #( parameter
     input               pxl_cen,
     input               hs,
     input               flip,
-    input        [ 8:0] hdump,
+    input    [AW-1:0]   hdump,
 
     input               draw,
     output              busy,
     input    [CW-1:0]   code,
-    input      [ 8:0]   xpos,
+    input    [AW-1:0]   xpos,
     input      [ 3:0]   ysub,
     // Truncate to first 8 or 4 bits
     input      [ 1:0]   trunc, // 00=no trunc, 10 = 8 pixels, 11 = 4 pixels
@@ -80,10 +81,10 @@ module jtframe_objdraw_gate #( parameter
     output     [PW-1:0] pxl
 );
 
-reg     [8:0] aeff, hdf, hdfix;
+reg  [AW-1:0] aeff, hdf, hdfix;
 
 reg  [CW-1:0] dr_code;
-reg    [ 8:0] dr_xpos;
+reg  [AW-1:0] dr_xpos;
 reg    [ 3:0] dr_ysub;
 reg           dr_hflip, dr_vflip, dr_draw;
 reg  [PW-5:0] dr_pal;
@@ -91,7 +92,7 @@ reg  [PW-5:0] dr_pal;
 reg  [ZW-1:0] dr_hzoom;
 reg           dr_hz_keep;
 
-wire    [8:0] buf_addr;
+wire [AW-1:0] buf_addr;
 wire          buf_we;
 wire   [31:0] rom_sorted;
 
@@ -136,14 +137,16 @@ generate
 endgenerate
 
 always @* begin
-    case( HJUMP )
+    aeff = 0;
+    hdf  = 0;
+    case( HJUMP ) //1 and 2 only work using 9 bits
         1: begin
-            aeff = { buf_addr[8], buf_addr[8] ^ buf_addr[7], buf_addr[6:0] }; // 100~17F is translated to 180~1FF, and 180~1FF to 100~17F
-            hdf  = hdump ^ { 1'b0, flip&~hdump[8], {7{flip}} };
+            aeff[8:0] = { buf_addr[8], buf_addr[8] ^ buf_addr[7], buf_addr[6:0] }; // 100~17F is translated to 180~1FF, and 180~1FF to 100~17F
+            hdf  = hdump ^ { {AW-8{1'b0}}, flip&~hdump[8], {7{flip}} };
         end
         2: begin
-            aeff = { buf_addr[8],~buf_addr[8] | buf_addr[7], buf_addr[6:0] }; //  00~ 7F is translated to  80~ FF
-            hdf  = hdump ^ { 1'b0, flip&hdump[8], {7{flip}} }; // untested line
+            aeff[8:0] = { buf_addr[8],~buf_addr[8] | buf_addr[7], buf_addr[6:0] }; //  00~ 7F is translated to  80~ FF
+            hdf  = hdump ^ { {AW-8{1'b0}}, flip&hdump[8], {7{flip}} }; // untested line
         end
         default: begin
             aeff = buf_addr;
@@ -169,6 +172,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_draw #(
+    .AW      ( AW       ),
     .CW      ( CW       ),
     .PW      ( PW       ),
     .ZW      ( ZW       ),
@@ -201,6 +205,7 @@ jtframe_draw #(
 );
 
 jtframe_obj_buffer #(
+    .AW         ( AW          ),
     .DW         ( PW          ),
     .ALPHA      ( ALPHA       ),
     .SHADOW     ( SHADOW      ),
