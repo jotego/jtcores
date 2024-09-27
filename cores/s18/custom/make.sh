@@ -61,7 +61,7 @@ if [ ! -z "$SIM" ]; then
 	jtframe mra s18 --path .
 	cd $CORES/s18/ver/shdancer
 	jtutil sdram
-	jtsim -video 6 -w
+	jtsim -video 6 -w -q -d NOMCU -d NOVDP
 fi
 
 if [ ! -z "$MAME" ]; then

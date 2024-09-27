@@ -161,7 +161,7 @@ assign LHBL = scr_lhbl;
 //     end
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_video16 u_video16(
     .rst        ( rst       ),
     .clk        ( clk48     ),
@@ -239,9 +239,9 @@ jts18_video16 u_video16(
     .st_dout    ( st_s16    ),
     .scr_bad    (           )
 );
-/* verilator tracing_on */
+
 // Megadrive VDP
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk96      ( clk96     ),
