@@ -47,7 +47,7 @@ while [ $# -gt 0 ]; do
 done
 
 
-m68k-linux-gnu-gcc -m68000 -static -MMD -MP -O1 -ffreestanding -c custom.c
+m68k-linux-gnu-gcc -m68000 -static -MMD -MP -O1 -nostdlib -ffreestanding -S -c custom.c
 m68k-linux-gnu-ld -o custom custom.o  --script=custom.ld --oformat=binary
 
 if [ ! -d shdancer ]; then
@@ -64,7 +64,7 @@ if [ ! -z "$SIM" ]; then
 	jtframe mra s18 --path .
 	cd $CORES/s18/ver/shdancer
 	jtutil sdram
-	jtsim -video 30 -w -q -d NOMCU -d NOVDP
+	jtsim -video 80 -w -q -d NOMCU -d NOVDP
 fi
 
 if [ ! -z "$MAME" ]; then
