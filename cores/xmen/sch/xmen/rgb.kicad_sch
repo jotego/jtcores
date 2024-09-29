@@ -1855,7 +1855,7 @@
 					)
 				)
 				(text "AND"
-					(at 0 2.54 0)
+					(at -2.54 2.54 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1872,22 +1872,6 @@
 				)
 				(text "In Parallel-Out"
 					(at 0 -11.43 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "NOT"
-					(at -0.635 -3.81 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "NOT"
-					(at -0.635 -1.27 0)
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -6317,6 +6301,66 @@
 			"GbwAAAAASUVORK5CYII="
 		)
 	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 234.95 120.142 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "31fcfc31-9924-46d8-9c31-612b8d2b362f")
+	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 234.188 216.662 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "34fc4803-9980-44f7-9c67-e97845321ee0")
+	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 201.93 180.594 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "7bfba475-d328-4af8-8eec-462260e8066c")
+	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 202.692 236.728 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "a31752a1-36b6-4288-9700-bb64ee6c2ed3")
+	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 233.172 161.036 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c7735ba5-6372-43e5-a0d2-bb7c305adcf2")
+	)
+	(text "open \ncollector"
+		(exclude_from_sim no)
+		(at 203.454 114.554 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "eabafeb9-fc5b-4648-b8ab-84fc664a746c")
+	)
 	(label "B10"
 		(at 246.38 104.14 0)
 		(fields_autoplaced yes)
@@ -7930,7 +7974,7 @@
 			)
 		)
 		(property "Value" "74LS07"
-			(at 201.93 176.53 0)
+			(at 207.518 177.292 0)
 			(effects
 				(font
 					(size 1.27 1.27)

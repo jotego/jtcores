@@ -27047,7 +27047,7 @@
 				)
 			)
 			(text "AND"
-				(at 0 2.54 0)
+				(at -2.54 2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -27064,22 +27064,6 @@
 			)
 			(text "In Parallel-Out"
 				(at 0 -11.43 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "NOT"
-				(at -0.635 -3.81 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "NOT"
-				(at -0.635 -1.27 0)
 				(effects
 					(font
 						(size 0.762 0.762)
