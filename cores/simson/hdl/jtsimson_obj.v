@@ -182,7 +182,7 @@ jtframe_objdraw #(
 
     .hs         ( hs            ),
     .flip       ( 1'b0          ),
-    .hdump      ( {1'b0,hdump}  ), // Desplazar para que pinte solo los centrales
+    .hdump      ( {1'b0,hdump}  ),
 
     .draw       ( dr_start      ),
     .busy       ( dr_busy       ),
