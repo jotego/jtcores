@@ -4102,7 +4102,7 @@
 		)
 		(uuid "204684fc-86dc-4210-bbaa-a532731b64d2")
 	)
-	(hierarchical_label "IC18_3"
+	(hierarchical_label "IC17_18"
 		(shape input)
 		(at 165.1 118.11 180)
 		(fields_autoplaced yes)
@@ -6348,7 +6348,7 @@
 			)
 			(uuid "f22b3f75-030a-409f-9193-4cbf5ab6c2d1")
 		)
-		(pin "IC18_3" input
+		(pin "IC17_18" input
 			(at 175.26 118.11 180)
 			(effects
 				(font
@@ -6426,7 +6426,7 @@
 			)
 			(uuid "a1cce009-3b60-41d3-9d80-67f1952f8e8f")
 		)
-		(pin "IC18_3" input
+		(pin "IC17_18" input
 			(at 175.26 80.01 180)
 			(effects
 				(font

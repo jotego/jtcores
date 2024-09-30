@@ -6756,16 +6756,6 @@
 		)
 		(uuid 652f1fee-9f15-4aed-b0b8-3d9cca4a7fd1)
 	)
-	(text "?\n"
-		(exclude_from_sim no)
-		(at 223.52 121.92 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "187baa92-d18a-428f-8618-2eb87d716355")
-	)
 	(text "DONE"
 		(exclude_from_sim no)
 		(at 252.73 130.81 0)
@@ -8060,7 +8050,7 @@
 		)
 		(uuid "600a5821-3b78-4f6f-8da3-e198f3fc556e")
 	)
-	(hierarchical_label "IC18_3"
+	(hierarchical_label "IC17_18"
 		(shape input)
 		(at 232.41 121.92 180)
 		(fields_autoplaced yes)
