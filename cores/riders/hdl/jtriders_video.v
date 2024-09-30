@@ -326,7 +326,6 @@ jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .xmen       ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -353,7 +352,7 @@ jtriders_colmix u_colmix(
     .dimmod     ( dimmod    ),
     .dimpol     ( dimpol    ),
     .dim        ( dim       ),
-    .shadow     ( {1'b0,shadow} ),
+    .shadow     ( shadow    ),
 
     .red        ( red       ),
     .green      ( green     ),

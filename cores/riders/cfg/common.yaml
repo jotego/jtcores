@@ -3,7 +3,6 @@ game:
     get:
       - jt054321.v
       - jt054539.v
-      - jtriders_colmix.v
       - jtriders_dump.v
       - jtriders_sound.v
   - from: simson

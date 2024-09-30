@@ -313,11 +313,10 @@ jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
 );
 
 /* verilator tracing_on */
-jtriders_colmix u_colmix(
+jtxmen_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .xmen       ( 1'b1      ),
 
     // Base Video
     .lhbl       ( lhbl      ),
