@@ -62,16 +62,11 @@ module jtxmen_colmix(
 
 wire [15:0] pal_dout;
 wire [ 1:0] cpu_palwe;
-// reg  [ 1:0] dim_cmn;
-// reg  [ 4:0] pal_dmux;
-// reg  [ 3:0] bsel; // bright selection
 reg  [23:0] bgr;
-// reg         st;
-// wire [ 7:0] /*r8,*/ bg8;
 reg  [ 7:0] r8, b8, g8;
 reg  [13:0] xmen_o;
 wire [10:0] pal_addr;
-wire        /*brit,*/ shad, pcu_we, nc;
+wire        shad, pcu_we, nc;
 // 053251 inputs
 wire [ 5:0] pri1;
 wire [ 8:0] ci0, ci1, ci2;
@@ -94,30 +89,11 @@ assign ci4       =  8'd1;
 assign shad      = |shd_out;
 assign shd_in    =  xmen_sh;
 
-// always @* begin
-//     // LUT generated with
-//     // jtutil bright --dark --brw 4 --rout 50 --bpp 5
-//     case( {dimpol, dimmod} )
-//         3,2: dim_cmn[1] = ~shad;
-//         1,0: dim_cmn[1] =  shad;
-//     endcase
-//     case( {dimpol, dimmod} )
-//         3,1: dim_cmn[0] = brit | dim_cmn[1];
-//         2,0: dim_cmn[0] = brit;
-//     endcase
-// end
-
 function [7:0] conv58(input [4:0] cin );
 begin
     conv58 = {cin, cin[4-:3]};
 end
 endfunction
-
-// `ifdef NODIMMING
-// wire nodimming = !xmen;
-// `else
-// wire nodimming = 0;
-// `endif
 
 reg [1:0] xmen_sh;
 always @(posedge clk) begin
@@ -131,20 +107,8 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bgr   <= 0;
     end else begin
-        // st        <= ~st;
-        // bsel[3]   <= dim_cmn[1];
-        // bsel[2:0] <= ~({3{dim_cmn[0]}}&dim);
-        // pal_dmux  <= st ? pal_dout[14:10] : pal_dout[9:5]; // blue (msb), green (middle)
-        // if( st ) b8 <= bg8; else g8 <= bg8;
         { b8, g8, r8 } <= {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])};
-        if( pxl_cen ) begin
-            bgr <= ~shad ? { b8, g8, r8 } : { b8>>1, g8>>1, r8>>1 };
-            // bgr <= //nodimming ?
-            //     {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])}// :
-            //     /*{ b8, g8, r8 }*/;
-        end
-        // if( xmen )         bsel <= { ~shad, 3'b111 };
-        // if( debug_bus[7] ) bsel <= debug_bus[3:0];
+        if( pxl_cen ) bgr <= ~shad ? { b8, g8, r8 } : { b8>>1, g8>>1, r8>>1 };
     end
 end
 
@@ -175,7 +139,7 @@ jtcolmix_053251 u_k251(
     .ioctl_din  ( dump_mmr  ),
 
     .cout       ( pal_addr  ),
-    .brit       ( /*brit*/      ),
+    .brit       (           ),
     .col_n      (           )
 );
 
@@ -214,20 +178,5 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramhi(
     .we_b   ( 1'b0          ),
     .q1     ( pal_dout[15:8] )
 );
-
-// jtframe_dual_ram #(.AW(9),.SYNFILE("collut.hex")) u_lut(
-//     // Port 0
-//     .clk0   ( clk           ),
-//     .data0  ( 8'd0          ),
-//     .addr0  ( {bsel,pal_dout[4:0]} ),
-//     .we0    ( 1'b0          ),
-//     .q0     ( r8            ),
-//     // Port 1
-//     .clk1   ( clk           ),
-//     .data1  ( 8'd0          ),
-//     .addr1  ( {bsel,pal_dmux} ),
-//     .we1    ( 1'b0          ),
-//     .q1     ( bg8           )
-// );
 
 endmodule
