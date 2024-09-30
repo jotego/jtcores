@@ -2,6 +2,7 @@ game:
   - from: riders
     get:
       - jtriders_game.v
+      - jtriders_colmix.v
       - jtriders_video.v
       - jtriders_main.v
       - jt053244.sv

@@ -12,11 +12,11 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: Jose Tejada Gomez. Twitter: @topapate
+    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
     Version: 1.0
-    Date: 7-7-2024 */
+    Date: 30-9-2024 */
 
-module jtriders_colmix(
+module jtxmen_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -42,7 +42,7 @@ module jtriders_colmix(
     input      [11:0] lyro_pxl,
     input      [ 1:0] lyro_pri,
 
-    input             shadow,
+    input      [ 1:0] shadow,
     input      [ 2:0] dim,
     input             dimmod,
     input             dimpol,
@@ -62,15 +62,11 @@ module jtriders_colmix(
 
 wire [15:0] pal_dout;
 wire [ 1:0] cpu_palwe;
-reg  [ 1:0] dim_cmn;
-reg  [ 4:0] pal_dmux;
-reg  [ 3:0] bsel; // bright selection
 reg  [23:0] bgr;
-reg         st;
-wire [ 7:0] r8, bg8;
-reg  [ 7:0] b8, g8;
+reg  [ 7:0] r8, b8, g8;
+reg  [13:0] xmen_o;
 wire [10:0] pal_addr;
-wire        brit, shad, pcu_we, nc;
+wire        shad, pcu_we, nc;
 // 053251 inputs
 wire [ 5:0] pri1;
 wire [ 8:0] ci0, ci1, ci2;
@@ -84,27 +80,14 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = {1'b1, lyro_pxl[10:9], 3'd0};
-assign ci0       =  9'd0;
-assign ci1       =  lyro_pxl[8:0];
-assign ci2       = {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
-assign ci3       = {1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-assign ci4       = {1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-assign shad      = ~shd_out[0];
-assign shd_in    = {1'b0,shadow};
-
-always @* begin
-    // LUT generated with
-    // jtutil bright --dark --brw 4 --rout 50 --bpp 5
-    case( {dimpol, dimmod} )
-        3,2: dim_cmn[1] = ~shad;
-        1,0: dim_cmn[1] =  shad;
-    endcase
-    case( {dimpol, dimmod} )
-        3,1: dim_cmn[0] = brit | dim_cmn[1];
-        2,0: dim_cmn[0] = brit;
-    endcase
-end
+assign pri1      = { xmen_o[11: 9], xmen_o[13:12], 1'b0};
+assign ci0       = {lyra_pxl[6:4],lyra_pxl[11:10],lyra_pxl[3:0]};
+assign ci1       =   xmen_o[8:0];
+assign ci2       = {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]};
+assign ci3       =  lyrf_pxl ;
+assign ci4       =  8'd1;
+assign shad      = |shd_out;
+assign shd_in    =  xmen_sh;
 
 function [7:0] conv58(input [4:0] cin );
 begin
@@ -112,29 +95,20 @@ begin
 end
 endfunction
 
-`ifdef NODIMMING
-wire nodimming = 1;
-`else
-wire nodimming = 0;
-`endif
+reg [1:0] xmen_sh;
+always @(posedge clk) begin
+    if(pxl_cen) begin
+        xmen_o  <= {lyro_pri, lyro_pxl};
+        xmen_sh <= ~shadow;
+    end
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bgr   <= 0;
-        bsel  <= 0;
-        st    <= 0;
     end else begin
-        st        <= ~st;
-        bsel[3]   <= dim_cmn[1];
-        bsel[2:0] <= ~({3{dim_cmn[0]}}&dim);
-        pal_dmux  <= st ? pal_dout[14:10] : pal_dout[9:5]; // blue (msb), green (middle)
-        if( st ) b8 <= bg8; else g8 <= bg8;
-        if( pxl_cen ) begin
-            bgr <= nodimming ?
-                {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])} :
-                { b8, g8, r8 };
-        end
-        // if( debug_bus[7] ) bsel <= debug_bus[3:0];
+        { b8, g8, r8 } <= {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])};
+        if( pxl_cen ) bgr <= ~shad ? { b8, g8, r8 } : { b8>>1, g8>>1, r8>>1 };
     end
 end
 
@@ -165,7 +139,7 @@ jtcolmix_053251 u_k251(
     .ioctl_din  ( dump_mmr  ),
 
     .cout       ( pal_addr  ),
-    .brit       ( brit      ),
+    .brit       (           ),
     .col_n      (           )
 );
 
@@ -203,21 +177,6 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramhi(
     .sel_b  ( ioctl_ram     ),
     .we_b   ( 1'b0          ),
     .q1     ( pal_dout[15:8] )
-);
-
-jtframe_dual_ram #(.AW(9),.SYNFILE("collut.hex")) u_lut(
-    // Port 0
-    .clk0   ( clk           ),
-    .data0  ( 8'd0          ),
-    .addr0  ( {bsel,pal_dout[4:0]} ),
-    .we0    ( 1'b0          ),
-    .q0     ( r8            ),
-    // Port 1
-    .clk1   ( clk           ),
-    .data1  ( 8'd0          ),
-    .addr1  ( {bsel,pal_dmux} ),
-    .we1    ( 1'b0          ),
-    .q1     ( bg8           )
 );
 
 endmodule
