@@ -101,8 +101,8 @@ module jtxmen_video(
 wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
-wire [ 8:0] hdump, vdump, vrender, vrender1;
+wire [11:0] lyra_pxl, lyrb_pxl;
+wire [ 8:0] hdump, vdump, vrender, vrender1, lyro_pxl;
 wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
             lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
             lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
@@ -255,7 +255,7 @@ jtaliens_scroll #(
 );
 
 /* verilator tracing_on */
-wire [ 1:0] lyro_pri;
+wire [ 4:0] lyro_pri;
 wire [ 3:0] ommra;
 wire [ 8:0] vmux;
 wire [13:1] orama;
@@ -300,9 +300,9 @@ jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
     .rom_cs     (lyro_precs ),
     .objcha_n   ( objcha_n  ),
     // pixel output
-    .pxl        ( lyro_pxl[8:0]  ),
+    .pxl        ( lyro_pxl  ),
     .shd        ( shadow    ),
-    .prio       ({lyro_pxl[11:9],lyro_pri}),
+    .prio       ( lyro_pri  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),

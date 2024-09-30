@@ -39,8 +39,8 @@ module jtxmen_colmix(
     input      [ 7:0] lyrf_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
-    input      [11:0] lyro_pxl,
-    input      [ 1:0] lyro_pri,
+    input      [ 8:0] lyro_pxl,
+    input      [ 4:0] lyro_pri,
 
     input      [ 1:0] shadow,
     input      [ 2:0] dim,
@@ -64,7 +64,6 @@ wire [15:0] pal_dout;
 wire [ 1:0] cpu_palwe;
 reg  [23:0] bgr;
 reg  [ 7:0] r8, b8, g8;
-reg  [13:0] xmen_o;
 wire [10:0] pal_addr;
 wire        shad, pcu_we, nc;
 // 053251 inputs
@@ -80,28 +79,20 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = { xmen_o[11: 9], xmen_o[13:12], 1'b0};
+assign pri1      = {lyro_pri,1'b0};
 assign ci0       = {lyra_pxl[6:4],lyra_pxl[11:10],lyra_pxl[3:0]};
-assign ci1       =   xmen_o[8:0];
+assign ci1       =  lyro_pxl;
 assign ci2       = {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]};
 assign ci3       =  lyrf_pxl ;
 assign ci4       =  8'd1;
 assign shad      = |shd_out;
-assign shd_in    =  xmen_sh;
+assign shd_in    = ~shadow;
 
 function [7:0] conv58(input [4:0] cin );
 begin
     conv58 = {cin, cin[4-:3]};
 end
 endfunction
-
-reg [1:0] xmen_sh;
-always @(posedge clk) begin
-    if(pxl_cen) begin
-        xmen_o  <= {lyro_pri, lyro_pxl};
-        xmen_sh <= ~shadow;
-    end
-end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
