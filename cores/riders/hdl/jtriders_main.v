@@ -32,8 +32,6 @@ module jtriders_main(
     output reg           pal_cs,
     output reg           pcu_cs,
     // Sound interface
-    output               pair_we,   // K054321 (some latches)
-    input         [ 7:0] pair_dout, // K054321 (X-Men)
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
     output reg           sndon,     // irq trigger
@@ -92,8 +90,7 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC;
 reg  [ 2:0] IPLn;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
-            eep_di, eep_clk, eep_cs, omsb_cs,
-            pair_cs;
+            eep_di, eep_clk, eep_cs, omsb_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux;
@@ -116,7 +113,6 @@ assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~&{ BGACKn, FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
-assign pair_we  = pair_cs && !RnW && !LDSn;
 
 reg none_cs/*, wdog*/;
 // not following the PALs as the dumps from PLD Archive are not readable
@@ -136,7 +132,6 @@ always @* begin
     sndon    = 0;
     pcu_cs   = 0;
     prot_cs  = 0;
-    pair_cs  = 0;
     // wdog     = 0;
         // tmnt2/ssriders
     if(!ASn) case(A[23:20])
@@ -187,7 +182,6 @@ always @(posedge clk) begin
                vram_cs ? {2{vram_dout}}  :
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main} :
-               pair_cs ? {8'd0,pair_dout}:
                omsb_cs ? {8'd0,omsb_dout}:
                cab_cs  ? cab_dout        : 16'hffff;
 end
@@ -343,7 +337,6 @@ jtframe_m68k u_cpu(
         nv_din    = 0,
         omsb_addr = 0,
         omsb_we   = 0,
-        pair_we   = 0,
         BGn       = 0,
         nv_we     = 0;
 `endif

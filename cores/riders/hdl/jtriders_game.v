@@ -27,7 +27,7 @@ localparam [2:0] SSRIDERS = 3'd0,
 wire        snd_irq, rmrd, rst8, dimmod, dimpol,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs, pair_we;
+            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
@@ -35,7 +35,7 @@ reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
 reg         ssriders, tmnt2;
 wire [ 7:0] tilesys_dout, snd2main,
-            obj_dout, snd_latch, pair_dout,
+            obj_dout, snd_latch,
             st_main, st_video;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
@@ -122,8 +122,6 @@ jtriders_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
-    .pair_we        ( pair_we       ),
-    .pair_dout      ( pair_dout     ),
     // EEPROM
     .nv_addr        ( nvram_addr    ),
     .nv_dout        ( nvram_dout    ),
@@ -250,8 +248,6 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
-    .pair_we    ( pair_we       ),
-    .pair_dout  ( pair_dout     ),
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),
