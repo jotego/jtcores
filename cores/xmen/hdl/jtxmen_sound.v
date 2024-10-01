@@ -35,7 +35,7 @@ module jtxmen_sound(
 
     input           snd_irq,
     // ROM
-    output  [16:0]  rom_addr,
+    output  [/*16*/20:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
@@ -77,11 +77,11 @@ wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
 reg                 ram_cs, fm_cs,  k60_cs, k39_cs, mem_acc, mem_upper,
                     nmi_clrr, bank_we, nmi_cs, k21_cs;
 
-assign int_n    = XMEN==1 ? latch_intn : ~snd_irq;
-assign nmi_trig = XMEN==1 ? fm_intn    :  sample;
-assign nmi_clr  = XMEN==1 ? nmi_clrr   : nmi_cs;
+assign int_n    = /*XMEN==1 ? */latch_intn /*: ~snd_irq*/;
+assign nmi_trig = /*XMEN==1 ? */fm_intn    /*:  sample*/;
+assign nmi_clr  = /*XMEN==1 ? */nmi_clrr   /*: nmi_cs*/;
 assign rom_hi   = A[15]? bank       : {3'd0, A[14]};
-assign rom_addr = XMEN==1 ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
+// assign rom_addr = XMEN==1 ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
 assign upper4k  = &A[15:12];
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
@@ -109,20 +109,20 @@ always @(*) begin
     nmi_cs    = 0;
     mem_acc   = !mreq_n && rfsh_n;
     mem_upper = mem_acc && upper4k;
-    if( XMEN==0 ) begin
-        rom_cs   = mem_acc   && !upper4k && !rd_n;
-        ram_cs   = mem_upper && !A[11];      // F0xx~F7FF
-        fm_cs    = mem_upper &&  A[11:9]==4; // F8xx
-        k60_cs   = mem_upper &&  A[11:9]==5; // FAxx
-        nmi_cs   = mem_upper &&  A[11:9]==6; // FCxx
-    end else begin // xmen
-        rom_cs  = mem_acc && ((!A[15] && A[14]) || !A[14]) && !rd_n;
+    // if( XMEN==0 ) begin
+    //     rom_cs   = mem_acc   && !upper4k && !rd_n;
+    //     ram_cs   = mem_upper && !A[11];      // F0xx~F7FF
+    //     fm_cs    = mem_upper &&  A[11:9]==4; // F8xx
+    //     k60_cs   = mem_upper &&  A[11:9]==5; // FAxx
+    //     nmi_cs   = mem_upper &&  A[11:9]==6; // FCxx
+    // end else begin // xmen
+    //     rom_cs  = mem_acc && ((!A[15] && A[14]) || !A[14]) && !rd_n;
         ram_cs  = mem_acc && A[15:13]==3'b110;
         fm_cs   = mem_acc && A[15:12]==4'he &&  A[11];
         k39_cs  = mem_acc && A[15:12]==4'he && !A[11];
         k21_cs  = mem_acc && A[15:12]==4'hf && !A[11];
         bank_we = mem_acc && A[15:12]==4'hf &&  A[11] && !A[10];
-    end
+    // end
 end
 
 jtframe_edge #(.QSET(0)) u_edge (
@@ -188,17 +188,36 @@ generate if( FULLRAM ) begin
     assign latch_we = k21_cs && !wr_n;
     assign k39_we   = k39_cs && !wr_n;
 
-    jt054539 u_k54539(
+    // jt054539 u_k54539(
+    //     .rst        ( rst       ),
+    //     .clk        ( clk       ),
+    //     .cen        ( cen_pcm   ),
+    //     // CPU interface
+    //     .addr       ({A[9],A[7:0]}),
+    //     .din        ( cpu_dout  ),
+    //     .dout       ( k39_dout  ),
+    //     .we         ( k39_we    ),
+    //     // ROM
+    //     .rom_data   ( 8'd0      )
+    // );
+
+    jt539 u_k54539(
         .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen_pcm   ),
         // CPU interface
         .addr       ({A[9],A[7:0]}),
+        .we         ( k39_we    ),
+        .rd         ( 1'b1          ),
+        .cs         ( k39_cs    ),
         .din        ( cpu_dout  ),
         .dout       ( k39_dout  ),
-        .we         ( k39_we    ),
         // ROM
-        .rom_data   ( 8'd0      )
+        .rom_cs     ( rom_cs    ),
+        .rom_addr   ( rom_addr  ),
+        .rom_data   ( rom_data  ),
+        .rom_ok     ( rom_ok    ),
+        .vset       (           )
     );
 
     jt054321 u_54321(
