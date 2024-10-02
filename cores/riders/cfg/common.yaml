@@ -2,7 +2,6 @@ game:
   - from: riders
     get:
       - jt054321.v
-      - jt054539.v
       - jtriders_dump.v
       - jtriders_sound.v
   - from: simson

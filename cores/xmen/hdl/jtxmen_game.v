@@ -192,7 +192,7 @@ jtxmen_video u_video (
 );
 
 /* verilator tracing_off */
-jtriders_sound #(.FULLRAM(1), .XMEN(1)) u_sound(
+jtxmen_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_8      ( cen_8         ),
@@ -215,31 +215,16 @@ jtriders_sound #(.FULLRAM(1), .XMEN(1)) u_sound(
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),
     // ADPCM ROM
-    .pcma_addr  ( pcma_addr     ),
-    .pcma_dout  ( pcma_data     ),
-    .pcma_cs    ( pcma_cs       ),
-    .pcma_ok    ( pcma_ok       ),
-
-    .pcmb_addr  ( pcmb_addr     ),
-    .pcmb_dout  ( pcmb_data     ),
-    .pcmb_cs    ( pcmb_cs       ),
-    .pcmb_ok    ( pcmb_ok       ),
-
-    .pcmc_addr  ( pcmc_addr     ),
-    .pcmc_dout  ( pcmc_data     ),
-    .pcmc_cs    ( pcmc_cs       ),
-    .pcmc_ok    ( pcmc_ok       ),
-
-    .pcmd_addr  ( pcmd_addr     ),
-    .pcmd_dout  ( pcmd_data     ),
-    .pcmd_cs    ( pcmd_cs       ),
-    .pcmd_ok    ( pcmd_ok       ),
+    .pcm_addr   ( pcm_addr      ),
+    .pcm_dout   ( pcm_data      ),
+    .pcm_cs     ( pcm_cs        ),
+    .pcm_ok     ( pcm_ok        ),
 
     // Sound output
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
-    .k60_l      ( k60_l         ),
-    .k60_r      ( k60_r         )
+    .k539_l     ( k539_l        ),
+    .k539_r     ( k539_r        )
 );
 
 endmodule
