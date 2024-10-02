@@ -89,7 +89,7 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - 10'd61;
+    xadj <= xoffset - 10'd62;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
                        simson    ? 10'h11f : 10'h10f); // Vendetta
     vscl <= rd_pzoffset(vzoom[9:0]);
