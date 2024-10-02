@@ -19,8 +19,8 @@ audio:
   rsum: 1.5k
   channels:
     # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
-    - { name: fm,    module: jt51,     rsum: 1k, rc: [ { r: 609, c: 33n } ] }
-    - { name: k60,   module: jt053260, rsum: 1k, rc: [ { r: 609, c: 33n } ] }
+    - { name: fm,     module: jt51,     rsum: 1k, rc: [ { r: 609, c: 33n } ] }
+    - { name: k539,   module: jt054539, rsum: 1k, rc: [ { r: 609, c: 33n } ] }
 sdram:
   banks:
     - buses:
@@ -36,19 +36,7 @@ sdram:
         - name: snd
           addr_width: 17
           data_width: 8
-        - name: pcma
-          addr_width: 21
-          data_width: 8
-          offset: PCM_OFFSET
-        - name: pcmb
-          addr_width: 21
-          data_width: 8
-          offset: PCM_OFFSET
-        - name: pcmc
-          addr_width: 21
-          data_width: 8
-          offset: PCM_OFFSET
-        - name: pcmd
+        - name: pcm
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET

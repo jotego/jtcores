@@ -35,57 +35,43 @@ module jtxmen_sound(
 
     input           snd_irq,
     // ROM
-    output  [/*16*/20:0]  rom_addr,
+    output  [16:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output   [20:0] pcma_addr,
-    input    [ 7:0] pcma_dout,
-    output          pcma_cs,
-    input           pcma_ok,
-
-    output   [20:0] pcmb_addr,
-    input    [ 7:0] pcmb_dout,
-    output          pcmb_cs,
-    input           pcmb_ok,
-
-    output   [20:0] pcmc_addr,
-    input    [ 7:0] pcmc_dout,
-    output          pcmc_cs,
-    input           pcmc_ok,
-
-    output   [20:0] pcmd_addr,
-    input    [ 7:0] pcmd_dout,
-    output          pcmd_cs,
-    input           pcmd_ok,
+    output   [20:0] pcm_addr,
+    input    [ 7:0] pcm_dout,
+    output          pcm_cs,
+    input           pcm_ok,
 
     // Sound output
-    output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
+    output     signed [15:0] fm_l,  fm_r, k539_l, k539_r
 );
-parameter   [ 0:0] FULLRAM = 0,
-                   XMEN = 0;
+
+assign k539_l = 0;
+assign k539_r = 0;
+assign main_din = 0;
+
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
-                    k60_dout, k39_dout, latch_dout;
+                    k39_dout, latch_dout;
 wire        [ 3:0]  rom_hi;
 reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, sample, upper4k, cen_g, fm_intn, latch_we,
+                    cpu_cen, cen_g, fm_intn, latch_we,
                     latch_intn, int_n, nmi_trig, nmi_clr, k39_we;
-reg                 ram_cs, fm_cs,  k60_cs, k39_cs, mem_acc, mem_upper,
-                    nmi_clrr, bank_we, nmi_cs, k21_cs;
+reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
+                    nmi_clrr, bank_we, k21_cs;
 
-assign int_n    = /*XMEN==1 ? */latch_intn /*: ~snd_irq*/;
-assign nmi_trig = /*XMEN==1 ? */fm_intn    /*:  sample*/;
-assign nmi_clr  = /*XMEN==1 ? */nmi_clrr   /*: nmi_cs*/;
-assign rom_hi   = A[15]? bank       : {3'd0, A[14]};
-// assign rom_addr = XMEN==1 ? {rom_hi[2:0], A[13:0]} : {1'b0,A[15:0]};
-assign upper4k  = &A[15:12];
+assign int_n    = latch_intn;
+assign nmi_trig = fm_intn;
+assign nmi_clr  = nmi_clrr;
+assign rom_hi   = A[15]? bank : {3'd0, A[14]};
+assign rom_addr = {rom_hi[2:0], A[13:0]};
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
-                  k60_cs ? k60_dout   :
                   k39_cs ? k39_dout   :
                   k21_cs ? latch_dout :
                   fm_cs  ? fm_dout    : 8'hff;
@@ -102,27 +88,13 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @(*) begin
-    bank_we   = 0;
-    k21_cs    = 0;
-    k39_cs    = 0;
-    k60_cs    = 0;
-    nmi_cs    = 0;
-    mem_acc   = !mreq_n && rfsh_n;
-    mem_upper = mem_acc && upper4k;
-    // if( XMEN==0 ) begin
-    //     rom_cs   = mem_acc   && !upper4k && !rd_n;
-    //     ram_cs   = mem_upper && !A[11];      // F0xx~F7FF
-    //     fm_cs    = mem_upper &&  A[11:9]==4; // F8xx
-    //     k60_cs   = mem_upper &&  A[11:9]==5; // FAxx
-    //     nmi_cs   = mem_upper &&  A[11:9]==6; // FCxx
-    // end else begin // xmen
-    //     rom_cs  = mem_acc && ((!A[15] && A[14]) || !A[14]) && !rd_n;
-        ram_cs  = mem_acc && A[15:13]==3'b110;
-        fm_cs   = mem_acc && A[15:12]==4'he &&  A[11];
-        k39_cs  = mem_acc && A[15:12]==4'he && !A[11];
-        k21_cs  = mem_acc && A[15:12]==4'hf && !A[11];
-        bank_we = mem_acc && A[15:12]==4'hf &&  A[11] && !A[10];
-    // end
+    mem_acc = !mreq_n && rfsh_n;
+    rom_cs  = mem_acc && ((!A[15] && A[14]) || !A[14]) && !rd_n;
+    ram_cs  = mem_acc && A[15:13]==3'b110;
+    fm_cs   = mem_acc && A[15:12]==4'he &&  A[11];
+    k39_cs  = mem_acc && A[15:12]==4'he && !A[11];
+    k21_cs  = mem_acc && A[15:12]==4'hf && !A[11];
+    bank_we = mem_acc && A[15:12]==4'hf &&  A[11] && !A[10];
 end
 
 jtframe_edge #(.QSET(0)) u_edge (
@@ -174,7 +146,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( fm_intn   ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ), // marks new output sample
     .left       (           ),
     .right      (           ),
     // Full resolution output
@@ -182,24 +154,8 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-generate if( FULLRAM ) begin
-    // X-Men
     /* verilator tracing_on */
     assign latch_we = k21_cs && !wr_n;
-    assign k39_we   = k39_cs && !wr_n;
-
-    // jt054539 u_k54539(
-    //     .rst        ( rst       ),
-    //     .clk        ( clk       ),
-    //     .cen        ( cen_pcm   ),
-    //     // CPU interface
-    //     .addr       ({A[9],A[7:0]}),
-    //     .din        ( cpu_dout  ),
-    //     .dout       ( k39_dout  ),
-    //     .we         ( k39_we    ),
-    //     // ROM
-    //     .rom_data   ( 8'd0      )
-    // );
 
     jt539 u_k54539(
         .rst        ( rst       ),
@@ -207,16 +163,16 @@ generate if( FULLRAM ) begin
         .cen        ( cen_pcm   ),
         // CPU interface
         .addr       ({A[9],A[7:0]}),
-        .we         ( k39_we    ),
-        .rd         ( 1'b1          ),
+        .we         ( ~wr_n     ),
+        .rd         ( ~rd_n     ),
         .cs         ( k39_cs    ),
         .din        ( cpu_dout  ),
         .dout       ( k39_dout  ),
         // ROM
-        .rom_cs     ( rom_cs    ),
-        .rom_addr   ( rom_addr  ),
-        .rom_data   ( rom_data  ),
-        .rom_ok     ( rom_ok    ),
+        .rom_cs     ( pcm_cs    ),
+        .rom_addr   ( pcm_addr  ),
+        .rom_data   ( pcm_dout  ),
+        .rom_ok     ( pcm_ok    ),
         .vset       (           )
     );
 
@@ -238,75 +194,12 @@ generate if( FULLRAM ) begin
         .siorq_n    ( iorq_n    ),
         .int_n      ( latch_intn)
     );
-end else begin
-    assign k39_dout   = 0;
-    assign latch_dout = 0;
-    assign latch_intn = 1;
-    assign pair_dout  = 0;
-end endgenerate
-
-
-/* verilator tracing_off */
-jt053260 u_k53260(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen_fm    ),
-    // Main CPU interface
-    .ma0        ( main_addr[1] ),
-    .mrdnw      ( main_rnw  ),
-    .mcs        ( 1'b1      ),
-    .mdin       ( main_din  ),
-    .mdout      ( main_dout ),
-    // Sub CPU control
-    .addr       ( A[5:0]    ),
-    .rd_n       ( rd_n      ),
-    .wr_n       ( wr_n      ),
-    .cs         ( k60_cs    ),
-    .dout       ( k60_dout  ),
-    .din        ( cpu_dout  ),
-
-    // External memory - the original chip
-    // only had one bus
-    .roma_addr  ( pcma_addr ),
-    .roma_data  ( pcma_dout ),
-    .roma_cs    ( pcma_cs   ),
-    // .roma_ok    ( pcma_ok   ),
-
-    .romb_addr  ( pcmb_addr ),
-    .romb_data  ( pcmb_dout ),
-    .romb_cs    ( pcmb_cs   ),
-    // .romb_ok    ( pcmb_ok   ),
-
-    .romc_addr  ( pcmc_addr ),
-    .romc_data  ( pcmc_dout ),
-    .romc_cs    ( pcmc_cs   ),
-    // .romc_ok    ( pcmc_ok   ),
-
-    .romd_addr  ( pcmd_addr ),
-    .romd_data  ( pcmd_dout ),
-    .romd_cs    ( pcmd_cs   ),
-    // .romd_ok    ( pcmd_ok   ),
-    // sound output - raw
-    .aux_l      ( 16'd0     ),
-    .aux_r      ( 16'd0     ),
-    // .aux_l      ( fm_l      ),
-    // .aux_r      ( fm_r      ),
-    .snd_l      ( k60_l     ),
-    .snd_r      ( k60_r     ),
-    .sample     (           )
-);
 `else
 assign  main_din   = 0;
-assign  pcma_addr  = 0;
-assign  pcma_cs    = 0;
-assign  pcmb_addr  = 0;
-assign  pcmb_cs    = 0;
-assign  pcmc_addr  = 0;
-assign  pcmc_cs    = 0;
-assign  pcmd_addr  = 0;
-assign  pcmd_cs    = 0;
+assign  pcm_addr  = 0;
+assign  pcm_cs    = 0;
 assign  rom_addr   = 0;
 initial rom_cs     = 0;
-assign  { pair_dout, fm_l, fm_r, k60_l, k60_r } = 0;
+assign  { pair_dout, fm_l, fm_r, k539_l, k539_r } = 0;
 `endif
 endmodule
