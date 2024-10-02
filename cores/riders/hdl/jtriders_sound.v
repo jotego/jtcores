@@ -28,7 +28,6 @@ module jtriders_sound(
     // communication with main CPU
     input   [ 7:0]  main_dout,  // bus access for Punk Shot
     output  [ 7:0]  main_din,
-    // output  [ 7:0]  pair_dout,
     input   [ 4:1]  main_addr,
     input           main_rnw,
 
