@@ -64,7 +64,7 @@ parameter XMEN = 0;
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
-reg  [ 8:0] vlatch, ymove, vscl, hscl, xmove;
+reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
