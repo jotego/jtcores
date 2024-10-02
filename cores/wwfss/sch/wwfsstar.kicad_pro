@@ -616,16 +616,16 @@
       "scroll RAM"
     ],
     [
-      "4daee29a-c1af-4446-aa6a-3cc7e0b5c715",
-      "Object Buffer"
-    ],
-    [
       "ea3716db-9bc6-4fd3-9254-8e0b10711649",
       "line buffer A"
     ],
     [
       "7c0f081d-d530-41f1-8464-de2a25afea89",
       "line buffer B"
+    ],
+    [
+      "e113b858-3544-4993-9178-395c78a81b30",
+      "Untilted"
     ]
   ],
   "text_variables": {}

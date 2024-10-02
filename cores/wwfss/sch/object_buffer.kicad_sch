@@ -7078,6 +7078,45 @@
 		(uuid 13095d1c-1621-4cb4-9c84-3d59e9589711)
 	)
 	(rectangle
+		(start 317.5 139.7)
+		(end 330.2 146.05)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 4c2a4f43-46e0-407b-b94d-7437567b1561)
+	)
+	(rectangle
+		(start 285.75 121.92)
+		(end 298.45 128.27)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 50d55d99-4cb7-4c45-b0fd-118cc1b627c9)
+	)
+	(rectangle
+		(start 317.5 175.26)
+		(end 330.2 181.61)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 6ee08192-f629-4ab8-8628-7ab6598b6dd2)
+	)
+	(rectangle
 		(start 148.8758 151.1648)
 		(end 161.5758 157.5148)
 		(stroke
@@ -7141,6 +7180,45 @@
 			(justify left bottom)
 		)
 		(uuid "24315e76-ae18-4b0a-8f2f-73a6631f3eb8")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 317.5 180.34 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "2c16465d-b9ef-4efa-a955-cf4ebe4191db")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 285.75 127 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "6d104a88-5738-4bb2-871a-73b3b92a9371")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 317.5 144.78 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "9f573080-a21c-46e3-97fe-3116d89da813")
 	)
 	(text "DONE"
 		(exclude_from_sim no)

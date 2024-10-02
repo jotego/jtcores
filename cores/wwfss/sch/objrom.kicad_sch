@@ -9652,6 +9652,84 @@
 		)
 		(uuid "ffc71b1f-3a48-4de3-abd2-6817841f9e5b")
 	)
+	(rectangle
+		(start 323.85 33.02)
+		(end 336.55 39.37)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 6a9715df-4112-40fd-84f7-1fc0acfc719a)
+	)
+	(rectangle
+		(start 276.86 60.96)
+		(end 289.56 67.31)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid 919f148e-4a68-4817-956f-6326210bbe2a)
+	)
+	(rectangle
+		(start 80.01 234.95)
+		(end 92.71 241.3)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(uuid f4c7a1bb-4442-4a9e-8652-abf8507ba08c)
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 276.86 66.04 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "1226bea0-f48e-4872-be59-987245e552eb")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 323.85 38.1 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "713fc32d-5e5b-4135-ab21-01b6abc4e913")
+	)
+	(text "DONE"
+		(exclude_from_sim no)
+		(at 80.01 240.03 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "b3e4f193-5db6-4396-941e-ef50ee83fbc6")
+	)
 	(label "VCC"
 		(at 97.79 83.82 0)
 		(fields_autoplaced yes)
@@ -13192,7 +13270,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6708c0ea-1ca0-41a0-8536-02c3a1228d4c")
-		(property "Reference" "IC109"
+		(property "Reference" "IC68"
 			(at 36.068 219.456 0)
 			(effects
 				(font
@@ -13280,7 +13358,7 @@
 		(instances
 			(project "wwfsstar"
 				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022/004a228e-24de-4680-a954-fe1a8a16228f/35cc9afc-88f0-41c5-ae64-92beb6e5ab21/36a67254-e339-4138-b84a-27ad7dff3eb5"
-					(reference "IC109")
+					(reference "IC68")
 					(unit 1)
 				)
 			)
@@ -13390,7 +13468,6 @@
 		)
 	)
 	(symbol
-		(lib_name "jt74:74LS25")
 		(lib_id "jt74:74LS25")
 		(at 322.58 91.44 0)
 		(unit 2)
