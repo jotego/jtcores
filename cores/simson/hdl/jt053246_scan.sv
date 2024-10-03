@@ -61,9 +61,12 @@ module jt053246_scan (    // sprite logic
 );
 parameter XMEN = 0;
 
+localparam [9:0] HDUMP_MIN = 10'h020,
+                 HADJ      = 10'h008;
+
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -71,7 +74,7 @@ reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
 reg         inzone, hs_l, done, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
-            hmir_eff, vmir_eff, hhalf;
+            hmir_eff, vmir_eff, hhalf, left_wrap;
 
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
@@ -120,10 +123,12 @@ function [8:0] rd_pzoffset( input [9:0] zoom );
 endfunction 
 
 always @* begin : B
-    ymove  = zmove( vsz, vscl );
-    y2     = y + {1'b0,ymove};
-    ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
-    ydiff  = yz_add[6+:10];
+    ymove     = zmove( vsz, vscl );
+    y2        = y + {1'b0,ymove};
+    ydiff_b   = y2 + { vlatch[8], vlatch } - 10'd8;
+    ydiff     = yz_add[6+:10];
+    x2        = x - zmove( hsz, hscl );
+    left_wrap = x2 < HDUMP_MIN;
     // test ver/game/scene/1 -> shadow, scan_obj 9
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -240,7 +245,7 @@ always @(posedge clk, posedge rst) begin : A
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos    <= x - zmove( hsz, hscl );
+                            hpos    <= x2 + (left_wrap ? HADJ : 10'b0 );
                         end else begin
                             hpos    <= hpos + 10'h10;
                             hz_keep <= 1;
