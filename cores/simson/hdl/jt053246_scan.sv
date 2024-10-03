@@ -63,8 +63,8 @@ parameter XMEN = 0;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
-reg  [ 8:0] vlatch, ymove, vscl, hscl;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
+reg  [ 8:0] vlatch, ymove, vscl, hscl, hdump_r, hdump_diff;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
@@ -124,6 +124,8 @@ always @* begin : B
     y2     = y + {1'b0,ymove};
     ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
     ydiff  = yz_add[6+:10];
+    x2 = x - zmove( hsz, hscl ) - hdump_diff;
+    // x2 = x - zmove( hsz, hscl );
     // test ver/game/scene/1 -> shadow, scan_obj 9
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -181,6 +183,8 @@ always @(posedge clk, posedge rst) begin : A
     end else if( cen2 ) begin
         hs_l <= hs;
         dr_start <= 0;
+        hdump_r  <= hdump;
+        if( hdump < hdump_r ) hdump_diff <= hdump;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
@@ -240,7 +244,7 @@ always @(posedge clk, posedge rst) begin : A
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos    <= x - zmove( hsz, hscl );
+                            hpos    <= x - zmove( hsz, hscl ) + {6'b0, x2[9], 3'b0};
                         end else begin
                             hpos    <= hpos + 10'h10;
                             hz_keep <= 1;
