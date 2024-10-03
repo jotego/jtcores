@@ -11,6 +11,5 @@ game:
       - jt053246_scan.sv
       - jtsimson_obj.v
 modules:
-  other:
-    - from: jt539
-      get: [ hdl/jt539.v ]
+  jt:
+    - name: jt539
