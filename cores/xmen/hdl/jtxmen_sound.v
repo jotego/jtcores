@@ -68,6 +68,7 @@ reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
 assign int_n    = latch_intn;
 assign nmi_trig = fm_intn;
 assign nmi_clr  = nmi_clrr;
+assign latch_we = k21_cs && !wr_n;
 assign rom_hi   = A[15]? bank : {3'd0, A[14]};
 assign rom_addr = {rom_hi[2:0], A[13:0]};
 assign cpu_din  = rom_cs ? rom_data   :
@@ -104,7 +105,6 @@ jtframe_edge #(.QSET(0)) u_edge (
     .clr    ( nmi_clr   ),
     .q      ( nmi_n     )
 );
-
 /* verilator tracing_off */
 jtframe_sysz80 #(`ifdef SND_RAMW .RAM_AW(`SND_RAMW), `endif .CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
@@ -153,53 +153,50 @@ jt51 u_jt51(
     .xleft      ( fm_l      ),
     .xright     ( fm_r      )
 );
+/* verilator tracing_on */
+jt539 u_k54539(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen_pcm   ),
+    // CPU interface
+    .addr       ({A[9],A[7:0]}),
+    .we         ( ~wr_n     ),
+    .rd         ( ~rd_n     ),
+    .cs         ( k39_cs    ),
+    .din        ( cpu_dout  ),
+    .dout       ( k39_dout  ),
+    // ROM
+    .rom_cs     ( pcm_cs    ),
+    .rom_addr   ( pcm_addr  ),
+    .rom_data   ( pcm_dout  ),
+    .rom_ok     ( pcm_ok    ),
+    .vset       (           )
+);
 
-    /* verilator tracing_on */
-    assign latch_we = k21_cs && !wr_n;
+jt054321 u_54321(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .maddr      ( main_addr ),
+    .mdout      ( main_dout ),
+    .mdin       ( pair_dout ),
+    .mwe        ( pair_we   ),
 
-    jt539 u_k54539(
-        .rst        ( rst       ),
-        .clk        ( clk       ),
-        .cen        ( cen_pcm   ),
-        // CPU interface
-        .addr       ({A[9],A[7:0]}),
-        .we         ( ~wr_n     ),
-        .rd         ( ~rd_n     ),
-        .cs         ( k39_cs    ),
-        .din        ( cpu_dout  ),
-        .dout       ( k39_dout  ),
-        // ROM
-        .rom_cs     ( pcm_cs    ),
-        .rom_addr   ( pcm_addr  ),
-        .rom_data   ( pcm_dout  ),
-        .rom_ok     ( pcm_ok    ),
-        .vset       (           )
-    );
+    .saddr      ( A[1:0]    ),
+    .sdout      ( cpu_dout  ),
+    .sdin       ( latch_dout),
+    .swe        ( latch_we  ),
 
-    jt054321 u_54321(
-        .rst        ( rst       ),
-        .clk        ( clk       ),
-        .maddr      ( main_addr ),
-        .mdout      ( main_dout ),
-        .mdin       ( pair_dout ),
-        .mwe        ( pair_we   ),
-
-        .saddr      ( A[1:0]    ),
-        .sdout      ( cpu_dout  ),
-        .sdin       ( latch_dout),
-        .swe        ( latch_we  ),
-
-        // Z80 bus control
-        .snd_on     ( snd_irq   ),
-        .siorq_n    ( iorq_n    ),
-        .int_n      ( latch_intn)
-    );
+    // Z80 bus control
+    .snd_on     ( snd_irq   ),
+    .siorq_n    ( iorq_n    ),
+    .int_n      ( latch_intn)
+);
 `else
-assign  main_din   = 0;
-assign  pcm_addr  = 0;
-assign  pcm_cs    = 0;
-assign  rom_addr   = 0;
-initial rom_cs     = 0;
+assign  main_din = 0;
+assign  pcm_addr = 0;
+assign  pcm_cs   = 0;
+assign  rom_addr = 0;
+initial rom_cs   = 0;
 assign  { pair_dout, fm_l, fm_r, k539_l, k539_r } = 0;
 `endif
 endmodule

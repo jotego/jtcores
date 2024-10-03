@@ -219,7 +219,6 @@ jtxmen_sound u_sound(
     .pcm_dout   ( pcm_data      ),
     .pcm_cs     ( pcm_cs        ),
     .pcm_ok     ( pcm_ok        ),
-
     // Sound output
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
