@@ -3875,7 +3875,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "https://pdf1.alldatasheet.com/datasheet-pdf/view/47946/AD/AD1868R.html"
+			(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/AD1868.pdf"
 				(at 3.81 -11.43 0)
 				(effects
 					(font
@@ -18847,7 +18847,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://pdf1.alldatasheet.com/datasheet-pdf/view/47946/AD/AD1868R.html"
+		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/AD1868.pdf"
 			(at 335.28 95.25 0)
 			(effects
 				(font
