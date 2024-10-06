@@ -30,6 +30,7 @@ game: othergame
 clocks:
   clk48:
     - freq: 24000000
+      gate: [main,snd] # stop the cen if main_cs&~main_ok or snd_cs&~snd_ok
       outputs:
         - cen24
         - cen12

@@ -35,7 +35,7 @@ reg  [ 7:0] debug_mux;
 // reg         xmen;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
-            st_main, st_video;
+            st_main, st_video, st_snd;
 wire [ 1:0] oram_we;
 
 assign debug_view = debug_mux;
@@ -47,6 +47,7 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
+        2: debug_mux <= st_snd;
         3: debug_mux <= { mute, /*xmen,*/ 7'b0 };
         default: debug_mux <= 0;
     endcase
@@ -122,7 +123,7 @@ jtxmen_main u_main(
 assign oram_we   = ~ram_dsn & {2{cpu_we}};
 assign oram_addr = {main_addr[6:5], main_addr[1], main_addr[13:7], main_addr[4:2]};
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtxmen_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -191,7 +192,7 @@ jtxmen_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtxmen_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -218,12 +219,14 @@ jtxmen_sound u_sound(
     .pcm_addr   ( pcm_addr      ),
     .pcm_dout   ( pcm_data      ),
     .pcm_cs     ( pcm_cs        ),
-    .pcm_ok     ( pcm_ok        ),
     // Sound output
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
     .k539_l     ( k539_l        ),
-    .k539_r     ( k539_r        )
+    .k539_r     ( k539_r        ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_snd        )
 );
 
 endmodule

@@ -43,14 +43,13 @@ module jtxmen_sound(
     output   [20:0] pcm_addr,
     input    [ 7:0] pcm_dout,
     output          pcm_cs,
-    input           pcm_ok,
-
     // Sound output
-    output     signed [15:0] fm_l,  fm_r, k539_l, k539_r
+    output     signed [15:0] fm_l, fm_r, k539_l, k539_r,
+    // Debug
+    input    [ 7:0] debug_bus,
+    output   [ 7:0] st_dout
 );
 
-assign k539_l = 0;
-assign k539_r = 0;
 assign main_din = 0;
 
 `ifndef NOSOUND
@@ -169,8 +168,12 @@ jt539 u_k54539(
     .rom_cs     ( pcm_cs    ),
     .rom_addr   ( pcm_addr  ),
     .rom_data   ( pcm_dout  ),
-    .rom_ok     ( pcm_ok    ),
-    .vset       (           )
+    // Sound output
+    .left       ( k539_l    ),
+    .right      ( k539_r    ),
+    // debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
 jt054321 u_54321(

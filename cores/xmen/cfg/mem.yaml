@@ -13,6 +13,7 @@ clocks:
         - cen_fm
         - cen_fm2
     - freq: 18432000
+      gate: [pcm]
       outputs:
         - cen_pcm
 audio:
