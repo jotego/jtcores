@@ -1,0 +1,78 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Oct  6 07:11:38 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/xmen/ver/xmen/test.fst"
+[dumpfile_mtime] "Sun Oct  6 06:33:18 2024"
+[dumpfile_size] 86552967
+[savefile] "/home/jtejada/jtcores/cores/xmen/ver/xmen/sndtest.gtkw"
+[timestart] 1151000000000
+[size] 1920 1033
+[pos] -1 -1
+*-37.662773 2478520437456 1228388451024 1588819631952 1699982933712 2347415328720 2478520437456 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_k54539.
+[sst_width] 278
+[signals_width] 251
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@24
+TOP.game_test.frame_cnt[31:0]
+@23
+TOP.game_test.u_game.u_game.u_sound.A[15:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.cpu_dout[7:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.wr_n
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.u_k54539.cs
+@22
+TOP.game_test.u_game.u_game.u_sound.u_k54539.ch_en[7:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_k54539.mmr_we
+TOP.game_test.u_game.u_game.u_sound.rd_n
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_mem_sel
+@8022
+[color] 2
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_addr[16:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_we
+@22
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_dout[7:0]
+@c08022
+TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(4)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(5)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(6)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(7)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(8)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(9)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(10)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(11)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(12)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(13)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+(14)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+@1401200
+-group_end
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.addr0[14:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.u_k54539.u_rev.data0[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_bank[3:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_k54539.test_en
+TOP.game_test.u_game.u_game.u_sound.u_k54539.reg_we
+TOP.game_test.u_game.u_game.u_sound.u_k54539.reg_weg
+[pattern_trace] 1
+[pattern_trace] 0
