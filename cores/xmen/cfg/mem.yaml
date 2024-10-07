@@ -7,19 +7,16 @@ clocks:
       outputs:
         - cen_16
         - cen_8
-        - cen_4
-    - freq: 3579545
-      outputs:
-        - cen_fm
-        - cen_fm2
+        - cen_4   # cen_fm
+        - cen_2   # cen_fm2
     # - freq: 18432000
-    - freq: 9216000
-    # - freq: 4608000
+    # adjusted for pitch
+    - freq: 5926736
       gate: [pcm]
       outputs:
         - cen_pcm
 audio:
-  rsum: 1.5k
+  rsum: 1k
   channels:
     - { name: fm,     module: jt51,     rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
     - { name: k539,   module: jt054539, rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }

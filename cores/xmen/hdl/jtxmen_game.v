@@ -198,8 +198,7 @@ jtxmen_sound u_sound(
     .clk        ( clk           ),
     .cen_8      ( cen_8         ),
     .cen_4      ( cen_4         ),
-    .cen_fm     ( cen_fm        ),
-    .cen_fm2    ( cen_fm2       ),
+    .cen_2      ( cen_2         ),
     .cen_pcm    ( cen_pcm       ),
 
     .pair_we    ( pair_we       ),

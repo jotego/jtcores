@@ -21,8 +21,7 @@ module jtxmen_sound(
     input           clk,
     input           cen_8,
     input           cen_4,
-    input           cen_fm,
-    input           cen_fm2,
+    input           cen_2,
     input           cen_pcm,
 
     input           pair_we,
@@ -59,7 +58,7 @@ wire        [ 3:0]  rom_hi;
 reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, cen_g, fm_intn, latch_we,
+                    cpu_cen, cen_g, fm_intn, latch_we, cen_fm, cen_fm2,
                     latch_intn, int_n, nmi_trig, nmi_clr, k39_we;
 reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
                     nmi_clrr, bank_we, k21_cs;
@@ -75,6 +74,8 @@ assign cpu_din  = rom_cs ? rom_data   :
                   k39_cs ? k39_dout   :
                   k21_cs ? latch_dout :
                   fm_cs  ? fm_dout    : 8'hff;
+assign cen_fm   = cen_4;
+assign cen_fm2  = cen_2;
 assign cen_g    = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
 // this is not 100% accurate, but quite close. It does not seem to have much of
 // an effect anyway.
