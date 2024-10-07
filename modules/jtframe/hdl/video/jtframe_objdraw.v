@@ -33,7 +33,10 @@ module jtframe_objdraw #( parameter
     LATCH =  0,
     FLIP_OFFSET=0,
     KEEP_OLD  = 0,
+    KEEP_SHD  = 1,
     SHADOW    = 0,
+    SHADOW_PEN  = ALPHA,
+    SW        = 1,
     ALPHA     = 0,
     PACKED    = 0
 )(
@@ -79,7 +82,10 @@ module jtframe_objdraw #( parameter
         .LATCH          ( LATCH         ),
         .FLIP_OFFSET    ( FLIP_OFFSET   ),
         .SHADOW         ( SHADOW        ),
+        .SW             ( SW            ),
+        .KEEP_SHD       ( KEEP_SHD      ),
         .KEEP_OLD       ( KEEP_OLD      ),
+        .SHADOW_PEN     ( SHADOW_PEN    ),
         .ALPHA          ( ALPHA         ),
         .PACKED         ( PACKED        )
     )u_gate(
