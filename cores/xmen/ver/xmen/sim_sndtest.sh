@@ -13,3 +13,5 @@ while [ $# -gt 0 ]; do
 done
 
 jtsim -inputs snd_test.in -video $LAST -w 332
+mv test.fst sndtest.fst
+mv test.wav sndtest.wav

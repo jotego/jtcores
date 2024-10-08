@@ -9,17 +9,20 @@ clocks:
         - cen_8
         - cen_4   # cen_fm
         - cen_2   # cen_fm2
-    # - freq: 18432000
     # adjusted for pitch
-    - freq: 5926736
+    # - freq: 18432000
+    - freq: 12288000
+    # - freq: 5926736
+    # - freq: 12315757
+    # - freq: 11853472
       gate: [pcm]
       outputs:
         - cen_pcm
 audio:
-  rsum: 1k
+  rsum: 2k
   channels:
     - { name: fm,     module: jt51,     rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
-    - { name: k539,   module: jt054539, rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
+    - { name: k539,   module: jt054539, rsum: 960, rc: [ { r: 4.7k, c: 2.2n } ] }
 sdram:
   banks:
     - buses:

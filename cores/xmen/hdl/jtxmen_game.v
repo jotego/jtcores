@@ -44,13 +44,14 @@ assign ram_addr   = main_addr[13:1];
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
-    case( debug_bus[7:6] )
-        0: debug_mux <= st_main;
-        1: debug_mux <= st_video;
-        2: debug_mux <= st_snd;
-        3: debug_mux <= { mute, /*xmen,*/ 7'b0 };
-        default: debug_mux <= 0;
-    endcase
+    debug_mux <= st_snd;
+    // case( debug_bus[7:6] )
+    //     0: debug_mux <= st_main;
+    //     1: debug_mux <= st_video;
+    //     2: debug_mux <= st_snd;
+    //     3: debug_mux <= { mute, /*xmen,*/ 7'b0 };
+    //     default: debug_mux <= 0;
+    // endcase
 end
 
 /*always @(posedge clk) begin
