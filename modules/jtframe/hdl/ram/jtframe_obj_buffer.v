@@ -39,7 +39,6 @@ module jtframe_obj_buffer #(parameter
     BLANK_DLY   = 2,
     FLIP_OFFSET = 0,
     SW          = 1,     // Shadow bits width (Use with SHADOW==1)
-    KEEP_SHD    = 1,     // New shadow writes do not overwrite old ones (Use with SHADOW==1)
     SHADOW_PEN  = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
     SHADOW      = 0,     // 1 enables shadows on data MSB
     KEEP_OLD    = 0      // Do not overwrite old non-ALPHA data
@@ -74,8 +73,8 @@ assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
     && ((old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0]  /*||
          (old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0] && SHADOW_PEN!=ALPHA && wr_data[ALPHAW-1:0]!=SHADOW_PEN[ALPHAW-1:0] )*/
          ) || (KEEP_OLD==0 &&
-           ( SHADOW==0 || (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0])
-            && SHADOW_PEN!=ALPHA )));
+           ( wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]
+            || SHADOW_PEN==ALPHA )));
 
 
 `ifdef SIMULATION
@@ -118,58 +117,60 @@ jtframe_dual_ram #(.AW(AW+1),.DW(EW)) u_line(
 
 generate
     if( SHADOW==1 ) begin
-        wire          sh_we;
-        wire [SW-1:0] shdout, shdold;
+        wire       sh0_wemx, sh1_wemx, sh0_delmx, sh1_delmx,
+                   sh_we;
+        reg  [AW-1:0] sh_wa;
+        wire [AW-1:0] sh0_rdmx, sh1_rdmx;
+        wire [SW-1:0] shdout0,shdout1, shadow_we;
+        reg  [SW-1:0] shdin;
+        reg        newwe_l, we_l;//,
 
-        assign sh_we     =  wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
-            && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] || KEEP_SHD==0);
+        assign sh0_rdmx  =  line ? wr_af   : rd_addr;
+        assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
+        assign shadow_we = /*~*/line ? shdout0 : shdout1;
+        assign sh_we     = |shadow_we ? newwe_l : we_l;
+        assign sh0_wemx  =  line & sh_we;
+        assign sh1_wemx  = ~line & sh_we;
+        assign sh0_delmx = ~line & delete_we;
+        assign sh1_delmx =  line & delete_we;
 
-        assign dump_data[DW-1-:SW] = shdout;
+        always @(posedge clk) begin
+            shdin <= wr_data[DW-1-:SW];
+            sh_wa <= wr_af;
+            newwe_l <= new_we;
+            we_l    <= we;
+        end
+        assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;
 
-        jtframe_dual_ram #(.AW(AW+1),.DW(SW)) u_shadow0(
+        jtframe_dual_ram #(.AW(AW),.DW(SW)) u_shadow0(
             .clk0   ( clk           ),
             .clk1   ( clk           ),
             // Port 0
-            .data0  (wr_data[DW-1-:SW]),
-            .addr0  ( {line,wr_af}  ),
-            .we0    ( sh_we         ),
+            .data0  ( shdin         ),
+            .addr0  ( sh_wa         ),
+            .we0    ( sh0_wemx      ),
             .q0     (               ),
             // Port 1
             .data1  ( {SW{1'b0}}    ),
-            .addr1  ({~line,rd_addr}),
-            .we1    ( delete_we     ),
-            .q1     ( shdout        )
+            .addr1  ( sh0_rdmx      ),
+            .we1    ( sh0_delmx     ),
+            .q1     ( shdout0       )
         );
 
-        // jtframe_dual_ram #(.AW(AW),.DW(SW/*1*/)) u_shadow0(
-        //     .clk0   ( clk           ),
-        //     .clk1   ( clk           ),
-        //     // Port 0
-        //     .data0  ( shdin         ),
-        //     .addr0  ( sh_wa         ),
-        //     .we0    ( sh0_wemx      ),
-        //     .q0     (               ),
-        //     // Port 1
-        //     .data1  ( 1'b0          ),
-        //     .addr1  ( sh0_rdmx      ),
-        //     .we1    ( sh0_delmx     ),
-        //     .q1     ( shdout[0]     )
-        // );
-
-        // jtframe_dual_ram #(.AW(AW),.DW(1)) u_shadow1(
-        //     .clk0   ( clk           ),
-        //     .clk1   ( clk           ),
-        //     // Port 0
-        //     .data0  ( shdin         ),
-        //     .addr0  ( sh_wa         ),
-        //     .we0    ( sh1_wemx      ),
-        //     .q0     (               ),
-        //     // Port 1
-        //     .data1  ( 1'b0          ),
-        //     .addr1  ( sh1_rdmx      ),
-        //     .we1    ( sh1_delmx     ),
-        //     .q1     ( shdout[1]     )
-        // );
+        jtframe_dual_ram #(.AW(AW),.DW(SW)) u_shadow1(
+            .clk0   ( clk           ),
+            .clk1   ( clk           ),
+            // Port 0
+            .data0  ( shdin         ),
+            .addr0  ( sh_wa         ),
+            .we0    ( sh1_wemx      ),
+            .q0     (               ),
+            // Port 1
+            .data1  ( {SW{1'b0}}    ),
+            .addr1  ( sh1_rdmx      ),
+            .we1    ( sh1_delmx     ),
+            .q1     ( shdout1       )
+        );
 
     end
 endgenerate
