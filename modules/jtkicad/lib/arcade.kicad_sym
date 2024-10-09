@@ -40490,7 +40490,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 3.81 12.7 0)
+			(at 6.858 12.7 0)
 			(effects
 				(font
 					(size 1.2446 1.2446)
@@ -40498,7 +40498,7 @@
 			)
 		)
 		(property "Value" "MN2114"
-			(at 0 10.16 0)
+			(at 2.286 -12.7 0)
 			(effects
 				(font
 					(size 1.2446 1.2446)
@@ -40514,7 +40514,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.datasheet4u.com/datasheet-pdf/FairchildSemiconductor/F2114/pdf.php?id=1306381"
 			(at 0 0 0)
 			(effects
 				(font
@@ -40523,7 +40523,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1024x4 Static RAM"
 			(at 0 0 0)
 			(effects
 				(font
@@ -40532,26 +40532,35 @@
 				(hide yes)
 			)
 		)
-		(symbol "MN2114_0_0"
-			(text "4098 BIT  STATIC RAM"
-				(at 0 -1.27 900)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
+		(property "ki_keywords" "RAM"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(symbol "MN2114_0_1"
 			(rectangle
 				(start -7.62 11.43)
-				(end 7.62 -11.43)
+				(end 7.62 -22.86)
 				(stroke
 					(width 0)
 					(type default)
 				)
 				(fill
 					(type background)
+				)
+			)
+		)
+		(symbol "MN2114_1_0"
+			(text "4096 BIT  STATIC RAM"
+				(at 0 -1.27 900)
+				(effects
+					(font
+						(size 0.762 0.762)
+					)
 				)
 			)
 		)
@@ -40574,8 +40583,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 10.16 -1.27 180)
+			(pin input inverted
+				(at -10.16 -17.78 0)
 				(length 2.54)
 				(name "~{WE}"
 					(effects
@@ -40593,7 +40602,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 1.27 180)
+				(at 10.16 -3.81 180)
 				(length 2.54)
 				(name "D3"
 					(effects
@@ -40611,7 +40620,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 3.81 180)
+				(at 10.16 -1.27 180)
 				(length 2.54)
 				(name "D2"
 					(effects
@@ -40629,7 +40638,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 6.35 180)
+				(at 10.16 1.27 180)
 				(length 2.54)
 				(name "D1"
 					(effects
@@ -40647,7 +40656,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 10.16 8.89 180)
+				(at 10.16 3.81 180)
 				(length 2.54)
 				(name "D0"
 					(effects
@@ -40657,6 +40666,78 @@
 					)
 				)
 				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -13.97 0)
+				(length 2.54)
+				(name "A9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -11.43 0)
+				(length 2.54)
+				(name "A8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -10.16 -8.89 0)
+				(length 2.54)
+				(name "A7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "17"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 13.97 270)
+				(length 2.54)
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "18"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -40773,7 +40854,7 @@
 				)
 			)
 			(pin input inverted
-				(at -10.16 -8.89 0)
+				(at -10.16 -20.32 0)
 				(length 2.54)
 				(name "~{CS}"
 					(effects
@@ -40783,6 +40864,24 @@
 					)
 				)
 				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -25.4 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
 					(effects
 						(font
 							(size 1.27 1.27)
