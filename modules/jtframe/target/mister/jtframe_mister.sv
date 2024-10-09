@@ -366,7 +366,7 @@ jtframe_resync u_resync(
 
 reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotate, bit 1 = flip
 
-// OSD option visibility
+// OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
 
 assign status_menumask[15:6] = 0,
@@ -378,8 +378,8 @@ assign status_menumask[15:6] = 0,
        status_menumask[4]    = 1,   // hidden
        status_menumask[1]    = ~core_mod[0],  // shown for vertical games
 `endif
-       status_menumask[3]    = 1, // scan FX options (always shown)
-       status_menumask[2]    = ~hsize_enable,    // horizontal scaling
+       status_menumask[3]    =~video_rotated, // scan FX options do not work with rotated video (except HQ2x)
+       status_menumask[2]    = ~hsize_enable, // horizontal scaling
        status_menumask[0]    = direct_video;
 
 always @(posedge clk_sys) begin
@@ -818,7 +818,7 @@ jtframe_board #(
 
 always @(posedge scan2x_clk) begin
     crop_ok   <= hdmi_width == 1920 && hdmi_height == 1080 && status[5:3]==0 /* scan lines FX */ &&
-                 !force_scan2x && crop_scale==0 && !direct_video && !rotate[0];
+                 !force_scan2x && crop_scale==0 && !direct_video /*&& !rotate[0]*/;
     crop_off  <= (vcopt < 6) ? {vcopt,1'b0} : ({vcopt,1'b0} - 5'd24);
     crop_size <= (crop_ok & crop_en) ? 10'd216 : 10'd0;
 end
