@@ -48,7 +48,7 @@ module jt053246(    // sprite logic
     output reg        vflip,
     output reg [ 9:0] hpos,
     output     [ 3:0] ysub,
-    output reg [11:0] hzoom,
+    output reg [ 9:0] hzoom,
     output reg        hz_keep,
 
     // base video
