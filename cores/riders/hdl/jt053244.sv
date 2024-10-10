@@ -128,6 +128,7 @@ jt053246_dma u_dma(
     .dma_trig   ( dma_trig  ),
     .k44_en     ( 1'b1      ),   // enable k053244/5 mode (default k053246/7)
     .simson     ( 1'b0      ),
+    .reversed   ( 1'b0      ),
 
     .hs         ( hs        ),
     .vs         ( vs        ),
