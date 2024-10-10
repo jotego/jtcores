@@ -82,9 +82,8 @@ wire        dr_start, dr_busy;
 wire [15:0] code;
 wire [ 9:0] attr;     // OC pins
 wire        hflip, vflip, hz_keep, pre_cs;
-wire [ 9:0] hpos;
+wire [ 9:0] hpos, hzoom;
 wire [ 3:0] ysub;
-wire [11:0] hzoom;
 wire [31:0] sorted;
 wire        pen15;
 
@@ -190,7 +189,7 @@ jtframe_objdraw #(
     .xpos       ( hpos          ),
     .ysub       ( ysub          ),
     .hz_keep    ( hz_keep       ),
-    .hzoom      ( hzoom         ),
+    .hzoom      ( {2'b0,hzoom}  ),
 
     .hflip      ( ~hflip        ),
     .vflip      ( vflip         ),
