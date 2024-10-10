@@ -42,7 +42,9 @@ module jtframe_objdraw_gate #( parameter
     LATCH =  0,    // If set, latches code, xpos, ysub, hflip, vflip and pal when draw is set and busy is low
     FLIP_OFFSET=0, // Added to ~hdump when flip==1 and HJUMP==0
     SHADOW     =0, // 1 for shadows
+    SW         =1, // Shadow bits width (Use with SHADOW==1)
     KEEP_OLD   =0, // new writes do not overwrite old ones (reverse priority)
+    SHADOW_PEN = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
     // object line buffer
     ALPHA      =0,
     PACKED     =0  // 0 if rom_data is { plane3, plane2, plane1, plane0 }, 8 bits each
@@ -208,7 +210,9 @@ jtframe_obj_buffer #(
     .AW         ( AW          ),
     .DW         ( PW          ),
     .ALPHA      ( ALPHA       ),
+    .SW         ( SW          ),
     .SHADOW     ( SHADOW      ),
+    .SHADOW_PEN ( SHADOW_PEN  ),
     .KEEP_OLD   ( KEEP_OLD    )
 ) u_linebuf(
     .clk        ( clk       ),
