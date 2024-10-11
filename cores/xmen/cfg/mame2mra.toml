@@ -9,8 +9,6 @@ skip = { bootlegs=true, setnames=[
     "xmen6p", "xmen6pu",
 ]}
 
-debug={machines=["xmen"]}
-
 [buttons]
 names = [
     { machine="xmen",     names="Attack,Jump,Mutant Power" },
