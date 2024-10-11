@@ -150,7 +150,6 @@ always @* begin : B
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
-    if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
