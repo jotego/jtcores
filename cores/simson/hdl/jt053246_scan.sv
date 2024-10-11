@@ -31,7 +31,7 @@ module jt053246_scan (    // sprite logic
     output reg        vflip,
     output reg [ 9:0] hpos,
     output     [ 3:0] ysub,
-    output reg [ 9:0] hzoom,
+    output reg [11:0] hzoom,
     output reg        hz_keep,
 
     // base video
@@ -65,7 +65,8 @@ localparam [9:0] HDUMP_MIN = 10'h020,
                  HADJ      = 10'h008;
 
 reg  [18:0] yz_add;
-reg  [ 9:0] y, y2, vzoom, x, ydiff, ydiff_b, xadj, yadj, x2;
+reg  [11:0] vzoom;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -94,10 +95,10 @@ always @(posedge clk) begin
     xadj <= xoffset - 10'd62;
     yadj <= yoffset + (XMEN==1   ? 10'h107 :
                        simson    ? 10'h11f : 10'h10f); // Vendetta
-    vscl <= rd_pzoffset(vzoom);
-    hscl <= rd_pzoffset(hzoom);
+    vscl <= rd_pzoffset(vzoom[9:0]);
+    hscl <= rd_pzoffset(hzoom[9:0]);
     /* verilator lint_off WIDTH */
-    yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
+    yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
@@ -216,8 +217,8 @@ always @(posedge clk, posedge rst) begin : A
                 2: begin
                     x <= x-xadj;
                     y <= y+yadj;
-                    vzoom <= scan_even[9:0];
-                    hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
+                    vzoom <= {2'b0, scan_even[9:0]};
+                    hzoom <= sq ? {2'b0, scan_even[9:0]} : {2'b0, scan_odd[9:0]};
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;

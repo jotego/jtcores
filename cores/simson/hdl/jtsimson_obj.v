@@ -82,8 +82,9 @@ wire        dr_start, dr_busy;
 wire [15:0] code;
 wire [ 9:0] attr;     // OC pins
 wire        hflip, vflip, hz_keep, pre_cs;
-wire [ 9:0] hpos, hzoom;
+wire [ 9:0] hpos;
 wire [ 3:0] ysub;
+wire [11:0] hzoom;
 wire [31:0] sorted;
 wire        pen15;
 
@@ -172,7 +173,7 @@ jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
 
 jtframe_objdraw #(
     .AW(10),.CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
-    .ZW(10),.ZI(6),.ZENLARGE(1),
+    .ZW(12),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
     .rst        ( rst           ),
