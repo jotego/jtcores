@@ -390,6 +390,14 @@
     [
       "13c774c3-e317-40aa-83aa-547dd743c3fd",
       "main"
+    ],
+    [
+      "68b9c9f9-a176-4800-a80e-df09a8dcd740",
+      "daughter"
+    ],
+    [
+      "30c98d35-d1d0-4610-b5d9-988363f36305",
+      "sound"
     ]
   ],
   "text_variables": {}
