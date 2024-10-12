@@ -4,6 +4,10 @@
 	(generator_version "8.0")
 	(uuid "fdc5aa99-6ae2-4e3b-80fa-69a263aa7c58")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+		(comment 1 "Jose Tejada")
+	)
 	(lib_symbols
 		(symbol "74xx:74LS04"
 			(exclude_from_sim no)
@@ -11953,6 +11957,17 @@
 		)
 		(uuid "45f590dd-646a-4a42-bcef-2f2b39ffd1f7")
 	)
+	(label "BL0"
+		(at 355.6 213.36 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "489acf68-ecca-4cd4-861e-6c4f801c4f95")
+	)
 	(label "A12"
 		(at 90.17 71.12 180)
 		(fields_autoplaced yes)
@@ -12327,6 +12342,17 @@
 		)
 		(uuid "7047d32d-c353-48b4-8033-d4e8dc2b5333")
 	)
+	(label "BL3"
+		(at 355.6 205.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "70863de4-a0a7-4544-9c38-157960c125fd")
+	)
 	(label "A5"
 		(at 168.91 207.01 0)
 		(fields_autoplaced yes)
@@ -12337,6 +12363,17 @@
 			(justify left bottom)
 		)
 		(uuid "72f4d7c0-df2a-46f6-8fb0-860a95ea652e")
+	)
+	(label "BL5"
+		(at 355.6 200.66 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "744376f9-2a43-495b-981e-94cc1feda20e")
 	)
 	(label "D0"
 		(at 90.17 83.82 180)
@@ -12492,6 +12529,17 @@
 		)
 		(uuid "80b9212d-7909-4e18-af58-7cc59d5a7749")
 	)
+	(label "BL2"
+		(at 355.6 208.28 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "80dbf640-b261-480d-b582-371616ccb54d")
+	)
 	(label "SA2"
 		(at 279.4 54.61 0)
 		(fields_autoplaced yes)
@@ -12502,6 +12550,17 @@
 			(justify left bottom)
 		)
 		(uuid "814536ca-f520-45f8-8a9f-b6fd36ae27ef")
+	)
+	(label "BL6"
+		(at 355.6 198.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "81eddd2b-5d60-4e56-aa48-311df1fc56b3")
 	)
 	(label "A4"
 		(at 111.76 127 0)
@@ -12690,6 +12749,17 @@
 		)
 		(uuid "9afc7648-9cd0-4bef-8b7d-7590915f8b30")
 	)
+	(label "BL7"
+		(at 355.6 195.58 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9d81288e-9809-49c5-8dca-7a582ee7ab4c")
+	)
 	(label "D5"
 		(at 90.17 96.52 180)
 		(fields_autoplaced yes)
@@ -12711,6 +12781,17 @@
 			(justify right bottom)
 		)
 		(uuid "9f57a855-78bf-4725-a63d-c3b29a52e0dd")
+	)
+	(label "BL4"
+		(at 355.6 203.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9fa0dcdf-3aeb-4ef3-996f-559d27a5510c")
 	)
 	(label "RAM_A10"
 		(at 223.52 146.05 0)
@@ -12942,6 +13023,17 @@
 			(justify left bottom)
 		)
 		(uuid "b513bcc6-685b-41ae-a19b-479a49c2925f")
+	)
+	(label "BL1"
+		(at 355.6 210.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b5dd2b40-36b9-4728-9006-964cb9256253")
 	)
 	(label "SA9"
 		(at 279.4 72.39 0)

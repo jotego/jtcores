@@ -4,6 +4,10 @@
 	(generator_version "8.0")
 	(uuid "4fa2a531-debe-4d57-89d9-032759bc5c3f")
 	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+		(comment 1 "Jose Tejada")
+	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x22_Counter_Clockwise"
 			(pin_names

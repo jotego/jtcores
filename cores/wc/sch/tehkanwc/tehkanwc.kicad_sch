@@ -4,6 +4,11 @@
 	(generator_version "8.0")
 	(uuid "f324726e-ed6b-4b88-9562-4b07e126a276")
 	(paper "A3")
+	(title_block
+		(title "TEHKAN WORLD CUP")
+		(company "JOTEGO")
+		(comment 1 "Jose Tejada")
+	)
 	(lib_symbols)
 	(sheet
 		(at 64.135 42.545)
