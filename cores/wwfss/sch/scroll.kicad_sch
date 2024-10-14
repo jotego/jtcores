@@ -8,69 +8,8 @@
 		(company "JOTEGO")
 	)
 	(lib_symbols)
-	(bus
-		(pts
-			(xy 189.23 148.59) (xy 193.04 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "02105603-d0c4-45ce-a505-7ea8dbd0ef33")
-	)
-	(bus
-		(pts
-			(xy 311.15 148.59) (xy 311.15 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "232c5c6b-86f8-4727-8899-18b5be842f3d")
-	)
-	(bus
-		(pts
-			(xy 302.26 148.59) (xy 311.15 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2bf44d17-9590-4bdf-8180-58918fa79058")
-	)
-	(bus
-		(pts
-			(xy 189.23 160.02) (xy 189.23 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e179da8b-5589-45e9-964c-3d7dd2a2cb7a")
-	)
-	(bus
-		(pts
-			(xy 311.15 160.02) (xy 189.23 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e78adf16-6879-49e4-a285-fa89a1adec3b")
-	)
-	(label "RAW[0..15]"
-		(at 240.03 160.02 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1f96307b-36af-487a-8097-d87bb05499d4")
-	)
 	(sheet
-		(at 253.365 108.585)
+		(at 241.935 108.585)
 		(size 48.26 43.815)
 		(fields_autoplaced yes)
 		(stroke
@@ -82,7 +21,7 @@
 		)
 		(uuid "80439725-2fca-42c0-8039-dc406dce9f3d")
 		(property "Sheetname" "scroll ROM"
-			(at 253.365 107.8734 0)
+			(at 241.935 107.8734 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -91,23 +30,13 @@
 			)
 		)
 		(property "Sheetfile" "scrrom.kicad_sch"
-			(at 253.365 152.9846 0)
+			(at 241.935 152.9846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left top)
 			)
-		)
-		(pin "RAW[0..15]" output
-			(at 301.625 148.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "bf56a2a3-9729-4cd4-9c96-fd853d81425a")
 		)
 		(instances
 			(project "wwfsstar"
@@ -146,46 +75,6 @@
 				)
 				(justify left top)
 			)
-		)
-		(pin "MA[1..11]" input
-			(at 193.04 111.76 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "d604b813-db28-4d54-ac35-da121364811b")
-		)
-		(pin "MD[0..7]" input
-			(at 193.04 114.3 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "c54c33e0-8f48-4f00-b159-234b879d862a")
-		)
-		(pin "SCRPXL[0..6]" output
-			(at 231.14 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "95e0e776-c9ad-4a35-bc7a-38a1563108bc")
-		)
-		(pin "RAW[0..15]" input
-			(at 193.04 148.59 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "1fd7e22b-66bd-4729-a3bf-71912a164049")
 		)
 		(instances
 			(project "wwfsstar"

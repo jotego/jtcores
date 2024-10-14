@@ -5,6 +5,7 @@
 	(uuid "4fa2a531-debe-4d57-89d9-032759bc5c3f")
 	(paper "A3")
 	(title_block
+		(date "2024-10-12")
 		(company "JOTEGO")
 		(comment 1 "Jose Tejada")
 	)
@@ -6155,46 +6156,46 @@
 			)
 		)
 		(pin "6"
-			(uuid "286ff362-b849-4249-b594-15e660cec8e2")
+			(uuid "286ff362-b849-4249-b594-15e660cec8e3")
 		)
 		(pin "9"
-			(uuid "c0793532-c817-4c33-8d59-5435caadf09c")
+			(uuid "c0793532-c817-4c33-8d59-5435caadf09d")
 		)
 		(pin "5"
-			(uuid "9111ae92-448c-48ad-81e0-ca125b37dcc5")
+			(uuid "9111ae92-448c-48ad-81e0-ca125b37dcc6")
 		)
 		(pin "11"
 			(uuid "5e0ad9b2-a701-4ca7-bf04-071624c61b25")
 		)
 		(pin "10"
-			(uuid "b8b9648b-9847-4ad3-8a7f-c56c985b49a7")
+			(uuid "b8b9648b-9847-4ad3-8a7f-c56c985b49a8")
 		)
 		(pin "1"
-			(uuid "835045dd-2070-48ec-b018-eee7ccef5fc2")
+			(uuid "835045dd-2070-48ec-b018-eee7ccef5fc3")
 		)
 		(pin "7"
-			(uuid "75bea03d-dcdb-4ab6-9ed4-3134885f796d")
+			(uuid "75bea03d-dcdb-4ab6-9ed4-3134885f796e")
 		)
 		(pin "12"
 			(uuid "795cb336-564f-4ac7-b791-94077202ec03")
 		)
 		(pin "14"
-			(uuid "cde2ffc8-7ce2-42f3-8c2a-426f64bbd145")
+			(uuid "cde2ffc8-7ce2-42f3-8c2a-426f64bbd146")
 		)
 		(pin "13"
 			(uuid "ce733774-f72d-4d05-904d-3cea94c9bd4b")
 		)
 		(pin "4"
-			(uuid "0887624c-34d1-4712-89ab-ee17884d6598")
+			(uuid "0887624c-34d1-4712-89ab-ee17884d6599")
 		)
 		(pin "8"
-			(uuid "823b809e-570a-49fd-b071-8cfb47accba5")
+			(uuid "823b809e-570a-49fd-b071-8cfb47accba6")
 		)
 		(pin "2"
-			(uuid "9e10d8b9-83b8-44c4-87ee-9496795d98e1")
+			(uuid "9e10d8b9-83b8-44c4-87ee-9496795d98e2")
 		)
 		(pin "3"
-			(uuid "86ff554f-2ba7-4160-8ef6-0e2002cf5d12")
+			(uuid "86ff554f-2ba7-4160-8ef6-0e2002cf5d13")
 		)
 		(instances
 			(project ""

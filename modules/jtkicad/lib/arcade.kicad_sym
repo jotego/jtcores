@@ -26781,8 +26781,8 @@
 		)
 		(symbol "HM6116P-3_1_1"
 			(pin input line
-				(at -12.7 -2.54 0)
-				(length 5.08)
+				(at -10.16 -2.54 0)
+				(length 2.54)
 				(name "A7"
 					(effects
 						(font
@@ -26799,8 +26799,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 12.7 180)
-				(length 5.08)
+				(at 10.16 12.7 180)
+				(length 2.54)
 				(name "D1"
 					(effects
 						(font
@@ -26817,8 +26817,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 10.16 180)
-				(length 5.08)
+				(at 10.16 10.16 180)
+				(length 2.54)
 				(name "D2"
 					(effects
 						(font
@@ -26853,8 +26853,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 7.62 180)
-				(length 5.08)
+				(at 10.16 7.62 180)
+				(length 2.54)
 				(name "D3"
 					(effects
 						(font
@@ -26871,8 +26871,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 5.08 180)
-				(length 5.08)
+				(at 10.16 5.08 180)
+				(length 2.54)
 				(name "D4"
 					(effects
 						(font
@@ -26889,8 +26889,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 2.54 180)
-				(length 5.08)
+				(at 10.16 2.54 180)
+				(length 2.54)
 				(name "D5"
 					(effects
 						(font
@@ -26907,8 +26907,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 0 180)
-				(length 5.08)
+				(at 10.16 0 180)
+				(length 2.54)
 				(name "D6"
 					(effects
 						(font
@@ -26925,8 +26925,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 -2.54 180)
-				(length 5.08)
+				(at 10.16 -2.54 180)
+				(length 2.54)
 				(name "D7"
 					(effects
 						(font
@@ -26943,8 +26943,8 @@
 				)
 			)
 			(pin input inverted
-				(at -12.7 -12.7 0)
-				(length 5.08)
+				(at -10.16 -12.7 0)
+				(length 2.54)
 				(name "~{CS}"
 					(effects
 						(font
@@ -26961,8 +26961,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -10.16 0)
-				(length 5.08)
+				(at -10.16 -10.16 0)
+				(length 2.54)
 				(name "A10"
 					(effects
 						(font
@@ -26979,8 +26979,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 0 0)
-				(length 5.08)
+				(at -10.16 0 0)
+				(length 2.54)
 				(name "A6"
 					(effects
 						(font
@@ -26997,8 +26997,8 @@
 				)
 			)
 			(pin input inverted
-				(at -12.7 -15.24 0)
-				(length 5.08)
+				(at -10.16 -15.24 0)
+				(length 2.54)
 				(name "~{OE}"
 					(effects
 						(font
@@ -27015,8 +27015,8 @@
 				)
 			)
 			(pin input inverted
-				(at -12.7 -17.78 0)
-				(length 5.08)
+				(at -10.16 -17.78 0)
+				(length 2.54)
 				(name "~{WR}"
 					(effects
 						(font
@@ -27033,8 +27033,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -7.62 0)
-				(length 5.08)
+				(at -10.16 -7.62 0)
+				(length 2.54)
 				(name "A9"
 					(effects
 						(font
@@ -27051,8 +27051,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -5.08 0)
-				(length 5.08)
+				(at -10.16 -5.08 0)
+				(length 2.54)
 				(name "A8"
 					(effects
 						(font
@@ -27087,8 +27087,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 2.54 0)
-				(length 5.08)
+				(at -10.16 2.54 0)
+				(length 2.54)
 				(name "A5"
 					(effects
 						(font
@@ -27105,8 +27105,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 5.08 0)
-				(length 5.08)
+				(at -10.16 5.08 0)
+				(length 2.54)
 				(name "A4"
 					(effects
 						(font
@@ -27123,8 +27123,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 7.62 0)
-				(length 5.08)
+				(at -10.16 7.62 0)
+				(length 2.54)
 				(name "A3"
 					(effects
 						(font
@@ -27141,8 +27141,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 10.16 0)
-				(length 5.08)
+				(at -10.16 10.16 0)
+				(length 2.54)
 				(name "A2"
 					(effects
 						(font
@@ -27159,8 +27159,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 12.7 0)
-				(length 5.08)
+				(at -10.16 12.7 0)
+				(length 2.54)
 				(name "A1"
 					(effects
 						(font
@@ -27177,8 +27177,8 @@
 				)
 			)
 			(pin input line
-				(at -12.7 15.24 0)
-				(length 5.08)
+				(at -10.16 15.24 0)
+				(length 2.54)
 				(name "A0"
 					(effects
 						(font
@@ -27195,8 +27195,8 @@
 				)
 			)
 			(pin tri_state line
-				(at 12.7 15.24 180)
-				(length 5.08)
+				(at 10.16 15.24 180)
+				(length 2.54)
 				(name "D0"
 					(effects
 						(font

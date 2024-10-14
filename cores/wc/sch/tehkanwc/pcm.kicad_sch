@@ -6,6 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "PCM")
+		(date "2024-10-12")
 		(company "JOTEGO")
 		(comment 1 "Jose Tejada")
 	)
@@ -4068,17 +4069,6 @@
 		)
 		(uuid "2e6bdcc1-98a7-4cb6-9c31-7c1ae3869729")
 	)
-	(label "~{VCK}"
-		(at 186.69 57.15 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "323e345b-a29f-48b4-9e47-7a7d46ac8052")
-	)
 	(label "A7"
 		(at 74.93 66.04 0)
 		(fields_autoplaced yes)
@@ -4430,6 +4420,17 @@
 			(justify left bottom)
 		)
 		(uuid "d01a075a-4581-420b-b9d4-52d7ae170f37")
+	)
+	(label "~{VCK}"
+		(at 186.69 57.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d68a3589-c75c-4463-b233-8b843285fb50")
 	)
 	(label "VCC"
 		(at 116.84 203.2 0)
@@ -4800,7 +4801,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "43d09ad4-e7ce-4be5-ac53-52db3c057942")
-		(property "Reference" "C10"
+		(property "Reference" "C11"
 			(at 66.9641 130.81 0)
 			(effects
 				(font
@@ -4890,7 +4891,7 @@
 		(instances
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/30c98d35-d1d0-4610-b5d9-988363f36305/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
-					(reference "C10")
+					(reference "C11")
 					(unit 1)
 				)
 			)
@@ -4906,7 +4907,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "44a0198e-8280-44dd-99c7-132722f0de28")
-		(property "Reference" "C10"
+		(property "Reference" "C11"
 			(at 92.3641 105.41 0)
 			(effects
 				(font
@@ -4952,13 +4953,13 @@
 			)
 		)
 		(pin "1"
-			(uuid "ebef3ff5-58d8-4652-a7c4-aad51a487ea0")
+			(uuid "ebef3ff5-58d8-4652-a7c4-aad51a487ea1")
 		)
 		(pin "13"
 			(uuid "d300022c-56f7-47d4-81f1-69a068da699f")
 		)
 		(pin "6"
-			(uuid "509a5811-d46b-4872-adfe-c537ec7acf4d")
+			(uuid "509a5811-d46b-4872-adfe-c537ec7acf4e")
 		)
 		(pin "11"
 			(uuid "840a6378-f384-4b1a-b3d0-674d294f79ba")
@@ -4970,16 +4971,16 @@
 			(uuid "1af265b2-8f2b-4e2d-9012-1ebd01fcc6eb")
 		)
 		(pin "4"
-			(uuid "ada0519f-1adf-4436-af65-1ea0d80ff9ef")
+			(uuid "ada0519f-1adf-4436-af65-1ea0d80ff9f0")
 		)
 		(pin "5"
-			(uuid "1ba5fb3d-b922-489a-8406-68067e41a840")
+			(uuid "1ba5fb3d-b922-489a-8406-68067e41a841")
 		)
 		(pin "2"
-			(uuid "8f81df16-b2df-40dd-8536-f7b0b4e42c96")
+			(uuid "8f81df16-b2df-40dd-8536-f7b0b4e42c97")
 		)
 		(pin "3"
-			(uuid "07f55f7e-e2c2-4d58-9999-0c0d77be42b9")
+			(uuid "07f55f7e-e2c2-4d58-9999-0c0d77be42ba")
 		)
 		(pin "12"
 			(uuid "a656b151-82ad-4782-83bd-2546895e4057")
@@ -4988,15 +4989,15 @@
 			(uuid "163c6294-8bd8-4065-a400-d1d0beced750")
 		)
 		(pin "14"
-			(uuid "83fa2993-1016-42dc-a19f-e8dd7e41b53b")
+			(uuid "83fa2993-1016-42dc-a19f-e8dd7e41b53c")
 		)
 		(pin "7"
-			(uuid "ccd1108a-2b4c-446c-a624-2e75461d4b40")
+			(uuid "ccd1108a-2b4c-446c-a624-2e75461d4b41")
 		)
 		(instances
 			(project ""
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/30c98d35-d1d0-4610-b5d9-988363f36305/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
-					(reference "C10")
+					(reference "C11")
 					(unit 2)
 				)
 			)

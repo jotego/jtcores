@@ -388,7 +388,7 @@
       "Root"
     ],
     [
-      "13c774c3-e317-40aa-83aa-547dd743c3fd",
+      "ce2e45ed-9420-48d0-abac-7f86a96441fc",
       "main"
     ],
     [
@@ -402,6 +402,18 @@
     [
       "8c371e71-02fc-4545-8c26-6cfe33ac70c0",
       "PCM"
+    ],
+    [
+      "13c774c3-e317-40aa-83aa-547dd743c3fd",
+      "Sub CPU"
+    ],
+    [
+      "79b7d7c7-087d-4077-adee-602ec9d147f3",
+      "IO"
+    ],
+    [
+      "d9b21207-47cb-4667-9ae5-1560beb867f5",
+      "colmix"
     ]
   ],
   "text_variables": {}

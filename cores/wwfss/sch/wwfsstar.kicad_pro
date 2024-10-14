@@ -614,18 +614,6 @@
     [
       "acb5c676-080e-485c-9bec-146e406f7ba0",
       "scroll RAM"
-    ],
-    [
-      "ea3716db-9bc6-4fd3-9254-8e0b10711649",
-      "line buffer A"
-    ],
-    [
-      "7c0f081d-d530-41f1-8464-de2a25afea89",
-      "line buffer B"
-    ],
-    [
-      "e113b858-3544-4993-9178-395c78a81b30",
-      "Untilted"
     ]
   ],
   "text_variables": {}
