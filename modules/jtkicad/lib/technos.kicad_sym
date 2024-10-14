@@ -986,7 +986,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -12.065 28.575 270)
 				(length 5.08)
 				(name "57"
