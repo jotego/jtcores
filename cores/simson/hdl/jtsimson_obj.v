@@ -173,8 +173,8 @@ jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
 
 jtframe_objdraw #(
     .AW(10),.CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),.SHADOW_PEN (4'd15),
-    .ZW(12),.ZI(6),.ZENLARGE(1),.SHADOW(1),.SW(2),
-    .FLIP_OFFSET(9'h12),.KEEP_OLD(!XMEN)
+    .ZW(12),.ZI(6),.ZENLARGE(1),.SHADOW(XMEN),.SW(2),
+    .FLIP_OFFSET(9'h12),.KEEP_OLD(0)
 ) u_draw(
     .rst        ( rst           ),
     .clk        ( clk           ),
