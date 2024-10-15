@@ -93,8 +93,8 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset - 10'd62;
-    yadj <= yoffset + (XMEN==1   ? 10'h107 :
-                       simson    ? 10'h11f : 10'h10f); // Vendetta
+    yadj <= yoffset + (XMEN==1   ? 10'h0FF :
+                       simson    ? 10'h117 : 10'h107); // Vendetta
     vscl <= rd_pzoffset(vzoom[9:0]);
     hscl <= rd_pzoffset(hzoom[9:0]);
     /* verilator lint_off WIDTH */
@@ -125,7 +125,7 @@ endfunction
 always @* begin : B
     ymove     = zmove( vsz, vscl );
     y2        = y + {1'b0,ymove};
-    ydiff_b   = y2 + { vlatch[8], vlatch } - 10'd8;
+    ydiff_b   = y2 + { vlatch[8], vlatch };
     ydiff     = yz_add[6+:10];
     x2        = x - zmove( hsz, hscl );
     left_wrap = x2 < HDUMP_MIN;
@@ -150,7 +150,6 @@ always @* begin : B
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
-    if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
@@ -190,6 +189,7 @@ always @(posedge clk, posedge rst) begin : A
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
+            indr     <= 0;
             vlatch   <= vdump;
             if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
         end else if( !done ) begin
