@@ -91,7 +91,7 @@ assign ci2       = {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
 assign ci3       = {1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
 assign ci4       = {1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
 assign shad      =  shd_out[0];
-assign shd_in    = ~{1'b0,shadow};
+assign shd_in    = {1'b0,shadow};
 
 always @* begin
     // LUT generated with

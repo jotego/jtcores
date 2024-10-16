@@ -131,7 +131,7 @@ always @(posedge clk, posedge rst) begin
             pri4_mux <= op[4] ? 6'h3f :                  mmr[4]        ;
             pre_n <= op;
             cl0   <= ci0; cl1 <= ci1; cl2 <= ci2; cl3 <= ci3; cl4 <= ci4;
-            shd_l <= shd_in;
+            shd_l <= ~shd_in;
             // assign module outputs
             col_n   <= col4_n;
             cout    <= mix4;
