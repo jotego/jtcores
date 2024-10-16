@@ -59,7 +59,6 @@ module jtframe_obj_buffer #(parameter
 );
 
 localparam EW = SHADOW==1 ? DW-SW : DW;
-localparam SHD_PEN = SHADOW==1 ? SHADOW_PEN : ALPHA;
 
 reg     line, last_LHBL;
 wire    new_we;
@@ -72,10 +71,10 @@ wire [EW-1:0]       old;
 
 assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
     && ((old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0]  /*||
-         (old[ALPHAW-1:0]==SHD_PEN[ALPHAW-1:0] && SHD_PEN!=ALPHA && wr_data[ALPHAW-1:0]!=SHD_PEN[ALPHAW-1:0] )*/
+         (old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0] && SHADOW_PEN!=ALPHA && wr_data[ALPHAW-1:0]!=SHADOW_PEN[ALPHAW-1:0] )*/
          ) || (KEEP_OLD==0 &&
-           ( wr_data[ALPHAW-1:0] != SHD_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHD_PEN[ALPHAW-1:0]
-            || SHD_PEN==ALPHA )));
+           ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]) && SHADOW==1
+            || SHADOW==0 )));
 
 
 `ifdef SIMULATION
