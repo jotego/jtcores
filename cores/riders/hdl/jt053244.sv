@@ -43,7 +43,7 @@ module jt053244(    // sprite logic
     output     [ 6:0] attr,     // OC pins
     output            hflip,
     output            vflip,
-    output     [ 8:0] hpos,
+    output     [ 9:0] hpos,
     output     [ 3:0] ysub,
     output     [11:0] hzoom,
     output            hz_keep,
