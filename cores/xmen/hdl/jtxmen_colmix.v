@@ -86,7 +86,7 @@ assign ci2       = {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]};
 assign ci3       =  lyrf_pxl ;
 assign ci4       =  8'd1;
 assign shad      = |shd_out;
-assign shd_in    = ~shadow;
+assign shd_in    =  shadow;
 
 function [7:0] conv58(input [4:0] cin );
 begin
