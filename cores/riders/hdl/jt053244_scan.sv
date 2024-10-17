@@ -26,7 +26,7 @@
     output reg [ 6:0] attr,     // OC pins
     output            hflip,
     output reg        vflip,
-    output reg [ 8:0] hpos,
+    output reg [ 9:0] hpos,
     output     [ 3:0] ysub,
     output reg [11:0] hzoom,
     output reg        hz_keep,
@@ -244,13 +244,13 @@ always @(posedge clk, posedge rst) begin
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos <= x[8:0] - zmove( hsz, hscl );
+                            hpos <= x - zmove( hsz, hscl );
                         end else begin
-                            hpos <= hpos + 9'h10;
+                            hpos <= hpos + 10'h10;
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
-                        dr_start <= inzone; //ELIMINAR
+                        dr_start <= inzone;
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
