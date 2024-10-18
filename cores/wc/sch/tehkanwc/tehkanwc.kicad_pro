@@ -388,32 +388,36 @@
       "Root"
     ],
     [
-      "ce2e45ed-9420-48d0-abac-7f86a96441fc",
-      "main"
-    ],
-    [
-      "68b9c9f9-a176-4800-a80e-df09a8dcd740",
-      "daughter"
-    ],
-    [
-      "30c98d35-d1d0-4610-b5d9-988363f36305",
-      "sound"
-    ],
-    [
       "8c371e71-02fc-4545-8c26-6cfe33ac70c0",
       "PCM"
     ],
     [
-      "13c774c3-e317-40aa-83aa-547dd743c3fd",
+      "4d18f4f6-4d7d-4823-941f-121a8e5c871f",
+      "cpu board"
+    ],
+    [
+      "34c66f42-7f31-4ae9-9ef6-6e02db74328b",
+      "main"
+    ],
+    [
+      "75d7e101-1278-407c-8f4b-0f33d684a4f2",
       "Sub CPU"
     ],
     [
-      "79b7d7c7-087d-4077-adee-602ec9d147f3",
+      "eb832736-668d-4d93-b9f8-a6b23c332c31",
       "IO"
     ],
     [
-      "d9b21207-47cb-4667-9ae5-1560beb867f5",
+      "f5c89deb-0116-4082-be0f-a6d873b63c74",
+      "sound"
+    ],
+    [
+      "e275c20e-58da-4787-bf27-1e3b67330979",
       "colmix"
+    ],
+    [
+      "a745fe08-f35b-4052-a91d-9eddb9b2ed0d",
+      "daughter"
     ]
   ],
   "text_variables": {}
