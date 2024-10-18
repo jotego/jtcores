@@ -138,7 +138,7 @@ always @(posedge clk) begin
         shl      <= 0;
     end else begin
         if( pxl_cen ) begin
-            shl <= k251_en ? k251_shd[0] : shad;
+            shl <= k251_en ? ~k251_shd[0] : shad;
             bgr <= dim( pal_dout[14:0], shl);
         end
     end
