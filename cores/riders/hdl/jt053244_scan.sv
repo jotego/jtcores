@@ -59,7 +59,7 @@
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, ywrap, yw0;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
 reg  [ 8:0] vlatch, ymove, full_h, vscl, hscl, full_w;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg  [ 3:0] size;
@@ -86,7 +86,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset + 10'h66 ;
-    yadj <= yoffset + 10'h10f;
+    yadj <= yoffset + 10'h107;
     vscl <= rd_pzoffset(vzoom);
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */
@@ -94,8 +94,6 @@ always @(posedge clk) begin
                                    // opposite to the one in Aliens, which always
                                    // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
-    yw0   = y + yadj;
-    ywrap = yw0 > 10'h200 ? yw0 + 10'h1A0 : yw0;
 end
 
 function [8:0] zmove( input [1:0] sz, input[8:0] scl );
@@ -121,7 +119,7 @@ endfunction
 always @* begin
     ymove  = zmove( vsz, vscl );
     y2     = y + {1'b0,ymove};
-    ydiff_b= y2 + { vlatch[8], vlatch } - 10'd8;
+    ydiff_b= y2 + { vlatch[8], vlatch };
     ydiff  = yz_add[6+:10];
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
@@ -144,7 +142,6 @@ always @* begin
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
-    if( y[9] ) inzone=0;
     case( hsz )
         0: hsum = 0;
         1: hsum = hmir ? 3'd0                           : {2'd0,hstep[0]^hflip};
@@ -212,7 +209,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     x <=  x+xadj;
-                    y <=  ywrap;
+                    y <=  y+yadj;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
                 end
