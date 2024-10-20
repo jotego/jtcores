@@ -35,8 +35,8 @@ names = [
     { machine="desertbr",   names="Shot,Speed Run,Bomb" },
     { machine="hamaway",    names="Land Shot,Air Shot with Missile,Bomb" },
     { machine="lghost",     names="Laser Gun,Special Weapon" },
-    { machine="mwalk",      names="Shot,Dance with Bomb" },
-    { machine="shdancer",   names="Attack,Jump,Magic with Bomb" },
+    { machine="mwalk",      names="Shot,Dance" },
+    { machine="shdancer",   names="Attack,Jump,Ninja Magic" },
     { machine="wwallyj",    names="Confirm" },
 ]
 
