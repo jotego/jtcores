@@ -3234,6 +3234,16 @@
 	)
 	(wire
 		(pts
+			(xy 64.77 148.59) (xy 64.77 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d00c71e-5292-451e-94ba-547eb8c8b8a1")
+	)
+	(wire
+		(pts
 			(xy 74.93 55.88) (xy 80.01 55.88)
 		)
 		(stroke
@@ -4520,6 +4530,18 @@
 			(justify right)
 		)
 		(uuid "3f731707-23d8-447d-8518-ff6d7fe59b27")
+	)
+	(hierarchical_label "~{MUTE}"
+		(shape input)
+		(at 64.77 151.13 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c4fbed1d-2fa6-4aad-8026-e3d89061e048")
 	)
 	(hierarchical_label "BL0"
 		(shape input)

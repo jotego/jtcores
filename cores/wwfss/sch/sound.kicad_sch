@@ -8064,6 +8064,14 @@
 		(uuid "053b0731-d0b8-4cb8-946c-985fcbb7bd9e")
 	)
 	(no_connect
+		(at 138.43 271.78)
+		(uuid "1dc95c8f-04c5-4ca0-ab31-e681805f72c1")
+	)
+	(no_connect
+		(at 146.05 279.4)
+		(uuid "2e845fc7-62ab-4429-8ba4-2e9eab9dc5f0")
+	)
+	(no_connect
 		(at 115.57 102.87)
 		(uuid "388ba7e6-ec78-4f4a-8b0b-d0b224007ffe")
 	)
@@ -8088,6 +8096,10 @@
 		(uuid "9b147c98-258e-4273-a90f-b46acf2dc40f")
 	)
 	(no_connect
+		(at 146.05 264.16)
+		(uuid "9e9d7829-9163-473d-8f46-f16e4c8e99eb")
+	)
+	(no_connect
 		(at 68.58 91.44)
 		(uuid "c6c07b11-6801-411f-b02e-b3e20857b310")
 	)
@@ -8100,8 +8112,20 @@
 		(uuid "e3d1f129-1ac6-4a25-a474-df1af388b74e")
 	)
 	(no_connect
+		(at 153.67 274.32)
+		(uuid "e79202ce-1a56-4434-8a4e-66259c5476b2")
+	)
+	(no_connect
 		(at 115.57 67.31)
 		(uuid "e8354b41-9e82-4fe8-8a57-1f4845da0588")
+	)
+	(no_connect
+		(at 153.67 269.24)
+		(uuid "ef2dec6d-98b0-4a69-931a-3bd5fe484d6e")
+	)
+	(no_connect
+		(at 138.43 269.24)
+		(uuid "f4132bb9-d63f-4ef2-90af-e1656bd83b63")
 	)
 	(no_connect
 		(at 100.33 208.28)
@@ -13690,288 +13714,6 @@
 			(type default)
 		)
 		(uuid "ff69d2b8-7403-42a3-bdb7-c8c145be3519")
-	)
-	(rectangle
-		(start 236.22 97.79)
-		(end 248.92 104.14)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid 05ca1b5f-7a52-48f9-8454-67299f569859)
-	)
-	(rectangle
-		(start 349.25 115.57)
-		(end 361.95 121.92)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid 2549ae75-4312-4f2b-882e-3a4216468b4b)
-	)
-	(rectangle
-		(start 95.25 215.9)
-		(end 107.95 222.25)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid 3853a2ee-2c42-4588-8bea-afb567515f85)
-	)
-	(rectangle
-		(start 199.39 140.97)
-		(end 212.09 147.32)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid 569aa99e-4351-4126-9521-1eb0442402cb)
-	)
-	(rectangle
-		(start 147.32 106.68)
-		(end 160.02 113.03)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid 9ad82014-9cba-47bc-8e63-2c18e4806cfe)
-	)
-	(rectangle
-		(start 137.16 260.35)
-		(end 156.21 280.67)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid ae8275f9-d34f-42e5-bcd0-749084139866)
-	)
-	(rectangle
-		(start 143.51 201.93)
-		(end 156.21 208.28)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid c2f7b889-6138-4986-8e66-85afb8267850)
-	)
-	(rectangle
-		(start 198.12 198.12)
-		(end 210.82 204.47)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid c87cf5dd-071d-48a8-b0db-ded24b3f0528)
-	)
-	(rectangle
-		(start 67.31 161.29)
-		(end 80.01 167.64)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid cb5eb81e-52af-40db-bcf8-756c2d36e29d)
-	)
-	(rectangle
-		(start 193.04 33.02)
-		(end 205.74 39.37)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid d940363b-43a6-4ba2-bec3-cee5b7aa853d)
-	)
-	(rectangle
-		(start 276.86 97.79)
-		(end 289.56 104.14)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type color)
-			(color 255 255 255 1)
-		)
-		(uuid f8060f0d-3078-4369-8f68-8494b9c07b7c)
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 67.31 166.37 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "1b6a7b47-f10a-40d5-a83f-f77653019399")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 349.25 120.65 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "24af3edf-7227-4591-8e76-588d7fa7344e")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 193.04 38.1 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "27fd78ab-3c09-4e9a-8f2e-0a3e247ebeee")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 199.39 146.05 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "3e8b53d2-24bc-4514-8f32-d01960ad8aa5")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 236.22 102.87 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "9d1c1c9a-6a5d-4d83-ad22-366db5029436")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 147.32 111.76 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "adba178e-b9ef-4390-97fd-07ae55efd00c")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 198.12 203.2 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "af828876-6fc8-4cbd-b51c-6ba28ebc255f")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 143.51 207.01 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "b3d97bf5-85c7-4c73-a72b-7484d11fa300")
-	)
-	(text "Inconexo?"
-		(exclude_from_sim no)
-		(at 152.4 259.08 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "b4c0ac68-7e6f-46f5-87bc-3cc82bfcbd49")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 276.86 102.87 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "b738be41-db05-4896-956d-b97b6d45940f")
-	)
-	(text "DONE"
-		(exclude_from_sim no)
-		(at 95.25 220.98 0)
-		(effects
-			(font
-				(size 3 3)
-				(thickness 0.254)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "dd74cdfc-d6cc-4d19-9eb1-780fa16638a5")
 	)
 	(label "VSS"
 		(at 200.66 85.09 180)

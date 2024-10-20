@@ -207,7 +207,7 @@
         0,
         2,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -233,7 +233,7 @@
       ],
       [
         0,
-        1,
+        0,
         0,
         0,
         0,
@@ -531,6 +531,14 @@
       "version": 1
     },
     "net_format_name": "",
+    "ngspice": {
+      "fix_include_paths": true,
+      "meta": {
+        "version": 0
+      },
+      "model_mode": 4,
+      "workbook_filename": ""
+    },
     "page_layout_descr_file": "",
     "plot_directory": "/home/emartin/Descargas/",
     "spice_current_sheet_as_root": false,
@@ -622,10 +630,6 @@
     [
       "7c0f081d-d530-41f1-8464-de2a25afea89",
       "line buffer B"
-    ],
-    [
-      "e113b858-3544-4993-9178-395c78a81b30",
-      "Untilted"
     ]
   ],
   "text_variables": {}

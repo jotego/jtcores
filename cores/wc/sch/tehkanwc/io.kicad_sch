@@ -5,6 +5,7 @@
 	(uuid "db5d2297-8d1a-4544-be0a-85f90bb0c7fa")
 	(paper "A3")
 	(title_block
+		(title "Cabinet Input/Output")
 		(date "2024-10-12")
 		(company "JOTEGO")
 		(comment 1 "Jose Tejada")
