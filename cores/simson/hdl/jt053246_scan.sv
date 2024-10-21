@@ -68,7 +68,7 @@ reg  [18:0] yz_add;
 reg  [11:0] vzoom;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
-reg  [ 7:0] scan_obj; // max 256 objects
+reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
@@ -198,6 +198,7 @@ always @(posedge clk, posedge rst) begin : A
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
+                    // zcode   <= scan_even[7:0];
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
