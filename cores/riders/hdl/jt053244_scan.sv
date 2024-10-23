@@ -87,7 +87,6 @@ always @(negedge clk) cen2 <= ~cen2;
 always @(posedge clk) begin
     xadj <= xoffset + 10'h66 ;
     yadj <= yoffset + 10'h107;
-    vscl <= rd_pzoffset(vzoom);
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
@@ -123,10 +122,10 @@ always @* begin
     ydiff  = yz_add[6+:10];
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3];
-        1: vmir_eff = nx_mir[1] && ydiff[4];
-        2: vmir_eff = nx_mir[1] && ydiff[5];
-        3: vmir_eff = nx_mir[1] && ydiff[6];
+        0: vmir_eff = nx_mir[1] && ydiff[3] && ydiff[9:4]==0;
+        1: vmir_eff = nx_mir[1] && ydiff[4] && ydiff[9:5]==0;
+        2: vmir_eff = nx_mir[1] && ydiff[5] && ydiff[9:6]==0;
+        3: vmir_eff = nx_mir[1] && ydiff[6] && ydiff[9:7]==0;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -212,6 +211,7 @@ always @(posedge clk, posedge rst) begin
                     y <=  y+yadj;
                     vzoom <= scan_even[11:0];
                     hzoom <= sq ? scan_even[11:0] : scan_odd[11:0];
+                    vscl <= rd_pzoffset(scan_even[11:0]);
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
