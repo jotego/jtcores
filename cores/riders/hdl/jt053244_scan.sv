@@ -74,7 +74,7 @@ reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
 reg  [ 6:0] pri;
 
-assign hflip     = ghf ^ pre_hf ^ hmir_eff;
+assign hflip     = (ghf ^ pre_hf)&!hmir | hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub      = ydiff[3:0];
 assign last_obj  = &scan_obj[6:0];
