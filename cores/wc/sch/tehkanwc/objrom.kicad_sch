@@ -3100,19 +3100,19 @@
 		)
 	)
 	(junction
-		(at 160.02 41.91)
+		(at 154.94 68.58)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "38d5b7ab-832e-40c1-abc1-ff957dd5c375")
 	)
 	(junction
-		(at 118.11 41.91)
+		(at 113.03 68.58)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a695bf20-c1b5-4c1b-b6dc-6cf94da90cdc")
 	)
 	(junction
-		(at 160.02 59.69)
+		(at 154.94 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ea21d894-4888-4327-b8c0-8ad9ca1a8acd")
@@ -3277,7 +3277,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 64.77) (xy 168.91 64.77)
+			(xy 154.94 91.44) (xy 163.83 91.44)
 		)
 		(stroke
 			(width 0)
@@ -3337,7 +3337,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 44.45) (xy 187.96 44.45)
+			(xy 179.07 71.12) (xy 182.88 71.12)
 		)
 		(stroke
 			(width 0)
@@ -3357,7 +3357,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 67.31) (xy 187.96 67.31)
+			(xy 179.07 93.98) (xy 182.88 93.98)
 		)
 		(stroke
 			(width 0)
@@ -3367,7 +3367,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 41.91) (xy 118.11 41.91)
+			(xy 109.22 68.58) (xy 113.03 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3407,7 +3407,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 41.91) (xy 168.91 41.91)
+			(xy 154.94 68.58) (xy 163.83 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3487,7 +3487,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 41.91) (xy 125.73 41.91)
+			(xy 113.03 68.58) (xy 120.65 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3547,7 +3547,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 33.02) (xy 187.96 33.02)
+			(xy 179.07 59.69) (xy 182.88 59.69)
 		)
 		(stroke
 			(width 0)
@@ -3597,7 +3597,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 41.91) (xy 118.11 54.61)
+			(xy 113.03 68.58) (xy 113.03 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3637,7 +3637,7 @@
 	)
 	(wire
 		(pts
-			(xy 162.56 54.61) (xy 168.91 54.61)
+			(xy 157.48 81.28) (xy 163.83 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3647,7 +3647,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 35.56) (xy 168.91 35.56)
+			(xy 154.94 62.23) (xy 163.83 62.23)
 		)
 		(stroke
 			(width 0)
@@ -3767,7 +3767,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 41.91) (xy 160.02 41.91)
+			(xy 149.86 68.58) (xy 154.94 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3887,7 +3887,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 59.69) (xy 160.02 64.77)
+			(xy 154.94 86.36) (xy 154.94 91.44)
 		)
 		(stroke
 			(width 0)
@@ -4067,7 +4067,7 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 57.15) (xy 144.78 57.15)
+			(xy 135.89 83.82) (xy 139.7 83.82)
 		)
 		(stroke
 			(width 0)
@@ -4097,7 +4097,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 59.69) (xy 168.91 59.69)
+			(xy 154.94 86.36) (xy 163.83 86.36)
 		)
 		(stroke
 			(width 0)
@@ -4217,7 +4217,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 41.91) (xy 118.11 34.29)
+			(xy 113.03 68.58) (xy 113.03 60.96)
 		)
 		(stroke
 			(width 0)
@@ -4267,7 +4267,7 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 59.69) (xy 125.73 59.69)
+			(xy 114.3 86.36) (xy 120.65 86.36)
 		)
 		(stroke
 			(width 0)
@@ -4287,7 +4287,7 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 46.99) (xy 125.73 46.99)
+			(xy 114.3 73.66) (xy 120.65 73.66)
 		)
 		(stroke
 			(width 0)
@@ -4377,7 +4377,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 34.29) (xy 125.73 34.29)
+			(xy 113.03 60.96) (xy 120.65 60.96)
 		)
 		(stroke
 			(width 0)
@@ -4407,7 +4407,7 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 31.75) (xy 144.78 31.75)
+			(xy 135.89 58.42) (xy 139.7 58.42)
 		)
 		(stroke
 			(width 0)
@@ -4457,7 +4457,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 35.56) (xy 160.02 41.91)
+			(xy 154.94 62.23) (xy 154.94 68.58)
 		)
 		(stroke
 			(width 0)
@@ -4517,7 +4517,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 57.15) (xy 187.96 57.15)
+			(xy 179.07 83.82) (xy 182.88 83.82)
 		)
 		(stroke
 			(width 0)
@@ -4557,7 +4557,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 54.61) (xy 125.73 54.61)
+			(xy 113.03 81.28) (xy 120.65 81.28)
 		)
 		(stroke
 			(width 0)
@@ -4567,7 +4567,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 41.91) (xy 160.02 59.69)
+			(xy 154.94 68.58) (xy 154.94 86.36)
 		)
 		(stroke
 			(width 0)
@@ -4577,7 +4577,7 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 44.45) (xy 144.78 44.45)
+			(xy 135.89 71.12) (xy 139.7 71.12)
 		)
 		(stroke
 			(width 0)
@@ -4652,7 +4652,7 @@
 		(uuid "1e3c9662-b2a5-4a27-8a95-80e398efafc8")
 	)
 	(label "A3"
-		(at 187.96 67.31 180)
+		(at 182.88 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4751,7 +4751,7 @@
 		(uuid "35c0df16-141c-4912-abe3-6e45e9131986")
 	)
 	(label "A2"
-		(at 187.96 33.02 180)
+		(at 182.88 59.69 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4784,7 +4784,7 @@
 		(uuid "3f802dae-6115-44e4-a5a5-272a67085972")
 	)
 	(label "A6"
-		(at 187.96 57.15 180)
+		(at 182.88 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4806,7 +4806,7 @@
 		(uuid "447b9687-798b-45d5-884e-fb4ad8fb94b4")
 	)
 	(label "F13_1"
-		(at 162.56 54.61 0)
+		(at 157.48 81.28 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4817,7 +4817,7 @@
 		(uuid "463c0fef-ac86-470c-8e15-057fe3ec7d00")
 	)
 	(label "A1"
-		(at 144.78 57.15 180)
+		(at 139.7 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5037,7 +5037,7 @@
 		(uuid "7ca996c5-ca11-47de-b15c-eba16226b0a2")
 	)
 	(label "D15_11"
-		(at 119.38 59.69 0)
+		(at 114.3 86.36 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5158,7 +5158,7 @@
 		(uuid "ac73ab8c-ada3-481e-a3ee-26390f251691")
 	)
 	(label "A4"
-		(at 187.96 44.45 180)
+		(at 182.88 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5290,7 +5290,7 @@
 		(uuid "cc53bc1d-1f35-4835-a76c-dc1dd2957458")
 	)
 	(label "A0"
-		(at 144.78 44.45 180)
+		(at 139.7 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5323,7 +5323,7 @@
 		(uuid "db6e4926-6d9a-41af-955f-d8f3ac7c0787")
 	)
 	(label "A5"
-		(at 144.78 31.75 180)
+		(at 139.7 58.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5378,7 +5378,7 @@
 		(uuid "e847f39d-df49-40fc-add4-57eeb25f38e6")
 	)
 	(label "D15_15"
-		(at 119.38 46.99 0)
+		(at 114.3 73.66 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5426,7 +5426,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 133.35 44.45 0)
+		(at 128.27 71.12 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5434,7 +5434,7 @@
 		(dnp no)
 		(uuid "0a22576a-bc69-49b0-bfeb-bb65da6f9e60")
 		(property "Reference" "VE13"
-			(at 133.35 44.45 0)
+			(at 128.27 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5442,7 +5442,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 133.0452 38.1 0)
+			(at 127.9652 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5451,7 +5451,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 133.35 44.45 0)
+			(at 128.27 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5460,7 +5460,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 133.35 44.45 0)
+			(at 128.27 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5469,7 +5469,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 133.35 44.45 0)
+			(at 128.27 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5912,7 +5912,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 133.35 31.75 0)
+		(at 128.27 58.42 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5920,7 +5920,7 @@
 		(dnp no)
 		(uuid "4b95073e-79d8-4c49-8b23-c43989c15fce")
 		(property "Reference" "VF13"
-			(at 133.35 31.75 0)
+			(at 128.27 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5928,7 +5928,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 133.0452 25.4 0)
+			(at 127.9652 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5937,7 +5937,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 133.35 31.75 0)
+			(at 128.27 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5946,7 +5946,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 133.35 31.75 0)
+			(at 128.27 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5955,7 +5955,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 133.35 31.75 0)
+			(at 128.27 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6442,7 +6442,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 133.35 57.15 0)
+		(at 128.27 83.82 0)
 		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
@@ -6451,7 +6451,7 @@
 		(dnp no)
 		(uuid "8e25d1c5-4829-4958-8aed-0568759bb11d")
 		(property "Reference" "VE13"
-			(at 133.35 57.15 0)
+			(at 128.27 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6459,7 +6459,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 133.0452 63.5 0)
+			(at 127.9652 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6468,7 +6468,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 133.35 57.15 0)
+			(at 128.27 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6477,7 +6477,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 133.35 57.15 0)
+			(at 128.27 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6486,7 +6486,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 133.35 57.15 0)
+			(at 128.27 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6650,7 +6650,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 176.53 44.45 0)
+		(at 171.45 71.12 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6658,7 +6658,7 @@
 		(dnp no)
 		(uuid "9dfd1ff7-a2f0-4f07-97b6-5c12af2003d7")
 		(property "Reference" "VF13"
-			(at 176.53 44.45 0)
+			(at 171.45 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6666,7 +6666,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 176.2252 38.1 0)
+			(at 171.1452 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6675,7 +6675,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 176.53 44.45 0)
+			(at 171.45 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6684,7 +6684,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 176.53 44.45 0)
+			(at 171.45 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6693,7 +6693,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 176.53 44.45 0)
+			(at 171.45 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6754,7 +6754,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 176.53 57.15 0)
+		(at 171.45 83.82 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6762,7 +6762,7 @@
 		(dnp no)
 		(uuid "a0726e51-5b7d-4142-8750-3e4a45223966")
 		(property "Reference" "VF13"
-			(at 176.53 57.15 0)
+			(at 171.45 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6770,7 +6770,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 176.2252 50.8 0)
+			(at 171.1452 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6779,7 +6779,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 176.53 57.15 0)
+			(at 171.45 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6788,7 +6788,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 176.53 57.15 0)
+			(at 171.45 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6797,7 +6797,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 176.53 57.15 0)
+			(at 171.45 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6858,7 +6858,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 176.53 33.02 0)
+		(at 171.45 59.69 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6866,7 +6866,7 @@
 		(dnp no)
 		(uuid "a3eb658f-afdb-4764-bce7-d7e5028fcbad")
 		(property "Reference" "VE13"
-			(at 176.53 33.02 0)
+			(at 171.45 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6874,7 +6874,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 176.2252 26.67 0)
+			(at 171.1452 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6883,7 +6883,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 176.53 33.02 0)
+			(at 171.45 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6892,7 +6892,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 176.53 33.02 0)
+			(at 171.45 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6901,7 +6901,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 176.53 33.02 0)
+			(at 171.45 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6962,7 +6962,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 176.53 67.31 0)
+		(at 171.45 93.98 0)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6970,7 +6970,7 @@
 		(dnp no)
 		(uuid "a4578450-9003-43a6-88c3-166e9e1c4d25")
 		(property "Reference" "VF13"
-			(at 176.53 67.31 0)
+			(at 171.45 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6978,7 +6978,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 176.2252 60.96 0)
+			(at 171.1452 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6987,7 +6987,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 176.53 67.31 0)
+			(at 171.45 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6996,7 +6996,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 176.53 67.31 0)
+			(at 171.45 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7005,7 +7005,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 176.53 67.31 0)
+			(at 171.45 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)

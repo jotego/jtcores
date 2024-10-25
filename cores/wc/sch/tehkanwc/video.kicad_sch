@@ -4533,6 +4533,18 @@
 		)
 		(uuid "d40156c1-d6b2-4b38-8414-5bcf25710bce")
 	)
+	(hierarchical_label "J2_23"
+		(shape input)
+		(at 316.23 170.18 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e62ba462-c9ea-4ffa-8ad8-03e3c1662273")
+	)
 	(hierarchical_label "SxD8"
 		(shape input)
 		(at 287.02 157.48 180)
@@ -5089,6 +5101,16 @@
 				(justify left)
 			)
 			(uuid "adf3356d-0c36-47db-8d60-4df583cc5fb8")
+		)
+		(pin "PH1" output
+			(at 189.23 156.21 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "ce0aa70e-ac57-40d1-9caf-e50e98b571bf")
 		)
 		(instances
 			(project "tehkanwc"
