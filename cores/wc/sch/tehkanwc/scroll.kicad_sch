@@ -3,11 +3,484 @@
 	(generator "eeschema")
 	(generator_version "8.0")
 	(uuid "de98edec-cd48-49e5-831d-c3dd135feac0")
-	(paper "A4")
+	(paper "A3")
 	(title_block
+		(title "Scroll Subsystem")
 		(date "2024-10-12")
 		(company "JOTEGO")
 		(comment 1 "Jose Tejada")
 	)
 	(lib_symbols)
+	(bus
+		(pts
+			(xy 240.03 130.81) (xy 250.19 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "075af5dc-5c2f-4711-bafc-5b2d4ec8ae8b")
+	)
+	(bus
+		(pts
+			(xy 144.78 128.27) (xy 151.13 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09804e28-5d2e-4ce0-9822-586d9418b83d")
+	)
+	(wire
+		(pts
+			(xy 187.96 133.35) (xy 203.2 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18aeb651-fcfb-4cb1-96c1-a15da110ee21")
+	)
+	(bus
+		(pts
+			(xy 144.78 142.24) (xy 151.13 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39bf35d8-69bd-41c4-baa0-84cd99a05f57")
+	)
+	(wire
+		(pts
+			(xy 144.78 144.78) (xy 151.13 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "687264b7-9aeb-4098-83ca-a9dc61b748b0")
+	)
+	(bus
+		(pts
+			(xy 187.96 149.86) (xy 198.12 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75566d15-e6ce-4615-bd8f-e513f573553d")
+	)
+	(wire
+		(pts
+			(xy 144.78 152.4) (xy 151.13 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "821bbd5a-b73b-41e4-9cfd-98ae028b99ec")
+	)
+	(wire
+		(pts
+			(xy 187.96 135.89) (xy 203.2 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d62b0e6-9c5c-49b4-b934-490c69f4d37a")
+	)
+	(bus
+		(pts
+			(xy 187.96 130.81) (xy 203.2 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1179bd3-3980-40dd-a4ed-a63e2688b556")
+	)
+	(bus
+		(pts
+			(xy 144.78 130.81) (xy 151.13 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e6927b2e-15da-4c9b-8460-bde3f05d5c30")
+	)
+	(label "PXL[0..3]"
+		(at 250.19 130.81 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8126db47-d926-458a-a69f-2064e7352310")
+	)
+	(label "PXL[4..7]"
+		(at 198.12 149.86 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c68dfe5d-0e41-411e-865c-bfffe7bce152")
+	)
+	(hierarchical_label "~{H8}"
+		(shape input)
+		(at 144.78 144.78 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "141954be-8d49-41b7-81b0-b5c9ed0b9417")
+	)
+	(hierarchical_label "HF[0..7]"
+		(shape input)
+		(at 144.78 142.24 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1ac2eb3b-de56-42e2-96df-7170645cdee1")
+	)
+	(hierarchical_label "~{RD}"
+		(shape input)
+		(at 144.78 152.4 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3d5e944b-55af-4f82-b828-fa433d8d1b40")
+	)
+	(hierarchical_label "DD[0..7]"
+		(shape bidirectional)
+		(at 144.78 128.27 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3eeb6cfa-6085-4982-adad-7f376e08e0fb")
+	)
+	(hierarchical_label "PXL[0..7]"
+		(shape output)
+		(at 254 130.81 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5b479e77-3b08-445d-8d3c-474ce034b686")
+	)
+	(hierarchical_label "AB[0..10]"
+		(shape input)
+		(at 144.78 130.81 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d330a24a-48eb-4d4a-add7-be23305f7105")
+	)
+	(sheet
+		(at 203.2 127)
+		(size 36.83 16.51)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "dae497ed-9ff7-4b2f-a5b5-a16fd04d64b3")
+		(property "Sheetname" "scroll ROM"
+			(at 203.2 126.2884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "scrrom.kicad_sch"
+			(at 203.2 144.0946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "P[0..3]" output
+			(at 240.03 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "be861c43-576b-4f4e-8269-de08fc9b5c27")
+		)
+		(pin "CODE[0..9]" input
+			(at 203.2 130.81 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "6e3dae94-7175-464c-aeb6-1dfedb8287bd")
+		)
+		(pin "VFLIP" input
+			(at 203.2 135.89 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "f2ee92b4-ae8f-4ddf-9229-45aa994b1b4f")
+		)
+		(pin "HFLIP" input
+			(at 203.2 133.35 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "f682f9dc-7a8d-4fa0-a3f8-b735ca9de427")
+		)
+		(pin "H[0..2]" input
+			(at 203.2 138.43 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "9a31ff8c-9238-49b7-997e-2a4184207e9d")
+		)
+		(pin "V[0..2]" input
+			(at 203.2 140.97 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "3b9d52a7-4fc4-4859-b4b1-b29be73f3ebb")
+		)
+		(instances
+			(project "tehkanwc"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b1625f56-04c9-4f84-a803-cbecca9cced2"
+					(page "22")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 151.13 127)
+		(size 36.83 31.75)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "f4c6d134-42e6-49c5-8216-1bdd34eab0d6")
+		(property "Sheetname" "scroll RAM"
+			(at 151.13 126.2884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "scrram.kicad_sch"
+			(at 151.13 159.3346 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "PAL[0..3]" input
+			(at 187.96 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "14992428-5c59-428a-b1af-387ac2883bdd")
+		)
+		(pin "CODE[0..9]" output
+			(at 187.96 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "6ebf9101-028a-420b-8f0c-38ae2eb4020f")
+		)
+		(pin "VFLIP" output
+			(at 187.96 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "77847ec2-4dc9-481e-b635-b9ec2ddcc197")
+		)
+		(pin "HFLIP" output
+			(at 187.96 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "82d43161-6bb7-4d0c-9c14-2334d3813552")
+		)
+		(pin "AB[0..10]" input
+			(at 151.13 130.81 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "97006469-12b5-404f-855d-4aca687e6c71")
+		)
+		(pin "~{SCRY}" input
+			(at 151.13 135.89 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "d287e688-52d0-492c-9f09-7a035c6d723c")
+		)
+		(pin "SEL" input
+			(at 151.13 138.43 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "331f708d-265f-4935-9312-64c09134f8d7")
+		)
+		(pin "~{H8}" input
+			(at 151.13 144.78 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "aa6d9cac-8079-4525-ae47-3d4fbc9a8310")
+		)
+		(pin "~{SCRX}" input
+			(at 151.13 133.35 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "c070ad48-8afd-4a3f-a86d-b935e83ee312")
+		)
+		(pin "HF[0..7]" input
+			(at 151.13 142.24 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7bb6e67a-1c08-4105-b630-2b7cf63cadee")
+		)
+		(pin "DD[0..7]" bidirectional
+			(at 151.13 128.27 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "90c025c0-e7a9-433e-bedd-4e848c0ec595")
+		)
+		(pin "J2_26" input
+			(at 151.13 147.32 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "6dcfc61a-6572-4851-8005-18d6ff0ac8af")
+		)
+		(pin "J2_18" input
+			(at 151.13 149.86 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "a905ce83-4f51-405c-aeb4-ef1ddcef65ca")
+		)
+		(pin "~{RD}" input
+			(at 151.13 152.4 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "276f230b-7f9e-4b3b-870c-6f98d5823dce")
+		)
+		(instances
+			(project "tehkanwc"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b1625f56-04c9-4f84-a803-cbecca9cced2"
+					(page "23")
+				)
+			)
+		)
+	)
 )

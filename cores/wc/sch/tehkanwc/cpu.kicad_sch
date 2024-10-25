@@ -8817,7 +8817,7 @@
 		)
 		(uuid "520f9d98-e0ef-4e30-a026-c4181035a37a")
 	)
-	(label "J2_15"
+	(label "~{FIXCS}"
 		(at 45.72 111.76 0)
 		(fields_autoplaced yes)
 		(effects
@@ -9807,7 +9807,7 @@
 		)
 		(uuid "d3f819d7-75fb-43d2-88e1-5093181d055f")
 	)
-	(label "J2_15"
+	(label "~{FIXCS}"
 		(at 327.66 107.95 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12578,7 +12578,7 @@
 		(instances
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f"
-					(page "")
+					(page "#")
 				)
 			)
 		)

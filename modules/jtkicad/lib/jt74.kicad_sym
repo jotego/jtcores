@@ -21843,7 +21843,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 8.89 0)
+			(at 6.35 6.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26631,7 +26631,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 16.51 0)
+			(at 6.35 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29247,7 +29247,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 5.08 -12.7 0)
+			(at 6.35 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42774,7 +42774,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 0 2.54 0)
+			(at 6.35 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -43526,7 +43526,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 0 -5.08 0)
+			(at 6.35 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -64269,7 +64269,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 3.81 5.08 0)
+			(at 3.81 6.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -437,11 +437,19 @@
     ],
     [
       "dca55e74-41d5-4af8-a65a-10cd4d5fbf69",
-      "Object RAM"
+      "object RAM"
     ],
     [
       "ae0a687c-059d-463e-8afd-bfb918f973c0",
       "object readout"
+    ],
+    [
+      "dae497ed-9ff7-4b2f-a5b5-a16fd04d64b3",
+      "scroll ROM"
+    ],
+    [
+      "f4c6d134-42e6-49c5-8216-1bdd34eab0d6",
+      "scroll RAM"
     ],
     [
       "34c66f42-7f31-4ae9-9ef6-6e02db74328b",
@@ -460,12 +468,12 @@
       "IO"
     ],
     [
-      "e275c20e-58da-4787-bf27-1e3b67330979",
-      "palette"
-    ],
-    [
       "a745fe08-f35b-4052-a91d-9eddb9b2ed0d",
       "daughter"
+    ],
+    [
+      "e275c20e-58da-4787-bf27-1e3b67330979",
+      "palette"
     ]
   ],
   "text_variables": {}
