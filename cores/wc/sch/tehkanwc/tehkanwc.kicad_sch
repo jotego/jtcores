@@ -11,9 +11,71 @@
 		(comment 1 "Jose Tejada")
 	)
 	(lib_symbols)
+	(bus
+		(pts
+			(xy 321.31 114.3) (xy 330.2 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "154c1718-352a-4450-b1dd-a3192bee0477")
+	)
+	(bus
+		(pts
+			(xy 205.74 144.78) (xy 238.76 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "163a0543-fefc-4c44-a117-59027c995e0c")
+	)
+	(bus
+		(pts
+			(xy 205.74 92.71) (xy 238.76 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "29b54d67-b748-41a4-a41a-182680410723")
+	)
+	(bus
+		(pts
+			(xy 111.76 123.19) (xy 120.65 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89ff5889-3cd9-4816-9c3a-6a54f261aa67")
+	)
+	(label "PA[0..9]"
+		(at 111.76 123.19 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "16bcfdc6-47b8-4911-854a-323bbc748117")
+	)
+	(label "PA[0..9]"
+		(at 330.2 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dd4fa400-6b11-4634-918f-f196a0d4694b")
+	)
 	(sheet
-		(at 118.745 86.36)
-		(size 86.995 108.585)
+		(at 120.65 86.36)
+		(size 85.09 108.585)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -24,7 +86,7 @@
 		)
 		(uuid "4d18f4f6-4d7d-4823-941f-121a8e5c871f")
 		(property "Sheetname" "cpu board"
-			(at 118.745 83.1084 0)
+			(at 120.65 83.1084 0)
 			(effects
 				(font
 					(size 6.35 6.35)
@@ -33,7 +95,7 @@
 			)
 		)
 		(property "Sheetfile" "cpu.kicad_sch"
-			(at 118.745 195.5296 0)
+			(at 120.65 195.5296 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -73,7 +135,7 @@
 			(uuid "3d2c3ddf-c3d9-4e99-ab98-d67937c1df49")
 		)
 		(pin "~{MSEL}" input
-			(at 118.745 102.87 180)
+			(at 120.65 102.87 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -83,7 +145,7 @@
 			(uuid "650d4a01-38dc-4fbd-9543-b1342c63e7e3")
 		)
 		(pin "~{SHEN}" input
-			(at 118.745 100.33 180)
+			(at 120.65 100.33 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -163,7 +225,7 @@
 			(uuid "3f64e667-74ea-46e9-96da-2b68317ff9d1")
 		)
 		(pin "~{SSEL}" input
-			(at 118.745 105.41 180)
+			(at 120.65 105.41 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -173,7 +235,7 @@
 			(uuid "045ddb54-ff34-493f-8bb7-66012cfc1daa")
 		)
 		(pin "J2_20" input
-			(at 118.745 107.95 180)
+			(at 120.65 107.95 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -223,7 +285,7 @@
 			(uuid "38fbb0ba-d021-4e38-bc70-2d929a0b90f4")
 		)
 		(pin "~{MWAIT}" input
-			(at 118.745 110.49 180)
+			(at 120.65 110.49 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -233,7 +295,7 @@
 			(uuid "f8f652a9-d598-4145-9360-25cf860f4f81")
 		)
 		(pin "~{RST}" input
-			(at 118.745 113.03 180)
+			(at 120.65 113.03 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -243,7 +305,7 @@
 			(uuid "995c0aaf-c09f-4d18-a026-0b27b5bc0088")
 		)
 		(pin "~{GB_CS}" input
-			(at 118.745 115.57 180)
+			(at 120.65 115.57 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -253,7 +315,7 @@
 			(uuid "53c65095-cef0-4ad0-abd5-2e2d5493ca5e")
 		)
 		(pin "SH~{OEB}" input
-			(at 118.745 118.11 180)
+			(at 120.65 118.11 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -263,7 +325,7 @@
 			(uuid "2e982dc2-e395-4ccf-b9f5-24faaf53268c")
 		)
 		(pin "~{GBWE}" input
-			(at 118.745 120.65 180)
+			(at 120.65 120.65 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -273,7 +335,7 @@
 			(uuid "56b25d15-8083-43ca-9a8d-1983e5c8e030")
 		)
 		(pin "PA[0..9]" input
-			(at 118.745 123.19 180)
+			(at 120.65 123.19 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -283,7 +345,7 @@
 			(uuid "c0ecba2a-503e-44e8-b52e-6465a200f435")
 		)
 		(pin "~{SWAIT}" input
-			(at 118.745 125.73 180)
+			(at 120.65 125.73 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -293,7 +355,7 @@
 			(uuid "6cc37e09-349a-4db7-aa1c-0555633b73cb")
 		)
 		(pin "~{INT}" input
-			(at 118.745 128.27 180)
+			(at 120.65 128.27 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -303,7 +365,7 @@
 			(uuid "121db8ec-775a-4b62-8b8b-c16a74c7665a")
 		)
 		(pin "CLK4" input
-			(at 118.745 130.81 180)
+			(at 120.65 130.81 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -313,7 +375,7 @@
 			(uuid "01b4c3d8-5f41-4094-9500-82d68d2fd649")
 		)
 		(pin "CLK3" input
-			(at 118.745 133.35 180)
+			(at 120.65 133.35 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -323,7 +385,7 @@
 			(uuid "56185251-7526-432b-81d5-e79a9dfb8a46")
 		)
 		(pin "PXLCLK" input
-			(at 118.745 135.89 180)
+			(at 120.65 135.89 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -333,7 +395,7 @@
 			(uuid "018d6772-8c40-4d48-a2ea-c8ccd00d7f08")
 		)
 		(pin "~{R_CS}" input
-			(at 118.745 138.43 180)
+			(at 120.65 138.43 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -343,7 +405,7 @@
 			(uuid "47577623-d131-449c-92ac-3299c29987ed")
 		)
 		(pin "~{RWE}" input
-			(at 118.745 140.97 180)
+			(at 120.65 140.97 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -400,6 +462,126 @@
 				(justify left top)
 				(hide yes)
 			)
+		)
+		(pin "~{GB_CS}" output
+			(at 321.31 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "e7c992c2-52ac-428f-9719-acfaca15d8a2")
+		)
+		(pin "SH~{OEB}" output
+			(at 238.76 109.22 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1f383912-d6f9-42c4-be3d-55dff9043c5c")
+		)
+		(pin "~{GBWE}" output
+			(at 321.31 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "2c5f6879-7cda-4f8c-97f6-458e59a437dc")
+		)
+		(pin "PA[0..9]" output
+			(at 321.31 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "7e8bd30c-30e7-492f-8c80-08cd0b0424d1")
+		)
+		(pin "SxD0" input
+			(at 238.76 111.76 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1d789453-1100-438c-8d87-c3a4029ae50a")
+		)
+		(pin "SxC8" input
+			(at 238.76 114.3 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "16bd014b-42b5-46c0-9134-f68d5e1917e7")
+		)
+		(pin "MxD8" input
+			(at 238.76 116.84 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2bc79526-206e-413e-84b1-53b7f15c0181")
+		)
+		(pin "MxC8" input
+			(at 238.76 119.38 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "03d592c9-84a4-4f11-b9ed-f4aac5e0776f")
+		)
+		(pin "SxE8" input
+			(at 238.76 121.92 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "ece97941-71e7-445f-98fe-4c1e6e2f72b9")
+		)
+		(pin "MxE0" input
+			(at 238.76 124.46 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "3364335a-9c44-488e-a7ee-38564909cd36")
+		)
+		(pin "DD[0..7]" bidirectional
+			(at 238.76 92.71 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "eaf4e6cc-1156-4221-91d2-07509fdac529")
+		)
+		(pin "SHAB[0..10]" output
+			(at 238.76 144.78 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "def59eff-317a-4987-9225-33a1defa50cb")
 		)
 		(instances
 			(project "tehkanwc"

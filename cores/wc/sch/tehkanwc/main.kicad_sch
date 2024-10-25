@@ -8366,7 +8366,7 @@
 	)
 	(wire
 		(pts
-			(xy 382.27 106.68) (xy 385.445 106.68)
+			(xy 382.27 106.68) (xy 386.08 106.68)
 		)
 		(stroke
 			(width 0)
@@ -10947,7 +10947,7 @@
 		(uuid "4da380ad-7f9e-4f11-b4d8-c03d608a5dda")
 	)
 	(label "IO2"
-		(at 385.445 106.68 180)
+		(at 386.08 106.68 180)
 		(fields_autoplaced yes)
 		(effects
 			(font

@@ -8271,6 +8271,16 @@
 		)
 		(uuid "7d8c67c8-7142-4d20-9086-0cfc6053a586")
 	)
+	(wire
+		(pts
+			(xy 278.13 50.8) (xy 283.21 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7de5db86-52d9-447b-a7f5-832176de38af")
+	)
 	(bus
 		(pts
 			(xy 276.86 140.97) (xy 276.86 138.43)
@@ -11175,6 +11185,17 @@
 			(justify left bottom)
 		)
 		(uuid "963b4d18-2a13-4418-88f1-48209a0ee2fa")
+	)
+	(label "E3_11"
+		(at 278.13 50.8 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "97b5e1c3-3046-4576-a09b-a0db1060d2a2")
 	)
 	(label "OSCLK"
 		(at 67.31 128.27 0)
