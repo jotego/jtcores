@@ -4364,6 +4364,17 @@
 		)
 		(uuid "6e400278-0ba8-4a01-90f6-88f3370a3c7a")
 	)
+	(label "~{OE}"
+		(at 214.63 191.77 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6f7d3df6-02ff-4e8c-9fbb-b61ae022d6f3")
+	)
 	(label "A4"
 		(at 214.63 86.36 0)
 		(fields_autoplaced yes)
@@ -4561,6 +4572,17 @@
 			(justify left bottom)
 		)
 		(uuid "b4147988-be0a-4c90-abe1-a5306c07cd95")
+	)
+	(label "~{OE}"
+		(at 214.63 121.92 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b5f0b78d-e6cb-4039-b7d2-81e4277212ca")
 	)
 	(label "A0"
 		(at 214.63 146.05 0)

@@ -3525,10 +3525,22 @@
 		)
 	)
 	(junction
+		(at 231.14 210.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4e292759-7618-4c02-a18e-49ad6fd08144")
+	)
+	(junction
 		(at 172.72 189.23)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "50fa186c-7478-4c22-a895-77ecc9b3890b")
+	)
+	(junction
+		(at 231.14 205.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "52c1d54a-aafe-4b81-a24a-57b93c4c2a26")
 	)
 	(junction
 		(at 172.72 162.56)
@@ -4340,6 +4352,16 @@
 	)
 	(wire
 		(pts
+			(xy 223.52 205.74) (xy 231.14 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "064ffb71-d0d4-483f-82cb-999f49f42d82")
+	)
+	(wire
+		(pts
 			(xy 160.02 64.77) (xy 166.37 64.77)
 		)
 		(stroke
@@ -4417,6 +4439,16 @@
 			(type default)
 		)
 		(uuid "109c24d0-c329-4fa8-9652-8c29d6cdcefa")
+	)
+	(wire
+		(pts
+			(xy 223.52 210.82) (xy 231.14 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10c6b13a-661e-499e-9b19-9d4d4e49f257")
 	)
 	(wire
 		(pts
@@ -5268,6 +5300,16 @@
 		)
 		(uuid "5bdace20-1d51-4315-9693-d4adddd39ad9")
 	)
+	(wire
+		(pts
+			(xy 231.14 203.2) (xy 231.14 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ca4f823-1c68-4f4c-a272-a1422e8d90c5")
+	)
 	(bus
 		(pts
 			(xy 179.07 196.85) (xy 179.07 205.74)
@@ -5437,6 +5479,16 @@
 			(type default)
 		)
 		(uuid "6b913162-7d02-4ee8-88b4-31a293470ed5")
+	)
+	(wire
+		(pts
+			(xy 231.14 208.28) (xy 231.14 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bae7033-06d3-41a9-b667-082680b8a6fe")
 	)
 	(wire
 		(pts
@@ -8101,6 +8153,17 @@
 		)
 		(uuid "b794ccff-5feb-4c2c-bcd7-dbe5a4f434b2")
 	)
+	(label "VCC"
+		(at 223.52 205.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b7ec9db1-073e-428a-93e6-309782c8777d")
+	)
 	(label "AB5"
 		(at 68.58 96.52 0)
 		(fields_autoplaced yes)
@@ -8430,6 +8493,17 @@
 			(justify left bottom)
 		)
 		(uuid "eec51297-6ccd-4550-ac50-aab90d6f70d5")
+	)
+	(label "GND"
+		(at 223.52 210.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ef19bdc7-273d-40e0-8606-ccc7a630534a")
 	)
 	(label "AH0"
 		(at 223.52 165.1 0)
