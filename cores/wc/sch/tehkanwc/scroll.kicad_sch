@@ -53,6 +53,16 @@
 	)
 	(wire
 		(pts
+			(xy 199.39 138.43) (xy 203.2 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4601e1ad-6de9-44e0-a86c-9c27b38f6e55")
+	)
+	(wire
+		(pts
 			(xy 144.78 144.78) (xy 151.13 144.78)
 		)
 		(stroke
@@ -157,6 +167,18 @@
 		)
 		(uuid "1ac2eb3b-de56-42e2-96df-7170645cdee1")
 	)
+	(hierarchical_label "GHFLIP"
+		(shape input)
+		(at 199.39 138.43 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3c79d5bc-a5d9-4562-98c4-ef308083fcc0")
+	)
 	(hierarchical_label "~{RD}"
 		(shape input)
 		(at 144.78 152.4 180)
@@ -207,7 +229,7 @@
 	)
 	(sheet
 		(at 203.2 127)
-		(size 36.83 16.51)
+		(size 36.83 22.86)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -227,7 +249,7 @@
 			)
 		)
 		(property "Sheetfile" "scrrom.kicad_sch"
-			(at 203.2 144.0946 0)
+			(at 203.2 150.4446 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -277,7 +299,7 @@
 			(uuid "f682f9dc-7a8d-4fa0-a3f8-b735ca9de427")
 		)
 		(pin "H[0..2]" input
-			(at 203.2 138.43 180)
+			(at 203.2 140.97 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -287,7 +309,7 @@
 			(uuid "9a31ff8c-9238-49b7-997e-2a4184207e9d")
 		)
 		(pin "V[0..2]" input
-			(at 203.2 140.97 180)
+			(at 203.2 143.51 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -295,6 +317,16 @@
 				(justify left)
 			)
 			(uuid "3b9d52a7-4fc4-4859-b4b1-b29be73f3ebb")
+		)
+		(pin "GHFLIP" input
+			(at 203.2 138.43 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "e48dbdaa-bd24-417c-b811-c8c8a58c89bd")
 		)
 		(instances
 			(project "tehkanwc"

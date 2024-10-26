@@ -2165,6 +2165,16 @@
 		)
 		(uuid "7e203fa9-3637-49eb-95a7-e910f30be36d")
 	)
+	(bus
+		(pts
+			(xy 247.65 153.67) (xy 255.27 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81ff8d2a-161b-4800-bbd5-d530cc9e5e4b")
+	)
 	(wire
 		(pts
 			(xy 344.17 80.01) (xy 344.17 85.09)
@@ -2344,6 +2354,16 @@
 			(type default)
 		)
 		(uuid "cf40292a-0b24-4cdb-86bb-a0b861134757")
+	)
+	(wire
+		(pts
+			(xy 165.1 153.67) (xy 167.64 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cfa616f6-e714-4bde-9ef6-f600165c56e1")
 	)
 	(wire
 		(pts
@@ -2689,6 +2709,17 @@
 			(justify right bottom)
 		)
 		(uuid "5af38455-deba-4d50-8622-a86652052dcb")
+	)
+	(label "R[0..7]"
+		(at 247.65 153.67 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "61f95ef3-1dd2-4a9f-aecd-6f7f51323936")
 	)
 	(label "QB0"
 		(at 322.58 119.38 0)
@@ -3165,6 +3196,18 @@
 			(justify left)
 		)
 		(uuid "501dce41-8c2d-46b1-9301-7162160d0d0b")
+	)
+	(hierarchical_label "GHFLIP"
+		(shape input)
+		(at 165.1 153.67 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "54d90039-0477-4699-89a1-1a7eacb3e159")
 	)
 	(hierarchical_label "DD[0..7]"
 		(shape bidirectional)
@@ -3899,6 +3942,26 @@
 			)
 			(uuid "e62b9558-3d6c-4c02-af55-d5c4fe27350c")
 		)
+		(pin "SEL" input
+			(at 255.27 156.21 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "5f59db25-6fbc-4c2d-8dd4-7544e19147ff")
+		)
+		(pin "R[0..7]" input
+			(at 255.27 153.67 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2f9673c5-765c-4f0d-adae-c1f93c46375e")
+		)
 		(instances
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e"
@@ -3967,6 +4030,16 @@
 				(justify left)
 			)
 			(uuid "463f49e4-d7bc-4a64-b6c3-eaaa7301aac0")
+		)
+		(pin "GHFLIP" input
+			(at 167.64 153.67 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "92132854-97f2-4cb0-ab0d-f8eff8eb5efd")
 		)
 		(instances
 			(project "tehkanwc"
