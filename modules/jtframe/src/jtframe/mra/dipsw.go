@@ -33,7 +33,13 @@ diploop:
         for _, each := range cfg.Dipsw.Delete {
             if each.Match(machine)>0 {
                 for _, name := range each.Names {
-                    if match,_ := filepath.Match(strings.ToLower(name), strings.ToLower(ds.Name)); match {
+                    patternLwr := strings.ToLower(name)
+                    dipLwr := strings.ToLower(ds.Name)
+                    baseMatch :=  patternLwr == dipLwr
+                    // GLOB match considers / a special character (separtor) in linux
+                    // replace it for comparison
+                    globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
+                    if baseMatch || globMatch {
                         if args.Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
                         continue diploop
                     }
