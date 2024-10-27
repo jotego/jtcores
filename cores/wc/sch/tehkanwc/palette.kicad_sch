@@ -5369,7 +5369,7 @@
 		)
 		(uuid "5c082257-e181-49d7-8120-83ce7f47c6c0")
 	)
-	(label "SH~{OEB}"
+	(label "SH~{RD}"
 		(at 104.14 104.14 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6168,7 +6168,7 @@
 		)
 		(uuid "eff4acd2-86df-40a8-b537-176da0718606")
 	)
-	(hierarchical_label "SH~{OEB}"
+	(hierarchical_label "SH~{RD}"
 		(shape input)
 		(at 107.95 163.83 180)
 		(fields_autoplaced yes)

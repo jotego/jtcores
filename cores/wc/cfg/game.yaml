@@ -1,0 +1,17 @@
+game:
+  - from: wc
+    get:
+      - jtwc_game.v
+      - jtwc_video.v
+      - jtwc_sound.v
+      - jtwc_colmix.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+modules:
+  jt:
+    - name: jt5205
+  other:
+    - get:
+      - jt49/hdl/jt49.yaml

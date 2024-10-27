@@ -1,0 +1,96 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk:
+    # Main CPU uses 4MHz crystal (checked on original board)
+    # although the manual refers to the crystal as 3 or 4MHz in different locations
+    - freq: 4000000
+      outputs:
+        - cen_cpu
+    # 18.432 divided by 6
+    - freq: 3072000
+      outputs:
+        - cen_psg1
+        - cen_psg2
+    - freq: 400000
+      outputs:
+        - cen_pcm
+# audio:
+#   channels:
+#     # temporary values
+#     - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
+#     - { name: fm,  module: jt51,   rsum: 40k, rc: [{ r: 1rout, c: 1.2n }]}
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+      - name: sub
+        addr_width: 14
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 14
+        data_width: 8
+      - name: pcm
+        addr_width: 15
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: char
+        addr_width: 14
+        data_width: 32
+        # gfx_sort: hhvvv
+      - name: scr
+        addr_width: 16
+        data_width: 32
+        offset: SCR_OFFSET
+        # gfx_sort: hhvvvvx
+    - buses:
+      - name: obj
+        addr_width: 16
+        data_width: 32
+        # gfx_sort: hhvvvvx
+## shared RAM
+bram:
+  # - name: shram
+  #   addr_width: 11
+  #   data_width: 8
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: sh
+      din:  "{2{sh_din}}"
+      dout: pal16_dout
+      we:   pal_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 0
+  - name: fixram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: sh
+      din:  "{2{sh_din}}"
+      dout: fix16_dout
+      we:   fix_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 1
+  - name: vram
+    addr_width: 11
+    data_width: 8
+    ioctl:
+      save: true
+      order: 2
+  # - name: objram
+  #   addr_width: 11
+  #   data_width: 8
+  #   ioctl:
+  #     save: true
+  #     order: 3

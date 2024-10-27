@@ -5849,6 +5849,15 @@
 		(uuid "46542a62-8922-42b9-ae16-3b9a3e88ad97")
 	)
 	(bus_entry
+		(at 275.59 200.66)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ecd3018-0a14-4ae0-9abd-ec5f72a92d73")
+	)
+	(bus_entry
 		(at 184.15 93.98)
 		(size 2.54 2.54)
 		(stroke
@@ -7777,6 +7786,16 @@
 	)
 	(wire
 		(pts
+			(xy 266.7 200.66) (xy 275.59 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "578dbebf-ad5d-44b3-88d5-37a04cc8c8b1")
+	)
+	(wire
+		(pts
 			(xy 176.53 149.86) (xy 184.15 149.86)
 		)
 		(stroke
@@ -9154,6 +9173,16 @@
 			(type default)
 		)
 		(uuid "a919e1b1-b604-4cf6-af2c-e19ff10396d1")
+	)
+	(bus
+		(pts
+			(xy 278.13 203.2) (xy 278.13 232.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9be083e-1ee9-44d3-8c09-f2f81ffb30c7")
 	)
 	(bus
 		(pts
@@ -12089,6 +12118,17 @@
 		)
 		(uuid "d9f08c23-f5c0-4005-be95-0b28e08f4f91")
 	)
+	(label "CODE8"
+		(at 273.05 200.66 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "da1fdc7b-64bc-470a-b845-6f62d563b2a3")
+	)
 	(label "X3"
 		(at 368.3 36.83 180)
 		(fields_autoplaced yes)
@@ -12411,7 +12451,7 @@
 		)
 		(uuid "6c3cdb40-2b7c-48d7-896b-c2c129525234")
 	)
-	(hierarchical_label "CODE[0..7]"
+	(hierarchical_label "CODE[0..8]"
 		(shape output)
 		(at 284.48 251.46 0)
 		(fields_autoplaced yes)

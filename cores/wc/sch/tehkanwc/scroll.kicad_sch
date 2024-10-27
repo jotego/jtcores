@@ -101,6 +101,16 @@
 		)
 		(uuid "8d62b0e6-9c5c-49b4-b934-490c69f4d37a")
 	)
+	(wire
+		(pts
+			(xy 144.78 149.86) (xy 151.13 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "acdda932-f416-4dd4-8482-f531bc6d8a9d")
+	)
 	(bus
 		(pts
 			(xy 187.96 130.81) (xy 203.2 130.81)
@@ -166,6 +176,18 @@
 			(justify right)
 		)
 		(uuid "1ac2eb3b-de56-42e2-96df-7170645cdee1")
+	)
+	(hierarchical_label "~{SHWR}"
+		(shape input)
+		(at 144.78 149.86 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2807ef0d-8919-4f45-828d-09841dd87660")
 	)
 	(hierarchical_label "GHFLIP"
 		(shape input)
@@ -477,17 +499,7 @@
 			)
 			(uuid "90c025c0-e7a9-433e-bedd-4e848c0ec595")
 		)
-		(pin "J2_26" input
-			(at 151.13 147.32 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "6dcfc61a-6572-4851-8005-18d6ff0ac8af")
-		)
-		(pin "J2_18" input
+		(pin "~{SHWR}" input
 			(at 151.13 149.86 180)
 			(effects
 				(font

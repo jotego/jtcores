@@ -8373,17 +8373,6 @@
 		)
 		(uuid "dceafb95-1657-4f2e-b7f5-910eb87c3e6e")
 	)
-	(label "VFX"
-		(at 68.58 148.59 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "dee1ab2e-d914-4562-8a71-373542879fd1")
-	)
 	(label "HF6"
 		(at 66.04 78.74 0)
 		(fields_autoplaced yes)
@@ -8656,6 +8645,18 @@
 			(justify right)
 		)
 		(uuid "bc8bef9b-7481-4dc7-ba6d-2faadaf1b724")
+	)
+	(hierarchical_label "VFX"
+		(shape input)
+		(at 68.58 148.59 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cd0308c3-ecdf-4b76-b96f-6fd53a082a7b")
 	)
 	(hierarchical_label "~{RD}"
 		(shape input)

@@ -3029,17 +3029,6 @@
 		)
 		(uuid "d3f2672c-53ad-49ee-84ff-28eee9fa0b7b")
 	)
-	(label "CODE[0..7]"
-		(at 154.94 146.05 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d4f9cb2e-a605-47ae-94ea-2823a6794008")
-	)
 	(label "QA1"
 		(at 308.61 80.01 270)
 		(fields_autoplaced yes)
@@ -4011,7 +4000,7 @@
 			)
 			(uuid "74691752-79cb-4509-b15c-74e2f983e81a")
 		)
-		(pin "CODE[0..7]" input
+		(pin "CODE[0..8]" input
 			(at 167.64 146.05 180)
 			(effects
 				(font
@@ -4179,7 +4168,7 @@
 			)
 			(uuid "22360d9a-62e9-4c31-92b8-1f197ce601dc")
 		)
-		(pin "CODE[0..7]" output
+		(pin "CODE[0..8]" output
 			(at 152.4 146.05 0)
 			(effects
 				(font

@@ -6376,7 +6376,7 @@
 	)
 	(wire
 		(pts
-			(xy 264.16 207.01) (xy 257.81 207.01)
+			(xy 264.16 215.9) (xy 257.81 215.9)
 		)
 		(stroke
 			(width 0)
@@ -6896,7 +6896,7 @@
 	)
 	(wire
 		(pts
-			(xy 240.03 209.55) (xy 242.57 209.55)
+			(xy 240.03 218.44) (xy 242.57 218.44)
 		)
 		(stroke
 			(width 0)
@@ -7266,7 +7266,7 @@
 	)
 	(wire
 		(pts
-			(xy 233.68 204.47) (xy 242.57 204.47)
+			(xy 233.68 213.36) (xy 242.57 213.36)
 		)
 		(stroke
 			(width 0)
@@ -8877,7 +8877,7 @@
 		(uuid "a84511d9-67e8-48e4-a223-836510e37c7a")
 	)
 	(label "MMxC8"
-		(at 233.68 204.47 0)
+		(at 233.68 213.36 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9219,7 +9219,7 @@
 	)
 	(hierarchical_label "G5_12"
 		(shape input)
-		(at 240.03 209.55 180)
+		(at 240.03 218.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9265,7 +9265,7 @@
 		)
 		(uuid "2e5144aa-f1e6-4485-95b4-963dd64401c6")
 	)
-	(hierarchical_label "~{INT}"
+	(hierarchical_label "~{VBL}"
 		(shape input)
 		(at 121.92 109.22 180)
 		(fields_autoplaced yes)
@@ -9279,7 +9279,7 @@
 	)
 	(hierarchical_label "~{LE}"
 		(shape output)
-		(at 264.16 207.01 0)
+		(at 264.16 215.9 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10324,7 +10324,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS08")
-		(at 250.19 207.01 0)
+		(at 250.19 215.9 0)
 		(mirror x)
 		(unit 3)
 		(convert 2)
@@ -10334,7 +10334,7 @@
 		(dnp no)
 		(uuid "b855dd0f-4027-4207-b3e0-fa3a0dbb593d")
 		(property "Reference" "G3"
-			(at 250.19 207.264 0)
+			(at 250.19 216.154 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10342,7 +10342,7 @@
 			)
 		)
 		(property "Value" "74LS08"
-			(at 249.682 201.93 0)
+			(at 249.682 210.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10350,7 +10350,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 250.19 207.01 0)
+			(at 250.19 215.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10359,7 +10359,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS08"
-			(at 250.19 207.01 0)
+			(at 250.19 215.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10368,7 +10368,7 @@
 			)
 		)
 		(property "Description" "Quad And2"
-			(at 250.19 207.01 0)
+			(at 250.19 215.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)

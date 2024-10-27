@@ -1,0 +1,32 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "tehkanwc.cpp" ]
+debug={machines=["gridiron","teedoff","tehkanwc"]}
+
+[dipsw]
+rename=[
+	{ name="Penalty (Over Par)",to="Penalty" },
+	{ name="Bonus Balls (Multiple coins)",to="Bonus Balls" },
+	{ name="Formation Time (Defense)", to="Defns. Time"},
+	{ name="1P Game Time", to="1P time" },
+	# options not parsed correctly:
+	#{name="2P Game Time", to="2P time" }
+]
+delete=[
+	{ names=["Start*","2P Game Time"] },
+]
+
+[ROM]
+regions = [
+	{ name="maincpu"                             },
+	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="adpcm",    start="PCM_START"         },
+	{ name="gfx1",     start="JTFRAME_BA2_START" },
+	{ name="gfx2",     start="SCR_START"         },
+	{ name="gfx3",     start="JTFRAME_BA3_START" }
+]
+
+order=["maincpu","sub","audiocpu","adpcm",
+	"gfx1","gfx2","gfx3"]

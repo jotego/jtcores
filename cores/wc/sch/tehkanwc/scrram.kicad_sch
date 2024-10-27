@@ -9100,6 +9100,16 @@
 	)
 	(wire
 		(pts
+			(xy 16.51 176.53) (xy 26.67 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52e5c245-b359-4068-ba27-ee7a3726b581")
+	)
+	(wire
+		(pts
 			(xy 189.23 109.22) (xy 194.31 109.22)
 		)
 		(stroke
@@ -10287,16 +10297,6 @@
 			(type default)
 		)
 		(uuid "b92d8e90-6c63-422c-ab31-ffad4c57d39f")
-	)
-	(wire
-		(pts
-			(xy 24.13 176.53) (xy 26.67 176.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba5fc7dd-beae-43f3-a842-18a94eee6564")
 	)
 	(bus
 		(pts
@@ -11787,6 +11787,17 @@
 		)
 		(uuid "6c391651-b1b3-4dc0-9d2b-63ce7d4e5cd2")
 	)
+	(label "AB10"
+		(at 16.51 176.53 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6d31b81a-9df2-43a1-beee-01ccec51d3b1")
+	)
 	(label "HF1"
 		(at 160.02 146.05 0)
 		(fields_autoplaced yes)
@@ -12702,7 +12713,7 @@
 		)
 		(uuid "3f36d4fb-1156-42d3-b8b5-0d92fe220733")
 	)
-	(hierarchical_label "J2_18"
+	(hierarchical_label "~{SHWR}"
 		(shape input)
 		(at 22.86 191.77 180)
 		(fields_autoplaced yes)
@@ -12737,18 +12748,6 @@
 			(justify right)
 		)
 		(uuid "7bb88782-1dc8-4ad5-88fe-62f4d55ba0c1")
-	)
-	(hierarchical_label "J2_26"
-		(shape input)
-		(at 24.13 176.53 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7c851563-a126-4f6a-be44-e5e17e357f4a")
 	)
 	(hierarchical_label "PAL[0..3]"
 		(shape input)

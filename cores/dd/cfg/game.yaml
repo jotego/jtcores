@@ -7,9 +7,6 @@ game:
       - jtdd_adpcm.v
       - common.yaml
 jtframe:
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: cpu
     get:
       - jtframe_63701y.yaml

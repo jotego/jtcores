@@ -18,7 +18,7 @@
 
 
 // Generic tile map generator with no scroll
-// The ROM data must be in this format: {code, H parts, V part}
+// The ROM address must be in this format: {code, V parts, H part}
 // pixel data has arbitrary bpp but it must arrive in groups of 8 pixels
 // Each byte is for a plane
 
@@ -38,8 +38,8 @@ module jtframe_tilemap #( parameter
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
     HJUMP        = 1,  // see jtframe_scroll
-    // localparam, do not modify:
-    VW = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    VW           = SIZE==8 ? 3 : SIZE==16 ? 4:5, // override only for 16x8 tiles (set to 4)
+    // localparam, do not modify
     PALW         = PW-BPP,
     DW           = 8*BPP
 )(
