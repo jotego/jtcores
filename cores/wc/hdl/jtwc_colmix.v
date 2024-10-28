@@ -25,12 +25,12 @@ module jtwc_colmix(
     input      [ 7:0] fix,
     input      [ 7:0] scr,
 
-    output     [ 9:0] pal_addr,
+    output reg [ 9:0] pal_addr,
     input      [15:0] pal_dout,
 
-    output     [ 3:0] red,
-    output     [ 3:0] green,
-    output     [ 3:0] blue,
+    output reg [ 3:0] red,
+    output reg [ 3:0] green,
+    output reg [ 3:0] blue,
 
     input      [ 3:0] gfx_en
 );
