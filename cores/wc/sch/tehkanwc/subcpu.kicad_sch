@@ -5608,6 +5608,10 @@
 		(uuid "0b0295ae-8b45-45ce-ae36-3031400f936d")
 	)
 	(no_connect
+		(at 218.44 208.28)
+		(uuid "17205fc9-a375-4b78-8ee6-b697a153ac95")
+	)
+	(no_connect
 		(at 185.42 177.8)
 		(uuid "31ab6bfd-8e76-40d9-b070-950641adf168")
 	)
@@ -5618,6 +5622,10 @@
 	(no_connect
 		(at 140.97 111.76)
 		(uuid "dd6c9111-054d-4919-acdf-bf6cc0e9c3bc")
+	)
+	(no_connect
+		(at 218.44 210.82)
+		(uuid "e03cef18-2e38-4bb3-bd5a-d0092f43e16c")
 	)
 	(bus_entry
 		(at 267.97 170.18)
@@ -7996,6 +8004,16 @@
 	)
 	(wire
 		(pts
+			(xy 134.62 116.84) (xy 133.35 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f29a414c-e047-4592-8af3-9dd8e4235c09")
+	)
+	(wire
+		(pts
 			(xy 149.86 175.26) (xy 153.67 175.26)
 		)
 		(stroke
@@ -8888,7 +8906,7 @@
 		(uuid "a98667c0-d13f-4996-a4d0-46225d779e12")
 	)
 	(label "VCC"
-		(at 133.35 116.84 0)
+		(at 134.62 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

@@ -20,9 +20,32 @@ module jtwc_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire       m2s_set, hflip, vflip;
+wire       m2s_set, hflip, vflip, swaitn,
+           sx_c8, sx_d0, sx_d8, sx_e0, sx_e8;
 wire [8:0] scrx;
-wire [7:0] m2s, s2m, scry;
+wire [7:0] m2s, s2m, scry, sub_dout, sub_wrn, sh_dout;
+
+jtwc_sub u_sub(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( cen           ),
+    .vint       ( LHBL          ),       // video interrupt (LVBL)
+    .waitn      ( swaitn        ),
+    // shared memory
+    .mmx_c8     ( sx_c8         ),
+    .mmx_d0     ( sx_d0         ),
+    .mmx_d8     ( sx_d8         ),
+    .mmx_e0     ( sx_e0         ),
+    .mmx_e8     ( sx_e8         ),
+    .cpu_dout   ( sub_dout      ),
+    .wr_n       ( sub_wrn       ),
+    .sh_dout    ( sh_dout       ),
+    // ROM access
+    .rom_cs     ( sub_cs        ),
+    .rom_addr   ( sub_addr      ),
+    .rom_data   ( sub_data      ),
+    .rom_ok     ( sub_ok        ),
+);
 
 jtwc_sound u_sound(
     .rst        ( rst           ),
@@ -56,10 +79,10 @@ jtwc_video u_video(
 
     .hflip      ( hflip         ),
     .vflip      ( vflip         ),
-    .lhbl       ( lhbl          ),
-    .lvbl       ( lvbl          ),
-    .vs         ( vs            ),
-    .hs         ( hs            ),
+    .lhbl       ( LHBL          ),
+    .lvbl       ( LVBL          ),
+    .vs         ( VS            ),
+    .hs         ( HS            ),
     // Character (fix) RAM
     .fix_addr   ( fix_addr      ),
     .fix_dout   ( fix_dout      ),

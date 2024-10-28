@@ -7566,6 +7566,16 @@
 	)
 	(wire
 		(pts
+			(xy 344.17 114.3) (xy 345.44 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3bc40c56-7ad5-4cf0-af0c-e0908465fa0d")
+	)
+	(wire
+		(pts
 			(xy 86.36 83.82) (xy 90.17 83.82)
 		)
 		(stroke
@@ -12830,6 +12840,18 @@
 			(justify left)
 		)
 		(uuid "de3d22b1-fdc8-43ce-8f6d-5b5bfd213128")
+	)
+	(hierarchical_label "WDOG"
+		(shape output)
+		(at 345.44 114.3 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e22027e3-5d1d-4527-b06f-0d360957213e")
 	)
 	(hierarchical_label "~{WR'}"
 		(shape output)

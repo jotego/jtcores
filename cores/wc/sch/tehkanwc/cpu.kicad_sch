@@ -5715,7 +5715,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 144.78) (xy 107.95 144.78)
+			(xy 101.6 147.32) (xy 107.95 147.32)
 		)
 		(stroke
 			(width 0)
@@ -5955,7 +5955,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 149.86) (xy 107.95 149.86)
+			(xy 101.6 152.4) (xy 107.95 152.4)
 		)
 		(stroke
 			(width 0)
@@ -5985,7 +5985,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 142.24) (xy 107.95 142.24)
+			(xy 101.6 144.78) (xy 107.95 144.78)
 		)
 		(stroke
 			(width 0)
@@ -6445,7 +6445,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 147.32) (xy 107.95 147.32)
+			(xy 101.6 149.86) (xy 107.95 149.86)
 		)
 		(stroke
 			(width 0)
@@ -7505,6 +7505,16 @@
 	)
 	(wire
 		(pts
+			(xy 101.6 139.7) (xy 107.95 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b60b9d96-ac3e-4145-8c8a-d9cb9923c136")
+	)
+	(wire
+		(pts
 			(xy 260.35 109.22) (xy 267.97 109.22)
 		)
 		(stroke
@@ -8496,7 +8506,7 @@
 		(uuid "091479d6-7099-4857-9286-b93a54f0b7fe")
 	)
 	(label "MxD8"
-		(at 107.95 147.32 180)
+		(at 107.95 149.86 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8596,7 +8606,7 @@
 		(uuid "14c3aded-7e00-4c2d-a3dc-08390d37ab42")
 	)
 	(label "MxD0"
-		(at 107.95 144.78 180)
+		(at 107.95 147.32 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8969,7 +8979,7 @@
 		)
 		(uuid "3a87390c-0ca7-4437-9a91-83f6ce1e4a8d")
 	)
-	(label "PCBSEL"
+	(label "~{PCBSEL}"
 		(at 41.91 114.3 0)
 		(fields_autoplaced yes)
 		(effects
@@ -9795,7 +9805,7 @@
 		(uuid "aa015371-52e4-4991-9bbd-139a892b1982")
 	)
 	(label "MxE0"
-		(at 107.95 149.86 180)
+		(at 107.95 152.4 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10026,7 +10036,7 @@
 		(uuid "c50602f0-3019-4976-be7b-f05b46ba101f")
 	)
 	(label "MxC8"
-		(at 107.95 142.24 180)
+		(at 107.95 144.78 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10542,6 +10552,17 @@
 		)
 		(uuid "fb6056f5-266e-427a-a2c7-ccfd7fa0f8d6")
 	)
+	(label "WDOG"
+		(at 107.95 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "fc1fcd57-4f7e-4a21-9ef0-920dc325d523")
+	)
 	(label "SxD8"
 		(at 148.59 106.68 180)
 		(fields_autoplaced yes)
@@ -10840,7 +10861,7 @@
 		)
 		(uuid "79c5e976-928b-4585-9eb5-c0937c122c17")
 	)
-	(hierarchical_label "PCBSEL"
+	(hierarchical_label "~{PCBSEL}"
 		(shape input)
 		(at 356.87 91.44 0)
 		(fields_autoplaced yes)
@@ -11641,6 +11662,7 @@
 		(lib_id "jt74:74LS11")
 		(at 58.42 111.76 0)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -12347,7 +12369,7 @@
 	)
 	(sheet
 		(at 78.74 82.55)
-		(size 22.86 71.12)
+		(size 22.86 74.93)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -12367,7 +12389,7 @@
 			)
 		)
 		(property "Sheetfile" "main.kicad_sch"
-			(at 78.74 154.2546 0)
+			(at 78.74 158.0646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12577,7 +12599,7 @@
 			(uuid "64b7eb4d-f3c6-4e1a-9268-6a8457bc2014")
 		)
 		(pin "MMxD8" output
-			(at 101.6 147.32 0)
+			(at 101.6 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12587,7 +12609,7 @@
 			(uuid "9e68d56b-2f3d-4156-8377-800e2e9a7f00")
 		)
 		(pin "MMxD0" output
-			(at 101.6 144.78 0)
+			(at 101.6 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12597,7 +12619,7 @@
 			(uuid "984e14cf-ae65-4421-8e5c-e13caaa52fb0")
 		)
 		(pin "MMxE0" output
-			(at 101.6 149.86 0)
+			(at 101.6 152.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12607,7 +12629,7 @@
 			(uuid "4664339b-dc3b-4073-b5b7-54af852e13d5")
 		)
 		(pin "MMxC8" output
-			(at 101.6 142.24 0)
+			(at 101.6 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12625,6 +12647,16 @@
 				(justify right)
 			)
 			(uuid "5f53cf76-20d0-4758-b2ec-27fd3ff6e852")
+		)
+		(pin "WDOG" output
+			(at 101.6 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "ad0fad09-4c5f-48e6-9f96-7d2de10ce523")
 		)
 	)
 	(sheet

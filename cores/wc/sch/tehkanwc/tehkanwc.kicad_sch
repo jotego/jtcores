@@ -1163,7 +1163,7 @@
 			)
 			(uuid "86c7a1a8-9bb6-4461-9448-1bb43f6357f2")
 		)
-		(pin "PCBSEL" input
+		(pin "~{PCBSEL}" input
 			(at 205.74 101.6 0)
 			(effects
 				(font
@@ -1711,7 +1711,7 @@
 			)
 			(uuid "adee0dd7-a298-453c-b7f7-02145876a0f4")
 		)
-		(pin "PCBSEL" output
+		(pin "~{PCBSEL}" output
 			(at 238.76 101.6 180)
 			(effects
 				(font
