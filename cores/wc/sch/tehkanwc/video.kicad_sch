@@ -7128,6 +7128,16 @@
 	)
 	(wire
 		(pts
+			(xy 73.66 69.85) (xy 73.66 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0ae41c1c-f4c7-496c-b85c-331ad20fd4bb")
+	)
+	(wire
+		(pts
 			(xy 135.89 139.7) (xy 142.24 139.7)
 		)
 		(stroke
@@ -7618,7 +7628,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 54.61) (xy 41.91 54.61)
+			(xy 33.02 54.61) (xy 39.37 54.61)
 		)
 		(stroke
 			(width 0)
@@ -7655,6 +7665,16 @@
 			(type default)
 		)
 		(uuid "3cc7ed5c-26fd-41e9-9d81-f533de71e378")
+	)
+	(wire
+		(pts
+			(xy 74.93 67.31) (xy 74.93 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4018910c-2d94-482a-a80d-823eb26bc883")
 	)
 	(wire
 		(pts
@@ -7695,6 +7715,16 @@
 			(type default)
 		)
 		(uuid "43922544-5fe7-4dad-a30f-f13c50ecfb0a")
+	)
+	(wire
+		(pts
+			(xy 73.66 114.3) (xy 102.87 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "454f3696-80ba-487c-9f04-64e2f505d02b")
 	)
 	(wire
 		(pts
@@ -7948,6 +7978,16 @@
 	)
 	(wire
 		(pts
+			(xy 68.58 67.31) (xy 74.93 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ce9772b-5cda-4abe-a8d7-4ad784c1528d")
+	)
+	(wire
+		(pts
 			(xy 163.83 236.22) (xy 166.37 236.22)
 		)
 		(stroke
@@ -7975,16 +8015,6 @@
 			(type default)
 		)
 		(uuid "5f0c3e68-89e1-4cbf-b18c-39b8607694ad")
-	)
-	(bus
-		(pts
-			(xy 135.89 78.74) (xy 153.67 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60c2d97e-167b-49f1-a28a-77ea90cb232b")
 	)
 	(bus
 		(pts
@@ -8556,6 +8586,16 @@
 		)
 		(uuid "94a40438-1d64-47b1-915c-7e3e1d1fa923")
 	)
+	(wire
+		(pts
+			(xy 68.58 69.85) (xy 73.66 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95569d57-8a68-4ee2-a2c6-77f6a63f8c75")
+	)
 	(bus
 		(pts
 			(xy 85.09 52.07) (xy 85.09 78.74)
@@ -8858,6 +8898,16 @@
 	)
 	(wire
 		(pts
+			(xy 74.93 111.76) (xy 102.87 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aaddbc56-f829-475e-acba-2aafe9836da9")
+	)
+	(wire
+		(pts
 			(xy 307.34 54.61) (xy 316.23 54.61)
 		)
 		(stroke
@@ -9038,7 +9088,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 52.07) (xy 41.91 52.07)
+			(xy 33.02 52.07) (xy 39.37 52.07)
 		)
 		(stroke
 			(width 0)
@@ -9576,6 +9626,16 @@
 		)
 		(uuid "ef3e0dbd-729f-4464-8fa3-dbfdc5184b3a")
 	)
+	(bus
+		(pts
+			(xy 139.7 78.74) (xy 153.67 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ef629af6-8261-4544-9360-1f9aa7f37df8")
+	)
 	(wire
 		(pts
 			(xy 93.98 137.16) (xy 104.14 137.16)
@@ -9894,7 +9954,7 @@
 		(uuid "1be5b666-abf8-41af-a10f-a3ab284f00f9")
 	)
 	(label "HFLIP"
-		(at 35.56 52.07 0)
+		(at 33.02 52.07 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9927,7 +9987,7 @@
 		(uuid "2bb85a81-139c-4263-8db8-3225fa1780bc")
 	)
 	(label "VFLIP"
-		(at 35.56 54.61 0)
+		(at 33.02 54.61 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -15740,7 +15800,7 @@
 	)
 	(sheet
 		(at 102.87 76.2)
-		(size 33.02 36.83)
+		(size 36.83 39.37)
 		(stroke
 			(width 0.1524)
 			(type solid)
@@ -15799,7 +15859,7 @@
 			(uuid "7daa58a1-db38-41d5-a782-99c34c62baee")
 		)
 		(pin "FIX[0..7]" input
-			(at 135.89 78.74 0)
+			(at 139.7 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15907,6 +15967,26 @@
 				(justify left)
 			)
 			(uuid "0dc921e6-9184-414f-863f-996344ce5af8")
+		)
+		(pin "C20_12" input
+			(at 102.87 111.76 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "cec2641c-465b-43b9-b474-a2214ced4a2e")
+		)
+		(pin "VB21_11" input
+			(at 102.87 114.3 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "021f80de-362a-4719-9aeb-5b5c9c0207b0")
 		)
 		(instances
 			(project "tehkanwc"
@@ -16035,8 +16115,8 @@
 		)
 	)
 	(sheet
-		(at 41.91 33.02)
-		(size 26.67 38.1)
+		(at 39.37 33.02)
+		(size 29.21 38.1)
 		(stroke
 			(width 0.1524)
 			(type solid)
@@ -16046,7 +16126,7 @@
 		)
 		(uuid "d63ccd38-71b1-4296-b4a9-274cea5e43e8")
 		(property "Sheetname" "timing"
-			(at 41.91 69.85 0)
+			(at 39.37 69.85 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -16055,7 +16135,7 @@
 			)
 		)
 		(property "Sheetfile" "timing.kicad_sch"
-			(at 41.91 71.7046 0)
+			(at 39.37 71.7046 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16065,7 +16145,7 @@
 			)
 		)
 		(pin "HFLIP" input
-			(at 41.91 52.07 180)
+			(at 39.37 52.07 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16075,7 +16155,7 @@
 			(uuid "6c9f56aa-e866-4d29-b823-3cb9215a1a8d")
 		)
 		(pin "VFLIP" input
-			(at 41.91 54.61 180)
+			(at 39.37 54.61 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16203,6 +16283,26 @@
 				(justify right)
 			)
 			(uuid "913097a0-b675-4ee9-8012-88f1d9b76086")
+		)
+		(pin "C20_12" output
+			(at 68.58 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "6c8dd417-78be-40a4-adb4-5717771801b4")
+		)
+		(pin "VB21_11" output
+			(at 68.58 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "59108b63-d07e-4c99-9ad7-f723eda20011")
 		)
 		(instances
 			(project "tehkanwc"
