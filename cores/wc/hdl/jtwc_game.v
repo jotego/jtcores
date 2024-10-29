@@ -20,10 +20,35 @@ module jtwc_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire       m2s_set, hflip, vflip, swaitn,
-           sx_c8, sx_d0, sx_d8, sx_e0, sx_e8;
-wire [8:0] scrx;
-wire [7:0] m2s, s2m, scry, sub_dout, sub_wrn, sh_dout;
+wire        m2s_set, hflip, vflip, swaitn,
+            sx_c8, sx_d0, sx_d8, sx_e0, sx_e8;
+wire        cen_psg, cen, sub_wrn;
+wire [15:0] fix_dout;
+wire signed [11:0] pcm;
+wire [10:1] fix_addr;
+wire [ 9:0] psg0, psg1;
+wire [ 8:0] scrx;
+wire [ 7:0] m2s, s2m, scry, sub_dout, sh_dout;
+
+assign {cen_psg,cen} = 0;
+assign {dip_flip, sample, main_cs, obj_cs} = 0;
+assign {m2s_set, hflip, vflip, swaitn}     = 0;
+assign scrx        =  9'b0;
+assign debug_view  =  8'b0;
+assign m2s         =  8'b0;
+assign s2m         =  8'b0;
+assign scry        =  8'b0;
+assign sub_dout    =  8'b0;
+assign sh_dout     =  8'b0;
+assign snd         = 16'b0;
+assign main_addr   = 16'b0;
+assign fix_dout    = 16'b0;
+assign obj_addr    = 14'b0;
+assign fixram_addr = 10'b0;
+assign sh_addr     = 10'b0;
+assign pal_we      =  2'b0;
+assign fix_we      =  2'b0;
+
 
 jtwc_sub u_sub(
     .rst        ( rst           ),
@@ -44,7 +69,7 @@ jtwc_sub u_sub(
     .rom_cs     ( sub_cs        ),
     .rom_addr   ( sub_addr      ),
     .rom_data   ( sub_data      ),
-    .rom_ok     ( sub_ok        ),
+    .rom_ok     ( sub_ok        )
 );
 
 jtwc_sound u_sound(

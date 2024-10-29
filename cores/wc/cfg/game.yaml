@@ -7,9 +7,15 @@ game:
       - jtwc_sound.v
       - jtwc_colmix.v
 jtframe:
+  - get:
+      - jtframe_edge.v
   - from: cpu
     get:
       - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.v
 modules:
   jt:
     - name: jt5205

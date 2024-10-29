@@ -41,13 +41,21 @@ module jtwc_sound(
 );
 
 wire [15:0] A, smp;
+wire [11:0] snd;
 wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
-reg  [ 7:0] din, pcm_din;
+reg  [ 7:0] din;
+reg  [ 3:0] pcm_din;
+wire [ 3:0] addr0, addr1;
 reg         ay0_cs, ay1_cs, ram_cs, pcm_set, pcm_ctl, filter, nmi_clr,
             latch_cs, rst_n, pcm_en, nbl;
-wire        iorq_n, rfsh_n, mreq_n, nmi_n, int_n, vclk;
+wire        iorq_n, rfsh_n, mreq_n, nmi_n, int_n, vclk,
+            wr_n, rd_n;
 
 assign rom_addr = A[13:0];
+assign {addr0, addr1} = 0; // Assign correctly
+assign pcm_cs         = 0;
+assign pcm            = 12'b0;
+assign rfsh_n = 0;
 
 always @* begin
     rom_cs   = 0;
@@ -142,6 +150,7 @@ jt49 u_ay0(
     .rst_n  ( rst_n     ),
     .clk    ( clk       ),
     .clk_en ( cen_psg2  ),
+    .addr   ( addr0     ),
     .cs_n   ( ~ay0_cs   ),
     .wr_n   ( wr_n      ),
     .din    ( cpu_dout  ),
@@ -159,10 +168,11 @@ jt49 u_ay0(
     .A(), .B(), .C() // unused outputs
 );
 
-jt49 u_ay0(
+jt49 u_ay1(
     .rst_n  ( rst_n     ),
     .clk    ( clk       ),
     .clk_en ( cen_psg2  ),
+    .addr   ( addr1     ),
     .cs_n   ( ~ay1_cs   ),
     .wr_n   ( wr_n      ),
     .din    ( cpu_dout  ),

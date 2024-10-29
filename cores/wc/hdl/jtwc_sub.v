@@ -35,17 +35,18 @@ module jtwc_sub(
     output reg       rom_cs,
     output    [13:0] rom_addr,
     input     [ 7:0] rom_data,
-    input            rom_ok,
+    input            rom_ok
 );
 
 wire [15:0] A;
 wire [ 7:0] ram_dout;
-reg  [ 7:0] din;
+reg  [ 7:0] cpu_din;
 reg         ram_cs, latch_cs, rst_n, sh_cs;
 wire        rd_n, iorq_n, rfsh_n, mreq_n, int_n, cen_eff;
 
 assign rom_addr = A[13:0];
 assign cen_eff  = waitn & cen;
+assign rfsh_n   = 0;
 
 always @(posedge clk) begin
     rst_n <= ~rst;
@@ -97,7 +98,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
-    .cpu_din    ( din         ),
+    .cpu_din    ( cpu_din     ),
     .cpu_dout   ( cpu_dout    ),
     .ram_dout   ( ram_dout    ),
     // ROM access
