@@ -111,6 +111,16 @@
 		)
 		(uuid "acdda932-f416-4dd4-8482-f531bc6d8a9d")
 	)
+	(wire
+		(pts
+			(xy 144.78 154.94) (xy 151.13 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3853600-3a11-4dbc-8179-080baacdda39")
+	)
 	(bus
 		(pts
 			(xy 187.96 130.81) (xy 203.2 130.81)
@@ -177,7 +187,7 @@
 		)
 		(uuid "1ac2eb3b-de56-42e2-96df-7170645cdee1")
 	)
-	(hierarchical_label "~{SHWR}"
+	(hierarchical_label "~{WR}"
 		(shape input)
 		(at 144.78 149.86 180)
 		(fields_autoplaced yes)
@@ -248,6 +258,18 @@
 			(justify right)
 		)
 		(uuid "d330a24a-48eb-4d4a-add7-be23305f7105")
+	)
+	(hierarchical_label "~{CS}"
+		(shape input)
+		(at 144.78 154.94 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "fa1636a6-19d8-4563-b774-0c280a640809")
 	)
 	(sheet
 		(at 203.2 127)
@@ -499,7 +521,7 @@
 			)
 			(uuid "90c025c0-e7a9-433e-bedd-4e848c0ec595")
 		)
-		(pin "~{SHWR}" input
+		(pin "~{WR}" input
 			(at 151.13 149.86 180)
 			(effects
 				(font
@@ -518,6 +540,16 @@
 				(justify left)
 			)
 			(uuid "276f230b-7f9e-4b3b-870c-6f98d5823dce")
+		)
+		(pin "~{CS}" input
+			(at 151.13 154.94 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "244c669f-6e24-4ee1-bd56-67bdad858fed")
 		)
 		(instances
 			(project "tehkanwc"

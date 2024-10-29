@@ -3901,12 +3901,6 @@
 		(uuid "47ce4c99-b756-4542-a55f-1c7d9c678677")
 	)
 	(junction
-		(at 92.71 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4e3d07d6-f41d-4f20-a629-dd666db1aa9f")
-	)
-	(junction
 		(at 237.49 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4338,16 +4332,6 @@
 	)
 	(wire
 		(pts
-			(xy 92.71 114.3) (xy 92.71 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2edd3f0d-5b64-4df5-b72e-cb26a43659e6")
-	)
-	(wire
-		(pts
 			(xy 231.14 201.93) (xy 237.49 201.93)
 		)
 		(stroke
@@ -4385,16 +4369,6 @@
 			(type default)
 		)
 		(uuid "39337253-b68d-4ad0-953e-c1e690be9ac1")
-	)
-	(wire
-		(pts
-			(xy 88.9 123.19) (xy 92.71 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c1c111c-6fa9-41d5-94da-ad0fbd3fff60")
 	)
 	(wire
 		(pts
@@ -5155,16 +5129,6 @@
 			(type default)
 		)
 		(uuid "d7c1e7b2-434d-409e-aaac-d24468509712")
-	)
-	(wire
-		(pts
-			(xy 92.71 110.49) (xy 92.71 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d91a70ab-0852-472b-9b78-a555f3623158")
 	)
 	(wire
 		(pts
@@ -6040,17 +6004,6 @@
 		)
 		(uuid "a882954b-4f39-4aaf-aad0-5706d8fdec0b")
 	)
-	(label "~{PH1}"
-		(at 88.9 123.19 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "aa9d7cf0-0691-48b4-a649-17ce74632534")
-	)
 	(label "FIX2"
 		(at 231.14 184.15 0)
 		(fields_autoplaced yes)
@@ -6432,110 +6385,6 @@
 			(justify right)
 		)
 		(uuid "fc18be83-05ff-4765-9679-21e658e48254")
-	)
-	(symbol
-		(lib_id "jt74:74LS32")
-		(at 100.33 120.65 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1049cf81-cdae-4df7-8045-4e95a9a0702b")
-		(property "Reference" "VE22"
-			(at 100.33 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS32"
-			(at 99.06 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 100.33 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Quad 2-input OR"
-			(at 100.33 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "4e8e8074-6ca7-4ebb-86ab-7141214ace87")
-		)
-		(pin "3"
-			(uuid "54a4f702-a3cb-4117-84f8-026283aa64d1")
-		)
-		(pin "13"
-			(uuid "9bb84ba5-5da1-4b4c-9ce9-3314d4d95b5e")
-		)
-		(pin "14"
-			(uuid "7c238691-36a1-43f3-9c5d-34c42129e248")
-		)
-		(pin "7"
-			(uuid "610d3764-c896-4411-80d5-3121d837c785")
-		)
-		(pin "6"
-			(uuid "3a74aaf1-2e72-4c44-992d-710ddb60725f")
-		)
-		(pin "4"
-			(uuid "fcca201b-1f81-49df-b54c-c433f0f4f241")
-		)
-		(pin "1"
-			(uuid "915fd752-6560-4ae6-8783-aa48761c4f73")
-		)
-		(pin "11"
-			(uuid "e55fe771-58db-4190-94ea-0efb21f33731")
-		)
-		(pin "9"
-			(uuid "25231ffc-7f04-4705-93ed-fe210d548d24")
-		)
-		(pin "10"
-			(uuid "8871f09a-865c-4cf3-8d48-965452883a0d")
-		)
-		(pin "5"
-			(uuid "723ab288-dc6d-43e5-895e-1b57a9f01348")
-		)
-		(pin "12"
-			(uuid "49937faf-0629-4529-9bce-5d65b17988c8")
-		)
-		(pin "8"
-			(uuid "a34b59f1-bf03-47a5-a490-2b4b3699a7f5")
-		)
-		(instances
-			(project "tehkanwc"
-				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/aa8e0bd2-a025-42ee-8e63-e11c0cb34165"
-					(reference "VE22")
-					(unit 1)
-				)
-			)
-		)
 	)
 	(symbol
 		(lib_id "jt74:74LS08")
@@ -7161,7 +7010,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS32")
-		(at 100.33 107.95 0)
+		(at 100.33 111.76 0)
 		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
@@ -7170,7 +7019,7 @@
 		(dnp no)
 		(uuid "6728ce51-3dea-4185-8862-4ad526717247")
 		(property "Reference" "VE22"
-			(at 100.33 107.95 0)
+			(at 100.33 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7178,7 +7027,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 99.06 113.03 0)
+			(at 99.06 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7186,7 +7035,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 100.33 107.95 0)
+			(at 100.33 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7195,7 +7044,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 100.33 107.95 0)
+			(at 100.33 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7204,7 +7053,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input OR"
-			(at 100.33 107.95 0)
+			(at 100.33 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)

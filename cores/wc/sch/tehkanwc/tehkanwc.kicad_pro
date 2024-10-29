@@ -452,6 +452,10 @@
       "scroll RAM"
     ],
     [
+      "e64489cb-d161-4b96-a41e-0555e765bbe0",
+      "Watchdog"
+    ],
+    [
       "34c66f42-7f31-4ae9-9ef6-6e02db74328b",
       "main CPU"
     ],
