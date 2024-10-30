@@ -9385,23 +9385,7 @@
 		(uuid "36732795-cd67-440a-a512-6bc873a63f2a")
 	)
 	(junction
-<<<<<<< Updated upstream
 		(at 394.97 38.1)
-=======
-		(at 332.74 41.91)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4235fc76-f1b0-407c-919e-92cae399adca")
-	)
-	(junction
-		(at 288.29 39.37)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5e9d1c2d-3664-4e37-8a37-55955f4dd140")
-	)
-	(junction
-		(at 332.74 29.21)
->>>>>>> Stashed changes
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7485e038-825d-47b7-890b-fdba079e2a33")
@@ -9475,31 +9459,15 @@
 		(uuid "4c51541d-e5b3-4a55-ab5f-6e4d574e21e7")
 	)
 	(no_connect
-		(at 307.34 106.68)
-		(uuid "4d2dbd42-670a-41fe-bdd7-4d7f8b998d7a")
-	)
-	(no_connect
 		(at 64.77 148.59)
 		(uuid "579c1f5e-cc4b-4490-a10f-9f3e9e803136")
-	)
-	(no_connect
-		(at 347.98 93.98)
-		(uuid "9243ec93-4411-415a-84a1-98677a611298")
 	)
 	(no_connect
 		(at 179.07 238.76)
 		(uuid "a7363b53-8e80-45a5-ae3d-cf9afd9515ff")
 	)
 	(no_connect
-<<<<<<< Updated upstream
 		(at 349.25 86.36)
-=======
-		(at 281.94 93.98)
-		(uuid "b7b2cf68-9bae-4b84-a2ab-3b6114e53aa1")
-	)
-	(no_connect
-		(at 347.98 104.14)
->>>>>>> Stashed changes
 		(uuid "b98846bc-b969-402d-83c0-fa67f441fa8d")
 	)
 	(no_connect
@@ -10258,16 +10226,6 @@
 			(type default)
 		)
 		(uuid "1e0a9a06-d1be-4ae2-9652-ac18f34aff33")
-	)
-	(wire
-		(pts
-			(xy 284.48 26.67) (xy 284.48 29.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e0f6b3d-6f5b-43cc-9649-af679d1a6483")
 	)
 	(wire
 		(pts
@@ -11151,21 +11109,13 @@
 	)
 	(wire
 		(pts
-<<<<<<< Updated upstream
 			(xy 311.15 38.1) (xy 308.61 38.1)
-=======
-			(xy 284.48 39.37) (xy 288.29 39.37)
->>>>>>> Stashed changes
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-<<<<<<< Updated upstream
 		(uuid "541d1d63-1b83-4039-91a8-5c846d09cc49")
-=======
-		(uuid "5367bc77-43f6-47f8-8251-dd779597445d")
->>>>>>> Stashed changes
 	)
 	(bus
 		(pts
@@ -11399,21 +11349,7 @@
 	)
 	(wire
 		(pts
-<<<<<<< Updated upstream
 			(xy 283.21 38.1) (xy 278.13 38.1)
-=======
-			(xy 288.29 39.37) (xy 288.29 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5fded09b-7dfa-4d7d-9962-cee5c721438a")
-	)
-	(wire
-		(pts
-			(xy 281.94 55.88) (xy 276.86 55.88)
->>>>>>> Stashed changes
 		)
 		(stroke
 			(width 0)
@@ -12090,16 +12026,6 @@
 			(type default)
 		)
 		(uuid "896401e6-1e6d-491e-b6d8-4a593e1d11a5")
-	)
-	(wire
-		(pts
-			(xy 288.29 36.83) (xy 288.29 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8b2faa44-7189-4c3f-a7df-1edb7be9c679")
 	)
 	(wire
 		(pts
@@ -12793,16 +12719,6 @@
 	)
 	(wire
 		(pts
-			(xy 288.29 36.83) (xy 294.64 36.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b8c5da5f-99a1-4637-b1dc-76c48a3ff7c1")
-	)
-	(wire
-		(pts
 			(xy 132.08 256.54) (xy 137.16 256.54)
 		)
 		(stroke
@@ -13253,11 +13169,7 @@
 	)
 	(wire
 		(pts
-<<<<<<< Updated upstream
 			(xy 308.61 86.36) (xy 316.23 86.36)
-=======
-			(xy 307.34 104.14) (xy 312.42 104.14)
->>>>>>> Stashed changes
 		)
 		(stroke
 			(width 0)
@@ -13315,7 +13227,6 @@
 		)
 		(uuid "d8253c9c-0bc3-4a3e-a4cd-a1f5fbcf84fe")
 	)
-<<<<<<< Updated upstream
 	(wire
 		(pts
 			(xy 276.86 76.2) (xy 283.21 76.2)
@@ -13326,8 +13237,6 @@
 		)
 		(uuid "d86cbf52-6967-4407-b958-07c44492515d")
 	)
-=======
->>>>>>> Stashed changes
 	(bus
 		(pts
 			(xy 384.81 83.82) (xy 384.81 81.28)
@@ -13450,21 +13359,7 @@
 	)
 	(wire
 		(pts
-<<<<<<< Updated upstream
 			(xy 276.86 71.12) (xy 283.21 71.12)
-=======
-			(xy 284.48 36.83) (xy 284.48 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e0e0e68f-f521-4ede-abe7-8e5686da5268")
-	)
-	(wire
-		(pts
-			(xy 275.59 88.9) (xy 281.94 88.9)
->>>>>>> Stashed changes
 		)
 		(stroke
 			(width 0)
@@ -13594,7 +13489,6 @@
 	)
 	(wire
 		(pts
-<<<<<<< Updated upstream
 			(xy 342.9 76.2) (xy 349.25 76.2)
 		)
 		(stroke
@@ -13605,8 +13499,6 @@
 	)
 	(wire
 		(pts
-=======
->>>>>>> Stashed changes
 			(xy 162.56 196.85) (xy 166.37 196.85)
 		)
 		(stroke
@@ -13744,16 +13636,6 @@
 			(type default)
 		)
 		(uuid "f1092ad7-e3e1-43c2-af1e-9a6c27dabd3a")
-	)
-	(wire
-		(pts
-			(xy 288.29 41.91) (xy 294.64 41.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f1460d8a-c9a4-4b11-bbdf-bde47bc3c9df")
 	)
 	(bus
 		(pts
@@ -13995,7 +13877,6 @@
 		)
 		(uuid "63e4cf73-2a92-4c0d-b8d1-4bf50b2c2852")
 	)
-<<<<<<< Updated upstream
 	(text "x?"
 		(exclude_from_sim no)
 		(at 311.15 89.154 0)
@@ -14006,8 +13887,6 @@
 		)
 		(uuid "9f4aa0f4-9362-4013-b34e-d7aef0a0eb72")
 	)
-=======
->>>>>>> Stashed changes
 	(label "~{WRB}"
 		(at 168.91 209.55 0)
 		(fields_autoplaced yes)
@@ -14063,17 +13942,6 @@
 		)
 		(uuid "09cae58a-d90a-426e-94a4-120f82a2ea52")
 	)
-	(label "VCC"
-		(at 284.48 26.67 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0be0451d-7495-4eb0-9b88-268d059bc362")
-	)
 	(label "A6"
 		(at 176.53 105.41 0)
 		(fields_autoplaced yes)
@@ -14117,17 +13985,6 @@
 			(justify left bottom)
 		)
 		(uuid "13a51351-2763-4f7a-92e5-0fa2f0f077ce")
-	)
-	(label "A12"
-		(at 308.61 99.06 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "14a7f5ff-56f3-483f-90b1-ea7a4ba2cec2")
 	)
 	(label "D2"
 		(at 344.17 43.18 0)
@@ -14305,7 +14162,6 @@
 		)
 		(uuid "21d80f78-209a-4be1-9704-0a8ddaf0f2b3")
 	)
-<<<<<<< Updated upstream
 	(label "F12_14"
 		(at 309.88 66.04 0)
 		(fields_autoplaced yes)
@@ -14317,8 +14173,6 @@
 		)
 		(uuid "22c1e589-e0be-4295-998e-debb06478bd3")
 	)
-=======
->>>>>>> Stashed changes
 	(label "MD4"
 		(at 121.92 199.39 0)
 		(fields_autoplaced yes)
@@ -14484,17 +14338,6 @@
 		)
 		(uuid "3293b164-0dc4-42fb-a732-b3524403f3f6")
 	)
-	(label "A11"
-		(at 308.61 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "333110d7-503b-47e6-ab01-8304cabc9323")
-	)
 	(label "~{RST}"
 		(at 179.07 256.54 0)
 		(fields_autoplaced yes)
@@ -14505,17 +14348,6 @@
 			(justify left bottom)
 		)
 		(uuid "348bd4af-0c88-4dc3-a7b1-6966450b7bf3")
-	)
-	(label "VCC"
-		(at 360.68 50.8 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "35769bee-aee2-4ab5-9fb5-e35818ff8acf")
 	)
 	(label "MMxC"
 		(at 168.91 214.63 0)
@@ -14572,7 +14404,6 @@
 		)
 		(uuid "37910e35-0390-40c4-875e-8fcf061d9a1d")
 	)
-<<<<<<< Updated upstream
 	(label "F12_18"
 		(at 309.88 55.88 0)
 		(fields_autoplaced yes)
@@ -14584,8 +14415,6 @@
 		)
 		(uuid "38face62-a8a2-4f01-835d-616ea8b2f81a")
 	)
-=======
->>>>>>> Stashed changes
 	(label "~{IORQ}"
 		(at 45.72 229.87 0)
 		(fields_autoplaced yes)
@@ -14619,13 +14448,8 @@
 		)
 		(uuid "3a23072c-d2f6-489e-a4d7-cf1d67aa3506")
 	)
-<<<<<<< Updated upstream
 	(label "~{PGM}"
 		(at 309.88 86.36 0)
-=======
-	(label "AB6"
-		(at 312.42 104.14 180)
->>>>>>> Stashed changes
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -14899,7 +14723,6 @@
 		)
 		(uuid "51adb2c6-c041-4fbf-9c2d-d89708e3ac18")
 	)
-<<<<<<< Updated upstream
 	(label "F12_8"
 		(at 309.88 83.82 0)
 		(fields_autoplaced yes)
@@ -14911,8 +14734,6 @@
 		)
 		(uuid "528edc17-1e20-4568-987e-4bd382f88be8")
 	)
-=======
->>>>>>> Stashed changes
 	(label "MD2"
 		(at 222.25 194.31 180)
 		(fields_autoplaced yes)
@@ -14935,7 +14756,6 @@
 		)
 		(uuid "53bc0810-bd5d-49a7-8ce3-0ed89d760b7c")
 	)
-<<<<<<< Updated upstream
 	(label "F12_9"
 		(at 309.88 81.28 0)
 		(fields_autoplaced yes)
@@ -14947,8 +14767,6 @@
 		)
 		(uuid "54179029-2b3d-4063-bfb5-364a08ea5dcd")
 	)
-=======
->>>>>>> Stashed changes
 	(label "MMx8"
 		(at 106.68 256.54 0)
 		(fields_autoplaced yes)
@@ -15092,7 +14910,6 @@
 		)
 		(uuid "62d323a7-c303-4f0f-874e-f6fd23e5d713")
 	)
-<<<<<<< Updated upstream
 	(label "F12_13"
 		(at 309.88 71.12 0)
 		(fields_autoplaced yes)
@@ -15104,8 +14921,6 @@
 		)
 		(uuid "62d495f3-0427-4d52-a68c-6b7916cb5d62")
 	)
-=======
->>>>>>> Stashed changes
 	(label "~{RDB}"
 		(at 354.33 146.05 0)
 		(fields_autoplaced yes)
@@ -15150,7 +14965,6 @@
 		)
 		(uuid "6770d9dd-8e8c-4e90-8396-54b7ea356d55")
 	)
-<<<<<<< Updated upstream
 	(label "F12_16"
 		(at 309.88 60.96 0)
 		(fields_autoplaced yes)
@@ -15162,8 +14976,6 @@
 		)
 		(uuid "67fda544-3aca-4278-9a5f-e7a3f8a95f5f")
 	)
-=======
->>>>>>> Stashed changes
 	(label "A4"
 		(at 133.35 100.33 180)
 		(fields_autoplaced yes)
@@ -15274,7 +15086,6 @@
 		)
 		(uuid "6f604175-829e-4100-81c6-19a8840eefa7")
 	)
-<<<<<<< Updated upstream
 	(label "F12_11"
 		(at 309.88 76.2 0)
 		(fields_autoplaced yes)
@@ -15286,8 +15097,6 @@
 		)
 		(uuid "6f7b46c9-50b8-43ad-9233-cdd2eb9ea30d")
 	)
-=======
->>>>>>> Stashed changes
 	(label "A9"
 		(at 133.35 113.03 180)
 		(fields_autoplaced yes)
@@ -15464,17 +15273,6 @@
 		)
 		(uuid "78e1a045-9de8-40af-ab9f-5030c0ee0ca1")
 	)
-	(label "A2"
-		(at 308.61 71.12 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "78f5efcf-c0b7-472c-9dfb-d951fb4372d2")
-	)
 	(label "A0"
 		(at 45.72 219.71 0)
 		(fields_autoplaced yes)
@@ -15519,17 +15317,6 @@
 		)
 		(uuid "7b466d03-9882-4b6d-afdf-7a85b10b7c40")
 	)
-	(label "~{PGM}"
-		(at 294.64 41.91 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7c5a253b-b103-4bca-a240-3fe28a4d9551")
-	)
 	(label "D6"
 		(at 171.45 105.41 180)
 		(fields_autoplaced yes)
@@ -15552,13 +15339,8 @@
 		)
 		(uuid "7d4db584-a118-47b6-b8db-98bb1f57f6fe")
 	)
-<<<<<<< Updated upstream
 	(label "F12_20"
 		(at 309.88 50.8 0)
-=======
-	(label "A1"
-		(at 308.61 68.58 0)
->>>>>>> Stashed changes
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -15579,13 +15361,8 @@
 		)
 		(uuid "81062e82-22a2-4609-8a1e-8f4da3bd62d2")
 	)
-<<<<<<< Updated upstream
 	(label "F12_10"
 		(at 309.88 78.74 0)
-=======
-	(label "A13"
-		(at 308.61 101.6 0)
->>>>>>> Stashed changes
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -15593,7 +15370,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "82c5d4b3-23a2-41ec-b522-6431ca775601")
+		(uuid "834e1a79-8712-4dde-9dae-857d0911f61f")
 	)
 	(label "MMx8"
 		(at 199.39 68.58 0)
@@ -15760,17 +15537,6 @@
 		)
 		(uuid "91300ff8-e44d-4b0b-8ef9-6267eb19ed23")
 	)
-	(label "A14"
-		(at 74.93 83.82 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9418479e-5188-4040-8efd-af31a3ee4b67")
-	)
 	(label "D7"
 		(at 171.45 107.95 180)
 		(fields_autoplaced yes)
@@ -15847,17 +15613,6 @@
 			(justify left bottom)
 		)
 		(uuid "96abdc42-1f59-4ab7-8d4a-414cdecba75b")
-	)
-	(label "A3"
-		(at 308.61 73.66 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9723a2e5-928c-4622-bf89-ebb4501d3152")
 	)
 	(label "MD0"
 		(at 121.92 189.23 0)
@@ -16035,17 +15790,6 @@
 		)
 		(uuid "a4eed2c0-c95a-4cee-a961-be3d987ec22d")
 	)
-	(label "A6"
-		(at 308.61 81.28 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a528fe34-c19b-49f1-828b-f96d72fc0ef9")
-	)
 	(label "~{NMICLR}"
 		(at 262.89 71.12 180)
 		(fields_autoplaced yes)
@@ -16156,17 +15900,6 @@
 		)
 		(uuid "ae59317e-8163-49e3-af58-fc512bdcc9c5")
 	)
-	(label "A5"
-		(at 308.61 78.74 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ae5ef0c1-8ba5-4e6e-912c-5e7a1016f02d")
-	)
 	(label "PSGCLK"
 		(at 278.13 119.38 180)
 		(fields_autoplaced yes)
@@ -16232,17 +15965,6 @@
 			(justify right bottom)
 		)
 		(uuid "b2484d16-19f3-4f8f-bf87-69550c2bf7ce")
-	)
-	(label "A8"
-		(at 308.61 88.9 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b3af88c6-272a-450d-99fa-c1a028d7570b")
 	)
 	(label "VCC"
 		(at 325.12 48.26 0)
@@ -16310,7 +16032,6 @@
 		)
 		(uuid "b9537fdf-1773-4b86-8b4c-dc369fd9934f")
 	)
-<<<<<<< Updated upstream
 	(label "F12_19"
 		(at 309.88 53.34 0)
 		(fields_autoplaced yes)
@@ -16322,8 +16043,6 @@
 		)
 		(uuid "b98b30a5-d7e2-4b83-936a-8e62c2996ad7")
 	)
-=======
->>>>>>> Stashed changes
 	(label "~{RDB}"
 		(at 354.33 205.74 0)
 		(fields_autoplaced yes)
@@ -16346,53 +16065,6 @@
 		)
 		(uuid "bacf59cc-b74d-49d4-a284-a227cc9c1411")
 	)
-<<<<<<< Updated upstream
-=======
-	(label "A10"
-		(at 308.61 93.98 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "baf6860c-ba6f-4240-a1cb-697dda2f9c38")
-	)
-	(label "AB"
-		(at 312.42 58.42 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bb22d9f5-f5e9-4a9b-846f-f6b56c26fd1e")
-	)
-	(label "BB"
-		(at 313.69 46.99 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bc8bc267-eab8-4f10-8b67-6bb8f6208ce8")
-	)
-	(label "A4"
-		(at 308.61 76.2 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bed4bc94-f857-4ff4-8af6-65850cbe67c5")
-	)
->>>>>>> Stashed changes
 	(label "ABC2"
 		(at 378.46 163.83 180)
 		(fields_autoplaced yes)
@@ -16646,17 +16318,6 @@
 		)
 		(uuid "d526d58c-f9d7-4137-9899-5325cc97b9e8")
 	)
-	(label "A7"
-		(at 308.61 83.82 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d539c9e2-e1c4-40aa-bc93-9c4f5d5a7bd2")
-	)
 	(label "D3"
 		(at 344.17 45.72 0)
 		(fields_autoplaced yes)
@@ -16690,8 +16351,8 @@
 		)
 		(uuid "d604eb52-207b-4022-b70a-7c64dab686e1")
 	)
-	(label "A[1..13]"
-		(at 254 201.93 180)
+	(label "F12[8..20]"
+		(at 256.54 201.93 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16734,7 +16395,6 @@
 		)
 		(uuid "d8c16db6-c917-4d00-8d9f-8fdae7f0206e")
 	)
-<<<<<<< Updated upstream
 	(label "F12_12"
 		(at 309.88 73.66 0)
 		(fields_autoplaced yes)
@@ -16746,8 +16406,6 @@
 		)
 		(uuid "d90972e1-a9b5-44f5-8248-242c09245c37")
 	)
-=======
->>>>>>> Stashed changes
 	(label "DB0"
 		(at 179.07 246.38 0)
 		(fields_autoplaced yes)
@@ -16781,13 +16439,8 @@
 		)
 		(uuid "db61d0dc-d696-4a6f-80aa-ddae8d611e14")
 	)
-<<<<<<< Updated upstream
 	(label "F12[8..20]"
 		(at 331.47 88.9 180)
-=======
-	(label "A[1..13]"
-		(at 330.2 106.68 180)
->>>>>>> Stashed changes
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16796,17 +16449,6 @@
 			(justify right bottom)
 		)
 		(uuid "db6a2124-2107-4c93-abad-1cce89b13af4")
-	)
-	(label "AB6"
-		(at 294.64 36.83 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "dd1726e1-1a0d-4efe-990e-d2997b53a7c1")
 	)
 	(label "A7"
 		(at 176.53 107.95 0)
@@ -16896,28 +16538,6 @@
 		)
 		(uuid "e44fcb24-d0a2-4124-ab97-c3e7c0727faf")
 	)
-	(label "A9"
-		(at 308.61 91.44 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e5579807-49c9-4cc0-9ed2-8488a1e7b4c4")
-	)
-	(label "VCC"
-		(at 294.64 50.8 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "e56fc5a8-83db-4467-8dcd-e785291377dd")
-	)
 	(label "~{MREQ}"
 		(at 87.63 138.43 0)
 		(fields_autoplaced yes)
@@ -16929,7 +16549,6 @@
 		)
 		(uuid "e5e123a6-8529-449f-8faf-1b1097a7a363")
 	)
-<<<<<<< Updated upstream
 	(label "F12_17"
 		(at 309.88 58.42 0)
 		(fields_autoplaced yes)
@@ -16941,8 +16560,6 @@
 		)
 		(uuid "e6a3c340-7efd-4760-943c-7b700a5596bb")
 	)
-=======
->>>>>>> Stashed changes
 	(label "MMx8"
 		(at 175.26 57.15 180)
 		(fields_autoplaced yes)
@@ -16965,7 +16582,6 @@
 		)
 		(uuid "e787c90a-fb2b-417d-b1fe-28fb062c2977")
 	)
-<<<<<<< Updated upstream
 	(label "F12_15"
 		(at 309.88 63.5 0)
 		(fields_autoplaced yes)
@@ -16977,8 +16593,6 @@
 		)
 		(uuid "e7b59ee8-8122-4344-96b9-dcff85c334e2")
 	)
-=======
->>>>>>> Stashed changes
 	(label "A3"
 		(at 133.35 97.79 180)
 		(fields_autoplaced yes)
@@ -17504,13 +17118,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 320.04 40.64 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 49.53 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18082,74 +17691,6 @@
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
 					(reference "R14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
-		(at 284.48 33.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "17d7842e-d6b0-469f-9dd3-3d3955b2a1f4")
-		(property "Reference" "R24"
-			(at 287.02 33.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "1k"
-			(at 281.94 33.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 285.496 33.274 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 284.48 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 284.48 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b16bec3e-21b7-49fe-ada1-25e00dcf37f8")
-		)
-		(pin "2"
-			(uuid "c0043c24-df30-4d61-87e1-b92eb317a75e")
-		)
-		(instances
-			(project "tehkanwc"
-				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
-					(reference "R24")
 					(unit 1)
 				)
 			)
@@ -18848,13 +18389,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 384.81 35.56 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 26.67 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19251,13 +18787,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 384.81 30.48 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 21.59 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19638,13 +19169,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 384.81 40.64 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 31.75 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19816,13 +19342,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 320.04 30.48 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 39.37 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20207,13 +19728,8 @@
 				(hide yes)
 			)
 		)
-<<<<<<< Updated upstream
 		(property "Value" "10k"
 			(at 320.04 35.56 90)
-=======
-		(property "Value" "1k"
-			(at 322.58 44.45 90)
->>>>>>> Stashed changes
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22170,7 +21686,7 @@
 			)
 			(uuid "13616ccb-5df4-4500-b2f7-620e948ade17")
 		)
-		(pin "A[1..13]" output
+		(pin "F12[8..20]" input
 			(at 257.81 201.93 180)
 			(effects
 				(font
