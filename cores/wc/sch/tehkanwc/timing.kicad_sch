@@ -20750,16 +20750,16 @@
 			(uuid "a26280b2-3f7e-4c1b-b2f7-92168bed20d5")
 		)
 		(pin "3"
-			(uuid "23cb4398-c302-4f47-9e06-e74206c46404")
+			(uuid "23cb4398-c302-4f47-9e06-e74206c46405")
 		)
 		(pin "2"
-			(uuid "85fcd45a-79c0-4042-a50a-78f0522c65a7")
+			(uuid "85fcd45a-79c0-4042-a50a-78f0522c65a8")
 		)
 		(pin "1"
-			(uuid "e601ced4-d233-4341-bec2-81a42f2b8bfe")
+			(uuid "e601ced4-d233-4341-bec2-81a42f2b8bff")
 		)
 		(pin "14"
-			(uuid "b9e8f90c-1e48-45c0-befa-a9e9e66d7c3c")
+			(uuid "b9e8f90c-1e48-45c0-befa-a9e9e66d7c3d")
 		)
 		(pin "10"
 			(uuid "75edf5ff-dd86-432e-8862-baa6e6152e66")
@@ -20768,16 +20768,16 @@
 			(uuid "43f7bf95-f9ff-4e6c-9290-c275f224f234")
 		)
 		(pin "6"
-			(uuid "7c77d9dc-12ef-48de-a063-338bc6c848fb")
+			(uuid "7c77d9dc-12ef-48de-a063-338bc6c848fc")
 		)
 		(pin "9"
 			(uuid "6cef62ff-bf38-484a-936d-611d8101faf6")
 		)
 		(pin "5"
-			(uuid "28078559-5c0f-4447-a12b-6625d5328764")
+			(uuid "28078559-5c0f-4447-a12b-6625d5328765")
 		)
 		(pin "4"
-			(uuid "9a4a97fc-2385-4175-9a11-8a0009c9a353")
+			(uuid "9a4a97fc-2385-4175-9a11-8a0009c9a354")
 		)
 		(pin "8"
 			(uuid "4290e891-612e-4659-a3d3-72b89850e6b6")
@@ -20786,7 +20786,7 @@
 			(uuid "d2ac98bc-0f2e-47fb-b1ba-c1d04af591bb")
 		)
 		(pin "7"
-			(uuid "fa76436a-0736-4789-8307-b0fb275fb174")
+			(uuid "fa76436a-0736-4789-8307-b0fb275fb175")
 		)
 		(instances
 			(project "tehkanwc"
