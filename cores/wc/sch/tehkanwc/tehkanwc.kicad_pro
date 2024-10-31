@@ -456,6 +456,10 @@
       "Watchdog"
     ],
     [
+      "4c118448-27cb-41f2-914e-4c5ee134f69b",
+      "address decoder"
+    ],
+    [
       "34c66f42-7f31-4ae9-9ef6-6e02db74328b",
       "main CPU"
     ],

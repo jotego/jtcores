@@ -5625,7 +5625,7 @@
 	)
 	(bus
 		(pts
-			(xy 207.01 107.95) (xy 218.44 107.95)
+			(xy 207.01 105.41) (xy 218.44 105.41)
 		)
 		(stroke
 			(width 0)
@@ -5842,16 +5842,6 @@
 			(type default)
 		)
 		(uuid "29a9e9a8-7ad4-4e17-88d5-a7632eb6bb1f")
-	)
-	(wire
-		(pts
-			(xy 138.43 88.9) (xy 148.59 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29d6cec5-de69-408b-ba80-9f064d08d4dc")
 	)
 	(wire
 		(pts
@@ -6705,7 +6695,7 @@
 	)
 	(bus
 		(pts
-			(xy 207.01 110.49) (xy 218.44 110.49)
+			(xy 207.01 107.95) (xy 218.44 107.95)
 		)
 		(stroke
 			(width 0)
@@ -7005,7 +6995,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 96.52) (xy 180.34 96.52)
+			(xy 218.44 110.49) (xy 207.01 110.49)
 		)
 		(stroke
 			(width 0)
@@ -8649,17 +8639,6 @@
 		)
 		(uuid "1ab9d5da-d531-42af-ad36-dba549bc50d5")
 	)
-	(label "SH~{OE}"
-		(at 170.18 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1e870b9b-2abc-469e-9691-a7b97ace5ac1")
-	)
 	(label "~{SHWE}"
 		(at 170.18 140.97 0)
 		(fields_autoplaced yes)
@@ -9145,7 +9124,7 @@
 		(uuid "556b85c0-4e59-47b7-b72a-ccf17f7b2790")
 	)
 	(label "DD[0..7]"
-		(at 218.44 110.49 180)
+		(at 218.44 107.95 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9156,7 +9135,7 @@
 		(uuid "5abf0d16-f90a-4a58-a84a-4e8821858c2a")
 	)
 	(label "SHAB[0..10]"
-		(at 218.44 107.95 180)
+		(at 218.44 105.41 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9452,17 +9431,6 @@
 		)
 		(uuid "7e784671-8e7f-4d55-b9d3-31cf69be7e1f")
 	)
-	(label "SH~{OE}"
-		(at 148.59 88.9 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7f3eb831-4c51-4548-9257-7997986956f4")
-	)
 	(label "~{SSEL}"
 		(at 172.72 177.8 0)
 		(fields_autoplaced yes)
@@ -9661,7 +9629,7 @@
 		)
 		(uuid "9aa5f976-0c25-4b99-a274-590edf883d12")
 	)
-	(label "~{RWE}"
+	(label "~{REDWE}"
 		(at 171.45 60.96 0)
 		(fields_autoplaced yes)
 		(effects
@@ -10365,6 +10333,17 @@
 		)
 		(uuid "e595eec5-2cd4-4288-bb31-c96749f869f4")
 	)
+	(label "SH~{RD}"
+		(at 218.44 110.49 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e8701254-55c3-4c49-ae8f-f6f1a58893a1")
+	)
 	(label "GND"
 		(at 285.75 147.32 180)
 		(fields_autoplaced yes)
@@ -10885,7 +10864,7 @@
 		)
 		(uuid "7c9e5344-aaf1-406a-a649-8dfe596134b3")
 	)
-	(hierarchical_label "~{RWE}"
+	(hierarchical_label "~{REDWE}"
 		(shape input)
 		(at 356.87 201.93 0)
 		(fields_autoplaced yes)
@@ -11054,7 +11033,7 @@
 		(uuid "b2c0560f-6127-4ea2-8c08-e07c461f01df")
 	)
 	(hierarchical_label "SH~{RD}"
-		(shape input)
+		(shape output)
 		(at 327.66 199.39 180)
 		(fields_autoplaced yes)
 		(effects
@@ -12750,16 +12729,6 @@
 			)
 			(uuid "e783098e-9f61-43d2-9574-593171c14e87")
 		)
-		(pin "RAM_~{OE}" output
-			(at 138.43 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "617c74d0-9bac-4dd5-9423-863e63c47c05")
-		)
 		(pin "D[0..7]" bidirectional
 			(at 138.43 91.44 0)
 			(effects
@@ -13123,7 +13092,7 @@
 			)
 			(uuid "f2299572-a58a-4702-8afa-e34d5f4ae6bf")
 		)
-		(pin "~{RWE}" input
+		(pin "~{REDWE}" input
 			(at 180.34 60.96 180)
 			(effects
 				(font
@@ -13526,18 +13495,8 @@
 			)
 			(uuid "7a53bb54-2350-49cd-8d84-aa74b864cd7e")
 		)
-		(pin "SH~{OE}" input
-			(at 180.34 96.52 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "41c65776-75a3-4d0f-a529-ae9b0f9ce584")
-		)
 		(pin "DD[0..7]" bidirectional
-			(at 207.01 110.49 0)
+			(at 207.01 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13597,7 +13556,7 @@
 			(uuid "8a9c669b-9678-4c11-b626-6e89779a17f5")
 		)
 		(pin "SHAB[0..10]" output
-			(at 207.01 107.95 0)
+			(at 207.01 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13665,6 +13624,16 @@
 				(justify right)
 			)
 			(uuid "3468232d-6365-48fb-92bb-969a30c4a4f1")
+		)
+		(pin "SH~{RD}" output
+			(at 207.01 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "b3304ac9-b784-40a9-bbbb-d186487445de")
 		)
 		(instances
 			(project "tehkanwc"

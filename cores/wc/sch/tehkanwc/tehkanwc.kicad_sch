@@ -1033,7 +1033,7 @@
 			)
 			(uuid "47577623-d131-449c-92ac-3299c29987ed")
 		)
-		(pin "~{RWE}" input
+		(pin "~{REDWE}" input
 			(at 205.74 104.14 0)
 			(effects
 				(font
@@ -1551,7 +1551,7 @@
 			)
 			(uuid "32149494-1b4c-4ac3-931b-1ea904190626")
 		)
-		(pin "~{RWE}" output
+		(pin "~{REDWE}" output
 			(at 238.76 104.14 180)
 			(effects
 				(font

@@ -3515,12 +3515,6 @@
 		)
 	)
 	(junction
-		(at 85.09 114.3)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1cec8794-e461-44f2-9303-ff182dd51ad5")
-	)
-	(junction
 		(at 237.49 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3720,16 +3714,6 @@
 		)
 		(uuid "0ba389f6-7679-48c2-83f2-e0851f774133")
 	)
-	(wire
-		(pts
-			(xy 82.55 114.3) (xy 85.09 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0df086b3-98dd-4403-a922-8faf5a0d6b92")
-	)
 	(bus
 		(pts
 			(xy 269.24 179.07) (xy 269.24 196.85)
@@ -3809,16 +3793,6 @@
 			(type default)
 		)
 		(uuid "1643a47e-79e1-4726-9dac-bb1ce63c4ca7")
-	)
-	(wire
-		(pts
-			(xy 85.09 134.62) (xy 85.09 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "164c3928-7519-4d79-99bd-851b178571b8")
 	)
 	(wire
 		(pts
@@ -3979,16 +3953,6 @@
 			(type default)
 		)
 		(uuid "3d5763af-0ba2-4f63-98a4-273cac92072b")
-	)
-	(wire
-		(pts
-			(xy 85.09 134.62) (xy 90.17 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3ec1cb43-60fb-41d6-a08b-81b91a73aa66")
 	)
 	(bus
 		(pts
@@ -4409,16 +4373,6 @@
 			(type default)
 		)
 		(uuid "8ec3c761-a720-424b-9fef-c7fc19485245")
-	)
-	(wire
-		(pts
-			(xy 85.09 114.3) (xy 92.71 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "934c25e1-2b69-4d20-b39d-13ca258cf433")
 	)
 	(wire
 		(pts
@@ -5821,18 +5775,6 @@
 		)
 		(uuid "935befee-3411-48b8-aa97-c92cb2df1f92")
 	)
-	(hierarchical_label "SSD0"
-		(shape input)
-		(at 82.55 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a939cd1f-93db-48f0-85dc-6725f3211ee6")
-	)
 	(hierarchical_label "OBJ[0..6]"
 		(shape input)
 		(at 195.58 29.21 180)
@@ -6281,110 +6223,6 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/aa8e0bd2-a025-42ee-8e63-e11c0cb34165"
 					(reference "VE21")
 					(unit 5)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS32")
-		(at 100.33 111.76 0)
-		(mirror x)
-		(unit 2)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6728ce51-3dea-4185-8862-4ad526717247")
-		(property "Reference" "VE22"
-			(at 100.33 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS32"
-			(at 99.06 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 100.33 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Quad 2-input OR"
-			(at 100.33 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "4e8e8074-6ca7-4ebb-86ab-7141214ace89")
-		)
-		(pin "3"
-			(uuid "54a4f702-a3cb-4117-84f8-026283aa64d3")
-		)
-		(pin "13"
-			(uuid "9bb84ba5-5da1-4b4c-9ce9-3314d4d95b60")
-		)
-		(pin "14"
-			(uuid "7c238691-36a1-43f3-9c5d-34c42129e24a")
-		)
-		(pin "7"
-			(uuid "610d3764-c896-4411-80d5-3121d837c787")
-		)
-		(pin "6"
-			(uuid "9180da6a-6f93-4ceb-be42-9903ab56264f")
-		)
-		(pin "4"
-			(uuid "f6db6e1b-e3aa-4b45-9634-bc4c76aee409")
-		)
-		(pin "1"
-			(uuid "915fd752-6560-4ae6-8783-aa48761c4f75")
-		)
-		(pin "11"
-			(uuid "e55fe771-58db-4190-94ea-0efb21f33733")
-		)
-		(pin "9"
-			(uuid "25231ffc-7f04-4705-93ed-fe210d548d25")
-		)
-		(pin "10"
-			(uuid "8871f09a-865c-4cf3-8d48-965452883a0e")
-		)
-		(pin "5"
-			(uuid "c43ae8c5-e481-4a0e-b45c-a17d3e98fedd")
-		)
-		(pin "12"
-			(uuid "49937faf-0629-4529-9bce-5d65b17988ca")
-		)
-		(pin "8"
-			(uuid "a34b59f1-bf03-47a5-a490-2b4b3699a7f6")
-		)
-		(instances
-			(project "tehkanwc"
-				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/aa8e0bd2-a025-42ee-8e63-e11c0cb34165"
-					(reference "VE22")
-					(unit 2)
 				)
 			)
 		)
@@ -7520,110 +7358,6 @@
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/aa8e0bd2-a025-42ee-8e63-e11c0cb34165"
 					(reference "VD22")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "74xx:74LS04")
-		(at 97.79 134.62 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "f858e896-ce77-46c4-84aa-5aa5d3a05724")
-		(property "Reference" "VE21"
-			(at 96.52 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS04"
-			(at 97.79 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 97.79 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 97.79 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Hex Inverter"
-			(at 97.79 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "9"
-			(uuid "5f29bfbe-7e3d-4f9b-b86b-8dbd17519cef")
-		)
-		(pin "4"
-			(uuid "2a5934be-517c-499c-b1a1-6f9dc6a0f9ac")
-		)
-		(pin "11"
-			(uuid "d5980211-eaef-44bd-b18b-a72010bcfa23")
-		)
-		(pin "14"
-			(uuid "7ae973aa-07ed-4a72-aa89-425e93de9f67")
-		)
-		(pin "5"
-			(uuid "590b0853-ceb3-41b2-9ea1-d25de3e999b5")
-		)
-		(pin "1"
-			(uuid "6e38a09c-6e11-4fb9-8341-a5cf17f60f5a")
-		)
-		(pin "12"
-			(uuid "32073d14-59f6-4266-8ce5-fd7d1679fad3")
-		)
-		(pin "8"
-			(uuid "3dc3bade-2ee7-49f2-ac43-0564f2b3f14d")
-		)
-		(pin "6"
-			(uuid "5f12a04a-4897-4663-b395-667c83d62543")
-		)
-		(pin "13"
-			(uuid "ca3edd7a-4f88-4847-abf6-6197b0d9a590")
-		)
-		(pin "7"
-			(uuid "9e705dc4-729e-4514-853b-edfb85010943")
-		)
-		(pin "2"
-			(uuid "f2958eac-b74c-4371-83eb-be91bc48783e")
-		)
-		(pin "10"
-			(uuid "4717e203-9ef0-4d0f-80ff-16fe73b148d6")
-		)
-		(pin "3"
-			(uuid "2452a246-75e2-4cc7-a740-d52f4861ad60")
-		)
-		(instances
-			(project "tehkanwc"
-				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/aa8e0bd2-a025-42ee-8e63-e11c0cb34165"
-					(reference "VE21")
 					(unit 1)
 				)
 			)

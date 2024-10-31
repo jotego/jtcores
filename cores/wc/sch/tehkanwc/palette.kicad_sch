@@ -6132,7 +6132,7 @@
 		)
 		(uuid "b6e22a28-9d55-4577-a490-3d821c643c82")
 	)
-	(hierarchical_label "~{RWE}"
+	(hierarchical_label "~{REDWE}"
 		(shape input)
 		(at 189.23 87.63 180)
 		(fields_autoplaced yes)
