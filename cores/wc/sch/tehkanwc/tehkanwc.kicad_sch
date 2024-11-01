@@ -571,7 +571,7 @@
 		)
 		(uuid "fdfb7d0d-4d95-4100-909d-f26f5864e2fd")
 	)
-	(label "1H"
+	(label "HB0"
 		(at 328.93 127 180)
 		(fields_autoplaced yes)
 		(effects
@@ -593,7 +593,7 @@
 		)
 		(uuid "309b99ac-08d9-433a-8b6d-1e8c4ca8493c")
 	)
-	(label "1H"
+	(label "HB0"
 		(at 113.03 139.7 0)
 		(fields_autoplaced yes)
 		(effects
@@ -1003,7 +1003,7 @@
 			)
 			(uuid "01b4c3d8-5f41-4094-9500-82d68d2fd649")
 		)
-		(pin "1H" input
+		(pin "HB0" input
 			(at 120.65 139.7 180)
 			(effects
 				(font
@@ -1093,7 +1093,7 @@
 			)
 			(uuid "56ea7290-5a57-4d78-9c48-b815cdf794a4")
 		)
-		(pin "8H" input
+		(pin "HB3" input
 			(at 205.74 220.98 0)
 			(effects
 				(font
@@ -1561,7 +1561,7 @@
 			)
 			(uuid "9eabcb99-0561-4fda-ab24-26ab43596467")
 		)
-		(pin "1H" output
+		(pin "HB0" output
 			(at 321.31 127 0)
 			(effects
 				(font
@@ -1731,7 +1731,7 @@
 			)
 			(uuid "01af736a-2200-415a-85f7-94ad90343a0e")
 		)
-		(pin "8H" output
+		(pin "HB3" output
 			(at 238.76 220.98 180)
 			(effects
 				(font

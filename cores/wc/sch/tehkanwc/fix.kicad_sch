@@ -1465,7 +1465,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 5.08 -12.7 0)
+				(at 6.35 13.97 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -9756,7 +9756,7 @@
 		)
 		(uuid "7cdea5d0-8acd-47b1-a9b1-df3c2859349e")
 	)
-	(hierarchical_label "C20_12"
+	(hierarchical_label "HB0*"
 		(shape input)
 		(at 290.83 238.76 180)
 		(fields_autoplaced yes)
@@ -9840,7 +9840,7 @@
 		)
 		(uuid "d416fe90-5507-4793-b403-259e5a4b9455")
 	)
-	(hierarchical_label "V[0..2]"
+	(hierarchical_label "V[0..7]"
 		(shape input)
 		(at 189.23 234.95 180)
 		(fields_autoplaced yes)
@@ -11205,7 +11205,7 @@
 		(dnp no)
 		(uuid "875346df-f295-4246-bdaf-da00e03ca6bc")
 		(property "Reference" "VC20"
-			(at 181.61 193.04 0)
+			(at 182.245 191.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11213,7 +11213,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 181.61 190.5 0)
+			(at 181.61 196.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)

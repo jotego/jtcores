@@ -12215,7 +12215,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 8.89 0)
+			(at 0 1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12223,7 +12223,7 @@
 			)
 		)
 		(property "Value" "74LS107"
-			(at -7.62 -8.89 0)
+			(at 0 -6.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38538,8 +38538,8 @@
 		)
 		(symbol "74LS25_3_0"
 			(pin power_in line
-				(at 0 12.7 270)
-				(length 5.08)
+				(at 0 7.62 270)
+				(length 5.08) hide
 				(name "VCC"
 					(effects
 						(font
@@ -38556,8 +38556,8 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -12.7 90)
-				(length 5.08)
+				(at 0 -7.62 90)
+				(length 5.08) hide
 				(name "GND"
 					(effects
 						(font
@@ -64269,7 +64269,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 3.81 6.35 0)
+			(at 0 2.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)

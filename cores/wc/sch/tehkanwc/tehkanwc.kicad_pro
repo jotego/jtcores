@@ -389,7 +389,7 @@
     ],
     [
       "299f6341-7877-4ef7-83d4-6f8a86231071",
-      "line buffer B"
+      "frame buffer B"
     ],
     [
       "8c371e71-02fc-4545-8c26-6cfe33ac70c0",
@@ -429,7 +429,7 @@
     ],
     [
       "f7c3f073-1563-431b-be6a-f482e5164526",
-      "line buffer A"
+      "frame buffer A"
     ],
     [
       "625d024b-ed55-4efc-93a1-2cec73f7d637",
@@ -453,7 +453,7 @@
     ],
     [
       "e64489cb-d161-4b96-a41e-0555e765bbe0",
-      "Watchdog"
+      "watchdog"
     ],
     [
       "4c118448-27cb-41f2-914e-4c5ee134f69b",

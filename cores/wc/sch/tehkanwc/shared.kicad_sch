@@ -6498,17 +6498,6 @@
 		)
 		(uuid "0a6a94b4-c5e9-4fe5-9190-1c523091bfe5")
 	)
-	(label "~{SHWE}"
-		(at 163.83 88.9 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0b7ef0ca-7ee6-4f49-9006-da7bfbc7031b")
-	)
 	(label "D4"
 		(at 220.98 68.58 180)
 		(fields_autoplaced yes)
@@ -7824,6 +7813,18 @@
 			(justify left)
 		)
 		(uuid "8be04b96-0cd8-4d50-bd72-746cf7a5f01e")
+	)
+	(hierarchical_label "~{SHWE}"
+		(shape input)
+		(at 163.83 88.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8c493054-e27a-4ae5-bdea-aab5613496de")
 	)
 	(hierarchical_label "MxD8"
 		(shape input)

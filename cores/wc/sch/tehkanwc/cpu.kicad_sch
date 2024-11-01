@@ -8573,7 +8573,7 @@
 		)
 		(uuid "1237abd6-1468-4967-886f-6a891f34c94b")
 	)
-	(label "1H"
+	(label "HB0"
 		(at 104.14 59.69 0)
 		(fields_autoplaced yes)
 		(effects
@@ -10960,7 +10960,7 @@
 		)
 		(uuid "a66ec8e4-f5ab-4bc7-81e1-2620e0cc56e9")
 	)
-	(hierarchical_label "8H"
+	(hierarchical_label "HB3"
 		(shape input)
 		(at 353.06 219.71 0)
 		(fields_autoplaced yes)
@@ -11128,7 +11128,7 @@
 		)
 		(uuid "d77ef857-516f-4d2d-8c3c-332600bf6b3c")
 	)
-	(hierarchical_label "1H"
+	(hierarchical_label "HB0"
 		(shape input)
 		(at 356.87 191.77 0)
 		(fields_autoplaced yes)
