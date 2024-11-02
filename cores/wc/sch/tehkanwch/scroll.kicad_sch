@@ -43,6 +43,36 @@
 	)
 	(bus
 		(pts
+			(xy 144.78 139.7) (xy 151.13 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d136521-c065-49a6-b304-f7d9d3844b8e")
+	)
+	(wire
+		(pts
+			(xy 144.78 158.75) (xy 151.13 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "251d6641-7670-4f59-bf6c-d077e68a9788")
+	)
+	(wire
+		(pts
+			(xy 144.78 161.29) (xy 151.13 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2f9d77a3-6481-41b3-b36e-0533ff7614d5")
+	)
+	(bus
+		(pts
 			(xy 144.78 142.24) (xy 151.13 142.24)
 		)
 		(stroke
@@ -103,6 +133,16 @@
 	)
 	(wire
 		(pts
+			(xy 144.78 163.83) (xy 151.13 163.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91ffb955-7e10-45f3-a1bf-84462f5fdb47")
+	)
+	(wire
+		(pts
 			(xy 144.78 149.86) (xy 151.13 149.86)
 		)
 		(stroke
@@ -113,7 +153,7 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 138.43) (xy 151.13 138.43)
+			(xy 144.78 134.62) (xy 151.13 134.62)
 		)
 		(stroke
 			(width 0)
@@ -197,6 +237,18 @@
 		)
 		(uuid "1ac2eb3b-de56-42e2-96df-7170645cdee1")
 	)
+	(hierarchical_label "VF[0..7]"
+		(shape input)
+		(at 144.78 139.7 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1ac7e5cc-fd73-4d12-8fa6-2e92ff911239")
+	)
 	(hierarchical_label "~{WR}"
 		(shape input)
 		(at 144.78 149.86 180)
@@ -208,6 +260,18 @@
 			(justify right)
 		)
 		(uuid "2807ef0d-8919-4f45-828d-09841dd87660")
+	)
+	(hierarchical_label "~{SCRY}"
+		(shape input)
+		(at 144.78 163.83 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3a7eb8cc-0a90-4576-8952-0b7cb39e26cb")
 	)
 	(hierarchical_label "GHFLIP"
 		(shape input)
@@ -245,6 +309,18 @@
 		)
 		(uuid "3eeb6cfa-6085-4982-adad-7f376e08e0fb")
 	)
+	(hierarchical_label "~{SCRXM}"
+		(shape input)
+		(at 144.78 161.29 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "550e5c90-eafa-46f1-b76d-5fdd908c819e")
+	)
 	(hierarchical_label "PXL[0..7]"
 		(shape output)
 		(at 254 130.81 0)
@@ -257,9 +333,21 @@
 		)
 		(uuid "5b479e77-3b08-445d-8d3c-474ce034b686")
 	)
+	(hierarchical_label "~{SCRX}"
+		(shape input)
+		(at 144.78 158.75 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "70ca5dee-2772-4199-828d-417fce835a96")
+	)
 	(hierarchical_label "~{CPUSEL}"
 		(shape input)
-		(at 144.78 138.43 180)
+		(at 144.78 134.62 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -395,7 +483,7 @@
 			(uuid "e48dbdaa-bd24-417c-b811-c8c8a58c89bd")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b1625f56-04c9-4f84-a803-cbecca9cced2"
 					(page "22")
 				)
@@ -404,7 +492,7 @@
 	)
 	(sheet
 		(at 151.13 127)
-		(size 36.83 31.75)
+		(size 36.83 41.91)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -424,7 +512,7 @@
 			)
 		)
 		(property "Sheetfile" "scrram.kicad_sch"
-			(at 151.13 159.3346 0)
+			(at 151.13 169.4946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -484,7 +572,7 @@
 			(uuid "97006469-12b5-404f-855d-4aca687e6c71")
 		)
 		(pin "~{SCRY}" input
-			(at 151.13 135.89 180)
+			(at 151.13 163.83 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -494,7 +582,7 @@
 			(uuid "d287e688-52d0-492c-9f09-7a035c6d723c")
 		)
 		(pin "SEL" input
-			(at 151.13 138.43 180)
+			(at 151.13 134.62 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -514,7 +602,7 @@
 			(uuid "aa6d9cac-8079-4525-ae47-3d4fbc9a8310")
 		)
 		(pin "~{SCRX}" input
-			(at 151.13 133.35 180)
+			(at 151.13 158.75 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -573,8 +661,28 @@
 			)
 			(uuid "244c669f-6e24-4ee1-bd56-67bdad858fed")
 		)
+		(pin "~{SCRXM}" input
+			(at 151.13 161.29 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "93572723-9610-4c6c-ba5e-19fe7c3e6169")
+		)
+		(pin "VF[0..7]" input
+			(at 151.13 139.7 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "b07c0d05-c183-47f4-8f0c-6c9c41a06ff8")
+		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b1625f56-04c9-4f84-a803-cbecca9cced2"
 					(page "23")
 				)

@@ -17,11 +17,11 @@
     Date: 28-10-2024 */
 
 module jtwc_sub(
-    input            rst,
+    input            rst_n,
     input            clk,
     input            cen,
     input            vint,       // video interrupt (LVBL)
-    input            waitn,
+    input            ws,
     // shared memory
     output reg       mmx_c8,
     output reg       mmx_d0,
@@ -41,16 +41,12 @@ module jtwc_sub(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg  [ 7:0] cpu_din;
-reg         ram_cs, latch_cs, rst_n, sh_cs;
+reg         ram_cs, latch_cs, sh_cs;
 wire        rd_n, iorq_n, rfsh_n, mreq_n, int_n, cen_eff;
 
 assign rom_addr = A[13:0];
-assign cen_eff  = waitn & cen;
+assign cen_eff  = ~ws & cen;
 assign rfsh_n   = 0;
-
-always @(posedge clk) begin
-    rst_n <= ~rst;
-end
 
 always @* begin
     rom_cs   = 0;

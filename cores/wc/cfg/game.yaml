@@ -16,6 +16,7 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_scroll.v
+      - jtframe_tilemap.v
 modules:
   jt:
     - name: jt5205

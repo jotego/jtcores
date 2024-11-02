@@ -37,12 +37,17 @@ module jtwc_video(
     // Scroll
     input      [ 8:0] scrx,
     input      [ 7:0] scry,
-    output     [10:0/*1*/] vram_addr,
-    input      [/*15*/7:0] vram_data,
+    output     [10:1] vram_addr,
+    input      [15:0] vram_data,
     output     [15:2] scr_addr,
     input      [31:0] scr_data,
     output            scr_cs,
     input             scr_ok,
+    // Object
+    output     [15:2] obj_addr,
+    input      [31:0] obj_data,
+    output            obj_cs,
+    input             obj_ok,
     // Palette RAM
     output     [ 9:0] pal_addr,
     input      [15:0] pal_dout,
@@ -58,11 +63,14 @@ wire [31:0] char_sorted, scr_sorted;
 wire [15:0] scr_dout;
 wire [15:2] scr_araw;
 wire [ 9:0] scr_code;
-wire [ 8:0] fix_code, vdump, vrender, hdump, vram_araw;
+wire [ 8:0] fix_code, vdump, vrender, hdump;
 wire [ 7:0] fix_pxl, scr_pxl;
 wire [ 6:0] obj_pxl;
 wire [ 3:0] fix_pal, scr_pal;
 wire        fix_hflip, fix_vflip, scr_hflip, scr_vflip, flip;
+
+assign obj_addr  = 0;
+assign obj_cs    = 0;
 
 assign fix_code  = {fix_dout[12],fix_dout[7:0]};
 assign fix_pal   = fix_dout[11:8];
@@ -75,8 +83,10 @@ assign scr_vflip = scr_dout[15];
 assign scr_addr  = scr_araw;        // to do: sort bits
 assign scr_dout  = 0; //Assign correctly
 assign flip      = 0; //Assign correctly
-assign vram_addr = 11'b0; //Assign correctly
-assign obj_pxl   =  7'b0; //Assign correctly
+assign obj_pxl   = 0; //Assign correctly
+
+// VRAM original format {VS[7:3],ATTR,HS[7:4]}
+// attributes moved to address LSB to get them in a single 16-bit read
 
 assign char_sorted = {
 char_data[31],char_data[27],char_data[23],char_data[19],char_data[15],char_data[11],char_data[7],char_data[3],
@@ -148,10 +158,13 @@ jtframe_tilemap #(
 
 jtframe_scroll #(
     .SIZE        (   16 ),  // tile width  = 16pxl
-    // .VW          (    3 ),  // tile height = 8pxl
+    .VW          (    3 ),  // tile height = 8pxl
+    .HW          (    4 ),  // tile width  = 16pxl
     .CW          (   10 ),
-    .VR          (   14 ),
-    .VA          (    9 ),
+    .VR          ( 10+4 ),
+    .VA          (   10 ),
+    .MAP_VW      (    8 ),
+    .MAP_HW      (    9 ),
     .PW          (    8 ),
     .XOR_HFLIP   (    1 ),
     .HJUMP       (    0 )
@@ -169,7 +182,7 @@ jtframe_scroll #(
     .scrx       ( scrx      ),
     .scry       ( {1'b0,scry}), // Should scry be same size as scrx ?
 
-    .vram_addr  ( vram_araw ),
+    .vram_addr  ( vram_addr ),
 
     .code       ( scr_code  ),
     .pal        ( scr_pal   ),

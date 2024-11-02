@@ -38,7 +38,9 @@ module jtframe_tilemap #( parameter
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
     HJUMP        = 1,  // see jtframe_scroll
-    VW           = SIZE==8 ? 3 : SIZE==16 ? 4:5, // override only for 16x8 tiles (set to 4)
+    // override VH and HW only for non rectangular tiles
+    VW           = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    HW           = VW,
     // localparam, do not modify
     PALW         = PW-BPP,
     DW           = 8*BPP
@@ -95,7 +97,7 @@ end
 assign vflip_g   = (flip & XOR_VFLIP[0])^vflip;
 
 assign vram_addr[VA-1-:MAP_VW-VW]=veff[MAP_VW-1:VW];
-assign vram_addr[   0+:MAP_HW-VW]=heff[MAP_HW-1:VW];
+assign vram_addr[   0+:MAP_HW-HW]=heff[MAP_HW-1:HW];
 assign xhflip = (flip & XOR_HFLIP[0])^hflip;
 
 always @* begin

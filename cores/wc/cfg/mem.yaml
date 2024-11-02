@@ -16,11 +16,12 @@ clocks:
     - freq: 400000
       outputs:
         - cen_pcm
-# audio:
-#   channels:
-#     # temporary values
-#     - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
-#     - { name: fm,  module: jt51,   rsum: 40k, rc: [{ r: 1rout, c: 1.2n }]}
+audio:
+  channels:
+    # temporary values
+    - { name: pcmsnd, module: jt5205, rsum: 1k, rc: [{ r: 10k, 4n }] }
+    - { name: psg0,   module: jt49,   rsum: 1k }
+    - { name: psg1,   module: jt49,   rsum: 1k }
 sdram:
   banks:
     - buses:
@@ -55,15 +56,16 @@ sdram:
         # gfx_sort: hhvvvvx
 ## shared RAM
 bram:
-  # - name: shram
-  #   addr_width: 11
-  #   data_width: 8
+  - name: shram
+    addr_width: 11
+    data_width: 8
+    rw: true
   - name: pal
     addr_width: 11
     data_width: 16
     dual_port:
-      name: sh
-      din:  "{2{sh_din}}"
+      name: shram
+      din:  "{2{shram_din}}"
       dout: pal16_dout
       we:   pal_we
       rw:   true
@@ -74,8 +76,9 @@ bram:
     addr_width: 11
     data_width: 16
     dual_port:
-      name: sh
-      din:  "{2{sh_din}}"
+      name: shram
+      addr: "shram_addr[9:0]" # bit 10 used for attributes
+      din:  "{2{shram_din}}"
       dout: fix16_dout
       we:   fix_we
       rw:   true
@@ -84,13 +87,26 @@ bram:
       order: 1
   - name: vram
     addr_width: 11
-    data_width: 8
+    data_width: 16
+    dual_port:
+      name: shram
+      addr: "{shram_addr[10:8],shram_addr[6:0]}" # bit 7 used for attributes
+      din:  "{2{shram_din}}"
+      dout: vram16_dout
+      we:   vram_we
+      rw:   true
     ioctl:
       save: true
       order: 2
-  # - name: objram
-  #   addr_width: 11
-  #   data_width: 8
-  #   ioctl:
-  #     save: true
-  #     order: 3
+  - name: objram
+    addr_width: 10
+    data_width: 16
+    dual_port:
+      name: shram
+      din:  "{2{shram_din}}"
+      dout: obj16_dout
+      we:   obj_we
+      rw:   true
+    # ioctl:
+    #   save: true
+    #   order: 3

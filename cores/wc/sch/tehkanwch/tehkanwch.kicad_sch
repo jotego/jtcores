@@ -5,7 +5,7 @@
 	(uuid "f324726e-ed6b-4b88-9562-4b07e126a276")
 	(paper "A3")
 	(title_block
-		(title "TEHKAN WORLD CUP")
+		(title "TEHKAN WORLD CUP (tehkanwch bootleg)")
 		(date "2024-10-12")
 		(company "JOTEGO")
 		(comment 1 "Jose Tejada")
@@ -70,6 +70,16 @@
 			(type default)
 		)
 		(uuid "163a0543-fefc-4c44-a117-59027c995e0c")
+	)
+	(wire
+		(pts
+			(xy 205.74 208.28) (xy 238.76 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a173945-50ab-46e0-8797-88a209bc1ee6")
 	)
 	(wire
 		(pts
@@ -463,6 +473,16 @@
 	)
 	(wire
 		(pts
+			(xy 205.74 210.82) (xy 238.76 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c832f3ad-93ea-4d1d-8197-8f3296fe32ba")
+	)
+	(wire
+		(pts
 			(xy 205.74 129.54) (xy 238.76 129.54)
 		)
 		(stroke
@@ -570,6 +590,17 @@
 			(type default)
 		)
 		(uuid "fdfb7d0d-4d95-4100-909d-f26f5864e2fd")
+	)
+	(text "tehkanwch\nbootleg board\n"
+		(exclude_from_sim no)
+		(at 17.78 270.51 0)
+		(effects
+			(font
+				(size 6.35 6.35)
+			)
+			(justify left)
+		)
+		(uuid "b4c0f1d1-0cce-44f2-8710-7ea9a3421478")
 	)
 	(label "HB0"
 		(at 328.93 127 180)
@@ -763,7 +794,7 @@
 			)
 			(uuid "3d2c3ddf-c3d9-4e99-ab98-d67937c1df49")
 		)
-		(pin "~{MSEL}" input
+		(pin "~{MSEL}" output
 			(at 205.74 172.72 0)
 			(effects
 				(font
@@ -853,7 +884,7 @@
 			)
 			(uuid "3f64e667-74ea-46e9-96da-2b68317ff9d1")
 		)
-		(pin "~{SSEL}" input
+		(pin "~{SSEL}" output
 			(at 205.74 175.26 0)
 			(effects
 				(font
@@ -1233,8 +1264,28 @@
 			)
 			(uuid "b2325472-9043-469a-8480-d0e424bb4213")
 		)
+		(pin "J2_14" input
+			(at 205.74 208.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "66f3833c-e284-4ab6-95b3-a26ae597d8d3")
+		)
+		(pin "J2_13" input
+			(at 205.74 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "44ffbe3b-5f94-4fb5-810a-ea34b75a894a")
+		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276"
 					(page "9")
 				)
@@ -1451,7 +1502,7 @@
 			)
 			(uuid "cccc9d46-d9a3-4e00-8f68-5c08587f397e")
 		)
-		(pin "~{MSEL}" output
+		(pin "~{MSEL}" input
 			(at 238.76 172.72 180)
 			(effects
 				(font
@@ -1601,7 +1652,7 @@
 			)
 			(uuid "fa12469b-d83f-4c8d-8884-b7ac9815525a")
 		)
-		(pin "~{SSEL}" output
+		(pin "~{SSEL}" input
 			(at 238.76 175.26 180)
 			(effects
 				(font
@@ -1771,8 +1822,28 @@
 			)
 			(uuid "f43a3919-2961-402a-9eb7-e9b16ce105c4")
 		)
+		(pin "J2_14" output
+			(at 238.76 208.28 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "85ccfffb-adbf-4c89-9797-abb40457cc59")
+		)
+		(pin "J2_13" output
+			(at 238.76 210.82 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7bbea59a-3c59-47b5-bd62-4961082830c6")
+		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276"
 					(page "11")
 				)

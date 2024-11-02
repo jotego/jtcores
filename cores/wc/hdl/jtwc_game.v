@@ -20,42 +20,58 @@ module jtwc_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        m2s_set, hflip, vflip, swaitn,
-            sx_c8, sx_d0, sx_d8, sx_e0, sx_e8;
-wire        cen_psg, cen, sub_wrn;
-wire [15:0] fix_dout;
-wire signed [11:0] pcm;
-wire [10:1] fix_addr;
-wire [ 9:0] psg0, psg1;
+wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
+            mx_c8, mx_d0, mx_d8, mx_e0, mx_e8,
+            sx_c8, sx_d0, sx_d8, sx_e0, sx_e8,
+            mute_n, srst_n;
 wire [ 8:0] scrx;
-wire [ 7:0] m2s, s2m, scry, sub_dout, sh_dout;
+wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
 
-assign {cen_psg,cen} = 0;
-assign {dip_flip, sample, main_cs, obj_cs} = 0;
-assign {m2s_set, hflip, vflip, swaitn}     = 0;
-assign scrx        =  9'b0;
-assign debug_view  =  8'b0;
-assign m2s         =  8'b0;
-assign s2m         =  8'b0;
-assign scry        =  8'b0;
-assign sub_dout    =  8'b0;
-assign sh_dout     =  8'b0;
-assign snd         = 16'b0;
-assign main_addr   = 16'b0;
-assign fix_dout    = 16'b0;
-assign obj_addr    = 14'b0;
-assign fixram_addr = 10'b0;
-assign sh_addr     = 10'b0;
-assign pal_we      =  2'b0;
-assign fix_we      =  2'b0;
+assign dip_flip = vflip | hflip;
+assign obj_cs      = 0;
+assign debug_view  = 0;
+assign objram_addr = 0;
+assign ioctl_din   = 0;
 
-
-jtwc_sub u_sub(
+jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen        ( cen           ),
-    .vint       ( LHBL          ),       // video interrupt (LVBL)
-    .waitn      ( swaitn        ),
+    .cen        ( cen_cpu       ),
+    .ws         ( mwait         ),
+    .LVBL       ( LVBL          ),       // video interrupt
+    // shared memory
+    .mmx_c8     ( mx_c8         ),
+    .mmx_d0     ( mx_d0         ),
+    .mmx_d8     ( mx_d8         ),
+    .mmx_e0     ( mx_e0         ),
+    .mmx_e8     ( mx_e8         ),
+    .cpu_dout   ( mdout         ),
+    .wr_n       ( m_wrn         ),
+    .sh_dout    ( sha_dout      ),
+    // sound
+    .m2s        ( m2s           ),
+    .s2m        ( s2m           ),
+    .m2s_set    ( m2s_set       ),
+    // control
+    .hflip      ( hflip         ),
+    .vflip      ( vflip         ),
+    .mute_n     ( mute_n        ),
+    .srst_n     ( srst_n        ),
+    // ROM access
+    .rom_cs     ( main_cs       ),
+    .rom_addr   ( main_addr     ),
+    .rom_data   ( main_data     ),
+    .rom_ok     ( main_ok       ),
+    //
+    .dipsw      ( dipsw[19:0]   )
+);
+
+jtwc_sub u_sub(
+    .rst_n      ( srst_n        ),
+    .clk        ( clk           ),
+    .cen        ( cen_cpu       ),
+    .vint       ( LVBL          ),       // video interrupt (LVBL)
+    .ws         ( swait         ),
     // shared memory
     .mmx_c8     ( sx_c8         ),
     .mmx_d0     ( sx_d0         ),
@@ -64,7 +80,7 @@ jtwc_sub u_sub(
     .mmx_e8     ( sx_e8         ),
     .cpu_dout   ( sub_dout      ),
     .wr_n       ( sub_wrn       ),
-    .sh_dout    ( sh_dout       ),
+    .sh_dout    ( sha_dout      ),
     // ROM access
     .rom_cs     ( sub_cs        ),
     .rom_addr   ( sub_addr      ),
@@ -72,10 +88,52 @@ jtwc_sub u_sub(
     .rom_ok     ( sub_ok        )
 );
 
+jtwc_shared u_shared(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    // main
+    .ma         (main_addr[10:0]),
+    .mdout      ( mdout         ),
+    .mwr_n      ( m_wrn         ),
+    .mxc8       ( mx_c8         ),
+    .mxd0       ( mx_d0         ),
+    .mxd8       ( mx_d8         ),
+    .mxe0       ( mx_e0         ),
+    .mxe8       ( mx_e8         ),
+    .msw        ( mwait         ),
+    // sub
+    .sa         ( sub_addr[10:0]),
+    .sdout      ( sub_dout      ),
+    .swr_n      ( sub_wrn       ),
+    .sxc8       ( sx_c8         ),
+    .sxd0       ( sx_d0         ),
+    .sxd8       ( sx_d8         ),
+    .sxe0       ( sx_e0         ),
+    .sxe8       ( sx_e8         ),
+    .ssw        ( swait         ),
+    // mux'ed
+    .sha        ( shram_addr    ),
+    .sha_din    ( shram_din     ),
+    .shram_we   ( shram_we      ),
+    .pal_we     ( pal_we        ),
+    .fix_we     ( fix_we        ),
+    .obj_we     ( obj_we        ),
+    .scr_we     ( vram_we       ),
+    .shram_dout ( shram_dout    ),
+    .pal16_dout ( pal16_dout    ),
+    .fix16_dout ( fix16_dout    ),
+    .vram16_dout( vram16_dout   ),
+    .obj16_dout ( obj16_dout    ),
+    .sha_dout   ( sha_dout      ),
+    // video scroll
+    .scrx       ( scrx          ),
+    .scry       ( scry          )
+);
+
 jtwc_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen_psg    ( cen_psg       ),
+    .cen_psg    ( cen_psg1      ),
     .cen_psg2   ( cen_psg2      ),
     .cen_pcm    ( cen_pcm       ),
     .m2s_set    ( m2s_set       ),
@@ -94,7 +152,7 @@ jtwc_sound u_sound(
     // Sound output
     .psg0       ( psg0          ),
     .psg1       ( psg1          ),
-    .pcm        ( pcm           )
+    .pcm        ( pcmsnd        )
 );
 
 jtwc_video u_video(
@@ -109,8 +167,8 @@ jtwc_video u_video(
     .vs         ( VS            ),
     .hs         ( HS            ),
     // Character (fix) RAM
-    .fix_addr   ( fix_addr      ),
-    .fix_dout   ( fix_dout      ),
+    .fix_addr   ( fixram_addr   ),
+    .fix_dout   ( fix16_dout    ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
     .char_cs    ( char_cs       ),
@@ -119,14 +177,19 @@ jtwc_video u_video(
     .scrx       ( scrx          ),
     .scry       ( scry          ),
     .vram_addr  ( vram_addr     ),
-    .vram_data  ( vram_data     ),
+    .vram_data  ( vram16_dout   ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_cs     ( scr_cs        ),
     .scr_ok     ( scr_ok        ),
+    // Objects
+    .obj_addr   ( obj_addr      ),
+    .obj_data   ( obj_data      ),
+    .obj_cs     ( obj_cs        ),
+    .obj_ok     ( obj_ok        ),
     // Palette RAM
     .pal_addr   ( pal_addr      ),
-    .pal_dout   ( pal_dout      ),
+    .pal_dout   ( pal16_dout    ),
     // Output
     .red        ( red           ),
     .green      ( green         ),

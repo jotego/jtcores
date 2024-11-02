@@ -1928,7 +1928,7 @@
 				)
 			)
 		)
-		(symbol "Memory_EPROM:27128"
+		(symbol "Memory_EPROM:27256"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1940,7 +1940,7 @@
 					)
 				)
 			)
-			(property "Value" "27128"
+			(property "Value" "27256"
 				(at 2.54 -26.67 0)
 				(effects
 					(font
@@ -1958,7 +1958,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "http://eeshop.unl.edu/pdf/27128.pdf"
+			(property "Datasheet" "http://datasheet.octopart.com/D27256-2-Intel-datasheet-17852618.pdf"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1967,7 +1967,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "UV Erasable EPROM 128 KiBit, [Obsolete 2000-11]"
+			(property "Description" "UV Erasable EPROM 256 KiBit, [Obsolete 2000-11]"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1976,7 +1976,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "Erasable OTP EPROM 128KiBit"
+			(property "ki_keywords" "Erasable EPROM 256 KiBit"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1994,7 +1994,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "27128_1_1"
+			(symbol "27256_1_1"
 				(rectangle
 					(start -7.62 25.4)
 					(end 7.62 -25.4)
@@ -2349,9 +2349,9 @@
 					)
 				)
 				(pin input line
-					(at -10.16 -15.24 0)
+					(at -10.16 -12.7 0)
 					(length 2.54)
-					(name "~{PGM}"
+					(name "A14"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5596,6 +5596,102 @@
 				)
 			)
 		)
+		(symbol "power:GND"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "GND_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 	)
 	(junction
 		(at 270.51 152.4)
@@ -5644,6 +5740,15 @@
 			(type default)
 		)
 		(uuid "0252dc1f-904a-4148-bc2c-8aa531cb68a6")
+	)
+	(bus_entry
+		(at 240.03 124.46)
+		(size -2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "085ea27a-a333-4e36-b803-0ef50f97f131")
 	)
 	(bus_entry
 		(at 240.03 187.96)
@@ -6864,7 +6969,7 @@
 	)
 	(bus
 		(pts
-			(xy 237.49 124.46) (xy 237.49 162.56)
+			(xy 237.49 124.46) (xy 237.49 127)
 		)
 		(stroke
 			(width 0)
@@ -6974,6 +7079,16 @@
 	)
 	(wire
 		(pts
+			(xy 240.03 124.46) (xy 243.84 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5ccb2b04-c7e9-40f0-bf01-a73be90bf7d0")
+	)
+	(wire
+		(pts
 			(xy 243.84 182.88) (xy 240.03 182.88)
 		)
 		(stroke
@@ -7031,6 +7146,16 @@
 			(type default)
 		)
 		(uuid "66ceb617-fe69-47d4-9bb7-003524bbdd93")
+	)
+	(bus
+		(pts
+			(xy 237.49 127) (xy 237.49 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "675cfb36-5e3a-4d9d-85be-ab72eda3b484")
 	)
 	(wire
 		(pts
@@ -8102,6 +8227,16 @@
 		)
 		(uuid "fe161279-138a-49df-9a3c-575801469567")
 	)
+	(text "32kB"
+		(exclude_from_sim no)
+		(at 259.08 135.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "00a5c726-c056-4ebe-990e-2f7fc3652f1f")
+	)
 	(label "D1"
 		(at 213.36 134.62 180)
 		(fields_autoplaced yes)
@@ -8718,6 +8853,17 @@
 		)
 		(uuid "900f910d-aae3-476f-96db-97a707d8dd6e")
 	)
+	(label "A14"
+		(at 240.03 124.46 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "91fdc6b6-ed2d-4ca8-aa1b-58ab73fa321e")
+	)
 	(label "A13"
 		(at 213.36 121.92 180)
 		(fields_autoplaced yes)
@@ -9047,17 +9193,6 @@
 			(justify right bottom)
 		)
 		(uuid "cca2f824-8a84-482d-b8f3-d9e6669c9f80")
-	)
-	(label "GND"
-		(at 191.77 157.48 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d60fb85c-78d7-4330-a367-e9b7026fc14a")
 	)
 	(label "~{MREQ}"
 		(at 167.64 137.16 0)
@@ -9498,7 +9633,7 @@
 			(uuid "7036d125-7a73-4b7e-9744-9d10b77248c4")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "H3")
 					(unit 6)
@@ -9842,7 +9977,7 @@
 			(uuid "06742e30-fc40-4220-8223-0328d228213f")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "I4")
 					(unit 1)
@@ -9947,7 +10082,7 @@
 			(uuid "d8c4e9b6-8c31-4be3-ab48-6b19fc6e687e")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "G2")
 					(unit 3)
@@ -10156,7 +10291,7 @@
 			(uuid "ac97b62c-5ea3-4909-bb7c-2b313c595c1e")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "G2")
 					(unit 2)
@@ -10226,7 +10361,7 @@
 			(uuid "b96eded0-771a-420e-a00d-b3612cfa3c77")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "R5")
 					(unit 1)
@@ -10332,7 +10467,7 @@
 			(uuid "3bef5ec1-c3ec-49f8-962c-eb56eeb7d520")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "H4")
 					(unit 1)
@@ -10437,7 +10572,7 @@
 			(uuid "23621fbf-b5eb-4c4c-950c-a84abb5e0391")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "G3")
 					(unit 3)
@@ -10507,7 +10642,7 @@
 			(uuid "0f071cda-35ce-4286-b450-b98e578f2c80")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "R3")
 					(unit 1)
@@ -10626,7 +10761,72 @@
 		)
 	)
 	(symbol
-		(lib_id "Memory_EPROM:27128")
+		(lib_id "power:GND")
+		(at 191.77 157.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d5168f33-0be7-4684-8610-e2275ab32472")
+		(property "Reference" "#PWR051"
+			(at 191.77 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 191.77 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 191.77 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 191.77 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 191.77 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a4e7b50d-465b-4e94-a61d-db704e56f641")
+		)
+		(instances
+			(project ""
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
+					(reference "#PWR051")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Memory_EPROM:27256")
 		(at 254 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10644,7 +10844,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "27128"
+		(property "Value" "27256"
 			(at 256.1941 83.82 0)
 			(effects
 				(font
@@ -10662,7 +10862,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://eeshop.unl.edu/pdf/27128.pdf"
+		(property "Datasheet" "http://datasheet.octopart.com/D27256-2-Intel-datasheet-17852618.pdf"
 			(at 254 111.76 0)
 			(effects
 				(font
@@ -10671,7 +10871,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "UV Erasable EPROM 128 KiBit, [Obsolete 2000-11]"
+		(property "Description" "UV Erasable EPROM 256 KiBit, [Obsolete 2000-11]"
 			(at 254 111.76 0)
 			(effects
 				(font
@@ -10949,7 +11149,7 @@
 			(uuid "579b74b4-6209-42e1-9f58-f73a6d09446c")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/75d7e101-1278-407c-8f4b-0f33d684a4f2"
 					(reference "H1")
 					(unit 1)

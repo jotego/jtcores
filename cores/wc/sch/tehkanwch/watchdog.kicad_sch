@@ -3837,6 +3837,16 @@
 	)
 	(wire
 		(pts
+			(xy 27.94 273.05) (xy 27.94 274.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "414954e3-c181-49f2-ad50-936a492aba32")
+	)
+	(wire
+		(pts
 			(xy 152.4 111.76) (xy 152.4 114.3)
 		)
 		(stroke
@@ -3934,6 +3944,16 @@
 			(type default)
 		)
 		(uuid "c95634f8-5a6a-4f20-8985-d024a3760bca")
+	)
+	(wire
+		(pts
+			(xy 27.94 256.54) (xy 27.94 257.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb14863a-2868-4652-b6e2-f8280f106bfd")
 	)
 	(wire
 		(pts
@@ -4654,6 +4674,71 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
+		(at 27.94 256.54 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "40f45a16-2ee5-4a61-bd96-84110c727887")
+		(property "Reference" "#PWR043"
+			(at 27.94 260.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VCC"
+			(at 27.94 252.984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 27.94 256.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 27.94 256.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
+			(at 27.94 256.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7f126081-2fb4-4c90-b9ed-518f54ae2100")
+		)
+		(instances
+			(project ""
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/e64489cb-d161-4b96-a41e-0555e765bbe0"
+					(reference "#PWR043")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VCC")
 		(at 152.4 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4817,6 +4902,174 @@
 			(project "tehkanwc"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/e64489cb-d161-4b96-a41e-0555e765bbe0"
 					(reference "VE20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS393")
+		(at 27.94 265.43 0)
+		(unit 3)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "717bbc7c-d6f9-4399-b6b9-673e5e4b2cff")
+		(property "Reference" "VH21"
+			(at 27.94 264.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS393"
+			(at 27.94 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 27.94 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://html.alldatasheet.com/html-pdf/5724/MOTOROLA/74LS393/258/1/74LS393.html"
+			(at 27.94 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Dual BCD 4-bit counter"
+			(at 27.94 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "9"
+			(uuid "c89fca88-f24d-4c4d-bb5a-4ad156c30868")
+		)
+		(pin "6"
+			(uuid "4630accb-08ad-4091-af05-635d5b58c00c")
+		)
+		(pin "7"
+			(uuid "78515efe-1c15-4d3a-b5f1-a39d1671cf51")
+		)
+		(pin "12"
+			(uuid "d1e05f73-c316-4c5a-80c9-8fe2c6308da8")
+		)
+		(pin "5"
+			(uuid "724bccf0-e322-4762-950d-22a8d282039f")
+		)
+		(pin "10"
+			(uuid "2e8f8ea9-9528-42b4-ae77-33f7d6af00d2")
+		)
+		(pin "11"
+			(uuid "82f04052-4707-4bc3-a3d6-5c6b95420a7b")
+		)
+		(pin "8"
+			(uuid "2062c245-949e-4c9d-a435-d9600a67a222")
+		)
+		(pin "2"
+			(uuid "771f4ee6-7640-4864-b6ad-9be59dd49f32")
+		)
+		(pin "1"
+			(uuid "482e1f93-96d1-47a3-b5df-997a14ed4f51")
+		)
+		(pin "14"
+			(uuid "f4484b07-a912-4974-ab40-e1793c6eed5c")
+		)
+		(pin "4"
+			(uuid "0051ac99-f35f-45ab-83c6-6ed05706f9ee")
+		)
+		(pin "3"
+			(uuid "195791ff-f01e-42da-967c-9aa703b62cb1")
+		)
+		(pin "13"
+			(uuid "8548b930-b606-41f4-bfc3-43287d705e32")
+		)
+		(instances
+			(project "tehkanwc"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/e64489cb-d161-4b96-a41e-0555e765bbe0"
+					(reference "VH21")
+					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 27.94 274.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8bdcaa3c-6deb-4776-b660-c882cd4da64c")
+		(property "Reference" "#PWR044"
+			(at 27.94 280.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 27.94 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 27.94 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 27.94 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 27.94 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "75e7d74b-c53b-41b0-a95b-b892b20b93af")
+		)
+		(instances
+			(project ""
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/e64489cb-d161-4b96-a41e-0555e765bbe0"
+					(reference "#PWR044")
 					(unit 1)
 				)
 			)

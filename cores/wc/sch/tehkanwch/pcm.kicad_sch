@@ -4283,6 +4283,16 @@
 		)
 		(uuid "18e454e2-cc98-4ff1-82f1-450b9b1523ae")
 	)
+	(wire
+		(pts
+			(xy 27.94 259.08) (xy 27.94 260.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19ef5d25-b8bf-4a42-a447-7d94b2ba1dd8")
+	)
 	(bus
 		(pts
 			(xy 130.81 224.79) (xy 130.81 227.33)
@@ -6805,7 +6815,7 @@
 			(uuid "843f9bc2-eadd-42e5-8f89-e52facdf1f0b")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E15")
 					(unit 1)
@@ -6953,7 +6963,7 @@
 			(uuid "414c14b9-bf1d-4f2c-8f53-ef29bf53e9e8")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "D14")
 					(unit 1)
@@ -7125,7 +7135,7 @@
 			(uuid "121bfbb6-addc-4032-b342-bf601451eb02")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E17")
 					(unit 5)
@@ -7301,7 +7311,7 @@
 			(uuid "ccd1108a-2b4c-446c-a624-2e75461d4b40")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "C11")
 					(unit 1)
@@ -7517,7 +7527,7 @@
 			(uuid "700a1cb7-264a-4bd5-afdf-92050556a7ec")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E13")
 					(unit 1)
@@ -7585,7 +7595,7 @@
 			(uuid "8a8d899e-5b29-4c5f-8786-111d6301a79b")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "R11")
 					(unit 1)
@@ -7689,7 +7699,7 @@
 			(uuid "ca83bf49-2766-4f1a-8af5-552388ca43f9")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "D16")
 					(unit 1)
@@ -7755,19 +7765,19 @@
 			(uuid "e8172df7-fecd-447a-b64d-c96e58a5dc30")
 		)
 		(pin "13"
-			(uuid "e3f97b5b-37cf-4fb1-8e4e-01c75c874935")
+			(uuid "e3f97b5b-37cf-4fb1-8e4e-01c75c874936")
 		)
 		(pin "6"
 			(uuid "9abf4b02-2b33-41be-88df-67cac7d855f2")
 		)
 		(pin "11"
-			(uuid "a2f7ea7f-88d8-4090-8dac-b1b08bac0280")
+			(uuid "a2f7ea7f-88d8-4090-8dac-b1b08bac0281")
 		)
 		(pin "9"
-			(uuid "c7f873c4-53eb-4feb-aca8-574ff92931c6")
+			(uuid "c7f873c4-53eb-4feb-aca8-574ff92931c7")
 		)
 		(pin "10"
-			(uuid "c93d471b-2f0c-4ffc-9794-57e2272ae263")
+			(uuid "c93d471b-2f0c-4ffc-9794-57e2272ae264")
 		)
 		(pin "4"
 			(uuid "da691dda-8ad5-4668-8fba-2061386e0a6c")
@@ -7782,19 +7792,19 @@
 			(uuid "c090bfc2-bebb-4e3e-8680-8986ed35911b")
 		)
 		(pin "12"
-			(uuid "608d7910-23a1-4d37-a634-dd2156b9e19d")
+			(uuid "608d7910-23a1-4d37-a634-dd2156b9e19e")
 		)
 		(pin "8"
-			(uuid "c056905b-22ba-47df-9ae8-8c38ad4f783a")
+			(uuid "c056905b-22ba-47df-9ae8-8c38ad4f783b")
 		)
 		(pin "14"
-			(uuid "83fa2993-1016-42dc-a19f-e8dd7e41b53b")
+			(uuid "83fa2993-1016-42dc-a19f-e8dd7e41b53d")
 		)
 		(pin "7"
-			(uuid "ccd1108a-2b4c-446c-a624-2e75461d4b40")
+			(uuid "ccd1108a-2b4c-446c-a624-2e75461d4b42")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "C11")
 					(unit 3)
@@ -7904,7 +7914,7 @@
 			(uuid "0e55b72f-9c64-4020-9316-7c02824bfe90")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E14")
 					(unit 1)
@@ -8009,7 +8019,7 @@
 			(uuid "121bfbb6-addc-4032-b342-bf601451eb03")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E17")
 					(unit 1)
@@ -8019,7 +8029,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 27.94 260.35 0)
+		(at 27.94 259.08 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8027,7 +8037,7 @@
 		(dnp no)
 		(uuid "8fc1c8a9-4f09-434c-8906-1b604d372686")
 		(property "Reference" "#PWR032"
-			(at 27.94 264.16 0)
+			(at 27.94 262.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8036,7 +8046,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 27.94 256.794 0)
+			(at 27.94 255.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8044,7 +8054,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 27.94 260.35 0)
+			(at 27.94 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8053,7 +8063,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 27.94 260.35 0)
+			(at 27.94 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8062,7 +8072,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 27.94 260.35 0)
+			(at 27.94 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8251,7 +8261,7 @@
 			(uuid "054e922d-26c8-441e-8603-cf52782c9092")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "E16")
 					(unit 1)
@@ -8386,7 +8396,7 @@
 			(uuid "dc93024b-83cb-4277-a977-fae2e0e6c9a3")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "C14")
 					(unit 1)
@@ -8567,7 +8577,7 @@
 			(uuid "c2d4c2a3-ff62-48a5-b865-9004f7c45dcc")
 		)
 		(instances
-			(project "tehkanwc"
+			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
 					(reference "D17")
 					(unit 1)
