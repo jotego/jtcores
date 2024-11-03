@@ -60,7 +60,6 @@ module jtwc_video(
 );
 
 wire [31:0] char_sorted, scr_sorted;
-wire [15:0] scr_dout;
 wire [15:2] scr_araw;
 wire [ 9:0] scr_code;
 wire [ 8:0] fix_code, vdump, vrender, hdump;
@@ -76,13 +75,12 @@ assign fix_code  = {fix_dout[12],fix_dout[7:0]};
 assign fix_pal   = fix_dout[11:8];
 assign fix_hflip = fix_dout[14];
 assign fix_vflip = fix_dout[15];
-assign scr_code  = {scr_dout[13:12],scr_dout[7:0]};
-assign scr_pal   = scr_dout[11:8];
-assign scr_hflip = scr_dout[14];
-assign scr_vflip = scr_dout[15];
+assign scr_code  = {vram_data[13:12],vram_data[7:0]};
+assign scr_pal   = vram_data[11:8];
+assign scr_hflip = vram_data[14];
+assign scr_vflip = vram_data[15];
 assign scr_addr  = scr_araw;        // to do: sort bits
-assign scr_dout  = 0; //Assign correctly
-assign flip      = 0; //Assign correctly
+assign flip      = hflip | vflip;   // incomplete implementation
 assign obj_pxl   = 0; //Assign correctly
 
 // VRAM original format {VS[7:3],ATTR,HS[7:4]}
@@ -102,16 +100,21 @@ scr_data[29],scr_data[25],scr_data[21],scr_data[17],scr_data[13],scr_data[ 9],sc
 scr_data[28],scr_data[24],scr_data[20],scr_data[16],scr_data[12],scr_data[ 8],scr_data[4],scr_data[0]
 };
 
+// 224 active lines
+//  40 blank  lines => total 264 lines
+//
 jtframe_vtimer #(
-    .VB_START   ( 9'hf7     ),
-    .VB_END     ( 9'h7      ),
-    .VCNT_END   ( 9'd271    ),
-    .VS_START   ( 9'h106    ),
-    .HS_START   ( 9'h1b5    ),
-    .HB_START   ( 9'h181    ),
-    .HJUMP      ( 1         ),
-    .HB_END     ( 9'd9      ),
-    .HINIT      ( 9'd255    )
+    .V_START    ( 9'h0f8    ),
+    .VCNT_END   ( 9'h1ff    ),
+    .VB_START   ( 9'h1ef    ),
+    .VB_END     ( 9'h10f    ),
+    .VS_START   ( 9'h1f4    ),
+
+    .HCNT_START ( 9'h080    ),
+    .HCNT_END   ( 9'h1ff    ),
+    .HS_START   ( 9'h0a0    ),
+    .HB_START   ( 9'h089    ),
+    .HB_END     ( 9'h109    )
 )   u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -145,7 +148,7 @@ jtframe_tilemap #(
 
     .code       ( fix_code  ),
     .pal        ( fix_pal   ),
-    .hflip      ( fix_hflip ),
+    .hflip      (~fix_hflip ),
     .vflip      ( fix_vflip ),
 
     .rom_cs     ( char_cs     ),
@@ -175,12 +178,12 @@ jtframe_scroll #(
 
     .hs         ( hs        ),
 
-    .vdump      ( vdump     ),
+    .vdump      ({1'b0,vdump[7:0]}),
     .hdump      ( hdump     ),
     .blankn     ( lvbl      ),  // if !blankn there are no ROM requests
     .flip       ( flip      ),
     .scrx       ( scrx      ),
-    .scry       ( {1'b0,scry}), // Should scry be same size as scrx ?
+    .scry       ( {1'b0,scry}),
 
     .vram_addr  ( vram_addr ),
 

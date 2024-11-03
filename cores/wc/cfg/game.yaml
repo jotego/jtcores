@@ -1,11 +1,7 @@
 game:
   - from: wc
     get:
-      - jtwc_game.v
-      - jtwc_sub.v
-      - jtwc_video.v
-      - jtwc_sound.v
-      - jtwc_colmix.v
+      - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v

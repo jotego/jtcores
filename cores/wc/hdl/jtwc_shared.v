@@ -52,8 +52,8 @@ module jtwc_shared(
     output    [ 1:0] obj_we,
     output    [ 1:0] scr_we,
     output           shram_we,
-    output    [10:0] sha,
-    output    [ 7:0] sha_din,
+    output reg[10:0] sha,
+    output reg[ 7:0] sha_din,
     output    [ 7:0] sha_dout,
     // video scroll
     output reg [8:0] scrx,
@@ -64,9 +64,9 @@ module jtwc_shared(
 wire        ram_cs, pal_cs, fix_cs, scr_cs, obj_cs, mnsel_n, sbsel_n;
 reg         shc8, shd8, she0, she8, shd0, msel, ssel, sha_we;
 
-function [7:0] mux8(input [15:0] a );
+function [7:0] mux8(input [15:0] a, input [3:0] sel );
 begin
-    mux8 = sha[0] ? a[15:8] : a[7:0];
+    mux8 = sha[sel] ? a[15:8] : a[7:0];
 end
 endfunction
 
@@ -81,12 +81,12 @@ assign obj_cs   = she8 && !sha[10];
 assign shram_we =    ram_cs&sha_we;
 assign pal_we   = {2{pal_cs&sha_we}}&{sha[ 0],~sha[ 0]};
 assign fix_we   = {2{fix_cs&sha_we}}&{sha[10],~sha[10]};
-assign scr_we   = {2{scr_cs&sha_we}}&{sha[ 7],~sha[ 7]};
+assign scr_we   = {2{scr_cs&sha_we}}&{sha[ 0],~sha[ 0]};
 assign obj_we   = {2{obj_cs&sha_we}}&{sha[ 0],~sha[ 0]};
-assign sha_dout = pal_cs ? mux8(pal16_dout)  :
-                  fix_cs ? mux8(fix16_dout)  :
-                  scr_cs ? mux8(vram16_dout) :
-                  obj_cs ? mux8(obj16_dout)  : shram_dout;
+assign sha_dout = pal_cs ? mux8(pal16_dout, 0) :
+                  fix_cs ? mux8(fix16_dout,10) :
+                  scr_cs ? mux8(vram16_dout,0) :
+                  obj_cs ? mux8(obj16_dout, 0) : shram_dout;
 
 always @* begin
     if( msel ) begin
@@ -133,8 +133,12 @@ always @(posedge clk) begin
         if(  mnsel_n && !sbsel_n ) {msel,ssel} <= 2'b01;
         if( !mnsel_n &&  sbsel_n ) {msel,ssel} <= 2'b10; // main has priority
         if(  mnsel_n &&  sbsel_n ) {msel,ssel} <= 2'b00;
-        if( mnsel_n ) msw <= 0;
-        if( sbsel_n ) ssw <= 0;
+        if( mnsel_n ) ssw <= 0;
+        if( sbsel_n ) msw <= 0;
+        if( !mnsel_n && !sbsel_n && {msel,ssel}==0 ) begin
+            {msel,ssel} <= 2'b10;
+            ssw <= 1;
+        end
     end
 end
 

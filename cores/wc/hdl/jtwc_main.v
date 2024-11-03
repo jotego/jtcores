@@ -21,7 +21,7 @@ module jtwc_main(
     input            clk,
     input            cen,
     input            ws,
-    input            LVBL,       // video interrupt
+    input            lvbl,       // video interrupt
     // shared memory
     output reg       mmx_c8,
     output reg       mmx_d0,
@@ -48,13 +48,13 @@ module jtwc_main(
     //
     input     [19:0] dipsw
 );
-
+`ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout, din;
 reg  [ 7:0] dip_mux;
 reg         ram_cs, dip_cs, dip1_cs, dip2_cs, dip3_cs, latch_cs,
             sh_cs, s2m_cs, rst_n, mmx_f8;
-wire        rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
+wire        m1_n, rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
 
 assign rom_addr = A;
 assign cen_eff  = ~ws & cen;
@@ -81,7 +81,7 @@ always @(posedge clk) begin
         if( mmx_f8 && !wr_n ) case(A[6:4])
             2: begin
                 m2s_set <= 1;
-                m2s   <= cpu_dout;
+                m2s     <= cpu_dout;
             end
             4: srst_n <= cpu_dout[0];
             5: mute_n <= cpu_dout[0];
@@ -106,7 +106,7 @@ always @* begin
     dip_cs  = 0;
     sh_cs   = 0;
     s2m_cs  = 0;
-    if( !mreq_n && !rfsh_n ) casez(A[15:14])
+    if( !mreq_n && rfsh_n ) casez(A[15:14])
         0,1,2: rom_cs   = 1;
         3: case(A[13:11])
             0: ram_cs = 1;
@@ -115,7 +115,7 @@ always @* begin
             3: {sh_cs,mmx_d8} = 2'b11;
             4: {sh_cs,mmx_e0} = 2'b11;
             5: {sh_cs,mmx_e8} = 2'b11;
-            6: begin
+            7: begin
                 mmx_f8 = 1;
                 if( !rd_n ) case(A[6:4])
                     2: s2m_cs  = 1;
@@ -126,6 +126,7 @@ always @* begin
                     default:;
                 endcase
             end
+            default:;
         endcase
     endcase
 end
@@ -141,10 +142,10 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .clk        ( clk         ),
     .cen        ( cen_eff     ),
     .cpu_cen    (             ),
-    .int_n      ( LVBL        ), // int clear logic is internal
+    .int_n      ( lvbl        ), // int clear logic is internal
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       (             ),
+    .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
@@ -161,5 +162,21 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
-
+`else
+initial begin
+    mmx_c8  = 0;
+    mmx_d0  = 0;
+    mmx_d8  = 0;
+    mmx_e0  = 0;
+    mmx_e8  = 0;
+    hflip   = 0;
+    vflip   = 0;
+    mute_n  = 0;
+    srst_n  = 0;
+    m2s_set = 0;
+    rom_cs  = 0;
+    m2s     = 0;
+end
+assign {cpu_dout,wr_n,rom_addr} = 0;
+`endif
 endmodule

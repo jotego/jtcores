@@ -20,7 +20,7 @@ module jtwc_sub(
     input            rst_n,
     input            clk,
     input            cen,
-    input            vint,       // video interrupt (LVBL)
+    input            lvbl,       // video interrupt
     input            ws,
     // shared memory
     output reg       mmx_c8,
@@ -33,20 +33,19 @@ module jtwc_sub(
     input     [ 7:0] sh_dout,
     // ROM access
     output reg       rom_cs,
-    output    [13:0] rom_addr,
+    output    [14:0] rom_addr,
     input     [ 7:0] rom_data,
     input            rom_ok
 );
-
+`ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg  [ 7:0] cpu_din;
 reg         ram_cs, latch_cs, sh_cs;
 wire        rd_n, iorq_n, rfsh_n, mreq_n, int_n, cen_eff;
 
-assign rom_addr = A[13:0];
+assign rom_addr = A[14:0];
 assign cen_eff  = ~ws & cen;
-assign rfsh_n   = 0;
 
 always @* begin
     rom_cs   = 0;
@@ -57,7 +56,7 @@ always @* begin
     mmx_e0   = 0;
     mmx_e8   = 0;
     sh_cs    = 0;
-    if( !mreq_n && !rfsh_n ) casez(A[15:14])
+    if( !mreq_n && rfsh_n ) casez(A[15:14])
         0,1: rom_cs   = 1;
         3: case(A[13:11])
             0: ram_cs = 1;
@@ -74,7 +73,8 @@ end
 
 always @* begin
     cpu_din = rom_cs ? rom_data :
-              ram_cs ? ram_dout : sh_dout;
+              ram_cs ? ram_dout :
+              sh_cs  ? sh_dout  : 8'd0;
 end
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
@@ -82,7 +82,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .clk        ( clk         ),
     .cen        ( cen_eff     ),
     .cpu_cen    (             ),
-    .int_n      ( ~vint       ), // int clear logic is internal
+    .int_n      ( ~lvbl       ), // int clear logic is internal
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
     .m1_n       (             ),
@@ -90,7 +90,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -102,5 +102,15 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
-
+`else
+initial begin
+    mmx_c8  = 0;
+    mmx_d0  = 0;
+    mmx_d8  = 0;
+    mmx_e0  = 0;
+    mmx_e8  = 0;
+    rom_cs  = 0;
+end
+assign {cpu_dout,wr_n,rom_addr} = 0;
+`endif
 endmodule

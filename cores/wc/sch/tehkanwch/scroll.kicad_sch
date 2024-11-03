@@ -171,6 +171,16 @@
 		)
 		(uuid "c3853600-3a11-4dbc-8179-080baacdda39")
 	)
+	(wire
+		(pts
+			(xy 144.78 137.16) (xy 151.13 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dac881d2-8ec7-475d-8f4f-0a3688df55b7")
+	)
 	(bus
 		(pts
 			(xy 187.96 130.81) (xy 203.2 130.81)
@@ -356,6 +366,18 @@
 			(justify right)
 		)
 		(uuid "751ced4e-6158-45e3-8011-9d0f9a45fd56")
+	)
+	(hierarchical_label "GHFLIP"
+		(shape input)
+		(at 144.78 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b52ca207-a5ce-4f44-bff5-ee1ca448b685")
 	)
 	(hierarchical_label "AB[0..10]"
 		(shape input)
@@ -680,6 +702,16 @@
 				(justify left)
 			)
 			(uuid "b07c0d05-c183-47f4-8f0c-6c9c41a06ff8")
+		)
+		(pin "GHFLIP" input
+			(at 151.13 137.16 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "ccf94c8c-bf31-4ede-86fd-25954cd87b25")
 		)
 		(instances
 			(project "tehkanwch"

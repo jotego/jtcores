@@ -9370,7 +9370,7 @@
 		)
 		(uuid "ffbc49a4-038b-4e8b-b63f-8e2a2b03cd33")
 	)
-	(hierarchical_label "G5_12"
+	(hierarchical_label "~{VIDEO_CS}"
 		(shape input)
 		(at 240.03 218.44 180)
 		(fields_autoplaced yes)

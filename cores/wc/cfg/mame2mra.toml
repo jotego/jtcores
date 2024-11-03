@@ -15,12 +15,13 @@ rename=[
 	#{name="2P Game Time", to="2P time" }
 ]
 delete=[
-	{ names=["Start*","2P Game Time"] },
+	{ names=["Start*","2P Game Time","Unused"] },
 ]
 
 [ROM]
 regions = [
 	{ name="maincpu"                             },
+	{ name="subcpu",   start="SUB_START"         },
 	{ name="audiocpu", start="JTFRAME_BA1_START" },
 	{ name="adpcm",    start="PCM_START"         },
 	{ name="gfx1",     start="JTFRAME_BA2_START" },

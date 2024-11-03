@@ -22,6 +22,7 @@ module jtwc_sound(
     input            cen_psg,
     input            cen_psg2,
     input            cen_pcm,
+    input            vbl,
     input            m2s_set,
     input      [7:0] m2s,
     output reg [7:0] s2m,
@@ -31,15 +32,15 @@ module jtwc_sound(
     input     [ 7:0] rom_data,
     input            rom_ok,
     // PCM ROM
-    output reg       pcm_cs,
-    output    [14:0] pcm_addr,
+    output           pcm_cs,
+    output reg[14:0] pcm_addr,
     input     [ 7:0] pcm_data,
     input            pcm_ok,
     // Sound output
     output    [ 9:0] psg0, psg1,
     output signed [11:0] pcm
 );
-
+`ifndef NOMAIN // do not use NOSOUND here
 wire [15:0] A, smp;
 wire [11:0] snd;
 wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
@@ -53,7 +54,7 @@ wire        iorq_n, rfsh_n, mreq_n, nmi_n, int_n, vclk,
 
 assign rom_addr = A[13:0];
 assign {addr0, addr1} = 0; // Assign correctly
-assign pcm_cs         = 0;
+assign pcm_cs         = 1;
 assign pcm            = 12'b0;
 assign rfsh_n = 0;
 
@@ -125,7 +126,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .clk        ( clk         ),
     .cen        ( cen_psg     ),
     .cpu_cen    (             ),
-    .int_n      ( ~m2s_set    ), // int clear logic is internal
+    .int_n      ( vbl         ), // int clear logic is internal
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
     .m1_n       (             ),
@@ -179,12 +180,12 @@ jt49 u_ay1(
     .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),
     .sound  ( psg1      ),
-    .sample (           ),
+    .IOA_in ({pcm_addr[7:1],1'b1}),
+    .IOB_in ({1'b1,pcm_addr[14:8]}), // bit 14 has a pullup in all sets but teeoff
     // unused
-    .IOA_in ( 8'h0      ),
+    .sample (           ),
     .IOA_out(           ),
     .IOA_oe (           ),
-    .IOB_in ( 8'h0      ),
     .IOB_out(           ),
     .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
@@ -202,5 +203,12 @@ jt5205 #(.INTERPOL(0)) u_pcm(
     .irq    (           ),
     .sample (           )
 );
-
+`else
+initial begin
+    s2m      = 0;
+    rom_cs   = 0;
+    pcm_addr = 0;
+end
+assign {rom_addr, pcm_cs, psg0, psg1, pcm} = 0;
+`endif
 endmodule

@@ -8738,7 +8738,7 @@
 		)
 		(uuid "48e05574-8748-4074-b106-b3443d2c1abc")
 	)
-	(label "D7_11"
+	(label "~{CDCK}"
 		(at 181.61 87.63 0)
 		(fields_autoplaced yes)
 		(effects

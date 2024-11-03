@@ -28,7 +28,6 @@ wire [ 8:0] scrx;
 wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
 
 assign dip_flip = vflip | hflip;
-assign obj_cs      = 0;
 assign debug_view  = 0;
 assign objram_addr = 0;
 assign ioctl_din   = 0;
@@ -38,7 +37,7 @@ jtwc_main u_main(
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
     .ws         ( mwait         ),
-    .LVBL       ( LVBL          ),       // video interrupt
+    .lvbl       ( LVBL          ),       // video interrupt
     // shared memory
     .mmx_c8     ( mx_c8         ),
     .mmx_d0     ( mx_d0         ),
@@ -70,7 +69,7 @@ jtwc_sub u_sub(
     .rst_n      ( srst_n        ),
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
-    .vint       ( LVBL          ),       // video interrupt (LVBL)
+    .lvbl       ( LVBL          ),       // video interrupt (LVBL)
     .ws         ( swait         ),
     // shared memory
     .mmx_c8     ( sx_c8         ),
@@ -129,13 +128,14 @@ jtwc_shared u_shared(
     .scrx       ( scrx          ),
     .scry       ( scry          )
 );
-
+/* verilator tracing_off */
 jtwc_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_psg    ( cen_psg1      ),
     .cen_psg2   ( cen_psg2      ),
     .cen_pcm    ( cen_pcm       ),
+    .vbl        ( ~LVBL         ),
     .m2s_set    ( m2s_set       ),
     .m2s        ( m2s           ),
     .s2m        ( s2m           ),
@@ -154,7 +154,7 @@ jtwc_sound u_sound(
     .psg1       ( psg1          ),
     .pcm        ( pcmsnd        )
 );
-
+/* verilator tracing_on */
 jtwc_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -168,7 +168,7 @@ jtwc_video u_video(
     .hs         ( HS            ),
     // Character (fix) RAM
     .fix_addr   ( fixram_addr   ),
-    .fix_dout   ( fix16_dout    ),
+    .fix_dout   ( fixram_dout   ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
     .char_cs    ( char_cs       ),
@@ -177,7 +177,8 @@ jtwc_video u_video(
     .scrx       ( scrx          ),
     .scry       ( scry          ),
     .vram_addr  ( vram_addr     ),
-    .vram_data  ( vram16_dout   ),
+    .vram_data  ( vram_dout     ),
+    // .vram_data  ( {vram_dout[7:0], vram_dout[15:8]}   ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_cs     ( scr_cs        ),
@@ -189,7 +190,7 @@ jtwc_video u_video(
     .obj_ok     ( obj_ok        ),
     // Palette RAM
     .pal_addr   ( pal_addr      ),
-    .pal_dout   ( pal16_dout    ),
+    .pal_dout   ( pal_dout      ),
     // Output
     .red        ( red           ),
     .green      ( green         ),

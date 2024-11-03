@@ -9381,6 +9381,15 @@
 		(uuid "0f24ca92-b910-4598-bc7e-565db6a1832d")
 	)
 	(bus_entry
+		(at 314.96 114.3)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11f06ea1-1101-4406-907e-c801facca1ba")
+	)
+	(bus_entry
 		(at 224.79 186.69)
 		(size -2.54 2.54)
 		(stroke
@@ -14323,17 +14332,6 @@
 		)
 		(uuid "3a23072c-d2f6-489e-a4d7-cf1d67aa3506")
 	)
-	(label "~{PGM}"
-		(at 314.96 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3aa3eb24-0277-4c0a-89e0-190ed200d81b")
-	)
 	(label "~{RDB}"
 		(at 139.7 135.89 0)
 		(fields_autoplaced yes)
@@ -16017,6 +16015,17 @@
 		)
 		(uuid "bacf59cc-b74d-49d4-a284-a227cc9c1411")
 	)
+	(label "CNT13"
+		(at 309.88 114.3 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bad8ce44-36e5-47f9-b350-75e2f0674dec")
+	)
 	(label "ABC2"
 		(at 378.46 196.85 180)
 		(fields_autoplaced yes)
@@ -16314,7 +16323,7 @@
 		)
 		(uuid "d604eb52-207b-4022-b70a-7c64dab686e1")
 	)
-	(label "CNT[0..12]"
+	(label "CNT[0..13]"
 		(at 256.54 201.93 180)
 		(fields_autoplaced yes)
 		(effects
@@ -16391,7 +16400,7 @@
 		)
 		(uuid "db61d0dc-d696-4a6f-80aa-ddae8d611e14")
 	)
-	(label "CNT[0..12]"
+	(label "CNT[0..13]"
 		(at 330.2 116.84 180)
 		(fields_autoplaced yes)
 		(effects
@@ -22518,7 +22527,7 @@
 			)
 			(uuid "13616ccb-5df4-4500-b2f7-620e948ade17")
 		)
-		(pin "A[1..13]" output
+		(pin "A[1..14]" output
 			(at 257.81 201.93 180)
 			(effects
 				(font

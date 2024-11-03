@@ -1,4 +1,5 @@
 params:
+  - { name: SUB_OFFSET, value: "(`SUB_START)>>1" }
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
   - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1" }
 clocks:
@@ -29,8 +30,9 @@ sdram:
         addr_width: 16
         data_width: 8
       - name: sub
-        addr_width: 14
+        addr_width: 15
         data_width: 8
+        offset: SUB_OFFSET
     - buses:
       - name: snd
         addr_width: 14
@@ -90,7 +92,6 @@ bram:
     data_width: 16
     dual_port:
       name: shram
-      addr: "{shram_addr[10:8],shram_addr[6:0]}" # bit 7 used for attributes
       din:  "{2{shram_din}}"
       dout: vram16_dout
       we:   vram_we
