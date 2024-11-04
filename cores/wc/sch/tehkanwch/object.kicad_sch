@@ -2495,7 +2495,7 @@
 		)
 		(uuid "2a5ec418-07b3-4714-b8d3-89eb85f9733b")
 	)
-	(label "~{WR}"
+	(label "~{FWR}"
 		(at 226.06 130.81 0)
 		(fields_autoplaced yes)
 		(effects
@@ -2781,7 +2781,7 @@
 		)
 		(uuid "897066b5-3a33-46e4-84dc-5c576d544b95")
 	)
-	(label "~{WR}"
+	(label "~{FWR}"
 		(at 226.06 161.29 0)
 		(fields_autoplaced yes)
 		(effects
@@ -2946,7 +2946,7 @@
 		)
 		(uuid "ba1768b8-9047-43ce-89e4-e0ce4cf71f3c")
 	)
-	(label "~{WR}"
+	(label "~{FWR}"
 		(at 187.96 152.4 180)
 		(fields_autoplaced yes)
 		(effects

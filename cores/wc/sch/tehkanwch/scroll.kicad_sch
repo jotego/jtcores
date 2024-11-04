@@ -31,6 +31,16 @@
 		)
 		(uuid "09804e28-5d2e-4ce0-9822-586d9418b83d")
 	)
+	(bus
+		(pts
+			(xy 187.96 140.97) (xy 203.2 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b546396-cf29-4df7-a93b-af8a77de6d12")
+	)
 	(wire
 		(pts
 			(xy 187.96 133.35) (xy 203.2 133.35)
@@ -712,6 +722,16 @@
 				(justify left)
 			)
 			(uuid "ccf94c8c-bf31-4ede-86fd-25954cd87b25")
+		)
+		(pin "HA[0..2]" output
+			(at 187.96 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "8a50e5d9-fc7b-49f1-89ce-19355a5195c9")
 		)
 		(instances
 			(project "tehkanwch"

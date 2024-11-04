@@ -5694,6 +5694,12 @@
 		)
 	)
 	(junction
+		(at 215.9 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7154e108-4c2e-4210-8bc7-6a8773afb88b")
+	)
+	(junction
 		(at 270.51 152.4)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6856,6 +6862,16 @@
 			(type default)
 		)
 		(uuid "3ea4f4fd-f651-4fea-b454-11a0c8379fd7")
+	)
+	(bus
+		(pts
+			(xy 215.9 85.09) (xy 215.9 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ee7a08c-2cbf-4a60-90f3-4b474304d50c")
 	)
 	(wire
 		(pts
@@ -8039,6 +8055,16 @@
 	)
 	(wire
 		(pts
+			(xy 238.76 134.62) (xy 243.84 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec54ef87-56aa-4c01-8e63-2023d455ad76")
+	)
+	(wire
+		(pts
 			(xy 243.84 185.42) (xy 240.03 185.42)
 		)
 		(stroke
@@ -8186,6 +8212,16 @@
 			(type default)
 		)
 		(uuid "f63f4031-296c-4ef5-9157-97a1fc50b796")
+	)
+	(bus
+		(pts
+			(xy 215.9 76.2) (xy 217.17 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f7629835-7b86-4598-9719-26f1696633ea")
 	)
 	(wire
 		(pts
@@ -9106,17 +9142,6 @@
 		)
 		(uuid "bc2bd7e5-ee91-4d6d-b6bd-2b52579c270d")
 	)
-	(label "A[15..0]"
-		(at 217.17 85.09 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c20e58c1-7fce-4a9d-83c8-b7b90ba9e23b")
-	)
 	(label "D3"
 		(at 267.97 96.52 180)
 		(fields_autoplaced yes)
@@ -9127,6 +9152,17 @@
 			(justify right bottom)
 		)
 		(uuid "c220d70b-6a98-48f7-b4d0-3203f625e5da")
+	)
+	(label "~{RD}"
+		(at 238.76 134.62 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c33c29cc-d125-4a59-a598-eb10d0195382")
 	)
 	(label "D5"
 		(at 267.97 177.8 180)
@@ -9465,6 +9501,18 @@
 			(justify left)
 		)
 		(uuid "5e3702b9-8656-4559-bb54-3b2e2f78a192")
+	)
+	(hierarchical_label "A[15..0]"
+		(shape output)
+		(at 217.17 76.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "719ea294-3514-4972-ac9b-caf392453a40")
 	)
 	(hierarchical_label "~{RST}"
 		(shape input)

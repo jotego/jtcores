@@ -8588,7 +8588,7 @@
 		)
 		(uuid "13027e0e-0896-409f-90f1-fd6960853f5e")
 	)
-	(label "SA[0..10]"
+	(label "SA[0..15]"
 		(at 153.67 86.36 180)
 		(fields_autoplaced yes)
 		(effects
@@ -12770,16 +12770,6 @@
 			)
 			(uuid "058cde70-0f63-41d9-bbc7-940166c63183")
 		)
-		(pin "RAM_A[0..10]" output
-			(at 143.51 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "e783098e-9f61-43d2-9574-593171c14e87")
-		)
 		(pin "D[0..7]" bidirectional
 			(at 143.51 91.44 0)
 			(effects
@@ -12879,6 +12869,16 @@
 				(justify right)
 			)
 			(uuid "3596b893-b809-4bb8-bc5a-3c0203dd4690")
+		)
+		(pin "A[15..0]" output
+			(at 143.51 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "3abf4685-8982-4293-8dc8-34dd213ca872")
 		)
 	)
 	(sheet
