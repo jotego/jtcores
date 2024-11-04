@@ -45,7 +45,6 @@ sdram:
       - name: char
         addr_width: 14
         data_width: 32
-        # gfx_sort: hhvvv
       - name: scr
         addr_width: 16
         data_width: 32

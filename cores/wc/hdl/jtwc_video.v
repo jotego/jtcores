@@ -79,7 +79,7 @@ assign scr_code  = {vram_data[13:12],vram_data[7:0]};
 assign scr_pal   = vram_data[11:8];
 assign scr_hflip = vram_data[14];
 assign scr_vflip = vram_data[15];
-assign scr_addr  = scr_araw;        // to do: sort bits
+assign scr_addr  = scr_araw^14'h8;
 assign flip      = hflip | vflip;   // incomplete implementation
 assign obj_pxl   = 0; //Assign correctly
 
@@ -170,7 +170,7 @@ jtframe_scroll #(
     .MAP_HW      (    9 ),
     .PW          (    8 ),
     .XOR_HFLIP   (    1 ),
-    .HJUMP       (    0 )
+    .HJUMP       (    1 )
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -179,7 +179,7 @@ jtframe_scroll #(
     .hs         ( hs        ),
 
     .vdump      ({1'b0,vdump[7:0]}),
-    .hdump      ( hdump     ),
+    .hdump      ({~hdump[8],hdump[7:0]}),
     .blankn     ( lvbl      ),  // if !blankn there are no ROM requests
     .flip       ( flip      ),
     .scrx       ( scrx      ),
@@ -189,7 +189,7 @@ jtframe_scroll #(
 
     .code       ( scr_code  ),
     .pal        ( scr_pal   ),
-    .hflip      ( scr_hflip ),
+    .hflip      (~scr_hflip ),
     .vflip      ( scr_vflip ),
 
     .rom_addr   ( scr_araw  ),

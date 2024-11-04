@@ -25,9 +25,9 @@ regions = [
 	{ name="audiocpu", start="JTFRAME_BA1_START" },
 	{ name="adpcm",    start="PCM_START"         },
 	{ name="gfx1",     start="JTFRAME_BA2_START" },
-	{ name="gfx2",     start="SCR_START"         },
-	{ name="gfx3",     start="JTFRAME_BA3_START" }
+	{ name="gfx3",     start="SCR_START"         },
+	{ name="gfx2",     start="JTFRAME_BA3_START" }
 ]
 
 order=["maincpu","sub","audiocpu","adpcm",
-	"gfx1","gfx2","gfx3"]
+	"gfx1","gfx3","gfx2"]

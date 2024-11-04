@@ -4941,16 +4941,6 @@
 		)
 		(uuid "635a8738-61b5-4947-8c0a-5484a615c80a")
 	)
-	(text "DAUGHTER24"
-		(exclude_from_sim no)
-		(at 101.854 94.488 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "776b986a-f192-4dcd-99d5-e7caac54f05e")
-	)
 	(text "Resistor networks reference:\nRN1 = E9 top\nRN2 = below RN1\n...\nRN11 = above RN12\nRN12 = E7 bottom"
 		(exclude_from_sim no)
 		(at 274.32 41.91 0)

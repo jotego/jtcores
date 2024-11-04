@@ -77,7 +77,7 @@ always @* begin
               sh_cs  ? sh_dout  : 8'd0;
 end
 
-jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),
     .clk        ( clk         ),
     .cen        ( cen_eff     ),

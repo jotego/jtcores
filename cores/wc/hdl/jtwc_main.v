@@ -137,7 +137,7 @@ assign din = rom_cs ? rom_data :
              dip_cs ? dip_mux  :
              s2m_cs ? s2m      : 8'hff;
 
-jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),
     .clk        ( clk         ),
     .cen        ( cen_eff     ),

@@ -43,6 +43,7 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] Schematics
 - [ ] Hardware dependencies
 - [ ] SDRAM mapping (mame2mra.toml and mem.yaml)
+- [ ] Audio information in mem.yaml
 **RTL**
 - [ ] Logic connected
 - [ ] Tilemap logic
@@ -53,7 +54,6 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] Simulation starts up correctly
 - [ ] Music sounds
 - [ ] No sound clipping
-- [ ] OSD sound options (FX level, FM/PSG enable)
 - [ ] Synthesis ok
 - [ ] DIP switches work
 - [ ] Playable

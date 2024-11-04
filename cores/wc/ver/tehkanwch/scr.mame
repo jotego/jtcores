@@ -1,0 +1,8 @@
+focus 0
+wp ec00,1,w,1,{printf "scr X (lo)=%X",wpdata}
+wp ec01,1,w,1,{printf "scr X (hi)=%X",wpdata&1}
+wp ec02,1,w,1,{printf "scr Y     =%X",wpdata}
+focus 1
+wp ec00,1,w,1,{printf "scr X (lo)=%X",wpdata}
+wp ec01,1,w,1,{printf "scr X (hi)=%X",wpdata&1}
+wp ec02,1,w,1,{printf "scr Y     =%X",wpdata}
