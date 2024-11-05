@@ -56,6 +56,7 @@ module jtwc_video(
     output     [ 3:0] green,
     output     [ 3:0] blue,
     // Debug
+    input      [ 7:0] debug_bus,
     input      [ 3:0] gfx_en
 );
 
@@ -108,11 +109,11 @@ jtframe_vtimer #(
     .VCNT_END   ( 9'h1ff    ),
     .VB_START   ( 9'h1ef    ),
     .VB_END     ( 9'h10f    ),
-    .VS_START   ( 9'h1f4    ),
+    .VS_START   ( 9'h0f8    ),
 
     .HCNT_START ( 9'h080    ),
     .HCNT_END   ( 9'h1ff    ),
-    .HS_START   ( 9'h0a0    ),
+    .HS_START   ( 9'h0ad    ),
     .HB_START   ( 9'h089    ),
     .HB_END     ( 9'h109    )
 )   u_vtimer(
