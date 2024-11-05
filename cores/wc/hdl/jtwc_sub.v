@@ -60,11 +60,11 @@ always @* begin
         0,1: rom_cs   = 1;
         3: case(A[13:11])
             0: ram_cs = 1;
-            1: mmx_c8 = 1;
-            2: mmx_d0 = 1;
-            3: mmx_d8 = 1;
-            4: mmx_e0 = 1;
-            5: mmx_e8 = 1;
+            1: {sh_cs,mmx_c8} = 2'b11;
+            2: {sh_cs,mmx_d0} = 2'b11;
+            3: {sh_cs,mmx_d8} = 2'b11;
+            4: {sh_cs,mmx_e0} = 2'b11;
+            5: {sh_cs,mmx_e8} = 2'b11;
             default:;
         endcase
         default:;
