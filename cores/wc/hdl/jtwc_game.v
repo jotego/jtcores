@@ -196,6 +196,7 @@ jtwc_video u_video(
     .green      ( green         ),
     .blue       ( blue          ),
     // Debug
+    .debug_bus  ( debug_bus     ),
     .gfx_en     ( gfx_en        )
 );
 
