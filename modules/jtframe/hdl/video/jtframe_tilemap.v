@@ -83,7 +83,6 @@ assign veff = FLIP_VDUMP ? vdump ^ { FLIP_MSB[0]&flip, {8{flip}}} : vdump;
 always @* begin
     hoff = hdump - HDUMP_OFFSET[8:0];
     heff = FLIP_HDUMP ? hoff ^ {9{flip}} : hoff;
-    if( flip ) heff = heff - 9'd7;
 end
 
 initial begin
