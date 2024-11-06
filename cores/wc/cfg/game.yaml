@@ -13,6 +13,7 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_scroll.v
       - jtframe_tilemap.v
+      - jtframe_obj.yaml
 modules:
   jt:
     - name: jt5205

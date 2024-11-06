@@ -29,9 +29,8 @@ wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
 
 assign dip_flip = vflip | hflip;
 assign debug_view  = 0;
-assign objram_addr = 0;
 assign ioctl_din   = 0;
-
+/* verilator tracing_off */
 jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -122,7 +121,7 @@ jtwc_shared u_shared(
     .pal16_dout ( pal16_dout    ),
     .fix16_dout ( fix16_dout    ),
     .vram16_dout( vram16_dout   ),
-    .obj16_dout ( obj16_dout    ),
+    .obj_dout   ( obj_dout      ),
     .sha_dout   ( sha_dout      ),
     // video scroll
     .scrx       ( scrx          ),
@@ -184,6 +183,12 @@ jtwc_video u_video(
     .scr_cs     ( scr_cs        ),
     .scr_ok     ( scr_ok        ),
     // Objects
+    .oram_addr  ( objram_addr   ),
+    .oram_data  ( objram_dout   ),
+    .fb_addr    ( fb_addr       ),
+    .fb_din     ( fb_din        ),
+    .fb_dout    ( fb_dout       ),
+    .fb_we      ( fb_we         ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_cs     ( obj_cs        ),

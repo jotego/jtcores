@@ -50,7 +50,8 @@ module jtframe_draw#( parameter
     output     [CW+6:2] rom_addr, // HVVVV format
     output reg          rom_cs,
     input               rom_ok,
-    input      [31:0]   rom_data,
+    input      [31:0]   rom_data, // leftmost pixel in LSB
+                                  // one plane per byte
 
     output reg [AW-1:0] buf_addr,
     output              buf_we,

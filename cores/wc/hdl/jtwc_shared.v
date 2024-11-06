@@ -45,11 +45,11 @@ module jtwc_shared(
     input     [15:0] pal16_dout,
     input     [15:0] fix16_dout,
     input     [15:0] vram16_dout,
-    input     [15:0] obj16_dout,
+    input     [ 7:0] obj_dout,
     // mux'ed
     output    [ 1:0] pal_we,
     output    [ 1:0] fix_we,
-    output    [ 1:0] obj_we,
+    output           obj_we,
     output    [ 1:0] scr_we,
     output           shram_we,
     output reg[10:0] sha,
@@ -79,14 +79,14 @@ assign pal_cs   = shd8;
 assign scr_cs   = she0;
 assign obj_cs   = she8 && !sha[10];
 assign shram_we =    ram_cs&sha_we;
+assign obj_we   =    obj_cs&sha_we;
 assign pal_we   = {2{pal_cs&sha_we}}&{sha[ 0],~sha[ 0]};
 assign fix_we   = {2{fix_cs&sha_we}}&{sha[10],~sha[10]};
 assign scr_we   = {2{scr_cs&sha_we}}&{sha[ 0],~sha[ 0]};
-assign obj_we   = {2{obj_cs&sha_we}}&{sha[ 0],~sha[ 0]};
 assign sha_dout = pal_cs ? mux8(pal16_dout, 0) :
                   fix_cs ? mux8(fix16_dout,10) :
                   scr_cs ? mux8(vram16_dout,0) :
-                  obj_cs ? mux8(obj16_dout, 0) : shram_dout;
+                  obj_cs ? obj_dout : shram_dout;
 
 always @* begin
     if( msel ) begin

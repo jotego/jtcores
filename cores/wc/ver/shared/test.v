@@ -121,7 +121,7 @@ jtwc_shared uut(
     .pal16_dout ( 16'd0         ),
     .fix16_dout ( 16'd0         ),
     .vram16_dout( 16'd0         ),
-    .obj16_dout ( 16'd0         ),
+    .obj_dout   ( 16'd0         ),
     .sha_dout   (               ),
     // video scroll
     .scrx       (               ),

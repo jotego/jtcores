@@ -413,11 +413,12 @@ jtframe_bram_rom #(
 {{else}}
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
+    .AW({{ sub $bus.Addr_width (div $bus.Data_width 16)}}){{ if ne $bus.Data_width 16}},
+    .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
     {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
     .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
 ) u_bram_{{$bus.Name}}(
-    .clk    ( clk  ),{{ if eq $bus.Data_width 8 }}
+    .clk    ( clk  ),{{ if ne $bus.Data_width 16 }}
     .cen    ( 1'b1 ),{{end}}
     .addr   ( {{$bus.Addr}} ),
     .data   ( {{$bus.Din }} ),

@@ -3382,7 +3382,7 @@
 		(uuid "7fa7aca3-e45c-4189-9143-17ee6a9962c3")
 	)
 	(junction
-		(at 113.03 68.58)
+		(at 99.06 68.58)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a695bf20-c1b5-4c1b-b6dc-6cf94da90cdc")
@@ -3828,7 +3828,7 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 68.58) (xy 113.03 68.58)
+			(xy 95.25 68.58) (xy 99.06 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3938,7 +3938,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 68.58) (xy 120.65 68.58)
+			(xy 99.06 68.58) (xy 106.68 68.58)
 		)
 		(stroke
 			(width 0)
@@ -3955,6 +3955,16 @@
 			(type default)
 		)
 		(uuid "3e5d522c-308e-4bce-9f21-21052d85b18d")
+	)
+	(wire
+		(pts
+			(xy 157.48 73.66) (xy 163.83 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e8839d1-4df1-4c8d-a25b-e5edb379e125")
 	)
 	(wire
 		(pts
@@ -4038,7 +4048,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 68.58) (xy 113.03 81.28)
+			(xy 99.06 68.58) (xy 99.06 81.28)
 		)
 		(stroke
 			(width 0)
@@ -4518,7 +4528,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 83.82) (xy 139.7 83.82)
+			(xy 121.92 83.82) (xy 125.73 83.82)
 		)
 		(stroke
 			(width 0)
@@ -4668,7 +4678,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 68.58) (xy 113.03 60.96)
+			(xy 99.06 68.58) (xy 99.06 60.96)
 		)
 		(stroke
 			(width 0)
@@ -4738,7 +4748,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 86.36) (xy 120.65 86.36)
+			(xy 100.33 86.36) (xy 106.68 86.36)
 		)
 		(stroke
 			(width 0)
@@ -4758,7 +4768,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 73.66) (xy 120.65 73.66)
+			(xy 100.33 73.66) (xy 106.68 73.66)
 		)
 		(stroke
 			(width 0)
@@ -4868,7 +4878,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 60.96) (xy 120.65 60.96)
+			(xy 99.06 60.96) (xy 106.68 60.96)
 		)
 		(stroke
 			(width 0)
@@ -4928,7 +4938,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 58.42) (xy 139.7 58.42)
+			(xy 121.92 58.42) (xy 125.73 58.42)
 		)
 		(stroke
 			(width 0)
@@ -5058,7 +5068,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 81.28) (xy 120.65 81.28)
+			(xy 99.06 81.28) (xy 106.68 81.28)
 		)
 		(stroke
 			(width 0)
@@ -5088,7 +5098,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 71.12) (xy 139.7 71.12)
+			(xy 121.92 71.12) (xy 125.73 71.12)
 		)
 		(stroke
 			(width 0)
@@ -5339,7 +5349,7 @@
 		(uuid "463c0fef-ac86-470c-8e15-057fe3ec7d00")
 	)
 	(label "A1"
-		(at 139.7 83.82 180)
+		(at 125.73 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5381,6 +5391,17 @@
 			(justify left bottom)
 		)
 		(uuid "50bc3967-a861-4aa8-8eda-04b3dcfa59c4")
+	)
+	(label "OCK1"
+		(at 157.48 73.66 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "55d2a873-2a1e-45a6-beba-c312b2c3bfd4")
 	)
 	(label "A0"
 		(at 214.63 76.2 0)
@@ -5537,7 +5558,7 @@
 		(uuid "817bca1d-627a-4299-8a59-9712d867d55c")
 	)
 	(label "D15_11"
-		(at 114.3 86.36 0)
+		(at 100.33 86.36 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5801,7 +5822,7 @@
 		(uuid "c75f320f-2cac-400e-8543-bbd78acaeb42")
 	)
 	(label "A0"
-		(at 139.7 71.12 180)
+		(at 125.73 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5823,7 +5844,7 @@
 		(uuid "db6e4926-6d9a-41af-955f-d8f3ac7c0787")
 	)
 	(label "A5"
-		(at 139.7 58.42 180)
+		(at 125.73 58.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5867,7 +5888,7 @@
 		(uuid "e847f39d-df49-40fc-add4-57eeb25f38e6")
 	)
 	(label "HB2"
-		(at 114.3 73.66 0)
+		(at 100.33 73.66 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5934,6 +5955,18 @@
 		)
 		(uuid "4b07a9a8-199a-49bc-898d-118b7a3ebea7")
 	)
+	(hierarchical_label "OVFLIP"
+		(shape input)
+		(at 149.86 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5a278d94-9d48-4ad4-b08a-abf5584c7ab4")
+	)
 	(hierarchical_label "CODE[0..8]"
 		(shape input)
 		(at 137.16 138.43 180)
@@ -5945,6 +5978,18 @@
 			(justify right)
 		)
 		(uuid "9f7c2774-2dc2-4a3a-bdda-6e295a78dc19")
+	)
+	(hierarchical_label "OCK[0..1]"
+		(shape input)
+		(at 102.87 97.79 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c7d99722-2e26-430d-b4eb-2040658d8286")
 	)
 	(hierarchical_label "OHFLIP"
 		(shape input)
@@ -6049,7 +6094,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 128.27 71.12 0)
+		(at 114.3 71.12 0)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6057,7 +6102,7 @@
 		(dnp no)
 		(uuid "0a22576a-bc69-49b0-bfeb-bb65da6f9e60")
 		(property "Reference" "VE13"
-			(at 128.27 71.12 0)
+			(at 114.3 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6065,7 +6110,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 127.9652 64.77 0)
+			(at 113.9952 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6074,7 +6119,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 128.27 71.12 0)
+			(at 114.3 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6083,7 +6128,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 128.27 71.12 0)
+			(at 114.3 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6092,7 +6137,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 128.27 71.12 0)
+			(at 114.3 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6606,7 +6651,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 128.27 58.42 0)
+		(at 114.3 58.42 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6614,7 +6659,7 @@
 		(dnp no)
 		(uuid "4b95073e-79d8-4c49-8b23-c43989c15fce")
 		(property "Reference" "VF13"
-			(at 128.27 58.42 0)
+			(at 114.3 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6622,7 +6667,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 127.9652 52.07 0)
+			(at 113.9952 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6631,7 +6676,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 128.27 58.42 0)
+			(at 114.3 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6640,7 +6685,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 128.27 58.42 0)
+			(at 114.3 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6649,7 +6694,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 128.27 58.42 0)
+			(at 114.3 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6994,7 +7039,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 128.27 83.82 0)
+		(at 114.3 83.82 0)
 		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
@@ -7003,7 +7048,7 @@
 		(dnp no)
 		(uuid "8e25d1c5-4829-4958-8aed-0568759bb11d")
 		(property "Reference" "VE13"
-			(at 128.27 83.82 0)
+			(at 114.3 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7011,7 +7056,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 127.9652 90.17 0)
+			(at 113.9952 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7020,7 +7065,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 128.27 83.82 0)
+			(at 114.3 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7029,7 +7074,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 128.27 83.82 0)
+			(at 114.3 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7038,7 +7083,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 128.27 83.82 0)
+			(at 114.3 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)

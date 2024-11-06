@@ -100,13 +100,19 @@ bram:
       order: 2
   - name: objram
     addr_width: 10
-    data_width: 16
+    data_width: 8
     dual_port:
       name: shram
-      din:  "{2{shram_din}}"
-      dout: obj16_dout
+      dout: obj_dout
       we:   obj_we
       rw:   true
+    ioctl:
+      save: true
+      order: 3
+  - name: fb
+    addr_width: 11
+    data_width: 32
+    rw: true
     # ioctl:
     #   save: true
     #   order: 3

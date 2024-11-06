@@ -8915,17 +8915,6 @@
 		)
 		(uuid "b9f1f31a-e108-461f-8691-ed513c37ff68")
 	)
-	(label "VB7_4"
-		(at 200.66 233.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bf1f63cc-5553-41aa-817a-3667267d629b")
-	)
 	(label "GND"
 		(at 144.78 36.83 0)
 		(fields_autoplaced yes)
@@ -9483,6 +9472,18 @@
 			(justify right)
 		)
 		(uuid "e85e64c1-b36a-4887-944e-dc85370226a3")
+	)
+	(hierarchical_label "SCRH1"
+		(shape input)
+		(at 200.66 233.68 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ed6029f8-6d22-433f-850c-d8f505749750")
 	)
 	(hierarchical_label "~{SCRY}"
 		(shape output)

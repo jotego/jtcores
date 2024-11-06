@@ -11,6 +11,30 @@
 		(comment 1 "Jose Tejada")
 	)
 	(lib_symbols)
+	(junction
+		(at 190.5 143.51)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1594f500-2c77-48a9-b0f1-2aa8ed8ae8a0")
+	)
+	(bus_entry
+		(at 198.12 158.75)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63a94866-188d-41ff-afba-165f4d47d217")
+	)
+	(bus_entry
+		(at 250.19 130.81)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8244083-dbb6-4998-8399-8973ed22139a")
+	)
 	(bus
 		(pts
 			(xy 240.03 130.81) (xy 250.19 130.81)
@@ -20,6 +44,16 @@
 			(type default)
 		)
 		(uuid "075af5dc-5c2f-4711-bafc-5b2d4ec8ae8b")
+	)
+	(bus
+		(pts
+			(xy 190.5 147.32) (xy 190.5 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "089b8d34-31ff-480a-9382-aa3b3900c361")
 	)
 	(bus
 		(pts
@@ -33,7 +67,7 @@
 	)
 	(bus
 		(pts
-			(xy 187.96 140.97) (xy 203.2 140.97)
+			(xy 187.96 143.51) (xy 190.5 143.51)
 		)
 		(stroke
 			(width 0)
@@ -113,13 +147,23 @@
 	)
 	(bus
 		(pts
-			(xy 187.96 149.86) (xy 198.12 149.86)
+			(xy 187.96 158.75) (xy 198.12 158.75)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "75566d15-e6ce-4615-bd8f-e513f573553d")
+	)
+	(wire
+		(pts
+			(xy 144.78 147.32) (xy 151.13 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7896dcb6-ce83-465c-a205-c83edb551893")
 	)
 	(wire
 		(pts
@@ -130,6 +174,16 @@
 			(type default)
 		)
 		(uuid "821bbd5a-b73b-41e4-9cfd-98ae028b99ec")
+	)
+	(bus
+		(pts
+			(xy 252.73 161.29) (xy 252.73 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8284de7d-0222-4123-97c6-8d95d3d8a43e")
 	)
 	(wire
 		(pts
@@ -181,6 +235,16 @@
 		)
 		(uuid "c3853600-3a11-4dbc-8179-080baacdda39")
 	)
+	(bus
+		(pts
+			(xy 252.73 133.35) (xy 256.54 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0085cb2-cc0f-4e6c-89ba-1b1115bfc644")
+	)
 	(wire
 		(pts
 			(xy 144.78 137.16) (xy 151.13 137.16)
@@ -190,6 +254,16 @@
 			(type default)
 		)
 		(uuid "dac881d2-8ec7-475d-8f4f-0a3688df55b7")
+	)
+	(bus
+		(pts
+			(xy 191.77 147.32) (xy 190.5 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "db477825-195d-4573-a39d-a4302e681572")
 	)
 	(bus
 		(pts
@@ -203,6 +277,16 @@
 	)
 	(bus
 		(pts
+			(xy 200.66 161.29) (xy 252.73 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3d12306-7071-4cb7-b911-752bc45893e6")
+	)
+	(bus
+		(pts
 			(xy 144.78 130.81) (xy 151.13 130.81)
 		)
 		(stroke
@@ -210,6 +294,16 @@
 			(type default)
 		)
 		(uuid "e6927b2e-15da-4c9b-8460-bde3f05d5c30")
+	)
+	(bus
+		(pts
+			(xy 190.5 143.51) (xy 203.2 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebae1ff3-e003-4f81-a8d3-808c0703596a")
 	)
 	(label "PXL[0..3]"
 		(at 250.19 130.81 180)
@@ -223,7 +317,7 @@
 		(uuid "8126db47-d926-458a-a69f-2064e7352310")
 	)
 	(label "PXL[4..7]"
-		(at 198.12 149.86 180)
+		(at 198.12 158.75 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -329,6 +423,18 @@
 		)
 		(uuid "3eeb6cfa-6085-4982-adad-7f376e08e0fb")
 	)
+	(hierarchical_label "HBCLK"
+		(shape input)
+		(at 144.78 147.32 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4687cd85-4cb2-4efa-865d-c3a1d528e703")
+	)
 	(hierarchical_label "~{SCRXM}"
 		(shape input)
 		(at 144.78 161.29 180)
@@ -343,7 +449,7 @@
 	)
 	(hierarchical_label "PXL[0..7]"
 		(shape output)
-		(at 254 130.81 0)
+		(at 256.54 133.35 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -400,6 +506,18 @@
 			(justify right)
 		)
 		(uuid "d330a24a-48eb-4d4a-add7-be23305f7105")
+	)
+	(hierarchical_label "HA[0..2]"
+		(shape output)
+		(at 191.77 147.32 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f5618806-bbbb-47f0-9838-950ee2ec8813")
 	)
 	(hierarchical_label "~{CS}"
 		(shape input)
@@ -485,7 +603,7 @@
 			(uuid "f682f9dc-7a8d-4fa0-a3f8-b735ca9de427")
 		)
 		(pin "H[0..2]" input
-			(at 203.2 140.97 180)
+			(at 203.2 143.51 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -495,7 +613,7 @@
 			(uuid "9a31ff8c-9238-49b7-997e-2a4184207e9d")
 		)
 		(pin "V[0..2]" input
-			(at 203.2 143.51 180)
+			(at 203.2 140.97 180)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -554,7 +672,7 @@
 			)
 		)
 		(pin "PAL[0..3]" input
-			(at 187.96 149.86 0)
+			(at 187.96 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -724,7 +842,7 @@
 			(uuid "ccf94c8c-bf31-4ede-86fd-25954cd87b25")
 		)
 		(pin "HA[0..2]" output
-			(at 187.96 140.97 0)
+			(at 187.96 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -732,6 +850,16 @@
 				(justify right)
 			)
 			(uuid "8a50e5d9-fc7b-49f1-89ce-19355a5195c9")
+		)
+		(pin "HBCLK" input
+			(at 151.13 147.32 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "03536e71-459a-40cf-abea-9ded5ea3e36a")
 		)
 		(instances
 			(project "tehkanwch"

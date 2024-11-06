@@ -44,6 +44,15 @@ module jtwc_video(
     output            scr_cs,
     input             scr_ok,
     // Object
+    //      RAM shared with CPU
+    output     [ 9:0] oram_addr,
+    input      [ 7:0] oram_data,
+    //      Frame buffer
+    output     [10:2] fb_addr,
+    output     [31:0] fb_din,
+    input      [31:0] fb_dout,
+    output            fb_we,
+    //      ROM
     output     [15:2] obj_addr,
     input      [31:0] obj_data,
     output            obj_cs,
@@ -69,9 +78,6 @@ wire [ 6:0] obj_pxl;
 wire [ 3:0] fix_pal, scr_pal;
 wire        fix_hflip, fix_vflip, scr_hflip, scr_vflip, flip;
 
-assign obj_addr  = 0;
-assign obj_cs    = 0;
-
 assign fix_code  = {fix_dout[12],fix_dout[7:0]};
 assign fix_pal   = fix_dout[11:8];
 assign fix_hflip = fix_dout[14];
@@ -82,23 +88,22 @@ assign scr_hflip = vram_data[14];
 assign scr_vflip = vram_data[15];
 assign scr_addr  = scr_araw^14'h8;
 assign flip      = hflip | vflip;   // incomplete implementation
-assign obj_pxl   = 0; //Assign correctly
 
 // VRAM original format {VS[7:3],ATTR,HS[7:4]}
 // attributes moved to address LSB to get them in a single 16-bit read
 
 assign char_sorted = {
-char_data[31],char_data[27],char_data[23],char_data[19],char_data[15],char_data[11],char_data[7],char_data[3],
-char_data[30],char_data[26],char_data[22],char_data[18],char_data[14],char_data[10],char_data[6],char_data[2],
-char_data[29],char_data[25],char_data[21],char_data[17],char_data[13],char_data[ 9],char_data[5],char_data[1],
-char_data[28],char_data[24],char_data[20],char_data[16],char_data[12],char_data[ 8],char_data[4],char_data[0]
+    char_data[31],char_data[27],char_data[23],char_data[19],char_data[15],char_data[11],char_data[7],char_data[3],
+    char_data[30],char_data[26],char_data[22],char_data[18],char_data[14],char_data[10],char_data[6],char_data[2],
+    char_data[29],char_data[25],char_data[21],char_data[17],char_data[13],char_data[ 9],char_data[5],char_data[1],
+    char_data[28],char_data[24],char_data[20],char_data[16],char_data[12],char_data[ 8],char_data[4],char_data[0]
 };
 
 assign scr_sorted = {
-scr_data[31],scr_data[27],scr_data[23],scr_data[19],scr_data[15],scr_data[11],scr_data[7],scr_data[3],
-scr_data[30],scr_data[26],scr_data[22],scr_data[18],scr_data[14],scr_data[10],scr_data[6],scr_data[2],
-scr_data[29],scr_data[25],scr_data[21],scr_data[17],scr_data[13],scr_data[ 9],scr_data[5],scr_data[1],
-scr_data[28],scr_data[24],scr_data[20],scr_data[16],scr_data[12],scr_data[ 8],scr_data[4],scr_data[0]
+    scr_data[31],scr_data[27],scr_data[23],scr_data[19],scr_data[15],scr_data[11],scr_data[7],scr_data[3],
+    scr_data[30],scr_data[26],scr_data[22],scr_data[18],scr_data[14],scr_data[10],scr_data[6],scr_data[2],
+    scr_data[29],scr_data[25],scr_data[21],scr_data[17],scr_data[13],scr_data[ 9],scr_data[5],scr_data[1],
+    scr_data[28],scr_data[24],scr_data[20],scr_data[16],scr_data[12],scr_data[ 8],scr_data[4],scr_data[0]
 };
 
 // 224 active lines
@@ -200,6 +205,33 @@ jtframe_scroll #(
 
     .pxl        ( scr_pxl   )
 );
+
+jtwc_obj u_obj(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .hs         ( hs        ),
+
+    .vrender    ( vrender   ),
+    .hdump      ( hdump     ),
+    .ghflip     ( hflip     ),
+    .gvflip     ( vflip     ),
+    // RAM shared with CPU
+    .vram_addr  ( oram_addr ),
+    .vram_data  ( oram_data ),
+    // Frame buffer
+    .fb_addr    ( fb_addr   ),
+    .fb_din     ( fb_din    ),
+    .fb_dout    ( fb_dout   ),
+    .fb_we      ( fb_we     ),
+    // ROM
+    .rom_addr   ( obj_addr  ),
+    .rom_data   ( obj_data  ),
+    .rom_cs     ( obj_cs    ),
+    .rom_ok     ( obj_ok    ),
+    .pxl        ( obj_pxl   )
+);
+
 
 jtwc_colmix u_colmix(
     .rst        ( rst       ),

@@ -424,11 +424,10 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 		if each.Rw {
 			name := each.Name + "_we"
 			if each.We!="" { name = each.We }
-			add( Port{
-				Name: name,
-				MSB: each.Data_width>>4,
-				LSB: 0,
-			})
+			we_port := Port{ Name: name }
+			// only 16 bit memories have byte select
+			if each.Data_width==16 { we_port.MSB=1 }
+			add( we_port )
 		}
 		if each.Dual_port.Name!="" {
 			if each.Dual_port.Addr == "" { each.Dual_port.Addr = each.Dual_port.Name + "_addr" }

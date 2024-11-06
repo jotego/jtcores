@@ -1164,6 +1164,16 @@
 	)
 	(bus
 		(pts
+			(xy 118.11 137.16) (xy 147.32 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "16c87b59-be46-4750-9e24-ee8384eaa5e2")
+	)
+	(bus
+		(pts
 			(xy 179.07 118.11) (xy 186.69 118.11)
 		)
 		(stroke
@@ -1541,6 +1551,16 @@
 			(type default)
 		)
 		(uuid "5db375ef-baf2-4ffe-a24a-facf73b72d25")
+	)
+	(wire
+		(pts
+			(xy 118.11 134.62) (xy 147.32 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f7cd030-8d7c-44a9-a20c-75e5db7ce746")
 	)
 	(bus
 		(pts
@@ -1971,6 +1991,16 @@
 			(type default)
 		)
 		(uuid "ba19a3dd-a461-488b-948f-016741c85e52")
+	)
+	(wire
+		(pts
+			(xy 118.11 132.08) (xy 147.32 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba4e7e56-198c-4fbc-aad4-5aebbc3b44de")
 	)
 	(wire
 		(pts
@@ -4071,7 +4101,7 @@
 	)
 	(sheet
 		(at 147.32 114.3)
-		(size 31.75 21.59)
+		(size 31.75 25.4)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -4091,7 +4121,7 @@
 			)
 		)
 		(property "Sheetfile" "objrom.kicad_sch"
-			(at 147.32 136.4746 0)
+			(at 147.32 140.2846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4159,6 +4189,36 @@
 				(justify left)
 			)
 			(uuid "d899639a-6f96-4122-a9c0-93a77b858061")
+		)
+		(pin "OHFLIP" input
+			(at 147.32 132.08 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "f4c3facc-6ca6-43d5-a854-9e083c5687e4")
+		)
+		(pin "OCK[0..1]" input
+			(at 147.32 137.16 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "01c848dc-2bd7-4e54-8ad7-8277f7488b07")
+		)
+		(pin "OVFLIP" input
+			(at 147.32 134.62 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2df88238-71ff-4743-aa69-bed04e09c176")
 		)
 		(instances
 			(project "tehkanwch"
@@ -4578,16 +4638,6 @@
 			)
 			(uuid "783fb633-49be-401b-8aa5-86d101e0bf27")
 		)
-		(pin "TC0" input
-			(at 86.36 138.43 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "548cd32a-cb86-4d51-aa30-fda49d19a8d3")
-		)
 		(pin "XSEL" input
 			(at 86.36 132.08 180)
 			(effects
@@ -4617,6 +4667,36 @@
 				(justify right)
 			)
 			(uuid "a7a1fa01-d34b-4de6-86d4-2f6ed5656db2")
+		)
+		(pin "OVFLIP" output
+			(at 118.11 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "20ae6371-3ecc-42ec-995a-e8bac7d23a24")
+		)
+		(pin "OHFLIP" output
+			(at 118.11 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "764b639a-1efc-474d-88f3-cadf3f8294b4")
+		)
+		(pin "OCK[0..1]" output
+			(at 118.11 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "25aa9671-3a1f-4477-b917-7902c240ddb3")
 		)
 		(instances
 			(project "tehkanwch"
