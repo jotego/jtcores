@@ -45,25 +45,27 @@ module jtwc_obj(
 
 localparam [8:0] HOFFSET=0;
 
+wire [15:2] raw_addr;
 // DMA
 reg [ 9:0] dma_a;
 reg [ 9:2] scan_a, dma_wa;
 reg        frame=0, dma_done, dma_cen=0, fb_sel=0;
 // scan
-reg [ 8:0] ysub;
+reg [ 7:0] ysub;
 reg        hs_l, scan_cen, scan_done, st, inzone;
 // drawing
-reg  [ 8:0] code;
+reg  [ 8:0] xpos,code;
 reg  [ 2:0] pal;
-reg  [ 7:0] xpos,ypos;
-reg  [ 1:0] nc;
+reg  [ 7:0] ypos;
+reg         nc;
 // wire [31:0] sorted;
 reg         hflip, vflip, draw;
-wire        dr_busy, flip;
+wire        dr_busy;
 
+assign rom_addr  = {raw_addr[15:7],raw_addr[5],raw_addr[6],raw_addr[4:2]};
 assign vram_addr = dma_a;
 assign fb_addr   = fb_sel ? {~frame,dma_wa} : {frame,scan_a};
-assign flip      = gvflip | ghflip; // partial implementation for now
+
 // assign sorted = {
 //     rom_data[31],rom_data[27],rom_data[23],rom_data[19],rom_data[15],rom_data[11],rom_data[7],rom_data[3],
 //     rom_data[30],rom_data[26],rom_data[22],rom_data[18],rom_data[14],rom_data[10],rom_data[6],rom_data[2],
@@ -98,8 +100,8 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    ysub = vrender-ypos;
-    inzone = ysub[7:4]==0;
+    ysub = ~(vrender[7:0]^{8{gvflip}})+ypos;
+    inzone = &ysub[7:4];
 end
 
 always @(posedge clk) begin
@@ -115,13 +117,14 @@ always @(posedge clk) begin
     if( !scan_done && scan_cen ) begin
         st <= st+1'd1;
         case( st )
-            0: {ypos,xpos,vflip,hflip,nc,code[8],pal,code[7:0]} <= fb_dout;
+            0: {ypos,xpos[7:0],vflip,hflip,xpos[8],nc,code[8],pal,code[7:0]} <= fb_dout;
             1: begin
                 if( inzone ) begin
                     if( dr_busy )
                         st <= 1;
                     else begin
-                        draw <= 1;
+                        vflip <= ~vflip ^ gvflip;
+                        draw  <= 1;
                     end
                 end
                 if( !inzone || !dr_busy ) {scan_done,scan_a} <= {1'b0,scan_a} + 1'd1;
@@ -142,13 +145,13 @@ jtframe_objdraw #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
-    .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .flip       ( ghflip    ),
+    .hdump      ( hdump-HOFFSET     ),
 
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
     .code       ( code      ),
-    .xpos       ( xpos-HOFFSET ),
+    .xpos       ( xpos      ),
     .ysub       ( ysub[3:0] ),
     // optional zoom, keep at zero for no zoom
     .hzoom      ( 6'd0      ),
@@ -158,7 +161,7 @@ jtframe_objdraw #(
     .vflip      ( vflip     ),
     .pal        ( pal       ),
 
-    .rom_addr   ( rom_addr  ),
+    .rom_addr   ( raw_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),

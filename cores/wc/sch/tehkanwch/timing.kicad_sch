@@ -10809,6 +10809,12 @@
 		(uuid "2a677bf3-311c-422a-95d8-efac8ba3ca65")
 	)
 	(junction
+		(at 389.89 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2d35879e-9982-4527-a5f3-faa0e540aae2")
+	)
+	(junction
 		(at 280.67 146.05)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -12660,6 +12666,16 @@
 			(type default)
 		)
 		(uuid "646785fc-32d1-44e0-a595-56a79a10f248")
+	)
+	(wire
+		(pts
+			(xy 389.89 63.5) (xy 393.7 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "648a623c-7af8-4515-9430-6f93643c8a88")
 	)
 	(wire
 		(pts
@@ -17110,6 +17126,18 @@
 			(justify left)
 		)
 		(uuid "eb50f2ea-dce5-4497-ab27-1774ce46e79c")
+	)
+	(hierarchical_label "~{CPUEN}"
+		(shape output)
+		(at 393.7 63.5 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "efc3e847-048e-44af-9d3f-0fff7099351c")
 	)
 	(hierarchical_label "HF[0..7]"
 		(shape output)
@@ -22870,7 +22898,7 @@
 		(dnp no)
 		(uuid "bb2edd8e-295d-46dc-8da2-772e938709ba")
 		(property "Reference" "VF15"
-			(at 377.19 35.56 0)
+			(at 382.27 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)

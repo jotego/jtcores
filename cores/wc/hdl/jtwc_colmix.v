@@ -43,8 +43,8 @@ wire obj_opaque = gfx_en[3] && obj[3:0]!=0;
 wire fix_opaque = gfx_en[0] && fix[3:0]!=0;
 
 always @(posedge clk) begin
-    pal_addr = obj_opaque ? {OBJ,obj} :
-               fix_opaque ? {FIX,fix} : {SCR,scr};
+    pal_addr = fix_opaque ? {FIX,fix} :
+               obj_opaque ? {OBJ,obj} : {SCR,scr};
     if(pxl_cen) {blue,green,red} <= {pal_dout[3:0],pal_dout[15:8]}; //pal_dout[11:0];
 end
 

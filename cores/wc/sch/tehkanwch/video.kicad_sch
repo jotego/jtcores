@@ -3415,6 +3415,16 @@
 	)
 	(wire
 		(pts
+			(xy 118.11 238.76) (xy 124.46 238.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3da11f64-d7dd-4ac3-8d8b-6dfda70201fb")
+	)
+	(wire
+		(pts
 			(xy 96.52 109.22) (xy 96.52 153.67)
 		)
 		(stroke
@@ -4912,6 +4922,16 @@
 			(type default)
 		)
 		(uuid "c2bf7bf0-9f7c-427a-96ea-bbaef0194aef")
+	)
+	(wire
+		(pts
+			(xy 81.28 77.47) (xy 87.63 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3129e19-2439-4ac2-8e29-c48d512ba0d6")
 	)
 	(wire
 		(pts
@@ -6679,6 +6699,17 @@
 		)
 		(uuid "a4722f41-a826-4ab6-a02e-5951e13df2fd")
 	)
+	(label "~{CPUEN}"
+		(at 87.63 77.47 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a6093c0f-b769-432f-b150-e33783e2ae1e")
+	)
 	(label "PA2"
 		(at 287.02 72.39 0)
 		(fields_autoplaced yes)
@@ -6788,6 +6819,17 @@
 			(justify left bottom)
 		)
 		(uuid "b73de4f7-b9d2-4cbd-a3b2-70336bd8d7c3")
+	)
+	(label "~{CPUEN}"
+		(at 118.11 238.76 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b8e801a2-7d3e-49be-b30b-00d09354fd41")
 	)
 	(label "SHAB8"
 		(at 287.02 100.33 0)
@@ -8897,6 +8939,16 @@
 			)
 			(uuid "f4c3cf02-36ff-4110-be6b-551abde97605")
 		)
+		(pin "~{CPUEN}" input
+			(at 124.46 238.76 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "ba0610ff-5ed8-4af9-9456-ab288a980ee9")
+		)
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911"
@@ -9886,6 +9938,16 @@
 				(justify right)
 			)
 			(uuid "658593f1-7e33-425e-953c-c369e2a56ce1")
+		)
+		(pin "~{CPUEN}" output
+			(at 81.28 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "bc2f0aef-49bf-40af-88b0-dfd781cd5917")
 		)
 		(instances
 			(project "tehkanwch"
