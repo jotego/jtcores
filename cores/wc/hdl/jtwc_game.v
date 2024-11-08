@@ -23,20 +23,26 @@ module jtwc_game(
 wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
             mx_c8, mx_d0, mx_d8, mx_e0, mx_e8,
             sx_c8, sx_d0, sx_d8, sx_e0, sx_e8,
-            mute_n, srst_n;
+            mute_n, srst_n, LVBLg;
 wire [ 8:0] scrx;
 wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
 
-assign dip_flip = vflip | hflip;
-assign debug_view  = 0;
-assign ioctl_din   = 0;
+assign dip_flip   = vflip | hflip;
+assign debug_view = 0;
+assign ioctl_din  = 0;
+assign LVBLg      = dip_pause & LVBL;
 /* verilator tracing_off */
 jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
     .ws         ( mwait         ),
-    .lvbl       ( LVBL          ),       // video interrupt
+    .lvbl       ( LVBLg         ),       // video interrupt
+    // Cabinet inputs
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
     // shared memory
     .mmx_c8     ( mx_c8         ),
     .mmx_d0     ( mx_d0         ),
@@ -68,7 +74,7 @@ jtwc_sub u_sub(
     .rst_n      ( srst_n        ),
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
-    .lvbl       ( LVBL          ),       // video interrupt (LVBL)
+    .lvbl       ( LVBLg         ),       // video interrupt (LVBL)
     .ws         ( swait         ),
     // shared memory
     .mmx_c8     ( sx_c8         ),
@@ -127,7 +133,7 @@ jtwc_shared u_shared(
     .scrx       ( scrx          ),
     .scry       ( scry          )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtwc_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),

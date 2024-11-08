@@ -22,6 +22,12 @@ module jtwc_main(
     input            cen,
     input            ws,
     input            lvbl,       // video interrupt
+
+    // cabinet I/O
+    input      [1:0] cab_1p,
+    input      [1:0] coin,
+    input      [4:0] joystick1,
+    input      [4:0] joystick2,
     // shared memory
     output reg       mmx_c8,
     output reg       mmx_d0,
@@ -51,9 +57,9 @@ module jtwc_main(
 `ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout, din;
-reg  [ 7:0] dip_mux;
+reg  [ 7:0] dip_mux, cab_dout;
 reg         ram_cs, dip_cs, dip1_cs, dip2_cs, dip3_cs, latch_cs,
-            sh_cs, s2m_cs, rst_n, mmx_f8;
+            sh_cs, s2m_cs, cab_cs, rst_n, mmx_f8;
 wire        m1_n, rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
 
 assign rom_addr = A;
@@ -63,10 +69,30 @@ always @(posedge clk) begin
     rst_n <= ~rst;
 end
 
+function [7:0] joy2track(input [1:0]dir, input flip);
+begin
+    reg [2:0] mux;
+    reg [1:0] df;
+    df = flip ? {dir[0],dir[1]} : dir;
+    mux = !df[1] ? 3'b01 : {1'b1,~df[0],1'b0};
+    joy2track={mux[2],2'd0,mux[1],1'b0,mux[0],2'b01};
+end
+endfunction
+
 always @(posedge clk) begin
-    dip_mux = dip1_cs ? {4'hf,dipsw[3:0]} :
-              dip2_cs ? dipsw[ 4+:8]      :
-              dip3_cs ? dipsw[12+:8]      : 8'hff;
+    dip_mux <= dip1_cs ? {4'hf,dipsw[3:0]} :
+               dip2_cs ? dipsw[ 4+:8]      :
+               dip3_cs ? dipsw[12+:8]      : 8'hff;
+    case({A[4],A[1:0]})
+        0: cab_dout <= joy2track(joystick1[1:0],hflip);
+        1: cab_dout <= joy2track(joystick1[3:2],vflip);
+        2: cab_dout <= {4'hf,cab_1p,coin};
+        3: cab_dout <= {2'h3,joystick1[4],5'h1f};
+        4: cab_dout <= joy2track(joystick2[1:0],~hflip);
+        5: cab_dout <= joy2track(joystick2[3:2],~vflip);
+        7: cab_dout <= {2'h3,joystick2[4],5'h1f};
+        default: cab_dout <= 8'hff;
+    endcase
 end
 
 always @(posedge clk) begin
@@ -106,6 +132,7 @@ always @* begin
     dip_cs  = 0;
     sh_cs   = 0;
     s2m_cs  = 0;
+    cab_cs  = 0;
     if( !mreq_n && rfsh_n ) casez(A[15:14])
         0,1,2: rom_cs   = 1;
         3: case(A[13:11])
@@ -117,10 +144,11 @@ always @* begin
             5: {sh_cs,mmx_e8} = 2'b11;
             7: begin
                 mmx_f8 = 1;
-                if( !rd_n ) case(A[6:4])
+                if( !rd_n ) casez(A[6:4])
+                    3'b?0?: cab_cs  = 1;
                     2: s2m_cs  = 1;
-                    4: {dip_cs,dip3_cs} = 2'b11;
-                    5: {dip_cs,dip2_cs} = 2'b11;
+                    4: {dip_cs,dip2_cs} = 2'b11;
+                    5: {dip_cs,dip3_cs} = 2'b11;
                     // 6: wdog = 1;
                     7: {dip_cs,dip1_cs} = 2'b11;
                     default:;
@@ -135,7 +163,9 @@ assign din = rom_cs ? rom_data :
              ram_cs ? ram_dout :
              sh_cs  ? sh_dout  :
              dip_cs ? dip_mux  :
-             s2m_cs ? s2m      : 8'hff;
+             s2m_cs ? s2m      :
+             cab_cs ? cab_dout :
+             8'hff;
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),

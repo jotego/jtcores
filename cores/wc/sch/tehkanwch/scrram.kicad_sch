@@ -12257,7 +12257,7 @@
 		)
 		(uuid "a8550a6f-723d-4b92-b442-f48f08c4f262")
 	)
-	(label "D15_11"
+	(label "HB3"
 		(at 74.93 262.89 0)
 		(fields_autoplaced yes)
 		(effects

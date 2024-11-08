@@ -1134,7 +1134,7 @@
 	)
 	(bus
 		(pts
-			(xy 147.32 177.8) (xy 140.97 177.8)
+			(xy 147.32 177.8) (xy 139.7 177.8)
 		)
 		(stroke
 			(width 0)
@@ -1381,6 +1381,16 @@
 			(type default)
 		)
 		(uuid "2da3d8ed-60f4-4b1b-b274-080184283434")
+	)
+	(wire
+		(pts
+			(xy 139.7 180.34) (xy 147.32 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fd2d16f-e56a-4637-b933-175df1b52acd")
 	)
 	(wire
 		(pts
@@ -2164,6 +2174,16 @@
 	)
 	(wire
 		(pts
+			(xy 180.34 177.8) (xy 187.96 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d6bd88f1-87ee-457c-abb6-97949a14df7f")
+	)
+	(wire
+		(pts
 			(xy 139.7 170.18) (xy 147.32 170.18)
 		)
 		(stroke
@@ -2525,6 +2545,17 @@
 		)
 		(uuid "2a5ec418-07b3-4714-b8d3-89eb85f9733b")
 	)
+	(label "~{CS}"
+		(at 81.28 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2b064ccf-bf84-4b2e-9c33-e76571cfa298")
+	)
 	(label "~{FWR}"
 		(at 226.06 130.81 0)
 		(fields_autoplaced yes)
@@ -2645,6 +2676,17 @@
 			(justify right bottom)
 		)
 		(uuid "5af38455-deba-4d50-8622-a86652052dcb")
+	)
+	(label "~{CS}"
+		(at 187.96 177.8 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5b7a04cc-ff25-4b5b-bfc9-e8a66b0c3b3a")
 	)
 	(label "R[0..7]"
 		(at 226.06 125.73 0)
@@ -3196,18 +3238,6 @@
 		)
 		(uuid "f6cdb30f-6aae-4b29-96e7-6a7aac392d85")
 	)
-	(hierarchical_label "~{CS}"
-		(shape input)
-		(at 81.28 127 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1a2bc664-2b94-404d-b6f2-f89120d45e0a")
-	)
 	(hierarchical_label "~{WR}"
 		(shape input)
 		(at 81.28 129.54 180)
@@ -3352,6 +3382,18 @@
 		)
 		(uuid "9d505c31-8ccc-46d1-b56d-9a88c6a669af")
 	)
+	(hierarchical_label "~{OBJMX}"
+		(shape input)
+		(at 139.7 180.34 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9ebe1f5c-3a26-4cb6-91a9-146e2c390feb")
+	)
 	(hierarchical_label "VF[0..7]"
 		(shape input)
 		(at 139.7 167.64 180)
@@ -3363,6 +3405,18 @@
 			(justify right)
 		)
 		(uuid "b00dbebe-999c-4ab0-a7c1-724561545312")
+	)
+	(hierarchical_label "HB[0..5]"
+		(shape input)
+		(at 139.7 177.8 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b36c39d3-0a0e-4326-8f30-0841fb7f85ab")
 	)
 	(hierarchical_label "X6B"
 		(shape input)
@@ -3423,18 +3477,6 @@
 			(justify right)
 		)
 		(uuid "fee56e78-0782-4b33-a096-1ae40571d323")
-	)
-	(hierarchical_label "HB[5..0]"
-		(shape input)
-		(at 140.97 177.8 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ff529322-2418-4772-ae3c-5ee62f6d98c7")
 	)
 	(symbol
 		(lib_id "Device:R_Network08_US")
@@ -4439,7 +4481,7 @@
 			)
 			(uuid "25438f79-4f11-4f72-ac79-9fbc617ada4e")
 		)
-		(pin "HB[5..0]" input
+		(pin "HB[0..5]" input
 			(at 147.32 177.8 180)
 			(effects
 				(font
@@ -4488,6 +4530,26 @@
 				(justify right)
 			)
 			(uuid "86ccbdc6-0b9c-488c-b94b-a974ebed2cac")
+		)
+		(pin "~{CS}" output
+			(at 180.34 177.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "4a2c8ce2-01be-4e97-952b-e573763203b5")
+		)
+		(pin "~{OBJMX}" input
+			(at 147.32 180.34 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "22904a54-2fb5-4467-868d-5d60095ec0f2")
 		)
 		(instances
 			(project "tehkanwch"

@@ -39,12 +39,13 @@ localparam [2:0] OBJ = 3'b010;
 localparam [1:0] SCR = 2'b10,
                  FIX = 2'b00;
 
+wire [7:0] scr_eff = gfx_en[1] ? scr : {scr[7:4],4'd0};
 wire obj_opaque = gfx_en[3] && obj[3:0]!=0;
 wire fix_opaque = gfx_en[0] && fix[3:0]!=0;
 
 always @(posedge clk) begin
     pal_addr = fix_opaque ? {FIX,fix} :
-               obj_opaque ? {OBJ,obj} : {SCR,scr};
+               obj_opaque ? {OBJ,obj} : {SCR,scr_eff};
     if(pxl_cen) {blue,green,red} <= {pal_dout[3:0],pal_dout[15:8]}; //pal_dout[11:0];
 end
 

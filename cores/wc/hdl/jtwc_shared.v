@@ -90,21 +90,21 @@ assign sha_dout = pal_cs ? mux8(pal16_dout, 0) :
 
 always @* begin
     if( msel ) begin
-        shc8 = mxc8;
-        shd0 = mxd0;
-        shd8 = mxd8;
-        she0 = mxe0;
-        she8 = mxe8;
-        sha  = ma;
+        shc8    = mxc8;
+        shd0    = mxd0;
+        shd8    = mxd8;
+        she0    = mxe0;
+        she8    = mxe8;
+        sha     = ma;
         sha_din = mdout;
         sha_we  = ~mwr_n;
     end else begin
-        shc8 = sxc8;
-        shd0 = sxd0;
-        shd8 = sxd8;
-        she0 = sxe0;
-        she8 = sxe8;
-        sha  = sa;
+        shc8    = sxc8;
+        shd0    = sxd0;
+        shd8    = sxd8;
+        she0    = sxe0;
+        she8    = sxe8;
+        sha     = sa;
         sha_din = sdout;
         sha_we  = ~swr_n;
     end

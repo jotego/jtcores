@@ -3415,16 +3415,6 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 238.76) (xy 124.46 238.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3da11f64-d7dd-4ac3-8d8b-6dfda70201fb")
-	)
-	(wire
-		(pts
 			(xy 96.52 109.22) (xy 96.52 153.67)
 		)
 		(stroke
@@ -4935,6 +4925,16 @@
 	)
 	(wire
 		(pts
+			(xy 157.48 224.79) (xy 166.37 224.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3156977-5a20-4226-816e-f6c63f77eeb3")
+	)
+	(wire
+		(pts
 			(xy 119.38 213.36) (xy 124.46 213.36)
 		)
 		(stroke
@@ -5543,6 +5543,17 @@
 			(justify left)
 		)
 		(uuid "ffdfa1c3-e050-41a3-ae7c-bc496989c9e3")
+	)
+	(label "~{OBJMX}"
+		(at 115.57 72.39 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0332b970-9709-4ae6-a3c7-c975fa90a621")
 	)
 	(label "~{SBSEL'}"
 		(at 166.37 210.82 180)
@@ -6380,17 +6391,6 @@
 		)
 		(uuid "7cbc1368-8edf-4b4f-8254-d21175754b55")
 	)
-	(label "~{OBJCS}"
-		(at 115.57 72.39 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7e26b87f-b54f-4ed5-a35d-f7103aa92b2d")
-	)
 	(label "OXCLK"
 		(at 116.84 54.61 0)
 		(fields_autoplaced yes)
@@ -6820,17 +6820,6 @@
 		)
 		(uuid "b73de4f7-b9d2-4cbd-a3b2-70336bd8d7c3")
 	)
-	(label "~{CPUEN}"
-		(at 118.11 238.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b8e801a2-7d3e-49be-b30b-00d09354fd41")
-	)
 	(label "SHAB8"
 		(at 287.02 100.33 0)
 		(fields_autoplaced yes)
@@ -6940,6 +6929,17 @@
 			(justify left bottom)
 		)
 		(uuid "c214fffc-cc86-49b2-ac3d-ba3c87e4baf8")
+	)
+	(label "~{OBJMX}"
+		(at 166.37 224.79 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c2d3f082-6a48-4fa6-a9d8-743f1276331b")
 	)
 	(label "SCRH[0..2]"
 		(at 168.91 99.06 180)
@@ -8939,15 +8939,15 @@
 			)
 			(uuid "f4c3cf02-36ff-4110-be6b-551abde97605")
 		)
-		(pin "~{CPUEN}" input
-			(at 124.46 238.76 180)
+		(pin "~{OBJMX}" output
+			(at 157.48 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
-			(uuid "ba0610ff-5ed8-4af9-9456-ab288a980ee9")
+			(uuid "ef6f4fd7-bec2-410c-b6f2-18da499a073c")
 		)
 		(instances
 			(project "tehkanwch"
@@ -9551,16 +9551,6 @@
 			)
 			(uuid "437847fb-18ab-4747-917f-80ad4cd7ce9a")
 		)
-		(pin "~{CS}" input
-			(at 124.46 72.39 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "510e4054-7cba-4b68-9684-2aced6450171")
-		)
 		(pin "~{WR}" input
 			(at 124.46 69.85 180)
 			(effects
@@ -9671,7 +9661,7 @@
 			)
 			(uuid "89bf1d99-175b-47a2-ba73-a61242fee6ee")
 		)
-		(pin "HB[5..0]" input
+		(pin "HB[0..5]" input
 			(at 124.46 74.93 180)
 			(effects
 				(font
@@ -9680,6 +9670,16 @@
 				(justify left)
 			)
 			(uuid "05e1507b-b0a2-44dd-9278-fb6cf92e3b1c")
+		)
+		(pin "~{OBJMX}" input
+			(at 124.46 72.39 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "abc4caf4-87c0-467e-900e-b66895567a6e")
 		)
 		(instances
 			(project "tehkanwch"

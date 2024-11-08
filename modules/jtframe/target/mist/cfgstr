@@ -1,5 +1,6 @@
 {{.CORENAME}};;
 
+{{ if not .JTFRAME_NO_MRA_DIP }}    DIP; {{ end }}
 {{ if .JTFRAME_OSD_LOAD }}          F,rom; {{ end }}
 {{ if .JTFRAME_VERTICAL }}
 {{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}
@@ -12,7 +13,6 @@
 {{ if not .JTFRAME_OSD_NOCREDITS }} OC,Pause,Off,On; {{ end }}
 {{ if .JTFRAME_AUTOFIRE0}}          OI,Autofire button 0,Off,On; {{ end }}
 {{ .SEPARATOR }}
-{{ if not .JTFRAME_NO_MRA_DIP }}    DIP; {{ end }}
 {{ .CORE_OSD }}
 {{ with .JTFRAME_IOCTL_RD }}         R{{ . }},Save NVRAM;{{ end }}
 T0,Reset v{{.COMMIT}};

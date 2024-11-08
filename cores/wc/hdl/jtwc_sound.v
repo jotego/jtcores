@@ -46,17 +46,27 @@ wire [11:0] snd;
 wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
 reg  [ 7:0] din;
 reg  [ 3:0] pcm_din;
-wire [ 3:0] addr0, addr1;
 reg         ay0_cs, ay1_cs, ram_cs, pcm_set, pcm_ctl, filter, nmi_clr,
             latch_cs, rst_n, pcm_en, nbl;
-wire        iorq_n, rfsh_n, mreq_n, nmi_n, int_n, vclk,
-            wr_n, rd_n;
+wire        iorq_n, rfsh_n, mreq_n, nmi_n, vclk,
+            wr_n, rd_n, bdir0, bdir1, bc10, bc11;
 
 assign rom_addr = A[13:0];
-assign {addr0, addr1} = 0; // Assign correctly
 assign pcm_cs         = 1;
 assign pcm            = 12'b0;
 assign rfsh_n = 0;
+
+// AY0
+function [1:0] cpu2ay(input cs);
+begin
+    cpu2ay = !cs   ? 2'b00 :
+             !wr_n ? (A[0] ? 2'b11 : 2'b10) : // A[0] low = data / high = address
+                     2'b01; // read
+end
+endfunction
+
+assign {bdir0,bc10} = cpu2ay(ay0_cs);
+assign {bdir1,bc11} = cpu2ay(ay1_cs);
 
 always @* begin
     rom_cs   = 0;
@@ -147,13 +157,12 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rom_ok     ( rom_ok      )
 );
 
-jt49 u_ay0(
+jt49_bus u_ay0(
     .rst_n  ( rst_n     ),
     .clk    ( clk       ),
     .clk_en ( cen_psg2  ),
-    .addr   ( addr0     ),
-    .cs_n   ( ~ay0_cs   ),
-    .wr_n   ( wr_n      ),
+    .bdir   ( bdir0     ),
+    .bc1    ( bc10      ),
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
@@ -169,13 +178,12 @@ jt49 u_ay0(
     .A(), .B(), .C() // unused outputs
 );
 
-jt49 u_ay1(
+jt49_bus u_ay1(
     .rst_n  ( rst_n     ),
     .clk    ( clk       ),
     .clk_en ( cen_psg2  ),
-    .addr   ( addr1     ),
-    .cs_n   ( ~ay1_cs   ),
-    .wr_n   ( wr_n      ),
+    .bdir   ( bdir1     ),
+    .bc1    ( bc11      ),
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),

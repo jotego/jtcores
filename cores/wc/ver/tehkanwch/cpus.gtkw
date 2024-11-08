@@ -1,0 +1,78 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Nov  3 15:20:12 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/wc/ver/tehkanwch/test.fst"
+[dumpfile_mtime] "Sun Nov  3 15:19:24 2024"
+[dumpfile_size] 9570972
+[savefile] "/home/jtejada/jtcores/cores/wc/ver/tehkanwch/cpus.gtkw"
+[timestart] 49400000000
+[size] 1920 1033
+[pos] -1 -1
+*-35.904804 4556200000000 34192415100 4751808389788 4636677014668 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[sst_width] 278
+[signals_width] 231
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.LVBL
+TOP.game_test.u_game.u_game.LHBL
+@22
+TOP.game_test.u_game.u_game.u_main.A[15:0]
+TOP.game_test.u_game.u_game.u_main.s2m[7:0]
+TOP.game_test.u_game.u_game.u_main.m2s[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.wr_n
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_dout[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.srst_n
+TOP.game_test.u_game.u_game.u_shared.clk
+TOP.game_test.u_game.u_game.u_main.ws
+TOP.game_test.u_game.u_game.u_main.srst_n
+TOP.game_test.u_game.u_game.u_shared.mnsel_n
+TOP.game_test.u_game.u_game.u_shared.sbsel_n
+TOP.game_test.u_game.u_game.u_shared.msw
+TOP.game_test.u_game.u_game.u_shared.ssw
+TOP.game_test.u_game.u_game.u_shared.msel
+TOP.game_test.u_game.u_game.u_shared.ssel
+@22
+TOP.game_test.u_game.u_game.scrx[8:0]
+TOP.game_test.u_game.u_game.scry[7:0]
+@c00023
+TOP.game_test.u_game.u_game.u_sub.A[15:0]
+@29
+(0)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(1)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(2)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(3)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(4)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(5)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(6)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(7)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(8)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(9)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(10)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(11)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(12)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(13)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(14)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+(15)TOP.game_test.u_game.u_game.u_sub.A[15:0]
+@1401201
+-group_end
+@28
+TOP.game_test.u_game.u_game.sub_cs
+@22
+TOP.game_test.u_game.u_game.sub_data[7:0]
+@28
+TOP.game_test.u_game.u_game.sub_ok
+[pattern_trace] 1
+[pattern_trace] 0

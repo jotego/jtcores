@@ -205,10 +205,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 -13.97 180)
 				(length 2.54)
-				(name "C17"
+				(name "~{COIN1}"
 					(effects
 						(font
 							(size 1.27 1.27)

@@ -103,6 +103,7 @@ bram:
     data_width: 8
     dual_port:
       name: shram
+      din:  shram_din
       dout: obj_dout
       we:   obj_we
       rw:   true

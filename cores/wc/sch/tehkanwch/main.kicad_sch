@@ -12969,7 +12969,7 @@
 	)
 	(hierarchical_label "~{DIP3}"
 		(shape output)
-		(at 345.44 109.22 0)
+		(at 345.44 111.76 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -13089,7 +13089,7 @@
 	)
 	(hierarchical_label "~{DIP2}"
 		(shape output)
-		(at 345.44 111.76 0)
+		(at 345.44 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

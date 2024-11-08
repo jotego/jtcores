@@ -43,21 +43,22 @@ module jtwc_obj(
     output     [ 6:0] pxl
 );
 
-localparam [8:0] HOFFSET=0;
+localparam [8:0] HOFFSET=9;
 
 wire [15:2] raw_addr;
+wire [ 6:0] pre_pxl;
 // DMA
 reg [ 9:0] dma_a;
 reg [ 9:2] scan_a, dma_wa;
 reg        frame=0, dma_done, dma_cen=0, fb_sel=0;
 // scan
 reg [ 7:0] ysub;
-reg        hs_l, scan_cen, scan_done, st, inzone;
+reg        hs_l, scan_done, inzone;
+reg [ 1:0] st;
 // drawing
 reg  [ 8:0] xpos,code;
 reg  [ 2:0] pal;
 reg  [ 7:0] ypos;
-reg         nc;
 // wire [31:0] sorted;
 reg         hflip, vflip, draw;
 wire        dr_busy;
@@ -104,25 +105,31 @@ always @* begin
     inzone = &ysub[7:4];
 end
 
+reg [8:0] xraw;
+
 always @(posedge clk) begin
     hs_l     <= hs;
-    scan_cen <= ~scan_cen;
     draw     <= 0;
     if( (hs && !hs_l) || fb_sel) begin
         scan_a    <= 0;
         scan_done <= 0;
-        scan_cen  <= 0;
         st        <= 0;
     end
-    if( !scan_done && scan_cen ) begin
-        st <= st+1'd1;
+    if( !scan_done ) begin
+        st <= st==2'd2 ? 2'd0 : st+2'd1;
         case( st )
-            0: {ypos,xpos[7:0],vflip,hflip,xpos[8],nc,code[8],pal,code[7:0]} <= fb_dout;
             1: begin
+                ypos <= fb_dout[31-:8];
+                xraw <= {fb_dout[13],fb_dout[23-:8]};
+                {vflip,hflip} <= fb_dout[15:14];
+                {code[8],pal,code[7:0]} <= fb_dout[11:0];
+            end
+            2: begin
                 if( inzone ) begin
                     if( dr_busy )
-                        st <= 1;
+                        st <= 2;
                     else begin
+                        xpos  <= xraw+9'h80;
                         vflip <= ~vflip ^ gvflip;
                         draw  <= 1;
                     end
@@ -137,7 +144,7 @@ jtframe_objdraw #(
     .CW(9),
     .PW(7),
     //SWAPH =  0,
-    .HJUMP(1),
+    .HJUMP(0),
     .LATCH(1),
     .PACKED(1)
 ) u_draw(
@@ -146,7 +153,7 @@ jtframe_objdraw #(
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
     .flip       ( ghflip    ),
-    .hdump      ( hdump-HOFFSET     ),
+    .hdump      ( hdump     ),
 
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
@@ -166,7 +173,14 @@ jtframe_objdraw #(
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),
 
-    .pxl        ( pxl       )
+    .pxl        ( pre_pxl   )
+);
+
+jtframe_sh #(.W(7),.L(HOFFSET)) u_sh(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( pre_pxl   ),
+    .drop   ( pxl       )
 );
 
 endmodule

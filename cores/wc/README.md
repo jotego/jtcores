@@ -1,3 +1,8 @@
+# Test mode
+
+- Hold 1P and 2P while resetting the machine to enter test mode
+- Hold shot button to keep the grid on display. Press again to continue
+
 # Simulation notes
 
 | Simulation              | Command                   |

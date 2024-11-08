@@ -4198,6 +4198,16 @@
 	)
 	(wire
 		(pts
+			(xy 99.06 55.88) (xy 106.68 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "722a0fc8-3487-4e92-bfb5-f91bbb2a243c")
+	)
+	(wire
+		(pts
 			(xy 306.07 88.9) (xy 312.42 88.9)
 		)
 		(stroke
@@ -4355,6 +4365,16 @@
 			(type default)
 		)
 		(uuid "8799ff8a-1649-488f-b782-f39ff448fba8")
+	)
+	(wire
+		(pts
+			(xy 154.94 57.15) (xy 163.83 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88423b61-1466-4b34-804d-f435446f647f")
 	)
 	(wire
 		(pts
@@ -4946,6 +4966,16 @@
 		)
 		(uuid "e6b41c62-9d2e-4546-aae8-fdfef1e80b2e")
 	)
+	(wire
+		(pts
+			(xy 154.94 96.52) (xy 163.83 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ea4f335e-60d8-4d3a-a848-22bdb68be48c")
+	)
 	(bus
 		(pts
 			(xy 148.59 138.43) (xy 210.82 138.43)
@@ -5172,6 +5202,17 @@
 		)
 		(uuid "1f416dac-c5dd-4841-9302-b493968a4025")
 	)
+	(label "OHFLIP"
+		(at 306.07 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1fbb15f0-69d2-43ad-8b3b-4c3a62c52d57")
+	)
 	(label "CODE6"
 		(at 213.36 179.07 0)
 		(fields_autoplaced yes)
@@ -5237,6 +5278,17 @@
 			(justify left bottom)
 		)
 		(uuid "2e7927f7-3084-4c30-a1a0-a3567b1cb9da")
+	)
+	(label "HB5"
+		(at 154.94 57.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2eae71ad-6b4b-4b8e-8001-7194a0d33a70")
 	)
 	(label "A3"
 		(at 214.63 153.67 0)
@@ -5403,6 +5455,17 @@
 		)
 		(uuid "55d2a873-2a1e-45a6-beba-c312b2c3bfd4")
 	)
+	(label "HB6"
+		(at 154.94 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "55d5d263-4e19-4dfd-9323-e132be195816")
+	)
 	(label "A0"
 		(at 214.63 76.2 0)
 		(fields_autoplaced yes)
@@ -5557,7 +5620,7 @@
 		)
 		(uuid "817bca1d-627a-4299-8a59-9712d867d55c")
 	)
-	(label "D15_11"
+	(label "HB3"
 		(at 100.33 86.36 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5633,6 +5696,17 @@
 			(justify right bottom)
 		)
 		(uuid "970912c5-da38-405a-9c6a-3906637cc06c")
+	)
+	(label "HB4"
+		(at 99.06 55.88 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "974aff08-258f-4cc6-a28b-2cd4fde36483")
 	)
 	(label "CODE5"
 		(at 213.36 176.53 0)
@@ -5993,7 +6067,7 @@
 	)
 	(hierarchical_label "OHFLIP"
 		(shape input)
-		(at 306.07 127 180)
+		(at 95.25 68.58 180)
 		(fields_autoplaced yes)
 		(effects
 			(font

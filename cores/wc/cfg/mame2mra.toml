@@ -1,9 +1,14 @@
 [global]
 author=["jotego"]
 
+[buttons]
+names=[
+	{ machine="tehkanwc", names="Kick" }
+]
+
 [parse]
 sourcefile=[ "tehkanwc.cpp" ]
-debug={machines=["gridiron","teedoff","tehkanwc"]}
+debug={machines=["gridiron","teedoff"]}
 
 [dipsw]
 rename=[
