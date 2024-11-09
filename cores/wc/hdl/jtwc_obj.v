@@ -56,11 +56,11 @@ reg [ 7:0] ysub;
 reg        hs_l, scan_done, inzone;
 reg [ 1:0] st;
 // drawing
-reg  [ 8:0] xpos,code;
+reg  [ 8:0] xpos,code, xraw;
 reg  [ 2:0] pal;
 reg  [ 7:0] ypos;
 // wire [31:0] sorted;
-reg         hflip, vflip, draw;
+reg         hflip, vflip, draw, blank;
 wire        dr_busy;
 
 assign rom_addr  = {raw_addr[15:7],raw_addr[5],raw_addr[6],raw_addr[4:2]};
@@ -105,16 +105,10 @@ always @* begin
     inzone = &ysub[7:4];
 end
 
-reg [8:0] xraw;
-
 always @(posedge clk) begin
     hs_l     <= hs;
     draw     <= 0;
-    if( (hs && !hs_l) || fb_sel) begin
-        scan_a    <= 0;
-        scan_done <= 0;
-        st        <= 0;
-    end
+    blank    <= vrender >= 9'h1f2 || vrender <= 9'h10e || !vrender[8];
     if( !scan_done ) begin
         st <= st==2'd2 ? 2'd0 : st+2'd1;
         case( st )
@@ -137,6 +131,11 @@ always @(posedge clk) begin
                 if( !inzone || !dr_busy ) {scan_done,scan_a} <= {1'b0,scan_a} + 1'd1;
             end
         endcase
+    end
+    if( (hs && !hs_l) || fb_sel || blank ) begin
+        scan_a    <= 0;
+        scan_done <= 0;
+        st        <= 0;
     end
 end
 
