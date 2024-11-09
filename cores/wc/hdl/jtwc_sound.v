@@ -38,11 +38,11 @@ module jtwc_sound(
     input            pcm_ok,
     // Sound output
     output    [ 9:0] psg0, psg1,
-    output signed [11:0] pcm
+    output    [11:0] pcm,
+    input     [ 7:0] debug_bus
 );
 `ifndef NOMAIN // do not use NOSOUND here
 wire [15:0] A, smp;
-wire [11:0] snd;
 wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
 reg  [ 7:0] din;
 reg  [ 3:0] pcm_din;
@@ -52,9 +52,8 @@ wire        iorq_n, rfsh_n, mreq_n, nmi_n, vclk,
             wr_n, rd_n, bdir0, bdir1, bc10, bc11;
 
 assign rom_addr = A[13:0];
-assign pcm_cs         = 1;
-assign pcm            = 12'b0;
-assign rfsh_n = 0;
+assign pcm_cs   = 1;
+assign rfsh_n   = 0;
 
 // AY0
 function [1:0] cpu2ay(input cs);
@@ -106,7 +105,7 @@ end
 
 always @(posedge clk) begin
     rst_n <= ~rst;
-    if( pcm_ok ) pcm_din <= nbl ? pcm_data[7:4] : pcm_data[3:0];
+    if( pcm_ok ) pcm_din <= nbl ? pcm_data[3:0] : pcm_data[7:4];
 end
 
 always @(posedge clk) begin
@@ -118,8 +117,9 @@ always @(posedge clk) begin
     end else begin
         if( latch_cs && !wr_n ) s2m      <= cpu_dout;
         if( pcm_set  && !wr_n ) pcm_addr <= smp[14:0];
-        if( pcm_ctl  && !wr_n ) {pcm_en,nbl}   <= {2{cpu_dout[0]}};
+        if( pcm_ctl  && !wr_n ) pcm_en   <= cpu_dout[0];
         if( pcm_en   &&  vclk ) {pcm_addr,nbl} <= {pcm_addr,nbl}+16'd1;
+        if( !pcm_en ) nbl <= 0;
     end
 end
 
@@ -168,7 +168,7 @@ jt49_bus u_ay0(
     .dout   ( ay0_dout  ),
     .sound  ( psg0      ),
     .sample (           ),
-    // unused
+    // unuseday1_cs
     .IOA_in ( 8'h0      ),
     .IOA_out( smp[7:0]  ),
     .IOA_oe (           ),
@@ -205,7 +205,7 @@ jt5205 #(.INTERPOL(0)) u_pcm(
     .cen    ( cen_pcm   ),
     .sel    ( 2'b00     ),
     .din    ( pcm_din   ),
-    .sound  ( snd       ),
+    .sound  ( pcm       ),
     .vclk_o ( vclk      ),
     // unused
     .irq    (           ),

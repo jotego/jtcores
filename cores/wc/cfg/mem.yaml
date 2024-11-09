@@ -20,7 +20,7 @@ clocks:
 audio:
   channels:
     # temporary values
-    - { name: pcmsnd, module: jt5205, rsum: 1k, rc: [{ r: 10k, 4n }] }
+    - { name: pcmsnd, module: jt5205, rsum: 2k, rc: [{ r: 10k, 4n }] }
     - { name: psg0,   module: jt49,   rsum: 1k }
     - { name: psg1,   module: jt49,   rsum: 1k }
 sdram:

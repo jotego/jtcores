@@ -157,7 +157,8 @@ jtwc_sound u_sound(
     // Sound output
     .psg0       ( psg0          ),
     .psg1       ( psg1          ),
-    .pcm        ( pcmsnd        )
+    .pcm        ( pcmsnd        ),
+    .debug_bus  ( debug_bus     )
 );
 /* verilator tracing_on */
 jtwc_video u_video(
