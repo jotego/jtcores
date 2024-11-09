@@ -6718,8 +6718,24 @@
 		(uuid "fc8b4019-53be-43ff-9d37-3605084e2c73")
 	)
 	(no_connect
+		(at 386.08 148.59)
+		(uuid "0466369f-8a9b-4c82-9dfa-a7f57c8c2edc")
+	)
+	(no_connect
 		(at 256.54 96.52)
 		(uuid "053f27e2-e221-4362-9c42-f25c655aa512")
+	)
+	(no_connect
+		(at 386.08 128.27)
+		(uuid "20360625-600d-4d14-a3bf-c12aeef66518")
+	)
+	(no_connect
+		(at 386.08 143.51)
+		(uuid "28f59c49-94c4-43a1-a770-29075291e16c")
+	)
+	(no_connect
+		(at 386.08 140.97)
+		(uuid "2babc636-9678-425c-af4d-5117d4630cbb")
 	)
 	(no_connect
 		(at 360.68 208.28)
@@ -6736,6 +6752,14 @@
 	(no_connect
 		(at 58.42 76.2)
 		(uuid "5b31d45b-7fee-435a-993b-b973fb536d4a")
+	)
+	(no_connect
+		(at 386.08 125.73)
+		(uuid "62ccece9-3e1b-47da-af53-4cf904502fc3")
+	)
+	(no_connect
+		(at 386.08 111.76)
+		(uuid "78d4b16e-1a26-483e-b87f-a6fb7b80a022")
 	)
 	(no_connect
 		(at 90.17 114.3)
@@ -6756,6 +6780,18 @@
 	(no_connect
 		(at 331.47 140.97)
 		(uuid "cbb6152c-29db-4219-a05b-adeabf1b633b")
+	)
+	(no_connect
+		(at 386.08 130.81)
+		(uuid "db888a34-beff-4618-b42d-b4db9fbcf762")
+	)
+	(no_connect
+		(at 386.08 146.05)
+		(uuid "f0d3d26b-f1a6-4be0-9a66-5f859b51b665")
+	)
+	(no_connect
+		(at 386.08 133.35)
+		(uuid "f2e10c1f-2fd8-4a52-a852-24b5d5f42184")
 	)
 	(bus_entry
 		(at 349.25 60.96)
@@ -10239,6 +10275,28 @@
 			(type default)
 		)
 		(uuid "ffd59d6b-e2ef-4c2d-85b4-a5a2c994848c")
+	)
+	(text "pin 10 goes\nto unpopulated IC"
+		(exclude_from_sim no)
+		(at 388.62 130.81 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5df6c5c9-4d2e-4830-b8b4-4bdbd2d2a26b")
+	)
+	(text "pin 10 goes\nto unpopulated IC"
+		(exclude_from_sim no)
+		(at 388.62 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "87fc7e7d-0203-4f93-b54c-059c467bd2dd")
 	)
 	(label "A10"
 		(at 180.34 186.69 0)
@@ -14674,10 +14732,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "7344175e-3465-4a48-a11c-10c158f260b0")
 		(property "Reference" "H3"
-			(at 278.13 72.39 0)
+			(at 276.86 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16907,6 +16964,110 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
 					(reference "E1")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS32")
+		(at 78.74 271.78 0)
+		(mirror x)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d3100f46-51a0-4efe-a188-a3bf3527a691")
+		(property "Reference" "G2"
+			(at 78.74 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS32"
+			(at 78.74 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 78.74 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
+			(at 78.74 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Quad 2-input OR"
+			(at 78.74 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "6"
+			(uuid "c50a7aad-c248-4d90-b50d-837eacc6b827")
+		)
+		(pin "8"
+			(uuid "b96c5046-931a-467e-a070-d08763613ccb")
+		)
+		(pin "1"
+			(uuid "76802703-820f-441c-bb92-916a7eb3b674")
+		)
+		(pin "11"
+			(uuid "f54c4756-f64d-4e3c-97a7-5d4dccfb162a")
+		)
+		(pin "5"
+			(uuid "69a64ada-8ccb-4a55-885b-94d103299580")
+		)
+		(pin "4"
+			(uuid "d987cd3e-ecbb-4581-9e2b-21a0fa04d260")
+		)
+		(pin "10"
+			(uuid "1424db64-f2ad-4585-a2f8-f012c9242e25")
+		)
+		(pin "13"
+			(uuid "29dec6c6-9f11-4883-b53e-9109c5a89dbd")
+		)
+		(pin "2"
+			(uuid "819dcee7-a8b3-4ae6-952e-00480c1b5920")
+		)
+		(pin "7"
+			(uuid "8d62bb4f-9499-4301-bbe8-5784fbadfe51")
+		)
+		(pin "12"
+			(uuid "fee0d9de-b15b-4f60-890d-7305a2f89061")
+		)
+		(pin "14"
+			(uuid "12512c3a-1b5f-47d7-b1c9-27b1d30a3df0")
+		)
+		(pin "9"
+			(uuid "e0e50b7a-bfd3-4a45-a50b-813d1de7df11")
+		)
+		(pin "3"
+			(uuid "d8c4e9b6-8c31-4be3-ab48-6b19fc6e687f")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
+					(reference "G2")
+					(unit 5)
 				)
 			)
 		)

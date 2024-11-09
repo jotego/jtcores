@@ -61,10 +61,10 @@
 					(type background)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at 11.43 26.67 180)
 				(length 2.54)
-				(name "C1"
+				(name "RED"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -115,10 +115,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin power_out line
 				(at 11.43 -1.27 180)
 				(length 2.54)
-				(name "C12"
+				(name "VAMP"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -169,10 +169,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 -8.89 180)
 				(length 2.54)
-				(name "C15"
+				(name "~{START}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -223,10 +223,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 -16.51 180)
 				(length 2.54)
-				(name "C18"
+				(name "~{COIN}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -259,10 +259,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at 11.43 24.13 180)
 				(length 2.54)
-				(name "C2"
+				(name "GREEN"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -367,10 +367,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 16.51 180)
 				(length 2.54)
-				(name "C5"
+				(name "~{RIGHT}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -385,10 +385,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 13.97 180)
 				(length 2.54)
-				(name "C6"
+				(name "~{LEFT}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -403,10 +403,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 11.43 180)
 				(length 2.54)
-				(name "C7"
+				(name "~{DOWN}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -421,10 +421,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 8.89 180)
 				(length 2.54)
-				(name "C8"
+				(name "~{UP}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -439,10 +439,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at 11.43 6.35 180)
 				(length 2.54)
-				(name "C9"
+				(name "~{SHOT}1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -457,10 +457,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at -11.43 26.67 0)
 				(length 2.54)
-				(name "S1"
+				(name "BLUE"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -529,10 +529,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 16.51 0)
 				(length 2.54)
-				(name "S5"
+				(name "~{RIGHT}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -547,10 +547,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 13.97 0)
 				(length 2.54)
-				(name "S6"
+				(name "~{LEFT}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -565,10 +565,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 11.43 0)
 				(length 2.54)
-				(name "S7"
+				(name "~{DOWN}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -583,10 +583,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 8.89 0)
 				(length 2.54)
-				(name "S8"
+				(name "~{UP}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -601,10 +601,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 6.35 0)
 				(length 2.54)
-				(name "S9"
+				(name "~{SHOT}2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -709,10 +709,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin output line
 				(at -11.43 -8.89 0)
 				(length 2.54)
-				(name "S15"
+				(name "~{START}2"
 					(effects
 						(font
 							(size 1.27 1.27)

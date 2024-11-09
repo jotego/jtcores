@@ -3928,6 +3928,12 @@
 		(uuid "050151ed-9268-4c48-9df1-92d93bc6b418")
 	)
 	(junction
+		(at 309.88 143.51)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1ec892c8-cc4b-43b1-8777-28fc9671a2e0")
+	)
+	(junction
 		(at 292.1 143.51)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3986,6 +3992,10 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "fc895179-4b8d-4078-b904-7dabc8a8f5f8")
+	)
+	(no_connect
+		(at 297.18 127)
+		(uuid "06650165-fcf8-4d44-84c0-7e9a2b8c3200")
 	)
 	(no_connect
 		(at 139.7 203.2)
@@ -4909,6 +4919,16 @@
 	)
 	(wire
 		(pts
+			(xy 327.66 119.38) (xy 327.66 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b54fad0-c611-46f2-b955-cb42bc897d5f")
+	)
+	(wire
+		(pts
 			(xy 110.49 210.82) (xy 114.3 210.82)
 		)
 		(stroke
@@ -5319,6 +5339,16 @@
 	)
 	(wire
 		(pts
+			(xy 292.1 124.46) (xy 297.18 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "70268656-1706-4e30-9d06-1edec30583a6")
+	)
+	(wire
+		(pts
 			(xy 246.38 123.19) (xy 260.35 123.19)
 		)
 		(stroke
@@ -5406,6 +5436,16 @@
 			(type default)
 		)
 		(uuid "77bfe9f0-fc81-4f5b-9634-35f8cb702bd8")
+	)
+	(wire
+		(pts
+			(xy 322.58 114.3) (xy 336.55 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "783bd3d6-ecf2-4aea-ad1d-4ec189f2b687")
 	)
 	(wire
 		(pts
@@ -5686,6 +5726,16 @@
 			(type default)
 		)
 		(uuid "9cfa9567-3841-45d3-ab2b-df8bc34d5151")
+	)
+	(wire
+		(pts
+			(xy 327.66 143.51) (xy 309.88 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9dc886a0-2c05-4314-85e0-292a6ce33734")
 	)
 	(wire
 		(pts
@@ -6126,6 +6176,16 @@
 			(type default)
 		)
 		(uuid "e19e1240-3324-4ed9-b730-cd332013a9ae")
+	)
+	(wire
+		(pts
+			(xy 322.58 119.38) (xy 327.66 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1f48e1a-d270-429a-a6d7-9781028e60ed")
 	)
 	(wire
 		(pts
@@ -7183,6 +7243,17 @@
 			(justify right bottom)
 		)
 		(uuid "fb9a7567-f186-4765-93f9-9f7452ab1ed4")
+	)
+	(label "GND"
+		(at 292.1 124.46 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fc66c713-8e5f-4590-ab11-986ee78da46f")
 	)
 	(hierarchical_label "SMP[0..15]"
 		(shape input)
@@ -8277,6 +8348,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_US")
+		(at 340.36 114.3 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "68942b21-4d8b-47d1-92f1-0ce622479e46")
+		(property "Reference" "R29"
+			(at 340.36 111.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "360k"
+			(at 340.36 116.84 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 340.614 113.284 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 340.36 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 340.36 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "34ad249a-c40f-4e6e-884c-2f6c644c4cf0")
+		)
+		(pin "2"
+			(uuid "a89ea073-a82d-42d5-972e-4620f9f1a8de")
+		)
+		(instances
+			(project ""
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74/8c371e71-02fc-4545-8c26-6cfe33ac70c0"
+					(reference "R29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS157")
 		(at 273.05 120.65 0)
 		(unit 1)
@@ -8284,10 +8423,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6b965348-e88a-44de-b192-06026fbb1919")
 		(property "Reference" "D16"
-			(at 273.05 100.33 0)
+			(at 278.13 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8295,7 +8433,7 @@
 			)
 		)
 		(property "Value" "74LS157"
-			(at 273.05 102.87 0)
+			(at 275.59 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9286,10 +9424,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fb6dfe41-68a3-41fb-b482-6de859cddeea")
 		(property "Reference" "D17"
-			(at 309.88 99.06 0)
+			(at 317.5 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9297,7 +9434,7 @@
 			)
 		)
 		(property "Value" "OKI-M5205"
-			(at 309.88 101.6 0)
+			(at 314.96 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
