@@ -10390,6 +10390,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 247.65 162.56 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "09a73628-3110-42e8-b7d2-4951e16fa21d")
+		(property "Reference" "#PWR0139"
+			(at 247.65 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 247.65 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 247.65 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 247.65 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 247.65 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "766a542c-b795-4c64-8073-65ecbde21399")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "#PWR0139")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS86")
 		(at 213.36 220.98 0)
 		(unit 1)
@@ -11659,7 +11724,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS86")
-		(at 21.59 273.05 0)
+		(at 21.59 270.51 0)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11667,7 +11732,7 @@
 		(dnp no)
 		(uuid "7465d9a3-b7fe-4d4f-83ce-bbdc31a72eba")
 		(property "Reference" "VA6"
-			(at 21.59 271.78 0)
+			(at 21.59 269.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11675,7 +11740,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 21.59 278.13 0)
+			(at 21.59 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11683,7 +11748,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 21.59 273.05 0)
+			(at 21.59 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11692,7 +11757,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 21.59 273.05 0)
+			(at 21.59 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11701,7 +11766,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 21.59 273.05 0)
+			(at 21.59 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11924,6 +11989,71 @@
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
 					(reference "VC20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 33.02 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "88ffa265-e18e-40cc-8ad5-19d1668c2c29")
+		(property "Reference" "#PWR0138"
+			(at 33.02 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 33.02 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "90f12339-e388-4ca4-97de-6a1575ea053a")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "#PWR0138")
 					(unit 1)
 				)
 			)
@@ -12587,6 +12717,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 21.59 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c8689760-4bd8-4710-972b-d9529eced6ed")
+		(property "Reference" "#PWR0137"
+			(at 21.59 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 21.59 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 21.59 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 21.59 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 21.59 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d12e1db9-1bc1-43f8-824c-31ed296b00aa")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "#PWR0137")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS157")
 		(at 85.09 71.12 0)
 		(unit 1)
@@ -12690,24 +12885,25 @@
 		)
 	)
 	(symbol
-		(lib_id "jt74:74LS86")
-		(at 33.02 273.05 0)
-		(unit 5)
+		(lib_id "power:GND")
+		(at 158.75 100.33 0)
+		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d8b7003d-0b41-44ad-b3e9-007ce726bd40")
-		(property "Reference" "VC20"
-			(at 33.655 273.05 0)
+		(uuid "d2b90438-0c70-468e-8f16-484d2156b221")
+		(property "Reference" "#PWR0140"
+			(at 158.75 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
-		(property "Value" "74LS86"
-			(at 33.02 278.13 0)
+		(property "Value" "GND"
+			(at 158.75 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12715,7 +12911,71 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 33.02 273.05 0)
+			(at 158.75 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 158.75 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 158.75 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4d02b465-6b89-45c3-a7c5-f15188b3430e")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "#PWR0140")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS86")
+		(at 33.02 270.51 0)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d8b7003d-0b41-44ad-b3e9-007ce726bd40")
+		(property "Reference" "VC20"
+			(at 33.655 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS86"
+			(at 33.02 275.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 33.02 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12724,7 +12984,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74ls86.pdf"
-			(at 33.02 273.05 0)
+			(at 33.02 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12733,7 +12993,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input XOR"
-			(at 33.02 273.05 0)
+			(at 33.02 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)

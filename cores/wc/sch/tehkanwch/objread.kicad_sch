@@ -13206,6 +13206,71 @@
 		(uuid "f91062f8-a143-4e41-bd95-f01fb3703dd8")
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 31.75 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "01e83220-10e4-4d5d-aaf3-7a2c410b6f9e")
+		(property "Reference" "#PWR0143"
+			(at 31.75 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 31.75 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 31.75 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 31.75 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 31.75 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6b5451e1-14ba-42bd-9bd2-4b00b8cff09f")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
+					(reference "#PWR0143")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS86")
 		(at 106.68 92.71 0)
 		(mirror x)
@@ -13422,7 +13487,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "08ce3b86-1931-452a-b21d-fa0ca397b167")
-		(property "Reference" "R24"
+		(property "Reference" "RX24"
 			(at 259.08 109.22 90)
 			(effects
 				(font
@@ -13475,7 +13540,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
-					(reference "R24")
+					(reference "RX24")
 					(unit 1)
 				)
 			)
@@ -13683,6 +13748,71 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
 					(reference "VD2")
 					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 54.61 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "130a1082-6fb5-4838-b512-578c8f46c20b")
+		(property "Reference" "#PWR0145"
+			(at 54.61 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 54.61 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 54.61 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 54.61 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 54.61 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c7f90de5-a6f3-4b9c-b797-997e8988b178")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
+					(reference "#PWR0145")
+					(unit 1)
 				)
 			)
 		)
@@ -15141,7 +15271,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5b9e6569-6356-4f02-9d09-6d57f3ce1641")
-		(property "Reference" "R23"
+		(property "Reference" "RX23"
 			(at 251.46 113.03 90)
 			(effects
 				(font
@@ -15194,7 +15324,7 @@
 		(instances
 			(project ""
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
-					(reference "R23")
+					(reference "RX23")
 					(unit 1)
 				)
 			)
@@ -17556,6 +17686,136 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 77.47 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bd8c7407-b963-4d3f-a41a-ee1740775bbe")
+		(property "Reference" "#PWR0147"
+			(at 77.47 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 77.47 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 77.47 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 77.47 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 77.47 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8cb63283-a9ae-43ff-a555-e5bc2741d1e8")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
+					(reference "#PWR0147")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 66.04 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c6f443ab-55ab-47f3-8b49-3e4a18a6b71c")
+		(property "Reference" "#PWR0146"
+			(at 66.04 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 66.04 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 66.04 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 66.04 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 66.04 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b408923b-fab5-47dc-917c-6d8d350484e0")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
+					(reference "#PWR0146")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS27")
 		(at 154.94 269.24 0)
 		(unit 3)
@@ -18081,7 +18341,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e05c5f7e-547f-4951-932f-2f0a1bdcb08f")
-		(property "Reference" "R25"
+		(property "Reference" "RX25"
 			(at 251.46 140.97 90)
 			(effects
 				(font
@@ -18134,7 +18394,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
-					(reference "R25")
+					(reference "RX25")
 					(unit 1)
 				)
 			)
@@ -18453,6 +18713,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 43.18 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "fb2fa004-c2aa-41db-8f80-1a2fc8178116")
+		(property "Reference" "#PWR0144"
+			(at 43.18 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 43.18 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 43.18 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 43.18 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 43.18 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "31dcde01-c579-4111-abae-72ba588fd74d")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
+					(reference "#PWR0144")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_US")
 		(at 256.54 137.16 0)
 		(unit 1)
@@ -18461,7 +18786,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fe478727-a99c-4209-83bb-6b5da7fafdf6")
-		(property "Reference" "R26"
+		(property "Reference" "RX26"
 			(at 259.08 137.16 90)
 			(effects
 				(font
@@ -18514,7 +18839,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/c2cc4e9c-9a32-4148-807b-0ef295204c2e/ae0a687c-059d-463e-8afd-bfb918f973c0"
-					(reference "R26")
+					(reference "RX26")
 					(unit 1)
 				)
 			)

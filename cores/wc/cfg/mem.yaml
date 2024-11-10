@@ -18,11 +18,12 @@ clocks:
       outputs:
         - cen_pcm
 audio:
+  rsum: 1k
   channels:
-    # temporary values
-    - { name: pcmsnd, module: jt5205, rsum: 2k, rc: [{ r: 10k, 4n }] }
-    - { name: psg0,   module: jt49,   rsum: 1k }
-    - { name: psg1,   module: jt49,   rsum: 1k }
+    # FIR should be 3kHz, not 4kHz
+    - { name: pcmsnd, module: jt5205, rsum: 1.9k, fir: fir_192k_4k.csv, pre: 0.87 }
+    - { name: psg0,   module: jt49,   rsum: 3.9k, pre: 0.7 }
+    - { name: psg1,   module: jt49,   rsum: 3.9k, pre: 0.7 }
 sdram:
   banks:
     - buses:

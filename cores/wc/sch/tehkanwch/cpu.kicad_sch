@@ -4659,10 +4659,10 @@
 						)
 					)
 				)
-				(pin passive line
+				(pin input line
 					(at -11.43 -3.81 0)
 					(length 2.54)
-					(name "S13"
+					(name "SOUND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -7303,6 +7303,16 @@
 		)
 		(uuid "9af1d5f2-c23f-4ae4-8cb2-9f3df26eb82b")
 	)
+	(wire
+		(pts
+			(xy 144.78 54.61) (xy 152.4 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c3151ad-94f8-4207-9c12-8a20dd538576")
+	)
 	(bus
 		(pts
 			(xy 359.41 209.55) (xy 359.41 212.09)
@@ -7412,6 +7422,16 @@
 			(type default)
 		)
 		(uuid "a0467b95-e411-43de-953c-244f74cc4107")
+	)
+	(wire
+		(pts
+			(xy 68.58 199.39) (xy 76.2 199.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0914e98-28e2-4401-94c2-95b767fc646c")
 	)
 	(bus
 		(pts
@@ -8576,6 +8596,17 @@
 		)
 		(uuid "010d432c-dc5c-42a5-9596-605182cd6506")
 	)
+	(label "SOUND"
+		(at 152.4 54.61 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0118eca1-19ca-40dd-b6a4-14ba5819cdd9")
+	)
 	(label "PA2"
 		(at 327.66 209.55 0)
 		(fields_autoplaced yes)
@@ -9664,6 +9695,17 @@
 			(justify left bottom)
 		)
 		(uuid "73dedf0c-b9f4-43eb-b3f2-253d55c84c3d")
+	)
+	(label "SOUND"
+		(at 68.58 199.39 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "743d01c6-0bac-4c21-bd6f-2e712440ac4f")
 	)
 	(label "~{SWR}"
 		(at 153.67 96.52 180)
@@ -13828,6 +13870,16 @@
 				(justify left)
 			)
 			(uuid "0d264a2f-4430-4fec-9246-30d69e1b0323")
+		)
+		(pin "SOUND" output
+			(at 144.78 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "c37aafc1-a1de-4400-a663-706a95424a17")
 		)
 	)
 	(sheet

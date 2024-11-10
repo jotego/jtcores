@@ -673,10 +673,10 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at -11.43 -3.81 0)
 				(length 2.54)
-				(name "S13"
+				(name "SOUND"
 					(effects
 						(font
 							(size 1.27 1.27)

@@ -39,21 +39,24 @@ module jtwc_sound(
     // Sound output
     output    [ 9:0] psg0, psg1,
     output    [11:0] pcm,
-    input     [ 7:0] debug_bus
+    input     [ 7:0] debug_bus,
+    output    [ 7:0] st_dout
 );
 `ifndef NOMAIN // do not use NOSOUND here
 wire [15:0] A, smp;
 wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
 reg  [ 7:0] din;
-reg  [ 3:0] pcm_din;
-reg         ay0_cs, ay1_cs, ram_cs, pcm_set, pcm_ctl, filter, nmi_clr,
+reg  [ 3:0] pcm_din, gain;
+reg         ay0_cs, ay1_cs, ram_cs, pcm_set, pcm_ctl, gain_cs, nmi_clr,
             latch_cs, rst_n, pcm_en, nbl;
 wire        iorq_n, rfsh_n, mreq_n, nmi_n, vclk,
             wr_n, rd_n, bdir0, bdir1, bc10, bc11;
+wire signed [11:0] pcm_raw;
 
 assign rom_addr = A[13:0];
 assign pcm_cs   = 1;
 assign rfsh_n   = 0;
+assign st_dout  = { pcm_en, 3'd0, gain };
 
 // AY0
 function [1:0] cpu2ay(input cs);
@@ -72,7 +75,7 @@ always @* begin
     ram_cs   = 0;
     pcm_set  = 0;
     pcm_ctl  = 0;
-    filter   = 0;
+    gain_cs  = 0;
     nmi_clr  = 0;
     latch_cs = 0;
     ay0_cs   = 0;
@@ -80,10 +83,10 @@ always @* begin
     if( !mreq_n && !rfsh_n ) casez(A[15:14])
         0: rom_cs   = 1;
         1: ram_cs   = 1;
-        2: case(A[1:0])
+        2: if(!wr_n) case(A[1:0])
             0: pcm_set = 1;
             1: pcm_ctl = 1;
-            2: filter  = 1;
+            2: gain_cs = 1;
             3: nmi_clr = 1;
         endcase
         3: latch_cs = 1;
@@ -106,6 +109,8 @@ end
 always @(posedge clk) begin
     rst_n <= ~rst;
     if( pcm_ok ) pcm_din <= nbl ? pcm_data[3:0] : pcm_data[7:4];
+    if( gain_cs) gain    <= cpu_dout[3:0];
+    if( debug_bus[7] ) gain <= debug_bus[3:0];
 end
 
 always @(posedge clk) begin
@@ -205,12 +210,20 @@ jt5205 #(.INTERPOL(0)) u_pcm(
     .cen    ( cen_pcm   ),
     .sel    ( 2'b00     ),
     .din    ( pcm_din   ),
-    .sound  ( pcm       ),
+    .sound  ( pcm_raw   ),
     .vclk_o ( vclk      ),
     // unused
     .irq    (           ),
     .sample (           )
 );
+
+jtwc_gain u_gain(
+    .clk    ( clk       ),
+    .ctl    ( gain      ),
+    .raw    ( pcm_raw   ),
+    .amp    ( pcm       )
+);
+
 `else
 initial begin
     s2m      = 0;

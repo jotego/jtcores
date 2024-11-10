@@ -79,7 +79,7 @@ jtwc_main u_main(
     //
     .dipsw      ( dipsw[19:0]   ),
     .debug_bus  ( debug_bus     ),
-    .st_dout    ( debug_view    )
+    .st_dout    (               )
 );
 
 jtwc_sub u_sub(
@@ -170,7 +170,8 @@ jtwc_sound u_sound(
     .psg0       ( psg0          ),
     .psg1       ( psg1          ),
     .pcm        ( pcmsnd        ),
-    .debug_bus  ( debug_bus     )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( debug_view    )
 );
 /* verilator tracing_on */
 jtwc_video u_video(

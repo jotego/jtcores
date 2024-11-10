@@ -11831,6 +11831,16 @@
 	)
 	(wire
 		(pts
+			(xy 292.1 222.25) (xy 295.91 222.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a08dd748-4ff8-46b0-ad85-b0d155498c7a")
+	)
+	(wire
+		(pts
 			(xy 307.34 99.06) (xy 314.96 99.06)
 		)
 		(stroke
@@ -13390,7 +13400,7 @@
 		)
 		(uuid "14ca6611-793c-4640-bc23-cfa278632e8e")
 	)
-	(label "FLT_EN1"
+	(label "GAIN1"
 		(at 217.17 233.68 180)
 		(fields_autoplaced yes)
 		(effects
@@ -14303,7 +14313,7 @@
 		)
 		(uuid "6005b78e-ff95-4825-bc16-4346af32230d")
 	)
-	(label "FLT_EN3"
+	(label "GAIN3"
 		(at 217.17 243.84 180)
 		(fields_autoplaced yes)
 		(effects
@@ -14611,7 +14621,7 @@
 		)
 		(uuid "763fe18c-da48-4240-bbc8-881d9f11480f")
 	)
-	(label "FLT_EN[0..3]"
+	(label "GAIN[0..3]"
 		(at 220.98 240.03 0)
 		(fields_autoplaced yes)
 		(effects
@@ -14985,7 +14995,7 @@
 		)
 		(uuid "94a8ab7d-ce75-4f26-88d0-bc6717fe587c")
 	)
-	(label "~{FLTEN}"
+	(label "~{GAINSET}"
 		(at 179.07 251.46 0)
 		(fields_autoplaced yes)
 		(effects
@@ -15711,7 +15721,7 @@
 		)
 		(uuid "d169eeec-4a76-4288-bbc6-73c04767e8d4")
 	)
-	(label "FLT_EN0"
+	(label "GAIN0"
 		(at 217.17 246.38 180)
 		(fields_autoplaced yes)
 		(effects
@@ -16206,7 +16216,7 @@
 		)
 		(uuid "f64b084a-2e64-4bdc-b47e-41f448d88dc2")
 	)
-	(label "~{FLTEN}"
+	(label "~{GAINSET}"
 		(at 262.89 68.58 180)
 		(fields_autoplaced yes)
 		(effects
@@ -16261,7 +16271,7 @@
 		)
 		(uuid "fdcdc1f2-dde5-4764-aa3f-6f7c2a94cc54")
 	)
-	(label "FLT_EN2"
+	(label "GAIN2"
 		(at 217.17 236.22 180)
 		(fields_autoplaced yes)
 		(effects
@@ -16328,6 +16338,18 @@
 			(justify right)
 		)
 		(uuid "4d079831-343a-4b9e-a101-2d2fa0e22ac4")
+	)
+	(hierarchical_label "SOUND"
+		(shape output)
+		(at 295.91 222.25 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5e19307b-0e30-45d1-aa33-a460df59f48c")
 	)
 	(hierarchical_label "~{SIRQ}"
 		(shape input)
@@ -17248,7 +17270,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "28d37bcc-9a18-4d7d-a4e9-bd9c92ebb4a2")
-		(property "Reference" "R22"
+		(property "Reference" "RX22"
 			(at 313.69 121.92 90)
 			(effects
 				(font
@@ -17301,7 +17323,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
-					(reference "R22")
+					(reference "RX22")
 					(unit 1)
 				)
 			)
@@ -21525,7 +21547,7 @@
 			)
 			(uuid "820355ff-961c-45fc-a00e-6b977cf32f4d")
 		)
-		(pin "FLT_EN[0..3]" input
+		(pin "GAIN[0..3]" input
 			(at 257.81 240.03 180)
 			(effects
 				(font
@@ -21544,6 +21566,16 @@
 				(justify left)
 			)
 			(uuid "b70459da-6020-4835-ad5d-c30240dff9cb")
+		)
+		(pin "SOUND" output
+			(at 292.1 222.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "283e5cc5-0a1f-4c85-a196-4b0bae9cb74e")
 		)
 		(instances
 			(project "tehkanwch"
