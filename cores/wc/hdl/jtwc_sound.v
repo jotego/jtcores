@@ -17,7 +17,7 @@
     Date: 26-10-2024 */
 
 module jtwc_sound(
-    input            rst,
+    input            rst_n,
     input            clk,
     input            cen_psg,
     input            cen_psg2,
@@ -48,7 +48,7 @@ wire [ 7:0] ay0_dout, ay1_dout, ram_dout, cpu_dout;
 reg  [ 7:0] din;
 reg  [ 3:0] pcm_din, gain;
 reg         ay0_cs, ay1_cs, ram_cs, pcm_set, pcm_ctl, gain_cs, nmi_clr,
-            latch_cs, rst_n, pcm_en, nbl;
+            latch_cs, pcm_en, nbl;
 wire        iorq_n, rfsh_n, mreq_n, nmi_n, vclk,
             wr_n, rd_n, bdir0, bdir1, bc10, bc11;
 wire signed [11:0] pcm_raw;
@@ -107,14 +107,13 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    rst_n <= ~rst;
     if( pcm_ok ) pcm_din <= nbl ? pcm_data[3:0] : pcm_data[7:4];
     if( gain_cs) gain    <= cpu_dout[3:0];
     if( debug_bus[7] ) gain <= debug_bus[3:0];
 end
 
 always @(posedge clk) begin
-    if(rst) begin
+    if(!rst_n) begin
         s2m      <= 0;
         pcm_addr <= 0;
         pcm_en   <= 0;
@@ -129,7 +128,7 @@ always @(posedge clk) begin
 end
 
 jtframe_edge #(.QSET(0)) u_int(
-    .rst    ( rst       ),
+    .rst    ( !rst_n    ),
     .clk    ( clk       ),
     .edgeof ( m2s_set   ), // should it be ~v8?
     .clr    ( nmi_clr   ),

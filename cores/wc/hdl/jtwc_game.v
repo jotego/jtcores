@@ -147,7 +147,7 @@ jtwc_shared u_shared(
 );
 /* verilator tracing_on */
 jtwc_sound u_sound(
-    .rst        ( rst           ),
+    .rst_n      ( mute_n        ),
     .clk        ( clk           ),
     .cen_psg    ( cen_psg1      ),
     .cen_psg2   ( cen_psg2      ),
