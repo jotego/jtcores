@@ -3714,7 +3714,7 @@
 			)
 			(symbol "74LS11_4_0"
 				(pin input line
-					(at 0 12.7 270)
+					(at 0 7.62 270)
 					(length 5.08) hide
 					(name "VCC"
 						(effects
@@ -3732,7 +3732,7 @@
 					)
 				)
 				(pin input line
-					(at 0 -12.7 90)
+					(at 0 -7.62 90)
 					(length 5.08) hide
 					(name "GND"
 						(effects
@@ -3760,6 +3760,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -5967,7 +5975,7 @@
 	)
 	(wire
 		(pts
-			(xy 280.67 93.98) (xy 290.83 93.98)
+			(xy 280.67 93.98) (xy 285.75 93.98)
 		)
 		(stroke
 			(width 0)
@@ -11899,12 +11907,13 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1983c126-53ef-4757-a398-1f011f25c5d5")
-		(property "Reference" "EDGE"
+		(property "Reference" "EDGE1"
 			(at 87.376 195.326 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Value" "~"
@@ -12077,7 +12086,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f"
-					(reference "EDGE")
+					(reference "EDGE1")
 					(unit 1)
 				)
 			)
@@ -12662,16 +12671,15 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 290.83 93.98 0)
+		(at 285.75 93.98 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "da69d8ae-b834-4d1c-8021-bf05c368caa5")
-		(property "Reference" "#PWR07"
-			(at 290.83 97.79 0)
+		(uuid "c1215c1f-5794-40f5-b961-4deb48cd89bc")
+		(property "Reference" "#PWR085"
+			(at 285.75 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12680,7 +12688,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 290.83 88.9 0)
+			(at 285.75 90.424 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12688,7 +12696,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 290.83 93.98 0)
+			(at 285.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12697,7 +12705,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 290.83 93.98 0)
+			(at 285.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12706,7 +12714,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 290.83 93.98 0)
+			(at 285.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12715,12 +12723,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "80c6a55f-90f2-4c1a-a2bf-3753e302409b")
+			(uuid "8c1fcf16-77d2-4adf-8b1c-e6faa23fcba3")
 		)
 		(instances
 			(project ""
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f"
-					(reference "#PWR07")
+					(reference "#PWR085")
 					(unit 1)
 				)
 			)
@@ -12785,26 +12793,6 @@
 				(justify right)
 			)
 			(uuid "dd92da3f-33b3-4faa-990e-7a09a6836f8e")
-		)
-		(pin "EDGE5" input
-			(at 67.31 106.68 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "f0cdd375-f52e-4153-ba99-48bc94779b1c")
-		)
-		(pin "EDGEG" input
-			(at 67.31 109.22 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "7557269a-e80e-4195-8632-105cd1789119")
 		)
 		(pin "~{DIP2}" output
 			(at 90.17 124.46 0)
@@ -13570,6 +13558,16 @@
 				(justify right)
 			)
 			(uuid "97d55323-5337-4f6e-932a-f826d64f044e")
+		)
+		(pin "~{RST}" input
+			(at 180.34 74.93 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2df9531c-03dd-4d55-8189-95a5fee38fee")
 		)
 		(instances
 			(project "tehkanwch"

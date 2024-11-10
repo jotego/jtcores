@@ -173,7 +173,7 @@ git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 
 # also mark the commit in jtcores as the current release
 cd $JTROOT
-(git tag -f JTBIN && git push --tags) || echo "Could not tag the release on jtcores"
+(git tag -f JTBIN && git push --tags --force) || echo "Could not tag the release on jtcores"
 
 # clean up
 rm -rf $DST

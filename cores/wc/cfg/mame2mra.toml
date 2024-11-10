@@ -8,7 +8,14 @@ names=[
 
 [parse]
 sourcefile=[ "tehkanwc.cpp" ]
-debug={machines=["gridiron","teedoff"]}
+debug={machines=[
+	# The game starts booting but gets halted at the grid screen
+	# Pressing 1P&2P during boot goes through the test screen, which seems ok
+	"gridiron",
+	# teed off keeps rebooting. The CPU makes an odd jump. See MAME driver
+	# for description. The board may not be quite the same as WC
+	"teedoff"]
+}
 
 [dipsw]
 rename=[
@@ -21,6 +28,13 @@ rename=[
 ]
 delete=[
 	{ names=["Start*","2P Game Time","Unused"] },
+]
+
+[header]
+info="bit 0 -> enable non-symmetric speed in Tehkan WC bootleg"
+fill=0
+data = [
+	{ setname="tehkanwch", data="01" }
 ]
 
 [ROM]

@@ -1146,6 +1146,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS08"
@@ -2114,6 +2122,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS10"
@@ -2978,6 +2994,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -4737,6 +4761,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -7297,6 +7329,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS74"
@@ -7373,6 +7413,16 @@
 						(size 1.27 1.27)
 					)
 					(hide yes)
+				)
+			)
+			(symbol "74LS74_0_1"
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 			(symbol "74LS74_1_0"
@@ -8469,6 +8519,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -11868,7 +11926,7 @@
 		)
 		(uuid "057f8e62-f55c-4afe-8004-21e1870b33c8")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 45.72 127 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12363,7 +12421,7 @@
 		)
 		(uuid "93e6298c-ee46-4a29-8f07-8928cceea87d")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 68.58 48.26 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12616,7 +12674,7 @@
 		)
 		(uuid "c3d7c23d-6430-4c58-8469-aca897da5c8c")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 45.72 73.66 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13426,7 +13484,6 @@
 	(symbol
 		(lib_id "jt74:74LS25")
 		(at 31.75 270.51 0)
-		(mirror x)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13442,7 +13499,7 @@
 			)
 		)
 		(property "Value" "74LS25"
-			(at 31.75 273.05 0)
+			(at 31.75 267.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13459,7 +13516,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/sn7425.pdf"
-			(at 32.512 263.144 0)
+			(at 32.512 277.876 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13468,7 +13525,7 @@
 			)
 		)
 		(property "Description" "dual 4-input nor gates with strobe"
-			(at 29.972 261.62 0)
+			(at 29.972 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14769,7 +14826,6 @@
 	(symbol
 		(lib_id "jt74:74LS86")
 		(at 20.32 270.51 0)
-		(mirror x)
 		(unit 5)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14785,12 +14841,11 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 20.0152 276.86 0)
+			(at 20.32 273.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Footprint" ""

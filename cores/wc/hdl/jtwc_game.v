@@ -26,23 +26,33 @@ wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
             mute_n, srst_n, LVBLg;
 wire [ 8:0] scrx;
 wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
+reg         bootleg;
 
 assign dip_flip   = vflip | hflip;
-assign debug_view = 0;
+// assign debug_view = !debug_bus[0] ? joyana_l1[7:0] : joyana_l1[15:8];
 assign ioctl_din  = 0;
 assign LVBLg      = dip_pause & LVBL;
+
+always @(posedge clk) begin
+    if( prog_addr==0 && prog_we && header )
+        bootleg <= prog_data[0];
+end
+
 /* verilator tracing_off */
 jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
     .ws         ( mwait         ),
-    .lvbl       ( LVBLg         ),       // video interrupt
+    .lvbl       ( LVBLg         ),      // video interrupt
     // Cabinet inputs
+    .bootleg    ( bootleg       ),      // non-symmetrical speed
     .cab_1p     ( cab_1p[1:0]   ),
     .coin       ( coin[1:0]     ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
+    .joyana_l1  ( joyana_l1     ),
+    .joyana_l2  ( joyana_l2     ),
     // shared memory
     .mmx_c8     ( mx_c8         ),
     .mmx_d0     ( mx_d0         ),
@@ -67,7 +77,9 @@ jtwc_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     //
-    .dipsw      ( dipsw[19:0]   )
+    .dipsw      ( dipsw[19:0]   ),
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( debug_view    )
 );
 
 jtwc_sub u_sub(

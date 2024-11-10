@@ -2959,6 +2959,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS367"
@@ -4982,6 +4990,16 @@
 		)
 		(uuid "3e7b748f-0e64-4c95-8677-394d8dcd3044")
 	)
+	(wire
+		(pts
+			(xy 22.86 279.4) (xy 22.86 278.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ec37b86-be1b-4ea6-8d9e-dfe7622ed0b1")
+	)
 	(bus
 		(pts
 			(xy 204.47 148.59) (xy 204.47 146.05)
@@ -6254,6 +6272,16 @@
 	)
 	(wire
 		(pts
+			(xy 22.86 261.62) (xy 22.86 262.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5a9d23b-1a05-440d-8776-732b5408ab25")
+	)
+	(wire
+		(pts
 			(xy 121.92 157.48) (xy 127 157.48)
 		)
 		(stroke
@@ -6956,7 +6984,7 @@
 		)
 		(uuid "4e962807-d4cd-4bf2-b563-eac3fc36f70a")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 212.09 116.84 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7209,7 +7237,7 @@
 		)
 		(uuid "751b620d-0c17-4ecb-9a39-522347caeee3")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 212.09 157.48 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7649,7 +7677,7 @@
 		)
 		(uuid "dad7ca9c-2da3-4cf0-b831-4d83113be07e")
 	)
-	(label "VSS"
+	(label "GND"
 		(at 212.09 198.12 0)
 		(fields_autoplaced yes)
 		(effects
@@ -8197,7 +8225,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 22.86 262.89 0)
+		(at 22.86 261.62 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8205,7 +8233,7 @@
 		(dnp no)
 		(uuid "1e072141-a8cf-4b2c-a47e-fb643c914e64")
 		(property "Reference" "#PWR064"
-			(at 22.86 266.7 0)
+			(at 22.86 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8214,7 +8242,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 22.86 259.334 0)
+			(at 22.86 258.064 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8222,7 +8250,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 22.86 262.89 0)
+			(at 22.86 261.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8231,7 +8259,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 22.86 262.89 0)
+			(at 22.86 261.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8240,7 +8268,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 22.86 262.89 0)
+			(at 22.86 261.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8268,10 +8296,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "2f3300e4-5713-4d8a-ba75-1141527e3861")
 		(property "Reference" "H6"
-			(at 229.87 163.83 0)
+			(at 236.22 167.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8279,7 +8306,7 @@
 			)
 		)
 		(property "Value" "74LS157"
-			(at 229.87 166.37 0)
+			(at 232.41 200.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8554,10 +8581,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6140d07c-cc5c-4bf8-a22f-0db3ad687d86")
 		(property "Reference" "I5"
-			(at 229.87 82.55 0)
+			(at 236.22 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8565,7 +8591,7 @@
 			)
 		)
 		(property "Value" "74LS157"
-			(at 229.87 85.09 0)
+			(at 232.41 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9283,7 +9309,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 22.86 278.13 0)
+		(at 22.86 279.4 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9291,7 +9317,7 @@
 		(dnp no)
 		(uuid "a25fc331-d2c1-4df7-98eb-bf23a7611842")
 		(property "Reference" "#PWR063"
-			(at 22.86 284.48 0)
+			(at 22.86 285.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9300,7 +9326,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 22.86 281.94 0)
+			(at 22.86 283.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9308,7 +9334,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 22.86 278.13 0)
+			(at 22.86 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9317,7 +9343,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 22.86 278.13 0)
+			(at 22.86 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9326,7 +9352,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 22.86 278.13 0)
+			(at 22.86 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)

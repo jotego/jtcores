@@ -38,14 +38,26 @@ Bit  |  Action
  3   | up
  4+  | buttons
 
-Analog controllers are not connected to the game module by default. In order to get them connected, define the macro **JTFRAME_ANALOG** and then these input ports:
+Analog controllers are not connected to the game module by default. In order to get them connected, use the following input ports in the game module
 
 ```
-input   [15:0]  joyana1,
-input   [15:0]  joyana2,
+input   [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
+input   [15:0] joyana_r1, joyana_r2, joyana_r3, joyana_r4,
 ```
 
 Analogue sticks uses 2-complement bytes to signal information: right and bottom are possitive (127 is the maximum). Left and top are negative (FFh minimum, 80h maximum)
+
+| Stick  | joyana_l1[7:0] |
+|:-------|:---------------|
+| center | 00             |
+| right  | 01 -> 7F       |
+| left   | FF -> 80       |
+
+| Stick  | joyana_l1[15:8] |
+|:-------|:----------------|
+| center | 00              |
+| down   | 01 -> 7F        |
+| up     | FF -> 80        |
 
 Support for 4-way joysticks (instead of 8-way joysticks) is enabled by setting high bit 1 of core_mod. See MOD BYTE.
 

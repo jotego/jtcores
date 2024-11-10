@@ -10,8 +10,6 @@ GAMETOP       | Core's game module name | $CORENAME_game(_sdram)
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
-JTFRAME_ANALOG           |         | Enables analog sticks
-JTFRAME_ANALOG_DUAL      |         | Enables second analog stick, requires JTFRAME_ANALOG too
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
 JTFRAME_AUTOFIRE0        | MiSTer  | Button 0 will autofire when pressed ([OSD](osd.md) option)

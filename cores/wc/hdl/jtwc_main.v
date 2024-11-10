@@ -24,10 +24,15 @@ module jtwc_main(
     input            lvbl,       // video interrupt
 
     // cabinet I/O
-    input      [1:0] cab_1p,
-    input      [1:0] coin,
-    input      [4:0] joystick1,
-    input      [4:0] joystick2,
+    input            bootleg,    // enable bootleg speed
+    input     [ 1:0] cab_1p,
+    input     [ 1:0] coin,
+    input     [ 4:0] joystick1,
+    input     [ 4:0] joystick2,
+    input     [15:0] joyana_l1,
+    input     [15:0] joyana_l2,
+    // input      [1:0] dial_x,
+    // input      [1:0] dial_y,
     // shared memory
     output reg       mmx_c8,
     output reg       mmx_d0,
@@ -52,12 +57,17 @@ module jtwc_main(
     input     [ 7:0] rom_data,
     input            rom_ok,
     //
-    input     [19:0] dipsw
+    input     [19:0] dipsw,
+    input     [ 7:0] debug_bus,
+    output reg[ 7:0] st_dout
 );
 `ifndef NOMAIN
+localparam [ 5:0] SPEED=6'h20;
+
 wire [15:0] A;
 wire [ 7:0] ram_dout, din;
 reg  [ 7:0] dip_mux, cab_dout;
+reg  [ 1:0] ana_sel;
 reg         ram_cs, dip_cs, dip1_cs, dip2_cs, dip3_cs, latch_cs,
             sh_cs, s2m_cs, cab_cs, rst_n, mmx_f8;
 wire        m1_n, rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
@@ -69,27 +79,51 @@ always @(posedge clk) begin
     rst_n <= ~rst;
 end
 
-function [7:0] joy2track(input [1:0]dir, input flip);
+function [7:0] joy2track(input [1:0]dir, input signed [7:0] ana, input flip, input use_ana);
 begin
     reg [2:0] mux;
     reg [1:0] df;
     df = flip ? {dir[0],dir[1]} : dir;
-    mux = !df[1] ? 3'b01 : {1'b1,~df[0],1'b0};
+    mux = !df[1] ? 3'b001 : {1'b1,~df[0],1'b0};
+    // bootleg values
+    // still: df=2'b11 -> mux = 3'b100 -> joy 8'b1000_0001 = 81
+    // left : df=2'b01 -> mux = 3'b001 -> joy 8'b0000_0101 = 05
+    // right: df=2'b10 -> mux = 3'b110 -> joy 8'b1001_0001 = 91
     joy2track={mux[2],2'd0,mux[1],1'b0,mux[0],2'b01};
+    if(!bootleg)
+        joy2track = df==3 ? 8'h80 : !df[0] ? {2'b10,SPEED} : {2'b01,~SPEED};
+    if(use_ana) joy2track = !ana[7] ? {2'b10,ana[6:1]} : {2'b01,ana[6:1]};
+end
+endfunction
+
+function detect_joy(input [15:0] ana);
+begin
+    detect_joy = (!ana[ 7] && ana[ 6:0]>8) || (ana[ 7] && ~ana[ 6:0]>8) ||
+                 (!ana[15] && ana[14:8]>8) || (ana[15] && ~ana[15:8]>8);
 end
 endfunction
 
 always @(posedge clk) begin
+    if( rst ) begin
+        ana_sel <= 0;
+    end else begin
+        if( detect_joy(joyana_l1) ) ana_sel[0] <= 1;
+        if( detect_joy(joyana_l2) ) ana_sel[1] <= 1;
+    end
+end
+
+always @(posedge clk) begin
+    st_dout <= joy2track(joystick1[1:0],joyana_l1[ 7:0], hflip,ana_sel[0]);
     dip_mux <= dip1_cs ? {4'hf,dipsw[3:0]} :
                dip2_cs ? dipsw[ 4+:8]      :
                dip3_cs ? dipsw[12+:8]      : 8'hff;
     case({A[4],A[1:0]})
-        0: cab_dout <= joy2track(joystick1[1:0],hflip);
-        1: cab_dout <= joy2track(joystick1[3:2],vflip);
+        0: cab_dout <= joy2track(joystick1[1:0],joyana_l1[ 7:0], hflip, ana_sel[0]); // left-right
+        1: cab_dout <= joy2track(joystick1[3:2],joyana_l1[15:8], vflip, ana_sel[0]); // up-down
         2: cab_dout <= {4'hf,cab_1p,coin};
         3: cab_dout <= {2'h3,joystick1[4],5'h1f};
-        4: cab_dout <= joy2track(joystick2[1:0],~hflip);
-        5: cab_dout <= joy2track(joystick2[3:2],~vflip);
+        4: cab_dout <= joy2track(joystick2[1:0],joyana_l2[ 7:0],~hflip, ana_sel[1]); // left-right
+        5: cab_dout <= joy2track(joystick2[3:2],joyana_l2[15:8],~vflip, ana_sel[1]); // up-down
         7: cab_dout <= {2'h3,joystick2[4],5'h1f};
         default: cab_dout <= 8'hff;
     endcase
@@ -166,6 +200,25 @@ assign din = rom_cs ? rom_data :
              s2m_cs ? s2m      :
              cab_cs ? cab_dout :
              8'hff;
+/*
+jt4701 u_dial(
+    .clk        ( clk       ),
+    .rst        ( rst       ),
+    .x_in       ( dial_x    ),
+    .y_in       ( dial_y    ),
+    .rightn     ( 1'b1      ),
+    .leftn      ( 1'b1      ),
+    .middlen    ( 1'b1      ),
+    .x_rst      ( x_rst     ),
+    .y_rst      ( y_rst     ),
+    .csn        ( ~dial_cs  ),        // chip select
+    .uln        ( 1'b0      ),        // byte selection
+    .xn_y       ( xn_y      ),        // select x or y for reading
+    .cfn        (           ),        // counter flag
+    .sfn        (           ),        // switch flag
+    .dir        (           ),
+    .dout       ( dial_dout )
+);*/
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),

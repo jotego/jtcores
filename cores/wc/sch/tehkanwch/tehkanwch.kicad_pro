@@ -239,7 +239,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "tehkanwc.kicad_pro",
+    "filename": "tehkanwch.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -458,6 +458,10 @@
     [
       "4c118448-27cb-41f2-914e-4c5ee134f69b",
       "address decoder"
+    ],
+    [
+      "f27f3f3d-e9ec-4833-905f-484eb6a453c4",
+      "analog"
     ],
     [
       "34c66f42-7f31-4ae9-9ef6-6e02db74328b",

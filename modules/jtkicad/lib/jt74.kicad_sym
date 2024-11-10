@@ -6611,6 +6611,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS01"
@@ -8547,6 +8555,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS03"
@@ -9941,6 +9957,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)
@@ -11339,6 +11363,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS10"
@@ -12205,6 +12237,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS107"
@@ -12577,6 +12617,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)
@@ -13807,7 +13855,7 @@
 		)
 		(symbol "74LS11_4_0"
 			(pin input line
-				(at 0 12.7 270)
+				(at 0 7.62 270)
 				(length 5.08) hide
 				(name "VCC"
 					(effects
@@ -13825,7 +13873,7 @@
 				)
 			)
 			(pin input line
-				(at 0 -12.7 90)
+				(at 0 -7.62 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects
@@ -13853,6 +13901,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)
@@ -22251,6 +22307,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)
@@ -38586,6 +38650,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 		(symbol "74LS25_3_2"
 			(arc
@@ -46982,6 +47054,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)
@@ -64337,6 +64417,16 @@
 				(hide yes)
 			)
 		)
+		(symbol "74LS74_0_1"
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+		)
 		(symbol "74LS74_1_0"
 			(pin input inverted
 				(at 0 -7.62 90)
@@ -67699,6 +67789,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)

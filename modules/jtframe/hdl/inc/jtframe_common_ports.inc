@@ -31,12 +31,8 @@
 `ifdef JTFRAME_SPINNER
     input   [ 7:0]  spinner_1p, spinner_2p,
 `endif
-`ifdef JTFRAME_ANALOG
     input   [15:0]  joyana_l1, joyana_l2, joyana_l3, joyana_l4,
-    `ifdef JTFRAME_ANALOG_DUAL
-        input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
-    `endif
-`endif
+    input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
     // Sound control
     input           enable_fm, enable_psg,
     input   [ 5:0]  snd_en,

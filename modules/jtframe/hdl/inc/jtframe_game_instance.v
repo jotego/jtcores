@@ -90,11 +90,11 @@ u_game(
     .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ),
     .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
     .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_SPINNER
-    .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif `ifdef JTFRAME_ANALOG
+    .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
-    .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ), `ifdef JTFRAME_ANALOG_DUAL
+    .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),
     .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
-    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `endif `endif `ifdef JTFRAME_DIAL
+    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `ifdef JTFRAME_DIAL
     .dial_x       ( dial_x           ), .dial_y       ( dial_y           ), `endif
     // Sound control
     .enable_fm   ( enable_fm      ),
