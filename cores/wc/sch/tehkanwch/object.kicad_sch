@@ -2140,6 +2140,16 @@
 	)
 	(wire
 		(pts
+			(xy 180.34 180.34) (xy 187.96 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b79e18e6-22dd-4ec5-a78d-6ad3a2cebb88")
+	)
+	(wire
+		(pts
 			(xy 226.06 166.37) (xy 233.68 166.37)
 		)
 		(stroke
@@ -3539,6 +3549,18 @@
 			(justify right)
 		)
 		(uuid "93568c4f-bfac-4e6b-be4f-9dc05a735f77")
+	)
+	(hierarchical_label "~{CSSET}"
+		(shape output)
+		(at 187.96 180.34 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9a650b71-0a2a-40ca-ba41-c2aa5d273193")
 	)
 	(hierarchical_label "OXCLK"
 		(shape input)
@@ -4978,6 +5000,16 @@
 				(justify left)
 			)
 			(uuid "22904a54-2fb5-4467-868d-5d60095ec0f2")
+		)
+		(pin "~{CSSET}" output
+			(at 180.34 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "9b370970-ba2c-4368-987e-2939ccbfcb8c")
 		)
 		(instances
 			(project "tehkanwch"

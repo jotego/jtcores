@@ -147,6 +147,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 172.72) (xy 193.04 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3fc3594a-6525-40ab-aebc-46b4f662988b")
+	)
+	(wire
+		(pts
 			(xy 199.39 138.43) (xy 203.2 138.43)
 		)
 		(stroke
@@ -567,6 +577,18 @@
 		)
 		(uuid "751ced4e-6158-45e3-8011-9d0f9a45fd56")
 	)
+	(hierarchical_label "~{HX}3"
+		(shape output)
+		(at 193.04 172.72 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "851ab139-c03b-4f1a-937a-f7c98e38aa94")
+	)
 	(hierarchical_label "GHFLIP"
 		(shape input)
 		(at 144.78 137.16 180)
@@ -756,7 +778,7 @@
 	)
 	(sheet
 		(at 151.13 127)
-		(size 36.83 41.91)
+		(size 36.83 50.8)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -776,7 +798,7 @@
 			)
 		)
 		(property "Sheetfile" "scrram.kicad_sch"
-			(at 151.13 169.4946 0)
+			(at 151.13 178.3846 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1034,6 +1056,16 @@
 				(justify right)
 			)
 			(uuid "d8bc4d3c-3e79-4460-a826-34ca067d6a57")
+		)
+		(pin "~{HX}3" output
+			(at 187.96 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "0a559f8b-6da2-455a-b055-8986f51574db")
 		)
 		(instances
 			(project "tehkanwch"

@@ -8911,6 +8911,12 @@
 		(uuid "ca8f0f45-fac7-4ab1-a0a1-48e9ced18d1a")
 	)
 	(junction
+		(at 300.99 199.39)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cd0f8a14-f7b0-415d-9889-980b4691695d")
+	)
+	(junction
 		(at 49.53 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10072,6 +10078,16 @@
 			(type default)
 		)
 		(uuid "5114a642-0c54-4356-bc78-b6bc35efa3ba")
+	)
+	(wire
+		(pts
+			(xy 300.99 199.39) (xy 303.53 199.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5150eb6f-2b5b-439b-8982-6f1634eff46c")
 	)
 	(wire
 		(pts
@@ -12964,6 +12980,18 @@
 			(justify left)
 		)
 		(uuid "1aad6bef-1f13-4a21-b16e-8cb399e91d6f")
+	)
+	(hierarchical_label "~{CSSET}"
+		(shape output)
+		(at 303.53 199.39 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1b436af3-2549-47e8-be3b-0c6d8ee62002")
 	)
 	(hierarchical_label "~{WR}"
 		(shape output)

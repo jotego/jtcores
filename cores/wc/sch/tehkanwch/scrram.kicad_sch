@@ -12137,17 +12137,6 @@
 		)
 		(uuid "7647e79a-6013-4c26-8951-aa6703a122e5")
 	)
-	(label "~{HX}3"
-		(at 156.21 242.57 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "771d3ff0-9692-4fe0-b9af-fc1e0ca4a7de")
-	)
 	(label "DD4"
 		(at 119.38 86.36 0)
 		(fields_autoplaced yes)
@@ -12665,17 +12654,6 @@
 		)
 		(uuid "bad9f10a-e266-4f68-8e05-3dbf8e057c94")
 	)
-	(label "HX3"
-		(at 156.21 245.11 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bb60ab55-7635-4b24-a82c-cfdf518dcad0")
-	)
 	(label "HF6"
 		(at 160.02 182.88 0)
 		(fields_autoplaced yes)
@@ -12984,6 +12962,17 @@
 		)
 		(uuid "e8758776-b409-445a-ad65-e54a43e0f55c")
 	)
+	(label "HX3"
+		(at 156.21 245.11 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e8c115e5-da4c-4117-a490-59477b26db0f")
+	)
 	(label "VS4"
 		(at 224.79 125.73 0)
 		(fields_autoplaced yes)
@@ -13226,6 +13215,18 @@
 			(justify left)
 		)
 		(uuid "0a2ca8e3-9c99-4290-9d9f-0888defbc095")
+	)
+	(hierarchical_label "~{HX}3"
+		(shape output)
+		(at 156.21 242.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0ddd08c4-600b-4413-a005-963e6f813e68")
 	)
 	(hierarchical_label "~{SCRXM}"
 		(shape input)
