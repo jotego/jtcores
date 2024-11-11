@@ -91,6 +91,19 @@ initial begin
     end
 end
 
+`ifdef SIMULATION
+wire vram_len, vram_big;
+assign vram_len = VA == (MAP_VW-VW + MAP_HW-HW);
+assign vram_big = VA >  (MAP_VW-VW + MAP_HW-HW);
+initial begin
+    if( !vram_len ) begin
+        if( vram_big ) $display("WARNING %m: vram_addr has unassigned bits. Adjust parameters to avoid this");
+        else           $display("WARNING %m: vram_addr has bits assigned by two different sources. Adjust parameters to avoid this");
+        $finish;
+    end
+end
+`endif
+
 // assign pxl       = { cur_pal, hflip_g ? {pxl_data[24], pxl_data[16], pxl_data[8], pxl_data[0]} :
 //                                         {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7]} };
 assign vflip_g   = (flip & XOR_VFLIP[0])^vflip;
