@@ -178,9 +178,9 @@ always @* begin
             5: {sh_cs,mmx_e8} = 2'b11;
             7: begin
                 mmx_f8 = 1;
-                if( !rd_n ) casez(A[6:4])
-                    3'b?0?: cab_cs  = 1;
-                    2: s2m_cs  = 1;
+                if( !rd_n ) case(A[6:4])
+                    0,1: cab_cs = 1;
+                    2: s2m_cs   = 1;
                     4: {dip_cs,dip2_cs} = 2'b11;
                     5: {dip_cs,dip3_cs} = 2'b11;
                     // 6: wdog = 1;
