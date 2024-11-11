@@ -60,25 +60,6 @@ function vram_check( input [10:0] addr,   input [4:0] vdump, input [4:0] hdump, 
 	vram_check  = addr=={veff>>sz,heff}>>sz;
 endfunction
 
-// function romad_check( input [11:0] cd,     input [4:0] vdump, input [1:0] hdump,//H[4:3]
-// 					  input [19:0] addr,   input       vf   , input       hf   ,
-// 					  input [ 1:0] sz,     input [3:0] cw );
-// 	reg [4:0] v, c, h;
-// 	reg       dump_check;
-// 	begin
-// 		v = 17-sz; c = 20 - cw; h = cw + sz+3;
-// 		case (sz)
-// 			0: dump_check =  (addr<<v)>>v == vdump[2:0]^{3{vflip}}
-// 						  &&  addr>>h     == 0;
-// 			1: dump_check =  (addr<<v)>>v == vdump[3:0]^{4{vflip}}
-// 						  &&  addr>>h     == hdump[  0]^hflip;
-// 			2: dump_check =  (addr<<v)>>v == vdump[4:0]^{5{vflip}}
-// 						  &&  addr>>h     == hdump[1:0]^hflip;
-// 		endcase
-// 		romad_check = dump_check && (addr<<v-cw)>>c == cd;
-// 	end
-// endfunction
-
 function pxl_check( input flip, input [PW-1:0] pxl, input [31:0] data );
 	pxl_check   = flip ? pxl[3:0] =={data[24],data[16],data[ 8],data[ 0]} :
 						 pxl[3:0] =={data[31],data[23],data[15],data[ 7]} ;
@@ -217,25 +198,22 @@ genvar sz;
 generate
 	for( sz=0; sz < SIZE_TEST; sz = sz +1) begin
 		localparam 	SZ = 6'd8<<sz,
-					VA_T = 10 - sz*2,
-					VR_T = SZ==8 ? CW+3 : SZ==16 ? CW+5 : CW+7;
+					VA_T = 10 - sz*2;
 		// wire [VR_T-1:0] rom_ad;
 		wire [VA_T-1:0] vram_ad;
 		wire [  PW-1:0] pxl_sz;
 		wire [     5:0] szz= SZ;
-		wire [     4:0] vr=VR_T;
 		wire [     3:0] va=VA_T;
 		wire        px_check, vr_check;
 
 		jtframe_tilemap #(
-			.SIZE(SZ),.VA(VA_T),//.VR(VR_T),
+			.SIZE(SZ),.VA(VA_T),
 			.CW(CW),.PW(PW),.BPP(BPP),
 			.MAP_HW(MAP_HW),.MAP_VW(MAP_VW),
 			.FLIP_MSB(FLIP_MSB),.FLIP_HDUMP(FLIP_HDUMP),.FLIP_VDUMP(FLIP_VDUMP),
 			.XOR_HFLIP(XOR_HFLIP),.XOR_VFLIP(XOR_VFLIP),
 			.HDUMP_OFFSET(HDUMP_OFFSET),
-			.HJUMP(HJUMP)//,
-			//.VW(VW),.HW(HW)
+			.HJUMP(HJUMP)
 			)u_size(
 		    .rst        ( rst           ),
 		    .clk        ( clk           ),
@@ -476,4 +454,4 @@ jtframe_vtimer #(
     .VS         ( WC_vs     )
 );
 
-endmodule : test_timer_gate
+endmodule
