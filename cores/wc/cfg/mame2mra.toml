@@ -12,8 +12,7 @@ sourcefile=[ "tehkanwc.cpp" ]
 # for description. The board may not be quite the same as WC
 skip.machines=["teedoff"]
 debug={machines=[
-	# The game starts booting but gets halted at the grid screen
-	# Pressing 1P&2P during boot goes through the test screen, which seems ok
+	# Missing LED display, so player formation cannot be chosen
 	"gridiron"]}
 
 [dipsw]

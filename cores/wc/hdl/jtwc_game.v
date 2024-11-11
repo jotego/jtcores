@@ -25,11 +25,11 @@ wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
             sx_c8, sx_d0, sx_d8, sx_e0, sx_e8,
             mute_n, srst_n, LVBLg;
 wire [ 8:0] scrx;
-wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout;
+wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout, form0;
 reg         bootleg;
 
 assign dip_flip   = vflip | hflip;
-// assign debug_view = !debug_bus[0] ? joyana_l1[7:0] : joyana_l1[15:8];
+assign debug_view = form0;
 assign ioctl_din  = 0;
 assign LVBLg      = dip_pause & LVBL;
 
@@ -53,6 +53,7 @@ jtwc_main u_main(
     .joystick2  ( joystick2     ),
     .joyana_l1  ( joyana_l1     ),
     .joyana_l2  ( joyana_l2     ),
+    .form0      ( form0         ),
     // shared memory
     .mmx_c8     ( mx_c8         ),
     .mmx_d0     ( mx_d0         ),
@@ -171,7 +172,7 @@ jtwc_sound u_sound(
     .psg1       ( psg1          ),
     .pcm        ( pcmsnd        ),
     .debug_bus  ( debug_bus     ),
-    .st_dout    ( debug_view    )
+    .st_dout    (               )
 );
 /* verilator tracing_on */
 jtwc_video u_video(

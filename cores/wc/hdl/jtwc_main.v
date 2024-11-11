@@ -31,6 +31,7 @@ module jtwc_main(
     input     [ 4:0] joystick2,
     input     [15:0] joyana_l1,
     input     [15:0] joyana_l2,
+    output    [ 7:0] form0,
     // input      [1:0] dial_x,
     // input      [1:0] dial_y,
     // shared memory
@@ -67,6 +68,7 @@ localparam [ 5:0] SPEED=6'h20;
 wire [15:0] A;
 wire [ 7:0] ram_dout, din;
 reg  [ 7:0] dip_mux, cab_dout;
+reg  [ 6:0] led0, led1; // 7-segment LED displays used on Grid Iron
 reg  [ 1:0] ana_sel;
 reg         ram_cs, dip_cs, dip1_cs, dip2_cs, dip3_cs, latch_cs,
             sh_cs, s2m_cs, cab_cs, rst_n, mmx_f8;
@@ -74,6 +76,7 @@ wire        m1_n, rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
 
 assign rom_addr = A;
 assign cen_eff  = ~ws & cen;
+assign form0    = {1'b0, led0}; // proper decoding missing
 
 always @(posedge clk) begin
     rst_n <= ~rst;
@@ -139,6 +142,8 @@ always @(posedge clk) begin
     end else begin
         m2s_set <= 0;
         if( mmx_f8 && !wr_n ) case(A[6:4])
+            0: if( A[1:0]==2 ) led0 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
+            1: if( A[1:0]==2 ) led1 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
             2: begin
                 m2s_set <= 1;
                 m2s     <= cpu_dout;
