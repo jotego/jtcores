@@ -39,7 +39,7 @@ module jtframe_tilemap #( parameter
     HDUMP_OFFSET = 0,  // adds an offset to hdump
     HJUMP        = 1,  // see jtframe_scroll
     // override VH and HW only for non rectangular tiles
-    VW           = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    VW           = SIZE==8 ? 3 : SIZE==16 ? 4: 5,
     HW           = VW,
     // localparam, do not modify
     PALW         = PW-BPP,
@@ -90,6 +90,19 @@ initial begin
         $display("WARNING %m: SIZE=32 has not been tested");
     end
 end
+
+`ifdef SIMULATION
+wire vram_len, vram_big;
+assign vram_len = VA == (MAP_VW-VW + MAP_HW-HW);
+assign vram_big = VA >  (MAP_VW-VW + MAP_HW-HW);
+initial begin
+    if( !vram_len ) begin
+        if( vram_big ) $display("WARNING %m: vram_addr has unassigned bits. Adjust parameters to avoid this");
+        else           $display("WARNING %m: vram_addr has bits assigned by two different sources. Adjust parameters to avoid this");
+        assert(vram_len);
+    end
+end
+`endif
 
 // assign pxl       = { cur_pal, hflip_g ? {pxl_data[24], pxl_data[16], pxl_data[8], pxl_data[0]} :
 //                                         {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7]} };
