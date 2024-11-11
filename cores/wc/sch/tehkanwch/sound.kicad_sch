@@ -10799,16 +10799,6 @@
 		)
 		(uuid "59c8afda-f7d6-4366-91a3-9c023a39f3aa")
 	)
-	(wire
-		(pts
-			(xy 246.38 199.39) (xy 257.81 199.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59ef6081-df84-4933-abf6-3d7007ce3a19")
-	)
 	(bus
 		(pts
 			(xy 383.54 101.6) (xy 383.54 96.52)
@@ -14522,17 +14512,6 @@
 		)
 		(uuid "71e8fd43-3d63-4078-8f35-48e1a86b51df")
 	)
-	(label "~{PGM}"
-		(at 246.38 199.39 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7229c963-c2bf-4034-ade8-b87aa3d24c69")
-	)
 	(label "SMP6"
 		(at 374.65 91.44 0)
 		(fields_autoplaced yes)
@@ -14983,6 +14962,17 @@
 			(justify left bottom)
 		)
 		(uuid "94320d9c-f347-41d7-9548-41543ae9de0a")
+	)
+	(label "~{MUTE}"
+		(at 246.38 190.5 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9449df5c-3948-4fcd-87e7-0d84c43779f5")
 	)
 	(label "~{PCMCTL}"
 		(at 262.89 66.04 180)
@@ -16327,7 +16317,7 @@
 		)
 		(uuid "0396f6d3-3fb2-4bbb-8fe4-7ee45dc7026f")
 	)
-	(hierarchical_label "~{RST}"
+	(hierarchical_label "~{MUTE}"
 		(shape input)
 		(at 87.63 90.17 180)
 		(fields_autoplaced yes)
@@ -16399,18 +16389,6 @@
 			(justify right)
 		)
 		(uuid "ad217917-6c95-40d2-b82c-df7a55f4e40b")
-	)
-	(hierarchical_label "~{MUTE}"
-		(shape input)
-		(at 246.38 190.5 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "fcbb410e-a4da-42f5-8483-b7ffd66abe4c")
 	)
 	(symbol
 		(lib_id "jt74:74LS139")
@@ -21418,16 +21396,6 @@
 				(justify left)
 			)
 			(uuid "e744028c-6131-4b6b-8cba-f81f59fc4009")
-		)
-		(pin "~{PGM}" input
-			(at 257.81 199.39 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "13616ccb-5df4-4500-b2f7-620e948ade17")
 		)
 		(pin "A[1..14]" output
 			(at 257.81 201.93 180)
