@@ -12410,7 +12410,7 @@
 		(dnp no)
 		(uuid "9f0fdaa9-dab8-42e5-a28c-63465e815f54")
 		(property "Reference" "VD20"
-			(at 213.36 195.58 0)
+			(at 213.995 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12418,7 +12418,7 @@
 			)
 		)
 		(property "Value" "74LS86"
-			(at 213.36 193.04 0)
+			(at 213.36 189.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12603,6 +12603,71 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
 					(reference "VC21")
 					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 44.45 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b70ad238-4474-42d3-ad5b-0b35d0809bc0")
+		(property "Reference" "#PWR0175"
+			(at 44.45 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 44.45 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a7ab8b3e-ae74-4c5f-a4c3-aac88e7fb451")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "#PWR0175")
+					(unit 1)
 				)
 			)
 		)
@@ -13047,6 +13112,109 @@
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
 					(reference "VC20")
+					(unit 5)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS86")
+		(at 44.45 270.51 0)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d9b809ad-7f95-4967-a9e6-643443541b9e")
+		(property "Reference" "VD20"
+			(at 45.085 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS86"
+			(at 44.45 275.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "74xx/74ls86.pdf"
+			(at 44.45 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Quad 2-input XOR"
+			(at 44.45 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "9"
+			(uuid "963d64fd-0fef-4142-9429-d70610e516f9")
+		)
+		(pin "14"
+			(uuid "5e1add2e-2e27-495f-9314-94a71d520d7f")
+		)
+		(pin "2"
+			(uuid "16799e3f-a860-4411-9aac-006658e26ce3")
+		)
+		(pin "1"
+			(uuid "c828d6bf-707c-4fe2-bf18-48f08061ea2a")
+		)
+		(pin "3"
+			(uuid "44401aa3-0f3e-4052-82d0-2fc4d7de479c")
+		)
+		(pin "8"
+			(uuid "4f8ea488-b414-400c-b1b5-8c18299c9233")
+		)
+		(pin "4"
+			(uuid "59a37a64-04d8-471c-a397-92ef5d24d816")
+		)
+		(pin "11"
+			(uuid "50579f4c-55e9-40f7-bf53-1cb9d34f27de")
+		)
+		(pin "10"
+			(uuid "b0ec65bc-3402-4e58-b98a-1865691aa83f")
+		)
+		(pin "7"
+			(uuid "88f0c566-8172-498d-92f8-022f391c264c")
+		)
+		(pin "13"
+			(uuid "41701408-47db-4775-a118-dca7bb81578c")
+		)
+		(pin "5"
+			(uuid "16ce8737-f2b1-4986-a28a-2c90e065fd8d")
+		)
+		(pin "12"
+			(uuid "8e147855-9608-4bbc-8f65-404e963a5086")
+		)
+		(pin "6"
+			(uuid "0e7c66ae-3966-4adf-a310-e6a0336e07ba")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/b2a9c5d5-8a7a-43f6-9045-ebbac0528fe2"
+					(reference "VD20")
 					(unit 5)
 				)
 			)

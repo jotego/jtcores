@@ -4485,7 +4485,7 @@
 		(uuid "54564fa6-2e16-4a37-a567-9ca6fa5cc0ea")
 	)
 	(bus_entry
-		(at 64.77 113.03)
+		(at 66.04 113.03)
 		(size 2.54 -2.54)
 		(stroke
 			(width 0)
@@ -4566,7 +4566,7 @@
 		(uuid "6419be63-e829-46a7-9e39-2c9b9ce024e4")
 	)
 	(bus_entry
-		(at 64.77 115.57)
+		(at 66.04 115.57)
 		(size 2.54 -2.54)
 		(stroke
 			(width 0)
@@ -5393,6 +5393,16 @@
 			(type default)
 		)
 		(uuid "1021d54e-7262-46a4-a7f9-20100b8ff9ba")
+	)
+	(wire
+		(pts
+			(xy 232.41 215.9) (xy 241.3 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10c1b879-c118-4203-b9d6-8f5004643ffe")
 	)
 	(bus
 		(pts
@@ -7076,7 +7086,7 @@
 	)
 	(wire
 		(pts
-			(xy 60.96 115.57) (xy 64.77 115.57)
+			(xy 60.96 115.57) (xy 66.04 115.57)
 		)
 		(stroke
 			(width 0)
@@ -7466,7 +7476,7 @@
 	)
 	(bus
 		(pts
-			(xy 67.31 113.03) (xy 67.31 110.49)
+			(xy 68.58 113.03) (xy 68.58 110.49)
 		)
 		(stroke
 			(width 0)
@@ -8156,7 +8166,7 @@
 	)
 	(wire
 		(pts
-			(xy 60.96 113.03) (xy 64.77 113.03)
+			(xy 60.96 113.03) (xy 66.04 113.03)
 		)
 		(stroke
 			(width 0)
@@ -8446,7 +8456,7 @@
 	)
 	(bus
 		(pts
-			(xy 67.31 110.49) (xy 67.31 99.06)
+			(xy 68.58 110.49) (xy 68.58 99.06)
 		)
 		(stroke
 			(width 0)
@@ -9216,7 +9226,7 @@
 	)
 	(bus
 		(pts
-			(xy 67.31 99.06) (xy 68.58 99.06)
+			(xy 68.58 99.06) (xy 69.85 99.06)
 		)
 		(stroke
 			(width 0)
@@ -9440,6 +9450,17 @@
 			(justify left bottom)
 		)
 		(uuid "1b2411f7-7782-4de2-9715-530add82d488")
+	)
+	(label "OCK1"
+		(at 60.96 115.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b2f4f44-b2dd-4c16-aeac-6e68f0b59f0a")
 	)
 	(label "X7"
 		(at 368.3 73.66 180)
@@ -9693,6 +9714,17 @@
 			(justify left bottom)
 		)
 		(uuid "502d7ed6-f2c9-4009-8783-50b0c395f294")
+	)
+	(label "OCK0"
+		(at 60.96 113.03 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "50f860ea-ba10-43ff-a30f-d71cc509438c")
 	)
 	(label "DD3"
 		(at 147.32 189.23 0)
@@ -10243,17 +10275,6 @@
 			(justify left bottom)
 		)
 		(uuid "96bcdddb-4ca4-4bee-9793-1f9bcb6b04a0")
-	)
-	(label "E3_11"
-		(at 236.22 252.73 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "97b5e1c3-3046-4576-a09b-a0db1060d2a2")
 	)
 	(label "OSCLK"
 		(at 30.48 168.91 0)
@@ -11155,6 +11176,18 @@
 		)
 		(uuid "6ddf236f-c551-4237-b198-f84b1e5c4690")
 	)
+	(hierarchical_label "~{CODE}"
+		(shape input)
+		(at 236.22 252.73 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7d7e3b77-7b6c-4521-9180-741c391c81a7")
+	)
 	(hierarchical_label "~{RDB}"
 		(shape input)
 		(at 93.98 163.83 180)
@@ -11178,6 +11211,18 @@
 			(justify right)
 		)
 		(uuid "a20a7cdd-f5ad-468f-b76b-15995d91c63b")
+	)
+	(hierarchical_label "~{ATTR}"
+		(shape input)
+		(at 232.41 215.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b4233b92-a080-49f5-9924-a53f834315e6")
 	)
 	(hierarchical_label "XOVER"
 		(shape output)
@@ -11217,7 +11262,7 @@
 	)
 	(hierarchical_label "OCK[0..1]"
 		(shape output)
-		(at 68.58 99.06 0)
+		(at 69.85 99.06 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

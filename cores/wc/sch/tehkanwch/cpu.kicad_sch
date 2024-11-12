@@ -6355,6 +6355,16 @@
 	)
 	(wire
 		(pts
+			(xy 171.45 74.93) (xy 180.34 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52b58cc5-6581-4bfe-a8dd-306e524f3d4f")
+	)
+	(wire
+		(pts
 			(xy 327.66 224.79) (xy 335.28 224.79)
 		)
 		(stroke
@@ -8782,6 +8792,17 @@
 			(justify left bottom)
 		)
 		(uuid "0d8895e8-1b13-4d36-a864-a3969e461308")
+	)
+	(label "DISP"
+		(at 171.45 74.93 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0e63aec9-bc19-4132-9cbf-e9f7c7bbaf4c")
 	)
 	(label "~{SHOT}1"
 		(at 106.68 189.23 180)

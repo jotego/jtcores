@@ -12570,8 +12570,8 @@
 			)
 		)
 		(symbol "74LS107_3_0"
-			(pin input line
-				(at 0 10.16 270)
+			(pin power_in line
+				(at 0 7.62 270)
 				(length 2.54) hide
 				(name "VCC"
 					(effects
@@ -12588,8 +12588,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -10.16 90)
+			(pin power_in line
+				(at 0 -7.62 90)
 				(length 2.54) hide
 				(name "GND"
 					(effects
