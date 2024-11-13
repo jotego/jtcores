@@ -9002,6 +9002,10 @@
 		(uuid "019a9010-e52a-4e62-91d3-c3a5d41631ea")
 	)
 	(no_connect
+		(at 13.97 242.57)
+		(uuid "0aad93ea-e5fb-4595-b659-f3ffa81efb0e")
+	)
+	(no_connect
 		(at 209.55 241.3)
 		(uuid "0ae1c009-c528-441b-8391-1973e56c9c8a")
 	)
@@ -9022,12 +9026,28 @@
 		(uuid "4c51541d-e5b3-4a55-ab5f-6e4d574e21e7")
 	)
 	(no_connect
+		(at 29.21 247.65)
+		(uuid "4f8b01d2-a2a2-40b7-ac9a-99f7894f6850")
+	)
+	(no_connect
 		(at 64.77 148.59)
 		(uuid "579c1f5e-cc4b-4490-a10f-9f3e9e803136")
 	)
 	(no_connect
+		(at 13.97 245.11)
+		(uuid "5bc73ef6-cd26-4b5e-a8cc-1fe38127423b")
+	)
+	(no_connect
 		(at 90.17 222.25)
 		(uuid "5f0b8a09-f146-4b8e-b9bb-ae9576ca9b3e")
+	)
+	(no_connect
+		(at 21.59 237.49)
+		(uuid "87695cca-abb5-42e7-a8b0-c1e7265027ca")
+	)
+	(no_connect
+		(at 50.8 245.11)
+		(uuid "8cdda113-af0c-4d58-a30c-f0f9ac2d5845")
 	)
 	(no_connect
 		(at 179.07 238.76)
@@ -9038,12 +9058,28 @@
 		(uuid "b98846bc-b969-402d-83c0-fa67f441fa8d")
 	)
 	(no_connect
+		(at 35.56 247.65)
+		(uuid "c5750779-bb9f-4df9-84d7-0b9404cf8a71")
+	)
+	(no_connect
+		(at 29.21 242.57)
+		(uuid "d88fd672-6b14-4083-9184-633c19a9c1e6")
+	)
+	(no_connect
 		(at 179.07 241.3)
 		(uuid "d8f2418e-81cb-45a5-94c0-b1c3c6b52c2f")
 	)
 	(no_connect
 		(at 92.71 151.13)
 		(uuid "d99ea6c8-16ca-4b6f-b545-f94f069f407f")
+	)
+	(no_connect
+		(at 21.59 252.73)
+		(uuid "da0f2589-485c-4ca5-bcef-f169d2a91a7b")
+	)
+	(no_connect
+		(at 35.56 242.57)
+		(uuid "e83d3a8b-4abf-440a-b8c2-19eed1820e15")
 	)
 	(no_connect
 		(at 64.77 110.49)
@@ -16605,6 +16641,176 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 55.88 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0c4d9a5b-0130-4d92-9269-0769a2313816")
+		(property "Reference" "#PWR0188"
+			(at 55.88 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 55.88 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 55.88 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 55.88 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 55.88 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c759496b-8f89-4d73-90b6-be2cff92608b")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "#PWR0188")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS74")
+		(at 21.59 245.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0f1449b2-2f65-4b35-9c4f-71091af76135")
+		(property "Reference" "G6"
+			(at 22.86 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "74LS74"
+			(at 24.13 251.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 21.59 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "74xx/74hc_hct74.pdf"
+			(at 21.59 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Dual D Flip-flop, Set & Reset"
+			(at 21.59 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "14"
+			(uuid "472bd61c-1c1b-4965-a01e-6e219960273f")
+		)
+		(pin "7"
+			(uuid "faff4ea4-1a57-4ea1-aab3-2ab2cdd3eac1")
+		)
+		(pin "1"
+			(uuid "62ff1d03-36d4-409d-9e89-7ce839951283")
+		)
+		(pin "8"
+			(uuid "ef77e855-46aa-4016-8a10-deda9a2028b7")
+		)
+		(pin "12"
+			(uuid "3b8f4154-75ec-41e2-83e1-7e2f41eac7bc")
+		)
+		(pin "9"
+			(uuid "a3779129-f72b-4654-bf5e-5ae772b8554c")
+		)
+		(pin "2"
+			(uuid "d69580a0-1bb1-452c-b0f2-bbdc1c19b558")
+		)
+		(pin "4"
+			(uuid "5d4a3e81-a0b0-4a0a-8a1d-dd2392ae711c")
+		)
+		(pin "3"
+			(uuid "25ff69e4-906a-44a0-bb41-3fdfc3630d3c")
+		)
+		(pin "13"
+			(uuid "a475228e-d055-4799-bbc8-0b20e9bbe81b")
+		)
+		(pin "10"
+			(uuid "959c9999-90d1-4d92-bf2d-3fc57d211767")
+		)
+		(pin "11"
+			(uuid "3c8a9bfa-6098-4b0b-b129-30749de1f6cd")
+		)
+		(pin "6"
+			(uuid "219e829b-987e-42ba-9285-af77829766ff")
+		)
+		(pin "5"
+			(uuid "31e3c340-3d82-40f0-9357-c6d551d92325")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "G6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "CPU:Z80CPU")
 		(at 110.49 120.65 0)
 		(unit 1)
@@ -16902,7 +17108,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "16ef80f8-1bb2-4eb3-ab2d-4fa95c4bbda1")
-		(property "Reference" "R14"
+		(property "Reference" "RPU0"
 			(at 323.85 71.12 90)
 			(effects
 				(font
@@ -16955,7 +17161,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
-					(reference "R14")
+					(reference "RPU0")
 					(unit 1)
 				)
 			)
@@ -17987,6 +18193,109 @@
 		)
 	)
 	(symbol
+		(lib_id "jt74:74LS02")
+		(at 67.31 270.51 0)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "583cf1a5-144a-4883-8a12-3b4f41b576bd")
+		(property "Reference" "F16"
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS02"
+			(at 67.31 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls02"
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "quad 2-input NOR gate"
+			(at 67.31 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "68004bc8-73d3-422d-ae7c-62567f9047eb")
+		)
+		(pin "9"
+			(uuid "de9fd1ce-bc15-4e84-8fb9-cacdaa7fe6f5")
+		)
+		(pin "7"
+			(uuid "25ed78be-ff9b-4133-a806-327daed95d32")
+		)
+		(pin "8"
+			(uuid "d9173b4e-b00c-4ac9-a044-29996fc7d288")
+		)
+		(pin "12"
+			(uuid "dbb4fb0a-0dbc-46d6-b12a-dd16bb81dca1")
+		)
+		(pin "3"
+			(uuid "11209b7d-5f31-483a-bb9d-f5479ee71efa")
+		)
+		(pin "2"
+			(uuid "ec11fd8d-9bf5-4e34-8a2e-ec0544bd40da")
+		)
+		(pin "1"
+			(uuid "730ddb9f-77e7-438f-acd3-3a5635e6d7fc")
+		)
+		(pin "11"
+			(uuid "48d68f7f-81d3-4ba7-aba5-247b4a9d9ddd")
+		)
+		(pin "14"
+			(uuid "13c36816-edd0-4b2d-ae7f-c09a9074fbfa")
+		)
+		(pin "13"
+			(uuid "dc6f3f3c-5bc4-4b47-9787-dd01a8b31ae4")
+		)
+		(pin "6"
+			(uuid "396977fc-36a0-4ff7-902c-290a3bab813f")
+		)
+		(pin "4"
+			(uuid "d74c83ff-54c0-414c-94cc-4f8f8bc1e7ec")
+		)
+		(pin "10"
+			(uuid "72f436e3-877d-4ae6-baca-6eae00da67b6")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "F16")
+					(unit 5)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS139")
 		(at 242.57 66.04 0)
 		(unit 1)
@@ -18091,6 +18400,71 @@
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
 					(reference "H16")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 67.31 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5a278bd8-f0f5-43b5-b0d7-d20fc49caaf3")
+		(property "Reference" "#PWR0189"
+			(at 67.31 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 67.31 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 67.31 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 67.31 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 67.31 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "45d3793d-8346-4fc9-b6b0-5055118274c4")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "#PWR0189")
 					(unit 1)
 				)
 			)
@@ -18683,6 +19057,110 @@
 		)
 	)
 	(symbol
+		(lib_id "jt74:74LS02")
+		(at 43.18 245.11 0)
+		(unit 3)
+		(convert 2)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6bdafde1-f88c-4bc5-a48d-e6da050ab5e7")
+		(property "Reference" "G16"
+			(at 42.672 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS02"
+			(at 43.18 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 43.18 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74ls02"
+			(at 43.18 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "quad 2-input NOR gate"
+			(at 43.18 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "180c2b31-c3a0-4adf-96a9-e7843884c11a")
+		)
+		(pin "11"
+			(uuid "040e2e41-9fbe-4f28-ba7f-dd901e30b01d")
+		)
+		(pin "8"
+			(uuid "e31775d9-2535-445a-9869-fb055a567376")
+		)
+		(pin "14"
+			(uuid "7bce7105-8dd5-4547-9885-aa23997e4e26")
+		)
+		(pin "3"
+			(uuid "63da9678-dcc1-4cff-a1f8-ca424ff33fcd")
+		)
+		(pin "7"
+			(uuid "d1b81ae8-2473-4f34-bb2f-9d42ced9892c")
+		)
+		(pin "6"
+			(uuid "37e57ca4-edda-4c98-9f63-b01d7c650f67")
+		)
+		(pin "5"
+			(uuid "e945d728-5bc0-4207-b104-5a4b2be6de3d")
+		)
+		(pin "1"
+			(uuid "fca4d0f3-b4ff-4135-9bfa-957588f84a9f")
+		)
+		(pin "2"
+			(uuid "8f5f830c-a9e9-4dd5-8c2d-eb6696665701")
+		)
+		(pin "10"
+			(uuid "fa18c927-ca82-4396-9ca1-afde67862dda")
+		)
+		(pin "13"
+			(uuid "4b1b0647-89ab-4255-acc0-3f2cebfa9373")
+		)
+		(pin "12"
+			(uuid "b3a971be-f815-4a03-b8f9-03921b9358a7")
+		)
+		(pin "9"
+			(uuid "4caf08fc-74ec-4a15-b9ab-c710fa615623")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "G16")
+					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS74")
 		(at 55.88 270.51 0)
 		(unit 3)
@@ -18887,6 +19365,110 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
 					(reference "F16")
 					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS08")
+		(at 78.74 270.51 0)
+		(mirror y)
+		(unit 5)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "81d52349-174a-459e-817c-ffae45cbb03c")
+		(property "Reference" "E2"
+			(at 78.74 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS08"
+			(at 78.74 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 78.74 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS08"
+			(at 78.74 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Quad And2"
+			(at 78.74 270.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "13"
+			(uuid "b5b4992b-e679-4b0f-b723-a7babe9af701")
+		)
+		(pin "8"
+			(uuid "957bc31a-fe20-47e6-84fe-4e4aeeebc981")
+		)
+		(pin "4"
+			(uuid "5a97a17f-4f31-4dd5-a59b-825b15bceef1")
+		)
+		(pin "5"
+			(uuid "343c7eb5-aa24-4d3c-ac01-fa6b1028e5d4")
+		)
+		(pin "3"
+			(uuid "9f0561d5-60be-499e-8c97-b9ea03bcba3e")
+		)
+		(pin "10"
+			(uuid "4c6be55f-75c9-4615-8b02-839d8aa8f6a7")
+		)
+		(pin "6"
+			(uuid "5d7bb916-4688-4f66-9abc-8a3c73e162bd")
+		)
+		(pin "11"
+			(uuid "bd0227ae-2240-4803-8962-4a40d15519f4")
+		)
+		(pin "7"
+			(uuid "b8f97669-870d-46e2-9786-257c3a78ecd3")
+		)
+		(pin "1"
+			(uuid "9f565e8d-a4da-48aa-a79c-e99f4af415c7")
+		)
+		(pin "12"
+			(uuid "f167f3a7-e48b-4ade-b109-1d17dd1663eb")
+		)
+		(pin "14"
+			(uuid "37a85a57-913a-4c6c-aa8d-626853855677")
+		)
+		(pin "9"
+			(uuid "da06ba76-e227-46ce-b7f4-af3a4ed95267")
+		)
+		(pin "2"
+			(uuid "61af10b1-2763-42d9-8570-a800172c9e50")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "E2")
+					(unit 5)
 				)
 			)
 		)
@@ -19273,6 +19855,136 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 44.45 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "95bc7d13-206b-49d3-ba42-8f039107995a")
+		(property "Reference" "#PWR0187"
+			(at 44.45 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 44.45 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 44.45 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b2cf7b50-f37e-48b0-9470-7403852819d7")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "#PWR0187")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 33.02 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "95e813a1-d6db-4374-90e4-46eac60dfc4d")
+		(property "Reference" "#PWR0186"
+			(at 33.02 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 33.02 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 33.02 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2d86bc9a-bc17-4a79-8be1-08785f293a99")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "#PWR0186")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS32")
 		(at 181.61 212.09 0)
 		(unit 4)
@@ -19476,6 +20188,71 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
 					(reference "G16")
 					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 78.74 278.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a655512f-e250-413a-aed5-3607c6671b08")
+		(property "Reference" "#PWR0192"
+			(at 78.74 284.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 78.74 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 78.74 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 78.74 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 78.74 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6dc68f8b-d8e6-40ea-a1d8-6197ed3d8a18")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/f5c89deb-0116-4082-be0f-a6d873b63c74"
+					(reference "#PWR0192")
+					(unit 1)
 				)
 			)
 		)

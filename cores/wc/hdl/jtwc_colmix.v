@@ -21,6 +21,7 @@ module jtwc_colmix(
     input             clk,
     input             pxl_cen,
 
+    input             prio_n,
     input      [ 6:0] obj,
     input      [ 7:0] fix,
     input      [ 7:0] scr,
@@ -44,8 +45,9 @@ wire obj_opaque = gfx_en[3] && obj[3:0]!=0;
 wire fix_opaque = gfx_en[0] && fix[3:0]!=0;
 
 always @(posedge clk) begin
-    pal_addr = fix_opaque ? {FIX,fix} :
-               obj_opaque ? {OBJ,obj} : {SCR,scr_eff};
+    pal_addr = {SCR,scr_eff};
+    if( obj_opaque && (!fix_opaque ||  prio_n)) pal_addr = {OBJ,obj};
+    if( fix_opaque && (!obj_opaque || !prio_n)) pal_addr = {FIX,fix};
     if(pxl_cen) {blue,green,red} <= {pal_dout[3:0],pal_dout[15:8]}; //pal_dout[11:0];
 end
 

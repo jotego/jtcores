@@ -369,7 +369,7 @@
 		)
 		(uuid "c68dfe5d-0e41-411e-865c-bfffe7bce152")
 	)
-	(hierarchical_label "HB[0..3]"
+	(hierarchical_label "HB[0..7]"
 		(shape input)
 		(at 144.78 147.32 180)
 		(fields_autoplaced yes)
@@ -1021,7 +1021,7 @@
 			)
 			(uuid "3c4b52d6-ba4b-4b81-a904-2978a52fa4ba")
 		)
-		(pin "HB[0..3]" input
+		(pin "HB[0..7]" input
 			(at 151.13 147.32 180)
 			(effects
 				(font

@@ -1250,6 +1250,16 @@
 	)
 	(wire
 		(pts
+			(xy 142.24 203.2) (xy 147.32 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "08c127ab-a850-4e0d-b022-33fabd403c11")
+	)
+	(wire
+		(pts
 			(xy 184.15 120.65) (xy 179.07 120.65)
 		)
 		(stroke
@@ -1887,6 +1897,16 @@
 			(type default)
 		)
 		(uuid "73554f19-257a-45cb-a702-e9567475fba2")
+	)
+	(wire
+		(pts
+			(xy 142.24 200.66) (xy 147.32 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "73982f34-fac8-4014-bbac-78619ccc7f4c")
 	)
 	(wire
 		(pts
@@ -2968,17 +2988,6 @@
 		)
 		(uuid "5af38455-deba-4d50-8622-a86652052dcb")
 	)
-	(label "~{CS}"
-		(at 187.96 185.42 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "5b7a04cc-ff25-4b5b-bfc9-e8a66b0c3b3a")
-	)
 	(label "HB1"
 		(at 81.28 138.43 0)
 		(fields_autoplaced yes)
@@ -3750,6 +3759,18 @@
 		)
 		(uuid "93568c4f-bfac-4e6b-be4f-9dc05a735f77")
 	)
+	(hierarchical_label "HB0*"
+		(shape input)
+		(at 142.24 203.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "94f42629-ba73-44b9-b34e-9e708445fe91")
+	)
 	(hierarchical_label "~{CSSET}"
 		(shape output)
 		(at 187.96 187.96 0)
@@ -3786,6 +3807,18 @@
 		)
 		(uuid "9ebe1f5c-3a26-4cb6-91a9-146e2c390feb")
 	)
+	(hierarchical_label "~{CS}"
+		(shape output)
+		(at 187.96 185.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "aeb24fb6-c9eb-4e71-8efd-e53172a65655")
+	)
 	(hierarchical_label "VF[0..7]"
 		(shape input)
 		(at 139.7 175.26 180)
@@ -3797,6 +3830,18 @@
 			(justify right)
 		)
 		(uuid "b00dbebe-999c-4ab0-a7c1-724561545312")
+	)
+	(hierarchical_label "Y6*"
+		(shape input)
+		(at 142.24 200.66 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b6536b24-3a38-4d36-82bc-36ef16a14ea4")
 	)
 	(hierarchical_label "X6B"
 		(shape input)
@@ -4932,7 +4977,7 @@
 	)
 	(sheet
 		(at 147.32 153.67)
-		(size 33.02 49.53)
+		(size 33.02 59.69)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -4952,7 +4997,7 @@
 			)
 		)
 		(property "Sheetfile" "objread.kicad_sch"
-			(at 147.32 203.7846 0)
+			(at 147.32 213.9446 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5280,6 +5325,26 @@
 				(justify left)
 			)
 			(uuid "74fd14b3-96d3-41e8-9831-3927705236a3")
+		)
+		(pin "HB0*" input
+			(at 147.32 203.2 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "dfeb9d58-07cc-486b-b9f4-6d054937a08d")
+		)
+		(pin "Y6*" input
+			(at 147.32 200.66 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "704b4dfa-c712-441a-bd85-fc887d99d0e3")
 		)
 		(instances
 			(project "tehkanwch"

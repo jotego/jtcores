@@ -7222,6 +7222,10 @@
 		(uuid "6e6a187f-7b94-475e-9f37-d5225cca4b7f")
 	)
 	(no_connect
+		(at 154.94 111.76)
+		(uuid "7f6f4cdc-da91-4624-8a47-f4d0b84cc5f8")
+	)
+	(no_connect
 		(at 135.89 163.83)
 		(uuid "9244e036-7493-4e82-b04f-5199e12feaaa")
 	)
@@ -7718,6 +7722,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 184.15) (xy 175.26 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47220e5e-2803-4892-8ce8-380d47d7b512")
+	)
+	(wire
+		(pts
 			(xy 144.78 36.83) (xy 149.86 36.83)
 		)
 		(stroke
@@ -7755,6 +7769,16 @@
 			(type default)
 		)
 		(uuid "4ae61def-75f1-4ef4-9ae2-c930a766533d")
+	)
+	(wire
+		(pts
+			(xy 153.67 27.94) (xy 157.48 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c281859-7717-438e-9c7a-8eaf637eb66a")
 	)
 	(wire
 		(pts
@@ -8518,6 +8542,16 @@
 	)
 	(wire
 		(pts
+			(xy 157.48 31.75) (xy 157.48 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd3543e4-fe3b-4d31-a0aa-a77e595b623b")
+	)
+	(wire
+		(pts
 			(xy 63.5 158.75) (xy 68.58 158.75)
 		)
 		(stroke
@@ -8588,7 +8622,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 191.77) (xy 276.86 191.77)
+			(xy 274.32 191.77) (xy 276.86 191.77)
 		)
 		(stroke
 			(width 0)
@@ -9057,17 +9091,6 @@
 		)
 		(uuid "54ba8d76-f128-4948-bcc9-bdf92be36548")
 	)
-	(label "~{OBJCS}"
-		(at 269.24 191.77 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "58bddc72-2b40-425c-b33f-6afaa1cab6a2")
-	)
 	(label "GND"
 		(at 134.62 106.68 0)
 		(fields_autoplaced yes)
@@ -9381,6 +9404,18 @@
 		)
 		(uuid "1cbc0376-eef9-4773-ae59-0d81a79f4373")
 	)
+	(hierarchical_label "~{SSDSET}"
+		(shape input)
+		(at 153.67 27.94 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "25bbca87-c5f8-4ce8-b925-d959255e0783")
+	)
 	(hierarchical_label "~{OBJMX}"
 		(shape output)
 		(at 149.86 73.66 0)
@@ -9560,6 +9595,18 @@
 			(justify right)
 		)
 		(uuid "6218e73d-7ee9-46b2-b98e-87d6d5caad2b")
+	)
+	(hierarchical_label "~{OBJCS}"
+		(shape input)
+		(at 274.32 191.77 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "675b76ae-4401-4b8b-bdc9-870a584ce145")
 	)
 	(hierarchical_label "~{MSEL}"
 		(shape input)
@@ -9788,6 +9835,18 @@
 			(justify right)
 		)
 		(uuid "b9107892-c388-45af-8847-3361a5275512")
+	)
+	(hierarchical_label "SCRH2"
+		(shape input)
+		(at 168.91 184.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cf2013e9-2649-4a38-8c75-40d824b433a0")
 	)
 	(hierarchical_label "~{SSW}"
 		(shape input)
@@ -15951,7 +16010,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "dac5bb30-bd52-44cf-b089-5297993bdf57")
-		(property "Reference" "VE2"
+		(property "Reference" "VE21"
 			(at 222.885 146.05 0)
 			(effects
 				(font
@@ -16039,7 +16098,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911/4c118448-27cb-41f2-914e-4c5ee134f69b"
-					(reference "VE2")
+					(reference "VE21")
 					(unit 6)
 				)
 			)

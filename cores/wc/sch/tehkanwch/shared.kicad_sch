@@ -8164,7 +8164,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "10008dba-b502-491b-9dd6-11a24553653c")
-		(property "Reference" "RN15"
+		(property "Reference" "RN20"
 			(at 106.68 133.6039 0)
 			(effects
 				(font
@@ -8227,7 +8227,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/fda667bb-3cd1-46a2-943c-a2cfe7323480"
-					(reference "RN15")
+					(reference "RN20")
 					(unit 1)
 				)
 			)

@@ -6827,6 +6827,10 @@
 		(uuid "c3d275dc-fc5d-4fd0-9464-ce9e098cbd5a")
 	)
 	(no_connect
+		(at 19.05 250.19)
+		(uuid "c8b0cc21-769a-43bf-bb41-524da362c1cb")
+	)
+	(no_connect
 		(at 331.47 140.97)
 		(uuid "cbb6152c-29db-4219-a05b-adeabf1b633b")
 	)
@@ -6837,6 +6841,10 @@
 	(no_connect
 		(at 386.08 133.35)
 		(uuid "f2e10c1f-2fd8-4a52-a852-24b5d5f42184")
+	)
+	(no_connect
+		(at 34.29 250.19)
+		(uuid "faecbf98-da23-4fd9-b8ab-0e2efc38b333")
 	)
 	(bus_entry
 		(at 349.25 60.96)
@@ -11569,7 +11577,7 @@
 		)
 		(uuid "698128ed-5ec5-4a72-b014-6e7ed8372be9")
 	)
-	(label "~{RST_TRACKY0}"
+	(label "~{RST_TRACKY1}"
 		(at 397.51 143.51 180)
 		(fields_autoplaced yes)
 		(effects
@@ -12295,7 +12303,7 @@
 		)
 		(uuid "b17289c7-2f88-4883-9477-2f806a22b90d")
 	)
-	(label "~{RST_TRACKX0}"
+	(label "~{RST_TRACKX1}"
 		(at 397.51 140.97 180)
 		(fields_autoplaced yes)
 		(effects
@@ -13782,6 +13790,111 @@
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
 					(reference "B1")
+					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS74")
+		(at 90.17 271.78 0)
+		(unit 3)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "29d3fc5c-fce7-46bf-839c-dd914afe342f")
+		(property "Reference" "B2"
+			(at 87.63 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "74LS74"
+			(at 86.36 274.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 90.17 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "74xx/74hc_hct74.pdf"
+			(at 90.17 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Dual D Flip-flop, Set & Reset"
+			(at 90.17 271.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "14"
+			(uuid "dd1fe558-fc39-4608-b7d9-9e537a405bbe")
+		)
+		(pin "8"
+			(uuid "f6168225-50af-4074-8ab3-037fb4f4dce5")
+		)
+		(pin "11"
+			(uuid "88494e8b-c9e3-4015-b83a-9a5500f89c75")
+		)
+		(pin "9"
+			(uuid "15285148-f632-48a4-994e-0da146fccc5b")
+		)
+		(pin "13"
+			(uuid "7059fc4a-d3a2-4f19-9e71-f2998738780b")
+		)
+		(pin "6"
+			(uuid "55b655cc-9b19-4547-90ca-f8170e071e23")
+		)
+		(pin "10"
+			(uuid "7b24eb76-02d9-4c7f-9e63-398d9fd2e7c4")
+		)
+		(pin "3"
+			(uuid "746c3675-16dc-443a-b30e-1d60e79bd609")
+		)
+		(pin "2"
+			(uuid "fc7a983b-881e-4fa6-ae62-1fbb0699b7c5")
+		)
+		(pin "1"
+			(uuid "d94af3c7-7db1-4e3f-9cee-fee1b6904da3")
+		)
+		(pin "7"
+			(uuid "7588680c-d45a-45ba-85fa-2b7b7d7d0d1e")
+		)
+		(pin "5"
+			(uuid "73144a82-3336-4ef9-a0d1-8bc031cd34f3")
+		)
+		(pin "4"
+			(uuid "8eae1e0e-bdbb-47b2-9040-885100aca1f1")
+		)
+		(pin "12"
+			(uuid "07e365b7-11a3-4d24-845a-d95343b04591")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
+					(reference "B2")
 					(unit 3)
 				)
 			)
@@ -16985,6 +17098,109 @@
 		)
 	)
 	(symbol
+		(lib_id "jt74:74LS04")
+		(at 26.67 250.19 0)
+		(unit 4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c4c406ea-c7dc-40b1-8adb-bbddbcac638e")
+		(property "Reference" "H3"
+			(at 25.4 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS04"
+			(at 26.67 243.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 26.67 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
+			(at 26.67 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Hex Inverter"
+			(at 26.67 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "14"
+			(uuid "aa8354cf-ef75-4f98-8913-4b2f2068a658")
+		)
+		(pin "1"
+			(uuid "afd7960b-4467-48ef-8dfa-43c55a66c041")
+		)
+		(pin "3"
+			(uuid "ee75ac2f-5782-4294-9cd6-762cdce7c37e")
+		)
+		(pin "4"
+			(uuid "55545bb7-29f3-4ca7-b1b3-1aa221d8076c")
+		)
+		(pin "2"
+			(uuid "72c0bd69-74ae-445e-a34a-50e9352af2e3")
+		)
+		(pin "6"
+			(uuid "95874674-9c71-41f6-9ebc-e1e0852b81a8")
+		)
+		(pin "13"
+			(uuid "590f9dab-daf6-49ce-9dcd-726eb814a924")
+		)
+		(pin "7"
+			(uuid "7dcd221c-9dfb-4a8e-a5c6-c17a9e79f3c9")
+		)
+		(pin "10"
+			(uuid "d6121a7e-1ab7-4eb5-95d2-edbb9601c4cc")
+		)
+		(pin "9"
+			(uuid "96537076-7d43-4288-b3c8-a52ff4a7964a")
+		)
+		(pin "11"
+			(uuid "e62c41a5-b4cb-49e2-a709-03cd607cd925")
+		)
+		(pin "5"
+			(uuid "c86bb48c-9542-4116-8f4a-eb0cc156c12b")
+		)
+		(pin "12"
+			(uuid "80a77e60-9e0d-4a2c-a595-3a0bba906b67")
+		)
+		(pin "8"
+			(uuid "7036d125-7a73-4b7e-9744-9d10b77248c5")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
+					(reference "H3")
+					(unit 4)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:VCC")
 		(at 71.12 160.02 0)
 		(unit 1)
@@ -17617,6 +17833,71 @@
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
 					(reference "G2")
 					(unit 5)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 90.17 279.4 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d4cbcba8-2b00-47b1-a803-cd09875e08a7")
+		(property "Reference" "#PWR0185"
+			(at 90.17 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 90.17 283.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 90.17 279.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 90.17 279.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 90.17 279.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2dd0809c-d9a1-4e72-aafb-30a37ae35c86")
+		)
+		(instances
+			(project "tehkanwch"
+				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/34c66f42-7f31-4ae9-9ef6-6e02db74328b"
+					(reference "#PWR0185")
+					(unit 1)
 				)
 			)
 		)

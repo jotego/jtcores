@@ -75,11 +75,12 @@ wire [ 9:0] scr_code;
 wire [ 8:0] fix_code, vdump, vrender, hdump;
 wire [ 7:0] fix_pxl, scr_pxl;
 wire [ 6:0] obj_pxl;
-wire [ 3:0] fix_pal, scr_pal;
-wire        fix_hflip, fix_vflip, scr_hflip, scr_vflip, flip;
+wire [ 4:0] fix_pal; // MSB signals fix priority over objects when low
+wire [ 3:0] scr_pal;
+wire        fix_hflip, fix_vflip, scr_hflip, scr_vflip, flip, prio_n;
 
 assign fix_code  = {fix_dout[12],fix_dout[7:0]};
-assign fix_pal   = fix_dout[11:8];
+assign fix_pal   = {fix_dout[13],fix_dout[11:8]};
 assign fix_hflip = fix_dout[14];
 assign fix_vflip = fix_dout[15];
 assign scr_code  = {vram_data[13:12],vram_data[7:0]};
@@ -138,7 +139,7 @@ jtframe_vtimer #(
 
 jtframe_tilemap #(
     .CW ( 9 ),
-    .PW ( 8 )
+    .PW ( 9 )
     // .HDUMP_OFFSET( -2 )
 ) u_char(
     .rst        ( rst       ),
@@ -162,7 +163,7 @@ jtframe_tilemap #(
     .rom_data   ( char_sorted ), // plane3,plane2,plane1,plane0, each 8 bits
     .rom_ok     ( char_ok     ),
 
-    .pxl        ( fix_pxl     )
+    .pxl        ( {prio_n,fix_pxl} )
 );
 
 jtframe_scroll #(
@@ -238,6 +239,7 @@ jtwc_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .obj        ( obj_pxl   ),
+    .prio_n     ( prio_n    ),
     .fix        ( fix_pxl   ),
     .scr        ( scr_pxl   ),
     .pal_addr   ( pal_addr  ),
