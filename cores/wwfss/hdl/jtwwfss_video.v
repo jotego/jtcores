@@ -92,7 +92,7 @@ jtframe_vtimer #(
     .VCNT_END   ( 9'd271    ),
     .VS_START   ( 9'h106    ),
     .HS_START   ( 9'h1b5    ),
-    .HB_START   ( 9'h181    ),
+    .HB_START   ( 9'h189    ),
     .HJUMP      ( 1         ),
     .HB_END     ( 9'd9      ),
     .HINIT      ( 9'd255    )
@@ -114,7 +114,7 @@ jtframe_vtimer #(
 jtframe_tilemap #(
     .CW ( 12 ),
     .PW (  7 ),
-    .HDUMP_OFFSET( 0 )
+    .HDUMP_OFFSET( 1 )
 ) u_char(
     .rst        ( rst       ),
     .clk        ( clk       ),
