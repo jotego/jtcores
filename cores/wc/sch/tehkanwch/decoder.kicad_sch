@@ -5,9 +5,11 @@
 	(uuid "d6b8d74c-3a21-442f-8eb8-9796a90fb661")
 	(paper "A3")
 	(title_block
-		(date "2024-10-12")
+		(title "Address decoder")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "jt74:74LS00"
@@ -8182,7 +8184,7 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 99.06) (xy 110.49 99.06)
+			(xy 105.41 99.06) (xy 110.49 99.06)
 		)
 		(stroke
 			(width 0)
@@ -9267,17 +9269,6 @@
 		)
 		(uuid "c3823da7-a0d0-41df-a457-69b95e8aa911")
 	)
-	(label "C22_13"
-		(at 102.87 99.06 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c53fd0e1-d83d-487e-8891-26e17379ba0a")
-	)
 	(label "AB1"
 		(at 106.68 156.21 0)
 		(fields_autoplaced yes)
@@ -9955,6 +9946,18 @@
 			(justify right)
 		)
 		(uuid "f983579d-17ba-459b-8d7c-cd85e1115d96")
+	)
+	(hierarchical_label "C22_13"
+		(shape input)
+		(at 105.41 99.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "fc64f380-c9f3-47e6-a4b5-eeff2ff295af")
 	)
 	(symbol
 		(lib_id "jt74:74LS32")

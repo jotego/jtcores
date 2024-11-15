@@ -6,9 +6,10 @@
 	(paper "A3")
 	(title_block
 		(title "Scroll Subsystem")
-		(date "2024-10-12")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols)
 	(junction

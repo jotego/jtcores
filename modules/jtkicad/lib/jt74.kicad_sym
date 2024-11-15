@@ -33608,6 +33608,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS21"
@@ -42836,6 +42844,14 @@
 					(type background)
 				)
 			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 	)
 	(symbol "74LS273"
@@ -46086,6 +46102,14 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "+"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 		)

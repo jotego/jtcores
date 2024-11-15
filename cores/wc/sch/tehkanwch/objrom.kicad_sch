@@ -5,9 +5,11 @@
 	(uuid "4ec3a405-d9f4-4aa9-b30d-073ddcf71f06")
 	(paper "A3")
 	(title_block
-		(date "2024-10-12")
+		(title "Object ROM")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "Device:R_US"
@@ -2912,7 +2914,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 2.54 0)
+				(at 6.35 16.51 0)
 				(effects
 					(font
 						(size 1.27 1.27)

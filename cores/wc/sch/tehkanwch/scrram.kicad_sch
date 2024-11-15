@@ -5,9 +5,11 @@
 	(uuid "6054dd57-2873-4bc3-9f39-b5d8c1bdead7")
 	(paper "A3")
 	(title_block
-		(date "2024-10-12")
+		(title "Scroll video RAM")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "arcade:HM6116P-3"
@@ -12038,6 +12040,17 @@
 			(justify left bottom)
 		)
 		(uuid "659dd30e-3f27-4002-aba2-4d89ddfba6b1")
+	)
+	(label "D[0..7]"
+		(at 295.91 110.49 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6b48ff4f-553b-4f9e-bdb5-9bdc8455ccff")
 	)
 	(label "VCC"
 		(at 179.07 224.79 0)

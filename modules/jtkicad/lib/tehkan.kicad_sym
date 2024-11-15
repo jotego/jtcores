@@ -51,7 +51,7 @@
 		)
 		(symbol "edge_1_1"
 			(rectangle
-				(start -8.89 29.21)
+				(start -8.89 34.29)
 				(end 8.89 -29.21)
 				(stroke
 					(width 0)
@@ -59,6 +59,22 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(text "PARTS"
+				(at 5.715 33.02 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "SOLDER"
+				(at -5.08 33.02 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 				)
 			)
 			(pin input line
@@ -136,7 +152,7 @@
 			(pin passive line
 				(at 11.43 -3.81 180)
 				(length 2.54)
-				(name "C13"
+				(name "SPK+"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -478,7 +494,7 @@
 			(pin passive line
 				(at -11.43 24.13 0)
 				(length 2.54)
-				(name "S2"
+				(name "SYNC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -676,7 +692,7 @@
 			(pin input line
 				(at -11.43 -3.81 0)
 				(length 2.54)
-				(name "SOUND"
+				(name "SPK-"
 					(effects
 						(font
 							(size 1.27 1.27)

@@ -5,9 +5,11 @@
 	(uuid "debc0709-d13c-4869-ad6e-35790202e4db")
 	(paper "A3")
 	(title_block
-		(date "2024-10-12")
+		(title "scroll ROM")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "Device:R_US"

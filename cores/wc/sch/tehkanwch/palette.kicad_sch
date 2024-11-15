@@ -6,9 +6,10 @@
 	(paper "A3")
 	(title_block
 		(title "Color Palette")
-		(date "2024-10-12")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "Device:R_Network04"
@@ -1212,7 +1213,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 2.54 0)
+				(at 6.35 16.51 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4071,7 +4072,7 @@
 	)
 	(wire
 		(pts
-			(xy 104.902 101.6) (xy 110.49 101.6)
+			(xy 102.87 101.6) (xy 110.49 101.6)
 		)
 		(stroke
 			(width 0)
@@ -5380,6 +5381,17 @@
 		)
 		(uuid "4ab34732-b2d8-43ba-912d-e961d3c5c19b")
 	)
+	(label "VCC"
+		(at 204.47 233.68 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "52cc7834-9cbe-4193-b567-bb62b10b6ea1")
+	)
 	(label "GND"
 		(at 269.24 166.37 0)
 		(fields_autoplaced yes)
@@ -6198,7 +6210,7 @@
 	)
 	(hierarchical_label "~{R_CS}"
 		(shape input)
-		(at 104.902 101.6 180)
+		(at 102.87 101.6 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7108,7 +7120,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "48bc6a59-aa5c-402d-a86f-bd5a8d164e72")
-		(property "Reference" "RN3"
+		(property "Reference" "RP0"
 			(at 149.606 123.19 90)
 			(effects
 				(font
@@ -7170,7 +7182,7 @@
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/4d18f4f6-4d7d-4823-941f-121a8e5c871f/e275c20e-58da-4787-bf27-1e3b67330979"
-					(reference "RN3")
+					(reference "RP0")
 					(unit 1)
 				)
 			)

@@ -5,9 +5,11 @@
 	(uuid "f76c1153-b451-4ce4-b1e8-0d729e53b397")
 	(paper "A3")
 	(title_block
-		(date "2024-10-12")
+		(title "Video board (bottom board)")
+		(date "2024-11-15")
 		(company "JOTEGO")
-		(comment 1 "Jose Tejada")
+		(comment 1 "https://www.patreon.com/jotego")
+		(comment 2 "Jose Tejada")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x25_Odd_Even"
@@ -4141,6 +4143,16 @@
 		)
 		(uuid "783547e1-2d73-48be-9b07-9b44379e290e")
 	)
+	(wire
+		(pts
+			(xy 81.28 132.08) (xy 88.9 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79aa64af-fbf8-4e92-9cb7-93ab3db252be")
+	)
 	(bus
 		(pts
 			(xy 284.48 119.38) (xy 318.77 119.38)
@@ -4673,6 +4685,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 266.7) (xy 124.46 266.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a60e224c-8dfd-4e48-a579-32ab65684347")
+	)
+	(wire
+		(pts
 			(xy 119.38 222.25) (xy 124.46 222.25)
 		)
 		(stroke
@@ -4760,6 +4782,16 @@
 			(type default)
 		)
 		(uuid "aaddbc56-f829-475e-acba-2aafe9836da9")
+	)
+	(wire
+		(pts
+			(xy 116.84 29.21) (xy 124.46 29.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab75c49d-26e0-44b4-88d7-929496d32f86")
 	)
 	(wire
 		(pts
@@ -5123,6 +5155,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 80.01) (xy 87.63 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7546bfc-4c1b-4ef6-9f1f-4dd3351e6009")
+	)
+	(wire
+		(pts
 			(xy 287.02 219.71) (xy 294.64 219.71)
 		)
 		(stroke
@@ -5461,6 +5503,16 @@
 		)
 		(uuid "e3bcac3c-3667-4759-8ac2-ef72e96a045b")
 	)
+	(wire
+		(pts
+			(xy 116.84 31.75) (xy 124.46 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4484524-9641-40a3-bc04-cacd21fd672c")
+	)
 	(bus
 		(pts
 			(xy 104.14 101.6) (xy 104.14 130.81)
@@ -5723,7 +5775,7 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 261.62) (xy 124.46 261.62)
+			(xy 116.84 261.62) (xy 124.46 261.62)
 		)
 		(stroke
 			(width 0)
@@ -6575,6 +6627,17 @@
 		)
 		(uuid "63dd472d-35b4-48d2-bba3-70dd2c33f3c4")
 	)
+	(label "C22_13"
+		(at 116.84 266.7 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "64b10625-7040-43cb-8e27-077261aefffe")
+	)
 	(label "VCC"
 		(at 287.02 212.09 0)
 		(fields_autoplaced yes)
@@ -7125,7 +7188,7 @@
 		)
 		(uuid "a81ca08d-2368-4876-ac11-e4e8f751f28b")
 	)
-	(label "J2_14"
+	(label "~{HS}"
 		(at 163.83 59.69 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7202,6 +7265,17 @@
 		)
 		(uuid "b0053a09-552f-4925-9263-410277bcf981")
 	)
+	(label "C22_13"
+		(at 88.9 132.08 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b0eca136-f318-4281-9741-5ecfa1b00b8b")
+	)
 	(label "GND"
 		(at 287.02 54.61 0)
 		(fields_autoplaced yes)
@@ -7246,7 +7320,7 @@
 		)
 		(uuid "b9b3fdcb-3b79-4d55-98d7-e2bda16edd99")
 	)
-	(label "J2_13"
+	(label "~{VS}"
 		(at 163.83 57.15 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7433,6 +7507,17 @@
 		)
 		(uuid "c97c1e90-c0f8-4622-9239-9cfbeec27ac9")
 	)
+	(label "HBL"
+		(at 116.84 31.75 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ca7192df-61b6-46a3-9128-f8091a0b44cb")
+	)
 	(label "SxE0"
 		(at 119.38 224.79 0)
 		(fields_autoplaced yes)
@@ -7454,6 +7539,17 @@
 			(justify left bottom)
 		)
 		(uuid "ce56bd42-d105-4ff0-b32d-2fc433e731be")
+	)
+	(label "HB8*"
+		(at 87.63 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d1c4fe53-0719-4c31-bc50-4e8b751bda0e")
 	)
 	(label "V8"
 		(at 116.84 49.53 0)
@@ -7555,7 +7651,7 @@
 		(uuid "e43c9fb4-44f6-491b-b692-0f5e8df269eb")
 	)
 	(label "SCRH2"
-		(at 114.3 261.62 0)
+		(at 116.84 261.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7575,6 +7671,17 @@
 			(justify left bottom)
 		)
 		(uuid "eaea54a2-7019-4c9a-a222-f6ba5965e63c")
+	)
+	(label "HB8*"
+		(at 116.84 29.21 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ebee0af2-6d8b-4eaf-afb7-bc43c18ea5c6")
 	)
 	(label "PA1"
 		(at 316.23 74.93 180)
@@ -8290,7 +8397,7 @@
 		)
 		(uuid "d82947c2-232e-40e2-9878-eb322502abe7")
 	)
-	(hierarchical_label "J2_13"
+	(hierarchical_label "~{VS}"
 		(shape output)
 		(at 287.02 209.55 180)
 		(fields_autoplaced yes)
@@ -8326,7 +8433,7 @@
 		)
 		(uuid "e710d9b5-f571-45b0-8f55-2eaf36ff6056")
 	)
-	(hierarchical_label "J2_14"
+	(hierarchical_label "~{HS}"
 		(shape output)
 		(at 316.23 209.55 0)
 		(fields_autoplaced yes)
@@ -9448,6 +9555,16 @@
 			)
 			(uuid "86fa2a3f-c9b8-47c7-ae8d-719d9a5198eb")
 		)
+		(pin "C22_13" input
+			(at 124.46 266.7 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "594477d1-c748-4c0a-910a-2f75f0ad4df7")
+		)
 		(instances
 			(project "tehkanwch"
 				(path "/f324726e-ed6b-4b88-9562-4b07e126a276/56aec395-157a-4316-b36d-6d5b98537911"
@@ -10061,8 +10178,8 @@
 		)
 	)
 	(sheet
-		(at 124.46 31.75)
-		(size 33.02 48.26)
+		(at 124.46 26.67)
+		(size 33.02 53.34)
 		(stroke
 			(width 0.1524)
 			(type solid)
@@ -10072,7 +10189,7 @@
 		)
 		(uuid "c2cc4e9c-9a32-4148-807b-0ef295204c2e")
 		(property "Sheetname" "object"
-			(at 138.43 71.12 0)
+			(at 138.43 66.04 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -10081,7 +10198,7 @@
 			)
 		)
 		(property "Sheetfile" "object.kicad_sch"
-			(at 124.46 48.8446 0)
+			(at 124.46 43.7646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10230,7 +10347,7 @@
 			)
 			(uuid "d6589f21-d7b0-43ae-98b6-ea2f44f75fe0")
 		)
-		(pin "J2_14" output
+		(pin "~{HS}" output
 			(at 157.48 59.69 0)
 			(effects
 				(font
@@ -10240,7 +10357,7 @@
 			)
 			(uuid "6d6caf1c-a7e6-45ea-9c62-518697931da0")
 		)
-		(pin "J2_13" output
+		(pin "~{VS}" output
 			(at 157.48 57.15 0)
 			(effects
 				(font
@@ -10319,6 +10436,26 @@
 				(justify left)
 			)
 			(uuid "1389a1ed-4881-4733-98f9-a732d6871bd8")
+		)
+		(pin "HBL" input
+			(at 124.46 31.75 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "259cdf21-0650-4f67-8cb9-2d940ea2efa8")
+		)
+		(pin "HB8*" input
+			(at 124.46 29.21 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "fb2b084c-1f27-4339-8a74-ba5a0bd63f3f")
 		)
 		(instances
 			(project "tehkanwch"
@@ -10647,6 +10784,26 @@
 				(justify right)
 			)
 			(uuid "025b8ae2-dcef-48ce-9bc1-8103f6ea61e6")
+		)
+		(pin "C22_13" output
+			(at 81.28 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "409e8d40-6304-428e-8677-73972d56e8b9")
+		)
+		(pin "H8*" output
+			(at 81.28 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "df083cd6-878f-46a9-bda7-1ffb5f663648")
 		)
 		(instances
 			(project "tehkanwch"
