@@ -94,8 +94,8 @@ u_game(
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),
     .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
-    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `ifdef JTFRAME_DIAL
-    .dial_x       ( dial_x           ), .dial_y       ( dial_y           ), `endif
+    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ),
+    .dial_x       ( dial_x           ), .dial_y       ( dial_y           ),
     // Sound control
     .enable_fm   ( enable_fm      ),
     .enable_psg  ( enable_psg     ),

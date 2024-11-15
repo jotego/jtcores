@@ -25,11 +25,11 @@ wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
             sx_c8, sx_d0, sx_d8, sx_e0, sx_e8,
             mute_n, srst_n, LVBLg;
 wire [ 8:0] scrx;
-wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout, form0;
+wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout, form0, st_main;
 reg         bootleg;
 
 assign dip_flip   = vflip | hflip;
-assign debug_view = form0;
+assign debug_view = st_main; // form0;
 assign ioctl_din  = 0;
 assign LVBLg      = dip_pause & LVBL;
 
@@ -38,7 +38,7 @@ always @(posedge clk) begin
         bootleg <= prog_data[0];
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -47,6 +47,8 @@ jtwc_main u_main(
     .lvbl       ( LVBLg         ),      // video interrupt
     // Cabinet inputs
     .bootleg    ( bootleg       ),      // non-symmetrical speed
+    .dial_x     ( dial_x        ),
+    .dial_y     ( dial_y        ),
     .cab_1p     ( cab_1p[1:0]   ),
     .coin       ( coin[1:0]     ),
     .joystick1  ( joystick1     ),
@@ -80,7 +82,7 @@ jtwc_main u_main(
     //
     .dipsw      ( dipsw[19:0]   ),
     .debug_bus  ( debug_bus     ),
-    .st_dout    (               )
+    .st_dout    ( st_main       )
 );
 
 jtwc_sub u_sub(

@@ -32,8 +32,8 @@ module jtwc_main(
     input     [15:0] joyana_l1,
     input     [15:0] joyana_l2,
     output    [ 7:0] form0,
-    // input      [1:0] dial_x,
-    // input      [1:0] dial_y,
+    input     [ 1:0] dial_x,
+    input     [ 1:0] dial_y,
     // shared memory
     output reg       mmx_c8,
     output reg       mmx_d0,
@@ -66,12 +66,12 @@ module jtwc_main(
 localparam [ 5:0] SPEED=6'h20;
 
 wire [15:0] A;
-wire [ 7:0] ram_dout, din;
+wire [ 7:0] ram_dout, din, axis, st_dial;
 reg  [ 7:0] dip_mux, cab_dout;
 reg  [ 6:0] led0, led1; // 7-segment LED displays used on Grid Iron
 reg  [ 1:0] ana_sel;
 reg         ram_cs, dip_cs, dip1_cs, dip2_cs, dip3_cs, latch_cs,
-            sh_cs, s2m_cs, cab_cs, rst_n, mmx_f8;
+            sh_cs, s2m_cs, cab_cs, rst_n, mmx_f8, dial_we;
 wire        m1_n, rd_n, iorq_n, rfsh_n, mreq_n, cen_eff;
 
 assign rom_addr = A;
@@ -116,7 +116,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    st_dout <= joy2track(joystick1[1:0],joyana_l1[ 7:0], hflip,ana_sel[0]);
+    // st_dout <= joy2track(joystick1[1:0],joyana_l1[ 7:0], hflip,ana_sel[0]);
+    st_dout <= st_dial;
     dip_mux <= dip1_cs ? {4'hf,dipsw[3:0]} :
                dip2_cs ? dipsw[ 4+:8]      :
                dip3_cs ? dipsw[12+:8]      : 8'hff;
@@ -139,11 +140,21 @@ always @(posedge clk) begin
         hflip   <= 0;
         vflip   <= 0;
         m2s_set <= 0;
+        dial_we <= 0;
     end else begin
         m2s_set <= 0;
+        dial_we <= 0;
         if( mmx_f8 && !wr_n ) case(A[6:4])
-            0: if( A[1:0]==2 ) led0 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
-            1: if( A[1:0]==2 ) led1 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
+            0: case( A[1:0])
+                0,1: dial_we <= 1;
+                2: led0 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
+                default:;
+            endcase
+            1: case( A[1:0] )
+                // 0,1: dial_we <= 1; not implemented for 2P yet
+                2: led1 <= cpu_dout[7] ? 7'd0 : cpu_dout[6:0];
+                default:;
+            endcase
             2: begin
                 m2s_set <= 1;
                 m2s     <= cpu_dout;
@@ -205,25 +216,19 @@ assign din = rom_cs ? rom_data :
              s2m_cs ? s2m      :
              cab_cs ? cab_dout :
              8'hff;
-/*
-jt4701 u_dial(
+
+jtwc_dial u_dial(
     .clk        ( clk       ),
     .rst        ( rst       ),
-    .x_in       ( dial_x    ),
-    .y_in       ( dial_y    ),
-    .rightn     ( 1'b1      ),
-    .leftn      ( 1'b1      ),
-    .middlen    ( 1'b1      ),
-    .x_rst      ( x_rst     ),
-    .y_rst      ( y_rst     ),
-    .csn        ( ~dial_cs  ),        // chip select
-    .uln        ( 1'b0      ),        // byte selection
-    .xn_y       ( xn_y      ),        // select x or y for reading
-    .cfn        (           ),        // counter flag
-    .sfn        (           ),        // switch flag
-    .dir        (           ),
-    .dout       ( dial_dout )
-);*/
+    .dial_x     ( dial_x    ),
+    .dial_y     ( dial_y    ),
+    .addr       ( {A[4],A[0]}),
+    .din        ( cpu_dout  ),
+    .we         ( dial_we   ),
+    .axis       ( axis      ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dial   )
+);
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),

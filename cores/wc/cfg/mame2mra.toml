@@ -11,9 +11,6 @@ sourcefile=[ "tehkanwc.cpp" ]
 # teed off keeps rebooting. The CPU makes an odd jump. See MAME driver
 # for description. The board may not be quite the same as WC
 skip.machines=["teedoff"]
-debug={machines=[
-	# Missing LED display, so player formation cannot be chosen
-	"gridiron"]}
 
 [dipsw]
 rename=[
