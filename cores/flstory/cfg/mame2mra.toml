@@ -1,0 +1,37 @@
+[global]
+author=["jotego"]
+
+[buttons]
+names=[
+	{ machine="flstory", names="Shot,Jump" }
+]
+
+[parse]
+sourcefile=[ "flstory.cpp" ]
+debug={ machines=[
+	"onna34ro",
+	"victnine",
+	"rumba",
+]}
+
+[dipsw]
+rename=[
+	{ name="Attract Sound on Title Screen",to="Attract Sound" },
+	{ name="Copyright String",to="Maker" },
+]
+# delete=[
+# 	{ names=["Unused"] },
+# ]
+
+[header]
+fill=0
+
+[ROM]
+regions = [
+	{ name="maincpu"                             },
+	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="gfx1",     start="JTFRAME_BA2_START" },
+	{ name="bmcu:mcu", start="JTFRAME_PROM_START"},
+]
+
+order=["maincpu","audiocpu","gfx1","bmcu:mcu"]
