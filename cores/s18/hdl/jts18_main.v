@@ -175,6 +175,11 @@ wire        dial_cs;
 wire        dial_rst;
 wire  [7:0] dial_dout;
 
+wire        mwalk    = game_id[6];
+wire        mwalka   = game_id[7]; // In US version switches are exchanged
+wire        ind_coin = (!dipsw[13]&&mwalk) ^ mwalka;
+wire        play3    = (!dipsw[12]&&mwalk) ^ mwalka;
+
 `ifndef NOMCU
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
@@ -357,9 +362,14 @@ always @(*) begin
         p3 = {joystick3[3:0],joystick3[7:4]};
         // MSB 7-6 are select inputs, used in Wally
         // It may be safe to connect to button 0
-        coinage = cab3 ?
+        coinage = cab3 || play3 && ind_coin ?
             { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
             {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+        if( mwalk ) begin
+            p3[3]      = cab_1p[2];
+            coinage[6] = 1'b1;
+            if( !play3 ) coinage[1:0] = {coin[0],coin[1]};
+        end
     end
 end
 
