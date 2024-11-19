@@ -175,12 +175,14 @@ wire        dial_cs;
 wire        dial_rst;
 wire  [7:0] dial_dout;
 
-wire        mwalk, mwalka, ind_coin, play3;
+reg         mwalk, mwalka, ind_coin, play3;
 
-assign mwalk    = game_id[6];
-assign mwalka   = game_id[7]; // In US version switches are exchanged
-assign ind_coin = ~(dipsw[13]^mwalka) & mwalk;
-assign play3    = ~(dipsw[12]^mwalka) & mwalk;
+always @( posedge clk ) begin
+    mwalk    <= game_id[6];
+    mwalka   <= game_id[7]; // In US version switches are exchanged
+    ind_coin <= ~(dipsw[13]^mwalka) & mwalk;
+    play3    <= ~(dipsw[12]^mwalka) & mwalk;
+end
 
 `ifndef NOMCU
 jtframe_8751mcu #(
