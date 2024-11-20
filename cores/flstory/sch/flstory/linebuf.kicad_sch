@@ -5538,16 +5538,6 @@
 	)
 	(wire
 		(pts
-			(xy 342.9 127) (xy 349.25 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2246ab33-dbca-47c6-bebf-a2bc94677e00")
-	)
-	(wire
-		(pts
 			(xy 173.99 64.77) (xy 177.8 64.77)
 		)
 		(stroke
@@ -7366,17 +7356,6 @@
 		)
 		(uuid "88b4caf5-4441-4f97-b5ac-a3d0e8bc571a")
 	)
-	(label "OEUK0"
-		(at 342.9 127 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "901a131e-8874-490e-9914-6a62a2526b8c")
-	)
 	(label "D9"
 		(at 207.01 209.55 180)
 		(fields_autoplaced yes)
@@ -8996,121 +8975,6 @@
 			(project ""
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2/51a2aea8-e32a-40d2-8f40-8bd1aacb4e40"
 					(reference "IC82")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS374")
-		(at 361.95 124.46 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9a1074b5-cb1d-48bf-b56e-1ef197a7b67c")
-		(property "Reference" "IC95"
-			(at 361.95 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS374"
-			(at 364.49 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 361.95 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS374"
-			(at 361.95 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 361.95 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b3522ddc-b728-4d43-84c3-2ab964d019a9")
-		)
-		(pin "11"
-			(uuid "6ccd48d6-1703-4ca4-8577-365c5e9353db")
-		)
-		(pin "12"
-			(uuid "ac8e06a6-d520-4384-a03e-517d851202b4")
-		)
-		(pin "13"
-			(uuid "8686a891-7b0c-4ccc-9804-88d836e368f6")
-		)
-		(pin "14"
-			(uuid "5d727067-a8e4-414c-a970-6144f9e7f973")
-		)
-		(pin "15"
-			(uuid "81cec383-208e-48f6-80ab-5ca9ced7f5b7")
-		)
-		(pin "16"
-			(uuid "ec34bf0c-c7ca-4da9-bbdf-4d50ff6b68c1")
-		)
-		(pin "17"
-			(uuid "db063daf-52e7-4316-ae79-c1ffb12b647b")
-		)
-		(pin "18"
-			(uuid "d1cb5ea0-6f4a-4db0-aa5f-16f383b5c41a")
-		)
-		(pin "19"
-			(uuid "27a0e9f2-8168-427e-a0d3-535196f6b9b6")
-		)
-		(pin "2"
-			(uuid "c13328c4-a45f-4df7-8328-d917c133b3cb")
-		)
-		(pin "3"
-			(uuid "06d7bc16-8bbe-447d-9e90-538730bfefa3")
-		)
-		(pin "4"
-			(uuid "f0560970-a7da-4333-91e4-0444dc2e4392")
-		)
-		(pin "5"
-			(uuid "4664204c-2209-4206-9709-62a00f6cbab8")
-		)
-		(pin "6"
-			(uuid "456b653c-1b85-458a-92d7-43841d36c5c7")
-		)
-		(pin "7"
-			(uuid "4e3dd322-13d0-41e7-9ee4-639cc1c6dd37")
-		)
-		(pin "8"
-			(uuid "6f1a2f4f-4274-4238-a694-4757cf5577ac")
-		)
-		(pin "9"
-			(uuid "305ba418-b482-4cdf-90a3-d3d432c3a192")
-		)
-		(instances
-			(project "fairyland"
-				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2/51a2aea8-e32a-40d2-8f40-8bd1aacb4e40"
-					(reference "IC95")
 					(unit 1)
 				)
 			)

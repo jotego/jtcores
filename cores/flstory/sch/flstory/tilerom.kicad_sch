@@ -10530,7 +10530,7 @@
 		)
 		(uuid "44d52e87-3122-41bb-8962-2713b32e59d6")
 	)
-	(label "CLK3M"
+	(label "H0"
 		(at 257.81 31.75 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12038,7 +12038,7 @@
 		)
 		(uuid "c289567f-eb3b-471d-9ac2-1e682b31728e")
 	)
-	(label "H0"
+	(label "H1"
 		(at 264.16 36.83 0)
 		(fields_autoplaced yes)
 		(effects

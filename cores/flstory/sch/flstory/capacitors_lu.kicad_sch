@@ -8283,16 +8283,15 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 5.08 6.35 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify right)
 				)
 			)
 			(property "Value" "74LS74"
-				(at -5.08 -6.35 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -8630,7 +8629,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -15358,7 +15357,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "41be4600-f678-43e0-9708-dd23f4f29721")
 		(property "Reference" "B10"
 			(at 168.91 198.12 0)

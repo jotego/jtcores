@@ -1815,15 +1815,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 16.51 0)
+			(at 7.62 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC240"
-			(at -7.62 -16.51 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1925,8 +1926,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -20.32 90)
+			(pin power_in line
+				(at 0 -15.24 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects
@@ -2123,8 +2124,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 20.32 270)
+			(pin power_in line
+				(at 0 15.24 270)
 				(length 5.08) hide
 				(name "VCC"
 					(effects
@@ -2290,15 +2291,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 16.51 0)
+			(at 7.62 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC244"
-			(at -7.62 -16.51 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2389,8 +2391,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -20.32 90)
+			(pin power_in line
+				(at 0 -15.24 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects
@@ -2587,8 +2589,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 20.32 270)
+			(pin power_in line
+				(at 0 15.24 270)
 				(length 5.08) hide
 				(name "VCC"
 					(effects
@@ -2751,15 +2753,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -5.08 11.43 0)
+			(at 7.62 11.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC4051"
-			(at -7.62 -13.97 0)
+			(at 7.62 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2951,7 +2954,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin power_in line
 				(at 0 12.7 270)
 				(length 2.54) hide
 				(name "VCC"
@@ -3077,8 +3080,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -15.24 90)
+			(pin power_in line
+				(at 0 -12.7 90)
 				(length 2.54) hide
 				(name "GND"
 					(effects
@@ -3120,15 +3123,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 16.51 0)
+			(at 7.62 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC590"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3307,8 +3311,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
+			(pin power_in line
+				(at 0 15.24 270)
 				(length 2.54) hide
 				(name "VCC"
 					(effects
@@ -3433,8 +3437,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -15.24 90)
+			(pin power_in line
+				(at 0 -12.7 90)
 				(length 2.54) hide
 				(name "GND"
 					(effects
@@ -3489,15 +3493,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC595"
-			(at -7.62 -16.51 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3676,8 +3681,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 15.24 270)
+			(pin power_in line
+				(at 0 12.7 270)
 				(length 2.54) hide
 				(name "VCC"
 					(effects
@@ -3802,8 +3807,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
+			(pin power_in line
+				(at 0 -15.24 90)
 				(length 2.54) hide
 				(name "GND"
 					(effects
@@ -3858,15 +3863,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74HC596"
-			(at -7.62 -16.51 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4045,8 +4051,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 15.24 270)
+			(pin power_in line
+				(at 0 12.7 270)
 				(length 2.54) hide
 				(name "VCC"
 					(effects
@@ -4171,8 +4177,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
+			(pin power_in line
+				(at 0 -15.24 90)
 				(length 2.54) hide
 				(name "GND"
 					(effects
@@ -5187,7 +5193,7 @@
 			(pin power_in line
 				(at 1.27 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -6583,7 +6589,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -8527,7 +8533,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -9931,7 +9937,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -10805,7 +10811,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -11773,7 +11779,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -12647,7 +12653,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -14731,7 +14737,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 2.54) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -21603,15 +21609,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 11.43 0)
+			(at 7.62 11.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS137"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21798,9 +21805,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 15.24 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 10.16 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -21924,9 +21931,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -21992,7 +21999,7 @@
 			)
 		)
 		(property "Value" "74LS138"
-			(at 3.81 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22189,6 +22196,24 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 0 10.16 270)
+				(length 1.27) hide
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin input line
 				(at -12.7 5.08 0)
 				(length 5.08)
@@ -22290,6 +22315,24 @@
 					)
 				)
 				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -22701,7 +22744,7 @@
 		(symbol "74LS139_3_0"
 			(pin power_in line
 				(at 0 7.62 270)
-				(length 5.08) hide
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -22719,8 +22762,8 @@
 			)
 			(pin power_in line
 				(at 0 -7.62 90)
-				(length 5.08) hide
-				(name "VSS"
+				(length 1.27) hide
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -22766,15 +22809,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS145"
-			(at -7.62 -16.51 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22961,9 +23005,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -23087,9 +23131,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -20.32 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -15.24 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -23146,15 +23190,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS147"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23323,9 +23368,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -23449,9 +23494,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -23508,15 +23553,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS148"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23703,9 +23749,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -23829,9 +23875,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -24754,15 +24800,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 19.05 0)
+			(at 7.62 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS151"
-			(at -7.62 -21.59 0)
+			(at 5.08 -21.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24951,7 +24998,7 @@
 			)
 			(pin power_in line
 				(at 0 17.78 270)
-				(length 5.08) hide
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -25077,8 +25124,8 @@
 			)
 			(pin power_in line
 				(at 0 -20.32 90)
-				(length 5.08) hide
-				(name "VSS"
+				(length 1.27) hide
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26020,15 +26067,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS155"
-			(at -7.62 -13.97 0)
+			(at 3.81 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26215,8 +26263,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
+			(pin power_in line
+				(at 0 12.7 270)
 				(length 5.08) hide
 				(name "VCC"
 					(effects
@@ -26341,8 +26389,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
+			(pin power_in line
+				(at 0 -12.7 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects
@@ -27079,7 +27127,7 @@
 			(pin input line
 				(at 0 -25.4 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -27797,7 +27845,7 @@
 			(pin power_in line
 				(at 0 -13.97 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -28564,7 +28612,7 @@
 			(pin power_in line
 				(at 0 -20.32 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -28944,7 +28992,7 @@
 			(pin power_in line
 				(at 0 -17.78 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -30125,7 +30173,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -30150,15 +30198,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS175"
-			(at -7.62 -16.51 0)
+			(at 7.62 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30363,6 +30412,24 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 5.08) hide
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin output line
 				(at 12.7 10.16 180)
 				(length 5.08)
@@ -30464,6 +30531,24 @@
 					)
 				)
 				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -15.24 90)
+				(length 5.08) hide
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -31869,7 +31954,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -34029,7 +34114,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -35291,7 +35376,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -35767,7 +35852,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -36840,7 +36925,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -37441,7 +37526,7 @@
 						)
 					)
 				)
-				(number "VSS"
+				(number "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39671,15 +39756,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 19.05 0)
+			(at 7.62 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS251"
-			(at -7.62 -21.59 0)
+			(at 3.81 -21.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39866,8 +39952,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 22.86 270)
+			(pin power_in line
+				(at 0 17.78 270)
 				(length 5.08) hide
 				(name "VCC"
 					(effects
@@ -39956,7 +40042,7 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin tri_state inverted
 				(at 12.7 12.7 180)
 				(length 5.08)
 				(name "~{Y}"
@@ -39992,8 +40078,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -25.4 90)
+			(pin power_in line
+				(at 0 -20.32 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects
@@ -40059,7 +40145,7 @@
 			)
 		)
 		(property "Value" "74LS253"
-			(at -7.62 -24.13 0)
+			(at 5.08 -24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40393,7 +40479,7 @@
 			(pin power_in line
 				(at 0 -22.86 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -40449,15 +40535,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS256"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40644,9 +40731,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 17.78 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 12.7 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -40770,9 +40857,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -40829,15 +40916,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 19.05 0)
+			(at 7.62 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS257"
-			(at 2.54 -19.05 0)
+			(at 3.81 -21.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41016,6 +41104,24 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 0 17.78 270)
+				(length 1.27) hide
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin input line
 				(at -12.7 15.24 0)
 				(length 5.08)
@@ -41124,6 +41230,24 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 0 -20.32 90)
+				(length 1.27) hide
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin tri_state line
 				(at 12.7 -7.62 180)
 				(length 5.08)
@@ -41156,7 +41280,7 @@
 				)
 			)
 			(text "quad\n2-1 MUX"
-				(at 6.985 -15.24 0)
+				(at 6.985 -17.78 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -41888,7 +42012,7 @@
 			(pin power_in line
 				(at 0 -12.7 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43740,7 +43864,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -43786,7 +43910,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 6.35 16.51 0)
+			(at 7.62 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -43795,7 +43919,7 @@
 			)
 		)
 		(property "Value" "74LS273"
-			(at 2.54 -13.97 0)
+			(at 5.08 -16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -43857,7 +43981,7 @@
 		)
 		(symbol "74LS273_0_0"
 			(text "flip flops"
-				(at 0 -7.62 0)
+				(at 2.54 -13.97 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -43877,6 +44001,24 @@
 					)
 				)
 				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -15.24 90)
+				(length 1.27) hide
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -44057,6 +44199,24 @@
 					)
 				)
 				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 15.24 270)
+				(length 1.27) hide
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "20"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -45869,7 +46029,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -46033,7 +46193,7 @@
 			(pin power_in line
 				(at 0 -17.78 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -47001,7 +47161,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -47977,7 +48137,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -49895,15 +50055,16 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 13.97 0)
+			(at 7.62 13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "74LS348"
-			(at -7.62 -13.97 0)
+			(at 5.08 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -50091,8 +50252,8 @@
 				)
 			)
 			(pin input line
-				(at 0 17.78 270)
-				(length 5.08) hide
+				(at 0 12.7 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -50216,9 +50377,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -17.78 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -12.7 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -52152,7 +52313,7 @@
 			(pin power_in line
 				(at 0 -12.7 90)
 				(length 2.54) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -53483,7 +53644,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -57853,7 +58014,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -59065,7 +59226,7 @@
 			(pin power_in line
 				(at 0 -13.97 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -59445,7 +59606,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -60613,7 +60774,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at -7.62 10.16 0)
+			(at 0 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -60621,7 +60782,7 @@
 			)
 		)
 		(property "Value" "74LS51"
-			(at -7.62 -10.16 0)
+			(at 0 -2.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61158,9 +61319,9 @@
 			)
 		)
 		(symbol "74LS51_3_0"
-			(pin input line
-				(at 0 12.7 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 7.62 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -61176,9 +61337,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -12.7 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -7.62 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -64537,7 +64698,7 @@
 			(pin power_in line
 				(at 0 -15.24 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -65662,16 +65823,15 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 5.08 6.35 0)
+			(at 0 1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
 			)
 		)
 		(property "Value" "74LS74"
-			(at -5.08 -6.35 0)
+			(at 0 -1.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -66009,7 +66169,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 2.54) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66781,7 +66941,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 2.54) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -69077,7 +69237,7 @@
 			(pin power_in line
 				(at 0 -7.62 90)
 				(length 5.08) hide
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -72205,7 +72365,7 @@
 			(pin power_in line
 				(at 0 -12.7 90)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)

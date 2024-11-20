@@ -4363,6 +4363,16 @@
 	)
 	(wire
 		(pts
+			(xy 275.59 158.75) (xy 281.94 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d2b0c71-27de-481e-b75d-3862c95a6037")
+	)
+	(wire
+		(pts
 			(xy 114.3 111.76) (xy 137.16 111.76)
 		)
 		(stroke
@@ -4460,6 +4470,16 @@
 			(type default)
 		)
 		(uuid "34491818-e47d-4033-8fb4-3db5925e10a3")
+	)
+	(wire
+		(pts
+			(xy 200.66 146.05) (xy 208.28 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3518b249-7acb-479f-8dc5-000e562ee898")
 	)
 	(bus
 		(pts
@@ -5623,6 +5643,16 @@
 	)
 	(wire
 		(pts
+			(xy 242.57 158.75) (xy 250.19 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c044c537-fdd0-443d-8d3a-98fb401e5ee7")
+	)
+	(wire
+		(pts
 			(xy 205.74 135.89) (xy 208.28 135.89)
 		)
 		(stroke
@@ -5890,6 +5920,16 @@
 			(type default)
 		)
 		(uuid "e6b989e6-be65-451c-9620-87b2adb54c7f")
+	)
+	(wire
+		(pts
+			(xy 275.59 168.91) (xy 283.21 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8db9bf2-f3cf-4eac-aab4-4126dee9c828")
 	)
 	(wire
 		(pts
@@ -6170,7 +6210,7 @@
 		)
 		(uuid "140779df-8d9e-4aa1-b56e-8779b1a3fc22")
 	)
-	(label "SMUX"
+	(label "~{VRAM}"
 		(at 130.81 86.36 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6181,7 +6221,7 @@
 		)
 		(uuid "1bdaae7c-0dfd-4ea4-adbb-c751d62eaaee")
 	)
-	(label "SMUX"
+	(label "~{VRAM}"
 		(at 78.74 158.75 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6192,7 +6232,7 @@
 		)
 		(uuid "1f289c81-6f96-4314-a15c-ee8bac782d3f")
 	)
-	(label "HF5"
+	(label "HF6"
 		(at 81.28 147.32 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6335,7 +6375,7 @@
 		)
 		(uuid "3a986af6-993a-4733-bb68-9c9c098e1674")
 	)
-	(label "~{MX_STROBE}"
+	(label "~{MAxDC}"
 		(at 78.74 161.29 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6346,7 +6386,7 @@
 		)
 		(uuid "3b27556a-5f96-4f6f-a8f3-c547a65105f6")
 	)
-	(label "SMUX"
+	(label "~{VRAM}"
 		(at 143.51 181.61 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6390,7 +6430,7 @@
 		)
 		(uuid "43358350-fe6b-41dc-bd4e-9d08192b4926")
 	)
-	(label "H0"
+	(label "H1"
 		(at 82.55 110.49 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6467,7 +6507,7 @@
 		)
 		(uuid "54866e1a-40d9-4853-a095-d0b8b8019d1e")
 	)
-	(label "HF4"
+	(label "HF5"
 		(at 82.55 118.11 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6533,6 +6573,17 @@
 		)
 		(uuid "630a0c89-2fe1-4d3f-bafc-b00be7ed0c79")
 	)
+	(label "HBL"
+		(at 242.57 158.75 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "64b1a527-162e-46a5-a398-417694017ffe")
+	)
 	(label "ARAMDB1"
 		(at 196.85 80.01 0)
 		(fields_autoplaced yes)
@@ -6588,7 +6639,7 @@
 		)
 		(uuid "6dbabba7-a9b6-43b2-8aaa-27c2253ea7fc")
 	)
-	(label "~{MX_STROBE}"
+	(label "~{MAxDC}"
 		(at 78.74 198.12 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6632,6 +6683,17 @@
 		)
 		(uuid "7b228460-a108-445b-b5d5-1e4471ae2548")
 	)
+	(label "IC52_19"
+		(at 200.66 146.05 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8175a934-1b7f-4c98-9f24-b432832a58c2")
+	)
 	(label "AB9"
 		(at 80.01 173.99 0)
 		(fields_autoplaced yes)
@@ -6654,7 +6716,7 @@
 		)
 		(uuid "8921143c-7baa-4dec-bb29-5b3ef42f9afd")
 	)
-	(label "HF2"
+	(label "HF3"
 		(at 82.55 113.03 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6841,7 +6903,18 @@
 		)
 		(uuid "b8c7e788-0e7d-4884-aa90-279c82ebe45d")
 	)
-	(label "HF6"
+	(label "IC52_9"
+		(at 281.94 158.75 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b92cfbbf-1466-4d84-bea0-983aee7967ea")
+	)
+	(label "HF7"
 		(at 81.28 149.86 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6863,7 +6936,7 @@
 		)
 		(uuid "be986933-db72-4f93-b456-78514670669a")
 	)
-	(label "SMUX"
+	(label "~{VRAM}"
 		(at 78.74 195.58 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6917,6 +6990,17 @@
 			(justify left bottom)
 		)
 		(uuid "ceff6396-a457-4003-8216-64f5543d7ac7")
+	)
+	(label "IC52_19"
+		(at 283.21 168.91 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d16e4030-6916-4283-a62f-c500be92ebf0")
 	)
 	(label "ARAMDB3"
 		(at 196.85 105.41 0)
@@ -7050,7 +7134,7 @@
 		)
 		(uuid "f14b4e63-742b-477d-8e98-88f41ccfaa31")
 	)
-	(label "HF3"
+	(label "HF4"
 		(at 82.55 115.57 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7121,7 +7205,7 @@
 		)
 		(uuid "8f577f01-1b05-4551-8c83-3306c080d77c")
 	)
-	(hierarchical_label "~{MX_STROBE}"
+	(hierarchical_label "~{MAxDC}"
 		(shape input)
 		(at 86.36 124.46 180)
 		(fields_autoplaced yes)
@@ -7133,7 +7217,7 @@
 		)
 		(uuid "bf5b5906-3fc6-4c1c-b83d-70e52912399e")
 	)
-	(hierarchical_label "SMUX"
+	(hierarchical_label "~{VRAM}"
 		(shape input)
 		(at 86.36 121.92 180)
 		(fields_autoplaced yes)
@@ -7821,7 +7905,7 @@
 		(dnp no)
 		(uuid "85c3edc5-2037-418e-ab3c-d4556eb22b54")
 		(property "Reference" "IC37"
-			(at 153.67 175.26 0)
+			(at 153.67 174.625 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8033,13 +8117,14 @@
 		(lib_id "jt74:74LS08")
 		(at 151.13 157.48 90)
 		(unit 2)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "c1009406-4897-4cec-b98a-51b3d0a93ead")
 		(property "Reference" "IC68"
-			(at 151.13 156.21 90)
+			(at 151.13 157.48 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8047,7 +8132,7 @@
 			)
 		)
 		(property "Value" "74LS08"
-			(at 151.13 160.02 90)
+			(at 156.21 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)

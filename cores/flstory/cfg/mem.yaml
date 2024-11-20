@@ -32,3 +32,28 @@ sdram:
       - name: gfx
         addr_width: 14
         data_width: 32
+bram:
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: shram
+      din:  "{2{shram_din}}"
+      dout: vram16_dout
+      we:   vram_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 0
+  - name: oram
+    addr_width: 8
+    data_width: 16
+    dual_port:
+      name: shram
+      din:  "{2{shram_din}}"
+      dout: oram16_dout
+      we:   oram_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 1

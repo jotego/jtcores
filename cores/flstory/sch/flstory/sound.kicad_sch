@@ -7028,15 +7028,16 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at -7.62 13.97 0)
+				(at 7.62 13.97 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify right)
 				)
 			)
 			(property "Value" "74LS155"
-				(at -7.62 -13.97 0)
+				(at 3.81 -13.97 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -7223,8 +7224,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 0 17.78 270)
+				(pin power_in line
+					(at 0 12.7 270)
 					(length 5.08) hide
 					(name "VCC"
 						(effects
@@ -7349,8 +7350,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 0 -17.78 90)
+				(pin power_in line
+					(at 0 -12.7 90)
 					(length 5.08) hide
 					(name "GND"
 						(effects
@@ -10035,16 +10036,15 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 5.08 6.35 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify right)
 				)
 			)
 			(property "Value" "74LS74"
-				(at -5.08 -6.35 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -10382,7 +10382,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -30758,7 +30758,7 @@
 			)
 		)
 	)
-	(hierarchical_label "~{OEMUXIO}"
+	(hierarchical_label "~{MAxD8}"
 		(shape input)
 		(at 275.59 24.13 180)
 		(fields_autoplaced yes)
@@ -30806,7 +30806,7 @@
 		)
 		(uuid "c20c99b9-9231-4f15-999f-f427d6a04a9e")
 	)
-	(hierarchical_label "~{CONNSP2A}"
+	(hierarchical_label "~{MAxD4}"
 		(shape input)
 		(at 275.59 48.26 180)
 		(fields_autoplaced yes)
@@ -30818,7 +30818,7 @@
 		)
 		(uuid "c4cdd125-de96-44c2-aa3b-15368434af1d")
 	)
-	(hierarchical_label "~{CONNSP2A}"
+	(hierarchical_label "~{MAxD4}"
 		(shape input)
 		(at 275.59 31.75 180)
 		(fields_autoplaced yes)
@@ -34758,7 +34758,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual 2 to 4 lines Decoder/Demultiplexer"
 			(at 307.34 238.76 0)
 			(effects
 				(font

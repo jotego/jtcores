@@ -456,7 +456,7 @@ void flstory_state::base_map(address_map &map)
 	map(0xc000, 0xc7ff).mirror(0x800).ram().w(FUNC(flstory_state::flstory_videoram_w)).share(m_videoram);
 
 	map(0xd001, 0xd001).nopw();    // watchdog
-	map(0xd002, 0xd002).noprw();   // unknown read & coin lock out?
+	map(0xd002, 0xd002).noprw();   // sub CPU reset & coin lock out
 
 	map(0xd400, 0xd400).r(m_soundlatch2, FUNC(generic_latch_8_device::read));
 	map(0xd400, 0xd400).w(m_soundlatch, FUNC(generic_latch_8_device::write));

@@ -29,6 +29,11 @@ module jtflstory_main(
 );
 `ifndef NOMAIN
 
+wire [15:0] A;
+wire        mreq_n, rfsh_n;
+reg         ram_cs, mmx_c, mmx_d, mmx_e, mmx_f;
+
+assign rom_addr = A[14:0];
 
 always @* begin
     rom_cs  = 0;

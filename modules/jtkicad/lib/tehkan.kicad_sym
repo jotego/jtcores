@@ -930,8 +930,36 @@
 					(type background)
 				)
 			)
+			(polyline
+				(pts
+					(xy 0 24.13) (xy 0 -24.13)
+				)
+				(stroke
+					(width 0)
+					(type dot)
+				)
+				(fill
+					(type none)
+				)
+			)
 			(text "J1 CONNECTOR\n(FEMALE)"
-				(at 0 -17.78 0)
+				(at 0 -13.97 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "PARTS"
+				(at 6.985 24.13 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "SOLDER"
+				(at -6.35 24.13 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1082,10 +1110,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin passive line
 				(at 12.7 -19.05 180)
 				(length 2.54)
-				(name ""
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1406,10 +1434,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin passive line
 				(at -12.7 -19.05 0)
 				(length 2.54)
-				(name ""
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1647,8 +1675,36 @@
 					(type background)
 				)
 			)
+			(polyline
+				(pts
+					(xy 0 22.86) (xy 0 -20.32)
+				)
+				(stroke
+					(width 0)
+					(type dot)
+				)
+				(fill
+					(type none)
+				)
+			)
 			(text "J2 CONNECTOR\n(FEMALE)"
 				(at 0 -22.86 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "PARTS"
+				(at 6.985 24.13 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "SOLDER"
+				(at -6.35 24.13 0)
 				(effects
 					(font
 						(size 1.27 1.27)

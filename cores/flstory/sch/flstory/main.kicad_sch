@@ -8604,16 +8604,15 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 5.08 6.35 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify right)
 				)
 			)
 			(property "Value" "74LS74"
-				(at -5.08 -6.35 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -8951,7 +8950,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -15024,7 +15023,7 @@
 		)
 		(uuid "c157be33-820a-4bd5-a6f7-1692b3cc9f05")
 	)
-	(label "CLK3M"
+	(label "H0"
 		(at 39.37 217.17 0)
 		(fields_autoplaced yes)
 		(effects
@@ -17422,7 +17421,7 @@
 		)
 		(uuid "f1e11ebf-22a9-40d0-945a-8440b0f69e5f")
 	)
-	(hierarchical_label "~{COUNTE}"
+	(hierarchical_label "~{MAxCD}"
 		(shape output)
 		(at 393.7 203.2 0)
 		(fields_autoplaced yes)
@@ -22959,7 +22958,7 @@
 			)
 			(uuid "0ce487e6-1a68-4297-bd23-55412ab01b39")
 		)
-		(pin "CLK3M" input
+		(pin "H0" input
 			(at 45.72 217.17 180)
 			(effects
 				(font

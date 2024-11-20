@@ -4194,15 +4194,16 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at -7.62 19.05 0)
+				(at 7.62 19.05 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify right)
 				)
 			)
 			(property "Value" "74LS251"
-				(at -7.62 -21.59 0)
+				(at 3.81 -21.59 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4389,8 +4390,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 0 22.86 270)
+				(pin power_in line
+					(at 0 17.78 270)
 					(length 5.08) hide
 					(name "VCC"
 						(effects
@@ -4479,7 +4480,7 @@
 						)
 					)
 				)
-				(pin tri_state line
+				(pin tri_state inverted
 					(at 12.7 12.7 180)
 					(length 5.08)
 					(name "~{Y}"
@@ -4515,8 +4516,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at 0 -25.4 90)
+				(pin power_in line
+					(at 0 -20.32 90)
 					(length 5.08) hide
 					(name "GND"
 						(effects
@@ -12740,7 +12741,7 @@
 		)
 		(uuid "02c781f1-9e55-4266-8f68-2f395de179ca")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 261.62 234.95 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12850,7 +12851,7 @@
 		)
 		(uuid "21310281-aa21-488f-8ab9-e4f247d5842a")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 261.62 191.77 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12905,7 +12906,7 @@
 		)
 		(uuid "2a5b2c6e-37c7-48b7-8c24-2438c613db8c")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 332.74 78.74 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13169,7 +13170,7 @@
 		)
 		(uuid "518f9575-a57f-47c1-a4a3-303946b9c5cb")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 261.62 148.59 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13257,7 +13258,7 @@
 		)
 		(uuid "699cb6bf-3e87-46da-8ec9-b192dbc3c9c9")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 332.74 96.52 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13290,7 +13291,7 @@
 		)
 		(uuid "6ba55e80-d1cc-45ff-acff-0dbc69d55980")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 327.66 148.59 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13312,7 +13313,7 @@
 		)
 		(uuid "706daeef-f929-41c2-9089-1866976e267b")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 261.62 105.41 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13521,7 +13522,7 @@
 		)
 		(uuid "8f7eab52-fc24-4fd5-9810-bf20a218b358")
 	)
-	(label "~{OEMUXIO}"
+	(label "~{MAxD8}"
 		(at 261.62 279.4 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13884,7 +13885,7 @@
 		)
 		(uuid "d06cfb80-9113-471f-8e69-7ce55bd9e887")
 	)
-	(label "SHDB0'"
+	(label "COINLOCK"
 		(at 16.51 217.17 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13983,7 +13984,7 @@
 		)
 		(uuid "ddd2d65f-1d92-4673-aad7-b0b5e4f63b44")
 	)
-	(label "SHDB1'"
+	(label "~{SBRST}"
 		(at 261.62 90.17 0)
 		(fields_autoplaced yes)
 		(effects
@@ -14150,7 +14151,7 @@
 		)
 		(uuid "1f61cb8f-9c34-4ce4-b12d-bf1db68ba4b2")
 	)
-	(hierarchical_label "SHDB1'"
+	(hierarchical_label "~{SBRST}"
 		(shape input)
 		(at 339.09 133.35 180)
 		(fields_autoplaced yes)
@@ -14246,7 +14247,7 @@
 		)
 		(uuid "4e93f444-d01e-4a81-95c4-ae0d47f69efe")
 	)
-	(hierarchical_label "SHDB0'"
+	(hierarchical_label "COINLOCK"
 		(shape input)
 		(at 337.82 204.47 180)
 		(fields_autoplaced yes)
@@ -14390,7 +14391,7 @@
 		)
 		(uuid "c65c4b3a-a2a4-46ca-a736-debf8c22292b")
 	)
-	(hierarchical_label "~{OEMUXIO}"
+	(hierarchical_label "~{MAxD8}"
 		(shape input)
 		(at 271.78 60.96 180)
 		(fields_autoplaced yes)
@@ -15354,7 +15355,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 130.81 0)
 			(effects
 				(font
@@ -15712,7 +15713,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 87.63 0)
 			(effects
 				(font
@@ -16026,7 +16027,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 217.17 0)
 			(effects
 				(font
@@ -16961,7 +16962,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "4e16b1c6-e761-49a5-a6e2-69f55bb01c9f")
 		(property "Reference" "B10"
 			(at 120.65 265.43 0)
@@ -19352,7 +19353,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 43.18 0)
 			(effects
 				(font
@@ -21255,7 +21256,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 173.99 0)
 			(effects
 				(font
@@ -21663,7 +21664,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 287.02 261.62 0)
 			(effects
 				(font
@@ -22998,7 +22999,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Multiplexer 8 to 1, 3-state Outputs"
 			(at 353.06 130.81 0)
 			(effects
 				(font
@@ -23319,7 +23320,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "fa98b6bd-509f-4cc2-ac46-679b7145246c")
 		(property "Reference" "B10"
 			(at 120.65 255.27 0)

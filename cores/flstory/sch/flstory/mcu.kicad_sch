@@ -2639,16 +2639,15 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 5.08 6.35 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify right)
 				)
 			)
 			(property "Value" "74LS74"
-				(at -5.08 -6.35 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2986,7 +2985,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -8114,7 +8113,7 @@
 		)
 		(uuid "344068a4-303c-4879-ad18-699795a26893")
 	)
-	(hierarchical_label "CLK3M"
+	(hierarchical_label "H0"
 		(shape input)
 		(at 171.45 132.08 180)
 		(fields_autoplaced yes)
@@ -8664,7 +8663,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "59217777-cff3-4f00-a069-fa824ce7414e")
 		(property "Reference" "B10"
 			(at 161.29 171.45 0)
