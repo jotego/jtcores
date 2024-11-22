@@ -1,0 +1,22 @@
+game:
+  - from: flstory
+    get:
+      - "*.v"
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.v
+      - jtframe_tilemap.v
+      - jtframe_obj.yaml
+modules:
+  # jt:
+  #   - name: jt5205
+  other:
+    - get:
+      - jt49/hdl/jt49.yaml

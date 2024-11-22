@@ -17,7 +17,7 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "S28"
+			(property "Reference" "U"
 				(at -10.16 29.21 0)
 				(effects
 					(font
@@ -25,7 +25,7 @@
 					)
 				)
 			)
-			(property "Value" "YS2149"
+			(property "Value" "YM2149"
 				(at 3.81 29.21 0)
 				(effects
 					(font
@@ -34,7 +34,7 @@
 				)
 			)
 			(property "Footprint" "Package_DIP:DIP-40_W15.24mm"
-				(at 1.27 -31.75 0)
+				(at 16.51 -35.56 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -43,7 +43,7 @@
 				)
 			)
 			(property "Datasheet" "http://www.ym2149.com/ym2149.pdf"
-				(at 2.54 -29.21 0)
+				(at 0 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -92,22 +92,6 @@
 				)
 			)
 			(symbol "YM2149_1_1"
-				(text "A.CHANNEL"
-					(at 7.62 22.86 900)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "SOFTWARE CONTROLLED \nSND GENERATOR"
-					(at 0 2.54 900)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
 				(pin power_in line
 					(at 0 -30.48 90)
 					(length 2.54)
@@ -307,8 +291,8 @@
 					)
 				)
 				(pin no_connect line
-					(at -12.7 -17.78 0)
-					(length 2.54)
+					(at -10.16 -17.78 0)
+					(length 2.54) hide
 					(name "NC"
 						(effects
 							(font
@@ -739,8 +723,8 @@
 					)
 				)
 				(pin no_connect line
-					(at -12.7 -20.32 0)
-					(length 2.54)
+					(at -10.16 -20.32 0)
+					(length 2.54) hide
 					(name "NC"
 						(effects
 							(font
@@ -12527,6 +12511,12 @@
 		(uuid "c654d99b-b757-4ad8-a081-e15fedda9fbe")
 	)
 	(junction
+		(at 172.72 142.24)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c6bd7b5f-e167-431d-9d65-e4168a737ea8")
+	)
+	(junction
 		(at 97.79 271.78)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -12597,12 +12587,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f636c8e8-ac23-4b21-a15d-a9917737f47d")
-	)
-	(junction
-		(at 172.72 143.51)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f6e90383-eee3-4bc1-92dd-5c2addfebd75")
 	)
 	(junction
 		(at 314.325 17.78)
@@ -15280,7 +15264,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 143.51) (xy 172.72 144.78)
+			(xy 172.72 142.24) (xy 172.72 144.78)
 		)
 		(stroke
 			(width 0)
@@ -19152,7 +19136,7 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 143.51) (xy 185.42 143.51)
+			(xy 172.72 142.24) (xy 185.42 142.24)
 		)
 		(stroke
 			(width 0)
@@ -23783,16 +23767,6 @@
 			(type default)
 		)
 		(uuid "dd1b1297-473f-4043-b244-45545a41ffa1")
-	)
-	(wire
-		(pts
-			(xy 172.72 142.24) (xy 172.72 143.51)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dd517cdf-fbca-44f3-bff7-b74577bb28ea")
 	)
 	(bus
 		(pts
@@ -29241,7 +29215,7 @@
 		(uuid "af02ec02-da52-4bd5-858e-f460244f28af")
 	)
 	(label "A_CHANNEL"
-		(at 185.42 143.51 180)
+		(at 185.42 142.24 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -37986,18 +37960,20 @@
 		(dnp no)
 		(uuid "d2609345-18fd-44ba-a2dd-a4f289d57c83")
 		(property "Reference" "M28"
-			(at 149.86 138.43 0)
+			(at 168.275 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "YS2149"
-			(at 160.02 156.845 0)
+		(property "Value" "YM2149"
+			(at 160.02 167.005 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 1.651 1.651)
+					(thickness 0.3302)
+					(bold yes)
 				)
 			)
 		)
@@ -38019,7 +37995,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Software-Controlled Sound Generator, DIP-40"
 			(at 160.02 167.64 0)
 			(effects
 				(font

@@ -26811,7 +26811,7 @@
 			)
 		)
 		(property "Value" "74LS158"
-			(at 2.54 -19.05 0)
+			(at 2.54 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26819,7 +26819,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 0 0 0)
+			(at 0 -3.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26828,7 +26828,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS158"
-			(at 0 0 0)
+			(at 27.94 -13.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26837,7 +26837,7 @@
 			)
 		)
 		(property "Description" "Quad 2 to 1 multiplexer"
-			(at 0 0 0)
+			(at 21.59 -11.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26873,7 +26873,7 @@
 		)
 		(symbol "74LS158_1_0"
 			(pin input line
-				(at -12.7 -15.24 0)
+				(at -12.7 -10.16 0)
 				(length 5.08)
 				(name "S"
 					(effects
@@ -26891,9 +26891,9 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -10.16 0)
+				(at -12.7 0 0)
 				(length 5.08)
-				(name "I1d"
+				(name "I1c"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26909,9 +26909,9 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -7.62 0)
+				(at -12.7 2.54 0)
 				(length 5.08)
-				(name "I0d"
+				(name "I0c"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26927,9 +26927,9 @@
 				)
 			)
 			(pin output inverted
-				(at 12.7 0 180)
+				(at 12.7 -3.81 180)
 				(length 5.08)
-				(name "Zc"
+				(name "Zd"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26945,9 +26945,9 @@
 				)
 			)
 			(pin input line
-				(at -12.7 -2.54 0)
+				(at -12.7 -6.35 0)
 				(length 5.08)
-				(name "I1c"
+				(name "I1d"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26963,9 +26963,9 @@
 				)
 			)
 			(pin input line
-				(at -12.7 0 0)
+				(at -12.7 -3.81 0)
 				(length 5.08)
-				(name "I0c"
+				(name "I0d"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -26981,7 +26981,7 @@
 				)
 			)
 			(pin input inverted
-				(at -12.7 -17.78 0)
+				(at -12.7 -12.7 0)
 				(length 5.08)
 				(name "E"
 					(effects
@@ -26998,9 +26998,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 22.86 270)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 17.78 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -27071,7 +27071,7 @@
 				)
 			)
 			(pin input line
-				(at -12.7 7.62 0)
+				(at -12.7 8.89 0)
 				(length 5.08)
 				(name "I0b"
 					(effects
@@ -27089,7 +27089,7 @@
 				)
 			)
 			(pin input line
-				(at -12.7 5.08 0)
+				(at -12.7 6.35 0)
 				(length 5.08)
 				(name "I1b"
 					(effects
@@ -27107,7 +27107,7 @@
 				)
 			)
 			(pin output inverted
-				(at 12.7 7.62 180)
+				(at 12.7 8.89 180)
 				(length 5.08)
 				(name "Zb"
 					(effects
@@ -27124,9 +27124,9 @@
 					)
 				)
 			)
-			(pin input line
-				(at 0 -25.4 90)
-				(length 5.08) hide
+			(pin power_in line
+				(at 0 -15.24 90)
+				(length 1.27) hide
 				(name "GND"
 					(effects
 						(font
@@ -27143,9 +27143,9 @@
 				)
 			)
 			(pin output inverted
-				(at 12.7 -7.62 180)
+				(at 12.7 2.54 180)
 				(length 5.08)
-				(name "Zd"
+				(name "Zc"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -27164,7 +27164,7 @@
 		(symbol "74LS158_1_1"
 			(rectangle
 				(start -7.62 17.78)
-				(end 7.62 -20.32)
+				(end 7.62 -15.24)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -27174,7 +27174,7 @@
 				)
 			)
 			(text "quad\n2-1 mux"
-				(at 6.604 -15.748 0)
+				(at 6.604 -10.668 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -37309,8 +37309,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
-			(at 3.81 -3.81 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/sn74ls244.pdf"
+			(at 2.54 -12.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)

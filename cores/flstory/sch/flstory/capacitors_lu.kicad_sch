@@ -15050,7 +15050,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "37f51a20-a41d-418c-b5a9-1ce0d252a35f")
-		(property "Reference" "IC47"
+		(property "Reference" "IC29"
 			(at 321.31 222.25 0)
 			(effects
 				(font
@@ -15138,7 +15138,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/b3195ec8-4a0e-4706-a564-dff00e24157a"
-					(reference "IC47")
+					(reference "IC29")
 					(unit 7)
 				)
 			)

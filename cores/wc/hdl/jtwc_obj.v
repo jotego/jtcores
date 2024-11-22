@@ -25,8 +25,8 @@ module jtwc_obj(
     input             ghflip,
     input             gvflip,
 
-    input        [8:0] vrender,
-    input        [8:0] hdump,
+    input       [8:0] vrender,
+    input       [8:0] hdump,
     // RAM shared with CPU
     output     [ 9:0] vram_addr,
     input      [ 7:0] vram_data,
