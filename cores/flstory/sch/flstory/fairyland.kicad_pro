@@ -414,11 +414,11 @@
     ],
     [
       "805fec21-08ac-4fe3-ba05-5c1ef8326531",
-      "io_cabinet"
+      "Cabinet"
     ],
     [
       "c390cb2e-f868-499c-8d5c-c75efb799de2",
-      "video"
+      "Video"
     ],
     [
       "ee9a6692-7e20-4076-8da2-ad8bb94039e5",
@@ -426,7 +426,7 @@
     ],
     [
       "dceca2ed-c4f4-4b96-afed-6e3228263183",
-      "sound"
+      "Sound"
     ],
     [
       "b3195ec8-4a0e-4706-a564-dff00e24157a",
@@ -438,7 +438,7 @@
     ],
     [
       "f566b6cb-2bad-4085-a0a3-8260db2e02fc",
-      "amplifiers"
+      "Amplifiers & Connector"
     ],
     [
       "ff374925-5a69-4797-8d83-abcb6aadd80e",
@@ -475,6 +475,10 @@
     [
       "51a2aea8-e32a-40d2-8f40-8bd1aacb4e40",
       "Line buffer"
+    ],
+    [
+      "ae4b6ec6-8c85-4200-965a-bd5292c28f91",
+      "Communication Latches"
     ]
   ],
   "text_variables": {}

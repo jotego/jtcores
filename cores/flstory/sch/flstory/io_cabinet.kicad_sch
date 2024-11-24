@@ -7,7 +7,6 @@
 	(title_block
 		(title "The Fairyland Story")
 		(date "2024-11-16")
-		(rev "José Tejada G.")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "José Tejada")
@@ -6734,8 +6733,8 @@
 		(uuid "85d1e608-e64c-4af3-be71-faeab7ba6036")
 	)
 	(bus_entry
-		(at 259.08 274.32)
-		(size 2.54 -2.54)
+		(at 259.08 269.24)
+		(size 2.54 2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -6815,8 +6814,8 @@
 		(uuid "ab709bb4-c6d0-43cf-b383-e893c5a9cd37")
 	)
 	(bus_entry
-		(at 259.08 276.86)
-		(size 2.54 -2.54)
+		(at 259.08 266.7)
+		(size 2.54 2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -6852,7 +6851,7 @@
 	)
 	(bus_entry
 		(at 259.08 271.78)
-		(size 2.54 -2.54)
+		(size 2.54 2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -9109,7 +9108,7 @@
 	)
 	(bus
 		(pts
-			(xy 259.08 276.86) (xy 259.08 274.32)
+			(xy 259.08 266.7) (xy 259.08 269.24)
 		)
 		(stroke
 			(width 0)
@@ -9419,7 +9418,7 @@
 	)
 	(wire
 		(pts
-			(xy 339.09 133.35) (xy 340.36 133.35)
+			(xy 334.01 133.35) (xy 340.36 133.35)
 		)
 		(stroke
 			(width 0)
@@ -9569,7 +9568,7 @@
 	)
 	(bus
 		(pts
-			(xy 259.08 271.78) (xy 259.08 232.41)
+			(xy 259.08 271.78) (xy 259.08 269.24)
 		)
 		(stroke
 			(width 0)
@@ -11587,6 +11586,16 @@
 		)
 		(uuid "d90c18c9-d330-491e-b25f-bc34de8681e4")
 	)
+	(bus
+		(pts
+			(xy 259.08 266.7) (xy 259.08 232.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d977dc2e-65b3-42e3-9d7b-2948b8437bc4")
+	)
 	(wire
 		(pts
 			(xy 261.62 133.35) (xy 274.32 133.35)
@@ -12016,16 +12025,6 @@
 			(type default)
 		)
 		(uuid "edee02ca-1ef9-491a-b82b-4f078d6ec448")
-	)
-	(bus
-		(pts
-			(xy 259.08 274.32) (xy 259.08 271.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ee0e0503-d515-4619-addb-6a132e322602")
 	)
 	(wire
 		(pts
@@ -14153,7 +14152,7 @@
 	)
 	(hierarchical_label "~{SBRST}"
 		(shape input)
-		(at 339.09 133.35 180)
+		(at 334.01 133.35 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -14307,7 +14306,7 @@
 		)
 		(uuid "9623fddc-2723-43e5-b9f1-90aff12a93d0")
 	)
-	(hierarchical_label "SHAB[2..0]"
+	(hierarchical_label "SHAB[0..2]"
 		(shape input)
 		(at 256.54 53.34 180)
 		(fields_autoplaced yes)
@@ -14355,7 +14354,7 @@
 		)
 		(uuid "b4c80a39-0d63-42a0-bd06-f597b10fffea")
 	)
-	(hierarchical_label "SHDB[7..0]"
+	(hierarchical_label "SHDB[0..7]"
 		(shape tri_state)
 		(at 382.27 59.69 0)
 		(fields_autoplaced yes)
@@ -14439,7 +14438,7 @@
 		)
 		(uuid "db1837b1-1790-4584-b279-be69103ec174")
 	)
-	(hierarchical_label "SDB[1..0]"
+	(hierarchical_label "SDB[0..1]"
 		(shape tri_state)
 		(at 378.46 118.11 0)
 		(fields_autoplaced yes)
@@ -14852,10 +14851,12 @@
 		(dnp no)
 		(uuid "108c910c-caaa-4274-83f0-803956ad432f")
 		(property "Reference" "SWC"
-			(at 154.94 271.78 90)
+			(at 154.94 266.7 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 1.905 1.905)
+					(thickness 0.381)
+					(bold yes)
 				)
 			)
 		)
@@ -16962,7 +16963,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "4e16b1c6-e761-49a5-a6e2-69f55bb01c9f")
 		(property "Reference" "B10"
 			(at 120.65 265.43 0)
@@ -18936,10 +18937,12 @@
 		(dnp no)
 		(uuid "840b5a0a-4978-4aa8-aa06-11db6aa4d187")
 		(property "Reference" "SWA"
-			(at 218.44 271.78 90)
+			(at 218.44 266.7 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 1.905 1.905)
+					(thickness 0.381)
+					(bold yes)
 				)
 			)
 		)
@@ -23145,10 +23148,12 @@
 		(dnp no)
 		(uuid "ef34ebd1-566f-47a7-8719-c0164c3a52ba")
 		(property "Reference" "SWB"
-			(at 186.69 271.78 90)
+			(at 186.69 266.7 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 1.905 1.905)
+					(thickness 0.381)
+					(bold yes)
 				)
 			)
 		)
@@ -23320,7 +23325,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "fa98b6bd-509f-4cc2-ac46-679b7145246c")
 		(property "Reference" "B10"
 			(at 120.65 255.27 0)

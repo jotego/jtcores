@@ -21,8 +21,8 @@ module jtflstory_video(
     input             clk,
     input             pxl_cen,
 
-    input             hflip,
-    input             vflip,
+    input             ghflip,
+    input             gvflip,
     output            lhbl,
     output            lvbl,
     output            vs,
@@ -45,6 +45,14 @@ module jtflstory_video(
     input      [31:0] obj_data,
     output            obj_cs,
     input             obj_ok,
+
+    // palette - color mixer
+    input      [ 1:0] pal_bank,
+    output     [ 9:0] prio_addr,
+    input             prio_dout,
+    output     [ 9:0] pal_addr,
+    input      [11:0] pal_dout,
+    output     [ 3:0] red, green, blue
 );
 
 wire [31:0] scr_sorted;
@@ -52,13 +60,16 @@ wire [ 8:0] vdump, vrender, hdump, scry;
 wire [ 7:0] scr_pxl, obj_pxl;
 wire [10:0] scr_code;
 wire        scr_bank;
-wire [ 3:0] scr_pal;
+wire [ 5:0] scr_pal;
+wire [ 1:0] scr_prio, obj_prio;
+wire        flip;
 
 assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 1+2+8=11 bits
-assign scr_pal   = { vram_data[13], vram_data[11:8] }; // upper bit = priority
+assign scr_pal   = { vram_data[14:13], vram_data[11:8] }; // upper 2 bits = priority
 assign scr_hflip = vram_data[11]; // bit 11 shared with pal
 assign scr_vflip = vram_data[12];
 assign scry      = {1'b0,oram_dout};
+assign flip      = gvflip | ghflip; // imperfect implementation
 
 assign scr_sorted = ~{
     scr_data[28],scr_data[29],scr_data[30],scr_data[31],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
@@ -95,10 +106,9 @@ jtframe_vtimer #(
 );
 
 // original video seems to draw the tile map on the fly, whereas the
-// objetcs are written to a single buffer during HB and then dumped on
+// objects are written to a single buffer during HB and then dumped on
 // the same line. There is no double-line buffer, despite being enough memory
-// to implement it. This sets a harsh limit of 128/16=8 sprites per line but
-// that seems to be too few
+// to implement it. This sets a harsh limit of 128/16=8 sprites per line
 
 // only vertical scroll available (column-wise)
 jtframe_scroll #(
@@ -108,7 +118,7 @@ jtframe_scroll #(
     .VA          (   10 ),
     .MAP_VW      (    8 ),
     .MAP_HW      (    9 ),
-    .PW          (    8 ),
+    .PW          (   10 ),
     .XOR_HFLIP   (    1 ),
     .HJUMP       (    1 )
 ) u_scroll(
@@ -137,7 +147,7 @@ jtframe_scroll #(
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),      // ignored. It assumes that data is always right
 
-    .pxl        ( scr_pxl   )
+    .pxl        ( {scr_prio,scr_pxl}   )
 );
 
 jtflstory_obj u_obj(
@@ -159,6 +169,32 @@ jtflstory_obj u_obj(
     .rom_cs     ( obj_cs    ),
     .rom_ok     ( obj_ok    ),
     .pxl        ( obj_pxl   )
+);
+
+jtflstory_colmix u_colmix(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
+    .pal_bank   ( pal_bank  ),
+
+    .scr_prio   ( scr_prio  ),
+    .obj_prio   ( obj_prio  ),
+
+    .scr_pxl    ( scr_pxl   ),
+    .obj_pxl    ( obj_pxl   ),
+
+    .prio_addr  ( prio_addr ),
+    .prio_dout  ( prio_dout ),
+
+    .pal_addr   ( pal_addr  ),
+    .pal_dout   ( pal_dout  ),
+
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      )
 );
 
 endmodule

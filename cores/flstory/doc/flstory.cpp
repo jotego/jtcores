@@ -167,6 +167,8 @@ TILE_GET_INFO_MEMBER(flstory_state::get_tile_info)
 	uint32_t const tile_number = code + ((attr & 0xc0) << 2) + 0x400 + 0x800 * m_char_bank;
 	uint8_t const flags = TILE_FLIPYX((attr & 0x18) >> 3);
 
+	// in reality there are two priority bits at D5/D4 that connect
+	// to the priority RAM address bits A5/A4
 	tileinfo.category = BIT(attr, 5);
 	tileinfo.group = BIT(attr, 5);
 	tileinfo.set(0, tile_number, attr & 0x0f, flags);
@@ -271,10 +273,10 @@ void flstory_state::flstory_gfxctrl_w(uint8_t data)
 	flip_screen_set(BIT(~data, 0));
 	if (m_char_bank != ((data & 0x10) >> 4))
 	{
-		m_char_bank = (data & 0x10) >> 4;
+		m_char_bank = (data & 0x10) >> 4; // actually 2 bits, 0x18
 		m_bg_tilemap->mark_all_dirty();
 	}
-	m_palette_bank = (data & 0x20) >> 5;
+	m_palette_bank = (data & 0x20) >> 5; // actually 2 bits, 0x30
 }
 
 uint8_t flstory_mcu_state::victnine_gfxctrl_r()
@@ -689,8 +691,8 @@ static INPUT_PORTS_START( flstory )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_TILT )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN2 )
-	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )   // "BAD IO" if low
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )   // "BAD IO" if low
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_UNKNOWN )   // unfiltered coin input "BAD IO" if low
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )   // unfiltered coin input "BAD IO" if low
 
 	PORT_START("P1")      /* D804 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )

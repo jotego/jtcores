@@ -26480,7 +26480,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.alldatasheet.com/datasheet-pdf/pdf/27402/TI/74LS157.html"
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/sn74ls157.pdf"
 			(at 0 -19.05 0)
 			(effects
 				(font

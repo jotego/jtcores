@@ -16,11 +16,17 @@
     Version: 1.0
     Date: 22-11-2024 */
 
+// 0x100 RAM
+// 00~0x7F -> 32 objects, 4 bytes per object
+// 80~9F   -> 4:0 drawing order
+//            7   priority bit
+
 module jtflstory_obj(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             lhbl,
+    input             lvbl,
     input             flip,
 
     input       [8:0] vrender,
@@ -33,20 +39,28 @@ module jtflstory_obj(
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
+    output     [ 1:0] prio,
     output     [ 7:0] pxl
 );
 
 reg  [9:0] code;
-reg  [4:0] obj_cnt;
-reg  [3:0] ysub,pal;
+reg  [2:0] obj_cnt, obj_idx;
+reg  [3:0] ysub;
+reg  [5:0] pal;
 wire [7:0] ydiff;
 reg  [7:0] vlatch;
 reg  [1:0] obj_sub;
-reg        lhbl_l, draw, scan_done, inzone;
+reg        lhbl_l, draw, scan_done, inzone, order, active=0;
 wire       dr_busy;
 
-assign ram_addr = lhbl ? {3'b110,hdump[7:3]} : {1'b0,obj_cnt,obj_sub};
+assign ram_addr = lhbl  ? {3'b101,hdump[7:3]} :
+                  order ? {4'b1101,obj_cnt,active } : {1'b0,obj_idx,obj_sub};
 assign ydiff    = vlatch+ram_dout;
+
+always @(posedge clk) begin
+    lvbl_l <= lvbl;
+    if( lvbl && !lvbl_l ) active <= ~active;
+end
 
 always @(posedge clk) begin
     lhbl_l   <= lhbl;
@@ -54,27 +68,36 @@ always @(posedge clk) begin
     blank    <= vrender >= 9'h1f2 || vrender <= 9'h10e || !vrender[8];
     cen      <= ~cen;
     if(!scan_done && cen) begin
-        if(!dr_busy) obj_sub <= obj_sub+2'd1;
-        case(obj_sub)
-            0: begin
-                ysub   <= ydiff[3:0];
-                inzone <= ydiff[7:4]==0;
-            end
-            1: {vflip,hflip,code[9:8],pal} <= ram_dout;
-            2: code[7:0] <= ram_dout;
-            3: begin
-                xpos <= ram_dout;
-                draw <= inzone;
-                {scan_done,obj_cnt}<={1'b0,obj_cnt}+6'd1;
-            end
-        endcase
+        if( order ) begin
+            order     <= 0;
+            obj_idx   <= ram_dout[4:0];
+            pal[5:4]  <= ram_dout[7:6];
+        end else begin
+            if(!dr_busy) obj_sub <= obj_sub+2'd1;
+            case(obj_sub)
+                0: begin
+                    ysub   <= ydiff[3:0];
+                    inzone <= ydiff[7:4]==0;
+                end
+                1: {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
+                2: code[7:0] <= ram_dout;
+                3: begin
+                    xpos      <= ram_dout;
+                    draw      <= inzone;
+                    scan_done <= obj_cnt==0;
+                    obj_cnt   <= obj_cnt-3'd1;
+                    order     <= 1;
+                end
+            endcase
+        end
     end
     if( (!lhbl && lhbl_l) || blank ) begin
         vlatch    <= vrender;
-        obj_cnt   <= 0;
+        obj_cnt   <= 7;
         obj_sub   <= 0;
         scan_done <= 0;
         cen       <= 0;
+        order     <= 1;
     end
 end
 
@@ -82,7 +105,7 @@ end
 // HB instead. I'm using a double-line buffer to ease the implementation
 jtframe_objdraw #(
     .CW(9),
-    .PW(8),
+    .PW(10),
     //SWAPH =  0,
     .HJUMP(0),
     .LATCH(1),
@@ -113,7 +136,7 @@ jtframe_objdraw #(
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),
 
-    .pxl        ( pxl       )
+    .pxl        ( {prio,pxl} )
 );
 
 endmodule

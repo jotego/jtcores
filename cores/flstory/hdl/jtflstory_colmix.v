@@ -20,23 +20,35 @@ module jtflstory_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
+
     input             lvbl,
     input             lhbl,
+    input      [ 1:0] pal_bank,
 
-    output reg [ 9:0] pal_addr,
-    input      [15:0] pal_dout,
+    output     [ 9:0] prio_addr,
+    input             prio_dout,
 
-    input       [7:0] scr_pxl,
-    input       [7:0] obj_pxl,
-    output      [3:0] red,
-    output      [3:0] green,
-    output      [3:0] blue
+    output     [ 9:0] pal_addr,
+    input      [11:0] pal_dout,
+
+    input       [1:0] scr_prio, obj_prio,
+    input       [7:0] scr_pxl, obj_pxl,
+    output      [3:0] red, green, blue
 );
 
 localparam [1:0] SCR = 2'b00,
                  OBJ = 2'b01;
 
+reg  [7:0] amux;
+wire       obj_op;
+
+assign pal_addr  = {pal_bank,amux};
+assign prio_addr = {pal_bank, obj_prio, scr_prio, obj_pxl[3:0]};
+assign obj_op    = obj_pxl[3:0]!=4'hf;
+
 always @(posedge clk) begin
+    amux <= obj_op && prio_dout ? obj_pxl : scr_pxl;
+    if(pxl_cen ) {red,green,blue} <= lvbl && lhbl ? pal_dout[11:0] : 12'd0;
 end
 
 endmodule    

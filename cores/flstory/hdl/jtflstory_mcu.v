@@ -17,54 +17,48 @@
     Date: 20-11-2024 */
 
 module jtflstory_mcu(
-    input            rst,
-    input            clk,
-    input            cen,
-    input            rd,
-    input            wr,
-    input      [7:0] cpu_dout,
-    output reg [7:0] dout,
-    output reg       stn,
-    output           irqn,
+    input             rst,
+    input             clk,
+    input             cen,
+    output            rd_n,
+    output            wr_n,
+    input      [ 7:0] cpu_dout,
+    output reg [ 7:0] dout,
+    output reg        stn,
+    output            irqn,
+    // bus sharing
+    output reg [15:0] baddr,
     // ROM
-    output    [10:0] rom_addr,
-    input     [ 7:0] rom_data
+    output     [10:0] rom_addr,
+    input      [ 7:0] rom_data
 );
 
-reg  [7:0] din;
-wire [7:0] pa_out, pb_out;
-reg        irq, mcu_wrnl;
-wire       clr, mcu_wrn, mcu_rdn;
+reg  [7:0] pb_l;
+wire [7:0] pa_out, pb_out, pa_in;
+wire       ash_n, asl_n, clr_n, clrn_l;
+reg        irq;
 
-assign mcu_wrn = pb_out[2];
-assign mcu_rdn = pb_out[1];
-assign clr     = pb_out[1];
+// communication to sub CPU not implemented
+assign pa_in = cpu_dout;
+assign ash_n = pb_out[7];
+assign asl_n = pb_out[6];
+assign m2sub = pb_out[5]; // 1 if main drives sub, 0 otherwise
+assign tosub = pb_out[4]; // 1 if PA drives SDB, 0 otherwise
+assign clr_n = pb_out[1];
+
+assign clrn_l = pb_l[1];
+// mcu2sub = pb_out[2];
+
+// m2sub is expected to be always high as sub CPU is not connected
+// PB4 then acts as an active high write signal (PA to global data bus)
 
 assign irqn = ~irq;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        dout     <= 0;
-        din      <= 0;
-        stn      <= 1;
-        irq      <= 0;
-        mcu_wrnl <= 0;
-    end else begin
-        mcu_wrnl <= mcu_wrn;
-        if( !mcu_wrn && mcu_wrnl ) begin
-            dout <= pa_out;
-            stn  <= 0; // MCU semaphore in MAME jargon
-        end
-        if( wr ) begin
-            irq <= 1;
-            din <= cpu_dout;
-            // if(!irq) $display("Wr %X to MCU",cpu_dout);
-        end
-        if( !mcu_rdn || clr ) begin
-            irq <= 0;
-        end
-        if( clr | rd ) stn <= 1;
-    end
+always @(posedge clk) begin
+    pb_l <= pb_out;
+    if( !ash_n ) baddr[15:8]<=pa_out;
+    if( !asl_n ) baddr[ 7:0]<=pa_out;
+    if( clr_n && !clrn_l ) irq <= 0;
 end
 
 jtframe_6805mcu  u_mcu (
@@ -77,7 +71,7 @@ jtframe_6805mcu  u_mcu (
     .irq        ( irq           ), // active high
     .timer      ( 1'b0          ),
     // Ports
-    .pa_in      ( din           ),
+    .pa_in      ( pa_in         ),
     .pa_out     ( pa_out        ),
     .pb_in      ( pb_out        ),
     .pb_out     ( pb_out        ),

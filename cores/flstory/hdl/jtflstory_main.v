@@ -21,19 +21,40 @@ module jtflstory_main(
     input            clk,
     input            cen,
     input            lvbl,       // video interrupt
+
+    output    [15:0] bus_addr,
+    output    [ 7:0] bus_din,
+    output           bus_rnw,
+
+    // Cabinet inputs
+    input     [ 1:0] cab_1p,
+    input     [ 1:0] coin,
+    input     [ 5:0] joystick1,
+    input     [ 5:0] joystick2,
+    input     [23:0] dipsw,
+    input            service,
+    input            tilt,
     // ROM access
     output reg       rom_cs,
     output    [14:0] rom_addr,
     input     [ 7:0] rom_data,
     input            rom_ok,
+
+    input     [ 7:0] debug_bus
 );
 `ifndef NOMAIN
 
-wire [15:0] A;
-wire        mreq_n, rfsh_n;
+wire [15:0] A, cpu_addr;
+wire [ 7:0] bus_din;
+reg  [ 7:0] cab;
+wire        mreq_n, rfsh_n, busak_n, busrq_n, rd_n, wr_n, mcu_wrn;
 reg         ram_cs, mmx_c, mmx_d, mmx_e, mmx_f;
 
+assign bus_addr = A;
 assign rom_addr = A[14:0];
+assign cpu_addr = busak_n ? mcu_addr : cpu_addr;
+assign bus_din  = busak_n ? mcu_dout : cpu_dout;
+assign bus_we   = busak_n ? ~wr_n    : ~mcu_wrn;
 
 always @* begin
     rom_cs  = 0;
@@ -61,6 +82,17 @@ always @* begin
     endcase
 end
 
+always @(posedge clk) begin
+    case(A[2:0])
+        0: cab <= dipsw[ 7: 0];
+        1: cab <= dipsw[15: 8];
+        2: cab <= dipsw[23:16];
+        3: cab <= {2'b11,coin,tilt,service,cab_1p};
+        4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
+        6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
+    endcase
+end
+
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),
     .clk        ( clk         ),
@@ -68,7 +100,8 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .cpu_cen    (             ),
     .int_n      ( lvbl        ), // int clear logic is internal
     .nmi_n      ( 1'b1        ),
-    .busrq_n    ( 1'b1        ),
+    .busrq_n    ( busrq_n     ),
+    .busak_n    ( busak_n     ),
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
@@ -76,8 +109,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
-    .busak_n    (             ),
-    .A          ( A           ),
+    .A          ( cpu_addr    ),
     .cpu_din    ( din         ),
     .cpu_dout   ( cpu_dout    ),
     .ram_dout   ( ram_dout    ),
