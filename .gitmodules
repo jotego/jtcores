@@ -39,7 +39,7 @@
 	url = https://www.github.com/jotego/jt8255
 [submodule "modules/jtkcpu"]
 	path = modules/jtkcpu
-	url = https://github.com/JTFPGA/jtkcpu.git
+	url = https://github.com/jotego/jtkcpu.git
 [submodule "modules/jt900h"]
 	path = modules/jt900h
 	url = git@github.com:jotego/jt900h.git
