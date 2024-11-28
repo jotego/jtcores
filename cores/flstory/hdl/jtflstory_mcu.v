@@ -32,7 +32,7 @@ module jtflstory_mcu(
     output     [10:0] rom_addr,
     input      [ 7:0] rom_data
 );
-
+`ifndef NOMAIN
 reg  [7:0] pb_l;
 wire [7:0] pa_out, pb_out, pa_in;
 wire       ash_n, asl_n, clr_n, clrn_l;
@@ -82,5 +82,13 @@ jtframe_6805mcu  u_mcu (
     .rom_data   ( rom_data      ),
     .rom_cs     (               )
 );
-
+`else
+assign  rd_n     = 0;
+assign  wr_n     = 0;
+assign  irqn     = 0;
+assign  rom_addr = 0;
+initial dout     = 0;
+initial stn      = 0;
+initial baddr    = 0;
+`endif
 endmodule

@@ -55,6 +55,7 @@ type BRAMBus struct {
     Din        string `yaml:"din"`  // optional name for din signal
     Dout       string `yaml:"dout"` // optional name for dout signal
     Sim_file   bool   `yaml:"sim_file"`
+    Prom       bool   `yaml:"prom"` // program contents after JTFRAME_PROM_START
     Ioctl      struct {
         Save bool `yaml:"save"`
         Order int `yaml:"order"`

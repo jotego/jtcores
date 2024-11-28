@@ -90,4 +90,10 @@ bram:
       sim_file: required if load is skipped
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
+    # BRAM used as PROM. Data width must be 8 or less
+    # Currently only support for a single BRAM PROM is implemented
+    - name: mcu
+      addr_width: 11
+      data_width: 8
+      prom: true
 ```

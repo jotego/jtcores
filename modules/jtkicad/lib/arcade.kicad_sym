@@ -41203,23 +41203,24 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 0 0 0)
+			(at -3.81 6.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "MC3301P"
-			(at 0 -2.54 0)
+			(at 0 0 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 1.016 1.016)
 				)
 			)
 		)
 		(property "Footprint" ""
-			(at 1.27 0 0)
+			(at 0 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41228,7 +41229,7 @@
 			)
 		)
 		(property "Datasheet" "https://html.alldatasheet.com/html-pdf/126357/MOTOROLA/MC3301P/384/1/MC3301P.html"
-			(at 1.27 -6.35 0)
+			(at 3.81 -8.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41237,7 +41238,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 0)
+			(at -1.27 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41246,72 +41247,9 @@
 			)
 		)
 		(symbol "MC3301P_0_0"
-			(text ""
-				(at -7.62 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text ""
-				(at -7.62 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text ""
-				(at -6.35 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text ""
-				(at -6.35 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text ""
-				(at -2.54 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text ""
-				(at -2.54 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-		)
-		(symbol "MC3301P_0_1"
-			(rectangle
-				(start -5.08 7.62)
-				(end 5.08 -7.62)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-		)
-		(symbol "MC3301P_1_0"
 			(polyline
 				(pts
-					(xy -1.27 3.302) (xy -1.27 -2.794) (xy 4.318 0) (xy -1.27 3.302)
+					(xy -3.81 5.08) (xy -3.81 -5.08) (xy 5.08 0) (xy -3.81 5.08)
 				)
 				(stroke
 					(width 0.254)
@@ -41321,15 +41259,63 @@
 					(type background)
 				)
 			)
+			(text ""
+				(at -8.89 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text ""
+				(at -8.89 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text ""
+				(at -7.62 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text ""
+				(at -7.62 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text ""
+				(at -3.81 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text ""
+				(at -3.81 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 		)
 		(symbol "MC3301P_1_1"
 			(pin input line
-				(at -6.35 1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "+"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41342,12 +41328,12 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "-"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41360,9 +41346,9 @@
 				)
 			)
 			(pin output line
-				(at 8.89 0 180)
-				(length 5.08)
-				(name "OUT"
+				(at 7.62 0 180)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -41378,28 +41364,14 @@
 				)
 			)
 		)
-		(symbol "MC3301P_2_0"
-			(polyline
-				(pts
-					(xy -1.27 3.302) (xy -1.27 -2.794) (xy 4.318 0) (xy -1.27 3.302)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-		)
 		(symbol "MC3301P_2_1"
 			(pin input line
-				(at -6.35 1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "+"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41412,9 +41384,9 @@
 				)
 			)
 			(pin output line
-				(at 8.89 0 180)
-				(length 5.08)
-				(name "OUT"
+				(at 7.62 0 180)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -41430,12 +41402,12 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "-"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41448,28 +41420,14 @@
 				)
 			)
 		)
-		(symbol "MC3301P_3_0"
-			(polyline
-				(pts
-					(xy -1.27 3.302) (xy -1.27 -2.794) (xy 4.318 0) (xy -1.27 3.302)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-		)
 		(symbol "MC3301P_3_1"
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "+"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41482,12 +41440,12 @@
 				)
 			)
 			(pin input line
-				(at -6.35 1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "-"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41500,9 +41458,9 @@
 				)
 			)
 			(pin output line
-				(at 8.89 0 180)
-				(length 5.08)
-				(name "OUT"
+				(at 7.62 0 180)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -41518,25 +41476,11 @@
 				)
 			)
 		)
-		(symbol "MC3301P_4_0"
-			(polyline
-				(pts
-					(xy -1.27 3.302) (xy -1.27 -2.794) (xy 4.318 0) (xy -1.27 3.302)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-		)
 		(symbol "MC3301P_4_1"
 			(pin output line
-				(at 8.89 0 180)
-				(length 5.08)
-				(name "OUT"
+				(at 7.62 0 180)
+				(length 2.54)
+				(name ""
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -41552,12 +41496,12 @@
 				)
 			)
 			(pin input line
-				(at -6.35 1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 -2.54 0)
+				(length 2.54)
+				(name "-"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41570,12 +41514,12 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -1.27 0)
-				(length 5.08)
-				(name "IN"
+				(at -6.35 2.54 0)
+				(length 2.54)
+				(name "+"
 					(effects
 						(font
-							(size 0.762 0.762)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -41590,7 +41534,7 @@
 		)
 		(symbol "MC3301P_5_1"
 			(text "+"
-				(at 0 6.35 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -41598,8 +41542,8 @@
 				)
 			)
 			(pin power_in line
-				(at 0 7.62 270)
-				(length 5.08) hide
+				(at 0 5.08 270)
+				(length 1.27) hide
 				(name "VCC"
 					(effects
 						(font
@@ -41616,8 +41560,8 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -7.62 90)
-				(length 5.08) hide
+				(at 0 -5.08 90)
+				(length 1.27) hide
 				(name "VSS"
 					(effects
 						(font
@@ -51802,6 +51746,184 @@
 					)
 				)
 				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "R2R4B"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 3.81 6.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" ""
+			(at 0 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "R2R4B_1_1"
+			(rectangle
+				(start -3.81 5.08)
+				(end 3.81 -5.08)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(text "R2R"
+				(at 1.27 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(pin passive line
+				(at 6.35 3.81 180)
+				(length 2.54)
+				(name "2R"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -6.35 3.81 0)
+				(length 2.54)
+				(name "R0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -6.35 1.27 0)
+				(length 2.54)
+				(name "R1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -6.35 -1.27 0)
+				(length 2.54)
+				(name "R2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -6.35 -3.81 0)
+				(length 2.54)
+				(name "R3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 6.35 -3.81 180)
+				(length 2.54)
+				(name "X"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
 					(effects
 						(font
 							(size 1.27 1.27)

@@ -5,6 +5,9 @@ game:
 jtframe:
   - get:
       - jtframe_edge.v
+  - from: clocking
+    get:
+      - jtframe_cendiv.v
   - from: cpu
     get:
       - jtframe_z80.yaml

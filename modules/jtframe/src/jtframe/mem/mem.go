@@ -244,7 +244,22 @@ func add_game_ports(args Args, cfg *MemConfig) {
 	}
 }
 
-func check_banks( macros map[string]string, cfg *MemConfig ) {
+func check_bram( macros map[string]string, cfg *MemConfig ) error {
+	prom_cnt := 0
+	for _, bram := range cfg.BRAM {
+		if !bram.Prom { continue }
+		if prom_cnt!=0 {
+			return fmt.Errorf("Currently only support for a single PROM BRAM block is implemented")
+		}
+		if bram.Data_width>8 {
+			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits",bram.Name, bram.Data_width )
+		}
+		prom_cnt++
+	}
+	return nil
+}
+
+func check_banks( macros map[string]string, cfg *MemConfig ) error {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
@@ -291,7 +306,7 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml
 		}
 	}
 	if bad {
-		os.Exit(1)
+		return fmt.Errorf("Errors detected in SDRAM definition in mem.yaml")
 	}
 
 	// Check that the required files are available
@@ -337,6 +352,7 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml
 			cfg.Unused[k] = true
 		}
 	}
+	return nil
 }
 
 func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool ) {
@@ -643,6 +659,16 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
 }
 
+func report_exit( ee ...error ) {
+	exit := false
+	for _, e := range ee {
+		if e == nil {  continue }
+		exit = true
+		fmt.Println(e)
+	}
+	if exit { os.Exit(1) }
+}
+
 func Run(args Args) {
 	var cfg MemConfig
 	if !parse_file(args.Core, "mem", &cfg, args) {
@@ -652,7 +678,11 @@ func Run(args Args) {
 	}
 	macros := def.Get_Macros( args.Core, args.Target )
 	bankOffset( &cfg, macros, args.Core )
-	check_banks( macros, &cfg )
+	// Checks
+	e_banks := check_banks( macros, &cfg )
+	e_bram := check_bram( macros, &cfg )
+	report_exit( e_banks, e_bram )
+	// Data arrangement
 	fill_implicit_ports( macros, &cfg, args.Verbose )
 	make_ioctl( macros, &cfg, args.Verbose )
 	fill_gfx_sort( macros, &cfg )

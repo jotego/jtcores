@@ -368,7 +368,23 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 
 {{ range $cnt, $bus:=.BRAM -}}
-{{- if $bus.Dual_port.Name }}
+{{- if $bus.Prom }}
+wire {{addr_range .}} {{$bus.Name}}_pa;
+assign {{$bus.Name}}_pa = raw_addr{{addr_range .}}-`JTFRAME_PROM_START{{addr_range .}};
+jtframe_prom #(
+    .DW({{$bus.Data_width}}),
+    .AW({{$bus.Addr_width}}){{ if $bus.Sim_file }},
+    .SIMFILE("{{$bus.Name}}.bin"){{end}}
+) u_prom_{{$bus.Name}}(
+    .clk        ( clk           ),
+    .cen        ( 1'b1          ),
+    .data       ( raw_data{{data_range .}}),
+    .rd_addr    ( {{$bus.Addr}} ),
+    .wr_addr    ( {{$bus.Name}}_pa ),
+    .we         ( prom_we       ),
+    .q          ( {{$bus.Name}}_data )
+);
+{{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},

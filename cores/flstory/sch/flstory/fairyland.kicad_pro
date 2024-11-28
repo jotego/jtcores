@@ -438,7 +438,7 @@
     ],
     [
       "f566b6cb-2bad-4085-a0a3-8260db2e02fc",
-      "Amplifiers & Connector"
+      "Analog"
     ],
     [
       "ff374925-5a69-4797-8d83-abcb6aadd80e",
@@ -478,7 +478,15 @@
     ],
     [
       "ae4b6ec6-8c85-4200-965a-bd5292c28f91",
-      "Communication Latches"
+      "Latches"
+    ],
+    [
+      "f44c7d6a-581e-4730-ad49-ae10aebd300b",
+      "Sound Generators"
+    ],
+    [
+      "d15ec766-ae93-4a9c-abe3-36ef9e820a11",
+      "Clocks"
     ]
   ],
   "text_variables": {}
