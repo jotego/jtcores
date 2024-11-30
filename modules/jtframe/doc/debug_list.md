@@ -74,7 +74,6 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] Files in Patreon
 **After publishing**
 - [ ] Tweet about the beta
-- [ ] Files in #betafiles, including jtbeta.zip as a separate file
 
 ## Public release
 

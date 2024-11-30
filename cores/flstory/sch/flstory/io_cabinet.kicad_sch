@@ -13488,7 +13488,7 @@
 		)
 		(uuid "84ac84e6-604e-4cfd-bb84-deb6a8f4af4d")
 	)
-	(label "SDB1"
+	(label "SBD1"
 		(at 372.11 115.57 180)
 		(fields_autoplaced yes)
 		(effects
@@ -14186,7 +14186,7 @@
 		)
 		(uuid "2d059c28-d593-4a08-b75e-4de5d1ca4890")
 	)
-	(hierarchical_label "~{PC1}"
+	(hierarchical_label "OBF"
 		(shape input)
 		(at 334.01 128.27 180)
 		(fields_autoplaced yes)
@@ -14366,7 +14366,7 @@
 		)
 		(uuid "b595f889-4498-455e-8d92-7a113a66706f")
 	)
-	(hierarchical_label "~{PC1}"
+	(hierarchical_label "OBF"
 		(shape input)
 		(at 256.54 85.09 180)
 		(fields_autoplaced yes)
@@ -14438,7 +14438,7 @@
 		)
 		(uuid "db1837b1-1790-4584-b279-be69103ec174")
 	)
-	(hierarchical_label "SDB[0..1]"
+	(hierarchical_label "SBD[0..1]"
 		(shape tri_state)
 		(at 378.46 118.11 0)
 		(fields_autoplaced yes)
@@ -15323,7 +15323,7 @@
 		(dnp no)
 		(uuid "16c33b28-b572-4afc-aea8-b3893a853a5c")
 		(property "Reference" "B15"
-			(at 287.02 125.73 0)
+			(at 293.37 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15995,7 +15995,7 @@
 		(dnp no)
 		(uuid "3035a355-15ea-4614-81db-a165aec4bfab")
 		(property "Reference" "B6"
-			(at 287.02 209.55 0)
+			(at 293.37 198.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18450,7 +18450,7 @@
 		(dnp no)
 		(uuid "76f39e6f-d96e-452f-a505-cabc03c81d38")
 		(property "Reference" "B16"
-			(at 345.44 62.23 0)
+			(at 359.41 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19323,7 +19323,7 @@
 		(dnp no)
 		(uuid "92839a58-ad2d-4c03-81e1-90a552cda339")
 		(property "Reference" "B13"
-			(at 287.02 43.18 0)
+			(at 293.37 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21226,7 +21226,7 @@
 		(dnp no)
 		(uuid "c2ce52e8-35a8-4eba-a690-f7a9f880bf28")
 		(property "Reference" "B7"
-			(at 287.02 167.64 0)
+			(at 293.37 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21634,7 +21634,7 @@
 		(dnp no)
 		(uuid "c7e40c22-3658-4544-be49-0ffb1eed7fb9")
 		(property "Reference" "B5"
-			(at 287.02 251.46 0)
+			(at 293.37 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22969,7 +22969,7 @@
 		(dnp no)
 		(uuid "e2f0b986-edca-4882-bf32-74a86583633e")
 		(property "Reference" "B14"
-			(at 345.44 111.76 0)
+			(at 359.41 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)

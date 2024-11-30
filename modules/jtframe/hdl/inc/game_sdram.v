@@ -367,10 +367,13 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 {{ end -}}
 
+`ifdef JTFRAME_PROM_START
+localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
+`endif
 {{ range $cnt, $bus:=.BRAM -}}
 {{- if $bus.Prom }}
 wire {{addr_range .}} {{$bus.Name}}_pa;
-assign {{$bus.Name}}_pa = raw_addr{{addr_range .}}-`JTFRAME_PROM_START{{addr_range .}};
+assign {{$bus.Name}}_pa = raw_addr{{addr_range .}}-JTFRAME_PROM_START{{addr_range .}};
 jtframe_prom #(
     .DW({{$bus.Data_width}}),
     .AW({{$bus.Addr_width}}){{ if $bus.Sim_file }},

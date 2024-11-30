@@ -20,29 +20,69 @@ module jtflstory_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire       ghflip, gvflip, cen_mcu;
-wire [1:0] pal_bank;
+wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen,
+            mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, b2c_rd, b2c_wr;
+wire [15:0] c2b_addr, bus_addr;
+wire [ 7:0] bus_din, s2m_data,
+            c2b_dout, cpu_dout, mcu2bus;
+wire [ 1:0] pal_bank, scr_bank;
+wire        rst_main;
 
-jtframe_cendiv u_cendiv(
-    .clk        ( clk       ),
-    .cen_in     ( pxl_cen   ),
-    .cen_div    ( cen_mcu   ),
-    .cen_da     (           )
+assign bus_a0     = bus_addr[0];
+assign dip_flip   = gvflip | ghflip;
+assign ioctl_din  = 0;
+assign debug_view = 0;
+
+// Let the MCU come out of reset first to take control of the port signals
+jtframe_sh #(.W(1),.L(8)) u_sh(
+    .clk    ( clk       ),
+    .clk_en ( cen_5p3   ),
+    .din    ( rst       ),
+    .drop   ( rst_main  )
 );
 
 jtflstory_main u_main(
-    .rst        ( rst       ),
+    .rst        ( rst_main  ),
     .clk        ( clk       ),
     .cen        ( cen_5p3   ),
-    .lvbl       ( lvbl      ),       // video interrupt
+    .lvbl       ( LVBL      ),       // video interrupt
 
     .bus_addr   ( bus_addr  ),
     .bus_din    ( bus_din   ),
-    .bus_rnw    ( bus_rnw   ),
+    .bus_dout   ( bus_dout  ),
+    .cpu_dout   ( cpu_dout  ),
 
+    // shared memory
+    .sha_we     ( sha_we    ),
+    .sha_dout   ( sha_dout  ),
+    // bus sharing with MCU
+    .busak_n    ( busak_n   ),
+    .busrq_n    ( busrq_n   ),
+    .c2b_addr   ( c2b_addr  ),
+    .c2b_dout   ( c2b_dout  ),
+    .c2b_we     ( c2b_we    ),
+    .mcu2bus    ( mcu2bus   ),
+    .b2c_rd     ( b2c_rd    ),
+    .b2c_wr     ( b2c_wr    ),
+    // sound
+    .m2s_wr     ( m2s_wr    ),
+    .s2m_rd     ( s2m_rd    ),
+    .s2m_data   ( s2m_data  ),
+    // video memories
+    .pal16_we   ( pal16_we  ),
+    .pal16_dout ( pal16_dout),
+    .vram16_dout(vram16_dout),
+    .oram8_dout ( oram8_dout),
+    .vram_we    ( vram_we   ),
+    .oram_we    ( oram_we   ),
+    .scr_bank   ( scr_bank  ),
+    .pal_bank   ( pal_bank  ),
+    .scr_flen   ( scr_flen  ),
+    .ghflip     ( ghflip    ),
+    .gvflip     ( gvflip    ),
     // Cabinet inputs
-    .cab_1p     ( cab_1p    ),
-    .coin       ( coin      ),
+    .cab_1p     (cab_1p[1:0]),
+    .coin       ( coin[1:0] ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .dipsw      (dipsw[23:0]),
@@ -60,15 +100,23 @@ jtflstory_main u_main(
 jtflstory_mcu u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen       ),
-    .rd_n       ( rd_n      ),
-    .wr_n       ( wr_n      ),
-    .cpu_dout   ( cpu_dout  ),
-    .dout       ( dout      ),
-    .stn        ( stn       ),
-    .irqn       ( irqn      ),
-    // bus sharing
-    .baddr      ( baddr     ),
+    .cen        ( cen_mcu   ),
+
+    .busrq_n    ( busrq_n   ),
+    .busak_n    ( busak_n   ),
+    .obf        ( mcu_obf   ),
+    .ibf        ( mcu_ibf   ),
+    // MCU as bus master
+    .bm_addr    ( c2b_addr  ),
+    .bm_dout    ( c2b_dout  ),
+    .bm_din     ( bus_din   ),
+    .bm_we      ( c2b_we    ),
+    .bm_rd      (           ),
+    // MCU as bus slave
+    .bs_wr      ( b2c_wr    ),
+    .bs_rd      ( b2c_rd    ),
+    .bs_dout    ( bus_dout  ),
+    .bs_din     ( mcu2bus   ),
     // ROM
     .rom_addr   ( mcu_addr  ),
     .rom_data   ( mcu_data  )
@@ -81,12 +129,11 @@ jtflstory_sound u_sound(
     .cen2       ( cen2      ),
 
     // communication with the other CPUs
-    .bus_dout   ( bus_dout  ),
-    .bus_wr     ( bus_wr    ),
-    .bus_rd     ( bus_rd    ),
-    .bus_cs     ( bus_cs    ),
+    .bus_wr     ( m2s_wr    ),
+    .bus_rd     ( s2m_rd    ),
     .bus_a0     ( bus_a0    ),
-    .bus_din    ( bus_din   ),
+    .bus_dout   ( bus_dout  ),
+    .bus_din    ( s2m_data  ),
 
     .rom_addr   ( snd_addr  ),
     .rom_data   ( snd_data  ),
@@ -95,6 +142,7 @@ jtflstory_sound u_sound(
 
     // sound output
     .psg        ( psg       ),
+    .dac        ( dac       ),
     .debug_bus  ( debug_bus )
 );
 
@@ -110,9 +158,11 @@ jtflstory_video u_video(
     .vs         ( VS        ),
     .hs         ( HS        ),
 
+    .scr_flen   ( scr_flen  ),
+    .scr_bank   ( scr_bank  ),
     // Scroll
     .vram_addr  ( vram_addr ),
-    .vram_data  ( vram_data ),
+    .vram_data  ( vram_dout ),
     .scr_addr   ( scr_addr  ),
     .scr_data   ( scr_data  ),
     .scr_cs     ( scr_cs    ),
@@ -130,8 +180,6 @@ jtflstory_video u_video(
 
     // palette - color mixer
     .pal_bank   ( pal_bank  ),
-    .prio_addr  ( prio_addr ),
-    .prio_dout  ( prio_dout ),
     .pal_addr   ( pal_addr  ),
     .pal_dout   ( pal_dout  ),
     .red        ( red       ),

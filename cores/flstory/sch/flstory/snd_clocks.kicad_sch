@@ -5,6 +5,7 @@
 	(uuid "975f8894-37ec-4561-a5db-d19cfe22e4bb")
 	(paper "A3")
 	(title_block
+		(title "Sound Clock Generation")
 		(date "2024-11-16")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")

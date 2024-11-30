@@ -57,6 +57,8 @@ reg         port_cs, ram_cs, prmx_l, mor_l, fpin_l;
 wire        fpin, mcu_i, tirq, prmx, tstop;
 wire [ 7:0] nx_tdr, prfull;
 
+integer k;
+
 assign rom_addr = rst ? MOR_ADDR[ROMW-1:0] : addr[ROMW-1:0];
 assign ram_we   = ram_cs & wr;
 assign fpin     = (cendiv[1] | tcr[TIN]) & (timer | ~|{tcr[TIE],mor[TOPT]});
@@ -113,6 +115,13 @@ always @(posedge clk, posedge rst) begin
                 if( dout[3] ) pres <= 7'h7f;
             end
         endcase
+        for(k=0;k<8;k=k+1) begin
+            if(!pa_ddr[k]) pa_out[k] <= pa_in[k];
+            if(!pb_ddr[k]) pb_out[k] <= pb_in[k];
+        end
+        for(k=0;k<4;k=k+1) begin
+            if(!pc_ddr[k]) pc_out[k] <= pc_in[k];
+        end
     end
 end
 

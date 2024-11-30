@@ -7462,12 +7462,6 @@
 		(uuid "51e5f3c4-0dbe-45d3-920e-f4b202e60443")
 	)
 	(junction
-		(at 80.01 223.52)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5f1e088b-16d9-4834-844e-96bfa49a63ea")
-	)
-	(junction
 		(at 113.03 218.44)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9221,16 +9215,6 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 223.52) (xy 113.03 223.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e209a12-f96c-4299-bcf4-8a769c7d5da8")
-	)
-	(wire
-		(pts
 			(xy 320.04 125.73) (xy 325.12 125.73)
 		)
 		(stroke
@@ -10581,7 +10565,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 223.52) (xy 80.01 223.52)
+			(xy 71.12 223.52) (xy 113.03 223.52)
 		)
 		(stroke
 			(width 0)
@@ -11921,16 +11905,6 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 210.82) (xy 80.01 223.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cb2e77a6-3de0-4ac8-9d63-3541d78b4d70")
-	)
-	(wire
-		(pts
 			(xy 200.66 125.73) (xy 207.01 125.73)
 		)
 		(stroke
@@ -12408,16 +12382,6 @@
 			(type default)
 		)
 		(uuid "e3ae644b-c433-4e09-b7d1-e3a16659e1a7")
-	)
-	(wire
-		(pts
-			(xy 80.01 210.82) (xy 86.36 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3ef10cd-5196-4925-a920-1ce953e798f1")
 	)
 	(wire
 		(pts
@@ -13422,17 +13386,6 @@
 		)
 		(uuid "24c73d4d-f2ee-49b2-864e-40d35aa37aef")
 	)
-	(label "~{MAxDC}*"
-		(at 125.73 63.5 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "26016a27-38ad-489d-82cc-5d3240f80283")
-	)
 	(label "D1"
 		(at 212.09 30.48 0)
 		(fields_autoplaced yes)
@@ -14116,7 +14069,7 @@
 		)
 		(uuid "590601ec-8de1-4bc2-9c1a-d89b844ce091")
 	)
-	(label "IC71_11"
+	(label "~{SHAWE}"
 		(at 71.12 223.52 0)
 		(fields_autoplaced yes)
 		(effects
@@ -16052,6 +16005,18 @@
 			(justify right)
 		)
 		(uuid "ab7fb457-c43f-42b7-88f8-b93d3d35bd78")
+	)
+	(hierarchical_label "~{MAxDC}*"
+		(shape input)
+		(at 125.73 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d5335561-07cc-4618-b6d3-39a5d4c5ff4a")
 	)
 	(hierarchical_label "SUM[0..7]"
 		(shape output)
@@ -18578,111 +18543,6 @@
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2/1af4ccb3-690b-4ad5-98c7-ebb6bbd9993e"
 					(reference "IC62")
 					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS32")
-		(at 93.98 208.28 0)
-		(mirror x)
-		(unit 3)
-		(convert 2)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d5031f96-acc3-4a5e-b9c3-3b57e9771801")
-		(property "Reference" "IC97"
-			(at 93.98 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS32"
-			(at 93.98 207.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 93.98 208.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 93.98 208.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Quad 2-input OR"
-			(at 93.98 208.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "1d199f4c-5c93-46bd-9388-9f17cf457031")
-		)
-		(pin "2"
-			(uuid "ce6591d6-38be-406e-a351-53d24fe619e6")
-		)
-		(pin "10"
-			(uuid "0a61e5b4-ec1f-4313-a94e-852640aa929c")
-		)
-		(pin "6"
-			(uuid "c4605261-bd3b-4e8a-9db1-08d35dcd297f")
-		)
-		(pin "11"
-			(uuid "baa50c09-6985-4f67-bcf9-78c1d24cfc5c")
-		)
-		(pin "8"
-			(uuid "9b5d8496-f9e5-4a59-acd2-beeeb0fd5a18")
-		)
-		(pin "14"
-			(uuid "e571fd12-e049-484b-ace3-01fc87a347fd")
-		)
-		(pin "5"
-			(uuid "f087b10f-19cd-40ad-833a-b335d1ffeac8")
-		)
-		(pin "7"
-			(uuid "3dbfd3af-b82c-4fef-b62c-97e7e5c9c8eb")
-		)
-		(pin "4"
-			(uuid "71caca16-0b07-4456-9bb5-e2c395752c64")
-		)
-		(pin "13"
-			(uuid "c9207281-ba05-440a-a277-5ee6bf2c1aa9")
-		)
-		(pin "9"
-			(uuid "bc8bd064-fc4d-48f2-9757-148145dffccd")
-		)
-		(pin "1"
-			(uuid "f9908adb-4a71-41a4-a085-5f882bbf53f6")
-		)
-		(pin "12"
-			(uuid "0faa6646-2529-44e2-858f-1cb8ab8b3fee")
-		)
-		(instances
-			(project "fairyland"
-				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2/1af4ccb3-690b-4ad5-98c7-ebb6bbd9993e"
-					(reference "IC97")
-					(unit 3)
 				)
 			)
 		)

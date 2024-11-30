@@ -20,45 +20,62 @@ module jtflstory_mcu(
     input             rst,
     input             clk,
     input             cen,
-    output            rd_n,
-    output            wr_n,
-    input      [ 7:0] cpu_dout,
-    output reg [ 7:0] dout,
-    output reg        stn,
-    output            irqn,
-    // bus sharing
-    output reg [15:0] baddr,
+
+    // bus status
+    output reg        obf,
+    output reg        ibf,
+    output            busrq_n,
+    input             busak_n,
+    // as bus master
+    output reg [15:0] bm_addr,
+    output     [ 7:0] bm_dout,
+    input      [ 7:0] bm_din,
+    output            bm_we,    // active high
+    output            bm_rd,
+    // as bus slave
+    input             bs_wr,    // write to the comm latch
+    input             bs_rd,    // read from the comm latch
+    input      [ 7:0] bs_dout,
+    output     [ 7:0] bs_din,
     // ROM
     output     [10:0] rom_addr,
     input      [ 7:0] rom_data
 );
 `ifndef NOMAIN
-reg  [7:0] pb_l;
-wire [7:0] pa_out, pb_out, pa_in;
-wire       ash_n, asl_n, clr_n, clrn_l;
-reg        irq;
+localparam  COMM_RD = 1,
+            COMM_WR = 2,
+            BUSRQ_N = 3,
+            BUSM_WE = 4,
+            BUSM_RD = 5,
+            ADLO_LE = 6,
+            ADHI_LE = 7;
 
-// communication to sub CPU not implemented
-assign pa_in = cpu_dout;
-assign ash_n = pb_out[7];
-assign asl_n = pb_out[6];
-assign m2sub = pb_out[5]; // 1 if main drives sub, 0 otherwise
-assign tosub = pb_out[4]; // 1 if PA drives SDB, 0 otherwise
-assign clr_n = pb_out[1];
+reg  [7:0] bus2mcu, mcu2bus, pbl;
+wire [7:0] pa_in, pa_out, pb_out;
+wire [3:0] pc_in;
 
-assign clrn_l = pb_l[1];
-// mcu2sub = pb_out[2];
-
-// m2sub is expected to be always high as sub CPU is not connected
-// PB4 then acts as an active high write signal (PA to global data bus)
-
-assign irqn = ~irq;
+assign pc_in   = {2'b11,~obf,ibf};
+assign busrq_n =  pb_out[BUSRQ_N];
+assign bm_we   = ~pb_out[BUSM_WE];
+assign bm_rd   = ~pb_out[BUSM_RD];
+assign pa_in   = busak_n ? bus2mcu : bm_din;
+assign bs_din  = mcu2bus;
+assign bm_dout = pa_out;
 
 always @(posedge clk) begin
-    pb_l <= pb_out;
-    if( !ash_n ) baddr[15:8]<=pa_out;
-    if( !asl_n ) baddr[ 7:0]<=pa_out;
-    if( clr_n && !clrn_l ) irq <= 0;
+    pbl <= pb_out;
+    if(bm_we) begin
+        bus2mcu <= bm_dout;
+        ibf     <= 1;
+    end
+    if(rst | bm_rd) obf <= 0;
+    if( ~pbl[COMM_WR] & pb_out[COMM_WR] ) begin
+        mcu2bus <= pa_out;
+        obf <= 1;
+    end
+    if( ~pbl[COMM_RD] & pb_out[COMM_RD] ) ibf <= 0;
+    if( ~pbl[ADHI_LE] & pb_out[ADHI_LE] ) bm_addr[15:8] <= pa_out;
+    if( ~pbl[ADLO_LE] & pb_out[ADLO_LE] ) bm_addr[ 7:0] <= pa_out;
 end
 
 jtframe_6805mcu  u_mcu (
@@ -68,14 +85,14 @@ jtframe_6805mcu  u_mcu (
     .wr         (               ),
     .addr       (               ),
     .dout       (               ),
-    .irq        ( irq           ), // active high
+    .irq        ( ibf           ),
     .timer      ( 1'b0          ),
     // Ports
     .pa_in      ( pa_in         ),
     .pa_out     ( pa_out        ),
-    .pb_in      ( pb_out        ),
+    .pb_in      ( 8'hff         ), // pull up
     .pb_out     ( pb_out        ),
-    .pc_in      ({2'b11,stn,irq}),
+    .pc_in      ( pc_in         ),
     .pc_out     (               ),
     // ROM interface
     .rom_addr   ( rom_addr      ),
@@ -83,12 +100,6 @@ jtframe_6805mcu  u_mcu (
     .rom_cs     (               )
 );
 `else
-assign  rd_n     = 0;
-assign  wr_n     = 0;
-assign  irqn     = 0;
 assign  rom_addr = 0;
-initial dout     = 0;
-initial stn      = 0;
-initial baddr    = 0;
 `endif
 endmodule

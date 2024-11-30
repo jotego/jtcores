@@ -39,6 +39,27 @@ clocks:
         - cen_fm
         - cen_fm2
 
+# Audio filters and accumulator
+audio:
+  rsum: 1k
+  mute: true  # add mute signal
+  RC: { r: 1k, c: 1n } # global RC filter
+  Channels:
+    - Name: psg
+      Rsum: 1k
+      Rout: 100k
+      Pre: 0.5    # pre-amplifier gain
+      Vpp: 5      # peak-to-peak amplitude in Volts
+      RC:
+        - { r: 1k, c: 1n }  # up to two filters
+        - ...
+      # Fir: myfilter.csv   # use RC or FIR filter
+      DCrm: true  # DC offset removal
+      stereo: true
+      unsigned: false
+      data_width: 12
+      rc_en: true # add a signal to control the RC filters
+
 # Details about the SDRAM usage
 sdram:
   banks:

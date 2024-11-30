@@ -27,6 +27,7 @@ module jtflstory_obj(
     input             pxl_cen,
     input             lhbl,
     input             lvbl,
+    input             hs,
     input             flip,
 
     input       [8:0] vrender,
@@ -35,7 +36,7 @@ module jtflstory_obj(
     output     [ 7:0] ram_addr,
     input      [ 7:0] ram_dout,
     // ROM
-    output     [15:2] rom_addr,
+    output     [16:2] rom_addr,
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -44,13 +45,15 @@ module jtflstory_obj(
 );
 
 reg  [9:0] code;
-reg  [2:0] obj_cnt, obj_idx;
-reg  [3:0] ysub;
+reg  [7:0] vlatch, xpos;
 reg  [5:0] pal;
-wire [7:0] ydiff;
-reg  [7:0] vlatch;
+reg  [4:0] obj_idx;
+reg  [3:0] ysub;
+reg  [2:0] obj_cnt;
 reg  [1:0] obj_sub;
-reg        lhbl_l, draw, scan_done, inzone, order, active=0;
+wire [7:0] ydiff;
+reg        lhbl_l, lvbl_l, cen, draw, scan_done, hflip, vflip,
+           inzone, order, active=0, blank;
 wire       dr_busy;
 
 assign ram_addr = lhbl  ? {3'b101,hdump[7:3]} :
@@ -92,7 +95,7 @@ always @(posedge clk) begin
         end
     end
     if( (!lhbl && lhbl_l) || blank ) begin
-        vlatch    <= vrender;
+        vlatch    <= vrender[7:0];
         obj_cnt   <= 7;
         obj_sub   <= 0;
         scan_done <= 0;
@@ -104,7 +107,7 @@ end
 // original does not use a double line buffer. It buffers the data during
 // HB instead. I'm using a double-line buffer to ease the implementation
 jtframe_objdraw #(
-    .CW(9),
+    .CW(10),
     .PW(10),
     //SWAPH =  0,
     .HJUMP(0),
@@ -121,8 +124,8 @@ jtframe_objdraw #(
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
     .code       ( code      ),
-    .xpos       ( xpos      ),
-    .ysub       ( ydiff     ),
+    .xpos       ({1'b0,xpos}),
+    .ysub       ( ysub      ),
     // optional zoom, keep at zero for no zoom
     .hzoom      ( 6'd0      ),
     .hz_keep    ( 1'b0      ), // set at 1 for the first tile

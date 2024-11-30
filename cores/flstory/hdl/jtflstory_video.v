@@ -29,45 +29,44 @@ module jtflstory_video(
     output            hs,
 
     // Scroll
+    input      [ 1:0] scr_bank,
     output     [10:1] vram_addr,
     input      [15:0] vram_data,
-    output     [14:2] scr_addr,
+    output     [16:2] scr_addr,
     input      [31:0] scr_data,
     output            scr_cs,
     input             scr_ok,
+    input             scr_flen,
 
     // Objects
     //      RAM shared with CPU
     output     [ 7:0] oram_addr,
     input      [ 7:0] oram_dout,
     //      ROM
-    output     [14:2] obj_addr,
+    output     [16:2] obj_addr,
     input      [31:0] obj_data,
     output            obj_cs,
     input             obj_ok,
 
     // palette - color mixer
     input      [ 1:0] pal_bank,
-    output     [ 9:0] prio_addr,
-    input             prio_dout,
     output     [ 9:0] pal_addr,
-    input      [11:0] pal_dout,
+    input      [15:0] pal_dout,
     output     [ 3:0] red, green, blue
 );
 
 wire [31:0] scr_sorted;
 wire [ 8:0] vdump, vrender, hdump, scry;
 wire [ 7:0] scr_pxl, obj_pxl;
-wire [10:0] scr_code;
-wire        scr_bank;
+wire [11:0] scr_code;
 wire [ 5:0] scr_pal;
 wire [ 1:0] scr_prio, obj_prio;
-wire        flip;
+wire        flip, scr_hflip, scr_vflip;
 
-assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 1+2+8=11 bits
+assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 2+2+8=12 bits
 assign scr_pal   = { vram_data[14:13], vram_data[11:8] }; // upper 2 bits = priority
-assign scr_hflip = vram_data[11]; // bit 11 shared with pal
-assign scr_vflip = vram_data[12];
+assign scr_hflip = vram_data[11] & scr_flen; // xor with ghflip on PCB
+assign scr_vflip = vram_data[12] & scr_flen;
 assign scry      = {1'b0,oram_dout};
 assign flip      = gvflip | ghflip; // imperfect implementation
 
@@ -113,11 +112,10 @@ jtframe_vtimer #(
 // only vertical scroll available (column-wise)
 jtframe_scroll #(
     .SIZE        (    8 ),
-    .CW          (   10 ),
-    .VR          ( 10+4 ),
+    .CW          (   12 ),
     .VA          (   10 ),
     .MAP_VW      (    8 ),
-    .MAP_HW      (    9 ),
+    .MAP_HW      (    8 ),
     .PW          (   10 ),
     .XOR_HFLIP   (    1 ),
     .HJUMP       (    1 )
@@ -155,6 +153,8 @@ jtflstory_obj u_obj(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
     .hs         ( hs        ),
     .flip       ( flip      ),
 
@@ -168,6 +168,7 @@ jtflstory_obj u_obj(
     .rom_data   ( obj_data  ),
     .rom_cs     ( obj_cs    ),
     .rom_ok     ( obj_ok    ),
+    .prio       ( obj_prio  ),
     .pxl        ( obj_pxl   )
 );
 
@@ -178,16 +179,13 @@ jtflstory_colmix u_colmix(
 
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
-    .pal_bank   ( pal_bank  ),
+    .bank       ( pal_bank  ),
 
     .scr_prio   ( scr_prio  ),
     .obj_prio   ( obj_prio  ),
 
     .scr_pxl    ( scr_pxl   ),
     .obj_pxl    ( obj_pxl   ),
-
-    .prio_addr  ( prio_addr ),
-    .prio_dout  ( prio_dout ),
 
     .pal_addr   ( pal_addr  ),
     .pal_dout   ( pal_dout  ),

@@ -11,6 +11,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
+      - jtframe_6805mcu.yaml
   - from: video
     get:
       - jtframe_vtimer.v
