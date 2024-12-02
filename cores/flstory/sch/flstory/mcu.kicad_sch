@@ -3144,12 +3144,6 @@
 		(uuid "5b484f5d-e8a8-422f-a866-d46f5106a778")
 	)
 	(junction
-		(at 179.07 132.08)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "651932be-d1e3-4462-9d40-f55caf9c1208")
-	)
-	(junction
 		(at 102.87 124.46)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3161,13 +3155,19 @@
 		(color 0 0 0 0)
 		(uuid "a4e278a2-e65f-4458-ab53-85ee4020ea7f")
 	)
+	(junction
+		(at 177.8 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b8297338-adf8-44b1-a02e-2263ddff6698")
+	)
+	(no_connect
+		(at 161.29 119.38)
+		(uuid "52dcb9dc-7338-4c5a-afcc-f3351e2dfd95")
+	)
 	(no_connect
 		(at 161.29 91.44)
 		(uuid "8dfc6bc8-d53f-49f4-97dd-2f055a1780cd")
-	)
-	(no_connect
-		(at 167.64 119.38)
-		(uuid "e0cd59a4-4745-4732-8945-82c84596826d")
 	)
 	(bus_entry
 		(at 179.07 186.69)
@@ -4093,6 +4093,16 @@
 	)
 	(wire
 		(pts
+			(xy 177.8 132.08) (xy 194.31 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18df2373-ac15-4c0e-acdd-f93456cbd653")
+	)
+	(wire
+		(pts
 			(xy 151.13 135.89) (xy 158.75 135.89)
 		)
 		(stroke
@@ -4130,16 +4140,6 @@
 			(type default)
 		)
 		(uuid "1c8bbe78-6fe2-436f-ad1a-8603d457737a")
-	)
-	(wire
-		(pts
-			(xy 161.29 119.38) (xy 167.64 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e09feb2-be2e-44fe-a9ba-c11bf3109957")
 	)
 	(wire
 		(pts
@@ -4783,7 +4783,7 @@
 	)
 	(wire
 		(pts
-			(xy 161.29 116.84) (xy 179.07 116.84)
+			(xy 161.29 116.84) (xy 177.8 116.84)
 		)
 		(stroke
 			(width 0)
@@ -5213,7 +5213,7 @@
 	)
 	(wire
 		(pts
-			(xy 179.07 116.84) (xy 179.07 132.08)
+			(xy 177.8 116.84) (xy 177.8 132.08)
 		)
 		(stroke
 			(width 0)
@@ -5253,7 +5253,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 132.08) (xy 179.07 132.08)
+			(xy 170.18 132.08) (xy 177.8 132.08)
 		)
 		(stroke
 			(width 0)
@@ -6003,16 +6003,6 @@
 	)
 	(wire
 		(pts
-			(xy 179.07 132.08) (xy 194.31 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f221b3cb-bd83-4682-a44f-bab22076f185")
-	)
-	(wire
-		(pts
 			(xy 184.15 71.12) (xy 194.31 71.12)
 		)
 		(stroke
@@ -6206,7 +6196,7 @@
 		)
 		(uuid "044ee160-643b-4057-ad89-3587d0984273")
 	)
-	(label "PB6"
+	(label "~{ALE}0"
 		(at 167.64 106.68 180)
 		(fields_autoplaced yes)
 		(effects
@@ -6272,7 +6262,7 @@
 		)
 		(uuid "09d0dd42-9abb-43f4-84d5-1d908ac066ca")
 	)
-	(label "PB2"
+	(label "~{LWR}"
 		(at 190.5 207.01 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6304,17 +6294,6 @@
 			(justify left bottom)
 		)
 		(uuid "118f4e77-f8ca-4ba2-827d-96f218ef3705")
-	)
-	(label "PC3"
-		(at 167.64 119.38 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "136f94e8-03cc-4a1e-9180-028ecf5a01a3")
 	)
 	(label "PA2"
 		(at 184.785 111.76 0)
@@ -6382,7 +6361,7 @@
 		)
 		(uuid "21ae1dad-e042-4d17-b82c-9a00ed586bdd")
 	)
-	(label "PC1"
+	(label "~{OBF}"
 		(at 158.75 135.89 180)
 		(fields_autoplaced yes)
 		(effects
@@ -6437,7 +6416,7 @@
 		)
 		(uuid "2f8c7a28-3bca-4688-b3e6-bd8153c1bcc9")
 	)
-	(label "PB1"
+	(label "~{LRD}"
 		(at 90.17 96.52 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6613,7 +6592,7 @@
 		)
 		(uuid "545ee48c-ede2-48c2-8c9d-5e1f9ef80aa7")
 	)
-	(label "PB1"
+	(label "~{LRD}"
 		(at 135.89 209.55 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6657,7 +6636,7 @@
 		)
 		(uuid "570aab3d-eb85-40e4-aeee-89de3d0b065e")
 	)
-	(label "PB2"
+	(label "~{LWR}"
 		(at 130.81 138.43 0)
 		(fields_autoplaced yes)
 		(effects
@@ -6778,7 +6757,7 @@
 		)
 		(uuid "741fc5dd-7894-4e93-bd29-3c30526153ab")
 	)
-	(label "PC0"
+	(label "IBF"
 		(at 167.64 111.76 180)
 		(fields_autoplaced yes)
 		(effects
@@ -6833,7 +6812,7 @@
 		)
 		(uuid "7fff0d88-dcf7-4f56-b429-589062ee2055")
 	)
-	(label "PB7"
+	(label "~{ALE}1"
 		(at 184.15 93.98 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7053,7 +7032,7 @@
 		)
 		(uuid "af4a47fb-549c-4668-ac9b-450a846eee1b")
 	)
-	(label "PB7"
+	(label "~{ALE}1"
 		(at 167.64 109.22 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7108,7 +7087,7 @@
 		)
 		(uuid "b3923b3a-5520-4114-ab85-cb4af2460cfd")
 	)
-	(label "PB1"
+	(label "~{LRD}"
 		(at 167.64 93.98 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7350,7 +7329,7 @@
 		)
 		(uuid "ec297902-8ec2-44ff-aef7-ae649e20518c")
 	)
-	(label "PC1"
+	(label "~{OBF}"
 		(at 167.64 114.3 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7361,7 +7340,7 @@
 		)
 		(uuid "ee40d27c-8b02-4357-ae49-e6bd8bc0b05a")
 	)
-	(label "PC0"
+	(label "IBF"
 		(at 114.3 93.98 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7405,7 +7384,7 @@
 		)
 		(uuid "f2226e9e-6ab3-492a-8710-34d30d6ae605")
 	)
-	(label "PB2"
+	(label "~{LWR}"
 		(at 167.64 96.52 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7416,7 +7395,7 @@
 		)
 		(uuid "f9d25535-0475-4b9f-b349-d9bc7d599484")
 	)
-	(label "PB6"
+	(label "~{ALE}0"
 		(at 189.23 129.54 0)
 		(fields_autoplaced yes)
 		(effects

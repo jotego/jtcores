@@ -17,7 +17,7 @@
     Date: 29-4-2021 */
 
 // SDRAM is set to burst=2 (64 bits)
-
+/* verilator coverage_off */
 module jtframe_sdram64_bank #(
     parameter AW=22,
               HF=1,     // 1 for HF operation (idle cycles), 0 for LF operation

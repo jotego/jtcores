@@ -7,6 +7,7 @@ type SimState struct{
 
 type MAMEState struct{
 	data NameValue
+	mask NameValue
 	alias mameAlias
 	ram []byte
 }

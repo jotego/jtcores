@@ -88,6 +88,11 @@ trace debug.trace,maincpu,noloop,{tracelog "PC=%X,AF=%X,BC=%X,DE=%X,HL=%X,AF2=%X
 trace off
 trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,frame}
 `
+		case "6805":
+			s=`focus 1
+trace off
+trace debug.trace,mcu,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,PA_OUT=%X,PB_OUT=%X,PC_OUT=%X,PA_DDR=%X,PB_DDR=%X,PC_DDR=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,latcha,latchb,latchc,ddra,ddrb,ddrc,frame}
+`
 		case "m68000","m68k","68k","68000":
 			s=`focus 0
 trace off

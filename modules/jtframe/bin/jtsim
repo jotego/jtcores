@@ -32,6 +32,7 @@ if [ -n "$TERM" ]; then
     NC=`tput sgr0`
 fi
 
+COV=
 DIR=
 DUMP=
 SIM_MS=1
@@ -85,6 +86,8 @@ Please support the development: https://patreon.com/jotego
 
     -args      Additional arguments for the simulator
     -batch     Tells jtsim that it is being run by a batch process
+    -cov       Enables coverage simulation (only verilator)
+               Look at the files in the cov folder for annotated results
     -d         Add specific Verilog macros for the simulation.
                Call jtmacros to display all macros.
     -debug_bus x
@@ -319,6 +322,7 @@ while [ $# -gt 0 ]; do
 case "$1" in
     -args) shift; SIMULATOR_EXTRA="$SIMULATOR_EXTRA $1";;
     -batch) BATCH=1;;
+    -cov) COV=--coverage;;
     -debug_bus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
@@ -827,6 +831,8 @@ verilator)
     # Ignore FX68k in Verilator sims with this:
     # but if you use JTFPGA/FX68K branch fix 6, you should be able to simulate it
     if [ ! -z "$VERILATOR_ROOT" ]; then VERILATOR_PATH=${VERILATOR_ROOT}/bin/; fi
+    if [ ! -z "$COV" ]; then echo "#define _COVERAGE" >> defmacros.h; fi
+    rm -rf logs
     $SHOWCMD ${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl \
         -I$JTFRAME/hdl/inc \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
@@ -835,7 +841,7 @@ verilator)
         -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
         --top-module game_test -o sim \
          $EXTRA $TRACE --prefix UUT --assert \
-         --cc test.cpp --exe $SIMULATOR_EXTRA \
+         --cc test.cpp --exe $SIMULATOR_EXTRA --threads 2 $COV \
          -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE \
         || exit $?
     # Only use parallel compilation if we are not in a regression. Otherwise
@@ -860,6 +866,10 @@ verilator)
         fi
         $SHOWCMD obj_dir/sim $TRACE -time $SIM_MS || echo "Verilator sim exit code $?"
         rm -f test.vcd
+        if [ -e logs/coverage.dat ]; then
+            mkdir -p cov
+            verilator_coverage --annotate cov logs/coverage.dat
+        fi
         if [ ! -z "$SHOWCMD" ]; then exit 0; fi
     fi
 esac

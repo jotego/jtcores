@@ -19,6 +19,7 @@ clocks:
 audio:
   # temptative values
   rsum: 1k
+  mute: true
   channels:
 #     # FIR should be 3kHz, not 4kHz
 #     - { name: pcmsnd, module: jt5205, rsum: 1.9k, fir: fir_192k_4k.csv, pre: 0.87 }
@@ -69,12 +70,13 @@ bram:
   - name: oram
     addr_width: 8
     data_width: 8
+    rw: true
     dual_port:
       name: shram
       addr: main_addr[7:0]
       din:  bus_dout
       dout: oram8_dout
-      we:   oram_we
+      we:   oram8_we
       rw:   true
     ioctl:
       save: true
@@ -84,7 +86,6 @@ bram:
     data_width: 16
     dual_port:
       name: pal16
-      addr: "main_addr[10:1]"
       din: "{2{bus_dout}}"
       dout: pal16_dout
       we: pal16_we

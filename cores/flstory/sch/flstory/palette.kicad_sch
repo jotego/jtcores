@@ -14523,7 +14523,7 @@
 	)
 	(wire
 		(pts
-			(xy 82.55 190.5) (xy 88.9 190.5)
+			(xy 82.55 190.5) (xy 86.36 190.5)
 		)
 		(stroke
 			(width 0)
@@ -17728,17 +17728,6 @@
 		)
 		(uuid "8c359cd3-2fd7-45f6-b057-dd4880a1cb59")
 	)
-	(label "IC31_12"
-		(at 49.53 190.5 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8cfb160c-6845-4a51-922e-a3dddb0f7d0b")
-	)
 	(label "A3"
 		(at 194.31 27.94 180)
 		(fields_autoplaced yes)
@@ -18927,17 +18916,6 @@
 		)
 		(uuid "e9c0c555-3922-4dc5-94bd-91b63c669d70")
 	)
-	(label "IC51_1"
-		(at 88.9 190.5 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "ea1a2bef-aa6a-47bb-ba0d-7a1ae30290c5")
-	)
 	(label "~{WE1}"
 		(at 203.2 201.93 0)
 		(fields_autoplaced yes)
@@ -19227,6 +19205,18 @@
 		)
 		(uuid "2169c19d-8a71-486f-a8d3-b18215d89a38")
 	)
+	(hierarchical_label "~{OSCNHF}*"
+		(shape output)
+		(at 86.36 190.5 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "24ed6cf6-ad9d-410c-9066-8f574479a343")
+	)
 	(hierarchical_label "BPXL[0..7]"
 		(shape input)
 		(at 58.42 24.13 180)
@@ -19346,6 +19336,18 @@
 			(justify right)
 		)
 		(uuid "7df884ca-e3dc-43c9-a37f-c61422f47e59")
+	)
+	(hierarchical_label "~{OSCNHF}"
+		(shape input)
+		(at 49.53 190.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8c23f365-f370-4c8b-a474-3aec072bd976")
 	)
 	(hierarchical_label "GHFLIP"
 		(shape output)

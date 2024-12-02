@@ -21,7 +21,7 @@ module jtflstory_game(
 );
 
 wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen,
-            mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, b2c_rd, b2c_wr;
+            mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data,
             c2b_dout, cpu_dout, mcu2bus;
@@ -30,8 +30,9 @@ wire        rst_main;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
-assign ioctl_din  = 0;
-assign debug_view = 0;
+assign ioctl_din  = {1'b0,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
+assign debug_view = ioctl_din;
+assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
 // Let the MCU come out of reset first to take control of the port signals
 jtframe_sh #(.W(1),.L(8)) u_sh(
@@ -60,10 +61,13 @@ jtflstory_main u_main(
     .busrq_n    ( busrq_n   ),
     .c2b_addr   ( c2b_addr  ),
     .c2b_dout   ( c2b_dout  ),
+    .c2b_rd     ( c2b_rd    ),
     .c2b_we     ( c2b_we    ),
     .mcu2bus    ( mcu2bus   ),
     .b2c_rd     ( b2c_rd    ),
     .b2c_wr     ( b2c_wr    ),
+    .mcu_ibf    ( mcu_ibf   ),
+    .mcu_obf    ( mcu_obf   ),
     // sound
     .m2s_wr     ( m2s_wr    ),
     .s2m_rd     ( s2m_rd    ),
@@ -74,7 +78,7 @@ jtflstory_main u_main(
     .vram16_dout(vram16_dout),
     .oram8_dout ( oram8_dout),
     .vram_we    ( vram_we   ),
-    .oram_we    ( oram_we   ),
+    .oram_we    ( oram8_we  ),
     .scr_bank   ( scr_bank  ),
     .pal_bank   ( pal_bank  ),
     .scr_flen   ( scr_flen  ),
@@ -88,6 +92,7 @@ jtflstory_main u_main(
     .dipsw      (dipsw[23:0]),
     .service    ( service   ),
     .tilt       ( tilt      ),
+    .dip_pause  ( dip_pause ),
     // ROM access
     .rom_cs     ( main_cs   ),
     .rom_addr   ( main_addr ),
@@ -111,7 +116,7 @@ jtflstory_mcu u_mcu(
     .bm_dout    ( c2b_dout  ),
     .bm_din     ( bus_din   ),
     .bm_we      ( c2b_we    ),
-    .bm_rd      (           ),
+    .bm_rd      ( c2b_rd    ),
     // MCU as bus slave
     .bs_wr      ( b2c_wr    ),
     .bs_rd      ( b2c_rd    ),
@@ -141,6 +146,7 @@ jtflstory_sound u_sound(
     .rom_cs     ( snd_cs    ),
 
     // sound output
+    .mute       ( mute      ),
     .psg        ( psg       ),
     .dac        ( dac       ),
     .debug_bus  ( debug_bus )
@@ -172,6 +178,8 @@ jtflstory_video u_video(
     //      RAM shared with CPU
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
+    .oram_we    ( oram_we   ),
+    .oram_din   ( oram_din  ),
     //      ROM
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),

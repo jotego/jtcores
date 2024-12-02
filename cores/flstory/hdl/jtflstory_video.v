@@ -41,6 +41,8 @@ module jtflstory_video(
     // Objects
     //      RAM shared with CPU
     output     [ 7:0] oram_addr,
+    output     [ 7:0] oram_din,
+    output            oram_we,
     input      [ 7:0] oram_dout,
     //      ROM
     output     [16:2] obj_addr,
@@ -71,10 +73,10 @@ assign scry      = {1'b0,oram_dout};
 assign flip      = gvflip | ghflip; // imperfect implementation
 
 assign scr_sorted = ~{
-    scr_data[28],scr_data[29],scr_data[30],scr_data[31],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
-    scr_data[24],scr_data[25],scr_data[26],scr_data[27],scr_data[16],scr_data[17],scr_data[18],scr_data[19],
-    scr_data[12],scr_data[13],scr_data[14],scr_data[15],scr_data[ 4],scr_data[ 5],scr_data[ 7],scr_data[10],
-    scr_data[ 8],scr_data[ 9],scr_data[10],scr_data[11],scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3]
+    scr_data[12],scr_data[13],scr_data[14],scr_data[15],scr_data[28],scr_data[29],scr_data[30],scr_data[31],
+    scr_data[ 8],scr_data[ 9],scr_data[10],scr_data[11],scr_data[24],scr_data[25],scr_data[26],scr_data[27],
+    scr_data[ 4],scr_data[ 5],scr_data[ 6],scr_data[ 7],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
+    scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],scr_data[18],scr_data[19]
 };
 
 jtframe_vtimer #(
@@ -156,13 +158,16 @@ jtflstory_obj u_obj(
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hs         ( hs        ),
-    .flip       ( flip      ),
+    .gvflip     ( gvflip    ),
+    .ghflip     ( ghflip    ),
 
     .vrender    ( vrender   ),
     .hdump      ( hdump     ),
     // RAM shared with CPU
     .ram_addr   ( oram_addr ),
     .ram_dout   ( oram_dout ),
+    .ram_din    ( oram_din  ),
+    .ram_we     ( oram_we   ),
     // ROM
     .rom_addr   ( obj_addr  ),
     .rom_data   ( obj_data  ),

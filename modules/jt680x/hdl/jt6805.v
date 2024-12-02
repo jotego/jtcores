@@ -16,6 +16,11 @@
     Version: 1.0
     Date: 22-11-2023 */
 
+`ifndef VERILATOR_KEEP_CPU
+/* verilator tracing_off */
+`endif
+/* verilator coverage_off */
+
 module jt6805(
     input             rst,
     input             clk,

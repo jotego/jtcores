@@ -1,5 +1,6 @@
 // look below for
 // Register assignments for debugging.
+/* verilator coverage_off */
 module t80_reg
   (input  clk,
    input  cen,

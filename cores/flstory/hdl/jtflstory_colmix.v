@@ -47,17 +47,17 @@ assign obj_op    = objpxl_l[3:0]!=4'hf;
 assign prio_dout = pal_dout[12];
 
 always @(posedge clk) begin
+    st <= st<<1;
+    if( st[1] ) begin
+        amux    <= (obj_op & prio_dout) ? objpxl_l : scrpxl_l;
+        pal_sel <= 1;
+    end
     if( pxl_cen ) begin
         {scrprio_l, scrpxl_l} <= {scr_prio, scr_pxl};
         {objprio_l, objpxl_l} <= {obj_prio, obj_pxl};
-        {red,green,blue} <= lvbl && lhbl ? pal_dout[11:0] : 12'd0;
+        {blue,green,red} <= lvbl && lhbl ? pal_dout[11:0] : 12'd0;
         st      <= 1;
         pal_sel <= 0;
-    end
-    st <= st<<1;
-    if( st[1] ) begin
-        amux    <= obj_op && prio_dout ? objpxl_l : scrpxl_l;
-        pal_sel <= 1;
     end
 end
 

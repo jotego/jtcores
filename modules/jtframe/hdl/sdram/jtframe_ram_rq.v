@@ -23,7 +23,7 @@
 /////// addr_ok is meant to be the CS signal coming from a CPU memory decoder
 /////// so it should go up and stay up until the data is served. It should go down
 /////// after that.
-
+/* verilator coverage_off */
 module jtframe_ram_rq #(parameter
     SDRAMW = 22,
     AW     = 18,

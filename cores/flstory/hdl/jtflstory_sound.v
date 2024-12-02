@@ -35,26 +35,28 @@ module jtflstory_sound(
     output reg       rom_cs,
 
     // sound output
+    output reg       mute,
     output    [ 9:0] psg,
-    output    [ 7:0] dac,
+    output reg[ 7:0] dac,
     input     [ 7:0] debug_bus
 );
 `ifndef NOSOUND
 wire [15:0] A;
 wire [ 7:0] ram_dout, cpu_dout, ay_dout;
-wire        irq_ack, int_n, mreq_n, m1_n, iorq_n;
+wire        irq_ack, int_n, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_trebble, msm_bass, msm_vol, msm_bal;
 wire [ 3:0] psg_trebble, psg_bass, psg_vol, psg_bal;
 reg  [13:0] int_cnt;
 reg         ram_cs, bdir, bc1, gtwr, cfg0, cfg1,
-            cmd_rd, cmd_st, cmd_lr, cmd_wr, nmi_n, wr_n, rd_n,
-            nmi_sen, nmi_sdi, dac_we, amute, nmi_en,
+            cmd_rd, cmd_st, cmd_lr, cmd_wr,
+            nmi_sen, nmi_sdi, dac_we, nmi_en,
             ibf, obf, rst_n, crst_n;    // ibf = input buffer full
 
 assign rom_addr = A;
 assign irq_ack  = !iorq_n && !m1_n;
 assign int_n    = ~int_cnt[13];
+assign nmi_n    = ~(ibf & nmi_en);
 
 always @(posedge clk) begin
     if( cen2 ) int_cnt <= int_cnt+14'd1;
@@ -77,21 +79,22 @@ always @(posedge clk) begin
         bus_din <= 0;
         ibf     <= 0;
         obf     <= 0;
-        nmi_n   <= 1;
         nmi_en  <= 0;
-        amute   <= 0;
+        mute    <= 0;
     end else begin
         // access from the main bus to the sound subsystem
-        bus_din <= bus_a0 ? {6'd0,obf,ibf} : obuf;
-        if( !bus_a0 && bus_wr ) {nmi_n,ibf,ibuf} <= {~nmi_en,1'b1,bus_dout};
-        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0];
-        if( !bus_a0 && bus_rd ) obf <= 0;
+        if( !bus_a0 && bus_wr ) {ibf,ibuf} <= {1'b1,bus_dout};
+        if( bus_wr & bus_a0 ) rst_n <= ~bus_dout[0];
+        if( bus_rd ) begin
+            if(!bus_a0) obf <= 0;
+            bus_din <= bus_a0 ? {6'd0,obf,ibf} : obuf;
+        end
         // sound subsystem
-        if( nmi_sen ) { nmi_en, amute } <= {1'b1,cpu_dout[7]};
-        if( nmi_sdi ) nmi_en <= 0;
-        if( cmd_wr  ) {obf,obuf} <= {1'b1,cpu_dout};
-        if( cmd_rd  ) ibuf <= 0;
-        if( dac_we  ) dac  <= cpu_dout;
+        if( nmi_sen ) {nmi_en, mute} <= {1'b1,cpu_dout[7]};
+        if( nmi_sdi )  nmi_en <= 0;
+        if( cmd_wr  ) {obf,obuf}  <= {1'b1,cpu_dout};
+        if( cmd_rd  ) ibf <= 0;
+        if( dac_we  ) dac <= cpu_dout;
     end
 end
 
@@ -108,11 +111,13 @@ always @* begin
     nmi_sen = 0;
     nmi_sdi = 0;
     dac_we  = 0;
+    cfg0    = 0;
+    cfg1    = 0;
     if( !mreq_n ) case(A[15:13])
-        0,1,2,3,4,5: rom_cs = 1;
+        0,1,2,3,4,5,7: rom_cs = 1;
         6: case(A[12:11])
-            0: ram_cs = 1;
-            1: if(!wr_n) case(A[10:9]) // sound chips
+            0: ram_cs = 1;  // C000~C7FF
+            1: if(!wr_n) case(A[10:9]) // C800~CFFF sound chips
                 0: begin
                     bdir = 1;
                     bc1  = !A[0];
@@ -121,10 +126,12 @@ always @* begin
                 2: cfg0 = 1;
                 3: cfg1 = 1;
             endcase
-            3: begin
+            // 2: // D000~D7FF unused
+            3: begin    // D800~DFFF
                 if(!rd_n) case(A[10:9]) // communication
                     0: cmd_rd = 1;
                     1: cmd_st = 1;
+                    // 2: not populated
                     3: cmd_lr = 1;
                     default:;
                 endcase
@@ -135,6 +142,7 @@ always @* begin
                     3: dac_we  = 1;
                 endcase
             end
+            default:;
         endcase
         default:;
     endcase
@@ -145,7 +153,7 @@ always @* begin
           ram_cs ? ram_dout       :
           cmd_rd ? ibuf           :
           cmd_st ? {6'd0,obf,ibf} :
-          cmd_lr ? dac         :
+          cmd_lr ? dac            :
           bc1    ? ay_dout        : 8'd0;
 end
 
@@ -200,5 +208,7 @@ initial bus_din  = 0;
 initial rom_cs   = 0;
 assign  rom_addr = 0;
 assign  psg      = 0;
+initial mute     = 0;
+initial dac      = 0;
 `endif
 endmodule

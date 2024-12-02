@@ -26,13 +26,13 @@ module jtflstory_mcu(
     output reg        ibf,
     output            busrq_n,
     input             busak_n,
-    // as bus master
+    // MCU acts as bus master
     output reg [15:0] bm_addr,
     output     [ 7:0] bm_dout,
     input      [ 7:0] bm_din,
     output            bm_we,    // active high
     output            bm_rd,
-    // as bus slave
+    // MCU acts as bus slave
     input             bs_wr,    // write to the comm latch
     input             bs_rd,    // read from the comm latch
     input      [ 7:0] bs_dout,
@@ -53,6 +53,8 @@ localparam  COMM_RD = 1,
 reg  [7:0] bus2mcu, mcu2bus, pbl;
 wire [7:0] pa_in, pa_out, pb_out;
 wire [3:0] pc_in;
+wire       lrd, lwr;    // communication latches RD/WR
+wire [1:0] ale;         // address latch enable
 
 assign pc_in   = {2'b11,~obf,ibf};
 assign busrq_n =  pb_out[BUSRQ_N];
@@ -61,21 +63,31 @@ assign bm_rd   = ~pb_out[BUSM_RD];
 assign pa_in   = busak_n ? bus2mcu : bm_din;
 assign bs_din  = mcu2bus;
 assign bm_dout = pa_out;
+assign lrd     = ~pb_out[COMM_RD];
+assign lwr     = ~pbl[COMM_WR] & pb_out[COMM_WR];
+assign ale[1]  = ~pbl[ADHI_LE] & pb_out[ADHI_LE];
+assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
 
 always @(posedge clk) begin
-    pbl <= pb_out;
-    if(bm_we) begin
-        bus2mcu <= bm_dout;
-        ibf     <= 1;
+    if( rst ) begin
+        obf     <= 0;
+        mcu2bus <= 8'hff;
+        bus2mcu <= 0;
+    end else begin
+        pbl <= pb_out;
+        if(bs_wr) begin
+            bus2mcu <= bs_dout;
+            ibf     <= 1;
+        end
+        if(lwr) begin
+            mcu2bus <= pa_out;
+            obf     <= 1;
+        end
+        if(lrd) ibf <= 0;
+        if( ale[1] ) bm_addr[15:8] <= pa_out;
+        if( ale[0] ) bm_addr[ 7:0] <= pa_out;
+    if(bs_rd) obf <= 0;
     end
-    if(rst | bm_rd) obf <= 0;
-    if( ~pbl[COMM_WR] & pb_out[COMM_WR] ) begin
-        mcu2bus <= pa_out;
-        obf <= 1;
-    end
-    if( ~pbl[COMM_RD] & pb_out[COMM_RD] ) ibf <= 0;
-    if( ~pbl[ADHI_LE] & pb_out[ADHI_LE] ) bm_addr[15:8] <= pa_out;
-    if( ~pbl[ADLO_LE] & pb_out[ADLO_LE] ) bm_addr[ 7:0] <= pa_out;
 end
 
 jtframe_6805mcu  u_mcu (
@@ -101,5 +113,14 @@ jtframe_6805mcu  u_mcu (
 );
 `else
 assign  rom_addr = 0;
+initial obf=0;
+initial ibf=0;
+initial bm_addr=0;
+assign busrq_n=0;
+assign bm_dout=0;
+assign bm_we=0;
+assign bm_rd=0;
+assign bs_din=0;
+assign rom_addr=0;
 `endif
 endmodule

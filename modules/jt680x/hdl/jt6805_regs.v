@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 4-12-2023 */
-
+/* verilator coverage_off */
 module jt6805_regs(
     input             rst,
     input             clk,

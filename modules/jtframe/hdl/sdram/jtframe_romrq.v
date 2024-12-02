@@ -26,7 +26,7 @@
 //    1     2    easy
 
 `timescale 1ns/1ps
-
+/* verilator coverage_off */
 module jtframe_romrq #(parameter
     SDRAMW  = 22,  // SDRAM width
     AW      = 18,

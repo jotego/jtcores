@@ -27,7 +27,6 @@ module jtflstory_main(
     output    [ 7:0] bus_dout,
     output    [ 7:0] bus_din,
 
-
     // sound
     input     [ 7:0] s2m_data,
     output reg       m2s_wr,
@@ -53,10 +52,13 @@ module jtflstory_main(
     input     [15:0] c2b_addr,
     input     [ 7:0] c2b_dout,
     input            c2b_we,
+    input            c2b_rd,
     // communication with MCU
-    output           b2c_wr,
-    output           b2c_rd,
+    output reg       b2c_wr,
+    output reg       b2c_rd,
     input     [ 7:0] mcu2bus,
+    input            mcu_ibf,
+    input            mcu_obf,
     // shared memory (although no sub CPU in the core)
     output           sha_we,
     input     [ 7:0] sha_dout,
@@ -67,6 +69,7 @@ module jtflstory_main(
     input     [ 5:0] joystick2,
     input     [23:0] dipsw,
     input            service,
+    input            dip_pause,
     input            tilt,
     // ROM access
     output reg       rom_cs,
@@ -79,10 +82,18 @@ module jtflstory_main(
 `ifndef NOMAIN
 
 wire [15:0] A, cpu_addr;
-reg  [ 7:0] cab, din, ram_dout;
-wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we;
-reg         ram_cs, vram_cs,sha_cs, vcfg_cs, oram_cs,
-            cab_cs, pal_hi, pal_lo, rst_n;
+reg  [ 7:0] cab, din;
+wire [ 7:0] ram_dout;
+wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
+reg         ram_cs,
+            vram_cs,
+            sha_cs,
+            vcfg_cs,
+            oram_cs,
+            cab_cs,
+            pal_hi,
+            pal_lo,
+            rst_n;
 
 assign A        = bus_addr;
 assign rom_addr = bus_addr;
@@ -90,10 +101,12 @@ assign bus_addr = busak_n ? cpu_addr : c2b_addr;
 assign bus_dout = busak_n ? cpu_dout : c2b_dout;
 assign bus_din  = din;
 assign bus_we   = busak_n ? ~wr_n    : c2b_we;
+assign bus_rd   = busak_n ? ~rd_n    : c2b_rd;
 assign pal16_we = {2{bus_we}} & {pal_hi,pal_lo};
 assign sha_we   = sha_cs & bus_we;
 assign vram_we  = {2{vram_cs&bus_we}} & { A[0], ~A[0] };
 assign oram_we  = oram_cs & bus_we;
+assign int_n    = ~dip_pause | lvbl;
 
 always @* begin
     rom_cs  = 0;
@@ -121,12 +134,12 @@ always @* begin
                         // 2: sub CPU reset and coin lock
                         // 3: sub CPU NMI
                         default:;
-                    endcase else case(A[1:0])
+                    endcase else if(bus_rd) case(A[1:0])
                         0: b2c_rd = 1; // CPU reads from MCU latch
                         default:;
                     endcase
-                    1: if(bus_we) m2s_wr = 1; else s2m_rd = 1;
-                    2: cab_cs  = 1; // D80?
+                    1: {m2s_wr, s2m_rd} = {bus_we, bus_rd}; // D400
+                    2: cab_cs = 1;  // D80?
                     3: case(A[9:8]) // DC?? ~ DF??
                         0: oram_cs = 1;
                         1: pal_lo  = 1;
@@ -134,9 +147,9 @@ always @* begin
                         3: case(A[1:0])
                             // 0, 1, 2: related to gun games?
                             3: vcfg_cs = 1;
+                            default:;
                         endcase
                     endcase
-
                 endcase
             end
             2,3: sha_cs = 1; // E000~FFFF
@@ -158,8 +171,9 @@ always @(posedge clk) begin
         0: cab <= dipsw[ 7: 0];
         1: cab <= dipsw[15: 8];
         2: cab <= dipsw[23:16];
-        3: cab <= {2'b11,coin,tilt,service,cab_1p};
+        3: cab <= {2'b0,coin,tilt,service,cab_1p};
         4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
+        5: cab <= {6'b001111, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
         6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
         default:;
     endcase
@@ -168,12 +182,13 @@ end
 always @* begin
     din = rom_cs ? rom_data   :
           ram_cs ? ram_dout   :
+          sha_cs ? sha_dout   :
           cab_cs ? cab        :
-          b2c_rd ? mcu2bus    :
-          s2m_rd ? s2m_data   :
           oram_cs? oram8_dout :
-          pal_hi ? pal16_dout[15:8] :
+          s2m_rd ? s2m_data   :
+          b2c_rd ? mcu2bus    :
           pal_lo ? pal16_dout[ 7:0] :
+          pal_hi ? pal16_dout[15:8] :
           vram_cs? (A[0] ? vram16_dout[15:8] : vram16_dout[7:0]) :
           8'd0;
 end
@@ -183,7 +198,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .clk        ( clk         ),
     .cen        ( cen         ),
     .cpu_cen    (             ),
-    .int_n      ( lvbl        ), // int clear logic is internal
+    .int_n      ( int_n       ), // int clear logic is internal
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( busrq_n     ),
     .busak_n    ( busak_n     ),
@@ -204,7 +219,30 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rom_ok     ( rom_ok      )
 );
 `else
+integer f,rdcnt;
+reg [7:0] sim_data[0:7];
 initial begin
+    f=$fopen("rest.bin","rb");
+    rdcnt=$fread(sim_data,f);
+    $display("%d bytes read from rest.bin",rdcnt);
+    $fclose(f);
+    {scr_flen, gvflip, ghflip, pal_bank, scr_bank} = sim_data[0][6:0];
 end
+
+assign cpu_dout  = 0;
+assign bus_addr  = 0;
+assign bus_dout  = 0;
+assign bus_din   = 0;
+assign pal16_we  = 0;
+assign vram_we   = 0;
+assign oram_we   = 0;
+assign busak_n   = 0;
+assign sha_we    = 0;
+assign rom_addr  = 0;
+initial m2s_wr   = 0;
+initial s2m_rd   = 0;
+initial b2c_wr   = 0;
+initial b2c_rd   = 0;
+initial rom_cs   = 0;
 `endif
 endmodule

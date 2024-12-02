@@ -37,7 +37,7 @@ module jtframe_6805mcu #( parameter ROMW = 11)(
     input      [ 7:0]  rom_data,
     output reg         rom_cs
 );
-
+/* verilator coverage_off */
 localparam MAXPORT  = 13'd12,
            MOR_ADDR = 13'h784,
            TIR      = 7,
@@ -49,10 +49,11 @@ localparam MAXPORT  = 13'd12,
 wire        ram_we;
 reg  [ 7:0] din;
 wire [ 7:0] ram_dout;
-reg  [ 7:0] pa_ddr, pb_ddr, tdr, tcr, mor;
+reg  [ 7:0] pa_ddr, pb_ddr, tdr, tcr, mor,
+            pa_latch, pb_latch;
 reg  [ 6:0] pres;
 reg  [ 1:0] cendiv;
-reg  [ 3:0] pc_ddr;
+reg  [ 3:0] pc_ddr, pc_latch;
 reg         port_cs, ram_cs, prmx_l, mor_l, fpin_l;
 wire        fpin, mcu_i, tirq, prmx, tstop;
 wire [ 7:0] nx_tdr, prfull;
@@ -79,9 +80,9 @@ always @(posedge clk) if(rst) mor <= rom_data;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        pa_out <= 0; pa_ddr <= 0;
-        pb_out <= 0; pb_ddr <= 0;
-        pc_out <= 0; pa_ddr <= 0;
+        pa_latch <= 0; pa_ddr <= 0;
+        pb_latch <= 0; pb_ddr <= 0;
+        pc_latch <= 0; pa_ddr <= 0;
         tdr    <= 8'hff;
         tcr    <= 8'h40;
         pres <= 7'h7f;
@@ -103,26 +104,25 @@ always @(posedge clk, posedge rst) begin
         end
         // ports
         if(port_cs && wr && cen) case( addr[3:0] )
-             0: pa_out <= dout;
-             1: pb_out <= dout;
-             2: pc_out <= dout[3:0];
-             4: pa_ddr <= dout;
-             5: pb_ddr <= dout;
-             6: pc_ddr <= dout[3:0];
-             8: tdr    <= dout;
+             0: pa_latch <= dout;
+             1: pb_latch <= dout;
+             2: pc_latch <= dout[3:0];
+             4: pa_ddr   <= dout;
+             5: pb_ddr   <= dout;
+             6: pc_ddr   <= dout[3:0];
+             8: tdr      <= dout;
              9: begin
                 tcr    <= { dout[7:6], mor[TOPT] ? mor[5:0] : dout[5:0] };
                 if( dout[3] ) pres <= 7'h7f;
             end
         endcase
-        for(k=0;k<8;k=k+1) begin
-            if(!pa_ddr[k]) pa_out[k] <= pa_in[k];
-            if(!pb_ddr[k]) pb_out[k] <= pb_in[k];
-        end
-        for(k=0;k<4;k=k+1) begin
-            if(!pc_ddr[k]) pc_out[k] <= pc_in[k];
-        end
     end
+end
+
+always @(posedge clk) begin
+    pa_out <= (pa_latch & pa_ddr) | (pa_in & ~pa_ddr);
+    pb_out <= (pb_latch & pb_ddr) | (pb_in & ~pb_ddr);
+    pc_out <= (pc_latch & pc_ddr) | (pc_in & ~pc_ddr);
 end
 
 always @(*) begin
@@ -131,9 +131,9 @@ always @(*) begin
         ram_cs:  din = ram_dout;
         port_cs: begin
             case( addr[4:0] )
-                0: din = (pa_out & pa_ddr) | (pa_in & ~pa_ddr);
-                1: din = (pb_out & pb_ddr) | (pb_in & ~pb_ddr);
-                2: din = {4'hf,(pc_out & pc_ddr) | (pc_in & ~pc_ddr)};
+                0: din = pa_out;
+                1: din = pb_out;
+                2: din = {4'hf,pc_out};
                 8: din = tdr;
                 9: din = {tcr[7:6], {2{mor[TOPT]}}|tcr[5:4],mor[TOPT],{3{mor[TOPT]}}|tcr[2:0]};
                 default: din = 8'hff;

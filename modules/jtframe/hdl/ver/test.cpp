@@ -26,6 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
 #include "UUT.h"
 #include "defmacros.h"
 
@@ -1058,7 +1059,10 @@ int main(int argc, char *argv[]) {
         // wait until all child processes created with fork() are completed
         // before exiting.
         while(wait(NULL) != -1);
-
+#ifdef _COVERAGE
+        mkdir("logs",0755)==0;
+        Verilated::threadContextp()->coveragep()->write("logs/coverage.dat");
+#endif
         if( sim.get_frame()>1 ) fputc('\n',stderr);
     } catch( const char *error ) {
         fputs(error,stderr);

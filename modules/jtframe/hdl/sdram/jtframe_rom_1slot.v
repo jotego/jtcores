@@ -19,7 +19,7 @@
 // 1 slots for SDRAM read-only access
 // Each slot can be used for 8, 16 or 32 bit access
 // Small 4 byte cache used for each slot
-
+/* verilator coverage_off */
 module jtframe_rom_1slot #(parameter
     SDRAMW       = 22,
     SLOT0_DW     = 8,

@@ -4804,7 +4804,7 @@
 		(uuid "077d43cd-cc77-43aa-a9ef-f616b065d70b")
 	)
 	(junction
-		(at 81.28 73.66)
+		(at 67.31 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "092b6fb0-53f0-4423-b21a-704fdee10b38")
@@ -5475,7 +5475,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 73.66) (xy 81.28 85.09)
+			(xy 67.31 73.66) (xy 67.31 85.09)
 		)
 		(stroke
 			(width 0)
@@ -5615,7 +5615,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 85.09) (xy 114.3 85.09)
+			(xy 67.31 85.09) (xy 114.3 85.09)
 		)
 		(stroke
 			(width 0)
@@ -6235,7 +6235,7 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 76.2) (xy 63.5 76.2)
+			(xy 40.64 76.2) (xy 49.53 76.2)
 		)
 		(stroke
 			(width 0)
@@ -6325,7 +6325,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 73.66) (xy 91.44 73.66)
+			(xy 67.31 73.66) (xy 91.44 73.66)
 		)
 		(stroke
 			(width 0)
@@ -6585,7 +6585,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 73.66) (xy 81.28 73.66)
+			(xy 64.77 73.66) (xy 67.31 73.66)
 		)
 		(stroke
 			(width 0)
@@ -7002,17 +7002,6 @@
 		)
 		(uuid "0d935c10-76a6-4f43-9b55-6ab8198797e0")
 	)
-	(label "IC51_1"
-		(at 83.82 76.2 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0f72b26e-1307-4b24-8efd-1e68e951ad1a")
-	)
 	(label "~{WE}"
 		(at 92.71 175.26 0)
 		(fields_autoplaced yes)
@@ -7266,7 +7255,7 @@
 		)
 		(uuid "51eefa04-51c6-4bae-82c6-2a5a8c8c3234")
 	)
-	(label "IC51_1"
+	(label "~{OSCNHF}*"
 		(at 124.46 76.2 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7443,7 +7432,7 @@
 		(uuid "811abf84-88f9-4d8f-bfa6-a488a47523d8")
 	)
 	(label "~{PH}7"
-		(at 54.61 76.2 0)
+		(at 40.64 76.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7992,6 +7981,18 @@
 		)
 		(uuid "ffef1eb1-ddfb-49ec-97f8-e12007b04344")
 	)
+	(hierarchical_label "~{OSCNHF}*"
+		(shape input)
+		(at 83.82 76.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7179bc21-6f28-4ddd-8ee0-4291bd7a7e06")
+	)
 	(hierarchical_label "~{WE}"
 		(shape input)
 		(at 91.44 149.86 180)
@@ -8364,7 +8365,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS32")
-		(at 71.12 73.66 0)
+		(at 57.15 73.66 0)
 		(unit 4)
 		(convert 2)
 		(exclude_from_sim no)
@@ -8373,7 +8374,7 @@
 		(dnp no)
 		(uuid "57c4b78e-3088-4623-87b1-fbf2d015b1e5")
 		(property "Reference" "IC97"
-			(at 71.12 72.39 0)
+			(at 57.15 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8381,7 +8382,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 71.12 74.93 0)
+			(at 57.15 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8389,7 +8390,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 71.12 73.66 0)
+			(at 57.15 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8398,7 +8399,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS32"
-			(at 71.12 73.66 0)
+			(at 57.15 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8407,7 +8408,7 @@
 			)
 		)
 		(property "Description" "Quad 2-input OR"
-			(at 71.12 73.66 0)
+			(at 57.15 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
