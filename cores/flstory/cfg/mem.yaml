@@ -1,11 +1,11 @@
 clocks:
   clk:
     - freq: 3072000
-      gate: [ main ]
+      # gate: [ main ]
       outputs:
         - cen_mcu
     - freq: 5366500
-      gate: [ main ]
+      # gate: [ main ]
       outputs:
         - cen_5p3
     - freq: 8000000

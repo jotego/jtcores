@@ -9085,7 +9085,7 @@
 		(dnp no)
 		(uuid "0e54a0c8-f739-4a5c-9c23-bd3a9ce42432")
 		(property "Reference" "M20"
-			(at 78.105 165.1 0)
+			(at 82.55 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9093,7 +9093,7 @@
 			)
 		)
 		(property "Value" "74LS139"
-			(at 78.105 168.91 0)
+			(at 81.28 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9332,7 +9332,7 @@
 		(dnp no)
 		(uuid "1d5a03d6-22d2-445e-b45d-59608ac7f0d2")
 		(property "Reference" "S36"
-			(at 133.985 163.83 0)
+			(at 133.35 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9340,7 +9340,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 133.985 166.37 0)
+			(at 133.35 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9860,7 +9860,7 @@
 		(dnp no)
 		(uuid "41fd21e7-597e-4fb7-a6ae-05783d6cb94d")
 		(property "Reference" "S36"
-			(at 116.205 152.4 0)
+			(at 115.57 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9868,7 +9868,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 116.205 154.94 0)
+			(at 119.38 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11352,7 +11352,7 @@
 		(dnp no)
 		(uuid "f2931fd5-fd37-45d1-ba2c-73762c15d71c")
 		(property "Reference" "M21"
-			(at 116.205 163.83 0)
+			(at 116.205 165.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11360,7 +11360,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 116.205 166.37 0)
+			(at 115.57 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)

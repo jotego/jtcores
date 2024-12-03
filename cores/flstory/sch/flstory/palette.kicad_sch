@@ -9858,7 +9858,7 @@
 		(uuid "d1fa2dfc-97a6-4646-884a-12e5d9f9aafe")
 	)
 	(bus_entry
-		(at 165.1 256.54)
+		(at 170.18 256.54)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
@@ -9939,7 +9939,7 @@
 		(uuid "df82dcf7-b870-4954-bc46-6b5684db26c3")
 	)
 	(bus_entry
-		(at 165.1 246.38)
+		(at 170.18 246.38)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
@@ -10183,7 +10183,7 @@
 	)
 	(bus
 		(pts
-			(xy 167.64 248.92) (xy 167.64 259.08)
+			(xy 172.72 248.92) (xy 172.72 259.08)
 		)
 		(stroke
 			(width 0)
@@ -12053,7 +12053,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 246.38) (xy 165.1 246.38)
+			(xy 156.21 246.38) (xy 170.18 246.38)
 		)
 		(stroke
 			(width 0)
@@ -12913,7 +12913,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 261.62) (xy 160.02 261.62)
+			(xy 156.21 261.62) (xy 158.75 261.62)
 		)
 		(stroke
 			(width 0)
@@ -13983,7 +13983,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 259.08) (xy 160.02 259.08)
+			(xy 156.21 259.08) (xy 158.75 259.08)
 		)
 		(stroke
 			(width 0)
@@ -14413,7 +14413,7 @@
 	)
 	(bus
 		(pts
-			(xy 167.64 259.08) (xy 171.45 259.08)
+			(xy 172.72 259.08) (xy 176.53 259.08)
 		)
 		(stroke
 			(width 0)
@@ -14843,7 +14843,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 256.54) (xy 165.1 256.54)
+			(xy 156.21 256.54) (xy 170.18 256.54)
 		)
 		(stroke
 			(width 0)
@@ -19279,7 +19279,7 @@
 	)
 	(hierarchical_label "BGFLIP_EN"
 		(shape output)
-		(at 160.02 259.08 0)
+		(at 158.75 259.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -19351,7 +19351,7 @@
 	)
 	(hierarchical_label "GHFLIP"
 		(shape output)
-		(at 160.02 261.62 0)
+		(at 158.75 261.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -19363,7 +19363,7 @@
 	)
 	(hierarchical_label "BBANK[0..1]"
 		(shape output)
-		(at 171.45 259.08 0)
+		(at 176.53 259.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

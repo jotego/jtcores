@@ -26,7 +26,8 @@ wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data,
             c2b_dout, cpu_dout, mcu2bus;
 wire [ 1:0] pal_bank, scr_bank;
-wire        rst_main;
+wire        rst_main, cen_hb;
+reg         lhbl_l;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
@@ -34,12 +35,15 @@ assign ioctl_din  = {1'b0,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = ioctl_din;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
+always @(posedge clk) lhbl_l <= LHBL;
+assign cen_hb = LHBL & ~lhbl_l;
 // Let the MCU come out of reset first to take control of the port signals
-jtframe_sh #(.W(1),.L(8)) u_sh(
-    .clk    ( clk       ),
-    .clk_en ( cen_5p3   ),
-    .din    ( rst       ),
-    .drop   ( rst_main  )
+jtframe_enlarger #(.W(16)) u_rst(
+    .rst      ( 1'b0      ),
+    .clk      ( clk       ),
+    .cen      ( cen_hb    ),
+    .pulse_in ( rst       ),
+    .pulse_out( rst_main  )
 );
 
 jtflstory_main u_main(

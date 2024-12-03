@@ -16625,13 +16625,14 @@
 		(at 300.99 153.67 0)
 		(mirror x)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "f5a81283-8129-4136-b3b6-e00187ebb157")
 		(property "Reference" "M21"
-			(at 301.625 153.67 0)
+			(at 300.99 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)

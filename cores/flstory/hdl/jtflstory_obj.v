@@ -49,17 +49,18 @@ module jtflstory_obj(
 
 wire [31:0] sorted;
 wire [16:2] raw_addr;
-reg  [9:0] code;
-reg  [7:0] vlatch, xpos, chk; // object to check
-reg  [5:0] pal;               // priority at top 2 bits
-reg  [4:0] scan;
-reg  [3:0] ysub, cnt;
-reg  [1:0] obj_sub;
-reg  [2:0] st;
-wire [7:0] ydiff;
-reg        lhbl_l, lvbl_l, cen, draw, scan_done, hflip, vflip,
-           order, blink=0, blank, info, vsbl, inzone_l;
-wire       inzone, dr_busy;
+wire [ 9:0] pxl_raw;
+wire [ 7:0] ydiff;
+reg  [ 9:0] code;
+reg  [ 7:0] vlatch, xpos, chk; // object to check
+reg  [ 5:0] pal;               // priority at top 2 bits
+reg  [ 4:0] scan;
+reg  [ 3:0] ysub, cnt;
+reg  [ 1:0] obj_sub;
+reg  [ 2:0] st;
+reg         lhbl_l, lvbl_l, cen, draw, scan_done, hflip, vflip,
+            order, blink=0, blank, info, vsbl, inzone_l;
+wire        inzone, dr_busy;
 
 // same RAM usage as the original
 assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   D0~D7, blinking D8~DF
@@ -187,7 +188,14 @@ jtframe_objdraw #(
     .rom_ok     ( rom_ok    ),
     .rom_data   ( sorted    ),
 
-    .pxl        ( {prio,pxl} )
+    .pxl        ( pxl_raw   )
+);
+
+jtframe_sh #(.W(10),.L(8)) u_sh(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( pxl_raw   ),
+    .drop   ({prio,pxl} )
 );
 
 endmodule

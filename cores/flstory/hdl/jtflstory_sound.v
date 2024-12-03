@@ -43,7 +43,7 @@ module jtflstory_sound(
 `ifndef NOSOUND
 wire [15:0] A;
 wire [ 7:0] ram_dout, cpu_dout, ay_dout;
-wire        irq_ack, int_n, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n;
+wire        irq_ack, int_n, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_trebble, msm_bass, msm_vol, msm_bal;
 wire [ 3:0] psg_trebble, psg_bass, psg_vol, psg_bal;
@@ -84,7 +84,7 @@ always @(posedge clk) begin
     end else begin
         // access from the main bus to the sound subsystem
         if( !bus_a0 && bus_wr ) {ibf,ibuf} <= {1'b1,bus_dout};
-        if( bus_wr & bus_a0 ) rst_n <= ~bus_dout[0];
+        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0];
         if( bus_rd ) begin
             if(!bus_a0) obf <= 0;
             bus_din <= bus_a0 ? {6'd0,obf,ibf} : obuf;
@@ -113,7 +113,7 @@ always @* begin
     dac_we  = 0;
     cfg0    = 0;
     cfg1    = 0;
-    if( !mreq_n ) case(A[15:13])
+    if( !mreq_n && rfsh_n ) case(A[15:13])
         0,1,2,3,4,5,7: rom_cs = 1;
         6: case(A[12:11])
             0: ram_cs = 1;  // C000~C7FF
@@ -170,7 +170,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

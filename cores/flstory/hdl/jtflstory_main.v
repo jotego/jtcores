@@ -83,7 +83,6 @@ module jtflstory_main(
 
 wire [15:0] A, cpu_addr;
 reg  [ 7:0] cab, din;
-wire [ 7:0] ram_dout;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
 reg         ram_cs,
             vram_cs,
@@ -110,7 +109,6 @@ assign int_n    = ~dip_pause | lvbl;
 
 always @* begin
     rom_cs  = 0;
-    ram_cs  = 0;
     vram_cs = 0;
     sha_cs  = 0;
     cab_cs  = 0;
@@ -181,7 +179,6 @@ end
 
 always @* begin
     din = rom_cs ? rom_data   :
-          ram_cs ? ram_dout   :
           sha_cs ? sha_dout   :
           cab_cs ? cab        :
           oram_cs? oram8_dout :
@@ -212,9 +209,9 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .A          ( cpu_addr    ),
     .cpu_din    ( din         ),
     .cpu_dout   ( cpu_dout    ),
-    .ram_dout   ( ram_dout    ),
+    .ram_dout   (             ),
     // ROM access
-    .ram_cs     ( ram_cs      ),
+    .ram_cs     ( 1'b0        ),
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );

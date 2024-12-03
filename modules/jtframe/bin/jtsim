@@ -841,7 +841,7 @@ verilator)
         -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
         --top-module game_test -o sim \
          $EXTRA $TRACE --prefix UUT --assert \
-         --cc test.cpp --exe $SIMULATOR_EXTRA --threads 2 $COV \
+         --cc test.cpp --exe $SIMULATOR_EXTRA $COV \
          -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE \
         || exit $?
     # Only use parallel compilation if we are not in a regression. Otherwise
