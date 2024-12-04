@@ -40,7 +40,7 @@ assign rslt_cc = {n8,z8,c8};
 assign bsel    = {1'b0,op1[3:1]};
 
 always @* begin
-    cx = cin_carry;
+    cx = cin_carry & cin;
 
     rslt = op0;
     c8   = 0;

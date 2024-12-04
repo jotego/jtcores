@@ -73,12 +73,12 @@ ops:
   - { name: SUB, op: 0xe0, ctl: { alu: SUB, op0: a,  op1: md, addr: idx8,  ld: a, cc: nzc }, cycles: 4 }
   - { name: SUB, op: 0xd0, ctl: { alu: SUB, op0: a,  op1: md, addr: idx16, ld: a, cc: nzc }, cycles: 5 }
 
-  - { name: SBC, op: 0xa2, ctl: { alu: SBC, op0: a,  op1: md, addr: imm,   ld: a, carry: cin, cc: nzc }, cycles: 2 }
-  - { name: SBC, op: 0xb2, ctl: { alu: SBC, op0: a,  op1: md, addr: dir,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
-  - { name: SBC, op: 0xc2, ctl: { alu: SBC, op0: a,  op1: md, addr: ext,   ld: a, carry: cin, cc: nzc }, cycles: 4 }
-  - { name: SBC, op: 0xf2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
-  - { name: SBC, op: 0xe2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx8,  ld: a, carry: cin, cc: nzc }, cycles: 4 }
-  - { name: SBC, op: 0xd2, ctl: { alu: SBC, op0: a,  op1: md, addr: idx16, ld: a, carry: cin, cc: nzc }, cycles: 5 }
+  - { name: SBC, op: 0xa2, ctl: { alu: SUB, op0: a,  op1: md, addr: imm,   ld: a, carry: cin, cc: nzc }, cycles: 2 }
+  - { name: SBC, op: 0xb2, ctl: { alu: SUB, op0: a,  op1: md, addr: dir,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
+  - { name: SBC, op: 0xc2, ctl: { alu: SUB, op0: a,  op1: md, addr: ext,   ld: a, carry: cin, cc: nzc }, cycles: 4 }
+  - { name: SBC, op: 0xf2, ctl: { alu: SUB, op0: a,  op1: md, addr: idx,   ld: a, carry: cin, cc: nzc }, cycles: 3 }
+  - { name: SBC, op: 0xe2, ctl: { alu: SUB, op0: a,  op1: md, addr: idx8,  ld: a, carry: cin, cc: nzc }, cycles: 4 }
+  - { name: SBC, op: 0xd2, ctl: { alu: SUB, op0: a,  op1: md, addr: idx16, ld: a, carry: cin, cc: nzc }, cycles: 5 }
 
   - { name: AND, op: 0xa4, ctl: { alu: AND, op0: a,  op1: md, addr: imm,   ld: a, cc: nz }, cycles: 2 }
   - { name: AND, op: 0xb4, ctl: { alu: AND, op0: a,  op1: md, addr: dir,   ld: a, cc: nz }, cycles: 3 }
