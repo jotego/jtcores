@@ -63,7 +63,7 @@ assign bm_rd   = ~pb_out[BUSM_RD];
 assign pa_in   = busak_n ? bus2mcu : bm_din;
 assign bs_din  = mcu2bus;
 assign bm_dout = pa_out;
-assign lrd     = ~pb_out[COMM_RD];
+assign lrd     = ~pbl[COMM_RD] & pb_out[COMM_RD];
 assign lwr     = ~pbl[COMM_WR] & pb_out[COMM_WR];
 assign ale[1]  = ~pbl[ADHI_LE] & pb_out[ADHI_LE];
 assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
@@ -75,18 +75,18 @@ always @(posedge clk) begin
         bus2mcu <= 0;
     end else begin
         pbl <= pb_out;
+        if(lrd) ibf <= 0;
         if(bs_wr) begin
             bus2mcu <= bs_dout;
-            ibf     <= 1;
+            ibf     <= 1;   // 74LS74 set input has priority over clock
         end
         if(lwr) begin
             mcu2bus <= pa_out;
             obf     <= 1;
         end
-        if(lrd) ibf <= 0;
         if( ale[1] ) bm_addr[15:8] <= pa_out;
         if( ale[0] ) bm_addr[ 7:0] <= pa_out;
-    if(bs_rd) obf <= 0;
+    if(bs_rd) obf <= 0; // 74LS74 set input has priority over clock
     end
 end
 
