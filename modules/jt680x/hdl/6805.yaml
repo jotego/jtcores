@@ -164,17 +164,17 @@ ops:
   - { name: NEG,  op: 0x70, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
   - { name: NEG,  op: 0x60, ctl: { alu: ADD, op0: md, op1: one, op0inv: 1, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
 
-  - { name: ROLA, op: 0x49, ctl: { alu: ROL, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
-  - { name: ROLX, op: 0x59, ctl: { alu: ROL, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
-  - { name: ROL,  op: 0x39, ctl: { alu: ROL, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ROL,  op: 0x79, ctl: { alu: ROL, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ROL,  op: 0x69, ctl: { alu: ROL, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+  - { name: ROLA, op: 0x49, ctl: { alu: LSL, op0: a,              ld: a,  carry: cin, cc: nzc }, cycles: 3 }
+  - { name: ROLX, op: 0x59, ctl: { alu: LSL, op0: x,              ld: x,  carry: cin, cc: nzc }, cycles: 3 }
+  - { name: ROL,  op: 0x39, ctl: { alu: LSL, op0: md, addr: dir,  wr: wr, carry: cin, cc: nzc }, cycles: 5 }
+  - { name: ROL,  op: 0x79, ctl: { alu: LSL, op0: md, addr: idx,  wr: wr, carry: cin, cc: nzc }, cycles: 5 }
+  - { name: ROL,  op: 0x69, ctl: { alu: LSL, op0: md, addr: idx8, wr: wr, carry: cin, cc: nzc }, cycles: 6 }
 
-  - { name: RORA, op: 0x46, ctl: { alu: ROR, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
-  - { name: RORX, op: 0x56, ctl: { alu: ROR, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
-  - { name: ROR,  op: 0x36, ctl: { alu: ROR, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ROR,  op: 0x76, ctl: { alu: ROR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ROR,  op: 0x66, ctl: { alu: ROR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+  - { name: RORA, op: 0x46, ctl: { alu: LSR, op0: a,              ld: a,  carry: cin, cc: nzc }, cycles: 3 }
+  - { name: RORX, op: 0x56, ctl: { alu: LSR, op0: x,              ld: x,  carry: cin, cc: nzc }, cycles: 3 }
+  - { name: ROR,  op: 0x36, ctl: { alu: LSR, op0: md, addr: dir,  wr: wr, carry: cin, cc: nzc }, cycles: 5 }
+  - { name: ROR,  op: 0x76, ctl: { alu: LSR, op0: md, addr: idx,  wr: wr, carry: cin, cc: nzc }, cycles: 5 }
+  - { name: ROR,  op: 0x66, ctl: { alu: LSR, op0: md, addr: idx8, wr: wr, carry: cin, cc: nzc }, cycles: 6 }
 
   - { name: LSLA, op: 0x48, ctl: { alu: LSL, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
   - { name: LSLX, op: 0x58, ctl: { alu: LSL, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
@@ -188,11 +188,11 @@ ops:
   - { name: LSR,  op: 0x74, ctl: { alu: LSR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
   - { name: LSR,  op: 0x64, ctl: { alu: LSR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
 
-  - { name: ASRA, op: 0x47, ctl: { alu: ASR, op0: a,              ld: a,  cc: nzc }, cycles: 3 }
-  - { name: ASRX, op: 0x57, ctl: { alu: ASR, op0: x,              ld: x,  cc: nzc }, cycles: 3 }
-  - { name: ASR,  op: 0x37, ctl: { alu: ASR, op0: md, addr: dir,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ASR,  op: 0x77, ctl: { alu: ASR, op0: md, addr: idx,  wr: wr, cc: nzc }, cycles: 5 }
-  - { name: ASR,  op: 0x67, ctl: { alu: ASR, op0: md, addr: idx8, wr: wr, cc: nzc }, cycles: 6 }
+  - { name: ASRA, op: 0x47, ctl: { alu: LSR, op0: a,              ld: a,  carry: msb, cc: nzc }, cycles: 3 }
+  - { name: ASRX, op: 0x57, ctl: { alu: LSR, op0: x,              ld: x,  carry: msb, cc: nzc }, cycles: 3 }
+  - { name: ASR,  op: 0x37, ctl: { alu: LSR, op0: md, addr: dir,  wr: wr, carry: msb, cc: nzc }, cycles: 5 }
+  - { name: ASR,  op: 0x77, ctl: { alu: LSR, op0: md, addr: idx,  wr: wr, carry: msb, cc: nzc }, cycles: 5 }
+  - { name: ASR,  op: 0x67, ctl: { alu: LSR, op0: md, addr: idx8, wr: wr, carry: msb, cc: nzc }, cycles: 6 }
 
   - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,             cc: nz }, cycles: 3 }
   - { name: TSTX, op: 0x5d, ctl: { alu: SUB, op0: x,  op1: zero,             cc: nz }, cycles: 3 }
