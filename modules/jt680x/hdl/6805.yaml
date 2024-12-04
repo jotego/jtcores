@@ -327,7 +327,7 @@ ucode:
     seq:
       - fetch, inc_pc
       - # mem wait cycle
-      - fetch, inc_pc
+      - fetch, inc_pc, md_shift
       - # idle
       - # idle
       - # idle
