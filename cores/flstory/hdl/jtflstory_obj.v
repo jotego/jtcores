@@ -142,7 +142,7 @@ always @(posedge clk) begin
     end
     if(scan_done) {info,vsbl,order}<=0;
     if( (!lhbl && lhbl_l) || blank ) begin
-        vlatch    <= vrender[7:0]^{8{gvflip}};
+        vlatch    <= (vrender[7:0]-8'h10)^{8{gvflip}};
         cnt       <= 7;
         obj_sub   <= 0;
         scan_done <= 0;
