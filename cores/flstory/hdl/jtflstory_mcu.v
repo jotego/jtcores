@@ -80,10 +80,8 @@ always @(posedge clk) begin
             bus2mcu <= bs_dout;
             ibf     <= 1;   // 74LS74 set input has priority over clock
         end
-        if(lwr) begin
-            mcu2bus <= pa_out;
-            obf     <= 1;
-        end
+        if(!pb_out[COMM_WR]) mcu2bus <= pa_out;
+        if(lwr) obf <= 1;
         if( ale[1] ) bm_addr[15:8] <= pa_out;
         if( ale[0] ) bm_addr[ 7:0] <= pa_out;
     if(bs_rd) obf <= 0; // 74LS74 set input has priority over clock
