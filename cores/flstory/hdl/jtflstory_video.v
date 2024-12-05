@@ -67,7 +67,7 @@ wire [ 2:0] obj_prio;
 wire        flip, scr_hflip, scr_vflip;
 
 assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 2+2+8=12 bits
-assign scr_pal   = { vram_data[14:13], vram_data[11:8] }; // upper 2 bits = priority
+assign scr_pal   = vram_data[13:8]; // upper 2 bits = priority
 assign scr_hflip = vram_data[11] & scr_flen; // xor with ghflip on PCB
 assign scr_vflip = vram_data[12] & scr_flen;
 assign scry      = {1'b0,oram_dout};
