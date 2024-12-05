@@ -7826,6 +7826,15 @@
 		(uuid "44d782c4-0fbc-49cd-822a-5f9e6f03bd21")
 	)
 	(bus_entry
+		(at 327.66 130.81)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4678764c-4d32-429d-ba0a-eeeecbafea7c")
+	)
+	(bus_entry
 		(at 207.01 50.8)
 		(size 2.54 2.54)
 		(stroke
@@ -8105,7 +8114,7 @@
 		(uuid "8c4033ba-c63e-48c8-805b-e289a6f49783")
 	)
 	(bus_entry
-		(at 325.12 138.43)
+		(at 327.66 138.43)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
@@ -8294,7 +8303,7 @@
 		(uuid "b0904996-d5f5-42f3-9d80-bc1f95f5d08a")
 	)
 	(bus_entry
-		(at 325.12 135.89)
+		(at 327.66 135.89)
 		(size 2.54 2.54)
 		(stroke
 			(width 0)
@@ -8795,7 +8804,7 @@
 	)
 	(wire
 		(pts
-			(xy 320.04 135.89) (xy 325.12 135.89)
+			(xy 320.04 135.89) (xy 327.66 135.89)
 		)
 		(stroke
 			(width 0)
@@ -9975,6 +9984,16 @@
 	)
 	(bus
 		(pts
+			(xy 330.2 133.35) (xy 330.2 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5218c2ba-87c0-4421-b238-9a3d1f411796")
+	)
+	(bus
+		(pts
 			(xy 300.99 25.4) (xy 300.99 30.48)
 		)
 		(stroke
@@ -10693,16 +10712,6 @@
 		)
 		(uuid "804f63d5-5832-4193-af09-d53f1c0b0ef2")
 	)
-	(wire
-		(pts
-			(xy 320.04 133.35) (xy 328.93 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "81616387-78b1-43cc-8525-aa159556e643")
-	)
 	(bus
 		(pts
 			(xy 255.27 33.02) (xy 255.27 30.48)
@@ -10725,7 +10734,7 @@
 	)
 	(bus
 		(pts
-			(xy 327.66 140.97) (xy 330.2 140.97)
+			(xy 330.2 140.97) (xy 332.74 140.97)
 		)
 		(stroke
 			(width 0)
@@ -11785,7 +11794,7 @@
 	)
 	(bus
 		(pts
-			(xy 327.66 138.43) (xy 327.66 140.97)
+			(xy 330.2 138.43) (xy 330.2 140.97)
 		)
 		(stroke
 			(width 0)
@@ -11835,7 +11844,7 @@
 	)
 	(wire
 		(pts
-			(xy 320.04 138.43) (xy 325.12 138.43)
+			(xy 320.04 138.43) (xy 327.66 138.43)
 		)
 		(stroke
 			(width 0)
@@ -12892,6 +12901,16 @@
 			(type default)
 		)
 		(uuid "fb8dd5bf-e5a3-4162-9e5d-2e0f1ea71eed")
+	)
+	(wire
+		(pts
+			(xy 320.04 130.81) (xy 327.66 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fba33d3b-82be-49be-8dcf-fca218447dc9")
 	)
 	(bus
 		(pts
@@ -15098,6 +15117,17 @@
 		)
 		(uuid "aeaad137-6cf7-4587-8e73-b4d2e3efa85a")
 	)
+	(label "PRIO0"
+		(at 325.12 130.81 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "aebb01f2-4d34-44e8-8cfb-054e6a050682")
+	)
 	(label "A6"
 		(at 284.48 227.33 180)
 		(fields_autoplaced yes)
@@ -15340,7 +15370,7 @@
 		)
 		(uuid "c807667e-bbb6-4cb3-b172-24e71b9349da")
 	)
-	(label "PRIO1"
+	(label "PRIO2"
 		(at 325.12 138.43 180)
 		(fields_autoplaced yes)
 		(effects
@@ -15681,7 +15711,7 @@
 		)
 		(uuid "e38b960b-8cac-4896-a0ca-bcbefcf0bc5f")
 	)
-	(label "PRIO0"
+	(label "PRIO1"
 		(at 325.12 135.89 180)
 		(fields_autoplaced yes)
 		(effects
@@ -16012,9 +16042,9 @@
 		)
 		(uuid "10b61609-b47b-46b3-9c71-6a3ffc50dbb9")
 	)
-	(hierarchical_label "PRIO[0..1]"
+	(hierarchical_label "PRIO[0..2]"
 		(shape output)
-		(at 330.2 140.97 0)
+		(at 332.74 140.97 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -16098,7 +16128,7 @@
 	)
 	(hierarchical_label "~{PXLEN}"
 		(shape output)
-		(at 328.93 133.35 0)
+		(at 320.04 133.35 0)
 		(fields_autoplaced yes)
 		(effects
 			(font

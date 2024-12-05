@@ -5434,16 +5434,6 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 154.94) (xy 279.4 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2467c1bb-4e9a-4094-bc68-4c744c6b22b4")
-	)
-	(wire
-		(pts
 			(xy 359.41 151.13) (xy 359.41 148.59)
 		)
 		(stroke
@@ -5701,16 +5691,6 @@
 			(type default)
 		)
 		(uuid "4f54634f-2360-4454-8816-a4491fe419ce")
-	)
-	(wire
-		(pts
-			(xy 247.65 142.24) (xy 257.81 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4fea828e-943a-4f67-b516-d760fd451972")
 	)
 	(wire
 		(pts
@@ -6752,17 +6732,6 @@
 		)
 		(uuid "fef324c1-7411-4d5a-ac4d-d0d03285b461")
 	)
-	(label "PAL8"
-		(at 269.24 154.94 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "044911c8-5b5c-4992-b9df-da8e917fac67")
-	)
 	(label "AB7"
 		(at 375.92 123.19 180)
 		(fields_autoplaced yes)
@@ -6962,17 +6931,6 @@
 			(justify left bottom)
 		)
 		(uuid "1fc73272-134b-4c27-84f4-cb4afc254e78")
-	)
-	(label "PAL8"
-		(at 257.81 142.24 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2359edac-7465-4394-b886-7a8d600829be")
 	)
 	(label "~{PH}[0..9]"
 		(at 151.13 93.98 0)
@@ -7373,7 +7331,7 @@
 		)
 		(uuid "7242a366-9c45-4a7e-8711-9ae1d43e833b")
 	)
-	(label "OPRIO[0..1]"
+	(label "OPRIO[0..2]"
 		(at 203.2 86.36 180)
 		(fields_autoplaced yes)
 		(effects
@@ -7450,7 +7408,7 @@
 		)
 		(uuid "8135ceb3-b5e3-4a04-8379-9c6f3d308d72")
 	)
-	(label "OPRIO[0..1]"
+	(label "OPRIO[0..2]"
 		(at 210.82 144.78 0)
 		(fields_autoplaced yes)
 		(effects
@@ -9534,7 +9492,7 @@
 			)
 			(uuid "844fcc2c-d66a-4529-93af-c211d2daa349")
 		)
-		(pin "PRIO[0..1]" output
+		(pin "PRIO[0..2]" output
 			(at 190.5 86.36 0)
 			(effects
 				(font
@@ -9702,26 +9660,6 @@
 			)
 			(uuid "479456c8-0796-4592-89ac-558a53e3659b")
 		)
-		(pin "D11" output
-			(at 247.65 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "01f7454a-c69c-4a9e-a8a5-0a0cc18c9ccc")
-		)
-		(pin "D10" output
-			(at 247.65 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "b6695d37-341e-4ddd-b1a1-bb0ff2dfbdf9")
-		)
 		(pin "UPAL[0..7]" output
 			(at 223.52 152.4 180)
 			(effects
@@ -9732,7 +9670,7 @@
 			)
 			(uuid "23763ae8-6dec-4ccc-82f7-83f1103425e7")
 		)
-		(pin "PRIO[0..1]" input
+		(pin "PRIO[0..2]" input
 			(at 223.52 144.78 180)
 			(effects
 				(font
@@ -10129,16 +10067,6 @@
 				(justify left)
 			)
 			(uuid "7b887890-9e9a-478f-9e98-520803603162")
-		)
-		(pin "PAL8" input
-			(at 279.4 154.94 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "fb102437-7b96-4266-a771-96a42675ddaa")
 		)
 		(pin "PALB8" input
 			(at 279.4 160.02 180)

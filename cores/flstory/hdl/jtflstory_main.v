@@ -144,7 +144,7 @@ always @* begin
                         2: pal_hi  = 1; // includes priority bits
                         3: case(A[1:0])
                             // 0, 1, 2: related to gun games?
-                            3: vcfg_cs = 1;
+                            3: vcfg_cs = bus_we;
                             default:;
                         endcase
                     endcase

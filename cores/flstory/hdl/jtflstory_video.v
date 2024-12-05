@@ -62,7 +62,8 @@ wire [ 8:0] vdump, vrender, hdump, scry;
 wire [ 7:0] scr_pxl, obj_pxl;
 wire [11:0] scr_code;
 wire [ 5:0] scr_pal;
-wire [ 1:0] scr_prio, obj_prio;
+wire [ 1:0] scr_prio;
+wire [ 2:0] obj_prio;
 wire        flip, scr_hflip, scr_vflip;
 
 assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 2+2+8=12 bits

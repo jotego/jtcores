@@ -4949,6 +4949,15 @@
 		(uuid "31efc9de-1da7-4097-9436-170a3d091766")
 	)
 	(bus_entry
+		(at 86.36 168.91)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "32493967-e83e-412b-b629-52350f3a858a")
+	)
+	(bus_entry
 		(at 124.46 144.78)
 		(size 2.54 2.54)
 		(stroke
@@ -5862,6 +5871,16 @@
 			(type default)
 		)
 		(uuid "61dbec6e-c8aa-450a-85f4-ef9e5dd156ea")
+	)
+	(bus
+		(pts
+			(xy 86.36 166.37) (xy 86.36 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63b7b1be-3e40-4122-9422-ecfdb6d44150")
 	)
 	(wire
 		(pts
@@ -7134,6 +7153,17 @@
 		)
 		(uuid "27207f8a-0ac0-4e3d-b80c-5033f9710dc8")
 	)
+	(label "PRIO2"
+		(at 88.9 166.37 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "27eae7ca-2795-499b-ace0-419da9cd052d")
+	)
 	(label "A6"
 		(at 173.99 109.22 0)
 		(fields_autoplaced yes)
@@ -7388,7 +7418,7 @@
 		(uuid "73340557-ec46-413a-90fe-664f91f7de56")
 	)
 	(label "PRIO1"
-		(at 88.9 166.37 0)
+		(at 88.9 168.91 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7960,7 +7990,7 @@
 		(uuid "fd870793-f4ae-43cd-9306-ebf13315762c")
 	)
 	(label "PRIO0"
-		(at 88.9 168.91 0)
+		(at 88.9 171.45 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8017,7 +8047,7 @@
 		)
 		(uuid "82d9e9dd-5790-4177-9adb-c7d1db654481")
 	)
-	(hierarchical_label "PRIO[0..1]"
+	(hierarchical_label "PRIO[0..2]"
 		(shape input)
 		(at 81.28 163.83 180)
 		(fields_autoplaced yes)

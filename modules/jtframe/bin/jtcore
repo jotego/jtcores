@@ -61,6 +61,7 @@ usage: jtcore <corename> [options]
                     Disables JTFRAME_CREDITS and HQ2X.
     -qs             Same as -q but with sound.
     --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
+    --sd [setname]  Copy to sd card, optional setname (uses jtbin2sd)
     --seed          Sets random seed for compilation
     --sim           Prepares Quartus simulation
     --skip | -s     skips the compilation but executes the rest of the commands
@@ -78,6 +79,7 @@ EOF
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
+JTBIN2SD=
 MACROS=
 OUTPUTDIR=output_files
 PRJ=
@@ -161,6 +163,13 @@ function parse_args {
             --nodbg)      MACROS="$MACROS JTFRAME_RELEASE=1";;
             --nosta)      SKIPTIMING=1;;
             --sim)        SIM=TRUE;;
+            --sd)
+                if [ "${2:0:1}" != - ]; then
+                    shift
+                    JTBIN2SD=$1
+                else
+                    JTBIN2SD=" "
+                fi;;
             --showmacros) SHOWMACROS=1;;
             --target|-t)
                 shift
@@ -620,7 +629,7 @@ if [ $TARGET = pocket ]; then
     RBF=${RBF}_r
 fi
 
-# Copy to JTBIN
+# Copy to JTBIN and SD card
 if [[ "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
     BINFOLDER=$JTBIN/$TARGET
@@ -630,6 +639,7 @@ if [[ "$FAIL" = 0  ]]; then
     BINRBF=$BINFOLDER/$corename.$EXT
     mkdir -p $(dirname $BINRBF)
     cp -v $RBF $BINRBF || exit 1
+    if [ ! -z "$JTBIN2SD" ]; then jtbin2sd $JTBIN2SD; fi
 elif [ ! -z "$VERBOSE" ]; then
     echo "Skipping copy to release"
 fi

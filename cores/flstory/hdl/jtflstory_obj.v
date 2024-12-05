@@ -43,17 +43,17 @@ module jtflstory_obj(
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
-    output     [ 1:0] prio,
+    output     [ 2:0] prio,
     output     [ 7:0] pxl
 );
 
 wire [31:0] sorted;
 wire [16:2] raw_addr;
-wire [ 9:0] pxl_raw;
+wire [10:0] pxl_raw;
 wire [ 7:0] ydiff;
 reg  [ 9:0] code;
 reg  [ 7:0] vlatch, xpos, chk; // object to check
-reg  [ 5:0] pal;               // priority at top 2 bits
+reg  [ 6:0] pal;               // priority at top 3 bits
 reg  [ 4:0] scan;
 reg  [ 3:0] ysub, cnt;
 reg  [ 1:0] obj_sub;
@@ -117,7 +117,7 @@ always @(posedge clk) begin
         end else begin
             if( !info  ) begin
                 chk      <= ram_dout;
-                pal[5:4] <= ram_dout[7:6]; // priority bits
+                pal[6:4] <= ram_dout[7:5]; // priority bits
                 info     <= 1;
                 vsbl     <= 0;
             end else begin
@@ -157,7 +157,7 @@ end
 // HB instead. I'm using a double-line buffer to ease the implementation
 jtframe_objdraw #(
     .CW(10),
-    .PW(10),
+    .PW(11),
     .SWAPH(1),
     .HJUMP(0),
     .ALPHA(15),
@@ -191,7 +191,7 @@ jtframe_objdraw #(
     .pxl        ( pxl_raw   )
 );
 
-jtframe_sh #(.W(10),.L(8)) u_sh(
+jtframe_sh #(.W(11),.L(8)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( pxl_raw   ),

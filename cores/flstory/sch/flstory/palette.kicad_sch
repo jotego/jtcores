@@ -13413,7 +13413,7 @@
 	)
 	(wire
 		(pts
-			(xy 335.28 173.99) (xy 337.82 173.99)
+			(xy 335.28 173.99) (xy 341.63 173.99)
 		)
 		(stroke
 			(width 0)
@@ -16794,7 +16794,7 @@
 		(uuid "49b00e8c-518b-4753-9df7-4cbbae0986b3")
 	)
 	(label "PRA8"
-		(at 337.82 173.99 180)
+		(at 341.63 173.99 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
