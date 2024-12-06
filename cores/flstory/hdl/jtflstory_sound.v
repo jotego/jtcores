@@ -87,7 +87,7 @@ always @(posedge clk) begin
         if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0];
         if( bus_rd ) begin
             if(!bus_a0) obf <= 0;
-            bus_din <= bus_a0 ? {6'd0,obf,ibf} : obuf;
+            bus_din <= bus_a0 ? {6'd0,obf,~ibf} : obuf;
         end
         // sound subsystem
         if( nmi_sen ) {nmi_en, mute} <= {1'b1,cpu_dout[7]};
@@ -152,7 +152,7 @@ always @* begin
     din = rom_cs ? rom_data       :
           ram_cs ? ram_dout       :
           cmd_rd ? ibuf           :
-          cmd_st ? {6'd0,obf,ibf} :
+          cmd_st ? {6'd0,obf,~ibf} :
           cmd_lr ? dac            :
           bc1    ? ay_dout        : 8'd0;
 end
