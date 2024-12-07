@@ -24,6 +24,7 @@ module jt5232_eg(
     input         cen256,   // 1 in 256 clk's
     input  [ 4:0] duty,     // divide cen256 following atime and dtime
     input         gf,
+    input         kon,
     input         en,
     input         arm,      // attack-release mode
     input  [ 2:0] atime,    // attack time configuration
@@ -38,6 +39,7 @@ localparam real CLK=`JTFRAME_MCLK/256,
                R2 = 5800,  // release/damping
                R1 = 37000;  // decay
 `ifdef SIMULATION
+/* verilator lint_off REALCVT */
 localparam real DA=1.0-$pow(2.71828,-1.0/(CLK*CAP*RA)),
                 D1=1.0-$pow(2.71828,-1.0/(CLK*CAP*R1)),
                 D2=1.0-$pow(2.71828,-1.0/(CLK*CAP*R2)),
@@ -70,32 +72,34 @@ initial begin
 end
 
 reg  [EW-1:0] eg=1;
-wire [EW  :0] sub;
-wire [EW-1:0] mux;
-wire [EW*2:0] egmulr, egmulf;
-wire [EW-1:0] egrise,egfall;
+reg  [EW  :0] sub;
+reg  [EW-1:0] mux;
+reg  [EW*2:0] egmulr, egmulf;
+reg  [EW-1:0] egrise,egfall;
 reg  [   1:0] sel=0;
-reg           gfl=0, attack=0, cen_eff;
-// duty cycle
-wire [   2:0] duty_sel;
-
+reg           attack=0, cen_eff;
+wire [   2:0] duty_sel; // duty cycle
 // wire [EW-1:0] p9b = P9B;
-
-assign sub    = {1'b1,{EW{1'b0}}}-{1'b0,eg};
-assign mux    = sel==DECAY ? D1B : sel==RELEASE ? D2B : DAB;
-assign egmulr = sub*mux;
-assign egmulf = eg*mux;
-assign egrise = eg+egmulr[EW*2-:EW];
-assign egfall = eg-egmulf[EW*2-:EW];
 assign env    = eg[EW-1-:12];
 
 assign duty_sel = attack ? atime : dtime[2:0];
+
+// This assumes that there are plenty of clocks in between two cen strobes
+// All these signals must be calculated in the time between two cen_eff
+always @(posedge clk) begin
+    mux    <= sel==DECAY ? D1B : sel==RELEASE ? D2B : DAB;
+    sub    <= {1'b1,{EW{1'b0}}}-{1'b0,eg};
+    egmulr <= sub*mux;
+    egmulf <= eg*mux;
+    egrise <= eg+egmulr[EW*2-:EW];
+    egfall <= eg-egmulf[EW*2-:EW];
+end
 
 always @(posedge clk) begin
     cen_eff <= 0;
     if(cen256) begin
         cen_eff <= 1; // release has 100% duty cycle
-        if(gf) casez(duty_sel)
+        if(attack || !arm) casez(duty_sel)
             3'd0:   cen_eff <= 1;
             3'd1:   cen_eff <= duty[0];
             3'd2:   cen_eff <= duty[1:0]==1;
@@ -104,30 +108,28 @@ always @(posedge clk) begin
             3'b1?1: cen_eff <= duty[4:0]==1;
         endcase
     end
+    if(!en) cen_eff <= 0; // keep the current capacitor voltage
 end
 
 always @(posedge clk) begin
     if(rst) begin
         eg     <= 0;
-        gfl    <= 0;
         attack <= 0;
         sel    <= 0;
     end else begin
-        gfl <= gf;
-        if(gf&&!gfl) attack<=1;
-        if(!gf) attack <= 0;
+        if(kon) attack<=1;
+        if(!gf) attack<=0;
         if(cen_eff) begin
             if(attack) begin
                 sel <= ATTACK;
                 eg  <= egrise;
                 if( eg>P9B && !arm ) attack<=0;
             end else begin
-                sel <= (gf & dtime[3]) ? DECAY : RELEASE;
+                sel <= ((!arm && dtime[3]) && gf)  ? DECAY : RELEASE;
                 eg  <= egfall;
             end
         end
         if(eg==0) eg <= 1;
-        if(!en) eg <= gf ? {EW{1'b1}} : {EW{1'b0}}; // full output/mute if EG disabled
     end
 end
 

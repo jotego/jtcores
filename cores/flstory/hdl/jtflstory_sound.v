@@ -44,11 +44,12 @@ module jtflstory_sound(
 `ifndef NOSOUND
 wire [15:0] A;
 wire [ 7:0] ram_dout, cpu_dout, ay_dout;
-wire        irq_ack, int_n, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
+wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_trebble, msm_bass, msm_vol, msm_bal;
 wire [ 3:0] psg_trebble, psg_bass, psg_vol, psg_bal;
 reg  [13:0] int_cnt;
+reg         int_n;
 reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
@@ -56,12 +57,17 @@ reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
 
 assign rom_addr = A;
 assign irq_ack  = !iorq_n && !m1_n;
-assign int_n    = ~int_cnt[13];
 assign nmi_n    = ~(ibf & nmi_en);
 
 always @(posedge clk) begin
-    if( cen2 ) int_cnt <= int_cnt+14'd1;
-    if( irq_ack ) int_cnt[13] <= 0;
+    if(rst) begin
+        int_n   <= 1;
+        int_cnt <= 0;
+    end else begin
+        if( cen2    ) int_cnt <= int_cnt+13'd1;
+        if(&int_cnt ) int_n   <= 0;
+        if( irq_ack ) int_n   <= 1;
+    end
 end
 
 always @(posedge clk) begin
@@ -208,9 +214,9 @@ jt49_bus u_ay0(
 jt5232 u_msm(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .cen1   ( cen2      ),  // both cen inputs at 2MHz
-    .cen2   ( cen2      ),
-    .din    ( din       ),
+    .cen1   ( cen4      ),  // both cen inputs at 2MHz on original
+    .cen2   ( cen4      ),
+    .din    ( cpu_dout  ),
     .addr   ( A[3:0]    ),
     .we     ( msmw      ),
     .snd1   ( msm1      ), // unsigned!

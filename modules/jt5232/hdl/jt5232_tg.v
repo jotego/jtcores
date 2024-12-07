@@ -29,32 +29,33 @@ module jt5232_tg(
     input      [ 8:0] step,
     input      [ 2:0] bsel, // bit selection
     input      [ 3:0] pipe_en,
-    input             en,
     output reg [ 2:0] organ
 );
 
 reg  [ 8:0] cnt=0;
 wire [ 8:0] nxc;
 reg  [ 3:0] pipes=0;
-reg  [ 7:0] harmonics=0;
-wire        carry;
+reg  [ 7:0] h=0;    // harmonics
+wire        over;
 
-assign { carry, nxc } = {1'b0,cnt}+{1'b0,step};
+assign over = cnt==step;
 
 always @(posedge clk) if(cen) begin
-    cnt <= nxc;
-    if(carry) harmonics <= harmonics+8'd1;
+    cnt <= over ? 9'd0 : cnt+9'd1;
+    if(over) h <= h+8'd1;
     case(bsel)
-        0: pipes <= {{3{harmonics[7]}},harmonics[6]};
-        1: pipes <= {{2{harmonics[7]}},harmonics[5+:2]};
-        2: pipes <= {harmonics[7],harmonics[4+:3]};
-        3: pipes <= harmonics[4+:4];
-        4: pipes <= harmonics[3+:4];
-        5: pipes <= harmonics[2+:4];
-        6: pipes <= harmonics[1+:4];
-        7: pipes <= harmonics[0+:4];
+        1: pipes <= {h[0],h[0],h[0],h[1]};
+        2: pipes <= {h[0],h[0],h[1],h[2]};
+        3: pipes <= {h[0],h[1],h[2],h[3]};
+        4: pipes <= {h[1],h[2],h[3],h[4]};
+        5: pipes <= {h[2],h[3],h[4],h[5]};
+        6: pipes <= {h[3],h[4],h[5],h[6]};
+        7: pipes <= {h[4],h[5],h[6],h[7]};
     endcase
-    if(!en) {cnt,pipes,harmonics} <= 0;
+    if(!pipe_en[0]) pipes[0] <= 0;
+    if(!pipe_en[1]) pipes[1] <= 0;
+    if(!pipe_en[2]) pipes[2] <= 0;
+    if(!pipe_en[3]) pipes[3] <= 0;
     organ <= {2'd0,pipes[0]}+{2'd0,pipes[1]}+{2'd0,pipes[2]}+{2'd0,pipes[3]};
 end
 

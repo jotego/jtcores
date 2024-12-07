@@ -41,7 +41,7 @@ wire [ 2:0] pgbit;
 reg  [ 2:0] pitch_sel;
 reg  [ 2:0] bsel[0:7];
 reg  [ 6:0] pitch;
-reg  [ 7:0] gf;
+reg  [ 7:0] gf, kon;
 reg  [ 2:0] attack[0:1];
 reg  [ 3:0] decay[0:1];
 reg  [ 3:0] oen[0:1];         // 2' 4' 8' 16' output enable
@@ -54,18 +54,19 @@ wire [12*8-1:0] eg;
 wire [ 3*8-1:0] organ;
 
 // clock divider
-reg [6:0] div1=0, div2=0;
 reg [6:0] div3=0;       // A divider for each group
 reg [4:0] duty=0;
-reg [1:0] cen_tg;
 reg       cen256=0;
 
-localparam [6:0] CNTOVER={4'd10,3'd7};
+`ifdef SIMULATION
+reg [3:0] al;
+reg [7:0] dl;
+always_latch begin
+    if(we) begin al=addr; dl=din; end
+end
+`endif
 
 always @(posedge clk) begin
-    cen_tg <= 0;
-    if(cen1) {cen_tg[0],div1} <= div1 == CNTOVER ? {1'b1,7'd0} : {1'b0,div1+1'd1};
-    if(cen2) {cen_tg[1],div2} <= div2 == CNTOVER ? {1'b1,7'd0} : {1'b0,div2+1'd1};
     {cen256,div3} <= {1'b0,div3}+7'd1;
     duty <= duty+{4'd0,cen256};
 end
@@ -84,8 +85,13 @@ always @(posedge clk) begin
         bsel[4] <= 0; bsel[5] <= 0; bsel[6] <= 0; bsel[7] <= 0;
         {sf,ege,arm} <= 0;
     end else begin
+        kon <= 0;
         if(we) casez(addr)
-          4'b0???: {pitch_sel, gf[addr[2:0]], pitch} <= {addr[2:0],din};
+          4'b0???: begin
+            if(din[7]) {pitch_sel, pitch} <= {addr[2:0],din[6:0]};
+             gf[addr[2:0]] <= din[7];
+             kon[addr[2:0]] <= din[7];
+          end
              8, 9: attack[addr[0]] <= din[2:0];
             10,11: decay [addr[0]] <= din[3:0];
                12: {   ege[0],arm[0],oen[0]} <= din[5:0];
@@ -97,25 +103,25 @@ always @(posedge clk) begin
 end
 
 // envelope generators
-jt5232_eg u_eg0(rst,clk,cen256,duty,gf[0],ege[0],arm[0],attack[0],decay[0],eg[0*12+:12]);
-jt5232_eg u_eg1(rst,clk,cen256,duty,gf[1],ege[0],arm[0],attack[0],decay[0],eg[1*12+:12]);
-jt5232_eg u_eg2(rst,clk,cen256,duty,gf[2],ege[0],arm[0],attack[0],decay[0],eg[2*12+:12]);
-jt5232_eg u_eg3(rst,clk,cen256,duty,gf[3],ege[0],arm[0],attack[0],decay[0],eg[3*12+:12]);
-jt5232_eg u_eg4(rst,clk,cen256,duty,gf[4],ege[1],arm[1],attack[1],decay[1],eg[4*12+:12]);
-jt5232_eg u_eg5(rst,clk,cen256,duty,gf[5],ege[1],arm[1],attack[1],decay[1],eg[5*12+:12]);
-jt5232_eg u_eg6(rst,clk,cen256,duty,gf[6],ege[1],arm[1],attack[1],decay[1],eg[6*12+:12]);
-jt5232_eg u_eg7(rst,clk,cen256,duty,gf[7],ege[1],arm[1],attack[1],decay[1],eg[7*12+:12]);
+jt5232_eg u_eg0(rst,clk,cen256,duty,gf[0],kon[0],ege[0],arm[0],attack[0],decay[0],eg[0*12+:12]);
+jt5232_eg u_eg1(rst,clk,cen256,duty,gf[1],kon[1],ege[0],arm[0],attack[0],decay[0],eg[1*12+:12]);
+jt5232_eg u_eg2(rst,clk,cen256,duty,gf[2],kon[2],ege[0],arm[0],attack[0],decay[0],eg[2*12+:12]);
+jt5232_eg u_eg3(rst,clk,cen256,duty,gf[3],kon[3],ege[0],arm[0],attack[0],decay[0],eg[3*12+:12]);
+jt5232_eg u_eg4(rst,clk,cen256,duty,gf[4],kon[4],ege[1],arm[1],attack[1],decay[1],eg[4*12+:12]);
+jt5232_eg u_eg5(rst,clk,cen256,duty,gf[5],kon[5],ege[1],arm[1],attack[1],decay[1],eg[5*12+:12]);
+jt5232_eg u_eg6(rst,clk,cen256,duty,gf[6],kon[6],ege[1],arm[1],attack[1],decay[1],eg[6*12+:12]);
+jt5232_eg u_eg7(rst,clk,cen256,duty,gf[7],kon[7],ege[1],arm[1],attack[1],decay[1],eg[7*12+:12]);
 // tone generators
 // group 1
-jt5232_tg u_tg0( rst, clk, cen_tg[0], step[0], bsel[0], oen[0], gf[0],organ[0*3+:3] );
-jt5232_tg u_tg1( rst, clk, cen_tg[0], step[1], bsel[1], oen[0], gf[1],organ[1*3+:3] );
-jt5232_tg u_tg2( rst, clk, cen_tg[0], step[2], bsel[2], oen[0], gf[2],organ[2*3+:3] );
-jt5232_tg u_tg3( rst, clk, cen_tg[0], step[3], bsel[3], oen[0], gf[3],organ[3*3+:3] );
+jt5232_tg u_tg0( rst, clk, cen1, step[0], bsel[0], oen[0], organ[0*3+:3] );
+jt5232_tg u_tg1( rst, clk, cen1, step[1], bsel[1], oen[0], organ[1*3+:3] );
+jt5232_tg u_tg2( rst, clk, cen1, step[2], bsel[2], oen[0], organ[2*3+:3] );
+jt5232_tg u_tg3( rst, clk, cen1, step[3], bsel[3], oen[0], organ[3*3+:3] );
 // group 2
-jt5232_tg u_tg4( rst, clk, cen_tg[1], step[4], bsel[4], oen[1], gf[4],organ[4*3+:3] );
-jt5232_tg u_tg5( rst, clk, cen_tg[1], step[5], bsel[5], oen[1], gf[5],organ[5*3+:3] );
-jt5232_tg u_tg6( rst, clk, cen_tg[1], step[6], bsel[6], oen[1], gf[6],organ[6*3+:3] );
-jt5232_tg u_tg7( rst, clk, cen_tg[1], step[7], bsel[7], oen[1], gf[7],organ[7*3+:3] );
+jt5232_tg u_tg4( rst, clk, cen2, step[4], bsel[4], oen[1], organ[4*3+:3] );
+jt5232_tg u_tg5( rst, clk, cen2, step[5], bsel[5], oen[1], organ[5*3+:3] );
+jt5232_tg u_tg6( rst, clk, cen2, step[6], bsel[6], oen[1], organ[6*3+:3] );
+jt5232_tg u_tg7( rst, clk, cen2, step[7], bsel[7], oen[1], organ[7*3+:3] );
 // accumulator
 jt5232_acc u_acc(
     .clk    ( clk       ),

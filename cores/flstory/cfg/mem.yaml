@@ -19,7 +19,7 @@ clocks:
 audio:
   # temptative values
   rsum: 1k
-  mute: true
+  # mute: true
   channels:
 #     # FIR should be 3kHz, not 4kHz
     - { name: msm1,  module: jt5232,rsum: 1k }

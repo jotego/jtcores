@@ -26,12 +26,12 @@ wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data,
             c2b_dout, cpu_dout, mcu2bus;
 wire [ 1:0] pal_bank, scr_bank;
-wire        rst_main, cen_hb;
+wire        rst_main, cen_hb, mute;
 reg         lhbl_l;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
-assign ioctl_din  = {1'b0,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
+assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = ioctl_din;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
