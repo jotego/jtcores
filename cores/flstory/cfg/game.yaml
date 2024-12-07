@@ -19,8 +19,8 @@ jtframe:
       - jtframe_tilemap.v
       - jtframe_obj.yaml
 modules:
-  # jt:
-  #   - name: jt5205
+  jt:
+    - name: jt5232
   other:
     - get:
       - jt49/hdl/jt49.yaml

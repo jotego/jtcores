@@ -151,6 +151,8 @@ jtflstory_sound u_sound(
 
     // sound output
     .mute       ( mute      ),
+    .msm1       ( msm1      ),
+    .msm2       ( msm2      ),
     .psg        ( psg       ),
     .dac        ( dac       ),
     .debug_bus  ( debug_bus )

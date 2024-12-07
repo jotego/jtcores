@@ -36,6 +36,7 @@ module jtflstory_sound(
 
     // sound output
     output reg       mute,
+    output    [15:0] msm1, msm2,
     output    [ 9:0] psg,
     output reg[ 7:0] dac,
     input     [ 7:0] debug_bus
@@ -48,7 +49,7 @@ reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_trebble, msm_bass, msm_vol, msm_bal;
 wire [ 3:0] psg_trebble, psg_bass, psg_vol, psg_bal;
 reg  [13:0] int_cnt;
-reg         ram_cs, bdir, bc1, gtwr, cfg0, cfg1,
+reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
             ibf, obf, rst_n, crst_n;    // ibf = input buffer full
@@ -103,7 +104,7 @@ always @* begin
     ram_cs  = 0;
     bdir    = 0;
     bc1     = 0;
-    gtwr    = 0;
+    msmw    = 0;
     cmd_rd  = 0;
     cmd_st  = 0;
     cmd_lr  = 0;
@@ -122,7 +123,7 @@ always @* begin
                     bdir = 1;
                     bc1  = !A[0];
                 end
-                1: gtwr = 1;
+                1: msmw = 1;
                 2: cfg0 = 1;
                 3: cfg1 = 1;
             endcase
@@ -202,6 +203,18 @@ jt49_bus u_ay0(
     .IOB_out(           ),
     .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
+);
+
+jt5232 u_msm(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen1   ( cen2      ),  // both cen inputs at 2MHz
+    .cen2   ( cen2      ),
+    .din    ( din       ),
+    .addr   ( A[3:0]    ),
+    .we     ( msmw      ),
+    .snd1   ( msm1      ), // unsigned!
+    .snd2   ( msm2      )
 );
 `else
 initial bus_din  = 0;

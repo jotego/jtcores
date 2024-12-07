@@ -4800,8 +4800,8 @@
 		(uuid "0a67a394-1175-4cc6-923c-41f1271abc6c")
 	)
 	(bus_entry
-		(at 140.335 86.36)
-		(size -2.54 2.54)
+		(at 140.335 78.74)
+		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -5016,8 +5016,8 @@
 		(uuid "9768c06c-6145-46c1-bd37-8a7a39bfd89c")
 	)
 	(bus_entry
-		(at 140.335 78.74)
-		(size -2.54 2.54)
+		(at 140.335 86.36)
+		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -5106,8 +5106,8 @@
 		(uuid "df9c21b7-a694-4813-8860-05607c2927b8")
 	)
 	(bus_entry
-		(at 140.335 83.82)
-		(size -2.54 2.54)
+		(at 140.335 81.28)
+		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -5142,8 +5142,8 @@
 		(uuid "f238cf77-eedf-40f3-83b3-08fc5d22fe8f")
 	)
 	(bus_entry
-		(at 140.335 81.28)
-		(size -2.54 2.54)
+		(at 140.335 83.82)
+		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -5251,7 +5251,7 @@
 	)
 	(bus
 		(pts
-			(xy 132.715 88.9) (xy 137.795 88.9)
+			(xy 132.715 76.2) (xy 137.795 76.2)
 		)
 		(stroke
 			(width 0)
@@ -6541,7 +6541,7 @@
 	)
 	(bus
 		(pts
-			(xy 137.795 86.36) (xy 137.795 88.9)
+			(xy 137.795 78.74) (xy 137.795 76.2)
 		)
 		(stroke
 			(width 0)
@@ -7261,7 +7261,7 @@
 	)
 	(bus
 		(pts
-			(xy 137.795 81.28) (xy 137.795 83.82)
+			(xy 137.795 83.82) (xy 137.795 81.28)
 		)
 		(stroke
 			(width 0)
@@ -7351,7 +7351,7 @@
 	)
 	(bus
 		(pts
-			(xy 137.795 83.82) (xy 137.795 86.36)
+			(xy 137.795 81.28) (xy 137.795 78.74)
 		)
 		(stroke
 			(width 0)
@@ -7868,17 +7868,6 @@
 			(justify left bottom)
 		)
 		(uuid "21fc5ff9-d5c6-4bb1-977f-a71915de8d0a")
-	)
-	(label "CLK4"
-		(at 140.335 91.44 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "228eb983-c127-49e6-b298-c5ed16c8718b")
 	)
 	(label "BASS3"
 		(at 256.54 101.6 0)
@@ -8661,7 +8650,7 @@
 		)
 		(uuid "c9b61b85-515a-4168-978f-b25609730ef3")
 	)
-	(label "~{GTWR}"
+	(label "~{MSM}"
 		(at 140.335 88.9 0)
 		(fields_autoplaced yes)
 		(effects
@@ -8885,7 +8874,7 @@
 	)
 	(hierarchical_label "SA[0..15]"
 		(shape input)
-		(at 132.715 88.9 180)
+		(at 132.715 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8966,6 +8955,18 @@
 			(justify right)
 		)
 		(uuid "5254bb0a-6151-40db-8084-4c553f1ee25a")
+	)
+	(hierarchical_label "CLK4"
+		(shape input)
+		(at 140.335 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5927ec67-a594-410e-bb4f-227d0c35b64a")
 	)
 	(hierarchical_label "PSG"
 		(shape output)
@@ -9051,7 +9052,7 @@
 		)
 		(uuid "bca512f5-e0f2-470b-b6c3-80b69d9c0606")
 	)
-	(hierarchical_label "~{GTWR}"
+	(hierarchical_label "~{MSM}"
 		(shape output)
 		(at 95.885 165.1 0)
 		(fields_autoplaced yes)

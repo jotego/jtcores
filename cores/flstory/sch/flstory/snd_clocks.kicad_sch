@@ -4588,7 +4588,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 124.46) (xy 127 124.46)
+			(xy 140.97 124.46) (xy 127 124.46)
 		)
 		(stroke
 			(width 0)
@@ -4768,7 +4768,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 107.95) (xy 135.89 124.46)
+			(xy 140.97 107.95) (xy 140.97 124.46)
 		)
 		(stroke
 			(width 0)
@@ -5028,7 +5028,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 107.95) (xy 135.89 107.95)
+			(xy 107.95 107.95) (xy 140.97 107.95)
 		)
 		(stroke
 			(width 0)
@@ -5115,6 +5115,17 @@
 			(type default)
 		)
 		(uuid "ffbc1ebf-b691-49bf-a9be-e14be7f3194d")
+	)
+	(text "MSM5232 address latch\nis triggered automatically\nwhen a write occurs"
+		(exclude_from_sim no)
+		(at 120.65 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "281bbaf5-b839-4eaa-969d-9c233c949688")
 	)
 	(text "15.625kHz"
 		(exclude_from_sim no)
@@ -5298,17 +5309,6 @@
 		)
 		(uuid "b20a0106-3110-4647-b2a6-6b60f02a6412")
 	)
-	(label "CLK4"
-		(at 132.08 119.38 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cb549b29-fc4f-4433-8564-c6a0f0ef27d1")
-	)
 	(hierarchical_label "CLK2"
 		(shape output)
 		(at 217.17 140.97 0)
@@ -5356,6 +5356,18 @@
 			(justify right)
 		)
 		(uuid "459f97ad-f905-4481-b718-d43f4e20f5e2")
+	)
+	(hierarchical_label "CLK4"
+		(shape output)
+		(at 132.08 119.38 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "55ab07e2-2ee1-4b74-b185-1f068a1978e8")
 	)
 	(hierarchical_label "VCC"
 		(shape passive)
@@ -5417,7 +5429,7 @@
 		)
 		(uuid "bc85b5c1-3b43-4873-988e-a41333b0e734")
 	)
-	(hierarchical_label "~{GTWR}"
+	(hierarchical_label "~{MSM}"
 		(shape input)
 		(at 116.84 133.35 180)
 		(fields_autoplaced yes)

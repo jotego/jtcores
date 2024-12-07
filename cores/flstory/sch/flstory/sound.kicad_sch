@@ -7208,6 +7208,16 @@
 	)
 	(wire
 		(pts
+			(xy 240.03 49.53) (xy 247.65 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1299a3bf-004e-4abe-8781-a1f76f3f340a")
+	)
+	(wire
+		(pts
 			(xy 181.61 229.87) (xy 173.99 229.87)
 		)
 		(stroke
@@ -12208,6 +12218,17 @@
 		)
 		(uuid "26adb431-69e5-4d27-9254-580d4210b3d8")
 	)
+	(label "CLK4"
+		(at 247.65 49.53 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "27af0256-3eb1-4213-bbcf-ce40452b12c7")
+	)
 	(label "PSG"
 		(at 311.785 97.79 0)
 		(fields_autoplaced yes)
@@ -12472,7 +12493,7 @@
 		)
 		(uuid "44e7bdf5-de44-408e-97c4-94363e35eb4d")
 	)
-	(label "~{GTWR}"
+	(label "~{MSM}"
 		(at 207.01 41.91 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12835,7 +12856,7 @@
 		)
 		(uuid "62350982-4032-46ea-91e8-e81d6e27e8c7")
 	)
-	(label "~{GTWR}"
+	(label "~{MSM}"
 		(at 247.65 115.57 180)
 		(fields_autoplaced yes)
 		(effects
@@ -17074,7 +17095,7 @@
 			)
 			(uuid "d128abfa-c16e-4d78-84a8-8c2f611ff553")
 		)
-		(pin "~{GTWR}" input
+		(pin "~{MSM}" input
 			(at 215.9 41.91 180)
 			(effects
 				(font
@@ -17143,6 +17164,16 @@
 				(justify right)
 			)
 			(uuid "3119edf0-a343-4013-9e97-3558a5c7c292")
+		)
+		(pin "CLK4" output
+			(at 240.03 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "f1dde035-e75c-4e4d-a7db-d4c60951c729")
 		)
 		(instances
 			(project "fairyland"
@@ -17291,7 +17322,7 @@
 			)
 			(uuid "820cedbc-a42d-4670-b330-3ba251eba2e8")
 		)
-		(pin "~{GTWR}" output
+		(pin "~{MSM}" output
 			(at 240.03 115.57 0)
 			(effects
 				(font
