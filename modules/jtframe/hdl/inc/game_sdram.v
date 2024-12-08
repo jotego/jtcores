@@ -494,6 +494,7 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
 ); /* verilator tracing_off */
 {{ end }}{{ end }}{{ end }}
 {{ if .Audio.Channels }}`ifndef NOSOUND
+`ifdef VERILATOR_KEEP_AUDIO /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{- $ch0 := (index .Audio.Channels 0) -}}
 {{- $ch1 := (index .Audio.Channels 1) -}}
 {{- $ch2 := (index .Audio.Channels 2) -}}

@@ -23,8 +23,9 @@ module jtflstory_game(
 wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen,
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
-wire [ 7:0] bus_din, s2m_data,
+wire [ 7:0] bus_din, s2m_data, st_snd,
             c2b_dout, cpu_dout, mcu2bus;
+reg  [ 7:0] st_mux;
 wire [ 1:0] pal_bank, scr_bank;
 wire        rst_main, cen_hb, mute;
 reg         lhbl_l;
@@ -32,8 +33,12 @@ reg         lhbl_l;
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
-assign debug_view = ioctl_din;
+assign debug_view = st_mux;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
+
+always @(posedge clk) begin
+    st_mux <= debug_bus[7] ? ioctl_din : st_snd;
+end
 
 always @(posedge clk) lhbl_l <= LHBL;
 assign cen_hb = LHBL & ~lhbl_l;
@@ -45,7 +50,7 @@ jtframe_enlarger #(.W(16)) u_rst(
     .pulse_in ( rst       ),
     .pulse_out( rst_main  )
 );
-
+/* verilator tracing_off */
 jtflstory_main u_main(
     .rst        ( rst_main  ),
     .clk        ( clk       ),
@@ -130,7 +135,7 @@ jtflstory_mcu u_mcu(
     .rom_addr   ( mcu_addr  ),
     .rom_data   ( mcu_data  )
 );
-
+/* verilator tracing_on */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -151,13 +156,14 @@ jtflstory_sound u_sound(
 
     // sound output
     .mute       ( mute      ),
-    .msm1       ( msm1      ),
-    .msm2       ( msm2      ),
+    .msm        ( msm       ),
     .psg        ( psg       ),
     .dac        ( dac       ),
-    .debug_bus  ( debug_bus )
+    // debug
+    .debug_bus  ( debug_bus ),
+    .debug_st   ( st_snd    )
 );
-
+/* verilator tracing_off */
 jtflstory_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

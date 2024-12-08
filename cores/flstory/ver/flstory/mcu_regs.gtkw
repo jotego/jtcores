@@ -1,0 +1,53 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Dec  1 12:20:02 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/test.fst"
+[dumpfile_mtime] "Sun Dec  1 09:03:51 2024"
+[dumpfile_size] 439038371
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/mcu_regs.gtkw"
+[timestart] 10172
+[size] 1920 1033
+[pos] -1921 -1
+*-36.092690 398668025000 398671775804 398669904156 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 278
+[signals_width] 220
+[sst_expanded] 1
+[sst_vpaned_height] 401
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.u_regs.pc[12:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.u_regs.s[5:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.u_regs.x[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.u_regs.cc[4:0]
+@23
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.u_regs.a[7:0]
+@22
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pa_out[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pb_out[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pc_out[3:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pa_ddr[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pb_ddr[7:0]
+TOP.game_test.u_game.u_game.u_mcu.u_mcu.pc_ddr[3:0]
+[pattern_trace] 1
+[pattern_trace] 0
+!100000@@
+?"BF4C
+@23
+TOP.game_test.u_game.u_game.u_main.A[15:0]
+!!

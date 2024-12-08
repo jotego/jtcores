@@ -13,6 +13,7 @@ emulators:
 - background tile flip control bits can be ignored by means of a global control bit
 - some MCU features are missing, such CPU bus sharing via bus request/acknowledgement
 - there are a lot of analog audio features that the sound CPU can control, such as balance, trebble, bass...
+  the balance feature of amplifier TA7630 is used to alter the relative volume of the two MSM5232 audio channels, so it plays an important role in how the melody sounds
 - there are two palette banks (not one)
 - there are two background tile banks (not one)
 - the priority bits for sprites and scroll tiles are three and two (fewer used in emulation)

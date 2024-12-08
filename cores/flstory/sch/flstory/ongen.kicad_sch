@@ -5651,6 +5651,16 @@
 	)
 	(wire
 		(pts
+			(xy 273.05 161.29) (xy 276.86 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3311f2dd-d175-426a-b7f0-77fd8fba7dc2")
+	)
+	(wire
+		(pts
 			(xy 211.455 184.15) (xy 217.17 184.15)
 		)
 		(stroke
@@ -5688,6 +5698,16 @@
 			(type default)
 		)
 		(uuid "3accbf64-e121-4973-979a-36501151262a")
+	)
+	(wire
+		(pts
+			(xy 273.05 171.45) (xy 276.86 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b013082-ab63-461c-bdeb-deceaa7742e6")
 	)
 	(wire
 		(pts
@@ -6551,6 +6571,16 @@
 	)
 	(wire
 		(pts
+			(xy 273.05 184.15) (xy 276.86 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f5d06f1-f20c-4023-9104-e5950615d317")
+	)
+	(wire
+		(pts
 			(xy 242.57 189.23) (xy 260.35 189.23)
 		)
 		(stroke
@@ -7331,6 +7361,16 @@
 	)
 	(wire
 		(pts
+			(xy 273.05 194.31) (xy 276.86 194.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e201870a-950c-403e-94f2-38502ed12485")
+	)
+	(wire
+		(pts
 			(xy 140.335 129.54) (xy 146.685 129.54)
 		)
 		(stroke
@@ -7648,6 +7688,17 @@
 			(type default)
 		)
 		(uuid "fe912d4f-07be-432d-b6e3-d70982653c74")
+	)
+	(text "1uF each\nmeasured on board"
+		(exclude_from_sim no)
+		(at 100.33 133.35 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dce6053c-e29f-49a7-afaf-9aa98420eee2")
 	)
 	(label "SD4"
 		(at 215.9 68.58 180)
@@ -8860,6 +8911,18 @@
 		)
 		(uuid "00628720-f895-47c6-9c7d-c0171242862f")
 	)
+	(hierarchical_label "PTREBLE*"
+		(shape output)
+		(at 276.86 194.31 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "12f14e58-bac1-43de-945d-7f1dfa6a0cd4")
+	)
 	(hierarchical_label "TONEA"
 		(shape output)
 		(at 192.405 71.12 0)
@@ -8931,6 +8994,18 @@
 			(justify right)
 		)
 		(uuid "2ecdd202-971f-4b18-b926-4c51b5c34816")
+	)
+	(hierarchical_label "PBASS*"
+		(shape output)
+		(at 276.86 184.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "46dfedaf-b1bd-4e77-9994-9e8fe6525dd9")
 	)
 	(hierarchical_label "CLK2"
 		(shape input)
@@ -9028,6 +9103,19 @@
 		)
 		(uuid "b11b0161-b2e4-43c3-931b-b45920586baf")
 	)
+	(hierarchical_label "PVOL*"
+		(shape output)
+		(at 276.86 171.45 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.1588)
+			)
+			(justify left)
+		)
+		(uuid "b65dc2a8-36b5-4e1b-beb0-b1ac4c5334c5")
+	)
 	(hierarchical_label "SD[0..7]"
 		(shape bidirectional)
 		(at 132.715 55.88 180)
@@ -9051,6 +9139,19 @@
 			(justify left)
 		)
 		(uuid "bca512f5-e0f2-470b-b6c3-80b69d9c0606")
+	)
+	(hierarchical_label "PBAL*"
+		(shape output)
+		(at 276.86 161.29 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.1588)
+			)
+			(justify left)
+		)
+		(uuid "c13336bc-f927-41dc-9450-2c9c696d6fe3")
 	)
 	(hierarchical_label "~{MSM}"
 		(shape output)

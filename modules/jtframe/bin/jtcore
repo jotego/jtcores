@@ -88,8 +88,13 @@ SEED=1
 SKIPTIMING=
 SIM=FALSE
 SKIP_COMPILE=FALSE
-TARGET=mist
 UNMACROS=
+
+# use setprj.sh's target function to
+# change the current default target
+if [ -z "$TARGET" ]; then
+    TARGET=mist
+fi
 
 # Device names for JTAG programming
 # Only MiST programming is fully implemented

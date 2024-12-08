@@ -36,13 +36,19 @@ reg  [ 8:0] cnt=0;
 wire [ 8:0] nxc;
 reg  [ 3:0] pipes=0;
 reg  [ 7:0] h=0;    // harmonics
-wire        over;
+wire [ 7:0] hnx;
+reg         hl;
+wire        over, over2;
 
-assign over = cnt==step;
+assign over  = cnt==step;
+assign over2 = cnt==(step>>1);
+assign hnx   = h+8'd1;
 
 always @(posedge clk) if(cen) begin
     cnt <= over ? 9'd0 : cnt+9'd1;
-    if(over) h <= h+8'd1;
+    // counts twice, at the middle and at the end
+    if(over2 && !hl) begin hl<=1; h <= hnx; end
+    if(over        ) begin hl<=0; h <= hnx; end
     case(bsel)
         1: pipes <= {h[0],h[0],h[0],h[1]};
         2: pipes <= {h[0],h[0],h[1],h[2]};

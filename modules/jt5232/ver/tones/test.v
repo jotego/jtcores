@@ -33,7 +33,7 @@ task check_freq(input integer sel, input real freq);
         repeat(10) @(posedge fsignal);
         t1=$time;
         fo=10.0/(t1-t0)*1e9;
-        //assert(fo>freq*0.9 && fo<freq*1.1) else $fatal(1,"Reference tone (%0d) should be %.0f Hz +/-10%%. Found %.0f Hz",fsel,freq,fo);
+        assert(fo>freq*0.9 && fo<freq*1.1) else $fatal(1,"Reference tone (%0d) should be %.0f Hz +/-10%%. Found %.0f Hz",fsel,freq,fo);
         $display("%0d -> %.0f Hz (should be %.0f)",fsel,fo,freq);
     end
 endtask

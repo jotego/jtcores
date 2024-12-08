@@ -80,7 +80,7 @@ func parse_def(path string, target string, macros map[string]string) {
 	scanner.Split(bufio.ScanLines)
 	section := target
 	linecnt := 0
-
+	_, release := macros["JTFRAME_RELEASE"]
 	for scanner.Scan() {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
@@ -112,8 +112,13 @@ func parse_def(path string, target string, macros map[string]string) {
 		}
 		// lines starting with debug are not parsed for release builds
 		if words[0] == "debug" {
-			if _, fnd := macros["JTFRAME_RELEASE"]; fnd { continue }
+			if release { continue }
 			line=line[5:] // remove the debug word from the line
+		}
+		// lines starting with release are only parsed for release builds
+		if words[0] == "release" {
+			if !release { continue }
+			line=line[7:] // remove the release word from the line
 		}
 		words = strings.SplitN(line, "=", 2)
 		key := strings.ToUpper(strings.TrimSpace(words[0]))

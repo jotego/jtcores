@@ -36,28 +36,46 @@ module jtflstory_sound(
 
     // sound output
     output reg       mute,
-    output    [15:0] msm1, msm2,
+    output    [15:0] msm,
     output    [ 9:0] psg,
     output reg[ 7:0] dac,
-    input     [ 7:0] debug_bus
+    // debug
+    input     [ 7:0] debug_bus,
+    output reg[ 7:0] debug_st
 );
 `ifndef NOSOUND
-wire [15:0] A;
-wire [ 7:0] ram_dout, cpu_dout, ay_dout;
+wire [15:0] A, msm1, msm2;
+wire [ 7:0] ram_dout, cpu_dout, ay_dout, ioa, iob;
 wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
-reg  [ 3:0] msm_trebble, msm_bass, msm_vol, msm_bal;
-wire [ 3:0] psg_trebble, psg_bass, psg_vol, psg_bal;
+reg  [ 3:0] msm_treble, msm_bass, msm_vol, msm_bal;
+wire [ 3:0] psg_treble, psg_bass, psg_vol, psg_bal;
 reg  [13:0] int_cnt;
 reg         int_n;
 reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
             ibf, obf, rst_n, crst_n;    // ibf = input buffer full
+wire [15:0] msm_mix;
+wire [ 5:0] nc;
+wire [ 9:0] psg_raw;
 
-assign rom_addr = A;
-assign irq_ack  = !iorq_n && !m1_n;
-assign nmi_n    = ~(ibf & nmi_en);
+assign rom_addr  = A;
+assign irq_ack   = !iorq_n && !m1_n;
+assign nmi_n     = ~(ibf & nmi_en);
+assign psg_vol   = ioa[7:4];
+assign psg_bal   = ioa[3:0];
+assign psg_treble= iob[7:4];
+assign psg_bass  = iob[3:0];
+
+always @(posedge clk) begin
+    case(debug_bus[1:0])
+        0: debug_st <= {msm_vol,msm_bal};
+        1: debug_st <= {msm_treble,msm_bass};
+        2: debug_st <= {psg_vol,psg_bal};
+        3: debug_st <= {psg_treble,psg_bass};
+    endcase
+end
 
 always @(posedge clk) begin
     if(rst) begin
@@ -72,10 +90,10 @@ end
 
 always @(posedge clk) begin
     if( rst ) begin
-        { msm_trebble, msm_bass, msm_vol, msm_bal } <= 0;
+        { msm_treble, msm_bass, msm_vol, msm_bal } <= 0;
     end else begin
-        if(cfg0) {msm_vol,   msm_bal  } <= cpu_dout;
-        if(cfg1) {msm_trebble,msm_bass} <= cpu_dout;
+        if(cfg0) {msm_vol,   msm_bal } <= cpu_dout;
+        if(cfg1) {msm_treble,msm_bass} <= cpu_dout;
     end
 end
 
@@ -156,12 +174,12 @@ always @* begin
 end
 
 always @* begin
-    din = rom_cs ? rom_data       :
-          ram_cs ? ram_dout       :
-          cmd_rd ? ibuf           :
+    din = rom_cs ? rom_data        :
+          ram_cs ? ram_dout        :
+          cmd_rd ? ibuf            :
           cmd_st ? {6'd0,obf,~ibf} :
-          cmd_lr ? dac            :
-          bc1    ? ay_dout        : 8'd0;
+          cmd_lr ? dac             :
+          bc1    ? ay_dout         : 8'd0;
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
@@ -199,14 +217,14 @@ jt49_bus u_ay0(
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
     .dout   ( ay_dout   ),
-    .sound  ( psg       ),
+    .sound  ( psg_raw   ),
     .sample (           ),
     // unused
     .IOA_in ( 8'h0      ),
-    .IOA_out(           ),
+    .IOA_out( ioa       ),
     .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
-    .IOB_out(           ),
+    .IOB_out( iob       ),
     .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
@@ -214,14 +232,33 @@ jt49_bus u_ay0(
 jt5232 u_msm(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .cen1   ( cen4      ),  // both cen inputs at 2MHz on original
-    .cen2   ( cen4      ),
+    .cen1   ( cen2      ),  // both cen inputs at 2MHz on original
+    .cen2   ( cen2      ),
     .din    ( cpu_dout  ),
     .addr   ( A[3:0]    ),
     .we     ( msmw      ),
     .snd1   ( msm1      ), // unsigned!
     .snd2   ( msm2      )
 );
+
+jt7630_bal u_bal(
+    .clk    ( clk     ),
+    .bal    ( msm_bal^{4{debug_st[6]}} ),
+    .sin1   ( msm1    ),
+    .sin2   ( msm2    ),
+    .sout   ( msm_mix )
+);
+
+jt7630_vol u_vol(
+    .clk    ( clk     ),
+    .vol0   ( psg_vol ),
+    .vol1   ( msm_vol ),
+    .sin0   ( {6'd0,psg_raw} ),
+    .sin1   ( msm_mix ),
+    .sout0  ( {nc,psg}),
+    .sout1  ( msm     )
+);
+
 `else
 initial bus_din  = 0;
 initial rom_cs   = 0;

@@ -196,6 +196,21 @@ function get_cores {
     done
 }
 
+# set default jtframe target by calling the command-line target function
+export TARGET=sidi128
+function target {
+    if [ -z "$1" ]; then
+        echo $TARGET
+        return 0
+    fi
+    if [ ! -d $JTFRAME/target/$1 ]; then
+        echo "$1 is not a valid JTFRAME target"
+        return 1
+    fi
+    export TARGET=$1
+    echo $TARGET
+}
+
 # check that git hooks are present
 cp --update $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
 
