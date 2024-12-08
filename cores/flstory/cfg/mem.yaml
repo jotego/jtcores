@@ -18,12 +18,12 @@ clocks:
         - cen_pcm
 audio:
   # temptative values
-  rsum: 1k
+  rsum: 0.75k
   # mute: true
   channels:
 #     # FIR should be 3kHz, not 4kHz
-    - { name: msm,   module: jt5232,rsum: 1k }
-    - { name: psg,   module: jt49,  rsum: 3k, pre: 0.7 }
+    - { name: msm,   module: jt5232,rsum: 1k, pre: 3.9 }
+    - { name: psg,   module: jt49,  rsum: 3k, pre: 2.0 }
     - { name: dac,   data_width: 8, rsum: 1k, pre: 0.7, unsigned: true, dcrm: true }
 sdram:
   banks:
