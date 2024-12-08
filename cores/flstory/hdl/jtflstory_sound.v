@@ -264,6 +264,8 @@ initial bus_din  = 0;
 initial rom_cs   = 0;
 assign  rom_addr = 0;
 assign  psg      = 0;
+assign  msm      = 0;
+initial debug_st = 0;
 initial mute     = 0;
 initial dac      = 0;
 `endif
