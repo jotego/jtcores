@@ -8877,28 +8877,6 @@
 		)
 		(uuid "fa815ca1-e0cf-4ea7-b2ff-c248838d23fb")
 	)
-	(global_label "VSS2"
-		(shape input)
-		(at 171.45 129.54 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "53a23898-8037-4a43-bfa4-3a0fb2729686")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 179.1523 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(hierarchical_label "TONEB"
 		(shape output)
 		(at 192.405 81.28 0)
@@ -9078,6 +9056,18 @@
 			(justify left)
 		)
 		(uuid "89bb8653-ef95-4754-a474-f9ce45f5f48a")
+	)
+	(hierarchical_label "AVSS"
+		(shape passive)
+		(at 171.45 129.54 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "93cd3cc3-d228-4edf-9551-a0254d59fb3b")
 	)
 	(hierarchical_label "VCC"
 		(shape passive)

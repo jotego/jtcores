@@ -5,6 +5,7 @@
 	(uuid "a97148ac-c423-4e5c-9caa-1ac505208316")
 	(paper "A3")
 	(title_block
+		(title "Tile ROMs")
 		(date "2024-11-16")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")

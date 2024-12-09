@@ -5,6 +5,7 @@
 	(uuid "bbc06755-939c-4f01-8a70-4774f1f8d832")
 	(paper "A3")
 	(title_block
+		(title "Object Information ")
 		(date "2024-11-16")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")

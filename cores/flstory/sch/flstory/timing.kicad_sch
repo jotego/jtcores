@@ -5,6 +5,7 @@
 	(uuid "22942217-ef83-44f0-856e-ad204b40b57c")
 	(paper "A3")
 	(title_block
+		(title "Video Timing")
 		(date "2024-11-16")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")
