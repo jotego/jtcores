@@ -58,7 +58,7 @@ module jtflstory_video(
 );
 
 wire [31:0] scr_sorted;
-wire [ 8:0] vdump, vrender, hdump, scry;
+wire [ 8:0] vdump, hdump, scry;
 wire [ 7:0] scr_pxl, obj_pxl;
 wire [11:0] scr_code;
 wire [ 5:0] scr_pal;
@@ -96,7 +96,7 @@ jtframe_vtimer #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
+    .vrender    (           ),
     .vrender1   (           ),
     .H          ( hdump     ),
     .Hinit      (           ),
@@ -162,7 +162,7 @@ jtflstory_obj u_obj(
     .gvflip     ( gvflip    ),
     .ghflip     ( ghflip    ),
 
-    .vrender    ( vrender   ),
+    .vdump      ( vdump     ),
     .hdump      ( hdump     ),
     // RAM shared with CPU
     .ram_addr   ( oram_addr ),
