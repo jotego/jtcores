@@ -47,8 +47,12 @@ module jtflstory_obj(
     output     [ 7:0] pxl
 );
 
+wire [ 8:0] hvdump = {hdump[8], hdump[7:0] ^ {8{ghflip}}};
 wire [31:0] sorted;
 wire [16:2] raw_addr;
+wire  [7:0] buf_addr;
+wire        buf_we;
+wire [10:0] buf_din;
 wire [10:0] pxl_raw;
 wire [ 7:0] ydiff;
 reg  [ 9:0] code;
@@ -106,10 +110,10 @@ always @(posedge clk) begin
                     ram_we <= 0;
                     vsbl   <= 0;
                     info   <= 0;
-                    if(ram_we) cnt <= cnt - 4'd1;
-                    if(&scan) begin
+                    if(ram_we) cnt <= cnt + 4'd1;
+                    if(&scan || cnt == 15) begin
                         order <= 0;
-                        cnt   <= 0;
+                        cnt   <= 7;
                         vsbl  <= 1;
                     end
                 end
@@ -121,29 +125,31 @@ always @(posedge clk) begin
                 info     <= 1;
                 vsbl     <= 0;
             end else begin
-                if(!dr_busy) obj_sub <= obj_sub+2'd1;
-                case(obj_sub)
-                    0: begin
-                        ysub <= ydiff[3:0];
-                        inzone_l <= inzone;
-                    end
-                    1: {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
-                    2: code[7:0] <= ram_dout;
-                    3: begin
-                        draw <= inzone_l;
-                        info <= 0;
-                        vsbl <= 1;
-                        xpos <= ram_dout;
-                        {scan_done, cnt[2:0]} <= {1'b0,cnt[2:0]}+4'd1;
-                    end
-                endcase
+                if(!dr_busy) begin
+                    obj_sub <= obj_sub+2'd1;
+                    case(obj_sub)
+                        0: begin
+                            ysub <= ydiff[3:0];
+                            inzone_l <= inzone;
+                        end
+                        1: {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
+                        2: code[7:0] <= ram_dout;
+                        3: begin
+                            draw <= inzone_l;
+                            info <= 0;
+                            vsbl <= 1;
+                            xpos <= ram_dout;
+                            {scan_done, cnt[2:0]} <= {1'b0,cnt[2:0]}-4'd1;
+                        end
+                    endcase
+                end
             end
         end
     end
     if(scan_done) {info,vsbl,order}<=0;
     if( (!lhbl && lhbl_l) || blank ) begin
         vlatch    <= (vrender[7:0]-8'h10)^{8{gvflip}};
-        cnt       <= 7;
+        cnt       <= 0;
         obj_sub   <= 0;
         scan_done <= 0;
         cen       <= 0;
@@ -153,42 +159,46 @@ always @(posedge clk) begin
     end
 end
 
-// original does not use a double line buffer. It buffers the data during
-// HB instead. I'm using a double-line buffer to ease the implementation
-jtframe_objdraw #(
-    .CW(10),
-    .PW(11),
-    .SWAPH(1),
-    .HJUMP(0),
-    .ALPHA(15),
-    .LATCH(1)
-) u_draw(
+jtframe_draw #(
+    .AW      ( 8        ),
+    .CW      ( 10       ),
+    .PW      ( 11       ),
+    .SWAPH   ( 1        )
+)u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .hs         ( hs        ),
-    .flip       ( ghflip    ),
-    .hdump      ( hdump     ),
-
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
     .code       ( code      ),
-    .xpos       ({1'b0,xpos}),
+    .xpos       ( xpos      ),
     .ysub       ( ysub      ),
-    // optional zoom, keep at zero for no zoom
+    .trunc      ( 2'd0      ),
+    .hz_keep    ( 1'b0      ),
     .hzoom      ( 6'd0      ),
-    .hz_keep    ( 1'b0      ), // set at 1 for the first tile
-
     .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),
     .pal        ( pal       ),
-
     .rom_addr   ( raw_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( sorted    ),
 
-    .pxl        ( pxl_raw   )
+    .buf_addr   ( buf_addr  ),
+    .buf_we     ( buf_we    ),
+    .buf_din    ( buf_din   )
+);
+
+jtframe_dual_ram #(.AW(8), .DW(11)) u_linebuf (
+    .clk0       ( clk         ),
+    .addr0      ( buf_addr    ),
+    .data0      ( buf_din     ),
+    .we0        ( buf_we & buf_din[3:0] != 4'hf ),
+    .q0         (             ),
+    .clk1       ( clk         ),
+    .addr1      ( hvdump[7:0] ),
+    .data1      ( 11'hf       ),
+    .we1        ( pxl_cen & hvdump[8] ),
+    .q1         ( pxl_raw     )
 );
 
 jtframe_sh #(.W(11),.L(8)) u_sh(
