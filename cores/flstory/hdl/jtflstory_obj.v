@@ -31,7 +31,7 @@ module jtflstory_obj(
     input             gvflip,
     input             ghflip,
 
-    input       [8:0] vrender,
+    input       [8:0] vdump,
     input       [8:0] hdump,
     // RAM shared with CPU
     output     [ 7:0] ram_addr,
@@ -72,7 +72,7 @@ assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   
                   order ? {3'b100, scan                 }: // object draw order 80~9F
                           {3'b101, hdump[7:3]           }; // column scroll     A0~BF
 assign ydiff    = vlatch+ram_dout;
-assign inzone   = ydiff[7:4]==0;
+assign inzone   = ydiff[7:4] == 4'b1111;
 assign ram_din  = chk;
 assign rom_addr = { raw_addr[16:7], raw_addr[5], raw_addr[6], raw_addr[4:2] };
 
@@ -91,7 +91,7 @@ end
 always @(posedge clk) begin
     lhbl_l   <= lhbl;
     draw     <= 0;
-    blank    <= vrender >= 9'h1f2 || vrender <= 9'h10e || !vrender[8];
+    blank    <= vdump >= 9'h1f2 || vdump <= 9'h10e || !vdump[8];
     cen      <= ~cen;
     if(!scan_done && cen) begin
         if( order ) begin
@@ -148,7 +148,7 @@ always @(posedge clk) begin
     end
     if(scan_done) {info,vsbl,order}<=0;
     if( (!lhbl && lhbl_l) || blank ) begin
-        vlatch    <= (vrender[7:0]-8'h10)^{8{gvflip}};
+        vlatch    <= vdump[7:0]^{8{gvflip}};
         cnt       <= 0;
         obj_sub   <= 0;
         scan_done <= 0;
