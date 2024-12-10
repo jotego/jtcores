@@ -201,7 +201,7 @@ jtframe_dual_ram #(.AW(8), .DW(11)) u_linebuf (
     .q1         ( pxl_raw     )
 );
 
-jtframe_sh #(.W(11),.L(8)) u_sh(
+jtframe_sh #(.W(11),.L(9)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( pxl_raw   ),
