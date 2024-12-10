@@ -70,6 +70,7 @@ assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
 
 always @(posedge clk) begin
     if( rst ) begin
+        ibf     <= 0;
         obf     <= 0;
         mcu2bus <= 8'hff;
         bus2mcu <= 0;
@@ -84,7 +85,7 @@ always @(posedge clk) begin
         if(lwr) obf <= 1;
         if( ale[1] ) bm_addr[15:8] <= pa_out;
         if( ale[0] ) bm_addr[ 7:0] <= pa_out;
-    if(bs_rd) obf <= 0; // 74LS74 set input has priority over clock
+        if(bs_rd) obf <= 0; // 74LS74 set input has priority over clock
     end
 end
 
