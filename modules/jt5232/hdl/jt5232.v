@@ -30,8 +30,9 @@ module jt5232(
     input  [7:0]  din,
     input  [3:0]  addr,
     input         we,
-    output [15:0] snd1, // unsigned!
-    output [15:0] snd2
+    output [14:0] snd1,
+    output [14:0] snd2,
+    output    reg clip=0
 );
 
 // TG configuration
@@ -52,6 +53,10 @@ wire        no_en;            // noise enable
 // sound
 wire [12*8-1:0] eg;
 wire [ 3*8-1:0] organ;
+// clip detection
+wire            clip_raw;
+reg             clip_l;
+reg  [3:0]      clip_cnt;
 
 // clock divider
 reg [6:0] div3=0;       // A divider for each group
@@ -65,6 +70,12 @@ always_latch begin
     if(we) begin al=addr; dl=din; end
 end
 `endif
+
+always @(posedge clk) begin
+    clip_l <= clip_raw;
+    if(!clip_l && clip_raw) begin clip<=1; clip_cnt<=0; end
+    if(cen256 && clip) {clip,clip_cnt}<={1'd0,clip_cnt}+5'd1;
+end
 
 always @(posedge clk) begin
     {cen256,div3} <= {1'b0,div3}+7'd1;
@@ -129,7 +140,8 @@ jt5232_acc u_acc(
     .eg     ( eg        ),
     .organ  ( organ     ),
     .snd1   ( snd1      ),
-    .snd2   ( snd2      )
+    .snd2   ( snd2      ),
+    .clip   ( clip_raw  )
 );
 
 jt5232_rom u_rom(

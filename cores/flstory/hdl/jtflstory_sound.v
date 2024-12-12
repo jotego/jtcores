@@ -21,6 +21,7 @@ module jtflstory_sound(
     input            clk,
     input            cen4,
     input            cen2,
+    input            cen48k,
 
     // communication with the other CPUs
     input            bus_wr,
@@ -41,10 +42,12 @@ module jtflstory_sound(
     output reg[ 7:0] dac,
     // debug
     input     [ 7:0] debug_bus,
-    output reg[ 7:0] debug_st
+    output reg[ 7:0] debug_st,
+    output           clip
 );
 `ifndef NOSOUND
-wire [15:0] A, msm1, msm2;
+wire [15:0] A;
+wire [14:0] msm1, msm2, msm_mix;
 wire [ 7:0] ram_dout, cpu_dout, ay_dout, ioa, iob;
 wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
@@ -56,7 +59,6 @@ reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
             ibf, obf, rst_n, crst_n;    // ibf = input buffer full
-wire [15:0] msm_mix;
 wire [ 5:0] nc;
 wire [ 9:0] psg_raw;
 
@@ -238,10 +240,11 @@ jt5232 u_msm(
     .addr   ( A[3:0]    ),
     .we     ( msmw      ),
     .snd1   ( msm1      ), // unsigned!
-    .snd2   ( msm2      )
+    .snd2   ( msm2      ),
+    .clip   ( clip      )
 );
 
-jt7630_bal u_bal(
+jt7630_bal #(15) u_bal(
     .clk    ( clk     ),
     .bal    ( msm_bal^{4{debug_st[6]}} ),
     .sin1   ( msm1    ),
@@ -249,14 +252,27 @@ jt7630_bal u_bal(
     .sout   ( msm_mix )
 );
 
+wire [15:0] msm_amp;
+
 jt7630_vol u_vol(
     .clk    ( clk     ),
     .vol0   ( psg_vol ),
     .vol1   ( msm_vol ),
     .sin0   ( {6'd0,psg_raw} ),
-    .sin1   ( msm_mix ),
+    .sin1   ( {msm_mix,1'b0} ),
     .sout0  ( {nc,psg}),
-    .sout1  ( msm     )
+    .sout1  ( msm_amp )
+);
+
+jt7630_equ u_equ(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen48k     ( cen48k        ),
+    .peak       (               ),
+    .lo_setting ( msm_bass      ),
+    .hi_setting ( msm_treble    ),
+    .sin        ( msm_amp       ),
+    .sout       ( msm           )
 );
 
 `else

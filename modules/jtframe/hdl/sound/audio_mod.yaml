@@ -15,8 +15,8 @@
 # it must be measured at some point
 # AY-3-8910
 jt49:     { data_width: 10, unsigned: true, dcrm: true, vpp: 0.6 }
-# MSM5232 - use one for each output channel (two outputs in total)
-jt5232:   { data_width: 16, unsigned: true, dcrm: true, vpp: 1.0 }
+# MSM5232 - once outputs are combined
+jt5232:   { data_width: 16, unsigned: true, vpp: 1.0 }
 # YM2203's PSG output stage seems to be a source follower, gm=3.95mS -> Rout=253 Ohm
 # output is 1.2Vpp, rather than the AY's 1V
 jt03_psg: { data_width: 10, unsigned: true, dcrm: true, vpp: 0.72, rout: 253 }

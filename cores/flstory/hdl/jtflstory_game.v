@@ -20,7 +20,7 @@ module jtflstory_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen,
+wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data, st_snd,
@@ -37,7 +37,7 @@ assign debug_view = st_mux;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? ioctl_din : st_snd;
+    st_mux <= debug_bus[7] ? {clip,2'd0,mute,2'd0,gvflip,ghflip} : st_snd;
 end
 
 always @(posedge clk) lhbl_l <= LHBL;
@@ -141,6 +141,7 @@ jtflstory_sound u_sound(
     .clk        ( clk       ),
     .cen4       ( cen4      ),
     .cen2       ( cen2      ),
+    .cen48k     ( cen48k    ),
 
     // communication with the other CPUs
     .bus_wr     ( m2s_wr    ),
@@ -161,9 +162,10 @@ jtflstory_sound u_sound(
     .dac        ( dac       ),
     // debug
     .debug_bus  ( debug_bus ),
-    .debug_st   ( st_snd    )
+    .debug_st   ( st_snd    ),
+    .clip       ( clip      )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtflstory_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

@@ -20,49 +20,52 @@
 
 */
 
-// Single pole IIR filter
-// y[k] = a * y[k-1] + (1-a) * x[k]
+// Single zero IIR filter
+// y[k] = a * (x[k]-x[k-1]) + (1-a) * y[k-1]
 //
-// where a = 1/(1+wc), a<1
+// where a = wc/(1+wc)
 // wc = radian normalized frequency = 2*pi*fc/fs
 // fc = cut-off frequency, fs = sampling frequency
 // There is no overflow check
 
-module jtframe_pole #(parameter
+module jtframe_zero #(parameter
     WS=16,      // Assuming that the signal is fixed point
     WA=WS/2     // WA is only the decimal part
 )(
     input                      rst,
     input                      clk,
-    input                      sample,
+    input                      sample,  // cannot be a fixed 1
     input      signed [WS-1:0] sin,
-    input             [WA-1:0] a,    // coefficient, unsigned
+    input             [WA-1:0] a,       // coefficient, unsigned
     output reg signed [WS-1:0] sout
 );
 
 localparam [WS-1:0] ONE={ {WS-WA-1{1'b0}}, 1'b1, {WA{1'b0}}};
-reg signed [WS-1:0] factor, last_prod, fmux;
+reg signed [WS-1:0] factor, prod_l, fmux, sin_l, delta;
+reg signed [WS  :0] diff;
 
 wire signed [   WS-1:0] aext = { {WS-WA{1'b0}}, a };
 reg  signed [ 2*WS-1:0] prod;
 
 always @(*) begin
-    factor = sample ? (ONE-aext) : aext;
-    fmux   = sample ? sin : sout;
+    diff   = {sin[WS-1],sin}-{sin_l[WS-1],sin_l};
+    delta  = diff[WS]!=diff[WS-1] ? {diff[WS],{WS-1{~diff[WS-1]}}} : diff[WS-1:0]; // prevent overflow
+    factor = sample ? aext  : (ONE-aext);
+    fmux   = sample ? delta : sout;
     prod   = factor * fmux;
 end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        sout      <= 0;
-        last_prod <= 0;
+        sout   <= 0;
+        prod_l <= 0;
     end else begin
-        if(sample)
-            // a==0 comparison added for logic simplification in jtframe_rcmix
-            // when the filter is not used and a is constant
-            sout <= a==0 ? sin : last_prod + prod[WS+WA-1:WA];
-        else
-            last_prod <= prod[WS+WA-1:WA];
+        if(sample) begin
+            sin_l <= sin;
+            sout  <= prod[WS+WA-1:WA]+prod_l;
+        end else begin // calculate (1-a)*y[k-1]
+            prod_l <= prod[WS+WA-1:WA];
+        end
     end
 end
 
