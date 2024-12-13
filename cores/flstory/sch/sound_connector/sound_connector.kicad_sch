@@ -2952,6 +2952,18 @@
 		)
 		(uuid "0e1aa34d-69dd-474f-883d-1ea8135b5eec")
 	)
+	(text "VCC -> center\nVSS -> outside"
+		(exclude_from_sim no)
+		(at 189.23 81.28 0)
+		(effects
+			(font
+				(face "DejaVu Sans Mono")
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "26a40a05-7caf-482d-aa0b-4b356b252988")
+	)
 	(text "~{MAxD4}"
 		(exclude_from_sim no)
 		(at 102.87 82.55 0)
@@ -2962,6 +2974,18 @@
 			(justify left bottom)
 		)
 		(uuid "27435f14-7156-4079-af27-d3d369937eca")
+	)
+	(text "+12V -> center\nVSS  -> outside"
+		(exclude_from_sim no)
+		(at 189.23 95.25 0)
+		(effects
+			(font
+				(face "DejaVu Sans Mono")
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "2f211aac-62f8-4445-a6f8-33cf70471527")
 	)
 	(text "S connector"
 		(exclude_from_sim no)
@@ -3227,7 +3251,7 @@
 		(uuid "7a316e2e-88fe-4e82-815f-eedd3f9753ba")
 	)
 	(label "+12V"
-		(at 187.96 97.79 180)
+		(at 187.96 92.71 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3261,7 +3285,7 @@
 		(uuid "7bab8f6f-b99c-459c-89ab-7e6e35264633")
 	)
 	(label "VSS"
-		(at 187.96 92.71 180)
+		(at 187.96 97.79 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3306,7 +3330,7 @@
 		(uuid "e5b19acc-c54e-438b-b2fe-7737896e547d")
 	)
 	(label "VCC"
-		(at 187.96 83.82 180)
+		(at 187.96 78.74 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3340,7 +3364,7 @@
 		(uuid "fa1d6408-f7f5-469b-bb17-994b3d9c1c14")
 	)
 	(label "VSS"
-		(at 187.96 78.74 180)
+		(at 187.96 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font

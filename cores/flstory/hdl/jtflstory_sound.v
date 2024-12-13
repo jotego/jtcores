@@ -246,7 +246,7 @@ jt5232 u_msm(
 
 jt7630_bal #(15) u_bal(
     .clk    ( clk     ),
-    .bal    ( msm_bal^{4{debug_st[6]}} ),
+    .bal    ( msm_bal^{4{debug_bus[6]}} ),
     .sin1   ( msm1    ),
     .sin2   ( msm2    ),
     .sout   ( msm_mix )
@@ -269,8 +269,8 @@ jt7630_equ u_equ(
     .clk        ( clk           ),
     .cen48k     ( cen48k        ),
     .peak       (               ),
-    .lo_setting ( msm_bass      ),
-    .hi_setting ( msm_treble    ),
+    .lo_setting ( debug_bus[5] ? debug_bus[3:0] : msm_bass      ),
+    .hi_setting ( debug_bus[4] ? debug_bus[3:0] : msm_treble    ),
     .sin        ( msm_amp       ),
     .sout       ( msm           )
 );
