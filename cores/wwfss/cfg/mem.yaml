@@ -16,6 +16,7 @@ clocks:
       outputs:
         - cen_oki
 audio:
+  rsum: 6k
   channels:
     # temporary values
     - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
