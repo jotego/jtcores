@@ -19,3 +19,7 @@ JTFRAME_PROM_START=0x3C000
 # scene saving
 JTFRAME_IOCTL_RD=4352
 JTFRAME_IOCTL_RD+=1
+
+[mist]
+# not enough DSP blocks
+JTFRAME_SKIP
