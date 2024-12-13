@@ -263,7 +263,7 @@ jt7630_vol u_vol(
     .sout0  ( {nc,psg}),
     .sout1  ( msm_amp )
 );
-
+/* EQUALIZER not ready yet
 jt7630_equ u_equ(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -274,7 +274,8 @@ jt7630_equ u_equ(
     .sin        ( msm_amp       ),
     .sout       ( msm           )
 );
-
+*/
+assign msm=msm_amp;
 `else
 initial bus_din  = 0;
 initial rom_cs   = 0;
