@@ -24,6 +24,9 @@ rename=[
 delete=[
 	{ names=["Start*","2P Game Time","Unused"] },
 ]
+extra=[
+    { name="Controls", options="D-pad,Analog stick,Auto", bits="20,21"},
+]
 
 [header]
 info="bit 0 -> enable non-symmetric speed in Tehkan WC bootleg"

@@ -80,7 +80,7 @@ jtwc_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     //
-    .dipsw      ( dipsw[19:0]   ),
+    .dipsw      ( dipsw[21:0]   ),
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_main       )
 );

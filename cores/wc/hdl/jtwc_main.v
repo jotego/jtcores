@@ -58,7 +58,7 @@ module jtwc_main(
     input     [ 7:0] rom_data,
     input            rom_ok,
     //
-    input     [19:0] dipsw,
+    input     [21:0] dipsw,
     input     [ 7:0] debug_bus,
     output reg[ 7:0] st_dout
 );
@@ -95,7 +95,7 @@ begin
     joy2track={mux[2],2'd0,mux[1],1'b0,mux[0],2'b01};
     if(!bootleg)
         joy2track = df==3 ? 8'h80 : !df[0] ? {2'b10,SPEED} : {2'b01,~SPEED};
-    if(use_ana) joy2track = !ana[7] ? {2'b10,ana[6:1]} : {2'b01,ana[6:1]};
+    if(use_ana) joy2track = (!ana[7] ? {2'b10,ana[6:1]} : {2'b01,ana[6:1]})^{8{flip}};
 end
 endfunction
 
@@ -110,8 +110,14 @@ always @(posedge clk) begin
     if( rst ) begin
         ana_sel <= 0;
     end else begin
-        if( detect_joy(joyana_l1) ) ana_sel[0] <= 1;
-        if( detect_joy(joyana_l2) ) ana_sel[1] <= 1;
+        case (dipsw[21:20])
+            1: ana_sel <= 2'b11;
+            default: ana_sel <= 0;
+            2: begin
+               if( detect_joy(joyana_l1) ) ana_sel[0] <= 1;
+               if( detect_joy(joyana_l2) ) ana_sel[1] <= 1;
+            end
+        endcase
     end
 end
 
