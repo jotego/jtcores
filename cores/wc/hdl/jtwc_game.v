@@ -23,7 +23,7 @@ module jtwc_game(
 wire        m2s_set, hflip, vflip, mwait, swait, m_wrn, sub_wrn,
             mx_c8, mx_d0, mx_d8, mx_e0, mx_e8,
             sx_c8, sx_d0, sx_d8, sx_e0, sx_e8,
-            mute_n, srst_n, LVBLg;
+            mute_n, srst_n, cen_pause;
 wire [ 8:0] scrx;
 wire [ 7:0] mdout, m2s, s2m, scry, sub_dout, sha_dout, form0, st_main;
 reg         bootleg;
@@ -31,7 +31,7 @@ reg         bootleg;
 assign dip_flip   = vflip | hflip;
 assign debug_view = st_main; // form0;
 assign ioctl_din  = 0;
-assign LVBLg      = dip_pause & LVBL;
+assign cen_pause  = cen_cpu & dip_pause;
 
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
@@ -42,9 +42,9 @@ end
 jtwc_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen        ( cen_cpu       ),
+    .cen        ( cen_pause     ),
     .ws         ( mwait         ),
-    .lvbl       ( LVBLg         ),      // video interrupt
+    .lvbl       ( LVBL          ),      // video interrupt
     // Cabinet inputs
     .bootleg    ( bootleg       ),      // non-symmetrical speed
     .dial_x     ( dial_x        ),
@@ -88,8 +88,8 @@ jtwc_main u_main(
 jtwc_sub u_sub(
     .rst_n      ( srst_n        ),
     .clk        ( clk           ),
-    .cen        ( cen_cpu       ),
-    .lvbl       ( LVBLg         ),       // video interrupt (LVBL)
+    .cen        ( cen_pause     ),
+    .lvbl       ( LVBL          ),       // video interrupt (LVBL)
     .ws         ( swait         ),
     // shared memory
     .mmx_c8     ( sx_c8         ),
