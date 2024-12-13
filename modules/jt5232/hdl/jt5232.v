@@ -22,6 +22,11 @@
 // output  8' is the base pitch = f
 // output 16' = f/2
 
+// items not implemented (yet)
+// - solo output
+// - gate output
+// - solo mode bit
+// - noise
 module jt5232(
     input         rst,
     input         clk,
@@ -32,7 +37,9 @@ module jt5232(
     input         we,
     output [14:0] snd1,
     output [14:0] snd2,
-    output    reg clip=0
+    // debug information
+    output    reg clip=0,
+    output    reg no_used   // noise used flag. Noise is not currently implemented
 );
 
 // TG configuration
@@ -42,7 +49,7 @@ wire [ 2:0] pgbit;
 reg  [ 2:0] pitch_sel;
 reg  [ 2:0] bsel[0:7];
 reg  [ 6:0] pitch;
-reg  [ 7:0] gf, kon;
+reg  [ 7:0] gf, kon, noise;
 reg  [ 2:0] attack[0:1];
 reg  [ 3:0] decay[0:1];
 reg  [ 3:0] oen[0:1];         // 2' 4' 8' 16' output enable
@@ -84,6 +91,10 @@ end
 
 // CPU interface
 always @(posedge clk) begin
+    no_used <= |noise;
+end
+
+always @(posedge clk) begin
     if(rst) begin
         gf     <= 0;
         attack[0] <= 0; attack[1] <= 0;
@@ -109,7 +120,7 @@ always @(posedge clk) begin
                13: {sf,ege[1],arm[1],oen[1]} <= din[6:0];
           default:;
         endcase
-        {step[pitch_sel],bsel[pitch_sel]}<={pgcnt,pgbit};
+        {step[pitch_sel],bsel[pitch_sel],noise[pitch_sel]}<={pgcnt,pgbit,no_en};
     end
 end
 

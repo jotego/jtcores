@@ -43,7 +43,8 @@ module jtflstory_sound(
     // debug
     input     [ 7:0] debug_bus,
     output reg[ 7:0] debug_st,
-    output           clip
+    output           clip,
+    output           no_used
 );
 `ifndef NOSOUND
 wire [15:0] A;
@@ -241,7 +242,8 @@ jt5232 u_msm(
     .we     ( msmw      ),
     .snd1   ( msm1      ), // unsigned!
     .snd2   ( msm2      ),
-    .clip   ( clip      )
+    .clip   ( clip      ),
+    .no_used( no_used   )
 );
 
 jt7630_bal #(15) u_bal(

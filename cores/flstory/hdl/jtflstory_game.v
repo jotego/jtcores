@@ -20,7 +20,7 @@ module jtflstory_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
+wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip, no_used,
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data, st_snd,
@@ -37,7 +37,7 @@ assign debug_view = st_mux;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? {clip,2'd0,mute,2'd0,gvflip,ghflip} : st_snd;
+    st_mux <= debug_bus[7] ? {clip,no_used,1'd0,mute,2'd0,gvflip,ghflip} : st_snd;
 end
 
 always @(posedge clk) lhbl_l <= LHBL;
