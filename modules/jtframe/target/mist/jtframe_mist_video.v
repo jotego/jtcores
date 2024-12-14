@@ -19,7 +19,8 @@
 module jtframe_mist_video #(parameter
     COLORW=4,
     VGA_DW=6,
-    VIDEO_WIDTH=256
+    VIDEO_WIDTH=256,
+    OSD=1
 )(
     input              rst,
     input              clk,
@@ -165,31 +166,40 @@ wire              VSync_osd, HSync_osd, CSync_osd, de_osd;
 
 assign CSync_osd = ~(HSync_osd ^ VSync_osd);
 
-osd #(0,0,6'b01_11_01,VGA_DW) osd (
-   .clk_sys    ( clk          ),
-   // spi for OSD
-   .SPI_DI     ( osd_di       ),
-   .SPI_SCK    ( osd_sck      ),
-   .SPI_SS3    ( osd_ss3      ),
+generate
+    if(OSD==1) begin
+        osd #(0,0,6'b01_11_01,VGA_DW) osd (
+           .clk_sys    ( clk          ),
+           // spi for OSD
+           .SPI_DI     ( osd_di       ),
+           .SPI_SCK    ( osd_sck      ),
+           .SPI_SS3    ( osd_ss3      ),
 
-   .rotate     ( osd_rotate   ),
+           .rotate     ( osd_rotate   ),
 
-   .R_in       ( scan2x_r[7-:VGA_DW] ),
-   .G_in       ( scan2x_g[7-:VGA_DW] ),
-   .B_in       ( scan2x_b[7-:VGA_DW] ),
-   .HSync      ( scan2x_hs    ),
-   .VSync      ( scan2x_vs    ),
-   .DE         ( scan2x_de    ),
+           .R_in       ( scan2x_r[7-:VGA_DW] ),
+           .G_in       ( scan2x_g[7-:VGA_DW] ),
+           .B_in       ( scan2x_b[7-:VGA_DW] ),
+           .HSync      ( scan2x_hs    ),
+           .VSync      ( scan2x_vs    ),
+           .DE         ( scan2x_de    ),
 
-   .R_out      ( osd_r_o      ),
-   .G_out      ( osd_g_o      ),
-   .B_out      ( osd_b_o      ),
-   .HSync_out  ( HSync_osd    ),
-   .VSync_out  ( VSync_osd    ),
-   .DE_out     ( de_osd       ),
+           .R_out      ( osd_r_o      ),
+           .G_out      ( osd_g_o      ),
+           .B_out      ( osd_b_o      ),
+           .HSync_out  ( HSync_osd    ),
+           .VSync_out  ( VSync_osd    ),
+           .DE_out     ( de_osd       ),
 
-   .osd_shown  ( osd_shown    )
-);
+           .osd_shown  ( osd_shown    )
+        );
+    end else begin
+        assign {osd_r_o, osd_g_o, osd_b_o,HSync_osd,VSync_osd,de_osd} =
+            { scan2x_r[7-:VGA_DW], scan2x_g[7-:VGA_DW], scan2x_b[7-:VGA_DW],
+              scan2x_hs,scan2x_vs,scan2x_de };
+        assign osd_shown = 0;
+    end
+endgenerate
 
 wire       HSync_out, VSync_out, CSync_out;
 
