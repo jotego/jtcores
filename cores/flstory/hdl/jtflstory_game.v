@@ -163,7 +163,8 @@ jtflstory_sound u_sound(
     // debug
     .debug_bus  ( debug_bus ),
     .debug_st   ( st_snd    ),
-    .clip       ( clip      )
+    .clip       ( clip      ),
+    .no_used    ( no_used   )
 );
 /* verilator tracing_off */
 jtflstory_video u_video(
