@@ -727,6 +727,7 @@ jtframe_board #(
     .hdmi_arx       ( raw_arx         ),
     .hdmi_ary       ( raw_ary         ),
     .rotate         ( rotate          ),
+    .rot_osdonly    (                 ),
     // LED
     .osd_shown      ( 1'b0            ),
     .led            ( LED             ),
