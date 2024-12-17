@@ -43,6 +43,11 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     input [1:0] sl_mode,  // scanline modes
     input       blend_en, // horizontal blending modes
 
+    // rotating
+    input [1:0] rotation, // 0 - no rotation, 1 - clockwise, 2 - anticlockwise
+    input       hfilter,
+    input       vfilter,
+
     input [COLORW*3-1:0] x1_pxl,
     input       x1_hs,
     input       x1_vs,
@@ -54,7 +59,18 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     output  reg x2_vs,
     output      x2_de,
     output  reg x2_HB,
-    output  reg x2_VB
+    output  reg x2_VB,
+
+    // SDRAM interface for rotation
+    input         init,
+    inout  [15:0] sd_data,
+    output [12:0] sd_addr,
+    output  [1:0] sd_dqm,
+    output  [1:0] sd_ba,
+    output        sd_cs,
+    output        sd_we,
+    output        sd_ras,
+    output        sd_cas
 );
 
 localparam AW=HLEN<=512 ? 9:10;
@@ -72,6 +88,7 @@ reg           vchng=0, vwait=0;
 wire          HS_posedge     =  x1_hs && !last_HS;
 wire          HS_negedge     = !x1_hs &&  last_HS;
 wire [DW-1:0] next;
+wire [DW-1:0] linebuf_q;
 wire [DW-1:0] dim2, dim4;
 reg [COLORW:0] ab;
 wire [COLORW*3-1:0] gated_pxl;
@@ -229,6 +246,114 @@ end
 
 assign x2_de = ~(x2_VB | x2_HB);
 
+`ifdef JTFRAME_SDRAM_ROTATION
+
+wire [COLORW-1:0] rotate_r, rotate_g, rotate_b;
+wire        vidin_req;
+wire  [1:0] vidin_frame;
+wire [10:0] vidin_row;
+wire [10:0] vidin_col;
+wire [15:0] vidin_d;
+wire        vidin_ack;
+
+wire        vidout_req;
+wire  [1:0] vidout_frame;
+wire [10:0] vidout_row;
+wire [10:0] vidout_col;
+wire [15:0] vidout_d;
+wire        vidout_ack;
+
+scandoubler_rotate #(.COLOR_DEPTH(COLORW), .OUT_COLOR_DEPTH(COLORW)) u_rotate(
+    .clk_sys    ( clk      ),
+    .rotation   ( rotation ),
+    .rotateonly ( 1'b0     ),
+    .hfilter    ( hfilter  ),
+    .vfilter    ( vfilter  ),
+    .pe_in      ( pxl_cen  ),
+    .ppe_out    ( pxl2_cen ),
+    .hb_in      ( x1_hb    ),
+    .vb_in      ( x1_vb    ),
+    .hs_in      ( x1_hs    ),
+    .vs_in      ( x1_vs    ),
+    .r_in       ( x1_pxl[COLORW*3-1:COLORW*2] ),
+    .g_in       ( x1_pxl[COLORW*2-1:COLORW] ),
+    .b_in       ( x1_pxl[COLORW-1:0] ),
+    .hb_sd      ( x2_HB    ),
+    .vb_sd      ( x2_VB    ),
+    .vs_sd      ( x2_vs    ),
+    .r_out      ( rotate_r ),
+    .g_out      ( rotate_g ),
+    .b_out      ( rotate_b ),
+
+    // Memory interface
+    .vidin_req  ( vidin_req   ),
+    .vidin_frame( vidin_frame ),
+    .vidin_row  ( vidin_row   ),
+    .vidin_col  ( vidin_col   ),
+    .vidin_d    ( vidin_d     ),
+    .vidin_ack  ( vidin_ack   ),
+
+    .vidout_req ( vidout_req  ),
+    .vidout_frame ( vidout_frame ),
+    .vidout_row ( vidout_row  ),
+    .vidout_col ( vidout_col  ),
+    .vidout_d   ( vidout_d    ),
+    .vidout_ack ( vidout_ack  )
+);
+
+scandoubler_sdram u_sdram (
+    .init       ( init ),
+    .clk        ( clk ),
+    .ready      ( ),
+    .sd_data    ( sd_data ),
+    .sd_addr    ( sd_addr ),
+    .sd_dqm     ( sd_dqm ),
+    .sd_ba      ( sd_ba ),
+    .sd_cs      ( sd_cs ),
+    .sd_we      ( sd_we ),
+    .sd_ras     ( sd_ras ),
+    .sd_cas     ( sd_cas ),
+
+    .ram_din    ( ),
+    .ram_dout   ( ),
+    .ram_addr   ( ),
+    .ram_ds     ( ),
+    .ram_req    ( ),
+    .ram_we     ( ),
+    .ram_ack    ( ),
+
+    .rom_oe     ( ),
+    .rom_addr   ( ),
+    .rom_dout   ( ),
+
+    .vidin_req  ( vidin_req  ),
+    .vidin_frame ( vidin_frame ),
+    .vidin_row  ( vidin_row  ),
+    .vidin_col  ( vidin_col  ),
+    .vidin_d    ( vidin_d    ),
+    .vidin_ack  ( vidin_ack  ),
+
+    .vidout_req ( vidout_req ),
+    .vidout_frame ( vidout_frame ),
+    .vidout_row ( vidout_row ),
+    .vidout_col ( vidout_col ),
+    .vidout_q   ( vidout_d   ),
+    .vidout_ack ( vidout_ack )
+);
+
+assign next = |rotation ? {rotate_r, rotate_g, rotate_b} : linebuf_q;
+`else
+assign next = linebuf_q;
+assign sd_data = 16'hZZZZ;
+assign sd_addr = 0;
+assign sd_dqm = 0;
+assign sd_ba = 0;
+assign sd_cs = 1;
+assign sd_we = 1;
+assign sd_ras = 1;
+assign sd_cas = 1;
+`endif
+
 jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
     .clk0   ( clk            ),
     .clk1   ( clk            ),
@@ -236,7 +361,7 @@ jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
     .data0  ( {DW{1'b0}}     ),
     .addr0  ( {line, rdaddr} ),
     .we0    ( 1'b0           ),
-    .q0     ( next           ),
+    .q0     ( linebuf_q      ),
     // Port 1: write
     .data1  ( gated_pxl      ),
     .addr1  ( {~line, wraddr}),

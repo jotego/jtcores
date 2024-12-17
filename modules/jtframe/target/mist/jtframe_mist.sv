@@ -102,6 +102,15 @@ module jtframe_mist #(parameter
     input              QCSn,
     input              QSCK,
     input        [3:0] QDAT,
+    // SDRAM interface for rotation
+    inout       [15:0] sd_data,
+    output      [12:0] sd_addr,
+    output       [1:0] sd_dqm,
+    output       [1:0] sd_ba,
+    output             sd_cs,
+    output             sd_we,
+    output             sd_ras,
+    output             sd_cas,
     // Buttons for MC2(+)
     input       [ 3:0] BUTTON_n,
     // PS2 are input pins for Neptuno
@@ -184,6 +193,7 @@ wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
 
 wire  [ 1:0]  rotate;
+wire          rot_osdonly;
 wire          ioctl_cheat, sdram_init;
 
 wire  [15:0]  board_left, board_right;
@@ -223,7 +233,8 @@ jtframe_mist_base #(
     .core_mod       ( core_mod      ),
     .osd_shown      ( osd_shown     ),
     // Base video
-    .osd_rotate     ( rotate        ),
+    .osd_rotate     ( rot_osdonly ? rotate : 2'b00 ),
+    .rotation       ( (rot_osdonly | ~rotate[0]) ? 2'b00 : {rotate[1], ~rotate[1]} ),
     .game_rgb       ( base_rgb      ),
     .game_lhbl      ( base_lhbl     ),
     .game_lvbl      ( base_lvbl     ),
@@ -262,6 +273,15 @@ jtframe_mist_base #(
     .QCSn           ( QCSn          ),
     .QSCK           ( QSCK          ),
     .QDAT           ( QDAT          ),
+    // RAM interface for rotation
+    .sd_data        ( sd_data       ),
+    .sd_addr        ( sd_addr       ),
+    .sd_dqm         ( sd_dqm        ),
+    .sd_ba          ( sd_ba         ),
+    .sd_cs          ( sd_cs         ),
+    .sd_we          ( sd_we         ),
+    .sd_ras         ( sd_ras        ),
+    .sd_cas         ( sd_cas        ),
     // control
     .status         ( status        ),
     .joystick1      ( joystick1     ),
@@ -419,6 +439,7 @@ jtframe_board #(
     .timestamp      ( 32'd0           ), // MiST doesn't -normally- have a RTC
     // screen
     .rotate         ( rotate          ),
+    .rot_osdonly    ( rot_osdonly     ),
     // LED
     .osd_shown      ( osd_shown       ),
     .led            ( LED             ),
