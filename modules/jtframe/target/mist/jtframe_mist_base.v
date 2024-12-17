@@ -32,6 +32,7 @@ module jtframe_mist_base #(parameter
     output  [6:0]   core_mod,
     // Base video
     input   [1:0]   osd_rotate,
+    input   [1:0]   rotation, // 0 - no rotation, 1 - clockwise, 2 - anticlockwise
     input           game_hs,
     input           game_vs,
     input           game_lhbl,
@@ -66,6 +67,15 @@ module jtframe_mist_base #(parameter
     input           QCSn,
     input           QSCK,
     input     [3:0] QDAT,
+    // SDRAM interface for rotation
+    inout    [15:0] sd_data,
+    output   [12:0] sd_addr,
+    output    [1:0] sd_dqm,
+    output    [1:0] sd_ba,
+    output          sd_cs,
+    output          sd_we,
+    output          sd_ras,
+    output          sd_cas,
     // control
     output [63:0]   status,
     output [31:0]   joystick1,
@@ -265,8 +275,10 @@ wire        i2c_end;
 
 `ifndef NEPTUNO
     wire [1:0]  buttons;
-    assign but_coin    = { 3'b0, buttons[0] };
-    assign but_start   = { 3'b0, buttons[1] };
+    assign but_coin    = 4'd0;
+    assign but_start   = 4'd0;
+    wire [63:0] user_io_status;
+	 assign status = {user_io_status[63:1], user_io_status[0] | buttons[1]}; // status[0] | buttons[1] is reset
 
     user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(32'h0 /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
         .clk_sys        ( clk_sys   ),
@@ -289,7 +301,7 @@ wire        i2c_end;
         .joystick_analog_0({joyana_r2[7:0], joyana_r2[15:8], joyana_l2}),
         .joystick_analog_1({joyana_r1[7:0], joyana_r1[15:8], joyana_l1}),
 
-        .status         ( status    ),
+        .status         ( user_io_status ),
         .ypbpr          ( ypbpr     ),
         .no_csync       ( no_csync  ),
         .scandoubler_disable ( scan2x_enb ),
@@ -492,6 +504,7 @@ u_video(
     .bw_en      ( bw_en         ),
     .blend_en   ( blend_en      ),
     .scanlines  ( scanlines     ),
+    .rotation   ( rotation      ),
     // video signal type
     .ypbpr      ( ypbpr         ),
     .no_csync   ( no_csync      ),
@@ -515,7 +528,18 @@ u_video(
     .video_r    ( VIDEO_R       ),
     .video_g    ( VIDEO_G       ),
     .video_b    ( VIDEO_B       ),
-    .yc_vid     (               )
+    .yc_vid     (               ),
+    // RAM interface for rotation
+    .init       ( sdram_init    ),
+    .sd_data    ( sd_data       ),
+    .sd_addr    ( sd_addr       ),
+    .sd_dqm     ( sd_dqm        ),
+    .sd_ba      ( sd_ba         ),
+    .sd_cs      ( sd_cs         ),
+    .sd_we      ( sd_we         ),
+    .sd_ras     ( sd_ras        ),
+    .sd_cas     ( sd_cas        )
+
 );
 
 generate if (HDMI) begin

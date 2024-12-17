@@ -40,6 +40,7 @@ module jtframe_mist_video #(parameter
     input              bw_en,
     input              blend_en,
     input   [1:0]      scanlines,
+    input   [1:0]      rotation, // 0 - no rotation, 1 - clockwise, 2 - anticlockwise
     // video signal type
     input              ypbpr,
     input              no_csync,
@@ -64,7 +65,17 @@ module jtframe_mist_video #(parameter
     output [VGA_DW-1:0] video_g,
     output [VGA_DW-1:0] video_b,
     // Composite video
-    output [23:0]      yc_vid
+    output [23:0]      yc_vid,
+    // SDRAM interface for rotation
+    input              init,
+    inout       [15:0] sd_data,
+    output      [12:0] sd_addr,
+    output       [1:0] sd_dqm,
+    output       [1:0] sd_ba,
+    output             sd_cs,
+    output             sd_we,
+    output             sd_ras,
+    output             sd_cas
 );
 
 // Limited bandwidth for video signal
@@ -131,8 +142,11 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .pxl_cen    ( pxl_cen        ),
     // settings
     .sl_mode    ( scanlines[1:0] ),
-    .blend_en   ( blend_en       ),
+    .blend_en   ( ~|rotation & blend_en ),
     .enb        ( scan2x_enb     ),
+    .rotation   ( rotation       ),
+    .hfilter    ( blend_en       ),
+    .vfilter    ( blend_en       ),
     // video inputs
     .pxl2_cen   ( pxl2_cen       ),
     .x1_pxl     ( ana_rgb        ),
@@ -146,7 +160,17 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .x2_vs      ( scan2x_vs      ),
     .x2_de      ( scan2x_de      ),
     .x2_HB      ( scan2x_HB      ),
-    .x2_VB      ( scan2x_VB      )
+    .x2_VB      ( scan2x_VB      ),
+    // RAM interface for rotation
+    .init       ( init           ),
+    .sd_data    ( sd_data        ),
+    .sd_addr    ( sd_addr        ),
+    .sd_dqm     ( sd_dqm         ),
+    .sd_ba      ( sd_ba          ),
+    .sd_cs      ( sd_cs          ),
+    .sd_we      ( sd_we          ),
+    .sd_ras     ( sd_ras         ),
+    .sd_cas     ( sd_cas         )
 );
 
 always @* begin

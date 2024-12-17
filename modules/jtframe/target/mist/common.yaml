@@ -13,6 +13,13 @@ jtframe:
   - from: video
     get:
       - jtframe_scan2x.v
+      - rotate/scandoubler_rgb_interp.v
+      - rotate/scandoubler_rotate.v
+      - rotate/scandoubler_scaledepth.v
+      - rotate/scandoubler_sdram.v
+      - rotate/unsigned_division.v
+      - rotate/pixel_interp.v
+      - rotate/frac_interp.v
 target:
   - from: mist
     unless: SIDI128,POCKET
