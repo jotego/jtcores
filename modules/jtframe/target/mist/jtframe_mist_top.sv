@@ -136,9 +136,20 @@ localparam bit HDMI = 1;
 localparam bit HDMI = 0;
 `endif
 
+
 `ifdef MIST_DUAL_SDRAM
-`ifndef JTFRAME_LF_SDRAM_BUFFER
-`ifndef JTFRAME_SDRAM_ROTATION
+
+`ifdef JTFRAME_LF_SDRAM_BUFFER
+`define MIST_USE_SDRAM2
+`endif
+`ifdef JTFRAME_VERTICAL
+`ifdef JTFRAME_SDRAM_ROTATION
+`define MIST_USE_SDRAM2
+`define MIST_USE_SDRAM2_ROTATION
+`endif
+`endif
+
+`ifndef MIST_USE_SDRAM2
 assign SDRAM2_A = 13'hZZZZ;
 assign SDRAM2_BA = 0;
 assign SDRAM2_DQML = 1;
@@ -151,8 +162,8 @@ assign SDRAM2_nCAS = 1;
 assign SDRAM2_nRAS = 1;
 assign SDRAM2_nWE = 1;
 `endif
-`endif
-`endif
+
+`endif // MIST_DUAL_SDRAM
 
 `ifdef JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
@@ -345,7 +356,7 @@ u_frame(
     .SDRAM_nCS      ( SDRAM_nCS      ),
     .SDRAM_BA       ( SDRAM_BA       ),
     .SDRAM_CKE      ( SDRAM_CKE      ),
-`ifdef JTFRAME_SDRAM_ROTATION
+`ifdef MIST_USE_SDRAM2_ROTATION
     .sd_data        ( SDRAM2_DQ      ),
     .sd_addr        ( SDRAM2_A       ),
     .sd_dqm         ( {SDRAM2_DQMH, SDRAM2_DQML} ),
@@ -354,6 +365,7 @@ u_frame(
     .sd_we          ( SDRAM2_nWE     ),
     .sd_ras         ( SDRAM2_nRAS    ),
     .sd_cas         ( SDRAM2_nCAS    ),
+    .sd_cke         ( SDRAM2_CKE     ),
 `else
     .sd_data        (                ),
     .sd_addr        (                ),
@@ -363,6 +375,7 @@ u_frame(
     .sd_we          (                ),
     .sd_ras         (                ),
     .sd_cas         (                ),
+    .sd_cke         (                ),
 `endif
     // SPI interface to arm io controller
     .SPI_DO         ( SPI_DO         ),
@@ -509,15 +522,8 @@ assign UART_TX = game_tx,
 
 `include "jtframe_game_instance.v"
 
-`ifdef JTFRAME_LF_SDRAM_BUFFER
-`define JTFRAME_USE_SDRAM2
-`endif
-`ifdef JTFRAME_SDRAM_ROTATION
-`define JTFRAME_USE_SDRAM2
-assign SDRAM2_CKE = 1;
-`endif
 
-`ifdef JTFRAME_USE_SDRAM2
+`ifdef MIST_USE_SDRAM2
     // implement video buffer in the second SDRAM chip (sidi128)
     wire pll_locked2, clk_rom2;
 

@@ -111,6 +111,7 @@ module jtframe_mist #(parameter
     output             sd_we,
     output             sd_ras,
     output             sd_cas,
+    output             sd_cke,
     // Buttons for MC2(+)
     input       [ 3:0] BUTTON_n,
     // PS2 are input pins for Neptuno
@@ -282,6 +283,7 @@ jtframe_mist_base #(
     .sd_we          ( sd_we         ),
     .sd_ras         ( sd_ras        ),
     .sd_cas         ( sd_cas        ),
+    .sd_cke         ( sd_cke        ),
     // control
     .status         ( status        ),
     .joystick1      ( joystick1     ),
