@@ -70,7 +70,8 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     output        sd_cs,
     output        sd_we,
     output        sd_ras,
-    output        sd_cas
+    output        sd_cas,
+    output        sd_cke
 );
 
 localparam AW=HLEN<=512 ? 9:10;
@@ -246,8 +247,13 @@ end
 
 assign x2_de = ~(x2_VB | x2_HB);
 
+`ifdef JTFRAME_VERTICAL
 `ifdef JTFRAME_SDRAM_ROTATION
+`define JTFRAME_SCAN2X_ROTATE
+`endif
+`endif
 
+`ifdef JTFRAME_SCAN2X_ROTATE
 wire [COLORW-1:0] rotate_r, rotate_g, rotate_b;
 wire        vidin_req;
 wire  [1:0] vidin_frame;
@@ -340,7 +346,7 @@ scandoubler_sdram u_sdram (
     .vidout_q   ( vidout_d   ),
     .vidout_ack ( vidout_ack )
 );
-
+assign sd_cke = 1;
 assign next = |rotation ? {rotate_r, rotate_g, rotate_b} : linebuf_q;
 `else
 assign next = linebuf_q;
@@ -352,6 +358,7 @@ assign sd_cs = 1;
 assign sd_we = 1;
 assign sd_ras = 1;
 assign sd_cas = 1;
+assign sd_cke = 0;
 `endif
 
 jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(

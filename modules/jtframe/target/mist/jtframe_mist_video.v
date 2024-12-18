@@ -75,7 +75,8 @@ module jtframe_mist_video #(parameter
     output             sd_cs,
     output             sd_we,
     output             sd_ras,
-    output             sd_cas
+    output             sd_cas,
+    output             sd_cke
 );
 
 // Limited bandwidth for video signal
@@ -170,7 +171,8 @@ jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
     .sd_cs      ( sd_cs          ),
     .sd_we      ( sd_we          ),
     .sd_ras     ( sd_ras         ),
-    .sd_cas     ( sd_cas         )
+    .sd_cas     ( sd_cas         ),
+    .sd_cke     ( sd_cke         )
 );
 
 always @* begin

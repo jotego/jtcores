@@ -76,6 +76,7 @@ module jtframe_mist_base #(parameter
     output          sd_we,
     output          sd_ras,
     output          sd_cas,
+    output          sd_cke,
     // control
     output [63:0]   status,
     output [31:0]   joystick1,
@@ -538,7 +539,8 @@ u_video(
     .sd_cs      ( sd_cs         ),
     .sd_we      ( sd_we         ),
     .sd_ras     ( sd_ras        ),
-    .sd_cas     ( sd_cas        )
+    .sd_cas     ( sd_cas        ),
+    .sd_cke     ( sd_cke        )
 
 );
 
