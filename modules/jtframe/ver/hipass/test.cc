@@ -1,4 +1,4 @@
-#include "Vjtframe_zero.h"
+#include "Vjtframe_hipass.h"
 #include <cstdio>
 #include <cmath>
 #include "verilated_vcd_c.h"
@@ -6,7 +6,7 @@
 using namespace std;
 
 int t=0;
-Vjtframe_zero *dut;
+Vjtframe_hipass *dut;
 VerilatedVcdC *tfp;
 
 vluint64_t simtime=0;
@@ -15,7 +15,14 @@ const int scale=0x7fff; // 16 bit maximum
 const float fs =192000;      // sampling frequency
 const float fc = 100;
 const float pi2=6.28318507;
-const int    a = 1.0/(1.0+fc/fs*pi2)*256;
+const int    W = 14;
+// 100Hz
+// const int    b = 0.998366*(1<<W);
+// const int    a = 0.996732*(1<<W);
+// 1kHz
+const int    b = 0.98390*(1<<W);
+const int    a = 0.96780*(1<<W);
+
 const vluint64_t half_period = 1.0/fs*1e12/4.0;
 
 int clk(float freq, int kmax) {
@@ -49,6 +56,7 @@ void reset() {
     dut->sample=0;
     dut->sin=0;
     dut->a=a;
+    dut->b=b;
     clk(10,4);
     dut->rst=0;
 }
@@ -56,7 +64,7 @@ void reset() {
 int main(int argc, char *argv[]) {
     VerilatedContext context;
     context.commandArgs(argc, argv);
-    dut = new Vjtframe_zero(&context);
+    dut = new Vjtframe_hipass(&context);
     tfp = new VerilatedVcdC;
 
     dut->trace(tfp,99);
@@ -64,7 +72,7 @@ int main(int argc, char *argv[]) {
     tfp->open("test.vcd");
     reset();
 
-    printf("a=%d\n",a);
+    printf("a=%d\tb=%d\n",a,b);
     float freqs[]={10,20,50,100,200,500,1000,2000,5000,10000,20000};
     for( int cont=0;cont<11;cont++) {
         float freq=freqs[cont];

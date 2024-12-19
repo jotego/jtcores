@@ -167,7 +167,7 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 			switch each.Gfx {
 				case "", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx": break
 				default: {
-					fmt.Printf("Unsupported gfx_sort %d\n", each.Gfx)
+					fmt.Printf("Unsupported gfx_sort %s\n", each.Gfx)
 					return false
 				}
 			}
@@ -301,8 +301,7 @@ func check_banks( macros map[string]string, cfg *MemConfig ) error {
 	} else {
 		if macros["JTFRAME_HEADER"]=="" {
 			fmt.Println(`Missing JTFRAME_HEADER but the SDRAM banks are pointing to a region.
-Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml
-`)
+Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
 	}
 	if bad {

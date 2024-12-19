@@ -26,7 +26,7 @@ audio:
   channels:
 #     # FIR should be 3kHz, not 4kHz
     - { name: msm,   module: jt5232,rsum: 1k, pre: 1.1 }
-    - { name: psg,   module: jt49,  rsum: 1k, pre: 0.8 }
+    - { name: psg,   module: jt5232,rsum: 1k, pre: 1.0 } # not using jt49 settings because of signed output
     - { name: dac,   data_width: 8, rsum: 1k, unsigned: true, dcrm: true }
 sdram:
   banks:

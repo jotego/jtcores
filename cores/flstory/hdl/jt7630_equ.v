@@ -28,23 +28,24 @@ module jt7630_equ #( parameter
     input   [3:0] lo_setting,
     input   [3:0] hi_setting,
     input  signed [SW-1:0] sin, // can be unsigned if DCRM=0
-    output signed [SW-1:0] sout
+    output reg signed [SW-1:0] sout,
+    // debug - independent outputs
+    output signed [SW-1:0] lopass0, lopass1, hipass0, hipass1
 );
 /* verilator lint_off REALCVT */
-localparam WA = SW/2;
-localparam [WA-1:0] P100 = 0.98708*{WA{1'b1}};
-localparam [WA-1:0] P1k  = 0.88425*{WA{1'b1}};
-localparam [WA-1:0] Z100 = 0.01292*{WA{1'b1}};
-localparam [WA-1:0] Z1k  = 0.11575*{WA{1'b1}};
+localparam WA = 14;
+localparam [WA-1:0] P100 = 0.99836*{WA{1'b1}};
+localparam [WA-1:0] P1k  = 0.98363*{WA{1'b1}};
+localparam [WA-1:0] P10k = 0.83489*{WA{1'b1}};
 
-wire signed [SW-1:0] dcrm, lo100, lo1k, hi100, hi1k, loamp, hiamp;
+wire signed [SW-1:0] dcrm, loamp, hiamp;
 reg  [7:0] logain, higain;
 
 // 0=-16dB, 15=14dB, 2dB step
 // encoded as 3.5 integer.decimal
 function [7:0] gain(input [3:0] s);
     case(s)
-        0: gain=8'd006; // -16dB
+        0: gain=8'd001; // -16dB
         1: gain=8'd007;
         2: gain=8'd009;
         3: gain=8'd012;
@@ -70,6 +71,16 @@ end
 
 generate
     if(DCRM==1) begin
+        // wire signed [SW-1:0] sin_sh = sin-{1'b1,{SW-1{1'b0}}};
+        // jtframe_hipass #(.WA(14)) u_dcrm(
+        //     .rst    ( rst       ),
+        //     .clk    ( clk       ),
+        //     .sample ( cen48k    ),
+        //     .sin    ( sin_sh    ),
+        //     .b      ( 14'd16381 ),
+        //     .a      ( 14'd16379 ),
+        //     .sout   ( dcrm      )
+        // );
         jtframe_dcrm #(.SW(SW)) u_dcrm(
             .rst    ( rst       ),
             .clk    ( clk       ),
@@ -84,64 +95,67 @@ endgenerate
 
 // low pass filter  at 100Hz
 // a = 0.98708 -> 100Hz fc
-jtframe_pole u_pole100(
+jtframe_pole #(.WA(WA)) u_pole100(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .sample ( cen48k    ),
     .sin    ( dcrm      ),
     .a      ( P100      ),
-    .sout   ( lo100     )
+    .sout   ( lopass0   )
 );
 
-// low pass filter  at 1kHz
-// a = 0.88425 -> 1kHz fc
-jtframe_pole u_pole1k(
+// low pass filter  at 10kHz
+// a = 0.43308 -> 10kHz fc
+jtframe_pole #(.WA(WA)) u_pole1k(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .sample ( cen48k    ),
     .sin    ( dcrm      ),
     .a      ( P1k       ),
-    .sout   ( lo1k      )
+    .sout   ( lopass1   )
 );
 
 // high pass filter  at 100Hz
-// a = 0.01292 -> 100Hz fc
-jtframe_zero u_zero100(
+jtframe_hipass #(.WA(14)) u_hipass100(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .sample ( cen48k    ),
     .sin    ( dcrm      ),
-    .a      ( Z100      ),
-    .sout   ( hi100     )
+    .b      ( 14'd16357 ),
+    .a      ( 14'd16330 ),
+    .sout   ( hipass0   )
 );
 
 // high pass filter  at 1kHz
-// a = 0.11575 -> 1kHz fc
-jtframe_zero u_zero1k(
+jtframe_hipass #(.WA(14)) u_hipass1k(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .sample ( cen48k    ),
     .sin    ( dcrm      ),
-    .a      ( Z1k       ),
-    .sout   ( hi1k      )
+    // 1kHz
+    // .b      ( 14'd16120 ),
+    // .a      ( 14'd15856 ),
+    .b      ( 14'd14062 ),
+    .a      ( 14'd11741 ),
+    .sout   ( hipass1   )
 );
 
-jtframe_limmul #(.WD(5)) u_logain(
+jtframe_limmul #(.WD(6)) u_logain(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen48k    ),
-    .sin    ( lo100     ),
+    .sin    ( lopass0   ),
     .gain   ( logain    ),
     .peaked ( 1'b0      ),
     .mul    ( loamp     ),
     .peak   (           )
 );
 
-jtframe_limmul #(.WD(5)) u_higain(
+jtframe_limmul #(.WD(6)) u_higain(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen48k    ),
-    .sin    ( hi1k      ),
+    .sin    ( hipass1   ),
     .gain   ( higain    ),
     .peaked ( 1'b0      ),
     .mul    ( hiamp     ),
@@ -152,7 +166,7 @@ jtframe_limsum #(.K(4)) u_sum(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen48k    ),
-    .parts  ( {loamp,hiamp,hi100,lo1k}),
+    .parts  ( {loamp>>>1,hiamp>>>1,hipass0>>>1,lopass1>>>1}),
     .en     ( 4'b1111   ),
     .sum    ( sout      ),
     .peak   ( peak      )

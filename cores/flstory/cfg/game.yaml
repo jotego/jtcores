@@ -14,7 +14,7 @@ jtframe:
       - jtframe_6805mcu.yaml
   - from: sound
     get:
-      - jtframe_zero.v
+      - jtframe_hipass.v
   - from: video
     get:
       - jtframe_vtimer.v

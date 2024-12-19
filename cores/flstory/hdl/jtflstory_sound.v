@@ -37,8 +37,8 @@ module jtflstory_sound(
 
     // sound output
     output reg       mute,
-    output    [15:0] msm,
-    output    [ 9:0] psg,
+    output signed [15:0] msm,
+    output signed [15:0] psg,
     output reg[ 7:0] dac,
     // debug
     input     [ 7:0] debug_bus,
@@ -254,19 +254,19 @@ jt7630_bal #(15) u_bal(
     .sout   ( msm_mix )
 );
 
-wire [15:0] msm_amp;
+wire [15:0] msm_amp, psg_amp, psg_aux;
 
 jt7630_vol u_vol(
     .clk    ( clk     ),
     .vol0   ( psg_vol ),
     .vol1   ( msm_vol ),
-    .sin0   ( {6'd0,psg_raw} ),
+    .sin0   ( {psg_raw,6'd0} ),
     .sin1   ( {msm_mix,1'b0} ),
-    .sout0  ( {nc,psg}),
+    .sout0  ( psg_amp ),
     .sout1  ( msm_amp )
 );
-/* EQUALIZER not ready yet
-jt7630_equ u_equ(
+
+jt7630_equ u_equ_msm(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen48k     ( cen48k        ),
@@ -274,10 +274,30 @@ jt7630_equ u_equ(
     .lo_setting ( debug_bus[5] ? debug_bus[3:0] : msm_bass      ),
     .hi_setting ( debug_bus[4] ? debug_bus[3:0] : msm_treble    ),
     .sin        ( msm_amp       ),
-    .sout       ( msm           )
+    .sout       ( msm           ),
+    // debug
+    .lopass0    (               ),
+    .lopass1    (               ),
+    .hipass0    (               ),
+    .hipass1    (               )
 );
-*/
-assign msm=msm_amp;
+
+jt7630_equ u_equ_psg(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen48k     ( cen48k        ),
+    .peak       (               ),
+    .lo_setting ( psg_bass      ),
+    .hi_setting ( psg_treble    ),
+    .sin        ( psg_amp       ),
+    .sout       ( psg           ),
+    // debug
+    .lopass0    (               ),
+    .lopass1    (               ),
+    .hipass0    (               ),
+    .hipass1    (               )
+);
+
 `else
 initial bus_din  = 0;
 initial rom_cs   = 0;

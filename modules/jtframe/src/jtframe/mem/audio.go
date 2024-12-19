@@ -47,14 +47,21 @@ func eng2float( s string ) float64 {
 	return mant
 }
 
-func calc_a( rc AudioRC, fs float64 ) (string,int) {
+// a coefficient of the low pass filter
+// b coefficient = 1-a
+// Tangent function used for frequency pre-warping
+func calc_a( rc AudioRC, fs float64, bits int ) (string,int) {
 	r := eng2float(rc.R)
 	c := eng2float(rc.C)
 	if r==0 || c==0 { return "00",0 }
-	wc := 1.0/(r*c*fs)
-	fc := int(math.Round(1.0/(2*math.Pi*r*c)))
-	a := math.Round(math.Exp(-wc)*256)
-	return fmt.Sprintf("%02X",int(a)),fc
+	fc := math.Round(1.0/(2*math.Pi*r*c))
+	if fc>fs*.49 {
+		return "0000",int(fc)
+	}
+	wc := math.Tan(math.Pi*fc/fs)
+	a := math.Round((1.0-wc)/(wc+1.0)*(math.Pow(2,float64(bits))-1.0))
+	if wc>1.0 { a=0 }
+	return fmt.Sprintf("%04X",int(a)&0xffff),int(fc)
 }
 
 func read_modules() map[string]AudioCh {
@@ -113,8 +120,9 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 }
 
 func make_rc( ch *AudioCh, fs float64 ) {
+	const bits=15
 	if ch.Fir != "" {
-		ch.Pole = "16'h00"
+		ch.Pole = fmt.Sprintf("%d'h00",bits*2)
 		ch.Filters = 1	// the FIR one
 		return
 	}
@@ -122,9 +130,9 @@ func make_rc( ch *AudioCh, fs float64 ) {
 	for k:=0; k<len(ch.RC); {
 		p0 := "00"
 		p1 := "00"
-		if k  <len(ch.RC) { p0,ch.Fcut[0] = calc_a(ch.RC[k  ], fs) }
-		if k+1<len(ch.RC) { p1,ch.Fcut[1] = calc_a(ch.RC[k+1], fs) }
-		hex := fmt.Sprintf("16'h%s%s",p1,p0)
+		if k  <len(ch.RC) { p0,ch.Fcut[0] = calc_a(ch.RC[k  ], fs, bits) }
+		if k+1<len(ch.RC) { p1,ch.Fcut[1] = calc_a(ch.RC[k+1], fs, bits) }
+		hex := fmt.Sprintf("{%d'h%s,%d'h%s}",bits,p1,bits,p0)
 		if ch.Rc_en {
 			if k==0 && len(ch.RC)<3 {
 				ch.Pole=fmt.Sprintf("%s%s_rcen?%s : ",ch.Pole,ch.Name,hex)
@@ -138,7 +146,7 @@ func make_rc( ch *AudioCh, fs float64 ) {
 		k+=2
 		if !ch.Rc_en { break } // only first two poles taken unless rc_en is set to true
 	}
-	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s16'h0",ch.Pole) }
+	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s%d'h0",ch.Pole,bits*2) }
 }
 
 func fill_audio_clock( macros map[string]string, cfg *Audio ) {
@@ -149,13 +157,14 @@ func fill_audio_clock( macros map[string]string, cfg *Audio ) {
 }
 
 func fill_global_pole( cfg *Audio, fs float64 ) {
+	const bits=15
 	if cfg.RC.R=="" || cfg.RC.C=="" {
 		// add a pole at 20kHz for all cores
 		cfg.RC.R="8k"
 		cfg.RC.C="1n"
 	}
-	cfg.GlobalPole, cfg.GlobalFcut = calc_a(cfg.RC, fs)
-	cfg.GlobalPole = fmt.Sprintf("8'h%s",cfg.GlobalPole)
+	cfg.GlobalPole, cfg.GlobalFcut = calc_a(cfg.RC, fs,bits)
+	cfg.GlobalPole = fmt.Sprintf("%d'h%s",bits,cfg.GlobalPole)
 }
 
 
