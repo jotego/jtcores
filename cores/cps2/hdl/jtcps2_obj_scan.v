@@ -118,6 +118,7 @@ always @(posedge clk, posedge rst) begin
         dr_start   <= 0;
         dr_code    <= 0;
         dr_attr    <= 0;
+        dr_bank    <= 0;
         dr_hpos    <= 0;
         dr_prio    <= 0;
         last_start <= 0;
@@ -130,7 +131,11 @@ always @(posedge clk, posedge rst) begin
         // st4_y      <= 0;
         st3_code   <= 0;
         st3_attr   <= 0;
+        st3_prio   <= 0;
+        st3_bank   <= 0;
         st4_attr   <= 0;
+        st4_prio   <= 0;
+        st4_bank   <= 0;
     end else if(cen) begin
         last_start <= start;
 

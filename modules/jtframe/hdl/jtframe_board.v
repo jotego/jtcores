@@ -121,6 +121,7 @@ module jtframe_board #(parameter
     input        [23:0] dipsw,
     output       [12:0] hdmi_arx, hdmi_ary,
     output       [ 1:0] rotate,
+    output              rot_osdonly,
 
     output              enable_fm,
     output              enable_psg,
@@ -626,6 +627,7 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),
     .rot_control( rot_control   ),
+    .rot_osdonly( rot_osdonly   ),
     .enable_fm  ( enable_fm     ),
     .enable_psg ( enable_psg    ),
     .osd_pause  ( osd_pause     ),
