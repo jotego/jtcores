@@ -87,6 +87,7 @@ always @(posedge clk, posedge rst) begin
         wait_cycle <= 0;
         draw_cnt   <= 8'h0;
         rom_bank   <= 2'd0;
+        pxl_data   <= 0;
     end else begin
         wait_cycle <= 0;
         if( idle ) begin
