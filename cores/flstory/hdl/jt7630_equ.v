@@ -28,7 +28,7 @@ module jt7630_equ #( parameter
     input   [3:0] lo_setting,
     input   [3:0] hi_setting,
     input  signed [SW-1:0] sin, // can be unsigned if DCRM=0
-    output reg signed [SW-1:0] sout,
+    output signed [SW-1:0] sout,
     // debug - independent outputs
     output signed [SW-1:0] lopass0, lopass1, hipass0, hipass1
 );
