@@ -170,4 +170,4 @@ set_global_assignment -name DSP_BLOCK_BALANCING {{ if .Macros.JTFRAME_MIST_DSP_B
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"
 # Leave the blank line
-{{ if eq .Macros.TARGET "mist" }}SI{{else}}no{{end}}
+
