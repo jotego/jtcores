@@ -24,21 +24,20 @@ delete=[{names=["Unused","Unknown"]}]
 # or arguments passed to mame2mra
 regions = [
     { name="maincpu", width=16, reverse=true  },
-    { name="sub",     width=16, reverse=true  },
+    { name="sub",     width=16, reverse=true, start="JTFRAME_BA1_START"  },
     { name="data"  },
-    { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="fixed",    start="JTFRAME_BA2_START" },
+    { name="audiocpu", start="SND_START" },
+    { name="fixed",    start="JTFRAME_BA2_START"   },
     { name="data",     start="SCR_START", width=32 },
     { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
     { name="gfxrom",   skip=true, setname="cuebrickj" },
-    { name="k007232"  },
-    { name="upd"  }
+    { name="k007232",  start="PCM_START"  },
+    { name="upd",      start="UPD_START"  }
 ]
 
 order = [
     "maincpu", "sub", "data", "audiocpu",
-    "k007232", "upd",
-    "fixed", "gfxrom"
+    "fixed", "gfxrom", "k007232", "upd"
 ]
 
 patches = [

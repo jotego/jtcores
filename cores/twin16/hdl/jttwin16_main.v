@@ -28,7 +28,8 @@ module jttwin16_main(
     // 8-bit interface
     output               cpu_we,
     output               pal_we,
-
+    // sub CPU
+    output reg           sub_intn,
     // video status
     output reg           rom_cs,
     output reg           ram_cs,
@@ -64,8 +65,8 @@ module jttwin16_main(
     output reg           sndon,
 
     // video configuration
-    output reg           hflip, vflip,
-    output reg    [ 1:0] prio,
+    output reg           hflip, vflip, tilevf,
+    output reg    [ 2:0] prio,
     output reg    [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
     output reg    [ 9:0] obj_dx, obj_dy,
     output reg    [15:0] scr_bank,
@@ -86,7 +87,7 @@ module jttwin16_main(
 wire [23:1] A;
 wire [ 1:0] dws;
 wire        cpu_cen, cpu_cenb, pre_dtackn;
-wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
+wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
             pal_cs, dma_cs, crom_cs, orom_cs, int16en;
@@ -148,16 +149,17 @@ always @* begin
     vbank_cs = 0;
     crom_cs  = 0;
     orom_cs  = 0;
+
     if(!ASn && !A[23]) begin
         case( A[22:21] )
             0: casez( A[20:17] )
-                4'b1?00: fix_cs   = 1;
-                4'b1?01: vram_cs  = 1;
-                4'b1?10: oram_cs   = 1;
-                4'b000?: rom_cs   = 1;
-                4'b0010: ram_cs   = !BUSn;
-                4'b0100: pal_cs   = 1;
-                4'b0101: io_cs    = 1;     // A'0000~
+                4'b1?00: fix_cs  = 1;
+                4'b1?01: vram_cs = 1;
+                4'b1?10: oram_cs = 1;
+                4'b000?: rom_cs  = 1;
+                4'b0010: ram_cs  = !BUSn;
+                4'b0100: pal_cs  = 1;
+                4'b0101: io_cs   = 1;     // A'0000~
                 4'b0110: begin
                     dma_cs   = RnW;
                     syswr_cs = !RnW;
@@ -186,7 +188,7 @@ always @(posedge clk) begin
                16'h0;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         LVBLl <= 0;
         intn  <= 0;
@@ -212,7 +214,7 @@ always @(posedge clk) begin
     endcase
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         prio     <= 0;
         scra_x   <= 0;
@@ -228,11 +230,13 @@ always @(posedge clk, posedge rst) begin
         sndon    <= 0;
         crtkill  <= 0;
         dma_on   <= 0;
+        tilevf   <= 0;
+        sub_intn <= 1;
     end else begin
         if( vbank_cs ) scr_bank <= cpu_dout;
         if( syswr_cs )
             case( A[3:1] )
-                0:  { prio, hflip, vflip } <= cpu_dout[3:0];
+                0:  { tilevf, prio, hflip, vflip } <= cpu_dout[5:0];
                 1: obj_dx <= cpu_dout[9:0];
                 2: obj_dy <= cpu_dout[9:0];
                 3: scra_x <= cpu_dout[8:0];
@@ -243,7 +247,7 @@ always @(posedge clk, posedge rst) begin
             endcase
         if( io_cs && !A[16] ) begin
             case( {RnW, A[4:3]} )
-                0: {crtkill, dma_on, int16en, sndon} <= {cpu_dout[7:5],cpu_dout[3]};
+                0: {crtkill, dma_on, int16en, sub_intn, sndon} <= cpu_dout[7:3];
                 1: snd_latch <= cpu_dout[7:0];
                 default:;
             endcase

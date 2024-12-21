@@ -15202,6 +15202,16 @@
 		)
 		(uuid "1f1e3091-e623-4634-8fc0-09de85f098b3")
 	)
+	(wire
+		(pts
+			(xy 52.07 74.93) (xy 53.34 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f28277a-296d-4d64-8f0f-c766ded29eeb")
+	)
 	(bus
 		(pts
 			(xy 162.56 90.17) (xy 162.56 87.63)
@@ -19582,6 +19592,16 @@
 		)
 		(uuid "b93744e0-96aa-4da4-8f0c-06d4fa2aee68")
 	)
+	(wire
+		(pts
+			(xy 52.07 99.06) (xy 53.34 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b99dc528-6077-4d76-9f1f-272c8aa6f82e")
+	)
 	(bus
 		(pts
 			(xy 321.31 162.56) (xy 321.31 160.02)
@@ -23852,13 +23872,13 @@
 		(uuid "a447ea07-aee2-4768-9897-facb5854498e")
 	)
 	(label "~{SAS}"
-		(at 156.21 181.61 0)
+		(at 160.02 181.61 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "a514a1f9-319e-4854-bd4a-fb2006c92301")
 	)
@@ -25438,7 +25458,7 @@
 	)
 	(hierarchical_label "VBLANK"
 		(shape input)
-		(at 53.34 74.93 180)
+		(at 52.07 74.93 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -25486,7 +25506,7 @@
 	)
 	(hierarchical_label "~{SINT}"
 		(shape input)
-		(at 53.34 99.06 180)
+		(at 52.07 99.06 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -32197,6 +32217,7 @@
 		(lib_id "jt74:74LS08")
 		(at 90.17 93.98 0)
 		(unit 2)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)

@@ -25206,13 +25206,13 @@
 		(uuid "2f5e351f-bd5f-4586-b8b4-e1c229607f10")
 	)
 	(label "MAS"
-		(at 182.88 247.65 0)
+		(at 186.69 247.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "303b1653-8310-44ab-988c-bd13a546face")
 	)
@@ -28517,13 +28517,13 @@
 		(uuid "fb7ebb2d-cd96-408c-80c9-62c28eadbf17")
 	)
 	(label "~{MLWR}"
-		(at 212.09 234.95 0)
+		(at 217.17 234.95 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "fbcec632-4037-4fe5-b77a-9a3ffad1291f")
 	)
@@ -31129,6 +31129,7 @@
 		(lib_id "jt74:74LS32")
 		(at 49.53 170.18 0)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -33769,6 +33770,7 @@
 		(lib_id "jt74:74LS08")
 		(at 85.09 86.36 0)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -36849,6 +36851,7 @@
 		(lib_id "74xx:74LS21")
 		(at 73.66 146.05 0)
 		(unit 2)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)

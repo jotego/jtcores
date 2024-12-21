@@ -25,62 +25,51 @@ audio: #Dark adventure
 
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: ram
+    - buses:
+        - name: ram
           addr_width: 14
           data_width: 16
           offset: RAM_OFFSET
           rw: true
-        -
-          name: main
+        - name: main
+          addr_width: 18
+          data_width: 16
+    - buses:
+        # sub includes MAME's "data" ROM region
+        - name: sub
           addr_width: 19
           data_width: 16
-    -
-      buses:
-        -
-          name: snd
+        - name: snd
           addr_width: 15
           data_width: 8
-        -
-          name: pcma
+    - buses:
+        - name: lyrf
+          addr_width: 14
+          data_width: 32
+        - name: lyra
+          addr_width: 20
+          data_width: 32
+          offset: SCR_OFFSET
+        - name: lyrb
+          addr_width: 20
+          data_width: 32
+          offset: SCR_OFFSET
+    - buses:
+        - name: lyro
+          addr_width: 20
+          data_width: 32
+        - name: pcma
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: pcmb
+        - name: pcmb
           addr_width: 21
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: upd
+        - name: upd
           addr_width: 17
           data_width: 8
           offset: UPD_OFFSET
-    -
-      buses:
-        -
-          name: lyrf
-          addr_width: 14
-          data_width: 32
-        -
-          name: lyra
-          addr_width: 20
-          data_width: 32
-          offset: SCR_OFFSET
-        -
-          name: lyrb
-          addr_width: 20
-          data_width: 32
-          offset: SCR_OFFSET
-
-    -
-      buses:
-        -
-          name: lyro
-          addr_width: 20
-          data_width: 32
 bram:
   # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
   - name: fram
