@@ -113,12 +113,9 @@ fi
 echo "Copying to $JTBIN"
 cd $JTBIN
 if [ -d .git ]; then
-	BRANCH=jtcores_$HASH
 	git reset --hard
 	git clean -fd .
 	git checkout master
-	git branch -D $BRANCH 2> /dev/null || true
-	git checkout -b $BRANCH
 	rm -rf mist sidi* pocket mister mra
 fi
 # refresh schematics
@@ -174,6 +171,6 @@ git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 # also mark the commit in jtcores as the current release
 cd $JTROOT
 (git tag -f JTBIN && git push --tags --force) || echo "Could not tag the release on jtcores"
-
+echo "Remember to git push"
 # clean up
 rm -rf $DST
