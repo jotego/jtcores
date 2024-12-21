@@ -14921,13 +14921,13 @@
 		(uuid "0bf73a56-f82c-4d4a-9256-b5bec30541b7")
 	)
 	(label "2PSHOOT3"
-		(at 274.32 130.81 0)
+		(at 284.48 130.81 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "0fab819e-c51d-43ea-80bc-c8f96b549129")
 	)
@@ -15207,13 +15207,13 @@
 		(uuid "278f1d27-3ac6-45d5-b26f-7ce0ca8d1419")
 	)
 	(label "2PSTART"
-		(at 274.32 113.03 0)
+		(at 284.48 113.03 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "2943fdb0-0f8f-4d94-acc7-9433fa3f8709")
 	)
@@ -15350,13 +15350,13 @@
 		(uuid "3738e903-095e-4efe-ac44-03fc8821f82e")
 	)
 	(label "COIN2"
-		(at 274.32 110.49 0)
+		(at 284.48 110.49 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3ccb079c-ad56-4a1e-93bd-ccc01e69e98d")
 	)
@@ -15372,13 +15372,13 @@
 		(uuid "3f8003c3-8dc0-431e-bfc2-fde270b46e28")
 	)
 	(label "2PLEFT"
-		(at 274.32 120.65 0)
+		(at 284.48 120.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3fc9284c-3d86-468e-a642-2a32220bc012")
 	)
@@ -15625,13 +15625,13 @@
 		(uuid "5331fcb1-bcca-425b-9c23-3127dda352b3")
 	)
 	(label "COIN2"
-		(at 184.15 173.99 0)
+		(at 190.5 173.99 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "55f9d4d0-58b3-4a88-b07d-685f40439ddd")
 	)
@@ -15669,13 +15669,13 @@
 		(uuid "5be70613-72d5-448c-91cd-4a0d98d7b728")
 	)
 	(label "COIN1"
-		(at 184.15 171.45 0)
+		(at 190.5 171.45 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "5cace6f9-a3f9-4d66-bd40-b056dde0596b")
 	)
@@ -16230,13 +16230,13 @@
 		(uuid "8cf5e609-e0ba-4b86-a59b-b792294909b4")
 	)
 	(label "2PUP"
-		(at 274.32 115.57 0)
+		(at 284.48 115.57 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "90e54de3-e814-44a5-bc49-2eef2ab87782")
 	)
@@ -16318,13 +16318,13 @@
 		(uuid "973e0bb6-8277-45f1-8c79-7a9e2d10b12e")
 	)
 	(label "SERVICE1"
-		(at 274.32 105.41 0)
+		(at 284.48 105.41 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "975580ea-704a-4f19-8622-e0558e50f692")
 	)
@@ -16395,13 +16395,13 @@
 		(uuid "9ae8da01-b20e-470d-acff-b3627c948744")
 	)
 	(label "COINCOUNTER2"
-		(at 275.59 90.17 0)
+		(at 289.56 90.17 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9b71294e-30c7-4d72-a866-f5dc7486f11a")
 	)
@@ -16659,13 +16659,13 @@
 		(uuid "b453b36d-7ede-4dbc-be23-c940d5f8356b")
 	)
 	(label "2PSHOOT1"
-		(at 274.32 125.73 0)
+		(at 284.48 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "b45e1988-728f-423c-8ef3-27232eeec697")
 	)
@@ -16780,24 +16780,24 @@
 		(uuid "c0ba9cfd-b6cb-4f8b-be89-251da547a6b3")
 	)
 	(label "2PDOWN"
-		(at 274.32 118.11 0)
+		(at 284.48 118.11 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "c2285d22-d5e4-46c8-b6f6-01d59d126ecc")
 	)
 	(label "2PSHOOT2"
-		(at 274.32 128.27 0)
+		(at 284.48 128.27 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "c30a2edc-f9bb-4945-b70c-91ea67057bf2")
 	)
@@ -16879,13 +16879,13 @@
 		(uuid "c79b7cfa-c06a-4d0b-9d65-bd3c984f41ba")
 	)
 	(label "2PRIGHT"
-		(at 274.32 123.19 0)
+		(at 284.48 123.19 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "c937cc2e-3a27-4a0f-a207-ee2d4e558590")
 	)
@@ -17385,13 +17385,13 @@
 		(uuid "f9a4fc5d-5b36-46a9-b3a9-428ad2cc1163")
 	)
 	(label "GAMEEND"
-		(at 184.15 189.23 0)
+		(at 193.04 189.23 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "fc9ca458-f69a-4ede-9e87-fc323c3c6071")
 	)

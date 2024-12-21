@@ -23807,13 +23807,13 @@
 		(uuid "2ae2e432-2b99-4c79-9918-9b34b6f06cd2")
 	)
 	(label "~{BSY}"
-		(at 140.97 39.37 0)
+		(at 144.78 39.37 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "2aea1b5c-7ac2-47a6-9af5-52eba477a2a1")
 	)
@@ -24170,13 +24170,13 @@
 		(uuid "4c17b695-d2e2-4d10-9212-97c2c35b3f54")
 	)
 	(label "~{DACS}"
-		(at 140.97 29.21 0)
+		(at 146.05 29.21 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "4d1f2e85-861a-4f78-b7dd-7720111c7522")
 	)
@@ -24302,13 +24302,13 @@
 		(uuid "54345718-00bf-4845-b4fe-3d84c76726b2")
 	)
 	(label "~{VDIN}"
-		(at 140.97 34.29 0)
+		(at 146.05 34.29 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "546af270-81e7-4458-b808-4e7304a3cce3")
 	)
@@ -25193,13 +25193,13 @@
 		(uuid "9b190b5c-d242-4712-ba24-9157c2b81d65")
 	)
 	(label "~{RESET}"
-		(at 140.97 24.13 0)
+		(at 147.32 24.13 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9bc127b5-303b-4a57-8db2-565ba103cea8")
 	)
@@ -26040,13 +26040,13 @@
 		(uuid "e1128f40-2630-4424-9717-1ca076abff62")
 	)
 	(label "~{VST}"
-		(at 140.97 36.83 0)
+		(at 146.05 36.83 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "e20e8779-6fdd-4055-b00a-a1e9e4026825")
 	)

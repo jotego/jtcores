@@ -5183,7 +5183,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 76.2) (xy 92.71 76.2)
+			(xy 85.09 76.2) (xy 93.98 76.2)
 		)
 		(stroke
 			(width 0)
@@ -5293,7 +5293,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 71.12) (xy 92.71 71.12)
+			(xy 85.09 71.12) (xy 93.98 71.12)
 		)
 		(stroke
 			(width 0)
@@ -6943,7 +6943,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 73.66) (xy 92.71 73.66)
+			(xy 85.09 73.66) (xy 93.98 73.66)
 		)
 		(stroke
 			(width 0)
@@ -7601,13 +7601,13 @@
 		(uuid "20513fd6-04b8-4150-87ca-8f65da48a310")
 	)
 	(label "~{CLWR}"
-		(at 85.09 71.12 0)
+		(at 93.98 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "22a59a10-fb34-410a-8561-2ac2f6f4e3d8")
 	)
@@ -7689,13 +7689,13 @@
 		(uuid "2c544d8e-3c69-429f-b00c-3caa18001f99")
 	)
 	(label "~{MWREN}"
-		(at 85.09 63.5 0)
+		(at 92.71 63.5 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "2ca440d3-41a9-47b2-a3e0-be3b7e3e20dd")
 	)
@@ -7986,13 +7986,13 @@
 		(uuid "52839d01-beb8-4f29-a6c1-26ba584a6733")
 	)
 	(label "~{CUWR}"
-		(at 85.09 76.2 0)
+		(at 93.98 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "52bdf8a7-052a-4ba1-a2bf-a2ebb8e20541")
 	)
@@ -8195,13 +8195,13 @@
 		(uuid "7d2d986a-6746-4f74-b48b-9da76a5456f9")
 	)
 	(label "~{SCOMRD}"
-		(at 85.09 58.42 0)
+		(at 92.71 58.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "8043b9f3-02f5-4a8b-b64f-5436a51de444")
 	)
@@ -8525,13 +8525,13 @@
 		(uuid "bbf70d3f-dfe3-434c-9644-483143330969")
 	)
 	(label "~{SWREN}"
-		(at 85.09 60.96 0)
+		(at 92.71 60.96 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "bde49d57-fb04-4fea-8469-199e1608a132")
 	)
@@ -9108,13 +9108,13 @@
 		(uuid "fb7fd6a8-02f3-4a75-b54b-0c4abf342127")
 	)
 	(label "~{MCOMRD}"
-		(at 85.09 73.66 0)
+		(at 93.98 73.66 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "fbafaa46-68f8-45b4-82b7-f2c0ef78370d")
 	)
