@@ -41,8 +41,6 @@ module jttwin16_main(
     // video ROM checks
     input         [31:0] scr_data,
     input                scr_ok,
-    input         [31:0] obj_data,
-    input                obj_ok,
 
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
@@ -65,10 +63,10 @@ module jttwin16_main(
     output reg           sndon,
 
     // video configuration
-    output reg           hflip, vflip, tilevf,
+    output reg           hflip, vflip, tilevf, cpuctl,
     output reg    [ 2:0] prio,
     output reg    [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
-    output reg    [ 9:0] obj_dx, obj_dy,
+    output reg    [15:0] obj_dx, obj_dy,
     output reg    [15:0] scr_bank,
 
     input         [ 6:0] joystick1,
@@ -128,9 +126,9 @@ always @* begin
         5: st_dout = scr_bank[ 7:0];
         6: st_dout = scr_bank[15:8];
         7: st_dout = obj_dx[ 7:0];
-        8: st_dout = { 6'd0, obj_dx[9:8] };
+        8: st_dout = obj_dx[15:8];
         9: st_dout = obj_dy[ 7:0];
-       10: st_dout = { 6'd0, obj_dy[9:8] };
+       10: st_dout = obj_dy[15:8];
        11: st_dout = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
        default: st_dout = 0;
     endcase
@@ -184,7 +182,6 @@ always @(posedge clk) begin
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
                crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
-               orom_cs ? ( A[1] ? obj_data[31:16] : obj_data[15:0] ) :
                16'h0;
 end
 
@@ -231,19 +228,22 @@ always @(posedge clk) begin
         crtkill  <= 0;
         dma_on   <= 0;
         tilevf   <= 0;
+        cpuctl   <= 0;  //
         sub_intn <= 1;
     end else begin
         if( vbank_cs ) scr_bank <= cpu_dout;
         if( syswr_cs )
+            // this register is partly implemented on 007779 and
+            // partly on discrete standard logic
             case( A[3:1] )
                 0:  { tilevf, prio, hflip, vflip } <= cpu_dout[5:0];
-                1: obj_dx <= cpu_dout[9:0];
-                2: obj_dy <= cpu_dout[9:0];
-                3: scra_x <= cpu_dout[8:0];
-                4: scra_y <= cpu_dout[8:0];
-                5: scrb_x <= cpu_dout[8:0];
-                6: scrb_y <= cpu_dout[8:0];
-                default:;
+                1: obj_dx <= cpu_dout[15:0];
+                2: obj_dy <= cpu_dout[15:0];
+                3: scra_x <= cpu_dout[ 8:0];
+                4: scra_y <= cpu_dout[ 8:0];
+                5: scrb_x <= cpu_dout[ 8:0];
+                6: scrb_y <= cpu_dout[ 8:0];
+                7: cpuctl <= cpu_dout[   0];
             endcase
         if( io_cs && !A[16] ) begin
             case( {RnW, A[4:3]} )

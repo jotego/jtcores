@@ -29,7 +29,7 @@ wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
 wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] scr_bank;
 wire [19:1] cpu_addr;
-wire [ 1:0] prio;
+wire [ 1:0] prio, vam_we, vbm_we, om_we, vas_we, vbs_we,os_we;
 reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
 // reg  [ 2:0] game_id;
@@ -73,6 +73,14 @@ end
 //         game_id <= prog_data[2:0];
 // end
 
+jttwin16_share u_share(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .cen            ( cpu_cen       ),
+    .tim1           ( tim1          ),  // main CPU has access to video
+    .tim2           ( tim2          )   // sub CPU does
+);
+
 /* verilator tracing_on */
 jttwin16_main u_main(
     .rst            ( rst           ),
@@ -94,8 +102,6 @@ jttwin16_main u_main(
     // Video ROM check
     .scr_data       ( lyra_data     ),
     .scr_ok         ( lyra_ok       ),
-    .obj_data       ( lyro_data     ),
-    .obj_ok         ( lyro_ok       ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
@@ -108,11 +114,11 @@ jttwin16_main u_main(
     .mf_dout        ( mf_dout       ),
     .mo_dout        ( mo_dout       ),
     .mp_dout        ( mp_dout       ),
-    .va_we          ( va_we         ),
-    .vb_we          ( vb_we         ),
+    .va_we          ( vam_we        ),
+    .vb_we          ( vbm_we        ),
     .fx_we          ( fx_we         ),
-    .obj_we         ( obj_we        ),
-    .tim            ( tim           ),
+    .obj_we         ( om_we         ),
+    .tim            ( tim1          ),
 
     // To video
     .prio           ( prio          ),
@@ -151,7 +157,6 @@ jttwin16_video u_video (
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),
     .crtkill        ( crtkill       ),
-    .tim            ( tim           ),
 
     .cpu_prio       ( prio          ),
     .scr_bank       ( scr_bank      ),

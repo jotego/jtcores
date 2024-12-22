@@ -1594,9 +1594,9 @@
 		)
 		(symbol "power:VDD"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1610,7 +1610,7 @@
 				)
 			)
 			(property "Value" "VDD"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1694,8 +1694,8 @@
 			(symbol "VDD_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VDD"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1714,9 +1714,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1730,7 +1730,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1802,8 +1802,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3171,7 +3171,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 62.23) (xy 91.44 62.23)
+			(xy 85.09 62.23) (xy 90.17 62.23)
 		)
 		(stroke
 			(width 0)
@@ -3181,7 +3181,7 @@
 	)
 	(wire
 		(pts
-			(xy 85.09 71.12) (xy 91.44 71.12)
+			(xy 85.09 71.12) (xy 90.17 71.12)
 		)
 		(stroke
 			(width 0)
@@ -5255,13 +5255,13 @@
 		(uuid "01afd605-bbe0-4f30-a818-19d1cc6fa780")
 	)
 	(label "V8F"
-		(at 85.09 43.18 0)
+		(at 88.9 43.18 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "0c18f145-ab9f-4c45-9816-fe694be4a75c")
 	)
@@ -5442,13 +5442,13 @@
 		(uuid "2c7556ce-3c05-411c-a4df-c77227b85e8f")
 	)
 	(label "HS256F"
-		(at 72.39 179.07 0)
+		(at 77.47 179.07 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "2d95fc8a-364d-4b5d-a4ef-487ec8cc0c90")
 	)
@@ -5530,13 +5530,13 @@
 		(uuid "3b63320e-871e-48fd-b7e4-491d7de8b198")
 	)
 	(label "V16F"
-		(at 85.09 52.07 0)
+		(at 88.9 52.07 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3b8c5c3c-b50d-4df7-878f-34265189d078")
 	)
@@ -5618,13 +5618,13 @@
 		(uuid "53536017-90a8-4d49-8473-b02db7e2dc6b")
 	)
 	(label "HS32F"
-		(at 72.39 153.67 0)
+		(at 77.47 153.67 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "53c38023-8f1a-4f89-8afd-22e5912988c0")
 	)
@@ -5706,13 +5706,13 @@
 		(uuid "5d8d486a-baf7-4298-9969-4f994eaa7575")
 	)
 	(label "HS128F"
-		(at 72.39 170.18 0)
+		(at 77.47 170.18 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "5f8a56b3-97d1-4bef-9d0e-c4be6e8d794e")
 	)
@@ -5794,13 +5794,13 @@
 		(uuid "7be89dfb-281c-413a-9dad-0e3291de0f29")
 	)
 	(label "H16F"
-		(at 72.39 135.89 0)
+		(at 76.2 135.89 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "7bf2d828-c8ab-49f0-a357-80ea12255d3a")
 	)
@@ -5959,13 +5959,13 @@
 		(uuid "96f2c4dc-e3e4-4ebb-bede-76e6d43f88fc")
 	)
 	(label "H8F"
-		(at 72.39 127 0)
+		(at 76.2 127 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "98cf8c32-4342-4b9d-a9a2-481741859115")
 	)
@@ -6003,24 +6003,24 @@
 		(uuid "a582d03c-3c53-49d4-b52f-b731bec5939f")
 	)
 	(label "V2F"
-		(at 85.09 25.4 0)
+		(at 88.9 25.4 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "a7a92436-36ae-4e25-8d98-c1ec027ac555")
 	)
 	(label "V32F"
-		(at 85.09 62.23 0)
+		(at 90.17 62.23 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "a8f5b8c1-7158-4d19-a02f-4cef2e849953")
 	)
@@ -6245,13 +6245,13 @@
 		(uuid "d0c15bf9-f286-4978-802f-ed057602f085")
 	)
 	(label "HS64F"
-		(at 72.39 162.56 0)
+		(at 77.47 162.56 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "d2d4bb19-fccd-4b29-b5fa-ed8ee5d2679b")
 	)
@@ -6322,13 +6322,13 @@
 		(uuid "e5ee9826-7eeb-4238-9218-43df67fd58ac")
 	)
 	(label "V4F"
-		(at 85.09 34.29 0)
+		(at 88.9 34.29 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "e6b50acd-8f6f-4ec5-87e2-967660f32a1f")
 	)
@@ -6355,13 +6355,13 @@
 		(uuid "efbbef4e-8fd7-42b4-97cd-ab87134e779e")
 	)
 	(label "V64F"
-		(at 85.09 71.12 0)
+		(at 90.17 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "f046e487-bf18-4301-9ff5-2f0beb6b1e7b")
 	)
@@ -6839,7 +6839,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 39.37 176.53 0)
 			(effects
 				(font
@@ -7095,7 +7095,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 33.02 158.75 0)
 			(effects
 				(font
@@ -7300,7 +7300,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 39.37 35.56 0)
 			(effects
 				(font
@@ -7470,7 +7470,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 33.02 163.83 0)
 			(effects
 				(font
@@ -7535,7 +7535,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 34.29 74.93 0)
 			(effects
 				(font
@@ -8163,7 +8163,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 251.46 66.04 0)
 			(effects
 				(font
@@ -8307,7 +8307,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 251.46 134.62 0)
 			(effects
 				(font
@@ -9049,7 +9049,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 34.29 130.81 0)
 			(effects
 				(font
@@ -9114,7 +9114,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 39.37 30.48 0)
 			(effects
 				(font
@@ -9458,7 +9458,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 203.2 66.04 0)
 			(effects
 				(font
@@ -9699,7 +9699,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 39.37 120.65 0)
 			(effects
 				(font
@@ -9764,7 +9764,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
 			(at 39.37 67.31 0)
 			(effects
 				(font
@@ -9901,7 +9901,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 203.2 134.62 0)
 			(effects
 				(font

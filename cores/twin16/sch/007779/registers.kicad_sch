@@ -4675,6 +4675,16 @@
 		)
 		(uuid "16d55d2b-22ff-45da-ae65-1e027100988a")
 	)
+	(text "A[3:1]==5"
+		(exclude_from_sim no)
+		(at 109.22 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "247c9918-4978-4ace-a44c-cbc60f8c7ae4")
+	)
 	(text "Address: 0h\nCPU Address: 0h"
 		(exclude_from_sim no)
 		(at 60.96 27.94 0)
@@ -4762,6 +4772,16 @@
 			(justify left bottom)
 		)
 		(uuid "c2486869-1b6b-4d49-8c95-05e68f60aa32")
+	)
+	(text "A[3:1]==3"
+		(exclude_from_sim no)
+		(at 49.53 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c327be80-6fa2-4678-8363-cbe849ff3475")
 	)
 	(text "Horizontal scroll\nTilemap 2"
 		(exclude_from_sim no)
@@ -4929,13 +4949,13 @@
 		(uuid "2715fa19-3c13-47da-9a05-fed29f31b3a0")
 	)
 	(label "AB3'"
-		(at 50.8 57.15 0)
+		(at 55.88 57.15 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "27bbb5c2-1a8f-470d-bd63-83adcaf27e97")
 	)
@@ -5369,13 +5389,13 @@
 		(uuid "7ca9068f-29bf-4787-b4e4-742d605bc6c5")
 	)
 	(label "SFLGW"
-		(at 50.8 72.39 0)
+		(at 57.15 72.39 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "7e201b79-1ecc-48fb-aee0-64adbcac04d3")
 	)
@@ -5776,13 +5796,13 @@
 		(uuid "e981388f-a328-4521-bdcd-44c5859c8630")
 	)
 	(label "AB2'"
-		(at 50.8 35.56 0)
+		(at 55.88 35.56 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "efd801dc-42f1-4e52-8161-34892e079bee")
 	)
@@ -5809,13 +5829,13 @@
 		(uuid "f5eab371-432c-431f-a273-eec5d9de301e")
 	)
 	(label "AB1'"
-		(at 50.8 45.72 0)
+		(at 55.88 45.72 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "f657bd9a-0c6a-427a-a359-d71e4fad35e6")
 	)
@@ -6928,6 +6948,7 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:FDO")
 		(lib_id "ga_fujitsu_av:FDO")
 		(at 252.73 125.73 0)
 		(unit 1)

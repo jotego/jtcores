@@ -16678,9 +16678,9 @@
 		)
 		(uuid "fffd46ef-3b2c-4f5a-8cec-f38cfc3c2582")
 	)
-	(text "Graphics ROM and RAM"
+	(text "Graphics Tile Data (ROM and RAM)"
 		(exclude_from_sim no)
-		(at 186.69 20.32 0)
+		(at 173.99 19.05 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -17537,13 +17537,13 @@
 		(uuid "328a1a03-1ad3-41a1-ab30-1d4f27c658b3")
 	)
 	(label "~{OCRDL}"
-		(at 80.01 232.41 0)
+		(at 86.36 232.41 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3303358a-90d4-4d7b-89bc-3c58b1f959bb")
 	)
@@ -18318,13 +18318,13 @@
 		(uuid "661a64c7-bfe1-48bf-b97b-466eb601fd0c")
 	)
 	(label "~{OCWH}"
-		(at 80.01 224.79 0)
+		(at 86.36 224.79 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "666f0074-b2b3-486b-a2fa-5963abc40958")
 	)
@@ -18593,13 +18593,13 @@
 		(uuid "73bd5573-47a8-4b75-a3eb-9c02f06ad29f")
 	)
 	(label "~{OCRDH}"
-		(at 80.01 227.33 0)
+		(at 86.36 227.33 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "757f264b-958a-4097-b1f5-345fb5811071")
 	)
@@ -20331,13 +20331,13 @@
 		(uuid "e0b9a745-1a61-49d0-9c45-7ecb3860066f")
 	)
 	(label "~{OCWL}"
-		(at 80.01 229.87 0)
+		(at 86.36 229.87 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "e19cb944-1c4b-41a8-a7e5-79833424ad0a")
 	)

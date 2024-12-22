@@ -27687,6 +27687,17 @@
 		)
 		(uuid "8dc40a68-33c9-465e-b5df-76f5d5144a01")
 	)
+	(text "CPUCTL flag must be set in 007779\nto get the VA bus driven by the CPUs"
+		(exclude_from_sim no)
+		(at 21.59 187.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8de954b3-f4ca-41f5-9406-66c99fd85185")
+	)
 	(text "P4H"
 		(exclude_from_sim no)
 		(at 87.63 237.49 0)

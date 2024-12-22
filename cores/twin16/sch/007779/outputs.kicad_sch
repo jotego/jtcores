@@ -672,12 +672,6 @@
 		(uuid "b9dde134-037f-40b0-9abe-53ed55f62684")
 	)
 	(junction
-		(at 58.42 110.49)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bf569864-7fb0-4d2e-8b83-531ffc5da21d")
-	)
-	(junction
 		(at 55.88 85.09)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1416,16 +1410,6 @@
 			(type default)
 		)
 		(uuid "1d0a5af7-3223-4ad8-b8cb-95390310184e")
-	)
-	(wire
-		(pts
-			(xy 55.88 110.49) (xy 58.42 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1edb24f0-88f1-4bb6-964b-e722a2f90b03")
 	)
 	(wire
 		(pts
@@ -2176,6 +2160,16 @@
 			(type default)
 		)
 		(uuid "6b41043d-233c-470d-849f-5f4080effe55")
+	)
+	(wire
+		(pts
+			(xy 55.88 102.87) (xy 58.42 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bf04016-f94b-4755-9555-f1b583feaabe")
 	)
 	(wire
 		(pts
@@ -3017,6 +3011,16 @@
 		)
 		(uuid "b1ce7a59-ef38-4669-be2a-6988b2606250")
 	)
+	(wire
+		(pts
+			(xy 55.88 110.49) (xy 76.2 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b25ae045-b3d2-4f1b-8e29-33e0610d8a12")
+	)
 	(bus
 		(pts
 			(xy 43.18 165.1) (xy 43.18 167.64)
@@ -3029,7 +3033,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 102.87) (xy 58.42 110.49)
+			(xy 55.88 102.87) (xy 55.88 110.49)
 		)
 		(stroke
 			(width 0)
@@ -3046,16 +3050,6 @@
 			(type default)
 		)
 		(uuid "b454e797-082b-40c0-8e00-4daa3d7b63bc")
-	)
-	(wire
-		(pts
-			(xy 58.42 110.49) (xy 76.2 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4e6f57e-2b0a-40ea-ac55-4d873e2165d9")
 	)
 	(bus
 		(pts
@@ -4080,13 +4074,13 @@
 		(uuid "1a955d20-f0a7-43a5-8ccc-b70fb5d6fd2c")
 	)
 	(label "SELTIL' "
-		(at 68.58 74.93 0)
+		(at 76.2 74.93 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "1c195af5-f6ab-4b12-be10-55fcd9b52721")
 	)
@@ -4245,13 +4239,13 @@
 		(uuid "362792e8-201f-42a7-84d4-cb52f17e94c8")
 	)
 	(label "SELCPU"
-		(at 68.58 91.44 0)
+		(at 76.2 91.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "36f866e1-3405-4684-81aa-9725b34d8799")
 	)
@@ -4729,13 +4723,13 @@
 		(uuid "7f19be03-0c9d-4a72-a036-af0a1038b524")
 	)
 	(label "SEL2'"
-		(at 68.58 116.84 0)
+		(at 76.2 116.84 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "80844403-3fb5-4197-9ca9-f28048fcd279")
 	)
@@ -4795,13 +4789,13 @@
 		(uuid "88373cf2-9549-40a8-839b-86de299009fa")
 	)
 	(label "SEL1"
-		(at 68.58 110.49 0)
+		(at 76.2 110.49 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "8adc0d74-534e-41a3-a531-833a4413337b")
 	)
@@ -4861,13 +4855,13 @@
 		(uuid "9274bbf3-1ecb-47bf-a488-493e93cc4ef1")
 	)
 	(label "SELTIL"
-		(at 68.58 85.09 0)
+		(at 76.2 85.09 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "93a2716a-c0c5-4cce-8ad1-1a4a47784c54")
 	)
@@ -4916,13 +4910,13 @@
 		(uuid "994ebc76-2c3f-49d3-b834-d11a42ac21d2")
 	)
 	(label "SEL2"
-		(at 68.58 102.87 0)
+		(at 76.2 102.87 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9a23e9dd-3d44-4e04-97db-00fa70e93597")
 	)

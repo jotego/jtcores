@@ -21,7 +21,6 @@ module jttwin16_video(
     input             clk,
     input             pxl_cen,
 
-    output reg        tim,      // similar to tim1, tim2 in schematics. Goes low every 8 pixels
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -148,7 +147,6 @@ assign lyro_addr[19:2] = crtkill ? cpu_addr[19:2] : preo_addr;
 
 always @(posedge clk) begin
     flip <= hflip & vflip;
-    if( pxl_cen ) tim <= hdump[2:0]!=4;
 end
 // functionality done by 007782
 // measured on PCB
