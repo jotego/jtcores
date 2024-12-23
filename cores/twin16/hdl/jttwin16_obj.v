@@ -29,7 +29,7 @@ module jttwin16_obj(
 
     input      [ 8:0] vdump,
     input      [ 8:0] hdump,
-    input      [ 9:0] obj_dx, obj_dy,
+    input      [15:0] obj_dx, obj_dy,
 
     // Object RAM
     output     [13:1] oram_addr,
@@ -41,7 +41,7 @@ module jttwin16_obj(
     output            dma_bsy,
 
     // ROM addressing
-    output     [17:0] rom_addr, // code + 1 bit. VH mostly embedded in core
+    output     [20:2] rom_addr, // code + 1 bit. VH mostly embedded in core
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -50,16 +50,16 @@ module jttwin16_obj(
     output     [ 7:0] pxl
 );
 
-localparam CW=17;
+localparam CW=18; // upper bit selects ROM/RAM
 
 wire [CW-1:0] code;
 wire [ 3:0] attr;
 wire [ 1:0] hsize;
 wire        hflip;
-wire [ 8:0] hpos;
+wire [15:0] hpos;
 wire        dr_start, dr_busy;
 
-jt00778x #(.CW(CW)) u_scan(    // sprite logic
+jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -118,7 +118,7 @@ jttwin16_objdraw #(
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
     .code       ( code      ),
-    .xpos       ( hpos      ),
+    .xpos       ( hpos[8:0] ),
 
     .hflip      ( ~hflip    ),
     .hsize      ( hsize     ),

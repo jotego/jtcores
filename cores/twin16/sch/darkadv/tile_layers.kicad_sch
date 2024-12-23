@@ -27269,6 +27269,18 @@
 		)
 		(uuid "03a7bcd1-796d-4e3f-bf28-619fccd763cc")
 	)
+	(text "256kB tile RAM\n16-bit access by CPU\n32-bit access by video"
+		(exclude_from_sim no)
+		(at 226.06 46.99 0)
+		(effects
+			(font
+				(size 1.651 1.651)
+				(thickness 0.2064)
+			)
+			(justify left)
+		)
+		(uuid "04afd9cf-fb24-46ea-8a9b-a2586f3dc3ce")
+	)
 	(text "N2H"
 		(exclude_from_sim no)
 		(at 87.63 233.68 0)
@@ -27598,6 +27610,17 @@
 			(justify left bottom)
 		)
 		(uuid "7cca24a7-d836-4a97-8300-c0c5985d351a")
+	)
+	(text "64k x 4bit"
+		(exclude_from_sim no)
+		(at 238.76 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7da1722f-9621-46a6-aa90-6b2a302753a5")
 	)
 	(text "~{MREAD2}"
 		(exclude_from_sim no)

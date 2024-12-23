@@ -20,28 +20,26 @@ module jttwin16_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    // input         [ 2:0] game_id,
+    output               cpu_cen,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
+    output               ram_we,
     // 8-bit interface
-    output               cpu_we,
     output               pal_we,
     // sub CPU
     output reg           sub_intn,
     // video status
     output reg           rom_cs,
     output reg           ram_cs,
-    output reg           crtkill,
     output reg           dma_on,
     input                dma_bsy,
     input                tim,
-
-    // video ROM checks
-    input         [31:0] scr_data,
-    input                scr_ok,
-
+    input                mint,
+    // shared RAM
+    output        [ 1:0] sh_we,
+    input         [15:0] sh_dout,
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
     input         [15:0] mb_dout,   // scroll B
@@ -63,11 +61,10 @@ module jttwin16_main(
     output reg           sndon,
 
     // video configuration
-    output reg           hflip, vflip, tilevf, cpuctl,
+    output reg           hflip, vflip, vramcvf,
     output reg    [ 2:0] prio,
     output reg    [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
     output reg    [15:0] obj_dx, obj_dy,
-    output reg    [15:0] scr_bank,
 
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
@@ -75,7 +72,6 @@ module jttwin16_main(
     input         [ 1:0] coin,
     input                service,
     input                dip_pause,
-    input                dip_test,
     input         [19:0] dipsw,
     output reg    [ 7:0] st_dout,
     input         [ 7:0] debug_bus
@@ -84,15 +80,15 @@ module jttwin16_main(
 
 wire [23:1] A;
 wire [ 1:0] dws;
-wire        cpu_cen, cpu_cenb, pre_dtackn;
-wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
+wire        cpu_cenb, pre_dtackn, cpu_we,
+            UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
-            pal_cs, dma_cs, crom_cs, orom_cs, int16en;
+            pal_cs, dma_cs, sh_cs, int16enb;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-reg         intn, LVBLl;
-wire        bus_cs, bus_busy, BUSn;
+reg         LVBLl;
+wire        comm_intn, intn, bus_cs, bus_busy, BUSn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -100,16 +96,17 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = { intn, 1'b1, intn };
-assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs;
-assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) |
-                  (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok);
+assign IPLn     = { intn & comm_intn, intn, ~(intn & ~comm_intn) };
+assign bus_cs   = rom_cs | ram_cs;
+assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & cpu_we & ~LDSn;
 assign VPAn     = ~( A[23] & ~ASn );
 assign dws      = ~({2{RnW}} | {UDSn, LDSn});
+assign ram_we   = !RnW && ram_cs && {UDSn, LDSn}!=3;
+assign sh_we    = dws & {2{sh_cs}};
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
 assign fx_we    = dws & {2{fix_cs}};
@@ -122,81 +119,75 @@ always @* begin
         1: st_dout = scrb_x[7:0];
         2: st_dout = scra_y[7:0];
         3: st_dout = scrb_y[7:0];
-        4: st_dout = { vflip, hflip, prio, scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
-        5: st_dout = scr_bank[ 7:0];
-        6: st_dout = scr_bank[15:8];
+        4: st_dout = { vflip, hflip, prio[1:0], scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
         7: st_dout = obj_dx[ 7:0];
         8: st_dout = obj_dx[15:8];
         9: st_dout = obj_dy[ 7:0];
        10: st_dout = obj_dy[15:8];
-       11: st_dout = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
+       11: st_dout = { dma_on, 2'd0, int16enb, 2'd0, prio[1:0] };
        default: st_dout = 0;
     endcase
 end
 
 always @* begin
-    fix_cs   = 0;
-    vram_cs  = 0;
-    oram_cs   = 0;
+    sh_cs    = 0;
     rom_cs   = 0;
     ram_cs   = 0;
     pal_cs   = 0;
     io_cs    = 0;
-    syswr_cs = 0;
     dma_cs   = 0;
-    vbank_cs = 0;
-    crom_cs  = 0;
-    orom_cs  = 0;
+    syswr_cs = 0;
+    fix_cs   = 0;
+    vram_cs  = 0;
+    oram_cs  = 0;
 
-    if(!ASn && !A[23]) begin
-        case( A[22:21] )
-            0: casez( A[20:17] )
-                4'b1?00: fix_cs  = 1;
-                4'b1?01: vram_cs = 1;
-                4'b1?10: oram_cs = 1;
-                4'b000?: rom_cs  = 1;
-                4'b0010: ram_cs  = !BUSn;
-                4'b0100: pal_cs  = 1;
-                4'b0101: io_cs   = 1;     // A'0000~
-                4'b0110: begin
-                    dma_cs   = RnW;
-                    syswr_cs = !RnW;
-                end
-                4'b0111: vbank_cs = 1;
-                default:;
-            endcase
-            2: crom_cs = 1;
-            3: orom_cs = 1;
-            default:;
-        endcase
-    end
+    if(!ASn) casez( A[20:17] )
+        // decoder 3L
+        4'b000?: rom_cs = 1;
+        4'b0010: sh_cs  = 1;
+        4'b0011: ram_cs = !BUSn;
+        4'b0100: pal_cs = 1;
+        4'b0101: io_cs  = 1;     // A'0000~
+        4'b0110: begin // sysflag
+            dma_cs   = RnW;
+            syswr_cs = !RnW;
+        end
+        // decoder 3N
+        4'b1?00: fix_cs  = 1;
+        4'b1?01: vram_cs = 1;
+        4'b1?10: oram_cs = 1;
+        default:;
+    endcase
 end
 
 always @(posedge clk) begin
     cpu_din <= rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                oram_cs ? mo_dout   :
+               sh_cs   ? sh_dout   :
+               fix_cs  ? mf_dout   :
+               pal_cs  ? {  8'd0, mp_dout  } :
+               io_cs   ? {  8'd0, cab_dout } :
+               dma_cs  ? { 15'd0, dma_bsy  } :
                vram_cs ? (A[13] ? mb_dout : ma_dout ) :
-               fix_cs  ? mf_dout  :
-               pal_cs  ? { 8'd0, mp_dout } :
-               io_cs   ? { 8'd0, cab_dout } :
-               dma_cs  ? { 15'd0, dma_bsy } :
-               crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
                16'h0;
 end
 
-always @(posedge clk) begin
-    if( rst ) begin
-        LVBLl <= 0;
-        intn  <= 0;
-    end else begin
-        LVBLl <= LVBL;
-        if( !LVBL && LVBLl )
-            intn <= 0;
-        if( !int16en )
-            intn <= 1;
-    end
-end
+jtframe_edge #(.QSET(0))u_vbl(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .edgeof     ( ~LVBL     ),
+    .clr        ( VPAn      ),
+    .q          ( intn      )
+);
+
+jtframe_edge #(.QSET(0))u_mainint(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .edgeof     ( mint      ),
+    .clr        ( ~int16enb ),
+    .q          ( comm_intn )
+);
 
 always @(posedge clk) begin
     case( A[4:3] )
@@ -218,36 +209,32 @@ always @(posedge clk) begin
         scra_y   <= 0;
         scrb_x   <= 0;
         scrb_y   <= 0;
-        scr_bank <= 0;
         hflip    <= 0;
         vflip    <= 0;
         obj_dx   <= 0;
         obj_dy   <= 0;
-        int16en  <= 0;
+        int16enb  <= 0;
         sndon    <= 0;
-        crtkill  <= 0;
         dma_on   <= 0;
-        tilevf   <= 0;
-        cpuctl   <= 0;  //
+        vramcvf   <= 0;
         sub_intn <= 1;
     end else begin
-        if( vbank_cs ) scr_bank <= cpu_dout;
         if( syswr_cs )
             // this register is partly implemented on 007779 and
             // partly on discrete standard logic
             case( A[3:1] )
-                0:  { tilevf, prio, hflip, vflip } <= cpu_dout[5:0];
+                0:  { vramcvf, prio, hflip, vflip } <= cpu_dout[5:0];
                 1: obj_dx <= cpu_dout[15:0];
                 2: obj_dy <= cpu_dout[15:0];
                 3: scra_x <= cpu_dout[ 8:0];
                 4: scra_y <= cpu_dout[ 8:0];
                 5: scrb_x <= cpu_dout[ 8:0];
                 6: scrb_y <= cpu_dout[ 8:0];
-                7: cpuctl <= cpu_dout[   0];
+                default:;
             endcase
         if( io_cs && !A[16] ) begin
             case( {RnW, A[4:3]} )
-                0: {crtkill, dma_on, int16en, sub_intn, sndon} <= cpu_dout[7:3];
+                0: {dma_on, int16enb, sub_intn, sndon} <= cpu_dout[6:3];
                 1: snd_latch <= cpu_dout[7:0];
                 default:;
             endcase
@@ -323,7 +310,6 @@ jtframe_m68k u_cpu(
         prio     = mmr[4][5:4];
         hflip    = mmr[4][6];
         vflip    = mmr[4][7];
-        scr_bank = {mmr[6],mmr[5]};
         obj_dx   = {mmr[8][1:0],mmr[7]};
         obj_dy   = {mmr[10][1:0],mmr[9]};
     end
@@ -335,7 +321,6 @@ jtframe_m68k u_cpu(
     initial begin
         rom_cs    = 0;
         ram_cs    = 0;
-        crtkill   = 0;
         dma_on    = 0;
 
         snd_latch = 0;

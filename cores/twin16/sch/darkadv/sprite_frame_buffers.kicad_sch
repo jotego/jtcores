@@ -7254,12 +7254,6 @@
 		(uuid "4f0b4cef-038d-4e72-a508-13eb95ab413d")
 	)
 	(junction
-		(at 97.79 152.4)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4f2a74a0-edd9-49b8-847e-713e3d1fb2f9")
-	)
-	(junction
 		(at 251.46 237.49)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -12953,7 +12947,7 @@
 	)
 	(bus
 		(pts
-			(xy 92.71 152.4) (xy 97.79 152.4)
+			(xy 92.71 149.86) (xy 97.79 149.86)
 		)
 		(stroke
 			(width 0)
@@ -12990,16 +12984,6 @@
 			(type default)
 		)
 		(uuid "0a2d358c-f678-4fa6-b6a8-9b33afb4fd95")
-	)
-	(bus
-		(pts
-			(xy 92.71 149.86) (xy 92.71 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0a4282aa-98dc-47d0-a2a3-ff72ec1dfe08")
 	)
 	(wire
 		(pts
@@ -14340,16 +14324,6 @@
 			(type default)
 		)
 		(uuid "2370c6a0-f026-4816-bbf1-6ceba5bfa330")
-	)
-	(bus
-		(pts
-			(xy 97.79 152.4) (xy 97.79 148.59)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "238bc123-b643-4f2a-b26e-5a56717cf2a8")
 	)
 	(wire
 		(pts
@@ -18583,16 +18557,6 @@
 	)
 	(bus
 		(pts
-			(xy 97.79 153.67) (xy 97.79 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6ea8df47-3364-4dd0-876c-6bf5bdf3be55")
-	)
-	(bus
-		(pts
 			(xy 209.55 91.44) (xy 209.55 93.98)
 		)
 		(stroke
@@ -20583,6 +20547,16 @@
 	)
 	(bus
 		(pts
+			(xy 92.71 154.94) (xy 95.25 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e54e67e-7a1a-427c-80aa-ec79ba06d108")
+	)
+	(bus
+		(pts
 			(xy 406.4 187.96) (xy 406.4 190.5)
 		)
 		(stroke
@@ -21033,6 +21007,16 @@
 	)
 	(bus
 		(pts
+			(xy 97.79 148.59) (xy 97.79 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9da02b4-d34c-4dd1-8b40-b12904b3a134")
+	)
+	(bus
+		(pts
 			(xy 196.85 101.6) (xy 196.85 116.84)
 		)
 		(stroke
@@ -21243,7 +21227,7 @@
 	)
 	(bus
 		(pts
-			(xy 95.25 106.68) (xy 95.25 154.94)
+			(xy 95.25 106.68) (xy 95.25 152.4)
 		)
 		(stroke
 			(width 0)
@@ -21630,16 +21614,6 @@
 			(type default)
 		)
 		(uuid "b4a8e015-1772-479c-a1b2-adbf42bc501a")
-	)
-	(bus
-		(pts
-			(xy 92.71 154.94) (xy 95.25 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4c3bd45-0214-47b3-9bdc-8db2e2bee01e")
 	)
 	(bus
 		(pts
@@ -25362,7 +25336,7 @@
 		)
 		(uuid "1cc88c64-b0d4-4bbb-8257-570d01bfe79f")
 	)
-	(text "Framebuffer 1 is outputting pixel data when P256VD is low\nand writes to the FB is possible when P256VD is high. The\nconditions are reveresed for FB2."
+	(text "2 x 256kB frame buffers\nFramebuffer 1 is outputting pixel data when P256VD is low\nand writes to the FB is possible when P256VD is high. The\nconditions are reveresed for FB2."
 		(exclude_from_sim no)
 		(at 210.82 134.62 0)
 		(effects

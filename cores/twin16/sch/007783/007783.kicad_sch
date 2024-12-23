@@ -5751,13 +5751,13 @@
 		(uuid "16b5648f-f26f-4784-9daa-0fcb165799bd")
 	)
 	(label "CLK2"
-		(at 166.37 191.77 0)
+		(at 171.45 191.77 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "1d502a8e-097b-4722-ad84-ba628f348b37")
 	)
@@ -6191,13 +6191,13 @@
 		(uuid "a4841a04-d940-477b-9cd3-e70704cedd74")
 	)
 	(label "~{CLR}"
-		(at 166.37 189.23 0)
+		(at 171.45 189.23 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "a7ee04bf-40cd-4328-8eec-a96d74c9e804")
 	)

@@ -90,6 +90,10 @@ SIM=FALSE
 SKIP_COMPILE=FALSE
 UNMACROS=
 
+# derive the default core name from the path
+DEFPRJ=$(realpath . --relative-to=$CORES)
+DEFPRJ=${DEFPRJ%%/*}
+
 # use setprj.sh's target function to
 # change the current default target
 if [ -z "$TARGET" ]; then
@@ -278,9 +282,13 @@ fi
 # Is the project defined?
 case "$PRJ" in
     "")
-        echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
-        show_usage
-        exit 1;;
+        # try using the name derived from the folder
+        PRJ=$DEFPRJ
+        if [ ! -d "$CORES/$PRJ" ]; then
+            echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
+            show_usage
+            exit 1
+        fi;;
     -help | -h | --help)
         show_usage;;
 esac

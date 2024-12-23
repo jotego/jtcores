@@ -10,16 +10,18 @@ JTFRAME_PXLCLK=6
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=224
 JTFRAME_PLL=jtframe_pll6144
-
+JTFRAME_BA1_WEN
 # ROM configuration
 JTFRAME_HEADER=8
-JTFRAME_BA1_START=0x040000
-SND_START=0xa0000
-JTFRAME_BA2_START=0x0a8000
-SCR_START=0xEC000
-JTFRAME_BA3_START=0x1ac000
-PCM_START=0x3ac000
-UPD_START=0x3cc000
+# bank 1 = sub CPU and sprite tiles
+JTFRAME_BA1_START=0x40000
+GFX_START=0xA0000
+# bank 2 = audio
+JTFRAME_BA2_START=0x2A0000
+PCM_START=0x2A8000
+UPD_START=0x2C8000
+# bank 3 = fixed layer
+JTFRAME_BA3_START=0x2E8000
 
 JTFRAME_CREDITS
 JTFRAME_CREDITS_HSTART=32
@@ -27,17 +29,8 @@ JTFRAME_CREDITS_PAGES=4
 
 JTFRAME_BA2_LEN=64
 JTFRAME_BA3_LEN=64
-
-[mist]
-# 40960 from BRAM and 11 from MMR
-JTFRAME_IOCTL_RD=40971
+JTFRAME_IOCTL_RD=315392
 
 [mist|sidi]
-# Not enough BRAM to implement the LUT frame buffer
-# it would be possible to do it using the last 2kB
-# of the object RAM (see mem.yaml) but maybe some games
-# could use it? I'm not doing it for now, which means
-# that these FPGA systems will see the sprites one frame
-# in advance
-NOLUTFB
--JTFRAME_CREDITS
+# Not enough BRAM to implement the tile RAM on BRAM
+JTFRAME_SKIP

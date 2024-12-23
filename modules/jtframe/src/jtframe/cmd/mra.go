@@ -39,10 +39,10 @@ var mraCmd = &cobra.Command{
 		if reduce {
 			mra.Reduce(args[0], mra_args.Verbose)
 		} else { // regular operation, each core name is an argument
-			parse_cores(args)
+			cores, e := get_corenames(args); must(e)
+			parse_cores(cores)
 		}
 	},
-	Args: cobra.MinimumNArgs(1),
 }
 
 func parse_cores( corenames []string ) {

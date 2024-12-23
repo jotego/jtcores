@@ -1,0 +1,67 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Dec 23 16:03:58 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/test.fst"
+[dumpfile_mtime] "Mon Dec 23 16:02:32 2024"
+[dumpfile_size] 22520225
+[savefile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/test.gtkw"
+[timestart] 10172
+[size] 1920 1033
+[pos] -1 -1
+*-32.138954 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[sst_width] 278
+[signals_width] 180
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_sub.rst
+@200
+-main
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+@28
+TOP.game_test.u_game.u_game.u_main.bus_cs
+TOP.game_test.u_game.u_game.u_main.dma_cs
+TOP.game_test.u_game.u_game.u_main.fix_cs
+TOP.game_test.u_game.u_game.u_main.io_cs
+TOP.game_test.u_game.u_game.u_main.oram_cs
+TOP.game_test.u_game.u_game.u_main.pal_cs
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.rom_cs
+[color] 1
+TOP.game_test.u_game.u_game.u_main.sh_cs
+TOP.game_test.u_game.u_game.u_main.snd_cs
+TOP.game_test.u_game.u_game.u_main.syswr_cs
+TOP.game_test.u_game.u_game.u_main.vbank_cs
+@29
+[color] 2
+TOP.game_test.u_game.u_game.u_main.vram_cs
+@200
+-sub
+@22
+TOP.game_test.u_game.u_game.u_sub.A_full[23:0]
+@28
+TOP.game_test.u_game.u_game.u_sub.bus_cs
+TOP.game_test.u_game.u_game.u_sub.oram_cs
+TOP.game_test.u_game.u_game.u_sub.otram_cs
+TOP.game_test.u_game.u_game.u_sub.otrom_cs
+TOP.game_test.u_game.u_game.u_sub.ram_cs
+TOP.game_test.u_game.u_game.u_sub.rom_cs
+[color] 1
+TOP.game_test.u_game.u_game.u_sub.sh_cs
+TOP.game_test.u_game.u_game.u_sub.stram_cs
+TOP.game_test.u_game.u_game.u_sub.sys_cs
+@29
+[color] 2
+TOP.game_test.u_game.u_game.u_sub.vram_cs
+@28
+TOP.game_test.u_game.u_game.u_sub.ram_ok
+TOP.game_test.u_game.u_bank1.slot0_ok
+[pattern_trace] 1
+[pattern_trace] 0

@@ -7855,7 +7855,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:C43")
 		(lib_id "ga_fujitsu_av:C43")
 		(at 213.36 205.74 0)
 		(unit 1)
@@ -8492,7 +8491,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:C43")
 		(lib_id "ga_fujitsu_av:C43")
 		(at 213.36 240.03 0)
 		(unit 1)
@@ -10518,7 +10516,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:C43")
 		(lib_id "ga_fujitsu_av:C43")
 		(at 255.27 223.52 0)
 		(unit 1)

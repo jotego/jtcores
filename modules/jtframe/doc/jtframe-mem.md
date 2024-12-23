@@ -76,6 +76,7 @@ sdram:
           cs: myown_cs # use a cs signal not based on the bus name
           addr: myown_addr # use a cs signal not based on the bus name
           gfx_sort: hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
+          do_not_erase: true # for rw slots, do not clear upon reset
         - name: another bus...
     - buses: # same for bank 1
         - name: another bus...

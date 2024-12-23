@@ -50,14 +50,31 @@ func init() {
 
 var CANNOT_SOLVE_CORENAME error = errors.New("Cannot derive the core name from the current path")
 
+func get_corenames(args []string) ([]string,error) {
+	if len(args)>0 {
+		for _,corename := range args {
+			if e := valid_core(corename); e!= nil { return nil, e }
+		}
+		return args, nil
+	}
+	corename, e := get_corename(args)
+	if e!= nil { return nil, e }
+	return []string{corename},nil
+}
+
+// Check that the core folder exist
+func valid_core(name string) error {
+    fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),name) )
+    if e != nil || !fi.IsDir() {
+        return fmt.Errorf("%s is not a valid core name", name)
+    }
+    return nil
+}
+
 func get_corename(args []string) (string, error) {
 	if len(args)>0 {
 		corename := args[0]
-        // Check that the core folder exist
-        fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),args[0]) )
-        if e != nil || !fi.IsDir() {
-            return "", fmt.Errorf("%s is not a valid core name", corename)
-        }
+		if e := valid_core(corename); e!= nil { return "", e }
 		return corename, nil
 	}
 	// look for the core name in the path

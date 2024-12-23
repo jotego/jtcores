@@ -27,16 +27,11 @@ module jttwin16_video(
     output            hs,
     output            vs,
 
-    // CPU interface
-    input      [19:1] cpu_addr,
-    input      [ 7:0] cpu_dout,
-
     // control
-    input             crtkill,
-    input      [ 1:0] cpu_prio,
-    input      [15:0] scr_bank,
+    input             vramcvf,
+    input      [ 2:0] cpu_prio,
     input      [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
-    input      [ 9:0] obj_dx, obj_dy,
+    input      [15:0] obj_dx, obj_dy,
 
     input             dma_on,
     output            dma_bsy,
@@ -45,13 +40,8 @@ module jttwin16_video(
     input             vflip,
     output reg        flip,
 
-    // PROMs
-    input      [ 7:0] prog_addr,
-    input      [ 2:0] prog_data,
-    input             prom_we,
-
     // Video RAM
-    output     [11:1] fram_addr,
+    output     [13:1] fram_addr,
     input      [15:0] fram_dout,
     output     [12:1] scra_addr,
     input      [15:0] scra_dout,
@@ -64,22 +54,19 @@ module jttwin16_video(
     output     [11:0] pal_addr,
     input      [ 7:0] pal_dout,
 
+    // Tile RAM (scroll layers)
+    output     [17:1] stram_addr,
+    input      [15:0] stram_dout,
     // Tile ROMs
     output     [13:2] lyrf_addr,
-    output     [19:2] lyra_addr,
-    output     [19:2] lyrb_addr,
-    output     [19:2] lyro_addr,
+    output     [20:2] lyro_addr,
 
     output            lyrf_cs,
-    output            lyra_cs,
-    output            lyrb_cs,
     output            lyro_cs,
 
     input             lyro_ok,
 
     input      [31:0] lyrf_data,
-    input      [31:0] lyra_data,
-    input      [31:0] lyrb_data,
     input      [31:0] lyro_data,
 
     // Color
@@ -100,14 +87,14 @@ module jttwin16_video(
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, hscr_off, vdump_scr;
-wire [31:0] fsorted, asorted, bsorted, osorted;
-wire [19:2] preo_addr;
-wire [ 7:0] lyrf_pxl, lyro_pxl;
-wire [ 6:0] lyra_pxl, lyrb_pxl;
-wire [ 1:0] lyra_sel, lyrb_sel;
-wire [15:0] scra_bank, scrb_bank;
-wire [15:2] prea_addr;
-wire        prea_cs, preb_cs, preo_cs;
+wire [31:0] fsorted, lyra_data, lyrb_data, asorted, bsorted, osorted;
+wire [ 7:0] lyrf_pxl,  lyro_pxl;
+wire [ 6:0] lyra_pxl,  lyrb_pxl;
+wire [ 1:0] lyra_sel,  lyrb_sel;
+wire [17:2] lyra_addr, lyrb_addr;
+wire        preo_cs;
+
+assign fram_addr[13:12]=0;
 
 function [31:0] sort( input [31:0] a );
     sort = {
@@ -133,17 +120,9 @@ assign fsorted     = sort( lyrf_data ),
        osorted     = scr_sort( lyro_data ),
        st_dout     = 0;
 
-assign scra_bank = scr_bank >> { crtkill ? cpu_addr[17:16] : lyra_sel, 2'd0 };
-assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
-assign lyra_addr[19:16] = scra_bank[3:0];
-assign lyrb_addr[19:16] = scrb_bank[3:0];
 assign vdump_scr = vflip ? 9'h1-vdump : vdump ^ 9'h100;
 assign hdump_off = hflip ? 9'h198-hdump : hdump-9'h60;
-assign lyra_cs   =  crtkill | prea_cs;  // SCRA access used for ROM reading
-assign lyrb_cs   = ~crtkill & preb_cs;
-assign lyro_cs   =  crtkill | preo_cs;  // SCRA access used for ROM reading
-assign lyra_addr[15:2] = crtkill ? cpu_addr[15:2] : prea_addr;
-assign lyro_addr[19:2] = crtkill ? cpu_addr[19:2] : preo_addr;
+assign lyro_cs   = vramcvf | preo_cs;  // SCRA access used for ROM reading
 
 always @(posedge clk) begin
     flip <= hflip & vflip;
@@ -195,7 +174,7 @@ jtframe_tilemap #(
     .blankn     ( gfx_en[0] ),  // if !blankn there are no ROM requests
     .flip       ( 1'b0      ),    // Screen flip
 
-    .vram_addr  ( fram_addr ),
+    .vram_addr  ( fram_addr[11:1] ),
 
     .code       ( fram_dout[8:0] ),
     .pal        ( fram_dout[12:9]),
@@ -208,6 +187,17 @@ jtframe_tilemap #(
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrf_pxl  )
+);
+
+jttwin16_tile u_tile(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .lyra_addr  ( lyra_addr     ),
+    .lyrb_addr  ( lyrb_addr     ),
+    .stram_addr ( stram_addr    ),
+    .stram_dout ( stram_dout    ),
+    .lyra_data  ( lyra_data     ),
+    .lyrb_data  ( lyrb_data     )
 );
 
 jtframe_scroll #(
@@ -235,9 +225,9 @@ jtframe_scroll #(
     .hflip      ( hflip     ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( { lyra_sel, prea_addr[15:2] } ),
+    .rom_addr   ( lyra_addr ),
     .rom_data   ( asorted   ),
-    .rom_cs     ( prea_cs   ),
+    .rom_cs     (           ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyra_pxl  )
@@ -268,9 +258,9 @@ jtframe_scroll #(
     .hflip      ( hflip     ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( { lyrb_sel, lyrb_addr[15:2] } ),
+    .rom_addr   ( lyrb_addr ),
     .rom_data   ( bsorted   ),
-    .rom_cs     ( preb_cs   ),
+    .rom_cs     (           ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrb_pxl  )
@@ -300,7 +290,7 @@ jttwin16_obj u_obj(
     .dma_on     ( dma_on    ),
     .dma_bsy    ( dma_bsy   ),
 
-    .rom_addr   ( preo_addr ),
+    .rom_addr   ( lyro_addr ),
     .rom_data   ( osorted   ),
     .rom_cs     ( preo_cs   ),
     .rom_ok     ( lyro_ok   ),
@@ -317,8 +307,7 @@ jttwin16_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
 
     // CPU interface
-    .crtkill    ( crtkill   ),
-    .cpu_prio   ( cpu_prio  ),
+    .prio       ( cpu_prio  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -327,11 +316,6 @@ jttwin16_colmix u_colmix(
     // BRAM
     .pal_dout   ( pal_dout  ),
     .pal_addr   ( pal_addr  ),
-
-    // PROMs
-    .prog_addr  ( prog_addr ),
-    .prog_data  ( prog_data ),
-    .prom_we    ( prom_we   ),
 
     // Final pixels
     .lyrf_pxl   ( lyrf_pxl  ),

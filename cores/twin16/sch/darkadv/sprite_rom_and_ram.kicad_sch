@@ -16711,6 +16711,17 @@
 		)
 		(uuid "3563b120-b269-479e-9eb0-b9b324214d3a")
 	)
+	(text "128kB RAM\nfor dynamic tiles"
+		(exclude_from_sim no)
+		(at 307.34 41.91 0)
+		(effects
+			(font
+				(size 1.651 1.651)
+			)
+			(justify left)
+		)
+		(uuid "96d64aff-2b04-4b7f-86e6-b150ea7f9eee")
+	)
 	(text "Konami 007788\n\nThe inverted ~P2H is written as N2H.\n\n~{OCRDL} = ~(~~{SREAD} & SAB1 & ~~{OCHARAMCS} & ~{OCHAROMCS} | ~~{SREAD} & SAB1 & ~~{OCHAROMCS})\n~{OCWL} = ~(~P2H & ~{SREAD} & SAB1 & ~~{OCHARAMCS})\n~{OCRDH} = ~(~~{SREAD} & ~SAB1 & ~~{OCHARAMCS} & ~{OCHAROMCS} | ~~{SREAD} & ~SAB1 & ~~{OCHAROMCS})\n~{OCWH} = ~(~P2H & ~{SREAD} & ~SAB1 & ~~{OCHARAMCS})\n~{VCWENL} = ~(P2H & P4H & ~~{VCHARAMCS} & ~{SREAD} & SAB1)\n~{VCRDL} = ~(~~{VCHARAMCS} & ~~{SREAD} & SAB1)\n~{VCRDH} = ~(~~{VCHARAMCS} & ~~{SREAD} & ~SAB1)\n~{VCWENH} = ~(P2H & P4H & ~~{VCHARAMCS} & ~{SREAD} & ~SAB1)\n~{P2HP4H} = ~(P2H & P4H)\n~{N2HP4H} = ~(~P2H & P4H)"
 		(exclude_from_sim no)
 		(at 31.75 281.94 0)

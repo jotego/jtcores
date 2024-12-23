@@ -40,7 +40,7 @@
 // sprite tiles are 16x16x4
 
 
-module jt00778x#(parameter CW=17)(    // sprite logic
+module jt00778x#(parameter CW=17,PW=9)(    // sprite logic
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -56,7 +56,7 @@ module jt00778x#(parameter CW=17)(    // sprite logic
     output reg [CW-1:0] code,
     output reg [ 3:0] attr,
     output reg        hflip,
-    output reg [ 8:0] hpos,
+    output reg [PW-1:0] hpos,
     output reg [ 1:0] hsize,
 
     // DMA memory
@@ -74,7 +74,7 @@ module jt00778x#(parameter CW=17)(    // sprite logic
     input             vs,
     input             hs,
     input             lvbl,
-    input      [ 9:0] obj_dx, obj_dy,
+    input    [PW-1:0] obj_dx, obj_dy,
     // output            flip,
 
     // draw module
@@ -94,17 +94,19 @@ wire [15:0] scan_dout;
 reg  [ 1:0] vsize;
 reg  [ 2:0] scan_sub, lut_sub;
 reg         inzone, hs_l, done, busy_l, skip;
-reg  [ 8:0] ydiff, y, vlatch;
+reg  [ 8:0] ydiff, vlatch;
+reg  [15:0] y;
 reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
 wire        flip = 0;
-wire        busy_g;
+wire        busy_g, valid_y;
 
 assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
                 scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif } :
                 oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
+assign valid_y   = y<16'h180 || y>=16'hff00;
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
@@ -270,7 +272,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 // Table scan
 always @* begin
-    ydiff = vlatch - y;
+    ydiff = vlatch - y[8:0];
     case( vsize )
         0: inzone = ydiff[8:4]==0; //  16
         1: inzone = ydiff[8:5]==0; //  32
@@ -310,10 +312,13 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: y <= scan_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;
-                2: hpos <= (scan_dout[8:0]-obj_dx[8:0])+ 9'h69;
+                1: begin
+                    y <= 0;
+                    y[PW-1:0] <=  scan_dout[PW-1:0]-obj_dy[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
+                end
+                2: hpos <= (scan_dout[PW-1:0]-obj_dx[PW-1:0])+ {{PW-9{1'b0}},9'h69};
                 3: begin
-                    skip <= ~scan_dout[15];
+                    skip <= ~scan_dout[15] && valid_y;
                     if( scan_dout[14] ) begin
                         done <= 1;
                     end

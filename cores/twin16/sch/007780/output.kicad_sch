@@ -8830,13 +8830,13 @@
 		(uuid "032dcddc-ac64-4c44-a5a9-4e536bb9d858")
 	)
 	(label "H2"
-		(at 33.02 83.82 0)
+		(at 36.83 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "035ebff9-e4fa-4e5a-a073-dad255a22b3b")
 	)
@@ -9061,13 +9061,13 @@
 		(uuid "1368e19e-2e72-46a4-adec-8c66663b1715")
 	)
 	(label "~{H4}"
-		(at 33.02 81.28 0)
+		(at 36.83 81.28 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "15ad022a-964b-4e6f-97e1-cdad80f1d07b")
 	)
@@ -9160,13 +9160,13 @@
 		(uuid "1ddf9c07-9ae4-41ed-bd43-23209e65a2c5")
 	)
 	(label "H'4"
-		(at 33.02 78.74 0)
+		(at 36.83 78.74 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "1f0e7b8f-e90b-41ff-a0d4-370db85ba295")
 	)
@@ -9479,24 +9479,24 @@
 		(uuid "3aae99df-3516-49b3-b1d8-8e3e86e808ad")
 	)
 	(label "H'2"
-		(at 33.02 86.36 0)
+		(at 36.83 86.36 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3ad3af58-5be5-4450-9bfb-3a9ef3201591")
 	)
 	(label "~{HCNT1}"
-		(at 30.48 67.31 0)
+		(at 36.83 67.31 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "3b91cafa-d027-4be1-a4e7-ea125ffb8a20")
 	)
@@ -10260,13 +10260,13 @@
 		(uuid "873e322a-d2dc-43fd-9ece-200a14bffa4a")
 	)
 	(label "~{H2}"
-		(at 33.02 88.9 0)
+		(at 36.83 88.9 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "87c3dd44-c16c-4f14-8fe4-953bc0c62b9c")
 	)
@@ -11096,13 +11096,13 @@
 		(uuid "e89338bf-27f7-4e91-993a-75d2ac2fb4e6")
 	)
 	(label "H4"
-		(at 33.02 76.2 0)
+		(at 36.83 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "e9ddb740-ffe7-4eaf-bc92-9d17dbe2fd01")
 	)
@@ -11151,13 +11151,13 @@
 		(uuid "ec6c88e4-4ef6-4092-a97a-60268ec0ba7d")
 	)
 	(label "HCNT1"
-		(at 30.48 69.85 0)
+		(at 36.83 69.85 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "ed6866bf-c35f-43a5-82df-f8a287b017a1")
 	)

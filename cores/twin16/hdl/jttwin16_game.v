@@ -20,27 +20,30 @@ module jttwin16_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 wire [ 7:0] snd_latch;
-wire [ 9:0] obj_dx, obj_dy;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
-wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
-            cpu_rnw, snd_wrn, hflip, vflip, tim;
+wire        snd_irq, pal_cs, dma_on, dma_bsy, vramcvf, mint, chapage,
+            cpu_rnw, snd_wrn, hflip, vflip, tim, cpu_cen, tim1, tim2, sub_intn;
 wire [ 7:0] st_main, st_video, st_snd;
-wire [15:0] scr_bank;
-wire [19:1] cpu_addr;
-wire [ 1:0] prio, vam_we, vbm_we, om_we, vas_we, vbs_we,os_we;
+wire [15:0] m_dout, s_dout, shs_dout, shm_dout, obj_dx, obj_dy;
+wire [19:1] m_addr;
+wire [17:1] s_addr;
+wire [ 1:0] vam_we, vbm_we, om_we,
+            vas_we, vbs_we, os_we,
+            shs_we, shm_we;
 reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
-// reg  [ 2:0] game_id;
+wire [ 2:0] prio;
 
-assign main_addr  = cpu_addr[18:1];
+assign main_addr  = m_addr[17:1];
+assign mram_addr  = m_addr[13:1];
 assign debug_view = debug_mux;
-assign ram_addr   = main_addr[13:1];
-assign ram_we     = cpu_we;
-assign vram_addr[12:1] = main_addr[12:1];
-assign oram_we = {2{oram_wex}};
+assign oram_we    = {2{oram_wex}};
 assign ioctl_din = ioctl_mux;
+assign sram_din   = s_dout;
+assign mram_din   = m_dout;
+assign stile_addr = s_addr;
 
 always @(posedge clk) begin
     case( ioctl_addr[3:0] )
@@ -48,9 +51,7 @@ always @(posedge clk) begin
          1: ioctl_mux <= scrb_x[7:0];
          2: ioctl_mux <= scra_y[7:0];
          3: ioctl_mux <= scrb_y[7:0];
-         4: ioctl_mux <= { vflip, hflip, prio, scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
-         5: ioctl_mux <= scr_bank[ 7:0];
-         6: ioctl_mux <= scr_bank[15:8];
+         4: ioctl_mux <= { vflip, hflip, prio[1:0], scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
          7: ioctl_mux <= obj_dx[ 7:0];
          8: ioctl_mux <= { 6'd0, obj_dx[9:8] };
          9: ioctl_mux <= obj_dy[ 7:0];
@@ -78,7 +79,30 @@ jttwin16_share u_share(
     .clk            ( clk           ),
     .cen            ( cpu_cen       ),
     .tim1           ( tim1          ),  // main CPU has access to video
-    .tim2           ( tim2          )   // sub CPU does
+    .tim2           ( tim2          ),  // sub CPU does
+    // main CPU
+    .m_addr         ( m_addr[13:1]  ),
+    .m_dout         ( m_dout        ),
+    .om_we          ( om_we         ),
+    .vam_we         ( vam_we        ),
+    .vbm_we         ( vbm_we        ),
+    .shm_we         ( shm_we        ),
+    .shm_dout       ( shm_dout      ),
+    // sub CPU
+    .s_addr         ( s_addr[13:1]  ),
+    .s_dout         ( s_dout        ),
+    .os_we          ( os_we         ),
+    .vas_we         ( vas_we        ),
+    .vbs_we         ( vbs_we        ),
+    .shs_we         ( shs_we        ),
+    .shs_dout       ( shs_dout      ),
+    // video RAM muxes
+    .vram_addr      ( vram_addr     ),
+    .osha_addr      ( osha_addr     ),
+    .va_we          ( va_we         ),
+    .vb_we          ( vb_we         ),
+    .obj_we         ( obj_we        ),
+    .v_din          ( v_din         )
 );
 
 /* verilator tracing_on */
@@ -87,24 +111,27 @@ jttwin16_main u_main(
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
 
-    .cpu_we         ( cpu_we        ),
-    .cpu_dout       ( ram_din       ),
+    .cpu_dout       ( m_dout        ),
+    .cpu_cen        ( cpu_cen       ),
+    .sub_intn       ( sub_intn      ),
+    .mint           ( mint          ),
 
-    .main_addr      ( cpu_addr      ),
+    .main_addr      ( m_addr        ),
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
     .rom_ok         ( main_ok       ),
     // RAM
-    .ram_dsn        ( ram_dsn       ),
-    .ram_dout       ( ram_data      ),
-    .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
-    // Video ROM check
-    .scr_data       ( lyra_data     ),
-    .scr_ok         ( lyra_ok       ),
+    .ram_dsn        ( mram_dsn      ),
+    .ram_dout       ( mram_data     ),
+    .ram_cs         ( mram_cs       ),
+    .ram_ok         ( mram_ok       ),
+    .ram_we         ( mram_we       ),
+    // shared RAM
+    .sh_we          ( shm_we        ),
+    .sh_dout        ( shm_dout      ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -122,13 +149,12 @@ jttwin16_main u_main(
 
     // To video
     .prio           ( prio          ),
-    .crtkill        ( crtkill       ),
+    .vramcvf         ( vramcvf        ),
     .dma_on         ( dma_on        ),
     .dma_bsy        ( dma_bsy       ),
     .pal_we         ( pal_we        ),
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),
-    .scr_bank       ( scr_bank      ),
     // scroll for each layer
     .scra_x         ( scra_x        ),
     .scra_y         ( scra_y        ),
@@ -141,11 +167,53 @@ jttwin16_main u_main(
     .sndon          ( snd_irq       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dip_test       ( dip_test      ),
     .dipsw          ( dipsw[19:0]   ),
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
+);
+
+jttwin16_sub u_sub(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .LVBL           ( LVBL          ),
+    .tim            ( tim2          ),
+    .mint           ( mint          ),
+    .chapage        ( chapage       ),
+
+    .sub_intn       ( sub_intn      ),
+    .ram_addr       ( sram_addr     ),
+    .ram_dout       ( sram_data     ),
+    .ram_ok         ( sram_ok       ),
+    .ram_cs         ( sram_cs       ),
+    .ram_dsn        ( sram_dsn      ),
+    .ram_we         ( sram_we       ),
+
+    .cpu_addr       ( s_addr        ),
+    .cpu_dout       ( s_dout        ),
+    // shared RAM
+    .sh_we          ( shs_we        ),
+    .sh_dout        ( shs_dout      ),
+    // video RAM outputs,
+    .ma_dout        ( ma_dout       ),   // scroll A
+    .mb_dout        ( mb_dout       ),   // scroll B
+    .mo_dout        ( mo_dout       ),   // objects
+    .va_we          ( vas_we        ),
+    .vb_we          ( vbs_we        ),
+    .obj_we         ( os_we         ),
+
+    // tile RAMs
+    .stile_we       ( stile_we      ),
+    .stile_dout     ( stile_dout    ),
+    // video ROM checks
+    .obj_data       ( lyro_data     ),
+    .obj_ok         ( lyro_ok       ),
+
+    .rom_addr       ( sub_addr      ),
+    .rom_cs         ( sub_cs        ),
+    .rom_ok         ( sub_ok        ),
+    .rom_data       ( sub_data      ),
+    .dip_pause      ( dip_pause     )
 );
 
 /* verilator tracing_on */
@@ -156,10 +224,9 @@ jttwin16_video u_video (
 
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),
-    .crtkill        ( crtkill       ),
+    .vramcvf        ( vramcvf       ),
 
     .cpu_prio       ( prio          ),
-    .scr_bank       ( scr_bank      ),
     .scra_x         ( scra_x        ),
     .scra_y         ( scra_y        ),
     .scrb_x         ( scrb_x        ),
@@ -175,13 +242,6 @@ jttwin16_video u_video (
     .hs             ( HS            ),
     .vs             ( VS            ),
     .flip           ( dip_flip      ),
-    // PROMs
-    .prom_we        ( prom_we       ),
-    .prog_addr      ( prog_addr[7:0]),
-    .prog_data      ( prog_data[2:0]),
-    // GFX - CPU interface
-    .cpu_addr       ( cpu_addr      ),
-    .cpu_dout       ( ram_din[7:0]  ),
     // VRAM
     .fram_addr      ( fram_addr     ),
     .fram_dout      ( fram_dout     ),
@@ -195,18 +255,15 @@ jttwin16_video u_video (
     .oram_we        ( oram_wex      ),
     .pal_addr       ( pal_addr      ),
     .pal_dout       ( pal_dout      ),
+    // tile RAM
+    .stram_addr     ( stram_addr    ),
+    .stram_dout     ( stram_dout    ),
     // SDRAM
-    .lyra_addr      ( lyra_addr     ),
-    .lyrb_addr      ( lyrb_addr     ),
     .lyrf_addr      ( lyrf_addr     ),
     .lyro_addr      ( lyro_addr     ),
-    .lyra_data      ( lyra_data     ),
-    .lyrb_data      ( lyrb_data     ),
     .lyro_data      ( lyro_data     ),
     .lyrf_data      ( lyrf_data     ),
     .lyrf_cs        ( lyrf_cs       ),
-    .lyra_cs        ( lyra_cs       ),
-    .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
     .lyro_ok        ( lyro_ok       ),
     // pixels
@@ -223,12 +280,7 @@ jttwin16_video u_video (
 );
 
 /* verilator tracing_off */
-jttmnt_sound #( // -1.5dB compared to MIA, same balance
-    .MONO_FM    ( 8'h18 ),
-    .MONO_PCM   ( 8'h06 ),
-    .MONO_UPD   ( 8'h0C ),
-    .MONO_TTL   ( 8'h00 )
-) u_sound(
+jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
@@ -279,10 +331,13 @@ jttmnt_sound #( // -1.5dB compared to MIA, same balance
     .title_cs   (               ),
     .title_ok   ( 1'b1          ),
     // Sound output
-    .snd_left   ( snd           ),
-    .snd_right  (               ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           ),
+    .upd        ( upd           ),
+    .k60_l      (               ),
+    .k60_r      (               ),
+    .title      (               ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

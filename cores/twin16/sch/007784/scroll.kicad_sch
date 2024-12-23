@@ -8967,7 +8967,7 @@
 		)
 		(uuid "c816f5e8-27dc-4af2-ace5-678a49a46329")
 	)
-	(text "Sprites are enabled on vertical positions\n0..384 and 65280..65535"
+	(text "Sprites are enabled on vertical positions\n0..384 and 65280..65535\n$0000..$0180 and $FF00..$FFFF"
 		(exclude_from_sim no)
 		(at 341.63 95.25 0)
 		(effects

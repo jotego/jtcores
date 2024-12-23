@@ -2072,6 +2072,12 @@
 		(uuid "a26204d7-1bb7-4416-800a-9a254be24360")
 	)
 	(junction
+		(at 129.54 247.65)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b2d03960-39e7-4622-ae0b-297bef1a391c")
+	)
+	(junction
 		(at 289.56 182.88)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2587,6 +2593,16 @@
 	)
 	(wire
 		(pts
+			(xy 120.65 238.76) (xy 139.7 238.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2082625b-0ded-4b11-9245-594ebf5b7d1b")
+	)
+	(wire
+		(pts
 			(xy 132.08 196.85) (xy 127 196.85)
 		)
 		(stroke
@@ -3037,7 +3053,7 @@
 	)
 	(wire
 		(pts
-			(xy 120.65 241.3) (xy 120.65 250.19)
+			(xy 120.65 238.76) (xy 120.65 250.19)
 		)
 		(stroke
 			(width 0)
@@ -3187,7 +3203,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 238.76) (xy 139.7 238.76)
+			(xy 129.54 241.3) (xy 139.7 241.3)
 		)
 		(stroke
 			(width 0)
@@ -3264,6 +3280,16 @@
 			(type default)
 		)
 		(uuid "77c202ed-395b-4451-9eb2-11eef198b3f8")
+	)
+	(wire
+		(pts
+			(xy 128.27 247.65) (xy 129.54 247.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77ed490a-145e-45d1-af74-b7fc18c12fd3")
 	)
 	(wire
 		(pts
@@ -3484,16 +3510,6 @@
 			(type default)
 		)
 		(uuid "97e7fdbb-4222-4c8d-b749-6255e4cb4f39")
-	)
-	(wire
-		(pts
-			(xy 139.7 241.3) (xy 120.65 241.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9917f300-4fdd-4c16-8f8b-68a406225e58")
 	)
 	(wire
 		(pts
@@ -3804,6 +3820,16 @@
 			(type default)
 		)
 		(uuid "c0aea9b4-73d6-41d3-b9c4-0de09585d08f")
+	)
+	(wire
+		(pts
+			(xy 129.54 241.3) (xy 129.54 247.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c262d0c6-6cd5-4139-8911-4b2fd609907b")
 	)
 	(wire
 		(pts
@@ -4824,7 +4850,7 @@
 	)
 	(hierarchical_label "AMPX"
 		(shape input)
-		(at 129.54 247.65 180)
+		(at 128.27 247.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4845,18 +4871,6 @@
 			(justify right)
 		)
 		(uuid "8eac1aa1-ea8c-4dae-be2c-5352cc0c5554")
-	)
-	(hierarchical_label "AMPX"
-		(shape input)
-		(at 129.54 238.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "934bc9fe-9910-4ab5-a001-a03363408009")
 	)
 	(hierarchical_label "~{SLWR}"
 		(shape input)
