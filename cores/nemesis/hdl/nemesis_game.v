@@ -46,8 +46,8 @@ module nemesis_game(
 	output          HS,           // Horizontal video sync output
 	output          VS,           // Vertical video sync output
 	// Cabinet I/O
-	input   [ 1:0]  start_button,
-	input   [ 1:0]  coin_input,
+	input   [ 1:0]  cab_1p,
+	input   [ 1:0]  coin,
 	input   [ 7:0]  joystick1,    // 4 directions, 3 buttons, MSB unused
 	input   [ 7:0]  joystick2,    // |
 	// SDRAM Interface
@@ -458,13 +458,13 @@ nemesis_main main(
 
 	// PS2401_4 @ 2E, 2F, 2G, 2H, 2J
 	// A: solder side, B: parts side, cf. manual, page 4
-	.i_coin1        ( coin_input[0]   ), // Credit 1
-	.i_coin2        ( coin_input[1]   ), // Credit 2
+	.i_coin1        ( coin[0]                 ), // Credit 1
+	.i_coin2        ( coin[1]                 ), // Credit 2
 	.i_1p_right     ( joystick1[ dir_right ]  ), // Joystick Player 1 Right
 	.i_1p_left      ( joystick1[ dir_left  ]  ), // Joystick Player 1 Left
 	.i_1p_down      ( joystick1[ dir_down  ]  ), // Joystick Player 1 Down
 	.i_1p_up        ( joystick1[ dir_up    ]  ), // Joystick Player 1 Up
-	.i_1p_start     ( start_button[0]         ), // Player 1 Start button
+	.i_1p_start     ( cab_1p[0]               ), // Player 1 Start button
 	.i_1p_sp_pow    ( joystick1[ btn_option ] ), // Player 1 Special Power
 	.i_1p_shoot     ( joystick1[ btn_fire   ] ), // Player 1 Fire
 	.i_1p_missile   ( joystick1[ btn_bomb   ] ), // Player 1 Missile
@@ -472,7 +472,7 @@ nemesis_main main(
 	.i_2p_left      ( joystick2[ dir_left  ]  ), // Joystick Player 2 Left
 	.i_2p_down      ( joystick2[ dir_down  ]  ), // Joystick Player 2 Down
 	.i_2p_up        ( joystick2[ dir_up    ]  ), // Joystick Player 2 Up
-	.i_2p_start     ( start_button[1]         ), // Player 2 Start button
+	.i_2p_start     ( cab_1p[1]               ), // Player 2 Start button
 	.i_2p_sp_pow    ( joystick2[ btn_option ] ), // Player 2 Special Power
 	.i_2p_shoot     ( joystick2[ btn_fire   ] ), // Player 2 Fire
 	.i_2p_missile   ( joystick2[ btn_bomb   ] ), // Player 2 Missile
