@@ -51,7 +51,7 @@ module nemesis_game(
 	input   [ 7:0]  joystick1,    // 4 directions, 3 buttons, MSB unused
 	input   [ 7:0]  joystick2,    // |
 	// SDRAM Interface
-	input           downloading,
+	input           ioctl_rom,
 	output          dwnld_busy,   // needs to be kept to 1 until finished downloading
 	output          sdram_req,
 	output  [21:0]  sdram_addr,
@@ -165,7 +165,7 @@ wire		prom_we, prom_a01_we, prom_a02_we, prom_vol_we;
 // dwnld_busy needs to be kept to 1 until finished downloading. The easiest is
 // to assign it to downloading, but it might be kept longer if the core needs
 // to do ROM data conversion, like jt_gng/tora (which is not the case here.)
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 // prog_rd is only used with JTFRAME_SDRAM_BANKS (in which case it’s an output
 // of jtframe_dwnld), or when doing ROM data conversion.
 assign prog_rd    = 0;
@@ -189,7 +189,7 @@ wire [7:0] nc;
 jtframe_dwnld #( .PROM_START( PROM_START ) )
 u_dwnld(
 	.clk            ( clk               ),
-	.downloading    ( downloading       ),
+	.ioctl_rom      ( ioctl_rom         ),
 	.ioctl_addr     ( ioctl_addr        ),
 	.ioctl_dout     ( ioctl_dout        ),
 	.ioctl_wr       ( ioctl_wr          ),
@@ -325,7 +325,7 @@ u_wav1_rom(
 	.we      ( prom_a01_we    ),
 	.q       ( wav1_data      )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~downloading )
+	, .dump  ( ~ioctl_rom )
 	`endif
 );
 
@@ -347,7 +347,7 @@ u_wav2_rom(
 	.we      ( prom_a02_we    ),
 	.q       ( wav2_data  )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~downloading )
+	, .dump  ( ~ioctl_rom )
 	`endif
 );
 
@@ -370,7 +370,7 @@ u_wav1_vol_rom(
 	.we      ( prom_vol_we        ),
 	.q       ( wav1_vol_data      )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~downloading       )
+	, .dump  ( ~ioctl_rom         )
 	`endif
 );
 
@@ -390,7 +390,7 @@ u_wav2_vol_rom(
 	.we      ( prom_vol_we        ),
 	.q       ( wav2_vol_data      )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~downloading       )
+	, .dump  ( ~ioctl_rom       )
 	`endif
 );
 
