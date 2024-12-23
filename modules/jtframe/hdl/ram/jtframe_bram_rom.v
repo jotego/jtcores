@@ -28,7 +28,12 @@ module jtframe_bram_rom #(parameter
 `ifdef JTFRAME_SDRAM_LARGE
             PW=25,
 `else       PW=24, `endif
-            OFFSET=0
+            OFFSET=0,
+            // for DW=8:
+            SIMFILE="",
+            // for DW=16:
+            SIMFILE_LO="",
+            SIMFILE_HI=""
 )(
     input               clk,
 
@@ -53,7 +58,7 @@ wire [PW-1:0] prog_aeff = prog_addr-OFFSET[PW-1:0];
 generate
     if( DW==8 ) begin
         wire we = prog_we && in_range;
-        jtframe_rpwp_ram #(.DW(DW),.AW(AW)) u_ram(
+        jtframe_rpwp_ram #(.DW(DW),.AW(AW),.SIMFILE(SIMFILE)) u_ram(
             .clk    ( clk                ),
             .rd_addr( addr               ),
             .dout   ( data               ),
@@ -66,7 +71,7 @@ generate
         wire we_upper = !prog_mask[1] && prog_we && in_range;
         wire we_lower = !prog_mask[0] && prog_we && in_range;
 
-        jtframe_rpwp_ram #(.DW(8),.AW(AW)) u_upper(
+        jtframe_rpwp_ram #(.DW(8),.AW(AW),.SIMFILE(SIMFILE_HI)) u_upper(
             .clk    ( clk          ),
             .rd_addr( addr         ),
             .dout   ( data[DW-1-:8]),
@@ -76,7 +81,7 @@ generate
             .we     ( we_upper     )
         );
 
-        jtframe_rpwp_ram #(.DW(8),.AW(AW)) u_lower(
+        jtframe_rpwp_ram #(.DW(8),.AW(AW),.SIMFILE(SIMFILE_LO)) u_lower(
             .clk    ( clk          ),
             .rd_addr( addr         ),
             .dout   ( data[0+:8]   ),

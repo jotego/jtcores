@@ -150,7 +150,7 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
 `else
     assign key_data = 0;
 `endif
-
+/* verilator tracing_off */
 `ifndef NOMAIN
 jtoutrun_main u_main(
     .rst         ( rst48      ),
@@ -252,7 +252,7 @@ jtoutrun_main u_main(
     assign mute        = 0;
     assign creset      = 0;
 `endif
-
+/* verilator tracing_off */
 `ifndef NOSUB
 jtoutrun_sub u_sub(
     .rst        ( rst48     ),
@@ -304,7 +304,7 @@ jtoutrun_sub u_sub(
     assign sub_ok   = 1;
     assign st_sub   = 0;
 `endif
-
+/* verilator tracing_off */
 `ifndef NOSOUND
 jtoutrun_snd u_sound(
     .rst        ( rst48     ),
@@ -361,7 +361,7 @@ jtoutrun_snd u_sound(
     assign sndmap_wr = 0;
     assign st_snd    = 0;
 `endif
-
+/* verilator tracing_on */
 jtoutrun_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -437,10 +437,15 @@ jtoutrun_video u_video(
     .rd0_addr   ( rd0_addr   ),
     .rd0_data   ( rd0_data   ),
 
-    .rd1_ok     ( 1'b1       ),
+    .rd1_ok     ( 1'b1       ), // implemented in BRAM
     .rd1_cs     (            ),
+`ifdef OUTRUN
     .rd1_addr   ( rd1_addr   ),
     .rd1_data   ( rd1_data   ),
+`else
+    .rd1_addr   (            ), // shanon only has one road ROM
+    .rd1_data   ( 16'd0      ),
+`endif
 
     // Video signal
     .HS         ( HS        ),

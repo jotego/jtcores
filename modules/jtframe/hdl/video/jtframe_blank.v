@@ -34,7 +34,7 @@ assign preLBL = predly==2'b11;
 
 generate
     if( DLY>1 )
-        jtframe_sh #(.width(2),.stages(DLY-1)) u_dly(
+        jtframe_sh #(.W(2),.L(DLY-1)) u_dly(
             .clk    ( clk          ),
             .clk_en ( pxl_cen      ),
             .din    ( {preLHBL, preLVBL} ),

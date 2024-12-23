@@ -15,7 +15,7 @@
     output reg [21:0] post_addr,
 {{end}}
 {{- if .Download.Pre_addr }}
-    output reg [24:0] pre_addr,
+    output reg [25:0] pre_addr,
 {{end}}
 {{- if .Download.Post_data }}
     output reg [ 7:0] post_data,
@@ -25,20 +25,19 @@
 `endif
 `ifdef JTFRAME_IOCTL_RD
     input           ioctl_ram,
+    input           ioctl_wr,
     output   [ 7:0] ioctl_din,
+    input    [ 7:0] ioctl_dout,
 `endif
     // Explicit ports
 {{- range .Ports}}
     {{if .Input}}input{{else}}output{{end}}   {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}},{{end }}
     // Buses to BRAM
 {{ range $cnt, $bus:=.BRAM -}}
-    {{if not .Addr}}output   {{ addr_range . }} {{.Name}}_addr,{{end}}{{ if .Rw }}
-    {{if not .Din}}output   {{ data_range . }} {{.Name}}_din,{{end}}{{end}}
-    input    {{ data_range . }} {{ data_name . }},
+    {{- if .Rw }}{{if not .Din}}output   {{ data_range . }} {{.Name}}_din,{{end}}{{end}}
     {{- if .Dual_port.Name }}
     {{ if not .Dual_port.We }}output   {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Dual_port.Name}}_we, // Dual port for {{.Dual_port.Name}}
     {{end}}{{else}}
-    {{if not $bus.ROM.Offset}}{{ if not .We }}output {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Name}}_we,{{end}}{{end}}
     {{end}}
 {{- end}}
 {{- $first := true -}}

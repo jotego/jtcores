@@ -210,15 +210,15 @@ always @(posedge clk) begin
     endcase
 end
 
-`ifdef SIMULATION
+// `ifdef SIMULATION
 
-wire sub_ramwr = (!cpu_LDSn || !cpu_UDSn) && !cpu_RnW && ram_cs;
+// wire sub_ramwr = (!cpu_LDSn || !cpu_UDSn) && !cpu_RnW && ram_cs;
 
-always @(negedge sub_ramwr) if(A_full==24'h607fc) begin
-    $display("Sub RAM %X (%X)",
-            A_full, cpu_dout_raw
-        );
-end
-`endif
+// always @(negedge sub_ramwr) if(A_full==24'h607fc) begin
+//     $display("Sub RAM %X (%X)",
+//             A_full, cpu_dout_raw
+//         );
+// end
+// `endif
 
 endmodule

@@ -122,8 +122,8 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 func Check_macros(def map[string]string) bool {
 	// Check that MiST DIPs are defined after the
 	// last used status bit
-	dipbase, _ := strconv.Atoi(def["JTFRAME_MIST_DIPBASE"])
-	if def["JTFRAME_MIST_DIPBASE"] == "" {
+	dipbase, _ := strconv.Atoi(def["JTFRAME_DIPBASE"])
+	if def["JTFRAME_DIPBASE"] == "" {
 		dipbase = 16
 	}
 	_, autofire0  := def["JTFRAME_AUTOFIRE0"]
@@ -169,7 +169,7 @@ func DefPath(cfg Config) string {
 	}
 }
 
-func defined( macros map[string]string, key string ) bool {
+func Defined( macros map[string]string, key string ) bool {
 	_ ,e := macros[key]
 	return e
 }
@@ -226,7 +226,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_COLORW":        "4",
 		"JTFRAME_BUTTONS":       "2",
 		"JTFRAME_SIGNED_SND":    "1",
-		"JTFRAME_MIST_DIPBASE": "16",
+		"JTFRAME_DIPBASE": "16",
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
@@ -305,19 +305,10 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		freq, _ := strconv.Atoi(freq_str)
 		mclk = freq*8
 	}
-	if defined(macros,"JTFRAME_SDRAM96") || defined(macros,"JTFRAME_CLK96") {
+	if Defined(macros,"JTFRAME_SDRAM96") || Defined(macros,"JTFRAME_CLK96") {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
-	// if the macro BETA is defined, and we are on MiSTer, make
-	// sure JTFRAME_CHEAT is defined too
-	if defined( macros, "BETA" ) {
-		_, cheatok := macros["JTFRAME_CHEAT"]
-		if !cheatok && (cfg.Target == "mister" || cfg.Target == "sockit" || cfg.Target == "de1soc" || cfg.Target == "de10standard") {
-			fmt.Fprintln(os.Stderr, "Compiling a BETA for MiSTer but JTFRAME_CHEAT was not set\nAdding it now automatically.")
-			macros["JTFRAME_CHEAT"] = ""
-		}
-	}
 	return macros
 }
 

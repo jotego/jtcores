@@ -42,14 +42,8 @@ wire ioctl_ram = 0;
 {{end}}
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
-wire     {{ addr_range . }} {{.Name}}_addr;
-wire     {{ data_range . }} {{.Name}}_din;
-wire     {{ data_range . }} {{ data_name . }};
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
-{{end}}{{ else }}
-{{- if not $bus.ROM.Offset }}
-{{- if not .We }}wire      {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Name}}_we;{{end}}
 {{end}}{{end}}
 {{- end}}
 // SDRAM buses
@@ -75,6 +69,7 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
+wire gfx8_en, gfx16_en;
 
 assign pass_io = header | ioctl_ram;
 
@@ -172,11 +167,9 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     // Memory interface - BRAM
 {{ range $cnt, $bus:=.BRAM -}}
     {{if not .Addr}}.{{.Name}}_addr ( {{.Name}}_addr ),{{end}}{{ if .Rw }}
-    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}
-    .{{ data_name . }}    ( {{ data_name . }} ),{{ if .Dual_port.Name }}
+    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}{{ if .Dual_port.Name }}
     {{ if not .Dual_port.We }}.{{.Dual_port.Name}}_we ( {{.Dual_port.Name}}_we ),  // Dual port for {{.Dual_port.Name}}{{end}}
-    {{ else }}{{ if not $bus.ROM.Offset }}{{ if not .We }}
-    .{{.Name}}_we   ( {{.Name}}_we   ), {{end}}{{end}}
+    {{ else }}{{ if not $bus.ROM.Offset }}{{end}}
     {{- end}}
 {{- end}}
     // PROM writting
@@ -204,7 +197,9 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
 `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram    ( ioctl_ram      ),
-    .ioctl_din    ( ioctl_din      ),
+    .ioctl_din    ( {{.Ioctl.DinName}}      ),
+    .ioctl_dout   ( ioctl_dout     ),
+    .ioctl_wr     ( ioctl_wr       ),
 `endif
     // Debug
     .debug_bus    ( debug_bus      ),
@@ -231,6 +226,8 @@ assign dwnld_busy = downloading | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
+assign gfx8_en   = {{ .Gfx8 }}
+assign gfx16_en  = {{ .Gfx16 }}
 
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
@@ -248,13 +245,17 @@ jtframe_dwnld #(
 `ifdef JTFRAME_PROM_START
     .PROM_START( PROM_START ),
 `endif
-    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}         )
+    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}),
+    .GFX8B0    ( {{ .Gfx8b0 }}),
+    .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
     .downloading  ( downloading & ~ioctl_ram    ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
+    .gfx8_en      ( gfx8_en        ),
+    .gfx16_en     ( gfx16_en       ),
     .prog_addr    ( raw_addr       ),
     .prog_data    ( raw_data       ),
     .prog_mask    ( prog_mask      ), // active low
@@ -349,23 +350,28 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
-    .addr0  ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),{{ if $bus.Rw }}
+    .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
     .data0  ( {{$bus.Name}}_din  ),
-    .we0    ( {{$bus.We}} }} {{$bus.Name}}_we ), {{ else }}
+    .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
-    .we0    ( 2'd0 ),{{end}}
+    .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
     .data1  ( {{if $bus.Dual_port.Din}}{{$bus.Dual_port.Din}}{{else}}{{$bus.Dual_port.Name}}_dout{{end}} ),
-    .addr1  ( {{$bus.Dual_port.Name}}_addr{{ addr_range $bus }}),{{ if $bus.Dual_port.Rw }}
+    .addr1  ( {{$bus.Dual_port.AddrFull}} ),{{ if $bus.Dual_port.Rw }}
     .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ), {{ else }}
     .we1    ( 2'd0 ),{{end}}
-    .q1     ( {{$bus.Name}}2{{$bus.Dual_port.Name}}_data )
+    .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )
 );{{else}}{{if $bus.ROM.Offset }}
 /* verilator tracing_on */
 
-jtframe_bram_rom #(.AW({{$bus.Addr_width}}{{if is_nbits $bus 16 }}-1{{end}}),.DW({{$bus.Data_width}}),.OFFSET({{$bus.ROM.Offset}})) u_brom_{{$bus.Name}}(
+jtframe_bram_rom #(
+    .AW({{$bus.Addr_width}}{{if is_nbits $bus 16 }}-1{{end}}),.DW({{$bus.Data_width}}),
+    .OFFSET({{$bus.ROM.Offset}}),{{ if eq $bus.Data_width 16 }}
+    .SIMFILE_LO("{{$bus.Name}}_lo.bin"),
+    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}
+) u_brom_{{$bus.Name}}(
     .clk    ( clk       ),
     // Read port
     .addr   ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),
@@ -387,12 +393,36 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 ) u_bram_{{$bus.Name}}(
     .clk    ( clk  ),{{ if eq $bus.Data_width 8 }}
     .cen    ( 1'b1 ),{{end}}
-    .addr   ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),
+    .addr   ( {{$bus.Addr}} ),
     .data   ( {{if $bus.Din }}{{$bus.Din }}{{else}}{{$bus.Name}}_din {{end}} ),
     .we     ( {{if $bus.We  }}{{$bus.We  }}{{else}}{{$bus.Name}}_we  {{end}} ),
     .q      ( {{$bus.Name}}_dout )
 );{{ end }}
 {{ end }}{{end}}
+
+{{- if .Ioctl.Dump }}
+/* verilator tracing_on */
+wire [7:0] ioctl_aux;
+{{- range $k, $v := .Ioctl.Buses }}
+{{ if $v.Aout }}wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}
+jtframe_ioctl_dump #(
+    {{- $first := true}}
+    {{- range $k, $v := .Ioctl.Buses }}
+    {{- if $first}}{{$first = false}}{{else}},{{end}}
+    .DW{{$k}}( {{$v.DW}} ), .AW{{$k}}( {{$v.AW}} ){{end}}
+) u_dump (
+    .clk       ( clk        ),
+    {{- range $k, $v := .Ioctl.Buses }}
+    .din{{$k}}      ( {{$v.Dout}} ),
+    .addrin_{{$k}}  ( {{$v.Ain}} ),
+    .addrout_{{$k}} ( {{$v.Aout}} ),
+    {{end }}
+    .ioctl_addr ( ioctl_addr[23:0] ),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_aux  ( ioctl_aux ),
+    .ioctl_din  ( ioctl_din )
+);
+{{ end }}
 
 {{ if .Clocks }}
 // Clock enable generation
@@ -406,4 +436,5 @@ jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
     .cenb   (              )
 );
 {{ end }}{{ end }}{{ end }}
+
 endmodule

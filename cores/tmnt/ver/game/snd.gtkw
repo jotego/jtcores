@@ -1,0 +1,92 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Aug 17 05:39:09 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/tmnt/ver/game/test.fst"
+[dumpfile_mtime] "Thu Aug 17 05:39:01 2023"
+[dumpfile_size] 330
+[savefile] "/home/jtejada/jtcores/cores/tmnt/ver/game/snd.gtkw"
+[timestart] 575453137392
+[size] 1264 1013
+[pos] -1 -1
+*-40.491573 -1 656002000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_pcm.
+[sst_width] 219
+[signals_width] 213
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.snd_irq
+@22
+TOP.game_test.u_game.u_game.u_sound.snd[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_pcm.cha_addr[16:0]
+@c08420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(4)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(5)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(6)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+(7)TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+@1401200
+-group_end
+@20000
+-
+-
+@c08024
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(4)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(5)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(6)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(7)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+@1401200
+-group_end
+@c00022
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(4)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(5)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(6)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+(7)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.rom_dout[7:0]
+@1401200
+-group_end
+@c00023
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+@29
+(0)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(1)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(2)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(3)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(4)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(5)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(6)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(7)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(8)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(9)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(10)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+(11)TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre0[11:0]
+@1401201
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.pre_sel[1:0]
+[pattern_trace] 1
+[pattern_trace] 0

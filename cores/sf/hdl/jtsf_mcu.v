@@ -64,6 +64,7 @@ wire cen1 = /*(mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : */cencnt==0;
 always @(posedge clk) cencnt <= cencnt==35 ? 0 : cencnt+1'd1;
 
 jtframe_sync #(.W(8)) u_p3sync(
+    .clk_in ( clk       ),
     .clk_out( clk_cpu   ),
     .raw    ( p3_o      ),
     .sync   ( p3_os     )
@@ -72,6 +73,7 @@ jtframe_sync #(.W(8)) u_p3sync(
 wire int0n_mcu;
 
 jtframe_sync #(.W(1)) u_intsync(
+    .clk_in ( clk_cpu   ),
     .clk_out( clk       ),
     .raw    ( int0n     ),
     .sync   ( int0n_mcu )
@@ -102,6 +104,7 @@ always @(*)
     mcu_din8 = !mcu_ds ? mcu_din_s[15:8] : mcu_din_s[7:0];
 
 jtframe_sync #(.W(16)) u_sync(
+    .clk_in ( clk_cpu   ),
     .clk_out( clk       ),
     .raw    ( mcu_din   ),
     .sync   ( mcu_din_s )

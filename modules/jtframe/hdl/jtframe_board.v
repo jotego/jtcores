@@ -107,6 +107,7 @@ module jtframe_board #(parameter
 
     // DIP and OSD settings
     input        [63:0] status,
+    input        [23:0] dipsw,
     output       [12:0] hdmi_arx, hdmi_ary,
     output       [ 1:0] rotate,
 
@@ -230,12 +231,12 @@ wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
 
-wire   [9:0] key_joy1, key_joy2, key_joy3;
+wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [1:0] sensty;
 wire         key_service, key_tilt;
-wire         lock;
+wire         locked;
 wire         autofire0, dial_raw_en, dial_reverse;
 
 wire [COLORW-1:0] pre2x_r, pre2x_g, pre2x_b,
@@ -306,6 +307,7 @@ jtframe_keyboard u_keyboard(
     .key_joy1    ( key_joy1      ),
     .key_joy2    ( key_joy2      ),
     .key_joy3    ( key_joy3      ),
+    .key_joy4    ( key_joy4      ),
     .key_start   ( key_start     ),
     .key_coin    ( key_coin      ),
     .key_reset   ( key_reset     ),
@@ -369,6 +371,7 @@ jtframe_keyboard u_keyboard(
             .core_mod   ( core_mod      ),
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
+            .dipsw      ( dipsw[23:0]   ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
             .mouse_dx   ( bd_mouse_dx   ),
@@ -387,6 +390,7 @@ jtframe_keyboard u_keyboard(
     `ifndef JTFRAME_SIM_GFXEN
     `define JTFRAME_SIM_GFXEN 4'hf
     `endif
+    assign key_joy4    = 10'h0;
     assign key_joy3    = 10'h0;
     assign key_joy2    = 10'h0;
     assign key_joy1    = 10'h0;
@@ -432,6 +436,7 @@ jtframe_inputs #(
     .key_joy1       ( key_joy1        ),
     .key_joy2       ( key_joy2        ),
     .key_joy3       ( key_joy3        ),
+    .key_joy4       ( key_joy4        ),
     .key_start      ( key_start       ),
     .key_coin       ( key_coin        ),
     .key_service    ( key_service     ),
@@ -451,7 +456,7 @@ jtframe_inputs #(
     .game_service   ( game_service    ),
     .game_tilt      ( game_tilt       ),
     .game_test      ( game_test       ),
-    .lock           ( lock            ),
+    .locked         ( locked          ),
 
     // Mouse & Paddle
     .bd_mouse_dx    ( bd_mouse_dx     ),
@@ -473,9 +478,12 @@ jtframe_inputs #(
 
     // Input recording
     .dip_pause      ( dip_pause       ),
+    .ioctl_lock     ( prog_lock       ),
     .ioctl_addr     ( ioctl_addr      ),
+    .ioctl_dout     ( ioctl_dout      ),
     .ioctl_din      ( ioctl_din       ),
     .ioctl_merged   ( ioctl_merged    ),
+    .ioctl_wr       ( ioctl_wr        ),
 
     .debug_bus      ( debug_bus       ),
     // Simulation helpers
@@ -554,7 +562,7 @@ jtframe_dip u_dip(
         .joyana_r2  ( joyana_r2 ),
 
         .led        ( cheat_led ),
-        .lock       ( lock      ),
+        .locked     ( locked    ),
         .timestamp  ( timestamp ),
 
         .pause_in   ( pre_pause ),
@@ -578,7 +586,6 @@ jtframe_dip u_dip(
 
         // Program
         .prog_en    ( prog_cheat),
-        .prog_lock  ( prog_lock ),
         .prog_addr  ( ioctl_addr[7:0] ),
         .prog_wr    ( ioctl_wr  ),
         .prog_data  ( ioctl_dout)
@@ -765,7 +772,7 @@ jtframe_sdram64 #(
 
     always @(posedge clk_sys) begin
         fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
-        show_credits <= lock | (~dip_pause & ~hide_credits `ifdef MISTER & ~status[12] `endif);
+        show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
     end
 
     // To do: HS and VS should actually be delayed inside jtframe_credits too
@@ -785,7 +792,7 @@ jtframe_sdram64 #(
         `ifdef JTFRAME_CREDITS_NOROTATE
             .rotate ( 2'd0          ),
         `else
-            .rotate ( lock ? 2'd0 : { rotate[1], core_mod[0] }  ),
+            .rotate ( locked ? 2'd0 : { rotate[1], core_mod[0] }  ),
         `endif
         .toggle     ( toggle        ),
         .fast_scroll( fast_scroll   ),

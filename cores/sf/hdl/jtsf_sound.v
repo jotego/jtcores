@@ -75,6 +75,7 @@ always @(posedge clk) begin
     endcase
 end
 
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cenalt(
     .clk    ( clk       ),
     .cen12  (           ),
@@ -90,7 +91,7 @@ jtframe_cen48 u_cenalt(
     .cen1p5 ( cen1p5    ),
     .cen1p5b(           )
 );
-
+/* verilator lint_on PINMISSING */
 
 jtframe_cen3p57 u_cen (
     .clk        ( clk       ),

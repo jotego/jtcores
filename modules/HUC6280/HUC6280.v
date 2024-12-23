@@ -1,3 +1,4 @@
+/* verilator lint_off UNOPTFLAT*/
 module bit_adder
   (input  a,
    input  b,
@@ -1057,6 +1058,7 @@ module alu
   assign n1571_o = n1544_o == 3'b101;
   assign n1572_o = {n1571_o, n1563_o, n1561_o, n1553_o, n1550_o, n1547_o};
   /* HUC6280_ALU.vhd:109:17  */
+/* verilator lint_off LATCH */
   always @*
     case (n1572_o)
       6'b100000: n1573_o = cr;
@@ -1067,6 +1069,7 @@ module alu
       6'b000001: n1573_o = cr;
       default: n1573_o = n1573_o;
     endcase
+/* verilator lint_on LATCH */
   /* HUC6280_ALU.vhd:109:17  */
   always @*
     case (n1572_o)
@@ -10656,4 +10659,4 @@ module HUC6280
     else
       n402_q <= n401_o;
 endmodule
-
+/* verilator lint_on UNOPTFLAT*/

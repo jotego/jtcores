@@ -15,9 +15,9 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 15-12-2022 */
-    
 
-// Generic tile map generator with no scroll
+
+// Generic tile map generator with scroll
 // The ROM data must be in these format
 // code, H parts, V part
 // pixel data is 4bpp, and arrives in four bytes. Each byte is for a plane
@@ -76,7 +76,7 @@ always @(posedge clk) begin
     if( ~hs & hsl ) veff <= vdf + scry;
 end
 
-jtframe_tilemap #( 
+jtframe_tilemap #(
     .SIZE       ( SIZE      ),
     .VA         ( VA        ),
     .CW         ( CW        ),

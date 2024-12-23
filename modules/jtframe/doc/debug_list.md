@@ -50,16 +50,17 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] Color mixer
 - [ ] Graphics are correct
 - [ ] Top level simulation hooked up correctly
-- [ ] Simulation starts up correctly (See #27)
+- [ ] Simulation starts up correctly
 - [ ] Music sounds
+- [ ] No sound clipping
 - [ ] OSD sound options (FX level, FM/PSG enable)
 - [ ] Synthesis ok
+- [ ] DIP switches work
 - [ ] Playable
 **Final Verification**
 - [ ] Button names in mame2mra.toml
 - [ ] Add Patreon message
 - [ ] Update README file
-- [ ] Github actions updated so jtbuild builds the new core
 - [ ] Check MiSTer
 - [ ] Check Pocket
 - [ ] Write Patreon entry

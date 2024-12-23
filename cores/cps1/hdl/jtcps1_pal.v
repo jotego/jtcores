@@ -122,7 +122,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_sh #(.width(2),.stages(BLNK_DLY)) u_sh(
+jtframe_sh #(.W(2),.L(BLNK_DLY)) u_sh(
     .clk    ( clk          ),
     .clk_en ( pxl_cen      ),
     .din    ( {~vb, ~hb}   ),

@@ -228,6 +228,8 @@ jt007232 #(.INVA0(1)) u_pcm0(
     .wr_n       ( RnW       ),
     .din        ( cpu_dout  ),
 
+    .swap_gains ( 1'b0      ),
+
     // External memory - the original chip
     // only had one bus
     .roma_addr  ( pcma_addr ),
@@ -242,7 +244,10 @@ jt007232 #(.INVA0(1)) u_pcm0(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm0_snd  )
+    .snd        ( pcm0_snd  ),
+    // debug bus
+    .debug_bus  ( 8'd0      ),
+    .st_dout    (           )
 );
 
 jt007232 #(.INVA0(1)) u_pcm1(
@@ -255,6 +260,8 @@ jt007232 #(.INVA0(1)) u_pcm1(
     .cen_e      (           ),
     .wr_n       ( RnW       ),
     .din        ( cpu_dout  ),
+
+    .swap_gains ( 1'b0      ),
 
     // External memory - the original chip
     // only had one bus

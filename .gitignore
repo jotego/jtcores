@@ -12,6 +12,7 @@
 *.json
 *.kicad_sch-bak
 *.log
+*.lck
 *.lst
 *.lxt
 *.mp4
@@ -63,7 +64,9 @@ cores/*/sidi/*
 cores/*/sockit/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+default.dip
 defmacros.h
+dump2bin.sh
 game.qip
 game_env.F
 game_test.v
@@ -84,6 +87,7 @@ obj_dir
 old/*
 release.bak/*
 release/*
+rom
 rom/*
 rom/cp_*sh
 rom/mra

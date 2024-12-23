@@ -1,3 +1,9 @@
+game:
+  - from: contra
+    get:
+      - jtcontra_gfx.v
+      - jtcontra_gfx_tilemap.v
+      - jtcontra_gfx_obj.v
 jtframe:
   - get: [ jtframe_ff.v ]
   - from: clocking

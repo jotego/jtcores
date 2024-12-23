@@ -80,6 +80,19 @@ func (this vcdData)Get(name string) *VCDSignal {
 	return nil
 }
 
+func (this vcdData)GetAll(name string) []*VCDSignal {
+	if name=="" { return nil }
+	r := make([]*VCDSignal,0,1)
+	for _,each := range this {
+		if each.Name==name { r=append(r,each) }
+	}
+	if len(r) == 0 {
+		return nil
+	} else {
+		return r
+	}
+}
+
 func RenameRegs( ss vcdData ) {
 	// Rename signals for some CPUs
 	// fx68k
@@ -148,6 +161,7 @@ func RenameRegs( ss vcdData ) {
 }
 
 func formatTime( t uint64 ) string {
+	tpico := t
 	t /= 1000 // ignore ps
 	if t==0 { return "0 s" }
 	o := 0
@@ -163,6 +177,7 @@ func formatTime( t uint64 ) string {
 		if s!="" { s=","+s}
 		s = fmt.Sprintf("%d%s%s",parts[k],units[k],s)
 	}
+	s = fmt.Sprintf("%s= %d",s,tpico)
 	return s
 }
 
@@ -319,4 +334,135 @@ func ( this *NameValue ) showDiff( o NameValue ) bool {
 	}
 	if cnt!=0 { fmt.Printf("\n") }
 	return diff
+}
+
+func (file *LnFile) NextVCD( ss vcdData ) bool {
+	// fmt.Printf("%s (#%d @%d):\n",file.fname,file.time, file.line)
+    for file.Scan() {
+        txt := file.Text()
+        if txt[0]=='#' {
+            file.time, _ = strconv.ParseUint( txt[1:],10,64 )
+            return true
+        }
+        // fmt.Printf("\t%s\n",txt)
+        a, v := parseValue(txt)
+        assign( a, v, ss )
+    }
+    return false // EOF
+}
+
+func GetSignals( file *LnFile ) vcdData {
+    ss := make(vcdData)
+    scope := ""
+    type Mode int
+    const(
+        SCAN Mode = iota
+        PASS
+        INIT
+    )
+    mode := SCAN
+    scan_through:
+    for ; file.scn.Scan(); file.line++ {
+        txt := file.scn.Text()
+        switch(mode) {
+            case SCAN: {
+                tokens := strings.Fields(txt)
+                switch(tokens[0]) {
+                    case "$date","$version","$timescale": mode=PASS
+                    case "$scope": {
+                        if tokens[1]!="module" {
+                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
+                        }
+                        if scope!="" { scope += "." }
+                        scope += tokens[2]
+                    }
+                    case "$upscope": {
+                        if i := strings.LastIndex(scope,"."); i!=-1 {
+                            scope = scope[0:i]
+                        }
+                    }
+                    case "$var": {
+                        if tokens[1]!="wire" {
+                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
+                            break
+                        }
+                        s := &VCDSignal{
+                            Scope: scope,
+                            alias: tokens[3],
+                        }
+                        bracket_str := tokens[4]
+                        bracket := 0
+                        if tokens[5][0]=='[' { // bus expression is separated
+                            bracket_str = tokens[5]
+                            s.Name = tokens[4]
+                        } else {
+                            bracket = strings.Index(tokens[4],"[")
+                            if bracket == -1 {
+                                s.Name = tokens[4]
+                                bracket_str = ""
+                            } else {
+                                s.Name = tokens[4][0:bracket]
+                            }
+                        }
+                        if bracket_str!="" {
+                            bend := strings.Index(bracket_str,"]")
+                            parts := strings.Split(bracket_str[bracket:bend-1],":")
+                            s.MSB,_ = strconv.Atoi(parts[0])
+                            if len(parts)==2 {
+                                s.LSB,_ = strconv.Atoi(parts[1])
+                            }
+                        }
+                        ss[s.alias] = s
+                    }
+                    case "$dumpvars": mode = INIT
+                }
+            }
+            case INIT: {
+                if txt=="$end" {
+                    file.line++
+                    break scan_through
+                }
+                a, v := parseValue( txt )
+                assign( a, v, ss )
+            }
+            case PASS : {
+                if txt=="$end" {
+                    mode = SCAN
+                }
+            }
+        }
+    }
+    return ss
+}
+
+
+func assign( alias string, v uint64, ss vcdData) {
+    p, _ := ss[alias]
+    if p==nil {
+        fmt.Printf("Warning: signal vcdData as %s not found\n",alias)
+        return
+    }
+    p.Value = v
+}
+
+func parseValue( txt string ) ( string, uint64 ) {
+    if txt[0]!='0' && txt[0]!='1' && txt[0]!='b' {
+        fmt.Printf("Warning: unexpected value definition %s\n",txt)
+        return "",0
+    }
+    var v uint64
+    if txt[0] == 'b' {
+        var s int
+        for s=1; s<len(txt) && txt[s]!=' '; s++ {
+            v <<= 1
+            if txt[s]=='1' {
+                v |= 1
+            }
+        }
+        s++
+        return txt[s:], v
+    } else {
+        if txt[0]=='1' { v=1 }
+        return txt[1:], v
+    }
 }

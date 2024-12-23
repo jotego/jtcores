@@ -183,6 +183,8 @@ jtframe_sys6809_dma #(.RAM_AW(11),.KONAMI(1)) u_cpu(
     .irq_ack    (           ),
     // Bus sharing
     .bus_busy   ( 1'b0      ),
+    .bg         (           ),
+    .breq_n     ( 1'b1      ),
     // memory interface
     .A          ( A         ),
     .RnW        ( RnW       ),

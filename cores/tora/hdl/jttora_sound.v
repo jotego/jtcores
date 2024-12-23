@@ -146,8 +146,11 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
 );
 `else
 // F1 Dream does not have the ADPCM section
-assign ym_snd   = fm_snd;
-assign mix_peak = 0;
+assign ym_snd     = fm_snd;
+assign mix_peak   = 0;
+assign rom2_cs    = 0;
+assign prepcm_snd = 0;
+assign rom2_addr  = 0;
 `endif
 `else // NOSOUND
     assign snd_dout   = 0;

@@ -13,7 +13,7 @@ name="jtvigil"
 
 [dipsw]
 bitcnt = 16
-delete = [ "Unused", "Unknown", "Coinage", "Coin A", "Coin B" ]
+delete = [ {names=[ "Unused", "Unknown", "Coinage", "Coin A", "Coin B" ]} ]
 rename=[ { name="Invulnerability (Cheat)", to="Cheat"} ]
 
 [ROM]

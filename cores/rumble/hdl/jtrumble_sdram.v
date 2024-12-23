@@ -165,7 +165,9 @@ jtframe_dwnld #(
     .prog_ba      ( dwn_ba         ),
     .prom_we      ( prom_we        ),
     .header       (                ),
-    .sdram_ack    ( prog_ack       )
+    .sdram_ack    ( prog_ack       ),
+    .gfx8_en      ( 1'b0           ),
+    .gfx16_en     ( 1'b0           )
 );
 
 `ifdef SIMULATION

@@ -16,6 +16,9 @@ jobs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+        token: ${{ secrets.PAT }}
     - id: generate-matrix
       run: |
         cd cores
@@ -44,25 +47,19 @@ jobs:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
-        # add pocket in the future:
-        target: [ sidi, mist ]
+        target: [ sidi, mist, pocket ]
     steps:
       - uses: actions/checkout@v3
-      - id: submodules
-        run: |
-          git config --global --add safe.directory /__w/jtcores/jtcores
-          git submodule init
-          git submodule update --depth 1
-          cd modules
-          cd jt12
-          git submodule init
-          git submodule update --depth 1
-          cd ../..
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
       - id: compile
         run: |
           # Compilation on Quartus 13
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg -d JTFRAME_UNLOCKKEY==${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
@@ -82,6 +79,9 @@ jobs:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
       - id: submodules
         run: |
           git config --global --add safe.directory /__w/jtcores/jtcores
@@ -95,7 +95,7 @@ jobs:
       - id: compile
         run: |
           # Compilation on Quartus 17
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}} ${{ secrets.BETAKEY }}
       - id: upload
         uses: actions/upload-artifact@v3
         with:

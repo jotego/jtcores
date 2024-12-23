@@ -1,0 +1,64 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile=[ "tmnt.cpp" ]
+skip = { machines=[
+    "cuebrick",
+    "lgtnfght",
+    "blswhstl",
+    "glfgreat",
+    "tmnt2",
+    "qgakumon",
+    "ssriders",
+    "thndrx2",
+    "prmrsocr",
+], bootlegs=true }
+
+[buttons]
+names = [
+    { machine="tmnt", names="Jump, Attack" },
+    { machine="mia",  names="Knife, Weapon, Weapon select" },
+    { machine="punkshot",names="Pass, Shoot" },
+]
+
+[header]
+info="""
+    byte 0: 00 = TMNT
+            01 = MIA
+            02 = Punk Shot"""
+data = [
+    { machine="mia",      offset=0, data="01" },
+    { machine="punkshot", offset=0, data="02" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+offset=[
+    { machine="punkshot", name="COINS_DSW3",value=4 },
+    { machine="punkshot", name="DSW1_DSW2", value=0 }
+]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true  }, # First 32kB go to $8000, the rest are banked at $6000
+
+    { name="audiocpu",  start="JTFRAME_BA1_START" },
+    { name="k007232",   start="PCM_START" },
+    { name="k053260",   start="PCM_START" },     # same space at 007232
+    { name="upd",       start="UPD_START" },
+    { name="title",     start="TITLE_START" },
+
+    { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
+    { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
+    { machine="punkshot", name="k051960",   start="JTFRAME_BA3_START", width=32 }, # sprites
+    { name="proms",     start="JTFRAME_PROM_START" }, # last one is the priority encoder
+    { machine="mia", name="proms", start="JTFRAME_PROM_START", sequence=[0,0] }, # repeat it so it falls in the right location
+]
+
+order = [ "maincpu", "audiocpu", "k007232", "k053260", "upd", "title", "k052109", "k051960", "proms" ]
+
+patches = [
+    # { machine="tmnt", offset=0x106e, data="4E 71 4E 71 4E 71" } # no memory check
+    { machine="tmnt", offset=0x106e, data="71 4E 71 4E 71 4E" } # no memory check
+]

@@ -1,0 +1,1 @@
+Maggie's hair should not be visible

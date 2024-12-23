@@ -32,6 +32,7 @@ module jtframe_mist #(parameter
     input              pll_locked,
     // interface with microcontroller
     output      [63:0] status,
+    output      [31:0] dipsw,
     // Base video
     input [COLORW-1:0] game_r, game_g, game_b,
     input              LHBL,
@@ -171,6 +172,9 @@ wire  [ 7:0]  ioctl_merged;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
+assign dipsw = `ifdef JTFRAME_SIM_DIPS
+    `JTFRAME_SIM_DIPS `else
+    status[31+DIPBASE:DIPBASE] `endif;
 
 always @* begin
     board_status = { {64-DIPBASE{1'b0}}, status[DIPBASE-1:0] };
@@ -346,6 +350,7 @@ jtframe_board #(
     .mouse_2p       ( mouse_2p        ),
     // DIP and OSD settings
     .status         ( board_status    ),
+    .dipsw          ( dipsw           ),
     .enable_fm      ( enable_fm       ),
     .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),

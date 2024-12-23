@@ -1,7 +1,7 @@
 game:
   - from: s16
     get:
-    - ../cfg/game.yaml
+    - game.yaml
   - from: s16b
     get:
       - jts16b_main.v
@@ -11,6 +11,7 @@ game:
       - jts16b_mul.v
       - jts16b_timer.v
       - jtmc8123.v
+      - ../syn/timing.sdc
 jtframe:
   - from: cpu
     get:

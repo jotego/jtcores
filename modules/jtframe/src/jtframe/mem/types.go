@@ -39,6 +39,7 @@ type SDRAMBus struct {
     Dsn        string `yaml:"dsn"`  // optional name for dsn signal
     Din        string `yaml:"din"`  // optional name for din signal
     Cs         string `yaml:"cs"`
+    Gfx        string `yaml:"gfx_sort"`
 }
 
 type BRAMBus struct {
@@ -50,12 +51,21 @@ type BRAMBus struct {
     We         string `yaml:"we"`
     Addr       string `yaml:"addr"`
     Din        string `yaml:"din"`  // optional name for din signal
+    Dout       string `yaml:"dout"` // optional name for dout signal
     Sim_file   bool   `yaml:"sim_file"`
+    Ioctl      struct {
+        Save bool `yaml:"save"`
+        Order int `yaml:"order"`
+    } `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
+        Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
         Din  string `yaml:"din"`  // optional name for din signal
+        Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
         We   string `yaml:"we"`
+        // filled later
+        AddrFull string           // contains the bus indexes
     } `yaml:"dual_port"`
     ROM struct { // Use the BRAM as ROM
         Offset string `yaml:"offset"`
@@ -109,6 +119,19 @@ type ClockCfg struct {
     Comment string
 }
 
+type IoctlBus struct{
+    DW, AW, AWl int
+    Blocks, SkipBlocks, Size, SizekB int
+    Name, Dout, Ain, Aout string
+}
+
+type Ioctl struct {
+    Dump bool
+    DinName string
+    SkipAll int
+    Buses [6]IoctlBus
+}
+
 type MemConfig struct {
     Include  []Include   `yaml:"include"`
     Download DownloadCfg `yaml:"download"`
@@ -127,4 +150,9 @@ type MemConfig struct {
     // Precalculated values
     Colormsb int
     Unused   [4]bool // true for unused banks
+    // Derived information
+    Ioctl    Ioctl
+    Gfx8     string
+    Gfx16    string
+    Gfx8b0, Gfx16b0 int
 }

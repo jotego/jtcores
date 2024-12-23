@@ -59,7 +59,7 @@ module jtframe_cheat #(parameter AW=22)(
     input    [31:0] timestamp,
     input           pause_in,
     output          pause_out,
-    output          lock,
+    input           locked,
 
     // Communication with game module
     output reg [7:0] st_addr,
@@ -80,7 +80,6 @@ module jtframe_cheat #(parameter AW=22)(
     // PBlaze Program
     input           prog_en,      // resets the address counter
     input           prog_wr,      // strobe for new data
-    input           prog_lock,    // strobe for new data
     input  [7:0]    prog_addr,    // only 8 bits are needed regardless of actual length
     input  [7:0]    prog_data
 );
@@ -137,45 +136,6 @@ end
 `else
     wire expired=0;
 `endif
-
-reg [7:0] lock_key[0:3];
-
-`ifdef JTFRAME_UNLOCKKEY
-    // locked features
-    reg locked=1;
-
-    localparam [31:0] UNLOCKKEY = `JTFRAME_UNLOCKKEY;
-
-    initial begin
-        lock_key[0] <= 0;
-        lock_key[1] <= 0;
-        lock_key[2] <= 0;
-        lock_key[3] <= 0;
-        locked <= 1;
-    end
-    always @(posedge clk) begin
-        if( pwr ) begin
-            case( paddr )
-                8'h30: lock_key[0] <= pout;
-                8'h31: lock_key[1] <= pout;
-                8'h32: lock_key[2] <= pout;
-                8'h33: lock_key[3] <= pout;
-            endcase
-        end
-        if( prog_lock && prog_wr )
-            lock_key[ prog_addr[1:0] ] <= prog_data;
-        locked <= UNLOCKKEY != { lock_key[3], lock_key[2], lock_key[1], lock_key[0] } || expired;
-    end
-`else
-    wire locked=0;
-    initial begin
-        lock_key[0]=0;
-        lock_key[1]=0;
-        lock_key[2]=0;
-        lock_key[3]=0;
-    end
-`endif
-assign lock = locked;
 
 always @(posedge clk) begin
     LVBL_last <= LVBL;
@@ -316,8 +276,6 @@ always @(posedge clk) begin
 
 
                 8'h2?: pin <= timemux; // Time
-                // Lock keys
-                8'h30,8'h31,8'h32,8'h33: pin <= lock_key[ paddr[1:0] ];
                 // UART
                 8'h34: begin
                     pin <= uart_dout;

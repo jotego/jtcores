@@ -161,9 +161,8 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -260,6 +259,7 @@ generate
             assign scr2_pxl  = ~6'h0;
             assign scr2_addr = 15'h0;
             assign map2_addr = 14'h0;
+            assign map2_cs   = 0;
         end
 endgenerate
 `else
@@ -295,7 +295,7 @@ u_obj(
     .LHBL           ( LHBL_obj      ),
     .LVBL           ( LVBL          ),
     .LVBL_obj       ( LVBL_obj      ),
-    .V              ( V             ),
+    .V              ( V[7:0]        ),
     .H              ( H             ),
     .flip           ( flip          ),
     // CPU bus

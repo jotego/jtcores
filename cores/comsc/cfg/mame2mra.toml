@@ -16,7 +16,7 @@ names = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 shifts = [ { name="DSW3", shift=-4 } ]
 
 [ROM]

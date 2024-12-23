@@ -3,12 +3,9 @@ game:
     get:
       - jtdd_main.v
       - jtdd_colmix.v
-      - jtdd_prom_we.v
       - jtdd_video.v
-      - jtdd_char.v
       - jtdd_obj.v
       - jtdd_scroll.v
-      - jtdd_timing.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -20,6 +17,7 @@ jtframe:
   - from: ram
     get:
       - jtframe_ram.v
+      - jtframe_dual_ram16.v
       - jtframe_obj_buffer.v
   - from: cpu
     get:
@@ -29,6 +27,15 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_tilemap.v
+      - jtframe_obj.yaml
+  - from: sdram
+    get:
+      - jtframe_sdram64.yaml
+      - jtframe_dwnld.v
 modules:
   jt:
     - name: jt51

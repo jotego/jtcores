@@ -48,6 +48,16 @@ func (n *XMLNode) AddNode(names ...string) *XMLNode {
 	return &child
 }
 
+func (n *XMLNode) RmNode( rm *XMLNode ) {
+	rest := make( []*XMLNode, 0, len(n.children)-1 )
+	for _, each := range n.children {
+		if each != rm {
+			rest = append( rest, each )
+		}
+	}
+	n.children = rest
+}
+
 // Inserts a copy of a node
 func (n *XMLNode) InsertNode( child XMLNode ) *XMLNode {
 	n.children = append(n.children, &child)

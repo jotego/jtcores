@@ -201,6 +201,8 @@ jt03 u_fm(
     .IOB_in     ( 8'd0       ),
     .IOA_out    (            ),
     .IOB_out    (            ),
+    .IOA_oe     (            ),
+    .IOB_oe     (            ),
     .debug_view (            ),
     .snd        (            )
 );

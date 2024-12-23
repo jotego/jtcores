@@ -2,16 +2,18 @@
 
 For I/O (SDRAM download, etc.) the following indexes are used
 
- Purpose          | MiST   | MiSTer | Pocket
-------------------|--------|--------|-------
- Main ROM         |   0    |    0   |    1
- JTFRAME options  |   1    |    1   |  F900'0000 write
- Cartridges       |        |    4   |
- NVRAM            | 255    |    2   |  N/A
- Cheat ROM        |  16    |   16   |  N/A
- Beta keys        |  N/A   |   17   |   17
- DIP switches     |  N/A   |  254   |  N/A
- Cheat switches   |  N/A   |  255   |  N/A
+| Purpose         | MiST | MiSTer | Pocket          | Sim File  |
+|:----------------|:-----|:-------|:----------------|:----------|
+| Main ROM        | 0    | 0      | 1               | rom.bin   |
+| JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
+| Cartridges      |      | 4      |                 | cart.bin  |
+| NVRAM           | 255  | 2      | 2               | nvram.bin |
+| Cheat ROM       | 16   | 16     | 16              |           |
+| Beta keys       | N/A  | 17     | 17              |           |
+| DIP switches    | N/A  | 254    | N/A             |           |
+| Cheat switches  | N/A  | 255    | N/A             |           |
+
+The cheat ROM and the beta key files must be stored in the folder `/Assets/jtpatreon/common`
 
 ## core_mod (JTFRAME options)
 
@@ -26,7 +28,18 @@ If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of co
 
 If a system has a BIOS (firmware) plus cartridge ROMs, like NeoGeo Pocket, then there will be two different ROM transfers. The first one has the BIOS and is considered the *main ROM*. The second one contains the cartridge dump, i.e. the real game. The cartridge uses a different download index.
 
-The core logic does not have access to the download index as that is *target* specific. Instead, the core should define the **JTFRAME_CART_OFFSET** as the download address start for cartridge data. This can be matched with **JTFRAME_BA1_START** so data is sent to bank 1, for instance.
+The core logic does not have access to the download index as that is *target* specific. Instead, the core should define the **JTFRAME_CART_OFFSET** as the download address start for cartridge data. JTFRAME will add that offset to **ioctl_addr** when sending data to the core.
+
+**JTFRAME_CART_OFFSET** can be matched with **JTFRAME_BA1_START** so data is automatically sent to bank 1, for instance.
+
+Declaring **JTFRAME_CART_OFFSET** will also enable the load option for the cartridge index in the MiSTer OSD menu. See [MiSTer's config string](../target/mister/cfgstr) and [MiSTer's documentation](https://github.com/MiSTer-devel/Wiki_MiSTer/wiki/Core-configuration-string).
+
+There are two files linking what to be loaded during simulation:
+
+- rom.bin is either the ROM data from MRA files or the firmware
+- cart.bin is the cartridge data for systems using firmware and cartridges
+
+If there is firmware, this is transferred first in simulation.
 
 ## Saving Data to the SD Card
 

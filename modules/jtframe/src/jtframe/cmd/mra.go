@@ -34,13 +34,17 @@ var mraCmd = &cobra.Command{
 	Long: `Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
-otherwise the file mame.xml in $JTROOT/rom/mame.xml will be used.
+otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used.
 
 Each repository is meant to have a reduced mame.xml file in $ROM as
 part of the source file commited in git.
 
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
+
+Macros in macros.def are parsed for the "mister" target. This is relevant when
+for some macros like JTFRAME_IOCTL_RD, which may have different values for
+debugging in MiST without affecting the MRA generation.
 
 TOML elements (see full reference in mame2mra.go)
 
@@ -66,6 +70,11 @@ files=[
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ "name"... ]
+# applies an offset to the bit position of MAME's DIP sw tag given by "name"
+# JTTMNT uses this for PunkShot
+offset=[
+	{ machine="", setname="", name="", value=0 },...
+]
 # Add more options
 extra=[
 	{ machine="", setname="", name="", options="", bits="" },...
@@ -79,6 +88,8 @@ defaults=[
 
 [header]
 # Specify the length in macros.def: JTFRAME_HEADER=length
+# The header signal will be high during the header length
+# verilog: if( prog_addr==0 && prog_we && header ) mycfg <= prog_data;
 info="Describe the header"
 fill=0xff
 data = [
@@ -86,7 +97,8 @@ data = [
 	...
 ]
 
-offset = { bits=8, reverse=true, regions=["maincpu","gfx1"...]}
+# region offset table at "start" byte in the header
+offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 
 [buttons]
 names=[
@@ -127,14 +139,15 @@ splits=[
 # Patch the final ROM file, the offset will be automatically adjusted
 # to add JTFRAME_HEADER
 patches = [
-	{ machine="...", setname="...", offset=0x0000, value="01 02 03..." },...
+	{ machine="...", setname="...", offset=0x0000, data="01 02 03..." },...
 ]
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
 			mra.Reduce(args[0])
 		} else { // regular operation, core names are separated by commas
-			mra_args.Xml_path=os.Getenv("JTROOT")+"/rom/mame.xml"
+			mra_args.Xml_path=os.Getenv("JTROOT")+"/doc/mame.xml"
+			mra_args.Def_cfg.Target="mister"
 			for _, each := range args {
 				mra_args.Def_cfg.Core = each
 				mra.Run(mra_args)
@@ -150,12 +163,13 @@ func init() {
 
 	mra_args.Def_cfg.Target = "mist"
 	flag.StringVar(&mra_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
-	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/rom/mame.xml", "Path to MAME XML file")
+	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
 	flag.BoolVarP(&mra_args.Verbose, "verbose", "v", false, "verbose")
 	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
 	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
+	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar(&mra_args.SkipPocket, "skipPocket", false, "Do not generate JSON files for the Pocket")
 	flag.BoolVar(&mra_args.Beta, "beta", false, "Generates the files for a beta core")
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")

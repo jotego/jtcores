@@ -107,7 +107,7 @@ Please support the development: https://patreon.com/jotego
                if necessary by JTFRAME logic,
                The format is:
                bit  |  Meaning
-               3:0  | start[1:0], coin[1:0]
+               3:0  | { start[1:0], coin[1:0] }
                7:4  | joystick for 1P
                     | UP, DOWN, LEFT, RIGHT
                10:8 | buttons
@@ -153,7 +153,7 @@ function clean_up {
     rm -f video.pipe frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
-    if [ -z "$TESTCPP" ]; then rm -f test.cpp game_test.v; fi
+    if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
 }
 
 trap "clean_up; exit 1" INT KILL
@@ -398,6 +398,7 @@ case "$1" in
         rm -f video.bin
         rm -f frame_*.jpg
         rm -f frame.raw
+        rm -rf frames
         VIDEO_DUMP=TRUE
         ;;
     -load)
@@ -405,9 +406,9 @@ case "$1" in
         ;;
     -lint)
         # only possible with verilator
-        EXTRA="$EXTRA --lint-only"
+        EXTRA="$EXTRA --lint-only -Wno-REDEFMACRO -Wno-UNOPTFLAT"
         add_macro LINT
-        export LINT=
+        export LINT=1
         ;;
     -ncverilog|-verilator|-synap|-modelsim|-iverilog|-questasim|-xcelium)
         # This is parsed in the first argument loop
@@ -428,6 +429,7 @@ fi
 
 echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
 
+mkdir -p frames
 if [ -z "$SYSNAME" ]; then
     SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
     echo "Using $SYSNAME as the system name"
@@ -438,6 +440,7 @@ if [ -z "$SYSNAME" ]; then
 fi
 require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
+# fits set name in 8 characters, matching the mra tool behavior
 function shorten_name {
     if [ ${#1} -le 8 ]; then
         echo $1;
@@ -451,7 +454,9 @@ function shorten_name {
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
 if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
+    AUX=$(shorten_name $(basename `pwd`))
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
+    if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi
     echo "Using DIP switches from rom/$(basename `pwd`).dip"
 fi
 
@@ -485,7 +490,7 @@ EOF
     if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
 fi
 
-if [ ! -s rom.bin ]; then
+if [[ ! -s rom.bin && -z "$LINT" ]]; then
     echo "ERROR: file rom.bin is not valid."
     exit 1
 fi
@@ -578,8 +583,8 @@ done
 if [ -e $MODULES/fx68k ]; then
     # These files are read by the FX68K module but they must be in the
     # simulation folder. Forgetting to have them there results in X everywhere
-    ln -sf $MODULES/fx68k/microrom.mem
-    ln -sf $MODULES/fx68k/nanorom.mem
+    ln -sfr $MODULES/fx68k/microrom.mem
+    ln -sfr $MODULES/fx68k/nanorom.mem
 fi
 
 if [ $GATES = NO ]; then
@@ -736,7 +741,6 @@ verilator)
     fi
     if [ -z "$TESTCPP" ]; then
         cp $JTFRAME/hdl/ver/test.cpp .
-        cp $JTFRAME/hdl/ver/game_test.v .
     fi
     # verilog to C++ conversion
     GAME_VLT=
@@ -750,7 +754,7 @@ verilator)
         -I$JTFRAME/hdl/inc -I$CORES/$SYSNAME/$TARGET \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
         --timescale 1ps/1ps \
-        game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \
+        $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \
         -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
         --top-module game_test -o sim \
          $EXTRA $TRACE --prefix UUT --assert \
@@ -762,13 +766,13 @@ verilator)
     if [ -z "$JTFRAME_REGRESSION" ]; then MAKEJOBS=-j; fi
     # boost C++ optimization without affecting other settings
     # export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`
-    if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
-        cat make.log
-        exit $?
-    fi
     if echo "$EXTRA" | grep -q lint-only; then
         echo "Lint only: no simulation "
     else
+        if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
+            cat make.log
+            exit $?
+        fi
         # Run the simulation
         rm -f test.vcd
         if [[ -n "$DUMP" && -z "$SHOWCMD" ]]; then
@@ -799,11 +803,11 @@ if [ ! -z "$SETNAME" ]; then
     fi
 fi
 
-if [ $(ls frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
+if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
     FRAMERATE=30
     if has_macro JTFRAME_SIM_VIDEO; then FRAMERATE=60; fi
     ffmpeg -y -framerate $FRAMERATE \
-        -pattern_type glob -i 'frame_*.jpg' \
+        -pattern_type glob -i frames/'frame_*.jpg' \
         -i snd.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
         -pix_fmt yuv420p test.mp4 > /dev/null
 fi
@@ -814,4 +818,4 @@ COMPILE_TIME=$[$END_TIME - $START_TIME]
 MINUTES=$[$COMPILE_TIME / 60]
 SECONDS=$[$COMPILE_TIME % 60]
 
-echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======" > /dev/stderr
+echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"

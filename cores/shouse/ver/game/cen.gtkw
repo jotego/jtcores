@@ -1,0 +1,45 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Sep 28 02:38:13 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
+[dumpfile_mtime] "Wed Sep 27 20:14:35 2023"
+[dumpfile_size] 565195968
+[savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/cen.gtkw"
+[timestart] 2487780000
+[size] 1263 1010
+[pos] -1 -1
+*-19.157753 2488813756 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[sst_width] 215
+[signals_width] 150
+[sst_expanded] 1
+[sst_vpaned_height] 300
+@24
+TOP.game_test.u_game.u_game.u_cen.clk4[1:0]
+@28
+TOP.game_test.u_game.u_game.u_main.main_E
+TOP.game_test.u_game.u_game.u_main.sub_E
+TOP.game_test.u_game.u_game.u_mcu.mcu_cen
+@29
+TOP.game_test.u_game.u_game.u_cen.cen_snd
+@28
+TOP.game_test.u_game.u_game.u_sound.bsel
+TOP.game_test.u_game.u_game.u_cen.clk
+@c00022
+TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(1)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(2)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+(3)TOP.game_test.u_game.u_game.u_cen.cpu_cen[3:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_sound.u_wav.bsel
+[pattern_trace] 1
+[pattern_trace] 0

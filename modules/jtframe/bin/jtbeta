@@ -1,6 +1,3 @@
-###########################################
-## Copy to MiST, SiDi and Pocket
-###########################################
 #!/bin/bash
 # This file is part of JTFRAME.
 # JTFRAME program is free software: you can redistribute it and/or modify
@@ -26,14 +23,11 @@ function show_usage() {
     cat << EOF
 JTBETA Beta release preparation. (c) Jose Tejada 2021, @topapate
 
-    jtbeta core master_branch [options for jtupdate]
+    jtbeta core [options for jtupdate]
     JTUTIL must point to the JTUTIL repository
 
     Beta preparation:
 
-    -A "week" branch must exist
-    -The "week" branch will be compared to the master branch in the arguments.
-     They must be equal to proceed. The work is done in the master branch.
     -If a patrons/msg file exist, it must have been modified since the
      last beta tag
     -The builds.log file is reset off git
@@ -63,35 +57,18 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
-# Check that MiSTer is reachable
-if ! ping MiSTer.home -c 1 -W 1 > /dev/null; then
-    echo "MiSTer.home is not reachable. Fix the problem and try again"
-    exit 1
-fi
-
-MASTER=master
 CORE=$1
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 shift
-if [[ ! $1 =~ -.* && -n "$1" ]]; then
-    MASTER=$1
-    shift
-fi
 
 if [ ! -d $CORES/$CORE ]; then
     echo "Unknown core $CORE"
     exit 1
 fi
 
-WEEK_COMMIT=$(git rev-parse week)
+MASTER_COMMIT=$(git rev-parse master)
 if [ $? != 0 ]; then
-    echo The week branch does not exist in git
-    exit 1
-fi
-
-MASTER_COMMIT=$(git rev-parse $MASTER)
-if [ $? != 0 ]; then
-    echo The $MASTER branch does not exist in git
+    echo The beta must be done on the master branch
     exit 1
 fi
 
@@ -104,18 +81,6 @@ if ! version_ok.sh > /dev/null; then
     echo "Missing version tag"
     exit $?
 fi
-
-if [ $WEEK_COMMIT != $MASTER_COMMIT ]; then
-    echo The $MASTER branch is not at the same commit as the week branch.
-    echo Caution: you may have not merged the changes from week correctly.
-    echo "continue y/n?"
-    read CONT
-    if [ $CONT != y ]; then
-        exit 1
-    fi
-fi
-
-git checkout $MASTER || exit $?
 
 # If the release folder exists, it may be better to delete it
 if [ -d $JTROOT/release ]; then
@@ -147,12 +112,21 @@ if [ ! -s $JTUTIL/.jtbeta ]; then
     exit 1
 fi
 
+# get $BETAKEY from .jtbeta
 source $JTUTIL/.jtbeta
 # generate the jtbeta.zip file
 # the assembler file for the pico is in asm/beta.s
 cd $JTUTIL/pico
 echo cheatzip beta -beta $BETAKEY
 cheatzip beta -beta $BETAKEY
+# update the beta key in GitHub
+if which gh; then
+    gh secret set BETAKEY -b $BETAKEY
+else
+    echo "Warning: GitHub BETAKEY secret not updated"
+    echo "Install github CLI for automatic update of GitHub secrets"
+fi
+
 
 jtupdate --cores $CORE --seed $DEFAULT_TARGET \
     --beta $BETAKEY --corestamp $CORESTAMP $* \
@@ -171,11 +145,15 @@ git tag --force $TAG
 git push --tags --force
 
 cd $JTROOT/release
-cp -r mister mra $JTBIN
+cp -r mister mra pocket $JTBIN
 cd $JTBIN
 git add *
 git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
 git tag --force $TAG
+
+# Prepare the zip files
+echo "Creating zip files"
+cpbeta.sh $CORE
 
 echo "Adding the reference to JTBIN's wiki"
 cd $JTBIN/../jtbin.wiki
@@ -183,12 +161,8 @@ git pull
 if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     ./addcore.sh $CORE
     git commit -m "Added $CORE"
-    # git push
+    git push
 fi
-
-# Prepare the zip files
-echo "Creating zip files"
-cpbeta.sh $CORE
 
 # Show problems
 BETALOG=$JTROOT/log/update.log

@@ -29,7 +29,7 @@ reg [9:0] cnt;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        { hour, min, sec } <= 0;
+        { hour, min, sec } <= `ifndef JTFRAME_SIM_RTC 0 `else `JTFRAME_SIM_RTC `endif;
         cnt <= 0;
     end else begin
         if( cen ) begin

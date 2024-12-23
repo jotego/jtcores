@@ -3,21 +3,17 @@ game:
     get:
       - jtflane_game.v
       - jtflane_main.v
-      - ../cfg/common.yaml
+      - jt007232.v
+      - common.yaml
   - from: labrun
     get:
       - jtlabrun_colmix.v
       - jtlabrun_video.v
   - from: contra
     get:
-      - jtcontra_gfx.v
-      - jtcontra_gfx_tilemap.v
-      - jtcontra_gfx_obj.v
       # Protection device / Math coprocessor
       - jt051733.v
       - divfunc.v
-      # Sound
-      - jt007232.v
 jtframe:
   - from: sound
     get:

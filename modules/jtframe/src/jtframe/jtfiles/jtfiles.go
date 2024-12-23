@@ -165,7 +165,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 				var path string
 				switch origin {
 				case GAME:
-					path = os.Getenv("CORES") + "/" + newfl.From + "/hdl/"
+					path = os.Getenv("CORES") + "/" + newfl.From + "/cfg/"
 				case FRAME:
 					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
 				case TARGET:

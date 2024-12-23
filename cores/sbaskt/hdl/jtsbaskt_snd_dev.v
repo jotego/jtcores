@@ -112,7 +112,7 @@ jt89 u_psg(
 
 `ifndef NOVLM
 wire [ 2:0] pcm_nc;
-
+/* verilator lint_off PINMISSING */
 vlm5030_gl u_vlm(
     .i_rst   ( vlm_rst      ),
     .i_clk   ( clk          ),
@@ -131,6 +131,7 @@ vlm5030_gl u_vlm(
     .o_dao   (              ),
     .o_audio ( vlm_snd      )
 );
+/* verilator lint_on PINMISSING */
 `else
     reg busy_dummy=0;
     reg cnt_csl;

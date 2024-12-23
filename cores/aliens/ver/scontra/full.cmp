@@ -1,0 +1,84 @@
+# 868d = IRQ start
+# 8682~8 wait until next IRQ
+# 86EA = RTI
+frame 141
+match-trace
+go
+
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+st
+s
+go # RTI
+
+# 141 (154)
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8682
+match-trace
+go
+
+# 142
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+match-trace
+go
+
+# 143 (155)
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8686
+match-trace
+go
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+match-trace
+go # RTI
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8688
+
+# 144 (156)
+go
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868e
+s
+mt PC==$868e
+diff
+
+go
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868a
+go
+
+# 145 (157)
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868e
+step
+mt PC==$868e
+diff
+go
+mt PC==$8688
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868a
+diff
+
+# 146 (158)
+go      # MAME enters IRQ early in comparison
+match-trace # let MAME catch up
+go # sim enters IRQ
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$982a
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.x==$28ea
+step    # clean again
+
+# 147 (159)
+go      # MAME enters IRQ early in comparison
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$982a
+match-trace
+go # sim enters IRQ
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868e
+mt PC==$868e
+step # clean again
+go # MAME RTI
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8686 # sim RTI
+
+# 148 (161)
+go # sim IRQ
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868e
+mt PC==$868e
+step # clean again
+go # both RTI
+# assert TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$86ea
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8689
+step
+step
+diff # should be clean
+
+# 149 (162)

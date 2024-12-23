@@ -45,7 +45,7 @@ module jtframe_ram1_1slot #(parameter
     input               sdram_ack,
     output  reg         sdram_rd,
     output  reg         sdram_wr,
-    output  reg [SDRAMW-1:0] sdram_addr,
+    output      [SDRAMW-1:0] sdram_addr,
     input               data_rdy,
     input               data_dst,
     input       [15:0]  data_read,
@@ -54,20 +54,24 @@ module jtframe_ram1_1slot #(parameter
 );
 
 wire req, req_rnw;
+reg  we;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        sdram_rd   <= 0;
-        sdram_wr   <= 0;
+        we           <= 0;
+        sdram_rd     <= 0;
+        sdram_wr     <= 0;
         sdram_wrmask <= 0;
     end else begin
         if( sdram_ack ) begin
-            sdram_rd   <= 0;
-            sdram_wr   <= 0;
+            sdram_rd <= 0;
+            sdram_wr <= 0;
         end
+        if( data_rdy ) we <= 0;
 
         // accept a new request
         if( req ) begin
+            we          <= 1;
             data_write  <= {(SLOT0_DW==8?2:1){slot0_din}};
             sdram_wrmask<= slot0_wrmask;
             sdram_rd    <= req_rnw;
@@ -92,7 +96,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW)) u_slot0(
     .dout      ( slot0_dout             ),
     .req       ( req                    ),
     .data_ok   ( slot0_ok               ),
-    .we        ( req                    )
+    .we        ( we                      )
 );
 
 endmodule

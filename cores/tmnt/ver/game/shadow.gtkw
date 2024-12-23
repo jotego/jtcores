@@ -1,0 +1,40 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Sep  6 06:37:52 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/tmnt/ver/game/test.fst"
+[dumpfile_mtime] "Wed Sep  6 06:23:32 2023"
+[dumpfile_size] 2137408
+[savefile] "/home/jtejada/jtcores/cores/tmnt/ver/game/shadow.gtkw"
+[timestart] 15080000000
+[size] 1263 1010
+[pos] -35 -71
+*-30.778656 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.
+[sst_width] 219
+[signals_width] 228
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.LVBL
+TOP.game_test.u_game.LHBL
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_clr
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_ok
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_we
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_addr[9:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_prio[6:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -26,8 +26,11 @@ func (this *LnFile) Open(fname string) {
 }
 
 func (this *LnFile) Scan() bool {
-    if(this.scn.Scan()) {
+    if this.scn.Scan() {
         this.line++
+        if this.scn.Err()!=nil {
+            log.Fatal(this.scn.Err())
+        }
         return true
     } else {
         return false

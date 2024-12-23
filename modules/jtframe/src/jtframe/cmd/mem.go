@@ -85,6 +85,9 @@ bram:
       [addr:]
       [din:]
       [sim_file:]
+      ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
+        save: true # a dump2bin.sh file will be generated in the sim folder
+        order: 0   # order in the file
       dual_port:
         name: main
         [din:]

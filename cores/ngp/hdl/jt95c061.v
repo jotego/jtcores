@@ -36,8 +36,10 @@ module jt95c061(
     output     [ 1:0]     we,
     input                 bus_busy,
 
-    output reg [ 3:0]     map_cs  // cs[0] used as flash chip 0, cs[1] chip 1
+    output reg [ 3:0]     map_cs, // cs[0] used as flash chip 0, cs[1] chip 1
                                   // cs[2/3] used for BIOS ROM
+    input      [ 7:0]     debug_bus,
+    output     [ 7:0]     st_dout
 );
 
 wire        port_cs, buserror;
@@ -142,6 +144,7 @@ assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
 assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
 assign porta_dout = { mmr[PAFC][3] ? tout[3] : mmr[PA][3],
                       mmr[PAFC][2] ? tout[1] : mmr[PA][2], mmr[PA][1:0] };
+assign addr[0]=0;
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -358,11 +361,24 @@ always @(posedge clk) begin
     map_cs <= pre_map_cs;
 end
 
-integer k;
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
+        mmr[ 0] <= 0; mmr[ 1] <= 0; mmr[ 2] <= 0; mmr[ 3] <= 0;
+        mmr[ 4] <= 0; mmr[ 5] <= 0; mmr[ 6] <= 0; mmr[ 7] <= 0;
+        mmr[ 8] <= 0; mmr[ 9] <= 0; mmr[10] <= 0; mmr[11] <= 0;
+        mmr[12] <= 0; mmr[13] <= 0; mmr[14] <= 0; mmr[15] <= 0;
+        mmr[16] <= 0; mmr[17] <= 0; mmr[18] <= 0; mmr[19] <= 0;
+        mmr[20] <= 0; mmr[21] <= 0; mmr[22] <= 0; mmr[23] <= 0;
+        mmr[24] <= 0; mmr[25] <= 0; mmr[26] <= 0; mmr[27] <= 0;
+        mmr[28] <= 0; mmr[29] <= 0; mmr[30] <= 0; mmr[31] <= 0;
+        mmr[32] <= 0; mmr[33] <= 0; mmr[34] <= 0; mmr[35] <= 0;
+        mmr[36] <= 0; mmr[37] <= 0; mmr[38] <= 0; mmr[39] <= 0;
+        mmr[40] <= 0; mmr[41] <= 0; mmr[42] <= 0; mmr[43] <= 0;
+        mmr[44] <= 0; mmr[45] <= 0; mmr[46] <= 0; mmr[47] <= 0;
+        mmr[48] <= 0; mmr[49] <= 0; mmr[50] <= 0; mmr[51] <= 0;
+        mmr[52] <= 0; mmr[53] <= 0; mmr[54] <= 0; mmr[55] <= 0;
+        mmr[56] <= 0; mmr[57] <= 0; mmr[58] <= 0; mmr[59] <= 0;
+        mmr[60] <= 0; mmr[61] <= 0; mmr[62] <= 0; mmr[63] <= 0;
         // Fake ADC
         mmr[ADREG0H] <= 8'hff;   // channel 0 is the battery, we give it a high reading
         mmr[ADREG0L] <= 8'hff;
@@ -376,7 +392,7 @@ always @(posedge clk, posedge rst) begin
         mmr[TFFCR][3:2] <= 3;
         // port writes by CPU
         if( port_cs && cen ) begin
-            if( addr[6:0]==ADMOD ) begin
+            if( addr[6:1]==ADMOD[6:1] ) begin
                 if( we[1] ) begin
                     mmr[ ADMOD ][5:0] <= { dout[5:3], 1'b0, dout[1:0] };
                     if( dout[2] ) begin
@@ -445,14 +461,18 @@ end
 
 // To do: jt900h should read the reset vector
 // the rst vector for NGP and NGPC is different
-localparam NGP_RST=32'hFF1DE8;
+`ifndef NVRAM
+localparam NGP_RST=32'hFF1DE8; // NGP reset
+`else
+localparam NGP_RST=32'hFF1800; // NVRAM loaded - bypasses power button
+`endif
 
 jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
 
-    .addr       ( addr      ),
+    .addr       ( addr[23:1]),
     .din        ( din_mux   ),
     .dout       ( dout      ),
     .we         ( we        ),
@@ -467,9 +487,9 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     // Register dump
     .buserror   ( buserror  ),
     .dmp_addr   (           ),     // dump
-    .dmp_dout   (           )
+    .dmp_dout   (           ),
+    .st_addr    ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
-
 endmodule
-

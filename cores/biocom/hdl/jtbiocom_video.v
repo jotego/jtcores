@@ -118,7 +118,6 @@ end
 jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
@@ -160,7 +159,6 @@ jtgng_scroll #(
 u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
@@ -191,6 +189,8 @@ assign scr1_addr  = 0;
 assign scr1_dout  = 0;
 `endif
 
+
+
 `ifndef NOSCR2
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
@@ -202,7 +202,6 @@ jtgng_scroll #(
 u_scroll2 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
@@ -233,8 +232,7 @@ assign scr2_addr  = 0;
 assign scr2_dout  = 0;
 `endif
 
-wire nc;
-
+/* verilator tracing_off */
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
     .VINV       (  0         ),
     .ROM_AW     ( 18         ),
@@ -260,7 +258,7 @@ u_obj (
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
     // SDRAM interface
-    .rom_addr   ({nc,obj_addr}),
+    .rom_addr   ( obj_addr    ),
     .rom_data   ( obj_data    ),
     .rom_cs     ( obj_cs      ),
     .rom_ok     ( obj_ok      ),
@@ -270,7 +268,7 @@ u_obj (
 );
 
 assign obj_AB[13:11] = 3'b111;
-
+/* verilator tracing_on */
 `ifndef NOCOLMIX
 jtbiocom_colmix u_colmix (
     .rst          ( rst           ),

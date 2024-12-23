@@ -70,7 +70,7 @@ module jtcps1_game(
     input   [15:0]  data_read,
 
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [ 7:0]  ioctl_din,
@@ -510,6 +510,8 @@ assign game_led   = 0;
 reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
+wire nc0, nc1, nc2, nc3;
+
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),
@@ -523,7 +525,7 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .cfg_we      ( cfg_we        ),
 
     // ROM LOAD
-    .ioctl_addr  ({1'b0,ioctl_addr}),
+    .ioctl_addr  ( ioctl_addr    ),
     .ioctl_dout  ( ioctl_dout    ),
     .ioctl_din   ( ioctl_din     ),
     .ioctl_wr    ( ioctl_wr      ),
@@ -621,10 +623,10 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
 
     // Bank 0: allows R/W
     /*verilator lint_off width*/
-    .ba0_addr    ( ba0_addr      ),
-    .ba1_addr    ( ba1_addr      ),
-    .ba2_addr    ( ba2_addr      ),
-    .ba3_addr    ( ba3_addr      ),
+    .ba0_addr    ({nc0,ba0_addr} ),
+    .ba1_addr    ({nc1,ba1_addr} ),
+    .ba2_addr    ({nc2,ba2_addr} ),
+    .ba3_addr    ({nc3,ba3_addr} ),
     /*verilator lint_on width*/
     .ba_rd       ( ba_rd         ),
     .ba_wr       ( ba_wr         ),

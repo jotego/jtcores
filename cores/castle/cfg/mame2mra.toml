@@ -10,7 +10,7 @@ names = [
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename = [
     {  name="Difficulty 1 (Game)", To="Gameplay" },
     {  name="Difficulty 2 (Strength)", To="Strength" },

@@ -18,7 +18,7 @@ name="jtkunio"
 
 [dipsw]
 # Flip screen not supported. Hard-wired as disabled in jtkunio_main
-delete = [ "Unused", "Unknown", "Flip Screen", "Cabinet" ]
+delete = [{names=[ "Unused", "Unknown", "Flip Screen", "Cabinet" ]}]
 bitcnt = 16
 
 

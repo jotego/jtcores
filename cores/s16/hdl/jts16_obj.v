@@ -147,7 +147,7 @@ jts16_obj_draw #(.MODEL(MODEL)) u_draw(
 
 reg [8:0] hobj;
 localparam [8:0] HOBJ_START = 9'haa-PXL_DLY; //a6
-localparam [8:0] FLIP_START = 9'hc0-HOBJ_START;
+localparam [8:0] FLIP_START = 9'hb0-HOBJ_START; //9'hc0-before
 
 always @(posedge clk) begin
     if( !hsn ) hobj <= (flip ? (9'h1ff+FLIP_START) : HOBJ_START);// + {debug_bus[7], debug_bus};

@@ -198,10 +198,13 @@ jtkcpu u_cpu(
     .firq_n (gfx_firqn               ),
 
     // memory bus
-    .din    ( cpu_din   ),
-    .dout   ( cpu_dout  ),
-    .addr   ({Aupper, A}),
-    .we     ( cpu_we    )
+    .din        ( cpu_din   ),
+    .dout       ( cpu_dout  ),
+    .addr       ({Aupper, A}),
+    .we         ( cpu_we    ),
+    // Debug
+    .pcbad      (           ),
+    .buserror   (           )
 );
 /* verilator tracing_on */
 endmodule

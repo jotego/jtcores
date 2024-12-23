@@ -100,7 +100,7 @@ assign st_dout    = st_addr[0] ? fave[15:8] : fave[7:0]; // 10,000kHz = 2710 in 
 assign bus_cs     = pre_ram_cs || rom_cs;
 assign disp_cs    = vram_cs | scrram_cs;
 assign disp_busy  = hdump[1]; // This has approximately the same effect as the original 4-flip flop circuit
-assign bus_busy   = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ram_ok, disp_cs & disp_busy };
+assign bus_busy   = |{ rom_cs & ~ok_dly, ram_cs & ~ram_ok, disp_cs & disp_busy };
 assign bus_legit  = disp_cs;
 assign BUSn       = ASn | &dsn;
 assign ram_cs     = ~BUSn & pre_ram_cs;
@@ -132,7 +132,7 @@ always @* begin
     dmarq     = 0;
     pos_cs    = 0;
     vint_ctl  = 0;
-    if( !ASn ) begin
+    if( !ASn && (RnW || dsn!=3)) begin
         rom_cs    = A[21:17]<=2; // 00000~5FFFF
         pre_ram_cs= A[21:17]==3; // 60000~6FFFF
         objram_cs = A[21:17]==4; // 80000
@@ -233,7 +233,7 @@ jtframe_68kdtack #(.W(8)) u_dtack(
     // Frequency report
     .fave       ( fave      ),
     .fworst     (           ),
-    .frst       (           )
+    .frst       ( 1'b0      )
 );
 
 jtframe_m68k u_cpu(

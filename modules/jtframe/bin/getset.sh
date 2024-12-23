@@ -54,7 +54,7 @@ function require {
 }
 
 require "$CORES/$CORENAME/cfg/mame2mra.toml"
-require "$ROM/mame.xml"
+require "$JTROOT/doc/mame.xml"
 
 cd $ROM
 AUX=`mktemp`

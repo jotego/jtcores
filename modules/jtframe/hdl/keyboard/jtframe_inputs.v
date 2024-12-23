@@ -34,7 +34,7 @@ module jtframe_inputs(
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4,
     input       [3:0] board_coin, board_start,
 
-    input       [9:0] key_joy1, key_joy2, key_joy3,
+    input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
     input       [3:0] key_start, key_coin,
     input             key_service,
     input             key_test,
@@ -50,7 +50,7 @@ module jtframe_inputs(
     output reg        game_service,
     output            game_test,
     output reg        game_tilt,
-    input             lock, // disable joystick inputs
+    output reg        locked, // disable joystick inputs
 
     // Mouse & Paddle
     input signed [8:0] bd_mouse_dx, bd_mouse_dy,
@@ -67,9 +67,12 @@ module jtframe_inputs(
     output      [ 1:0] dial_x, dial_y,
 
     input       [ 7:0] debug_bus,
+    input              ioctl_lock,
     // input data recording
     input       [12:0] ioctl_addr,
     input       [ 7:0] ioctl_din,
+    input       [ 7:0] ioctl_dout,
+    input              ioctl_wr,
     output      [ 7:0] ioctl_merged,
     // For simulation only
     input              downloading
@@ -146,7 +149,7 @@ localparam COIN_BIT   = 7+(BUTTONS-2);
 localparam PAUSE_BIT  = 8+(BUTTONS-2);
 
 reg        last_pause, last_osd_pause, last_joypause, last_reset;
-wire       joy_pause;
+wire       joy_pause, joy_test;
 wire [3:0] joy_start, joy_coin;
 wire       vbl_in, vbl_out;
 reg        autofire, vsl, service_l, pause_frame;
@@ -154,12 +157,14 @@ reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
     assign joy_pause = board_coin[0] & board_joy1[4];
+    assign joy_test  = board_start[0] & board_joy1[4];
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
     assign joy_pause = joy1_sync[PAUSE_BIT] | joy2_sync[PAUSE_BIT] | joy3_sync[PAUSE_BIT] | joy4_sync[PAUSE_BIT];
     assign joy_start = { joy4_sync[START_BIT], joy3_sync[START_BIT], joy2_sync[START_BIT], joy1_sync[START_BIT]};
     assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , joy2_sync[COIN_BIT] , joy1_sync[COIN_BIT]};
+    assign joy_test  = 0;
 `endif
 assign vbl_in    = vs && !vsl;
 assign vbl_out   =!vs &&  vsl;
@@ -184,7 +189,7 @@ function [9:0] apply_rotation;
     begin
     apply_rotation = {10{ACTIVE_LOW[0]}} ^
         (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        flip ?
+        ~flip ?
          { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
          { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
     end
@@ -219,7 +224,7 @@ endfunction
     end
     assign game_test = sim_inputs[frame_cnt][11];
 `else
-    assign game_test = key_test;
+    assign game_test = key_test | joy_test;
 `endif
 
 assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~dip_flip, autofire );
@@ -253,7 +258,7 @@ always @(posedge clk, posedge rst) begin
 `endif
         game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~dip_flip, autofire ));
         game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~dip_flip, autofire ));
-        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0]           , rot_control, ~dip_flip, autofire ));
+        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~dip_flip, autofire ));
 
         soft_rst <= key_reset && !last_reset;
 
@@ -283,7 +288,7 @@ always @(posedge clk, posedge rst) begin
         game_tilt    <= key_tilt    ^ ACTIVE_LOW[0];
 
         // Disable inputs for locked cores
-        if( lock ) begin
+        if( locked ) begin
             game_joy1    <= {10{ACTIVE_LOW[0]}};
             game_joy2    <= {10{ACTIVE_LOW[0]}};
             game_joy3    <= {10{ACTIVE_LOW[0]}};
@@ -295,6 +300,27 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+
+`ifdef JTFRAME_UNLOCKKEY // lock system inputs
+    localparam [31:0] UNLOCKKEY = `JTFRAME_UNLOCKKEY;
+    reg [7:0] lock_key[0:3];
+
+    initial begin
+        lock_key[0] = 0;
+        lock_key[1] = 0;
+        lock_key[2] = 0;
+        lock_key[3] = 0;
+        locked      = 1;
+    end
+
+    always @(posedge clk) begin
+        if( ioctl_lock && ioctl_wr )
+            lock_key[ ioctl_addr[1:0] ] <= ioctl_dout;
+        locked <= UNLOCKKEY != { lock_key[3], lock_key[2], lock_key[1], lock_key[0] };
+    end
+`else
+    initial locked=0;
+`endif
 
 // Dial emulation
 jtframe_dial u_dial(
@@ -332,7 +358,7 @@ jtframe_paddle u_paddle(
 jtframe_mouse u_mouse(
     .rst        ( rst          ),
     .clk        ( clk          ),
-    .lock       ( lock         ),
+    .lock       ( locked       ),
 
     // Mouse emulation
     .joy1       ( game_joy1[3:0] ^ {4{ACTIVE_LOW[0]}} ),

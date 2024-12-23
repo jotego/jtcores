@@ -44,7 +44,7 @@ module jtgunsmk_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -118,7 +118,7 @@ assign pxl_cen  = cen6;
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -127,7 +127,7 @@ jtframe_cen48 u_cen(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
-
+/* verilator lint_on PINMISSING */
 wire LHBL_obj, LVBL_obj, preLHBL, preLVBL;
 
 jtgng_timer u_timer(
@@ -172,7 +172,7 @@ u_prom_we(
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -258,6 +258,7 @@ jtgng_sound u_sound (
     // Interface with main CPU
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
+    .snd2_latch     (                ),
     .snd_int        ( V[5]           ),
     // sound control
     .enable_psg     ( enable_psg     ),
@@ -272,6 +273,7 @@ jtgng_sound u_sound (
     .ym_snd         ( snd            ),
     .sample         ( sample         ),
     .peak           ( game_led       ),
+    .debug_bus      ( debug_bus      ),
     .debug_view     ( debug_view     )
 );
 
@@ -314,7 +316,7 @@ jt1943_video #(
     .cen3          ( cen3          ),
     .cpu_cen       ( cpu_cen       ),
     .cpu_AB        ( cpu_AB[10:0]  ),
-    .V             ( V[7:0]        ),
+    .V             ( V             ),
     .H             ( H             ),
     .rd_n          ( rd_n          ),
     .wr_n          ( wr_n          ),
@@ -343,6 +345,8 @@ jt1943_video #(
     .map1_data     ( map_data      ),
     .map1_ok       ( map1_ok       ),
     .map1_cs       ( map1_cs       ),
+    .map2_ok       ( 1'b1          ),
+    .map2_cs       (               ),
     .map2_addr     (               ),
     .map2_data     (               ),
     // OBJ
@@ -384,6 +388,7 @@ jt1943_video #(
     .prom_objlo_we ( prom_objlo_we ),
     // Debug
     .gfx_en        ( gfx_en        ),
+    .debug_bus     ( debug_bus     ),
     // Pixel Output
     .red           ( red           ),
     .green         ( green         ),
@@ -396,6 +401,7 @@ always @(*) begin
 end
 
 // Scroll data: Z, Y, X
+/* verilator lint_off PINMISSING */
 jtframe_rom #(
     .SLOT0_AW    ( 13              ), // char
     .SLOT0_DW    ( 16              ),
@@ -465,5 +471,5 @@ jtframe_rom #(
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );
-
+/* verilator lint_on PINMISSING */
 endmodule

@@ -33,7 +33,6 @@ module jtgng_scroll #(parameter
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
-    input              cpu_cen,
     input              Asel,
     input  [SCANW-1:0] AB,
     input        [7:0] V, // V128-V1
@@ -72,7 +71,7 @@ assign VS   = vpos + { {POSW-8{1'b0}}, VF};
 assign Hsum = hpos_s + ( LAYOUT==1 ?
             { {POSW-8{~Hfix[8]}}, HF[7:0]} : (
             LAYOUT==10 && SCANW==12 ?
-            HF :
+            { {POSW-9{1'd0}}, HF} :
             { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} ));
 assign busy = (HS[2:0]<2) && scr_cs;
 

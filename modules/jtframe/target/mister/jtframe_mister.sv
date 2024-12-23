@@ -655,6 +655,7 @@ jtframe_board #(
     .dial_y         ( dial_y          ),
     // DIP and OSD settings
     .status         ( status          ),
+    .dipsw          ( dipsw           ),
     .enable_fm      ( enable_fm       ),
     .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),

@@ -413,11 +413,12 @@ jtcop_snd u_sound(
         end
     end
 
+    wire nc;
     jtframe_frac_cen #(.WC(3)) u_cenmcu(
         .clk ( clk24    ),
         .n   ( 3'd1     ),
         .m   ( 3'd3     ),
-        .cen ( cen_mcu  ),
+        .cen ({nc,cen_mcu}),
         .cenb(          )
     );
 
@@ -636,7 +637,7 @@ jtcop_sdram u_sdram(
     .downloading ( downloading   ),
     .dwnld_busy  ( dwnld_busy    ),
 
-    .ioctl_addr ( ioctl_addr ),
+    .ioctl_addr ( ioctl_addr[24:0] ),
     .ioctl_dout ( ioctl_dout ),
     .ioctl_din  ( ioctl_din  ),
     .ioctl_wr   ( ioctl_wr   ),

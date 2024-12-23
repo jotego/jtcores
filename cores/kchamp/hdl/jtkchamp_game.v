@@ -61,11 +61,11 @@ assign flip       = ~dip_flip ^ ~main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = status[13];
 
-reg  [24:0] post_addr;
+reg  [25:0] post_addr;
 wire        is_obj = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PROM_START[21:0];
 
 always @(*) begin
-    post_addr = ioctl_addr[24:0];
+    post_addr = ioctl_addr;
     if( is_obj ) begin
         post_addr[0]     =~ioctl_addr[13]; // pixels 8-15
         post_addr[1]     = ioctl_addr[16]; // bit plane
@@ -233,7 +233,10 @@ u_dwnld(
     .prog_we        ( prog_we       ),
     .prom_we        ( prom_we       ),
     .sdram_ack      ( sdram_ack     ),
-    .header         (               )
+    // Unused:
+    .header         (               ),
+    .gfx8_en        ( 1'b0          ),
+    .gfx16_en       ( 1'b0          )
 );
 
 jtframe_rom #(

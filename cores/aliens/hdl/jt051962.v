@@ -95,6 +95,10 @@ module jt051962(
     input      [ 7:0] debug_bus
 );
 
+parameter [8:0] HB_OFFSET=0,
+                HB_EXTRAL=0,
+                HB_EXTRAR=0;
+
 reg  [7:0] cola, colb, colf;
 reg [31:0] pxlf_data, pxla_data, pxlb_data;
 reg        hflipa, hflipb;
@@ -102,14 +106,14 @@ reg        hflipa, hflipb;
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h029    ),
-    .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
+    .HB_START   ( 9'h029+HB_OFFSET-HB_EXTRAR ),
+    .HB_END     ( 9'h069+HB_OFFSET+HB_EXTRAL ),  // 10.67 us in RE verilog model
     .HS_START   ( 9'h034    ),
 
     .V_START    ( 9'h0F8    ),
     .VB_START   ( 9'h1EF    ),
     .VB_END     ( 9'h10F    ),  //  2.56 ms
-    .VS_START   ( 9'h1FF    ),
+    .VS_START   ( 9'h1FF    ),  // ~512.5us, measured on X-Men PCB
     .VS_END     ( 9'h0FF    ),
     .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
 ) u_vtimer(
@@ -139,7 +143,7 @@ endfunction
 // Tile ROM reads by the CPU
 // This will need to include a wait state
 always @(posedge clk) begin
-    case( cpu_addr )
+    case( cpu_addr^debug_bus[1:0] )
         2'd0: cpu_din <= lyra_data[ 7: 0];
         2'd1: cpu_din <= lyra_data[15: 8];
         2'd2: cpu_din <= lyra_data[23:16];

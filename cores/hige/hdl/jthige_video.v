@@ -112,7 +112,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),

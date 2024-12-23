@@ -94,6 +94,7 @@ initial begin
     // VS should be at least 3 line long
     // In the case the count is expressed in a funny way
     // with VS_END < VS_START, the check is not performed
+    /* verilator lint_off CMPCONST */
     if ( !(VS_END<VS_START || (VS_END-VS_START)>=3) ) begin
         $display("%m assert failed ");
     end
@@ -103,6 +104,7 @@ initial begin
     if ( !(HS_END<HS_START || (HS_END-HS_START)>=27) ) begin
         $display("%m assert failed ");
     end
+    /* verilator lint_on CMPCONST */
 end
 `endif
 

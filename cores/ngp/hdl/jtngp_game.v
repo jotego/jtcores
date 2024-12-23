@@ -23,8 +23,11 @@ module jtngp_game(
 wire [20:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] cpu_dout, gfx_dout, shd_dout, flash0_dout;
-wire [ 7:0] snd_latch, main_latch;
+wire [ 7:0] snd_latch, main_latch,
+            st_video, st_main, st_snd;
 wire [ 1:0] cpu_we, shd_we;
+reg  [ 7:0] st_mux;
+reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
@@ -32,15 +35,39 @@ wire        hirq, virq, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
-assign debug_view = 0;
+assign debug_view = st_mux;
 assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
 
+`ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
+
+always @(posedge clk) begin
+    if( prog_ba==1 && !ioctl_ram && ioctl_wr )
+        cart_size <= ioctl_addr[21] ? 3'b100 :
+                     ioctl_addr[20] ? 3'b010 :
+                     ioctl_addr[19] ? 3'b001 : 3'b0;
+end
+
+always @(posedge clk) begin
+    case( debug_bus[7:6] )
+        0: st_mux <= st_main;
+        1: st_mux <= st_video;
+        2: st_mux <= st_snd;
+        3: case( debug_bus[5:4] )
+            0: st_mux <= snd_latch;
+            1: st_mux <= main_latch;
+            2: st_mux <= { 5'd0, snd_nmi, snd_irq, snd_rstn };
+            default: st_mux <= 0;
+        endcase
+    endcase
+end
+
 jtngp_main u_main(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
+    .clk_rom    ( clk       ),
     .rtc_cen    ( rtc_cen   ),
     .cen12      ( cen12     ),
     .cen6       ( cen6      ),
@@ -51,6 +78,7 @@ jtngp_main u_main(
     // player inputs
     .joystick1  ( joystick1 ),
     .start_button(start_button[0]),
+    .pwr_button ( coin_input[0]),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
@@ -74,20 +102,31 @@ jtngp_main u_main(
 
     // Cartridge
     .flash0_cs  ( flash0_cs ),
+    .flash0_rdy ( flash0_rdy),
     .flash0_dout(flash0_dout),
     .flash1_cs  (           ),
 
     // Firmware access
     .rom_data   ( rom_data  ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( rom_ok    ),
+
+    // NVRAM
+    .ioctl_addr ( ioctl_addr[13:0]),
+    .ioctl_dout ( ioctl_dout),
+    .ioctl_wr   ( ioctl_wr  ),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_ram  ( ioctl_ram ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_main   )
 );
 
 jtngp_flash u_flash(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
 
-    .dev_type   ( 3'd0      ), // 2MB for now
+    .dev_type   ( cart_size ),
     // interface to CPU
     .cpu_addr   ( cpu_addr  ),
     .cpu_cs     ( flash0_cs ),
@@ -129,7 +168,10 @@ jtngp_snd u_snd(
 
     .sample     ( sample    ),
     .snd_l      ( snd_left  ),
-    .snd_r      ( snd_right )
+    .snd_r      ( snd_right ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_snd    )
 );
 /* verilator tracing_off */
 jtngp_video u_video(
@@ -138,7 +180,7 @@ jtngp_video u_video(
     .clk24      ( clk24     ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .video_cen  ( {vcen12, vcen6} ),
+    .video_cen  ( {vcen6, vcen12} ),
 
     .status     ( status    ),
 
@@ -159,7 +201,10 @@ jtngp_video u_video(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-    .gfx_en     ( gfx_en    )
+    .gfx_en     ( gfx_en    ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 endmodule

@@ -20,8 +20,8 @@
 
 module jtgng_main(
     input              clk,
+    input              clk_dma,
     input              cen6,
-    output             cpu_cen,
     input              rst,
     input              LVBL,   // vertical blanking when 0
     input              block_flash,
@@ -56,7 +56,7 @@ module jtgng_main(
     output  [12:0]     cpu_AB,
     output             RnW,
     output reg         OKOUT,
-    output  [7:0]      ram_dout,
+    output  [7:0]      dma_dout,
     // ROM access
     output  reg        rom_cs,
     output  reg [16:0] rom_addr,
@@ -70,86 +70,48 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire waitn;
-wire nRESET;
-wire cen_E, cen_Q;
-reg  sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+wire [ 7:0] ram_dout;
+wire        nRESET, bus_busy, cpu_cen;
+reg         sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+reg  [ 7:0] cpu_din, cabinet_input;
+reg  [ 2:0] bank;
 
-//`ifdef SIMULATION
-//reg dump_on = 1'b0;
-//always @(posedge bank_cs/*, posedge scr_cs, posedge char_cs*/) begin
-//    if( !dump_on ) begin
-//        dump_on <= 1'b1;
-//        $display("DUMP starts because of CS edge");
-//        $DUMPFILE("test.lxt");
-//        $dumpvars(0,mist_test);
-//        $dumpon;
-//    end
-//end
-//`endif
-
-reg [7:0] AH;
+assign bus_busy = scr_busy | char_busy;
+assign cpu_AB   = A[12:0];
 
 always @(*) begin
-    sound_cs    = 1'b0;
-    OKOUT       = 1'b0;
-    scrpos_cs   = 1'b0;
-    scr_cs      = 1'b0;
-    in_cs       = 1'b0;
-    blue_cs     = 1'b0;
-    redgreen_cs = 1'b0;
-    flip_cs     = 1'b0;
-    ram_cs      = 1'b0;
-    char_cs     = 1'b0;
-    bank_cs     = 1'b0;
-    rom_cs      = 1'b0;
-    if( /* (E || Q || !waitn) && */ nRESET ) case(A[15:13])
-        3'b000: ram_cs = 1'b1;
+    sound_cs    = 0;
+    OKOUT       = 0;
+    scrpos_cs   = 0;
+    scr_cs      = 0;
+    in_cs       = 0;
+    blue_cs     = 0;
+    redgreen_cs = 0;
+    flip_cs     = 0;
+    ram_cs      = 0;
+    char_cs     = 0;
+    bank_cs     = 0;
+    rom_cs      = 0;
+    if( nRESET ) case(A[15:13])
+        3'b000: ram_cs = 1;
         3'b001: case( A[12:11])
-                2'd0: char_cs = 1'b1;
-                2'd1: scr_cs  = 1'b1;
-                2'd2: in_cs   = 1'b1;
+                2'd0: char_cs = 1;
+                2'd1: scr_cs  = 1;
+                2'd2: in_cs   = 1;
                 2'd3: case( A[10:8] )
                     3'd0: redgreen_cs = block_flash ? ~LVBL : 1'b1;
                     3'd1: blue_cs     = block_flash ? ~LVBL : 1'b1;
-                    3'd2: sound_cs    = 1'b1;
-                    3'd3: scrpos_cs   = 1'b1;
-                    3'd4: OKOUT       = 1'b1;
-                    3'd5: flip_cs     = 1'b1;
-                    3'd6: bank_cs     = 1'b1;
+                    3'd2: sound_cs    = 1;
+                    3'd3: scrpos_cs   = 1;
+                    3'd4: OKOUT       = 1;
+                    3'd5: flip_cs     = 1;
+                    3'd6: bank_cs     = 1;
                     default:;
                 endcase
             endcase
-        default: rom_cs = 1'b1;
+        default: rom_cs = 1;
     endcase
 end
-
-// SCROLL H/V POSITION
-always @(posedge clk or negedge nRESET)
-    if( !nRESET ) begin
-        scr_hpos <= 8'd0;
-        scr_vpos <= 8'd0;
-    end else if(cen_Q) begin
-        if( scrpos_cs && A[3] && scr_holdn)
-        case(A[1:0])
-            2'd0: scr_hpos[7:0] <= cpu_dout;
-            2'd1: scr_hpos[8]   <= cpu_dout[0];
-            2'd2: scr_vpos[7:0] <= cpu_dout;
-            2'd3: scr_vpos[8]   <= cpu_dout[0];
-        endcase
-    end
-
-// special registers
-reg [2:0] bank;
-always @(posedge clk or negedge nRESET)
-    if( !nRESET ) begin
-        bank   <= 3'd0;
-    end
-    else if(cen_Q) begin
-        if( bank_cs && !RnW ) begin
-            bank <= cpu_dout[2:0];
-        end
-    end
 
 // CPU reset
 jt12_rst u_rst(
@@ -158,78 +120,62 @@ jt12_rst u_rst(
     .rst_n  ( nRESET    )
 );
 
-localparam coinw = 4;
-reg [coinw-1:0] coin_cnt1, coin_cnt2;
-
-always @(posedge clk)
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        coin_cnt1 <= {coinw{1'b0}};
-        coin_cnt2 <= {coinw{1'b0}};
-        flip <= 1'b0;
-        sres_b <= 1'b1;
+        flip      <= 0;
+        sres_b    <= 0;
+        snd_latch <= 0;
+        scr_hpos  <= 0;
+        scr_vpos  <= 0;
+        bank <= 0;
+    end else if( cpu_cen ) begin
+        if( bank_cs && !RnW ) bank <= cpu_dout[2:0];
+        if( scrpos_cs && A[3] && scr_holdn) begin
+            case(A[1:0]) // SCROLL H/V POSITION
+                0: scr_hpos[7:0] <= cpu_dout;
+                1: scr_hpos[8]   <= cpu_dout[0];
+                2: scr_vpos[7:0] <= cpu_dout;
+                3: scr_vpos[8]   <= cpu_dout[0];
+            endcase
         end
-    else if(cen_Q) begin
-        if( flip_cs )
+        if( sound_cs ) snd_latch <= cpu_dout;
+        if( flip_cs  ) begin
             case(A[2:0])
                 3'd0: flip <= ~cpu_dout[0];
                 3'd1: sres_b <= cpu_dout[0];
-                3'd2: coin_cnt1 <= coin_cnt1+{ {(coinw-1){1'b0}}, cpu_dout[0] };
-                3'd3: coin_cnt2 <= coin_cnt2+{ {(coinw-1){1'b0}}, cpu_dout[0] };
+                // 2,3: coin counters
                 default:;
             endcase
+        end
     end
+end
 
-always @(posedge clk)
-    if( rst )
-        snd_latch <= 8'd0;
-    else if(cen_Q) begin
-        if( sound_cs ) snd_latch <= cpu_dout;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        cabinet_input <= 0;
+    end else begin
+        case( cpu_AB[3:0])
+            0: cabinet_input <= { coin_input, // COINS
+                         service,
+                         1'b1, // tilt?
+                         2'h3, // undocumented. The game start screen has background when set to 0!
+                         start_button }; // START
+            1: cabinet_input <= { 2'b11, joystick1 };
+            2: cabinet_input <= { 2'b11, joystick2 };
+            3: cabinet_input <= dipsw_a;
+            4: cabinet_input <= dipsw_b;
+            default: cabinet_input <= 8'hff;
+        endcase
     end
+end
 
-reg [7:0] cabinet_input;
-
-always @(*)
-    case( cpu_AB[3:0])
-        4'd0: cabinet_input = { coin_input, // COINS
-                     service,
-                     1'b1, // tilt?
-                     2'h3, // undocumented. The game start screen has background when set to 0!
-                     start_button }; // START
-        4'd1: cabinet_input = { 2'b11, joystick1 };
-        4'd2: cabinet_input = { 2'b11, joystick2 };
-        4'd3: cabinet_input = dipsw_a;
-        4'd4: cabinet_input = dipsw_b;
-        default: cabinet_input = 8'hff;
-    endcase
-
-
-// RAM, 8kB
-wire cpu_ram_we = ram_cs && !RnW;
-assign cpu_AB = A[12:0];
-
-wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
-wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
-
-jtframe_ram #(.AW(13)) u_ram(
-    .clk        ( clk       ),
-    .cen        ( cen_Q     ),
-    .addr       ( RAM_addr  ),
-    .data       ( cpu_dout  ),
-    .we         ( RAM_we    ),
-    .q          ( ram_dout  )
-);
-
-reg [7:0] cpu_din;
-
-always @(*)
-    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
-        5'b10_000: cpu_din =  ram_dout;
-        5'b01_000: cpu_din =  char_dout;
-        5'b00_100: cpu_din =  scr_dout;
-        5'b00_010: cpu_din =  rom_data;
-        5'b00_001: cpu_din =  cabinet_input;
-        default:   cpu_din =  rom_data;
-    endcase
+always @(posedge clk) begin
+    cpu_din <= ram_cs  ? ram_dout  :
+               char_cs ? char_dout :
+               scr_cs  ? scr_dout  :
+               rom_cs  ? rom_data :
+               in_cs   ? cabinet_input : cpu_din;
+end
 
 always @(A,bank) begin
     rom_addr[12:0] = A[12:0];
@@ -242,89 +188,41 @@ always @(A,bank) begin
     endcase
 end
 
-// Bus access
-reg nIRQ, last_LVBL;
-wire BS,BA;
-
-assign bus_ack = BA && BS;
-
-always @(posedge clk) if(cen_Q) begin
-    last_LVBL <= LVBL;
-    if( {BS,BA}==2'b10 )
-        nIRQ <= 1'b1;
-    else
-        if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
-end
-
-wire bus_busy = scr_busy | char_busy;
-
-jtframe_6809wait u_wait(
+jtframe_sys6809_dma #(
+    .RAM_AW     ( 13        ),
+    .IRQFF      (  1        )
+) u_sys6809(
     .rstn       ( nRESET    ),
     .clk        ( clk       ),
-    .cen        ( cen6      ),
-    .cpu_cen    ( cpu_cen   ),
-    .dev_busy   ( bus_busy  ),
+    .cen        ( cen6      ),   // This is normally the input clock to the CPU
+    .cpu_cen    ( cpu_cen   ),   // 1/4th of cen
+
+    // Interrupts
+    .nIRQ       ( LVBL | ~dip_pause ),
+    .nFIRQ      ( 1'b1      ),
+    .nNMI       ( 1'b1      ),
+    .irq_ack    (           ),
+    // Bus sharing
+    .bus_busy   ( bus_busy  ),
+    .breq_n     (~bus_req   ),
+    .bg         ( bus_ack   ),
+    // memory interface
+    .A          ( A         ),
+    .RnW        ( RnW       ),
+    .VMA        (           ),
+    .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
-    .cen_E      ( cen_E     ),
-    .cen_Q      ( cen_Q     )
+    // Bus multiplexer is external
+    .ram_dout   ( ram_dout  ),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_din    ( cpu_din   ),
+    // DMA access to RAM
+    .dma_clk    ( clk_dma   ),
+    .dma_we     ( 1'b0      ),
+    .dma_addr   ({ 4'hf,obj_AB }),
+    .dma_din    ( 8'd0      ),
+    .dma_dout   ( dma_dout  )
 );
 
-// cycle accurate core
-wire [111:0] RegData;
-
-mc6809i u_cpu (
-    .clk     ( clk     ),
-    .cen_E   ( cen_E   ),
-    .cen_Q   ( cen_Q   ),
-    .D       ( cpu_din ),
-    .DOut    ( cpu_dout),
-    .ADDR    ( A       ),
-    .RnW     ( RnW     ),
-    .BS      ( BS      ),
-    .BA      ( BA      ),
-    .nIRQ    ( nIRQ    ),
-    .nFIRQ   ( 1'b1    ),
-    .nNMI    ( 1'b1    ),
-    .nHALT   ( ~bus_req),
-    .nRESET  ( nRESET  ),
-    .nDMABREQ( 1'b1    ),
-    // unused:
-    .RegData ( RegData ),
-    .AVMA    (         ),
-    .BUSY    (         ),
-    .LIC     (         ),
-    .OP      (         )
-);
-
-`ifdef GNG_CPUDUMP
-wire [ 7:0] reg_a  = RegData[7:0];
-wire [ 7:0] reg_b  = RegData[15:8];
-wire [15:0] reg_x  = RegData[31:16];
-wire [15:0] reg_y  = RegData[47:32];
-wire [15:0] reg_s  = RegData[63:48];
-wire [15:0] reg_u  = RegData[79:64];
-wire [ 7:0] reg_cc = RegData[87:80];
-wire [ 7:0] reg_dp = RegData[95:88];
-wire [15:0] reg_pc = RegData[111:96];
-reg [95:0] last_regdata;
-
-integer fout;
-integer ticks=0, last_ticks=0;
-initial begin
-    fout = $fopen("m6809.log","w");
-end
-always @(negedge cen_E) begin
-    last_regdata <= RegData[95:0];
-    ticks <= ticks+1;
-    if( last_regdata != RegData[95:0] ) begin
-        $fwrite(fout,"%d,%X, %X,%X,%X,%X,%X,%X,%X,%X,%X\n",
-            ticks-last_ticks, nIRQ,
-            reg_pc, reg_cc, reg_dp, reg_x, reg_y, reg_s, reg_u,
-            reg_a, reg_b);
-        last_ticks <= ticks;
-    end
-end
-`endif
-
-endmodule // jtgng_main
+endmodule

@@ -12,7 +12,7 @@ names=[
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 bitcnt = 19
 extra = [
     { machine="roadf", name="Flip", bits="16", Options="Off,On" }

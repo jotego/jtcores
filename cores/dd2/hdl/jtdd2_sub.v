@@ -112,7 +112,7 @@ always @(*) begin
     endcase
 end
 
-jtframe_z80_romwait u_sub(
+jtframe_z80_romwait #(.RECOVERY(0)) u_sub(
     .rst_n      ( rstn          ),
     .clk        ( clk           ),
     .cen        ( cen4          ),

@@ -14,6 +14,7 @@ game:
       - jtngp_colmix.v
       - jtngp_snd.v
       - jtngp_psg.v
+      - jtngp_mmr.v
 jtframe:
   - get:
       - jtframe_edge.v
@@ -29,6 +30,7 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
       - jtframe_ram16.v
       - jtframe_obj_buffer.v
   - from: cpu

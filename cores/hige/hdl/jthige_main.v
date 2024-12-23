@@ -239,8 +239,10 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
+    .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
     .IOB_out(           ),
+    .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
 
@@ -258,8 +260,10 @@ jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
+    .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
     .IOB_out(           ),
+    .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
 

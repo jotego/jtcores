@@ -1,5 +1,3 @@
-ports:
-  - { name: cpu_dout, msb: 7}
 clocks:
   clk48:
     - freq: 3000000

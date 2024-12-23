@@ -61,7 +61,7 @@ JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in kHz
 JTFRAME_MFREQ            |         | Automatically set to the master clock in kHz. Depends on JTFRAME_PLL
-JTFRAME_MIST_DIPBASE     | MiST    | Starting base in status word for MiST dip switches
+JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
 JTFRAME_MOUSE_EMUSENS    |         | Positive 9-bit value for the emulated mouse sensitivity. Default value is 9'h10. MSB should be zero
@@ -167,7 +167,7 @@ DUMP_VIDEO_FNAME         |         | Internal. Do not assign.
 JTFRAME_DUAL_RAM_DUMP    |         | Enables dumping of RAM contents in simulation
 JTFRAME_SAVESDRAM        |         | Saves SDRAM contents at the end of each frame (slow)
 JTFRAME_SDRAM_STATS      |         | Produce SDRAM usage data during simulation
-JTFRAME_SIM_DEBUG        |verilator| debug_bus is increased by one each frame. See [debug.md](debug.md)
+JTFRAME_SIM_DEBUG        |verilator| Assign to debug_bus and then increase each frame. See [debug.md](debug.md)
 JTFRAME_SIM_DIPS         |         | DIP switch values for simulation. Use 0x... for verilator sims
 JTFRAME_SIM_GFXEN        |         | Sets the gfx_en value (4 bits). See [debug.md](debug.md)
 JTFRAME_SIM_LOAD_EXTRA   |         | Extra wait time when transferring ROM in simulation
@@ -175,9 +175,10 @@ JTFRAME_SIM_ROMRQ_NOCHECK|         | Disable protocol checking of romrq
 JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
+JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
-VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals during simulation
+VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulation
 VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation
 VERILATOR_KEEP_VTIMER    |verilator| Keeps jtframe_vtimer signals
 VIDEO_START              |         | First frame for which video output is provided use it to prevent a split first frame

@@ -24,7 +24,10 @@ st_addr[7:4] |  Read
 -------------|--------------------
   00_??      |  SDRAM stats
   01_??      |  Frame count (BCD) set st_addr[0] for upper byte
-  10_??      |  Sample rate (BCD)
+  10_00      |  Sample rate (BCD)
+  10_01      |  dipsw[ 7: 0]
+  10_10      |  dipsw[15: 8]
+  10_11      |  dipsw[23:16]
   11_00      | { core_mod[3:0], dial_x, game_led, dip_flip }
   11_01      | mouse_dx[8:1]
   11_10      | mouse_dy[8:1]

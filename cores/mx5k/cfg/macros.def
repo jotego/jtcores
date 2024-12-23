@@ -20,6 +20,7 @@ GFX_START=0x20000
 PCM_START=0xA0000
 
 JTFRAME_OSD_VOL
+JTFRAME_DIPBASE=8
 
 [mist|sidi]
 # OSD credits cannot be used when

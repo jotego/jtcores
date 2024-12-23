@@ -21,224 +21,6 @@ import (
 	toml "github.com/komkom/toml"
 )
 
-type Args struct {
-	Def_cfg                      jtdef.Config
-	Toml_path, Xml_path          string
-	outdir, altdir               string
-	cheatdir, pocketdir          string
-	Info                         []Info
-	Buttons                      string
-	Year                         string
-	Verbose, SkipMRA, SkipPocket bool
-	SkipROM						 bool // By skipping the ROM generation, the md5 will be set to None
-	Show_platform                bool
-	Beta                         bool
-	JTbin                        bool // copy to JTbin & disable debug features
-	Author, URL                  string
-	// private
-	firmware_dir string
-	macros       map[string]string
-}
-
-type Selectable struct {
-	Machine, Setname string
-	Machines, Setnames []string
-}
-
-func (this *Selectable) Match( x *MachineXML ) int {
-	if this.Setname==x.Name || (this.Machine==x.Name && x.Cloneof=="") {
-		return 3
-	}
-	for _,each := range this.Setnames {
-		if each==x.Name {
-			return 3
-		}
-	}
-	if this.Machine == x.Cloneof && x.Cloneof!="" {
-		return 2
-	}
-	for _,each := range this.Machines {
-		if each==x.Cloneof {
-			return 2
-		}
-		if each==x.Name && x.Cloneof=="" {
-			return 3
-		}
-	}
-	if this.Machine=="" && this.Setname=="" && len(this.Machines)==0 && len(this.Setnames)==0 {
-		return 1
-	}
-	return 0
-}
-
-func is_family(name string, machine *MachineXML) bool {
-	return name != "" && (name == machine.Name || name == machine.Cloneof)
-}
-
-type RegCfg struct {
-	Selectable
-	Name, Rename,
-	Start         string // Matches a macro in macros.def that should be an integer value
-	start         int    // Private translation of the Start value
-	Width, Len    int
-	Rom_len       int
-	Reverse, Skip bool
-	Reverse_only  []int // specify ROM widths to which the reverse will be applied
-	No_offset     bool // Using the default offset helps in some CPU configurations. If the file order is not changed,
-	// keeping the original offset usually has no effect as the offset is just the file size
-	// when reverse=true or a sort/sequence changes the file order, the offset may introduce
-	// warning messages or fillers, so no_offset=true is needed
-	Sort_even    bool // sort ROMs by pushing all even ones first, and then the odd ones
-	Singleton    bool // Each file can only merge with itself to make interleave sections
-	// The upper and lower halves of the same file are merged together
-	Ext_sort   []string // sorts by matching the file extension
-	Name_sort  []string // sorts by name
-	Sequence   []int    // File sequence, where the first file is identified with a 0, the next with 1 and so on
-	// ROM files can be repeated or omitted in the sequence
-	Frac struct {
-		Bytes, Parts int
-	}
-	Overrules []struct { // Overrules the region settings for specific files
-		Names   []string
-		Reverse bool
-	}
-	Custom struct { // If there is not dump available, jtframe will try to make one
-		// the assembly source code must be in cores/corename/firmware/machine.s or setname.s
-		// Machine, Setname string // Optional filters
-		Dev string // Device name for assembler
-	}
-	Parts []struct {
-		Name, Crc, Map	string
-		Length, Offset int
-	}
-	Files []MameROM // This replaces the information in mame.xml completely if present
-}
-
-type RawData struct {
-	Selectable
-	Dev				 string // required device name to apply these data, ignored if blank
-	Offset           int
-	Data             string
-}
-
-type HeaderCfg struct {
-	Info    string
-	Len, Fill int
-	Data   []RawData
-	Offset struct {
-		Bits    int
-		Reverse bool
-		Start   int // Start location for the offset table
-		Regions []string
-	}
-}
-
-type Info struct {
-	Tag, Value string
-}
-
-type Overrule_t struct {
-	Selectable
-	Rotate           int
-}
-
-type Mame2MRA struct {
-	Global struct {
-		Info      []Info
-		Mraauthor []string
-		Platform  string // Used by the Pocket target
-		Zip       struct {
-			Alt string
-		}
-		Overrule []Overrule_t  // overrules values in MAME XML
-	}
-
-	Cheat struct {
-		Disable bool
-		Files   []struct {
-			Selectable
-			AsmFile string
-			Skip                      bool
-		}
-	}
-
-	Parse ParseCfg
-
-	Buttons struct {
-		Core  int
-		Dial []struct {
-			Selectable
-			Raw, Reverse bool
-		}
-		Names []struct {
-			Selectable
-			Names            string
-		}
-	}
-
-	Dipsw struct {
-		Delete []string
-		base   int // Define it macros.def as JTFRAME_MIST_DIPBASE
-		Bitcnt int // Total bit count (including all switches)
-		Defaults [] struct {
-			Selectable
-			Value			 string // used big-endian order, comma separated
-		}
-		Extra []struct {
-			Selectable
-			Name, Options, Bits string
-		}
-		Rename []struct {
-			Name, To string   // Will make Name <- To
-			Values   []string // Will rename the values if present
-		}
-	}
-
-	rbf string
-	// Rbf struct {
-	// 	Name string
-	// 	Dev  []struct {
-	// 		Dev, Rbf string
-	// 	}
-	// 	Machines []struct {
-	// 		Machine, Setname, Rbf string
-	// 	}
-	// }
-
-	Header HeaderCfg
-
-	ROM struct {
-		Ddr_load bool
-		Regions  []RegCfg
-		Order    []string
-		Remove   []string // Remove specific files from the dump
-		// Splits break a file into chunks using the offset and length MRA attributes
-		// Offset sets the break point, and Min_len the minimum length for each chunk
-		// This can be used to group several files in a different order (see Golden Axe)
-		// or to make a file look bigger than it is (see Bad Dudes)
-		Splits []struct {
-			Selectable
-			Region           string
-			Offset, Min_len  int
-		}
-		Blanks []struct {
-			Selectable
-			Region      string
-			Offset, Len int
-		}
-		Patches []struct {
-			Selectable
-			Offset           int
-			Value            string
-		}
-		Nvram struct {
-			Selectable
-			length   int       // set internally
-			Defaults []RawData // Initial value for NVRAM
-		}
-	}
-}
-
 func (this *StartNode) add_length(pos int) {
 	if this.node != nil {
 		lenreg := pos - this.pos
@@ -247,14 +29,6 @@ func (this *StartNode) add_length(pos int) {
 				int(math.Ceil(math.Log2(float64(lenreg)))))
 		}
 	}
-}
-
-type ParsedMachine struct {
-	machine   *MachineXML
-	mra_xml   *XMLNode
-	cloneof   bool
-	def_dipsw string
-	coremod   int
 }
 
 func Run(args Args) {
@@ -286,6 +60,7 @@ func Run(args Args) {
 extra_loop:
 	for {
 		machine := ex.Extract(mra_cfg.Parse)
+		calc_DIP_bits( machine, mra_cfg.Dipsw )
 		if machine == nil {
 			break
 		}
@@ -354,7 +129,9 @@ extra_loop:
 					old_deleted = true
 				}
 				if !args.SkipROM {
-					mra2rom(d.mra_xml,args.Verbose)
+					mra2rom(d.mra_xml,args.Verbose, true)
+				} else if args.Md5 {
+					mra2rom(d.mra_xml,args.Verbose, false)
 				}
 				// Do not merge dump_mra and the OR in the same line, or the compiler may skip
 				// calling dump_mra if main_copied is already set
@@ -755,7 +532,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		if filename == "" {
 			filename = args.Def_cfg.Core + ".s"
 		}
-		asmhex := picoasm(filename, machine, cfg, args) // the filename is ignored for betas
+		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
 		if asmhex != nil && len(asmhex) > 0 && (!skip || args.Beta) {
 			root.AddNode("Machine code for the Picoblaze CPU").comment = true
 			n := root.AddNode("rom").AddAttr("index", "16")
@@ -766,6 +543,9 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 				basename := filepath.Base(re.ReplaceAllString(filename, ""))
 				n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
 				n.AddNode("part").AddAttr("name", basename+".bin")
+			}
+			if !args.SkipPocket {
+				pocket_pico( asmhex )
 			}
 		}
 	}
@@ -878,7 +658,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 
 func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 	coremod := 0
-	if machine.Display.Rotate != 0 {
+	if machine.Display.Rotate!=0 && machine.Display.Rotate!=180 {
 		root.AddNode("Vertical game").comment = true
 		coremod |= 1
 		if machine.Display.Rotate != 90 {
@@ -940,220 +720,11 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 		if start == 0 {
 			continue
 		}
-		if int(start) == pos {
+		// add the comment only once
+		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.name })==nil {
 			root.AddNode(k).comment = true
 		}
 	}
-}
-
-func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {
-	// Add DIP switches in the extra section, note that these
-	// one will always have a default value of 1
-	for _, each := range cfg.Dipsw.Extra {
-		if args.Verbose {
-			fmt.Printf("\tChecking extra DIPSW %s for %s/%s (current %s/%s)\n",
-				each.Name, each.Machine, each.Setname, machine.Cloneof, machine.Name)
-		}
-		if each.Match(machine)>0 {
-			if create_parent {
-				n = add_switches_parent(n, cfg)
-				create_parent = false
-			}
-			m := n.AddNode("dip")
-			m.AddAttr("name", each.Name)
-			m.AddAttr("ids", each.Options)
-			m.AddAttr("bits", each.Bits)
-		}
-	}
-	return n
-}
-
-func add_switches_parent(root *XMLNode, cfg Mame2MRA) *XMLNode {
-	n := root.AddNode("switches")
-	// Switch for MiST
-	n.AddAttr("page_id", "1")
-	n.AddAttr("page_name", "Switches")
-	n.AddIntAttr("base", cfg.Dipsw.base)
-	return n
-}
-
-// make_DIP
-func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) string {
-	if len(machine.Dipswitch) == 0 {
-		if len(cfg.Dipsw.Extra) > 0 {
-			add_extra_dip(root, true, machine, cfg, args).AddAttr("default", "ff,ff")
-		}
-		return "ff,ff"
-	}
-	def_str := ""
-	n := add_switches_parent(root, cfg)
-	last_tag := ""
-	base := 0
-	def_cur := 0xff
-	game_bitcnt := cfg.Dipsw.Bitcnt
-diploop:
-	for _, ds := range machine.Dipswitch {
-		ignore := false
-		for _, del := range cfg.Dipsw.Delete {
-			if del == ds.Name {
-				ignore = true
-				break
-			}
-		}
-		if ds.Condition.Tag != "" && ds.Condition.Value == 0 {
-			continue diploop // This switch depends on others, skip it
-		}
-		// Rename the DIP
-		for _, each := range cfg.Dipsw.Rename {
-			if each.Name == ds.Name {
-				if each.To != "" {
-					ds.Name = each.To
-				}
-				for k, v := range each.Values {
-					if k > len(ds.Dipvalue) {
-						break
-					}
-					if v != "" {
-						ds.Dipvalue[k].Name = v
-					}
-				}
-				break
-			}
-		}
-		bitmin := 0
-		for bitmin = 0; bitmin < (1 << 32); bitmin++ {
-			if (ds.Mask & (1 << bitmin)) != 0 {
-				break
-			}
-		}
-		bitmax := bitmin + int(math.Ceil(math.Log2(float64(len(ds.Dipvalue))))) - 1
-		if ds.Tag != last_tag {
-			if len(last_tag) > 0 {
-				// Record the default values
-				if len(def_str) > 0 {
-					def_str += ","
-				}
-				def_str = def_str + fmt.Sprintf("%02x", def_cur)
-				def_cur = 0xff
-				base += 8
-			}
-			last_tag = ds.Tag
-			m := n.AddNode(last_tag)
-			m.comment = true
-		}
-		sort.Slice(ds.Dipvalue, func(p, q int) bool {
-			return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value
-		})
-		options := ""
-		var opt_dev int
-		opt_dev = -1
-		next_val := 0
-		for _, opt := range ds.Dipvalue {
-			if len(options) != 0 {
-				options += ","
-			}
-			this_value := opt.Value >> bitmin
-			for next_val < this_value {
-				options += "-,"
-				next_val++
-			}
-			options += strings.ReplaceAll(opt.Name, ",", " ")
-			next_val++
-			if opt.Default == "yes" {
-				opt_dev = opt.Value
-			}
-		}
-		if !ignore {
-			options = strings.Replace(options, " Coins", "", -1)
-			options = strings.Replace(options, " Coin", "", -1)
-			options = strings.Replace(options, " Credits", "", -1)
-			options = strings.Replace(options, " Credit", "", -1)
-			options = strings.Replace(options, " and every ", " & *", -1)
-			options = strings.Replace(options, "00000", "00k", -1)
-			options = strings.Replace(options, "0000", "0k", -1)
-			// remove comments
-			re := regexp.MustCompile(`\([^)]*\)`)
-			options = re.ReplaceAllString(options, "")
-			// remove double spaces
-			re = regexp.MustCompile(" +")
-			options = re.ReplaceAllString(options, " ")
-			// remove spaces around the comma
-			re = regexp.MustCompile(" ,")
-			options = re.ReplaceAllString(options, ",")
-			re = regexp.MustCompile(", ")
-			options = re.ReplaceAllString(options, ",")
-			m := n.AddNode("dip")
-			m.AddAttr("name", ds.Name)
-			bitstr := strconv.Itoa(base + bitmin)
-			if bitmin != bitmax {
-				bitstr += fmt.Sprintf(",%d", base+bitmax)
-			}
-			game_bitcnt = Max(game_bitcnt, bitmax+base)
-			// Check that the DIP name plus each option length isn't longer than 28 characters
-			// which is MiSTer's OSD length
-			name_len := len(ds.Name)
-			chunks := strings.Split(options,",")
-			for k, each := range chunks {
-				if tl := name_len + len(each) - 26; tl > 0 {
-					re := regexp.MustCompile("(k|K)( |$)")
-					if re.FindString(chunks[k])!="" { // A common case is 50k 100k etc.
-						// Delete the k to save space
-						chunks[k]=re.ReplaceAllString(chunks[k],"$2")
-						tl = name_len + len(chunks[k])-26
-					}
-					if tl>0 {
-						fmt.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
-							tl, machine.Name, ds.Name, chunks[k])
-					}
-				}
-			}
-			options = strings.Join(chunks,",") // re-build the options in case there was a change
-			m.AddAttr("bits", bitstr)
-			m.AddAttr("ids", strings.TrimSpace(options))
-		}
-		// apply the default value
-		if bitmax+1-bitmin < 0 {
-			fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
-			log.Fatal("Don't know how to parse DIP ", ds.Name)
-		}
-		mask := 1 << (1 + Max(cfg.Dipsw.Bitcnt, bitmax) - bitmin)
-		mask = (((mask - 1) << bitmin) ^ 0xffff) & 0xffff
-		def_cur &= mask
-		opt_dev = opt_dev & (mask ^ 0xffff)
-		def_cur |= opt_dev
-	}
-	//base = Max(base, len(def_str)>>2)
-	// fmt.Printf("\t1. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-	if base < game_bitcnt {
-		// Default values of switch parsed last
-		if len(def_str) > 0 {
-			def_str += ","
-		}
-		cur_str := fmt.Sprintf("%02x", def_cur)
-		def_str += cur_str
-		base += len(cur_str) << 2
-		// fmt.Printf("\t2. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-		for k := base; k < game_bitcnt; k += 8 {
-			def_str += ",ff"
-			// fmt.Printf("\tn. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-		}
-	}
-	// Override the defaults is set so in the TOML
-	for _,each := range cfg.Dipsw.Defaults {
-		if each.Match(machine)>0 {
-			def_str = each.Value
-		}
-	}
-	n.AddAttr("default", def_str)
-	add_extra_dip(n, false, machine, cfg, args)
-	return def_str
-}
-
-func Max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
 }
 
 type flag_info struct {
@@ -1208,7 +779,7 @@ func parse_toml(args *Args) (mra_cfg Mame2MRA) {
 		fmt.Println(json_enc)
 		os.Exit(1)
 	}
-	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_MIST_DIPBASE"])
+	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_DIPBASE"])
 	// Set the number of buttons to the definition in the macros.def
 	if mra_cfg.Buttons.Core == 0 {
 		mra_cfg.Buttons.Core, _ = strconv.Atoi(macros["JTFRAME_BUTTONS"])
@@ -1220,7 +791,9 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 	aux, _ := strconv.ParseInt(macros["JTFRAME_HEADER"], 0, 32)
 	mra_cfg.Header.Len = int(aux)
 	if len(mra_cfg.Dipsw.Delete) == 0 {
-		mra_cfg.Dipsw.Delete = []string{"Unused", "Unknown"}
+		mra_cfg.Dipsw.Delete = []DIPswDelete{
+			{ Names: []string{"Unused", "Unknown"} },
+		}
 	}
 	// Add the NVRAM section if it was in the .def file
 	if macros["JTFRAME_IOCTL_RD"] != "" {

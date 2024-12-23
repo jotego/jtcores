@@ -1,0 +1,1 @@
+The Simpsons logo should not be visible anywhere, especially at the bottom

@@ -42,7 +42,6 @@ parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     input               clk,
     input               cen12,
     input               cen6,
-    input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -119,7 +118,6 @@ wire [3:0] avatar_idx;
 jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
@@ -155,7 +153,6 @@ jtgng_scroll #(
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),

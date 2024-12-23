@@ -12,7 +12,7 @@ game:
       - jt051962.v
       - jt051960.v
       # - jt051937.v
-  - from: contra
+  - from: flane
     get:
       - jt007232.v
 jtframe:

@@ -1,0 +1,61 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Jul 26 05:19:28 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/game/test.fst"
+[dumpfile_mtime] "Tue Jul 25 20:36:31 2023"
+[dumpfile_size] 782370420
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/game/eeprom.gtkw"
+[timestart] 10416
+[size] 1264 1013
+[pos] -27 -51
+*-40.379444 1082624100000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[sst_width] 219
+[signals_width] 219
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.eeprom_cs
+TOP.game_test.u_game.u_game.u_main.eep_cs
+TOP.game_test.u_game.u_game.u_main.eep_clk
+TOP.game_test.u_game.u_game.u_main.eep_di
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_main.u_eeprom.st[2:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_eeprom.sdo
+@c00023
+TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+@29
+(0)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(1)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(2)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(3)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(4)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(5)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(6)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(7)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(8)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(9)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+(10)TOP.game_test.u_game.u_game.u_main.u_eeprom.full_op[10:0]
+@1401201
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_main.u_eeprom.op[3:0]
+TOP.game_test.u_game.u_game.u_main.u_eeprom.CMDIN[3:0]
+TOP.game_test.u_game.u_game.u_main.u_eeprom.rx_cnt[3:0]
+@24
+TOP.game_test.u_game.u_game.u_main.u_eeprom.CW[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

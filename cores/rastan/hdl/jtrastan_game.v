@@ -54,7 +54,7 @@ module jtrastan_game(
     output   [15:0] ba3_din,
     output   [ 1:0] ba3_dsn,  // write mask
     output   [ 3:0] ba_rd,
-    output          ba_wr,
+    output   [ 3:0] ba_wr,
     input    [ 3:0] ba_ack,
     input    [ 3:0] ba_dst,
     input    [ 3:0] ba_dok,
@@ -62,7 +62,7 @@ module jtrastan_game(
 
     input   [15:0]  data_read,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -95,7 +95,8 @@ module jtrastan_game(
     input   [3:0]   gfx_en,
     input   [7:0]   debug_bus,
     output  [7:0]   debug_view,
-    output  [ 7:0]  ioctl_din
+    output  [7:0]   ioctl_din,
+    input           ioctl_ram
 );
 
 wire [18:1] main_addr;
@@ -123,8 +124,6 @@ wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] sn_dout;
 
-wire        ioctl_ram=0;
-
 assign      dip_flip = flip;
 assign      { dipsw_b, dipsw_a } = dipsw[15:0];
 assign      ba1_dsn=3;
@@ -133,6 +132,7 @@ assign      ba3_dsn=3;
 assign      ba1_din=0;
 assign      ba2_din=0;
 assign      ba3_din=0;
+assign   ba_wr[3:1]=0;
 
 `ifndef NOMAIN
 jtrastan_main u_main(
@@ -369,7 +369,7 @@ jtrastan_sdram u_sdram(
     .ba0_din    ( ba0_din   ),
     .ba0_din_m  ( ba0_dsn   ),  // write mask
     .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr     ),
+    .ba_wr      ( ba_wr[0]  ),
     .ba_ack     ( ba_ack    ),
     .ba_dst     ( ba_dst    ),
     .ba_dok     ( ba_dok    ),

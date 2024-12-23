@@ -117,7 +117,7 @@ You can press F12 to bring the OSD menu up. You can turn off music, or sound eff
 # Credits
 
 Jose Tejada Gomez. Twitter @topapate
-Project is hosted in http://www.github.com/jotego/jtdd
+Project is hosted in http://www.github.com/jotego/jtcores
 License: GPL3, you are obligued to publish your code if you use mine
 
 Special thanks to Greg Miller, Bruno Silva and to:

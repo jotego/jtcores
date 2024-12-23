@@ -12,34 +12,27 @@ clocks:
         - cen1p5
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: gfx
+    - buses:
+        - name: gfx
           addr_width: 19
           data_width: 16
           offset: GFX_OFFSET
-        -
-          name: pcma
+        - name: pcma
           addr_width: 17
           data_width: 8
           offset: PCM0_OFFSET
-        -
-          name: pcmb
+        - name: pcmb
           addr_width: 17
           data_width: 8
           offset: PCM0_OFFSET
-        -
-          name: pcmc
+        - name: pcmc
           addr_width: 19
           data_width: 8
           offset: PCM1_OFFSET
-        -
-          name: pcmd
+        - name: pcmd
           addr_width: 19
           data_width: 8
           offset: PCM1_OFFSET
-        -
-          name: main
+        - name: main
           addr_width: 17
           data_width: 8

@@ -16,7 +16,7 @@ names=[
 
 [dipsw]
 bitcnt = 20
-delete = [ "Unused", "Unknown", "Coin A" ]
+delete=[{names=["Unused","Unknown","Coin A"]}]
 
 [ROM]
 # values starting with $ refer to macro definitions in the .def file

@@ -1,0 +1,51 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Aug 15 11:48:09 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/tmnt/ver/game/test.fst"
+[dumpfile_mtime] "Tue Aug 15 11:46:02 2023"
+[dumpfile_size] 176988304
+[savefile] "/home/jtejada/jtcores/cores/tmnt/ver/game/mr.gtkw"
+[timestart] 6066301700592
+[size] 1264 1013
+[pos] -1 -1
+*-22.315165 154521360 198331056 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[sst_width] 293
+[signals_width] 220
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@28
+TOP.game_test.u_game.u_game.u_main.VPAn
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+@28
+TOP.game_test.u_game.u_game.u_main.iowr_cs
+TOP.game_test.u_game.u_game.u_main.pal_cs
+[color] 1
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.syswr_cs
+TOP.game_test.u_game.u_game.u_main.ASn
+TOP.game_test.u_game.u_game.u_main.dip3_cs
+TOP.game_test.u_game.u_game.u_main.dip_cs
+TOP.game_test.u_game.u_game.u_main.rom_cs
+TOP.game_test.u_game.u_game.u_main.shoot_cs
+TOP.game_test.u_game.u_game.u_main.vram_cs
+TOP.game_test.u_game.u_game.u_main.obj_cs
+TOP.game_test.u_game.u_game.u_main.arst
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_dout[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.RnW
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.UDSn
+TOP.game_test.u_game.u_game.u_main.LDSn
+[pattern_trace] 1
+[pattern_trace] 0

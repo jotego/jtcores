@@ -55,7 +55,7 @@ wire [7:0] vscan, new_pxl;
 // reg  [1:0] sdram_ok;
 wire       data_ok, tile_cen;
 
-reg  [4:0] HS;
+reg  [3:0] HS;
 reg  [7:0] SV, PIC;
 reg  [8:0] SH;
 
@@ -113,7 +113,7 @@ jtgng_tile4 #(
 u_tile4(
     .clk        (  clk          ),
     .cen6       (  tile_cen     ),
-    .HS         (  HS           ),
+    .HS         (  {1'd0,HS}    ),
     .SV         (  SVmap        ),
     .attr       (  dout_high    ),
     .id         (  dout_low     ),

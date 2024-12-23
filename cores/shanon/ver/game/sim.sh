@@ -1,8 +1,11 @@
 #!/bin/bash
 
-SYSNAME=shanon
-GAME=jtoutrun
 EXTRA=
+
+eval `jtframe cfgstr shanon -o bash`
+
+dd if=epr-10642.47 of=rd0_lo.bin count=32 > /dev/null
+dd if=epr-10642.47 of=rd0_hi.bin skip=32 count=32 > /dev/null
 
 if [ -e obj.bin ]; then
     drop1    < obj.bin >  obj_hi.bin
@@ -28,11 +31,5 @@ if [ -e OUTRUN.RAM ]; then
     rm -f pal.bin roadram.bin
 fi
 
-# Fast load
-# rm -f sdram_bank*
-# dd if=rom.bin of=sdram_bank0.bin ibs=16 skip=1 conv=swab
-$JTFRAME/bin/rom2sdram.sh $SYSNAME --header 16 --swab || exit $?
+jtsim $*
 
-jtsim -mist -sysname $SYSNAME $SIMULATOR \
-	-d JTFRAME_DWNLD_PROM_ONLY -d JTFRAME_SIM_DIPS=$(printf "%d" 0xfeff) \
-    -d JTFRAME_SIM_ROMRQ_NOCHECK $EXTRA $* || exit $?

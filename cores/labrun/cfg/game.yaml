@@ -13,7 +13,7 @@ game:
       # Protection device / Math coprocessor
       - jt051733.v
       - divfunc.v
-      - ../cfg/common.yaml
+      - common.yaml
 jtframe:
   - from: sound
     get:

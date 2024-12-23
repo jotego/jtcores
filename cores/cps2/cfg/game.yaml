@@ -20,10 +20,10 @@ game:
       - jtcps2_dec_ctrl.v
   - from: cps1
     get:
-      - ../cfg/common.yaml
+      - common.yaml
   - from: cps15
     get:
-      - ../cfg/qsound.yaml
+      - qsound.yaml
 jtframe:
   - from: ram
     get:

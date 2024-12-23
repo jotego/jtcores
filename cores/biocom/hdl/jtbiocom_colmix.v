@@ -22,7 +22,7 @@
 // R9  470, R10 470, R11 470, R12 1K, R14 1K, R16 1K, R13 220, R15 220, R17 220
 
 // Table of colours (voltages)
-//                      Brightnes
+//                      Brightness
 //       0      1    2     3     4     5     6     7
 // Colour
 // 0   0.000 0.194 0.412 0.606 0.881 1.075 1.293 1.487
@@ -41,6 +41,25 @@
 // 13  1.381 1.575 1.794 1.987 2.262 2.456 2.674 2.868
 // 14  1.487 1.681 1.899 2.093 2.368 2.562 2.780 2.974
 // 15  1.575 1.769 1.987 2.181 2.456 2.650 2.868 3.062
+//
+// For a 5-bit value:
+// Col    0   1   2   3   4   5   6   7
+// 0      0   2   4   6   9   11  13  15
+// 1      1   3   5   7   10  12  14  16
+// 2      2   4   6   8   11  13  15  17
+// 3      3   5   7   9   12  14  16  18
+// 4      4   6   8   10  13  15  17  19
+// 5      5   7   9   11  14  16  18  20
+// 6      6   8   10  12  15  17  19  21
+// 7      7   9   11  13  16  18  20  22
+// 8      9   11  13  15  18  20  22  24
+// 9      10  12  14  16  19  21  23  25
+// 10     11  13  15  17  20  22  24  26
+// 11     12  14  16  18  21  23  25  27
+// 12     13  15  17  19  22  24  26  28
+// 13     14  16  18  20  23  25  27  29
+// 14     15  17  19  21  24  26  28  30
+// 15     16  18  20  22  25  27  29  31
 
 module jtbiocom_colmix(
     input            rst,
@@ -76,90 +95,59 @@ module jtbiocom_colmix(
 parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 localparam BLANK_DLY=2;
 
-reg [9:0] pixel_mux;
+reg [9:0] pxl_mux;
 
-wire enable_char = gfx_en[0];
-wire enable_scr1 = gfx_en[1];
-wire enable_scr2 = gfx_en[2];
-wire enable_obj  = gfx_en[3];
+wire char_en = gfx_en[0];
+wire scr1_en = gfx_en[1];
+wire scr2_en = gfx_en[2];
+wire obj_en  = gfx_en[3];
 
 wire [1:0] pre_prio;
 reg  [7:0] seladdr;
 reg  [1:0] prio, presel;
-wire       char_blank_n = |(~char_pxl[1:0]);
+wire       char_blank_n = ~&char_pxl[1:0];
 wire       preLBL;
 
 always @(*) begin
-    seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
-    seladdr[6:1] = enable_scr1 ? ({ scr1_pxl[7:6], scr1_pxl[3:0] }) : 6'h3f;
-    seladdr[7]   = enable_obj  ? (|(~obj_pxl[3:0])) : 1'b0;
-    prio         = pre_prio | ( enable_char ? {2{char_blank_n}} : 2'b0 );
+    seladdr[0]   = scr2_en ? ~&scr2_pxl[3:0] : 1'b0;
+    seladdr[6:1] = scr1_en ? { scr1_pxl[7:6], scr1_pxl[3:0] } : 6'h3f;
+    seladdr[7]   = obj_en  ? ~&obj_pxl[3:0] : 1'b0;
+    prio         = pre_prio  | ( char_en ? {2{char_blank_n}} : 2'b0 );
 end
 
 always @(posedge clk) if(cen6) begin
     case( prio )
-        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
-        2'b10: pixel_mux[7:0] <= obj_pxl;
-        2'b01: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
-        2'b00: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
+        2'b11: pxl_mux[7:0] <= { 2'b0, char_pxl };
+        2'b10: pxl_mux[7:0] <= obj_pxl;
+        2'b01: pxl_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
+        2'b00: pxl_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
     endcase
-    pixel_mux[9:8] <= prio;
+    pxl_mux[9:8] <= prio;
 end
 
 // Address mux
-reg  [9:0] pal_addr;
-reg        pal_uwe, pal_lwe;
-wire       coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
-always @(*) begin
-    if( !preLBL ) begin
-        pal_addr  = AB;
-        pal_uwe   = col_uw;
-        pal_lwe   = col_lw;
-    end else begin
-        pal_addr = pixel_mux;
-        pal_uwe  = 1'b0;
-        pal_lwe  = 1'b0;
-    end
-end
+jtframe_dual_ram16 #(
+    .AW        (10          ),
+    .SIMFILE_LO("pal_lo.bin"), // palrg.hex
+    .SIMFILE_HI("pal_hi.bin")  // palbb.hex
+) u_ram(
+    .clk0   ( clk       ),
+    .clk1   ( clk       ),
 
-assign coloff = ~preLBL;
+    // CPU writes
+    .addr0  ( AB  ),
+    .data0  ( DB        ),
+    .we0    ( {col_uw, col_lw} ),
+    .q0     (           ),
 
-// Palette is in RAM
-
-`ifndef GRAY
-jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palrg.hex")) u_upal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[15:8]    ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_uwe     ),
-    .q          ( {pal_red, pal_green } )
+    // Video reads
+    .addr1  ( pxl_mux ),
+    .data1  (           ),
+    .we1    ( 2'b0      ),
+    .q1     ( {pal_red, pal_green, pal_blue, pal_bright } )
 );
-
-jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palbb.hex")) u_lpal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[7:0]     ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_lwe     ),
-    .q          ( { pal_blue, pal_bright } )
-);
-`else
-// for some reason I'm not getting the palette
-// right for scroll 2 in simulation
-reg [3:0] gray;
-
-assign pal_red   = gray;
-assign pal_green = gray;
-assign pal_blue  = gray;
-assign pal_bright= 4'b1000;
-
-always @(posedge clk) begin
-    gray <= pal_addr[3:0];
-end
-`endif
 
 // Clock must be faster than 6MHz so pre_prio is ready for the next
 // 6MHz clock cycle:
@@ -174,41 +162,18 @@ jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_pre_prio(
 );
 
 reg [4:0] pre_r, pre_g, pre_b;
-reg [3:0] pre_bright;
-reg [7:0] step;
 
-wire [3:0] mux_red, mux_green, mux_blue;
-assign { mux_red, mux_green, mux_blue } = {pal_red, pal_green, pal_blue};
-
-always @(posedge clk,posedge rst) begin
-    if( rst ) begin
-        step <= 8'd1;
+always @(posedge clk) begin
+    if( ~preLBL ) begin
+        pre_r <= 5'd0;
+        pre_g <= 5'd0;
+        pre_b <= 5'd0;
     end else begin
-        step <= { step[6:0], step[7] };
-        if( step[0] ) begin
-            pre_bright <= pal_bright;
-            if( coloff ) begin
-                pre_r <= 5'd0;
-                pre_g <= 5'd0;
-                pre_b <= 5'd0;
-            end else begin
-                pre_r <= { mux_red,  mux_red[3]   } >> ~pal_bright[3];
-                pre_g <= { mux_green,mux_green[3] } >> ~pal_bright[3];
-                pre_b <= { mux_blue, mux_blue[3]  } >> ~pal_bright[3];
-            end
-        end
-        else begin
-            if( !pre_bright[3] && pre_bright[2:0]!=3'd0 ) begin
-                pre_r <= pre_r + 5'd2;
-                pre_g <= pre_g + 5'd2;
-                pre_b <= pre_b + 5'd2;
-                pre_bright[2:0] <= pre_bright[2:0] - 3'd1;
-            end
-        end
+        pre_r <= pal_bright[3] ? { pal_red,  pal_red[3]   } : { 1'b0, pal_red   } + { 1'b0, pal_bright[2:0], pal_bright[2]};
+        pre_g <= pal_bright[3] ? { pal_green,pal_green[3] } : { 1'b0, pal_green } + { 1'b0, pal_bright[2:0], pal_bright[2]};
+        pre_b <= pal_bright[3] ? { pal_blue, pal_blue[3]  } : { 1'b0, pal_blue  } + { 1'b0, pal_bright[2:0], pal_bright[2]};
     end
 end
-
-wire [14:0] pal_rgb = {pre_r, pre_g, pre_b};
 
 jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
     .clk        ( clk                 ),
@@ -218,8 +183,8 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .preLBL     ( preLBL              ),
-    .rgb_in     ( pal_rgb             ),
-    .rgb_out    ( {red, green, blue } )
+    .rgb_in     ( {pre_r, pre_g, pre_b}),
+    .rgb_out    ( {red, green, blue }  )
 );
 
-endmodule // jtgng_colmix
+endmodule

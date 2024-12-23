@@ -1,0 +1,22 @@
+Equations:
+
+IA11 = MCU A11
+AS   = MCU AS
+
+TRIRAM = /RAM & E & /IA11
+EEOE = /RAM & CRW & E & IA11 +
+       /RAM & CRW & 2H & IA11 & /AS
+
+EEWE = /RAM & /CRW & E & IA11
+
+EEROM = /RAM &  E & IA11 +
+        /RAM & 2H & IA11 & /AS
+
+OEC = /RAM & CRW & /2H & /1H & E & /IA11 +
+       /VOICEG & SNRW & 2H & 1H +
+       /IOEN & RW & /2H & 1H
+
+RWC = TRIRAM & /CRW & /2H & /1H & /6M  +
+       /VOICEG & /SNRW & 2H & 1H & /6M +
+       /IOEN & /RW & /2H & 1H & /6M
+

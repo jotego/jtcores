@@ -39,4 +39,4 @@ modules:
   other:
     - get:
       - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.qip
+      - jt12/hdl/jt03.yaml

@@ -45,7 +45,6 @@ module jtgng_char #(parameter
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
-    input            cpu_cen,
     input  [ABW-1:0] AB,
     input     [ 7:0] V, // V128-V1
     input   [HW-1:0] H, // Hfix-H1

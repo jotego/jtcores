@@ -1,0 +1,3 @@
+darkadv-backups/**
+*.kicad_sch-bak
+sym-lib-table

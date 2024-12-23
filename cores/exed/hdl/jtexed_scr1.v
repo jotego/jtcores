@@ -33,7 +33,7 @@ module jtexed_scr1 #(parameter
     // PROM access
     input      [ 7:0] prog_addr,
     input      [ 3:0] prog_din,
-    input      [ 1:0] prom_we,
+    input             prom_we,
 
     // Map ROM
     output reg [13:0] map1_addr,
@@ -112,7 +112,7 @@ jtframe_prom #(.AW(8),.DW(4)) u_prom_c4(
     .data   ( prog_din   ),
     .rd_addr( pal_addr   ),
     .wr_addr( prog_addr  ),
-    .we     ( prom_we[0] ),
+    .we     ( prom_we    ),
     .q      ( prom_data  )
 );
 

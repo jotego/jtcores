@@ -18,6 +18,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     scn := nested[0]
     pc_name := find_similar( "pc", ss)
     alu_busy := ss.Get(find_similar( "alu_busy", ss ))
+    str_busy := ss.Get(find_similar( "str_busy", ss ))
 
     scope := findCommonScope(ss)
     fmt.Printf("At scope %s\n",scope)
@@ -62,7 +63,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         if len(tokens)==0 { continue }
         if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
-        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, kmax )
+        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, str_busy, kmax )
         case "ds","display": {
             var t []string
             if len(tokens)>1 { t = tokens[1:]}
@@ -157,8 +158,8 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             }
         }
         case "il", "ignore-list": {
-            for k,_ := range ignore {
-                fmt.Printf("%s\n",k)
+            for k, each := range ignore {
+                if each { fmt.Printf("%s\n",k) }
             }
         }
         case "kmax": {
@@ -219,7 +220,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             break
         }
         case "s","step": {
-            nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy )
+            nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, str_busy )
             cmd_diff()
         }
         case "st","step-trace": {
@@ -249,7 +250,10 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             if !mvTrace( trace, mame_st, expr ) { break } // EOF
         }
         case "match-trace": { // moves the trace until it matches the VCD data
-            if !matchTrace( trace, sim_st, mame_st, ignore ) { break }
+            matchTrace( trace, sim_st, mame_st, ignore )
+        }
+        case "match-vcd": { // moves the VCD until it matches MAME data
+            matchVCD( vcd, sim_st, mame_alias, alu_busy, str_busy, mame_st, ignore )
         }
         case "?","help": {
             fmt.Println(`
@@ -267,6 +271,7 @@ h,hierarchy         shows the signal hierarchy in the simulation
 i,ignore foo boo    ignores the given MAME variables in comparison
 il,ignore-list      shows the list of ignored variables
 match-trace         moves MAME forward until it matches simulation
+match-vcd           moves the simulation forward until it matches MAME data
 mt,mt-trace foo     moves MAME forward until the given condition is met
 mv,mv-vcd foo       moves simulation forward until the given condition is met
 p,print             evaluates an expression. Use to test conditions
@@ -307,25 +312,14 @@ func mvTrace( trace *LnFile, mame_st *MAMEState, expr string ) bool {
             fmt.Printf("Not a boolean expression\n")
             break
         }
-        var good bool
-        mame_st.data, good = nxTraceChange(trace, mame_st )
-        if !good { return false }
+        if !trace.Scan() {
+            fmt.Println("Trace EOF")
+            return false
+        }
+        mame_st.data = parseTrace(trace.Text())
     }
     delete(mame_st.data,"line")
     return true
-}
-
-func stepVCD( vcd *LnFile, sim_st *SimState ) bool {
-    for vcd.Scan() {
-        txt := vcd.Text()
-        if txt[0]=='#' {
-            vcd.time, _ = strconv.ParseUint( txt[1:],10,64 )
-            return true
-        }
-        a, v := parseValue(txt)
-        assign( a, v, sim_st.data )
-    }
-    return false
 }
 
 func mvFrame( vcd *LnFile, sim_st *SimState, limit uint64 ) {
@@ -340,7 +334,7 @@ func mvFrame( vcd *LnFile, sim_st *SimState, limit uint64 ) {
         fmt.Printf("frame_cnt signal not found in VCD\n")
         return
     }
-    for frame.Value<limit && stepVCD(vcd,sim_st) { }
+    for frame.Value<limit && vcd.NextVCD(sim_st.data) { }
 }
 
 func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope string ) bool {
@@ -374,7 +368,7 @@ func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope s
             fmt.Printf("Not a boolean expression")
             return false
         }
-        stepVCD( vcd, sim_st )
+        if !vcd.NextVCD(sim_st.data) { break }
         if vcd.time-t0>1000000000 { // 1ms
             fmt.Print(".")
             t0=vcd.time
@@ -557,7 +551,8 @@ func diff( st *MAMEState, context string, verbose bool, ignore boolSet ) int {
     return d
 }
 
-func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias, alu_busy *VCDSignal ) (int,bool) {
+func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias,
+        alu_busy, str_busy *VCDSignal ) (int,bool) {
     l0 := file.line
     changed := false
     irq_bsy := sim_st.data.Get("TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.irq_bsy")
@@ -565,6 +560,7 @@ func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias, alu_busy
     was_irq := irq_bsy!=nil && irq_bsy.Value!=0
     was_stack := stack!=nil && stack.Value!=0
     was_alu := alu_busy!=nil && alu_busy.Value!=0
+    was_str := str_busy!=nil && str_busy.Value!=0
     for file.Scan() {
         txt := file.Text()
         if txt[0]=='#' {
@@ -581,11 +577,18 @@ func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias, alu_busy
         if p==nil {
             log.Fatal("Error: bad pointer to VCDSignal\n")
         }
-        // Skip busy secionts
+        // Skip busy sections
         if alu_busy!=nil && alu_busy.Value==1 {
             was_alu = true
             continue
         } else if was_alu {
+            changed = true
+            break
+        }
+        if str_busy!=nil && str_busy.Value==1 {
+            was_str = true
+            continue
+        } else if was_str {
             changed = true
             break
         }
@@ -638,7 +641,7 @@ func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
 }
 
 func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore boolSet, alu_busy *VCDSignal, KMAX int ) {
+        ignore boolSet, alu_busy, str_busy *VCDSignal, KMAX int ) {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -654,7 +657,7 @@ func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
         div_time = vcd.time
         for k:=0;k<KMAX;k++ {
             if diff( mame_st, "", false, ignore )==0 { continue main_loop }
-            _, good := nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy )
+            _, good := nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, str_busy )
             if !good { break }
             // fmt.Printf("+%d VCD lines\n",lines)
         }
@@ -673,16 +676,39 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
     }
-
-    var good bool
+    line0 := trace.line
+    var good, matched bool
     for {
         mame_st.data, good = nxTraceChange( trace, mame_st )
-        if !good || diff( mame_st, "", false, ignore )==0 { break }
+        matched = diff( mame_st, "", false, ignore )==0
+        if !good || matched { break }
     }
     // display the difference
-    fmt.Printf("Impossible to match")
-    diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
-    return good
+    if !matched {
+        fmt.Printf("Impossible to match MAME to VCD")
+        diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
+    } else {
+        fmt.Printf("Matched (+ %d lines)\n",trace.line-line0)
+    }
+    return matched
+}
+
+func matchVCD( file *LnFile, sim_st *SimState, mame_alias mameAlias,
+        alu_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
+    var good, matched bool
+    for {
+        mv := 0
+        mv, good = nxVCDChange( file, sim_st, mame_alias, alu_busy, str_busy )
+        fmt.Printf("Moved by %d lines\n",mv)
+        matched = diff( mame_st, "", false, ignore )==0
+        if !good || matched { break }
+    }
+    // display the difference
+    if !matched {
+        fmt.Printf("Impossible to match VCD to MAME")
+        diff( mame_st, fmt.Sprintf("sim at time %d",file.time), true, ignore )
+    }
+    return matched
 }
 
 
@@ -713,141 +739,3 @@ func MakeAlias( trace string, ss vcdData ) mameAlias {
     return mame_alias
 }
 
-func filter( file *LnFile, ss vcdData ) {
-    var wel, addrl, doutl uint64
-    for ; file.scn.Scan(); file.line++ {
-        txt := file.scn.Text()
-        if txt[0]=='#' {
-            we := ss["5"].Value
-            addr := ss["$"].Value & 0xfffffe
-            dout := ss["6"].Value
-            if wel==we && addrl==addr && doutl==dout { continue }
-            if we !=0 && addr>=0x6000 && addr<0x7000 {
-                //fmt.Printf("% x=%02x\n", ss["$"].Value, ss["6"].Value)
-                if (we&1)!=0 { fmt.Printf("% x=%02x\n", addr, dout&0xff) }
-                if (we&2)!=0 { fmt.Printf("% x=%02x\n", addr|1, (dout>>8)&0xff) }
-            }
-            wel=we
-            addrl=addr
-            doutl=dout
-        } else {
-            s, v := parseValue(txt)
-            assign( s, v, ss )
-        }
-    }
-}
-
-func assign( alias string, v uint64, ss vcdData) {
-    p, _ := ss[alias]
-    if p==nil {
-        fmt.Printf("Warning: signal vcdData as %s not found\n",alias)
-        return
-    }
-    p.Value = v
-}
-
-func parseValue( txt string ) ( string, uint64 ) {
-    if txt[0]!='0' && txt[0]!='1' && txt[0]!='b' {
-        fmt.Printf("Warning: unexpected value definition %s\n",txt)
-        return "",0
-    }
-    var v uint64
-    if txt[0] == 'b' {
-        var s int
-        for s=1; txt[s]!=' ' && s<len(txt); s++ {
-            v <<= 1
-            if txt[s]=='1' {
-                v |= 1
-            }
-        }
-        s++
-        return txt[s:], v
-    } else {
-        if txt[0]=='1' { v=1 }
-        return txt[1:], v
-    }
-}
-
-func GetSignals( file *LnFile ) vcdData {
-    ss := make(vcdData)
-    scope := ""
-    type Mode int
-    const(
-        SCAN Mode = iota
-        PASS
-        INIT
-    )
-    mode := SCAN
-    scan_through:
-    for ; file.scn.Scan(); file.line++ {
-        txt := file.scn.Text()
-        switch(mode) {
-            case SCAN: {
-                tokens := strings.Fields(txt)
-                switch(tokens[0]) {
-                    case "$date","$version","$timescale": mode=PASS
-                    case "$scope": {
-                        if tokens[1]!="module" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                        }
-                        if scope!="" { scope += "." }
-                        scope += tokens[2]
-                    }
-                    case "$upscope": {
-                        if i := strings.LastIndex(scope,"."); i!=-1 {
-                            scope = scope[0:i]
-                        }
-                    }
-                    case "$var": {
-                        if tokens[1]!="wire" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                            break
-                        }
-                        s := &VCDSignal{
-                            Scope: scope,
-                            alias: tokens[3],
-                        }
-                        bracket_str := tokens[4]
-                        bracket := 0
-                        if tokens[5][0]=='[' { // bus expression is separated
-                            bracket_str = tokens[5]
-                            s.Name = tokens[4]
-                        } else {
-                            bracket = strings.Index(tokens[4],"[")
-                            if bracket == -1 {
-                                s.Name = tokens[4]
-                                bracket_str = ""
-                            } else {
-                                s.Name = tokens[4][0:bracket]
-                            }
-                        }
-                        if bracket_str!="" {
-                            bend := strings.Index(bracket_str,"]")
-                            parts := strings.Split(bracket_str[bracket:bend-1],":")
-                            s.MSB,_ = strconv.Atoi(parts[0])
-                            if len(parts)==2 {
-                                s.LSB,_ = strconv.Atoi(parts[1])
-                            }
-                        }
-                        ss[s.alias] = s
-                    }
-                    case "$dumpvars": mode = INIT
-                }
-            }
-            case INIT: {
-                if txt=="$end" {
-                    file.line++
-                    break scan_through
-                }
-                a, v := parseValue( txt )
-                assign( a, v, ss )
-            }
-            case PASS : {
-                if txt=="$end" {
-                    mode = SCAN
-                }
-            }
-        }
-    }
-    return ss
-}

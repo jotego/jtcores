@@ -19,6 +19,10 @@ The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/
 
 Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and general information about how the cores are organized.
 
+Master branch health:
+[![Compile all MiSTer cores](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml)
+[![Verilator linter](https://github.com/jotego/jtcores/actions/workflows/linter.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/linter.yaml)
+
 # Schematics
 
 Some core have KiCAD schematics for the arcade PCB. This is part of the core research effort and it is important on its own. The schematics folders are called *sch* and can be found in some core folders.

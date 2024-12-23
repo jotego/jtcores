@@ -23,7 +23,7 @@ Value | Meaning                 | Colour
 
 To disable support of DIP switches in MRA files define the macro **JTFRAME_NO_MRA_DIP**. The maximum length of DIP switches is 32 bits. To alter the value of DIP switches in simulation use **JTFRAME_SIM_DIPS**.
 
-In MiST, DIP switches are incorporated into the status word. As some bits in the status word are used for other OSD settings, DIP switches are by default located in range 31:16. This is set by the macro **JTFRAME_MIST_DIPBASE**, whose **default value is 16**. Note that the MRA should match this, the **base** attribute can be used in the MRA dip definition to shift the switch bits up.
+In MiST, DIP switches are incorporated into the status word. As some bits in the status word are used for other OSD settings, DIP switches are by default located in range 31:16. This is set by the macro **JTFRAME_DIPBASE**, whose **default value is 16**. Note that the MRA should match this, the **base** attribute can be used in the MRA dip definition to shift the switch bits up. Note that this macro must be defined on the **MiSTer** section of **macros.def** for the *jtframe mra* tool to parse it correctly.
 
 Macro                | Effect
 ---------------------|----------------------------

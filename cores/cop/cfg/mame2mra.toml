@@ -18,7 +18,7 @@ Names = [
 [dipsw]
 bitcnt = 16
 base = 17
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename = [
     { name="Enemy Power Decrease on Continue", to="Player strength"},
     { name="Control Panel Type", to="Panel" },
@@ -65,8 +65,8 @@ blanks = [
 ]
 
 patches = [
-    {machine="hippodrm", offset=0x210189, value=" 60 "},
-    {machine="hippodrm", offset=0x2101af, value=" 60 "},
-    {machine="hippodrm", offset=0x2101db, value=" 60 "},
-    {machine="hippodrm", offset=0x21021a, value=" 60 "}
+    {machine="hippodrm", offset=0x210189, data=" 60 "},
+    {machine="hippodrm", offset=0x2101af, data=" 60 "},
+    {machine="hippodrm", offset=0x2101db, data=" 60 "},
+    {machine="hippodrm", offset=0x21021a, data=" 60 "}
 ]

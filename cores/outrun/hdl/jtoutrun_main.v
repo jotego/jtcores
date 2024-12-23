@@ -368,7 +368,7 @@ always @(*) begin
                     2: begin
                         case( ctrl_type )
                             0: cab_dout = dacana1b[15] ?  8'd0 : {dacana1b[14:8], dacana1b[14]};     // brake pedal dual analog stick
-                            1: cab_dout = dacana1[ 15] ?  8'd0 : {dacana1[14:8],   dacana1[14]};     // brake pedal analog trigger   
+                            1: cab_dout = dacana1[ 15] ?  8'd0 : {dacana1[14:8],   dacana1[14]};     // brake pedal analog trigger
                             2: cab_dout = dacana1b[15] ? ~{dacana1b[14:8], dacana1b[14]} : 8'd0;     // brake logictech steering wheel
                             default: cab_dout = 0;
                         endcase
@@ -539,17 +539,17 @@ jtframe_m68k u_cpu(
     .IPLn       ( mix_ipln    ) // VBLANK
 );
 
-`ifdef SIMULATION
-/*always @(posedge pal_cs )  begin
-    $display("Palette access" );
-end*/
-wire main_over = cpu_dsn==3 && sub_cs;
-always @(posedge main_over) if(A_full==24'h2607fc) begin
-    $display("Main->Sub %X (%X) %s",
-            A_full, cpu_RnW ? cpu_din : cpu_dout_raw, cpu_RnW ? "RD" : "WR"
-        );
-end
-`endif
+// `ifdef SIMULATION
+// /*always @(posedge pal_cs )  begin
+//     $display("Palette access" );
+// end*/
+// wire main_over = cpu_dsn==3 && sub_cs;
+// always @(posedge main_over) if(A_full==24'h2607fc) begin
+//     $display("Main->Sub %X (%X) %s",
+//             A_full, cpu_RnW ? cpu_din : cpu_dout_raw, cpu_RnW ? "RD" : "WR"
+//         );
+// end
+// `endif
 
 
 always @(posedge clk) begin

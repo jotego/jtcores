@@ -42,6 +42,23 @@ function cdrls {
     cd $JTROOT/release
 }
 
+# returns the current working directory with the core name
+# changed by its argument. Use it to refer to the equivalent current folder
+# in a different core
+function incore {
+    IFS=/ read -ra string <<< $(pwd)
+    local j="/"
+    local next=0
+    for i in ${string[@]};do
+        if [ $next = 0 ]; then
+            j=${j}${i}/
+        else
+            next=0
+            j=${j}$1/
+        fi
+    done
+    echo $j
+}
 
 function swcore {
     if [ -z "$JTROOT" ]; then

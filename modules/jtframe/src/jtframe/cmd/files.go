@@ -43,6 +43,18 @@ The yaml file is composed of several sections, which can only appear once:
 - jtframe: get files from jtframe/hdl folders
 - modules: get files from the modules folder
 
+For modules, there is a shortcut for JT ones and a generic way
+
+modules:
+  jt:
+    - name: jt51
+      when: MACRO name
+    - name: jtkcpu
+      unless: MACRO name
+  other:
+  	- from: foo
+  	  get: [ hdl/foo.v ]
+
 # Conditional file parsing:
 
 Each file list can be parsed conditionally using the keys:

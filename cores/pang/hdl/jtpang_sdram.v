@@ -66,7 +66,7 @@ module jtpang_sdram(
     output           kabuki_we,
     output reg       kabuki_en,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     input            ioctl_ram,
@@ -143,7 +143,9 @@ jtframe_dwnld #(
     .prog_ba      ( prog_ba        ),
     .prom_we      ( prom_we        ),
     .header       ( header         ),
-    .sdram_ack    ( prog_ack       )
+    .sdram_ack    ( prog_ack       ),
+    .gfx8_en      ( 1'b0           ),
+    .gfx16_en     ( 1'b0           )
 );
 
 /* verilator tracing_off */

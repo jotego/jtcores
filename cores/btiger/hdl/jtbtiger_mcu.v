@@ -74,7 +74,7 @@ jtframe_8751mcu u_mcu(
     .p0_i       ( mcu_din   ),
     .p0_o       ( mcu_dout  ),
 
-    .p1_i       ( p1_i      ),
+    .p1_i       ( 8'd0      ),
     .p1_o       ( p1_o      ),
 
     .p2_i       ( p2_o      ),
@@ -88,6 +88,7 @@ jtframe_8751mcu u_mcu(
     .x_dout     (           ),
     .x_addr     (           ),
     .x_wr       (           ),
+    .x_acc      (           ),
 
     // ROM programming
     .clk_rom    ( clk_rom   ),

@@ -6,11 +6,11 @@ game:
       - jtdd2_sound.v
   - from: dd
     get:
-      - ../cfg/common.yaml
+      - common.yaml
 jtframe:
   - from: cpu
     get:
-      - tv80/tv80s.qip
+      # - tv80/tv80s.qip
       - jtframe_z80.yaml
 modules:
   jt:

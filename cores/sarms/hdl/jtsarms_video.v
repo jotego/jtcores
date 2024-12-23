@@ -154,7 +154,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
@@ -195,6 +194,7 @@ jt1943_scroll #(
     .clk          ( clk           ),
     .cen6         ( pxl_cen       ),
     .V128         ( {1'b0, V[7:0]}),
+    .LHBL         ( LHBL          ),
     .H            ( H             ),
     .SCxON        ( SCRON         ),
     .hpos         ( scr_hpos      ),
@@ -213,7 +213,8 @@ jt1943_scroll #(
     .map_cs       ( map_cs        ),
     .scr_addr     ( scr_addr      ),
     .scrom_data   ( scr_data      ),
-    .scr_pxl      ( scr_pxl       )
+    .scr_pxl      ( scr_pxl       ),
+    .debug_bus    ( 8'd0          )
 );
 `else
 assign scr_pxl    = 9'h0f;
@@ -227,7 +228,7 @@ jtsarms_star u_star(
     .rst        ( rst        ),
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),
-    .V          ( V          ),
+    .V          ( V[7:0]     ),
     .H          ( H          ),
     .fixed_n    ( star_fix_n ),
     // From CPU

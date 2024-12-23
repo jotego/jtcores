@@ -350,8 +350,8 @@ jtframe_freqinfo #(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .pulse  ( int_n ),
-    .fave   ( fave  ), // average cpu_cen frequency in kHz
-    .fworst (       ) // average cpu_cen frequency in kHz
+    .fave   ( fave  ),
+    .fworst (       )
 );
 
 jtframe_mixer #(.W2(11)) u_mixer(
@@ -392,6 +392,8 @@ jt03 u_fm0(
     .IOB_in (            ),
     .IOA_out(            ),
     .IOB_out(            ),
+    .IOA_oe (            ),
+    .IOB_oe (            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
@@ -418,6 +420,8 @@ jt03 u_fm1(
     .IOB_in (            ),
     .IOA_out(            ),
     .IOB_out(            ),
+    .IOA_oe (            ),
+    .IOB_oe (            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),

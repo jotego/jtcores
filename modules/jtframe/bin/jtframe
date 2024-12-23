@@ -9,7 +9,7 @@ fi
 RECOMPILE=FALSE
 BIN=$JTFRAME/src/jtframe/jtframe
 
-if [ ! -e $BIN ]; then
+if [[ ! -e $BIN || $# = 0 ]]; then # recompile if file missing or no arguments
     RECOMPILE=TRUE
 else
     # Find out whether the jtframe file is older

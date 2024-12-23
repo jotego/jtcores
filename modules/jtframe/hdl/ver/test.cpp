@@ -146,47 +146,57 @@ public:
             unsigned v;
             ++line;
             getline( fin, s );
-            sscanf( s.c_str(),"%x", &v );
-            v = ~v;
-            auto coin_l  = dut.coin_input&3;
-            dut.start_button = 0xc | ((v>>2)&3);
-            dut.coin_input   = 0xc | (v&3);
-            dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
-            v >>= 4;    // directions:
-            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
-#ifdef _JTFRAME_JOY_LRUD
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
-#endif
-#ifdef _JTFRAME_JOY_RLDU
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
-#endif
-#ifdef _JTFRAME_JOY_DURL
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
-#endif
-#ifdef _JTFRAME_JOY_UDRL
-            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
-#endif
-            if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
-                cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
-            }
+            if( sscanf( s.c_str(),"%x", &v )==1 ) parse_inputs(v);
             if( fin.eof() ) {
                 done = true;
                 fprintf(stderr,"\nsim_inputs.hex finished at line %d\n", line);
                 fin.close();
             }
+
         } else {
             dut.start_button = 0xf;
             dut.coin_input   = 0xf;
             dut.joystick1    = 0x3ff;
         }
     }
+    void parse_inputs( unsigned v ) {
+        v = ~v;
+        auto coin_l  = dut.coin_input&3;
+        dut.dip_test     = (v & 0x800) ? 1 : 0;
+        dut.start_button = 0xc | ((v>>2)&3);
+        dut.coin_input   = 0xc | (v&3);
+        dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
+        v >>= 4;    // directions:
+        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
+#ifdef _JTFRAME_JOY_LRUD
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
+#endif
+#ifdef _JTFRAME_JOY_RLDU
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
+#endif
+#ifdef _JTFRAME_JOY_DURL
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+#ifdef _JTFRAME_JOY_UDRL
+        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+        if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
+            cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
+        }
+    }
 };
+
+int fileLength( const char *name ) {
+    ifstream fin( name, ios_base::binary );
+    fin.seekg( 0, ios_base::end );
+    return (int)fin.tellg();
+}
 
 class Download {
     UUT& dut;
-    int addr, din, ticks,len;
+    int addr, din, ticks,len, cart_start, nvram_start;
     char *buf;
-    bool done, full_download;
+    bool done, cart, nvram, full_download;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
@@ -197,16 +207,48 @@ public:
         ifstream fin( "rom.bin", ios_base::binary );
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
+        int rom_len = len;
         if( len == 0 || fin.bad() ) {
             fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
         } else {
+            int cart_len = fileLength("cart.bin");
+            if( cart_len > 0 ) {
+                cart = true;
+                cart_start = len; // starts after rom.bin
+                len += cart_len;
+            }
+            int nvram_len = fileLength("nvram.bin");
+            if( nvram_len > 0 ) {
+                nvram = true;
+                nvram_start = len; // starts after cart.bin
+                len += nvram_len;
+            }
+
             buf = new char[len];
             fin.seekg(0, ios_base::beg);
             fin.read(buf,len);
             if( fin.bad() ) {
                 fputs("Verilator test.cpp: problem while reading rom.bin\n",stderr);
             } else {
-                fprintf(stderr,"Read %d bytes from rom.bin\n",len);
+                fprintf(stderr,"Read %d bytes from rom.bin\n",rom_len);
+            }
+            if( cart ) {
+                ifstream fcart( "cart.bin", ios_base::binary );
+                fcart.read( buf+cart_start, cart_len );
+                if( fin.bad() ) {
+                    fputs("Verilator test.cpp: problem while reading cart.bin\n",stderr);
+                } else {
+                    fprintf(stderr,"Read %d bytes from cart.bin (starts at %x)\n",cart_len,cart_start);
+                }
+            }
+            if( nvram ) {
+                ifstream fcart( "nvram.bin", ios_base::binary );
+                fcart.read( buf+nvram_start, nvram_len );
+                if( fin.bad() ) {
+                    fputs("Verilator test.cpp: problem while reading nvram.bin\n",stderr);
+                } else {
+                    fprintf(stderr,"Read %d bytes from nvram.bin (starts at %x)\n",nvram_len,nvram_start);
+                }
             }
         }
     };
@@ -245,12 +287,26 @@ public:
                 case 0:
                     addr++;
                     dut.ioctl_addr = addr;
+#ifdef _JTFRAME_CART_OFFSET
+                    if( cart && addr>=cart_start ) {
+                        dut.ioctl_addr += _JTFRAME_CART_OFFSET-cart_start;
+                    }
+#endif
+#ifdef _JTFRAME_IOCTL_RD
+                    if( nvram && addr>=nvram_start) {
+                        dut.ioctl_addr -= nvram_start;
+                        dut.ioctl_ram = 1;
+                    }
+#endif
                     dut.ioctl_dout = read_buf();
                     break;
                 case 1:
                     if( addr < len ) {
                         dut.ioctl_wr = 1;
                     } else {
+#ifdef _JTFRAME_IOCTL_RD
+                        dut.ioctl_ram   = 0;
+#endif
                         dut.downloading = 0;
                         done = true;
                     }
@@ -774,7 +830,7 @@ void JTSim::video_dump() {
                             dump.fout.close();
                             char exes[512];
                             snprintf(exes,512,"convert -filter Point "
-                                "-size %dx%d %s -depth 8 RGBA:frame.raw %s frame_%05d.jpg",
+                                "-size %dx%d %s -depth 8 RGBA:frame.raw %s frames/frame_%05d.jpg",
                                 activew, activeh,
                                 (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "", // rotate vertical games
                                 convert_options.c_str(), frame_cnt);

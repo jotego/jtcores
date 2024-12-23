@@ -249,7 +249,7 @@ function is_dirty {
 # Used to remove the v in version codes without
 # affecting the git id, in the case it's used instead
 function no_v {
-    if [ ${1:0:1} = v ]; then
+    if [ "${1:0:1}" = v ]; then
         echo ${1:1}
     else
         echo $1
@@ -451,7 +451,15 @@ START_TIME=$(date +%s)
 echo =============== JTCORE =======================
 echo -e "${wBG}$CORENAME $TARGET compilation ${blue}starts${NC}${wBG} at ${red}$(date +%T)${NC}${wBG} with seed ${red}$SEED${NC}${wBG} on $(hostname)${NC}"
 if [ "$MACROS" != "" ]; then
-    echo Explicit macros: $MACROS
+    echo -e Explicit macros:
+    for i in $MACROS; do
+        if [ ${i:0:17} != JTFRAME_UNLOCKKEY ]; then
+            echo -n "$i "
+        else # Do not print the key value
+            echo -n "JTFRAME_UNLOCKKEY "
+        fi
+        echo
+    done
 fi
 
 ################ compilation
@@ -532,6 +540,11 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
             echo "Warning: latch inferred"
+        fi
+        # Report FPGA usage
+        if [ -e $RPTPATH/*.fit.summary ]; then
+            grep "Total logic" $RPTPATH/*.fit.summary
+            grep "Total memory" $RPTPATH/*.fit.summary
         fi
         # Report connectivity problems
         grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
@@ -620,8 +633,8 @@ if [ $TARGET = pocket ]; then
 fi
 
 # Copy to JTBIN  if --git is set, except for cores in beta
-# in which case only the MiSTer version is copied
-if [[ ( "$GIT" = FALSE || (( is_mister_family || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
+# in which case only the MiSTer and Pocket versions are copied
+if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
     announce "Copy to $JTBIN"
     if is_mister_family; then
         BINFOLDER=$JTBIN/$TARGET/$PRJ

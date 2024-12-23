@@ -1,0 +1,7 @@
+trace off
+focus 0
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
+// simulate 5 seconds
+gtime #5000
+traceflush
+quit

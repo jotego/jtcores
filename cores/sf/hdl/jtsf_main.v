@@ -90,7 +90,7 @@ module jtsf_main #(
     // Memory address for SDRAM
     output   [MAINW:1] addr,
     // RAM access
-    output             ram_cs,
+    output reg         ram_cs,
     output  [RAMW-1:0] ram_addr,
     input       [15:0] ram_data,
     output      [15:0] ram_din,
@@ -112,7 +112,7 @@ wire        cen8, cen8b;
 reg  [15:0] cabinet_input, cpu_din;
 wire [15:0] objram;
 wire        BRn, BGACKn, BGn;
-reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
+reg         io_cs, obj_cs, col_cs,
             misc_cs, snd_cs;
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
@@ -156,10 +156,11 @@ assign mcu_master = ~mcu_brn & bus_ack;
 assign BUSn       = ASn | (LDSn & UDSn);
 
 `ifdef SIMULATION
-wire [24:0] A_full = {A,1'b0};
+wire [23:0] A_full = {A,1'b0};
 `endif
 
 jtframe_sync #(.W(15+8+1+1+1)) u_mcus(
+    .clk_in ( clk       ),
     .clk_out( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s } )
@@ -170,7 +171,7 @@ wire bus_wrn = mcu_master ? ~mcu_wr : RnW;
 
 always @(*) begin
     rom_cs     = 0;
-    pre_ram_cs = 0;
+    ram_cs     = 0;
     col_cs     = 0;
     io_cs      = 0;
     char_cs    = 0;
@@ -187,7 +188,7 @@ always @(*) begin
     mcu_DMAONn = 1;
     regs_cs    = 0;
 
-    if( (!CPUbus && mcu_acc_s) ||  (!ASn && BGACKn) ) begin
+    if( (!CPUbus && mcu_acc_s) ||  (!ASn && BGACKn && (RnW || {UDSn,LDSn}!=3)) ) begin
         case(Aeff[23:20])
             4'h0: rom_cs  = 1;  // reading from the ROM may fail from the MCU, but it shouldn't matter
             4'h8: char_cs = 1;
@@ -196,7 +197,7 @@ always @(*) begin
                 if( Aeff[14:13]==2'b11 && Aeff[5:3]==3'd0 ) begin // FE - object RAM
                     obj_cs = 1;
                 end else begin
-                    pre_ram_cs = 1;
+                    ram_cs = 1;
                 end
             end
             4'hc: if(Aeff[19:16]==4'd0) begin
@@ -231,7 +232,6 @@ always @(*) begin
 end
 
 // MCU and shared bus
-assign ram_cs   = mcu_master ? pre_ram_cs : ( ~BUSn & (dsn_dly ? reg_ram_cs  : pre_ram_cs));
 assign ram_addr = Aeff[15:1];
 assign ram_din  = mcu_master ? {2{mcu_dout_s}} : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
@@ -280,26 +280,6 @@ always @(posedge clk) begin
         if( snd_cs ) begin
             snd_latch <= ram_din[7:0];
         end
-    end
-end
-
-`ifdef SIMULATION
-    initial begin
-        reg_ram_cs = 0;
-        dsn_dly    = 2'b11;
-    end
-`endif
-
-// ram_cs and vram_cs signals go down before DSWn signals
-// that causes a false read request to the SDRAM. In order
-// to avoid that a little bit of logic is needed:
-always @(posedge clk, posedge rst)  begin
-    if(rst) begin
-        reg_ram_cs <= 0;
-        dsn_dly    <= 2'b11;
-    end else if(cen8) begin
-        reg_ram_cs  <= pre_ram_cs;
-        dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
     end
 end
 
@@ -381,19 +361,19 @@ end
 wire       int1, int2;
 wire [2:0] FC;
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
+wire       bus_cs =   |{ rom_cs, char_cs, ram_cs };
 reg        bus_busy;
 wire       DTACKn;
 
 always @* begin
-    bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
+    bus_busy = |{ rom_cs & ~rom_ok, char_busy, ram_cs & ~ram_ok };
     if( BUSn ) bus_busy=0;
 end
 
 jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 5'd1       ),
+    .num        ( 4'd1       ),
     .den        ( 5'd6       ),
     .cpu_cen    ( cen8       ),
     .cpu_cenb   ( cen8b      ),
@@ -402,7 +382,13 @@ jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .bus_legit  ( char_busy  ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
-    .DTACKn     ( DTACKn     )
+    .DTACKn     ( DTACKn     ),
+    .wait2      ( 1'd0       ),
+    .wait3      ( 1'd0       ),
+    // unused
+    .frst       ( 1'd0       ),
+    .fave       (            ),
+    .fworst     (            )
 );
 
 // OBJ RAM is implemented in BRAM

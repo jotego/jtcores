@@ -31,16 +31,19 @@ jtframe:
       - jtframe_wirebw.v
   - from: sdram
     get:
+      - jtframe_dwnld.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml
       - jtframe_sdram_stats.v
   - from: ram
     get:
       - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
       - jtframe_rpwp_ram.v
       - jtframe_bram_rom.v
       - jtframe_prom.v
       - jtframe_ram.v
+      - jtframe_ioctl_dump.v
   # Cheat system (enabled with JTFRAME_CHEAT)
   - from: cpu/pauloblaze
     get:

@@ -102,13 +102,24 @@ always @(posedge clk) begin
                 2: st_mux <= game_id;
                 3: st_mux <= { 3'd0, dec_type, mc8123_en, fd1089_en, fd1094_en, dec_en };
             endcase
-        2,3: st_mux <= st_main;
+        2: st_mux <= st_main;
+        3: st_mux <= st_addr[0] ? dipsw_b : dipsw_a;
     endcase
+end
+
+reg rstx;
+
+always @(negedge clk, posedge rst) begin
+    if( rst ) begin
+        rstx <= 1;
+    end else begin
+        if( vrender==9'hf0 ) rstx <= 0; // f0 goldnaxe ok
+    end
 end
 
 `ifndef NOMAIN
 `JTS16_MAIN u_main(
-    .rst        ( rst       ),
+    .rst        ( rstx      ),
     .clk        ( clk       ),
     .clk_rom    ( clk       ),  // same clock - at least for now
     .cpu_cen    ( cpu_cen   ),
@@ -169,7 +180,7 @@ end
     .key_addr    ( key_addr   ),
     .key_data    ( key_data   ),
     // MCU
-    .rst24       ( rst24      ),
+    .rst24       ( rstx       ),
     .clk24       ( clk24      ),  // To ease MCU compilation
     .mcu_cen     ( mcu_cen    ),
     .mcu_en      ( mcu_en     ),
@@ -325,7 +336,7 @@ assign pcm_addr = 0;
 `else
 assign tile_bank = 0; // unused on S16A
 `endif
-
+/* verilator tracing_off */
 jts16_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

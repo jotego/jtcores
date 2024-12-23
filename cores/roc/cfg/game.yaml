@@ -8,7 +8,7 @@ game:
   - from: kicker
     get:
       - jtkicker_colmix.v
-      - ../cfg/common.yaml
+      - common.yaml
   - from: yiear
     get:
       - jtyiear_colmix.v

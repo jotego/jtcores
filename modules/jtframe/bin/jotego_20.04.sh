@@ -43,8 +43,20 @@ cp 8039dasm asm48 /usr/local/bin
 
 # macro assembler for many, many CPUs
 cd /tmp
-git clone https://github.com/jotego/asl.git
-cd asl
+wget http://john.ccac.rwth-aachen.de:8000/ftp/as/source/c_version/asl-current.tar.gz
+tar xfz asl-current.tar.gz
+cd asl-current
 make
-cp alink asl p2bin p2hex pbind plist /usr/local/bin
+cp alink asl p2bin p2hex pbind plist *.msg /usr/local/bin
 cp man/* /usr/local/share/man/man1/
+
+# Verilator
+cd $HOME
+unset VERILATOR_ROOT
+git clone http://git.veripool.org/git/verilator --depth 1 || exit $?
+cd $HOME/verilator
+autoconf
+./configure
+# compile using 80% of available CPUs
+make -j $((`nproc`*4/5))
+export VERILATOR_ROOT=`pwd`

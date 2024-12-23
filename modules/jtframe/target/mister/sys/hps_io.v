@@ -709,7 +709,7 @@ always@(posedge clk_sys) begin : fio_block
 							cnt <= cnt + 1'd1;
 							case(cnt)
 								0:	if(io_din[7:0] == 8'hAA) begin
-										ioctl_addr   <= WIDE ? -27'd2 : 27'd0;
+										ioctl_addr   <= WIDE ? -27'd2 : -27'd1;
 										ioctl_upload <= 1;
 										ioctl_rd     <= 1;
 									end

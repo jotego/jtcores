@@ -1,0 +1,113 @@
+params:
+  - { name: RAM_OFFSET,   value: "22'h20_0000"   }
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
+  - { name: SCR_OFFSET,   value: "(`SCR_START-`JTFRAME_BA2_START) >> 1"   }
+clocks:
+  clk48:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 24576
+      outputs:
+        - cen_24
+        - cen_12
+        - cen_6
+        - cen_3
+sdram:
+  banks:
+    - buses:
+        - name: ram
+          addr_width: 15  # the PCB seems to support 17 bits too
+          data_width: 8
+          offset: RAM_OFFSET
+          rw: true
+        - name: main
+          addr_width: 22
+          data_width: 8
+        - name: sub
+          addr_width: 22
+          data_width: 8
+    - buses:
+        - name: snd
+          addr_width: 17
+          data_width: 8
+        - name: pcm
+          addr_width: 20
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: mask
+          addr_width: 17
+          data_width: 8
+        - name: scr # 4-byte burst here
+          addr_width: 20
+          data_width: 8
+          offset: SCR_OFFSET
+    # - buses:
+    #     - name: obj
+    #       addr_width: 20
+    #       data_width: 32
+bram:
+  # Tile map
+  - name: tmap
+    addr_width: 15
+    data_width: 16
+    dual_port:
+      name: vram
+      din: bdout16
+      dout: vram_dout
+      rw: true
+  # Sound CPU RAM
+  - name: sndram
+    addr_width: 13
+    data_width:  8
+    rw: true
+  # Object RAM
+  - name: oram
+    addr_width: 12
+    data_width: 16
+    dual_port:
+      name: obus
+      din: bdout16
+      dout: obus_dout
+      rw: true
+  # Palette RAM, 3x8kB
+  # colmix muxes rpal,gpal,bpal to pal_dout -> main/sub
+  - name: red
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    dual_port:
+      name: rpal
+      addr: pal_addr
+      din: ram_din
+      dout: rpal_dout
+      rw: true
+  - name: green
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    dual_port:
+      name: gpal
+      addr: pal_addr
+      din: ram_din
+      dout: gpal_dout
+      rw: true
+  - name: blue
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    dual_port:
+      name: bpal
+      addr: pal_addr
+      din: ram_din
+      dout: bpal_dout
+      rw: true
+  # EEROM
+  - name: eerom
+    addr_width: 11
+    data_width: 8
+    din: mcu_dout
+    rw: true
+    ioctl: { save: true, order: 0 }

@@ -25,7 +25,6 @@ module jtrumble_video#(
     input               clk,
     input               pxl2_cen,
     input               pxl_cen,
-    input               cpu_cen,
     input       [12:0]  cpu_AB,
     output      [ 8:0]  V,
     input               RnW,
@@ -98,13 +97,6 @@ always @(posedge clk) if(pxl_cen) LHBL_sh <= { LHBL_sh[30:0], !(H[8] ? H[7:0] > 
 assign LVBL_obj = ~V[8];
 assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6]; // LHBL_sh[debug_bus[4:0]];
 
-// jtframe_sh #(.width(1), .stages(5) ) u_sh(
-//     .clk    ( clk       ),
-//     .clk_en ( pxl_cen   ),
-//     .din    ( LHBL      ),
-//     .drop   ( LHBL_obj  )
-// );
-
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
@@ -147,7 +139,6 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     .AB         ( { ~cpu_AB[0], cpu_AB[11:1] } ),
     .V          ( V[7:0]        ),
     .H          ( H[8:0]        ),
@@ -173,15 +164,6 @@ jtgng_char #(
 );
 
 `ifndef NOSCR
-// wire [7:0] scr_pre;
-//
-// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( pxl_cen     ),
-//     .din    ( scr_pre  ),
-//     .drop   ( scr_pxl  )
-// );
-
 jtgng_scroll #(
     .HOFFSET( 1    ),
     .ROM_AW ( SCRW  ),
@@ -193,7 +175,6 @@ jtgng_scroll #(
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),

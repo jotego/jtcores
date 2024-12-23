@@ -219,6 +219,7 @@ jt007232 u_pcm(
     .snda       (           ),
     .sndb       (           ),
     .snd        ( pcm_snd   ),
+    .swap_gains ( 1'b0      ),
     // debug
     .debug_bus  ( 8'd0      ),
     .st_dout    (           )

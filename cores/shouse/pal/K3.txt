@@ -1,0 +1,31 @@
+
+/RAM  = IA15 & IA14 & /IA13 & /IA12
+
+/OUTG = /IA15 & /IA14 & /IA13 & IA12 & CRW & E +
+         IA15 &  IA14 & /IA13 & E
+
+/CIRQ = /VBLANK &(
+       /IA15 & IA14  &               /CRW & /2H & /1H & E +
+               /IA14 & IA13 &        /CRW & /2H & /1H     +
+                      /IA13 & IA12 & /CRW & /2H & /1H     +
+                             /IA12 & /CRW & /2H & /1H     +
+               /E )
+
+/LT = IA15 & IA14 & /IA13 & IA12 & /CRW & E
+
+/o16 = IA15 & IA14 & IA13 & IA12 & /1H & /VBLANK & E +
+       1H & /VBLANK & E +
+       /IA12 & CRW & /1H & /VBLANK & E +
+       IA13 & CRW & /VBLANK & E +
+       /IA13 & IA12 & CRW & /VBLANK & E +
+       2H & /VBLANK & E
+
+/DIP = /IA15 & /IA14 & /IA13 & IA12 & CRW & E
+
+# Enables ROM chips
+/IROM = IA15 & /IA14 & CRW & E +
+       /IA15 &  IA14 & CRW & E
+
+/IBUF = IA15 & /IA14 & CRW & E +
+       /IA15 &  IA14 & CRW & E
+

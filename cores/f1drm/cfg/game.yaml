@@ -1,7 +1,7 @@
 game:
   - from: tora
     get:
-      - ../cfg/game.yaml
+      - game.yaml
   - from: biocom
     get:
       - jtbiocom_mcu.v

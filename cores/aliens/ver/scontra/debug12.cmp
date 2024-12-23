@@ -1,0 +1,38 @@
+# 868d = IRQ start
+# 8682~8 wait until next IRQ
+frame 70
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d # +762us,742ns
+match-trace
+
+# at frame 71
+go # +115us,825ns
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8682
+go
+
+# at frame 72
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+go
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868a
+go
+
+# at frame 73
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d
+go # +100us,576ns
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$8688
+go # +10ms,498us,244ns
+
+# at frame 74
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d # + 294us,564ns
+go # +109us,118ns
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868a # + 1us,374ns
+go # +10ms,485us,620ns
+
+# at frame 75
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d # + 298us,105ns
+go # +4ms,798us,234ns
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868a # + 1us,416ns
+
+# at frame 76
+go # +3ms,626us,851ns
+mv TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc==$868d # + 468us,511ns
+diff # time 1s,284ms,16us,869ns

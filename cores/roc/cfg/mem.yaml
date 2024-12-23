@@ -9,7 +9,7 @@ clocks:
       div: 4
       outputs:
         - cpu4
-
+        - cen_nc
 download:
   post_addr: true
 sdram:

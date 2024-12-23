@@ -3,7 +3,7 @@ LABEL maintainer=jotego@gmail.com
 
 RUN apt update
 RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-RUN apt install -yq git curl
+RUN apt install -yq git curl gawk
 RUN apt install -yq ca-certificates libgnutls30
 RUN apt install -yq ftp figlet xmlstarlet flex
 

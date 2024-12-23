@@ -258,7 +258,7 @@ always @(posedge clk, posedge rst) begin
         `ifndef SLYSPY
             prisel <= cpu_dout[7:0];
         `else
-            prisel <= {2'd0,cpu_dout[7]}; // SlySpy uses a single bit
+            prisel <= {7'd0,cpu_dout[7]}; // SlySpy uses a single bit
         `endif
         end
 
@@ -357,7 +357,7 @@ reg [7:0] prot_dout;
 reg [7:0] prot_cpy;
 
 always @(posedge clk) begin
-    if( sysram_cs && A[12:1]=='h1014 && !RnW ) prot_cpy <= cpu_dout[7:0];
+    if( sysram_cs && A[12:1]==12'h14 && !RnW ) prot_cpy <= cpu_dout[7:0];
     prot_dout <= 0;
     if( nexrm0_cs ) case( A[3:1] )
             1: prot_dout <= 'h13;

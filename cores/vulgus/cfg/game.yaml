@@ -1,4 +1,4 @@
 game:
   - from: 1942
     get:
-      - ../cfg/game.yaml
+      - game.yaml

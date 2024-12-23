@@ -152,19 +152,34 @@ func dump_cpp(def map[string]string) {
 func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
 	pllsim := "10.416"
 	for k, v := range def {
+		// Optionally escape quote characters
+		apost := "'"
+		if esc_quotes {
+			v = strings.ReplaceAll(v, "\"", "\\\"")
+			apost = "\\'"
+		}
 		if len(v) > 2 && v[0:2] == "0x" {
 			val, _ := strconv.ParseInt(v, 0, 0)
 			v = fmt.Sprintf("'h%X", val)
-		}
-		// Optionally escape quote characters
-		if esc_quotes {
-			v = strings.ReplaceAll(v, "\"", "\\\"")
 		}
 		// Output the key=value pair in the format
 		// given by fmtstr, but skip it if the value
 		// contains spaces, as simulators will get
 		// confused
 		if strings.Index(v, " ") == -1 {
+			if k=="JTFRAME_WIDTH" || k=="JTFRAME_HEIGHT" {
+				vint, e := strconv.Atoi(v)
+				if e != nil {
+					fmt.Printf("Error in %s definition (%s) when converting to integer: ", k, v )
+					fmt.Println( e )
+					os.Exit(1)
+				}
+				if vint < 512 {
+					v = "9"+apost+"d"+v
+				} else {
+					v = "10"+apost+"d"+v
+				}
+			}
 			fmt.Printf(fmtstr+"\n", k, v)
 		}
 		if k == "JTFRAME_PLL" {

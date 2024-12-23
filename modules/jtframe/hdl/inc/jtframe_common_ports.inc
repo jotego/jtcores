@@ -84,7 +84,8 @@
 `endif
     input   [3:0]   gfx_en,
     input      [7:0] debug_bus,
-    output     [7:0] debug_view, // the most common case is the register
+    output     [7:0] debug_view,
+    // the most common case is the register
     // Line-frame buffer for object drawing, supported only
     // on PocketFPGA and MiSTer. It could be added to NeptUNO too
 `ifdef JTFRAME_LF_BUFFER

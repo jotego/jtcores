@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Jul 16 16:39:49 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/sim.fst"
+[dumpfile_mtime] "Sun Jul 16 16:15:06 2023"
+[dumpfile_size] 47330116
+[savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/cmp.gtkw"
+[timestart] 5024953000000
+[size] 1264 1013
+[pos] -29 -51
+*-27.265570 -1 5016187783900 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scr2.
+[sst_width] 219
+[signals_width] 180
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.LVBL
+TOP.game_test.u_game.u_game.u_video.scr2_pxl[2:0]
+@23
+TOP.game_test.u_game.u_game.u_video.u_scr2.scan_addr[9:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_scr2.scan_dout[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

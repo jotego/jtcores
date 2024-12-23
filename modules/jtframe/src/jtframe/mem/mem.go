@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -132,15 +133,32 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 	// Update the MemType strings
 	for k, bank := range cfg.SDRAM.Banks {
 		ram_cnt := 0
-		for _, each := range bank.Buses {
+		for j, each := range bank.Buses {
 			if each.Rw {
 				ram_cnt++
 			}
+			if each.Data_width==0 { cfg.SDRAM.Banks[k].Buses[j].Data_width=8 }
 		}
 		if ram_cnt > 0 {
 			cfg.SDRAM.Banks[k].MemType = fmt.Sprintf("ram%d", ram_cnt)
 		} else {
 			cfg.SDRAM.Banks[k].MemType = "rom"
+		}
+	}
+	// Make data_width 8 if it is missing
+	for k, each := range cfg.BRAM {
+		if each.Data_width==0 { cfg.BRAM[k].Data_width=8 }
+	}
+	// check that gfx_sort expressions are supported
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			switch each.Gfx {
+				case "", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx": break
+				default: {
+					fmt.Printf("Unsupported gfx_sort %d\n", each.Gfx)
+					return false
+				}
+			}
 		}
 	}
 	return true
@@ -222,38 +240,48 @@ func get_macros( core, target string ) (map[string]string) {
 	return jtdef.Make_macros(def_cfg)
 }
 
-func check_banks( macros map[string]string, cfg MemConfig ) {
+func check_banks( macros map[string]string, cfg *MemConfig ) {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
 	}
 	bad := false
-	if len(cfg.SDRAM.Banks)>1 && macros["JTFRAME_BA1_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA1_START")
-		bad = true
+	check_we := func( ba int, macro_name string) {
+		for _,each := range cfg.SDRAM.Banks[ba].Buses {
+			if each.Rw {
+				_, found := macros[macro_name]
+				if !found {
+					fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", macro_name, ba)
+					bad=true
+				}
+			}
+		}
 	}
-	if len(cfg.SDRAM.Banks)>2 && macros["JTFRAME_BA2_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA2_START")
-		bad = true
+	if len(cfg.SDRAM.Banks)>1  {
+		if macros["JTFRAME_BA1_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA1_START")
+			bad = true
+		}
+		check_we( 1, "JTFRAME_BA1_WEN" )
 	}
-	if len(cfg.SDRAM.Banks)>3 && macros["JTFRAME_BA3_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA3_START")
-		bad = true
+	if len(cfg.SDRAM.Banks)>2 {
+		if macros["JTFRAME_BA2_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA2_START")
+			bad = true
+		}
+		check_we( 2, "JTFRAME_BA2_WEN" )
+	}
+	if len(cfg.SDRAM.Banks)>3 {
+		if macros["JTFRAME_BA3_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA3_START")
+			bad = true
+		}
+		check_we( 3, "JTFRAME_BA3_WEN" )
 	}
 	if bad {
 		os.Exit(1)
 	}
-}
 
-func Run(args Args) {
-	var cfg MemConfig
-	if !parse_file(args.Core, "mem", &cfg, args) {
-		// the mem.yaml file does not exist, that's
-		// normally ok
-		return
-	}
-	macros := get_macros( args.Core, args.Target )
-	check_banks( macros, cfg )
 	// Check that the required files are available
 	for k, each := range cfg.SDRAM.Banks {
 		total_slots := len(each.Buses)
@@ -297,10 +325,290 @@ func Run(args Args) {
 			cfg.Unused[k] = true
 		}
 	}
+}
+
+func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool ) {
+	implicit := make( map[string]bool )
+	// get implicit names
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Addr=="" { implicit[each.Name+"_addr"]=true }
+			if each.Cs=="" { implicit[each.Name+"_cs"]=true }
+			if each.Din=="" { implicit[each.Name+"_din"]=true }
+			implicit[each.Name+"_data"]=true
+		}
+	}
+	// Add some other ports
+	for _, each := range []string{ "LVBL", "LHBL", "HS", "VS" } {
+		implicit[each] = true
+	}
+	// fmt.Println("Implicit ports:\n",implicit)
+	// get explicit names in SDRAM/BRAM buses and added to the port list
+	all := make( map[string]Port )
+	add := func( p Port ) {
+		if p.Name=="" { return }
+		if p.Name[0]>='0' && p.Name[0]<='9' { return } // not a name
+		if p.Name[0]=='{' { return } // ignore compound buses
+		// remove the brackets
+		k := strings.Index( p.Name, "[" )
+		if k>=0 { p.Name = p.Name[0:k] }
+		if t,_:=implicit[p.Name]; t { return }
+		old, fnd := all[p.Name]
+		if Verbose {
+			fmt.Printf("Adding port: %s\n", p.Name)
+		}
+		if fnd {
+			if old.Input || p.Input { // overwrite if the port should be an input
+				// required for JTKARNOV's objram_dout signal, which comes from one
+				// BRAM and is used on another and is also an input to the game
+				p.Input = true
+				all[p.Name] = p
+			}
+		} else {
+			all[p.Name] = p
+		}
+	}
+	for _, each := range cfg.Ports {
+		all[each.Name] = each
+	}
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Cs != ""  { add( Port{ Name: each.Cs, } ) }
+			if each.Dsn != "" { add( Port{ Name: each.Dsn, MSB: 1, } ) }
+			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
+		}
+	}
+	for k, _ := range cfg.BRAM {
+		each := &cfg.BRAM[k]
+		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
+		if each.Addr == "" { each.Addr = each.Name + "_addr" }
+		if each.Din  == "" && each.Rw { each.Din  = each.Name + "_din"  }
+		if each.Dout == "" {
+			if bram_rom {
+				each.Dout = each.Name + "_data"
+			} else {
+				each.Dout = each.Name + "_dout"
+			}
+		}
+		add( Port{
+			Name: each.Addr,
+			MSB:  each.Addr_width-1,
+			LSB:  each.Data_width>>4, // 8->0, 16->1
+		})
+		add( Port{
+			Name: each.Din,
+			MSB: each.Data_width-1,
+		})
+		add( Port{
+			Name: each.Dout,
+			Input: true,
+			MSB: each.Data_width-1,
+		})
+		if each.Rw {
+			name := each.Name + "_we"
+			if each.We!="" { name = each.We }
+			add( Port{
+				Name: name,
+				MSB: each.Data_width>>4,
+				LSB: 0,
+			})
+		}
+		if each.Dual_port.Name!="" {
+			if each.Dual_port.Addr == "" { each.Dual_port.Addr = each.Dual_port.Name + "_addr" }
+			if each.Dual_port.Dout == "" { each.Dual_port.Dout = each.Name+"2"+each.Dual_port.Name+"_data" }
+			if each.Dual_port.Din  == "" { each.Dual_port.Din  = each.Dual_port.Name+"_dout" }
+			add( Port{
+				Name: each.Dual_port.Addr,
+				MSB:  each.Addr_width-1,
+				LSB:  each.Data_width>>4, // 8->0, 16->1
+			})
+			if each.Dual_port.Rw {
+				add( Port{
+					Name: each.Dual_port.Din,
+					MSB: each.Data_width-1,
+				})
+			}
+			if each.Dual_port.We != "" {
+				add( Port{
+					Name: each.Dual_port.We,
+					MSB: each.Data_width>>4, // 8->0, 16->1
+				})
+			}
+			add( Port{
+				Name: each.Dual_port.Dout,
+				MSB: each.Data_width-1,
+				Input: true,
+			})
+			// Fill the rest
+			if strings.Index(each.Dual_port.Addr,"[")>=0 {
+				each.Dual_port.AddrFull = each.Dual_port.Addr
+			} else {
+				each.Dual_port.AddrFull = fmt.Sprintf("%s[%d:%d]", each.Dual_port.Addr, each.Addr_width-1, each.Data_width>>4)
+			}
+		}
+	}
+	cfg.Ports = make( []Port,0, len(all) )
+	// fmt.Println("Final ports\n",all)
+	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
+}
+
+func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
+	found := false
+	dump_size := 0
+	total_blocks := 0
+	for k, each := range cfg.BRAM {
+		if each.Ioctl.Save {
+			found = true
+			i := each.Ioctl.Order
+			cfg.Ioctl.Buses[i].Name = each.Name
+			cfg.Ioctl.Buses[i].AW = each.Addr_width
+			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
+			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
+			cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
+			if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
+			cfg.Ioctl.Buses[i].DW = each.Data_width
+			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
+			cfg.BRAM[k].Addr = each.Name+"_amux"
+			dump_size += 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
+			cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
+			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
+			total_blocks += cfg.Ioctl.Buses[i].Blocks
+		}
+	}
+	cfg.Ioctl.SkipAll = total_blocks
+	if found {
+		cfg.Ioctl.Dump = true
+		cfg.Ioctl.DinName = "ioctl_aux" // block game module output
+	} else {
+		cfg.Ioctl.DinName = "ioctl_din"	// let it come from game module
+	}
+	// fill in blank ones
+	for k, _ := range cfg.Ioctl.Buses {
+		each := &cfg.Ioctl.Buses[k]
+		if each.DW==0 {
+			each.DW=8
+			each.Dout = "8'd0"
+			each.Ain  = "1'd0"
+		}
+	}
+	// warn if JTFRAME_IOCTL_RD is below the required one
+	ioctl_rd, fnd := macros["JTFRAME_IOCTL_RD"]
+	suggest := (ioctl_rd=="" && dump_size!=0) || verbose
+	if fnd {
+		aux2, _ := strconv.ParseInt(ioctl_rd,0,32)
+		aux := int(aux2)
+		if aux < dump_size {
+			suggest = true
+			fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-aux)
+		}
+	}
+	if suggest {
+		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d\n", dump_size)
+	}
+	return dump_size
+}
+
+func make_dump2bin( args Args, cfg *MemConfig ) {
+	if len( cfg.Ioctl.Buses )==0 { return }
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
+	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).ParseFiles(tpath))
+	var buffer bytes.Buffer
+	t.Execute(&buffer, cfg)
+	// Dump the file
+	outpath := filepath.Join(os.Getenv("CORES"), args.Core, "ver","game" )
+	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
+	outpath = filepath.Join( outpath, "dump2bin.sh" )
+	e := ioutil.WriteFile(outpath, buffer.Bytes(), 0755)
+	if e!=nil {
+		fmt.Println(e)
+	} else {
+		if args.Verbose {
+			fmt.Printf("%s created\n",outpath)
+		}
+	}
+}
+
+func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
+	// this will not merge correctly hhvvv and hhvvvx used together, that's
+	// not supported in jtframe_dwnld at the moment
+	appendif := func( ss *[]string, mac string ) {
+		if jtdef.Defined(macros,mac) { *ss = append(*ss, "`"+mac) }
+	}
+	make_gfx := func( match string ) (string, int) {
+		ranges :=  make([]string,0)
+		b0 := 0
+		for k, bank := range cfg.SDRAM.Banks {
+			offsets := make([]string,0)
+			appendif(&offsets, "JTFRAME_HEADER" )
+			appendif(&offsets,fmt.Sprintf("JTFRAME_BA%d_START",k))
+			for j, each := range bank.Buses {
+				if each.Offset != "" { offsets = append(offsets, fmt.Sprintf("(%s<<1)",each.Offset) )}
+				if each.Gfx!=match && each.Gfx!=(match+"x") && each.Gfx!=(match+"xx") { continue }
+				// bit 0 should be the one containing the first H bit
+				if strings.HasSuffix(each.Gfx,"x")  { b0=1 }
+				if strings.HasSuffix(each.Gfx,"xx") { b0=2 }
+				new_range := ""
+				if len(offsets)>0 {
+					addr0 := fmt.Sprintf("(%s)",strings.Join(offsets,"+"))
+					new_range = fmt.Sprintf("ioctl_addr>=(%s)", addr0 )
+				}
+				addr1 := ""
+				offsets2 := make([]string,0)
+				if j+1<len(bank.Buses) { // is there another entry in the same bank?
+					if bank.Buses[j+1].Offset == ""	{
+						fmt.Printf("Error: missing offset of bus entry %s (bank %d)\n", bank.Buses[j+1].Name, k)
+						fmt.Println("You need to define it as the previous entry has gfx_sort definition")
+						os.Exit(1)
+					}
+					offsets2 = append(offsets,fmt.Sprintf("(%s<<1)",bank.Buses[j+1].Offset))
+				} else {
+					if jtdef.Defined(macros,fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
+						appendif( &offsets2, "JTFRAME_HEADER" )
+						offsets2 = append(offsets2,fmt.Sprintf("`JTFRAME_BA%d_START",k+1))
+					} else if jtdef.Defined(macros,"JTFRAME_PROM_START") {
+						appendif( &offsets2, "JTFRAME_HEADER" )
+						offsets2 = append(offsets2,"JTFRAME_PROM_START")
+					}
+				}
+				if len(offsets2)>0 {
+					addr1 = strings.Join(offsets2,"+")
+					new_range = fmt.Sprintf("%s && ioctl_addr<(%s)", new_range, addr1 )
+				}
+				new_range = fmt.Sprintf("(%s) /* %s */", new_range, each.Name )
+				ranges = append(ranges, new_range)
+			}
+		}
+		if len(ranges)>0 {
+			aux := strings.Join(ranges,"||\n    ")
+			aux += ";"
+			return aux,b0
+		} else {
+			return "0;",0
+		}
+	}
+	cfg.Gfx8, cfg.Gfx8b0  = make_gfx("hhvvv")
+	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
+}
+
+func Run(args Args) {
+	var cfg MemConfig
+	if !parse_file(args.Core, "mem", &cfg, args) {
+		// the mem.yaml file does not exist, that's
+		// normally ok
+		return
+	}
+	macros := get_macros( args.Core, args.Target )
+	check_banks( macros, &cfg )
+	fill_implicit_ports( macros, &cfg, args.Verbose )
+	make_ioctl( macros, &cfg, args.Verbose )
+	fill_gfx_sort( macros, &cfg )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Execute the template
 	cfg.Core = args.Core
 	make_sdram(args, &cfg)
 	add_game_ports(args, &cfg)
+	make_dump2bin(args, &cfg )
 }

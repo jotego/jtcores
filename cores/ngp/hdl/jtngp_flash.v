@@ -39,13 +39,13 @@ module jtngp_flash(
     output reg        cart_cs,
     input             cart_ok,
     input      [15:0] cart_data,
-    output     [ 1:0] cart_dsn,
+    output reg [ 1:0] cart_dsn,
     output reg [15:0] cart_din
 );
 
-localparam [2:0] DEV_2F = 0, //   2 or 4 MB
-                 DEV_2C = 1, //   1 MB
-                 DEV_AB = 2; // <=512 kB
+localparam [2:0] DEV_2F = 4, //   2 or 4 MB
+                 DEV_2C = 2, //   1 MB
+                 DEV_AB = 1; // <=512 kB
 
 localparam [2:0] IDLE     = 0,
                  READ     = 1,
@@ -64,10 +64,11 @@ localparam [2:0] BA_64K = 3'b000,
 reg  [ 2:0] st;
 reg  [20:1] ba_addr, eff_addr, prog_ba, prog_addr;
 reg  [ 2:0] ba_size, prog_size;
+reg  [20:1] addr_l;
 reg  [ 7:0] cmd;
 reg  [15:0] id_data;
-wire        cpu_cswe, we_edge;
-reg         cswe_l, id;
+wire        cpu_cswe, cpu_csrd, we_edge, cs_edge;
+reg         cswe_l, cs_l, id;
 // cartridge access
 reg  [ 1:0] erase_st, prog_dsn;
 reg  [ 2:0] prog_st;
@@ -80,7 +81,9 @@ assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:1] };
 assign cpu_din = id ? id_data : cart_data;
 assign cpu_ok  = id | cart_ok;
 assign cpu_cswe = cpu_cs && cpu_we!=0;
+assign cpu_csrd = cpu_cs && cpu_we==0;
 assign we_edge  = cpu_cswe && !cswe_l;
+assign cs_edge  = cpu_cs && (!cs_l || addr_l!=cpu_addr);
 assign rdy      = ~|{erase_bsy,prog_bsy,rd_bsy};
 
 always @* begin
@@ -135,6 +138,15 @@ always @* begin
     end
 end
 
+`ifdef SIMULATION
+reg cart_wel;
+
+always @(posedge clk) begin
+    cart_wel <= cart_we;
+    if( cart_we && !cart_wel ) $display("Flash written to");
+end
+`endif
+
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
         cart_addr <= 0;
@@ -159,7 +171,10 @@ always @(posedge clk, posedge rst ) begin
                 prog_bsy <= 1;
                 prog_st  <= 0;
             end
-            if( cpu_cs && cpu_we==0 && st==READ ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
+            // only reads we at the cs edge! if we changes later
+            // it would have already issued a cartridge read.
+            // Address changes while cs is high will re-issue cart_cs
+            if( cs_edge && cpu_we==0 && st==READ && !id ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
                 cart_addr <= eff_addr;
                 cart_dsn  <= 0;
                 rd_bsy    <= 1;
@@ -199,10 +214,13 @@ always @(posedge clk, posedge rst) begin
         prog_data   <= 0;
         prog_addr   <= 0;
         cswe_l      <= 0;
+        cs_l        <= 0;
     end else begin
         erase_start <= 0;
         prog_start  <= 0;
         cswe_l      <= cpu_cswe;
+        cs_l        <= cpu_cs;
+        addr_l      <= cpu_addr;
 
         if( we_edge ) begin
             case( st )
@@ -221,15 +239,17 @@ always @(posedge clk, posedge rst) begin
                 end
                 PROG2: begin
                     if( cpu_dout[7:0]=='h30 ) begin
-                        if( cpu_dout[7:0]=='h80 ) begin
+                        if( cmd=='h80 ) begin
                             prog_ba     <= ba_addr;
                             prog_size   <= ba_size;
+                            prog_addr   <= eff_addr;
                             erase_start <= 1;   // auto erase
+                            st          <= READ;
                         end
                     end else if( cpu_addr[15:1]==15'h5555>>1 ) begin
                         case( cpu_dout[7:0] )
                             8'h80: begin
-                                cmd <= 8'h80;
+                                cmd <= cpu_dout[7:0];
                                 st  <= CMD;
                             end
                             8'h90: begin // ID read
@@ -240,18 +260,15 @@ always @(posedge clk, posedge rst) begin
                                 if( cmd==8'h9A ) begin
                                     st <= PROTECT; // ignored
                                 end else begin
-                                    cmd <= 8'h9a;
+                                    cmd <= cpu_dout[7:0];
                                     st <= CMD;
                                 end
                             end
                             8'ha0: begin
                                 st <= AUTOPROG;
                             end
-                            8'hf0: begin // reset
-                                st <= IDLE;
-                            end
                             default: begin
-                                st <= IDLE;
+                                st <= READ;
                                 id <= 0;
                             end
                         endcase

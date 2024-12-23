@@ -54,7 +54,7 @@ always @(*) begin
     if( ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START ) begin
         post_data = { prog_data[3:0], prog_data[7:4] };
     end
-    if( ioctl_addr[21:0] >= OBJ_START && ioctl_addr<PROM_START ) begin
+    if( ioctl_addr[21:0] >= OBJ_START && ioctl_addr[24:0]<PROM_START ) begin
         pre_addr[15]  =  ioctl_addr[0];
         pre_addr[14]  =  ioctl_addr[15];
         pre_addr[0]   =  ~ioctl_addr[14];

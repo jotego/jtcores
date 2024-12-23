@@ -204,6 +204,7 @@ jt007232 u_pcm(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
+    .swap_gains ( 1'b0      ),
 
     // External memory - the original chip
     // only had one bus

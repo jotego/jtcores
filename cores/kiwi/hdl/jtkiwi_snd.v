@@ -455,8 +455,10 @@ jt03 u_2203(
     // IO ports
     .IOA_in     ( porta_din  ),
     .IOB_in     ( dipsw[15:8]),
+    .IOA_oe     (            ),
     .IOA_out    (            ),
     .IOB_out    ( portb_dout ),
+    .IOB_oe     (            ),
     // unused outputs
     .psg_A      (            ),
     .psg_B      (            ),

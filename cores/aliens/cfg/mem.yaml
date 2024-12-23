@@ -15,47 +15,34 @@ clocks:
         - cen_fm2
 sdram:
   banks:
-    -
-      buses:
-        -
-          name: main
+    - buses:
+        - name: main
           addr_width: 18
           data_width: 8
-    -
-      buses:
-        -
-          name: snd
+    - buses:
+        - name: snd
           addr_width: 15
           data_width: 8
-        -
-          name: pcma
+        - name: pcma
           addr_width: 19
           data_width: 8
           offset: PCM_OFFSET
-        -
-          name: pcmb
+        - name: pcmb
           addr_width: 19
           data_width: 8
           offset: PCM_OFFSET
-    -
-      buses:
-        -
-          name: lyrf
+    - buses:
+        - name: lyrf
           addr_width: 21
           data_width: 32
-        -
-          name: lyra
+        - name: lyra
           addr_width: 21
           data_width: 32
-        -
-          name: lyrb
+        - name: lyrb
           addr_width: 21
           data_width: 32
-
-    -
-      buses:
-        -
-          name: lyro
+    - buses:
+        - name: lyro
           addr_width: 21
           data_width: 32
 bram:

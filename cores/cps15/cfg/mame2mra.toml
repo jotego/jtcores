@@ -8,7 +8,7 @@ mustbe.devices=["qsound_hle"]
 skip.bootlegs=true
 
 [dipsw]
-delete=[ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 
 [buttons]
 names=[

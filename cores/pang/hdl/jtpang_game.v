@@ -65,7 +65,7 @@ module jtpang_game(
     input    [15:0] data_read,
 
     // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     output  [ 7:0]  ioctl_din,
     input           ioctl_wr,

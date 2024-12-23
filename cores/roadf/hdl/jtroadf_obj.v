@@ -277,7 +277,8 @@ jtkicker_objdraw #(
     .rom_data   ( rom_data  ),
     .rom_ok     ( rom_ok    ),
 
-    .pxl        ( pxl       )
+    .pxl        ( pxl       ),
+    .debug_bus  ( 8'd0      )
 );
 
 endmodule

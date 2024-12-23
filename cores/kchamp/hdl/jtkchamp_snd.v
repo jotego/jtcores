@@ -229,8 +229,10 @@ jt49_bus u_psg0(
     .C          (           ),
     .IOA_in     ( 8'd0      ),
     .IOA_out    (           ),
+    .IOA_oe     (           ),
     .IOB_in     ( 8'd0      ),
-    .IOB_out    (           )
+    .IOB_out    (           ),
+    .IOB_oe     (           )
 );
 
 jt49_bus u_psg1(
@@ -253,8 +255,10 @@ jt49_bus u_psg1(
     .C          (           ),
     .IOA_in     ( 8'd0      ),
     .IOA_out    (           ),
+    .IOA_oe     (           ),
     .IOB_in     ( 8'd0      ),
-    .IOB_out    (           )
+    .IOB_out    (           ),
+    .IOB_oe     (           )
 );
 
 jt5205 u_pcm(

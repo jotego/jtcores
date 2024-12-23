@@ -68,7 +68,7 @@ function cp_mist {
         cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
     done
     if [ ! -z "$SETNAME" ]; then
-        local MAINSET=`grep -i $SETNAME $DST/*.arc --files-with-matches`
+        local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`
         if [ ! -z "$MAINSET" ]; then
             cp "$MAINSET" $DST/core.arc
         else
@@ -105,4 +105,13 @@ wait
 
 if [ $CNT = 0 ]; then
     echo "Nothing done"
+fi
+
+if [[ -d /media/$USER/POCKET && -e $JTUTIL/jtbeta.zip ]]; then
+    mkdir -p /media/$USER/POCKET/Assets/jtpatreon/common
+    for i in /media/$USER/POCKET/Assets/*; do
+        if [ -d $i/common ]; then
+            unzip -q $JTUTIL/jtbeta.zip -d $i/common
+        fi
+    done
 fi

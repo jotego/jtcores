@@ -10,7 +10,6 @@ game:
   - from: kicker
     get:
       - jtkicker_vtimer.v
-      - jtkicker_clocks.v
   - from: yiear
     get:
       - jtyiear_colmix.v

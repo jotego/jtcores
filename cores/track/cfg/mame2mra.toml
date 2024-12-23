@@ -13,7 +13,7 @@ names=[
 ]
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete=[{names=["Unused","Unknown"]}]
 rename = [
     { name="World Records", to="Records"},
     { name="After Last Event", to="After ending"}
