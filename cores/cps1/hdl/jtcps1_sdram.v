@@ -28,7 +28,7 @@ module jtcps1_sdram #( parameter
     input           clk_cpu,    // 48 MHz
     input           LVBL,
 
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          cfg_we,
 
@@ -232,7 +232,7 @@ jtcps1_prom_we #(
     .SND_OFFSET ( SND_OFFSET    )
 ) u_prom_we(
     .clk            ( clk           ),
-    .downloading    ( downloading   ),
+    .ioctl_rom      ( ioctl_rom     ),
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),

@@ -1,11 +1,11 @@
     input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
+    input           ioctl_rom,
     `ifdef JTFRAME_IOCTL_RD
         input           ioctl_ram,
         output   [ 7:0] ioctl_din,
     `endif
-    input           downloading,
     output          dwnld_busy,
     input   [15:0]  data_read,
     `ifdef JTFRAME_SDRAM_BANKS

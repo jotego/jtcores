@@ -521,8 +521,8 @@ if [ $SKIP_COMPILE = FALSE ]; then
     if [ $SIM = FALSE ]; then
         # Create the QIP file
         jtframe mem $PRJ --target=$TARGET || exit $?
-        jtframe files syn $PRJ --target=$TARGET
         jtframe mmr $PRJ
+        jtframe files syn $PRJ --target=$TARGET
         # Compilation
         quartus_sh -v
         quartus_sh --flow compile $corename > "$LOG"

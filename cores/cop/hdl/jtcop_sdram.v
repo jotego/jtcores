@@ -141,7 +141,7 @@ module jtcop_sdram(
     input     [15:0] data_read,
 
     // ROM LOAD
-    input            downloading,
+    input            ioctl_rom,
     output           dwnld_busy,
 
     input    [24:0]  ioctl_addr,
@@ -250,7 +250,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    if( !downloading ) rom_test <= 0;
+    if( !ioctl_rom ) rom_test <= 0;
     if( ioctl_wr ) begin
         if( ioctl_addr < 8 )
             rom_test <= rom_test + ioctl_dout;
@@ -264,10 +264,10 @@ always @(posedge clk) begin
 end
 
 `ifdef JTFRAME_DWNLD_PROM_ONLY
-    assign dwnld_busy = downloading | prom_we; // keep the game in reset while
+    assign dwnld_busy = ioctl_rom | prom_we; // keep the game in reset while
         // the short PROM download occurs
 `else
-    assign dwnld_busy = downloading;
+    assign dwnld_busy = ioctl_rom;
 `endif
 
 jtframe_dwnld #(
@@ -282,7 +282,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading & ~ioctl_ram   ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),

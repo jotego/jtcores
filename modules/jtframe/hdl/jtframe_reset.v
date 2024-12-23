@@ -22,7 +22,7 @@ module jtframe_reset(
     input       pxl_cen,
 
     input       sdram_init,
-    input       downloading,
+    input       ioctl_rom,
     input       dip_flip,
     input       soft_rst,
     input       rst_req,
@@ -73,7 +73,7 @@ end
 always @(posedge clk_sys ) rst_req_sync <= { rst_req_sync[0], rst_req };
 
 always @(posedge clk_sys ) begin
-    if( downloading | rst | rst_req_sync[1]
+    if( ioctl_rom | rst | rst_req_sync[1]
     | rst_flip | soft_rst | sdram_init)
         rst_rom <= {MAIN_RSTW{1'b1}};
     else if(pxl_cen) begin

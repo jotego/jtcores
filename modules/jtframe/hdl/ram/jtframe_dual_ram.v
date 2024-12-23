@@ -120,8 +120,8 @@ localparam POCKET=0;
 generate
     if( !SIMULATION && POCKET && AW<13 && DW<=8 ) begin
             jtframe_pocket_dualram u_pocket_ram(
-                .address_a( addr0   ),
-                .address_b( addr1   ),
+                .address_a( { {AW-13{1'b0}}, addr0} ),
+                .address_b( { {AW-13{1'b0}}, addr1} ),
                 .clock_a  ( clk0    ),
                 .clock_b  ( clk1    ),
                 .data_a   ( data0   ),

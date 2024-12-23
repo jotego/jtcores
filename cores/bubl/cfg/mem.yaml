@@ -4,13 +4,14 @@ params:
 clocks:
   clk48:
     - freq: 6000000
+      gate: [ "main", "sub", "snd", "mcu" ]
       outputs:
         - cen6
         - cen3
     - freq: 4000000
+      gate: [ "main", "sub", "snd", "mcu" ]
       outputs:
         - cen4
-        - cen2
 
 sdram:
   banks:

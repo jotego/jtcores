@@ -72,7 +72,7 @@ module jtrastan_sdram(
     input           orom_cs,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -112,7 +112,7 @@ localparam [24:0] SCR_START = `SCR_START,
                   PCM_START = `PCM_START,
                   SND_START = `SND_START;
 
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 jtframe_dwnld #(
     .SWAB           ( 1             ),
@@ -121,7 +121,7 @@ jtframe_dwnld #(
     .BA3_START      ( OBJ_START     )
 ) u_dwnld(
     .clk            ( clk           ),
-    .downloading    ( downloading & ~ioctl_ram  ),
+    .ioctl_rom      ( ioctl_rom     ),
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),

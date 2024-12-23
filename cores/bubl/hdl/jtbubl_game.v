@@ -67,7 +67,7 @@ end
 `ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst           ),
-    .clk24          ( clk           ),        // 24 MHz
+    .clk            ( clk           ),        // 24 MHz
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
 
@@ -200,6 +200,8 @@ assign snd      = 0;
 assign sample   = 0;
 assign snd_flag = 0;
 assign main_stb = 0;
+assign game_led = 0;
+assign main_latch = 0;
 `endif
 
 endmodule

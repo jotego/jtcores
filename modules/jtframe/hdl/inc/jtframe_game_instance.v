@@ -29,7 +29,7 @@ assign sim_dwnld_busy = dwnld_busy;
 
 `ifdef TESTINPUTS
     test_inputs u_test_inputs(
-        .loop_rst       ( downloading    ),
+        .loop_rst       ( ioctl_rom      ),
         .LVBL           ( LVBL           ),
         .game_joystick1 ( game_joy1[6:0] ),
         .button_1p      ( game_start[0]  ),
@@ -111,7 +111,7 @@ u_game(
     .ioctl_ram   ( ioctl_ram      ),
     .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
-    .downloading ( downloading    ),
+    .ioctl_rom   ( ioctl_rom      ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( sdram_dout     ),
 

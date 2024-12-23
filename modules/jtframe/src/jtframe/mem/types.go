@@ -113,11 +113,13 @@ type ClockCfg struct {
     Mul     int      `yaml:"mul"`       // defaults to 1 if missing
     Freq    float64  `yaml:"freq"`
     Outputs []string `yaml:"outputs"`
+    Gate    []string `yaml:"gate"`      // SDRAM buses that will halt the clock enable
     // values for jtframe_frac_cen instantiation
     ClkName string
     WC, W   int
     OutStr  string
     Comment string
+    Busy    string
 }
 
 type IoctlBus struct{

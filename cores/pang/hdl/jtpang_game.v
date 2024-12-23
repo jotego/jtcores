@@ -39,7 +39,7 @@ module jtpang_game(
     input   [15:0]  mouse_2p,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -346,7 +346,7 @@ jtpang_sdram u_sdram(
     .ba_rdy     ( ba_rdy        ),
     .data_read  ( data_read     ),
 
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .dwnld_busy ( dwnld_busy    ),
 
     .kabuki_we  ( kabuki_we     ),

@@ -26,7 +26,7 @@ parameter [22:0] CPU_OFFSET =23'h0,
 parameter [ 5:0] CFG_BYTE   =6'd39  // location of the byte with encoder information
 )(
     input                clk,
-    input                downloading,
+    input                ioctl_rom,
     input      [25:0]    ioctl_addr,    // max 64 MB
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
@@ -47,7 +47,7 @@ parameter [ 5:0] CFG_BYTE   =6'd39  // location of the byte with encoder informa
     output reg [ 1:0]    joymode
 );
 
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 // The start position header has 16 bytes, from which 6 are actually used and
 // 10 are reserved
@@ -168,8 +168,8 @@ always @(posedge clk) begin
     end
     else begin
         cps2_key_we <= 0;
-        if(!downloading || prog_rdy) prog_we  <= 1'b0;
-        if( !downloading ) begin
+        if(!ioctl_rom || prog_rdy) prog_we  <= 1'b0;
+        if( !ioctl_rom ) begin
             decrypt    <= 0;
             prom_we    <= 0;
         end

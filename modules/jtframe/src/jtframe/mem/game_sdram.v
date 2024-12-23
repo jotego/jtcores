@@ -222,7 +222,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .gfx_en      ( gfx_en        )
 );
 
-assign dwnld_busy = downloading | prom_we; // prom_we is really just for sims
+assign dwnld_busy = ioctl_rom | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
@@ -250,7 +250,7 @@ jtframe_dwnld #(
     .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading & ~ioctl_ram    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
@@ -430,12 +430,13 @@ jtframe_ioctl_dump #(
 // Clock enable generation
 {{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
 // {{ .Comment }} Hz from {{ .ClkName }}
-jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
+jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ(`JTFRAME_MCLK)) u_cen{{$cnt}}_{{.ClkName}}(
+    .rst    ( rst          ),
     .clk    ( {{.ClkName}} ),
-    .n      ( {{.WC}}'d{{.Mul    }} ),
-    .m      ( {{.WC}}'d{{.Div    }} ),
+    .busy   ( {{.Busy}}    ),
     .cen    ( { {{ .OutStr }} } ),
-    .cenb   (              )
+    .fave   (              ),
+    .fworst (              )
 );
 {{ end }}{{ end }}{{ end }}
 

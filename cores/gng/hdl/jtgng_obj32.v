@@ -22,7 +22,7 @@
 
 module jtgng_obj32(
     input                clk,
-    input                downloading,
+    input                ioctl_rom,
     input      [15:0]    sdram_dout,
 
     output reg           convert,
@@ -60,8 +60,8 @@ localparam RW=3;
 reg [RW-1:0] rfsh_wait;
 
 always @(posedge clk ) begin
-    last_down <= downloading;
-    if( downloading ) begin
+    last_down <= ioctl_rom;
+    if( ioctl_rom ) begin
         prog_addr <= 22'd0;
         prog_data <= 8'd0;
         prog_mask <= 2'd0;
@@ -74,7 +74,7 @@ always @(posedge clk ) begin
     end else begin
         // prog_we  <= 1'b0;
         // prog_rd  <= 1'b0;
-        if( !downloading && last_down ) begin
+        if( !ioctl_rom && last_down ) begin
             prog_addr <= OBJ_START;
             convert   <= 1'b1;
             state     <= 8'h1;

@@ -37,7 +37,7 @@ module jtkunio_game(
     input   [ 6:0]  joystick2,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -368,7 +368,7 @@ jtkunio_sdram u_sdram(
     .ba_rdy     ( ba_rdy        ),
     .data_read  ( data_read     ),
 
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .dwnld_busy ( dwnld_busy    ),
 
     .ioctl_addr ( ioctl_addr    ),

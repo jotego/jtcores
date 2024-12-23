@@ -19,7 +19,7 @@
 
 module jtsectnz_prom_we(
     input                clk,
-    input                downloading,
+    input                ioctl_rom,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
@@ -67,7 +67,7 @@ reg [31:0] prev_data;
 reg [21:0] scr_addr;
 
 always @(posedge clk) begin
-    if ( ioctl_wr && downloading ) begin
+    if ( ioctl_wr && ioctl_rom ) begin
         prev_data <= { ioctl_dout, prev_data[31:8] };
         if( is_scr ) begin
             if( ioctl_addr[1:0]==2'b11 ) begin
@@ -91,7 +91,7 @@ always @(posedge clk) begin
         end
     end
     else begin
-        if(!downloading || sdram_ack) prog_we  <= 1'b0;
+        if(!ioctl_rom || sdram_ack) prog_we  <= 1'b0;
         else if( !prog_we ) begin
             if( !is_scr )
                 scr_addr <= SCR_OFFSET;

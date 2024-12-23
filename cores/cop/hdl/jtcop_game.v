@@ -634,8 +634,8 @@ jtcop_sdram u_sdram(
     .data_read   ( data_read     ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .dwnld_busy  ( dwnld_busy    ),
+    .ioctl_rom  ( ioctl_rom  ),
+    .dwnld_busy ( dwnld_busy ),
 
     .ioctl_addr ( ioctl_addr[24:0] ),
     .ioctl_dout ( ioctl_dout ),

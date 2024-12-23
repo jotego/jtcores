@@ -38,7 +38,7 @@ module jtcps2_game(
     input   [ 9:0]  joystick1, joystick2, joystick3, joystick4,
     input   [ 1:0]  dial_x, dial_y,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -502,7 +502,7 @@ jtcps1_sdram #(.CPS(2), .REGSIZE(REGSIZE)) u_sdram (
     .clk_cpu     ( clk48         ),
     .LVBL        ( LVBL          ),
 
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),
     .cfg_we      ( cfg_we        ),
 

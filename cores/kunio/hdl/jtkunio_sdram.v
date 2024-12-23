@@ -71,7 +71,7 @@ module jtkunio_sdram(
     input     [15:0] data_read,
 
     // ROM LOAD
-    input            downloading,
+    input            ioctl_rom,
     output           dwnld_busy,
 
     input    [25:0]  ioctl_addr,
@@ -105,8 +105,8 @@ wire        is_char, is_scr, is_obj;
 reg  [25:0] post_addr;
 wire        gfx_cs;
 
-assign gfx_cs     = ~vs & ~hs & ~downloading;
-assign dwnld_busy = downloading;
+assign gfx_cs     = ~vs & ~hs & ~ioctl_rom;
+assign dwnld_busy = ioctl_rom;
 assign is_char    = prog_ba==2 && ioctl_addr[19:0]<SCR_START[19:0];
 assign is_scr     = prog_ba==2 && !is_char;
 assign is_obj     = prog_ba==3 && !prom_we;
@@ -128,7 +128,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( post_addr      ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),

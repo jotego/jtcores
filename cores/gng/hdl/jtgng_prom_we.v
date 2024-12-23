@@ -19,7 +19,7 @@
 
 module jtgng_prom_we(
     input                clk,
-    input                downloading,
+    input                ioctl_rom,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
@@ -118,7 +118,7 @@ always @(posedge clk) begin
             obj_offset <= obj_offset+16'd1;
         end
     end
-    else if(!downloading || sdram_ack) begin
+    else if(!ioctl_rom || sdram_ack) begin
         prog_we  <= 1'b0;
         // prom_we0 <= 6'd0;
     end

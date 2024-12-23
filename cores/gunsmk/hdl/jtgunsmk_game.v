@@ -36,7 +36,7 @@ module jtgunsmk_game(
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          sdram_req,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
@@ -76,7 +76,7 @@ module jtgunsmk_game(
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 parameter CLK_SPEED=48;
 
@@ -169,7 +169,7 @@ jt1943_prom_we #(
         .PROMADDR   ( 22'hA_C000 ))
 u_prom_we(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  (ioctl_addr[21:0]),
@@ -467,7 +467,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

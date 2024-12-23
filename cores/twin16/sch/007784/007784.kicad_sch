@@ -6,7 +6,7 @@
 
   (title_block
     (title "Konami 007784")
-    (date "2023-09-11")
+    (date "2023-10-23")
     (company "Ulf Skutnabba, twitter: @skutis77")
   )
 
@@ -1034,7 +1034,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 840e8df1-2b0e-4cc7-a49a-bac9e032dd71)
   )
-  (text "\nWords are parsed and written to sprite RAM in the following way:\n\nWord 0					-> Sets/Clears BEFLAG according to bit 15.\nWord 2					-> Word 2\nWord 3 					-> Word 1\nWord 4 & 5 - XSCROLL	-> Word 0\nWord 6 & 7 - YSCROLL	-> Word 3\n\n\n"
+  (text "\nWords are parsed and written to sprite RAM in the following way:\n\nWord 0					-> Sets/Clears BEFLAG according to bit 15.\nWord 2					-> Word 3\nWord 3 					-> Word 0\nWord 4 & 5 - XSCROLL	-> Word 1\nWord 6 & 7 - YSCROLL	-> Word 2\n\n\n"
     (at 115.57 52.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e538d25e-0f71-480e-a029-92511857c628)
@@ -1412,11 +1412,11 @@
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid aef32547-a780-434e-9e0f-4652889c0c62)
     )
-    (pin "~{H2''}" input (at 257.81 120.65 180)
+    (pin "H2''" input (at 257.81 120.65 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid d33afb5b-cd2a-4c0f-aba5-c4727846e36b)
     )
-    (pin "H2''" input (at 257.81 118.11 180)
+    (pin "~{H2''}" input (at 257.81 118.11 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid 8b500e68-4a8d-4c5b-a921-ab3633510f33)
     )
@@ -1545,11 +1545,11 @@
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid b85ae541-f25d-491f-b914-3c9a28c0e6b7)
     )
-    (pin "~{H2''}" output (at 209.55 120.65 0)
+    (pin "H2''" output (at 209.55 120.65 0)
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid b995d812-90d4-49b1-93e6-3c99e5df9db0)
     )
-    (pin "H2''" output (at 209.55 118.11 0)
+    (pin "~{H2''}" output (at 209.55 118.11 0)
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 39078220-0c90-4485-b492-67e10cb82afd)
     )
