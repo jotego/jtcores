@@ -313,7 +313,7 @@ jtframe_ff u_17a_top_ff(
 // ** [LS74] @ 20H, 17A bottom    **
 // ** Quad 2-Input AND Gate       **
 // ** [LS08] @ 21H (12, 13 -> 11) **
-jtframe_sh #( .width( 1 ), .stages( 22 ) )
+jtframe_sh #( .W( 1 ), .L( 22 ) )
 u_blk_dly(
 	.clk    ( i_MCLK     ),
 	.clk_en ( w_clk_6MHz ),
@@ -602,7 +602,7 @@ wire champx2;
 
 // ** Hex Schmitt-Trigger Inverter      **
 // ** [LS14] @ 10E (13 -> 12, 11 -> 10) **
-jtframe_sh #( .width( 1 ), .stages( 3 ) )
+jtframe_sh #( .W( 1 ), .L( 3 ) )
 u_champx2_dly(
 	.clk    ( i_MCLK  ),
 	.clk_en ( 1'b1    ),
