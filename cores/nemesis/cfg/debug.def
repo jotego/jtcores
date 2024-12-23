@@ -1,0 +1,67 @@
+# https://github.com/MiSTer-devel/Main_MiSTer/wiki/Core-configuration-string
+# modules/jtframe/README.md
+# modules/jtframe/doc/osd.md
+# modules/jtframe/hdl/mister/jtframe_emu.sv
+# 
+# 0: free:                                available
+# -: used by jtframe but not in our core: available
+# X: used by jtframe and in our core:     unavailable
+# V: used by us                           unavailable
+# v: used by us for debug only            unavailable
+# 
+# 00000000001111111111222222222223
+# 01234567890123456789012345678901
+#           abcdefghijklmnopqrstuv
+# X                                O0   | 0     | Reset in MiST           |
+#  -                               O1   | 1     | Flip screen             | JTFRAME_VERTICAL && JTFRAME_OSD_FLIP
+#  v                               O1   | 1     | Filter AY7              | *** For debug only ***
+#   -                              O2   | 2     | Rotate screen           | JTFRAME_VERTICAL, visibiliy masked (MiSTer)
+#   v                              O2   | 2     | Filter AY8              | *** For debug only ***
+#    XXX                           O3-5 | 3-5   | Scandoubler Fx          | Scan line mode and HQ2X enable (MiSTer only)
+#       --                         O6-7 | 6-7   | FX Volume (00=lowest)   | JTFRAME_OSD_VOL
+#       v                          O6   | 6     | Inverted Filters        | *** For debug only ***
+#         -                        O8   | 8     | FX enable/disable       | JTFRAME_OSD_SND_EN
+#          -                       O9   | 9     | FM enable/disable       | JTFRAME_OSD_SND_EN
+#           ?                      OA   | 10    | Test mode               | JTFRAME_OSD_TEST
+#        vvvv                      O7-A | 7-10  | Balance Music SFX       | *** For debug only ***
+#            X                     OB   | 11    | Horizontal filter       | MiSTer only
+#             X                    OC   | 12    | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
+#              000                 OD-F | 13-15 |                         | CORE_OSD (option char: D,E,F)
+#                 XX               OG-H | 16-17 | Aspect Ratio            | MiSTer only, visibility masked
+#                   -              OI   | 18    | Autofire button 0       | JTFRAME_AUTOFIRE0
+#                    ?             OJ   | 19    | 60 Hz option            | JTFRAME_OSD60HZ %%
+#                     vvvvv        OK-O | 20-24 | Sound Commmand          | *** For debug only ***
+#                          vvv     OP-R | 25-27 | Channel Select          | *** For debug only ***
+#                             0000 OS-V | 28-31 |                         |
+# 00000                            o0-4 | 32-36 |                         |
+#      XX                          o5-6 | 37-38 | User output options     | MiSTer, selects DB15, UART, etc.
+#        --                        o7-8 | 39-40 | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
+#          X                       o9   | 41    | Vertical crop (MiSTer)  | MiSTer only
+#       vvvv                       o6-9 | 38-41 | Video signal selection  | *** For debug only ***
+#           XXXX                   oA-D | 42-45 | Crop offset   (MiSTer)  | MiSTer only
+#               XX                 oE-F | 46-47 | Scaling style (MiSTer)  | MiSTer only
+#                 X                oG   | 48    | CRT H scaling enable    | MiSTer only
+#                  XXXX            oH-K | 49-52 | CRT H scaling factor    | MiSTer only, visibility masked
+#                      XXXX        oL-O | 53-56 | CRT H offset            | MiSTer only
+#                          XXXX    oP-S | 57-60 | CRT V offset            | MiSTer only
+#                              --- oT-V | 61-63 | Reserved for forks      | JTFRAME forks can use these bits%
+
+#CORE_OSD+=O1,Filter AY7,Off,On;O2,Filter AY8,Off,On;O6,Inverted Filters,No,Yes;
+
+#CORE_OSD+=O7A,Balance Music SFX,0,+1,+2,+3,+4,+5,+6,+7,-7,-6,-5,-4,-3,-2,-1;
+
+# Debug for Mixing Volumes
+# use sound/vol_controls.py
+CORE_OSD+=O7A,Vol PROM,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108;
+CORE_OSD+=OSV,Vol AY2,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116;
+CORE_OSD+=o03,Vol AY1,118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,148;
+
+# Disable Sound Command menu, otherwise mister/cfgstr.hex goes over the 1024 byte limit
+# of the RAM jtframe puts it in
+#CORE_OSD+=OKO,Sound Commmand,0x81: Big Core Explode,0x01: Player Shot,0x02: Laser,0x03: Small Laser,0x1A: Catch Option,0x12: Catch Blue Orb,0x08: Zako Death,0x0C: Destroy Ground Enemy,0x24: Bibibiip,0x40: Credit,0x41: Kuuchuusen,0x4B: Level 1,0x42: Level 2,0x44: Level 3,0x45: Level 4,0x43: Level 6,0x46: Hidden Extra Song,0x47: Tutututut,0x48: Game Over,0x49: Boss,0x4A: High Score,0x00: Music Off,0x82: Unknown,0x35: Unknown,0x0A: Unknown;
+
+CORE_OSD+=OPR,Channel Select,All,PROM 1+2+AY2,AY 1,AY 2,PROM 1,PROM 2,PROM 1+2,AY 2+1;
+#CORE_OSD+=OPR,Channel Select,All,PROM 1+2+AY7,AY 8,AY 7,PROM 1,PROM 2,PROM 1+2,AY 7+8;-;OL,Pause in OSD,No,Yes;
+
+# atrac17 says we should disable that if we want to support multiple games
+# CORE_KEYMAP=J1,Option,Fire,Bomb,Start,Coin;

@@ -1,0 +1,13 @@
+here:
+  - gx400a_video.v
+modules:
+  other:
+    - from: gx400-custom
+      get:
+        - gx400_priority_handler.v
+        - k5290.v
+        - k5291.v
+        - k5292.v
+        - k5293.v
+        - k5294.v
+        - k5295.v

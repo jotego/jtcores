@@ -1,0 +1,56 @@
+game:
+  - from: nemesis
+    get:
+      - nemesis_game.v
+      - nemesis_main.v
+      - nemesis_sound.v
+      - nemesis_jt49_exp.v
+      - nemesis_68k_addr_dec.v
+      - nemesis_sound_debug.v
+      - nemesis_rom_debug.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - t80/T80.yaml
+      - jtframe_z80wait.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_prom.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: video
+    when: NOVIDEO
+    get:
+      - jtframe_vtimer.v
+modules:
+  jt:
+    - name: jt49
+  other:
+    - get:
+      - gx400a_video.yaml
+      - gx400_cen.v
+      - colour_lut.v
+      - util/bus_ff.v
+      - util/lmn74194_nbit.v
+      - util/os_pulse_gen.v
+      - util/unsigned_mixer.v
+    - from: gx400-custom
+      get:
+        - k5289.v
+    - from: fx68k
+      unless: SIMULATION
+      get:
+        - fx68kAlu.sv
+        - fx68k.sv
+        - uaddrPla.sv

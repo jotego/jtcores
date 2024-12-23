@@ -1,0 +1,47 @@
+[all]
+JTFRAME_BUTTONS=3
+JTFRAME_COLORW=8
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=224
+
+JTFRAME_OSD_NOLOAD
+JTFRAME_OSD_NOCREDITS
+JTFRAME_OSD_NOLOGO
+
+# accurate pixel clock
+JTFRAME_PLL=jtframe_pll6144
+
+# unsigned sound
+JTFRAME_SIGNED_SND=0
+
+JT49_EXP=nemesis_jt49_exp
+VOLUME_PROMS=8'd104
+VOLUME_AY1=8'd138
+VOLUME_AY2=8'd102
+
+#ROM_DEBUG_Z80
+#ROM_DEBUG_MAIN
+
+# add enough spaces to make it 7 characters so the authors only show when scrolling
+VERSION_NAME=RC 1   
+
+# Does nothing, we don’t use the right file, so the VHDL version is used.
+# TV80S
+
+# wide address busses in K5295 instead of RAS/CAS
+GX400_UNFOLD_DRAM_ADDR
+
+SDRAM_FIX
+K5291_NO_MUX
+
+#NOMAIN
+#NOSOUND
+#NOVIDEO
+#TEST68K
+#SOUND_TEST
+
+[mister]
+JTFRAME_ARX=5
+JTFRAME_ARY=4
+
+#include debug.def
