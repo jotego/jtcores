@@ -67,13 +67,13 @@ module jtframe_objdraw_gate #( parameter
     input               vflip,
     input      [PW-5:0] pal,
 
-    output     [CW+6:2] rom_addr,
+    output     [CW+6:2] rom_addr, // {code,H,Y}
     output              rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,
 
     output     [PW-1:0] buf_pred,   // line buffer data can be altered on
-    input      [PW-1:0] buf_din,    // the fly through these ports
+    input      [PW-1:0] buf_din,    // the fed back through these ports
 
     output     [PW-1:0] pxl
 );
@@ -93,6 +93,8 @@ wire    [8:0] buf_addr;
 wire          buf_we;
 wire   [31:0] rom_sorted;
 
+wire          pre_bsy;
+
 assign rom_sorted = PACKED==0 ? rom_data :
 {rom_data[31], rom_data[27], rom_data[23], rom_data[19], rom_data[15], rom_data[11], rom_data[7], rom_data[3],
  rom_data[30], rom_data[26], rom_data[22], rom_data[18], rom_data[14], rom_data[10], rom_data[6], rom_data[2],
@@ -103,29 +105,31 @@ generate
     if( LATCH ) begin
         always @(posedge clk) begin
             dr_draw <= draw;
-            if( !busy ) begin
-                dr_code  <= code;
-                dr_xpos  <= xpos;
-                dr_ysub  <= ysub;
-                dr_hflip <= hflip;
-                dr_vflip <= vflip;
-                dr_pal   <= pal;
-                dr_hzoom <= hzoom;
-                dr_hz_keep<= hz_keep;
+            if( !pre_bsy ) begin
+                dr_code    <= code;
+                dr_xpos    <= xpos;
+                dr_ysub    <= ysub;
+                dr_hflip   <= hflip;
+                dr_vflip   <= vflip;
+                dr_pal     <= pal;
+                dr_hzoom   <= hzoom;
+                dr_hz_keep <= hz_keep;
             end
         end
+        assign busy = pre_bsy | dr_draw; // busy is always assert 1 clock cycle after draw
     end else begin
         always @* begin
-            dr_draw  = draw;
-            dr_code  = code;
-            dr_xpos  = xpos;
-            dr_ysub  = ysub;
-            dr_hflip = hflip;
-            dr_vflip = vflip;
-            dr_pal   = pal;
-            dr_hzoom = hzoom;
-            dr_hz_keep= hz_keep;
+            dr_draw    = draw;
+            dr_code    = code;
+            dr_xpos    = xpos;
+            dr_ysub    = ysub;
+            dr_hflip   = hflip;
+            dr_vflip   = vflip;
+            dr_pal     = pal;
+            dr_hzoom   = hzoom;
+            dr_hz_keep = hz_keep;
         end
+        assign busy = pre_bsy;
     end
 endgenerate
 
@@ -174,7 +178,7 @@ jtframe_draw #(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .draw       ( dr_draw   ),
-    .busy       ( busy      ),
+    .busy       ( pre_bsy   ),
     .code       ( dr_code   ),
     .xpos       ( dr_xpos   ),
     .ysub       ( dr_ysub   ),

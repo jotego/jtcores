@@ -17,7 +17,8 @@
     Date: 18-12-2022 */
 
 // wrapper for jtframe_objdraw_gate that hides the
-// buffer data ports
+// buffer data ports (buf_pred and buf_din that let
+// the core modify the data before storing it)
 
 module jtframe_objdraw #( parameter
     CW    = 12,

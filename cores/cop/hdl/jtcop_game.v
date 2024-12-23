@@ -207,8 +207,8 @@ jtcop_main u_main(
     .joyana2     ( joyana_r2  ),
     .dial_x      ( dial_x     ),
     .dial_y      ( dial_y     ),
-    .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .cab_1p      ( cab_1p     ),
+    .coin        (  coin      ),
     .service     ( service    ),
     // RAM access
     .ram_cs      ( ram_cs     ),

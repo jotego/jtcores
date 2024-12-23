@@ -44,8 +44,8 @@ module jtgunsmk_main(
     // cabinet I/O
     input   [6:0]      joystick1,
     input   [6:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
@@ -161,12 +161,12 @@ reg [7:0] cabinet_input;
 
 always @(*)
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input, // COINS
+        3'd0: cabinet_input = { coin, // COINS
                      1'b1,  // tilt?
                      service,
                      ~LVBL, // This was like this on 1943, just leaving it the same for now
                      1'b1,
-                     start_button }; // START
+                     cab_1p }; // START
         3'd1: cabinet_input = { 1'b1, joystick1 };
         3'd2: cabinet_input = { 1'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;

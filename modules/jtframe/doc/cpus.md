@@ -51,6 +51,8 @@ Because of the issue with the ready signal, the recommended CPU core is the T65 
 
 Verilator cannot simulate VHDL. It is possible to run mixed language simulations in _jtframe_ by using _modelsim_ in the simulation with `jtsim -modelsim`. However, this is very slow. In order to speed it up, convert the modules to verilog first using [ghdl](https://github.com/ghdl).
 
+Note that `@` must go before the file name. As usual, file list order for VHDL is important.
+
 ```
 ghdl -a -fsynopsys @gatherfile
 ghdl synth --out=verilog toplevel_name > toplevel_name.v

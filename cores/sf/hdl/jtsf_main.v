@@ -62,8 +62,8 @@ module jtsf_main #(
     // cabinet I/O
     input       [ 9:0] joystick1,
     input       [ 9:0] joystick2,
-    input       [ 1:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] cab_1p,
+    input       [ 1:0] coin,
     input              service,
     input              game_id,
     // BUS sharing
@@ -296,7 +296,7 @@ always @(posedge clk) begin
                 joystick2[BUT6], // 8
                 5'h1f,           // 7-3
                 joystick1[BUT6], // 2
-                coin_input       // 1-0
+                coin       // 1-0
             };
         3'd1: cabinet_input <= game_id==0 ? { // IN1 in MAME
             joystick2[BUT5],
@@ -340,7 +340,7 @@ always @(posedge clk) begin
             LVBL, // freeze when high
             4'hf,
             service,
-            start_button
+            cab_1p
         };
         default: cabinet_input <= 16'hffff;
     endcase

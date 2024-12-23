@@ -99,8 +99,8 @@ jtkchamp_main u_main(
     .enc            ( enc           ),
     .link_joys      ( link_joys     ),
     // cabinet I/O
-    .game_start     ( start_button  ),
-    .coin           ( coin_input    ),
+    .game_start     ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     // GFX

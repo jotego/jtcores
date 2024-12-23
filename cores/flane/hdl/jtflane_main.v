@@ -34,8 +34,8 @@ module jtflane_main(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 5:0]  joystick1,
     input       [ 5:0]  joystick2,
     input               service,
@@ -138,7 +138,7 @@ always @(posedge clk) begin
         0: cabinet <= { 4'hf, dipsw_c };
         1: cabinet <= {2'b11, joystick2[5:0]};
         2: cabinet <= {2'b11, joystick1[5:0]};
-        3: cabinet <= { ~3'd0, start_button, service, coin_input };
+        3: cabinet <= { ~3'd0, cab_1p, service, coin };
     endcase
     cpu_din <= rom_cs ? rom_data  :
                ram_cs ? ram_dout  :

@@ -46,8 +46,8 @@ module game_test(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 3:0]  start_button,
-    input   [ 3:0]  coin_input,
+    input   [ 3:0]  cab_1p,
+    input   [ 3:0]  coin,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
@@ -558,8 +558,8 @@ u_game(
     // LED
     .game_led    ( game_led       ),
 
-    .start_button( start_button[STARTW-1:0] ),
-    .coin_input  ( coin_input[STARTW-1:0]  ),
+    .cab_1p( cab_1p[STARTW-1:0] ),
+    .coin  ( coin[STARTW-1:0]  ),
     // Joysticks
     .joystick1    ( joystick1[GAME_BUTTONS+3:0]   ),
     .joystick2    ( joystick2[GAME_BUTTONS+3:0]   ),

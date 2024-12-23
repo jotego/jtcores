@@ -1,0 +1,4 @@
+# Pass MCU/SUB start up
+mv TOP.game_test.u_game.u_game.u_main.u_mcpu.pc==$d255
+mt PC==$d255
+go

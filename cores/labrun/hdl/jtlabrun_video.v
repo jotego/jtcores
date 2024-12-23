@@ -28,7 +28,7 @@ module jtlabrun_video(
     output              VS,
     output              flip,
     input               dip_pause,
-    input               start_button,
+    input               cab_1p,
     // PROMs
     input      [ 8:0]   prog_addr,
     input      [ 3:0]   prog_data,

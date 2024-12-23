@@ -43,8 +43,8 @@ module jtcps2_main(
     input   [1:0]      joymode,
     input   [9:0]      joystick1, joystick2, joystick3, joystick4,
     input   [1:0]      dial_x, dial_y,
-    input   [3:0]      start_button,
-    input   [3:0]      coin_input,
+    input   [3:0]      cab_1p,
+    input   [3:0]      coin,
     input              service,
     input              tilt,
     input   [31:0]     dipsw,      // bit 0 used to enable the spinner on Eco Fighters
@@ -258,7 +258,7 @@ always @(posedge clk) begin
     // Base system, 4 players, 4 buttons
     in0 <= { joystick2[7:0], joystick1[7:0] };
     in1 <= { joystick4[7:0], joystick3[7:0] };
-    in2 <= { coin_input, start_button, ~5'b0, service, dip_test, eeprom_sdo };
+    in2 <= { coin, cab_1p, ~5'b0, service, dip_test, eeprom_sdo };
     case( joymode )
         default:;
         BUT6: begin
@@ -398,7 +398,7 @@ jtcps2_decrypt u_decrypt(
 // interrupt generation
 wire       int1, // VBLANK
            int2, // Raster
-           skip_but = ~&start_button;
+           skip_but = ~&cab_1p;
 //assign inta_n = ~&{ FC, ~BGACKn }; // interrupt ack. according to Loic's DL-1827 schematic
 assign inta_n = ~&{ FC, A[19:16] }; // ctrl like M68000's manual
 wire   vpa_n = ~&{ FC, ~ASn };

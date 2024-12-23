@@ -31,8 +31,8 @@ module jtpang_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 7:0]  joystick1,
     input   [ 7:0]  joystick2,
     input   [15:0]  mouse_1p,
@@ -201,8 +201,8 @@ jtpang_main u_main(
 
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
-    .start_button(start_button  ),
-    .coin        ( coin_input[0]),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin[0]      ),
     .service     ( service      ),
     .test        ( dip_test     ),
 

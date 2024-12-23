@@ -19,10 +19,10 @@
 module jtcps1_prom_we #(
 parameter        CPS=1, // 1, 15, or 2
                  REGSIZE=24, // This is defined at _game level
-parameter [22:0] CPU_OFFSET =22'h0,
-                 SND_OFFSET =22'h0,
-                 PCM_OFFSET =22'h0,
-                 GFX_OFFSET =22'h0,
+parameter [22:0] CPU_OFFSET =23'h0,
+                 SND_OFFSET =23'h0,
+                 PCM_OFFSET =23'h0,
+                 GFX_OFFSET =23'h0,
 parameter [ 5:0] CFG_BYTE   =6'd39  // location of the byte with encoder information
 )(
     input                clk,

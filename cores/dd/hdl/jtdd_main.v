@@ -57,8 +57,8 @@ module jtdd_main(
     output  reg [8:0]  scrhpos,
     output  reg [8:0]  scrvpos,
     // cabinet I/O
-    input       [1:0]  start_button,
-    input       [1:0]  coin_input,
+    input       [1:0]  cab_1p,
+    input       [1:0]  coin,
     input       [6:0]  joystick1,
     input       [6:0]  joystick2,
     // BUS sharing
@@ -122,7 +122,6 @@ always @(*) begin
     w3801       = 1'b0;
     w3802       = 1'b0;
     w3806       = 1'b0;
-    //w3807       = 1'b0;
     if( A[15:14]==2'b00 ) begin
         case(A[13:11])
             3'd0, 3'd1: ram_cs = 1'b1;
@@ -155,7 +154,7 @@ always @(*) begin
             end
         endcase
     end else begin
-        rom_cs    = A[15] | A[14];
+        rom_cs    =  A[15] | A[14];
         banked_cs = ~A[15] & A[14];
     end
 end
@@ -164,7 +163,7 @@ always @(posedge clk) begin
     w3803 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd3; // NMI clear
     w3804 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd4; // FIRQ ack
     w3805 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd5; // IRQ ack (from MCU)
-    w3807 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd7;
+    w3807 <= A[15:10] == 6'b0011_10 && A[2:0]==3'd7; // MCU NMI set
 end
 
 // special registers. Schematic sheet 3/9
@@ -205,8 +204,8 @@ endfunction
 
 always @(posedge clk) begin
     case( A[3:0])
-        4'd0:    cabinet_input <= { start_button, fix_joy(joystick1[5:0]) };
-        4'd1:    cabinet_input <= { coin_input,   fix_joy(joystick2[5:0]) };
+        4'd0:    cabinet_input <= { cab_1p, fix_joy(joystick1[5:0]) };
+        4'd1:    cabinet_input <= { coin,   fix_joy(joystick2[5:0]) };
         4'd2:    cabinet_input <= { 3'b111, mcu_ban, ~VBL, // Using ~VBL instead of VBL increases the game speed
             // as observed by comparing the frame count at which the demo starts:
             // 10 frames earlier in dd (~VBL faster than VBL)

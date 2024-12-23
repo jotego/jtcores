@@ -39,7 +39,6 @@ JTFRAME_CLK6             |         | Adds an additional clock input
 JTFRAME_CLK96            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
-JTFRAME_DIAL_SENSTY      | Pocket  | Sets sensitivity value for Pocket only as there is no OSD control available
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
 JTFRAME_DONTSIM_SCAN2X   |         | Internal. Do not define externally
 JTFRAME_FLIP_RESET       |         | Varying the flip DIP setting causes a reset
@@ -155,6 +154,12 @@ Macro                    | Target  |  Usage
 JTFRAME_BAx_AUTOPRECH    |         | Enables auto precharge on bank X (0,1,2,3)
 JTFRAME_BAx_LEN          |         | Sets length of bank x, valid values 16, 32 or 64
 
+# SDRAM ROM/RAM Modules
+
+Macro                    | Target  |  Usage
+-------------------------|---------|----------------------
+JTFRAME_SDRAM_TOGGLE     |         | Consider a CS toggle automatically after SDRAM is ready (experimental)
+
 # Simulation-only Macros
 
 The following macros only have an effect if SIMULATION is defined.
@@ -176,9 +181,12 @@ JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
+JTFRAME_SIM_IODUMP       |verilator| Frame at which an ioctl_ram read is run. Outputs to dump.bin (JTFRAME_IOCTL_RD needed)
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
+SIMSCENE                 |         | Set when jtsim is called with -scene
 VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals/M6809 regs during simulation
+VERILATOR_KEEP_SDRAM     |verilator| Keeps SDRAM signals in the game_sdram.v module (mem.yaml)
 VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation
 VERILATOR_KEEP_VTIMER    |verilator| Keeps jtframe_vtimer signals
 VIDEO_START              |         | First frame for which video output is provided use it to prevent a split first frame

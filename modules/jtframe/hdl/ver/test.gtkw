@@ -1,0 +1,17 @@
+[*] Default GTKWave view
+[dumpfile] "test.fst"
+[savefile] "test.gtkw"
+[timestart] 0
+[size] 1263 1010
+[pos] -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[sst_width] 215
+[signals_width] 212
+[sst_expanded] 1
+[sst_vpaned_height] 300
+@25
+TOP.game_test.frame_cnt[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

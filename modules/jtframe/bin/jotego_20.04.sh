@@ -51,6 +51,12 @@ cp alink asl p2bin p2hex pbind plist *.msg /usr/local/bin
 cp man/* /usr/local/share/man/man1/
 
 # Verilator
+apt install git help2man perl python3 make autoconf g++ flex bison ccache
+apt install libgoogle-perftools-dev numactl perl-doc
+apt install libfl2  # Ubuntu only (ignore if gives error)
+apt install libfl-dev  # Ubuntu only (ignore if gives error)
+apt install zlibc zlib1g zlib1g-dev  # Ubuntu only (ignore if gives error)
+
 cd $HOME
 unset VERILATOR_ROOT
 git clone http://git.veripool.org/git/verilator --depth 1 || exit $?
@@ -60,3 +66,49 @@ autoconf
 # compile using 80% of available CPUs
 make -j $((`nproc`*4/5))
 export VERILATOR_ROOT=`pwd`
+echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
+
+# nice to have
+apt install --yes htop
+
+# git configuration
+git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+git config --global alias.d diff
+git config --global alias.co checkout
+git config --global alias.st status
+git config --global alias.p pull
+git config --global alias.r "reset --hard"
+git config pull.rebase true
+
+# Go
+GONAME=go1.21.3.linux-amd64.tar.gz
+wget https://go.dev/dl/$GONAME
+rm -rf /usr/local/go && tar -C /usr/local -xzf $GONAME
+rm -f $GONAME
+export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+echo export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin >> $HOME/.bashrc
+go install github.com/spf13/cobra-cli@latest
+go install golang.org/x/tools/cmd/goimports@latest
+go install golang.org/x/tools/cmd/godoc@latest
+
+
+# GitHub CLI
+type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+&& sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+&& sudo apt update \
+&& sudo apt install gh -y
+
+# Set up repositories
+cat<<EOF
+Run these commands after setting the SSH key in GitHub
+
+cd $HOME
+git clone --recurse-submodules git@github.com:jotego/jtcores.git
+mkdir jtmisc
+cd jtmisc
+git clone --depth 1 --shallow-since="$(date --date='-2 weeks' +%F)" git@github.com:jotego/jtbin.git
+git clone git@github.com:jotego/jtbeta.git
+git clone git@github.com:JTFPGA/jtutil.git
+EOF

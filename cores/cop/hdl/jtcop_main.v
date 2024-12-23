@@ -81,8 +81,8 @@ module jtcop_main(
     input       [ 1:0]  dial_x,
     input       [ 1:0]  dial_y,
 
-    input       [ 1:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] cab_1p,
+    input       [ 1:0] coin,
     input              service,
 
     // RAM access
@@ -175,7 +175,7 @@ jtcop_decoder u_decoder(
     .LVBL_l     ( LVBL_l    ),
     .sec2       ( sec2      ),
     .service    ( service   ),
-    .coin_input ( coin_input),
+    .coin ( coin),
     .rom_cs     ( rom_cs    ),
     .eep_cs     ( eep_cs    ),
     .prisel_cs  ( prisel_cs ),
@@ -277,8 +277,8 @@ end
             cab_dout <= { 8'hff,
                             ~LVBL,
                             service,
-                            coin_input,
-                            start_button,
+                            coin,
+                            cab_1p,
                             joystick2[8],
                             joystick1[8] };
         if( read_cs[2] )
@@ -289,14 +289,14 @@ end
         cab_dout <= 16'hffff;
         if( read_cs[0] )
             cab_dout <= {
-                start_button[1], joystick2[6:0],
-                start_button[0], joystick1[6:0]
+                cab_1p[1], joystick2[6:0],
+                cab_1p[0], joystick1[6:0]
             };
         if( read_cs[1] )
             cab_dout <= {   ~12'h0,
                             ~LVBL,
                             service,
-                            coin_input };
+                            coin };
         if( read_cs[2] )
             cab_dout <= { dipsw_b, dipsw_a };
         if( read_cs==7 ) begin

@@ -34,8 +34,8 @@ module jtmx5k_main_decoder(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input               service,
@@ -81,7 +81,7 @@ always @(posedge clk) begin
                 0: port_in <= {2'b11, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
                 1: port_in <= {2'b11, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
                 2: port_in <= {2'b11, joystick2[6],   joystick1[6], dipsw_c[3:0] };
-                3: port_in <= {3'b111, start_button, service, coin_input };
+                3: port_in <= {3'b111, cab_1p, service, coin };
             endcase
         1: port_in <= A[0] ? dipsw_a : dipsw_b;
         default: port_in <= 8'hFF;

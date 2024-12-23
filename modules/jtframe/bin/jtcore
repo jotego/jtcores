@@ -20,7 +20,10 @@
 function show_usage() {
     cat << EOF
 JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
-    Argument without - is the core name, like gng, or 1943
+usage: jtcore <corename> [options]
+
+    jtcore compiles only one core at a time. To compile many cores at once
+    use jtupdate.
 
     Macro definition
     --def | -d   Defines a verilog macro. Macros are removed from qsf file after
@@ -329,7 +332,17 @@ OUTPUTDIR=output_files
 
 # Check Quartus path
 case $TARGET in
-    mister|sockit|de1soc|de10standard)
+    mist) # MiST can only be compiled on Quartus 13, which is slower on systems with many CPU cores
+        if ! (which quartus_sh|grep 13 -q); then
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            if [ -d "/opt/altera/13.1" ]; then
+                PATH=$PATH:/opt/altera/13.1/quartus/bin
+            else
+                echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
+                exit 1
+            fi
+        fi;;
+    *)
         if ! (which quartus_sh|grep intelFPGA_lite -q); then
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
             if [ -d /opt/intelFPGA_lite ]; then
@@ -338,16 +351,6 @@ case $TARGET in
                 PATH=$PATH:`pwd`/quartus/bin
             else
                 echo "Cannot find Quartus in /opt/intelFPGA_lite (`hostname`)"
-                exit 1
-            fi
-        fi;;
-    *)
-        if ! (which quartus_sh|grep 13 -q); then
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
-            if [ -d "/opt/altera/13.1" ]; then
-                PATH=$PATH:/opt/altera/13.1/quartus/bin
-            else
-                echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
                 exit 1
             fi
         fi;;
@@ -443,6 +446,7 @@ corename=${CORENAME,,}
 
 if (eval parse_macros bash | grep JTFRAME_SKIP > /dev/null); then
     echo "Compilation skipped for $TARGET because of JTFRAME_SKIP"
+    echo "Use -u JTFRAME_SKIP to override this."
     echo "PASS"
     exit 0
 fi
@@ -518,7 +522,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
         # Create the QIP file
         jtframe mem $PRJ --target=$TARGET || exit $?
         jtframe files syn $PRJ --target=$TARGET
+        jtframe mmr $PRJ
         # Compilation
+        quartus_sh -v
         quartus_sh --flow compile $corename > "$LOG"
         if ! grep "Full Compilation was successful" "$LOG"; then
             grep -i error "$LOG" -A 2
@@ -543,15 +549,23 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         # Report FPGA usage
         if [ -e $RPTPATH/*.fit.summary ]; then
-            grep "Total logic" $RPTPATH/*.fit.summary
-            grep "Total memory" $RPTPATH/*.fit.summary
+            grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary
+            grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
         fi
         # Report connectivity problems
+        AUX=`mktemp`
         grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
-        | grep -v "\.we_a.*has no driver or initial value"
+        | grep -v "\.we_a.*has no driver or initial value" > $AUX
+        if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
+            # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
+            grep -v sys_top.v $AUX
+        else
+            cat $AUX
+        fi
+        rm -f $AUX
         # Report timing
         grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
         if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
@@ -656,15 +670,6 @@ if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != 
         sed -i /$RELEASE/d  $BINFOLDER/version.log
     fi
     printf "%-24s %s\n" ${RELEASE} $PRJCOMMIT >> $BINFOLDER/version.log
-
-    if is_mister_family; then
-        OTHER=$(append_if_exists $JTROOT/doc/$corename.md $JTROOT/cores/$PRJ/README.md $JTROOT/README.md $JTROOT/README.txt )
-        # remove blanks
-        OTHER=${OTHER## }
-        if [ ! -z "$OTHER" ]; then
-            cp $OTHER $BINFOLDER;
-        fi
-    fi
     cd - > /dev/null
 elif [ ! -z "$VERBOSE" ]; then
     echo "Skipping copy to JTBIN or release"

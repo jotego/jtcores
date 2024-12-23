@@ -17,7 +17,9 @@
 *.lxt
 *.mp4
 *.mra
+*.nvm
 *.ods#
+*.old
 *.p
 *.pin
 *.png
@@ -64,6 +66,7 @@ cores/*/sidi/*
 cores/*/sockit/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+cores/*/hdl/*_mmr.v
 default.dip
 defmacros.h
 dump2bin.sh
@@ -85,6 +88,7 @@ ncverilog.*
 ncverilog.*
 obj_dir
 old/*
+old
 release.bak/*
 release/*
 rom
@@ -97,6 +101,7 @@ setnames.txt
 sim
 test.cpp
 test.shm
+test.gtkw
 video.info
 vsim.do
 waiver

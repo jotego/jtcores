@@ -45,7 +45,3 @@ CORE_OSD=OD,Button aid,Off,On
 [mister|pocket]
 -JTFRAME_SKIP
 
-[pocket]
-# Fixed sensitivty for Arkanoid 2 as there is
-# no OSD control for this at the moment
-JTFRAME_DIAL_SENSTY=2

@@ -17,11 +17,6 @@ clocks:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 15  # the PCB seems to support 17 bits too
-          data_width: 8
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 22
           data_width: 8
@@ -40,19 +35,26 @@ sdram:
         - name: mask
           addr_width: 17
           data_width: 8
+          cache_size: 8
         - name: scr # 4-byte burst here
           addr_width: 20
           data_width: 8
           offset: SCR_OFFSET
-    # - buses:
-    #     - name: obj
-    #       addr_width: 20
-    #       data_width: 32
+    - buses:
+        - name: obj
+          addr_width: 20
+          data_width: 32
 bram:
+  - name: ram
+    addr_width: 15  # the PCB seems to support 17 bits too
+    data_width: 8
+    # offset: RAM_OFFSET
+    rw: true
   # Tile map
   - name: tmap
     addr_width: 15
     data_width: 16
+    ioctl: { save: true, order: 1 }
     dual_port:
       name: vram
       din: bdout16
@@ -67,6 +69,8 @@ bram:
   - name: oram
     addr_width: 12
     data_width: 16
+    rw: true
+    ioctl: { save: true, order: 5 }
     dual_port:
       name: obus
       din: bdout16
@@ -78,6 +82,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 2 }
     dual_port:
       name: rpal
       addr: pal_addr
@@ -88,6 +93,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 3 }
     dual_port:
       name: gpal
       addr: pal_addr
@@ -98,6 +104,7 @@ bram:
     addr_width: 13
     data_width: 8
     addr: rgb_addr
+    ioctl: { save: true, order: 4 }
     dual_port:
       name: bpal
       addr: pal_addr
@@ -110,4 +117,4 @@ bram:
     data_width: 8
     din: mcu_dout
     rw: true
-    ioctl: { save: true, order: 0 }
+    ioctl: { save: true, restore: true, order: 0 }

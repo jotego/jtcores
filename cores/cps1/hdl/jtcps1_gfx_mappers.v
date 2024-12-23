@@ -80,7 +80,13 @@ always @(posedge clk, posedge rst) begin
                 set_used <= 1'b0;
             end
             `ifndef CPS2
+                `ifdef CPS15
+                /* verilator lint_off CMPCONST */
+                /* verilator lint_off WIDTH */
+                `endif
                 `include "mappers.inc"
+                /* verilator lint_on CMPCONST */
+                /* verilator lint_on WIDTH */
             `endif
         endcase
     end

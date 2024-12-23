@@ -36,8 +36,8 @@ module jtcontra_main(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input               service,
@@ -101,8 +101,8 @@ generate
                 .rom_data       ( rom_data      ),
                 .rom_ok         ( rom_ok        ),
                 // cabinet I/O
-                .start_button   ( start_button  ),
-                .coin_input     ( coin_input    ),
+                .cab_1p   ( cab_1p  ),
+                .coin     ( coin    ),
                 .joystick1      ( joystick1[5:0]),
                 .joystick2      ( joystick2[5:0]),
                 .service        ( service       ),
@@ -147,8 +147,8 @@ generate
                 .rom_data       ( rom_data      ),
                 .rom_ok         ( rom_ok        ),
                 // cabinet I/O
-                .start_button   ( start_button  ),
-                .coin_input     ( coin_input    ),
+                .cab_1p   ( cab_1p  ),
+                .coin     ( coin    ),
                 .joystick1      ( joystick1[5:0]),
                 .joystick2      ( joystick2[5:0]),
                 .service        ( service       ),
@@ -185,8 +185,8 @@ generate
                 .rom_data       ( rom_data      ),
                 .rom_ok         ( rom_ok        ),
                 // cabinet I/O
-                .start_button   ( start_button  ),
-                .coin_input     ( coin_input    ),
+                .cab_1p   ( cab_1p  ),
+                .coin     ( coin    ),
                 .joystick1      ( joystick1     ),
                 .joystick2      ( joystick2     ),
                 .service        ( service       ),

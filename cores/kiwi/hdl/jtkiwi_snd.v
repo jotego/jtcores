@@ -37,8 +37,8 @@ module jtkiwi_snd(
     input               prom_we,
 
     // Cabinet inputs
-    input      [ 1:0]   start_button,
-    input      [ 1:0]   coin_input,
+    input      [ 1:0]   cab_1p,
+    input      [ 1:0]   coin,
     input      [ 6:0]   joystick1,
     input      [ 6:0]   joystick2,
     input      [ 1:0]   dial_x,
@@ -182,13 +182,13 @@ always @(posedge clk) begin
         cab_dout <= 8'hff; // do not let inputs disturb the pause
     else begin
         case( A[2:0] )
-            0: cab_dout <= { start_button[0], joystick1 };
-            1: cab_dout <= { start_button[1], joystick2 };
+            0: cab_dout <= { cab_1p[0], joystick1 };
+            1: cab_dout <= { cab_1p[1], joystick2 };
             2: cab_dout <= kageki ?
-                { 2'h3, coin_input[1], coin_input[0], 2'h3, tilt, service } :
-                { 4'hf, coin_input[0], coin_input[1],       tilt, service };
-            // 3: cab_dout <= { 7'h7f, ~coin_input[0] };
-            // 4: cab_dout <= { 7'h7f, ~coin_input[1] };
+                { 2'h3, coin[1], coin[0], 2'h3, tilt, service } :
+                { 4'hf, coin[0], coin[1],       tilt, service };
+            // 3: cab_dout <= { 7'h7f, ~coin[0] };
+            // 4: cab_dout <= { 7'h7f, ~coin[1] };
             default: cab_dout <= 8'h00;
         endcase
     end
@@ -202,8 +202,8 @@ end
 
 always @(posedge clk) begin
     case( p2_dout[2:0] )
-        3'h4: p1_din <= { start_button[0], joystick1 };
-        3'h5: p1_din <= { start_button[1], joystick2 };
+        3'h4: p1_din <= { cab_1p[0], joystick1 };
+        3'h5: p1_din <= { cab_1p[1], joystick2 };
         3'h2: p1_din <= { 6'h3f, tilt, service };
         default: p1_din <= 8'hff;
     endcase
@@ -385,8 +385,8 @@ jtframe_i8742 #(
     .p2_dout    ( p2_dout    ),
 
     // Test pins (used in the assembler TEST instruction)
-    .t0_din     (~coin_input[0]),
-    .t1_din     (~coin_input[1]),
+    .t0_din     (~coin[0]),
+    .t1_din     (~coin[1]),
 
     .prog_addr  ( prog_addr  ),
     .prog_data  ( prog_data  ),
@@ -419,8 +419,8 @@ jt4701 u_dial(
     .x_in   ( dial_x    ),
     .y_in   ( dial_y    ),
     .rightn ( service   ),
-    .leftn  (coin_input[0]),
-    .middlen(coin_input[1]),
+    .leftn  (coin[0]),
+    .middlen(coin[1]),
     .x_rst  (dial_rst[0]),
     .y_rst  (dial_rst[1]),
     .csn    ( ~dial_cs  ),

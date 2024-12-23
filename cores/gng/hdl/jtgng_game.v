@@ -30,8 +30,8 @@ module jtgng_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
     // SDRAM interface
@@ -94,7 +94,7 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 
 wire        main_ok, snd_ok;
-wire        cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
+wire        cen6, cen3, cen1p5, cen1p5b;
 wire        LHBL_obj, LVBL_obj;
 
 wire        RnW, blue_cs, redgreen_cs, bus_ack, bus_req;
@@ -125,9 +125,9 @@ assign debug_view  = debug_bus[7] ? st_snd :
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
-    .cen12  ( cen12     ),
+    .cen12  (           ),
     .cen6   ( cen6      ),
-    .cen6b  ( cen6b     ),
+    .cen6b  (           ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    ),
     .cen1p5b( cen1p5b   ),
@@ -217,8 +217,8 @@ jtgng_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input ( coin_input    ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
     .service    ( service       ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),

@@ -118,8 +118,8 @@ public:
         dut.joystick3 = 0xff;
         dut.joystick4 = 0xff;
 #endif
-        dut.start_button = 0xf;
-        dut.coin_input   = 0xf;
+        dut.cab_1p = 0xf;
+        dut.coin   = 0xf;
         dut.service      = 1;
         dut.tilt         = 1;
         dut.dip_test     = 1;
@@ -154,17 +154,17 @@ public:
             }
 
         } else {
-            dut.start_button = 0xf;
-            dut.coin_input   = 0xf;
+            dut.cab_1p = 0xf;
+            dut.coin   = 0xf;
             dut.joystick1    = 0x3ff;
         }
     }
     void parse_inputs( unsigned v ) {
         v = ~v;
-        auto coin_l  = dut.coin_input&3;
+        auto coin_l  = dut.coin&3;
         dut.dip_test     = (v & 0x800) ? 1 : 0;
-        dut.start_button = 0xc | ((v>>2)&3);
-        dut.coin_input   = 0xc | (v&3);
+        dut.cab_1p = 0xc | ((v>>2)&3);
+        dut.coin   = 0xc | (v&3);
         dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
         v >>= 4;    // directions:
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
@@ -180,7 +180,7 @@ public:
 #ifdef _JTFRAME_JOY_UDRL
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
 #endif
-        if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
+        if( coin_l != (dut.coin&3) && coin_l!=3 ) {
             cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
         }
     }
@@ -195,8 +195,8 @@ int fileLength( const char *name ) {
 class Download {
     UUT& dut;
     int addr, din, ticks,len, cart_start, nvram_start;
-    char *buf;
-    bool done, cart, nvram, full_download;
+    char *buf, *iodin;
+    bool done, cart, nvram, full_download, iodump_busy;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
@@ -204,6 +204,7 @@ public:
     Download(UUT& _dut) : dut(_dut) {
         done = false;
         buf = nullptr;
+        iodin = nullptr;
         ifstream fin( "rom.bin", ios_base::binary );
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
@@ -255,6 +256,8 @@ public:
     ~Download() {
         delete []buf;
         buf=nullptr;
+        delete []iodin;
+        iodin=nullptr;
     };
     bool FullDownload() { return full_download; }
     void start( bool download ) {
@@ -277,7 +280,11 @@ public:
     }
     void update() {
         dut.ioctl_wr = 0;
-        if( !done && dut.downloading ) {
+        if( dut.downloading ) step_download();
+        if( iodump_busy ) iodump_step();
+    }
+    void step_download() {
+        if( !done ) {
 #ifdef _JTFRAME_SIM_SLOWLOAD
             const int STEP=31;
 #else
@@ -316,6 +323,39 @@ public:
         } else {
             ticks=0;
         }
+    }
+    void iodump_step() {
+#ifdef _JTFRAME_IOCTL_RD
+        const int STEP=3;
+        if( (ticks&STEP)==STEP) {
+            iodin[dut.ioctl_addr] = dut.ioctl_din;
+            if( ++dut.ioctl_addr == _JTFRAME_IOCTL_RD ) {
+                fprintf(stderr,"\nIOCTL read finished\n");
+                dut.ioctl_addr=0;
+                dut.ioctl_ram=0;
+                iodump_busy=false;
+                auto of = ofstream("dump.bin",ios_base::binary);
+                of.write(iodin,_JTFRAME_IOCTL_RD);
+                if( of.bad() ) {
+                    fprintf(stderr,"ERROR: (test.cpp) creating dump.bin\n" );
+                }
+            }
+        }
+        ticks++;
+#endif
+    }
+    void iodump_start() {
+#ifdef _JTFRAME_IOCTL_RD
+        if( iodump_busy ) return;
+        fprintf(stderr,"\nIOCTL read started\n");
+        iodump_busy = true;
+        dut.ioctl_addr=0;
+        dut.ioctl_ram=1;
+        ticks=0;
+        if(iodin==nullptr) {
+            iodin=new char[_JTFRAME_IOCTL_RD];
+        }
+#endif
     }
 };
 
@@ -510,7 +550,7 @@ void SDRAM::update() {
             ba_addr[ cur_ba ] &= ~0x1ff;
             ba_addr[ cur_ba ] |= (dut.SDRAM_A & 0x1ff);
             if( dut.SDRAM_nWE ) { // enque read
-                rd_st[ cur_ba ] = ba_blen[cur_ba];
+                rd_st[ cur_ba ] = burst_len+1;
             } else {
                 int dqm = dut.SDRAM_DQM;
                 // cout << "Write bank " << cur_ba <<
@@ -550,6 +590,7 @@ void SDRAM::update() {
                 ba_busy = k;
             }
             if(rd_st[k]>0) rd_st[k]--;
+            if(rd_st[k]==(burst_len+1-ba_blen[k])) rd_st[k]=0;
         }
     }
     last_clk = dut.SDRAM_CLK;
@@ -772,6 +813,9 @@ void JTSim::clock(int n) {
         if( game.VS && !last_VS ) {
             fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf); // do not flush the streams. It can mess up
             frame_cnt++;
+#ifdef _JTFRAME_SIM_IODUMP
+            if( frame_cnt==_JTFRAME_SIM_IODUMP ) dwn.iodump_start();
+#endif
             if( frame_cnt == _DUMP_START && !dump_ok ) {
                 dump_ok = 1;
                 fprintf(stderr,"\nDump starts (frame %d)\n", frame_cnt);

@@ -1,0 +1,61 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Wed Oct 11 09:46:07 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.lxt"
+[dumpfile_mtime] "Wed Oct 11 09:39:30 2023"
+[dumpfile_size] 120327317
+[savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/scr-iverilog.gtkw"
+[timestart] 15506780000
+[size] 1264 1024
+[pos] -1 -1
+*-19.469587 15507561803 -1 31407911476 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] mist_test.
+[treeopen] mist_test.UUT.
+[treeopen] mist_test.UUT.u_game.
+[treeopen] mist_test.UUT.u_game.u_game.
+[treeopen] mist_test.UUT.u_game.u_game.u_video.
+[treeopen] mist_test.UUT.u_game.u_game.u_video.u_scroll.
+[sst_width] 223
+[signals_width] 281
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+mist_test.u_dump.frame_cnt[31:0]
+@22
+mist_test.UUT.u_game.u_game.u_video.vdump[8:0]
+@28
+mist_test.UUT.u_game.u_game.u_video.lhbl[0]
+@22
+mist_test.UUT.u_game.u_game.u_video.u_scroll.pxl[10:0]
+@200
+-
+@30
+mist_test.UUT.u_game.u_game.u_video.u_scroll.hcnt[8:0]
+@200
+-
+@28
+mist_test.UUT.u_game.u_game.u_video.u_scroll.alt_cen[0]
+@24
+mist_test.UUT.u_game.u_game.u_video.u_scroll.mst[2:0]
+@28
+mist_test.UUT.u_game.u_game.u_video.u_scroll.mask_cs[0]
+mist_test.UUT.u_game.u_game.u_video.u_scroll.clk[0]
+@25
+mist_test.UUT.u_game.u_game.u_video.u_scroll.mlyr[2:0]
+@22
+mist_test.UUT.u_game.u_game.u_video.u_scroll.mreq[5:0]
+@28
+mist_test.UUT.u_game.u_game.u_video.u_scroll.scr_ok[0]
+@200
+-
+@22
+mist_test.UUT.u_game.u_game.u_video.u_scroll.vpos[15:0]
+@200
+-
+@22
+mist_test.UUT.u_game.u_game.u_video.u_scroll.tmap_addr[14:1]
+mist_test.UUT.u_game.u_game.u_video.u_scroll.tmap_data[15:0]
+mist_test.UUT.u_game.u_game.u_video.u_scroll.mask_addr[16:0]
+[pattern_trace] 1
+[pattern_trace] 0

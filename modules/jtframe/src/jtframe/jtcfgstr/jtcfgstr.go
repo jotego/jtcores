@@ -221,7 +221,7 @@ func dump_parameter(def map[string]string, fmtstr string) {
 func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
 	parse_args(&cfg, args, extra_def, extra_undef)
 	def := jtdef.Make_macros(cfg)
-	if !jtdef.Check_macros(def) {
+	if !jtdef.Check_macros(def, cfg.Target) {
 		os.Exit(1)
 	}
 	switch cfg.Output {

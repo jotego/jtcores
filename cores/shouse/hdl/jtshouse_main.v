@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 19-9-2023 */
-
+/* verilator tracing_off */
 module jtshouse_main(
     input               rst,
     input               clk,
@@ -39,6 +39,7 @@ module jtshouse_main(
     input        [ 7:0] scfg_dout,
 
     // Video RAMs
+    output              oram_cs,
     output       [ 1:0] obus_we,
     output       [11:1] obus_addr,
     input        [15:0] obus_dout,
@@ -47,26 +48,27 @@ module jtshouse_main(
     input        [15:0] vram_dout,
     input        [ 7:0] pal_dout,
 
-
     output              srst_n,
 
     output              mrom_cs,   srom_cs,   ram_cs,
     input               mrom_ok,   srom_ok,   ram_ok,
     input        [ 7:0] mrom_data, srom_data, ram_dout,
 
-    output              bus_busy
+    output              bus_busy,
+    input        [ 7:0] debug_bus,
+    output       [ 7:0] st_dout
 );
-
+`ifndef NOMAIN
 wire [15:0] maddr, saddr;
-wire [ 7:0] mdout, sdout, bdin;
+wire [ 7:0] mdout, sdout, bdin, st_mapper;
 wire        mrnw, mirq_n, mfirq_n, mavma,
             srnw, sirq_n, sfirq_n, savma,
-            rom_cs, oram_cs;
+            rom_cs;
 wire [ 9:0] cs;
 reg  [ 7:0] mdin, sdin;
 reg         bsel, mvma, svma;
 wire        master, sub; // current bus owner
-wire        main_E, main_Q, sub_E, sub_Q;
+wire        main_E, main_Q, sub_E, sub_Q, mrst_n;
 
 assign master   = ~bsel;
 assign sub      =  bsel;
@@ -86,9 +88,11 @@ assign main_Q = cen_sub;
 assign sub_E  = cen_sub;
 assign sub_Q  = cen_main;
 
+assign st_dout = st_mapper;
+
 // Video RAM
-assign obus_we  =   {2{oram_cs&~brnw}} & { baddr[11], ~baddr[11] };
-assign obus_addr= baddr[10:0];
+assign obus_we  = {2{oram_cs&~brnw}} & { baddr[0], ~baddr[0] };
+assign obus_addr= baddr[11:1];
 
 assign bus_busy = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ram_cs&~ram_ok};
 assign bdin = mrom_cs ? mrom_data :
@@ -100,7 +104,7 @@ assign bdin = mrom_cs ? mrom_data :
               pal_cs  ? pal_dout  :
               bc30_cs ? c30_dout  :
               scfg_cs ? scfg_dout :
-              oram_cs ? ( baddr[11] ? obus_dout[15:8] : obus_dout[7:0] ) :
+              oram_cs ? ( baddr[0] ? obus_dout[15:8] : obus_dout[7:0] ) :
               8'd0;
 
 always @(posedge clk) begin
@@ -128,6 +132,7 @@ jtc117 u_mapper(
     .mrnw   ( mrnw      ),
     .mirq_n ( mirq_n    ),
     .mfirq_n( mfirq_n   ),
+    .mrst_n ( mrst_n    ),
 
     // Sub
     .svma   ( svma      ),
@@ -143,11 +148,14 @@ jtc117 u_mapper(
     .ram_cs ( ram_cs    ),
     .rnw    ( brnw      ),
     .baddr  ( baddr     ),
-    .bdout  ( bdout     )
+    .bdout  ( bdout     ),
+
+    .debug_bus(debug_bus),
+    .st_dout( st_mapper )
 );
 
-mc6809i u_main(
-    .nRESET     ( ~rst      ),
+mc6809i u_mcpu(
+    .nRESET     ( mrst_n    ),
     .clk        ( clk       ),
     .cen_E      ( main_E    ),
     .cen_Q      ( main_Q    ),
@@ -171,7 +179,7 @@ mc6809i u_main(
     .RegData    (           )
 );
 
-mc6809i u_sub(
+mc6809i u_scpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( sub_E     ),
@@ -195,5 +203,24 @@ mc6809i u_sub(
     .OP         (           ),
     .RegData    (           )
 );
-
+`else
+assign baddr    = 0;
+assign bdout    = 0;
+assign brnw     = 1;
+assign tri_cs   = 0;
+assign key_cs   = 0;
+assign bc30_cs  = 0;
+assign scfg_cs  = 0;
+assign obus_we  = 0;
+assign obus_addr= 0;
+assign vram_cs  = 0;
+assign oram_cs  = 0;
+assign pal_cs   = 0;
+assign srst_n   = 0;
+assign mrom_cs  = 0;
+assign srom_cs  = 0;
+assign ram_cs   = 0;
+assign bus_busy = 0;
+assign st_dout  = 0;
+`endif
 endmodule

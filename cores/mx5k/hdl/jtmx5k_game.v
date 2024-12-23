@@ -55,8 +55,8 @@ jtcontra_main #(.GAME(2)) u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

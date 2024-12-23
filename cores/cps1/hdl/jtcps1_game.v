@@ -35,8 +35,8 @@ module jtcps1_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 3:0]  start_button,
-    input   [ 3:0]  coin_input,
+    input   [ 3:0]  cab_1p,
+    input   [ 3:0]  coin,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
@@ -249,8 +249,8 @@ jtcps1_main u_main(
     // cabinet I/O
     // Cabinet input
     .charger     ( charger          ),
-    .start_button( start_button[1:0]),
-    .coin_input  ( coin_input[1:0]  ),
+    .cab_1p      ( cab_1p[1:0]      ),
+    .coin        ( coin[1:0]        ),
     .joystick1   ( joystick1        ),
     .joystick2   ( joystick2        ),
     .dial_x      ( dial_x           ),
@@ -355,8 +355,8 @@ jtcps1_video #(REGSIZE) u_video(
     .scs            ( scs           ),
 
     // Extra inputs read through the C-Board
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),

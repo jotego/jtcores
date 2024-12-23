@@ -79,6 +79,9 @@ diploop:
             if args.Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
         }
     }
+    if def_str=="" { // do not leave them as 00,00!
+        def_str="ff,ff"
+    }
     n.AddAttr("default", def_str)
     add_extra_dip(n, false, machine, cfg, args)
     return def_str

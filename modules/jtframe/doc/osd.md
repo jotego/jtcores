@@ -83,7 +83,7 @@ bit     |  meaning                | Enabled with macro
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
 18      | Autofire button 0       | JTFRAME_AUTOFIRE0
 19      | 60 Hz option            | JTFRAME_OSD60HZ %%
-32-33   | Spinner sensitivity     | MiSTer only
+32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
 41      | Vertical crop (MiSTer)  | MiSTer only

@@ -147,10 +147,10 @@ jtbiocom_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
 
     .RnW        ( RnW           ),
     // DIP switches

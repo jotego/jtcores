@@ -119,19 +119,45 @@ sprite format:
 
 0-3  scratchpad RAM
 4-9  CPU writes here, hardware copies from here to 10-15
+
 10   xx------  X size (16, 8, 32, 4)
 10   --x-----  X flip
 10   ---xx---  X offset inside 32x32 tile
 10   -----xxx  tile bank
 11   xxxxxxxx  tile number
-12   xxxxxxx-  color
+
 12   -------x  X position MSB
+12   xxxxxxx-  color
 13   xxxxxxxx  X position
+
 14   xxx-----  priority
 14   ---xx---  Y offset inside 32x32 tile
 14   -----xx-  Y size (16, 8, 32, 4)
 14   -------x  Y flip
 15   xxxxxxxx  Y position
+
+pixel offset is a multiple of 8: 0, 8, 16 or 24
+pixel offset is always 0 for pixel width (height) 32
+pixel offset can be 24 only for 8-bit width (height)
+
+Size Os    Effective offset (pixels)
+ 4   0 ->  0
+ 4   1 ->  8
+ 4   2 -> 16
+ 4   3 -> 24
+ 8   0 ->  0
+ 8   1 ->  8
+ 8   2 -> 16
+ 8   3 -> 24
+16   0 ->  0
+16   1 ->  0
+16   2 -> 16
+16   3 -> 16
+32   0 ->  0
+32   1 ->  0
+32   2 ->  0
+32   3 ->  0
+
 */
 
 void namcos1_state::draw_sprites(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)

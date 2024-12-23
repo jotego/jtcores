@@ -60,7 +60,7 @@ module jtpang_main(
     // cabinet I/O
     input         [7:0] joystick1,
     input         [7:0] joystick2,
-    input         [1:0] start_button,
+    input         [1:0] cab_1p,
     input               coin,
     input               service,
     input               test,
@@ -204,12 +204,12 @@ always @(posedge clk) begin
                     cab_dout <= { coin, service, 5'h1f, service };
                 default:
                     cab_dout <= { coin, service, 2'b11,
-                    start_button[0] & init_n, 1'b1, start_button[1], 1'b1 };
+                    cab_1p[0] & init_n, 1'b1, cab_1p[1], 1'b1 };
             endcase
         1: begin
             case( ctrl_type )
                 CWORLD: cab_dout <=
-                    { reverse(joystick1[7:4]& joystick1[3:0]), 1'b1, start_button[0], 2'b11 };
+                    { reverse(joystick1[7:4]& joystick1[3:0]), 1'b1, cab_1p[0], 2'b11 };
                 BLOCK: begin
                     if( dial_sel ) begin
                         cab_dout <= { mouse_1p[6:1],2'b11 };
@@ -228,7 +228,7 @@ always @(posedge clk) begin
         2: begin
             case( ctrl_type )
                 CWORLD: cab_dout <=
-                    { reverse(joystick2[7:4]& joystick2[3:0]), 1'b1, start_button[1], 2'b11 };
+                    { reverse(joystick2[7:4]& joystick2[3:0]), 1'b1, cab_1p[1], 2'b11 };
                 BLOCK: begin
                     if( dial_sel ) begin
                         cab_dout <= { mouse_2p[6:1],2'b11 };

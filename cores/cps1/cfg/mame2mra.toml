@@ -49,6 +49,7 @@ Names = [
     { machine="varth",    names="Shoot,Bomb"},
     { machine="willow",   names="Attack,Jump"},
     { machine="wof",      names="Attack,Jump"},
+    { machine="qad",      names="Button 1, Button 2, Button 3, Button 4"},
 ]
 Dial = [ { machine="mpumpkin", raw=true, reverse=true }, ]
 

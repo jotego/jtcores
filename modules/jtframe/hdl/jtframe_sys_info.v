@@ -30,6 +30,9 @@ module jtframe_sys_info(
     input         [1:0] dial_x,
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
+    // IOCTL
+    input               ioctl_ram,
+    input               downloading,
     // mouse
     input         [8:0] mouse_dx,
     input         [8:0] mouse_dy,
@@ -68,7 +71,11 @@ always @(posedge clk, posedge rst) begin
     end else begin
         LVBLl <= LVBL;
         case( st_addr[7:6] )
-            0: st_dout <= stats;
+            0: case(st_addr[5:4])
+                0: st_dout <= stats;
+                1: st_dout <= { 3'd0, ioctl_ram, 3'd0, downloading };
+                default: st_dout <= 0;
+            endcase
             1: case( st_addr[1:0] )
                 0: st_dout <= frame_bcd[7:0];
                 1: st_dout <= frame_bcd[15:8];

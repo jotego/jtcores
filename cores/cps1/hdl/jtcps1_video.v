@@ -67,8 +67,8 @@ module jtcps1_video(
     input      [ 7:0]  cfg_data,
 
     // Extra inputs read through the C-Board
-    input   [ 3:0]  start_button,
-    input   [ 3:0]  coin_input,
+    input   [ 3:0]  cab_1p,
+    input   [ 3:0]  coin,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
@@ -370,8 +370,8 @@ jtcps1_mmr #(REGSIZE) u_mmr(
         .obj_dma_ok (                   ),
     `endif
 
-    .start_button   ( start_button      ),
-    .coin_input     ( coin_input        ),
+    .cab_1p   ( cab_1p      ),
+    .coin     ( coin        ),
     .joystick1      ( joystick1         ),
     .joystick2      ( joystick2         ),
     .joystick3      ( joystick3         ),

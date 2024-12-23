@@ -488,6 +488,7 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .buserror   ( buserror  ),
     .dmp_addr   (           ),     // dump
     .dmp_dout   (           ),
+    .op_start   (           ),
     .st_addr    ( debug_bus ),
     .st_dout    ( st_dout   )
 );

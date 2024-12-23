@@ -42,6 +42,10 @@ jtframe:
       - t8243/t8243.yaml
       - t48/t48.yaml
       - jtframe_z80.yaml
+  - from: cpu/t8243
+    when: VERILATOR
+    get:
+      - t8243_sync_notri.v
   - from: clocking
     get:
       - jtframe_frac_cen.v

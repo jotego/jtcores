@@ -72,8 +72,8 @@ module jttwin16_main(
 
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
-    input         [ 1:0] start_button,
-    input         [ 1:0] coin_input,
+    input         [ 1:0] cab_1p,
+    input         [ 1:0] coin,
     input                service,
     input                dip_pause,
     input                dip_test,
@@ -202,7 +202,7 @@ end
 always @(posedge clk) begin
     case( A[4:3] )
         0: case( A[2:1] )
-            0: cab_dout <= {1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
+            0: cab_dout <= {1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
             1: cab_dout <= { 1'b1, joystick1 };
             2: cab_dout <= { 1'b1, joystick2 };
             default: cab_dout <= 8'hff;

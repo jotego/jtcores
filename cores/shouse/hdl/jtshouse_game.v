@@ -28,13 +28,14 @@ wire        brnw, srnw, mcu_rnw, srst_n, firqn,
 wire [ 7:0] bdout, sndcpu_dout, c30_dout,
             key_dout, pal_dout, scfg_dout,
             alt_din, tri_dout,
-            st_video;
+            st_video, st_main;
 wire [ 8:0] hdump;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
 wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
             cen_main, cen_sub,  cen_snd,  cen_mcu;
+wire        obus_cs, ram_cs, dma_we;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -45,15 +46,15 @@ assign debug_view= dbg_mux;
 
 assign ram_addr  = baddr[14:0];
 assign ram_din   = bdout;
-assign ram_dsn   = 2'b11; // this is ignored by the logic
+// assign ram_dsn   = 2'b11; // this is ignored by the logic
 assign ram_we    =  ram_cs & ~brnw;
 assign vram_addr = baddr[14:1];
 assign vram_we   = {2{vram_cs & ~brnw}} & {baddr[0], ~baddr[0]};
+assign oram_we   = {2{dma_we}};
 
 assign sndram_addr = snd_addr[12:0];
 assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
-assign ioctl_din = 0;
 
 // To do:
 assign dip_flip = 0;
@@ -62,7 +63,7 @@ always @* begin
     case( debug_bus[7:6] )
         0: dbg_mux = { 7'd0, ~srst_n };
         1: dbg_mux = st_video;
-        2: dbg_mux = st_video;
+        2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
     endcase
@@ -128,6 +129,7 @@ jtshouse_main u_main(
     .c30_dout   ( c30_dout  ),
 
     // Video RAM
+    .oram_cs    ( obus_cs   ),
     .obus_we    ( obus_we   ),
     .obus_addr  ( obus_addr ),
     .obus_dout  ( obus_dout ),
@@ -141,28 +143,33 @@ jtshouse_main u_main(
     .ram_cs     ( ram_cs    ),
     .mrom_ok    ( main_ok   ),
     .srom_ok    ( sub_ok    ),
-    .ram_ok     ( ram_ok    ),
+    // .ram_ok     ( ram_ok    ),
+    .ram_ok     ( 1'b1      ),
     .mrom_data  ( main_data ),
     .srom_data  ( sub_data  ),
-    .ram_dout   ( ram_data  ),
-    .bus_busy   ( busy[0]   )
+    .ram_dout   ( ram_dout  ),
+    .bus_busy   ( busy[0]   ),
+
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_main   )
 );
 
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
-    .rstn       ( srst_n    ),
+    .rstn       ( srst_n & ~debug_bus[0]   ),
     .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),
     .hdump      ( hdump     ),
+    .hs         ( HS        ),
 
     .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),
     .ram_cs     ( mcutri_cs ),
     .ram_dout   ( alt_din   ),
     // cabinet I/O
-    .start_button( start_button  ),
-    .coin_input ( coin_input),
+    .cab_1p     ( cab_1p    ),
+    .coin       ( coin      ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .dipsw      ( dipsw[7:0]),
@@ -190,7 +197,7 @@ jtshouse_mcu u_mcu(
 );
 
 jtshouse_sound u_sound(
-    .srst_n     ( srst_n    ),
+    .srst_n     ( srst_n & ~debug_bus[1]   ),
     .clk        ( clk       ),
     .cen_E      ( cen_snd   ),
     .cen_Q      ( cen_mcu   ),
@@ -259,6 +266,7 @@ jtshouse_video u_video(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
     .hdump      ( hdump     ),
 
     .lvbl       ( LVBL      ),
@@ -275,9 +283,13 @@ jtshouse_video u_video(
     .cpu_addr   (baddr[14:0]),
     .cpu_rnw    ( brnw      ),
     .cpu_dout   ( bdout     ),
-    // Video RAM
+    // Object RAM
+    .obus_cs    ( obus_cs   ),
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
+    .oram_din   ( oram_din  ),
+    .oram_we    ( dma_we    ),
+    // Palette RAM
     .pal_addr   ( pal_addr  ),
     .rgb_addr   ( rgb_addr  ),
     .rpal_we    ( rpal_we   ),
@@ -288,7 +300,8 @@ jtshouse_video u_video(
     .bpal_dout  ( bpal_dout ),
     // Tile map readout (BRAM)
     .tmap_addr  ( tmap_addr ),
-    .tmap_data  ( tmap_dout ),
+    // .tmap_data  ( tmap_dout ),
+    .tmap_data  ( {tmap_dout[7:0],tmap_dout[15:8]} ),
     // Scroll mask readout (SDRAM)
     .mask_cs    ( mask_cs   ),
     .mask_ok    ( mask_ok   ),
@@ -299,11 +312,19 @@ jtshouse_video u_video(
     .scr_ok     ( scr_ok    ),
     .scr_addr   ( scr_addr  ),
     .scr_data   ( scr_data  ),
-
+    // Object tile readout (SDRAM)
+    .obj_data   ( obj_data  ),
+    .obj_addr   ( obj_addr  ),
+    .obj_ok     ( obj_ok    ),
+    .obj_cs     ( obj_cs    ),
     // color mixer
     .red_dout   ( red_dout  ),
     .green_dout ( green_dout),
     .blue_dout  ( blue_dout ),
+
+    // IOCTL dump
+    .ioctl_addr (ioctl_addr[5:0]),
+    .ioctl_din  ( ioctl_din ),
 
     .debug_bus  ( debug_bus ),
     .gfx_en     ( gfx_en    ),

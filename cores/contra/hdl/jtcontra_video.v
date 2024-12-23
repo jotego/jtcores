@@ -28,7 +28,7 @@ module jtcontra_video(
     output              VS,
     output              flip,
     input               dip_pause,
-    input               start_button,
+    input               cab_1p,
     // PROMs
     input      [ 9:0]   prog_addr,
     input      [ 3:0]   prog_data,

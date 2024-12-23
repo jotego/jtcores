@@ -19,6 +19,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     pc_name := find_similar( "pc", ss)
     alu_busy := ss.Get(find_similar( "alu_busy", ss ))
     str_busy := ss.Get(find_similar( "str_busy", ss ))
+    stack_busy := ss.Get(find_similar( "stack_busy", ss ))
 
     scope := findCommonScope(ss)
     fmt.Printf("At scope %s\n",scope)
@@ -63,7 +64,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         if len(tokens)==0 { continue }
         if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
-        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, str_busy, kmax )
+        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, stack_busy, str_busy, kmax )
         case "ds","display": {
             var t []string
             if len(tokens)>1 { t = tokens[1:]}
@@ -220,7 +221,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             break
         }
         case "s","step": {
-            nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, str_busy )
+            nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, stack_busy, str_busy )
             cmd_diff()
         }
         case "st","step-trace": {
@@ -253,7 +254,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             matchTrace( trace, sim_st, mame_st, ignore )
         }
         case "match-vcd": { // moves the VCD until it matches MAME data
-            matchVCD( vcd, sim_st, mame_alias, alu_busy, str_busy, mame_st, ignore )
+            matchVCD( vcd, sim_st, mame_alias, alu_busy, stack_busy, str_busy, mame_st, ignore )
         }
         case "?","help": {
             fmt.Println(`
@@ -552,13 +553,12 @@ func diff( st *MAMEState, context string, verbose bool, ignore boolSet ) int {
 }
 
 func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        alu_busy, str_busy *VCDSignal ) (int,bool) {
+        alu_busy, stack_busy, str_busy *VCDSignal ) (int,bool) {
     l0 := file.line
     changed := false
     irq_bsy := sim_st.data.Get("TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.irq_bsy")
-    stack   := sim_st.data.Get("TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.stack_busy")
     was_irq := irq_bsy!=nil && irq_bsy.Value!=0
-    was_stack := stack!=nil && stack.Value!=0
+    was_stack := stack_busy!=nil && stack_busy.Value!=0
     was_alu := alu_busy!=nil && alu_busy.Value!=0
     was_str := str_busy!=nil && str_busy.Value!=0
     for file.Scan() {
@@ -592,7 +592,7 @@ func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias,
             changed = true
             break
         }
-        if stack!=nil && stack.Value==1 {
+        if stack_busy!=nil && stack_busy.Value==1 {
             was_stack = true
             continue
         } else if was_stack {
@@ -641,7 +641,7 @@ func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
 }
 
 func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore boolSet, alu_busy, str_busy *VCDSignal, KMAX int ) {
+        ignore boolSet, alu_busy, stack_busy, str_busy *VCDSignal, KMAX int ) {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -657,7 +657,7 @@ func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
         div_time = vcd.time
         for k:=0;k<KMAX;k++ {
             if diff( mame_st, "", false, ignore )==0 { continue main_loop }
-            _, good := nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, str_busy )
+            _, good := nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, stack_busy, str_busy )
             if !good { break }
             // fmt.Printf("+%d VCD lines\n",lines)
         }
@@ -694,11 +694,11 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
 }
 
 func matchVCD( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        alu_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
+        alu_busy, stack_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
     var good, matched bool
     for {
         mv := 0
-        mv, good = nxVCDChange( file, sim_st, mame_alias, alu_busy, str_busy )
+        mv, good = nxVCDChange( file, sim_st, mame_alias, alu_busy, stack_busy, str_busy )
         fmt.Printf("Moved by %d lines\n",mv)
         matched = diff( mame_st, "", false, ignore )==0
         if !good || matched { break }

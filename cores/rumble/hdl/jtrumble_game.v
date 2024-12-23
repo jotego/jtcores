@@ -31,8 +31,8 @@ module jtrumble_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
 
@@ -62,7 +62,7 @@ module jtrumble_game(
 
     input   [15:0]  data_read,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -215,8 +215,8 @@ jtrumble_main u_main(
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
     // cabinet I/O
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin         ),
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
     // BUS sharing
@@ -392,7 +392,7 @@ jtrumble_sdram #(
     .ba2_addr   ( ba2_addr  ),
     .ba3_addr   ( ba3_addr  ),
     .ba_rd      ( ba_rd     ),
-    .ba_wr      ( ba_wr     ),
+    .ba_wr      ( ba_wr[0]  ),
     .ba_ack     ( ba_ack    ),
     .ba_dst     ( ba_dst    ),
     .ba_rdy     ( ba_rdy    ),

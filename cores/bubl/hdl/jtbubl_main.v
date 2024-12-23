@@ -25,8 +25,8 @@ module jtbubl_main(
     // game selection
     input               tokio,
     // Cabinet inputs
-    input      [ 1:0]   start_button,
-    input      [ 1:0]   coin_input,
+    input      [ 1:0]   cab_1p,
+    input      [ 1:0]   coin,
     input      [ 5:0]   joystick1,
     input      [ 5:0]   joystick2,
 
@@ -123,7 +123,7 @@ assign      cpu_addr     = main_addr[12:0];
 assign      cpu_dout     = main_dout;
 assign      cpu_rnw      = main_wrn;
 assign      p1_in[7:4]   = 4'hf;
-assign      p1_in[3:2]   = ~coin_input;
+assign      p1_in[3:2]   = ~coin;
 assign      p1_in[1:0]   = { service, 1'b1 };
 assign      mcu_bus      = { p2_out[3:0], p4_out };
 
@@ -438,8 +438,8 @@ always @(posedge clk24) begin
         case( mcu_bus[1:0] )
             2'd0: p3_in <= dipsw_a;
             2'd1: p3_in <= dipsw_b;
-            2'd2: p3_in <= {1'b1, start_button[0], joystick1[5:0] };
-            2'd3: p3_in <= {1'b1, start_button[1], joystick2[5:0] };
+            2'd2: p3_in <= {1'b1, cab_1p[0], joystick1[5:0] };
+            2'd3: p3_in <= {1'b1, cab_1p[1], joystick2[5:0] };
         endcase // mcu_bus[1:0]
     end
 end
@@ -449,9 +449,9 @@ always @(posedge clk24) begin
     case( main_addr[2:0] )
         3'd3: cab_dout <= dipsw_a;
         3'd4: cab_dout <= dipsw_b;
-        3'd5: cab_dout <= {2'b11, 2'b11 /* MCU related */, coin_input, service, 1'b1 };
-        3'd6: cab_dout <= {1'b1, start_button[0], joystick1[5:0] };
-        3'd7: cab_dout <= {1'b1, start_button[1], joystick2[5:0] };
+        3'd5: cab_dout <= {2'b11, 2'b11 /* MCU related */, coin, service, 1'b1 };
+        3'd6: cab_dout <= {1'b1, cab_1p[0], joystick1[5:0] };
+        3'd7: cab_dout <= {1'b1, cab_1p[1], joystick2[5:0] };
         default: cab_dout <= 8'hff;
     endcase
 end

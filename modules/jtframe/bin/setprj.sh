@@ -164,7 +164,9 @@ function gw {
     if [ -e test.lxt ]; then
         gtkwave test.lxt &
     elif [ -e test.fst ]; then
-        gtkwave test.fst &
+        local DMPFILE=
+        if [ -e test.gtkw ]; then DMPFILE=test.gtkw; fi
+        gtkwave test.fst $DMPFILE &
     elif [ -e test.vcd ]; then
         gtkwave test.vcd &
     else
@@ -187,3 +189,12 @@ if [ $(git branch --no-color --show-current) = master ]; then
 fi
 EOF
 chmod +x $JTFRAME_POSTCOMMIT
+
+if ! git config -l | grep instead > /dev/null; then
+    cat<<EOF
+Consider executing:
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+
+in order to avoid the need for GitHub tokens when pushing submodules
+EOF
+fi

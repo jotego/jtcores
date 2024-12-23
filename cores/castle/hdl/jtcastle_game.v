@@ -69,8 +69,8 @@ jtcastle_main u_main(
     .ram_we         ( ram_we        ),
     .ram_dout       ( ram_dout      ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

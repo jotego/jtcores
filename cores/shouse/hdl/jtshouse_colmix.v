@@ -25,8 +25,8 @@ module jtshouse_colmix(
     output reg        raster_irqn,
 
     // pixels
-    input      [10:0] scr_pxl,
-    input      [ 2:0] scr_prio,
+    input      [10:0] scr_pxl,  obj_pxl,
+    input      [ 2:0] scr_prio, obj_prio,
 
     input      [14:0] cpu_addr,
     input             cs, cpu_rnw,
@@ -40,17 +40,22 @@ module jtshouse_colmix(
     output reg [ 7:0] pal_dout,
     output     [ 7:0] red, green, blue,
     // Debug
+    input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
 );
 
-reg  [7:0] mmr[0:15];
-wire [8:0] virq, hirq;
-reg        mmr_cs, r_cs, g_cs, b_cs;
-wire       blank;
+reg  [ 7:0] mmr[0:15];
+wire [ 8:0] virq, hirq;
+wire [12:0] scr_rgb, obj_rgb;
+reg         mmr_cs, r_cs, g_cs, b_cs;
+wire        blank, lyr_sel;
 
-assign rgb_addr = {2'b10, scr_pxl };
 assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
+assign scr_rgb  = { 2'b01, scr_pxl };
+assign obj_rgb  = { 2'b00, obj_pxl };
+assign lyr_sel  = (obj_prio>=scr_prio && obj_pxl[3:0]!='hf) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
+assign rgb_addr = lyr_sel ? obj_rgb : scr_rgb;
 
 assign rpal_we = ~cpu_rnw & r_cs;
 assign gpal_we = ~cpu_rnw & g_cs;
@@ -59,10 +64,17 @@ assign st_dout = mmr[debug_bus[3:0]];
 assign virq    = { mmr[10][0], mmr[11] };
 assign hirq    = { mmr[ 8][0], mmr[ 9] };
 
+`ifdef GRAY
+assign red   = blank ? 8'd0 : {8{scr_pxl[0]}};
+assign green = blank ? 8'd0 : {8{scr_pxl[0]}};
+assign blue  = blank ? 8'd0 : {8{scr_pxl[0]}};
+`else
 assign red   = blank ? 8'd0 : red_dout;
 assign green = blank ? 8'd0 : green_dout;
 assign blue  = blank ? 8'd0 : blue_dout;
+`endif
 assign blank = ~(lhbl & lvbl);
+
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

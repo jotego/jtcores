@@ -1,17 +1,7 @@
 game:
   - from: shouse
     get:
-      - jtshouse_game.v
-      - jtshouse_main.v
-      - jtshouse_video.v
-      - jtshouse_sound.v
-      - jtshouse_colmix.v
-      - jtshouse_mcu.v
-      - jtshouse_triram.v
-      # Custom chips
-      - jtshouse_key.v
-      - jtcus30.v
-      - jtc117.v
+      - "*.v"
 jtframe:
   - get:
       - jtframe_ff.v
@@ -20,13 +10,15 @@ jtframe:
     get:
       - mc6809i.v
       - 6801_core.sv
-      - jt63701.v
+      - jt63701v.v
   - from: clocking
     get:
       - jtframe_freqinfo.v
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_linebuf.v
+      - jtframe_obj.yaml
 modules:
   jt:
     - name: jt51

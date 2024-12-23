@@ -16,16 +16,20 @@ clocks:
     - freq: 5000000
       outputs:
         - cen_snd
+        - cen_nc1
     - freq: 6000000
       outputs:
         - cen6
+        - cen_nc2
     - freq: 640000
       outputs:
         - cen_pcm
+        - cen_nc3
   clk24:
     - freq: 8000000
       outputs:
         - mcu_cen
+        - cen_nc4
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

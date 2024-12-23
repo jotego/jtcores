@@ -68,8 +68,8 @@ module jts16b_main(
     input       [15:0] joyana2b,
     input       [15:0] joyana3,
     input       [15:0] joyana4,
-    input       [ 3:0] start_button,
-    input       [ 3:0] coin_input,
+    input       [ 3:0] cab_1p,
+    input       [ 3:0] coin,
     input              service,
     // ROM access
     output reg         rom_cs,
@@ -467,8 +467,8 @@ jts16b_cabinet u_cabinet(
     .joyana2b       ( joyana2b      ),
     .joyana3        ( joyana3       ),
     .joyana4        ( joyana4       ),
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .service        ( service       ),
 
     .sys_inputs     ( sys_inputs    ),
@@ -613,7 +613,11 @@ jts16_shadow #(.VRAMW(15)) u_shadow(
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
 );
+`else
+assign ioctl_din = 0;
 `endif
+`else
+assign ioctl_din = 0;
 `endif
 
 endmodule

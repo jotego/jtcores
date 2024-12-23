@@ -67,6 +67,7 @@ module jtframe_board #(parameter
     output              prog_dst,
     output              prog_ack,
     input               downloading,
+    input               ioctl_ram,
     // SDRAM interface
     inout    [15:0]     SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output   [12:0]     SDRAM_A,        // SDRAM Address bus 13 Bits
@@ -372,6 +373,9 @@ jtframe_keyboard u_keyboard(
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),
+            // IOCTL
+            .downloading( downloading   ),
+            .ioctl_ram  ( ioctl_ram     ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
             .mouse_dx   ( bd_mouse_dx   ),

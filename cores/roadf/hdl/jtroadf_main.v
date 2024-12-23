@@ -30,8 +30,8 @@ module jtroadf_main(
     input               rom_ok,
 
     // cabinet I/O
-    input       [ 3:0]  start_button,
-    input       [ 3:0]  coin_input,
+    input       [ 3:0]  cab_1p,
+    input       [ 3:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input       [ 6:0]  joystick3,
@@ -131,12 +131,12 @@ always @(posedge clk) begin
     // Shockingly, if bit 6 for cabinet inputs 1/2 is high, the game won't boot,
     // however these are regular button inputs in the schematics with pullup resistors
     case( A[1:0] )
-        0: cabinet <= { dipsw_c, start_button[1:0], service, coin_input[1:0] };
+        0: cabinet <= { dipsw_c, cab_1p[1:0], service, coin[1:0] };
         1: cabinet <=
-            is_hyper ? {1'b1, rev3(joystick2[6:4]), start_button[2], rev3(joystick1[6:4]) } :
+            is_hyper ? {1'b1, rev3(joystick2[6:4]), cab_1p[2], rev3(joystick1[6:4]) } :
             { 2'b10, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
         2: cabinet <=
-            is_hyper ? {1'b1, rev3(joystick4[6:4]), start_button[3], rev3(joystick3[6:4]) } :
+            is_hyper ? {1'b1, rev3(joystick4[6:4]), cab_1p[3], rev3(joystick3[6:4]) } :
             { 2'b10, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
         3: cabinet <= dipsw_a;
     endcase

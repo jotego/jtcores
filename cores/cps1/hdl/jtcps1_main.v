@@ -47,11 +47,11 @@ module jtcps1_main(
     `ifdef CPS15
     input   [9:0]      joystick3,
     input   [9:0]      joystick4,
-    input   [3:0]      start_button,
-    input   [3:0]      coin_input,
+    input   [3:0]      cab_1p,
+    input   [3:0]      coin,
     `else
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     `endif
     input              service,
     input              tilt,
@@ -318,9 +318,9 @@ always @(posedge clk) begin
         sys_data[7]  <= joystick3[6]; // button 3
         sys_data[15] <= joystick4[6]; // button 3
     end else if( joy3_cs )
-        sys_data <= { 2{start_button[2], coin_input[2], joystick3[5:0] }};
+        sys_data <= { 2{cab_1p[2], coin[2], joystick3[5:0] }};
     else if( joy4_cs )
-        sys_data <= { 2{start_button[3], coin_input[3], joystick4[5:0] }};
+        sys_data <= { 2{cab_1p[3], coin[3], joystick4[5:0] }};
 `else
     if( joy_cs ) begin
         sys_data <= { joystick2[7:0], joystick1[7:0] };
@@ -333,8 +333,8 @@ always @(posedge clk) begin
         case( A[2:1] )
             2'b00: sys_data <=
             charger ? // Support for SFZ charger version
-              { joystick2[9], joystick1[9], start_button[1:0],
-               &coin_input[1:0], service, joystick2[8], joystick1[8], 8'hff } :
+              { joystick2[9], joystick1[9], cab_1p[1:0],
+               &coin[1:0], service, joystick2[8], joystick1[8], 8'hff } :
             // Regular CPS1 arcade:
             { tilt,
                 `ifdef CPS15
@@ -342,8 +342,8 @@ always @(posedge clk) begin
                 `else
                 1'b1,
                 `endif
-                start_button[1:0],
-                1'b1, service, coin_input[1:0], 8'hff };
+                cab_1p[1:0],
+                1'b1, service, coin[1:0], 8'hff };
             2'b01: sys_data <= { dipsw_a, 8'hff };
             2'b10: sys_data <= { dipsw_b, 8'hff };
             2'b11: sys_data <= { dipsw_c, 8'hff };

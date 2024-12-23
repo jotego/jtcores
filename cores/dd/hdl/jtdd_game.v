@@ -86,8 +86,8 @@ jtdd_main u_main(
     .scrhpos        ( scrhpos       ),
     .scrvpos        ( scrvpos       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     // BUS sharing
@@ -123,7 +123,21 @@ assign mcu_rstb  = 1'b0;
 `endif
 
 `ifndef NOMCU
-wire mcu_cen = turbo ? cen3 : cen1p5;
+reg turbo_l;
+wire cpu_cen2, mcu_cen; // 3 or 1.5MHz
+
+// for non-turbo mode, there is exact synchronization between CPU and MCU
+// for turbo mode, this love for accuracy is dismissed.
+assign mcu_cen = turbo_l ? cen3 : cpu_cen;
+
+always @(posedge clk24) if( mcu_cen ) turbo_l <= turbo;
+
+jtframe_cendiv u_cendiv(
+    .clk        ( clk24         ),
+    .cen_in     ( cpu_cen       ),
+    .cen_div    ( cpu_cen2      ),
+    .cen_da     (               )
+);
 
 jtdd_mcu u_mcu(
     .clk          (  clk24           ),
@@ -190,7 +204,7 @@ jtdd_sound u_sound(
     .sample      ( sample        ),
     .peak        ( game_led      )
 );
-
+/* verilator tracing_off */
 jtdd_video u_video(
     .clk          (  clk             ),
     .rst          (  rst             ),

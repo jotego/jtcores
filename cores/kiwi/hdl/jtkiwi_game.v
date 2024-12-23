@@ -50,7 +50,7 @@ assign bram_we    = bram_cs & ~cpu_rnw;
 assign bram_din   = cpu_dout;
 // button_aid will make up/down inputs to work as coins too. This helps
 // button mapping for spinners in MiSTer
-assign eff_coin   = {2{coin_xor}}^( coin_input & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
+assign eff_coin   = {2{coin_xor}}^( coin & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
 assign eff_service= service_xor ^ service;
 assign button_aid = `ifdef MISTER status[13]&aid_en `else 0 `endif ;
 
@@ -189,8 +189,8 @@ jtkiwi_snd u_sound(
     .pcm_cs     ( pcm_cs        ),
 
     // cabinet I/O
-    .start_button( start_button ),
-    .coin_input ( eff_coin      ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( eff_coin      ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
     .service    ( eff_service   ),

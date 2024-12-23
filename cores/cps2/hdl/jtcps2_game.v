@@ -33,8 +33,8 @@ module jtcps2_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 3:0]  start_button,
-    input   [ 3:0]  coin_input,
+    input   [ 3:0]  cab_1p,
+    input   [ 3:0]  coin,
     input   [ 9:0]  joystick1, joystick2, joystick3, joystick4,
     input   [ 1:0]  dial_x, dial_y,
     // SDRAM interface
@@ -248,8 +248,8 @@ jtcps2_main u_main(
     .volume     ( volume            ),
     // cabinet I/O
     // Cabinet input
-    .start_button( start_button     ),
-    .coin_input  ( coin_input       ),
+    .cab_1p      ( cab_1p           ),
+    .coin        ( coin             ),
     .joymode     ( joymode          ),
     .joystick1   ( joystick1        ),
     .joystick2   ( joystick2        ),
@@ -383,8 +383,8 @@ jtcps1_video #(REGSIZE) u_video(
     .cfg_data       ( prog_data[7:0]),
 
     // Extra inputs read through the C-Board
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .joystick1      ( 10'h3ff       ),
     .joystick2      ( 10'h3ff       ),
     .joystick3      ( 10'h3ff       ),
@@ -438,8 +438,8 @@ always @(posedge clk48, posedge rst) begin
         qsnd_rst  <= ~z80_rstn;
 end
 
-wire vol_up   = ~(coin_input[0] | joystick1[3]);
-wire vol_down = ~(coin_input[0] | joystick1[2]);
+wire vol_up   = ~(coin[0] | joystick1[3]);
+wire vol_down = ~(coin[0] | joystick1[2]);
 
 `ifndef NOMAIN
 jtcps15_sound u_sound(

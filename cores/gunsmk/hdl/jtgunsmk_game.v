@@ -30,9 +30,9 @@ module jtgunsmk_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
+    input   [ 1:0]  cab_1p,
     output          dwnld_busy,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  coin,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
     // SDRAM interface
@@ -239,11 +239,11 @@ jtgunsmk_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .service     ( service      ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),

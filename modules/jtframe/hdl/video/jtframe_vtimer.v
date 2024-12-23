@@ -41,8 +41,8 @@ module jtframe_vtimer(
     input               clk,
     input               pxl_cen,
     output  reg [8:0]   vdump,
-    output  reg [8:0]   vrender,
-    output  reg [8:0]   vrender1,
+    output  reg [8:0]   vrender,    // 1 line ahead of vdump
+    output  reg [8:0]   vrender1,   // 2 lines ahead
     output  reg [8:0]   H,
     output  reg         Hinit,
     output  reg         Vinit,

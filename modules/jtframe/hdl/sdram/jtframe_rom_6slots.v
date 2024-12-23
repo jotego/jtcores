@@ -50,6 +50,12 @@ module jtframe_rom_6slots #(parameter
     SLOT4_OKLATCH= 1,
     SLOT5_OKLATCH= 1,
 
+    CACHE0_SIZE = 0,
+    CACHE1_SIZE = 0,
+    CACHE2_SIZE = 0,
+    CACHE3_SIZE = 0,
+    CACHE4_SIZE = 0,
+    CACHE5_SIZE = 0,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT0_OFFSET = 0,
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
@@ -94,8 +100,8 @@ module jtframe_rom_6slots #(parameter
 
     // SDRAM controller interface
     input               sdram_ack,
-    output  reg         sdram_rd,
-    output  reg [SDRAMW-1:0] sdram_addr,
+    output              sdram_rd,
+    output [SDRAMW-1:0] sdram_addr,
     input               data_dst,
     input               data_rdy,
     input       [15:0]  data_read
@@ -104,7 +110,7 @@ module jtframe_rom_6slots #(parameter
 localparam SW=6;
 
 wire [SW-1:0] req, ok;
-reg  [SW-1:0] slot_sel;
+wire [SW-1:0] slot_sel;
 wire [SDRAMW-1:0] slot0_addr_req, slot1_addr_req, slot2_addr_req,
                   slot3_addr_req, slot4_addr_req, slot5_addr_req;
 
@@ -123,7 +129,8 @@ wire [SDRAMW-1:0] offset0 = SLOT0_OFFSET,
                   offset5 = SLOT5_OFFSET;
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),
-    .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH))
+    .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH),
+    .CACHE_SIZE(CACHE0_SIZE))
 u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -142,7 +149,8 @@ u_slot0(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
-    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH))
+    .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
+    .CACHE_SIZE(CACHE1_SIZE))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -161,7 +169,8 @@ u_slot1(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
-    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH))
+    .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
+    .CACHE_SIZE(CACHE2_SIZE))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -180,7 +189,8 @@ u_slot2(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
-    .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH))
+    .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
+    .CACHE_SIZE(CACHE3_SIZE))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -199,7 +209,8 @@ u_slot3(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT4_AW),.DW(SLOT4_DW),
-    .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH))
+    .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH),
+    .CACHE_SIZE(CACHE4_SIZE))
 u_slot4(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -218,7 +229,8 @@ u_slot4(
 );
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT5_AW),.DW(SLOT5_DW),
-    .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH))
+    .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH),
+    .CACHE_SIZE(CACHE5_SIZE))
 u_slot5(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -236,40 +248,32 @@ u_slot5(
     .we        ( slot_sel[5]            )
 );
 
-wire [SW-1:0] active = ~slot_sel & req;
+jtframe_ramslot_ctrl #(
+    .SDRAMW         ( SDRAMW        ),
+    .SW             (     SW        ),
+    .WRSW           (      0        )
+)u_ctrl(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .req            ( req           ),
+    .slot_addr_req  ({  slot5_addr_req, slot4_addr_req,
+                        slot3_addr_req, slot2_addr_req,
+                        slot1_addr_req, slot0_addr_req }),
+    .slot_sel       ( slot_sel  ),
+    // SDRAM controller interface
+    .sdram_ack      ( sdram_ack     ),
+    .sdram_rd       ( sdram_rd      ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_rdy       ( data_rdy      ),
 
-always @(posedge clk, posedge rst)
-if( rst ) begin
-    sdram_addr <= 0;
-    sdram_rd  <= 0;
-    slot_sel   <= 0;
-end else begin
-    if( sdram_ack ) sdram_rd <= 0;
-    // accept a new request
-    if( slot_sel==0 || data_rdy ) begin
-        sdram_rd <= |active;
-        slot_sel  <= {SW{1'b0}};
-        if( active[0] ) begin
-            sdram_addr <= slot0_addr_req;
-            slot_sel[0] <= 1;
-        end else if ( active[1] ) begin
-            sdram_addr <= slot1_addr_req;
-            slot_sel[1] <= 1;
-        end else if( active[2] ) begin
-            sdram_addr <= slot2_addr_req;
-            slot_sel[2] <= 1;
-        end else if( active[3] ) begin
-            sdram_addr <= slot3_addr_req;
-            slot_sel[3] <= 1;
-        end else if( active[4] ) begin
-            sdram_addr <= slot4_addr_req;
-            slot_sel[4] <= 1;
-        end else if( active[5] ) begin
-            sdram_addr <= slot5_addr_req;
-            slot_sel[5] <= 1;
-        end
-    end
-end
+    // RAM section ignored
+    .req_rnw        (  1'b1         ),
+    .slot_din       ( 16'd0         ),
+    .wrmask         (  2'd0         ),
+    .sdram_wr       (               ),
+    .data_write     (               ),
+    .sdram_wrmask   (               )
+);
 
 `ifdef JTFRAME_SDRAM_CHECK
 

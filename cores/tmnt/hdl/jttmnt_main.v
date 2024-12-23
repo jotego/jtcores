@@ -62,8 +62,8 @@ module jttmnt_main(
     input         [ 6:0] joystick2,
     input         [ 6:0] joystick3,
     input         [ 6:0] joystick4,
-    input         [ 3:0] start_button,
-    input         [ 3:0] coin_input,
+    input         [ 3:0] cab_1p,
+    input         [ 3:0] coin,
     input                service,
     input                dip_pause,
     input                dip_test,
@@ -213,22 +213,22 @@ always @(posedge clk) begin
     cab_dout[15:8] <= 0;
     if(dip_cs) case( A[2:1] )
         ~2'd0: cab_dout[7:0] <= 0;
-        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { start_button[3], joystick4[6:0] } : 8'hff;
+        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
         ~2'd2: cab_dout[7:0] <= dipsw[15:8];
         ~2'd3: cab_dout[7:0] <= dipsw[7:0];
     endcase
     else case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { start_button[2], joystick3[6:0] } : 8'hff;
-        ~2'd1: cab_dout[7:0] <= { start_button[1], joystick2[6:0] };
-        ~2'd2: cab_dout[7:0] <= { start_button[0], joystick1[6:0] };
-        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin_input } :
-                            { 1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
+        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
+        ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+        ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
+                            { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
     endcase
     if( punk_cab ) begin // 16-bit interface
         case( A[2:1] )
             ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
             ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
-            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, start_button[1:0], {4{service}}, coin_input };
+            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
             ~2'd3: cab_dout <= dipsw[15:0];
         endcase
     end

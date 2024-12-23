@@ -63,8 +63,8 @@ module jtcommnd_main(
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
@@ -288,11 +288,11 @@ reg [7:0] cabinet_input;
 
 always @(*)
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input, // COINS
+        3'd0: cabinet_input = { coin, // COINS
                      GAME == EXEDEXES ? service : 1'b1,
                      3'h7,      // Section Z seems to have a freeze input in
                                 // one of these bits
-                     start_button }; // START
+                     cab_1p }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };
         3'd2: cabinet_input = { 2'b11, joystick2 };
         3'd3: cabinet_input = dipsw_a;

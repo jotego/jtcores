@@ -43,4 +43,4 @@ jtframe:
   - from: cpu/t48
     when: VERILATOR
     get:
-      - upi41_core.v
+      - t48_core.v

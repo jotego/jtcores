@@ -77,8 +77,8 @@ jtngp_main u_main(
     .lvbl       ( LVBL      ),
     // player inputs
     .joystick1  ( joystick1 ),
-    .start_button(start_button[0]),
-    .pwr_button ( coin_input[0]),
+    .cab_1p     ( cab_1p[0] ),
+    .pwr_button ( coin[0]   ),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),

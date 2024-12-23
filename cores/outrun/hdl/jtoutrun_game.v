@@ -194,8 +194,8 @@ jtoutrun_main u_main(
     .joystick2   ( joystick2  ),
     .joyana1     ( joyana_l1  ),
     .joyana1b    ( joyana_r1  ),
-    .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .cab_1p      ( cab_1p     ),
+    .coin        (  coin      ),
     .service     ( service    ),
     // ROM access
     .addr        ( full_addr  ),

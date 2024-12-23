@@ -98,8 +98,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .HS             ( HS            ),
     .VS             ( VS            ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     `ifdef JTFRAME_4PLAYERS
@@ -269,7 +269,7 @@ jtframe_dwnld #(
 
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
-/* verilator tracing_off */
+`ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
@@ -278,6 +278,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if not .Rw }}
     {{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
+    {{- with .Cache_size }}
+    .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}

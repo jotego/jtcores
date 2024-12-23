@@ -75,8 +75,8 @@ jttmnt_main u_main(
     .ram_cs         ( ram_cs        ),
     .ram_ok         ( ram_ok        ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
