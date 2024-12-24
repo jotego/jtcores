@@ -4,16 +4,27 @@ mraauthor=["jotego"]
 [parse]
 sourcefile=[ "tigeroad.cpp" ]
 skip.bootlegs=true
-skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant","f1dream","f1dreamb","f1dreamba"]
+skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant"]
 
 [buttons]
 names=[
-    { names="Attack,Jump" },
+    { machine="tigeroad", names="Attack,Jump" },
+    { machine="f1dream",  names="Low Gear,High Gear" }
 ]
 
 [dipsw]
 # Flip screen mode is not supported
 delete=[{names=[ "Flip Screen", "Cabinet" ]}]
+
+[header]
+info = """ Header to identify the PCB type
+        Byte 0 = 0 for Tiger Road, 1 for F1-Dream, 2 for Tora e no michi
+"""
+data = [
+    { machine="f1dream",  offset=0, data="01" },
+    { setname="toramich", offset=0, data="02" },
+]
+
 
 [ROM]
 regions=[
@@ -21,13 +32,21 @@ regions=[
     { name="bgmap", reverse=true, start="JTFRAME_BA1_START" },
     { name="audiocpu", start="JTFRAME_BA2_START" },
     { name="text",no_offset=true, start="JTFRAME_BA3_START", reverse=true },
-    { name="tiles", sequence=[4,0,5,1,6,2,7,3], width=16, start="SCR_START" },
     { name="spritegen", width=32, reverse=true, no_offset=true },
+    { name="proms", start="JTFRAME_PROM_START" },
+
+    { machine="tigeroad", name="tiles", sequence=[4,0,5,1,6,2,7,3], width=16, start="SCR_START" },
+    { machine="f1dream",  name="tiles", sequence=[3,0,4,1,5,2],     width=16, start="SCR_START" },
+
+
+    { machine="tigeroad", name="mcu",   skip=true },
+    { machine="f1dream",  name="mcu",   start="MCU_START" },
+
 ]
 
 order=[ "maincpu",
     "bgmap", "tiles",
     "audiocpu", "sample",
     "text", "spritegen",
-    "proms"
+    "proms", "mcu"
 ]

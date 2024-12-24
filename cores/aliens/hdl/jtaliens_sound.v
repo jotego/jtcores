@@ -114,9 +114,10 @@ always @(*) begin
             dac_cs    = mem_upper && A[14:12]==3; // Bxxx
             fm_cs     = mem_upper && A[14:12]==4; // Cxxx
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
-            fmgain    = 8'h10;
         end
     endcase
+    if( cfg==SCONTRA  ) fmgain = 8'h10;
+    if( cfg==THUNDERX ) fmgain = 8'h08;
 end
 
 always @(*) begin

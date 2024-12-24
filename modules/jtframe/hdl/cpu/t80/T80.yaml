@@ -1,7 +1,14 @@
-here:
-  - T80pa.vhd
-  - T80s.vhd
-  - T80_Reg.vhd
-  - T80_MCode.vhd
-  - T80_ALU.vhd
-  - T80.vhd
+jtframe:
+  - from: cpu/t80
+    unless: VERILATOR
+    get:
+      - T80pa.vhd
+      - T80s.vhd
+      - T80_Reg.vhd
+      - T80_MCode.vhd
+      - T80_ALU.vhd
+      - T80.vhd
+  - from: cpu/t80
+    when: VERILATOR
+    get:
+      - T80s.v

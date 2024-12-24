@@ -5,23 +5,35 @@ Copyright © 2023 Jose Tejada <jose.tejada@jotego.es>
 package cmd
 
 import (
-	// "fmt"
+	"fmt"
 
 	"jtutil/vcd"
 	"github.com/spf13/cobra"
 )
 
+var ignore_rst *bool
+
 // compareCmd represents the compare command
 var compareCmd = &cobra.Command{
-	Use:   "compare file1[.vcd] file2[.vcd] signal-name",
+	Use:   "compare file1[.vcd] file2[.vcd] [signal-name]",
 	Short: "Compare two VCD databases",
 	Long:
 `Load two VCD databases containing mostly identical scope and signals and
-compare specific signals.`,
+compare specific signals.
+
+Not providing a signal name will compare all signals in the VCD
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		vcd.Compare( args[0:2], args[2] )
+		if *ignore_rst {
+			fmt.Println("Warning: --rst is not implemented")
+		}
+		if len(args)==3 {
+			vcd.Compare( args[0:2], args[2], *ignore_rst )
+		} else {
+			vcd.CompareAll( args[0:2] )
+		}
 	},
-	Args: cobra.ExactArgs(3),
+	Args: cobra.ExactArgs(2),
 }
 
 func init() {
@@ -35,6 +47,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// compareCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	ignore_rst = compareCmd.Flags().BoolP("rst", "r", false, "ignore while any signal called rst is high")
 }
 

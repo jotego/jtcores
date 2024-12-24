@@ -21,6 +21,7 @@ module jtaliens_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
+    input             gx878,
     input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
 
@@ -133,6 +134,17 @@ end
 
 always @* begin
     case( cfg )
+        THUNDERX: begin
+            if( gx878 ) begin // GX878 = Gang Busters
+                lyrf_addr = { 2'b0, pre_f[12:11], lyrf_col[3], lyrf_col[2], lyrf_col[4], lyrf_col[0], pre_f[10:0] };
+                lyra_addr = { 2'b0, pre_a[12:11], lyra_col[3], lyra_col[2], lyra_col[4], lyra_col[0], pre_a[10:0] };
+                lyrb_addr = { 2'b0, pre_b[12:11], lyrb_col[3], lyrb_col[2], lyrb_col[4], lyrb_col[0], pre_b[10:0] };
+            end else begin // GX873 = Thunder Force
+                lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] };
+                lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
+                lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
+            end
+        end
         CRIMFGHT: begin
             lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] };
             lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
@@ -152,7 +164,7 @@ always @* begin
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = cfg==SCONTRA  ? { c[7:5], 5'd0       } :
+    cgate = cfg==SCONTRA  || cfg==THUNDERX ? { c[7:5], 5'd0       } :
             cfg==CRIMFGHT ? { c[7:6], 5'd0, c[5] } :
                             { c[7:6], 6'd0       };
 endfunction
@@ -284,7 +296,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

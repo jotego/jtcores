@@ -52,7 +52,8 @@ wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
 wire        prom_mcu, prom_prio;
-reg         jap;        // high if Japanese ROM was loaded
+reg         jap,        // high if Japanese ROM was loaded
+            f1dream;    // selects F1-Dream version of the PB
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
@@ -64,14 +65,10 @@ assign debug_view = debug_mux;
 assign prom_prio = prom_we && ioctl_addr[12:8]==0;
 assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
 
-`ifndef F1DRM
-    always @(posedge clk) begin
-        if( ioctl_addr == 'h83 && prog_we )
-            jap <= prog_data==8'h4A;
-    end
-`else
-    initial jap = 0;
-`endif
+always @(posedge clk) begin
+    if( header && ioctl_addr[2:0]==0 && prog_we )
+        { jap, f1dream } <= prog_data[1:0];
+end
 
 always @* begin
     case( debug_bus[2:0] )
@@ -110,6 +107,7 @@ jtframe_cen48 u_cen48(
 wire        cen3, mcu_cen, clk_mcu;
 wire        cenfm, cenp384;
 wire        cen10b;
+reg         rst_mcu;
 
 jtframe_cen24 u_cen(
     .clk    ( clk24     ),
@@ -128,6 +126,7 @@ jtframe_cen24 u_cen(
 );
 
 assign clk_mcu = clk24;
+always @(posedge clk) rst_mcu = rst24 | ~f1dream;
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
     .clk      ( clk24     ),
@@ -185,12 +184,12 @@ jtbiocom_main #(.GAME(1)) u_main(
     .col_lw     ( col_lw        ),
     // MCU interface
     .mcu_cen    (  mcu_cen      ),
-    .mcu_brn    (  mcu_brn      ),
+    .mcu_brn    (  mcu_brn  | ~f1dream ),
     .mcu_din    (  mcu_din      ),
     .mcu_dout   (  mcu_dout     ),
     .mcu_addr   (  mcu_addr     ),
     .mcu_wr     (  mcu_wr       ),
-    .mcu_DMAn   (  mcu_DMAn     ),
+    .mcu_DMAn   (  mcu_DMAn | ~f1dream ),
     .mcu_DMAONn (  mcu_DMAONn   ),
     // ROM
     .rom_cs     ( main_cs       ),
@@ -212,17 +211,17 @@ jtbiocom_main #(.GAME(1)) u_main(
 );
 
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
-    .rst        ( rst24           ),
+    .rst        ( rst_mcu         ),
     .clk        ( clk_mcu         ),
     .rst_cpu    ( rst             ),
     .clk_rom    ( clk             ),
     .clk_cpu    ( clk             ),
-    .cen6a      ( mcu_cen         ),       //  6   MHz
+    .cen6a      ( mcu_cen         ), // 6 MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
     .mcu_din    ( mcu_din         ),
     .mcu_dout   ( mcu_dout        ),
-    .mcu_wr     ( mcu_wr          ),   // always write to low bytes
+    .mcu_wr     ( mcu_wr          ), // always write to low bytes
     .mcu_addr   ( mcu_addr        ),
     .mcu_brn    ( mcu_brn         ), // RQBSQn
     .DMAn       ( mcu_DMAn        ),
@@ -245,6 +244,7 @@ jttora_sound u_sound (
     .cenfm          ( cenfm          ),
     .cenp384        ( cenp384        ),
     .jap            ( jap            ),
+    .f1dream        ( f1dream        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     // Interface with MCU
@@ -272,7 +272,6 @@ jttora_sound u_sound (
     .debug_view     ( st_snd         )
 );
 
-`ifndef NOVIDEO
 jttora_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -334,17 +333,5 @@ jttora_video u_video(
     .blue       ( blue          ),
     .debug_bus  ( debug_bus     )
 );
-`else
-// Video module may be ommitted for SDRAM load simulation
-assign red       = 4'h0;
-assign green     = 4'h0;
-assign blue      = 4'h0;
-assign obj_addr  = 0;
-assign scr_addr  = 0;
-assign char_addr = 0;
-assign blcnten   = 1'b0;
-assign obj_br    = 1'b0;
-assign char_busy = 1'b0;
-`endif
 
 endmodule

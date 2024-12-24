@@ -16,11 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-
-    // check_start: lowest address at which the memory check
-    // comparison is performed. Useful when the dumped file to load
-    // has part of it invalid
-
+/* verilator tracing_off*/
 module jtframe_prom #(parameter
     DW      = 8,
     AW      = 10,

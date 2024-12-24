@@ -1,0 +1,49 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Nov  3 14:14:49 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/karnov/ver/game/test.fst"
+[dumpfile_mtime] "Fri Nov  3 14:13:20 2023"
+[dumpfile_size] 30257149
+[savefile] "/home/jtejada/jtcores/cores/karnov/ver/game/debug.gtkw"
+[timestart] 10416
+[size] 1264 1024
+[pos] -1 -1
+*-33.765762 15327647400 15327647400 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.
+[sst_width] 223
+[signals_width] 289
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@24
+TOP.game_test.frame_cnt[31:0]
+TOP.game_test.u_game.u_game.u_main.IPLn[2:0]
+@201
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.SSP[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.PC[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.A7[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.excUnit.D7[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

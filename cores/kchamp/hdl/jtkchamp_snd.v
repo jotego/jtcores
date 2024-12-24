@@ -133,7 +133,7 @@ jtframe_mixer #(.W0(10),.W1(10),.W2(12),.W3(8)) u_mixer (
     .ch0    ( snd0      ),
     .ch1    ( snd1      ),
     .ch2    ( pcm_snd   ),
-    .ch3    ( dac       ),
+    .ch3    ( dac       ),  // used on kchamp set. It sounds too slow (same as MAME). The speed is set directly by the CPU clock
     .gain0  ( PSG_GAIN  ),
     .gain1  ( PSG_GAIN  ),
     .gain2  ( pcm_gain  ),
@@ -183,7 +183,7 @@ jtframe_dcrm #(.SW(10)) u_dcrm1(
     .dout   ( ac1    )
 );
 
-jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_3     ),

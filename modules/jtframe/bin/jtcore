@@ -77,7 +77,6 @@ EOF
    exit 0
 }
 
-BETA=FALSE
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
@@ -135,7 +134,6 @@ function parse_args {
             --def|-d)
                 shift
                 if [ ! -z "$1" ]; then
-                    if [ $1 = BETA ]; then BETA=TRUE; fi
                     MACROS="$1 $MACROS"
                 fi
                 ;;
@@ -490,7 +488,8 @@ if [ $SKIP_COMPILE = FALSE ]; then
     fi
     # Fonts and graphics
     ln -srf $JTFRAME/bin/font0.hex
-    ln -srf $JTFRAME/hdl/video/jtframe_logo.hex
+    ln -srf $JTFRAME/hdl/video/logodata.hex
+    ln -srf $JTFRAME/hdl/video/logomap.hex
     ############################################
     # Link filter files in case they are needed
     for i in $JTFRAME/hdl/sound/*.hex; do
@@ -558,7 +557,10 @@ if [ $SKIP_COMPILE = FALSE ]; then
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
-        | grep -v "\.we_a.*has no driver or initial value" > $AUX
+        | grep -v "\.we_a.*has no driver or initial value" \
+        | grep -v "Warning: RST port on the PLL" \
+        | grep -v "Warning: OUTCLK port on the PLL" \
+        | grep -v "Warning \(10762\)" > $AUX
         if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
             # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
             grep -v sys_top.v $AUX
@@ -646,9 +648,8 @@ if [ $TARGET = pocket ]; then
     RBF=${RBF}_r
 fi
 
-# Copy to JTBIN  if --git is set, except for cores in beta
-# in which case only the MiSTer and Pocket versions are copied
-if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
+# Copy to JTBIN  if --git is set
+if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
     if is_mister_family; then
         BINFOLDER=$JTBIN/$TARGET/$PRJ

@@ -18,7 +18,7 @@
 
 // Port 4 configured as output --> use as address bus
 // Port 6 configured as output
-/* verilator tracing_off */
+
 module jtshouse_mcu(
     input              clk,
     input              rstn,
@@ -59,15 +59,18 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output reg signed [10:0] snd // is it signed?
+    output     signed [10:0] snd, // is it signed?
+
+    input      [ 7:0]  debug_bus
 );
 `ifndef NOMAIN
-wire        vma;
+wire        vma, irq_ack;
 reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
             irq, lvbl_l;
 
 wire [15:0] A;
 wire [11:0] rom_addr;
+reg  [10:0] mix;
 wire [ 7:0] p1_din, rom_data;
 wire [ 4:0] p2_dout;
 wire [ 1:0] gain1,  gain0;
@@ -76,7 +79,7 @@ reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
 reg  [ 9:0] amp1, amp0;
-reg         hs_cnt, hs_l;
+reg         hs_l;
 reg         init_done;
 
 function [1:0] gain( input [1:0] g);
@@ -94,13 +97,17 @@ assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
 assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
-// assign irqen       = hdump[1:0]==0;
 
+`ifdef SIMULATION
+wire bad_cs  = vma &&  A==16'hc000;
+`endif
 // Address decoder
 always @(*) begin
     pcm_cs  = vma && ^A[15:14];                    // 4000~bfff
     swio_cs = vma &&  A[15:12]==4'h1;
-    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] && (A[10:0]!=0 || rnw || !init_done);    // c000~c7ff
+    // the init_done mechanism mimics MAME's hack to prevent a lock up during the boot sequence
+    // see https://github.com/jotego/jtcores/issues/410
+    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] /*&& (A[10:0]!=0 || rnw || !init_done)*/;    // c000~c7ff
     epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
     reg_cs  = vma &&  A[15:12]==4'hd && !rnw;
     dip_cs  = vma && swio_cs && A[11:10]==0;
@@ -116,6 +123,21 @@ always @* begin
                 8'd0;
 end
 
+reg [7:0] sample_cnt;
+wire sample = sample_cnt==0 && cen;
+
+always @(posedge clk) begin
+    if( cen ) sample_cnt <= sample_cnt+1'd1;
+end
+
+jtframe_dcrm #(.SW(11)) u_dcrm(
+    .rst        ( ~rstn     ),
+    .clk        ( clk       ),
+    .sample     ( sample    ),
+    .din        ( mix       ),
+    .dout       ( snd       )
+);
+
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
@@ -125,30 +147,22 @@ always @(posedge clk, negedge rstn ) begin
         irq      <= 0;
         lvbl_l   <= 0;
         hs_l     <= 0;
+        mix      <= 0;
         init_done<= 0;
     end else begin
         lvbl_l <= lvbl;
         hs_l   <= hs;
         if( lvbl_l && !lvbl) begin
             irq <= 1;
-            hs_cnt <= 0;
         end
-        if( hs && !hs_l) begin
-            hs_cnt <= hs_cnt+1'd1;
-            if( &hs_cnt ) irq <= 0;
-        end
+        if( hdump=='ha1 ) irq <= 0; // 31.2us width measure on the PCB
         amp1 <= dac1 * gain(gain1);
         amp0 <= dac0 * gain(gain0);
-        snd  <= {amp1[7], amp1}+{amp0[7], amp0};
+        mix  <= {1'b0, amp1}+{1'b0, amp0};
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
         cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
                            { cab_1p[0], joystick1 };
         if( ram_cs && A[10:0]==0 && !rnw && cen ) init_done <= mcu_dout=='ha6;
-        // irq <= ~lvbl & irqen & ~rnw & (
-        //         ~A[15] & A[14]                 |
-        //                 ~A[14] & A[13]         |
-        //                         ~A[13] & A[12] |
-        //                                 ~A[12] );
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
             1: dac1 <= mcu_dout;
@@ -168,7 +182,7 @@ always @(posedge clk, negedge rstn ) begin
     end
 end
 
-jt63701v #(.ROMW(12)) u_63701(
+jt63701v #(.ROMW(12),.SLOW_FRC(2)) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
@@ -196,7 +210,8 @@ jt63701v #(.ROMW(12)) u_63701(
     // ROM
     .rom_cs     (               ),
     .rom_addr   ( rom_addr      ),
-    .rom_data   ( rom_data      )
+    .rom_data   ( rom_data      ),
+    .irq_ack    ( irq_ack       )
 );
 
 jtframe_prom #(.AW(12)) u_prom(

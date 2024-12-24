@@ -34,6 +34,9 @@ jtframe:
     unless: NOMAIN
     get:
       - jtframe_m68k.yaml
+  - from: cpu
+    get:
+      - jtframe_8751.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v

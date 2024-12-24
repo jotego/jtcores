@@ -105,8 +105,10 @@ module jtframe_mist_base #(parameter
     output          ioctl_wr,
     output          ioctl_ram,
     output          ioctl_cheat,
-    output          ioctl_rom
-
+    output          ioctl_rom,
+    // Debug
+    input      [7:0]debug_bus,
+    output reg [7:0]debug_view
 );
 
 localparam [7:0] IDX_ROM   = 8'h00,
@@ -128,6 +130,10 @@ assign joyana_l3 = 0;
 assign joyana_r3 = 0;
 assign joyana_l4 = 0;
 assign joyana_r4 = 0;
+
+always @(posedge clk_sys) begin
+    debug_view <= { osd_shown, 1'b0, osd_rotate, 1'b0, no_csync, ypbpr, scan2x_enb };
+end
 
 `ifndef SIMULATION
     `ifndef NOSOUND

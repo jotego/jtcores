@@ -12,12 +12,12 @@ delete=[{names=["Unused","Unknown"]}]
 
 [ROM]
 regions = [
-    { name="maincpu", sequence=[0,2,1,3] }, # First 32kB go to $8000, the rest are banked at $6000
-    { name="audiocpu",  start="JTFRAME_BA1_START" },
-    { name="pcm",       start="PCM_START", rename="k053260" },
-    { name="tiles",     start="JTFRAME_BA2_START", width=32, rename="k052109" }, # tiles
-    { name="obj",       start="JTFRAME_BA3_START", width=64, rename="k053246" }, # sprites
-    { name="eeprom",    skip=true }
+    { name="maincpu",  sequence=[0,2,1,3] }, # First 32kB go to $8000, the rest are banked at $6000
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="k053260",  start="PCM_START", rename="pcm" },
+    { name="k052109",  start="JTFRAME_BA2_START", width=32, rename="tiles" }, # tiles
+    { name="k053246",  start="JTFRAME_BA3_START", width=64, rename="obj" }, # sprites
+    { name="eeprom",   skip=true }
 ]
 
 order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj" ]

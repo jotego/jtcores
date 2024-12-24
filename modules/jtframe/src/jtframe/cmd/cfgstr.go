@@ -19,12 +19,12 @@
 package cmd
 
 import (
-	"github.com/jotego/jtframe/jtcfgstr"
-	"github.com/jotego/jtframe/jtdef"
+	"github.com/jotego/jtframe/cfgstr"
+	"github.com/jotego/jtframe/def"
 	"github.com/spf13/cobra"
 )
 
-var cfg jtdef.Config
+var cfg def.Config
 var extra_def, extra_undef string
 
 // cfgstrCmd represents the cfgstr command
@@ -36,7 +36,7 @@ creates input files for simulation or synthesis.
 Macro names for C++ include files are prefixed by an underscore _`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg.Core = args[0]
-		jtcfgstr.Run(cfg, args, extra_def, extra_undef)
+		cfgstr.Run(cfg, args, extra_def, extra_undef)
 	},
 	Args: cobra.MinimumNArgs(1),
 }

@@ -23,16 +23,10 @@
 
 set -e
 
-CORE=$1
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 SHORTSTAMP=$(date --date=friday +"%y%m%d")
 DEST=`mktemp --directory`
 UPMR=
-
-if [ -z "$CORE" ]; then
-    echo "Missing core name"
-    exit 1
-fi
 
 if [ ! -d "$JTFRIDAY" ]; then
     cat >/dev/stderr <<EOF
@@ -42,18 +36,25 @@ EOF
     exit 1
 fi
 
-mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
-
 # MiSTer
-if [ -e $JTROOT/release/mister/$CORE/releases/*.rbf ]; then
-    cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
-    cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
-    UPMR=1
-fi
-cp -r $JTROOT/release/mra "$DEST"
+mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
+mkdir -p $DEST/games/mame
+cp $JTUTIL/jtbeta.zip $DEST/games/mame
+for CORE in $JTROOT/release/mister/*; do
+    CORE=`basename $CORE`
+    if [ -e $JTROOT/release/mister/$CORE/releases/*.rbf ]; then
+        cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
+        cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
+        UPMR=1
+    fi
+    cp -r $JTROOT/release/mra "$DEST"
+    cp $JTROOT/README.md $DEST
+    if [ -s $JTROOT/cores/$CORE/README.md ]; then
+        cp $JTROOT/cores/$CORE/README.md $DEST/$CORE.md
+    fi
+done
 
 # MiST, SiDi
-
 function cp_file {
     if [ -d $JTROOT/release/$1 ]; then
         cp -r $JTROOT/release/$1 $DEST
@@ -61,20 +62,6 @@ function cp_file {
         echo "Skipping $1"
     fi
 }
-
-# cp_file mcp
-# cp_file mc2
-# cp_file neptuno
-# cp_file sockit
-# cp_file de1soc
-# cp_file de10standard
-cp $JTROOT/README.md $DEST
-if [ -s $JTROOT/cores/$CORE/README.md ]; then
-    cp $JTROOT/cores/$CORE/README.md $DEST/$CORE.md
-fi
-
-mkdir -p $DEST/games/mame
-cp $JTUTIL/jtbeta.zip $DEST/games/mame
 cp_file mist
 cp_file sidi
 

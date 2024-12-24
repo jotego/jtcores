@@ -145,7 +145,7 @@ jtframe_cen48 u_cen(
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen6      ( cen6     ),
+    .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),

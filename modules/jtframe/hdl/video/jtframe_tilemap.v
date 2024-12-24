@@ -19,22 +19,28 @@
 
 // Generic tile map generator with no scroll
 // The ROM data must be in this format: {code, H parts, V part}
-// pixel data is 4bpp, and arrives in four bytes. Each byte is for a plane
+// pixel data has arbitrary bpp but it must arrive in groups of 8 pixels
+// Each byte is for a plane
 
 module jtframe_tilemap #( parameter
     SIZE         =  8,    // 8x8, 16x16 or 32x32
     VA           = 10,
     CW           = 12,
-    PW           =  8,
+    PW           =  8,    // pixel width
+    BPP          =  4,    // bits per pixel. Palette width = PW-BPP
     VR           = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
-    MAP_HW       = 8,    // size of the map in pixels
+    MAP_HW       = 8,    // 2^MAP_HW = size of the map in pixels
     MAP_VW       = 8,
     FLIP_MSB     = 1, // set to 0 for scroll tile maps
     FLIP_HDUMP   = 1,
     FLIP_VDUMP   = 1,
     XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
-    HDUMP_OFFSET = 0   // adds an offset to hdump
+    HDUMP_OFFSET = 0,  // adds an offset to hdump
+    // localparam, do not modify:
+    VW = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    PALW         = PW-BPP,
+    DW           = 8*BPP
 )(
     input              rst,
     input              clk,
@@ -48,26 +54,25 @@ module jtframe_tilemap #( parameter
     output    [VA-1:0] vram_addr,
 
     input     [CW-1:0] code,
-    input     [PW-5:0] pal,
+    input   [PALW-1:0] pal,
     input              hflip,
     input              vflip,
 
     output reg [VR-1:0]rom_addr,
-    input      [31:0]  rom_data,
+    input      [DW-1:0]rom_data,
     output reg         rom_cs,
     input              rom_ok,      // ignored. It assumes that data is always right
 
-    output     [PW-1:0]pxl
+    output reg [PW-1:0]pxl
 );
 
-localparam VW = SIZE==8 ? 3 : SIZE==16 ? 4:5;
-
-reg  [  31:0] pxl_data;
-reg  [PW-5:0] cur_pal, nx_pal;
+reg  [DW-1:0] pxl_data;
+reg [PALW-1:0]cur_pal, nx_pal;
 wire          vflip_g;
 reg           hflip_g, nx_hf;
 reg     [8:0] heff, hoff;
 wire    [8:0] veff;
+integer       i;
 
 // not flipping the MSB is usually needed in scroll layers
 assign veff = FLIP_VDUMP ? vdump ^ { FLIP_MSB[0]&flip, {8{flip}}} : vdump;
@@ -84,12 +89,22 @@ initial begin
     end
 end
 
-assign pxl       = { cur_pal, hflip_g ? {pxl_data[24], pxl_data[16], pxl_data[8], pxl_data[0]} :
-                                        {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7]} };
+// assign pxl       = { cur_pal, hflip_g ? {pxl_data[24], pxl_data[16], pxl_data[8], pxl_data[0]} :
+//                                         {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7]} };
 assign vflip_g   = (flip & XOR_VFLIP[0])^vflip;
 
 assign vram_addr[VA-1-:MAP_VW-VW]=veff[MAP_VW-1:VW];
 assign vram_addr[0+:MAP_HW-VW] = heff[MAP_HW-1:VW];
+
+always @* begin
+    pxl[PW-1-:PALW] = cur_pal;
+    for(i=0;i<BPP;i=i+1) begin
+        if( hflip_g )
+            pxl[i] = pxl_data[i<<3];
+        else
+            pxl[i] = pxl_data[((i+1)<<3)-1];
+    end
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

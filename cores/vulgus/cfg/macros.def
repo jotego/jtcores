@@ -1,4 +1,0 @@
-include ../../1942/cfg/macros.def
-
-CORENAME=JTVULGUS
-JTFRAME_OSD_FLIP

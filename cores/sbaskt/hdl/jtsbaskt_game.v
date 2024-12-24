@@ -28,14 +28,14 @@ wire        V16;
 
 wire [ 3:0] pal_sel;
 wire        obj_frame;
-wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout,
+wire [ 7:0] vscr_dout, vram_dout, obj_dout,
             debug_snd;
 wire        vsync60;
 
 wire        m2s_irq, m2s_data;
+reg         decode;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
@@ -50,17 +50,23 @@ always @(*) begin
     end
 end
 
+always @(posedge clk) begin
+    if( header && prog_we && !ioctl_addr[0] ) decode <= prog_data[0];
+end
+
 `ifndef NOMAIN
 jtsbaskt_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
-    .cpu4_cen       ( cpu4_cen      ),
     .cpu_cen        ( cpu_cen       ),
+    .decode         ( decode        ),
     // ROM
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
     .rom_data       ( main_data     ),
-    .rom_ok         ( main_ok       ),
+    // RAM
+    .ram_dout       ( ram_dout      ),
+    .ram_we         ( ram_we        ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),

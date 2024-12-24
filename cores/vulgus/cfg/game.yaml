@@ -1,4 +1,0 @@
-game:
-  - from: 1942
-    get:
-      - game.yaml

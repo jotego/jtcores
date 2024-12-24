@@ -10,7 +10,6 @@ game:
 jtframe:
   - from: cpu
     get:
-      # - tv80/tv80s.qip
       - jtframe_z80.yaml
 modules:
   jt:

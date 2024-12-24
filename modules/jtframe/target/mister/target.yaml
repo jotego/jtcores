@@ -25,3 +25,8 @@ jtframe:
       - jtframe_lfbuf_ddr.v
       - jtframe_lfbuf_ddr_ctrl.v
       - jtframe_lfbuf_line.v
+      - jtframe_logo.v
+      - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_prom.v

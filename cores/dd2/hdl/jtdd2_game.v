@@ -51,9 +51,9 @@ assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 
 `ifndef NOMAIN
-wire main_cen = turbo ? 1'd1 : cen12;
+wire main_cen = turbo ? cen6 : cen3;
 
-jtdd_main u_main(
+jtdd_main #(.CENDIV(0)) u_main(
     .clk            ( clk24         ),  // slower clock to ease synthesis
     .rst            ( rst24         ),
     .cen12          ( main_cen      ),
@@ -99,7 +99,7 @@ jtdd_main u_main(
     .rom_cs         ( main_cs       ),
     .rom_addr       ( main_addr     ),
     .rom_data       ( main_data     ),
-    .rom_ok         ( main_ok       ),
+    .rom_ok         ( 1'b1          ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .service        ( service       ),
@@ -164,7 +164,7 @@ jtdd2_sub u_sub(
     .rom_addr     (  mcu_addr        ),
     .rom_data     (  mcu_data        ),
     .rom_cs       (  mcu_cs          ),
-    .rom_ok       (  mcu_ok          )
+    .rom_ok       (  1'b1            )
 );
 `else
 reg    irqmain;
@@ -183,9 +183,13 @@ jtframe_ram #(.AW(9)) u_shared(
 `endif
 
 jtdd2_sound u_sound(
-    .clk         ( clk           ),
+    .clk         ( clk24         ),
     .rst         ( rst           ),
     .H8          ( H8            ),
+    .cen_fm      ( cen_fm        ),
+    .cen_fm2     ( cen_fm2       ),
+    .cen_snd     ( cen_snd       ),
+    .cen_oki     ( cen_oki       ),
     // communication with main CPU
     .snd_irq     ( snd_irq       ),
     .snd_latch   ( snd_latch     ),
@@ -193,7 +197,7 @@ jtdd2_sound u_sound(
     .rom_addr    ( snd_addr      ),
     .rom_cs      ( snd_cs        ),
     .rom_data    ( snd_data      ),
-    .rom_ok      ( snd_ok        ),
+    .rom_ok      ( 1'b1          ),
 
     .adpcm_addr  ( adpcm_addr    ),
     .adpcm_cs    ( adpcm_cs      ),

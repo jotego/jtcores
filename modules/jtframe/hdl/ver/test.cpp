@@ -264,7 +264,8 @@ public:
         full_download = download; // At least the first 32 bytes will always be downloaded
         if( !full_download ) {
             if ( len > 32 ) {
-                fputs("ROM download shortened to 32 bytes\n",stderr);
+                fputs("ROM download shortened to 32 bytes.\n",stderr);
+                if( nvram ) fputs("Warning: skipping transfer of nvram.bin.\n",stderr);
                 len=32;
             } else {
                 fputs("Short ROM download\n",stderr);
@@ -272,7 +273,7 @@ public:
         }
         ticks = 0;
         done = false;
-        dut.downloading = 1;
+        dut.ioctl_rom = 1;
         dut.ioctl_addr = 0;
         dut.ioctl_dout = read_buf();
         dut.ioctl_wr   = 0;
@@ -280,7 +281,7 @@ public:
     }
     void update() {
         dut.ioctl_wr = 0;
-        if( dut.downloading ) step_download();
+        if( dut.ioctl_rom ) step_download();
         if( iodump_busy ) iodump_step();
     }
     void step_download() {
@@ -314,7 +315,7 @@ public:
 #ifdef _JTFRAME_IOCTL_RD
                         dut.ioctl_ram   = 0;
 #endif
-                        dut.downloading = 0;
+                        dut.ioctl_rom = 0;
                         done = true;
                     }
                     break;
@@ -428,7 +429,7 @@ public:
     bool done() {
         if( game.contextp()->gotFinish() ) return true;
         return (finish_frame>0 ? frame_cnt > finish_frame :
-                simtime/1000'000'000 >= finish_time ) && (!game.downloading && !game.dwnld_busy);
+                simtime/1000'000'000 >= finish_time ) && (!game.ioctl_rom && !game.dwnld_busy);
     };
     UUT& game;
     int get_frame() { return frame_cnt; }
@@ -758,7 +759,7 @@ void JTSim::clock(int n) {
     static int ticks=0;
     static int last_dwnd=0;
     while( n-- > 0 ) {
-        int cur_dwn = game.downloading | game.dwnld_busy;
+        int cur_dwn = game.ioctl_rom | game.dwnld_busy;
         game.clk = 1;
 #ifdef _JTFRAME_CLK24    // not supported together with _JTFRAME_CLK96
         game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;

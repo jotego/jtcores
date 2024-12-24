@@ -2,7 +2,9 @@ package vcd
 
 import(
 	"fmt"
+	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"strconv"
 	"sort"
@@ -80,11 +82,23 @@ func (this vcdData)Get(name string) *VCDSignal {
 	return nil
 }
 
-func (this vcdData)GetAll(name string) []*VCDSignal {
+// gets the scope part of a hierarchinal signal name
+func GetScope( name string ) (string, string) {
+	tokens := strings.Split(name,".")
+	if len(tokens)==1 {
+		return "",name
+	}
+	return strings.Join(tokens[0:len(tokens)-1],"."), tokens[len(tokens)-1]
+}
+
+func (this vcdData)GetAll(name string, matchScope bool) []*VCDSignal {
 	if name=="" { return nil }
 	r := make([]*VCDSignal,0,1)
+	scope,name := GetScope(name)
 	for _,each := range this {
-		if each.Name==name { r=append(r,each) }
+		if each.Name==name && (!matchScope || scope==each.Scope) {
+			r=append(r,each)
+		}
 	}
 	if len(r) == 0 {
 		return nil
@@ -351,6 +365,28 @@ func (file *LnFile) NextVCD( ss vcdData ) bool {
     return false // EOF
 }
 
+// advance the VCD scan upto the next change in any of the provided signals
+func (file *LnFile) NextChangeIn( ss vcdData, names []string ) bool {
+	// fmt.Printf("%s (#%d @%d):\n",file.fname,file.time, file.line)
+	found := false
+    for file.Scan() {
+        txt := file.Text()
+        if txt[0]=='#' {
+            file.time, _ = strconv.ParseUint( txt[1:],10,64 )
+            if found {
+            	return true
+            } else {
+            	continue
+            }
+        }
+        // fmt.Printf("\t%s\n",txt)
+        a, v := parseValue(txt)
+        if slices.Contains( names, a ) { found = true }
+        assign( a, v, ss )
+    }
+    return false // EOF
+}
+
 func GetSignals( file *LnFile ) vcdData {
     ss := make(vcdData)
     scope := ""
@@ -439,7 +475,11 @@ func GetSignals( file *LnFile ) vcdData {
 func assign( alias string, v uint64, ss vcdData) {
     p, _ := ss[alias]
     if p==nil {
-        fmt.Printf("Warning: signal vcdData as %s not found\n",alias)
+    	if alias=="" || alias==" " {
+    		fmt.Println("vcd_parser: called assign with no signal alias")
+        	os.Exit(1)
+    	}
+        fmt.Printf("Warning: signal vcdData aliased as -> %s <- not found\n",alias)
         return
     }
     p.Value = v

@@ -43,21 +43,50 @@ module jtshouse_triram(
     input      [ 7:0] sdout,
 
     output     [ 7:0] bdin,
-    output     [ 7:0] alt_din       // input to MCU and sound CPU
+    output reg [ 7:0] mcu_din,
+    output reg [ 7:0] snd_din,
+
+    input      [ 7:0] debug_bus
 );
 
-wire [ 7:0] xdout;
+wire [ 7:0] xdout, alt_din, p_alt_din, p_bdin;
 wire [10:0] xaddr;
 wire        xwe;
 reg         xsel;
 
 assign xwe   = xsel ? mcu_cs & ~mcu_rnw : snd_cs & ~srnw;
 assign xaddr = xsel ? mcu_addr : saddr;
-assign xdout = xsel ? mcu_dout : sdout;
+assign xdout = !xwe ? 8'd0 : xsel ? mcu_dout : sdout;
+
+// Needed to boot up
+assign alt_din = xaddr==0 /*&& !debug_bus[0]*/ ? 8'ha6 : p_alt_din;
+assign bdin    = baddr==0 /*&& !debug_bus[1]*/ ? 8'ha6 : p_bdin;
+
+`ifdef SIMULATION
+wire flag_cs  = bus_cs && baddr==0;
+wire reply_cs = bus_cs && baddr=='h2f && !brnw;
+reg [7:0] flag;
+always @(posedge clk) begin
+    if( baddr==0 && ~brnw && bus_cs ) flag <= bdout;
+    if( xaddr==0 && xwe ) flag <= xdout;
+end
+`endif
+
+reg [1:0] mcu_cnt=0;
 
 always @(posedge clk) begin
-    if( snd_cen ) xsel <= 1;
-    if( mcu_cen ) xsel <= 0;
+    if( snd_cen ) begin
+        xsel <= 1;
+        mcu_cnt <= 0;
+    end
+    if( mcu_cen ) begin
+        mcu_cnt <= { mcu_cnt[0], 1'd1 };
+        if( mcu_cnt[1] ) xsel <= 0;
+    end
+    if( xsel    )
+        mcu_din <= alt_din;
+    else
+        snd_din <= alt_din;
 end
 
 /* verilator tracing_off */
@@ -67,13 +96,13 @@ jtframe_dual_ram #(.AW(11)) u_ram(
     .data0  ( bdout ),
     .addr0  ( baddr ),
     .we0    ( bus_cs & ~brnw ),
-    .q0     ( bdin  ),
+    .q0     ( p_bdin  ),
     // Port 1
     .clk1   ( clk   ),
     .data1  ( xdout ),
     .addr1  ( xaddr ),
     .we1    ( xwe   ),
-    .q1     (alt_din)
+    .q1     (p_alt_din)
 );
 
 endmodule

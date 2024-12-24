@@ -185,6 +185,9 @@ VRAMCS = E19_o17l |
          /E19_o17l & /RMRD & /A9 & /A8 & /A7 & /(A6|A5) & /(A4|A3) & /E19_o16
 ```
 
+### Gang Busters / Thunder Force
+
+The equations are not available
 
 # Game Library
 
@@ -195,7 +198,7 @@ Games                          | Konami Code    | CPU           | Schematics
 Aliens                         | GX875          | 052256        |  Yes
 Super Contra                   | GX775          | 052001        |  Yes
 Thunder Cross                  | GX873          | 052526/052001 |  Yes
-Gang Busters / Crazy Cop       | GX878          | 052526        |  No
+Gang Busters / Crazy Cop       | GX878          | 052526        |  Yes (same as GX873)
 
 # Support
 

@@ -1,7 +1,7 @@
 go
-st
-st
-st
-st
-s
+match-trace
+go
+# timer mismatch by 1
+ignore accb
+match-trace
 go

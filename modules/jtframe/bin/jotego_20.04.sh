@@ -50,6 +50,13 @@ make
 cp alink asl p2bin p2hex pbind plist *.msg /usr/local/bin
 cp man/* /usr/local/share/man/man1/
 
+# MRA tool to generate .arc files
+cd /tmp
+git clone https://github.com/mist-devel/mra-tools-c.git
+cd mra-tools-c.git
+make -j
+mv mra /usr/local/bin/mra
+
 # Verilator
 apt install git help2man perl python3 make autoconf g++ flex bison ccache
 apt install libgoogle-perftools-dev numactl perl-doc
@@ -77,6 +84,8 @@ git config --global alias.d diff
 git config --global alias.co checkout
 git config --global alias.st status
 git config --global alias.p pull
+git config --global alias.b bisect
+git config --global alias.su "submodule update"
 git config --global alias.r "reset --hard"
 git config pull.rebase true
 

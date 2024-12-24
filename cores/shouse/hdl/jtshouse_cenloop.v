@@ -22,14 +22,13 @@ module jtshouse_cenloop(
     input             clk,
     input      [ 2:0] busy,
 
-    output reg        prc_main, prc_sub, prc_snd, prc_mcu,
-    output            cen_main, cen_sub, cen_snd, cen_mcu,
+    output            cen_main, cen_sub, cen_snd, cen_mcu, cen_sndq,
 
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
 parameter FCLK = 49152,
-          FCPU =  1536*4,
+          FCPU =  1536*4, // 49152/1536/4 = 8
           NUM  = 1,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
@@ -39,23 +38,25 @@ reg     [1:0] clk4;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
-reg           blank=0;
+reg     [1:0] blank=0;
 wire          bsyg = busy==0 || rst;
 
-assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
+assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
 assign cen_main = cpu_cen[0];
 assign cen_sub  = cpu_cen[1];
-assign cen_mcu  = cpu_cen[2];
+assign cen_mcu  = |cpu_cen[2:0]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
+// assign cen_mcu  = cpu_cen[2]; // should be just cpu_cen[2] but adjusting for lower mc6801 speed
 assign cen_snd  = cpu_cen[3];
+assign cen_sndq = cpu_cen[1];
 
 always @(posedge clk) begin
-    blank <= 0;
+    if( ~&blank ) blank <= blank + 1'd1 ;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin
-        blank <= 1;
+        blank <= 0;
         clk4 <= clk4+2'd1;
         cpu_cen[0] <= clk4==0;
         cpu_cen[1] <= clk4==2;
@@ -64,10 +65,6 @@ always @(posedge clk) begin
     end else begin
         cpu_cen <= 0;
     end
-    if( cen_sub ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b1000;
-    if( cen_main) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0100;
-    if( cen_mcu ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0010;
-    if( cen_snd ) { prc_snd, prc_mcu, prc_sub, prc_main } <= 4'b0001;
 end
 
 jtframe_freqinfo #(.MFREQ( FCLK )) u_info(

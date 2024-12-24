@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 19-9-2023 */
-/* verilator tracing_off */
+
 module jtshouse_main(
     input               rst,
     input               clk,
@@ -120,6 +120,7 @@ jtc117 u_mapper(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .bsel   ( bsel      ), // 0=master, 1=sub
+    .sub_Q  ( sub_Q     ),
     // interrupt triggers
     .lvbl   ( lvbl      ),
     .firqn  ( firqn     ),   // input that will trigger both FIRQ outputs

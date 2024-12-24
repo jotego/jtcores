@@ -10,16 +10,16 @@ names=[ { names="Shot,Bomb"} ]
 [ROM]
 regions = [
     { name="maincpu" },
-    { name="soundcpu", rename="audiocpu",  start="SND_START"  },
-    { name="maps",     rename="tilerom",   start="MAP_START"  },
-    { name="chars",     rename="gfx1",      start="CHAR_START", reverse=true },
-    { name="16x16tiles",     rename="gfx3",      start="SCR1_START", width=16, reverse=true, no_offset=true  },
-    { name="32x32tiles",     rename="gfx2",      start="SCR2_START" },
-    { name="sprites",   rename="gfx4",      start="OBJ_START", width=16, reverse=true, no_offset=true  },
-    { name="proms",                        start="PROM_START" }
+    { name="audiocpu",   start="SND_START"  },
+    { name="tilerom",    start="MAP_START"  },
+    { name="chars",      start="CHAR_START", reverse=true },
+    { name="16x16tiles", start="SCR1_START", width=16, reverse=true, no_offset=true  },
+    { name="32x32tiles", start="SCR2_START" },
+    { name="sprites",    start="OBJ_START", width=16, reverse=true, no_offset=true  },
+    { name="proms",      start="PROM_START" }
 ]
 
 order = [
-    "maincpu", "soundcpu", "maps", "chars", "16x16tiles", "32x32tiles",
+    "maincpu", "audiocpu", "tilerom", "chars", "16x16tiles", "32x32tiles",
     "sprites", "proms"
 ]

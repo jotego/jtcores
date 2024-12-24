@@ -1,0 +1,28 @@
+#!/bin/bash
+CORE=$1
+shift
+if [ -z "$CORE" ]; then
+	cat <<EOF
+Use jtgood <corename>
+
+jtgood is useful when combined with git bisect command
+In order to find the commit that broke a core do:
+
+git bisect start
+git bisect bad
+git bisect good good_rev_id
+git bisect run jtgood <corename> [-q]
+EOF
+	exit 1
+fi
+cd modules/jtframe/target
+git submodule update pocket
+rm -f ../src/jtframe/jtframe
+jtframe 
+jtframe mra $CORE; jtcore $CORE $*; jtbin2sd
+echo "Good y/n?"
+read RSLT
+if [ "$RSLT" = y ]; then
+	exit 0
+fi
+exit 1

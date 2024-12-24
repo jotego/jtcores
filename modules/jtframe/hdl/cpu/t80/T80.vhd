@@ -113,14 +113,14 @@ entity T80 is
 		A          : out std_logic_vector(15 downto 0);
 		DInst      : in  std_logic_vector(7 downto 0);
 		DI         : in  std_logic_vector(7 downto 0);
-		DO         : out std_logic_vector(7 downto 0);
+		DOUT       : out std_logic_vector(7 downto 0);
 		MC         : out std_logic_vector(2 downto 0);
 		TS         : out std_logic_vector(2 downto 0);
 		IntCycle_n : out std_logic;
 		IntE       : out std_logic;
 		Stop       : out std_logic;
 		out0       : in  std_logic := '0';  -- 0 => OUT(C),0, 1 => OUT(C),255
-		REG        : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+		REGS       : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
 
 		DIRSet     : in  std_logic := '0';
 		DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
@@ -382,7 +382,7 @@ architecture rtl of T80 is
 
 begin
 
-	REG <= IntE_FF2 & IntE_FF1 & IStatus & DOR & std_logic_vector(PC) & std_logic_vector(SP) & std_logic_vector(R) & I & Fp & Ap & F & ACC when Alternate = '0'
+	REGS <= IntE_FF2 & IntE_FF1 & IStatus & DOR & std_logic_vector(PC) & std_logic_vector(SP) & std_logic_vector(R) & I & Fp & Ap & F & ACC when Alternate = '0'
 			 else IntE_FF2 & IntE_FF1 & IStatus & DOR(127 downto 112) & DOR(47 downto 0) & DOR(63 downto 48) & DOR(111 downto 64) &
 						std_logic_vector(PC) & std_logic_vector(SP) & std_logic_vector(R) & I & Fp & Ap & F & ACC;
 
@@ -454,7 +454,7 @@ begin
 			Write       => Write,
 			XYbit_undoc => XYbit_undoc);
 
-	alu : T80_ALU
+	u_alu : T80_ALU
 		generic map(
 			Mode   => Mode,
 			Flag_C => Flag_C,
@@ -505,7 +505,7 @@ begin
 			XY_State <= "00";
 			IStatus <= "00";
 			MCycles <= "000";
-			DO <= "00000000";
+			DOUT <= "00000000";
 
 			ACC <= (others => '1');
 			F <= (others => '1');
@@ -875,15 +875,15 @@ begin
 					-- Keep D0 from M3 for RLD/RRD (Sorgelig)
 					I_RXDD <= I_RLD or I_RRD;
 					if I_RXDD='0' then
-						DO <= BusB;
+						DOUT <= BusB;
 					end if;
 					if I_RLD = '1' then
-						DO(3 downto 0) <= BusA(3 downto 0);
-						DO(7 downto 4) <= BusB(3 downto 0);
+						DOUT(3 downto 0) <= BusA(3 downto 0);
+						DOUT(7 downto 4) <= BusB(3 downto 0);
 					end if;
 					if I_RRD = '1' then
-						DO(3 downto 0) <= BusB(7 downto 4);
-						DO(7 downto 4) <= BusA(3 downto 0);
+						DOUT(3 downto 0) <= BusB(7 downto 4);
+						DOUT(7 downto 4) <= BusA(3 downto 0);
 					end if;
 				end if;
 
@@ -917,7 +917,7 @@ begin
 					when "10111" =>
 						ACC <= Save_Mux;
 					when "10110" =>
-						DO <= Save_Mux;
+						DOUT <= Save_Mux;
 					when "11000" =>
 						SP(7 downto 0) <= unsigned(Save_Mux);
 					when "11001" =>
@@ -927,7 +927,7 @@ begin
 					when others =>
 					end case;
 					if XYbit_undoc='1' then
-						DO <= ALU_Q;
+						DOUT <= ALU_Q;
 					end if;
 				end if;
 			end if;
@@ -1053,7 +1053,7 @@ begin
 		end if;
 	end process;
 
-	Regs : T80_Reg
+	u_Regs : T80_Reg
 		port map(
 			Clk => CLK_n,
 			CEN => ClkEn,

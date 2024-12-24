@@ -24,6 +24,7 @@ module jtc117(
     input               rst,
     input               clk,     // original runs at 6MHz (4x CPU)
     input               bsel,    // bus selection, 0=master, 1=sub, 1.5MHz
+    input               sub_Q,
     // interrupt triggers
     input               lvbl,
     input               firqn,   // input that will trigger both FIRQ outputs
@@ -57,7 +58,7 @@ module jtc117(
     input        [ 7:0] debug_bus,
     output reg   [ 7:0] st_dout
 );
-    reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l;
+    reg          vb_edge, lvbl_l, fedge, firqn_l, bsel_l, prstn;
     wire         xirq, srrqn, wdogn, mwdn, swdn, xbank, bsel_negedge;
     wire [22:12] mahi, sahi;
     wire [ 7: 0] mst_dout, sst_dout;
@@ -88,13 +89,15 @@ module jtc117(
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             mrst_n <= 0;
+            prstn  <= 0;    // pre reset n
             srst_n <= 0;
             bsel_l <= 0;
             st_dout <= 0;
         end else begin
             bsel_l <= bsel;
             mrst_n <= wdogn;
-            srst_n <= wdogn & srrqn;
+            prstn  <= wdogn & srrqn;
+            if( sub_Q ) srst_n <= prstn;    // always toggle it here
             st_dout <= debug_bus[0] ? sst_dout : mst_dout;
         end
     end
@@ -209,6 +212,11 @@ module jtc117_unit(
     assign mmr_cs = &{idx, vma, ~rnw};
     assign ahi    = { banks[idx], addr[12] };
     assign st_dout= { {8-WDW{1'b0}}, wdog_cnt};
+`ifdef SIMULATION
+    wire rst_sel = mmr_cs && rsel==8;
+`endif
+
+    reg pre_o;
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
@@ -222,6 +230,7 @@ module jtc117_unit(
             banks[4] <= 10'h180; banks[5] <= 10'h180;
             banks[6] <= 10'h180; banks[7] <= 10'h3FF;
             wdog_cnt <= 0;
+            pre_o    <= 0;
         end else begin
             oirq  <= 0;
             obank <= 0;
@@ -230,6 +239,8 @@ module jtc117_unit(
             if( vb_edge ) begin
                 irq_n <= 0;
                 wdog_cnt <= wd_en ? wdog_cnt + 1'd1 : {WDW{1'b0}};
+                if( pre_o ) orstn <= 1;
+                pre_o <= 0;
             end
             if( xbank ) banks[7][22:13] = { 2'b11, xdout };
             if( mmr_cs ) begin
@@ -240,7 +251,13 @@ module jtc117_unit(
                         else
                             banks[addr[11:9]][20:13] = dout;
                     end
-                    8: orstn <= dout[0];
+                    8: begin
+                        if( !dout[0] )
+                            orstn <= 0;
+                        else
+                            pre_o <= 1; // delaying the reset release until VB ensures consistent boot up
+                        // orstn <= dout[0];
+                    end
                     9: wdog_cnt <= 0;
                     // 10: ?
                     11: irq_n  <= 1;

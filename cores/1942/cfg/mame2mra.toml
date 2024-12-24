@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile=[ "1942.cpp" ]
+sourcefile=[ "1942.cpp", "vulgus.cpp", "higemaru.cpp" ]
 skip.setnames=[
     "1942abl",
     "1942p",
@@ -12,19 +12,53 @@ skip.setnames=[
     "galagax",
 ]
 
+[dipsw]
+extra=[
+    { machine="vulgus", name="Flip Screen", options="Off,On", bits="16" },
+]
+
+[header]
+info = """ Header to identify the PCB type
+        Byte 0 = 0 for 1942, 1 for Vulgus, 2 for Higemaru
+        Byte 1 = XOR with flip
+"""
+data = [
+    { machine="vulgus",   offset=0, data="01" },
+    { machine="higemaru", offset=0, data="02" },
+    # vulgusa is flipped relative to the others
+    # { setname = "vulgusa", offset=1, data="01" },
+]
+
 [buttons]
 names=[
-    { names="Shoot,Roll" }
+    { machine="1942",    names="Shoot,Roll" },
+    { machine="vulgus",  names="Shoot,Bomb" },
+    { machine="higemaru",names="Action"     }
 ]
 
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true, sequence=[0,1,2,3,3,4] },
-    { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="gfx1", start="JTFRAME_BA2_START", reverse=true },
-    { name="gfx3", width=16, sequence=[2,0,3,1] },
-    { name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START" },
-    { name="palproms", start="JTFRAME_PROM_START" },
+    # Higemaru
+    { machine="higemaru", name="maincpu" },
+    { machine="higemaru", name="audiocpu", skip=true },
+    { machine="higemaru", name="chars", reverse=true, start="JTFRAME_BA2_START", rename="gfx1" },
+    { machine="higemaru", name="tiles", skip=true },
+    { machine="higemaru", name="sprites", width=16, no_offset=true, rename="gfx3" },
+    { machine="higemaru", name="proms", start="JTFRAME_PROM_START", rom_len=0x100, no_offset=true },
+    # 1942
+    { machine="1942",   name="maincpu", no_offset=true, sequence=[0,1,2,3,3,4] },
+    { machine="1942",   name="audiocpu", start="JTFRAME_BA1_START" },
+    { machine="1942",   name="gfx1", start="JTFRAME_BA2_START", reverse=true },
+    { machine="1942",   name="gfx3", width=16, sequence=[2,0,3,1] },
+    { machine="1942",   name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START" },
+    { machine="1942",   name="palproms", start="JTFRAME_PROM_START" },
+    # Vulgus
+    { machine="vulgus", name="maincpu", no_offset=true },
+    { machine="vulgus", name="audiocpu", start="JTFRAME_BA1_START" },
+    { machine="vulgus", name="chars", start="JTFRAME_BA2_START", reverse=true, rename="gfx1" },
+    { machine="vulgus", name="sprites", width=16, sequence=[0,2,1,3], rename="gfx3" },
+    { machine="vulgus", name="tiles", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START", rename="gfx2" },
+    { machine="vulgus", name="proms", start="JTFRAME_PROM_START", sequence=[0,1,2,3,5,4,0,0,6,7] },
 ]
 
 order=["maincpu","audiocpu","gfx1", "gfx3", "gfx2",

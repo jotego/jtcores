@@ -8,8 +8,10 @@ sourcefile=[ "kchamp.cpp" ]
 Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]
 
 [dipsw]
-bitcnt = 8
 delete=[{names=["Unused","Unknown"]}]
+extra=[
+    { name="Link joysticks", options="Off,On", bits="8" },
+]
 
 [ROM]
 regions = [

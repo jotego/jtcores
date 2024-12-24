@@ -4,7 +4,6 @@ jtframe:
       - jtframe_z80.v
       - jtframe_z80wait.v
       - t80/T80.yaml
-      - tv80/tv80.yaml
   - from: ram
     get:
       - jtframe_dual_nvram.v

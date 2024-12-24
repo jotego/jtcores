@@ -6,7 +6,7 @@ sourcefile=[ "aliens.cpp",
     "thunderx.cpp",
     "crimfght.cpp",
     ]
-skip = { machines=["thunderx", "gbusters"] }
+skip = { machines=["thunderx"] }
 
 [buttons]
 names = [
@@ -19,13 +19,13 @@ names = [
 
 [header]
 info="""
-    bit   0 = ignored
+    bit   0 = GX878 (Gang Busters)
                  bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
 data = [
     { machine="scontra",  offset=0, data="02" },
     { machine="thunderx", offset=0, data="04" },
     { machine="crimfght", offset=0, data="06" },
-    # { machine="gbusters", offset=0, data="05" },
+    { machine="gbusters", offset=0, data="05" },
 ]
 
 [dipsw]

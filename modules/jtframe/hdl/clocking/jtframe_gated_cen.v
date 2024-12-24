@@ -23,14 +23,14 @@
 // generation is halted while busy input is high, and lost
 // cycles are recovered once busy goes low
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 
 module jtframe_gated_cen #( parameter
     W     =  2,
     MFREQ = 48000,
     NUM   = 1,
     DEN   = 8,
-    CW    = $clog2(DEN/NUM)+4
+    CW    = $clog2(DEN+NUM*2)+4
 )(
     input              rst,
     input              clk,
@@ -40,19 +40,19 @@ module jtframe_gated_cen #( parameter
     output     [ 15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
+localparam NUM2 = NUM<<1;
+
 // reg  [ W-1:0] pre;
 wire          over;
-wire [  CW:0] cencnt_nx;
+wire [  CW:0] cencnt_nx, sum;
 reg  [CW-1:0] cencnt=0;
-reg  [ W-1:0] toggle=0;
+reg  [ W-1:0] toggle=0, toggle_l=0;
 reg           blank=0;
 wire          cnt_en = !busy || rst;
 integer       i;
-/* verilator lint_off CMPCONST */
-assign over      = !blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
-assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
-                   (over && cnt_en ? DEN[CW:0] : {CW+1{1'b0}});
-/* verilator lint_on CMPCONST */
+
+assign over      = !blank && cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
+assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
 
 always @(posedge clk) begin
     blank <= 0;
@@ -60,10 +60,8 @@ always @(posedge clk) begin
     if( over && cnt_en ) begin
         blank <= 1;
         toggle <= toggle + 1'd1;
-        cen[0] <= 1;
-        for( i=1; i<W; i=i+1 ) begin
-            cen[i] <= toggle[i-1];
-        end
+        toggle_l <= toggle;
+        cen <= ~toggle & toggle_l;
     end else begin
         cen <= 0;
     end

@@ -15,13 +15,13 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 21-9-2023 */
-/* verilator tracing_off */
+
 module jtshouse_sound(
     input               srst_n,
     input               clk,
     input               cen_E,
     input               cen_Q,
-    input               prc_snd,
+    input               cen_sub,
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
@@ -50,18 +50,21 @@ module jtshouse_sound(
     input  signed[10:0] pcm_snd,
     output signed[15:0] left, right,
     output              sample,
-    output              peak
+    output              peak,
+    input        [ 7:0] debug_bus
 );
 `ifndef NOSOUND
-localparam [7:0] FMGAIN =8'h10,
-                 PCMGAIN=8'h10;
+localparam [7:0] FMGAIN =8'h0C,
+                 PCMGAIN=8'h10,
+                 CUS30G =8'h20;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
+wire [11:0] snd_l, snd_r;
+wire [12:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
-reg         irq_n, lvbl_l, VMA, rst;
-wire        bsel;
+reg         irq_n, lvbl_l, VMA, rst, bsel;
 wire        AVMA, firq_n, peak_l, peak_r;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
 wire signed [15:0] fm_l, fm_r;
@@ -70,7 +73,10 @@ assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
 assign peak     = peak_r | peak_l;
 assign ram_we   = ram_cs & ~rnw;
-assign bsel     = ~prc_snd;
+`ifdef SIMULATION
+wire bad_cs = tri_cs && A[10:0]==0;
+wire reply_cs = tri_cs && A[10:0]=='h2f && ~rnw;
+`endif
 
 always @* begin
     rom_cs   = 0;
@@ -83,7 +89,7 @@ always @* begin
         4'b00??: rom_cs   = 1;
         4'b0100: fm_cs    = 1;
         4'b0101: cus30_cs = 1;
-        4'b0111: tri_cs   = 1;
+        4'b0111: tri_cs   = !A[11]; // unclear whether bit A[11] is used in the decoding or not
         4'b100?: ram_cs   = 1;
         4'b11??: begin
             if( !rnw ) reg_cs = 1;
@@ -95,7 +101,8 @@ end
 
 always @(posedge clk) begin
     rst  <= ~srst_n;
-
+    if( cen_sub ) bsel <= 0;
+    if( cen_E   ) bsel <= 1;
     cpu_din <= rom_cs   ? rom_data :
                ram_cs   ? ram_dout :
                fm_cs    ? fm_dout  :
@@ -126,6 +133,7 @@ jtcus30 u_wav(
     .rst    ( rst       ),  // original does not have a reset pin
     .clk    ( clk       ),
     .bsel   ( bsel      ),
+    .cen    ( cen_E     ),
 
     .xdin   ( c30_dout  ),
     // main/sub bus
@@ -138,9 +146,16 @@ jtcus30 u_wav(
     .scs    ( cus30_cs  ),
     .srnw   ( rnw       ),
     .saddr  ( A         ),
-    .sdout  ( cpu_dout  )
+    .sdout  ( cpu_dout  ),
+
+    // sound output
+    .snd_l  ( cus30_l   ),
+    .snd_r  ( cus30_r   ),
+    .sample (           ),
+    .debug_bus(debug_bus)
 );
-/* verilator tracing_off */
+
+/* verilator tracing_on  */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock
@@ -163,37 +178,37 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer #(.W1(11)) u_right(
+jtframe_mixer #(.W1(11),.W2(13)) u_right(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_r      ),
     .ch1    ( pcm_snd   ),
-    .ch2    ( 16'd0     ),
+    .ch2    ( cus30_r   ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
     .gain1  ( PCMGAIN   ),
-    .gain2  ( 8'h00     ),
+    .gain2  ( CUS30G    ),
     .gain3  ( 8'h00     ),
     .mixed  ( right     ),
     .peak   ( peak_r    )
 );
 
-jtframe_mixer #(.W1(11)) u_left(
+jtframe_mixer #(.W1(11),.W2(13)) u_left(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     // input signals
     .ch0    ( fm_l      ),
     .ch1    ( pcm_snd   ),
-    .ch2    ( 16'd0     ),
+    .ch2    ( cus30_l   ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FMGAIN    ),
     .gain1  ( PCMGAIN   ),
-    .gain2  ( 8'h00     ),
+    .gain2  ( CUS30G    ),
     .gain3  ( 8'h00     ),
     .mixed  ( left      ),
     .peak   ( peak_l    )

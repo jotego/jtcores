@@ -30,14 +30,16 @@ func init() {
 	rootCmd.AddCommand(md5Cmd)
 }
 
+type MRAROM struct {
+	Index	int    `xml:"index,attr"`
+	Zip		string `xml:"zip,attr"`
+	Md5		string `xml:"asm_md5,attr"`
+}
+
 type MRA struct{
 	Setname string `xml:"setname"`
 	Rbf     string `xml:"rbf"`
-	Rom     struct {
-		Index	int    `xml:"index,attr"`
-		Zip		string `xml:"zip,attr"`
-		Md5		string `xml:"asm_md5,attr"`
-	} `xml:"rom"`
+	Rom     []MRAROM `xml:"rom"`
 	Dip		struct {
 		Default string `xml:"default,attr"`
 	} `xml:"switches"`
@@ -78,7 +80,14 @@ func list_md5() {
 	sbuf.WriteString(fmt.Sprintf("| Set Name     | Core       | Assembled MD5 Sum                | Default DIPs |\n"))
 	sbuf.WriteString(fmt.Sprintf("|--------------|------------|----------------------------------|--------------|\n"))
 	for _, each := range all {
-		sbuf.WriteString(fmt.Sprintf("| %-12s | %-10s | %32s | %-12s |\n", each.Setname, each.Rbf, each.Rom.Md5, each.Dip.Default ))
+		md5 := ""
+		for _, each_rom := range each.Rom {
+			if each_rom.Index==0 {
+				md5 = each_rom.Md5
+				break
+			}
+		}
+		sbuf.WriteString(fmt.Sprintf("| %-12s | %-10s | %32s | %-12s |\n", each.Setname, each.Rbf, md5, each.Dip.Default ))
 	}
 	e = os.WriteFile(filepath.Join(os.Getenv("JTBIN"),"md5.md"),[]byte(sbuf.String()),0664)
 	if e != nil {

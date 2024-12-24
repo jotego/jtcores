@@ -21,13 +21,18 @@
 
 
 module jt1942_sound(
+    input           rst,
     input           clk,    // 24   MHz
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
     input           cen1p5, //  1.5 MHz
-    input           rst,
+    input   [ 1:0]  game_id,
+    // Higemaru: AY chips are controlled by the main CPU
+    input           main_ay0_cs, main_ay1_cs,
     // Interface with main CPU
     input           sres_b,
     input   [ 7:0]  main_dout,
+    input           main_wr_n,
+    input           main_a0,
     input   [ 7:0]  snd_latch,
     input           main_latch0_cs,
     input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
@@ -45,16 +50,18 @@ module jt1942_sound(
 
 parameter EXEDEXES=0;
 `ifndef NOSOUND
+`include "1942.vh"
 wire mreq_n;
 wire rd_n;
 wire wr_n;
 
 reg ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg psg2_wr, psg1_wr;
+reg psg2_wr, psg1_wr, hige;
 
 reg [7:0] AH;
 
-wire [7:0] ram_dout, cpu_dout;
+wire [7:0] ram_dout, cpu_dout, ay_din, ay0_dout, ay1_dout;
+wire [9:0] sound0, sound1;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -66,20 +73,27 @@ end
 // interrupt latch
 reg int_n;
 wire iorq_n;
-always @(posedge clk)
+always @(posedge clk, posedge rst) begin
     if( rst ) int_n <= 1'b1;
     else if(cen3) begin
         if(!iorq_n) int_n <= 1'b1;
         else if( snd_int_edge ) int_n <= 1'b0;
     end
+end
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
+assign ay_din   = !hige ? cpu_dout : main_dout;
 
-reg reset_n=1'b0;
+reg reset_n=0, ay_rstn=0, ay_rst=0;
 
-always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | ~sres_b );
+always @(posedge clk) hige <= game_id == HIGEMARU;
+
+always @(posedge clk) if(cen3) begin
+    reset_n <= ~rst & sres_b;
+    ay_rstn <= ~rst & (sres_b | hige); // AY always on when running Higemaru
+    ay_rst  <= ~ay_rstn;
+end
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -101,6 +115,10 @@ always @(*) begin
         3'b110: if( EXEDEXES==0 ) ay1_cs = 1'b1;
         default:;
     endcase
+    if( hige ) begin
+        ay0_cs = main_ay0_cs;
+        ay1_cs = main_ay1_cs;
+    end
 end
 
 reg [7:0] latch0, latch1;
@@ -115,7 +133,6 @@ end else if(cen3) begin
 end
 
 reg [7:0] din;
-wire [7:0] ay1_dout, ay0_dout;
 
 always @(*) begin
     case( 1'b1 )
@@ -125,7 +142,7 @@ always @(*) begin
         rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
         default:  din = 8'hff;
-    endcase // {latch_cs,rom_cs,ram_cs}
+    endcase
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
@@ -154,18 +171,22 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rom_ok     ( rom_ok      )
 );
 
-wire        [ 9:0] sound0, sound1;
+function [1:0] bcdir( input cs );
+    bcdir[0] = cs       & ~(hige ? main_wr_n : wr_n); // bdir pin
+    bcdir[1] = bcdir[0] &  (hige ? main_a0   :~A[0]); // bc pin
+endfunction
 
-wire bdir0 = ay0_cs & ~wr_n;
-wire bc0   = ay0_cs & ~wr_n & ~A[0];
+wire bdir0, bc0;
+
+assign {bc0, bdir0} = bcdir(ay0_cs);
 
 jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
-    .rst_n  ( reset_n   ),
+    .rst_n  ( ay_rstn   ),
     .clk    ( clk       ),
     .clk_en ( cen1p5    ),
     .bdir   ( bdir0     ),
     .bc1    ( bc0       ),
-    .din    ( cpu_dout  ),
+    .din    ( ay_din    ),
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
@@ -234,16 +255,16 @@ generate
             .peak   ( peak      )   // overflow signal (time enlarged)
         );
     end else begin
-        wire bdir1 = ay1_cs & ~wr_n;
-        wire bc1   = ay1_cs & ~wr_n & ~A[0];
+        wire bdir1, bc1;
+        assign {bc1, bdir1} = bcdir(ay1_cs);
 
         jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
-            .rst_n  ( reset_n   ),
+            .rst_n  ( ay_rstn   ),
             .clk    ( clk       ),
             .clk_en ( cen1p5    ),
             .bdir   ( bdir1     ),
             .bc1    ( bc1       ),
-            .din    ( cpu_dout  ),
+            .din    ( ay_din    ),
             .sel    ( 1'b1      ),
             .dout   ( ay1_dout  ),
             .sound  ( sound1    ),
@@ -259,7 +280,7 @@ generate
         );
 
         jtframe_jt49_filters u_filters(
-            .rst    ( rst       ),
+            .rst    ( ay_rst    ),
             .clk    ( clk       ),
             .din0   ( sound0    ),
             .din1   ( sound1    ),

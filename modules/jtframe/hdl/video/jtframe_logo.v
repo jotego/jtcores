@@ -17,106 +17,82 @@
     Date: 11-8-2022 */
 
 module jtframe_logo #(parameter
-    COLORW  = 4,
-    SHOWHEX = 1
+    COLORW  = 4
 ) (
-    input        clk,
-    input        pxl_cen,
-    input        show_en,
-    // input  [1:0] rotate, //[0] - rotate [1] - left or right
+    input         rst,
+    input         clk,
+    input         pxl_cen,
 
-    // VGA signals coming from core
-    input  [3*COLORW-1:0] rgb_in,
-    input        hs,
-    input        vs,
-    input        lhbl,
-    input        lvbl,
+    input   [8:0] vdump, hdump,
 
-    // VGA signals going to video connector
-    output [3*COLORW-1:0] rgb_out,
-
-    // Logo download
-    input [10:0] prog_addr,
-    input [ 7:0] prog_data,
-    input        prog_we,
-
-    input [63:0] chipid,
-
-    output reg   hs_out,
-    output reg   vs_out,
-    output reg   lhbl_out,
-    output reg   lvbl_out
+    output reg [COLORW*3-1:0] rgb
 );
 
-reg  [ 8:0] hcnt=0,vcnt=0,
-            htot=9'd256, vtot=9'd256,
-            hover=0, vover=9'd100;
-reg  [ 9:0] hdiff, vdiff;
-reg         lhbl_l, lvbl_l;
-wire [10:0] addr;
-wire [ 7:0] rom;
-wire [COLORW-1:0] r_in, g_in, b_in;
-wire        idpxl;
-reg  [COLORW-1:0] r_out, g_out, b_out;
-reg         inzone;
+wire [10:1] tile_addr;
+wire [ 8:0] vaddr;
+wire [15:0] tile_data;
+wire [ 7:0] tile_id;
+wire [ 2:0] logopxl;
 
-jtframe_prom #(.synhex("jtframe_logo.hex"),.AW(11)) u_rom(
+
+jtframe_prom #(.synhex("logodata.hex"),.AW(10),.DW(16)) u_tiles(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
-    .data   ( prog_data ),
-    .rd_addr( addr      ),
-    .wr_addr( prog_addr ),
-    .we     ( prog_we   ),
-    .q      ( rom       )
+    .rd_addr( tile_addr ),
+    .data   ( 16'd0     ),
+    .wr_addr( 10'd0     ),
+    .we     ( 1'b0      ),
+    .q      ( tile_data )
 );
 
-assign addr = { vdiff[6:4], hdiff[7:0] }; // 256x256 (rows duplicated)
-assign {r_in,g_in,b_in} = rgb_in;
-assign rgb_out = { r_out, g_out, b_out };
-
-function [COLORW-1:0] filter( input [COLORW-1:0] v );
-    filter = !show_en ? v :                                     // regular video
-              {COLORW{ inzone ? rom[vdiff[3:1]] : idpxl & SHOWHEX[0] }};     // logo or chip ID
-endfunction
-
-always @(posedge clk) if( pxl_cen ) begin
-    { hs_out, vs_out     } <= { hs, vs };
-    { lhbl_out, lvbl_out } <= { lhbl, lvbl };
-    r_out <= filter( r_in );
-    g_out <= filter( g_in );
-    b_out <= filter( b_in );
-end
+jtframe_prom #(.synhex("logomap.hex"),.AW(9)) u_map(
+    .clk    ( clk       ),
+    .cen    ( 1'b1      ),
+    .rd_addr( vaddr     ),
+    .data   ( 8'd0      ),
+    .wr_addr( 9'd0      ),
+    .we     ( 1'b0      ),
+    .q      ( tile_id   )
+);
 
 always @* begin
-    hdiff = {1'b0,hcnt} - {1'b0,hover};
-    vdiff = {1'b0,vcnt} - {1'b0,vover};
-    inzone = hdiff < 256 && !hdiff[9] &&
-             vdiff < 128 && !vdiff[9];
+    case( logopxl[1:0] )
+        0: rgb = {3*COLORW{1'b0}}; // Black
+        1: rgb = {3*COLORW{1'b1}}; // White
+        default: rgb = { {COLORW{1'b1}}, {2*COLORW{1'b0}} }; // Red
+    endcase
 end
 
-// screen counter
-always @(posedge clk) if( pxl_cen ) begin
-    lhbl_l <= lhbl;
-    lvbl_l <= lvbl;
-    hcnt <= lhbl ? hcnt + 9'd1 : 9'd0;
-    if( !lhbl && lhbl_l ) begin
-        htot <= hcnt;
-        vcnt <= lvbl ? vcnt+9'd1 : 9'd0;
-    end
-    if( !lvbl && lvbl_l ) begin
-        vtot  <= vcnt;
-        hover <= htot<9'd256 ? 9'd0 : (htot-9'd256)>>1;
-        vover <= vtot<9'd128 ? 9'd0 : (vtot-9'd128)>>1;
-    end
-end
+jtframe_tilemap #(
+    .VA    (9),
+    .CW    (7),
+    .PW    (3),
+    .BPP   (2),
+    .MAP_HW(8),
+    .MAP_VW(7)
+)u_tilemap(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
 
-jtframe_hexdisplay #(.H0(64),.V0(192)) u_hexdisplay(
-    .clk     ( clk       ),
-    .pxl_cen ( pxl_cen   ),
-    .hcnt    ( hcnt      ),
-    .vcnt    ( vcnt      ),
-    .data    ( chipid    ),
-    .pxl     ( idpxl     )
+    .vdump      ( vdump[8:0]),
+    .hdump      ( hdump[8:0]),
+    .blankn     ( 1'b1      ),
+    .flip       ( 1'b0      ),
+
+    .vram_addr  ( vaddr     ),
+
+    .code       (tile_id[6:0]),
+    .pal        (tile_id[7] ),
+    .hflip      ( 1'b0      ),
+    .vflip      ( 1'b0      ),
+
+    .rom_addr   ( tile_addr ),
+    .rom_data   ( tile_data ),
+    .rom_cs     (           ),
+    .rom_ok     ( 1'b1      ),
+
+    .pxl        ( logopxl   )
 );
 
 endmodule

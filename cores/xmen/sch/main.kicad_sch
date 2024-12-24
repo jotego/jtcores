@@ -6339,7 +6339,7 @@
     (uuid 8a4156cd-9d4c-488e-bbb3-963ac720e1ff)
   )
   (text "THERE ARE NO EQUATIONS STORED IN JEDUTIL,\nFROM THE GAL22V10 DEVICE (Konami_054683)"
-    (at 12.7 143.51 0)
+    (at -377.19 138.43 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 9cef26d8-3e0f-40a6-9fc3-5f2ca27ac0a1)
   )

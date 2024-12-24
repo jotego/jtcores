@@ -1,0 +1,111 @@
+         \BJTSHOUSE\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+       PCB donated by
+        Kasim English
+
+      Based on the PCB
+  schematics, measurements
+      and MAME docs
+
+\R___Known issues___\W
+ - Minor graphic glitches
+ - boot-up hack (as MAME)
+ - Service mode halts
+ - MCU not cycle accurate
+
+ \B______ \RDIRECTORS\B _______\W
+Bender          Blue Abs       
+    Boogermann
+    Carlo Castagnasso
+Chris Gelatt    Filip Kindt    
+    Frederic Mahe
+    Fulvio Venturelli
+James D         Jeffrey Pierce 
+    John Lange
+    Ksenia Anastasia
+Martin Birkeldh Martin Donlon  
+    Porkchop Express
+    Pramod Somashekar
+Rysha           Shawn Henderson
+Tulio Adriano   Ulf Skutnabba  
+    f3bandit
+
+
+       \BThanks to\W
+\RAndrea Bogazzi  Arcade Express 
+\RBob Gallardo    Brian Sallee   
+\RDan Avedikian   Daniel Bauza   
+\RER              Eric Lewis     
+\R    GiRo SiNToRNiLLoS
+\RJim Weinhart    MGK            
+\R    MiSTerFPGA.co.uk
+\RNick Taylor     Pelayo Marinas 
+\RPeter Vessenes  R. Martinazzo  
+\RRenaissance 2K  RetroWilly     
+\RRobert Moran    Sayit BELET    
+\R    Tatton Partington
+\RTony Escobar    Tony Mika      
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis     
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways       
+Ayoub Zebian    Blackstar      
+Bryan Adams     Carrboroman    
+Chris Doyle     Chris Harvey   
+Christian       D.J. Estreito  
+DMG             Dan Bayley     
+Daniel Cortes   Darren Chell   
+David Ashby     David Moylan   
+Dean Winger     Don Gafford    
+Ed Balan        Eduardo Javier 
+EmperorStorky   Fred Jorge     
+Gareth Jones    Gus Douboulidis
+    Gwaland
+    Hendrik Osterholz
+    Henrik Nordstrom
+    Hugues Gelszinnis
+    INAKI ECHEVARRIA
+Ian Court       Ivo            
+JPS (RetroFPGA) James Stroup   
+Jason Nagy      Joe Tassone    
+Joeri van       John Casey     
+John Figueroa   John S         
+Jose Pulgar     Joseph Hsieh   
+Josh O'Roake    Juan Ramon     
+Juan Sandoval   Keith F. Kelly 
+Kent Pendragon  Krycek7o2      
+Leslie Law      Lionel LENOBLE 
+    Lukas Hinterleitner
+M. Ferguson     M. Fornasini   
+Marcus Hogue    Matthew Pollard
+    Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Miles Morales  
+MoonZ           Nelsun Nigh    
+Nima            Nunzio Mannino 
+Oliver Jaksch   Oscar Laguna   
+Peter Bray      RetroPrez      
+Retro_Brewz     Richard MS     
+Rob Jenkins     Robert MacLean 
+Robert Mullings Roman Buser    
+Sanborn         Shane Lynch    
+Steven Wilson   The Collector  
+Theodore Huber  Thompson Orcino
+Torren Beitler  Tym Whitney    
+Victor Gomariz  Vitor Duarte   
+Zachary Muske   albertprime    
+amoore2600      dannahan       
+hyp36rmax       taal.M         
+ultimatekd                     
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+

@@ -146,7 +146,7 @@ always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( Hfix[2:0]==DATAREAD ) begin // read data from memory when the CPU is forbidden to write on it
+    if( Hfix[2:0]==DATAREAD ) begin // read data from memory when the CPU does not have write access
         // Set input for ROM reading
         char_attr1 <= char_attr0;
         case( LAYOUT )

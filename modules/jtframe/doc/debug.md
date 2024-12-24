@@ -25,7 +25,7 @@ st_addr[7:4] |  Read
   00_00      |  SDRAM stats
   00_01      |  IOCTL status { 3'd0, ioctl_ram, 3'd0, downloading }
   01_??      |  Frame count (BCD) set st_addr[0] for upper byte
-  10_00      |  Sample rate (BCD)
+  10_00      |  Audio output sample rate (BCD)
   10_01      |  dipsw[ 7: 0]
   10_10      |  dipsw[15: 8]
   10_11      |  dipsw[23:16]
@@ -73,6 +73,12 @@ bits 3:2=2  | Show blank region stats
 ## Target Info
 
 By pressing SHIFT+CTRL again, the core displays an 8-bit signal defined by the JTFRAME target subsystem. This information is shown in blue. The MiSTer target uses this feature to show the status of the [line-frame buffer](../hdl/video/jtframe_lfbuf_ddr_ctrl.v).
+
+### MiST Target Info
+
+Fixed information with MiST base module internal status. The eight bits correspond to:
+
+`{ osd_shown, 1'b0, osd_rotate[1:0], 1'b0, no_csync, ypbpr, scan2x_enb }`
 
 ## Generic SDRAM Dump
 

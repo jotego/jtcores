@@ -18,7 +18,7 @@
 package cmd
 
 import (
-	"github.com/jotego/jtframe/jtfiles"
+	jtfiles "github.com/jotego/jtframe/files"
 	"github.com/spf13/cobra"
 )
 

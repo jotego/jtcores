@@ -21,7 +21,8 @@ module jt1942_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam VULGUS    = `ifdef VULGUS 1'b1; `else 1'b0; `endif
+`include "1942.vh"
+localparam BA3_START = `JTFRAME_BA3_START;
 localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
 
 wire [ 8:0] V, H;
@@ -30,7 +31,7 @@ wire char_cs;
 wire flip;
 wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
-wire        cpu_cen, wr_n, rd_n;
+wire        cpu_cen, wr_n, rd_n, ay0_cs, ay1_cs, main_wr_n;
 // sound
 wire        sres_b, snd_latch0_cs, snd_latch1_cs, snd_int;
 wire [ 7:0] snd_latch;
@@ -38,51 +39,65 @@ wire [ 7:0] snd_latch;
 wire        scr_cs, obj_cs;
 wire [ 2:0] scr_br;
 wire [ 8:0] scr_hpos, scr_vpos;
-wire        char_busy, scr_busy, eff_flip;
+wire        char_busy, scr_busy;
 
 wire        prom_red_we, prom_green_we, prom_blue_we,
             prom_char_we, prom_scr_we, prom_obj_we,
             prom_d1_we, prom_d2_we, prom_irq_we;
 
-assign prom_red_we   = prog_addr[11:8]==0; // sb-5.e8
-assign prom_green_we = prog_addr[11:8]==1; // sb-6.e9
-assign prom_blue_we  = prog_addr[11:8]==2; // sb-7.e10
-assign prom_char_we  = prog_addr[11:8]==3; // sb-0.f1
-assign prom_scr_we   = prog_addr[11:8]==4; // sb-4.d6
-assign prom_obj_we   = prog_addr[11:8]==5; // sb-8.k3
-assign prom_d1_we    = prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus
-assign prom_d2_we    = prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
-assign prom_irq_we   = prog_addr[11:8]==8; // sb-1.k6
+reg  [ 1:0] game_id=0;
+reg         flip_xor=0, eff_flip=0, hige=0;
+
+assign prom_red_we   = prom_we && prog_addr[11:8]==0; // sb-5.e8 - also used as Higemaru's palette
+assign prom_green_we = prom_we && prog_addr[11:8]==1; // sb-6.e9
+assign prom_blue_we  = prom_we && prog_addr[11:8]==2; // sb-7.e10
+assign prom_char_we  = prom_we && prog_addr[11:8]==(!hige ? 4'd3 : 4'd1); // sb-0.f1
+assign prom_scr_we   = prom_we && prog_addr[11:8]==4; // sb-4.d6
+assign prom_obj_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd5 : 4'd2); // sb-8.k3
+assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus
+assign prom_d2_we    = prom_we && prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
+assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd8 : 4'd3); // sb-1.k6
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 assign debug_view = 0;
-
-`ifndef VULGUS
-assign dip_flip = flip;
-assign eff_flip = flip;
-`else
-assign eff_flip = dip_flip;
-`endif
+assign dip_flip = eff_flip^flip_xor;
 
 always @* begin
     post_addr = prog_addr;
-    if( ioctl_addr[24:0]>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
+    if( ioctl_addr[24:8]>=OBJ_START[24:8] && ioctl_addr[24:8]<BA3_START[24:8] && !hige ) begin // bypass the header in the comparison
         post_addr[5:1] = { post_addr[4:1], post_addr[5] };
     end
 end
 
-jt1942_main #(.VULGUS(VULGUS)) u_main(
+always @(posedge clk) begin
+    hige <= game_id==HIGEMARU;
+    if( header && prog_we ) begin
+        case(ioctl_addr[0])
+            0: game_id  <= prog_data[1:0];
+            1: flip_xor <= prog_data[0];
+        endcase
+    end
+    // Vulgus has an "extra" DIP switch to enable screnn flip
+    eff_flip <= (game_id==VULGUS & dipsw[16]) ^ flip_xor ^ flip ;
+end
+
+jt1942_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+
+    .game_id    ( game_id       ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
     .snd_latch1_cs ( snd_latch1_cs ),
     .snd_int       ( snd_int       ),
+    // Higemaru's sound
+    .ay0_cs     ( ay0_cs        ),
+    .ay1_cs     ( ay1_cs        ),
 
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
@@ -130,14 +145,22 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
 
 jt1942_sound u_sound (
     .rst            ( rst            ),
+    .sres_b         ( sres_b         ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
-    .sres_b         ( sres_b         ),
+    .game_id        ( game_id        ),
+
     .main_dout      ( cpu_dout       ),
     .main_latch0_cs ( snd_latch0_cs  ),
     .main_latch1_cs ( snd_latch1_cs  ),
     .snd_int        ( snd_int        ),
+    // Higemaru's sound
+    .main_wr_n      ( wr_n           ),
+    .main_ay0_cs    ( ay0_cs         ),
+    .main_ay1_cs    ( ay1_cs         ),
+    .main_a0        ( cpu_AB[0]      ),
+    // Sub Z80 ROM
     .rom_cs         ( snd_cs         ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -154,13 +177,14 @@ jt1942_video u_video(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .game_id    ( game_id       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V             ),
     .H          ( H             ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
-    .flip       ( eff_flip      ),
+    .flip       ( dip_flip      ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
     // CHAR
@@ -196,7 +220,7 @@ jt1942_video u_video(
     .gfx_en     ( gfx_en        ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
-    .prog_din   ( prog_data[3:0]),
+    .prog_din   ( prog_data     ),
     .prom_char_we( prom_char_we ),
     .prom_d1_we ( prom_d1_we    ),
     .prom_d2_we ( prom_d2_we    ),

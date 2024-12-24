@@ -101,9 +101,9 @@ end
 always @(*) begin
     case( cfg )
         SCONTRA, THUNDERX: begin
-            rom_addr[17] = 0;
-            rom_addr[16] = banked_cs && eff_bank[3];
-            rom_addr[15] = (banked_cs && eff_bank[3]) ? eff_bank[2] : A[15];
+            rom_addr[17]    = 0;
+            rom_addr[16]    =  banked_cs && eff_bank[3];
+            rom_addr[15]    = (banked_cs && eff_bank[3]) ? eff_bank[2] : A[15];
             rom_addr[14:13] = banked_cs ? eff_bank[1:0] : A[14:13];
             rom_addr[12:0]  = A[12:0];
         end
@@ -164,7 +164,7 @@ always @(*) begin
                           | &A[9:7] & norA65 & incs );
         end
         SCONTRA, THUNDERX: begin
-            banked_cs  = A[15:13]==3 && init; // 6000-7FFFF
+            banked_cs  = A[15:13]==3 && (init || cfg==THUNDERX); // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && ~work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && (!A[11] || !A[12]&&A[11] || work);
             ioout      = A[15:13]==0;
@@ -188,7 +188,7 @@ always @(*) begin
             tilesys_cs = A[15:14]==1 && ( !init || (!io_cs && !pal_cs && !objsys_cs));
         end
     endcase
-    rom_cs = !rst_cmb && (A[15] || banked_cs); // >=8000
+    rom_cs = !rst_cmb && (A[15] || banked_cs) && !cpu_we; // >=8000
 end
 
 always @* begin
@@ -215,8 +215,8 @@ always @(posedge clk, posedge rst) begin
         berr_l    <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
-        eff_nmi_n <= cfg==ALIENS ? nmi_n : 1'b1;
-        eff_bank <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
+        eff_nmi_n <= (cfg==ALIENS || cfg==THUNDERX) ? nmi_n : 1'b1;
+        eff_bank  <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
         if( cfg==CRIMFGHT ) begin
             init <= Aupper[7];
             rmrd <= Aupper[6];

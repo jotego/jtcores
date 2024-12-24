@@ -27,14 +27,14 @@ wire        brnw, srnw, mcu_rnw, srst_n, firqn,
             key_cs, bc30_cs, pal_cs, pcm_busy, scfg_cs;
 wire [ 7:0] bdout, sndcpu_dout, c30_dout,
             key_dout, pal_dout, scfg_dout,
-            alt_din, tri_dout,
+            tri_snd, tri_mcu, tri_dout,
             st_video, st_main;
 wire [ 8:0] hdump;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
-wire        prc_main, prc_sub,  prc_snd,  prc_mcu,
-            cen_main, cen_sub,  cen_snd,  cen_mcu;
+wire        prc_snd,
+            cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
 wire        obus_cs, ram_cs, dma_we;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
@@ -74,13 +74,10 @@ jtshouse_cenloop u_cen(
     .clk        ( clk       ),
     .busy       ( busy      ),
 
-    .prc_main   ( prc_main  ),
-    .prc_sub    ( prc_sub   ),
-    .prc_snd    ( prc_snd   ),
-    .prc_mcu    ( prc_mcu   ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
     .cen_snd    ( cen_snd   ),
+    .cen_sndq   ( cen_sndq  ),
     .cen_mcu    ( cen_mcu   ),
 
     .fave       ( fave      ),
@@ -156,7 +153,7 @@ jtshouse_main u_main(
 
 jtshouse_mcu u_mcu(
     .clk        ( clk       ),
-    .rstn       ( srst_n & ~debug_bus[0]   ),
+    .rstn       ( srst_n /*& ~debug_bus[0]*/   ),
     .cen        ( cen_mcu   ), // is 2 the best one?
 
     .lvbl       ( LVBL      ),
@@ -166,7 +163,7 @@ jtshouse_mcu u_mcu(
     .rnw        ( mcu_rnw   ),
     .mcu_dout   ( mcu_dout  ),
     .ram_cs     ( mcutri_cs ),
-    .ram_dout   ( alt_din   ),
+    .ram_dout   ( tri_mcu   ),
     // cabinet I/O
     .cab_1p     ( cab_1p    ),
     .coin       ( coin      ),
@@ -193,15 +190,17 @@ jtshouse_mcu u_mcu(
     .pcm_ok     ( pcm_ok    ),
     .bus_busy   ( busy[1]   ),
 
-    .snd        ( pcm_snd   )
+    .snd        ( pcm_snd   ),
+    .debug_bus  ( debug_bus )
 );
 
 jtshouse_sound u_sound(
-    .srst_n     ( srst_n & ~debug_bus[1]   ),
+    //.srst_n     ( srst_n    ),
+    .srst_n     ( ~rst    ),
     .clk        ( clk       ),
     .cen_E      ( cen_snd   ),
-    .cen_Q      ( cen_mcu   ),
-    .prc_snd    ( prc_snd   ),
+    .cen_Q      ( cen_sndq  ),
+    .cen_sub    ( cen_sub   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .lvbl       ( LVBL      ),
@@ -213,7 +212,7 @@ jtshouse_sound u_sound(
     .c30_dout   ( c30_dout  ),
 
     .tri_cs     ( stri_cs   ),
-    .tri_dout   ( alt_din   ),
+    .tri_dout   ( tri_snd   ),
 
     .rnw        ( srnw      ),
     .ram_we     ( sndram_we ),
@@ -230,7 +229,8 @@ jtshouse_sound u_sound(
     .left       ( snd_left  ),
     .right      ( snd_right ),
     .sample     ( sample    ),
-    .peak       ( game_led  )
+    .peak       ( game_led  ),
+    .debug_bus  ( debug_bus )
 );
 
 jtshouse_triram u_triram(
@@ -258,9 +258,12 @@ jtshouse_triram u_triram(
     .sdout      (sndcpu_dout),
 
     .bdin       ( tri_dout  ),
-    .alt_din    ( alt_din   )       // input to MCU and sound CPU
-);
+    .mcu_din    ( tri_mcu   ),
+    .snd_din    ( tri_snd   ),
 
+    .debug_bus  ( debug_bus )
+);
+/* verilator tracing_off */
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

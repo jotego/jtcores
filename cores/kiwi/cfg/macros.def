@@ -42,6 +42,7 @@ JTFRAME_ARX=5
 JTFRAME_ARY=4
 CORE_OSD=OD,Button aid,Off,On
 
-[mister|pocket]
--JTFRAME_SKIP
+[mist|sidi]
+# won't fit
+JTFRAME_SKIP
 

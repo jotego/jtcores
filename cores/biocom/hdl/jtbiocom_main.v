@@ -200,6 +200,8 @@ always @(posedge clk, posedge rst) begin
             if( scr2hpos_cs && !RnW) scr2_hpos <= cpu_dout[8:0];
             if( scr2vpos_cs && !RnW) scr2_vpos <= cpu_dout[8:0];
         end else begin
+            scr2_hpos <= 0;
+            scr2_vpos <= 0;
             if( scr1hpos_cs ) begin
                 if(!UDSWn) scr1_hpos[15:8] <= cpu_dout[15:8];
                 if(!LDSWn) scr1_hpos[ 7:0] <= cpu_dout[ 7:0];

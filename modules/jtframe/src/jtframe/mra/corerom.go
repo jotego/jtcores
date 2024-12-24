@@ -62,7 +62,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 
 	var previous StartNode
 	for _, reg := range regions {
-		reg_cfg := find_region_cfg(machine, reg, cfg)
+		reg_cfg := find_region_cfg(machine, reg, cfg, args.Verbose)
 		if reg_cfg.Skip {
 			continue
 		}
@@ -81,7 +81,6 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			}
 		}
 		// Proceed with the ROM listing
-
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
 			if len(reg_roms)!=0 { fmt.Printf(
 				"\tstart offset overcome by 0x%X while parsing region %s in %s\n",
@@ -101,7 +100,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				fill_upto(&pos, start_pos+reg_cfg.Len, p)
 			} else {
 				p.AddNode(fmt.Sprintf("Skipping region %s because there is no dump known",
-					reg_cfg.Name)).comment = true
+					reg_cfg.EffName())).comment = true
 			}
 			continue
 		}
@@ -340,20 +339,21 @@ func make_frac_map(reverse bool, bytes, total, step int) string {
 }
 
 func extract_region(reg_cfg *RegCfg, roms []MameROM, remove []string) (ext []MameROM) {
+	eff_name := reg_cfg.EffName()
 	// Custom list
 	if len(reg_cfg.Files) > 0 {
 		// fmt.Println("Using custom files for ", reg_cfg.Name)
 		ext = make([]MameROM, len(reg_cfg.Files))
 		copy(ext, reg_cfg.Files)
 		for k, _ := range ext {
-			ext[k].Region = reg_cfg.Name
+			ext[k].Region = eff_name
 		}
 		return
 	}
 	// MAME list
 roms_loop:
 	for _, r := range roms {
-		if r.Region == reg_cfg.Name {
+		if r.Region == eff_name {
 			for _, rm := range remove {
 				if rm == r.Name {
 					continue roms_loop
@@ -381,16 +381,18 @@ func fill_upto(pos *int, fillto int, parent *XMLNode) int {
 	if delta <= 0 {
 		return delta
 	}
+	// fmt.Printf("fill_upto: at %x, upto %x, delta=%x\n", *pos, fillto, delta)
 	parent.AddNode("part", " FF").AddAttr("repeat", fmt.Sprintf("0x%X", fillto-*pos))
 	*pos += delta
 	return delta
 }
 
-func find_region_cfg(machine *MachineXML, regname string, cfg Mame2MRA) *RegCfg {
+func find_region_cfg(machine *MachineXML, regname string, cfg Mame2MRA, verbose bool) *RegCfg {
 	var best *RegCfg
 	for k, each := range cfg.ROM.Regions {
-		if each.Name == regname {
+		if each.EffName() == regname {
 			m := each.Match(machine)
+			// if verbose { fmt.Println(machine.Name," checking region config: ", each, "\n\tmatch level=",m)}
 			if m == 3 {
 				best = &cfg.ROM.Regions[k]
 				break
@@ -401,6 +403,7 @@ func find_region_cfg(machine *MachineXML, regname string, cfg Mame2MRA) *RegCfg 
 	}
 	// the region does not have a configuration in the TOML file, set a default one:
 	if best == nil {
+		if verbose { fmt.Printf("%s: using blank configuration for ROM regions %s\n",machine.Name, regname)}
 		best = &RegCfg{
 			Name: regname,
 		}
@@ -513,7 +516,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 	start_pos := *pos
 	for _, r := range reg_roms {
 		offset := r.Offset
-		if reg_cfg.No_offset || ((offset&0xfffffff0)==0) {
+		if reg_cfg.No_offset || ((offset&^0xf)==0) {
 			offset = 0
 		} else {
 			if delta := fill_upto(pos, ((offset&-2)-reg_pos)+*pos, p); delta < 0 {
@@ -971,13 +974,4 @@ func interleave_group( reg string,
 		n = p
 		k += rom_cnt
 	}
-}
-
-// The MRA tool shortens ROM file names to 8 characters
-// We need to match that
-func shorten_name(name string) string {
-	if len(name) <= 8 {
-		return name
-	}
-	return name[0:5] + name[len(name)-3:]
 }

@@ -58,4 +58,15 @@ ghdl -a -fsynopsys @gatherfile
 ghdl synth --out=verilog toplevel_name > toplevel_name.v
 ```
 
+To use `ghdl` in Ubuntu declare this function:
+
+```
+ghdl ()
+{
+    docker run -ti -w/mnt -v `pwd`:/mnt ghdl/ghdl:ubuntu22-llvm-11 ghdl $*
+}
+```
+
+When converting VHDL to Verilog, it might be needed to rename instance names because they are used by the tool to generate signal names and that can create duplications in the verilog code. See [this issue](https://github.com/ghdl/ghdl/issues/2329).
+
 Another valid tool is [VHD2VL](https://github.com/ldoolitt/vhd2vl)

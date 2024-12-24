@@ -96,7 +96,8 @@ endmodule
 module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
-    KONAMI   = 0    // Enable Konami-1 mode
+    KONAMI   = 0,   // Enable Konami-1 mode
+    CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
     input           rstn,
     input           clk,
@@ -125,7 +126,8 @@ module jtframe_sys6809 #( parameter
     jtframe_sys6809_dma #(
         .RAM_AW     ( RAM_AW    ),
         .RECOVERY   ( RECOVERY  ),
-        .KONAMI     ( KONAMI    )
+        .KONAMI     ( KONAMI    ),
+        .CENDIV     ( CENDIV    )
     ) u_sys6809(
         .rstn       ( rstn      ),
         .clk        ( clk       ),
@@ -169,7 +171,8 @@ module jtframe_sys6809_dma #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1/2 mode
-    IRQFF    = KONAMI==2   // Add latches for IRQ signals
+    IRQFF    = KONAMI==2,// Add latches for IRQ signals
+    CENDIV   = 1         // set to zero to not divide by four the input cen, implies RECOVERY=0
 )
 (
     input           rstn,
@@ -265,17 +268,27 @@ module jtframe_sys6809_dma #( parameter
         end
     endgenerate
 
-    jtframe_6809wait #(.RECOVERY(RECOVERY)) u_wait(
-        .rstn       ( rstn      ),
-        .clk        ( clk       ),
-        .cen        ( cen       ),
-        .cpu_cen    ( cpu_cen   ),
-        .rom_cs     ( rom_cs    ),
-        .rom_ok     ( rom_ok    ),
-        .dev_busy   ( bus_busy  ),
-        .cen_E      ( cen_E     ),
-        .cen_Q      ( cen_Q     )
-    );
+    generate
+        if( CENDIV==1 ) begin
+            jtframe_6809wait #(.RECOVERY(RECOVERY)) u_wait(
+                .rstn       ( rstn      ),
+                .clk        ( clk       ),
+                .cen        ( cen       ),
+                .cpu_cen    ( cpu_cen   ),
+                .rom_cs     ( rom_cs    ),
+                .rom_ok     ( rom_ok    ),
+                .dev_busy   ( bus_busy  ),
+                .cen_E      ( cen_E     ),
+                .cen_Q      ( cen_Q     )
+            );
+        end else begin
+            assign cpu_cen = cen & (rom_ok|~rom_cs);
+            reg cen_Ql;
+            assign cen_Q = cen_Ql;
+            assign cen_E = cpu_cen;
+            always @(posedge clk) cen_Ql <= cpu_cen;
+        end
+    endgenerate
 
     generate
         if( RAM_AW != 0 ) begin

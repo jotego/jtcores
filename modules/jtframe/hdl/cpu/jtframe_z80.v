@@ -417,7 +417,6 @@ module jtframe_z80 (
     `endif
     `endif
 
-    `ifdef VHDLZ80
     T80s u_cpu(
         .RESET_n    ( rst_n       ),
         .CLK        ( clk         ),
@@ -429,41 +428,17 @@ module jtframe_z80 (
         .WR_n       ( wr_n        ),
         .A          ( A           ),
         .DI         ( din         ),
-        .DO         ( dout        ),
+        .DOUT       ( dout        ),
         .IORQ_n     ( iorq_n      ),
         .M1_n       ( m1_n        ),
         .MREQ_n     ( mreq_n      ),
         .BUSRQ_n    ( busrq_n     ),
         .BUSAK_n    ( busak_n     ),
         .RFSH_n     ( rfsh_n      ),
-        .out0       ( 1'b0        ),
+        .OUT0       ( 1'b0        ),
         .HALT_n     ( halt_n      )
     );
-    `endif
 
-    `ifdef TV80S
-    // This CPU is used for simulation
-    tv80s #(.Mode(0)) u_cpu (
-        .reset_n( rst_n      ),
-        .clk    ( clk        ),
-        .cen    ( cen        ),
-        .wait_n ( wait_n     ),
-        .int_n  ( int_n_pin  ),
-        .nmi_n  ( nmi_n      ),
-        .rd_n   ( rd_n       ),
-        .wr_n   ( wr_n       ),
-        .A      ( A          ),
-        .di     ( din        ),
-        .dout   ( dout       ),
-        .iorq_n ( iorq_n     ),
-        .m1_n   ( m1_n       ),
-        .mreq_n ( mreq_n     ),
-        .busrq_n( busrq_n    ),
-        .busak_n( busak_n    ),
-        .rfsh_n ( rfsh_n     ),
-        .halt_n ( halt_n     )
-    );
-    `endif
     /* verilator tracing_on */
 
 endmodule // jtframe_z80
