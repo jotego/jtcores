@@ -32,64 +32,61 @@ You can read the whole license file at http://www.gnu.org/licenses/
 `default_nettype none
 
 module nemesis_game(
+/*
 	// Clocks
 	input           rst,
-	input           clk,          // 48 MHz
-	output          pxl2_cen,     // 12 MHz
-	output          pxl_cen,      //  6 MHz
+	input           clk,        // 48 MHz
+	output          pxl2_cen,   // 12 MHz
+	                pxl_cen,    // 6 MHz
 	// Video
-	output   [7:0]  red,          // Width set by macro JTFRAME_COLORW
-	output   [7:0]  green,        // |
-	output   [7:0]  blue,         // |
-	output          LHBL,         // Horizontal Blank, possibly delayed
-	output          LVBL,         // Vertical Blank, possibly delayed
-	output          HS,           // Horizontal video sync output
-	output          VS,           // Vertical video sync output
+	output   [`JTFRAME_COLORW-1:0]  red, green, blue,
+	output          LHBL,       // Horizontal Blank, possibly delayed
+	                LVBL,       // Vertical Blank, possibly delayed
+	                HS,         // Horizontal video sync output
+	                VS,         // Vertical video sync output
+	output          game_led,
 	// Cabinet I/O
-	input   [ 1:0]  cab_1p,
-	input   [ 1:0]  coin,
-	input   [ 7:0]  joystick1,    // 4 directions, 3 buttons, MSB unused
-	input   [ 7:0]  joystick2,    // |
+	input   [ 1:0]  cab_1p, coin,
+	input   [`JTFRAME_BUTTONS+3:0] joystick1,
+	                               joystick2, // 4 directions, 3 buttons, MSB unused
+	// Sound control
+	input           enable_fm, enable_psg,
+	// DIP switches
+	input   [31:0]  status, dipsw,
+	// Not DIPs on the original PCB
+	input           dip_pause, dip_test, service, tilt,
+	output          dip_flip,
+	input   [ 1:0]  dip_fxlevel,
+	// Sound output
+	output signed [15:0] snd,
+	output          sample,
+	// Debug
+	input   [3:0]   gfx_en,
+	input   [7:0]   debug_bus,
+	output  [7:0]   debug_view,
+
+	// ROM Download
+	input   [25:0]  ioctl_addr,
+	input   [ 7:0]  ioctl_dout,
+	input           ioctl_wr,
 	// SDRAM Interface
 	input           ioctl_rom,
-	output          dwnld_busy,   // needs to be kept to 1 until finished downloading
+	output          dwnld_busy, // needs to be kept to 1 until finished downloading
+	input   [15:0]  data_read,
+	input           ioctl_cart,
 	output          sdram_req,
-	output  [21:0]  sdram_addr,
+	output [21:0]   sdram_addr,
 	input           data_dst,
-	input   [31:0]  data_read,
 	input           data_rdy,
 	input           sdram_ack,
 	// ROM Download
-	input   [24:0]  ioctl_addr,
-	input   [ 7:0]  ioctl_dout,
-	input           ioctl_wr,
-	output  [21:0]  prog_addr,
-	output  [ 7:0]  prog_data,
-	output  [ 1:0]  prog_mask,
+	output [ 7:0]   prog_data,
 	output          prog_we,
 	output          prog_rd,
-	// DIP Switches
-	input   [63:0]  status,
-	input   [31:0]  dipsw,
-	input           dip_pause,    // Not DIPs on the original PCB
-	inout           dip_flip,     // |
-	input           dip_test,     // |
-	input   [ 1:0]  dip_fxlevel,  // |
-	input           service,
-	input           tilt,
-	// Sound Output
-	output   [15:0] snd,
-	output          sample,
-	input           enable_psg,
-	input           enable_fm,
-	// Debug
-	output          game_led,
-	input   [ 3:0]  gfx_en
-`ifndef JTFRAME_RELEASE
-	,
-	input   [ 7:0]  debug_bus,
-	output  [ 7:0]  debug_view
-`endif
+	output  [ 1:0]  prog_mask,
+	                prog_addr   // no comma here, end of port list%
+*/
+	`include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 ///////////////////

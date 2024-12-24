@@ -12,6 +12,7 @@ JTFRAME_OSD_NOLOGO
 JTFRAME_PLL=jtframe_pll6144
 
 # unsigned sound
+# TODO: does it still exist?
 JTFRAME_SIGNED_SND=0
 
 JT49_EXP=nemesis_jt49_exp
