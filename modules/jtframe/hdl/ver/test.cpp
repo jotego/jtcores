@@ -522,9 +522,6 @@ void SDRAM::dump() {
             fprintf(stderr, "ERROR: (test.cpp) saving to %s\n", fname );
         }
         fprintf(stderr,"\t%s dumped\n", fname );
-#ifndef _JTFRAME_SDRAM_BANKS
-        break;
-#endif
     }
     delete[] aux;
 }
@@ -640,12 +637,7 @@ int SDRAM::read_offset( int region ) {
 }
 
 SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
-#ifdef _JTFRAME_SDRAM_BANKS
-    fputs("Multibank SDRAM enabled\n",stderr);
     const int MAXBANK=3;
-#else
-    const int MAXBANK=0;
-#endif
     banks[0] = nullptr;
     burst_len= 1;
     for( int k=0; k<4; k++ ) {

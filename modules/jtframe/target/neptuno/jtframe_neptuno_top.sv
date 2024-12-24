@@ -195,9 +195,6 @@ wire          downloading, dwnld_busy;
 
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0]   prog_data;
-`ifndef JTFRAME_SDRAM_BANKS
-wire [ 7:0]   prog_data8;
-`endif
 wire [ 1:0]   prog_mask, prog_ba;
 wire          prog_we, prog_rd, prog_rdy, prog_ack, prog_dst, prog_dok;
 wire [ 7:0]   st_addr, st_dout;
@@ -312,26 +309,6 @@ wire [31:0]dipsw;
 localparam DIPBASE=`JTFRAME_DIPBASE;
 `else
 localparam DIPBASE=16;
-`endif
-
-`ifndef JTFRAME_SDRAM_BANKS
-    assign prog_ba   = 2'd0;
-    // tie down unused bank signals
-    assign ba1_addr = 22'd0;
-    assign ba2_addr = 22'd0;
-    assign ba2_ack  = 0;
-    assign ba3_addr = 22'd0;
-    assign prog_data = {2{prog_data8}};
-    assign ba_rd[3:1] = 0;
-    assign ba_wr      = 0;
-    assign ba0_din    = 0;
-    assign ba0_dsn    = 3;
-    assign ba1_din    = 0;
-    assign ba1_dsn    = 3;
-    assign ba2_din    = 0;
-    assign ba2_dsn    = 3;
-    assign ba3_din    = 0;
-    assign ba3_dsn    = 3;
 `endif
 
 jtframe_mist #(

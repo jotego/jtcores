@@ -237,12 +237,8 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	if ! exists {
 		fmt.Fprintf(os.Stderr, "CORENAME not specified in cfg/macros.def. Defaults to %s\n", cfg.Core)
 	}
-	// Memory templates require JTFRAME_SDRAM_BANKS and JTFRAME_MEMGEN
+	// Memory templates require JTFRAME_MEMGEN
 	if mem_managed {
-		_, exists = macros["JTFRAME_SDRAM_BANKS"]
-		if !exists && mem_managed {
-			macros["JTFRAME_SDRAM_BANKS"] = ""
-		}
 		macros["JTFRAME_MEMGEN"] = ""
 	}
 	// Macros with default values

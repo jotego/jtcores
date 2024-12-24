@@ -82,7 +82,7 @@ At the time of writting, MiSTer firmware doesn't handle correctly NVRAM sizes eq
 
 # Memory RTL Generator
 
-JTFRAME expects the core game module to have the SDRAM interface ports for downloading the game data and accessing the SDRAM during the core operation. There are two different interfaces possible, one that only supports a single SDRAM bank and one that supports the four SDRAM banks (enabled with **JTFRAME_SDRAM_BANKS**). JTFRAME also provides the developer with a series of modules to interface with the SDRAM as easily as possible.
+JTFRAME expects the core game module to have the SDRAM interface ports for downloading the game data and accessing the SDRAM during the core operation. The interface supports full access to the four SDRAM banks. JTFRAME also provides the developer with a series of modules to interface with the SDRAM as easily as possible.
 
 However, making these connections is error prone and also ties the core to a SDRAM memory implementation. Taking the SDRAM out of the game module will make it implementation independent. A game module that just demands data and waits for it can then be connected to a SDRAM, BRAM, DDR or other technology. The problem with this approach is how to make a meaningful data interface for the core.
 
@@ -140,7 +140,7 @@ This will generate the right code for the BRAM instantiation with dumping throug
 
 Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works. Also, look at the tool help with `jtframe mem -h`
 
-When a *mem.yaml* file exists, *jtframe* automatically declares the **JTFRAME_SDRAM_BANKS** and **JTFRAME_MEMGEN** macros.
+When a *mem.yaml* file exists, *jtframe* automatically declares the **JTFRAME_MEMGEN** macro.
 
 ## Ports in the Game Module
 
@@ -190,8 +190,6 @@ There are three different SDRAM controllers in JTFRAME. They all work and are st
 This module may result in timing errors in MiSTer because sometimes the compiler does not assign the input flip flops from SDRAM_DQ at the pads. In order to avoid this, you can define the macro **JTFRAME_SDRAM_REPACK**. This will add one extra stage of data latching, which seems to allow the fitter to use the pad flip flops. This does delay data availability by one clock cycle. Some cores in MiSTer do synthesize with pad FF without the need of this option. Use it if you find setup timing violation about the SDRAM_DQ pins.
 
 SDRAM is treated in top level modules as a read-only memory (except for the download process). If the game core needs to write to the SDRAM the **JTFRAME_WRITEBACK** macro must be defined.
-
-By default only the first bank of the SDRAM is used, allowing for 8MB of data organized in 4 M x 16bits. In order to enable access to the other three banks the macro **JTFRAME_SDRAM_BANKS** is used. Once this macro is defined the game module is expected to provide the following signals
 
 [1:0] prog_bank     bank used during SDRAM programming
 [1:0] sdram_bank    bank used during regular SDRAM use

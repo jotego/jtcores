@@ -181,11 +181,8 @@ module jtframe_board #(parameter
 
 `ifdef JTFRAME_BA0_AUTOPRECH
     localparam BA0_AUTOPRECH = `JTFRAME_BA0_AUTOPRECH;
-`elsif JTFRAME_SDRAM_BANKS
-    localparam BA0_AUTOPRECH = 0;
 `else
-    // if only one bank is used, it makes to precharge as default option
-    localparam BA0_AUTOPRECH = 1;
+    localparam BA0_AUTOPRECH = 0;
 `endif
 
 `ifdef JTFRAME_BA1_AUTOPRECH

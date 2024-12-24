@@ -19,5 +19,5 @@ else
 fi
 
 $SIM test.v ../../hdl/sdram/jtframe_sdram_bank_core.v ../../hdl/ver/mt48lc16m16a2.v \
-    -o sim ${MACRO}JTFRAME_SDRAM_BANKS ${MACRO}SIMULATION ${MACRO}MAX_THROUGHPUT ${MACRO}PERIOD=7.5 \
+    -o sim ${MACRO}SIMULATION ${MACRO}MAX_THROUGHPUT ${MACRO}PERIOD=7.5 \
 && sim $EXTRA2
