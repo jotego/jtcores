@@ -594,9 +594,9 @@ nemesis_sound_debug u_sound_debug(
 	.i_channels   ( status[27:25] ),
 
 	// debug mixer
-	.i_vol_prom   ( status[10: 7] ),
-	.i_vol_ay7    ( status[31:28] ), // AY2 Music
-	.i_vol_ay8    ( status[36:32] ), // AY1 SFX
+	.i_vol_prom   ( 4'd0          ),
+	.i_vol_ay7    ( 4'd0          ), // AY2 Music
+	.i_vol_ay8    ( 4'd0          ), // AY1 SFX
 
 	// sound command
 	.o_sound_data ( m68k_data_bus ),
