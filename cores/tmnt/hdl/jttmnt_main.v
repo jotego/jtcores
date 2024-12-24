@@ -46,7 +46,6 @@ module jttmnt_main(
     input                ram_ok,
     input                rom_ok,
     input                vdtac,
-    input                odtac,
     input                tile_irqn,
     input                tile_nmin,
 
@@ -101,7 +100,7 @@ assign cpu_we   = ~RnW;
 
 assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
-assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
+assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
 always @* begin
@@ -256,7 +255,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -273,8 +272,7 @@ jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),
-    .fworst     (           ),
-    .frst       (           )
+    .fworst     (           )
 );
 
 jtframe_m68k u_cpu(

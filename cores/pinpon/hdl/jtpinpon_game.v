@@ -38,7 +38,6 @@ wire        vsync60;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[18:0];
 assign dip_flip = flip;
-assign game_led= 0;
 assign debug_view= 0;
 
 wire        is_char = ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START;
@@ -58,8 +57,6 @@ always @(*) begin
 end
 
 `ifndef NOMAIN
-assign snd[4:0]=0;
-
 jtpinpon_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -71,8 +68,8 @@ jtpinpon_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -97,8 +94,7 @@ jtpinpon_main u_main(
     .dipsw_c        ( dipsw_c       ),
     .dip_test       ( dip_test      ),
     // Sound
-    .snd            ( snd[15:5]     ),
-    .sample         ( sample        )
+    .snd            ( ti1           )
 );
 `else
     assign cpu_rnw   = 1;

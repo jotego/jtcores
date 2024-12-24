@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received a dma_bsy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
@@ -47,12 +47,12 @@ module jtkiwi_gfx(
     output     [ 7:0]   cpu_din,
 
     // SDRAM interface
-    output     [19:2]   scr_addr,
+    output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
     input               scr_ok,
     output              scr_cs,
 
-    output     [19:2]   obj_addr,
+    output     [20:2]   obj_addr,
     input      [31:0]   obj_data,
     input               obj_ok,
     output              obj_cs,
@@ -78,7 +78,7 @@ reg         scan_cen, done, dr_start, dr_busy,
 reg  [ 2:0] st;
 reg  [13:0] code;
 reg  [ 1:0] cen_cnt;
-wire        tm_page;
+wire        tm_page, obj_bufb;
 wire [15:0] vram_dout, code_dout, col_xmsb;
 wire [ 3:0] col_cfg;
 wire [ 1:0] col0;
@@ -96,7 +96,7 @@ assign flip     = ~cfg[0][6]; // only flip y?
 assign video_en = cfg[0][4]; // uncertain
 assign col0     = cfg[0][1:0]; // start column in the tilemap VRAM
 assign tm_page  = cfg[1][6];
-// assign obj_page = cfg[1][5]; // ?
+assign obj_bufb = cfg[1][5];
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
 assign cpu_din  = yram_cs ? yram_dout :
@@ -197,7 +197,7 @@ jtkiwi_obj u_obj(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( tm_page   ),
+    .page       ( tm_page ^ ~obj_bufb),
 
     .lut_addr   ( lut_addr  ),
     .lut_data   ( code_dout ),
@@ -224,6 +224,50 @@ jtkiwi_obj u_obj(
 // memory for the CPU
 // In MAME the lower half is called spritecodelow
 // and the upper spritecodehigh
+
+reg  [9:0] dma_addr;
+reg        LVBLl;
+reg        dma_st;
+reg        dma_obj = 0;
+reg        dma_tm = 0;
+reg        dma_start = 0;
+wire       dma_bsy = dma_obj | dma_tm;
+
+// DMA when cfg[1][5] == 0
+// Sprite DMA starts with VBLANK
+// Tilemap DMA starts with writing to cfg[1]
+always @(posedge clk) begin
+    if (cfg_cs && cpu_addr[1:0] == 1 && !cpu_rnw && !cpu_dout[5]) dma_start <= 1;
+    LVBLl <= LVBL;
+
+    if (~obj_bufb && LVBLl && !LVBL) begin
+        // Start sprite dma_bsy
+        dma_addr <= 0;
+        dma_obj <= 1;
+        dma_st <= 0;
+    end else if (dma_start && !dma_bsy) begin
+        // Start tilemap dma_bsy
+        dma_start <= 0;
+        dma_addr <= 0;
+        dma_tm <= 1;
+        dma_st <= 0;
+    end else if (dma_bsy && pxl_cen ) begin // executed at 6MHz. Needs confirmation from PCB measurements
+        dma_st <= ~dma_st;
+        if (!dma_st) begin
+            // read phase
+            ;
+        end else begin
+            // write phase
+            dma_addr <= dma_addr + 1'd1;
+            if (&dma_addr) begin
+                dma_addr <= 0;
+                dma_obj <= 0;
+                dma_tm <= 0;
+            end
+        end
+    end
+end
+
 jtframe_dual_ram16 #(.AW(12),
     .SIMFILE_LO("vram_lo.bin"),
     .SIMFILE_HI("vram_hi.bin")
@@ -231,9 +275,11 @@ jtframe_dual_ram16 #(.AW(12),
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
     // Main CPU
-    .addr0  ( cpu_addr[11:0] ),
-    .data0  ( {2{cpu_dout}}  ),
-    .we0    ( vram_we    ),
+    // probably the CPU should be WAIT-ed during DMA access, but it's
+    // very fast, thus there's no overlap with CPU VRAM access
+    .addr0  ( dma_bsy ? {dma_tm ^ tm_page ^ dma_st, dma_tm, dma_addr} : cpu_addr[11:0] ),
+    .data0  ( dma_bsy ? vram_dout : {2{cpu_dout}}  ),
+    .we0    ( dma_bsy ? {2{dma_st}} : vram_we ),
     .q0     ( vram_dout  ),
     // GFX
     .addr1  ( code_addr  ),

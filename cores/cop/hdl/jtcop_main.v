@@ -492,7 +492,7 @@ localparam [6:0] MHZ = `ifdef DEC1 12 `else 10 `endif ; // 12 MHz used on Midnig
 `ifndef NOMAIN
 wire DTACKn;
 
-jtframe_68kdtack #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -509,8 +509,7 @@ jtframe_68kdtack #(.W(8)) u_dtack(
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       ( fave      ),
-    .fworst     (           ),
-    .frst       (           )
+    .fworst     (           )
 );
 
 jtframe_m68k u_cpu(

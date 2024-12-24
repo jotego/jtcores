@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 16-3-2021 */
 
-`ifndef NOSOUND
-
 module jts16_snd(
     input                rst,
     input                clk,
@@ -25,12 +23,6 @@ module jts16_snd(
     input                cen_fm,    // 4MHz
     input                cen_fm2,   // 2MHz
     input                cen_pcm,   // 6MHz
-
-    input                sound_en,
-    // options
-    input         [ 1:0] fxlevel,
-    input                enable_fm,
-    input                enable_psg,
 
     input         [ 7:0] latch,
     input                irqn,
@@ -53,46 +45,25 @@ module jts16_snd(
     input                pcm_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] fm_l, fm_r,
+    output signed [ 7:0] pcm
 );
-
-localparam [7:0] FMGAIN=8'h10;
-
+`ifndef NOSOUND
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs;
 wire        mreq_n, iorq_n, int_n, nmi_n;
 wire        WRn;
-reg  [ 7:0] din, pcm_cmd, pcmgain;
+reg  [ 7:0] din, pcm_cmd;
 reg         rom_ok2;
 wire        rom_good, cmd_cs;
 wire [ 7:0] dout, fm_dout, ram_dout, pcm_snd;
 wire        pcm_irqn, pcm_rstn,
             wr_n, rd_n;
 
-wire signed [15:0] fm_left, fm_right, mixed;
-wire signed [ 7:0] pcm_raw;
-wire [7:0] fmgain;
-
-assign snd = sound_en ? mixed : 16'd0;
-
 assign rom_good = rom_ok2 & rom_ok;
 assign rom_addr = A[14:0];
 assign ack      = latch_cs;
 assign cmd_cs   = !iorq_n && A[7:6]==2 && !wr_n; // 80
-assign fmgain   = enable_fm ? FMGAIN : 0;
-
-// PCM volume
-always @(posedge clk ) begin
-    case( fxlevel )
-        2'd0: pcmgain <= 8'h04;
-        2'd1: pcmgain <= 8'h06;
-        2'd2: pcmgain <= 8'h08;
-        2'd3: pcmgain <= 8'h0C;
-    endcase
-    if( !enable_psg ) pcmgain <= 0;
-end
 
 always @(*) begin
     latch_cs = (!mreq_n &&  A[15:12]==4'he && A[11]) // e800
@@ -113,24 +84,6 @@ always @(posedge clk) begin
                 latch_cs ? latch    : (
                     8'hff ))));
 end
-
-jtframe_mixer #(.W2(8)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_left   ),
-    .ch1    ( fm_right  ),
-    .ch2    ( pcm_snd   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( fmgain    ),
-    .gain1  ( fmgain    ),
-    .gain2  ( pcmgain   ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( mixed     ),
-    .peak   ( peak      )
-);
 
 jtframe_ff u_ff(
     .rst    ( rst       ),
@@ -191,12 +144,12 @@ jt51 u_jt51(
     .ct2        ( pcm_irqn  ),
     .irq_n      ( int_n     ),  // I do not synchronize this signal
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ), // marks new output sample
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 jts16_pcm u_pcm(
@@ -218,25 +171,16 @@ jts16_pcm u_pcm(
     .pcm_cs     ( pcm_cs    ),
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
-
     // Sound output
-    .snd        ( pcm_raw   )
+    .snd        ( pcm       )
 );
-
-// where a = exp(-wc/T ), a<1
-// wc = radian frequency
-
-wire [3:0] pole_a = 4'd10; // pole at 4kHz
-
-jtframe_pole #(.WS(8)) u_pole(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .sample     ( sample    ),      // uses the YM2151 as sampling signal
-    .a          ( pole_a    ),
-    .sin        ( pcm_raw   ),
-    .sout       ( pcm_snd   )
-);
-
-endmodule
-
+`else
+assign  ack      = 0;
+assign  rom_addr = 0;
+assign  pcm_addr = 0;
+assign  pcm_cs   = 0;
+assign  fm_l     = 0;
+assign  pcm      = 0;
+initial rom_cs   = 0;
 `endif
+endmodule

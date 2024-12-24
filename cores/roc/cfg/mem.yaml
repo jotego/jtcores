@@ -2,7 +2,6 @@ params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
   - { name: SND_OFFSET, value: "`SND_START >> 1" }
-
 clocks:
   clk24:
     - mul: 1
@@ -10,6 +9,47 @@ clocks:
       outputs:
         - cpu4
         - cen_nc
+audio:
+  rsum: 20k
+  # this board has a lot of options for the switches
+  # sadly the game software does not seem to exercise any filter at all
+  channels:
+    - { name: psg0a, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
+    - { name: psg0b, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
+    - { name: psg0c, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
+    - { name: psg1a, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
+    - { name: psg1b, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
+    - { name: psg1c, data_width: 8, unsigned: true, rsum: 6.1k, rc: [
+        { r: 0,   c: 0   },{ r: 0, c: 0 }, #  no filter
+        { r: 836, c: 220n},{ r: 0, c: 0 }, #  865Hz
+        { r: 836, c:  47n},{ r: 0, c: 0 }, # 4051Hz
+        { r: 836, c: 267n},{ r: 0, c: 0 }, #  713Hz
+      ], rc_en: true }
 download:
   post_addr: true
 sdram:

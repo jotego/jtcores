@@ -20,53 +20,25 @@ module jtsarms_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [8:0] V;
-wire [8:0] H;
+localparam [25:0] MAP_START  = `MAP_START,
+                  SCR_START  = `SCR_START;
 
+wire [ 8:0] V, H;
+wire [13:0] nc;
 wire [12:0] cpu_AB;
-wire [ 7:0] cpu_dout, char_dout, scr_dout;
-wire        map_cs, snd_cs;
-wire        char_cs, blue_cs, redgreen_cs;
-wire        eres_n, wrerr_n;
-wire        flip;
-wire        star_hscan, star_vscan;
-wire        rd, cpu_cen;
-wire        char_wait;
-wire        star_fix_n;
+wire [ 7:0] cpu_dout, char_dout, scr_dout,
+            dipsw_a, dipsw_b, dipsw_c;
+wire        char_cs, blue_cs, redgreen_cs,
+            eres_n, wrerr_n,
+            flip, star_hscan, star_vscan, rd, cpu_cen,
+            char_wait, star_fix_n, is_obj, is_scr,
+            CHON, SCRON, STARON, OBJON,
+            cen16, cen12, cen8, cen6, cen4, cen3;
 
-localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=15;
-
-// ROM data
-wire [15:0] char_data, scr_data, map_data;
-wire [15:0] obj_data;
-wire [ 7:0] main_data, star_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [MAPW-1 :0] map_addr;
-wire [STARW-1:0] star_addr;
-wire [CHARW-1:0] char_addr;
-wire [SCRW-1 :0] scr_addr;
-wire [OBJW-1 :0] obj_addr;
-wire [17:0] main_addr;
-wire [14:0] snd_addr;
-wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
-wire        CHON, SCRON, STARON, OBJON;
-
-wire        prom_we;
-wire        main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
-wire        cen16, cen12, cen8, cen6, cen4, cen3;
-
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
-assign dip_flip   = flip;
-
-assign pxl2_cen = cen16;
-assign pxl_cen  = cen8;
-
-assign star_fix_n = status[13];
-
+assign dip_flip           = flip;
+assign pxl2_cen           = cen16;
+assign pxl_cen            = cen8;
+assign star_fix_n         = status[13];
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dipsw_c = 8'hff; // Only the freeze is contained here, and users often get
     // confused with it, so I'd rather leave it fixed and hidden
@@ -88,14 +60,12 @@ jtframe_cen48 u_cen(
     .cen3b  (           ),
     .cen3qb (           ),
     .cen1p5b(           )
-);
-/* verilator lint_on PINMISSING */
+); /* verilator lint_on PINMISSING */
+
 wire rd_n, wr_n;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
-
-wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [12:0] obj_AB;
@@ -105,50 +75,14 @@ wire        scr_cs;
 wire [15:0] scr_hpos, scr_vpos;
 
 assign cpu_cen = cen8;
+assign is_obj  = prog_ba==3 && ioctl_addr<MAP_START;
+assign is_scr  = prog_ba==2 && ioctl_addr>SCR_START;
 
-
-localparam [21:0] CPU_OFFSET  = 22'h0;
-localparam [21:0] SND_OFFSET  = 22'h1_8000 >> 1;
-localparam [21:0] STAR_OFFSET = 22'h2_0000 >> 1;
-localparam [21:0] CHAR_OFFSET = 22'h2_8000 >> 1;
-localparam [21:0] SCR_OFFSET  = 22'h2_C000 >> 1;
-localparam [21:0] OBJ_OFFSET  = 22'h6_C000 >> 1;
-localparam [21:0] MAP_OFFSET  = 22'hA_C000 >> 1;
-localparam [21:0] PROM_START  = 22'hB_4000;
-
-wire [21:0] pre_prog;
-wire [ 7:0] nc2;
-
-assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<MAP_OFFSET) ?
-    { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
-    pre_prog;
-
-jtframe_dwnld #(
-    .PROM_START ( PROM_START )
-)
-u_dwnld(
-    .clk         ( clk           ),
-    .ioctl_rom   ( ioctl_rom     ),
-
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_dout    ),
-    .ioctl_wr    ( ioctl_wr      ),
-
-    .prog_addr   ( pre_prog      ),
-    .prog_data   ({nc2,prog_data}),
-    .prog_mask   ( prog_mask     ),
-    .prog_we     ( prog_we       ),
-    .prom_we     ( prom_we       ),
-
-    .sdram_ack   ( sdram_ack     ),
-    .gfx8_en     ( 1'b0          ),
-    .gfx16_en    ( 1'b0          ),
-    .header      (               )
-);
-
-`ifndef NOMAIN
-
-wire [13:0] nc;
+always @* begin
+    post_addr = prog_addr;
+    if(is_obj) post_addr[5:1] = { prog_addr[4:1],prog_addr[5]} ;
+    if(is_scr) post_addr[7:1] = { prog_addr[5:1],prog_addr[7:6]} ;
+end
 
 jt1943_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
@@ -194,8 +128,8 @@ jt1943_main #(.GAME(1)) u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
@@ -210,17 +144,7 @@ jt1943_main #(.GAME(1)) u_main(
     // unused
     .coin_cnt   (               )
 );
-`else
-assign main_addr   = 18'd0;
-assign char_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign wr_n        = 1'b1;
-assign scr_hpos    = 16'd0;
-assign scr_vpos    = 16'd0;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound #(.LAYOUT(8)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -231,37 +155,21 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .snd_latch      ( snd_latch      ),
     .snd2_latch     (                ),
     .snd_int        (                ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     .debug_bus      ( 8'd0           ),
     .debug_view     ( debug_view     )
 );
-`else
-assign snd_addr  = 0;
-assign snd_cs    = 0;
-assign snd       = 0;
-assign sample    = 0;
-`endif
 
-wire scr_ok, star_ok, map_ok, char_ok;
-
-jtsarms_video #(
-    .SCRW   ( SCRW      ),
-    .OBJW   ( OBJW      ),
-    .STARW  ( STARW     )
-)
-u_video(
+jtsarms_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
@@ -332,84 +240,6 @@ u_video(
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
-);
-
-// Scroll data: Z, Y, X
-jtframe_rom #(
-    .SLOT0_AW    ( CHARW           ), // Char
-    .SLOT1_AW    ( SCRW            ), // Scroll
-    .SLOT2_AW    ( MAPW            ), // Scroll Map
-    .SLOT3_AW    ( STARW           ), // Star field
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT7_AW    ( 18              ), // Main
-    .SLOT8_AW    ( OBJW            ), // OBJ
-
-    .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 16              ), // Scroll
-    .SLOT2_DW    ( 16              ), // Scroll Map
-    .SLOT3_DW    (  8              ), // Star
-    .SLOT6_DW    (  8              ), // Sound
-    .SLOT7_DW    (  8              ), // Main
-    .SLOT8_DW    ( 16              ), // OBJ
-
-    .SLOT0_OFFSET( CHAR_OFFSET ),
-    .SLOT1_OFFSET( SCR_OFFSET  ),
-    .SLOT2_OFFSET( MAP_OFFSET  ),
-    .SLOT3_OFFSET( STAR_OFFSET ),
-    .SLOT6_OFFSET( SND_OFFSET  ),
-    .SLOT7_OFFSET( CPU_OFFSET  ),
-    .SLOT8_OFFSET( OBJ_OFFSET  )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ), // Char
-    .slot1_cs    ( LVBL          ), // Scroll
-    .slot2_cs    ( map_cs        ), // Map
-    .slot3_cs    ( LVBL          ), // Star
-    .slot4_cs    ( 1'b0          ),
-    .slot5_cs    ( 1'b0          ),
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ), // OBJ
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr_ok        ),
-    .slot2_ok    ( map_ok        ),
-    .slot3_ok    ( star_ok       ),
-    .slot4_ok    (               ),
-    .slot5_ok    (               ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
-    .slot2_addr  ( map_addr      ),
-    .slot3_addr  ( star_addr     ),
-    .slot4_addr  (               ),
-    .slot5_addr  (               ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data      ),
-    .slot2_dout  ( map_data      ),
-    .slot3_dout  ( star_data     ),
-    .slot4_dout  (               ),
-    .slot5_dout  (               ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd   ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
 );
 
 endmodule

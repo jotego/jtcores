@@ -214,7 +214,7 @@
       "conflicting_netclasses": "error",
       "different_unit_footprint": "error",
       "different_unit_net": "error",
-      "duplicate_reference": "ignore",
+      "duplicate_reference": "error",
       "duplicate_sheet_names": "error",
       "endpoint_off_grid": "ignore",
       "extra_units": "error",

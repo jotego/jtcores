@@ -50,7 +50,7 @@ module jtkicker_objdraw #(
     input               prog_en,
 
     // SDRAM
-    output reg   [13:0] rom_addr,
+    output reg   [15:2] rom_addr,
     input        [31:0] rom_data,
     output reg          rom_cs,
     input               rom_ok,
@@ -113,12 +113,12 @@ always @(posedge clk, posedge rst) begin
                 cnt      <= cnt - 3'd1;
             end
             if( cnt==0 ) begin
-                if( rom_addr[0] ) begin
+                if( rom_addr[2] ) begin
                     buf_we <= 0;
                     busy   <= 0;
                     rom_cs <= 0;
                 end else begin
-                    rom_addr[0] <= 1;
+                    rom_addr[2] <= 1;
                     rom_cs      <= 1;
                 end
             end

@@ -34,7 +34,7 @@ wire        obj_frame;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vram_dout, obj_dout, cpu_dout;
+wire [ 7:0] vram_dout, obj_dout, cpu_dout, st_snd;
 
 wire        m2s_irq, m2s_data;
 wire        main_pause;
@@ -45,12 +45,13 @@ wire        main_pause;
 // Road Fighter
 //      bit 0 is the flip
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[18:0];
-assign dip_flip = ~flip;
+assign dip_flip = (~is_hyper)^flip;
 assign main_pause = dip_pause & ~ioctl_ram;
 
 wire        is_scr, is_obj;
 reg         is_hyper=0;
 
+assign debug_view = { 3'd0, is_hyper, 1'd0, st_snd[2:0] };
 assign is_scr   = ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START;
 assign is_obj   = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PCM_START;
 assign pcm_cs   = 1;
@@ -67,8 +68,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if( ioctl_addr[21:0]==PROM_START[21:0]+22'h1 && prog_we )
-        is_hyper <= &prog_data;
+    if( header && prog_we && prog_addr[2:0]==0 ) is_hyper <= prog_data[0];
 end
 
 `ifndef NOMAIN
@@ -157,11 +157,16 @@ jtsbaskt_snd u_sound(
     .pcm_addr   ( pcm_addr  ),
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
-
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
-    .debug_view ( debug_view  )
+    // sound output
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
+    // debug
+    .debug_view ( st_snd    ),
+    .debug_bus  ( debug_bus )
 );
 `else
     assign snd_cs=0;
@@ -170,7 +175,7 @@ jtsbaskt_snd u_sound(
     assign snd=0;
     assign sample=0;
     assign game_led=0;
-    assign debug_view=0;
+    assign st_snd=0;
 `endif
 
 jtroadf_video u_video(

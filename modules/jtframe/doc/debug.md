@@ -6,6 +6,10 @@ If JTFRAME_RELEASE is not defined, the debug features can be used. Also check [t
 
 keys F7-F10 will toggle bits in the gfx_en bus. After reset all bits are high. These bits are meant to be used to enable/disable graphic layers.
 
+## Sound Channel Enable Bus
+
+Shift + keys F7-F12 will toggle bits in the snd_en bus. These bits are handled automatically by games using **mem.yaml** to define audio. Each key will toggle on and off and audio channel during test builds.
+
 ## Generic 8-bit Debug bus
 
 If JTFRAME_RELEASE is not defined, keys + and - (in a Spanish keyboard layout) will increase and decrease the 8-bit debug_bus.
@@ -20,19 +24,19 @@ It is recommended to remove the *debug_bus* once the core is stable. When the co
 
 By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_view* to *sys_info*. This 8-bit signals carries information from modules inside JTFRAME, aside from core-specific information. This is available as long as **JTFRAME_RELEASE** was not used for compilation. The *debug_bus* selects which information to display. Note that *sys_info* is shown in a **reddish color**, while *debug_view* is shown in white.
 
-st_addr[7:4] |  Read
+  st_addr    |  Read
 -------------|-------------------------------------------------------
-  00_00      |  SDRAM stats
-  00_01      |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
-  01_??      |  Frame count in BCD (hundreds. Set st_addr[0] for tens/units)
-  10_00      |  Audio output sample rate (BCD)
-  10_01      |  dipsw[ 7: 0]
-  10_10      |  dipsw[15: 8]
-  10_11      |  dipsw[23:16]
-  11_00      | { core_mod[3:0], dial_x, game_led, dip_flip }
-  11_01      |  mouse_dx[8:1]
-  11_10      |  mouse_dy[8:1]
-  11_11      |  mouse_f
+  00??_????  |  Frame count in BCD (hundreds. Set st_addr[0] for tenths/units)
+  01??_????  |  Audio information (see below)
+  0111_00??  |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
+  0111_0100  |  dipsw[ 7: 0]
+  0111_0101  |  dipsw[15: 8]
+  0111_0110  |  dipsw[23:16]
+  10??_????  |  SDRAM stats
+  1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
+  1101_????  |  mouse_dx[8:1]
+  1110_????  |  mouse_dy[8:1]
+  1111_????  |  mouse_f
 
 See core_mod description [here](osd.md)
 
@@ -40,21 +44,29 @@ See core_mod description [here](osd.md)
 
 This is the total number of frames since the last reset. The count gets halted during pause.
 
-st_addr[0]  |  Read
-------------|-----------
-  0         | lower 8 bits (BCD)
-  1         | upper 8 bits (BCD)
+st_addr[1:0] |  Read
+-------------|-----------
+  0          | bits 15- 8 (BCD)
+  1          | bits  7- 0 (BCD)
+  2          | bits 23-16 (BCD)
 
-### Sample Rate
+### Audio Information
 
 If the core exercises the *sample* signal, JTFRAME can report the current sample rate.
 
-st_addr     |  Read
-------------|-----------
-  X         | rate in kHz (BCD)
+st_addr[5:4] |  Read
+-------------|-----------
+  0          | 8-bit VU (average power)
+  1, [1:0]=0 | 1-bit VU (signals sound activity per channel)
+  1, [1:0]=1 | Channel enable bits
+  1, [1:0]=2 | Sample rate in kHz (BCD)
+  2          | Sound volume (gain set by the user/MRA)
 
+### SDRAM, IOCTL and DIPSW
 
-### SDRAM Information
+IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
+
+#### SDRAM Information
 
 The number of SDRAM access done in a frame gets displayed. See [jtframe_sdram_stats](../hdl/sdram/jtframe_sdram_stats.v) for details. Note that the access count is divided by 4096, for display convenience. The SDRAM stats are as follow depending on the value of *st_addr* (which is the same as the debug_bus in MiST).
 
@@ -105,6 +117,6 @@ Compile the core normally using `jtcore` one time. You don't need to wait until 
 
 ## Simulation With Joystick Inputs
 
-Using `jtsim -inputs` will read a *sim_inputs.hex* file and apply its contents to the simulation. Use `jtsim -h` to see the format of this file. In MiST and SiDi, it is possible to compile any core with `JTFRAME_INPUT_RECORD` and then use the `Save NVRAM` OSD menu option to create a *CORE.RAM* file.
+Using `jtsim -inputs` will read a *sim_inputs.hex* file and apply its contents to the simulation. Use `jtsim -h` to see the format of this file. In MiST and SiDi, it is possible to compile any core with `JTFRAME_INPUT_RECORD` and then use the `Save NVRAM` OSD menu option to create a *CORE.RAM* file. This macro requires other definitions that are added by jtframe but only when the macro is defined in *macros.def*. Do not define it directly in the `jtcore` command line.
 
 This *.RAM* file is converted to *sim_inputs.hex* by running `jtutil inputs path-to-.ram`.

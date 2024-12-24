@@ -72,60 +72,61 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
 
     `ifndef LOADROM
     initial begin
-        // file=$fopen(filename,"rb");
-        // if( file != 0 ) begin
-        //     romfilecnt=$fread( Bank0, file );
-        //     if( romfilecnt==0 ) begin
-        //         $display("ERROR: ROM file %s was empty", filename);
-        //         $finish;
-        //     end
-        //     $display("%s read into SDRAM",filename);
-        //     $fclose(file);
-        // end else begin
-        //     $display("ERROR: Cannot open file %s", filename);
-        // end
-
         file=$fopen("sdram_bank0.bin","rb");
         if( file==0 ) begin
-            $readmemh("sdram_bank0.hex",  Bank0 );
-            $display("Read sdram_bank0.hex (%m)");
+            file=$fopen("sdram_bank0.hex","rb");
+            if( file!=0 ) begin
+                $fclose(file);
+                $readmemh("sdram_bank0.hex",  Bank0 );
+                $display("Read sdram_bank0.hex (%m)");
+            end
         end else begin
             romfilecnt=$fread( Bank0, file );
             $display("Read 0x%X bytes from sdram_bank0.bin",romfilecnt);
             $fclose(file);
         end
 
-        `ifdef JTFRAME_SDRAM_BANKS
-            file=$fopen("sdram_bank1.bin","rb");
-            if( file==0 ) begin
+        file=$fopen("sdram_bank1.bin","rb");
+        if( file==0 ) begin
+            file=$fopen("sdram_bank1.hex","rb");
+            if( file!=0 ) begin
+                $fclose(file);
                 $readmemh("sdram_bank1.hex",  Bank1 );
                 $display("Read sdram_bank1.hex (%m)");
-            end else begin
-                romfilecnt=$fread( Bank1, file );
-                $display("Read 0x%X bytes from sdram_bank1.bin",romfilecnt);
-                $fclose(file);
             end
+        end else begin
+            romfilecnt=$fread( Bank1, file );
+            $display("Read 0x%X bytes from sdram_bank1.bin",romfilecnt);
+            $fclose(file);
+        end
 
-            file=$fopen("sdram_bank2.bin","rb");
-            if( file==0 ) begin
+        file=$fopen("sdram_bank2.bin","rb");
+        if( file==0 ) begin
+            file=$fopen("sdram_bank2.hex","rb");
+            if( file!=0 ) begin
+                $fclose(file);
                 $readmemh("sdram_bank2.hex",  Bank2 );
                 $display("Read sdram_bank2.hex (%m)");
-            end else begin
-                romfilecnt=$fread( Bank2, file );
-                $display("Read 0x%X bytes from sdram_bank2.bin",romfilecnt);
-                $fclose(file);
             end
+        end else begin
+            romfilecnt=$fread( Bank2, file );
+            $display("Read 0x%X bytes from sdram_bank2.bin",romfilecnt);
+            $fclose(file);
+        end
 
-            file=$fopen("sdram_bank3.bin","rb");
-            if( file==0 ) begin
+        file=$fopen("sdram_bank3.bin","rb");
+        if( file==0 ) begin
+            file=$fopen("sdram_bank3.hex","rb");
+            if( file!=0 ) begin
+                $fclose(file);
                 $readmemh("sdram_bank3.hex",  Bank3 );
                 $display("Read sdram_bank3.hex (%m)");
-            end else begin
-                romfilecnt=$fread( Bank3, file );
-                $display("Read 0x%X bytes from sdram_bank3.bin",romfilecnt);
-                $fclose(file);
             end
-        `endif
+        end else begin
+            romfilecnt=$fread( Bank3, file );
+            $display("Read 0x%X bytes from sdram_bank3.bin",romfilecnt);
+            $fclose(file);
+        end
 
         `ifdef TESTROM
         file=$fopen("test.bin", "rb");
@@ -410,14 +411,14 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             // Auto Refresh to Auto Refresh
             if ($time - RFC_chk < tRFC) begin
                 $display ("%m : at time %t ERROR: tRFC violation during Auto Refresh", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Precharge to Auto Refresh
             if (($time - RP_chk0 < tRP) || ($time - RP_chk1 < tRP) ||
                 ($time - RP_chk2 < tRP) || ($time - RP_chk3 < tRP)) begin
                 $display ("%m : at time %t ERROR: tRP violation during Auto Refresh", $time);
-            #100 $finish;
+            `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Precharge to Refresh
@@ -429,7 +430,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             // Load Mode Register to Auto Refresh
             if (MRD_chk < tMRD) begin
                 $display ("%m : at time %t ERROR: tMRD violation during Auto Refresh", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Record Current tRFC time
@@ -490,19 +491,19 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             if (($time - RP_chk0 < tRP) || ($time - RP_chk1 < tRP) ||
                 ($time - RP_chk2 < tRP) || ($time - RP_chk3 < tRP)) begin
                 $display ("%m : at time %t ERROR: tRP violation during Load Mode Register", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Auto Refresh to Load Mode Register
             if ($time - RFC_chk < tRFC) begin
                 $display ("%m : at time %t ERROR: tRFC violation during Load Mode Register", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Load Mode Register to Load Mode Register
             if (MRD_chk < tMRD) begin
                 $display ("%m : at time %t ERROR: tMRD violation during Load Mode Register", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Reset MRD Counter
@@ -514,19 +515,19 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             // Activate an open bank can corrupt data
             if ( Ba === 2'b00 && Act_b0 === 1'b1  ) begin
                 $display ("%m : at time %t ERROR: Bank 0 already activated -- data can be corrupted", $time);
-                #1000 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #1000 $finish; `endif
             end
             if ( Ba === 2'b01 && Act_b1 === 1'b1 ) begin
                 $display ("%m : at time %t ERROR: Bank 1 already activated -- data can be corrupted", $time);
-                #1000 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #1000 $finish; `endif
             end
             if ( Ba === 2'b10 && Act_b2 === 1'b1 ) begin
                 $display ("%m : at time %t ERROR: Bank 2 already activated -- data can be corrupted", $time);
-                #1000 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #1000 $finish; `endif
             end
             if ( Ba === 2'b11 && Act_b3 === 1'b1 ) begin
                 $display ("%m : at time %t ERROR: 3 Bank already activated -- data can be corrupted", $time);
-                #1000 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #1000 $finish; `endif
             end
 
 
@@ -540,13 +541,13 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // ACTIVE to ACTIVE command period
                 if ($time - RC_chk0 < tRC) begin
                     $display ("%m : at time %t ERROR: tRC violation during Activate bank 0", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Precharge to Activate Bank 0
                 if ($time - RP_chk0 < tRP) begin
                     $display ("%m : at time %t ERROR: tRP violation during Activate bank 0", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Record variables
@@ -567,13 +568,13 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // ACTIVE to ACTIVE command period
                 if ($time - RC_chk1 < tRC) begin
                     $display ("%m : at time %t ERROR: tRC violation during Activate bank 1", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Precharge to Activate Bank 1
                 if ($time - RP_chk1 < tRP) begin
                     $display ("%m : at time %t ERROR: tRP violation during Activate bank 1", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Record variables
@@ -594,13 +595,13 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // ACTIVE to ACTIVE command period
                 if ($time - RC_chk2 < tRC) begin
                     $display ("%m : at time %t ERROR: tRC violation during Activate bank 2", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Precharge to Activate Bank 2
                 if ($time - RP_chk2 < tRP) begin
                     $display ("%m : at time %t ERROR: tRP violation during Activate bank 2", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Record variables
@@ -621,13 +622,13 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // ACTIVE to ACTIVE command period
                 if ($time - RC_chk3 < tRC) begin
                     $display ("%m : at time %t ERROR: tRC violation during Activate bank 3", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Precharge to Activate Bank 3
                 if ($time - RP_chk3 < tRP) begin
                     $display ("%m : at time %t ERROR: tRP violation during Activate bank 3", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 // Record variables
@@ -642,19 +643,19 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             // Active Bank A to Active Bank B
             if ((Prev_bank != Ba) && ($time - RRD_chk < tRRD)) begin
                 $display ("%m : at time %t ERROR: tRRD violation during Activate bank = %d", $time, Ba);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Auto Refresh to Activate
             if ($time - RFC_chk < tRFC) begin
                 $display ("%m : at time %t ERROR: tRFC violation during Activate bank = %d", $time, Ba);
-                #1000 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #1000 $finish; `endif
             end
 
             // Load Mode Register to Active
             if (MRD_chk < tMRD ) begin
                 $display ("%m : at time %t ERROR: tMRD violation during Activate bank = %d", $time, Ba);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Record variables for checking violation
@@ -667,7 +668,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             // Load Mode Register to Precharge
             if ($time - MRD_chk < tMRD) begin
                 $display ("%m : at time %t ERROR: tMRD violaiton during Precharge", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Precharge Bank 0
@@ -676,7 +677,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 if (($time - RAS_chk0 < tRAS) || ($time - RAS_chk0 > tRASmax && Act_b0) && RAS_chk0) begin
                     $display ("\n%m : at time %t ERROR: tRAS violation during bank 0 Precharge", $time);
                     $display ("$time-last RAS = ", $time-RAS_chk0);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 Act_b0 = 1'b0;
@@ -686,7 +687,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // tWR violation check for write
                 if ($time - WR_chkm[0] < tWRm) begin
                     $display ("%m : at time %t ERROR: tWR violation during Precharge", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
             end
 
@@ -698,7 +699,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                     $display("\t\t($time - RAS_chk1 < tRAS) = %d",($time - RAS_chk1 < tRAS) );
                     $display("\t\t($time - RAS_chk1 > tRASmax ) = %d",($time - RAS_chk1 > tRASmax ) );
                     $display("\t\tRAS_chk1 = %t",RAS_chk1 );
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 Act_b1 = 1'b0;
@@ -708,7 +709,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // tWR violation check for write
                 if ($time - WR_chkm[1] < tWRm) begin
                     $display ("%m : at time %t ERROR: tWR violation during Precharge", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
             end
 
@@ -718,7 +719,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 if (($time - RAS_chk2 < tRAS) || ($time - RAS_chk2 > tRASmax && Act_b2) && RAS_chk2) begin
                     $display ("\n%m : at time %t ERROR: tRAS violation during bank 2 Precharge", $time);
                     $display ("$time-last RAS = ", $time-RAS_chk2);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 Act_b2 = 1'b0;
@@ -728,7 +729,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // tWR violation check for write
                 if ($time - WR_chkm[2] < tWRm) begin
                     $display ("%m : at time %t ERROR: tWR violation during Precharge", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
             end
 
@@ -738,7 +739,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 if (($time - RAS_chk3 < tRAS) || ($time - RAS_chk3 > tRASmax && Act_b3) && RAS_chk3) begin
                     $display ("\n%m : at time %t ERROR: tRAS violation during bank 3 Precharge", $time);
                     $display ("$time-last RAS = ", $time-RAS_chk3);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
 
                 Act_b3 = 1'b0;
@@ -748,7 +749,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 // tWR violation check for write
                 if ($time - WR_chkm[3] < tWRm) begin
                     $display ("%m : at time %t ERROR: tWR violation during Precharge", $time);
-                    #100 $finish;
+                    `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
                 end
             end
 
@@ -797,7 +798,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             if ((Ba == 2'b00 && Pc_b0 == 1'b1) || (Ba == 2'b01 && Pc_b1 == 1'b1) ||
                 (Ba == 2'b10 && Pc_b2 == 1'b1) || (Ba == 2'b11 && Pc_b3 == 1'b1)) begin
                 $display("%m : at time %t ERROR: Bank is not Activated for Read", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Activate to Read or Write
@@ -806,7 +807,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 (Ba == 2'b10) && ($time - RCD_chk2 < tRCD) ||
                 (Ba == 2'b11) && ($time - RCD_chk3 < tRCD)) begin
                 $display("%m : at time %t ERROR: tRCD violation during Read", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // CAS Latency pipeline
@@ -851,7 +852,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
             if ((Ba == 2'b00 && Pc_b0 == 1'b1) || (Ba == 2'b01 && Pc_b1 == 1'b1) ||
                 (Ba == 2'b10 && Pc_b2 == 1'b1) || (Ba == 2'b11 && Pc_b3 == 1'b1)) begin
                 $display("%m : at time %t ERROR: Bank is not Activated for Write", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Activate to Read or Write
@@ -860,7 +861,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
                 (Ba == 2'b10) && ($time - RCD_chk2 < tRCD) ||
                 (Ba == 2'b11) && ($time - RCD_chk3 < tRCD)) begin
                 $display("%m : at time %t ERROR: tRCD violation during Read*", $time);
-                #100 $finish;
+                `ifndef JTFRAME_SIM_SDRAM_NONSTOP #100 $finish; `endif
             end
 
             // Latch Write command, Bank, and Column

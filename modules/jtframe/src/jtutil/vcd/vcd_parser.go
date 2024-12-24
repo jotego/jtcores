@@ -387,6 +387,13 @@ func (file *LnFile) NextChangeIn( ss vcdData, names []string ) bool {
     return false // EOF
 }
 
+// advance until given time
+func (file *LnFile) MoveTo( ss vcdData, t0 uint64 ) bool {
+	good := true
+	for file.time<t0 && good { good = file.NextVCD(ss) }
+	return good
+}
+
 func GetSignals( file *LnFile ) vcdData {
     ss := make(vcdData)
     scope := ""
@@ -438,6 +445,8 @@ func GetSignals( file *LnFile ) vcdData {
                                 bracket_str = ""
                             } else {
                                 s.Name = tokens[4][0:bracket]
+                                bracket_str = tokens[4]
+                                bracket++
                             }
                         }
                         if bracket_str!="" {

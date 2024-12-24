@@ -34,7 +34,7 @@ module jtkiwi_obj(
     output     [ 8:0]   y_addr,
     input      [ 7:0]   y_data,
 
-    output     [19:2]   rom_addr,
+    output     [20:2]   rom_addr,
     output              rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,
@@ -57,7 +57,7 @@ reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip,
             match, vflip, hflip;
 reg  [15:0] code;
-reg  [12:0] dr_code;
+reg  [13:0] dr_code;
 wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
@@ -106,7 +106,7 @@ always @(posedge clk, posedge rst) begin
                 3: begin
                     if( !dr_busy )  begin
                         dr_draw  <= 1;
-                        dr_code  <= code[12:0];
+                        dr_code  <= code[13:0];
                         dr_hflip <= hflip^flip;
                         dr_vflip <= vflip;
                         dr_pal   <= pal;

@@ -41,7 +41,6 @@ module jttmnt_video(
     output     [15:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
-    output reg        odtac,
     output reg        vdtac,
     input             pcu_cs,
     input             pal_cs,
@@ -103,7 +102,7 @@ wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             opal,     cpu_d8,   mmr_pal,
             scr_mmr;
 wire [15:0] cpu_saddr;
-wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl, lyro_sort;
 wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 reg  [13:0] ocode_eff;
@@ -111,8 +110,8 @@ reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ormrd;
-wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
-reg         pre_odtac, pre_vdtac, sort_en, ioctl_mmr;
+wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we, pre_vdtac;
+reg         sort_en, ioctl_mmr;
 wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
@@ -121,6 +120,8 @@ assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
+assign lyro_sort = { lyro_pxl[11:4],
+    sort_en ? lyro_pxl[3:0] : {lyro_pxl[0],lyro_pxl[1],lyro_pxl[2],lyro_pxl[3]} };
 
 // Debug
 always @* begin
@@ -145,18 +146,7 @@ end
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
 
-always @(posedge clk) begin
-    if( pxl2_cen ) begin
-        if( q ) begin
-            pre_odtac <= 0;
-            pre_vdtac <= 0;
-        end
-        odtac <= pre_odtac;
-        vdtac <= pre_vdtac;
-    end
-    if( !objsys_cs /* || (ormrd && !lyro_ok) */ ) { pre_odtac, odtac } <= 1;
-    if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
-end
+always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 
 function [31:0] sort( input [31:0] x, input sort_en );
     sort= sort_en ? {
@@ -286,7 +276,7 @@ jtaliens_scroll #(
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
     .tile_dout  ( tilesys_dout ),
-
+    .cpu_rom_dtack( pre_vdtac ),
     // control
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
@@ -322,6 +312,8 @@ jtaliens_scroll #(
     .lyrf_data  ( sort(lyrf_data, sort_en) ),
     .lyra_data  ( sort(lyra_data, sort_en) ),
     .lyrb_data  ( sort(lyrb_data, sort_en) ),
+
+    .lyra_ok    ( lyra_ok ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
@@ -426,7 +418,7 @@ jttmnt_colmix #(.IOCTL_A0(1)) u_colmix(
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( lyro_pxl  ),
+    .lyro_pxl   ( lyro_sort ),
     .shadow     ( shadow    ),
 
     .red        ( red       ),

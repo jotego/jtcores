@@ -52,10 +52,7 @@ wire [ 1:0] sub_dsn;
 wire [15:0] sub_dout, road_dout, sub_din; // not SDRAM signals
 // Sound CPU
 wire [ 7:0] sndmap_din, sndmap_dout;
-wire        sndmap_rd, sndmap_wr, sndmap_pbf, snd_rstb, mute;
-
-// PCM
-wire        snd_clip;
+wire        sndmap_rd, sndmap_wr, sndmap_pbf, snd_rstb;
 
 // Protection
 wire        key_we, fd1089_we;
@@ -77,7 +74,6 @@ reg  [7:0] st_mux;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign main_dswn            = {2{main_rnw}} | main_dsn;
-assign game_led             = snd_clip;
 assign debug_view           = st_dout;
 assign st_dout              = st_mux;
 
@@ -194,8 +190,8 @@ jtoutrun_main u_main(
     .joystick2   ( joystick2  ),
     .joyana1     ( joyana_l1  ),
     .joyana1b    ( joyana_r1  ),
-    .cab_1p      ( cab_1p     ),
-    .coin        (  coin      ),
+    .cab_1p      ( cab_1p[1:0]),
+    .coin        ( coin[1:0]  ),
     .service     ( service    ),
     // ROM access
     .addr        ( full_addr  ),
@@ -316,12 +312,6 @@ jtoutrun_snd u_sound(
     .cen_pcm    ( cen_pcm   ),   // 2MHz
     .game_id    ( game_id   ),
 
-    // options
-    .fxlevel    (dip_fxlevel),
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-    .mute       ( mute      ),
-
     // Mapper device 315-5195
     .mapper_rd  ( sndmap_rd ),
     .mapper_wr  ( sndmap_wr ),
@@ -341,10 +331,10 @@ jtoutrun_snd u_sound(
     .pcm_ok     ( pcm_ok    ),
 
     // Sound output
-    .snd_left   ( snd_left  ),
-    .snd_right  ( snd_right ),
-    .sample     ( sample    ),
-    .peak       ( snd_clip  ),
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .pcm_l      ( pcm_l     ),
+    .pcm_r      ( pcm_r     ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
@@ -353,12 +343,13 @@ jtoutrun_snd u_sound(
     assign pcm_cs    = 0;
     assign pcm_addr  = 0;
     assign snd_addr  = 0;
-    assign snd_clip  = 0;
-    assign sample    = 0;
-    assign snd_left  = 0;
-    assign snd_right = 0;
+    assign fm_l      = 0;
+    assign fm_r      = 0;
+    assign pcm_l     = 0;
+    assign pcm_r     = 0;
     assign sndmap_rd = 0;
     assign sndmap_wr = 0;
+    assign sndmap_din= 0;
     assign st_snd    = 0;
 `endif
 /* verilator tracing_on */

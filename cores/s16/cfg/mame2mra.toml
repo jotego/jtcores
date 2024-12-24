@@ -1,5 +1,6 @@
 [global]
-mraauthor=["jotego","atrac17"]
+# atrac17 helped with the first set of MRA files
+author=["jotego"]
 
 [parse]
 sourcefile=[ "segas16a.cpp" ]
@@ -53,13 +54,8 @@ rename = [
 skip.bootlegs = true
 skip.descriptions = [ "16B", "Taito" ]
 skip.setnames=[
-    # won't boot
+    # missing controls
     "aceattac",
-    "bodyslam",
-    "dumpmtmt",
-    "quartet",
-    "quarteta",
-    "quartet2",
 ]
 main_setnames=[
     "aceattaca",

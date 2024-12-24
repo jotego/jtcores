@@ -236,10 +236,10 @@
       )
     )
     (symbol "oki-msm70v000:440" (in_bom yes) (on_board yes)
-      (property "Reference" "U" (at 2.54 6.35 0)
+      (property "Reference" "U" (at 3.81 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Value" "440" (at 3.81 -7.62 0)
+      (property "Value" "440" (at 3.81 -5.08 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "" (at 17.78 8.89 0)
@@ -4850,7 +4850,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 334.01 64.77 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 04525db0-d6c4-427d-99bf-f9a48cc6951c)
-    (property "Reference" "H7" (at 334.01 60.96 0)
+    (property "Reference" "A8" (at 334.01 60.96 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 334.01 68.58 0)
@@ -4867,9 +4867,6 @@
     (pin "" (uuid 2a62886e-4364-4054-b3e5-a19dc0278a73))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "A8") (unit 1)
         )
@@ -4911,9 +4908,6 @@
     (pin "" (uuid 091b8ada-2fc7-424e-8b9f-af65639b5b3d))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "J13") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "J13") (unit 1)
         )
@@ -4924,7 +4918,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 387.35 64.77 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 07a66630-3794-4eb6-be20-2f172026e513)
-    (property "Reference" "H7" (at 387.35 60.96 0)
+    (property "Reference" "C23" (at 387.35 60.96 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 387.35 68.58 0)
@@ -4941,9 +4935,6 @@
     (pin "" (uuid 77db5bb2-ae0a-4bd3-8443-e1a56829bbfe))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "C23") (unit 1)
         )
@@ -4954,7 +4945,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 373.38 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0cb4bee7-9a7e-44af-8535-1360dbdb5678)
-    (property "Reference" "I9" (at 377.19 123.19 0)
+    (property "Reference" "H17" (at 377.19 123.19 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 377.19 137.16 0)
@@ -4985,9 +4976,6 @@
     (pin "" (uuid 6b6bcd11-8a0e-44f4-ac6a-516535479f31))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "H17") (unit 1)
         )
@@ -5015,9 +5003,6 @@
     (pin "" (uuid e0280b84-424b-4859-a4fd-2ce7bfc65fbf))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "O11") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "O11") (unit 1)
         )
@@ -5028,7 +5013,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 320.04 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1923f1a2-5350-4e56-b827-0c6e7ec021f5)
-    (property "Reference" "F7" (at 323.85 78.74 0)
+    (property "Reference" "A13" (at 323.85 78.74 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 323.85 92.71 0)
@@ -5059,9 +5044,6 @@
     (pin "" (uuid d9f7db79-72ea-4462-94d4-851957a5d36d))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "F7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "A13") (unit 1)
         )
@@ -5103,9 +5085,6 @@
     (pin "" (uuid f5f47cc5-ec03-4de9-92b8-7faee395d3ff))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "L18") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "L18") (unit 1)
         )
@@ -5147,9 +5126,6 @@
     (pin "" (uuid be9d80e2-4e93-4856-9ab2-2b0cb3ed00bf))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "Q12") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "Q12") (unit 1)
         )
@@ -5177,12 +5153,6 @@
     (pin "" (uuid 76140f1e-4379-4b7d-918d-79295bae572f))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "V20") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "V20") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "V20") (unit 1)
         )
@@ -5209,9 +5179,6 @@
     (pin "" (uuid d45fca2b-7dd8-449a-9a24-fae87a64ef39))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "B22") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "B22") (unit 1)
         )
@@ -5222,7 +5189,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 158.75 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2f904fcc-2f79-4cd7-b5f2-b3dec6fc2946)
-    (property "Reference" "J13" (at 162.56 163.83 0)
+    (property "Reference" "N22" (at 162.56 163.83 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 162.56 177.8 0)
@@ -5253,9 +5220,6 @@
     (pin "" (uuid 528eaff4-6f79-4ff1-8146-4af3a2c27fcd))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "J13") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "N22") (unit 1)
         )
@@ -5266,7 +5230,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 387.35 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 36d524d2-5ac7-4d59-9b87-871188bba094)
-    (property "Reference" "H7" (at 387.35 146.05 0)
+    (property "Reference" "E30" (at 387.35 146.05 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 387.35 153.67 0)
@@ -5283,9 +5247,6 @@
     (pin "" (uuid d064f2ae-c1a5-4cfa-80f7-6d72d62677c1))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "E30") (unit 1)
         )
@@ -5313,9 +5274,6 @@
     (pin "" (uuid d1d134e7-f82a-4df2-9226-b368bc7a14d5))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "Q7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "Q7") (unit 1)
         )
@@ -5343,9 +5301,6 @@
     (pin "" (uuid af1fadac-f715-43f7-8ad3-30daf065581a))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "P9") (unit 1)
         )
@@ -5356,7 +5311,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 373.38 44.45 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 435a42ea-075e-4466-899e-cadec2604562)
-    (property "Reference" "I9" (at 377.19 38.1 0)
+    (property "Reference" "E18" (at 377.19 38.1 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 377.19 52.07 0)
@@ -5387,9 +5342,6 @@
     (pin "" (uuid 5d0605ad-7185-4f60-aa14-e6f118befff5))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "E18") (unit 1)
         )
@@ -5416,12 +5368,6 @@
     (pin "" (uuid 2a4c29c4-f6b5-41c5-ae49-29590e45cc55))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H11") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "H11") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "H11") (unit 1)
         )
@@ -5449,9 +5395,6 @@
     (pin "" (uuid 5fe44a9d-a2f5-4974-ab2d-affa7b64ce0c))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P33") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "P33") (unit 1)
         )
@@ -5479,9 +5422,6 @@
     (pin "" (uuid df5c0457-521e-401e-a44d-3ac8ec11b3d5))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "L7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "L7") (unit 1)
         )
@@ -5509,9 +5449,6 @@
     (pin "" (uuid 3ae44042-ba8f-4bbd-80da-9577997b4a37))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "M3") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "M3") (unit 1)
         )
@@ -5539,9 +5476,6 @@
     (pin "" (uuid 71a1aafb-6b60-4a9a-add0-8bc65f5e1569))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "K15") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "K15") (unit 1)
         )
@@ -5571,9 +5505,6 @@
     (pin "" (uuid e2d178b8-bb03-45fb-aa4a-4f4443f8f793))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "A81") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "A81") (unit 1)
         )
@@ -5601,9 +5532,6 @@
     (pin "" (uuid 1a14ec9c-a57d-4c0f-9563-712df5bf4725))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P4") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "P4") (unit 1)
         )
@@ -5631,9 +5559,6 @@
     (pin "" (uuid bcbc54d0-7f43-4467-a975-d89c65279707))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "K10") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "K10") (unit 1)
         )
@@ -5644,7 +5569,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 320.04 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6e3779dc-92d0-4389-8ca2-0f9216830a97)
-    (property "Reference" "F7" (at 323.85 163.83 0)
+    (property "Reference" "C11" (at 323.85 163.83 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 323.85 177.8 0)
@@ -5675,9 +5600,6 @@
     (pin "" (uuid 1e7a9990-8b32-4a3a-a9ce-41503c6e36ed))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "F7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "C11") (unit 1)
         )
@@ -5688,7 +5610,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 373.38 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6ee5552b-5beb-40ea-ab97-b2babd9ec1b6)
-    (property "Reference" "F7" (at 377.19 78.74 0)
+    (property "Reference" "F19" (at 377.19 78.74 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 377.19 92.71 0)
@@ -5719,9 +5641,6 @@
     (pin "" (uuid 799b423d-6939-4a99-a8bc-7a177089bb03))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "F7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "F19") (unit 1)
         )
@@ -5748,12 +5667,6 @@
     (pin "" (uuid c3432304-0d32-4e1c-8f2b-f20c3d04c17e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "K36") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "K36") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "K36") (unit 1)
         )
@@ -5795,9 +5708,6 @@
     (pin "" (uuid fa1cd1a9-3fed-4318-8f4d-072c38918dc3))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "O16") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "O16") (unit 1)
         )
@@ -5824,12 +5734,6 @@
     (pin "" (uuid df562820-bd09-4faa-94af-e42c3b568548))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I3") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "I3") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "I3") (unit 1)
         )
@@ -5871,9 +5775,6 @@
     (pin "" (uuid 2909a7a0-68b9-417e-afae-6b93dd655a6c))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P20") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "P20") (unit 1)
         )
@@ -5915,9 +5816,6 @@
     (pin "" (uuid bf6e843e-2688-465e-ae4e-4db123026d99))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "F7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "F7") (unit 1)
         )
@@ -5928,7 +5826,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 158.75 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8a4575da-0a39-4cc8-a99e-5a0a2e8bf17f)
-    (property "Reference" "O16" (at 162.56 123.19 0)
+    (property "Reference" "K20" (at 162.56 123.19 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 162.56 137.16 0)
@@ -5959,9 +5857,6 @@
     (pin "" (uuid 7f6f7d6a-e422-42fd-8c6c-9220d9f55ea2))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "O16") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "K20") (unit 1)
         )
@@ -5972,7 +5867,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 172.72 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 904b750f-499e-4b2a-9463-42ed285bd122)
-    (property "Reference" "P9" (at 172.72 146.05 0)
+    (property "Reference" "R4" (at 172.72 146.05 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 172.72 153.67 0)
@@ -5989,9 +5884,6 @@
     (pin "" (uuid 2d52197c-18f2-4cd6-9445-444757f7d8e0))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "R4") (unit 1)
         )
@@ -6002,7 +5894,7 @@
   (symbol (lib_id "oki-msm70v000:D2N") (at 68.58 69.85 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 95701a37-4739-4997-b9d8-015772aae597)
-    (property "Reference" "L3" (at 68.58 66.04 0)
+    (property "Reference" "L12" (at 68.58 66.04 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "D2N" (at 68.58 73.66 0)
@@ -6018,12 +5910,6 @@
     (pin "" (uuid f55717f4-d97c-430d-a3b6-a42ae541d7d3))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "L3") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "L12") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "L12") (unit 1)
         )
@@ -6065,9 +5951,6 @@
     (pin "" (uuid 18f85fd0-0539-47ec-bdaa-e7af0f262a8e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "R9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "R9") (unit 1)
         )
@@ -6095,9 +5978,6 @@
     (pin "" (uuid 846d46f4-e941-4bbe-a870-5b6df521a026))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "S35") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "S35") (unit 1)
         )
@@ -6127,9 +6007,6 @@
     (pin "" (uuid 2e4e1574-9288-4d82-a5c3-303aeb1b9818))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "V90") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "V90") (unit 1)
         )
@@ -6140,7 +6017,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 212.09 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid b5ade8b7-afd8-467a-8f4c-9a19a4c8aceb)
-    (property "Reference" "J13" (at 215.9 163.83 0)
+    (property "Reference" "I21" (at 215.9 163.83 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 215.9 177.8 0)
@@ -6171,9 +6048,6 @@
     (pin "" (uuid 52e609d9-435f-421e-bcba-3e954cbdf584))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "J13") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "I21") (unit 1)
         )
@@ -6201,9 +6075,6 @@
     (pin "" (uuid 88b3deeb-fe4e-4d75-af4d-3f4f7e59373e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "J25") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "J25") (unit 1)
         )
@@ -6214,7 +6085,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 226.06 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c08d8700-a8c5-4179-8d87-99d713d558e8)
-    (property "Reference" "P9" (at 226.06 146.05 0)
+    (property "Reference" "O7" (at 226.06 146.05 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 226.06 153.67 0)
@@ -6231,9 +6102,6 @@
     (pin "" (uuid 903c6330-cec5-4c9b-a18f-0c0b7f6a7bf9))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "P9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "O7") (unit 1)
         )
@@ -6261,9 +6129,6 @@
     (pin "" (uuid 45ee2fb8-7bda-4712-a28d-e8bf1822707e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "V3") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "V3") (unit 1)
         )
@@ -6290,12 +6155,6 @@
     (pin "" (uuid 8f0890a9-7c61-4fe6-9ebb-4a1ae851c73a))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "M25") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "M25") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "M25") (unit 1)
         )
@@ -6306,7 +6165,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 212.09 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ca2f2dbf-8db4-4a6a-828c-0bfd72eadd1b)
-    (property "Reference" "O16" (at 215.9 123.19 0)
+    (property "Reference" "M13" (at 215.9 123.19 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 215.9 137.16 0)
@@ -6337,9 +6196,6 @@
     (pin "" (uuid e49fa092-48a9-46d2-9c5b-874715ffe552))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "O16") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "M13") (unit 1)
         )
@@ -6350,7 +6206,7 @@
   (symbol (lib_id "oki-msm70v000:2OR") (at 334.01 149.86 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid cafc2ae4-76e1-4048-a4c6-93bd117341f8)
-    (property "Reference" "H7" (at 334.01 146.05 0)
+    (property "Reference" "C7" (at 334.01 146.05 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2OR" (at 334.01 153.67 0)
@@ -6367,9 +6223,6 @@
     (pin "" (uuid 1020e835-b828-4a89-96f5-f54f3fc9b93c))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "C7") (unit 1)
         )
@@ -6396,9 +6249,6 @@
     (pin "" (uuid 87733b3b-e9a8-455d-b026-0149f1098912))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I33") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "I33") (unit 1)
         )
@@ -6428,12 +6278,6 @@
     (pin "" (uuid 62d3f027-12ed-45b4-a38a-a638abb0d986))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "S30") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "S30") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "S30") (unit 1)
         )
@@ -6444,7 +6288,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 373.38 170.18 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d376584b-057c-42ad-9e4e-dda92fe788e6)
-    (property "Reference" "F7" (at 377.19 163.83 0)
+    (property "Reference" "D20" (at 377.19 163.83 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 377.19 177.8 0)
@@ -6475,9 +6319,6 @@
     (pin "" (uuid 2d3d3a0a-0bff-4903-bb77-9918d458d30f))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "F7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "D20") (unit 1)
         )
@@ -6504,12 +6345,6 @@
     (pin "" (uuid 2dd2afea-3035-4554-ac8d-3b059a9d5fba))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a/24fcaf5f-79a2-415f-bb51-9e331dd3e927"
-          (reference "U11") (unit 1)
-        )
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "U11") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "U11") (unit 1)
         )
@@ -6539,9 +6374,6 @@
     (pin "" (uuid da3ed212-2b72-48e1-ba28-bb9929bab8b4))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "A69") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "A69") (unit 1)
         )
@@ -6571,9 +6403,6 @@
     (pin "" (uuid 7b9698ad-3daf-42f9-9715-1f4cd27cb0fb))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "B71") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "B71") (unit 1)
         )
@@ -6584,7 +6413,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 320.04 129.54 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e531b724-e83d-4863-a712-1e2dcf44a7ae)
-    (property "Reference" "I9" (at 323.85 123.19 0)
+    (property "Reference" "G15" (at 323.85 123.19 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 323.85 137.16 0)
@@ -6615,9 +6444,6 @@
     (pin "" (uuid d4355721-fed4-40bb-bf28-5017257660ea))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "G15") (unit 1)
         )
@@ -6628,7 +6454,7 @@
   (symbol (lib_id "oki-msm70v000:440") (at 320.04 44.45 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e7f9ec9d-7365-4460-9f8c-0ed9f4c53c95)
-    (property "Reference" "I9" (at 323.85 38.1 0)
+    (property "Reference" "B9" (at 323.85 38.1 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "440" (at 323.85 52.07 0)
@@ -6659,9 +6485,6 @@
     (pin "" (uuid e5782620-0a75-443d-bae1-fd7541aa3c7e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "B9") (unit 1)
         )
@@ -6689,9 +6512,6 @@
     (pin "" (uuid cfd24deb-a9d9-4a7e-8435-7952eb8c5a7f))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "H7") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "H7") (unit 1)
         )
@@ -6733,9 +6553,6 @@
     (pin "" (uuid c9359828-231a-4feb-b784-dbd671a1b413))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "I9") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "I9") (unit 1)
         )
@@ -6763,9 +6580,6 @@
     (pin "" (uuid e6949910-5ff8-4dcc-8274-2765378c954e))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "M8") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "M8") (unit 1)
         )
@@ -6793,9 +6607,6 @@
     (pin "" (uuid a61dc12b-b640-4673-8485-d880b6655aa6))
     (instances
       (project "007785"
-        (path "/febacb01-ad92-4cad-bd65-b3307345134a"
-          (reference "S25") (unit 1)
-        )
         (path "/febacb01-ad92-4cad-bd65-b3307345134a/57ff92b5-8b08-4b44-a8df-3bf282efc47e"
           (reference "S25") (unit 1)
         )

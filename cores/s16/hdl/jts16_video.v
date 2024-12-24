@@ -93,7 +93,6 @@ module jts16_video(
 );
 
 localparam MODEL = `ifdef S16B 1; `else 0; `endif
-localparam [8:0] OBJ_DLY = MODEL ? 9'd19 : 9'd15;
 
 wire [ 8:0] hdump;
 wire        preLHBL, preLVBL;
@@ -120,7 +119,6 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
 
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( dsn       ),
@@ -130,7 +128,7 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Other configuration
     .flip       ( flip      ),
     .ext_flip   ( ext_flip  ),
-    .colscr_en  ( colscr_en ),
+    .colscr_en  ( colscr_en ),  // unconnected in MODEL 1
     .rowscr_en  ( rowscr_en ),
     .alt_en     ( alt_en    ),
 
@@ -178,7 +176,7 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .sb         (           )
 );
 
-jts16_obj #(.PXL_DLY(OBJ_DLY),.MODEL(MODEL)) u_obj(
+jts16_obj #(.MODEL(MODEL)) u_obj(
     .rst       ( rst            ),
     .clk       ( clk            ),
     .pxl_cen   ( pxl_cen        ),
@@ -201,7 +199,7 @@ jts16_obj #(.PXL_DLY(OBJ_DLY),.MODEL(MODEL)) u_obj(
     .hstart    ( hstart         ),
     .hsn       ( ~HS            ),
     .flip      ( flipx          ),
-    .vrender   ( vrender        ), // using vdump here breaks WB3 title screen
+    .vrender   ( MODEL==1 ? vrender : vdump ), // using vdump here breaks WB3 title screen
     .hdump     ( hdump          ),
     .pxl       ( obj_pxl        ),
     .debug_bus ( debug_bus      )

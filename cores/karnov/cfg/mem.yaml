@@ -11,6 +11,14 @@ clocks:
       outputs:
         - cen_opl
         - cen_opn
+audio:
+  rsum: 56k
+  missing_info: true  # psg gain should be calculated better
+  channels:
+    - { name: opn, module: jt03_fm, rsum: 56k }
+    - { name: opl, module: jtopl2,  rsum: 56k }
+    # three channels joined after 1kOhm x 3 res, then 470 Ohm to ground
+    - { name: psg, module: jt03_psg,   rsum: 56.5k, att: 0.047ay }
 sdram:
   banks:
     - buses:

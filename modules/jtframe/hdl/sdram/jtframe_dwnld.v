@@ -59,16 +59,27 @@ parameter [25:0] BA1_START = ~26'd0,
                  SWAB      = 0; // swap every pair of input bytes (SDRAM only)
 parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
                  GFX16B0   = 0; // bit 0 for HHVVVV sequence
+// automatic bank assignment based on a LUT sitting at the header start
+parameter        BALUT     = 0, // 1 to use the header as the start for banks and PROM sections
+                                // header format: two bytes for the offset of each bank and PROM
+                 LUTSH     = 0; // bit shift to apply to ioctl_addr for BALUT comparisons
 
+`ifdef SIMULATION
+initial begin
+    if( BALUT>3 ) begin
+        $display("BALUT must be 0-3");
+        $finish;
+    end
+end
+`endif
 
-localparam       BA_EN     = (BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0);
-localparam       PROM_EN   = PROM_START!=~26'd0;
+localparam BA_EN   = BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0 || BALUT!=0,
+           PROM_EN = PROM_START!=~26'd0;
 /* verilator lint_on  WIDTH */
 reg  [ 7:0] data_out;
 wire        is_prom;
 reg  [25:0] part_addr;
 
-assign is_prom   = PROM_EN && part_addr>=PROM_START;
 assign prog_data = {2{data_out}};
 
 `ifdef JTFRAME_SDRAM_BANKS
@@ -96,21 +107,46 @@ end
 reg  [ 1:0] bank;
 reg  [25:0] offset;
 reg  [25:0] eff_addr;
+reg [2*5*8-1:0] ba_start=0; // 16 bits per offset
 
 always @(*) begin
-    bank = !BA_EN ? 2'd0 : (
-            part_addr >= BA3_START ? 2'd3 : (
-            part_addr >= BA2_START ? 2'd2 : (
-            part_addr >= BA1_START ? 2'd1 : 2'd0 )));
     case( bank )
         2'd0: offset = 0;
-        2'd1: offset = BA1_START;
-        2'd2: offset = BA2_START;
-        2'd3: offset = BA3_START;
+        2'd1: offset = BALUT==0 ? BA1_START : {ba_start[16+:26-LUTSH], {LUTSH{1'b0}}};
+        2'd2: offset = BALUT==0 ? BA2_START : {ba_start[32+:26-LUTSH], {LUTSH{1'b0}}};
+        2'd3: offset = BALUT==0 ? BA3_START : {ba_start[48+:26-LUTSH], {LUTSH{1'b0}}};
         default: offset = 0;
     endcase // bank
     eff_addr = part_addr-offset;
 end
+
+generate
+    if( BALUT==0 || !BA_EN ) begin
+        always @(*) begin
+            bank = !BA_EN ? 2'd0 : ( /* verilator lint_off UNSIGNED */
+                    part_addr >= BA3_START ? 2'd3 : (
+                    part_addr >= BA2_START ? 2'd2 : (
+                    part_addr >= BA1_START ? 2'd1 : 2'd0 ))); /* verilator lint_on UNSIGNED */
+        end
+        assign is_prom = PROM_EN && part_addr>=PROM_START;
+    end else begin
+        // header table containing each bank start offset shifted by LUTSH bits
+        always @(posedge clk) begin
+            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[6:0]<10 ) begin
+                ba_start <= { ioctl_dout, ba_start[79:8] };
+            end
+        end
+        /* verilator lint_off WIDTHEXPAND */
+        always @* begin
+            bank = 0;
+            if( part_addr[25:LUTSH] >= ba_start[16+:16] ) bank = 1;
+            if( part_addr[25:LUTSH] >= ba_start[32+:16] ) bank = 2;
+            if( part_addr[25:LUTSH] >= ba_start[48+:16] ) bank = 3;
+        end
+        assign is_prom = part_addr[25:LUTSH] >= ba_start[64+:16];
+        /* verilator lint_on WIDTHEXPAND */
+    end
+endgenerate
 
 always @(posedge clk) begin
     if ( ioctl_wr && ioctl_rom && !header ) begin
@@ -155,7 +191,7 @@ initial begin
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
             readcnt=$fread( mem, f );
-            $display("INFO: PROM download: %6X bytes loaded from file (%m)", readcnt, SIMFILE);
+            $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
             $fclose(f);
             if( dumpcnt >= readcnt ) begin
                 $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);

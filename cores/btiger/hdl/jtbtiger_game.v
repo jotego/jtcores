@@ -16,60 +16,49 @@
     Version: 1.0
     Date: 18-11-2019 */
 
-
 module jtbtiger_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
-
-parameter CLK_SPEED=48;
-
-wire [8:0] V;
-wire [8:0] H;
-wire HINIT;
+localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START,
+                    PROM_START = `JTFRAME_PROM_START,
+                    MCUOVER    = PROM_START+26'h1000;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
-wire [1:0] scr_bank;
-wire       scr_layout;
+wire [10:0] scr_hpos, scr_vpos;
+wire [ 8:0] obj_AB, V, H;
+wire [ 7:0] mcu_din, mcu_dout, cpu_dout, char_dout, scr_dout, snd_latch, main_ram;
+wire [ 4:0] prom;
+wire [ 1:0] scr_bank;
+wire        mcu_wr, mcu_rd, preLHBL, preLVBL, sres_b,
+            cen12, cen6, cen3, cen1p5, cenfm,
+            cen8, RnW, blue_cs, redgreen_cs, CHRON, SCRON, OBJON,
+            OKOUT, blcnten, bus_req, bus_ack, LHBL_obj, LVBL_obj,
+            rd, cpu_cen, char_busy, scr_busy, mcuover,
+            scr_layout, HINIT, char_cs, flip, scr_cs;
+reg         pause;
+wire        prom_prior_we = prom[0];
+wire        prom_mcu      = prom[4];
 
-// ROM data
-wire [15:0] char_data;
-wire [15:0] scr_data;
-wire [15:0] obj_data;
-wire [ 7:0] main_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [18:0] main_addr;
-wire [14:0] snd_addr;
-wire [13:0] char_addr;
-wire [16:0] scr_addr;
-wire [16:0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
-wire [ 7:0] mcu_din, mcu_dout;
-wire        mcu_wr, mcu_rd;
-wire        cenfm;
-wire        preLHBL, preLVBL;
+assign debug_view  = { 5'd0, OBJON, SCRON, CHRON };
+assign dip_flip    = ~dipsw[6];
+assign pxl2_cen    = cen12;
+assign pxl_cen     = cen6;
+assign mcuover     = ioctl_addr>=MCUOVER;
+assign prom[0] = prom_we &&  mcuover && ioctl_addr[10:8]==0;
+assign prom[1] = prom_we &&  mcuover && ioctl_addr[10:8]==1;
+assign prom[2] = prom_we &&  mcuover && ioctl_addr[10:8]==2;
+assign prom[3] = prom_we &&  mcuover && ioctl_addr[10:8]==3;
+assign prom[4] = prom_we && !mcuover;
+/* verilator tracing_off */
+always @(posedge clk) pause <= ~dip_pause;
 
-wire main_ok, snd_ok, obj_ok;
-wire cen12, cen6, cen3, cen1p5;
-
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
-
-wire cen8;
-
-assign {dipsw_a, dipsw_b} = dipsw[15:0];
-assign dip_flip = ~dipsw[6];
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr >= OBJ_START ) begin
+        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
+    end
+end
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -86,10 +75,7 @@ jtframe_cen3p57 u_cen3p57(
     .clk      ( clk       ),
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
-);
-/* verilator lint_on PINMISSING */
-
-wire LHBL_obj, LVBL_obj;
+);/* verilator lint_on PINMISSING */
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -106,49 +92,7 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-wire RnW;
-wire blue_cs;
-wire redgreen_cs;
-wire  CHRON, SCRON, OBJON;
-
-// sound
-wire sres_b;
-wire [7:0] snd_latch;
-
-wire        main_cs;
-// OBJ
-wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
-wire [ 7:0] main_ram;
-
-wire [4:0] prom_we;
-
-jtbtiger_prom_we u_prom_we(
-    .clk         ( clk           ),
-    .ioctl_rom   ( ioctl_rom     ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  (ioctl_addr[21:0]),
-    .ioctl_dout  ( ioctl_dout    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .prom_we     ( prom_we       ),
-    .sdram_ack   ( sdram_ack     )
-);
-
-wire prom_prior_we = prom_we[0];
-wire prom_mcu      = prom_we[4];
-
-wire scr_cs;
-wire [10:0] scr_hpos, scr_vpos;
-
-
 `ifndef NOMAIN
-
 jtbtiger_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -202,8 +146,8 @@ jtbtiger_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .joystick1  ( joystick1[5:0]),
     .joystick2  ( joystick2[5:0]),
@@ -211,8 +155,8 @@ jtbtiger_main u_main(
     .RnW        ( RnW           ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_a    ( dipsw[15:8]   ),
+    .dipsw_b    ( dipsw[ 7:0]   )
 );
 `else
 assign main_addr   = 19'd0;
@@ -246,7 +190,7 @@ jtbtiger_mcu u_mcu(
 assign mcu_dout = 8'hff;
 `endif
 
-jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
+jtgng_sound #(.LAYOUT(4)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cenfm          ),
@@ -255,29 +199,21 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( 1'b0           ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     // Unused
     .snd2_latch     (                ),
-    .debug_view     ( debug_view     ),
+    .debug_view     (                ),
     .debug_bus      ( debug_bus      )
 );
-
-wire scr_ok, char_ok;
-
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
 
 jtbtiger_video u_video(
     .rst        ( rst           ),
@@ -347,69 +283,4 @@ jtbtiger_video u_video(
     .blue       ( blue          )
 );
 
-wire [7:0] scr_nc; // no connect
-
-// Scroll data: Z, Y, X
-/* verilator lint_off PINMISSING */
-jtframe_rom #(
-    .SLOT0_AW    ( 14              ), // Char
-    .SLOT0_DW    ( 16              ),
-    .SLOT0_OFFSET( 22'h5_0000 >> 1 ),
-
-    .SLOT1_AW    ( 17              ), // Scroll
-    .SLOT1_DW    ( 16              ),
-    .SLOT1_OFFSET( 22'h6_0000      ),
-
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT6_DW    (  8              ),
-    .SLOT6_OFFSET( 22'h4_8000 >> 1 ),
-
-    .SLOT7_AW    ( 19              ),
-    .SLOT7_DW    (  8              ),
-    .SLOT7_OFFSET(  0              ), // Main
-
-    .SLOT8_AW    ( 17              ), // objects
-    .SLOT8_DW    ( 16              ),
-    .SLOT8_OFFSET( 22'hA_0000      )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( 1'b0          ), // unused
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr_ok        ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data      ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
-);
-/* verilator lint_on PINMISSING */
 endmodule

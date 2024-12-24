@@ -27,13 +27,13 @@ wire [ 8:0] hdump;
 wire [ 1:0] eff_coin;
 wire [12:0] shr_addr, cpu_addr;
 
-wire        bram_cs, vram_cs,  pal_cs, flip;
+wire        bram_cs, vram_cs,  pal_cs, pal2_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
             button_aid, // merges 1P, coin and
             colprom_we, mcuprom_we, eff_service;
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
-            kageki=0, kabuki=0, service_xor=0,
+            kageki=0, kabuki=0, kabuki_mod = 0, service_xor=0,
             colprom_en=0, mcu_en=0, aid_en, fast_fm=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
@@ -41,8 +41,8 @@ assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_r
                                         kageki, kabuki, colprom_en, mcu_en } :
                     st_addr[7:6]==1 ? main_st :
                     st_addr[7:6]==2 ? gfx_st  : snd_st;
-assign colprom_we = prom_we && ioctl_addr[15:10]==0;
-assign mcuprom_we = prom_we && ioctl_addr >= `MCU_START;
+assign colprom_we = prom_we && prog_addr[15:10]==0;
+assign mcuprom_we = prom_we && prog_addr >= `MCU_START;
 assign st_dout    = debug_view;
 // Banked RAM
 assign bram_we    = bram_cs & ~cpu_rnw;
@@ -50,7 +50,7 @@ assign bram_we    = bram_cs & ~cpu_rnw;
 assign bram_din   = cpu_dout;
 // button_aid will make up/down inputs to work as coins too. This helps
 // button mapping for spinners in MiSTer
-assign eff_coin   = {2{coin_xor}}^( coin & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
+assign eff_coin   = {2{coin_xor}}^( coin[1:0] & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
 assign eff_service= service_xor ^ service;
 assign button_aid = `ifdef MISTER status[13]&aid_en `else 0 `endif ;
 
@@ -60,11 +60,11 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { fast_fm, aid_en, service_xor } <= prog_data[2:0];
+            { kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[3:0];
     end
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtkiwi_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -82,7 +82,6 @@ jtkiwi_main u_main(
     // Main CPU ROM
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
-    .rom_ok         ( main_ok       ),
     .rom_data       ( main_data     ),
 
     // Sub CPU access to shared RAM
@@ -112,7 +111,7 @@ jtkiwi_main u_main(
     .st_dout        ( main_st       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtkiwi_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -144,6 +143,12 @@ jtkiwi_video u_video(
 
     .pal_cs         ( pal_cs        ),
     .pal_dout       ( pal_dout      ),
+
+    .pal2_cs        ( pal2_cs       ),
+    .cpu2_dout      ( shr_din       ),
+    .cpu2_rnw       ( sub_rnw       ),
+    .cpu2_addr      ( shr_addr[9:0] ),
+
     // SDRAM
     .scr_addr       ( scr_addr      ),
     .scr_data       ( scr_data      ),
@@ -163,9 +168,8 @@ jtkiwi_video u_video(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( gfx_st        )
 );
-/* verilator tracing_on */
 
-
+/* verilator tracing_off */
 jtkiwi_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -175,11 +179,14 @@ jtkiwi_snd u_sound(
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .LVBL       ( LVBL          ),
-    .fm_en      ( enable_fm     ),
-    .psg_en     ( enable_psg    ),
-
     // Game variations
+`ifdef NOKABUKIZ
+    .kabuki     ( 1'b0          ),
+    .kabuki_mod ( 1'b0          ),
+`else
     .kabuki     ( kabuki        ),
+    .kabuki_mod ( kabuki_mod    ), // different memory map for TNZS
+`endif
     .kageki     ( kageki        ),
 
     // PCM
@@ -189,7 +196,7 @@ jtkiwi_snd u_sound(
     .pcm_cs     ( pcm_cs        ),
 
     // cabinet I/O
-    .cab_1p     ( cab_1p        ),
+    .cab_1p     ( cab_1p[1:0]   ),
     .coin       ( eff_coin      ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
@@ -208,7 +215,8 @@ jtkiwi_snd u_sound(
     .cpu_rnw    ( sub_rnw       ),
     .ram_cs     ( shr_cs        ),
     .mshramen   ( mshramen      ),
-
+    .pal_cs     ( pal2_cs       ),
+    .pal_dout   ( pal_dout      ),
     // MCU
     .mcu_en     ( mcu_en        ),
     .prog_addr  ( prog_addr[10:0]),
@@ -219,13 +227,16 @@ jtkiwi_snd u_sound(
     .rom_addr   ( sub_addr      ),
     .rom_cs     ( sub_cs        ),
     .rom_data   ( sub_data      ),
-    .rom_ok     ( sub_ok        ),
+
+    .audiocpu_addr ( audiocpu_addr ),
+    .audiocpu_cs   ( audiocpu_cs   ),
+    .audiocpu_data ( audiocpu_data ),
+    .audiocpu_ok   ( audiocpu_ok   ),
 
     // Sound output
-    .fx_level   ( dip_fxlevel   ),
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm         ( fm            ),
+    .psg        ( psg           ),
+    .pcm        ( pcm           ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_addr    ( st_addr       ),

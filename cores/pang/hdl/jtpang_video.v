@@ -51,11 +51,11 @@ module jtpang_video(
     output          busrq,
 
     // ROM
-    output   [19:0] char_addr,
+    output   [20:2] char_addr,
     input    [31:0] char_data,
     output          char_cs,
 
-    output   [16:0] obj_addr,
+    output   [17:2] obj_addr,
     input    [31:0] obj_data,
     output          obj_cs,
     input           obj_ok,

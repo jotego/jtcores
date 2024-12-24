@@ -22,9 +22,10 @@ echo "Create a jtseed.last file at this folder to stop at the next compilation"
 rm -f jtseed.last
 
 MAXREPS=100
+SEED=0
 
 re='^[0-9]+$'
-if [[ $1 =~ $re ]] ; then
+if [[ $1 =~ $re && $1 != 194? ]] ; then
    MAXREPS=$1
    shift
 else
@@ -39,7 +40,7 @@ for i in $*; do
 done
 
 while [ $MAXREPS -gt 0 ]; do
-    if jtcore $* --seed $RANDOM; then
+    if jtcore $* --seed $SEED; then
         break
     fi
     # parallel jtcore $* -seed {} ::: $RANDOM $RANDOM | tee -a $1_seed.log
@@ -47,6 +48,7 @@ while [ $MAXREPS -gt 0 ]; do
         rm jtseed.last
         exit 0
     fi
+    SEED=$RANDOM
     MAXREPS=$((MAXREPS-1))
 done
 

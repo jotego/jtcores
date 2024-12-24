@@ -41,15 +41,14 @@ module jtcontra_sound(
     input   [ 7:0]  pcm_data,
     input           pcm_ok,
     // Sound output
-    output signed [15:0] snd_left,
-    output signed [15:0] snd_right,
-    output               sample,
-    output               peak
+    output signed [15:0] fm_l,
+    output signed [15:0] fm_r,
+    output        [ 7:0] st_dout
 );
 
 assign pcm_addr = 0;
 assign pcm_cs   = 0;
-assign peak     = 0;
+assign st_dout  = 0;
 
 `ifndef NOSOUND
 wire [ 7:0] cpu_dout, ram_dout, fm_dout;
@@ -135,12 +134,12 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ), // marks new output sample
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( snd_left  ),
-    .xright     ( snd_right )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 `ifdef SIMULATION

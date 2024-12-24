@@ -12,6 +12,13 @@ becomes static at frame 1148
 
 To compare MAME with the core, the RTC timer values must be equal. If the simulation skips the setup stage (by using an NVRAM file), the timer start up values must be set with the macro `JTFRAME_SIM_RTC=n`, where n is a hex number containing hour-min-sec. It is enough to set the seconds. The number required is usally between 5 to 9, depending on how quickly you go through the menu in MAME.
 
+# BaseBall Stars
+
+Use `sim.sh -nvram -cart carts/Baseball\ Stars\ \(JE\)\ \(M2\).ngp`
+
+- 190 frames to finish the NeoGeo logo
+- 274 frames to display the game logo
+
 ## Firmware Hack
 
 In order to synchronize MAME traces with simulation, some instructions are

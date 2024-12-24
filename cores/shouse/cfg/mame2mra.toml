@@ -1,41 +1,81 @@
 [parse]
 sourcefile=[ "namcos1.cpp" ]
-skip = { machines=[
+skip = { machines=[ "puzlclub" ] }
+
+debug = { machines=[
+    # Key type 3
+    "rompers", # problems with music
+    # Others
     "bakutotu",
-    "berabohm",
-    "blastoff",
-    "blazer",
-    "boxyboy",
-    # "dangseed",
-    "dspirit",
-    "faceoff",
-    "galaga88",
-    "mmaze",
-    "pacmania",
-    "pistoldm",
-    "puzlclub",
-    "quester",
-    "rompers", # hangs up after notice - vertical game
-    "shadowld",
-    "tankfrce",
-    "wldcourt",
-    "ws",      # needs 2-byte key ID
+    # "berabohm",
+    # "quester",
+], setnames=[
+    # "tankfrcej",
+    # see issue #626
+    "tankfrce4",
 ] }
 
-[header]
-info="Byte 0: protection type"
-data= [
-    { machine="splatter", data="03 B5 03 04" },
-    # { machine="splatter", data="03 B5 00 03 04 ff ff ff ff" },
-    # { machine="dangseed", data="03 34 01 06 ff 05 ff 00 04" },
-    # { machine="rompers",  data="03 B6 07 00" },
-    # { machine="blastoff", data="03 B7 00 03 05" },
-    # { setname="ws89",     data="03 B8 02 00" },
+[buttons]
+names = [
+    { machine="bakutotu",  names="Gun Shot" },
+    { machine="berabohm",  names="Small Jump,Mid Jump,High Jump,Weak Attack,Mid Attack,Strong Attack" },
+    { machine="blastoff",  names="Missile Shot,Missile Type Change" },
+    { machine="blazer",    names="Forward Missile,Side Missile" },
+    { machine="boxyboy",   names="Try Again,Takeback" },
+    { machine="dangseed",  names="Shot,Bomber" },
+    { machine="dspirit",   names="Fire Air,Fire Ground" },
+    { machine="faceoff",   names="Shot,Pass/Shoot" },
+    { machine="galaga88",  names="Fire" },
+    { machine="mmaze",     names="Shot/Big Shot,Jump" },
+    { machine="pacmania",  names="Jump" },
+    { machine="pistoldm",  names="Shot/Bomber" },
+    { machine="puzlclub",  names="Get Stuck" },
+    { machine="quester",   names="Start" },
+    { machine="rompers",   names="Knock Down Stone Wall" },
+    { machine="shadowld",  names="Telekinesis Launch,Jump" },
+    { machine="splatter",  names="Attack,Jump" },
+    { machine="tankfrce",  names="Shot" },
+    { machine="wldcourt",  names="Slow Serve/Return,Quick Serve/Return" },
+    { machine="ws",        names="Batting/Throw,Base Running/Checkmate,Timeout" },
 ]
 
-[buttons]
-names=[
-    { machine="splatter", names="Attack,Jump" },
+[header]
+info="""Byte 0: bit 0-1: protection type, bit 4-5: control type (0 - normal, 1 - faceoff 4p, 2 - berabohm, 3 - quester), bit 6: 64/128kB Program ROMs
+Byte 1: key ID
+Byte 2: addr for key ID
+Byte 3: addr for RNG
+Byte 4: addr for nibble swap data write
+Byte 5: addr for nibble swap read
+Byte 6: addr for lower nibble read
+Byte 7: addr for upper nibble read
+"""
+data= [
+
+    { machine="faceoff",  data="10" },
+    { machine="quester",  data="30" },
+    { machine="berabohm", data="20" },
+
+    { machine="dspirit",  data="01 36" },
+    { machine="wldcourt", data="01 35" },
+    { machine="blazer",   data="01 13" },
+    { machine="puzlclub", data="01 35" },
+
+    { machine="pacmania", data="02 12" },
+    { machine="mmaze",    data="02 25" },
+    { machine="galaga88", data="02 31" },
+    { machine="ws",       data="02 07" },
+    { machine="bakutotu", data="02 22" },
+
+    { machine="splatter", data="03 B5 03 04 FF FF FF FF" },
+    { machine="rompers",  data="03 B6 07 FF FF FF FF FF" },
+    { machine="blastoff", data="03 B7 00 07 03 05 FF FF" },
+    { setname="ws89",     data="03 B8 02 FF FF FF FF FF" },
+    { machine="tankfrce", data="03 B9 05 FF 01 FF 02 FF" },
+    { setname="tankfrce4",data="13 B9 05 FF 01 FF 02 FF" },
+    { machine="dangseed", data="03 34 06 FF 05 FF 00 04" },
+    { machine="pistoldm", data="03 35 01 02 00 FF 04 FF" },
+    { machine="ws90",     data="03 36 04 FF 07 FF 03 FF" },
+    { machine="boxyboy",  data="03 37 02 03 00 FF 04 FF" },
 ]
 
 [dipsw]
@@ -63,16 +103,20 @@ rename=[
     {name="CPU #0&1 Kick Watchdog in IRQ (step2of2)", to="Debug IRQ 2/2"},
 ]
 
+extra=[
+    # Halt the sound CPU while YM2151 is busy. Not present in the original
+    # Fixes issues in some games due to the poorly designed sound driver
+    { name="*Sound fix", options="On,Off", bits="8" }
+]
+
 [ROM]
-# values starting with $ refer to macro definitions in the .def file
-# or arguments passed to mame2mra
 regions = [
-    { name="user1" },
+    { name="user1", rom_len=0x20000 },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="voice",    start="PCM_START"  },
     { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
-    { name="c123tmap",         start="SCR_START", width=32 },
-    { name="sprite",           start="JTFRAME_BA3_START", width=32 },
+    { name="c123tmap",         start="SCR_START"         },
+    { name="sprite",           start="JTFRAME_BA3_START" },
     { name="mcu",              start="JTFRAME_PROM_START"  },
 ]
 

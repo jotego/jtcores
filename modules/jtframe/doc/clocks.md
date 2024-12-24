@@ -1,16 +1,15 @@
 # Game clocks
 
-Games are expected to operate on a 48MHz clock using clock enable signals. There is an optional 6MHz that can be enabled with the macro **JTFRAME_CLK6**. This clock goes in the game module through a _clk6_ port which is only connected to when that macro is defined. _jtbtiger_ is an example of game using this feature.
+Games are expected to operate on a 48MHz clock using clock enable signals. There is an optional 24MHz clock for modules that cannot be synthesized at 48MHz.
 
  clock input | Macro Needed
 -------------|--------------
+clk96        | Always present
+clk24        | Always present
 clk          | 48MHz unless JTFRAME_SDRAM96 is defined, then 96MHz
-clk96        | JTFRAME_CLK96
 clk48        | JTFRAME_CLK48
-clk24        | JTFRAME_CLK24
-clk6         | JTFRAME_CLK6
 
-Note that although clk6 and clk24 are obtained without affecting the main clock input, if **JTFRAME_SDRAM96** is defined, the main clock input moves up from 48MHz to 96MHz. The 48MHz clock can the be obtained from clk48 if **JTFRAME_CLK48** is defined too. This implies that the SDRAM will be clocked at 96MHz instead of 48MHz. The constraints in the SDC files have to match this clock variation.
+Note that although clk24 is obtained without affecting the main clock input, if **JTFRAME_SDRAM96** is defined, the main clock input moves up from 48MHz to 96MHz. The 48MHz clock can the be obtained from clk48 if **JTFRAME_CLK48** is defined too. This implies that the SDRAM will be clocked at 96MHz instead of 48MHz. The constraints in the SDC files have to match this clock variation.
 
 If STA was to be run on these pins, the SDRAM clock would have to be assigned the correct PLL output in the SDC file but this is hard to do because the TCL language subset used by Quartus seems to lack control flow statements. So we are required to do another text edit hack on the fly, which is not nice. Apart from changing the PLL output, when using 96MHz clock the input data should have a multicycle path constraint as it takes an extra clock cycle for the data to be ready. If you just change the PLL clock then you'll find plenty of timing problems unless you define the multicycle path constraint.
 
@@ -37,7 +36,7 @@ By default unless **JTFRAME_MR_FASTIO** is already defined, **JTFRAME_CLK96** wi
 
 Most core modules will need to operate at a frequency different from the master clock, **clk**. This is achieved by using clock enable signals (*cen*), which are high exactly for one pulse cycle. There are several modules in [hdl/clocking](../hdl/clocking) that help creating these *cen* signals but the preferred method is to define them in the cfg/mem.yaml file.
 
-*cen* signals can be defined in terms of a multiplier and a divider, which is handy when the original system follows that method, or with an absolute frequency in hertz. Each definition is tied to a specific JTFRAME clock (clk6, clk24, clk48 or clk96) and for absolute value calculations, the **JTFRAME_PLL** macro is taken into account. Thus the desired frequency will be obtained regardless of which clock and which PLL you choose for the design.
+*cen* signals can be defined in terms of a multiplier and a divider, which is handy when the original system follows that method, or with an absolute frequency in hertz. Each definition is tied to a specific JTFRAME clock (clk24, clk48 or clk96) and for absolute value calculations, the **JTFRAME_PLL** macro is taken into account. Thus the desired frequency will be obtained regardless of which clock and which PLL you choose for the design.
 
 Example from **jtroadf** core:
 
@@ -60,7 +59,7 @@ For each output listed, the result frequency is divided by 2. Thus cpu4_cen will
 
 You can specify several clock domains, clk24, clk48, etc. If you move _cen_ signals from one domain to another, make sure the right clock is used in the _game_ module too for each respective _cen_.
 
-# Internal JTFRAME clocks
+# Internal JTFRAME Clocks
 
 The clocks passed to the target subsystem (jtframe_mist, jtframe_mister or jtframe_neptuno) are three:
 
@@ -73,16 +72,20 @@ clk_pico  | picoBlaze clock         | 48MHz
 clk_rom is controlled by the macros **JTFRAME_SDRAM96**
 clk_sys is normally 48MHz, even if clk_rom is 96MHz. It can be set to 96MHz with **JTFRAME_CLK96**.
 
-Games can move these frequencies by replacing the PLL (using the **JTFRAME_PLL** macro) but the changes should be within ±10% of the expected values.
+Games can move these frequencies by replacing the PLL (using the **JTFRAME_PLL** macro) but the changes should be within ±10% of the expected values. For example, to use a 6.144 MHz pixel clock use `JTFRAME_PLL=jtframe_pll6144` in the .def file.
 
-JTFRAME_PLL     |    Base clock    | Pixel clocks  | Used on
-----------------|------------------|---------------|-------------
-jtframe_pll6000 |    48/96         | 8 and 6 MHz   | Most JT cores. Used by default
-jtframe_pll6144 |    49.152        | 6.144         | JTKICKER, JTTWIN16
-jtframe_pll6293 |    50.3496       | 6.2937        | JTS16
-jtframe_pll6671 |    53.372        | 6.671         | JTRASTAN
+JTFRAME_PLL     | PCB crystal |   Base clock    | Pixel clocks  | Used on
+----------------|-------------|-----------------|---------------|-------------
+jtframe_pll6000 |             |   48/96         | 8 and 6 MHz   | Most JT cores. Used by default
+jtframe_pll6144 | 18.43200    |   49.152        | 6.144         | JTKICKER, JTTWIN16, JTFROUND, JTSHOUSE, JTTWIN16, JTVIGIL
+jtframe_pll6293 | 25.1748     |   50.3496       | 6.2937        | JTS16, JTOUTRUN, JTSHANON
+jtframe_pll6671 | 26.68600    |   53.372        | 6.671         | JTRASTAN
 
-For example, to use a 6.144 MHz pixel clock use `JTFRAME_PLL=jtframe_pll6144` in the .def file.
+These final frequencies have a slight error with respect to the PCB. For 6.144 and 6.2937MHz, it could be solved by adding one more PLL stage for an external clock of 27MHz. For 6.671MHz, there is no fractional solution in two stages for either a 27 or a 50MHz input clock.
+
+In order to test all clocks and all SDRAM settings quickly, run:
+
+`jtupdate 1942 kicker shanon rastan cps1 -t sidi128 --jobs 2`
 
 The game module input clocks are multiples of the base clock:
 
@@ -92,7 +95,6 @@ clk          |  48      |   49.152
 clk96        |  96      |   98.304
 clk48        |  48      |   49.152
 clk24        |  24      |   24.576
-clk6         |   6      |    6.144
 
 # Pixel Clock
 

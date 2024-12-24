@@ -15,6 +15,8 @@ clocks:
       outputs:
         - cpu_cen
         - phi1_cen        # 12.5MHz, MCU timer base
+ports:
+  - { name: cpu_addr, msb: 20, lsb: 1 }
 sdram:
   banks:
     -
@@ -26,11 +28,31 @@ sdram:
         # - name: cart1
         #   addr_width: 20
         #   data_width: 8
-# Firmware in BRAM to avoid losing refresh cycles while loading a cartridge
-bram:
-  - name: rom
+
+bram: # 64+8+4+16=92kB
+  - name: rom # 64 kB
     addr_width: 16
     data_width: 16
     sim_file: true
     rom:
       offset: 0
+
+  - name: nvram
+    addr_width: 13  # 8kB
+    data_width: 16
+    addr: "cpu_addr[12:1]"
+    din: cpu_dout
+    # sim_file: true
+    rw: true
+  - name: ram1
+    addr_width: 12  # 4kB
+    data_width: 16
+    addr: "cpu_addr[11:1]"
+    din: cpu_dout
+    rw: true
+
+  # - name: flash
+  #   addr_width: 14 # 16kB
+  #   data_width: 16
+  #   rw: true
+  #   ioctl: { save: true }

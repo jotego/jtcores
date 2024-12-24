@@ -56,8 +56,7 @@ module jtpinpon_main(
     input               dip_test,
 
     // Sound
-    output signed [10:0] snd,
-    output               sample
+    output signed [10:0] snd
 );
 
 reg  [ 7:0] cabinet, cpu_din;
@@ -72,7 +71,6 @@ reg         gfx_sel;
 assign irq_trigger = ~LVBL & dip_pause; // this should match line 224
 assign nmi_trigger =  V16; // check in sch/PCB
 assign cpu_rnw     = wr_n;
-assign sample      = ti1_cen;
 assign rom_addr    = A[14:0];
 assign flip        = 0;
 assign gated_cen   = gfx_sel & (oram_cs | vram_cs) ? 1'b0 : ti1_cen; // bus contention as the original board
@@ -110,8 +108,8 @@ always @(posedge clk) begin
     case( A[8:7] )
         0: cabinet <= { coin[0], coin[1], service,
             cab_1p[0], cab_1p[1], dipsw_c };
-        1: cabinet <= { joystick1[4], joystick1[0], joystick1[1], joystick1[5],
-                        joystick2[4], joystick2[0], joystick2[1], joystick2[5] };
+        1: cabinet <= { joystick1[4], joystick1[1:0], joystick1[5],
+                        joystick2[4], joystick2[1:0], joystick2[5] };
         2: cabinet <= dipsw_a;
         3: cabinet <= { dipsw_b[0], dipsw_b[1], dipsw_b[2], dipsw_b[3],
                         dipsw_b[4], dipsw_b[5], dipsw_b[6], dipsw_b[7] };
@@ -168,7 +166,6 @@ jtframe_ff u_nmi(
 );
 
 reg  [ 7:0] ti1_data;
-wire [10:0] ti1_snd;
 wire        rdy1;
 
 always @(posedge clk, posedge rst) begin

@@ -21,7 +21,6 @@ module jtmx5k_sound(
     input           rst,
     input           cen_fm,
     input           cen_fm2,
-    input   [ 1:0]  fxlevel,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -41,9 +40,8 @@ module jtmx5k_sound(
     input           pcmb_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] fm_l, fm_r,
+    output signed [11:0] pcm
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
@@ -51,11 +49,9 @@ wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, int_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, div_cs, dac_cs, iock;
-wire signed [15:0]  fm_left, fm_right;
 wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
-wire signed [11:0]  pcm_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
@@ -90,33 +86,6 @@ always @(*) begin
         default:     cpu_din = 8'hff;
     endcase
 end
-
-reg [7:0] fxgain;
-
-always @(*) begin
-    case( fxlevel )
-        0: fxgain = 8'h02;
-        1: fxgain = 8'h04;
-        2: fxgain = 8'h08;
-        3: fxgain = 8'h10;
-    endcase
-end
-
-jtframe_mixer #(.W0(16),.W1(16),.W2(12)) u_mixer(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_left    ),
-    .ch1    ( fm_right   ),
-    .ch2    ( pcm_snd    ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( 8'h08      ),
-    .gain1  ( 8'h08      ),
-    .gain2  ( fxgain     ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd        ),
-    .peak   ( peak       )
-);
 
 jtframe_ff u_ff(
     .clk      ( clk         ),
@@ -180,12 +149,12 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 jt007232 u_pcm(
@@ -214,7 +183,7 @@ jt007232 u_pcm(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm_snd   ),
+    .snd        ( pcm       ),
     // debug
     .debug_bus  ( 8'd0      ),
     .st_dout    (           )
@@ -224,8 +193,8 @@ initial rom_cs   = 0;
 assign  pcma_cs  = 0;
 assign  pcmb_cs  = 0;
 assign  rom_addr = 15'd0;
-assign  snd      = 0;
-assign  peak     = 0;
-assign  sample   = 0;
+assign  pcm      = 0;
+assign  fm_l     = 0;
+assign  fm_r     = 0;
 `endif
 endmodule

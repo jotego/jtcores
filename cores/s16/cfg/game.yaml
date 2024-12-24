@@ -9,10 +9,6 @@ game:
       - jts16_cen.v
       - tilemap.yaml
       - jts16_colmix.v
-      - jts16_obj.v
-      - jts16_obj_ram.v
-      - jts16_obj_draw.v
-      - jts16_obj_scan.v
       - jts16_video.v
       - jts16_pcm.v
       - jts16_trackball.v
@@ -20,6 +16,7 @@ game:
       - jts16_fd1094.v
       - jts16_fd1094_dec.v
       - jts16_fd1094_ctrl.v
+      - obj.yaml
       - ../syn/timing.sdc
 jtframe:
   - get:

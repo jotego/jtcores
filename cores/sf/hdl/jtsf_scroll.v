@@ -25,7 +25,6 @@ module jtsf_scroll #( parameter
     PXLW            = 8,
     HOFFSET         = 0,
     // MAP SIZE
-    MAPAW           = 16, // address width
     MAPDW           = 32  // data width
 )(
     input                rst,
@@ -38,7 +37,7 @@ module jtsf_scroll #( parameter
     input                SCxON,
     input                flip,
     // Map ROM
-    output reg [MAPAW-1:0] map_addr,
+    output reg      [16:2] map_addr,
     input      [MAPDW-1:0] map_data,
     input                  map_ok,
     // Gfx ROM
@@ -77,7 +76,7 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        map_addr <= {MAPAW{1'b0}};
+        map_addr <= 0;
         HS[3:0]  <= 4'd0;
         SVmap    <= 5'd0;
     end else begin
@@ -86,7 +85,7 @@ always @(posedge clk, posedge rst) begin
         if( SH[2:0]==3'd6 ) begin
             HS[3] <= SH[3] /*^flip*/;
             // Map address shifted left because of 32-bit read
-            map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
+            map_addr <= { PIC[5:0], SH[8:4], SV[7:4] }; // 6+5+4+1=16
             SVmap    <= SV[4:0];
         end
     end

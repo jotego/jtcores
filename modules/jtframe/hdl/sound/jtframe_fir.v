@@ -37,15 +37,21 @@ module jtframe_fir(
     output reg signed [15:0] r_out
 );
 
-parameter [6:0] KMAX = 7'd68;
+parameter [7:0] KMAX = 8'd68;
 parameter COEFFS = "filter.hex";
 
 reg signed [15:0] ram[0:511];   // dual port RAM
-reg [6:0] pt_wr, pt_rd, cnt;
+reg [6:0] pt_wr, pt_rd;
+reg [7:0] cnt;
 reg       st;
 reg signed [35:0] acc_l, acc_r;
 reg signed [15:0] coeff;
 reg signed [31:0] p_l, p_r;
+wire       [ 8:0] ram_idx, ptr_l, ptr_r; // using a wire prevents a false warning from Quartus
+
+assign ram_idx = {2'd0, cnt[6:0]};
+assign ptr_l   = {2'd1, pt_rd };
+assign ptr_r   = {2'd2, pt_rd };
 
 function signed [35:0] ext;
     input signed [31:0] p;
@@ -54,25 +60,25 @@ endfunction
 
 function [6:0] loop_inc;
     input [6:0] s;
-    loop_inc = s == KMAX-7'd1 ? 7'd0 : s+7'd1;
+    loop_inc = s == KMAX[6:0]-7'd1 ? 7'd0 : s+7'd1;
 endfunction
 
 function signed [15:0] sat;
     input [35:0] a;
-    sat = a[35:30] == {6{a[29]}} ? a[29:14] : { a[35], {15{~a[35]}} };
+    sat = a[35:32] == {4{a[31]}} ? a[31:16] : { a[35], {15{~a[35]}} };
 endfunction
 
 always@(posedge clk, posedge rst) begin
     if( rst ) begin
-        l_out <= 16'd0;
-        r_out <= 16'd0;
-        pt_rd <= 7'd0;
-        pt_wr <= 7'd0;
-        cnt   <= 7'd0;
-        acc_l <= 36'd0;
-        acc_r <= 36'd0;
-        p_l   <= 32'd0;
-        p_r   <= 32'd0;
+        l_out <= 0;
+        r_out <= 0;
+        pt_rd <= 0;
+        pt_wr <= 0;
+        cnt   <= 0;
+        acc_l <= 0;
+        acc_r <= 0;
+        p_l   <= 0;
+        p_r   <= 0;
     end else begin
         if( sample ) begin
             pt_rd <= pt_wr;
@@ -80,22 +86,22 @@ always@(posedge clk, posedge rst) begin
             ram[ { 2'd1, pt_wr } ] <= l_in;
             ram[ { 2'd2, pt_wr } ] <= r_in;
             pt_wr <= loop_inc( pt_wr );
-            acc_l <= 36'd0;
-            acc_r <= 36'd0;
-            p_l   <= 32'd0;
-            p_r   <= 32'd0;
+            acc_l <= 0;
+            acc_r <= 0;
+            p_l   <= 0;
+            p_r   <= 0;
             st    <= 0;
         end else begin
             if( cnt < KMAX ) begin
                 st <= ~st;
                 if( st == 0 ) begin
-                    coeff <= ram[ {2'd0, cnt } ];
+                    coeff <= ram[ ram_idx ];
                 end else begin
-                    p_l <= ram[ {2'd1, pt_rd } ] * coeff;
-                    p_r <= ram[ {2'd2, pt_rd } ] * coeff;
+                    p_l <= ram[ ptr_l ] * coeff;
+                    p_r <= ram[ ptr_r ] * coeff;
                     acc_l <= acc_l + ext(p_l);
                     acc_r <= acc_r + ext(p_r);
-                    cnt <= cnt+7'd1;
+                    cnt <= cnt+8'd1;
                     pt_rd <= loop_inc( pt_rd );
                 end
             end else begin

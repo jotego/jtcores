@@ -49,7 +49,7 @@ module jt052591(
     output    [ 7:0]  st_dout
 );
 
-reg  [ 3:0] out_cnt;
+reg  [ 5:0] out_cnt;
 reg  [ 4:0] st;
 reg  [10:0] pos0, end0, addr;
 reg  [ 7:0] flag0, flag1, cm, hm, start1, end1, pos1,
@@ -183,7 +183,7 @@ always @(posedge clk, posedge rst) begin
                     st <= 10;
                 end else begin
                     st <= 0;
-                    out_cnt <= 4'hf;
+                    out_cnt <= 6'h3f;
                 end
             end
         endcase

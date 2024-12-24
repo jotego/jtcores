@@ -22,21 +22,16 @@
       dw: 18
       at: "035[2:0],034[2:0],033[2:0],032[2:0],031[2:0],030[2:0]"
 - name: obj
-  size: 8
+  size: 16
   regs:
-    - name: xoffset
-      desc: "global x offset"
-      dw: 9
-      at: "4[0],5"
-    - name: yoffset
-      desc: "global y offset"
-      dw: 8
-      at: "7"
-    - name: dma_on
-      desc: "trigger DMA at next vertical blanking"
-      dw: 1
-      at: "2"
-      wr_event: true
+    - { name: dma_on,  desc: "trigger DMA at next VB", dw: 1, at: "2", wr_event: true }
+    - { name: xoffset, desc: "global x offset",        dw: 9, at: "4[0],5"            }
+    - { name: flip,    desc: flip,                     dw: 1, at: "6[0]"              }
+    - { name: yoffset, desc: "global y offset",        dw: 8, at: "7"                 }
+# Game            6  8  9 10 11 12 13 14 15 (dec)
+# Pistol Daimyo  00 00 00 40 00 00 00 06 e7 (hex)
+# Pac-Mania      01 00 00 40 00 00 00 00 00 (hex)
+# Dragon Spirit  00 00 00 00 00 00 00 00 00 (hex)
 - name: cus30
   size: 63
   read_only: true
@@ -61,3 +56,13 @@
       dw: 0o240 # 20 bits per channel
       desc: "frequency"
       at: "001[3:0],002,003,011[3:0],012,013,021[3:0],022,023,031[3:0],032,033,041[3:0],042,043,051[3:0],052,053,061[3:0],062,063,071[3:0],072,073"
+
+- name: cus116
+  size: 16
+  regs:
+    - { name: left,  desc: "left   clip",        dw:  9, at: "0[0],1" }
+    - { name: right, desc: "right  clip",        dw:  9, at: "2[0],3" }
+    - { name: top,   desc: "top    clip",        dw:  9, at: "4[0],5" }
+    - { name: bottom,desc: "bottom clip",        dw:  9, at: "6[0],7" }
+    - { name: hirq,  desc: "H pos. for IRQ (?)", dw: 16, at: "8,9"    }
+    - { name: virq,  desc: "V pos. for IRQ",     dw: 16, at: "10,11"  }

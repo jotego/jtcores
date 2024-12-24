@@ -117,9 +117,9 @@ ucode:
       - ea_ld
       - m_ea,
       - m_ea, fetch,
-      - one_rmux, ld1_opnd
-      - ea_rmux, ld0_opnd
-      - add_alu, ea_ld
+      - m_ea, one_rmux, ld1_opnd
+      - m_ea, ea_rmux, ld0_opnd
+      - m_ea, add_alu, ea_ld
       - m_ea,
       - m_ea, fetch, md_shift, ret_jsr
   - name: idxa
@@ -267,10 +267,10 @@ ucode:
       - ${addr}_jsr inc_pc # 3 bus cycles gone
       - ${op0}_rmux, op0inv=${op0inv} ld0_opnd
       - ${op1}_rmux, ld1_opnd
-      - ${alu}_alu, ${carry}_carry, md_ld, ${cc}_cc
-      - m_ea, ${wr}
-      - # bus cycle
-      - fetch
+      - ${alu}_alu, ${carry}_carry, ${wr}?md_ld:fetch, ${cc}_cc
+      - ${wr}?*, m_ea, ${wr}
+      - ${wr}?*, # bus cycle
+      - ${wr}?*, fetch
       - # wait for the fetch
       - ni
   - mnemo: [ # 3 cycles
@@ -293,9 +293,7 @@ ucode:
       - imm_jsr
       - pc_rmux, ld1_opnd, branch
       -          ld0_opnd
-      - add_alu, pc_ld
-      - # idle
-      - idle4_jsr
+      - add_alu, pc_ld, idle4_jsr
       - fetch
       - # wait for the fetch
       - ni
@@ -315,10 +313,10 @@ ucode:
     seq:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd
-      - m_ea, md_ld, ${cc}_cc, alu16=${alu16}
+      - m_ea, md_ld, ${cc}_cc, alu16
       - m_ea, wr, ea_rmux, ld0_opnd, md_shift
-      - one_rmux, ld1_opnd
-      - add_alu, ea_ld
+      - m_ea, one_rmux, ld1_opnd
+      - m_ea, add_alu, ea_ld
       - m_ea, wr
       - fetch
       -

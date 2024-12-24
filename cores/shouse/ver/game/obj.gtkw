@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Oct 17 06:13:14 2023
+[*] Fri Mar 29 09:26:58 2024
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/game/test.fst"
-[dumpfile_mtime] "Tue Oct 17 06:10:37 2023"
-[dumpfile_size] 993171
+[dumpfile_mtime] "Fri Mar 29 09:26:31 2024"
+[dumpfile_size] 11502458
 [savefile] "/home/jtejada/jtcores/cores/shouse/ver/game/obj.gtkw"
-[timestart] 23878961000
-[size] 1264 1024
+[timestart] 24502930000
+[size] 1920 1052
 [pos] -1 -1
-*-17.920868 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.808737 24507824000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -18,51 +18,73 @@
 [treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
 [treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.
 [treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_gate.
-[sst_width] 43
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_gate.u_linebuf.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_gate.u_linebuf.u_line.
+[sst_width] 281
 [signals_width] 276
-[sst_expanded] 0
-[sst_vpaned_height] 353
+[sst_expanded] 1
+[sst_vpaned_height] 657
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
 TOP.game_test.u_game.u_game.u_video.lvbl
 TOP.game_test.u_game.u_game.u_video.u_colmix.lhbl
-@22
+@24
 TOP.game_test.u_game.u_game.u_video.u_obj.vrender[8:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.hdump[8:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.pxl[10:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_colmix.obj_prio[2:0]
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr_prio[2:0]
+TOP.game_test.u_game.u_game.u_video.u_colmix.lyr_sel
 @200
 -
 @28
-TOP.game_test.u_game.u_game.u_video.u_obj.scan_bsy
-@24
-[color] 2
-TOP.game_test.u_game.u_game.u_video.u_obj.st[1:0]
-@22
-TOP.game_test.u_game.u_game.u_video.u_obj.scan_obj[6:0]
-@24
-TOP.game_test.u_game.u_game.u_video.u_obj.scan_sub[1:0]
-@c00022
-TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-@28
-(0)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(1)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(2)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(3)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(4)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(5)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(6)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(7)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(8)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(9)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-(10)TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
-@1401200
--group_end
+TOP.game_test.u_game.u_game.u_video.u_obj.draw
 @22
 TOP.game_test.u_game.u_game.u_video.u_obj.oram_dout[15:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.ypos[8:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.inzone
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_hsize[1:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.vsize[1:0]
 @200
 -
-@28
+@22
 [color] 2
-TOP.game_test.u_game.u_game.u_video.u_obj.draw
-TOP.game_test.u_game.u_game.u_video.u_obj.half
+TOP.game_test.u_game.u_game.u_video.u_obj.xoffset[8:0]
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+@1401200
+-group_end
+@28
+[color] 1
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.xpos[9:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.st[1:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.flip
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_obj[6:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.dma_bsy
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.dma_obj[6:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.oram_addr[11:1]
+@25
+TOP.game_test.u_game.u_game.u_video.u_obj.st[1:0]
 [pattern_trace] 1
 [pattern_trace] 0

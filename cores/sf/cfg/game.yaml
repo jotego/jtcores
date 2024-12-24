@@ -45,7 +45,6 @@ jtframe:
       - jtframe_tilebuf.v
   - from: sound
     get:
-      - jtframe_uprate2_fir.yaml
       - jtframe_mixer.v
       - jtframe_dcrm.v
 modules:

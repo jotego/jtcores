@@ -28,7 +28,7 @@ module jtvigil_scr2(
     input         LVBL,
     input         HS,
     input  [10:0] scrpos,
-    output [17:0] rom_addr,
+    output [18:2] rom_addr,
     input  [31:0] rom_data, // 32/4 = 8 pixels
     output        rom_cs,
     input         rom_ok,
@@ -47,7 +47,7 @@ wire        we;
 assign rom_cs   = !done;
 assign we       = !done;
 assign rom_addr = { /*debug_bus[7:4]*/ 1'b0, hsum[10:9],
-    vbuf[7:0], hsum[8:3], ~flip };
+    vbuf[7:0], hsum[8:3] /*, ~flip*/ };
 assign hnext    = { 2'b11, hcnt^{9{~flip}} } + scrpos + 12'h7E;
 
 assign buf_in = hsum[0] /*^ flip*/ ?

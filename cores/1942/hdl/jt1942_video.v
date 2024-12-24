@@ -35,11 +35,12 @@ module jt1942_video(
     input               pause,
     // CHAR
     input               char_cs,
-    output      [ 7:0]  chram_dout,
     output      [11:0]  char_addr,
     input       [15:0]  char_data,
     output              char_busy,
     input               char_ok,
+    output      [10:1]  tmap_addr,
+    input       [15:0]  tmap_dout,
     // SCROLL - ROM
     input               scr_cs,
     output              scr_busy,
@@ -82,11 +83,13 @@ module jt1942_video(
 localparam COFFSET = 9'd5;
 localparam SOFFSET = 9'd5;
 
-reg        vulgus, hige;
-wire       preLHBL, preLVBL, LHBL_obj, HINIT;
-wire [3:0] char_pxl, obj_pxl;
-wire [8:0] aux_AB = cpu_AB[8:0]-9'h80;
-wire [6:0] obj_AB = hige ? aux_AB[8:2] :cpu_AB[6:0];
+reg         vulgus, hige;
+wire        preLHBL, preLVBL, LHBL_obj, HINIT;
+wire [ 3:0] char_pxl, obj_pxl;
+wire [ 7:0] char_prom;
+wire [ 8:0] aux_AB = cpu_AB[8:0]-9'h80;
+wire [ 6:0] obj_AB = hige ? aux_AB[8:2] :cpu_AB[6:0];
+wire [15:0] char_sorted;
 
 always @(posedge clk ) begin
     hige   <= game_id==HIGEMARU;
@@ -108,43 +111,49 @@ jtgng_timer u_timer(
     .LVBL_obj  (          )
 );
 
-jtgng_char #(
-    .HOFFSET ( COFFSET ),
-    .ROM_AW  ( 12      ),
-    .IDMSB1  (  7      ),
-    .IDMSB0  (  7      ),
-    .VFLIP   (  6      ),
-    .PALW    (  6      ),   // Higemaru only uses 5 bits, the core relies on the software keeping the 6th bit low, or the data from the PROM will be wrong
-    .HFLIP_EN(  0      ),   // 1942 does not have character H flip
-    .PALETTE (  1      ),
-    .PALETTE_SIMFILE( "../../../rom/1942/sb-0.f1" )
-) u_char (
+// Higemaru only uses 5 bits for char palette. The other games use 6 bits.
+// in order to share the module, the same data is written in both halves of the
+// palette PROM. Higemaru writes bit 6 during hi-score entry and does not
+// clear it afterwards. See https://github.com/jotego/jtcores/issues/466
+
+assign char_sorted = { char_data[8+:4],char_data[0+:4], char_data[12+:4],char_data[4+:4] };
+assign char_busy   = H[2:1]!=3 && char_cs;
+
+jtframe_tilemap #(.CW(9),.BPP(2),.XOR_HFLIP(1),.XOR_VFLIP(0))u_char(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .AB         ( cpu_AB        ),
-    .V          ( V[7:0]        ),
-    .H          ( H[7:0]        ),
+
+    .vdump      ( V             ),
+    .hdump      ( H+9'd2        ),
+    .blankn     ( LVBL          ),
     .flip       ( flip          ),
-    .din        ( cpu_dout      ),
-    .dout       ( chram_dout    ),
-    .dseln      (               ),
-    // Bus arbitrion
-    .char_cs    ( char_cs       ),
-    .wr_n       ( wr_n          ),
-    .busy       ( char_busy     ),
-    // PROM access
-    .prog_addr  ( prog_addr     ),
-    .prog_din   ( prog_din[3:0] ),
-    .prom_we    ( prom_char_we  ),
-    // ROM
-    .char_addr  ( char_addr     ),
-    .rom_data   ( char_data     ),
-    .rom_ok     ( char_ok       ),
-    // Pixel output
-    .char_on    ( 1'b1          ),
-    .char_pxl   ( char_pxl      )
+
+    .vram_addr  ( tmap_addr     ),
+
+    .code       ({tmap_dout[15],tmap_dout[7:0]}),
+    .pal        ({tmap_dout[13]&~hige,tmap_dout[12:8]}),
+    .hflip      ( tmap_dout[13]& hige ),
+    .vflip      ( tmap_dout[14]       ),
+
+    .rom_addr   ( char_addr     ),
+    .rom_data   ( char_sorted   ),
+    .rom_cs     (               ),
+    .rom_ok     ( char_ok       ),      // ignored. It assumes that data is always right
+
+    .pxl        ( char_prom     )
 );
 
+jtframe_prom #(.AW(8),.DW(4)) u_chprom(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din[3:0]  ),
+    .rd_addr( char_prom      ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_char_we   ),
+    .q      ( char_pxl       )
+);
+/* verilator tracing_off */
 `ifndef NOSCR
 wire [2:0] scr_col;
 wire [4:0] scr_pal;

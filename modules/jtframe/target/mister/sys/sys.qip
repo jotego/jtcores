@@ -34,4 +34,3 @@ set_global_assignment -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) s
 set_global_assignment -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) sd_card.sv ]
 set_global_assignment -name VERILOG_FILE       [file join $::quartus(qip_path) hps_io.v ]
 set_global_assignment -name VERILOG_FILE       [file join $::quartus(qip_path) video_calc.v ]
-set_global_assignment -name VERILOG_FILE       [file join $::quartus(qip_path) mister_clksync.v ]

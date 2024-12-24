@@ -41,7 +41,7 @@ module jtexed_scr1 #(parameter
     output reg        map1_cs,
     input             map1_ok,
 
-    output reg [13:0] rom1_addr,
+    output reg [14:2] rom1_addr,
     input      [31:0] rom1_data,
     input             rom1_ok,
     // Output pixel
@@ -50,14 +50,13 @@ module jtexed_scr1 #(parameter
     input       [7:0] debug_bus
 );
 
-reg  [11:0] heff, veff, hadv;
+reg  [11:0] heff, veff;
 wire [10:0] hpos_adj = hpos + HOFFSET[10:0];
 wire [ 7:0] VF = V[7:0]^{8{flip}};
 
 always @(*) begin
     heff = hpos_adj + { {2{HF[9]}}, HF };
     if( flip ) heff = heff - 12'd11;
-    hadv = flip ? heff /*- 16'h8*/ : heff + 12'h8;
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, VF };
 end
@@ -85,7 +84,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             if(map1_ok) begin
                 map1_cs <= 0;
-                rom1_addr <= { map1_data, veff[3:0], heff[3]^flip, 1'b0 }; // 8+4+1+1=14
+                rom1_addr <= { map1_data, veff[3:0], heff[3]^flip }; // 8+4+1+1=14
             end
             if( flip ) begin
                 pxl_w <= pxl_w >> 1;

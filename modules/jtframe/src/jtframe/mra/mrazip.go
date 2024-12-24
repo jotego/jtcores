@@ -3,7 +3,6 @@ package mra
 import (
 	"archive/zip"
 	// "fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -11,7 +10,7 @@ type zipfiles_t map[string]*zip.ReadCloser
 
 var zipfiles zipfiles_t
 
-func get_zipfile(name string) (zipfile *zip.ReadCloser) {
+func get_zipfile(name, zippath string) (zipfile *zip.ReadCloser) {
 	if zipfiles == nil {
 		zipfiles = make(zipfiles_t)
 	}
@@ -20,7 +19,7 @@ func get_zipfile(name string) (zipfile *zip.ReadCloser) {
 		return zf
 	}
 	// Try to open the zipfile
-	path := filepath.Join(os.Getenv("HOME"), ".mame", "roms", name)
+	path := filepath.Join(zippath, name)
 	var e error
 	zf, e = zip.OpenReader(path)
 	if e != nil {

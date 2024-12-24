@@ -22,7 +22,6 @@ module jtbubl_sound(
     input             clk,
     input             cen3,   //  3   MHz
 
-    input      [ 1:0] fx_level,
     input             tokio,
     // Interface with main CPU
     input      [ 7:0] snd_latch,
@@ -33,14 +32,14 @@ module jtbubl_sound(
     input             main_flag,
     // ROM
     output     [14:0] rom_addr,
-    output  reg       rom_cs,
+    output reg        rom_cs,
     input      [ 7:0] rom_data,
     input             rom_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output            sample,
-    output            peak
+    output signed [15:0] fm03, fm26,
+    output reg    [ 9:0] psg,
+    input         [ 7:0] debug_bus
 );
 
 wire        [15:0] A;
@@ -48,20 +47,21 @@ wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
 wire               mreq_n, rfsh_n;
-reg         [ 7:0]  din;
+reg         [ 7:0] din;
+wire        [ 9:0] pre_psg;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
 wire               nmi_n;
-wire signed [15:0] fm0_snd,  fm1_snd;
-wire        [ 9:0] psg_snd;
-wire signed [ 9:0] psg2x; // DC-removed version of psg0
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
 assign rom_addr   = A[14:0];
 assign nmi_n      = snd_flag | ~nmi_en;
 assign flag_clr   = (io_cs && !rd_n && A[1:0]==2'b0) || ~snd_rstn;
+
+always @(posedge clk) psg <= tokio ? pre_psg>>2 : pre_psg;
+
 
 always @(*) begin
     rom_cs = !mreq_n && !A[15];
@@ -162,58 +162,20 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rom_ok     ( 1'b1        )   // SDRAM gating managed in mem.yaml
 );
 
-jt49_dcrm2 #(.sw(10)) u_dcrm (
-    .clk    (  clk      ),
-    .cen    (  cen3     ),
-    .rst    (  rst      ),
-    .din    (  psg_snd  ),
-    .dout   (  psg2x    )
-);
+// always @(posedge clk) begin
+//     if( tokio ) begin
+//         fm0_gain <= 8'h20;      // YM2203
+//         fm1_gain <= 8'h40;      // YM3526
+//         psg_gain <= 8'h02;
+//     end else begin
+//         // Both FM chips have the same gain according to the schematics
+//         fm1_gain <= 8'h10;      // YM2203 FX
+//         fm1_gain <= 8'h08;      // YM3526 music
+//         psg_gain <= 8'h10;      // seems unused in Bubble Bobble
+//     end
+// end
 
-// Both FM chips have the same gain according to the schematics
-// YM2203 to YM3526 ratio = 8:1
-
-reg  [7:0] fm0_gain, psg_gain;
-
-wire [7:0] fm1_gain = tokio ? 8'h40 : 8'h10; // YM3526
-
-always @(posedge clk) begin
-    if( tokio ) begin
-        case( fx_level )
-            2'd0: psg_gain <= 8'h01;
-            2'd1: psg_gain <= 8'h02;
-            2'd2: psg_gain <= 8'h04;
-            2'd3: psg_gain <= 8'h08;
-        endcase
-        fm0_gain <= fm1_gain;
-    end else begin
-        case( fx_level )
-            2'd0: fm0_gain <= 8'h18;
-            2'd1: fm0_gain <= 8'h30;
-            2'd2: fm0_gain <= 8'h60;
-            2'd3: fm0_gain <= 8'hC0;
-        endcase
-        psg_gain <= fm0_gain;
-    end
-end
-
-jtframe_mixer #(.W2(10),.W3(8)) u_mixer(
-    .rst    ( rst          ),
-    .clk    ( clk          ),
-    .cen    ( cen3         ),
-    .ch0    ( fm0_snd      ),
-    .ch1    ( fm1_snd      ),
-    .ch2    ( psg2x        ),
-    .ch3    ( 8'd0         ),
-    .gain0  ( fm0_gain     ), // YM2203 - Fx
-    .gain1  ( fm1_gain     ), // YM3526 - Music
-    .gain2  ( psg_gain     ), // PSG - Unused in Bubble Bobble - Used in Tokio
-    .gain3  ( 8'd0         ),
-    .mixed  ( snd          ),
-    .peak   ( peak         )
-);
-
-jt03 u_2203(
+jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~snd_rstn  ),
     .clk        ( clk        ),
     .cen        ( cen3       ),
@@ -222,9 +184,9 @@ jt03 u_2203(
     .addr       ( A[0]       ),
     .cs_n       ( ~fm0_cs    ),
     .wr_n       ( wr_n       ),
-    .psg_snd    ( psg_snd    ),
-    .fm_snd     ( fm0_snd    ),
-    .snd_sample ( sample     ),
+    .psg_snd    ( pre_psg    ),
+    .fm_snd     ( fm03       ),
+    .snd_sample (            ),
     .irq_n      ( intn_fm0   ),
     // unused outputs
     .IOA_oe     (            ),
@@ -250,18 +212,8 @@ jtopl u_opl(
     .cs_n       ( ~fm1_cs    ),
     .wr_n       ( wr_n       ),
     .irq_n      ( intn_fm1   ),
-    .snd        ( fm1_snd    ),
+    .snd        ( fm26       ),
     .sample     (            )
 );
-
-`ifdef SIMULATION
-    integer fsnd;
-    initial begin
-        fsnd=$fopen("fm_sound.raw","wb");
-    end
-    always @(posedge sample) begin
-        $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
-    end
-`endif
 
 endmodule

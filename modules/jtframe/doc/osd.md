@@ -28,7 +28,7 @@ In MiST, DIP switches are incorporated into the status word. As some bits in the
 Macro                | Effect
 ---------------------|----------------------------
 JTFRAME_SIM_DIPS     | 32-bit value of DIPs used in simulation only
-JTFRAME_OSD_NOLOAD   | Do not display _load file_
+JTFRAME_OSD_LOAD     | Display _load file_
 JTFRAME_OSD_NOCREDITS| Do not display _Credits_
 JTFRAME_OSD_FLIP     | Display flip option (only for vertical games)
 JTFRAME_OSD_NOSND    | Do not display sound options
@@ -93,11 +93,9 @@ bit     |  meaning                | Enabled with macro
 49-52   | CRT H scaling factor    | MiSTer only, visibility masked
 53-56   | CRT H offset            | MiSTer only
 57-60   | CRT V offset            | MiSTer only
-61-63   | Reserved for forks      | JTFRAME forks can use these bits%
+61-63   |    -- free --           |
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
-
-% JTFRAME will not expand to use bits 61 to 63 in MiSTer, so developers creating custom forks can use them. This can be used to provide custom inputs, for instance.
 
 %% If JTFRAME_OSD60HZ is defined and the status word bit is low, MiSTer will disable the Scan FX options. This options should be used when the pixel clock is produced by a fractional divider, and thus it's very jittery. Some displays do good with this, some don't. This is less important for MiST because the PLL is less troublesome there. In MiSTer, all hell breaks loose in the HDMI subsystem for some game PLL settings.
 
@@ -151,7 +149,7 @@ The user port supports:
 
 Depending on the three macros above are set or unset, the OSD menu will show different options in MiSTer.
 
-## MOD BYTE
+# MOD BYTE
 
 Some JTFRAME features are configured via an ARC or MRA file. This is used to share a common RBF file among several games. The mod byte is introduced in the MRA file using this syntax:
 
@@ -174,5 +172,7 @@ Bit  |    Meaning            | Default value
  2   |  1 = CCW rotation     | Set by jtframe mra
  3   |  1 = unfiltered dial  | Dial signals are sent raw to the core
  4   |  1 = dial reverse     | Reverse dial direction
+ 5   |  1 = expand blanking  |     0
+ 6   |    0/1=>8/16 pixels   | Magnitude of the blanking expansion
 
  The vertical screen bit is only read if JTFRAME was compiled with the **JTFRAME_VERTICAL** macro. This macro enables support for vertical games in the RBF. Then the same RBF can switch between horizontal and vertical games by using the MOD byte.

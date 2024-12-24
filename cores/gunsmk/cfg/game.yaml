@@ -6,7 +6,6 @@ game:
   - from: 1943
     get:
       - jt1943_colmix.v
-      - jt1943_prom_we.v
       - jt1943_video.v
       - jt1943_scroll.yaml
   - from: gng

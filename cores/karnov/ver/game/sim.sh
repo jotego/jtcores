@@ -22,12 +22,12 @@ if [ -n "$SCENE" ]; then
         echo "Scene folder $SCENE not found"
         exit 1
     fi
-    drop1 -l < $SCENE/vram.bin > vram_hi.bin
-    drop1    < $SCENE/vram.bin > vram_lo.bin
-    drop1 -l < $SCENE/scrram.bin > scrram_hi.bin
-    drop1    < $SCENE/scrram.bin > scrram_lo.bin
-    drop1 -l < $SCENE/objram.bin > objram_hi.bin
-    drop1    < $SCENE/objram.bin > objram_lo.bin
+    jtutil drop1 -l < $SCENE/vram.bin > vram_hi.bin
+    jtutil drop1    < $SCENE/vram.bin > vram_lo.bin
+    jtutil drop1 -l < $SCENE/scrram.bin > scrram_hi.bin
+    jtutil drop1    < $SCENE/scrram.bin > scrram_lo.bin
+    jtutil drop1 -l < $SCENE/objram.bin > objram_hi.bin
+    jtutil drop1    < $SCENE/objram.bin > objram_lo.bin
     cp $SCENE/scrpos.hex .
 fi
 

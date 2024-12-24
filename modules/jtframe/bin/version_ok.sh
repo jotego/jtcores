@@ -20,7 +20,7 @@
 PRJCOMMIT=$(git rev-parse --short HEAD)
 
 # if there is a version tag that matches the commit, use it instead
-PRJTAG=`git tag --contains $PRJCOMMIT | grep "^v[0-9]\+\.[0-9]\+\.[0-9]\+$" | tail -n 1`
+PRJTAG=`git tag --points-at $PRJCOMMIT | grep "^v[0-9]\+\.[0-9]\+\.[0-9]\+$" | tail -n 1`
 if [ ! -z "$PRJTAG" ]; then
     echo $PRJTAG;
     exit 0

@@ -128,8 +128,8 @@ end
 always @(posedge clk) begin
     case( A[1:0] )
         0: cabinet <= { ~3'd0, cab_1p, service, coin };
-        1: cabinet <= {1'b1, joystick1[6:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
-        2: cabinet <= {1'b1, joystick2[6:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
+        1: cabinet <= { 1'b1, joystick1[6:0] };
+        2: cabinet <= { 1'b1, joystick2[6:0] };
         3: cabinet <= 8'hff;
     endcase
     cpu_din <= rom_cs  ? rom_data  :

@@ -1,5 +1,5 @@
 [global]
-mraauthor=["jotego"]
+author=["jotego"]
 
 [parse]
 sourcefile=[ "hcastle.cpp" ]
@@ -15,6 +15,13 @@ rename = [
     {  name="Difficulty 1 (Game)", To="Gameplay" },
     {  name="Difficulty 2 (Strength)", To="Strength" },
     {  name="Allow Continue", To="Continue" },
+]
+
+[header]
+frames = [
+    # the black frame is not symmetrical but 16 left/8 right
+    # so this will still leave 8 on the left side
+    { width=8 },
 ]
 
 [ROM]

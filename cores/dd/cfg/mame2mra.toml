@@ -1,6 +1,6 @@
 [global]
 # info = [ {tag="mameversion", value="0229"} ]
-mraauthor=["jotego"]
+author=["jotego"]
 platform="jtdd"
 
 [parse]
@@ -32,7 +32,6 @@ Names = [
 [dipsw]
 # Flip screen not supported
 delete=[{names=["Unused","Unknown"]}]
-bitcnt = 16
 rename = [
     { name="Bonus Life", to="Bonus" },
 ]

@@ -1,0 +1,87 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu Apr  4 06:28:03 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/shouse/ver/pacmania/test.fst"
+[dumpfile_mtime] "Thu Apr  4 05:35:33 2024"
+[dumpfile_size] 6733797167
+[savefile] "/home/jtejada/jtcores/cores/shouse/ver/pacmania/fm.gtkw"
+[timestart] 7485442100000
+[size] 2532 1024
+[pos] 1919 -28
+*-24.017643 7485463325052 12947724364068 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_jt51.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.
+[sst_width] 223
+[signals_width] 301
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.cen_E
+@23
+TOP.game_test.u_game.u_game.u_sound.A[15:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.fm_cs
+TOP.game_test.u_game.u_game.u_sound.u_jt51.write
+@22
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.din[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.reg_sel[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.op_din[7:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_ch[2:0]
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_op[1:0]
+@8024
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.cur_ch[2:0]
+@24
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.cur_op[1:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.zero
+[color] 1
+TOP.game_test.u_game.u_game.u_sound.u_jt51.busy
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.lfo_up
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_amsen
+[color] 3
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_d1l
+[color] 3
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.u_csr_op.up_d1l_op
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_dt1
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_dt2
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_keyon
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_ks
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_tl
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.u_reg.ch_sel[2:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_rl
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_kc
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_kf
+TOP.game_test.u_game.u_game.u_sound.u_jt51.u_mmr.up_pms
+@200
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_jt51.xleft[15:0]
+@20000
+-
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

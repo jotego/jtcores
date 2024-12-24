@@ -10,7 +10,7 @@
     (rev "José Tejada G.")
     (company "KONAMI PWB353018A GX065")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "Esperanza Triana")
+    (comment 2 "JOTEGO")
     (comment 3 "JOTEGO")
   )
 
@@ -1928,7 +1928,7 @@
       (property "Footprint" "" (at 0 -27.94 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 0 -33.02 0)
+      (property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 0 -33.02 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (symbol "054321_0_0"
@@ -5253,7 +5253,7 @@
     (property "Footprint" "" (at 212.09 90.17 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 212.09 90.17 0)
+    (property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 212.09 90.17 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 1ddf505c-a494-4a21-8dfe-8ac1730f5502))

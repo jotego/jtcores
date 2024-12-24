@@ -24,7 +24,7 @@ module jttmnt_game(
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
-wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
+wire        cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout,
             st_main, st_video, st_snd;
@@ -51,7 +51,7 @@ always @(posedge clk) begin
         game_id <= prog_data[2:0];
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -60,7 +60,6 @@ jttmnt_main u_main(
     .game_id        ( game_id       ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
-    .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      ( tile_nmin     ),
@@ -107,7 +106,7 @@ jttmnt_main u_main(
     .debug_bus      ( debug_bus     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -138,7 +137,6 @@ jttmnt_video u_video (
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( ram_din       ),
-    .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
@@ -173,7 +171,7 @@ jttmnt_video u_video (
 );
 
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -225,10 +223,13 @@ jttmnt_sound u_sound(
     .title_addr ( title_addr    ),
     .title_ok   ( title_ok      ),
     // Sound output
-    .snd_left   ( snd_left      ),
-    .snd_right  ( snd_right     ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           ),
+    .upd        ( upd           ),
+    .k60_l      ( k60_l         ),
+    .k60_r      ( k60_r         ),
+    .title      ( title         ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

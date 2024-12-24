@@ -19,47 +19,15 @@
 module jtcop_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
-
-// SDRAM interface
-wire        main_cs, vram_cs, ram_cs;
-wire [18:1] main_addr;
-wire [15:0] main_data, ram_data;
-wire        main_ok, ram_ok;
-
-wire        char_ok;
-wire [12:0] char_addr;
-wire [31:0] char_data;
-
-wire        b0rom_ok, b1rom_ok, b2rom_ok,
-            b0rom_cs, b1rom_cs, b2rom_cs;
-wire [17:0] b0rom_addr, b1rom_addr, b2rom_addr;
-wire [31:0] b0rom_data, b1rom_data, b2rom_data;
-
-wire        obj_ok, obj_cs, objram_cs, mixpsel, obj_copy;
-wire [17:0] obj_addr;
-wire [31:0] obj_data;
-
 // CPU interface
-wire [15:0] main_dout, pal_dout, obj_dout;
-wire [ 1:0] dsn;
+wire        objram_cs, mixpsel, obj_copy;
+wire [15:0] pal_dout, obj_dout;
 wire        UDSWn, LDSWn, main_rnw;
 
 // BAC06 CS signals
 wire        fmode_cs, fsft_cs, fmap_cs,
             bmode_cs, bsft_cs, bmap_cs,
             cmode_cs, csft_cs, cmap_cs;
-
-// BAC06 VRAM read access
-wire        b0ram_cs, b0ram_ok,
-            b1ram_cs, b1ram_ok,
-            b2ram_cs, b2ram_ok;
-wire [13:1] b0ram_addr, b1ram_addr, b2ram_addr;
-wire [15:0] b0ram_data, b1ram_data, b2ram_data;
-
-// MCU access to SDRAM
-wire [15:0] mcu_addr;
-wire [ 7:0] mcu_data;
-wire        mcu_cs, mcu_ok;
 
 // ROM banks
 wire     [ 2:1] sndflag, b1flg, mixflg;
@@ -71,19 +39,13 @@ wire [ 1:0] pal_cs;
 wire [ 7:0] prisel;
 wire        prio_we;
 
-// Sound CPU
-wire [15:0] snd_addr;
-wire [ 7:0] snd_data;
-wire        snd_cs, snd_ok;
-
+// Sound
+// adpcm_addr[16] is used as an /OE signal on the board
+// I'm ignoring that connection here as it isn't relevant
+wire [15:0] snd_prea;
+wire [17:0] adpcm_prea;
 wire [ 7:0] snd_latch;
 wire        snreq;
-
-// PCM
-wire [17:0] adpcm_addr;
-wire        adpcm_cs;
-wire [ 7:0] adpcm_data;
-wire        adpcm_ok;
 
 wire        flip;
 wire        cen_opl, cen_opn;
@@ -104,29 +66,30 @@ wire        huc_cs;
 // BA2 - MCU interface
 wire [ 7:0] ba2mcu_mode_din, ba2mcu_dout;
 wire        ba2mcu_rnw;
-wire        ba2mcu_cs, ba2mcu_mode;
-wire        ba2mcu_ok;
-wire [13:1] ba2mcu_addr;
-wire [ 7:0] ba2mcu_data;
-wire [ 1:0] ba2mcu_dsn;
+wire        ba2mcu_mode;
 // Cabinet inputs
-wire [ 7:0] dipsw_a, dipsw_b;
 //wire [ 7:0] game_id;
 
 // Status report
-wire [7:0] sta_video, std_video,
-           st_snd, st_main, pal_dmp, obj_dmp;
-reg  [7:0] st_mux;
-wire [1:0] game_id;
+wire [ 7:0] sta_video, std_video, postd,
+            st_snd, st_main, pal_dmp, obj_dmp;
+reg  [ 7:0] st_mux;
+wire [ 1:0] game_id;
+wire [21:0] posta;
 
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
-assign dsn = { UDSWn, LDSWn };
-assign dip_flip = flip;
+always @* begin
+    post_data = postd;
+    post_addr = posta;
+end
+
+assign dsn        = { UDSWn, LDSWn };
+assign dip_flip   = flip;
 assign debug_view = st_dout;
 assign st_dout    = st_mux;
-assign ba1_din=0, ba2_din=0, ba3_din=0; // unused
-assign ba1_dsn=3, ba2_dsn=3, ba3_dsn=3; // unused
-assign sta_video = ioctl_ram ? ioctl_addr[7:0] : st_addr; // dump data to SD card
+assign sta_video  = st_addr;
+assign ram_we     = ~main_rnw;
+assign ba2mcu_we  = ~ba2mcu_rnw;
+assign ba2mcu_din = {2{ba2mcu_dout}};
 
 always @(posedge clk) begin
     st_mux <= 0;
@@ -207,8 +170,8 @@ jtcop_main u_main(
     .joyana2     ( joyana_r2  ),
     .dial_x      ( dial_x     ),
     .dial_y      ( dial_y     ),
-    .cab_1p      ( cab_1p     ),
-    .coin        (  coin      ),
+    .cab_1p      ( cab_1p[1:0]),
+    .coin        ( coin[1:0]  ),
     .service     ( service    ),
     // RAM access
     .ram_cs      ( ram_cs     ),
@@ -219,10 +182,10 @@ jtcop_main u_main(
     .rom_data    ( main_data  ),
     .rom_ok      ( main_ok    ),
     // DIP switches
-    .dip_pause   ( dip_pause & ~ioctl_ram ),
+    .dip_pause   ( dip_pause  ),
     .dip_test    ( dip_test   ),
-    .dipsw_a     ( dipsw_a    ),
-    .dipsw_b     ( dipsw_b    ),
+    .dipsw_a     ( dipsw[ 7:0]),
+    .dipsw_b     ( dipsw[15:8]),
     // Status report
     //.debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
@@ -239,7 +202,7 @@ jtcop_video u_video(
     .gfx_en     ( gfx_en    ),
 
     .game_id    ( game_id   ),
-    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_ram  ( 1'b0      ),
     .ioctl_addr ( ioctl_addr[10:0]),
     .pal_dmp    ( pal_dmp   ),
     .obj_dmp    ( obj_dmp   ),
@@ -279,7 +242,7 @@ jtcop_video u_video(
     .prisel     ( prisel    ),
     .pal_dout   ( pal_dout  ),
     .prio_we    ( prio_we   ),
-    .prog_addr  (prog_addr[9:0]),
+    .prog_addr  ( posta[9:0]),
     .prom_din   (prog_data[3:0]),
 
     .flip        ( flip       ),
@@ -342,34 +305,31 @@ jtcop_snd u_sound(
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-    .fxlevel    (dip_fxlevel),
-
     // From main CPU
     .snreq      ( snreq     ),
     .latch      ( snd_latch ),
     .snd_bank   ( snd_bank  ),
 
     // ROM
-    .rom_addr   ( snd_addr  ),
+    .rom_addr   ( snd_prea  ),
     .rom_cs     ( snd_cs    ),
     .rom_data   ( snd_data  ),
     .rom_ok     ( snd_ok    ),
 
     // ADPCM ROM
-    .adpcm_addr ( adpcm_addr),
+    .adpcm_addr ( adpcm_prea),
     .adpcm_cs   ( adpcm_cs  ),
     .adpcm_data ( adpcm_data),
     .adpcm_ok   ( adpcm_ok  ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // Sound channels
+    .opn        ( opn       ),
+    .opl        ( opl       ),
+    .psg        ( psg       ),
+    .pcm        ( pcm       ),
     .status     ( st_snd    )
 );
 /* verilator tracing_off */
-
 `ifdef MCU
     wire [7:0] mcu_p0o, mcu_p1o, mcu_p2o, mcu_p3o, mcu_p3i;
     reg  [7:0] mcu_p0i;
@@ -465,8 +425,10 @@ jtcop_snd u_sound(
     assign mcu_sel2  = 0;
     initial mcu_dout = 0;
 `endif
-
+/* verilator tracing_on */
 `ifndef NOHUC
+    wire [7:0] ba2mcu_d8 = mcu_addr[0] ? ba2mcu_data[15:8] : ba2mcu_data[7:0];
+
     jtcop_prot u_prot(
         .rst        ( rst24     ),
         .clk        ( clk24     ),
@@ -487,7 +449,7 @@ jtcop_snd u_sound(
         .ba2mcu_ok  ( ba2mcu_ok     ),
         .ba2mcu_dout( ba2mcu_dout   ),
         .ba2mcu_addr( ba2mcu_addr   ),
-        .ba2mcu_data( ba2mcu_data   ),
+        .ba2mcu_data( ba2mcu_d8     ),
         .ba2mcu_dsn ( ba2mcu_dsn    ),
         .ba2mcu_rnw ( ba2mcu_rnw    ),
 
@@ -509,147 +471,33 @@ jtcop_snd u_sound(
 `endif
 
 jtcop_sdram u_sdram(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .game_id    ( game_id   ),
-    .st_video   ( std_video ),
-    .pal_dmp    ( pal_dmp   ),
-    .obj_dmp    ( obj_dmp   ),
-
-    // Video RAM
-    .fsft_cs    ( fsft_cs   ),
-    .fmap_cs    ( fmap_cs   ),
-    .bsft_cs    ( bsft_cs   ),
-    .bmap_cs    ( bmap_cs   ),
-    .csft_cs    ( csft_cs   ),
-    .cmap_cs    ( cmap_cs   ),
-
-    .b0ram_cs   ( b0ram_cs  ),
-    .b0ram_addr ( b0ram_addr),
-    .b0ram_data ( b0ram_data),
-    .b0ram_ok   ( b0ram_ok  ),
-
-    .b1ram_cs   ( b1ram_cs  ),
-    .b1ram_addr ( b1ram_addr),
-    .b1ram_data ( b1ram_data),
-    .b1ram_ok   ( b1ram_ok  ),
-
-    .b2ram_cs   ( b2ram_cs  ),
-    .b2ram_addr ( b2ram_addr),
-    .b2ram_data ( b2ram_data),
-    .b2ram_ok   ( b2ram_ok  ),
-
-    // PROMs
-    .mcu_we     ( mcu_we    ), // i8751 MCU / Sub CPU
-    .prio_we    ( prio_we   ), // priority
-
-    // ROM banks
-    .sndflag    ( sndflag   ),
-    .b1flg      ( b1flg     ),
-    .mixflg     ( mixflg    ),
-    .crback     ( crback    ),
-    .b0flg      ( b0flg     ),
-    .sndbank    ( snd_bank  ),
-
-    // Main CPU
-    .main_cs    ( main_cs   ),
-    .ram_cs     ( ram_cs    ),
-
-    .main_addr  ( main_addr ),
-    .main_data  ( main_data ),
-    .ram_data   ( ram_data  ),
-
-    .main_ok    ( main_ok   ),
-    .ram_ok     ( ram_ok    ),
-
-    .dsn        ( dsn       ),
-    .main_dout  ( main_dout ),
-    .main_rnw   ( main_rnw  ),
-
-    // Sound CPU
-    .snd_addr   ( snd_addr  ),
-    .snd_cs     ( snd_cs    ),
-    .snd_data   ( snd_data  ),
-    .snd_ok     ( snd_ok    ),
-
-    // ADPCM ROM
-    .adpcm_addr (adpcm_addr ),
-    .adpcm_cs   (adpcm_cs   ),
-    .adpcm_data (adpcm_data ),
-    .adpcm_ok   (adpcm_ok   ),
-
-    // MCU
-    .mcu_addr   ( mcu_addr  ),
-    .mcu_cs     ( mcu_cs    ),
-    .mcu_data   ( mcu_data  ),
-    .mcu_ok     ( mcu_ok    ),
-
-    // BA2 - MCU
-    .ba2mcu_cs  ( ba2mcu_cs     ),
-    .ba2mcu_ok  ( ba2mcu_ok     ),
-    .ba2mcu_rnw ( ba2mcu_rnw    ),
-    .mcu_dout   ( ba2mcu_dout   ),
-    .ba2mcu_addr( ba2mcu_addr   ),
-    .ba2mcu_data( ba2mcu_data   ),
-    .ba2mcu_dsn ( ba2mcu_dsn    ),
-
-    // BG 0
-    .b0rom_ok    ( b0rom_ok   ),
-    .b0rom_cs    ( b0rom_cs   ),
-    .b0rom_addr  ( b0rom_addr ),
-    .b0rom_data  ( b0rom_data ),
-
-    // BG 1
-    .b1rom_ok    ( b1rom_ok   ),
-    .b1rom_cs    ( b1rom_cs   ),
-    .b1rom_addr  ( b1rom_addr ),
-    .b1rom_data  ( b1rom_data ),
-
-    // BG 2
-    .b2rom_ok    ( b2rom_ok   ),
-    .b2rom_cs    ( b2rom_cs   ),
-    .b2rom_addr  ( b2rom_addr ),
-    .b2rom_data  ( b2rom_data ),
-
-    // Sprite interface
-    .obj_ok     ( obj_ok    ),
-    .obj_cs     ( obj_cs    ),
-    .obj_addr   ( obj_addr  ),
-    .obj_data   ( obj_data  ),
-
-    // Bank 0: allows R/W
-    .ba0_addr    ( ba0_addr      ),
-    .ba1_addr    ( ba1_addr      ),
-    .ba2_addr    ( ba2_addr      ),
-    .ba3_addr    ( ba3_addr      ),
-    .ba_rd       ( ba_rd         ),
-    .ba_wr       ( ba_wr         ),
-    .ba_ack      ( ba_ack        ),
-    .ba_dst      ( ba_dst        ),
-    .ba_dok      ( ba_dok        ),
-    .ba_rdy      ( ba_rdy        ),
-    .ba0_din     ( ba0_din       ),
-    .ba0_din_m   ( ba0_dsn       ),
-
-    .data_read   ( data_read     ),
-
-    // ROM load
-    .ioctl_rom  ( ioctl_rom  ),
-    .dwnld_busy ( dwnld_busy ),
-
-    .ioctl_addr ( ioctl_addr[24:0] ),
-    .ioctl_dout ( ioctl_dout ),
-    .ioctl_din  ( ioctl_din  ),
-    .ioctl_wr   ( ioctl_wr   ),
-    .ioctl_ram  ( ioctl_ram  ),
-    .prog_addr  ( prog_addr  ),
-    .prog_data  ( prog_data  ),
-    .prog_mask  ( prog_mask  ),
-    .prog_ba    ( prog_ba    ),
-    .prog_we    ( prog_we    ),
-    .prog_rd    ( prog_rd    ),
-    .prog_ack   ( prog_ack   ),
-    .prog_rdy   ( prog_rdy   )
+    .clk            ( clk           ),
+    .main_addr      ( main_addr     ),
+    .ram_addr       ( ram_addr      ),
+    .fsft_cs        ( fsft_cs       ),
+    .fmap_cs        ( fmap_cs       ),
+    .bsft_cs        ( bsft_cs       ),
+    .bmap_cs        ( bmap_cs       ),
+    .csft_cs        ( csft_cs       ),
+    .cmap_cs        ( cmap_cs       ),
+    .sndflag        ( sndflag       ),
+    .snd_bank       ( snd_bank      ),
+    .mcu_we         ( mcu_we        ),
+    .prio_we        ( prio_we       ),
+    .snd_prea       ( snd_prea      ),
+    .snd_addr       ( snd_addr      ),
+    .adpcm_prea     ( adpcm_prea    ),
+    .adpcm_addr     ( adpcm_addr    ),
+    .game_id        ( game_id       ),
+    .ba2mcu_addr    ( ba2mcu_addr   ),
+    .ioctl_addr     ( ioctl_addr    ),
+    .prog_addr      ( prog_addr     ),
+    .prog_ba        ( prog_ba       ),
+    .post_addr      ( posta         ),
+    .prog_data      ( prog_data     ),
+    .post_data      ( postd         ),
+    .prom_we        ( prom_we       ),
+    .prog_we        ( prog_we       )
 );
 
 endmodule

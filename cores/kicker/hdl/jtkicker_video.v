@@ -53,7 +53,7 @@ module jtkicker_video(
     input               scr_ok,
 
     // Objects
-    output       [13:0] obj_addr, // MSB always zero
+    output       [15:2] obj_addr, // MSB always zero
     input        [31:0] obj_data,
     output              obj_cs,
     input               obj_ok,

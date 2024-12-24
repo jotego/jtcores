@@ -124,3 +124,5 @@ if [ ! -z "$GIT" ]; then
     # update JTBIN's md5.md file
     jtutil md5
 fi
+# copy files to SD card if present
+jtbin2sd

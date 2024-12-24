@@ -29,6 +29,7 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
+      - jtframe_tilemap.v
   - from: sound
     get:
       - jtframe_jt49_filters.yaml

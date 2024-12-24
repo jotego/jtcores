@@ -175,7 +175,7 @@ module neptuno_top(
     localparam SDRAMW=22; // 32 MB
 `endif
 
-wire          rst, rst_n, clk_sys, clk_rom, clk6, clk24, clk48, clk96;
+wire          rst, rst_n, clk_sys, clk_rom, clk24, clk48, clk96;
 wire [63:0]   status;
 wire [31:0]   joystick1, joystick2;
 wire [24:0]   ioctl_addr;
@@ -226,13 +226,15 @@ wire [COLORW-1:0] blue;
 
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
-wire        sample;
+wire [ 5:0] snd_en, snd_vu;
+wire [ 7:0] snd_vol;
+wire        sample, snd_peak;
 
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
 wire [3:0] game_coin, game_start;
 wire       game_rst, game_service, game_tilt;
-wire       rst96, rst48, rst24, rst6;
+wire       rst96, rst48, rst24;
 wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -282,7 +284,6 @@ jtframe_mist_clocks u_clocks(
     .clk96      ( clk96          ),
     .clk48      ( clk48          ),
     .clk24      ( clk24          ),
-    .clk6       ( clk6           ),
     .pll_locked ( pll_locked     ),
 
     // System clocks
@@ -294,15 +295,14 @@ jtframe_mist_clocks u_clocks(
     .game_rst   ( game_rst       ),
     .rst96      ( rst96          ),
     .rst48      ( rst48          ),
-    .rst24      ( rst24          ),
-    .rst6       ( rst6           )
+    .rst24      ( rst24          )
 );
 
 assign clk_pico = clk48;
 
 
 wire [7:0] debug_bus, debug_view;
-wire [1:0] dip_fxlevel, game_led;
+wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 wire       pxl_cen, pxl2_cen;
@@ -333,8 +333,6 @@ localparam DIPBASE=16;
     assign ba3_din    = 0;
     assign ba3_dsn    = 3;
 `endif
-
-assign game_led[1] = 1'b0; // Let system LED info go through too
 
 jtframe_mist #(
     .SDRAMW       ( SDRAMW         ),
@@ -372,8 +370,6 @@ u_frame(
     .VGA_B          ( VGA_B          ),
     .VGA_HS         ( VGA_HS         ),
     .VGA_VS         ( VGA_VS         ),
-    // LED
-    .game_led       ( game_led       ),
     // SDRAM interface
     .SDRAM_DQ       ( SDRAM_DQ       ),
     .SDRAM_A        ( SDRAM_A        ),
@@ -457,6 +453,10 @@ u_frame(
     .snd_left       ( snd_left       ),
     .snd_right      ( snd_right      ),
     .snd_sample     ( sample         ),
+    .snd_en         ( snd_en         ),
+    .snd_vu         ( snd_vu         ),
+    .snd_vol        ( snd_vol        ),
+    .snd_peak       ( snd_peak       ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick

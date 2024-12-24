@@ -46,8 +46,8 @@ module jts16_obj(
 );
 
 /* verilator lint_off WIDTH */
-parameter [8:0] PXL_DLY=8;
-parameter       MODEL=0;  // 0 = S16A, 1 = S16B
+parameter        MODEL=0;  // 0 = S16A, 1 = S16B
+parameter  [8:0] PXL_DLY=MODEL ? 9'd19 : 9'd14;
 /* verilator lint_on WIDTH */
 
 // Object scan
@@ -125,7 +125,6 @@ jts16_obj_draw #(.MODEL(MODEL)) u_draw(
     .busy      ( dr_busy        ),
     .xpos      ( dr_xpos        ),
     .offset    ( dr_offset      ),
-    //.bank      ( bank_aux       ),
     .bank      ( dr_bank        ),
     .prio      ( dr_prio        ),
     .pal       ( dr_pal         ),
@@ -150,7 +149,7 @@ localparam [8:0] HOBJ_START = 9'haa-PXL_DLY; //a6
 localparam [8:0] FLIP_START = 9'hb0-HOBJ_START; //9'hc0-before
 
 always @(posedge clk) begin
-    if( !hsn ) hobj <= (flip ? (9'h1ff+FLIP_START) : HOBJ_START);// + {debug_bus[7], debug_bus};
+    if( !hsn ) hobj <= (flip ? (FLIP_START-9'd1) : HOBJ_START);// + {debug_bus[7], debug_bus};
     else if(pxl_cen) hobj<= flip ? hobj-1'd1 : hobj+1'd1;
 end
 

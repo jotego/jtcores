@@ -1,0 +1,79 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Jan 21 16:40:25 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/kiwi/ver/game/test.fst"
+[dumpfile_mtime] "Sun Jan 21 16:11:34 2024"
+[dumpfile_size] 322588044
+[savefile] "/home/jtejada/jtcores/cores/kiwi/ver/game/tnzso_snd16.gtkw"
+[timestart] 5189460300000
+[size] 1920 1052
+[pos] -1922 -28
+*-25.976030 5189641372944 5189513381136 5189641372944 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_2203.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.
+[sst_width] 295
+[signals_width] 277
+[sst_expanded] 1
+[sst_vpaned_height] 401
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.psg_snd[9:0]
+@8022
+TOP.game_test.u_game.u_game.u_sound.psg_snd[9:0]
+@20000
+-
+-
+@29
+TOP.game_test.u_game.u_game.LHBL
+@28
+TOP.game_test.u_game.u_game.u_sound.cen6
+@22
+TOP.game_test.u_game.u_game.u_sound.A[15:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.fm_cs
+TOP.game_test.u_game.u_game.u_sound.wr_n
+@22
+TOP.game_test.u_game.u_game.u_sound.dout[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.addr[3:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[0][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[1][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[2][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[3][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[4][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[5][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[6][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[7][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[8][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[9][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[10][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[11][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[12][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[13][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[14][7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.regarray[15][7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.psg_A[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.psg_B[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.psg_C[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chA.count[11:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chB.count[11:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chC.count[11:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chA.period[11:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chB.period[11:0]
+TOP.game_test.u_game.u_game.u_sound.u_2203.u_jt12.gen_ssg.u_psg.u_chC.period[11:0]
+[pattern_trace] 1
+[pattern_trace] 0

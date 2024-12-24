@@ -12,6 +12,17 @@ import (
 	"strings"
 )
 
+func zipName(machine *MachineXML, cfg Mame2MRA) string {
+	zipname := machine.Name + ".zip"
+	if len(machine.Cloneof) > 0 {
+		zipname += "|" + machine.Cloneof + ".zip"
+	}
+	if len(cfg.Global.Zip.Alt) > 0 {
+		zipname += "|" + cfg.Global.Zip.Alt
+	}
+	return zipname
+}
+
 func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	if len(machine.Rom) == 0 {
 		return
@@ -21,16 +32,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	}
 	// Create nodes
 	p := root.AddNode("rom").AddAttr("index", "0")
-	zipname := machine.Name + ".zip"
-	if len(machine.Cloneof) > 0 {
-		zipname += "|" + machine.Cloneof + ".zip"
-	}
-	if len(cfg.Global.Zip.Alt) > 0 {
-		zipname += "|" + cfg.Global.Zip.Alt
-	}
-	p.AddAttr("zip", zipname)
+	p.AddAttr("zip", zipName(machine,cfg))
 	p.AddAttr("md5", "None") // We do not know the value yet
-	if cfg.ROM.Ddr_load {
+	if _,found := args.macros["JTFRAME_MR_DDRLOAD"]; found {
 		p.AddAttr("address", "0x30000000")
 	}
 	regions := cfg.ROM.Order
@@ -63,7 +67,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	var previous StartNode
 	for _, reg := range regions {
 		reg_cfg := find_region_cfg(machine, reg, cfg, args.Verbose)
-		if reg_cfg.Skip {
+		if reg_cfg.Skip || reg_cfg.Name=="nvram" {
 			continue
 		}
 		// Warn about unsorted regions
@@ -559,16 +563,26 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 			m.AddAttr("offset", fmt.Sprintf("0x%X", rom_len))
 			*pos += rom_len
 		} else {
-			if reg_cfg.Rom_len != 0 { // length attribute is sometimes needed because the dump size might be wrong
-				m.AddAttr("length", fmt.Sprintf("0x%X", reg_cfg.Rom_len))
-			}
-			if reg_cfg.Rom_len == r.Size*2 {
-				if pp != nil {
-					p.InsertNode(*pp)
-				} else {
-					p.InsertNode(*m)
+			filled := false
+			if reg_cfg.Rom_len!=0 && r.Size!=0 {
+				mirror_cnt := reg_cfg.Rom_len / r.Size
+				// fill with mirror images of the current file when it makes sense
+				// some games expect to have these mirrors either during game play or ROM checks
+				// examples in jtshouse core: quester, wldcourt, ws89. See issue #656
+				if (mirror_cnt==2 || mirror_cnt==4 || mirror_cnt==8) && reg_cfg.Rom_len%mirror_cnt==0 {
+					filled = true
+					for k:=1;k<mirror_cnt;k=k+1 {
+						if pp != nil {
+							p.InsertNode(*pp)
+						} else {
+							p.InsertNode(*m)
+						}
+						*pos += r.Size
+					}
 				}
-				*pos += r.Size
+			}
+			if reg_cfg.Rom_len != 0 && !filled { // length attribute is sometimes needed because the dump size might be wrong
+				m.AddAttr("length", fmt.Sprintf("0x%X", reg_cfg.Rom_len))
 			}
 			*pos += r.Size
 		}

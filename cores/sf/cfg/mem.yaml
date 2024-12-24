@@ -1,0 +1,78 @@
+params:
+  - { name: RAM_OFFSET,  value: "22'h4_0000" }
+  - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA1_START)>>1"}
+  - { name: MAP2_OFFSET, value: "(`MAP2_START-`JTFRAME_BA2_START)>>1"}
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA2_START)>>1"}
+  - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA3_START)>>1"}
+  - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1"}
+# Sound effects via FM seem too loud compared to music
+# but that's the way the game is
+# Some PCM samples seem to have been recorded with clipping
+# old FMGAIN=08, PCMGAIN=08
+audio:
+  rsum: 40k
+  channels:
+    # rsum values not measured yet, waiting for schematics to be published
+    - { name: fm,    module: jt51,  rsum: 27k, rc: [{r: 1rout, c: 3.3n }]}
+    # from Trojan schematics, page 5/9. SF board seems the same but filter
+    # resistors are 15kOhm instead of 10kOhm (same 22nF/6.8nF capacitors)
+    # original filter is a 1st order loaded with a 2nd order Sallen-Key
+    # this is equivalent, especially around the cut-off frequency
+    - { name: pcm0,  module: jt5205, rsum: 10k, rc: [{r: 10k, c: 22n},{r: 15k, c: 22n}], pre: 0.3 }
+    - { name: pcm1,  module: jt5205, rsum: 10k, rc: [{r: 10k, c: 22n},{r: 15k, c: 22n}], pre: 0.3 }
+
+download:
+  post_addr: true
+  noswab: true
+sdram:
+  banks:
+    - buses:
+      - name: ram
+        addr_width: 16
+        data_width: 16
+        rw: true
+        offset: RAM_OFFSET
+      - name: main
+        addr_width: 20
+        data_width: 16
+    - buses:
+      - name: snd1
+        addr_width: 15
+        data_width: 8
+      - name: snd2
+        addr_width: 18
+        data_width: 8
+        offset: SND2_OFFSET
+    - buses:
+      - name: map1
+        addr_width: 17
+        data_width: 32
+        cs: vrom_cs
+      - name: map2
+        addr_width: 17
+        data_width: 32
+        offset: MAP2_OFFSET
+        cs: vrom_cs
+      - name: char
+        addr_width: 14
+        data_width: 16
+        offset: CHAR_OFFSET
+        cs: vrom_cs
+    - buses:
+      - name: scr1
+        addr_width: 20
+        data_width: 16
+        cs: vrom_cs
+      - name: scr2
+        addr_width: 19
+        data_width: 16
+        offset: SCR2_OFFSET
+        cs: vrom_cs
+      - name: obj
+        addr_width: 22
+        data_width: 16
+        offset: OBJ_OFFSET
+        cs: vrom_cs
+
+
+

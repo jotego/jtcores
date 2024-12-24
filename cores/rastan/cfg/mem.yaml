@@ -1,0 +1,50 @@
+params:
+  - { name:  RAM_OFFSET, value: "22'h10_0000" }
+  - { name: VRAM_OFFSET, value: "22'h11_0000" }
+  - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
+audio:
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt51,   rsum: 10k,  rc: [{ r: 1rout, c: 1n   }]}  # output impedance of YM3012=10kOhm??
+    - { name: pcm, module: jt5205, rsum: 9.1k, rc: [{ r: 8.6k, c: 10n  }, { r: 10.2k, c: 68n }]}
+sdram:
+  banks:
+    - buses:
+      - name: ram
+        addr_width: 18
+        data_width: 16
+        cs: xram_cs
+        din: main_dout
+        rw: true
+        offset: RAM_OFFSET
+      - name: main
+        addr_width: 19
+        data_width: 16
+      - name: scr0ram
+        addr_width: 16
+        data_width: 32
+        offset: VRAM_OFFSET
+      - name: scr1ram
+        addr_width: 16
+        data_width: 32
+        offset: VRAM_OFFSET
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: pcm
+        addr_width: 16
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: scr0rom
+        addr_width: 20
+        data_width: 32
+      - name: scr1rom
+        addr_width: 20
+        data_width: 32
+    - buses:
+      - name: orom
+        addr_width: 20
+        data_width: 32
+

@@ -21,9 +21,9 @@ module jtframe_prom #(parameter
     DW      = 8,
     AW      = 10,
     SIMFILE = "",
-    simhex  = "",
-    synhex  = "",
-    offset  = 0,
+    SIMHEX  = "",
+    SYNHEX  = "",
+    OFFSET  = 0,
     ASYNC   = 0     // makes the read asynchronous (will not map as BRAM)
 )(
     input   clk,
@@ -46,16 +46,16 @@ initial begin
     if( SIMFILE != "" ) begin
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
-            readcnt=$fseek( f, offset, 0 );
+            readcnt=$fseek( f, OFFSET, 0 );
             readcnt=$fread( mem, f );
             $display("INFO: Read %14s (%4d bytes) for %m",SIMFILE, readcnt);
             $fclose(f);
         end else begin
             $display("WARNING: %m cannot open %s", SIMFILE);
         end
-    end else if( simhex != "" ) begin
-        $display("INFO: reading %14s (hex) for %m", simhex );
-        $readmemh( simhex, mem );
+    end else if( SIMHEX != "" ) begin
+        $display("INFO: reading %14s (hex) for %m", SIMHEX );
+        $readmemh( SIMHEX, mem );
     end else begin
         for( readcnt=0; readcnt<(2**AW)-1; readcnt=readcnt+1 )
             mem[readcnt] = {DW{1'b0}};
@@ -71,7 +71,7 @@ end
         if( SIMFILE != "" ) begin
             f=$fopen(SIMFILE,"rb");
             if( f!= 0 ) begin
-                readcnt = $fseek( f, offset, 0 );   // return value assigned to readcnt to avoid a warning
+                readcnt = $fseek( f, OFFSET, 0 );   // return value assigned to readcnt to avoid a warning
                 readcnt = $fread( mem_check, f );
                 $fclose(f);
                 for( readcnt=readcnt-1;readcnt>=0; readcnt=readcnt-1) begin
@@ -97,8 +97,8 @@ end
 `else
     // Not simulation
     initial begin
-        if( synhex != "" ) begin
-            $readmemh(synhex, mem);
+        if( SYNHEX != "" ) begin
+            $readmemh(SYNHEX, mem);
         end
     end
 `endif

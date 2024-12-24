@@ -1,0 +1,40 @@
+download:
+  pre_addr: true
+audio:
+  rsum: 100k
+  missing_info: true # no sch for discrete DAC version
+  # the global filter on the PCB is set at 70kHz, we ignore it
+  # it's probably just for the opamp's stability
+  channels:
+    # low pass at 800Hz for PSG1, this is different from the resonant filter
+    # on the PCB. I am not implementing the 2-nd order high pass profile part
+    # for now
+    - { name: psg0a,  data_width: 8, unsigned: true, rsum: 300k, rc: [{ r: 20k, c: 10n }] }
+    # rest of PSG channels
+    - { name: psg0bc, data_width: 9, unsigned: true, rsum: 150k }
+    - { name: psg1, module: jt49, rsum: 100k }
+    # PCM
+    - { name: pcm,  module: jt5205, rsum: 100k, rc: [{ r: 8.2k, c: 10n }]}
+    # no sch for this board variation,
+    # assuming the same 2kHz filter as the MSM5205 version
+    # 0.72 pre amplifier gain for 3.6Vpp/5V range
+    - { name: dac, data_width: 8,   rsum: 100k, rc: [{ r: 8.2k, c: 10n }], pre: 0.72 }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 15
+        data_width: 16
+        cs: LVBL
+    - buses:
+      - name: obj
+        addr_width: 17
+        data_width: 32

@@ -3,4 +3,7 @@ here:
   - jtframe_mist_top.sv
   - jtframe_mist.sv
   - user_io.v
+  - i2c_master.v
+  - i2s.v
+  - spdif.v
   - data_io.v

@@ -4,7 +4,6 @@ game:
       - jt1943_game.v
       - jt1943_main.v
       - jt1943_colmix.v
-      - jt1943_prom_we.v
       - jt1943_video.v
       - jt1943_security.v
       - jt1943_scroll.yaml
@@ -16,9 +15,6 @@ game:
       - jtgng_dual_ram.v
       - jtgng_colmix.v
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_cen48.v
   - from: cpu
     get:
       - jtframe_z80.yaml

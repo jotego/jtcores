@@ -35,7 +35,8 @@ generate
     genvar i;
     for (i=0; i < W; i=i+1) begin: bit_shifter
         always @(posedge clk) if(clk_en) begin
-                bits[i] <= {bits[i][WM:0], din[i]};
+                bits[i]    <= bits[i]<<1;
+                bits[i][0] <= din[i];
             end
         assign drop[i] = bits[i][L-1];
     end

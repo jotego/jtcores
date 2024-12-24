@@ -1,7 +1,17 @@
 include ../../s16/cfg/macros.def
 
-[mist]
+[mist|sidi]
+#JTFRAME_INPUT_RECORD
 -JTFRAME_CREDITS
+
+[sidi]
+# remove more options to make it fit
+JTFRAME_OSD_NOLOGO
+JTFRAME_FEEDTHRU
+-JTFRAME_OSD_SND_EN
+
+[mist|sidi]
+JTFRAME_NOSTA
 
 [all]
 S16B
@@ -28,8 +38,7 @@ JTFRAME_PROM_START=0x440000
 
 # Redefine memory size
 VRAMW=19
-#[mist|sidi]
-#JTFRAME_INPUT_RECORD
 
-# [mister]
+[mister]
 # JTFRAME_IOCTL_RD=75777
+JTFRAME_MR_DDRLOAD

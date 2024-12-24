@@ -1,5 +1,5 @@
 [global]
-mraauthor=["jotego"]
+author=["jotego"]
 
 [parse]
 sourcefile=[ "segaorun.cpp" ]
@@ -9,7 +9,7 @@ skip.descriptions=[ "Out Run" ]
 Names = [
     { machine="outrun",  names="Accelerate,Brake,Gear (Low / High)"},
     { machine="toutrun", names="Accelerate,Brake,Gear (Low / High),Nitro"},
-    { machine="shangon", names="Accelerate,Brake,-,Supercharger"},
+    { machine="shangon", names="Accelerate,Brake,Supercharger"},
 ]
 
 [dipsw]

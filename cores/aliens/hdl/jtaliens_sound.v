@@ -43,9 +43,8 @@ module jtaliens_sound(
     input           pcmb_ok,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    output signed [15:0] fm_l, fm_r,
+    output signed [11:0] pcm,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -54,20 +53,16 @@ module jtaliens_sound(
 
 `include "jtaliens.inc"
 
-reg         [ 7:0]  fmgain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bank_cs, iock;
-wire signed [15:0]  fm_left, fm_right;
 wire                cpu_cen;
 reg                 mem_acc, mem_upper, pcm_swap;
 reg         [ 3:0]  pcm_bank;
-wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
 reg         [ 3:0]  pcm_msb;
-
 
 assign rom_addr = A[14:0];
 assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, pcm_msb };
@@ -99,7 +94,7 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
-    fmgain = 8'h0C;
+    // fm_gain = 8'h18;
     case( cfg )
         ALIENS,CRIMFGHT: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
@@ -116,8 +111,8 @@ always @(*) begin
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
         end
     endcase
-    if( cfg==SCONTRA  ) fmgain = 8'h10;
-    if( cfg==THUNDERX ) fmgain = 8'h08;
+    // if( cfg==SCONTRA  ) fm_gain = 8'h20;
+    // if( cfg==THUNDERX ) fm_gain = 8'h10;
 end
 
 always @(*) begin
@@ -137,33 +132,6 @@ always @(posedge clk, posedge rst) begin
         if( bank_cs ) pcm_bank <= cpu_dout[3:0];
     end
 end
-
-reg [7:0] fxgain;
-
-always @(*) begin
-    case( fxlevel )
-        0: fxgain = 8'h02;
-        1: fxgain = 8'h04;
-        2: fxgain = 8'h08;
-        3: fxgain = 8'h10;
-    endcase
-end
-
-jtframe_mixer #(.W0(16),.W1(16),.W2(12)) u_mixer(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_left    ),
-    .ch1    ( fm_right   ),
-    .ch2    ( pcm_snd    ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fmgain     ),
-    .gain2  ( fxgain     ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd        ),
-    .peak   ( peak       )
-);
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
@@ -205,12 +173,12 @@ jt51 u_jt51(
     .ct2        ( ct[1]     ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 /* verilator tracing_on */
 
@@ -240,7 +208,7 @@ jt007232 #(.REG12A(0)) u_pcm(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm_snd   ),
+    .snd        ( pcm       ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_pcm    )
@@ -253,7 +221,6 @@ assign  pcma_addr= 0;
 assign  pcmb_addr= 0;
 assign  rom_addr = 0;
 assign  snd      = 0;
-assign  peak     = 0;
 assign  sample   = 0;
 assign  st_dout  = 0;
 `endif

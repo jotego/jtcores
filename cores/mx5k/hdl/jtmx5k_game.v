@@ -55,8 +55,8 @@ jtcontra_main #(.GAME(2)) u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( 1'b1          ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -137,7 +137,6 @@ jtmx5k_sound u_sound(
     .clk        ( clk24         ), // 24 MHz
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
-    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -156,9 +155,9 @@ jtmx5k_sound u_sound(
     .pcmb_dout  ( pcmb_data     ),
     .pcmb_ok    ( pcmb_ok       ),
     // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      )
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           )
 );
 
 endmodule

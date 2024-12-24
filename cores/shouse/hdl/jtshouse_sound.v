@@ -25,6 +25,7 @@ module jtshouse_sound(
     input               cen_fm,
     input               cen_fm2,
     input               lvbl,
+    input               sndfix_n,
 
     // main/sub bus
     input               bc30_cs,
@@ -47,32 +48,28 @@ module jtshouse_sound(
     input               rom_ok,
     output              bus_busy,
 
-    input  signed[10:0] pcm_snd,
-    output signed[15:0] left, right,
-    output              sample,
-    output              peak,
+    output signed[15:0] fm_l, fm_r,
+    output signed[12:0] cus30_l, cus30_r,
     input        [ 7:0] debug_bus
 );
 `ifndef NOSOUND
-localparam [7:0] FMGAIN =8'h0C,
-                 PCMGAIN=8'h10,
-                 CUS30G =8'h20;
 
 wire [15:0] A;
 wire [ 7:0] fm_dout;
-wire [11:0] snd_l, snd_r;
-wire [12:0] cus30_l, cus30_r;
 reg  [ 7:0] cpu_din;
 reg  [ 2:0] bank;
 reg         irq_n, lvbl_l, VMA, rst, bsel;
-wire        AVMA, firq_n, peak_l, peak_r;
+wire        AVMA, firq_n, halt_n;
 reg         ram_cs, fm_cs, cus30_cs, reg_cs;
-wire signed [15:0] fm_l, fm_r;
 
 assign rom_addr = { &A[15:14] ? 3'b0 : bank, A[13:0] };
 assign bus_busy = rom_cs & ~rom_ok;
-assign peak     = peak_r | peak_l;
 assign ram_we   = ram_cs & ~rnw;
+// halt_n in the original is always high. This is a hack to
+// prevent bad writes to the YM2151, which occur because the software
+// sound driver is not correctly designed
+// See https://github.com/jotego/jtcores/issues/597
+assign halt_n   = sndfix_n | ~fm_dout[7];
 `ifdef SIMULATION
 wire bad_cs = tri_cs && A[10:0]==0;
 wire reply_cs = tri_cs && A[10:0]=='h2f && ~rnw;
@@ -89,7 +86,7 @@ always @* begin
         4'b00??: rom_cs   = 1;
         4'b0100: fm_cs    = 1;
         4'b0101: cus30_cs = 1;
-        4'b0111: tri_cs   = !A[11]; // unclear whether bit A[11] is used in the decoding or not
+        4'b0111: tri_cs   = 1;
         4'b100?: ram_cs   = 1;
         4'b11??: begin
             if( !rnw ) reg_cs = 1;
@@ -120,7 +117,7 @@ always @(posedge clk, negedge srst_n) begin
     end else begin
         if( cen_E ) VMA <= AVMA;
         lvbl_l <= lvbl;
-        if( !lvbl && lvbl_l ) irq_n <= 0;
+        if( lvbl && !lvbl_l ) irq_n <= 0;
         if( reg_cs ) begin
             if( A[13:12]==0 ) bank <=cpu_dout[6:4];
             // if( A[13:12]==1 ) WATCHDOG?
@@ -155,7 +152,6 @@ jtcus30 u_wav(
     .debug_bus(debug_bus)
 );
 
-/* verilator tracing_on  */
 jt51 u_jt51(
     .rst        ( ~srst_n   ), // reset
     .clk        ( clk       ), // main clock
@@ -170,7 +166,7 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      ( firq_n    ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ),
     .left       (           ),
     .right      (           ),
     // Full resolution output
@@ -178,42 +174,6 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtframe_mixer #(.W1(11),.W2(13)) u_right(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_r      ),
-    .ch1    ( pcm_snd   ),
-    .ch2    ( cus30_r   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN    ),
-    .gain1  ( PCMGAIN   ),
-    .gain2  ( CUS30G    ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( right     ),
-    .peak   ( peak_r    )
-);
-
-jtframe_mixer #(.W1(11),.W2(13)) u_left(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_l      ),
-    .ch1    ( pcm_snd   ),
-    .ch2    ( cus30_l   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN    ),
-    .gain1  ( PCMGAIN   ),
-    .gain2  ( CUS30G    ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( left      ),
-    .peak   ( peak_l    )
-);
-/* verilator tracing_on */
 mc6809i u_cpu(
     .nRESET     ( srst_n    ),
     .clk        ( clk       ),
@@ -228,7 +188,7 @@ mc6809i u_cpu(
     .nIRQ       ( irq_n     ),
     .nFIRQ      ( firq_n    ),
     .nNMI       ( 1'b1      ),
-    .nHALT      ( 1'b1      ),
+    .nHALT      ( halt_n    ),
     // unused
     .BS         (           ),
     .BA         (           ),
@@ -239,16 +199,17 @@ mc6809i u_cpu(
     .RegData    (           )
 );
 `else
-initial tri_cs=0;
-initial rom_cs=0;
+initial tri_cs  = 0;
+initial rom_cs  = 0;
 assign c30_dout = 0;
-assign rnw = 0;
-assign ram_we = 0;
+assign rnw      = 0;
+assign ram_we   = 0;
 assign cpu_dout = 0;
 assign rom_addr = 0;
 assign bus_busy = 0;
-assign left = 0, right=0;
-assign sample = 0;
-assign peak = 0;
+assign fm_l     = 0;
+assign fm_r     = 0;
+assign cus30_l  = 0;
+assign cus30_r  = 0;
 `endif
 endmodule

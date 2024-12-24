@@ -32,6 +32,8 @@ type Args struct {
 	Verbose bool
 }
 
+type ChData []int16
+
 func Run(args Args) {
 	msgpath := filepath.Join( os.Getenv("CORES"),args.Core,"cfg", "msg" )
 	fmsg, err := os.Open(msgpath)
@@ -41,7 +43,7 @@ func Run(args Args) {
 	defer fmsg.Close()
 	datestr := fmt.Sprintf("%d-%d-%d", time.Now().Year(), time.Now().Month(), time.Now().Day())
 	scanner := bufio.NewScanner(fmsg)
-	data := make([]int16,0,1024)
+	data := make(ChData,0,1024)
 	line_cnt := 0
 	for scanner.Scan() {
 		escape := false
@@ -117,6 +119,10 @@ func Run(args Args) {
 			fmt.Println()
 		}
 	}
+	dump_msg(data)
+}
+
+func dump_msg( data ChData ) {
 	// Save the files
 	fhex, err := os.Create("msg.hex")
 	if err != nil {
@@ -129,6 +135,13 @@ func Run(args Args) {
 	for _,c := range data {
 		fhex.WriteString( fmt.Sprintf("%X\n",c))
 		fbin.WriteString( fmt.Sprintf("%b\n",c))
+	}
+	// complement to multiple of 1024
+	kmax := len(data)
+	if kmax&0x3ff != 0 { kmax = (kmax&^0x3ff)+0x400 }
+	for k:=len(data);k<kmax;k++ {
+		fhex.WriteString( fmt.Sprintf("0\n"))
+		fbin.WriteString( fmt.Sprintf("0\n"))
 	}
 	fhex.Close()
 	fbin.Close()

@@ -21,7 +21,10 @@
 // Clock outputs: pin 2 - 4.000MHz, pin 80 - 500.000kHz, pin 89 - 62.500KHz
 // Sample rate = clk/4/128 = 31.25 kHz
 
-module jtoutrun_pcm(
+module jtoutrun_pcm #(parameter
+    WD        = 12,     // DAC bit width (AD7121) = 12 bits plus bits dropped internally
+    SIMHEXFILE= ""
+)(
     input              rst,
     input              clk,
     input              cen, // original clock was 16MHz
@@ -48,8 +51,6 @@ module jtoutrun_pcm(
     output reg           sample
 );
 
-parameter SIMHEXFILE="";
-
 wire        we = cpu_cs & ~cpu_rnw;
 reg  [ 3:0] st;
 wire [ 2:0] bank;
@@ -66,7 +67,8 @@ reg          cfg_we;
 reg  signed [ 7:0] vol_left, vol_right, vol_mux;
 wire signed [ 7:0] pcm_data;
 reg  signed [15:0] mul_data;
-reg  signed [15:0] acc_l, acc_r, buf_r;
+reg  signed [15:0] acc_l, acc_r;
+reg  signed [WD-1:0] mul_clip, buf_r;
 
 assign bank     = cfg_en[6:4];
 assign pcm_data = rom_data - 8'h80;
@@ -90,10 +92,14 @@ always @(posedge clk) begin
     sample <= st==0 && cur_ch==0 && cen;
 end
 
-function signed [15:0] clip_sum( input signed [15:0] a, b );
+function signed [WD-1:0] clipDAC( input [15:0]s );
+    clipDAC = (|s[15:WD-1] & ~&s[15:WD-1]) ? {s[15],{WD-1{~s[15]}}} : s[WD-1:0];
+endfunction
+
+function signed [15:0] clip_sum( input signed [15:0] a, input signed [WD-1:0] b );
     begin : clip_sum_func
         reg signed [16:0] full;
-        full = { a[15],a } + {b[15],b};
+        full = { a[15],a } + { {17-WD{b[WD-1]}},b};
         clip_sum = full[16]==full[15] ? full[15:0] :
             full[16] ? 16'h8000 : 16'h7fff; // clip
     end
@@ -137,6 +143,11 @@ end
 always @(posedge clk) begin
     mul_data <= vol_mux * pcm_data;
 end
+
+// multiply by 2 and clip if needed
+function signed [15:0] clip2x( input signed [15:0] s);
+    clip2x = s[15]==s[14] ? {s[14:0],s[15]} : {s[15],{15{~s[15]}}};
+endfunction
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -188,14 +199,14 @@ always @(posedge clk, posedge rst) begin
             13: vol_right <= {1'b0, cfg_data[6:0]};
             14: begin
                 rom_cs  <= 0; // ROM data must be good by now
-                buf_r   <= mul_data;
+                buf_r   <= clipDAC(mul_data);
                 st_dout <= cfg_data;
             end
             15: begin
                 cur_ch <= cur_ch + 1'd1;
                 if( !cfg_en[0] ) begin
                     acc_r <= clip_sum( acc_r, buf_r);
-                    acc_l <= clip_sum( acc_l, mul_data);
+                    acc_l <= clip_sum( acc_l, clipDAC(mul_data));
                 end
             end
         endcase

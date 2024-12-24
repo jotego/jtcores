@@ -36,7 +36,6 @@ jtframe:
   - from: sound
     get:
       - jtframe_dcrm.v
-      - jtframe_uprate2_fir.yaml
   - from: cpu
     unless: NOMAIN
     get:

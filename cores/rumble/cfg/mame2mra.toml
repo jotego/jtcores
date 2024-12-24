@@ -1,5 +1,5 @@
 [global]
-mraauthor=["jotego"]
+author=["jotego"]
 
 [parse]
 sourcefile=[ "srumbler.cpp" ]
@@ -7,6 +7,14 @@ sourcefile=[ "srumbler.cpp" ]
 [buttons]
 names=[
     { names="Fire,Escape" }
+]
+
+[header]
+info = """ Header to identify the game
+"""
+data = [
+    { setname="srumbler",  offset=0, data="01" },
+    { setnames=["srumbler2","srumbler3","rushcrsh"], offset=0, data="00" },
 ]
 
 [dipsw]

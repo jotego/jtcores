@@ -117,23 +117,23 @@ localparam POCKET=1;
 localparam POCKET=0;
 `endif
 
-generate
-    if( !SIMULATION && POCKET && AW<13 && DW<=8 ) begin
-            jtframe_pocket_dualram u_pocket_ram(
-                .address_a( { {AW-13{1'b0}}, addr0} ),
-                .address_b( { {AW-13{1'b0}}, addr1} ),
-                .clock_a  ( clk0    ),
-                .clock_b  ( clk1    ),
-                .data_a   ( data0   ),
-                .data_b   ( data1   ),
-                .enable_a ( cen0    ),
-                .enable_b ( cen1    ),
-                .wren_a   ( we0     ),
-                .wren_b   ( we1     ),
-                .q_a      ( q0      ),
-                .q_b      ( q1      )
-            );
-        end else begin
+// generate
+//     if( !SIMULATION && POCKET && AW<13 && DW<=8 ) begin
+//             jtframe_pocket_dualram u_pocket_ram(
+//                 .address_a( { {AW-13{1'b0}}, addr0} ),
+//                 .address_b( { {AW-13{1'b0}}, addr1} ),
+//                 .clock_a  ( clk0    ),
+//                 .clock_b  ( clk1    ),
+//                 .data_a   ( data0   ),
+//                 .data_b   ( data1   ),
+//                 .enable_a ( cen0    ),
+//                 .enable_b ( cen1    ),
+//                 .wren_a   ( we0     ),
+//                 .wren_b   ( we1     ),
+//                 .q_a      ( q0      ),
+//                 .q_b      ( q1      )
+//             );
+//         end else begin
             reg [DW-1:0] qq0, qq1;
             (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:(2**AW)-1];
 
@@ -187,13 +187,22 @@ generate
                         f=$fopen(SIMFILE,"rb");
                         if( f != 0 ) begin
                             readcnt=$fread( mem, f );
-                            $display("INFO: Read %14s (%4d bytes/%2d%%) for %m",
-                                SIMFILE, readcnt, readcnt*100/(2**AW));
-                            if( readcnt != 2**AW )
-                                $display("      the memory was not filled by the file data");
+                            $display("-%-10s (%4d bytes) %m",
+                                SIMFILE, readcnt);
+                            if( readcnt != 2**AW && readcnt!=0)
+                                $display("\tthe memory was not filled by the file data");
                             $fclose(f);
                         end else begin
-                            $display("WARNING: %m cannot open file: %s", SIMFILE);
+                            f=$fopen(SIMFILE,"wb");
+                            if( f!=0 ) begin
+                                for( readcnt=0; readcnt<(2**AW)-1; readcnt=readcnt+2) begin
+                                    $fwrite(f,"%u",32'hffff);
+                                end
+                                $fclose(f);
+                                $display("Blank %s created",SIMFILE);
+                            end else begin
+                                $display("WARNING: %m cannot open file: %s", SIMFILE);
+                            end
                         end
                         end
                     else begin
@@ -222,8 +231,8 @@ generate
                         $readmemh(SYNFILE,mem);
                 end
             `endif
-        end
-endgenerate
+//         end
+// endgenerate
 
 /* verilator lint_on WIDTH */
 endmodule

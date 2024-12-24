@@ -40,6 +40,7 @@ module jtframe_6801mcu #(
     output      [7:0]  dout,
     output             wr,
     output             x_cs,    // eXternal access
+    output             ba,      // not a real output, used for debugging
     // Ports
     // irq1 = P5-0, irq2 = P5-1
     input       [7:0]  p1_din,  p3_din,  p4_din,
@@ -75,7 +76,7 @@ wire        buf_we, irq1, irq2;
 reg         buf_cs, port_cs, pre_clr;
 wire [ 7:0] buf_dout;
 wire [ 4:0] psel;
-reg  [ 7:0] din, port_mux;
+reg  [ 7:0] din, port_mux, frbuf;
 // MMR
 reg  [ 7:6] ramc;
 reg  [ 7:3] p3csr;
@@ -193,6 +194,7 @@ always @(*) begin
         RD:     port_mux = 8'd0; // rd; - not implemented
         TD:     port_mux = td;
         RAMC:   port_mux = {ramc, 6'h3f};
+        default:;
     endcase
     if(M==M6801U4) case(psel)
         CAAH:   port_mux = frc[15:8];
@@ -229,11 +231,14 @@ always @(posedge clk, posedge rst) begin
         rmcr  <='hf0;
         trcs  <= 0;
         tcr1  <= 0;
+        tcr2  <= 0;
+        tsr   <= 0;
         p1    <= 0;
         p2    <= 0;
         p3    <= 0;
         p4    <= 0;
         tin_l <= 0;
+        frbuf <= 0;
         ramc  <= 1;
         if( M==M6801U4 ) begin
             icr2 <= 0;
@@ -245,7 +250,7 @@ always @(posedge clk, posedge rst) begin
             oc_en_aux <= 3'b111;
             // Free running counter
             cen_frc <= cen_frc+1'd1;
-            frc <= nx_frc;
+            if( cen_frc==3 ) frc <= nx_frc;
         end
         if( port_cs & wr ) begin
             case(psel)
@@ -265,7 +270,14 @@ always @(posedge clk, posedge rst) begin
                     tcr2[6]  <= dout[4];   // EICI1
                 end
                 TRCS: trcs <= dout;
-                FRCH: if(MODE==0) frc <= 16'hfff8;
+                FRCH: begin
+                    frc <= 16'hfff8;
+                    frbuf <= dout;
+                end /* verilator lint_off WIDTHEXPAND */
+                FRCL: if(MODEL=="HD63701V") begin /* verilator lint_on WIDTHEXPAND */
+                    frc     <= { frbuf, dout };
+                    cen_frc <= 1;
+                end
                 OCR1H: { ocr1[15:8], oc_en_aux[0] } <= { dout, 1'b0 };
                 OCR1L: ocr1[7:0] <= dout;
                 // serial interface
@@ -283,7 +295,10 @@ always @(posedge clk, posedge rst) begin
                 OCR2L: ocr2[7:0] <= dout;
                 OCR3L: ocr3[7:0] <= dout;
                 CAAH,CAAL,ICR1H,ICR1L,ICR2H,ICR2L,RD,FRCL,TSR:; // read-only port
-            endcase
+            endcase else begin // prevents a latch warning in Quartus. These bits are not read in not M6801U4 mode
+                { tcr1[7:4], tcr1[2:1] } <= 0;
+                { tcr2[7],   tcr2[5:4] } <= 0;
+            end
         end
         if( cen ) begin
             if( port_cs && (psel==TCSR || psel==TSR) && !wr) pre_clr <= 1;
@@ -332,6 +347,25 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`ifdef SIMULATION
+reg [7:0] ram[0:255];
+reg [7:0] bdout_aux;
+integer rk;
+
+wire [7:0] ramAE=ram[8'hae];
+wire [7:0] ram92=ram[8'h92];
+assign buf_dout = bdout_aux;
+
+always @(posedge clk,posedge rst) begin
+    if( rst ) begin
+        for(rk=0;rk<256;rk=rk+1) ram[rk]=0;
+        bdout_aux <= 0;
+    end else begin
+        if(buf_we) ram[addr[7:0]] <= dout;
+        bdout_aux <= ram[addr[7:0]];
+    end
+end
+`else
 jtframe_ram #(.AW(8)) u_buffer( // internal RAM
     .clk    ( clk       ),
     .cen    ( cen       ),
@@ -340,6 +374,21 @@ jtframe_ram #(.AW(8)) u_buffer( // internal RAM
     .we     ( buf_we    ),
     .q      ( buf_dout  )
 );
+`endif
+
+// reg [7:0] tracka, trackd;
+
+// always @(posedge clk, posedge rst) begin
+//     if( rst ) begin
+//         tracka <= 0;
+//         trackd <= 0;
+//     end else begin
+//         if( buf_we && addr[7:0]<8'hf0 ) begin
+//             tracka <= addr[7:0];
+//             trackd <= dout;
+//         end
+//     end
+// end
 
 jt680x u_mcu(
     .rst        ( rst           ),
@@ -353,7 +402,7 @@ jt680x u_mcu(
     .nmi        ( nmi           ),
     // bus sharing - only used on 6301 mode
     .ext_halt   ( 1'b0          ),
-    .ba         (               ),
+    .ba         ( ba            ),
     // Timer interrupts
     .irq_icf    ( irq_icf       ),
     .irq_ocf    ( irq_ocf       ),

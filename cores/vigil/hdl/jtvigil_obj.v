@@ -30,7 +30,7 @@ module jtvigil_obj(
 
     input      [ 8:0] h,
     input      [ 8:0] v,
-    output reg [17:0] rom_addr,
+    output reg [18:2] rom_addr,
     input      [31:0] rom_data,
     output reg        rom_cs,
     input             rom_ok,
@@ -171,7 +171,7 @@ always @(posedge clk, posedge rst) begin
         rom_good <= { rom_good[0], rom_ok};
         if( !dr_busy ) begin
             if( dr_start ) begin
-                rom_addr <= { code, ydiff[3:0]^{4{vflip}}, ~hflip, 1'b0 };
+                rom_addr <= { code, ydiff[3:0]^{4{vflip}}, ~hflip };
                 dr_busy  <= 1;
                 cur_pal  <= pal;
                 cur_hflip<= hflip;
@@ -183,7 +183,7 @@ always @(posedge clk, posedge rst) begin
             end
         end else begin
             if( rom_good==3 && !buf_we ) begin
-                if( !half_done ) rom_addr[1] <= ~rom_addr[1];
+                if( !half_done ) rom_addr[2] <= ~rom_addr[2];
                 buf_we   <= 1;
                 pxl_data <= {
                     rom_data[15:12], rom_data[31:28],

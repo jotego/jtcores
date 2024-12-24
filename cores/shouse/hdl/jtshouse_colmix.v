@@ -22,6 +22,7 @@ module jtshouse_colmix(
 
     input             pxl_cen, lvbl, lhbl,
     input      [ 8:0] hdump, vdump,
+    input             hs,
     output reg        raster_irqn,
 
     // pixels
@@ -40,29 +41,39 @@ module jtshouse_colmix(
     output reg [ 7:0] pal_dout,
     output     [ 7:0] red, green, blue,
     // Debug
+    input      [ 3:0] ioctl_addr,
+    output     [ 7:0] ioctl_din,
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
 );
 
-reg  [ 7:0] mmr[0:15];
-wire [ 8:0] virq, hirq;
+wire [ 7:0] st_mmr, mmr_dout;
 wire [12:0] scr_rgb, obj_rgb;
-reg         mmr_cs, r_cs, g_cs, b_cs;
-wire        blank, lyr_sel;
+reg         mmr_cs, r_cs, g_cs, b_cs,
+            vwin, // in vertical   window
+            hwin; // in horizontal window
+wire        blank, lyr_sel, sh_en, obj_win, obj_shd, obj_opq;
+wire [15:0] hirq, virq;
+wire [ 8:0] left, right, top, bottom, hadj;
 
-assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
-assign scr_rgb  = { 2'b01, scr_pxl };
+// Could the shadow be modulated by obj_pxl[3:0] too?
+// Pac-Mania sets it to different values...
+assign scr_rgb  = { sh_en ? 2'b10 : 2'b01, scr_pxl }; // palette bank depends on the shadows
 assign obj_rgb  = { 2'b00, obj_pxl };
-assign lyr_sel  = (obj_prio>=scr_prio && obj_pxl[3:0]!='hf) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
+assign obj_win  = obj_prio>=scr_prio && obj_opq;
+assign obj_shd  = &obj_pxl[10:4];
+assign obj_opq  = ~&obj_pxl[3:0];
+assign lyr_sel  = (obj_win && !obj_shd) && gfx_en[3] || !gfx_en[0]; // 1 = obj, 0 = scr
+assign sh_en    =  obj_win &&  obj_shd;
 assign rgb_addr = lyr_sel ? obj_rgb : scr_rgb;
+assign pal_addr = { cpu_addr[14:13], cpu_addr[10:0] };
 
 assign rpal_we = ~cpu_rnw & r_cs;
 assign gpal_we = ~cpu_rnw & g_cs;
 assign bpal_we = ~cpu_rnw & b_cs;
-assign st_dout = mmr[debug_bus[3:0]];
-assign virq    = { mmr[10][0], mmr[11] };
-assign hirq    = { mmr[ 8][0], mmr[ 9] };
+assign st_dout = st_mmr;
+assign hadj    = hdump+9'd10;
 
 `ifdef GRAY
 assign red   = blank ? 8'd0 : {8{scr_pxl[0]}};
@@ -73,26 +84,26 @@ assign red   = blank ? 8'd0 : red_dout;
 assign green = blank ? 8'd0 : green_dout;
 assign blue  = blank ? 8'd0 : blue_dout;
 `endif
-assign blank = ~(lhbl & lvbl);
-
+assign blank = ~(lhbl & lvbl) | ~vwin | ~hwin;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         pal_dout    <= 0;
         raster_irqn <= 1;
     end else begin
-        raster_irqn <= !(vdump==virq && hdump==hirq);
+        raster_irqn <= !(vdump==virq[8:0] && hdump==hirq[8:0]);
         pal_dout <= r_cs ? rpal_dout :
                     g_cs ? gpal_dout :
-                    b_cs ? bpal_dout : mmr[cpu_addr[3:0]];
-        if( mmr_cs & ~cpu_rnw ) mmr[cpu_addr[3:0]] <= cpu_dout;
+                    b_cs ? bpal_dout : mmr_dout;
+        if( hs ) vwin <= {1'b0,vdump[7:0]}>=top && {1'b0,vdump[7:0]}<bottom;
+        if( pxl_cen ) hwin <= hadj>=left && hadj<=right;
     end
 end
 
 always @* begin
-    r_cs = 0;
-    g_cs = 0;
-    b_cs = 0;
+    r_cs   = 0;
+    g_cs   = 0;
+    b_cs   = 0;
     mmr_cs = 0;
     if(cs) case( cpu_addr[14:11] )
         0, 4, 8,12: r_cs = 1;
@@ -101,5 +112,30 @@ always @* begin
         default:  mmr_cs = 1;
     endcase
 end
+
+jtshouse_cus116_mmr #(.SEEK(48)) u_mmr(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+
+    .cs     ( mmr_cs        ),
+    .addr   ( cpu_addr[3:0] ),
+    .rnw    ( cpu_rnw       ),
+    .din    ( cpu_dout      ),
+    .dout   ( mmr_dout      ),
+
+    .left   ( left          ),
+    .right  ( right         ),
+    .top    ( top           ),
+    .bottom ( bottom        ),
+    .hirq   ( hirq          ),
+    .virq   ( virq          ),
+
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_mmr        )
+);
 
 endmodule

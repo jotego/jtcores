@@ -51,7 +51,9 @@ module jt680x_ctrl(
     output [3:0] alu_sel,
     output [3:0] ld_sel,
     output [3:0] rmux_sel,
-    output [4:0] cc_sel
+    output [4:0] cc_sel,
+    // info
+    output reg   stack_bsy
 );
 
 `include "6801_param.vh"
@@ -62,7 +64,6 @@ reg  [2:0] iv_sel;
 wire       halt, swi, ni, still;
 reg        nmi_l;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
-reg        stack_bsy;
 
 assign still = ni & ext_halt;
 
@@ -71,16 +72,16 @@ assign still = ni & ext_halt;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        uaddr   <= IVRD_SEQA;
-        jsr_ret <= 0;
-        iv      <= 4'o17; // reset vector
-        ba      <= 0;
+        uaddr     <= IVRD_SEQA;
+        jsr_ret   <= 0;
+        iv        <= 4'o17; // reset vector
+        ba        <= 0;
         stack_bsy <= 1;
     end else if(cen) begin
         if(!halt && !still) uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= 4'o15; // lowest priority
-        if( halt | (ni & ext_halt) ) ba<=1;
-        if( ~halt & ~ext_halt ) ba<=0;
+        if(  halt | (ni & ext_halt) ) ba<=1;
+        if( ~halt & ~ext_halt       ) ba<=0;
         if( ni | halt ) begin
             nmi_l <= nmi;
             if( !still ) begin
@@ -95,7 +96,7 @@ always @(posedge clk, posedge rst) begin
                 // end
             end
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
-                // alt signal used to bypass the register push to the stack
+                // alt signal used to bypass the register push to the stack (set by WAI instruction)
                 if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end // lowest priority
                 if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
                 if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end

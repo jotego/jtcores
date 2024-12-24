@@ -30,6 +30,7 @@ import (
 	"github.com/jotego/jtframe/def"
 	"github.com/jotego/jtframe/cfgstr"
 	"github.com/jotego/jtframe/ucode"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -180,6 +181,9 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 				case FRAME:
 					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
 				case TARGET:
+					if newfl.From == "" {
+						newfl.From=macros["TARGET"]
+					}
 					path = os.Getenv("JTFRAME") + "/target/" + newfl.From + "/"
 				default:
 					path = os.Getenv("MODULES") + "/" + newfl.From + "/"
@@ -278,7 +282,7 @@ func parse_yaml(filename string, files *JTFiles) {
 		if strings.HasSuffix(each, ".yaml") && !is_parsed(each) {
 			parse_yaml(fullpath, files)
 		} else {
-			files.Here = append(files.Here, fullpath)
+			files.Here = append(files.Here, expand_glob(fullpath)...)
 		}
 	}
 	// ucode requirements
@@ -307,6 +311,21 @@ func make_path(path, filename string, rel bool) (item string) {
 	return item
 }
 
+func expand_glob( name string ) []string {
+	if len(name)==0 { return nil }
+	matches,e := filepath.Glob(name)
+	if e!=nil {
+		fmt.Println(e)
+		fmt.Printf("jtframe files: error parsing file list.")
+		os.Exit(1)
+	}
+	if len(matches)==0 {
+		fmt.Printf("Warning: no matches for %s\n",name)
+		return nil
+	}
+	return matches
+}
+
 func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 	for _, each := range fl {
 		var path string
@@ -316,6 +335,9 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 		case FRAME:
 			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
 		case TARGET:
+			if each.From == "" {
+				each.From=macros["TARGET"]
+			}
 			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
 		case MODULE:
 			path = filepath.Join(os.Getenv("MODULES"), each.From)
@@ -323,14 +345,14 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 			path = os.Getenv("JTROOT")
 		}
 		for _, each := range each.Get {
-			if len(each) ==0 { continue }
+			if len(each)==0 { continue }
 			matches,e := filepath.Glob(filepath.Join(path,each))
 			if e!=nil {
 				fmt.Println(e)
 				fmt.Printf("jtframe files: error parsing file list.")
 				os.Exit(1)
 			}
-			if( len(matches)==0 ) {
+			if len(matches)==0 {
 				fmt.Printf("Warning: no matches for %s\n",each)
 			}
 			for _, m := range matches {

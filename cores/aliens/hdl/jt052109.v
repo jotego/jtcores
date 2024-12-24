@@ -216,20 +216,20 @@ end
 
 always @* begin
     col_cfg = scan_dout[15:8];
+    if( rmrd ) col_cfg = mmr[REG_RMRD];
     case(col_cfg[3:2])
         0: { cab, col_aux } = bank0[3:0];
         1: { cab, col_aux } = bank0[7:4];
         2: { cab, col_aux } = bank1[3:0];
         3: { cab, col_aux } = bank1[7:4];
     endcase
-    if( !cfg[5] ) col_cfg[3:2] = col_aux;
+    if( !cfg[5] & !rmrd ) col_cfg[3:2] = col_aux;
     // ROM address
     case( hdump[1:0] )
         1: vmux = vsub_a;
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
-    if( rmrd ) col_cfg = mmr[REG_RMRD];
     vflip = col_cfg[1] & vflip_en; // must be after rmrd check, as it changes col_cfg
     vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
@@ -369,7 +369,10 @@ always @(posedge clk) begin
                 3: if( rd_hpos || rscrb_en ) hposb[8]   <= scan_dout[0];
             endcase
         end
-        if( rmrd ) lyra_addr <= { cab, cpu_addr[12:2] };
+        if( rmrd ) begin
+            lyra_col <= col_cfg;
+            lyra_addr <= { cab, cpu_addr[12:2] };
+        end
     end
 end
 

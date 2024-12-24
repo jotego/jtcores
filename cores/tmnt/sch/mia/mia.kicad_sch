@@ -10,8 +10,7 @@
     (rev "José Tejada G.")
     (company "KONAMI PWB351392A GX808")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "Esperanza Triana")
-    (comment 3 "JOTEGO")
+    (comment 2 "JOTEGO")
   )
 
   (lib_symbols

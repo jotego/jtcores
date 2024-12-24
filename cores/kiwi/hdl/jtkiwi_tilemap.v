@@ -40,7 +40,7 @@ module jtkiwi_tilemap(
     output     [ 7:0]   col_addr,
     input      [ 7:0]   col_data,
 
-    output     [19:2]   rom_addr,
+    output     [20:2]   rom_addr,
     output              rom_cs,
     input               rom_ok,
     input      [31:0]   rom_data,
@@ -61,7 +61,7 @@ reg  [ 8:0] xscr;
 wire [ 8:0] vf, raw_pxl;
 reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip, hflip, vflip;
-reg  [12:0] dr_code, code;
+reg  [13:0] dr_code, code;
 wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
@@ -108,7 +108,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     { hflip, vflip } <= tm_data[15:14];
-                    code <= tm_data[12:0];
+                    code <= tm_data[13:0];
                 end
                 3: begin
                     if( !dr_busy )  begin

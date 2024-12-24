@@ -90,17 +90,17 @@ always @(*) begin
     pal_cs      = A[15:9] == 7'h03; // 0600-06FF
 end
 
-always @(posedge clk) begin
+always @(*) begin
     case(1'b1)
-        rom_cs:    cpu_din <= rom_data;
-        ram_cs:    cpu_din <= ram_dout;
-        pal_cs:    cpu_din <= pal_dout;
-        in_cs:     cpu_din <= port_in;
+        rom_cs:    cpu_din = rom_data;
+        ram_cs:    cpu_din = ram_dout;
+        pal_cs:    cpu_din = pal_dout;
+        in_cs:     cpu_din = port_in;
         // track_cs:
-        dmp_cs:    cpu_din <= dmp_dout;
-        gfx1_cs:   cpu_din <= gfx1_dout;
-        gfx2_cs:   cpu_din <= gfx2_dout;
-        default:   cpu_din <= 8'hff;
+        dmp_cs:    cpu_din = dmp_dout;
+        gfx1_cs:   cpu_din = gfx1_dout;
+        gfx2_cs:   cpu_din = gfx2_dout;
+        default:   cpu_din = 8'hff;
     endcase
 end
 

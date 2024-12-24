@@ -23,13 +23,16 @@ module jts16_game(
 `ifndef S16B
     localparam SNDW=15;
     wire [7:0] sndmap_dout=0;
+    wire       mute_n;
 
     assign snd_addr[18:15]=0;
+    assign mute = ~mute_n;
 `else
     localparam SNDW=19;
 
     wire [7:0] sndmap_din, sndmap_dout;
     wire       sndmap_rd, sndmap_wr, sndmap_pbf;
+    assign mute = 0;
 `endif
 
 // clock enable signals
@@ -86,7 +89,6 @@ reg  [7:0] st_mux;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dsn                  = { UDSWn, LDSWn };
-assign game_led             = 1;
 assign debug_view           = st_dout;
 assign st_dout              = st_mux;
 assign xram_dsn             = dsn;
@@ -120,7 +122,7 @@ end
 `ifndef S16B
 assign key_mcaddr=0;
 `endif
-
+/* verilator tracing_on */
 `ifndef NOMAIN
 `JTS16_MAIN u_main(
     .rst        ( rstx      ),
@@ -194,7 +196,7 @@ assign key_mcaddr=0;
     .snd_latch   ( snd_latch  ),
     .snd_irqn    ( snd_irqn   ),
     .snd_ack     ( snd_ack    ),
-    .sound_en    ( sound_en   ),
+    .sound_en    ( mute_n     ),
 `else
     .pxl_cen     ( pxl_cen    ),
     .sndmap_rd   ( sndmap_rd  ),
@@ -233,7 +235,7 @@ assign key_mcaddr=0;
     assign main_rnw  = 1;
     assign main_dout = 0;
     assign video_en  = 1;
-    assign sound_en  = 0; // active low (?)
+    assign mute_n    = 0; // active low (?)
     `ifdef S16B
         reg aux_obf = 0;
         reg [7:0] aux_dout=0;
@@ -268,19 +270,13 @@ assign key_mcaddr=0;
         assign tile_bank = sim_def[0][5:0];
     `endif
 `endif
-
-`ifndef NOSOUND
+/* verilator tracing_off */
 `JTS16_SND u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
     .cen_fm     ( cen_fm    ),   // 4MHz or 5MHz
     .cen_fm2    ( cen_fm2   ),   // 2MHz
-
-    .fxlevel    (dip_fxlevel),
-    .enable_fm  ( enable_fm ),
-    .enable_psg ( enable_psg),
-
 `ifdef S16B
     // System 16B
     .cen_snd    ( cen_snd   ),  // 5MHz
@@ -299,7 +295,6 @@ assign key_mcaddr=0;
 `else
     // System 16A
     .cen_pcm    ( cen6      ),  // 6MHz
-    .sound_en   ( sound_en  ),
 
     .latch      ( snd_latch ),
     .irqn       ( snd_irqn  ),
@@ -325,20 +320,11 @@ assign key_mcaddr=0;
     .rom_ok     ( snd_ok    ),
 
     // Sound output
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( snd_clip  )
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .pcm        ( pcm       )
 );
-`else
-    assign snd_cs=0;
-    assign sample=0;
-    assign snd_addr=0;
-    assign snd_ack=1;
-    `ifdef SIMULATION
-    assign pcm_cs=0;
-    assign pcm_addr=0;
-    `endif
-`endif
+
 
 `ifdef S16B
 assign pcm_cs   = 0;

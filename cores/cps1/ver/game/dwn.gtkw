@@ -1,0 +1,53 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu Jan 25 06:38:27 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/cps1/ver/game/test.fst"
+[dumpfile_mtime] "Thu Jan 25 06:37:05 2024"
+[dumpfile_size] 91687485
+[savefile] "/home/jtejada/jtcores/cores/cps1/ver/game/dwn.gtkw"
+[timestart] 5208
+[size] 2532 1024
+[pos] -1 -1
+*-34.913654 98423830680 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_sdram.
+[treeopen] TOP.game_test.u_game.u_sdram.u_prom_we.
+[treeopen] TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.
+[sst_width] 223
+[signals_width] 341
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@22
+[color] 1
+TOP.game_test.u_game.u_sdram.u_prom_we.ioctl_addr[25:0]
+@201
+-old
+@22
+TOP.game_test.u_game.u_sdram.u_prom_we.prog_addr[22:0]
+@28
+TOP.game_test.u_game.u_sdram.u_prom_we.prog_ba[1:0]
+@22
+TOP.game_test.u_game.u_sdram.u_prom_we.prog_data[15:0]
+@28
+TOP.game_test.u_game.u_sdram.u_prom_we.prog_mask[1:0]
+TOP.game_test.u_game.u_sdram.u_prom_we.prog_we
+@200
+-new
+@22
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.prog_addr[22:1]
+@28
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.prog_ba[1:0]
+@22
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.prog_data[15:0]
+@28
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.prog_mask[1:0]
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.prog_we
+@22
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.genblk1.ba_start[47:0]
+@28
+TOP.game_test.u_game.u_sdram.u_prom_we.u_dwnld.header
+[pattern_trace] 1
+[pattern_trace] 0

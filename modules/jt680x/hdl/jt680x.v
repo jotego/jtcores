@@ -95,7 +95,8 @@ jt680x_ctrl u_ctrl(
     .alu_sel    ( alu_sel   ),
     .ld_sel     ( ld_sel    ),
     .rmux_sel   ( rmux_sel  ),
-    .cc_sel     ( cc_sel    )
+    .cc_sel     ( cc_sel    ),
+    .stack_bsy  (           )
 );
 
 jt680x_alu u_alu(

@@ -45,13 +45,18 @@ module jtkiwi_video(
     input               vctrl_cs,
     input               vflag_cs,
     output     [ 7:0]   vram_dout,
+    // Sub-CPU interface
+    input               pal2_cs,
+    input      [ 7:0]   cpu2_dout,
+    input               cpu2_rnw,
+    input      [ 9:0]   cpu2_addr,
     // SDRAM interface
-    output     [19:2]   scr_addr,
+    output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
     input               scr_ok,
     output              scr_cs,
 
-    output     [19:2]   obj_addr,
+    output     [20:2]   obj_addr,
     input      [31:0]   obj_data,
     input               obj_ok,
     output              obj_cs,
@@ -159,6 +164,11 @@ jtkiwi_colmix u_colmix(
     .cpu_dout   ( cpu_dout       ),
     .cpu_din    ( pal_dout       ),
     .pal_cs     ( pal_cs         ),
+    // Sub-CPU interface
+    .pal2_cs    ( pal2_cs        ),
+    .cpu2_addr  ( cpu2_addr[9:0] ),
+    .cpu2_rnw   ( cpu2_rnw       ),
+    .cpu2_dout  ( cpu2_dout      ),
     // PROMs
     .prog_addr  ( prog_addr      ),
     .prog_data  ( prog_data      ),

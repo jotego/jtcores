@@ -1,0 +1,116 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu Feb 15 06:30:09 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/vendetta/test.fst"
+[dumpfile_mtime] "Thu Feb 15 06:29:11 2024"
+[dumpfile_size] 54060729
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/vendetta/dec.gtkw"
+[timestart] 10416
+[size] 1920 1052
+[pos] -1 -1
+*-36.756622 2300029872 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_ram.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.
+[sst_width] 223
+[signals_width] 218
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@24
+TOP.game_test.frame_cnt[31:0]
+@c00023
+TOP.game_test.u_game.u_game.u_main.A[15:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(1)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(2)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(3)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(4)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(5)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(6)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(7)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(8)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(9)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(10)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(11)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(12)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(13)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(14)TOP.game_test.u_game.u_game.u_main.A[15:0]
+(15)TOP.game_test.u_game.u_game.u_main.A[15:0]
+@1401201
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_main.rom_cs
+@c00022
+TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(1)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(2)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(3)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(4)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(5)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(6)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(7)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(8)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(9)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(10)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(11)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(12)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(13)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(14)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(15)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(16)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(17)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+(18)TOP.game_test.u_game.u_game.u_main.rom_addr[18:0]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_main.rom_data[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.cpu_we
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_dout[7:0]
+@200
+-
+@28
+[color] 1
+TOP.game_test.u_game.u_game.u_main.bad_cs
+[color] 1
+TOP.game_test.u_game.u_game.u_main.none_cs
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.banked_cs
+TOP.game_test.u_game.u_game.u_main.basel_cs
+TOP.game_test.u_game.u_game.u_main.cr_cs
+TOP.game_test.u_game.u_game.u_main.eeprom_cs
+TOP.game_test.u_game.u_game.u_main.hip_cs
+TOP.game_test.u_game.u_game.u_main.io_cs
+TOP.game_test.u_game.u_game.u_main.joystk_cs
+TOP.game_test.u_game.u_game.u_main.misc_cs
+TOP.game_test.u_game.u_game.u_main.objreg_cs
+(3)TOP.game_test.u_game.u_game.u_main.A[15:0]
+[color] 2
+TOP.game_test.u_game.u_game.u_main.objsys_cs
+TOP.game_test.u_game.u_game.u_main.out_cs
+TOP.game_test.u_game.u_game.u_main.pal_cs
+TOP.game_test.u_game.u_game.u_main.pcu_cs
+TOP.game_test.u_game.u_game.u_main.prog_cs
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.rom_cs
+TOP.game_test.u_game.u_game.u_main.snd_cs
+TOP.game_test.u_game.u_game.u_main.stsw_cs
+TOP.game_test.u_game.u_game.u_main.tilesys_cs
+TOP.game_test.u_game.u_game.u_main.WOC0
+TOP.game_test.u_game.u_game.u_video.u_obj.u_ram.u_hi.we0
+TOP.game_test.u_game.u_game.u_video.u_obj.u_ram.u_lo.we0
+[pattern_trace] 1
+[pattern_trace] 0

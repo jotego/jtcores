@@ -7,11 +7,10 @@
   (title_block
     (title "The Simpsons")
     (date "2023-08-01")
-    (rev "José Tejada G.")
+    (rev "José Tejada.")
     (company "KONAMI PWB352346B GX072")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "Esperanza Triana")
-    (comment 3 "JOTEGO")
+    (comment 2 "JOTEGO")
   )
 
   (lib_symbols

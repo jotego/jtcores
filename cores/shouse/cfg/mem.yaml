@@ -8,6 +8,14 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
+audio:
+  rsum: 18k
+  channels:
+    - { name: fm, module: jt51, rsum: 18k, rc: [{ r: 1rout, c: 2.2n }] }
+    # pre-amplification by 1.5kOhm / 1kOhm from R2R. The R2R output impedance
+    # is not clear from schematics. Must measure it
+    - { name: pcm, data_width: 11, dcrm: true, rsum: 47k, fir: fir_192k_4k.csv, pre: 1.5, vpp: 1.0 }
+    - { name: cus30, module: jtcus30, rsum: 47k, rc: [{ r: rout, c: 0.4n }] }
 sdram:
   banks:
     - buses:
@@ -26,11 +34,9 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: mask
-          addr_width: 17
-          data_width: 8
-          cache_size: 8
-        - name: scr # 4-byte burst here
+        # mask data is shadowed here at offset 0
+        # but access is from BRAM (see below)
+        - name: scr
           addr_width: 20
           data_width: 8
           offset: SCR_OFFSET
@@ -39,6 +45,12 @@ sdram:
           addr_width: 20
           data_width: 32
 bram:
+  - name: mask
+    addr_width: 17
+    data_width: 8
+    # sim_file: dd if=sdram_bank2.bin of=mask.bin conv=swab count=256
+    sim_file: true
+    rom: { offset: "{2'd2,22'd0}" }
   - name: ram
     addr_width: 15  # the PCB seems to support 17 bits too
     data_width: 8

@@ -2,15 +2,27 @@
     {{- range $v }}
     input {{ .OutStr }}, // {{ .Comment }} Hz {{ end }}
 {{end}}
+    // Audio channels
+    {{if .Audio.Mute}}output mute,
+    {{end}}{{ range .Audio.Channels }}{{ if .Name }}{{ if .Stereo }}output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l,
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_r,{{ else }}
+    output {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}},{{ end }}{{end}}{{if .Rc_en}}
+    output {{if gt .Filters 1}}[{{sub .Filters 1}}:0] {{end}}{{.Name}}_rcen,{{end}}{{ end}}{{ if eq (len .Audio.Channels) 0 }}
+    // Sound output
+`ifndef JTFRAME_STEREO
+    output  signed [15:0] snd,
+`else
+    output  signed [15:0] snd_left, snd_right,
+`endif
+    output          sample,
+{{ end }}
     // Memory ports
     input   [21:0]  prog_addr,
     input   [ 7:0]  prog_data,
     input           prog_we,
     input   [ 1:0]  prog_ba,
     input   [25:0]  ioctl_addr,
-`ifdef JTFRAME_PROM_START
     input           prom_we,
-`endif
 {{- if .Download.Post_addr }}
     output reg [21:0] post_addr,
 {{end}}

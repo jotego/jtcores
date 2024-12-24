@@ -35,7 +35,7 @@ wire [ 2:0] pal_sel;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout;
+wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout, st_snd;
 wire        vsync60;
 wire        snd_cen, psg_cen;
 
@@ -46,7 +46,7 @@ wire        m2s_on;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[17:0];
 assign dip_flip = dipsw_c[0];
-assign debug_view = 0;
+assign debug_view = st_snd;
 
 always @(*) begin
     post_data = prog_data;
@@ -80,8 +80,8 @@ jtmikie_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -122,7 +122,6 @@ jtmikie_main u_main(
     assign flip    = 0;
 `endif
 
-`ifndef NOSOUND
 jtmikie_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -135,17 +134,14 @@ jtmikie_snd u_sound(
     .main_latch ( snd_latch ),
     .m2s_on     ( m2s_on    ),
     // Sound
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  )
+    .psg1       ( psg1      ),
+    .psg2       ( psg2      ),
+    .rdac       ( rdac      ),
+    .psg1_rcen  ( psg1_rcen ),
+    .psg2_rcen  ( psg2_rcen ),
+    .rdac_rcen  ( rdac_rcen ),
+    .st_dout    ( st_snd    )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign snd=0;
-    assign sample=0;
-    assign game_led=0;
-`endif
 
 jtmikie_video u_video(
     .rst        ( rst       ),

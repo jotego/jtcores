@@ -14,8 +14,8 @@ import (
 )
 
 // save2disk = false is uselful to update the md5 calculation only
-func mra2rom(root *XMLNode, verbose, save2disk bool) {
-	save_rom(root, verbose, save2disk )
+func mra2rom(root *XMLNode, verbose, save2disk bool, zippath string) {
+	save_rom(root, verbose, save2disk, zippath )
 	if save2disk {
 		save_coremod(root, verbose)
 	}
@@ -33,7 +33,7 @@ func save_coremod(root *XMLNode, verbose bool) {
 	rom_file(setname, ".mod", rombytes)
 }
 
-func save_rom(root *XMLNode, verbose, save2disk bool) {
+func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
@@ -43,7 +43,7 @@ func save_rom(root *XMLNode, verbose, save2disk bool) {
 	rombytes := make([]byte, 0)
 	var zf []*zip.ReadCloser
 	for _, each := range strings.Split(xml_rom.GetAttr("zip"), "|") {
-		aux := get_zipfile(each)
+		aux := get_zipfile(each, zippath )
 		if aux != nil {
 			zf = append(zf, aux)
 		}
@@ -53,10 +53,13 @@ func save_rom(root *XMLNode, verbose, save2disk bool) {
 	}
 	parts2rom(zf, xml_rom, &rombytes, verbose)
 	if rombytes == nil {
-		fmt.Printf("\tNo .rom created for %s\n", setname.text)
+		fmt.Printf("No .rom created for %s\n\n", setname.text)
 		return
 	}
 	update_md5(xml_rom, rombytes)
+	if len(rombytes)%4 != 0 {
+		fmt.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
+	}
 	if save2disk {
 		patchrom(xml_rom, &rombytes)
 		rom_file(setname, ".rom", rombytes)
@@ -126,7 +129,7 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 			data := interleave2rom(zf, each, verbose)
 			if data == nil {
 				*rb = nil
-				fmt.Printf("\t.rom processing stopped\n")
+				// fmt.Printf("\t.rom processing stopped\n")
 				return // abort
 			}
 			*rb = append(*rb, data...)
@@ -159,6 +162,7 @@ func readrom(allzips []*zip.ReadCloser, n *XMLNode, verbose bool) (rdin []byte) 
 	crc = crc & 0xffffffff
 	var f *zip.File
 lookup:
+	// try to find the file using CRC
 	for _, each := range allzips {
 		for _, file := range each.File {
 			if file.CRC32 == uint32(crc) {
@@ -168,8 +172,22 @@ lookup:
 		}
 	}
 	if f == nil {
-		fmt.Printf("Warning: cannot find file %s (%s) in zip\n", n.GetAttr("name"), n.GetAttr("crc"))
-		return nil
+		// try again just by file name
+		fname := n.GetAttr("name")
+		fmt.Printf("\tcannot find file %s (%s) in zip by CRC\n", n.GetAttr("name"), n.GetAttr("crc"))
+lookup_name:
+		for _, each := range allzips {
+			for _, file := range each.File {
+				if file.Name == fname {
+					f = file
+					break lookup_name
+				}
+			}
+		}
+		if f == nil {
+			fmt.Printf("\tcannot find file %s by name either\n", fname)
+			return nil
+		}
 	}
 	offset, _ := strconv.ParseInt(n.GetAttr("offset"), 0, 32)
 	lenght, _ := strconv.ParseInt(n.GetAttr("length"), 0, 32)

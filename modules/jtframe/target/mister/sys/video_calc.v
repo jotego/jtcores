@@ -32,7 +32,7 @@ module video_calc
     input new_vmode,
     input video_rotated,
 
-    input       [3:0] par_num,
+    input       [4:0] par_num,
     output reg [15:0] dout
 );
 
@@ -53,6 +53,9 @@ always @(posedge clk_sys) begin
       13: dout <= vid_vtime_hdmi[31:16];
       14: dout <= vid_ccnt[15:0];
       15: dout <= vid_ccnt[31:16];
+      16: dout <= vid_pixrep;
+      17: dout <= vid_de_h;
+      18: dout <= vid_de_v;
       default dout <= 0;
     endcase
 end
@@ -62,24 +65,44 @@ reg [31:0] vid_vcnt = 0;
 reg [31:0] vid_ccnt = 0;
 reg  [7:0] vid_nres = 0;
 reg  [1:0] vid_int  = 0;
+reg  [7:0] vid_pixrep;
+reg [15:0] vid_de_h;
+reg  [7:0] vid_de_v;
 
 always @(posedge clk_vid) begin
     integer hcnt;
     integer vcnt;
     integer ccnt;
-    reg old_vs= 0, old_de = 0, old_vmode = 0;
+    reg [7:0] pcnt;
+    reg [7:0] de_v;
+    reg [15:0] de_h;
+    reg old_vs = 0, old_hs = 0, old_hs_vclk = 0, old_de = 0, old_de_vclk = 0, old_de1 = 0, old_vmode = 0;
     reg [3:0] resto = 0;
     reg calch = 0;
 
     if(calch & de) ccnt <= ccnt + 1;
+    pcnt <= pcnt + 1'd1;
+
+    old_hs_vclk <= hs;
+    de_h <= de_h + 1'd1;
+    if(old_hs_vclk & ~hs) de_h <= 1;
+
+    old_de_vclk <= de;
+    if(calch & ~old_de_vclk & de) vid_de_h <= de_h;
 
     if(ce_pix) begin
         old_vs <= vs;
+        old_hs <= hs;
         old_de <= de;
+        old_de1 <= old_de;
+        pcnt <= 1;
 
         if(~vs & ~old_de & de) vcnt <= vcnt + 1;
         if(calch & de) hcnt <= hcnt + 1;
         if(old_de & ~de) calch <= 0;
+        if(~old_de1 & old_de) vid_pixrep <= pcnt;
+        if(old_hs & ~hs) de_v <= de_v + 1'd1;
+        if(calch & ~old_de & de) vid_de_v <= de_v;
 
         if(old_vs & ~vs) begin
             vid_int <= {vid_int[0],f1};
@@ -99,6 +122,7 @@ always @(posedge clk_vid) begin
                 hcnt <= 0;
                 ccnt <= 0;
                 calch <= 1;
+                de_v <= 0;
             end
         end
     end
@@ -108,23 +132,13 @@ reg [31:0] vid_htime = 0;
 reg [31:0] vid_vtime = 0;
 reg [31:0] vid_pix = 0;
 
-// 2-FF synchronizers
-reg [ 1:0] de_100, vs_100, hs_100;
-// reg        vid_htime_lsb, vid_vtime_lsb;
-
-always @(posedge clk_100) begin
-    de_100 <= { de_100[0], de };
-    vs_100 <= { vs_100[0], vs };
-    hs_100 <= { hs_100[0], hs };
-end
-
 always @(posedge clk_100) begin
     integer vtime, htime, hcnt;
     reg old_vs, old_hs, old_vs2, old_hs2, old_de, old_de2;
     reg calch = 0;
 
-    old_vs <= vs_100[1];
-    old_hs <= hs_100[1];
+    old_vs <= vs;
+    old_hs <= hs;
 
     old_vs2 <= old_vs;
     old_hs2 <= old_hs;
@@ -146,7 +160,7 @@ always @(posedge clk_100) begin
         htime <= 0;
     end
 
-    old_de   <= de_100[1];
+    old_de   <= de;
     old_de2  <= old_de;
 
     if(calch & old_de) hcnt <= hcnt + 1;

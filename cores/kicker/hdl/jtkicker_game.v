@@ -35,27 +35,29 @@ wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, obj1_cs, obj2_cs, flip;
 wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout;
 wire        vsync60;
+wire        is_scr, is_obj;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign dip_flip = ~dipsw_c[0];
 assign debug_view = {4'hf, dipsw_c};
 assign scr_cs = LVBL;
 assign pcm_cs = 1;
+assign is_scr = ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START;
+assign is_obj = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PCM_START;
 
 always @(*) begin
     post_addr = prog_addr;
-    if( ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START ) begin
+    if( is_scr ) begin
         post_addr[0]   = ~prog_addr[3];
         post_addr[3:1] =  prog_addr[2:0];
     end
-    if( ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PCM_START ) begin
+    if( is_obj ) begin
         post_addr[0]   = ~prog_addr[3];
         post_addr[1]   = ~prog_addr[4];
         post_addr[5:2] =  { prog_addr[5], prog_addr[2:0] }; // making [5] explicit for now
     end
 end
 
-`ifndef NOMAIN
 `MAIN_MODULE u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -69,8 +71,8 @@ end
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -102,21 +104,13 @@ end
     .pcm_addr       ( pcm_addr      ),
     .pcm_data       ( pcm_data      ),
     .pcm_ok         ( pcm_ok        ),
-`endif
-    .snd            ( snd           ),
-    .sample         ( sample        ),
-    .peak           ( game_led      )
-);
+    .vlm            ( vlm           ),
+    .ti1            ( ti1           )
 `else
-    assign main_cs = 0;
-    assign obj1_cs = 0;
-    assign obj2_cs = 0;
-    assign vram_cs = 0;
-    assign flip    = 0;
-    assign cpu_rnw = 1;
-    assign cpu_addr = 0;
-    assign cpu_dout = 0;
+    .ti1            ( ti1           ),
+    .ti2            ( ti2           )
 `endif
+);
 
 `ifndef PCM
     assign pcm_addr = 0;

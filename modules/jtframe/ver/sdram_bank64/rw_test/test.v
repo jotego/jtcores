@@ -3,7 +3,7 @@
 module test;
 
 parameter BANK1=1, BANK2=1, BANK3=1,
-          IDLE=50, SHIFTED=0, MAXA=21;
+          IDLE=80, SHIFTED=0, MAXA=21;
 parameter BA0_LEN=64, BA1_LEN=64, BA2_LEN=64, BA3_LEN=64;
 parameter BA0_AUTOPRECH=0, BA1_AUTOPRECH=0, BA2_AUTOPRECH=0, BA3_AUTOPRECH=0;
 
@@ -216,8 +216,14 @@ jtframe_sdram64 #(
     .ba3_addr   ( ba3_addr      ),
     .rd         ( rd            ),
     .wr         ( wr            ),
-    .din        ( ba0_din       ),
-    .din_m      ( ba0_din_m     ),  // write mask
+    .ba0_din    ( ba0_din       ),
+    .ba0_dsn    ( ba0_din_m     ),  // write mask
+    .ba1_din    (               ),
+    .ba1_dsn    (               ),  // write mask
+    .ba2_din    (               ),
+    .ba2_dsn    (               ),  // write mask
+    .ba3_din    (               ),
+    .ba3_dsn    (               ),  // write mask
     .rdy        ( rdy           ),
     .dok        ( dok           ),
     .ack        ( ack           ),
@@ -350,7 +356,7 @@ initial begin
             $display("Error: cannot open file %s (%m)", MEMFILE );
         end
         fcnt=$fread(mem_data, file );
-        $display("Read 0x%X bytes from %s (%m)", fcnt, MEMFILE );
+        // $display("Read 0x%X bytes from %s (%m)", fcnt, MEMFILE );
         $fclose(file);
     end
     init_done = 0;
@@ -360,7 +366,7 @@ end
 initial begin
     #200_000;
     if( first && IDLE<100 ) begin
-        $display("Bank %d stall without any access",BANK);
+        $display("Bank %d stall without any access.\nFAIL\n",BANK);
         $finish;
     end
 end
@@ -385,11 +391,11 @@ always @(posedge clk, posedge rst) begin
         if( ba_rdy ) begin
             first <= 0;
             if( ba_rd || ba_wr ) begin
-                $display("Ready signal received without previous ACK signal in bank %1d at time %t ns \n",BANK, $time);
+                $display("Ready signal received without previous ACK signal in bank %1d at time %t ns \nFAIL\n",BANK, $time);
                 $finish;
             end
             if( next_data !== expected && rd_cycle) begin
-                $display("Data read error at time %t at address %X (bank %1d). %X read, expected %X\n",
+                $display("Data read error at time %t at address %X (bank %1d). %X read, expected %X\nFAIL\n",
                     $time, ba_addr, BANK, next_data, expected );
                 #(2*`PERIOD) $finish;
             end
@@ -429,7 +435,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             stall <= stall + 1;
             if( stall== STALL_LIMIT) begin
-                $display("Bank %1d stall at time %t\n", BANK,$time );
+                $display("Bank %1d stall at time %t\nFAIL\n", BANK,$time );
                 $finish;
             end
             if( ba_ack ) begin

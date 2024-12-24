@@ -1,0 +1,5 @@
+audio:
+  mute: true
+  channels:
+    - { name: fm,  module: jt51,   rsum: 100k, rc: [{ r:  1rout, c: 1.5n }] }
+    - { name: pcm, data_width: 16, rsum:  47k, rc: [{ r: 100, c: 100n }], pre: 0.43, stereo: true }

@@ -36,7 +36,6 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 	mode96 := defined("JTFRAME_SDRAM96") || defined("JTFRAME_CLK96")
 	aux, _ := macros["JTFRAME_MCLK"]
 	fmhz, _ := strconv.Atoi(aux)
-	fmhz *= 1000
 
 	for key, list := range cfg.Clocks {
 		for k, v := range list {
@@ -44,7 +43,6 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 			ratio := 1.0
 			if mode96 { // clk is 96MHz
 				switch key {
-				case "clk6":  ratio = 0.125
 				case "clk24": ratio = 0.25
 				case "clk48": ratio = 0.5
 				case "clk96": ratio = 1.0
@@ -52,7 +50,6 @@ func make_clocks( macros map[string]string, cfg *MemConfig ) {
 				if v.ClkName == "clk96" { v.ClkName = "clk" }
 			} else { // clk is 48MHz
 				switch key {
-				case "clk6":  ratio = 0.25
 				case "clk24": ratio = 0.5
 				case "clk48": ratio = 1.0
 				case "clk96": ratio = 2.0

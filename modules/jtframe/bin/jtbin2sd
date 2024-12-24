@@ -10,15 +10,14 @@ a SD card with the name of the target device.
 
 Usage:
 
-jtbin2sd.sh [-l|--local]
+jtbin2sd.sh [setname] [-l|--local]
 
--l, --local     Uses JTROOT/release instead of JTBIN (default)
+Optionally indicate the setname to be used as the game to load on power up (core.arc file)
+
+-a, --all       Regenerate all .rom files (including alternates)
 -g, --git       Uses JTBIN as the target folder
--s, --setname   Uses the given set name as the game to load on power up (core.arc file)
+-r, --rom       Runs "jtframe mra" for each mra file found to get the main .rom files generated
 -v, --verbose
-
-future options:
--s, --setname   Uses the given setname as the core.arc
 HELP
 }
 
@@ -26,21 +25,35 @@ LOCAL=1
 V=
 CNT=0
 SETNAME=
+RUNMRA=
+MAINONLY=--mainonly
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
-        -s|--setname)
-            shift
-            SETNAME=$1;;
+        -r|--rom)
+            RUNMRA=1;;
+        -a|--all)
+            RUNMRA=1
+            MAINONLY=;;
         -v|--verbose)
             V=-v;;
         -h|--help)
             show_help
             exit 1;;
-        *) echo "Unknown argument $1"; exit 1;;
+        *)
+        if [[ "$1" = -* ]]; then
+            echo "Unknown argument $1"
+            exit 1
+        fi
+        if [ -z "$SETNAME" ]; then
+            SETNAME=$1
+        else
+            echo "Unknown argument $1"
+            echo "Setname was already set to $SETNAME"
+            exit 1
+        fi;;
     esac
     shift
 done
@@ -54,25 +67,17 @@ fi
 cd $JTBIN/mra
 
 function cp_mist {
-    cp $V $JTBIN/${i,,}/*rbf $DST
-    find $JTBIN/mra -name "*.mra" -print0 | parallel -0 mra -z $HOME/.mame/roms -O /media/$USER/$i -A -s
+    cp $V $JTBIN/$1/*rbf $DST
     # Get the main MRA as the core's arc for JTAG programming
-    for CORE in $JTBIN/mister/*; do
-        CORENAME=jt$(basename $CORE)
-        if [ ! -e $DST/$CORENAME.rbf ]; then
-            echo "$i: skipping ARC files for ${CORENAME#jt} (no RBF)"
-            find $DST -name "*.arc" -print0 | xargs -0 grep -l -i $CORENAME | (while IFS= read -r LINE; do rm "$LINE"; done)
-            continue;
-        fi
-        MR=$CORE/releases
-        if [ ! -d "$MR" ]; then continue; fi
-        cd $MR
-        CORENAME=${CORENAME^^}
-        FIRST=`find . -name "*.mra" | head -n 1`
-        if [ -z "$FIRST" ]; then continue; fi
-        mra -A -s -a $DST/$CORENAME.arc "$FIRST"
-        cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
+    for CORE in $JTBIN/$1/*rbf; do
+        CORE=`basename $CORE .rbf`
+        IFS=$'\n'
+        for MRA in `find -name "*mra" -print0 | xargs -0 grep --files-with-matches --ignore-case $CORE`; do
+            mra -z $HOME/.mame/roms -O $DST -A -s "$MRA"
+        done
+        unset IFS
     done
+    # Set one game as core.arc
     if [ ! -z "$SETNAME" ]; then
         local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`
         if [ ! -z "$MAINSET" ]; then
@@ -80,11 +85,18 @@ function cp_mist {
         else
             echo "Cannot find any arc file for $SETNAME"
         fi
+    elif [ ! -e $DST/core.arc ]; then
+        cp -v "`ls $DST/*arc|head -n 1`" $DST/core.arc;
     fi
 }
 
-for i in SIDI MIST POCKET; do
-    DST=/media/$USER/$i
+if [ -n "$RUNMRA" ]; then
+    RBF=`find $JTBIN/mra -name "*.mra" -print0 | xargs -0 -I_ xmllint --xpath '//rbf/text()' _ | sort | uniq | sed s/^jt//`
+    jtframe mra $RBF $MAINONLY
+fi
+
+for i in SIDI128 SIDI MIST POCKET; do
+    DST=/media/$USER/${i^^}
     if [ ! -d $DST ]; then
         continue
     fi
@@ -94,7 +106,7 @@ for i in SIDI MIST POCKET; do
     if [ $i = POCKET ]; then
         cp -r $V $JTBIN/pocket/raw/* $DST
     else
-        cp_mist $i &
+        cp_mist ${i,,} &
     fi
     wait
     # Copy ROM files
@@ -146,3 +158,17 @@ if [ -d /media/$USER/POCKET ]; then
         fi
     done
 fi
+
+# Make it a bit nicer for MiST systems
+for i in MIST SIDI SIDI128; do
+    if [ ! -d /media/$USER/$i ]; then continue; fi
+    # Hide RBF files, boots only from ARC files
+    fatattr +h /media/$USER/$i/*.rbf
+    # Mapping for 8BitDo M30gyu
+    cat > /media/$USER/$i/MIST.INI <<EOF
+[MIST]
+USB_STORAGE=1
+JOYSTICK_REMAP="0CA3,0024,1,2,4,8,100,20,10,80,200,40,1000,800,0,400,0,0"
+SCANDOUBLER_DISABLE=0
+EOF
+done

@@ -17,14 +17,15 @@
     Date: 25-9-2019 */
 
 module jtframe_board #(parameter
-    BUTTONS                 = 2, // number of buttons used by the game
+    BUTTONS                 = 2, // the location of coin, 1P and pause will be set after these buttons
     // coin and start buttons will be mapped.
     GAME_INPUTS_ACTIVE_LOW  = 1'b1,
     COLORW                  = 4,
     SDRAMW                  = 22,
     VIDEO_WIDTH             = 384,
     VIDEO_HEIGHT            = 224,
-    MISTER                  = 1
+    MISTER                  = 1,
+    XOR_ROT                 = 0
 )(
     output              rst,
     output              rst_n,
@@ -42,12 +43,13 @@ module jtframe_board #(parameter
     input        [ 6:0] core_mod,
     // LED
     input               osd_shown,
-    input        [ 1:0] game_led,
     output              led,
     // Audio
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
+    output        [ 7:0] snd_vol,
     input                snd_sample,
+    input                snd_peak,
     // ROM access from game
     input  [SDRAMW-1:0] ba0_addr,ba1_addr,ba2_addr,ba3_addr,
     input         [3:0] ba_rd,   ba_wr,
@@ -171,6 +173,8 @@ module jtframe_board #(parameter
     input        [31:0] timestamp,
     // GFX enable
     output        [3:0] gfx_en,
+    output        [5:0] snd_en,
+    input         [5:0] snd_vu,
     output        [7:0] debug_bus,
     input         [7:0] debug_view
 );
@@ -201,6 +205,7 @@ module jtframe_board #(parameter
 `else
     localparam BA3_AUTOPRECH = 0;
 `endif
+    localparam SDRAM_SHIFT = `JTFRAME_SHIFT ^^ `JTFRAME_180SHIFT;
 
 // sdram bank lengths
 localparam
@@ -233,8 +238,8 @@ wire  [ 2:0] scanlines;
 wire         bw_en, blend_en;
 wire         en_mixing;
 wire         osd_pause;
-wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt;
-
+wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt,
+             vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
@@ -242,10 +247,11 @@ wire         cheat_led, pre_pause;
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
-wire   [1:0] sensty;
+wire   [5:0] key_snd;
+wire   [1:0] sensty, frame_blank;
 wire         key_service, key_tilt;
 wire         locked;
-wire         autofire0, dial_raw_en, dial_reverse;
+wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
 
 wire [COLORW-1:0] pre2x_r, pre2x_g, pre2x_b,
                   dbg_r, dbg_g, dbg_b;
@@ -257,10 +263,13 @@ wire [ 1:0] bax_dsn;
 wire [ 3:0] bax_rdy, bax_dst;
 wire [SDRAMW-1:0] bax_addr;
 
+wire LHBLs;
+
 assign autofire0 = `ifdef JTFRAME_AUTOFIRE0 status[18] `else 0 `endif;
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
+assign frame_blank  = core_mod[6:5];
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
 assign base_LHBL = pre2x_LHBL;
@@ -299,14 +308,17 @@ jtframe_reset u_reset(
     .game_rst_n ( game_rst_n    )
 );
 
+wire       vu_peak;
+wire [1:0] led_peak = { 1'b1, vu_peak | snd_peak };
+
 jtframe_led u_led(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .LVBL       ( LVBL          ),
-    .ioctl_rom  ( dwnld_busy     ),
+    .ioctl_rom  ( dwnld_busy    ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
-    .game_led   ( game_led      ),
+    .game_led   ( led_peak      ),
     .cheat_led  ( cheat_led     ),
     .led        ( led           )
 );
@@ -336,13 +348,17 @@ jtframe_keyboard u_keyboard(
     .ctrl        ( key_ctrl      ),
     .alt         ( key_alt       ),
     .key_gfx     ( key_gfx       ),
+    .key_snd     ( key_snd       ),
+    .vol_up      ( vol_up        ),
+    .vol_down    ( vol_down      ),
     .debug_plus  ( debug_plus    ),
     .debug_minus ( debug_minus   )
 );
 
     `ifndef JTFRAME_RELEASE
         wire [7:0] sys_info;
-        wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
+        // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
+        wire       flip_info = 0;
 
         jtframe_debug #(.COLORW(COLORW)) u_debug(
             .clk         ( clk_sys       ),
@@ -351,6 +367,7 @@ jtframe_keyboard u_keyboard(
             .shift       ( key_shift   | board_shift ),
             .ctrl        ( key_ctrl    | board_ctrl  ),
             .alt         ( key_alt     | board_alt   ),
+            .key_snd     ( key_snd                   ),
             .key_gfx     ( key_gfx     | board_gfx   ),
             .key_digit   ( key_digit   | board_digit ),
             .debug_plus  ( debug_plus  | board_plus  ),
@@ -370,6 +387,9 @@ jtframe_keyboard u_keyboard(
             .bout        ( dbg_b         ),
 
             .gfx_en      ( gfx_en        ),
+            .snd_en      ( snd_en        ),
+            .snd_vol     ( snd_vol       ),
+            .snd_mode    ( snd_mode      ),
             .debug_bus   ( debug_bus     ),
             .debug_view  ( debug_view    ),
             .sys_info    ( sys_info      ),
@@ -379,12 +399,21 @@ jtframe_keyboard u_keyboard(
         jtframe_sys_info u_info(
             .rst_sys    ( game_rst      ),
             .clk        ( clk_sys       ),
-            .sample     ( snd_sample    ),
             .dip_pause  ( dip_pause     ),
             .dip_flip   ( dip_flip      ),
-            .game_led   ( game_led[0]   ),
+            .game_led   ( led_peak      ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
+            // sound
+            .sample     ( snd_sample    ),
+            .snd_en     ( snd_en        ),
+            .snd_vu     ( snd_vu        ),
+            .snd_l      ( snd_lin       ),
+            .snd_r      ( snd_rin       ),
+            .snd_vol    ( snd_vol       ),
+            .snd_mode   ( snd_mode      ),
+            .vu_peak    ( vu_peak       ),
+
             .dial_x     ( dial_x        ),
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),
@@ -401,7 +430,9 @@ jtframe_keyboard u_keyboard(
         );
     `else
         assign gfx_en    = 4'b1111;
+        assign snd_en    = 6'h3f;
         assign debug_bus =  0;
+        assign vu_peak   =  0;
         assign dbg_r = pre2x_r;
         assign dbg_g = pre2x_g;
         assign dbg_b = pre2x_b;
@@ -429,6 +460,32 @@ jtframe_keyboard u_keyboard(
     assign dbg_b       = pre2x_b;
 `endif
 
+jtframe_volume u_volume(
+    .rst            ( game_rst        ),
+    .clk            ( clk_sys         ),
+    .vs             ( vs              ),
+    .peak           ( snd_peak        ),
+    .up             ( vol_up          ),
+    .down           ( vol_down        ),
+    .vol            ( snd_vol         )
+);
+
+jtframe_short_blank #(
+    .WIDTH      ( VIDEO_WIDTH     ),
+    .HEIGHT     ( VIDEO_HEIGHT    )
+) u_short_blank (
+    .clk        ( clk_sys         ),
+    .pxl_cen    ( pxl_cen         ),
+    .LHBL       ( LHBL            ),
+    .LVBL       ( LVBL            ),
+    .h_en       ( frame_blank[0]  ),
+    .v_en       ( 1'b0            ),
+    .wide       ( frame_blank[1]  ),
+    .HS         ( hs              ),
+    .hb_out     ( LHBLs           ),
+    .vb_out     (                 )
+);
+
 jtframe_inputs #(
     .BUTTONS   ( BUTTONS                ),
     .ACTIVE_LOW( GAME_INPUTS_ACTIVE_LOW )
@@ -436,9 +493,9 @@ jtframe_inputs #(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
-    .LHBL           ( LHBL            ),
-    .ioctl_rom      ( dwnld_busy       ),
-    .dip_flip       ( dip_flip        ),
+    .LHBL           ( LHBLs           ),
+    .ioctl_rom      ( dwnld_busy      ),
+    .rot_ccw        ( rotate[1]       ),
     .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
     .dial_reverse   ( dial_reverse    ),
@@ -510,7 +567,7 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
-jtframe_dip u_dip(
+jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .core_mod   ( core_mod      ),
@@ -633,22 +690,33 @@ jtframe_dip u_dip(
 `endif
 
 // Audio
-`ifndef JTFRAME_INTERPOL2
+// `ifdef JTFRAME_SND48K
+//     wire cen48;
+//     jtframe_frac_cen #(.W(1),.WC(11)) u_cen48k(
+//         .clk        ( clk48     ),
+//         .n          ( 11'd1     ),         // numerator
+//         .m          ( 11'd1024  ),         // denominator
+//         .cen        ( cen48     ),
+//         .cenb       (           )
+//     );
+
+//     jtframe_fir #(
+//         .KMAX   ( 75            ),
+//         .COEFFS ( "fir20k.hex"  )
+//     ) u_fir(
+//         .rst        ( rst       ),
+//         .clk        ( clk48     ),
+//         .sample     ( cen48     ),
+//         .l_in       ( snd_lin   ),
+//         .r_in       ( snd_rin   ),
+//         .l_out      ( snd_lout  ),
+//         .r_out      ( snd_rout  )
+//     );
+// `else
     // bypass the sound signals if the interpolator is not used
     assign snd_rout = snd_rin;
     assign snd_lout = snd_lin;
-`else
-    jtframe_uprate2_fir u_uprate2(
-        .rst        ( rst       ),
-        .clk        ( clk_sys   ),
-        .sample     ( snd_sample),
-        .upsample   (           ),
-        .l_in       ( snd_lin   ),
-        .r_in       ( snd_rin   ),
-        .l_out      ( snd_lout  ),
-        .r_out      ( snd_rout  )
-    );
-`endif
+// `endif
 
 
 `ifdef SIMULATION
@@ -692,11 +760,7 @@ jtframe_sdram64 #(
     .SHIFTED(0)
 `else
     .HF(0),
-    `ifdef JTFRAME_180SHIFT
-        .SHIFTED(0)
-    `else
-        .SHIFTED(1)
-    `endif
+    .SHIFTED      ( SDRAM_SHIFT   )
 `endif
 ) u_sdram(
     .rst        ( rst           ),
@@ -753,7 +817,7 @@ jtframe_sdram64 #(
 
     // Common signals
     .dout       ( sdram_dout    ),
-    .rfsh       ( ~LHBL         )
+    .rfsh       ( ~LHBLs        )
 );
 
 `ifdef SIMULATION
@@ -806,7 +870,7 @@ jtframe_sdram64 #(
         .pxl_cen    ( pxl_cen       ),
 
         // input image
-        .HB         ( LHBL          ),
+        .HB         ( LHBLs         ),
         .VB         ( LVBL          ),
         .rgb_in     ( { game_r, game_g, game_b } ),
         `ifdef JTFRAME_CREDITS_NOROTATE
@@ -845,7 +909,7 @@ jtframe_sdram64 #(
     );
 `else
     assign { pre2x_r, pre2x_g, pre2x_b } = { game_r, game_g, game_b };
-    assign { pre2x_LHBL, pre2x_LVBL    } = { LHBL, LVBL };
+    assign { pre2x_LHBL, pre2x_LVBL    } = { LHBLs, LVBL };
 `endif
 
 // By pass scan2x in simulation by default
@@ -870,7 +934,7 @@ jtframe_sdram64 #(
     assign scan2x_vs   = vs;
     assign scan2x_clk  = clk_sys;
     assign scan2x_cen  = pxl_cen;
-    assign scan2x_de   = LVBL && LHBL;
+    assign scan2x_de   = LVBL && LHBLs;
     assign scan2x_sl   = 2'd0;
 `else
 
@@ -919,9 +983,10 @@ endfunction
     // can only use this
     wire [CLROUTW*3-1:0] rgbx2;
     wire [CLROUTW*3-1:0] game_rgb = { r_ana, g_ana, b_ana };
+    wire scan2x_vsin = bw_en ? vs_ana : vs;
     wire scan2x_hsin = bw_en ? hs_ana : hs;
-    wire scan2x_hbin = bw_en ? ~lvbl_ana : ~pre2x_LHBL;
-    wire scan2x_vbin = bw_en ? ~lhbl_ana : ~pre2x_LVBL;
+    wire scan2x_hbin = bw_en ? ~lhbl_ana : ~pre2x_LHBL;
+    wire scan2x_vbin = bw_en ? ~lvbl_ana : ~pre2x_LVBL;
 
     // Note that VIDEO_WIDTH must include blanking for jtframe_scan2x
     jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
@@ -935,14 +1000,16 @@ endfunction
         .pxl2_cen   ( pxl2_cen       ),
         .base_pxl   ( game_rgb       ),
         .HS         ( scan2x_hsin    ),
+        .VS         ( scan2x_vsin    ),
         .HB         ( scan2x_hbin    ),
         .VB         ( scan2x_vbin    ),
         // outputs
         .x2_pxl     ( rgbx2          ),
         .x2_HS      ( scan2x_hs      ),
+        .x2_VS      ( scan2x_vs      ),
         .x2_DE      ( scan2x_de      )
     );
-    assign scan2x_vs    = bw_en ? vs_ana : vs;
+
     assign scan2x_r     = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
     assign scan2x_g     = extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
     assign scan2x_b     = extend8( rgbx2[CLROUTW-1:0] );

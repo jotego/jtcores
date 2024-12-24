@@ -67,7 +67,10 @@ module jtcontra_main(
 parameter  GAME=0;
 localparam RAM_AW = GAME==0 ? 12 : 13;
 
-wire [ 7:0] ram_dout, cpu_din;
+wire [ 7:0] ram_dout;
+/* verilator lint_off UNOPTFLAT */
+wire [ 7:0] cpu_din;
+/* verilator lint_on UNOPTFLAT */
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n, irq_ack;
 wire        irq_trigger, nmi_trigger;

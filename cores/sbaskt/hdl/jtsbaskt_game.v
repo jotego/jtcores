@@ -39,19 +39,19 @@ reg         decode;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
-assign debug_view = debug_snd;
+assign debug_view = {3'd0, vlm_rcen, psg_rcen, rdac_rcen };
 
 wire [ 7:0] nc, pre_data;
 
 always @(*) begin
     post_data = prog_data;
-    if( ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<PCM_START ) begin
+    if( prog_addr[21:0] >= (SCR_START>>1) && prog_addr[21:0]<(PCM_START>>1) ) begin
         post_data = { prog_data[3:0], prog_data[7:4] };
     end
 end
 
 always @(posedge clk) begin
-    if( header && prog_we && !ioctl_addr[0] ) decode <= prog_data[0];
+    if( header && prog_we && prog_addr[1:0]==0 ) decode <= prog_data[0];
 end
 
 `ifndef NOMAIN
@@ -68,8 +68,8 @@ jtsbaskt_main u_main(
     .ram_dout       ( ram_dout      ),
     .ram_we         ( ram_we        ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -129,18 +129,27 @@ jtsbaskt_snd u_sound(
     .pcm_addr   ( pcm_addr  ),
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
-
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    // sound output
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
+    // debug
+    .debug_bus  ( debug_bus ),
     .debug_view ( debug_snd )
 );
 `else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign pcm_addr=0;
-    assign snd=0;
-    assign sample=0;
+    assign snd_cs    = 0;
+    assign snd_addr  = 0;
+    assign pcm_addr  = 0;
+    assign psg       = 0;
+    assign vlm       = 0;
+    assign rdac      = 0;
+    assign vlm_rcen  = 0;
+    assign psg_rcen  = 0;
+    assign rdac_rcen = 0;
 `endif
 
 /* verilator tracing_off */

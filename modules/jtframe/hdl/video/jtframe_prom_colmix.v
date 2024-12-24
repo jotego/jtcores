@@ -52,9 +52,11 @@ wire [PROM_AW-1:0] rd_addr;
 wire               prom_we0, prom_we1;
 wire         [7:0] prom0_dout, prom1_dout;
 reg  [PROM_AW-1:0] col_addr;
+wire               blank;
 
 assign prom_we0 = ~prog_addr[PROM_AW] & prom_we;
 assign prom_we1 =  prog_addr[PROM_AW] & prom_we;
+assign blank    = ~(LVBL&LHBL);
 
 always @(posedge clk) if(pxl_cen) begin
     case( lyr_sel )
@@ -77,6 +79,7 @@ always @* begin
 `endif
         end
     endcase
+    if( blank ) {red,green,blue} = 0;
 end
 
 jtframe_prom #(.AW(PROM_AW),.SIMFILE(SIMFILE0)) u_prom0(

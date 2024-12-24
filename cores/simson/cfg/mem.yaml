@@ -10,6 +10,12 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
+audio:
+  rsum: 50k
+  channels:
+    # both FM and PCM are mixed inside K053260, then converted with the same YM3012 DAC
+    # the 0.033MM capacitor in sch. has a 333K mark (physical device). 33nF must be right
+    - { name: snd, module: jt053260, rsum: 50k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 33n } ]}
 sdram:
   banks:
     - buses:
@@ -56,3 +62,9 @@ bram:
     data_width: 8
     rw: true
     addr: main_addr[12:0]
+  # EEROM
+  - name: nv
+    addr_width: 7
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }

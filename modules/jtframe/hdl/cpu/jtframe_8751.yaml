@@ -4,6 +4,9 @@ jtframe:
   - unless: VERILATOR,IVERILOG
     get:
       - cpu/8051/mc8051.yaml
+  - from: ram
+    get:
+      - jtframe_ram_rst.v
 
   # Verilog-only version, good for verilog simulators
   # but compiles slowly

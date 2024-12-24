@@ -1,2 +1,4 @@
-here:
-  - ../mist/target.yaml
+target:
+  - from: mist
+    get:
+      - target.yaml

@@ -1,0 +1,131 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun May  5 15:04:59 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s18/ver/pcm568/test.lxt"
+[dumpfile_mtime] "Sun May  5 10:39:27 2024"
+[dumpfile_size] 9388
+[savefile] "/home/jtejada/jtcores/cores/s18/ver/pcm568/debug.gtkw"
+[timestart] 0
+[size] 1920 1052
+[pos] -1 -1
+*-23.818642 80560000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] test.
+[treeopen] test.uut.
+[treeopen] test.uut.channels[5].
+[sst_width] 223
+[signals_width] 289
+[sst_expanded] 1
+[sst_vpaned_height] 264
+@28
+test.uut.rst[0]
+test.uut.clk[0]
+test.uut.cen[0]
+@200
+-
+@28
+test.uut.mute_n[0]
+test.uut.ch_cen[0]
+test.uut.wr[0]
+@22
+test.uut.addr[12:0]
+@24
+test.uut.chsel[2:0]
+@22
+test.uut.channels[5].u_ch.staddr[7:0]
+test.uut.din[7:0]
+@200
+-
+-
+@c00022
+test.uut.channels[5].u_ch.sa[26:0]
+@28
+(0)test.uut.channels[5].u_ch.sa[26:0]
+(1)test.uut.channels[5].u_ch.sa[26:0]
+(2)test.uut.channels[5].u_ch.sa[26:0]
+(3)test.uut.channels[5].u_ch.sa[26:0]
+(4)test.uut.channels[5].u_ch.sa[26:0]
+(5)test.uut.channels[5].u_ch.sa[26:0]
+(6)test.uut.channels[5].u_ch.sa[26:0]
+(7)test.uut.channels[5].u_ch.sa[26:0]
+(8)test.uut.channels[5].u_ch.sa[26:0]
+(9)test.uut.channels[5].u_ch.sa[26:0]
+(10)test.uut.channels[5].u_ch.sa[26:0]
+(11)test.uut.channels[5].u_ch.sa[26:0]
+(12)test.uut.channels[5].u_ch.sa[26:0]
+(13)test.uut.channels[5].u_ch.sa[26:0]
+(14)test.uut.channels[5].u_ch.sa[26:0]
+(15)test.uut.channels[5].u_ch.sa[26:0]
+(16)test.uut.channels[5].u_ch.sa[26:0]
+(17)test.uut.channels[5].u_ch.sa[26:0]
+(18)test.uut.channels[5].u_ch.sa[26:0]
+(19)test.uut.channels[5].u_ch.sa[26:0]
+(20)test.uut.channels[5].u_ch.sa[26:0]
+(21)test.uut.channels[5].u_ch.sa[26:0]
+(22)test.uut.channels[5].u_ch.sa[26:0]
+(23)test.uut.channels[5].u_ch.sa[26:0]
+(24)test.uut.channels[5].u_ch.sa[26:0]
+(25)test.uut.channels[5].u_ch.sa[26:0]
+(26)test.uut.channels[5].u_ch.sa[26:0]
+@1401200
+-group_end
+@c00022
+test.uut.channels[5].u_ch.fd[15:0]
+@28
+(0)test.uut.channels[5].u_ch.fd[15:0]
+(1)test.uut.channels[5].u_ch.fd[15:0]
+(2)test.uut.channels[5].u_ch.fd[15:0]
+(3)test.uut.channels[5].u_ch.fd[15:0]
+(4)test.uut.channels[5].u_ch.fd[15:0]
+(5)test.uut.channels[5].u_ch.fd[15:0]
+(6)test.uut.channels[5].u_ch.fd[15:0]
+(7)test.uut.channels[5].u_ch.fd[15:0]
+(8)test.uut.channels[5].u_ch.fd[15:0]
+(9)test.uut.channels[5].u_ch.fd[15:0]
+(10)test.uut.channels[5].u_ch.fd[15:0]
+(11)test.uut.channels[5].u_ch.fd[15:0]
+(12)test.uut.channels[5].u_ch.fd[15:0]
+(13)test.uut.channels[5].u_ch.fd[15:0]
+(14)test.uut.channels[5].u_ch.fd[15:0]
+(15)test.uut.channels[5].u_ch.fd[15:0]
+@1401200
+-group_end
+@28
+test.uut.channels[5].u_ch.loop[0]
+@29
+test.uut.channels[5].u_ch.mute[0]
+@28
+test.uut.channels[5].u_ch.sel[0]
+@22
+test.uut.channels[5].u_ch.sanx[26:0]
+@200
+-
+@22
+test.cpu_dout[7:0]
+@c00022
+test.uut.chen_b[7:0]
+@28
+(0)test.uut.chen_b[7:0]
+(1)test.uut.chen_b[7:0]
+(2)test.uut.chen_b[7:0]
+(3)test.uut.chen_b[7:0]
+(4)test.uut.chen_b[7:0]
+(5)test.uut.chen_b[7:0]
+(6)test.uut.chen_b[7:0]
+(7)test.uut.chen_b[7:0]
+@1401200
+-group_end
+@28
+test.uut.chenb_II[0]
+test.uut.mute_n[0]
+@24
+test.uut.chI[2:0]
+test.uut.chII[2:0]
+@22
+test.uut.ram0_dout[7:0]
+test.uut.ram0_addr[15:0]
+test.uut.chsa[215:0]
+test.uut.chsa_II[26:0]
+test.uut.sanx[26:0]
+[pattern_trace] 1
+[pattern_trace] 0

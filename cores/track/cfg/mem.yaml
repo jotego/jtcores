@@ -1,9 +1,11 @@
+include:
+  - file: audio
+    game: sbaskt
 params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
   - { name: SND_OFFSET, value: "`SND_START >> 1" }
   - { name: PCM_OFFSET, value: "`PCM_START >> 1" }
-
 clocks:
   clk24:
     - mul: 1
@@ -16,7 +18,6 @@ clocks:
       outputs:
         - snd
         - psg
-
 download:
   post_addr: true
   post_data: true

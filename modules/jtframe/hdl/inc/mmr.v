@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 20-10-2023 */
 
-module jt{{.Core}}_{{.Name}}_mmr(
+module {{ .Module }}(
     input             rst,
     input             clk,
 
@@ -26,15 +26,15 @@ module jt{{.Core}}_{{.Name}}_mmr(
     input       [7:0] din, {{ if not .Read_only }}
     output reg  [7:0] dout, {{- end }}
     {{ range .Regs }}
-    output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ .Dw }}-1:0]{{end}} {{ .Name }},
+    output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ sub .Dw 1 }}:0]{{end}} {{ .Name }},
     {{- end }}
 
     // IOCTL dump
     input      [{{.AMSB}}:0] ioctl_addr,
-    output reg [ 7:0] ioctl_din,
+    output reg [7:0] ioctl_din,
     // Debug
-    input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    input      [7:0] debug_bus,
+    output reg [7:0] st_dout
 );
 
 parameter SIMFILE="rest.bin",
@@ -59,7 +59,7 @@ always @(posedge clk, posedge rst) begin
         mmr[{{ . }}] <= 0;
         {{- end }}
     `else
-        for(i=0;i<SIZE-1;i++) mmr[i] <= mmr_init[i];
+        for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
     `endif {{ range .Regs }}{{ if .Wr_event }}
     {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
     dout <= 0; {{- end }}
@@ -80,13 +80,19 @@ end
 integer f, fcnt, err;
 reg [7:0] mmr_init[0:SIZE-1];
 initial begin
-    f=$fopen("rest.bin","rb");
+    f=$fopen(SIMFILE,"rb");
     err=$fseek(f,SEEK,0);
+    if( f!=0 && err!=0 ) begin
+        $display("Cannot seek file rest.bin to offset 0x%0X (%0d)",SEEK,SEEK);
+    end
     if( f!=0 ) begin
         fcnt=$fread(mmr_init,f);
-        $display("INFO: Read %d bytes for %m.mmr",fcnt);
+        $display("MMR %m - read %0d bytes from offset %0d",fcnt,SEEK);
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
+        end else begin{{ range .Regs }}{{ if not .Wr_event }}
+            $display("\t{{.Name}} = %X",{ {{range .Chunks}} mmr[{{.Byte}}][{{if eq .Msb .Lsb}}{{.Msb}}{{else}}{{.Msb}}:{{.Lsb}}{{end}}],{{end}}{0{1'b0}}});
+            {{- end }}{{ end }}
         end
     end
     $fclose(f);

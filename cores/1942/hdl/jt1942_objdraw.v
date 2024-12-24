@@ -109,9 +109,9 @@ localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 always @(posedge clk) begin
     V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
     if( bufcnt==4'h9 ) begin // set new address
-        case( game_id )
-            VULGUS:   pre_addr[14:10] <= {1'b0, next_AD[7:4]};
-            HIGEMARU: pre_addr[14:10] <= {2'b0, next_AD[6:4]};
+        case( 1'b1 )
+            vulgus:   pre_addr[14:10] <= {1'b0, next_AD[7:4]};
+            hige:     pre_addr[14:10] <= {2'b0, next_AD[6:4]};
             default:  pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
         endcase
         if( !hige ) begin
@@ -177,10 +177,10 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    case( game_id )
-        VULGUS:   obj_wxyz = {y[3],z[3],w[3],x[3]};
-        HIGEMARU: obj_wxyz = hflip ? {y[0],z[0],w[0],x[0]} : {y[3],z[3],w[3],x[3]};
-        default : obj_wxyz = {w[3],x[3],y[3],z[3]};
+    case( 1'b1 )
+        vulgus:  obj_wxyz = {y[3],z[3],w[3],x[3]};
+        hige:    obj_wxyz = hflip ? {y[0],z[0],w[0],x[0]} : {y[3],z[3],w[3],x[3]};
+        default: obj_wxyz = {w[3],x[3],y[3],z[3]};
     endcase
 end
 

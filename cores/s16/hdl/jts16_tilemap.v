@@ -36,7 +36,6 @@ module jts16_tilemap(
     // CPU interface
     input              dip_pause,
     input              char_cs,
-    input              pal_cs,
     input      [12:1]  cpu_addr,
     input      [15:0]  cpu_dout,
     input      [ 1:0]  dswn,
@@ -113,8 +112,8 @@ parameter MODEL = 1;
 //  leftmost pixel of the screen is $00B6, and the rightmost is $1F5."
 parameter [8:0] HB_END = 9'h0bf;
 
-localparam [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
-localparam [9:0] SCR1_DLY= SCR2_DLY;
+parameter [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
+parameter [9:0] SCR1_DLY= SCR2_DLY;
 
 assign flipx    = flip;
 assign ext_flip = flip;

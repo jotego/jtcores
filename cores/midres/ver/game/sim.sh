@@ -33,10 +33,10 @@ if [ -n "$SCENE" ]; then
     dd if=$SNAP of=ba2.bin bs=16 skip=$(printf "%d" 0xf82) count=1
     dd if=$SNAP of=prisel.bin bs=1 skip=$(printf "%d" 0xf830) count=1
     # only support for pal + objects
-    cat pal.bin | drop1    > pal_hi.bin
-    cat pal.bin | drop1 -l > pal_lo.bin
-    cat obj.bin | drop1    > obj_hi.bin
-    cat obj.bin | drop1 -l > obj_lo.bin
+    cat pal.bin | jtutil drop1    > pal_hi.bin
+    cat pal.bin | jtutil drop1 -l > pal_lo.bin
+    cat obj.bin | jtutil drop1    > obj_hi.bin
+    cat obj.bin | jtutil drop1 -l > obj_lo.bin
 
     OTHER="$OTHER -d NOSOUND -d NOMAIN -w -video 2 -zoom"
 else

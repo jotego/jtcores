@@ -65,8 +65,8 @@ assign sample  = 0;
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
 assign irq_ack = /*!m1_n && */ !iorq_n;
 assign main_int5 = intset_cs;
-assign snd_l = { snd_dacl[7], snd_dacl, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
-assign snd_r = { snd_dacr[7], snd_dacr, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
+assign snd_l = { 1'b0, snd_dacl, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
+assign snd_r = { 1'b0, snd_dacr, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
 
 always @* begin
     ram_cs    = !mreq_n && cpu_addr[15:14]==0;

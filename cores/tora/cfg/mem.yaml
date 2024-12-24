@@ -2,6 +2,15 @@ params:
   - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA1_START)>>1" }
   - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA2_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
+audio:
+  rsum: 39k
+  missing_info: true  # rsum unknown for all pieces due to unmarked resistor array and resistor
+  channels:
+    - { name: fm0,  module: jt03_fm,  rsum: 39k, rc: [{ r:1rout, c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 39k, rc: [{ r:1rout, c: 1n }]}
+    - { name: psg0, module: jt03_psg, rsum: 56k }
+    - { name: psg1, module: jt03_psg, rsum: 56k }
+    - { name: pcm,  module: jt5205,   rsum: 56k, rc: [{r: 10k, c: 22n}, {r: 25k, c: 6.8n}]} # eq. filter, unknown RSUM see https://github.com/jotego/jtcores/issues/576
 sdram:
   banks:
     - buses:

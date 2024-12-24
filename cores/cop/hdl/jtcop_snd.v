@@ -22,10 +22,6 @@ module jtcop_snd(
     input                cen_opn,
     input                cen_opl,
 
-    input                enable_psg,
-    input                enable_fm,
-    input         [ 1:0] fxlevel,
-
     // From main CPU
     input                snreq,  // sound interrupt from main CPU
     input         [ 7:0] latch,
@@ -43,9 +39,9 @@ module jtcop_snd(
     input         [ 7:0] adpcm_data,
     input                adpcm_ok,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    output signed [15:0] opn, opl,
+    output signed [13:0] pcm,
+    output        [ 9:0] psg,
 
     output        [ 7:0] status
 );
@@ -182,7 +178,7 @@ jtframe_ram #(.AW(11)) u_ram(
     .q      ( ram_dout      )
 );
 
-jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
+jtcop_ongen u_ongen(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_opn    ( cen_opn       ),
@@ -203,18 +199,16 @@ jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
     .oki_wrn    ( oki_wrn       ),
     .oki_dout   ( oki_dout      ),
 
-    .enable_psg ( enable_psg    ),
-    .enable_fm  ( enable_fm     ),
-    .fxlevel    ( fxlevel       ),
     // ADPCM ROM
     .adpcm_addr ( adpcm_addr    ),
     .adpcm_cs   ( adpcm_cs      ),
     .adpcm_data ( adpcm_data    ),
     .adpcm_ok   ( adpcm_ok      ),
 
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( peak          )
+    .opn        ( opn           ),
+    .opl        ( opl           ),
+    .pcm        ( pcm           ),
+    .psg        ( psg           )
 );
 
 `else
@@ -222,9 +216,10 @@ jtcop_ongen #(.KARNOV(KARNOV)) u_ongen(
     assign  rom_addr   = 0;
     assign  adpcm_addr = 0;
     assign  adpcm_cs   = 0;
-    assign  snd        = 0;
-    assign  sample     = 0;
-    assign  peak       = 0;
+    assign  opn        = 0;
+    assign  opl        = 0;
+    assign  pcm        = 0;
+    assign  psg        = 0;
     assign  status     = 0;
     initial snd_bank   = 0;
 `endif

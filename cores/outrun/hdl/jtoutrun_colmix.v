@@ -112,7 +112,7 @@ always @(posedge clk) if(pxl_cen) begin
     shadowl  <= shadow;
     objl     <= obj_pxl;
 
-    gated <= //!video_en ? 15'd0 :
+    gated <= !video_en ? 15'd0 :
          !shadowl     ? { rpal, gpal, bpal }                      : // no shade effect
           pal_out[15] ? { light(rpal), light(gpal), light(bpal) } : // brighter
                         { dim(rpal), dim(gpal), dim(bpal) };        // dimmer
@@ -122,10 +122,12 @@ always @(*) begin
     // This equation has the shadow term added. It isn't in the
     // original equation. So I may be interpreting some of the terms
     // wrong. Active high/low in PAL equations can be confusing...
-    muxsel = !fix && (
-            ((objl[3:0]==4'h0 || shadow)  && (!rc[3] || (!sa && !sb) )) ||
-            ( objl[11:10]==2'b01 && objl[3:0]==4'b1010 )); // using the signal polarity in the
-                // original equation breaks the columns in stage 2 left
+    muxsel = !fix && ((objl[3:0]==4'h0 || shadow)  && (!rc[3] || (!sa && !sb) ));
+            // the pen for transparency is not clear
+            // using the signal polarity in the original equation
+            // breaks the columns in stage 2 left
+            // 0 or 1111 seems to work
+            //  || ( objl[11:10]==2'b01 && objl[3:0]==4'b1111 /*debug_bus[3:0]*/ ));
     pre_addr = muxsel ? { 2'b01, {3{rd_pxl[7]}}, rd_pxl[6:0] } :
           (sa | sb | fix ) ? { 1'b0, tmap_addr }:
                               { 1'b1, objl[13:7], objl[3:0]}; // skips the shadow and priority bits

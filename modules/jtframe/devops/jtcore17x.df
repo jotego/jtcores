@@ -1,6 +1,0 @@
-FROM jotego/jtcore17
-LABEL maintainer=jotego@gmail.com
-
-COPY xjtcore.sh /usr/bin
-RUN chmod +x /usr/bin/xjtcore.sh
-ENTRYPOINT ["bash"]

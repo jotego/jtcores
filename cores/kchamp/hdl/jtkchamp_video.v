@@ -47,13 +47,13 @@ module jtkchamp_video(
     input               prom_we,
 
     // Scroll
-    output       [13:0] char_addr,
+    output       [14:1] char_addr,
     input        [15:0] char_data,
     input               char_ok,
     output              char_cs,
 
     // Objects
-    output       [14:0] obj_addr,
+    output       [16:2] obj_addr,
     input        [31:0] obj_data,
     output              obj_cs,
     input               obj_ok,

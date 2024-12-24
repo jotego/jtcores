@@ -78,9 +78,7 @@ module jtflane_main(
     input               pcmd_ok,
 
     // Sound
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [11:0] pcm0, pcm1
 );
 
 wire [ 7:0] prot_dout, ram_dout;
@@ -92,12 +90,10 @@ reg  [ 1:0] bank;
 reg         pcm_msb, pcm0_cs, pcm1_cs;
 reg  [ 7:0] port_in, cpu_din, cabinet;
 wire        VMA, cen_fm;
-wire signed [11:0] pcm0_snd, pcm1_snd;
 
 assign irq_trigger = ~gfx_irqn & dip_pause;
 assign cpu_rnw     = RnW;
 assign gfx_addr    = A[13:0];
-assign sample      = 0;
 
 assign pcmc_addr[18:17] = {1'b0, pcm_msb};
 assign pcmd_addr[18:17] = {1'b1, pcm_msb};
@@ -244,7 +240,7 @@ jt007232 #(.INVA0(1)) u_pcm0(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm0_snd  ),
+    .snd        ( pcm0      ),
     // debug bus
     .debug_bus  ( 8'd0      ),
     .st_dout    (           )
@@ -277,32 +273,15 @@ jt007232 #(.INVA0(1)) u_pcm1(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm1_snd  ),
+    .snd        ( pcm1      ),
     // debug
     .debug_bus  ( 8'd0      ),
     .st_dout    (           )
 );
 
-jtframe_mixer #(.W0(12),.W1(12)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen3      ),
-    // input signals
-    .ch0    ( pcm0_snd  ),
-    .ch1    ( pcm1_snd  ),
-    .ch2    (           ),
-    .ch3    (           ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h0C     ),
-    .gain1  ( 8'h0C     ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
 `else
-    assign snd     = 0;
-    assign peak    = 0;
+    assign pcm0    = 0;
+    assign pcm1    = 0;
     assign pcma_cs = 0;
     assign pcmb_cs = 0;
     assign pcmc_cs = 0;

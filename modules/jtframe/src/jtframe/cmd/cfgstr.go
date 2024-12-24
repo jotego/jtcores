@@ -45,7 +45,7 @@ func init() {
 	rootCmd.AddCommand(cfgstrCmd)
 	flag := cfgstrCmd.Flags()
 
-	flag.StringVarP(&cfg.Target, "target", "t", "mist", "Target platform (mist, mister, sidi, neptuno, mc2, mcp, pocket, sockit, de1soc, de10std)")
+	flag.StringVarP(&cfg.Target, "target", "t", "mist", "Target platform (mist, mister, sidi, sidi128, neptuno, mc2, mcp, pocket, sockit, de1soc, de10std)")
 	flag.StringVar(&cfg.Deffile, "parse", "", "Path to .def file")
 	flag.StringVar(&cfg.Template, "tpl", "", "Path to template file")
 	flag.StringVar(&cfg.Commit, "commit", "nocommit", "Commit ID")

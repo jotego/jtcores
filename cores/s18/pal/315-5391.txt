@@ -1,0 +1,16 @@
+
+o12 = A13 & A15
+
+PCMCE = A14 & A15
+
+/SNDRAM = A13 & A14 & A15
+
+/o15 = /A13 & A14 & A15 & MREQ
+
+/o16 = A5 & A6 & A7 & /M1 & IORQ
+
+/o17 = /A5 & A6 & A7 & /M1 & IORQ
+
+/SBANK = A5 & /A6 & A7 & /M1 & IORQ & IOWR
+/FMCS = /A5 & /A6 & A7 & /M1 & IORQ
+

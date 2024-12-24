@@ -1,0 +1,53 @@
+audio:
+  rc: { r: 2k, c: 10n }
+  channels:
+    - { name: psg0, module: jt49, rsum: 22k }
+    - { name: psg1, module: jt89, rsum: 10k }
+    - { name: psg2, module: jt89, rsum: 10k }
+
+params:
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA2_START)>>1" }
+  - { name: MAP2_OFFSET, value: "(`MAP2_START-`JTFRAME_BA2_START)>>1" }
+  - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA3_START)>>1" }
+  - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
+download:
+  pre_addr:  true
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    - buses:
+      - name: map1
+        addr_width: 14
+        data_width: 8
+      - name: map2
+        addr_width: 13
+        data_width: 16
+        offset: MAP2_OFFSET
+      - name: char
+        addr_width: 14
+        data_width: 16
+        cs: LVBL
+        offset: CHAR_OFFSET
+    - buses:
+      - name: scr1
+        addr_width: 15
+        data_width: 32
+        cs: LVBL
+      - name: scr2
+        addr_width: 14
+        data_width: 32
+        cs: LVBL
+        offset: SCR2_OFFSET
+      - name: obj
+        addr_width: 15
+        data_width: 16
+        cs: 1'b1
+        offset: OBJ_OFFSET

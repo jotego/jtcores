@@ -1,0 +1,79 @@
+params:
+  - { name: B0_OFFSET,   value: "22'h2000"     }
+  - { name: B1_OFFSET,   value: "22'h4000"     }
+  - { name: B2_OFFSET,   value: "22'h6000"     }
+  - { name: GFX2_OFFSET, value: "`GFX2_OFFSET" }
+  - { name: GFX3_OFFSET, value: "`GFX3_OFFSET" }
+  - { name: MCU_OFFSET,  value: "`MCU_OFFSET"  }
+  - { name: SND_OFFSET,  value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+download:
+  post_addr: true
+  post_data: true
+audio:
+  rsum: 20k
+  channels:
+    - { name: opn, module: jt03_fm,  rsum: 56k }
+    - { name: opl, module: jtopl2,   rsum: 56k }
+    - { name: psg, module: jt03_psg, rsum: 66k, vpp: 0.45 } # adding load resistor (10k) to ground
+    # 10 kOHm at the LPF output, another 10k on the summing node
+    - { name: pcm, module: jt6295,   rsum: 20k, fir: fir_192k_4k.csv } # equivalent filter
+sdram:
+  banks:
+    - buses:
+      - name: ram
+        addr_width: 16
+        data_width: 16
+        dsn: dsn
+        din: main_dout
+        rw: true
+      - name: ba2mcu
+        addr_width: 14
+        data_width: 16
+        rw: true
+        offset: B2_OFFSET
+      - name: b0ram
+        addr_width: 14
+        data_width: 16
+        offset: B0_OFFSET
+      - name: b1ram
+        addr_width: 14
+        data_width: 16
+        offset: B1_OFFSET
+      - name: b2ram
+        addr_width: 14
+        data_width: 16
+        offset: B2_OFFSET
+    - buses:
+      - name: main
+        addr_width: 19
+        data_width: 16
+        din: main_dout
+      - name: snd
+        addr_width: 16
+        data_width: 8
+        offset: SND_OFFSET
+      - name: adpcm
+        addr_width: 18
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: b0rom
+        addr_width: 19
+        data_width: 32
+      - name: b1rom
+        addr_width: 19
+        data_width: 32
+        offset: GFX2_OFFSET
+      - name: b2rom
+        addr_width: 19
+        data_width: 32
+        offset: GFX3_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 19
+        data_width: 32
+      - name: mcu
+        addr_width: 16
+        data_width: 8
+        offset: MCU_OFFSET

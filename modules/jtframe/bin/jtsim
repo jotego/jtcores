@@ -45,6 +45,7 @@ MACROPREFIX=+define+
 # All command line macros separated by commas, this is used
 # in calls to jtframe
 ALLMACROS=
+BATCH=
 VERILATOR_SAFE=
 EXTRA=
 SHOWCMD=
@@ -56,6 +57,7 @@ MACOS=NO
 KEEP_FX68K=
 SED="sed -i"
 SHAUP=
+FRAMERATE=
 START_TIME=$(date +%s)
 UNDEF=
 FAST=
@@ -84,9 +86,11 @@ JTFRAME simulation tool. (c) Jose Tejada 2019-2022, @topapate
 Please support the development: https://patreon.com/jotego
 
     -args      Additional arguments for the simulator
+    -batch     Tells jtsim that it is being run by a batch process
     -d         Add specific Verilog macros for the simulation.
                Call jtmacros to display all macros.
-    -dbgbus x  Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
+    -debug_bus x
+               Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
     -dir       Create directory for the simulation. Use with -setname
     -deep      Save all signals for scope verification. See -w below.
     -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
@@ -100,16 +104,20 @@ Please support the development: https://patreon.com/jotego
                the matching file automatically
     -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
     -frame     Number of frames to simulate
+    -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
     -gates     Gate-level simulation
     -fx68k     Keep FX68K files for Icarus Verilog
     -inputs    Defines SIM_INPUTS macro:
-               Game cabinet inputs will be taken from a sim_inputs.hex
-               file. Each line contains a byte with the input status.
+               Game cabinet inputs will be taken from sim_inputs.hex or
+               from the file name after -inputs. Note that in if you specify
+               a file, then sim_inputs.hex will get overwritten with that file.
+
+               Each line contains a byte with the input status.
                All bits are read as active high. They are inverted
                if necessary by JTFRAME logic,
                The format is:
                bit  |  Meaning
-               3:0  | { start[1:0], coin[1:0] }
+               3:0  | { start[1:0], service, coin[0] }
                7:4  | joystick for 1P
                     | UP, DOWN, LEFT, RIGHT
                10:8 | buttons
@@ -151,6 +159,16 @@ Please support the development: https://patreon.com/jotego
                is written after -w, the dump will start at that frame
     -zoom      Enlarge output images
 EOF
+}
+
+function has_parent {
+    p=`pwd`
+    while [ "$p" != "/" ]; do
+        parent=$(dirname "$p")
+        if [ $(basename "$parent") = "$1" ]; then return 0; fi
+        p=$parent
+    done
+    return 1
 }
 
 function clean_up {
@@ -281,13 +299,19 @@ function set_mist_as_target {
 }
 
 function set_zoom {
-    export CONVERT_OPTIONS="-resize 200%x200% $CONVERT_OPTIONS"
+    export CONVERT_OPTIONS="-filter point -resize 200% $CONVERT_OPTIONS"
 }
+
+if ! has_parent ver; then
+    echo "jtsim must be called from within the ver folder of the core"
+    exit 1
+fi
 
 while [ $# -gt 0 ]; do
 case "$1" in
     -args) shift; SIMULATOR_EXTRA="$SIMULATOR_EXTRA $1";;
-    -dbgbus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
+    -batch) BATCH=1;;
+    -debug_bus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
     -sysname) shift;; # ignore here
@@ -314,7 +338,7 @@ case "$1" in
         ;;
     -dipsw)
         shift
-        if [ -e $ROM/$1.dip ]; then
+        if [ -s $ROM/$1.dip ]; then
             echo "Using rom/$1.dip"
             add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$1.dip)
         else
@@ -330,8 +354,15 @@ case "$1" in
         fi
         ;;
     -fast) FAST=1;;
+    -frate)
+        shift
+        FRAMERATE=$1
+        add_macro JTFRAME_SIM_VIDEO;;
     -inputs)
-        if [ ! -e sim_inputs.hex ]; then
+        if [[ $2 != -* ]]; then
+            shift
+            cp $1 sim_inputs.hex
+        elif [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
             exit 1
         fi
@@ -391,14 +422,15 @@ case "$1" in
         if [ ! -e "$SCENE" ]; then
             SCENE="scenes/$SCENE"
         fi
-        if [[ -e "$SCENE" && -x dump2bin.sh ]]; then
-            dump2bin.sh "$SCENE" 2> /dev/null
+        if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
+            ../game/dump2bin.sh "$SCENE" 2> /dev/null
             add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
             set_zoom
             rm -rf video.bin frame_*.jpg frame.raw frames
             VIDEO_DUMP=TRUE
         else
-            echo "ignoring -scene in jtsim as scene file $SCENE or dump2bin.sh were not found"
+            echo "Scene file $SCENE or dump2bin.sh were not found"
+            exit 1
         fi
         ;;
     -shaup) SHAUP=1;;
@@ -470,7 +502,7 @@ require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
-if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
+if [[ -z "$SETNAME" && -s $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
     AUX=$(basename `pwd`)
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
     if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi
@@ -484,7 +516,7 @@ if [ ! -z "$SETNAME" ]; then
         cd "$SETNAME"
     fi
     if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
-    if [ -e $ROM/$SETNAME.dip ]; then
+    if [ -s $ROM/$SETNAME.dip ]; then
         if ! has_macro JTFRAME_SIM_DIPS; then
             # Not all systems have DIPs
             DIPS=`cat $ROM/$SETNAME.dip`
@@ -495,7 +527,8 @@ if [ ! -z "$SETNAME" ]; then
     if [ ! -e $ROMFILE ]; then
         cat<<EOF
 jtsim: cannot produce $ROMFILE"
-    This may occur if the setname is long than 8 characters
+    This may occur if the setname is longer than 8 characters or
+    if you are not in the core folder for the game
 EOF
         exit 1
     fi
@@ -596,18 +629,17 @@ for i in $CORES/$SYSNAME/hdl/*.hex; do
     fi
 done
 
-if [ -e $MODULES/fx68k ]; then
-    # These files are read by the FX68K module but they must be in the
-    # simulation folder. Forgetting to have them there results in X everywhere
-    ln -sfr $MODULES/fx68k/microrom.mem
-    ln -sfr $MODULES/fx68k/nanorom.mem
-fi
-
 if [ $GATES = NO ]; then
     # Prepare all file lists
     jtframe mem $SYSNAME --target "$TARGET" --local || exit $?
     jtframe mmr $SYSNAME || exit $?
     jtframe files sim $SYSNAME --rel --local --target "$TARGET" --macro "$ALLMACROS" || exit $?
+    if grep --quiet fx68k game.f; then
+        # These files are read by the FX68K module but they must be in the
+        # simulation folder. Forgetting to have them there results in X everywhere
+        ln -sfr $MODULES/fx68k/microrom.mem
+        ln -sfr $MODULES/fx68k/nanorom.mem
+    fi
     # Remove duplicated lines
     rm -f tmp.f
     rm -f game_env.f
@@ -660,9 +692,13 @@ mist_dump.v \
     FILES=
 fi
 
-# Link to hex filters in JTFRAME as needed
+# Link to hex filters in module files as needed
 if grep -q jtframe_jt49_filters filtered.f; then
     ln -srf $JTFRAME/hdl/sound/firjt49.hex
+fi
+
+if grep -q jt6295 filtered.f; then
+    for i in $MODULES/jt6295/hdl/*.hex; do ln -srf $i; done
 fi
 
 # These tools use the same names for their executables, so the
@@ -823,11 +859,18 @@ if [ ! -z "$SETNAME" ]; then
 fi
 
 if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
-    FRAMERATE=30
-    if has_macro JTFRAME_SIM_VIDEO; then FRAMERATE=60; fi
+    if [ -z "$FRAMERATE" ]; then
+        FRAMERATE=30
+        echo "Define and export FRAMERATE"
+        if has_macro JTFRAME_SIM_VIDEO; then
+            FRAMERATE=60;
+        elif [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 2000 ]; then
+            echo "Large number of frames... maybe enable JTFRAME_SIM_VIDEO to create a full video"
+        fi
+    fi
     ffmpeg -y -framerate $FRAMERATE \
         -pattern_type glob -i frames/'frame_*.jpg' \
-        -i snd.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
+        -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
         -pix_fmt yuv420p test.mp4 > /dev/null
 fi
 
@@ -839,9 +882,14 @@ SECONDS=$[$COMPILE_TIME % 60]
 
 echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 
-# Open the image viewer for scene sims
-if which eom > /dev/null; then
-    if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
-        eom frames/frame_00001.jpg &
+if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
+    if [ ! -z "$BATCH" ]; then
+        SCNNUM=$(basename $(dirname $SCENE))
+        set -v
+        mv `ls frames/frame_*.jpg | tail -n 1` `dirname $SCENE`/$SCNNUM.jpg
+        set +v
+    elif which eom > /dev/null; then
+        # Open the image viewer for scene sims
+        eom `ls frames/frame_*.jpg | tail -n 1` &
     fi
 fi

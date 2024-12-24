@@ -5,7 +5,6 @@ params:
   - { name: GFX1_OFFSET, value: "`GFX1_START>>1" }
   - { name: GFX2_OFFSET, value: "`GFX2_START>>1" }
   - { name: PCM_OFFSET,  value: "`PCM_START >>1" }
-
 clocks:
   clk24:
     - freq: 3000000
@@ -18,6 +17,9 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
+audio:
+  channels:
+    - { name: fm, module: jt51, rsum: 2k, rc: [{r: rout, c: 3.3n}, {r: 666, c: 33n }]}
 sdram:
   banks:
     - buses:

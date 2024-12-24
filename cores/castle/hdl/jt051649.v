@@ -27,7 +27,7 @@ module jt051649(
     input         [15:0] addr,
     input         [ 7:0] din,
     output        [ 7:0] dout,
-    output reg signed [10:0] snd    // Do not clamp at this level
+    output reg signed [11:0] snd
 );
 
 wire [ 8:0] cfg_dout, pre_dout;
@@ -47,9 +47,10 @@ reg  [ 8:0] cfg_din;
 
 wire signed [ 7:0] wav;
 wire signed [ 4:0] vol_sex;
-reg  signed [10:0] acc;
+reg  signed [11:0] acc;
 reg  signed [11:0] acc_nx;
 reg  signed [12:0] chsnd;
+reg                ov;
 
 `ifdef SIMULATION
 reg cenl=0;
@@ -114,9 +115,8 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    acc_nx  = {acc[10], acc } + { chsnd[12], chsnd[12:2] };
-    // limiter
-    if( acc_nx[11]^acc_nx[10] ) acc_nx = { acc_nx[11], {11{~acc_nx[11]}} };
+    acc_nx =  acc + {chsnd[12],chsnd[12:2]};
+    ov = &{acc[11],chsnd[12],~acc_nx[11]} | &{~acc[11],~chsnd[12],acc_nx[11]};
     nx_cnt = {cfg_dout[3:0],cnt[7:0]}+12'd5;
     if( nx_cnt >= freq ) begin
         sinc = 1;
@@ -181,10 +181,10 @@ always @(posedge clk, posedge rst) begin
             7: begin
                 ch <= ch==4 ? 3'd0 : ch+1'd1;
                 if( ch==0 ) begin
-                    acc <= chsnd[12:2];
+                    acc <= { chsnd[12], chsnd[12:2] };
                     snd <= acc;
                 end else if(ch<5) begin
-                    acc <= acc_nx[10:0];
+                    acc <= ov ? { acc[11], {11{~acc[11]}}} : acc_nx;
                 end
             end
         endcase

@@ -43,7 +43,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jt89 u_jt89_0(
+jt89 #(.MODE(2) `ifdef JTFRAME_RELEASE ,.INTERPOL16(1) `endif  )u_jt89_0(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .clk_en ( cen       ),
@@ -54,7 +54,7 @@ jt89 u_jt89_0(
     .ready  ( rdy[0]    )
 );
 
-jt89 u_jt89_1(
+jt89 #(.MODE(1) `ifdef JTFRAME_RELEASE ,.INTERPOL16(1) `endif)u_jt89_1(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .clk_en ( cen       ),

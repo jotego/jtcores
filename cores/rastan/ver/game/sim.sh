@@ -21,10 +21,10 @@ for i in $*; do
 done
 
 if [ -n "$SCENE" ]; then
-    cat $SCENE/pal.bin | drop1    > pal_lo.bin
-    cat $SCENE/pal.bin | drop1 -l > pal_hi.bin
-    cat $SCENE/oram.bin | drop1    > obj_lo.bin
-    cat $SCENE/oram.bin | drop1 -l > obj_hi.bin
+    cat $SCENE/pal.bin | jtutil drop1    > pal_lo.bin
+    cat $SCENE/pal.bin | jtutil drop1 -l > pal_hi.bin
+    cat $SCENE/oram.bin | jtutil drop1    > obj_lo.bin
+    cat $SCENE/oram.bin | jtutil drop1 -l > obj_hi.bin
     dd if=$SCENE/vram.bin of=sdram_bank0.bin conv=notrunc seek=$((2176*2))
 fi
 

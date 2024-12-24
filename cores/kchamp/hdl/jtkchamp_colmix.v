@@ -52,7 +52,7 @@ always @(posedge clk) begin
         { red, green, blue } <= (LVBL && LHBL) ? {pr,pg,pb} : 12'd0;
         mux <= { mux_sel, mux_sel ? char_pxl : {1'b0, obj_pxl} };
     end else begin
-        cnt <= cnt+1;
+        cnt <= cnt+2'd1;
         if(cnt==1) pr <= pal_dout;
         if(cnt==2) pg <= pal_dout;
         if(cnt==3) pb <= pal_dout;

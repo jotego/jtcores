@@ -1,5 +1,5 @@
 [global]
-mraauthor=["jotego"]
+author=["jotego"]
 
 [parse]
 sourcefile=[ "hyperspt.cpp" ]
@@ -21,6 +21,13 @@ rename = [
     { name="After Last Event", To="After ending"},
     { name="World Records", To="Records"},
     { name="Number of Opponents", To ="Other cars"}
+]
+
+[header]
+info = """ Header to identify the game"""
+data = [
+    { machine="roadf",    offset=0, data="00" },
+    { machine="hyperspt", offset=0, data="01" },
 ]
 
 [ROM]

@@ -37,9 +37,8 @@ module jtkunio_sound(
     input             pcm_ok,
 
     // Sound output
-    output signed [15:0] sound,
-    output               sample,
-    output               peak
+    output signed [11:0] pcm,
+    output signed [15:0] fm
 );
 `ifndef NOSOUND
 wire        [ 7:0] cpu_dout, ram_dout, fm_dout;
@@ -51,8 +50,6 @@ reg                ram_cs, latch_cs, fm_cs,
                    oki_s, pcm_rst;
 reg         [13:0] pcm_cnt;
 wire               cen_fm;
-wire signed [11:0] pcm_snd, pcm_raw;
-wire signed [15:0] fm_snd;
 wire               pcm_sample;
 reg         [ 1:0] pcm_msb, pcm_enc;
 reg                ctrl_cs;
@@ -68,26 +65,8 @@ assign cen_fm   = cen3;
 assign pcm_addr = { ~pcm_ce[2] ? 2'd2 : ~pcm_ce[1] ? 2'd1 : 2'd0,
                     pcm_msb, pcm_cnt[13:1] };
 
-localparam [7:0] FMGAIN  = 8'h18,
-                 PCMGAIN = 8'h0C;
-
-jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
-    .rst    ( rst           ),
-    .clk    ( clk           ),
-    .cen    ( cen_fm        ),
-    // input signals
-    .ch0    ( fm_snd        ),
-    .ch1    ( pcm_snd       ),
-    .ch2    (               ),
-    .ch3    (               ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FMGAIN        ),
-    .gain1  ( PCMGAIN       ),
-    .gain2  ( 8'h00         ),
-    .gain3  ( 8'h00         ),
-    .mixed  ( sound         ),
-    .peak   ( peak          )
-);
+// localparam [7:0] FMGAIN  = 8'h18,
+//                  PCMGAIN = 8'h0C;
 
 always @(*) begin
     rom_cs    = A[15];
@@ -198,8 +177,8 @@ jtopl2 u_opl(
     .wr_n   ( cpu_rnw   ),
     .dout   ( fm_dout   ),
     .irq_n  ( firq_n    ),
-    .snd    ( fm_snd    ),
-    .sample ( sample    )
+    .snd    ( fm        ),
+    .sample (           )
 );
 
 jt5205 #(.INTERPOL(0)) u_decod(
@@ -208,22 +187,14 @@ jt5205 #(.INTERPOL(0)) u_decod(
     .cen    ( cen_oki   ),
     .sel    ({oki_s,1'b0}),
     .din    ( pcm_din   ),
-    .sound  ( pcm_raw   ),
+    .sound  ( pcm       ),
     .irq    ( pcm_sample),
     // unused
     .vclk_o ( pcm_cen   ),
     .sample (           )
 );
 
-jtframe_dcrm #(.SW(12),.SIGNED_INPUT(1)) u_dcrm (
-    .rst    ( rst           ),
-    .clk    ( clk           ),
-    .sample ( pcm_sample    ),
-    .din    ( pcm_raw       ),
-    .dout   ( pcm_snd       )
-);
 `else
-    assign sample   = 0;
     assign peak     = 0;
     assign sound    = 0;
     assign pcm_cs   = 0;

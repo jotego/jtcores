@@ -224,7 +224,6 @@ jtframe_dual_ram #(.AW(11)) u_shared(
     .q1     ( shd_dout  )
 );
 
-`ifndef VERILATOR
 HUC6280 u_huc(
     .CLK        ( clk       ),
     .RST_N      ( ~rst      ),
@@ -256,13 +255,5 @@ HUC6280 u_huc(
     .AUD_LDATA  (           ),
     .AUD_RDATA  (           )
 );
-`else
-assign A=0;
-assign dout=0;
-assign SX=0;
-assign wrn=1;
-assign rdn=1;
-assign ce=1;
-`endif
 
 endmodule

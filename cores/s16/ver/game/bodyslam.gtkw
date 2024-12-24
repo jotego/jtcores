@@ -1,0 +1,38 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu Feb  1 20:15:41 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s16/ver/game/test.fst"
+[dumpfile_mtime] "Thu Feb  1 20:14:22 2024"
+[dumpfile_size] 75421605
+[savefile] "/home/jtejada/jtcores/cores/s16/ver/game/bodyslam.gtkw"
+[timestart] 645868100000
+[size] 1920 1052
+[pos] -1 -1
+*-24.192955 645873180000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.
+[sst_width] 223
+[signals_width] 258
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@28
+TOP.game_test.u_game.rst
+@23
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.u_ramu.addr[6:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.u_ramu.cen
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.u_ramu.clk
+@22
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.u_ramu.data[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.u_ramu.we
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.rst
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_ramu.rstl
+[pattern_trace] 1
+[pattern_trace] 0

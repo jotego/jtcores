@@ -25,6 +25,16 @@ clocks:
       outputs:
         - mcu_cen12
         - mcu_cen6
+audio:
+  channels:
+    # the sound circuitry is all messed up in the schematics:
+    # - too much gain for PCM
+    # - no antialiasing filter
+    # - too much filtering for FM
+    # I am assuming using a more sensible circuit here:
+    - { name: pcm_a, module: jt5205, rsum: 40k, rc: [{ r: 10k, 4n }] }
+    - { name: pcm_b, module: jt5205, rsum: 40k, rc: [{ r: 10k, 4n }] }
+    - { name: fm,    module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }]}
 sdram:
   banks:
     - buses:

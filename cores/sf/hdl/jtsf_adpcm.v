@@ -31,11 +31,10 @@ module jtsf_adpcm(
 
     // Sound output
     output          sample,
-    output signed [12:0] snd
+    output signed [11:0] pcm0, pcm1
 );
 
 // ADPCM CPU
-wire signed [11:0] snd0, snd1, base0, base1;
 wire        [15:0] A;
 reg         [ 7:0] din;
 wire        [ 7:0] dout;
@@ -91,30 +90,8 @@ end
 wire       irq_st, irq0, irq1;
 wire [1:0] fsel = 2'b10; // 8kHz
 reg  [5:0] cencnt;
-wire       base_sample;
-wire signed [12:0] ac_mix;
 
 assign     irq_st = irq0; // | irq1;
-/*
-jtframe_dcrm #(.SW(12)) u_rm0 (
-    .rst    ( rst         ),
-    .clk    ( clk         ),
-    .sample ( base_sample ),
-    .din    ( base0       ),
-    .dout   ( snd0        )
-);
-
-jtframe_dcrm #(.SW(12)) u_rm1 (
-    .rst    ( rst         ),
-    .clk    ( clk         ),
-    .sample ( base_sample ),
-    .din    ( base1       ),
-    .dout   ( snd1        )
-);
-*/
-assign snd0 = base0;
-assign snd1 = base1;
-assign ac_mix = { snd0[11], snd0 } + { snd1[11], snd1 };
 
 jt5205 #(.INTERPOL(0)) u_adpcm0(
     .rst        ( pcm0_rst      ),
@@ -122,9 +99,9 @@ jt5205 #(.INTERPOL(0)) u_adpcm0(
     .cen        ( cenp384       ),
     .sel        ( fsel          ),
     .din        ( pcm0_data     ),
-    .sound      ( base0         ),
+    .sound      ( pcm0          ),
     .irq        ( irq0          ),
-    .sample     ( base_sample   ),
+    .sample     ( sample        ),
     .vclk_o     (               )
 );
 
@@ -134,25 +111,10 @@ jt5205 #(.INTERPOL(0)) u_adpcm1(
     .cen        ( cenp384       ),
     .sel        ( fsel          ),
     .din        ( pcm1_data     ),
-    .sound      ( base1         ),
+    .sound      ( pcm1          ),
     .sample     (               ),
     .irq        ( irq1          ),
     .vclk_o     (               )
-);
-
-wire signed [15:0] snd_fir;
-
-assign snd = snd_fir[15:3];
-
-jtframe_uprate2_fir u_upsample2(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .sample     ( base_sample       ),
-    .upsample   ( sample            ),
-    .l_in       ( { ac_mix, 3'd0 }  ),
-    .r_in       ( 16'd0             ),
-    .l_out      ( snd_fir           ),
-    .r_out      (                   )
 );
 
 reg last_irq_st;
@@ -191,21 +153,5 @@ jtframe_z80_romwait u_cpu(
     .rom_cs     ( rom2_cs     ),
     .rom_ok     ( rom2_ok     )
 );
-/*
-jtframe_mixer #(.W0(12),.W1(12),.WOUT(13)) u_mixer(
-    .clk    ( clk       ),
-    .cen    ( cenp384   ),
-    // input signals
-    .ch0    ( snd0      ),
-    .ch1    ( snd1      ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h10     ),
-    .gain1  ( 8'h10     ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       )
-);
-*/
+
 endmodule

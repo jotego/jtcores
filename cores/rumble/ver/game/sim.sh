@@ -26,10 +26,10 @@ if [ -n "$SCENE" ]; then
         echo Cannot find scene folder "$SCENE"
         exit 1
     fi
-    cat $SCENE/char.bin | drop1    >  char_lo.bin
-    cat $SCENE/char.bin | drop1 -l >  char_hi.bin
-    cat $SCENE/scr.bin | drop1 -l  > scr1_lo.bin
-    cat $SCENE/scr.bin | drop1     > scr1_hi.bin
+    cat $SCENE/char.bin | jtutil drop1    >  char_lo.bin
+    cat $SCENE/char.bin | jtutil drop1 -l >  char_hi.bin
+    cat $SCENE/scr.bin | jtutil drop1 -l  > scr1_lo.bin
+    cat $SCENE/scr.bin | jtutil drop1     > scr1_hi.bin
 fi
 
 jtsim $*

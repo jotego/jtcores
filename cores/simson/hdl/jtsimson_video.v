@@ -20,6 +20,8 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
+    input             simson,
+    input             paroda,
 
     // Base Video
     input             pxl_cen,
@@ -34,9 +36,11 @@ module jtsimson_video(
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
     input             cpu_we,
+    input             pal_bank,
 
     output     [ 7:0] pal_dout,
     output     [ 7:0] tilesys_dout,
+    output            tilesys_rom_dtack,
     output     [ 7:0] objsys_dout,
 
     input             pal_we,
@@ -62,6 +66,7 @@ module jtsimson_video(
     output            lyrb_cs,
     output            lyro_cs,
 
+    input             lyra_ok,
     input             lyro_ok,
 
     input      [31:0] lyrf_data,
@@ -87,13 +92,14 @@ module jtsimson_video(
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
-wire [11:0] lyra_pxl, lyrb_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl, pal_addr;
 wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 
-assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
+assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
+assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
 // Debug
 always @(posedge clk) begin
@@ -113,13 +119,15 @@ always @(posedge clk) begin
         ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    .paroda     ( paroda    ),
+    .simson     ( simson    ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -133,6 +141,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
     .tile_dout  ( tilesys_dout ),
+    .cpu_rom_dtack ( tilesys_rom_dtack),
 
     // control
     .rmrd       ( rmrd      ),
@@ -159,6 +168,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
+    .lyra_ok    ( lyra_ok   ),
 
     // Final pixels
     .lyrf_blnk_n(           ),
@@ -186,6 +196,8 @@ jtsimson_obj u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
+    .paroda     ( paroda    ),
+    .simson     ( simson    ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -198,7 +210,7 @@ jtsimson_obj u_obj(    // sprite logic
     .reg_cs     ( objreg_cs ),
     .cpu_addr   (cpu_addr[13:1]),
     .cpu_dout   ({2{cpu_dout}}),
-    .cpu_dsn    ({~cpu_addr[0],cpu_addr[0]}),
+    .cpu_dsn    ({cpu_addr[0],~cpu_addr[0]}), // Big endian
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( obj16_dout),
 
@@ -215,12 +227,17 @@ jtsimson_obj u_obj(    // sprite logic
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0]-14'h5000 ),
+    .ioctl_addr ( ioctl_addr[13:0]-14'h1000 ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
-    // .gfx_en     ( gfx_en    ),
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
+
+function [6:0] lyrcol( input [7:0] pxl );
+    lyrcol = paroda ? {       pxl[7:5], pxl[3:0] } :
+                      { 1'b0, pxl[7:6], pxl[3:0] };
+endfunction
 
 /* verilator tracing_on */
 jtsimson_colmix u_colmix(
@@ -233,20 +250,20 @@ jtsimson_colmix u_colmix(
     .lvbl       ( lvbl      ),
 
     // CPU interface
-    .cpu_addr   (cpu_addr[11:0]),
+    .cpu_addr   ( pal_addr  ),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),
     .pcu_cs     ( pcu_cs    ),
 
     // Final pixels
-    .lyrf_pxl   ( { 1'b0, lyrf_pxl[7:6], lyrf_pxl[3:0] } ),
-    .lyra_pxl   ( { 1'b0, lyra_pxl[7:6], lyra_pxl[3:0] } ),
-    .lyrb_pxl   ( { 1'b0, lyrb_pxl[7:6], lyrb_pxl[3:0] } ),
+    .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
+    .lyra_pxl   ( lyrcol( paroda ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
+    .lyrb_pxl   ( lyrcol( paroda ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( obj_shd   ),
+    .obj_shd    ( paroda ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

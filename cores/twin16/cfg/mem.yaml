@@ -13,6 +13,16 @@ clocks:
       outputs:
         - cen_640
         - cen_320
+audio: #Dark adventure
+  - name: fm
+    module: jt51
+    rc:
+      - { r: 1k, c: 33n }
+  - name: upd 
+    module: jt7759
+    rc:
+      - { r: 5.7k, c: 10n }
+
 sdram:
   banks:
     -

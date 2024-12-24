@@ -72,7 +72,7 @@ func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string) {
 	var tpath string
 	if cfg.Template == "" {
 		tfolder := cfg.Target
-		if cfg.Target == "sidi" { // SiDi shares the config string with MiST
+		if cfg.Target == "sidi" || cfg.Target == "sidi128" { // SiDi shares the config string with MiST
 			tfolder = "mist"
 		}
 		if cfg.Target == "pocket" { // Pocket doesn't have a config string
@@ -130,7 +130,6 @@ func dump_cpp(def map[string]string) {
 		"JTFRAME_CLK24": false,
 		"JTFRAME_CLK48": false,
 		"JTFRAME_CLK96": false,
-		"JTFRAME_CLK6":  false,
 		"JTFRAME_SDRAM96": false,
 	}
 	for k, v := range def {

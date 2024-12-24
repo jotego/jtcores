@@ -247,9 +247,20 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`ifndef SHANON
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         obj_cfg  <= 0;
+    end else begin
+        obj_cfg  <= ppic_dout[7:6]; // obj_cfg[1] -> object engine, obj_cfg[0] -> colmix
+    end
+end
+`else
+initial obj_cfg = 0;
+`endif
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
         video_en <= 1;
         adc_ch   <= 0;
         snd_rstb <= 1;
@@ -269,7 +280,6 @@ always @(posedge clk, posedge rst) begin
             endcase
         end
 `else // (Turbo) Out Run
-        obj_cfg  <= ppic_dout[7:6]; // obj_cfg[1] -> object engine, obj_cfg[0] -> colmix
         video_en <= ppic_dout[5];
         adc_ch   <= ppic_dout[4:2];
         snd_rstb <= ppic_dout[0];
@@ -290,7 +300,7 @@ always @(*) begin
         case( { A[13:12],A[5] } )
             2: case( A[2:1] )
                 0: cab_dout = 8'hff;
-                1: cab_dout = { 2'b11, joystick1[7], cab_1p[0], service, dip_test, coin };
+                1: cab_dout = { 2'b11, joystick1[6], cab_1p[0], service, dip_test, coin };
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;
                 default:;

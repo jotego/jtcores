@@ -22,7 +22,7 @@ module jtframe_inputs(
     input             vs,
     input             LHBL,
 
-    input             dip_flip,
+    input             rot_ccw,
     input             autofire0,
     input             dial_raw_en,
     input             dial_reverse,
@@ -68,6 +68,7 @@ module jtframe_inputs(
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
+
     // input data recording
     input       [12:0] ioctl_addr,
     input       [ 7:0] ioctl_din,
@@ -98,19 +99,9 @@ assign game_paddle_2 = board_paddle_2;
 always @(posedge clk) begin
     joy1_sync <= { board_joy1[15:4], joy4way1p[3:0] };
     joy2_sync <= { board_joy2[15:4], joy4way2p[3:0] };
+    joy3_sync <= { board_joy3[15:4], joy4way3p[3:0] };
+    joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
 end
-
-`ifdef JTFRAME_4PLAYERS
-    always @(posedge clk) begin
-        joy3_sync <= { board_joy3[15:4], joy4way3p[3:0] };
-        joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
-    end
-`else
-    initial begin
-        joy3_sync = 0;
-        joy4_sync = 0;
-    end
-`endif
 
 jtframe_4wayjoy u_4way_1p(
     .rst        ( rst               ),
@@ -145,8 +136,8 @@ jtframe_4wayjoy u_4way_4p(
 );
 
 localparam START_BIT  = 6+(BUTTONS-2);
-localparam COIN_BIT   = 7+(BUTTONS-2);
-localparam PAUSE_BIT  = 8+(BUTTONS-2);
+localparam COIN_BIT   = START_BIT+1;
+localparam PAUSE_BIT  = COIN_BIT+1;
 
 reg        last_pause, last_osd_pause, last_joypause, last_reset;
 wire       joy_pause, joy_test;
@@ -157,7 +148,7 @@ reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
     assign joy_pause = board_coin[0] & board_joy1[4];
-    assign joy_test  = board_start[0] & board_joy1[4];
+    assign joy_test  = board_coin[0] & board_joy1[5];
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
@@ -189,7 +180,7 @@ function [9:0] apply_rotation;
     begin
     apply_rotation = {10{ACTIVE_LOW[0]}} ^
         (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        ~flip ?
+        flip ?
          { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
          { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
     end
@@ -228,7 +219,7 @@ endfunction
     assign game_test = key_test | joy_test;
 `endif
 
-assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~dip_flip, autofire );
+assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -247,7 +238,7 @@ always @(posedge clk, posedge rst) begin
         // as indicated in the instance parameter
 
 `ifdef SIM_INPUTS
-        game_coin  <= {4{ACTIVE_LOW[0]}} ^ { 2'b0, sim_inputs[frame_cnt][1:0] };
+        game_coin  <= {4{ACTIVE_LOW[0]}} ^ { 3'b0, sim_inputs[frame_cnt][0] };
         game_start <= {4{ACTIVE_LOW[0]}} ^ { 2'b0, sim_inputs[frame_cnt][3:2] };
         game_joy1  <= reorder({10{ACTIVE_LOW[0]}} ^ { 3'd0, sim_inputs[frame_cnt][10:4] });
 `else
@@ -257,9 +248,9 @@ always @(posedge clk, posedge rst) begin
         if( vsl && !vs ) `endif // make sure the experienced input while playing is the recorded one
         game_joy1  <= reorder(pre_order1);
 `endif
-        game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~dip_flip, autofire ));
-        game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~dip_flip, autofire ));
-        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~dip_flip, autofire ));
+        game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
+        game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~rot_ccw, autofire ));
+        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~rot_ccw, autofire ));
 
         soft_rst <= key_reset && !last_reset;
 
@@ -299,6 +290,9 @@ always @(posedge clk, posedge rst) begin
             game_pause   <= 0;
             game_service <= ACTIVE_LOW[0];
         end
+`ifdef SIM_INPUTS
+        game_service <= ACTIVE_LOW[0] ^ sim_inputs[frame_cnt][1];
+`endif
     end
 end
 
@@ -382,69 +376,24 @@ jtframe_mouse u_mouse(
 `ifdef JTFRAME_INPUT_RECORD
     localparam RECAW=`JTFRAME_INPUT_RECORD_AW;
 
-    reg  [ 7:0] recin, rec_l, fdiff;
-    reg         rec_clrd;
-    reg  [RECAW-1:0] reca;
-    wire [ 7:0] rec_data = { pre_order1[5:0], {2{ACTIVE_LOW[0]}}^{game_start[0], game_coin[0]} };
-    reg  [ 1:0] recwsh;
-    wire [ 7:0] recmux = !rec_clrd ? (!reca[0] ? 8'hff: 8'h0 ) :
-                         recwsh[0] ?            recin : fdiff;
-    wire        rec_we = recwsh!= 0 || !rec_clrd;
+jtframe_rec_inputs #(
+    .RECAW     ( RECAW      ),
+    .ACTIVE_LOW( ACTIVE_LOW )
+) u_rec(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
 
-    always @(posedge clk, posedge rst) begin
-        if( rst ) begin
-            reca     <= 0;
-            recin    <= 0;
-            rec_l    <= 0;
-            recwsh   <= 0;
-            fdiff    <= 0;
-            rec_clrd <= 0;
-        end else begin
-            if( !rec_clrd ) begin
-                reca <= reca+1'd1;
-                if( &reca ) rec_clrd <= 1;
-            end else begin
-                recwsh <= recwsh>>1;
-                if( vsl && !vs && dip_pause) begin
-                    if( &fdiff || rec_data != rec_l ) begin
-                        rec_l <= rec_data;
-                        recin <= rec_data ^ rec_l;
-                        recwsh <= 2;
-                    end else begin
-                        fdiff <= fdiff +1'd1;
-                    end
-                end
-                case( recwsh )
-                    2: begin
-                        reca  <= reca+1'd1;
-                    end
-                    1: begin
-                        reca <= reca+1'd1;
-                        fdiff <= 0;
-                    end
-                    default:;
-                endcase
-            end
-        end
-    end
+    .vs             ( vs            ),
+    .dip_pause      ( dip_pause     ),
 
-    // 1st byte = number of frames before applying the value change
-    // 2nd byte = input bits that changed are set high
-    // see "jtutil inputs" in "src/jtutil/inputs.go" for conveting to sim_inputs.hex
-    jtframe_dual_ram #(.AW(RECAW) ) u_record( // 2kB, set in jtdef.go
-        // Port 0: record
-        .clk0   ( clk            ),
-        .data0  ( recmux         ),
-        .addr0  ( reca           ),
-        .we0    ( rec_we         ),
-        .q0     (                ),
-        // Port 1: readout
-        .clk1   ( clk            ),
-        .data1  ( 8'd0           ),
-        .addr1  (ioctl_addr[RECAW-1:0]),
-        .we1    ( 1'b0           ),
-        .q1     ( ioctl_merged   )
-    );
+    .game_start     ( game_start    ),
+    .game_coin      ( game_coin     ),
+    .joystick       (pre_order1[5:0]),
+
+    .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_merged   ( ioctl_merged  )
+);
+
 `else assign ioctl_merged = ioctl_din; `endif
 `else assign ioctl_merged = ioctl_din; `endif
 

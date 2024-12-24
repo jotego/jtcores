@@ -8,7 +8,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Standard Edition"
 
 set_global_assignment -name GENERATE_RBF_FILE ON
-set_global_assignment -name PROJECT_OUTPUT_DIRECTORY ${OUTPUTDIR}
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name SMART_RECOMPILE ON
@@ -48,10 +48,10 @@ set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 ##################################################################
 ## Files
 ########################
-source ${MODULES}/jtframe/target/mister/sys/sys.tcl
-source ${MODULES}/jtframe/target/mister/sys/sys_analog.tcl
+source {{env "JTFRAME"}}/target/mister/sys/sys.tcl
+source {{env "JTFRAME"}}/target/mister/sys/sys_analog.tcl
 
-set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:${MODULES}/jtframe/target/mister/sys/build_id.tcl"
+set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:{{ env "JTFRAME" }}/target/mister/sys/build_id.tcl"
 # SDC file is copied and edited in the target folder
 set_global_assignment -name SDC_FILE sys_top.sdc
 
@@ -69,5 +69,5 @@ set_instance_assignment -name FAST_INPUT_REGISTER ON -to emu:emu|jtframe_mister:
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
 set_global_assignment -name FORCE_SYNCH_CLEAR ON
 set_global_assignment -name SEARCH_PATH "../hdl"
-set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
+set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"
 # Leave the blank line

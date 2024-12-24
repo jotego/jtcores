@@ -35,25 +35,25 @@ wire [ 7:0] vram_dout, pal_dout, cpu_dout;
 wire        snd_flag;
 wire        snd_rstn_eff;
 
-assign snd_rstn_eff = ~(tokio ? snd_rst : rst);
-assign debug_view = {6'd0,bootleg,tokio};
-assign { dipsw_b, dipsw_a }   = dipsw[15:0];
-assign dip_flip               = flip;
+assign snd_rstn_eff         = ~(tokio ? snd_rst : rst);
+assign debug_view           = debug_mux;
+assign { dipsw_b, dipsw_a } = dipsw[15:0];
+assign dip_flip             = flip;
 
 always @(posedge clk) begin
-    if( prog_we && header && ioctl_addr[0]==0 ) { bootleg, tokio } <= prog_data[1:0];
+    if( prog_we && header && ioctl_addr[1:0]==0 ) { bootleg, tokio } <= prog_data[1:0];
         // tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this at ioctl_addr==1
 end
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= { 2'd0, snd_rstn_eff, snd_rst, 3'd0, tokio};
+        0: debug_mux <= { 2'd0, snd_rstn_eff, snd_rst, 2'd0, bootleg, tokio};
         1: debug_mux <= main_latch;
         2: debug_mux <= snd_latch;
         default: debug_mux <= 0;
     endcase
 end
-
+/* verilator tracing_off */
 `ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst           ),
@@ -89,8 +89,8 @@ jtbubl_main u_main(
     .main_latch     ( main_latch    ),
     .snd_rst        ( snd_rst       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -120,7 +120,7 @@ assign vram_cs = 0;
 assign pal_cs  = 0;
 assign black_n = 1;
 `endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtbubl_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -159,14 +159,13 @@ jtbubl_video u_video(
     // Test
     .gfx_en         ( gfx_en        )
 );
-
+/* verilator tracing_off */
 `ifndef NOSOUND
 jtbubl_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ), // 24 MHz
     .rstn       ( snd_rstn_eff  ),
     .cen3       ( cen3          ),
-    .fx_level   ( dip_fxlevel   ),
 
     .tokio      ( tokio         ),
     // communication with main CPU
@@ -183,9 +182,10 @@ jtbubl_sound u_sound(
     .rom_ok     ( snd_ok        ),
 
     // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      )
+    .fm03       ( fm03          ),
+    .fm26       ( fm26          ),
+    .psg        ( psg           ),
+    .debug_bus  ( debug_bus     )
 );
 `else
 assign snd_cs   = 0;

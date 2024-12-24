@@ -9,8 +9,8 @@ game:
 jtframe:
   - from: sound
     get:
-      - jtframe_uprate2_fir.yaml
       - jtframe_pole.v
+      - jtframe_iir2.v
 modules:
   jt:
     - name: jt51

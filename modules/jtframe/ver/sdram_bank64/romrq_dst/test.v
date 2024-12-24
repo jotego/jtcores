@@ -49,7 +49,10 @@ end
 initial begin
     rst=1;
     #100 rst=0;
-    #(SIMLEN*1_000_000) $finish;
+    #(SIMLEN*1_000_000) begin
+        $display("PASS");
+        $finish;
+    end
 end
 
 // horizontal line counter
@@ -70,7 +73,7 @@ end
 wire init;
 wire rst_romrq = rst | init;
 
-reader #(.ROM("sdram_bank0.hex"),.DW(8)) u_read0(
+reader #(.ROM("sdram_bank0.bin"),.DW(8)) u_read0(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot0_cs   ),
@@ -79,7 +82,7 @@ reader #(.ROM("sdram_bank0.hex"),.DW(8)) u_read0(
     .data       ( slot0_dout )
 );
 
-reader #(.ROM("sdram_bank1.hex"),.DW(16)) u_read1(
+reader #(.ROM("sdram_bank1.bin"),.DW(16)) u_read1(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot1_cs   ),
@@ -88,7 +91,7 @@ reader #(.ROM("sdram_bank1.hex"),.DW(16)) u_read1(
     .data       ( slot1_dout )
 );
 
-reader #(.ROM("sdram_bank2.hex"),.DW(32)) u_read2(
+reader #(.ROM("sdram_bank2.bin"),.DW(32)) u_read2(
     .rst        ( rst_romrq  ),
     .clk        ( clk        ),
     .cs         ( slot2_cs   ),
@@ -109,7 +112,7 @@ jtframe_rom_1slot #(.SLOT0_DW( 8),.SLOT0_AW(12)) u_bank0(
     .slot0_ok   ( slot0_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[0]  ),
-    .sdram_req  ( ba_rd[0]   ),
+    .sdram_rd   ( ba_rd[0]   ),
     .sdram_addr ( ba0_addr   ),
     .data_rdy   ( ba_rdy[0]  ),
     .data_dst   ( ba_dst[0]  ),
@@ -126,7 +129,7 @@ jtframe_rom_1slot #(.SLOT0_DW(16),.SLOT0_AW(12)) u_bank1(
     .slot0_ok   ( slot1_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[1]  ),
-    .sdram_req  ( ba_rd[1]   ),
+    .sdram_rd   ( ba_rd[1]   ),
     .sdram_addr ( ba1_addr   ),
     .data_rdy   ( ba_rdy[1]  ),
     .data_dst   ( ba_dst[1]  ),
@@ -143,7 +146,7 @@ jtframe_rom_1slot #(.SLOT0_DW(32),.SLOT0_AW(12)) u_bank2(
     .slot0_ok   ( slot2_ok   ),
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[2]  ),
-    .sdram_req  ( ba_rd[2]   ),
+    .sdram_rd   ( ba_rd[2]   ),
     .sdram_addr ( ba2_addr   ),
     .data_rdy   ( ba_rdy[2]  ),
     .data_dst   ( ba_dst[2]  ),
@@ -186,8 +189,14 @@ jtframe_sdram64 #(
     .ba3_addr   ( ba3_addr      ),
     .rd         ( ba_rd         ),
     .wr         ( ba_wr         ),
-    .din        ( ba0_din       ),
-    .din_m      ( ba0_din_m     ),  // write mask
+    .ba0_din    ( ba0_din       ),
+    .ba0_dsn    ( ba0_din_m     ),  // write mask
+    .ba1_din    (               ),
+    .ba1_dsn    (               ),  // write mask
+    .ba2_din    (               ),
+    .ba2_dsn    (               ),  // write mask
+    .ba3_din    (               ),
+    .ba3_dsn    (               ),  // write mask
     .rdy        ( ba_rdy        ),
     .dok        ( ba_dok        ),
     .dst        ( ba_dst        ),
@@ -219,7 +228,7 @@ end
 
 endmodule
 
-module reader #(parameter ROM="sdram_bank0.hex",DW=8)(
+module reader #(parameter ROM="sdram_bank0.bin",DW=8)(
     input             rst,
     input             clk,
     output reg        cs,
@@ -238,7 +247,10 @@ wire [DW-1:0] ref_addr=ref_buf[addr];
 integer file,rcnt;
 
 initial begin
-    $readmemh(ROM,ref_buf);
+    file=$fopen(ROM,"rb");
+    if(file==0) begin $display("Cannot open %s\nFAIL",ROM); $finish; end
+    rcnt = $fread(ref_buf,file);
+    $fclose(file);
 end
 
 always @(*) begin

@@ -3,8 +3,10 @@
 *.bak
 *.bin
 *.cfg
+*.dip
 *.fmt
 *.fst
+*.gtkw
 *.hex
 *.jdi
 *.jpg
@@ -60,8 +62,10 @@ cores/*/pocket/*
 cores/*/sch/*/*pdf
 cores/*/sch/*pdf
 cores/*/sidi/*
+cores/*/sidi128/*
 cores/*/sockit/*
 cores/*/ver/regrun
+cores/*/ver/*/frames
 cores/*/zxuno/*
 cores/*/hdl/*_mmr.v
 default.dip

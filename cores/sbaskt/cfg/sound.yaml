@@ -10,6 +10,7 @@ jtframe:
   - from: sound
     get:
       - jtframe_dcrm.v
+      - jtframe_pole.v
 modules:
   jt:
     - name: jt89

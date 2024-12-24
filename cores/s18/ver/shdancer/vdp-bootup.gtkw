@@ -1,0 +1,42 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon May 13 05:05:21 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/test.fst"
+[dumpfile_mtime] "Mon May 13 05:01:10 2024"
+[dumpfile_size] 13853378
+[savefile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/vdp-bootup.gtkw"
+[timestart] 5208
+[size] 1920 1052
+[pos] -1 -28
+*-32.807323 11753919576 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_vdp.
+[sst_width] 223
+[signals_width] 222
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@25
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.EDCLK_o
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.AS
+@22
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.reg_data_l2[16:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.reg_rs0
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.EDCLK_d
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.UWR
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.LWR
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.CA_i[22:0]
+TOP.game_test.u_game.u_game.u_video.u_vdp.u_vdp.CD_i[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

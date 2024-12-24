@@ -59,7 +59,7 @@ wire [ 1:0] pre_shd;
 wire        shd;
 wire [ 7:0] pal_dout;
 reg  [23:0] bgr;
-reg         pal_half, shl;
+reg         pal_half;
 reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };
@@ -80,7 +80,6 @@ always @(posedge clk) begin
     if( rst ) begin
         pal_half <= 0;
         bgr      <= 0;
-        shl      <= 0;
     end else begin
 `ifndef GRAY
         pxl_aux <= { pxl_aux[7:0], pal_dout };
@@ -88,7 +87,6 @@ always @(posedge clk) begin
         pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
         if( pxl_cen ) begin
-            shl <= shd;
             bgr <= dim(pxl_aux[14:0], shd);
             pal_half <= 0;
         end else
@@ -107,7 +105,7 @@ jtcolmix_053251 u_prio(
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({obj_prio,1'b0}),
+    .pri1       ( {obj_prio,1'b0}),
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),

@@ -26,6 +26,11 @@ clocks:
     - freq: 1056000
       outputs:
         - cen_oki
+audio:
+  channels:
+    # no schematics, just assuming something reasonable
+    - { name: pcm, module: jt6295, rsum: 20k, fir: fir_192k_4k.csv }
+    - { name: fm,  module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }]}
 sdram:
   banks:
     - buses:

@@ -21,6 +21,7 @@ fi
 
 # derived variables
 export CORES=$JTROOT/cores
+RLS=$JTROOT/release
 # Adds all core names to the auto-completion list of bash
 ALLCORES=$(ls $CORES| tr '\n' ' ')
 complete -W "$ALLCORES" jtcore
@@ -66,35 +67,40 @@ function swcore {
         echo Have you forgot to define JTROOT?
         return
     fi
-    if [ `pwd` = "$JTROOT/cores" ]; then
-        cd $1/$2
+    if [ ! -z "$2" ]; then
+        cd $JTROOT/cores/$1/$2
         return
     fi
-    IFS=/ read -ra string <<< $(pwd)
-    j="/"
-    next=0
-    good=
-    for i in ${string[@]};do
-        if [ $next = 0 ]; then
-            j=${j}${i}/
+    if [ -z "$1" ]; then
+        echo "Use swcore <corename>"
+        return 1
+    fi
+    if [ ! -d "$JTROOT/cores/$1" ]; then
+        echo "No folder for $1 core"
+        return 1
+    fi
+    # get the location relative to $CORES/corename
+    local cores=$(realpath $JTROOT/cores)
+    local cur=`pwd`
+    cur="${cur#$cores/}"
+    if [ "$cur" = `pwd` ]; then
+        # not in a core folder
+        cd $JTROOT/cores/$1/$2
+        return
+    fi
+    # extract the path after the current core
+    cur="${cur#*/}"
+    cd "$JTROOT/cores/$1"
+
+    # replicate as much as possible from the previous location
+    IFS=/ read -ra folders <<< $cur
+    for i in ${folders[@]};do
+        if [ -d $i ]; then
+            cd $i
         else
-            next=0
-            j=${j}$1/
-        fi
-        if [ "$i" = cores ]; then
-            next=1
-            good=1
+            break
         fi
     done
-    if [[ $good && -d $j ]]; then
-        cd $j
-    else
-        cd $JTROOT/cores/$1
-    fi
-    if [ $# = 2 ]; then
-        cd $2
-    fi
-    pwd
 }
 
 if [ "$1" != "--quiet" ]; then
@@ -165,6 +171,7 @@ function hexdiff {
     sdiff --suppress-common-lines <(xxd $1) <(xxd $2)
 }
 
+# starts gtkwave and opens the test dump file in the current folder
 function gw {
     if [ -e test.lxt ]; then
         gtkwave test.lxt &
@@ -177,6 +184,16 @@ function gw {
     else
         echo "No test.lxt, test.fst, test.vcd in the current folder"
     fi
+}
+
+# generates a list of valid core names based on the existance of the TOML file
+function get_cores {
+    find "$CORES" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+      if [ -e "$dir/cfg/mame2mra.toml" ]; then
+        dir=$(basename "$dir")
+        echo -n "$dir "
+      fi
+    done
 }
 
 # check that git hooks are present

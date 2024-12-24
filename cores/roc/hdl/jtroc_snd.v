@@ -29,12 +29,13 @@ module jtroc_snd(
     input                snd_on,
     input                mute,
 
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
-    output        [ 7:0] st_dout
+    output     [7:0] psg0a, psg0b, psg0c,
+                     psg1a, psg1b, psg1c,
+    output reg [3:0] psg0a_rcen, psg0b_rcen, psg0c_rcen,
+                     psg1a_rcen, psg1b_rcen, psg1c_rcen,
+    output     [7:0] st_dout
 );
-
+`ifndef NOSOUND
 localparam [7:0] PSG_GAIN = 8'h10;
 
 reg  [ 7:0] din;
@@ -58,7 +59,15 @@ assign bdir[0]  = ~(sen[1] | wrn) | ~sen[2];
 assign bc1[0]   = ~(sen[1] | rdn) | ~sen[2];
 assign bdir[1]  = ~(sen[3] | wrn) | ~sen[4];
 assign bc1[1]   = ~(sen[3] | rdn) | ~sen[4];
-assign st_dout  = filter_en[7:0];
+assign st_dout  = { 2'b0, |filter_en[11:10], |filter_en[9:8], |filter_en[7:6],
+                    |filter_en[5:4], |filter_en[3:2], |filter_en[1:0] };
+
+function [3:0] dec( input [1:0] e );
+    dec = e==0 ? 4'b0001 :
+          e==1 ? 4'b0010 :
+          e==2 ? 4'b0100 :
+                 4'b1000;
+endfunction
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
     .clk      ( clk      ),
@@ -70,7 +79,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         cnt       <= 0;
         biq_cnt   <= 0;
-        filter_en <= 12'hfff;
+        filter_en <= 0;
     end else begin
         if( psg_cen ) begin
             cnt<=cnt+1'd1;
@@ -79,6 +88,12 @@ always @(posedge clk, posedge rst) begin
             end
         end
         if( filter_cs ) filter_en <= A[11:0];
+        psg0a_rcen <= dec(filter_en[ 7: 6]);
+        psg0b_rcen <= dec(filter_en[ 9: 8]);
+        psg0c_rcen <= dec(filter_en[11:10]);
+        psg1a_rcen <= dec(filter_en[ 1: 0]);
+        psg1b_rcen <= dec(filter_en[ 3: 2]);
+        psg1c_rcen <= dec(filter_en[ 5: 4]);
     end
 end
 
@@ -86,7 +101,7 @@ always @* begin
     rom_cs      = 0;
     ram_cs      = 0;
     sen         = 4'b1111;
-    filter_cs   = A[15];
+    filter_cs   = A[15] && !wrn;
     if( !mreq_n && rfsh_n && !A[15]) begin
         case(A[14:12])
             0,1,2: rom_cs = 1;
@@ -117,11 +132,11 @@ jt49_bus u_psg0(
 
     .sel        ( 1'b1      ),
     .dout       ( psg0_dout ),
-    .sound      ( psg0_snd  ),
-    .A          (           ),      // linearised channel output
-    .B          (           ),
-    .C          (           ),
-    .sample     ( sample    ),
+    .sound      (           ),
+    .A          ( psg0a     ),      // linearised channel output
+    .B          ( psg0b     ),
+    .C          ( psg0c     ),
+    .sample     (           ),
 
     .IOA_in     ( main_latch),
     .IOA_out    (           ),
@@ -142,10 +157,10 @@ jt49_bus u_psg1(
 
     .sel        ( 1'b1      ),
     .dout       ( psg1_dout ),
-    .sound      ( psg1_snd  ),
-    .A          (           ),      // linearised channel output
-    .B          (           ),
-    .C          (           ),
+    .sound      (           ),
+    .A          ( psg1a     ),      // linearised channel output
+    .B          ( psg1b     ),
+    .C          ( psg1c     ),
     .sample     (           ),
 
     .IOA_in     ( 8'd0      ),
@@ -155,24 +170,6 @@ jt49_bus u_psg1(
     .IOB_in     ( 8'd0      ),
     .IOB_out    (           ),
     .IOB_oe     (           )
-);
-
-jtframe_mixer #(.W0(10),.W1(10)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( psg_cen   ),
-    // input signals
-    .ch0    ( psg0_snd  ),
-    .ch1    ( psg1_snd  ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( PSG_GAIN  ),
-    .gain1  ( PSG_GAIN  ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
 );
 
 jtframe_ff u_irq(
@@ -214,5 +211,21 @@ jtframe_sysz80 #(.RAM_AW(10)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
-
+`else
+    assign rom_cs     = 0;
+    assign rom_addr   = 0;
+    assign st_snd     = 0;
+    assign psg0a      = 0;
+    assign psg0b      = 0;
+    assign psg0c      = 0;
+    assign psg1a      = 0;
+    assign psg1b      = 0;
+    assign psg1c      = 0;
+    assign psg0a_rcen = 0;
+    assign psg0b_rcen = 0;
+    assign psg0c_rcen = 0;
+    assign psg1a_rcen = 0;
+    assign psg1b_rcen = 0;
+    assign psg1c_rcen = 0;
+`endif
 endmodule

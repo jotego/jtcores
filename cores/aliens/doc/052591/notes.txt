@@ -1,0 +1,107 @@
+To load the program data, thunderx does this just before the player's ship appears:
+Write 00 to 5A00		0101 1010 0000 0000	Reset RESET_PC (why ?)
+BMOVE 7ADD to 5800, size 0140	0101 1000 0000 0000
+Write 81 to 5A00		0101 1010 0000 0000	Set RESET_PC
+
+Data is written in bytes, in the same order shown in MAME's thunderx.cpp comment block.
+Byte 0 [7:0] -> RAM[57:71] odd lines
+Byte 1 [7:0] -> RAM[41:55] odd lines
+Byte 2 [7:0] -> RAM[25:39] odd lines
+Byte 3 [7:0] -> RAM[9:23] odd lines
+Byte 4 [3:0] -> RAM[1:7] odd lines
+
+For example, the 60 22 36 E9 08 word (bytes 0 to 4) is loaded in the instruction register as:
+AD96[A:D]  0
+AC62[A:D]  6
+Z88[A:D]   2
+T58[A:D]   2
+T78[A:D]   6
+V58[A:D]   3
+R58[A:D]   8
+K88[A:D]   E
+L94[A:D]   8
+
+Mapping of bytes and bit to register lines:
+Byte Bit Reg  Line RAM net
+0    7   AC62 A    56/57
+0    6   AC62 B    58/59
+0    5   AC62 C    60/61
+0    4   AC62 D    62/63
+0    3   AD96 A    64/65
+0    2   AD96 B    66/67
+0    1   AD96 C    68/69
+0    0   AD96 D    70/72
+
+1    7   T58  A    40/41
+1    6   T58  B    42/43
+1    5   T58  C    44/45
+1    4   T58  D    46/47
+1    3   Z88  A    48/49
+1    2   Z88  B    50/51
+1    1   Z88  C    52/53
+1    0   Z88  D    54/55
+
+2    7   V58  A    24/25
+2    6   V58  B    26/27
+2    5   V58  C    28/29
+2    4   V58  D    30/31
+2    3   T78  A    32/33
+2    2   T78  B    34/35
+2    1   T78  C    36/37
+2    0   T78  D    38/39
+
+3    7   K88  A     8/ 9
+3    6   K88  B    10/11
+3    5   K88  C    12/13
+3    4   K88  D    14/15
+3    3   R58  A    16/17
+3    2   R58  B    18/19
+3    1   R58  C    20/21
+3    0   R58  D    22/23
+
+4    3   L94  A     0/ 1
+4    2   L94  B     2/ 3
+4    1   L94  C     4/ 5
+4    0   L94  D     6/ 7
+
+
+External RAM is enabled outside of RUN mode when BK=1 and CS=0.
+External RAM is always enabled in RUN mode.
+
+The CPU data lines are outputs (CPU reads external RAM) when not running, BK=1, CS=0, and NRD=0.
+There's no way for the CPU to read back internal RAM.
+
+A CPU write with AB9 and D7 high outside of RUN mode will cause the PC to be reset.
+A chip reset will also cause this.
+
+The START pin is actually a "RUN" pin. It must be kept high for the program to continue running.
+After a reset, the chip is set to NOT run.
+
+In RUN mode, Dx_MUX is EDx_IN (external RAM), otherwise it is DBx_IN (CPU data).
+
+
+Write to reg when Z88_QD=1 or AC62_QA=1 or both
+
+Entire ALU first stage set when:
+AD96_QB=0, or AD87=0 and AD96_QD=0
+
+Top ALU first stage reset when:
+L94_QA=1 and T58_QA=0
+
+Signal N59:
+High when L94_QB=1 and T58_QA=0
+
+Clear MSB of ALU input when T58_QA=0 and L94_QA=1
+Update external RAM address output in RUN mode when K88_QA=1 and K88_QB=0
+No shift/rotate when Z88_QD=0
+When Z88_QD=1 : AC62_QA=0 shift right (Y32), AC62_QA=1 shift left (Y56)
+
+Accumulator is updated when :
+Z88D	AC62A	AC62B
+0	0	0
+1	0	0
+1	1	0
+
+PIN_OUT0 is set with T78_QD when T58_QA=1 and L94_QB=0
+It's apparently used to trigger an interrupt on the main CPU to indicate that the
+program has finished its job.

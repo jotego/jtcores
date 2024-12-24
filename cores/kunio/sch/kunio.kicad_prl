@@ -77,12 +77,12 @@
         "name": "kunio.kicad_sch",
         "open": false,
         "window": {
-          "display": 0,
+          "display": 1,
           "maximized": true,
-          "pos_x": 2494,
-          "pos_y": 105,
-          "size_x": 962,
-          "size_y": 748
+          "pos_x": 475,
+          "pos_y": 28,
+          "size_x": 970,
+          "size_y": 1024
         }
       }
     ]

@@ -45,7 +45,7 @@ type Config struct {
 	Verbose bool
 }
 
-func parse_def(path string, cfg Config, macros *map[string]string) {
+func parse_def(path string, target string, macros map[string]string) {
 	if path == "" {
 		return
 	}
@@ -76,8 +76,8 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 				section = strings.TrimSpace(s)
 				var m bool
 				var e error
-				if m,e = filepath.Match(section,cfg.Target); m {
-					section = cfg.Target
+				if m,e = filepath.Match(section,target); m {
+					section = target
 					break
 				}
 				if e!=nil {
@@ -87,7 +87,7 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 			}
 			continue
 		}
-		if section == "all" || section == cfg.Target {
+		if section == "all" || section == target {
 			// Look for keywords
 			words := strings.SplitN(line, " ", 2)
 			if words[0] == "include" {
@@ -98,7 +98,7 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 				if slash != -1 && inc[0] != '/' {
 					inc = path[0:slash+1] + inc
 				}
-				parse_def(inc, cfg, macros)
+				parse_def(inc, target, macros)
 				continue
 			}
 			words = strings.SplitN(line, "=", 2)
@@ -106,20 +106,20 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 			if key[0] == '-' {
 				// Removes key
 				key = key[1:]
-				delete(*macros, key)
+				delete(macros, key)
 			} else {
 				if len(words) > 1 {
 					val := strings.TrimSpace(words[1])
 					if len(key) > 2 && key[len(key)-1] == '+' {
 						key = key[0 : len(key)-1]
-						old, e := (*macros)[key]
+						old, e := macros[key]
 						if e {
 							val = old + val
 						}
 					}
-					(*macros)[key] = val
+					macros[key] = val
 				} else {
-					(*macros)[key] = "1"
+					macros[key] = "1"
 				}
 			}
 		}
@@ -200,16 +200,26 @@ func str2macro( a string ) string {
 	return strings.ToUpper(a)
 }
 
+func parse_target( target string, macros map[string]string) {
+	fname := filepath.Join(os.Getenv("JTFRAME"), "target", target, "target.def")
+	f, e := os.Open(fname)
+	f.Close()
+	if e==nil {
+		parse_def(fname, target, macros)
+	}
+}
+
 func Make_macros(cfg Config) (macros map[string]string) {
 	macros = make(map[string]string)
-	parse_def(DefPath(cfg), cfg, &macros)
-	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml") )
+	parse_target(cfg.Target, macros)
+	parse_def(DefPath(cfg), cfg.Target, macros)
+	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml"))
 	f.Close()
 	mem_managed := e == nil // Using RTL generation for the memory
 	switch cfg.Target {
 	case "mist", "sidi", "neptuno":
 		macros["SEPARATOR"] = ""
-	case "mister", "sockit","de1soc","de10std":
+	case "mister", "sockit","de1soc","de10std","sidi128":
 		macros["SEPARATOR"] = "-;"
 	}
 	// Adds a macro with the target name
@@ -247,6 +257,8 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_DIPBASE":      "16",
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DIALEMU_LEFT":  "5",
+		"JTFRAME_SHIFT":	     "0",
+		"JTFRAME_180SHIFT":	     "0",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": cfg.Core,
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
@@ -313,17 +325,35 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
 	// name as a macro on its own too
-	mclk := 48000
-	if pll, e := macros["JTFRAME_PLL"]; e {
-		macros[strings.ToUpper(pll)] = ""
-		freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
-		if freq_str == "" {
-			log.Fatal("JTFRAME: macro JTFRAME_PLL=", pll, " is not well formed. It should contain the pixel clock in kHz")
+	mclk := 48000000
+	if pll, f := macros["JTFRAME_PLL"]; f {
+		var freq int
+		pll=strings.ToUpper(pll)
+		switch(pll) {
+		case "JTFRAME_PLL6144": switch(cfg.Target) {
+			case "MISTER": freq=6143465
+			default:       freq=6144230
 		}
-		freq, _ := strconv.Atoi(freq_str)
+		case "JTFRAME_PLL6293": switch(cfg.Target) {
+			case "MISTER": freq=6293402 // ideally 6.293700
+			default:       freq=6289772
+		}
+		case "JTFRAME_PLL6671": switch(cfg.Target) {
+			case "MISTER": freq=6670673
+			default:       freq=6673954
+		}
+		default: {
+				macros[pll] = ""
+				freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
+				if freq_str == "" {
+					log.Fatal("JTFRAME: macro JTFRAME_PLL=", pll, " is not well formed. It should contain the pixel clock in kHz")
+				}
+				freq, _ = strconv.Atoi(freq_str)
+			}
+		}
 		mclk = freq*8
 	}
-	if Defined(macros,"JTFRAME_SDRAM96") || Defined(macros,"JTFRAME_CLK96") {
+	if Defined(macros,"JTFRAME_CLK96") || Defined(macros,"JTFRAME_SDRAM96") {
 		mclk *= 2
 	}
 	macros["JTFRAME_MCLK"] = fmt.Sprintf("%d",mclk)
@@ -336,27 +366,35 @@ func Make_macros(cfg Config) (macros map[string]string) {
 }
 
 // Replaces all the macros (marked with a $) in the file
-func Replace_Macros(path string, macros map[string]string) string {
-	if len(path) == 0 {
-		return ""
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal("Cannot open " + path)
-	}
-	defer file.Close()
+// func Replace_Macros(path string, macros map[string]string) string {
+// 	if len(path) == 0 {
+// 		return ""
+// 	}
+// 	file, err := os.Open(path)
+// 	if err != nil {
+// 		log.Fatal("Cannot open " + path)
+// 	}
+// 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+// 	scanner := bufio.NewScanner(file)
 
-	var builder strings.Builder
+// 	var builder strings.Builder
 
-	for scanner.Scan() {
-		s := scanner.Text()
-		for k, v := range macros {
-			s = strings.ReplaceAll(s, "$"+k, v)
-		}
-		builder.WriteString(s)
-		builder.WriteString("\n")
-	}
-	return builder.String()
+// 	for scanner.Scan() {
+// 		s := scanner.Text()
+// 		for k, v := range macros {
+// 			s = strings.ReplaceAll(s, "$"+k, v)
+// 		}
+// 		builder.WriteString(s)
+// 		builder.WriteString("\n")
+// 	}
+// 	return builder.String()
+// }
+
+func Get_Macros( core, target string ) (map[string]string) {
+	var def_cfg Config
+	def_cfg.Target = target
+	def_cfg.Core = core
+	// def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
+	return Make_macros(def_cfg)
 }

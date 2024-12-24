@@ -1,0 +1,53 @@
+params:
+  - { name: STAR_OFFSET, value: "(`STAR_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA2_START)>>1" }
+  - { name: MAP_OFFSET,  value: "(`MAP_START -`JTFRAME_BA3_START)>>1" }
+audio:
+  rsum: 200k
+  channels:
+    - { name: psg0, module: jt03_psg, rsum: 56k }
+    - { name: psg1, module: jt03_psg, rsum: 56k }
+    # sch. R9, R10, R4 and R12 are not populated on the original PCB according to Twitter user @system11b 
+    # this makes sense as the filtering is excessive. The actual capacitor load for YM3014 is 1nF on the
+    # board, nothing to do with the 100nF in schematics. 
+    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [ { r: 1rout, c: 1n } ] }
+    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [ { r: 1rout, c: 1n } ] }
+download:
+  post_addr: true
+  noswab: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+      - name: star
+        addr_width: 15
+        data_width: 8
+        offset: STAR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: char
+        addr_width: 15
+        data_width: 16
+        cs: LVBL
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        offset: SCR_OFFSET
+        cs: LVBL
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        cs: 1'b1
+      - name: map
+        addr_width: 15
+        data_width: 16
+        offset: MAP_OFFSET
+
+

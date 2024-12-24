@@ -1,0 +1,6 @@
+focus 0
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,SSP=%X,D0=%X,D1=%X,D2=%X,D3=%X,D4=%X,D5=%X,D6=%X,D7=%X,A0=%X,A1=%X,A2=%X,A3=%X,A4=%X,A5=%X,A6=%X,A7=%X,IR=%X,frame_cnt=%x* ",rPC,SP,d0,d1,d2,d3,d4,d5,d6,d7,a0,a1,a2,a3,a4,a5,a6,USP,ir,frame}
+
+gtime 320
+traceflush

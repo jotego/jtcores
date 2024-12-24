@@ -1,5 +1,5 @@
 // Translation to verilog of Oregano's 8051 core
-/* verilator tracing_off */
+/* verilator tracing_on */
 
 module addsub_ovcy_4
   (input  [3:0] opa_i,

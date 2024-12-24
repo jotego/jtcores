@@ -1,0 +1,37 @@
+params:
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1"}
+audio:
+  # these values work well for the alternatives, but not for the main one
+  # the main set volume is adjusted in the core
+  rsum: 56k
+  channels:
+    - { name: psg0, module: jt03_psg, rsum: 56k }
+    - { name: psg1, module: jt03_psg, rsum: 56k }
+    - { name: fm0,  module: jt03_fm,  rsum: 56k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [{ r: rout,  c: 1n }]}
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 14
+        data_width: 16
+        cs: LVBL
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        cs: LVBL
+        offset: SCR_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 32

@@ -34,10 +34,15 @@ module jtsbaskt_snd(
     output     [15:0]   pcm_addr, // only 8kB ROMs actually used
     input      [ 7:0]   pcm_data,
     input               pcm_ok,
-
-    output signed [15:0] snd,
-    output               sample,
-    output               peak,
+    // sound output
+    output signed [10:0] psg,
+    output signed [ 9:0] vlm,
+    output signed [ 7:0] rdac,
+    output        [ 1:0] vlm_rcen,
+    output        [ 1:0] psg_rcen,
+    output               rdac_rcen,
+    // debug
+    input         [ 7:0] debug_bus,
     output        [ 7:0] debug_view
 );
 
@@ -68,6 +73,10 @@ always @(posedge clk, posedge rst) begin
         vlm_st   <= 0;
         vlm_sel  <= 0;
     end else begin
+        // filter location identical in Road Fighter and Super Basket
+        // A8 -> PSG filter
+        // A7 -> DAC filter
+        // A6 -> VLM filter
         if( vlm_ctrl_cs ) { cap_en, vlm_rst, vlm_st, vlm_sel } <= A[8:3];
     end
 end
@@ -147,9 +156,13 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .pcm_data   ( pcm_data  ),
     .pcm_ok     ( pcm_ok    ),
 
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( peak      )
+    .psg        ( psg       ),
+    .vlm        ( vlm       ),
+    .rdac       ( rdac      ),
+    .vlm_rcen   ( vlm_rcen  ),
+    .psg_rcen   ( psg_rcen  ),
+    .rdac_rcen  ( rdac_rcen ),
+    .debug_bus  ( debug_bus )
 );
 
 

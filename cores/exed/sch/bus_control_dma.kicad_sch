@@ -7,11 +7,9 @@
   (title_block
     (title "Exed Exes board B")
     (date "2021")
-    (rev "José Tejada G")
+    (rev "José Tejada")
     (company "JOTEGO")
     (comment 1 "https://patreon.com/topapate")
-    (comment 2 "Extracted by Jose Tejada, 2021")
-    (comment 3 "supplemented by E.Triana")
   )
 
   (lib_symbols

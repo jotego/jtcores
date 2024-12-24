@@ -7,11 +7,10 @@
   (title_block
     (title "The Simpsons")
     (date "2023-08-01")
-    (rev "José Tejada G.")
+    (rev "José Tejada.")
     (company "KONAMI PWB352346B GX072")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "Esperanza Triana")
-    (comment 3 "JOTEGO")
+    (comment 2 "JOTEGO")
   )
 
   (lib_symbols
@@ -1928,7 +1927,7 @@
       (property "Footprint" "" (at 0 -27.94 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 0 -33.02 0)
+      (property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 0 -33.02 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (symbol "054321_0_0"
@@ -5253,7 +5252,7 @@
     (property "Footprint" "" (at 212.09 90.17 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "DESIGNED BY TRIANA85, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 212.09 90.17 0)
+    (property "Datasheet" "DESIGNED BY JOTEGO, ACCORDING TO SCH EXTRACTION (JOTEGO)" (at 212.09 90.17 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 8df7b40a-032f-42c9-bc87-b3ff6a67bbb0))

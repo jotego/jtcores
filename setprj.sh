@@ -1,14 +1,26 @@
 #!/bin/bash
 
-if (echo $PATH | grep modules/jtframe/bin -q); then
-    echo ERROR: path variable already points to a modules/jtframe/bin folder
-    echo source setprj.sh with a clean PATH
-else
-    export JTROOT=$(pwd)
-    export JTFRAME=$JTROOT/modules/jtframe
+# Remove jtframe from the PATH first
+TMP=`mktemp`
+cat > $TMP <<EOF
+import os
 
-    source $JTFRAME/bin/setprj.sh
-fi
+paths = os.getenv('PATH').split(':')
+# Filter out paths containing 'modules/jtframe'
+new_paths = [path for path in paths if 'modules/jtframe' not in path]
+print(':'.join(new_paths))
+EOF
+
+export PATH=`python $TMP`
+rm -f $TMP
+
+# restore all environment variables
+export JTROOT=$(pwd)
+export JTFRAME=$JTROOT/modules/jtframe
+
+source $JTFRAME/bin/setprj.sh
+cd $JTROOT
+
 if [ ! -z "$*" ]; then
     # execute the rest as a command
     echo "Executing " $*

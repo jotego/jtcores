@@ -75,16 +75,16 @@ always @(*) begin // Decoder 007766 takes as inputs A[15:10] and A[6:5]
     out_cs      = A[15:10] == 6'b0000_00 && A[6:4]==1 && !RnW;  // 18-1F
 end
 
-always @(posedge clk) begin
+always @(*) begin
     case(1'b1)
-        rom_cs:  cpu_din <= rom_data;
-        ram_cs:  cpu_din <= ram_dout;
-        pal_cs:  cpu_din <= pal_dout;
-        in_cs:   cpu_din <= port_in;
-        div_cs:  cpu_din <= div_dout;    // must be above gfx?_cs as it gets selected at the same time
-        gfx1_cs: cpu_din <= gfx1_dout;
-        gfx2_cs: cpu_din <= gfx2_dout;
-        default: cpu_din <= 8'hff;
+        rom_cs:  cpu_din = rom_data;
+        ram_cs:  cpu_din = ram_dout;
+        pal_cs:  cpu_din = pal_dout;
+        in_cs:   cpu_din = port_in;
+        div_cs:  cpu_din = div_dout;    // must be above gfx?_cs as it gets selected at the same time
+        gfx1_cs: cpu_din = gfx1_dout;
+        gfx2_cs: cpu_din = gfx2_dout;
+        default: cpu_din = 8'hff;
     endcase
 end
 

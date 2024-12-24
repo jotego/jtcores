@@ -10,7 +10,6 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
-      - jtframe_uprate2_fir.yaml
   - from: cpu
     get:
       - jtframe_63701y.yaml

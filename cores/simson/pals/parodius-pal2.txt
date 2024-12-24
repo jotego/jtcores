@@ -1,0 +1,25 @@
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active high)
+17 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/progA13  = UNPAGED  & /A13  & /PAGED  +
+       /A15  & PAGED 
+
+/progA14  = UNPAGED  & /A14  & /PAGED  +
+       A16  & PAGED 
+
+/progA15  = UNPAGED  & /A15  & /PAGED  +
+       A17  & PAGED 
+
+/progA16  = A18  & PAGED 
+
+prog2  = /UNPAGED  & /A13  & /PAGED  +
+      /UNPAGED  & A13 
+
+/prog1  = A13  & PAGED 
+

@@ -77,12 +77,12 @@
         "name": "pingpong.kicad_sch",
         "open": false,
         "window": {
-          "display": 0,
+          "display": 1,
           "maximized": true,
-          "pos_x": 607,
-          "pos_y": 243,
-          "size_x": 842,
-          "size_y": 610
+          "pos_x": 318,
+          "pos_y": 118,
+          "size_x": 972,
+          "size_y": 1024
         }
       }
     ]

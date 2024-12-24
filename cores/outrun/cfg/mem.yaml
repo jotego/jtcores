@@ -1,3 +1,5 @@
+include:
+  - file: audio
 params:
   - { name: ROAD_START }
   - { name: FD_PROM,     value: "`FD1089_START" }

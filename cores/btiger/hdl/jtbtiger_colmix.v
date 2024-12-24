@@ -47,40 +47,30 @@ module jtbtiger_colmix(
     // Priority PROMs bd01.8j
     input [7:0]     prog_addr,
     input           prom_prior_we,
-    input [3:0]     prom_din,
-    // control
-    input            CHRON,
-    input            SCRON,
-    input            OBJON,
-    // Debug
-    input      [3:0] gfx_en
+    input [3:0]     prom_din
 );
 
-reg [9:0] pixel_mux;
+reg  [9:0] pixel_mux;
 
-wire enable_char = gfx_en[0] && CHRON;
-wire enable_scr  = gfx_en[1] && SCRON;
-wire enable_obj  = gfx_en[3] && OBJON;
-
-wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
-wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
+wire char_blank  = &char_pxl[1:0];
+wire obj_blank   = &obj_pxl [3:0];
 
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
 
 reg  [7:0] seladdr;
 wire [3:0] selbus;
 
-reg [7:0] scr0;
-reg [6:0] char0, obj0;
+reg  [7:0] scr0;
+reg  [6:0] char0, obj0;
 
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
 
 always @(posedge clk) if(cen6) begin
-    seladdr <= { ~char_blank & enable_char, ~obj_blank & enable_obj,
-        (scr_pxl[7] || !enable_scr) ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
-    scr0 <= scr_pxl;
+    seladdr <= { ~char_blank, ~obj_blank,
+        scr_pxl[7] ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
+    scr0  <= scr_pxl;
     char0 <= char_pxl;
-    obj0 <= obj_pxl;
+    obj0  <= obj_pxl;
 
     obj_sel[2] <= obj_sel[1];
     obj_sel[1] <= obj_sel[0];

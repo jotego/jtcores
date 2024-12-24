@@ -1,0 +1,35 @@
+params:
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
+audio:
+  channels:
+    - { name: psg0, module: jt03_psg, rsum: 10k }
+    - { name: psg1, module: jt03_psg, rsum: 10k }
+    - { name: fm0,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8        
+      - name: char
+        addr_width: 15
+        data_width: 16
+        offset: CHAR_OFFSET
+        cs: LVBL        
+    - buses:
+      - name: scr
+        addr_width: 19
+        data_width: 32
+        cs: LVBL        
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        cs: 1'b1        

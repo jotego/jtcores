@@ -17,43 +17,94 @@
     Date: 22-2-2019 */
 
 // This is the MiST top level
+module mist_top #(parameter
+    VGA_DW = `ifdef MIST_VGA_8BIT 8 `else 6 `endif
+)(
+    input    [1:0]  CLOCK_27,
 
-module mist_top(
-    input   [1:0]   CLOCK_27,
-    output  [5:0]   VGA_R,
-    output  [5:0]   VGA_G,
-    output  [5:0]   VGA_B,
+    output          LED,
+    output   [VGA_DW-1:0] VGA_R,
+    output   [VGA_DW-1:0] VGA_G,
+    output   [VGA_DW-1:0] VGA_B,
     output          VGA_HS,
     output          VGA_VS,
-    // SDRAM interface
-    inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
-    output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
-    output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
-    output          SDRAM_nWE,      // SDRAM Write Enable
-    output          SDRAM_nCAS,     // SDRAM Column Address Strobe
-    output          SDRAM_nRAS,     // SDRAM Row Address Strobe
-    output          SDRAM_nCS,      // SDRAM Chip Select
-    output [1:0]    SDRAM_BA,       // SDRAM Bank Address
-    inout           SDRAM_CLK,      // SDRAM Clock
-    output          SDRAM_CKE,      // SDRAM Clock Enable
-    // SPI interface to arm io controller
+
+`ifdef MIST_USE_HDMI
+    output          HDMI_RST,
+    output    [7:0] HDMI_R,
+    output    [7:0] HDMI_G,
+    output    [7:0] HDMI_B,
+    output          HDMI_HS,
+    output          HDMI_VS,
+    output          HDMI_PCLK,
+    output          HDMI_DE,
+    inout           HDMI_SDA,
+    inout           HDMI_SCL,
+    input           HDMI_INT,
+`endif
+
+    input           SPI_SCK,
     inout           SPI_DO,
     input           SPI_DI,
-    input           SPI_SCK,
     input           SPI_SS2,
     input           SPI_SS3,
-    input           SPI_SS4,
     input           CONF_DATA0,
-    // UART pins -MIDI extension
-    // UART
-    input           UART_RX,
-    output          UART_TX,
-    // sound
+
+    `ifdef MIST_USE_QSPI
+    input           QSCK,
+    input           QCSn,
+    inout     [3:0] QDAT,
+    `endif
+    `ifndef MIST_NO_DIRECT_UPLOAD
+    input           SPI_SS4,
+    `endif
+
+    output   [12:0] SDRAM_A,
+    inout    [15:0] SDRAM_DQ,
+    output          SDRAM_DQML,
+    output          SDRAM_DQMH,
+    output          SDRAM_nWE,
+    output          SDRAM_nCAS,
+    output          SDRAM_nRAS,
+    output          SDRAM_nCS,
+    output    [1:0] SDRAM_BA,
+    output          SDRAM_CLK,
+    output          SDRAM_CKE,
+
+    `ifdef MIST_DUAL_SDRAM
+    output   [12:0] SDRAM2_A,
+    inout    [15:0] SDRAM2_DQ,
+    output          SDRAM2_DQML,
+    output          SDRAM2_DQMH,
+    output          SDRAM2_nWE,
+    output          SDRAM2_nCAS,
+    output          SDRAM2_nRAS,
+    output          SDRAM2_nCS,
+    output    [1:0] SDRAM2_BA,
+    output          SDRAM2_CLK,
+    output          SDRAM2_CKE,
+    `endif
+
     output          AUDIO_L,
     output          AUDIO_R,
-    // user LED
-    output          LED
+    `ifdef MIST_I2S_AUDIO
+    output          I2S_BCK,
+    output          I2S_LRCK,
+    output          I2S_DATA,
+    `endif
+    `ifdef MIST_I2S_AUDIO_HDMI
+    output          HDMI_MCLK,
+    output          HDMI_BCK,
+    output          HDMI_LRCK,
+    output          HDMI_SDATA,
+    `endif
+    `ifdef MIST_SPDIF_AUDIO
+    output          SPDIF,
+    `endif
+
+    input           UART_RX,
+    output          UART_TX
+
     `ifdef SIMULATION
     ,output         sim_pxl_cen,
     output          sim_pxl_clk,
@@ -61,7 +112,45 @@ module mist_top(
     output          sim_hb,
     output          sim_dwnld_busy
     `endif
+
 );
+
+`ifdef MIST_NO_DIRECT_UPLOAD
+localparam bit DIRECT_UPLOAD = 0;
+wire SPI_SS4 = 1;
+`else
+localparam bit DIRECT_UPLOAD = 1;
+`endif
+
+`ifdef MIST_USE_QSPI
+localparam bit QSPI = 1;
+assign QDAT = 4'hZ;
+`else
+localparam bit QSPI = 0;
+`endif
+
+`ifdef MIST_USE_HDMI
+assign HDMI_RST = 1'b1;
+localparam bit HDMI = 1;
+`else
+localparam bit HDMI = 0;
+`endif
+
+`ifdef MIST_DUAL_SDRAM
+`ifndef JTFRAME_LF_SDRAM_BUFFER
+assign SDRAM2_A = 13'hZZZZ;
+assign SDRAM2_BA = 0;
+assign SDRAM2_DQML = 1;
+assign SDRAM2_DQMH = 1;
+assign SDRAM2_CKE = 0;
+assign SDRAM2_CLK = 0;
+assign SDRAM2_nCS = 1;
+assign SDRAM2_DQ = 16'hZZZZ;
+assign SDRAM2_nCAS = 1;
+assign SDRAM2_nRAS = 1;
+assign SDRAM2_nWE = 1;
+`endif
+`endif
 
 `ifdef JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
@@ -69,7 +158,7 @@ module mist_top(
     localparam SDRAMW=22; // 32 MB
 `endif
 
-wire        rst, rst_n, clk_sys, clk_rom, clk6, clk24, clk48, clk96;
+wire        rst, rst_n, clk_sys, clk_rom, clk24, clk48, clk96;
 wire [63:0] status;
 wire [31:0] joystick1, joystick2;
 wire [25:0] ioctl_addr;
@@ -109,12 +198,14 @@ wire [COLORW-1:0] blue;
 
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd_left, snd_right;
-wire        sample;
+wire [ 5:0] snd_en, snd_vu;
+wire [ 7:0] snd_vol;
+wire        snd_peak, sample;
 
 wire [9:0] game_joy1, game_joy2, game_joy3, game_joy4;
 wire [3:0] game_coin, game_start;
 wire       game_rst, game_service, game_tilt;
-wire       rst96, rst48, rst24, rst6;
+wire       rst96, rst48, rst24;
 wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -153,7 +244,6 @@ jtframe_mist_clocks u_clocks(
     .clk96      ( clk96          ),
     .clk48      ( clk48          ),
     .clk24      ( clk24          ),
-    .clk6       ( clk6           ),
     .pll_locked ( pll_locked     ),
 
     // System clocks
@@ -165,14 +255,13 @@ jtframe_mist_clocks u_clocks(
     .game_rst   ( game_rst       ),
     .rst96      ( rst96          ),
     .rst48      ( rst48          ),
-    .rst24      ( rst24          ),
-    .rst6       ( rst6           )
+    .rst24      ( rst24          )
 );
 
 assign clk_pico = clk48;
 
 wire [ 7:0] debug_bus, debug_view;
-wire [ 1:0] dip_fxlevel, game_led;
+wire [ 1:0] dip_fxlevel;
 wire        enable_fm, enable_psg;
 wire        dip_pause, dip_flip, dip_test;
 wire        pxl_cen, pxl2_cen;
@@ -187,16 +276,29 @@ localparam DIPBASE=`JTFRAME_DIPBASE;
 localparam DIPBASE=16;
 `endif
 
-assign game_led[1] = 1'b0; // Let system LED info go through too
+`ifdef MIST_I2S_AUDIO_HDMI
+assign HDMI_MCLK = 0;
+always @(posedge clk_sys) begin
+    HDMI_BCK <= I2S_BCK;
+    HDMI_LRCK <= I2S_LRCK;
+    HDMI_SDATA <= I2S_DATA;
+end
+`endif
 
 jtframe_mist #(
     .SDRAMW       ( SDRAMW         ),
     .SIGNED_SND   ( `JTFRAME_SIGNED_SND    ),
-    .BUTTONS      ( `JTFRAME_BUTTONS  ),
+    // as MiST firmware can remap buttons, leaving it fixed here
+    // means the same game pad mapping will work for all games the same
+    .BUTTONS      ( 6              ),
     .DIPBASE      ( DIPBASE        ),
     .COLORW       ( COLORW         ),
     .VIDEO_WIDTH  ( `JTFRAME_WIDTH ),
-    .VIDEO_HEIGHT ( `JTFRAME_HEIGHT)
+    .VIDEO_HEIGHT ( `JTFRAME_HEIGHT),
+    .VGA_DW       ( VGA_DW         ),
+    .QSPI         ( QSPI           ),
+    .HDMI         ( HDMI           ),
+    .XOR_ROT      ( 1'b1           )    // control rotation is on by default for MiST platforms as there is no hardware rotation
 )
 u_frame(
     .clk_sys        ( clk_sys        ),
@@ -221,8 +323,28 @@ u_frame(
     .VGA_B          ( VGA_B          ),
     .VGA_HS         ( VGA_HS         ),
     .VGA_VS         ( VGA_VS         ),
-    // LED
-    .game_led       ( game_led       ),
+    // HDMI pins
+`ifdef MIST_USE_HDMI
+    .HDMI_R         ( HDMI_R         ),
+    .HDMI_G         ( HDMI_G         ),
+    .HDMI_B         ( HDMI_B         ),
+    .HDMI_HS        ( HDMI_HS        ),
+    .HDMI_VS        ( HDMI_VS        ),
+    .HDMI_PCLK      ( HDMI_PCLK      ),
+    .HDMI_DE        ( HDMI_DE        ),
+    .HDMI_SDA       ( HDMI_SDA       ),
+    .HDMI_SCL       ( HDMI_SCL       ),
+`else
+    .HDMI_R         (                ),
+    .HDMI_G         (                ),
+    .HDMI_B         (                ),
+    .HDMI_HS        (                ),
+    .HDMI_VS        (                ),
+    .HDMI_PCLK      (                ),
+    .HDMI_DE        (                ),
+    .HDMI_SDA       (                ),
+    .HDMI_SCL       (                ),
+`endif
     // UART
 `ifndef JTFRAME_UART
     .uart_rx        ( UART_RX        ),
@@ -250,7 +372,15 @@ u_frame(
     .SPI_SS3        ( SPI_SS3        ),
     .SPI_SS4        ( SPI_SS4        ),
     .CONF_DATA0     ( CONF_DATA0     ),
-
+    `ifdef MIST_USE_QSPI
+    .QSCK           ( QSCK           ),
+    .QCSn           ( QCSn           ),
+    .QDAT           ( QDAT           ),
+    `else
+    .QSCK           ( 1'b0           ),
+    .QCSn           ( 1'b1           ),
+    .QDAT           ( 4'h0           ),
+    `endif
     // ROM access from game
     .ba0_addr   ( ba0_addr      ), .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ), .ba3_addr   ( ba3_addr      ),
@@ -297,8 +427,26 @@ u_frame(
     .snd_left       ( snd_left       ),
     .snd_right      ( snd_right      ),
     .snd_sample     ( sample         ),
+    .snd_en         ( snd_en         ),
+    .snd_vu         ( snd_vu         ),
+    .snd_vol        ( snd_vol        ),
+    .snd_peak       ( snd_peak       ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
+    `ifdef MIST_I2S_AUDIO
+    .I2S_BCK        ( I2S_BCK        ),
+    .I2S_LRCK       ( I2S_LRCK       ),
+    .I2S_DATA       ( I2S_DATA       ),
+    `else
+    .I2S_BCK        (                ),
+    .I2S_LRCK       (                ),
+    .I2S_DATA       (                ),
+    `endif
+    `ifdef MIST_SPDIF_AUDIO
+    .SPDIF          ( SPDIF          ),
+    `else
+    .SPDIF          (                ),
+    `endif
     // joystick
     .game_joystick1 ( game_joy1      ),
     .game_joystick2 ( game_joy2      ),
@@ -359,5 +507,112 @@ assign UART_TX = game_tx,
 `endif
 
 `include "jtframe_game_instance.v"
+
+`ifdef JTFRAME_LF_BUFFER
+
+    // line-frame buffer
+    wire        [ 7:0] game_vrender;
+    wire        [ 8:0] game_hdump;
+    wire        [ 8:0] ln_addr;
+    wire        [15:0] ln_data;
+    wire               ln_done;
+    wire               ln_we;
+    wire               ln_hs;
+    wire        [15:0] ln_pxl;
+    wire        [ 7:0] ln_v;
+
+    wire [ 7:0] st_lpbuf;
+
+    // this places the pxl1_cen in the pixel centre
+    reg pxl1_cen;
+    always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
+
+`ifdef JTFRAME_LF_SDRAM_BUFFER
+    // implement video buffer in the second SDRAM chip (sidi128)
+    wire pll_locked2, clk_rom2;
+
+    jtframe_mist_clocks u_clocks2(
+        .clk_ext    ( CLOCK_27[0]    ),    // 27MHz for MiST, 50MHz for Neptuno
+
+        // PLL outputs
+        .clk96      ( ),
+        .clk48      ( ),
+        .clk24      ( ),
+        .pll_locked ( pll_locked2 ),
+
+        // System clocks
+        .clk_sys    ( ),
+        .clk_rom    ( clk_rom2   ),
+        .SDRAM_CLK  ( SDRAM2_CLK ),
+
+        // reset signals
+        .game_rst   ( ),
+        .rst96      ( ),
+        .rst48      ( ),
+        .rst24      ( )
+    );
+
+    jtframe_lfbuf_sdr u_lf_buf(
+        .rst        ( rst           ),
+        .clk        ( clk_rom2      ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_we      ( ln_we         ),
+
+        .init_n     ( pll_locked2   ),
+        .SDRAM_A    ( SDRAM2_A      ),
+        .SDRAM_DQ   ( SDRAM2_DQ     ),
+        .SDRAM_DQML ( SDRAM2_DQML   ),
+        .SDRAM_DQMH ( SDRAM2_DQMH   ),
+        .SDRAM_nWE  ( SDRAM2_nWE    ),
+        .SDRAM_nCAS ( SDRAM2_nCAS   ),
+        .SDRAM_nRAS ( SDRAM2_nRAS   ),
+        .SDRAM_nCS  ( SDRAM2_nCS    ),
+        .SDRAM_BA   ( SDRAM2_BA     ),
+        .SDRAM_CKE  ( SDRAM2_CKE    ),
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`else
+    // line-frame buffer
+    jtframe_lfbuf_bram u_lf_buf(
+        .rst        ( rst           ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_we      ( ln_we         ),
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`endif
+`endif
 
 endmodule

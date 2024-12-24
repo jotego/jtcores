@@ -9,8 +9,8 @@ if [ ! -e "$DUMP" ]; then "Cannot find $DUMP"; exit 1; fi
 # {{ .Name }} {{ .Size }} bytes ({{.SizekB}} kB)
 dd if="$DUMP" of={{.Name}}.bin bs=256 count={{.Blocks}} skip={{.SkipBlocks}}
 {{ if eq .DW 16 -}}
-drop1    < {{.Name}}.bin > {{.Name}}_hi.bin
-drop1 -l < {{.Name}}.bin > {{.Name}}_lo.bin
+jtutil drop1    < {{.Name}}.bin > {{.Name}}_hi.bin
+jtutil drop1 -l < {{.Name}}.bin > {{.Name}}_lo.bin
 {{end }}
 {{ end }}{{ end  }}
 dd if="$DUMP" of=rest.bin bs=256 skip={{.Ioctl.SkipAll}}

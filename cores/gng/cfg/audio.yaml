@@ -1,0 +1,10 @@
+# referenced in other cores for 8-bit CAPCOM hardware
+audio:
+  channels:
+    # PSG rsum: 4.7 kOhm + parallel(0.25,1k)
+    - { name: psg0, module: jt03_psg, rsum: 4.9k }
+    - { name: psg1, module: jt03_psg, rsum: 4.9k }
+    # There is a separate potentiometer for music in GnG so relative
+    # PSG/FM volume was arbitrary
+    - { name: fm0,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 10k, rc: [{ r: rout,  c: 1n }]}

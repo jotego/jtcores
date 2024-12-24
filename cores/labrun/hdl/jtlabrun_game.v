@@ -65,8 +65,8 @@ jtlabrun_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -88,9 +88,10 @@ jtlabrun_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       ),
     // Sound
-    .snd            ( snd           ),
-    .sample         ( sample        ),
-    .peak           ( game_led      )
+    .fm0            ( fm0           ),
+    .fm1            ( fm1           ),
+    .psg0           ( psg0          ),
+    .psg1           ( psg1          )
 );
 `else
 assign main_cs = 0;

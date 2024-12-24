@@ -1,0 +1,38 @@
+	; check DEX, DES, LDX,LDS,CPX (imm), TSX
+	include defs.inc
+
+	LDX	#$FFF0
+	BPL BAD
+	BEQ BAD
+	BVS BAD
+
+	LDS	#($F00)
+	BMI BAD
+	BEQ BAD
+	BVS BAD
+
+	LDA #$F0
+L0:
+	DEX
+	DES
+	DECA
+	BNE L0
+	CPX #$FF00
+	BNE BAD
+	TSX
+	CPX #$E11
+	BNE BAD
+
+	LDX #1
+	DEX
+	BNE BAD
+
+	LDS #1
+	BEQ BAD
+	DES
+	BEQ BAD
+	TSX
+	CPX #1
+	BNE BAD
+
+	include finish.inc

@@ -46,9 +46,9 @@ module jtshanon_colmix(
     input              sb,
     input              fix,
 
-    output     [ 4:0]  red,
-    output     [ 4:0]  green,
-    output     [ 4:0]  blue,
+    output     [ 5:0]  red,
+    output     [ 5:0]  green,
+    output     [ 5:0]  blue,
     output             LVBL,
     output             LHBL,
     input      [ 7:0]  debug_bus,
@@ -60,17 +60,14 @@ module jtshanon_colmix(
 
 wire [ 1:0] we;
 wire [15:0] pal_out;
-wire [14:0] rgb;
 reg  [10:0] rd_mux;
 reg  [11:0] pal_addr, pre_addr;
 reg  [11:0] objl;
 reg         muxsel;
-// reg  [ 1:0] blink;
+wire [ 5:0] pr, pg, pb;
+wire [ 4:0] rpal, gpal, bpal;
 
 assign we = ~dswn & {2{pal_cs}};
-assign { red, green, blue } = rgb;
-
-wire [4:0] rpal, gpal, bpal;
 
 `ifndef GRAY
 assign rpal  = { pal_out[ 3:0], pal_out[12] };
@@ -82,22 +79,6 @@ assign gpal  = { pal_addr[3:0], pal_addr[3] };
 assign bpal  = { pal_addr[3:0], pal_addr[3] };
 `endif
 
-function [4:0] dim;
-    input [4:0] a;
-    dim = a - (a>>2);
-endfunction
-
-function [4:0] light;
-    input [4:0] a;
-    begin : fn_light
-        reg [5:0] aux;
-        aux = {1'b0, a } + ( {1'b0, a } >>2);
-        light = aux[5] ? 5'h1f : aux[4:0];
-    end
-endfunction
-
-reg [14:0] gated;
-
 // Super Hang On Equations 315-5251
 // muxel ==0 selects tile mapper output, ==1 selects road
 // muxsel = obj0 & obj1 & obj2 & obj3 & FIX & !rc3q #
@@ -107,11 +88,6 @@ reg [14:0] gated;
 always @(posedge clk) if(pxl_cen) begin
     pal_addr <= pre_addr;
     objl     <= obj_pxl;
-
-    gated <= // !video_en ? 15'd0 :
-         !shadow     ? { rpal, gpal, bpal }                      : // no shade effect
-         pal_out[15] ? { light(rpal), light(gpal), light(bpal) } : // brighter
-                       { dim(rpal), dim(gpal), dim(bpal) };        // dimmer
 end
 
 always @(*) begin
@@ -140,12 +116,21 @@ always @(*) begin
     pre_addr[11] = 0; // Super Hang On
 end
 
-// reg LVBLl;
-
-// always @(posedge clk) begin
-//     LVBLl <= LVBL;
-//     if( LVBLl && !LVBL ) blink <= blink+2'd1;
-// end
+// Model of 315-5242 DAC
+jtshanon_coldac u_dac(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .rin        ( rpal      ),
+    .gin        ( gpal      ),
+    .bin        ( bpal      ),
+    .sh         ( shadow    ),
+    .en         ( video_en  ),
+    .gray_n     ( 1'b1      ),
+    .hilo       (pal_out[15]),
+    .rout       ( pr        ),
+    .gout       ( pg        ),
+    .bout       ( pb        )
+);
 
 jtframe_dual_nvram16 #(
     .AW        (13          ),
@@ -172,7 +157,7 @@ jtframe_dual_nvram16 #(
     .q1b    ( ioctl_din )
 );
 
-jtframe_blank #(.DLY(3),.DW(15)) u_blank(
+jtframe_blank #(.DLY(3),.DW(18)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( preLHBL   ),
@@ -180,8 +165,8 @@ jtframe_blank #(.DLY(3),.DW(15)) u_blank(
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .preLBL     (           ),
-    .rgb_in     ( gated     ),
-    .rgb_out    ( rgb[14:0] )
+    .rgb_in     ( {pr,pg,pb}),
+    .rgb_out    ({red,green,blue})
 );
 
 endmodule

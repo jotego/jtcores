@@ -11,6 +11,7 @@ jtframe:
       - jtframe_sh.v
       - jtframe_sys_info.v
       - jtframe_bcd_cnt.v
+      - jtframe_rsthold.v
   - from: clocking
     get:
       - jtframe_gated_cen.v
@@ -22,6 +23,7 @@ jtframe:
       - jtframe_keyboard.v
       - jtframe_4wayjoy.v
       - jtframe_inputs.v
+      - jtframe_rec_inputs.v
       - jtframe_paddle.v
       - jtframe_mouse.v
       - jtframe_dial.v
@@ -32,6 +34,7 @@ jtframe:
       - jtframe_resync.v
       - jtframe_credits.v
       - jtframe_wirebw.v
+      - jtframe_short_blank.v
   - from: sdram
     get:
       - jtframe_dwnld.v
@@ -59,4 +62,13 @@ jtframe:
     get:
       - jtframe_mixer_en.v
       - jtframe_mixer.v
-      - jtframe_uprate2_fir.yaml
+      - jtframe_iir2.v
+      - jtframe_fir.v
+      - jtframe_rcmix.v
+      - jtframe_limsum.v
+      - jtframe_limmul.v
+      - jtframe_sndchain.v
+      - jtframe_pole.v
+      - jtframe_dcrm.v
+      - jtframe_volume.v
+      - jtframe_vumeter.sv

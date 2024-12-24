@@ -21,13 +21,20 @@
 module jtframe_sys_info(
     input               rst_sys,
     input               clk,
-    input               sample,
     input               dip_pause,
     input               dip_flip,
     input               game_led,
     input               LVBL,
     input         [6:0] core_mod,
-    input         [1:0] dial_x,
+    // sound
+    input               sample,
+    input         [7:0] snd_vol,
+    input         [5:0] snd_en,
+    input         [5:0] snd_vu,
+    input signed [15:0] snd_l, snd_r,
+    output              vu_peak,
+    output reg          snd_mode,
+
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
     // IOCTL
@@ -35,6 +42,7 @@ module jtframe_sys_info(
     input               ioctl_rom,
     input               ioctl_cart,
     // mouse
+    input         [1:0] dial_x,
     input         [8:0] mouse_dx,
     input         [8:0] mouse_dy,
     input         [7:0] mouse_f,
@@ -43,7 +51,7 @@ module jtframe_sys_info(
     output reg    [7:0] st_dout
 );
 
-parameter MFREQ = `JTFRAME_MCLK;
+parameter MFREQ = `JTFRAME_MCLK/1000;
 
 reg rst;
 
@@ -58,6 +66,8 @@ reg         sl, LVBLl;
 wire        sample_clr, sample_up;
 // SDRAM stats
 wire [ 7:0] stats;
+// sound
+wire [ 7:0] vu_dB;
 
 assign frame_up   = LVBL & ~LVBLl & dip_pause;
 assign sample_clr = freq_cnt == MFREQ-1;
@@ -69,26 +79,44 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         LVBLl     <= 0;
         st_dout   <= 0;
+        snd_mode  <= 0;
     end else begin
-        LVBLl <= LVBL;
+        LVBLl    <= LVBL;
+        snd_mode <= 0;
         case( st_addr[7:6] )
-            0: case(st_addr[5:4])
-                0: st_dout <= stats;
-                1: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
-                default: st_dout <= 0;
-            endcase
-            1: case( st_addr[1:0] )
+            0: casez( st_addr[1:0] )
                 0: st_dout <= frame_bcd[15:8];
                 1: st_dout <= frame_bcd[7:0];
                 2: st_dout <= {4'd0, frame_bcd[19:16]};
                 default: st_dout <= 0;
             endcase
-            2: case( st_addr[5:4] )
-                0: st_dout <= srate;
-                1: st_dout <= dipsw[ 0+:8];
-                2: st_dout <= dipsw[ 8+:8];
-                3: st_dout <= dipsw[16+:8];
-            endcase
+            1: begin
+                snd_mode <= 1; // in sound mode, the hex display will always show the snd_vol
+                               // but the binary view will show st_dout (see jtframe_debug)
+                case(st_addr[5:4])
+                    0: st_dout <= vu_dB;
+                    1: case(st_addr[1:0])
+                        0: st_dout <= {2'd0, snd_vu & snd_en };
+                        1: st_dout <= {2'd0, snd_en};
+                        2: st_dout <= srate;
+                    endcase
+                    2: st_dout <= snd_vol;
+                    3: begin
+                        snd_mode <= 0;
+                        case(st_addr[3:2])
+                            0: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
+                            1: case(st_addr[1:0])
+                                0: st_dout <= dipsw[ 0+:8];
+                                1: st_dout <= dipsw[ 8+:8];
+                                2: st_dout <= dipsw[16+:8];
+                                default: st_dout <= 0;
+                            endcase
+                            default: st_dout <= 0;
+                        endcase
+                    end
+                endcase
+            end
+            2: st_dout <= stats; // SDRAM stats
             3: case( st_addr[5:4] )
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
                 1: st_dout <= mouse_dx[8:1];
@@ -132,6 +160,17 @@ jtframe_sdram_stats u_stats(
     .LVBL       ( LVBL          ),
     .st_addr    ( st_addr       ),
     .st_dout    ( stats         )
+);
+
+jtframe_vumeter vumeter(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( sample        ),
+    // input signals
+    .l          ( snd_l         ),
+    .r          ( snd_r         ),
+    .vu         ( vu_dB         ),
+    .peak       ( vu_peak       )
 );
 
 endmodule

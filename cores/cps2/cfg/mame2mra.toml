@@ -1,5 +1,6 @@
 [global]
-mraauthor=["jotego,atrac17"]
+# atrac17 helped with the first set of MRA files
+author=["jotego"]
 zip.alt="qsound.zip"
 
 [parse]
@@ -79,7 +80,6 @@ data=[
 ]
 
 [rom]
-ddr_load=true
 regions=[
     # The Q-Sound may fail because the dl-1425.bin length is larger than 0x2000
     { name="maincpu",  width=16 },

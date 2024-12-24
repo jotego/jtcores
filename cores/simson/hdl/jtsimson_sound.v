@@ -21,9 +21,8 @@ module jtsimson_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
-    input   [ 1:0]  fxlevel,
-    input           enable_fm,
-    input           enable_psg,
+    input           simson,
+
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  main_dout,
@@ -58,47 +57,40 @@ module jtsimson_sound(
     input           pcmd_ok,
     // Sound output
     output signed [15:0] snd_l, snd_r,
-    output               sample,
-    output reg           peak,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
-localparam  [ 7:0]  FMGAIN=8'h08;
-
+wire signed [15:0]  fm_l,  fm_r;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
                     peak_l, peak_r, nmi_n;
 reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs;
-wire signed [15:0]  fm_l, fm_r;
-wire                cpu_cen;
+wire                cpu_cen, sample;
 reg                 mem_acc, af, nmi_clr;
 reg         [ 2:0]  bank;
-wire signed [13:0]  pcm_l, pcm_r;
 reg         [ 3:0]  pcm_msb;
-reg         [ 7:0]  fmgain, fxgain;
 
-
-assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
+assign rom_addr = simson ? { A[15] ? bank : { 2'd0, A[14] }, A[13:0] } : {1'd0,A[15:0]};
 assign st_dout  = fm_dout;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
     af       = A[15:12]==4'hf;
     rom_cs   = mem_acc && !af;
-    ram_cs   = mem_acc && af && !A[11];
+    ram_cs   = mem_acc &&  af && !A[11];
     bank_cs  = 0;
     nmi_clr  = 0;
     fm_cs    = 0;
     pcm_cs   = 0;
     if( mem_acc && af ) case(A[11:9])
-        7: bank_cs = 1;
-        6: pcm_cs  = 1;
-        5: nmi_clr = 1;
         4: fm_cs   = 1;
+        5: nmi_clr = 1;
+        6: pcm_cs  = 1;
+        7: bank_cs = simson;     // unused in Parodius
         default:;
     endcase
 end
@@ -116,22 +108,11 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bank   <= 0;
-        peak   <= 0;
-        fmgain <= 0;
     end else begin
-        fmgain <= enable_fm ? FMGAIN : 8'd0;
-        case( fxlevel )
-            0: fxgain <= 8'h18;
-            1: fxgain <= 8'h20;
-            2: fxgain <= 8'h28;
-            3: fxgain <= 8'h30;
-        endcase
-        if( !enable_psg ) fxgain <= 0;
         if( bank_cs ) bank <= cpu_dout[2:0];
-        peak <= peak_r | peak_l;
     end
 end
-
+/* verilator tracing_off */
 jtframe_edge #(.QSET(0)) u_edge (
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -140,38 +121,7 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
-jtframe_mixer #(.W0(16),.W1(14)) u_mix_l(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_l       ),
-    .ch1    ( pcm_l      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fxgain     ),
-    .gain2  ( 8'd0       ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_l      ),
-    .peak   ( peak_l     )
-);
-
-jtframe_mixer #(.W0(16),.W1(14)) u_mix_r(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
-    .ch0    ( fm_r       ),
-    .ch1    ( pcm_r      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fxgain     ),
-    .gain2  ( 8'd0       ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_r      ),
-    .peak   ( peak_r     )
-);
-
+/* verilator tracing_on */
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -212,14 +162,14 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample and NMI
-    .left       (           ),
-    .right      (           ),
+    .sample     ( sample    ),
+    .left       ( fm_l      ),
+    .right      ( fm_r      ),
     // Full resolution output
-    .xleft      ( fm_l      ),
-    .xright     ( fm_r      )
+    .xleft      (           ),
+    .xright     (           )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jt053260 u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -260,8 +210,10 @@ jt053260 u_pcm(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
-    .snd_l      ( pcm_l     ),
-    .snd_r      ( pcm_r     ),
+    .aux_l      ( fm_l      ),
+    .aux_r      ( fm_r      ),
+    .snd_l      ( snd_l     ),
+    .snd_r      ( snd_r     ),
     .sample     (           )
 );
 `else
@@ -271,8 +223,6 @@ assign  pcma_addr= 0, pcmb_addr=0, pcmc_addr=0, pcmd_addr=0;
 assign  rom_addr = 0;
 assign  snd_l    = 0;
 assign  snd_r    = 0;
-initial peak     = 0;
-assign  sample   = 0;
 assign  st_dout  = 0;
 assign  main_din = 0;
 `endif

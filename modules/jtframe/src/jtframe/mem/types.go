@@ -57,6 +57,7 @@ type BRAMBus struct {
     Ioctl      struct {
         Save bool `yaml:"save"`
         Order int `yaml:"order"`
+        Restore bool `yaml:"restore"`
     } `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
@@ -91,7 +92,7 @@ type SDRAMCfg struct {
 }
 
 type Include struct {
-    Game string `yaml:"game"` // if not null, it will load from that game folder
+    Game string `yaml:"game"` // if not null, it will load from that game cfg folder
     File string `yaml:"file"` // if null, mem.yaml will be used
 }
 
@@ -123,10 +124,10 @@ type ClockCfg struct {
     Busy    string
 }
 
-type IoctlBus struct{
+type IoctlBus struct{ // not a YAML type
     DW, AW, AWl int
     Blocks, SkipBlocks, Size, SizekB int
-    Name, Dout, Ain, Aout string
+    Name, Dout, A, Amx, Din, We string
 }
 
 type Ioctl struct {
@@ -134,6 +135,48 @@ type Ioctl struct {
     DinName string
     SkipAll int
     Buses [6]IoctlBus
+}
+
+type AudioRC struct {
+    R   string `yaml:"r"`
+    C   string `yaml:"c"`
+}
+
+type AudioCh struct {
+    Name       string `yaml:"name"`
+    Module     string `yaml:"module"`
+    Rsum       string `yaml:"rsum"`
+    Rout       string `yaml:"rout"` // output impedance
+    Pre        string `yaml:"pre"`  // pre-amplifier gain
+    Vpp        string `yaml:"vpp`   // peak-to-peak voltage range, 1.0=>5V
+    RC         []AudioRC `yaml:"rc"`
+    Fir        string `yaml:"fir"` // CSV file containing filter coefficients
+    DCrm       bool   `yaml:"dcrm"`
+    // These two are filled from Module, if the Module is present
+    Stereo     bool   `yaml:"stereo"`
+    Unsigned   bool   `yaml:"unsigned"`
+    Data_width int    `yaml:"data_width"`
+    Rc_en      bool   `yaml:"rc_en"`
+    // Derived from RC information
+    Firhex     string   // name for file with FIR filter coefficients in hexadecimal
+    Filters    int      // number of RC filters (each one is made of two poles)
+    Pole       string
+    rcen       string
+    Fcut       [2]int
+    Gain       string
+    gain       float64
+}
+
+type Audio struct {
+    Rsum    string `yaml:"rsum"`
+    Mute    bool   `yaml:"mute"`
+    RC         AudioRC `yaml:"rc"`
+    Channels []AudioCh `yaml:"channels"`
+    // Fractional divider information to generate 192kHz clock
+    FracW,FracN,FracM int
+    // Derived information
+    GlobalPole string
+    GlobalFcut int
 }
 
 type MemConfig struct {
@@ -144,6 +187,7 @@ type MemConfig struct {
     Params   []Param     `yaml:"params"`
     Ports    []Port      `yaml:"ports"`
     Game     string      `yaml:"game"` // optional: Overrides using Core as the jt<core>_game module
+    Audio    Audio       `yaml:"audio"`
     // There will be other memory models supported here
     // Like DDR, BRAM, etc.
     // This part does not go in the YAML file
@@ -156,7 +200,9 @@ type MemConfig struct {
     Unused   [4]bool // true for unused banks
     // Derived information
     Ioctl    Ioctl
+    Stereo   bool
     Gfx8     string
     Gfx16    string
     Gfx8b0, Gfx16b0 int
+    Balut,Lutsh int
 }

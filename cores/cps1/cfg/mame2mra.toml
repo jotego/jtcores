@@ -1,22 +1,71 @@
 [global]
-mraauthor=["jotego"]
+author=["jotego"]
 
 [parse]
 sourcefile=[ "cps1.cpp" ]
-skip.bootlegs=true
+#skip.bootlegs=true
 mustbe.devices=["ym2151"]
 # Need to fix the mix of gfx ROMs of 8 and 16 bits:
 skip.setnames=[
 	# won't boot
+	"ganbare",
+	"3wondersu",
+	"3wonders1",
+	"ffightjh",
+    # CPS1.5 bootlegs
+    "dinohunt",
+    "punisherbz",
+    "wofhfh",
+    # bootlegs that won't boot (likely different hardware)
+    "sf2level",
+    "sf2dongb",
+    "sf2dkot2",
+    "sf2bhh",
+    "sf2m2",
+    "sf2m3",
+    "sf2m4",
+    "sf2m5",
+    "sf2m7",
+    "sf2ceblp",
+    "sf2rb",
+    "sf2rb2",
 	"sf2mkot",
 	"sf2um",
 	"sf2ue",
 	"sf2ef",
 	"sf2ee",
-	"ganbare",
-	"3wondersu",
-	"3wonders1",
-	"ffightjh",
+    "sf2reda",
+    "sf2koryu",
+    "sf2thndr",
+    "sf2thndr2",
+    "pang3b2",
+    "pang3b3",
+    "pang3b4",
+    "pang3b5",
+    "varthb2",
+    # bootlegs with bad graphics
+    "3wondersb",
+    # Bad number of ROMs for interlave in bootlegs
+    "captcommb",
+    "knightsb2",
+    "sf2amf",
+    "sf2amf2",
+    "sf2amf3",
+    "sf2ceds6",
+    "sf2cems6a",
+    "sf2cems6b",
+    "sf2cems6c",
+    "sf2ebbl",
+    "sf2ebbl2",
+    "sf2ebbl3",
+    "sf2m10",
+    "sf2m6",
+    "sf2m8",
+    "sf2re",
+    "sf2rk",
+    "sf2rules",
+    "sf2stt",
+    "varthb3",
 ]
 
 [buttons]
@@ -71,7 +120,11 @@ defaults=[
     { value="ff,fd,ff", setnames=[ "ghouls", "ghoulsu", "qadjr", "strider", "striderua", "strideruc" ] },
     { value="ff,ff,fa", setnames=[ "willow", "willowu", "willowuo" ] },
 ]
-delete=[{names=[ "Unused", "Unknown", "Coinage" ]}]
+delete=[
+    {names=[ "Unused", "Unknown", "Coinage", "Coin Slots", "Coin A", "Coin B", "2 Coins to Start, 1 to Continue" ]},
+    {setname="sf2accp2", names=["Shot Type"]},
+    {setname="forgottnj", names=["Freeze"]},
+]
 rename=[
     {name="2 Coins to Start, 1 to Continue", to="2 to start, 1 continue"},
     {name="Lives (Midnight Wanderers)", to="Lives (Mid.W.)"},
@@ -86,9 +139,14 @@ rename=[
     {name="Internal Diff. on Life Loss", to="Life Loss"},
     {name="2 Players Game", to="2P Game"},
     {name="Wisdom (questions to win game)", to="Questions"},
+    {name="Ken special rapid multiple shots", to="Ken rapid shots"},
+    {name="Ryu special rapid multiple shots", to="Ryu rapid shots"},
+    {name="Guile special rapid multiple shots", to="Guile rapid shots"},
+    {name="Blanka special rapid multiple shots", to="Blanka rapid shots"},
 ]
 extra=[
     { machine="pang3", name="Freeze", options="On,Off", bits="23" },
+    { name="PCB type", options="88617A,89626A", bits="24" },
 ]
 
 [rom]
@@ -119,7 +177,7 @@ regions=[
     { name="gfx", width=64 },
     # So far, Pang!3 is too specific. It needs to break each file in two and
     # merge them back in different locations. Instead of parsing MAME's XML
-    # the desigred parts are done manually:
+    # the desired parts are done manually:
     { name="gfx", width=64, machine="pang3", parts=[
         { name="pa3-01m.2c", crc="068a152c", map="00000021", length=0x100000, offset=0 },
         { name="pa3-07m.2f", crc="3a4a619d", map="00002100", length=0x100000, offset=0 },
@@ -131,6 +189,7 @@ regions=[
     { name="bboardplds", skip=true },
     { name="cboardplds", skip=true },
     { name="timekeeper", skip=true },
+    { name="pal", skip=true },
 ]
 
 order = ["maincpu", "audiocpu","oki","gfx"]

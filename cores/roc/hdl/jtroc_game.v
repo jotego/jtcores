@@ -47,11 +47,11 @@ assign dip_flip   = ~flip;
 assign debug_view = view_mux;
 
 always @(*) begin
-    case( debug_bus[1:0])
-        0: view_mux = 0;
+    case( debug_bus[7:6])
+        0: view_mux = st_snd;
         1: view_mux = st_main;
         2: view_mux = snd_latch;
-        3: view_mux = st_snd;
+        3: view_mux = 0;
     endcase
 end
 
@@ -80,8 +80,8 @@ jtroc_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -117,7 +117,6 @@ jtroc_main u_main(
     assign flip      = 1;
 `endif
 
-`ifndef NOSOUND
 jtroc_snd u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
@@ -131,19 +130,21 @@ jtroc_snd u_sound(
     .snd_on     ( snd_on    ),
     .mute       ( mute      ),
     // Sound
-    .snd        ( snd       ),
-    .sample     ( sample    ),
-    .peak       ( game_led  ),
+    .psg0a      ( psg0a       ),
+    .psg0b      ( psg0b       ),
+    .psg0c      ( psg0c       ),
+    .psg1a      ( psg1a       ),
+    .psg1b      ( psg1b       ),
+    .psg1c      ( psg1c       ),
+    .psg0a_rcen ( psg0a_rcen  ),
+    .psg0b_rcen ( psg0b_rcen  ),
+    .psg0c_rcen ( psg0c_rcen  ),
+    .psg1a_rcen ( psg1a_rcen  ),
+    .psg1b_rcen ( psg1b_rcen  ),
+    .psg1c_rcen ( psg1c_rcen  ),
+
     .st_dout    ( st_snd    )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign snd=0;
-    assign st_snd=0;
-    assign sample=0;
-    assign game_led=0;
-`endif
 
 jtroc_video u_video(
     .rst        ( rst       ),

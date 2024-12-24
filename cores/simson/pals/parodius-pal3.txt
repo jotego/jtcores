@@ -1,0 +1,32 @@
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/i7  = /A15  & /A14  & A13  & /A12  & /WOC1  +
+       /A15  & /A14  & A13  & /A12  & A11  +
+       /BANKR  & /A15  & A14  & A13  +
+       /A15  & /A14  & A13  & A12  +
+       /A15  & A14  & /A13 
+
+/i6  = /A15  & /A14  & A13  & A12  & A11  & A10 
+
+/PALETTE  = AS  & /A15  & /A14  & /A13  & /A12  & /A11  & WOC0 
+
+/OBJRAM  = AS  & /A15  & /A14  & A13  & /A12  & /A11  & WOC1 
+
+/WORK  = AS  & /A15  & /A14  & /A13  & /A12  & A11  +
+       AS  & /A15  & /A14  & /A13  & /WOC0  +
+       AS  & /A15  & /A14  & /A13  & A12 
+
+/PAGED  = AS  & BANKR  & /A15  & A14  & A13  +
+       AS  & A15  & /A14  & /A13 
+
+/UNPAGED  = AS  & A15  & /A14  & A13  +
+       AS  & A15  & A14 
+

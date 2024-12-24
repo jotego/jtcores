@@ -24,6 +24,8 @@ var Args struct{
 	Output string
 }
 
+var reVars, reSp, reDig *regexp.Regexp
+
 type UcOp struct {
 	Name   string            `yaml:"name"`
 	Op     int               `yaml:"op"`
@@ -32,17 +34,25 @@ type UcOp struct {
 	Ctl    map[string]string `yaml:"ctl"`
 }
 
+type UcRange struct{
+	Name string `yaml:"name"`
+	Values []string `yaml:"values"`
+}
+
 type UcChunk struct {
-	Seq   []string `yaml:"seq"`	   // sequence of microcode instructions
+	Seq   []string `yaml:"seq"`	    // sequence of microcode instructions
 	// Decoded OP instructions:
-	Mnemo []string `yaml:"mnemo"`  // if mnemo!=nil, the UcOp.Op field is used as Start
+	Mnemo []string `yaml:"mnemo"`   // if mnemo!=nil, the UcOp.Op field is used as Start
 	// Procedures:
-	Name  string   `yaml:"name"`   // if name!="", this is a procedure and it uses the Start field
-	Start int      `yaml:"start"`  // ucode address at which the procedure starts
+	Name  string   `yaml:"name"`    // if name!="", this is a procedure and it uses the Start field
+	Start int      `yaml:"start"`   // ucode address at which the procedure starts
 	NoAuto bool	   `yaml:"no_auto"` // only for procedures: disables automatic address assignment
-	Cycles int	   `yaml:"cycles"` // used for procedures
+	Cycles int	   `yaml:"cycles"`  // used for procedures
+	// Template procedures
+	Range []UcRange `yaml:"range"` // it will generate all permutations using these variables
 	// private
 	cycles int
+	local map[string]string			// local variables defined from the range
 }
 
 type UcDesc struct {
@@ -75,37 +85,9 @@ func (this *UcOp) Id() string {
 	return fmt.Sprintf("%-5s:0x%02x", this.Name, this.Op)
 }
 
-func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
-	reVars := regexp.MustCompile(`\${([a-zA-Z][a-zA-Z0-9_]*?)}`)
-	reSp := regexp.MustCompile(` +`)
-	reDig := regexp.MustCompile(`\b[0-9]`)
-	used := make(map[string]bool) // used OP parameters. All parameters defined in the Op must be referenced to in the ucode template
-	up0 := 0
+func chunk2code( mnemok, up0, opk int, id string, proc bool, code []string, used map[string]bool, desc *UcDesc) int {
 	upk := 0
-	proc := false
-	var id string
-	if desc.Chunks[mnemok].Name!="" {
-		up0 = desc.Chunks[mnemok].Start
-		id = desc.Chunks[mnemok].Name
-		proc = true
-		if up0<0 {
-			up0 = opk // used for copying a procedure to any location
-					  // specify -1 in the YAML, and then it can be used
-					  // as the bus_error procedure
-			if up0<0 { return } // if opk was negative too, ignore the procedure
-		}
-	} else {
-		up0 = desc.Ops[opk].Op
-		id = desc.Ops[opk].Id()
-		for each,_ := range desc.Ops[opk].Ctl {
-			used[each]=false
-		}
-	}
-	if desc.Cfg.Entries<=up0 {
-		fmt.Printf("%s starts outside the allowed range (0-%d)\n", id, desc.Cfg.Entries-1)
-	}
-	up0 = up0 * desc.Cfg.EntryLen
-next_line:
+	next_line:
 	for _, each := range desc.Chunks[mnemok].Seq {
 		if upk >= desc.Cfg.EntryLen {
 			fmt.Printf("ucode for %s is longer than %d steps\n", id, desc.Cfg.EntryLen)
@@ -124,11 +106,15 @@ next_line:
 					}
 					val := ""
 					fnd := false
-					if opk!=-1 {
-						val, fnd = desc.Ops[opk].Ctl[parms[j][1]]
+					parmName := parms[j][1]
+					if opk!=-1 {	// Mnemonic chunks will use the associated OP params
+						val, fnd = desc.Ops[opk].Ctl[parmName]
+					}
+					if !fnd && desc.Chunks[mnemok].local!=nil {
+						val, fnd = desc.Chunks[mnemok].local[parmName]
 					}
 					if !fnd { // look in global constants
-						val, fnd = desc.Constants[parms[j][1]]
+						val, fnd = desc.Constants[parmName]
 						if !fnd && (proc || !desc.Cfg.Implicit) {
 							fmt.Printf("Cannot find ucode parameter %s while parsing %s\n", parms[j][1], id)
 							if proc { fmt.Println("ucode procedures are limited to global constants and cannot use OP-specific parameter") }
@@ -197,13 +183,42 @@ next_line:
 		code[up0+upk] = strings.ToUpper(reSp.ReplaceAllString(strings.TrimSpace(strings.Join(tokens, " ")), " "))
 		upk++
 	}
+	return upk
+}
+
+func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
+	used := make(map[string]bool) // used OP parameters. All parameters defined in the Op must be referenced to in the ucode template
+	up0 := 0
+	proc := false
+	var id string
+	if desc.Chunks[mnemok].Name!="" {
+		up0 = desc.Chunks[mnemok].Start
+		id = desc.Chunks[mnemok].Name
+		proc = true
+		if up0<0 {
+			up0 = opk // used for copying a procedure to any location
+					  // specify -1 in the YAML, and then it can be used
+					  // as the bus_error procedure
+			if up0<0 { return } // if opk was negative too, ignore the procedure
+		}
+	} else {
+		up0 = desc.Ops[opk].Op
+		id = desc.Ops[opk].Id()
+		for each,_ := range desc.Ops[opk].Ctl {
+			used[each]=false
+		}
+	}
+	if desc.Cfg.Entries<=up0 {
+		fmt.Printf("%s starts outside the allowed range (0-%d)\n", id, desc.Cfg.Entries-1)
+	}
+	up0 = up0 * desc.Cfg.EntryLen
+	desc.Chunks[mnemok].cycles = chunk2code( mnemok, up0, opk, id, proc, code, used, desc )
 	for k,v := range used {
 		if !v {
 			fmt.Printf("Unused parameter %s in OP %s\n", k, id)
 			os.Exit(1)
 		}
 	}
-	desc.Chunks[mnemok].cycles = upk
 }
 
 func find_chunk(opName string, desc *UcDesc) int {
@@ -228,6 +243,47 @@ func find_proc(name string, desc *UcDesc) int {
 		}
 	}
 	return -1
+}
+
+func chunk_templates( desc *UcDesc) {
+	new := make([]UcChunk,0)
+
+	var local map[string]string
+	var base UcChunk
+	var vv []UcRange
+	var rec func( string, int )
+
+	rec = func( suffix string, i int) {
+		if i==len(vv) {
+			n := base
+			n.Name += suffix
+			n.local = make(map[string]string)
+			for k,v := range local {
+				n.local[k]=v
+			}
+			n.Range = nil
+			new = append(new,n)
+			return
+		}
+		j := 0
+		for _, each := range vv[i].Values {
+			local[vv[i].Name]=each
+			rec(fmt.Sprintf("%s%X",suffix,j),i+1)
+			j++
+		}
+	}
+	// populate with the new procedures based on the templates
+	for _, base = range desc.Chunks {
+		local = make(map[string]string)
+		if len(base.Range)>0 {
+			if Args.Verbose { fmt.Printf("Expanding template for %s\n",base.Name) }
+			vv = base.Range
+			rec( "", 0 )
+		} else {
+			new=append(new,base)
+		}
+	}
+	desc.Chunks=new
 }
 
 func expand_all(desc *UcDesc) []string {
@@ -664,6 +720,7 @@ func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks
 
 func check_mnemos(desc *UcDesc, verbose bool) {
 	free := check_duplicated(desc, verbose)
+	chunk_templates( desc )		// expand the chunk templates
 	assign_auto( desc, free, verbose )
 	check_missing_mnemos(desc)
 }
@@ -849,6 +906,11 @@ func Make(modname, fname string) {
 		fmt.Println("Set non-zero values for entry_len and entries in the config section")
 		os.Exit(1)
 	}
+	// global variables used for regular expressions
+	reVars = regexp.MustCompile(`\${([a-zA-Z][a-zA-Z0-9_]*?)}`)
+	reSp = regexp.MustCompile(` +`)
+	reDig = regexp.MustCompile(`\b[0-9]`)
+
 	check_mnemos(&desc, Args.Verbose)
 	code := expand_all(&desc)
 	bad := 0

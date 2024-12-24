@@ -102,9 +102,10 @@ reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
 reg           lhbl_l, do_wr, wait1,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
-wire          rding, wring;
+wire          wring;
 
-assign rding   = st[3];
+`ifdef SIMULATION
+wire   rding   = st[3]; `endif
 assign wring   = st[2];
 assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the common cen (clock enable) signal
 assign cr_dsn  = 0;

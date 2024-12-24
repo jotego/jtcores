@@ -35,7 +35,7 @@ wire [ 7:0] tile_id;
 wire [ 2:0] logopxl;
 
 
-jtframe_prom #(.synhex("logodata.hex"),.AW(10),.DW(16)) u_tiles(
+jtframe_prom #(.SYNHEX("logodata.hex"),.AW(10),.DW(16)) u_tiles(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .rd_addr( tile_addr ),
@@ -45,7 +45,7 @@ jtframe_prom #(.synhex("logodata.hex"),.AW(10),.DW(16)) u_tiles(
     .q      ( tile_data )
 );
 
-jtframe_prom #(.synhex("logomap.hex"),.AW(9)) u_map(
+jtframe_prom #(.SYNHEX("logomap.hex"),.AW(9)) u_map(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .rd_addr( vaddr     ),

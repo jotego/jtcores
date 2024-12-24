@@ -56,9 +56,8 @@ module jtlabrun_main(
     input      [7:0]    dipsw_b,
     input      [3:0]    dipsw_c,
     // Sound
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] fm0, fm1,
+    output        [ 9:0] psg0, psg1
 );
 
 localparam RAM_AW = 11;
@@ -70,7 +69,6 @@ wire        irq_trigger;
 reg         bank_cs, in_cs, pre_gfx, pre_cfg, ym0_cs, ym1_cs, ram_cs, prot_cs, sys_cs;
 reg  [ 2:0] bank;
 reg  [ 7:0] port_in, cpu_din, cabinet;
-wire [ 9:0] psg0_snd, psg1_snd;
 wire        fm0_irq_n, fm1_irq_n;
 wire        VMA;
 
@@ -198,9 +196,9 @@ jt03 u_fm0(
     .addr       ( ~A[0]      ),
     .cs_n       ( ~ym0_cs    ),
     .wr_n       ( fm_wrn     ),
-    .psg_snd    ( psg0_snd   ),
-    .fm_snd     ( fm0_snd    ),
-    .snd_sample ( sample     ),
+    .psg_snd    ( psg0       ),
+    .fm_snd     ( fm0        ),
+    .snd_sample (            ),
     .dout       ( ym0_dout   ),
     .IOA_in     ( dipsw_a    ),
     .IOB_in     ( dipsw_b    ),
@@ -226,8 +224,8 @@ jt03 u_fm1(
     .addr       ( ~A[0]      ),
     .cs_n       ( ~ym1_cs    ),
     .wr_n       ( fm_wrn     ),
-    .psg_snd    ( psg1_snd   ),
-    .fm_snd     ( fm1_snd    ),
+    .psg_snd    ( psg1       ),
+    .fm_snd     ( fm1        ),
     .snd_sample (            ),
     .dout       ( ym1_dout   ),
     .IOA_in     ( 8'hff      ),
@@ -244,39 +242,5 @@ jt03 u_fm1(
     .snd        (            ),
     .debug_view (            )
 );
-
-wire [10:0] psg_snd = {1'b0,psg0_snd} + {1'b0,psg1_snd};
-wire signed [10:0] psg2x;
-
-jt49_dcrm2 #(.sw(11)) u_dcrm (
-    .rst    (  rst      ),
-    .clk    (  clk      ),
-    .cen    (  cen3     ),
-    .din    (  psg_snd  ),
-    .dout   (  psg2x    )
-);
-
-`ifndef NOSOUND
-jtframe_mixer #(.W0(16),.W1(16),.W2(11)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen3      ),
-    // input signals
-    .ch0    ( fm0_snd   ),
-    .ch1    ( fm1_snd   ),
-    .ch2    ( psg2x     ),
-    .ch3    (           ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'hF0     ),
-    .gain1  ( 8'hF0     ),
-    .gain2  ( 8'hC0     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
-`else
-assign snd  = 0;
-assign peak = 0;
-`endif
 
 endmodule

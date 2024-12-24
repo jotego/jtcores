@@ -19,7 +19,7 @@
 `timescale 1ns/1ps
 
 `ifndef SDRAM_DELAY
-    `define SDRAM_DELAY 1
+    `define SDRAM_DELAY 0
 `endif
 
 // 96 MHz PLL model
@@ -27,9 +27,9 @@
 // of c0, the rest of the outputs are derived
 module jtframe_pll0(
     input        inclk0,
-    output   reg c0,     // 96
+    output       c0,     // SDRAM (48 or 96)
     output   reg c1,     // 48
-    output       c2,     // 48 (shifted by -2.5ns)
+    output   reg c2,     // 96
     output   reg c3,     // 24
     output   reg c4,     // 6
     output   reg locked
@@ -44,19 +44,21 @@ module jtframe_pll0(
     reg nc;
 
     initial begin
-        {c0,c1,c3,c4,nc} = 0;
-        forever c0 = #(BASE_CLK/2.0) ~c0;
+        {c2,c1,c3,c4,nc} = 0;
+        forever c2 = #(BASE_CLK/2.0) ~c2;
     end
 
-    always @(posedge c0) begin
+    always @(posedge c2) begin
         {c4,nc,c3,c1} <= {c4,nc,c3,c1} + 1'b1;
     end
 
     real sdram_delay = `SDRAM_DELAY;
     `ifdef JTFRAME_SDRAM96
-        assign #sdram_delay c2 = c0;    // use the high speed clock
+        assign #sdram_delay c0 = c2;    // use the high speed clock
+    `elsif JTFRAME_CLK96
+        assign #sdram_delay c0 = c2;    // use the high speed clock
     `else
-        assign #sdram_delay c2 = c1;
+        assign #sdram_delay c0 = c1;
     `endif
 
 endmodule

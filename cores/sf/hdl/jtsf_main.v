@@ -30,7 +30,7 @@
 
 
 module jtsf_main #(
-    parameter MAINW = 18,
+    parameter MAINW = 19,
               RAMW  = 15
 ) (
     input              rst,
@@ -370,7 +370,7 @@ always @* begin
     if( BUSn ) bus_busy=0;
 end
 
-jtframe_68kdtack u_dtack( // 48 -> 8MHz
+jtframe_68kdtack_cen u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
     .num        ( 4'd1       ),
@@ -386,7 +386,6 @@ jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .wait2      ( 1'd0       ),
     .wait3      ( 1'd0       ),
     // unused
-    .frst       ( 1'd0       ),
     .fave       (            ),
     .fworst     (            )
 );

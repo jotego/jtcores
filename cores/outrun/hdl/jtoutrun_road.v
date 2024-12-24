@@ -73,11 +73,13 @@ module jtoutrun_road(
                 rd0_scr, rd1_scr, rds_col,
                 rd0_col, rd1_col;
     reg  [ 6:0] solid;
+    wire [ 7:0] rds_col8;
 
     localparam [1:0] ONLY_ROAD0=0, ROAD0_PRIO=1,
                      ROAD1_PRIO=2, ONLY_ROAD1=3;
 
-    assign rd_we   = {2{road_cs & ~cpu_rnw}} & ~cpu_dsn;
+    assign rd_we    = {2{road_cs & ~cpu_rnw}} & ~cpu_dsn;
+    assign rds_col8 = rds_col[7:0];
 
     always @(posedge clk) begin
         case( st_addr[2:0] )
@@ -212,7 +214,7 @@ module jtoutrun_road(
     end
 
     always @(posedge clk) if(pxl_cen) begin
-        pxl <= !rrc[4] ? {4'd0, rrc[2:0], rds_col[{1'b0, rrc[2:0]} /* road stripes */ ] } :
+        pxl <= !rrc[4] ? {4'd0, rrc[2:0], rds_col8[rrc[2:0]] /* road stripes */ } :
                 rrc[3] ? { 1'b1, solid } :          // sky stripes
                 { 3'b001, rrc[2], rds_col[11:8] };  // road stripes
         rc[4:3] <= rrc[4:3];

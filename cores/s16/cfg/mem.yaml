@@ -1,12 +1,12 @@
 params:
-  - { name: MCU_PROM,    value: "`MCU_START"     }
-  - { name: N7751_PROM,  value: "`N7751_START"   }
-  - { name: KEY_PROM,    value: "`MAINKEY_START" }
-  - { name: MC8123_PROM, value: "`SNDKEY_START"  }
-  - { name: FD_PROM,     value: "`FD1089_START"  }
+  # - { name: MCU_PROM,    value: "`MCU_START"     }
+  # - { name: N7751_PROM,  value: "`N7751_START"   }
+  # - { name: KEY_PROM,    value: "`MAINKEY_START" }
+  # - { name: MC8123_PROM, value: "`SNDKEY_START"  }
+  # - { name: FD_PROM,     value: "`FD1089_START"  }
   - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
-  - { name: SRAM_OFFSET, value: 22'h18_0000 }
+  # - { name: SRAM_OFFSET, value: 22'h18_0000 }
 clocks:
   clk48:
     - freq: 4000000
@@ -30,6 +30,16 @@ clocks:
       outputs:
         - mcu_cen
         - cen_nc4
+audio:
+  rsum: 10k
+  mute: true
+  rc: { r: 47k, c: 1n }
+  channels:
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}]}
+    # 0.8 because of TTL output not reaching the supply fully
+    # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
+    # 3.6Vpp/5V = 0.72
+    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_192k_4k.csv, vpp: 0.72, pre: 0.1 }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

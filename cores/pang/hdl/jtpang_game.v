@@ -33,39 +33,25 @@ wire        fm_cs, oki_cs,
             cpu_rnw, busrq, int_n,
             pal_cs, vram_msb, vram_cs, attr_cs;
 wire [11:0] cpu_addr;
-wire        kabuki_we, kabuki_en;
+wire        kabuki_we, is_obj;
 wire        char_en, obj_en, video_en, pal_bank;
 wire        dma_go, busak_n, busrq_n;
 wire [ 8:0] h;
 
-// SDRAM
-wire [19:0] char_addr;
-wire [31:0] char_data;
-wire [16:0] obj_addr;
-wire [31:0] obj_data;
-wire        main_cs, char_cs, obj_cs,
-            init_n;
-wire [17:0] pcm_addr;
-wire [19:0] main_addr;
-wire [ 7:0] main_data, pcm_data;
-wire [ 1:0] ctrl_type;
-wire        main_ok, obj_ok, pcm_ok, pcm_bank;
-wire        flip;
+// SDRAM / board configuration
+reg  [ 1:0] ctrl_type;
+reg         init_n, kabuki_en, LVBLl;
+wire        pcm_bank, flip;
+reg  [ 8:0] frame_cnt;
+reg         ram_done = 0;
 
 assign fm_cen     = cen24[1];
 assign pcm_cen    = cen24[3];
-// The game does not write to the SDRAM
-assign ba_wr      = 0;
-assign ba0_din    = 0;
-assign ba0_dsn    = 3;
-assign ba1_din    = 0;
-assign ba1_dsn    = 3;
-assign ba2_din    = 0;
-assign ba2_dsn    = 3;
-assign ba3_din    = 0;
-assign ba3_dsn    = 3;
-assign debug_view = debug_bus[0] ? mouse_1p[15:8] : mouse_1p[7:0];
+assign debug_view = { 6'd0, ctrl_type };// debug_bus[0] ? mouse_1p[15:8] : mouse_1p[7:0];
 assign dip_flip   = flip;
+assign pcm_cs     = 1;
+// ROM download
+assign kabuki_we  = ioctl_wr && header && ioctl_addr[3:0]<11;
 
 // The sound uses the 24 MHz clock
 jtframe_frac_cen #( .W( 4), .WC( 4)) u_cen24(
@@ -75,6 +61,23 @@ jtframe_frac_cen #( .W( 4), .WC( 4)) u_cen24(
     .cen  ( cen24  ),
     .cenb (        )
 );
+
+always @(posedge clk) begin
+    if( kabuki_we && ioctl_addr[3:0]==0 )
+        kabuki_en <= ioctl_dout!=0;
+    if( ioctl_addr==15 && ioctl_wr && !ioctl_ram && header ) ctrl_type <= ioctl_dout[1:0];
+end
+
+always @(posedge clk) begin
+    LVBLl  <= LVBL;
+    if( ioctl_wr ) begin
+        if( ioctl_ram ) ram_done <= 1; else frame_cnt <= 0;
+        init_n <= 1;
+    end else if( !LVBL & LVBLl ) begin
+        if( ~&frame_cnt ) frame_cnt <= frame_cnt + 1'd1;
+        init_n <= ram_done |  &frame_cnt;
+    end
+end
 
 jtpang_main u_main(
     .rst         ( rst          ),
@@ -120,7 +123,7 @@ jtpang_main u_main(
 
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
-    .cab_1p      ( cab_1p       ),
+    .cab_1p      ( cab_1p[1:0]  ),
     .coin        ( coin[0]      ),
     .service     ( service      ),
     .test        ( dip_test     ),
@@ -167,9 +170,8 @@ jtpang_snd u_snd(
     .rom_data   ( pcm_data      ),
     .rom_ok     ( pcm_ok        ),
 
-    .peak       ( game_led      ),
-    .sample     ( sample        ),
-    .snd        ( snd           )
+    .fm         ( fm            ),
+    .pcm        ( pcm           )
 );
 `else
     assign pcm_addr = 0;
@@ -225,65 +227,6 @@ jtpang_video u_video(
     .green      ( green         ),
     .blue       ( blue          ),
     .gfx_en     ( gfx_en        )
-);
-/* verilator tracing_off */
-jtpang_sdram u_sdram(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .LVBL       ( LVBL          ),
-    .init_n     ( init_n        ),
-    .ctrl_type  ( ctrl_type     ),
-
-    .main_cs    ( main_cs       ),
-    .main_addr  ( main_addr     ),
-    .main_data  ( main_data     ),
-    .main_ok    ( main_ok       ),
-
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( 1'b1          ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_ok     ( pcm_ok        ),
-
-    .char_cs    ( char_cs       ),
-    .char_ok    (               ),
-    .char_addr  ( char_addr     ),
-    .char_data  ( char_data     ),
-
-    .obj_ok     ( obj_ok        ),
-    .obj_cs     ( obj_cs        ),
-    .obj_addr   ( obj_addr      ),
-    .obj_data   ( obj_data      ),
-
-    .ba0_addr   ( ba0_addr      ),
-    .ba1_addr   ( ba1_addr      ),
-    .ba2_addr   ( ba2_addr      ),
-    .ba3_addr   ( ba3_addr      ),
-    .ba_rd      ( ba_rd         ),
-    .ba_ack     ( ba_ack        ),
-    .ba_dst     ( ba_dst        ),
-    .ba_dok     ( ba_dok        ),
-    .ba_rdy     ( ba_rdy        ),
-    .data_read  ( data_read     ),
-
-    .ioctl_rom  ( ioctl_rom     ),
-    .dwnld_busy ( dwnld_busy    ),
-
-    .kabuki_we  ( kabuki_we     ),
-    .kabuki_en  ( kabuki_en     ),
-
-    .ioctl_addr ( ioctl_addr    ),
-    .ioctl_dout ( ioctl_dout    ),
-    .ioctl_wr   ( ioctl_wr      ),
-    .ioctl_ram  ( ioctl_ram     ),
-
-    .prog_addr  ( prog_addr     ),
-    .prog_data  ( prog_data     ),
-    .prog_mask  ( prog_mask     ),
-    .prog_ba    ( prog_ba       ),
-    .prog_we    ( prog_we       ),
-    .prog_rd    ( prog_rd       ),
-    .prog_ack   ( prog_ack      ),
-    .prog_rdy   ( prog_rdy      )
 );
 
 endmodule

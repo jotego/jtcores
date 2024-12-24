@@ -1,6 +1,7 @@
 package betas
 
 import (
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -53,7 +54,10 @@ func ListBetas(verbose bool) BetaCores{
 func CalcBetaSums() (md5sum string, crcsum string, betakey uint32) {
 	betapath := filepath.Join(os.Getenv("JTUTIL"),"beta.bin")
 	buf, e := os.ReadFile(betapath)
-	if e != nil { return "","",0 }
+	if e != nil {
+		buf = make([]byte,4)
+		rand.Read(buf)
+	}
 	crcsum = fmt.Sprintf("%x", crc32.ChecksumIEEE(buf) )
 	md5sum = fmt.Sprintf("%x", md5.Sum(buf) )
 	betakey = binary.LittleEndian.Uint32(buf)

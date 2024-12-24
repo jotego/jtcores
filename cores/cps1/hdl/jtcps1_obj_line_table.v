@@ -54,7 +54,7 @@ wire [15:0] eff_x;
 wire  repeated = (obj_x==last_x) && (obj_y==last_y) &&
                  (obj_code==last_code) && (obj_attr==last_attr);
 
-reg         first, done;
+reg         first;
 wire [ 3:0] tile_n, tile_m;
 reg  [ 3:0] n, npos, m, mflip;  // tile expansion n==horizontal, m==verital
 wire [ 3:0] vsub;
@@ -118,7 +118,6 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         frame_addr <= ~10'd0;
         st         <= 0;
-        done       <= 1'b0;
         first      <= 1'b1;
         obj_attr   <= 16'd0;
         obj_x      <= 16'd0;
@@ -139,7 +138,6 @@ always @(posedge clk, posedge rst) begin
                     frame_addr <= 10'd0;
                     wait_cycle <= 3'b011;
                     last_tile  <= 1'b0;
-                    done       <= 0;
                     first      <= 1'b1;
                     vrenderf   <= vrender ^ {1'b0,{8{flip}}};
                 end
@@ -211,19 +209,13 @@ always @(posedge clk, posedge rst) begin
                 dr_start <= 0;
             end
             9: begin
-                /*if( line_cnt==7'h7f ) begin
-                    st   <= 0; // line full
-                    done <= 1;
-                end else begin*/
-                    //if( eff_x>9'h30 && eff_x<9'd448) line_cnt <= line_cnt+7'd1;
-                    if( n == tile_n ) begin
-                        st <= 1; // next element
-                    end else begin // prepare for next tile
-                        n <= n + 4'd1;
-                        npos <= hflip ? npos-4'd1 : npos+4'd1;
-                        st <= 7;
-                    end
-                //end
+                if( n == tile_n ) begin
+                    st <= 1; // next element
+                end else begin // prepare for next tile
+                    n <= n + 4'd1;
+                    npos <= hflip ? npos-4'd1 : npos+4'd1;
+                    st <= 7;
+                end
             end
         endcase
     end

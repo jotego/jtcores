@@ -40,7 +40,7 @@ reg                turbo_l=0;
 
 assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
 assign dip_flip   = flip;
-assign debug_view = 0;
+assign debug_view = { 7'd0, turbo };
 assign scr_cs     = LVBL;
 assign main_dout  = cpu_dout;
 assign oram_we    = oram_cs & ~cpu_wrn;
@@ -89,8 +89,8 @@ jtdd_main u_main(
     .scrhpos        ( scrhpos       ),
     .scrvpos        ( scrvpos       ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     // BUS sharing
@@ -172,9 +172,10 @@ jtdd_sound u_sound(
     .adpcm1_data ( adpcm1_data   ),
     .adpcm1_ok   ( adpcm1_ok     ),
     // Sound output
-    .sound       ( snd           ),
-    .sample      ( sample        ),
-    .peak        ( game_led      )
+    .fm_l        ( fm_l          ),
+    .fm_r        ( fm_r          ),
+    .pcm_a       ( pcm_a         ),
+    .pcm_b       ( pcm_b         )
 );
 /* verilator tracing_off */
 jtdd_video u_video(

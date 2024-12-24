@@ -1,0 +1,36 @@
+params:
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
+audio:
+  missing_info: true # unknown value for PSG resistors, assuming same filtering as gng
+  channels:
+    - { name: psg0, module: jt03_psg, rsum: 68k }
+    - { name: psg1, module: jt03_psg, rsum: 68k }
+    - { name: fm0,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
+    - { name: fm1,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 19
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+      - name: char
+        addr_width: 15
+        data_width: 16
+        cs: LVBL
+        offset: CHAR_OFFSET
+    - buses:
+      - name: scr
+        addr_width: 18
+        data_width: 16
+        cs: LVBL
+    - buses:
+      - name: obj
+        addr_width: 18
+        data_width: 16
+        cs: LVBL

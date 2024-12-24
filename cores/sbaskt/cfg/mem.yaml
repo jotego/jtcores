@@ -1,3 +1,5 @@
+include:
+  - file: audio
 params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
@@ -20,7 +22,6 @@ clocks:
       outputs:
         - snd
         - psg
-
 download:
   post_data: true
 sdram:

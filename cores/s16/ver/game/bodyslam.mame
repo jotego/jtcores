@@ -1,0 +1,8 @@
+focus 3
+// MCU reads from main's bus
+// bp one OP later, so A has the value read
+bp 623
+bp 627
+bp b6d
+bp b71
+go

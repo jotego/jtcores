@@ -21,10 +21,10 @@
 
 module jtshouse_mcu(
     input              clk,
+    input              game_rst,
     input              rstn,
     input              cen,
     input              lvbl,
-    input              hs,
 
     input       [8:0]  hdump,
 
@@ -32,12 +32,18 @@ module jtshouse_mcu(
     output             rnw,
     output reg         ram_cs,      // Tri port RAM
     input       [7:0]  ram_dout,
+    output             halted,      // signals an decoding error too
     // Ports
     // cabinet I/O
+    input       [1:0]  io_mode,
     input       [1:0]  cab_1p,
     input       [1:0]  coin,
-    input       [6:0]  joystick1,
-    input       [6:0]  joystick2,
+    input       [9:0]  joystick1,
+    input       [9:0]  joystick2,
+    input       [9:0]  joystick3,
+    input       [9:0]  joystick4,
+    input       [1:0]  dial1,
+    input       [1:0]  dial2,
     input       [7:0]  dipsw,
     input              service,
     input              dip_test,
@@ -59,9 +65,8 @@ module jtshouse_mcu(
     input              pcm_ok,
     output             bus_busy,
 
-    output     signed [10:0] snd, // is it signed?
-
-    input      [ 7:0]  debug_bus
+    output reg  [10:0] snd,
+    input       [ 7:0] debug_bus
 );
 `ifndef NOMAIN
 wire        vma;
@@ -70,7 +75,7 @@ reg         dip_cs, epr_cs, cab_cs, swio_cs, reg_cs,
 
 wire [15:0] A;
 wire [11:0] rom_addr;
-reg  [10:0] mix;
+reg  [11:0] mix;
 wire [ 7:0] p1_din, rom_data;
 wire [ 4:0] p2_dout;
 wire [ 1:0] gain1,  gain0;
@@ -78,16 +83,26 @@ reg  [ 7:0] mcu_din, cab_dout, dac1, dac0;
 reg  [ 2:0] bank;
 reg  [ 3:0] dipmx;
 reg  [ 1:0] pcm_msb;
-reg  [ 9:0] amp1, amp0;
-reg         hs_l;
+reg  [10:0] amp1, amp0;
 reg         init_done;
 wire        wr;
+reg         cab_csl;
+reg  [ 5:0] strb_count;
+reg  [ 2:0] berabohm_btn;
+reg  [ 7:0] berabohm_force;
+reg  [ 7:0] dial1_out;
+reg  [ 7:0] dial2_out;
+reg  [ 1:0] dial_strb;
+reg  [ 1:0] dial1_l, dial2_l;
+reg         a0_l;
+reg  [ 5:0] inp_latch1, inp_latch2;
 
-function [1:0] gain( input [1:0] g);
+function [2:0] gain( input [1:0] g);
     case( g )
-        0:   gain = 1;
-        1,2: gain = 2;
-        3:   gain = 3;
+        0: gain = 1;
+        1: gain = 2;
+        2: gain = 3;
+        3: gain = 4;
     endcase
 endfunction
 
@@ -96,7 +111,7 @@ assign bus_busy    = pcm_cs & ~pcm_ok;
 assign eerom_we    = epr_cs & wr;
 assign pcm_addr    = {bank, pcm_msb, A[15],A[13:0]};
 assign mcu_addr    = A[10:0]; // used to access both Tri RAM and EEROM
-assign p1_din      = { 1'b1, service, dip_test, coin, 3'd0 };
+assign p1_din      = { 1'b1, service, dip_test, coin[0], coin[1], 3'd0 };
 assign gain1       = p2_dout[4:3];
 assign gain0       = {p2_dout[2], p2_dout[0]};
 
@@ -132,38 +147,128 @@ always @(posedge clk) begin
     if( cen ) sample_cnt <= sample_cnt+1'd1;
 end
 
-jtframe_dcrm #(.SW(11)) u_dcrm(
-    .rst        ( ~rstn     ),
-    .clk        ( clk       ),
-    .sample     ( sample    ),
-    .din        ( mix       ),
-    .dout       ( snd       )
-);
+always @(*) begin
+    case (strb_count[4:3])
+        0: berabohm_btn = ~joystick1[6:4];
+        1: berabohm_btn = ~joystick1[9:7];
+        2: berabohm_btn = ~joystick2[6:4];
+        3: berabohm_btn = ~joystick2[9:7];
+        default: ;
+    endcase
+    berabohm_force = berabohm_btn[0] ? 8'h7f : berabohm_btn[1] ? 8'h48 : berabohm_btn[2] ? 8'h40 : 8'h00;
+end
+
+always @(posedge clk) begin
+    if (!rstn) begin
+        dial1_out <= 8'h00;
+        dial2_out <= 8'h00;
+    end else begin
+        dial1_l <= dial1;
+        case ({dial1_l, dial1})
+            4'b0001 : dial1_out <= dial1_out - 1'd1;
+            4'b0010 : dial1_out <= dial1_out + 1'd1;
+            4'b0100 : dial1_out <= dial1_out + 1'd1;
+            4'b0111 : dial1_out <= dial1_out - 1'd1;
+            4'b1000 : dial1_out <= dial1_out - 1'd1;
+            4'b1011 : dial1_out <= dial1_out + 1'd1;
+            4'b1101 : dial1_out <= dial1_out + 1'd1;
+            4'b1110 : dial1_out <= dial1_out - 1'd1;
+            default: ;
+        endcase
+        dial2_l <= dial2;
+        case ({dial2_l, dial2})
+            4'b0001 : dial2_out <= dial2_out - 1'd1;
+            4'b0010 : dial2_out <= dial2_out + 1'd1;
+            4'b0100 : dial2_out <= dial2_out + 1'd1;
+            4'b0111 : dial2_out <= dial2_out - 1'd1;
+            4'b1000 : dial2_out <= dial2_out - 1'd1;
+            4'b1011 : dial2_out <= dial2_out + 1'd1;
+            4'b1101 : dial2_out <= dial2_out + 1'd1;
+            4'b1110 : dial2_out <= dial2_out - 1'd1;
+            default: ;
+        endcase
+    end
+end
 
 always @(posedge clk, negedge rstn ) begin
     if( !rstn ) begin
         bank     <= 0;
-        dac1     <= 0;
-        dac0     <= 0;
+        dac1     <= 8'h80;
+        dac0     <= 8'h80;
+        snd      <= 0;
         cab_dout <= 0;
         irq      <= 0;
         lvbl_l   <= 0;
-        hs_l     <= 0;
         mix      <= 0;
         init_done<= 0;
+        strb_count<=0;
+        dial_strb<= 0;
+        inp_latch1<=6'h1f;
+        inp_latch2<=6'h1f;
     end else begin
         lvbl_l <= lvbl;
-        hs_l   <= hs;
-        if( lvbl_l && !lvbl) begin
-            irq <= 1;
-        end
-        if( hdump=='ha1 ) irq <= 0; // 31.2us width measure on the PCB
-        amp1 <= dac1 * gain(gain1);
+        // The IRQ is held until VB ends or the CPU acknowledges it with a write at Fxxx
+        if( !lvbl && lvbl_l         ) irq <= 1;
+        if(  lvbl || &{A[15:12],wr} ) irq <= 0; // typ 31.2us width measure on the PCB
+        // dac0, dac1 pre-amplification by the first opamp connected to the
+        // resistor is done in mem.yaml
+        // Stage      | Vpp
+        // DAC output | 4    (it might be a bit over 4V)
+        // Preamp     | 6    (assuming 1.5 gain, supply is 6V)
+        // Amp        | 6    (must be clamped)
+        amp1 <= dac1 * gain(gain1); // assuming no clamping
         amp0 <= dac0 * gain(gain0);
         mix  <= {1'b0, amp1}+{1'b0, amp0};
+        if( sample ) snd <= mix[11] != 0 ? 11'h7ff : mix[10:0];
         dipmx<= A[1] ? dipsw[7:4] : dipsw[3:0];
-        cab_dout <= A[0] ? { cab_1p[1], joystick2 }:
-                           { cab_1p[0], joystick1 };
+        cab_csl <= cab_cs;
+        a0_l <= A[0];
+        if (cab_csl & !cab_cs) begin
+            if (a0_l) strb_count <= strb_count + 1'd1;
+            if (!a0_l) dial_strb[1] <= ~dial_strb[1]; else if (!dial_strb[1]) dial_strb[0] <= ~dial_strb[0];
+        end
+        case (io_mode)
+            1: begin
+                // 4p
+                if (strb_count[2:0] == 3'b111) begin
+                    cab_dout <= A[0] ? { cab_1p[1], 4'h0, strb_count[5:3] } :
+                                       { cab_1p[0], 1'b0, inp_latch1 };
+                    if(A[0]) case (strb_count[5:3])
+                        0: begin
+                            inp_latch1 <= {1'b0, joystick1[4:0]};
+                            inp_latch2 <= {joystick4[2:0], 3'd0};
+                        end
+                        3:begin
+                            inp_latch1 <= {1'b0, joystick3[4:0]};
+                        end
+                        4:begin
+                            inp_latch1 <= {1'b0, joystick2[4:0]};
+                            inp_latch2 <= {1'b0, joystick4[4:3], 3'd0};
+                        end
+                        default: begin
+                            inp_latch1 <= 6'h1f;
+                            inp_latch2 <= 6'h1f;
+                        end
+                    endcase
+                end else begin
+                    cab_dout <= A[0] ? { cab_1p[1], 1'b1, inp_latch2 } :
+                                       { cab_1p[0], 1'b0, inp_latch1 };
+                end
+            end
+            2: begin
+                // berabohm
+                cab_dout <= A[0] ? { cab_1p[1], strb_count[2], 1'b0, &strb_count[4:3], joystick2[3:0] }:
+                                   strb_count[5] ? { cab_1p[0], 3'd0, joystick1[3:0] } : berabohm_force;
+                if (strb_count == 40) strb_count <= 0;
+            end
+            3: begin
+                //quester
+                cab_dout <= A[0] ? ({cab_1p[1], 1'b0, dial_strb[0], joystick2[4], dial_strb[0] ? dial2_out[7:4] : dial1_out[7:4]}) :
+                                   ({cab_1p[0], dial_strb[1], 1'b0, joystick1[4], dial_strb[0] ? dial2_out[3:0] : dial1_out[3:0]});
+            end
+            default: cab_dout <= A[0] ? { cab_1p[1], joystick2[6:0] }:
+                                        { cab_1p[0], joystick1[6:0] };
+        endcase
         if( ram_cs && A[10:0]==0 && wr && cen ) init_done <= mcu_dout=='ha6;
         if( reg_cs ) case(A[11:10])
             0: dac0 <= mcu_dout;
@@ -183,7 +288,7 @@ always @(posedge clk, negedge rstn ) begin
         endcase
     end
 end
-
+/* verilator tracing_on */
 jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
@@ -195,6 +300,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .addr       ( A             ),
     .xdin       ( mcu_din       ),
     .dout       ( mcu_dout      ),
+    .ba         ( halted        ),
 
     // interrupts
     .irq        ( irq           ),
@@ -215,7 +321,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rom_data   ( rom_data      )
 );
 
-jtframe_prom #(.AW(12)) u_prom(
+jtframe_prom #(.AW(12),.SIMFILE("../../firmware/triram-mcu.bin")) u_prom(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
@@ -226,7 +332,8 @@ jtframe_prom #(.AW(12)) u_prom(
 );
 `else
 assign mcu_dout = 0;
-assign wr       = 0;
+assign rnw      = 1;
+assign halted   = 0;
 assign mcu_addr = 0;
 assign eerom_we = 0;
 assign pcm_addr = 0;

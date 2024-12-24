@@ -44,22 +44,22 @@ module jtrastan_scr(
     input           scr_cs,        // selection from address decoder
     output          dtackn,
 
-    output   [14:0] ram0_addr,
+    output   [15:2] ram0_addr,
     input    [31:0] ram0_data,
     input           ram0_ok,
     output          ram0_cs,
 
-    output   [18:0] rom0_addr,
+    output   [19:2] rom0_addr,
     input    [31:0] rom0_data,
     input           rom0_ok,
     output          rom0_cs,
 
-    output   [14:0] ram1_addr,
+    output   [15:2] ram1_addr,
     input    [31:0] ram1_data,
     input           ram1_ok,
     output          ram1_cs,
 
-    output   [18:0] rom1_addr,
+    output   [19:2] rom1_addr,
     input    [31:0] rom1_data,
     input           rom1_ok,
     output          rom1_cs,

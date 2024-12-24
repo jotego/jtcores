@@ -6,10 +6,6 @@ jtframe:
   - from: cpu
     get:
       - jtframe_kabuki.v
-  - from: sound
-    get:
-      - jtframe_fir.v
-      - jtframe_uprate2_fir.v
 modules:
   jt:
     - name: jtdsp16

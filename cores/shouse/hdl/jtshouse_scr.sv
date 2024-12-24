@@ -28,7 +28,7 @@ module jtshouse_scr(
     input             hs,
     input             vs,
     input       [8:0] hdump,
-    input       [8:0] vrender,
+    input       [8:0] vdump,
     input             flip,
 
     input             cs,
@@ -41,9 +41,7 @@ module jtshouse_scr(
     output reg [14:1] tmap_addr,
     input      [15:0] tmap_data,
     // Mask readout (SDRAM)
-    output reg        mask_cs,
-    input             mask_ok,
-    output reg [16:0] mask_addr,
+    output     [16:0] mask_addr,
     input      [ 7:0] mask_data,
     // Tile readout (SDRAM)
     output            scr_cs,
@@ -58,46 +56,59 @@ module jtshouse_scr(
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 7:0] debug_bus,
+    input      [ 3:0] gfx_en,
     output     [ 7:0] st_dout
 );
 
+parameter  [ 8:0] VB_END = 9'h120;
 localparam [ 8:0] HMARGIN=9'h8,
                   HSTART=9'h40-HMARGIN,
                   HEND=9'd288+HSTART+(HMARGIN<<1); // hdump is non blank from 'h40 to 'h160
-localparam [15:0] HSCR= 16'h70,
-                  VSCR=-16'h07;
+localparam [15:0] VSCR =-16'd28;
 
-reg  [15:0] hpos, vpos;
-reg  [ 2:0] mlyr, mst;
+wire [15:0] hoff0 = flip ? 16'h71 : -16'h0f;
+wire [15:0] hoff1 = flip ? hoff0 + 16'h2 : hoff0 - 16'h2;
+wire [15:0] hoff2 = flip ? hoff0 + 16'h3 : hoff0 - 16'h3;
+wire [15:0] hoff3 = flip ? hoff0 + 16'h4 : hoff0 - 16'h4;
+
+reg  [15:0] hoff, hpos, vpos;
+reg  [ 2:0] mlyr, mask_asub, mst;
 reg  [ 5:0] mreq, attr;
-wire [ 2:0] tcnt;
-// mapped by priority
-reg  [ 7:0] nx_mask[0:7], mask[0:7];
-reg  [22:0] info[0:7];
+wire [ 2:0] hsub;
+reg  [ 7:0] mask[0:5];
+reg  [22:0] info[0:5];
 reg  [ 8:0] hcnt, buf_a;
 reg  [10:0] bpxl;
 reg  [ 9:0] lin_row;   // linear "row" count (does not count during blanks)
 reg  [ 9:0] linear;    // linear position ("row"+col)
-reg  [ 2:0] bprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
-reg         hs_l, done, alt_cen, vs_l;
-wire        buf_we, rom_ok, hs_edge, mask_good;
+reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
+reg         hs_l, done, alt_cen, vs_l, opaque;
+wire        buf_we, rom_ok, hs_edge;
 
 // Layer configuration
 wire [3:0][15:0] hscr, vscr;
 wire [5:0][ 2:0] cfg_pal, cfg_prio;
 wire [5:0]       cfg_enb;
 
-integer     i;
+integer     i, j;
 `ifdef SIMULATION
     reg       miss;
 `endif
 
 assign scr_cs    = 1;
-assign tcnt      = hcnt[2:0];
+assign hsub      = hcnt[2:0];
 assign buf_we    = alt_cen & ~done;
 assign rom_ok    = scr_ok & mlyr==7;
 assign hs_edge   = hs & ~hs_l;
-assign mask_good = mask_ok|~mask_cs;
+assign mask_addr = { tmap_data[13:0], mask_asub };
+
+`ifdef SIMULATION
+wire [15:0] hscr0=hscr[0], hscr1=hscr[1], hscr2 = hscr[2], hscr3 = hscr[3],
+            vscr0=vscr[0], vscr1=vscr[1], vscr2 = vscr[2], vscr3 = vscr[3];
+wire [ 2:0] cfg_prio0 = cfg_prio[0], cfg_prio3 = cfg_prio[3],
+            cfg_prio1 = cfg_prio[1], cfg_prio4 = cfg_prio[4],
+            cfg_prio2 = cfg_prio[2], cfg_prio5 = cfg_prio[5];
+`endif
 
 // Horizontal counter that waits for SDRAM
 always @(posedge clk, posedge rst) begin
@@ -106,7 +117,7 @@ always @(posedge clk, posedge rst) begin
         hcnt <= 0;
         done <= 0;
         lin_row <= 0;
-        alt_cen <= 0;
+        alt_cen <= 1;
     end else begin
         alt_cen <= ~alt_cen & rom_ok;
         if( hcnt < HEND && alt_cen) begin
@@ -122,36 +133,39 @@ always @(posedge clk, posedge rst) begin
         if( hs_edge ) begin
             `ifdef SIMULATION miss  <= !done; `endif
             hcnt  <= HSTART;
-            hcnt0 <= -hscr[0][2:0]-HSCR[2:0];
-            hcnt1 <= -hscr[1][2:0]-HSCR[2:0];
-            hcnt2 <= -hscr[2][2:0]-HSCR[2:0];
-            hcnt3 <= -hscr[3][2:0]-HSCR[2:0];
-            if(vrender[2:0]==7) lin_row <= lin_row+10'd36;
+            hcnt0 <= (-hscr[0][2:0] ^ {3{~flip}})+hoff0[2:0];
+            hcnt1 <= (-hscr[1][2:0] ^ {3{~flip}})+hoff1[2:0];
+            hcnt2 <= (-hscr[2][2:0] ^ {3{~flip}})+hoff2[2:0];
+            hcnt3 <= (-hscr[3][2:0] ^ {3{~flip}})+hoff3[2:0];
+
+            if(vdump[2:0]==0) lin_row <= vdump[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
+            // if(vrender[2:0]==7) lin_row <= vrender[8:3]==6'h24 ? 10'd1 : lin_row+10'd36;
+            // if(vrender==9'h120 ) lin_row <= 1;
         end
-        if( vrender==9'h110 ) lin_row <= 1;
         done <= hcnt==HEND;
     end
 end
 
 always @* begin
+    case( mlyr[1:0] )
+        0: hoff = hoff0;
+        1: hoff = hoff1;
+        2: hoff = hoff2;
+        3: hoff = hoff3;
+    endcase
+
     if( mlyr>3 )
-        { vpos, hpos } = { 7'd0, vrender, 7'd0, hcnt };
+        { vpos, hpos } = { 7'd0, vdump, 7'd0, hcnt };
     else
-        { vpos, hpos } = { {7'd0, vrender}-vscr[mlyr[1:0]]+VSCR,
-                           {7'd0,    hcnt}-hscr[mlyr[1:0]]+HSCR};
-    if( flip ) begin
-        hpos = -hpos;
-        vpos = -vpos;
-    end
+        { vpos, hpos } = { {7'd0, vdump}-(vscr[mlyr[1:0]] ^ {16{~flip}}) + (flip ? VSCR : -VSCR + 16'd219),
+                           {7'd0,  hcnt}-(hscr[mlyr[1:0]] ^ {16{~flip}}) + hoff};
+
     // Determines the active layer
-    win = 0; // Keep the line order (priority):
-    if( mask[1][7] ) win = 1;
-    if( mask[2][7] ) win = 2;
-    if( mask[3][7] ) win = 3;
-    if( mask[4][7] ) win = 4;
-    if( mask[5][7] ) win = 5;
-    if( mask[6][7] ) win = 6;
-    if( mask[7][7] ) win = 7;
+    win    = 5;
+    cprio  = 0;
+    opaque = 0;
+    for( j=5; j>=0; j=j-1 )
+        if( !opaque || (cfg_prio[j]>cprio && mask[j][7])) { opaque, win, cprio } = { mask[j][7], j[2:0], cfg_prio[j] };
 end
 
 always @* begin // Mask reload - keep in its own always block
@@ -166,67 +180,55 @@ always @* begin // Mask reload - keep in its own always block
     end
 end
 
-// reg [2:0] hos, vos, vmos;
-
-// always @* begin
-//     hos = hos+debug_bus[2:0];
-//     vos = vos+debug_bus[2:0];
-//     if( mlyr>=4 ) begin
-//         hos=
-//     end
-// end
-
 // Pixel drawing
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        mask_cs   <= 0;
-        mask_addr <= 0;
+        mask_asub <= 0;
         bpxl      <= 0;
         bprio     <= 0;
         attr      <= 0;
         mreq      <= 0;
         mst       <= 0;
-    end else if(vrender<9'h1f0 && vrender>'h10e) begin
-        if( mlyr!=7 ) mst <= mst+3'd1;
-
+    end else begin
+        // Reads mask data for the layer set in mlyr
+        mst <= mlyr==7 ? 3'd0 : mst+3'd1;
         case( mst )
-            0: // Tile map RAM address
-            case( mlyr )
-                0: tmap_addr <= { 2'd0, vpos[3+:6], hpos[3+:6] };
-                1: tmap_addr <= { 2'd1, vpos[3+:6], hpos[3+:6] };
-                2: tmap_addr <= { 2'd2, vpos[3+:6], hpos[3+:6] };
-                3: tmap_addr <= { 3'd6, vpos[3+:5], hpos[3+:6] };
-                // fixed tile maps are packed in memory and do not fit into a H-V binary split
-                4: tmap_addr <= { 4'b1110, linear };
-                5: tmap_addr <= { 4'b1111, linear };
-                default:;
-            endcase
-            3: begin
-                mask_addr <= { tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0] }; // 17 bits
-                mask_cs   <= 1;
+            0: begin // Tile map RAM address
+                case( mlyr )
+                    0: tmap_addr <= { 2'd0, vpos[3+:6], hpos[3+:6] };
+                    1: tmap_addr <= { 2'd1, vpos[3+:6], hpos[3+:6] };
+                    2: tmap_addr <= { 2'd2, vpos[3+:6], hpos[3+:6] };
+                    3: tmap_addr <= { 3'd6, vpos[3+:5], hpos[3+:6] };
+                    // fixed tile maps are packed in memory and do not fit into a H-V binary split
+                    4: tmap_addr <= { 4'b1110, linear };
+                    5: tmap_addr <= { 4'b1111, linear };
+                    default:;
+                endcase
             end
-            5: if(mask_ok) begin
-                mask[cfg_prio[mlyr]] <= mask_data;
-                info[cfg_prio[mlyr]] <= {cfg_pal[mlyr], tmap_data[13:0], mlyr>3 ? vpos[2:0]+3'd1 : vpos[2:0], ~tcnt+3'd1};
+            // vpos for the fixed layers has a relationship with the linear counter
+            // changing the octal LSB of the linear start requires an adjustment here
+            1: mask_asub <= vpos[2:0];
+            4: begin
+                mask[mlyr] <= mask_data;
+                info[mlyr] <= {cfg_pal[mlyr], tmap_data[13:0], mask_asub, ~hsub+3'd1};
                 mreq[mlyr] <= 0;
-                mask_cs    <= 0;
                 mst        <= 0;
-            end else mst <= 5;
+            end
             default:;
         endcase
         if( alt_cen ) begin
             linear <= lin_row + {4'd0,hcnt[3+:6]};
-            if( hcnt0==7 && !cfg_enb[0] ) mreq[0] <= 1; // do not request disabled layers
-            if( hcnt1==7 && !cfg_enb[1] ) mreq[1] <= 1;
-            if( hcnt2==7 && !cfg_enb[2] ) mreq[2] <= 1;
-            if( hcnt3==7 && !cfg_enb[3] ) mreq[3] <= 1;
-            if( hcnt[2:0]==7 ) begin
+            if( hcnt0==7 && !cfg_enb[0] && gfx_en[1] ) mreq[0] <= 1; // do not request disabled layers
+            if( hcnt1==7 && !cfg_enb[1] && gfx_en[1] ) mreq[1] <= 1;
+            if( hcnt2==7 && !cfg_enb[2] && gfx_en[1] ) mreq[2] <= 1;
+            if( hcnt3==7 && !cfg_enb[3] && gfx_en[1] ) mreq[3] <= 1;
+            if( hcnt[2:0]==7 && gfx_en[2] ) begin
                 if( !cfg_enb[4] ) mreq[4] <= 1;
                 if( !cfg_enb[5] ) mreq[5] <= 1;
             end
             // next pixel information
-            { attr, scr_addr } <= { win, info[win][3+:20], info[win][2:0]+tcnt };
-            for( i=0; i<8; i=i+1 ) mask[i] <= mask[i] << 1;
+            { attr, scr_addr } <= { cprio, info[win][3+:20], info[win][2:0]+hsub };
+            for( i=0; i<6; i=i+1 ) mask[i] <= mask[i] << 1;
             buf_a <= hcnt;
             // current pixel
             { bprio, bpxl } <= { attr, scr_data };

@@ -16,6 +16,10 @@ JTFRAME_IOCTL_RD=128
 CPS1_NOOBJ
 JTFRAME_HEADER=44
 
+# FIR filter gain currently broken
+# disabled for now
+NOFIR
+
 [mist|sidi]
 # Not enough BRAM to show the credits
 JTFRAME_OSD_NOLOGO

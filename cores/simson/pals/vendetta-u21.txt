@@ -1,0 +1,20 @@
+Equations:
+
+/i7  = /A15  & A14  & /A13  & A12  & A11  & A10 
+
+/i6  = /A15  & A14  & A12  +
+       /A15  & A14  & /W0C0  +
+       /INIT  & /A15  & A14  & A13 
+
+/WORKCS  = AS  & /A15  & /A14  & A13 
+
+/OBJCS  = AS  & /A15  & A14  & /A13  & /A12  & W0C0 
+
+/COLOCS  = AS  & /A15  & A14  & A13  & /A12  & W0C0 
+
+/PROGCS  = AS  & A15  +
+       AS  & /A14  & /A13 
+
+/BUFFEN  = AS  & /A15  & A14  +
+       AS  & /A15  & A13 
+

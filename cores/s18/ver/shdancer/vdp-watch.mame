@@ -1,0 +1,2 @@
+wp c00000,10,r,1,{printf "%X->%X",wpaddr,wpdata;go}
+wp c00000,10,w,1,{printf "%X<-%X",wpaddr,wpdata;go}

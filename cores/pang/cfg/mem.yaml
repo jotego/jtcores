@@ -1,0 +1,14 @@
+audio:
+  channels:
+    # PCM had its own potentiometer, before it the gain is 0.1
+    # it might have been set mid range as full range is too loud for bubble pang sounds
+    - { name: pcm, module: jt6295, rsum: 32k, rc: [{r: 10k, c: 3.3n}, { r: 10k, c: 2.8n } ], pre: 0.05 }
+    # 2nd order filter at 20kHz on the board, replaced with
+    # a 1st order for the channel. There is another global 1st order filter at 20kHz
+    - { name:  fm, module: jt2413, rsum: 22k, rc: [{r:  8k, c: 1.0n}], pre: 0.1 }
+sdram:
+  banks:
+    - buses: [ { name: main, addr_width: 20, data_width:  8 } ]
+    - buses: [ { name: pcm,  addr_width: 18, data_width:  8 } ]
+    - buses: [ { name: char, addr_width: 21, data_width: 32 } ]
+    - buses: [ { name: obj,  addr_width: 18, data_width: 32 } ]

@@ -19,10 +19,9 @@
 module jtsf_sound #(
     parameter SND1W = 15,
     parameter SND2W = 18
-) (
+)(
     input              rst,
     input              clk,
-    input       [ 1:0] pcm_level,
     // Interface with main CPU
     input       [ 7:0] snd_latch,
     input              snd_nmi_n,
@@ -38,42 +37,19 @@ module jtsf_sound #(
     input              rom2_ok,
 
     // Sound output
-    output signed [15:0] left,
-    output signed [15:0] right,
-    output               sample,
-    output reg           peak
+    output signed [15:0] fm_l, fm_r,
+    output signed [11:0] pcm0, pcm1
 );
 `ifndef NOSOUND
-// Sound effects via FM seem too loud compared to music
-// but that's the way the game is
-// Some PCM samples seem to have been recorded with clipping
-localparam [7:0] FM_GAIN  = 8'h08;
-
-wire signed [12:0] adpcm_snd;
-wire signed [15:0] fm_left, fm_right;
 wire               cen1p5, adpcm_sample;
-
 wire               cen_fm, cen_fm2, cenp384;
-wire               cen3, cen_alt, cen3p5, cen1p7;
-wire               peak_l, peak_r;
+wire               cen3, cen3p5, cen1p7;
 reg         [ 7:0] pcm_gain;
 
-assign cen_alt = cen3;
 //assign cen_fm  = cen3;
 //assign cen_fm2 = cen1p5;
 assign cen_fm  = cen3p5;
 assign cen_fm2 = cen1p7;
-
-always @(posedge clk) peak <= peak_l | peak_r;
-
-always @(posedge clk) begin
-    case( pcm_level )
-        2'd0: pcm_gain <= 8'h04;
-        2'd1: pcm_gain <= 8'h06;
-        2'd2: pcm_gain <= 8'h08;
-        2'd3: pcm_gain <= 8'h0C;
-    endcase
-end
 
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cenalt(
@@ -124,9 +100,8 @@ jtbiocom_sound #(.LAYOUT(9),.RECOVERY(1)) u_fmcpu(
     .rom_ok     ( rom_ok    ),
 
     // Sound output
-    .left       ( fm_left   ),
-    .right      ( fm_right  ),
-    .sample     ( sample    )
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      )
 );
 
 jtsf_adpcm u_adpcmcpu(
@@ -142,53 +117,18 @@ jtsf_adpcm u_adpcmcpu(
     .rom2_data  ( rom2_data     ),
     .rom2_ok    ( rom2_ok       ),
     // Sound output
-    .snd        ( adpcm_snd     ),
+    .pcm0       ( pcm0          ),
+    .pcm1       ( pcm1          ),
     .sample     ( adpcm_sample  )
-);
-
-jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen_fm2   ),
-    // input signals
-    .ch0    ( fm_left   ),
-    .ch1    ( adpcm_snd ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FM_GAIN   ),
-    .gain1  ( pcm_gain  ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( left      ),
-    .peak   ( peak_l    )
-);
-
-jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen_fm2   ),
-    // input signals
-    .ch0    ( fm_right  ),
-    .ch1    ( adpcm_snd ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( FM_GAIN   ),
-    .gain1  ( pcm_gain  ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( right     ),
-    .peak   ( peak_r    )
 );
 `else
     assign rom_addr  = 0;
     assign rom_cs    = 0;
     assign rom2_addr = 0;
     assign rom2_cs   = 0;
-    assign left      = 0;
-    assign right     = 0;
-    assign sample    = 0;
-    initial peak     = 0;
+    assign fm_l      = 0;
+    assign fm_r      = 0;
+    assign pcm0      = 0;
+    assign pcm1      = 0;
 `endif
 endmodule

@@ -60,3 +60,11 @@ To compile all cores in a JTFRAME project, run
 `jtupdate --target mister`
 
 The output will be created in $JTROOT/release. See `jtupdate -h` for more details.
+
+## Release procedure
+
+Release builds are produced by a GitHub action for all FPGA platforms supported. The GH action produces a zip file that is automatically stored in a Google Drive folder. You can also download the zip file manually from the [GH action log](https://github.com/jotego/jtcores/actions/workflows/daily.yaml). The zip uses the git hash as the name.
+
+Once downloaded, execute `jtrelease.sh hash` to copy the release. A environment variable called JTBUILDS can be defined and export. Builds will be searched for in the path set by JTBUILDS.
+
+`jtrelease.sh` produces the necessary files in JTBIN and leaves JTBIN in a new branch, ready to be merged and pushed, which must be done manually as a final check. The script also runs `cpbeta.sh`, which creates zip files for each FPGA platform and copies them to the path pointed to by the environment variable JTFRIDAY.

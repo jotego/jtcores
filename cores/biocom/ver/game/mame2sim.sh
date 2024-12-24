@@ -38,12 +38,12 @@ done
 
 # Characters:
 # Convert character MAME memory dump to input files
-if [ ! -e drop1 ]; then
-    g++ drop1.cc -o drop1 || exit 1
+if [ ! -e jtutil drop1 ]; then
+    g++ jtutil drop1.cc -o jtutil drop1 || exit 1
 fi
 
-dd if=biocom_char.bin count=4        | drop1 > char_lower.bin 
-dd if=biocom_char.bin count=4 skip=4 | drop1 > char_upper.bin 
+dd if=biocom_char.bin count=4        | jtutil drop1 > char_lower.bin 
+dd if=biocom_char.bin count=4 skip=4 | jtutil drop1 > char_upper.bin 
 
 # Palette 
 if [ ! -e pal_bin2hex ]; then
@@ -56,12 +56,12 @@ pal_bin2hex < biocom_pal.bin
 cp -f biocom_obj.bin objdma.bin
 
 # Scroll 1
-drop1 < biocom_scr1.bin | drop1    > scr1_upper.bin
-drop1 < biocom_scr1.bin | drop1 -l > scr1_lower.bin
+jtutil drop1 < biocom_scr1.bin | jtutil drop1    > scr1_upper.bin
+jtutil drop1 < biocom_scr1.bin | jtutil drop1 -l > scr1_lower.bin
 
 # Scroll 2
-drop1 < biocom_scr2.bin | drop1    > scr2_upper.bin
-drop1 < biocom_scr2.bin | drop1 -l > scr2_lower.bin
+jtutil drop1 < biocom_scr2.bin | jtutil drop1    > scr2_upper.bin
+jtutil drop1 < biocom_scr2.bin | jtutil drop1 -l > scr2_lower.bin
 
 go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 2 \
     -d JTCHAR_UPPER_SIMFILE=',.simfile({SIMID,"_upper.bin"})' \

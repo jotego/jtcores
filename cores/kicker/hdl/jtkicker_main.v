@@ -61,11 +61,9 @@ module jtkicker_main(
     input      [3:0]    dipsw_c,
 
     // Sound
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output    [10:0]    ti1, ti2
 );
-
+`ifndef NOMAIN
 reg  [ 7:0] cabinet, cpu_din;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
@@ -80,7 +78,6 @@ wire        VMA;
 assign irq_trigger = ~LVBL & dip_pause;
 assign nmi_trigger =  V16;
 assign cpu_rnw     = RnW;
-assign sample      = ti1_cen;
 assign rom_addr    = A;
 
 always @(*) begin
@@ -127,8 +124,8 @@ end
 always @(posedge clk) begin
     case( A[1:0] )
         0: cabinet <= { ~3'd0, cab_1p, service, coin };
-        1: cabinet <= {2'b11, joystick1[5:4], joystick1[2], joystick1[3], joystick1[0], joystick1[1]};
-        2: cabinet <= {2'b11, joystick2[5:4], joystick2[2], joystick2[3], joystick2[0], joystick2[1]};
+        1: cabinet <= { 2'b11, joystick1[5:0] };
+        2: cabinet <= { 2'b11, joystick2[5:0] };
         3: cabinet <= dipsw_a;
     endcase
     cpu_din <= rom_cs  ? rom_data  :
@@ -181,7 +178,6 @@ jtframe_ff u_nmi(
 );
 
 reg  [ 7:0] ti1_data, ti2_data;
-wire [10:0] ti1_snd,  ti2_snd;
 wire        rdy1, rdy2;
 
 always @(posedge clk, posedge rst) begin
@@ -201,7 +197,7 @@ jt89 u_ti1(
     .wr_n   ( rdy1          ),
     .cs_n   ( ~ti1_cs       ),
     .din    ( ti1_data      ),
-    .sound  ( ti1_snd       ),
+    .sound  ( ti1           ),
     .ready  ( rdy1          )
 );
 
@@ -212,7 +208,7 @@ jt89 u_ti2(
     .wr_n   ( rdy2          ),
     .cs_n   ( ~ti2_cs       ),
     .din    ( ti2_data      ),
-    .sound  ( ti2_snd       ),
+    .sound  ( ti2           ),
     .ready  ( rdy2          )
 );
 
@@ -241,24 +237,19 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
 );
-
-
-jtframe_mixer #(.W0(11),.W1(11)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( ti1_cen   ),
-    // input signals
-    .ch0    ( ti1_snd   ),
-    .ch1    ( ti2_snd   ),
-    .ch2    ( 16'd0     ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h18     ),
-    .gain1  ( 8'h18     ),
-    .gain2  ( 8'h00     ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
-
+`else
+assign cpu_cen  = 0;
+assign cpu_dout = 0;
+assign cpu_rnw  = 1;
+assign rom_addr = 0;
+assign ti1      = 0;
+assign ti2      = 0;
+initial flip    = 0;
+initial obj1_cs = 0;
+initial obj2_cs = 0;
+initial pal_sel = 0;
+initial rom_cs  = 0;
+initial vram_cs = 0;
+initial vscr_cs = 0;
+`endif
 endmodule

@@ -14,7 +14,6 @@ game:
       - jtgng_video.v
       - jtgng_video.yaml
       - jtgng_sound.yaml
-      - jtgng_obj32.v
       - jtgng_dual_ram.v
 jtframe:
   - from: clocking

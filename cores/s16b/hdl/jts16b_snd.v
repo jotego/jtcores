@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 5-7-2021 */
 
-`ifndef NOSOUND
-
 module jts16b_snd(
     input                rst,
     input                clk,
@@ -27,11 +25,6 @@ module jts16b_snd(
     input                cen_fm2,   // 2MHz
     input                cen_pcm,   // 0.640
     input  [7:0]         game_id,
-
-    // options
-    input         [ 1:0] fxlevel,
-    input                enable_fm,
-    input                enable_psg,
 
     // Mapper device 315-5195
     output               mapper_rd,
@@ -52,18 +45,15 @@ module jts16b_snd(
     input         [ 7:0] key_data,
 
     // Sound output
-    output signed [15:0] snd,
-    output               sample,
-    output               peak
+    output signed [15:0] fm_l, fm_r,
+    output signed [ 8:0] pcm
 );
-
-localparam [7:0] FMGAIN=8'h08;
-
+`ifndef NOSOUND
 wire [15:0] A;
 reg         fm_cs, mapper_cs, ram_cs, bank_cs,
             pcm_cs, misc_cs;
 wire        mreq_n, iorq_n, int_n;
-reg  [ 7:0] cpu_din, pcm_cmd, pcmgain;
+reg  [ 7:0] cpu_din, pcm_cmd;
 reg         rom_ok2;
 wire        rom_good, dec_ok;
 wire [ 7:0] cpu_dout, fm_dout, ram_dout, rom_dec, dec_dout;
@@ -71,13 +61,6 @@ wire        nmi_n, pcm_busyn,
             wr_n, rd_n, m1_n;
 reg         pcm_mdn, pcm_rst;
 reg  [ 5:0] rom_msb;
-
-
-wire signed [15:0] fm_left, fm_right, mixed;
-wire signed [ 8:0] pcm_raw, pcm_snd;
-wire [7:0] fmgain;
-
-assign fmgain   = enable_fm ? FMGAIN : 8'h0;
 
 assign mapper_rd   = mapper_cs && !rd_n;
 assign mapper_wr   = mapper_cs && !wr_n;
@@ -147,35 +130,6 @@ always @(posedge clk, posedge rst) begin
         pcm_mdn <= ~cpu_dout[7];
     end
 end
-
-// PCM volume
-always @(posedge clk ) begin
-    case( fxlevel )
-        2'd0: pcmgain <= 8'h02;
-        2'd1: pcmgain <= 8'h04;
-        2'd2: pcmgain <= 8'h08;
-        2'd3: pcmgain <= 8'h14;
-    endcase
-    if( !enable_psg ) pcmgain <= 0;
-end
-
-jtframe_mixer #(.W2(9)) u_mixer(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    // input signals
-    .ch0    ( fm_left   ),
-    .ch1    ( fm_right  ),
-    .ch2    ( pcm_snd   ),
-    .ch3    ( 16'd0     ),
-    // gain for each channel in 4.4 fixed point format
-    .gain0  ( fmgain    ),
-    .gain1  ( fmgain    ),
-    .gain2  ( pcmgain   ),
-    .gain3  ( 8'h00     ),
-    .mixed  ( snd       ),
-    .peak   ( peak      )
-);
 
 assign int_n = ~mapper_pbf;
 
@@ -251,12 +205,12 @@ jt51 u_jt51(
     .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     (           ), // marks new output sample
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_left   ),
-    .xright     ( fm_right  )
+    .xleft      ( fm_l      ),
+    .xright     ( fm_r      )
 );
 
 jt7759 u_pcm(
@@ -277,23 +231,17 @@ jt7759 u_pcm(
     .rom_data   (           ),
     .rom_ok     ( 1'b0      ),
     // Sound output
-    .sound      ( pcm_raw   )
+    .sound      ( pcm       )
 );
-
-// where a = exp(-wc/T ), a<1
-// wc = radian frequency
-
-wire [3:0] pole_a = 4'd10; // pole at 4kHz
-
-jtframe_pole #(.WS(9)) u_pole(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .sample     ( sample    ),      // uses the YM2151 as sampling signal
-    .a          ( pole_a    ),
-    .sin        ( pcm_raw   ),
-    .sout       ( pcm_snd   )
-);
-
-endmodule
-
+`else
+assign mapper_rd  = 0;
+assign mapper_wr  = 0;
+assign mapper_din = 0;
+assign key_addr   = 0;
+assign snd        = 0;
+assign sample     = 0;
+assign peak       = 0;
+initial rom_addr  = 0;
+initial rom_cs    = 0;
 `endif
+endmodule

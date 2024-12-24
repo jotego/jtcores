@@ -36,7 +36,7 @@ module jtrastan_obj(
     input           obj_cs,        // selection from address decoder
     output          dtackn,
 
-    output reg [18:0] rom_addr,
+    output reg [18:1] rom_addr,
     input    [31:0] rom_data,
     output          rom_cs,
     input           rom_ok,
@@ -136,7 +136,7 @@ always @(posedge clk, posedge rst) begin
         pxl_data  <= 0;
     end else begin
         if( dr_start ) begin
-            rom_addr <= { code[12:0], ydiff[3:0]^{4{~attr[15]}}, attr[14], 1'd0 };
+            rom_addr <= { code[12:0], ydiff[3:0]^{4{~attr[15]}}, attr[14] };
             half     <= 0;
             dr_busy  <= 1;
             buf_pos  <= xpos[8:0] + 9'd14;

@@ -69,8 +69,8 @@ jtcastle_main u_main(
     .ram_we         ( ram_we        ),
     .ram_dout       ( ram_dout      ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -151,7 +151,6 @@ jtcastle_video u_video (
 jtcastle_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -171,9 +170,10 @@ jtcastle_sound u_sound(
     .pcmb_data  ( pcmb_data     ),
     .pcmb_ok    ( pcmb_ok       ),
     // Sound output
-    .snd        ( snd           ), // channels reversed in
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm         ( fm            ),
+    .pcm_a      ( pcm_a         ),
+    .pcm_b      ( pcm_b         ),
+    .scc        ( scc           ),
     .debug_bus  ( debug_bus     )
 );
 

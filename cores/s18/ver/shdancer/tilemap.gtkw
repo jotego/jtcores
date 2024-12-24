@@ -1,0 +1,107 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Thu May  9 09:50:26 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/test.fst"
+[dumpfile_mtime] "Thu May  9 09:49:59 2024"
+[dumpfile_size] 17099410
+[savefile] "/home/jtejada/jtcores/cores/s18/ver/shdancer/tilemap.gtkw"
+[timestart] 3634235354000
+[size] 1920 1052
+[pos] -1 -28
+*-19.765984 3634238982000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_video16.
+[sst_width] 223
+[signals_width] 234
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@22
+TOP.game_test.u_game.u_game.u_video.u_video16.scr1_addr[17:2]
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(1)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(2)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(3)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(4)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(5)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(6)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(7)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(8)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(9)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(10)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(11)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(12)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(13)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(14)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+(15)TOP.game_test.u_game.u_game.u_video.u_video16.scr2_addr[17:2]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_video16.u_tilemap.sa
+TOP.game_test.u_game.u_game.u_video.u_video16.u_tilemap.sb
+@22
+TOP.game_test.u_game.u_game.u_video.tile_bank[7:0]
+@c00022
+TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(1)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(2)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(3)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(4)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(5)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(6)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(7)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(8)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(9)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(10)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(11)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(12)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(13)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(14)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(15)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(16)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(17)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(18)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+(19)TOP.game_test.u_game.u_game.u_video.scr2_addr[21:2]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_main.io_cs
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+@28
+TOP.game_test.u_game.u_game.u_main.io_we
+@22
+TOP.game_test.u_game.u_game.u_main.u_ioctl.addr[5:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.din[7:0]
+TOP.game_test.u_game.u_game.u_main.cpu_dout[15:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.UDSn
+TOP.game_test.u_game.u_game.u_main.LDSn
+@22
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[0][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[1][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[2][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[3][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[4][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[5][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[6][7:0]
+TOP.game_test.u_game.u_game.u_main.u_ioctl.pout[7][7:0]
+[pattern_trace] 1
+[pattern_trace] 0
+!100000@@
+?"0026F6
+@23
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+!!

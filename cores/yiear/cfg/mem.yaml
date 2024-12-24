@@ -1,3 +1,8 @@
 include:
     - game: kicker
 game: "kicker"
+audio:
+  rsum: 1k
+  channels:
+    - { name: ti1, module: jt89,    rsum: 1.22k, rc: [{ r:  180, c: 47n}]}
+    - { name: vlm, module: vlm5030, rsum: 1k,    rc: [{ r:  10k, c: 47p }, { r: 2.5k, c: 1n  }] } # equivalent filter

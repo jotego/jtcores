@@ -11,7 +11,23 @@ clocks:
         - cpu4
         - ti1
         - ti2
-
+audio:
+  # like kicker's but the second capacitor is software-controlled
+  rsum: 220
+  rc: { r: 1k, c: 100n }
+  channels:
+    # equivalent filter
+    - { name: psg1, module: jt89, rsum: 220, rc: [
+        { r: 2k, c: 100n }, { r:     0, c:    0 }, # always on
+        { r: 2k, c: 100n }, { r: 1.25k, c: 470n }, # optional 2nd capacitor
+      ], rc_en: true }
+    - { name: psg2, module: jt89, rsum: 220, rc: [
+        { r: 2k, c: 100n }, { r:     0, c:    0 }, # always on
+        { r: 2k, c: 100n }, { r: 1.25k, c:  47n },
+        { r: 2k, c: 100n }, { r: 1.25k, c: 470n }, # optional 2nd/3rd capacitors
+        { r: 2k, c: 100n }, { r: 1.25k, c: 517n },
+      ], rc_en: true }
+    - { name: rdac,  data_width: 8, unsigned: true, rsum: 220, rc: [{ r: 0.8k, c: 470n }], rc_en: true }
 download:
   pre_addr: true
   post_data: true

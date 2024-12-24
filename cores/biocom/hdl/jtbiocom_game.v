@@ -60,7 +60,6 @@ wire        scr1_cs, scr2_cs;
 wire [15:0] scr1_hpos, scr1_vpos;
 wire [ 8:0] scr2_hpos, scr2_vpos;
 
-assign game_led = 0;
 assign clk_mcu = clk24;
 assign prom_mcu_we  = prom_we && !ioctl_addr[12];
 assign prom_prio_we = prom_we &&  ioctl_addr[12];
@@ -147,8 +146,8 @@ jtbiocom_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .joystick1  ( joystick1[5:0]),
     .joystick2  ( joystick2[5:0]),
 
@@ -206,9 +205,8 @@ jtbiocom_sound #(.RECOVERY(1)) u_sound (
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .left           ( snd_left       ),
-    .right          ( snd_right      ),
-    .sample         (     sample     )
+    .fm_l           ( fm_l           ),
+    .fm_r           ( fm_r           )
 );
 
 jtbiocom_video #(

@@ -40,7 +40,7 @@ module jt63701v #(
     output     [15:0]  addr,
     input       [7:0]  xdin,
     output      [7:0]  dout,
-    output             rnw,
+    output             wr,
     output             x_cs,    // eXternal access
     // Ports
     // irq1 = P5-0, irq2 = P5-1
@@ -56,6 +56,7 @@ module jt63701v #(
     // external is connected
     // output             sc2, sc1_out,
     // input              sc1_in,
+    output             halted,
 
     // ROM, regardless of size is external
     // data assumed to be right from one cen to the next
@@ -80,7 +81,7 @@ reg  [ 4:0] p2, p2ddr;
 reg  [ 7:0] p1,p3,p4,
             p1ddr, p3ddr, p4ddr,
             tcsr, trcs, rmcr, td;
-reg  [15:0] frc, ocr1, icr1;
+reg  [15:0] frc, ocr, icr;
 // timers
 wire [15:0] nx_frc;
 reg         oc_en_aux;
@@ -123,16 +124,12 @@ assign psel    = addr[4:0];
 assign x_cs    = MODE!=7 && {port_cs,buf_cs,rom_cs/*,~rame[6]*/}==0; // the MODE should limit this
 // Timers
 assign { nx_frc_ov, nx_frc } = { 1'd0, frc }+17'd1;
-assign ocf     = ocr1==nx_frc && oc_en;
+assign ocf     = ocr==nx_frc && oc_en;
 assign tin[0]  = p2_din[0];
 assign tin[1]  = p1_din[0];
 assign ic_edge[0] = tcr1[3] ? (tin[0]&~tin_l[0]) : (~tin[0]&tin_l[0]);
 assign ic_edge[1] = tcr1[4] ? (tin[1]&~tin_l[1]) : (~tin[1]&tin_l[1]);
-assign oc_en      = oc_en_aux && !(wr && port_cs && (psel==OCR1H || psel==FRCH));
-
-`ifdef SIMULATION
-wire p1ddr = ports[P1DDR][0];
-`endif
+assign oc_en      = oc_en_aux && !(wr && port_cs && (psel==OCRH || psel==FRCH));
 
 // Address decoder
 always @(posedge clk) begin
@@ -162,10 +159,10 @@ always @(*) begin
         TCSR:   port_mux = tcsr;
         FRCH:   port_mux = frc[15:8];
         FRCL:   port_mux = frc[ 7:0];
-        OCR1H:  port_mux = ocr1[15:8];
-        OCR1L:  port_mux = ocr1[ 7:0];
-        ICR1H:  port_mux = icr1[15:8];
-        ICR1L:  port_mux = icr1[ 7:0];
+        OCRH:   port_mux = ocr[15:8];
+        OCRL:   port_mux = ocr[ 7:0];
+        ICRH:   port_mux = icr[15:8];
+        ICRL:   port_mux = icr[ 7:0];
         // serial interface
         P3CSR:  port_mux = {p3csr[7:6],1'b1,p3csr[4:3],3'd7};
         RMCR:   port_mux = { rmcr[7],3'b111,rmcr[3:0]};
@@ -193,8 +190,8 @@ always @(posedge clk, posedge rst) begin
         p3ddr <= 0;
         p4ddr <= 0;
         frc   <= 0;
-        ocr1  <='hffff;
-        icr1  <= 0;
+        ocr  <='hffff;
+        icr  <= 0;
         rmcr  <='hf0;
         trcs  <= 0;
         tcr1  <= 0;
@@ -206,13 +203,13 @@ always @(posedge clk, posedge rst) begin
         ramc  <= 1;
     end else begin
         // The FRCL register is read through a latch, to guarantee accuracy
-        if( psel == FRCH && rnw ) fcl <= ports[FRCL];
-        if( psel == FRCL && rnw ) port_mux <= fcl;
+        if( psel == FRCH && !wr ) fcl <= frc[7:0];
+        if( psel == FRCL && !wr ) port_mux <= fcl;
 
         if( cen ) begin
             oc_en_aux <= 1;
         end
-        if( port_cs & ~rnw ) begin
+        if( port_cs & wr ) begin
             case(psel)
                 P1: p1 <= dout;
                 P2: p2 <= dout[4:0];
@@ -226,48 +223,46 @@ always @(posedge clk, posedge rst) begin
                 TCSR: tcsr <= dout[4:0];
                 TRCS: trcs <= dout;
                 FRCH: if(MODE==0) frc <= 16'hfff8;
-                OCR1H: { ocr1[15:8], oc_en_aux[0] } <= { dout, 1'b0 };
-                OCR1L: ocr1[7:0] <= dout;
+                OCRH: { ocr[15:8], oc_en_aux[0] } <= { dout, 1'b0 };
+                OCRL: ocr[7:0] <= dout;
                 // serial interface
                 P3CSR: p3csr <= dout[7:3]; // bit 5 unused
-                RMCR: rmcr <= dout; // bits 6-4 unused
-                TD:   td   <= dout;
-                RAMC: ramc[7:6] <= dout[7:6];
-                ICR1H,ICR1L,RD,FRCL:; // read-only port
+                RMCR:  rmcr  <= dout; // bits 6-4 unused
+                TD:    td    <= dout;
+                RAMC:  ramc[7:6] <= dout[7:6];
+                ICRH,ICRL,RD,FRCL:; // read-only port
                 default: $display("%m: ignored write to port %X",psel);
             endcase
         end
-        ports[P2][7:5] <= MODE[2:0];
-        ports[P2][1]   <= p2_din[1]; // overwritten below as needed
         if( cen ) begin
-            if( port_cs && psel==TCSR && rnw) pre_clr <= 1;
+            if( port_cs && psel==TCSR && !wr) pre_clr <= 1;
             if( port_cs && pre_clr ) begin // clear conditions
-                if( psel==ICRH && rnw ) begin
-                    ports[TCSR][7] <= 0;   // ICF (input  capture flag)
+                if( psel==ICRH && !wr ) begin
+                    tcsr[7] <= 0;   // ICF (input  capture flag)
                     pre_clr <= 0;
                 end
-                if( (psel==OCRH || psel==OCRL) && !rnw ) begin
-                    ports[TCSR][6] <= 0;   // OCF (output compare flag)
+                if( (psel==OCRH || psel==OCRL) && wr ) begin
+                    tcsr[6] <= 0;   // OCF (output compare flag)
                     pre_clr <= 0;
                 end
-                if( psel==FRCH && rnw ) begin
-                    ports[TCSR][5] <= 0;   // TOF (timer overflow flag)
+                if( psel==FRCH && !wr ) begin
+                    tcsr[5] <= 0;   // TOF (timer overflow flag)
                     pre_clr <= 0;
                 end
             end
             // Free running counter
-            if( ocf       ) ports[TCSR][6] <= 1;
-            if( nx_frc_ov ) ports[TCSR][5] <= 1;
+            if( ocf       ) tcsr[6] <= 1;
+            if( nx_frc_ov ) tcsr[5] <= 1;
             cen_frc <= cen_frc==SLOW_FRC[1:0] ? 2'd0 : cen_frc+1'd1;
-            if( SLOW_FRC==0 || cen_frc==SLOW_FRC[1:0] ) { ports[FRCH], ports[FRCL] } <= nx_frc;
+            if( SLOW_FRC==0 || cen_frc==SLOW_FRC[1:0] ) { frch, frcl } <= nx_frc;
             // input capture register
             tin_l <= tin;
             if( ic_edge ) begin
-                { ports[ICRH], ports[ICRL] } <= { ports[FRCH],ports[FRCL] };
-                ports[TCSR][7] <= 1;
+                icr <= { frch, frcl };
+                tcsr[7] <= 1;
             end
             // free counter matches fed to output ports:
-            if( ports[P2DDR][1] ) ports[P2][1] <= ~ports[TCSR][0]^ports[TCSR][6];
+            if( p2ddr[1] ) p2[1] <= ~tcsr[0]^tcsr[6];
         end
     end
 end
@@ -280,9 +275,9 @@ always @(posedge clk, posedge rst) begin
         irq_tof <= 0;
         irq_ack <= 0;
     end else begin
-        irq_ocf <= ports[TCSR][6] & ports[TCSR][3]; // Counter compare register 1 -- FFF4-FFF5
-        irq_icf <= ports[TCSR][7] & ports[TCSR][4]; // input capture flag         -- FFF6-FFF7
-        irq_tof <= ports[TCSR][5] & ports[TCSR][2]; // timer overflow flag        -- FFF2-FFF3
+        irq_ocf <= tcsr[6] & tcsr[3]; // Counter compare register 1 -- FFF4-FFF5
+        irq_icf <= tcsr[7] & tcsr[4]; // input capture flag         -- FFF6-FFF7
+        irq_tof <= tcsr[5] & tcsr[2]; // timer overflow flag        -- FFF2-FFF3
         irq_ack <= intv_rd && addr[4:1]=='hc;
     end
 end
@@ -308,7 +303,7 @@ jt680x u_mcu( // use 6301.yaml
     .nmi        ( nmi           ),
     // Bus sharing
     .ext_halt   ( 1'b0          ),
-    .ba         (               ),
+    .ba         ( halted        ),
     // Other interrupts
     .irq_icf    ( irq_icf       ),
     .irq_ocf    ( irq_ocf       ),

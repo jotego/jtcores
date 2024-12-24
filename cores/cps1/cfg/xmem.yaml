@@ -1,0 +1,29 @@
+clocks:
+  clk48:
+    - freq: 16000000
+      outputs:
+        - cen16
+        - cen8
+    - freq: 12000000
+      outputs:
+        - cen12
+
+sdram:
+  banks:
+    - buses:
+      - { name: main,     addr_width: 18, data_width: 16, offset: main_offset, rw: true }
+      - { name: vram,     addr_width: 18, data_width: 16, offset: VRAM_OFFSET, latch: OBJ_LATCH }
+      - { name: gfx_oram, addr_width: 14, data_width: 16, offset: ORAM_OFFSET, latch: OBJ_LATCH }
+      - { name: main_rom, addr_width: 22, data_width: 16, offset: ROM_OFFSET }
+    - region: audiocpu
+      buses:
+      - { name: snd,      addr_width: 16, data_width: 8,  offset: SND_OFFSET } # AW=19 on CPS2
+    - region: oki
+      buses:
+        - { name: pcm,      addr_width: 18, data_width: 8  } # AW=23 on CPS2
+    - region: gfx
+      buses:
+        - { name: gfx0,   addr_width: 22, data_width: 32,                     latch: OBJ_LATCH } # AW=23 on CPS2
+        - { name: gfx1,   addr_width: 22, data_width: 32, offset: SCR_OFFSET                   }
+        - { name: star0,  addr_width: 22, data_width: 32, offset: SCR_OFFSET                   }
+        - { name: star1,  addr_width: 22, data_width: 32, offset: SCR_OFFSET                   }

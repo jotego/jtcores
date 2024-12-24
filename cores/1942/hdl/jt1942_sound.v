@@ -33,7 +33,6 @@ module jt1942_sound(
     input   [ 7:0]  main_dout,
     input           main_wr_n,
     input           main_a0,
-    input   [ 7:0]  snd_latch,
     input           main_latch0_cs,
     input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
     input           snd_int,
@@ -43,20 +42,13 @@ module jt1942_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // Sound output
-    output signed [15:0] snd,
-    output           sample,
-    output           peak
+    output  [ 9:0]  psg0, psg1
 );
 
-parameter EXEDEXES=0;
 `ifndef NOSOUND
 `include "1942.vh"
-wire mreq_n;
-wire rd_n;
-wire wr_n;
-
-reg ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg psg2_wr, psg1_wr, hige;
+wire mreq_n, rd_n, wr_n;
+reg  ay1_cs, ay0_cs, latch_cs, ram_cs, hige;
 
 reg [7:0] AH;
 
@@ -85,14 +77,13 @@ wire [15:0] A;
 assign rom_addr = A[14:0];
 assign ay_din   = !hige ? cpu_dout : main_dout;
 
-reg reset_n=0, ay_rstn=0, ay_rst=0;
+reg reset_n=0, ay_rstn=0;
 
 always @(posedge clk) hige <= game_id == HIGEMARU;
 
 always @(posedge clk) if(cen3) begin
     reset_n <= ~rst & sres_b;
     ay_rstn <= ~rst & (sres_b | hige); // AY always on when running Higemaru
-    ay_rst  <= ~ay_rstn;
 end
 
 always @(*) begin
@@ -101,18 +92,12 @@ always @(*) begin
     latch_cs = 1'b0;
     ay0_cs   = 1'b0;
     ay1_cs   = 1'b0;
-    psg1_wr  = 0;
-    psg2_wr  = 0;
     if( !mreq_n ) casez(A[15:13])
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
-        3'b100: begin
-            ay0_cs  = EXEDEXES==0 || A[2:0]<2;
-            psg1_wr = A[2:0] == 2 && !wr_n;
-            psg2_wr = A[2:0] == 3 && !wr_n;
-        end
-        3'b110: if( EXEDEXES==0 ) ay1_cs = 1'b1;
+        3'b100: ay0_cs   = 1'b1;
+        3'b110: ay1_cs   = 1'b1;
         default:;
     endcase
     if( hige ) begin
@@ -138,7 +123,7 @@ always @(*) begin
     case( 1'b1 )
         ay1_cs:   din = ay1_dout;
         ay0_cs:   din = ay0_dout;
-        latch_cs: din = EXEDEXES ? snd_latch : (A[0] ? latch1 : latch0);
+        latch_cs: din = A[0] ? latch1 : latch0;
         rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
         default:  din = 8'hff;
@@ -172,15 +157,17 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
 );
 
 function [1:0] bcdir( input cs );
+begin
     bcdir[0] = cs       & ~(hige ? main_wr_n : wr_n); // bdir pin
     bcdir[1] = bcdir[0] &  (hige ? main_a0   :~A[0]); // bc pin
+end
 endfunction
 
 wire bdir0, bc0;
 
 assign {bc0, bdir0} = bcdir(ay0_cs);
 
-jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
+jt49_bus #(.COMP(3'b10)) u_ay0( // note that input ports are not multiplexed
     .rst_n  ( ay_rstn   ),
     .clk    ( clk       ),
     .clk_en ( cen1p5    ),
@@ -189,8 +176,8 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .din    ( ay_din    ),
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
-    .sound  ( sound0    ),
-    .sample ( sample    ),
+    .sound  ( psg0      ),
+    .sample (           ),
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
@@ -201,101 +188,33 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .A(), .B(), .C() // unused outputs
 );
 
-generate
-    if( EXEDEXES==1 ) begin
-        wire signed [10:0] psg1, psg2;
-        jt89 u_psg1(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .clk_en ( cen3      ),
-            .cs_n   ( 1'b0      ),
-            .wr_n   ( ~psg1_wr  ),
-            .din    ( cpu_dout  ),
-            .sound  ( psg1      ),
-            .ready  (           )
-        );
+wire bdir1, bc1;
+assign {bc1, bdir1} = bcdir(ay1_cs);
 
-        jt89 u_psg2(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .clk_en ( cen3      ),
-            .cs_n   ( 1'b0      ),
-            .wr_n   ( ~psg2_wr  ),
-            .din    ( cpu_dout  ),
-            .sound  ( psg2      ),
-            .ready  (           )
-        );
-
-        wire [9:0] dcrm_snd;
-        assign ay1_dout = 8'hff;
-
-        jtframe_dcrm #(.SW(10)) u_dcrm(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .sample ( sample    ),
-            .din    ( sound0    ),
-            .dout   ( dcrm_snd  )
-        );
-
-        jtframe_mixer #(.W0(10),.W1(11),.W2(11)) u_mixer(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .cen    ( cen3      ),
-            // input signals
-            .ch0    ( dcrm_snd  ),
-            .ch1    ( psg1      ),
-            .ch2    ( psg2      ),
-            .ch3    (           ),
-            // gain for each channel in 4.4 fixed point format
-            .gain0  ( 8'h05     ),
-            .gain1  ( 8'h08     ),
-            .gain2  ( 8'h08     ),
-            .gain3  ( 8'h0      ),
-            .mixed  ( snd       ),
-            .peak   ( peak      )   // overflow signal (time enlarged)
-        );
-    end else begin
-        wire bdir1, bc1;
-        assign {bc1, bdir1} = bcdir(ay1_cs);
-
-        jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
-            .rst_n  ( ay_rstn   ),
-            .clk    ( clk       ),
-            .clk_en ( cen1p5    ),
-            .bdir   ( bdir1     ),
-            .bc1    ( bc1       ),
-            .din    ( ay_din    ),
-            .sel    ( 1'b1      ),
-            .dout   ( ay1_dout  ),
-            .sound  ( sound1    ),
-            // unused
-            .IOA_in ( 8'h0      ),
-            .IOA_out(           ),
-            .IOA_oe (           ),
-            .IOB_in ( 8'h0      ),
-            .IOB_out(           ),
-            .IOB_oe (           ),
-            .sample (           ),
-            .A(), .B(), .C()
-        );
-
-        jtframe_jt49_filters u_filters(
-            .rst    ( ay_rst    ),
-            .clk    ( clk       ),
-            .din0   ( sound0    ),
-            .din1   ( sound1    ),
-            .sample ( sample    ),
-            .dout   ( snd       )
-        );
-
-        assign peak = 0;
-    end
-endgenerate
+jt49_bus #(.COMP(3'b10)) u_ay1( // note that input ports are not multiplexed
+    .rst_n  ( ay_rstn   ),
+    .clk    ( clk       ),
+    .clk_en ( cen1p5    ),
+    .bdir   ( bdir1     ),
+    .bc1    ( bc1       ),
+    .din    ( ay_din    ),
+    .sel    ( 1'b1      ),
+    .dout   ( ay1_dout  ),
+    .sound  ( psg1      ),
+    // unused
+    .IOA_in ( 8'h0      ),
+    .IOA_out(           ),
+    .IOA_oe (           ),
+    .IOB_in ( 8'h0      ),
+    .IOB_out(           ),
+    .IOB_oe (           ),
+    .sample (           ),
+    .A(), .B(), .C()
+);
 `else
-    initial rom_cs = 0;
+    initial rom_cs   = 0;
     assign  rom_addr = 0;
-    assign  snd = 0;
-    assign  sample = 0;
-    assign  peak = 0;
+    assign  psg0     = 0;
+    assign  psg1     = 0;
 `endif
 endmodule

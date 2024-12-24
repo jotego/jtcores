@@ -10,6 +10,12 @@ clocks:
         - cen6
         - cen3
         - cen1p5
+audio:
+  rsum: 12k
+  missing_info: true # just using the same schematic for K007232 as in TMNT
+  channels:
+    - { name: pcm0, module: jt007232, rsum: 12k,  rc: [ { r: 19.65k, c: 470p } ], pre: 0.42 } # 120k || (47k||47k)
+    - { name: pcm1, module: jt007232, rsum: 12k,  rc: [ { r: 19.65k, c: 470p } ], pre: 0.42 } # 120k || (47k||47k)
 sdram:
   banks:
     - buses:

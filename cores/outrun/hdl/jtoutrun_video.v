@@ -16,7 +16,9 @@
     Version: 1.0
     Date: 10-7-2022 */
 
-module jtoutrun_video(
+module jtoutrun_video #(
+    parameter CW = `JTFRAME_COLORW
+)(
     input              rst,
     input              clk,
     input              pxl2_cen,  // pixel clock enable (2x)
@@ -102,9 +104,9 @@ module jtoutrun_video(
     output     [ 8:0]  hdump,
     output     [ 8:0]  vdump,
     output     [ 8:0]  vrender,
-    output     [ 4:0]  red,
-    output     [ 4:0]  green,
-    output     [ 4:0]  blue,
+    output   [CW-1:0]  red,
+    output   [CW-1:0]  green,
+    output   [CW-1:0]  blue,
 
 `ifdef JTFRAME_LF_BUFFER
     output     [ 8:0]  ln_addr,
@@ -159,8 +161,8 @@ assign obj2tile = { obj_pxl[5:4], {2{obj_pxl[6]}}, {2{obj_pxl[3:0]}}^8'h50 }; //
 always @* begin
     case( ioctl_addr[15:12] )
         0,1: ioctl_din = pal_dump;  // first 8kB of pal RAM dumped
-        1,2: ioctl_din = road_dump; // 8 kB
-        3:   ioctl_din = obj_dump;
+        2,3: ioctl_din = road_dump; // 8 kB
+        4:   ioctl_din = obj_dump;
         default: ioctl_din = 0;
     endcase
 end
@@ -221,7 +223,7 @@ jtoutrun_road u_road(
     .ioctl_addr ( ioctl_addr )
 );
 /* verilator tracing_off */
-jts16_tilemap #(.MODEL(1)) u_tilemap(
+jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -229,7 +231,6 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
 
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .pal_cs     ( pal_cs    ),
     .cpu_addr   ( cpu_addr[12:1] ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( main_dswn ),
@@ -391,8 +392,7 @@ jtoutrun_colmix u_colmix(
     .pxl_cen   ( pxl_cen        ),
     .pxl2_cen  ( pxl2_cen       ),
 
-    //.video_en  ( video_en       ),
-    .video_en  ( 1'b1           ),
+    .video_en  ( video_en       ),
     .tmap_addr ( tmap_addr      ),
     .shadow    ( shadow         ),
     // CPU interface

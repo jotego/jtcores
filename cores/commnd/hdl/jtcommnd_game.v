@@ -94,6 +94,7 @@ jtcommnd_main u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+    .cen_sel     ( 1'b1         ),  // select 6 MHz see issue #22
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -129,8 +130,8 @@ jtcommnd_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .cab_1p     ( cab_1p        ),
-    .coin       ( coin          ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .joystick1  ( joystick1[5:0]),
     .joystick2  ( joystick2[5:0]),
@@ -150,7 +151,6 @@ jtcommnd_main u_main(
     .char_on     (              ),
     .snd2_latch  (              ),
     .scr2_hpos   (              ),
-    .cen_sel     (              ),
     .scr1_on     (              ),
     .scr2_on     (              ),
     .obj_on      (              ),
@@ -167,19 +167,16 @@ jtgng_sound #(.LAYOUT(1)) u_sound (
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
-    // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            ),
-    .sample         ( sample         ),
-    .peak           ( game_led       ),
+    .fm0            ( fm0            ),
+    .fm1            ( fm1            ),
+    .psg0           ( psg0           ),
+    .psg1           ( psg1           ),
     // Unused
     .debug_bus      ( debug_bus      ),
     .debug_view     (                ),

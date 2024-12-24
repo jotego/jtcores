@@ -108,6 +108,7 @@ module jts16_main(
 );
 
 localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
+                 GAME_QUARTET =`GAME_QUARTET ,
                  GAME_PASSSHT =`GAME_PASSSHT ,
                  GAME_SDIBL   =`GAME_SDIBL   ,
                  GAME_PASSSHT2=`GAME_PASSSHT2,
@@ -160,12 +161,12 @@ assign IPLn  = mcu_en ? mcu_ctrl[2:0] : { irqn, 2'b11 };
 
 // No peripheral bus access for now
 assign cpu_addr = A[12:1];
-assign rom_addr = {1'b0, A[17:1]}; // only 256kB on System 16A
+assign rom_addr = {1'b0, ram_cs ? 4'd0 : A[17:14], A[13:1]}; // only 256kB on System 16A
 assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
                               && !io_cs  && !wdog_cs && pre_vram_cs && pre_ram_cs);
 
-always @(negedge clk) begin
-    cpu_rst <= rst | (~mcu_ctrl[6] & mcu_en);
+always @(posedge clk) begin
+    cpu_rst <= rst | (mcu_ctrl[6] & mcu_en);
 end
 
 localparam [23:16] NOTHING_CS = 8'h0f; // this will not select rom_cs or anything else
@@ -184,7 +185,7 @@ always @(posedge clk, posedge rst) begin
             pre_ram_cs  <= 0;
             //rom_addr  <= 0;
     end else begin
-        if( BGACKn ? !ASn : mcu_acc ) begin
+        if( (!mcu_bus) ? !ASn : mcu_acc ) begin
             rom_cs    <= A[23:22]==0 && !A[18];         // 00-03
             char_cs   <= A[22] && A[18:16]==1;    // 41
             //if( !A[23] ) rom_addr <= A[17:1];
@@ -315,11 +316,14 @@ always @(posedge clk, posedge rst) begin
                             GAME_PASSSHT: begin
                                 cab_dout[7:6] <= cab_1p[3:2];
                             end
+                            GAME_QUARTET: begin
+                                cab_dout <= {service, coin[0], joystick1[4], joystick1[5], joystick1[1], joystick1[0], joystick1[3], joystick1[2] };
+                            end
                             default:;
                         endcase
                     end
                     1: begin
-                        case( game_id )
+                         case( game_id )
                             GAME_SDI: cab_dout <= sdi_joy( {trackball1[10:3],trackball0[10:3]} );
                             GAME_PASSSHT: begin
                                 if( !last_iocs ) port_cnt <= port_cnt + 2'd1;
@@ -336,39 +340,47 @@ always @(posedge clk, posedge rst) begin
                                 joyana1[15:14]==2'b10 ? ~3'b100 :
                                 joyana1[15:14]==2'b11 ? ~3'b010:
                                 joyana1[15:14]==2'b00 ? ~3'b001: ~3'b0 }; // accelerator
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[1], joystick2[4], joystick2[5], joystick2[1], joystick2[0], joystick2[3], joystick2[2] };
                             default: cab_dout <= sort1;
                         endcase
                     end
                     2: begin
-                        if( game_sdi ) begin
-                            cab_dout <= { sort2[7:4], sort1[7:4] };
-                        end
-                        if( game_afightan ) begin
-                            cab_dout <=  // right side of driving wheel (hot one)
-                              ~(joyana1[7] ? 8'h00 :
-                                joyana1[6] ? 8'h80 :
-                                joyana1[5] ? 8'h40 :
-                                joyana1[4] ? 8'h20 :
-                                joyana1[3] ? 8'h10 :
-                                joyana1[2] ? 8'h08 :
-                                joyana1[1] ? 8'h04 :
-                                joyana1[0] ? 8'h02 : 8'h01);
-                        end
+                         case( game_id )
+                            GAME_SDI: cab_dout <= { sort2[7:4], sort1[7:4] };
+                            GAME_AFIGHTAN:
+                                cab_dout <=  // right side of driving wheel (hot one)
+                                  ~(joyana1[7] ? 8'h00 :
+                                    joyana1[6] ? 8'h80 :
+                                    joyana1[5] ? 8'h40 :
+                                    joyana1[4] ? 8'h20 :
+                                    joyana1[3] ? 8'h10 :
+                                    joyana1[2] ? 8'h08 :
+                                    joyana1[1] ? 8'h04 :
+                                    joyana1[0] ? 8'h02 : 8'h01);
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[2], joystick3[4], joystick3[5], joystick3[1], joystick3[0], joystick3[3], joystick3[2] };
+                             default: ;
+                         endcase
                     end
                     3: begin
-                        cab_dout <=
-                            game_sdi ? sdi_joy( {trackball3[10:3],trackball2[10:3]} ) :
-                            game_afightan ? ~(   // left side of driving wheel (hot one)
-                                !joyana1[7] ? 8'h00 :
-                                !joyana1[6] ? 8'h80 :
-                                !joyana1[5] ? 8'h40 :
-                                !joyana1[4] ? 8'h20 :
-                                !joyana1[3] ? 8'h10 :
-                                !joyana1[2] ? 8'h08 :
-                                !joyana1[1] ? 8'h04 :
-                                !joyana1[0] ? 8'h02 : 8'h01
-                            ):
-                            sort2;
+                         case( game_id )
+                            GAME_SDI: cab_dout <= sdi_joy( {trackball3[10:3],trackball2[10:3]} );
+                            GAME_AFIGHTAN:
+                                cab_dout <= ~(   // left side of driving wheel (hot one)
+                                    !joyana1[7] ? 8'h00 :
+                                    !joyana1[6] ? 8'h80 :
+                                    !joyana1[5] ? 8'h40 :
+                                    !joyana1[4] ? 8'h20 :
+                                    !joyana1[3] ? 8'h10 :
+                                    !joyana1[2] ? 8'h08 :
+                                    !joyana1[1] ? 8'h04 :
+                                    !joyana1[0] ? 8'h02 : 8'h01
+                                );
+                            GAME_QUARTET:
+                                cab_dout <= {1'b1, coin[3], joystick4[4], joystick4[5], joystick4[1], joystick4[0], joystick4[3], joystick4[2] };
+                            default: cab_dout <= sort2;
+                         endcase
                     end
                 endcase
             2'd2:
@@ -380,66 +392,58 @@ end
 
 
 `ifndef NOMCU
-    reg [1:0] mcu_aux;
     reg [7:0] mcu_din;
     wire      mcu_br;
-    wire      mcu_rst;
 
-    assign mcu_bus = ~BGACKn;
+    assign mcu_bus = ~BGACKn | cpu_rst;
     assign mcu_br  = mcu_en & mcu_acc;
-    assign mcu_rst = mcu_aux[1];
-
-    always @(posedge clk24, posedge rst24) begin
-        if( rst24 ) begin
-            mcu_aux <= 3;
-        end else begin
-            mcu_aux <= mcu_en ? mcu_aux<<1 : 2'd3;
-        end
-    end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
             mcu_din <= 0;
-        end else if(mcu_br && !mcu_wr) begin
+        end else if(mcu_bus) begin
             mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
 
-    `ifdef SIMULATION
-    reg  mcu_busl;
-    wire nothing_cs = mcu_top == NOTHING_CS;
+    // `ifdef SIMULATION
+    // reg  mcu_busl;
+    // wire nothing_cs = mcu_top == NOTHING_CS;
 
-    always @(posedge clk) mcu_busl <= mcu_bus;
+    // always @(posedge clk) mcu_busl <= mcu_bus;
 
-    always @(posedge mcu_busl ) begin
-        $display("MCU access to %X (%s) %s ",A_full,mcu_wr ? "WR" : "RD",
-            ram_cs ? "RAM" : io_cs ? "IO" : pal_cs ? "PAL" :
-            char_cs ? "Char" : rom_cs ? "ROM" :
-            nothing_cs ? "Nothing" : "N/A");
-        //if(mcu_top==0) begin
-        //    $display("Unexpected MCU access");
-        //    $finish;
-        //end
-    end
-    `endif
+    // always @(posedge mcu_busl ) begin
+    //     $display("MCU access to %X (%s) %s ",A_full,mcu_wr ? "WR" : "RD",
+    //         ram_cs ? "RAM" : io_cs ? "IO" : pal_cs ? "PAL" :
+    //         char_cs ? "Char" : rom_cs ? "ROM" :
+    //         nothing_cs ? "Nothing" : "N/A");
+    //     //if(mcu_top==0) begin
+    //     //    $display("Unexpected MCU access");
+    //     //    $finish;
+    //     //end
+    // end
+    // `endif
 
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
 
+    always @(*) begin
+        case(mcu_ctrl[5:3])
+            0: mcu_top = mcu_addr[15:14]==2'b01 ? 8'hc7 : // work RAM
+                         mcu_addr[15:14]==2'b10 ? 8'hc4 : NOTHING_CS; // IO space
+            1: mcu_top = mcu_addr[15:12]==8     ? 8'h41 : NOTHING_CS; // text RAM
+            3: mcu_top = 8'h84; // Palette
+            5: mcu_top = 8'h0; // ROM 0
+            6: mcu_top = 8'h1; // ROM 1
+            7: mcu_top = 8'h2; // ROM 2
+            default: mcu_top = NOTHING_CS;
+        endcase
+    end
+
     // This is done by IC69 (a 82S153 programmable logic chip)
     always @(posedge clk) begin
-        case(mcu_ctrl[5:3])
-            0: mcu_top <= mcu_addr[15:14]==2'b01 ? 8'hc7 : // work RAM
-                          mcu_addr[15:14]==2'b10 ? 8'hc4 : NOTHING_CS; // IO space
-            1: mcu_top <= mcu_addr[15:12]==8     ? 8'h41 : NOTHING_CS; // text RAM
-            3: mcu_top <= 8'h84; // Palette
-            5: mcu_top <= 8'h0; // ROM 0
-            6: mcu_top <= 8'h1; // ROM 1
-            7: mcu_top <= 8'h2; // ROM 2
-            default: mcu_top <= NOTHING_CS;
-        endcase
         BGACKnl <= BGACKn;
-        if( !mcu_cen ) mcu_ok = (BRn & BGACKn) | (
+        if( !mcu_cen ) mcu_ok <= cpu_rst | (BRn & BGACKn) | (
             BGACKnl ? 1'b0   :
             rom_cs  ? rom_ok :
             ram_cs  ? ram_ok : 1'b1 );
@@ -456,7 +460,7 @@ end
         .cpu_BGn    ( BGn       ),
         .cpu_ASn    ( ASn       ),
         .cpu_DTACKn ( DTACKn    ),
-        .dev_br     ( mcu_br    )      // high to signal a bus request from a device
+        .dev_br     ( !cpu_rst & mcu_br )      // high to signal a bus request from a device
     );
 
     jtframe_8751mcu #(
@@ -466,17 +470,17 @@ end
         .SYNC_INT   ( 1             ),
         .ROMBIN     ( "mcu.bin"     )
     ) u_mcu(
-        .rst        ( mcu_rst       ),
+        .rst        ( rst24         ),
         .clk        ( clk24         ),
         .cen        ( mcu_gated     ),
 
         .int0n      ( ~vint         ),
-        .int1n      ( ppib_dout[6]  ),
+        .int1n      ( ~ppib_dout[6] ),
 
         .p0_i       ( mcu_din       ),
-        .p1_i       ( 8'hff         ),
+        .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
-        .p3_i       ( 8'hff         ),
+        .p3_i       ( {4'hf, ~ppib_dout[6], ~vint, 2'b11} ), // need for instructions like jb int0,xx
 
         .p0_o       (               ),
         .p1_o       ( mcu_ctrl      ),
@@ -511,7 +515,7 @@ end
 `endif
 
 jt8255 u_8255(
-    .rst       ( rst        ),
+    .rst       ( cpu_rst    ),
     .clk       ( clk        ),
 
     // CPU interface
@@ -551,7 +555,9 @@ end
 wire       inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 reg        last_vint;
 
-assign VPAn = inta_n | (mcu_en & mcu_ctrl[7]);
+// VPAn masking by the MCU is disabled, because mcu_ctrl[7] never goes down.
+// Maybe need to implement the missing logic to t0_i to make it work?
+assign VPAn = inta_n;// | (mcu_en & mcu_ctrl[7]);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -571,7 +577,7 @@ wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_c
 wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok };
 wire bus_legit = 0;
 
-jtframe_68kdtack #(.W(8),.MFREQ(50_347)) u_dtack(
+jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -588,8 +594,7 @@ jtframe_68kdtack #(.W(8),.MFREQ(50_347)) u_dtack(
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       ( fave      ),
-    .fworst     ( fworst    ),
-    .frst       ( rst       )
+    .fworst     ( fworst    )
 );
 
 // Shared by FD1094 and FD1089

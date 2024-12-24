@@ -28,6 +28,7 @@ wire        cpu_rnw, cpu_irq_n, cpu_nmi_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
+wire        tilesys_rom_dtack;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 1:0] game_id;
@@ -57,11 +58,11 @@ end
 //     end
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen_ref        ( cen24         ), // should it be cen12?
+    .cen_ref        ( cen24         ),
     .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
@@ -91,6 +92,7 @@ jtaliens_main u_main(
     .nmi_n          ( cpu_nmi_n     ),
 
     .tilesys_dout   ( tilesys_dout  ),
+    .tilesys_rom_dtack  ( tilesys_rom_dtack ),
     .objsys_dout    ( objsys_dout   ),
 
     .pal_dout       ( pal_dout      ),
@@ -147,9 +149,9 @@ jtaliens_sound u_sound(
     .pcmb_ok    ( pcmb_ok       ),
 
     // Sound output
-    .snd        ( snd           ),
-    .sample     ( sample        ),
-    .peak       ( game_led      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
+    .pcm        ( pcm           ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
@@ -183,6 +185,7 @@ jtaliens_video u_video (
     .cpu_addr       (main_addr[15:0]),
     .cpu_dout       ( cpu_dout      ),
     .tilesys_dout   ( tilesys_dout  ),
+    .tilesys_rom_dtack ( tilesys_rom_dtack ),
     .objsys_dout    ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
@@ -201,6 +204,7 @@ jtaliens_video u_video (
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
+    .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
     // pixels
     .red            ( red           ),

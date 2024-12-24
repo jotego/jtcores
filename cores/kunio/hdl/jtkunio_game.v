@@ -29,7 +29,7 @@ wire [12:0] cpu_addr;
 
 // SDRAM
 wire [ 9:0] scrpos;
-wire        flip, prom_we;
+wire        flip;
 
 assign dip_flip   = flip;
 assign debug_view = 0;
@@ -71,8 +71,8 @@ jtkunio_main u_main(
 
     .joystick1   ( joystick1[6:0]),
     .joystick2   ( joystick2[6:0]),
-    .start       ( cab_1p       ),
-    .coin        ( coin         ),
+    .start       ( cab_1p[1:0]  ),
+    .coin        ( coin[1:0]    ),
     .dipsw_a     ( dipsw[ 7:0]  ),
     .dipsw_b     ( dipsw[15:8]  ),
     .service     ( service      ),
@@ -107,9 +107,8 @@ jtkunio_sound u_sound(
     .pcm_cs     ( pcm_cs        ),
     .pcm_ok     ( pcm_ok        ),
 
-    .peak       ( game_led      ),
-    .sample     ( sample        ),
-    .sound      ( snd           )
+    .pcm        ( pcm           ),
+    .fm         ( fm            )
 );
 
 jtkunio_video u_video(

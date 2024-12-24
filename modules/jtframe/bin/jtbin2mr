@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # Copies the contents of JTBIN to a test folder
 # in MiSTer
 
@@ -9,13 +9,16 @@ cat<<HELP
 Copies the contents of JTBIN or the release folder to
 a MiSTer device in the network.
 
+If called with a git hash, extracts the contents of
+\$JTBUILDS/hash.zip to \$JTROOT/release first and then
+copies it to MiSTer.
+
 Usage:
 
-jtbin2mr.sh [-l|--local]
+jtbin2mr [build hash]
 
--l, --local     Uses JTROOT/release instead of JTBIN (default)
 -m, --mr        MiSTer host name or IP address
--g, --git       Uses JTBIN as the target folder
+-g, --git       Uses JTBIN as the source folder, rather than \$JTROOT/release
 -h, --help      Help
 -v, --verbose
 HELP
@@ -23,10 +26,15 @@ HELP
 
 LOCAL=1
 V=
+BUILD=
+
+if [ -z "$JTROOT" ]; then
+    echo "JTROOT is undefined"
+    exit 1
+fi
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
         -m|--mr)
@@ -38,18 +46,31 @@ while [ $# -gt 0 ]; do
             show_help
             exit 1;;
         *)
-            echo "Unknown argument $1"
-            exit 1;;
+            BUILD="$JTBUILDS/$1.zip"
+            if [ ! -e "$BUILD" ]; then
+                echo "Cannot find $BUILD"
+                echo "Unknown argument $1"
+                exit 1
+            fi;;
     esac
     shift
 done
+
+if [ ! -z "$BUILD" ]; then
+    rm -rf $JTROOT/release
+    if unzip -l $BUILD | grep '\brelease/' > /dev/null; then
+        unzip -q $BUILD -d $JTROOT
+    else
+        mkdir $JTROOT/release
+        unzip -q $BUILD -d $JTROOT/release
+    fi
+fi
 
 if  pwd | grep "$JTBIN"; then
     echo "Copying from JTBIN as the current working dir is JTBIN"
 elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
-
 
 if [ -z "$MISTERPASSWD" ]; then
     echo "Define the MiSTer password in the environment variable MISTERPASSWD"
@@ -73,40 +94,38 @@ CORES=$ROOT/cores
 mkdir -p $CORES
 
 if [ -d $JTBIN/mister ]; then
-    cd $JTBIN/mister
-    for i in *; do
-        if [ `ls $i/releases/*.rbf 2>/dev/null | wc -l` -gt 0 ]; then
-            cp $i/releases/*.rbf $CORES
-        else
-            echo "No RBF files for $i"
-        fi
-        if [ `ls $i/releases/*.mra 2>/dev/null | wc -l` -gt 0 ]; then
-            cp $i/releases/*.mra $ROOT
-        elif [ $i != ngp ]; then
-            echo "No MRA files for $i"
-        fi
-    done
-    # NeoGeo Pocket core shoult not go inside the cores folder, but
-    # to the root level  --- eventually, it must be in cores for the MRA to work. It needs the MRA for the beta key
-    # if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
+    cp $JTBIN/mister/*.rbf $CORES
 fi
 
-cp -r $JTBIN/mra/_alternatives $ROOT
+cp -r $JTBIN/mra/* $ROOT
 if [ -d $JTBIN/games ]; then cp -r $JTBIN/games $ROOT; fi
 
 # Copy the files to MiSTer
-if [ "$V" = -v ]; then echo -e "\nCopying the files to MiSTer"; fi
+if [ ! -z "$V" ]; then echo -e "\nCopying the files to MiSTer"; fi
 if [ -d /media/$USER/MiSTer_Data ]; then
     echo "MiSTer SD card detected"
     rm -rf /media/$USER/MiSTer_Data/_JTBIN
     cp -r $TEMP/_JTBIN /media/$USER/MiSTer_Data || echo "Copy to MiSTer SD card failed"
-else
+    if [ -e $JTUTIL/jtbeta.zip ]; then
+        cp $JTUTIL/jtbeta.zip /media/$USER/MiSTer_Data/games/mame
+    fi
+elif ping -c 1 -q $MRHOST > /dev/null; then
     sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/_JTBIN"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/*.{cfg,CFG}"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/nvram/*.nvm"
+    sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST "rm -rf /media/fat/config/dips/*"
     if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
         rm -rf $TEMP
     else
         echo "Copy to MiSTer failed. Temporary files in " $TEMP
         exit 1
     fi
+    if [ -e $JTUTIL/jtbeta.zip ]; then
+        sshpass -p $MISTERPASSWD scp -r $JTUTIL/jtbeta.zip $MRUSER@${MRHOST}:/media/fat/games/mame
+    else
+        echo "Skipping jtbeta.zip copy"
+    fi
+else
+    echo "$MRHOST is not online"
 fi
 rm -rf $TEMP

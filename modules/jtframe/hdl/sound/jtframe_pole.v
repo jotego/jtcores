@@ -40,7 +40,7 @@ module jtframe_pole #(parameter
     output reg signed [WS-1:0] sout
 );
 
-localparam [WS-1:0] ZERO={WS{1'b0}}, ONE={ {WS-WA-1{1'b0}}, 1'b1, {WA{1'b0}}};
+localparam [WS-1:0] ONE={ {WS-WA-1{1'b0}}, 1'b1, {WA{1'b0}}};
 reg signed [WS-1:0] factor, last_prod, fmux;
 
 wire signed [   WS-1:0] aext = { {WS-WA{1'b0}}, a };
@@ -54,11 +54,13 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        sout      <= ZERO;
-        last_prod <= ZERO;
+        sout      <= 0;
+        last_prod <= 0;
     end else begin
         if(sample)
-            sout <= last_prod + prod[WS+WA-1:WA];
+            // a==0 comparison added for logic simplification in jtframe_rcmix
+            // when the filter is not used and a is constant
+            sout <= a==0 ? sin : last_prod + prod[WS+WA-1:WA];
         else
             last_prod <= prod[WS+WA-1:WA];
     end

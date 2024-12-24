@@ -116,8 +116,8 @@ assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
 
-assign cpu_cen = GAME!=0 ? cen6 // Commando
-    : (cen_sel ? cen6 // Legendary Wings
+assign cpu_cen = GAME!=0 ? cen6
+    : (cen_sel ? cen6 // Legendary Wings / Commando
         : cen3 ); // Section Z
 assign bus_ack = ~busak_n;
 
@@ -239,7 +239,7 @@ always @(posedge clk, negedge t80_rst_n) begin
                 2'd0: scr_hpos[7:0] <= cpu_dout;
                 2'd1: begin
                     scr_hpos[8]    <= cpu_dout[0];
-                    scr_hpos[10:9] <= GAME==EXEDEXES ? cpu_dout[2:1] : 0;
+                    scr_hpos[10:9] <= GAME==EXEDEXES ? cpu_dout[2:1] : 2'd0;
                 end
                 2'd2: scr_vpos[7:0] <= cpu_dout;
                 2'd3: scr_vpos[10:8]<= cpu_dout[2:0] & (GAME==EXEDEXES?3'b111:3'b001);

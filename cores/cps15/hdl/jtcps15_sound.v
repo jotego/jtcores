@@ -60,6 +60,8 @@ module jtcps15_sound(
     output               sample
 );
 
+localparam LATCH=`ifdef KABUKI_LATCH 1 `else 0 `endif ;
+
 wire        cpu_cen, cen_extra;
 wire [ 7:0] dec_dout, ram_dout, cpu_dout, bus_din;
 wire [15:0] A, bus_A;
@@ -77,8 +79,6 @@ reg         [23:0] cpu2dsp;
 reg                dsp_irq; // UR6B in schematics
 reg         [ 1:0] dsp_datasel;
 reg  signed [15:0] reg_left, reg_right, pre_l, pre_r;
-wire signed [15:0] fxd_l, fxd_r;
-wire               resample48;
 
 // DSP16 wires
 wire [15:0] dsp_ab, dsp_pbus_out;
@@ -110,9 +110,9 @@ jtcps15_qsnd_cen u_dspcen(
     // sound resample
     .l_in        ( pre_l       ),
     .r_in        ( pre_r       ),
-    .l_out       ( fxd_l       ),
-    .r_out       ( fxd_r       ),
-    .resample48  ( resample48  )
+    .l_out       ( left        ),
+    .r_out       ( right       ),
+    .resample48  ( sample      )
 );
 
 `else
@@ -136,7 +136,7 @@ wire bank_access = rom_cs & A[15];
 
 reg [1:0] ram_ok;
 reg  main_busnl;
-wire bus_equ;
+wire bus_equ, op_ok;
 
 assign bus_equ     = main_busn == main_busnl;
 assign ram_we      = ram_cs && !bus_wrn;
@@ -148,6 +148,7 @@ assign main_busakn = main_busn_dly | main_busn | busrq_n |
     //(rom_cs & ~(rom_ok & rom_okl)) |
     (rom_cs & ~last_romcs);
 assign main_waitn  = rom_cs ? rom_ok & rom_okl : bus_equ & ram_ok[0];
+assign op_ok       = (LATCH==0 || A[15]) ? rom_ok : rom_okl & rom_ok;
 
 always @(posedge clk48) begin
     main_busnl <= main_busn;
@@ -251,7 +252,7 @@ jtframe_ram #(.AW(13)) u_z80ram( // 8 kB!
     .q      ( ram_dout      )
 );
 
-jtframe_kabuki u_kabuki(
+jtframe_kabuki #(LATCH) u_kabuki(
     .clk        ( clk48       ),    // Uses same clock as u_prom_we
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
@@ -286,7 +287,7 @@ jtframe_z80_romwait u_cpu(
     .dout       ( cpu_dout    ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      )
+    .rom_ok     ( op_ok       )
 );
 
 reg last_vol_up, last_vol_down;
@@ -312,24 +313,6 @@ always @(posedge clk48, posedge rst) begin
         end
     end
 end
-
-// The uprate filter runs at 48MHz to ease synthesis
-`ifndef NOFIR
-jtframe_uprate2_fir uprate(
-    .rst     ( dsp_rst       ),
-    .clk     ( clk48         ),
-    .sample  ( resample48    ),
-    .upsample( sample        ),
-    .l_in    ( fxd_l         ),
-    .r_in    ( fxd_r         ),
-    .l_out   ( left          ),
-    .r_out   ( right         )
-);
-`else
-assign sample = resample48;
-assign left   = fxd_l;
-assign right  = fxd_r;
-`endif
 
 reg [12:0] vol_lut[0:39];
 reg [ 5:0] vol_st;
