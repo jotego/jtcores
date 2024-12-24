@@ -30,6 +30,13 @@ Because of the awkward video timing, the system needs some sort of buffer to out
 
 In order to simulate with a cartridge, this has to be named `cart.bin`. The firmware should be called `rom.bin`. Check out [JTFRAME documentation](../../modules/jtframe/doc/sdram.md)
 
+The system can reset from two locations:
+
+- FF1DE8 		reset vector interrupt
+- FF1800		power-button interrupt
+
+See more simulation setup notes [here](ver/game/README.md).
+
 ## MiSTer
 
 MiSTer scaler automatically handles the awkward video format. This means that the core will only work via HDMI. MiSTer's analog output may work if it is configured to output the scaler video. Compiling the sound CPU is most likely needed for the system to work correctly. All this means that you need to run full compilations for all tests: `jtcore ngp -mr`
@@ -102,4 +109,4 @@ According to MAME:
 * https://twitter.com/jotegojp
 * https://github.com/jotego/jtcores/issues
 
-# Thanks to July 2023 Patrons
+# Thanks to December 2023 Patrons

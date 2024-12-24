@@ -4,4 +4,5 @@ sourcefile=[ "ngp.cpp" ]
 [ROM]
 order = ["maincpu"]
 
-
+[buttons]
+names = [{names="A,B"}]

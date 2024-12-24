@@ -37,7 +37,6 @@ module jtframe_mister_dwnld(
     input             rst,
     input             clk,
 
-    output reg        ioctl_rom,
     input             dwnld_busy,
 
     input             prog_we,
@@ -51,8 +50,10 @@ module jtframe_mister_dwnld(
     input      [ 7:0] hps_dout,
     output            hps_wait,
 
-    output reg        ioctl_rom_wr,
+    output reg        ioctl_rom,
+    output reg        ioctl_wr,     // any IOCTL write to the core
     output reg        ioctl_ram,
+    output reg        ioctl_cart,
     output reg        ioctl_cheat,
     output reg        ioctl_lock,
     output reg [26:0] ioctl_addr,
@@ -73,21 +74,18 @@ module jtframe_mister_dwnld(
     output reg        ddram_rd
 );
 
-localparam [7:0] IDX_ROM          = 8'h0,
-                 IDX_MOD          = 8'h1,
-                 IDX_NVRAM        = 8'h2,
-                 IDX_CART         = 8'h4, // console cartridge
-                 IDX_CHEAT        = 8'h10,
-                 IDX_LOCK         = 8'h11,
-                 IDX_DIPSW        = 8'd254,
+localparam [5:0] IDX_ROM          = 6'h0,
+                 IDX_MOD          = 6'h1,
+                 IDX_NVRAM        = 6'h2,
+                 IDX_CART         = 6'h4, // console cartridge
+                 IDX_CHEAT        = 6'h10,
+                 IDX_LOCK         = 6'h11;
+localparam [7:0] IDX_DIPSW        = 8'd254,
                  IDX_CHEAT_STATUS = 8'd255;
+
 localparam [26:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET `else 27'd0 `endif ;
 
-always @(posedge clk) begin
-    ioctl_ram   <= (hps_download && hps_index==IDX_NVRAM) || hps_upload;
-    ioctl_cheat <= hps_download && hps_index==IDX_CHEAT;
-    ioctl_lock  <= hps_download && hps_index==IDX_LOCK;
-end
+wire is_rom, is_cart, is_nvram;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -169,11 +167,14 @@ reg        dump_we;
 reg [26:0] ddr_len;
 
 assign hps_wait = ddr_dwn;
+assign is_rom   = hps_index[5:0]==IDX_ROM;
+assign is_cart  = hps_index[5:0]==IDX_CART;
+assign is_nvram = hps_index[5:0]==IDX_NVRAM;
 
 // download signals mux
 always @(*) begin
-    ioctl_rom_wr = ddr_dwn ? dump_we :
-                             hps_wr && (game_rom || hps_index==IDX_NVRAM);
+    ioctl_wr = ddr_dwn ? dump_we :
+                             hps_wr && (game_rom || is_nvram);
     ioctl_dout   = ddr_dwn ? dump_ser[7:0] : hps_dout;
     ioctl_addr   = ddr_dwn ? dump_cnt :
                  game_cart ? hps_addr + CART_OFFSET : hps_addr;
@@ -189,13 +190,21 @@ always @(posedge clk, posedge rst) begin
         ddr_len     <= 27'd0;
         game_rom    <= 0;
         game_cart   <= 0;
+        ioctl_ram   <= 0;
+        ioctl_cheat <= 0;
+        ioctl_lock  <= 0;
+        ioctl_cart  <= 0;
     end else begin
-        last_dwn <= hps_download;
+        last_dwn     <=  hps_download;
+        ioctl_cheat  <=  hps_download && hps_index[5:0]==IDX_CHEAT;
+        ioctl_lock   <=  hps_download && hps_index[5:0]==IDX_LOCK;
+        ioctl_cart   <=  hps_download && is_cart;
+        ioctl_ram    <= (hps_download && is_nvram) || hps_upload;
         last_dwnbusy <= dwnld_busy;
-        game_rom  <= hps_index==IDX_ROM || hps_index==IDX_CART;
-        game_cart <= hps_index==IDX_CART;
-        if( hps_download && hps_index==IDX_ROM && !last_dwn && game_rom) begin
-            ioctl_rom <= 1;
+        game_rom     <= is_rom || is_cart;
+        game_cart    <= is_cart;
+        if( hps_download && (is_rom  || is_cart) && !last_dwn && game_rom) begin
+            ioctl_rom <= is_rom;
             wr_latch  <= 0;
         end else begin
             if( hps_wr && game_rom ) wr_latch <= 1;
@@ -208,9 +217,9 @@ always @(posedge clk, posedge rst) begin
                 ddr_dwn  <= 1;
             end
         end
-        if( last_dwnbusy && !dwnld_busy || (ddr_dwn && ioctl_addr==ddr_len)) begin
-            ioctl_rom <= 0;
-            ddr_dwn   <= 0;
+        if( !hps_download && last_dwnbusy && !dwnld_busy || (ddr_dwn && ioctl_addr==ddr_len)) begin
+            ioctl_rom  <= 0;
+            ddr_dwn    <= 0;
         end
     end
 end

@@ -4,7 +4,7 @@ params:
   - { name: MCU_OFFSET,  value: "(`MCU_START-`JTFRAME_BA3_START)>>1" }
 clocks:
   clk24:
-    - freq: 6000000
+    - freq: 6000000   # main CPU (6809)
       gate: ["main", "mcu", "snd"]
       outputs:
         - cen6

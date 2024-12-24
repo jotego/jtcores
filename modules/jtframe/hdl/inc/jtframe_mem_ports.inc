@@ -8,6 +8,7 @@
     `endif
     output          dwnld_busy,
     input   [15:0]  data_read,
+    input           ioctl_cart,
     `ifdef JTFRAME_SDRAM_BANKS
         `ifdef JTFRAME_SDRAM_LARGE
             output [22:0]

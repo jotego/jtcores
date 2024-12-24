@@ -194,7 +194,7 @@ always @(posedge clk or negedge rst_n) begin
         start       <= 0;
     end else begin
         last_rom_cs <= rom_cs;
-        if(rom_bad || dev_busy!=0) begin
+        if(rom_bad) begin
             locked  <= 1'b1;
         end
         else begin

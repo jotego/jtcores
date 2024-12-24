@@ -62,6 +62,7 @@ jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen_ref        ( cen24         ), // should it be cen12?
+    .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
     .cfg            ( game_id       ),
@@ -106,6 +107,13 @@ jtaliens_main u_main(
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dipsw          ( dipsw[19:0]   ),
+    // PMC (Thunder Force)
+    .pmc_we         ( pmc_we        ),
+    .pmc_addr       ( pmc_addr      ),
+    .pmc_dout       ( pmc_dout      ),
+    .pmc_din        ( pmc_din       ),
+    .cpu2pmc_we     ( cpu2pmc_we    ),
+    .pmc2main_data  ( pmc2main_data ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
@@ -147,7 +155,7 @@ jtaliens_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

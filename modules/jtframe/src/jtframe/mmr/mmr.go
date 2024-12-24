@@ -39,7 +39,7 @@ type MMRdef struct {
 }
 
 func convert( corename, hdl_path string, cfg MMRdef ) {
-	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mmr", "mmr.v")
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "mmr.v")
 	t := template.Must(template.New("mmr.v").ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)

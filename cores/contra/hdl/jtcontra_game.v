@@ -75,7 +75,7 @@ jtcontra_simloader u_simloader(
 jtcontra_main #(.GAME(GAME)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
-    .cen12          ( cen12         ),
+    .cen3           ( cen3          ),
     .cpu_cen        ( cpu_cen       ),
     // communication with main CPU
     .snd_irq        ( snd_irq       ),
@@ -84,7 +84,7 @@ jtcontra_main #(.GAME(GAME)) u_main(
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
     .rom_data       ( main_data     ),
-    .rom_ok         ( main_ok       ),
+    .rom_ok         ( 1'b1          ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
@@ -181,9 +181,13 @@ jtcontra_video #(.GAME(GAME)) u_video (
 jtcontra_sound u_sound(
     .clk        ( clk24         ), // 24 MHz
     .rst        ( rst24         ),
-    .cen12      ( cen12         ),
-    .cen3       ( cen3          ),
-    .cen1p5     ( cen1p5        ),
+`ifdef COMSC
+    .cen_fm     ( cen3          ),
+    .cen_fm2    ( cen1p5        ),
+`else
+    .cen_fm     ( cen_fm        ),
+    .cen_fm2    ( cen_fm2       ),
+`endif
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -191,7 +195,7 @@ jtcontra_sound u_sound(
     .rom_addr   ( snd_addr      ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
-    .rom_ok     ( snd_ok        ),
+    .rom_ok     ( 1'b1          ),
     // ADPCM ROM
     .pcm_addr   ( pcm_addr      ),
     .pcm_cs     ( pcm_cs        ),

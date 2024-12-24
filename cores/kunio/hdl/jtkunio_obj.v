@@ -33,7 +33,7 @@ module jtkunio_obj(
     output     [ 7:0]  cpu_din,
     // ROM access
     output reg         rom_cs,
-    output     [17:0]  rom_addr,
+    output     [18:2]  rom_addr,
     input      [31:0]  rom_data,
     input              rom_ok,
     output     [ 4:0]  pxl,
@@ -64,7 +64,7 @@ wire        buf_we;
 
 assign scan_addr = { obj_cnt, st[1:0] };
 assign vram_we   = objram_cs & ~cpu_wrn;
-assign rom_addr  = { rom_msb, dr_code[7:0], dr_ysub, 1'd0 }; // 5+8+4+1=18
+assign rom_addr  = { rom_msb, dr_code[7:0], dr_ysub }; // 5+8+4=17
 
 always @* begin
     ydiff  = vrender + y;
@@ -141,7 +141,7 @@ always @(posedge clk) begin
     end
     if( dr_start && cen ) begin
         dr_busy   <= 1;
-        buf_addr  <= { 1'd0, x } + 9'd9;
+        buf_addr  <= {1'd0,x+8'd9}; // the carry bit would break sprites on the left border
         dr_pal    <= pal;
         dr_hflip  <= hflip;
         dr_code   <= code;
@@ -224,7 +224,7 @@ jtframe_obj_buffer #(
     .flip   ( flip      ),
     // New data writes
     .wr_data( buf_din   ),
-    .wr_addr( {1'b0,buf_addr[7:0]}  ),
+    .wr_addr( buf_addr  ),
     .we     ( buf_we    ),
     // Old data reads (and erases)
     .rd_addr( hdump     ),

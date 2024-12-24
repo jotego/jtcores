@@ -17,65 +17,8 @@
     Date: 2-8-2020 */
 
 module jtsarms_game(
-    input           rst,
-    input           clk,
-    output          pxl2_cen,   // 16   MHz
-    output          pxl_cen,    //  8   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  cab_1p,
-    input   [ 1:0]  coin,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
-    // SDRAM interface
-    input           ioctl_rom,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-    // ROM LOAD
-    input   [25:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
-    input           service,
-    input           tilt,
-    input           dip_pause,
-    inout           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    input   [31:0]  dipsw,
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input   [ 3:0]  gfx_en,
-    input   [ 7:0]  debug_bus,
-    output  [ 7:0]  debug_view
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
-
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = ioctl_rom;
 
 wire [8:0] V;
 wire [8:0] H;
@@ -112,6 +55,12 @@ wire        CHON, SCRON, STARON, OBJON;
 wire        prom_we;
 wire        main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
 wire        cen16, cen12, cen8, cen6, cen4, cen3;
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = ioctl_rom;
+assign dip_flip   = flip;
 
 assign pxl2_cen = cen16;
 assign pxl_cen  = cen8;

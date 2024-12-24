@@ -6397,16 +6397,16 @@
     (pin "4" (uuid d960ac30-7cfa-4cb6-b10b-96184fe4a9de))
     (pin "5" (uuid e8f0c2aa-e20f-49d8-a6d2-d3f1ae4f111f))
     (pin "6" (uuid 5c4e3e0d-e74c-46df-9b1c-c22635cb90bd))
-    (pin "7" (uuid 3581b00a-453b-4c1a-a5d9-01cb2e675e1b))
+    (pin "7" (uuid 3581b00a-453b-4c1a-a5d9-01cb2e675e1c))
     (pin "10" (uuid 9ef27cab-4553-4667-bb15-63307c264f00))
     (pin "9" (uuid fb053be8-f7ba-4c0a-97ec-d7b5d04144d0))
     (pin "11" (uuid 1defa4aa-eba9-4aad-a3a9-65b35ef1ce8c))
     (pin "12" (uuid dfb03f67-03bb-480d-b273-06e36d4f605e))
     (pin "13" (uuid 3e2db1c9-b9b1-4292-a8e3-b1f1083ae193))
-    (pin "14" (uuid 60735265-25c9-4a40-b428-17a23bb01636))
+    (pin "14" (uuid 60735265-25c9-4a40-b428-17a23bb01637))
     (pin "15" (uuid 20e62207-a312-420b-9f77-1388598f6a46))
-    (pin "14" (uuid 60735265-25c9-4a40-b428-17a23bb01636))
-    (pin "7" (uuid 3581b00a-453b-4c1a-a5d9-01cb2e675e1b))
+    (pin "14" (uuid 60735265-25c9-4a40-b428-17a23bb01637))
+    (pin "7" (uuid 3581b00a-453b-4c1a-a5d9-01cb2e675e1c))
     (instances
       (project "darkadv"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/caa2b385-632b-4209-b13f-f59bb5423190"

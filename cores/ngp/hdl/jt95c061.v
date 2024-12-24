@@ -34,6 +34,7 @@ module jt95c061(
     input      [15:0]     din,
     output     [15:0]     dout,
     output     [ 1:0]     we,
+    output                rd,
     input                 bus_busy,
 
     output reg [ 3:0]     map_cs, // cs[0] used as flash chip 0, cs[1] chip 1
@@ -55,7 +56,6 @@ reg  [21:0] act, nx_act;
 wire        irq_ack;
 reg         irq;
 reg  [ 8:0] adc_cnt;
-reg         inta_en, nx_intaen;
 
 // timers
 reg  [9:0] prescaler;
@@ -141,10 +141,11 @@ localparam [6:0]
 assign port_cs = addr[23:7]==0;
 assign intrq = 0;
 assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
-assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
+assign din_mux = port_cs ? {mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
 assign porta_dout = { mmr[PAFC][3] ? tout[3] : mmr[PA][3],
                       mmr[PAFC][2] ? tout[1] : mmr[PA][2], mmr[PA][1:0] };
 assign addr[0]=0;
+assign st_dout={7'd0,buserror};
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -301,13 +302,10 @@ always @* begin // TMP95C061.pdf pages 12, 19
     if( nmi_rq ) begin
         nx_ilvl = 7;
         nx_act  = 0;
-        nx_intaen = 1;
         nx_iaddr  = 'h20;
-    end else begin
-        nx_intaen = |{nx_act, inta_en};
     end
     if( irq_ack ) begin
-        nx_act = 0;
+        nx_act  = 0;
         nx_ilvl = 0;
     end
 end
@@ -323,7 +321,6 @@ always @(posedge clk, posedge rst) begin
         iaddr <= nx_iaddr;
         act   <= nx_act;
         irq   <= |{ nx_act, nmi_rq };
-        inta_en <= nx_intaen;
     end
 end
 
@@ -394,8 +391,8 @@ always @(posedge clk, posedge rst) begin
         if( port_cs && cen ) begin
             if( addr[6:1]==ADMOD[6:1] ) begin
                 if( we[1] ) begin
-                    mmr[ ADMOD ][5:0] <= { dout[5:3], 1'b0, dout[1:0] };
-                    if( dout[2] ) begin
+                    mmr[ ADMOD ][5:0] <= { dout[13:11], 1'b0, dout[9:8] };
+                    if( dout[10] ) begin
                         $display("ADC conversion requested");
                         adc_go <= 1;
                         mmr[ADMOD][7:6] <= 0;
@@ -460,14 +457,14 @@ always @(posedge clk, posedge rst) begin
 end
 
 // To do: jt900h should read the reset vector
-// the rst vector for NGP and NGPC is different
+// the rst vectors for NGP and NGPC are different
 `ifndef NVRAM
 localparam NGP_RST=32'hFF1DE8; // NGP reset
 `else
 localparam NGP_RST=32'hFF1800; // NVRAM loaded - bypasses power button
 `endif
 
-jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
+jt900h u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -476,21 +473,21 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .din        ( din_mux   ),
     .dout       ( dout      ),
     .we         ( we        ),
+    .rd         ( rd        ),
     .busy       ( bus_busy  ),
 
     // interrupts
     .irq        ( irq       ),
-    .intrq      ( ilvl      ),
     .irq_ack    ( irq_ack   ),
-    .inta_en    ( inta_en   ),
+    .int_lvl    ( ilvl      ),
     .int_addr   ( iaddr     ),
     // Register dump
-    .buserror   ( buserror  ),
+    .dec_err    ( buserror  ),
     .dmp_addr   (           ),     // dump
-    .dmp_dout   (           ),
-    .op_start   (           ),
-    .st_addr    ( debug_bus ),
-    .st_dout    ( st_dout   )
+    .dmp_dout   (           )
+    // .op_start   (           )
+    // .st_addr    ( debug_bus ),
+    // .st_dout    ( st_dout   )
 );
 
 endmodule

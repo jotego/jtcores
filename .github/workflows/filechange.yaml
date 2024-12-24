@@ -1,0 +1,33 @@
+name: Cores affected
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: rebuild
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * *' # runs every night
+jobs:
+  check_cores:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.21.3'
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+    - id: files
+      name: filechange.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      run: |
+        . setprj.sh
+        jtframe
+        echo "Cores affected (if any):"
+        filechange.sh `git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
+

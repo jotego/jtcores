@@ -33,7 +33,7 @@ wire [ 8:0] hdump;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
 wire signed [10:0] pcm_snd;
-wire        prc_snd,
+wire        prc_snd, snd_sel,
             cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
 wire        obus_cs, ram_cs, dma_we;
 
@@ -79,6 +79,7 @@ jtshouse_cenloop u_cen(
     .cen_snd    ( cen_snd   ),
     .cen_sndq   ( cen_sndq  ),
     .cen_mcu    ( cen_mcu   ),
+    .snd_sel    ( snd_sel   ),
 
     .fave       ( fave      ),
     .fworst     (           )
@@ -239,6 +240,7 @@ jtshouse_triram u_triram(
 
     .snd_cen    ( cen_snd   ),
     .mcu_cen    ( cen_mcu   ),
+    .snd_sel    ( snd_sel   ),
 
     .baddr      ( baddr[10:0]   ),
     .mcu_addr   ( eerom_addr    ),

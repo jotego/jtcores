@@ -14,7 +14,9 @@ Usage:
 jtbin2mr.sh [-l|--local]
 
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
+-m, --mr        MiSTer host name or IP address
 -g, --git       Uses JTBIN as the target folder
+-h, --help      Help
 -v, --verbose
 HELP
 }
@@ -27,16 +29,24 @@ while [ $# -gt 0 ]; do
         -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
+        -m|--mr)
+            shift
+            export MRHOST=$1;;
         -v|--verbose)
             V=-v;;
         -h|--help)
             show_help
             exit 1;;
+        *)
+            echo "Unknown argument $1"
+            exit 1;;
     esac
     shift
 done
 
-if [ $LOCAL = 1 ]; then
+if  pwd | grep "$JTBIN"; then
+    echo "Copying from JTBIN as the current working dir is JTBIN"
+elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
 
@@ -77,8 +87,8 @@ if [ -d $JTBIN/mister ]; then
         fi
     done
     # NeoGeo Pocket core shoult not go inside the cores folder, but
-    # to the root level
-    if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
+    # to the root level  --- eventually, it must be in cores for the MRA to work. It needs the MRA for the beta key
+    # if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
 fi
 
 cp -r $JTBIN/mra/_alternatives $ROOT

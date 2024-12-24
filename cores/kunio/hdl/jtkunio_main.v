@@ -19,8 +19,8 @@
 module jtkunio_main(
     input              clk,        // 24 MHz
     input              rst,
-    input              cen_3,
-    input              cen_1p5,
+    input              cen3,
+    input              cen1p5,
     input              LVBL,
     input              v8,
 
@@ -56,19 +56,18 @@ module jtkunio_main(
     output      [15:0] rom_addr,
     input       [ 7:0] rom_data,
     // MCU ROM
-    input       [10:0] prog_addr,
-    input       [ 7:0] prog_data,
-    input              prog_we
+    output      [10:0] mcu_addr,
+    input       [ 7:0] mcu_data
 );
-
+`ifndef NOMAIN
 wire [15:0] cpu_addr;
-reg  [ 7:0] cpu_din, cab_dout, mcu_dout, mcu_din;
+reg  [ 7:0] cpu_din, cab_dout;
+wire [ 7:0] mcu_dout;
 reg         bank, bank_cs, io_cs, flip_cs,
             scrpos0_cs, scrpos1_cs,
-            mcu_irq, mcu_stn,
             irq_clr, nmi_clr, mcu_clr, main2mcu_cs, mcu2main_cs;
-wire        rdy, irqn, nmi_n;
-wire [ 7:0] p1_out=0, p2_out=0; // for the MCU - not implemented yet
+wire        rdy, irqn, nmi_n,
+            mcu_stn, mcu_irqn;
 
 assign rom_addr = { cpu_addr[15], cpu_addr[15] ? cpu_addr[14] : bank, cpu_addr[13:0] };
 assign rdy      = ~rom_cs | rom_ok;
@@ -109,6 +108,7 @@ always @* begin
                     3: flip_cs = !cpu_rnw;
                     4: begin
                         main2mcu_cs = !cpu_rnw;
+                        // if( !mcu_stn ) $display("Rd %X from MCU",mcu_dout);
                         mcu2main_cs =  cpu_rnw;
                     end
                     5: begin
@@ -127,14 +127,14 @@ always @(posedge clk) begin
     case( cpu_addr[1:0] )
         0: cab_dout <= { start, joystick1[5:4], joystick1[2], joystick1[3], joystick1[1:0] };
         1: cab_dout <= { coin,  joystick2[5:4], joystick2[2], joystick2[3], joystick2[1:0] };
-        2: cab_dout <= { service, ~LVBL, mcu_stn, ~mcu_irq,
+        2: cab_dout <= { service, ~LVBL, mcu_stn, mcu_irqn,
                         joystick2[6], joystick1[6], dipsw_b[1:0] };
         3: cab_dout <=  dipsw_a;
     endcase
 end
 
-always @* begin
-    cpu_din = rom_cs      ? rom_data :
+always @(posedge clk) begin
+    cpu_din <=rom_cs      ? rom_data :
               ram_cs      ? ram_dout :
               objram_cs   ? obj_dout :
               scrram_cs   ? scr_dout :
@@ -161,7 +161,7 @@ end
 jtframe_ff u_ff (
     .clk    ( clk       ),
     .rst    ( rst       ),
-    .cen    ( cen_1p5   ),
+    .cen    ( cen1p5    ),
     .din    ( 1'b1      ),
     .q      (           ),
     .qn     ( irqn      ),
@@ -170,26 +170,12 @@ jtframe_ff u_ff (
     .sigedge( v8        )
 );
 
-jtframe_mos6502 u_cpu(
-    .rst    ( rst       ),
-    .clk    ( clk       ),    // FPGA clock
-    .cen    ( cen_3     ),    // 2x 6502 clock
-
-    .so     ( 1'b1      ),
-    .rdy    ( rdy       ),
-    .nmi    ( nmi_n     ),
-    .irq    ( irqn      ),
-    .dbi    ( cpu_din   ),
-    .dbo    ( cpu_dout  ),
-    .rw     ( cpu_rnw   ),
-    .sync   (           ),
-    .ab     ( cpu_addr  )
-);
-/*
+wire [7:0] nc;
+/* verilator tracing_off */
 T65 u_cpu(
     .Mode   ( 2'd0      ),  // 6502 mode
     .Res_n  ( ~rst      ),
-    .Enable ( cen_1p5   ),
+    .Enable ( cen1p5    ),
     .Clk    ( clk       ),
     .Rdy    ( rdy       ),
     .Abort_n( 1'b1      ),
@@ -205,78 +191,41 @@ T65 u_cpu(
     .VP_n   (           ),
     .VDA    (           ),
     .VPA    (           ),
-    .A      ( cpu_addr  ),
+    .A      ({nc,cpu_addr}),
     .DI     ( cpu_din   ),
     .DO     ( cpu_dout  )
-);*/
-
-wire [10:0] mcu_addr;
-wire [ 7:0] mcu_data;
-wire        mcu_wrn = p2_out[2];
-wire        mcu_rdn = p2_out[1];
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        mcu_dout <= 0;
-        mcu_din  <= 0;
-        mcu_stn  <= 1;
-        mcu_irq  <= 0;
-    end else begin
-        if( !mcu_wrn ) begin
-            mcu_dout <= p1_out;
-            mcu_stn  <= 0;
-        end
-        if( main2mcu_cs ) begin
-            mcu_irq <= 1;
-            mcu_din <= cpu_dout;
-        end
-        if( !mcu_rdn || mcu_clr ) begin
-            mcu_irq <= 0;
-        end
-        if( mcu_clr ) mcu_stn <= 1;
-    end
-end
-/*
-jtframe_prom #(.AW(11)) u_mcu_prom (
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( prog_data ),
-    .rd_addr( mcu_addr  ),
-    .wr_addr( prog_addr ),
-    .we     ( prog_we   ),
-    .q      ( mcu_data  )
 );
 
-jtframe_6801mcu #(.MAXPORT(7),.ROMW(11)) u_mcu (
+jtkunio_mcu u_mcu(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen        ( cen_3         ),
-    .wait_cen   (               ),
-    .wrn        (               ),
-    .vma        ( mcu_vma       ),
-    .addr       (               ),
-    .dout       (               ),
-    .halt       ( 1'b0          ),
-    .halted     (               ),
-    .irq        ( mcu_irq       ), // active high
-    .nmi        ( 1'b0          ),
-    // Ports
-    .p1_in      ( mcu_din       ),
-    .p1_out     ( p1_out        ),
-    .p2_in      ( 8'hff         ), // feed back p2_out for sims
-    .p2_out     ( p2_out        ),
-    .p3_in      ( {4'd0, 2'b11, mcu_stn, ~mcu_irq } ),
-    .p3_out     (               ),
-    .p4_in      ( 8'hff         ), // feed back p4_out for sims
-    .p4_out     (               ),
-    // external RAM
-    .ext_cs     ( 1'b0          ),
-    .ext_dout   (               ),
-    // ROM interface
+    .cen        ( cen3          ),
+    .rd         ( mcu2main_cs   ),
+    .wr         ( main2mcu_cs   ),
+    .clr        ( mcu_clr       ),
+    .cpu_dout   ( cpu_dout      ),
+    .dout       ( mcu_dout      ),
+    .stn        ( mcu_stn       ),
+    .irqn       ( mcu_irqn      ),
+    // ROM
     .rom_addr   ( mcu_addr      ),
-    .rom_data   ( mcu_data      ),
-    .rom_cs     (               ),
-    .rom_ok     ( 1'b1          )
+    .rom_data   ( mcu_data      )
 );
-*/
+
+`else
+    initial rom_cs   = 0;
+    assign  pal_cs   = 0;
+    assign  ram_cs   = 0;
+    assign  objram_cs= 0;
+    assign  scrram_cs= 0;
+    assign  snd_irq  = 0;
+    assign  snd_latch= 0;
+    assign  rom_addr = 0;
+    assign  mcu_addr = 0;
+    assign  cpu_addr = 0;
+    assign  cpu_rnw  = 1;
+    assign  cpu_dout = 0;
+    assign  scrpos   = 10'h180;
+    assign  flip     = 0;
+`endif
 endmodule

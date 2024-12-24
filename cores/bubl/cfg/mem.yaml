@@ -4,12 +4,12 @@ params:
 clocks:
   clk48:
     - freq: 6000000
-      gate: [ "main", "sub", "snd", "mcu" ]
+      gate: [ "main", "sub", "snd" ]
       outputs:
         - cen6
         - cen3
-    - freq: 1000000
-      gate: [ "main", "sub", "snd", "mcu" ]
+    - freq: 4000000
+      gate: [ "main", "sub", "snd" ]
       outputs:
         - cen4
 
@@ -28,12 +28,13 @@ sdram:
           addr_width: 15
           data_width: 8
     - buses:
-        - name: mcu
-          addr_width: 12
-          data_width: 8
-    - buses:
         - name: gfx
           addr_width: 19
           data_width: 32
-
-
+bram:
+  - name: mcu
+    addr_width: 12
+    data_width: 8
+    sim_file: true
+    rom:
+      offset: "((`MCU_START-`JTFRAME_BA2_START)>>1)|24'h800000"

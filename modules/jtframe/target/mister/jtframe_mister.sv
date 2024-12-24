@@ -114,13 +114,14 @@ module jtframe_mister #(parameter
     // ROM programming
     output       [26:0] ioctl_addr,
     output       [ 7:0] ioctl_dout,
-    output              ioctl_rom_wr,
+    output              ioctl_wr,
     // NVRAM
     input        [ 7:0] ioctl_din,
     output              ioctl_ram,
 
     input               dwnld_busy,
     output              ioctl_rom,
+    output              ioctl_cart,
 
     input  [SDRAMW-1:0] prog_addr,
     input        [15:0] prog_data,
@@ -336,9 +337,10 @@ always @(posedge clk_sys) begin
             13: target_info <= mouse_1p[15:8];
             14: target_info <= mouse_2p[7:0];
             15: target_info <= mouse_2p[15:8];
-            default:;
         endcase
-        default:;
+        2: target_info <= { ioctl_lock, ioctl_cart, ioctl_ram, ioctl_rom, 1'b0, ioctl_wr, dwnld_busy, hps_download };
+        3: target_info <= hps_index[7:0];
+        default: target_info <= debug_bus;
     endcase
 end
 
@@ -402,10 +404,11 @@ jtframe_mister_dwnld u_dwnld(
     .hps_dout       ( hps_dout       ),
     .hps_wait       ( hps_wait       ),
 
-    .ioctl_rom_wr   ( ioctl_rom_wr   ),
+    .ioctl_wr       ( ioctl_wr       ),
     .ioctl_addr     ( ioctl_addr     ),
     .ioctl_dout     ( ioctl_dout     ),
     .ioctl_ram      ( ioctl_ram      ),
+    .ioctl_cart     ( ioctl_cart     ),
     .ioctl_cheat    ( ioctl_cheat    ),
     .ioctl_lock     ( ioctl_lock     ),
 
@@ -602,8 +605,10 @@ jtframe_board #(
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
     .pll_locked     ( pll_locked      ),
+
+    .ioctl_cart     ( ioctl_cart      ),
     .ioctl_ram      ( ioctl_ram       ),
-    .ioctl_rom      ( dwnld_busy      ),
+    .dwnld_busy     ( dwnld_busy      ),
 
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),
@@ -637,6 +642,19 @@ jtframe_board #(
     .game_start     ( game_start      ),
     .game_service   ( game_service    ),
     .game_tilt      ( game_tilt       ),
+    // keyboard
+    .board_digit    ( 8'd0            ),
+    .board_gfx      ( 4'd0            ),
+    .board_reset    ( 1'b0            ),
+    .board_pause    ( 1'b0            ),
+    .board_tilt     ( 1'b0            ),
+    .board_test     ( 1'b0            ),
+    .board_service  ( 1'b0            ),
+    .board_shift    ( 1'b0            ),
+    .board_ctrl     ( 1'b0            ),
+    .board_alt      ( 1'b0            ),
+    .board_plus     ( 1'b0            ),
+    .board_minus    ( 1'b0            ),
     // Mouse & paddle
     .bd_mouse_dx    ( mouse_dx        ),
     .bd_mouse_dy    ( mouse_dy        ),

@@ -47,18 +47,15 @@ wire          over;
 wire [  CW:0] cencnt_nx, sum;
 reg  [CW-1:0] cencnt=0;
 reg  [ W-1:0] toggle=0, toggle_l=0;
-reg           blank=0;
 wire          cnt_en = !busy || rst;
 integer       i;
 
-assign over      = !blank && cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
+assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
 
 always @(posedge clk) begin
-    blank <= 0;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && cnt_en ) begin
-        blank <= 1;
         toggle <= toggle + 1'd1;
         toggle_l <= toggle;
         cen <= ~toggle & toggle_l;
@@ -66,6 +63,24 @@ always @(posedge clk) begin
         cen <= 0;
     end
 end
+
+`ifdef SIMULATION
+reg bad=0, rst2=1, busy2=0;
+reg [2:0] badcnt=0;
+
+always @(posedge clk) begin
+    if( cen[0] ) rst2<=rst;
+    busy2 <= busy;
+    if( !rst2 && busy2 && cen!=0 ) begin
+        $display("%m cen active while busy was high. Is busy dependent on a different clock domain?");
+        bad<=1;
+    end
+    if(bad) begin
+        badcnt <= badcnt+1;
+        if( &badcnt ) $finish;
+    end
+end
+`endif
 
 jtframe_freqinfo #(.MFREQ( MFREQ )) u_info(
     .rst        ( rst       ),

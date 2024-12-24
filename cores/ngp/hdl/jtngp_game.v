@@ -31,7 +31,7 @@ reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
-wire        hirq, virq, main_int5;
+wire        hirq, virq, main_int5, pwr_button, poweron;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
@@ -40,6 +40,8 @@ assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
+assign {pxl_cen,pxl2_cen}={v1_cen,v0_cen}; // ideally the framework should do this for me
+assign pwr_button = coin[0] & ~ioctl_cart; // active low, positive edge triggered
 
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 
@@ -58,19 +60,18 @@ always @(posedge clk) begin
         3: case( debug_bus[5:4] )
             0: st_mux <= snd_latch;
             1: st_mux <= main_latch;
-            2: st_mux <= { 5'd0, snd_nmi, snd_irq, snd_rstn };
+            2: st_mux <= { rst, poweron, pwr_button, ioctl_cart, ~flash0_rdy, snd_nmi, snd_irq, snd_rstn };
             default: st_mux <= 0;
         endcase
     endcase
 end
 
 jtngp_main u_main(
-    .rst        ( rst24     ),
-    .clk        ( clk24     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
     .clk_rom    ( clk       ),
     .rtc_cen    ( rtc_cen   ),
-    .cen12      ( cen12     ),
-    .cen6       ( cen6      ),
+    .cpu_cen    ( cpu_cen   ),
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
@@ -78,7 +79,8 @@ jtngp_main u_main(
     // player inputs
     .joystick1  ( joystick1 ),
     .cab_1p     ( cab_1p[0] ),
-    .pwr_button ( coin[0]   ),
+    .pwr_button ( pwr_button),
+    .poweron    ( poweron   ),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
@@ -108,8 +110,6 @@ jtngp_main u_main(
 
     // Firmware access
     .rom_data   ( rom_data  ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
 
     // NVRAM
     .ioctl_addr ( ioctl_addr[13:0]),
@@ -121,10 +121,10 @@ jtngp_main u_main(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
-
+/* verilator tracing_off */
 jtngp_flash u_flash(
-    .rst        ( rst24     ),
-    .clk        ( clk24     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
 
     .dev_type   ( cart_size ),
     // interface to CPU
@@ -148,7 +148,7 @@ jtngp_flash u_flash(
 /* verilator tracing_off */
 jtngp_snd u_snd(
     .rstn       ( snd_rstn  ),
-    .clk        ( clk24     ),
+    .clk        ( clk       ),
     .cen3       ( cen3      ),
 
     .snd_en     ( snd_en    ),
@@ -173,14 +173,14 @@ jtngp_snd u_snd(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .clk24      ( clk24     ),
+    .clk24      ( clk       ),
+    .cen6       ( cen6      ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .video_cen  ( {vcen6, vcen12} ),
 
     .status     ( status    ),
 

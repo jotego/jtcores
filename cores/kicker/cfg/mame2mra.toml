@@ -7,7 +7,7 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "shaolins.cpp" ]
-
+skip.setname="shaolinb"     # corrupted sprites
 [buttons]
 names=[
     { names="Kick,Jump" }
@@ -24,7 +24,7 @@ rename = [ {name="Bonus Life", to="Bonus"} ]
 regions = [
     { name="maincpu", reverse=true },
     { name="tiles", width=16, no_offset=true, sequence=[1,0] }, # start=$GFX1_START
-    { name="sprites", width=16, reverse=true, no_offset=true }, # start=$GFX2_START
+    { name="sprites", width=16, reverse=true, no_offset=true, start="OBJ_START" },
     { name="proms"          },
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region

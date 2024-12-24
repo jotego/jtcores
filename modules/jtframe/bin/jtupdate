@@ -48,9 +48,6 @@ function parse_args {
             --network)
                 NETWORK="--sshloginfile .."
                 ;;
-            --actions)
-                ACTIONS=yes
-                ;;
             -h|--help)
                 jtframe update --help
                 exit 0;;
@@ -91,13 +88,7 @@ if [ -z "$KEEP" ]; then rm -rf $ROM; mkdir $ROM; fi
 # TASKS is a temporary file with the list of tasks
 TASKS=`mktemp`
 
-if [ -z "$ACTIONS" ]; then
-    jtframe update $* >> $TASKS || exit 1
-else
-    # updates the action files
-    jtframe update $*
-    exit $?
-fi
+jtframe update $* >> $TASKS || exit 1
 
 if [ $(cat $TASKS|wc -l) = 0 ]; then
     echo no jobs

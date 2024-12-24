@@ -16,16 +16,15 @@
     Version: 1.0
     Date: 23-3-2022 */
 
-module jtngp_colmix #( parameter
-    SIMFILE_LO = "pal_lo.bin",
-    SIMFILE_HI = "pal_hi.bin"
-)(
+module jtngp_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             lcd_neg,
 
     input             scr_order,
+    input      [ 2:0] oowc,
+    input             oow,          // outside of window
 
     // CPU access
     input      [ 8:1] cpu_addr,
@@ -44,18 +43,18 @@ module jtngp_colmix #( parameter
 
     output      [3:0] red,
     output      [3:0] green,
-    output      [3:0] blue
+    output      [3:0] blue,
+    input       [7:0] debug_bus
     // gfx_en is handled at the scroll and obj modules
 );
 
 reg  [ 2:0] pxl;
 wire [ 1:0] prio = obj_pxl[4:3];
-reg  [ 1:0] lyr;
-wire [ 3:0] raw, scr_eff;
-// wire [15:0] pal_dout;
-wire [ 7:0] pal_addr;
+// reg  [ 1:0] lyr;
+wire [ 3:0] scr_eff;    // bit 3 set for background tilemap
+reg  [ 3:0] raw;
 wire [ 2:0] obj_palout, scr1_palout, scr2_palout;
-wire        scr1_blank, scr2_blank, obj_blank;
+wire        scr1_blank, scr2_blank, scr_blank, obj_blank;
 
 // monochrome palette
 reg [2:0]  obj_pal0 [1:3];
@@ -65,38 +64,43 @@ reg [2:0] scr1_pal1 [1:3];
 reg [2:0] scr2_pal0 [1:3];
 reg [2:0] scr2_pal1 [1:3];
 reg [2:0] bg_pal;
+reg       bg_en;
 
 assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
         obj_blank  = obj_pxl[1:0]==0 || prio==0,
-        scr_eff    = scr_order ?
+        scr_blank  = scr1_blank && scr2_blank,
+        scr_eff    = scr_blank ? {1'b1, bg_en ? bg_pal : 3'd0 } :
+                     scr_order ?
             ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ) :
             ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),
-        pal_addr   = 0,
-        raw        = { pxl[2:0], pxl[2] }^{4{~lcd_neg}},
         obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
         scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
         scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
 
-// to do: connect to actual palette RAM
 assign  red        = raw,
         blue       = raw,
         green      = raw;
 
-always @(posedge clk) begin
+always @* begin
     // layer mixing
-    pxl <= scr_eff[2:0];
-    lyr[1] <= 0;
-    lyr[0] <= scr_eff[3] ^ scr_order;
+    pxl = scr_eff[2:0];
+    // lyr[1] = 0;
+    // lyr[0] = scr_eff[3] ^ scr_order;
     if( !obj_blank ) begin
-        lyr[1] <= 1;
+        // lyr[1] = 1;
         case( prio )
-            3: pxl <= obj_palout;
-            2: if( scr_eff[3] ) pxl <= obj_palout;
-            1: if( scr_eff[1:0]==0) pxl <= obj_palout;
-            default: lyr[1] <= 0;
+            3: pxl = obj_palout;
+            2: if( scr_eff[3] || scr_blank ) pxl = obj_palout;
+            1: if( scr_blank ) pxl = obj_palout;
+            default: ;  // do not draw the object
         endcase
     end
+    if( oow ) pxl = oowc;
+end
+
+always @(posedge clk) if(pxl_cen) begin
+    raw <= LHBL&LVBL ? { pxl[2:0], pxl[2] }^{4{~lcd_neg}} : 4'd0;
 end
 
 `ifdef SIMULATION
@@ -107,7 +111,7 @@ initial begin
     f = $fopen("pal.bin","rb");
     if( f!=0 ) begin
         cnt = $fread(zeroval,f);
-        $display("Read %d from pal.bin",cnt);
+        $display("Read %0d bytes from pal.bin",cnt);
         $fclose(f);
     end else begin
         $display("Could not open pal.bin");
@@ -125,6 +129,7 @@ always @(posedge clk, posedge rst) begin
         scr2_pal0[1] <= 7; scr2_pal0[2] <= 7; scr2_pal0[3] <= 7;
         scr2_pal1[1] <= 7; scr2_pal1[2] <= 7; scr2_pal1[3] <= 7;
           bg_pal     <= 7;
+          bg_en      <= 0;
 `ifdef SIMULATION
         if( cnt==25 ) begin
              obj_pal0[1] <= zeroval[   1][2:0];
@@ -146,6 +151,7 @@ always @(posedge clk, posedge rst) begin
             scr2_pal1[2] <= zeroval[20+2][2:0];
             scr2_pal1[3] <= zeroval[20+3][2:0];
               bg_pal     <= zeroval[20+4][2:0];
+              bg_en      <= zeroval[20+4][7:6]==2;
         end
 `endif
     end else begin
@@ -222,30 +228,10 @@ always @(posedge clk, posedge rst) begin
                 if( we[1] ) scr2_pal1[3] <= cpu_dout[10:8];
             end
             // Background
-            4'b1_100: if( we[0] ) bg_pal <= cpu_dout[2:0];
+            4'b1_100: if( we[0] ) {bg_en, bg_pal} <= {cpu_dout[7:6]==2,cpu_dout[2:0]};
             default:;
         endcase
     end
 end
-
-// 256 entries, each is 16 bits
-// jtframe_dual_ram16 #(
-//     .AW         (  8          ),
-//     .SIMFILE_LO ( SIMFILE_LO  ),
-//     .SIMFILE_HI ( SIMFILE_HI  )
-// ) u_pal(
-//     // Port 0
-//     .clk0   ( clk       ),
-//     .data0  ( cpu_dout  ),
-//     .addr0  ( cpu_addr  ),
-//     .we0    ( we        ),
-//     .q0     ( cpu_din   ),
-//     // Port 1
-//     .clk1   ( clk       ),
-//     .data1  (           ),
-//     .addr1  ( pal_addr  ),
-//     .we1    ( 2'b0      ),
-//     .q1     ( pal_dout  )
-// );
 
 endmodule

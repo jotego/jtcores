@@ -17,8 +17,8 @@ To compare MAME with the core, the RTC timer values must be equal. If the simula
 In order to synchronize MAME traces with simulation, some instructions are
 modified for a NOP+HALT combination, so the interrupts happen at the same time.
 
-ADDR   | Original  | Modified           | Remarks
--------|-----------|--------------------|----------
-FF1D76 |   66 11   | 00 05  NOP, HALT   | ADC reads before frame 27
-FF4701 |   67 F9   | 00 05              | Loop after config
-FF8A22 |   66 F8   | 00 05              | Loop after logo
+| ADDR   | Original | Modified         | Remarks                   |
+| ------ | -------- | ---------------- | ------------------------- |
+| FF1D76 | 66 11    | 00 05  NOP, HALT | ADC reads before frame 27 |
+| FF4701 | 67 F9    | 00 05            | Loop after config         |
+| FF8A22 | 66 F8    | 00 05            | Loop after logo           |

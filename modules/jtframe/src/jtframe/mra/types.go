@@ -16,7 +16,7 @@ type Args struct {
     SkipROM, Md5                 bool // By skipping the ROM generation,
         // the md5 will be set to None, unless Md5 is true
     Show_platform                bool
-    MainOnly                     bool
+    MainOnly,PrintNames          bool
     JTbin                        bool // copy to JTbin & disable debug features
     Author, URL                  string
     // private
@@ -238,6 +238,7 @@ type Mame2MRA struct {
         Ddr_load bool
         Regions  []RegCfg
         Order    []string
+        Carts    []string
         Remove   []string // Remove specific files from the dump
         // Splits break a file into chunks using the offset and length MRA attributes
         // Offset sets the break point, and Min_len the minimum length for each chunk

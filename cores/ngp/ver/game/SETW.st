@@ -1,0 +1,7 @@
+1 B
+2 Q
+3 RLD
+4 S
+5 SHRTN
+6 W
+7 WIDEN

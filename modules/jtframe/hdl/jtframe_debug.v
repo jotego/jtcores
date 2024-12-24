@@ -31,7 +31,7 @@ module jtframe_debug #(
     input            debug_plus,
     input            debug_minus,
     input            debug_rst,
-    input      [3:0] key_gfx,
+    input      [3:0] key_gfx, board_gfx,
     input      [7:0] key_digit,
     // overlay the value on video
     input              pxl_cen,
@@ -56,7 +56,8 @@ module jtframe_debug #(
 
 reg        last_p, last_m;
 integer    cnt;
-reg  [3:0] last_gfx;
+reg  [3:0] gfx_l;
+wire [3:0] eff_gfx;
 reg  [7:0] view_mux;
 reg        last_digit, vtoggle_l;
 reg  [1:0] view_sel;
@@ -65,6 +66,7 @@ wire       vtoggle;
 wire [7:0] step = shift ? 8'd16 : 8'd1;
 
 assign vtoggle = shift & ctrl;
+assign eff_gfx = key_gfx | board_gfx;
 
 localparam [1:0] SYS_INFO = 2'b01,
                  TARGET_INFO = 2'b10;
@@ -76,13 +78,13 @@ always @(posedge clk, posedge rst) begin
         last_digit <= 0;
         last_p     <= 0;
         last_m     <= 0;
-        last_gfx   <= 0;
+        gfx_l      <= 0;
         view_sel   <= 0;
         view_mux   <= 0;
     end else begin
         last_p     <= debug_plus;
         last_m     <= debug_minus;
-        last_gfx   <= key_gfx;
+        gfx_l      <= eff_gfx;
         last_digit <= |key_digit;
         vtoggle_l  <= vtoggle;
 
@@ -115,7 +117,7 @@ always @(posedge clk, posedge rst) begin
             end
         end
         for(cnt=0; cnt<4; cnt=cnt+1)
-            if( key_gfx[cnt] && !last_gfx[cnt] ) gfx_en[cnt] <= ~gfx_en[cnt];
+            if( eff_gfx[cnt] && !gfx_l[cnt] ) gfx_en[cnt] <= ~gfx_en[cnt];
     end
 end
 

@@ -11,7 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ignore_rst *bool
+var ignore_rst bool
+var mismatch_n int
 
 // compareCmd represents the compare command
 var compareCmd = &cobra.Command{
@@ -24,13 +25,13 @@ compare specific signals.
 Not providing a signal name will compare all signals in the VCD
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if *ignore_rst {
+		if ignore_rst {
 			fmt.Println("Warning: --rst is not implemented")
 		}
 		if len(args)==3 {
-			vcd.Compare( args[0:2], args[2], *ignore_rst )
+			vcd.Compare( args[0:2], args[2], ignore_rst, mismatch_n )
 		} else {
-			vcd.CompareAll( args[0:2] )
+			vcd.CompareAll( args[0:2], mismatch_n )
 		}
 	},
 	Args: cobra.ExactArgs(2),
@@ -47,6 +48,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	ignore_rst = compareCmd.Flags().BoolP("rst", "r", false, "ignore while any signal called rst is high")
+	compareCmd.Flags().BoolVarP(&ignore_rst, "rst", "r", false, "ignore while any signal called rst is high")
+	compareCmd.Flags().IntVarP(&mismatch_n,"mismatch", "m", 1, "stop at the given mismatch occurence")
 }
 

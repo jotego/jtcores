@@ -18,78 +18,86 @@
 
 module jtngp_vtimer(
     input               clk,
-    input         [1:0] video_cen,
     input               hint_en,
     input               vint_en,
 
-    output reg          pxl_cen,
-    output reg          pxl2_cen,
-    output reg  [9:0]   hcnt,       // top 8 bits
-    output reg  [8:0]   hdump,
-    output reg  [7:0]   vdump, vrender,
+    input               cen6,
+    input               pxl_cen,
+    input               pxl2_cen,
+    output reg  [9:0]   hcnt=0,       // top 8 bits
+    output reg  [8:0]   hdump=0,
+    output reg  [7:0]   vdump=0, vrender=0,
+    output reg          LHBL=0,
+    output reg          LVBL=0,
+    output reg          HS=0,
+    output reg          VS=0,
+    // Active window
     input       [7:0]   view_height, view_starty,
-    output reg          LHBL,
-    output reg          LVBL,
-    output reg          HS,
-    output reg          VS,
+    input       [7:0]   view_width, view_startx,
+    output reg          oow,
 
-    output reg          hirq,
-    output reg          virq
+    output reg          hirq=0,
+    output reg          virq=0
 );
 
-localparam HOFFSET= 48,
-           HBSTART= 14, // 11->17
-           HBEND  =HBSTART+35,
-           HS_START = HBSTART+8,
-           HS_END   = HS_START+4;
+localparam HBSTART  = 9'd169,
+           HS0      = 9'd170,
+           HBEND    = 9'd9;       // 170 pixels in haux count (21*8 plus two dummy pixels during HS)
 
-reg [2:0] three=1;
-reg [7:0] virq_line;
+reg  [7:0] virq_line;
+reg  [1:0] dummy=0;
+reg  [8:0] haux=0,hcmp=0;
+reg  [7:0] oowsh=0;
+wire      oownx;
 
 initial begin
     hirq = 0;
     virq = 0;
 end
 
+assign oownx =  hdump[7:0]<view_startx   || hdump>({1'b0,view_startx}+{1'b0,view_width}) ||
+                vdump[7:0]<view_starty || vrender>(view_starty+view_height);
+always @* hdump=haux;
+
+always @(posedge clk) if(pxl_cen) begin
+    {oow,oowsh}<={oowsh,oownx};
+end
+
 always @(posedge clk) begin
-    pxl_cen  <= video_cen[1] & three[2];
-    pxl2_cen <= video_cen[1] & (three[2] | three[0]);
-    virq_line <= view_height+view_starty;
-    if( video_cen[1] ) begin
-        three <= { three[1:0], three[2] };
-        if( hcnt==6 ) begin
-            hirq <= 0;
-            virq <= 0;
+    if( cen6 ) hcnt <= hcnt-10'd1;
+    if(pxl_cen) begin
+        // hdump <= haux==hcmp ? -9'd16: hdump+9'd1;
+        virq_line <= view_height+view_starty;
+        if( haux!=HS0 || dummy==3 ) haux<= haux==HS0 ? 9'd0 : haux+1'd1;
+        if( haux==HS0 ) begin
+            hirq  <= 0;
+            virq  <= 0;
+            HS    <= dummy!=2'b11;
+            dummy <= { dummy[0],1'b1 };
+            if( dummy==0 ) begin
+                vrender <= (vrender==198) ? 8'd0 : (vrender+8'd1);
+                vdump   <=  vrender;
+                virq    <=  vint_en && vdump==virq_line;
+                hirq    <=  hint_en && (vdump<150 || vdump==198 );
+                if( vdump==151 )
+                    LVBL <= 0;
+                else if( vdump==198 ) begin
+                    LVBL <= 1;
+                    hcmp <= hcmp+9'd1;
+                end
+                if( vdump==180 )
+                    VS <= 1;
+                else if( vdump==183 )
+                    VS <= 0;
+            end
         end
-        if( hcnt==HBSTART ) begin
-            LHBL <= 0;
+        if( haux==HBEND ) begin
+            LHBL  <= 1;
+            dummy <= 0;
         end
-        if( hcnt==HBEND ) LHBL <= 1;
-        if( hcnt==514 ) begin
-            hdump    <= 0;
-            hcnt     <= 0;
-            three    <= 1;
-            pxl_cen  <= 1;
-            pxl2_cen <= 1;
-        end else begin
-            if( three[2] ) hdump <= hdump + 9'd1;
-            hcnt  <= hcnt  +10'd1;
-        end
-        if( hcnt == HS_END   ) HS <= 0;
-        if( hcnt == HS_START ) begin
-            HS       <= 1;
-            vrender  <= (vrender==198) ? 8'd0 : (vrender+8'd1);
-            vdump    <= vrender;
-            virq  <= vint_en && vdump==virq_line;
-            hirq  <= hint_en && (vdump<150 || vdump==198 );
-            if( vdump==151 )
-                LVBL <= 0;
-            else if( vdump==198 )
-                LVBL <= 1;
-            if( vdump==180 )
-                VS <= 1;
-            else if( vdump==183 )
-                VS <= 0;
+        if( haux==HBSTART ) begin
+            hcnt  <= 511;
+            LHBL  <= 0;
         end
     end
 end

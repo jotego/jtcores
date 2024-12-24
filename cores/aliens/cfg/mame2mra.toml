@@ -5,8 +5,7 @@ mraauthor=["jotego"]
 sourcefile=[ "aliens.cpp",
     "thunderx.cpp",
     "crimfght.cpp",
-    ]
-skip = { machines=["thunderx"] }
+]
 
 [buttons]
 names = [
@@ -31,12 +30,6 @@ data = [
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
-
-# rename = [
-#     {  name="Difficulty 1 (Game)", To="Gameplay" },
-#     {  name="Difficulty 2 (Strength)", To="Strength" },
-#     {  name="Allow Continue", To="Continue" },
-# ]
 
 [ROM]
 regions = [

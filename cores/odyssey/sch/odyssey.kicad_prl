@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 0,
+    "active_layer": 37,
     "active_layer_preset": "",
     "auto_track_width": false,
     "hidden_netclasses": [],
@@ -15,16 +15,16 @@
       "zones": 1.0
     },
     "selection_filter": {
-      "dimensions": false,
-      "footprints": false,
-      "graphics": false,
+      "dimensions": true,
+      "footprints": true,
+      "graphics": true,
       "keepouts": true,
-      "lockedItems": false,
-      "otherItems": false,
-      "pads": false,
-      "text": false,
-      "tracks": false,
-      "vias": false,
+      "lockedItems": true,
+      "otherItems": true,
+      "pads": true,
+      "text": true,
+      "tracks": true,
+      "vias": true,
       "zones": true
     },
     "visible_items": [
@@ -64,7 +64,7 @@
       39,
       40
     ],
-    "visible_layers": "fffffff_fffffffe",
+    "visible_layers": "9ffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
@@ -81,18 +81,18 @@
           "maximized": true,
           "pos_x": 1919,
           "pos_y": 28,
-          "size_x": 1848,
-          "size_y": 781
+          "size_x": 1280,
+          "size_y": 426
         }
       },
       {
         "name": "odyssey.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 2400,
-          "pos_y": 28,
+          "pos_x": 2189,
+          "pos_y": 111,
           "size_x": 960,
           "size_y": 1024
         }

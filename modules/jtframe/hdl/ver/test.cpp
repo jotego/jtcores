@@ -822,7 +822,7 @@ void JTSim::clock(int n) {
                 fprintf(stderr,"\nDump starts (frame %d)\n", frame_cnt);
             }
             // the display and fdisplay output of the verilog files
-            if( (frame_cnt & 0x3f)==0 ) fprintf(stderr," - %4d\n", frame_cnt);
+            if( (frame_cnt & 0x3f)==0 ) fprintf(stderr," - " ANSI_COLOR_YELLOW "%4d\n", frame_cnt);
             sim_inputs.next();
 #ifdef _JTFRAME_SIM_DEBUG
             game.debug_bus++;

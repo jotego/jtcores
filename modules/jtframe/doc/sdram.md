@@ -6,7 +6,7 @@ For I/O (SDRAM download, etc.) the following indexes are used
 |:----------------|:-----|:-------|:----------------|:----------|
 | Main ROM        | 0    | 0      | 1               | rom.bin   |
 | JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
-| Cartridges      |      | 4      |                 | cart.bin  |
+| Cartridges      |      | 4      | 4               | cart.bin  |
 | NVRAM           | 255  | 2      | 2               | nvram.bin |
 | Cheat ROM       | 16   | 16     | 16              |           |
 | Beta keys       | N/A  | 17     | 17              |           |
@@ -14,6 +14,13 @@ For I/O (SDRAM download, etc.) the following indexes are used
 | Cheat switches  | N/A  | 255    | N/A             |           |
 
 The cheat ROM and the beta key files must be stored in the folder `/Assets/jtpatreon/common`
+
+In order to use cartridges:
+
+- Define **JTFRAME_CART_OFFSET** in *macros.def*
+- Define **carts** in the **[ROM]** section of *mame2mra.toml*
+
+In MiSTer, the IOCTL ID for cartridges is limited to 6 bits. That enforces a 6-bit limit at JTFRAME for all indexes. But, MiSTer reserves some indexes for which 8 bits are used. See the table above.
 
 ## core_mod (JTFRAME options)
 

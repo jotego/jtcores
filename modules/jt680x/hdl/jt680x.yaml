@@ -1,0 +1,7 @@
+here:
+  - jt680x_alu.v
+  - jt680x_ctrl.v
+  - jt680x_regs.v
+  - jt680x.v
+ucode:
+  jt680x: { src: "6801.yaml" }

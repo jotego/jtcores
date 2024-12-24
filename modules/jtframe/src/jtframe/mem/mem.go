@@ -165,7 +165,7 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 }
 
 func make_sdram( finder path_finder, cfg *MemConfig) {
-	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "game_sdram.v")
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
 	t := template.Must(template.New("game_sdram.v").Funcs(funcMap).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
@@ -178,7 +178,7 @@ func add_game_ports(args Args, cfg *MemConfig) {
 	make_inc := false
 	found := false
 
-	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "ports.v")
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
 	t := template.Must(template.New("ports.v").Funcs(funcMap).ParseFiles(tpath))
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)

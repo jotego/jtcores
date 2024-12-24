@@ -4,17 +4,11 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "renegade.cpp" ]
-# Original games don't work because of the MCU
-skip.setnames = [ "kuniokun", "renegade" ]
-main_setnames=["renegadeb"]
 
 [buttons]
 Names = [
     { names="Hit Left,Jump,Hit Right"},
 ]
-
-[rbf]
-name="jtkunio"
 
 [dipsw]
 # Flip screen not supported. Hard-wired as disabled in jtkunio_main
@@ -26,10 +20,10 @@ bitcnt = 16
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra
 regions = [
-    { name="audiocpu", start="BA1_START", No_offset=true },
-    { name="chars",    start="BA2_START" },
-    { name="sprites",  start="BA3_START" },
-    { name="mcu:mcu",  start="PROM_START"},
+    { name="audiocpu", start="JTFRAME_BA1_START", No_offset=true },
+    { name="adpcm",    start="PCM_START"},
+    { name="chars",    start="JTFRAME_BA2_START" },
+    { name="sprites",  start="JTFRAME_BA3_START" },
 ]
 
 order = [

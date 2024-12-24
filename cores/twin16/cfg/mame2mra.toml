@@ -5,16 +5,14 @@ parents= [
     {name="cuebrick",description="Cuebrick"}
 ]
 skip = { machines=[
-    "cuebrick",
-    "mia",
-    "vulcan",
-], setnames=[
-    "hpuncher",
+    "fround",
 ] }
 
 [buttons]
 names=[
-    { machine="fround", names="Face Punch,Body Punch,Guard" },
+    { machine="devilw", names="Power up,Shoot,Jump" },
+    { machine="vulcan", names="Special power,Shoot,Missile" },
+    { machine="mia",  names="Knife, Weapon, Weapon select" },
 ]
 
 [dipsw]
@@ -25,13 +23,13 @@ delete=[{names=["Unused","Unknown"]}]
 # or arguments passed to mame2mra
 regions = [
     { name="maincpu", width=16, reverse=true  },
-    { name="sub", width=16, reverse=true  },
-    { name="sub", setnames=[ "fround", "froundl" ], skip = true },
+    { name="sub",     width=16, reverse=true  },
     { name="data"  },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="fixed",    start="JTFRAME_BA2_START" },
-    { name="tiles",    start="SCR_START", width=32 },
+    { name="data",     start="SCR_START", width=32 },
     { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
+    { name="gfxrom",   skip=true, setname="cuebrickj" },
     { name="k007232"  },
     { name="upd"  }
 ]
@@ -39,7 +37,7 @@ regions = [
 order = [
     "maincpu", "sub", "data", "audiocpu",
     "k007232", "upd",
-    "fixed", "tiles", "gfxrom"
+    "fixed", "gfxrom"
 ]
 
 patches = [

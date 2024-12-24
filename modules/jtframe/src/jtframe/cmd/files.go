@@ -24,7 +24,7 @@ import (
 
 // filesCmd represents the files command
 var filesCmd = &cobra.Command{
-	Use:   "files <sim|syn> <core-name>",
+	Use:   "files <sim|syn|plain> <core-name>",
 	Short: "Generates the project compilation and simulation files",
 	Long: `The project files are defined in cores/corename/game.yaml.
 jtframe files command will also add the required files for the
@@ -32,6 +32,9 @@ selected compilation or simulation target.
 
 The first argument selects simulation (sim) or synthesis (output). The
 synthesis output consists of .qip files compatible with Intel Quartus.
+
+A third option is "plain", which simply generates a plain text file with
+the file names and path used.
 
 The simulation output creates two files:
 - game.f for all verilog files
@@ -75,6 +78,7 @@ func init() {
 	flag.StringVarP(&files_args.Target, "target", "t", "", "Target platform: mist, mister, pocket, etc.")
 	flag.StringVarP(&files_args.AddMacro, "macro", "m", "", "Add more verilog macros separated by commas")
 	flag.BoolVar(&files_args.Rel, "rel", false, "Output relative paths")
+	flag.BoolVar(&files_args.Local, "local", false, "Refer to mem.yaml derived files in the local, instead of the target, folder")
 }
 
 func run_files(cmd *cobra.Command, args []string) {

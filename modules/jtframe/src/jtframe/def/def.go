@@ -73,9 +73,16 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 			}
 			sections := strings.Split(strings.TrimSpace(line[1:idx]), "|")
 			for _, s := range sections {
-				section = s
-				if strings.TrimSpace(s) == cfg.Target {
+				section = strings.TrimSpace(s)
+				var m bool
+				var e error
+				if m,e = filepath.Match(section,cfg.Target); m {
+					section = cfg.Target
 					break
+				}
+				if e!=nil {
+					fmt.Printf("Malformed expression in .def file: %s\n", section)
+					os.Exit(1)
 				}
 			}
 			continue
@@ -202,7 +209,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	switch cfg.Target {
 	case "mist", "sidi", "neptuno":
 		macros["SEPARATOR"] = ""
-	case "mister", "sockit","de1soc","de10standard":
+	case "mister", "sockit","de1soc","de10std":
 		macros["SEPARATOR"] = "-;"
 	}
 	// Adds a macro with the target name

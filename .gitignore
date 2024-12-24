@@ -105,3 +105,8 @@ vsim.do
 waiver
 work
 x
+*.uc
+*_param.vh
+jt680x.vh
+6?0?.vh
+900h.vh

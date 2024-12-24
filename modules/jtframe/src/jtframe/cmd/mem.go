@@ -72,6 +72,7 @@ sdram:
           rw: true # normally false
           cs: myown_cs # use a cs signal not based on the bus name
           addr: myown_addr # use a cs signal not based on the bus name
+          gfx_sort: hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
         - name: another bus...
     - buses: # same for bank 1
         - name: another bus...
@@ -99,11 +100,12 @@ bram:
         [cs:]
     # BRAM used as ROM. Note that data gets downloaded
     # to both BRAM and SRAM, but only the BRAM will be read
-    - name: vram
+    - name: mcu_rom
       addr_width: 12
       data_width: 8
+      sim_file: required if load is skipped
       rom:
-        offset: parameter_name
+        offset: position in prog_addr*2, with the bank number taking bits 24:23
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		mem_args.Core = args[0]

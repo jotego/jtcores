@@ -1,27 +1,26 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sat Nov 11 18:06:50 2023
+[*] Sun Nov 19 19:16:00 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/game/test.fst"
-[dumpfile_mtime] "Sat Nov 11 16:19:56 2023"
-[dumpfile_size] 248129275
+[dumpfile_mtime] "Sun Nov 19 19:15:17 2023"
+[dumpfile_size] 199352759
 [savefile] "/home/jtejada/jtcores/cores/aliens/ver/game/debug.gtkw"
-[timestart] 504517790000
+[timestart] 11008378750000
 [size] 1264 1024
-[pos] 1265 -1
-*-21.934694 504527079000 1499853451152 504525531216 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -2 -28
+*-21.269737 11008381887216 1499853451152 504525531216 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
 [treeopen] TOP.game_test.u_game.u_game.u_main.
-[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
 [treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_alu.
 [treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.
-[sst_width] 43
+[sst_width] 223
 [signals_width] 247
-[sst_expanded] 0
-[sst_vpaned_height] 385
+[sst_expanded] 1
+[sst_vpaned_height] 382
 @24
 TOP.game_test.frame_cnt[31:0]
 @28
@@ -30,6 +29,8 @@ TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.buserror
 TOP.game_test.u_game.u_game.u_main.cfg[1:0]
 @200
 -
+@29
+TOP.game_test.u_game.u_game.u_main.u_cpu.firq_n
 @c00022
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc[15:0]
 @28
@@ -55,10 +56,8 @@ TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc[15:0]
 -
 @22
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.cc[7:0]
-@23
 [color] 1
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
-@22
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.b[7:0]
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.dp[7:0]
 @200
@@ -99,5 +98,10 @@ TOP.game_test.u_game.u_game.u_main.u_cpu.alu_busy
 TOP.game_test.u_game.u_game.u_main.u_cpu.mem_busy
 TOP.game_test.u_game.u_game.u_main.u_cpu.stack_busy
 TOP.game_test.u_game.u_game.u_main.u_cpu.str_busy
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.rom_cs
+TOP.game_test.u_game.u_game.u_main.ram_cs
 [pattern_trace] 1
 [pattern_trace] 0

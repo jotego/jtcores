@@ -20,9 +20,9 @@ module jtngp_video(
     input               rst,
     input               clk,
     input               clk24,
-    input        [ 1:0] video_cen,
-    output              pxl_cen,
-    output              pxl2_cen,
+    input               cen6,
+    input               pxl_cen,
+    input               pxl2_cen,
 
     input        [31:0] status,
 
@@ -69,7 +69,7 @@ wire [ 7:0] hoffset, voffset,
             scr2_hpos, scr2_vpos,
             view_width, view_height,
             view_startx,view_starty;
-wire        scr_order, hirq_en, virq_en, lcd_neg;
+wire        scr_order, hirq_en, virq_en, lcd_neg, oow;
 
 wire [ 4:0] obj_pxl;
 wire [ 2:0] scr1_pxl, scr2_pxl, oowc;
@@ -102,7 +102,7 @@ end
 
 always @* begin
     regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
-    pal_cs    = gfx_cs && in_range(14'h0100,14'h0118); // monochrome palette
+    pal_cs    = gfx_cs && in_range(14'h0100,14'h011A); // monochrome palette
     palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
     obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
     obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
@@ -111,17 +111,17 @@ always @* begin
     ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
 end
 
-always @(posedge clk) begin
-    cpu_din <= pal_cs   ? pal_dout  :
+always @* begin // do not register here
+    cpu_din =  pal_cs   ? pal_dout  :
                scr1_cs  ? scr1_dout :
                scr2_cs  ? scr2_dout :
                regs_cs  ? regs_dout :
                ram_cs   ? fix_dout : obj_dout;
 end
-
+/* verilator tracing_on */
 jtngp_vtimer u_vtimer(
     .clk        ( clk       ),
-    .video_cen  ( video_cen ),
+    .cen6       ( cen6      ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .hint_en    ( hirq_en   ),
@@ -135,13 +135,17 @@ jtngp_vtimer u_vtimer(
     .LVBL       ( LVBL      ),
     .HS         ( HS        ),
     .VS         ( VS        ),
+    // Window
+    .view_width ( view_width  ),
+    .view_height( view_height ), // it influences when interrupts occur too
+    .view_startx( view_startx ),
+    .view_starty( view_starty ),
+    .oow        ( oow       ),
     // interrupts
-    .view_height(view_height),
-    .view_starty(view_starty),
     .hirq       ( hirq      ),
     .virq       ( virq      )
 );
-
+/* verilator tracing_on */
 jtngp_mmr u_mmr(
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -161,11 +165,12 @@ jtngp_mmr u_mmr(
     .scr1_vpos  ( scr1_vpos   ),
     .scr2_hpos  ( scr2_hpos   ),
     .scr2_vpos  ( scr2_vpos   ),
+    .scr_order  ( scr_order   ),
+    // Window
     .view_width ( view_width  ),
     .view_height( view_height ), // it influences when interrupts occur too
     .view_startx( view_startx ),
     .view_starty( view_starty ),
-    .scr_order  ( scr_order   ),
     .oowc       ( oowc        ),
     .hirq_en    ( hirq_en     ),
     .virq_en    ( virq_en     ),
@@ -192,14 +197,13 @@ jtngp_chram u_chram(
     .scr2_addr  ( scr2_addr ),
     .scr2_data  ( scr2_data )
 );
-
+/* verilator tracing_on */
 jtngp_scr #(
     .SIMFILE_LO("scr1_lo.bin"),
     .SIMFILE_HI("scr1_hi.bin")
 ) u_scr1 (
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .LHBL       ( LHBL      ),
     .pxl_cen    ( pxl_cen   ),
 
     .hdump      ( hdump     ),
@@ -226,7 +230,6 @@ jtngp_scr #(
 ) u_scr2 (
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .LHBL       ( LHBL      ),
     .pxl_cen    ( pxl_cen   ),
 
     .hdump      ( hdump     ),
@@ -246,7 +249,7 @@ jtngp_scr #(
     .en         ( gfx_en[1] ),
     .pxl        ( scr2_pxl  )
 );
-
+/* verilator tracing_on */
 jtngp_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -274,7 +277,7 @@ jtngp_obj u_obj(
     .en         ( gfx_en[3] ),
     .pxl        ( obj_pxl   )
 );
-
+/* verilator tracing_on */
 jtngp_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -282,6 +285,10 @@ jtngp_colmix u_colmix(
 
     .lcd_neg    ( lcd_neg   ),
     .scr_order  ( scr_order ),
+
+    // Window
+    .oow        ( oow       ),
+    .oowc       ( oowc      ),
 
     // CPU access
     .cpu_addr   ( cpu_addr[8:1] ),
@@ -300,7 +307,8 @@ jtngp_colmix u_colmix(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus )
 );
 
 endmodule

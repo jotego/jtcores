@@ -65,6 +65,7 @@ module game_test(
 
     // SDRAM interface
     input           ioctl_rom,
+    input           ioctl_cart,
     output          dwnld_busy,
 
     // ROM LOAD
@@ -515,14 +516,6 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
     `endif
 `endif
 
-`ifdef JTFRAME_PXLCLK
-    jtframe_pxlcen u_pxlcen(
-        .clk        ( clk_rom   ),
-        .pxl_cen    ( pxl_cen   ),
-        .pxl2_cen   ( pxl2_cen  )
-    );
-`endif
-
 //////// GAME MODULE
 `GAMETOP
 u_game(
@@ -597,13 +590,12 @@ u_game(
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
-    .ioctl_wr    ( ioctl_wr       ),
-`ifdef JTFRAME_IOCTL_RD
+    .ioctl_wr    ( ioctl_wr       ), `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram   ( ioctl_ram      ),
-    .ioctl_din   ( ioctl_din      ),
-`endif
+    .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
     .ioctl_rom   ( ioctl_rom      ),
+    .ioctl_cart  ( ioctl_cart     ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( data_read      ),
 
@@ -694,6 +686,15 @@ u_game(
     .debug_bus   ( debug_bus      ),
     .debug_view  ( debug_view     )
 );
+
+`ifdef JTFRAME_PXLCLK
+    /* verilator tracing_off */
+    jtframe_pxlcen u_pxlcen(
+        .clk        ( clk_rom   ),
+        .pxl_cen    ( pxl_cen   ),
+        .pxl2_cen   ( pxl2_cen  )
+    );
+`endif
 
 endmodule
 

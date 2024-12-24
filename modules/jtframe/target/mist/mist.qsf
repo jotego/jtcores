@@ -163,6 +163,8 @@ set_global_assignment -name FORCE_SYNCH_CLEAR ON
 
 set_global_assignment -name QIP_FILE game.qip
 
+set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION ON
+
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
 # Leave the blank line

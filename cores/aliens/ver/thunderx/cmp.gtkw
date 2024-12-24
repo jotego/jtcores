@@ -1,0 +1,102 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Nov 21 06:52:12 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/game/hit.fst"
+[dumpfile_mtime] "Tue Nov 21 05:29:15 2023"
+[dumpfile_size] 76281210
+[savefile] "/home/jtejada/jtcores/cores/aliens/ver/thunderx/cmp.gtkw"
+[timestart] 10564965758000
+[size] 1264 1024
+[pos] -2 -28
+*-18.393324 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_alu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.
+[sst_width] 223
+[signals_width] 278
+[sst_expanded] 1
+[sst_vpaned_height] 319
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_main.rst8
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.buserror
+TOP.game_test.u_game.u_game.u_main.cfg[1:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.rom_cs
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.pmc_cs
+TOP.game_test.u_game.u_game.u_main.pmc_we
+@22
+TOP.game_test.u_game.u_game.u_main.pmc2main_data[7:0]
+TOP.game_test.u_game.u_game.u_main.pmc_addr[10:0]
+TOP.game_test.u_game.u_game.u_main.pmc_din[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.pos0[10:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.pos1[7:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.u_pmc.bsy
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.end0[10:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.start1[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.end1[7:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_main.u_pmc.st[4:0]
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.addr[10:0]
+@23
+TOP.game_test.u_game.u_game.u_main.u_pmc.ram_dout[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.x0[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.y0[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.l0[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.t0[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.r0[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.b0[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_pmc.l1[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.t1[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.r1[7:0]
+TOP.game_test.u_game.u_game.u_main.u_pmc.b1[7:0]
+[pattern_trace] 1
+!100000@@
+?"F6
+@23
+TOP.game_test.u_game.u_game.u_main.u_cpu.addr[23:0]
+?01
+@29
+TOP.game_test.u_game.u_game.u_main.pmc_cs
+!!
+[pattern_trace] 0
+!100000@@
+?"400E
+@23
+TOP.game_test.u_game.u_game.u_main.u_cpu.addr[23:0]
+?01
+@29
+TOP.game_test.u_game.u_game.u_main.u_cpu.we
+?01
+TOP.game_test.u_game.u_game.u_main.ram_cs
+!!

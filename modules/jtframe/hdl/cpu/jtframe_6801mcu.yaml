@@ -2,10 +2,11 @@ jtframe:
   - from: cpu
     get:
       - jtframe_6801mcu.v
-      - 6801_core.sv
-  - from: sdram
-    get:
-      - jtframe_gatecen.v
   - from: ram
     get:
       - jtframe_ram.v
+modules:
+  other:
+    - from: jt680x/hdl
+      get:
+        - jt680x.yaml

@@ -1958,8 +1958,8 @@
     )
   )
 
-  (bus_alias "RW2" (members "UR~{W}" "LR~{W}"))
   (bus_alias "RW1" (members "U~{W}R" "L~{W}R"))
+  (bus_alias "RW2" (members "UR~{W}" "LR~{W}"))
   (junction (at 135.89 190.5) (diameter 0) (color 0 0 0 0)
     (uuid 0472e14c-05e0-4fa6-9ccc-f4fb48949773)
   )

@@ -66,7 +66,8 @@ module jtframe_board #(parameter
     output              prog_rdy,
     output              prog_dst,
     output              prog_ack,
-    input               ioctl_rom,
+    input               ioctl_cart,
+    input               dwnld_busy,
     input               ioctl_ram,
     // SDRAM interface
     inout    [15:0]     SDRAM_DQ,       // SDRAM Data bus 16 Bits
@@ -87,13 +88,19 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
-    input        [ 3:0] board_start,     board_coin,
     output       [ 3:0] game_coin,       game_start,
     output              game_service,
     output              game_tilt,
-
+    // keyboard
+    input        [ 7:0] board_digit,
+    input               board_reset, board_pause, board_tilt, board_test,
+                        board_service, board_shift, board_ctrl, board_alt,
+    // debug features
+    input        [ 3:0] board_gfx,
+    input               board_plus, board_minus,
     // Mouse & Paddle
     input        [ 8:0] bd_mouse_dx, bd_mouse_dy,
     output       [15:0] mouse_1p,    mouse_2p,
@@ -267,13 +274,20 @@ assign base_LVBL = pre2x_LVBL;
     );
 `endif
 
+reg rom_rst=0;
+
+always @(posedge clk_rom) begin
+    if(!dwnld_busy) rom_rst <= 0;
+    else if(ioctl_wr&&!ioctl_cart) rom_rst <= 1;
+end
+
 jtframe_reset u_reset(
     .clk_sys    ( clk_sys       ),
     .clk_rom    ( clk_rom       ),
     .pxl_cen    ( pxl_cen       ),
 
     .sdram_init ( sdram_init    ),
-    .ioctl_rom  ( ioctl_rom     ),
+    .ioctl_rom  ( rom_rst       ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
@@ -289,7 +303,7 @@ jtframe_led u_led(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .LVBL       ( LVBL          ),
-    .ioctl_rom  ( ioctl_rom     ),
+    .ioctl_rom  ( dwnld_busy     ),
     .osd_shown  ( osd_shown     ),
     .gfx_en     ( gfx_en        ),
     .game_led   ( game_led      ),
@@ -334,13 +348,14 @@ jtframe_keyboard u_keyboard(
             .clk         ( clk_sys       ),
             .rst         ( rst           ),
 
-            .shift       ( key_shift     ),
-            .ctrl        ( key_ctrl      ),
-            .alt         ( key_alt       ),
-            .key_gfx     ( key_gfx       ),
-            .key_digit   ( key_digit     ),
-            .debug_plus  ( debug_plus    ),
-            .debug_minus ( debug_minus   ),
+            .shift       ( key_shift   | board_shift ),
+            .ctrl        ( key_ctrl    | board_ctrl  ),
+            .alt         ( key_alt     | board_alt   ),
+            .key_gfx     ( key_gfx     | board_gfx   ),
+            .key_digit   ( key_digit   | board_digit ),
+            .debug_plus  ( debug_plus  | board_plus  ),
+            .debug_minus ( debug_minus | board_minus ),
+            .board_gfx   ( board_gfx     ),
 
             // overlay the value on video
             .pxl_cen     ( pxl_cen       ),
@@ -374,8 +389,9 @@ jtframe_keyboard u_keyboard(
             .ba_rdy     ( bax_rdy       ),
             .dipsw      ( dipsw[23:0]   ),
             // IOCTL
-            .ioctl_rom  ( ioctl_rom     ),
+            .ioctl_rom  ( dwnld_busy     ),
             .ioctl_ram  ( ioctl_ram     ),
+            .ioctl_cart ( ioctl_cart    ),
             // mouse
             .mouse_f    ( bd_mouse_f    ),
             .mouse_dx   ( bd_mouse_dx   ),
@@ -421,7 +437,7 @@ jtframe_inputs #(
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
     .LHBL           ( LHBL            ),
-    .ioctl_rom      ( ioctl_rom       ),
+    .ioctl_rom      ( dwnld_busy       ),
     .dip_flip       ( dip_flip        ),
     .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
@@ -443,12 +459,12 @@ jtframe_inputs #(
     .key_joy4       ( key_joy4        ),
     .key_start      ( key_start       ),
     .key_coin       ( key_coin        ),
-    .key_service    ( key_service     ),
-    .key_tilt       ( key_tilt        ),
-    .key_pause      ( key_pause       ),
-    .key_test       ( key_test        ),
+    .key_service    ( key_service | board_service ),
+    .key_tilt       ( key_tilt    | board_tilt    ),
+    .key_pause      ( key_pause   | board_pause   ),
+    .key_test       ( key_test    | board_test    ),
     .osd_pause      ( osd_pause       ),
-    .key_reset      ( key_reset       ),
+    .key_reset      ( key_reset | board_reset     ),
     .rot_control    ( rot_control     ),
 
     .game_joy1      ( game_joystick1  ),
@@ -709,7 +725,7 @@ jtframe_sdram64 #(
     .dst        ( bax_dst       ),
 
     // ROM-load interface
-    .prog_en    ( ioctl_rom     ),
+    .prog_en    ( dwnld_busy | ioctl_cart ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),
@@ -904,6 +920,8 @@ endfunction
     wire [CLROUTW*3-1:0] rgbx2;
     wire [CLROUTW*3-1:0] game_rgb = { r_ana, g_ana, b_ana };
     wire scan2x_hsin = bw_en ? hs_ana : hs;
+    wire scan2x_hbin = bw_en ? ~lvbl_ana : ~pre2x_LHBL;
+    wire scan2x_vbin = bw_en ? ~lhbl_ana : ~pre2x_LVBL;
 
     // Note that VIDEO_WIDTH must include blanking for jtframe_scan2x
     jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
@@ -917,36 +935,37 @@ endfunction
         .pxl2_cen   ( pxl2_cen       ),
         .base_pxl   ( game_rgb       ),
         .HS         ( scan2x_hsin    ),
+        .HB         ( scan2x_hbin    ),
+        .VB         ( scan2x_vbin    ),
         // outputs
         .x2_pxl     ( rgbx2          ),
-        .x2_HS      ( scan2x_hs      )
+        .x2_HS      ( scan2x_hs      ),
+        .x2_DE      ( scan2x_de      )
     );
     assign scan2x_vs    = bw_en ? vs_ana : vs;
     assign scan2x_r     = extend8( rgbx2[CLROUTW*3-1:CLROUTW*2] );
     assign scan2x_g     = extend8( rgbx2[CLROUTW*2-1:CLROUTW] );
     assign scan2x_b     = extend8( rgbx2[CLROUTW-1:0] );
-    assign scan2x_de    = ~(scan2x_vs | scan2x_hs);
     assign scan2x_cen   = pxl2_cen;
     assign scan2x_clk   = clk_sys;
     assign scan2x_sl    = scanlines[1:0];
     // unused in MiST
     assign gamma_bus    = 22'd0;
-`else
-    localparam VIDEO_DW = CLROUTW!=5 ? 3*CLROUTW : 24;
+`else // MiSTer do not take u_wirebw's output but u_debug's
+    localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
 
     wire [VIDEO_DW-1:0] game_rgb;
 
     // arcade video does not support 15bpp colour, so for that
     // case we need to convert it to 24bpp
     generate
-        if( CLROUTW!=5 ) begin
-            assign game_rgb = {r_ana, g_ana, b_ana };
+        if( COLORW!=5 ) begin
+            assign game_rgb = {dbg_r, dbg_g, dbg_b};
         end else begin
             assign game_rgb = {
-                r_ana, r_ana[4:2],
-                g_ana, g_ana[4:2],
-                b_ana, b_ana[4:2]
-            };
+                dbg_r, dbg_r[4:2],
+                dbg_g, dbg_g[4:2],
+                dbg_b, dbg_b[4:2]   };
         end
     endgenerate
 
@@ -957,10 +976,10 @@ endfunction
         .ce_pix     ( pxl_cen       ),
 
         .RGB_in     ( game_rgb      ),
-        .HBlank     ( ~lhbl_ana     ),
-        .VBlank     ( ~lvbl_ana     ),
-        .HSync      ( hs_ana        ),
-        .VSync      ( vs_ana        ),
+        .HBlank     ( ~pre2x_LHBL   ),
+        .VBlank     ( ~pre2x_LVBL   ),
+        .HSync      ( hs            ),
+        .VSync      ( vs            ),
 
         .CLK_VIDEO  ( scan2x_clk    ),
         .CE_PIXEL   ( scan2x_cen    ),

@@ -24,7 +24,7 @@ wire        snd_rst, black_n, flip;
 wire [ 7:0] snd_latch, main_latch;
 reg  [ 7:0] debug_mux;
 
-reg         tokio;
+reg         tokio, bootleg;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        main_flag, main_stb, snd_stb;
 
@@ -36,23 +36,13 @@ wire        snd_flag;
 wire        snd_rstn_eff;
 
 assign snd_rstn_eff = ~(tokio ? snd_rst : rst);
-assign debug_view = debug_mux;
+assign debug_view = {6'd0,bootleg,tokio};
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
 
-`ifdef SIMULATION
-`ifndef LOADROM
-    `ifdef TOKIO
-    initial tokio=1;
-    `else
-    initial tokio=0;
-    `endif
-`endif
-`endif
-
 always @(posedge clk) begin
-    if( prog_we && ioctl_addr==1 )
-        tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this
+    if( prog_we && header && ioctl_addr[0]==0 ) { bootleg, tokio } <= prog_data[1:0];
+        // tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this at ioctl_addr==1
 end
 
 always @(posedge clk) begin
@@ -70,8 +60,10 @@ jtbubl_main u_main(
     .clk            ( clk           ),        // 24 MHz
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
+    .cen3           ( cen3          ),
 
     .tokio          ( tokio         ),
+    .bootleg        ( bootleg       ),
     // Main CPU ROM
     .main_rom_addr  ( main_addr     ),
     .main_rom_cs    ( main_cs       ),
@@ -84,8 +76,8 @@ jtbubl_main u_main(
     .sub_rom_data   ( sub_data      ),
     // MCU ROM
     .mcu_rom_addr   ( mcu_addr      ),
-    .mcu_rom_cs     ( mcu_cs        ),
-    .mcu_rom_ok     ( mcu_ok        ),
+    .mcu_rom_cs     (               ),
+    .mcu_rom_ok     ( 1'b1          ),
     .mcu_rom_data   ( mcu_data      ),
 
     // Sound
@@ -102,6 +94,7 @@ jtbubl_main u_main(
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
+    .tilt           ( tilt          ),
     // Video
     .LVBL           ( LVBL          ),
     .flip           ( flip          ),
@@ -117,7 +110,8 @@ jtbubl_main u_main(
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dipsw_a        ( dipsw_a       ),
-    .dipsw_b        ( dipsw_b       )
+    .dipsw_b        ( dipsw_b       ),
+    .debug_bus      ( debug_bus     )
 );
 `else
 assign main_cs = 0;

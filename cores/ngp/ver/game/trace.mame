@@ -1,9 +1,10 @@
 trace off
 //wp 6c18,8,w,1,{printf "%X <- %X",wpaddr,wpdata;go}
-bp ff4701
-go
+//bp ff4701
+//go
 //save ram1.bin,6000,1000
 //wp 6c18,8,rw,1
-bpclear
+//bpclear
 trace debug.trace,maincpu,noloop,{tracelog "PC=%X,XWA0=%X,XBC0=%X,XDE0=%X,XHL0=%X,XWA1=%X,XBC1=%X,XDE1=%X,XHL1=%X,XWA2=%X,XBC2=%X,XDE2=%X,XHL2=%X,XWA3=%X,XBC3=%X,XDE3=%X,XHL3=%X,XIX=%X,XIY=%X,XIZ=%X,XSP=%X,* ",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
 go
+traceflush

@@ -4,6 +4,21 @@ Macros are expected in the file *cores/corename/cfg/macros.def*. From there, oth
 
 Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools.
 
+Macros in *macros.def* can have different values for a given target platform, using the following syntax:
+
+```
+# defines FOO as 4
+FOO=4
+[sidi]
+# but in the sidi platform, it will become 6
+FOO=6
+[mist*]
+# and in mist/mister platforms, it will be 7
+FOO=7
+```
+
+The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
+
 # System Name
 
 There are two macros that define the core name the FPGA will use when communicating with the rest of the target platform. This is the name that MiST(er) display in the side of the OSD menu under some circumstances. It is also the name used for compilation files and the RBF file name. If undefined, the core folder name will be used. CORENAME is a way of using a different name for the core folder and the core itself.
@@ -54,6 +69,7 @@ JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, u
 JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  down,  up
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
+JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for objects
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping

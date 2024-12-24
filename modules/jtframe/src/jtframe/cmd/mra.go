@@ -143,6 +143,8 @@ splits=[
 patches = [
 	{ machine="...", setname="...", offset=0x0000, data="01 02 03..." },...
 ]
+# file extensions used for cartridge loading
+carts=["rom","bin"]
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
@@ -185,6 +187,7 @@ func init() {
 	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
 	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
+	flag.BoolVar(&mra_args.PrintNames, "names", false, "Print out the title of each game supported")
 	flag.BoolVar(&mra_args.SkipPocket, "skipPocket", false, "Do not generate JSON files for the Pocket")
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP(&mra_args.JTbin, "git", "g", false, "Save files to JTBIN")

@@ -16,7 +16,7 @@ func (this cmpData) next() bool {
     return this.file.NextVCD(this.data)
 }
 
-func CompareAll( fnames []string ) {
+func CompareAll( fnames []string, mismatch_n int ) {
     var c [2]cmpData
     for k,_ := range c{
         c[k].file = &LnFile{}
@@ -42,28 +42,31 @@ func CompareAll( fnames []string ) {
         k++
     }
     // function to compare the two sets
-    equal := func() (bool, string) {
+    equal := func() (bool, string, uint64, uint64) {
         for ref, cmp := range pairs {
             if c[0].data[ref].Value != cmp.Value {
                 // fmt.Printf("%s <--> %s\n", c[0].data[ref].FullName(), cmp.FullName())
-                return false, cmp.FullName()
+                return false, cmp.FullName(), c[0].data[ref].Value, cmp.Value
             }
         }
-        return true,""
+        return true,"",0,0
     }
     // run through the VCD
     for c[0].file.NextVCD(c[0].data) {
         matched := false
         var offender string
+        var v0,v1 uint64
         more := true
         t1 := c[1].file.time
         more = c[1].file.NextVCD(c[1].data)
-        matched, offender = equal()
+        matched, offender, v0, v1 = equal()
         if !matched {
-            fmt.Printf("Mismatch at times %d (%s) and %d (%s) for signal %s\n",
+            fmt.Printf("Time %d (%s) and %d (%s): %s\t %X != %X\n",
                 c[0].file.time, c[0].file.fname,
-                t1, c[1].file.fname, offender)
-            break
+                t1, c[1].file.fname, offender,
+                v0, v1)
+            mismatch_n--
+            if( mismatch_n<=0 ) { break }
         }
         if !more {
             fmt.Println("EOF")
@@ -72,7 +75,7 @@ func CompareAll( fnames []string ) {
     }
 }
 
-func Compare( fnames []string, sname string, ignore_rst bool ) {
+func Compare( fnames []string, sname string, ignore_rst bool, mismatch_n int ) {
     d,_ := cmpReadin( fnames, sname )
     defer d[0].file.Close()
     defer d[1].file.Close()
@@ -89,11 +92,12 @@ func Compare( fnames []string, sname string, ignore_rst bool ) {
         more = more && d[1].file.NextChangeIn( d[1].data, d1Names )
         mismatch = d[0].signal.Value != d[1].signal.Value
         if mismatch {
-            fmt.Printf("Mismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
+            fmt.Printf("xxMismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
                 d[0].file.time, d[0].file.fname,
                 d[1].file.time, d[1].file.fname,
                 d[0].signal.Value, d[1].signal.Value )
-            break
+            mismatch_n--
+            if( mismatch_n<=0 ) { break }
         }
     }
     if !mismatch {

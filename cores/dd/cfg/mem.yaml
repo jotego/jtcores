@@ -4,13 +4,27 @@ params:
   - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA2_START) >>1" }
   - { name: MCU_OFFSET,  value: "(`MCU_START-`JTFRAME_BA3_START)>>1" }
 clocks:
+  # main and mcu do not share the gate because they are in different clock domains
+  # MC6809 module is problematic at 48MHz, hence using clk24
+  # Not a problem for accuracy as there is an NMI based handshaking between main and mcu
   clk24:
-    - freq: 12000000
+    - freq: 6000000
+      gate: [ main, snd ]
       outputs:
-        - cen12
         - cen6
         - cen3
         - cen1p5
+        - cen0p75
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+  clk:
+    - freq: 12000000
+      gate: [ mcu ]
+      outputs:
+        - mcu_cen12
+        - mcu_cen6
 sdram:
   banks:
     - buses:

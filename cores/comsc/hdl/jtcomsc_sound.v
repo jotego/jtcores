@@ -22,9 +22,8 @@
 module jtcontra_sound(
     input           clk,        // 24 MHz
     input           rst,
-    input           cen12,
-    input           cen3,
-    input           cen1p5,
+    input           cen_fm,
+    input           cen_fm2,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -56,7 +55,6 @@ reg                 pcm_rst_cs, pcm_latch_cs;
 reg                 pcm_rstn, pcm_play;
 wire signed [15:0]  fm_snd;
 wire        [ 9:0]  psg_snd;
-wire                cen_fm, cen_fm2;
 wire                cen_640, cen_320;
 wire                cpu_cen, irq_ack;
 reg                 pcm_play_cs;
@@ -67,8 +65,6 @@ wire signed [ 8:0]  pcm_snd;
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
 assign snd_right = snd_left;
-assign cen_fm    = cen3;
-assign cen_fm2   = cen1p5;
 assign comb_rst  = ~pcm_rstn | rst;
 
 always @(*) begin
@@ -144,7 +140,7 @@ jtframe_ff u_ff(
     .sigedge  ( snd_irq     ) // signal whose edge will trigger the FF
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_fm2   ), // 1.5MHz, there is a clock divider in schematics
