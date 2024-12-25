@@ -40,7 +40,7 @@
 // sprite tiles are 16x16x4
 
 
-module jt00778x#(parameter CW=17,PW=9)(    // sprite logic
+module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             rst,
     input             clk,
     input             pxl_cen,

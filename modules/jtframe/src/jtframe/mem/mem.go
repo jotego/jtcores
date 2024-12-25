@@ -504,6 +504,10 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	for _, each := range tosave {
 		if each == nil { continue }
 		each.Sim_file=true
+		if each.Ioctl.Order >= len(cfg.Ioctl.Buses) {
+			fmt.Printf("mem.yaml: too many IOCTL buses for BRAM\n")
+			os.Exit(1)
+		}
 		ioinfo := &cfg.Ioctl.Buses[each.Ioctl.Order] // fill data for ioctl_dump module
 		ioinfo.Name = each.Name
 		ioinfo.AW   = each.Addr_width

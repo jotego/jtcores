@@ -326,8 +326,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}
     {{- if .Rw }}{{ if not $holded_slot }}
-    .hold_rst    ( hold_rst        ), {{ $holded_slot = true }}{{ $holded = true }}{{else}}
-    .hold_rst    (            ),{{end}}
+    .hold_rst    ( hold_rst        ), {{ $holded = true }}{{else if not $holded_slot}}
+    .hold_rst    (            ),{{end}}{{ $holded_slot = true }}
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),

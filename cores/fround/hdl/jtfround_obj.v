@@ -56,7 +56,7 @@ wire [CW-1:0] code;
 wire [ 3:0] attr;
 wire [ 1:0] hsize;
 wire        hflip;
-wire [ 8:0] hpos;
+wire [ 9:0] hpos;
 wire        dr_start, dr_busy;
 
 jt00778x #(.CW(CW)) u_scan(    // sprite logic
@@ -118,7 +118,7 @@ jtfround_objdraw #(
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
     .code       ( code      ),
-    .xpos       ( hpos      ),
+    .xpos       ( hpos[8:0] ),
 
     .hflip      ( ~hflip    ),
     .hsize      ( hsize     ),

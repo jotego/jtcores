@@ -8809,13 +8809,13 @@
 		(uuid "95e54915-c6e8-4278-aa30-0cd22e47d9ba")
 	)
 	(label "~{OBFI}"
-		(at 43.18 76.2 0)
+		(at 48.26 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "963b08f2-1359-4a3a-94c9-6dde95f1e991")
 	)

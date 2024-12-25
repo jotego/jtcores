@@ -17475,7 +17475,7 @@
 		)
 		(uuid "1764d985-3276-44d4-9601-8161e4e5f363")
 	)
-	(hierarchical_label "R~{W"
+	(hierarchical_label "R~{W}"
 		(shape input)
 		(at 36.83 128.27 180)
 		(fields_autoplaced yes)

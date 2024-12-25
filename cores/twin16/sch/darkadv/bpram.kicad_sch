@@ -6077,6 +6077,12 @@
 		(uuid "3c0af058-b401-4e2a-8537-717c4b5a3467")
 	)
 	(junction
+		(at 166.37 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4c10c80b-a1fa-4cc7-8981-39fd1593aabb")
+	)
+	(junction
 		(at 359.41 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7875,16 +7881,6 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 101.6) (xy 181.61 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0ee1fb3b-ac02-42cc-ab21-5c2d789ba532")
-	)
-	(wire
-		(pts
 			(xy 201.93 229.87) (xy 209.55 229.87)
 		)
 		(stroke
@@ -8855,7 +8851,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 96.52) (xy 181.61 96.52)
+			(xy 156.21 101.6) (xy 181.61 101.6)
 		)
 		(stroke
 			(width 0)
@@ -9542,16 +9538,6 @@
 			(type default)
 		)
 		(uuid "671563d2-0eca-4167-9bd3-fd3a4e781766")
-	)
-	(wire
-		(pts
-			(xy 156.21 96.52) (xy 156.21 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "680e74e8-bca1-4295-96bc-922135ee3ad6")
 	)
 	(wire
 		(pts
@@ -10305,6 +10291,16 @@
 	)
 	(wire
 		(pts
+			(xy 156.21 85.09) (xy 156.21 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "97d8f627-afb6-49ea-8abe-221385676e17")
+	)
+	(wire
+		(pts
 			(xy 39.37 148.59) (xy 44.45 148.59)
 		)
 		(stroke
@@ -10315,7 +10311,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.655 90.17) (xy 166.37 90.17)
+			(xy 160.02 90.17) (xy 166.37 90.17)
 		)
 		(stroke
 			(width 0)
@@ -11823,6 +11819,16 @@
 		)
 		(uuid "f56df62d-a715-41b9-81ad-bb1db8621723")
 	)
+	(wire
+		(pts
+			(xy 166.37 90.17) (xy 166.37 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f61d5fef-033e-441a-a2ef-4b174bb5cb52")
+	)
 	(bus
 		(pts
 			(xy 166.37 162.56) (xy 166.37 160.02)
@@ -11972,6 +11978,16 @@
 			(type default)
 		)
 		(uuid "fb49a4a3-96d5-4ca2-8ce0-4307573b75b5")
+	)
+	(wire
+		(pts
+			(xy 166.37 96.52) (xy 181.61 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd6df5df-0fd1-4eab-930a-9b29033c7e6d")
 	)
 	(bus
 		(pts
@@ -12599,7 +12615,7 @@
 		(uuid "25143456-b8a8-436a-bbde-8eb191cbce59")
 	)
 	(label "DB''12"
-		(at 160.655 90.17 0)
+		(at 160.02 90.17 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -13708,17 +13724,6 @@
 			(justify left bottom)
 		)
 		(uuid "a0427492-d0df-4c4c-9129-d67656671751")
-	)
-	(label "DB''12"
-		(at 176.53 101.6 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a1832ab2-b05e-44b8-9c2d-e4d62583f814")
 	)
 	(label "DB7"
 		(at 57.15 140.97 0)
@@ -15564,14 +15569,16 @@
 	(symbol
 		(lib_id "74xx:74LS32")
 		(at 189.23 99.06 0)
+		(mirror x)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "37956db1-33a8-40e9-b779-43d4a84e3407")
 		(property "Reference" "D_E2"
-			(at 189.23 93.98 0)
+			(at 189.23 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15579,7 +15586,7 @@
 			)
 		)
 		(property "Value" "74LS32"
-			(at 189.23 104.14 0)
+			(at 189.23 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17080,6 +17087,7 @@
 		(lib_id "jt74:74LS32")
 		(at 189.23 87.63 0)
 		(unit 4)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -18522,6 +18530,7 @@
 		(lib_id "74xx:74LS32")
 		(at 148.59 63.5 0)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -18626,6 +18635,7 @@
 		(lib_id "74xx:74LS32")
 		(at 107.95 66.04 0)
 		(unit 2)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -18730,6 +18740,7 @@
 		(lib_id "74xx:74LS32")
 		(at 148.59 85.09 0)
 		(unit 3)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)

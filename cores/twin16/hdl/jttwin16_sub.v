@@ -24,7 +24,7 @@ module jttwin16_sub(
     input                tim,
     output reg           mint,
 
-    input                sub_intn,
+    input                sint,
     output        [17:1] ram_addr,
     input         [15:0] ram_dout,
     input                ram_ok,
@@ -43,14 +43,15 @@ module jttwin16_sub(
     input         [15:0] mo_dout,   // objects
     output        [ 1:0] va_we,
     output        [ 1:0] vb_we,
-    output        [ 1:0] obj_we,
+    output        [ 1:0] oram_we,
 
     // scroll tile RAMs
     output        [ 1:0] stile_we,
     input         [15:0] stile_dout,
     // video ROM checks
-    output reg           chapage,
-    input         [31:0] obj_data,
+    output reg           obj_cs,
+    output        [20:1] obj_addr,
+    input         [15:0] obj_data,
     input                obj_ok,
 
     output        [18:1] rom_addr,
@@ -62,36 +63,37 @@ module jttwin16_sub(
 );
 `ifndef NOMAIN
 reg  [15:0] cpu_din;
+wire [15:0] vdout;
 wire [23:1] A;
 wire [ 1:0] dws;
-wire        cpu_cen, cpu_cenb, pre_dtackn, vb_intn, sintn;
+wire        cpu_cen, cpu_cenb, pre_dtackn;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-wire        bus_cs, bus_busy, BUSn;
+wire        bus_cs, bus_busy, BUSn, ab_sel;
 reg  [ 1:0] rom_part;
 reg         sh_cs, vram_cs, oram_cs, sys_cs, stram_cs,
-            sint_enb, otram_cs, otrom_cs;
+            sint_en, otram_cs, chapage;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
 
 assign cpu_addr = A[17:1];
-assign VPAn     = ~( A[23] & ~ASn );
+assign obj_addr = { A[20], A[20] ? chapage : A[19], A[18:1] };
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = {vb_intn & sintn, vb_intn, ~(vb_intn & ~sintn)};
 assign dws      = ~({2{RnW}} | {UDSn, LDSn});
-assign ram_we   = !RnW && ram_cs && {UDSn, LDSn}!=3;
+assign ram_we   = ~RnW;
+assign ab_sel   = ~A[13];
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
-assign obj_we   = dws & {2{oram_cs}};
+assign oram_we  = dws & {2{oram_cs}};
 assign stile_we = dws & {2{stram_cs}};
 assign sh_we    = dws & {2{sh_cs}};
-assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
 assign rom_addr[16: 1] = A[16:1];
 assign rom_addr[18:17] = rom_part;
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) | (otrom_cs & ~obj_ok);
+assign bus_cs   =  rom_cs            |  ram_cs            |  obj_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok) | (obj_cs & ~obj_ok);
+assign BUSn     = ASn | (LDSn & UDSn);
 // Object Tile RAM is mapped at the bottom
 // so the lyro SDRAM slot has access to it
 // SPA0~SPA14 => SUB's A[2:16], A[1] selects upper/lower 16-bit word
@@ -102,7 +104,7 @@ always @* begin
     oram_cs  = 0;
     stram_cs = 0;
     otram_cs = 0;
-    otrom_cs = 0;
+    obj_cs   = 0;
     rom_cs   = 0;
     ram_cs   = 0;
     sh_cs    = 0;
@@ -112,7 +114,7 @@ always @* begin
     if(!ASn && !A[22]) case( A[19:17] )
         0,1: rom_cs = 1;
         2: sh_cs = 1;
-        3: ram_cs = 1;
+        3: ram_cs = !BUSn;
         4: begin rom_cs=1; rom_part=2'b10; end
         5: sys_cs = 1;
         default:;
@@ -122,9 +124,9 @@ always @* begin
     if(!ASn && A[23:22]==2'b01) case( A[21:19] )
         0: oram_cs  = 1;
         1: vram_cs  = 1;
-        2: stram_cs = 1;
-        4,5,6: otrom_cs = 1;
-        7: otram_cs = 1;
+        2: stram_cs = 1;    // shown as "zip" RAM in tests
+        4,5,6: obj_cs = 1;
+        7: {otram_cs,ram_cs} = {1'b1,!BUSn};
         default:;
     endcase
 end
@@ -133,38 +135,56 @@ always @(posedge clk) begin
     cpu_din <= rom_cs   ? rom_data  :
                ram_cs   ? ram_dout  :
                otram_cs ? ram_dout  :
-               oram_cs  ? mo_dout   :
+               oram_cs  ? vdout     :
+               vram_cs  ? vdout     :
                sh_cs    ? sh_dout   :
                stram_cs ? stile_dout:
-               vram_cs  ? (A[13] ? mb_dout : ma_dout ) :
-               otrom_cs ? ( A[1] ? obj_data[31:16] : obj_data[15:0] ) :
+               obj_cs   ? obj_data  :
                16'h0;
 end
 
 always @(posedge clk) begin
     if(rst) begin
-        sint_enb <= 0;
-        mint     <= 0;
-        chapage  <= 0;
+        sint_en <= 0;
+        mint    <= 0;
+        chapage <= 0;
     end else begin
-        if(sys_cs) {chapage,sint_enb,mint}<=cpu_dout[2:0];
+        if(sys_cs) {chapage,sint_en,mint}<=cpu_dout[2:0];
     end
 end
 
-jtframe_edge #(.QSET(0))u_vbl(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .edgeof     ( ~LVBL     ),
-    .clr        ( ~VPAn     ),
-    .q          ( vb_intn   )
+jttwin16_ints u_ints(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .LVBL   ( LVBL      ),
+    .ASn    ( ASn       ),
+    .A23    ( A[23]     ),
+
+    // request from the other CPU
+    .intn   ( sint      ),
+    .int_en ( sint_en   ),
+
+    .VPAn   ( VPAn      ),
+    .IPLn   ( IPLn      )
 );
 
-jtframe_edge #(.QSET(0))u_subint(
-    .rst        ( rst       ),
+
+jttwin16_dtack u_tim_dtack(
     .clk        ( clk       ),
-    .edgeof     ( sub_intn  ),
-    .clr        ( sint_enb  ),
-    .q          ( sintn     )
+    .ASn        ( ASn       ),
+    .RnW        ( RnW       ),
+    .LDSn       ( LDSn      ),
+    .UDSn       ( UDSn      ),
+    .oram_cs    ( oram_cs   ),
+    .vram_cs    ( vram_cs   ),
+    .tim        ( tim       ),
+    .ab_sel     ( ab_sel    ),
+    .ma_dout    ( ma_dout   ),
+    .mb_dout    ( mb_dout   ),
+    .mo_dout    ( mo_dout   ),
+    .vdout      ( vdout     ),
+    .pre_dtackn ( pre_dtackn),
+    .DTACKn     ( DTACKn    )
 );
 
 jtframe_68kdtack_cen #(.W(5)) u_dtack(

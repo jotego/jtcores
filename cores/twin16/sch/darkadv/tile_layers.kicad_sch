@@ -27864,6 +27864,18 @@
 		)
 		(uuid "c8389f97-7bd0-4d9b-87c7-8cf801aa7aea")
 	)
+	(text "ZIP RAM"
+		(exclude_from_sim no)
+		(at 240.03 40.64 0)
+		(effects
+			(font
+				(size 1.905 1.905)
+				(thickness 0.254)
+				(bold yes)
+			)
+		)
+		(uuid "c8e3ab0a-389e-4290-a973-7bae365889e9")
+	)
 	(text "T"
 		(exclude_from_sim no)
 		(at 102.87 267.97 0)

@@ -14,6 +14,9 @@ clocks:
       outputs:
         - cen_640
         - cen_320
+    - freq: 1536000
+      outputs:
+        - cen_1m5
 audio:
   rsum: 12k
   channels:
@@ -52,6 +55,13 @@ sdram:
           addr_width: 21
           data_width: 32
           offset: GFX_OFFSET
+        # check object: slot for sub CPU to check the tile ROM
+        # it does not include the object tile RAM
+        # note how DW==16
+        - name: chko
+          addr_width: 21
+          data_width: 16
+          offset: GFX_OFFSET
     - buses:
         - name: snd
           addr_width: 15
@@ -74,41 +84,41 @@ sdram:
           data_width: 32
 bram:
   # 8 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL)
+  - name: nvram
+    data_width: 16
+    addr_width: 15
+    din: mram_din
+    rw: true
+    ioctl: { save: true, order: 0 }
   - name: fram
     data_width: 16
     addr_width: 14
     sim_file: true
-    ioctl: { save: true, order: 0 }
     dual_port: { name: main, we: fx_we, rw: true, din: mram_din, dout: mf_dout }
   # 256kB for Scroll Tile Bitmaps
   - name: stram
     data_width: 16
     addr_width: 18
-    ioctl: { save: true, order: 5}
     dual_port: { name: stile, rw: true, din: sram_din, dout: stile_dout }
   # VRAM in schematics is mapped to scra and scrb
   - name: scra
     data_width: 16
     addr_width: 13
     sim_file: true
-    ioctl: { save: true, order: 1 }
     dual_port: { name: vram, we: va_we, rw: true, din: v_din, dout: ma_dout }
   - name: scrb
     data_width: 16
     addr_width: 13
     sim_file: true
-    ioctl: { save: true, order: 2 }
     dual_port: { name: vram, we: vb_we, rw: true, din: v_din, dout: mb_dout }
   - name: oram
     data_width: 16
     addr_width: 14
     rw: true
     sim_file: true
-    ioctl: { save: true, order: 3 }
-    dual_port: { name: osha, we: obj_we, rw: true, din: v_din, dout: mo_dout }
+    dual_port: { name: osha, we: osha_we, rw: true, din: v_din, dout: mo_dout }
   - name: pal
     data_width: 8
     addr_width: 12
     sim_file: true
-    ioctl: { save: true, order: 4 }
     dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "mram_din[7:0]", dout: mp_dout }

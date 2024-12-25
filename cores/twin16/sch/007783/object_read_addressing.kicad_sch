@@ -6367,13 +6367,13 @@
 		(uuid "4219c702-c75e-4619-8740-b4196c6296eb")
 	)
 	(label "~{ORDA4}"
-		(at 316.23 74.93 0)
+		(at 322.58 74.93 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "45b49f9e-52be-4667-9e83-ab03df55237f")
 	)
@@ -6411,13 +6411,13 @@
 		(uuid "534bf9b1-0047-45b8-b666-8e95ed9b1ff2")
 	)
 	(label "~{ORDA6}"
-		(at 316.23 127 0)
+		(at 322.58 127 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "599d0fe9-c380-4834-acbc-4c2082f3299f")
 	)
@@ -6576,13 +6576,13 @@
 		(uuid "9b9a6ae0-9042-42e3-875f-7bc7871e840e")
 	)
 	(label "~{ORDA5}"
-		(at 316.23 97.79 0)
+		(at 322.58 97.79 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9d3294e5-f2e3-4a9c-8088-1c55140e78f7")
 	)
@@ -6730,24 +6730,24 @@
 		(uuid "b3930e33-0221-41b6-bf08-2385aa7f93c4")
 	)
 	(label "~{ORDA3}"
-		(at 316.23 49.53 0)
+		(at 322.58 49.53 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "b7405341-9820-4d61-bcea-4e9e0c0f9e2b")
 	)
 	(label "~{DMA16}'"
-		(at 165.1 50.8 0)
+		(at 172.72 50.8 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "bd7a6dba-4656-4e22-9c0b-110c93474d98")
 	)
@@ -6840,13 +6840,13 @@
 		(uuid "cbe2c625-d97d-435b-9402-50ee50da8d0f")
 	)
 	(label "DMA16'"
-		(at 165.1 59.69 0)
+		(at 172.72 59.69 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "dc10ab6a-15d1-4bcd-81b6-2de004fcb1f4")
 	)
@@ -6928,13 +6928,13 @@
 		(uuid "f8de7d44-34f5-45a8-8a04-1289e5d98307")
 	)
 	(label "~{DMACLR}"
-		(at 185.42 137.16 0)
+		(at 193.04 137.16 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "fb85929b-7b16-4188-9cd7-783d21e4fbe6")
 	)

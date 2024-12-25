@@ -23,8 +23,8 @@ module jttwin16_game(
 /* verilator tracing_on */
 wire [ 7:0] snd_latch;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
-wire        snd_irq, pal_cs, dma_on, dma_bsy, vramcvf, mint, chapage,
-            cpu_rnw, snd_wrn, hflip, vflip, tim, cpu_cen, tim1, tim2, sub_intn;
+wire        snd_irq, pal_cs, dma_on, dma_bsy, vramcvf, mint,
+            cpu_rnw, snd_wrn, hflip, vflip, tim, cpu_cen, tim1, tim2, sint;
 wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] m_dout, s_dout, shs_dout, shm_dout, obj_dx, obj_dy;
 wire [19:1] m_addr;
@@ -77,7 +77,7 @@ end
 jttwin16_share u_share(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen            ( cpu_cen       ),
+    .cen            ( cen_1m5       ),
     .tim1           ( tim1          ),  // main CPU has access to video
     .tim2           ( tim2          ),  // sub CPU does
     // main CPU
@@ -101,7 +101,7 @@ jttwin16_share u_share(
     .osha_addr      ( osha_addr     ),
     .va_we          ( va_we         ),
     .vb_we          ( vb_we         ),
-    .obj_we         ( obj_we        ),
+    .oram_we        ( osha_we       ),
     .v_din          ( v_din         )
 );
 
@@ -113,8 +113,8 @@ jttwin16_main u_main(
 
     .cpu_dout       ( m_dout        ),
     .cpu_cen        ( cpu_cen       ),
-    .sub_intn       ( sub_intn      ),
     .mint           ( mint          ),
+    .sint           ( sint          ),
 
     .main_addr      ( m_addr        ),
     .rom_data       ( main_data     ),
@@ -129,6 +129,10 @@ jttwin16_main u_main(
     // shared RAM
     .sh_we          ( shm_we        ),
     .sh_dout        ( shm_dout      ),
+    // NVRAM
+    .nvram_addr     ( nvram_addr    ),
+    .nvram_dout     ( nvram_dout    ),
+    .nvram_we       ( nvram_we      ),
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
@@ -144,12 +148,12 @@ jttwin16_main u_main(
     .va_we          ( vam_we        ),
     .vb_we          ( vbm_we        ),
     .fx_we          ( fx_we         ),
-    .obj_we         ( om_we         ),
+    .oram_we        ( om_we         ),
     .tim            ( tim1          ),
 
     // To video
     .prio           ( prio          ),
-    .vramcvf         ( vramcvf        ),
+    .vramcvf        ( vramcvf       ),
     .dma_on         ( dma_on        ),
     .dma_bsy        ( dma_bsy       ),
     .pal_we         ( pal_we        ),
@@ -179,9 +183,8 @@ jttwin16_sub u_sub(
     .LVBL           ( LVBL          ),
     .tim            ( tim2          ),
     .mint           ( mint          ),
-    .chapage        ( chapage       ),
+    .sint           ( sint          ),
 
-    .sub_intn       ( sub_intn      ),
     .ram_addr       ( sram_addr     ),
     .ram_dout       ( sram_data     ),
     .ram_ok         ( sram_ok       ),
@@ -200,14 +203,16 @@ jttwin16_sub u_sub(
     .mo_dout        ( mo_dout       ),   // objects
     .va_we          ( vas_we        ),
     .vb_we          ( vbs_we        ),
-    .obj_we         ( os_we         ),
+    .oram_we        ( os_we         ),
 
     // tile RAMs
     .stile_we       ( stile_we      ),
     .stile_dout     ( stile_dout    ),
     // video ROM checks
-    .obj_data       ( lyro_data     ),
-    .obj_ok         ( lyro_ok       ),
+    .obj_addr       ( chko_addr     ),
+    .obj_cs         ( chko_cs       ),
+    .obj_data       ( chko_data     ),
+    .obj_ok         ( chko_ok       ),
 
     .rom_addr       ( sub_addr      ),
     .rom_cs         ( sub_cs        ),
@@ -216,7 +221,7 @@ jttwin16_sub u_sub(
     .dip_pause      ( dip_pause     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),

@@ -17532,6 +17532,16 @@
 		)
 		(uuid "6d294f22-5a18-4931-861d-5433fbee6c99")
 	)
+	(wire
+		(pts
+			(xy 300.99 46.99) (xy 299.72 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6d53ab4d-bb6d-41dc-9938-efecd1219a08")
+	)
 	(bus
 		(pts
 			(xy 261.62 147.32) (xy 261.62 149.86)
@@ -19672,6 +19682,16 @@
 		)
 		(uuid "bb77389c-916d-4bce-9464-e432390bc27d")
 	)
+	(wire
+		(pts
+			(xy 300.99 31.75) (xy 299.72 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bcf99ef8-3825-4e87-8f02-628220769517")
+	)
 	(bus
 		(pts
 			(xy 261.62 85.09) (xy 261.62 87.63)
@@ -20264,7 +20284,7 @@
 	)
 	(wire
 		(pts
-			(xy 311.15 29.21) (xy 299.72 29.21)
+			(xy 300.99 29.21) (xy 299.72 29.21)
 		)
 		(stroke
 			(width 0)
@@ -21713,6 +21733,41 @@
 			(type none)
 		)
 		(uuid b92ebb48-4ce0-48d0-bf77-9b25cd6c8c6f)
+	)
+	(text "called ZIP RAM\nin test screens"
+		(exclude_from_sim no)
+		(at 382.27 45.72 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "153c7b3c-7349-4307-932c-298d3994e6dd")
+	)
+	(text "CPU address\nin bold"
+		(exclude_from_sim no)
+		(at 294.64 52.07 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "264f2735-49ae-4d39-b434-2aa48a77cb31")
+	)
+	(text "$40\n$48\n$50\n$58\n$60\n$68\n$70\n$78"
+		(exclude_from_sim no)
+		(at 286.385 38.1 0)
+		(effects
+			(font
+				(size 1.5748 1.5748)
+				(thickness 0.315)
+				(bold yes)
+			)
+			(justify left)
+		)
+		(uuid "6f79d863-bf0d-48f6-89a5-7ab82a0deee9")
 	)
 	(text "In the original schematics\nDMAINT, MODTACK and DMAINIT are the same"
 		(exclude_from_sim no)
@@ -25102,17 +25157,6 @@
 		)
 		(uuid "f4007662-1c91-4012-abe6-a7852d2ff1bc")
 	)
-	(label "~{SOBJCS}"
-		(at 300.99 29.21 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f4d4b681-732b-458d-87e5-008ca72fec82")
-	)
 	(label "SAB11"
 		(at 323.85 97.79 0)
 		(fields_autoplaced yes)
@@ -25336,7 +25380,7 @@
 	)
 	(hierarchical_label "~{SOBJCS}"
 		(shape output)
-		(at 311.15 29.21 0)
+		(at 300.99 29.21 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -25396,7 +25440,7 @@
 	)
 	(hierarchical_label "~{OCHARAMCS}"
 		(shape output)
-		(at 299.72 46.99 0)
+		(at 300.99 46.99 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -25432,7 +25476,7 @@
 	)
 	(hierarchical_label "~{SVRAMCS}"
 		(shape output)
-		(at 299.72 31.75 0)
+		(at 300.99 31.75 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -26726,7 +26770,7 @@
 		(dnp no)
 		(uuid "24926929-2d7d-4bfa-b182-4400065123be")
 		(property "Reference" "A_M4"
-			(at 330.2 52.07 0)
+			(at 330.2 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27947,10 +27991,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "60226275-1f2f-45b6-838b-e441612eb9d2")
 		(property "Reference" "A_G6"
-			(at 353.06 27.94 0)
+			(at 353.06 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32032,7 +32075,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d6d197bc-3a21-43a4-936a-d53076ff686b")
 		(property "Reference" "#PWR0136"
 			(at 326.39 46.99 0)
@@ -32044,7 +32086,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 318.77 46.9899 90)
+			(at 320.04 46.99 90)
 			(effects
 				(font
 					(size 1.27 1.27)

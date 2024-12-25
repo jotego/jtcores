@@ -29,7 +29,7 @@ module jttwin16_main(
     // 8-bit interface
     output               pal_we,
     // sub CPU
-    output reg           sub_intn,
+    output reg           sint,
     // video status
     output reg           rom_cs,
     output reg           ram_cs,
@@ -40,6 +40,10 @@ module jttwin16_main(
     // shared RAM
     output        [ 1:0] sh_we,
     input         [15:0] sh_dout,
+    // NVRAM
+    output        [14:1] nvram_addr,
+    input         [15:0] nvram_dout,
+    output        [ 1:0] nvram_we,
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
     input         [15:0] mb_dout,   // scroll B
@@ -49,7 +53,7 @@ module jttwin16_main(
     output        [ 1:0] va_we,
     output        [ 1:0] vb_we,
     output        [ 1:0] fx_we,
-    output        [ 1:0] obj_we,
+    output        [ 1:0] oram_we,
 
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -83,35 +87,36 @@ wire [ 1:0] dws;
 wire        cpu_cenb, pre_dtackn, cpu_we,
             UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
-            pal_cs, dma_cs, sh_cs, int16enb;
+reg         fix_cs, snd_cs, syswr_cs, io_cs, vram_cs, oram_cs,
+            pal_cs, dma_cs, sh_cs,    nvram_cs, mint_en;
 reg  [15:0] cpu_din;
+wire [15:0] vdout;
 reg  [ 7:0] cab_dout;
+reg  [ 4:0] nvram_ahi;
 reg         LVBLl;
-wire        comm_intn, intn, bus_cs, bus_busy, BUSn;
+wire        bus_cs, bus_busy, BUSn, ab_sel;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign main_addr= A[19:1];
-assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = { intn & comm_intn, intn, ~(intn & ~comm_intn) };
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok);
-assign BUSn     = ASn | (LDSn & UDSn);
-
-assign cpu_we   = ~RnW;
-assign pal_we   = pal_cs & cpu_we & ~LDSn;
-assign VPAn     = ~( A[23] & ~ASn );
-assign dws      = ~({2{RnW}} | {UDSn, LDSn});
-assign ram_we   = !RnW && ram_cs && {UDSn, LDSn}!=3;
-assign sh_we    = dws & {2{sh_cs}};
-assign va_we    = dws & {2{vram_cs & ~A[13]}};
-assign vb_we    = dws & {2{vram_cs &  A[13]}};
-assign fx_we    = dws & {2{fix_cs}};
-assign obj_we   = dws & {2{oram_cs}};
-assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
+assign main_addr  = A[19:1];
+assign nvram_addr = {nvram_ahi,A[9:1]};
+assign ram_dsn    = {UDSn, LDSn};
+assign bus_cs     = rom_cs | ram_cs;
+assign bus_busy   = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok);
+assign BUSn       = ASn | (LDSn & UDSn);
+assign cpu_we     = ~RnW;
+assign ram_we     = ~RnW;
+assign pal_we     = pal_cs & cpu_we & ~LDSn;
+assign dws        = ~({2{RnW}} | {UDSn, LDSn});
+assign sh_we      = dws & {2{sh_cs}};
+assign nvram_we   = dws & {2{nvram_cs&!A[10]}};
+assign ab_sel     = ~A[13];
+assign va_we      = dws & {2{vram_cs & ~A[13]}};
+assign vb_we      = dws & {2{vram_cs &  A[13]}};
+assign fx_we      = dws & {2{fix_cs}};
+assign oram_we    = dws & {2{oram_cs}};
 
 always @* begin
     case( debug_bus[3:0] )
@@ -124,22 +129,23 @@ always @* begin
         8: st_dout = obj_dx[15:8];
         9: st_dout = obj_dy[ 7:0];
        10: st_dout = obj_dy[15:8];
-       11: st_dout = { dma_on, 2'd0, int16enb, 2'd0, prio[1:0] };
+       11: st_dout = { dma_on, 2'd0, mint_en, 2'd0, prio[1:0] };
        default: st_dout = 0;
     endcase
 end
 
 always @* begin
-    sh_cs    = 0;
     rom_cs   = 0;
     ram_cs   = 0;
+    oram_cs  = 0;
+    vram_cs  = 0;
+    sh_cs    = 0;
+    fix_cs   = 0;
     pal_cs   = 0;
     io_cs    = 0;
     dma_cs   = 0;
     syswr_cs = 0;
-    fix_cs   = 0;
-    vram_cs  = 0;
-    oram_cs  = 0;
+    nvram_cs = 0;
 
     if(!ASn) casez( A[20:17] )
         // decoder 3L
@@ -147,9 +153,12 @@ always @* begin
         4'b0010: sh_cs  = 1;
         4'b0011: ram_cs = !BUSn;
         4'b0100: pal_cs = 1;
-        4'b0101: io_cs  = 1;     // A'0000~
+        4'b0101: begin
+            io_cs    =!A[16];     // A'0000~A'001F
+            nvram_cs = A[16]; // B'0000~
+        end
         4'b0110: begin // sysflag
-            dma_cs   = RnW;
+            dma_cs   =  RnW;
             syswr_cs = !RnW;
         end
         // decoder 3N
@@ -161,32 +170,50 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs  ? rom_data  :
-               ram_cs  ? ram_dout  :
-               oram_cs ? mo_dout   :
-               sh_cs   ? sh_dout   :
-               fix_cs  ? mf_dout   :
-               pal_cs  ? {  8'd0, mp_dout  } :
-               io_cs   ? {  8'd0, cab_dout } :
-               dma_cs  ? { 15'd0, dma_bsy  } :
-               vram_cs ? (A[13] ? mb_dout : ma_dout ) :
+    cpu_din <= rom_cs   ? rom_data   :
+               ram_cs   ? ram_dout   :
+               oram_cs  ? vdout      :
+               vram_cs  ? vdout      :
+               sh_cs    ? sh_dout    :
+               fix_cs   ? mf_dout    :
+               nvram_cs ? nvram_dout :
+               pal_cs   ? {  8'd0, mp_dout  } :
+               io_cs    ? {  8'd0, cab_dout } :
+               dma_cs   ? { 15'd0, dma_bsy  } :
                16'h0;
 end
 
-jtframe_edge #(.QSET(0))u_vbl(
-    .rst        ( rst       ),
+jttwin16_dtack u_tim_dtack(
     .clk        ( clk       ),
-    .edgeof     ( ~LVBL     ),
-    .clr        ( VPAn      ),
-    .q          ( intn      )
+    .ASn        ( ASn       ),
+    .RnW        ( RnW       ),
+    .LDSn       ( LDSn      ),
+    .UDSn       ( UDSn      ),
+    .oram_cs    ( oram_cs   ),
+    .vram_cs    ( vram_cs   ),
+    .tim        ( tim       ),
+    .ab_sel     ( ab_sel    ),
+    .ma_dout    ( ma_dout   ),
+    .mb_dout    ( mb_dout   ),
+    .mo_dout    ( mo_dout   ),
+    .vdout      ( vdout     ),
+    .pre_dtackn ( pre_dtackn),
+    .DTACKn     ( DTACKn    )
 );
 
-jtframe_edge #(.QSET(0))u_mainint(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .edgeof     ( mint      ),
-    .clr        ( ~int16enb ),
-    .q          ( comm_intn )
+jttwin16_ints u_ints(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .LVBL   ( LVBL      ),
+    .ASn    ( ASn       ),
+    .A23    ( A[23]     ),
+
+    // request from the other CPU
+    .intn   ( mint      ),
+    .int_en ( mint_en   ),
+
+    .VPAn   ( VPAn      ),
+    .IPLn   ( IPLn      )
 );
 
 always @(posedge clk) begin
@@ -213,12 +240,13 @@ always @(posedge clk) begin
         vflip    <= 0;
         obj_dx   <= 0;
         obj_dy   <= 0;
-        int16enb  <= 0;
+        mint_en  <= 0;
         sndon    <= 0;
         dma_on   <= 0;
-        vramcvf   <= 0;
-        sub_intn <= 1;
+        vramcvf  <= 0;
+        sint     <= 1;
     end else begin
+        if( nvram_cs && A[10] ) nvram_ahi <= cpu_dout[12:8];
         if( syswr_cs )
             // this register is partly implemented on 007779 and
             // partly on discrete standard logic
@@ -232,10 +260,11 @@ always @(posedge clk) begin
                 6: scrb_y <= cpu_dout[ 8:0];
                 default:;
             endcase
-        if( io_cs && !A[16] ) begin
+        if( io_cs ) begin
             case( {RnW, A[4:3]} )
-                0: {dma_on, int16enb, sub_intn, sndon} <= cpu_dout[6:3];
+                0: {dma_on, mint_en, sint, sndon} <= cpu_dout[6:3];
                 1: snd_latch <= cpu_dout[7:0];
+                //2: watchdog
                 default:;
             endcase
         end
@@ -337,6 +366,6 @@ jtframe_m68k u_cpu(
         va_we     = 0,
         vb_we     = 0,
         fx_we     = 0,
-        obj_we    = 0;
+        oram_we   = 0;
 `endif
 endmodule
