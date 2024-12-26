@@ -35,7 +35,7 @@ var memCmd = &cobra.Command{
 		var e error
 		mem_args.Core, e = get_corename(args)
 		must(e)
-		mem.Run(mem_args)
+		must(mem.Run(mem_args))
 	},
 	Args: cobra.MaximumNArgs(1),
 }

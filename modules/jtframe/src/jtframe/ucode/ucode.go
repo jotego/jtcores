@@ -643,7 +643,7 @@ func dump_ucode(fname string, params []UcParam, code []string) {
 	}
 }
 
-func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcParam, chunks []UcChunk) {
+func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcParam, chunks []UcChunk) (e error){
 	context := struct {
 		Dw, Aw int
 		EntryLen int
@@ -684,14 +684,16 @@ func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcPar
 	}
 
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "ucode", "ucode.vh")
-	t := template.Must(template.New("ucode.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t, e := template.New("ucode.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, context)
-	// Dump the file
-	os.WriteFile(fname+".vh", buffer.Bytes(), 0644)
+	e = t.Execute(&buffer, context)
+	// Dump the file (even if there was an error)
+	e2 := os.WriteFile(fname+".vh", buffer.Bytes(), 0644)
+	if e2!=nil { return e2 } else { return e }
 }
 
-func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks []UcChunk) {
+func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks []UcChunk) (e error){
 	context := struct {
 		// values for bus signals
 		Dw, Aw int
@@ -711,11 +713,13 @@ func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks
 	}
 	// execute the template
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "ucode", "ucparam.vh")
-	t := template.Must(template.New("ucparam.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t, e := template.New("ucparam.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e!=nil { return e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, context)
 	// Dump the file
 	os.WriteFile(fname+"_param.vh", buffer.Bytes(), 0644)
+	return nil
 }
 
 func check_mnemos(desc *UcDesc, verbose bool) {
@@ -898,13 +902,12 @@ func read_yaml( fpath string ) UcDesc {
 	return desc
 }
 
-func Make(modname, fname string) {
+func Make(modname, fname string) (e error) {
 	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
 	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
 	desc := read_yaml(fpath)
 	if desc.Cfg.Entries <= 0 || desc.Cfg.EntryLen <= 0 {
-		fmt.Println("Set non-zero values for entry_len and entries in the config section")
-		os.Exit(1)
+		return fmt.Errorf("Set non-zero values for entry_len and entries in the config section")
 	}
 	// global variables used for regular expressions
 	reVars = regexp.MustCompile(`\${([a-zA-Z][a-zA-Z0-9_]*?)}`)
@@ -926,11 +929,14 @@ func Make(modname, fname string) {
 		dump_gtkwave(params)
 	}
 	dump_ucode(Args.Output, params, code)
-	dump_ucrom_vh(Args.Output, desc.Cfg.Latch, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
-	dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
+	e = dump_ucrom_vh(Args.Output, desc.Cfg.Latch, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
+	if e != nil { return e}
+	e = dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
+	if e != nil { return e}
 	if bad != 0 && !Args.Report {
 		fname = strings.TrimSuffix(fname, ".yaml")
 		fmt.Printf("Warning: %d instructions are not cycle-accurate in %s/%s\n",bad,modname,fname)
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
 	}
+	return nil
 }

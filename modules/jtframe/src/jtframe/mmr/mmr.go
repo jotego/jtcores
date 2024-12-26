@@ -40,35 +40,23 @@ type MMRdef struct {
 	Seq []int
 }
 
-func convert( corename, hdl_path string, cfg MMRdef ) {
+func convert( corename, hdl_path string, cfg MMRdef ) (e error) {
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "mmr.v")
-	t := template.Must(template.New("mmr.v").Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t,e := template.New("mmr.v").Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e!=nil { return e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
 	fname := fmt.Sprintf("%s.v",cfg.Module)
 	outpath := filepath.Join(hdl_path,fname)
-	e := os.WriteFile(outpath, buffer.Bytes(), 0644)
-	if e!=nil {
-		fmt.Println("Error:",e)
-	}
+	return os.WriteFile(outpath, buffer.Bytes(), 0644)
 }
 
-func Generate( corename string, verbose bool ) {
+func Generate( corename string, verbose bool ) (e error) {
 	fname := filepath.Join(os.Getenv("CORES"),corename,"cfg","mmr.yaml")
-	buf, e := os.ReadFile(fname)
-	if e != nil {
-		if verbose {
-			fmt.Println("Cannot open", fname)
-		}
-		return
-	}
+	buf, e := os.ReadFile(fname); if e != nil { return e }
 	var cfg []MMRdef
-	e = yaml.Unmarshal( buf, &cfg )
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	e = yaml.Unmarshal( buf, &cfg ); if e != nil { return e }
 	sanity_check(cfg)
 	hdl_path := filepath.Join(os.Getenv("CORES"), corename, "hdl")
 	for k, _ := range cfg {
@@ -125,13 +113,13 @@ func Generate( corename string, verbose bool ) {
 					continue
 				}
 				// Cannot parse it
-				fmt.Printf("Error: jtframe mmr cannot parse location %s\n",ss[m])
-				os.Exit(1)
+				return fmt.Errorf("Error: jtframe mmr cannot parse location %s\n",ss[m])
 
 			}
 		}
-		convert(corename,hdl_path,cfg[k])
+		e = convert(corename,hdl_path,cfg[k]); if e!= nil { return e }
 	}
+	return nil
 }
 
 func sanity_check( cfg []MMRdef ) {

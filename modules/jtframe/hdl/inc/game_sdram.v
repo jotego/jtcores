@@ -290,8 +290,7 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
-{{ $holded := false }}
-{{ $holded_slot := false }}
+{{ $assign_holdrst := true }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
@@ -316,6 +315,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 `endif
 {{- $is_rom := eq .MemType "rom" }}
 ) u_bank{{$bank}}(
+{{- $holdrst_placed := false }}
     .rst         ( rst        ),
     .clk         ( clk        ),
     {{ range $index2, $each:=.Buses }}{{if .Addr}}
@@ -325,9 +325,10 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}
-    {{- if .Rw }}{{ if not $holded_slot }}
-    .hold_rst    ( hold_rst        ), {{ $holded = true }}{{else if not $holded_slot}}
-    .hold_rst    (            ),{{end}}{{ $holded_slot = true }}
+    {{- if .Rw }}{{ if not $holdrst_placed }}
+    .hold_rst    ( {{if not .Dont_erase}} hold_rst
+        {{- $holdrst_placed = true  }}
+        {{- $assign_holdrst = false }} {{end}} ),{{end}}
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
@@ -357,7 +358,7 @@ assign ba_wr[{{$bank}}] = 0;
 assign ba{{$bank}}_din  = 0;
 assign ba{{$bank}}_dsn  = 3;
 {{- end}}{{- end }}{{end}}
-{{ if not $holded }}assign hold_rst=0;{{end}}
+{{ if $assign_holdrst }}assign hold_rst=0;{{end}}
 {{ range $index, $each:=.Unused }}
 {{- with . -}}
 assign ba{{$index}}_addr = 0;

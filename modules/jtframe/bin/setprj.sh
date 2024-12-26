@@ -44,22 +44,18 @@ function cdrls {
     cd $JTROOT/release
 }
 
-# returns the current working directory with the core name
-# changed by its argument. Use it to refer to the equivalent current folder
-# in a different core
-function incore {
-    IFS=/ read -ra string <<< $(pwd)
-    local j="/"
-    local next=0
-    for i in ${string[@]};do
-        if [ $next = 0 ]; then
-            j=${j}${i}/
-        else
-            next=0
-            j=${j}$1/
-        fi
-    done
-    echo $j
+function lint {
+    local CORENAME=$1
+    if [ -z "$CORENAME" ]; then
+        # derive the default core name from the path
+        CORENAME=$(realpath . --relative-to=$CORES)
+        CORENAME=${CORENAME%%/*}
+    fi
+    if [ ! -d "$CORES/$CORENAME" ]; then
+        echo "Use a valid core name or run it from inside the core folder"
+        return 1
+    fi
+    lint-one.sh $CORENAME -u JTFRAME_SKIP
 }
 
 function swcore {
@@ -118,12 +114,6 @@ function __git_subdir {
     echo ${PWD##${JTROOT}/}
 }
 PS1='[$(__git_subdir)$(__git_ps1 " (%s)")]\$ '
-
-function jtpull {
-    cd $JTFRAME
-    git pull
-    cd -
-}
 
 # Displays all available macros
 # The argument is used to filter the output
@@ -184,16 +174,6 @@ function gw {
     else
         echo "No test.lxt, test.fst, test.vcd in the current folder"
     fi
-}
-
-# generates a list of valid core names based on the existance of the TOML file
-function get_cores {
-    find "$CORES" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
-      if [ -e "$dir/cfg/mame2mra.toml" ]; then
-        dir=$(basename "$dir")
-        echo -n "$dir "
-      fi
-    done
 }
 
 # set default jtframe target by calling the command-line target function

@@ -64,7 +64,7 @@ func parse_args(cfg *jtdef.Config, args []string, extra_def, extra_undef string)
 	return
 }
 
-func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string) {
+func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string, e error) {
 	jtframe_path := os.Getenv("JTFRAME")
 	if jtframe_path == "" {
 		log.Fatal("Environment variable JTFRAME must be set")
@@ -76,13 +76,13 @@ func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string) {
 			tfolder = "mist"
 		}
 		if cfg.Target == "pocket" { // Pocket doesn't have a config string
-			return ""
+			return "",nil
 		}
 		tpath = jtframe_path + "/target/" + tfolder + "/cfgstr"
 	} else {
 		tpath = cfg.Template
 	}
-	t := template.Must(template.ParseFiles(tpath))
+	t, e := template.ParseFiles(tpath); if e!=nil { return "",e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, def)
 	cfgstr = buffer.String()
@@ -96,7 +96,7 @@ func make_cfgstr(cfg jtdef.Config, def map[string]string) (cfgstr string) {
 	for len(cfgstr) > 0 && cfgstr[len(cfgstr)-1] == ';' {
 		cfgstr = cfgstr[0 : len(cfgstr)-1]
 	}
-	return
+	return cfgstr,nil
 }
 
 func dump_cfgstr(cfgstr string) {
@@ -217,7 +217,7 @@ func dump_parameter(def map[string]string, fmtstr string) {
 	}
 }
 
-func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
+func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) (e error){
 	parse_args(&cfg, args, extra_def, extra_undef)
 	def := jtdef.Make_macros(cfg)
 	if !jtdef.Check_macros(def, cfg.Target) {
@@ -227,7 +227,7 @@ func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
 	case "cfgstr":
 		{
 			// Make the config string
-			cfgstr := make_cfgstr(cfg, def)
+			cfgstr, e := make_cfgstr(cfg, def); if e!=nil { return e }
 			dump_cfgstr(cfgstr)
 			// show the config string
 			if cfg.Verbose {
@@ -254,8 +254,8 @@ func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) {
 		dump_verilog(def, "-define %s=%s", true) // escape quotes
 	default:
 		{
-			fmt.Printf("cfgstr: requested invalid output '%s'\n", cfg.Output)
-			os.Exit(1)
+			return fmt.Errorf("cfgstr: requested invalid output '%s'\n", cfg.Output)
 		}
 	}
+	return nil
 }

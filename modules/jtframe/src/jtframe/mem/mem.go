@@ -176,22 +176,24 @@ func parse_file(core, filename string, cfg *MemConfig, args Args) bool {
 	return true
 }
 
-func make_sdram( finder path_finder, cfg *MemConfig) {
+func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
-	t := template.Must(template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t, e := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e!=nil { return e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
 	outpath := finder.get_path("_game_sdram.v", true)
 	ioutil.WriteFile(outpath, buffer.Bytes(), 0644)
+	return nil
 }
 
-func add_game_ports(args Args, cfg *MemConfig) {
+func add_game_ports(args Args, cfg *MemConfig) (e error){
 	make_inc := false
 	found := false
 
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
-	t := template.Must(template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t,e := template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	outpath := "jt" + args.Core + "_game.v"
@@ -242,6 +244,7 @@ func add_game_ports(args Args, cfg *MemConfig) {
 	if !found && !make_inc {
 		log.Println("jtframe mem: the game file was not updated. jtframe_mem_ports line not found. Declare /* jtframe_mem_ports */ right before the end of the port list in the game module or include mem_ports.inc in the port list.")
 	}
+	return nil
 }
 
 func check_bram( macros map[string]string, cfg *MemConfig ) error {
@@ -580,24 +583,21 @@ func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	return dump_size
 }
 
-func make_dump2bin( args Args, cfg *MemConfig ) {
+func make_dump2bin( args Args, cfg *MemConfig ) (e error) {
 	if len( cfg.Ioctl.Buses )==0 { return }
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
-	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath))
+	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	// Dump the file
 	outpath := filepath.Join(os.Getenv("CORES"), args.Core, "ver","game" )
 	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
 	outpath = filepath.Join( outpath, "dump2bin.sh" )
-	e := ioutil.WriteFile(outpath, buffer.Bytes(), 0755)
-	if e!=nil {
-		fmt.Println(e)
-	} else {
-		if args.Verbose {
-			fmt.Printf("%s created\n",outpath)
-		}
+	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755); if e!=nil { return e }
+	if args.Verbose {
+		fmt.Printf("%s created\n",outpath)
 	}
+	return nil
 }
 
 func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
@@ -662,17 +662,7 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
 }
 
-func report_exit( ee ...error ) {
-	exit := false
-	for _, e := range ee {
-		if e == nil {  continue }
-		exit = true
-		fmt.Println(e)
-	}
-	if exit { os.Exit(1) }
-}
-
-func Run(args Args) {
+func Run(args Args) (e error) {
 	var cfg MemConfig
 	if !parse_file(args.Core, "mem", &cfg, args) {
 		// the mem.yaml file does not exist, that's
@@ -682,9 +672,8 @@ func Run(args Args) {
 	macros := def.Get_Macros( args.Core, args.Target )
 	bankOffset( &cfg, macros, args.Core )
 	// Checks
-	e_banks := check_banks( macros, &cfg )
-	e_bram := check_bram( macros, &cfg )
-	report_exit( e_banks, e_bram )
+	if e = check_banks( macros, &cfg ); e!=nil { return e }
+	if e = check_bram ( macros, &cfg ); e!=nil { return e }
 	// Data arrangement
 	fill_implicit_ports( macros, &cfg, args.Verbose )
 	make_ioctl( macros, &cfg, args.Verbose )
@@ -695,9 +684,10 @@ func Run(args Args) {
 	make_audio( macros, &cfg, args.Core, args.get_path("",false) )
 	// Execute the template
 	cfg.Core = args.Core
-	make_sdram(args, &cfg)
-	add_game_ports(args, &cfg)
-	make_dump2bin(args, &cfg )
+	e = make_sdram(args, &cfg);     if e!=nil { return e }
+	e = add_game_ports(args, &cfg); if e!=nil { return e }
+	e = make_dump2bin(args, &cfg ); if e!=nil { return e }
+	return nil
 }
 
 func bankOffset( cfg *MemConfig, macros map[string]string, corename string) {

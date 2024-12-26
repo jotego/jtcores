@@ -30,14 +30,16 @@ var extra_def, extra_undef string
 
 // cfgstrCmd represents the cfgstr command
 var cfgstrCmd = &cobra.Command{
-	Use:   "cfgstr <core-name>",
+	Use:   "cfgstr [core-name]",
 	Short: `Parses the macros.def file in the cfg folder`,
 	Long: common.Doc2string("jtframe-cfgstr.md"),
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg.Core = args[0]
-		cfgstr.Run(cfg, args, extra_def, extra_undef)
+		var e error
+		cfg.Core, e = get_corename(args)
+		must(e)
+		must(cfgstr.Run(cfg, args, extra_def, extra_undef))
 	},
-	Args: cobra.MinimumNArgs(1),
+	Args: cobra.MaximumNArgs(1),
 }
 
 func init() {

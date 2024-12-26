@@ -9,9 +9,8 @@ import (
 // Creates a hex file to be used in
 // verilog and the accompanying verilog file
 // to read it
-func (this *LnFile) DumpHex(ss vcdData, fname string) {
-	f, err := os.Create(fname + ".bin")
-	must(err)
+func (this *LnFile) DumpHex(ss vcdData, fname string) (e error) {
+	f, e := os.Create(fname + ".bin"); if e!=nil { return e }
 	lines := 0
 	tbw := 64
 	outputs := make([]*VCDSignal, len(ss))
@@ -71,11 +70,11 @@ endmodule
 		Lines:   lines,
 		Outputs: outputs,
 	}
-	f, err = os.Create(fname + ".v")
-	must(err)
+	f, e = os.Create(fname + ".v")
 	defer f.Close()
-	to := template.Must(template.New(fname).Parse(t))
-	to.Execute(f, info)
+	if e!=nil { return e }
+	to, e := template.New(fname).Parse(t); if e!=nil { return e }
+	return to.Execute(f, info)
 }
 
 func must(e error) {
