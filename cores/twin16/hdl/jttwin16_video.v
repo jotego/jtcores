@@ -59,7 +59,7 @@ module jttwin16_video(
     input      [15:0] stram_dout,
     // Tile ROMs
     output     [13:2] lyrf_addr,
-    output     [20:2] lyro_addr,
+    output     [21:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyro_cs,
@@ -81,7 +81,7 @@ module jttwin16_video(
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output     [ 7:0] st_dout
+    output reg [ 7:0] st_dout
 );
 
 localparam [8:0] HB_OFFSET=0;
@@ -117,15 +117,23 @@ endfunction
 assign fsorted     = sort( lyrf_data ),
        asorted     = scr_sort( lyra_data ),
        bsorted     = scr_sort( lyrb_data ),
-       osorted     = scr_sort( lyro_data ),
-       st_dout     = 0;
+       osorted     = scr_sort( lyro_data );
 
 assign vdump_scr = vflip ? 9'h1-vdump : vdump ^ 9'h100;
 assign hdump_off = hflip ? 9'h198-hdump : hdump-9'h60;
-assign lyro_cs   = vramcvf | preo_cs;  // SCRA access used for ROM reading
+assign lyro_cs   = preo_cs;  // SCRA access used for ROM reading
 
 always @(posedge clk) begin
     flip <= hflip & vflip;
+end
+
+always @(posedge clk) begin
+    case(debug_bus[5:4])
+        0: st_dout <= obj_dx[ 7:0];
+        1: st_dout <= obj_dx[15:8];
+        2: st_dout <= obj_dy[ 7:0];
+        3: st_dout <= obj_dy[15:8];
+    endcase
 end
 // functionality done by 007782
 // measured on PCB
@@ -192,6 +200,7 @@ jtframe_tilemap #(
 jttwin16_tile u_tile(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .vramcvf    ( vramcvf       ),
     .lyra_addr  ( lyra_addr     ),
     .lyrb_addr  ( lyrb_addr     ),
     .stram_addr ( stram_addr    ),
@@ -212,7 +221,7 @@ jtframe_scroll #(
     .hs         ( hs        ),
 
     .vdump      ( vdump_scr ),
-    .hdump      ( hdump_off  ),
+    .hdump      ( hdump_off ),
     .blankn     ( gfx_en[1] ),
     .flip       ( 1'b0      ),
     .scrx       ( scra_x    ),
@@ -277,7 +286,7 @@ jttwin16_obj u_obj(
     .hs         ( hs        ),
     .vs         ( vs        ),
 
-    .vdump      ( vdump     ),
+    .vdump      ( vdump^{1'b0,{8{vflip}}} ),
     .hdump      ( hdump     ),
     .obj_dx     ( obj_dx    ),
     .obj_dy     ( obj_dy    ),
@@ -300,7 +309,7 @@ jttwin16_obj u_obj(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

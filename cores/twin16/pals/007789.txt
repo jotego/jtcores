@@ -1,0 +1,41 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
+
+Outputs:
+
+14 (Registered, Output feedback registered, Active low)
+15 (Combinatorial, Output feedback output, Active low)
+16 (Combinatorial, Output feedback output, Active high)
+20 (Combinatorial, Output feedback output, Active high)
+21 (Combinatorial, Output feedback output, Active low)
+22 (Registered, Output feedback registered, Active low)
+23 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/o15 = OCD0 & OCD1 & OCD2 & OCD3 +
+       /OCD0 & /OCD1 & /OCD2 & /OCD3
+
+o16 = OCD0 & OCD1 & OCD2 & OCD3
+
+SELA = FX +
+      PI0 & /PI1 & 1C +
+      /PI1 & OCD0 & OCD1 & OCD2 & OCD3 & 1C +
+      /PI1 & /OCD0 & /OCD1 & /OCD2 & /OCD3 & 1C +
+      PI1 & /2C0 & OCD0 & OCD1 & OCD2 & OCD3 & /2C1 & /2C2 & /2C3 +
+      PI1 & /2C0 & /OCD0 & /OCD1 & /OCD2 & /OCD3 & /2C1 & /2C2 & /2C3
+
+/SELB = /FX &  OCD0 &  OCD1 &  OCD2 &  OCD3 +
+        /FX & /OCD0 & /OCD1 & /OCD2 & /OCD3 +
+        /FX & /PI1 & PI0 & 1C +
+        /FX &  PI1 & PI0 & 2C6 & 2C0 +
+        /FX &  PI1 & PI0 & 2C6 & 2C1 +
+        /FX &  PI1 & PI0 & 2C6 & 2C2 +
+        /FX &  PI1 & PI0 & 2C6 & 2C3
+
+/SHADOW = /FX & /PI1 & OCD0 & OCD1 & OCD2 & OCD3 +
+       /FX & /PI0 & OCD0 & OCD1 & OCD2 & OCD3 & /1C +
+       /FX & PI0 & OCD0 & OCD1 & OCD2 & OCD3 & /2C6 +
+       /FX & PI0 & /2C0 & OCD0 & OCD1 & OCD2 & OCD3 & /2C1 & /2C2 & /2C3
+

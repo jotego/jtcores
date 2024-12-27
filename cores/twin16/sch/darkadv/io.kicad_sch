@@ -20829,7 +20829,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "762836de-1b04-4c5c-a005-0c406d66e440")
-		(property "Reference" "A_U5"
+		(property "Reference" "A_T5"
 			(at 171.45 163.83 0)
 			(effects
 				(font
@@ -20929,7 +20929,7 @@
 		(instances
 			(project "darkadv"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/65580de9-e284-4f2d-b477-dff28aa48a7b"
-					(reference "A_U5")
+					(reference "A_T5")
 					(unit 1)
 				)
 			)

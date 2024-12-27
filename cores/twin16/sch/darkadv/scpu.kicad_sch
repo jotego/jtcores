@@ -25512,7 +25512,7 @@
 	)
 	(hierarchical_label "VBLANK"
 		(shape input)
-		(at 52.07 74.93 180)
+		(at 52.07 99.06 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -25560,7 +25560,7 @@
 	)
 	(hierarchical_label "~{SINT}"
 		(shape input)
-		(at 52.07 99.06 180)
+		(at 52.07 74.93 180)
 		(fields_autoplaced yes)
 		(effects
 			(font

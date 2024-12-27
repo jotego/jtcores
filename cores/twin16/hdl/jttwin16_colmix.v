@@ -52,11 +52,13 @@ reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 reg         shad;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
+wire        shadow_pen, trans_pen;
 
 assign      lyrf_blnk_n = gfx_en[0] & |lyrf_pxl[3:0];
 assign      lyra_blnk_n = gfx_en[1] & |lyra_pxl[3:0];
 assign      lyrb_blnk_n = gfx_en[2] & |lyrb_pxl[3:0];
-// assign      lyro_blnk_n = gfx_en[3] & |lyro_pxl[3:0];
+assign      shadow_pen  = gfx_en[3] && &lyro_pxl[3:0];
+assign      trans_pen   =!gfx_en[3] || lyro_pxl[3:0]==0;
 
 
 assign pal_addr  = { 1'b0, pxl, pal_half };
@@ -72,12 +74,12 @@ always @* begin
 end
 
 function [23:0] dim( input [14:0] cin, input shade );
-    dim = !shade? {   1'b0, cin[14:10], cin[14:13],
-                      1'b0, cin[ 9: 5], cin[ 9: 8],
-                      1'b0, cin[ 4: 0], cin[ 4: 3] } :
-                 { cin[14:10], cin[14:12],
-                   cin[ 9: 5], cin[ 9: 7],
-                   cin[ 4: 0], cin[ 4: 2] };
+    dim = !shade? { 1'b0, cin[14:10], cin[14:13],
+                    1'b0, cin[ 9: 5], cin[ 9: 8],
+                    1'b0, cin[ 4: 0], cin[ 4: 3] } :
+                  { cin[14:10], cin[14:12],
+                    cin[ 9: 5], cin[ 9: 7],
+                    cin[ 4: 0], cin[ 4: 2] };
 endfunction
 
 always @(posedge clk) begin
@@ -101,23 +103,23 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    shad = (!lyra_blnk_n && &lyro_pxl[3:0]) && (
+    shad = !((!lyrf_blnk_n && shadow_pen) && (
            (!prio[1]                 ) ||
-           (!prio[0] && !lyrf_blnk_n ) ||
+           (!prio[0] && !lyra_blnk_n ) ||
            ( prio[0] && !lyrb_pxl[6] ) ||
-           ( prio[0] && !lyrb_blnk_n ));
-    lyr_sel[0] = lyra_blnk_n |
-                ( prio[0] && !prio[1]          && lyrf_blnk_n ) ||
-                (!prio[1] && &lyro_pxl[3:0]    && lyrf_blnk_n ) ||
-                (~prio[1] &&  lyro_pxl[3:0]==0 && lyrf_blnk_n ) ||
-                ( prio[1] && &lyro_pxl[3:0]    && lyrb_pxl[3:0]==0 ) ||
-                ( prio[1] &&  lyro_pxl[3:0]==0 && lyrb_pxl[3:0]==0 );
-    lyr_sel[1] = !lyra_blnk_n && (
-                &lyro_pxl[3:0]      ||
-                 lyro_pxl[3:0]==0   ||
-                 (prio[1:0]==1 && lyrf_blnk_n ) ||
-                 ((prio[1:0]==3 && lyrb_pxl[6])) && lyrb_blnk_n
+           ( prio[0] && !lyrb_blnk_n )));
+    lyr_sel[1] = lyrf_blnk_n || ( // SELB: f/o vs a/b
+                !shadow_pen  &&
+                !trans_pen   &&
+                !(prio[1:0]==1 && lyra_blnk_n ) &&
+                !(prio[1:0]==3 && lyrb_blnk_n && lyrb_pxl[6])
                 );
+    lyr_sel[0] = lyrf_blnk_n || // SELA: f vs o and a vs b
+                (!prio[1] &&    prio[0] &&  lyra_blnk_n ) ||
+                (!prio[1] && shadow_pen &&  lyra_blnk_n ) ||
+                (!prio[1] &&  trans_pen &&  lyra_blnk_n ) ||
+                ( prio[1] && shadow_pen && !lyrb_blnk_n ) ||
+                ( prio[1] &&  trans_pen && !lyrb_blnk_n );
 
 end
 

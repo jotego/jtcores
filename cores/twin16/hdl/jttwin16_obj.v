@@ -41,7 +41,7 @@ module jttwin16_obj(
     output            dma_bsy,
 
     // ROM addressing
-    output     [20:2] rom_addr, // code + 1 bit. VH mostly embedded in core
+    output reg [21:2] rom_addr, // code + 1 bit. VH mostly embedded in core
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -50,14 +50,24 @@ module jttwin16_obj(
     output     [ 7:0] pxl
 );
 
-localparam CW=18; // upper bit selects ROM/RAM
+localparam CW=19;
 
-wire [CW-1:0] code;
+wire [CW-1:0] code; // lower 4 bits for H/V
 wire [ 3:0] attr;
 wire [ 1:0] hsize;
 wire        hflip;
 wire [15:0] hpos;
+wire [21:2] lin_addr;
 wire        dr_start, dr_busy;
+
+always @* begin
+    rom_addr = lin_addr;
+    casez( lin_addr[20:19] )
+        2'b0?: rom_addr[21:20]=0;
+        2'b10: rom_addr[21:19]={2'b01,lin_addr[21]};
+        2'b11: rom_addr[21:19]={3'b100};
+    endcase
+end
 
 jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -124,7 +134,7 @@ jttwin16_objdraw #(
     .hsize      ( hsize     ),
     .pal        ( attr      ),
 
-    .rom_addr   ( rom_addr  ),
+    .rom_addr   ( lin_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),

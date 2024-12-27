@@ -4,8 +4,9 @@ parents= [
     {name="mia",description="Missing in Action"},
     {name="cuebrick",description="Cuebrick"}
 ]
-skip = { machines=[
-    "fround",
+skip = { setnames=[
+    "fround","froundl", # in fround core
+    "hpuncher" # PROMs not supported
 ] }
 debug = { machines=["devilw", "vulcan", "cuebrick", "mia"] }
 
@@ -26,7 +27,8 @@ regions = [
     { name="maincpu", width=16, reverse=true  },
     # bank 1
     { name="sub",     width=16, reverse=true, start="JTFRAME_BA1_START"  },
-    { name="data"  },
+    { name="data",    width=16, reverse=true  },
+    { name="data",     skip=true, machines=["mia", "vulcan"]},
     { name="gfxrom",   start="GFX_START", width=32 },
     { name="gfxrom",   skip=true, setname="cuebrickj" },
     # bank 2
@@ -43,6 +45,8 @@ order = [
 ]
 
 patches = [
-    # skip ROM check
-    { setname="fround", offset=0x1058, data="12 11" }
+    # bypass check screen. Object RAM test fails randomly because of
+    # DMA writes while the check is performed
+    # this patch works on simulation but fails on FPGA :-(
+    # { setname="cuebrickj", offset=0x100, data="71 4E 71 4E 71 4E" }
 ]

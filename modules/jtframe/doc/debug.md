@@ -28,7 +28,7 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
 -------------|-------------------------------------------------------
   00??_????  |  Frame count in BCD (hundreds. Set st_addr[0] for tenths/units)
   01??_????  |  Audio information (see below)
-  0111_00??  |  IOCTL status { 3'd0, ioctl_ram, 2'd0, ioctl_cart, downloading }
+  0111_00??  |  IOCTL status { gfx_en[0:3], 1'b0, ioctl_ram, ioctl_cart, ioctl_rom }
   0111_0100  |  dipsw[ 7: 0]
   0111_0101  |  dipsw[15: 8]
   0111_0110  |  dipsw[23:16]

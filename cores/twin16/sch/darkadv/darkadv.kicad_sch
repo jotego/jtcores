@@ -5773,16 +5773,6 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 31.75) (xy 156.21 31.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "63ee14df-582e-470e-a5c9-8376ff4e5d84")
-	)
-	(wire
-		(pts
 			(xy 15.24 57.15) (xy 27.94 57.15)
 		)
 		(stroke
@@ -9502,7 +9492,7 @@
 		)
 		(uuid "85f8906c-52d2-4b1c-a514-ccd85517e745")
 	)
-	(label "{2C}"
+	(label "2C[0..6]"
 		(at 251.46 153.67 0)
 		(fields_autoplaced yes)
 		(effects
@@ -10041,7 +10031,7 @@
 		)
 		(uuid "b477da7c-6225-43b1-bea4-11af29f81e6c")
 	)
-	(label "{2C}"
+	(label "2C[0..6]"
 		(at 234.95 167.64 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12935,7 +12925,7 @@
 			)
 			(uuid "664f4c6a-422f-4105-be7b-c9f70912b393")
 		)
-		(pin "{2C}" input
+		(pin "2C[0..6]" input
 			(at 262.89 153.67 180)
 			(effects
 				(font
@@ -13333,16 +13323,6 @@
 			)
 			(uuid "10c602f6-74d2-4670-aac1-3c07f8fb0974")
 		)
-		(pin "~{SPOE}" output
-			(at 133.35 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "e453ac56-7e74-4542-9d89-d267d4062189")
-		)
 		(pin "SPZ17" output
 			(at 133.35 53.34 0)
 			(effects
@@ -13353,7 +13333,7 @@
 			)
 			(uuid "a96ef372-b9df-4dab-9412-439c54e60ebb")
 		)
-		(pin "SPA[0..17]" output
+		(pin "SPA[0..18]" output
 			(at 133.35 50.8 0)
 			(effects
 				(font
@@ -14539,17 +14519,7 @@
 			)
 			(uuid "46358ece-4f00-47ef-b065-5a540b3e8694")
 		)
-		(pin "~{SPOE}" input
-			(at 156.21 31.75 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "ed933422-41c9-410b-93ff-f42167eb6dd5")
-		)
-		(pin "SPA[0..17]" input
+		(pin "SPA[0..18]" input
 			(at 156.21 50.8 180)
 			(effects
 				(font
@@ -15653,7 +15623,7 @@
 			)
 			(uuid "69e2b0df-0808-48a3-8a67-91131feed246")
 		)
-		(pin "{2C}" output
+		(pin "2C[0..6]" output
 			(at 233.68 167.64 0)
 			(effects
 				(font

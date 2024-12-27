@@ -53,9 +53,9 @@ always @(posedge clk) begin
          3: ioctl_mux <= scrb_y[7:0];
          4: ioctl_mux <= { vflip, hflip, prio[1:0], scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
          7: ioctl_mux <= obj_dx[ 7:0];
-         8: ioctl_mux <= { 6'd0, obj_dx[9:8] };
+         8: ioctl_mux <= obj_dx[15:8];
          9: ioctl_mux <= obj_dy[ 7:0];
-        10: ioctl_mux <= { 6'd0, obj_dy[9:8] };
+        10: ioctl_mux <= obj_dy[15:8];
         default: ioctl_mux <= 0;
     endcase
 end
@@ -65,7 +65,7 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= { 7'd0, dip_flip };
+        3: debug_mux <= {3'd0, vramcvf, 1'd0, vflip, hflip, dip_flip };
     endcase
 end
 
@@ -73,7 +73,7 @@ end
 //     if( prog_addr==0 && prog_we && header )
 //         game_id <= prog_data[2:0];
 // end
-
+/* verilator tracing_off */
 jttwin16_share u_share(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -105,7 +105,7 @@ jttwin16_share u_share(
     .v_din          ( v_din         )
 );
 
-/* verilator tracing_on */
+
 jttwin16_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -176,7 +176,7 @@ jttwin16_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-
+/* verilator tracing_on */
 jttwin16_sub u_sub(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -222,7 +222,7 @@ jttwin16_sub u_sub(
     .dip_pause      ( dip_pause     )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttwin16_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),

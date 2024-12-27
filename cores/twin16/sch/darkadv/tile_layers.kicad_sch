@@ -32683,7 +32683,7 @@
 		)
 		(uuid "ec22ea06-1a89-4b7a-a08b-c6079d463e0f")
 	)
-	(label "BUS"
+	(label "2C6"
 		(at 389.89 118.11 0)
 		(fields_autoplaced yes)
 		(effects
@@ -33352,7 +33352,7 @@
 		)
 		(uuid "3bb3cefe-d629-4748-a516-1776daf13bed")
 	)
-	(hierarchical_label "{2C}"
+	(hierarchical_label "2C[0..6]"
 		(shape output)
 		(at 397.51 100.33 0)
 		(fields_autoplaced yes)

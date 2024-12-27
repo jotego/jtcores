@@ -2,8 +2,9 @@ params:
   - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA2_START) >> 1" }
   - { name: UPD_OFFSET,  value: "(`UPD_START-`JTFRAME_BA2_START) >> 1" }
   - { name: GFX_OFFSET,  value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
+  - { name: GFX_LEN,     value: "(`JTFRAME_BA2_START>>1)-GFX_OFFSET"   }
   - { name: MRAM_OFFSET, value: "22'h100000" }
-  - { name: SRAM_OFFSET, value: "22'h130000" } # right after gfxrom finishes
+  - { name: SRAM_OFFSET, value: "GFX_OFFSET+GFX_LEN" }
 clocks:
   clk48:
     - freq: 3579545
@@ -52,7 +53,7 @@ sdram:
         # SRAM is mapped after lyro so the first 128 kB of SRAM
         # are accessible from the lyro slot
         - name: lyro
-          addr_width: 21
+          addr_width: 22
           data_width: 32
           offset: GFX_OFFSET
         # check object: slot for sub CPU to check the tile ROM

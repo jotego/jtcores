@@ -42,7 +42,7 @@ jtframe_edge #(.QSET(0))u_vbl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .edgeof     ( ~LVBL     ),
-    .clr        ( ~VPAn     ),
+    .clr        ( ~int_en   ),
     .q          ( vb_intn   )
 );
 
@@ -50,7 +50,7 @@ jtframe_edge #(.QSET(0))u_subint(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .edgeof     ( intn      ),
-    .clr        ( ~int_en   ),
+    .clr        ( ~VPAn     ),
     .q          ( pair_intn )
 );
 

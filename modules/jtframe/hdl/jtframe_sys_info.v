@@ -26,6 +26,7 @@ module jtframe_sys_info(
     input               game_led,
     input               LVBL,
     input         [6:0] core_mod,
+    input         [3:0] gfx_en,
     // sound
     input               sample,
     input         [7:0] snd_vol,
@@ -104,7 +105,8 @@ always @(posedge clk, posedge rst) begin
                     3: begin
                         snd_mode <= 0;
                         case(st_addr[3:2])
-                            0: st_dout <= { 3'd0, ioctl_ram, 2'd0, ioctl_cart, ioctl_rom };
+                            0: st_dout <= { gfx_en[0], gfx_en[1], gfx_en[2], gfx_en[3],
+                                            1'b0, ioctl_ram, ioctl_cart, ioctl_rom };
                             1: case(st_addr[1:0])
                                 0: st_dout <= dipsw[ 0+:8];
                                 1: st_dout <= dipsw[ 8+:8];

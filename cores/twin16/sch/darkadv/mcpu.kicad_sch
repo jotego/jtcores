@@ -16490,6 +16490,16 @@
 		)
 		(uuid "01bd61bd-6039-4037-8880-2a19fd6de6be")
 	)
+	(wire
+		(pts
+			(xy 52.07 93.98) (xy 53.34 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0243d295-fa6a-4be5-96be-cb2894ffcba3")
+	)
 	(bus
 		(pts
 			(xy 168.91 100.33) (xy 168.91 97.79)
@@ -19069,6 +19079,16 @@
 			(type default)
 		)
 		(uuid "4f895c90-27f1-4a76-9d39-f56057d5fa70")
+	)
+	(wire
+		(pts
+			(xy 50.8 71.12) (xy 53.34 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4fb4806f-f2d1-4273-a8bf-8f0f97fab11c")
 	)
 	(wire
 		(pts
@@ -28924,7 +28944,7 @@
 	)
 	(hierarchical_label "VBLANK"
 		(shape input)
-		(at 53.34 71.12 180)
+		(at 52.07 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -28960,7 +28980,7 @@
 	)
 	(hierarchical_label "~{MINT}"
 		(shape input)
-		(at 53.34 93.98 180)
+		(at 50.8 71.12 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -35106,7 +35126,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d39eea48-fa96-4e26-97a0-76e2d57d6076")
 		(property "Reference" "#PWR0104"
 			(at 46.99 68.58 0)

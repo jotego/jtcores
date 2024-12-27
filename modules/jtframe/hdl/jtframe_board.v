@@ -453,6 +453,7 @@ jtframe_keyboard u_keyboard(
             .game_led   ( led_peak      ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
+            .gfx_en     ( gfx_en        ),
             // sound
             .sample     ( snd_sample    ),
             .snd_en     ( snd_en        ),
