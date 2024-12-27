@@ -45,6 +45,14 @@ module jttwin16_share(
     output         [1:0] vb_we
 );
 
+`ifdef SIMULATION
+reg [13:1] oma_l, osa_l;
+
+always @(posedge |om_we) oma_l <= m_addr;
+always @(posedge |os_we) osa_l <= s_addr;
+
+`endif
+
 assign v_din     = tim1 ? m_dout : s_dout;
 assign oram_we   = tim1 ? om_we  : os_we;
 assign va_we     = tim1 ? vam_we : vas_we;

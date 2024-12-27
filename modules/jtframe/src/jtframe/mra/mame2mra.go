@@ -18,6 +18,7 @@ import (
 
 	"github.com/jotego/jtframe/betas"
 	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/common"
 )
 
 func (this *StartNode) add_length(pos int) {
@@ -101,7 +102,7 @@ func Run(args Args) {
 					old_deleted = true
 				}
 				if !args.SkipROM || args.Md5 {
-					if !exists(args.Rom_path) {
+					if !common.FileExists(args.Rom_path) {
 						fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
 						os.Exit(1)
 					} else {

@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
+
 	"github.com/jotego/jtframe/mmr"
+	"github.com/jotego/jtframe/common"
 )
 
 // mmrCmd represents the mmr command
@@ -15,7 +18,12 @@ var mmrCmd = &cobra.Command{
 		var corename string
 		corename, e = get_corename(args)
 		must(e)
-		must(mmr.Generate(corename, verbose))
+		mmrpath := mmr.GetMMRPath(corename)
+		if common.FileExists(mmrpath) {
+			must(mmr.Generate(corename, verbose))
+		} else if verbose {
+			fmt.Printf("Skipping MMR for core %s (%s not present)\n",corename,mmrpath)
+		}
 	},
 	Args: cobra.MaximumNArgs(1),
 }

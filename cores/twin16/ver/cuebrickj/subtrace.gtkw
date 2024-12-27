@@ -1,0 +1,52 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Thu Dec 26 14:27:24 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/cuebrickj/test.fst"
+[dumpfile_mtime] "Thu Dec 26 14:09:57 2024"
+[dumpfile_size] 10557508997
+[savefile] "/home/jtejada/jtcores/cores/twin16/ver/cuebrickj/subtrace.gtkw"
+[timestart] 10798600000000
+[size] 2532 1005
+[pos] 1893 -58
+*-36.388157 11062500000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sub.
+[treeopen] TOP.game_test.u_game.u_game.u_sub.u_cpu.
+[sst_width] 278
+[signals_width] 180
+[sst_expanded] 1
+[sst_vpaned_height] 327
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A0[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A1[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A2[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A3[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A4[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A5[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A6[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.A7[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D0[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D1[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D2[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D3[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D4[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D5[31:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D6[31:0]
+@23
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.D7[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.Ir[15:0]
+TOP.game_test.u_game.u_game.u_sub.u_cpu.u_cpu.PC[31:0]
+@28
+TOP.game_test.u_game.u_game.u_sub.oram_cs
+TOP.game_test.u_game.u_game.u_sub.DTACKn
+TOP.game_test.u_game.u_game.u_sub.u_tim_dtack.tim
+TOP.game_test.u_game.u_game.u_sub.u_tim_dtack.waits
+[pattern_trace] 1
+[pattern_trace] 0

@@ -33,8 +33,8 @@ initial begin
 end
 
 initial begin
-    $dumpfile("test.lxt");
-    $dumpvars;
+    //$dumpfile("test.lxt");
+    //$dumpvars;
     // $dumpon;
 end
 
@@ -249,6 +249,8 @@ jttwin16_dtack u_dtack(
     .clk        ( clk       ),
     .oram_cs    ( oram_cs   ),
     .vram_cs    ( vram_cs   ),
+    .oeff_cs    (           ),
+    .dma_bsy    ( 1'b0      ),
     .ASn        ( ASn       ),
     .RnW        ( RnW       ),
     .UDSn       ( DSn       ),

@@ -23,6 +23,7 @@ module jttwin16_sub(
 
     input                tim,
     output reg           mint,
+    input                dma_bsy,
 
     input                sint,
     output        [17:1] ram_addr,
@@ -69,7 +70,7 @@ wire [ 1:0] dws;
 wire        cpu_cen, cpu_cenb, pre_dtackn;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-wire        bus_cs, bus_busy, BUSn, ab_sel;
+wire        bus_cs, bus_busy, BUSn, ab_sel, oeff_cs;
 reg  [ 1:0] rom_part;
 reg         sh_cs, vram_cs, oram_cs, sys_cs, stram_cs,
             sint_en, otram_cs, chapage;
@@ -86,7 +87,7 @@ assign ram_we   = ~RnW;
 assign ab_sel   = ~A[13];
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
-assign oram_we  = dws & {2{oram_cs}};
+assign oram_we  = dws & {2{oeff_cs}};
 assign stile_we = dws & {2{stram_cs}};
 assign sh_we    = dws & {2{sh_cs}};
 assign rom_addr[16: 1] = A[16:1];
@@ -175,8 +176,10 @@ jttwin16_dtack u_tim_dtack(
     .RnW        ( RnW       ),
     .LDSn       ( LDSn      ),
     .UDSn       ( UDSn      ),
+    .dma_bsy    ( dma_bsy   ),
     .oram_cs    ( oram_cs   ),
     .vram_cs    ( vram_cs   ),
+    .oeff_cs    ( oeff_cs   ),
     .tim        ( tim       ),
     .ab_sel     ( ab_sel    ),
     .ma_dout    ( ma_dout   ),

@@ -14374,7 +14374,7 @@
 	)
 	(wire
 		(pts
-			(xy 168.91 45.72) (xy 177.8 45.72)
+			(xy 172.72 45.72) (xy 177.8 45.72)
 		)
 		(stroke
 			(width 0)
@@ -27730,16 +27730,15 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 168.91 45.72 90)
+		(at 172.72 45.72 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "5650d6bb-d933-4e15-a271-fb0a8ed78ab6")
 		(property "Reference" "#PWR0152"
-			(at 172.72 45.72 0)
+			(at 176.53 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27748,7 +27747,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 165.1 45.7199 90)
+			(at 170.18 45.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27757,7 +27756,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 168.91 45.72 0)
+			(at 172.72 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27766,7 +27765,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 168.91 45.72 0)
+			(at 172.72 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27775,7 +27774,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 168.91 45.72 0)
+			(at 172.72 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)

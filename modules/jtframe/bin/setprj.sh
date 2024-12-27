@@ -99,6 +99,22 @@ function swcore {
     done
 }
 
+# change to a folder inside "$CORES/*/ver" folders
+function cdver {
+    local setname=$1
+    if [ -z "$JTROOT" ]; then
+        echo Have you forgot to define JTROOT?
+        return 1
+    fi
+    if [ -z "$setname" ]; then
+        echo "Use cdgame <MAME setname>"
+        return 1
+    fi
+    local path=$(find $JTROOT/cores -name "$1" -path "*/ver/$setname" -type d | head -n 1)
+    if [ -z "$path" ]; then echo "No $setname in verification folders"; return 1; fi
+    cd "$path"
+}
+
 if [ "$1" != "--quiet" ]; then
     echo "Use swcore <corename> to switch to a different core once you are"
     echo "inside the cores folder"

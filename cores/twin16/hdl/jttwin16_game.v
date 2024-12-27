@@ -184,6 +184,7 @@ jttwin16_sub u_sub(
     .tim            ( tim2          ),
     .mint           ( mint          ),
     .sint           ( sint          ),
+    .dma_bsy        ( dma_bsy       ),
 
     .ram_addr       ( sram_addr     ),
     .ram_dout       ( sram_data     ),

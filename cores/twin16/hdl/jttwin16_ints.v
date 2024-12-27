@@ -33,9 +33,10 @@ module jttwin16_ints(
 
 wire vb_intn, pair_intn;
 
-assign VPAn     = ~( A23 & ~ASn );
-assign IPLn     = {vb_intn & pair_intn, vb_intn, ~(vb_intn & ~pair_intn)};
+localparam IPL5=~3'd5, IPL6=~3'd6, NOINT=3'd7;
 
+assign VPAn     = ~( A23 & ~ASn );
+assign IPLn     = !pair_intn ? IPL6 : !vb_intn ? IPL5 : NOINT;
 
 jtframe_edge #(.QSET(0))u_vbl(
     .rst        ( rst       ),
@@ -52,6 +53,5 @@ jtframe_edge #(.QSET(0))u_subint(
     .clr        ( ~int_en   ),
     .q          ( pair_intn )
 );
-
 
 endmodule

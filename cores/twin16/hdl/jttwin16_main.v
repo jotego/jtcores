@@ -84,7 +84,7 @@ module jttwin16_main(
 
 wire [23:1] A;
 wire [ 1:0] dws;
-wire        cpu_cenb, pre_dtackn, cpu_we,
+wire        cpu_cenb, pre_dtackn, cpu_we, oeff_cs,
             UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, io_cs, vram_cs, oram_cs,
@@ -116,7 +116,7 @@ assign ab_sel     = ~A[13];
 assign va_we      = dws & {2{vram_cs & ~A[13]}};
 assign vb_we      = dws & {2{vram_cs &  A[13]}};
 assign fx_we      = dws & {2{fix_cs}};
-assign oram_we    = dws & {2{oram_cs}};
+assign oram_we    = dws & {2{oeff_cs}};
 
 always @* begin
     case( debug_bus[3:0] )
@@ -191,6 +191,8 @@ jttwin16_dtack u_tim_dtack(
     .UDSn       ( UDSn      ),
     .oram_cs    ( oram_cs   ),
     .vram_cs    ( vram_cs   ),
+    .dma_bsy    ( dma_bsy   ),
+    .oeff_cs    ( oeff_cs   ),
     .tim        ( tim       ),
     .ab_sel     ( ab_sel    ),
     .ma_dout    ( ma_dout   ),
@@ -225,7 +227,7 @@ always @(posedge clk) begin
             default: cab_dout <= 8'hff;
         endcase
         2: cab_dout <= A[1] ? dipsw[7:0] : dipsw[15:8];
-        3: cab_dout <= { 4'h0, dipsw[19:16] };
+        3: cab_dout <= { 4'hf, dipsw[19:16] };
     endcase
 end
 

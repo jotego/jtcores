@@ -29967,7 +29967,6 @@
 		(lib_id "jt74:74LS02")
 		(at 33.02 181.61 0)
 		(unit 1)
-		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)

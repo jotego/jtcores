@@ -52,8 +52,12 @@ func convert( corename, hdl_path string, cfg MMRdef ) (e error) {
 	return os.WriteFile(outpath, buffer.Bytes(), 0644)
 }
 
+func GetMMRPath( corename string ) (mmrpath string) {
+	return filepath.Join(os.Getenv("CORES"),corename,"cfg","mmr.yaml")
+}
+
 func Generate( corename string, verbose bool ) (e error) {
-	fname := filepath.Join(os.Getenv("CORES"),corename,"cfg","mmr.yaml")
+	fname := GetMMRPath(corename)
 	buf, e := os.ReadFile(fname); if e != nil { return e }
 	var cfg []MMRdef
 	e = yaml.Unmarshal( buf, &cfg ); if e != nil { return e }

@@ -11,13 +11,8 @@ import (
 	"strings"
 
 	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/common"
 )
-
-func exists(fname string) bool {
-	f, e := os.Open(fname)
-	defer f.Close()
-	return e == nil
-}
 
 func collect_sources(verbose bool) []string {
 	sources := make([]string, 0, 16)
@@ -38,8 +33,8 @@ func collect_sources(verbose bool) []string {
 				Toml_path: filepath.Join(cfg_path, "mame2mra.toml"),
 				Verbose:   verbose,
 			}
-			if !exists(args.Toml_path) { continue }
-			if !exists(def.DefPath(args.Def_cfg)) {
+			if !common.FileExists(args.Toml_path) { continue }
+			if !common.FileExists(def.DefPath(args.Def_cfg)) {
 				log.SetFlags(0)
 				log.Println("Skipping",each.Name()," despite having TOML file as .def file was not found")
 				continue
