@@ -145,60 +145,21 @@ gx400_cen u_cen(
 ///////////////////
 
 // ROM data
-wire [ 15:0] main_data;
-wire [  7:0] z80_data;
 wire [  3:0] wav1_data, wav2_data;
 wire [  7:0] wav1_vol_data, wav2_vol_data;
 
 // ROM address
-wire        main_cs, main_sdram_cs, main_ok, z80_cs, z80_sdram_cs, z80_ok;
-wire [16:0] main_addr, main_sdram_addr;
-wire [13:0] z80_addr, z80_sdram_addr;
 wire [ 7:0] wav1_addr, wav1_vol_addr, wav2_addr, wav2_vol_addr;
 
 // PROM signals
-wire		prom_we, prom_a01_we, prom_a02_we, prom_vol_we;
-
-// dwnld_busy needs to be kept to 1 until finished downloading. The easiest is
-// to assign it to downloading, but it might be kept longer if the core needs
-// to do ROM data conversion, like jt_gng/tora (which is not the case here.)
-assign dwnld_busy = ioctl_rom;
-
-assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
-       ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
+wire		prom_a01_we, prom_a02_we, prom_vol_we;
 
 ///// Download /////
 
-// Determines from which ioctl_addr offset (in bytes) data stops
-// being sent to SDRAM and starts being sent to PROMs (BRAM),
-// using the prog_addr, prog_data, and prom_we signals.
-localparam [24:0] PROM_START  = 25'h04_4000;
-
-// offsets (in bytes) where each of the ROMs starts
-localparam [21:0] CPU_OFFSET     = 22'h00_0000,
-                  SND_OFFSET     = 22'h04_0000,
-                  WAV1_OFFSET    = 22'h04_4000,
+// offsets (in bytes) where each of the PROMs starts
+localparam [21:0] WAV1_OFFSET    = 22'h04_4000,
                   WAV2_OFFSET    = 22'h04_4100,
                   WAV_VOL_OFFSET = 22'h04_4200;
-
-wire [7:0] nc;
-
-jtframe_dwnld #( .PROM_START( PROM_START ) )
-u_dwnld(
-	.clk            ( clk               ),
-	.ioctl_rom      ( ioctl_rom         ),
-	.ioctl_addr     ( ioctl_addr        ),
-	.ioctl_dout     ( ioctl_dout        ),
-	.ioctl_wr       ( ioctl_wr          ),
-	.prog_addr      ( prog_addr         ),
-	.prog_data      ( { nc, prog_data } ),
-	.prog_mask      ( prog_mask         ), // active low
-	.prog_we        ( prog_we           ),
-	.prog_rd        ( prog_rd           ),
-	.prog_ba        ( prog_ba           ),
-	.prom_we        ( prom_we           ),
-	.sdram_ack      ( prog_rdy          )
-);
 
 reg cpu_start;
 
@@ -206,7 +167,7 @@ reg cpu_start;
 always @(posedge clk, posedge rst) begin
 	if( rst ) begin
 		cpu_start <= 0;
-	end else if( &{ z80_ok } ) begin
+	end else if( &{ audio_ok } ) begin
 		cpu_start <= 1;
 	end
 end
@@ -229,64 +190,15 @@ nemesis_rom_debug u_rom_debug(
 	.o_debug_view      ( debug_view           ),
 `endif
 
-	.i_z80_cs          ( z80_cs | ~cpu_start  ),
-	.i_z80_ok          ( z80_ok               ),
-	.i_z80_addr        ( z80_addr             ),
-	.i_z80_data        ( z80_data             ),
-	.o_z80_sdram_cs    ( z80_sdram_cs         ),
-	.o_z80_sdram_addr  ( z80_sdram_addr       ),
+	.i_z80_cs          ( audio_cs | ~cpu_start  ),
+	.i_z80_ok          ( audio_ok               ),
+	.i_z80_addr        ( audio_addr             ),
+	.i_z80_data        ( audio_data             ),
 	
 	.i_main_cs         ( main_cs | ~cpu_start ),
 	.i_main_ok         ( main_ok              ),
 	.i_main_addr       ( main_addr            ),
-	.i_main_data       ( main_data            ),
-	.o_main_sdram_cs   ( main_sdram_cs        ),
-	.o_main_sdram_addr ( main_sdram_addr      )
-);
-
-///// SDRAM /////
-
-// ioctl sends bytes one at a time, but apparently they’re read from SDRAM in pairs,
-// so they might need to be swapped. In our case, the 68k ROM (16-bit width) comes out
-// of the SDRAM in the same order as out of the mra tool, but the Z80 ROM (8-bit width)
-// comes out swapped, with the second byte at address 0, the first at address 1, etc.
-// Therefore, the ROM needs to be swapped in the MRA using an interleave of width 16
-// and a map="12" attribute on the part:
-// 
-// <interleave output="16">
-//   <part name="456-d09.9c" crc="26bf9636" map="12"/>
-// </interleave>
-
-// SDRAM addresses 16-bit words, but ioctl sends bytes,
-// so we need to divide the offsets by 2
-jtframe_rom_2slots #(
-	.SLOT0_AW     ( 17              ), // 68k - Main CPU
-	.SLOT0_DW     ( 16              ),
-	.SLOT0_OFFSET ( CPU_OFFSET >> 1 ),
-	.SLOT1_AW     ( 14              ), // Z80 - Audio CPU
-	.SLOT1_DW     (  8              ),
-	.SLOT1_OFFSET ( SND_OFFSET >> 1 )
-) u_rom (
-	.rst         ( rst             ),
-	.clk         ( clk             ),
-
-	.slot0_cs    ( main_sdram_cs   ),
-	.slot0_ok    ( main_ok         ),
-	.slot0_addr  ( main_sdram_addr ),
-	.slot0_dout  ( main_data       ),
-
-	.slot1_cs    ( z80_sdram_cs    ),
-	.slot1_ok    ( z80_ok          ),
-	.slot1_addr  ( z80_sdram_addr  ),
-	.slot1_dout  ( z80_data        ),
-
-	// SDRAM interface
-	.sdram_rd    ( ba_rd[0]        ),
-	.sdram_ack   ( ba_ack[0]       ),
-	.data_dst    ( ba_dst[0]       ),
-	.data_rdy    ( ba_rdy[0]       ),
-	.sdram_addr  ( ba0_addr        ),
-	.data_read   ( data_read[15:0] )
+	.i_main_data       ( main_data            )
 );
 
 ///// PROMs /////
@@ -633,10 +545,10 @@ nemesis_sound u_sound(
 	.i_sound_on_n     ( sound_on_n        ),
 `endif
 	.i_cpu_start      ( cpu_start         ),
-	.o_z80_cs         ( z80_cs            ),
-	.o_z80_addr       ( z80_addr          ),
-	.i_z80_data       ( z80_data          ),
-	.i_z80_ok         ( z80_ok            ),
+	.o_z80_cs         ( audio_cs          ),
+	.o_z80_addr       ( audio_addr        ),
+	.i_z80_data       ( audio_data        ),
+	.i_z80_ok         ( audio_ok          ),
 
 	.o_wav1_addr      ( wav1_addr         ),
 	.o_wav1_vol_addr  ( wav1_vol_addr     ),
