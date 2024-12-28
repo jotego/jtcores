@@ -1,0 +1,37 @@
+[global]
+author=["LMN-san", "OScherler", "Raki"]
+
+[parse]
+sourcefile=["nemesis.cpp"]
+skip.bootlegs=true
+skip.setnames=[
+	"blkpnthr",
+	"bubsys",
+	"citybomb",
+	"gradiusb",
+	"gwarrior",
+	"hcrash",
+	"kittenk",
+	"konamigt",
+	"salamand",
+	"twinbee",
+	"twinbeeb",
+]
+
+[buttons]
+names=[
+    { setname="nemesis", names="Option,Fire,Bomb,Start,Coin,Pause" },
+    { setname="nemesisuk", names="Option,Fire,Bomb,Start,Coin,Pause" },
+]
+
+[ROM]
+# these MAME ROM regions make up the .rom file (index 1 in MiSTer)
+# only specify regions that need parameters
+regions=[
+    { name="maincpu", width=16, no_offset=true },
+    { name="audiocpu", start="SND_START", reverse=true },
+    { name="k005289", start="JTFRAME_PROM_START" },
+]
+
+# this is the order in the MRA file
+order=["maincpu", "audiocpu", "k005289"]
