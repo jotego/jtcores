@@ -66,7 +66,7 @@ always @* begin
     casez( debug_bus[7] ? debug_bus[1:0] : lin_addr[20:19] )
         2'b0?: rom_addr[21:20]=0;
         2'b10: rom_addr[21:19]={2'b01,lin_addr[21]};
-        2'b11: rom_addr[21:18]={4'b1001};
+        2'b11: rom_addr[21:18]={4'b1001}+{3'd0,lin_addr[18]};
     endcase
 end
 

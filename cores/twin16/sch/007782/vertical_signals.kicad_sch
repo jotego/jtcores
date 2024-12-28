@@ -3386,6 +3386,17 @@
 		)
 		(uuid "fc728ffb-ca9b-4ee0-adbe-bd7cb0e5389e")
 	)
+	(text "toggles \neach\nframe"
+		(exclude_from_sim no)
+		(at 212.09 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "50f7d019-f2c3-45a6-bdcc-73eb2acf9a4d")
+	)
 	(label "2V"
 		(at 187.96 48.26 0)
 		(fields_autoplaced yes)

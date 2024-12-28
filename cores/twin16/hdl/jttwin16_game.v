@@ -134,10 +134,11 @@ jttwin16_main u_main(
     .nvram_dout     ( nvram_dout    ),
     .nvram_we       ( nvram_we      ),
     // cabinet I/O
-    .cab_1p         ( cab_1p[1:0]   ),
-    .coin           ( coin[1:0]     ),
+    .cab_1p         ( cab_1p[2:0]   ),
+    .coin           ( coin[2:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
+    .joystick3      ( joystick3     ),
     .service        ( service       ),
 
     .ma_dout        ( ma_dout       ),

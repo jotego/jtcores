@@ -85,7 +85,7 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     // output reg [ 7:0] st_dout
 );
 
-reg         beflag, lvbl_l, obj_en, vflip,
+reg         beflag, obi_l, obj_en, vflip,
             dma_clr, dma_cen;
 reg  [13:1] cpr_addr; // copy read  address
 reg  [10:1] cpw_addr; // copy write address
@@ -93,7 +93,7 @@ wire [ 4:1] nx_cpra;
 wire [15:0] scan_dout;
 reg  [ 1:0] vsize;
 reg  [ 2:0] scan_sub, lut_sub;
-reg         inzone, hs_l, done, busy_l, skip;
+reg         inzone, hs_l, done, busy_l, skip, half;
 reg  [ 8:0] ydiff, vlatch;
 reg  [15:0] y;
 reg  [ 7:0] scan_obj, lut_obj, lut_dst;
@@ -110,6 +110,7 @@ assign oram_addr =
 assign nx_cpra  = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g   = busy_l | dr_busy;
 assign valid_y  = y<16'h180 || y>=16'hff00;
+// original equation from schematics, it is the same as the start of vblank
 assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
 
 `ifdef SIMULATION
@@ -118,7 +119,7 @@ wire [13:0] cpw_afull = {3'b110,cpw_addr,1'b0};
 `endif
 
 // DMA logic
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         dma_clr  <= 0;
         oram_we  <= 0;
@@ -129,12 +130,14 @@ always @(posedge clk, posedge rst) begin
         obj_en   <= 0;
         oram_din <= 0;
         beflag   <= 0;
-        lvbl_l   <= 0;
+        obi_l    <= 0;
+        half     <= 0;
     end else if( pxl_cen ) begin
-        lvbl_l <= lvbl;
-        if( !lvbl && lvbl_l ) begin
+        obi_l <= objbufinit;
+        if( objbufinit && !obi_l ) begin
             dma_bsy <= 1;
             obj_en  <= ~dma_on;
+            half    <= ~half;
         end
         dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
         if( lvbl ) begin
@@ -253,17 +256,17 @@ reg bsy_l;
         end
     end
 
-    jtframe_dual_ram16 u_copy(
+    jtframe_dual_ram16  #(.AW(11)) u_framebuffer(
         // Port 0: LUT writting
         .clk0   ( clk            ),
         .data0  ( lut_din        ),
-        .addr0  ({lut_dst,~lut_sub[1:0]}),
+        .addr0  ({half,lut_dst,~lut_sub[1:0]}),
         .we0    ( {2{lut_we}}    ),
         .q0     (                ),
         // Port 1: scan
         .clk1   ( clk            ),
         .data1  ( 16'd0          ),
-        .addr1  ({scan_obj,scan_sub[1:0]}),
+        .addr1  ({~half,scan_obj,scan_sub[1:0]}),
         .we1    ( 2'b0           ),
         .q1     ( scan_dout      )
     );
