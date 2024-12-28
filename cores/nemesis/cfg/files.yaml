@@ -1,6 +1,6 @@
 nemesis:
   - get:
-      - nemesis_game.v
+      - jtnemesis_game.v
       - nemesis_main.v
       - nemesis_sound.v
       - nemesis_jt49_exp.v

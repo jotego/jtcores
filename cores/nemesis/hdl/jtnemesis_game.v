@@ -31,7 +31,7 @@ You can read the whole license file at http://www.gnu.org/licenses/
 
 `default_nettype none
 
-module nemesis_game(
+module jtnemesis_game(
 /*
 	// Clocks
 	input           rst,
