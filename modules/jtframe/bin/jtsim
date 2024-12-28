@@ -115,7 +115,10 @@ Please support the development: https://patreon.com/jotego
                from the file name after -inputs. Note that in if you specify
                a file, then sim_inputs.hex will get overwritten with that file.
 
-               Each line contains a byte with the input status.
+               The input file can be in .cab format (see jtframe cab --help) or
+               in plain hex format.
+
+               In hex format each line contains a byte with the input status.
                All bits are read as active high. They are inverted
                if necessary by JTFRAME logic,
                The format is:
@@ -380,7 +383,11 @@ case "$1" in
                 echo "Error: cannot find input file $1"
                 exit 1
             fi
-            cp "$1" sim_inputs.hex
+            if [ "$1" = *.cab ]; then
+                jtframe cab "$1"
+            else
+                cp "$1" sim_inputs.hex
+            fi
         elif [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
             exit 1

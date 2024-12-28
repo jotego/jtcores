@@ -75,7 +75,7 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             hs,
     input             lvbl,
     input    [PW-1:0] obj_dx, obj_dy,
-    // output            flip,
+    input             gvflip,
 
     // draw module
     output reg        dr_start,
@@ -98,19 +98,23 @@ reg  [ 8:0] ydiff, vlatch;
 reg  [15:0] y;
 reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
-wire        flip = 0;
-wire        busy_g, valid_y;
+wire [ 9:0] lut_addr;
+wire        busy_g, valid_y, objbufinit;
 
-assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
-                scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif } :
-                oram_we ? { 3'b110, cpw_addr } : cpr_addr;
-assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
-assign busy_g    = busy_l | dr_busy;
-assign valid_y   = y<16'h180 || y>=16'hff00;
+// NOLUTFB -> bypass LUT framebuffer for FPGAs with scarce BRAM
+assign lut_addr  = { `ifdef NOLUTFB  scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif };
+assign oram_addr =
+    !dma_bsy ? { 3'b110, lut_addr } :
+    oram_we  ? { 3'b110, cpw_addr } :
+                         cpr_addr;
+assign nx_cpra  = {1'd0, cpr_addr[3:1]} + 4'd1;
+assign busy_g   = busy_l | dr_busy;
+assign valid_y  = y<16'h180 || y>=16'hff00;
+assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
-wire [13:0] cpw_afull = { 3'b110, cpw_addr,1'b0};
+wire [13:0] cpw_afull = {3'b110,cpw_addr,1'b0};
 `endif
 
 // DMA logic
@@ -118,7 +122,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_clr  <= 0;
         oram_we  <= 0;
-        dma_bsy <= 0;
+        dma_bsy  <= 0;
         cpr_addr <= 0;
         cpw_addr <= 0;
         dma_cen  <= 0; // 3 MHz
@@ -143,7 +147,7 @@ always @(posedge clk, posedge rst) begin
         end else if( dma_bsy ) begin
             if( dma_clr && dma_cen ) begin
                 { dma_clr, cpw_addr } <= { 1'b1, cpw_addr } + 1'h1;
-                oram_we <= 1;
+                oram_we <= obj_en;
             end else if( !dma_clr ) begin // direct copy
                 if( !dma_cen ) begin
                     case( cpr_addr[3:1] )
@@ -308,7 +312,7 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
-            vlatch   <= (vdump^{1'b1,{8{flip}}});
+            vlatch   <= (vdump^{1'b1,{8{gvflip}}});
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )

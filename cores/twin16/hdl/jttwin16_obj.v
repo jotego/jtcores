@@ -30,6 +30,7 @@ module jttwin16_obj(
     input      [ 8:0] vdump,
     input      [ 8:0] hdump,
     input      [15:0] obj_dx, obj_dy,
+    input             vflip,
 
     // Object RAM
     output     [13:1] oram_addr,
@@ -62,10 +63,10 @@ wire        dr_start, dr_busy;
 
 always @* begin
     rom_addr = lin_addr;
-    casez( lin_addr[20:19] )
+    casez( debug_bus[7] ? debug_bus[1:0] : lin_addr[20:19] )
         2'b0?: rom_addr[21:20]=0;
         2'b10: rom_addr[21:19]={2'b01,lin_addr[21]};
-        2'b11: rom_addr[21:19]={3'b100};
+        2'b11: rom_addr[21:18]={4'b1001};
     endcase
 end
 
@@ -82,6 +83,7 @@ jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     // output     [ 7:0] cpu_din,
     .obj_dx         ( obj_dx        ),
     .obj_dy         ( obj_dy        ),
+    .gvflip         ( vflip         ),
 
     // ROM addressing
     .code           ( code          ),
@@ -96,7 +98,7 @@ jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     .oram_din       ( oram_din      ),
     .oram_we        ( oram_we       ),
     // control
-    .dma_on         ( dma_on        ),
+    .dma_on         ( dma_on | debug_bus[7]        ),
     .dma_bsy        ( dma_bsy       ),
     .hdump          ( hdump         ),
     .vdump          ( vdump         ),

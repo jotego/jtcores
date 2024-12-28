@@ -39,7 +39,7 @@ sdram:
     - buses:
         - name: sram
           #  16kB of work RAM
-          # 128kB of object tile RAM
+          # 128kB of object tile RAM (17 bits)
           # 144kB total (18 bits)
           addr_width: 18
           data_width: 16

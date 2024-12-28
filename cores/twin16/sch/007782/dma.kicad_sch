@@ -1010,19 +1010,13 @@
 		)
 	)
 	(junction
-		(at 143.51 104.14)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "22601c4a-ad5c-440c-a876-1abf1bd7abeb")
-	)
-	(junction
 		(at 135.89 104.14)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "310061bd-4cc3-4220-bd37-66f8ec53eff0")
 	)
 	(junction
-		(at 184.15 81.28)
+		(at 161.29 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8b3acb11-ed2c-4614-9738-29bb8d5d4c16")
@@ -1069,23 +1063,13 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 128.27) (xy 195.58 128.27)
+			(xy 175.26 118.11) (xy 180.34 118.11)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "4d1f9e77-5d84-4eae-a5f4-ed16016ecf9a")
-	)
-	(wire
-		(pts
-			(xy 143.51 104.14) (xy 195.58 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "605be056-f9da-43f1-ba00-f4e629dd378f")
 	)
 	(wire
 		(pts
@@ -1109,7 +1093,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 82.55) (xy 173.99 82.55)
+			(xy 135.89 87.63) (xy 151.13 87.63)
 		)
 		(stroke
 			(width 0)
@@ -1119,7 +1103,7 @@
 	)
 	(wire
 		(pts
-			(xy 173.99 86.36) (xy 189.23 86.36)
+			(xy 151.13 91.44) (xy 166.37 91.44)
 		)
 		(stroke
 			(width 0)
@@ -1129,7 +1113,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 104.14) (xy 143.51 82.55)
+			(xy 135.89 87.63) (xy 135.89 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1139,7 +1123,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 127) (xy 135.89 104.14)
+			(xy 135.89 116.84) (xy 135.89 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1149,7 +1133,7 @@
 	)
 	(wire
 		(pts
-			(xy 194.31 81.28) (xy 204.47 81.28)
+			(xy 171.45 86.36) (xy 181.61 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1179,7 +1163,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 81.28) (xy 184.15 73.66)
+			(xy 161.29 86.36) (xy 161.29 78.74)
 		)
 		(stroke
 			(width 0)
@@ -1189,7 +1173,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 127) (xy 160.02 127)
+			(xy 135.89 116.84) (xy 144.78 116.84)
 		)
 		(stroke
 			(width 0)
@@ -1209,7 +1193,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 104.14) (xy 143.51 104.14)
+			(xy 135.89 104.14) (xy 181.61 104.14)
 		)
 		(stroke
 			(width 0)
@@ -1217,9 +1201,40 @@
 		)
 		(uuid "e7df8fa4-8857-4392-8753-7ed4f64437ee")
 	)
+	(text "from 007783"
+		(exclude_from_sim no)
+		(at 137.16 82.55 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "584d60aa-e265-4042-9aa1-e978485f0b76")
+	)
+	(text "DMA init"
+		(exclude_from_sim no)
+		(at 186.69 81.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "a5640234-827c-434a-8713-18b3cf0d8723")
+	)
+	(text "DMA clear"
+		(exclude_from_sim no)
+		(at 185.42 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ab6c035a-e51e-43c3-bf7a-ea7c9ce2cc9e")
+	)
 	(hierarchical_label "OBIN"
 		(shape output)
-		(at 195.58 104.14 0)
+		(at 181.61 104.14 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1255,7 +1270,7 @@
 	)
 	(hierarchical_label "~{DMC}"
 		(shape output)
-		(at 195.58 128.27 0)
+		(at 180.34 118.11 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1267,7 +1282,7 @@
 	)
 	(hierarchical_label "DB0"
 		(shape output)
-		(at 204.47 81.28 0)
+		(at 181.61 86.36 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1291,7 +1306,7 @@
 	)
 	(hierarchical_label "~{DMAC}"
 		(shape input)
-		(at 173.99 86.36 180)
+		(at 151.13 91.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1315,7 +1330,7 @@
 	)
 	(hierarchical_label "DMIN"
 		(shape output)
-		(at 204.47 73.66 0)
+		(at 181.61 78.74 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1363,7 +1378,7 @@
 	)
 	(hierarchical_label "VCNTEN"
 		(shape input)
-		(at 160.02 129.54 180)
+		(at 144.78 119.38 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1375,7 +1390,7 @@
 	)
 	(hierarchical_label "DMA"
 		(shape input)
-		(at 173.99 80.01 180)
+		(at 151.13 85.09 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1386,8 +1401,9 @@
 		(uuid "f30c942f-8f98-4311-8116-92a967d09944")
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
-		(at 189.23 73.66 0)
+		(at 166.37 78.74 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1395,7 +1411,7 @@
 		(dnp no)
 		(uuid "54961200-fe1e-4ce2-ab08-5519894caaa8")
 		(property "Reference" "D77"
-			(at 189.23 69.85 0)
+			(at 166.37 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1403,7 +1419,7 @@
 			)
 		)
 		(property "Value" "BD3"
-			(at 188.595 73.66 0)
+			(at 165.735 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1411,7 +1427,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 189.23 73.66 0)
+			(at 166.37 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1420,7 +1436,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 189.23 73.66 0)
+			(at 166.37 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1429,7 +1445,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 189.23 73.66 0)
+			(at 166.37 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1453,8 +1469,9 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
-		(at 185.42 128.27 0)
+		(at 170.18 118.11 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1462,7 +1479,7 @@
 		(dnp no)
 		(uuid "5e8c17cd-1892-47b3-abc7-e32e45dc0756")
 		(property "Reference" "C77"
-			(at 185.42 124.46 0)
+			(at 170.18 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1470,7 +1487,7 @@
 			)
 		)
 		(property "Value" "BD3"
-			(at 184.785 128.27 0)
+			(at 169.545 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1478,7 +1495,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 185.42 128.27 0)
+			(at 170.18 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1487,7 +1504,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 185.42 128.27 0)
+			(at 170.18 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1496,7 +1513,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 185.42 128.27 0)
+			(at 170.18 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1521,7 +1538,7 @@
 	)
 	(symbol
 		(lib_id "ga_fujitsu_av:O4T")
-		(at 189.23 81.28 0)
+		(at 166.37 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1529,7 +1546,7 @@
 		(dnp no)
 		(uuid "62c0c37c-cbeb-46a0-9304-36415d915f6e")
 		(property "Reference" "PIN36"
-			(at 189.23 77.47 0)
+			(at 166.37 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1537,7 +1554,7 @@
 			)
 		)
 		(property "Value" "O4T"
-			(at 188.468 81.28 0)
+			(at 165.608 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1545,7 +1562,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 193.04 76.2 0)
+			(at 170.18 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1554,7 +1571,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 193.04 76.2 0)
+			(at 170.18 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1563,7 +1580,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 189.23 81.28 0)
+			(at 166.37 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1733,8 +1750,9 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:N2N")
 		(lib_id "ga_fujitsu_av:N2N")
-		(at 165.1 128.27 0)
+		(at 149.86 118.11 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1742,7 +1760,7 @@
 		(dnp no)
 		(uuid "ac7bb97b-bac2-4658-babe-377bd63770e2")
 		(property "Reference" "C59"
-			(at 165.1 124.46 0)
+			(at 149.86 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1750,7 +1768,7 @@
 			)
 		)
 		(property "Value" "N2N"
-			(at 165.1 128.27 0)
+			(at 149.86 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1758,7 +1776,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 163.83 124.46 0)
+			(at 148.59 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1767,7 +1785,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 163.83 124.46 0)
+			(at 148.59 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1776,7 +1794,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 165.1 128.27 0)
+			(at 149.86 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1803,8 +1821,9 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:R2P")
 		(lib_id "ga_fujitsu_av:R2P")
-		(at 179.07 81.28 0)
+		(at 156.21 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1812,7 +1831,7 @@
 		(dnp no)
 		(uuid "b7c71517-a877-41af-8682-053b0ff5634f")
 		(property "Reference" "C56"
-			(at 179.07 77.47 0)
+			(at 156.21 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1820,7 +1839,7 @@
 			)
 		)
 		(property "Value" "R2P"
-			(at 179.07 81.28 0)
+			(at 156.21 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1828,7 +1847,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 187.96 73.66 0)
+			(at 165.1 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1837,7 +1856,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 187.96 73.66 0)
+			(at 165.1 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1846,7 +1865,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 179.07 81.28 0)
+			(at 156.21 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1873,8 +1892,9 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
-		(at 175.26 128.27 0)
+		(at 160.02 118.11 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1882,7 +1902,7 @@
 		(dnp no)
 		(uuid "baf075d0-1069-4fb2-a41e-511ea7a8f0fa")
 		(property "Reference" "C70"
-			(at 175.26 124.46 0)
+			(at 160.02 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1890,7 +1910,7 @@
 			)
 		)
 		(property "Value" "BD3"
-			(at 174.625 128.27 0)
+			(at 159.385 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1898,7 +1918,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 175.26 128.27 0)
+			(at 160.02 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1907,7 +1927,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 175.26 128.27 0)
+			(at 160.02 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1916,7 +1936,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 175.26 128.27 0)
+			(at 160.02 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2077,8 +2097,9 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
-		(at 199.39 73.66 0)
+		(at 176.53 78.74 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2086,7 +2107,7 @@
 		(dnp no)
 		(uuid "f1b90189-05b1-421a-805b-7916fc656854")
 		(property "Reference" "D70"
-			(at 199.39 69.85 0)
+			(at 176.53 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2094,7 +2115,7 @@
 			)
 		)
 		(property "Value" "BD3"
-			(at 198.755 73.66 0)
+			(at 175.895 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2102,7 +2123,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 199.39 73.66 0)
+			(at 176.53 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2111,7 +2132,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 199.39 73.66 0)
+			(at 176.53 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2120,7 +2141,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 199.39 73.66 0)
+			(at 176.53 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)

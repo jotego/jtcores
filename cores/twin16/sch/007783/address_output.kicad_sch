@@ -3942,7 +3942,7 @@
 	)
 	(wire
 		(pts
-			(xy 293.37 88.9) (xy 298.45 88.9)
+			(xy 298.45 88.9) (xy 293.37 88.9)
 		)
 		(stroke
 			(width 0)
@@ -4592,7 +4592,7 @@
 	)
 	(wire
 		(pts
-			(xy 293.37 100.33) (xy 298.45 100.33)
+			(xy 298.45 100.33) (xy 293.37 100.33)
 		)
 		(stroke
 			(width 0)
@@ -7232,7 +7232,7 @@
 	)
 	(wire
 		(pts
-			(xy 293.37 111.76) (xy 298.45 111.76)
+			(xy 298.45 111.76) (xy 293.37 111.76)
 		)
 		(stroke
 			(width 0)
@@ -7935,13 +7935,13 @@
 		(uuid "0b4a6e63-ea55-4c9b-adae-d2f5164839b3")
 	)
 	(label "~{OH4'}"
-		(at 86.36 167.64 0)
+		(at 92.71 167.64 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "0bc74d94-b01e-42a4-9a1b-34c59c6196df")
 	)
@@ -8650,13 +8650,13 @@
 		(uuid "4ec53903-67cc-4a79-8874-3e048b6562bb")
 	)
 	(label "SLWR"
-		(at 293.37 77.47 0)
+		(at 298.45 77.47 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "4fef7c11-31c9-4826-978a-aba245f27480")
 	)
@@ -8925,13 +8925,13 @@
 		(uuid "6df89e98-00a1-431b-8c33-11f3e56afbf6")
 	)
 	(label "SOCS"
-		(at 293.37 111.76 0)
+		(at 298.45 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "70671d2f-4cf6-4155-8650-2fb18d2b1e85")
 	)
@@ -8991,13 +8991,13 @@
 		(uuid "772258e8-4505-4999-ae2b-69342a46b447")
 	)
 	(label "MOCS"
-		(at 293.37 100.33 0)
+		(at 298.45 100.33 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "79b7bffd-9ad7-428d-a3c3-1f50f84cf778")
 	)
@@ -9156,13 +9156,13 @@
 		(uuid "8cefb5b7-f31b-4edc-afa4-3d960c068797")
 	)
 	(label "~{OH2}"
-		(at 86.36 128.27 0)
+		(at 91.44 128.27 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "8e66445f-f6a1-429b-ba20-4733122f7f1f")
 	)
@@ -9189,13 +9189,13 @@
 		(uuid "90a9db38-cd66-445d-8a63-8c88c4566e0c")
 	)
 	(label "~{OH2'}"
-		(at 86.36 143.51 0)
+		(at 92.71 143.51 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "90d2a1e2-db02-4650-8f75-248510740b0a")
 	)
@@ -9574,24 +9574,24 @@
 		(uuid "bc7bc154-7c5f-44b0-8cd8-78461e653f90")
 	)
 	(label "OH4"
-		(at 86.36 162.56 0)
+		(at 92.71 162.56 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "bd08bb14-eaa4-497b-b0fa-717e027625b0")
 	)
 	(label "~{OH4}"
-		(at 86.36 156.21 0)
+		(at 92.71 156.21 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "bda6c8b9-78ef-4486-b151-5fc607924dea")
 	)
@@ -10201,13 +10201,13 @@
 		(uuid "fe0c9c1f-135f-4063-a571-89ad3aeef590")
 	)
 	(label "OH2"
-		(at 86.36 139.7 0)
+		(at 92.71 139.7 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "fe1ad65b-bf31-4c46-b8de-c8fdb935a511")
 	)
@@ -10223,13 +10223,13 @@
 		(uuid "ff7ad171-65c6-47cb-a611-3b5f220e09fc")
 	)
 	(label "SUWR"
-		(at 293.37 88.9 0)
+		(at 298.45 88.9 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "ffa36698-e2c1-492d-8dcc-2e85c206810d")
 	)
@@ -14101,6 +14101,7 @@
 		)
 	)
 	(symbol
+		(lib_name "ga_fujitsu_av:T34")
 		(lib_id "ga_fujitsu_av:T34")
 		(at 137.16 54.61 0)
 		(unit 1)

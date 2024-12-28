@@ -286,8 +286,9 @@ jttwin16_obj u_obj(
     .hs         ( hs        ),
     .vs         ( vs        ),
 
-    .vdump      ( vdump^{1'b0,{8{vflip}}} ),
+    .vdump      ( vdump     ),
     .hdump      ( hdump     ),
+    .vflip      ( vflip     ),
     .obj_dx     ( obj_dx    ),
     .obj_dy     ( obj_dy    ),
 
