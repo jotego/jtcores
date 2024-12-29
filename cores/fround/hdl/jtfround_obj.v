@@ -26,6 +26,7 @@ module jtfround_obj(
     input             lvbl,
     input             hs,
     input             vs,
+    input             gvflip,
 
     input      [ 8:0] vdump,
     input      [ 8:0] hdump,
@@ -60,16 +61,11 @@ wire [ 9:0] hpos;
 wire        dr_start, dr_busy;
 
 jt00778x #(.CW(CW)) u_scan(    // sprite logic
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .pxl_cen        ( pxl_cen       ),
 
     // CPU interface
-    // input             cs,
-    // input             cpu_we,
-    // input      [ 7:0] cpu_dout,
-    // input      [10:0] cpu_addr,
-    // output     [ 7:0] cpu_din,
     .obj_dx         ( obj_dx        ),
     .obj_dy         ( obj_dy        ),
 
@@ -94,7 +90,7 @@ jt00778x #(.CW(CW)) u_scan(    // sprite logic
     .vs             ( vs            ),
     .lvbl           ( lvbl          ),
     .hs             ( hs            ),
-    // output            flip,
+    .gvflip         ( gvflip        ),
 
     // draw module
     .dr_start       ( dr_start      ),

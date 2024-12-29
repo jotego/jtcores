@@ -293,6 +293,7 @@ jtfround_obj u_obj(
     .hdump      ( hdump     ),
     .obj_dx     ( obj_dx    ),
     .obj_dy     ( obj_dy    ),
+    .gvflip     ( vflip     ),
 
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
