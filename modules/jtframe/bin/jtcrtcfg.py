@@ -1,7 +1,7 @@
-    # Script for choosing settings on Analogizer
-    # Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    # Version: 1.0
-    # Date: 10-6-2024
+# Script for choosing settings on Analogizer
+# Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
+# Version: 1.0
+# Date: 10-6-2024
 
 import binascii
 import argparse

@@ -470,14 +470,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
     if [[ -e $PRJPATH/cfg/msg ]]; then
         jtframe msg $PRJ --commit `no_v $PRJCOMMIT` || exit $?
     fi
-    # Update Avatars
-    if [ -e $PRJPATH/patrons/lut ]; then
-        $JTFRAME/bin/lut2hex $PRJPATH/patrons/lut || (echo while running lut2hex on patrons/lut; exit $? )
-        if [ -e $PRJPATH/patrons/avatars ]; then
-            $JTFRAME/bin/avatar.py $PRJ > /tmp/avatar_$PRJ.log || ( cat /tmp/avatar_$PRJ.log; exit 1 )
-            cp $PRJPATH/patrons/avatar{,_pal}.hex $PRJPATH/$TARGET || exit $?
-        fi
-    fi
     # Fonts and graphics
     ln -srf $JTFRAME/bin/font0.hex
     ln -srf $JTFRAME/hdl/video/logodata.hex
