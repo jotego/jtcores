@@ -208,22 +208,9 @@ function target {
 }
 
 # check that git hooks are present
-cp --update $JTFRAME/bin/post-merge $(git rev-parse --git-path hooks)/post-merge
-
-# Recompiles jtframe quietly after each commit
-cd $JTFRAME
-JTFRAME_POSTCOMMIT=$(git rev-parse --git-path hooks)/post-commit
-if [ ! -e $JTFRAME_POSTCOMMIT ]; then
-    cat > $JTFRAME_POSTCOMMIT <<EOF
-    #!/bin/bash
-    jtframe > /dev/null
-    if [ $(git branch --no-color --show-current) = master ]; then
-        # automatically push changes to master branch
-        git push
-    fi
-EOF
-    chmod +x $JTFRAME_POSTCOMMIT
-fi
+for HOOK in $JTFRAME/bin/hooks/*; do
+    echo cp --update $HOOK $(git rev-parse --git-path hooks)
+done
 
 if ! git config -l | grep instead > /dev/null; then
     cat<<EOF
