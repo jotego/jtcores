@@ -181,6 +181,10 @@ end
 // If neither macro is defined, the nemesis_rom_debug module just passes the
 // cs and addr signals through.
 
+wire [16:0] main_sdram_addr;
+wire [13:0] audio_sdram_addr;
+wire        main_sdram_cs, audio_sdram_cs;
+
 nemesis_rom_debug u_rom_debug(
 	.i_clk             ( clk                  ),
 	.i_cen             ( cen6                 ),
@@ -194,11 +198,15 @@ nemesis_rom_debug u_rom_debug(
 	.i_z80_ok          ( audio_ok               ),
 	.i_z80_addr        ( audio_addr             ),
 	.i_z80_data        ( audio_data             ),
+	.o_z80_sdram_cs    ( audio_sdram_cs         ),
+	.o_z80_sdram_addr  ( audio_sdram_addr       ),
 	
 	.i_main_cs         ( main_cs | ~cpu_start ),
 	.i_main_ok         ( main_ok              ),
 	.i_main_addr       ( main_addr            ),
-	.i_main_data       ( main_data            )
+	.i_main_data       ( main_data            ),
+	.o_main_sdram_cs   ( main_sdram_cs        ),
+	.o_main_sdram_addr ( main_sdram_addr      )
 );
 
 ///// PROMs /////
@@ -343,7 +351,7 @@ nemesis_main main(
 
 	// ROM
 	.o_rom_cs       ( main_cs         ),
-	.o_rom_addr     ( main_addr       ),
+	.o_rom_addr     ( main_sdram_addr ),
 	.i_rom_data     ( main_data       ), // 16 bits data in from PROM
 	.i_rom_ok       ( main_ok         ),
 
@@ -546,7 +554,7 @@ nemesis_sound u_sound(
 `endif
 	.i_cpu_start      ( cpu_start         ),
 	.o_z80_cs         ( audio_cs          ),
-	.o_z80_addr       ( audio_addr        ),
+	.o_z80_addr       ( audio_sdram_addr  ),
 	.i_z80_data       ( audio_data        ),
 	.i_z80_ok         ( audio_ok          ),
 
