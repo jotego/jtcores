@@ -179,16 +179,22 @@ function hexdiff {
 
 # starts gtkwave and opens the test dump file in the current folder
 function gw {
-    if [ -e test.lxt ]; then
-        gtkwave test.lxt &
-    elif [ -e test.fst ]; then
-        local DMPFILE=
-        if [ -e test.gtkw ]; then DMPFILE=test.gtkw; fi
-        gtkwave test.fst $DMPFILE &
-    elif [ -e test.vcd ]; then
-        gtkwave test.vcd &
-    else
+    local DIR=$(basename $(pwd))
+    local DMPFILE=
+    local FOUND=0
+    if [ -e test.gtkw ]; then DMPFILE=$DIR/test.gtkw; fi
+    for ext in lxt fst vcd; do
+        if [ -e test.$ext ]; then
+            # starts from .. so the folder name is shown on
+            # GTKWave's title bar
+            (cd ..; gtkwave $DIR/test.$ext $DMPFILE &)
+            FOUND=1
+            break
+        fi
+    done
+    if [ $FOUND = 0 ]; then
         echo "No test.lxt, test.fst, test.vcd in the current folder"
+        return 1
     fi
 }
 
