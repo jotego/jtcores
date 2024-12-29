@@ -20,10 +20,11 @@ clocks:
         - cen_1m5
 audio:
   rsum: 12k
+  rsum_feedback_res: true
   channels:
-    - { name: fm,  module: jt51,     rsum: 3.0k, rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
-    - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.8 }
-    - { name: upd, module: jt7759,   rsum: 8.5k, fir: fir_192k_4k.csv, pre: 0.5 }
+    - { name: fm,  module: jt51,     rsum: 3k,   rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
+    - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.3  } # 0.37*10k/12.2k
+    - { name: upd, module: jt7759,   rsum: 8.5k, fir: fir_192k_4k.csv }
 sdram:
   banks:
     - buses:
@@ -90,36 +91,42 @@ bram:
     addr_width: 15
     din: mram_din
     rw: true
-    ioctl: { save: true, order: 0 }
+    ioctl: { save: true, order: 0, when: [ JTFRAME_RELEASE ] }
   - name: fram
     data_width: 16
     addr_width: 14
     sim_file: true
+    ioctl: { save: true, order: 0, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: fx_we, rw: true, din: mram_din, dout: mf_dout }
   # 256kB for Scroll Tile Bitmaps
   - name: stram
     data_width: 16
     addr_width: 18
+    ioctl: { save: true, order: 1, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: stile, rw: true, din: sram_din, dout: stile_dout }
   # VRAM in schematics is mapped to scra and scrb
   - name: scra
     data_width: 16
     addr_width: 13
     sim_file: true
+    ioctl: { save: true, order: 2, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: va_we, rw: true, din: v_din, dout: ma_dout }
   - name: scrb
     data_width: 16
     addr_width: 13
     sim_file: true
+    ioctl: { save: true, order: 3, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: vb_we, rw: true, din: v_din, dout: mb_dout }
   - name: oram
     data_width: 16
     addr_width: 14
     rw: true
     sim_file: true
+    ioctl: { save: true, order: 4, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: osha, we: osha_we, rw: true, din: v_din, dout: mo_dout }
   - name: pal
     data_width: 8
     addr_width: 12
     sim_file: true
+    ioctl: { save: true, order: 5, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "mram_din[7:0]", dout: mp_dout }

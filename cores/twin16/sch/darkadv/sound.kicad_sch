@@ -12973,12 +12973,6 @@
 		(uuid "25af03b7-5d20-429a-9fc0-916f5bfeb552")
 	)
 	(junction
-		(at 157.48 236.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "28c0cf9c-db7b-4c01-b2fd-7e65f95ae985")
-	)
-	(junction
 		(at 220.98 41.91)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -13211,12 +13205,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "cbf84c76-949a-4480-bb41-57454d50fc65")
-	)
-	(junction
-		(at 157.48 261.62)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cece9b32-7422-496c-9178-99aa17dff8d6")
 	)
 	(junction
 		(at 321.31 229.87)
@@ -16028,7 +16016,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 261.62) (xy 157.48 261.62)
+			(xy 156.21 261.62) (xy 166.37 261.62)
 		)
 		(stroke
 			(width 0)
@@ -18568,7 +18556,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 236.22) (xy 156.21 236.22)
+			(xy 156.21 236.22) (xy 166.37 236.22)
 		)
 		(stroke
 			(width 0)
@@ -19025,16 +19013,6 @@
 			(type default)
 		)
 		(uuid "74e61797-0f2c-4426-bb1d-cec329b6fcb8")
-	)
-	(wire
-		(pts
-			(xy 157.48 236.22) (xy 166.37 236.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75542500-3193-4633-a3dc-57d372129e95")
 	)
 	(polyline
 		(pts
@@ -21085,16 +21063,6 @@
 			(type default)
 		)
 		(uuid "b8dd463c-e4ea-480c-8ca9-498f1c091155")
-	)
-	(wire
-		(pts
-			(xy 157.48 261.62) (xy 166.37 261.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b947f07a-4cb1-470d-a4e1-aaf15fd2cc99")
 	)
 	(wire
 		(pts
@@ -23276,6 +23244,42 @@
 			(justify left bottom)
 		)
 		(uuid "2d66a650-2c62-4443-994d-24fc383b7bd1")
+	)
+	(text "gain=47k/2/(47k/2+20k+100k)=0.164"
+		(exclude_from_sim no)
+		(at 163.83 278.13 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+			)
+		)
+		(uuid "37cd45e1-acde-4800-9b62-3b0dedbae059")
+	)
+	(text "gain=10k/12.24k=0.816"
+		(exclude_from_sim no)
+		(at 254 260.35 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+			)
+		)
+		(uuid "d55cd44c-1302-4db6-90ec-d618c783ea52")
+	)
+	(text "REG 12 MSB sets\ngain for channel A"
+		(exclude_from_sim no)
+		(at 205.74 231.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+			)
+		)
+		(uuid "db037d9c-e15f-4279-babb-1fb5aa9162dd")
 	)
 	(text "Analog decoupling"
 		(exclude_from_sim no)
@@ -27869,7 +27873,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 157.48 254 0)
+		(at 156.21 254 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27877,7 +27881,7 @@
 		(dnp no)
 		(uuid "171ef762-9dc3-43e7-b5ff-1953233d9fdf")
 		(property "Reference" "#PWR0500"
-			(at 157.48 257.81 0)
+			(at 156.21 257.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27886,7 +27890,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 161.29 252.73 0)
+			(at 160.02 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27894,7 +27898,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 157.48 254 0)
+			(at 156.21 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27903,7 +27907,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 157.48 254 0)
+			(at 156.21 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27912,7 +27916,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 157.48 254 0)
+			(at 156.21 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36071,7 +36075,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 157.48 257.81 180)
+		(at 156.21 257.81 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -36080,7 +36084,7 @@
 		(fields_autoplaced yes)
 		(uuid "a8652825-a2e2-4ff4-8318-b2a288d39c49")
 		(property "Reference" "A_R39"
-			(at 160.02 256.5399 0)
+			(at 158.75 256.5399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36089,7 +36093,7 @@
 			)
 		)
 		(property "Value" "47k"
-			(at 160.02 259.0799 0)
+			(at 158.75 259.0799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36098,7 +36102,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 159.258 257.81 90)
+			(at 157.988 257.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36107,7 +36111,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 157.48 257.81 0)
+			(at 156.21 257.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36116,7 +36120,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 157.48 257.81 0)
+			(at 156.21 257.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39816,7 +39820,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 157.48 232.41 180)
+		(at 156.21 232.41 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -39825,7 +39829,7 @@
 		(fields_autoplaced yes)
 		(uuid "da3add20-d975-4a34-9940-91a966a6201c")
 		(property "Reference" "A_R36"
-			(at 160.02 231.1399 0)
+			(at 158.75 231.1399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39834,7 +39838,7 @@
 			)
 		)
 		(property "Value" "47k"
-			(at 160.02 233.6799 0)
+			(at 158.75 233.6799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39843,7 +39847,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 159.258 232.41 90)
+			(at 157.988 232.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39852,7 +39856,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 157.48 232.41 0)
+			(at 156.21 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39861,7 +39865,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 157.48 232.41 0)
+			(at 156.21 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40122,7 +40126,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 157.48 228.6 0)
+		(at 156.21 228.6 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -40131,7 +40135,7 @@
 		(fields_autoplaced yes)
 		(uuid "e42315c9-4e1f-4f28-a326-9abc705c6a99")
 		(property "Reference" "#PWR0499"
-			(at 157.48 232.41 0)
+			(at 156.21 232.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40140,7 +40144,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 157.48 223.52 0)
+			(at 156.21 223.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40148,7 +40152,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 157.48 228.6 0)
+			(at 156.21 228.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40157,7 +40161,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 157.48 228.6 0)
+			(at 156.21 228.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40166,7 +40170,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 157.48 228.6 0)
+			(at 156.21 228.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)

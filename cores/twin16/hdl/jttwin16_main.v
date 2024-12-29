@@ -20,7 +20,6 @@ module jttwin16_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    output               cpu_cen,
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -85,7 +84,7 @@ module jttwin16_main(
 
 wire [23:1] A;
 wire [ 1:0] dws;
-wire        cpu_cenb, pre_dtackn, cpu_we, oeff_cs,
+wire        cpu_cen, cpu_cenb, pre_dtackn, cpu_we, oeff_cs,
             UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, io_cs, vram_cs, oram_cs,
@@ -339,11 +338,11 @@ jtframe_m68k u_cpu(
         scrb_x   = { mmr[4][1], mmr[1] };
         scra_y   = { mmr[4][2], mmr[2] };
         scrb_y   = { mmr[4][3], mmr[3] };
-        prio     = mmr[4][5:4];
+        prio     = {1'b0,mmr[4][5:4]};
         hflip    = mmr[4][6];
         vflip    = mmr[4][7];
-        obj_dx   = {mmr[8][1:0],mmr[7]};
-        obj_dy   = {mmr[10][1:0],mmr[9]};
+        obj_dx   = {mmr[8],mmr[7]};
+        obj_dy   = {mmr[10],mmr[9]};
     end
     // integer framecnt=0;
     // always @(posedge LVBL) begin
@@ -354,21 +353,24 @@ jtframe_m68k u_cpu(
         rom_cs    = 0;
         ram_cs    = 0;
         dma_on    = 0;
-
+        vramcvf   = 0;
         snd_latch = 0;
         sndon     = 0;
-
+        sint      = 0;
         st_dout   = 0;
     end
     assign
         main_addr = 0,
         ram_dsn   = 0,
         cpu_dout  = 0,
-        cpu_we    = 0,
         pal_we    = 0,
         va_we     = 0,
         vb_we     = 0,
         fx_we     = 0,
+        nvram_addr= 0,
+        nvram_we  = 0,
+        ram_we    = 0,
+        sh_we     = 0,
         oram_we   = 0;
 `endif
 endmodule

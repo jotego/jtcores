@@ -6,6 +6,7 @@ type Args struct {
     Verbose  bool
     Local    bool  // Dump to local folder, else dump to target folder
     Make_inc bool
+    Nodbg    bool
     // The memory selection (SDRAM, DDR, BRAM...) will be here
 }
 
@@ -28,6 +29,15 @@ type Selectable struct {
     NoTargets []string
 }
 
+type MacroEnabled struct{
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+}
+
+type Optional interface{
+    Enabled(macros map[string]string) bool
+}
+
 type SDRAMBus struct {
     Selectable
     Name       string `yaml:"name"`
@@ -44,6 +54,16 @@ type SDRAMBus struct {
     Gfx        string `yaml:"gfx_sort"`
 }
 
+type BRAMBus_Ioctl struct {
+    // Instantiating MacroEnabled anonymously does not work
+    // with the YAML package, so When and Unless are duplicated here
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+    Save    bool `yaml:"save"`
+    Order   int  `yaml:"order"`
+    Restore bool `yaml:"restore"`
+}
+
 type BRAMBus struct {
     Selectable
     Name       string `yaml:"name"`
@@ -56,11 +76,7 @@ type BRAMBus struct {
     Dout       string `yaml:"dout"` // optional name for dout signal
     Sim_file   bool   `yaml:"sim_file"`
     Prom       bool   `yaml:"prom"` // program contents after JTFRAME_PROM_START
-    Ioctl      struct {
-        Save bool `yaml:"save"`
-        Order int `yaml:"order"`
-        Restore bool `yaml:"restore"`
-    } `yaml:"ioctl"`
+    Ioctl      BRAMBus_Ioctl `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
         Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
@@ -167,12 +183,15 @@ type AudioCh struct {
     Fcut       [2]int
     Gain       string
     gain       float64
+    rout       float64
 }
 
 type Audio struct {
-    Rsum    string `yaml:"rsum"`
     Mute    bool   `yaml:"mute"`
     RC         AudioRC `yaml:"rc"`
+    Rsum    string `yaml:"rsum"`
+    Rsum_feedback_res bool `yaml:"rsum_feedback_res"`
+    Gain    string `yaml:"gain"` // additional global gain
     Channels []AudioCh `yaml:"channels"`
     // Fractional divider information to generate 192kHz clock
     FracW,FracN,FracM int

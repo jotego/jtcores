@@ -116,7 +116,7 @@ jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     // output reg [ 7:0] st_dout
 );
 
-jttwin16_objdraw #(
+jtfround_objdraw #(
     .CW(CW),.LATCH(1),.SWAPH(1),.FLIP_OFFSET(9'h12)
 ) u_draw(
     .rst        ( rst       ),

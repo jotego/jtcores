@@ -24,7 +24,7 @@ module jttwin16_game(
 wire [ 7:0] snd_latch;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
 wire        snd_irq, pal_cs, dma_on, dma_bsy, vramcvf, mint,
-            cpu_rnw, snd_wrn, hflip, vflip, tim, cpu_cen, tim1, tim2, sint;
+            cpu_rnw, snd_wrn, hflip, vflip, tim, tim1, tim2, sint;
 wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] m_dout, s_dout, shs_dout, shm_dout, obj_dx, obj_dy;
 wire [19:1] m_addr;
@@ -112,7 +112,6 @@ jttwin16_main u_main(
     .LVBL           ( LVBL          ),
 
     .cpu_dout       ( m_dout        ),
-    .cpu_cen        ( cpu_cen       ),
     .mint           ( mint          ),
     .sint           ( sint          ),
 
@@ -279,9 +278,6 @@ jttwin16_video u_video (
     .blue           ( blue          ),
     // Debug
     .debug_bus      ( debug_bus     ),
-    .ioctl_addr     (ioctl_addr[14:0]),
-    // .ioctl_din      ( ioctl_din     ),
-    .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
 );

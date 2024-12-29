@@ -42,6 +42,7 @@ clocks:
 # Audio filters and accumulator
 audio:
   rsum: 1k
+  rsum_feedback_res: false # if false, rsum attenuates, if true, rsum gives gain
   mute: true  # add mute signal
   RC: { r: 1k, c: 1n } # global RC filter
   Channels:
@@ -98,6 +99,8 @@ bram:
         save: true # a dump2bin.sh file will be generated in the sim folder
         restore: true # whether to load it upon core boot
         order: 0   # order in the file
+        unless: [ JTFRAME_RELEASE ] # include only for debug builds
+        when: [ SIDI ] # include only for sidi builds
       dual_port:
         name: main
         [din:]

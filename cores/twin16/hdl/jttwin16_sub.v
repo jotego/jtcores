@@ -241,5 +241,13 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
+assign
+    ram_addr = 0, ram_we   = 0, ram_dsn = 0, cpu_addr = 0, cpu_dout = 0,
+    sh_we    = 0, va_we    = 0, vb_we   = 0, oram_we  = 0, stile_we = 0,
+    obj_addr = 0, rom_addr = 0;
+initial begin
+    mint   = 0; ram_cs = 0;
+    obj_cs = 0; rom_cs = 0;
+end
 `endif
 endmodule

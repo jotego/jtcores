@@ -15,6 +15,7 @@ import (
 )
 
 var rout float64
+var audio_modules map[string]AudioCh
 
 func eng2float( s string ) float64 {
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
@@ -120,6 +121,7 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 }
 
 func make_rc( ch *AudioCh, fs float64 ) {
+	rout = ch.rout
 	const bits=15
 	if ch.Fir != "" {
 		ch.Pole = fmt.Sprintf("%d'h00",bits*2)
@@ -168,77 +170,37 @@ func fill_global_pole( cfg *Audio, fs float64 ) {
 }
 
 
-func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) {
+func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) error {
 	fill_audio_clock( macros, &cfg.Audio )
-	modules := read_modules()
 	const fs = float64(192000)
 	// assign information derived from the module type
-	var rmin,rmax float64
-	for _,ch := range cfg.Audio.Channels {
-		if ch.Rsum=="" {
-			fmt.Printf("rsum missing for audio channel %s\n",ch.Name)
-			os.Exit(1)
-		}
-		rsum := eng2float(ch.Rsum)
-		if rsum<=0 {
-			fmt.Printf("rsum must be >0 in audio channel %s\n",ch.Name)
-			os.Exit(1)
-		}
-		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
-		if rsum>0 && rsum > rmax { rmax=rsum }
-	}
+	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
+	rmin,rmax := find_rlimits(cfg.Audio.Channels)
 	fill_global_pole( &cfg.Audio, fs )
 	var gmax float64
+	rsum := eng2float(cfg.Audio.Rsum)
+	global_gain := eng2float(cfg.Audio.Gain)
+	if rsum==0 { rsum = rmax }
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
-		if ch.Name=="" {
-			fmt.Printf("ERROR: anonymous audio channels are not allowed in mem.yaml\n")
-			os.Exit(1)
-		}
-		mod, fnd := modules[ch.Module]
-		if !fnd && ch.Module!="" {
-			fmt.Printf("Error: unknown module statement %s for audio channel %s in mem.yaml\n",
-			ch.Module, ch.Name )
-			os.Exit(1)
-		}
+		mod, fnd := audio_modules[ch.Module]
 		if fnd {
-			// copy module information
-			ch.Data_width = mod.Data_width
-			ch.Unsigned   = mod.Unsigned
-			ch.Stereo     = mod.Stereo
-			ch.DCrm       = mod.DCrm
-			ch.Vpp		  = mod.Vpp
-			rout          = 0
-			rout          = eng2float(mod.Rout)
+			copy_module_data(mod,ch)
 		}
-		// if ch.RC==nil { ch.RC = mod.RC }
-		// Derive pole information
-		make_rc(  ch, fs )
-		make_fir( core, outpath, ch, fs )
-		ch.gain=rmin/eng2float(ch.Rsum)
+		rout = 0
+		rout = eng2float(ch.Rout)
+		ch.rout = rout
+		make_audio_filters( core, outpath, ch, fs )
+		if cfg.Audio.Rsum_feedback_res {
+			ch.gain=rmin/eng2float(ch.Rsum)
+		} else {
+			ch.gain=eng2float(ch.Rsum)/rsum
+		}
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
-		// fmt.Printf("%6s - pre=%f - rsum=%s rmin=%f -> gain=%f\n",ch.Name,eng2float(ch.Pre),ch.Rsum,rmin,ch.gain)
-		// if (int(gint)>>4) > 15 {
-		// 	fmt.Printf("Gain unbalance among audio channels is too large")
-		// 	os.Exit(1)
-		// }
 		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
-	rsum := eng2float(cfg.Audio.Rsum)
-	if rsum==0 { rsum = rmax }
-	const FRAC_BITS=7 // must match jtframe_sndchain.WD
-	const INTEGER=1<<FRAC_BITS
-	for k,_ := range cfg.Audio.Channels {
-		ch := &cfg.Audio.Channels[k]
-		ch.gain = ch.gain/gmax*rmin/rsum
-		intg := int(ch.gain*INTEGER)
-		if (intg&^0xff)!=0 {
-			fmt.Printf("Error: cannot fit audio gain in 8 bits\n")
-			os.Exit(1)
-		}
-		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
-	}
+	if e := normalize_gains( cfg.Audio.Channels, gmax, global_gain ); e!=nil {return e}
 	const MaxCh=6
 	if len(cfg.Audio.Channels)>MaxCh {
 		fmt.Printf("ERROR: Audio configuration requires %d channels, but maximum supported is %d\n",len(cfg.Audio.Channels),MaxCh)
@@ -251,4 +213,71 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		}
 	}
 	_, cfg.Stereo = macros["JTFRAME_STEREO"]
+	return nil
+}
+
+func validate_channels( all_channels []AudioCh) error {
+	for _,ch := range all_channels {
+		if ch.Rsum=="" {
+			return fmt.Errorf("rsum missing for audio channel %s\n",ch.Name)
+		}
+		rsum := eng2float(ch.Rsum)
+		if rsum<=0 {
+			return fmt.Errorf("rsum must be >0 in audio channel %s\n",ch.Name)
+		}
+		if ch.Name=="" {
+			return fmt.Errorf("ERROR: anonymous audio channels are not allowed in mem.yaml\n")
+		}
+		_, fnd := audio_modules[ch.Module]
+		if !fnd && ch.Module!="" {
+			return fmt.Errorf("Error: unknown module statement %s for audio channel %s in mem.yaml\n",
+			ch.Module, ch.Name )
+		}
+	}
+	return nil
+}
+
+func find_rlimits( all_channels []AudioCh ) (rmin, rmax float64) {
+	for _,ch := range all_channels {
+		rsum := eng2float(ch.Rsum)
+		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
+		if rsum>0 && rsum > rmax { rmax=rsum }
+	}
+	return rmin,rmax
+}
+
+func copy_module_data( src AudioCh, dst *AudioCh ) {
+	dst.Data_width = src.Data_width
+	dst.Unsigned   = src.Unsigned
+	dst.Stereo     = src.Stereo
+	dst.DCrm       = src.DCrm
+	dst.Vpp		   = src.Vpp
+	dst.Rout       = src.Rout
+}
+
+func make_audio_filters(core, outpath string, ch *AudioCh, fs float64) {
+	make_rc( ch, fs )
+	make_fir( core, outpath, ch, fs )
+}
+
+func normalize_gains( all_channels []AudioCh, gmax, global float64 ) error {
+	const FRAC_BITS=7 // must match jtframe_sndchain.WD
+	const INTEGER=1<<FRAC_BITS
+	if global==0 {
+		global=1.0
+	}
+	for k,_ := range all_channels {
+		ch := &all_channels[k]
+		ch.gain = ch.gain/gmax*global
+		intg := int(ch.gain*INTEGER)
+		if (intg&^0xff)!=0 {
+			return fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
+		}
+		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
+	}
+	return nil
+}
+
+func init() {
+	audio_modules = read_modules()
 }

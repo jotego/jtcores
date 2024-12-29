@@ -31,12 +31,6 @@ var mmrCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(mmrCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// mmrCmd.PersistentFlags().String("foo", "", "A help for foo")
-
 	mmrCmd.Flags().BoolVarP( &verbose, "verbose", "v", false, "Verbose output")
 }
 

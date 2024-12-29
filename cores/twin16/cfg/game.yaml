@@ -5,6 +5,8 @@ game:
   - from: fround
     get:
       - jt00778x.v
+      - jtfround_objdraw.v
+      - jtfround_draw.v
   - from: tmnt
     get:
       - jttmnt_sound.v

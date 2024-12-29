@@ -74,11 +74,6 @@ module jttwin16_video(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
-    // Debug
-    input      [14:0] ioctl_addr,
-    input             ioctl_ram,
-    // output     [ 7:0] ioctl_din,
-
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -197,6 +192,8 @@ jtframe_tilemap #(
     .pxl        ( lyrf_pxl  )
 );
 
+// makes consequitive requests to
+// convert 16 bit data to 32 bits
 jttwin16_tile u_tile(
     .rst        ( rst           ),
     .clk        ( clk           ),

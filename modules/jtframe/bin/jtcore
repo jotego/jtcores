@@ -83,6 +83,7 @@ JTBIN2SD=
 MACROS=
 OUTPUTDIR=output_files
 PRJ=
+NODBG=
 PROG=FALSE
 SEED=1
 SKIPTIMING=
@@ -169,9 +170,9 @@ function parse_args {
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
-            --nodbg)      MACROS="$MACROS JTFRAME_RELEASE=1";;
-            --nosta)      SKIPTIMING=1;;
-            --sim)        SIM=TRUE;;
+            --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nosta) SKIPTIMING=1;;
+            --sim)   SIM=TRUE;;
             --sd)
                 if [ "${2:0:1}" != - ]; then
                     shift
@@ -254,24 +255,10 @@ function is_dirty {
     git status --short | grep -i "^ M " > /dev/null
 }
 
-# Removes the initial v from a word if exists.
-# Used to remove the v in version codes without
-# affecting the git id, in the case it's used instead
-function no_v {
-    if [ "${1:0:1}" = v ]; then
-        echo ${1:1}
-    else
-        echo $1
-    fi
-}
-
+PRJCOMMIT="$(git rev-parse --short HEAD)"
 if is_dirty; then
-    PRJCOMMIT="$(git rev-parse --short HEAD)-dirty"
-else
-    PRJCOMMIT=`version_ok.sh`
+    PRJCOMMIT="${PRJCOMMIT}-dirty"
 fi
-
-if [ "$VERBOSE" = -v ]; then echo "Using version tag $PRJCOMMIT"; fi
 
 if [ ! -e "$JTFRAME" ]; then
     echo -e "${rBG}ERROR:${NC}${wBG} cannot locate jtframe folder.${NC}"
@@ -372,9 +359,9 @@ function umacros2undef {
 
 function parse_macros {
     if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $* > /dev/stderr
+        echo jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $* > /dev/stderr
     fi
-    jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $*
+    jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $*
 }
 
 # qsf line to disable SOUND synthesis
@@ -468,7 +455,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then
-        jtframe msg $PRJ --commit `no_v $PRJCOMMIT` || exit $?
+        jtframe msg $PRJ --commit $PRJCOMMIT || exit $?
     fi
     # Fonts and graphics
     ln -srf $JTFRAME/bin/font0.hex
@@ -503,7 +490,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
-        if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET || exit $?; fi
+        if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $NODBG || exit $?; fi
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
