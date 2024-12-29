@@ -35,8 +35,8 @@ module nemesis_rom_debug(
 	input         i_clk,
 	input         i_cen,
 
-	input  [ 7:0] i_debug_bus,
-	output [ 7:0] o_debug_view,
+	input      [ 7:0] i_debug_bus,
+	output reg [ 7:0] o_debug_view,
 	
 	input         i_z80_cs, // z80_cs | ~cpu_start
 	input         i_z80_ok,
@@ -62,7 +62,7 @@ module nemesis_rom_debug(
 
 `ifdef ROM_DEBUG
 
-reg  [7:0] i_debug_bus_prev;
+reg  [7:0] debug_bus_prev;
 reg        debug_cs;
 wire       debug_ok;
 wire [7:0] debug_data;
@@ -85,8 +85,8 @@ end
 `ifdef ROM_DEBUG_Z80
 	assign o_z80_sdram_cs    = debug_cs;
 	assign o_z80_sdram_addr  = i_debug_bus;
-	assign debug_ok        = i_z80_ok;
-	assign debug_data      = i_z80_data;
+	assign debug_ok          = i_z80_ok;
+	assign debug_data        = i_z80_data;
 `else
 	assign o_z80_sdram_cs    = i_z80_cs;
 	assign o_z80_sdram_addr  = i_z80_addr;
@@ -95,9 +95,9 @@ end
 `ifdef ROM_DEBUG_MAIN
 	assign o_main_sdram_cs   = debug_cs;
 	assign o_main_sdram_addr = i_debug_bus >> 1;
-	assign debug_ok        = i_main_ok;
+	assign debug_ok          = i_main_ok;
 	// on the 68k, MSB is on even addresses
-	assign debug_data      = i_debug_bus[0] ? i_main_data[7:0] : i_main_data[15:8];
+	assign debug_data        = i_debug_bus[0] ? i_main_data[7:0] : i_main_data[15:8];
 `else
 	assign o_main_sdram_cs   = i_main_cs;
 	assign o_main_sdram_addr = i_main_addr;
