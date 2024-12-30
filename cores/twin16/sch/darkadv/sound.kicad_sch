@@ -23234,6 +23234,19 @@
 		)
 		(uuid "ff9d138d-a6e7-4216-a0ac-13d8898d4bd4")
 	)
+	(text "100k as base\nresistor is\ntoo much\nattenuation"
+		(exclude_from_sim no)
+		(at 115.57 229.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+			)
+			(justify left)
+		)
+		(uuid "2cdc324d-043d-4b7d-b20a-135081ecd09b")
+	)
 	(text "Spare"
 		(exclude_from_sim no)
 		(at 257.81 269.24 0)
@@ -23245,15 +23258,16 @@
 		)
 		(uuid "2d66a650-2c62-4443-994d-24fc383b7bd1")
 	)
-	(text "gain=47k/2/(47k/2+20k+100k)=0.164"
+	(text "gain=47k/2/(47k/2+20k+100k)=0.164\nAssuming base resistor is really 20k\ngain=47k/2/(47k/2+20k+20k)=0.37"
 		(exclude_from_sim no)
-		(at 163.83 278.13 0)
+		(at 144.78 279.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(thickness 0.254)
 				(bold yes)
 			)
+			(justify left)
 		)
 		(uuid "37cd45e1-acde-4800-9b62-3b0dedbae059")
 	)
