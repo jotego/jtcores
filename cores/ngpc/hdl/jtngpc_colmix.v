@@ -29,7 +29,7 @@ module jtngpc_colmix(
 
     // CPU access
     input      [ 8:1] cpu_addr,
-    output reg [15:0] cpu_din,
+    output     [15:0] cpu_din,
     input      [15:0] cpu_dout,
     input      [ 1:0] we,
     input             pal_cs,
@@ -45,6 +45,11 @@ module jtngpc_colmix(
     output      [3:0] red,
     output      [3:0] green,
     output      [3:0] blue,
+
+    // Debug
+    input       [8:0] ioctl_addr,
+    output      [7:0] ioctl_din,
+    input             ioctl_dump,
     input       [7:0] debug_bus
     // gfx_en is handled at the scroll and obj modules
 );
@@ -59,10 +64,7 @@ wire        mx_pal;
 
 // assign {green,blue,red} = rgb;
 assign {blue,green,red} = rgb;
-
-always @(posedge clk) begin
-    cpu_din <= palrgb_cs ? cpal_dout : mono_dout;
-end
+assign cpu_din = palrgb_cs ? cpal_dout : mono_dout; // do not register! extra clock cycle breaks 2nd logo screen
 
 always @(posedge clk) if( pxl_cen ) begin
     if( mode ) begin // monochrome
@@ -84,6 +86,7 @@ jtngp_colmix u_monochrome(
     // Window
     .oow        ( oow       ),
     .oowc       ( oowc      ),
+    .mode       ( mode      ),
 
     // CPU access
     .cpu_addr   ( cpu_addr  ),
@@ -113,7 +116,16 @@ jtngp_colmix u_monochrome(
 // the original design does not accept byte access, but we do
 assign cpal_we = we & {2{palrgb_cs}};
 
-jtframe_dual_ram16 #(.AW(8)) u_colpal(
+wire [ 7:0] pala_mx = ioctl_dump ? ioctl_addr[8:1] : pal_addr;
+wire [15:0] palo;
+assign rgb = palo[11:0];
+assign ioctl_din = ioctl_addr[0] ? palo[8+:8] : palo[0+:8];
+
+jtframe_dual_ram16 #(
+    .AW(8),
+    .SIMFILE_LO("pal_lo.bin"),
+    .SIMFILE_HI("pal_hi.bin")
+) u_colpal(
     // Port 0
     .clk0       ( clk       ),
     .data0      ( cpu_dout  ),
@@ -125,7 +137,7 @@ jtframe_dual_ram16 #(.AW(8)) u_colpal(
     .data1      ( 16'd0     ),
     .addr1      ( pal_addr  ),
     .we1        ( 2'b0      ),
-    .q1         ( {nc,rgb}  )
+    .q1         ( palo      )
 );
 
 endmodule

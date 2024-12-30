@@ -12,7 +12,7 @@ trap on_error ERR
 
 function pocket_zip {
 	cd $JTBIN/pocket/raw
-	zip -r jotego.$1.zip $1.txt Assets/$1 Cores/jotego.$1 \
+	zip -qr jotego.$1.zip $1.txt Assets/$1 Cores/jotego.$1 \
 		Platforms/$1.json Platforms/_images/$1.bin Presets/jotego.$1 Saves/$1
 	mv jotego.$1.zip $JTBIN/pocket/zips
 	cd -
@@ -113,12 +113,9 @@ fi
 echo "Copying to $JTBIN"
 cd $JTBIN
 if [ -d .git ]; then
-	BRANCH=jtcores_$HASH
 	git reset --hard
 	git clean -fd .
 	git checkout master
-	git branch -D $BRANCH 2> /dev/null || true
-	git checkout -b $BRANCH
 	rm -rf mist sidi* pocket mister mra
 fi
 # refresh schematics
@@ -128,10 +125,11 @@ jtframe sch --git &
 echo "MRA regeneration including md5 sums"
 cd $DST
 rm -rf release/mra
-find release/pocket -name "*rbf_r" | xargs -l -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
-find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -l -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
+find release/pocket -name "*rbf_r" | xargs -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
+find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
 jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
 comm -3 pocket.cores mister.cores > other.cores
+sed -i '/neogeopocket/d' other.cores
 if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
 	# cat other.cores
 	jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores` --nodbg
@@ -146,20 +144,18 @@ for core in `find pocket/raw -name "*.rbf_r"`; do
 	pocket_zip $core
 done
 jtutil md5
-# .RAM files for required NVRAM content
-if [ $(find $ROM -name "*.RAM"|wc -l) -gt 0 ]; then
-	echo "Copy .RAM files for MiST platforms"
-	for i in mist sidi sidi128; do
-		if [ ! -d $JTBIN/$i ]; then continue; fi
-		cp -r $ROM/*.RAM $JTBIN/$i
-	done
-else
-	echo "No .RAM files found"
-fi
 # note that the beta zip files are generated before the commit
 # in order to have the MiST and SiDi cores too
 echo "Create zip files for JTFriday"
-cpbeta.sh
+echo "Delete non-arcade PCB schematics"
+wait
+rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
+echo "Commit to git"
+mkdir -p pocket/raw/Assets/jtpatreon/common
+echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
+rm -f version.log
+cpbeta.sh $LAST
+
 echo "Removing games in beta phase for SiDi and MiST"
 for t in mist sidi sidi128; do
 	for i in $JTBIN/$t/*.rbf; do
@@ -169,21 +165,12 @@ for t in mist sidi sidi128; do
 		fi
 	done
 done
-echo "Delete non-arcade PCB schematics"
-wait
-rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
-echo "Commit to git"
-mkdir -p pocket/raw/Assets/jtpatreon/common
-echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/README.txt
-rm -f version.log
 git add .
 git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 
-cpbeta.sh $LAST
-
 # also mark the commit in jtcores as the current release
 cd $JTROOT
-(git tag -f JTBIN && git push --tags) || echo "Could not tag the release on jtcores"
-
+(git tag -f JTBIN && git push --tags --force) || echo "Could not tag the release on jtcores"
+echo "Remember to git push"
 # clean up
 rm -rf $DST

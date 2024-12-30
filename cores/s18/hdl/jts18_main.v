@@ -143,17 +143,6 @@ wire        BRn, BGACKn, BGn,
 reg         sdram_ok, io_cs, vdp_cs;
 wire [15:0] rom_dec, cpu_dout_raw;
 
-assign BUSn    = LDSn & UDSn;
-assign gray_n  = misc_o[6];
-assign flip    = misc_o[5];
-assign io_we   = io_cs && !RnW && !LDSn;
-assign io_rd   = io_cs &&  RnW && !LDSn;
-assign st_dout = st_io;
-// No peripheral bus access for now
-assign cpu_addr = A[23:1];
-// assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
-//                               && !io_cs  && vram_cs && ram_cs);
-
 wire [ 7:0] active, mcu_din, mcu_dout;
 wire        mcu_wr, mcu_acc;
 wire [15:0] mcu_addr;
@@ -170,10 +159,28 @@ wire [15:0] mapper_dout;
 wire        none_cs;
 
 reg   [7:0] p1, p2, p3, coinage;
-
 wire        dial_cs;
 wire        dial_rst;
 wire  [7:0] dial_dout;
+reg         mwalk, mwalka, ind_coin, play3;
+
+assign BUSn    = LDSn & UDSn;
+assign gray_n  = misc_o[6];
+assign flip    = misc_o[5];
+assign io_we   = io_cs && !RnW && !LDSn;
+assign io_rd   = io_cs &&  RnW && !LDSn;
+assign st_dout = st_io;
+// No peripheral bus access for now
+assign cpu_addr = A[23:1];
+// assign BERRn = !(!ASn && BGACKn && !rom_cs && !char_cs && !objram_cs  && !pal_cs
+//                               && !io_cs  && vram_cs && ram_cs);
+
+always @( posedge clk ) begin
+    mwalk    <= game_id[6];
+    mwalka   <= game_id[7]; // In US version switches are exchanged
+    ind_coin <= ~(dipsw[13]^mwalka) & mwalk;
+    play3    <= ~(dipsw[12]^mwalka) & mwalk;
+end
 
 `ifndef NOMCU
 jtframe_8751mcu #(
@@ -357,9 +364,14 @@ always @(*) begin
         p3 = {joystick3[3:0],joystick3[7:4]};
         // MSB 7-6 are select inputs, used in Wally
         // It may be safe to connect to button 0
-        coinage = cab3 ?
+        coinage = cab3 || ( play3 && ind_coin ) ?
             { coin[0], cab_1p[2:0], service, dip_test, coin[1], coin[2] }:
             {   2'b11, cab_1p[1:0], service, dip_test, coin[1:0] };
+        if( mwalk ) begin
+            p3[3]      = cab_1p[2];
+            coinage[6] = 1'b1;
+            if( !play3 ) coinage[1:0] = {coin[0],coin[1]};
+        end
     end
 end
 

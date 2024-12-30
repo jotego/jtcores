@@ -61,7 +61,6 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    )
 );/* verilator lint_on PINMISSING */
 
-`ifndef NOMAIN
 jtcommnd_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -132,19 +131,7 @@ jtcommnd_main #(.GAME(1)) u_main(
     .scr1_pal   (               ),
     .scr2_pal   (               )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 0;
-assign scr_vpos    = 0;
-assign cpu_cen     = cen3;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound #(.LAYOUT(0)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -165,15 +152,12 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     // unused
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                ),
     .snd2_latch     (                ),
     .debug_bus      ( 8'd0           ),
     .debug_view     (                )
 );
-`else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
-`endif
 
 jtsectnz_video u_video(
     .rst        ( rst           ),

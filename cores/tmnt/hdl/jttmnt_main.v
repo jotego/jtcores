@@ -311,12 +311,25 @@ jtframe_m68k u_cpu(
         framecnt <=framecnt+1;
         sndon    <=framecnt==10;
     end
+    reg [7:0] saved[0:0];
+    integer f,fcnt=0;
+
+    initial begin
+        f=$fopen("other.bin","rb");
+        if( f!=0 ) begin
+            fcnt=$fread(saved,f);
+            $fclose(f);
+            $display("Read %1d bytes for priority configuration", fcnt);
+            prio = saved[0][1:0];
+        end else begin
+            prio = 0;
+        end
+    end
     initial begin
         // sndon  = 0;
         obj_cs    = 0;
         pal_cs    = 0;
         pcu_cs    = 0;
-        prio      = 0;
         ram_cs    = 0;
         rmrd      = 0;
         rom_cs    = 0;

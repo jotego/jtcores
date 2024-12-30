@@ -217,13 +217,15 @@ jtgng_sound u_sound (
     .rom_cs         (            ),
     .rom_ok         ( 1'b1       ),
     // sound output
-    // sound output
     .fm0            ( fm0        ),
     .fm1            ( fm1        ),
     .psg0           ( psg0       ),
     .psg1           ( psg1       ),
     .debug_bus      ( debug_bus  ),
-    .debug_view     ( debug_view )
+    .debug_view     ( debug_view ),
+    // unused
+    .mcu_sdin       ( 8'd0           ),
+    .mcu_srd        (                )
 );
 
 jt1943_video u_video(

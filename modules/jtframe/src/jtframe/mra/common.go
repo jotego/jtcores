@@ -1,6 +1,7 @@
 package mra
 
 import(
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -12,6 +13,17 @@ func must(e error) {
 		fmt.Println(e)
 		os.Exit(1)
 	}
+}
+
+func comb_errors( f, e error ) error {
+	if e!=nil {
+		if f==nil {
+			f = e
+		} else {
+			f = errors.Join(f,e)
+		}
+	}
+	return f
 }
 
 // converts a string of hexadecimal bytes (like those seem in MRA files)

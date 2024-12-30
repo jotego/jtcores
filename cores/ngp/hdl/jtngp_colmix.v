@@ -25,6 +25,7 @@ module jtngp_colmix(
     input             scr_order,
     input      [ 2:0] oowc,
     input             oow,          // outside of window
+    input             mode,
 
     // CPU access
     input      [ 8:1] cpu_addr,
@@ -55,6 +56,7 @@ module jtngp_colmix(
 
 wire [ 1:0] prio = obj_pxl[4:3];
 wire [ 3:0] scr_eff;    // bit 3 set for background tilemap
+wire [ 2:0] scr1_mode, scr2_mode;
 reg  [ 3:0] raw;
 reg         bg_en;
 wire [ 2:0] obj_palout, scr1_palout, scr2_palout;
@@ -78,10 +80,12 @@ assign  scr1_blank = scr1_pxl[1:0]==0,
         obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
         scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
         scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]],
+        scr1_mode  = mode ? scr1_palout : scr1_pxl[2:0],
+        scr2_mode  = mode ? scr2_palout : scr2_pxl[2:0],
         scr_eff    = scr_blank ? {1'b1, bg_en ? bg_pal : 3'd0 } :
                      scr_order ?
-            ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ):
-            ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} );
+            ( !scr2_blank ? {1'b0,scr2_mode} : {1'b1,scr1_mode} ):
+            ( !scr1_blank ? {1'b0,scr1_mode} : {1'b1,scr2_mode} );
 
 assign  red        = raw,
         blue       = raw,
@@ -114,7 +118,7 @@ always @* begin
         lyr = 2'b00;
         col = obj_pxl[8-:4];
         pal = obj_pxl[2];
-        pxl = obj_palout;
+        pxl = mode ? obj_palout : {1'b0, obj_pxl[1:0]};
     end
 end
 

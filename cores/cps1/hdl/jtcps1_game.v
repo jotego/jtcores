@@ -20,7 +20,7 @@ module jtcps1_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        clk_gfx, rst_gfx;
+wire        clk_gfx, rst_gfx, hold_rst;
 wire        snd_cs, adpcm_cs, main_ram_cs, main_vram_cs, main_rom_cs,
             rom0_cs, rom1_cs,
             vram_dma_cs;
@@ -74,6 +74,7 @@ wire        cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        charger;
 wire        turbo, video_flip, filter_old;
+reg         rst_game;
 
 `ifdef JTCPS_TURBO
 assign turbo = 1;
@@ -92,8 +93,10 @@ assign debug_view   = debug_bus[0] ? fave[7:0] : fave[15:8];
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
 
-assign clk_gfx = clk;
-assign rst_gfx = rst;
+assign clk_gfx  = clk;
+assign rst_gfx  = rst;
+
+always @(posedge clk) rst_game <= hold_rst | rst48;
 
 localparam REGSIZE=24;
 
@@ -104,7 +107,7 @@ assign busack = busack_cpu | turbo;
 /* verilator tracing_on */
 `ifndef NOMAIN
 jtcps1_main u_main(
-    .rst        ( rst48             ),
+    .rst        ( rst_game          ),
     .clk        ( clk48             ),
     .cen10      ( cpu_cen           ),
     .cen10b     ( cpu_cenb          ),
@@ -338,7 +341,7 @@ end
 
 reg [3:0] rst_snd;
 always @(posedge clk) begin
-    rst_snd <= { rst_snd[2:0], rst48 };
+    rst_snd <= { rst_snd[2:0], rst_game };
 end
 /* verilator tracing_off */
 jtcps1_sound u_sound(
@@ -393,6 +396,7 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .clk_cpu     ( clk48         ),
     .LVBL        ( LVBL          ),
     .star_bank   ( star_bank     ),
+    .hold_rst    ( hold_rst      ),
 
     .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),

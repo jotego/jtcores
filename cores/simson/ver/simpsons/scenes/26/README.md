@@ -1,0 +1,1 @@
+Sprites shouldn't appear. Scene taken after they dissapear through the screen bottom

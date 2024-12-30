@@ -61,6 +61,7 @@ module emu
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
     output        HDMI_FREEZE,
+    output        HDMI_BLACKOUT,
 
     //Video aspect ratio for HDMI. Most retro systems have ratio 4:3.
     output [12:0] VIDEO_ARX,
@@ -179,11 +180,12 @@ assign VGA_F1=field;
 `endif
 
 // unused features
-assign VGA_SCALER  = 0;
-assign VGA_DISABLE = 0;
-assign HDMI_FREEZE = 0;
-assign AUDIO_MIX   = 0;
-assign BUTTONS     = 0;
+assign VGA_SCALER    = 0;
+assign VGA_DISABLE   = 0;
+assign HDMI_FREEZE   = 0;
+assign HDMI_BLACKOUT = 0;
+assign AUDIO_MIX     = 0;
+assign BUTTONS       = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 
@@ -230,14 +232,10 @@ always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
     end
 end
 
-`ifndef JTFRAME_PLL
-    `define JTFRAME_PLL pll
-`endif
-
 // There are many false paths defined in the
 // SDC file between this PLL and the ones
 // used in sys_top
-`JTFRAME_PLL pll(
+pll pll(
     .refclk     ( CLK_50M    ),
     .rst        ( pll_rst    ),
     .locked     ( pll_locked ),

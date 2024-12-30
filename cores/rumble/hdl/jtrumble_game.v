@@ -246,7 +246,9 @@ jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .psg0       ( pre_psg0      ),
     .psg1       ( pre_psg1      ),
     .debug_bus  ( debug_bus     ),
-    .debug_view (               )
+    .debug_view (               ),
+    .mcu_sdin   ( 8'd0          ),
+    .mcu_srd    (               )
 );
 `else
     assign snd_addr = 0;

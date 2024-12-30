@@ -63,10 +63,6 @@ parameter SINC_XDATA=1;
 parameter ROMBIN="../../../../rom/biocom/ts.2f";
 `ifndef NOMCU
 wire [15:0] ext_addr;
-wire [ 6:0] ram_addr;
-wire [ 7:0] ram_data;
-wire        ram_we;
-wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
 reg         int0n, int1n;

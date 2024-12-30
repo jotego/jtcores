@@ -18,7 +18,7 @@ JTFRAME_PROM_START=0x128000
 # unused here:
 PCM_START =0
 
-JTFRAME_DIPBASE=8
+JTFRAME_DIPBASE=16
 
 [mist|sidi]
 # OSD credits cannot be used when

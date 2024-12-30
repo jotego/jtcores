@@ -1,0 +1,57 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Dec  2 20:59:33 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/test.fst"
+[dumpfile_mtime] "Mon Dec  2 19:19:55 2024"
+[dumpfile_size] 1986471162
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/snd_regs.gtkw"
+[timestart] 10172
+[size] 2532 1005
+[pos] 1919 -1
+*-33.029099 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_ay0.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_ay0.u_jt49.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.
+[sst_width] 278
+[signals_width] 220
+[sst_expanded] 1
+[sst_vpaned_height] 326
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.AF2[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.AF[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.BC2[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.BC[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.DE2[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.DE[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.HL2[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.HL[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.IX[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.IY[15:0]
+TOP.game_test.u_game.u_game.u_sound.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.PC[15:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.rst
+[pattern_trace] 1
+[pattern_trace] 0
+!100000@@
+?"0066
+@23
+TOP.game_test.u_game.u_game.u_sound.A[15:0]
+?04
+@29
+TOP.game_test.u_game.u_game.u_sound.mreq_n
+?01
+TOP.game_test.u_game.u_game.u_sound.rfsh_n
+!!

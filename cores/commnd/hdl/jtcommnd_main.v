@@ -382,7 +382,7 @@ end
 /////////////////////////////////////////////////////////////////
 wire cpu_cenw;
 
-jtframe_z80wait #(2) u_wait(
+jtframe_z80wait u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
     .cen_in     ( cpu_cen   ),

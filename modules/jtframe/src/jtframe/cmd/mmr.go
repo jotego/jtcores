@@ -1,35 +1,35 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
-	// "fmt"
-
+	"fmt"
 	"github.com/spf13/cobra"
+
 	"github.com/jotego/jtframe/mmr"
+	"github.com/jotego/jtframe/common"
 )
 
 // mmrCmd represents the mmr command
 var mmrCmd = &cobra.Command{
-	Use:   "mmr <core-name>",
+	Use:   "mmr [core-name]",
 	Short: "Generate verilog modules for memory mapped registers",
 	Long: `From a core's cfg/mmr.yml file, generate a MMR implementation in verilog`,
 	Run: func(cmd *cobra.Command, args []string) {
-		mmr.Generate(args[0], verbose)
+		var e error
+		var corename string
+		corename, e = get_corename(args)
+		must(e)
+		mmrpath := mmr.GetMMRPath(corename)
+		if common.FileExists(mmrpath) {
+			must(mmr.Generate(corename, verbose))
+		} else if verbose {
+			fmt.Printf("Skipping MMR for core %s (%s not present)\n",corename,mmrpath)
+		}
 	},
-	Args: cobra.ExactArgs(1),
+	Args: cobra.MaximumNArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(mmrCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// mmrCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	mmrCmd.Flags().BoolVarP( &verbose, "verbose", "v", false, "Verbose output")
 }

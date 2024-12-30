@@ -35,8 +35,8 @@ names = [
     { machine="desertbr",   names="Shot,Speed Run,Bomb" },
     { machine="hamaway",    names="Land Shot,Air Shot with Missile,Bomb" },
     { machine="lghost",     names="Laser Gun,Special Weapon" },
-    { machine="mwalk",      names="Shot,Dance with Bomb" },
-    { machine="shdancer",   names="Attack,Jump,Magic with Bomb" },
+    { machine="mwalk",      names="Shot,Dance" },
+    { machine="shdancer",   names="Attack,Jump,Ninja Magic" },
     { machine="wwallyj",    names="Confirm" },
 ]
 
@@ -61,7 +61,9 @@ data = [
     { offset=0x14, setnames=["astorm3","astormu"], data="01" },
 
     # 5874 board
-    { machines=["astorm", "bloxeed", "mwalk", "pontoon"],  offset=0x18, data="01" },
+    { machines=["astorm", "bloxeed", "pontoon"],  offset=0x18, data="01" },
+    { machine="mwalk",    offset=0x18, data="41" },
+    { setname="mwalku",   offset=0x18, data="c1" },
     # 5987 board
     # ddcrewu, ddcrew1, ddcrewj might be different
     # wwally's machine may be in a different MAME file, not segas18

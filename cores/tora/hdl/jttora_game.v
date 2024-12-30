@@ -126,7 +126,7 @@ jtframe_cen24 u_cen(
 );
 
 assign clk_mcu = clk24;
-always @(posedge clk) rst_mcu = rst24 | ~f1dream;
+always @(posedge clk) rst_mcu <= rst24 | ~f1dream;
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
     .clk      ( clk24     ),

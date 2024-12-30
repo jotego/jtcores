@@ -35,6 +35,7 @@ module jts16b_cabinet(
     input             dip_test,
     input      [ 7:0] dipsw_a,
     input      [ 7:0] dipsw_b,
+    input      [ 7:0] dipsw_c,
 
     // cabinet I/O
     input      [ 7:0] joystick1,
@@ -67,11 +68,12 @@ localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_EXCTLEAG=`GAME_EXCTLEAG,
                  GAME_BULLET  =`GAME_BULLET  ,
                  GAME_PASSSHT3=`GAME_PASSSHT3,
+                 GAME_TIMESCAN=`GAME_TIMESCAN,
                  GAME_AFIGHTAN=`GAME_AFIGHTAN,  // Action Fighter, analogue controls
                  GAME_SDI     =`GAME_SDI     ;
 
 reg  game_passsht, game_dunkshot, game_bullet,
-     game_exctleag, game_sdi, game_afightan;
+     game_exctleag, game_sdi, game_afightan, game_timescan;
 
 // Game ID registers
 always @(posedge clk) begin
@@ -80,6 +82,7 @@ always @(posedge clk) begin
     game_bullet   <= game_id==GAME_BULLET;
     game_exctleag <= game_id==GAME_EXCTLEAG;
     game_afightan <= game_id==GAME_AFIGHTAN;
+    game_timescan <= game_id==GAME_TIMESCAN;
     game_sdi      <= game_id==GAME_SDI || game_id==GAME_SDIBL;
 end
 
@@ -230,8 +233,9 @@ always @(posedge clk, posedge rst) begin
                             sort1;
                     end
                     2: begin
-                        if( game_bullet ) cab_dout <= sort3_bullet;
-                        if( game_sdi    ) cab_dout <= { sort2[7:4], sort1[7:4] };
+                        if( game_timescan ) cab_dout <= dipsw_c;
+                        if( game_bullet   ) cab_dout <= sort3_bullet;
+                        if( game_sdi      ) cab_dout <= { sort2[7:4], sort1[7:4] };
                         if( game_afightan )
                             cab_dout <=  // right side of driving wheel (hot one)
                               ~(joyana1[7] ? 8'h00 :

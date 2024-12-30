@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Twin 16 - Rev B")
-		(date "2024-08-04")
+		(date "2024-09-08")
 		(company "Konami GX785/GX870/GX808/GX903")
 	)
 	(lib_symbols

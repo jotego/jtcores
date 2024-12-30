@@ -93,6 +93,7 @@ module jts16b_main(
     input              dip_test,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
+    input    [7:0]     dipsw_c,
 
     // MCU enable and ROM programming
     input              mcu_en,
@@ -449,6 +450,7 @@ jts16b_cabinet u_cabinet(
     .dip_test       ( dip_test      ),
     .dipsw_a        ( dipsw_a       ),
     .dipsw_b        ( dipsw_b       ),
+    .dipsw_c        ( dipsw_c       ),
 
     // cabinet I/O
     .joystick1      ( joystick1     ),

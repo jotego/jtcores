@@ -201,6 +201,8 @@ always @(posedge clk, posedge rst) begin
         last_start<= 1'b0;
         rd_half   <= 1'b0;
         wr_half   <= 1'b1;
+        hpos      <= 0;
+        vpos      <= 0;
     end else begin
         // done       <= 1'b0;
         last_HB    <= HB;

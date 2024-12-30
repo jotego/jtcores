@@ -1,0 +1,50 @@
+[global]
+author=["jotego"]
+
+[buttons]
+names=[
+	{ machine="tehkanwc", names="Kick" }
+]
+
+[parse]
+sourcefile=[ "tehkanwc.cpp" ]
+# teed off keeps rebooting. The CPU makes an odd jump. See MAME driver
+# for description. The board may not be quite the same as WC
+skip.machines=["teedoff"]
+
+[dipsw]
+rename=[
+	{ name="Penalty (Over Par)",to="Penalty" },
+	{ name="Bonus Balls (Multiple coins)",to="Bonus Balls" },
+	{ name="Formation Time (Defense)", to="Defns. Time"},
+	{ name="1P Game Time", to="1P time" },
+	# options not parsed correctly:
+	#{name="2P Game Time", to="2P time" }
+]
+delete=[
+	{ names=["Start*","2P Game Time","Unused"] },
+]
+extra=[
+    { name="Controls", options="D-pad,Analog stick,Auto", bits="20,21"},
+]
+
+[header]
+info="bit 0 -> enable non-symmetric speed in Tehkan WC bootleg"
+fill=0
+data = [
+	{ setname="tehkanwch", data="01" }
+]
+
+[ROM]
+regions = [
+	{ name="maincpu"                             },
+	{ name="subcpu",   start="SUB_START"         },
+	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="adpcm",    start="PCM_START"         },
+	{ name="gfx1",     start="JTFRAME_BA2_START" },
+	{ name="gfx3",     start="SCR_START"         },
+	{ name="gfx2",     start="JTFRAME_BA3_START" }
+]
+
+order=["maincpu","sub","audiocpu","adpcm",
+	"gfx1","gfx3","gfx2"]

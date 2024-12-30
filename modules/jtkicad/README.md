@@ -16,6 +16,9 @@ Folder     | Use
 lib        | Kicad libraries
 doc        | Relevant documentation
 footprints | Schematic collection
+config     | Recommended KiCAD configuration files
+
+Configuration files can be copied or (hard) linked to your `~/.config/kicad` folder.
 
 # Related Project
 

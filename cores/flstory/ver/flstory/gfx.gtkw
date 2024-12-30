@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Thu Dec  5 06:16:15 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/test.fst"
+[dumpfile_mtime] "Thu Dec  5 06:13:07 2024"
+[dumpfile_size] 990762
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/gfx.gtkw"
+[timestart] 10172
+[size] 1920 1033
+[pos] -1947 -58
+*-32.765869 27476900000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[sst_width] 278
+[signals_width] 178
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@28
+TOP.game_test.u_game.u_game.u_video.lvbl
+TOP.game_test.u_game.u_game.u_video.lhbl
+[pattern_trace] 1
+[pattern_trace] 0

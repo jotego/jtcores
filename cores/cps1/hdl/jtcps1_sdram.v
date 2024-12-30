@@ -27,6 +27,7 @@ module jtcps1_sdram #( parameter
     input           clk_gfx,    // 96 MHz
     input           clk_cpu,    // 48 MHz
     input           LVBL,
+    output          hold_rst,
 
     input           ioctl_rom,
     output          dwnld_busy,
@@ -200,7 +201,7 @@ wire [21:0] gfx1_addr, gfx0_addr;
 wire [22:0] main_offset;
 wire        ram_vram_cs;
 wire        ba2_rdy_gfx, ba2_ack_gfx;
-reg  [17:1] main_addr_x; // main addr modified for object bank access
+reg  [20:1] main_addr_x; // main addr modified for object bank access
 reg         ocache_clr, obank_last;
 wire        dump_we;
 
@@ -208,6 +209,7 @@ wire        dump_we;
 assign gfx0_addr   = {rom0_addr, rom0_half, 1'b0 }; // OBJ
 assign gfx1_addr   = {rom1_addr, rom1_half, 1'b0 };
 assign ram_vram_cs = main_ram_cs | main_vram_cs | main_oram_cs;
+// VRAM_OFFSET is selected during reset
 assign main_offset = main_oram_cs ? ORAM_OFFSET :
                     (main_ram_cs  ? WRAM_OFFSET : VRAM_OFFSET );
 assign prog_rd     = 0;
@@ -215,7 +217,9 @@ assign dump_we     = ioctl_wr & ioctl_ram;
 assign ba_wr[3:1]  = 0;
 
 always @(*) begin
-    main_addr_x = main_ram_addr;
+    // Top 3 bits of main_addr_x are always zero, but needed to set the
+    // SLOT extension to cover the ORAM/VRAM_OFFSET during the on-reset erase
+    main_addr_x = {3'd0,main_ram_addr[17:1]};
     `ifdef CPS2
     if( main_oram_cs ) begin
         main_addr_x[17:14]  = 4'd0;
@@ -255,8 +259,8 @@ jtcps1_prom_we #(
 
 jtframe_ram1_5slots #(
     .SDRAMW      ( 23            ),
-    .ERASE       (  0            ),
-    .SLOT0_AW    ( 17            ), // Main CPU RAM
+    .SLOT0_ERASE (  1            ),
+    .SLOT0_AW    ( 20            ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
     .SLOT0_FASTWR(  0            ),
 
@@ -305,7 +309,7 @@ jtframe_ram1_5slots #(
 
     .slot0_din   ( main_dout     ),
     .slot0_wrmask( dsn           ),
-    .hold_rst    (               ),
+    .hold_rst    ( hold_rst      ),
 
     .slot0_addr  ( main_addr_x   ),
     .slot1_addr  ( vram_dma_addr ),

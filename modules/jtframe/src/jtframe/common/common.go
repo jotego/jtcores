@@ -38,3 +38,9 @@ func Find_in_folders( fname string, paths []string, quit bool ) string {
 	}
 	return ""
 }
+
+func FileExists(fname string) bool {
+	f, e := os.Open(fname)
+	f.Close()
+	return e == nil
+}

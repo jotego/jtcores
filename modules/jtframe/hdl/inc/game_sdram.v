@@ -150,12 +150,12 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .joystick1    ( joystick1        ), .joystick2    ( joystick2        ),
     .joystick3    ( joystick3        ), .joystick4    ( joystick4        ), `ifdef JTFRAME_MOUSE
     .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_SPINNER
-    .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif `ifdef JTFRAME_ANALOG
+    .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
-    .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ), `ifdef JTFRAME_ANALOG_DUAL
+    .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),
     .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
-    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ), `endif `endif `ifdef JTFRAME_DIAL
-    .dial_x       ( dial_x           ), .dial_y       ( dial_y           ), `endif
+    .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ),
+    .dial_x       ( dial_x           ), .dial_y       ( dial_y           ),
     // DIP switches
     .status         ( status        ),
     .dipsw          ( dipsw         ),
@@ -290,8 +290,7 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
-{{ $holded := false }}
-{{ $holded_slot := false }}
+{{ $assign_holdrst := true }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
@@ -299,22 +298,24 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
     // {{.Name}}
-    {{- if not .Rw }}
-    {{- with .Offset }}
+    {{- if .Rw }}{{ with .Dont_erase }}
+    .SLOT{{$index}}_ERASE(0),{{end}}
+    {{- else}}{{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}
-`ifdef JTFRAME_BA2_LEN
+`ifdef JTFRAME_BA{{$bank}}_LEN
 {{- range $index, $each:=.Buses}}
-    {{- if not .Rw}}
+{{- if not .Rw}}
     ,.SLOT{{$index}}_DOUBLE(1){{ end }}
 {{- end}}
 `endif
 {{- $is_rom := eq .MemType "rom" }}
 ) u_bank{{$bank}}(
+{{- $holdrst_placed := false }}
     .rst         ( rst        ),
     .clk         ( clk        ),
     {{ range $index2, $each:=.Buses }}{{if .Addr}}
@@ -324,8 +325,10 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}
-    {{- if .Rw }}{{ if not $holded_slot }}
-    .hold_rst    ( hold_rst        ), {{ $holded_slot = true }}{{ $holded = true }}{{end}}
+    {{- if .Rw }}{{ if not $holdrst_placed }}
+    .hold_rst    ( {{if not .Dont_erase}} hold_rst
+        {{- $holdrst_placed = true  }}
+        {{- $assign_holdrst = false }} {{end}} ),{{end}}
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
@@ -355,7 +358,7 @@ assign ba_wr[{{$bank}}] = 0;
 assign ba{{$bank}}_din  = 0;
 assign ba{{$bank}}_dsn  = 3;
 {{- end}}{{- end }}{{end}}
-{{ if not $holded }}assign hold_rst=0;{{end}}
+{{ if $assign_holdrst }}assign hold_rst=0;{{end}}
 {{ range $index, $each:=.Unused }}
 {{- with . -}}
 assign ba{{$index}}_addr = 0;
@@ -366,8 +369,27 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 {{ end -}}
 
+`ifdef JTFRAME_PROM_START
+localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
+`endif
 {{ range $cnt, $bus:=.BRAM -}}
-{{- if $bus.Dual_port.Name }}
+{{- if $bus.Prom }}
+wire {{addr_range .}} {{$bus.Name}}_pa;
+assign {{$bus.Name}}_pa = raw_addr{{addr_range .}}-JTFRAME_PROM_START{{addr_range .}};
+jtframe_prom #(
+    .DW({{$bus.Data_width}}),
+    .AW({{$bus.Addr_width}}){{ if $bus.Sim_file }},
+    .SIMFILE("{{$bus.Name}}.bin"){{end}}
+) u_prom_{{$bus.Name}}(
+    .clk        ( clk           ),
+    .cen        ( 1'b1          ),
+    .data       ( raw_data{{data_range .}}),
+    .rd_addr    ( {{$bus.Addr}} ),
+    .wr_addr    ( {{$bus.Name}}_pa ),
+    .we         ( prom_we       ),
+    .q          ( {{$bus.Name}}_data )
+);
+{{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
@@ -412,11 +434,12 @@ jtframe_bram_rom #(
 {{else}}
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
+    .AW({{ sub $bus.Addr_width (div $bus.Data_width 16)}}){{ if ne $bus.Data_width 16}},
+    .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
     {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
     .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
 ) u_bram_{{$bus.Name}}(
-    .clk    ( clk  ),{{ if eq $bus.Data_width 8 }}
+    .clk    ( clk  ),{{ if ne $bus.Data_width 16 }}
     .cen    ( 1'b1 ),{{end}}
     .addr   ( {{$bus.Addr}} ),
     .data   ( {{$bus.Din }} ),
@@ -426,8 +449,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 {{ end }}{{end}}
 
 {{- if .Ioctl.Dump }}
-/* verilator tracing_off */
-
+`ifndef JTFRAME_SIM_IODUMP /* verilator tracing_off */ `endif
 jtframe_ioctl_dump #(
     {{- $first := true}}
     {{- range $k, $v := .Ioctl.Buses }}
@@ -474,6 +496,7 @@ jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ({{.KHz}})) u
 ); /* verilator tracing_off */
 {{ end }}{{ end }}{{ end }}
 {{ if .Audio.Channels }}`ifndef NOSOUND
+`ifdef VERILATOR_KEEP_AUDIO /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{- $ch0 := (index .Audio.Channels 0) -}}
 {{- $ch1 := (index .Audio.Channels 1) -}}
 {{- $ch2 := (index .Audio.Channels 2) -}}
@@ -522,12 +545,12 @@ jtframe_rcmix #(
     .ch3    ( {{ if $ch3.Name }}{{ if $ch3.Stereo }}{ {{$ch3.Name}}_l,{{$ch3.Name}}_r }{{ else }}{{ $ch3.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch4    ( {{ if $ch4.Name }}{{ if $ch4.Stereo }}{ {{$ch4.Name}}_l,{{$ch4.Name}}_r }{{ else }}{{ $ch4.Name }}{{end}}{{else}}16'd0{{end}} ),
     .ch5    ( {{ if $ch5.Name }}{{ if $ch5.Stereo }}{ {{$ch5.Name}}_l,{{$ch5.Name}}_r }{{ else }}{{ $ch5.Name }}{{end}}{{else}}16'd0{{end}} ),
-    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}16'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 0}} Hz, {{ index $ch0.Fcut 1 }} Hz {{end}}
-    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}16'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 0}} Hz, {{ index $ch1.Fcut 1 }} Hz {{end}}
-    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}16'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}} Hz, {{ index $ch2.Fcut 1 }} Hz {{end}}
-    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}16'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}} Hz, {{ index $ch3.Fcut 1 }} Hz {{end}}
-    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}16'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}} Hz, {{ index $ch4.Fcut 1 }} Hz {{end}}
-    .p5     ( {{ if $ch5.Pole }}{{$ch5.Pole}}{{else}}16'h0{{end}}), {{if $ch5.Name }}// {{ index $ch5.Fcut 0}} Hz, {{ index $ch5.Fcut 1 }} Hz {{end}}
+    .p0     ( {{ if $ch0.Pole }}{{$ch0.Pole}}{{else}}30'h0{{end}}), {{if $ch0.Name }}// {{ index $ch0.Fcut 0}} Hz, {{ index $ch0.Fcut 1 }} Hz {{end}}
+    .p1     ( {{ if $ch1.Pole }}{{$ch1.Pole}}{{else}}30'h0{{end}}), {{if $ch1.Name }}// {{ index $ch1.Fcut 0}} Hz, {{ index $ch1.Fcut 1 }} Hz {{end}}
+    .p2     ( {{ if $ch2.Pole }}{{$ch2.Pole}}{{else}}30'h0{{end}}), {{if $ch2.Name }}// {{ index $ch2.Fcut 0}} Hz, {{ index $ch2.Fcut 1 }} Hz {{end}}
+    .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}30'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}} Hz, {{ index $ch3.Fcut 1 }} Hz {{end}}
+    .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}30'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}} Hz, {{ index $ch4.Fcut 1 }} Hz {{end}}
+    .p5     ( {{ if $ch5.Pole }}{{$ch5.Pole}}{{else}}30'h0{{end}}), {{if $ch5.Name }}// {{ index $ch5.Fcut 0}} Hz, {{ index $ch5.Fcut 1 }} Hz {{end}}
     .g0     ( {{ $ch0.Gain }} ), {{with $ch0.Name}}// {{.}}{{end}}
     .g1     ( {{ $ch1.Gain }} ), {{with $ch1.Name}}// {{.}}{{end}}
     .g2     ( {{ $ch2.Gain }} ), {{with $ch2.Name}}// {{.}}{{end}}

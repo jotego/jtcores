@@ -125,16 +125,16 @@ assign din3_mx = ioctl_ram ? {DW3==16?2:1{ioctl_dout}} : din3;
 assign din4_mx = ioctl_ram ? {DW4==16?2:1{ioctl_dout}} : din4;
 assign din5_mx = ioctl_ram ? {DW5==16?2:1{ioctl_dout}} : din5;
 
-always @(posedge clk) begin
-    sel    <= 0;
-    offset <= 0;
+always @(*) begin
+    sel    = 0;
+    offset = 0;
     if( ioctl_ram ) begin
-        if     ( ioctl_addr < OS1 && AW0!=0) begin sel[0] <= 1; offset <= 0; end
-        else if( ioctl_addr < OS2 && AW1!=0) begin sel[1] <= 1; offset <= OS1[23:0]; end
-        else if( ioctl_addr < OS3 && AW2!=0) begin sel[2] <= 1; offset <= OS2[23:0]; end
-        else if( ioctl_addr < OS4 && AW3!=0) begin sel[3] <= 1; offset <= OS3[23:0]; end
-        else if( ioctl_addr < OS5 && AW4!=0) begin sel[4] <= 1; offset <= OS4[23:0]; end
-        else if( ioctl_addr < OS6 && AW5!=0) begin sel[5] <= 1; offset <= OS5[23:0]; end
+        if     ( ioctl_addr < OS1 && AW0!=0) begin sel[0] = 1; offset = 0; end
+        else if( ioctl_addr < OS2 && AW1!=0) begin sel[1] = 1; offset = OS1[23:0]; end
+        else if( ioctl_addr < OS3 && AW2!=0) begin sel[2] = 1; offset = OS2[23:0]; end
+        else if( ioctl_addr < OS4 && AW3!=0) begin sel[3] = 1; offset = OS3[23:0]; end
+        else if( ioctl_addr < OS5 && AW4!=0) begin sel[4] = 1; offset = OS4[23:0]; end
+        else if( ioctl_addr < OS6 && AW5!=0) begin sel[5] = 1; offset = OS5[23:0]; end
     end
 end
 

@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 29-4-2021 */
-
+/* verilator coverage_off */
 module jtframe_sdram64_latch #(parameter LATCH=0, AW=22)(
     input               rst,
     input               clk,

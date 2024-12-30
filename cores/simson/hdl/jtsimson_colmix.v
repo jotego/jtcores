@@ -63,17 +63,17 @@ reg         pal_half;
 reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };
-assign shd      = ~|pre_shd;
+assign shd      = |pre_shd;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign ioctl_din = pal_dout;
 
 function [23:0] dim( input [14:0] cin, input shade );
-    dim = !shade? {   1'b0, cin[14:10], cin[14:13],    // dim
-                      1'b0, cin[ 9: 5], cin[ 9: 8],
-                      1'b0, cin[ 4: 0], cin[ 4: 3] } :
-                  {         cin[14:10], cin[14:12],    // do not dim
+    dim = !shade? {     cin[14:10], cin[14:12],    // do not dim
                             cin[ 9: 5], cin[ 9: 7],
-                            cin[ 4: 0], cin[ 4: 2] };
+                            cin[ 4: 0], cin[ 4: 2] } :
+                  {   1'b0, cin[14:10], cin[14:13],    // dim
+                      1'b0, cin[ 9: 5], cin[ 9: 8],
+                      1'b0, cin[ 4: 0], cin[ 4: 3] } ;
 endfunction
 
 always @(posedge clk) begin

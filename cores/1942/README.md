@@ -68,54 +68,53 @@ seem to be a problem during gameplay.
 
 ## Higemaru
 ```
-3style                      DrMnike                 Mike Jegenjan
-80's spaceman               Ed Balan                Mike Parks
-Adam Davis                  Edward Rana             MiSTerFPGA.co.uk
-Alan Shurvinton             Eric J Faulkes          Nailbomb
-Alonso J. Núñez             Filip Kindt             natalie
-Anders Rensberg             Francis B               Neil St Clair
-Andrea Chiavazza            Frank Hoedemakers       Nico Stamp
-Andreas Micklei             Frederic FONTANA        nullobject
-Andrew Ajello               Frédéric Mahé           Oliver Jaksch
-Andrew Boudreau             GA                      Oliver Wndmth
-Andrew Francomb             Gavin                   Oscar Laguna Garcia
-Andrew Moore                Greg                    Oskar Sigvardsson
-Andy Palmer                 Gregory Val             Patrick Roman Fabri
-Andyways                    Gus Douboulidis         Paweł Mandes
-Angelo Kanaris              Hard Rich               Per Sweden
-Anthony Monaco              Henrik Nordström        Phillip McMahon
-Aquijacks (Flashjacks MSX)  HFSPlay                 PsyFX
-Arcade Express              hyp36rmax               Purple Tinker
-Arjan de Lang               Jeremy Kelaher          RandomRetro
-asdfgasfhsn                 Jesse Clark             RetroDriven
-atrac17                     Jo Tomiyori             Richard Eng
-Ben Toman                   Joeri van Dooren        Richard Murillo
-ben01623                    Johan Smolinski         Richard Simpson
-Bender                      John Casey              Robert Forbes
-Bob Gallardo                Jonathan Loor           Robert MacLean
-Brent Fraser Weatherall     Jonathan Tuttle         Roman Buser
-Brett T Davis               Jorge Slowfret          Ryan Fig
-brian burney                Josiah Wilson           Sassbasket Silvercloud
-Brian Sallee                JPS (RetroFPGA)         Skeeter
-Carrboroman                 Juan E. Gayon           Sofia Rose
-Charles                     Justin D'Arcangelo      Spank Minister
-Chi Wai Tran                Kitsuake                Stephen Goldberg
-Chris Jardine               KnC                     Steven Wilson
-Chris smith                 Kyle Good               Steven Yedwab
-Chris W Miller              Lee Osborne             Thomas Barrand
-Christian                   Leslie Law              Thomas Irwin
-Christian Bailey            Lionel LENOBLE          Toby Boreham
-Christopher Gelatt          Louis Martinez          Tony Toon
-Christopher Harvey          Luc JOLY                Trifle
-cohge                       Magnus Kvevlander       Ulf Skutnabba
-Coldheat007                 Manuel Astudillo        Ultrarobotninja
-Dan                         Marcus Hogue            Victor Bly
-Daniel Bauza                Matt Evans              Víctor Gomariz Ladrón de Guevara
-Daniel Estreito             Matthew Woodford        XC-3730C
-Darren Wootton              Matthew Young           Xzarian
-David Ashby                 Max Schütz              yoaarond
-David Fleetwood             Michael Deshaies
-David Jones                 Michael Yount
-David Mills                 Michele Zilli
-Don Gafford                 Mick Stone
+3style                      DrMnike                 Mick Stone
+80's spaceman               Ed Balan                Mike Jegenjan
+Adam Davis                  Edward Rana             Mike Parks
+Alan Shurvinton             Eric J Faulkes          MiSTerFPGA.co.uk
+Alonso J. Núñez             Filip Kindt             Nailbomb
+Anders Rensberg             Francis B               natalie
+Andrea Chiavazza            Frank Hoedemakers       Neil St Clair
+Andreas Micklei             Frederic FONTANA        Nico Stamp
+Andrew Ajello               Frédéric Mahé           nullobject
+Andrew Boudreau             GA                      Oliver Jaksch
+Andrew Francomb             Gavin                   Oliver Wndmth
+Andrew Moore                Greg                    Oscar Laguna Garcia
+Andy Palmer                 Gregory Val             Oskar Sigvardsson
+Andyways                    Gus Douboulidis         Patrick Roman Fabri
+Angelo Kanaris              Hard Rich               Paweł Mandes
+Anthony Monaco              Henrik Nordström        Per Sweden
+Aquijacks (Flashjacks MSX)  HFSPlay                 Phillip McMahon
+Arcade Express              hyp36rmax               PsyFX
+Arjan de Lang               Jeremy Kelaher          Purple Tinker
+asdfgasfhsn                 Jesse Clark             RandomRetro
+Ben Toman                   Jo Tomiyori             RetroDriven
+ben01623                    Joeri van Dooren        Richard Eng
+Bender                      Johan Smolinski         Richard Murillo
+Bob Gallardo                John Casey              Richard Simpson
+Brent Fraser Weatherall     Jonathan Loor           Robert Forbes
+Brett T Davis               Jonathan Tuttle         Robert MacLean
+brian burney                Jorge Slowfret          Roman Buser
+Brian Sallee                Josiah Wilson           Ryan Fig
+Carrboroman                 JPS (RetroFPGA)         Sassbasket Silvercloud
+Charles                     Juan E. Gayon           Skeeter
+Chi Wai Tran                Justin D'Arcangelo      Sofia Rose
+Chris Jardine               Kitsuake                Spank Minister
+Chris smith                 KnC                     Stephen Goldberg
+Chris W Miller              Kyle Good               Steven Wilson
+Christian                   Lee Osborne             Steven Yedwab
+Christian Bailey            Leslie Law              Thomas Barrand
+Christopher Gelatt          Lionel LENOBLE          Thomas Irwin
+Christopher Harvey          Louis Martinez          Toby Boreham
+cohge                       Luc JOLY                Tony Toon
+Coldheat007                 Magnus Kvevlander       Trifle
+Dan                         Manuel Astudillo        Ulf Skutnabba
+Daniel Bauza                Marcus Hogue            Ultrarobotninja
+Daniel Estreito             Matt Evans              Victor Bly
+Darren Wootton              Matthew Woodford        Víctor Gomariz
+David Ashby                 Matthew Young           XC-3730C
+David Fleetwood             Max Schütz              Xzarian
+David Jones                 Michael Deshaies        yoaarond
+David Mills                 Michael Yount
+Don Gafford                 Michele Zilli
 ```

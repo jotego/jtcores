@@ -22,30 +22,25 @@ module jttrojan_game(
 
 wire [15:0] scr2_hpos, scr_part;
 wire [12:0] cpu_AB;
-wire [10:0] scr_hpos, scr_vpos;
+wire [ 8:0] scr_hpos, scr_vpos;
 wire [ 8:0] obj_AB, V, H;
+reg  [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] cpu_dout, char_dout, scr_dout,
-            snd_latch, snd2_latch, main_ram;
+            snd_latch, snd2_latch, main_ram,
+            mcu_mdin, mcu_mdout, mcu_sdin;
 wire        blue_cs, redgreen_cs, flip, HINIT, scr0,
-            rd, cpu_cen, char_busy, scr_busy,
-            cen12, cen8, cen6, cen3, cen1p5, char_cs, scr_cs,
-            sres_b, snd_int, RnW, OKOUT, blcnten, bus_req, bus_ack;
+            rd, base_cen, char_busy, scr_busy, char_cs, scr_cs,
+            sres_b, snd_int, RnW, OKOUT, blcnten, bus_req, bus_ack,
+            mcu_mrd, mcu_mwr, mcu_srd, mcu_swr, mcu_cen, cpu_cen;
+reg         trojan, avengers, mcu_en, rst_mcu;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
-assign dip_flip = flip;
+assign dip_flip = flip^avengers;
 assign scr_part = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
                          { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
-
-/* verilator lint_off PINMISSING */
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    .cen8   ( cen8      )
-);/* verilator lint_on PINMISSING */
+assign base_cen  = trojan ? cen3 : cen6;
+assign debug_view = debug_bus[0] ? scr2_hpos[15:8] : scr2_hpos[7:0];
 
 localparam [25:0]   OBJ_START  = `OBJ_START,
                     PROM_START = `JTFRAME_PROM_START;
@@ -57,20 +52,37 @@ always @* begin
     end
 end
 
-`ifndef NOMAIN
-jtcommnd_main #(.GAME(2)) u_main(
+always @(posedge clk) begin
+    if( header && ioctl_addr[3:0]==8 ) {mcu_en,avengers,trojan} <= prog_data[2:0];
+    dipsw_a <= avengers ? dipsw[15:8] : dipsw[ 7:0];
+    dipsw_b <= avengers ? dipsw[ 7:0] : dipsw[15:8];
+    rst_mcu <= rst24 | ~mcu_en;
+end
+
+jtframe_crossclk_cen u_crosscen(
+    .clk_in     ( clk       ),
+    .cen_in     ( base_cen  ),
+    .clk_out    ( clk24     ),
+    .cen_out    ( mcu_cen   )
+);
+
+jttrojan_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .base_cen   ( base_cen      ),
     .cpu_cen    ( cpu_cen       ),
-    .cen_sel    ( 1'b0          ), // 3MHz CPU
+    .nmi_sel    ( avengers      ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .H1         ( H[0]          ),
+    // MCU
+    .main_latch ( mcu_mdin      ),
+    .mcu_latch  ( mcu_mdout     ),
+    .mcu_rd     ( mcu_mrd       ),
+    .mcu_wr     ( mcu_mwr       ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
@@ -119,38 +131,50 @@ jtcommnd_main #(.GAME(2)) u_main(
     .prog_din   ( 4'd0          ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
-    .dipsw_a    ( dipsw[ 7:0]   ),
-    .dipsw_b    ( dipsw[15:8]   ),
-    // Unused
-    .char_on    (               ),
-    .scr1_on    (               ),
-    .scr2_on    (               ),
-    .obj_on     (               ),
-    .scr1_pal   (               ),
-    .scr2_pal   (               )
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 0;
-assign scr_vpos    = 0;
-assign cpu_cen     = cen3;
-`endif
+
+jttrojan_mcu u_mcu(
+    .rst        ( rst_mcu         ),
+    .clk        ( clk24           ),
+    .clk_rom    ( clk             ),
+    .cen        ( mcu_cen         ), // 6 MHz
+    .LVBL       ( LVBL            ),
+    .vdump      ( V               ),
+    // Main CPU interface
+    .mrd        ( mcu_mrd         ),
+    .mwr        ( mcu_mwr         ),
+    .to_main    ( mcu_mdin        ),
+    .from_main  ( mcu_mdout       ),
+    // Sound CPU interface
+    .srd        ( mcu_srd         ),
+    .swr        ( mcu_swr         ),
+    .to_snd     ( mcu_sdin        ),
+    .from_snd   ( snd_latch       ),
+    // ROM programming
+    .prog_addr  ( prog_addr[11:0] ),
+    .prom_din   ( prog_data       ),
+    .prom_we    ( prom_we         )
+);
 
 jttrojan_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
+    .cenp384        ( cenp384        ),
+    .avengers       ( avengers       ),
     // Interface with main CPU
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd2_latch     ( snd2_latch     ),
     .snd_int        ( snd_int        ),
+    // Interface with MCU
+    .mcu_sdout      (                ),
+    .mcu_sdin       ( mcu_sdin       ),
+    .mcu_srd        ( mcu_srd        ),
+    .mcu_swr        ( mcu_swr        ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -167,9 +191,9 @@ jttrojan_sound u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     .pcm            ( pcm            ),
-    .debug_view     ( debug_view     )
+    .debug_view     (                )
 );
-
+/* verilator tracing_off */
 jttrojan_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -177,7 +201,8 @@ jttrojan_video u_video(
     .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .cpu_cen    ( cpu_cen       ),
+    .cpu_cen    ( base_cen      ),
+    .avengers   ( avengers      ),
     .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V             ),
     .H          ( H             ),
@@ -221,20 +246,18 @@ jttrojan_video u_video(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    // PROMs
-    // .prog_addr    ( prog_addr[7:0] ),
-    // .prom_prio_we ( prom_we        ),
-    // .prom_din     ( prog_data[3:0] ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .HS         ( HS            ),
     .VS         ( VS            ),
-    .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )
+    .blue       ( blue          ),
+    // Debug
+    .gfx_en     ( gfx_en        ),
+    .debug_bus  ( debug_bus     )
 );
 
 endmodule

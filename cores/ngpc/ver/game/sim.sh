@@ -86,13 +86,17 @@ function split {
 }
 
 if [ -n "$SCENE" ]; then
-    dd if=scenes/$SCENE/vram.bin of=regsram.bin ibs=64 count=1 2> /dev/null
-    dd if=scenes/$SCENE/vram.bin of=pal.bin ibs=1 count=25 skip=256 2> /dev/null
-    dd if=scenes/$SCENE/vram.bin of=objram.bin  ibs=256 count=1 skip=8 2> /dev/null
-    dd if=scenes/$SCENE/vram.bin of=scr1ram.bin count=4 skip=8 2> /dev/null
-    dd if=scenes/$SCENE/vram.bin of=scr2ram.bin count=4 skip=12 2> /dev/null
-    dd if=scenes/$SCENE/vram.bin of=chram.bin count=16 skip=16 2> /dev/null
-    for i in obj ch scr1 scr2 regs; do split $i; done
+    dd if=scenes/$SCENE/vram.bin of=regsram.bin ibs=64   count=1           2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=palram.bin           count=1  skip=1   2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=pal.bin     ibs=1    count=25 skip=256 2> /dev/null
+    # object NGP part
+    dd if=scenes/$SCENE/vram.bin of=objram.bin  ibs=256  count=1  skip=8   2> /dev/null
+    # object NGPC part
+    dd if=scenes/$SCENE/vram.bin of=objram.bin  ibs=256  count=1  skip=12  oflag=append conv=notrunc 2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=scr1ram.bin          count=4  skip=8   2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=scr2ram.bin          count=4  skip=12  2> /dev/null
+    dd if=scenes/$SCENE/vram.bin of=chram.bin            count=16 skip=16  2> /dev/null
+    for i in obj ch scr1 scr2 regs pal; do split $i; done
     # rm -f objram.bin charam.bin
 fi
 

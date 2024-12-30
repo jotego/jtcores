@@ -21,9 +21,7 @@
 `ifdef JTFRAME_PADDLE
     input   [ 7:0]  paddle_0, paddle_1, paddle_2, paddle_3,
 `endif
-`ifdef JTFRAME_DIAL
     input   [ 1:0]  dial_x, dial_y,
-`endif
 `ifdef JTFRAME_MOUSE
     input   [15:0]  mouse_1p, mouse_2p,
     input   [ 1:0]  mouse_strobe,
@@ -31,12 +29,8 @@
 `ifdef JTFRAME_SPINNER
     input   [ 7:0]  spinner_1p, spinner_2p,
 `endif
-`ifdef JTFRAME_ANALOG
     input   [15:0]  joyana_l1, joyana_l2, joyana_l3, joyana_l4,
-    `ifdef JTFRAME_ANALOG_DUAL
-        input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
-    `endif
-`endif
+    input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
     // Sound control
     input           enable_fm, enable_psg,
     input   [ 5:0]  snd_en,

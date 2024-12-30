@@ -1,0 +1,64 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Tue Dec 24 17:14:26 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/test.fst"
+[dumpfile_mtime] "Tue Dec 24 16:52:57 2024"
+[dumpfile_size] 1398361505
+[savefile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/trace.gtkw"
+[timestart] 10172
+[size] 2532 1005
+[pos] -1 -1
+*-38.290955 512211009140 357018880228 357014709708 495924518220 511477424844 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_share.
+[treeopen] TOP.game_test.u_game.u_game.u_share.u_shram.
+[sst_width] 278
+[signals_width] 265
+[sst_expanded] 1
+[sst_vpaned_height] 326
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_main.IPLn[2:0]
+TOP.game_test.u_game.u_game.u_main.VPAn
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.A7[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D0[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D1[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D2[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D3[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D4[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D5[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D6[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.D7[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.PC[31:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.Ir[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.syswr_cs
+TOP.game_test.u_game.u_game.u_main.mint_en
+TOP.game_test.u_game.u_game.u_main.bus_cs
+TOP.game_test.u_game.u_game.u_main.rom_cs
+TOP.game_test.u_game.u_game.u_main.ram_cs
+TOP.game_test.u_game.u_game.u_main.sh_cs
+TOP.game_test.u_game.u_game.u_main.vram_cs
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+@28
+TOP.game_test.u_game.u_game.u_main.dma_cs
+TOP.game_test.u_game.u_game.u_main.dma_bsy
+TOP.game_test.u_game.u_game.u_main.dma_on
+[pattern_trace] 1
+[pattern_trace] 0

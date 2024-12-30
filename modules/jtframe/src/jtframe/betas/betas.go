@@ -40,7 +40,7 @@ func IsBetaFor(core, target string) bool {
 }
 
 func ListBetas(verbose bool) BetaCores{
-	fp := filepath.Join(os.Getenv("JTROOT"),"beta.yaml")
+	fp := filepath.Join(os.Getenv("JTROOT"),".beta.yaml")
 	buf, e := os.ReadFile(fp)
 	betas := make(BetaCores)
 	if e != nil {

@@ -86,7 +86,7 @@ always @(posedge clk) begin
     cen0 <= divcencnt==1 && cen==1;
 end
 
-assign cen_eff = DIVCEN ? cen0 : cen;
+assign cen_eff = DIVCEN==1 ? cen0 : cen;
 
 wire int0n_s, int1n_s;
 
@@ -136,7 +136,8 @@ always @(posedge clk) begin
     x_acc    <= pre_acc;
     rom_addr <= pre_rom;
 end
-
+/* verilator tracing_off */
+// Oregano's 8051 core is not cycle accurate. It is slower than the original
 mc8051_core u_mcu(
     .reset      ( rst       ),
     .clk        ( clk       ),

@@ -210,16 +210,16 @@ void twin16_state::sub_map(address_map &map)
 	map(0x000000, 0x03ffff).rom();
 	map(0x040000, 0x043fff).ram().share("comram");
 //  map(0x044000, 0x04ffff).noprw();             // miaj
-	map(0x060000, 0x063fff).ram();
-	map(0x080000, 0x09ffff).rom().region("data", 0);
-	map(0x0a0000, 0x0a0001).w(FUNC(twin16_state::CPUB_register_w));
-	map(0x400000, 0x403fff).ram().share("spriteram");
-	map(0x480000, 0x481fff).ram().w(FUNC(twin16_state::videoram0_w)).share("videoram.0");
-	map(0x482000, 0x483fff).ram().w(FUNC(twin16_state::videoram1_w)).share("videoram.1");
-	map(0x500000, 0x53ffff).ram().w(FUNC(twin16_state::zipram_w)).share("zipram");
-	map(0x600000, 0x6fffff).rom().region("gfxrom", 0);
-	map(0x700000, 0x77ffff).bankr("gfxrombank");
-	map(0x780000, 0x79ffff).ram().share("sprite_gfx_ram");
+	map(0x06_0000, 0x063fff).ram();
+	map(0x08_0000, 0x09ffff).rom().region("data", 0);
+	map(0x0a_0000, 0x0a0001).w(FUNC(twin16_state::CPUB_register_w));
+	map(0x40_0000, 0x403fff).ram().share("spriteram");
+	map(0x48_0000, 0x481fff).ram().w(FUNC(twin16_state::videoram0_w)).share("videoram.0");
+	map(0x48_2000, 0x483fff).ram().w(FUNC(twin16_state::videoram1_w)).share("videoram.1");
+	map(0x50_0000, 0x53ffff).ram().w(FUNC(twin16_state::zipram_w)).share("zipram");
+	map(0x60_0000, 0x6fffff).rom().region("gfxrom", 0);
+	map(0x70_0000, 0x77ffff).bankr("gfxrombank");
+	map(0x78_0000, 0x79ffff).ram().share("sprite_gfx_ram");
 }
 
 void fround_state::fround_map(address_map &map)

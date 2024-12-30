@@ -1,5 +1,9 @@
 [parse]
 sourcefile=[ "ngp.cpp" ]
+skip.setname="ngpc"
+
+[Pocket]
+display_modes=[ 0x61 ]
 
 [ROM]
 order = ["maincpu"]
@@ -10,6 +14,13 @@ carts =[ "ngp", "ngc" ]
 # 	{ offset=0xff00, data="00 18" }
 # ]
 # it's better to simply power off the NGP and insert a cartridge
+
+# skip menu patch by angel_killah
+# it seems to lock the core on FPGA, on simulation works fine
+# maybe it needs to have a cartridge already loaded
+# patches=[ { offset=0x1b0f,data="""00
+# 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+# 	00 00 00 00 00 00 00 00 00"""} ]
 
 [buttons]
 names = [{names="A,B,Option"}]

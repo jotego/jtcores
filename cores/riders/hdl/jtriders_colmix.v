@@ -20,7 +20,6 @@ module jtriders_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             xmen,
 
     // Base Video
     input             lhbl,
@@ -43,7 +42,7 @@ module jtriders_colmix(
     input      [11:0] lyro_pxl,
     input      [ 1:0] lyro_pri,
 
-    input      [ 1:0] shadow,
+    input             shadow,
     input      [ 2:0] dim,
     input             dimmod,
     input             dimpol,
@@ -63,7 +62,6 @@ module jtriders_colmix(
 
 wire [15:0] pal_dout;
 wire [ 1:0] cpu_palwe;
-reg  [15:0] pxl_aux;
 reg  [ 1:0] dim_cmn;
 reg  [ 4:0] pal_dmux;
 reg  [ 3:0] bsel; // bright selection
@@ -71,7 +69,6 @@ reg  [23:0] bgr;
 reg         st;
 wire [ 7:0] r8, bg8;
 reg  [ 7:0] b8, g8;
-reg  [13:0] xmen_o;
 wire [10:0] pal_addr;
 wire        brit, shad, pcu_we, nc;
 // 053251 inputs
@@ -87,14 +84,14 @@ assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
-assign pri1      = xmen ? { xmen_o[11: 9], xmen_o[13:12], 1'b0} : {1'b1, xmen_o[10:9], 3'd0};
-assign ci0       = xmen ? {lyra_pxl[6:4],lyra_pxl[11:10],lyra_pxl[3:0]} :  9'd0;
-assign ci1       = xmen ?   xmen_o[8:0] : lyro_pxl[8:0];
-assign ci2       = xmen ? {lyrb_pxl[6:4],lyrb_pxl[11:10],lyrb_pxl[3:0]} : {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
-assign ci3       = xmen ?  lyrf_pxl : { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-assign ci4       = xmen ?  8'd1 : { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-assign shad      = xmen ? |shd_out : shd_out[0];
-assign shd_in    = xmen ?  shadow  : {1'b0,~shadow[0]};
+assign pri1      = {1'b1, lyro_pxl[10:9], 3'd0};
+assign ci0       =  9'd0;
+assign ci1       =  lyro_pxl[8:0];
+assign ci2       = {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+assign ci3       = {1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+assign ci4       = {1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
+assign shad      =  shd_out[0];
+assign shd_in    = {1'b0,shadow};
 
 always @* begin
     // LUT generated with
@@ -115,20 +112,11 @@ begin
 end
 endfunction
 
-// remember to delete this once the dimming is ready:
-`ifdef JTFRAME_RELEASE
-    `define NODIMMING
-`endif
-
 `ifdef NODIMMING
-wire nodimming = !xmen;
+wire nodimming = 1;
 `else
 wire nodimming = 0;
 `endif
-
-always @(posedge clk) begin
-    if(pxl_cen) xmen_o <= {lyro_pri, lyro_pxl};
-end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -146,7 +134,6 @@ always @(posedge clk, posedge rst) begin
                 {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])} :
                 { b8, g8, r8 };
         end
-        if( xmen )         bsel <= { ~shad, 3'b111 };
         // if( debug_bus[7] ) bsel <= debug_bus[3:0];
     end
 end
@@ -171,7 +158,7 @@ jtcolmix_053251 u_k251(
     .ci3        ( ci3       ),
     .ci4        ( ci4       ),
     // shadow
-    .shd_in     ( shd_in    ), // why do we need the inversion?
+    .shd_in     ( shd_in    ),
     .shd_out    ( shd_out   ),
     // dump to SD card
     .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
@@ -184,7 +171,7 @@ jtcolmix_053251 u_k251(
 
 // this does not follow the same arrangement of the original
 // it's only important if you try to load a dump from MAME
-jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramlo(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout[7:0] ),
@@ -201,7 +188,7 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
     .q1     ( pal_dout[ 7:0])
 );
 
-jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramhi(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout[15:8]),

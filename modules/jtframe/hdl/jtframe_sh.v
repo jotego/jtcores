@@ -18,10 +18,10 @@
 
 module jtframe_sh #(parameter W=5, L=24 )
 (
-    input                           clk,
-    input                           clk_en,
-    input       [W-1:0]         din,
-    output      [W-1:0]         drop
+    input          clk,
+    input          clk_en,
+    input  [W-1:0] din,
+    output [W-1:0] drop
 );
 
 reg [L-1:0] bits[W-1:0];

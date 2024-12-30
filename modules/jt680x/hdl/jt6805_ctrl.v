@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 4-12-2023 */
-
+/* verilator coverage_off */
 module jt6805_ctrl(
     input        rst,
     input        clk,
@@ -36,7 +36,7 @@ module jt6805_ctrl(
     output       stop,
     output       wr,
     output [1:0] brt_sel,
-    output       cin_carry,
+    output [1:0] carry_sel,
     output [1:0] ea_sel,
     output [1:0] opnd_sel,
     output [2:0] ld_sel,

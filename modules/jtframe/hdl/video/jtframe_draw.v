@@ -20,6 +20,7 @@
 // It could be extended to 32x32 easily
 
 module jtframe_draw#( parameter
+    AW       =  9,    // Buffer with
     CW       = 12,    // code width
     PW       =  8,    // pixel width (lower four bits come from ROM)
     ZW       =  6,    // zoom step width
@@ -34,7 +35,7 @@ module jtframe_draw#( parameter
     input               draw,
     output reg          busy,
     input    [CW-1:0]   code,
-    input      [ 8:0]   xpos,
+    input    [AW-1:0]   xpos,
     input      [ 3:0]   ysub,
     input      [ 1:0]   trunc, // 00=no trunc, 10 = 8 pixels, 11 = 4 pixels
 
@@ -49,9 +50,10 @@ module jtframe_draw#( parameter
     output     [CW+6:2] rom_addr, // HVVVV format
     output reg          rom_cs,
     input               rom_ok,
-    input      [31:0]   rom_data,
+    input      [31:0]   rom_data, // leftmost pixel in LSB
+                                  // one plane per byte
 
-    output reg [ 8:0]   buf_addr,
+    output reg [AW-1:0] buf_addr,
     output              buf_we,
     output     [PW-1:0] buf_din
 );
@@ -68,9 +70,9 @@ wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
 reg             cen=0, moveon, readon, no_zoom;
-wire            msb;
+// wire            msb;
 
-assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
+// assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
 assign ysubf   = ysub^{4{vflip}};
 assign buf_din = { pal, pxl };
 assign pxl     = hflip ?
@@ -113,7 +115,7 @@ always @(posedge clk, posedge rst) begin
                 rom_cs  <= 1;
                 busy    <= 1;
                 cnt     <= 8;
-                no_zoom <= hzoom == HZONE;
+                no_zoom <= hzoom == HZONE || hzoom == 0; // zoom=0 is not valid. Makes counts keep going and busy stays forever. Check simpsons/scene 32
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;

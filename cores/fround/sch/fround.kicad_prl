@@ -67,24 +67,17 @@
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
+  "git": {
+    "repo_password": "",
+    "repo_type": "",
+    "repo_username": "",
+    "ssh_key": ""
+  },
   "meta": {
     "filename": "fround.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "fround.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2091,
-          "pos_y": 50,
-          "size_x": 972,
-          "size_y": 1052
-        }
-      }
-    ]
+    "files": []
   }
 }

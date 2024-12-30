@@ -35,8 +35,9 @@ module jtgng_sound(
     input            snd_int,
     // Interface with second sound CPU (Tiger Road)
     output reg [7:0] snd2_latch,
-    // Interface with MCU (F1 Dream)
-    // input   [7:0]    snd_din,
+    // Interface with MCU (Avengers)
+    input   [7:0]    mcu_sdin,
+    output           mcu_srd,
     // output  [7:0]    snd_dout,
     // output           snd_mcu_wr,
     // ROM
@@ -84,12 +85,13 @@ localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 wire [15:0] A, fave;
 wire        iorq_n, m1_n, wr_n, rd_n, cenfm;
 wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
-reg         fm1_cs, fm0_cs, latch_cs, ram_cs;
+reg         fm1_cs, fm0_cs, latch_cs, ram_cs, mcu_cs;
 wire        mreq_n, rfsh_n;
 wire [ 7:0] fm0_debug, fm1_debug;
 
 assign rom_addr = A[14:0];
 assign cenfm    = FM_SAMECEN ? cen3 : cen1p5;
+assign mcu_srd  = mcu_cs && !rd_n;
 // assign snd_dout   = dout;
 // assign snd_mcu_wr = 1'b0;
 
@@ -107,6 +109,7 @@ always @(*) begin
     latch_cs = 1'b0;
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
+    mcu_cs   = 1'b0;
     if( rfsh_n && !mreq_n)
         case( LAYOUT )
         0,4:  // Memory map for: GnG, Gun Smoke, 1943, Black Tiger, SectionZ
@@ -119,8 +122,9 @@ always @(*) begin
                         // 1943 has the security device mapped at A[12:11]==2'b11
                         // but it doesn't use it at all. So I am leaving it out.
                 3'b111: begin
-                    fm0_cs = ~A[1];
-                    fm1_cs =  A[1];
+                    fm0_cs = A[2:1]==0;
+                    fm1_cs = A[2:1]==1;
+                    mcu_cs = A[2:1]==3;
                 end
                 default:;
             endcase
@@ -208,6 +212,7 @@ always @(posedge clk) begin
         fm1_mx:   din = fm1_dout;
         latch_cs: din = snd_latch;
         ram_cs:   din = ram_dout;
+        mcu_cs:   din = mcu_sdin;
         default:  din = 8'hff;
     endcase
 end

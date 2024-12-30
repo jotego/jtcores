@@ -5,8 +5,12 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"strings"
 
+	"path/filepath"
 	"github.com/spf13/cobra"
 )
 
@@ -42,4 +46,48 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+var CANNOT_SOLVE_CORENAME error = errors.New("Cannot derive the core name from the current path")
+
+func get_corenames(args []string) ([]string,error) {
+	if len(args)>0 {
+		for _,corename := range args {
+			if e := valid_core(corename); e!= nil { return nil, e }
+		}
+		return args, nil
+	}
+	corename, e := get_corename(args)
+	if e!= nil { return nil, e }
+	return []string{corename},nil
+}
+
+// Check that the core folder exist
+func valid_core(name string) error {
+    fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),name) )
+    if e != nil || !fi.IsDir() {
+        return fmt.Errorf("%s is not a valid core name", name)
+    }
+    return nil
+}
+
+func get_corename(args []string) (string, error) {
+	if len(args)>0 {
+		corename := args[0]
+		if e := valid_core(corename); e!= nil { return "", e }
+		return corename, nil
+	}
+	// look for the core name in the path
+	cwd, _ := os.Getwd()
+	cores_path := filepath.Join(os.Getenv("JTROOT"),"cores")
+	rel, e := filepath.Rel(cores_path,cwd); if e!=nil { return "",CANNOT_SOLVE_CORENAME }
+	parts := strings.Split( filepath.ToSlash(rel), "/" )
+	if len(parts)==0 { return "",CANNOT_SOLVE_CORENAME }
+	return parts[0],nil
+}
+
+func must(e error) {
+	if(e==nil) {return}
+    fmt.Println(e)
+    os.Exit(1)
 }

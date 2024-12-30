@@ -32,6 +32,7 @@ if [ -n "$TERM" ]; then
     NC=`tput sgr0`
 fi
 
+COV=
 DIR=
 DUMP=
 SIM_MS=1
@@ -85,6 +86,8 @@ Please support the development: https://patreon.com/jotego
 
     -args      Additional arguments for the simulator
     -batch     Tells jtsim that it is being run by a batch process
+    -cov       Enables coverage simulation (only verilator)
+               Look at the files in the cov folder for annotated results
     -d         Add specific Verilog macros for the simulation.
                Call jtmacros to display all macros.
     -debug_bus x
@@ -100,6 +103,8 @@ Please support the development: https://patreon.com/jotego
                If the simulation is run from a folder whose name matches a
                .dip file in $ROM, and -dipsw is not set, then jtsim will load
                the matching file automatically
+    -dump n    Uses IOCTL interface to dump the core contents. Sets ioctl_ram,
+               requires JTFRAME_IOCTL_RD. Dumping will start at frame n
     -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
     -frame     Number of frames to simulate
     -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
@@ -110,7 +115,10 @@ Please support the development: https://patreon.com/jotego
                from the file name after -inputs. Note that in if you specify
                a file, then sim_inputs.hex will get overwritten with that file.
 
-               Each line contains a byte with the input status.
+               The input file can be in .cab format (see jtframe cab --help) or
+               in plain hex format.
+
+               In hex format each line contains a byte with the input status.
                All bits are read as active high. They are inverted
                if necessary by JTFRAME logic,
                The format is:
@@ -317,6 +325,7 @@ while [ $# -gt 0 ]; do
 case "$1" in
     -args) shift; SIMULATOR_EXTRA="$SIMULATOR_EXTRA $1";;
     -batch) BATCH=1;;
+    -cov) COV=--coverage;;
     -debug_bus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
@@ -350,6 +359,9 @@ case "$1" in
         else
             add_macro JTFRAME_SIM_DIPS=0x${1#0x}
         fi;;
+    -dump)
+        shift
+        add_macro "JTFRAME_SIM_IODUMP=$1";;
     -test)
         add_macro DIP_TEST;;
     -gates)
@@ -367,7 +379,15 @@ case "$1" in
     -inputs)
         if [[ $2 != -* ]]; then
             shift
-            cp $1 sim_inputs.hex
+            if [ ! -e "$1" ]; then
+                echo "Error: cannot find input file $1"
+                exit 1
+            fi
+            if [ "$1" = *.cab ]; then
+                jtframe cab "$1"
+            else
+                cp "$1" sim_inputs.hex
+            fi
         elif [ ! -e sim_inputs.hex ]; then
             echo "-inputs specified but there is no sim_inputs.hex file"
             exit 1
@@ -542,11 +562,19 @@ EOF
         enable_load
     fi
     if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+else
+    SETNAME=$(basename $(pwd))
+    if [ $SETNAME = game ]; then unset SETNAME; fi
 fi
 
+# Create a rom.bin link when possible, exit otherwise unless in lint mode
 if [[ ! -s rom.bin && -z "$LINT" ]]; then
-    echo "ERROR: file rom.bin is not valid."
-    exit 1
+    if [[ ! -z "$SETNAME" && -e $ROM/$SETNAME.rom ]]; then
+        ln -sr $ROM/$SETNAME.rom rom.bin
+    else
+        echo "ERROR: file rom.bin is not valid."
+        exit 1
+    fi
 fi
 
 # Add a local copy of the dump file if it doesn't exist
@@ -790,7 +818,7 @@ verilator)
     TRACE=$(if [ ! -z "$DUMP" ]; then echo --trace; fi)
     if [ -z "$CPPFLAGS" ]; then
         if [[ ! -z "$MAXFRAME" && "$MAXFRAME" -gt 600 ]]; then
-            export CPPFLAGS=-O2
+            export CPPFLAGS="-O2 -march=native"
             echo "Using CPPFLAGS=$CPPFLAGS for faster simulation"
         else
             export CPPFLAGS=-O1
@@ -810,6 +838,8 @@ verilator)
     # Ignore FX68k in Verilator sims with this:
     # but if you use JTFPGA/FX68K branch fix 6, you should be able to simulate it
     if [ ! -z "$VERILATOR_ROOT" ]; then VERILATOR_PATH=${VERILATOR_ROOT}/bin/; fi
+    if [ ! -z "$COV" ]; then echo "#define _COVERAGE" >> defmacros.h; fi
+    rm -rf logs
     $SHOWCMD ${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl \
         -I$JTFRAME/hdl/inc \
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
@@ -818,7 +848,7 @@ verilator)
         -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
         --top-module game_test -o sim \
          $EXTRA $TRACE --prefix UUT --assert \
-         --cc test.cpp --exe $SIMULATOR_EXTRA \
+         --cc test.cpp --exe $SIMULATOR_EXTRA $COV \
          -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE \
         || exit $?
     # Only use parallel compilation if we are not in a regression. Otherwise
@@ -843,6 +873,10 @@ verilator)
         fi
         $SHOWCMD obj_dir/sim $TRACE -time $SIM_MS || echo "Verilator sim exit code $?"
         rm -f test.vcd
+        if [ -e logs/coverage.dat ]; then
+            mkdir -p cov
+            verilator_coverage --annotate cov logs/coverage.dat
+        fi
         if [ ! -z "$SHOWCMD" ]; then exit 0; fi
     fi
 esac
@@ -877,7 +911,7 @@ if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
         ffmpeg -y -framerate $FRAMERATE \
         -pattern_type glob -i frames/'frame_*.jpg' \
         -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
-        -pix_fmt yuv420p test.mp4 > /dev/null
+        -pix_fmt yuv420p test.mp4 > /dev/null 2>&1
     fi
 fi
 
@@ -889,7 +923,7 @@ for i in "${CHRAW[@]}"; do
     if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
         echo "$i is empty, deleting it" > /dev/null
     else
-        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav || continue
+        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav > /dev/null 2>&1 || continue
     fi
     rm -f $i
 done

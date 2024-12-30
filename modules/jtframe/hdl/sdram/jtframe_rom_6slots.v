@@ -21,7 +21,7 @@
 // slot 5 --> minimum priority
 // Each slot can be used for 8, 16 or 32 bit access
 // Small 4 byte cache used for each slot
-
+/* verilator coverage_off */
 module jtframe_rom_6slots #(parameter
     SDRAMW = 22,
     SLOT0_DW = 8, SLOT1_DW = 8, SLOT2_DW = 8,

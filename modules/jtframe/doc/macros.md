@@ -1,55 +1,4 @@
-# Macro Definition
-
-Macros are expected in the file *cores/corename/cfg/macros.def*. From there, other files can be included. The *macros.def* file accepts target-specific macros. Check for examples in JT cores, such as [kicker](https://github.com/jotego/jtkicker).
-
-Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools. Macros are available for verilog files and also verilator C++ files. For C++, the macro name is added an initial underscore, so `ABC` becomes `_ABC`
-
-Macros in *macros.def* can have different values for a given target platform, using the following syntax:
-
-```
-# defines FOO as 4
-FOO=4
-[sidi]
-# but in the sidi platform, it will become 6
-FOO=6
-[mist*]
-# and in mist/mister platforms, it will be 7
-FOO=7
-[*]
-# matches all targets
-```
-
-The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
-
-Macro files can include other macro files with `include <path-to-def-file>`. Note that the path is relative to the current .def file being parsed.
-
-Macro declarations starting with `debug` are not parsed for release compilations:
-
-```
-[*]
-debug SHOWINFO
-ABC
-```
-
-Will ignore SHOWINFO when JTFRAME_RELEASE is defined. ABC will always be defined.
-
-Macros can be removed by preceding them with a minus sign:
-
-```
-ABC
-[mist]
--ABC
-```
-
-Will remove the ABC macro for the MiST target.
-
 # System Name
-
-There are two macros that define the core name the FPGA will use when communicating with the rest of the target platform. This is the name that MiST(er) display in the side of the OSD menu under some circumstances. It is also the name used for compilation files and the RBF file name. If undefined, the core folder name will be used. CORENAME is a way of using a different name for the core folder and the core itself.
-
-The core's game module that connects to the target top module is set by GAMETOP. If undefined, it will default to $CORENAME_game (or $CORENAME_game_sdram when cfg/mem.yaml exists). $CORENAME is used in lower case for the GAMETOP.
-
-A macro for the core folder name in capitals is always defined and can be used in `ifdef` statements when a file is common to several cores.
 
 Macro         |  Usage                  | Default Value
 --------------|-------------------------|------------------
@@ -61,8 +10,6 @@ GAMETOP       | Core's game module name | $CORENAME_game(_sdram)
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
-JTFRAME_ANALOG           |         | Enables analog sticks
-JTFRAME_ANALOG_DUAL      |         | Enables second analog stick, requires JTFRAME_ANALOG too
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
 JTFRAME_AUTOFIRE0        | MiSTer  | Button 0 will autofire when pressed ([OSD](osd.md) option)
@@ -73,19 +20,21 @@ JTFRAME_CHEAT            |         | Enables the [cheat engine](cheat.md)
 JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
 JTFRAME_CLK48            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
+JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
 JTFRAME_DONTSIM_SCAN2X   |         | Internal. Do not define externally
 JTFRAME_FLIP_RESET       |         | Varying the flip DIP setting causes a reset
 JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
-JTFRAME_HEADER           |         | Set to the length of the ROM file header
+JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_INTERPOL2        |         | Enables a x2 FIR interpolation filter for audio. The game 'sample' output must be well defined
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
+JTFRAME_JOY_DULR         |         | Joystick lower 4 bits are:  down,  up,    left,  right
 JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, up,    down
 JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  down,  up
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
@@ -237,6 +186,7 @@ LOADROM                  |         | Sends ROM data via serial interface. Set by
 SIM_LOAD_PROM            |         | Manually enable it to force PROM load on offset-header cores (like JTS18)
 SIMSCENE                 |         | Set when jtsim is called with -scene
 SIMULATION               |         | Enables simulation features
+VERILATOR_KEEP_AUDIO     |verilator| Keeps all the audio mixing generated by mem.yaml
 VERILATOR_KEEP_CEN       |verilator| Keeps all the cen signals generated by mem.yaml
 VERILATOR_KEEP_CPU       |verilator| Keeps CPU signals (Z80/M6809/M68000) during simulation
 VERILATOR_KEEP_SDRAM     |verilator| Keeps SDRAM signals in the game_sdram.v module (mem.yaml)
@@ -254,5 +204,4 @@ JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vertical game
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
-JTFRAME_CREDITS_PAGES    |         | number of pages of credits text
-
+JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)

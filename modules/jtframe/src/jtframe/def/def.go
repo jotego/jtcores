@@ -80,11 +80,13 @@ func parse_def(path string, target string, macros map[string]string) {
 	scanner.Split(bufio.ScanLines)
 	section := target
 	linecnt := 0
-
+	_, release := macros["JTFRAME_RELEASE"]
 	for scanner.Scan() {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
 		if len(line) == 0 || line[0] == '#' { continue }
+
+		// parse new sections
 		change, e := extract_section(line, target, &section)
 		if change { continue }
 		if e!=nil {
@@ -93,6 +95,7 @@ func parse_def(path string, target string, macros map[string]string) {
 			os.Exit(1)
 		}
 		if section != target { continue }
+
 		// Look for keywords
 		words := strings.SplitN(line, " ", 2)
 		words[0] = strings.ToLower(words[0])
@@ -109,30 +112,45 @@ func parse_def(path string, target string, macros map[string]string) {
 		}
 		// lines starting with debug are not parsed for release builds
 		if words[0] == "debug" {
-			if _, fnd := macros["JTFRAME_RELEASE"]; fnd { continue }
+			if release { continue }
 			line=line[5:] // remove the debug word from the line
+		}
+		// lines starting with release are only parsed for release builds
+		if words[0] == "release" {
+			if !release { continue }
+			line=line[7:] // remove the release word from the line
 		}
 		words = strings.SplitN(line, "=", 2)
 		key := strings.ToUpper(strings.TrimSpace(words[0]))
+		// Removes key
 		if key[0] == '-' {
-			// Removes key
 			key = key[1:]
 			delete(macros, key)
-		} else {
-			if len(words) > 1 {
-				val := strings.TrimSpace(words[1])
-				if len(key) > 2 && key[len(key)-1] == '+' {
-					key = key[0 : len(key)-1]
-					old, e := macros[key]
-					if e {
-						val = old + val
-					}
+			continue
+		}
+		// macro set without content
+		if len(words) ==1 {
+			macros[key] = "1"
+			continue
+		}
+		val := strings.TrimSpace(words[1])
+		// += will concatenate string values or add up integer values
+		if len(key) > 2 && key[len(key)-1] == '+' {
+			key = key[0 : len(key)-1]
+			old, found := macros[key]
+			if found {
+				oldint, err1 := strconv.ParseInt(old,0,64)
+				newint, err2 := strconv.ParseInt(val,0,64)
+				if err1==nil && err2==nil {
+					// integer addition
+					val=fmt.Sprintf("%d",oldint+newint)
+				} else {
+					// string concatenation
+					val = old + val
 				}
-				macros[key] = val
-			} else {
-				macros[key] = "1"
 			}
 		}
+		macros[key] = val
 	}
 	return
 }
@@ -222,6 +240,15 @@ func parse_target( target string, macros map[string]string) {
 func Make_macros(cfg Config) (macros map[string]string) {
 	macros = make(map[string]string)
 	parse_target(cfg.Target, macros)
+	// Add macros in cfg.add
+	for _, def := range cfg.Add {
+		split := strings.SplitN(def, "=", 2)
+		if len(split) == 2 {
+			macros[split[0]] = split[1]
+		} else {
+			macros[split[0]] = "1"
+		}
+	}
 	parse_def(DefPath(cfg), cfg.Target, macros)
 	f, e := os.Open( filepath.Join(os.Getenv("CORES"), cfg.Core,"cfg","mem.yaml"))
 	f.Close()
@@ -265,6 +292,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_SHIFT":	     "0",
 		"JTFRAME_180SHIFT":	     "0",
+		"JTFRAME_DEBUG_VPOS":    "4",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": cfg.Core,
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
@@ -285,6 +313,10 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		} else {
 			macros["GAMETOP"] = strings.ToLower(macros["CORENAME"]+"_game_sdram")
 		}
+	}
+	// for JTFRAME_VERTICAL define MISTER_FB
+	if _, exists = macros["JTFRAME_VERTICAL"]; exists {
+		macros["MISTER_FB"] = ""
 	}
 	// If JTFRAME_INPUT_RECORD exists, set the right NVRAM length
 	if _, f := macros["JTFRAME_INPUT_RECORD"]; f {
@@ -319,15 +351,6 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	for _, undef := range cfg.Discard {
 		delete(macros, undef)
 	}
-	// Add macros in cfg.add
-	for _, def := range cfg.Add {
-		split := strings.SplitN(def, "=", 2)
-		if len(split) == 2 {
-			macros[split[0]] = split[1]
-		} else {
-			macros[split[0]] = "1"
-		}
-	}
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
 	// name as a macro on its own too
@@ -358,6 +381,9 @@ func Make_macros(cfg Config) (macros map[string]string) {
 			}
 		}
 		mclk = freq*8
+		macros[pll]=""	// define a macro with the PLL name
+	} else {
+		macros["JTFRAME_PLL6000"]=""
 	}
 	if Defined(macros,"JTFRAME_CLK96") || Defined(macros,"JTFRAME_SDRAM96") {
 		mclk *= 2

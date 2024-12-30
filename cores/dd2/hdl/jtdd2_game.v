@@ -192,7 +192,7 @@ jtdd2_sound u_sound(
     .pcm         ( pcm           )
 );
 /* verilator tracing_off */
-jtdd_video u_video(
+jtdd_video #(.OBJ_LAYOUT(1)) u_video(
     .rst          (  rst             ),
     .clk          (  clk             ),
     .clk_cpu      (  clk24           ),

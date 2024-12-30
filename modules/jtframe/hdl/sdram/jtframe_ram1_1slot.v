@@ -19,9 +19,10 @@
 // SDRAM access multiplexer, 2 -> 1
 
 module jtframe_ram1_1slot #(parameter
-    SDRAMW   = 22,
-    SLOT0_DW = 16,
-    SLOT0_AW =  8,
+    SDRAMW      = 22,
+    SLOT0_ERASE = 1,
+    SLOT0_DW    = 16,
+    SLOT0_AW    =  8,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
 /* verilator lint_on WIDTH */
@@ -82,7 +83,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW)) u_slot0(
+jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.ERASE(SLOT0_ERASE)) u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .addr      ( slot0_addr             ),

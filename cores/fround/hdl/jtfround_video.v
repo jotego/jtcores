@@ -158,8 +158,8 @@ jtframe_vtimer #(
     .HCNT_END   ( 9'h19F    ),
     .HB_START   ( 9'h029+HB_OFFSET ), // 320 visible, 384 total (64 pxl=HB)
     .HB_END     ( 9'h069+HB_OFFSET ),
-    .HS_START   ( 9'h02B    ), // HS starts 2 pixels after HB
-    .HS_END     ( 9'h04B    ), // 32 pixel wide
+    .HS_START   ( 9'h031    ), // HS starts 8 pixels after HB
+    .HS_END     ( 9'h051    ), // 32 pixel wide
 
     .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
     .VB_START   ( 9'h1EF    ),
@@ -293,6 +293,7 @@ jtfround_obj u_obj(
     .hdump      ( hdump     ),
     .obj_dx     ( obj_dx    ),
     .obj_dy     ( obj_dy    ),
+    .gvflip     ( vflip     ),
 
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),

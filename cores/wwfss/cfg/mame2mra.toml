@@ -1,0 +1,42 @@
+[parse]
+sourcefile=[ "wwfsstar.cpp" ]
+skip.bootlegs=true
+
+# [Audio]
+# volume = [
+#     { value=0x50 },
+# ]
+
+[buttons]
+Names = [
+    { names="Punch,Kick,1P/2P vs CPU"},
+]
+
+# [dipsw]
+# # Flip screen not supported
+# delete=[{names=["Unused","Unknown"]}]
+# rename = [
+#     { name="Bonus Life", to="Bonus" },
+# ]
+
+[dipsw]
+delete=[
+    { names=["Flip Screen","Unused"]}
+]
+
+
+[ROM]
+regions=[
+    { name="maincpu",                              width=16, reverse=true  },
+    { name="audiocpu",  start="JTFRAME_BA1_START"            },
+    { name="oki",       start="PCM_START"                    },
+    { name="fgtiles",   start="JTFRAME_BA2_START"            },
+    { name="bgtiles",   start="SCR_START",         width=16, no_offset=true  },
+    # { name="sprites",   start="JTFRAME_BA3_START", width=16, no_offset=true, sequence=[3,0,4,1,5,2]  },
+    { name="sprites",   start="JTFRAME_BA3_START", width=16, no_offset=true, sequence=[0,3,1,4,2,5]  },
+]
+
+order=[
+    "maincpu", "audiocpu", "oki",
+    "fgtiles", "bgtiles", "sprites",
+]

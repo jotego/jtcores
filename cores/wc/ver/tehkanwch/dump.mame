@@ -1,0 +1,5 @@
+save fix-raw.bin,d000,800
+save pal.bin,d800,800
+save vram.bin,e000,800
+save objram.bin,e800,400
+snap

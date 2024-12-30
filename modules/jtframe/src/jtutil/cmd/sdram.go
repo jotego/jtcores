@@ -174,8 +174,10 @@ func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []s
 	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
 	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
 	offsets[4] = bank_start(macros,"JTFRAME_PROM_START")+header
-	if offsets[4] <= header {
-		offsets[4] = len(rom)
+	for k, _ := range offsets {
+		if offsets[k] <= header {
+			offsets[k] = len(rom)
+		}
 	}
 	// final values from header (if defined)
 	hinfo := &mra_cfg.Header.Offset

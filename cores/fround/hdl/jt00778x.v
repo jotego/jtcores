@@ -40,7 +40,7 @@
 // sprite tiles are 16x16x4
 
 
-module jt00778x#(parameter CW=17)(    // sprite logic
+module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -56,7 +56,7 @@ module jt00778x#(parameter CW=17)(    // sprite logic
     output reg [CW-1:0] code,
     output reg [ 3:0] attr,
     output reg        hflip,
-    output reg [ 8:0] hpos,
+    output reg [PW-1:0] hpos,
     output reg [ 1:0] hsize,
 
     // DMA memory
@@ -74,8 +74,8 @@ module jt00778x#(parameter CW=17)(    // sprite logic
     input             vs,
     input             hs,
     input             lvbl,
-    input      [ 9:0] obj_dx, obj_dy,
-    // output            flip,
+    input    [PW-1:0] obj_dx, obj_dy,
+    input             gvflip,
 
     // draw module
     output reg        dr_start,
@@ -85,7 +85,7 @@ module jt00778x#(parameter CW=17)(    // sprite logic
     // output reg [ 7:0] st_dout
 );
 
-reg         beflag, lvbl_l, obj_en, vflip,
+reg         beflag, obi_l, obj_en, vflip,
             dma_clr, dma_cen;
 reg  [13:1] cpr_addr; // copy read  address
 reg  [10:1] cpw_addr; // copy write address
@@ -93,42 +93,51 @@ wire [ 4:1] nx_cpra;
 wire [15:0] scan_dout;
 reg  [ 1:0] vsize;
 reg  [ 2:0] scan_sub, lut_sub;
-reg         inzone, hs_l, done, busy_l, skip;
-reg  [ 8:0] ydiff, y, vlatch;
+reg         inzone, hs_l, done, busy_l, skip, half;
+reg  [ 8:0] ydiff, vlatch;
+reg  [15:0] y;
 reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
-wire        flip = 0;
-wire        busy_g;
+wire [ 9:0] lut_addr;
+wire        busy_g, valid_y, objbufinit;
 
-assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
-                scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif } :
-                oram_we ? { 3'b110, cpw_addr } : cpr_addr;
-assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
-assign busy_g    = busy_l | dr_busy;
+// NOLUTFB -> bypass LUT framebuffer for FPGAs with scarce BRAM
+assign lut_addr  = { `ifdef NOLUTFB  scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif };
+assign oram_addr =
+    !dma_bsy ? { 3'b110, lut_addr } :
+    oram_we  ? { 3'b110, cpw_addr } :
+                         cpr_addr;
+assign nx_cpra  = {1'd0, cpr_addr[3:1]} + 4'd1;
+assign busy_g   = busy_l | dr_busy;
+assign valid_y  = y<16'h180 || y>=16'hff00;
+// original equation from schematics, it is the same as the start of vblank
+assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
-wire [13:0] cpw_afull = { 3'b110, cpw_addr,1'b0};
+wire [13:0] cpw_afull = {3'b110,cpw_addr,1'b0};
 `endif
 
 // DMA logic
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         dma_clr  <= 0;
         oram_we  <= 0;
-        dma_bsy <= 0;
+        dma_bsy  <= 0;
         cpr_addr <= 0;
         cpw_addr <= 0;
         dma_cen  <= 0; // 3 MHz
         obj_en   <= 0;
         oram_din <= 0;
         beflag   <= 0;
-        lvbl_l   <= 0;
+        obi_l    <= 0;
+        half     <= 0;
     end else if( pxl_cen ) begin
-        lvbl_l <= lvbl;
-        if( !lvbl && lvbl_l ) begin
+        obi_l <= objbufinit;
+        if( objbufinit && !obi_l ) begin
             dma_bsy <= 1;
             obj_en  <= ~dma_on;
+            half    <= ~half;
         end
         dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
         if( lvbl ) begin
@@ -141,7 +150,7 @@ always @(posedge clk, posedge rst) begin
         end else if( dma_bsy ) begin
             if( dma_clr && dma_cen ) begin
                 { dma_clr, cpw_addr } <= { 1'b1, cpw_addr } + 1'h1;
-                oram_we <= 1;
+                oram_we <= obj_en;
             end else if( !dma_clr ) begin // direct copy
                 if( !dma_cen ) begin
                     case( cpr_addr[3:1] )
@@ -247,17 +256,17 @@ reg bsy_l;
         end
     end
 
-    jtframe_dual_ram16 u_copy(
+    jtframe_dual_ram16  #(.AW(11)) u_framebuffer(
         // Port 0: LUT writting
         .clk0   ( clk            ),
         .data0  ( lut_din        ),
-        .addr0  ({lut_dst,~lut_sub[1:0]}),
+        .addr0  ({half,lut_dst,~lut_sub[1:0]}),
         .we0    ( {2{lut_we}}    ),
         .q0     (                ),
         // Port 1: scan
         .clk1   ( clk            ),
         .data1  ( 16'd0          ),
-        .addr1  ({scan_obj,scan_sub[1:0]}),
+        .addr1  ({~half,scan_obj,scan_sub[1:0]}),
         .we1    ( 2'b0           ),
         .q1     ( scan_dout      )
     );
@@ -270,7 +279,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 // Table scan
 always @* begin
-    ydiff = vlatch - y;
+    ydiff = vlatch - y[8:0];
     case( vsize )
         0: inzone = ydiff[8:4]==0; //  16
         1: inzone = ydiff[8:5]==0; //  32
@@ -306,14 +315,17 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
-            vlatch   <= (vdump^{1'b1,{8{flip}}});
+            vlatch   <= (vdump^{1'b1,{8{gvflip}}});
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: y <= scan_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;
-                2: hpos <= (scan_dout[8:0]-obj_dx[8:0])+ 9'h69;
+                1: begin
+                    y <= 0;
+                    y[PW-1:0] <=  scan_dout[PW-1:0]-obj_dy[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
+                end
+                2: hpos <= (scan_dout[PW-1:0]-obj_dx[PW-1:0])+ {{PW-9{1'b0}},9'h69};
                 3: begin
-                    skip <= ~scan_dout[15];
+                    skip <= ~scan_dout[15] && valid_y;
                     if( scan_dout[14] ) begin
                         done <= 1;
                     end

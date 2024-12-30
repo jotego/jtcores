@@ -26,6 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
 #include "UUT.h"
 #include "defmacros.h"
 
@@ -206,6 +207,9 @@ public:
 #endif
 #ifdef _JTFRAME_JOY_DURL
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+#ifdef _JTFRAME_JOY_DULR
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | (v&3);
 #endif
 #ifdef _JTFRAME_JOY_UDRL
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
@@ -766,10 +770,10 @@ void JTSim::get_coremod() {
     coremod=0;
 #endif
     ifstream fin("core.mod",ios_base::binary);
-    char c;
+    char c[2];
     if(fin.good()) {
-        fin >> c;
-        coremod = ((int)c)&0xff;
+        fin.read(c,2);
+        coremod = ((int)c[0])&0xff;
     }
     // fprintf(stderr,"coremod=%X\n",coremod);
 }
@@ -1055,7 +1059,10 @@ int main(int argc, char *argv[]) {
         // wait until all child processes created with fork() are completed
         // before exiting.
         while(wait(NULL) != -1);
-
+#ifdef _COVERAGE
+        mkdir("logs",0755)==0;
+        Verilated::threadContextp()->coveragep()->write("logs/coverage.dat");
+#endif
         if( sim.get_frame()>1 ) fputc('\n',stderr);
     } catch( const char *error ) {
         fputs(error,stderr);

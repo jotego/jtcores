@@ -22,6 +22,7 @@
 // object width is always 16 pixels
 
 module jtframe_objdraw #( parameter
+    AW    =  9,
     CW    = 12,
     PW    =  8,
     ZW    =  6,
@@ -33,6 +34,8 @@ module jtframe_objdraw #( parameter
     FLIP_OFFSET=0,
     KEEP_OLD  = 0,
     SHADOW    = 0,
+    SHADOW_PEN  = ALPHA,
+    SW        = 1,
     ALPHA     = 0,
     PACKED    = 0
 )(
@@ -41,12 +44,12 @@ module jtframe_objdraw #( parameter
     input               pxl_cen,
     input               hs,
     input               flip,
-    input        [ 8:0] hdump,
+    input    [AW-1:0]   hdump,
 
     input               draw,
     output              busy,
     input    [CW-1:0]   code,
-    input      [ 8:0]   xpos,
+    input    [AW-1:0]   xpos,
     input      [ 3:0]   ysub,
     // optional zoom, keep at zero for no zoom
     input    [ZW-1:0]   hzoom,
@@ -67,6 +70,7 @@ module jtframe_objdraw #( parameter
     wire [PW-1:0] buf_d;
 
     jtframe_objdraw_gate #(
+        .AW             ( AW            ),
         .CW             ( CW            ),
         .PW             ( PW            ),
         .ZW             ( ZW            ),
@@ -77,7 +81,9 @@ module jtframe_objdraw #( parameter
         .LATCH          ( LATCH         ),
         .FLIP_OFFSET    ( FLIP_OFFSET   ),
         .SHADOW         ( SHADOW        ),
+        .SW             ( SW            ),
         .KEEP_OLD       ( KEEP_OLD      ),
+        .SHADOW_PEN     ( SHADOW_PEN    ),
         .ALPHA          ( ALPHA         ),
         .PACKED         ( PACKED        )
     )u_gate(

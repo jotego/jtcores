@@ -1,0 +1,4 @@
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,AF=%X,BC=%X,DE=%X,HL=%X,AF2=%X,BC2=%X,DE2=%X,HL2=%X,IX=%X,IY=%X,SP=%X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+gtime 200
+traceflush

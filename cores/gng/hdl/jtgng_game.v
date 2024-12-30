@@ -183,6 +183,8 @@ jtgng_sound u_sound (
     .debug_bus      ( debug_bus  ),
     .debug_view     ( st_snd     ),
     // unused
+    .mcu_sdin       ( 8'd0       ),
+    .mcu_srd        (            ),
     .snd2_latch     (            )
 );
 `else

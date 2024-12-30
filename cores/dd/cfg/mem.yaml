@@ -65,7 +65,7 @@ sdram:
           gfx_sort: hhvvvvx
     - buses:
         - name: obj
-          addr_width: 20
+          addr_width: 19
           data_width: 32
           gfx_sort: hhvvvvx
         - name: mcu

@@ -23,11 +23,10 @@ module jtvigil_scr1(
     input         pxl_cen,
     input         flip,
 
-    input  [11:0] main_addr,
-    input  [ 7:0] main_dout,
-    output [ 7:0] main_din,
-    input         main_rnw,
-    input         scr1_cs,
+    // VRAM
+    output [11:0] scan_addr,
+    input  [ 7:0] scan_dout,
+
 
     input  [ 8:0] h,
     input  [ 8:0] v,
@@ -48,13 +47,9 @@ reg  [31:0] pxl_data;
 reg  [ 3:0] pal;
 
 // Scan
-wire        ram_we;
-wire [11:0] scan_addr;
 wire [ 9:0] hraw;
-wire [ 7:0] scan_dout;
 reg  [ 7:0] pre_code, code, attr;
 
-assign ram_we   = scr1_cs & ~main_rnw;
 assign rom_cs   = ~hs; // do not read while HS can occur
 assign rom_addr = { 1'b0, attr[7:4], code, v[2:0] };
 assign pxl = { pal, flip ?
@@ -64,20 +59,6 @@ assign scan_addr = { v[7:3], hsum[8:3], hsum[0] };
 assign hraw = {1'b0, h[8], h[7]|h[8], h[6:0] } +
             (v[7:3] >= SCORE_ROW ? { 1'b0, scrpos } : 10'd0)
             + 10'h7f;
-jtframe_dual_ram #(.AW(12)) u_vram(
-    // CPU
-    .clk0 ( clk_cpu   ),
-    .addr0( main_addr ),
-    .data0( main_dout ),
-    .we0  ( ram_we    ),
-    .q0   ( main_din  ),
-    // Tilemap scan
-    .clk1 ( clk       ),
-    .addr1( scan_addr ),
-    .data1(           ),
-    .we1  ( 1'b0      ),
-    .q1   ( scan_dout )
-);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

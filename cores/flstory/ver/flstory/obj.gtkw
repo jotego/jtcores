@@ -1,0 +1,81 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Dec  2 17:45:37 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/test.fst"
+[dumpfile_mtime] "Mon Dec  2 07:57:23 2024"
+[dumpfile_size] 230653246
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/flstory/obj.gtkw"
+[timestart] 10172
+[size] 1920 1033
+[pos] -1 -1
+*-32.765869 27476900000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[sst_width] 278
+[signals_width] 178
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@28
+TOP.game_test.u_game.u_game.u_video.lvbl
+TOP.game_test.u_game.u_game.u_video.lhbl
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.xpos[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.ydiff[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_dout[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_done
+TOP.game_test.u_game.u_game.u_video.u_obj.order
+@8028
+TOP.game_test.u_game.u_game.u_video.u_obj.st[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.inzone
+@23
+TOP.game_test.u_game.u_game.u_video.u_obj.scan[4:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.cnt[3:0]
+@c00022
+[color] 1
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.ram_addr[7:0]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_dout[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_din[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.info
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.chk[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.ram_we
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.info
+TOP.game_test.u_game.u_game.u_video.u_obj.order
+TOP.game_test.u_game.u_game.u_video.u_obj.vsbl
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.code[9:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.xpos[7:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.draw
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_busy
+TOP.game_test.u_game.u_game.u_video.u_obj.blink
+[pattern_trace] 1
+[pattern_trace] 0

@@ -25,6 +25,42 @@ ports:
     - { name: foo_cs }
 # Instantiates a differente game module
 game: othergame
+
+# Generate clock-enable signals
+clocks:
+  clk48:
+    - freq: 24000000
+      gate: [main,snd] # stop the cen if main_cs&~main_ok or snd_cs&~snd_ok
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+
+# Audio filters and accumulator
+audio:
+  rsum: 1k
+  rsum_feedback_res: false # if false, rsum attenuates, if true, rsum gives gain
+  mute: true  # add mute signal
+  RC: { r: 1k, c: 1n } # global RC filter
+  Channels:
+    - Name: psg
+      Rsum: 1k
+      Rout: 100k
+      Pre: 0.5    # pre-amplifier gain
+      Vpp: 5      # peak-to-peak amplitude in Volts
+      RC:
+        - { r: 1k, c: 1n }  # up to two filters
+        - ...
+      # Fir: myfilter.csv   # use RC or FIR filter
+      DCrm: true  # DC offset removal
+      stereo: true
+      unsigned: false
+      data_width: 12
+      rc_en: true # add a signal to control the RC filters
+
 # Details about the SDRAM usage
 sdram:
   banks:
@@ -41,6 +77,7 @@ sdram:
           cs: myown_cs # use a cs signal not based on the bus name
           addr: myown_addr # use a cs signal not based on the bus name
           gfx_sort: hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
+          do_not_erase: true # for rw slots, do not clear upon reset
         - name: another bus...
     - buses: # same for bank 1
         - name: another bus...
@@ -62,6 +99,8 @@ bram:
         save: true # a dump2bin.sh file will be generated in the sim folder
         restore: true # whether to load it upon core boot
         order: 0   # order in the file
+        unless: [ JTFRAME_RELEASE ] # include only for debug builds
+        when: [ SIDI ] # include only for sidi builds
       dual_port:
         name: main
         [din:]
@@ -76,4 +115,10 @@ bram:
       sim_file: required if load is skipped
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
+    # BRAM used as PROM. Data width must be 8 or less
+    # Currently only support for a single BRAM PROM is implemented
+    - name: mcu
+      addr_width: 11
+      data_width: 8
+      prom: true
 ```

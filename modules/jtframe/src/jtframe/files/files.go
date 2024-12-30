@@ -353,7 +353,7 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 				os.Exit(1)
 			}
 			if len(matches)==0 {
-				fmt.Printf("Warning: no matches for %s\n",each)
+				fmt.Printf("Warning: no matches for %s in path %s\n",each,path)
 			}
 			for _, m := range matches {
 				*all = append(*all, make_path(path, m, rel))

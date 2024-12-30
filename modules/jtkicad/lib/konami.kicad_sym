@@ -13064,7 +13064,7 @@
 				)
 			)
 			(pin power_in line
-				(at 11.43 -36.83 180)
+				(at 11.43 -33.02 180)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -13477,8 +13477,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 11.43 -31.75 180)
+			(pin no_connect line
+				(at 11.43 -40.64 180)
 				(length 5.08)
 				(name "TES1"
 					(effects
@@ -13495,8 +13495,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at 11.43 -34.29 180)
+			(pin no_connect line
+				(at 11.43 -43.18 180)
 				(length 5.08)
 				(name "TES2"
 					(effects
@@ -13694,7 +13694,7 @@
 				)
 			)
 			(pin power_in line
-				(at 11.43 -39.37 180)
+				(at 11.43 -35.56 180)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -64652,6 +64652,14 @@
 			)
 		)
 		(symbol "054539_1_1"
+			(text "pin 43 unconnected\non xmen/rungun"
+				(at 34.036 37.846 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 			(pin power_in line
 				(at 3.81 -59.69 90)
 				(length 5.08)

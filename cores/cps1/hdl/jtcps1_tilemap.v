@@ -201,6 +201,9 @@ always @(posedge clk or posedge rst) begin
         buf_wr          <= 0;
         buf_data        <= 0;
         rom_ok_dly      <= 0;
+        pxl_data        <= 0;
+        vn              <= 0;
+        tile_addr       <= 0;
     end else begin
         rom_ok_dly <= rom_ok;
         st <= st+6'd1;

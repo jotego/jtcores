@@ -18,13 +18,13 @@
 
 
 // Generic tile map generator with no scroll
-// The ROM data must be in this format: {code, H parts, V part}
+// The ROM address must be in this format: {code, V parts, H part}
 // pixel data has arbitrary bpp but it must arrive in groups of 8 pixels
 // Each byte is for a plane
 
 module jtframe_tilemap #( parameter
     SIZE         =  8,    // 8x8, 16x16 or 32x32
-    VA           = 10,
+    VA           = 10,    // VRAM bit width
     CW           = 12,
     PW           =  8,    // pixel width
     BPP          =  4,    // bits per pixel. Palette width = PW-BPP
@@ -37,8 +37,11 @@ module jtframe_tilemap #( parameter
     XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
-    // localparam, do not modify:
-    VW = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    HJUMP        = 1,  // see jtframe_scroll
+    // override VH and HW only for non rectangular tiles
+    VW           = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    HW           = VW,
+    // localparam, do not modify
     PALW         = PW-BPP,
     DW           = 8*BPP
 )(
@@ -68,7 +71,7 @@ module jtframe_tilemap #( parameter
 
 reg  [DW-1:0] pxl_data;
 reg [PALW-1:0]cur_pal, nx_pal;
-wire          vflip_g;
+wire          vflip_g, xhflip;
 reg           hflip_g, nx_hf;
 reg     [8:0] heff, hoff;
 wire    [8:0] veff;
@@ -80,7 +83,6 @@ assign veff = FLIP_VDUMP ? vdump ^ { FLIP_MSB[0]&flip, {8{flip}}} : vdump;
 always @* begin
     hoff = hdump - HDUMP_OFFSET[8:0];
     heff = FLIP_HDUMP ? hoff ^ {9{flip}} : hoff;
-    if( flip ) heff = heff - 9'd7;
 end
 
 initial begin
@@ -89,12 +91,26 @@ initial begin
     end
 end
 
+`ifdef SIMULATION
+wire vram_len, vram_big;
+assign vram_len = VA == (MAP_VW-VW + MAP_HW-HW);
+assign vram_big = VA >  (MAP_VW-VW + MAP_HW-HW);
+initial begin
+    if( !vram_len ) begin
+        if( vram_big ) $display("WARNING %m: vram_addr has unassigned bits. Adjust parameters to avoid this");
+        else           $display("WARNING %m: vram_addr has bits assigned by two different sources. Adjust parameters to avoid this");
+        $finish;
+    end
+end
+`endif
+
 // assign pxl       = { cur_pal, hflip_g ? {pxl_data[24], pxl_data[16], pxl_data[8], pxl_data[0]} :
 //                                         {pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[7]} };
 assign vflip_g   = (flip & XOR_VFLIP[0])^vflip;
 
 assign vram_addr[VA-1-:MAP_VW-VW]=veff[MAP_VW-1:VW];
-assign vram_addr[0+:MAP_HW-VW] = heff[MAP_HW-1:VW];
+assign vram_addr[   0+:MAP_HW-HW]=heff[MAP_HW-1:HW];
+assign xhflip = (flip & XOR_HFLIP[0])^hflip;
 
 always @* begin
     pxl[PW-1-:PALW] = cur_pal;
@@ -106,7 +122,11 @@ always @* begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+reg heff_l, hmsb_l;
+wire zero = heff[3] != heff_l // read the ROM every 8 pixels
+         || (hmsb_l!=hdump[7] && HJUMP==0); // identify a typical blanking end case
+
+always @(posedge clk) begin
     if( rst ) begin
         rom_cs   <= 0;
         rom_addr <= 0;
@@ -114,17 +134,19 @@ always @(posedge clk, posedge rst) begin
         cur_pal  <= 0;
         hflip_g  <= 0;
     end else if(pxl_cen) begin
-        if( heff[2:0]==0 ) begin
+        heff_l <= heff[3];
+        hmsb_l <= hdump[7];
+        if( zero ) begin
             rom_cs <= ~rst & blankn;
             rom_addr[0+:VW] <= veff[0+:VW]^{VW{vflip_g}};
             rom_addr[VR-1-:CW] <= code;
-            if( SIZE==16 ) rom_addr[VW]      <= heff[3];
-            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3];
+            if( SIZE==16 ) rom_addr[VW]      <= heff[3]^xhflip;
+            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip}};
             pxl_data <= rom_data;
             // draw information is eight pixels behind
             nx_pal   <= pal;
             cur_pal  <= nx_pal;
-            nx_hf    <= (flip & XOR_HFLIP[0])^hflip;
+            nx_hf    <= xhflip;
             hflip_g  <= nx_hf;
         end else begin
             pxl_data <= hflip_g ? (pxl_data>>1) : (pxl_data<<1);

@@ -28,7 +28,7 @@ func verilogCmdRun(cmd *cobra.Command, args []string) {
 	var d vcd.LnFile
 	d.Open(fname+".vcd")
 	ss := vcd.GetSignals(&d)
-	d.DumpHex(ss,fname)
+	must(d.DumpHex(ss,fname))
 }
 
 func init() {

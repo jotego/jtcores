@@ -1,4 +1,4 @@
-/*  This file is part of JT_FRAME.
+/*  This file is part of JTFRAME.
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -27,6 +27,7 @@ module jtframe_rom_wait(
     input       rom_cs,
     input       rom_ok
 );
+    /* verilator coverage_off */
     jtframe_z80wait #(1) u_wait(
         .rst_n      ( rst_n     ),
         .clk        ( clk       ),

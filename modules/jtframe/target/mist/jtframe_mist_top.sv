@@ -136,8 +136,20 @@ localparam bit HDMI = 1;
 localparam bit HDMI = 0;
 `endif
 
+
 `ifdef MIST_DUAL_SDRAM
-`ifndef JTFRAME_LF_SDRAM_BUFFER
+
+`ifdef JTFRAME_LF_SDRAM_BUFFER
+`define MIST_USE_SDRAM2
+`endif
+`ifdef JTFRAME_VERTICAL
+`ifdef JTFRAME_SDRAM_ROTATION
+`define MIST_USE_SDRAM2
+`define MIST_USE_SDRAM2_ROTATION
+`endif
+`endif
+
+`ifndef MIST_USE_SDRAM2
 assign SDRAM2_A = 13'hZZZZ;
 assign SDRAM2_BA = 0;
 assign SDRAM2_DQML = 1;
@@ -150,7 +162,8 @@ assign SDRAM2_nCAS = 1;
 assign SDRAM2_nRAS = 1;
 assign SDRAM2_nWE = 1;
 `endif
-`endif
+
+`endif // MIST_DUAL_SDRAM
 
 `ifdef JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
@@ -343,6 +356,27 @@ u_frame(
     .SDRAM_nCS      ( SDRAM_nCS      ),
     .SDRAM_BA       ( SDRAM_BA       ),
     .SDRAM_CKE      ( SDRAM_CKE      ),
+`ifdef MIST_USE_SDRAM2_ROTATION
+    .sd_data        ( SDRAM2_DQ      ),
+    .sd_addr        ( SDRAM2_A       ),
+    .sd_dqm         ( {SDRAM2_DQMH, SDRAM2_DQML} ),
+    .sd_ba          ( SDRAM2_BA      ),
+    .sd_cs          ( SDRAM2_nCS     ),
+    .sd_we          ( SDRAM2_nWE     ),
+    .sd_ras         ( SDRAM2_nRAS    ),
+    .sd_cas         ( SDRAM2_nCAS    ),
+    .sd_cke         ( SDRAM2_CKE     ),
+`else
+    .sd_data        (                ),
+    .sd_addr        (                ),
+    .sd_dqm         (                ),
+    .sd_ba          (                ),
+    .sd_cs          (                ),
+    .sd_we          (                ),
+    .sd_ras         (                ),
+    .sd_cas         (                ),
+    .sd_cke         (                ),
+`endif
     // SPI interface to arm io controller
     .SPI_DO         ( SPI_DO         ),
     .SPI_DI         ( SPI_DI         ),
@@ -488,26 +522,8 @@ assign UART_TX = game_tx,
 
 `include "jtframe_game_instance.v"
 
-`ifdef JTFRAME_LF_BUFFER
 
-    // line-frame buffer
-    wire        [ 7:0] game_vrender;
-    wire        [ 8:0] game_hdump;
-    wire        [ 8:0] ln_addr;
-    wire        [15:0] ln_data;
-    wire               ln_done;
-    wire               ln_we;
-    wire               ln_hs;
-    wire        [15:0] ln_pxl;
-    wire        [ 7:0] ln_v;
-
-    wire [ 7:0] st_lpbuf;
-
-    // this places the pxl1_cen in the pixel centre
-    reg pxl1_cen;
-    always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
-
-`ifdef JTFRAME_LF_SDRAM_BUFFER
+`ifdef MIST_USE_SDRAM2
     // implement video buffer in the second SDRAM chip (sidi128)
     wire pll_locked2, clk_rom2;
 
@@ -531,7 +547,28 @@ assign UART_TX = game_tx,
         .rst48      ( ),
         .rst24      ( )
     );
+`endif
 
+`ifdef JTFRAME_LF_BUFFER
+
+    // line-frame buffer
+    wire        [ 7:0] game_vrender;
+    wire        [ 8:0] game_hdump;
+    wire        [ 8:0] ln_addr;
+    wire        [15:0] ln_data;
+    wire               ln_done;
+    wire               ln_we;
+    wire               ln_hs;
+    wire        [15:0] ln_pxl;
+    wire        [ 7:0] ln_v;
+
+    wire [ 7:0] st_lpbuf;
+
+    // this places the pxl1_cen in the pixel centre
+    reg pxl1_cen;
+    always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
+
+`ifdef JTFRAME_LF_SDRAM_BUFFER
     jtframe_lfbuf_sdr u_lf_buf(
         .rst        ( rst           ),
         .clk        ( clk_rom2      ),

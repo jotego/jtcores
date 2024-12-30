@@ -151,7 +151,7 @@ assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{we[1],cpu_addr[12:10]};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
-assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
+assign ioctl_din   = FULLRAM==1 && ioctl_addr[14]? ram0_dout : ( ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0] );
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
@@ -385,7 +385,7 @@ always @(posedge clk) begin
 end
 
 generate if(FULLRAM==1) begin
-    jtframe_dual_nvram #(.AW(13)) u_attr(
+    jtframe_dual_nvram #(.AW(13),.SIMFILE("scrx.bin")) u_attr(
         // Port 0: CPU
         .clk0   ( clk            ),
         .data0  ( cpu_dout       ),

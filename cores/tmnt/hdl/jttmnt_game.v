@@ -165,7 +165,7 @@ jttmnt_video u_video (
     .blue           ( blue          ),
     // Debug
     .debug_bus      ( debug_bus     ),
-    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_addr     (ioctl_addr[15:0]),
     .ioctl_din      ( ioctl_din     ),
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),

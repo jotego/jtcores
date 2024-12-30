@@ -18,9 +18,6 @@
 package cmd
 
 import (
-    "fmt"
-    "os"
-    "path/filepath"
 	"github.com/jotego/jtframe/mem"
 
 	"github.com/spf13/cobra"
@@ -35,16 +32,12 @@ var memCmd = &cobra.Command{
 	Short: "Parses the core's YAML file to generate RTL files",
 	Long: common.Doc2string("jtframe-mem.md"),
 	Run: func(cmd *cobra.Command, args []string) {
-		mem_args.Core = args[0]
-        // Check that the core folder exist
-        fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),args[0]) )
-        if e != nil || !fi.IsDir() {
-            fmt.Println("jtframe mem: couldn't find core ", args[0])
-            os.Exit(1)
-        }
-		mem.Run(mem_args)
+		var e error
+		mem_args.Core, e = get_corename(args)
+		must(e)
+		must(mem.Run(mem_args))
 	},
-	Args: cobra.ExactArgs(1),
+	Args: cobra.MaximumNArgs(1),
 }
 
 func init() {
@@ -57,4 +50,5 @@ func init() {
 	flag.StringVarP(&mem_args.Target, "target", "t", "mist", "Target platform: mist, mister, pocket, etc.")
 	flag.BoolVarP(&mem_args.Make_inc, "inc","i", false, "always creates mem_ports.inc")
     flag.BoolVarP(&mem_args.Local, "local","l", false, "dumps to local folder. Otherwise uses target folder")
+	flag.BoolVar(&mem_args.Nodbg, "nodbg", false, "Release mode (sets macro JTFRAME_RELEASE)")
 }

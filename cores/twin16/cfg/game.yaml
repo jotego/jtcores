@@ -1,15 +1,12 @@
 game:
   - from: twin16
     get:
-      - jttwin16_game.v
-      - jttwin16_main.v
-      - jttwin16_video.v
-      - jttwin16_obj.v
-      - jttwin16_objdraw.v
-      - jttwin16_draw.v
-      - jttwin16_colmix.v
+      - jttwin16_*.v
+  - from: fround
+    get:
       - jt00778x.v
-#      - jttwin16_obj.v
+      - jtfround_objdraw.v
+      - jtfround_draw.v
   - from: tmnt
     get:
       - jttmnt_sound.v

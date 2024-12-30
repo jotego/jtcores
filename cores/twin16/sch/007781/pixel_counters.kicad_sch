@@ -1,0 +1,3792 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "97eccc0e-f960-4c01-b23d-098760fd43d8")
+	(paper "A3")
+	(title_block
+		(title "Konami 007781")
+		(date "2024-09-08")
+	)
+	(lib_symbols
+		(symbol "ga_oki_msm70v0000:2OR"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "2OR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "2-input OR gate"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "2OR_1_1"
+				(arc
+					(start -2.9127 -2.5398)
+					(mid -2.0762 0.0001)
+					(end -2.9129 2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.635 -2.54)
+					(mid 1.3992 -1.8283)
+					(end 2.54 0)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 -2.54) (xy -2.921 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 2.54) (xy -2.921 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 2.54) (xy -2.921 2.54) (xy -2.54 1.905) (xy -2.286 1.27) (xy -2.159 0.762) (xy -2.1082 0.4572)
+						(xy -2.0828 0.1778) (xy -2.0828 -0.127) (xy -2.1336 -0.6604) (xy -2.2098 -1.016) (xy -2.3114 -1.3716)
+						(xy -2.4384 -1.6764) (xy -2.6162 -2.0574) (xy -2.794 -2.3368) (xy -2.921 -2.54) (xy -0.635 -2.54)
+					)
+					(stroke
+						(width -0.0001)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(arc
+					(start 2.54 0)
+					(mid 1.3994 1.8287)
+					(end -0.635 2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 1.27 0)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 -1.27 0)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:3AD"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "3AD"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 3.81 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 3.81 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "3-input AND gate"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "3AD_1_1"
+				(arc
+					(start 0 -2.54)
+					(mid 1.7263 -1.7263)
+					(end 2.54 0)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy -2.54 2.54) (xy -2.54 -2.54) (xy 0 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(arc
+					(start 2.54 0)
+					(mid 1.7961 1.7961)
+					(end 0 2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 2.54 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 -2.54 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:D1A"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D1A"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.27 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at -1.27 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Internal through driver -1"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "D1A_1_1"
+				(polyline
+					(pts
+						(xy -2.54 2.54) (xy -2.54 -2.54) (xy 2.54 0) (xy -2.54 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:D1N"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D1N"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Internal invert driver -1"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "D1N_1_1"
+				(polyline
+					(pts
+						(xy -2.54 2.54) (xy -2.54 -2.54) (xy 2.54 0) (xy -2.54 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:D2A"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D2A"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Internal through driver -2"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "D2A_1_1"
+				(polyline
+					(pts
+						(xy -2.54 2.54) (xy -2.54 -2.54) (xy 2.54 0) (xy -2.54 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:DFR"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "DFR"
+				(at 2.54 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "D-type flip flop with reset"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "DFR_1_1"
+				(rectangle
+					(start -3.81 5.08)
+					(end 3.81 -5.08)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -6.35 1.27 0)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -6.35 -1.27 0)
+					(length 2.54)
+					(name "CK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "RST"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at 6.35 -1.27 180)
+					(length 2.54)
+					(name "~{Q}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 6.35 1.27 180)
+					(length 2.54)
+					(name "Q"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:EXR"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "EXR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Exlusive OR gate"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "EXR_1_1"
+				(arc
+					(start -2.9127 -2.5398)
+					(mid -2.0762 0.0001)
+					(end -2.9129 2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -2.54 -2.54)
+					(mid -1.7035 -0.0001)
+					(end -2.5402 2.5398)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.635 -2.54)
+					(mid 1.3992 -1.8283)
+					(end 2.54 0)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 -2.54) (xy -2.54 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 2.54) (xy -2.54 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 2.54) (xy -2.54 2.54) (xy -2.159 1.905) (xy -1.905 1.27) (xy -1.778 0.762) (xy -1.7272 0.4572)
+						(xy -1.7018 0.1778) (xy -1.7018 -0.127) (xy -1.7526 -0.6604) (xy -1.8288 -1.016) (xy -1.9304 -1.3716)
+						(xy -2.0574 -1.6764) (xy -2.2352 -2.0574) (xy -2.413 -2.3368) (xy -2.54 -2.54) (xy -0.635 -2.54)
+					)
+					(stroke
+						(width -0.0001)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(arc
+					(start 2.54 0)
+					(mid 1.3994 1.8287)
+					(end -0.635 2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -5.08 1.27 0)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 -1.27 0)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:TFR"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TFR"
+				(at 2.54 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Toggle flop flop with reset"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TFR_1_1"
+				(rectangle
+					(start -3.81 5.08)
+					(end 3.81 -5.08)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -6.35 -1.27 0)
+					(length 2.54)
+					(name "CK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "RST"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at 6.35 -1.27 180)
+					(length 2.54)
+					(name "~{Q}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 6.35 1.27 180)
+					(length 2.54)
+					(name "Q"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "ga_oki_msm70v0000:TFRE"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TFRE"
+				(at 2.54 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Toggle flop flop with /enable reset"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TFRE_1_1"
+				(rectangle
+					(start -3.81 5.08)
+					(end 3.81 -5.08)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input inverted
+					(at -6.35 1.27 0)
+					(length 2.54)
+					(name "T"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -6.35 -1.27 0)
+					(length 2.54)
+					(name "CK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "RST"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at 6.35 -1.27 180)
+					(length 2.54)
+					(name "~{Q}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 6.35 1.27 180)
+					(length 2.54)
+					(name "Q"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 0 0)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(bus_alias "V1CNT"
+		(members "V1H1" "V1H2" "V1H4")
+	)
+	(bus_alias "V2CNT"
+		(members "V2H1" "V2H2" "V2H4")
+	)
+	(junction
+		(at 201.93 116.84)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "062839c5-846f-4e80-8771-44159854c4f8")
+	)
+	(junction
+		(at 242.57 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0a1a30f3-2edd-4a96-8871-9ef00dc1e549")
+	)
+	(junction
+		(at 212.09 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4e3b5086-0b48-4943-9e01-23c86ae0ce83")
+	)
+	(junction
+		(at 181.61 107.95)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b76f651c-c9f3-4991-9982-efe45e4476e5")
+	)
+	(no_connect
+		(at 201.93 152.4)
+		(uuid "515fd86a-90cf-4f68-9302-766358e39417")
+	)
+	(no_connect
+		(at 201.93 186.69)
+		(uuid "5779e4c2-fb3a-4f72-bd32-728bea1e2770")
+	)
+	(no_connect
+		(at 201.93 170.18)
+		(uuid "e44c8d9f-67c1-4ab9-b189-8a13f584df19")
+	)
+	(bus_entry
+		(at 275.59 125.73)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "197a9a9d-44af-4b43-886b-0c889c18c54e")
+	)
+	(bus_entry
+		(at 275.59 118.11)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79daf2f8-6c39-43ba-99db-5f9a9bc11d29")
+	)
+	(bus_entry
+		(at 275.59 176.53)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82e1c507-7905-4ade-8b2c-82b8fb3e7ff0")
+	)
+	(bus_entry
+		(at 275.59 110.49)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d4b1ede-e49b-420c-a6db-57118685efb5")
+	)
+	(bus_entry
+		(at 275.59 184.15)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af3de0c6-4b70-422f-bf79-a6ec0ae50c76")
+	)
+	(bus_entry
+		(at 275.59 168.91)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b697f36d-230b-4380-8e35-3a8ed86c2825")
+	)
+	(wire
+		(pts
+			(xy 170.18 184.15) (xy 172.72 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "05dd5ebc-fd67-42d0-a9f2-de0448fbd2e9")
+	)
+	(wire
+		(pts
+			(xy 187.96 158.75) (xy 195.58 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06c5dd46-c65b-4662-8723-48985a233392")
+	)
+	(wire
+		(pts
+			(xy 201.93 96.52) (xy 237.49 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07ff894c-d45a-4955-ad6a-5ed869ee0cbd")
+	)
+	(wire
+		(pts
+			(xy 242.57 109.22) (xy 259.08 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09faa307-1350-45f1-885a-c1a3ee61f9b0")
+	)
+	(wire
+		(pts
+			(xy 242.57 167.64) (xy 242.57 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0ead46bc-802a-417c-b112-3c205b460b1c")
+	)
+	(wire
+		(pts
+			(xy 187.96 176.53) (xy 195.58 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0fe4e9a9-97b3-46c3-b042-29517536da8b")
+	)
+	(wire
+		(pts
+			(xy 234.95 182.88) (xy 259.08 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1249a1ab-9057-491f-9c7c-13a4c46fbad2")
+	)
+	(wire
+		(pts
+			(xy 201.93 114.3) (xy 240.03 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12e87f36-3114-40ea-a023-a4221f646e2d")
+	)
+	(wire
+		(pts
+			(xy 269.24 110.49) (xy 275.59 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "146253f5-9ccc-4769-a150-31b61187bb7b")
+	)
+	(wire
+		(pts
+			(xy 200.66 204.47) (xy 207.01 204.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1583de70-b84b-43e7-80b8-1c2a2016f9ca")
+	)
+	(wire
+		(pts
+			(xy 181.61 114.3) (xy 189.23 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20e59a22-e81d-4b4c-8c53-a888cb6e69ea")
+	)
+	(wire
+		(pts
+			(xy 187.96 140.97) (xy 195.58 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "213aec46-b8e5-47ce-8c05-cdee4317dbb4")
+	)
+	(wire
+		(pts
+			(xy 237.49 109.22) (xy 242.57 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2282313a-982a-4614-9d90-46cb80217e55")
+	)
+	(wire
+		(pts
+			(xy 201.93 125.73) (xy 171.45 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "241d63dc-d56a-454c-80fa-c1c823bba897")
+	)
+	(wire
+		(pts
+			(xy 184.15 149.86) (xy 189.23 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27381090-5691-450c-81c1-cdceff32bd9d")
+	)
+	(wire
+		(pts
+			(xy 173.99 107.95) (xy 173.99 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a7338b5-fed1-4f7b-872a-6553a2eb9f88")
+	)
+	(wire
+		(pts
+			(xy 184.15 132.08) (xy 189.23 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d5714ac-e385-4956-8520-e38766b346c5")
+	)
+	(wire
+		(pts
+			(xy 240.03 114.3) (xy 240.03 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "309ae1e4-3bc3-4c9b-a129-80daac1a1c75")
+	)
+	(wire
+		(pts
+			(xy 187.96 193.04) (xy 195.58 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "319f8fdd-3c38-4c31-b79f-61188f980c3f")
+	)
+	(wire
+		(pts
+			(xy 187.96 123.19) (xy 195.58 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "33a18179-6d8a-48ab-8928-013ee2f3af0e")
+	)
+	(wire
+		(pts
+			(xy 269.24 184.15) (xy 275.59 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "366e04ee-312c-4f3a-87ed-fbac85d195fc")
+	)
+	(wire
+		(pts
+			(xy 201.93 167.64) (xy 237.49 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "456b3ec1-c5cc-4e2f-a973-318401ba3bbe")
+	)
+	(wire
+		(pts
+			(xy 240.03 175.26) (xy 259.08 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "46fc9427-66ad-4b66-92eb-6593361db96e")
+	)
+	(wire
+		(pts
+			(xy 212.09 132.08) (xy 217.17 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "486a025e-ae7e-4b72-9aab-da11f0fa2f44")
+	)
+	(wire
+		(pts
+			(xy 204.47 99.06) (xy 204.47 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4db5a159-e374-449c-bf00-aaeba74a14bb")
+	)
+	(wire
+		(pts
+			(xy 181.61 107.95) (xy 173.99 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5461b617-c652-454d-97bf-c39ba0f9cb4b")
+	)
+	(wire
+		(pts
+			(xy 237.49 124.46) (xy 259.08 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "618eeb4e-695b-453a-8ecf-a73bda1db1d6")
+	)
+	(wire
+		(pts
+			(xy 189.23 161.29) (xy 189.23 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62b06fea-ea4a-45e3-8440-7ea38a50d21c")
+	)
+	(bus
+		(pts
+			(xy 278.13 162.56) (xy 280.67 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "650405d4-98a3-4578-a465-b605b48949eb")
+	)
+	(wire
+		(pts
+			(xy 173.99 143.51) (xy 173.99 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71075c48-4ed1-4b74-8e92-a336d95ba75b")
+	)
+	(wire
+		(pts
+			(xy 182.88 184.15) (xy 189.23 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "757b95a7-5727-4449-8045-912272d02fe6")
+	)
+	(wire
+		(pts
+			(xy 170.18 186.69) (xy 172.72 186.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d854e8f-2c93-44ac-976e-e3f9c341959d")
+	)
+	(wire
+		(pts
+			(xy 201.93 99.06) (xy 204.47 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7fe49839-c86c-4167-9be0-6911b2106d38")
+	)
+	(wire
+		(pts
+			(xy 269.24 168.91) (xy 275.59 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "812f99a7-005d-44eb-bcb3-a1e7390a964c")
+	)
+	(bus
+		(pts
+			(xy 278.13 162.56) (xy 278.13 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83c5670d-37d1-48cc-a0ee-5b45076fcef9")
+	)
+	(bus
+		(pts
+			(xy 278.13 107.95) (xy 281.94 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "86cf5e49-0bf6-42b2-83fa-0ab1d2b6cc88")
+	)
+	(wire
+		(pts
+			(xy 204.47 149.86) (xy 204.47 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "897c3775-7db3-4257-868b-3a6448338118")
+	)
+	(wire
+		(pts
+			(xy 237.49 167.64) (xy 237.49 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89923443-39e8-48bd-9184-b53f238bbae3")
+	)
+	(wire
+		(pts
+			(xy 187.96 105.41) (xy 195.58 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e28c361-cf3f-4ada-a6c7-8e64acd84da0")
+	)
+	(wire
+		(pts
+			(xy 234.95 134.62) (xy 234.95 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f981428-866b-4fda-97fc-3111c09fb76c")
+	)
+	(wire
+		(pts
+			(xy 201.93 116.84) (xy 201.93 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9452940c-49d0-43a2-9539-1bc3f83288f3")
+	)
+	(wire
+		(pts
+			(xy 269.24 125.73) (xy 275.59 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96c3382c-17b6-4246-b810-2640173d7319")
+	)
+	(wire
+		(pts
+			(xy 181.61 107.95) (xy 181.61 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ecb779e-fa0e-4d5d-9ab4-3194c96b6497")
+	)
+	(wire
+		(pts
+			(xy 269.24 118.11) (xy 275.59 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab4f1391-71ad-4af4-a9bd-73436a100bad")
+	)
+	(wire
+		(pts
+			(xy 269.24 176.53) (xy 275.59 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ad4f445b-b74b-4bd0-baa7-f51eb3d25c1a")
+	)
+	(wire
+		(pts
+			(xy 201.93 134.62) (xy 234.95 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aded159d-19a8-42f4-912d-ec22e61f0f9d")
+	)
+	(wire
+		(pts
+			(xy 171.45 133.35) (xy 173.99 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b26b78e0-3cf9-4533-aaed-e74899406a94")
+	)
+	(wire
+		(pts
+			(xy 181.61 107.95) (xy 204.47 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3a125d5-3da6-4315-9ed3-d01f3d0c9b08")
+	)
+	(wire
+		(pts
+			(xy 170.18 181.61) (xy 172.72 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b853fd53-fcf3-4583-9214-3ed5ea0c6060")
+	)
+	(wire
+		(pts
+			(xy 201.93 116.84) (xy 259.08 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfeaeca8-5d27-42c0-a5ab-61e5d73ee0de")
+	)
+	(bus
+		(pts
+			(xy 278.13 123.19) (xy 278.13 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c47bbe8e-ceb4-4810-b546-93c3d1e606cc")
+	)
+	(wire
+		(pts
+			(xy 237.49 96.52) (xy 237.49 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c97101ef-82fc-4263-b21b-6d49418adb21")
+	)
+	(bus
+		(pts
+			(xy 278.13 173.99) (xy 278.13 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb68e57f-7233-4907-9c59-15cc61134c20")
+	)
+	(wire
+		(pts
+			(xy 171.45 125.73) (xy 171.45 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cfb16925-59bb-4ceb-9daf-a9eb28ff1eb3")
+	)
+	(wire
+		(pts
+			(xy 212.09 143.51) (xy 173.99 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d59f67f6-68ec-41b6-a62d-ad80cf0e2f93")
+	)
+	(bus
+		(pts
+			(xy 278.13 181.61) (xy 278.13 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d7c2e5be-9204-486d-aa7c-6b5604525d0b")
+	)
+	(wire
+		(pts
+			(xy 189.23 161.29) (xy 204.47 161.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da261200-9ec9-425e-9c5a-3773a9639914")
+	)
+	(bus
+		(pts
+			(xy 278.13 115.57) (xy 278.13 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e63aa3c2-4125-402d-98ea-ccd694a77e98")
+	)
+	(wire
+		(pts
+			(xy 242.57 167.64) (xy 259.08 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e983d5bb-fa27-4b06-b209-347b4bd9584a")
+	)
+	(wire
+		(pts
+			(xy 201.93 149.86) (xy 204.47 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f816e8e0-c41d-4a77-a84a-658f227c6c2a")
+	)
+	(wire
+		(pts
+			(xy 212.09 132.08) (xy 212.09 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fdb8fe1c-b590-4b03-8c38-c01470694d4a")
+	)
+	(text "The V1 counter values are\nrelative to HCNT2 going high"
+		(exclude_from_sim no)
+		(at 247.65 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b26a8513-c425-43c0-a829-d9680d93822f")
+	)
+	(text "The V2 counter values are\nrelative to H4 going high"
+		(exclude_from_sim no)
+		(at 250.19 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fb5990bc-a916-4289-a413-0b689f29ae16")
+	)
+	(label "H1"
+		(at 252.73 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "017fae42-e14e-4877-b1b1-e2820fa7575d")
+	)
+	(label "V2H2"
+		(at 269.24 176.53 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0402e7df-e9ca-4156-af26-66691df58af7")
+	)
+	(label "H4S2"
+		(at 213.36 167.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0fdf3bae-c655-466f-8360-a871eb156db1")
+	)
+	(label "H1"
+		(at 170.18 181.61 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "224f27ff-3ddb-4761-ac53-7ac89e340947")
+	)
+	(label "V1H1"
+		(at 269.24 110.49 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2603e7c1-3cb1-4521-8e6a-476f22fc6da0")
+	)
+	(label "H2"
+		(at 252.73 175.26 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "38c5c92e-27ed-4ade-ae67-6f79f1b79e4d")
+	)
+	(label "~{H2}"
+		(at 252.73 116.84 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3bb4e7b4-ecc3-474b-a0fd-e181cf5a6af5")
+	)
+	(label "H4S1"
+		(at 201.93 149.86 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4c8d3d3c-2be7-4c85-a292-ea1019eca67a")
+	)
+	(label "V1H2"
+		(at 269.24 118.11 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5ef69c25-7331-4523-a758-84c3d4455cd4")
+	)
+	(label "H1"
+		(at 213.36 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "602587c2-9e82-4c60-9593-ecd837e742d1")
+	)
+	(label "CLR31"
+		(at 187.96 176.53 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6a78669a-36b4-4100-a1f5-49b4ec9e3869")
+	)
+	(label "CLR31"
+		(at 187.96 105.41 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7daf0287-e3e8-45be-ae13-4f98b46daa20")
+	)
+	(label "CLR31"
+		(at 200.66 204.47 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8877678f-6946-4dc6-8944-ca9f6e917afa")
+	)
+	(label "CLR31"
+		(at 187.96 193.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8d59fe6e-e675-4dd6-9a04-f0bd6e236323")
+	)
+	(label "~{H4}"
+		(at 170.18 186.69 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8e6a4745-39f3-43d4-bb89-9c332a08b2ce")
+	)
+	(label "H4S2"
+		(at 252.73 124.46 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8e6cbeb8-e7e6-40e3-9984-0109217ffbf7")
+	)
+	(label "V1H4"
+		(at 269.24 125.73 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "903218c2-1541-43b2-b62e-3843bc1d5dd1")
+	)
+	(label "~{H4}"
+		(at 252.73 182.88 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "98afc0ac-e078-457e-9b05-f5dd5194dec6")
+	)
+	(label "H1"
+		(at 252.73 167.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "99ec3618-c24d-406c-8f1a-24e9d1ab8232")
+	)
+	(label "H2"
+		(at 213.36 114.3 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9fa13644-30e3-40f3-90f9-167a99594c81")
+	)
+	(label "~{H2}"
+		(at 170.18 184.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a054642f-3fb5-44cc-ab0a-f7f326fe7b65")
+	)
+	(label "~{H2}"
+		(at 213.36 116.84 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a4aa0553-91be-4cde-b3b9-e6838215e523")
+	)
+	(label "CLR31"
+		(at 187.96 158.75 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b64281bb-e3b8-409a-a41a-a7d8d0948634")
+	)
+	(label "V2H1"
+		(at 269.24 168.91 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7cd0720-1d08-44b3-bec1-3df7f64ac64e")
+	)
+	(label "CLR31"
+		(at 187.96 140.97 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c9e4bc95-0216-440b-b366-1513f20efcde")
+	)
+	(label "V2H4"
+		(at 269.24 184.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dc931328-7546-449c-bb3f-0da9c98783cb")
+	)
+	(label "CLR31"
+		(at 187.96 123.19 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e8b78e16-23cb-4a0f-98c7-d01d56362cf3")
+	)
+	(label "~{H4}"
+		(at 213.36 134.62 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f76bec26-2a72-480f-9d0b-e6f37763a75d")
+	)
+	(hierarchical_label "H4"
+		(shape output)
+		(at 217.17 132.08 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0d58ea5e-965c-4b80-9bb6-6095b6b0fe5a")
+	)
+	(hierarchical_label "{V2CNT}"
+		(shape output)
+		(at 280.67 162.56 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0ee4e476-d8d8-4734-860a-b9de07c5c056")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 186.69 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1244f565-8ad4-41ef-8833-91d2f379b74c")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "14c8b56d-5e5f-4152-9f6f-735a12932c37")
+	)
+	(hierarchical_label "HCNT2"
+		(shape output)
+		(at 212.09 184.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "21b456d9-4b8f-4f2a-8403-b98b13dbee20")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 185.42 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "372c4d50-da94-40e9-b0f4-9a1d3e7b30ad")
+	)
+	(hierarchical_label "~{CLR}"
+		(shape input)
+		(at 190.5 204.47 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4887522c-b3a6-434f-8f2c-b687a1b400b4")
+	)
+	(hierarchical_label "{V1CNT}"
+		(shape output)
+		(at 281.94 107.95 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "58c22daa-dacf-4401-859e-2e8e8717382e")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 111.76 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "63265517-9b04-4e66-a92b-a7a47591d9bd")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 177.8 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "63815539-eff9-4e3b-a31b-c5ed67df786a")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 116.84 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6b6d18bd-fa72-40cb-93c4-2dede0353b42")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 170.18 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9bee575c-df6c-4c4e-bb5e-fb130ddf1bfd")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 119.38 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9c3c3253-0550-4c58-88a6-874d47efe35b")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 127 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e2b934d6-5581-40f7-8723-84add717ce63")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 99.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e6519547-7e98-4409-a949-2b90f5359da1")
+	)
+	(hierarchical_label "CLK21"
+		(shape input)
+		(at 189.23 152.4 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e9a34a1f-7fd9-4fe7-b155-0662c391df98")
+	)
+	(hierarchical_label "HFLP'"
+		(shape input)
+		(at 259.08 170.18 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ed20c0eb-d8f2-4e65-aa08-9ea6d762dfca")
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:TFRE")
+		(at 195.58 133.35 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "066b5a23-5b4a-4ed8-8bf5-c9bc4e90e8ad")
+		(property "Reference" "K15"
+			(at 195.58 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TFRE"
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Toggle flop flop with /enable reset"
+			(at 195.58 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "1c9bc652-8d11-4457-9743-af1926ef37c1")
+		)
+		(pin "1"
+			(uuid "d6ac4ac4-c7f3-4ee3-8aad-8da8f1e4a048")
+		)
+		(pin "3"
+			(uuid "7009d67c-5665-4b28-b39b-e8cf7698a1a3")
+		)
+		(pin "4"
+			(uuid "6332c0fb-9e48-4597-b148-39253f19b504")
+		)
+		(pin "5"
+			(uuid "0148a094-0442-475c-9422-0bc6bf148cf3")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "K15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:DFR")
+		(at 195.58 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0b254dd6-cfa1-4e26-b31a-ad5ec8eccfd5")
+		(property "Reference" "M4"
+			(at 195.58 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DFR"
+			(at 198.12 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "D-type flip flop with reset"
+			(at 195.58 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "0b2b3413-c9f6-42e6-a52d-ffeffd74b8d6")
+		)
+		(pin "3"
+			(uuid "ea774b41-ef93-4e04-aa0f-32397346f9dd")
+		)
+		(pin "4"
+			(uuid "c2ceb9bd-c182-4ced-8324-e0dbdb1a60ee")
+		)
+		(pin "2"
+			(uuid "810ea3cf-7ac0-4109-893e-928726aa7011")
+		)
+		(pin "1"
+			(uuid "0f6868ff-5573-49b6-8085-5697817c50c5")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "M4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:D1A")
+		(at 179.07 149.86 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "102108c3-9f6e-43aa-bdce-5c74f2734c28")
+		(property "Reference" "J24"
+			(at 179.07 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D1A"
+			(at 178.435 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 177.8 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 177.8 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Internal through driver -1"
+			(at 179.07 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5de3471d-b364-4296-b6be-7bedc95cd021")
+		)
+		(pin "2"
+			(uuid "56b3323d-71dd-4418-8739-504bcd177885")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "J24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 125.73 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "15ab5dcb-ebbd-4541-b8e9-0fe0ef0b0c41")
+		(property "Reference" "N6"
+			(at 264.16 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "45f950ea-5bc2-4947-80fb-26eb98ffda3d")
+		)
+		(pin "2"
+			(uuid "c6e2407f-9ad3-4235-b0d2-6357d8dca5d0")
+		)
+		(pin "3"
+			(uuid "3532320c-d003-4a63-ad7f-914030e15b84")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "N6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "19af3845-6a1a-480a-889b-0470ca5a2e26")
+		(property "Reference" "B3"
+			(at 264.16 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "79e850c6-405c-4eb0-956a-69c18f29060a")
+		)
+		(pin "2"
+			(uuid "02705e0d-bd8d-46d2-8391-861318d3c1f1")
+		)
+		(pin "3"
+			(uuid "7502ad4b-f249-421c-a4da-e0d70d7e7d44")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "B3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:D2A")
+		(at 207.01 184.15 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2953252e-c3d8-4179-89d6-687ab7f23bab")
+		(property "Reference" "O24"
+			(at 207.01 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D2A"
+			(at 206.375 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 207.01 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 207.01 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Internal through driver -2"
+			(at 207.01 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "847173c2-ed3e-41d2-8445-bffa0c5fe665")
+		)
+		(pin "2"
+			(uuid "e55d4743-3bf4-4d1f-a9d9-3542d3bfb947")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "O24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:D2A")
+		(at 207.01 132.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3f0aa4c4-bff6-437b-a460-1a0e3bdcc0d8")
+		(property "Reference" "O28"
+			(at 207.01 128.905 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D2A"
+			(at 206.375 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 207.01 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 207.01 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Internal through driver -2"
+			(at 207.01 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "515921ce-6356-4e23-99f7-302a24bea290")
+		)
+		(pin "1"
+			(uuid "5a0eeaf0-7419-4885-9b5e-cc5975d21595")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "O28")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:DFR")
+		(at 195.58 168.91 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "58e19747-e86d-4ac9-9774-ec8bed9b7451")
+		(property "Reference" "O6"
+			(at 195.58 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DFR"
+			(at 198.12 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "D-type flip flop with reset"
+			(at 195.58 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "3a79a1f8-6867-4f02-8622-c9bed8e8a242")
+		)
+		(pin "3"
+			(uuid "488cd77f-87f7-4097-bb3c-818db73bcd72")
+		)
+		(pin "4"
+			(uuid "a637aaa3-a7bd-4540-a2a3-61a632e89262")
+		)
+		(pin "2"
+			(uuid "5d2bc054-40b7-4f08-b4b9-4badf0ed2440")
+		)
+		(pin "1"
+			(uuid "e9eec21b-7336-4987-801e-79c40f17d462")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "O6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:DFR")
+		(at 195.58 185.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "679cb65e-6eee-4fa9-9820-a41e6ce83192")
+		(property "Reference" "I13"
+			(at 195.58 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DFR"
+			(at 198.12 191.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "D-type flip flop with reset"
+			(at 195.58 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "99ed5f74-3f5e-45fb-b7ad-d16de8328095")
+		)
+		(pin "3"
+			(uuid "c8aa6082-edca-41ea-9605-7507b753f000")
+		)
+		(pin "4"
+			(uuid "f38b5387-8899-4d44-8cb2-16a872f8f2e9")
+		)
+		(pin "2"
+			(uuid "89af80ec-2e9d-4b1e-b24a-7cdb17bfc284")
+		)
+		(pin "1"
+			(uuid "9c0b351f-b588-4139-a590-7920017a30ec")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "I13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 176.53 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "759f02de-3fd1-476b-a66e-1661ef21016c")
+		(property "Reference" "E33"
+			(at 264.16 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "31f66495-b1d7-46aa-a54d-308bd3ca57f3")
+		)
+		(pin "2"
+			(uuid "d91ef7b2-f212-4080-8f0c-1cf5790bb813")
+		)
+		(pin "3"
+			(uuid "acb4a664-448d-4f38-b2a2-001a47cbfaf9")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "E33")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:2OR")
+		(at 179.07 132.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7d4ac7d1-d5f9-4548-b94b-b090debe2501")
+		(property "Reference" "H2"
+			(at 179.07 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2OR"
+			(at 179.07 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 179.07 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 179.07 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-input OR gate"
+			(at 179.07 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "1c4351b9-fb25-4958-b753-22a5f56db887")
+		)
+		(pin "3"
+			(uuid "ecfb5fa8-6596-406a-8e27-75cebdfcec0e")
+		)
+		(pin "1"
+			(uuid "c81466af-352a-45d9-a0d4-e19254f047b9")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "87a41717-8697-44de-9fa7-230423e59b85")
+		(property "Reference" "L8"
+			(at 264.16 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cc27dc6f-5af2-4050-a6bc-340f347d1d67")
+		)
+		(pin "2"
+			(uuid "53cbc7b7-d200-4eea-bda9-c43b1df0e88e")
+		)
+		(pin "3"
+			(uuid "699e0044-63e2-4bd3-8f87-87d1d5d24d45")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "L8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:TFR")
+		(at 195.58 97.79 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "95f8af8d-5d00-459d-afa4-8916c829edff")
+		(property "Reference" "I4"
+			(at 195.58 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TFR"
+			(at 198.12 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Toggle flop flop with reset"
+			(at 195.58 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "4066d99d-e276-493e-970f-a5fb655f0919")
+		)
+		(pin "4"
+			(uuid "f2e0b063-6979-4e1c-989f-1f6c9af9ed68")
+		)
+		(pin "2"
+			(uuid "ea57632c-a599-4003-9af7-3b4f811835c6")
+		)
+		(pin "5"
+			(uuid "26347985-1185-4ac0-8f88-3db5648c33a7")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "I4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 168.91 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a20bf5b3-405f-4d15-8112-b7d876678b1f")
+		(property "Reference" "H5"
+			(at 264.16 165.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "69f844ff-4a05-4944-bc37-8eed31c84ab9")
+		)
+		(pin "2"
+			(uuid "8a1b8aab-5bae-4c37-984c-8daa9de50b61")
+		)
+		(pin "3"
+			(uuid "15aeaf81-5cef-431f-be93-5fca98ed8d7d")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "H5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:D1N")
+		(at 195.58 204.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a546363d-6de4-46b0-8017-ff9b38c1263f")
+		(property "Reference" "H41"
+			(at 198.12 201.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D1N"
+			(at 194.945 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Internal invert driver -1"
+			(at 195.58 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1d45b960-eab1-4b0b-a0a4-068bd36b5321")
+		)
+		(pin "2"
+			(uuid "ed4d3670-eb05-46b3-8519-b0219d40f400")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "H41")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:3AD")
+		(at 177.8 184.15 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e4a78f29-158c-4b71-9558-66148fe0fc31")
+		(property "Reference" "C2"
+			(at 177.8 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3AD"
+			(at 177.8 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 181.61 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 181.61 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "3-input AND gate"
+			(at 177.8 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b21880e5-825e-4436-8a4d-72f7f81c98da")
+		)
+		(pin "2"
+			(uuid "2694ab41-74d8-4ef9-8ef3-da214bdb912b")
+		)
+		(pin "3"
+			(uuid "94ca73b9-508f-403d-8b04-e59043e8e2cf")
+		)
+		(pin "4"
+			(uuid "4afcd7f4-94f8-471c-be28-d514012e73eb")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "C2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:TFRE")
+		(at 195.58 115.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ecf8bb6c-7690-40da-b501-383e30295f13")
+		(property "Reference" "J13"
+			(at 195.58 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TFRE"
+			(at 198.12 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 195.58 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Toggle flop flop with /enable reset"
+			(at 195.58 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "cc33f94a-7552-4f09-bd54-7cfd9e0cfae6")
+		)
+		(pin "1"
+			(uuid "c0ca1c13-34ee-43d1-977d-ab0fba6af2d6")
+		)
+		(pin "3"
+			(uuid "dd6e47ee-8337-400c-bf16-154913f86b0c")
+		)
+		(pin "4"
+			(uuid "baec564f-1a20-4732-9722-3e998d719cdb")
+		)
+		(pin "5"
+			(uuid "b1330e42-489c-4626-a317-c148c3c99812")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "J13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ga_oki_msm70v0000:EXR")
+		(at 264.16 184.15 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f91323a8-e216-40c6-a5be-5347e02d5811")
+		(property "Reference" "L38"
+			(at 264.16 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXR"
+			(at 264.16 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Exlusive OR gate"
+			(at 264.16 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b3dd0ced-b303-4ba5-9b55-3f35d110d915")
+		)
+		(pin "2"
+			(uuid "05d4c87e-8f88-49d9-8eaf-e34fb7bed5c1")
+		)
+		(pin "3"
+			(uuid "057ee9db-bbfd-4fe2-b794-8fb9295b6611")
+		)
+		(instances
+			(project "007781"
+				(path "/452d2732-d9da-40a8-bb0b-6bc3c4e34dca/21de74ee-4286-4459-aacb-de1c88b72534"
+					(reference "L38")
+					(unit 1)
+				)
+			)
+		)
+	)
+)

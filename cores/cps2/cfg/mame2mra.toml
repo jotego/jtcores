@@ -1,5 +1,4 @@
 [global]
-# atrac17 helped with the first set of MRA files
 author=["jotego"]
 zip.alt="qsound.zip"
 
@@ -11,7 +10,7 @@ parents= [
 skip.setnames=["ssf2us2","gigaman2"]
 
 [dipsw]
-delete=[{names=["Unused"]}]
+delete=[{names=["Unused","?-?"]}]
 extra=[
     { machine="ecofghtr", name="Spinner", options="on,off", bits="0" }
 ]

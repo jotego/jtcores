@@ -55,6 +55,7 @@ module jtvigil_main(
     // ROM access
     output  reg        rom_cs,
     input       [ 7:0] rom_data,
+    // input       [ 7:0] debug_bus,
     input              rom_ok
 );
 `ifndef NOMAIN
@@ -134,26 +135,24 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        cpu_din <= 0;
-    end else begin
-        cpu_din <=
-            rom_cs  ? rom_data :
-            ram_cs  ? ram_dout :
-            pal_cs  ? pal_dout :
-            scr_cs  ? scr_dout : // I think the scroll cannot be read, but sch. are blurry
-            in0_cs  ? { 4'hf, coin[0], service, cab_1p } :
-            in1_cs  ? { joystick1[5], 1'b1, joystick1[4], 1'b1, joystick1[3:0] } :
-            in2_cs  ? { joystick2[5], 1'b1, joystick2[4], 1'b1, joystick2[3:0] } :
-            dip1_cs ? dipsw_a  :
-            dip2_cs ? dipsw_b  : 8'hff;
-    end
+// always @(posedge clk) begin
+always @* begin
+    cpu_din =
+        rom_cs  ? rom_data :
+        ram_cs  ? ram_dout :
+        pal_cs  ? pal_dout :
+        scr_cs  ? scr_dout : // I think the scroll cannot be read, but sch. are blurry
+        in0_cs  ? { 4'hf, coin[0], service, cab_1p } :
+        in1_cs  ? { joystick1[5], 1'b1, joystick1[4], 1'b1, joystick1[3:0] } :
+        in2_cs  ? { joystick2[5], 1'b1, joystick2[4], 1'b1, joystick2[3:0] } :
+        dip1_cs ? dipsw_a  :
+        dip2_cs ? dipsw_b  : 8'hff;
 end
 
 jtframe_sysz80 #(
     .RAM_AW     ( 12        ),
     .CLR_INT    ( 1         )
+    // .RECOVERY   ( 0         )
 ) u_cpu(
     .rst_n      ( rst_n     ),
     .clk        ( clk       ),
@@ -181,17 +180,32 @@ jtframe_sysz80 #(
 );
 
 `else
+    integer f, fcnt;
+    reg [7:0] dump[0:3];
     initial begin
         pal_cs    = 0;
         scr_cs    = 0;
         scr1pos   = 0;
-        scr2pos   = { debug_bus, 3'd0 };
-        scr2col   = 0;
+        scr2pos   = { 8'h94, 3'd0 }; //{ debug_bus, 3'd0 };
+        scr2enb   = 0;
         latch_wr  = 0;
         rom_cs    = 0;
+        obj_cs    = 0;
         flip      = 1;
+        scr2col   = 0;
+        // Scene read
+        f = $fopen("rest.bin","r");
+        if( f!=0 ) begin
+            fcnt = $fread(dump,f);
+            $display("-%-12s (%4d bytes) %m","rest.bin",fcnt);
+            scr1pos = { dump[2][0],dump[0] };
+            scr2pos = { dump[2][3:1],dump[1] };
+            { flip, scr2enb, scr2col } = dump[3][4:0];
+            $fclose(f);
+        end
     end
     assign  main_addr = 0;
+    assign  main_rnw  = 1;
     assign  cpu_dout  = 0;
 `endif
 

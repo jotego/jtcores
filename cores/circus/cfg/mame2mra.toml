@@ -1,0 +1,29 @@
+[parse]
+sourcefile=[ "circusc.cpp" ]
+
+[dipsw]
+extra=[
+	{name="Screen flip",options="Off,On",bits="16"},
+]
+
+[buttons]
+names=[
+    { names="Jump"}
+]
+
+[ROM]
+regions = [
+	{ name="maincpu" },
+	{ name="audiocpu", start="JTFRAME_BA1_START"  },
+	{ name="tiles",    start="JTFRAME_BA2_START"  },
+	{ name="sprites",  start="JTFRAME_BA3_START"  },
+	{ name="proms",    start="JTFRAME_PROM_START", sequence=[1,2,0] },
+]
+
+order = [
+    "maincpu", "audiocpu", "tiles", "sprites", "proms"
+]
+
+# patches = [
+# 	{ offset=0xCBD7, data="4F 4F" }, # remove initial long wait
+# ]

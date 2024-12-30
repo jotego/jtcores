@@ -38,10 +38,12 @@ module jtframe_obj_buffer #(parameter
     BLANK       = ALPHA,
     BLANK_DLY   = 2,
     FLIP_OFFSET = 0,
-    SHADOW      = 0,  // 1 enables shadows on data MSB
-    KEEP_OLD    = 0   // Do not overwrite old non-ALPHA data
-                      // requires address, data and we signals to be held
-                      // for at least two clock cycles
+    SW          = 1,     // Shadow bits width (Use with SHADOW==1)
+    SHADOW_PEN  = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
+    SHADOW      = 0,     // 1 enables shadows on data MSB
+    KEEP_OLD    = 0      // Do not overwrite old non-ALPHA data
+                         // requires address, data and we signals to be held
+                         // for at least two clock cycles
 )(
     input   clk,
     input   LHBL,
@@ -56,7 +58,7 @@ module jtframe_obj_buffer #(parameter
     output reg [DW-1:0] rd_data
 );
 
-localparam EW = SHADOW==1 ? DW-1 : DW;
+localparam EW = SHADOW==1 ? DW-SW : DW;
 
 reg     line, last_LHBL;
 wire    new_we;
@@ -68,7 +70,12 @@ wire [DW-1:0]       dump_data;
 wire [EW-1:0]       old;
 
 assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
-    && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] || KEEP_OLD==0);
+    && ((old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0]  /*||
+         (old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0] && SHADOW_PEN!=ALPHA && wr_data[ALPHAW-1:0]!=SHADOW_PEN[ALPHAW-1:0] )*/
+         ) || (KEEP_OLD==0 &&
+           ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]) && SHADOW==1
+            || SHADOW==0 )));
+
 
 `ifdef SIMULATION
 initial begin
@@ -114,27 +121,28 @@ generate
                    sh_we;
         reg  [AW-1:0] sh_wa;
         wire [AW-1:0] sh0_rdmx, sh1_rdmx;
-        wire [1:0] shdout, shadow_we;
-        reg        newwe_l, we_l, shdin;
+        wire [SW-1:0] shdout0,shdout1, shadow_we;
+        reg  [SW-1:0] shdin;
+        reg        newwe_l, we_l;//,
 
-        assign sh0_rdmx  =  line ? wr_af : rd_addr;
-        assign sh1_rdmx  = ~line ? wr_af : rd_addr;
-        assign sh_we     =  shdout[~line] ? newwe_l : we_l;
+        assign sh0_rdmx  =  line ? wr_af   : rd_addr;
+        assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
+        assign shadow_we = /*~*/line ? shdout0 : shdout1;
+        assign sh_we     = |shadow_we ? newwe_l : we_l;
         assign sh0_wemx  =  line & sh_we;
         assign sh1_wemx  = ~line & sh_we;
         assign sh0_delmx = ~line & delete_we;
         assign sh1_delmx =  line & delete_we;
 
         always @(posedge clk) begin
-            shdin <= wr_data[DW-1];
+            shdin <= wr_data[DW-1-:SW];
             sh_wa <= wr_af;
             newwe_l <= new_we;
             we_l    <= we;
         end
+        assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;
 
-        assign dump_data[DW-1] = shdout[line];
-
-        jtframe_dual_ram #(.AW(AW),.DW(1)) u_shadow0(
+        jtframe_dual_ram #(.AW(AW),.DW(SW)) u_shadow0(
             .clk0   ( clk           ),
             .clk1   ( clk           ),
             // Port 0
@@ -143,13 +151,13 @@ generate
             .we0    ( sh0_wemx      ),
             .q0     (               ),
             // Port 1
-            .data1  ( 1'b0          ),
+            .data1  ( {SW{1'b0}}    ),
             .addr1  ( sh0_rdmx      ),
             .we1    ( sh0_delmx     ),
-            .q1     ( shdout[0]     )
+            .q1     ( shdout0       )
         );
 
-        jtframe_dual_ram #(.AW(AW),.DW(1)) u_shadow1(
+        jtframe_dual_ram #(.AW(AW),.DW(SW)) u_shadow1(
             .clk0   ( clk           ),
             .clk1   ( clk           ),
             // Port 0
@@ -158,10 +166,10 @@ generate
             .we0    ( sh1_wemx      ),
             .q0     (               ),
             // Port 1
-            .data1  ( 1'b0          ),
+            .data1  ( {SW{1'b0}}    ),
             .addr1  ( sh1_rdmx      ),
             .we1    ( sh1_delmx     ),
-            .q1     ( shdout[1]     )
+            .q1     ( shdout1       )
         );
 
     end

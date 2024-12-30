@@ -52,8 +52,6 @@ usage: jtcore <corename> [options]
 
     --corestamp     Sets the date string attached to the RBF file name. Defaults to today
     --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
-    --force | -f    Forces --git even if it is not clean.
-    --git           Output to $JTBIN. Defines JTFRAME_RELEASE
     -mrq            Compiles MiSTer with no HDMI nor logo but with sound
     --mrpasswd      Sets the SSH pasword to use on MiSTer
     --nodbg         Defines JTFRAME_RELEASE
@@ -63,6 +61,7 @@ usage: jtcore <corename> [options]
                     Disables JTFRAME_CREDITS and HQ2X.
     -qs             Same as -q but with sound.
     --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
+    --sd [setname]  Copy to sd card, optional setname (uses jtbin2sd)
     --seed          Sets random seed for compilation
     --sim           Prepares Quartus simulation
     --skip | -s     skips the compilation but executes the rest of the commands
@@ -80,18 +79,27 @@ EOF
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
-FORCE=
-GIT=FALSE
+JTBIN2SD=
 MACROS=
 OUTPUTDIR=output_files
 PRJ=
+NODBG=
 PROG=FALSE
 SEED=1
 SKIPTIMING=
 SIM=FALSE
 SKIP_COMPILE=FALSE
-TARGET=mist
 UNMACROS=
+
+# derive the default core name from the path
+DEFPRJ=$(realpath . --relative-to=$CORES)
+DEFPRJ=${DEFPRJ%%/*}
+
+# use setprj.sh's target function to
+# change the current default target
+if [ -z "$TARGET" ]; then
+    TARGET=mist
+fi
 
 # Device names for JTAG programming
 # Only MiST programming is fully implemented
@@ -137,26 +145,21 @@ function parse_args {
                     MACROS="$1 $MACROS"
                 fi
                 ;;
-            --force|-f) FORCE=TRUE;;
-            --git|-g) GIT=TRUE; MACROS="$MACROS JTFRAME_RELEASE";;
             --prog|-p) PROG=TRUE;;
             --prog-only | -w)
                 PROG=TRUE
                 SKIP_COMPILE=TRUE;;
             --quick|-q)
                 MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE;;
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             -qs)
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE;;
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             --skip | -s) SKIP_COMPILE=TRUE;;
             --quicker|-qq)
                 MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                TARGET=mister
-                GIT=FALSE;;
+                TARGET=mister;;
             -mr)
                 TARGET=mister;;
             --mrpasswd)
@@ -166,11 +169,17 @@ function parse_args {
             -mrq)
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                GIT=FALSE
                 TARGET=mister;;
-            --nodbg)      MACROS="$MACROS JTFRAME_RELEASE=1";;
-            --nosta)      SKIPTIMING=1;;
-            --sim)        SIM=TRUE;;
+            --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nosta) SKIPTIMING=1;;
+            --sim)   SIM=TRUE;;
+            --sd)
+                if [ "${2:0:1}" != - ]; then
+                    shift
+                    JTBIN2SD=$1
+                else
+                    JTBIN2SD=" "
+                fi;;
             --showmacros) SHOWMACROS=1;;
             --target|-t)
                 shift
@@ -246,31 +255,10 @@ function is_dirty {
     git status --short | grep -i "^ M " > /dev/null
 }
 
-# Removes the initial v from a word if exists.
-# Used to remove the v in version codes without
-# affecting the git id, in the case it's used instead
-function no_v {
-    if [ "${1:0:1}" = v ]; then
-        echo ${1:1}
-    else
-        echo $1
-    fi
-}
-
+PRJCOMMIT="$(git rev-parse --short HEAD)"
 if is_dirty; then
-    PRJCOMMIT="$(git rev-parse --short HEAD)-dirty"
-else
-    PRJCOMMIT=`version_ok.sh`
-    if [[ $? != 0 && $GIT = TRUE ]]; then
-        cat << EOF
-Error: cannot use --git if there is no version tag for the commit
-Create the first version tag manually. Use jtmerge to create the tags after that
-EOF
-        exit 1
-    fi
+    PRJCOMMIT="${PRJCOMMIT}-dirty"
 fi
-
-if [ "$VERBOSE" = -v ]; then echo "Using version tag $PRJCOMMIT"; fi
 
 if [ ! -e "$JTFRAME" ]; then
     echo -e "${rBG}ERROR:${NC}${wBG} cannot locate jtframe folder.${NC}"
@@ -281,9 +269,13 @@ fi
 # Is the project defined?
 case "$PRJ" in
     "")
-        echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
-        show_usage
-        exit 1;;
+        # try using the name derived from the folder
+        PRJ=$DEFPRJ
+        if [ ! -d "$CORES/$PRJ" ]; then
+            echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
+            show_usage
+            exit 1
+        fi;;
     -help | -h | --help)
         show_usage;;
 esac
@@ -306,25 +298,9 @@ if [ -e $CORES/$PRJ/cfg/skip ]; then
     exit 0
 fi
 
-if [ $GIT = TRUE ]; then
-    is_dirty
-    if [[ $? = 0 && -z "$FORCE" ]]; then
-        echo "Error: cannot use -git if git isn't clean. Commit and try again"
-        git status --short
-        exit 1
-    fi
-    if [ ! -z $VERBOSE ]; then echo "Using $JTBIN as JTBIN"; fi
-else
-    # Use the local release folder
-    if [ ! -z $VERBOSE ]; then echo "Using 'release' as JTBIN"; fi
-    export JTBIN=$JTROOT/release
-    mkdir -p $JTBIN
-fi
-
-if [[ -z "$JTBIN" || ! -d "$JTBIN" ]]; then
-    echo "JTBIN ($JTBIN) is not valid"
-    exit 1
-fi
+# Use the local release folder
+export JTBIN=$JTROOT/release
+mkdir -p $JTBIN
 
 OUTPUTDIR=output_files
 
@@ -383,9 +359,9 @@ function umacros2undef {
 
 function parse_macros {
     if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $* > /dev/stderr
+        echo jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $* > /dev/stderr
     fi
-    jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` `macros2def` `umacros2undef` --output $*
+    jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $*
 }
 
 # qsf line to disable SOUND synthesis
@@ -479,15 +455,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then
-        jtframe msg $PRJ --commit `no_v $PRJCOMMIT` || exit $?
-    fi
-    # Update Avatars
-    if [ -e $PRJPATH/patrons/lut ]; then
-        $JTFRAME/bin/lut2hex $PRJPATH/patrons/lut || (echo while running lut2hex on patrons/lut; exit $? )
-        if [ -e $PRJPATH/patrons/avatars ]; then
-            $JTFRAME/bin/avatar.py $PRJ > /tmp/avatar_$PRJ.log || ( cat /tmp/avatar_$PRJ.log; exit 1 )
-            cp $PRJPATH/patrons/avatar{,_pal}.hex $PRJPATH/$TARGET || exit $?
-        fi
+        jtframe msg $PRJ --commit $PRJCOMMIT || exit $?
     fi
     # Fonts and graphics
     ln -srf $JTFRAME/bin/font0.hex
@@ -522,7 +490,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
-        if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET || exit $?; fi
+        if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $NODBG || exit $?; fi
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
@@ -653,8 +621,8 @@ if [ $TARGET = pocket ]; then
     RBF=${RBF}_r
 fi
 
-# Copy to JTBIN  if --git is set
-if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
+# Copy to JTBIN and SD card
+if [[ "$FAIL" = 0  ]]; then
     announce "Copy to $JTBIN"
     BINFOLDER=$JTBIN/$TARGET
     if [ $TARGET = pocket ]; then
@@ -663,12 +631,9 @@ if [[ "$GIT" = FALSE || "$FAIL" = 0  ]]; then
     BINRBF=$BINFOLDER/$corename.$EXT
     mkdir -p $(dirname $BINRBF)
     cp -v $RBF $BINRBF || exit 1
-
-    cd $JTBIN
-    printf "%-12s %-12s %-24s %s\n" ${PRJ} ${TARGET} `date +%Y-%m-%d` $PRJCOMMIT >> $JTBIN/version.log
-    cd - > /dev/null
+    if [ ! -z "$JTBIN2SD" ]; then jtbin2sd $JTBIN2SD; fi
 elif [ ! -z "$VERBOSE" ]; then
-    echo "Skipping copy to JTBIN or release"
+    echo "Skipping copy to release"
 fi
 rm -f $corename.rbf
 

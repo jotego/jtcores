@@ -4,107 +4,86 @@
 
   Version \C - \D
 
-       PCB loaned by
-        Skutis
-
       Based on Skutis'
       schematics and chip
          measurements
 
-        Reviewed by
-    the \RJTAlpha team\W
-
  \B______ \RDIRECTORS\B _______\W
-         Bender
-Blue Abs        Boogermann
-    Carlo Castagnasso
-Chris Gelatt    Filip Kindt
-    Frederic Mahe
+Bender          Chris Gelatt
+Filip Kindt     Frederic Mahe
     Fulvio Venturelli
-James D         JaviRodasG
 Jeffrey Pierce  John Lange
-    John Smith
-    Ksenia Anastasia
 Martin Birkeldh Martin Donlon
+    Michael Hermann
     Porkchop Express
-    Pramod Somashekar
-Rysha           Shawn Henderson
-Tulio Adriano   Ulf Skutnabba
-f3bandit
+Rysha           Tulio Adriano
+Ulf Skutnabba   f3bandit
 
 
        \BThanks to\W
-\RAndrea Bogazzi  Arcade Express
-\RBob Gallardo    Brian Sallee
-\RDan Avedikian   Daniel Bauza
-\RER              Eric Lewis
-\R    GiRo SiNToRNiLLoS
-\R    Jim Weinhart
-\R    MiSTerFPGA.co.uk
-\RNick Taylor     Pelayo Marinas
+\RAhmed Alkaabi   Andrea Bogazzi
+\RArcade Express  Bob Gallardo
+\RBrian Sallee    Dan Avedikian
+\RDaniel Bauza    ER
+\REric Lewis      Halla
+\RJacob Jewell    Jim Sprigler
+\RKeith Nieves    Kyle Mickley
+\RM. Fornasini    Nick Taylor
+\RPD Lee          Pelayo Marinas
 \RPeter Vessenes  R. Martinazzo
 \RRenaissance 2K  RetroWilly
-\RRobert Moran    Sayit BELET
+\RRobert Moran    Sanborn
+\R    Sayit Belet
 \R    Tatton Partington
-\RTony Escobar    Tony Mika
+\RTej Bilkhu      dannahan
 
  \B_________ AND __________\W
 ARCADEAGES      Adam Davis
-Adrian Nabarro  Andy Palmer
-Andyways        Blackstar
-Bryan Adams     Carrboroman
-Chris Doyle     Chris Harvey
-Christian       D.J. Estreito
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways
+Blackstar       Bryan Adams
+Carrboroman     Chris Doyle
+Chris Harvey    Christian
 DMG             Dan Bayley
 Daniel Cortes   Darren Chell
-David Ashby     David Moylan
+Dave Sasser     David Moylan
 Dean Winger     Don Gafford
 Ed Balan        Eduardo Javier
-Edward Rana     EmperorStorky
-Fred Jorge      Gareth Jones
-Gelszinnis      Gus Douboulidis
+Fred Jorge      Gus Douboulidis
     Hendrik Osterholz
     Henrik Nordstrom
-    INAKI ECHEVARRIA
-Ian Court       Ivo
-JFRoco          JPS (RetroFPGA)
-James Stroup    Jason Nagy
-    Jeffrey Haas
-    Jerome Braconnier
-Joe Castle      Joe Tassone
-Joeri van       John Casey
-John S          Jose Pulgar
-Joseph Hsieh    Josh O'Roake
-Juan Ramon      Juan Sandoval
-Keith F. Kelly  Kent Pendragon
-Krycek7o2       Leslie Law
-Lionel LENOBLE  Luis Alvarado
+    Inaki Echevarria
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef
+Joe Tassone     Joeri van
+John Casey      John Figueroa
+John Silva      Jose Pulgar
+Josh O'Roake    Juan Sandoval
+JuanRa          Keith F. Kelly
+    Leslie Law
     Lukas Hinterleitner
-M. Ferguson     M. Fornasini
-Marcus Hogue    Matthew Pollard
-    Matthew Young
+M. Ferguson     Marcus Hogue
+Matt Hargett    Matthew Young
     Michael Ferguson
-Michael Johnson MoonZ
-Nima            Oliver Jaksch
-Oscar Laguna    Peter Bray
-RetroPrez       Retro_Brewz
+    Michael Fleisher
+Michael Johnson Mike Phan
+Nima            Nunzio Mannino
+Oliver Jaksch   Oscar Laguna
+Peter Bray      Retro_Brewz
 Richard MS      Rob Jenkins
-Robert MacLean  Robert Mullings
-Roman Buser     Sanborn
+Robert MacLean  Roman Buser
 Shane Lynch     Steven Wilson
 The Collector   Theodore Huber
 Thompson Orcino Torren Beitler
-Tym Whitney     Victor Gomariz
-Vitor Duarte    Zachary Muske
-albertprime     amoore2600
-asdfgasfhsn     dannahan
-emerald4224     hyp36rmax
-taal.M          ultimatekd
+Vitor Duarte    albertprime
+amoore2600      hyp36rmax
+ultimatekd
 
   ________________________
 
       - Beta version -
       Do not distribute
+
 
       -     MiSTer   -
       Place jtbeta.zip
@@ -113,4 +92,5 @@ taal.M          ultimatekd
 
       -   A. Pocket  -
     Unzip jtbeta.zip into
-    Assets/jttwin16/common
+    Assets/jtpatreon/common
+

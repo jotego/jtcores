@@ -208,6 +208,10 @@ type Mame2MRA struct {
         Overrule []Overrule_t  // overrules values in MAME XML
     }
 
+    Pocket struct {
+        Display_modes []int
+    }
+
     Cheat struct {
         Disable bool
         Files   []struct {

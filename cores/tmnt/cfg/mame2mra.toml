@@ -2,7 +2,7 @@
 author=["jotego"]
 
 [parse]
-sourcefile=[ "tmnt.cpp" ]
+sourcefile=[ "tmnt.cpp", "tmnt2" ]
 skip = { machines=[
     "cuebrick",
     "lgtnfght",
@@ -13,6 +13,14 @@ skip = { machines=[
     "ssriders",
     "thndrx2",
     "prmrsocr",
+    # from tmnt2 (only punkshot is taken in)
+    "lgtnfght",
+    "blswhstl",
+    "glfgreat",
+    "tmnt2",
+    "ssriders",
+    "thndrx2",
+    "prmrsocr"
 ], bootlegs=true }
 
 [audio]

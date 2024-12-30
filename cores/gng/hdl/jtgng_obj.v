@@ -53,6 +53,7 @@ module jtgng_obj #(
     input   [ 7:0]      V,
     input   [ 8:0]      H,
     input               flip,
+    input               alt,        // alternative layout on same core
     // shared bus
     output [DMA_AW-1:0] AB,
     input  [DMA_DW-1:0] DB,
@@ -178,6 +179,7 @@ u_draw(
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
     .flip           ( flip          ),
+    .alt            ( alt           ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),

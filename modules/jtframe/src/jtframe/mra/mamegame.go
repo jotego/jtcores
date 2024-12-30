@@ -130,8 +130,8 @@ func Mame_version() string {
 
 func (this *MachineXML)Dial() bool {
 	for _, each := range this.Input.Control {
-		if strings.ToLower(each.Type)=="dial" {
-			return true
+		switch strings.ToLower(each.Type) {
+			case "dial","positional": return true
 		}
 	}
 	return false

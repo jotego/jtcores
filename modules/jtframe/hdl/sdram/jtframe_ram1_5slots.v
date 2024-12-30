@@ -18,7 +18,7 @@
 
 module jtframe_ram1_5slots #(parameter
     SDRAMW = 22,
-    ERASE  = 1, // erase memory contents after a reset
+    SLOT0_ERASE  = 1, // erase memory contents after a reset
     SLOT0_FASTWR = 0,
 
     SLOT0_DW = 8, SLOT1_DW = 8, SLOT2_DW = 8, SLOT3_DW = 8, SLOT4_DW = 8,
@@ -124,7 +124,7 @@ assign slot2_ok = slot_ok[2];
 assign slot3_ok = slot_ok[3];
 assign slot4_ok = slot_ok[4];
 
-jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.FASTWR(SLOT0_FASTWR),.ERASE(ERASE)) u_slot0(
+jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.FASTWR(SLOT0_FASTWR),.ERASE(SLOT0_ERASE)) u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .addr      ( slot0_addr             ),

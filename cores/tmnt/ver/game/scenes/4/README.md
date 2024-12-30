@@ -1,2 +1,0 @@
-There should be no shadow cast on the red foot soldier. The soldier sprite should have priority over the shadow.
-Drawn objects take priorities 43~4F. The shadow has a lower priority code than the foot soldier.

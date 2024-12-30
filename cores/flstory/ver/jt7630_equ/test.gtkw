@@ -1,0 +1,45 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Dec 15 11:30:14 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/jt7630_equ/test.fst"
+[dumpfile_mtime] "Sun Dec 15 11:30:02 2024"
+[dumpfile_size] 30326087
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/jt7630_equ/test.gtkw"
+[timestart] 1302083
+[size] 1920 1033
+[pos] -1 -1
+*-38.220337 73700000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.jt7630_equ.
+[sst_width] 278
+[signals_width] 242
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@8420
+TOP.jt7630_equ.sin[15:0]
+@20000
+-
+-
+@8420
+TOP.jt7630_equ.lo1k[15:0]
+@20000
+-
+-
+@8420
+TOP.jt7630_equ.lo100[15:0]
+@20000
+-
+-
+@8420
+TOP.jt7630_equ.hi1k[15:0]
+@20000
+-
+-
+@8420
+TOP.jt7630_equ.hi100[15:0]
+@20000
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

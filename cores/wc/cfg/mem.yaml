@@ -1,0 +1,120 @@
+params:
+  - { name: SUB_OFFSET, value: "(`SUB_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk:
+    # Main CPU uses 4MHz crystal (checked on original board)
+    # although the manual refers to the crystal as 3 or 4MHz in different locations
+    - freq: 4000000
+      outputs:
+        - cen_cpu
+    # 18.432 divided by 6
+    - freq: 3072000
+      outputs:
+        - cen_psg1
+        - cen_psg2
+    - freq: 400000
+      outputs:
+        - cen_pcm
+audio:
+  rsum: 1k
+  channels:
+    # FIR should be 3kHz, not 4kHz
+    - { name: pcmsnd, module: jt5205, rsum: 1.9k, fir: fir_192k_4k.csv, pre: 0.87 }
+    - { name: psg0,   module: jt49,   rsum: 3.9k, pre: 0.7 }
+    - { name: psg1,   module: jt49,   rsum: 3.9k, pre: 0.7 }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+      - name: sub
+        addr_width: 15
+        data_width: 8
+        offset: SUB_OFFSET
+    - buses:
+      - name: snd
+        addr_width: 14
+        data_width: 8
+      - name: pcm
+        addr_width: 15
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: char
+        addr_width: 14
+        data_width: 32
+      - name: scr
+        addr_width: 16
+        data_width: 32
+        offset: SCR_OFFSET
+        # gfx_sort: hhvvvvx
+    - buses:
+      - name: obj
+        addr_width: 16
+        data_width: 32
+        # gfx_sort: hhvvvvx
+## shared RAM
+bram:
+  - name: shram
+    addr_width: 11
+    data_width: 8
+    rw: true
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: shram
+      din:  "{2{shram_din}}"
+      dout: pal16_dout
+      we:   pal_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 0
+  - name: fixram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: shram
+      addr: "shram_addr[9:0]" # bit 10 used for attributes
+      din:  "{2{shram_din}}"
+      dout: fix16_dout
+      we:   fix_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 1
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    dual_port:
+      name: shram
+      din:  "{2{shram_din}}"
+      dout: vram16_dout
+      we:   vram_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 2
+  - name: objram
+    addr_width: 10
+    data_width: 8
+    dual_port:
+      name: shram
+      din:  shram_din
+      dout: obj_dout
+      we:   obj_we
+      rw:   true
+    ioctl:
+      save: true
+      order: 3
+  - name: fb
+    addr_width: 11
+    data_width: 32
+    rw: true
+    # ioctl:
+    #   save: true
+    #   order: 3

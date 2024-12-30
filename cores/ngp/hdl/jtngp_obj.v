@@ -48,12 +48,12 @@ wire [ 7:0] lut_addr;
 wire [ 6:0] scan_addr;
 reg  [ 5:0] scan_obj;
 reg  [ 2:0] scan_st;
-wire [15:0] scan_dout;
+wire [15:0] scan_dout, pre_din;
 reg         HSl;
 wire        Hinit;
 wire [ 8:0] pre_pxl;
 
-assign we    = ~dsn & {2{obj_cs}};
+assign we    = ~dsn & {2{obj_cs|obj2_cs}};
 assign Hinit = ~HS & HSl;
 assign scan_addr = { scan_obj, scan_st[0] };
 
@@ -73,6 +73,7 @@ assign lut_addr = scan_st==4 ? { 3'b100, scan_obj[5:1] } : { 1'b0, scan_addr };
 `else
 assign lut_addr = { 1'b0, scan_addr };
 `endif
+assign cpu_din = obj2_cs ? {4'd0,pre_din[11:8],4'd0,pre_din[3:0]} : pre_din;
 
 jtframe_dual_ram16 #(
     .AW         (  8          ),
@@ -83,9 +84,9 @@ jtframe_dual_ram16 #(
     // Port 0
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
-    .addr0  ( { obj2_cs, cpu_addr } ), // to do: when obj2_cs, data bits 7:4 should be ignored
+    .addr0  ( { obj2_cs, cpu_addr } ),
     .we0    ( we        ),
-    .q0     ( cpu_din   ),
+    .q0     ( pre_din   ),
     // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
@@ -130,11 +131,13 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scan_obj  <= 0;
         scan_st   <= 0;
-        HSl     <= 0;
+        HSl       <= 0;
         dr_start  <= 0;
         hlast     <= 0;
         vlast     <= 0;
         chram_addr<= 0;
+        dr_col    <= 0;
+        col       <= 0;
     end else if( cen ) begin
         HSl <= HS;
         dr_start <= 0;
@@ -144,15 +147,20 @@ always @(posedge clk, posedge rst) begin
                 scan_st      <= 4;
             end
             4: begin
-                col     <= scan_obj[1] ? scan_dout[8+:4] : scan_dout[0+:4];
+                col     <= scan_obj[0] ? scan_dout[8+:4] : scan_dout[0+:4];
                 scan_st <= 5;
             end
             5: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
-                    chram_addr <= { dr_attr_code[8:0], vsub };
-                    dr_start <= inzone && !hidden;
-                    hlast    <= scan_dout[7:0] + (hchain ? hlast : hoffset );
-                    vlast    <= ypos;
+                    if( inzone && !hidden ) begin
+                        dr_start   <= 1;
+                        dr_col     <= col;
+                        chram_addr <= { dr_attr_code[8:0], vsub };
+                    end else begin
+                        dr_start <= 0;
+                    end
+                    hlast <= scan_dout[7:0] + (hchain ? hlast : hoffset );
+                    vlast <= ypos;
                     // if( !hidden && vrender<10) begin
                     //     $display("(%d) -- %d (%d) -> %d",vrender,ypos, ydelta, inzone);
                     // end
@@ -171,12 +179,12 @@ always @(posedge clk, posedge rst) begin
 end
 
 reg  [15:0] obj_data;
-reg  [ 3:0] col;
+reg  [ 3:0] col, dr_col;
 reg  [ 3:0] dr_cnt;
 wire [ 8:0] line_din;
 reg         buff_we;
 
-assign line_din   = { col, prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
+assign line_din   = { dr_col, prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
 
 // drawing
 always @(posedge clk, posedge rst) begin

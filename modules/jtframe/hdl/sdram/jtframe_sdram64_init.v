@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 29-4-2021 */
-
+/* verilator coverage_off */
 module jtframe_sdram64_init #(parameter
     HF      =1,
     BURSTLEN=64

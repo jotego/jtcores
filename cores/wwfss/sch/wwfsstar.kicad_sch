@@ -1,0 +1,500 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "9b45fe8f-ccde-4083-bbaa-82d9a9454022")
+	(paper "A3")
+	(title_block
+		(title "WWF Super Stars")
+		(company "JOTEGO")
+		(comment 1 "Leo Tejada")
+	)
+	(lib_symbols)
+	(bus
+		(pts
+			(xy 227.33 83.82) (xy 241.3 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "021f7dec-367e-4d5b-b52e-0425d8c191d7")
+	)
+	(bus
+		(pts
+			(xy 227.33 86.36) (xy 241.3 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0727ece4-180e-4833-bbfe-851ff11ee5f7")
+	)
+	(bus
+		(pts
+			(xy 227.33 76.2) (xy 241.3 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "29c1ebbd-c0ad-4dda-bac2-121d8b0c5d4b")
+	)
+	(bus
+		(pts
+			(xy 227.33 91.44) (xy 241.3 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4628f483-43f9-4cb2-90a8-012fdff218e7")
+	)
+	(bus
+		(pts
+			(xy 204.47 74.93) (xy 207.01 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f5c68a0-8ca2-436c-a691-bb90ae104817")
+	)
+	(bus
+		(pts
+			(xy 227.33 78.74) (xy 241.3 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0c79b4e-b734-48a1-9f7e-d8e60f28bbfd")
+	)
+	(bus
+		(pts
+			(xy 379.73 76.2) (xy 368.3 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0fabdfb-19f6-4625-a309-d8ff22442df4")
+	)
+	(bus
+		(pts
+			(xy 227.33 81.28) (xy 241.3 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b14e08d4-13d6-483b-8d6f-0211da38dfef")
+	)
+	(bus
+		(pts
+			(xy 62.23 77.47) (xy 77.47 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b66620ca-4b86-4ce0-88ec-37c639e220d0")
+	)
+	(bus
+		(pts
+			(xy 62.23 80.01) (xy 77.47 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cde32dc8-ed38-42fc-87b4-0e029c6ac74b")
+	)
+	(bus
+		(pts
+			(xy 227.33 88.9) (xy 241.3 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d55cb33c-39cb-437e-81f4-38a39991a140")
+	)
+	(bus
+		(pts
+			(xy 62.23 74.93) (xy 77.47 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e672af38-f2f8-4c3b-9cd3-b0790d714ca7")
+	)
+	(rectangle
+		(start 359.41 16.51)
+		(end 384.81 41.91)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid 05bfc56c-480c-42ae-9657-ba7d0acaeb8c)
+	)
+	(rectangle
+		(start 391.16 16.51)
+		(end 403.86 29.21)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid 281801f3-f6d5-4d36-b561-7c564adbd2d1)
+	)
+	(rectangle
+		(start 391.16 35.56)
+		(end 397.51 41.91)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid cbf49602-ae34-4fa5-b109-202ed2a56ea1)
+	)
+	(label "SCRPXL1[0..6]"
+		(at 62.23 77.47 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "03947556-d953-4aa9-b485-ee96e412f12e")
+	)
+	(label "MA[1..16]"
+		(at 207.01 74.93 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "10debfc1-3def-4019-bfcd-b602f26470eb")
+	)
+	(label "MA[1..11]"
+		(at 227.33 86.36 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "240f025f-24be-4dc8-b776-5e152895ac7c")
+	)
+	(label "ER[0..7]"
+		(at 227.33 83.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "500fe161-ccb3-472d-8f0a-5d98aa792e77")
+	)
+	(label "D~{O}BJHP[0..7]"
+		(at 227.33 88.9 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "51c657d0-4c8f-4cf5-a4ee-e18c324905dd")
+	)
+	(label "MA[1..12]"
+		(at 379.73 76.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b331ba3e-48eb-46d6-be97-cbc40b078eed")
+	)
+	(label "OBJCOL[0..3]"
+		(at 227.33 78.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b89e4057-2651-4e32-83a9-18bbe7c00f2d")
+	)
+	(label "OBJPXL[0..6]"
+		(at 62.23 74.93 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bb111e6f-35bd-49b9-bb8d-c666e8f5211e")
+	)
+	(label "MD[0..15]"
+		(at 62.23 80.01 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c5960c80-53fe-44f6-8104-ee5c8883ea93")
+	)
+	(label "MD[0..7]"
+		(at 227.33 81.28 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d13853c7-a0ad-43c1-a498-5c71055e9b9e")
+	)
+	(label "TEL[0..7]"
+		(at 227.33 91.44 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d9da822f-5c58-4d9f-93b5-a5a0615b407a")
+	)
+	(label "OBJPXL[0..6]"
+		(at 227.33 76.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e1920207-ea18-4bb8-a0a9-711add181409")
+	)
+	(sheet
+		(at 241.3 72.39)
+		(size 127 127)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "004a228e-24de-4680-a954-fe1a8a16228f")
+		(property "Sheetname" "bottom"
+			(at 241.3 71.6784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "bottom.kicad_sch"
+			(at 241.554 68.326 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "OBJPXL[0..6]" input
+			(at 241.3 76.2 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "cb9955a6-f371-4b67-8e39-de168e76af7d")
+		)
+		(pin "OBJCOL[0..3]" input
+			(at 241.3 78.74 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "37d11fa5-a0f8-481f-ae59-ff8e51b9a376")
+		)
+		(pin "MD[0..7]" input
+			(at 241.3 81.28 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "b6945895-6c63-41af-a338-86e2443a957e")
+		)
+		(pin "ER[0..7]" input
+			(at 241.3 83.82 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1fbfa887-af60-4f7d-acd6-bdda1b461419")
+		)
+		(pin "MA[1..11]" input
+			(at 241.3 86.36 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "fce5d3e5-a318-47f1-a8e0-d1ca23345de2")
+		)
+		(pin "TEL[0..7]" input
+			(at 241.3 91.44 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "04c4ec6a-ccdc-4e0a-afbe-d42fa4a66bf0")
+		)
+		(pin "D~{O}BJHP[0..7]" input
+			(at 241.3 88.9 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "e6e70c3d-0d4a-4a8e-a8f0-b0d4abeef934")
+		)
+		(pin "MA[1..12]" output
+			(at 368.3 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "792fd2fa-11d4-42f7-9d0d-1570f7772659")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 77.47 72.39)
+		(size 127 127)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "196e9cfe-efe3-4c2b-8678-7a6099cf4b06")
+		(property "Sheetname" "top"
+			(at 77.47 71.6784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "top.kicad_sch"
+			(at 77.47 68.326 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "OBJPXL[0..6]" input
+			(at 77.47 74.93 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "d796906a-eaa6-4528-a2ab-870aa6fd7402")
+		)
+		(pin "SCRPXL1[0..6]" bidirectional
+			(at 77.47 77.47 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "d92bfeb8-a5aa-491b-ad7a-08b1ed58edf0")
+		)
+		(pin "MD[0..15]" bidirectional
+			(at 77.47 80.01 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "0ee12316-858d-4f69-ada8-d4da13f3a800")
+		)
+		(pin "MA[1..16]" output
+			(at 204.47 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "ec30e14b-da1f-44fb-a63f-cbd1d860f64b")
+		)
+		(instances
+			(project "wwfsstar"
+				(path "/9b45fe8f-ccde-4083-bbaa-82d9a9454022"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

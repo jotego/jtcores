@@ -29,3 +29,7 @@ modified for a NOP+HALT combination, so the interrupts happen at the same time.
 | FF1D76 | 66 11    | 00 05  NOP, HALT | ADC reads before frame 27 |
 | FF4701 | 67 F9    | 00 05            | Loop after config         |
 | FF8A22 | 66 F8    | 00 05            | Loop after logo           |
+
+## Scene simulations
+
+Run mame in debug mode and save a scene with `save vram.bin,8000,4000`. Then move the vram.bin file to a new folder in ver/game/scenes.

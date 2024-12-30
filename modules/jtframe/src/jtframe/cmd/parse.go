@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"text/template"
@@ -24,7 +25,15 @@ var parseCmd = &cobra.Command{
 	Use:   "parse <core-name> <template path>",
 	Short: "Parses a text template and replaces core macro definitions in it",
 	Long: `The input file must follow reglar Go template syntax. It can also
-use sprig functions. The output is produced to stdout`,
+use sprig functions. The output is produced to stdout
+
+Macros are accesible like:
+	{{ .Macros.TARGET }} => will produce "mist" for the MiST target
+	{{ .Macros.JTFRAME_BA1_START }} => will show the value of JTFRAME_BA1_START
+
+Sprig functions: https://masterminds.github.io/sprig/
+Standard Go template functions: https://pkg.go.dev/text/template
+`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		parse_txt(args[0], args[1], extra_def )
@@ -60,7 +69,11 @@ func parse_txt( corename, tpath, newdef string ) {
 	}
 
 	basename := filepath.Base(tpath)
-	t := template.Must(template.New(basename).Funcs(sprig.FuncMap()).Funcs(funcMap).ParseFiles(tpath))
+	t, e := template.New(basename).Funcs(sprig.FuncMap()).Funcs(funcMap).ParseFiles(tpath)
+	if e!= nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 	var buffer bytes.Buffer
 	t.Execute(&buffer, cfg)
 	os.Stdout.Write(buffer.Bytes())

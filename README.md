@@ -1,4 +1,4 @@
-# JTCORES FPGA Arcade Hardware by Jose Tejada (@topapate)
+e# JTCORES FPGA Arcade Hardware by Jose Tejada (@topapate)
 
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)

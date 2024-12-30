@@ -45,7 +45,7 @@ module jtkicker_scroll(
     input               prog_en,
 
     // SDRAM
-    output reg   [12:0] rom_addr,
+    output reg   [14:2] rom_addr,
     input        [31:0] rom_data,
     input               rom_ok,
 
@@ -60,19 +60,23 @@ module jtkicker_scroll(
 // 2  Super Basketball
 // 3  Mikie
 // 4  Road Fighter
+// 5  Roc'n Rope
+// 6  Circus Charlie
 
 parameter BYPASS_PROM=0, NOSCROLL=0;
 parameter LAYOUT = !NOSCROLL ? 0 : 1;
 parameter BSEL =
     LAYOUT==2 || LAYOUT==3 || LAYOUT==5 ? 10 :
     NOSCROLL ? 0 : 10;
-parameter PACKED = LAYOUT==2 || LAYOUT==3;
+parameter PACKED = LAYOUT==2 || LAYOUT==3 ? 1 :
+                                LAYOUT==6 ? 2 : 0;
 // Column at which the score table ends. This is set by fixed logic
 // in all games inspected so far. Thus, I encode it as a parameter
-parameter [8:0] SCRCOL = LAYOUT==2 ? 9'o60 : // Super Basketball
-                         LAYOUT==3 ? 9'o00 : // Mikie - doesn't use this feature
-                         LAYOUT==5 ? 9'o00 : // Roc   - doesn't use this feature
-                         9'o40;
+parameter [8:0] SCRCOL = LAYOUT==2 ? 9'o060 : // Super Basketball
+                         LAYOUT==3 ? 9'o000 : // Mikie - doesn't use this feature
+                         LAYOUT==5 ? 9'o000 : // Roc   - doesn't use this feature
+                         LAYOUT==6 ? 9'o120 : // Circus Charlie, 10 rows
+                                     9'o040;
 
 wire [ 7:0] code, attr, vram_high, vram_low, pal_addr;
 reg  [ 3:0] pal_msb;
@@ -114,7 +118,7 @@ always @* begin
             pal_msb  = 0;
             scr_prio = 0;
         end
-        2,3: begin // Super Basketball & Mikie
+        2,3,6: begin // Super Basketball, Mikie, Circus Charlie
             code_msb = {1'b0,attr[5]};
             vflip    = attr[7];
             hflip    = ~attr[6];
@@ -157,7 +161,7 @@ always @(posedge clk, posedge rst) begin
             vscr <= {8{flip}} ^ vdump;
         end else begin
             // +1 needed to have a straight grid during boot up
-            vscr <= ({8{flip}} ^ vdump) + vpos + 8'd1;
+            vscr <= ({8{flip}} ^ vdump) + vpos + (LAYOUT!=6 ? 8'd1 : 8'd0);
         end
     end
 end
@@ -167,8 +171,14 @@ always @(posedge clk) if(pxl_cen) begin
         rom_addr <= { code_msb, code, vscr[2:0]^{3{vflip}} }; // 2+8+3=13 bits
     end
     if( hdump[2:0]==4 ) begin // 2 pixel delay to grab data
-        pxl_data <= PACKED ? rom_data
-        : {
+        pxl_data <=
+          PACKED==1 ? rom_data
+        : PACKED==2 ? {
+            rom_data[27:24], rom_data[31:28],
+            rom_data[19:16], rom_data[23:20],
+            rom_data[11: 8], rom_data[15:12],
+            rom_data[ 3: 0], rom_data[ 7:4]
+        } : {
             rom_data[27], rom_data[31], rom_data[19], rom_data[23],
             rom_data[26], rom_data[30], rom_data[18], rom_data[22],
             rom_data[25], rom_data[29], rom_data[17], rom_data[21],

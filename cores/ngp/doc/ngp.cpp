@@ -662,8 +662,8 @@ void ngp_state::machine_start()
 		std::string region_tag;
 		uint8_t *cart = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str())->base();
 
-		m_maincpu->space(AS_PROGRAM).install_rom(0x200000, 0x3fffff, cart);
-		m_maincpu->space(AS_PROGRAM).install_rom(0x800000, 0x9fffff, cart + 0x200000);
+		m_maincpu->space(AS_PROGRAM).install_rom(0x20_0000, 0x3f_ffff, cart);
+		m_maincpu->space(AS_PROGRAM).install_rom(0x80_0000, 0x9f_ffff, cart + 0x200000);
 
 		m_flash_chip[0].data = cart;
 		m_flash_chip[0].org_data[0] = m_flash_chip[0].data[0];
@@ -683,7 +683,7 @@ void ngp_state::machine_start()
 		m_flash_chip[0].org_data[14] = m_flash_chip[0].data[0x1fc002];
 		m_flash_chip[0].org_data[15] = m_flash_chip[0].data[0x1fc003];
 
-		m_flash_chip[1].data = cart + 0x200000;
+		m_flash_chip[1].data = cart + 0x20_0000;
 		m_flash_chip[1].org_data[0] = m_flash_chip[1].data[0];
 		m_flash_chip[1].org_data[1] = m_flash_chip[1].data[1];
 		m_flash_chip[1].org_data[2] = m_flash_chip[1].data[2];

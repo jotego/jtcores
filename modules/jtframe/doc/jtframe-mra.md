@@ -36,6 +36,9 @@ mustbe.machines=[ "machine name"... ]
 # use when the main set doesn't work
 main_setnames=[ "setname"... ]
 
+[Pocket]
+display_modes=[ 0x61 ] # add extra display modes for Analogue Pocket
+
 [cheat]
 # Cheat file is read by default from cores/core/cheat/machine.s
 # It can disabled globally or skipped based on machine/setname
@@ -47,7 +50,7 @@ files=[
 
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
-delete=[ "name"... ]
+delete=[ { machine="..." names=[ "Name*", "match??" ] }, ... ] # use */? for matching
 # applies an offset to the bit position of MAME's DIP sw tag given by "name"
 # JTTMNT uses this for PunkShot
 offset=[
@@ -115,7 +118,9 @@ order = [ "maincpu", "soundcpu", "gfx1", "gfx2" ]
 # Default NVRAM contents, usually not needed
 nvram = {
 	machines=[ "supports nvram..." ] # NVRAM on all machines by default
-	data=[
+	# if a file with the machine or setname and .nvm extension exists in the
+	# cfg folder, its data will be set as the default NVRAM content
+	defaults=[
 		{ machine="...", setname="...", data="00 22 33..." },...
 	]
 	# if a ROM region with the name "nvram" exists, and no default data

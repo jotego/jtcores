@@ -147,6 +147,8 @@ always@(negedge SPI_SCK or posedge SPI_SS2) begin : SPI_TRANSMITTER
 			endcase
 		end
 
+		if (cnt == 7 && {sbuf, SPI_DI} == DIO_FILE_RX_DAT) oe <= 1;
+
 		reg_do <= (!cnt[3] && ENABLE_IDE == 1) ? cmdcode[~cnt[2:0]] : oe ? dout_r[~cnt[2:0]] : 1'bZ;
 	end
 end

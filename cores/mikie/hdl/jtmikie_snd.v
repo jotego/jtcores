@@ -51,8 +51,6 @@ reg         latch_cs, cnt_cs, rdac_cs, rcen_cs,
             psgdata_cs, psg1_cs, psg2_cs;
 reg  [CNTW-1:0] cnt;
 wire [CNTW-1:0] cnt_sel;
-wire signed
-         [9:0] vlm_snd;
 
 assign irq_ack   = ~iorq_n & ~m1_n;
 assign rom_addr  = A[13:0];

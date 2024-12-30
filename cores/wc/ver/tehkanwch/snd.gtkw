@@ -1,0 +1,38 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sat Nov  9 07:56:40 2024
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/wc/ver/tehkanwch/test.fst"
+[dumpfile_mtime] "Sat Nov  9 07:52:52 2024"
+[dumpfile_size] 81849888
+[savefile] "/home/jtejada/jtcores/cores/wc/ver/tehkanwch/snd.gtkw"
+[timestart] 1349248800000
+[size] 1920 1033
+[pos] -1 -1
+*-22.761269 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[sst_width] 278
+[signals_width] 180
+[sst_expanded] 1
+[sst_vpaned_height] 338
+@25
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.coin[3:0]
+TOP.game_test.u_game.u_game.u_sound.pcm_addr[14:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.pcm_en
+@22
+TOP.game_test.u_game.u_game.u_sound.smp[15:0]
+TOP.game_test.u_game.u_game.pcm_data[7:0]
+@8420
+TOP.game_test.u_game.u_game.u_sound.pcm[11:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.nbl
+TOP.game_test.u_game.u_game.u_sound.vclk
+[pattern_trace] 1
+[pattern_trace] 0

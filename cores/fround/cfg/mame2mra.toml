@@ -39,7 +39,8 @@ regions = [
     { name="tiles",    start="SCR_START", width=32 },
     { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
     { name="k007232"  },
-    { name="upd"  }
+    { name="upd"  },
+    { name="proms", skip=true }
 ]
 
 order = [

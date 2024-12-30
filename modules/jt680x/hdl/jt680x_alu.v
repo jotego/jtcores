@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 22-11-2023 */
-
+/* verilator coverage_off */
 // 6800 has an 8-bit ALU
 // 6801 might have used an 8-bit ALU
 // 6301 seems to have a 16-bit ALU

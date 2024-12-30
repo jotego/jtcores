@@ -27,11 +27,15 @@ module jtframe_scroll #( parameter
     VA   = 10,
     CW   = 12,
     PW   =  8,
-    MAP_HW = 9,    // size of the map in pixels
+    MAP_HW = 9,    // 2^MAP_HW = size of the map in pixels
     MAP_VW = 9,
     VR   = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
+    // override VH and HW only for non rectangular tiles
+    VW   = SIZE==8 ? 3 : SIZE==16 ? 4:5,
+    HW   = VW,
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
-    XOR_VFLIP = 0  // set to 1 so vflip gets ^ with flip
+    XOR_VFLIP = 0, // set to 1 so vflip gets ^ with flip
+    HJUMP     = 1  // set to 0 for linear hdump starting at zero after HB
 )(
     input              rst,
     input              clk,
@@ -87,7 +91,11 @@ jtframe_tilemap #(
     .FLIP_VDUMP ( 0         ), // same for vdump
     .FLIP_MSB   ( 0         ),
     .XOR_HFLIP  ( XOR_HFLIP ),
-    .XOR_VFLIP  ( XOR_VFLIP )
+    .XOR_VFLIP  ( XOR_VFLIP ),
+    .VW         ( VW        ),
+    .HW         ( HW        ),
+    .VR         ( VR        ),
+    .HJUMP      ( HJUMP     )
 )u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),

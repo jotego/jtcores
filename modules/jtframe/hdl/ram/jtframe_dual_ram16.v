@@ -18,7 +18,7 @@
 
 // Generic 16-bit dual port RAM with clock enable
 // parameters:
-//      AW      => Address bit width, 10 for 1kB
+//      AW      => Address bit width, 10 for 2kB
 //      SIMFILE => binary file to load during simulation
 //      SIMHEXFILE => hexadecimal file to load during simulation
 

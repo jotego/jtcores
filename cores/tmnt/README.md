@@ -27,7 +27,7 @@ The core does not currently support video ROM checks, so the ROMs will be report
 
 # Credits
 
-Special thanks to [Furrtek](http://furrtek.free.fr/) for all his open source research. Thanks too to DJ Hardrich and Atrac17 for lending this PCB for analysis.
+Special thanks to [Furrtek](http://furrtek.free.fr/) for all his open source research. Thanks too to DJ Hardrich for lending this PCB for analysis.
 
 Thanks to August 2023 Patreon supporters
 

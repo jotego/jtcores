@@ -1,6 +1,6 @@
 # FPGA Clone of Early Arcade Games
 
-Designed by Jose Tejada (jotego - @topapate). PCB donated by **ATRAC17** and **DJ HARDRICH**.
+Designed by Jose Tejada (jotego - @topapate). PCB donated by **DJ HARDRICH**.
 
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)

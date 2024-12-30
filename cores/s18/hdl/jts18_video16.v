@@ -86,7 +86,7 @@ module jts18_video16(
     output     [ 1:0]  obj_prio,
     output             fix, sa, sb, tprio, s1_pri, s2_pri,
     // palette RAM
-    output     [10:0]  pal_addr,
+    output     [11:1]  pal_addr,
     input      [15:0]  pal_dout,
     // Debug
     input      [ 3:0]  gfx_en,
@@ -98,6 +98,7 @@ module jts18_video16(
 );
 
 localparam MODEL=1;
+localparam [9:0] ROWSCR_DLY=10'd17;
 
 // video layers
 wire [11:0] obj_pxl;
@@ -109,7 +110,10 @@ assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 assign obj_prio = obj_pxl[11:10];
 
-jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),.SCR2_DLY(10'd17),.SCR1_DLY(10'd9)) u_tilemap(
+jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
+    .SCR2_DLY(10'd9),.SCR1_DLY(10'd9),
+    .ROWSCR1_DLY(ROWSCR_DLY),.ROWSCR2_DLY(ROWSCR_DLY)
+    ) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),

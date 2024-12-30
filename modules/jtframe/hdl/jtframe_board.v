@@ -1,4 +1,4 @@
-/*  This file is part of JT_FRAME.
+/*  This file is part of JTFRAME.
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -121,6 +121,7 @@ module jtframe_board #(parameter
     input        [23:0] dipsw,
     output       [12:0] hdmi_arx, hdmi_ary,
     output       [ 1:0] rotate,
+    output              rot_osdonly,
 
     output              enable_fm,
     output              enable_psg,
@@ -452,6 +453,7 @@ jtframe_keyboard u_keyboard(
             .game_led   ( led_peak      ),
             .LVBL       ( LVBL          ),
             .core_mod   ( core_mod      ),
+            .gfx_en     ( gfx_en        ),
             // sound
             .sample     ( snd_sample    ),
             .snd_en     ( snd_en        ),
@@ -626,6 +628,7 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),
     .rot_control( rot_control   ),
+    .rot_osdonly( rot_osdonly   ),
     .enable_fm  ( enable_fm     ),
     .enable_psg ( enable_psg    ),
     .osd_pause  ( osd_pause     ),

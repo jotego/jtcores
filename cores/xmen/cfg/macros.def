@@ -1,0 +1,32 @@
+CORENAME=JTXMEN
+
+JTFRAME_HEADER=16
+JTFRAME_BUTTONS=3
+JTFRAME_JOY_DURL
+# Video configuration
+JTFRAME_COLORW=8
+JTFRAME_PXLCLK=6
+JTFRAME_WIDTH=304
+JTFRAME_HEIGHT=224
+JTFRAME_OSD_TEST
+JTFRAME_STEREO
+
+JTFRAME_CREDITS
+JTFRAME_CREDITS_HSTART=24
+JTFRAME_DEBUG_VPOS=5
+
+# make Magneto's circle round
+# 4:3 looks too narrow
+JTFRAME_ARX=12
+JTFRAME_ARY=8
+
+# More RAM needed for X-Men
+SND_RAMW=13
+
+# default EEPROM needed to prevent game from booting upside down with error
+JTFRAME_IOCTL_RD=128
+debug JTFRAME_IOCTL_RD+=36897
+
+# But MiST/SiDi cannot handle that much
+[mist|sidi]
+JTFRAME_SKIP

@@ -1,0 +1,3 @@
+*.kicad_sch merge=custom-no-merge
+*.kicad_sym merge=custom-no-merge
+*.kicad* merge=custom-no-merge

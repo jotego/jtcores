@@ -1,8 +1,6 @@
-[*]
 include common.def
 
 CORENAME=JTKICKER
-GAMETOP=jtkicker_game_sdram
 
 VIDEO_MODULE=jtkicker_video
 MAIN_MODULE=jtkicker_main

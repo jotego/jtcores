@@ -1,6 +1,5 @@
 [global]
 # info = [ {tag="mameversion", value="0229"} ]
-# atrac17 helped with the first set of MRA files
 author=["jotego"]
 
 [parse]
@@ -19,10 +18,14 @@ main_setnames=["tturfu"]
 [parse.skip]
 descriptions = [ "16A", "Taito" ]
 setnames = [
+    # untested
+    "dddoor",
     # won't boot
     "aceattac", # one S16A set works
     # Boots in service mode and needs custom firmware
     "tturf",
+    # new ones to check
+    "wfishing",
     # Korean
     "atomicp",
     "lockonph",
