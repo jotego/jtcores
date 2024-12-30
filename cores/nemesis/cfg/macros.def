@@ -15,6 +15,8 @@ JTFRAME_PLL=jtframe_pll6144
 # TODO: does it still exist?
 JTFRAME_SIGNED_SND=0
 
+JTFRAME_SDRAM_BANKS
+
 JT49_EXP=nemesis_jt49_exp
 VOLUME_PROMS=8'd104
 VOLUME_AY1=8'd138

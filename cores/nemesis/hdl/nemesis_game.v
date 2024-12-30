@@ -163,9 +163,9 @@ wire		prom_we, prom_a01_we, prom_a02_we, prom_vol_we;
 // to assign it to downloading, but it might be kept longer if the core needs
 // to do ROM data conversion, like jt_gng/tora (which is not the case here.)
 assign dwnld_busy = ioctl_rom;
-// prog_rd is only used with JTFRAME_SDRAM_BANKS (in which case it’s an output
-// of jtframe_dwnld), or when doing ROM data conversion.
-assign prog_rd    = 0;
+
+assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
+       ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
 
 ///// Download /////
 
@@ -194,8 +194,10 @@ u_dwnld(
 	.prog_data      ( { nc, prog_data } ),
 	.prog_mask      ( prog_mask         ), // active low
 	.prog_we        ( prog_we           ),
+	.prog_rd        ( prog_rd           ),
+	.prog_ba        ( prog_ba           ),
 	.prom_we        ( prom_we           ),
-	.sdram_ack      ( sdram_ack         )
+	.sdram_ack      ( prog_rdy          )
 );
 
 reg cpu_start;
@@ -279,11 +281,11 @@ jtframe_rom_2slots #(
 	.slot1_dout  ( z80_data        ),
 
 	// SDRAM interface
-	.sdram_rd    ( sdram_req       ),
-	.sdram_ack   ( sdram_ack       ),
-	.data_dst    ( data_dst        ),
-	.data_rdy    ( data_rdy        ),
-	.sdram_addr  ( sdram_addr      ),
+	.sdram_rd    ( ba_rd[0]        ),
+	.sdram_ack   ( ba_ack[0]       ),
+	.data_dst    ( ba_dst[0]       ),
+	.data_rdy    ( ba_rdy[0]       ),
+	.sdram_addr  ( ba0_addr        ),
 	.data_read   ( data_read[15:0] )
 );
 
