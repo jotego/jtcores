@@ -44,6 +44,8 @@ module jts16_fd1094_dec(
     output reg        ok_dly
 );
 
+parameter SIMFILE="maincpu:key";
+
 `define BITSWAP( v, b15, b14, b13, b12, b11, b10, b9, b8, b7, b6, b5, b4, b3, b2, b1, b0 ) { \
     v[b15], v[b14], v[b13], v[b12], v[b11], v[b10], v[b9], v[b8], \
     v[b7],  v[b6],  v[b5],  v[b4],  v[b3],  v[b2],  v[b1], v[b0] }
@@ -101,6 +103,23 @@ wire key_6a = key_data[6] ^ gkey2_st[1];
 wire key_6b = key_data[6] ^ gkey2_st[6];
 
 wire key_7a = key_data[7] ^ gkey2_st[4];
+
+`ifdef SIMULATION
+integer fkey, readcnt;
+reg [7:0] faux[0:3];
+
+initial if(SIMFILE!="") begin
+    fkey = $fopen(SIMFILE,"rb");
+    if( fkey!=0 ) begin
+        readcnt = $fread(faux,fkey);
+        if(readcnt==4) begin
+            $display("FD1094 global key data read from maincpu:key");
+            {gkey3,gkey2,gkey1,gkey0} = {faux[3],faux[2],faux[1],faux[0]};
+        end
+    end
+    $fclose(fkey);
+end
+`endif
 
 always @(posedge clk) begin
     if( fd1094_we && prog_addr<4 ) begin

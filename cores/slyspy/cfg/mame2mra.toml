@@ -6,6 +6,12 @@ sourcefile=[ "dec0.cpp" ]
 skip.bootlegs=true
 mustbe.machines=[ "secretag", "bouldash" ]
 
+[Audio]
+volume = [
+    { machine="bouldash", value=0xFF },
+    { machine="secretag", value=0x70 },
+]
+
 [buttons]
 Names = [
     { names="Shot,Jump"},
@@ -21,6 +27,12 @@ rename = [
     { name="Player & Enemy Energy", to="Energy scale"},
     { name="L/R control related (keep off)", to="Unknown" }
 ]
+
+# [Audio]
+# volume = [
+#     { machine="secretag", value=0x70 },
+#     { machine="bouldash", value=0x34 },
+# ]
 
 [ROM]
 regions = [

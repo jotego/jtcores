@@ -30,15 +30,15 @@ parameter {{.Name}} = {{ if .Value }}{{.Value}}{{else}}`{{.Name}}{{ end}};
 {{- if .Ioctl.Dump }}
 /* verilator tracing_off */
 wire [7:0] ioctl_aux;
+`ifndef JTFRAME_IOCTL_RD
+    assign ioctl_aux=0;
+`endif
 {{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
 wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
 wire [  1:0] {{$v.Name}}_wemx;{{if $v.Amx}}
 wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{ end }}{{end -}}
 {{end}}{{end}}
 
-`ifndef JTFRAME_IOCTL_RD
-wire ioctl_ram = 0;
-`endif
 // Audio channels {{ range .Audio.Channels }}{{ if .Name }}
 {{ if .Stereo }}wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}}_l, {{.Name}}_r;{{ else -}}
 wire {{ if not .Unsigned }}signed {{end}}{{ data_range . }} {{.Name}};{{ end }}{{end}}{{if .Rc_en}}
@@ -149,7 +149,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .coin     ( coin    ),
     .joystick1    ( joystick1        ), .joystick2    ( joystick2        ),
     .joystick3    ( joystick3        ), .joystick4    ( joystick4        ), `ifdef JTFRAME_MOUSE
-    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), `endif `ifdef JTFRAME_SPINNER
+    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif `ifdef JTFRAME_ANALOG
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ), `ifdef JTFRAME_ANALOG_DUAL
@@ -215,10 +215,10 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .header       ( header         ),
 `endif
 `ifdef JTFRAME_IOCTL_RD
-    .ioctl_ram    ( ioctl_ram      ),
     .ioctl_din    ( {{.Ioctl.DinName}}      ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ), `endif
+    .ioctl_ram    ( ioctl_ram      ),
     .ioctl_cart   ( ioctl_cart     ),
     // Debug
     .debug_bus    ( debug_bus      ),
@@ -377,7 +377,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
     .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
-    .data0  ( {{$bus.Name}}_din  ),
+    .data0  ( {{$bus.Din}}  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
     .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
@@ -385,9 +385,8 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
     .data1  ( {{if $bus.Dual_port.Din}}{{$bus.Dual_port.Din}}{{else}}{{$bus.Dual_port.Name}}_dout{{end}} ),
-    .addr1  ( {{$bus.Dual_port.AddrFull}} ),{{ if $bus.Dual_port.Rw }}
-    .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ), {{ else }}
-    .we1    ( 2'd0 ),{{end}}
+    .addr1  ( {{$bus.Dual_port.AddrFull}} ),
+    .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ),
     .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )
 );{{else}}{{if $bus.ROM.Offset }}
 /* verilator tracing_off */
@@ -451,7 +450,11 @@ jtframe_ioctl_dump #(
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_aux  ( ioctl_aux ),
     .ioctl_wr   ( ioctl_wr  ),
+`ifdef JTFRAME_IOCTL_RD
     .ioctl_din  ( ioctl_din ),
+`else
+    .ioctl_din  (           ),
+`endif
     .ioctl_dout ( ioctl_dout)
 );
 {{ end }}

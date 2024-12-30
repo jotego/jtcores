@@ -66,7 +66,7 @@ always @(*) begin
                 4'b0000: dout = char_dout;    // 4kB
                 4'b0001: dout = pal_dout;     // 4kB
                 4'b0010:
-                    dout = ioctl_addr[11] ? {2'd0, tile_bank} : objram_dout;  // 2kB
+                    dout = ioctl_addr[11] ? {10'd0, tile_bank} : objram_dout;  // 2kB
                 default: dout = 16'hffff;
             endcase
         end

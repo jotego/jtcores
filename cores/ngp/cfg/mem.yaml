@@ -44,13 +44,20 @@ bram: # 64+8+4+16=92kB
     din: cpu_dout
     # sim_file: true
     rw: true
+    ioctl:
+      save: true
+      restore: true
+      order: 0
   - name: ram1
     addr_width: 12  # 4kB
     data_width: 16
     addr: "cpu_addr[11:1]"
     din: cpu_dout
     rw: true
-
+    ioctl:
+      save: true
+      restore: true
+      order: 1
   # - name: flash
   #   addr_width: 14 # 16kB
   #   data_width: 16

@@ -2,16 +2,17 @@
 
 For I/O (SDRAM download, etc.) the following indexes are used
 
-| Purpose         | MiST | MiSTer | Pocket          | Sim File  |
-|:----------------|:-----|:-------|:----------------|:----------|
-| Main ROM        | 0    | 0      | 1               | rom.bin   |
-| JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
-| Cartridges      |      | 4      | 4               | cart.bin  |
-| NVRAM           | 255  | 2      | 2               | nvram.bin |
-| Cheat ROM       | 16   | 16     | 16              |           |
-| Beta keys       | N/A  | 17     | 17              |           |
-| DIP switches    | N/A  | 254    | N/A             |           |
-| Cheat switches  | N/A  | 255    | N/A             |           |
+| Purpose              | MiST | MiSTer | Pocket          | Sim File  |
+|:---------------------|:-----|:-------|:----------------|:----------|
+| Main ROM             | 0    | 0      | 1               | rom.bin   |
+| JTFRAME options      | 1    | 1      | F900'0000 write | core.mod  |
+| Cartridges           |      | 4      | 4               | cart.bin  |
+| NVRAM                | 255  | 2      | 2               | nvram.bin |
+| Cheat ROM            | 16   | 16     | 16              |           |
+| Beta keys            | N/A  | 17     | 17              |           |
+| CRT-VGA/SNAC Config  | N/A  | N/A    | 18              |           |
+| DIP switches         | N/A  | 254    | N/A             |           |
+| Cheat switches       | N/A  | 255    | N/A             |           |
 
 The cheat ROM and the beta key files must be stored in the folder `/Assets/jtpatreon/common`
 
@@ -31,8 +32,30 @@ Bit    |  Use                      | Set by
 2      | XOR with dip_flip         | mame.xml
 3      | dial input enable         | mame.xml
 4      | reverse the dial          | mame.xml
+5      | Horizontal frame bit 0    | mame.xml
+6      | H. frame bit 1            | mame.xml
+15-8   | sound volume              | mame2mra.toml's audio section
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
+
+H Frame | Meaning
+--------|---------
+00      |  No frame
+01      |  8-pixel frame
+10      | 16-pixel frame
+11      |  rserverd
+
+The volume is defined in the TOML file **Audio** section like this:
+
+``` TOML
+[Audio]
+volume = [
+    { machine="secretag", value=0x70 },
+    { machine="bouldash", value=0x34 },
+]
+```
+
+A value of 0x80 means unity gain. Valid values range from 0x10 to 0xFF. If there is no **Audio** section, the framework will set the game to unity gain. Volume setting is not supported in the MiST family because of limitations in the *core_mod* assignment to just 7 bits.
 
 ## Cartridges
 
@@ -60,6 +83,8 @@ It is possible to save information on the SD card. You have to follow these step
 3. If you use *mame2mra.toml*, simply regenerate the files with `jtframe mra <corename>`. If not, manually add a `<nvram index="2" size="your data size"/>` element to the MRA.
 
 When **ioctl_ram** is high, JTFRAME expects **ioctl_din** to have the contents matching the address at **ioctl_addr**. There is no read strobe and read speed is controlled by the platform firmware, so it may be too fast for direct dumping off the SDRAM. Note that **ioctl_ram** is also high when the firmware is sending the NVRAM data to the core during the downloading phase. You can distinguish between the two scenarios by checking the **downloading** signal.
+
+If **ioctl_ram** comes from SDRAM, then care must be taken to toggle the sdram slot **cs** signal, as the *ram request* modules require **cs** to toggle to read new data.
 
 The write operation is triggered from the OSD *save settings* (MiSTer) or *Save NVRAM* (MiST) option. PocketFPGA support is not ready yet.
 
@@ -312,3 +337,42 @@ AV sys | 3.0  | 8.25  | Same results with fan on/off
 The wider the difference is between max and min, the cleaner signals are.
 
 Most cores in the official MiSTer repository seem to use a strategy of a full 180º clock shift. This has the advantage of providing an accurate value of the clock at the pin as it can be generated using an IO primitive. However, it means that the last word of the burst is read with the bus at high impedance, so it has a higher potential for failures. It helps when timing cannot be met as it simplifies internal routing. Enable it with **JTFRAME_180SHIFT**
+
+## CRT-VGA Configuration (Pocket)
+
+For setting the configuration of an Analog video output in Analogue Pocket, a bus ([11:0] crt_cfg) has been set to carry the following information:
+
+
+Bit | Use                                        |
+----|--------------------------------------------|
+11  | Enable Analogic Video Output               |
+10  | Bypass Video Mist Module and direct assign |
+ 9  | Set YPbPr outout                           |
+ 8  | Set Composite Video (default to NTSC)      |
+ 7  | Enable PAL Composite Video                 |
+ 6  | Unused                                     |
+ 5  | Enable Composite Sync                      |
+ 4  | Enable Bandwidth effect                    |
+ 3  | Enable Sync-on-Green (SOG)                 |
+1,2 | Scanlines mode selection                   |
+ 0  | Scandoubler Enabler                        |
+
+
+ ## SNAC Controllers Configuration (Pocket)
+
+For setting the configuration of a SNAC Controller in Analogue Pocket, a bus ([4:0] snac_config) has been set to carry the following information:
+
+
+Bit | Use                              |
+----|----------------------------------|
+4-0 | SNAC type of controller/adapter  |
+
+
+ BUS VALUE |  SNAC Adapter    |  FUNCTION                |
+-----------|------------------|--------------------------|
+   0x0     |  None            |  disables SNAC interface |
+   0x1     |  DB15 Normal     |  1/2 players             |
+   0x2     |  NES             |  1/2 players             |
+   0x3     |  SNES            |  1/2 players             |
+   0x4     |  PCE 2BTN/6BTN   |  1 player                |
+   0x6     |  PCE Multitap    |  allows 4 players        |

@@ -8,6 +8,11 @@ mustbe.machines=[
     "midres",
 ]
 
+[Audio]
+volume = [
+    { machine="midres", value=0xFF },
+]
+
 [buttons]
 Names = [
     { machine="midres", names="Shot,Jump,Turn left,Turn right"},

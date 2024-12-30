@@ -21,7 +21,7 @@
     Each row contain one line, and the row content is bursted out to line buffers.
     As every used row is opened in every frame, there's no need to explicit refresh.
 */
-
+/* verilator lint_off MODDUP */
 module jtframe_lfbuf_sdr_ctrl #(parameter
     CLK96   =   0,   // assume 48-ish MHz operation by default
     VW      =   8,

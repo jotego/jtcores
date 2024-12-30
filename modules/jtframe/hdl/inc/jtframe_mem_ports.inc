@@ -2,8 +2,8 @@
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     input           ioctl_rom,
+    input           ioctl_ram,
     `ifdef JTFRAME_IOCTL_RD
-        input           ioctl_ram,
         output   [ 7:0] ioctl_din,
     `endif
     output          dwnld_busy,

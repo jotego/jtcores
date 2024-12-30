@@ -211,6 +211,10 @@ jtaliens_scroll u_scroll(
     .flip       ( flip      ),
 
     // color byte connection
+    .lyrf_extra (           ),
+    .lyra_extra (           ),
+    .lyrb_extra (           ),
+
     .lyrf_col   ( lyrf_col  ),
     .lyra_col   ( lyra_col  ),
     .lyrb_col   ( lyrb_col  ),

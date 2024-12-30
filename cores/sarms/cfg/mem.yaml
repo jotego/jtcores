@@ -14,7 +14,6 @@ audio:
     - { name: fm1,  module: jt03_fm,  rsum: 56k, rc: [ { r: 1rout, c: 1n } ] }
 download:
   post_addr: true
-  noswab: true
 sdram:
   banks:
     - buses:

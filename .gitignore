@@ -1,3 +1,4 @@
+*auto_saved_files*
 *-backups
 *.arc
 *.bak
@@ -8,6 +9,7 @@
 *.fst
 *.gtkw
 *.hex
+*.jed
 *.jdi
 *.jpg
 *.json
@@ -84,7 +86,7 @@ macros.f
 mame.xml
 mem_ports.inc
 microrom.mem
-mist_dump.v
+*_dump.v
 nanorom.mem
 ncverilog.*
 ncverilog.*

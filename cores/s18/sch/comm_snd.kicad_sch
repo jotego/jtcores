@@ -2987,7 +2987,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid daccf375-e927-4bf4-b480-db654839c06f)
   )
-  (hierarchical_label "~{IC}" (shape output) (at 152.4 66.04 90) (fields_autoplaced)
+  (hierarchical_label "~{IC}" (shape input) (at 152.4 66.04 90) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e0680ddb-8352-4608-8e6f-ee5997b3ca93)
   )

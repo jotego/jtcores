@@ -43,10 +43,11 @@ module jtoutrun_main(
     output reg         obj_swap,
 
     // RAM access
-    output reg         ram_cs,
     output reg         vram_cs,
-    input       [15:0] ram_data,   // coming from VRAM or RAM
-    input              ram_ok,
+    input       [15:0] vram_data,
+    input              vram_ok,
+    output reg         ram_cs,
+    input       [15:0] ram_data,
     // CPU bus
     output      [15:0] cpu_dout,
     output             RnW,
@@ -131,7 +132,7 @@ wire [ 2:0] cpu_ipln, mix_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | sub_cs;
-wire bus_busy  = |{ rom_cs & ~dec_ok, (ram_cs | vram_cs) & ~ram_ok, sub_cs & ~sub_ok };
+wire bus_busy  = |{ rom_cs & ~dec_ok,  vram_cs & ~vram_ok, sub_cs & ~sub_ok };
 wire cpu_rst, cpu_haltn, cpu_asn, cpu_oresetn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din, dacana1, dacana1b;
@@ -436,15 +437,16 @@ always @(posedge clk) begin
     if(rst) begin
         cpu_din <= 0;
     end else begin
-        cpu_din <=  ((~A[21] & ram_cs) | vram_cs)  ? ram_data  :
-                    ( ~A[21] & rom_cs )? rom_dec   :
-                    char_cs            ? char_dout :
-                    pal_cs             ? pal_dout  :
-                    objram_cs          ? obj_dout  :
-                    sub_cs             ? sub_din   :
-                    io_cs              ? { 8'hff, cab_dout } :
-                    none_cs            ? mapper_dout :
-                                         16'hffff;
+        cpu_din <=  (~A[21] & ram_cs) ? ram_data  :
+                    (~A[21] & rom_cs) ? rom_dec   :
+                    vram_cs           ? vram_data :
+                    char_cs           ? char_dout :
+                    pal_cs            ? pal_dout  :
+                    objram_cs         ? obj_dout  :
+                    sub_cs            ? sub_din   :
+                    io_cs             ? { 8'hff, cab_dout } :
+                    none_cs           ? mapper_dout :
+                                        16'hffff;
     end
 end
 

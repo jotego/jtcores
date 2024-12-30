@@ -120,3 +120,7 @@ Compile the core normally using `jtcore` one time. You don't need to wait until 
 Using `jtsim -inputs` will read a *sim_inputs.hex* file and apply its contents to the simulation. Use `jtsim -h` to see the format of this file. In MiST and SiDi, it is possible to compile any core with `JTFRAME_INPUT_RECORD` and then use the `Save NVRAM` OSD menu option to create a *CORE.RAM* file. This macro requires other definitions that are added by jtframe but only when the macro is defined in *macros.def*. Do not define it directly in the `jtcore` command line.
 
 This *.RAM* file is converted to *sim_inputs.hex* by running `jtutil inputs path-to-.ram`.
+
+## Debugging information from MiSTer
+
+Connect a mini USB cable to the MiSTer and use the `mr-sniff` script to dump the debug information to the file _mr.log_. You can use `uniq mr.log` to remove much of the duplication.

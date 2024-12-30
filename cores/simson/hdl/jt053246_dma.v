@@ -21,6 +21,7 @@ module jt053246_dma(
     input             clk,
     input             pxl2_cen,
 
+    input             mode8,
     input             dma_en,
     input             dma_trig,
     input             k44_en,   // enable k053244/5 mode (default k053246/7)
@@ -60,7 +61,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_44 <= 0;
     end else begin
-        if( dma_bsy ) dma_44 <= 0;
+        if( dma_bsy  ) dma_44 <= 0;
         if( dma_trig ) dma_44 <= 1;
     end
 end
@@ -86,11 +87,10 @@ always @(posedge clk, posedge rst) begin
         if(!dma_bsy && ((vs_sh==2'b10 && hs_pos) || dma_44) ) begin
             dma_bsy  <= dma_en | dma_44;
             dma_clr  <= 1;
-            dma_wait <= !k44_en;
+            dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
             flicker  <= ~flicker;
             dma_addr <= 0;
         end
-        // this implementation matches 8-bit speed, ie 595us vs 297.5us for 16-bit mode
         if( !dma_bsy ) begin
             dma_addr <= 0;
             dma_bufa <= 0;
@@ -99,7 +99,7 @@ always @(posedge clk, posedge rst) begin
             dma_addr[11:1] <= dma_addr[11:1] + 1'd1;
             dma_clr <= ~&{ dma_addr[11]|k44_en, dma_addr[10:1] };
             if( k44_en ) dma_addr[11]<=0;
-            if( &dma_addr[11:1] ) dma_addr[11:1] <= 'h218; // extra 126us wait
+            if( &dma_addr[11:1] && dma_wait ) dma_addr[11:1] <= 'h218; // extra 126us wait
         end else if(dma_wait) begin // extra time to match the original speed
             { dma_wait, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
         end else begin
@@ -109,11 +109,12 @@ always @(posedge clk, posedge rst) begin
                 // the sprite at priority 0 in the Simpsons creates a problem in scene simson/4
                 // I was skipping it before, but priority 0 is used in Vendetta and it must take priority
                 // over the rest (see scene vendetta/3)
-                dma_bufa <= { ~k44_en & dma_data[7], k44_en ? -dma_data[6:0] : dma_data[6:0], 3'd0 }; // LUT half as big for 053244 and reversed order
-                dma_ok <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
+                // LUT half as big for 053244 and reversed order
+                dma_bufa <= { ~k44_en & dma_data[7], k44_en ? -dma_data[6:0] : dma_data[6:0], 3'd0 };
+                dma_ok   <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
             end
             dma_addr[12:1] <= dma_addr[12:1] + 1'd1;
-            dma_bufa[3:1] <= dma_addr[3:1];
+            dma_bufa[ 3:1] <= dma_addr[3:1];
             if( dma_addr[3:1]==6 ) begin
                 dma_addr[12:1] <= dma_addr[12:1] + 12'd2; // skip 7
                 dma_bsy <= !(&dma_addr[10:2] && (k44_en || &dma_addr[12:11]));

@@ -140,12 +140,12 @@ always @(posedge clk) if(pxl_cen) begin
     if (H==HS_START) begin
         HS <= 1;
     end
-    if( H==H_VS ) begin
+
+    if (H==HS_END) begin
+        HS <= 0;
         if (vdump==VS_START) VS <= 1;
         if (vdump==VS_END  ) VS <= 0;
     end
-
-    if (H==HS_END) HS <= 0;
 end
 
 `ifdef SIMULATION_VTIMER

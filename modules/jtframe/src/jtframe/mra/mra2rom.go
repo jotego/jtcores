@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -25,19 +24,30 @@ func save_coremod(root *XMLNode, verbose bool) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "1" })
 	if xml_rom == nil || setname == nil {
-		fmt.Printf("Warning: malformed MRA file")
+		fmt.Println("Warning: no ROM files associated with machine")
 		return
 	}
+	// main ROM file
 	rombytes := make([]byte, 0)
 	parts2rom(nil, xml_rom, &rombytes, verbose)
-	rom_file(setname, ".mod", rombytes)
+	rom_file(setname.text, ".mod", rombytes)
+}
+
+func save_nvram(root *XMLNode) {
+	setname := root.GetNode("setname")
+	// optional default NVRAM
+	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
+	if xml_nvram == nil { return }
+	xml_nvram = xml_nvram.GetNode("part")
+	if xml_nvram == nil || xml_nvram.text=="" { return }
+	rom_file( strings.ToUpper(setname.text),".RAM",rawdata2bytes(xml_nvram.text))
 }
 
 func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
-		fmt.Printf("Warning: malformed MRA file")
+		fmt.Println("Warning: no ROM files associated with machine")
 		return
 	}
 	rombytes := make([]byte, 0)
@@ -62,13 +72,13 @@ func save_rom(root *XMLNode, verbose, save2disk bool, zippath string) {
 	}
 	if save2disk {
 		patchrom(xml_rom, &rombytes)
-		rom_file(setname, ".rom", rombytes)
+		rom_file(setname.text, ".rom", rombytes)
 	}
 }
 
-func rom_file(setname *XMLNode, ext string, rombytes []byte) {
+func rom_file(setname string, ext string, rombytes []byte) {
 	os.MkdirAll( filepath.Join(os.Getenv("JTROOT"), "rom"), 0775 )
-	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", setname.text+ext)
+	fout_name := filepath.Join(os.Getenv("JTROOT"), "rom", setname+ext)
 	fout, err := os.Create(fout_name)
 	if err != nil {
 		fmt.Println(err)
@@ -91,7 +101,7 @@ func patchrom(n *XMLNode, rb *[]byte) {
 		if each.name != "patch" {
 			continue
 		}
-		data := text2data(each)
+		data := rawdata2bytes(each.text)
 		k, err := strconv.ParseInt(each.GetAttr("offset"), 0, 32)
 		if err != nil {
 			fmt.Println(err)
@@ -114,7 +124,7 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 				if rep == 0 {
 					rep = 1
 				}
-				data := text2data(each)
+				data := rawdata2bytes(each.text)
 				// fmt.Printf("Adding rep x len(data) = $%x x $%x\n",rep,len(data))
 				for ; rep > 0; rep-- {
 					*rb = append(*rb, data...)
@@ -135,23 +145,6 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte, verbose bool) {
 			*rb = append(*rb, data...)
 		}
 	}
-}
-
-func text2data(n *XMLNode) (data []byte) {
-	data = make([]byte, 0)
-	re := regexp.MustCompile("[ \n\t]")
-	for _, token := range re.Split(n.text, -1) {
-		if token == "" {
-			continue
-		}
-		token = strings.TrimSpace(strings.ToLower(token))
-		v, err := strconv.ParseInt(token, 16, 16)
-		if err != nil {
-			fmt.Println(err)
-		}
-		data = append(data, byte(v&0xff))
-	}
-	return data
 }
 
 func readrom(allzips []*zip.ReadCloser, n *XMLNode, verbose bool) (rdin []byte) {

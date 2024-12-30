@@ -17,7 +17,7 @@
     Date: 1-8-2021 */
 
 // Applies horizontal scaling to an analogue signal
-
+  
 module jtframe_hsize #( parameter
     COLORW     =4     // bits per colour
     //VIDEO_WIDTH=256   // screen pixel width (excluding blanking)
@@ -51,90 +51,73 @@ module jtframe_hsize #( parameter
 localparam VW = 9; // Max 512 pixels including blanking
 localparam SW = 8;
 
+wire [   VW+SW-2:0] summand;
 wire [COLORW*3-1:0] rgb_out, rgb_in;
-reg  [    VW-1:0] rdcnt, wrcnt;
-wire [    SW-2:0] summand;
-reg  [    SW-1:0] sum;
-reg  [    VW-1:0] hmax, hb0, hb1;
+reg  [        VW:0] rdcnt_l=0, rdcnt=0,rgbcnt_i=0;
+reg  [      SW-2:0] rdfrac=0,rgbfrac=0;
+reg  [      VW-1:0] hb0, hb1;
+reg  [      VW-1:0] wrcnt, rgbcnt,  hmax;
 
-reg  line=0, over, passz, overl;
-reg  VSl, HSl, HBl, HBll, VBl, VBll;
-wire [SW-1:0] next_sum;
+reg  VSl, HSl, LHBl, LHBll, VBl, pass, over;
 
-assign rgb_in   = {r_in, g_in, b_in};
-assign next_sum = sum + {1'b0, summand};
-assign summand  = { ~scale[3], {SW-5{scale[3]}}, scale[2:0] };
+assign rgb_in  = {r_in, g_in, b_in};
+assign summand = {{VW{1'b0}},~scale[3],{SW-6{scale[3]}},scale};
 
 always @(posedge clk) if(pxl_cen) begin
-    HSl   <= HS_in;
-    HBl   <= HB_in;
-    HBll  <= HBl;
-    overl <= over;
+    HSl    <=  HS_in;
+    LHBl   <= ~HB_in;
+    LHBll  <=  LHBl;
+    HB_out <= HB_in;
+    HS_out <= HS_in;
+    VB_out <= VB_in;
 
     // VB must be adjusted to prevent the bottom line from being washed out
-    if( HB_in & ~HBl ) begin
-        { VBll, VBl } <= { VBl, VB_in };
-    end
-
-    if( HS_in & ~HSl ) begin
-        line  <= ~line;
-        wrcnt <= 0;
-        hmax  <= wrcnt;
-        VSl   <= VS_in;
-        if( enable ) VS_out <= VSl;
+    if( ~HB_in & ~LHBl ) {VB_out, VBl} <= {VBl, VB_in};
+    if(  HS_in & ~HSl ) begin
+        wrcnt  <= 0;
+        hmax   <= wrcnt;
+        VSl    <= VS_in;        
+        VS_out <= VSl;
     end else begin
-        wrcnt <= wrcnt + 1'd1;
+        wrcnt  <= wrcnt + 1'd1;
     end
-    // Register when HB toggles
-    if(  HBl & ~HBll ) hb1 <= wrcnt;
-    if( ~HBl &  HBll ) hb0 <= wrcnt;
-
-    HS_out <= HS_in;
-    if( enable ) begin
-        if(  HB_out && rdcnt==hb0 ) HB_out <= 0;
-        if( !HB_out && (rdcnt==hb1 || (HS_in && !HSl) ) ) begin
-            HB_out <= 1;
-            if( enable ) VB_out <= VBll;
-        end
-    end else begin
-        HB_out <= HB_in;
+    if( !enable) begin 
         VB_out <= VB_in;
         VS_out <= VS_in;
     end
-
+    // Register when HB toggles
+    if(  LHBl   & ~LHBll  ) hb1 <= wrcnt;
+    if(  HB_in  &  LHBl   ) hb0 <= wrcnt;
     // colour output
-    {r_out,g_out,b_out} <= enable ? (overl || !passz ? {3*COLORW{1'b0}} : rgb_out) : rgb_in;
+    {r_out,g_out,b_out} <= enable ? (!HB_out && pass ? rgb_out : {3*COLORW{1'b0}}) : rgb_in;
 end
 
 always @(posedge clk) if(pxl2_cen) begin
-    if( HS_in & ~HSl ) begin
-        rdcnt <= { {VW-5{offset[4]}}, offset };
-        sum   <= 0;
-        over  <= 0;
-        passz <= 0; // passed zero, used to avoid setting "over" wrong
-                    // when using negative offsets
-    end else begin
-        sum  <= next_sum;
-        if( sum[SW-1] != next_sum[SW-1] && !over ) begin
-            if( rdcnt==0 ) passz <= 1;
-            if( rdcnt == hmax && passz ) begin
-                over <= 1;
-            end else begin
-                rdcnt <= rdcnt + 1'd1;
-            end
-        end
+    {rdcnt,rdfrac} <= {rdcnt,rdfrac} + {1'b0,summand};
+    pass           <= (rgbcnt <= hb0) && (rgbcnt >= hb1);
+    if( ~HS_in &  HSl)     over <= 1;
+    if(  HS_in & ~HSl & over) begin 
+        {rdcnt,rdfrac} <= { {VW-4{offset[4]}}, offset,{SW-1{1'b0}} };
+        rdcnt_l        <= rdcnt;
+        rgbcnt         <= rgbcnt_i[VW-1:0]; 
+        rgbfrac        <= 0;  
+        rgbcnt_i       <= ({1'b0,hmax}-rdcnt_l)>>1;
+        over           <= 0; //Avoids this step being done twice in the same HS
+    end else begin 
+        {rgbcnt,rgbfrac} <= {rgbcnt,rgbfrac} + summand;
     end
 end
 
-jtframe_rpwp_ram #(.DW(COLORW*3), .AW(VW+1)) u_line(
-    .clk    ( clk       ),
-    // Port 0: writes
-    .din    ( rgb_in    ),
-    .wr_addr({line, wrcnt}),
-    .we     ( pxl_cen   ),
+jtframe_linebuf #(.DW(COLORW*3), .AW(VW)) u_line(
+    .clk      ( clk          ),
+    .LHBL     (~HS_in        ),
+    // Port 0: writes 
+    .wr_data  ( rgb_in       ),
+    .wr_addr  ( wrcnt ),
+    .we       ( pxl_cen      ),
     // Port 1
-    .rd_addr({line,rdcnt}),
-    .dout   ( rgb_out   )
-);
-
+    .rd_addr  (rgbcnt),
+    .rd_gated (              ),
+    .rd_data  ( rgb_out      )
+    );
 endmodule

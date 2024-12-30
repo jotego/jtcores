@@ -28,13 +28,18 @@ Because of the awkward video timing, the system needs some sort of buffer to out
 
 # Cartridge Loading
 
-The first time you insert batteries into a NGP, the system will boot and present a menu. You can go through the set-up process or not. What matters is that when you press the power button in the actual machine, it will suspend the system but keep the memory alive. When you press the power button again, if there is a cartridge, it will not show the setup menu. The core needs the user to replicate this procedure in order to play games.
+The first time you insert batteries into a NGP, the system will boot and present a menu. You can go through the set-up process or not. What matters is that when you press the power button in the actual machine, it will suspend the system but keep the memory alive. When you press the power button again, if there is a cartridge, it will **not show the setup menu**. The core needs the user to replicate this procedure in order to play games.
 
 1. Load the core
 2. Use the virtual power button to _turn off_ the NGP
 3. Load the cartridge through the OSD menu
 
 If you want to load a new game while the core is working, go directly to step 2.
+
+The Neo Geo Pocket is not forwards compatible with all Neo Geo Pocket Color games. For a compatibility list, see:
+https://www.neo-geo.com/pocket/
+
+If you have a .ngc file which does not load, this is probably why.
 
 # Simulation & Debugging
 
@@ -52,6 +57,8 @@ See more simulation setup notes [here](ver/game/README.md).
 MiSTer scaler automatically handles the awkward video format. This means that the core will only work via HDMI. MiSTer's analog output may work if it is configured to output the scaler video. Compiling the sound CPU is most likely needed for the system to work correctly. All this means that you need to run full compilations for all tests: `jtcore ngp -mr`
 
 The analog video output will not work without a frame buffer because the line period is 83.82us, very far from the typical 64us required. If the system was ignorant of the video output, it would be possible to output at a different rate but the CPU has access to the video circuitry internals and knows at which point of the line the graphics hardware is working. Therefore, only HDMI output is supported.
+
+Place your game files in the folder `games/NeoGeoPocket` together with the firmware. Name the firmware file `boot.rom`.
 
 ## MAME
 

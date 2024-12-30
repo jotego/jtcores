@@ -1,0 +1,21 @@
+Main CPU address decoding
+
+/PROG = /A20
+
+/WKCS = AS & A20 & /A19 & /A18 & /A17 & A16 & /A15 & /A14
+
+/DTACK = AS & /VSC & /A23 +
+       AS & /A19 +
+       AS & /A20
+
+/VRAM  = AS & /A23 & A20 & A19
+
+/OBJ   = AS & A20 & /A19 & /A18 & /A17 & /A16 & /A15 & /A14
+/OBJWR = AS & A20 & /A19 & /A18 & /A17 & /A16 & /A15 & /A14 & /RW
+
+/COL   = AS & A20 & /A19 & /A18 & /A17 & /A16 & /A15 & A14 & /A13
+/COLWR = AS & A20 & /A19 & /A18 & /A17 & /A16 & /A15 & A14 & /A13 & /RW
+
+/IO2 = AS & A20 & /A19 & /A18 & /A17 & /A16 & A15 & /A14 &  A13
+/IO1 = AS & A20 & /A19 & /A18 & /A17 & /A16 & A15 & /A14 & /A13
+

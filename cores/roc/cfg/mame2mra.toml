@@ -12,6 +12,11 @@ skip.setnames=[
     "ropeman",
 ]
 
+[Audio]
+volume = [
+    { machine="rocnrope", value=0xD6 },
+]
+
 [buttons]
 names=[{ names="Rope,Flash" }]
 

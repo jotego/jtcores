@@ -173,7 +173,10 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     // Active layer
     .fix        (           ),
     .sa         (           ),
-    .sb         (           )
+    .sb         (           ),
+    .s1_pri     (           ),
+    .s2_pri     (           ),
+    .tprio      (           )
 );
 
 jts16_obj #(.MODEL(MODEL)) u_obj(

@@ -119,6 +119,7 @@ localparam MW = 3; // miss hit counter
 reg  [15:0] vrenderf, vscr1, vscr2, vscr3, row_scr_next;
 reg  [11:0] scan;
 wire [11:0] wr_pal_addr;
+wire [15:0] pal_ram_q;
 reg  [10:0] vn, hn, hstep;
 reg  [ 9:0] obj_cnt, obj_wr_cnt;
 reg  [ 8:0] pal_cnt, pal_wr_cnt, vram_scr_base;
@@ -236,9 +237,12 @@ jtframe_dual_ram #(.DW(16), .AW(12)) u_pal_ram(
     .addr1  ( colmix_addr   ),
     .we1    ( 1'b0          )
     `ifndef FORCE_GRAY
-    ,.q1    ( pal_data      )
+    ,.q1    ( pal_ram_q     )
     `endif
 );
+
+// handle artificial CPS2 blank color (FFF)
+assign pal_data = colmix_addr == 12'hFFF ? 16'h0 : pal_ram_q;
 
 `ifdef FORCE_GRAY
 assign pal_data = {4'hf, {3{colmix_addr[3:0]}} };
@@ -483,11 +487,13 @@ always @(posedge clk) begin
                         end
                         if( |cur_task[PAL5:PAL0] ) begin
                             pal_cnt <= pal_cnt + 9'd1;
-                            if( &pal_cnt ) begin
+                            if( &pal_wr_cnt ) begin
                                 tasks[PAL5:PAL0] <= tasks[PAL5:PAL0] & ~cur_task[PAL5:PAL0];
                                 adv <= 1;
                                 // Update palette page
                                 pal_wr_page <= pal_wr_page+3'd1;
+                            end
+                            if( &pal_cnt ) begin
                                 pal_rd_page<=pal_rd_page+3'd1;
                             end
                         end

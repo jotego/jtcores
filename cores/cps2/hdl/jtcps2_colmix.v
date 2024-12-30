@@ -39,7 +39,7 @@ module jtcps2_colmix(
 localparam [2:0] OBJ=3'b0, SCR1=3'b1, SCR2=3'd2, SCR3=3'd3, STA=3'd4;
 localparam [3:1] OBJ_PRIO = 3'b010;
 
-reg         obj1st, mux_sel;
+reg         obj1st, obj_sel;
 reg  [ 3:0] scr_prio;
 reg  [15:0] lyr_prio;
 
@@ -61,7 +61,7 @@ always @(*) begin
         default: scr_prio = 4'd7;
     endcase
     obj1st = obj_prio > scr_prio[2:0];
-    mux_sel = obj1st ? blank(obj_pxl) : ~blank(scr_pxl);
+    obj_sel = ~blank(obj_pxl) & (obj1st | blank(scr_pxl));
 end
 
 always @(posedge clk) begin
@@ -72,8 +72,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    pxl <= !obj_en ? scr_pxl :
-        ( mux_sel ? scr_pxl : {3'd0, obj_pxl[8:0]} );
+    pxl <= (obj_en & obj_sel) ? {3'd0, obj_pxl[8:0]} : scr_pxl;
 end
 
 `ifdef PRIO_SIM

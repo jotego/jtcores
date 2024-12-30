@@ -5680,7 +5680,7 @@
     )
   )
 
-  (text "NOT MOUNTED\n" (at 81.28 260.985 0)
+  (text "NOT POPULATED\n" (at 81.28 260.985 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e27d890a-13b3-4dc5-b5bc-51974ee3be62)
   )

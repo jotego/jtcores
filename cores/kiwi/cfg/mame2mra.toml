@@ -17,6 +17,17 @@ skip = { setnames = [
 ]}
 debug = { machine="kabukiz" }
 
+[Audio]
+volume = [
+    { machine="arknoid2", value=0x93 },
+    { machine="drtoppel", value=0x66 },
+    { machine="extrmatn", value=0x71 },
+    { machine="insectx", value=0xAD },
+    { machine="kageki", value=0x86 },
+    { machine="tnzs", value=0xFF },
+    { machine="kabukiz", value=0xFF },
+]
+
 [header]
 info="""bit 0 = MCU
              bit 1 = color PROM

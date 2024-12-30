@@ -37,7 +37,7 @@ module jtshouse_mcu(
     // cabinet I/O
     input       [1:0]  io_mode,
     input       [1:0]  cab_1p,
-    input       [1:0]  coin,
+    input       [3:0]  coin,
     input       [9:0]  joystick1,
     input       [9:0]  joystick2,
     input       [9:0]  joystick3,
@@ -231,18 +231,18 @@ always @(posedge clk, negedge rstn ) begin
             1: begin
                 // 4p
                 if (strb_count[2:0] == 3'b111) begin
-                    cab_dout <= A[0] ? { cab_1p[1], 4'h0, strb_count[5:3] } :
-                                       { cab_1p[0], 1'b0, inp_latch1 };
+                    cab_dout <= A[0] ? { coin[3], 4'h0, strb_count[5:3] } :
+                                       { coin[2], 1'b0, inp_latch1 };
                     if(A[0]) case (strb_count[5:3])
                         0: begin
                             inp_latch1 <= {1'b0, joystick1[4:0]};
                             inp_latch2 <= {joystick4[2:0], 3'd0};
                         end
                         3:begin
-                            inp_latch1 <= {1'b0, joystick3[4:0]};
+                            inp_latch1 <= {1'b0, joystick2[4:0]};
                         end
                         4:begin
-                            inp_latch1 <= {1'b0, joystick2[4:0]};
+                            inp_latch1 <= {1'b0, joystick3[4:0]};
                             inp_latch2 <= {1'b0, joystick4[4:3], 3'd0};
                         end
                         default: begin
@@ -251,8 +251,8 @@ always @(posedge clk, negedge rstn ) begin
                         end
                     endcase
                 end else begin
-                    cab_dout <= A[0] ? { cab_1p[1], 1'b1, inp_latch2 } :
-                                       { cab_1p[0], 1'b0, inp_latch1 };
+                    cab_dout <= A[0] ? { coin[3], 1'b1, inp_latch2 } :
+                                       { coin[2], 1'b0, inp_latch1 };
                 end
             end
             2: begin

@@ -5,6 +5,12 @@ author=["jotego"]
 sourcefile=[ "hyperspt.cpp" ]
 skip.bootlegs=true
 
+[Audio]
+volume = [
+    { machine="hyperspt", value=0x7B },
+    { machine="roadf", value=0x4B },
+]
+
 [buttons]
 names=[
     { machine="roadf", names="Low gear,High gear" },

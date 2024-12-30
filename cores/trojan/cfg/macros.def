@@ -1,5 +1,5 @@
 # Trojan macro file
-[all]
+[*]
 CORENAME=JTTROJAN
 
 JTFRAME_CREDITS

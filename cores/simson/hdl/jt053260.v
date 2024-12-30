@@ -72,7 +72,7 @@ module jt053260 (
     reg    [ 7:0] ps2m[0:1];
 
     reg    [ 3:0] keyon, mode;
-    wire   [ 3:0] over, mmr_we;
+    wire   [ 3:0] bsy, mmr_we;
     reg    [ 3:0] adpcm_en, loop;
     reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
@@ -162,7 +162,7 @@ module jt053260 (
                 end
                 if (!rd_n) case ( addr )
                     0,1:     dout <= pm2s[addr[0]];
-                    6'h29:   dout <= {4'd0,~over};
+                    6'h29:   dout <= {4'd0,bsy};
                     6'h2E:   begin
                         if( !tst_rd ) dout <= mode[0] ? roma_data : 8'd0;
                         tst_rd <= 1;
@@ -229,7 +229,7 @@ module jt053260 (
         .keyon    ( keyon[0]    ),
         .loop     ( loop[0]     ),
         .sample   ( ch0_sample  ),
-        .over     ( over[0]     ),
+        .bsy      ( bsy[0]      ),
 
         .rom_addr ( roma_addr   ),
         .rom_data ( roma_data   ),
@@ -256,7 +256,7 @@ module jt053260 (
         .keyon    ( keyon[1]    ),
         .loop     ( loop[1]     ),
         .sample   ( ch1_sample  ),
-        .over     ( over[1]     ),
+        .bsy      ( bsy[1]      ),
 
         .rom_addr ( romb_addr   ),
         .rom_data ( romb_data   ),
@@ -283,7 +283,7 @@ module jt053260 (
         .keyon    ( keyon[2]    ),
         .loop     ( loop[2]     ),
         .sample   ( ch2_sample  ),
-        .over     ( over[2]     ),
+        .bsy      ( bsy[2]      ),
 
         .rom_addr ( romc_addr   ),
         .rom_data ( romc_data   ),
@@ -310,7 +310,7 @@ module jt053260 (
         .keyon    ( keyon[3]    ),
         .loop     ( loop[3]     ),
         .sample   ( ch3_sample  ),
-        .over     ( over[3]     ),
+        .bsy      ( bsy[3]      ),
 
         .rom_addr ( romd_addr   ),
         .rom_data ( romd_data   ),
@@ -344,7 +344,7 @@ module jt053260_channel(
     output reg               rom_cs,
     output reg signed [15:0] snd_l,
     output reg signed [15:0] snd_r,
-    output                   over,
+    output reg               bsy,
     output                   sample
 );
     // MMR
@@ -359,13 +359,14 @@ module jt053260_channel(
     reg         [11:0] pitch_cnt;
     reg  signed [ 7:0] pre_snd;
     reg  signed [ 7:0] kadpcm;
-    reg                adpcm_cnt, cnt_up;
+    reg                adpcm_cnt, cnt_up, keyon_l;
 
     wire        [12:0] nx_pitch_cnt;
     wire signed [15:0] mul_l, mul_r;
     wire signed [ 7:0] svl, svr;
     reg         [13:0] vol_l, vol_r;
     wire        [ 3:0] nibble;
+    wire               over;
 
     assign start  = { mmr[6][4:0], mmr[5], mmr[4] };
     assign length = { mmr[3], mmr[2] };
@@ -430,10 +431,13 @@ module jt053260_channel(
             pitch_cnt <= 0;
             rom_cs    <= 0;
             cnt_up    <= 0;
+            bsy       <= 0;
+            keyon_l   <= 0;
         end else begin
             cnt_up <= 0;
             rom_cs <= 1;
             if( cnt_up ) cnt <= cnt - 1'd1;
+            if( cen    ) keyon_l <= keyon;
             if( !keyon ) begin
                 if(!tst_en || we) begin
                     // the first byte is not ADPCM data
@@ -447,7 +451,9 @@ module jt053260_channel(
                 rom_cs    <= tst_en;
                 pitch_cnt <= pitch;
                 cnt_up    <= 0;
+                bsy       <= 0;
             end else if( cen ) begin
+                if( !keyon_l ) bsy <= 1;
                 // ROM address increment and sample cnt decrement
                 if( !cnt[16] && nx_pitch_cnt[12] ) begin
                     adpcm_cnt <= ~adpcm_cnt;
@@ -463,7 +469,10 @@ module jt053260_channel(
                     pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
                 end
                 pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
-                if( over ) pre_snd <= pre_snd >>> 1; // fade out to keep dc level low
+                if( over ) begin
+                    pre_snd <= pre_snd >>> 1; // fade out to keep dc level low
+                    bsy     <= 0;
+                end
             end
         end
     end

@@ -9,6 +9,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "mikie.cpp" ]
 
+[Audio]
+volume = [
+    { machine="mikie", value=0x56 },
+]
+
 [buttons]
 names=[
     { names="Door,Headbutt" }

@@ -24,8 +24,6 @@
 // modules are isolated, this can be done manually typing the path to
 // each rom file in the jtframe_prom instantiation. However, sometimes
 // the hierarchy will not allow it or the code may get messy.
-// jtframe_dwnld can load PROMs only during simulation when the
-// macro JTFRAME_DWNLD_PROM_ONLY is defined.
 
 module jtframe_dwnld(
     input                clk,
@@ -80,10 +78,6 @@ reg  [25:0] part_addr;
 
 assign prog_data = {2{data_out}};
 assign prog_rd   = 0;
-
-`ifdef JTFRAME_DWNLD_PROM_ONLY
-    initial $display("WARNING: JTFRAME_DWNLD_PROM_ONLY has been deprecated. Remove it from the simulation script");
-`endif
 
 always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
@@ -176,14 +170,18 @@ reg       [ 7:0] mem[0:`GAME_ROM_LEN];
 
 initial prog_ba=0;
 
+// This is only executed if JTFRAME_PROM_START was defined
 initial begin
     dumpcnt = PROM_START+HEADER;
-    if( SIMFILE != "" && PROM_EN ) begin
+    if( SIMFILE != "" && (PROM_EN||BALUT==1) ) begin
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
             readcnt=$fread( mem, f );
             $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
             $fclose(f);
+            if( BALUT==1 ) begin
+                dumpcnt={mem[9],mem[8],{LUTSH{1'b0}}};
+            end
             if( dumpcnt >= readcnt ) begin
                 $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);
                 $display("         GAME_ROM_LEN=%X",GAME_ROM_LEN);

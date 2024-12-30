@@ -20,7 +20,6 @@ audio:
     - { name: ti2, module: jt89, rsum: 220, rc: [{ r: 2k, c: 100n }, { r: 1.25k, c: 47n }] }
 download:
   post_addr: true
-  noswab: true
 sdram:
   banks:
     -

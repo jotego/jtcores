@@ -1,7 +1,10 @@
 Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
-otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used.
+otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used. The tool
+should be used to update $JTROOT/doc/mame.xml with new data each tiem a new
+core is added. The core folder should contain both the .def and .toml files,
+defining at least the MAME source file and the core name.
 
 Each repository is meant to have a reduced mame.xml file in $ROM as
 part of the source file commited in git.
@@ -16,6 +19,9 @@ debugging in MiST without affecting the MRA generation.
 TOML elements (see full reference in mame2mra.go)
 
 ```
+[global]
+Orientation={ Fixed=true } # use when rotation CW/CCW information from MAME is not reliable
+
 [parse]
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
 skip.Setnames=["willskip1","willskip2"]
@@ -69,7 +75,8 @@ data = [
 	...
 ]
 
-# region offset table at "start" byte in the header
+# region offset table at "start" byte in the header. This will also enable
+# the LUT parameters in jtframe_dwnld automatically
 offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 
 # if there are black bars on the side of the image

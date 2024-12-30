@@ -284,6 +284,9 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
+    .tprio      (           ),
+    .s1_pri     (           ),
+    .s2_pri     (           ),
     // Debug
     .gfx_en     ( gfx_en    ),
     //.debug_bus  ( debug_bus ),

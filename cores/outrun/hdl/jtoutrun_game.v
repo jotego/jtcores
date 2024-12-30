@@ -80,11 +80,17 @@ assign st_dout              = st_mux;
 // SDRAM memory
 assign main_addr = full_addr[18:1];
 assign gfx_cs    = LVBL || vrender==0 || vrender[8];
-assign xram_addr = { ram_cs, main_addr[15]&~ram_cs, main_addr[14:1] }; // RAM is mapped up
-assign xram_cs   = ram_cs | vram_cs;
+assign xram_addr = main_addr[15:1];
+assign xram_cs   = vram_cs;
 assign xram_din  = main_dout;
 assign xram_dsn  = main_dsn;
 assign xram_we   = ~main_rnw;
+// work RAM (non volatile)
+assign nvram_addr = 0;
+assign nvram_we   = 0;
+assign nvram_din  = 0;
+assign wram_we    = {2{ram_cs&~main_rnw}} & ~main_dsn;
+// Sub-CPU Work RAM
 assign subram_addr = sub_addr[14:1];
 assign subram_dsn  = sub_dsn;
 assign subram_we   = ~sub_rnw;
@@ -163,7 +169,6 @@ jtoutrun_main u_main(
     .video_en    ( video_en   ),
     .obj_cfg     ( obj_cfg    ),
     // Video circuitry
-    .vram_cs     ( vram_cs    ),
     .char_cs     ( char_cs    ),
     .pal_cs      ( pal_cs     ),
     .objram_cs   ( objram_cs  ),
@@ -174,8 +179,10 @@ jtoutrun_main u_main(
     .flip        ( flip       ),
     // RAM access
     .ram_cs      ( ram_cs     ),
-    .ram_data    ( xram_data  ),
-    .ram_ok      ( xram_ok    ),
+    .ram_data    ( wram_dout  ),
+    .vram_cs     ( vram_cs    ),
+    .vram_data   ( xram_data  ),
+    .vram_ok     ( xram_ok    ),
     // CPU bus
     .cpu_dout    ( main_dout  ),
     .dsn         ( main_dsn   ),
@@ -458,7 +465,7 @@ jtoutrun_video u_video(
 
     // SD card dumps
     .ioctl_addr ( prog_addr ),
-    .ioctl_din  ( ioctl_din ),
+    .ioctl_din  ( ioctl_din ), // enable this for video debugging
     .ioctl_ram  ( ioctl_ram ),
     // Get some random data during start-up for the palette
     .prog_addr  ( prog_addr ),

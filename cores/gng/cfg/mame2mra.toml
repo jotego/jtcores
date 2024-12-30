@@ -5,6 +5,11 @@ author=["jotego"]
 sourcefile=[ "gng.cpp" ]
 skip.Setnames=["diamond","gngbl"]
 
+[Audio]
+volume = [
+    { machine="gng", value=0x7F },
+]
+
 [buttons]
 names=[
     { names="Fire,Jump" }

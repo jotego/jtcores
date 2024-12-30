@@ -20,6 +20,7 @@ package cmd
 
 import (
 	"github.com/jotego/jtframe/cfgstr"
+	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/def"
 	"github.com/spf13/cobra"
 )
@@ -30,10 +31,8 @@ var extra_def, extra_undef string
 // cfgstrCmd represents the cfgstr command
 var cfgstrCmd = &cobra.Command{
 	Use:   "cfgstr <core-name>",
-	Short: "Parse core variables",
-	Long: `Parses the jtcore-name.def file in the hdl folder and
-creates input files for simulation or synthesis.
-Macro names for C++ include files are prefixed by an underscore _`,
+	Short: `Parses the macros.def file in the cfg folder`,
+	Long: common.Doc2string("macros.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg.Core = args[0]
 		cfgstr.Run(cfg, args, extra_def, extra_undef)

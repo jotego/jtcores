@@ -39,8 +39,9 @@ module jttora_objdata(
     input         [7:0] debug_bus
 );
 
-parameter VINV=1; // Assumes that the y position is inverted (needed for Tora, but not Biocom)
-
+parameter VINV=1,  // Assumes that the y position is inverted (needed for Tora, but not Biocom)
+          VOFF=1,  // vertical offset to add to sprites (different for JTBIOCOM)
+          HOFF=13; // horizontal offset
 localparam [7:0] OBJMAX=159;
 
 reg  [ 8:0] Vsum, vf;
@@ -54,7 +55,7 @@ assign lut_addr = { obj_cnt, st };
 
 always @(*) begin
     vf   = vdump^{flip,{8{flip^~VINV[0]}}};
-    Vsum = vf + lut_data[8:0] + 8'd1;
+    Vsum = vf + lut_data[8:0] + VOFF[8:0];
 end
 
 always @(posedge clk) begin
@@ -97,7 +98,7 @@ always @(posedge clk, posedge rst) begin
                     vinzone <= &Vsum[8:4];
                 end
                 3: begin
-                    dr_xpos <= lut_data[8:0] + 9'd13;
+                    dr_xpos <= lut_data[8:0] + HOFF[8:0];
                     if( !vinzone || !dr_busy ) begin
                         obj_cnt <= obj_cnt - 1'd1;
                         if( vinzone ) drawn <= drawn + 1'd1;

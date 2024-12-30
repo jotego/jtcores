@@ -7,7 +7,7 @@ All JT arcade cores depend on JTFRAME for compilation. You need to follow the jt
 - Ubuntu 20.04
 - Install Quartus 13.1 to compile for MiST, SiDi and the Pocket in `/opt/altera/13.1`
 - Install Quartus 17 or higher to compile for MiSTer in `/opt/intelFPGA_lite`
-- Run the [jotego_20.04.sh](jotego_20.04.sh) script to get other required packages in place
+- Run the [../bin/jotego_20.04.sh](jotego_20.04.sh) script to get other required packages in place
 
 For parallel compilation across network machines, create a file `$HOME/.parallel/sshloginfile` with one host name per line. Configure SSH correctly across the machines, using `ssh-copy-id`, etc.
 

@@ -10,6 +10,11 @@ skip.setnames= [
     "combatscj"
 ]
 
+[Audio]
+volume = [
+    { machine="combatsc", value=0x22 },
+]    
+
 [buttons]
 names = [
     { names="Shoot/Attack,Jump" }

@@ -105,10 +105,6 @@ module jts16b_main(
     output   [7:0]     sndmap_dout,
     output             sndmap_pbf, // pbf signal == buffer full ?
 
-    // NVRAM - debug
-    input       [16:0] ioctl_addr,
-    output      [ 7:0] ioctl_din,
-
     // status dump
     input       [ 7:0] debug_bus,
     input       [ 7:0] st_addr,
@@ -307,6 +303,10 @@ jtframe_8751mcu #(
 
 
 // System 16B memory map
+always @* begin
+    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok);
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
@@ -322,13 +322,7 @@ always @(posedge clk, posedge rst) begin
             vram_cs   <= 0; // 32kB
             ram_cs    <= 0;
             tbank_cs  <= 0;
-            sdram_ok  <= 0;
     end else begin
-        if( ASn )
-            sdram_ok <= 0;
-        else if( !BUSn ) begin
-            sdram_ok <= rom_cs ? ok_dly : ram_ok;
-        end
         if( !BUSn || (!ASn && RnW) /*&& BGACKn*/ ) begin
             rom_cs    <= (pcb_5797 ? active[0] : |active[2:0]) && RnW;
             char_cs   <= active[REG_VRAM] && A[16];
@@ -591,33 +585,5 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( cpu_ipln    ) // VBLANK
 );
-
-// Debug
-`ifdef MISTER
-`ifndef NOSHADOW
-jts16_shadow #(.VRAMW(15)) u_shadow(
-    .clk        ( clk       ),
-    .clk_rom    ( clk_rom   ),
-
-    // Capture SDRAM bank 0 inputs
-    .addr       ( A[15:1]   ),
-    .char_cs    ( char_cs   ),    //  4k
-    .vram_cs    ( vram_cs   ),    // 64k
-    .pal_cs     ( pal_cs    ),    //  4k
-    .objram_cs  ( objram_cs ),    //  2k
-    .din        ( cpu_dout  ),
-    .dswn       ( {UDSWn, LDSWn} ),  // write mask -active low
-
-    .tile_bank  ( tile_bank ),
-    // Let data be dumped via NVRAM interface
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
-);
-`else
-assign ioctl_din = 0;
-`endif
-`else
-assign ioctl_din = 0;
-`endif
 
 endmodule

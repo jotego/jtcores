@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 20-11-2022 */
-
+/* verilator lint_off MODDUP */
 module jtframe_lfbuf_ddr_ctrl #(parameter
     CLK96   =   0,   // assume 48-ish MHz operation by default
     VW      =   8,

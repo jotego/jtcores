@@ -138,7 +138,6 @@ jtroadf_main u_main(
     assign obj_frame = 0;
 `endif
 
-`ifndef NOSOUND
 jtsbaskt_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk24     ),
@@ -168,15 +167,6 @@ jtsbaskt_snd u_sound(
     .debug_view ( st_snd    ),
     .debug_bus  ( debug_bus )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign pcm_addr=0;
-    assign snd=0;
-    assign sample=0;
-    assign game_led=0;
-    assign st_snd=0;
-`endif
 
 jtroadf_video u_video(
     .rst        ( rst       ),

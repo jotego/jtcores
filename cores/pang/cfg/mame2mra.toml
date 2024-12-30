@@ -21,6 +21,15 @@ skip.machines = [
 ]
 skip.bootlegs=true
 
+[Audio]
+volume = [
+    { machine="block", value=0xF3 },
+    { machine="cworld", value=0x70 },
+    { machine="dokaben", value=0x4B },
+    { machine="pang", value=0x9A },
+    { machine="spang", value=0x65 },
+]
+
 [header]
 data = [
     # Kabuki codes

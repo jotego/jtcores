@@ -26,6 +26,12 @@ jt680x      |   516        |   19  |  6801 variant (ucode synthesized as BRAM)
 PicoBlaze   |   950        |    0  |  PauloBlaze
 MCS48       |   657        |    3  |  T48 (VHDL)
 
+## M68000
+
+fx68k is the preferred module. Because it designed in System Verilog, it cannot be simulated with Verilator. JTCORES points to a fork that contains a version manually converted to Verilog.
+
+A [tool](https://github.com/ijor/fx68k/issues/16) capable of making the conversion from System Verilog to Verilog automatically appeared later. It has not been tested in JTCORES yet.
+
 ## Z80
 
 The two basic modules to instantiate are:

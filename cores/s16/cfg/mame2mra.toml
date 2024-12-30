@@ -62,6 +62,25 @@ main_setnames=[
     "quartet2a",
 ]
 
+[Audio]
+volume = [
+    { machine="aceattaca", value=0x8D },
+    { machine="afighter", value=0x59 },
+    { machine="afighter", value=0x85 },
+    { machine="alexkidd", value=0x43 },
+    { machine="bodyslam", value=0x47 },
+    { machine="fantzone", value=0x27 },
+    { machine="mjleague", value=0x84 },
+    { machine="quartet2a", value=0x5C },
+    { machine="sdi", value=0xCB },
+    { machine="shinobi", value=0x7C },
+    { machine="tetris", value=0x4C },
+    { machine="passsht", value=0xC4 },
+    { machine="timescan", value=0xE4 },
+    { setname="wb31", value=0xEE },
+    { setname="wb35", value=0xCA },
+]
+
 [buttons]
 names = [
     { machine="afighter",  names="Shot,Special Weapon" },

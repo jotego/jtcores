@@ -7,6 +7,15 @@ sourcefile=[ "aliens.cpp",
     "crimfght.cpp",
 ]
 
+[Audio]
+volume = [
+    { machine="aliens", value=0x7A },
+    { machine="crimfght", value=0xE6 },
+    { machine="gbusters", value=0x34 },
+    { machine="scontra", value=0xD9 },
+    { machine="thunderx", value=0x5E },
+]
+
 [buttons]
 names = [
     { machine="aliens", names="Shoot standing,Shoot crouching" },

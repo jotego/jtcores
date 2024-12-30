@@ -5,6 +5,13 @@ author=["jotego"]
 sourcefile=[ "1943.cpp" ]
 skip.bootlegs=true
 
+[Audio]
+volume = [
+    { machine="1943kai", value=0x60 },
+    { machine="1943", value=0x51 },
+    { machine="1943mii", value=0x63 },
+]
+
 [buttons]
 names=[
     { names="Shoot,Bomb" }

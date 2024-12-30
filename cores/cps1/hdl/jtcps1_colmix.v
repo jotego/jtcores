@@ -130,10 +130,11 @@ always @(*) begin
     endcase
 end
 
-`ifdef CPS2
-localparam [13:0] BLANK_PXL = { 2'b11, 12'hBFF }; // according to DL-0921 RE but it doesn't look
-// good on CPS1/CPS1.5 games. CPS2 is fine with that
+`ifndef CPS2
+localparam [13:0] BLANK_PXL = { 2'b11, 12'hBFF }; // according to DL-0921 RE
 `else
+// CPS2 seems to blank to black, as the programmed color in CPS1 is expanding to the back porch area,
+// confusing the black level calibration on displays.
 localparam [13:0] BLANK_PXL = ~14'd0;
 `endif
 

@@ -12,6 +12,13 @@ skip.setnames=[
     "galagax",
 ]
 
+[Audio]
+volume = [
+    { machine="1942", value=0x98 },
+    { machine="higemaru", value=0x75 },
+    { machine="vulgus", value=0xB6 },
+]
+
 [dipsw]
 extra=[
     { machine="vulgus", name="Flip Screen", options="Off,On", bits="16" },

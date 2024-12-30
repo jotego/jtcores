@@ -7,6 +7,11 @@ sourcefile=[ "commando.cpp" ]
 # other games
 skip.Setnames=["sinvasnb","mercenario","commandob"]
 
+[Audio]
+volume = [
+    { machine="commando", value=0x28 },
+]
+
 [buttons]
 names=[
     { names="Shoot,Grenade" }

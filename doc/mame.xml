@@ -161,7 +161,7 @@
 			<!ATTLIST ramoption default CDATA #IMPLIED>
 ]>
 
-<mame build="0.251 (mame0251)" debug="no" mameconfig="10">
+<mame build="0.251 (unknown)" debug="no" mameconfig="10">
 	<machine name="1941" sourcefile="capcom/cps1.cpp">
 		<description>1941: Counter Attack (World 900227)</description>
 		<year>1990</year>
@@ -12536,6 +12536,246 @@
 		<port tag=":IN2">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="asterix" sourcefile="konami/asterix.cpp">
+		<description>Asterix (ver EAD)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="068_ea_d01.8c" size="131072" crc="61d6621d" sha1="908a344e9bbce0c7544bd049494258d1d3ad073b" region="maincpu" offset="0"/>
+		<rom name="068_ea_d02.8d" size="131072" crc="53aac057" sha1="7401ca5b70f384688c3353fc1ac9ef0b27814c66" region="maincpu" offset="1"/>
+		<rom name="068a03.7c" size="131072" crc="8223ebdc" sha1="e4aa39e4bc1d210bdda5b0cb41d6c8006c48dd24" region="maincpu" offset="80000"/>
+		<rom name="068a04.7d" size="131072" crc="9f351828" sha1="e03842418f08e6267eeea03362450da249af73be" region="maincpu" offset="80001"/>
+		<rom name="068_a05.5f" size="65536" crc="d3d0d77b" sha1="bfa77a8bf651dc27f481e96a2d63242084cc214c" region="audiocpu" offset="0"/>
+		<rom name="068a12.16k" size="524288" crc="b9da8e9c" sha1="a46878916833923e421da0667e37620ae0b77744" region="k056832" offset="0"/>
+		<rom name="068a11.12k" size="524288" crc="7eb07a81" sha1="672c0c60834df7816d33d88643e4575b8ca9bcc1" region="k056832" offset="2"/>
+		<rom name="068a08.7k" size="2097152" crc="c41278fe" sha1="58e5f67a67ae97e0b264489828cd7e74662c5ed5" region="k053244" offset="0"/>
+		<rom name="068a07.3k" size="2097152" crc="32efdbc4" sha1="b7e8610aa22249176d82b750e2549d1eea6abe4f" region="k053244" offset="2"/>
+		<rom name="068a06.1e" size="2097152" crc="6df9ec0e" sha1="cee60312e9813bd6579f3ac7c3c2521a8e633eca" region="k053260" offset="0"/>
+		<rom name="asterix.nv" size="128" crc="490085c8" sha1="2a79e7c79db4b4fb0e6a7249cfd6a57e74b170e3" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k05324x"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k053260"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k053260" name="K053260 KDSC" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+	<machine name="asterixaad" sourcefile="konami/asterix.cpp" cloneof="asterix" romof="asterix">
+		<description>Asterix (ver AAD)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="068_aa_d01.8c" size="131072" crc="3fae5f1f" sha1="73ef65dac8e1cd4d9a3695963231e3a2a860b486" region="maincpu" offset="0"/>
+		<rom name="068_aa_d02.8d" size="131072" crc="171f0ba0" sha1="1665f23194da5811e4708ad0495378957b6e6251" region="maincpu" offset="1"/>
+		<rom name="068a03.7c" merge="068a03.7c" size="131072" crc="8223ebdc" sha1="e4aa39e4bc1d210bdda5b0cb41d6c8006c48dd24" region="maincpu" offset="80000"/>
+		<rom name="068a04.7d" merge="068a04.7d" size="131072" crc="9f351828" sha1="e03842418f08e6267eeea03362450da249af73be" region="maincpu" offset="80001"/>
+		<rom name="068_a05.5f" merge="068_a05.5f" size="65536" crc="d3d0d77b" sha1="bfa77a8bf651dc27f481e96a2d63242084cc214c" region="audiocpu" offset="0"/>
+		<rom name="068a12.16k" merge="068a12.16k" size="524288" crc="b9da8e9c" sha1="a46878916833923e421da0667e37620ae0b77744" region="k056832" offset="0"/>
+		<rom name="068a11.12k" merge="068a11.12k" size="524288" crc="7eb07a81" sha1="672c0c60834df7816d33d88643e4575b8ca9bcc1" region="k056832" offset="2"/>
+		<rom name="068a08.7k" merge="068a08.7k" size="2097152" crc="c41278fe" sha1="58e5f67a67ae97e0b264489828cd7e74662c5ed5" region="k053244" offset="0"/>
+		<rom name="068a07.3k" merge="068a07.3k" size="2097152" crc="32efdbc4" sha1="b7e8610aa22249176d82b750e2549d1eea6abe4f" region="k053244" offset="2"/>
+		<rom name="068a06.1e" merge="068a06.1e" size="2097152" crc="6df9ec0e" sha1="cee60312e9813bd6579f3ac7c3c2521a8e633eca" region="k053260" offset="0"/>
+		<rom name="asterixaad.nv" size="128" crc="bcca86a7" sha1="1191b0011749e2516df723c9d63da9c2304fa594" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k05324x"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k053260"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k053260" name="K053260 KDSC" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+	<machine name="asterixeaa" sourcefile="konami/asterix.cpp" cloneof="asterix" romof="asterix">
+		<description>Asterix (ver EAA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="068_ea_a01.8c" size="131072" crc="85b41d8e" sha1="e1326f6d61b8097f5201d5bd37e4d2a357d17b47" region="maincpu" offset="0"/>
+		<rom name="068_ea_a02.8d" size="131072" crc="8e886305" sha1="41a9de2cdad8c1185b4d13ea5b4a9309716947c5" region="maincpu" offset="1"/>
+		<rom name="068a03.7c" merge="068a03.7c" size="131072" crc="8223ebdc" sha1="e4aa39e4bc1d210bdda5b0cb41d6c8006c48dd24" region="maincpu" offset="80000"/>
+		<rom name="068a04.7d" merge="068a04.7d" size="131072" crc="9f351828" sha1="e03842418f08e6267eeea03362450da249af73be" region="maincpu" offset="80001"/>
+		<rom name="068_a05.5f" merge="068_a05.5f" size="65536" crc="d3d0d77b" sha1="bfa77a8bf651dc27f481e96a2d63242084cc214c" region="audiocpu" offset="0"/>
+		<rom name="068a12.16k" merge="068a12.16k" size="524288" crc="b9da8e9c" sha1="a46878916833923e421da0667e37620ae0b77744" region="k056832" offset="0"/>
+		<rom name="068a11.12k" merge="068a11.12k" size="524288" crc="7eb07a81" sha1="672c0c60834df7816d33d88643e4575b8ca9bcc1" region="k056832" offset="2"/>
+		<rom name="068a08.7k" merge="068a08.7k" size="2097152" crc="c41278fe" sha1="58e5f67a67ae97e0b264489828cd7e74662c5ed5" region="k053244" offset="0"/>
+		<rom name="068a07.3k" merge="068a07.3k" size="2097152" crc="32efdbc4" sha1="b7e8610aa22249176d82b750e2549d1eea6abe4f" region="k053244" offset="2"/>
+		<rom name="068a06.1e" merge="068a06.1e" size="2097152" crc="6df9ec0e" sha1="cee60312e9813bd6579f3ac7c3c2521a8e633eca" region="k053260" offset="0"/>
+		<rom name="asterixeaa.nv" size="128" crc="30275de0" sha1="4bbf90a4e5b20406153329e9e7c4c2bf72676f8d" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k05324x"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k053260"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k053260" name="K053260 KDSC" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+	<machine name="asterixeac" sourcefile="konami/asterix.cpp" cloneof="asterix" romof="asterix">
+		<description>Asterix (ver EAC)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="068_ea_c01.8c" size="131072" crc="0ccd1feb" sha1="016d642e3a745f0564aa93f0f66d5c0f37962990" region="maincpu" offset="0"/>
+		<rom name="068_ea_c02.8d" size="131072" crc="b0805f47" sha1="b58306164e8fec69002656993ae80abbc8f136cd" region="maincpu" offset="1"/>
+		<rom name="068a03.7c" merge="068a03.7c" size="131072" crc="8223ebdc" sha1="e4aa39e4bc1d210bdda5b0cb41d6c8006c48dd24" region="maincpu" offset="80000"/>
+		<rom name="068a04.7d" merge="068a04.7d" size="131072" crc="9f351828" sha1="e03842418f08e6267eeea03362450da249af73be" region="maincpu" offset="80001"/>
+		<rom name="068_a05.5f" merge="068_a05.5f" size="65536" crc="d3d0d77b" sha1="bfa77a8bf651dc27f481e96a2d63242084cc214c" region="audiocpu" offset="0"/>
+		<rom name="068a12.16k" merge="068a12.16k" size="524288" crc="b9da8e9c" sha1="a46878916833923e421da0667e37620ae0b77744" region="k056832" offset="0"/>
+		<rom name="068a11.12k" merge="068a11.12k" size="524288" crc="7eb07a81" sha1="672c0c60834df7816d33d88643e4575b8ca9bcc1" region="k056832" offset="2"/>
+		<rom name="068a08.7k" merge="068a08.7k" size="2097152" crc="c41278fe" sha1="58e5f67a67ae97e0b264489828cd7e74662c5ed5" region="k053244" offset="0"/>
+		<rom name="068a07.3k" merge="068a07.3k" size="2097152" crc="32efdbc4" sha1="b7e8610aa22249176d82b750e2549d1eea6abe4f" region="k053244" offset="2"/>
+		<rom name="068a06.1e" merge="068a06.1e" size="2097152" crc="6df9ec0e" sha1="cee60312e9813bd6579f3ac7c3c2521a8e633eca" region="k053260" offset="0"/>
+		<rom name="asterixeac.nv" merge="asterix.nv" size="128" crc="490085c8" sha1="2a79e7c79db4b4fb0e6a7249cfd6a57e74b170e3" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k05324x"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k053260"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k053260" name="K053260 KDSC" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+	<machine name="asterixj" sourcefile="konami/asterix.cpp" cloneof="asterix" romof="asterix">
+		<description>Asterix (ver JAD)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="068_ja_d01.8c" size="131072" crc="2bc10940" sha1="e25cc97435f157bed9c28d9e9277c9f47d4fb5fb" region="maincpu" offset="0"/>
+		<rom name="068_ja_d02.8d" size="131072" crc="de438300" sha1="8d72988409e6c28a06fb2325087d27ebd2d02c92" region="maincpu" offset="1"/>
+		<rom name="068a03.7c" merge="068a03.7c" size="131072" crc="8223ebdc" sha1="e4aa39e4bc1d210bdda5b0cb41d6c8006c48dd24" region="maincpu" offset="80000"/>
+		<rom name="068a04.7d" merge="068a04.7d" size="131072" crc="9f351828" sha1="e03842418f08e6267eeea03362450da249af73be" region="maincpu" offset="80001"/>
+		<rom name="068_a05.5f" merge="068_a05.5f" size="65536" crc="d3d0d77b" sha1="bfa77a8bf651dc27f481e96a2d63242084cc214c" region="audiocpu" offset="0"/>
+		<rom name="068a12.16k" merge="068a12.16k" size="524288" crc="b9da8e9c" sha1="a46878916833923e421da0667e37620ae0b77744" region="k056832" offset="0"/>
+		<rom name="068a11.12k" merge="068a11.12k" size="524288" crc="7eb07a81" sha1="672c0c60834df7816d33d88643e4575b8ca9bcc1" region="k056832" offset="2"/>
+		<rom name="068a08.7k" merge="068a08.7k" size="2097152" crc="c41278fe" sha1="58e5f67a67ae97e0b264489828cd7e74662c5ed5" region="k053244" offset="0"/>
+		<rom name="068a07.3k" merge="068a07.3k" size="2097152" crc="32efdbc4" sha1="b7e8610aa22249176d82b750e2549d1eea6abe4f" region="k053244" offset="2"/>
+		<rom name="068a06.1e" merge="068a06.1e" size="2097152" crc="6df9ec0e" sha1="cee60312e9813bd6579f3ac7c3c2521a8e633eca" region="k053260" offset="0"/>
+		<rom name="asterixj.nv" size="128" crc="84229f2c" sha1="34c7491c731fbf741dfd53bfc559d91201ccfb03" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k05324x"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k053260"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k053260" name="K053260 KDSC" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
 	</machine>
 	<machine name="astorm" sourcefile="sega/segas18.cpp">
 		<description>Alien Storm (World, 2 Players) (FD1094 317-0154)</description>
@@ -165382,6 +165622,843 @@
 		<port tag=":IN2">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="xmen" sourcefile="konami/xmen.cpp">
+		<description>X-Men (4 Players ver EBA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-eba04.10d" size="131072" crc="3588c5ec" sha1="7966e7259038468845dafd19e5f7fc576c2901fa" region="maincpu" offset="0"/>
+		<rom name="065-eba05.10f" size="131072" crc="79ce32f8" sha1="1a21b38d4a82103d78e246aca68ed3e4afaf60f3" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_eba.nv" size="128" crc="37f8e77a" sha1="0b92caba33486c6fd104806aa96f735743bb2221" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen2pa" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (2 Players ver AAA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-aaa04.10d" size="131072" crc="7f8b27c2" sha1="052db1f47671564a440544a41fc397a19d1aff3a" region="maincpu" offset="0"/>
+		<rom name="065-aaa05.10f" size="131072" crc="841ed636" sha1="33f96022ce3dae9b49eb51fd4e8f7387a1777002" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_aaa.nv" size="128" crc="750fd447" sha1="27884c1ceb0b5174f7d06e1e06bbbd6d6c5b47e7" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen2pe" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (2 Players ver EAA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-eaa04.10d" size="131072" crc="502861e7" sha1="f96aab2d2006703065de5bd7e341f929d04f5f60" region="maincpu" offset="0"/>
+		<rom name="065-eaa05.10f" size="131072" crc="ca6071bf" sha1="454ddc3b598389e960e87e577a01a7de71d1f591" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_eaa.nv" size="128" crc="1cbcb653" sha1="a86b4ad34ccbd868662ff8c61eb21ec07e8bf8b1" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen2pj" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (2 Players ver JAA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-jaa04.10d" size="131072" crc="66746339" sha1="8cc5f5deb4178b0444ffc5974940a30cb003114e" region="maincpu" offset="0"/>
+		<rom name="065-jaa05.10f" size="131072" crc="1215b706" sha1="b746dedab9c509b5cd941f0f4ddd3709e8a58cce" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_jaa.nv" size="128" crc="849a9e19" sha1="bd335a2d33bf4433de4fd57b8108b216eb3a2cf1" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen2pu" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (2 Players ver UAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-uab04.10d" size="131072" crc="ff003db1" sha1="b8aeb98dc0a38f0bda152d893fb60679bbdbadb3" region="maincpu" offset="0"/>
+		<rom name="065-uab05.10f" size="131072" crc="4e99a943" sha1="66b47de497a116b2002cc5496c1a3f4173a55bc5" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_uab.nv" size="128" crc="79b76593" sha1="f9921a2963f249fa341bfb57cc9e213e2efed9b9" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen6p" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (6 Players ver ECB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-ecb04.18g" size="131072" crc="258eb21f" sha1="f1a22a880245f28195e5b6519822c0aa3b166541" region="maincpu" offset="0"/>
+		<rom name="065-ecb05.18j" size="131072" crc="25997bcd" sha1="86fb1c64e133b7ca59ffb3910b62b61ee372c71a" region="maincpu" offset="1"/>
+		<rom name="065-a02.17g" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.17j" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.7b" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.1l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.1h" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.12l" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.17l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.22h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.22l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1d" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_ecb.nv" size="128" crc="462c6e1a" sha1="a57087163d7a760d5922c70842cfae20e6a2f5b5" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="screen"/>
+		<device_ref name="screen"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<display tag="screen2" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="6" coins="6" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+			<control type="joy" player="5" buttons="3" ways="8"/>
+			<control type="joy" player="6" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<port tag=":P5_P6">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmen6pu" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (6 Players ver UCB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-ucb04.18g" size="131072" crc="0f09b8e0" sha1="79f4d86d8ec45b39e34ddf45860bea0c74dae183" region="maincpu" offset="0"/>
+		<rom name="065-ucb05.18j" size="131072" crc="867becbf" sha1="3f81f4dbd289f98b78d7821a8925598c771f01ef" region="maincpu" offset="1"/>
+		<rom name="065-a02.17g" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.17j" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.7b" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.1l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.1h" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.12l" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.17l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.22h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.22l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1d" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_ucb.nv" size="128" crc="f3d0f682" sha1="b0d4655c651238ae028ffb59a704acba798f93f8" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="screen"/>
+		<device_ref name="screen"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<display tag="screen2" type="raster" rotate="0" width="288" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="6" coins="6" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+			<control type="joy" player="5" buttons="3" ways="8"/>
+			<control type="joy" player="6" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<port tag=":P5_P6">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmena" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver AEA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-aea04.10d" size="131072" crc="0e8d2e98" sha1="f58613bd8719566ae04d4b5f03864524a7c86a65" region="maincpu" offset="0"/>
+		<rom name="065-aea05.10f" size="131072" crc="0b742a4e" sha1="ed9c986261e72af7a80b44f9c2c576c265807e90" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_aea.nv" size="128" crc="d73d4f20" sha1="b39906eb59ecf8f1e8141b467021e0a581186d47" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmenaa" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver ADA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-ada04.10d" size="131072" crc="b8276624" sha1="5b601393faa4bf578d84b590eb2360ad400368a5" region="maincpu" offset="0"/>
+		<rom name="065-ada05.10f" size="131072" crc="c68582ad" sha1="d2ca23cc0ad08e7f3d5c533f6fe43d4c215c114e" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_ada.nv" size="128" crc="a77a3891" sha1="84ec257790d5c1859ffcbc9371a72ea99d7f8928" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmenabl" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver AEA, bootleg)</description>
+		<year>1992</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="rom1" size="524288" crc="c895fdc1" sha1="e7e6908374310ef0e71d9541402a18818ea10134" region="maincpu" offset="0"/>
+		<rom name="rom2" size="524288" crc="50d56da7" sha1="7ae0748f65d9de62be8c0cd1b41dceb1ea91ba3e" region="maincpu" offset="1"/>
+		<rom name="gfx15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="gfx16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="gfx2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="gfx2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="gfx1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="gfx1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="oki1" size="524288" crc="ded562e0" sha1="e67daae3e8e4a3a4979d3debf085f9c332404dd4" region="oki" offset="0"/>
+		<rom name="oki2" size="524288" crc="74a12d1e" sha1="b5e23e8efea2cf19385c081cfe8088bead132c21" region="oki" offset="80000"/>
+		<rom name="xmen_aea.nv" size="128" crc="d73d4f20" sha1="b39906eb59ecf8f1e8141b467021e0a581186d47" region="eeprom" offset="0"/>
+		<rom name="gal16v8b" size="279" status="nodump" region="plds" offset="0"/>
+		<rom name="gal16v8d" size="279" status="nodump" region="plds" offset="200"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="xmenj" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver JBA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-jba04.10d" size="131072" crc="d86cf5eb" sha1="8bf67eb6cdb7187142557c27b058282886984a61" region="maincpu" offset="0"/>
+		<rom name="065-jba05.10f" size="131072" crc="abbc8126" sha1="482a3c9be45b9d77460bd3df94e3c6cf285e63a2" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_jba.nv" size="128" crc="7439cea7" sha1="d34b8ed0549b0457362159098e5c86b1356e35d0" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmenja" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver JEA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-jea04.10d" size="131072" crc="655a61d6" sha1="30a50b0a13205252d1cec6b6a6300e25c2f376c6" region="maincpu" offset="0"/>
+		<rom name="065-jea05.10f" size="131072" crc="7ea9fc84" sha1="767f957c0c2f6a2d938d9e37388a17a6bce01dd8" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_jea.nv" size="128" crc="df5b6bc6" sha1="42fff0793bb1488bcdd69c39a8c5f58cdf39e1ff" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmenu" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver UBB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-ubb04.10d" size="131072" crc="f896c93b" sha1="0bee89fe4d36a9b2ded864770198eb2df6903580" region="maincpu" offset="0"/>
+		<rom name="065-ubb05.10f" size="131072" crc="e02e5d64" sha1="9838c1cf9862db3ca70a23ef5f3c5883729c4e0c" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_ubb.nv" size="128" crc="52f334ba" sha1="171c22b5ac41bcbbcfc31528cf49c096f6829a72" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="xmenua" sourcefile="konami/xmen.cpp" cloneof="xmen" romof="xmen">
+		<description>X-Men (4 Players ver UEB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="065-ueb04.10d" size="131072" crc="eee4e7ef" sha1="72fe588bc58c692e7f9891f3e89c7d6fcc28c480" region="maincpu" offset="0"/>
+		<rom name="065-ueb05.10f" size="131072" crc="c3b2ffde" sha1="27b32429c8c35cf15d1e5437535c4c335eee2118" region="maincpu" offset="1"/>
+		<rom name="065-a02.9d" merge="065-a02.9d" size="262144" crc="b31dc44c" sha1="4bdac05826b4d6d4fe46686ede5190e2f73eefc5" region="maincpu" offset="80000"/>
+		<rom name="065-a03.9f" merge="065-a03.9f" size="262144" crc="13842fe6" sha1="b61f094eb94336edb8708d3437ead9b853b2d6e6" region="maincpu" offset="80001"/>
+		<rom name="065-a01.6f" merge="065-a01.6f" size="131072" crc="147d3a4d" sha1="a14409fe991e803b9e7812303e3a9ebd857d8b01" region="audiocpu" offset="0"/>
+		<rom name="065-a08.15l" merge="065-a08.15l" size="1048576" crc="6b649aca" sha1="2595f314517738e8614facf578cc951a6c36a180" region="k052109" offset="0"/>
+		<rom name="065-a07.16l" merge="065-a07.16l" size="1048576" crc="c5dc8fc4" sha1="9887cb002c8b72be7ce933cb397f00cdc5506c8c" region="k052109" offset="2"/>
+		<rom name="065-a09.2h" merge="065-a09.2h" size="1048576" crc="ea05d52f" sha1="7f2c14f907355856fb94e3a67b73aa1919776835" region="k053246" offset="0"/>
+		<rom name="065-a10.2l" merge="065-a10.2l" size="1048576" crc="96b91802" sha1="641943557b59b91f0edd49ec8a73cef7d9268b32" region="k053246" offset="2"/>
+		<rom name="065-a12.1h" merge="065-a12.1h" size="1048576" crc="321ed07a" sha1="5b00ed676daeea974bdce6701667cfe573099dad" region="k053246" offset="4"/>
+		<rom name="065-a11.1l" merge="065-a11.1l" size="1048576" crc="46da948e" sha1="168ac9178ee5bad5931557fb549e1237971d7839" region="k053246" offset="6"/>
+		<rom name="065-a06.1f" merge="065-a06.1f" size="2097152" crc="5adbcee0" sha1="435feda697193bc51db80eba46be474cbbc1de4b" region="k054539" offset="0"/>
+		<rom name="xmen_ueb.nv" size="128" crc="db85fef4" sha1="9387d2f4dbb3cb5cdf59d2304393ac50b3c12ebe" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k053251"/>
+		<device_ref name="z80"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="K054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="304" height="224" refresh="59.170000" />
+		<sound channels="2"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROM">
+		</port>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" overall="imperfect"/>
 	</machine>
 	<machine name="xmvsf" sourcefile="capcom/cps2.cpp">
 		<description>X-Men Vs. Street Fighter (Euro 961004)</description>

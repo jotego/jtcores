@@ -5,6 +5,11 @@ author=["jotego"]
 [parse]
 sourcefile=[ "renegade.cpp" ]
 
+[Audio]
+volume = [
+    { machine="renegade", value=0xFF },
+]
+
 [buttons]
 Names = [
     { names="Hit Left,Jump,Hit Right"},

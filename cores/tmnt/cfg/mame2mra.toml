@@ -15,6 +15,13 @@ skip = { machines=[
     "prmrsocr",
 ], bootlegs=true }
 
+[audio]
+volume = [
+    { machine="mia", value=0xBC },
+    { machine="tmnt", value=0x66 },
+    { machine="punkshot", value=0x60 },
+]
+
 [buttons]
 names = [
     { machine="tmnt", names="Jump, Attack" },

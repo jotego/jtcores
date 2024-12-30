@@ -14,7 +14,7 @@ cd $CORES
 for i in *; do
     if [ ! -d $i ]; then continue; fi
     LOG=lint-$i.log
-    $JTFRAME/bin/lint-one.sh $i 2&> $LOG
+    $JTFRAME/bin/lint-one.sh $i > $LOG 2>&1
     if [ -e $LOG ]; then
         if grep %Warning- $LOG > /dev/null; then
             echo "Warnings for $i"

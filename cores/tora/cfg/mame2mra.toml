@@ -6,6 +6,12 @@ sourcefile=[ "tigeroad.cpp" ]
 skip.bootlegs=true
 skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant"]
 
+[Audio]
+volume = [
+    { machine="f1dream", value=0x1D },
+    { machine="tigeroad", value=0x21 },
+]
+
 [buttons]
 names=[
     { machine="tigeroad", names="Attack,Jump" },

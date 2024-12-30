@@ -394,7 +394,11 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 		each := &cfg.BRAM[k]
 		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
 		if each.Addr == "" { each.Addr = each.Name + "_addr" }
-		if each.Din  == "" && each.Rw { each.Din = each.Name + "_din"  }
+		if each.Rw {
+			if each.Din  == "" { each.Din = each.Name + "_din"  }
+		} else {
+			each.Din = fmt.Sprintf("%d'd0",each.Data_width)
+		}
 		if each.We   == "" && each.Rw { each.We  = each.Name + "_we"   }
 		if each.Dout == "" {
 			if bram_rom {
@@ -440,12 +444,15 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool
 					Name: each.Dual_port.Din,
 					MSB: each.Data_width-1,
 				})
-			}
-			if each.Dual_port.We != "" {
-				add( Port{
-					Name: each.Dual_port.We,
-					MSB: each.Data_width>>4, // 8->0, 16->1
-				})
+				if each.Dual_port.We != "" {
+					add( Port{
+						Name: each.Dual_port.We,
+						MSB: each.Data_width>>4, // 8->0, 16->1
+					})
+				}
+			} else {
+				each.Dual_port.Din = fmt.Sprintf("%d'd0",each.Data_width)
+				each.Dual_port.We  = fmt.Sprintf("%d'd0",each.Data_width>>3)
 			}
 			add( Port{
 				Name: each.Dual_port.Dout,

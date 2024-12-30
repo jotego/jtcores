@@ -110,7 +110,6 @@ jtsbaskt_main u_main(
     assign pcm_addr= 0;
 `endif
 
-`ifndef NOSOUND
 jtsbaskt_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk24     ),
@@ -140,17 +139,6 @@ jtsbaskt_snd u_sound(
     .debug_bus  ( debug_bus ),
     .debug_view ( debug_snd )
 );
-`else
-    assign snd_cs    = 0;
-    assign snd_addr  = 0;
-    assign pcm_addr  = 0;
-    assign psg       = 0;
-    assign vlm       = 0;
-    assign rdac      = 0;
-    assign vlm_rcen  = 0;
-    assign psg_rcen  = 0;
-    assign rdac_rcen = 0;
-`endif
 
 /* verilator tracing_off */
 jtsbaskt_video u_video(

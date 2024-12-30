@@ -65,12 +65,14 @@ wire        opn_irqn, opl_irqn;
 reg         st_cnt, st_cntl,
             st_clr, st_clrl;
 
-reg [1:0] cencnt;
+// reg [1:0] cencnt; // see #706
+reg       cencnt;
 reg       hu_cen;
 wire      hu_clk = clk & hu_cen;
 
 always @(posedge clk) begin
-    cencnt <= cencnt==2 ? 2'd0 : cencnt+2'd1; // 6.89/3 = 2.29 MHz
+    // cencnt <= cencnt==2 ? 2'd0 : cencnt+2'd1; // 6.89/3 = 2.29 MHz
+    cencnt <= ~cencnt;
 end
 
 always @(negedge clk) begin

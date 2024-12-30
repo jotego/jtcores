@@ -12,6 +12,7 @@ jtframe:
       - jtframe_romrq_rdy_check.v
 target:
   - from: mist
+    unless: VERILATOR
     get:
       - ver/mist_test.v
       - ver/test_harness.v

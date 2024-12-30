@@ -25,6 +25,7 @@
 // the previous line is dumped from the same line buffer to the screen
 
 // This module is not fully tested yet
+/* verilator lint_off MODDUP */
 module jtframe_lfbuf_line #(parameter
     DW      =  16,
     VW      =   8,

@@ -61,6 +61,9 @@ reg         ram_cs, pcm_sel, tempo_en;
 reg  [ 1:0] bdir, bc1;
 // sound signals
 wire        nmi_n;
+reg         reset;
+
+always @(posedge clk) reset <= rst | ~snd_rstn;
 
 assign rom_addr = A;
 assign pcm_din  = pcm_sel ? pcm_data[7:4] : pcm_data[3:0];
@@ -92,8 +95,8 @@ always @* begin
     ctrl_cs   = iowr_cs && A[2:0]==5;
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
+always @(posedge clk, posedge reset) begin
+    if( reset ) begin
         ctrl     <= 0;
         pcm_data <= 0;
         pcm_sel  <= 0;
@@ -126,7 +129,7 @@ end
 
 jtframe_ff u_int (
     .clk    (clk     ),
-    .rst    (rst     ),
+    .rst    (reset   ),
     .cen    (1'b1    ),
     .din    (1'b1    ),
     .q      (        ),
@@ -138,7 +141,7 @@ jtframe_ff u_int (
 
 jtframe_ff u_nmi (
     .clk    (clk     ),
-    .rst    (rst     ),
+    .rst    (reset   ),
     .cen    (1'b1    ),
     .din    (1'b1    ),
     .q      (        ),
@@ -149,7 +152,7 @@ jtframe_ff u_nmi (
 );
 
 jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
-    .rst_n      ( ~rst      ),
+    .rst_n      ( ~reset    ),
     .clk        ( clk       ),
     .cen        ( cen_3     ),
     .cpu_cen    (           ),
@@ -175,7 +178,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
 );
 
 jt49_bus u_psg0(
-    .rst_n      (  ~rst     ),
+    .rst_n      (  ~reset   ),
     .clk        (   clk     ),
     .clk_en     (   psg_cen ),
     // bus control pins of original chip
@@ -201,7 +204,7 @@ jt49_bus u_psg0(
 );
 
 jt49_bus u_psg1(
-    .rst_n      (  ~rst     ),
+    .rst_n      (  ~reset   ),
     .clk        (   clk     ),
     .clk_en     (   psg_cen ),
     // bus control pins of original chip

@@ -2,7 +2,7 @@
 
 Macros are expected in the file *cores/corename/cfg/macros.def*. From there, other files can be included. The *macros.def* file accepts target-specific macros. Check for examples in JT cores, such as [kicker](https://github.com/jotego/jtkicker).
 
-Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools.
+Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools. Macros are available for verilog files and also verilator C++ files. For C++, the macro name is added an initial underscore, so `ABC` becomes `_ABC`
 
 Macros in *macros.def* can have different values for a given target platform, using the following syntax:
 
@@ -15,9 +15,33 @@ FOO=6
 [mist*]
 # and in mist/mister platforms, it will be 7
 FOO=7
+[*]
+# matches all targets
 ```
 
 The glob matching pattern (using * and ? as in the command line) is supported for target platform name comparisons.
+
+Macro files can include other macro files with `include <path-to-def-file>`. Note that the path is relative to the current .def file being parsed.
+
+Macro declarations starting with `debug` are not parsed for release compilations:
+
+```
+[*]
+debug SHOWINFO
+ABC
+```
+
+Will ignore SHOWINFO when JTFRAME_RELEASE is defined. ABC will always be defined.
+
+Macros can be removed by preceding them with a minus sign:
+
+```
+ABC
+[mist]
+-ABC
+```
+
+Will remove the ABC macro for the MiST target.
 
 # System Name
 
@@ -39,8 +63,8 @@ Macro                    | Target  |  Usage
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
 JTFRAME_ANALOG           |         | Enables analog sticks
 JTFRAME_ANALOG_DUAL      |         | Enables second analog stick, requires JTFRAME_ANALOG too
-JTFRAME_ARX              | MiSTer  | Defines aspect ratio
-JTFRAME_ARY              | MiSTer  | Defines aspect ratio
+JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
+JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
 JTFRAME_AUTOFIRE0        | MiSTer  | Button 0 will autofire when pressed ([OSD](osd.md) option)
 JTFRAME_AVATARS          |         | Enables avatars on credits screen
 JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 by default)
@@ -72,7 +96,6 @@ JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buf
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
-JTFRAME_MCLK             |         | Automatic macro holding the master clock frequency in Hz
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
@@ -159,6 +182,18 @@ JTFRAME_SDRAM_MUXLATCH   |         | Extra latch for SDRAM mux for <64MHz operat
 JTFRAME_SDRAM_NO_DWNRFSH |         | No refresh during download (non-interleaved SDRAM controller)
 JTFRAME_SDRAM_REPACK     |         | Extra latch stage at SDRAM mux output
 
+# Clock Frequency Macros
+
+These macros are generated automatically by jtframe.
+
+Macro                    |  Usage
+-------------------------|----------------------
+JTFRAME_MCLK             | Automatic macro holding the master clock frequency in Hz
+JTFRAME_NTSC             | 40-bit phase increment for [MikeS11's YC module](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder?tab=readme-ov-file)
+JTFRAME_PAL              | 40-bit phase increment for YC module
+JTFRAME_PAL_LEN          | Use as COLORBURST_RANGE for YC module on PAL mode
+JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
+
 # SDRAM64
 
 Macro                    | Target  |  Usage
@@ -184,6 +219,8 @@ DUMP_VIDEO_FNAME         |         | Internal. Do not assign.
 JTFRAME_DUAL_RAM_DUMP    |         | Enables dumping of RAM contents in simulation
 JTFRAME_SAVESDRAM        |         | Saves SDRAM contents at the end of each frame (slow)
 JTFRAME_SDRAM_STATS      |         | Produce SDRAM usage data during simulation
+JTFRAME_SIM96            |verilator| Produces the clk96 clock input to the game module when JTFRAME_SDRAM96 is not set
+JTFRAME_SIM_CH_RAW       |         | Creates binary files with raw audio data for each channel. Automatically enabled when logic waveforms are dumped.
 JTFRAME_SIM_DEBUG        |verilator| Assign to debug_bus and then increase each frame. See [debug.md](debug.md)
 JTFRAME_SIM_DIPS         |         | DIP switch values for simulation. Use 0x... for verilator sims
 JTFRAME_SIM_GFXEN        |         | Sets the gfx_en value (4 bits). See [debug.md](debug.md)
@@ -194,9 +231,10 @@ JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours
 JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
+JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
-JTFRAME_SIM96            |verilator| Produces the clk96 clock input to the game module when JTFRAME_SDRAM96 is not set
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
+SIM_LOAD_PROM            |         | Manually enable it to force PROM load on offset-header cores (like JTS18)
 SIMSCENE                 |         | Set when jtsim is called with -scene
 SIMULATION               |         | Enables simulation features
 VERILATOR_KEEP_CEN       |verilator| Keeps all the cen signals generated by mem.yaml

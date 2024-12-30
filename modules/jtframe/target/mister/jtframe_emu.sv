@@ -365,6 +365,7 @@ wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1,  paddle_2,  paddle_3,  paddle_4,
             spinner_1, spinner_2, spinner_3, spinner_4;
 wire [15:0] mouse_1p, mouse_2p;
+wire [ 1:0] mouse_strobe;
 
 localparam COLORW=`JTFRAME_COLORW;
 
@@ -569,6 +570,7 @@ u_frame(
     // Mouse inputs
     .mouse_1p       ( mouse_1p       ),
     .mouse_2p       ( mouse_2p       ),
+    .mouse_strobe   ( mouse_strobe   ),
     .LED            ( LED_USER       ),
     // Dial emulation
     .dial_x         ( dial_x         ),

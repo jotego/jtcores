@@ -20,6 +20,10 @@
 `define JTFRAME_BUTTONS 2
 `endif
 
+`ifndef JTFRAME_SIM_SNDEN
+`define JTFRAME_SIM_SNDEN 6'h3f
+`endif
+
 // Top level for verilator simulations
 
 module game_test(
@@ -536,7 +540,7 @@ u_game(
 `endif
 
 `ifdef JTFRAME_MOUSE
-    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), `endif
+    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), .mouse_strobe( 2'd0 ), `endif
 
     // Sound control
     .enable_fm   ( enable_fm      ),
@@ -544,8 +548,8 @@ u_game(
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
-    .ioctl_wr    ( ioctl_wr       ), `ifdef JTFRAME_IOCTL_RD
-    .ioctl_ram   ( ioctl_ram      ),
+    .ioctl_wr    ( ioctl_wr       ),
+    .ioctl_ram   ( ioctl_ram      ), `ifdef JTFRAME_IOCTL_RD
     .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
     .ioctl_rom   ( ioctl_rom      ),
@@ -621,7 +625,7 @@ u_game(
     .snd_right   ( snd_right      ),
     `endif
     .sample      ( sample         ),
-    .snd_en      ( 6'h3f          ),
+    .snd_en      (`JTFRAME_SIM_SNDEN),
     .snd_vol     ( 8'h80          ), // matching value in jtframe_volume.v
     .snd_vu      (                ),
     .snd_peak    (                ),

@@ -12,18 +12,20 @@ module RGBtoYPbPr #(parameter WIDTH = 8)(
 	input hs_in,
 	input vs_in,
 	input cs_in,
+	input de_in,
 
 	output [WIDTH-1:0] red_out,
 	output [WIDTH-1:0] green_out,
 	output [WIDTH-1:0] blue_out,
 	output reg hs_out,
 	output reg vs_out,
-	output reg cs_out
+	output reg cs_out,
+	output reg de_out
 );
 
-reg [8+WIDTH-1:0] r_y;
-reg [8+WIDTH-1:0] g_y;
-reg [8+WIDTH-1:0] b_y;
+reg [8+WIDTH-1:0] r_y=0;
+reg [8+WIDTH-1:0] g_y=0;
+reg [8+WIDTH-1:0] b_y=0;
 
 reg [8+WIDTH-1:0] r_b;
 reg [8+WIDTH-1:0] g_b;
@@ -40,32 +42,34 @@ reg [8+WIDTH-1:0] r;
 reg hs_d;
 reg vs_d;
 reg cs_d;
+reg de_d;
 
-assign red_out = r[8+WIDTH-1:8];
+assign red_out   = r[8+WIDTH-1:8];
 assign green_out = y[8+WIDTH-1:8];
-assign blue_out = b[8+WIDTH-1:8];
+assign blue_out  = b[8+WIDTH-1:8];
 
 // Multiply in the first stage...
 always @(posedge clk) begin
 	hs_d <= hs_in;		// Register sync, pixel clock, etc
 	vs_d <= vs_in;		// so they're delayed the same amount as the incoming video
 	cs_d <= cs_in;
+	de_d <= de_in;
 
 	if(ena) begin
 		// (Y  =  0.299*R + 0.587*G + 0.114*B)
-		r_y <= red_in * 8'd76;
+		r_y <= red_in   * 8'd76;
 		g_y <= green_in * 8'd150;
-		b_y <= blue_in * 8'd29;
+		b_y <= blue_in  * 8'd29;
 
 		// (Pb = -0.169*R - 0.331*G + 0.500*B)
-		r_b <= red_in * 8'd43;
+		r_b <= red_in   * 8'd43;
 		g_b <= green_in * 8'd84;
-		b_b <= blue_in * 8'd128;
+		b_b <= blue_in  * 8'd128;
 
 		// (Pr =  0.500*R - 0.419*G - 0.081*B)
-		r_r <= red_in * 8'd128;
+		r_r <= red_in   * 8'd128;
 		g_r <= green_in * 8'd107;
-		b_r <= blue_in * 8'd20;
+		b_r <= blue_in  * 8'd20;
 	end else begin
 		r_r[8+WIDTH-1:8] <= red_in; // Passthrough
 		g_y[8+WIDTH-1:8] <= green_in;
@@ -80,11 +84,12 @@ always @(posedge clk) begin
 	hs_out <= hs_d;
 	vs_out <= vs_d;
 	cs_out <= cs_d;
+	de_out <= de_d;
 
 	if(ena) begin
 		y <= r_y + g_y + b_y;
-		b <= 2'd2**(8+WIDTH-1) + b_b - r_b - g_b;
-		r <= 2'd2**(8+WIDTH-1) + r_r - g_r - b_r;
+		b <= 14'd2**(8+WIDTH-1) + b_b - r_b - g_b;
+		r <= 14'd2**(8+WIDTH-1) + r_r - g_r - b_r;
 	end else begin
 		y <= g_y;	// Passthrough
 		b <= b_b;

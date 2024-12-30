@@ -9,6 +9,11 @@ author=["jotego"]
 sourcefile=[ "pingpong.cpp" ]
 skip = { setnames=["merlinmm","cashquiz"], bootlegs=false }
 
+[Audio]
+volume = [
+    { machine="pingpong", value=0xC1 },
+]
+
 [buttons]
 names=[
     { names="Button 1, button 2" }

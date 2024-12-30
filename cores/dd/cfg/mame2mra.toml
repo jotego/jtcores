@@ -24,6 +24,11 @@ skip.setnames=[
     "ddragon6809", "ddragon6809a"
 ]
 
+[Audio]
+volume = [
+    { machine="ddragon", value=0x50 },
+]
+
 [buttons]
 Names = [
     { names="Kick,Jump,Punch"},

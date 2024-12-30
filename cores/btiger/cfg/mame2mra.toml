@@ -5,6 +5,11 @@ author=["jotego"]
 sourcefile=[ "blktiger.cpp" ]
 skip.bootlegs=true
 
+[Audio]
+volume = [
+    { machine="blktiger", value=0x25 },
+]
+
 [buttons]
 names=[
     { names="Attack,Jump" }

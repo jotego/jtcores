@@ -9,9 +9,11 @@ import (
 
 	"os"
 	"strconv"
+	"strings"
 	"path/filepath"
 	"github.com/spf13/cobra"
 	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/mra"
 )
 
 // sdramCmd represents the sdram command
@@ -35,9 +37,15 @@ JTFRAME_HEADER.
 jtframe sdram will also link a rom.bin file to the .rom file used. If rom.bin
 already existed, it will be deleted and re-created as a link.
 
+If the core uses the header for SDRAM bank assignment, special care
+must be taken for the PROM data as JTFRAME_PROM_START will not be defined. This
+utility will create a file for each ROM region after bank 3, so the core can
+directly load these files in simulation. You can also force the PROM load in
+simulation for these cores by setting the SIM_LOAD_PROM macro.
+
 The result will only be correct for cores that do not transform download data on
-the fly and that do not depend on the header for SDRAM bank assignment. These
-features can be partially support in future development.`,
+the fly.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var game string
 		wd, e := os.Getwd()
@@ -89,26 +97,36 @@ func must_env( env string ) string {
 	return v
 }
 
-func dump( name string, rom []byte, p0,p1, lim int) int {
+func dump( name string, rom []byte, p0,p1, lim, fill int) int {
 	if p1<=0 { p1 = lim	}
+	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
 	if p1<p0 { return -1 }
 	if p1<=0 { return p0 }
 	if p1>len(rom) {
 		fmt.Println("ROM file is too short to produce file",name)
 		os.Exit(1)
 	}
+	if( p1==p0 && fill==0 ) {
+		e := os.Remove(name)
+		if e==nil {
+			fmt.Println("Removed file",name)
+		}
+		return p1
+	}
 	e := os.WriteFile( name, rom[p0:p1],0664 )
 	must(e)
 	// complement up to 8MB
-	const EIGHT=8*1024*1024
 	sz := p1-p0
-	if sz >= EIGHT { return p1 }
+	if sz >= fill { return p1 }
 	f, e := os.OpenFile(name,os.O_APPEND|os.O_WRONLY,0664)
 	must(e)
-	blank := make([]byte,EIGHT-sz)
+	blank := make([]byte,fill-sz)
 	_, e = f.Write(blank)
 	must(e)
 	f.Close()
+	if verbose {
+		fmt.Printf("%s done. Next starts at %x\n",name,p1)
+	}
 	return p1
 }
 
@@ -123,6 +141,14 @@ func bank_start(macros map[string]string, name string) int {
 	return int(n)
 }
 
+func swap_bytes( rom []byte, start int ) {
+	for k:=start;k<len(rom);k+=2 {
+		aux     := rom[k]
+		rom[k]   = rom[k+1]
+		rom[k+1] = aux
+	}
+}
+
 func read_rom( game string ) []byte {
 	rom, e := os.ReadFile( filepath.Join(must_env("JTROOT"),"rom",game+".rom") )
 	must(e)
@@ -131,48 +157,97 @@ func read_rom( game string ) []byte {
 		os.Exit(1)
 	}
 	// swap the bytes so the sdram.bin files get written correctly as 16-bit words
-	for k:=0;k<len(rom);k+=2 {
-		aux     := rom[k]
-		rom[k]   = rom[k+1]
-		rom[k+1] = aux
-	}
+	swap_bytes(rom,0)
 	return rom
 }
 
-func extract_sdram( core, game string ) {
-	rom := read_rom(game)
-	macros := def.Get_Macros( core, "mist" )
-	header   := bank_start(macros,"JTFRAME_HEADER")
-	prom_start := bank_start(macros,"JTFRAME_PROM_START")+header
-	if prom_start == 0 {
-		prom_start = len(rom)
+func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []string) {
+	header  := bank_start(macros,"JTFRAME_HEADER")
+	mra_cfg := mra.ParseToml(mra.TomlPath(core), macros, core, false)
+	reg_cnt := len(mra_cfg.Header.Offset.Regions)
+	if reg_cnt < 5 {
+		reg_cnt=5
 	}
-	nx_bank  := bank_start(macros,"JTFRAME_BA1_START")+header
-	nx_start := dump("sdram_bank0.bin",rom,header,nx_bank, prom_start)
+	offsets := make([]int,reg_cnt)
+	// Default values from macros (if defined)
+	offsets[1] = bank_start(macros,"JTFRAME_BA1_START")+header
+	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
+	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
+	offsets[4] = bank_start(macros,"JTFRAME_PROM_START")+header
+	if offsets[4] <= header {
+		offsets[4] = len(rom)
+	}
+	// final values from header (if defined)
+	hinfo := &mra_cfg.Header.Offset
+	for k:=1; k<len(hinfo.Regions); k++ {
+		var pos int
+		pos  = int(rom[hinfo.Start+(k<<1)])<<8
+		pos |= int(rom[hinfo.Start+(k<<1)+1])
+		pos <<= hinfo.Bits
+		offsets[k]=pos+header
+		if verbose {
+			fmt.Printf("%-4d %-20s %X\n",k,hinfo.Regions[k], offsets[k])
+		}
+	}
+	if verbose {
+		fmt.Println("Offsets")
+		for k, _ := range offsets {
+			fmt.Printf("%d %X\n",k,offsets[k])
+		}
+	}
+	return offsets,hinfo.Regions
+}
+
+func extract_sdram( core, game string ) {
+	const EIGHT=8*1024*1024
+	rom        := read_rom(game)
+	macros     := def.Get_Macros( core, "mist" )
+	offsets,reg:= bankOffset(core,macros,rom)
+	header     := bank_start(macros,"JTFRAME_HEADER")
+	prom_start := offsets[4]
+	nx_start := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank1.bin")
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_bank  = bank_start(macros,"JTFRAME_BA2_START")+header
-	nx_start = dump("sdram_bank1.bin",rom,nx_start,nx_bank, prom_start)
+	nx_start = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_bank  = bank_start(macros,"JTFRAME_BA3_START")+header
-	nx_start = dump("sdram_bank2.bin",rom,nx_start,nx_bank, prom_start)
+	nx_start = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT)
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
 		return
 	}
-	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start)
+	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
+	// extra regions (read with prom_we set)
+	if len(reg)>4 { // undo the swap that was needed for the SDRAM part of the ROM file
+		swap_bytes(rom,offsets[4])
+	}
+	for k:=4; k<len(reg);k++ {
+		nx := 0
+		if k+1 < len(reg) {
+			nx = offsets[k+1]
+		}
+		dump(reg[k],rom,offsets[k],nx,len(rom),0)
+	}
+
 }
 
 func make_symlink( game string ) {
+	// Link ROM files
 	src := filepath.Join(must_env("JTROOT"),"rom",game+".rom")
 	os.Remove("rom.bin")
 	os.Symlink(src,"rom.bin")
+	// Link NVRAM files
+	src = filepath.Join(must_env("JTROOT"),"rom",strings.ToUpper(game+".RAM"))
+	f, e := os.Open(src)
+	defer f.Close()
+	if e!=nil { return } // No RAM file
+	os.Remove("nvram.bin")
+	os.Symlink(src,"nvram.bin")
 }

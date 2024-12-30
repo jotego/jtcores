@@ -6,6 +6,12 @@ sourcefile=[ "lwings.cpp" ]
 skip.bootlegs=true
 skip.Machines=[ "avengers", "fball", "sectionz", "lwings"]
 skip.Setnames=[ "trojanlt" ] # location test ROM has a different arrangement
+
+[Audio]
+volume = [
+    { machine="trojan", value=0x7E },
+]
+
 [buttons]
 names=[
     { names="Attack,Jump" },
@@ -13,7 +19,6 @@ names=[
 
 [header]
 data=[ {offset=0, data="02" } ]
-offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3", "proms"]}
 
 [ROM]
 regions=[

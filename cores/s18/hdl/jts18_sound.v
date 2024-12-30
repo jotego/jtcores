@@ -86,11 +86,13 @@ always @(*) begin
     // Port Map
     { fm0_cs, fm1_cs, bkreg_cs, mapper_cs } = 0;
     if( !iorq_n && m1_n ) begin
-        case( A[7:4] )
-            4'h8: fm0_cs    = 1;
-            4'h9: fm1_cs    = 1;
-            4'ha: bkreg_cs  = ~wr_n;
-            4'hc: mapper_cs = 1;
+        case( A[7:5] )
+            4: begin
+                fm0_cs = !A[4];
+                fm1_cs =  A[4];
+            end
+            5: bkreg_cs  = ~wr_n;
+            6: mapper_cs = 1;
             default:;
         endcase
     end

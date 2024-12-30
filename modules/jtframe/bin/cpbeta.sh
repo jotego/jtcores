@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # This file is part of JTFRAME.
 # JTFRAME program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,10 +21,31 @@
 # Places a copy of the files in $JTROOT and another one, for
 # archiving purposes in $JTFRIDAY
 
-set -e
+FRIDAY="friday"
 
-CORESTAMP=$(date --date=friday +"%Y%m%d")
-SHORTSTAMP=$(date --date=friday +"%y%m%d")
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --last)
+            FRIDAY="last friday";;
+        -h|--help)
+            cat<<EOF
+cpbeta.sh <hash> [arguments]
+
+Creates zip files for distribution on JTFRIDAY.
+
+-h, --help      This help screen
+-l, --last      Use last friday's date, instead of next's
+EOF
+            exit 0;;
+        *)
+            echo "Unknown argument $1"
+            exit 1;;
+    esac
+    shift
+done
+
+CORESTAMP=$(date --date="$FRIDAY" +"%Y%m%d")
+SHORTSTAMP=$(date --date="$FRIDAY" +"%y%m%d")
 DEST=`mktemp --directory`
 UPMR=
 

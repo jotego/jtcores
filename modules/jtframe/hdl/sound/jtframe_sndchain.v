@@ -26,6 +26,7 @@ module jtframe_sndchain #(parameter
     FIR="",
     STEREO=1, 
     WC=8,           // width for each pole coefficient
+    FILE="ch0.raw", // dump raw audio to a file
     // do not set
     WS  = STEREO==1?2*W :W,
     WO  = 16,
@@ -168,5 +169,23 @@ generate
         end
     end
 endgenerate
+
+`ifdef DUMP
+    `define JTFRAME_SIM_CH_RAW
+`endif
+
+`ifdef JTFRAME_SIM_CH_RAW
+integer fsnd;
+initial begin
+    fsnd=$fopen(FILE,"wb");
+end
+
+always @(posedge cen) begin
+    if(STEREO==1)
+        $fwrite(fsnd,"%u", sout );
+    else
+        $fwrite(fsnd,"%u", {2{sout}} );
+end
+`endif
 
 endmodule

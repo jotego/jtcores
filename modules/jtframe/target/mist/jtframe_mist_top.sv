@@ -246,6 +246,7 @@ wire        pxl_cen, pxl2_cen;
 wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 wire [15:0] mouse_1p, mouse_2p;
+wire [ 1:0] mouse_strobe;
 wire [31:0] dipsw;
 
 `ifdef JTFRAME_DIPBASE
@@ -450,6 +451,7 @@ u_frame(
     // Mouse inputs
     .mouse_1p       ( mouse_1p       ),
     .mouse_2p       ( mouse_2p       ),
+    .mouse_strobe   ( mouse_strobe   ),
     .LED            ( LED            ),
     // Dial emulation
     .dial_x         ( dial_x         ),

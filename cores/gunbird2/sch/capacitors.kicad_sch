@@ -1493,11 +1493,11 @@
     )
   )
 
-  (text "NOT MOUNTED\n" (at 34.29 81.28 0)
+  (text "NOT POPULATED\n" (at 34.29 81.28 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 7dc786fe-428a-484e-a000-47fbdbbb4583)
   )
-  (text "NOT MOUNTED" (at 78.74 102.87 0)
+  (text "NOT POPULATED" (at 78.74 102.87 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8c35c9a3-ea86-43df-b468-11895cc0d0f5)
   )
