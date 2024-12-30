@@ -1,4 +1,4 @@
-programs = lut2hex reverse_bits
+programs = reverse_bits
 
 all: $(programs)
 	mv $(programs) ../bin
