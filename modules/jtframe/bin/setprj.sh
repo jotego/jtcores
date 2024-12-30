@@ -100,7 +100,7 @@ function swcore {
 }
 
 # change to a folder inside "$CORES/*/ver" folders
-function cdver {
+function cdgame {
     local setname=$1
     if [ -z "$JTROOT" ]; then
         echo Have you forgot to define JTROOT?

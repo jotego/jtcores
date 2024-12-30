@@ -100,7 +100,6 @@ jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     // control
     .dma_on         ( dma_on | debug_bus[7]        ),
     .dma_bsy        ( dma_bsy       ),
-    .hdump          ( hdump         ),
     .vdump          ( vdump         ),
 
     .vs             ( vs            ),

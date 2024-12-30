@@ -8,7 +8,7 @@ game:
       - jtfround_objdraw.v
       - jtfround_draw.v
       - jtfround_colmix.v
-      - jt00778x.v
+      - jt00778x*.v
 #      - jtfround_obj.v
   - from: tmnt
     get:

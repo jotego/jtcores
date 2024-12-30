@@ -22,13 +22,6 @@ type Bus interface {
     Is_nbits(n int) bool
 }
 
-type Selectable struct {
-    Target      string
-    Targets   []string
-    NoTarget    string
-    NoTargets []string
-}
-
 type MacroEnabled struct{
     When    []string `yaml:"when"`
     Unless  []string `yaml:"unless"`
@@ -39,7 +32,10 @@ type Optional interface{
 }
 
 type SDRAMBus struct {
-    Selectable
+    // MacroEnabled
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+
     Name       string `yaml:"name"`
     Offset     string `yaml:"offset"`
     Addr       string `yaml:"addr"`
@@ -65,7 +61,10 @@ type BRAMBus_Ioctl struct {
 }
 
 type BRAMBus struct {
-    Selectable
+    // MacroEnabled
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+
     Name       string `yaml:"name"`
     Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
     Data_width int    `yaml:"data_width"`

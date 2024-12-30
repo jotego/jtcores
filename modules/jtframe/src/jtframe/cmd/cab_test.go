@@ -39,6 +39,19 @@ func TestCab2Hex_comment( t *testing.T ) {
 	if linecnt!=7 { t.Errorf("Expecting 7 lines, got %d",linecnt)}
 }
 
+func TestCab2Hex_comment2( t *testing.T ) {
+	cab := strings.NewReader("# prologue\n")
+	converted, e := cab2hex(cab); if e!=nil { t.Error(e) }
+	reader := bytes.NewReader(converted)
+	linecnt := 0
+	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
+		linecnt++
+		if scanner.Text()!="0" { t.Errorf("Expecting line to be 0")}
+	}
+	const expected=0
+	if linecnt!=expected { t.Errorf("Expecting %d lines, got %d",expected,linecnt)}
+}
+
 func TestCab2Hex_single( t *testing.T ) {
 	cab := strings.NewReader(`coin
 service

@@ -1,0 +1,16 @@
+#!/bin/bash -e
+# run go tests
+
+log=`mktemp`
+for program in jtframe jtutil; do
+	cd $JTFRAME/src/$program
+	echo -n "Go test on $program"
+	if ! go test ./... > $log; then
+		echo " FAIL"
+		cat $log
+		rm -f $log
+		exit 1
+	fi
+	echo " PASS"
+done
+rm -f $log

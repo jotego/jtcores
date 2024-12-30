@@ -56,6 +56,7 @@ always @(posedge clk) begin
          8: ioctl_mux <= obj_dx[15:8];
          9: ioctl_mux <= obj_dy[ 7:0];
         10: ioctl_mux <= obj_dy[15:8];
+        11: ioctl_mux <= {7'd0, dma_on};
         default: ioctl_mux <= 0;
     endcase
 end

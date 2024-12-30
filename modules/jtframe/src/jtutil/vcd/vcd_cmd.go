@@ -319,8 +319,7 @@ q,quit              quits the program
 .,source foo        executes the commands in the given file
 s,step              forwards simulation by one relevant change
 set vcd-name=value  alters the value of a simulation signal
-st,step-trace       forwards MAME trace by one relevant change
-`)
+st,step-trace       forwards MAME trace by one relevant change`)
         }
         default: fmt.Println("Unknown command ",tokens[0])
         }

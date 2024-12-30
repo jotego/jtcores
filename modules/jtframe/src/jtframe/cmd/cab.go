@@ -125,7 +125,7 @@ func execute_loop(body []byte,times int) (unwrapped []byte) {
 
 func parse_tokens( tokens []string ) (parsed []byte, e error) {
 	if len(tokens)==0 ||
-	  (len(tokens)==1 && (tokens[0]=="" || tokens[0][0]=='#')) {
+	  (len(tokens)>=1 && (tokens[0]=="" || tokens[0][0]=='#')) {
 		return nil, nil
 	}
 	pos := 0

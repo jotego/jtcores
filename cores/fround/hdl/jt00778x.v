@@ -39,35 +39,19 @@
 
 // sprite tiles are 16x16x4
 
-
 module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             rst,
     input             clk,
     input             pxl_cen,
 
-    // CPU interface
-    // input             cs,
-    // input             cpu_we,
-    // input      [ 7:0] cpu_dout,
-    // input      [10:0] cpu_addr,
-    // output     [ 7:0] cpu_din,
-
-    // ROM addressing
-    output reg [CW-1:0] code,
-    output reg [ 3:0] attr,
-    output reg        hflip,
-    output reg [PW-1:0] hpos,
-    output reg [ 1:0] hsize,
-
     // DMA memory
     output     [13:1] oram_addr,
     input      [15:0] oram_dout,
-    output reg [15:0] oram_din,
-    output reg        oram_we,
+    output     [15:0] oram_din,
+    output            oram_we,
     // control
     input             dma_on,
-    output reg        dma_bsy,
-    input      [ 8:0] hdump,    // Not inputs in the original, but
+    output            dma_bsy,
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
@@ -78,290 +62,120 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             gvflip,
 
     // draw module
-    output reg        dr_start,
+    output   [CW-1:0] code,
+    output     [ 3:0] attr,
+    output            hflip,
+    output   [PW-1:0] hpos,
+    output     [ 1:0] hsize,
+    output            dr_start,
     input             dr_busy,
 
     input      [ 7:0] debug_bus
     // output reg [ 7:0] st_dout
 );
 
-reg         beflag, obi_l, obj_en, vflip,
-            dma_clr, dma_cen;
-reg  [13:1] cpr_addr; // copy read  address
-reg  [10:1] cpw_addr; // copy write address
-wire [ 4:1] nx_cpra;
-wire [15:0] scan_dout;
-reg  [ 1:0] vsize;
-reg  [ 2:0] scan_sub, lut_sub;
-reg         inzone, hs_l, done, busy_l, skip, half;
-reg  [ 8:0] ydiff, vlatch;
-reg  [15:0] y;
-reg  [ 7:0] scan_obj, lut_obj, lut_dst;
-reg  [ 6:0] ydf;
-wire [ 9:0] lut_addr;
-wire        busy_g, valid_y, objbufinit;
+wire   [15:0] scan_dout;
+wire   [13:1] dma_addr, copy_addr;
+wire   [10:1] scan_addr;
+wire          objbufinit, copy_bsy;
+wire [PW-1:0] obj_dxl, obj_dyl;
+
+localparam NOLUTFB=`ifdef NOLUTFB 1 `else 0 `endif;
 
 // NOLUTFB -> bypass LUT framebuffer for FPGAs with scarce BRAM
-assign lut_addr  = { `ifdef NOLUTFB  scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif };
-assign oram_addr =
-    !dma_bsy ? { 3'b110, lut_addr } :
-    oram_we  ? { 3'b110, cpw_addr } :
-                         cpr_addr;
-assign nx_cpra  = {1'd0, cpr_addr[3:1]} + 4'd1;
-assign busy_g   = busy_l | dr_busy;
-assign valid_y  = y<16'h180 || y>=16'hff00;
+`ifndef NOLUTFB
+// full operation
+assign oram_addr = copy_bsy ? copy_addr :
+                    dma_bsy ? dma_addr  :
+                              {3'b110, scan_addr};
+`else
+// skip LUT
+assign oram_addr = {3'b110, scan_addr};
+`endif
 // original equation from schematics, it is the same as the start of vblank
 assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
 
-`ifdef SIMULATION
-wire [13:0] cpr_afull = {cpr_addr,1'b0};
-wire [13:0] cpw_afull = {3'b110,cpw_addr,1'b0};
-`endif
+jt00778x_dma u_dma(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .objbufinit ( objbufinit    ),
+    .lvbl       ( lvbl          ),
+    .dma_on     ( dma_on        ),
+    .dma_bsy    ( dma_bsy       ),
 
-// DMA logic
-always @(posedge clk) begin
-    if( rst ) begin
-        dma_clr  <= 0;
-        oram_we  <= 0;
-        dma_bsy  <= 0;
-        cpr_addr <= 0;
-        cpw_addr <= 0;
-        dma_cen  <= 0; // 3 MHz
-        obj_en   <= 0;
-        oram_din <= 0;
-        beflag   <= 0;
-        obi_l    <= 0;
-        half     <= 0;
-    end else if( pxl_cen ) begin
-        obi_l <= objbufinit;
-        if( objbufinit && !obi_l ) begin
-            dma_bsy <= 1;
-            obj_en  <= ~dma_on;
-            half    <= ~half;
-        end
-        dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
-        if( lvbl ) begin
-            dma_clr  <= 1;
-            cpr_addr <= 0;
-            cpw_addr <= 0;
-            oram_we  <= 0;
-            oram_din <= 0;
-            beflag   <= 0;
-        end else if( dma_bsy ) begin
-            if( dma_clr && dma_cen ) begin
-                { dma_clr, cpw_addr } <= { 1'b1, cpw_addr } + 1'h1;
-                oram_we <= obj_en;
-            end else if( !dma_clr ) begin // direct copy
-                if( !dma_cen ) begin
-                    case( cpr_addr[3:1] )
-                        0: begin
-                            cpw_addr[10:3] <= oram_dout[7:0];
-                            oram_din <= 0;
-                            beflag   <= oram_dout[15] && obj_en;
-                        end
-                        2: begin // flags
-                            cpw_addr[2:1] <= 3;
-                            oram_din <= { 1'b1,5'd0, oram_dout[9:0] };
-                            oram_we  <= beflag;
-                            // if(beflag) $display("OBJ %X flags %X (hsize=%d, vsize=%d)",
-                            //     cpw_addr[10:3], { 1'b1,5'd0, oram_dout[9:0] },
-                            //     8'h10<<oram_dout[5:4], 8'h10<<oram_dout[7:6] );
-                        end
-                        3: begin // code
-                            cpw_addr[2:1] <= 0;
-                            oram_din <= oram_dout;
-                            oram_we  <= beflag;
-                            // if(beflag) $display("        code %X", oram_dout );
-                        end
-                        4: oram_din[15:8] <= oram_dout[7:0];
-                        5: begin // x
-                            cpw_addr[2:1] <= 2;
-                            oram_din[7:0] <= oram_dout[15:8];
-                            oram_we  <= beflag;
-                            // if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
-                        end
-                        6: oram_din[15:8] <= oram_dout[7:0];
-                        7: begin // y
-                            cpw_addr[2:1] <= 1;
-                            oram_din[7:0] <= oram_dout[15:8];
-                            oram_we  <= beflag;
-                            // if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
-                        end
-                    endcase
-                end else begin
-                    cpr_addr[3:1] <= nx_cpra[3:1];
-                    if( nx_cpra[4] ) begin
-                        cpr_addr[13:4] <= cpr_addr[13:4]+10'h5;
-                        dma_bsy <= cpr_addr<'h17d7;
-                    end
-                    oram_we <= 0;
-                end
-            end
-        end
-    end
-end
+    .oram_addr  ( dma_addr      ),
+    .oram_dout  ( oram_dout     ),
+    .oram_din   ( oram_din      ),
+    .oram_we    ( oram_we       )
+);
 
-reg bsy_l;
 
 `ifndef NOLUTFB
-    // frame buffer for look-up table, plus clean up
-    reg lut_done, lut_clr, lut_we;
-    wire [15:0] lut_din = lut_done ? 16'h4000 : oram_dout;
-    wire        lut_clr_end;
+wire        copy_we;
+wire [15:0] copy_din;
+wire        lut_we   = copy_bsy ? copy_we         : oram_we;
+wire [10:1] lut_addr = copy_bsy ? copy_addr[10:1] : dma_addr[10:1];
+wire [15:0] lut_din  = copy_bsy ? copy_din        : oram_din;
 
-    assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
+jt00778x_copy_lut u_copy_lut(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .objbufinit ( objbufinit    ),
+    .dma_on     ( dma_on        ),
+    .dma_bsy    ( copy_bsy      ),
 
-    always @(posedge clk, posedge rst) begin
-        if( rst ) begin
-            lut_done <= 0;
-            lut_clr  <= 0;
-            lut_obj  <= 0;
-            lut_sub  <= 0;
-            lut_dst  <= 0;
-            lut_we   <= 0;
-        end else if(cen2) begin
-            bsy_l <= dma_bsy;
-            if( !dma_bsy && bsy_l ) begin
-                lut_done <= 0;
-                lut_clr  <= 0;
-                lut_obj  <= 0;
-                lut_sub  <= 0;
-                lut_dst  <= 0;
-                lut_we   <= 0;
-            end else if( !lut_done ) begin
-                lut_sub <= lut_sub + 1'd1;
-                lut_we  <= 1;
-                case( lut_sub )
-                    0: begin
-                        if( !oram_dout[15] ) begin
-                            lut_sub  <= 0;
-                            lut_obj  <= lut_obj+1'd1;
-                            lut_done <= &lut_obj;
-                        end
-                    end
-                    3: begin
-                        lut_dst <= lut_dst+1'd1;
-                        lut_sub <= 0;
-                        lut_obj <= lut_obj+1'd1;
-                        lut_done <= &lut_obj;
-                    end
-                endcase
-            end else if( !lut_clr ) begin
-                lut_we <= ~lut_clr_end;
-                { lut_dst, lut_sub[1:0] } <= { lut_dst, lut_sub[1:0] } + 1'd1;
-                lut_clr <= lut_clr_end;
-            end else begin
-                lut_we <= 0;
-            end
-        end
-    end
+    .oram_addr  ( copy_addr     ),
+    .oram_dout  ( oram_dout     ),
+    .oram_din   ( copy_din      ),
+    .oram_we    ( copy_we       )
+);
 
-    jtframe_dual_ram16  #(.AW(11)) u_framebuffer(
-        // Port 0: LUT writting
-        .clk0   ( clk            ),
-        .data0  ( lut_din        ),
-        .addr0  ({half,lut_dst,~lut_sub[1:0]}),
-        .we0    ( {2{lut_we}}    ),
-        .q0     (                ),
-        // Port 1: scan
-        .clk1   ( clk            ),
-        .data1  ( 16'd0          ),
-        .addr1  ({~half,scan_obj,scan_sub[1:0]}),
-        .we1    ( 2'b0           ),
-        .q1     ( scan_dout      )
-    );
+jt00778x_lut_buf#(.PW(PW)) u_lut(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .objbufinit ( objbufinit    ),
+
+    .lut_addr   ( lut_addr      ),
+    .lut_din    ( lut_din       ),
+    .lut_we     ( lut_we        ),
+
+    .scan_addr  ( scan_addr     ),
+    .scan_dout  ( scan_dout     ),
+
+    .obj_dx     ( obj_dx        ),
+    .obj_dy     ( obj_dy        ),
+    .obj_dxl    ( obj_dxl       ),
+    .obj_dyl    ( obj_dyl       )
+);
 `else
-    assign scan_dout = oram_dout;
+    assign scan_dout = lut_din;
 `endif
 
-(* direct_enable *) reg cen2=0;
-always @(negedge clk) cen2 <= ~cen2;
+jt00778x_scan#(.PW(PW),.CW(CW)) u_scan(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
+    .vdump      ( vdump         ),
 
-// Table scan
-always @* begin
-    ydiff = vlatch - y[8:0];
-    case( vsize )
-        0: inzone = ydiff[8:4]==0; //  16
-        1: inzone = ydiff[8:5]==0; //  32
-        2: inzone = ydiff[8:6]==0; //  64
-        3: inzone = ydiff[8:7]==0; // 128
-    endcase
-end
+    .obj_dxl    ( obj_dxl       ),
+    .obj_dyl    ( obj_dyl       ),
+    .gvflip     ( gvflip        ),
 
-// code
-// EDCBEA9876543210VVVV   16 pixel wide
-// EDCBEA987654321VVVVH   32 pixel wide
-// EDCBEA98765432VVVVHH   64 pixel wide
-// EDCBEA9876543VVVVHHH   64 pixel wide
-// EDCBEA987654321VVVVH   32x16
-// EDCBEA98765432VVVVVH   32x32
-// EDCBEA987654VVVVVVHH   64x64
+    .scan_addr  ( scan_addr     ),
+    .scan_dout  ( scan_dout     ),
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        hs_l     <= 0;
-        scan_obj <= 0;
-        scan_sub <= 0;
-        code     <= 0;
-        attr     <= 0;
-        vflip    <= 0;
-        hflip    <= 0;
-        busy_l   <= 0;
-    end else if( cen2 ) begin
-        hs_l <= hs;
-        busy_l <= dr_busy;
-        dr_start <= 0;
-        if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
-            done     <= 0;
-            scan_obj <= 0;
-            scan_sub <= 0;
-            vlatch   <= (vdump^{1'b1,{8{gvflip}}});
-        end else if( !done ) begin
-            scan_sub <= scan_sub + 1'd1;
-            case( scan_sub )
-                1: begin
-                    y <= 0;
-                    y[PW-1:0] <=  scan_dout[PW-1:0]-obj_dy[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
-                end
-                2: hpos <= (scan_dout[PW-1:0]-obj_dx[PW-1:0])+ {{PW-9{1'b0}},9'h69};
-                3: begin
-                    skip <= ~scan_dout[15] && valid_y;
-                    if( scan_dout[14] ) begin
-                        done <= 1;
-                    end
-                    { vflip, hflip, vsize, hsize, attr } <= scan_dout[9:0];
-                end
-                4: begin
-                    code[CW-1:4] <= scan_dout[0+:CW-4];
-                    code[3:0] <= 0;
-                    ydf <= ydiff[6:0]^{7{vflip}};
-                end
-                5: begin
-                    // Add the vertical offset to the code
-                    case( vsize )
-                        0: code[ {3'd0,hsize} +: 4 ] <= ydf[3:0];
-                        1: code[ {3'd0,hsize} +: 5 ] <= ydf[4:0];
-                        2: code[ {3'd0,hsize} +: 6 ] <= ydf[5:0];
-                        3: code[ {3'd0,hsize} +: 7 ] <= ydf[6:0];
-                    endcase
-                    if( !inzone || skip ) begin
-                        scan_sub <= 1;
-                        scan_obj <= scan_obj + 1'd1;
-                        if( &scan_obj ) done <= 1;
-                    end
-                end
-                6: begin
-                    scan_sub <= 6;
-                    if( !busy_g || !inzone ) begin
-                        dr_start <= inzone;
-                        scan_sub <= 1;
-                        scan_obj <= scan_obj + 1'd1;
-                        if( &scan_obj ) done <= 1;
-                    end
-                end
-            endcase
-        end
-    end
-end
+    // draw module
+    .code       ( code          ),
+    .attr       ( attr          ),
+    .hflip      ( hflip         ),
+    .hpos       ( hpos          ),
+    .hsize      ( hsize         ),
+    .dr_start   ( dr_start      ),
+    .dr_busy    ( dr_busy       )
+);
 
 endmodule

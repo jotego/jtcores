@@ -137,12 +137,12 @@ func sanity_check( cfg []MMRdef ) {
 			os.Exit(1)
 		}
 		if( len(each.Regs)==0 ) {
-			fmt.Printf("Error: %s's MMR does not have any output")
+			fmt.Printf("Error: %s's MMR does not have any output", each.Name)
 			os.Exit(1)
 		}
 		for _, reg := range each.Regs {
 			if reg.Name=="" {
-				fmt.Printf("Error: %s's MMR has unnamed registers\n", each.Name )
+				fmt.Printf("Error: %s's MMR has unnamed registers\n", each.Name)
 				os.Exit(1)
 			}
 			if reg.Dw == 0 {

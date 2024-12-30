@@ -73,7 +73,7 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 			}
 			aux, err := strconv.ParseInt(start_str, 0, 64)
 			if err != nil {
-				fmt.Println("ERROR: Macro %s is used as a ROM start, but its value (%s) is not a number\n",
+				fmt.Printf("ERROR: Macro %s is used as a ROM start, but its value (%s) is not a number\n",
 					this.Start, start_str)
 				os.Exit(1)
 			}

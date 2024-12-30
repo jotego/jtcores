@@ -176,13 +176,40 @@ func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 	}
 	if verbose {
 		fmt.Println("jtframe mem: memory configuration:")
-		fmt.Println(*cfg,"\n")
+		fmt.Println(*cfg)
+		fmt.Println()
 	}
 	return nil
 }
 
 func delete_optional( cfg *MemConfig, macros map[string]string ) {
+	delete_optional_bram(cfg,macros)
+	delete_optional_sdram(cfg,macros)
 	delete_optional_ioctl(cfg.BRAM, macros)
+}
+
+func delete_optional_sdram(cfg *MemConfig, macros map[string]string ) {
+	for k,_:=range cfg.SDRAM.Banks {
+		total := len(cfg.SDRAM.Banks[k].Buses)
+		if total==0 { continue }
+		optional := make([]Optional,total)
+		for j,_ := range cfg.SDRAM.Banks[k].Buses {
+			optional[j]=&cfg.SDRAM.Banks[k].Buses[j]
+		}
+		enabled := find_enabled(optional,macros)
+		cfg.SDRAM.Banks[k].Buses = copy_enabled(cfg.SDRAM.Banks[k].Buses,enabled)
+	}
+}
+
+func delete_optional_bram(cfg *MemConfig, macros map[string]string ) {
+	total := len(cfg.BRAM)
+	if total==0 { return }
+	optional := make([]Optional,total)
+	for k, _ := range cfg.BRAM {
+		optional[k]=&cfg.BRAM[k]
+	}
+	enabled := find_enabled(optional,macros)
+	cfg.BRAM = copy_enabled(cfg.BRAM,enabled)
 }
 
 func delete_optional_ioctl(all_bram []BRAMBus, macros map[string]string) {
@@ -196,10 +223,10 @@ func delete_optional_ioctl(all_bram []BRAMBus, macros map[string]string) {
 	}
 }
 
-func find_enabled( all_items []Optional, macros map[string]string ) (enabled []int) {
+func find_enabled(all_items []Optional, macros map[string]string ) (enabled []int) {
 	enabled = make([]int,0,len(all_items))
 	for k,item := range all_items {
-		if !item.Enabled(macros) {
+		if item.Enabled(macros) {
 			enabled=append(enabled,k)
 		}
 	}

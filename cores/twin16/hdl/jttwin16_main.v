@@ -325,7 +325,7 @@ jtframe_m68k u_cpu(
 );
 `else
     integer fin, fcnt;
-    reg [7:0] mmr[0:10];
+    reg [7:0] mmr[0:11];
 
     initial begin
         for( fcnt=0; fcnt<11; fcnt=fcnt+1 ) mmr[fcnt]=0;
@@ -343,6 +343,7 @@ jtframe_m68k u_cpu(
         vflip    = mmr[4][7];
         obj_dx   = {mmr[8],mmr[7]};
         obj_dy   = {mmr[10],mmr[9]};
+        dma_on   = mmr[11][0];
     end
     // integer framecnt=0;
     // always @(posedge LVBL) begin
@@ -352,7 +353,6 @@ jtframe_m68k u_cpu(
     initial begin
         rom_cs    = 0;
         ram_cs    = 0;
-        dma_on    = 0;
         vramcvf   = 0;
         snd_latch = 0;
         sndon     = 0;

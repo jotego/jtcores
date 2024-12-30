@@ -1,6 +1,5 @@
 CORENAME=JTTWIN16
 
-JTFRAME_SKIP
 JTFRAME_STEREO
 
 JTFRAME_JOY_DURL
@@ -33,8 +32,8 @@ JTFRAME_BA3_LEN=64
 
 JTFRAME_IOCTL_RD=32768
 debug JTFRAME_IOCTL_RD=315392
-debug JTFRAME_IOCTL_RD+=11
+debug JTFRAME_IOCTL_RD+=12
 
-[mist|sidi]
-# Not enough BRAM to implement the tile RAM on BRAM
+[mist|sidi|pocket]
+# Not enough BRAM to hold the tile RAM
 JTFRAME_SKIP

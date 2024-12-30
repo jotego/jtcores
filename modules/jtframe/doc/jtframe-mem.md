@@ -79,8 +79,10 @@ sdram:
           gfx_sort: hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
           do_not_erase: true # for rw slots, do not clear upon reset
         - name: another bus...
+          when: [ POCKET ]        # use when/unless to set conditions that enabled or disabled the buses
     - buses: # same for bank 1
         - name: another bus...
+          unless: [ MISTER ]
     - buses: # same for bank 2
         - name: another bus...
     - buses: # same for bank 3

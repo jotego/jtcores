@@ -28,3 +28,19 @@ func (item *BRAMBus_Ioctl) Enabled(macros map[string]string) bool {
     }
     return aux.Enabled(macros)
 }
+
+func (item *BRAMBus) Enabled(macros map[string]string) bool {
+    aux := MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled(macros)
+}
+
+func (item *SDRAMBus) Enabled(macros map[string]string) bool {
+    aux := MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled(macros)
+}
