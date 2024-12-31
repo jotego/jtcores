@@ -22,6 +22,7 @@ Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and g
 Master branch health:
 [![Compile all MiSTer cores](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml)
 [![Verilator linter](https://github.com/jotego/jtcores/actions/workflows/linter.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/linter.yaml)
+[![Unit tests](https://github.com/jotego/jtcores/actions/workflows/simunit.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/simunit.yaml)
 
 # Schematics
 
