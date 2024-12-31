@@ -262,12 +262,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 	// Adds a macro with the target name
 	macros[ strings.ToUpper(cfg.Target) ] = "1"
 	if cfg.Commit!="" {
-		// fmt.Fprintln( os.Stderr, "jtframe cfgstr: using commit ", cfg.Commit)
-		if len(cfg.Commit)>=7 {
-			macros["JTFRAME_COMMIT"] = fmt.Sprintf("32'h%s",cfg.Commit[0:7]) // the "dirty" text is dropped
-		} else {
-			macros["JTFRAME_COMMIT"] = "32'h0"
-		}
+		macros["JTFRAME_COMMIT"] = fmt.Sprintf("32'h%s",make_commit_macro(cfg.Commit))
 	}
 	// Adds the CORENAME if missing. This macro is expected to exist in macros.def
 	_, exists := macros["CORENAME"]
@@ -396,6 +391,14 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		macros["BETA"]= ""
 	}
 	return macros
+}
+
+func make_commit_macro(commit string) (macro string) {
+	if len(commit)<7 { return "0" }
+	short:=commit[0:7]
+	_,is_number := strconv.ParseInt(short,16,64)
+	if is_number!=nil { return "0" }
+	return short
 }
 
 func add_subcarrier_clk( macros map[string]string, mclk int64 ) {

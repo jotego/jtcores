@@ -3,8 +3,10 @@
 # for cores in development phase
 
 CORE=$1
-TARGET=mister
 shift
+if [ -z "$TARGET" ]; then
+    TARGET=mister
+fi
 
 eval `jtframe cfgstr $CORE --output bash --target $TARGET $*`
 

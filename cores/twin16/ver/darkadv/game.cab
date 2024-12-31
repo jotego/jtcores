@@ -9,4 +9,6 @@
 loop
 20
 2 b1
-repeat 100
+repeat 10
+# show map
+1p

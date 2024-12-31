@@ -29,7 +29,7 @@ wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] m_dout, s_dout, shs_dout, shm_dout, obj_dx, obj_dy;
 wire [19:1] m_addr;
 wire [17:1] s_addr;
-wire [ 1:0] vam_we, vbm_we, om_we,
+wire [ 1:0] vam_we, vbm_we, om_we, stile_we16,
             vas_we, vbs_we, os_we,
             shs_we, shm_we;
 reg  [ 7:0] debug_mux, ioctl_mux;
@@ -44,6 +44,32 @@ assign ioctl_din = ioctl_mux;
 assign sram_din   = s_dout;
 assign mram_din   = m_dout;
 assign stile_addr = s_addr;
+
+`ifdef SCRTILE_SDRAM
+wire [15:0] stile_dout = stile_data;
+assign stile_dsn = sram_dsn;
+assign stile_we  = sram_we;
+`else
+wire [31:0] lyra_data, lyrb_data;
+wire [17:2] lyra_addr, lyrb_addr;
+wire   stile_cs, lyra_cs, lyrb_cs;
+reg    stile_ok;
+assign stile_we  = stile_we16;
+always @(posedge clk) stile_ok <= stile_cs;
+// makes consequitive requests to
+// convert 16 bit data to 32 bits
+jttwin16_tile u_tile(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .vramcvf    ( vramcvf       ),
+    .lyra_addr  ( lyra_addr     ),
+    .lyrb_addr  ( lyrb_addr     ),
+    .stram_addr ( stram_addr    ),
+    .stram_dout ( stram_dout    ),
+    .lyra_data  ( lyra_data     ),
+    .lyrb_data  ( lyrb_data     )
+);
+`endif
 
 always @(posedge clk) begin
     case( ioctl_addr[3:0] )
@@ -105,7 +131,6 @@ jttwin16_share u_share(
     .oram_we        ( osha_we       ),
     .v_din          ( v_din         )
 );
-
 
 jttwin16_main u_main(
     .rst            ( rst           ),
@@ -191,8 +216,8 @@ jttwin16_sub u_sub(
     .ram_dout       ( sram_data     ),
     .ram_ok         ( sram_ok       ),
     .ram_cs         ( sram_cs       ),
-    .ram_dsn        ( sram_dsn      ),
-    .ram_we         ( sram_we       ),
+    .bus_dsn        ( sram_dsn      ),
+    .bus_we         ( sram_we       ),
 
     .cpu_addr       ( s_addr        ),
     .cpu_dout       ( s_dout        ),
@@ -208,8 +233,10 @@ jttwin16_sub u_sub(
     .oram_we        ( os_we         ),
 
     // tile RAMs
-    .stile_we       ( stile_we      ),
+    .stile_cs       ( stile_cs      ),
+    .stile_we       ( stile_we16    ),
     .stile_dout     ( stile_dout    ),
+    .stile_ok       ( stile_ok      ),
     // video ROM checks
     .obj_addr       ( chko_addr     ),
     .obj_cs         ( chko_cs       ),
@@ -223,7 +250,7 @@ jttwin16_sub u_sub(
     .dip_pause      ( dip_pause     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -263,8 +290,12 @@ jttwin16_video u_video (
     .pal_addr       ( pal_addr      ),
     .pal_dout       ( pal_dout      ),
     // tile RAM
-    .stram_addr     ( stram_addr    ),
-    .stram_dout     ( stram_dout    ),
+    .lyra_cs        ( lyra_cs       ),
+    .lyra_addr      ( lyra_addr     ),
+    .lyra_data      ( lyra_data     ),
+    .lyrb_cs        ( lyrb_cs       ),
+    .lyrb_addr      ( lyrb_addr     ),
+    .lyrb_data      ( lyrb_data     ),
     // SDRAM
     .lyrf_addr      ( lyrf_addr     ),
     .lyro_addr      ( lyro_addr     ),

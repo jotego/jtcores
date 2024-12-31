@@ -27,10 +27,7 @@ module jt00778x_lut_buf#(parameter PW=10)(
     input             lut_we,
 
     input      [10:1] scan_addr,
-    output     [15:0] scan_dout,
-
-    input       [PW-1:0] obj_dx,  obj_dy,
-    output reg  [PW-1:0] obj_dxl=0, obj_dyl=0
+    output     [15:0] scan_dout
 );
 
 reg half=0, obi_l=0;
@@ -38,8 +35,6 @@ reg half=0, obi_l=0;
 always @(posedge clk) begin
     obi_l <= objbufinit;
     if( objbufinit && !obi_l ) begin
-        obj_dxl <= obj_dx;
-        obj_dyl <= obj_dy;
         half    <= ~half;
     end
 end

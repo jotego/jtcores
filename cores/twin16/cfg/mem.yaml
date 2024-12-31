@@ -1,8 +1,9 @@
 params:
-  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA2_START) >> 1" }
-  - { name: UPD_OFFSET,  value: "(`UPD_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA3_START) >> 1" }
+  - { name: UPD_OFFSET,  value: "(`UPD_START-`JTFRAME_BA3_START) >> 1" }
   - { name: GFX_OFFSET,  value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
   - { name: GFX_LEN,     value: "(`JTFRAME_BA2_START>>1)-GFX_OFFSET"   }
+  - { name: STRAM_OFFSET,value: "22'h100000" }
   - { name: MRAM_OFFSET, value: "22'h100000" }
   - { name: SRAM_OFFSET, value: "GFX_OFFSET+GFX_LEN" }
 clocks:
@@ -65,6 +66,28 @@ sdram:
           data_width: 16
           offset: GFX_OFFSET
     - buses:
+        # Scroll tiles on SDRAM for machines with little BRAM
+        - name: stile
+          addr_width: 18
+          data_width: 16
+          din: sram_din
+          rw: true
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyra
+          addr_width: 18
+          data_width: 32
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyrb
+          addr_width: 18
+          data_width: 32
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyrf
+          addr_width: 14
+          data_width: 32
+    - buses:
         - name: snd
           addr_width: 15
           data_width: 8
@@ -80,10 +103,6 @@ sdram:
           addr_width: 17
           data_width: 8
           offset: UPD_OFFSET
-    - buses:
-        - name: lyrf
-          addr_width: 14
-          data_width: 32
 bram:
   # 8 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL)
   - name: nvram
@@ -98,8 +117,9 @@ bram:
     sim_file: true
     ioctl: { save: true, order: 0, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: fx_we, rw: true, din: mram_din, dout: mf_dout }
-  # 256kB for Scroll Tile Bitmaps
+  # 256kB for Scroll Tile Bitmaps as BRAM
   - name: stram
+    unless: [ SCRTILE_SDRAM ]
     data_width: 16
     addr_width: 18
     ioctl: { save: true, order: 1, unless: [ JTFRAME_RELEASE ] }

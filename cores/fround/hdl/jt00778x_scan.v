@@ -23,7 +23,6 @@ module jt00778x_scan#(parameter CW=17,PW=10)(
     input             hs,
     input      [ 8:0] vdump,
 
-    input    [PW-1:0] obj_dxl, obj_dyl,
     input             gvflip,
 
     output     [10:1] scan_addr,
@@ -100,9 +99,9 @@ always @(posedge clk, posedge rst) begin
             case( st )
                 1: begin
                     y <= 0;
-                    y[PW-1:0] <=  scan_dout[PW-1:0]-obj_dyl[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
+                    y[PW-1:0] <=  scan_dout[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
                 end
-                2: hpos <= (scan_dout[PW-1:0]-obj_dxl[PW-1:0])+ {{PW-9{1'b0}},9'h69};
+                2: hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
                 3: begin
                     skip <= ~scan_dout[15] && valid_y;
                     if( scan_dout[14] ) begin

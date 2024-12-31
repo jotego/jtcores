@@ -78,7 +78,6 @@ wire   [15:0] scan_dout;
 wire   [13:1] dma_addr, copy_addr;
 wire   [10:1] scan_addr;
 wire          objbufinit, copy_bsy;
-wire [PW-1:0] obj_dxl, obj_dyl;
 
 localparam NOLUTFB=`ifdef NOLUTFB 1 `else 0 `endif;
 
@@ -95,14 +94,17 @@ assign oram_addr = {3'b110, scan_addr};
 // original equation from schematics, it is the same as the start of vblank
 assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
 
-jt00778x_dma u_dma(
+jt00778x_dma #(.PW(PW)) u_dma(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .objbufinit ( objbufinit    ),
     .lvbl       ( lvbl          ),
+
     .dma_on     ( dma_on        ),
     .dma_bsy    ( dma_bsy       ),
+    .obj_dx     ( obj_dx        ),
+    .obj_dy     ( obj_dy        ),
 
     .oram_addr  ( dma_addr      ),
     .oram_dout  ( oram_dout     ),
@@ -143,15 +145,10 @@ jt00778x_lut_buf#(.PW(PW)) u_lut(
     .lut_we     ( lut_we        ),
 
     .scan_addr  ( scan_addr     ),
-    .scan_dout  ( scan_dout     ),
-
-    .obj_dx     ( obj_dx        ),
-    .obj_dy     ( obj_dy        ),
-    .obj_dxl    ( obj_dxl       ),
-    .obj_dyl    ( obj_dyl       )
+    .scan_dout  ( scan_dout     )
 );
 `else
-    assign scan_dout = lut_din;
+    assign scan_dout = oram_dout;
 `endif
 
 jt00778x_scan#(.PW(PW),.CW(CW)) u_scan(
@@ -161,8 +158,6 @@ jt00778x_scan#(.PW(PW),.CW(CW)) u_scan(
     .hs         ( hs            ),
     .vdump      ( vdump         ),
 
-    .obj_dxl    ( obj_dxl       ),
-    .obj_dyl    ( obj_dyl       ),
     .gvflip     ( gvflip        ),
 
     .scan_addr  ( scan_addr     ),

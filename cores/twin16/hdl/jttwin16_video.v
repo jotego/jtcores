@@ -54,9 +54,14 @@ module jttwin16_video(
     output     [11:0] pal_addr,
     input      [ 7:0] pal_dout,
 
-    // Tile RAM (scroll layers)
-    output     [17:1] stram_addr,
-    input      [15:0] stram_dout,
+    // Scroll layers
+    output            lyra_cs,
+    output     [17:2] lyra_addr,
+    input      [31:0] lyra_data,
+
+    output            lyrb_cs,
+    output     [17:2] lyrb_addr,
+    input      [31:0] lyrb_data,
     // Tile ROMs
     output     [13:2] lyrf_addr,
     output     [21:2] lyro_addr,
@@ -82,11 +87,10 @@ module jttwin16_video(
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, hscr_off, vdump_scr;
-wire [31:0] fsorted, lyra_data, lyrb_data, asorted, bsorted, osorted;
+wire [31:0] fsorted, asorted, bsorted, osorted;
 wire [ 7:0] lyrf_pxl,  lyro_pxl;
 wire [ 6:0] lyra_pxl,  lyrb_pxl;
 wire [ 1:0] lyra_sel,  lyrb_sel;
-wire [17:2] lyra_addr, lyrb_addr;
 wire        preo_cs;
 
 assign fram_addr[13:12]=0;
@@ -192,20 +196,6 @@ jtframe_tilemap #(
     .pxl        ( lyrf_pxl  )
 );
 
-// makes consequitive requests to
-// convert 16 bit data to 32 bits
-jttwin16_tile u_tile(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .vramcvf    ( vramcvf       ),
-    .lyra_addr  ( lyra_addr     ),
-    .lyrb_addr  ( lyrb_addr     ),
-    .stram_addr ( stram_addr    ),
-    .stram_dout ( stram_dout    ),
-    .lyra_data  ( lyra_data     ),
-    .lyrb_data  ( lyrb_data     )
-);
-
 jtframe_scroll #(
     .VA(12),
     .CW(13),
@@ -233,7 +223,7 @@ jtframe_scroll #(
 
     .rom_addr   ( lyra_addr ),
     .rom_data   ( asorted   ),
-    .rom_cs     (           ),
+    .rom_cs     ( lyra_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyra_pxl  )
@@ -266,7 +256,7 @@ jtframe_scroll #(
 
     .rom_addr   ( lyrb_addr ),
     .rom_data   ( bsorted   ),
-    .rom_cs     (           ),
+    .rom_cs     ( lyrb_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrb_pxl  )

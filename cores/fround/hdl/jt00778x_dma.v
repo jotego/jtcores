@@ -16,14 +16,16 @@
     Version: 1.0
     Date: 30-12-2024 */
 
-module jt00778x_dma(
+module jt00778x_dma#(parameter PW=10)(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             objbufinit,
     input             lvbl,
+
     input             dma_on,
     output reg        dma_bsy=0,
+    input    [PW-1:0] obj_dx, obj_dy,
 
     output     [13:1] oram_addr,
     input      [15:0] oram_dout,
@@ -31,17 +33,20 @@ module jt00778x_dma(
     output reg        oram_we
 );
 
+localparam [   2:0] PARSED_AREA={3'b110};
+
 reg         beflag=0, obi_l=0,obj_en=0,dma_clr=0, dma_cen=0;
 reg  [13:1] cpr_addr=0; // copy read  address
 reg  [10:1] cpw_addr=0; // copy write address
+reg  [ 7:0] hibuf;
 wire [ 4:1] nx_cpra;
 wire [11:1] nx_cpwa;
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
-wire [13:0] cpw_afull = {3'b110,cpw_addr,1'b0};
+wire [13:0] cpw_afull = {PARSED_AREA,cpw_addr,1'b0};
 `endif
 
-assign oram_addr = oram_we  ? { 3'b110, cpw_addr } : cpr_addr;
+assign oram_addr = oram_we  ? { PARSED_AREA, cpw_addr } : cpr_addr;
 assign nx_cpwa    = { 1'b1, cpw_addr } + 1'h1;
 assign nx_cpra  = {1'd0, cpr_addr[3:1]} + 4'd1;
 
@@ -93,17 +98,17 @@ always @(posedge clk) begin
                             oram_we  <= beflag;
                             // if(beflag) $display("        code %X", oram_dout );
                         end
-                        4: oram_din[15:8] <= oram_dout[7:0];
+                        4: hibuf <= oram_dout[7:0];
                         5: begin // x
                             cpw_addr[2:1] <= 2;
-                            oram_din[7:0] <= oram_dout[15:8];
+                            oram_din      <= {hibuf,oram_dout[15:8]}-{{16-PW{1'b0}},obj_dx};
                             oram_we  <= beflag;
                             // if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
-                        6: oram_din[15:8] <= oram_dout[7:0];
+                        6: hibuf <= oram_dout[7:0];
                         7: begin // y
                             cpw_addr[2:1] <= 1;
-                            oram_din[7:0] <= oram_dout[15:8];
+                            oram_din      <= {hibuf,oram_dout[15:8]}-{{16-PW{1'b0}},obj_dy};
                             oram_we  <= beflag;
                             // if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end

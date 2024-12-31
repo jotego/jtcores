@@ -28,20 +28,20 @@ regions = [
     # bank 1
     { name="sub",     width=16, reverse=true, start="JTFRAME_BA1_START"  },
     { name="data",    width=16, reverse=true  },
-    { name="data",     skip=true, machines=["mia", "vulcan"]},
-    { name="gfxrom",   start="GFX_START", width=32 },
-    { name="gfxrom",   skip=true, setname="cuebrickj" },
+    { name="data",    skip=true, machines=["mia", "vulcan"]},
+    { name="gfxrom",  start="GFX_START", width=32 },
+    { name="gfxrom",  skip=true, setname="cuebrickj" },
     # bank 2
-    { name="audiocpu", start="JTFRAME_BA2_START" },
-    { name="k007232",  start="PCM_START"  },
-    { name="upd",      start="UPD_START"  },
+    { name="fixed",   start="JTFRAME_BA2_START"   },
     # bank 3
-    { name="fixed",    start="JTFRAME_BA3_START"   },
+    { name="audiocpu",start="JTFRAME_BA3_START" },
+    { name="k007232", start="PCM_START"  },
+    { name="upd",     start="UPD_START"  },
 ]
 
 order = [
     "maincpu", "sub", "data", "gfxrom",
-    "audiocpu", "k007232", "upd", "fixed"
+    "fixed", "audiocpu", "k007232", "upd"
 ]
 
 patches = [

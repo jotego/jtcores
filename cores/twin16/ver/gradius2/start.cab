@@ -1,0 +1,12 @@
+# objects use RAM at frame 3100
+# dump 3050~3200
+900
+loop
+2 coin
+20
+2 1p
+20
+2 b1
+20
+repeat 5
+1
