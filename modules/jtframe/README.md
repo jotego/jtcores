@@ -16,6 +16,7 @@ You can show your appreciation through
 * [Compilation](doc/compilation.md)
 * [The command line tool jtframe](doc/jtframe.md)
 * [Simulation](doc/sim.md)
+* [Unit tests](doc/simunit.md)
 * [Version history](doc/version.md)
 
 ## More Details

@@ -4,7 +4,7 @@ LABEL maintainer=jotego@gmail.com
 RUN apt install -y autoconf
 
 # Verilator
-RUN cd /opt; git clone http://git.veripool.org/git/verilator --depth 1
+RUN cd /opt; git clone https://github.com/verilator/verilator.git --depth 1
 RUN cd /opt/verilator; autoconf; ./configure
 RUN cd /opt/verilator; make -j $((`nproc`*4/5)); echo Done
 RUN find /opt/verilator -name "*.o" -delete
@@ -12,5 +12,11 @@ RUN apt install -y gettext
 
 ENV PATH=$PATH:/opt/verilator/bin:/usr/local/go/bin
 ENV VERILATOR_ROOT=/opt/verilator
+
+# Icarus Verilog
+RUN apt install -y libbz2-dev
+RUN git clone https://github.com/steveicarus/iverilog.git --branch v12_0 --single-branch
+RUN cd iverilog && bash autoconf.sh && ./configure && make -j $((`nproc`*4/5)) && make install
+RUN cd ..; rm -rf iverilog
 
 ENTRYPOINT ["bash"]

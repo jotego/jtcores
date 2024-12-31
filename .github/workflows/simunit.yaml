@@ -13,6 +13,8 @@ on:
 jobs:
   find_unit_sims:
     runs-on: ubuntu-latest
+    outputs:
+      unitsims: ${{ steps.generate-matrix.outputs.unitsims }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -21,7 +23,11 @@ jobs:
     - id: generate-matrix
       run: |
         cd cores
-        UNITSIMS="[ `find -name .simunit | xargs dirname` ]"
+        for folder in `find -name .simunit | xargs dirname`; do
+          if [ ! -z "$UNITSIMS" ]; then UNITSIMS="$UNITSIMS, "; fi
+          UNITSIMS="$UNITSIMS \"$folder\""
+        done
+        UNITSIMS="[ $UNITSIMS ]"
         echo $UNITSIMS
         echo "unitsims=${UNITSIMS}" >> $GITHUB_OUTPUT
   run_sims:
@@ -42,4 +48,4 @@ jobs:
           token: ${{ secrets.PAT }}
       - id: simulation
         run: |
-          docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/simunit.sh ${{matrix.unitsims}}
+          docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/cores/${{matrix.unitsim}}

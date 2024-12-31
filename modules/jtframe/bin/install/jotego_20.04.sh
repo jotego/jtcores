@@ -87,7 +87,7 @@ sudo apt install --yes libfl2 libfl-dev zlib1g zlib1g-dev
 
 cd $HOME
 unset VERILATOR_ROOT
-git clone http://git.veripool.org/git/verilator --depth 1 || exit $?
+git clone https://github.com/verilator/verilator.git --depth 1 || exit $?
 cd $HOME/verilator
 autoconf
 ./configure
@@ -97,7 +97,7 @@ export VERILATOR_ROOT=`pwd`
 echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
 
 # Icarus Verilog
-git clone git@github.com:steveicarus/iverilog.git
+git clone https://github.com/steveicarus/iverilog.git
 cd iverilog
 git checkout v12_0
 sh autoconf.sh
