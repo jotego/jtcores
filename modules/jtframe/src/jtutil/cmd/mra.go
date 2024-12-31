@@ -86,7 +86,10 @@ func list_zip() {
 
 func list_cores() {
 	games := make(map[string][]string)
+	const delim = "|"
 
+	fmt.Println("| Core | Game | MAME set |")
+	fmt.Println("|------|------|----------|")
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
 		readin_mra( fname, fi, &game, err )
@@ -95,7 +98,8 @@ func list_cores() {
 		if !found || list==nil {
 			list = make([]string,0,16)
 		}
-		games[game.Rbf]=append(list,game.Setname)
+		long_name := fmt.Sprintf("%s%s%s",game.Name,delim,game.Setname)
+		games[game.Rbf]=append(list,long_name)
 		return nil
 	}
 	e := filepath.WalkDir(filepath.Join(os.Getenv("JTBIN"), "mra"), get_mradata)
@@ -105,7 +109,7 @@ func list_cores() {
 	}
 	for key, val := range games {
 		for _,each := range val {
-			fmt.Printf("%-12s %s\n",key,each)
+			fmt.Printf("|%s%s%s|\n",key[2:],delim,each)
 		}
 	}
 }

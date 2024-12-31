@@ -165,6 +165,7 @@ for t in mist sidi sidi128; do
 		fi
 	done
 done
+jtutil mra --core > $JTBIN/game_list.md
 git add .
 git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 
