@@ -63,3 +63,26 @@ func TestMake_rc(t *testing.T) {
 	if( strings.Index(ch.Pole,"-")!=-1 ) { t.Errorf("Invalid pole encoding %s",ch.Pole)}
 	t.Logf("ch.Pole=%s",ch.Pole)
 }
+
+func Test_normalize_gains(t *testing.T) {
+	channels := []AudioCh{
+		{ gain: 1.0 },
+		{ gain: 2.0 },
+		{ gain: 3.0 },
+		{ gain: 4.0 },
+	}
+	const global_gain=1.5
+	normalize_gains(channels,global_gain)
+	expected := []float64{
+		1.0/4.0*global_gain,
+		2.0/4.0*global_gain,
+		3.0/4.0*global_gain,
+		4.0/4.0*global_gain,
+	}
+	for k,_ := range expected {
+		if channels[k].gain!=expected[k] {
+			t.Errorf("Expected gain %.2f for channel %d. Got %.2f",
+				expected[k], k, channels[k].gain)
+		}
+	}
+}

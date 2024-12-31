@@ -27,6 +27,7 @@ clocks:
       outputs:
         - cen_oki
 audio:
+  gain: 1.5
   channels:
     # no schematics, just assuming something reasonable
     - { name: pcm, module: jt6295, rsum: 20k, fir: fir_192k_4k.csv }

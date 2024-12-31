@@ -14,6 +14,7 @@ clocks:
         - cen1p5
 audio:
   rsum: 5k  # TBC
+  gain: 1.5
   channels:
     # fm may need a pre-gain value. See issue https://github.com/jotego/jtcores/issues/581
     - { name: fm,  module: jtopl2, rsum: 2.2k }

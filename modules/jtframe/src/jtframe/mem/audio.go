@@ -170,16 +170,14 @@ func fill_global_pole( cfg *Audio, fs float64 ) {
 }
 
 
-func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) error {
+func Make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) error {
 	fill_audio_clock( macros, &cfg.Audio )
 	const fs = float64(192000)
 	// assign information derived from the module type
 	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
 	rmin,rmax := find_rlimits(cfg.Audio.Channels)
 	fill_global_pole( &cfg.Audio, fs )
-	var gmax float64
 	rsum := eng2float(cfg.Audio.Rsum)
-	global_gain := eng2float(cfg.Audio.Gain)
 	if rsum==0 { rsum = rmax }
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
@@ -192,15 +190,14 @@ func make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 		ch.rout = rout
 		make_audio_filters( core, outpath, ch, fs )
 		if cfg.Audio.Rsum_feedback_res {
-			ch.gain=rmin/eng2float(ch.Rsum)
-		} else {
 			ch.gain=eng2float(ch.Rsum)/rsum
+		} else {
+			ch.gain=rmin/eng2float(ch.Rsum)
 		}
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
-		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
-	if e := normalize_gains( cfg.Audio.Channels, gmax, global_gain ); e!=nil {return e}
+	if e := normalize_gains( cfg.Audio.Channels, cfg.Audio.Gain ); e!=nil {return e}
 	const MaxCh=6
 	if len(cfg.Audio.Channels)>MaxCh {
 		fmt.Printf("ERROR: Audio configuration requires %d channels, but maximum supported is %d\n",len(cfg.Audio.Channels),MaxCh)
@@ -260,11 +257,15 @@ func make_audio_filters(core, outpath string, ch *AudioCh, fs float64) {
 	make_fir( core, outpath, ch, fs )
 }
 
-func normalize_gains( all_channels []AudioCh, gmax, global float64 ) error {
+func normalize_gains( all_channels []AudioCh, global float64 ) error {
 	const FRAC_BITS=7 // must match jtframe_sndchain.WD
 	const INTEGER=1<<FRAC_BITS
 	if global==0 {
 		global=1.0
+	}
+	var gmax float64
+	for _,ch := range all_channels {
+		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
 	}
 	for k,_ := range all_channels {
 		ch := &all_channels[k]
@@ -274,6 +275,9 @@ func normalize_gains( all_channels []AudioCh, gmax, global float64 ) error {
 			return fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
 		}
 		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
+		if verbose {
+			fmt.Printf("channel %d, gain %X\n",k,ch.Gain)
+		}
 	}
 	return nil
 }

@@ -104,7 +104,7 @@ var funcMap = template.FuncMap{
 	"is_nbits":        is_nbits,
 }
 
-func parse_file(core, filename string, macros map[string]string, cfg *MemConfig) bool {
+func Parse_file(core, filename string, macros map[string]string, cfg *MemConfig) bool {
 	read_yaml(core,filename,cfg)
 	include_copy := make([]Include, len(cfg.Include))
 	copy(include_copy, cfg.Include)
@@ -118,7 +118,7 @@ func parse_file(core, filename string, macros map[string]string, cfg *MemConfig)
 			fname = fname[0:len(fname)-5]
 		}
 		if each.Game == "" { each.Game=core }
-		parse_file(each.Game, fname, macros, cfg)
+		Parse_file(each.Game, fname, macros, cfg)
 	}
 	// Reload the YAML to overwrite values that the included files may have set
 	read_yaml(core,filename,cfg)
@@ -739,7 +739,7 @@ func Run(args Args) (e error) {
 		if verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
 		macros["JTFRAME_RELEASE"]=""
 	}
-	if !parse_file(args.Core, "mem", macros, &cfg) {
+	if !Parse_file(args.Core, "mem", macros, &cfg) {
 		// the mem.yaml file does not exist, that's
 		// normally ok
 		return
@@ -755,7 +755,7 @@ func Run(args Args) (e error) {
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Audio configuration
-	e = make_audio( macros, &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
+	e = Make_audio( macros, &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
 	// Execute the template
 	cfg.Core = args.Core
 	e = make_sdram(args, &cfg);     if e!=nil { return e }

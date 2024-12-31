@@ -11,4 +11,4 @@ loop
 2 b1
 repeat 10
 # show map
-1p
+100 1p

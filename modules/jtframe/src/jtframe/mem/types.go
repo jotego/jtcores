@@ -190,7 +190,7 @@ type Audio struct {
     RC         AudioRC `yaml:"rc"`
     Rsum    string `yaml:"rsum"`
     Rsum_feedback_res bool `yaml:"rsum_feedback_res"`
-    Gain    string `yaml:"gain"` // additional global gain
+    Gain    float64 `yaml:"gain"` // additional global gain
     Channels []AudioCh `yaml:"channels"`
     // Fractional divider information to generate 192kHz clock
     FracW,FracN,FracM int

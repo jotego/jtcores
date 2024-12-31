@@ -13,7 +13,7 @@ mustbe.machines=[
 volume = [
     { machine="hippodrm", value=0xFF },
     { machine="robocop", value=0xFF },
-]    
+]
 
 [buttons]
 Names = [
