@@ -47,6 +47,8 @@ hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
 -h, --help		This help screen
 -l, --local		Do not copy to JTBIN
     --last      Use last friday's date, instead of next's
+                or latest published date, if it is more recent
+                than last friday's
 --host			MiSTer host name
 -r, --rom		Regenerate ROM files
 -v, --verbose   Verbose

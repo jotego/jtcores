@@ -23,6 +23,22 @@
 
 FRIDAY="friday"
 
+function last_friday {
+    local LAST=`date --date="last friday" +"%y%m%d"`
+    local PUBLISHED=$(find $JTFRIDAY -maxdepth 1 -type d -regextype posix-extended -regex ".*/[0-9]{6}$" | sort --reverse | head -n 1)
+    if [ -z "PUBLISHED" ]; then
+        echo "last friday"
+        return
+    fi
+    PUBLISHED=$(basename $PUBLISHED)
+    if [ $PUBLISHED -gt $LAST ]; then
+        echo "Using last published date ($PUBLISHED)" > /dev/stderr
+        echo ${PUBLISHED:0:2}-${PUBLISHED:2:2}-${PUBLISHED:4:2}
+    else
+        echo "last friday"
+    fi
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --last)
@@ -35,6 +51,8 @@ Creates zip files for distribution on JTFRIDAY.
 
 -h, --help      This help screen
 -l, --last      Use last friday's date, instead of next's
+                or latest published date, if it is more recent
+                than last friday's
 EOF
             exit 0;;
         *)
@@ -44,7 +62,6 @@ EOF
     shift
 done
 
-CORESTAMP=$(date --date="$FRIDAY" +"%Y%m%d")
 SHORTSTAMP=$(date --date="$FRIDAY" +"%y%m%d")
 DEST=`mktemp --directory`
 UPMR=
