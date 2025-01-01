@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 )
 
 func TestDelete_optional_IOCTL( t *testing.T ) {
@@ -177,4 +177,20 @@ func Test_delete_optional_sdram(t *testing.T) {
 		if not_pocket { t.Errorf("'not_pocket' should not appear at bank %d",k)}
 		if !only_pocket { t.Errorf("missing 'only_pocket at bank %d",k)}
 	}
+}
+
+func Test_empty_bank(t *testing.T) {
+	mem_yaml := `
+sdram:
+  banks:
+    -
+    - buses:
+        - name: cart0
+`
+	var cfg MemConfig
+	e := unmarshal([]byte(mem_yaml),&cfg)
+	if e!=nil { t.Error(e); return }
+	if total:=len(cfg.SDRAM.Banks);total!=2 {t.Errorf("Expecting 2 banks, got %d",total); return}
+	if total:=len(cfg.SDRAM.Banks[1].Buses);total!=1 {t.Errorf("Expecting 2 buses on bank 1, got %d",total); return}
+	if cfg.SDRAM.Banks[1].Buses[0].Name!="cart0" { t.Error("Bus 0 of Bank 1 is not named cart0") }
 }

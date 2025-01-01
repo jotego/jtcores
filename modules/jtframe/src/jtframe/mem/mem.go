@@ -34,7 +34,7 @@ import (
 	"github.com/jotego/jtframe/def"
 	"github.com/jotego/jtframe/mra"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2" // do not upgrade to v3. See issue #904
 	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
@@ -157,6 +157,11 @@ func Parse_file(core, filename string, macros map[string]string, cfg *MemConfig)
 	return true
 }
 
+// used for testing the yaml package
+func unmarshal( buffer []byte, storage any ) error {
+	return yaml.Unmarshal(buffer,storage)
+}
+
 func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 	filename = jtfiles.GetFilename(core, filename, "")
 	buf, e := os.ReadFile(filename)
@@ -170,7 +175,7 @@ func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 	if verbose {
 		fmt.Println("Read ", filename)
 	}
-	e = yaml.Unmarshal(buf, cfg)
+	e = unmarshal(buf, cfg)
 	if e != nil {
 		return fmt.Errorf("jtframe mem: cannot parse file\n\t%s\n\t%w", filename, e)
 	}
