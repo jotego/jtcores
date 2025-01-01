@@ -1069,7 +1069,6 @@ module alu
       6'b000001: n1573_o = cr;
       default: n1573_o = n1573_o;
     endcase
-/* verilator lint_on LATCH */
   /* HUC6280_ALU.vhd:109:17  */
   always @*
     case (n1572_o)
@@ -1081,6 +1080,7 @@ module alu
       6'b000001: n1574_o = n1545_o;
       default: n1574_o = result;
     endcase
+/* verilator lint_on LATCH */
   /* HUC6280_ALU.vhd:139:29  */
   assign n1578_o = result[7];
   /* HUC6280_ALU.vhd:140:27  */
