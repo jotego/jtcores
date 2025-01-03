@@ -37,7 +37,12 @@ var mraCmd = &cobra.Command{
 	Long: common.Doc2string("jtframe-mra.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
-			mra.Reduce(args[0], mra_args.Verbose)
+			if len(args)<1 {
+				fmt.Println("Expected one argument with the path mame.xml")
+				os.Exit(1)
+			}
+			mame_xml_path := args[0]
+			mra.Reduce(mame_xml_path, mra_args.Verbose)
 		} else { // regular operation, each core name is an argument
 			cores, e := get_corenames(args); must(e)
 			parse_cores(cores)

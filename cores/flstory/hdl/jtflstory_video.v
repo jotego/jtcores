@@ -133,8 +133,8 @@ jtframe_scroll #(
     .hdump      ({1'b0,hdump[7:0]}),
     .blankn     ( lvbl      ),  // if !blankn there are no ROM requests
     .flip       ( flip      ),
-    .scrx       ( 9'd0      ),
-    .scry       ( scry      ),
+    .scrx       ( 8'd0      ),
+    .scry       ( scry[7:0] ),
 
     .vram_addr  ( vram_addr ),
 

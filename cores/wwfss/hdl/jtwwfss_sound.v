@@ -51,7 +51,7 @@ wire        [15:0] A;
 reg                fm_cs, ram_cs, oki_cs, latch_cs;
 wire               iorq_n, m1_n, mreq_n, int_n, oki_wrn, rd_n, wr_n, nmi_n;
 
-assign pcm_cs   = 1'b1;
+assign pcm_cs   = 1;
 assign oki_wrn  = ~(oki_cs & ~wr_n);
 assign rom_addr = A[14:0];
 

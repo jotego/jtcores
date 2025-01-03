@@ -190,7 +190,7 @@ jtframe_scroll #(
     .blankn     ( lvbl      ),  // if !blankn there are no ROM requests
     .flip       ( flip      ),
     .scrx       ( scrx      ),
-    .scry       ( {1'b0,scry}),
+    .scry       ( scry      ),
 
     .vram_addr  ( vram_addr ),
 

@@ -47,8 +47,8 @@ module jtframe_scroll #( parameter
     input        [8:0] hdump,
     input              blankn,  // if !blankn there are no ROM requests
     input              flip,    // Screen flip
-    input      [ 8:0]  scrx,
-    input      [ 8:0]  scry,
+    input [MAP_HW-1:0] scrx,
+    input [MAP_VW-1:0] scry,
 
     output     [VA-1:0]vram_addr,
 
@@ -65,19 +65,28 @@ module jtframe_scroll #( parameter
     output     [PW-1:0]pxl
 );
 
-reg        hsl;
-reg  [8:0] veff, vdf;
-reg  [8:0] hdf, heff;
+// hdump/vdump dimensions can be larger than the screen for the scroll use case
+// but the MSBs will be fixed
+localparam HDUMPW = MAP_HW, VDUMPW = MAP_VW;
+
+reg              hsl;
+reg        [8:0] vdf, hdf;
+reg [VDUMPW-1:0] veff;
+reg [HDUMPW-1:0] heff;
 
 always @* begin
     hdf  = hdump ^ { 1'b0, {8{flip}} };
+    /* verilator lint_off WIDTHTRUNC */
     heff = hdf + scrx;
+    /* verilator lint_on WIDTHTRUNC */
     vdf  = vdump ^ { 1'b0, {8{flip}} };
 end
 
 always @(posedge clk) begin
     hsl <= hs;
+    /* verilator lint_off WIDTHTRUNC */
     if( ~hs & hsl ) veff <= vdf + scry;
+    /* verilator lint_on WIDTHTRUNC */
 end
 
 jtframe_tilemap #(
@@ -87,6 +96,8 @@ jtframe_tilemap #(
     .PW         ( PW        ),
     .MAP_HW     ( MAP_HW    ),
     .MAP_VW     ( MAP_VW    ),
+    .HDUMPW     ( HDUMPW    ),
+    .VDUMPW     ( VDUMPW    ),
     .FLIP_HDUMP ( 0         ), // hdump is already flipped, don't flip it again
     .FLIP_VDUMP ( 0         ), // same for vdump
     .FLIP_MSB   ( 0         ),

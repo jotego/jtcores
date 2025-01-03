@@ -1,0 +1,30 @@
+[parse]
+sourcefile=[ "gaiden.cpp" ]
+skip = { setname="mastninj", machines=[
+	"drgnbowl", # encrtyped CPU
+	"stratof", # uses MCU
+	"wildfang" # uses MCU
+] }
+debug = { machines=["drgnbowl", "wildfang", "raiga" ] }
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[buttons]
+names=[
+    { machine="shadoww", names="Grab,Attack,Jump" },
+]
+
+[ROM]
+regions = [
+	{ name="maincpu", width=16, reverse=true },
+	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="oki", start="PCM_START" },
+	{ name="gfx1", start="JTFRAME_BA2_START", reverse=true },
+	{ name="gfx4", start="OBJ_START", width=16, reverse=true }, # objects
+	{ name="gfx2", start="JTFRAME_BA3_START", reverse=true }, # background
+	{ name="gfx3", start="GFX3_START", reverse=true },        # foreground
+]
+
+order = [ "maincpu", "audiocpu", "oki",
+	"gfx1","gfx4","gfx2", "gfx3" ]

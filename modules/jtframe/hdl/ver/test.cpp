@@ -404,6 +404,7 @@ class JTSim {
     int coremod;
 
     void parse_args( int argc, char *argv[] );
+    void measure_screen_rate();
     void video_dump();
     void get_coremod();
     bool trace;   // trace enable or not
@@ -461,6 +462,7 @@ class JTSim {
     void reset(int r);
 public:
     int finish_time, finish_frame, totalh, totalw, activeh, activew;
+    float vrate;
     bool done() {
         if( game.contextp()->gotFinish() ) return true;
         return (finish_frame>0 ? frame_cnt > finish_frame :
@@ -483,7 +485,6 @@ int SDRAM::read_bank( char *bank, int addr ) {
     addr &= mask;
     int16_t *b16 =(int16_t*)bank;
     int v = b16[addr]&0xffff;
-    //printf("\tread %x\n", addr );
     return v;
 }
 
@@ -503,7 +504,6 @@ void SDRAM::write_bank16( char *bank, int addr, int val, int dm /* act. low */ )
     }
     v &= 0xffff;
     b16[addr] = (int16_t)v;
-    //if(verbose) printf("%04X written to %X\n", v,addr);
 }
 
 void SDRAM::dump() {
@@ -699,7 +699,7 @@ void JTSim::reset( int v ) {
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
-    wav("test.wav",48000,false), sdram(g), sim_inputs(g), dwn(g), game(g)
+    wav("test.wav",48000,false), sdram(g), sim_inputs(g), dwn(g), game(g),vrate(0)
 {
     simtime   = 0;
     frame_cnt = 0;
@@ -716,7 +716,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
 #else
     semi_period = (vluint64_t)10416; // 48MHz
 #endif
-    fprintf(stderr,"Simulation clock period set to %d ps (%f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
+    fprintf(stderr,"Simulation clock period set to %d ps (%.3f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
 #ifdef _LOADROM
     download = true;
 #else
@@ -775,7 +775,6 @@ void JTSim::get_coremod() {
         fin.read(c,2);
         coremod = ((int)c[0])&0xff;
     }
-    // fprintf(stderr,"coremod=%X\n",coremod);
 }
 
 JTSim::~JTSim() {
@@ -845,6 +844,7 @@ void JTSim::clock(int n) {
 #endif
         // frame counter & inputs
         if( game.VS && !last_VS ) {
+            measure_screen_rate();
             fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf); // do not flush the streams. It can mess up
             frame_cnt++;
 #ifdef _JTFRAME_SIM_IODUMP
@@ -867,6 +867,13 @@ void JTSim::clock(int n) {
         // Video dump
         video_dump();
     }
+}
+
+void JTSim::measure_screen_rate() {
+    static vluint64_t last=0;
+    auto vperiod=simtime-last;
+    last=simtime;
+    vrate = 1e12/float(vperiod);
 }
 
 void JTSim::video_dump() {
@@ -1033,6 +1040,10 @@ WaveWritter::~WaveWritter() {
     fsnd.write( (char*)&number32, 4);
 }
 
+void report_vrate( float vrate ) {
+    printf("\nFrame rate: %.2f Hz\n",vrate);
+}
+
 ////////////////////////////////////////////////////
 // Main
 
@@ -1063,6 +1074,7 @@ int main(int argc, char *argv[]) {
         mkdir("logs",0755)==0;
         Verilated::threadContextp()->coveragep()->write("logs/coverage.dat");
 #endif
+        report_vrate( sim.vrate );
         if( sim.get_frame()>1 ) fputc('\n',stderr);
     } catch( const char *error ) {
         fputs(error,stderr);

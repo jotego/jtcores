@@ -22,7 +22,6 @@ jobs:
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: generate-matrix
       run: |
-        cd cores
         for folder in `find -name .simunit | xargs dirname`; do
           if [ ! -z "$UNITSIMS" ]; then UNITSIMS="$UNITSIMS, "; fi
           UNITSIMS="$UNITSIMS \"$folder\""
@@ -48,4 +47,4 @@ jobs:
           token: ${{ secrets.PAT }}
       - id: simulation
         run: |
-          docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/cores/${{matrix.unitsim}}
+          docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}

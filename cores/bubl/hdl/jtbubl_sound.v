@@ -162,19 +162,6 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rom_ok     ( 1'b1        )   // SDRAM gating managed in mem.yaml
 );
 
-// always @(posedge clk) begin
-//     if( tokio ) begin
-//         fm0_gain <= 8'h20;      // YM2203
-//         fm1_gain <= 8'h40;      // YM3526
-//         psg_gain <= 8'h02;
-//     end else begin
-//         // Both FM chips have the same gain according to the schematics
-//         fm1_gain <= 8'h10;      // YM2203 FX
-//         fm1_gain <= 8'h08;      // YM3526 music
-//         psg_gain <= 8'h10;      // seems unused in Bubble Bobble
-//     end
-// end
-
 jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~snd_rstn  ),
     .clk        ( clk        ),

@@ -1,0 +1,37 @@
+game:
+  - from: gaiden
+    get:
+      - jtgaiden_*.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_16bit_reg.v
+    - jtframe_mmr_reg.v
+  - from: ram
+    get:
+      - jtframe_bram_burst.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.v
+      - jtframe_tilemap.v
+      - jtframe_framebuf.v
+      - jtframe_objscan.v
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
+      - jtframe_draw.v
+      - jtframe_blink.v
+      - layouts/jtframe_8x8x4_packed_msb.v
+  - from: cpu
+    unless: NOMAIN
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+modules:
+  jt:
+    - name: jt6295
+  other:
+    - from: jt12
+      get:
+        - hdl/jt03.yaml

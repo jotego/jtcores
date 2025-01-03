@@ -16,8 +16,8 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtframe_sh #(parameter W=5, L=24 )
-(
+module jtframe_sh #(parameter W=5, L=24 )(
+    // do not change port order
     input          clk,
     input          clk_en,
     input  [W-1:0] din,

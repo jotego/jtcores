@@ -1,0 +1,97 @@
+         \BJTGAIDEN\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+       PCBs donated by
+         Yeahbuddy
+        Raul Chicon
+
+       Based on MAME
+
+ \B______ \RDIRECTORS\B _______\W
+Bender          Chris Gelatt   
+Filip Kindt     Frederic Mahe  
+    Fulvio Venturelli
+Jeffrey Pierce  John Lange     
+Martin Birkeldh Martin Donlon  
+    Michael Hermann
+    Porkchop Express
+Rysha           Tulio Adriano  
+Ulf Skutnabba   f3bandit       
+
+       \BThanks to\W
+\RAhmed Alkaabi   Andrea Bogazzi 
+\RArcade Express  Bob Gallardo   
+\RBrian Sallee    Dan Avedikian  
+\RDaniel Bauza    ER             
+\REric Lewis      Halla          
+\RJacob Jewell    Jim Sprigler   
+\RJoe Castle      Keith Nieves   
+\RKyle Mickley    M. Fornasini   
+\RNick Taylor     PD Lee         
+\RPelayo Marinas  Peter Vessenes 
+\RR. Martinazzo   Renaissance 2K 
+\RRetroWilly      Robert Moran   
+\RSanborn         Sayit BELET    
+\R    Tatton Partington
+\RTej Bilkhu      dannahan       
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis     
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways       
+Blackstar       Bryan Adams    
+Carrboroman     Chris Doyle    
+Chris Harvey    Christian      
+DMG             Dan Bayley     
+Daniel Cortes   Darren Chell   
+Dave Sasser     David Moylan   
+Dean Winger     Don Gafford    
+Ed Balan        Eduardo Javier 
+Fred Jorge      Gus Douboulidis
+    Hendrik Osterholz
+    Henrik Nordstrom
+    INAKI ECHEVARRIA
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef      
+Joe Tassone     Joeri van      
+John Casey      John Figueroa  
+John Silva      Jose Pulgar    
+Josh O'Roake    Juan Sandoval  
+JuanRa          Keith F. Kelly 
+    Leslie Law
+    Lukas Hinterleitner
+M. Ferguson     Marcus Hogue   
+Matt Hargett    Matthew Young  
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan      
+Nima            Nunzio Mannino 
+Oliver Jaksch   Oscar Laguna   
+Peter Bray      Retro_Brewz    
+Richard MS      Rob Jenkins    
+Robert MacLean  Roman Buser    
+Shane Lynch     Steven Wilson  
+The Collector   Theodore Huber 
+Thompson Orcino Torren Beitler 
+Vitor Duarte    albertprime    
+amoore2600      hyp36rmax      
+ultimatekd                     
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it
+
+      -   A. Pocket  -
+    Unzip jtbeta.zip into
+    Assets/jtpatreon/common
+

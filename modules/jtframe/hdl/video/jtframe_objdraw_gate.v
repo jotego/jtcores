@@ -39,6 +39,7 @@ module jtframe_objdraw_gate #( parameter
                    // set to 1 if hdump jumps from  FF to 180  (like KIWI)
                    // set to 2 if hdump jumps from 1FF to  80  (like JTTORA)
                    // See note below about hdump fix for HJUMP==0
+    HFIX  =  1,    // Fixes some problems, but it may create others. Turn it off if objects are not rendered on part of the screen
     LATCH =  0,    // If set, latches code, xpos, ysub, hflip, vflip and pal when draw is set and busy is low
     FLIP_OFFSET=0, // Added to ~hdump when flip==1 and HJUMP==0
     SHADOW     =0, // 1 for shadows
@@ -157,21 +158,28 @@ always @* begin
     endcase
 end
 
-// For HJUMP==0, it is common that the readout counter wraps around a bit before
-// horizontal blank. That may read pixel data written to the start of the blank
-// region instead of continuing the regular count. An example of this is
-// scontra's final game boss. As it appears from the top (left unrotated) side
-// of the screen, part of it is visible at the bottom (right).
-// Instead of configuring this per game using macros, I have opted for detecting
-// the situation generally and fixing it. The readout count will keep increasing
-// until HS is hit.
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        hdfix <= 0;
-    end else if(pxl_cen) begin
-        hdfix <= ( hdump > hdfix || hs ) ? hdump+9'd1 : hdfix+9'd1;
+generate
+    if(HJUMP==0 && HFIX==1) begin
+        // For HJUMP==0, it is common that the readout counter wraps around a bit before
+        // horizontal blank. That may read pixel data written to the start of the blank
+        // region instead of continuing the regular count. An example of this is
+        // scontra's final game boss. As it appears from the top (left unrotated) side
+        // of the screen, part of it is visible at the bottom (right).
+        // Instead of configuring this per game using macros, I have opted for detecting
+        // the situation generally and fixing it. The readout count will keep increasing
+        // until HS is hit.
+        always @(posedge clk, posedge rst) begin
+            if( rst ) begin
+                hdfix <= 0;
+            end else if(pxl_cen) begin
+                hdfix <= ( hdump > hdfix || hs ) ? hdump+9'd1 : hdfix+9'd1;
+            end
+        end
+    end else begin
+        always @* hdfix=hdump;
     end
-end
+endgenerate
+
 
 jtframe_draw #(
     .AW      ( AW       ),
