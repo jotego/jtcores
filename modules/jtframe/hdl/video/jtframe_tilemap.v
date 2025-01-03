@@ -144,7 +144,7 @@ always @(posedge clk) begin
             rom_addr[VR-1-:CW] <= code;
             if( SIZE==16 ) rom_addr[VW]      <= heff[3]^xhflip;
             if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip}};
-            pxl_data <= rom_ok ? rom_data : 32'd0;
+            pxl_data <= rom_ok ? rom_data : {DW{1'b0}};
             // draw information is eight pixels behind
             nx_pal   <= pal;
             cur_pal  <= nx_pal;
