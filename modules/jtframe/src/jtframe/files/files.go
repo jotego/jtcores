@@ -15,10 +15,9 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Date: 28-8-2022 */
 
-package jtfiles
+package files
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -27,114 +26,47 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jotego/jtframe/def"
-	"github.com/jotego/jtframe/cfgstr"
+	"github.com/jotego/jtframe/common"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
 )
 
-type Origin int
-
-const (
-	GAME Origin = iota
-	FRAME
-	TARGET
-	MODULE
-	JTMODULE
-)
-
-type FileList struct {
-	From   string   `yaml:"from"`
-	Get    []string `yaml:"get"`
-	Unless string   `yaml:"unless"` // parses the section "unless" the macro is defined
-	When   string   `yaml:"when"`   // parses the section "when" the macro is defined
-}
-
-type JTModule struct {
-	Name   string `yaml:"name"`
-	Unless string `yaml:"unless"`
-	When   string   `yaml:"when"`
-}
-
-type UcDesc struct {
-	Src		string `yaml:"src"`
-	Output  string `yaml:"output"`
-	// private
-	modname string
-}
-type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
-
-type JTFiles struct {
-	Game    []FileList `yaml:"game"`
-	JTFrame []FileList `yaml:"jtframe"`
-	Target  []FileList `yaml:"target"`
-	Modules struct {
-		JT    []JTModule `yaml:"jt"`
-		Other []FileList `yaml:"other"`
-	} `yaml:"modules"`
-	Here []string `yaml:"here"`
-	Ucode UcFiles `yaml:"ucode"`
-}
-
-type Args struct {
-	Corename string // JT core
-	Parse    string // any file
-	Rel      bool
-	Local    bool
-	Format   string
-	Target   string
-	AddMacro string // More macros, separated by commas
-}
-
 var parsed []string
 var CWD string
 var args Args
-var macros map[string]string
 
-func parse_args(args *Args) {
-	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "%s, part of JTFRAME. (c) Jose Tejada 2021-2022.\nUsage:\n", os.Args[0])
-		fmt.Fprint(flag.CommandLine.Output(),
-			`    jtfiles look for three yaml files:
-		- game.yaml, in the core folder
-		- target.yaml, in $JTFRAME/target
-		- sim.yaml, in $JTFRAME/target (when simulation output requested)
+func Run(set_args Args) {
+	args = set_args
+	CWD, _ = os.Getwd()
+	prepare_macros()
 
-	 Each yaml file can call other files. The game.yaml file should avoid
-	 files specific to a target. That's the only file that a JTFRAME user
-	 should populate.
-	 The files target.yaml and sim.yaml are part of JTFRAME and should not
-	 be modified, except for adding support to new devices.
+	var files JTFiles
+	parse_yaml( common.ConfigFilePath(args.Corename, "files.yaml"), &files )
+	parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", &files )
 
-`)
-		flag.PrintDefaults()
-		os.Exit(0)
-	}
-	flag.StringVar(&args.Corename, "core", "", "core name")
-	flag.StringVar(&args.Parse, "parse", "", "File to parse. Use either -parse or -core")
-	flag.StringVar(&args.Format, "f", "qip", "Output format. Valid values: qip, sim")
-	flag.StringVar(&args.Target, "target", "", "Target platform: mist, mister, pocket, etc.")
-	flag.BoolVar(&args.Rel, "rel", false, "Output relative paths")
-	flag.Parse()
-	if len(args.Corename) == 0 && len(args.Parse) == 0 {
-		log.Fatal("JTFILES: You must specify either the core name with argument -core\nor a file name with -parse")
-	}
-}
-
-func GetFilename(corename, basename, parsepath string) string {
-	var fname string
-	if len(corename) > 0 {
-		cores := os.Getenv("CORES")
-		if len(cores) == 0 {
-			log.Fatal("JTFILES: environment variable CORES is not defined")
+	if args.Target != "" {
+		parse_yaml( os.Getenv("JTFRAME")+"/target/"+args.Target+"/target.yaml", &files )
+		if args.Format == "sim" {
+			parse_yaml(os.Getenv("JTFRAME")+"/target/"+args.Target+"/sim.yaml", &files )
 		}
-		fname = cores + "/" + corename + "/cfg/"+basename+".yaml"
-	} else {
-		fname = parsepath
 	}
-	return fname
+	filenames := collect_files( files, args.Rel )
+	filenames = append_mem( args, args.Local, macros.Get("GAMETOP"), filenames )
+	dump_ucode( files )
+	if !dump_files( filenames, args.Format ) {
+		fmt.Printf("Unknown output format '%s'\n", args.Format)
+		os.Exit(1)
+	}
 }
+
+func prepare_macros() {
+	macros.MakeMacros(args.Corename, args.Target)
+	arg_macros := strings.Split(args.AddMacro, ",")
+	macros.AddKeyValPairs(arg_macros...)
+}
+
 
 func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin Origin) {
 	if src == nil {
@@ -148,7 +80,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 		// Parses the section unless the macro is defined
 		if each.Unless != "" {
 			for _,name := range( strings.Split(each.Unless,",")) {
-				if _, exists := macros[name]; exists {
+				if macros.IsSet(name) {
 					continue parse_section
 				}
 			}
@@ -157,7 +89,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 		if each.When != "" {
 			found := false
 			for _,name := range( strings.Split(each.When,",")) {
-				if _, exists := macros[name]; exists {
+				if macros.IsSet(name) {
 					found = true
 					break
 				}
@@ -182,7 +114,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
 				case TARGET:
 					if newfl.From == "" {
-						newfl.From=macros["TARGET"]
+						newfl.From=macros.Get("TARGET")
 					}
 					path = os.Getenv("JTFRAME") + "/target/" + newfl.From + "/"
 				default:
@@ -336,7 +268,7 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
 		case TARGET:
 			if each.From == "" {
-				each.From=macros["TARGET"]
+				each.From=macros.Get("TARGET")
 			}
 			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
 		case MODULE:
@@ -425,7 +357,21 @@ func collect_files(files JTFiles, rel bool) []string {
 	}
 }
 
-func dump_qip(all []string, args Args ) {
+func dump_files( filenames[]string, format string ) bool {
+	switch format {
+	case "syn", "qip":
+		dump_qip(filenames)
+	case "sim":
+		dump_sim(filenames)
+	case "plain":
+		dump_plain(filenames)
+	default:
+		return false // don't know how to dump
+	}
+	return true
+}
+
+func dump_qip(all []string ) {
 	fout, err := os.Create("game.qip")
 	if err != nil {
 		log.Fatal(err)
@@ -459,7 +405,7 @@ func dump_qip(all []string, args Args ) {
 	}
 }
 
-func dump_sim(all []string, args Args ) {
+func dump_sim(all []string ) {
 	fout, err := os.Create( "game.f" )
 	if err != nil {
 		log.Fatal(err)
@@ -491,7 +437,7 @@ func dump_sim(all []string, args Args ) {
 	}
 }
 
-func dump_plain(all []string, args Args ) {
+func dump_plain(all []string ) {
 	fout, err := os.Create( "files" )
 	if err != nil {
 		log.Fatal(err)
@@ -502,42 +448,6 @@ func dump_plain(all []string, args Args ) {
 		each=strings.TrimPrefix(each,jtroot)
 		fmt.Fprintln(fout, each)
 	}
-}
-
-// func parse_paths( skip []string, args Args, paths... string ) (uniq []string) {
-// 	var files JTFiles
-// 	for _, each := range paths {
-// 		parse_yaml(each, &files)
-// 	}
-// 	all := collect_files( files, args.Rel )
-// 	// Remove files in the skip list
-// 	for _, s := range all {
-// 		found := false
-// 		for _, s2 := range skip {
-// 			if s == s2 {
-// 				found = true
-// 				break
-// 			}
-// 		}
-// 		if !found {
-// 			uniq = append(uniq, s)
-// 		}
-// 	}
-// 	return uniq
-// }
-
-func dump_files( filenames[]string, format string ) bool {
-	switch format {
-	case "syn", "qip":
-		dump_qip(filenames, args )
-	case "sim":
-		dump_sim(filenames, args )
-	case "plain":
-		dump_plain(filenames, args )
-	default:
-		return false // don't know how to dump
-	}
-	return true
 }
 
 // Trying out the "accept interfaces" Go principle:
@@ -554,14 +464,14 @@ func (this Args) GetTarget() string {
 	return this.Target
 }
 
-func append_mem( info CoreInfo, local bool, macros map[string]string, fn []string ) []string {
+func append_mem( info CoreInfo, local bool, gametop string, fn []string ) []string {
 	mempath := filepath.Join( os.Getenv("CORES"), info.GetName(), "cfg", "mem.yaml" )
 	f, err := os.Open( mempath )
 	f.Close()
 	if err!=nil {
 		return fn	// mem.yaml didn't exist. Nothing done
 	}
-	fname := macros["GAMETOP"]+".v"
+	fname := macros.Get("GAMETOP")+".v"
 	if info.GetTarget()!="" && !local {
 		fname = filepath.Join( os.Getenv("CORES"), info.GetName(),info.GetTarget(),fname)
 	}
@@ -573,33 +483,5 @@ func dump_ucode( files JTFiles ) {
 	for _, uc := range files.Ucode {
 		ucode.Args.Output = uc.Output
 		ucode.Make(uc.modname,uc.Src)
-	}
-}
-
-func Run(args Args) {
-	CWD, _ = os.Getwd()
-
-	var def_cfg def.Config
-	def_cfg.Target = args.Target
-	def_cfg.Core = args.Corename
-	def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	macros = def.Make_macros(def_cfg)
-
-	var files JTFiles
-	parse_yaml( GetFilename(args.Corename, "game", args.Parse), &files )
-	parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", &files )
-
-	if args.Target != "" {
-		parse_yaml( os.Getenv("JTFRAME")+"/target/"+args.Target+"/target.yaml", &files )
-		if args.Format == "sim" {
-			parse_yaml(os.Getenv("JTFRAME")+"/target/"+args.Target+"/sim.yaml", &files )
-		}
-	}
-	filenames := collect_files( files, args.Rel )
-	filenames = append_mem( args, args.Local, macros, filenames )
-	dump_ucode( files )
-	if !dump_files( filenames, args.Format ) {
-		fmt.Printf("Unknown output format '%s'\n", args.Format)
-		os.Exit(1)
 	}
 }

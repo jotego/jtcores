@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mra
 
 import (
@@ -136,7 +153,7 @@ func dump_bin(fname string, data []byte) {
 
 func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	olddir, _ := os.Getwd()
-	path := filepath.Join(os.Getenv("CORES"), args.Def_cfg.Core, "cheat")
+	path := filepath.Join(os.Getenv("CORES"), args.Core, "cheat")
 	// Check if the cheat folder exists
 	f, e := os.Open(path)
 	folder_ok := e == nil
@@ -144,7 +161,7 @@ func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	e = os.Chdir(path)
 	defer os.Chdir(olddir)
 	if e != nil {
-		if folder_ok || args.Verbose { // only warns when the core/cheat folder exists but the file was not present
+		if folder_ok || Verbose { // only warns when the core/cheat folder exists but the file was not present
 			fmt.Printf("Warning: cannot open %s/%s\n", path, filename)
 		}
 		return nil

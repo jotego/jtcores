@@ -1,46 +1,63 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mem
 
 import(
     "fmt"
-    "github.com/jotego/jtframe/def"
+    "github.com/jotego/jtframe/macros"
 )
 
-func (item *MacroEnabled) Enabled(macros map[string]string) bool {
+func (item *MacroEnabled) Enabled() bool {
     for _,disabler := range item.Unless {
-        if def.Defined(macros,disabler) {
-            if verbose { fmt.Printf("Disabled because %s was set\n",disabler)}
+        if macros.IsSet(disabler) {
+            if Verbose { fmt.Printf("Disabled because %s was set\n",disabler)}
             return false
         }
     }
     for _,enabler := range item.When {
-        if def.Defined(macros,enabler) {
-            if verbose { fmt.Printf("Enabled because %s was set\n",enabler)}
+        if macros.IsSet(enabler) {
+            if Verbose { fmt.Printf("Enabled because %s was set\n",enabler)}
             return true
         }
     }
     return len(item.When)==0
 }
 
-func (item *BRAMBus_Ioctl) Enabled(macros map[string]string) bool {
+func (item *BRAMBus_Ioctl) Enabled() bool {
     aux := MacroEnabled{
         When: item.When,
         Unless: item.Unless,
     }
-    return aux.Enabled(macros)
+    return aux.Enabled()
 }
 
-func (item *BRAMBus) Enabled(macros map[string]string) bool {
+func (item *BRAMBus) Enabled() bool {
     aux := MacroEnabled{
         When: item.When,
         Unless: item.Unless,
     }
-    return aux.Enabled(macros)
+    return aux.Enabled()
 }
 
-func (item *SDRAMBus) Enabled(macros map[string]string) bool {
+func (item *SDRAMBus) Enabled() bool {
     aux := MacroEnabled{
         When: item.When,
         Unless: item.Unless,
     }
-    return aux.Enabled(macros)
+    return aux.Enabled()
 }

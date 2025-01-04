@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mra
 
 import (
@@ -5,16 +22,20 @@ import (
 	"fmt"
 	"log"
 
-	// "io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
-func collect_sources(verbose bool) []string {
+func Reduce(xml_in string) {
+	src := collect_sources()
+	filter(xml_in, src)
+}
+
+func collect_sources() []string {
 	sources := make([]string, 0, 16)
 	cores := filepath.Join(os.Getenv("JTROOT"), "cores")
 	cores_dir, e := os.ReadDir(cores)
@@ -24,27 +45,22 @@ func collect_sources(verbose bool) []string {
 	}
 	for _, each := range cores_dir {
 		if each.IsDir() && each.Name() != "." {
-			cfg_path := filepath.Join(cores, each.Name(), "cfg")
-			args := Args{
-				Def_cfg: def.Config{
-					Core:    each.Name(),
-					Verbose: verbose,
-				},
-				Toml_path: filepath.Join(cfg_path, "mame2mra.toml"),
-				Verbose:   verbose,
-			}
-			if !common.FileExists(args.Toml_path) { continue }
-			if !common.FileExists(def.DefPath(args.Def_cfg)) {
+			core := each.Name()
+			blank_target := ""
+			toml_path := common.ConfigFilePath(core, "mame2mra.toml")
+			def_path  := common.ConfigFilePath(core, "macors.def")
+			if !common.FileExists(toml_path) { continue }
+			if !common.FileExists(def_path) {
 				log.SetFlags(0)
 				log.Println("Skipping",each.Name()," despite having TOML file as .def file was not found")
 				continue
 			}
-			args.macros = def.Make_macros(args.Def_cfg)
-			cfg := ParseToml( args.Toml_path, args.macros, args.Def_cfg.Core, args.Verbose)
+			macros.MakeMacros(core, blank_target )
+			cfg := ParseToml( toml_path, core )
 			sources = append(sources, cfg.Parse.Sourcefile...)
 		}
 	}
-	if verbose {
+	if Verbose {
 		log.SetFlags(0)
 		log.Println("Source files:\n", sources)
 	}
@@ -88,9 +104,4 @@ func filter(xml_in string, src []string) {
 			dump = true
 		}
 	}
-}
-
-func Reduce(xml_in string, verbose bool) {
-	src := collect_sources(verbose)
-	filter(xml_in, src)
 }

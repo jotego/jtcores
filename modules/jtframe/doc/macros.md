@@ -18,12 +18,12 @@ JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 b
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
 JTFRAME_CHEAT            |         | Enables the [cheat engine](cheat.md)
 JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
+JTFRAME_CLK24            |         | Adds an additional clock input
 JTFRAME_CLK48            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
-JTFRAME_DONTSIM_SCAN2X   |         | Internal. Do not define externally
 JTFRAME_FLIP_RESET       |         | Varying the flip DIP setting causes a reset
 JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
@@ -31,7 +31,6 @@ JTFRAME_HEADER           |         | Set to the length of the ROM file header (d
 JTFRAME_HEIGHT           |         | Sets the video height
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
-JTFRAME_INTERPOL2        |         | Enables a x2 FIR interpolation filter for audio. The game 'sample' output must be well defined
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
 JTFRAME_JOY_DULR         |         | Joystick lower 4 bits are:  down,  up,    left,  right
@@ -47,6 +46,7 @@ JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
+JTFRAME_MIST_DSP_BLOCKS  | MiST    | Use regular logic to implement DSP blocks if needed
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
 JTFRAME_MOUSE_EMUSENS    |         | Positive 9-bit value for the emulated mouse sensitivity. Default value is 9'h10. MSB should be zero
 JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude instead of default 2's complement
@@ -55,7 +55,6 @@ JTFRAME_MR_DDR           | MiSTer  | Defined internally. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
-JTFRAME_NO_DB15_OSD      | MiSTer  | Disables OSD control via DB15 controller
 JTFRAME_NO_MRA_DIP       |         | DIPs are not in an MRA file. Do not call it out from the config string.
 JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
@@ -147,8 +146,14 @@ JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
 
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
-JTFRAME_BAx_AUTOPRECH    |         | Enables auto precharge on bank X (0,1,2,3)
-JTFRAME_BAx_LEN          |         | Sets length of bank x, valid values 16, 32 or 64
+JTFRAME_BA0_AUTOPRECH    |         | Enables auto precharge on bank 0
+JTFRAME_BA0_LEN          |         | Sets length of bank 0, valid values 16, 32 or 64
+JTFRAME_BA1_AUTOPRECH    |         | Enables auto precharge on bank 1
+JTFRAME_BA2_LEN          |         | Sets length of bank 1, valid values 16, 32 or 64
+JTFRAME_BA2_AUTOPRECH    |         | Enables auto precharge on bank 2
+JTFRAME_BA2_LEN          |         | Sets length of bank 2, valid values 16, 32 or 64
+JTFRAME_BA3_AUTOPRECH    |         | Enables auto precharge on bank 3
+JTFRAME_BA3_LEN          |         | Sets length of bank 3, valid values 16, 32 or 64
 
 # SDRAM ROM/RAM Modules
 
@@ -177,7 +182,6 @@ JTFRAME_SIM_IODUMP       |verilator| Frame at which an ioctl_ram read is run. Ou
 JTFRAME_SIM_LOAD_EXTRA   |         | Extra wait time when transferring ROM in simulation
 JTFRAME_SIM_ROMRQ_NOCHECK|         | Disable protocol checking of romrq
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
-JTFRAME_SIM_SCAN2X       |         | Enables scan doubler simulation
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml

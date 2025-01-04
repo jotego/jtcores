@@ -118,7 +118,7 @@ Only one CORE_OSD can be defined, but it an contain multiple values separated by
 
 ### Screen Rotation
 
-Screen rotation features require **JTFRAME_VERTICAL** to work. Remember to enable it first in the **.def** file. Screen rotation is done clockwise unless **JTFRAME_ROTCCW** is defined.
+Screen rotation features require **JTFRAME_VERTICAL** to work. Remember to enable it first in the **.def** file.
 
 Most arcade games have a flip setting among the DIP switches. This is the preferred method to enable it. When that is not possible, using the JTFRAME_OSD_FLIP will add the option to the OSD. The option will appear outside the *DIP Switches* submenu in the OSD.
 

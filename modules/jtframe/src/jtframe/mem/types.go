@@ -1,4 +1,23 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mem
+
+var Verbose bool
 
 type Args struct {
     Core     string
@@ -28,7 +47,7 @@ type MacroEnabled struct{
 }
 
 type Optional interface{
-    Enabled(macros map[string]string) bool
+    Enabled() bool
 }
 
 type SDRAMBus struct {
@@ -109,7 +128,7 @@ type SDRAMCfg struct {
 }
 
 type Include struct {
-    Game string `yaml:"game"` // if not null, it will load from that game cfg folder
+    Core string `yaml:"core"` // if not null, it will load from that game cfg folder
     File string `yaml:"file"` // if null, mem.yaml will be used
 }
 

@@ -1,18 +1,33 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mra
 
-import (
-    "github.com/jotego/jtframe/def"
-)
+var Verbose bool
 
 type Args struct {
-    Def_cfg                      def.Config
+    Core, Target                 string
     Toml_path, Xml_path          string
     outdir, altdir               string
     cheatdir, pocketdir          string
     Info                         []Info
     Buttons                      string
     Year                         string
-    Verbose, SkipMRA, SkipPocket bool
+    SkipMRA, SkipPocket          bool
     SkipROM, Md5                 bool // By skipping the ROM generation,
         // the md5 will be set to None, unless Md5 is true
     Show_platform                bool
@@ -22,7 +37,6 @@ type Args struct {
     URL, Rom_path        string
     // private
     firmware_dir string
-    macros       map[string]string
 }
 
 type Selectable struct {

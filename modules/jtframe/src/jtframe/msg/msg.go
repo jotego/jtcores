@@ -24,11 +24,12 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/jotego/jtframe/common"
 )
 
 type Args struct {
 	Core    string
-	Commit  string
 	Verbose bool
 }
 
@@ -82,10 +83,11 @@ func Run(args Args) {
 					}
 					// add the commit
 					case 'C': {
+						commit, _ := common.GetCommit()
 						if args.Verbose {
-							fmt.Print(args.Commit)
+							fmt.Print(commit)
 						}
-						for _,x := range args.Commit {
+						for _,x := range commit {
 							line_data[k] = int16(x)-0x20
 							k++
 							if k==32 {

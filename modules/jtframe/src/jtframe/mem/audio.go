@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mem
 
 import (
@@ -11,6 +28,7 @@ import (
 	"path/filepath"
 	"gopkg.in/yaml.v2"
 
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -151,9 +169,8 @@ func make_rc( ch *AudioCh, fs float64 ) {
 	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s%d'h0",ch.Pole,bits*2) }
 }
 
-func fill_audio_clock( macros map[string]string, cfg *Audio ) {
-	aux, _ := macros["JTFRAME_MCLK"]
-	fmhz, _ := strconv.Atoi(aux)
+func fill_audio_clock( cfg *Audio ) {
+	fmhz := macros.GetInt("JTFRAME_MCLK")
 	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }
@@ -170,8 +187,8 @@ func fill_global_pole( cfg *Audio, fs float64 ) {
 }
 
 
-func Make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) error {
-	fill_audio_clock( macros, &cfg.Audio )
+func Make_audio( cfg *MemConfig, core, outpath string ) error {
+	fill_audio_clock( &cfg.Audio )
 	const fs = float64(192000)
 	// assign information derived from the module type
 	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
@@ -209,7 +226,7 @@ func Make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}
-	_, cfg.Stereo = macros["JTFRAME_STEREO"]
+	cfg.Stereo = macros.IsSet("JTFRAME_STEREO")
 	return nil
 }
 
@@ -275,7 +292,7 @@ func normalize_gains( all_channels []AudioCh, global float64 ) error {
 			return fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
 		}
 		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
-		if verbose {
+		if Verbose {
 			fmt.Printf("channel %d, gain %X\n",k,ch.Gain)
 		}
 	}

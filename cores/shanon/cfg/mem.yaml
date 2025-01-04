@@ -1,6 +1,6 @@
 include:
-  - file: audio
-    game: outrun
+  - file: audio.yaml
+    core: outrun
 game: outrun
 params:
   - { name: ROAD_START }

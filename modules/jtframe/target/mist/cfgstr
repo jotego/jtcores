@@ -16,5 +16,5 @@
 {{ .SEPARATOR }}
 {{ .CORE_OSD }}
 {{ with .JTFRAME_IOCTL_RD }}         R{{ . }},Save NVRAM;{{ end }}
-T0,Reset v{{.COMMIT}};
-V,{{ .COMMIT }} - patreon.com/jotego
+T0,Reset v{{.JTFRAME_COMMIT}};
+V,{{ .JTFRAME_COMMIT }} - patreon.com/jotego

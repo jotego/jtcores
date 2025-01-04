@@ -40,4 +40,4 @@ d5P1oAD,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;
 {{ if .JTFRAME_CREDITS }} OC,Show credits in pause,On,Off; {{ end }}
 R0,Reset;
 {{ with .MISTER_EXTRA }} {{ . }} {{ end }}
-V,v{{ .COMMIT }};
+V,v{{ .JTFRAME_COMMIT }};

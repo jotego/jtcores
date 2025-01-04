@@ -26,19 +26,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"text/template"
 
-	"github.com/jotego/jtframe/files"
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/common"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/mra"
 
 	"gopkg.in/yaml.v2" // do not upgrade to v3. See issue #904
 	"github.com/Masterminds/sprig/v3"	// more template functions
 )
-
-var verbose bool
 
 func (arg Args) get_path(fname string, prefix bool ) string {
 	if prefix {
@@ -104,25 +101,12 @@ var funcMap = template.FuncMap{
 	"is_nbits":        is_nbits,
 }
 
-func Parse_file(core, filename string, macros map[string]string, cfg *MemConfig) bool {
+func Parse_file(core, filename string, cfg *MemConfig) bool {
 	read_yaml(core,filename,cfg)
-	include_copy := make([]Include, len(cfg.Include))
-	copy(include_copy, cfg.Include)
-	cfg.Include = nil
-	for _, each := range include_copy {
-		fname := each.File
-		if fname == "" {
-			fname = "mem"
-		}
-		if strings.HasSuffix(fname,".yaml") {
-			fname = fname[0:len(fname)-5]
-		}
-		if each.Game == "" { each.Game=core }
-		Parse_file(each.Game, fname, macros, cfg)
-	}
+	parse_include_files(core,cfg)
 	// Reload the YAML to overwrite values that the included files may have set
 	read_yaml(core,filename,cfg)
-	delete_optional(cfg,macros)
+	delete_optional(cfg)
 	// Update the MemType strings
 	for k, bank := range cfg.SDRAM.Banks {
 		ram_cnt := 0
@@ -157,13 +141,25 @@ func Parse_file(core, filename string, macros map[string]string, cfg *MemConfig)
 	return true
 }
 
+func parse_include_files(core string, cfg *MemConfig) {
+	include_copy := make([]Include, len(cfg.Include))
+	copy(include_copy, cfg.Include)
+	cfg.Include = nil
+	for _, entry := range include_copy {
+		if entry.File=="" && entry.Core=="" { continue }
+		if entry.File == "" { entry.File = "mem.yaml" }
+		if entry.Core == "" { entry.Core=core }
+		Parse_file(entry.Core, entry.File, cfg)
+	}
+}
+
 // used for testing the yaml package
 func unmarshal( buffer []byte, storage any ) error {
 	return yaml.Unmarshal(buffer,storage)
 }
 
 func read_yaml(core, filename string, cfg *MemConfig) (e error) {
-	filename = jtfiles.GetFilename(core, filename, "")
+	filename = common.ConfigFilePath(core, filename)
 	buf, e := os.ReadFile(filename)
 	if e != nil {
 		if errors.Is(e, os.ErrNotExist) {
@@ -172,14 +168,14 @@ func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 		}
 		return e
 	}
-	if verbose {
+	if Verbose {
 		fmt.Println("Read ", filename)
 	}
 	e = unmarshal(buf, cfg)
 	if e != nil {
 		return fmt.Errorf("jtframe mem: cannot parse file\n\t%s\n\t%w", filename, e)
 	}
-	if verbose {
+	if Verbose {
 		fmt.Println("jtframe mem: memory configuration:")
 		fmt.Println(*cfg)
 		fmt.Println()
@@ -187,13 +183,13 @@ func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 	return nil
 }
 
-func delete_optional( cfg *MemConfig, macros map[string]string ) {
-	delete_optional_bram(cfg,macros)
-	delete_optional_sdram(cfg,macros)
-	delete_optional_ioctl(cfg.BRAM, macros)
+func delete_optional( cfg *MemConfig ) {
+	delete_optional_bram(cfg)
+	delete_optional_sdram(cfg)
+	delete_optional_ioctl(cfg.BRAM)
 }
 
-func delete_optional_sdram(cfg *MemConfig, macros map[string]string ) {
+func delete_optional_sdram(cfg *MemConfig ) {
 	for k,_:=range cfg.SDRAM.Banks {
 		total := len(cfg.SDRAM.Banks[k].Buses)
 		if total==0 { continue }
@@ -201,26 +197,26 @@ func delete_optional_sdram(cfg *MemConfig, macros map[string]string ) {
 		for j,_ := range cfg.SDRAM.Banks[k].Buses {
 			optional[j]=&cfg.SDRAM.Banks[k].Buses[j]
 		}
-		enabled := find_enabled(optional,macros)
+		enabled := find_enabled(optional)
 		cfg.SDRAM.Banks[k].Buses = copy_enabled(cfg.SDRAM.Banks[k].Buses,enabled)
 	}
 }
 
-func delete_optional_bram(cfg *MemConfig, macros map[string]string ) {
+func delete_optional_bram(cfg *MemConfig ) {
 	total := len(cfg.BRAM)
 	if total==0 { return }
 	optional := make([]Optional,total)
 	for k, _ := range cfg.BRAM {
 		optional[k]=&cfg.BRAM[k]
 	}
-	enabled := find_enabled(optional,macros)
+	enabled := find_enabled(optional)
 	cfg.BRAM = copy_enabled(cfg.BRAM,enabled)
 }
 
-func delete_optional_ioctl(all_bram []BRAMBus, macros map[string]string) {
+func delete_optional_ioctl(all_bram []BRAMBus) {
 	for k, _ := range all_bram {
-		if !all_bram[k].Ioctl.Enabled(macros) {
-			if verbose {
+		if !all_bram[k].Ioctl.Enabled() {
+			if Verbose {
 				fmt.Printf("Delete IOCTL data for BRAM bus %s\n",all_bram[k].Name)
 			}
 			all_bram[k].Ioctl=BRAMBus_Ioctl{}
@@ -228,10 +224,10 @@ func delete_optional_ioctl(all_bram []BRAMBus, macros map[string]string) {
 	}
 }
 
-func find_enabled(all_items []Optional, macros map[string]string ) (enabled []int) {
+func find_enabled(all_items []Optional ) (enabled []int) {
 	enabled = make([]int,0,len(all_items))
 	for k,item := range all_items {
-		if item.Enabled(macros) {
+		if item.Enabled() {
 			enabled=append(enabled,k)
 		}
 	}
@@ -255,7 +251,7 @@ func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	t, e := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e = t.Execute(&buffer, cfg); e!= nil { return e }
 	// Dump the file
 	outpath := finder.get_path("_game_sdram.v", true)
 	ioutil.WriteFile(outpath, buffer.Bytes(), 0644)
@@ -269,7 +265,7 @@ func add_game_ports(args Args, cfg *MemConfig) (e error){
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
 	t,e := template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e = t.Execute(&buffer, cfg); e!=nil { return e }
 	outpath := "jt" + args.Core + "_game.v"
 	outpath = filepath.Join(os.Getenv("CORES"), args.Core, "hdl", outpath)
 	f, err := os.Open(outpath)
@@ -321,62 +317,90 @@ func add_game_ports(args Args, cfg *MemConfig) (e error){
 	return nil
 }
 
-func check_bram( macros map[string]string, cfg *MemConfig ) error {
-	prom_cnt := 0
-	for _, bram := range cfg.BRAM {
-		if !bram.Prom { continue }
-		if prom_cnt!=0 {
-			return fmt.Errorf("Currently only support for a single PROM BRAM block is implemented")
-		}
-		if bram.Data_width>8 {
-			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits",bram.Name, bram.Data_width )
-		}
-		prom_cnt++
+
+func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
+	if len( cfg.Ioctl.Buses )==0 { return }
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
+	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
+	var buffer bytes.Buffer
+	if e = t.Execute(&buffer, cfg); e!=nil { return e }
+	// Dump the file
+	outpath := filepath.Join(os.Getenv("CORES"), corename, "ver","game" )
+	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
+	outpath = filepath.Join( outpath, "dump2bin.sh" )
+	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755); if e!=nil { return e }
+	if Verbose {
+		fmt.Printf("%s created\n",outpath)
 	}
 	return nil
 }
 
-func check_banks( macros map[string]string, cfg *MemConfig ) error {
+
+func Run(args Args) (e error) {
+	var cfg MemConfig
+	Verbose = args.Verbose
+	macros.MakeMacros(args.Core,args.Target)
+	if args.Nodbg {
+		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
+		macros.Set("JTFRAME_RELEASE","")
+	}
+	if !Parse_file(args.Core, "mem.yaml", &cfg) {
+		// the mem.yaml file does not exist, that's
+		// normally ok
+		return
+	}
+	bankOffset( &cfg, args.Core )
+	// Checks
+	if e = check_banks( &cfg ); e!=nil { return e }
+	if e = check_bram ( &cfg ); e!=nil { return e }
+	// Data arrangement
+	fill_implicit_ports( &cfg )
+	make_ioctl( &cfg )
+	fill_gfx_sort( &cfg )
+	// Fill the clock configuration
+	make_clocks( &cfg )
+	// Audio configuration
+	e = Make_audio( &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
+	// Execute the template
+	cfg.Core = args.Core
+	e = make_sdram(args, &cfg);     if e!=nil { return e }
+	e = add_game_ports(args, &cfg); if e!=nil { return e }
+	e = make_dump2bin(args.Core, &cfg ); if e!=nil { return e }
+	return nil
+}
+
+func bankOffset( cfg *MemConfig, corename string) {
+	mra_cfg := mra.ParseToml( mra.TomlPath(corename), corename )
+	if len(mra_cfg.Header.Offset.Regions)==0 { return }
+	cfg.Balut = 1
+	cfg.Lutsh = mra_cfg.Header.Offset.Bits
+}
+
+func check_banks( cfg *MemConfig ) error {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
 	}
 	bad := false
-	check_we := func( ba int, macro_name string) {
-		for _,each := range cfg.SDRAM.Banks[ba].Buses {
-			if each.Rw {
-				_, found := macros[macro_name]
-				if !found {
-					fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", macro_name, ba)
-					bad=true
+	if cfg.Balut==0 {
+		for bank_count:=1; bank_count<4; bank_count++ {
+			if len(cfg.SDRAM.Banks)>bank_count  {
+				bank_str := fmt.Sprintf("JTFRAME_BA%d",bank_count)
+				bad = bad || report_bad_int( bank_str+"_START")
+				wen_macro := bank_str+"_WEN"
+				for _,bank_bus := range cfg.SDRAM.Banks[bank_count].Buses {
+					if bank_bus.Rw {
+						if !macros.IsSet(wen_macro) {
+							fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", wen_macro, bank_count)
+							bad=true
+						}
+					}
 				}
 			}
-		}
-	}
-	if cfg.Balut==0 {
-		if len(cfg.SDRAM.Banks)>1  {
-			if macros["JTFRAME_BA1_START"]=="" {
-				fmt.Println("Missing JTFRAME_BA1_START")
-				bad = true
-			}
-			check_we( 1, "JTFRAME_BA1_WEN" )
-		}
-		if len(cfg.SDRAM.Banks)>2 {
-			if macros["JTFRAME_BA2_START"]=="" {
-				fmt.Println("Missing JTFRAME_BA2_START")
-				bad = true
-			}
-			check_we( 2, "JTFRAME_BA2_WEN" )
-		}
-		if len(cfg.SDRAM.Banks)>3 {
-			if macros["JTFRAME_BA3_START"]=="" {
-				fmt.Println("Missing JTFRAME_BA3_START")
-				bad = true
-			}
-			check_we( 3, "JTFRAME_BA3_WEN" )
+
 		}
 	} else {
-		if macros["JTFRAME_HEADER"]=="" {
+		if !macros.IsInt("JTFRAME_HEADER") {
 			fmt.Println(`Missing JTFRAME_HEADER but the SDRAM banks are pointing to a region.
 Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
@@ -431,7 +455,30 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 	return nil
 }
 
-func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
+func report_bad_int(macro_name string) bool {
+	if !macros.IsInt(macro_name) {
+		fmt.Printf("Missing or invalid %s\n",macro_name)
+		return true
+	}
+	return false
+}
+
+func check_bram( cfg *MemConfig ) error {
+	prom_cnt := 0
+	for _, bram := range cfg.BRAM {
+		if !bram.Prom { continue }
+		if prom_cnt!=0 {
+			return fmt.Errorf("Currently only support for a single PROM BRAM block is implemented")
+		}
+		if bram.Data_width>8 {
+			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits",bram.Name, bram.Data_width )
+		}
+		prom_cnt++
+	}
+	return nil
+}
+
+func fill_implicit_ports( cfg *MemConfig ) {
 	implicit := make( map[string]bool )
 	// get implicit names
 	for _, bank := range cfg.SDRAM.Banks {
@@ -458,7 +505,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
 		old, fnd := all[p.Name]
-		if verbose {
+		if Verbose {
 			fmt.Printf("Adding port: %s\n", p.Name)
 		}
 		if fnd {
@@ -563,7 +610,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
 }
 
-func make_ioctl( macros map[string]string, cfg *MemConfig ) int {
+func make_ioctl( cfg *MemConfig ) int {
 	found := false
 	dump_size := 0
 	total_blocks := 0
@@ -640,45 +687,29 @@ func make_ioctl( macros map[string]string, cfg *MemConfig ) int {
 			each.We   = "1'b0"
 		}
 	}
-	// warn if JTFRAME_IOCTL_RD is below the required one
-	ioctl_rd, fnd := macros["JTFRAME_IOCTL_RD"]
-	suggest := (ioctl_rd=="" && dump_size!=0) || verbose
-	if fnd {
-		aux2, _ := strconv.ParseInt(ioctl_rd,0,32)
-		aux := int(aux2)
-		if aux < dump_size {
-			suggest = true
-			fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-aux)
-		}
+	check_ioctl_size( dump_size )
+	return dump_size
+}
+
+// warn if JTFRAME_IOCTL_RD is below the required one
+func check_ioctl_size(dump_size int) {
+	if dump_size==0 { return }
+	ioctl_rd := macros.GetInt("JTFRAME_IOCTL_RD")
+	suggest := ioctl_rd<dump_size || Verbose
+	if ioctl_rd < dump_size {
+		suggest = true
+		fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-ioctl_rd)
 	}
 	if suggest {
 		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d\n", dump_size)
 	}
-	return dump_size
 }
 
-func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
-	if len( cfg.Ioctl.Buses )==0 { return }
-	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
-	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
-	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
-	// Dump the file
-	outpath := filepath.Join(os.Getenv("CORES"), corename, "ver","game" )
-	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
-	outpath = filepath.Join( outpath, "dump2bin.sh" )
-	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755); if e!=nil { return e }
-	if verbose {
-		fmt.Printf("%s created\n",outpath)
-	}
-	return nil
-}
-
-func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
+func fill_gfx_sort( cfg *MemConfig ) {
 	// this will not merge correctly hhvvv and hhvvvx used together, that's
 	// not supported in jtframe_dwnld at the moment
 	appendif := func( ss *[]string, mac string ) {
-		if def.Defined(macros,mac) { *ss = append(*ss, "`"+mac) }
+		if macros.IsSet(mac) { *ss = append(*ss, "`"+mac) }
 	}
 	make_gfx := func( match string ) (string, int) {
 		ranges :=  make([]string,0)
@@ -708,10 +739,10 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 					}
 					offsets2 = append(offsets,fmt.Sprintf("(%s<<1)",bank.Buses[j+1].Offset))
 				} else {
-					if def.Defined(macros,fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
+					if macros.IsSet(fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,fmt.Sprintf("`JTFRAME_BA%d_START",k+1))
-					} else if def.Defined(macros,"JTFRAME_PROM_START") {
+					} else if macros.IsSet("JTFRAME_PROM_START") {
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,"JTFRAME_PROM_START")
 					}
@@ -734,44 +765,4 @@ func fill_gfx_sort( macros map[string]string, cfg *MemConfig ) {
 	}
 	cfg.Gfx8, cfg.Gfx8b0  = make_gfx("hhvvv")
 	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
-}
-
-func Run(args Args) (e error) {
-	var cfg MemConfig
-	verbose = args.Verbose
-	macros := def.Get_Macros( args.Core, args.Target )
-	if args.Nodbg {
-		if verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
-		macros["JTFRAME_RELEASE"]=""
-	}
-	if !Parse_file(args.Core, "mem", macros, &cfg) {
-		// the mem.yaml file does not exist, that's
-		// normally ok
-		return
-	}
-	bankOffset( &cfg, macros, args.Core )
-	// Checks
-	if e = check_banks( macros, &cfg ); e!=nil { return e }
-	if e = check_bram ( macros, &cfg ); e!=nil { return e }
-	// Data arrangement
-	fill_implicit_ports( macros, &cfg )
-	make_ioctl( macros, &cfg )
-	fill_gfx_sort( macros, &cfg )
-	// Fill the clock configuration
-	make_clocks( macros, &cfg )
-	// Audio configuration
-	e = Make_audio( macros, &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
-	// Execute the template
-	cfg.Core = args.Core
-	e = make_sdram(args, &cfg);     if e!=nil { return e }
-	e = add_game_ports(args, &cfg); if e!=nil { return e }
-	e = make_dump2bin(args.Core, &cfg ); if e!=nil { return e }
-	return nil
-}
-
-func bankOffset( cfg *MemConfig, macros map[string]string, corename string) {
-	mra_cfg := mra.ParseToml( mra.TomlPath(corename), macros, corename, false )
-	if len(mra_cfg.Header.Offset.Regions)==0 { return }
-	cfg.Balut = 1
-	cfg.Lutsh = mra_cfg.Header.Offset.Bits
 }

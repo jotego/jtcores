@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package cmd
 
 import (
@@ -38,8 +55,8 @@ func audit_audio() {
 	defer output.Close()
 	for _, core := range get_valid_cores() {
 		var cfg mem.MemConfig
-		mem.Parse_file(core,"mem",nil,&cfg)
-		e = mem.Make_audio(nil,&cfg,core,tmp_dir)
+		mem.Parse_file(core,"mem",&cfg)
+		e = mem.Make_audio(&cfg,core,tmp_dir)
 		if e!=nil { fmt.Println(e)}
 		fmt.Fprintf(output,"%s",core)
 		report(cfg.Audio.Channels,output)

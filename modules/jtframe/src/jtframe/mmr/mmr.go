@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mmr
 
 import(
@@ -45,7 +62,7 @@ func convert( corename, hdl_path string, cfg MMRdef ) (e error) {
 	t,e := template.New("mmr.v").Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e=t.Execute(&buffer, cfg); e!=nil { return e }
 	// Dump the file
 	fname := fmt.Sprintf("%s.v",cfg.Module)
 	outpath := filepath.Join(hdl_path,fname)

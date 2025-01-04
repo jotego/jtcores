@@ -1,4 +1,4 @@
-/*  This file is part of JT_FRAME.
+/*  This file is part of JTFRAME.
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
     along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 28-8-20122 */
+    Date: 21-1-2023 */
 
 package cmd
 

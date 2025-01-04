@@ -41,7 +41,7 @@ Message text:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		msg_args.Core = args[0]
-
+		msg_args.Verbose = verbose
 		msg.Run(msg_args)
 	},
 	Args: cobra.ExactArgs(1),
@@ -49,8 +49,4 @@ Message text:
 
 func init() {
 	rootCmd.AddCommand(msgCmd)
-	flag := msgCmd.Flags()
-
-	flag.StringVarP(&msg_args.Commit, "commit", "c", "", "Commit ID")
-	flag.BoolVarP(&msg_args.Verbose, "verbose", "v", false, "verbose")
 }

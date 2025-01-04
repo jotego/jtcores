@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package mra
 
 import (
@@ -17,7 +34,7 @@ import (
 	"time"
 
 	"github.com/jotego/jtframe/betas"
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -35,19 +52,15 @@ func Run(args Args) {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
-	args.macros = def.Make_macros(args.Def_cfg)
-	mra_cfg := ParseToml( args.Toml_path, args.macros, args.Def_cfg.Core, args.Verbose) // macros become part of args
-	if args.Verbose {
+	macros.MakeMacros(args.Core,args.Target)
+	mra_cfg := ParseToml( args.Toml_path, args.Core)
+	if Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
-	// Set the RBF Name if blank
-	// if mra_cfg.Rbf.Name == "" {
-	// 	mra_cfg.Rbf.Name = "jt" + args.Def_cfg.Core
-	// }
-	mra_cfg.rbf = "jt" + args.Def_cfg.Core
+	mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
 	if mra_cfg.Global.Platform == "" {
-		mra_cfg.Global.Platform = "jt" + args.Def_cfg.Core
+		mra_cfg.Global.Platform = "jt" + args.Core
 	}
 	if args.Show_platform {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
@@ -76,7 +89,7 @@ func Run(args Args) {
 		parent_names[p.Name] = p.Description
 	}
 	// Dump MRA is delayed for later so we get all the parent names collected
-	if args.Verbose || len(data_queue) == 0 {
+	if Verbose || len(data_queue) == 0 {
 		fmt.Println("Total: ", len(data_queue), " games")
 	}
 	main_copied := args.SkipMRA
@@ -106,7 +119,7 @@ func Run(args Args) {
 						fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
 						os.Exit(1)
 					} else {
-						mra2rom(d.mra_xml,args.Verbose, !args.SkipROM, args.Rom_path)
+						mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
 					}
 				}
 				save_nvram(d.mra_xml)
@@ -124,9 +137,9 @@ func Run(args Args) {
 				d.machine.Name, d.machine.Cloneof)
 		}
 	}
-	dump_setnames( args.Def_cfg.Core, valid_setnames )
+	dump_setnames( args.Core, valid_setnames )
 	if !main_copied {
-		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Def_cfg.Core)
+		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
 	}
 	if !args.SkipPocket {
 		pocket_save()
@@ -143,7 +156,7 @@ extra_loop:
 		if machine == nil {
 			break
 		}
-		if args.Verbose {
+		if Verbose {
 			fmt.Print("#####################\n#####################\nFound", machine.Name)
 			if machine.Cloneof != "" {
 				fmt.Printf(" (%s)", machine.Cloneof)
@@ -197,7 +210,7 @@ func dump_setnames( corefolder string, sn []string ) {
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 	if args.MainOnly && machine.Cloneof!="" && !slices.Contains( mra_cfg.Parse.Main_setnames, machine.Name ){
-		if args.Verbose {
+		if Verbose {
 			fmt.Println("Skipping ", machine.Description, "for it is not the main version of the game")
 		}
 		return true
@@ -205,27 +218,27 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 	if mra_cfg.Parse.Skip.Bootlegs &&
 		strings.Index(
 			strings.ToLower(machine.Description), "bootleg") != -1 {
-		if args.Verbose {
+		if Verbose {
 			fmt.Println("Skipping ", machine.Description, "for it's a bootleg")
 		}
 		return true
 	}
 	for _, d := range mra_cfg.Parse.Skip.Descriptions {
 		if strings.Index(machine.Description, d) != -1 {
-			if args.Verbose {
+			if Verbose {
 				fmt.Println("Skipping ", machine.Description, "for its description")
 			}
 			return true
 		}
 	}
 	if m:=mra_cfg.Parse.Skip.Match(machine);m>1 {
-		if args.Verbose {
+		if Verbose {
 			fmt.Printf("Skipping %s for level %d matching\n", machine.Description, m)
 		}
 		return true
 	}
 	if m:=mra_cfg.Parse.Debug.Match(machine);m>1 && args.Nodbg {
-		if args.Verbose {
+		if Verbose {
 			fmt.Printf("Skipping %s (debug phase) for level %d matching\n", machine.Description, m)
 		}
 		return true
@@ -235,7 +248,7 @@ func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
 	machine_ok := len(mra_cfg.Parse.Mustbe.Machines) == 0
 	for _, each := range mra_cfg.Parse.Mustbe.Machines {
 		if is_family(each, machine) {
-			if args.Verbose {
+			if Verbose {
 				fmt.Println("Parsing ", machine.Description, "for matching machine name")
 			}
 			machine_ok = true
@@ -269,12 +282,12 @@ func delete_old_mra(args Args, path string) {
 		fmt.Println("Cannot Unmarshal ", path, "\n\t", e)
 		os.Exit(1)
 	}
-	if strings.ToUpper(testmra.Rbf) == args.macros["CORENAME"] {
+	if strings.ToUpper(testmra.Rbf) == macros.Get("CORENAME") {
 		if e = os.Remove(path); e != nil {
 			fmt.Println("Cannot delete ", path)
 			os.Exit(1)
 		}
-		if args.Verbose {
+		if Verbose {
 			fmt.Println("Deleted ", path)
 		}
 	}
@@ -298,7 +311,7 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	game_name = strings.ReplaceAll(game_name, "/", "-")
 	// Create the output directory
 	if args.outdir != "." && args.outdir != "" {
-		if args.Verbose {
+		if Verbose {
 			fmt.Println("Creating folder ", args.outdir)
 		}
 		err := os.MkdirAll(args.outdir, 0777)
@@ -542,7 +555,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 		if filename == "" {
-			filename = args.Def_cfg.Core + ".s"
+			filename = args.Core + ".s"
 		}
 		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
 		if asmhex != nil && len(asmhex) > 0 && !skip {
@@ -561,9 +574,9 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 	}
-	make_nvram(&root,machine,cfg,args.Def_cfg.Core)
+	make_nvram(&root,machine,cfg,args.Core)
 	// coreMOD
-	coremod := make_coreMOD(&root, machine, cfg, args.macros)
+	coremod := make_coreMOD(&root, machine, cfg)
 	// DIP switches
 	def_dipsw := make_switches(&root, machine, cfg, args)
 	// Buttons
@@ -592,7 +605,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		m := b.Match(machine)
 		if (m==1 && !button_set) || m==2 {
 			button_def = b.Names
-			if args.Verbose {
+			if Verbose {
 				fmt.Printf("Buttons set to %s for %s\n", b.Names, machine.Name)
 			}
 			button_set = true
@@ -639,7 +652,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 	for _, dev := range machine.Devices {
 		if strings.Contains(dev.Name, "fd1089") {
-			reg_cfg := find_region_cfg(machine, "fd1089", cfg, true)
+			reg_cfg := find_region_cfg(machine, "fd1089", cfg)
 			if delta := fill_upto(pos, reg_cfg.start, root); delta < 0 {
 				fmt.Printf(
 					"\tstart offset overcome by 0x%X while adding FD1089 LUT\n", -delta)
@@ -667,19 +680,6 @@ func is_split(reg string, machine *MachineXML, cfg Mame2MRA) (offset, min_len in
 		min_len = split.Min_len
 	}
 	return offset, min_len
-}
-
-func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
-	for k, v := range macros { // []string{"JTFRAME_BA1_START","JTFRAME_BA2_START","JTFRAME_BA3_START"} {
-		start, _ := strconv.ParseInt(v, 0, 32)
-		if start == 0 {
-			continue
-		}
-		// add the comment only once
-		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.name })==nil {
-			root.AddNode(k).comment = true
-		}
-	}
 }
 
 type flag_info struct {
@@ -757,13 +757,13 @@ var fd1089_bin = [256]byte{
 
 func parse_args(args *Args) {
 	cores := os.Getenv("CORES")
-	if args.Toml_path == "" && args.Def_cfg.Core != "" {
+	if args.Toml_path == "" && args.Core != "" {
 		if len(cores) == 0 {
 			log.Fatal("JTFILES: environment variable CORES is not defined")
 		}
-		args.Toml_path = TomlPath(args.Def_cfg.Core)
+		args.Toml_path = TomlPath(args.Core)
 	}
-	if args.Verbose {
+	if Verbose {
 		fmt.Println("Parsing ", args.Toml_path)
 	}
 	release_dir := filepath.Join(os.Getenv("JTROOT"), "release")
@@ -777,5 +777,5 @@ func parse_args(args *Args) {
 	args.outdir = filepath.Join(release_dir, "mra")
 	args.altdir = filepath.Join(args.outdir, "_alternatives")
 	args.pocketdir = filepath.Join(release_dir, "pocket", "raw")
-	args.firmware_dir = filepath.Join(cores, args.Def_cfg.Core, "firmware")
+	args.firmware_dir = filepath.Join(cores, args.Core, "firmware")
 }

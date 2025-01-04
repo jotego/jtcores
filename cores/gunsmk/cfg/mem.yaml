@@ -1,6 +1,6 @@
 include:
-  - file: audio
-    game: gng
+  - file: audio.yaml
+    core: gng
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1"  }

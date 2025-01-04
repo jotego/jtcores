@@ -1,4 +1,4 @@
-The project files are defined in cores/corename/game.yaml.
+The project files are defined in cores/corename/files.yaml.
 jtframe files command will also add the required files for the
 selected compilation or simulation target.
 
