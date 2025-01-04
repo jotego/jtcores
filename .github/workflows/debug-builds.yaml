@@ -2,7 +2,7 @@ name: "Debug builds (SiDi128)"
 
 on:
   workflow_dispatch:
-  pull_request:
+  # pull_request:
   repository_dispatch:
     types: rebuild
   # schedule:
