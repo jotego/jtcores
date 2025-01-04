@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"fmt"
+
+	. "github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/mem"
 
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/common"
 )
 
 var mem_args mem.Args
@@ -30,12 +32,19 @@ var mem_args mem.Args
 var memCmd = &cobra.Command{
 	Use:   "mem <core-name>",
 	Short: "Parses the core's YAML file to generate RTL files",
-	Long: common.Doc2string("jtframe-mem.md"),
+	Long: Doc2string("jtframe-mem.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		var e error
 		mem_args.Core, e = get_corename(args)
-		must(e)
-		must(mem.Run(mem_args))
+		Must(e)
+		mem_file := ConfigFilePath(mem_args.Core,"mem.yaml")
+		if !FileExists(mem_file) {
+			if verbose {
+				fmt.Printf("mem.yaml does not exist for %s\n",mem_args.Core)
+			}
+			return
+		}
+		Must(mem.Run(mem_args))
 	},
 	Args: cobra.MaximumNArgs(1),
 }

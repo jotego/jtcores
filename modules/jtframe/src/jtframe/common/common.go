@@ -13,6 +13,10 @@ func Must( e error ) {
 	}
 }
 
+func ConfigFilePath(core, file string) (full_path string) {
+	return filepath.Join(os.Getenv("JTROOT"),"cores","cfg",file)
+}
+
 func Doc2string(doc string) string {
 	fname := filepath.Join(os.Getenv("JTFRAME"),"doc",doc)
 	buf, e := os.ReadFile(fname)

@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"os"
 	"github.com/jotego/jtframe/mra"
-	"github.com/jotego/jtframe/common"
+	. "github.com/jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )
@@ -34,7 +34,7 @@ var reduce, clear_folders bool
 var mraCmd = &cobra.Command{
 	Use:   "mra <core-name core-name...> or mra --reduce <path-to-mame.xml>",
 	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
-	Long: common.Doc2string("jtframe-mra.md"),
+	Long: Doc2string("jtframe-mra.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		if reduce {
 			if len(args)<1 {
@@ -44,7 +44,7 @@ var mraCmd = &cobra.Command{
 			mame_xml_path := args[0]
 			mra.Reduce(mame_xml_path, mra_args.Verbose)
 		} else { // regular operation, each core name is an argument
-			cores, e := get_corenames(args); must(e)
+			cores, e := get_corenames(args); Must(e)
 			parse_cores(cores)
 		}
 	},

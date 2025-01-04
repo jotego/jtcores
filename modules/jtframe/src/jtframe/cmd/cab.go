@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/spf13/cobra"
+	. "github.com/jotego/jtframe/common"
 )
 
 // cabCmd represents the cab command
@@ -35,11 +36,11 @@ to repeat the loop section (at least 1).
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		filename := args[0]
-		f, e := os.Open(filename); must(e)
+		f, e := os.Open(filename); Must(e)
 		defer f.Close()
 		converted, e := cab2hex(f);
 		if e!=nil {
-			must(fmt.Errorf("%w of file %s",e,filename))
+			Must(fmt.Errorf("%w of file %s",e,filename))
 		}
 		os.WriteFile("sim_inputs.hex",converted, 0660 )
 	},

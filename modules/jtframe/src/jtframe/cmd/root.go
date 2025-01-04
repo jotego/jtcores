@@ -85,9 +85,3 @@ func get_corename(args []string) (string, error) {
 	if len(parts)==0 { return "",CANNOT_SOLVE_CORENAME }
 	return parts[0],nil
 }
-
-func must(e error) {
-	if(e==nil) {return}
-    fmt.Println(e)
-    os.Exit(1)
-}

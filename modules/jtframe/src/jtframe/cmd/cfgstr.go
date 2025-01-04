@@ -20,8 +20,9 @@ package cmd
 
 import (
 	"github.com/jotego/jtframe/cfgstr"
-	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/def"
+	. "github.com/jotego/jtframe/common"
+
 	"github.com/spf13/cobra"
 )
 
@@ -32,12 +33,12 @@ var extra_def, extra_undef string
 var cfgstrCmd = &cobra.Command{
 	Use:   "cfgstr [core-name]",
 	Short: `Parses the macros.def file in the cfg folder`,
-	Long: common.Doc2string("jtframe-cfgstr.md"),
+	Long: Doc2string("jtframe-cfgstr.md"),
 	Run: func(cmd *cobra.Command, args []string) {
 		var e error
 		cfg.Core, e = get_corename(args)
-		must(e)
-		must(cfgstr.Run(cfg, args, extra_def, extra_undef))
+		Must(e)
+		Must(cfgstr.Run(cfg, args, extra_def, extra_undef))
 	},
 	Args: cobra.MaximumNArgs(1),
 }
