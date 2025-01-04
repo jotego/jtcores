@@ -146,10 +146,10 @@ func parse_include_files(core string, cfg *MemConfig) {
 	copy(include_copy, cfg.Include)
 	cfg.Include = nil
 	for _, entry := range include_copy {
-		if entry.File=="" && entry.Game=="" { continue }
+		if entry.File=="" && entry.Core=="" { continue }
 		if entry.File == "" { entry.File = "mem.yaml" }
-		if entry.Game == "" { entry.Game=core }
-		Parse_file(entry.Game, entry.File, cfg)
+		if entry.Core == "" { entry.Core=core }
+		Parse_file(entry.Core, entry.File, cfg)
 	}
 }
 
@@ -251,7 +251,7 @@ func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	t, e := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e = t.Execute(&buffer, cfg); e!= nil { return e }
 	// Dump the file
 	outpath := finder.get_path("_game_sdram.v", true)
 	ioutil.WriteFile(outpath, buffer.Bytes(), 0644)
@@ -265,7 +265,7 @@ func add_game_ports(args Args, cfg *MemConfig) (e error){
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
 	t,e := template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e = t.Execute(&buffer, cfg); e!=nil { return e }
 	outpath := "jt" + args.Core + "_game.v"
 	outpath = filepath.Join(os.Getenv("CORES"), args.Core, "hdl", outpath)
 	f, err := os.Open(outpath)
@@ -323,7 +323,7 @@ func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
 	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e = t.Execute(&buffer, cfg); e!=nil { return e }
 	// Dump the file
 	outpath := filepath.Join(os.Getenv("CORES"), corename, "ver","game" )
 	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder

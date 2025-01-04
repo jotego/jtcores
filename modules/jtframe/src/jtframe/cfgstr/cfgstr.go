@@ -131,7 +131,7 @@ func make_cfgstr(cfg Config, def map[string]string) (cfgstr string, e error) {
 	}
 	t, e := template.ParseFiles(tpath); if e!=nil { return "",e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, def)
+	if e = t.Execute(&buffer, def); e!= nil { return "",e }
 	cfgstr = buffer.String()
 	// Trim spaces
 	chunks := strings.Split(cfgstr, ";")

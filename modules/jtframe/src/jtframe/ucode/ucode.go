@@ -733,7 +733,7 @@ func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks
 	t, e := template.New("ucparam.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, context)
+	if e=t.Execute(&buffer, context); e!=nil { return e }
 	// Dump the file
 	os.WriteFile(fname+"_param.vh", buffer.Bytes(), 0644)
 	return nil

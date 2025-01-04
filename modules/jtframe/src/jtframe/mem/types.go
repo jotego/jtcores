@@ -128,7 +128,7 @@ type SDRAMCfg struct {
 }
 
 type Include struct {
-    Game string `yaml:"game"` // if not null, it will load from that game cfg folder
+    Core string `yaml:"core"` // if not null, it will load from that game cfg folder
     File string `yaml:"file"` // if null, mem.yaml will be used
 }
 

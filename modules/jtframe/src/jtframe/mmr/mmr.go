@@ -62,7 +62,7 @@ func convert( corename, hdl_path string, cfg MMRdef ) (e error) {
 	t,e := template.New("mmr.v").Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, cfg)
+	if e=t.Execute(&buffer, cfg); e!=nil { return e }
 	// Dump the file
 	fname := fmt.Sprintf("%s.v",cfg.Module)
 	outpath := filepath.Join(hdl_path,fname)
