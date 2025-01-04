@@ -43,7 +43,7 @@ func Run(set_args Args) {
 	prepare_macros()
 
 	var files JTFiles
-	parse_yaml( common.ConfigFilePath(args.Corename, "game.yaml"), &files )
+	parse_yaml( common.ConfigFilePath(args.Corename, "files.yaml"), &files )
 	parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", &files )
 
 	if args.Target != "" {
