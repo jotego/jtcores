@@ -29,7 +29,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/jotego/jtframe/files"
+	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/mra"
 
@@ -160,7 +160,7 @@ func unmarshal( buffer []byte, storage any ) error {
 }
 
 func read_yaml(core, filename string, cfg *MemConfig) (e error) {
-	filename = files.GetFilename(core, filename, "")
+	filename = common.ConfigFilePath(core, filename)
 	buf, e := os.ReadFile(filename)
 	if e != nil {
 		if errors.Is(e, os.ErrNotExist) {
@@ -345,7 +345,7 @@ func Run(args Args) (e error) {
 		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
 		macros.Set("JTFRAME_RELEASE","")
 	}
-	if !Parse_file(args.Core, "mem", &cfg) {
+	if !Parse_file(args.Core, "mem.yaml", &cfg) {
 		// the mem.yaml file does not exist, that's
 		// normally ok
 		return

@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/ucode"
 
@@ -42,7 +43,7 @@ func Run(set_args Args) {
 	prepare_macros()
 
 	var files JTFiles
-	parse_yaml( GetFilename(args.Corename, "game", args.Parse), &files )
+	parse_yaml( common.ConfigFilePath(args.Corename, "game.yaml"), &files )
 	parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", &files )
 
 	if args.Target != "" {
@@ -66,19 +67,6 @@ func prepare_macros() {
 	macros.AddKeyValPairs(arg_macros...)
 }
 
-func GetFilename(corename, basename, parsepath string) string {
-	var fname string
-	if len(corename) > 0 {
-		cores := os.Getenv("CORES")
-		if len(cores) == 0 {
-			log.Fatal("JTFILES: environment variable CORES is not defined")
-		}
-		fname = cores + "/" + corename + "/cfg/"+basename+".yaml"
-	} else {
-		fname = parsepath
-	}
-	return fname
-}
 
 func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin Origin) {
 	if src == nil {
