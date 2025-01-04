@@ -27,13 +27,9 @@ jtframe:
     get:
       - jtframe_blank.v
       - jtframe_tilemap.v
-  - from: sound
-    get:
-      - jtframe_jt49_filters.yaml
 modules:
   other:
     - get:
       - jt12/hdl/jt12_rst.v
-      - jt49/hdl/jt49.yaml
-
+      - jt12/jt49/hdl/jt49.yaml
 

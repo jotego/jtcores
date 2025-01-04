@@ -24,9 +24,6 @@ jtframe:
   - from: sdram
     get:
       - jtframe_dwnld.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: clocking
     get:
       - jtframe_cen48.v

@@ -24,9 +24,6 @@ game:
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: ram
     get:
       - jtframe_dual_ram16.v
@@ -46,10 +43,6 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_linebuf.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
-      - jtframe_pole.v
 modules:
   jt:
     - name: jt8255

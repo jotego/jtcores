@@ -22,9 +22,6 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: cpu
     get:
       - jtframe_z80.yaml

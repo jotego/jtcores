@@ -19,4 +19,4 @@ modules:
     - name: jt5205
   other:
     - get:
-      - jt49/hdl/jt49.yaml
+      - jt12/jt49/hdl/jt49.yaml

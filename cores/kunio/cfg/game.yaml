@@ -11,9 +11,6 @@ game:
       - jtkunio_obj.v
       - jtkunio_colmix.v
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_frac_cen.v
   - from: cpu
     get:
       - jtframe_6809.yaml
@@ -30,10 +27,6 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
-      - jtframe_dcrm.v
 modules:
   jt:
     - name: jt5205

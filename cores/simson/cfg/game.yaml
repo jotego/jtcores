@@ -35,9 +35,6 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: ram
     get:
       - jtframe_dual_ram16.v

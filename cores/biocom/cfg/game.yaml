@@ -20,15 +20,11 @@ jtframe:
     get:
       - jtframe_cen48.v
       - jtframe_cen24.v
-      - jtframe_frac_cen.v
   - from: cpu
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
       - jtframe_8751.yaml
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: ram
     get:
       - jtframe_ram.v
@@ -38,9 +34,6 @@ jtframe:
     get:
       - jtframe_blank.v
       - jtframe_obj.yaml
-  - from: sound
-    get:
-      - jtframe_jt49_filters.yaml
 modules:
   jt:
     - name: jt51

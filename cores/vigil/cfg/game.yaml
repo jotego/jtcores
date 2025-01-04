@@ -17,19 +17,9 @@ jtframe:
     get:
       - jtframe_cen24.v
       - jtframe_cen48.v
-      - jtframe_frac_cen.v
   - from: ram
     get:
       - jtframe_obj_buffer.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
-      - jtframe_dcrm.v
-      - jtframe_pole.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
-      - jtframe_sdram64.yaml
   - from: video
     get:
       - jtframe_vtimer.v

@@ -16,9 +16,6 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-  - from: sound
-    get:
-      - jtframe_mixer.v
 modules:
   jt:
     - name: jt51

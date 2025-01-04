@@ -18,7 +18,6 @@ jtframe:
     get:
       - jtframe_cen48.v
       - jtframe_cen24.v
-      - jtframe_frac_cen.v
   - from: ram
     get:
       - jtframe_ram.v
@@ -29,14 +28,6 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
-  - from: sdram
-    get:
-      # - jtframe_rom.yaml
-      - jtframe_dwnld.v
-      - jtframe_gatecen.v
-  - from: sound
-    get:
-      - jtframe_dcrm.v
   - from: cpu
     get:
       # Z80
@@ -46,9 +37,6 @@ jtframe:
       - t48/upi41.yaml
       # - t48/upi41_core.v
       # - t48.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
 modules:
   other:
     - from: jt12

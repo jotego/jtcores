@@ -14,9 +14,6 @@ jtframe:
       - jtframe_edge.v
       - jtframe_ff.v
       - jtframe_sort.v
-  - from: clocking
-    get:
-      - jtframe_cen24.v
   - from: cpu
     unless: NOMAIN
     get:
@@ -30,18 +27,12 @@ jtframe:
     unless: NOMCU
     get:
       - jtframe_8751.yaml
-  - from: sound
-    get:
-      - jtframe_dcrm.v
   - from: ram
     get:
       - jtframe_ram.v
       - jtframe_bram_dma.v
       - jtframe_dual_ram16.v
       - jtframe_obj_buffer.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: clocking
     get:
       - jtframe_frac_cen.v

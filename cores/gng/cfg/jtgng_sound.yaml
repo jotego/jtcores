@@ -1,10 +1,3 @@
-jtframe:
-  - from: sound
-    get:
-      - jtframe_mixer.v
-  - from: clocking
-    get:
-      - jtframe_freqinfo.v
 game:
   - from: gng
     get:
@@ -14,4 +7,3 @@ modules:
     - from: jt12
       get:
         - hdl/jt03.yaml
-        - jt49/hdl/filter/jt49_dcrm2.v

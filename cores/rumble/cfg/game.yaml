@@ -22,9 +22,6 @@ jtframe:
       - jtframe_z80.yaml
       - mc6809i.v
       - jtframe_sys6809.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: ram
     get:
       - jtframe_ram.v

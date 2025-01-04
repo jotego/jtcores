@@ -27,5 +27,3 @@ modules:
     - from: jt12/hdl
       get:
       - jt12_rst.v
-      - mixer/jt12_comb.v
-      - mixer/jt12_interpol.v

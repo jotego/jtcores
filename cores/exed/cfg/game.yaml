@@ -22,13 +22,6 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
-      - jtframe_jt49_filters.yaml
   - from: video
     get:
       - jtframe_blank.v

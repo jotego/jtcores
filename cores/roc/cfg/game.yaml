@@ -27,17 +27,11 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: clocking
     get:
       - jtframe_cen48.v
-      - jtframe_frac_cen.v
       - jtframe_crossclk_cen.v
 modules:
-  jt:
-    - name: jt49
+  other:
+    - get:
+      - jt12/jt49/hdl/jt49.yaml

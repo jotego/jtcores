@@ -33,9 +33,6 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_linebuf.v
-  - from: sound
-    get:
-      - jtframe_dcrm.v
   - from: cpu
     unless: NOMAIN
     get:

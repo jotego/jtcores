@@ -15,9 +15,6 @@ game:
       - divfunc.v
       - common.yaml
 jtframe:
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: cpu
     get:
       - jtframe_6809.yaml
@@ -26,4 +23,3 @@ modules:
     - from: jt12
       get:
         - hdl/jt03.yaml
-        - jt49/hdl/filter/jt49_dcrm2.v

@@ -7,10 +7,6 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-  - from: sound
-    get:
-      - jtframe_dcrm.v
-      - jtframe_pole.v
 modules:
   jt:
     - name: jt89

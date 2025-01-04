@@ -43,10 +43,6 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cen48.v
-      - jtframe_frac_cen.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
 modules:
   other:
     - from: jteeprom/hdl

@@ -24,9 +24,6 @@ jtframe:
       - mc6809i.v
       - jtframe_sys6809.v
       - jtframe_z80wait.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: video
     get:
       - jtframe_vtimer.v

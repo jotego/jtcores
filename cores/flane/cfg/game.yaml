@@ -15,9 +15,6 @@ game:
       - jt051733.v
       - divfunc.v
 jtframe:
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: cpu
     get:
       - jtframe_6809.yaml

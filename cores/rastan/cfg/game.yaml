@@ -20,11 +20,7 @@ jtframe:
       - jtframe_obj_buffer.v
   - from: clocking
     get:
-      - jtframe_frac_cen.v
       - jtframe_sync.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: video
     get:
       - jtframe_vtimer.v
@@ -33,9 +29,6 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-  - from: sound
-    get:
-      - jtframe_mixer.v
 modules:
   jt:
     - name: jt51

@@ -26,4 +26,4 @@ modules:
     - name: jt5232
   other:
     - get:
-      - jt49/hdl/jt49.yaml
+      - jt12/jt49/hdl/jt49.yaml

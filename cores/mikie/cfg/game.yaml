@@ -13,9 +13,6 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-  - from: sound
-    get:
-      - jtframe_dcrm.v
   - get:
     - jtframe_sort.v
 modules:
