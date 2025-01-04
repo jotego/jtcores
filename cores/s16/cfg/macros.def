@@ -71,9 +71,6 @@ JTFRAME_MR_DDRLOAD
 #JTFRAME_CHEAT
 JTFRAME_NOHQ2X
 
-# Needed for Action Fighter
-JTFRAME_ROTCCW
-
 # Debug - only mister (disabled in game module because of NVRAM)
 # JTFRAME_IOCTL_RD=43008
 

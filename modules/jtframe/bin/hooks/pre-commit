@@ -1,6 +1,6 @@
 #!/bin/bash -e
-# run go tests
 
+# run go tests
 log=`mktemp`
 for program in jtframe jtutil; do
 	cd $JTFRAME/src/$program
@@ -14,3 +14,6 @@ for program in jtframe jtutil; do
 	echo " PASS"
 done
 rm -f $log
+
+# check macro usage
+$JTFRAME/bin/unknown-macros.sh
