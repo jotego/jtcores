@@ -1,5 +1,5 @@
 include:
-  - file: audio
+  - file: audio.yaml
     game: outrun
 game: outrun
 params:

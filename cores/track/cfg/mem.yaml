@@ -1,5 +1,5 @@
 include:
-  - file: audio
+  - file: audio.yaml
     game: sbaskt
 params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }

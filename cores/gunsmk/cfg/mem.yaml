@@ -1,5 +1,5 @@
 include:
-  - file: audio
+  - file: audio.yaml
     game: gng
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }

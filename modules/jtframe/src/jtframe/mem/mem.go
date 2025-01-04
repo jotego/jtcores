@@ -103,20 +103,7 @@ var funcMap = template.FuncMap{
 
 func Parse_file(core, filename string, cfg *MemConfig) bool {
 	read_yaml(core,filename,cfg)
-	include_copy := make([]Include, len(cfg.Include))
-	copy(include_copy, cfg.Include)
-	cfg.Include = nil
-	for _, each := range include_copy {
-		fname := each.File
-		if fname == "" {
-			fname = "mem"
-		}
-		if strings.HasSuffix(fname,".yaml") {
-			fname = fname[0:len(fname)-5]
-		}
-		if each.Game == "" { each.Game=core }
-		Parse_file(each.Game, fname, cfg)
-	}
+	parse_include_files(core,cfg)
 	// Reload the YAML to overwrite values that the included files may have set
 	read_yaml(core,filename,cfg)
 	delete_optional(cfg)
@@ -152,6 +139,18 @@ func Parse_file(core, filename string, cfg *MemConfig) bool {
 		}
 	}
 	return true
+}
+
+func parse_include_files(core string, cfg *MemConfig) {
+	include_copy := make([]Include, len(cfg.Include))
+	copy(include_copy, cfg.Include)
+	cfg.Include = nil
+	for _, entry := range include_copy {
+		if entry.File=="" && entry.Game=="" { continue }
+		if entry.File == "" { entry.File = "mem.yaml" }
+		if entry.Game == "" { entry.Game=core }
+		Parse_file(entry.Game, entry.File, cfg)
+	}
 }
 
 // used for testing the yaml package
