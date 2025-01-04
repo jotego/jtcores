@@ -144,7 +144,7 @@ func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	e = os.Chdir(path)
 	defer os.Chdir(olddir)
 	if e != nil {
-		if folder_ok || args.Verbose { // only warns when the core/cheat folder exists but the file was not present
+		if folder_ok || Verbose { // only warns when the core/cheat folder exists but the file was not present
 			fmt.Printf("Warning: cannot open %s/%s\n", path, filename)
 		}
 		return nil

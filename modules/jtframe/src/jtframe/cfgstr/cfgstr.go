@@ -29,6 +29,7 @@ import (
 	"strings"
 	"text/template"
 
+	. "github.com/jotego/jtframe/common"
 	jtdef "github.com/jotego/jtframe/def"
 )
 
@@ -219,10 +220,9 @@ func dump_parameter(def map[string]string, fmtstr string) {
 
 func Run(cfg jtdef.Config, args []string, extra_def, extra_undef string) (e error){
 	parse_args(&cfg, args, extra_def, extra_undef)
-	def := jtdef.Make_macros(cfg)
-	if !jtdef.Check_macros(def, cfg.Target) {
-		os.Exit(1)
-	}
+	jtdef.MakeMacros(cfg)
+	Must(jtdef.CheckMacros())
+	def := jtdef.Macros.CopyToMap()
 	switch cfg.Output {
 	case "cfgstr":
 		{

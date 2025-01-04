@@ -69,7 +69,7 @@ func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
 }
 
 func nvram_rom(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
-	reg := find_region_cfg(machine,"nvram",cfg,false)
+	reg := find_region_cfg(machine,"nvram",cfg)
 	if reg==nil { return }
 	roms := extract_region(reg, machine.Rom, cfg.ROM.Remove)
 	if len(roms)==0 { return }

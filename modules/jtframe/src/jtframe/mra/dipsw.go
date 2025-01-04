@@ -40,7 +40,7 @@ diploop:
                     // replace it for comparison
                     globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
                     if baseMatch || globMatch {
-                        if args.Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
+                        if Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
                         continue diploop
                     }
                 }
@@ -50,7 +50,7 @@ diploop:
             continue diploop // This switch depends on others, skip it
         }
         dip_rename( &ds, cfg )
-        if args.Verbose {
+        if Verbose {
             fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
                 ds.Name, ds.Tag, ds.msb, ds.lsb, uint(def_all) )
         }
@@ -62,20 +62,20 @@ diploop:
         sort.Slice(ds.Dipvalue, func(p, q int) bool {
             return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value
         })
-        options, opt_dev := dip_option_string( ds.Mask, args.Verbose, ds.Dipvalue )
+        options, opt_dev := dip_option_string( ds.Mask, ds.Dipvalue )
         if !ignore {
             dip_add_node( machine.Name, ds.Name, options, n, ds.lsb, ds.msb, &game_bitcnt )
         }
         // apply the default value
         def_all &= ^ds.full_mask
         def_all |= opt_dev<<ds.offset
-        if args.Verbose {
+        if Verbose {
             fmt.Printf("\t\tMask %X (MAME %X) this one %x -> all =%X (base=%d)\n",
                 uint(ds.full_mask), ds.Mask, uint(opt_dev<<ds.offset), uint(def_all&0xffffff), base)
         }
     }
     def_str := dip_int2str( def_all, game_bitcnt )
-    if args.Verbose {
+    if Verbose {
         fmt.Printf("Default string before applying TOML overrides: %s (bit count=%d)\n",
             def_str, game_bitcnt)
     }
@@ -83,7 +83,7 @@ diploop:
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
             def_str = each.Value
-            if args.Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
+            if Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
         }
     }
     if def_str=="" { // do not leave them as 00,00!
@@ -111,7 +111,7 @@ func dip_int2str( def, maxbit int ) string {
     return s
 }
 
-func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int) {
+func dip_option_string( mask int, all MAMEDIPValues ) (string, int) {
     total := mask
     offset := 0
     def := 0
@@ -127,7 +127,7 @@ func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int
         options[v] = strings.ReplaceAll(each.Name, ",", " ")
         if each.Default == "yes" {
             def = each.Value
-            if verbose {
+            if Verbose {
                 fmt.Printf("\t\tDefault = %s. %X -> %X \n", each.Name, each.Value, uint(def) )
             }
         }
@@ -209,7 +209,7 @@ func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame
     // Add DIP switches in the extra section, note that these
     // one will always have a default value of 1
     for _, each := range cfg.Dipsw.Extra {
-        if args.Verbose {
+        if Verbose {
             fmt.Printf("\tChecking extra DIPSW %s for %s/%s (current %s/%s)\n",
                 each.Name, each.Machine, each.Setname, machine.Cloneof, machine.Name)
         }

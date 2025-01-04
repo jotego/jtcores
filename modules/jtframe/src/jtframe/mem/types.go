@@ -28,7 +28,7 @@ type MacroEnabled struct{
 }
 
 type Optional interface{
-    Enabled(macros map[string]string) bool
+    Enabled() bool
 }
 
 type SDRAMBus struct {

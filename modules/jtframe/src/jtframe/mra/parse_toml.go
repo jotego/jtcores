@@ -9,13 +9,14 @@ import (
 	"strconv"
 
 	toml "github.com/komkom/toml"
+	jtdef "github.com/jotego/jtframe/def"
 )
 
 func TomlPath( corename string ) string {
 	return filepath.Join(os.Getenv("CORES"), corename, "cfg", "mame2mra.toml")
 }
 
-func ParseToml( toml_path string, macros map[string]string, corename string, verbose bool) (mra_cfg Mame2MRA) {
+func ParseToml( toml_path string, corename string) (mra_cfg Mame2MRA) {
 	toml_file, err := os.ReadFile(toml_path)
 	if err != nil {
 		fmt.Println(err)
@@ -34,17 +35,17 @@ func ParseToml( toml_path string, macros map[string]string, corename string, ver
 	if len(mra_cfg.Global.Author)==0 {
 		mra_cfg.Global.Author=[]string{"jotego"}
 	}
-	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_DIPBASE"])
+	mra_cfg.Dipsw.base = jtdef.Macros.GetInt("JTFRAME_DIPBASE")
 	// Set the number of buttons to the definition in the macros.def
 	if mra_cfg.Buttons.Core == 0 {
-		mra_cfg.Buttons.Core, _ = strconv.Atoi(macros["JTFRAME_BUTTONS"])
+		mra_cfg.Buttons.Core = jtdef.Macros.GetInt("JTFRAME_BUTTONS")
 	}
 
 	if mra_cfg.Header.Len > 0 {
 		fmt.Println(`The use of header.len in the TOML file is deprecated.
 Set JTFRAME_HEADER=length in macros.def instead`)
 	}
-	aux, _ := strconv.ParseInt(macros["JTFRAME_HEADER"], 0, 32)
+	aux := jtdef.Macros.GetInt("JTFRAME_HEADER")
 	mra_cfg.Header.Len = int(aux)
 	if len(mra_cfg.Dipsw.Delete) == 0 {
 		mra_cfg.Dipsw.Delete = []DIPswDelete{
@@ -52,8 +53,8 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 		}
 	}
 	// Add the NVRAM section if it was in the .def file
-	if macros["JTFRAME_IOCTL_RD"] != "" {
-		aux, err := strconv.ParseInt(macros["JTFRAME_IOCTL_RD"], 0, 32)
+	if jtdef.Macros.Get("JTFRAME_IOCTL_RD") != "" {
+		aux := jtdef.Macros.GetInt("JTFRAME_IOCTL_RD")
 		mra_cfg.ROM.Nvram.length = int(aux)
 		if err != nil {
 			fmt.Println("JTFRAME_IOCTL_RD was ill defined")
@@ -66,11 +67,11 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 	for k := 0; k < len(mra_cfg.ROM.Regions); k++ {
 		this := &mra_cfg.ROM.Regions[k]
 		if this.Start != "" {
-			start_str, good1 := macros[this.Start]
-			if !good1 {
+			if !jtdef.Macros.IsSet(this.Start) {
 				fmt.Printf("ERROR: ROM region %s uses undefined macro %s in core %s\n", this.Name, this.Start, corename)
 				os.Exit(1)
 			}
+			start_str := jtdef.Macros.Get(this.Start)
 			aux, err := strconv.ParseInt(start_str, 0, 64)
 			if err != nil {
 				fmt.Printf("ERROR: Macro %s is used as a ROM start, but its value (%s) is not a number\n",
@@ -78,7 +79,7 @@ Set JTFRAME_HEADER=length in macros.def instead`)
 				os.Exit(1)
 			}
 			this.start = int(aux)
-			if verbose {
+			if Verbose {
 				fmt.Printf("Start in .ROM set to %X for region %s",this.start, this.Name)
 				if this.Rename!="" { fmt.Printf(" (%s)",this.Rename)}
 				fmt.Println()

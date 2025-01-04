@@ -554,7 +554,7 @@ func (this Args) GetTarget() string {
 	return this.Target
 }
 
-func append_mem( info CoreInfo, local bool, macros map[string]string, fn []string ) []string {
+func append_mem( info CoreInfo, local bool, gametop string, fn []string ) []string {
 	mempath := filepath.Join( os.Getenv("CORES"), info.GetName(), "cfg", "mem.yaml" )
 	f, err := os.Open( mempath )
 	f.Close()
@@ -583,7 +583,7 @@ func Run(args Args) {
 	def_cfg.Target = args.Target
 	def_cfg.Core = args.Corename
 	def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	macros = def.Make_macros(def_cfg)
+	def.MakeMacros(def_cfg)
 
 	var files JTFiles
 	parse_yaml( GetFilename(args.Corename, "game", args.Parse), &files )
@@ -596,7 +596,7 @@ func Run(args Args) {
 		}
 	}
 	filenames := collect_files( files, args.Rel )
-	filenames = append_mem( args, args.Local, macros, filenames )
+	filenames = append_mem( args, args.Local, def.Macros.Get("GAMETOP"), filenames )
 	dump_ucode( files )
 	if !dump_files( filenames, args.Format ) {
 		fmt.Printf("Unknown output format '%s'\n", args.Format)

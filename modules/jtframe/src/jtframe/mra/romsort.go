@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func apply_sort(reg_cfg *RegCfg, roms []MameROM, setname string, verbose bool) []MameROM {
+func apply_sort(reg_cfg *RegCfg, roms []MameROM, setname string) []MameROM {
 	if len(reg_cfg.Sequence) > 0 {
 		return apply_sequence(reg_cfg, roms)
 	}

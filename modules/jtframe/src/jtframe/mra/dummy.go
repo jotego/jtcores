@@ -7,7 +7,7 @@ import "fmt"
 var pocket_warning bool
 
 func pocket_add(machine *MachineXML, cfg Mame2MRA, args Args, def_dipsw string, coremod int, mra *XMLNode) {
-	if args.Verbose && !pocket_warning {
+	if Verbose && !pocket_warning {
 		fmt.Println("****  Skipping Pocket file generation ****")
 		pocket_warning = true
 	}

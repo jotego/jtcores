@@ -4,6 +4,8 @@ import (
     "github.com/jotego/jtframe/def"
 )
 
+var Verbose bool
+
 type Args struct {
     Def_cfg                      def.Config
     Toml_path, Xml_path          string
@@ -12,7 +14,7 @@ type Args struct {
     Info                         []Info
     Buttons                      string
     Year                         string
-    Verbose, SkipMRA, SkipPocket bool
+    SkipMRA, SkipPocket          bool
     SkipROM, Md5                 bool // By skipping the ROM generation,
         // the md5 will be set to None, unless Md5 is true
     Show_platform                bool
@@ -22,7 +24,6 @@ type Args struct {
     URL, Rom_path        string
     // private
     firmware_dir string
-    macros       map[string]string
 }
 
 type Selectable struct {

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"strconv"
 	"strings"
+
+	"github.com/jotego/jtframe/def"
 )
 
 func find_div( fin, fout float64) (int, int) {
@@ -26,16 +27,11 @@ func find_div( fin, fout float64) (int, int) {
     return int(best_n), int(best_d)
 }
 
-func make_clocks( macros map[string]string, cfg *MemConfig ) {
-	defined := func( key string ) bool {
-		_ ,e := macros[key]
-		return e
-	}
+func make_clocks( cfg *MemConfig ) {
 	max := func( a,b int ) int { if a>b { return a } else { return b } }
 
-	mode96 := defined("JTFRAME_SDRAM96") || defined("JTFRAME_CLK96")
-	aux, _ := macros["JTFRAME_MCLK"]
-	fmhz, _ := strconv.Atoi(aux)
+	mode96 := def.Macros.IsSet("JTFRAME_SDRAM96") || def.Macros.IsSet("JTFRAME_CLK96")
+	fmhz := def.Macros.GetInt("JTFRAME_MCLK")
 
 	for key, list := range cfg.Clocks {
 		for k, v := range list {

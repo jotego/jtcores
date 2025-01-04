@@ -101,7 +101,7 @@ func init() {
 	flag.StringVar(&mra_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
 	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
-	flag.BoolVarP(&mra_args.Verbose, "verbose", "v", false, "verbose")
+	flag.BoolVarP(&mra.Verbose, "verbose", "v", false, "verbose")
 	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
 	flag.BoolVar(&clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")

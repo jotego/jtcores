@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"gopkg.in/yaml.v2"
 
+	"github.com/jotego/jtframe/def"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -151,9 +152,8 @@ func make_rc( ch *AudioCh, fs float64 ) {
 	if ch.Rc_en { ch.Pole=fmt.Sprintf("%s%d'h0",ch.Pole,bits*2) }
 }
 
-func fill_audio_clock( macros map[string]string, cfg *Audio ) {
-	aux, _ := macros["JTFRAME_MCLK"]
-	fmhz, _ := strconv.Atoi(aux)
+func fill_audio_clock( cfg *Audio ) {
+	fmhz := def.Macros.GetInt("JTFRAME_MCLK")
 	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }
@@ -170,8 +170,8 @@ func fill_global_pole( cfg *Audio, fs float64 ) {
 }
 
 
-func Make_audio( macros map[string]string, cfg *MemConfig, core, outpath string ) error {
-	fill_audio_clock( macros, &cfg.Audio )
+func Make_audio( cfg *MemConfig, core, outpath string ) error {
+	fill_audio_clock( &cfg.Audio )
 	const fs = float64(192000)
 	// assign information derived from the module type
 	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
@@ -209,7 +209,7 @@ func Make_audio( macros map[string]string, cfg *MemConfig, core, outpath string 
 			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}
-	_, cfg.Stereo = macros["JTFRAME_STEREO"]
+	cfg.Stereo = def.Macros.IsSet("JTFRAME_STEREO")
 	return nil
 }
 

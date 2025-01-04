@@ -5,6 +5,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/jotego/jtframe/def"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -42,8 +44,8 @@ func TestDelete_optional_IOCTL( t *testing.T ) {
 	macros_debug_pocket:=map[string]string{
 		"POCKET": "",
 	}
-
-	delete_optional_ioctl(cfg.BRAM,macros_debug_pocket)
+	def.MakeFromMap(macros_debug_pocket)
+	delete_optional_ioctl(cfg.BRAM)
 	if count_ioctl_buses(cfg.BRAM,t)!=2 {
 		show_ioctl(cfg.BRAM,t)
 		t.Error("Expected only entries for POCKET and debug")
@@ -56,7 +58,8 @@ func TestDelete_optional_IOCTL( t *testing.T ) {
 
 	// restores the test data
 	if e := json.Unmarshal(copy,&cfg); e!=nil { t.Error(e); return }
-	delete_optional_ioctl(cfg.BRAM,macros_release_mister)
+	def.MakeFromMap(macros_release_mister)
+	delete_optional_ioctl(cfg.BRAM)
 	if count:=count_ioctl_buses(cfg.BRAM,t);count!=1 {
 		t.Logf("Found %d IOCTL buses.\nDump",count)
 		show_ioctl(cfg.BRAM,t)
@@ -94,9 +97,14 @@ rw: true
 	if slices.Compare(bram.When,[]string{"WHEN_MACRO"})!=0 { t.Errorf("Bad 'when' field: %s",bram.When)}
 	if slices.Compare(bram.Unless,[]string{"UNLESS_MACRO"})!=0 { t.Errorf("Bad 'unless' field: %s",bram.Unless)}
 	if !bram.Rw { t.Errorf("Bad RW (should be true)")}
-	if !bram.Enabled(map[string]string{"WHEN_MACRO":""}) { t.Errorf("Should have been enabled")}
-	if  bram.Enabled(map[string]string{"xx":""}) { t.Errorf("Should have been disabled")}
-	if  bram.Enabled(nil) { t.Errorf("Should have been disabled")}
+	def.MakeFromMap(map[string]string{"WHEN_MACRO":""})
+	if !bram.Enabled() { t.Errorf("Should have been enabled")}
+
+	def.MakeFromMap(map[string]string{"xx":""})
+	if  bram.Enabled() { t.Errorf("Should have been disabled")}
+
+	def.MakeFromMap(nil)
+	if  bram.Enabled() { t.Errorf("Should have been disabled")}
 }
 
 func Test_delete_optional_bram(t *testing.T) {
@@ -108,7 +116,8 @@ func Test_delete_optional_bram(t *testing.T) {
 	var cfg MemConfig
 	if e:=yaml.Unmarshal([]byte(sample),&cfg); e!=nil { t.Error(e); return }
 	macros := map[string]string{ "POCKET": "" }
-	delete_optional_bram(&cfg,macros)
+	def.MakeFromMap(macros)
+	delete_optional_bram(&cfg)
 	var always, not_pocket, only_pocket bool
 	for _,bram := range cfg.BRAM {
 		switch bram.Name {
@@ -141,7 +150,6 @@ func Test_delete_optional_sdram(t *testing.T) {
 `
 	var cfg MemConfig
 	if e:=yaml.Unmarshal([]byte(sample),&cfg); e!=nil { t.Error(e); return }
-	macros := map[string]string{ "POCKET": "" }
 	if len(cfg.SDRAM.Banks)!=3 { t.Errorf("Expecting 3 SDRAM banks"); return}
 	for k:=0;k<3;k++ {
 		if total:=len(cfg.SDRAM.Banks[k].Buses); total!=3 {
@@ -150,7 +158,8 @@ func Test_delete_optional_sdram(t *testing.T) {
 		}
 	}
 
-	delete_optional_sdram(&cfg,macros)
+	def.MakeFromMap(map[string]string{ "POCKET": "" })
+	delete_optional_sdram(&cfg)
 
 	if len(cfg.SDRAM.Banks)!=3 { t.Errorf("Expecting 3 SDRAM banks"); return }
 	for k:=0;k<2;k++ {
