@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 
 	"gopkg.in/yaml.v2"
 )
@@ -44,7 +44,7 @@ func TestDelete_optional_IOCTL( t *testing.T ) {
 	macros_debug_pocket:=map[string]string{
 		"POCKET": "",
 	}
-	def.MakeFromMap(macros_debug_pocket)
+	macros.MakeFromMap(macros_debug_pocket)
 	delete_optional_ioctl(cfg.BRAM)
 	if count_ioctl_buses(cfg.BRAM,t)!=2 {
 		show_ioctl(cfg.BRAM,t)
@@ -58,7 +58,7 @@ func TestDelete_optional_IOCTL( t *testing.T ) {
 
 	// restores the test data
 	if e := json.Unmarshal(copy,&cfg); e!=nil { t.Error(e); return }
-	def.MakeFromMap(macros_release_mister)
+	macros.MakeFromMap(macros_release_mister)
 	delete_optional_ioctl(cfg.BRAM)
 	if count:=count_ioctl_buses(cfg.BRAM,t);count!=1 {
 		t.Logf("Found %d IOCTL buses.\nDump",count)
@@ -97,13 +97,13 @@ rw: true
 	if slices.Compare(bram.When,[]string{"WHEN_MACRO"})!=0 { t.Errorf("Bad 'when' field: %s",bram.When)}
 	if slices.Compare(bram.Unless,[]string{"UNLESS_MACRO"})!=0 { t.Errorf("Bad 'unless' field: %s",bram.Unless)}
 	if !bram.Rw { t.Errorf("Bad RW (should be true)")}
-	def.MakeFromMap(map[string]string{"WHEN_MACRO":""})
+	macros.MakeFromMap(map[string]string{"WHEN_MACRO":""})
 	if !bram.Enabled() { t.Errorf("Should have been enabled")}
 
-	def.MakeFromMap(map[string]string{"xx":""})
+	macros.MakeFromMap(map[string]string{"xx":""})
 	if  bram.Enabled() { t.Errorf("Should have been disabled")}
 
-	def.MakeFromMap(nil)
+	macros.MakeFromMap(nil)
 	if  bram.Enabled() { t.Errorf("Should have been disabled")}
 }
 
@@ -115,8 +115,7 @@ func Test_delete_optional_bram(t *testing.T) {
 `
 	var cfg MemConfig
 	if e:=yaml.Unmarshal([]byte(sample),&cfg); e!=nil { t.Error(e); return }
-	macros := map[string]string{ "POCKET": "" }
-	def.MakeFromMap(macros)
+	macros.MakeFromMap(map[string]string{ "POCKET": "" })
 	delete_optional_bram(&cfg)
 	var always, not_pocket, only_pocket bool
 	for _,bram := range cfg.BRAM {
@@ -158,7 +157,7 @@ func Test_delete_optional_sdram(t *testing.T) {
 		}
 	}
 
-	def.MakeFromMap(map[string]string{ "POCKET": "" })
+	macros.MakeFromMap(map[string]string{ "POCKET": "" })
 	delete_optional_sdram(&cfg)
 
 	if len(cfg.SDRAM.Banks)!=3 { t.Errorf("Expecting 3 SDRAM banks"); return }

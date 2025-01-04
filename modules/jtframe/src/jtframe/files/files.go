@@ -27,8 +27,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jotego/jtframe/def"
-	"github.com/jotego/jtframe/cfgstr"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
@@ -90,7 +89,6 @@ type Args struct {
 var parsed []string
 var CWD string
 var args Args
-var macros map[string]string
 
 func parse_args(args *Args) {
 	flag.Usage = func() {
@@ -148,7 +146,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 		// Parses the section unless the macro is defined
 		if each.Unless != "" {
 			for _,name := range( strings.Split(each.Unless,",")) {
-				if _, exists := macros[name]; exists {
+				if macros.IsSet(name) {
 					continue parse_section
 				}
 			}
@@ -157,7 +155,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 		if each.When != "" {
 			found := false
 			for _,name := range( strings.Split(each.When,",")) {
-				if _, exists := macros[name]; exists {
+				if macros.IsSet(name) {
 					found = true
 					break
 				}
@@ -182,7 +180,7 @@ func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin O
 					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
 				case TARGET:
 					if newfl.From == "" {
-						newfl.From=macros["TARGET"]
+						newfl.From=macros.Get("TARGET")
 					}
 					path = os.Getenv("JTFRAME") + "/target/" + newfl.From + "/"
 				default:
@@ -336,7 +334,7 @@ func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
 			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
 		case TARGET:
 			if each.From == "" {
-				each.From=macros["TARGET"]
+				each.From=macros.Get("TARGET")
 			}
 			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
 		case MODULE:
@@ -561,7 +559,7 @@ func append_mem( info CoreInfo, local bool, gametop string, fn []string ) []stri
 	if err!=nil {
 		return fn	// mem.yaml didn't exist. Nothing done
 	}
-	fname := macros["GAMETOP"]+".v"
+	fname := macros.Get("GAMETOP")+".v"
 	if info.GetTarget()!="" && !local {
 		fname = filepath.Join( os.Getenv("CORES"), info.GetName(),info.GetTarget(),fname)
 	}
@@ -579,11 +577,7 @@ func dump_ucode( files JTFiles ) {
 func Run(args Args) {
 	CWD, _ = os.Getwd()
 
-	var def_cfg def.Config
-	def_cfg.Target = args.Target
-	def_cfg.Core = args.Corename
-	def_cfg.Add = cfgstr.Append_args(def_cfg.Add, strings.Split(args.AddMacro, ","))
-	def.MakeMacros(def_cfg)
+	prepare_macros()
 
 	var files JTFiles
 	parse_yaml( GetFilename(args.Corename, "game", args.Parse), &files )
@@ -596,10 +590,16 @@ func Run(args Args) {
 		}
 	}
 	filenames := collect_files( files, args.Rel )
-	filenames = append_mem( args, args.Local, def.Macros.Get("GAMETOP"), filenames )
+	filenames = append_mem( args, args.Local, macros.Get("GAMETOP"), filenames )
 	dump_ucode( files )
 	if !dump_files( filenames, args.Format ) {
 		fmt.Printf("Unknown output format '%s'\n", args.Format)
 		os.Exit(1)
 	}
+}
+
+func prepare_macros() {
+	macros.MakeMacros(args.Corename, args.Target)
+	arg_macros := strings.Split(args.AddMacro, ",")
+	macros.AddKeyValPairs(arg_macros...)
 }

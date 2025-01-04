@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/jotego/jtframe/betas"
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -35,19 +35,15 @@ func Run(args Args) {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
-	def.MakeMacros(args.Def_cfg)
-	mra_cfg := ParseToml( args.Toml_path, args.Def_cfg.Core)
+	macros.MakeMacros(args.Core,args.Target)
+	mra_cfg := ParseToml( args.Toml_path, args.Core)
 	if Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
-	// Set the RBF Name if blank
-	// if mra_cfg.Rbf.Name == "" {
-	// 	mra_cfg.Rbf.Name = "jt" + args.Def_cfg.Core
-	// }
-	mra_cfg.rbf = "jt" + args.Def_cfg.Core
+	mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
 	if mra_cfg.Global.Platform == "" {
-		mra_cfg.Global.Platform = "jt" + args.Def_cfg.Core
+		mra_cfg.Global.Platform = "jt" + args.Core
 	}
 	if args.Show_platform {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
@@ -124,9 +120,9 @@ func Run(args Args) {
 				d.machine.Name, d.machine.Cloneof)
 		}
 	}
-	dump_setnames( args.Def_cfg.Core, valid_setnames )
+	dump_setnames( args.Core, valid_setnames )
 	if !main_copied {
-		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Def_cfg.Core)
+		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
 	}
 	if !args.SkipPocket {
 		pocket_save()
@@ -269,7 +265,7 @@ func delete_old_mra(args Args, path string) {
 		fmt.Println("Cannot Unmarshal ", path, "\n\t", e)
 		os.Exit(1)
 	}
-	if strings.ToUpper(testmra.Rbf) == def.Macros.Get("CORENAME") {
+	if strings.ToUpper(testmra.Rbf) == macros.Get("CORENAME") {
 		if e = os.Remove(path); e != nil {
 			fmt.Println("Cannot delete ", path)
 			os.Exit(1)
@@ -542,7 +538,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 		if filename == "" {
-			filename = args.Def_cfg.Core + ".s"
+			filename = args.Core + ".s"
 		}
 		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
 		if asmhex != nil && len(asmhex) > 0 && !skip {
@@ -561,7 +557,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 			}
 		}
 	}
-	make_nvram(&root,machine,cfg,args.Def_cfg.Core)
+	make_nvram(&root,machine,cfg,args.Core)
 	// coreMOD
 	coremod := make_coreMOD(&root, machine, cfg)
 	// DIP switches
@@ -744,11 +740,11 @@ var fd1089_bin = [256]byte{
 
 func parse_args(args *Args) {
 	cores := os.Getenv("CORES")
-	if args.Toml_path == "" && args.Def_cfg.Core != "" {
+	if args.Toml_path == "" && args.Core != "" {
 		if len(cores) == 0 {
 			log.Fatal("JTFILES: environment variable CORES is not defined")
 		}
-		args.Toml_path = TomlPath(args.Def_cfg.Core)
+		args.Toml_path = TomlPath(args.Core)
 	}
 	if Verbose {
 		fmt.Println("Parsing ", args.Toml_path)
@@ -764,5 +760,5 @@ func parse_args(args *Args) {
 	args.outdir = filepath.Join(release_dir, "mra")
 	args.altdir = filepath.Join(args.outdir, "_alternatives")
 	args.pocketdir = filepath.Join(release_dir, "pocket", "raw")
-	args.firmware_dir = filepath.Join(cores, args.Def_cfg.Core, "firmware")
+	args.firmware_dir = filepath.Join(cores, args.Core, "firmware")
 }

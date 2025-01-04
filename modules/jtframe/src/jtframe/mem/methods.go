@@ -2,19 +2,19 @@ package mem
 
 import(
     "fmt"
-    "github.com/jotego/jtframe/def"
+    "github.com/jotego/jtframe/macros"
 )
 
 func (item *MacroEnabled) Enabled() bool {
     for _,disabler := range item.Unless {
-        if def.Macros.IsSet(disabler) {
-            if verbose { fmt.Printf("Disabled because %s was set\n",disabler)}
+        if macros.IsSet(disabler) {
+            if Verbose { fmt.Printf("Disabled because %s was set\n",disabler)}
             return false
         }
     }
     for _,enabler := range item.When {
-        if def.Macros.IsSet(enabler) {
-            if verbose { fmt.Printf("Enabled because %s was set\n",enabler)}
+        if macros.IsSet(enabler) {
+            if Verbose { fmt.Printf("Enabled because %s was set\n",enabler)}
             return true
         }
     }

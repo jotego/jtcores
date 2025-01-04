@@ -3,20 +3,20 @@ package mem
 import (
 	"testing"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 )
 
 func TestEnabled(t *testing.T) {
-	verbose=true
+	Verbose=true
 	item := MacroEnabled{
 		When: []string{"ENABLE"},
 		Unless: []string{"DISABLE"},
 	}
-	def.MakeFromMap(map[string]string{"ENABLE":""})
+	macros.MakeFromMap(map[string]string{"ENABLE":""})
 	if !item.Enabled()  { t.Error("Disabled when it should not"); return }
-	def.MakeFromMap(map[string]string{"DISABLE":""})
-	def.Macros.Set("DISABLE","")
-	def.MakeFromMap(nil)
+	macros.MakeFromMap(map[string]string{"DISABLE":""})
+	macros.Set("DISABLE","")
+	macros.MakeFromMap(nil)
 	if  item.Enabled() { t.Error("Enabled when it should not"); return }
-	verbose=false
+	Verbose=false
 }

@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 )
 
 func find_div( fin, fout float64) (int, int) {
@@ -30,8 +30,8 @@ func find_div( fin, fout float64) (int, int) {
 func make_clocks( cfg *MemConfig ) {
 	max := func( a,b int ) int { if a>b { return a } else { return b } }
 
-	mode96 := def.Macros.IsSet("JTFRAME_SDRAM96") || def.Macros.IsSet("JTFRAME_CLK96")
-	fmhz := def.Macros.GetInt("JTFRAME_MCLK")
+	mode96 := macros.IsSet("JTFRAME_SDRAM96") || macros.IsSet("JTFRAME_CLK96")
+	fmhz := macros.GetInt("JTFRAME_MCLK")
 
 	for key, list := range cfg.Clocks {
 		for k, v := range list {

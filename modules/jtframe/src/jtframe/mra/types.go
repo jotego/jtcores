@@ -1,13 +1,9 @@
 package mra
 
-import (
-    "github.com/jotego/jtframe/def"
-)
-
 var Verbose bool
 
 type Args struct {
-    Def_cfg                      def.Config
+    Core, Target                 string
     Toml_path, Xml_path          string
     outdir, altdir               string
     cheatdir, pocketdir          string

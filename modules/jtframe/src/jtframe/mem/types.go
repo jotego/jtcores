@@ -1,5 +1,7 @@
 package mem
 
+var Verbose bool
+
 type Args struct {
     Core     string
     Target   string

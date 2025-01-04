@@ -1,4 +1,4 @@
-package def
+package macros
 
 import(
 	"testing"

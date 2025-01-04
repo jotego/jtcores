@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"gopkg.in/yaml.v2"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -153,7 +153,7 @@ func make_rc( ch *AudioCh, fs float64 ) {
 }
 
 func fill_audio_clock( cfg *Audio ) {
-	fmhz := def.Macros.GetInt("JTFRAME_MCLK")
+	fmhz := macros.GetInt("JTFRAME_MCLK")
 	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }
@@ -209,7 +209,7 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}
-	cfg.Stereo = def.Macros.IsSet("JTFRAME_STEREO")
+	cfg.Stereo = macros.IsSet("JTFRAME_STEREO")
 	return nil
 }
 
@@ -275,7 +275,7 @@ func normalize_gains( all_channels []AudioCh, global float64 ) error {
 			return fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
 		}
 		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
-		if verbose {
+		if Verbose {
 			fmt.Printf("channel %d, gain %X\n",k,ch.Gain)
 		}
 	}

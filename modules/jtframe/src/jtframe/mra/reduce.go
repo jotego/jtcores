@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	// "io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
 
@@ -29,22 +28,18 @@ func collect_sources() []string {
 	}
 	for _, each := range cores_dir {
 		if each.IsDir() && each.Name() != "." {
-			cfg_path := filepath.Join(cores, each.Name(), "cfg")
-			args := Args{
-				Def_cfg: def.Config{
-					Core:    each.Name(),
-					Verbose: Verbose,
-				},
-				Toml_path: filepath.Join(cfg_path, "mame2mra.toml"),
-			}
-			if !common.FileExists(args.Toml_path) { continue }
-			if !common.FileExists(def.DefPath(args.Def_cfg)) {
+			core := each.Name()
+			blank_target := ""
+			toml_path := common.ConfigFilePath(core, "mame2mra.toml")
+			def_path  := common.ConfigFilePath(core, "macors.def")
+			if !common.FileExists(toml_path) { continue }
+			if !common.FileExists(def_path) {
 				log.SetFlags(0)
 				log.Println("Skipping",each.Name()," despite having TOML file as .def file was not found")
 				continue
 			}
-			def.MakeMacros(args.Def_cfg)
-			cfg := ParseToml( args.Toml_path, args.Def_cfg.Core)
+			macros.MakeMacros(core, blank_target )
+			cfg := ParseToml( toml_path, core )
 			sources = append(sources, cfg.Parse.Sourcefile...)
 		}
 	}

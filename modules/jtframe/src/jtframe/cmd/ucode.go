@@ -26,6 +26,7 @@ a Verilog module and a verilog include file.
 		if !strings.HasSuffix(fname, ".yaml") {
 			fname = fname + ".yaml"
 		}
+		ucode.Args.Verbose = verbose
 		ucode.Make(args[0], fname)
 	},
 }
@@ -34,7 +35,6 @@ func init() {
 	rootCmd.AddCommand(ucodeCmd)
 	ucodeCmd.Flags().BoolVarP(&ucode.Args.Report,"report", "r", false, "Report cycle count")
 	ucodeCmd.Flags().BoolVarP(&ucode.Args.List,"list", "l", false, "Generate list file")
-	ucodeCmd.Flags().BoolVarP(&ucode.Args.Verbose,"verbose", "v", false, "Verbose")
 	ucodeCmd.Flags().BoolVarP(&ucode.Args.GTKWave,"gtkwave", "w", false, "Generate GTKWave files for readable waveform traces")
 	ucodeCmd.Flags().StringVarP(&ucode.Args.Output,"output", "o", "", "Prefix to use for output files")
 }

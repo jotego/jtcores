@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"path/filepath"
 
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 
 	"github.com/spf13/cobra"
 	"github.com/Masterminds/sprig/v3"	// more template functions
@@ -56,7 +56,7 @@ func parse_txt( corename, tpath, newdef string ) {
 	var cfg struct {
 		Macros map[string]string
 	}
-	cfg.Macros = def.Get_Macros( corename, target )
+	macros.MakeMacros( corename, target )
 	// additional macros
 	for _,each := range strings.Split(newdef,",") {
 		parts := strings.SplitN(each,"=",2)

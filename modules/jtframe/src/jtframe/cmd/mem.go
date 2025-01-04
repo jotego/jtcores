@@ -37,6 +37,7 @@ var memCmd = &cobra.Command{
 		var e error
 		mem_args.Core, e = get_corename(args)
 		Must(e)
+		mem.Verbose = verbose
 		mem_file := ConfigFilePath(mem_args.Core,"mem.yaml")
 		if !FileExists(mem_file) {
 			if verbose {
@@ -55,7 +56,6 @@ func init() {
 
 	// mem_args.Def_cfg.Target = "mist"
 	// flag.StringVar(&mem_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
-	flag.BoolVarP(&mem_args.Verbose, "verbose","v", false, "verbose")
 	flag.StringVarP(&mem_args.Target, "target", "t", "mist", "Target platform: mist, mister, pocket, etc.")
 	flag.BoolVarP(&mem_args.Make_inc, "inc","i", false, "always creates mem_ports.inc")
     flag.BoolVarP(&mem_args.Local, "local","l", false, "dumps to local folder. Otherwise uses target folder")

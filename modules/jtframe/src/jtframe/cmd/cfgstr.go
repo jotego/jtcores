@@ -20,13 +20,12 @@ package cmd
 
 import (
 	"github.com/jotego/jtframe/cfgstr"
-	"github.com/jotego/jtframe/def"
 	. "github.com/jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )
 
-var cfg def.Config
+var cfg cfgstr.Config
 var extra_def, extra_undef string
 
 // cfgstrCmd represents the cfgstr command
@@ -37,6 +36,7 @@ var cfgstrCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var e error
 		cfg.Core, e = get_corename(args)
+		cfgstr.Verbose = verbose
 		Must(e)
 		Must(cfgstr.Run(cfg, args, extra_def, extra_undef))
 	},
@@ -55,5 +55,4 @@ func init() {
 	flag.StringVarP(&extra_undef, "undef", "u", "", "Undefines macros, separated by comma")
 	flag.StringVarP(&cfg.Output, "output", "o", "cfgstr",
 		"Type of output: \n\tcfgstr -> config string\n\tbash -> bash script\n\tquartus -> quartus tcl\n\tsimulator name as specified in jtsim")
-	flag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "verbose")
 }

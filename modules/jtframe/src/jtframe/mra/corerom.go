@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 )
 
 func zipName(machine *MachineXML, cfg Mame2MRA) string {
@@ -36,7 +36,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	p := root.AddNode("rom").AddAttr("index", "0")
 	p.AddAttr("zip", zipName(machine,cfg))
 	p.AddAttr("md5", "None") // We do not know the value yet
-	if Macros.IsSet("JTFRAME_MR_DDRLOAD") {
+	if macros.IsSet("JTFRAME_MR_DDRLOAD") {
 		p.AddAttr("address", "0x30000000")
 	}
 	regions := cfg.ROM.Order
@@ -93,7 +93,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				-delta, reg, machine.Name)
 			}
 		}
-		sdram_bank_comment(p, pos, Macros.CopyToMap())
+		sdram_bank_comment(p, pos, macros.CopyToMap())
 		// comment with start and length of region
 		previous.add_length(pos)
 		previous.node = p.AddNode(fmt.Sprintf("%s - starts at 0x%X", reg, pos))
@@ -168,7 +168,7 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 }
 
 func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
-	header := Macros.GetInt("JTFRAME_HEADER")
+	header := macros.GetInt("JTFRAME_HEADER")
 	warned := true
 	for _, each := range cfg.ROM.Patches {
 		if each.Match(machine) > 0 {

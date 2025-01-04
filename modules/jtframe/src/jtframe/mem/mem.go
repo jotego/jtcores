@@ -30,14 +30,12 @@ import (
 	"text/template"
 
 	"github.com/jotego/jtframe/files"
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/mra"
 
 	"gopkg.in/yaml.v2" // do not upgrade to v3. See issue #904
 	"github.com/Masterminds/sprig/v3"	// more template functions
 )
-
-var verbose bool
 
 func (arg Args) get_path(fname string, prefix bool ) string {
 	if prefix {
@@ -171,14 +169,14 @@ func read_yaml(core, filename string, cfg *MemConfig) (e error) {
 		}
 		return e
 	}
-	if verbose {
+	if Verbose {
 		fmt.Println("Read ", filename)
 	}
 	e = unmarshal(buf, cfg)
 	if e != nil {
 		return fmt.Errorf("jtframe mem: cannot parse file\n\t%s\n\t%w", filename, e)
 	}
-	if verbose {
+	if Verbose {
 		fmt.Println("jtframe mem: memory configuration:")
 		fmt.Println(*cfg)
 		fmt.Println()
@@ -219,7 +217,7 @@ func delete_optional_bram(cfg *MemConfig ) {
 func delete_optional_ioctl(all_bram []BRAMBus) {
 	for k, _ := range all_bram {
 		if !all_bram[k].Ioctl.Enabled() {
-			if verbose {
+			if Verbose {
 				fmt.Printf("Delete IOCTL data for BRAM bus %s\n",all_bram[k].Name)
 			}
 			all_bram[k].Ioctl=BRAMBus_Ioctl{}
@@ -332,7 +330,7 @@ func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
 	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
 	outpath = filepath.Join( outpath, "dump2bin.sh" )
 	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755); if e!=nil { return e }
-	if verbose {
+	if Verbose {
 		fmt.Printf("%s created\n",outpath)
 	}
 	return nil
@@ -341,11 +339,11 @@ func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
 
 func Run(args Args) (e error) {
 	var cfg MemConfig
-	verbose = args.Verbose
-	make_macros(args.Core,args.Target)
+	Verbose = args.Verbose
+	macros.MakeMacros(args.Core,args.Target)
 	if args.Nodbg {
-		if verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
-		def.Macros.Set("JTFRAME_RELEASE","")
+		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
+		macros.Set("JTFRAME_RELEASE","")
 	}
 	if !Parse_file(args.Core, "mem", &cfg) {
 		// the mem.yaml file does not exist, that's
@@ -372,14 +370,6 @@ func Run(args Args) (e error) {
 	return nil
 }
 
-func make_macros(core, target string) {
-	macro_cfg := def.Config{
-		Core: core,
-		Target: target,
-	}
-	def.MakeMacros(macro_cfg)
-}
-
 func bankOffset( cfg *MemConfig, corename string) {
 	mra_cfg := mra.ParseToml( mra.TomlPath(corename), corename )
 	if len(mra_cfg.Header.Offset.Regions)==0 { return }
@@ -396,7 +386,7 @@ func check_banks( cfg *MemConfig ) error {
 	check_we := func( ba int, macro_name string) {
 		for _,each := range cfg.SDRAM.Banks[ba].Buses {
 			if each.Rw {
-				if !def.Macros.IsSet(macro_name) {
+				if !macros.IsSet(macro_name) {
 					fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", macro_name, ba)
 					bad=true
 				}
@@ -413,7 +403,7 @@ func check_banks( cfg *MemConfig ) error {
 
 		}
 	} else {
-		if !def.Macros.IsInt("JTFRAME_HEADER") {
+		if !macros.IsInt("JTFRAME_HEADER") {
 			fmt.Println(`Missing JTFRAME_HEADER but the SDRAM banks are pointing to a region.
 Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
@@ -469,7 +459,7 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 }
 
 func report_bad_int(macro_name string) bool {
-	if !def.Macros.IsInt(macro_name) {
+	if !macros.IsInt(macro_name) {
 		fmt.Printf("Missing or invalid %s\n",macro_name)
 		return true
 	}
@@ -518,7 +508,7 @@ func fill_implicit_ports( cfg *MemConfig ) {
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
 		old, fnd := all[p.Name]
-		if verbose {
+		if Verbose {
 			fmt.Printf("Adding port: %s\n", p.Name)
 		}
 		if fnd {
@@ -707,8 +697,8 @@ func make_ioctl( cfg *MemConfig ) int {
 // warn if JTFRAME_IOCTL_RD is below the required one
 func check_ioctl_size(dump_size int) {
 	if dump_size==0 { return }
-	ioctl_rd := def.Macros.GetInt("JTFRAME_IOCTL_RD")
-	suggest := ioctl_rd<dump_size || verbose
+	ioctl_rd := macros.GetInt("JTFRAME_IOCTL_RD")
+	suggest := ioctl_rd<dump_size || Verbose
 	if ioctl_rd < dump_size {
 		suggest = true
 		fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-ioctl_rd)
@@ -722,7 +712,7 @@ func fill_gfx_sort( cfg *MemConfig ) {
 	// this will not merge correctly hhvvv and hhvvvx used together, that's
 	// not supported in jtframe_dwnld at the moment
 	appendif := func( ss *[]string, mac string ) {
-		if def.Macros.IsSet(mac) { *ss = append(*ss, "`"+mac) }
+		if macros.IsSet(mac) { *ss = append(*ss, "`"+mac) }
 	}
 	make_gfx := func( match string ) (string, int) {
 		ranges :=  make([]string,0)
@@ -752,10 +742,10 @@ func fill_gfx_sort( cfg *MemConfig ) {
 					}
 					offsets2 = append(offsets,fmt.Sprintf("(%s<<1)",bank.Buses[j+1].Offset))
 				} else {
-					if def.Macros.IsSet(fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
+					if macros.IsSet(fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,fmt.Sprintf("`JTFRAME_BA%d_START",k+1))
-					} else if def.Macros.IsSet("JTFRAME_PROM_START") {
+					} else if macros.IsSet("JTFRAME_PROM_START") {
 						appendif( &offsets2, "JTFRAME_HEADER" )
 						offsets2 = append(offsets2,"JTFRAME_PROM_START")
 					}

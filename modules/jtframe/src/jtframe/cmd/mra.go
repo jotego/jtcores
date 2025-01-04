@@ -36,13 +36,14 @@ var mraCmd = &cobra.Command{
 	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
 	Long: Doc2string("jtframe-mra.md"),
 	Run: func(cmd *cobra.Command, args []string) {
+		mra.Verbose = verbose
 		if reduce {
 			if len(args)<1 {
 				fmt.Println("Expected one argument with the path mame.xml")
 				os.Exit(1)
 			}
 			mame_xml_path := args[0]
-			mra.Reduce(mame_xml_path, mra_args.Verbose)
+			mra.Reduce(mame_xml_path)
 		} else { // regular operation, each core name is an argument
 			cores, e := get_corenames(args); Must(e)
 			parse_cores(cores)
@@ -58,12 +59,12 @@ func parse_cores( corenames []string ) {
 			os.Exit(1)
 		}
 		e := os.RemoveAll( filepath.Join(root,"release") )
-		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+		if mra.Verbose && e!= nil { fmt.Println(nil) }
 		e = os.RemoveAll( filepath.Join(root,"rom") )
-		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
+		if mra.Verbose && e!= nil { fmt.Println(nil) }
 	}
 	mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
-	mra_args.Def_cfg.Target="mister"
+	mra_args.Target="mister"
 	entries, e := os.ReadDir(filepath.Join(os.Getenv("JTROOT"),"cores"))
 	if e != nil {
 		fmt.Println(e)
@@ -73,9 +74,9 @@ func parse_cores( corenames []string ) {
 		if !entry.IsDir() { continue }
 		for _, pattern := range corenames {
 			if match,_ := filepath.Match(pattern, entry.Name()); !match { continue }
-			mra_args.Def_cfg.Core = entry.Name()
-			if !check_files(mra_args.Def_cfg.Core) {
-				fmt.Println("Skipping", mra_args.Def_cfg.Core,"missing def/toml")
+			mra_args.Core = entry.Name()
+			if !check_files(mra_args.Core) {
+				fmt.Println("Skipping", mra_args.Core,"missing def/toml")
 				continue
 			}
 			mra.Run(mra_args)
@@ -97,11 +98,9 @@ func init() {
 	rootCmd.AddCommand(mraCmd)
 	flag := mraCmd.Flags()
 
-	mra_args.Def_cfg.Target = "mist"
-	flag.StringVar(&mra_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
+	mra_args.Target = "mist"
 	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
-	flag.BoolVarP(&mra.Verbose, "verbose", "v", false, "verbose")
 	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
 	flag.BoolVar(&clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")

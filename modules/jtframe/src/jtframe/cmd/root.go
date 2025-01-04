@@ -14,7 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
+var verbose bool
+
 var rootCmd = &cobra.Command{
 	Use:   "jtframe",
 	Short: "File parser for JTFRAME projects. Jose Tejada (c) 2022",
@@ -22,8 +23,6 @@ var rootCmd = &cobra.Command{
 
 Use jtframe to parse the core's def and yaml files to
 generate simulation and synthesis files`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
@@ -42,7 +41,7 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jtframe.yaml)")
-
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")

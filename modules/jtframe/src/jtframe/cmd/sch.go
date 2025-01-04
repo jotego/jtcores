@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var jtbin, verbose bool
+var jtbin bool
 var output_folder string
 
 func parse_folder( corename string, cores_fs fs.FS, path string) {
@@ -101,5 +101,4 @@ func init() {
 	flag := schCmd.Flags()
 
 	flag.BoolVarP(&jtbin, "git", "g", false, "Save files to $JTBIN/sch")
-	flag.BoolVarP(&verbose, "verbose", "v", false, "Verbose")
 }

@@ -3,7 +3,7 @@ package mra
 import(
 	"fmt"
 
-	. "github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 )
 
 func coreMOD_dial(machine *MachineXML, cfg Mame2MRA, coremod *int) {
@@ -64,8 +64,8 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 
 // compare screen size with MAME
 func coreMOD_screenSize(machine *MachineXML, cfg Mame2MRA, coremod *int) (int, int) {
-	cw := Macros.GetInt("JTFRAME_WIDTH")
-	ch := Macros.GetInt("JTFRAME_HEIGHT")
+	cw := macros.GetInt("JTFRAME_WIDTH")
+	ch := macros.GetInt("JTFRAME_HEIGHT")
 	wdiff := (int(cw)-machine.Display.Width)/2
 	hdiff := (int(ch)-machine.Display.Height)/2
 	if wdiff<0 || hdiff<0 {

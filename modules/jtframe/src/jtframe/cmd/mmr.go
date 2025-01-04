@@ -30,7 +30,5 @@ var mmrCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(mmrCmd)
-
-	mmrCmd.Flags().BoolVarP( &verbose, "verbose", "v", false, "Verbose output")
 }
 
