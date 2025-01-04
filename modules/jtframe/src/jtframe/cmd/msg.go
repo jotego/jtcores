@@ -49,7 +49,4 @@ Message text:
 
 func init() {
 	rootCmd.AddCommand(msgCmd)
-	flag := msgCmd.Flags()
-
-	flag.StringVarP(&msg_args.Commit, "commit", "c", "", "Commit ID")
 }

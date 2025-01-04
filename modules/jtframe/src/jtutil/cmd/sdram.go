@@ -1,7 +1,20 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+/*  This file is part of JTCORES.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-*/
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package cmd
 
 import (
@@ -12,7 +25,7 @@ import (
 	"strings"
 	"path/filepath"
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/def"
+	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/mra"
 )
 
@@ -163,7 +176,7 @@ func read_rom( game string ) []byte {
 
 func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []string) {
 	header  := bank_start(macros,"JTFRAME_HEADER")
-	mra_cfg := mra.ParseToml(mra.TomlPath(core), macros, core, false)
+	mra_cfg := mra.ParseToml(mra.TomlPath(core), core)
 	reg_cnt := len(mra_cfg.Header.Offset.Regions)
 	if reg_cnt < 5 {
 		reg_cnt=5
@@ -203,7 +216,8 @@ func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []s
 func extract_sdram( core, game string ) {
 	const EIGHT=8*1024*1024
 	rom        := read_rom(game)
-	macros     := def.Get_Macros( core, "mist" )
+	macros.MakeMacros( core, "mist" )
+	macros     := macros.CopyToMap()
 	offsets,reg:= bankOffset(core,macros,rom)
 	header     := bank_start(macros,"JTFRAME_HEADER")
 	prom_start := offsets[4]

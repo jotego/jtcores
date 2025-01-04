@@ -1,3 +1,20 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Date: 4-1-2025 */
+
 package macros
 
 import (
@@ -185,7 +202,6 @@ func MakeMacros(core, target string) {
 	set_separator(target)
 	// Adds a macro with the target name
 	Set(target,"1")
-	// Set("JTFRAME_COMMIT",fmt.Sprintf("32'h%s",make_commit_macro(cfg.Commit)))
 	// Adds the CORENAME if missing. This macro is expected to exist in macros.def
 	if !IsSet("CORENAME") {
 		fmt.Fprintf(os.Stderr, "CORENAME not specified in cfg/macros.def. Defaults to %s\n", core)
@@ -196,6 +212,7 @@ func MakeMacros(core, target string) {
 	}
 	// Macros with default values
 	year, month, day := time.Now().Date()
+	make_commit_macro()
 	defaul_values := map[string]string{
 		str2macro(core): "",				// the core is always set
 		"JTFRAME_180SHIFT":	     "0",
@@ -212,7 +229,6 @@ func MakeMacros(core, target string) {
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": core,
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
-		// "COMMIT": cfg.Commit,
 		"TARGET": target,
 	}
 	for key,val := range defaul_values {
@@ -256,25 +272,26 @@ func set_separator(target string) {
 	Set("SEPARATOR",separator)
 }
 
-func make_commit_macro(commit string) (macro string) {
-	if len(commit)<7 { return "0" }
-	short:=commit[0:7]
-	_,is_number := strconv.ParseInt(short,16,64)
-	if is_number!=nil { return "0" }
-	return short
+func make_commit_macro() {
+	commit, e := GetCommit()
+	if e!=nil {
+		panic(fmt.Errorf("Cannot retrieve git commit. Using 'unknown' instead.\n%s\n",e.Error()))
+	}
+	Set("JTFRAME_COMMIT",commit)
+	as_int, _ := strconv.ParseInt(commit,16,64)
+	as_dec := fmt.Sprintf("%d",as_int)
+	Set("JTFRAME_COMMIT_DEC",as_dec)
 }
 
 // Derives the GAMETOP module from the CORENAME if unspecified
 func make_gametop_macro() {
 	if !IsSet("GAMETOP") {
-		gametop := Get("CORENAME")
-		if !IsSet("JTFRAME_MEMGEN") {
-			gametop = gametop+"_game"
-		} else {
-			gametop = gametop+"_game_sdram"
+		gametop := Get("CORENAME")+"_game"
+		if IsSet("JTFRAME_MEMGEN") {
+			gametop = gametop+"_sdram"
 		}
-		gametop = strings.ToLower(gametop)
-		Set("GAMETOP", gametop )
+		gametop_lwr := strings.ToLower(gametop)
+		Set("GAMETOP", gametop_lwr )
 	}
 }
 

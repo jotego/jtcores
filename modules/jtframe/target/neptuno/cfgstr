@@ -12,4 +12,4 @@ P,CORE_NAME.dat;
 {{ if .JTFRAME_AUTOFIRE0}}          OI,Autofire button 0,Off,On; {{ end }}
 {{ .CORE_OSD }}
 T0,RST;
-V,{{ .COMMIT }} - patreon.com/jotego
+V,{{ .JTFRAME_COMMIT }} - patreon.com/jotego

@@ -16,8 +16,10 @@ if [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip || -v JTFRAME
 fi
 
 cd $CORES/$CORE
-mkdir -p ver/game
-cd ver/game
+TEST_FOLDER=ver/lint
+rm -rf $TEST_FOLDER
+mkdir -p $TEST_FOLDER
+cd $TEST_FOLDER
 
 if [ ! -e rom.bin ]; then
     # dummy ROM
@@ -26,7 +28,4 @@ if [ ! -e rom.bin ]; then
 fi
 
 jtsim -lint -$TARGET $*
-
-if [ -v DELROM ]; then
-    rm -f rom.bin
-fi
+rm -rf $TEST_FOLDER

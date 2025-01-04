@@ -50,7 +50,6 @@ func init() {
 	flag.StringVarP(&cfg.Target, "target", "t", "mist", "Target platform (mist, mister, sidi, sidi128, neptuno, mc2, mcp, pocket, sockit, de1soc, de10std)")
 	flag.StringVar(&cfg.Deffile, "parse", "", "Path to .def file")
 	flag.StringVar(&cfg.Template, "tpl", "", "Path to template file")
-	flag.StringVar(&cfg.Commit, "commit", "nocommit", "Commit ID")
 	flag.StringVarP(&extra_def, "def", "d", "", "Defines macros, separated by comma")
 	flag.StringVarP(&extra_undef, "undef", "u", "", "Undefines macros, separated by comma")
 	flag.StringVarP(&cfg.Output, "output", "o", "cfgstr",

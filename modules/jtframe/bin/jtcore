@@ -255,11 +255,6 @@ function is_dirty {
     git status --short | grep -i "^ M " > /dev/null
 }
 
-PRJCOMMIT="$(git rev-parse --short HEAD)"
-if is_dirty; then
-    PRJCOMMIT="${PRJCOMMIT}-dirty"
-fi
-
 if [ ! -e "$JTFRAME" ]; then
     echo -e "${rBG}ERROR:${NC}${wBG} cannot locate jtframe folder.${NC}"
     echo -e "      ${wBG} It should be at ${red}$JTFRAME${NC}"
@@ -359,16 +354,16 @@ function umacros2undef {
 
 function parse_macros {
     if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $* > /dev/stderr
+        echo jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
     fi
-    jtframe cfgstr $PRJ --target=$TARGET --commit $PRJCOMMIT `macros2def` `umacros2undef` --output $*
+    jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $*
 }
 
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 function copy_templates {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` > $PRJPATH/$TARGET/$corename.qpf
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` > $PRJPATH/$TARGET/$corename.qsf
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
     # TCL in HDL folder is always appended
     TCL=$PRJPATH/cfg/$corename.tcl
     MACROS_FILE=$PRJPATH/cfg/macros.def
@@ -413,7 +408,7 @@ function report {
     cd -
     printf "%-14s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
         $PRJ $TARGET $CORESTAMP $SEED $1 \
-        $PRJCOMMIT $JTFRAMECOMMIT >> $JTROOT/log/builds.log
+        `git rev-parse --short HEAD` $JTFRAMECOMMIT >> $JTROOT/log/builds.log
 }
 
 # Convert macros.def to environment variables
@@ -455,7 +450,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then
-        jtframe msg $PRJ --commit $PRJCOMMIT || exit $?
+        jtframe msg $PRJ || exit $?
     fi
     # Fonts and graphics
     ln -srf $JTFRAME/bin/font0.hex

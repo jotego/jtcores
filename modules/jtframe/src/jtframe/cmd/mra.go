@@ -85,12 +85,10 @@ func parse_cores( corenames []string ) {
 }
 
 func check_files( corename string ) bool {
-	f, e := os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","macros.def"))
-	defer f.Close()
-	if e!= nil { return false }
-	f.Close()
-	f, e = os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","mame2mra.toml"))
-	if e!= nil { return false }
+	macros_def := ConfigFilePath(corename,"macros.def")
+	if !FileExists(macros_def) { return false }
+	toml_file := ConfigFilePath(corename,"mame2mra.toml")
+	if !FileExists(toml_file) { return false }
 	return true
 }
 

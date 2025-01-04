@@ -160,7 +160,7 @@ func unmarshal( buffer []byte, storage any ) error {
 }
 
 func read_yaml(core, filename string, cfg *MemConfig) (e error) {
-	filename = jtfiles.GetFilename(core, filename, "")
+	filename = files.GetFilename(core, filename, "")
 	buf, e := os.ReadFile(filename)
 	if e != nil {
 		if errors.Is(e, os.ErrNotExist) {
@@ -383,22 +383,20 @@ func check_banks( cfg *MemConfig ) error {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
 	}
 	bad := false
-	check_we := func( ba int, macro_name string) {
-		for _,each := range cfg.SDRAM.Banks[ba].Buses {
-			if each.Rw {
-				if !macros.IsSet(macro_name) {
-					fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", macro_name, ba)
-					bad=true
-				}
-			}
-		}
-	}
 	if cfg.Balut==0 {
 		for bank_count:=1; bank_count<4; bank_count++ {
 			if len(cfg.SDRAM.Banks)>bank_count  {
 				bank_str := fmt.Sprintf("JTFRAME_BA%d",bank_count)
 				bad = bad || report_bad_int( bank_str+"_START")
-				check_we( 1, bank_str+"_WEN" )
+				wen_macro := bank_str+"_WEN"
+				for _,bank_bus := range cfg.SDRAM.Banks[bank_count].Buses {
+					if bank_bus.Rw {
+						if !macros.IsSet(wen_macro) {
+							fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", wen_macro, bank_count)
+							bad=true
+						}
+					}
+				}
 			}
 
 		}
