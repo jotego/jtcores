@@ -20,15 +20,16 @@ package files
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	// "log"
 	"os"
 	"path/filepath"
-	"sort"
+	// "sort"
+	"slices"
 	"strings"
 
-	"github.com/jotego/jtframe/common"
+	// "github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/ucode"
+	// "github.com/jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
 )
@@ -42,23 +43,23 @@ func Run(set_args Args) {
 	CWD, _ = os.Getwd()
 	prepare_macros()
 
-	var files JTFiles
-	parse_yaml( common.ConfigFilePath(args.Corename, "files.yaml"), &files )
-	parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", &files )
+	// var files JTFiles
+	// parse_yaml( common.ConfigFilePath(args.Corename, "files.yaml"), files )
+	// parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", files )
 
-	if args.Target != "" {
-		parse_yaml( os.Getenv("JTFRAME")+"/target/"+args.Target+"/target.yaml", &files )
-		if args.Format == "sim" {
-			parse_yaml(os.Getenv("JTFRAME")+"/target/"+args.Target+"/sim.yaml", &files )
-		}
-	}
-	filenames := collect_files( files, args.Rel )
-	filenames = append_mem( args, args.Local, macros.Get("GAMETOP"), filenames )
-	dump_ucode( files )
-	if !dump_files( filenames, args.Format ) {
-		fmt.Printf("Unknown output format '%s'\n", args.Format)
-		os.Exit(1)
-	}
+	// if args.Target != "" {
+	// 	parse_yaml( os.Getenv("JTFRAME")+"/target/"+args.Target+"/target.yaml", &files )
+	// 	if args.Format == "sim" {
+	// 		parse_yaml(os.Getenv("JTFRAME")+"/target/"+args.Target+"/sim.yaml", &files )
+	// 	}
+	// }
+	// filenames := collect_files( files, args.Rel )
+	// filenames = append_mem( args, args.Local, macros.Get("GAMETOP"), filenames )
+	// dump_ucode( files )
+	// if !dump_files( filenames, args.Format ) {
+	// 	fmt.Printf("Unknown output format '%s'\n", args.Format)
+	// 	os.Exit(1)
+	// }
 }
 
 func prepare_macros() {
@@ -67,421 +68,106 @@ func prepare_macros() {
 	macros.AddKeyValPairs(arg_macros...)
 }
 
-
-func append_filelist(dest *[]FileList, src []FileList, other *[]string, origin Origin) {
-	if src == nil {
-		return
+func parse_yaml_file( filepath string, files JTFiles ) (filepaths []string, e error) {
+	buf, e := ioutil.ReadFile(filepath)
+	if e != nil {
+		return nil,fmt.Errorf("jtframe files: cannot open referenced file %s\n%w",filepath,e)
 	}
-	if dest == nil {
-		*dest = make([]FileList, 0)
+	parsed = append(parsed, filepath)
+	var new_files JTFiles
+	e = yaml.Unmarshal(buf, &new_files)
+	if e != nil {
+		return nil,fmt.Errorf("jtframe files: cannot parse file %s\n%w",filepath,e)
 	}
-	parse_section:
-	for _, each := range src {
-		// Parses the section unless the macro is defined
-		if each.Unless != "" {
-			for _,name := range( strings.Split(each.Unless,",")) {
-				if macros.IsSet(name) {
-					continue parse_section
-				}
-			}
-		}
-		// Only parses the section when the macro is defined
-		if each.When != "" {
-			found := false
-			for _,name := range( strings.Split(each.When,",")) {
-				if macros.IsSet(name) {
-					found = true
-					break
-				}
+	return find_paths(new_files)
+}
 
-			}
-			if !found {
-				continue parse_section
-			}
-		}
+func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
+	filepaths = make([]string,0,32)
+	for path_alias,content := range jtfile {
+		basepath, e := get_base_path(path_alias); if e!=nil { return nil,e }
+		newfiles, e := get_content_files(basepath,content); if e!=nil { return nil,e }
+		different_files:=differences(filepaths,newfiles)
+		filepaths=append(filepaths,different_files...)
+	}
+	return nil,nil
+}
 
-		var newfl FileList
-		newfl.From = each.From
-		newfl.Get = make([]string, 2)
-		for _, each := range each.Get {
-			each = strings.TrimSpace(each)
-			if strings.HasSuffix(each, ".yaml") {
-				var path string
-				switch origin {
-				case GAME:
-					path = os.Getenv("CORES") + "/" + newfl.From + "/cfg/"
-				case FRAME:
-					path = os.Getenv("JTFRAME") + "/hdl/" + newfl.From + "/"
-				case TARGET:
-					if newfl.From == "" {
-						newfl.From=macros.Get("TARGET")
-					}
-					path = os.Getenv("JTFRAME") + "/target/" + newfl.From + "/"
-				default:
-					path = os.Getenv("MODULES") + "/" + newfl.From + "/"
-				}
-				*other = append(*other, path+each)
-			} else {
-				newfl.Get = append(newfl.Get, each)
-			}
+func get_base_path(name string) (basepath string, e error) {
+	switch name {
+	case "jtframe","cores","modules": {
+		upper := strings.ToUpper(name)
+		basepath=os.Getenv(upper)
+	}
+	case "here": basepath="."
+	default: return "",fmt.Errorf("Unknown path alias %s",name)
+	}
+	if basepath=="" {
+		return "",fmt.Errorf("Cannot resolve path alias %s meaningfully",name)
+	}
+	return basepath,nil
+}
+
+func get_content_files(basepath string, all_entries []FileList) ([]string,error) {
+	filepaths := make([]string,0,32)
+	for _, entry := range all_entries {
+		entry = fill_defaults(entry)
+		newfiles, e := find_files_in_path(basepath,entry);
+		if e!=nil { return nil,e }
+		different_files:=differences(filepaths,newfiles)
+		filepaths=append(filepaths,different_files...)
+	}
+	return filepaths,nil
+}
+
+func fill_defaults(entry FileList) FileList {
+	if entry.Use!="" && len(entry.Get)==0 {
+		entry.Get = []string{"cfg/files.yaml"}
+	}
+	return entry
+}
+
+func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e error) {
+	// unless/when
+	basepath = filepath.Join(basepath,filelist.Use)
+	filepaths = make([]string,len(filelist.Get))
+	for k,newfile := range filelist.Get {
+		subfolder := "hdl"
+		switch filepath.Ext(newfile) {
+		case ".yaml": subfolder="cfg"
+		case ".v",".sv": subfolder="hdl"
 		}
-		if len(newfl.Get) > 0 {
-			found := false
-			for k, each := range *dest {
-				if each.From == newfl.From {
-					(*dest)[k].Get = append((*dest)[k].Get, newfl.Get...)
-					found = true
-					break
-				}
-			}
-			if !found {
-				*dest = append(*dest, newfl)
-			}
+		filepaths[k]=filepath.Join(basepath,subfolder,newfile)
+	}
+	return filepaths,nil
+}
+
+func differences(a, b []string) (diff []string) {
+	make_paths_abs(a)
+	make_paths_abs(b)
+	diff = make([]string,0,len(a)+len(b))
+	for _,path := range a {
+		if slices.Contains(diff,path) {continue}
+		diff=append(diff,path)
+	}
+	for _,path := range b {
+		if slices.Contains(diff,path) {continue}
+		diff=append(diff,path)
+	}
+	return diff
+}
+
+func make_paths_abs(paths []string) {
+	cwd,_ := os.Getwd()
+	for k,newpath := range paths {
+		if !filepath.IsAbs(newpath) {
+			newpath = filepath.Join(cwd,newpath)
 		}
+		clean := filepath.Clean(newpath)
+		paths[k] = clean
 	}
 }
 
-func is_parsed(name string) bool {
-	for _, k := range parsed {
-		if name == k {
-			return true
-		}
-	}
-	return false
-}
-
-func parse_yaml(filename string, files *JTFiles) {
-	buf, err := ioutil.ReadFile(filename)
-	if err != nil {
-		if parsed == nil {
-			log.Printf("Warning: cannot open file %s. YAML processing still used for JTFRAME board.", filename)
-			return
-		} else {
-			log.Fatalf("jtframe files: cannot open referenced file %s", filename)
-		}
-	}
-	if parsed == nil {
-		parsed = make([]string, 0)
-	}
-	parsed = append(parsed, filename)
-	var aux JTFiles
-	err_yaml := yaml.Unmarshal(buf, &aux)
-	if err_yaml != nil {
-		//fmt.Println(err_yaml)
-		fmt.Printf("jtframe files: ERROR cannot parse file\n\t%s\n\t%v\n", filename, err_yaml)
-		os.Exit(1)
-	}
-	other := make([]string, 0)
-	// Parse
-	append_filelist(&files.Game, aux.Game, &other, GAME)
-	append_filelist(&files.JTFrame, aux.JTFrame, &other, FRAME)
-	append_filelist(&files.Target, aux.Target, &other, TARGET)
-	append_filelist(&files.Modules.Other, aux.Modules.Other, &other, MODULE)
-	if files.Modules.JT == nil {
-		files.Modules.JT = make([]JTModule, 0)
-	}
-	for _, each := range aux.Modules.JT {
-		var fname string
-		var f *os.File
-		var err error
-		for _, path := range []string{"hdl","cfg"} {
-			fname = filepath.Join(os.Getenv("MODULES"), each.Name, path, each.Name+".yaml")
-			f, err = os.Open(fname)
-			if err == nil {
-				break
-			}
-		}
-		// Parse the YAML file if it exists
-		if err == nil {
-			f.Close()
-			parse_yaml(fname, files)
-		} else {
-			files.Modules.JT = append(files.Modules.JT, each)
-		}
-	}
-	for _, each := range other {
-		if !is_parsed(each) {
-			parse_yaml(each, files)
-		}
-	}
-	// "here" files
-	if files.Here == nil {
-		files.Here = make([]string, 0)
-	}
-	dir := filepath.Dir(filename)
-	for _, each := range aux.Here {
-		fullpath := filepath.Join(dir, each)
-		if strings.HasSuffix(each, ".yaml") && !is_parsed(each) {
-			parse_yaml(fullpath, files)
-		} else {
-			files.Here = append(files.Here, expand_glob(fullpath)...)
-		}
-	}
-	// ucode requirements
-	for k,v := range aux.Ucode {
-		if files.Ucode == nil { files.Ucode=make(UcFiles) }
-		v.modname = k
-		files.Ucode[k+"-"+v.Src+"-"+v.Output] = v
-	}
-}
-
-// Make the path relative or absolute
-func make_path(path, filename string, rel bool) (item string) {
-	var err error
-	if strings.Index(filename,path)==-1 && strings.Index(filename,"/")==-1 {
-		fmt.Printf("%s -> %s\n",path,filename)
-		filename = filepath.Join(path, filename)
-	}
-	if rel {
-		item, err = filepath.Rel(CWD, filename)
-	} else {
-		item = filepath.Clean(filename)
-	}
-	if err != nil {
-		log.Fatalf("JTFILES: Cannot parse path to %s\n", filename)
-	}
-	return item
-}
-
-func expand_glob( name string ) []string {
-	if len(name)==0 { return nil }
-	matches,e := filepath.Glob(name)
-	if e!=nil {
-		fmt.Println(e)
-		fmt.Printf("jtframe files: error parsing file list.")
-		os.Exit(1)
-	}
-	if len(matches)==0 {
-		fmt.Printf("Warning: no matches for %s\n",name)
-		return nil
-	}
-	return matches
-}
-
-func dump_filelist(fl []FileList, all *[]string, origin Origin, rel bool) {
-	for _, each := range fl {
-		var path string
-		switch origin {
-		case GAME:
-			path = filepath.Join(os.Getenv("CORES"), each.From, "hdl")
-		case FRAME:
-			path = filepath.Join(os.Getenv("JTFRAME"), "hdl", each.From)
-		case TARGET:
-			if each.From == "" {
-				each.From=macros.Get("TARGET")
-			}
-			path = filepath.Join(os.Getenv("JTFRAME"), "target", each.From)
-		case MODULE:
-			path = filepath.Join(os.Getenv("MODULES"), each.From)
-		default:
-			path = os.Getenv("JTROOT")
-		}
-		for _, each := range each.Get {
-			if len(each)==0 { continue }
-			matches,e := filepath.Glob(filepath.Join(path,each))
-			if e!=nil {
-				fmt.Println(e)
-				fmt.Printf("jtframe files: error parsing file list.")
-				os.Exit(1)
-			}
-			if len(matches)==0 {
-				fmt.Printf("Warning: no matches for %s in path %s\n",each,path)
-			}
-			for _, m := range matches {
-				*all = append(*all, make_path(path, m, rel))
-			}
-		}
-	}
-}
-
-func dump_jtmodules(mods []JTModule, all *[]string, rel bool) {
-	modpath := os.Getenv("MODULES")
-	if mods == nil {
-		return
-	}
-	for _, each := range mods {
-		if len(each.Name) > 0 {
-			lower := strings.ToLower(each.Name)
-			lower = filepath.Join(lower, "hdl", lower+".yaml")
-
-			*all = append(*all, make_path(modpath, lower, rel))
-		}
-	}
-}
-
-// Get file path names from JTFiles definition
-func collect_files(files JTFiles, rel bool) []string {
-	all := make([]string, 0)
-	dump_filelist(files.Game, &all, GAME, rel)
-	dump_filelist(files.JTFrame, &all, FRAME, rel)
-	dump_filelist(files.Target, &all, TARGET, rel)
-	dump_jtmodules(files.Modules.JT, &all, rel)
-	dump_filelist(files.Modules.Other, &all, MODULE, rel)
-	for _, each := range files.Here {
-		if rel {
-			each, _ = filepath.Rel(CWD, each)
-		}
-		all = append(all, each)
-	}
-	// Weed out the vhdl files
-	vhdl    := make([]string,0,len(all))
-	nonvhdl := make([]string,0,len(all))
-	for _,each := range all {
-		if strings.HasSuffix(each,".vhd") || strings.HasSuffix(each,".vhdl") {
-			vhdl = append( vhdl, each )
-		} else {
-			nonvhdl = append( nonvhdl, each )
-		}
-	}
-	// non-VHDL files are sorted
-	sort.Strings(nonvhdl)
-	if len(nonvhdl) > 0 {
-		// Remove duplicated files
-		uniq := make([]string, 0)
-		for _, each := range nonvhdl {
-			if len(uniq) == 0 || each != uniq[len(uniq)-1] {
-				uniq = append(uniq, each)
-			}
-		}
-		// Add all the VHDL files
-		uniq = append(uniq, vhdl...)
-		// Check that files exist
-		for _, each := range uniq {
-			if _, err := os.Stat(each); os.IsNotExist(err) {
-				fmt.Println("JTFiles warning: file", each, "not found")
-			}
-		}
-		return uniq
-	} else {
-		return all
-	}
-}
-
-func dump_files( filenames[]string, format string ) bool {
-	switch format {
-	case "syn", "qip":
-		dump_qip(filenames)
-	case "sim":
-		dump_sim(filenames)
-	case "plain":
-		dump_plain(filenames)
-	default:
-		return false // don't know how to dump
-	}
-	return true
-}
-
-func dump_qip(all []string ) {
-	fout, err := os.Create("game.qip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer fout.Close()
-	for _, each := range all {
-		filetype := ""
-		switch filepath.Ext(each) {
-		case ".sv":
-			filetype = "SYSTEMVERILOG_FILE"
-		case ".vhd":
-			filetype = "VHDL_FILE"
-		case ".v":
-			filetype = "VERILOG_FILE"
-		case ".qip":
-			filetype = "QIP_FILE"
-		case ".sdc":
-			filetype = "SDC_FILE"
-		default:
-			{
-				log.Fatalf("JTFILES: unsupported file extension %s in file %s", filepath.Ext(each), each)
-			}
-		}
-		aux := "set_global_assignment -name " + filetype
-		if args.Rel {
-			aux = aux + "[file join $::quartus(qip_path) " + each + "]"
-		} else {
-			aux = aux + " " + each
-		}
-		fmt.Fprintln(fout, aux)
-	}
-}
-
-func dump_sim(all []string ) {
-	fout, err := os.Create( "game.f" )
-	if err != nil {
-		log.Fatal(err)
-	}
-	fout_vhdl, err := os.Create("jtsim_vhdl.f")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer fout.Close()
-	defer fout_vhdl.Close()
-	for _, each := range all {
-		dump := true
-		switch filepath.Ext(each) {
-		case ".sv", ".v":
-			dump = true
-		case ".qip",".sdc":
-			dump = false
-		case ".vhd":
-			fmt.Fprintln(fout_vhdl, each)
-			dump = false
-		default:
-			{
-				log.Fatalf("JTFILES: unsupported file extension %s in file %s", filepath.Ext(each), each)
-			}
-		}
-		if dump {
-			fmt.Fprintln(fout, each)
-		}
-	}
-}
-
-func dump_plain(all []string ) {
-	fout, err := os.Create( "files" )
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer fout.Close()
-	jtroot := os.Getenv("JTROOT")+"/"
-	for _, each := range all {
-		each=strings.TrimPrefix(each,jtroot)
-		fmt.Fprintln(fout, each)
-	}
-}
-
-// Trying out the "accept interfaces" Go principle:
-type CoreInfo interface {
-	GetName() string
-	GetTarget() string
-}
-
-func (this Args) GetName() string {
-	return this.Corename
-}
-
-func (this Args) GetTarget() string {
-	return this.Target
-}
-
-func append_mem( info CoreInfo, local bool, gametop string, fn []string ) []string {
-	mempath := filepath.Join( os.Getenv("CORES"), info.GetName(), "cfg", "mem.yaml" )
-	f, err := os.Open( mempath )
-	f.Close()
-	if err!=nil {
-		return fn	// mem.yaml didn't exist. Nothing done
-	}
-	fname := macros.Get("GAMETOP")+".v"
-	if info.GetTarget()!="" && !local {
-		fname = filepath.Join( os.Getenv("CORES"), info.GetName(),info.GetTarget(),fname)
-	}
-	return append(fn,fname)
-
-}
-
-func dump_ucode( files JTFiles ) {
-	for _, uc := range files.Ucode {
-		ucode.Args.Output = uc.Output
-		ucode.Make(uc.modname,uc.Src)
-	}
+func init() {
+	parsed = make([]string, 0, 128)
 }

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: shanon
     get:
       - "*.v"

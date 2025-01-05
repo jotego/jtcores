@@ -1,4 +1,4 @@
-game:
+cores:
   - from: wwfss
     get:
       - "*.v"

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: track
     get:
       - jttrack_game.v

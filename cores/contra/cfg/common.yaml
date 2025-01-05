@@ -1,4 +1,4 @@
-game:
+cores:
   - from: contra
     get:
       - jtcontra_main.v

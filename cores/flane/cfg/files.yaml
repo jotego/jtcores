@@ -1,4 +1,4 @@
-game:
+cores:
   - from: flane
     get:
       - jtflane_game.v

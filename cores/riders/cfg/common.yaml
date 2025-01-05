@@ -1,4 +1,4 @@
-game:
+cores:
   - from: riders
     get:
       - jt054321.v

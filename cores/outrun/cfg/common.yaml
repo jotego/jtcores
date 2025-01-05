@@ -1,4 +1,4 @@
-game:
+cores:
   - from: outrun
     get:
       - jtoutrun_game.v

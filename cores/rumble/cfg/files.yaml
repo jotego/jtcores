@@ -1,4 +1,4 @@
-game:
+cores:
   - from: rumble
     get:
       - jtrumble_game.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: castle
     get:
       - jtcastle_game.v

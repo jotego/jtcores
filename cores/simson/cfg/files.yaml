@@ -1,4 +1,4 @@
-game:
+cores:
   - from: simson
     get:
       - jtsimson_game.v

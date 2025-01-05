@@ -1,4 +1,4 @@
-game:
+cores:
   - from: cop
     get:
       - jtcop_prot.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: cps1
     get:
       - jtcps1_video.v

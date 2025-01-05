@@ -1,4 +1,4 @@
-game:
+cores:
   - from: btiger
     get:
       - jtbtiger_main.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: dd
     get:
       - jtdd_game.v

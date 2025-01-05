@@ -1,4 +1,4 @@
-game:
+cores:
   - from: simson
     get:
       - game.yaml

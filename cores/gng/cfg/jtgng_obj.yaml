@@ -2,7 +2,7 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cencross_strobe.v
-game:
+cores:
   - from: gng
     get:
       - jtgng_obj.v

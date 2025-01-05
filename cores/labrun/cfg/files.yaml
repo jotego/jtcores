@@ -1,4 +1,4 @@
-game:
+cores:
   - from: labrun
     get:
       - jtlabrun_game.v

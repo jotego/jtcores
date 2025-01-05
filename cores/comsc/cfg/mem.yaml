@@ -1,6 +1,6 @@
 include:
   - core: contra
-game: "contra"
+cores: "contra"
 audio:
   rsum: 2.7k
   channels:

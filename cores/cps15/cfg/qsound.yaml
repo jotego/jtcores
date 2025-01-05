@@ -1,4 +1,4 @@
-game:
+cores:
   - from: cps15
     get:
       - jtcps15_sound.v

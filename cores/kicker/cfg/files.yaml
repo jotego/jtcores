@@ -1,4 +1,4 @@
-game:
+cores:
   - from: kicker
     get:
       - jtkicker_game.v  
@@ -7,5 +7,5 @@ game:
       - jtkicker_colmix.v
       - common.yaml
 modules:
-  jt:
-    - name: jt89
+  other:
+    - from: jt12/jt89

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: gng
     get:
       - jtgng_sound.v

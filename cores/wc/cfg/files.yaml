@@ -1,4 +1,4 @@
-game:
+cores:
   - from: wc
     get:
       - "*.v"

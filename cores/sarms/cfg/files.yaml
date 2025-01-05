@@ -1,4 +1,4 @@
-game:
+cores:
   - from: sarms
     get:
       - jtsarms_game.v

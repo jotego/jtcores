@@ -1,4 +1,4 @@
-game:
+cores:
   - from: fround
     get:
       - jtfround_game.v

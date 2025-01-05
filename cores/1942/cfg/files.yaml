@@ -1,4 +1,4 @@
-game:
+cores:
   - from: 1942
     get:
       - jt1942_sound.v
@@ -28,8 +28,8 @@ jtframe:
       - jtframe_blank.v
       - jtframe_tilemap.v
 modules:
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.yaml
+  - from: jt12
+    get:
+      - jt12_rst.v
+  - from: jt12/jt49
 

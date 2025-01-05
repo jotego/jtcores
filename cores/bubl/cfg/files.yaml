@@ -1,4 +1,4 @@
-game:
+cores:
   - from: bubl
     get:
       - jtbubl_game.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: kchamp
     get:
       - jtkchamp_game.v

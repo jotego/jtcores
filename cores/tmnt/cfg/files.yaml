@@ -1,4 +1,4 @@
-game:
+cores:
   - from: tmnt
     get:
       - jttmnt_game.v

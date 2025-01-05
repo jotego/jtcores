@@ -1,4 +1,4 @@
-game:
+cores:
   - from: roc
     get:
       - jtroc_game.v

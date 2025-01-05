@@ -1,4 +1,4 @@
-game:
+cores:
   - from: aliens
     get:
       - jtaliens_game.v

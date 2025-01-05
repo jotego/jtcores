@@ -1,4 +1,4 @@
-game:
+cores:
   - from: gng
     get:
       - jtgng_main.v
@@ -23,7 +23,6 @@ jtframe:
     get:
       - jtframe_ram.v
 modules:
-  other:
-    - from: jt12/hdl
-      get:
+  - from: jt12
+    get:
       - jt12_rst.v

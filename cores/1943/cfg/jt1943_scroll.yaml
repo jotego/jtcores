@@ -1,4 +1,4 @@
-game:
+cores:
   - from: 1943
     get:
       - jt1943_scroll.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: biocom
     get:
       - jtbiocom_colmix.v

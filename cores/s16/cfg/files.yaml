@@ -1,4 +1,4 @@
-game:
+cores:
   - from: s16
     get:
       - jts16_game.v

@@ -1,4 +1,4 @@
-game:
+cores:
   - from: kicker
     get:
       - jtkicker_game.v

@@ -27,27 +27,14 @@ type Args struct {
 	AddMacro string // More macros, separated by commas
 }
 
-type Origin int
-
-const (
-	GAME Origin = iota
-	FRAME
-	TARGET
-	MODULE
-	JTMODULE
-)
-
 type FileList struct {
-	From   string   `yaml:"from"`
-	Get    []string `yaml:"get"`
 	Unless string   `yaml:"unless"` // parses the section "unless" the macro is defined
 	When   string   `yaml:"when"`   // parses the section "when" the macro is defined
-}
 
-type JTModule struct {
-	Name   string `yaml:"name"`
-	Unless string `yaml:"unless"`
-	When   string   `yaml:"when"`
+	Use    string   `yaml:"use"`
+	Get    []string `yaml:"get"`
+
+	Ucode  UcDesc   `yaml:"ucode"`
 }
 
 type UcDesc struct {
@@ -58,14 +45,4 @@ type UcDesc struct {
 }
 type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
 
-type JTFiles struct {
-	Game    []FileList `yaml:"game"`
-	JTFrame []FileList `yaml:"jtframe"`
-	Target  []FileList `yaml:"target"`
-	Modules struct {
-		JT    []JTModule `yaml:"jt"`
-		Other []FileList `yaml:"other"`
-	} `yaml:"modules"`
-	Here []string `yaml:"here"`
-	Ucode UcFiles `yaml:"ucode"`
-}
+type JTFiles map[string][]FileList

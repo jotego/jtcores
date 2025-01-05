@@ -1,4 +1,4 @@
-game:
+cores:
   - from: trojan
     get:
       - jttrojan_game.v

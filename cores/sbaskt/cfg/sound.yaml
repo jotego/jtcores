@@ -1,4 +1,4 @@
-game:
+cores:
   - from: sbaskt
     get:
       - jtsbaskt_snd.v
