@@ -41,21 +41,21 @@ func Test_get_base_path(t *testing.T) {
 
 func Test_fill_defaults(t *testing.T) {
 	full_entry := FileList{
-		Use: "contra",
+		From: "contra",
 		Get: []string{"game.v"},
 	}
 	parse := fill_defaults(full_entry)
-	if parse.Use!=full_entry.Use || slices.Compare(parse.Get,full_entry.Get)!=0 {
+	if parse.From!=full_entry.From || slices.Compare(parse.Get,full_entry.Get)!=0 {
 		t.Error("Fully defined entry should not be modified")
 	}
 	partial_entry := FileList{
-		Use: "jt12/jt89",
+		From: "jt12/jt89",
 	}
 	parse = fill_defaults(partial_entry)
-	if parse.Use!="jt12/jt89" {
+	if parse.From!="jt12/jt89" {
 		t.Error("'use' path should not be modified")
 	}
-	if slices.Compare(parse.Get,[]string{"cfg/files.yaml"})!=0 {
+	if slices.Compare(parse.Get,[]string{"files.yaml"})!=0 {
 		t.Error("Default entries are not filled")
 	}
 }
@@ -63,7 +63,7 @@ func Test_fill_defaults(t *testing.T) {
 func Test_find_files_in_path(t *testing.T) {
 	basepath := ".."
 	filelist := FileList{
-		Use: "files",
+		From: "files",
 		Get: []string{"game.v","video.v","files.yaml","timing.sdc"},
 	}
 	foundpaths, e := find_files_in_path(basepath,filelist)
@@ -95,12 +95,12 @@ func Test_differences(t *testing.T) {
 }
 
 func Test_values_not_in_first(t *testing.T) {
-	cwd, e := os.Getwd()
-	if e!=nil { t.Error(e); t.FailNow() }
 	set_a := []string{"a","b","c"}
 	set_b := []string{"d","c","e","a"}
-	set_diff := values_not_in_first(a,b)
-	if slices.Compare(set_diff,[]string{"d","e"})!=0 {
+	set_diff := values_not_in_first(set_a,set_b)
+	expected := []string{"d","e"}
+	make_paths_abs(expected)
+	if slices.Compare(set_diff,expected)!=0 {
 		t.Errorf("unexpected value")
 		t.Log(set_diff)
 	}
@@ -159,7 +159,7 @@ func Test_unmarshall(t *testing.T) {
 // func Test_find_paths(t *testing.T) {
 // 	jtfile := JTFiles{
 // 		"modules": FileList{
-// 			Use: "jt12"
+// 			From: "jt12"
 // 		},
 // 	}
 // }

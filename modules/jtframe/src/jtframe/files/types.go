@@ -31,7 +31,7 @@ type FileList struct {
 	Unless string   `yaml:"unless"` // parses the section "unless" the macro is defined
 	When   string   `yaml:"when"`   // parses the section "when" the macro is defined
 
-	Use    string   `yaml:"use"`
+	From   string   `yaml:"from"`
 	Get    []string `yaml:"get"`
 
 	Ucode  UcDesc   `yaml:"ucode"`

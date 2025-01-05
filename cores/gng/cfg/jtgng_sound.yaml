@@ -3,7 +3,6 @@ cores:
     get:
       - jtgng_sound.v
 modules:
-  other:
-    - from: jt12
-      get:
-        - hdl/jt03.yaml
+  - from: jt12
+    get:
+      - jt03.yaml

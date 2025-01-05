@@ -27,7 +27,7 @@ import (
 	"slices"
 	"strings"
 
-	// "github.com/jotego/jtframe/common"
+	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/macros"
 	// "github.com/jotego/jtframe/ucode"
 
@@ -43,23 +43,24 @@ func Run(set_args Args) {
 	CWD, _ = os.Getwd()
 	prepare_macros()
 
-	// var files JTFiles
-	// parse_yaml( common.ConfigFilePath(args.Corename, "files.yaml"), files )
-	// parse_yaml( os.Getenv("JTFRAME")+"/hdl/jtframe.yaml", files )
-
-	// if args.Target != "" {
-	// 	parse_yaml( os.Getenv("JTFRAME")+"/target/"+args.Target+"/target.yaml", &files )
-	// 	if args.Format == "sim" {
-	// 		parse_yaml(os.Getenv("JTFRAME")+"/target/"+args.Target+"/sim.yaml", &files )
-	// 	}
-	// }
-	// filenames := collect_files( files, args.Rel )
-	// filenames = append_mem( args, args.Local, macros.Get("GAMETOP"), filenames )
+	filenames, e := parse_yaml_file( common.ConfigFilePath(args.Corename, "files.yaml") )
+	common.Must(e)
+	jtframe_cfg := filepath.Join(os.Getenv("JTFRAME"),"cfg","files.yaml")
+	all_jtframe, e := parse_yaml_file( jtframe_cfg )
+	common.Must(e)
+	filenames = merge(filenames,all_jtframe)
+	target_files, e := collect_target()
+	common.Must(e)
+	filenames = merge(filenames,target_files)
+	if mem_file := get_mem_file(); mem_file!="" {
+		filenames = append(filenames,mem_file)
+	}
+	if args.Rel {
+		common.Must(make_relative_to_cwd(filenames))
+	}
 	// dump_ucode( files )
-	// if !dump_files( filenames, args.Format ) {
-	// 	fmt.Printf("Unknown output format '%s'\n", args.Format)
-	// 	os.Exit(1)
-	// }
+	e = dump_files( filenames )
+	common.Must(e)
 }
 
 func prepare_macros() {
@@ -68,11 +69,51 @@ func prepare_macros() {
 	macros.AddKeyValPairs(arg_macros...)
 }
 
+func collect_target() ([]string,error) {
+	if args.Target == "" { return nil,nil }
+	target_cfg := filepath.Join(os.Getenv("JTFRAME"),"target",args.Target,"target.yaml")
+	files, e := parse_yaml_file( target_cfg )
+	if e!=nil { return nil, e }
+
+	var sim_files []string
+	if args.Format == "sim" {
+		sim_cfg := filepath.Join(os.Getenv("JTFRAME"),"target",args.Target,"sim.yaml")
+		sim_files, e = parse_yaml_file(sim_cfg)
+		if e!=nil { return nil, e }
+	}
+	return merge(files,sim_files),nil
+}
+
+func merge(a,b []string) []string {
+	new_in_b := values_not_in_first(a,b)
+	return append(a,new_in_b...)
+}
+
+func get_mem_file() string {
+	memcfg := common.ConfigFilePath(args.Corename,"mem.yaml")
+	if !common.FileExists(memcfg) { return "" }
+	game_file := macros.Get("GAMETOP")+".v"
+	if args.Target!="" && !args.Local {
+		syn_folder := filepath.Join(os.Getenv("CORES"),args.Corename,args.Target)
+		game_file=filepath.Join(syn_folder,game_file)
+	}
+	return game_file
+}
+
+func make_relative_to_cwd(filenames []string) (e error) {
+	cwd, _ := os.Getwd()
+	for k,_ := range filenames {
+		filenames[k], e = filepath.Rel(cwd,filenames[k])
+	}
+	return e
+}
+
+
 func parse_yaml_file(filepath string) (filepaths []string, e error) {
 	new_files, e := readin_yaml(filepath); if e!=nil { return nil,e }
 	filepaths, e = find_paths(new_files); if e!=nil { return nil,e }
 	all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
-	new_referenced := (filepaths,all_referenced)
+	new_referenced := values_not_in_first(filepaths,all_referenced)
 	filepaths=append(filepaths,new_referenced...)
 	return filepaths, nil
 }
@@ -104,7 +145,7 @@ func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
 	for path_alias,content := range jtfile {
 		basepath, e := get_base_path(path_alias); if e!=nil { return nil,e }
 		newfiles, e := get_content_files(basepath,content); if e!=nil { return nil,e }
-		different_files:=differences(filepaths,newfiles)
+		different_files:=values_not_in_first(filepaths,newfiles)
 		filepaths=append(filepaths,different_files...)
 	}
 	return filepaths,nil
@@ -116,7 +157,7 @@ func expand_references(all_files []string) (newfiles []string,e error) {
 		if filepath.Ext(filename)!=".yaml" { continue }
 		if slices.Contains(parsed,filename) { continue }
 		new_paths, e := parse_yaml_file(filename); if e!=nil { return nil,e }
-		diff := differences(newfiles,new_paths)
+		diff := values_not_in_first(newfiles,new_paths)
 		newfiles=append(newfiles,diff...)
 	}
 	return newfiles,nil
@@ -150,15 +191,15 @@ func get_content_files(basepath string, all_entries []FileList) ([]string,error)
 }
 
 func fill_defaults(entry FileList) FileList {
-	if entry.Use!="" && len(entry.Get)==0 {
-		entry.Get = []string{"cfg/files.yaml"}
+	if entry.From!="" && len(entry.Get)==0 {
+		entry.Get = []string{"files.yaml"}
 	}
 	return entry
 }
 
 func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e error) {
 	// unless/when
-	basepath = filepath.Join(basepath,filelist.Use)
+	basepath = filepath.Join(basepath,filelist.From)
 	filepaths = make([]string,len(filelist.Get))
 	for k,newfile := range filelist.Get {
 		subfolder := "hdl"
@@ -187,6 +228,17 @@ func differences(a, b []string) (diff []string) {
 	return diff
 }
 
+func values_not_in_first(a, b []string) (diff []string) {
+	make_paths_abs(a)
+	make_paths_abs(b)
+	diff = make([]string,0,len(b))
+	for _,path := range b {
+		if slices.Contains(a,path) {continue}
+		diff=append(diff,path)
+	}
+	return diff
+}
+
 func make_paths_abs(paths []string) {
 	cwd,_ := os.Getwd()
 	for k,newpath := range paths {
@@ -198,6 +250,20 @@ func make_paths_abs(paths []string) {
 	}
 }
 
+func dump_files( filenames[]string ) error {
+	switch args.Format {
+	case "syn", "qip":
+		return dump_qip(filenames)
+	case "sim":
+		return dump_sim(filenames)
+	case "plain":
+		return dump_plain(filenames)
+	default:
+		return fmt.Errorf("Unknown dump format %s",args.Format)
+	}
+}
+
 func init() {
 	parsed = make([]string, 0, 128)
 }
+
