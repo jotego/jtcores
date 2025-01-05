@@ -20,8 +20,6 @@ jtframe:
   - from: ram
     get:
       - jtframe_ram.v
-  - from: video
-    get:
 jt12:
   - get:
     - jt03.yaml

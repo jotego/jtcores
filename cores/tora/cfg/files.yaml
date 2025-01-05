@@ -25,11 +25,11 @@ jtframe:
       - jtframe_cen48.v
       - jtframe_cen24.v
   - from: cpu
-    unless: NOSOUND
+    unless: [NOSOUND]
     get:
       - jtframe_z80.yaml
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
   - from: cpu

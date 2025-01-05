@@ -32,7 +32,7 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
   - from: cpu

@@ -27,4 +27,4 @@ jtframe:
 jt12:
   - get:
     - jt89.yaml
-    - jt12/hdl/jt12_rst.v
+    - jt12_rst.v

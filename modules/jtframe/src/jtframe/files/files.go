@@ -245,7 +245,7 @@ func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e
 		switch filepath.Ext(newfile) {
 		case ".yaml": subfolder="cfg"
 		case ".sdc":  subfolder="syn"
-		case ".v",".sv": subfolder="hdl"
+		case ".v",".sv",".vhd": subfolder="hdl"
 		}
 		filepaths[k]=filepath.Join(basepath,subfolder,filelist.From,newfile)
 	}

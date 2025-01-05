@@ -1,7 +1,7 @@
 # This is the right order for Modelsim to parse the files
 jtframe:
   - from: cpu/t48
-    unless: VERILATOR
+    unless: [VERILATOR]
     get:
       - t48_pack-p.vhd
       - t48_tb_pack-p.vhd
@@ -41,6 +41,6 @@ jtframe:
       - t48_core.vhd
       - t48_core-c.vhd
   - from: cpu/t48
-    when: VERILATOR
+    when: [VERILATOR]
     get:
       - t48_core.v

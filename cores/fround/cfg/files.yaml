@@ -28,7 +28,7 @@ jtframe:
       - jtframe_scroll.v
       - jtframe_obj.yaml
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
       - jtframe_z80.yaml

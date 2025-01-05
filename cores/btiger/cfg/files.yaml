@@ -29,4 +29,4 @@ jtframe:
       - jtframe_ram.v
 jt12:
   - get:
-    - jt12/hdl/jt12_rst.v
+    - jt12_rst.v
