@@ -1,0 +1,3 @@
+jtframe/target/mist:
+  - get:
+    - sim.yaml
