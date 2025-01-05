@@ -1,21 +1,20 @@
-cores:
-  - from: sf
-    get:
-      - jtsf_colmix.v
-      - jtsf_game.v
-      - jtsf_main.v
-      - jtsf_video.v
-      - jtsf_sound.v
-      - jtsf_adpcm.v
-      - jtsf_scroll.v
-      - jtsf_mcu.v
-  - from: biocom
-    get:
-      - jtbiocom_sound.v
-  - from: gng
-    get:
-      - jtgng_video.yaml
-      - jtgng_dual_ram.v
+sf:
+  - get:
+    - jtsf_colmix.v
+    - jtsf_game.v
+    - jtsf_main.v
+    - jtsf_video.v
+    - jtsf_sound.v
+    - jtsf_adpcm.v
+    - jtsf_scroll.v
+    - jtsf_mcu.v
+biocom:
+  - get:
+    - jtbiocom_sound.v
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -39,10 +38,8 @@ jtframe:
       - jtframe_blank.v
       - jtframe_vtimer.v
       - jtframe_tilebuf.v
-modules:
-  jt:
-    - name: jt51
-    - name: jt5205
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
+jt51:
+jt5205:
+jt12:
+  - get:
+    - jt12_rst.v

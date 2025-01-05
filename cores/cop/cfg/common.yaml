@@ -1,15 +1,14 @@
-cores:
-  - from: cop
-    get:
-      - jtcop_bac06.v
-      - jtcop_game.v
-      - jtcop_main.v
-      - jtcop_sdram.v
-      - jtcop_ongen.v
-      - jtcop_obj.v
-      - jtcop_obj_buffer.v
-      - jtcop_obj_draw.v
-      - jtcop_video.v
+cop:
+  - get:
+    - jtcop_bac06.v
+    - jtcop_game.v
+    - jtcop_main.v
+    - jtcop_sdram.v
+    - jtcop_ongen.v
+    - jtcop_obj.v
+    - jtcop_obj_buffer.v
+    - jtcop_obj_draw.v
+    - jtcop_video.v
 jtframe:
   - from: sdram
     get:
@@ -34,20 +33,18 @@ jtframe:
       - jtframe_blank.v
       - jtframe_linebuf.v
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
   - from: ver
     get:
       - jtframe_simwr_68k.v
   - from: ver
-    when: SIMULATION
+    when: [SIMULATION]
     get:
       - jtframe_sim_sndcmd.v
-modules:
-  jt:
-    - name: jt6295
-  other:
-    - get:
-      - jt12/hdl/jt03.yaml
-      - jtopl/hdl/jtopl2.yaml
+jt6295:
+jtopl:
+  - get: [ jtopl2.yaml ]
+jt12:
+  - get: [ jt03.yaml ]

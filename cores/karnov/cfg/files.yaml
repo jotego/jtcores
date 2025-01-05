@@ -1,30 +1,29 @@
-cores:
-  - from: karnov
-    get:
-      - jtkarnov_game.v
-      - jtkarnov_main.v
-      - jtkarnov_video.v
-      - jtkarnov_obj.v
-  - from: cop
-    get:
-      - jtcop_snd.v
-      - jtcop_ongen.v
+karnov:
+  - get:
+    - jtkarnov_game.v
+    - jtkarnov_main.v
+    - jtkarnov_video.v
+    - jtkarnov_obj.v
+cop:
+  - get:
+    - jtcop_snd.v
+    - jtcop_ongen.v
 jtframe:
   - get:
       - jtframe_edge.v
       - jtframe_ff.v
       - jtframe_sort.v
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
   - from: cpu
-    unless: NOSOUND
+    unless: [NOSOUND]
     get:
       # - jtframe_mos6502.yaml
       - t65/t65.yaml
   - from: cpu
-    unless: NOMCU
+    unless: [NOMCU]
     get:
       - jtframe_8751.yaml
   - from: ram
@@ -43,8 +42,9 @@ jtframe:
       - jtframe_scroll.v
       - jtframe_obj.yaml
       - jtframe_prom_colmix.v
-modules:
-  other:
-    - get:
-      - jt12/hdl/jt03.yaml
-      - jtopl/hdl/jtopl2.yaml
+jt12:
+  - get:
+    - jt03.yaml
+jtopl:
+  - get:
+    - jtopl2.yaml

@@ -1,6 +1,5 @@
-cores:
-  - from: gng
-    get:
+gng:
+  - get:
       - jtgng_main.v
       - jtgng_game.v
       - jtgng_video.v
@@ -22,7 +21,6 @@ jtframe:
   - from: ram
     get:
       - jtframe_ram.v
-modules:
-  - from: jt12
-    get:
+jt12:
+  - get:
       - jt12_rst.v

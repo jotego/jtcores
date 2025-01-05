@@ -1,10 +1,9 @@
-cores:
-  - from: cop
-    get:
-      - common.yaml
-      - jtcop_decoder.v
-      - jtcop_colmix.v
-      - jtcop_snd.v
+cop:
+  - get:
+    - common.yaml
+    - jtcop_decoder.v
+    - jtcop_colmix.v
+    - jtcop_snd.v
 jtframe:
   - from: cpu
     get:

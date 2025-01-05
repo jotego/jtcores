@@ -10,9 +10,8 @@ jtframe:
       - spitx.v
       - fast_pll.v
       - jtframe_romrq_rdy_check.v
-target:
-  - from: mist
-    unless: VERILATOR
+jtframe/target/mist:
+  - unless: [ VERILATOR ]
     get:
       - ver/mist_test.v
       - ver/test_harness.v

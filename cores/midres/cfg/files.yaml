@@ -1,20 +1,14 @@
-cores:
-  - from: cop
-    get:
-      - common.yaml
-  - from: midres
-    get:
-      - jtmidres_decoder.v
-      - jtmidres_colmix.v
-      - jtmidres_snd.v
+cop:
+  - get:
+    - common.yaml
+midres:
+  - get:
+    - jtmidres_decoder.v
+    - jtmidres_colmix.v
+    - jtmidres_snd.v
 jtframe:
   - get:
     - jtframe_sort.v
-modules:
-  other:
-    - unless: VERILATOR
-      get:
-      - HUC6280/HUC6280.yaml
-    - when: VERILATOR
-      get:
-      - HUC6280/HUC6280.v
+HUC6280:
+  - get:
+    - HUC6280.yaml

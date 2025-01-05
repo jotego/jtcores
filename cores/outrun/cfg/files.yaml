@@ -1,12 +1,11 @@
-cores:
-  - from: outrun
-    get:
-      - common.yaml
-      - jtoutrun_colmix.v
-      - jtoutrun_obj.v
-      - jtoutrun_obj_ram.v
-      - jtoutrun_obj_draw.v
-      - jtoutrun_obj_scan.v
+outrun:
+  - get:
+    - common.yaml
+    - jtoutrun_colmix.v
+    - jtoutrun_obj.v
+    - jtoutrun_obj_ram.v
+    - jtoutrun_obj_draw.v
+    - jtoutrun_obj_scan.v
 jtframe:
   - from: ram
     get:

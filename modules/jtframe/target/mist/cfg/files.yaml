@@ -1,0 +1,11 @@
+jtframe/target/mist:
+  - get:
+    - common.yaml
+    - jtframe_mist_top.sv
+    - jtframe_mist.sv
+    - jtframe_mist_video.v
+    - user_io.v
+    - i2c_master.v
+    - i2s.v
+    - spdif.v
+    - data_io.v

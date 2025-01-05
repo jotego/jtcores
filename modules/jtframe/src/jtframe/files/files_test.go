@@ -4,7 +4,6 @@ import(
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 )
 
@@ -24,19 +23,30 @@ func Test_parse_yaml_file(t *testing.T) {
 }
 
 func Test_get_base_path(t *testing.T) {
-	for _,name := range []string{"jtframe","cores","modules"} {
-		base, e := get_base_path(name)
-		if e!=nil { t.Error(e) }
-		upper := strings.ToUpper(name)
-		if base != os.Getenv(upper) {
-			t.Errorf("%s base path did not match $%s",name,upper)
-		}
-	}
-	_, e := get_base_path("undefined")
-	if e==nil { t.Error("Undefined path was not identified") }
-	base, e := get_base_path("here")
+	base, e := get_base_path("gng")
 	if e!=nil { t.Error(e) }
-	if base!="." { t.Error("'here' path incorrect")}
+	if base != filepath.Join(os.Getenv("CORES"),"gng") {
+		t.Error("Could not solve the path to gng core")
+	}
+
+	base, e = get_base_path("jtframe")
+	if e!=nil { t.Error(e) }
+	if base != os.Getenv("JTFRAME") {
+		t.Error("Could not solve the path to jtframe")
+	}
+
+	jt12, e := get_base_path("jt12")
+	if e!=nil { t.Error(e) }
+	expected := filepath.Join(os.Getenv("MODULES"),"jt12")
+	if jt12 != expected {
+		t.Errorf("Wrong path to jt12")
+		t.Log(jt12)
+		t.Logf("Expected %s",expected)
+	}
+
+	base, e = get_base_path(".")
+	if e!=nil { t.Error(e) }
+	if base!="." { t.Error("'dot' path incorrect")}
 }
 
 func Test_fill_defaults(t *testing.T) {
@@ -61,9 +71,9 @@ func Test_fill_defaults(t *testing.T) {
 }
 
 func Test_find_files_in_path(t *testing.T) {
-	basepath := ".."
+	basepath := "jtframe"
 	filelist := FileList{
-		From: "files",
+		From: "cpu",
 		Get: []string{"game.v","video.v","files.yaml","timing.sdc"},
 	}
 	foundpaths, e := find_files_in_path(basepath,filelist)
@@ -72,10 +82,10 @@ func Test_find_files_in_path(t *testing.T) {
 		t.Errorf("Found %d paths, expected %d",total,len(filelist.Get))
 	}
 	for k,expected := range []string{
-		"../files/hdl/game.v",
-		"../files/hdl/video.v",
-		"../files/cfg/files.yaml",
-		"../files/syn/timing.sdc",} {
+		"jtframe/hdl/cpu/game.v",
+		"jtframe/hdl/cpu/video.v",
+		"jtframe/cfg/cpu/files.yaml",
+		"jtframe/syn/cpu/timing.sdc",} {
 		if foundpaths[k] != expected {
 			t.Errorf("Path was %s but should be %s",foundpaths[k],expected)
 		}
@@ -156,10 +166,28 @@ func Test_unmarshall(t *testing.T) {
 	}
 }
 
-// func Test_find_paths(t *testing.T) {
-// 	jtfile := JTFiles{
-// 		"modules": FileList{
-// 			From: "jt12"
-// 		},
-// 	}
-// }
+func Test_remove_references(t *testing.T) {
+	files := []string{
+		"a.v",
+		"b.v",
+		"a.yaml",
+	}
+	files=remove_references(files)
+	if total:=len(files); total!=2 {
+		t.Errorf("Expecting 2 entries, but found %d",total)
+	}
+	if slices.Contains(files,"a.yaml") {
+		t.Errorf("The reference was not removed")
+	}
+}
+
+func Test_find_paths(t *testing.T) {
+	jtfile := JTFiles{
+		"jt12/jt49": nil,
+	}
+	filepaths, e := find_paths(jtfile)
+	if e!=nil { t.Error(e) }
+	if len(filepaths)==0 {
+		t.Error("No path to jt49")
+	}
+}

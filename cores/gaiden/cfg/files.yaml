@@ -1,7 +1,6 @@
-cores:
-  - from: gaiden
-    get:
-      - jtgaiden_*.v
+gaiden:
+  - get:
+    - jtgaiden_*.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -24,14 +23,11 @@ jtframe:
       - jtframe_blink.v
       - layouts/jtframe_8x8x4_packed_msb.v
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
       - jtframe_z80.yaml
-modules:
-  jt:
-    - name: jt6295
-  other:
-    - from: jt12
-      get:
-        - hdl/jt03.yaml
+jt6295:
+jt12:
+  - get:
+    - jt03.yaml

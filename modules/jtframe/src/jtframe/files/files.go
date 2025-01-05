@@ -71,17 +71,21 @@ func prepare_macros() {
 
 func collect_target() ([]string,error) {
 	if args.Target == "" { return nil,nil }
-	target_cfg := filepath.Join(os.Getenv("JTFRAME"),"target",args.Target,"target.yaml")
+	target_cfg := get_target_cfg_filepath("files.yaml")
 	files, e := parse_yaml_file( target_cfg )
 	if e!=nil { return nil, e }
 
 	var sim_files []string
 	if args.Format == "sim" {
-		sim_cfg := filepath.Join(os.Getenv("JTFRAME"),"target",args.Target,"sim.yaml")
+		sim_cfg := get_target_cfg_filepath("sim.yaml")
 		sim_files, e = parse_yaml_file(sim_cfg)
 		if e!=nil { return nil, e }
 	}
 	return merge(files,sim_files),nil
+}
+
+func get_target_cfg_filepath(filename string) string {
+	return filepath.Join(os.Getenv("JTFRAME"),"target",args.Target,"cfg",filename)
 }
 
 func merge(a,b []string) []string {
@@ -90,6 +94,7 @@ func merge(a,b []string) []string {
 }
 
 func get_mem_file() string {
+	cwd,_ := os.Getwd()
 	memcfg := common.ConfigFilePath(args.Corename,"mem.yaml")
 	if !common.FileExists(memcfg) { return "" }
 	game_file := macros.Get("GAMETOP")+".v"
@@ -97,6 +102,7 @@ func get_mem_file() string {
 		syn_folder := filepath.Join(os.Getenv("CORES"),args.Corename,args.Target)
 		game_file=filepath.Join(syn_folder,game_file)
 	}
+	game_file=filepath.Join(cwd,game_file)
 	return game_file
 }
 
@@ -111,8 +117,9 @@ func make_relative_to_cwd(filenames []string) (e error) {
 
 func parse_yaml_file(filepath string) (filepaths []string, e error) {
 	new_files, e := readin_yaml(filepath); if e!=nil { return nil,e }
-	filepaths, e = find_paths(new_files); if e!=nil { return nil,e }
+	filepaths, e = find_paths(new_files); if e!=nil { return nil,fmt.Errorf("%w while parsing %s",e,filepath) }
 	all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
+	filepaths = remove_references(filepaths)
 	new_referenced := values_not_in_first(filepaths,all_referenced)
 	filepaths=append(filepaths,new_referenced...)
 	return filepaths, nil
@@ -151,6 +158,8 @@ func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
 	return filepaths,nil
 }
 
+
+
 func expand_references(all_files []string) (newfiles []string,e error) {
 	newfiles = make([]string,0,128)
 	for _, filename := range all_files {
@@ -163,24 +172,54 @@ func expand_references(all_files []string) (newfiles []string,e error) {
 	return newfiles,nil
 }
 
+func remove_references(files []string) (clean []string){
+	clean = make([]string,0,len(files))
+	for _,entry := range files {
+		if filepath.Ext(entry)==".yaml" { continue }
+		clean=append(clean,entry)
+	}
+	return clean
+}
+
 func get_base_path(name string) (basepath string, e error) {
-	switch name {
-	case "jtframe","cores","modules": {
-		upper := strings.ToUpper(name)
-		basepath=os.Getenv(upper)
+	if name=="." {
+		return ".", nil
 	}
-	case "here": basepath="."
-	default: return "",fmt.Errorf("Unknown path alias %s",name)
+	if basepath, found := is_core(name); found {
+		return basepath, nil
 	}
-	if basepath=="" {
-		return "",fmt.Errorf("Cannot resolve path alias %s meaningfully",name)
+	if basepath, found := is_module(name); found {
+		return basepath, nil
 	}
-	return basepath,nil
+	return "",fmt.Errorf("Cannot resolve path alias %s meaningfully",name)
+}
+
+func is_core(name string) (string,bool) {
+	return is_in_folder(name,os.Getenv("CORES"))
+}
+
+func is_module(name string) (string,bool) {
+	return is_in_folder(name,os.Getenv("MODULES"))
+}
+
+func is_in_folder(name, folder string) (string,bool) {
+	full_path := filepath.Join(folder,name)
+	if common.FileExists(full_path) {
+		return full_path,true
+	}
+	return "",false
 }
 
 func get_content_files(basepath string, all_entries []FileList) ([]string,error) {
 	filepaths := make([]string,0,32)
+	// dummy entry so the for loop runs
+	if len(all_entries)==0 {
+		all_entries=[]FileList{
+			FileList{},
+		}
+	}
 	for _, entry := range all_entries {
+		if !entry.Enabled() { continue }
 		entry = fill_defaults(entry)
 		newfiles, e := find_files_in_path(basepath,entry);
 		if e!=nil { return nil,e }
@@ -191,7 +230,8 @@ func get_content_files(basepath string, all_entries []FileList) ([]string,error)
 }
 
 func fill_defaults(entry FileList) FileList {
-	if entry.From!="" && len(entry.Get)==0 {
+	var empty UcDesc
+	if entry.Ucode==empty && len(entry.Get)==0 {
 		entry.Get = []string{"files.yaml"}
 	}
 	return entry
@@ -199,7 +239,6 @@ func fill_defaults(entry FileList) FileList {
 
 func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e error) {
 	// unless/when
-	basepath = filepath.Join(basepath,filelist.From)
 	filepaths = make([]string,len(filelist.Get))
 	for k,newfile := range filelist.Get {
 		subfolder := "hdl"
@@ -208,7 +247,7 @@ func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e
 		case ".sdc":  subfolder="syn"
 		case ".v",".sv": subfolder="hdl"
 		}
-		filepaths[k]=filepath.Join(basepath,subfolder,newfile)
+		filepaths[k]=filepath.Join(basepath,subfolder,filelist.From,newfile)
 	}
 	return filepaths,nil
 }

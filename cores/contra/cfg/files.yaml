@@ -6,7 +6,5 @@ cores:
       - jtcontra_game.v
       - jtcontra_007766.v
       - jtcontra_sound.v
-modules:
-  jt:
-    - name: jt51
+jt51:
 

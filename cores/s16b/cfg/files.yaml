@@ -1,17 +1,16 @@
-cores:
-  - from: s16
-    get:
+s16:
+  - get:
     - game.yaml
-  - from: s16b
-    get:
-      - jts16b_main.v
-      - jts16b_cabinet.v
-      - jts16b_mapper.v
-      - jts16b_snd.v
-      - jts16b_mul.v
-      - jts16b_timer.v
-      - jtmc8123.v
-      - ../syn/timing.sdc
+s16b:
+  - get:
+    - jts16b_main.v
+    - jts16b_cabinet.v
+    - jts16b_mapper.v
+    - jts16b_snd.v
+    - jts16b_mul.v
+    - jts16b_timer.v
+    - jtmc8123.v
+    - timing.sdc
 jtframe:
   - from: cpu
     get:
@@ -19,6 +18,4 @@ jtframe:
   - from: clocking
     get:
       - jtframe_sync.v
-modules:
-  jt:
-    - name: jt7759
+jt7759:

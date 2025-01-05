@@ -1,15 +1,14 @@
-cores:
-  - from: kunio
-    get:
-      - jtkunio_game.v
-      - jtkunio_main.v
-      - jtkunio_mcu.v
-      - jtkunio_sound.v
-      - jtkunio_video.v
-      - jtkunio_char.v
-      - jtkunio_scroll.v
-      - jtkunio_obj.v
-      - jtkunio_colmix.v
+kunio:
+  - get:
+    - jtkunio_game.v
+    - jtkunio_main.v
+    - jtkunio_mcu.v
+    - jtkunio_sound.v
+    - jtkunio_video.v
+    - jtkunio_char.v
+    - jtkunio_scroll.v
+    - jtkunio_obj.v
+    - jtkunio_colmix.v
 jtframe:
   - from: cpu
     get:
@@ -27,10 +26,8 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-modules:
-  jt:
-    - name: jt5205
-  other:
-    - get:
-      - jtopl/hdl/jtopl2.yaml
+jt5205:
+jtopl:
+  - get:
+    - jtopl2.yaml
 

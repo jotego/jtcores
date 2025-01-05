@@ -1,18 +1,17 @@
-cores:
-  - from: sectnz
-    get:
-      - jtsectnz_game.v
-      - jtsectnz_video.v
-      - jtsectnz_colmix.v
-  - from: commnd
-    get:
-      - jtcommnd_main.v
-  - from: gng
-    get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
+sectnz:
+  - get:
+    - jtsectnz_game.v
+    - jtsectnz_video.v
+    - jtsectnz_colmix.v
+commnd:
+  - get:
+    - jtcommnd_main.v
+gng:
+  - get:
+    - jtgng_video.v
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -26,8 +25,7 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
-modules:
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.yaml
+jt12:
+  - get:
+    - jt12_rst.v
+    - jt03.yaml

@@ -1,10 +1,9 @@
-cores:
-  - from: s16
-    get:
-      - jts16_obj.v
-      - jts16_obj_ram.v
-      - jts16_obj_draw.v
-      - jts16_obj_scan.v
+s16:
+  - get:
+    - jts16_obj.v
+    - jts16_obj_ram.v
+    - jts16_obj_draw.v
+    - jts16_obj_scan.v
 jtframe:
   - from: ram
     get:

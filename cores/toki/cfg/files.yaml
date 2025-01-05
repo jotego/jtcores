@@ -1,18 +1,17 @@
-cores:
-  - from: toki 
-    get:
-      - jttoki_game.v
-      - main.v
-      - video.v
-      - hvsync.v
-      - char.v
-      - tile.v
-      - sprite.v
-      - sound.v
-      - sei80bu.v
-      - z80_cs.v
-      - dual_ram_buffer.v
-      - dual_ram_buffer16.v
+toki:
+  - get:
+    - jttoki_game.v
+    - main.v
+    - video.v
+    - hvsync.v
+    - char.v
+    - tile.v
+    - sprite.v
+    - sound.v
+    - sei80bu.v
+    - z80_cs.v
+    - dual_ram_buffer.v
+    - dual_ram_buffer16.v
 jtframe:
   - from: ram
     get:
@@ -29,9 +28,7 @@ jtframe:
   - from: video
     get:
       - jtframe_credits.v
-modules:       
-  jt:
-    - name: jt6295        
-  other:
-    - get:
-      - jtopl/hdl/jtopl2.yaml
+jt6295:
+jtopl:
+  - get:
+    - jtopl2.yaml

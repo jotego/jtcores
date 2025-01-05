@@ -1,15 +1,14 @@
-cores:
-  - from: bubl
-    get:
-      - jtbubl_game.v
-      - jtbubl_main.v
-      - jtbubl_colmix.v
-      - jtbubl_video.v
-      - jtbubl_gfx.v
-      - jtbubl_sound.v
-  - from: kunio
-    get:
-      - jtkunio_mcu.v
+bubl:
+  - get:
+    - jtbubl_game.v
+    - jtbubl_main.v
+    - jtbubl_colmix.v
+    - jtbubl_video.v
+    - jtbubl_gfx.v
+    - jtbubl_sound.v
+kunio:
+  - get:
+    - jtkunio_mcu.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -33,10 +32,9 @@ jtframe:
       # MCU
       - jtframe_6801mcu.yaml
       - jtframe_6805mcu.yaml
-modules:
-  other:
-    - from: jt12
-      get:
-        - hdl/jt03.yaml
-    - get:
-      - jtopl/hdl/jt26.yaml
+jt12:
+  - get:
+    - jt03.yaml
+jtopl:
+  - get:
+    - jt26.yaml

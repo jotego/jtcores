@@ -1,8 +1,6 @@
-cores:
-  - from: gng
-    get:
-      - jtgng_sound.v
-modules:
-  - from: jt12
-    get:
+gng:
+  - get:
+    - jtgng_sound.v
+jt12:
+  - get:
       - jt03.yaml

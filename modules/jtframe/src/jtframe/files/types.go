@@ -17,6 +17,10 @@
 
 package files
 
+import(
+	"github.com/jotego/jtframe/macros"
+)
+
 type Args struct {
 	Corename string // JT core
 	Parse    string // any file
@@ -28,8 +32,8 @@ type Args struct {
 }
 
 type FileList struct {
-	Unless string   `yaml:"unless"` // parses the section "unless" the macro is defined
-	When   string   `yaml:"when"`   // parses the section "when" the macro is defined
+	Unless []string `yaml:"unless"` // parses the section "unless" the macro is defined
+	When   []string `yaml:"when"`   // parses the section "when" the macro is defined
 
 	From   string   `yaml:"from"`
 	Get    []string `yaml:"get"`
@@ -46,3 +50,11 @@ type UcDesc struct {
 type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
 
 type JTFiles map[string][]FileList
+
+func (item FileList) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
