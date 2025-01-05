@@ -71,9 +71,9 @@ func prepare_macros() {
 func parse_yaml_file(filepath string) (filepaths []string, e error) {
 	new_files, e := readin_yaml(filepath); if e!=nil { return nil,e }
 	filepaths, e = find_paths(new_files); if e!=nil { return nil,e }
-	// all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
-	// new_referenced := differences(filepaths,all_referenced)
-	// filepaths=append(filepaths,new_referenced...)
+	all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
+	new_referenced := (filepaths,all_referenced)
+	filepaths=append(filepaths,new_referenced...)
 	return filepaths, nil
 }
 

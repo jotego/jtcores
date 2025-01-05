@@ -94,6 +94,18 @@ func Test_differences(t *testing.T) {
 	}
 }
 
+func Test_values_not_in_first(t *testing.T) {
+	cwd, e := os.Getwd()
+	if e!=nil { t.Error(e); t.FailNow() }
+	set_a := []string{"a","b","c"}
+	set_b := []string{"d","c","e","a"}
+	set_diff := values_not_in_first(a,b)
+	if slices.Compare(set_diff,[]string{"d","e"})!=0 {
+		t.Errorf("unexpected value")
+		t.Log(set_diff)
+	}
+}
+
 func Test_make_paths_abs(t *testing.T) {
 	cwd,_ := os.Getwd()
 	folder_name := filepath.Base(cwd)
