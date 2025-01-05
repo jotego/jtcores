@@ -68,18 +68,35 @@ func prepare_macros() {
 	macros.AddKeyValPairs(arg_macros...)
 }
 
-func parse_yaml_file( filepath string, files JTFiles ) (filepaths []string, e error) {
-	buf, e := ioutil.ReadFile(filepath)
+func parse_yaml_file(filepath string) (filepaths []string, e error) {
+	new_files, e := readin_yaml(filepath); if e!=nil { return nil,e }
+	filepaths, e = find_paths(new_files); if e!=nil { return nil,e }
+	// all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
+	// new_referenced := differences(filepaths,all_referenced)
+	// filepaths=append(filepaths,new_referenced...)
+	return filepaths, nil
+}
+
+func readin_yaml(filename string) (JTFiles,error) {
+	buf, e := ioutil.ReadFile(filename)
 	if e != nil {
-		return nil,fmt.Errorf("jtframe files: cannot open referenced file %s\n%w",filepath,e)
+		return nil,fmt.Errorf("jtframe files: cannot open referenced file %s\n%w",filename,e)
 	}
-	parsed = append(parsed, filepath)
+	parsed = append(parsed, filename)
+	jtfiles, e := unmarshall(buf)
+	if e!= nil {
+		return nil,fmt.Errorf("While parsing file %s, %w",filename,e)
+	}
+	return jtfiles,nil
+}
+
+func unmarshall(buf []byte) (JTFiles,error) {
 	var new_files JTFiles
-	e = yaml.Unmarshal(buf, &new_files)
+	e := yaml.Unmarshal(buf, &new_files)
 	if e != nil {
-		return nil,fmt.Errorf("jtframe files: cannot parse file %s\n%w",filepath,e)
+		return nil,fmt.Errorf("YAML error: %w",e)
 	}
-	return find_paths(new_files)
+	return new_files,nil
 }
 
 func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
@@ -90,7 +107,19 @@ func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
 		different_files:=differences(filepaths,newfiles)
 		filepaths=append(filepaths,different_files...)
 	}
-	return nil,nil
+	return filepaths,nil
+}
+
+func expand_references(all_files []string) (newfiles []string,e error) {
+	newfiles = make([]string,0,128)
+	for _, filename := range all_files {
+		if filepath.Ext(filename)!=".yaml" { continue }
+		if slices.Contains(parsed,filename) { continue }
+		new_paths, e := parse_yaml_file(filename); if e!=nil { return nil,e }
+		diff := differences(newfiles,new_paths)
+		newfiles=append(newfiles,diff...)
+	}
+	return newfiles,nil
 }
 
 func get_base_path(name string) (basepath string, e error) {
@@ -135,6 +164,7 @@ func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e
 		subfolder := "hdl"
 		switch filepath.Ext(newfile) {
 		case ".yaml": subfolder="cfg"
+		case ".sdc":  subfolder="syn"
 		case ".v",".sv": subfolder="hdl"
 		}
 		filepaths[k]=filepath.Join(basepath,subfolder,newfile)

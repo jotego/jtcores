@@ -9,18 +9,18 @@ import(
 )
 
 func Test_parse_yaml_file_not_existing(t *testing.T) {
-	_, e := parse_yaml_file("i_do_not_exist",nil)
+	_, e := parse_yaml_file("i_do_not_exist")
 	if e==nil { t.Error("should have detected a non existing file")}
 }
 
 func Test_parse_yaml_file(t *testing.T) {
-	jtfiles:=make(JTFiles)
-	/*collected*/_, e := parse_yaml_file("test_here.yaml",jtfiles)
+	collected, e := parse_yaml_file("test_here.yaml")
 	if e!=nil { t.Error(e)}
-	// if total:=len(collected);total!=2 {
-	// 	t.Error("Expecting 2 files, found %d",total)
-	// 	return
-	// }
+	if total:=len(collected);total!=2 {
+		t.Log(collected)
+		t.Errorf("Expecting 2 files, found %d",total)
+		return
+	}
 }
 
 func Test_get_base_path(t *testing.T) {
@@ -64,17 +64,18 @@ func Test_find_files_in_path(t *testing.T) {
 	basepath := ".."
 	filelist := FileList{
 		Use: "files",
-		Get: []string{"game.v","video.v","files.yaml"},
+		Get: []string{"game.v","video.v","files.yaml","timing.sdc"},
 	}
 	foundpaths, e := find_files_in_path(basepath,filelist)
 	if e!=nil { t.Error(e) }
-	if total:=len(foundpaths);total!=3 {
+	if total:=len(foundpaths);total!=4 {
 		t.Errorf("Found %d paths, expected %d",total,len(filelist.Get))
 	}
 	for k,expected := range []string{
 		"../files/hdl/game.v",
 		"../files/hdl/video.v",
-		"../files/cfg/files.yaml"} {
+		"../files/cfg/files.yaml",
+		"../files/syn/timing.sdc",} {
 		if foundpaths[k] != expected {
 			t.Errorf("Path was %s but should be %s",foundpaths[k],expected)
 		}
@@ -101,6 +102,46 @@ func Test_make_paths_abs(t *testing.T) {
 	if total:=len(paths);total!=2 { t.Errorf("Expected 2 files, got %d",total)}
 	if paths[0]!=filepath.Join(cwd,"a") { t.Errorf("Unexpected path %s",paths[0])}
 	if paths[1]!=filepath.Join(cwd,"b") { t.Errorf("Unexpected path %s",paths[1])}
+}
+
+func Test_expand_references(t *testing.T) {
+	// no references
+	filepaths := []string{"a.v","b.v","c.sdc"}
+	new_paths, e := expand_references(filepaths)
+	if e!=nil{ t.Error(e) }
+	if len(new_paths)!=0 {
+		t.Error("There are no references to expand")
+	}
+	// parsed references
+	filepaths = []string{"used.yaml","b.v"}
+	parsed = []string{"used.yaml"}
+	new_paths, e = expand_references(filepaths)
+	if e!=nil{ t.Error(e) }
+	if len(new_paths)!=0 {
+		t.Error("There are no references to expand")
+	}
+}
+
+func Test_unmarshall(t *testing.T) {
+	yaml_text := `here:
+  - get:
+    - files.go
+    - types.go
+`
+	jtfiles, e := unmarshall([]byte(yaml_text))
+	if e!= nil { t.Error(e) }
+	if _,found := jtfiles["here"]; !found {
+		t.Error("YAML unmarshall failed")
+		return
+	}
+	contents := jtfiles["here"]
+	if total:=len(contents);total!=1 {
+		t.Errorf("Expecting 1 entries in Get, found %d",total)
+	}
+	filelist := contents[0]
+	if total:=len(filelist.Get);total!=2 {
+		t.Errorf("Expecting 2 entries in Get, found %d",total)
+	}
 }
 
 // func Test_find_paths(t *testing.T) {
