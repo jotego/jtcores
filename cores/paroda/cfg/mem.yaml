@@ -1,2 +1,3 @@
-include: [ {game: simson } ]
+include:
+  - game: simson
 game: simson
