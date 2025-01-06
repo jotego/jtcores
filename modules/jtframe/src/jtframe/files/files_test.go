@@ -168,21 +168,6 @@ func Test_unmarshall(t *testing.T) {
 	}
 }
 
-func Test_remove_references(t *testing.T) {
-	files := []string{
-		"a.v",
-		"b.v",
-		"a.yaml",
-	}
-	files=remove_references(files)
-	if total:=len(files); total!=2 {
-		t.Errorf("Expecting 2 entries, but found %d",total)
-	}
-	if slices.Contains(files,"a.yaml") {
-		t.Errorf("The reference was not removed")
-	}
-}
-
 func Test_find_paths(t *testing.T) {
 	jtfile := JTFiles{
 		"jt51": nil,

@@ -178,27 +178,6 @@ func expand_references(filename string) (newfiles []string,e error) {
 	return parse_yaml_file(filename)
 }
 
-// func expand_references(all_files []string) (newfiles []string,e error) {
-// 	newfiles = make([]string,0,128)
-// 	for _, filename := range all_files {
-// 		if filepath.Ext(filename)!=".yaml" { continue }
-// 		if slices.Contains(parsed,filename) { continue }
-// 		new_paths, e := parse_yaml_file(filename); if e!=nil { return nil,e }
-// 		diff := values_not_in_first(newfiles,new_paths)
-// 		newfiles=append(newfiles,diff...)
-// 	}
-// 	return newfiles,nil
-// }
-
-func remove_references(files []string) (clean []string){
-	clean = make([]string,0,len(files))
-	for _,entry := range files {
-		if filepath.Ext(entry)==".yaml" { continue }
-		clean=append(clean,entry)
-	}
-	return clean
-}
-
 func get_base_path(name string) (basepath string, e error) {
 	if name=="." {
 		return ".", nil
@@ -362,7 +341,7 @@ func make_ucode( files JTFiles ) error {
 		// basepath, e := get_base_path(path_alias); if e!=nil { return nil,e }
 		for _, entry := range content {
 			uc := entry.Ucode
-			if uc.Src=="" { continue}
+			if uc.Src=="" { continue }
 			ucode.Args.Output = uc.Output
 			e := ucode.Make(path_alias,uc.Src)
 			if e!=nil { return e }
