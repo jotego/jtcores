@@ -1,6 +1,6 @@
 include:
   - cores: s16
-cores: s16
+game: s16
 audio:
   rsum: 10k
   missing_info: true # measure jt7759 output impedance and calculate FIR filter

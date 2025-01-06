@@ -1,6 +1,6 @@
 include:
-    - core: kicker
-cores: kicker
+  - core: kicker
+game: kicker
 audio:
   rsum: 1k
   channels:

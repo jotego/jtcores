@@ -7,7 +7,6 @@ cop:
 jtframe:
   - from: cpu
     get:
-      # - 8051/mc8051.yaml
       - jtframe_8751.yaml
-      - t65/t65.yaml
+      - t65.yaml
 
