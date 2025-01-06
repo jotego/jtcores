@@ -13,13 +13,15 @@ jtframe:
   - from: video
     get:
       - jtframe_scan2x.v
-      - rotate/scandoubler_rgb_interp.v
-      - rotate/scandoubler_rotate.v
-      - rotate/scandoubler_scaledepth.v
-      - rotate/scandoubler_sdram.v
-      - rotate/unsigned_division.v
-      - rotate/pixel_interp.v
-      - rotate/frac_interp.v
+  - from: video/rotate
+    get:
+    - scandoubler_rgb_interp.v
+    - scandoubler_rotate.v
+    - scandoubler_scaledepth.v
+    - scandoubler_sdram.v
+    - unsigned_division.v
+    - pixel_interp.v
+    - frac_interp.v
 jtframe/target/mist:
   - get:
       - jtframe_mist_clocks.v

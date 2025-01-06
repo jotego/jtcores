@@ -1,15 +1,8 @@
 jtframe:
-  - get:
-      - cpu/jtframe_8751mcu.v
-  - unless: [VERILATOR, IVERILOG]
+  - from: cpu
     get:
-      - cpu/mc8051.yaml
+      - jtframe_8751mcu.v
+      - mc8051.yaml
   - from: ram
     get:
       - jtframe_ram_rst.v
-
-  # Verilog-only version, good for verilog simulators
-  # but compiles slowly
-  - when: [VERILATOR, IVERILOG]
-    get:
-      - cpu/mc8051.v

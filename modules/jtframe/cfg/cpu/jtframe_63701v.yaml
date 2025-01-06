@@ -5,8 +5,6 @@ jtframe:
   - from: ram
     get:
       - jtframe_ram.v
-modules:
-  other:
-    - from: jt680x/hdl
-      get:
-        - jt6301.yaml
+jt680x:
+  - get:
+    - jt6301.yaml

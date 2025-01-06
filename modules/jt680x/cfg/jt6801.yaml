@@ -5,4 +5,4 @@ jt680x:
     - jt680x_regs.v
     - jt680x.v
   - ucode:
-    jt680x: { src: "6801.yaml" }
+      src: "6801.yaml"

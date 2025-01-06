@@ -1,10 +1,9 @@
-cores:
-  - from: contra
-    get:
-      - common.yaml
-      - jtcontra_main_decoder.v
-      - jtcontra_game.v
-      - jtcontra_007766.v
-      - jtcontra_sound.v
+contra:
+  - get:
+    - common.yaml
+    - jtcontra_main_decoder.v
+    - jtcontra_game.v
+    - jtcontra_007766.v
+    - jtcontra_sound.v
 jt51:
 

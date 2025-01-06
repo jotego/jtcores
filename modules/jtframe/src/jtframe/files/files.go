@@ -29,7 +29,7 @@ import (
 
 	"github.com/jotego/jtframe/common"
 	"github.com/jotego/jtframe/macros"
-	// "github.com/jotego/jtframe/ucode"
+	"github.com/jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
 )
@@ -116,8 +116,9 @@ func make_relative_to_cwd(filenames []string) (e error) {
 
 
 func parse_yaml_file(filepath string) (filepaths []string, e error) {
-	new_files, e := readin_yaml(filepath); if e!=nil { return nil,e }
-	filepaths, e = find_paths(new_files); if e!=nil { return nil,fmt.Errorf("%w while parsing %s",e,filepath) }
+	newfiles, e := readin_yaml(filepath); if e!=nil { return nil,e }
+	e = make_ucode(newfiles); if e!=nil { return nil,e }
+	filepaths, e = find_paths(newfiles); if e!=nil { return nil,fmt.Errorf("%w while parsing %s",e,filepath) }
 	all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
 	filepaths = remove_references(filepaths)
 	new_referenced := values_not_in_first(filepaths,all_referenced)
@@ -139,12 +140,12 @@ func readin_yaml(filename string) (JTFiles,error) {
 }
 
 func unmarshall(buf []byte) (JTFiles,error) {
-	var new_files JTFiles
-	e := yaml.Unmarshal(buf, &new_files)
+	var newfiles JTFiles
+	e := yaml.Unmarshal(buf, &newfiles)
 	if e != nil {
 		return nil,fmt.Errorf("YAML error: %w",e)
 	}
-	return new_files,nil
+	return newfiles,nil
 }
 
 func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
@@ -210,8 +211,8 @@ func is_in_folder(name, folder string) (string,bool) {
 	return "",false
 }
 
-func get_content_files(basepath string, all_entries []FileList) ([]string,error) {
-	filepaths := make([]string,0,32)
+func get_content_files(basepath string, all_entries []FileList) (filepaths []string,e error) {
+	filepaths = make([]string,0,32)
 	// dummy entry so the for loop runs
 	if len(all_entries)==0 {
 		all_entries=[]FileList{
@@ -221,6 +222,9 @@ func get_content_files(basepath string, all_entries []FileList) ([]string,error)
 	for _, entry := range all_entries {
 		if !entry.Enabled() { continue }
 		entry = fill_defaults(entry)
+		if e:=validate(entry); e!=nil { return nil, e }
+		entry.Get, e = expand_glob(basepath,entry)
+		if e!=nil { return nil,e }
 		newfiles, e := find_files_in_path(basepath,entry);
 		if e!=nil { return nil,e }
 		different_files:=differences(filepaths,newfiles)
@@ -237,17 +241,64 @@ func fill_defaults(entry FileList) FileList {
 	return entry
 }
 
+func validate(entry FileList) (e error) {
+	for _,filename := range entry.Get {
+		basename := filepath.Base(filename)
+		if basename!=filename {
+			return fmt.Errorf("File entries cannot contain folder names: %s",filename)
+		}
+	}
+	return nil
+}
+
+func expand_glob(basepath string, entry FileList) (expanded []string,e error) {
+	expanded=make([]string,0,len(entry.Get))
+	for _,filename := range entry.Get {
+		filename = entry.make_path(basepath,filename)
+		matches, e := filepath.Glob(filename)
+		if e!=nil { return nil,e }
+		if len(matches)==0 {
+			return nil,fmt.Errorf("%s did not match any file",filename)
+		}
+		short_names := basenames(matches)
+		expanded=append(expanded,short_names...)
+	}
+	return expanded,nil
+}
+
+func basenames(all_names []string) (based []string) {
+	based = make([]string,0,len(all_names))
+	for _, name := range all_names {
+		based=append(based,filepath.Base(name))
+	}
+	return based
+}
+
+// func change_dir(ref_filepath string, filenames []string) []string {
+// 	basename
+// }
+
+func (entry FileList) make_path(basepath, filename string) string {
+	subfolder := subfolder_for_ext(filename)
+	full_path := filepath.Join(basepath,subfolder,entry.From,filename)
+	return full_path
+}
+
+func subfolder_for_ext(filename string) string {
+	subfolder := ""
+	switch filepath.Ext(filename) {
+	case ".yaml": subfolder="cfg"
+	case ".sdc",".qip":  subfolder="syn"
+	case ".v",".sv",".vhd": subfolder="hdl"
+	}
+	return subfolder
+}
+
 func find_files_in_path(basepath string,filelist FileList) (filepaths[]string, e error) {
 	// unless/when
 	filepaths = make([]string,len(filelist.Get))
 	for k,newfile := range filelist.Get {
-		subfolder := "hdl"
-		switch filepath.Ext(newfile) {
-		case ".yaml": subfolder="cfg"
-		case ".sdc":  subfolder="syn"
-		case ".v",".sv",".vhd": subfolder="hdl"
-		}
-		filepaths[k]=filepath.Join(basepath,subfolder,filelist.From,newfile)
+		filepaths[k]=filelist.make_path(basepath,newfile)
 	}
 	return filepaths,nil
 }
@@ -287,6 +338,20 @@ func make_paths_abs(paths []string) {
 		clean := filepath.Clean(newpath)
 		paths[k] = clean
 	}
+}
+
+func make_ucode( files JTFiles ) error {
+	for path_alias,content := range files {
+		// basepath, e := get_base_path(path_alias); if e!=nil { return nil,e }
+		for _, entry := range content {
+			uc := entry.Ucode
+			if uc.Src=="" { continue}
+			ucode.Args.Output = uc.Output
+			e := ucode.Make(path_alias,uc.Src)
+			if e!=nil { return e }
+		}
+	}
+	return nil
 }
 
 func dump_files( filenames[]string ) error {

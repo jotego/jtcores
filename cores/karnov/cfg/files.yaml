@@ -20,8 +20,7 @@ jtframe:
   - from: cpu
     unless: [NOSOUND]
     get:
-      # - jtframe_mos6502.yaml
-      - t65/t65.yaml
+      - t65.yaml
   - from: cpu
     unless: [NOMCU]
     get:

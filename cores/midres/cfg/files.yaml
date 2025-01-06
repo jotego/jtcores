@@ -10,5 +10,3 @@ jtframe:
   - get:
     - jtframe_sort.v
 HUC6280:
-  - get:
-    - HUC6280.yaml

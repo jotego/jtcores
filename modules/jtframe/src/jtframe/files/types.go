@@ -41,6 +41,8 @@ type FileList struct {
 	Ucode  UcDesc   `yaml:"ucode"`
 }
 
+type FileListGroup []FileList
+
 type UcDesc struct {
 	Src		string `yaml:"src"`
 	Output  string `yaml:"output"`
@@ -49,7 +51,7 @@ type UcDesc struct {
 }
 type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
 
-type JTFiles map[string][]FileList
+type JTFiles map[string]FileListGroup
 
 func (item FileList) Enabled() bool {
     aux := macros.MacroEnabled{

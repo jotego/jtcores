@@ -921,7 +921,7 @@ func read_yaml( fpath string ) UcDesc {
 
 func Make(modname, fname string) (e error) {
 	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
-	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
+	fpath := get_ucode_path(modname, fname)
 	desc := read_yaml(fpath)
 	if desc.Cfg.Entries <= 0 || desc.Cfg.EntryLen <= 0 {
 		return fmt.Errorf("Set non-zero values for entry_len and entries in the config section")
@@ -956,4 +956,9 @@ func Make(modname, fname string) (e error) {
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
 	}
 	return nil
+}
+
+func get_ucode_path(module,file string) string {
+	const ucode_folder="ucode"
+	return filepath.Join(os.Getenv("MODULES"), module, ucode_folder, file)
 }

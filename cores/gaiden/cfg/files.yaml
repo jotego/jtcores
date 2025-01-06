@@ -21,7 +21,9 @@ jtframe:
       - jtframe_objdraw_gate.v
       - jtframe_draw.v
       - jtframe_blink.v
-      - layouts/jtframe_8x8x4_packed_msb.v
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
   - from: cpu
     unless: [NOMAIN]
     get:

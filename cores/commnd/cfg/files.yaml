@@ -16,8 +16,6 @@ jtframe:
   - from: ram
     get:
       - jtframe_ram.v
-  - from: video
-    get:
 jt12:
   - get:
     - jt12_rst.v

@@ -17,7 +17,7 @@ shanon:
   - get:
     - jtshanon_coldac.v
 jtframe:
-  - when: JTFRAME_VDPS18_TEST
+  - when: [JTFRAME_VDPS18_TEST]
     get:
     - jtframe_sort.v
   - from: cpu

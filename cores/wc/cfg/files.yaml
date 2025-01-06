@@ -1,6 +1,6 @@
 wc:
-    get:
-      - "*.v"
+  - get:
+    - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v

@@ -33,9 +33,7 @@ jtframe:
       - jtframe_z80.yaml
       # MCU
       - jtframe_i8742.v
-      - t48/upi41.yaml
-      # - t48/upi41_core.v
-      # - t48.v
+      - upi41.yaml
 jt12:
   - get:
     - jt03.yaml

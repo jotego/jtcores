@@ -1,15 +1,12 @@
-cores:
-  - from: xmen
-    get:
-      - "*.v"
-  - from: riders
-    get:
-      - common.yaml
-  - from: simson
-    get:
-      - jt053246.sv
-      - jt053246_scan.sv
-      - jtsimson_obj.v
-modules:
-  jt:
-    - name: jt539
+xmen:
+  - get:
+    - "*.v"
+riders:
+  - get:
+    - common.yaml
+simson:
+  - get:
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jtsimson_obj.v
+jt539:

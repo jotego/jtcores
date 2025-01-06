@@ -183,11 +183,42 @@ func Test_remove_references(t *testing.T) {
 
 func Test_find_paths(t *testing.T) {
 	jtfile := JTFiles{
-		"jt12/jt49": nil,
+		"jt51": nil,
 	}
 	filepaths, e := find_paths(jtfile)
 	if e!=nil { t.Error(e) }
 	if len(filepaths)==0 {
-		t.Error("No path to jt49")
+		t.Error("No path to jt51")
 	}
 }
+
+func Test_expand_glob(t *testing.T) {
+	basepath := filepath.Join(os.Getenv("CORES"),"gng")
+	glob := "*.v"
+	filelist := FileList{
+		Get: []string{ glob },
+	}
+	expanded, e := expand_glob(basepath,filelist)
+	if e!=nil { t.Error(e) }
+	if len(expanded)==0 { t.Error("Empty expansion") }
+	if slices.Contains(expanded,glob) { t.Error("GLOB expression not removed")}
+}
+
+func Test_validate(t *testing.T) {
+	badlist := FileList{
+		Get: []string{ "goodname", "badfolder/name", },
+	}
+	e := validate(badlist)
+	if e==nil { t.Error("bad list not detected as error")}
+}
+
+// func Test_change_dir(t *testing.T) {
+// 	ref_file := "a/*"
+// 	matches := []string{ "/longpath/morepath/a/b", "/longpath/otherpath/a/c", }
+// 	expected := []string{ "a/b", "a/c", }
+// 	simple := change_dir(ref_file,matches)
+// 	if slices.Compare(matches,simple)!=0 {
+// 		t.Error("Paths not simplified correctly")
+// 		t.Log(simple)
+// 	}
+// }

@@ -25,10 +25,8 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_kabuki.v
+jteeprom:
 jt6295:
 jtopl:
   - get:
     - jt2413.yaml
-jteeprom:
-  - get:
-    - jt9346.yaml

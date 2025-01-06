@@ -1,6 +1,6 @@
 jtframe:
   - from: cpu/t48
-    unless: VERILATOR
+    unless: [VERILATOR]
     get:
       - t48_pack-p.vhd
       - alu_pack-p.vhd
@@ -44,6 +44,6 @@ jtframe:
       - upi41_core.vhd
       - upi41_core-c.vhd
   - from: cpu/t48
-    when: VERILATOR
+    when: [VERILATOR]
     get:
       - upi41_core.v

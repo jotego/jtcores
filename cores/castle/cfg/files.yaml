@@ -19,7 +19,6 @@ jtframe:
       - jtframe_z80.yaml
 jtopl:
   - get:
-    - jtopl2.v
-jtopl:
+    - jtopl2.yaml
 jtkcpu:
 

@@ -52,7 +52,7 @@ jtframe:
       - jtframe_ram16.v
       - jtframe_ioctl_dump.v
   # Cheat system (enabled with JTFRAME_CHEAT)
-  - from: cpu/pauloblaze
+  - from: cpu
     get:
       - pauloblaze.qip
   - from: cheat

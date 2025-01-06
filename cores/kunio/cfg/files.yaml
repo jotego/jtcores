@@ -13,7 +13,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_6809.yaml
-      - t65/t65.yaml
+      - t65.yaml
       - jtframe_6805mcu.yaml
   - get:
       - jtframe_ff.v

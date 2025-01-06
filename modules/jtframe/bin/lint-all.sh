@@ -14,19 +14,17 @@ cd $CORES
 rm -rf $LOGFOLDER
 mkdir -p $LOGFOLDER
 
-for i in *; do
-    if [ ! -d $i ]; then continue; fi
-    LOG=$LOGFOLDER/lint-$i.log
-    if ! $JTFRAME/bin/lint-one.sh $i > $LOG 2>&1; then
-        echo "Errors on $i"
+for core in *; do
+    if [ ! -d $core ]; then continue; fi
+    LOG=$LOGFOLDER/lint-$core.log
+    if ! $JTFRAME/bin/lint-one.sh $core > $LOG 2>&1; then
         if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
-        ERRLIST="${ERRLIST}$i"
+        ERRLIST="${ERRLIST}$core"
     fi
     if [ -e $LOG ]; then
         if grep %Warning- $LOG > /dev/null; then
-            echo "Warnings for $i"
             if [ ! -z "$WARNLIST" ]; then WARNLIST="$WARNLIST "; fi
-            WARNLIST="${WARNLIST}$i"
+            WARNLIST="${WARNLIST}$core"
         fi
     fi
 done
@@ -39,16 +37,25 @@ if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
     done
 fi
 
+function make_table {
+    echo $* | tr ' ' '\n' | column
+}
+
+function count_cores {
+    echo $* | wc -w
+}
+
 if [ ! -z "$WARNLIST" ]; then
     echo "Cores with linter warnings:"
-    echo $WARNLIST
-    echo
+    make_table $WARNLIST
+    echo `count_cores $WARNLIST` warnings
     FAIL=1
 fi
 
 if [ ! -z "$ERRLIST" ]; then
     echo "Cores with linter errors:"
-    echo $ERRLIST
+    make_table $ERRLIST
+    echo `count_cores $ERRLIST` errors
     FAIL=1
 fi
 
