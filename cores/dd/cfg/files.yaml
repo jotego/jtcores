@@ -1,11 +1,10 @@
-game:
-  - from: dd
-    get:
-      - jtdd_game.v
-      - jtdd_mcu.v
-      - jtdd_sound.v
-      - jtdd_adpcm.v
-      - common.yaml
+dd:
+  - get:
+    - jtdd_game.v
+    - jtdd_mcu.v
+    - jtdd_sound.v
+    - jtdd_adpcm.v
+    - common.yaml
 jtframe:
   - from: cpu
     get:
@@ -14,7 +13,4 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cendiv.v
-modules:
-  jt:
-    - name: jt5205
-
+jt5205:

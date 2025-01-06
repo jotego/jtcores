@@ -1,7 +1,6 @@
-game:
-  - from: ngp
-    get:
-      - "*.v"
+ngp:
+  - get:
+    - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v
@@ -22,12 +21,11 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-modules:
-  other:
-    - from: jt900h
-      get:
-        - hdl/jt95c061.v
-        - hdl/jt95c061_timer.v
-  jt:
-    - name: jt900h
-    - name: jt89
+jt900h:
+  - get:
+    - files.yaml
+    - jt95c061.v
+    - jt95c061_timer.v
+jt12:
+  - get:
+    - jt89.yaml

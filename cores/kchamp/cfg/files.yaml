@@ -1,13 +1,12 @@
-game:
-  - from: kchamp
-    get:
-      - jtkchamp_game.v
-      - jtkchamp_main.v
-      - jtkchamp_video.v
-      - jtkchamp_snd.v
-      - jtkchamp_char.v
-      - jtkchamp_obj.v
-      - jtkchamp_colmix.v
+kchamp:
+  - get:
+    - jtkchamp_game.v
+    - jtkchamp_main.v
+    - jtkchamp_video.v
+    - jtkchamp_snd.v
+    - jtkchamp_char.v
+    - jtkchamp_obj.v
+    - jtkchamp_colmix.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -21,9 +20,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-modules:
-  jt:
-    - name: jt5205
-  other:
-    - get:
-      - jt12/jt49/hdl/jt49.yaml
+jt5205:
+jt12:
+  - get:
+    - jt49.yaml

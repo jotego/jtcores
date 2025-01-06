@@ -1,0 +1,17 @@
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_rst_sync.v
+      - jtframe_sync.v
+  - from: ver
+    get:
+      - video_dump.v
+      - mt48lc16m16a2.v
+      - spitx.v
+      - fast_pll.v
+      - jtframe_romrq_rdy_check.v
+jtframe/target/mist:
+  - unless: [ VERILATOR ]
+    get:
+      - ver/mist_test.v
+      - ver/test_harness.v

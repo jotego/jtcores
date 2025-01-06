@@ -28,4 +28,6 @@ if [ ! -e rom.bin ]; then
 fi
 
 jtsim -lint -$TARGET $*
+EXIT=$?
 rm -rf $TEST_FOLDER
+exit $EXIT

@@ -388,16 +388,12 @@ function copy_templates {
     # Copy SDC file and SDRAM constraints
     if is_mister_family; then
         if grep JTFRAME_SDRAM96 $QSF; then
-            cp $JTFRAME/target/$TARGET/sys/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
+            cp $JTFRAME/target/$TARGET/syn/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
         else
-            cp $JTFRAME/target/$TARGET/sys/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
-            cat $JTFRAME/target/$TARGET/slew_rate.tcl >> $QSF
+            cp $JTFRAME/target/$TARGET/syn/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
+            cat $JTFRAME/target/$TARGET/syn/slew_rate.tcl >> $QSF
         fi
-        cat $JTFRAME/target/$TARGET/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-        # Adds local SDC file if exists (only MiSTer)
-        if [ -e $PRJPATH/$TARGET/$corename.sdc ]; then
-            cat <(echo -e "\n") $PRJPATH/$TARGET/$corename.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-        fi
+        cat $JTFRAME/target/$TARGET/hdl/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
     fi
 }
 
@@ -445,6 +441,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         echo -e "      ${wBG} to the PATH environment variable${NC}"
         exit 1
     fi
+    rm -rf $PRJPATH/$TARGET
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
     ############################################
@@ -487,7 +484,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         # Create the QIP file
         if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $NODBG || exit $?; fi
         jtframe mmr $PRJ
-        jtframe files syn $PRJ --target=$TARGET
+        jtframe files syn $PRJ --target=$TARGET || exit $?
         # Compilation
         quartus_sh -v
         quartus_sh --flow compile $corename > "$LOG"

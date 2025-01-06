@@ -9,46 +9,54 @@ fi
 WARNLIST=
 ERRLIST=
 FAIL=
+LOGFOLDER=$JTROOT/log/linter/
 cd $CORES
+rm -rf $LOGFOLDER
+mkdir -p $LOGFOLDER
 
-for i in *; do
-    if [ ! -d $i ]; then continue; fi
-    LOG=lint-$i.log
-    $JTFRAME/bin/lint-one.sh $i > $LOG 2>&1
+for core in *; do
+    if [ ! -d $core ]; then continue; fi
+    LOG=$LOGFOLDER/lint-$core.log
+    if ! $JTFRAME/bin/lint-one.sh $core > $LOG 2>&1; then
+        if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
+        ERRLIST="${ERRLIST}$core"
+    fi
     if [ -e $LOG ]; then
         if grep %Warning- $LOG > /dev/null; then
-            echo "Warnings for $i"
             if [ ! -z "$WARNLIST" ]; then WARNLIST="$WARNLIST "; fi
-            WARNLIST="${WARNLIST}$i"
-        fi
-
-        if grep -i error $LOG > /dev/null; then
-            echo "Errors on $i"
-            if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
-            ERRLIST="${ERRLIST}$i"
+            WARNLIST="${WARNLIST}$core"
         fi
     fi
 done
-
-if [ ! -z "$WARNLIST" ]; then
-    echo "Cores with linter warnings:"
-    echo $WARNLIST
-    echo
-    FAIL=1
-fi
-
-if [ ! -z "$ERRLIST" ]; then
-    echo "Cores with linter errors:"
-    echo $ERRLIST
-    FAIL=1
-fi
 
 # print out all log files that have problems
 if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
     for i in $WARNLIST $ERRLIST; do
         echo =========== $i ================
-        cat lint-$i.log
+        cat $LOGFOLDER/lint-$i.log
     done
+fi
+
+function make_table {
+    echo $* | tr ' ' '\n' | column
+}
+
+function count_cores {
+    echo $* | wc -w
+}
+
+if [ ! -z "$WARNLIST" ]; then
+    echo "Cores with linter warnings:"
+    make_table $WARNLIST
+    echo `count_cores $WARNLIST` warnings
+    FAIL=1
+fi
+
+if [ ! -z "$ERRLIST" ]; then
+    echo "Cores with linter errors:"
+    make_table $ERRLIST
+    echo `count_cores $ERRLIST` errors
+    FAIL=1
 fi
 
 if [ -z "$FAIL" ]; then

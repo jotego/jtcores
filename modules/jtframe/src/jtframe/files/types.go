@@ -17,6 +17,10 @@
 
 package files
 
+import(
+	"github.com/jotego/jtframe/macros"
+)
+
 type Args struct {
 	Corename string // JT core
 	Parse    string // any file
@@ -27,28 +31,17 @@ type Args struct {
 	AddMacro string // More macros, separated by commas
 }
 
-type Origin int
-
-const (
-	GAME Origin = iota
-	FRAME
-	TARGET
-	MODULE
-	JTMODULE
-)
-
 type FileList struct {
+	Unless []string `yaml:"unless"` // parses the section "unless" the macro is defined
+	When   []string `yaml:"when"`   // parses the section "when" the macro is defined
+
 	From   string   `yaml:"from"`
 	Get    []string `yaml:"get"`
-	Unless string   `yaml:"unless"` // parses the section "unless" the macro is defined
-	When   string   `yaml:"when"`   // parses the section "when" the macro is defined
+
+	Ucode  UcDesc   `yaml:"ucode"`
 }
 
-type JTModule struct {
-	Name   string `yaml:"name"`
-	Unless string `yaml:"unless"`
-	When   string   `yaml:"when"`
-}
+type FileListGroup []FileList
 
 type UcDesc struct {
 	Src		string `yaml:"src"`
@@ -58,14 +51,12 @@ type UcDesc struct {
 }
 type UcFiles map[string]UcDesc // if this is changed to a non reference type, update the functions that take it as an argument
 
-type JTFiles struct {
-	Game    []FileList `yaml:"game"`
-	JTFrame []FileList `yaml:"jtframe"`
-	Target  []FileList `yaml:"target"`
-	Modules struct {
-		JT    []JTModule `yaml:"jt"`
-		Other []FileList `yaml:"other"`
-	} `yaml:"modules"`
-	Here []string `yaml:"here"`
-	Ucode UcFiles `yaml:"ucode"`
+type JTFiles map[string]FileListGroup
+
+func (item FileList) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
 }

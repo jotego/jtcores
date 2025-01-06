@@ -25,7 +25,7 @@ import (
 
 func TestEnabled(t *testing.T) {
 	Verbose=true
-	item := MacroEnabled{
+	item := macros.MacroEnabled{
 		When: []string{"ENABLE"},
 		Unless: []string{"DISABLE"},
 	}

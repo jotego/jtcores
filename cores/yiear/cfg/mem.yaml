@@ -1,5 +1,5 @@
 include:
-    - core: kicker
+  - core: kicker
 game: kicker
 audio:
   rsum: 1k

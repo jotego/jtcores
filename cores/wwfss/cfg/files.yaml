@@ -1,10 +1,9 @@
-game:
-  - from: wwfss
-    get:
-      - "*.v"
-  - from: dd
-    get:
-      - jtdd_obj.v
+wwfss:
+  - get:
+    - "*.v"
+dd:
+  - get:
+    - jtdd_obj.v
 jtframe:
   - get:
       - jtframe_edge.v
@@ -21,7 +20,5 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-modules:
-  jt:
-    - name: jt51
-    - name: jt6295
+jt51:
+jt6295:

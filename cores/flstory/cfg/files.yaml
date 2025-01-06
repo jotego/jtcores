@@ -1,7 +1,6 @@
-game:
-  - from: flstory
-    get:
-      - "*.v"
+flstory:
+  - get:
+    - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v
@@ -21,9 +20,7 @@ jtframe:
       - jtframe_scroll.v
       - jtframe_tilemap.v
       - jtframe_obj.yaml
-modules:
-  jt:
-    - name: jt5232
-  other:
-    - get:
-      - jt12/jt49/hdl/jt49.yaml
+jt5232:
+jt12:
+  - get:
+    - jt49.yaml

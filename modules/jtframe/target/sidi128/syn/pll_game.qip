@@ -1,0 +1,2 @@
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pllgame/jtframe_pllgame.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pllgame96/jtframe_pllgame96.qip"]

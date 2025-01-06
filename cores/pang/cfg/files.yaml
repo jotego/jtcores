@@ -1,13 +1,12 @@
-game:
-  - from: pang
-    get:
-      - jtpang_game.v
-      - jtpang_main.v
-      - jtpang_video.v
-      - jtpang_colmix.v
-      - jtpang_char.v
-      - jtpang_obj.v
-      - jtpang_snd.v
+pang:
+  - get:
+    - jtpang_game.v
+    - jtpang_main.v
+    - jtpang_video.v
+    - jtpang_colmix.v
+    - jtpang_char.v
+    - jtpang_obj.v
+    - jtpang_snd.v
 jtframe:
   - from: ram
     get:
@@ -26,9 +25,8 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_kabuki.v
-modules:
-  jt:
-    - name: jt6295
-  other:
-    - get: [jtopl/hdl/jt2413.yaml]
-    - get: [jteeprom/hdl/jt9346.yaml]
+jteeprom:
+jt6295:
+jtopl:
+  - get:
+    - jt2413.yaml

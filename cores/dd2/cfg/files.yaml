@@ -1,17 +1,13 @@
-game:
-  - from: dd2
-    get:
-      - jtdd2_game.v
-      - jtdd2_sub.v
-      - jtdd2_sound.v
-  - from: dd
-    get:
-      - common.yaml
+dd2:
+  - get:
+    - jtdd2_game.v
+    - jtdd2_sub.v
+    - jtdd2_sound.v
+dd:
+  - get:
+    - common.yaml
 jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-modules:
-  jt:
-    - name: jt6295
-
+jt6295:

@@ -1,6 +1,5 @@
-game:
-  - from: 1943
-    get:
-      - jt1943_scroll.v
-      - jt1943_map.v
-      - jt1943_map_cache.v
+"1943":
+  - get:
+    - jt1943_scroll.v
+    - jt1943_map.v
+    - jt1943_map_cache.v

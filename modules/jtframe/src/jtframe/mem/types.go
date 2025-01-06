@@ -41,15 +41,6 @@ type Bus interface {
     Is_nbits(n int) bool
 }
 
-type MacroEnabled struct{
-    When    []string `yaml:"when"`
-    Unless  []string `yaml:"unless"`
-}
-
-type Optional interface{
-    Enabled() bool
-}
-
 type SDRAMBus struct {
     // MacroEnabled
     When    []string `yaml:"when"`
@@ -244,4 +235,8 @@ type MemConfig struct {
     Gfx16    string
     Gfx8b0, Gfx16b0 int
     Balut,Lutsh int
+}
+
+type Optional interface{
+    Enabled() bool
 }

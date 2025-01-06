@@ -1,0 +1,47 @@
+# Common files to MiST, SiDi and NeptUNO
+jtframe:
+  - from: sound
+    unless: [ POCKET ]
+    get:
+      - hybrid_pwm_sd.v
+      - hifi_1bit_dac.v
+  - from: clocking
+    get:
+      - jtframe_sync.v
+      - jtframe_rst_sync.v
+  # JTFRAME scan doubler for memory constrained systems
+  - from: video
+    get:
+      - jtframe_scan2x.v
+  - from: video/rotate
+    get:
+    - scandoubler_rgb_interp.v
+    - scandoubler_rotate.v
+    - scandoubler_scaledepth.v
+    - scandoubler_sdram.v
+    - unsigned_division.v
+    - pixel_interp.v
+    - frac_interp.v
+jtframe/target/mist:
+  - get:
+      - jtframe_mist_clocks.v
+      - jtframe_mist_video.v
+      - osd.sv
+      - rgb2ypbpr.v
+  - unless: [ SIDI128, POCKET ]
+    get:
+      - pll_game.qip
+  - unless: [ POCKET ]
+    get:
+      - jtframe_mist_base.v
+      - mist_io.sdc
+  - unless: [ SIDI128 ]
+    get:
+      - sdram_clk.sdc # must come after mist_io.sdc
+      # PLLs
+      - pll.qip
+jtframe/target/mister:
+  - unless: [ VERILATOR ]
+    from: sys
+    get:
+      - yc_out.sv

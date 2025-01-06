@@ -1,27 +1,26 @@
-game:
-  - from: trojan
-    get:
-      - jttrojan_game.v
-      - jttrojan_main.v
-      - jttrojan_mcu.v
-      - jttrojan_video.v
-      - jttrojan_sound.v
-      - jttrojan_colmix.v
-  - from: commnd
-    get:
-      - jtcommnd_main.v
-  - from: tora
-    get:
-      - jttora_adpcm.v
-  - from: 1943
-    get:
-      - jt1943_scroll.yaml
-  - from: gng
-    get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
+trojan:
+  - get:
+    - jttrojan_game.v
+    - jttrojan_main.v
+    - jttrojan_mcu.v
+    - jttrojan_video.v
+    - jttrojan_sound.v
+    - jttrojan_colmix.v
+commnd:
+  - get:
+    - jtcommnd_main.v
+tora:
+  - get:
+    - jttora_adpcm.v
+"1943":
+  - get:
+    - jt1943_scroll.yaml
+gng:
+  - get:
+    - jtgng_video.v
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - from: cpu
     get:
@@ -37,10 +36,8 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
-modules:
-  jt:
-    - name: jt5205
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.yaml
+jt5205:
+jt12:
+  - get:
+    - jt12_rst.v
+    - jt03.yaml

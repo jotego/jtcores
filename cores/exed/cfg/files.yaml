@@ -1,16 +1,15 @@
-game:
-  - from: commnd
-    get:
-      - jtcommnd_main.v
-  - from: exed
-    get:
-      - "*.v"
-  - from: gng
-    get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
+commnd:
+  - get:
+    - jtcommnd_main.v
+exed:
+  - get:
+    - "*.v"
+gng:
+  - get:
+    - jtgng_video.v
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -25,8 +24,7 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
-modules:
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt89/hdl/jt89.yaml
+jt12:
+  - get:
+    - jt89.yaml
+    - jt12_rst.v

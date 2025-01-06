@@ -1,19 +1,18 @@
-game:
-  - from: flane
-    get:
-      - jtflane_game.v
-      - jtflane_main.v
-      - jt007232.v
-      - common.yaml
-  - from: labrun
-    get:
-      - jtlabrun_colmix.v
-      - jtlabrun_video.v
-  - from: contra
-    get:
-      # Protection device / Math coprocessor
-      - jt051733.v
-      - divfunc.v
+flane:
+  - get:
+    - jtflane_game.v
+    - jtflane_main.v
+    - jt007232.v
+    - common.yaml
+labrun:
+  - get:
+    - jtlabrun_colmix.v
+    - jtlabrun_video.v
+contra:
+  - get:
+    # Protection device / Math coprocessor
+    - jt051733.v
+    - divfunc.v
 jtframe:
   - from: cpu
     get:

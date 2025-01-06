@@ -1,20 +1,19 @@
-game:
-  - from: biocom
-    get:
-      - jtbiocom_colmix.v
-      - jtbiocom_game.v
-      - jtbiocom_main.v
-      - jtbiocom_mcu.v
-      - jtbiocom_video.v
-      - jtbiocom_sound.v
-  - from: tora
-    get:
-      - jttora_obj.v
-      - jttora_objdata.v
-  - from: gng
-    get:
-      - jtgng_video.yaml
-      - jtgng_dual_ram.v
+biocom:
+  - get:
+    - jtbiocom_colmix.v
+    - jtbiocom_game.v
+    - jtbiocom_main.v
+    - jtbiocom_mcu.v
+    - jtbiocom_video.v
+    - jtbiocom_sound.v
+tora:
+  - get:
+    - jttora_obj.v
+    - jttora_objdata.v
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -34,10 +33,8 @@ jtframe:
     get:
       - jtframe_blank.v
       - jtframe_obj.yaml
-modules:
-  jt:
-    - name: jt51
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.yaml
+jt51:
+jt12:
+  - get:
+    - jt49.yaml
+    - jt12_rst.v

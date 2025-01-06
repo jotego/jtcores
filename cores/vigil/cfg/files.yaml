@@ -1,14 +1,13 @@
-game:
-  - from: vigil
-    get:
-      - jtvigil_game.v
-      - jtvigil_main.v
-      - jtvigil_snd.v
-      - jtvigil_video.v
-      - jtvigil_scr1.v
-      - jtvigil_scr2.v
-      - jtvigil_obj.v
-      - jtvigil_colmix.v
+vigil:
+  - get:
+    - jtvigil_game.v
+    - jtvigil_main.v
+    - jtvigil_snd.v
+    - jtvigil_video.v
+    - jtvigil_scr1.v
+    - jtvigil_scr2.v
+    - jtvigil_obj.v
+    - jtvigil_colmix.v
 jtframe:
   - from: cpu
     get:
@@ -26,6 +25,4 @@ jtframe:
       - jtframe_linebuf.v
   - get:
       - jtframe_sort.v
-modules:
-  jt:
-    - name: jt51
+jt51:

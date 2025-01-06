@@ -1,23 +1,22 @@
-game:
-  - from: s16
-    get:
-      - jts16_game.v
-      - jts16_mem.v
-      - jts16_main.v
-      - jts16_shadow.v
-      - jts16_snd.v
-      - jts16_cen.v
-      - tilemap.yaml
-      - jts16_colmix.v
-      - jts16_video.v
-      - jts16_pcm.v
-      - jts16_trackball.v
-      - jts16_fd1089.v
-      - jts16_fd1094.v
-      - jts16_fd1094_dec.v
-      - jts16_fd1094_ctrl.v
-      - obj.yaml
-      - ../syn/timing.sdc
+s16:
+  - get:
+    - jts16_game.v
+    - jts16_mem.v
+    - jts16_main.v
+    - jts16_shadow.v
+    - jts16_snd.v
+    - jts16_cen.v
+    - tilemap.yaml
+    - jts16_colmix.v
+    - jts16_video.v
+    - jts16_pcm.v
+    - jts16_trackball.v
+    - jts16_fd1089.v
+    - jts16_fd1094.v
+    - jts16_fd1094_dec.v
+    - jts16_fd1094_ctrl.v
+    - obj.yaml
+    - timing.sdc
 jtframe:
   - get:
       - jtframe_ff.v
@@ -33,11 +32,11 @@ jtframe:
     get:
       - jtframe_m68k.yaml
       - jtframe_8751.yaml
-      - t8243/t8243.yaml
-      - t48/t48.yaml
+      - t8243.yaml
+      - t48.yaml
       - jtframe_z80.yaml
   - from: cpu/t8243
-    when: VERILATOR
+    when: [VERILATOR]
     get:
       - t8243_sync_notri.v
   - from: video
@@ -45,7 +44,5 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_linebuf.v
-modules:
-  jt:
-    - name: jt8255
-    - name: jt51
+jt8255:
+jt51:

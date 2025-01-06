@@ -1,7 +1,6 @@
-game:
-  - from: wc
-    get:
-      - "*.v"
+wc:
+  - get:
+    - "*.v"
 jtframe:
   - get:
       - jtframe_edge.v
@@ -14,9 +13,7 @@ jtframe:
       - jtframe_scroll.v
       - jtframe_tilemap.v
       - jtframe_obj.yaml
-modules:
-  jt:
-    - name: jt5205
-  other:
-    - get:
-      - jt12/jt49/hdl/jt49.yaml
+jt5205:
+jt12:
+  - get:
+    - jt49.yaml

@@ -1,4 +1,3 @@
-[*]
 include ../../kicker/cfg/common.def
 
 CORENAME=JTYIEAR
@@ -14,6 +13,3 @@ MAIN_START=0x08000
 SCR_START =0x10000
 OBJ_START =0x14000
 PCM_START =0x24000
-
-# Video
-

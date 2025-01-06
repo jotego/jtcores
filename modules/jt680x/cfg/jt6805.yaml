@@ -1,0 +1,8 @@
+jt680x:
+  - get:
+    - jt6805_alu.v
+    - jt6805_ctrl.v
+    - jt6805_regs.v
+    - jt6805.v
+    ucode:
+      src: "6805.yaml"

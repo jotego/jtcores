@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 POCKET=
 
 if [ -z "$JTFRAME" ]; then
@@ -23,6 +23,16 @@ else
     cd - > /dev/null
 fi
 
+function run_tests {
+    LOG=`mktemp`
+    if ! go test ./... > $LOG; then
+        cat $LOG
+        rm -f $LOG
+        exit 1
+    fi
+    rm -f $LOG
+}
+
 if [ $RECOMPILE = TRUE ]; then
     if [ -e $JTFRAME/target/pocket/pocket.go ]; then
         ln -sf $JTFRAME/target/pocket/pocket.go $JTFRAME/src/jtframe/mra/pocket.go
@@ -30,6 +40,7 @@ if [ $RECOMPILE = TRUE ]; then
         echo "Compiling jtframe with Pocket support" > /dev/stderr
     fi
     cd $JTFRAME/src/jtframe > /dev/null
+    run_tests
     go build $POCKET . || exit $?
     cd - > /dev/null
 fi

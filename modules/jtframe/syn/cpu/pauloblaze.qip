@@ -1,0 +1,7 @@
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/op_codes.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/alu.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/decoder.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/io_module.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/pauloBlaze.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/program_counter.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ../../hdl/cpu/pauloblaze/regFile.vhd ]

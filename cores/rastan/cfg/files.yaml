@@ -1,15 +1,14 @@
-game:
-  - from: rastan
-    get:
-      - jtrastan_game.v
-      - jtrastan_main.v
-      - jtrastan_video.v
-      - jtrastan_colmix.v
-      - jtrastan_scr.v
-      - jtrastan_tilemap.v
-      - jtrastan_obj.v
-      - jtrastan_snd.v
-      - jtrastan_pc060.v
+rastan:
+  - get:
+    - jtrastan_game.v
+    - jtrastan_main.v
+    - jtrastan_video.v
+    - jtrastan_colmix.v
+    - jtrastan_scr.v
+    - jtrastan_tilemap.v
+    - jtrastan_obj.v
+    - jtrastan_snd.v
+    - jtrastan_pc060.v
 jtframe:
   - from: ram
     get:
@@ -29,8 +28,6 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-modules:
-  jt:
-    - name: jt51
-    - name: jt5205
-    - name: jtopl
+jt51:
+jt5205:
+jtopl:

@@ -1,21 +1,20 @@
-game:
-  - from: twin16
-    get:
-      - jttwin16_*.v
-  - from: fround
-    get:
-      - jt00778x*.v
-      - jtfround_objdraw.v
-      - jtfround_draw.v
-  - from: tmnt
-    get:
-      - jttmnt_sound.v
-  - from: simson
-    get:
-      - jt053260.v
-  - from: flane
-    get:
-      - jt007232.v
+twin16:
+  - get:
+    - jttwin16_*.v
+fround:
+  - get:
+    - jt00778x*.v
+    - jtfround_objdraw.v
+    - jtfround_draw.v
+tmnt:
+  - get:
+    - jttmnt_sound.v
+simson:
+  - get:
+    - jt053260.v
+flane:
+  - get:
+    - jt007232.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -27,14 +26,12 @@ jtframe:
       - jtframe_scroll.v
       - jtframe_obj.yaml
   - from: cpu
-    unless: NOMAIN
+    unless: [NOMAIN]
     get:
       - jtframe_m68k.yaml
       - jtframe_z80.yaml
   - from: ram
     get:
       - jtframe_dual_ram16.v
-modules:
-  jt:
-    - name: jt51
-    - name: jt7759
+jt51:
+jt7759:

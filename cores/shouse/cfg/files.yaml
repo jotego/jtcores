@@ -1,7 +1,6 @@
-game:
-  - from: shouse
-    get:
-      - "*.v"
+shouse:
+  - get:
+    - "*.v"
 jtframe:
   - get:
       - jtframe_ff.v
@@ -19,7 +18,4 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
       - jtframe_obj.yaml
-modules:
-  jt:
-    - name: jt51
-
+jt51:

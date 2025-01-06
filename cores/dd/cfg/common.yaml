@@ -1,11 +1,10 @@
-game:
-  - from: dd
-    get:
-      - jtdd_main.v
-      - jtdd_colmix.v
-      - jtdd_video.v
-      - jtdd_obj.v
-      - jtdd_scroll.v
+dd:
+  - get:
+    - jtdd_main.v
+    - jtdd_colmix.v
+    - jtdd_video.v
+    - jtdd_obj.v
+    - jtdd_scroll.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -33,6 +32,4 @@ jtframe:
     get:
       - jtframe_sdram64.yaml
       - jtframe_dwnld.v
-modules:
-  jt:
-    - name: jt51
+jt51:

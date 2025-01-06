@@ -1,32 +1,30 @@
-game:
-  - from: simson
-    get:
-      - jtsimson_game.v
-      - jtsimson_main.v
-      - jtsimson_video.v
-      - jtsimson_scroll.v
-      - jtsimson_obj.v
-      - jtsimson_sound.v
-      - jtsimson_colmix.v
-      - jt053260.v
-      - jt053246.sv
-      - jt053246_scan.sv
-      - jt053246_dma.v
-      - jt053246_mmr.v
-      - jtcolmix_053251.v
-  - from: simson
-    unless: PARODA
+simson:
+  - get:
+    - jtsimson_game.v
+    - jtsimson_main.v
+    - jtsimson_video.v
+    - jtsimson_scroll.v
+    - jtsimson_obj.v
+    - jtsimson_sound.v
+    - jtsimson_colmix.v
+    - jt053260.v
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jt053246_dma.v
+    - jt053246_mmr.v
+    - jtcolmix_053251.v
+  - unless: [PARODA]
     get:
       # Vendetta
       - jtk054000.v
       - jtk054000_mmr.v
-  - from: aliens
-    get:
-      - jt052109.v
-      - jt051962.v
-  - from: riders
-    get:
-      - jtriders_dump.v
+aliens:
+  - get:
+    - jt052109.v
+    - jt051962.v
+riders:
+  - get:
+    - jtriders_dump.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -42,11 +40,9 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-modules:
-  jt:
-    - name: jtkcpu
-    - name: jt51
-  other:
-    - from: jteeprom
-      get: [ hdl/jt5911.sv ]
+jtkcpu:
+jt51:
+jteeprom:
+  - get:
+    - jt5911.sv
 

@@ -1,18 +1,17 @@
-game:
-  - from: gunsmk
-    get:
-      - jtgunsmk_game.v
-      - jtgunsmk_main.v
-  - from: 1943
-    get:
-      - jt1943_colmix.v
-      - jt1943_video.v
-      - jt1943_scroll.yaml
-  - from: gng
-    get:
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
+gunsmk:
+  - get:
+    - jtgunsmk_game.v
+    - jtgunsmk_main.v
+"1943":
+  - get:
+    - jt1943_colmix.v
+    - jt1943_video.v
+    - jt1943_scroll.yaml
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -24,8 +23,7 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
-modules:
-  other:
-    - get:
-      - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.yaml
+jt12:
+  - get:
+    - jt12_rst.v
+    - jt49.yaml
