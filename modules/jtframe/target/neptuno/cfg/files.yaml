@@ -1,6 +1,5 @@
-here:
+jtframe/target/neptuno:
   # Common with MiST
-  - ../mist/common.yaml
   # Joysticks
   - joydecoder.v
   - jtframe_neptuno_joy.v
@@ -12,8 +11,10 @@ here:
   - pll_neptuno.qip
   # Framework
   - jtframe_neptuno_top.sv
-  - ../mist/jtframe_mist.sv
   - data_io_mc2.sv
+jtframe/target/mist:
+  - common.yaml
+  - jtframe_mist.sv
 
 jtframe:
   - from: keyboard

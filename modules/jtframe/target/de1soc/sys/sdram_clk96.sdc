@@ -1,1 +1,0 @@
-../../mister/sys/sdram_clk96.sdc

@@ -394,10 +394,6 @@ function copy_templates {
             cat $JTFRAME/target/$TARGET/syn/slew_rate.tcl >> $QSF
         fi
         cat $JTFRAME/target/$TARGET/hdl/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-        # Adds local SDC file if exists (only MiSTer)
-        if [ -e $PRJPATH/$TARGET/$corename.sdc ]; then
-            cat <(echo -e "\n") $PRJPATH/$TARGET/$corename.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-        fi
     fi
 }
 
