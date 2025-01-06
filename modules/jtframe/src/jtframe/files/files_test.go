@@ -128,16 +128,18 @@ func Test_make_paths_abs(t *testing.T) {
 
 func Test_expand_references(t *testing.T) {
 	// no references
-	filepaths := []string{"a.v","b.v","c.sdc"}
-	new_paths, e := expand_references(filepaths)
+	new_paths, e := expand_references("a.v")
 	if e!=nil{ t.Error(e) }
-	if len(new_paths)!=0 {
+	if len(new_paths)!=1 {
 		t.Error("There are no references to expand")
 	}
+	if new_paths[0]!="a.v" {
+		t.Error("Got a wrong answer")
+		t.Log(new_paths)
+	}
 	// parsed references
-	filepaths = []string{"used.yaml","b.v"}
 	parsed = []string{"used.yaml"}
-	new_paths, e = expand_references(filepaths)
+	new_paths, e = expand_references(parsed[0])
 	if e!=nil{ t.Error(e) }
 	if len(new_paths)!=0 {
 		t.Error("There are no references to expand")
@@ -210,6 +212,33 @@ func Test_validate(t *testing.T) {
 	}
 	e := validate(badlist)
 	if e==nil { t.Error("bad list not detected as error")}
+}
+
+func Test_append_or_expand(t *testing.T) {
+	filepaths := []string{
+		"a.v",
+	}
+	expand_file := "test_expand.yaml"
+	newfiles := []string{
+		"b.v",
+		expand_file,
+		"c.v",
+	}
+	expected := []string{
+		"a.v",
+		"b.v",
+		filepath.Join(os.Getenv("JTFRAME"),"hdl","jtframe_ff.v"),
+		"c.v",
+	}
+	result, e := append_or_expand(filepaths,newfiles)
+	if e!=nil { t.Error(e) }
+	if slices.Compare(result,expected)!=0 {
+		t.Error("wrong result")
+		t.Log(result)
+	}
+	if !slices.Contains(parsed,expand_file) {
+		t.Error("Parsed file not kept")
+	}
 }
 
 // func Test_change_dir(t *testing.T) {

@@ -31,15 +31,15 @@ jtframe/target/mist:
   - unless: [ SIDI128, POCKET ]
     get:
       - pll_game.qip
-  - unless: [ SIDI128 ]
-    get:
-      - sdram_clk.sdc
-      # PLLs
-      - pll.qip
   - unless: [ POCKET ]
     get:
       - jtframe_mist_base.v
       - mist_io.sdc
+  - unless: [ SIDI128 ]
+    get:
+      - sdram_clk.sdc # must come after mist_io.sdc
+      # PLLs
+      - pll.qip
 jtframe/target/mister:
   - unless: [ VERILATOR ]
     from: sys

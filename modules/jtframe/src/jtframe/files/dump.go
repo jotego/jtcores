@@ -8,7 +8,7 @@ import(
 )
 
 func dump_qip(all []string) error {
-	fout, err := os.Create("game.qip")
+	fout, err := os.Create("files.qip")
 	if err != nil { return err }
 	defer fout.Close()
 	for _, each := range all {

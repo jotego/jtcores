@@ -411,7 +411,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
 set_global_assignment -name AUTO_MERGE_PLLS OFF
 
-set_global_assignment -name QIP_FILE game.qip
+set_global_assignment -name QIP_FILE files.qip
 
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"

@@ -9,29 +9,35 @@ A third option is "plain", which simply generates a plain text file with
 the file names and path used.
 
 The simulation output creates two files:
+
 - game.f for all verilog files
 - jtsim_vhdl.f for all VHDL files
 
+For synthesis a `files.qip` is generated at the core/target folder.
+
 The yaml file is composed of several sections, which can only appear once:
 
-- game: get files from a given core hdl folder
-- jtframe: get files from jtframe/hdl folders
-- modules: get files from the modules folder
+- core-name: get files from a given core folder
+- module-name: get files from a give folder in modules
 
-For modules, there is a shortcut for JT ones and a generic way
+# Search rules:
 
-modules:
-  jt:
-    - name: jt51
-      when: MACRO name
-    - name: jtkcpu
-      unless: MACRO name
-  other:
-  	- from: foo
-  	  get: [ hdl/foo.v ]
+- If only a path is specified, the files cfg/files.yaml in it is looked for and
+used
+- HDL files are looked for in the `hdl` folder
+- SDC, QIP files must be in the `syn` folder
+- YAML files used to generate more files must be in `cfg`
+
+# File order
+
+The file order is kept in the generated files and it is sometimes important:
+
+- SDC rules can cancel out so the order is important
+- VHDL files must be read in a certain order
 
 # Conditional file parsing:
 
 Each file list can be parsed conditionally using the keys:
+
 - unless: will always parse it unless the macro is defined
 - when: will only parse it when the macro is defined

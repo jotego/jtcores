@@ -45,12 +45,15 @@ func Run(set_args Args) {
 
 	filenames, e := parse_yaml_file( common.ConfigFilePath(args.Corename, "files.yaml") )
 	common.Must(e)
+
 	jtframe_cfg := filepath.Join(os.Getenv("JTFRAME"),"cfg","files.yaml")
 	all_jtframe, e := parse_yaml_file( jtframe_cfg )
 	common.Must(e)
+
 	filenames = merge(filenames,all_jtframe)
 	target_files, e := collect_target()
 	common.Must(e)
+
 	filenames = merge(filenames,target_files)
 	if mem_file := get_mem_file(); mem_file!="" {
 		filenames = append(filenames,mem_file)
@@ -100,6 +103,7 @@ func get_mem_file() string {
 	game_file := macros.Get("GAMETOP")+".v"
 	if args.Target!="" && !args.Local {
 		syn_folder := filepath.Join(os.Getenv("CORES"),args.Corename,args.Target)
+		syn_folder, _ = filepath.Rel(cwd,syn_folder)
 		game_file=filepath.Join(syn_folder,game_file)
 	}
 	game_file=filepath.Join(cwd,game_file)
@@ -114,15 +118,11 @@ func make_relative_to_cwd(filenames []string) (e error) {
 	return e
 }
 
-
 func parse_yaml_file(filepath string) (filepaths []string, e error) {
 	newfiles, e := readin_yaml(filepath); if e!=nil { return nil,e }
 	e = make_ucode(newfiles); if e!=nil { return nil,e }
-	filepaths, e = find_paths(newfiles); if e!=nil { return nil,fmt.Errorf("%w while parsing %s",e,filepath) }
-	all_referenced, e := expand_references(filepaths); if e!=nil { return nil,e }
-	filepaths = remove_references(filepaths)
-	new_referenced := values_not_in_first(filepaths,all_referenced)
-	filepaths=append(filepaths,new_referenced...)
+	filepaths, e = find_paths(newfiles)
+	if e!=nil { return nil,fmt.Errorf("%w while parsing %s",e,filepath) }
 	return filepaths, nil
 }
 
@@ -153,25 +153,42 @@ func find_paths(jtfile JTFiles) (filepaths[]string, e error) {
 	for path_alias,content := range jtfile {
 		basepath, e := get_base_path(path_alias); if e!=nil { return nil,e }
 		newfiles, e := get_content_files(basepath,content); if e!=nil { return nil,e }
-		different_files:=values_not_in_first(filepaths,newfiles)
-		filepaths=append(filepaths,different_files...)
+		filepaths, e = append_or_expand(filepaths,newfiles); if e!=nil { return nil,e }
+		// different_files:=values_not_in_first(filepaths,newfiles)
+		// filepaths=append(filepaths,different_files...)
 	}
 	return filepaths,nil
 }
 
-
-
-func expand_references(all_files []string) (newfiles []string,e error) {
-	newfiles = make([]string,0,128)
-	for _, filename := range all_files {
-		if filepath.Ext(filename)!=".yaml" { continue }
-		if slices.Contains(parsed,filename) { continue }
-		new_paths, e := parse_yaml_file(filename); if e!=nil { return nil,e }
-		diff := values_not_in_first(newfiles,new_paths)
-		newfiles=append(newfiles,diff...)
+func append_or_expand(oldfiles,newfiles []string) (merged []string,e error) {
+	merged = make([]string,len(oldfiles),len(oldfiles)+len(newfiles))
+	copy(merged,oldfiles)
+	for _,filename := range newfiles {
+		if slices.Contains(merged,filename) { continue }
+		expanded, e := expand_references(filename); if e!=nil { return nil, e }
+		merged=append(merged,expanded...)
 	}
-	return newfiles,nil
+	return merged,nil
 }
+
+func expand_references(filename string) (newfiles []string,e error) {
+	if filepath.Ext(filename)!=".yaml" { return []string{filename}, nil }
+	if slices.Contains(parsed,filename) { return nil, nil }
+	newfiles = make([]string,0,128)
+	return parse_yaml_file(filename)
+}
+
+// func expand_references(all_files []string) (newfiles []string,e error) {
+// 	newfiles = make([]string,0,128)
+// 	for _, filename := range all_files {
+// 		if filepath.Ext(filename)!=".yaml" { continue }
+// 		if slices.Contains(parsed,filename) { continue }
+// 		new_paths, e := parse_yaml_file(filename); if e!=nil { return nil,e }
+// 		diff := values_not_in_first(newfiles,new_paths)
+// 		newfiles=append(newfiles,diff...)
+// 	}
+// 	return newfiles,nil
+// }
 
 func remove_references(files []string) (clean []string){
 	clean = make([]string,0,len(files))
