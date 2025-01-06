@@ -1,0 +1,43 @@
+jtframe/target/mister:
+  - get:
+    - jtframe_emu.sv
+    - jtframe_mister.sv
+    - jtframe_mister_dwnld.v
+    - jtframe_mr_ddrmux.v
+    - jtframe_mr_ddrtest.v
+    - jtframe_joymux.v
+    - sys.qip
+    - pll.qip
+    - joydb15.v
+  - when: [ JTFRAME_PLL6000 ]
+    get:
+      - pll6000.qip
+  - when: [ JTFRAME_PLL6144 ]
+    get:
+      - pll6144.qip
+  - when: [ JTFRAME_PLL6293 ]
+    get:
+      - pll6293.qip
+  - when: [ JTFRAME_PLL66671 ]
+    get:
+      - pll66671.qip
+jtframe:
+  - from: sdram
+    get:
+    - jtframe_shadow.v
+  - from: video
+    get:
+    - jtframe_hsize.v
+    - jtframe_lfbuf_ddr.v
+    - jtframe_lfbuf_ddr_ctrl.v
+    - jtframe_lfbuf_line.v
+    - jtframe_logo.v
+    - jtframe_tilemap.v
+    - jtframe_linebuf.v
+  - from: clocking
+    get:
+    - jtframe_rst_sync.v
+    - jtframe_sync.v
+  - from: ram
+    get:
+      - jtframe_prom.v

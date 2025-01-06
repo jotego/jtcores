@@ -1,6 +1,4 @@
 s16:
-  - get:
-    - game.yaml
 s16b:
   - get:
     - jts16b_main.v

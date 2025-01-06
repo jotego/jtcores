@@ -51,7 +51,7 @@ set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 source {{env "JTFRAME"}}/target/mister/sys/sys.tcl
 source {{env "JTFRAME"}}/target/mister/sys/sys_analog.tcl
 
-set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:{{ env "JTFRAME" }}/target/mister/sys/build_id.tcl"
+set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:{{ env "JTFRAME" }}/target/mister/hdl/sys/build_id.tcl"
 # SDC file is copied and edited in the target folder
 set_global_assignment -name SDC_FILE sys_top.sdc
 

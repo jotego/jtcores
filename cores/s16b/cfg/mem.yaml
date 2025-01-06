@@ -1,5 +1,5 @@
 include:
-  - cores: s16
+  - core: s16
 game: s16
 audio:
   rsum: 10k

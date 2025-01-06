@@ -1,0 +1,4 @@
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pll6000/jtframe_pll6000.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pll6144/jtframe_pll6144.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pll6293/jtframe_pll6293.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../hdl/pll6671/jtframe_pll6671.qip"]
