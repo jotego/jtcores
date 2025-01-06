@@ -1,1 +1,1 @@
-set_global_assignment -library "pll" -name QIP_FILE [file join $::quartus(qip_path) "../hdl/sys/pll/pll.qip"]
+set_global_assignment -library "pll" -name QIP_FILE [file join $::quartus(qip_path) "../hdl/sys/pll.qip"]

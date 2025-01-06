@@ -441,6 +441,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         echo -e "      ${wBG} to the PATH environment variable${NC}"
         exit 1
     fi
+    rm -rf $PRJPATH/$TARGET
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
     ############################################

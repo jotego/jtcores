@@ -1,8 +1,11 @@
 jtframe:
   - unless: [VERILATOR, IVERILOG]
+    from: cpu
+    get:
+      - jtframe_8751mcu.v
+  - unless: [VERILATOR, IVERILOG]
     from: cpu/8051
     get:
-      - ../jtframe_8751mcu.v
       - mc8051_p.vhd
       - control_fsm_.vhd
       - control_fsm_rtl.vhd
