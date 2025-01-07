@@ -103,3 +103,11 @@ func Test_normalize_gains(t *testing.T) {
 		}
 	}
 }
+
+func Test_gain2dec(t* testing.T) {
+	if gain2dec("8'h80")!="1.00" { t.Error("Bad conversion") }
+	if gain2dec("8'h40")!="0.50" { t.Error("Bad conversion") }
+	if gain2dec("8'h20")!="0.25" { t.Error("Bad conversion") }
+	if gain2dec("8'hC0")!="1.50" { t.Error("Bad conversion") }
+	if gain2dec("8'hE0")!="1.75" { t.Error("Bad conversion") }
+}

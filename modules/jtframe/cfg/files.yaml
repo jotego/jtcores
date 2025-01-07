@@ -73,3 +73,4 @@ jtframe:
       - jtframe_dcrm.v
       - jtframe_volume.v
       - jtframe_vumeter.sv
+      - jtframe_st2mono.sv

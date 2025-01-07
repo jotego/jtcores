@@ -26,14 +26,24 @@ import (
 	"strings"
 	"strconv"
 	"path/filepath"
-	"gopkg.in/yaml.v2"
+	"text/template"
 
 	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
+
+	"gopkg.in/yaml.v2"
 )
 
 var rout float64
 var audio_modules map[string]AudioCh
+var audio_template_functions template.FuncMap
+
+func init() {
+	audio_modules = read_modules()
+	audio_template_functions = template.FuncMap{
+		"gain2dec": gain2dec,
+	}
+}
 
 func eng2float( s string ) float64 {
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
@@ -299,6 +309,13 @@ func normalize_gains( all_channels []AudioCh, global float64 ) error {
 	return nil
 }
 
-func init() {
-	audio_modules = read_modules()
+func gain2dec(hex string) string {
+	if len(hex)<4 || len(hex)>5 {
+		panic(fmt.Sprintf("Bad format: %s",hex))
+	}
+	hex=hex[3:]
+	integer, e := strconv.ParseInt(hex,16,64)
+	if e!=nil { panic(e) }
+	asfloat := float64(integer)/128.0
+	return fmt.Sprintf("%.2f",asfloat)
 }

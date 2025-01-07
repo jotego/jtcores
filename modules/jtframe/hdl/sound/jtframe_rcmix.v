@@ -128,12 +128,12 @@ always @(posedge clk) if(cen) begin
 end
 
 // convert to mono if the system is mono, otherwise kept as stereo
-jtframe_st2mono #(.W(W0),.SIN(STEREO0),.SOUT(STEREO)) u_st0(.sin(ch0),.sout(sm0));
-jtframe_st2mono #(.W(W1),.SIN(STEREO1),.SOUT(STEREO)) u_st1(.sin(ch1),.sout(sm1));
-jtframe_st2mono #(.W(W2),.SIN(STEREO2),.SOUT(STEREO)) u_st2(.sin(ch2),.sout(sm2));
-jtframe_st2mono #(.W(W3),.SIN(STEREO3),.SOUT(STEREO)) u_st3(.sin(ch3),.sout(sm3));
-jtframe_st2mono #(.W(W4),.SIN(STEREO4),.SOUT(STEREO)) u_st4(.sin(ch4),.sout(sm4));
-jtframe_st2mono #(.W(W5),.SIN(STEREO5),.SOUT(STEREO)) u_st5(.sin(ch5),.sout(sm5));
+jtframe_st2mono #(.W(W0),.STEREO_IN(STEREO0),.STEREO_OUT(STEREO)) u_st0(.sin(ch0),.sout(sm0));
+jtframe_st2mono #(.W(W1),.STEREO_IN(STEREO1),.STEREO_OUT(STEREO)) u_st1(.sin(ch1),.sout(sm1));
+jtframe_st2mono #(.W(W2),.STEREO_IN(STEREO2),.STEREO_OUT(STEREO)) u_st2(.sin(ch2),.sout(sm2));
+jtframe_st2mono #(.W(W3),.STEREO_IN(STEREO3),.STEREO_OUT(STEREO)) u_st3(.sin(ch3),.sout(sm3));
+jtframe_st2mono #(.W(W4),.STEREO_IN(STEREO4),.STEREO_OUT(STEREO)) u_st4(.sin(ch4),.sout(sm4));
+jtframe_st2mono #(.W(W5),.STEREO_IN(STEREO5),.STEREO_OUT(STEREO)) u_st5(.sin(ch5),.sout(sm5));
 
 jtframe_sndchain #(.FILE("ch0.raw"),.W(W0),.WC(WC),.DCRM(DCRM0),.STEREO(STEFF0),.FIR(FIR0)) u_ch0(.rst(rst),.clk(clk),.cen(cen),.poles(p0),.gain(g0),.sin(sm0), .sout(ft0), .peak(v[0]));
 jtframe_sndchain #(.FILE("ch1.raw"),.W(W1),.WC(WC),.DCRM(DCRM1),.STEREO(STEFF1),.FIR(FIR1)) u_ch1(.rst(rst),.clk(clk),.cen(cen),.poles(p1),.gain(g1),.sin(sm1), .sout(ft1), .peak(v[1]));
@@ -221,35 +221,5 @@ generate
         always @(posedge clk) peak <= | {peak_r, v};
     end
 endgenerate
-
-endmodule
-
-// converts stereo to mono by a clipping adder
-// or leaves the signal as stereo if the output can take stereo
-module jtframe_st2mono #(parameter
-    W    = 12,
-    SIN  = 1,
-    SOUT = 1,
-    // Do not assign
-    WI   = (SIN==1?2*W:W),
-    WO   = (SIN==1&&SOUT==1)?2*W:W
-)(
-    input      [WI-1:0] sin,
-    output reg [WO-1:0] sout
-);
-
-wire [W:0] raw = {sin[W-1],sin[0+:W]}+{sin[WI-1],sin[WI-1-:W]};
-reg [W-1:0] mono;
-localparam [1:0] ST2MONO  =2'b10,
-                 STEREO   =2'b11;
-
-always @* begin
-    mono = raw[W]!=raw[W-1] ? { raw[W], {W-1{~raw[W]}}} : raw[W-1:0];
-    case( {SIN[0], SOUT[0]} )
-        STEREO:  sout        = sin[WO-1:0];
-        ST2MONO: sout[W-1:0] = mono;
-        default: sout[W-1:0] = sin[W-1:0];
-    endcase
-end
 
 endmodule

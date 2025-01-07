@@ -4,6 +4,29 @@ The YAML file name must be mem.yaml and be stored in cores/corename/cfg
 The output files are stored in cores/corename/target where target is
 one of the names in the $JTFRAME/target folder (mist, mister, etc.).
 
+## Audio Connections
+
+- If both outputs of YM3012 are connected to the same summing net at an opamp input use the resistance value of one of the outputs as rsum.
+
+Example with YM3012 having both channels connected to the summing net via:
+
+- 1kOhm, 33pF parallel, 1kOhm, 4.7uF series, 1.2kOhm
+
+The RC resistors is the parallel of 1k and 1+1.2
+
+``` YAML
+- {name: fm,  module: jt51, rsum:  3.2k,  rc: [{ r:  687, c: 33n  }, {r: 1rout, c: 2.2n }] }
+```
+
+- If only one output of YM3012 is connected to the summing net, set the pregain to 0.5
+
+``` YAML
+- {name: fm,  module: jt51, rsum:  3.2k,  rc: [{ r:  687, c: 33n  }, {r: 1rout, c: 2.2n }], pre: 0.5 }
+```
+
+
+- For K007232, the output of jt007232 can be taken as two separate channels or a mixed one. The mixed one does not attenuate each channel, so it can clip. On the board, each channel will have its own DAC
+
 ## mem.yaml Syntax
 ```
 # Include other .yaml files

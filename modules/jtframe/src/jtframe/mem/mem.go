@@ -248,7 +248,9 @@ func copy_enabled[Slice ~[]E, E any](ref Slice, valid []int) (copy Slice) {
 
 func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
-	t, e := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	t := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap())
+	t.Funcs(audio_template_functions)
+	t, e = t.ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
 	if e = t.Execute(&buffer, cfg); e!= nil { return e }
