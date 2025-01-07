@@ -18,9 +18,9 @@ jtframe/target/mister:
   - when: [ JTFRAME_PLL6293 ]
     get:
       - pll6293.qip
-  - when: [ JTFRAME_PLL66671 ]
+  - when: [ JTFRAME_PLL6671 ]
     get:
-      - pll66671.qip
+      - pll6671.qip
 jtframe:
   - from: sdram
     get:

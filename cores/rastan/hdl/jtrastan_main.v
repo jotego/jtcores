@@ -127,7 +127,7 @@ module jtrastan_main(
     input         [ 7:0] dipsw_a,
     input         [ 7:0] dipsw_b
 );
-
+`ifndef NOMAIN
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
@@ -285,5 +285,21 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( IPLn        ) // VBLANK
 );
-
+`else
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
+initial begin
+    rom_cs   = 0;
+    ram_cs   = 0;
+    vram_cs  = 0;
+    scr_cs   = 0;
+    pal_cs   = 0;
+    obj_cs   = 0;
+    obj_pal  = 0;
+    sn_we    = 0;
+    sn_rd    = 0;
+    sub_cs   = 0;
+    snd_rstn = 0;
+    mintn    = 0;
+end
+`endif
 endmodule

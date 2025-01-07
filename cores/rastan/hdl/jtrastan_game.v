@@ -36,7 +36,6 @@ assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 
-`ifndef NOMAIN
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
@@ -86,23 +85,7 @@ jtrastan_main u_main(
     .dipsw_a    (dipsw[ 7:0]),
     .dipsw_b    (dipsw[15:8])
 );
-`else
-assign main_addr = 0;
-assign main_dout = 0;
-assign main_cs   = 0;
-assign ram_cs    = 0;
-assign vram_cs   = 0;
-assign obj_cs    = 0;
-assign main_rnw  = 1;
-assign main_dsn  = 3;
-assign scr_cs    = 0;
-assign pal_cs    = 0;
-assign sn_rd     = 0;
-assign sn_we     = 0;
-assign obj_pal   = 0;
-`endif
 
-`ifndef NOSOUND
 jtrastan_snd u_sound(
     .rst        ( rst24         ),
     .clk        ( clk24         ), // 24 MHz
@@ -131,14 +114,6 @@ jtrastan_snd u_sound(
     .fm_r       ( fm_r          ),
     .pcm        ( pcm           )
 );
-`else
-assign snd_cs = 0;
-assign snd_addr = 0;
-assign pcm_addr = 0;
-assign pcm_cs = 0;
-assign snd    = 0;
-assign sn_dout =0;
-`endif
 
 jtrastan_video u_video(
     .rst        ( rst       ),

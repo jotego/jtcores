@@ -43,7 +43,7 @@ module jtrastan_snd(
     output signed [15:0] fm_l, fm_r,
     output signed [11:0] pcm
 );
-
+`ifndef NOSOUND
 wire               cen4, cen2, pcm_cen, nc;
 wire signed [15:0] pre_snd, left_opm, right_opm;
 wire signed [11:0] pcm_snd;
@@ -234,5 +234,12 @@ jt5205 u_5205( // 8kHz, 4 bits/sample
     .irq    (           ),
     .vclk_o ( vclk      )
 );
-
+`else
+assign main_din=0, rom_addr=0, fm_l=0, fm_r=0, pcm=0;
+initial begin
+    rom_cs=0;
+    pcm_addr=0;
+    pcm_cs=0;
+end
+`endif
 endmodule
