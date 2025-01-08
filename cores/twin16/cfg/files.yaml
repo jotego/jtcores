@@ -12,9 +12,6 @@ tmnt:
 simson:
   - get:
     - jt053260.v
-flane:
-  - get:
-    - jt007232.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -35,3 +32,4 @@ jtframe:
       - jtframe_dual_ram16.v
 jt51:
 jt7759:
+jt007232:

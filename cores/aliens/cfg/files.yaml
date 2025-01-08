@@ -11,9 +11,6 @@ aliens:
     - jt051962.v
     - jt051960.v
     - jt052591.v    # collision detector for Thunder Force
-flane:
-  - get:
-    - jt007232.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -26,4 +23,4 @@ jtframe:
       - jtframe_z80.yaml
 jtkcpu:
 jt51:
-
+jt007232:

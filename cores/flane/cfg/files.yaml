@@ -2,7 +2,6 @@ flane:
   - get:
     - jtflane_game.v
     - jtflane_main.v
-    - jt007232.v
     - common.yaml
 labrun:
   - get:
@@ -17,3 +16,4 @@ jtframe:
   - from: cpu
     get:
       - jtframe_6809.yaml
+jt007232:

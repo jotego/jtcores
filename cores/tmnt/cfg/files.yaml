@@ -20,9 +20,6 @@ aliens:
 riders:
   - get:
     - jtriders_dump.v
-flane:
-  - get:
-    - jt007232.v
 jtframe:
   - get:
     - jtframe_edge.v
@@ -40,3 +37,4 @@ jtframe:
       - jtframe_z80.yaml
 jt51:
 jt7759:
+jt007232:

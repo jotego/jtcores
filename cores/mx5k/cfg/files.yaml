@@ -1,9 +1,6 @@
 contra:
   - get:
     - common.yaml
-flane:
-  - get:
-    - jt007232.v
 mx5k:
   - get:
     - jtmx5k_main_decoder.v
@@ -16,3 +13,4 @@ jtframe:
     get:
       - jtframe_z80.yaml
 jt51:
+jt007232:

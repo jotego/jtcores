@@ -12,7 +12,6 @@ mx5k:
 flane:
   - get:
     - common.yaml
-    - jt007232.v
 jtframe:
   - from: cpu
     get:
@@ -21,4 +20,4 @@ jtopl:
   - get:
     - jtopl2.yaml
 jtkcpu:
-
+jt007232:
