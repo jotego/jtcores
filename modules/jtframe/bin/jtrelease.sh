@@ -169,6 +169,9 @@ for t in mist sidi sidi128; do
 done
 jtutil mra --core > $JTBIN/game_list.md
 git add .
+jtutil audit
+mv audit.csv sound_balance.csv
+git add sound_balance.csv
 git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 
 # also mark the commit in jtcores as the current release

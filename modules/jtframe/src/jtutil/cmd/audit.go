@@ -22,7 +22,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/jotego/jtframe/mem"
@@ -33,7 +32,11 @@ var auditCmd = &cobra.Command{
 	Use:   "audit",
 	Short: "Creates a CSV file with the audio channel gains used on each core",
 	Run: func(cmd *cobra.Command, args []string) {
-		audit_audio()
+		e := audit_audio()
+		if e!=nil {
+			fmt.Println(e)
+			os.Exit(1)
+		}
 	},
 }
 
@@ -41,27 +44,21 @@ func init() {
 	rootCmd.AddCommand(auditCmd)
 }
 
-func audit_audio() {
+func audit_audio() error {
 	tmp_dir, e := os.MkdirTemp("/tmp","")
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	if e!=nil { return e }
 	output, e := os.Create("audit.csv")
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	if e!=nil { return e }
 	defer output.Close()
 	for _, core := range get_valid_cores() {
 		var cfg mem.MemConfig
 		mem.Parse_file(core,"mem.yaml",&cfg)
-		e = mem.Make_audio(&cfg,core,tmp_dir)
-		if e!=nil { fmt.Println(e)}
+		e = mem.Make_audio(&cfg,core,tmp_dir); if e!=nil { return fmt.Errorf("%w\nwhile parsing %s",e,core) }
 		fmt.Fprintf(output,"%s",core)
 		report(cfg.Audio.Channels,output)
 	}
 	os.RemoveAll(tmp_dir)
+	return nil
 }
 
 func get_valid_cores() (valid []string) {
@@ -86,14 +83,7 @@ func get_valid_cores() (valid []string) {
 func report(channels []mem.AudioCh, output io.Writer ) {
 	for _, ch := range channels {
 		if ch.Name=="" { break }
-		fmt.Fprintf(output,",%s,%.2f",ch.Name,convert_gain(ch.Gain))
+		fmt.Fprintf(output,",%s,%s",ch.Name,mem.Gain2dec(ch.Gain))
 	}
 	if len(channels)!=0 { fmt.Fprintln(output) }
-}
-
-func convert_gain(hex string) (real float64) {
-	if len(hex)!=5 { panic(fmt.Sprintf("Expected 8'hxx but got %s",hex)) }
-	fixedpoint,_ := strconv.ParseInt(hex[3:],16,64)
-	real = float64(fixedpoint)/128.0
-	return real
 }

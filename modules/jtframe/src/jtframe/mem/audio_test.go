@@ -18,6 +18,7 @@
 package mem
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -105,9 +106,21 @@ func Test_normalize_gains(t *testing.T) {
 }
 
 func Test_gain2dec(t* testing.T) {
-	if gain2dec("8'h80")!="1.00" { t.Error("Bad conversion") }
-	if gain2dec("8'h40")!="0.50" { t.Error("Bad conversion") }
-	if gain2dec("8'h20")!="0.25" { t.Error("Bad conversion") }
-	if gain2dec("8'hC0")!="1.50" { t.Error("Bad conversion") }
-	if gain2dec("8'hE0")!="1.75" { t.Error("Bad conversion") }
+	if Gain2dec("8'h80")!="1.00" { t.Error("Bad conversion") }
+	if Gain2dec("8'h40")!="0.50" { t.Error("Bad conversion") }
+	if Gain2dec("8'h20")!="0.25" { t.Error("Bad conversion") }
+	if Gain2dec("8'hC0")!="1.50" { t.Error("Bad conversion") }
+	if Gain2dec("8'hE0")!="1.75" { t.Error("Bad conversion") }
+}
+
+func Test_parallel_res(t* testing.T) {
+	if p,_:=parallel_res(1.0,1.0);fmt.Sprintf("%.2f",p)!="0.50" {t.Errorf("Bad value %.2f",p)}
+	if p,_:=parallel_res(2.0,1.0);fmt.Sprintf("%.2f",p)!="0.67" {t.Errorf("Bad value %.2f",p)}
+	if p,_:=parallel_res(2.0,6.0);fmt.Sprintf("%.2f",p)!="1.50" {t.Errorf("Bad value %.2f",p)}
+}
+
+func Test_resistor_div(t* testing.T) {
+	if fmt.Sprintf("%.2f",resistor_div(1.0,1.0))!="0.50" {t.Error("Bad value")}
+	if fmt.Sprintf("%.2f",resistor_div(2.0,1.0))!="0.67" {t.Error("Bad value")}
+	if fmt.Sprintf("%.2f",resistor_div(2.0,6.0))!="0.25" {t.Error("Bad value")}
 }

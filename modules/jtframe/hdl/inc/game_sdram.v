@@ -551,6 +551,8 @@ jtframe_rcmix #(
     .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}30'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}} Hz, {{ index $ch3.Fcut 1 }} Hz {{end}}
     .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}30'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}} Hz, {{ index $ch4.Fcut 1 }} Hz {{end}}
     .p5     ( {{ if $ch5.Pole }}{{$ch5.Pole}}{{else}}30'h0{{end}}), {{if $ch5.Name }}// {{ index $ch5.Fcut 0}} Hz, {{ index $ch5.Fcut 1 }} Hz {{end}}
+    {{- if .Audio.Rsum_feedback_res}}
+    // Active summing network. Opamp feedback resistor {{.Audio.Rsum}} {{end}}
     .g0     ( {{ $ch0.Gain }} ), // {{ gain2dec $ch0.Gain }} {{with $ch0.Name}} {{.}}{{end}}
     .g1     ( {{ $ch1.Gain }} ), // {{ gain2dec $ch1.Gain }} {{with $ch1.Name}} {{.}}{{end}}
     .g2     ( {{ $ch2.Gain }} ), // {{ gain2dec $ch2.Gain }} {{with $ch2.Name}} {{.}}{{end}}

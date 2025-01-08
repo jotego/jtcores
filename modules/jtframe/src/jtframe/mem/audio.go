@@ -41,7 +41,7 @@ var audio_template_functions template.FuncMap
 func init() {
 	audio_modules = read_modules()
 	audio_template_functions = template.FuncMap{
-		"gain2dec": gain2dec,
+		"gain2dec": Gain2dec,
 	}
 }
 
@@ -202,10 +202,10 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 	const fs = float64(192000)
 	// assign information derived from the module type
 	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
-	rmin,rmax,_ := find_rlimits(cfg.Audio.Channels)
+	_,_,rtotal := find_rlimits(cfg.Audio.Channels)
 	fill_global_pole( &cfg.Audio, fs )
 	rsum := eng2float(cfg.Audio.Rsum)
-	if rsum==0 { rsum = rmax }
+	if rsum==0 { rsum = rtotal }
 	for k,_ := range cfg.Audio.Channels {
 		ch := &cfg.Audio.Channels[k]
 		mod, fnd := audio_modules[ch.Module]
@@ -216,10 +216,18 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 		rout = eng2float(ch.Rout)
 		ch.rout = rout
 		make_audio_filters( core, outpath, ch, fs )
+		ch_res := eng2float(ch.Rsum)
 		if cfg.Audio.Rsum_feedback_res {
-			ch.gain=eng2float(ch.Rsum)/rsum
+			ch.gain=rsum/ch_res
 		} else {
-			ch.gain=rmin/eng2float(ch.Rsum)
+			rother := rtotal-ch_res
+			rgnd := rsum
+			if rother!=0 {
+				var e error
+				rgnd, e = parallel_res(rsum,rother)
+				if e!=nil { return e }
+			}
+			ch.gain=resistor_div(rgnd,ch_res)
 		}
 		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
 		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
@@ -238,6 +246,19 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 	}
 	cfg.Stereo = macros.IsSet("JTFRAME_STEREO")
 	return nil
+}
+
+func parallel_res(rr ...float64) (req float64, e error) {
+	for _,res := range rr {
+		if res==0 { return 0,fmt.Errorf("0 is not a valid resistor value")}
+		req += 1.0/res
+	}
+	return 1.0/req,nil
+}
+
+func resistor_div(rgnd, rin float64) float64 {
+	rtotal := rgnd+rin
+	return rgnd/rtotal
 }
 
 func validate_channels( all_channels []AudioCh) error {
@@ -310,7 +331,7 @@ func normalize_gains( all_channels []AudioCh, global float64 ) error {
 	return nil
 }
 
-func gain2dec(hex string) string {
+func Gain2dec(hex string) string {
 	if len(hex)<4 || len(hex)>5 {
 		panic(fmt.Sprintf("Bad format: %s",hex))
 	}
