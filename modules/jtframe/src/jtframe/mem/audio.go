@@ -202,7 +202,7 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 	const fs = float64(192000)
 	// assign information derived from the module type
 	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
-	rmin,rmax := find_rlimits(cfg.Audio.Channels)
+	rmin,rmax,_ := find_rlimits(cfg.Audio.Channels)
 	fill_global_pole( &cfg.Audio, fs )
 	rsum := eng2float(cfg.Audio.Rsum)
 	if rsum==0 { rsum = rmax }
@@ -261,13 +261,14 @@ func validate_channels( all_channels []AudioCh) error {
 	return nil
 }
 
-func find_rlimits( all_channels []AudioCh ) (rmin, rmax float64) {
+func find_rlimits( all_channels []AudioCh ) (rmin, rmax, rtotal float64) {
 	for _,ch := range all_channels {
 		rsum := eng2float(ch.Rsum)
 		if (rsum>0 && rsum < rmin) || rmin==0 { rmin=rsum }
 		if rsum>0 && rsum > rmax { rmax=rsum }
+		rtotal+=rsum
 	}
-	return rmin,rmax
+	return rmin,rmax,rtotal
 }
 
 func copy_module_data( src AudioCh, dst *AudioCh ) {

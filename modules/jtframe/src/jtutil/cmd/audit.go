@@ -55,7 +55,7 @@ func audit_audio() {
 	defer output.Close()
 	for _, core := range get_valid_cores() {
 		var cfg mem.MemConfig
-		mem.Parse_file(core,"mem",&cfg)
+		mem.Parse_file(core,"mem.yaml",&cfg)
 		e = mem.Make_audio(&cfg,core,tmp_dir)
 		if e!=nil { fmt.Println(e)}
 		fmt.Fprintf(output,"%s",core)
