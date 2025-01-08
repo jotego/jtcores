@@ -79,14 +79,14 @@ module jt007232(
     // sound output - scaled by register 12
     output reg signed [11:0] snda,
     output reg signed [11:0] sndb,
-    output signed [11:0] snd,
+    output     signed [11:0] snd,
     // debug
     input         [ 7:0] debug_bus,
     output reg    [ 7:0] st_dout
 );
 
 parameter REG12A=1, // location of CHA gain, the gain device is external to the
-                    // chip. Thre is normally an 8-bit latch attached. It holds
+                    // chip. There is normally an 8-bit latch attached. It holds
                     // the value at mmr[12], which isn't internal but just sets
                     // the SLEV pin when set.
                     // MX5000 uses the upper nibble for channel A, but
@@ -100,9 +100,8 @@ wire signed [ 7:0] rawa, rawb;
 wire [11:0] cha_pres = { mmr[1][3:0], mmr[0] };
 wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
 wire [ 1:0] cha_presel = mmr[1][5:4];
-reg         cha_play, cha_load;
+reg         cha_play, cha_load, peak;
 wire        cha_loop = mmr[13][0];
-wire signed [4:0] cha_gain = {1'b0, (REG12A[0]^swap_gains) ? mmr[12][7:4] : mmr[12][3:0] };
 
 // Channel B control
 wire [11:0] chb_pres = { mmr[7][3:0], mmr[6] };
@@ -110,21 +109,18 @@ wire [16:0] chb_addr = { mmr[10][0], mmr[9], mmr[8] };
 wire [ 1:0] chb_presel = mmr[7][5:4];
 reg         chb_play, chb_load;
 wire        chb_loop = mmr[13][1];
-wire signed [4:0] chb_gain = {1'b0, ~(REG12A[0]^swap_gains) ? mmr[12][7:4] : mmr[12][3:0] };
-
-// assign cen_2m = 0;
 
 wire [3:0] addrj = INVA0==1 ? (addr^4'b1) : addr; // addr LSB may be inverted
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        snda <= 0;
-        sndb <= 0;
-    end else begin
-        snda <= rawa * cha_gain;
-        sndb <= rawb * chb_gain;
-    end
-end
+jt007232_gain u_gain(
+    .clk        ( clk         ),
+    .reg12      ( mmr[12]     ),
+    .swap_gains ( swap_gains  ),
+    .rawa       ( rawa        ),
+    .rawb       ( rawb        ),
+    .snda       ( snda        ),
+    .sndb       ( sndb        )
+);
 
 jtframe_limsum #(.WI(12),.K(2)) u_limsum(
     .rst    ( rst   ),
@@ -133,7 +129,7 @@ jtframe_limsum #(.WI(12),.K(2)) u_limsum(
     .en     ( 2'b11 ),
     .parts  ( {snda, sndb } ),
     .sum    ( snd   ),
-    .peak   (       )
+    .peak   ( peak  )
 );
 
 always @(posedge clk, posedge rst) begin
