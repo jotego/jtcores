@@ -1,9 +1,9 @@
 module test;
 
-localparam W=12;
+localparam W=11;
 
 reg clk;
-reg signed [7:0] rawa, rawb;
+reg signed [6:0] rawa, rawb;
 reg [7:0] reg12;
 wire signed [W-1:0] snda, sndb;
 

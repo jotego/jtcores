@@ -33,10 +33,10 @@ module jt007232_channel(
     output            rom_cs,
     input             rom_ok,
     input      [ 7:0] rom_dout,
-    output reg signed [7:0] snd
+    output reg signed [6:0] snd
 );
 
-parameter [7:0] OFFSET='h40;
+parameter [6:0] OFFSET='h40;
 
 reg  [11:0] cnt;
 wire        over;
@@ -66,7 +66,7 @@ always @(posedge clk, posedge rst) begin
                     end else begin
                         rom_addr <= rom_addr + 1'd1;
                     end
-                    snd <= {1'b0, rom_dout[6:0]}-OFFSET;
+                    snd <= rom_dout[6:0]-OFFSET;
                     if( rom_dout[7] ) begin
                         if( loop )
                             rom_addr <= rom_start;
