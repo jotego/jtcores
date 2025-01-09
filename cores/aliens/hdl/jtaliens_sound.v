@@ -44,7 +44,7 @@ module jtaliens_sound(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [11:0] pcm,
+    output signed [10:0] pcm,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
