@@ -77,8 +77,8 @@ module jt007232(
     output            romb_cs,
     input             romb_ok,
     // sound output - scaled by register 12
-    output reg signed [11:0] snda,
-    output reg signed [11:0] sndb,
+    output     signed [11:0] snda,
+    output     signed [11:0] sndb,
     output     signed [11:0] snd,
     // debug
     input         [ 7:0] debug_bus,
@@ -100,7 +100,8 @@ wire signed [ 7:0] rawa, rawb;
 wire [11:0] cha_pres = { mmr[1][3:0], mmr[0] };
 wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
 wire [ 1:0] cha_presel = mmr[1][5:4];
-reg         cha_play, cha_load, peak;
+reg         cha_play, cha_load;
+wire        peak;
 wire        cha_loop = mmr[13][0];
 
 // Channel B control
