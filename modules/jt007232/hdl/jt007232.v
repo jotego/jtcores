@@ -100,7 +100,8 @@ wire signed [ 7:0] rawa, rawb;
 wire [11:0] cha_pres = { mmr[1][3:0], mmr[0] };
 wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
 wire [ 1:0] cha_presel = mmr[1][5:4];
-reg         cha_play, cha_load, peak;
+reg         cha_play, cha_load;
+wire        peak;
 wire        cha_loop = mmr[13][0];
 
 // Channel B control
