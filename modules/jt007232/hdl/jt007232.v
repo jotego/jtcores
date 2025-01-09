@@ -113,7 +113,7 @@ wire        chb_loop = mmr[13][1];
 
 wire [3:0] addrj = INVA0==1 ? (addr^4'b1) : addr; // addr LSB may be inverted
 
-jt007232_gain u_gain(
+jt007232_gain #(.REG12A(REG12A)) u_gain(
     .clk        ( clk         ),
     .reg12      ( mmr[12]     ),
     .swap_gains ( swap_gains  ),
