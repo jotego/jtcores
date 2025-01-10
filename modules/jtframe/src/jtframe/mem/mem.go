@@ -37,6 +37,39 @@ import (
 	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
+func Run(args Args) (e error) {
+	var cfg MemConfig
+	Verbose = args.Verbose
+	macros.MakeMacros(args.Core,args.Target)
+	if args.Nodbg {
+		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
+		macros.Set("JTFRAME_RELEASE","")
+	}
+	if !Parse_file(args.Core, "mem.yaml", &cfg) {
+		// the mem.yaml file does not exist, that's
+		// normally ok
+		return
+	}
+	bankOffset( &cfg, args.Core )
+	// Checks
+	if e = check_banks( &cfg ); e!=nil { return e }
+	if e = check_bram ( &cfg ); e!=nil { return e }
+	// Data arrangement
+	fill_implicit_ports( &cfg )
+	make_ioctl( &cfg )
+	fill_gfx_sort( &cfg )
+	// Fill the clock configuration
+	make_clocks( &cfg )
+	// Audio configuration
+	e = Make_audio( &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
+	// Execute the template
+	cfg.Core = args.Core
+	e = make_sdram(args, &cfg);     if e!=nil { return e }
+	e = add_game_ports(args, &cfg); if e!=nil { return e }
+	e = make_dump2bin(args.Core, &cfg ); if e!=nil { return e }
+	return nil
+}
+
 func (arg Args) get_path(fname string, prefix bool ) string {
 	if prefix {
 		fname = "jt"  + arg.Core + fname
@@ -247,10 +280,12 @@ func copy_enabled[Slice ~[]E, E any](ref Slice, valid []int) (copy Slice) {
 }
 
 func make_sdram( finder path_finder, cfg *MemConfig) (e error){
-	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc")
+	game_sdram := filepath.Join(tpath,"game_sdram.v")
+	game_audio := filepath.Join(tpath,"game_audio.v")
 	t := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap())
 	t.Funcs(audio_template_functions)
-	t, e = t.ParseFiles(tpath)
+	_, e = t.ParseFiles(game_audio,game_sdram)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
 	if e = t.Execute(&buffer, cfg); e!= nil { return e }
@@ -334,40 +369,6 @@ func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
 	if Verbose {
 		fmt.Printf("%s created\n",outpath)
 	}
-	return nil
-}
-
-
-func Run(args Args) (e error) {
-	var cfg MemConfig
-	Verbose = args.Verbose
-	macros.MakeMacros(args.Core,args.Target)
-	if args.Nodbg {
-		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
-		macros.Set("JTFRAME_RELEASE","")
-	}
-	if !Parse_file(args.Core, "mem.yaml", &cfg) {
-		// the mem.yaml file does not exist, that's
-		// normally ok
-		return
-	}
-	bankOffset( &cfg, args.Core )
-	// Checks
-	if e = check_banks( &cfg ); e!=nil { return e }
-	if e = check_bram ( &cfg ); e!=nil { return e }
-	// Data arrangement
-	fill_implicit_ports( &cfg )
-	make_ioctl( &cfg )
-	fill_gfx_sort( &cfg )
-	// Fill the clock configuration
-	make_clocks( &cfg )
-	// Audio configuration
-	e = Make_audio( &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
-	// Execute the template
-	cfg.Core = args.Core
-	e = make_sdram(args, &cfg);     if e!=nil { return e }
-	e = add_game_ports(args, &cfg); if e!=nil { return e }
-	e = make_dump2bin(args.Core, &cfg ); if e!=nil { return e }
 	return nil
 }
 

@@ -244,7 +244,7 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
 		}
 	}
-	cfg.Stereo = macros.IsSet("JTFRAME_STEREO")
+	cfg.Audio.Stereo = macros.IsSet("JTFRAME_STEREO")
 	return nil
 }
 

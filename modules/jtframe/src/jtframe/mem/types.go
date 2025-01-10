@@ -207,6 +207,7 @@ type Audio struct {
     // Derived information
     GlobalPole string
     GlobalFcut int
+    Stereo     bool
 }
 
 type MemConfig struct {
@@ -230,7 +231,6 @@ type MemConfig struct {
     Unused   [4]bool // true for unused banks
     // Derived information
     Ioctl    Ioctl
-    Stereo   bool
     Gfx8     string
     Gfx16    string
     Gfx8b0, Gfx16b0 int
