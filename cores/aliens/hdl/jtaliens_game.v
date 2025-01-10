@@ -47,7 +47,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if( prog_addr==0 && prog_we && header )
+    if( prog_addr==1 && prog_we && header )
         { game_id, gx878 } <= prog_data[2:0];
 end
 

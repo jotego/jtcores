@@ -111,8 +111,6 @@ always @(*) begin
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
         end
     endcase
-    // if( cfg==SCONTRA  ) fm_gain = 8'h20;
-    // if( cfg==THUNDERX ) fm_gain = 8'h10;
 end
 
 always @(*) begin
