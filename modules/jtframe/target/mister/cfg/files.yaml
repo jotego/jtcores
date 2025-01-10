@@ -21,6 +21,12 @@ jtframe/target/mister:
   - when: [ JTFRAME_PLL6671 ]
     get:
       - pll6671.qip
+  - when: [ JTFRAME_SDRAM96 ]
+    get:
+      - sdram_clk96.sdc
+  - unless: [ JTFRAME_SDRAM96 ]
+    get:
+      - sdram_clk48.sdc
 jtframe:
   - from: sdram
     get:

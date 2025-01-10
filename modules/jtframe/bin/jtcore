@@ -376,16 +376,6 @@ function copy_templates {
         # Prepare config string
         parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
     fi
-    # Copy SDC file and SDRAM constraints
-    if is_mister_family; then
-        if grep JTFRAME_SDRAM96 $QSF; then
-            cp $JTFRAME/target/$TARGET/syn/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
-        else
-            cp $JTFRAME/target/$TARGET/syn/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
-            cat $JTFRAME/target/$TARGET/syn/slew_rate.tcl >> $QSF
-        fi
-        cat $JTFRAME/target/$TARGET/hdl/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
-    fi
 }
 
 
