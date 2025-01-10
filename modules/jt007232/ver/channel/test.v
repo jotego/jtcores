@@ -1,12 +1,12 @@
 module test;
 
 localparam W=7; //8
-localparam [7:0] OFFSET='h40;
+localparam OFF=64;
 
 reg clk, rst;
 reg [7:0] dout;
 reg play;
-wire signed [W-1:0] snd;
+wire signed [W-1:0] snd_out;
 
 /*
 initial begin
@@ -22,7 +22,7 @@ initial begin
     forever #10 clk=~clk;
 end
 
-integer gain=0,exp;
+integer snd_in=0,exp;
 
 initial begin
     rst  = 1;
@@ -32,20 +32,14 @@ initial begin
     rst  = 0;
     @(posedge clk)
     play = 1;
-    for(gain=0;gain<256;gain=gain+1) begin
-        dout=gain[7:0];
+    for(snd_in=0;snd_in<128;snd_in=snd_in+1) begin
+        dout=snd_in[7:0];
         repeat (2) @(posedge clk);
-        exp = dout[6:0] - OFFSET;
+        exp = snd_in - OFF;
         @(posedge clk);
-        if(snd!=$signed(exp[W-1:0])) begin
-            $display("Bad value at rom_dout %d",dout);
-            $display("output vs expected: %d <> %d",snd,exp);
-            $display("FAIL");
-            $finish;
-        end
-        if( exp[30:W-1]!={32-W{exp[31]}}) begin
-            $display("Bad sign at rom_dout %d/%d",dout);
-            $display("output vs expected: %d <> %d",snd,exp);
+        if( {{32-W{snd_out[W-1]}},snd_out}!=exp) begin
+            $display("Bad signed value at rom_dout %d",dout);
+            $display("output vs expected: %d <> %d",snd_out,exp);
             $display("FAIL");
             $finish;
         end
@@ -69,7 +63,7 @@ jt007232_channel uut(
     .rom_cs     (         ),
     .rom_ok     ( 1'b1    ),
     .rom_dout   ( dout    ),
-    .snd        ( snd     )
+    .snd        ( snd_out )
 );
 
 endmodule
