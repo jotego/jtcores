@@ -83,11 +83,11 @@ func TestMake_rc(t *testing.T) {
 }
 
 func Test_normalize_gains(t *testing.T) {
-	channels := []AudioCh{
-		{ gain: 1.0 },
-		{ gain: 2.0 },
-		{ gain: 3.0 },
-		{ gain: 4.0 },
+	channels := []float64{
+		1.0,
+		2.0,
+		3.0,
+		4.0,
 	}
 	const global_gain=1.5
 	normalize_gains(channels,global_gain)
@@ -98,9 +98,9 @@ func Test_normalize_gains(t *testing.T) {
 		4.0/4.0*global_gain,
 	}
 	for k,_ := range expected {
-		if channels[k].gain!=expected[k] {
+		if channels[k]!=expected[k] {
 			t.Errorf("Expected gain %.2f for channel %d. Got %.2f",
-				expected[k], k, channels[k].gain)
+				expected[k], k, channels[k])
 		}
 	}
 }
@@ -123,4 +123,26 @@ func Test_resistor_div(t* testing.T) {
 	if fmt.Sprintf("%.2f",resistor_div(1.0,1.0))!="0.50" {t.Error("Bad value")}
 	if fmt.Sprintf("%.2f",resistor_div(2.0,1.0))!="0.67" {t.Error("Bad value")}
 	if fmt.Sprintf("%.2f",resistor_div(2.0,6.0))!="0.25" {t.Error("Bad value")}
+}
+
+func Test_fill_PCB_configurations(t *testing.T) {
+	pcbs := []AudioPCB{
+		{ Rfb: "10k", Rsums: []string{"5k",   "3k"} },
+		{ Rfb: "24k", Rsums: []string{"15k", "30k", "25k"} },
+		{ Rfb: "34k", Rsums: []string{"25k", "10k", "35k", "40k"} },
+	}
+	e := fill_PCB_configurations(pcbs)
+	if e!=nil { t.Error(e) }
+	expected := []string{
+		"48'h80_4C",
+		"48'h4C_40_80",
+		"48'h20_24_80_33",
+	}
+	for k, pcb:= range pcbs {
+		if pcb.Gaincfg!=expected[k] {
+			t.Errorf("Mismatched gain string")
+			t.Log("Got",pcb.Gaincfg)
+			t.Log("Expected",expected[k])
+		}
+	}
 }

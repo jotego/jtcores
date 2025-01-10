@@ -7,6 +7,21 @@
 {{- $ch4 := (index .Channels 4) -}}
 {{- $ch5 := (index .Channels 5) }}{{ if not .Mute }}
 assign mute=0;{{end}}
+{{ if (len .Audio.pcb) }}
+wire [7:0] g0,g1,g2,g3,g4,g5;
+jtframe_gainmux #( {{ range $k,$pcb := .Audio.PCB }}
+    {{ if ne $k }},
+    {{end}}.GAME{{$k}}({{.Gaincfg}}){{end}})u_gainmux(
+    .clk    ( clk       ),
+    .sel    ( game_id   ),
+    .g0     ( g0        ),
+    .g1     ( g1        ),
+    .g2     ( g2        ),
+    .g3     ( g3        ),
+    .g4     ( g4        ),
+    .g5     ( g5        )
+);
+{{ endif }}
 jtframe_rcmix #(
     {{ if $ch0.Name }}.W0({{$ch0.Data_width}}),{{end}}{{ if $ch1.Name }}
     .W1({{$ch1.Data_width}}),{{end}}{{ if $ch2.Name }}

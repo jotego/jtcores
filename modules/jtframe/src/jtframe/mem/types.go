@@ -195,6 +195,15 @@ type AudioCh struct {
     rout       float64
 }
 
+type AudioPCB struct{
+    Machine     string `yaml:"machine"`
+    Machines    string `yaml:"machines"`
+    Rfb         string `yaml:"rfb"`     // feedback resistor of final opamp
+    Rsums     []string `yaml:"rsums"`   // summing resistor for each channel
+    // Derived, not in YAML
+    Gaincfg     string
+}
+
 type Audio struct {
     Mute    bool   `yaml:"mute"`
     RC         AudioRC `yaml:"rc"`
@@ -204,6 +213,7 @@ type Audio struct {
     Channels []AudioCh `yaml:"channels"`
     // Fractional divider information to generate 192kHz clock
     FracW,FracN,FracM int
+    PCB []AudioPCB `yaml:"pcb"`
     // Derived information
     GlobalPole string
     GlobalFcut int
