@@ -141,14 +141,14 @@ func (this *RegCfg) EffName() string {
 }
 
 type RawData struct {
+    Data string
     Selectable
-    Dev              string // required device name to apply these data, ignored if blank
-    Offset           int
-    Data             string
 }
 
 type HeaderData struct {
     RawData
+    Offset  int
+    Dev     string // required device name to apply these data, ignored if blank
     Game_id bool
 }
 

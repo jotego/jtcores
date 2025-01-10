@@ -66,7 +66,7 @@ func make_header(node *XMLNode, reg_offsets map[string]int, total int, cfg Heade
 	}
 	headbytes := make_empty_header(byte(cfg.Fill),cfg.Len)
 	bank_offset( headbytes, reg_offsets, cfg )
-	headbytes = parse_header_data(cfg.Data,headbytes,machine)
+	headbytes = cfg.parse_data(headbytes,machine)
 	node.SetText(hexdump(headbytes, 8))
 	return nil
 }
@@ -79,20 +79,18 @@ func make_empty_header(fill byte, length int) []byte {
 	return headbytes
 }
 
-func parse_header_data( cfg []HeaderData, headbytes []byte, machine *MachineXML ) []byte {
-	for _, each := range cfg {
+func (hdr HeaderCfg) parse_data( headbytes []byte, machine *MachineXML ) []byte {
+	for _, each := range hdr.Data {
 		if each.Match(machine) == 0 { continue }
-		if !has_dev(each.Dev,machine.Devices)  { continue }
+		if each.Dev!="" && !has_dev(each.Dev,machine.Devices)  { continue }
+		rawbytes := hdr.get_entry_bytes(each,machine)
 		pos := each.Offset
-		rawbytes := rawdata2bytes(each.Data)
 		copy(headbytes[pos:], rawbytes)
-		pos += len(rawbytes)
 	}
 	return headbytes
 }
 
 func has_dev(name string, devs []MameDevice ) bool {
-	if name=="" { return true }
 	found := false
 	for _, ref := range devs {
 		if name == ref.Name {
@@ -101,4 +99,17 @@ func has_dev(name string, devs []MameDevice ) bool {
 		}
 	}
 	return found
+}
+
+func (cfg HeaderCfg) get_entry_bytes( data_entry HeaderData, machine *MachineXML ) []byte {
+	if data_entry.Game_id {
+		id := machine.Index(cfg.Game_ids)
+		return []byte{byte(id)}
+	} else {
+		return rawdata2bytes(data_entry.Data)
+	}
+}
+
+func (cfg HeaderCfg)get_gameid(machine *MachineXML) int {
+	return machine.Index(cfg.Game_ids)
 }
