@@ -20,8 +20,8 @@ module jt007232_gain(
     input                    clk,
     input                    swap_gains,   // makes ^ with REG12A below
     input             [ 7:0] reg12,
-    input      signed [ 7:0] rawa, rawb,
-    output reg signed [11:0] snda, sndb
+    input      signed [ 6:0] rawa, rawb,
+    output reg signed [10:0] snda, sndb
 );
 
 parameter REG12A=1;

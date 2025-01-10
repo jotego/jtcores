@@ -77,9 +77,9 @@ module jt007232(
     output            romb_cs,
     input             romb_ok,
     // sound output - scaled by register 12
-    output     signed [11:0] snda,
-    output     signed [11:0] sndb,
-    output     signed [11:0] snd,
+    output     signed [10:0] snda,
+    output     signed [10:0] sndb,
+    output     signed [10:0] snd,
     // debug
     input         [ 7:0] debug_bus,
     output reg    [ 7:0] st_dout
@@ -95,7 +95,7 @@ parameter REG12A=1, // location of CHA gain, the gain device is external to the
 
 reg [7:0] mmr[0:13]; // Not all bits are used
 
-wire signed [ 7:0] rawa, rawb;
+wire signed [ 6:0] rawa, rawb;
 // Channel A control
 wire [11:0] cha_pres = { mmr[1][3:0], mmr[0] };
 wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
@@ -123,7 +123,7 @@ jt007232_gain #(.REG12A(REG12A)) u_gain(
     .sndb       ( sndb        )
 );
 
-jtframe_limsum #(.WI(12),.K(2)) u_limsum(
+jtframe_limsum #(.WI(11),.K(2)) u_limsum(
     .rst    ( rst   ),
     .clk    ( clk   ),
     .cen    ( 1'b1  ),
