@@ -41,7 +41,8 @@ module jtcastle_sound(
 
     // Sound output
     output signed [15:0] fm,
-    output signed [11:0] pcm_a, pcm_b, scc
+    output signed [11:0] scc,
+    output signed [10:0] pcm_a, pcm_b
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, scc_dout;

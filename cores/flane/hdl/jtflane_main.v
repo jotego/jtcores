@@ -78,7 +78,7 @@ module jtflane_main(
     input               pcmd_ok,
 
     // Sound
-    output signed [11:0] pcm0, pcm1
+    output signed [10:0] pcm0, pcm1
 );
 
 wire [ 7:0] prot_dout, ram_dout;

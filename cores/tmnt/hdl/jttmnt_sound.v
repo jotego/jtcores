@@ -71,7 +71,7 @@ module jttmnt_sound(
     // Sound output
     output reg signed [15:0] title,
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r,
-    output     signed [11:0] pcm,
+    output     signed [10:0] pcm,
     output     signed [ 8:0] upd,
     // Debug
     input         [ 7:0] debug_bus,

@@ -48,7 +48,6 @@ initial begin
     $finish;
 end
 
-
 jt007232_channel uut(
     .rst        ( rst     ),
     .clk        ( clk     ),

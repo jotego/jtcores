@@ -41,7 +41,7 @@ module jtmx5k_sound(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [11:0] pcm
+    output signed [10:0] pcm
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
