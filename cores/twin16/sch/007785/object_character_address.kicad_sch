@@ -7829,9 +7829,9 @@
 		)
 		(uuid "d63abbec-47a2-4666-9874-9495e08f270e")
 	)
-	(text "VSIZE1	VSIZE0	VSIZE	HSIZE1	HSIZE0	HSIZE	OCAS2	OCAS1	OCAS0\n0		0		16		0		0		16		0		0		0		0	16H16V		256\n0		0		16		0		1		32		0		0		1		1	32H16V		512\n0		0		16		1		0		64		0		1		0		2	64H16V		1024\n0		0		16		1		1		128		0		1		1		3	128H16V		2048\n0		1		32		0		0		16		1		0		0		4	16H32V		512\n0		1		32		0		1		32		1		0		1		5	32H32V		1024\n0		1		32		1		0		64		0		1		0		2	64H32V		2048\n0		1		32		1		1		128		0		1		1		3	128H32V		4096\n1		0		64		0		0		16		0		1		0		2	16H64V		1024\n1		0		64		0		1		32		0		1		1		3	32H64V		2048\n1		0		64		1		0		64		1		1		0		6	64H64V		4096\n1		0		64		1		1		128		1		1		1		7	128H64V		8192\n1		1		128		0		0		16		1		1		0		6	16H128V		2048\n1		1		128		0		1		32		1		1		1		7	32H128V		4096\n1		1		128		1		0		64		1		1		0		6	64H128V		8192\n1		1		128		1		1		128		1		1		1		7	128H128V	16384"
+	(text "VSIZE1	VSIZE0	VSIZE	HSIZE1	HSIZE0	HSIZE	OCAS2	OCAS1	OCAS0\n0		0		16		0		0		16		0		0		0		0	16H16V\n0		0		16		0		1		32		0		0		1		1	32H16V\n0		0		16		1		0		64		0		1		0		2	64H16V\n0		0		16		1		1		128		0		1		1		3	128H16V\n0		1		32		0		0		16		1		0		0		4	16H32V\n0		1		32		0		1		32		1		0		1		5	32H32V\n0		1		32		1		0		64		0		1		0		2	64H32V\n0		1		32		1		1		128		0		1		1		3	128H32V\n1		0		64		0		0		16		0		1		0		2	16H64V\n1		0		64		0		1		32		0		1		1		3	32H64V\n1		0		64		1		0		64		1		1		0		6	64H64V\n1		0		64		1		1		128		1		1		1		7	128H64V\n1		1		128		0		0		16		1		1		0		6	16H128V\n1		1		128		0		1		32		1		1		1		7	32H128V\n1		1		128		1		0		64		1		1		0		6	64H128V\n1		1		128		1		1		128		1		1		1		7	128H128V"
 		(exclude_from_sim no)
-		(at 15.24 144.78 0)
+		(at 21.59 143.51 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7883,6 +7883,17 @@
 			(justify left bottom)
 		)
 		(uuid "e8976371-4715-434c-82a3-1ed9a9de2d39")
+	)
+	(text "Size						OCA0	OCA1	OCA2	OCA3	OCA4	OCA5	OCA6	OCA7	OCA8	OCA9	OCA10\n16H16V						H8F		V1F		V2F		V4F		V8F		CODE0	CODE1	CODE2	CODE3	CODE4	CODE5\n32H16V						H8F		H16F	V1F		V2F		V4F		V8F		CODE1	CODE2	CODE3	CODE4	CODE5\n16H32V						H8F		V1F		V2F		V4F		V8F		V16F	CODE1	CODE2	CODE3	CODE4	CODE5\n32H32V						H8F		H16F	V1F		V2F		V4F		V8F		V16F	CODE2	CODE3	CODE4	CODE5\n64H16V, 64H32V, 16H64V		H8F		H16F	H32F	V1F		V2F		V4F		V8F		V16F	CODE3	CODE4	CODE5\n128H16V, 128H32V, 32H64V	H8F		H16F	V1F		V2F		V4F		V8F		V16F	V32F	CODE3	CODE4	CODE5\n64H64V, 16H128V, 64H128V	H8F		H16F	H32F	V1F		V2F		V4F		V8F		V16F	V32F	CODE4	CODE5\n128H64V, 32H128V, 128H128V	H8F		H16F	H32F	H64F	V1F		V2F		V4F		V8F		V16F	V32F	V64F"
+		(exclude_from_sim no)
+		(at 250.19 218.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "ecb84d30-b98a-4d95-992c-e7cf3aa6fb61")
 	)
 	(text "2"
 		(exclude_from_sim no)
@@ -8115,7 +8126,7 @@
 		)
 		(uuid "1281039b-1666-4e0c-be8c-aaae6fc95aa4")
 	)
-	(label "V1F"
+	(label "H16F"
 		(at 143.51 82.55 0)
 		(fields_autoplaced yes)
 		(effects
@@ -8599,7 +8610,7 @@
 		)
 		(uuid "30088f25-84ab-4b05-8532-bef334d7ca04")
 	)
-	(label "V1F"
+	(label "H16F"
 		(at 143.51 95.25 0)
 		(fields_autoplaced yes)
 		(effects
