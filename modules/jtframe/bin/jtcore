@@ -364,17 +364,8 @@ function parse_macros {
 function copy_templates {
     jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
     jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
-    # TCL in HDL folder is always appended
-    TCL=$PRJPATH/cfg/$corename.tcl
     MACROS_FILE=$PRJPATH/cfg/macros.def
     QSF=$PRJPATH/$TARGET/$corename.qsf
-    if [ -e $TCL ]; then
-        cat $TCL >> $QSF
-    fi
-    # TCL in platform folder is added if it exists
-    if [ -e $PRJPATH/$TARGET/$corename.tcl ]; then
-        cat $PRJPATH/$TARGET/$corename.tcl >> $QSF
-    fi
     # Add definitions in "macros" files
     if [ -e $MACROS_FILE ]; then
         (parse_macros quartus | sort >> $QSF) || exit $?
