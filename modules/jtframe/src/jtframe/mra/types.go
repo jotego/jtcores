@@ -147,10 +147,16 @@ type RawData struct {
     Data             string
 }
 
+type HeaderData struct {
+    RawData
+    Game_id bool
+}
+
 type HeaderCfg struct {
     Info    string
     Fill    int
-    Data   []RawData
+    Data   []HeaderData
+    Game_ids []Selectable
     // Offset in the ROM stream of each ROM region
     Offset struct {
         Bits    int

@@ -525,7 +525,10 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		root.AddNode(t.Tag, t.Value)
 	}
 	// ROM load
-	make_ROM(&root, machine, cfg, args)
+	if e:=make_ROM(&root, machine, cfg, args); e!=nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 	// Beta
 	if betas.All.IsBetaFor(corename,"mister") {
 		n := root.AddNode("rom").AddAttr("index", "17")

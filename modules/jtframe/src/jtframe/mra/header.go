@@ -19,7 +19,6 @@ package mra
 
 import (
 	"fmt"
-	"os"
 )
 
 func set_header_offset(headbytes []byte, pos int, reverse bool, bits, offset int) {
@@ -61,42 +60,45 @@ func bank_offset(headbytes []byte, reg_offsets map[string]int, cfg HeaderCfg) {
 	}
 }
 
-func make_header(node *XMLNode, reg_offsets map[string]int,
-	total int, cfg HeaderCfg, machine *MachineXML) {
-	devs := machine.Devices
-	headbytes := make([]byte, cfg.Len)
+func make_header(node *XMLNode, reg_offsets map[string]int, total int, cfg HeaderCfg, machine *MachineXML) error {
 	if cfg.Offset.Regions != nil && cfg.Len<5 {
-		fmt.Println("Header too short for containing offset regions. Make it at least 5:\nJTFRAME_HEADER = 5")
-		os.Exit(1)
+		return fmt.Errorf("Header too short for containing offset regions. Make it at least 5:\nJTFRAME_HEADER = 5")
 	}
-	for k := 0; k < cfg.Len; k++ {
-		headbytes[k] = byte(cfg.Fill)
-	}
+	headbytes := make_empty_header(byte(cfg.Fill),cfg.Len)
 	bank_offset( headbytes, reg_offsets, cfg )
-	// Manual headers
-	for _, each := range cfg.Data {
-		if each.Match(machine) == 0 {
-			continue // skip it
-		}
-		if each.Dev != "" {
-			found := false
-			for _, ref := range devs {
-				if each.Dev == ref.Name {
-					found = true
-					break
-				}
-			}
-			if !found {
-				continue
-			}
-		}
+	headbytes = parse_header_data(cfg.Data,headbytes,machine)
+	node.SetText(hexdump(headbytes, 8))
+	return nil
+}
+
+func make_empty_header(fill byte, length int) []byte {
+	headbytes := make([]byte, length)
+	for k, _ := range headbytes {
+		headbytes[k] = fill
+	}
+	return headbytes
+}
+
+func parse_header_data( cfg []HeaderData, headbytes []byte, machine *MachineXML ) []byte {
+	for _, each := range cfg {
+		if each.Match(machine) == 0 { continue }
+		if !has_dev(each.Dev,machine.Devices)  { continue }
 		pos := each.Offset
 		rawbytes := rawdata2bytes(each.Data)
-		// if pos+len(rawbytes) > len(headbytes) {
-		//  log.Fatal("Header pointer larger than declared header")
-		// }
 		copy(headbytes[pos:], rawbytes)
 		pos += len(rawbytes)
 	}
-	node.SetText(hexdump(headbytes, 8))
+	return headbytes
+}
+
+func has_dev(name string, devs []MameDevice ) bool {
+	if name=="" { return true }
+	found := false
+	for _, ref := range devs {
+		if name == ref.Name {
+			found = true
+			break
+		}
+	}
+	return found
 }
