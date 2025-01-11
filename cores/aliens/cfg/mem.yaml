@@ -17,15 +17,16 @@ audio:
   rsum: 10k
   rsum_feedback_res: true
   pcb:
-    # must match PCB order in TOML file - no automated check yet
-    - { rfb: 10k, rsums: [  7.1k, 12.25k ] } # aliens
-    - { rfb: 10k, rsums: [  3.2k, 13.25k ] } # crimfght, gbusters
-    - { rfb: 27k, rsums: [ 12.0k, 12.25k ] } # thunderx
-    - { rfb: 10k, rsums: [  7.1k, 12.25k ] } # scontra
+    # must match PCB order in TOML file - not automated check yet
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 0.20 ] } # aliens, extra 47kOhm changes pregain of 007232
+    - { rfb: 10k, rsums: [  3.2k, 13.25k ], pres: [ 1.0, 0.20 ] } # crimfght, gbusters, same pregain as Aliens
+    - { rfb: 27k, rsums: [ 12.0k, 12.25k ], pres: [ 1.0, 0.28 ] } # thunderx
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 0.28 ] } # scontra
   channels:
-    - {name: fm,  module: jt51,     rsum:  3.2k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
-    # pcm: 0.28 gain before variable gain bloc 4066
-    - {name: pcm, module: jt007232, rsum: 13.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.28 }
+    - {name: fm,  module: jt51,     rsum:  7.1k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
+    # pcm: 0.20 gain before variable gain bloc 4066
+    # resistor divider of 120kOhm and parallel(47k,47k+47k)
+    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.20 }
 sdram:
   banks:
     - buses:
