@@ -51,13 +51,6 @@ always @(posedge clk) begin
         { game_id, gx878 } <= prog_data[2:0];
 end
 
-// always @(*) begin
-//     post_addr = prog_addr;
-//     if( prog_ba[1] ) begin
-//         post_addr[]
-//     end
-// end
-
 /* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
