@@ -53,7 +53,7 @@ func Run(args Args) {
 	defer close_allzip()
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
-	mra_cfg := ParseToml( args.Toml_path, args.Core)
+	mra_cfg, e := ParseTomlFile( args.Core); must(e)
 	if Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}

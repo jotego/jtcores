@@ -27,16 +27,19 @@ names = [
 
 [header]
 info="""
-    bit   0 = GX878 (Gang Busters)
-                 bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
-game_ids=[
+
+        byte 0: PCB ID
+        byte 1:
+            bit    0 = GX878 (Gang Busters)
+            bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
+PCBs = [
     { machine=  "aliens"   },
     { machines=["crimfght","gbusters"] },
     { machine=  "thunderx" },
     { machine=  "scontra"  },
 ]
 data = [
-    { game_id=true,       offset=0 },
+    { pcb_id=true,        offset=0 },
     { machine="scontra",  offset=1, data="02" },
     { machine="thunderx", offset=1, data="04" },
     { machine="crimfght", offset=1, data="06" },

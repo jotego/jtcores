@@ -149,24 +149,26 @@ type HeaderData struct {
     RawData
     Offset  int
     Dev     string // required device name to apply these data, ignored if blank
-    Game_id bool
+    Pcb_id  bool
+}
+
+type HeaderOffset struct {
+    Bits    int
+    Reverse bool
+    Start   int // Start location for the offset table
+    Regions []string
 }
 
 type HeaderCfg struct {
     Info    string
     Fill    int
     Data   []HeaderData
-    Game_ids []Selectable
+    PCBs   []Selectable
     // Offset in the ROM stream of each ROM region
-    Offset struct {
-        Bits    int
-        Reverse bool
-        Start   int // Start location for the offset table
-        Regions []string
-    }
+    Offset HeaderOffset
     Frames []FrameCfg // indicates that the game draws a black frame around the active video
     // Filled automatically
-    Len int
+    len int
 }
 
 type Info struct {

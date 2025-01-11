@@ -30,25 +30,24 @@ import (
 	"github.com/jotego/jtframe/common"
 )
 
-func Reduce(xml_in string) {
-	src := collect_sources()
+func Reduce(xml_in string) (error) {
+	src, e := collect_sources()
+	if e!=nil { return e }
 	filter(xml_in, src)
+	return nil
 }
 
-func collect_sources() []string {
+func collect_sources() ([]string,error) {
 	sources := make([]string, 0, 16)
 	cores := filepath.Join(os.Getenv("JTROOT"), "cores")
 	cores_dir, e := os.ReadDir(cores)
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	if e != nil { return nil,e }
 	for _, each := range cores_dir {
 		if each.IsDir() && each.Name() != "." {
 			core := each.Name()
 			blank_target := ""
 			toml_path := common.ConfigFilePath(core, "mame2mra.toml")
-			def_path  := common.ConfigFilePath(core, "macors.def")
+			def_path  := common.ConfigFilePath(core, "macros.def")
 			if !common.FileExists(toml_path) { continue }
 			if !common.FileExists(def_path) {
 				log.SetFlags(0)
@@ -56,7 +55,7 @@ func collect_sources() []string {
 				continue
 			}
 			macros.MakeMacros(core, blank_target )
-			cfg := ParseToml( toml_path, core )
+			cfg, e := ParseTomlFile( core ); if e!=nil { return nil,e }
 			sources = append(sources, cfg.Parse.Sourcefile...)
 		}
 	}
@@ -64,7 +63,7 @@ func collect_sources() []string {
 		log.SetFlags(0)
 		log.Println("Source files:\n", sources)
 	}
-	return sources
+	return sources, nil
 }
 
 func filter(xml_in string, src []string) {

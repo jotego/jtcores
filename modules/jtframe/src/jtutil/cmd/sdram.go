@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"os"
-	"strconv"
 	"strings"
 	"path/filepath"
 	"github.com/spf13/cobra"
@@ -59,46 +58,55 @@ simulation for these cores by setting the SIM_LOAD_PROM macro.
 The result will only be correct for cores that do not transform download data on
 the fly.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		var game string
-		wd, e := os.Getwd()
-		if e != nil {
-			fmt.Println(e)
-			os.Exit(1)
-		}
-		if len(args)==0 {
-			game = filepath.Base(wd)
-		} else {
-			game = args[0]
-		}
-		if game=="game" {
-			fmt.Println("Cannot derive ROM set name from current folder. Use jtutil sdram <game> instead.")
-			os.Exit(1)
-		}
-		wd = filepath.Join(wd,"..")
-		if filepath.Base(wd)!="ver" {
-			fmt.Println("jtutil sdram must be called from a ver/game folder")
-			os.Exit(1)
-		}
-		core := filepath.Base(filepath.Join(wd,".."))
-		extract_sdram(core,game)
-		make_symlink(game)
-	},
+	Run: run_sdram,
 	Args: cobra.MaximumNArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(sdramCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func run_sdram(cmd *cobra.Command, args []string) {
+	var game string
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// sdramCmd.PersistentFlags().String("foo", "", "A help for foo")
+	if len(args)!=0 {
+		game=args[0]
+	} else {
+		var e error
+		game, e = derive_game_from_wd()
+		must(e)
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// sdramCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	must(validate_wd())
+	core := derive_core_from_wd()
+	macros.MakeMacros( core, "mist" )
+	extract_sdram(core,game)
+	make_symlink(game)
+}
+
+func derive_game_from_wd() (string,error) {
+	wd, e := os.Getwd()
+	if e != nil { return "", e }
+	game := filepath.Base(wd)
+	if game=="game" {
+		return "",fmt.Errorf("Cannot derive ROM set name from current folder. Use jtutil sdram <game> instead.")
+	}
+	return game,nil
+}
+
+func validate_wd() (error) {
+	wd, e := os.Getwd()
+	if e != nil { return e }
+	wd = filepath.Join(wd,"..")
+	if filepath.Base(wd)!="ver" {
+		return fmt.Errorf("jtutil sdram must be called from a ver/game folder")
+	}
+	return nil
+}
+
+func derive_core_from_wd() string {
+	wd,_ := os.Getwd()
+	return filepath.Base(filepath.Join(wd,"../.."))
 }
 
 func must_env( env string ) string {
@@ -108,50 +116,6 @@ func must_env( env string ) string {
 		os.Exit(1)
 	}
 	return v
-}
-
-func dump( name string, rom []byte, p0,p1, lim, fill int) int {
-	if p1<=0 { p1 = lim	}
-	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
-	if p1<p0 { return -1 }
-	if p1<=0 { return p0 }
-	if p1>len(rom) {
-		fmt.Println("ROM file is too short to produce file",name)
-		os.Exit(1)
-	}
-	if( p1==p0 && fill==0 ) {
-		e := os.Remove(name)
-		if e==nil {
-			fmt.Println("Removed file",name)
-		}
-		return p1
-	}
-	e := os.WriteFile( name, rom[p0:p1],0664 )
-	must(e)
-	// complement up to 8MB
-	sz := p1-p0
-	if sz >= fill { return p1 }
-	f, e := os.OpenFile(name,os.O_APPEND|os.O_WRONLY,0664)
-	must(e)
-	blank := make([]byte,fill-sz)
-	_, e = f.Write(blank)
-	must(e)
-	f.Close()
-	if verbose {
-		fmt.Printf("%s done. Next starts at %x\n",name,p1)
-	}
-	return p1
-}
-
-func bank_start(macros map[string]string, name string) int {
-	a, e := macros[name]
-	if !e { return 0 }
-	n, err := strconv.ParseInt(a,0,32)
-	if err!=nil {
-		fmt.Printf("Cannot convert %s=%s to a number.\n",name,a)
-		os.Exit(1)
-	}
-	return int(n)
 }
 
 func swap_bytes( rom []byte, start int ) {
@@ -174,26 +138,75 @@ func read_rom( game string ) []byte {
 	return rom
 }
 
-func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []string) {
-	header  := bank_start(macros,"JTFRAME_HEADER")
-	mra_cfg := mra.ParseToml(mra.TomlPath(core), core)
+
+func extract_sdram( core, game string ) error {
+	const EIGHT=8*1024*1024
+	rom        := read_rom(game)
+
+	mra_cfg, e := mra.ParseTomlFile(core)
 	reg_cnt := len(mra_cfg.Header.Offset.Regions)
+	hinfo := mra_cfg.Header.Offset
+	if e!=nil { return e }
+	offsets,reg:= bankOffset(reg_cnt,hinfo,rom)
+
+	header     := macros.GetInt("JTFRAME_HEADER")
+	prom_start := offsets[4]
+	nx_start, e := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT)
+	if e!=nil { return fmt.Errorf("%w for bank 0",e) }
+	if nx_start<0 {
+		os.Remove("sdram_bank1.bin")
+		os.Remove("sdram_bank2.bin")
+		os.Remove("sdram_bank3.bin")
+		return nil
+	}
+	nx_start, e = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT)
+	if e!=nil { return fmt.Errorf("%w for bank 1",e) }
+	if nx_start<0 {
+		os.Remove("sdram_bank2.bin")
+		os.Remove("sdram_bank3.bin")
+		return nil
+	}
+	nx_start, e = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT)
+	if e!=nil { return fmt.Errorf("%w for bank 2",e) }
+	if nx_start<0 {
+		os.Remove("sdram_bank3.bin")
+		return nil
+	}
+	nx_start, e = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
+	if e!=nil { return fmt.Errorf("%w for bank 3",e) }
+	// extra regions (read with prom_we set)
+	if len(reg)>4 { // undo the swap that was needed for the SDRAM part of the ROM file
+		swap_bytes(rom,offsets[4])
+	}
+	for k:=4; k<len(reg);k++ {
+		nx := 0
+		if k+1 < len(reg) {
+			nx = offsets[k+1]
+		}
+		_, e = dump(reg[k],rom,offsets[k],nx,len(rom),0)
+		if e!=nil { return e }
+	}
+	return nil
+}
+
+func bankOffset( reg_cnt int, hinfo mra.HeaderOffset, rom []byte ) ([]int, []string) {
+	header  := macros.GetInt("JTFRAME_HEADER")
+
 	if reg_cnt < 5 {
 		reg_cnt=5
 	}
 	offsets := make([]int,reg_cnt)
 	// Default values from macros (if defined)
-	offsets[1] = bank_start(macros,"JTFRAME_BA1_START")+header
-	offsets[2] = bank_start(macros,"JTFRAME_BA2_START")+header
-	offsets[3] = bank_start(macros,"JTFRAME_BA3_START")+header
-	offsets[4] = bank_start(macros,"JTFRAME_PROM_START")+header
+	offsets[1] = macros.GetInt("JTFRAME_BA1_START")+header
+	offsets[2] = macros.GetInt("JTFRAME_BA2_START")+header
+	offsets[3] = macros.GetInt("JTFRAME_BA3_START")+header
+	offsets[4] = macros.GetInt("JTFRAME_PROM_START")+header
 	for k, _ := range offsets {
 		if offsets[k] <= header {
 			offsets[k] = len(rom)
 		}
 	}
 	// final values from header (if defined)
-	hinfo := &mra_cfg.Header.Offset
 	for k:=1; k<len(hinfo.Regions); k++ {
 		var pos int
 		pos  = int(rom[hinfo.Start+(k<<1)])<<8
@@ -213,45 +226,35 @@ func bankOffset( core string, macros map[string]string, rom []byte ) ([]int, []s
 	return offsets,hinfo.Regions
 }
 
-func extract_sdram( core, game string ) {
-	const EIGHT=8*1024*1024
-	rom        := read_rom(game)
-	macros.MakeMacros( core, "mist" )
-	macros     := macros.CopyToMap()
-	offsets,reg:= bankOffset(core,macros,rom)
-	header     := bank_start(macros,"JTFRAME_HEADER")
-	prom_start := offsets[4]
-	nx_start := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT)
-	if nx_start<0 {
-		os.Remove("sdram_bank1.bin")
-		os.Remove("sdram_bank2.bin")
-		os.Remove("sdram_bank3.bin")
-		return
+func dump( name string, rom []byte, p0, p1, lim, fill int) (int,error) {
+	if p1<=0 { p1 = lim	}
+	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
+	if p1<p0 { return 0,fmt.Errorf("start offset was beyond end offset") }
+	if p1<=0 { return p0, nil }
+	if p1>len(rom) {
+		return 0,fmt.Errorf("ROM file is too short to produce file: $%X > $%X",
+			p1, len(rom))
 	}
-	nx_start = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT)
-	if nx_start<0 {
-		os.Remove("sdram_bank2.bin")
-		os.Remove("sdram_bank3.bin")
-		return
-	}
-	nx_start = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT)
-	if nx_start<0 {
-		os.Remove("sdram_bank3.bin")
-		return
-	}
-	nx_start = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
-	// extra regions (read with prom_we set)
-	if len(reg)>4 { // undo the swap that was needed for the SDRAM part of the ROM file
-		swap_bytes(rom,offsets[4])
-	}
-	for k:=4; k<len(reg);k++ {
-		nx := 0
-		if k+1 < len(reg) {
-			nx = offsets[k+1]
+	if( p1==p0 && fill==0 ) {
+		e := os.Remove(name)
+		if e!=nil {
+			return 0,e
 		}
-		dump(reg[k],rom,offsets[k],nx,len(rom),0)
+		fmt.Println("Removed file",name)
+		return p1,nil
 	}
-
+	if e := os.WriteFile( name, rom[p0:p1],0664 ); e!=nil { return 0,e }
+	// complement up to 8MB
+	sz := p1-p0
+	if sz >= fill { return p1,nil }
+	f, e := os.OpenFile(name,os.O_APPEND|os.O_WRONLY,0664); if e!=nil { return 0,e }
+	defer f.Close()
+	blank := make([]byte,fill-sz)
+	_, e = f.Write(blank); if e!=nil { return 0,e }
+	if verbose {
+		fmt.Printf("%s done. Next starts at %x\n",name,p1)
+	}
+	return p1,nil
 }
 
 func make_symlink( game string ) {

@@ -50,7 +50,7 @@ func Run(args Args) (e error) {
 		// normally ok
 		return
 	}
-	bankOffset( &cfg, args.Core )
+	if e = bankOffset( &cfg, args.Core ); e!=nil { return e }
 	// Checks
 	if e = check_banks( &cfg ); e!=nil { return e }
 	if e = check_bram ( &cfg ); e!=nil { return e }
@@ -372,11 +372,13 @@ func make_dump2bin( corename string, cfg *MemConfig ) (e error) {
 	return nil
 }
 
-func bankOffset( cfg *MemConfig, corename string) {
-	mra_cfg := mra.ParseToml( mra.TomlPath(corename), corename )
-	if len(mra_cfg.Header.Offset.Regions)==0 { return }
+func bankOffset( cfg *MemConfig, corename string) (e error) {
+	mra_cfg, e := mra.ParseTomlFile( corename )
+	if e!=nil { return e }
+	if len(mra_cfg.Header.Offset.Regions)==0 { return nil }
 	cfg.Balut = 1
 	cfg.Lutsh = mra_cfg.Header.Offset.Bits
+	return nil
 }
 
 func check_banks( cfg *MemConfig ) error {

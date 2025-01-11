@@ -61,22 +61,22 @@ func bank_offset(headbytes []byte, reg_offsets map[string]int, cfg HeaderCfg) {
 }
 
 func make_header(node *XMLNode, reg_offsets map[string]int, total int, cfg HeaderCfg, machine *MachineXML) error {
-	if cfg.Offset.Regions != nil && cfg.Len<5 {
+	if cfg.Offset.Regions != nil && cfg.len<5 {
 		return fmt.Errorf("Header too short for containing offset regions. Make it at least 5:\nJTFRAME_HEADER = 5")
 	}
-	headbytes := make_empty_header(byte(cfg.Fill),cfg.Len)
+	headbytes := make_byte_slice(byte(cfg.Fill),cfg.len)
 	bank_offset( headbytes, reg_offsets, cfg )
 	headbytes = cfg.parse_data(headbytes,machine)
 	node.SetText(hexdump(headbytes, 8))
 	return nil
 }
 
-func make_empty_header(fill byte, length int) []byte {
-	headbytes := make([]byte, length)
-	for k, _ := range headbytes {
-		headbytes[k] = fill
+func make_byte_slice(fill byte, length int) []byte {
+	buffer := make([]byte, length)
+	for k, _ := range buffer {
+		buffer[k] = fill
 	}
-	return headbytes
+	return buffer
 }
 
 func (hdr HeaderCfg) parse_data( headbytes []byte, machine *MachineXML ) []byte {
@@ -102,14 +102,10 @@ func has_dev(name string, devs []MameDevice ) bool {
 }
 
 func (cfg HeaderCfg) get_entry_bytes( data_entry HeaderData, machine *MachineXML ) []byte {
-	if data_entry.Game_id {
-		id := machine.Index(cfg.Game_ids)
+	if data_entry.Pcb_id {
+		id := machine.Index(cfg.PCBs)
 		return []byte{byte(id)}
 	} else {
 		return rawdata2bytes(data_entry.Data)
 	}
-}
-
-func (cfg HeaderCfg)get_gameid(machine *MachineXML) int {
-	return machine.Index(cfg.Game_ids)
 }

@@ -43,7 +43,7 @@ var mraCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			mame_xml_path := args[0]
-			mra.Reduce(mame_xml_path)
+			Must(mra.Reduce(mame_xml_path))
 		} else { // regular operation, each core name is an argument
 			cores, e := get_corenames(args); Must(e)
 			parse_cores(cores)
