@@ -17,10 +17,11 @@ audio:
   rsum: 10k
   rsum_feedback_res: true
   pcb:
-    - { rfb: 10k, rsums: [  7.1k, 12.25k ], machine:    aliens,   }
-    - { rfb: 10k, rsums: [  3.2k, 13.25k ], machines: [ crimfght, gbusters ] }
-    - { rfb: 27k, rsums: [ 12.0k, 12.25k ], machine:    thunderx, }
-    - { rfb: 10k, rsums: [  7.1k, 12.25k ], machine:    scontra,  }
+    # must match PCB order in TOML file - no automated check yet
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ] } # aliens
+    - { rfb: 10k, rsums: [  3.2k, 13.25k ] } # crimfght, gbusters
+    - { rfb: 27k, rsums: [ 12.0k, 12.25k ] } # thunderx
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ] } # scontra
   channels:
     - {name: fm,  module: jt51,     rsum:  3.2k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
     # pcm: 0.28 gain before variable gain bloc 4066

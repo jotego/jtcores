@@ -57,7 +57,9 @@ reg  [ 7:0] flag0, flag1, cm, hm, start1, end1, pos1,
             t1, b1, l1, r1, x1, y1;
 reg         bsy, start_l, thunderxa;
 
+`ifdef SIMULATION
 wire   int_we = cs & cpu_we & ~bk; // internal writes are ignored
+`endif
 
 assign cpu2ram_we = cs & cpu_we & bk; // BK writes mapped to the upper half of the RAM
 assign ram_addr = addr;

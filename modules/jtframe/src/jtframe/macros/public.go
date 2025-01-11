@@ -42,6 +42,7 @@ func Get(name string) (value string) {
 
 func GetInt(name string) (int) {
 	as_string, _ := macros[name]
+	if as_string=="" { return 0 }
 	value, e := strconv.ParseInt(as_string,0,64)
 	if e!=nil {
 		panic(fmt.Errorf("Tried to parse macro %s=%s as integer",name,as_string))
