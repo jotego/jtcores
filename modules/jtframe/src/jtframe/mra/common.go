@@ -19,18 +19,9 @@ package mra
 
 import(
 	"errors"
-	"fmt"
-	"os"
 	"strings"
 	"strconv"
 )
-
-func must(e error) {
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-}
 
 func comb_errors( f, e error ) error {
 	if e!=nil {

@@ -51,7 +51,7 @@ func Run(args Args) {
 	defer close_allzip()
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
-	mra_cfg, e := ParseTomlFile( args.Core); must(e)
+	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
 	if Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
@@ -102,8 +102,7 @@ func Run(args Args) {
 			if !args.SkipMRA {
 				// Delete old MRA files
 				if !old_deleted {
-					e := delete_matching_mra(macros.Get("CORENAME"),args.outdir)
-					must(e)
+					delete_matching_mra(macros.Get("CORENAME"),args.outdir)
 					old_deleted = true
 				}
 				if !args.SkipROM || args.Md5 {

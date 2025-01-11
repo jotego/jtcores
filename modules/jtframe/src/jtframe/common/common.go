@@ -31,6 +31,13 @@ func Must( e error ) {
 	}
 }
 
+func MustContext( e error, context string ) {
+	if e!=nil {
+		fmt.Printf("%s\n%s\n",context,e.Error())
+		os.Exit(1)
+	}
+}
+
 func ConfigFilePath(core, file string) (full_path string) {
 	if core=="" {
 		panic(fmt.Errorf("Blank core name not valid"))
