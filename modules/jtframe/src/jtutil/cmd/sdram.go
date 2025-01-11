@@ -140,7 +140,7 @@ func read_rom( game string ) []byte {
 
 
 func extract_sdram( core, game string ) error {
-	const EIGHT=8*1024*1024
+	const EIGHT_MB=8*1024*1024
 	rom        := read_rom(game)
 
 	mra_cfg, e := mra.ParseTomlFile(core)
@@ -151,7 +151,7 @@ func extract_sdram( core, game string ) error {
 
 	header     := macros.GetInt("JTFRAME_HEADER")
 	prom_start := offsets[4]
-	nx_start, e := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT)
+	nx_start, e := dump("sdram_bank0.bin",rom,header,offsets[1], prom_start, EIGHT_MB)
 	if e!=nil { return fmt.Errorf("%w for bank 0",e) }
 	if nx_start<0 {
 		os.Remove("sdram_bank1.bin")
@@ -159,20 +159,20 @@ func extract_sdram( core, game string ) error {
 		os.Remove("sdram_bank3.bin")
 		return nil
 	}
-	nx_start, e = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT)
+	nx_start, e = dump("sdram_bank1.bin",rom,nx_start,offsets[2], prom_start, EIGHT_MB)
 	if e!=nil { return fmt.Errorf("%w for bank 1",e) }
 	if nx_start<0 {
 		os.Remove("sdram_bank2.bin")
 		os.Remove("sdram_bank3.bin")
 		return nil
 	}
-	nx_start, e = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT)
+	nx_start, e = dump("sdram_bank2.bin",rom,nx_start,offsets[3], prom_start, EIGHT_MB)
 	if e!=nil { return fmt.Errorf("%w for bank 2",e) }
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
 		return nil
 	}
-	nx_start, e = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT)
+	nx_start, e = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT_MB)
 	if e!=nil { return fmt.Errorf("%w for bank 3",e) }
 	// extra regions (read with prom_we set)
 	if len(reg)>4 { // undo the swap that was needed for the SDRAM part of the ROM file
