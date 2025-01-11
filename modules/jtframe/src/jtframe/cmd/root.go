@@ -76,6 +76,13 @@ func get_corenames(args []string) ([]string,error) {
 
 // Check that the core folder exist
 func valid_core(name string) error {
+	dirname,rest:=filepath.Split(name)
+	if dirname!="" { return fmt.Errorf("the core name cannot include paths")}
+	if rest!=name { return fmt.Errorf("the core name must be a valid file name")}
+	if name=="" { return fmt.Errorf("the core name cannot be blank")}
+	if name=="." { return fmt.Errorf("'.' is not a valid core name")}
+	if name==".." { return fmt.Errorf("'..' is not a valid core name")}
+
     fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),name) )
     if e != nil || !fi.IsDir() {
         return fmt.Errorf("%s is not a valid core name", name)

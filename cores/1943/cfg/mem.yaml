@@ -1,5 +1,5 @@
 params:
-  - { name: CHAR_OFFSET,  value: "`CHAR_START>>1"  }
+  - { name: CHAR_OFFSET,  value: "(`CHAR_START)>>1"  }
   - { name: MAP2_OFFSET,  value: "(`MAP2_START-`MAP1_START)>>1"  }
   - { name: SCR2_OFFSET,  value: "(`SCR2_START-`SCR1_START)>>1"  }
 clocks:
