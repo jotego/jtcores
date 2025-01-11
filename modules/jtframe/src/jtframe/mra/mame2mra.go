@@ -19,9 +19,7 @@ package mra
 
 import (
 	"bufio"
-	"encoding/xml"
 	"fmt"
-	"io/fs"
 	"log"
 	"math"
 	"os"
@@ -104,14 +102,8 @@ func Run(args Args) {
 			if !args.SkipMRA {
 				// Delete old MRA files
 				if !old_deleted {
-					filepath.WalkDir(args.outdir, func(path string, d fs.DirEntry, err error) error {
-						if err == nil {
-							if !d.IsDir() && strings.HasSuffix(path, ".mra") {
-								delete_old_mra(args, path)
-							}
-						}
-						return nil
-					})
+					e := delete_matching_mra(macros.Get("CORENAME"),args.outdir)
+					must(e)
 					old_deleted = true
 				}
 				if !args.SkipROM || args.Md5 {
@@ -268,29 +260,6 @@ func fix_filename(filename string) string {
 	x := strings.ReplaceAll(filename, "World?", "World")
 	x = rm_spsp(x)
 	return strings.ReplaceAll(x, "?", "x")
-}
-
-func delete_old_mra(args Args, path string) {
-	mradata, e := os.ReadFile(path)
-	if e != nil {
-		fmt.Println("Cannot read ", path)
-		os.Exit(1)
-	}
-	var testmra MRA
-	e = xml.Unmarshal(mradata, &testmra)
-	if e != nil {
-		fmt.Println("Cannot Unmarshal ", path, "\n\t", e)
-		os.Exit(1)
-	}
-	if strings.ToUpper(testmra.Rbf) == macros.Get("CORENAME") {
-		if e = os.Remove(path); e != nil {
-			fmt.Println("Cannot delete ", path)
-			os.Exit(1)
-		}
-		if Verbose {
-			fmt.Println("Deleted ", path)
-		}
-	}
 }
 
 func is_main( machine *MachineXML, mra_cfg Mame2MRA ) bool {

@@ -102,5 +102,9 @@ func get_corename(args []string) (string, error) {
 	rel, e := filepath.Rel(cores_path,cwd); if e!=nil { return "",CANNOT_SOLVE_CORENAME }
 	parts := strings.Split( filepath.ToSlash(rel), "/" )
 	if len(parts)==0 { return "",CANNOT_SOLVE_CORENAME }
-	return parts[0],nil
+	corename := parts[0]
+	if e := valid_core(corename); e!= nil {
+		return "", fmt.Errorf("cannot derive core name from folder %s",cwd)
+	}
+	return corename,nil
 }

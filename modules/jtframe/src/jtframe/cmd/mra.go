@@ -53,7 +53,6 @@ func runMRA(cmd *cobra.Command, args []string) {
 			fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
 			os.Exit(1)
 		}
-		fmt.Println(cores)
 		parse_cores(cores)
 	}
 }
