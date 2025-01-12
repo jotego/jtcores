@@ -16,10 +16,7 @@
     Version: 1.0
     Date: 2-7-2019 */
 
-// Note that I have kept jtcontra instead of jtcomsc
-// so the module is selected in the qip but the jtcontra_game.v
-// makes the same instantiation
-module jtcontra_sound(
+module jtcomsc_sound(
     input           clk,        // 24 MHz
     input           rst,
     input           cen_fm,
