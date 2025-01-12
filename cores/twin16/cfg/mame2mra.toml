@@ -8,7 +8,7 @@ skip = { setnames=[
     "fround","froundl", # in fround core
     "hpuncher" # PROMs not supported
 ] }
-debug = { machines=["vulcan", "cuebrick", "mia"] }
+debug = { machines=["cuebrick", "mia"] }
 
 [buttons]
 names=[
