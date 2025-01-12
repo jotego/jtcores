@@ -15,6 +15,7 @@ clocks:
         - cen_320
 audio:  
   rsum: 12k
+  rsum_feedback_res: true
   channels:
     - { name: fm,  module: jt51,     rsum: 3.0k, rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
     - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.8 }
