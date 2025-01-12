@@ -1,1 +1,1 @@
-../../hdl/sound/jtframe_st2mono.v
+../../../hdl/sound/jtframe_st2mono.v

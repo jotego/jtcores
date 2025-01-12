@@ -123,7 +123,7 @@ dd if=/dev/urandom of=sdram_bank2.bin bs=1M count=8 2> /dev/null
 dd if=/dev/urandom of=sdram_bank3.bin bs=1M count=8 2> /dev/null
 
 if [ -n "$EXTRA" ]; then echo Extra arguments: "$EXTRA"; fi
-HDL=../../../hdl
+HDL=$JTFRAME/hdl
 SIMEXE=$RANDOM_$RANDOM_$RANDOM.sim
 $SIM test.v $HDL/sdram/jtframe_sdram64*.v $HDL/ver/mt48lc16m16a2.v \
     -o $SIMEXE ${MACRO}JTFRAME_SDRAM_test.BANKS ${MACRO}SIMULATION $DUMP $EXTRA \

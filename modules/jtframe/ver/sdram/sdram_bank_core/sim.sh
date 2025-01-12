@@ -17,7 +17,7 @@ else
     EXTRA="+dump2fst +fst+parallel2=on"
     EXTRA2=
 fi
-
-$SIM test.v ../../hdl/sdram/jtframe_sdram_bank_core.v ../../hdl/ver/mt48lc16m16a2.v \
+HDL=$JTFRAME/hdl
+$SIM test.v $HDL/sdram/jtframe_sdram_bank_core.v $HDL/ver/mt48lc16m16a2.v \
     -o sim ${MACRO}SIMULATION ${MACRO}MAX_THROUGHPUT ${MACRO}PERIOD=7.5 \
 && sim $EXTRA2
