@@ -51,7 +51,7 @@ always @(posedge clk) begin
         { game_id, gx878 } <= prog_data[2:0];
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
