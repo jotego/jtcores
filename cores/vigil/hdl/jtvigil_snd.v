@@ -40,7 +40,7 @@ module jtvigil_snd(
 
     input         [ 7:0] debug_bus,
     output signed [15:0] fm_l, fm_r,
-    output signed [ 7:0] pcm
+    output reg signed [ 7:0] pcm
 );
 
 `ifndef NOSOUND
@@ -99,21 +99,21 @@ end
 
 // PCM controller
 
-reg  [7:0] pcm_good;
-reg  [1:0] pcm_rdy;
+wire signed [7:0] pcm_signed;
+reg         [1:0] pcm_rdy;
 
-assign pcm = 8'h80 - pcm_good;
+assign pcm_signed = 8'h80 - pcm_data;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        pcm_addr   <= 16'd0;
-        cntcs_l    <= 0;
-        pcm_good   <= 0;
+        pcm_addr <= 16'd0;
+        cntcs_l  <= 0;
+        pcm      <= 0;
     end else begin
         cntcs_l    <= cnt_cs;
         pcm_rdy    <= { pcm_rdy[0], pcm_ok };
         if( pcm_rdy==2'b01 && pcm_ok ) begin
-            pcm_good   <= pcm_data;
+            pcm <= pcm_signed;
         end
         if( hi_cs ) pcm_addr[15:8] <= cpu_dout;
         if( lo_cs ) pcm_addr[ 7:0] <= cpu_dout;

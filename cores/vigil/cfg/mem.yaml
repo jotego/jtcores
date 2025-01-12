@@ -11,8 +11,9 @@ download:
   post_addr: true
 audio:
   rsum: 47k
+  gain: 0.4
   channels:
-    - { name: pcm, data_width: 8, rsum: 22k, rc: [{r: 4.7k, c: 10n }, {r: 22k, c: 4.7n}]} # eq. filter
+    - { name: pcm, data_width: 8, rsum: 22k, rc: [{r: 4.7k, c: 10n }, {r: 22k, c: 4.7n}], pre: 0.9 } # eq. filter
     - { name: fm,   module: jt51, rsum: 22k, rc: [{r: 4.7k, c: 2.2n}, {r: 25k, c: 1n  }]} # eq. filter
 sdram:
   banks:
