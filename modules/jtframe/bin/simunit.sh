@@ -11,8 +11,11 @@ fi
 cd $RUNFOLDER
 echo "Running from `pwd`"
 
-iverilog `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -fgather.f -s test -o sim -D SIMULATION && sim -lxt > sim.log
-rm -f sim
+GATHER=`mktemp`
+envsubst < gather.f > $GATHER
+
+iverilog `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION && sim -lxt > sim.log
+rm -f sim $GATHER
 if grep PASS sim.log > /dev/null; then
 	echo PASS
 else
