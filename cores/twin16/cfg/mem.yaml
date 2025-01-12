@@ -22,6 +22,7 @@ clocks:
 audio:
   rsum: 12k
   rsum_feedback_res: true
+  gain: 1.99
   channels: # stereo output
     - { name: fm,  module: jt51,     rsum: 3k,   rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
     - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 19.65k, c: 470p } ], pre: 0.131  } # 0.164*10k/12.2k
