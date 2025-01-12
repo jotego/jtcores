@@ -21,6 +21,7 @@ jobs:
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        fetch-depth: 50
     - id: files
       name: filechange.sh
       env:
@@ -29,5 +30,6 @@ jobs:
         . setprj.sh
         jtframe
         echo "Cores affected (if any):"
-        filechange.sh `git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
+        REFCOMMIT=`git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
+        filechange.sh $REFCOMMIT
 

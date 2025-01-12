@@ -18,7 +18,7 @@
 package mra
 
 import (
-	"fmt"
+	"log"
 	"path/filepath"
 	"os"
 )
@@ -91,7 +91,7 @@ func nvram_rom(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
 	roms := extract_region(reg, machine.Rom, cfg.ROM.Remove)
 	if len(roms)==0 { return }
 	if len(roms)!=1 {
-		fmt.Printf("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
+		log.Printf("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
 		return
 	}
 	rom := root.AddNode("rom").AddAttr("index", "2").AddAttr("zip",zipName(machine,cfg))

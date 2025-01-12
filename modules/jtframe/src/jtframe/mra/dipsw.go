@@ -19,6 +19,7 @@ package mra
 
 import(
     "fmt"
+    "log"
     "path/filepath"
     "regexp"
     "sort"
@@ -193,7 +194,7 @@ func dip_add_node( machineName, dsName, options string, n *XMLNode, lsb, msb int
                 tl = name_len + len(chunks[k])-26
             }
             if tl>0 {
-                fmt.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
+                log.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
                     tl, machineName, dsName, chunks[k])
             }
         }

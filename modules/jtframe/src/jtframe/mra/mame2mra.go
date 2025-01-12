@@ -88,7 +88,7 @@ func Run(args Args) {
 	}
 	// Dump MRA is delayed for later so we get all the parent names collected
 	if Verbose || len(data_queue) == 0 {
-		fmt.Println("Total: ", len(data_queue), " games")
+		log.Println("Total: ", len(data_queue), " games")
 	}
 	main_copied := args.SkipMRA
 	old_deleted := false
@@ -130,7 +130,7 @@ func Run(args Args) {
 	}
 	dump_setnames( args.Core, valid_setnames )
 	if !main_copied {
-		fmt.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
+		log.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
 	}
 	if !args.SkipPocket {
 		pocket_save()
@@ -391,39 +391,6 @@ func guess_world_region(name string) string {
 }
 
 func set_rbfname(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {
-// 	name := cfg.Rbf.Name
-// check_devs:
-// 	for _, cfg_dev := range cfg.Rbf.Dev {
-// 		for _, mac_dev := range machine.Devices {
-// 			if cfg_dev.Dev == mac_dev.Name {
-// 				name = cfg_dev.Rbf
-// 				break check_devs
-// 			}
-// 		}
-// 	}
-// 	// Machine definitions override DEV definitions
-// 	for _, each := range cfg.Rbf.Machines {
-// 		if each.Machine == "" {
-// 			continue
-// 		}
-// 		if machine.Cloneof == each.Machine || machine.Name == each.Machine {
-// 			name = each.Rbf
-// 			break
-// 		}
-// 	}
-// 	// setname definitions have the highest priority
-// 	for _, each := range cfg.Rbf.Machines {
-// 		if each.Setname == "" {
-// 			continue
-// 		}
-// 		if machine.Name == each.Setname {
-// 			name = each.Rbf
-// 			break
-// 		}
-// 	}
-// 	if name == "" {
-// 		fmt.Printf("\tWarning: no RBF name defined\n")
-// 	}
 	return root.AddNode("rbf", cfg.rbf)
 }
 
@@ -604,7 +571,7 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		if buttons[k] != "-" {
 			count++
 			if count > 6 {
-				fmt.Println("Warning: cannot support more than 6 buttons")
+				log.Println("Warning: cannot support more than 6 buttons")
 				break
 			}
 		}

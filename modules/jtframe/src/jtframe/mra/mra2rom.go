@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -44,7 +45,7 @@ func save_coremod(root *XMLNode) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "1" })
 	if xml_rom == nil || setname == nil {
-		fmt.Println("Warning: no ROM files associated with machine")
+		log.Println("Warning: no ROM files associated with machine")
 		return
 	}
 	// main ROM file
@@ -67,7 +68,7 @@ func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
-		fmt.Println("Warning: no ROM files associated with machine")
+		log.Println("Warning: no ROM files associated with machine")
 		return nil
 	}
 	rombytes := make([]byte, 0)
@@ -95,7 +96,7 @@ func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 	}
 	update_md5(xml_rom, rombytes)
 	if len(rombytes)%4 != 0 {
-		fmt.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
+		log.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
 	}
 	if save2disk {
 		var e error
