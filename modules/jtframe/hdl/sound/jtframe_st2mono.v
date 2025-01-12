@@ -37,7 +37,9 @@ module jtframe_st2mono #(parameter
 initial begin
     if(STEREO_IN==0 && STEREO_OUT==1) begin
         $display("mono to stereo conversion is not supported");
+        `ifdef SIMULATION
         $stop;
+        `endif
     end
 end
 

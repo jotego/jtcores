@@ -70,8 +70,8 @@ set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
 set_global_assignment -name FORCE_SYNCH_CLEAR ON
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"
-{{ if index .Macros "JTFRAME_SDRAM96" }}
-# Slew Rate
+{{- if not .Macros.JTFRAME_SDRAM96 }}
+# Slew rate settings for non-96 MHz SDRAM
 set_instance_assignment -name SLEW_RATE 0 -to SDRAM_A[*]
 set_instance_assignment -name SLEW_RATE 0 -to SDRAM_BA[*]
 set_instance_assignment -name SLEW_RATE 0 -to SDRAM_CLK

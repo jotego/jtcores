@@ -69,7 +69,6 @@ jtcontra_simloader u_simloader(
     .prio_latch ( prio_latch    )
 );
 `else
-`ifndef NOMAIN
 jtcontra_main #(.GAME(GAME)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -111,16 +110,6 @@ jtcontra_main #(.GAME(GAME)) u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-// load a sound code for simulation
-assign snd_latch = 8'h22;
-reg pre_irq=0;
-initial begin
-    #100_000_000 pre_irq=1;
-end
-
-assign snd_irq = pre_irq;
-`endif
 `endif
 
 `ifndef NOVIDEO
@@ -176,7 +165,9 @@ jtcontra_video #(.GAME(GAME)) u_video (
 );
 `endif
 
-jtcontra_sound u_sound(
+`ifdef COMSC
+jtcomsc_sound `else  jtcontra_sound `endif
+u_sound(
     .clk        ( clk24         ), // 24 MHz
     .rst        ( rst24         ),
 `ifdef COMSC

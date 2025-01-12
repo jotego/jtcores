@@ -69,6 +69,12 @@ audio:
   rsum_feedback_res: false # if false, rsum attenuates, if true, rsum gives gain
   mute: true  # add mute signal
   RC: { r: 1k, c: 1n } # global RC filter
+  pcb:
+    # must match PCB order in TOML file - not automated check yet
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 0.19 ] }
+    - { rfb: 10k, rsums: [  3.2k, 13.25k ], pres: [ 1.0, 0.19 ] }
+    - { rfb: 27k, rsums: [ 12.0k, 12.25k ], pres: [ 1.0, 0.16 ] }
+    - { rfb: 27k, rsums: [  4.7k, 12.25k ], pres: [ 1.0, 0.16 ] }
   Channels:
     - Name: psg
       Rsum: 1k

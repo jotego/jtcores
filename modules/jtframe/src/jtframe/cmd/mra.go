@@ -35,20 +35,26 @@ var mraCmd = &cobra.Command{
 	Use:   "mra <core-name core-name...> or mra --reduce <path-to-mame.xml>",
 	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
 	Long: Doc2string("jtframe-mra.md"),
-	Run: func(cmd *cobra.Command, args []string) {
-		mra.Verbose = verbose
-		if reduce {
-			if len(args)<1 {
-				fmt.Println("Expected one argument with the path mame.xml")
-				os.Exit(1)
-			}
-			mame_xml_path := args[0]
-			mra.Reduce(mame_xml_path)
-		} else { // regular operation, each core name is an argument
-			cores, e := get_corenames(args); Must(e)
-			parse_cores(cores)
+	Run: runMRA,
+}
+
+func runMRA(cmd *cobra.Command, args []string) {
+	mra.Verbose = verbose
+	if reduce {
+		if len(args)<1 {
+			fmt.Println("Expected one argument with the path mame.xml")
+			os.Exit(1)
 		}
-	},
+		mame_xml_path := args[0]
+		Must(mra.Reduce(mame_xml_path))
+	} else { // regular operation, each core name is an argument
+		cores, e := get_corenames(args); Must(e)
+		if len(cores)==0 {
+			fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
+			os.Exit(1)
+		}
+		parse_cores(cores)
+	}
 }
 
 func parse_cores( corenames []string ) {

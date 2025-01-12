@@ -368,6 +368,7 @@ function copy_templates {
     QSF=$PRJPATH/$TARGET/$corename.qsf
     # Add definitions in "macros" files
     if [ -e $MACROS_FILE ]; then
+        echo >> $QSF # add blank line
         (parse_macros quartus | sort >> $QSF) || exit $?
         if [ -n "$SHOWMACROS" ]; then
             gawk -f $JTFRAME/bin/jtmacros.awk target=$TARGET $MACROS_FILE

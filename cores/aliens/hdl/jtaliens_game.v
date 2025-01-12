@@ -47,18 +47,11 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if( prog_addr==0 && prog_we && header )
+    if( prog_addr==1 && prog_we && header )
         { game_id, gx878 } <= prog_data[2:0];
 end
 
-// always @(*) begin
-//     post_addr = prog_addr;
-//     if( prog_ba[1] ) begin
-//         post_addr[]
-//     end
-// end
-
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),

@@ -19,9 +19,7 @@ package mra
 
 import (
 	"bufio"
-	"encoding/xml"
 	"fmt"
-	"io/fs"
 	"log"
 	"math"
 	"os"
@@ -53,7 +51,7 @@ func Run(args Args) {
 	defer close_allzip()
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
-	mra_cfg := ParseToml( args.Toml_path, args.Core)
+	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
 	if Verbose {
 		fmt.Println("Parsing", args.Xml_path)
 	}
@@ -104,14 +102,7 @@ func Run(args Args) {
 			if !args.SkipMRA {
 				// Delete old MRA files
 				if !old_deleted {
-					filepath.WalkDir(args.outdir, func(path string, d fs.DirEntry, err error) error {
-						if err == nil {
-							if !d.IsDir() && strings.HasSuffix(path, ".mra") {
-								delete_old_mra(args, path)
-							}
-						}
-						return nil
-					})
+					delete_matching_mra(macros.Get("CORENAME"),args.outdir)
 					old_deleted = true
 				}
 				if !args.SkipROM || args.Md5 {
@@ -268,29 +259,6 @@ func fix_filename(filename string) string {
 	x := strings.ReplaceAll(filename, "World?", "World")
 	x = rm_spsp(x)
 	return strings.ReplaceAll(x, "?", "x")
-}
-
-func delete_old_mra(args Args, path string) {
-	mradata, e := os.ReadFile(path)
-	if e != nil {
-		fmt.Println("Cannot read ", path)
-		os.Exit(1)
-	}
-	var testmra MRA
-	e = xml.Unmarshal(mradata, &testmra)
-	if e != nil {
-		fmt.Println("Cannot Unmarshal ", path, "\n\t", e)
-		os.Exit(1)
-	}
-	if strings.ToUpper(testmra.Rbf) == macros.Get("CORENAME") {
-		if e = os.Remove(path); e != nil {
-			fmt.Println("Cannot delete ", path)
-			os.Exit(1)
-		}
-		if Verbose {
-			fmt.Println("Deleted ", path)
-		}
-	}
 }
 
 func is_main( machine *MachineXML, mra_cfg Mame2MRA ) bool {
@@ -525,7 +493,10 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		root.AddNode(t.Tag, t.Value)
 	}
 	// ROM load
-	make_ROM(&root, machine, cfg, args)
+	if e:=make_ROM(&root, machine, cfg, args); e!=nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 	// Beta
 	if betas.All.IsBetaFor(corename,"mister") {
 		n := root.AddNode("rom").AddAttr("index", "17")

@@ -1,6 +1,5 @@
 /* This file is part of JTFRAME.
 
-
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -17,7 +16,6 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 4-3-2024
-
 */
 
 // Generic mixer: improves on the jt12_mixer in JT12 repository

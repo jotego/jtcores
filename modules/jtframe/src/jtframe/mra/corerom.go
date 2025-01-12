@@ -42,9 +42,9 @@ func zipName(machine *MachineXML, cfg Mame2MRA) string {
 	return zipname
 }
 
-func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
+func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error {
 	if len(machine.Rom) == 0 {
-		return
+		return nil
 	}
 	if Verbose {
 		fmt.Println("Parsing ", machine.Name)
@@ -73,7 +73,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		}
 	}
 	var header *XMLNode
-	if cfg.Header.Len > 0 {
+	if cfg.Header.len > 0 {
 		if len(cfg.Header.Info) > 0 {
 			p.AddNode(cfg.Header.Info).comment = true
 		}
@@ -152,9 +152,8 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
 				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
 			} else {
-				fmt.Printf("Error: don't know how to parse region %s (%d roms) in %s\n",
+				return fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
 					reg_cfg.Name, len(reg_roms), machine.Name )
-				os.Exit(1)
 			}
 		}
 		// if pos_old == pos {
@@ -167,8 +166,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	p.AddNode(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10)).comment = true
 	make_patches(p, machine, cfg )
 	if header != nil {
-		make_header(header, reg_offsets, pos, cfg.Header, machine)
+		if e:=make_header(header, reg_offsets, pos, cfg.Header, machine); e!= nil { return e }
 	}
+	return nil
 }
 
 func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {

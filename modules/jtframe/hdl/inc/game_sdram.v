@@ -70,6 +70,7 @@ wire [21:0] raw_addr, post_addr;
 wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
+wire [ 7:0] pcb_id;
 wire        pass_io;
 {{ if .Clocks }}// Clock enable signals{{ end }}
 {{- range $k, $v := .Clocks }}
@@ -288,6 +289,15 @@ jtframe_dwnld #(
     .prom_we      ( prom_we        ),
     .header       ( header         ),
     .sdram_ack    ( prog_ack       )
+);
+
+jtframe_headerbyte #(.AW(6)) u_pcbid(
+    .clk          ( clk            ),
+    .header       ( header         ),
+    .ioctl_addr   ( ioctl_addr[5:0]),
+    .ioctl_dout   ( ioctl_dout     ),
+    .ioctl_wr     ( ioctl_wr       ),
+    .dout         ( pcb_id         )
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ $assign_holdrst := true }}

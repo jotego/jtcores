@@ -7,6 +7,21 @@
 {{- $ch4 := (index .Channels 4) -}}
 {{- $ch5 := (index .Channels 5) }}{{ if not .Mute }}
 assign mute=0;{{end}}
+{{ if (len .PCB) }}
+wire [7:0] g0,g1,g2,g3,g4,g5;
+jtframe_gainmux #( {{ range $k,$pcb := .PCB }}{{ if ne $k 0 }},{{- end}}
+    .GAME{{$k}}({{.Gaincfg}}){{end}}
+) u_gainmux(
+    .clk    ( clk         ),
+    .sel    ( pcb_id[2:0] ),
+    .g0     ( g0          ),
+    .g1     ( g1          ),
+    .g2     ( g2          ),
+    .g3     ( g3          ),
+    .g4     ( g4          ),
+    .g5     ( g5          )
+);
+{{ end }}
 jtframe_rcmix #(
     {{ if $ch0.Name }}.W0({{$ch0.Data_width}}),{{end}}{{ if $ch1.Name }}
     .W1({{$ch1.Data_width}}),{{end}}{{ if $ch2.Name }}
@@ -54,6 +69,13 @@ jtframe_rcmix #(
     .p3     ( {{ if $ch3.Pole }}{{$ch3.Pole}}{{else}}30'h0{{end}}), {{if $ch3.Name }}// {{ index $ch3.Fcut 0}} Hz, {{ index $ch3.Fcut 1 }} Hz {{end}}
     .p4     ( {{ if $ch4.Pole }}{{$ch4.Pole}}{{else}}30'h0{{end}}), {{if $ch4.Name }}// {{ index $ch4.Fcut 0}} Hz, {{ index $ch4.Fcut 1 }} Hz {{end}}
     .p5     ( {{ if $ch5.Pole }}{{$ch5.Pole}}{{else}}30'h0{{end}}), {{if $ch5.Name }}// {{ index $ch5.Fcut 0}} Hz, {{ index $ch5.Fcut 1 }} Hz {{end}}
+    {{- if (len .PCB) }}
+    .g0     ( g0        ),
+    .g1     ( g1        ),
+    .g2     ( g2        ),
+    .g3     ( g3        ),
+    .g4     ( g4        ),
+    .g5     ( g5        ),{{else}}
     {{- if .Rsum_feedback_res}}
     // Active summing network. Opamp feedback resistor {{.Rsum}} {{end}}
     .g0     ( {{ $ch0.Gain }} ), // {{ gain2dec $ch0.Gain }} {{with $ch0.Name}} {{.}}{{end}}
@@ -61,11 +83,11 @@ jtframe_rcmix #(
     .g2     ( {{ $ch2.Gain }} ), // {{ gain2dec $ch2.Gain }} {{with $ch2.Name}} {{.}}{{end}}
     .g3     ( {{ $ch3.Gain }} ), // {{ gain2dec $ch3.Gain }} {{with $ch3.Name}} {{.}}{{end}}
     .g4     ( {{ $ch4.Gain }} ), // {{ gain2dec $ch4.Gain }} {{with $ch4.Name}} {{.}}{{end}}
-    .g5     ( {{ $ch5.Gain }} ), // {{ gain2dec $ch5.Gain }} {{with $ch5.Name}} {{.}}{{end}}
-    .gain   ( snd_vol         ),
-    .mixed({{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}),
-    .peak ( snd_peak ),
-    .vu   ( snd_vu   )
+    .g5     ( {{ $ch5.Gain }} ), // {{ gain2dec $ch5.Gain }} {{with $ch5.Name}} {{.}}{{end}}{{end}}
+    .gain   ( snd_vol   ),
+    .mixed  ({{ if .Stereo }}{ snd_left, snd_right}{{else}} snd       {{end}}),
+    .peak   ( snd_peak  ),
+    .vu     ( snd_vu    )
 );
 `else
 assign {{ if .Stereo }}{ snd_left, snd_right}{{else}}snd{{end}}=0;

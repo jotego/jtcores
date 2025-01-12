@@ -21,17 +21,9 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"os"
 
 	"github.com/spf13/cobra"
 )
-
-func must( e error ) {
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-}
 
 var frac_args struct{
 	maxbits		*int

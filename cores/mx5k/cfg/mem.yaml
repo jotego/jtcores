@@ -16,9 +16,10 @@ clocks:
         - cen_fm2
 audio:
   rsum: 12k
+  rsum_feedback_res: true
   channels:
     - {name: fm,  module: jt51,     rsum: 3k, rc: [{ r:  666,   c: 33n  }, {r: 1rout, c: 2.2n }]} # 1y = YM3012's Rout
-    - {name: pcm, module: jt007232, rsum: 2k,   rc: [{ r: 19.65k, c: 470p }]}
+    - {name: pcm, module: jt007232, rsum: 2k,   rc: [{ r: 19.65k, c: 470p }], pre: 0.1312}
 sdram:
   banks:
     -

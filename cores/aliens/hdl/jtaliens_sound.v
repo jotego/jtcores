@@ -111,8 +111,6 @@ always @(*) begin
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
         end
     endcase
-    // if( cfg==SCONTRA  ) fm_gain = 8'h20;
-    // if( cfg==THUNDERX ) fm_gain = 8'h10;
 end
 
 always @(*) begin
@@ -220,8 +218,9 @@ assign  pcmb_cs  = 0;
 assign  pcma_addr= 0;
 assign  pcmb_addr= 0;
 assign  rom_addr = 0;
-assign  snd      = 0;
-assign  sample   = 0;
+assign  fm_l     = 0;
+assign  fm_r     = 0;
+assign  pcm      = 0;
 assign  st_dout  = 0;
 `endif
 endmodule

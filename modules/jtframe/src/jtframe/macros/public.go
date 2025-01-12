@@ -18,6 +18,7 @@
 package macros
 
 import(
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -39,10 +40,14 @@ func Get(name string) (value string) {
 	return value
 }
 
-func GetInt(name string) (value int) {
+func GetInt(name string) (int) {
 	as_string, _ := macros[name]
-	value, _ = strconv.Atoi(as_string)
-	return value
+	if as_string=="" { return 0 }
+	value, e := strconv.ParseInt(as_string,0,64)
+	if e!=nil {
+		panic(fmt.Errorf("Tried to parse macro %s=%s as integer",name,as_string))
+	}
+	return int(value)
 }
 
 func IsInt(name string) bool {

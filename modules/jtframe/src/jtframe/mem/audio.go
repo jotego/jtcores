@@ -45,6 +45,59 @@ func init() {
 	}
 }
 
+func Make_audio( cfg *MemConfig, core, outpath string ) error {
+	fill_audio_clock( &cfg.Audio )
+	const fs = float64(192000)
+	// assign information derived from the module type
+	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
+	_,_,rtotal := find_rlimits(cfg.Audio.Channels)
+	fill_global_pole( &cfg.Audio, fs )
+	if e := fill_PCB_configurations( cfg.Audio.PCB ); e!=nil { return e }
+
+	rsum := eng2float(cfg.Audio.Rsum)
+	if rsum==0 { rsum = rtotal }
+	for k,_ := range cfg.Audio.Channels {
+		ch := &cfg.Audio.Channels[k]
+		mod, fnd := audio_modules[ch.Module]
+		if fnd {
+			copy_module_data(mod,ch)
+		}
+		rout = 0
+		rout = eng2float(ch.Rout)
+		ch.rout = rout
+		make_audio_filters( core, outpath, ch, fs )
+		ch_res := eng2float(ch.Rsum)
+		if cfg.Audio.Rsum_feedback_res {
+			ch.gain=rsum/ch_res
+		} else {
+			rother := rtotal-ch_res
+			rgnd := rsum
+			if rother!=0 {
+				var e error
+				rgnd, e = parallel_res(rsum,rother)
+				if e!=nil { return e }
+			}
+			ch.gain=resistor_div(rgnd,ch_res)
+		}
+		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
+		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
+	}
+	if e := normalize_channels( cfg.Audio.Channels, cfg.Audio.Gain ); e!=nil {return e}
+	const MaxCh=6
+	if len(cfg.Audio.Channels)>MaxCh {
+		fmt.Printf("ERROR: Audio configuration requires %d channels, but maximum supported is %d\n",len(cfg.Audio.Channels),MaxCh)
+		os.Exit(1)
+	}
+	// fill up to 6 channels
+	if len(cfg.Audio.Channels)>0 {
+		for k:=len(cfg.Audio.Channels);k<MaxCh;k++ {
+			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
+		}
+	}
+	cfg.Audio.Stereo = macros.IsSet("JTFRAME_STEREO")
+	return nil
+}
+
 func eng2float( s string ) float64 {
 	re := regexp.MustCompile(`^[\d]*(\.[\d]+)?`)
 	s = strings.TrimSpace(s)
@@ -196,55 +249,61 @@ func fill_global_pole( cfg *Audio, fs float64 ) {
 	cfg.GlobalPole = fmt.Sprintf("%d'h%s",bits,cfg.GlobalPole)
 }
 
+func fill_PCB_configurations( pcbs []AudioPCB ) (e error) {
+	for k, _ := range pcbs {
+		e = pcbs[k].derive_gains()
+		if e != nil {
+			return e
+		}
+	}
+	return nil
+}
 
-func Make_audio( cfg *MemConfig, core, outpath string ) error {
-	fill_audio_clock( &cfg.Audio )
-	const fs = float64(192000)
-	// assign information derived from the module type
-	if e := validate_channels(cfg.Audio.Channels); e!=nil { return e }
-	_,_,rtotal := find_rlimits(cfg.Audio.Channels)
-	fill_global_pole( &cfg.Audio, fs )
-	rsum := eng2float(cfg.Audio.Rsum)
-	if rsum==0 { rsum = rtotal }
-	for k,_ := range cfg.Audio.Channels {
-		ch := &cfg.Audio.Channels[k]
-		mod, fnd := audio_modules[ch.Module]
-		if fnd {
-			copy_module_data(mod,ch)
-		}
-		rout = 0
-		rout = eng2float(ch.Rout)
-		ch.rout = rout
-		make_audio_filters( core, outpath, ch, fs )
-		ch_res := eng2float(ch.Rsum)
-		if cfg.Audio.Rsum_feedback_res {
-			ch.gain=rsum/ch_res
-		} else {
-			rother := rtotal-ch_res
-			rgnd := rsum
-			if rother!=0 {
-				var e error
-				rgnd, e = parallel_res(rsum,rother)
-				if e!=nil { return e }
-			}
-			ch.gain=resistor_div(rgnd,ch_res)
-		}
-		if ch.Pre != "" { ch.gain *= eng2float(ch.Pre) }
-		if ch.Vpp != "" { ch.gain *= eng2float(ch.Vpp) }
+func (pcb *AudioPCB)derive_gains() error {
+	const global=1.0
+	gains, e := pcb.extract_gains(); if e!=nil { return e }
+	e = normalize_gains(gains,global); if e!=nil { return e }
+	return pcb.make_gaincfg(gains)
+}
+
+func (pcb *AudioPCB)extract_gains() ([]float64,error) {
+	gains,e := pcb.calc_opamp_gain()
+	if e!=nil { return nil,e }
+	pcb.apply_preamp(gains)
+	return gains,nil
+}
+
+func (pcb *AudioPCB)calc_opamp_gain() ([]float64,error) {
+	gains:=make([]float64,len(pcb.Rsums))
+	rfb := eng2float(pcb.Rfb)
+	for k, summing_res := range pcb.Rsums {
+		rsum := eng2float(summing_res)
+		if rsum==0 { return nil,fmt.Errorf("zero is not a valid value for rsum") }
+		gains[k] = rfb/rsum
 	}
-	if e := normalize_gains( cfg.Audio.Channels, cfg.Audio.Gain ); e!=nil {return e}
-	const MaxCh=6
-	if len(cfg.Audio.Channels)>MaxCh {
-		fmt.Printf("ERROR: Audio configuration requires %d channels, but maximum supported is %d\n",len(cfg.Audio.Channels),MaxCh)
-		os.Exit(1)
+	return gains,nil
+}
+
+func (pcb *AudioPCB)apply_preamp(gains []float64) {
+	for k,preamp_gain := range pcb.Pres {
+		gains[k] *= preamp_gain
 	}
-	// fill up to 6 channels
-	if len(cfg.Audio.Channels)>0 {
-		for k:=len(cfg.Audio.Channels);k<MaxCh;k++ {
-			cfg.Audio.Channels = append(cfg.Audio.Channels, AudioCh{ Gain: "8'h00" } )
-		}
+}
+
+func (pcb *AudioPCB)make_gaincfg(all_gains []float64) (e error) {
+	asint := make([]int,len(all_gains))
+	for k, gain := range all_gains {
+		if k>5 { return fmt.Errorf("Too many channels in Audio.PCB") }
+		asint[k], e = float2gain(gain)
+		if e!=nil { return fmt.Errorf("%w for gain=%.2f, (Rfb=%s)",e,gain,pcb.Rfb) }
 	}
-	cfg.Audio.Stereo = macros.IsSet("JTFRAME_STEREO")
+	gainstr := ""
+	for k,gain := range asint {
+		hex := fmt.Sprintf("%02X",gain)
+		if k>0 { gainstr = "_"+gainstr }
+		gainstr = hex+gainstr
+	}
+	pcb.Gaincfg="48'h"+gainstr
 	return nil
 }
 
@@ -306,29 +365,53 @@ func make_audio_filters(core, outpath string, ch *AudioCh, fs float64) {
 	make_fir( core, outpath, ch, fs )
 }
 
-func normalize_gains( all_channels []AudioCh, global float64 ) error {
-	const FRAC_BITS=7 // must match jtframe_sndchain.WD
-	const INTEGER=1<<FRAC_BITS
+func normalize_channels( all_channels []AudioCh, global float64 ) error {
 	if global==0 {
 		global=1.0
 	}
-	var gmax float64
-	for _,ch := range all_channels {
-		if gmax==0 || ch.gain>gmax { gmax=ch.gain }
-	}
-	for k,_ := range all_channels {
+	all_gains := extract_gains(all_channels)
+	normalize_gains(all_gains,global)
+	for k,_ := range all_gains {
 		ch := &all_channels[k]
-		ch.gain = ch.gain/gmax*global
-		intg := int(ch.gain*INTEGER)
-		if (intg&^0xff)!=0 {
-			return fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
-		}
-		ch.Gain = fmt.Sprintf("8'h%02X",intg&0xff)
+		ch.gain = all_gains[k]
+		intg, e := float2gain(ch.gain); if e!=nil { return e }
+		ch.Gain = fmt.Sprintf("8'h%02X",intg)
 		if Verbose {
 			fmt.Printf("channel %d, gain %X\n",k,ch.Gain)
 		}
 	}
 	return nil
+}
+
+func extract_gains(all_channels []AudioCh) (gains []float64) {
+	gains=make([]float64,len(all_channels))
+	for k,_ := range all_channels {
+		gains[k]=all_channels[k].gain
+	}
+	return gains
+}
+
+func normalize_gains(all_gains []float64, global_gain float64) (e error) {
+	var gmax float64
+	for _,gain := range all_gains {
+		if gmax==0 || gain>gmax {
+			gmax=gain
+		}
+	}
+	for k,_ := range all_gains {
+		all_gains[k] = all_gains[k]/gmax*global_gain
+	}
+	return nil
+}
+
+func float2gain(gain float64) (int,error) {
+	const FRAC_BITS=7 // must match jtframe_sndchain.WD
+	const INTEGER=1<<FRAC_BITS
+	intg := int(gain*INTEGER)
+	if (intg&^0xff)!=0 {
+		return 0,fmt.Errorf("Error: cannot fit audio gain in 8 bits\n")
+	}
+	return intg,nil
 }
 
 func Gain2dec(hex string) string {

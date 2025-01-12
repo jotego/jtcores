@@ -38,6 +38,7 @@ jtframe:
   - from: sdram
     get:
       - jtframe_dwnld.v
+      - jtframe_headerbyte.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml
       - jtframe_sdram_stats.v
@@ -74,3 +75,4 @@ jtframe:
       - jtframe_volume.v
       - jtframe_vumeter.sv
       - jtframe_st2mono.v
+      - jtframe_gainmux.v

@@ -63,7 +63,7 @@ module jtcontra_main(
     input      [7:0]    dipsw_b,
     input      [3:0]    dipsw_c
 );
-
+`ifndef NOMAIN
 parameter  GAME=0;
 localparam RAM_AW = GAME==0 ? 12 : 13;
 
@@ -261,9 +261,11 @@ jtframe_sys6809 #(.RAM_AW(RAM_AW),.CENDIV(0)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
 );
-
 `ifdef SIMULATION
 always @(negedge snd_irq) $display("INFO: sound latch %X", snd_latch );
 `endif
-
+`else
+    assign cpu_cen=0,snd_irq=0,snd_latch=0,rom_addr=0,rom_cs=0,cpu_addr=0,
+        cpu_rnw=0,cpu_dout=0,video_bank=0,prio_latch=0;
+`endif
 endmodule
