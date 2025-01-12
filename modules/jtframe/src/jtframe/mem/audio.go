@@ -267,6 +267,13 @@ func (pcb *AudioPCB)derive_gains() error {
 }
 
 func (pcb *AudioPCB)extract_gains() ([]float64,error) {
+	gains,e := pcb.calc_opamp_gain()
+	if e!=nil { return nil,e }
+	pcb.apply_preamp(gains)
+	return gains,nil
+}
+
+func (pcb *AudioPCB)calc_opamp_gain() ([]float64,error) {
 	gains:=make([]float64,len(pcb.Rsums))
 	rfb := eng2float(pcb.Rfb)
 	for k, summing_res := range pcb.Rsums {
@@ -275,6 +282,12 @@ func (pcb *AudioPCB)extract_gains() ([]float64,error) {
 		gains[k] = rfb/rsum
 	}
 	return gains,nil
+}
+
+func (pcb *AudioPCB)apply_preamp(gains []float64) {
+	for k,preamp_gain := range pcb.Pres {
+		gains[k] *= preamp_gain
+	}
 }
 
 func (pcb *AudioPCB)make_gaincfg(all_gains []float64) (e error) {

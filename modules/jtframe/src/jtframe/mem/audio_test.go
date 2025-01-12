@@ -146,3 +146,41 @@ func Test_fill_PCB_configurations(t *testing.T) {
 		}
 	}
 }
+
+func Test_fill_PCB_configurations_preamp(t *testing.T) {
+	pcbs := []AudioPCB{
+		{ Rfb: "10k", Rsums: []string{"5k",   "3k"}, Pres: []float64{0.5,0.5} },
+		{ Rfb: "24k", Rsums: []string{"15k", "30k", "25k"}, Pres: []float64{0.25,1.5,1.0} },
+		{ Rfb: "34k", Rsums: []string{"25k", "10k", "35k", "40k"}, Pres: []float64{3.0} },
+	}
+	e := fill_PCB_configurations(pcbs)
+	if e!=nil { t.Error(e) }
+	expected := []string{
+		"48'h80_4C",
+		"48'h66_80_2A",
+		"48'h1A_1E_6A_80",
+	}
+	for k, pcb:= range pcbs {
+		if pcb.Gaincfg!=expected[k] {
+			t.Errorf("Mismatched gain string")
+			t.Log("Got",pcb.Gaincfg)
+			t.Log("Expected",expected[k])
+		}
+	}
+}
+
+func Test_extract_gains(t *testing.T) {
+	pcbcfg := AudioPCB{
+		Rfb: "1k",
+		Rsums: []string{"1k","2k","3k","4k","5k"},
+		Pres: []float64{ 1.0, 1.5, 1.8, 0.7, 0.3},
+	}
+	gains, e := pcbcfg.extract_gains()
+	if e!=nil { t.Error(e) }
+	expected := []float64{1.0,1.5/2,1.8/3,0.7/4,0.3/5}
+	for k,_ := range gains {
+		if gains[k]!=expected[k] {
+			t.Errorf("Value mismatch for index %d, got %.2f, wanted %.2f",k,gains[k],expected[k])
+		}
+	}
+}

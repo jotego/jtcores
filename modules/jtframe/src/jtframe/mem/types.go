@@ -200,6 +200,7 @@ type AudioPCB struct{
     Machines    string `yaml:"machines"`
     Rfb         string `yaml:"rfb"`     // feedback resistor of final opamp
     Rsums     []string `yaml:"rsums"`   // summing resistor for each channel
+    Pres      []float64 `yaml:"pres`    // pre-gains
     // Derived, not in YAML
     Gaincfg     string
 }
