@@ -46,7 +46,9 @@ while [ $# -gt 0 ]; do
             show_help
             exit 1;;
         *)
-            BUILD="$JTBUILDS/$1.zip"
+            HASH=`git rev-parse --short $1`
+            HASH=${HASH:0:7}
+            BUILD="$JTBUILDS/${HASH}.zip"
             if [ ! -e "$BUILD" ]; then
                 echo "Cannot find $BUILD"
                 echo "Unknown argument $1"

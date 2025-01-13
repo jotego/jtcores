@@ -55,7 +55,8 @@ hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
 EOF
 			exit 0;;
 		*) if [[ -z "$HASH" && ${1:0:1} != - ]]; then
-			HASH=$1
+			HASH=`git rev-parse --short $1`
+			HASH=${HASH:0:7}
 		else
 			echo "Do not know what to do with arguments $HASH and $1"
 			exit 1
