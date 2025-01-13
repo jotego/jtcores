@@ -1,2 +1,2 @@
-../../../hdl/sound/jtframe_sndchain.v
-../../../hdl/sound/jtframe_pole.v
+$JTFRAME/hdl/sound/jtframe_sndchain.v
+$JTFRAME/hdl/sound/jtframe_pole.v
