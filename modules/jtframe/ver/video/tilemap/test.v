@@ -6,7 +6,7 @@ parameter SIZE         =  8,    // 8x8, 16x16 or 32x32
 		  VA           = 10,    // VRAM bit width
 		  CW           = 12,
 		  PW           =  8,    // pixel width
-		  BPP          =  4,    // bits per pixel. Palette width = PW-BPP
+		  BPP          =  2,    // bits per pixel. Palette width = PW-BPP
 		  VR           = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
 		  MAP_HW       = 8,    // 2^MAP_HW = size of the map in pixels
 		  MAP_VW       = 8,
@@ -144,6 +144,7 @@ initial begin
 	repeat (4) @(posedge clk) change =~change;
 	repeat (3) begin wait (vswap==1);
 					@(posedge clk); @(posedge clk); end
+	$display("PASS");
 	$finish;
 end
 
@@ -190,8 +191,6 @@ jtframe_tilemap #(
 	    if( cen_cnt==5'd6 ) assert(p_check) else $fatal;
 	end
 
-`ifdef SIZE_TEST
-
 localparam SIZE_TEST=3;
 genvar sz;
 
@@ -208,7 +207,7 @@ generate
 
 		jtframe_tilemap #(
 			.SIZE(SZ),.VA(VA_T),
-			.CW(CW),.PW(PW),.BPP(BPP),
+			.CW(CW),.PW(PW),.BPP(4),
 			.MAP_HW(MAP_HW),.MAP_VW(MAP_VW),
 			.FLIP_MSB(FLIP_MSB),.FLIP_HDUMP(FLIP_HDUMP),.FLIP_VDUMP(FLIP_VDUMP),
 			.XOR_HFLIP(XOR_HFLIP),.XOR_VFLIP(XOR_VFLIP),
@@ -232,7 +231,7 @@ generate
 		    .vflip      ( vflip         ),
 
 		    .rom_addr   ( /*rom_ad*/    ),
-		    .rom_data   ( data[0+:DW]   ),
+		    .rom_data   ( data          ),
 		    .rom_cs     (               ),
 		    .rom_ok     ( 1'b1          ),
 		    .pxl        ( pxl_sz        )
@@ -247,8 +246,6 @@ generate
 		end
 	end
 endgenerate
-
-`endif
 
 test_timer_gate u_timer(
 	.clk     ( clk     ),

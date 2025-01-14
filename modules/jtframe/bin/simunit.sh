@@ -11,10 +11,16 @@ fi
 cd $RUNFOLDER
 echo "Running from `pwd`"
 
+if [ -f options.f ]; then
+	OPTIONS=$(cat options.f)
+else
+	OPTIONS=""
+fi
+
 GATHER=`mktemp`
 envsubst < gather.f > $GATHER
 
-iverilog `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION && sim -lxt > sim.log
+iverilog $OPTIONS `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION && sim -lxt > sim.log
 rm -f sim $GATHER
 if grep PASS sim.log > /dev/null; then
 	echo PASS
