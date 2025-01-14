@@ -250,7 +250,7 @@ assign
     obj_addr = 0, rom_addr = 0;
 initial begin
     mint   = 0; ram_cs = 0;
-    obj_cs = 0; rom_cs = 0;
+    obj_cs = 0; rom_cs = 0; stile_cs = 0;
 end
 `endif
 endmodule
