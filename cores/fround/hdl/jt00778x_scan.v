@@ -97,11 +97,11 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             st <= st + 1'd1;
             case( st )
-                1: begin
+                1: hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
+                2: begin
                     y <= 0;
                     y[PW-1:0] <=  scan_dout[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
                 end
-                2: hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
                 3: begin
                     skip <= ~scan_dout[15] && valid_y;
                     if( scan_dout[14] ) begin

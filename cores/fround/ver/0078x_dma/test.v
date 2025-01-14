@@ -51,8 +51,8 @@ initial begin
     end
     // first object that should be copied
     refram[0]=CODEREF;
-    refram[1]={8'h01,YREF}-OBJ_DY;
-    refram[2]={8'h01,XREF}-OBJ_DX;
+    refram[1]={8'h01,XREF}-OBJ_DX;
+    refram[2]={8'h01,YREF}-OBJ_DY;
     refram[3]={6'h20,ATTRREF[9:0]};
 end
 

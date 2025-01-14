@@ -100,14 +100,14 @@ always @(posedge clk) begin
                         end
                         4: hibuf <= oram_dout[7:0];
                         5: begin // x
-                            cpw_addr[2:1] <= 2;
+                            cpw_addr[2:1] <= 1;
                             oram_din      <= {hibuf,oram_dout[15:8]}-{{16-PW{1'b0}},obj_dx};
                             oram_we  <= beflag;
                             // if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
                         6: hibuf <= oram_dout[7:0];
                         7: begin // y
-                            cpw_addr[2:1] <= 1;
+                            cpw_addr[2:1] <= 2;
                             oram_din      <= {hibuf,oram_dout[15:8]}-{{16-PW{1'b0}},obj_dy};
                             oram_we  <= beflag;
                             // if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
