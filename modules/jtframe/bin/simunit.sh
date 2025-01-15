@@ -14,7 +14,8 @@ echo "Running from `pwd`"
 GATHER=`mktemp`
 envsubst < gather.f > $GATHER
 
-iverilog `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION && sim -lxt > sim.log
+iverilog -g2012 `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION
+sim -lxt > sim.log
 rm -f sim $GATHER
 if grep PASS sim.log > /dev/null; then
 	echo PASS
