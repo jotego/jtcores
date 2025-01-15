@@ -670,8 +670,8 @@ if [ $GATES = NO ]; then
     if grep --quiet fx68k game.f; then
         # These files are read by the FX68K module but they must be in the
         # simulation folder. Forgetting to have them there results in X everywhere
-        ln -sfr $MODULES/fx68k/microrom.mem
-        ln -sfr $MODULES/fx68k/nanorom.mem
+        ln -sfr $MODULES/fx68k/hdl/microrom.mem
+        ln -sfr $MODULES/fx68k/hdl/nanorom.mem
     fi
     # Remove duplicated lines
     rm -f tmp.f
