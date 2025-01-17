@@ -169,13 +169,14 @@ func Test_unmarshall(t *testing.T) {
 }
 
 func Test_find_paths(t *testing.T) {
+	const module="jt007232"
 	jtfile := JTFiles{
-		"jt51": nil,
+		module: nil,
 	}
 	filepaths, e := find_paths(jtfile)
 	if e!=nil { t.Error(e) }
 	if len(filepaths)==0 {
-		t.Error("No path to jt51")
+		t.Errorf("No path to %s",module)
 	}
 }
 
