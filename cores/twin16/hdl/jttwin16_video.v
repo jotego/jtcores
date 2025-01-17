@@ -219,7 +219,7 @@ jtframe_scroll #(
     .code       (scra_dout[12:0]),
     .pal        (scra_dout[15:13]),
     .hflip      ( hflip     ),
-    .vflip      ( 1'b0      ),
+    .vflip      ( vramcvf   ),
 
     .rom_addr   ( lyra_addr ),
     .rom_data   ( asorted   ),
@@ -252,7 +252,7 @@ jtframe_scroll #(
     .code       (scrb_dout[12:0]),
     .pal        (scrb_dout[15:13]),
     .hflip      ( hflip     ),
-    .vflip      ( 1'b0      ),
+    .vflip      ( vramcvf   ),
 
     .rom_addr   ( lyrb_addr ),
     .rom_data   ( bsorted   ),

@@ -33,20 +33,13 @@ module jttwin16_tile(
 reg [ 2:0] st;
 reg [15:0] low; // low half
 
-function [17:2] flip(input [17:2] addr);
-begin
-    flip=addr;
-    flip[2+:3]=addr[2+:3]^{3{vramcvf}};
-end
-endfunction
-
 always @(posedge clk) begin
     st <= st+3'd1;
     case(st)
-        0: begin stram_addr<={flip(lyra_addr),1'b0}; lyrb_data<={stram_dout,low}; end
-        2: begin stram_addr<={flip(lyra_addr),1'b1}; low      <= stram_dout;      end
-        4: begin stram_addr<={flip(lyrb_addr),1'b0}; lyra_data<={stram_dout,low}; end
-        6: begin stram_addr<={flip(lyrb_addr),1'b1}; low      <= stram_dout;      end
+        0: begin stram_addr<={lyra_addr,1'b0}; lyrb_data<={stram_dout,low}; end
+        2: begin stram_addr<={lyra_addr,1'b1}; low      <= stram_dout;      end
+        4: begin stram_addr<={lyrb_addr,1'b0}; lyra_data<={stram_dout,low}; end
+        6: begin stram_addr<={lyrb_addr,1'b1}; low      <= stram_dout;      end
     endcase
 end
 
