@@ -37,7 +37,7 @@ always @(posedge clk) begin
 					quot<=dividend;
 					div<=divisor;
 					/* verilator lint_off WIDTH */
-					bitcounter<=(widthlog2-1'd1);
+					bitcounter<={widthlog2{1'd1}};
 					/* verilator lint_on WIDTH */
 					state <= RUN;
 				end			
