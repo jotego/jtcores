@@ -373,6 +373,8 @@ jtframe_led u_led(
 `endif
 
 `ifndef SIMULATION
+wire [9:0] raw_key_joy1, raw_key_joy2, raw_key_joy3, raw_key_joy4;
+
 jtframe_keyboard u_keyboard(
     .clk         ( clk_sys       ),
     .rst         ( rst           ),
@@ -380,10 +382,10 @@ jtframe_keyboard u_keyboard(
     .ps2_clk     ( ps2_kbd_clk   ),
     .ps2_data    ( ps2_kbd_data  ),
     // decoded keys
-    .key_joy1    ( key_joy1      ),
-    .key_joy2    ( key_joy2      ),
-    .key_joy3    ( key_joy3      ),
-    .key_joy4    ( key_joy4      ),
+    .key_joy1    ( raw_key_joy1  ),
+    .key_joy2    ( raw_key_joy2  ),
+    .key_joy3    ( raw_key_joy3  ),
+    .key_joy4    ( raw_key_joy4  ),
     .key_start   ( key_start     ),
     .key_coin    ( key_coin      ),
     .key_reset   ( key_reset     ),
@@ -402,6 +404,18 @@ jtframe_keyboard u_keyboard(
     .vol_down    ( vol_down      ),
     .debug_plus  ( debug_plus    ),
     .debug_minus ( debug_minus   )
+);
+
+jtframe_filter_keyboard u_filter_keyboard(
+    .clk    ( clk_sys       ),
+    .raw1   ( raw_key_joy1  ),
+    .raw2   ( raw_key_joy2  ),
+    .raw3   ( raw_key_joy3  ),
+    .raw4   ( raw_key_joy4  ),
+    .joy1   ( key_joy1      ),
+    .joy2   ( key_joy2      ),
+    .joy3   ( key_joy3      ),
+    .joy4   ( key_joy4      )
 );
 
     `ifndef JTFRAME_RELEASE
