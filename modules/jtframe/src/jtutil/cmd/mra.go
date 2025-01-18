@@ -102,11 +102,17 @@ func list_zip() {
 }
 
 func list_cores() {
-	games := make(map[string][]string)
 	const delim = "|"
+	games, e := get_coregames(delim)
+	if e != nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
+	report_games(games)
+}
 
-	fmt.Println("| Core | Game | MAME set |")
-	fmt.Println("|------|------|----------|")
+func get_coregames(delim string) (map[string][]string,error) {
+	games := make(map[string][]string)
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
 		readin_mra( fname, fi, &game, err )
@@ -120,13 +126,17 @@ func list_cores() {
 		return nil
 	}
 	e := filepath.WalkDir(filepath.Join(os.Getenv("JTBIN"), "mra"), get_mradata)
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-	for key, val := range games {
-		for _,each := range val {
-			fmt.Printf("|%s%s%s|\n",key[2:],delim,each)
+	if e!=nil { return nil, e }
+	return games, nil
+}
+
+func report_games(games map[string][]string) {
+	const delim = "|"
+	fmt.Println("| Core | Game | MAME set |")
+	fmt.Println("|------|------|----------|")
+	for corename, core_games := range games {
+		for _,name := range core_games {
+			fmt.Printf("|%s%s%s|\n",corename[2:],delim,name)
 		}
 	}
 }
