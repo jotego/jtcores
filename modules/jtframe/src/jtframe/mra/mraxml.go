@@ -19,6 +19,7 @@ package mra
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -40,6 +41,16 @@ type XMLNode struct {
 type StartNode struct {
 	node *XMLNode
 	pos  int
+}
+
+func (this *StartNode) add_length(pos int) {
+	if this.node != nil {
+		lenreg := pos - this.pos
+		if lenreg > 0 {
+			this.node.name = fmt.Sprintf("%s - length 0x%X (%d bits)", this.node.name, lenreg,
+				int(math.Ceil(math.Log2(float64(lenreg)))))
+		}
+	}
 }
 
 func (n *XMLNode) GetNode(name string) *XMLNode {

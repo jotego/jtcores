@@ -21,7 +21,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -35,16 +34,6 @@ import (
 	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
 )
-
-func (this *StartNode) add_length(pos int) {
-	if this.node != nil {
-		lenreg := pos - this.pos
-		if lenreg > 0 {
-			this.node.name = fmt.Sprintf("%s - length 0x%X (%d bits)", this.node.name, lenreg,
-				int(math.Ceil(math.Log2(float64(lenreg)))))
-		}
-	}
-}
 
 func Run(args Args) {
 	pocket_clear()
