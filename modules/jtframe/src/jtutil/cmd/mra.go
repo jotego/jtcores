@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -36,10 +37,7 @@ var mraCmd = &cobra.Command{
 	Use:   "mra",
 	Short: "MRA inspection utilities",
 	Long: `List zip files used in JTBIN's .mra files`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if( *mra_args.zip  ) { list_zip() }
-		if( *mra_args.core ) { list_cores() }
-	},
+	Run: runMRA,
 }
 
 func init() {
@@ -47,6 +45,12 @@ func init() {
 
 	mra_args.zip  = mraCmd.Flags().BoolP("zip", "z", false, "Shows all zip files used in MRA files")
 	mra_args.core = mraCmd.Flags().BoolP("core", "c", false, "Shows games supported by each core")
+}
+
+func runMRA(cmd *cobra.Command, args []string) {
+	if( *mra_args.zip  ) { list_zip();   return }
+	if( *mra_args.core ) { list_cores(); return }
+	cmd.Help()
 }
 
 func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) (error) {
@@ -101,6 +105,16 @@ func list_zip() {
 	}
 }
 
+type game_info struct {
+	name, mame_set string
+}
+
+type jtcores map[string][]game_info
+
+func cmp_games( a, b game_info) int {
+	return strings.Compare(a.name,b.name)
+}
+
 func list_cores() {
 	const delim = "|"
 	games, e := get_coregames(delim)
@@ -108,21 +122,26 @@ func list_cores() {
 		fmt.Println(e)
 		os.Exit(1)
 	}
-	report_games(games)
+	sorted_cores := sort_cores(games)
+	sort_games(games)
+	report_games(sorted_cores, games)
 }
 
-func get_coregames(delim string) (map[string][]string,error) {
-	games := make(map[string][]string)
+func get_coregames(delim string) (jtcores,error) {
+	games := make(jtcores)
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
 		readin_mra( fname, fi, &game, err )
 		if game.Setname=="" { return nil }
 		list, found := games[game.Rbf]
 		if !found || list==nil {
-			list = make([]string,0,16)
+			list = make([]game_info,0,16)
 		}
-		long_name := fmt.Sprintf("%s%s%s",game.Name,delim,game.Setname)
-		games[game.Rbf]=append(list,long_name)
+		info := game_info {
+			name: game.Name,
+			mame_set: game.Setname,
+		}
+		games[game.Rbf]=append(list,info)
 		return nil
 	}
 	e := filepath.WalkDir(filepath.Join(os.Getenv("JTBIN"), "mra"), get_mradata)
@@ -130,13 +149,72 @@ func get_coregames(delim string) (map[string][]string,error) {
 	return games, nil
 }
 
-func report_games(games map[string][]string) {
-	const delim = "|"
-	fmt.Println("| Core | Game | MAME set |")
-	fmt.Println("|------|------|----------|")
-	for corename, core_games := range games {
-		for _,name := range core_games {
-			fmt.Printf("|%s%s%s|\n",corename[2:],delim,name)
+func sort_cores(all_cores jtcores) []string {
+	sorted_names := make([]string,0,len(all_cores))
+	for name,_ := range all_cores {
+		sorted_names = append(sorted_names,name)
+	}
+	slices.Sort(sorted_names)
+	return sorted_names
+}
+
+func sort_games(all_games jtcores) {
+	for _, core_games := range all_games {
+		slices.SortFunc(core_games,cmp_games)
+	}
+}
+
+func report_games(cores []string, games jtcores) {
+	game_count := 0
+	core_len, game_len, set_len := find_longest_names(games)
+	format := make_format_string(core_len, game_len, set_len)
+	print_header(format)
+	for _, corename := range cores {
+		core_games := games[corename]
+		for _,info := range core_games {
+			fmt.Printf(format,corename[2:],info.name,info.mame_set)
+			game_count++
 		}
 	}
+	fmt.Printf("\n%d cores, supporting %d games\n",len(cores),game_count)
+}
+
+func find_longest_names(all_games jtcores) (core_len, game_len, set_len int) {
+	for corename, coregames := range all_games {
+		core_len = max_length(corename, core_len)
+		for _, info := range coregames {
+			game_len = max_length(info.name, game_len)
+			set_len  = max_length(info.mame_set, set_len)
+		}
+	}
+	const JTPREFIX_LEN = 2
+	core_len -= JTPREFIX_LEN
+	return core_len, game_len, set_len
+}
+
+func max_length(name string, previous_max int) int {
+	name_length := len(name)
+	if name_length>previous_max {
+		return name_length
+	} else {
+		return previous_max
+	}
+}
+
+func make_format_string(core_len, game_len, set_len int) string {
+	return fmt.Sprintf("| %%-%ds | %%-%ds | %%-%ds |\n", core_len, game_len, set_len)
+}
+
+func print_header(format string) {
+	header := fmt.Sprintf(format,"Core","Game","MAME set")
+	dashline := make([]rune,len(header))
+	for k,_ := range dashline {
+		if header[k]=='|' || header[k]=='\n'{
+			dashline[k]=rune(header[k])
+		} else {
+			dashline[k]='-'
+		}
+	}
+	fmt.Printf(header)
+	fmt.Printf(string(dashline))
 }
