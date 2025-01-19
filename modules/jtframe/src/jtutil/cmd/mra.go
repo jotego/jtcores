@@ -29,7 +29,7 @@ import (
 )
 
 var mra_args struct{
-	zip, core *bool
+	zip, core, main_only *bool
 }
 
 // mraCmd represents the mra command
@@ -43,36 +43,15 @@ var mraCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(mraCmd)
 
-	mra_args.zip  = mraCmd.Flags().BoolP("zip", "z", false, "Shows all zip files used in MRA files")
-	mra_args.core = mraCmd.Flags().BoolP("core", "c", false, "Shows games supported by each core")
+	mra_args.zip       = mraCmd.Flags().BoolP("zip",       "z", false, "Shows all zip files used in MRA files")
+	mra_args.core      = mraCmd.Flags().BoolP("core",      "c", false, "Shows games supported by each core")
+	mra_args.main_only = mraCmd.Flags().BoolP("main-only", "m", false, "Parse only the main games")
 }
 
 func runMRA(cmd *cobra.Command, args []string) {
 	if( *mra_args.zip  ) { list_zip();   return }
 	if( *mra_args.core ) { list_cores(); return }
 	cmd.Help()
-}
-
-func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) (error) {
-	if !strings.HasSuffix(fname,".mra") { return nil }
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	if fi.IsDir() {
-		return nil
-	}
-	// get the information
-	buf, e := os.ReadFile(fname)
-	if e != nil {
-		return e
-	}
-	xml.Unmarshal(buf, game)
-	if game.Name=="" {
-		fmt.Printf("Warning: no game Name for file %s\n",fname)
-		return nil
-	}
-	return err
 }
 
 func list_zip() {
@@ -105,6 +84,28 @@ func list_zip() {
 	}
 }
 
+func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) (error) {
+	if !strings.HasSuffix(fname,".mra") { return nil }
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	if fi.IsDir() {
+		return nil
+	}
+	// get the information
+	buf, e := os.ReadFile(fname)
+	if e != nil {
+		return e
+	}
+	xml.Unmarshal(buf, game)
+	if game.Name=="" {
+		fmt.Printf("Warning: no game Name for file %s\n",fname)
+		return nil
+	}
+	return err
+}
+
 type game_info struct {
 	name, mame_set string
 }
@@ -131,6 +132,7 @@ func get_coregames(delim string) (jtcores,error) {
 	games := make(jtcores)
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
+		if is_alternative(fname) && *mra_args.main_only { return nil }
 		readin_mra( fname, fi, &game, err )
 		if game.Setname=="" { return nil }
 		list, found := games[game.Rbf]
@@ -147,6 +149,12 @@ func get_coregames(delim string) (jtcores,error) {
 	e := filepath.WalkDir(filepath.Join(os.Getenv("JTBIN"), "mra"), get_mradata)
 	if e!=nil { return nil, e }
 	return games, nil
+}
+
+func is_alternative(fname string) bool {
+	up2levels := filepath.Dir(filepath.Dir(fname))
+	dirname := filepath.Base(up2levels)
+	return dirname=="_alternatives"
 }
 
 func sort_cores(all_cores jtcores) []string {

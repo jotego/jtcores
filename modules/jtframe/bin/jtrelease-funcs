@@ -169,7 +169,8 @@ function remove_mist_betas {
 }
 
 function make_game_list {
-	jtutil mra --core > $JTBIN/game_list.md
+	jtutil mra --core             > $JTBIN/game_list.md
+	jtutil mra --core --main-only > $JTBIN/only_main_titles.md
 }
 
 function make_pocket_beta_helper {
