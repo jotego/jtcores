@@ -374,6 +374,7 @@ jttmnt_sound u_sound(
     .k60_r      (               ),
     .title      (               ),
     // Debug
+    .snd_en     ( snd_en        ),
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
 );

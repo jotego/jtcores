@@ -283,6 +283,7 @@ jttmnt_sound u_sound(
     .title      (               ),
     // Debug
     .debug_bus  ( debug_bus     ),
+    .snd_en     ( snd_en        ),
     .st_dout    ( st_snd        )
 );
 

@@ -57,7 +57,7 @@ module jtriders_sound(
     input    [ 7:0] pcmd_dout,
     output          pcmd_cs,
     input           pcmd_ok,
-
+    input    [ 5:0] snd_en,
     // Sound output
     output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
 );
@@ -198,7 +198,8 @@ jt053260 u_k53260(
     // .aux_r      ( fm_r      ),
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
-    .sample     (           )
+    .sample     (           ),
+    .ch_en      (snd_en[4:0])
 );
 `else
 assign  main_din   = 0;

@@ -168,6 +168,7 @@ jtsimson_sound u_sound(
     .snd_l      ( snd_l         ),
     .snd_r      ( snd_r         ),
     // Debug
+    .snd_en     ( snd_en        ),
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
 );

@@ -59,6 +59,7 @@ module jtsimson_sound(
     output signed [15:0] snd_l, snd_r,
     // Debug
     input    [ 7:0] debug_bus,
+    input    [ 5:0] snd_en,
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
@@ -210,6 +211,7 @@ jt053260 u_pcm(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
+    .ch_en      (snd_en[4:0]),
     .aux_l      ( fm_l      ),
     .aux_r      ( fm_r      ),
     .snd_l      ( snd_l     ),

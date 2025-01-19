@@ -75,6 +75,7 @@ module jttmnt_sound(
     output     signed [ 8:0] upd,
     // Debug
     input         [ 7:0] debug_bus,
+    input         [ 5:0] snd_en,
     output        [ 7:0] st_dout
 );
 `ifndef NOSOUND
@@ -296,6 +297,7 @@ jt053260 u_k53260(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
+    .ch_en      (snd_en[4:0]),
     .aux_l      ( 16'd0     ),
     .aux_r      ( 16'd0     ),
     .snd_l      ( k60_l     ),

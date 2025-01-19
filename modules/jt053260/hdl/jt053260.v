@@ -54,7 +54,9 @@ module jt053260(
     input      signed [15:0] aux_l, aux_r,
     output reg signed [15:0] snd_l,
     output reg signed [15:0] snd_r,
-    output                   sample
+    output                   sample,
+    // debug
+    input             [ 4:0] ch_en
     // unsupported pins
     // input               st1,
     // input               st2,
@@ -92,8 +94,8 @@ jtframe_limsum u_suml(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen       ),
-    .parts  ( {ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l, aux_l} ),
-    .en     ( 5'h1f     ),
+    .parts  ( {aux_l, ch3_snd_l, ch2_snd_l, ch1_snd_l, ch0_snd_l} ),
+    .en     ( ch_en     ),
     .sum    ( pre_l     ),
     .peak   (           )
 );
@@ -102,8 +104,8 @@ jtframe_limsum u_sumr(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen       ),
-    .parts  ( {ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r, aux_r} ),
-    .en     ( 5'h1f     ),
+    .parts  ( {aux_r, ch3_snd_r, ch2_snd_r, ch1_snd_r, ch0_snd_r} ),
+    .en     ( ch_en     ),
     .sum    ( pre_r     ),
     .peak   (           )
 );
