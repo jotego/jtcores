@@ -31,7 +31,7 @@ module jtframe_inputs(
     output reg        soft_rst,
     output reg        game_pause,
 
-    input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4,
+    input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4, ana1, ana2,
     input       [3:0] board_coin, board_start,
 
     input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
@@ -45,8 +45,8 @@ module jtframe_inputs(
     input             key_reset,
     input             rot_control,
 
-    output reg [9:0]  game_joy1, game_joy2, game_joy3, game_joy4,
-    output reg [3:0]  game_coin, game_start,
+    output reg  [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
+    output reg  [3:0] game_coin, game_start,
     output reg        game_service,
     output            game_test,
     output reg        game_tilt,
@@ -84,15 +84,11 @@ parameter BUTTONS    = 2,
           ACTIVE_LOW = 1;
 
 reg  [15:0] joy1_sync, joy2_sync, joy3_sync, joy4_sync;
+wire [15:0] multi1, multi2;
 wire [ 3:0] joy4way1p, joy4way2p, joy4way3p, joy4way4p;
 wire [ 2:0] mouse_but_1p, mouse_but_2p;
 wire [ 9:0] pre_order1;
 
-`ifdef JTFRAME_SUPPORT_4WAY
-    wire en4way = core_mod[1];
-`else
-    wire en4way = 0;
-`endif
 
 // This one passes unfiltered
 assign game_paddle_2 = board_paddle_2;
@@ -104,37 +100,54 @@ always @(posedge clk) begin
     joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
 end
 
-jtframe_4wayjoy u_4way_1p(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .enable     ( en4way            ),
-    .joy8way    ( board_joy1[3:0]   ),
-    .joy4way    ( joy4way1p         )
+jtframe_multiway u_multiway(
+    .clk        ( clk       ),
+    .vs         ( vs        ),
+    .ana1       ( ana1      ),
+    .ana2       ( ana2      ),
+    .raw1       ( joy1_sync ),
+    .raw2       ( joy2_sync ),
+    .joy1       ( multi1    ),
+    .joy2       ( multi2    )
 );
 
-jtframe_4wayjoy u_4way_2p(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .enable     ( en4way            ),
-    .joy8way    ( board_joy2[3:0]   ),
-    .joy4way    ( joy4way2p         )
-);
+`ifdef JTFRAME_SUPPORT_4WAY
+    wire en4way = core_mod[1];
 
-jtframe_4wayjoy u_4way_3p(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .enable     ( en4way            ),
-    .joy8way    ( board_joy3[3:0]   ),
-    .joy4way    ( joy4way3p         )
-);
+    jtframe_4wayjoy u_4way_1p(
+        .clk        ( clk               ),
+        .enable     ( en4way            ),
+        .joy8way    ( board_joy1[3:0]   ),
+        .joy4way    ( joy4way1p         )
+    );
 
-jtframe_4wayjoy u_4way_4p(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .enable     ( en4way            ),
-    .joy8way    ( board_joy4[3:0]   ),
-    .joy4way    ( joy4way4p         )
-);
+    jtframe_4wayjoy u_4way_2p(
+        .clk        ( clk               ),
+        .enable     ( en4way            ),
+        .joy8way    ( board_joy2[3:0]   ),
+        .joy4way    ( joy4way2p         )
+    );
+
+    jtframe_4wayjoy u_4way_3p(
+        .clk        ( clk               ),
+        .enable     ( en4way            ),
+        .joy8way    ( board_joy3[3:0]   ),
+        .joy4way    ( joy4way3p         )
+    );
+
+    jtframe_4wayjoy u_4way_4p(
+        .clk        ( clk               ),
+        .enable     ( en4way            ),
+        .joy8way    ( board_joy4[3:0]   ),
+        .joy4way    ( joy4way4p         )
+    );
+`else
+    assign joy4way1p=board_joy1[3:0];
+    assign joy4way2p=board_joy2[3:0];
+    assign joy4way3p=board_joy3[3:0];
+    assign joy4way4p=board_joy4[3:0];
+`endif
+
 
 localparam START_BIT  = 6+(BUTTONS-2);
 localparam COIN_BIT   = START_BIT+1;
@@ -153,9 +166,9 @@ reg  [2:0] firecnt;
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
-    assign joy_pause = joy1_sync[PAUSE_BIT] | joy2_sync[PAUSE_BIT] | joy3_sync[PAUSE_BIT] | joy4_sync[PAUSE_BIT];
-    assign joy_start = { joy4_sync[START_BIT], joy3_sync[START_BIT], joy2_sync[START_BIT], joy1_sync[START_BIT]};
-    assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , joy2_sync[COIN_BIT] , joy1_sync[COIN_BIT]};
+    assign joy_pause = multi1[PAUSE_BIT] | multi2[PAUSE_BIT] | joy3_sync[PAUSE_BIT] | joy4_sync[PAUSE_BIT];
+    assign joy_start = { joy4_sync[START_BIT], joy3_sync[START_BIT], multi2[START_BIT], multi1[START_BIT]};
+    assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , multi2[COIN_BIT] , multi1[COIN_BIT]};
     assign joy_test  = 0;
 `endif
 assign vbl_in    = vs && !vsl;
@@ -221,7 +234,7 @@ endfunction
     assign game_test = key_test | joy_test;
 `endif
 
-assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
+assign pre_order1 = apply_rotation( multi1[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -250,7 +263,7 @@ always @(posedge clk, posedge rst) begin
         if( vsl && !vs ) `endif // make sure the experienced input while playing is the recorded one
         game_joy1  <= reorder(pre_order1);
 `endif
-        game_joy2 <= reorder(apply_rotation(joy2_sync[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
+        game_joy2 <= reorder(apply_rotation(multi2[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
         game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~rot_ccw, autofire ));
         game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~rot_ccw, autofire ));
 

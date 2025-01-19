@@ -38,7 +38,9 @@ Bit  |  Action
  3   | up
  4+  | buttons
 
-Analog controllers are not connected to the game module by default. In order to get them connected, use the following input ports in the game module
+If a different mapping is needed, it should be set via a JTFRAME_JOY macro. The analog stick is used to emulate a 32-way joystick via pulse-width modulation.
+
+Analog controllers are connected via ports:
 
 ```
 input   [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,

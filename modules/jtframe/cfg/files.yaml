@@ -22,6 +22,7 @@ jtframe:
     get:
       - jtframe_keyboard.v
       - jtframe_filter_keyboard.v
+      - jtframe_multiway.v
       - jtframe_4wayjoy.v
       - jtframe_inputs.v
       - jtframe_rec_inputs.v

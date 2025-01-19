@@ -574,6 +574,8 @@ jtframe_inputs #(
     .board_joy4     ( board_joystick4 ),
     .board_start    ( board_start     ),
     .board_coin     ( board_coin      ),
+    .ana1           ( joyana_l1       ),
+    .ana2           ( joyana_l2       ),
 
     .key_joy1       ( key_joy1        ),
     .key_joy2       ( key_joy2        ),
