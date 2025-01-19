@@ -67,4 +67,5 @@ bram:
     addr_width: 7
     data_width: 8
     rw: true
+    sim_file: nvram.bin
     ioctl: { save: true, restore: true, order: 0 }

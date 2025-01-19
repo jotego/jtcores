@@ -27,15 +27,16 @@ module jtframe_st2mono #(parameter
     STEREO_IN  = 1,
     STEREO_OUT = 1,
     // Do not assign
+    EFF_OUT    = STEREO_IN==1&&STEREO_OUT==1,
     WI   = (STEREO_IN==1?2*W:W),
-    WO   = (STEREO_IN==1&&STEREO_OUT==1)?2*W:W
+    WO   =    EFF_OUT==1?2*W:W
 )(
     input      [WI-1:0] sin,
     output reg [WO-1:0] sout
 );
 
 initial begin
-    if(STEREO_IN==0 && STEREO_OUT==1) begin
+    if(STEREO_IN==0 && EFF_OUT==1) begin
         $display("mono to stereo conversion is not supported");
         `ifdef SIMULATION
         $stop;
@@ -50,7 +51,7 @@ localparam [1:0] ST2MONO  =2'b10,
 
 always @* begin
     mono = raw[W]!=raw[W-1] ? { raw[W], {W-1{~raw[W]}}} : raw[W-1:0];
-    case( {STEREO_IN[0], STEREO_OUT[0]} )
+    case( {STEREO_IN[0], EFF_OUT[0]} )
         STEREO:  sout        = sin[WO-1:0];
         ST2MONO: sout[W-1:0] = mono;
         default: sout[W-1:0] = sin[W-1:0];
