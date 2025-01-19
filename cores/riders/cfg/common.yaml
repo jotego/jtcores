@@ -7,7 +7,6 @@ simson:
   - get:
     - jt053246_dma.v
     - jt053246_mmr.v
-    - jt053260.v
     - jtcolmix_053251.v
 aliens:
   - get:
@@ -37,6 +36,7 @@ jtframe:
     get:
       - jtframe_dual_nvram16.v
 jt51:
+jt053260:
 jteeprom:
   - get:
     - jt5911.sv

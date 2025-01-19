@@ -27,7 +27,7 @@ module jtframe_st2mono #(parameter
     STEREO_IN  = 1,
     STEREO_OUT = 1,
     // Do not assign
-    EFF_OUT    = STEREO_IN==1&&STEREO_OUT==1,
+    EFF_OUT    = STEREO_IN==1&&STEREO_OUT==1 ? 1 : 0,
     WI   = (STEREO_IN==1?2*W:W),
     WO   =    EFF_OUT==1?2*W:W
 )(

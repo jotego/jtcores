@@ -31,6 +31,10 @@ jtframe:
       - jtframe_dial.v
       - jt4701.v
       - ps2_intf_v.v
+  - from: keyboard
+    when: [ SIMULATION ]
+    get:
+      - jtframe_sim_inputs.v
   - from: video
     get:
       - jtframe_resync.v

@@ -54,7 +54,7 @@ always @(posedge clk) begin
     endcase
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -111,10 +111,10 @@ jtsimson_main u_main(
     .snd_wrn        ( snd_wrn       ),
     .mono           ( mono          ),
     // EEPROM
-    .nv_addr        ( nv_addr       ),
-    .nv_dout        ( nv_dout       ),
-    .nv_din         ( nv_din        ),
-    .nv_we          ( nv_we         ),
+    .nv_addr        ( nvram_addr    ),
+    .nv_dout        ( nvram_dout    ),
+    .nv_din         ( nvram_din     ),
+    .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),
@@ -124,7 +124,7 @@ jtsimson_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -172,7 +172,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

@@ -63,9 +63,8 @@ bram:
     rw: true
     addr: main_addr[12:0]
   # EEROM
-  - name: nv
+  - name: nvram
     addr_width: 7
     data_width: 8
     rw: true
-    sim_file: nvram.bin
     ioctl: { save: true, restore: true, order: 0 }

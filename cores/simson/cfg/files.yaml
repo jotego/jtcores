@@ -7,7 +7,6 @@ simson:
     - jtsimson_obj.v
     - jtsimson_sound.v
     - jtsimson_colmix.v
-    - jt053260.v
     - jt053246.sv
     - jt053246_scan.sv
     - jt053246_dma.v
@@ -42,6 +41,7 @@ jtframe:
       - jtframe_z80.yaml
 jtkcpu:
 jt51:
+jt053260:
 jteeprom:
   - get:
     - jt5911.sv

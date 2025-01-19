@@ -45,7 +45,7 @@ repeat <1 or more>
 If the number of frames is not explicit, the buttons are pressed for one frame.
 The valid button names are:
 
-	service, 1p, 2p, right, left, down, up, b1, b2, b3, test
+	service, 1p, 2p, right, left, down, up, b1, b2, b3, test, reset
 
 The loop line indicates the start of the loop and it does not take a frame.
 The repeat line indicates the loop end and it must indicate the number of times
@@ -155,18 +155,19 @@ func parse_tokens( tokens []string ) (parsed []byte, e error) {
 		action := strings.ToLower(tokens[pos])
 		switch action {
 			case "": 		break
-			case "coin": 	value |= 0x001;
-			case "service": value |= 0x002;
-			case "1p": 		value |= 0x004;
-			case "2p": 		value |= 0x008;
-			case "right": 	value |= 0x010;
-			case "left":  	value |= 0x020;
-			case "down":  	value |= 0x040;
-			case "up":    	value |= 0x080;
-			case "b1":    	value |= 0x100;
-			case "b2":    	value |= 0x200;
-			case "b3":    	value |= 0x400;
-			case "test":  	value |= 0x800;
+			case "coin": 	value |= 0x0001;
+			case "service": value |= 0x0002;
+			case "1p": 		value |= 0x0004;
+			case "2p": 		value |= 0x0008;
+			case "right": 	value |= 0x0010;
+			case "left":  	value |= 0x0020;
+			case "down":  	value |= 0x0040;
+			case "up":    	value |= 0x0080;
+			case "b1":    	value |= 0x0100;
+			case "b2":    	value |= 0x0200;
+			case "b3":    	value |= 0x0400;
+			case "test":  	value |= 0x0800;
+			case "reset":  	value |= 0x1000;
 			default: return nil, fmt.Errorf("Unknown action '%s'",action)
 		}
 	}

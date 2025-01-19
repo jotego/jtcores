@@ -48,7 +48,7 @@ module jtframe_inputs(
     output reg  [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
     output reg  [3:0] game_coin, game_start,
     output reg        game_service,
-    output            game_test,
+    output reg        game_test,
     output reg        game_tilt,
     output reg        locked, // disable joystick inputs
 
@@ -215,35 +215,36 @@ function [9:0] reorder;
     end
 endfunction
 
-`ifdef SIM_INPUTS
-    reg [15:0] sim_inputs[0:16383];
-    integer frame_cnt;
-    initial begin : read_sim_inputs
-        integer c;
-        for( c=0; c<16384; c=c+1 ) sim_inputs[c] = 8'h0;
-        $display("INFO: input simulation enabled");
-        $readmemh( "sim_inputs.hex", sim_inputs );
-    end
-    always @(negedge vs, posedge rst) begin
-        if( rst )
-            frame_cnt <= 0;
-        else frame_cnt <= frame_cnt+1;
-    end
-    assign game_test = sim_inputs[frame_cnt][11];
+wire [6:0] sim_joy1;
+wire       sim_coin, sim_start, sim_service, sim_test, sim_rst;
+
+`ifdef SIMULATION
+jtframe_sim_inputs u_sim_inputs(
+    .rst        ( rst       ),
+    .vs         ( vs        ),
+
+    .joy1       ( sim_joy1  ),
+    .start      ( sim_start ),
+    .service    (sim_service),
+    .coin       ( sim_coin  ),
+    .test       ( sim_test  ),
+    .game_rst   ( sim_rst   )
+);
 `else
-    assign game_test = key_test | joy_test;
+assign {sim_joy1,sim_coin, sim_start, sim_service, sim_test, sim_rst}=0;
 `endif
 
 assign pre_order1 = apply_rotation( multi1[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         game_pause   <= 0;
         game_service <= 1'b0 ^ ACTIVE_LOW[0];
         soft_rst     <= 0;
         service_l    <= 0;
     end else begin
-        service_l      <= game_service;
+        game_test      <= key_test | joy_test | sim_test;
+        service_l      <= game_service ^ sim_service;
         last_pause     <= key_pause;
         last_osd_pause <= osd_pause;
         last_reset     <= key_reset;
@@ -252,22 +253,17 @@ always @(posedge clk, posedge rst) begin
         // joystick, coin, start and service inputs are inverted
         // as indicated in the instance parameter
 
-`ifdef SIM_INPUTS
-        game_coin  <= {4{ACTIVE_LOW[0]}} ^ { 3'b0, sim_inputs[frame_cnt][0] };
-        game_start <= {4{ACTIVE_LOW[0]}} ^ { 2'b0, sim_inputs[frame_cnt][3:2] };
-        game_joy1  <= reorder({10{ACTIVE_LOW[0]}} ^ { 3'd0, sim_inputs[frame_cnt][10:4] });
-`else
-        game_coin  <= {4{ACTIVE_LOW[0]}} ^ ( joy_coin | key_coin  | board_coin  );
-        game_start <= {4{ACTIVE_LOW[0]}} ^ ( joy_start| key_start | board_start );
+        game_coin  <= {4{ACTIVE_LOW[0]}} ^ ( joy_coin | key_coin  | board_coin  ) ^ { 3'b0, sim_coin };
+        game_start <= {4{ACTIVE_LOW[0]}} ^ ( joy_start| key_start | board_start ) ^ { 3'b0, sim_start };
 `ifdef JTFRAME_INPUT_RECORD
-        if( vsl && !vs ) `endif // make sure the experienced input while playing is the recorded one
-        game_joy1  <= reorder(pre_order1);
+        if( vsl && !vs ) // make sure the experienced input while playing is the recorded one
 `endif
+        game_joy1 <= reorder(pre_order1) ^ { 3'd0, sim_joy1 };
         game_joy2 <= reorder(apply_rotation(multi2[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
         game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~rot_ccw, autofire ));
         game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~rot_ccw, autofire ));
 
-        soft_rst <= key_reset && !last_reset;
+        soft_rst <= (key_reset && !last_reset) || sim_rst;
 
         // state variables:
 `ifndef DIP_PAUSE // Forces pause during simulation

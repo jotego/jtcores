@@ -151,6 +151,7 @@ loop
 2 coin
 2 1p
 repeat 4
+reset
 `)
 	expected := `0
 1
@@ -169,6 +170,7 @@ repeat 4
 1
 4
 4
+1000
 `
 	converted, e := cab2hex(cab); if e!=nil { t.Error(e); return }
 	test_cab2hex_compare(converted,expected,t)

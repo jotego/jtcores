@@ -140,21 +140,22 @@ class SimInputs {
     ifstream fin;
     UUT& dut;
     int line;
-    bool done;
+    bool done, rst_assigned;
 public:
     SimInputs( UUT& _dut) : dut(_dut) {
-        dut.dip_pause=1;
+        dut.dip_pause = 1;
+        rst_assigned  = 0;
         dut.joystick1 = 0xff;
         dut.joystick2 = 0xff;
         dut.joystick3 = 0xff;
         dut.joystick4 = 0xff;
-        dut.cab_1p = 0xf;
-        dut.coin   = 0xf;
-        dut.service      = 1;
-        dut.tilt         = 1;
-        dut.dip_test     = 1;
+        dut.cab_1p    = 0xf;
+        dut.coin      = 0xf;
+        dut.service   = 1;
+        dut.tilt      = 1;
+        dut.dip_test  = 1;
 #ifdef _JTFRAME_OSD_FLIP
-        dut.dip_flip     = 1; // Disable OSD-based flip
+        dut.dip_flip  = 1; // Disable OSD-based flip
 #endif
 #ifdef _SIM_INPUTS
         line = 0;
@@ -170,6 +171,7 @@ public:
         done = true;
 #endif
     }
+    bool is_controlling_reset() { return rst_assigned; }
     void next() {
         if( !done && fin.good() ) {
             string s;
@@ -191,11 +193,34 @@ public:
     }
     void parse_inputs( unsigned v ) {
         v = ~v;
+        apply_reset(v);
+        apply_joystick(v);
         auto coin_l   = dut.coin&3;
         dut.dip_test  = (v & 0x800) ? 1 : 0;
         dut.service   = (v & 0x002) ? 1 : 0;
         dut.cab_1p    = 0xc | ((v>>2)&3);
         dut.coin      = 0xe | (v&1);
+        if( coin_l != (dut.coin&3) && coin_l!=3 ) {
+            cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
+        }
+    }
+    void apply_reset(unsigned v) {
+        const int RESET_BIT=0x1000;
+        if( (v&RESET_BIT)!=0 && rst_assigned ) {
+            rst_assigned = false;
+            dut.rst  =0;
+            dut.rst24=0;
+            dut.rst96=0;
+        }
+        if( (v&RESET_BIT)==0 ) {
+            if(!rst_assigned) cout << "\nReset forced through cabinet input file";
+            rst_assigned = true;
+            dut.rst  =1;
+            dut.rst24=1;
+            dut.rst96=1;
+        }
+    }
+    void apply_joystick(unsigned v) {
         dut.joystick1 = 0x30f | ((v>>4)&0xf0); // buttons 1~4
         v >>= 4;    // directions:
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
@@ -214,9 +239,6 @@ public:
 #ifdef _JTFRAME_JOY_UDRL
         dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
 #endif
-        if( coin_l != (dut.coin&3) && coin_l!=3 ) {
-            cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
-        }
     }
 };
 
@@ -860,7 +882,7 @@ void JTSim::clock(int n) {
             game.debug_bus++;
 #endif
         }
-        if( game.VS && !last_VS && !game.rst ) sim_inputs.next();    // sim inputs are applied when entering sync
+        if( game.VS && !last_VS && (sim_inputs.is_controlling_reset() || !game.rst) ) sim_inputs.next();    // sim inputs are applied when entering sync
         last_LVBL = game.LVBL;
         last_VS   = game.VS;
 

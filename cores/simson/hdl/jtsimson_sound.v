@@ -169,7 +169,7 @@ jt51 u_jt51(
     .xleft      (           ),
     .xright     (           )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jt053260 u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
