@@ -17,27 +17,52 @@
 # Version: 2.0
 # Date: 15-5-2024
 
-if [[ -z "$JTUTIL" || ! -d "$JTUTIL" ]]; then
-    echo "\$JTUTIL must point to a valid folder"
-    exit 1
-fi
+main() {
+    check_folder JTUTIL
+    check_folder JTROOT
+    local JTBETA=`realpath $JTUTIL/../jtbeta`
+    check_folder JTBETA
+    make_new_key
+    upload_to_jtcores
+    upload_to_jtbeta $JTBETA
+}
 
-if [[ -z "$JTROOT" || ! -d "$JTROOT" ]]; then
-    echo "\$JTROOT must point to a valid folder"
-    exit 1
-fi
+check_folder() {
+    env_var_name="$1"
+    local folder=`echo \\$$env_var_name | envsubst`
+    echo $folder
+    if [[ -z "$folder" || ! -d "$folder" ]]; then
+        echo "\$$env_var_name must point to a valid folder"
+        return 1
+    fi
+}
 
-cd $JTUTIL
-BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
-echo -n $BETAKEY | xxd -r -p > beta.bin
-zip jtbeta.zip beta.bin
+make_new_key() {
+    cd $JTUTIL
+    local BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
+    echo -n $BETAKEY | xxd -r -p > beta.bin
+    zip jtbeta.zip beta.bin
+    echo "Beta key updated in \$JTUTIL"
+}
 
-echo "Beta key updated in \$JTUTIL"
+upload_to_jtcores() {
+    cd $JTROOT
+    if which gh > /dev/null; then
+        gh secret set BETAKEY -b $BETAKEY
+    else
+        echo "Warning: GitHub BETAKEY secret not updated"
+        echo "Install github CLI for automatic update of GitHub secrets"
+    fi
+}
 
-cd $JTROOT
-if which gh > /dev/null; then
-    gh secret set BETAKEY -b $BETAKEY
-else
-    echo "Warning: GitHub BETAKEY secret not updated"
-    echo "Install github CLI for automatic update of GitHub secrets"
-fi
+upload_to_jtbeta() {
+    jtbeta="$1"
+    cd $jtbeta
+    cp $JTUTIL/jtbeta.zip .
+    git pull
+    git add jtbeta.zip
+    git commit -m "new beta key"
+    git push
+}
+
+main $*
