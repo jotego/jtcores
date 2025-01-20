@@ -59,16 +59,17 @@ module jtriders_sound(
     input           pcmd_ok,
     input    [ 5:0] snd_en,
     // Sound output
-    output     signed [15:0] fm_l,  fm_r, k60_l, k60_r
+    output     signed [15:0] k60_l, k60_r
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
                     k60_dout /*, k39_dout,*/ /*latch_dout*/;
 wire        [15:0]  A;
+wire signed [15:0]  fm_l,  fm_r;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     cpu_cen, sample, upper4k, cen_g, int_n, nmi_trig, nmi_clr;
 reg                 ram_cs, fm_cs,  k60_cs, mem_acc,
-                    mem_upper, bank_we, nmi_cs;
+                    mem_upper, nmi_cs;
 
 assign int_n    = ~snd_irq;
 assign nmi_trig =  sample;
@@ -82,7 +83,6 @@ assign cpu_din  = rom_cs ? rom_data   :
 assign cen_g    = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
 
 always @(*) begin
-    bank_we   = 0;
     k60_cs    = 0;
     nmi_cs    = 0;
     mem_acc   = !mreq_n && rfsh_n;
@@ -192,14 +192,12 @@ jt053260 u_k53260(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
-    .aux_l      ( 16'd0     ),
-    .aux_r      ( 16'd0     ),
-    // .aux_l      ( fm_l      ),
-    // .aux_r      ( fm_r      ),
+    .aux_l      ( fm_l      ),
+    .aux_r      ( fm_r      ),
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
     .sample     (           ),
-    .ch_en      (snd_en[4:0])
+    .ch_en      (snd_en[5:1])
 );
 `else
 assign  main_din   = 0;

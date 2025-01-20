@@ -16,10 +16,9 @@ clocks:
       outputs:
         - cen_pcm
 audio:
-  rsum: 1.5k
+  rsum: 1k
   channels:
     # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
-    - { name: fm,    module: jt51,     rsum: 1k, rc: [ { r: 609, c: 33n } ] }
     - { name: k60,   module: jt053260, rsum: 1k, rc: [ { r: 609, c: 33n } ] }
 sdram:
   banks:
