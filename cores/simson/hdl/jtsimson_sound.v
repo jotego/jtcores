@@ -211,7 +211,7 @@ jt053260 u_pcm(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
-    .ch_en      (snd_en[4:0]),
+    .ch_en      (snd_en[5:1]),
     .aux_l      ( fm_l      ),
     .aux_r      ( fm_r      ),
     .snd_l      ( snd_l     ),
