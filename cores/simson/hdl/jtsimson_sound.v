@@ -115,15 +115,18 @@ always @(posedge clk, posedge rst) begin
 end
 /* verilator tracing_off */
 jtframe_edge #(.QSET(0)) u_edge (
-    .rst    ( rst       ),
+    .rst    ( 1'b0      ),
     .clk    ( clk       ),
-    .edgeof ( sample    ),
+    .edgeof ( rst | sample ),
     .clr    ( nmi_clr   ),
     .q      ( nmi_n     )
 );
 
+reg [10:0] clear_addr;
+always @(posedge clk) clear_addr <= !rst ? 11'd0 : clear_addr + 1'd1;
+
 /* verilator tracing_on */
-jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
+jtframe_sysz80_nvram #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -143,6 +146,10 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .cpu_din    ( cpu_din   ),
     .cpu_dout   ( cpu_dout  ),
     .ram_dout   ( ram_dout  ),
+    .prog_addr  ( clear_addr),
+    .prog_data  ( 8'd0      ),
+    .prog_din   (           ),
+    .prog_we    ( rst       ),
     // ROM access
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
