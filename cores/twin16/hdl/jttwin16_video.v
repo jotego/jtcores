@@ -20,6 +20,7 @@ module jttwin16_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             sdram_halt,
 
     // Base Video
     output            lhbl,
@@ -91,7 +92,10 @@ wire [31:0] fsorted, asorted, bsorted, osorted;
 wire [ 7:0] lyrf_pxl,  lyro_pxl;
 wire [ 6:0] lyra_pxl,  lyrb_pxl;
 wire [ 1:0] lyra_sel,  lyrb_sel;
+reg  [ 2:0] blankn;
 wire        preo_cs;
+
+always @(posedge clk) blankn <= gfx_en[2:0] & {3{~sdram_halt}};
 
 assign fram_addr[13:12]=0;
 
@@ -120,7 +124,7 @@ assign fsorted     = sort( lyrf_data ),
 
 assign vdump_scr = vflip ? 9'h1-vdump : vdump ^ 9'h100;
 assign hdump_off = hflip ? 9'h198-hdump : hdump-9'h60;
-assign lyro_cs   = preo_cs;  // SCRA access used for ROM reading
+assign lyro_cs   = preo_cs & ~sdram_halt;  // SCRA access used for ROM reading
 
 always @(posedge clk) begin
     flip <= hflip & vflip;
@@ -178,7 +182,7 @@ jtframe_tilemap #(
 
     .vdump      ( vdump^{1'b0,{8{vflip}}}     ),
     .hdump      ( hdump_off ),
-    .blankn     ( gfx_en[0] ),  // if !blankn there are no ROM requests
+    .blankn     ( blankn[0] ),  // if !blankn there are no ROM requests
     .flip       ( 1'b0      ),    // Screen flip
 
     .vram_addr  ( fram_addr[11:1] ),
@@ -209,7 +213,7 @@ jtframe_scroll #(
 
     .vdump      ( vdump_scr ),
     .hdump      ( hdump_off ),
-    .blankn     ( gfx_en[1] ),
+    .blankn     ( blankn[1] ),
     .flip       ( 1'b0      ),
     .scrx       ( scra_x    ),
     .scry       ( scra_y    ),
@@ -242,7 +246,7 @@ jtframe_scroll #(
 
     .vdump      ( vdump_scr ),
     .hdump      ( hdump_off ),
-    .blankn     ( gfx_en[2] ),
+    .blankn     ( blankn[2] ),
     .flip       ( 1'b0      ),
     .scrx       ( scrb_x    ),
     .scry       ( scrb_y    ),

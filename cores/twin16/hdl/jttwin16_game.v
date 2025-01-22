@@ -34,6 +34,7 @@ wire [ 1:0] vam_we, vbm_we, om_we, stile_we16,
             shs_we, shm_we;
 reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
+reg         cpu_haltn;
 wire [ 2:0] prio;
 
 assign main_addr  = m_addr[17:1];
@@ -44,6 +45,8 @@ assign ioctl_din = ioctl_mux;
 assign sram_din   = s_dout;
 assign mram_din   = m_dout;
 assign stile_addr = s_addr;
+
+always @(posedge clk) cpu_haltn <= dip_pause & ~ioctl_ram;
 
 `ifdef SCRTILE_SDRAM
 wire [15:0] stile_dout = stile_data;
@@ -83,7 +86,7 @@ always @(posedge clk) begin
          9: ioctl_mux <= obj_dy[ 7:0];
         10: ioctl_mux <= obj_dy[15:8];
         11: ioctl_mux <= {7'd0, dma_on};
-        default: ioctl_mux <= 0;
+        default: ioctl_mux <= ioctl_addr[0] ? sram_data[15:8] : sram_data[7:0];
     endcase
 end
 
@@ -196,7 +199,7 @@ jttwin16_main u_main(
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
     // DIP switches
-    .dip_pause      ( dip_pause     ),
+    .dip_pause      ( cpu_haltn     ),
     .dipsw          ( dipsw[19:0]   ),
     // Debug
     .st_dout        ( st_main       ),
@@ -211,6 +214,9 @@ jttwin16_sub u_sub(
     .mint           ( mint          ),
     .sint           ( sint          ),
     .dma_bsy        ( dma_bsy       ),
+
+    .ioctl_addr     (ioctl_addr[17:0]),
+    .ioctl_ram      ( ioctl_ram     ),
 
     .ram_addr       ( sram_addr     ),
     .ram_dout       ( sram_data     ),
@@ -247,7 +253,7 @@ jttwin16_sub u_sub(
     .rom_cs         ( sub_cs        ),
     .rom_ok         ( sub_ok        ),
     .rom_data       ( sub_data      ),
-    .dip_pause      ( dip_pause     )
+    .dip_pause      ( cpu_haltn     )
 );
 
 /* verilator tracing_off */
@@ -255,6 +261,7 @@ jttwin16_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .sdram_halt     ( ioctl_ram     ),
 
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),

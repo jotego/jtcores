@@ -51,6 +51,9 @@ module jttwin16_sub(
     output        [ 1:0] stile_we,
     input         [15:0] stile_dout,
     input                stile_ok,
+
+    input         [17:0] ioctl_addr,
+    input                ioctl_ram,
     // video ROM checks
     output reg           obj_cs,
     output        [20:1] obj_addr,
@@ -74,18 +77,18 @@ wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 wire        bus_cs, bus_busy, BUSn, ab_sel, oeff_cs;
 reg  [ 1:0] rom_part;
-reg         sh_cs, vram_cs, oram_cs, sys_cs,
+reg         sh_cs, vram_cs, oram_cs, sys_cs, ioctl_en,
             sint_en, otram_cs, chapage;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign cpu_addr = A[17:1];
+assign cpu_addr = ioctl_en ? ioctl_addr[17:1] : A[17:1];
 assign obj_addr = { A[20], A[20] ? chapage : A[19], A[18:1] };
 assign dws      = ~({2{RnW}} | {UDSn, LDSn});
-assign bus_dsn  = {UDSn, LDSn};
-assign bus_we   = ~RnW;
+assign bus_dsn  = ioctl_en ? 2'b00 : {UDSn, LDSn};
+assign bus_we   = ioctl_en ? 1'b0  : ~RnW;
 assign ab_sel   = ~A[13];
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
@@ -133,6 +136,12 @@ always @* begin
         7: {otram_cs,ram_cs} = {1'b1,!BUSn};
         default:;
     endcase
+
+    if(ioctl_en) ram_cs=1;
+end
+
+always @(posedge clk) begin
+    ioctl_en <= ~dip_pause & ioctl_ram;
 end
 
 always @(posedge clk) begin
