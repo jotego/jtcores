@@ -4,6 +4,7 @@
 # not local to the simulation folder
 
 main() {
+	parse_args $*
 	cd_to_run_folder
 	prepare_files
 	run_simulation
@@ -12,8 +13,11 @@ main() {
 	exit_with_status
 }
 
-cd_to_run_folder() {
+parse_args() {
 	RUNFOLDER="$1"
+}
+
+cd_to_run_folder() {
 	if [ -z "$RUNFOLDER" ]; then
 		RUNFOLDER=`pwd`
 	fi
