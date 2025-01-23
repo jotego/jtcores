@@ -60,7 +60,6 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             lvbl,
     input    [PW-1:0] obj_dx, obj_dy,
     input             gvflip,
-    output reg        objbufinit,
 
     // draw module
     output   [CW-1:0] code,
@@ -79,7 +78,7 @@ wire   [15:0] scan_dout;
 wire   [13:1] dma_addr, copy_addr;
 wire   [10:1] scan_addr;
 wire          copy_bsy;
-reg           hs_l, copyinit;
+reg           hs_l, copyinit, objbufinit;
 
 localparam NOLUTFB=`ifdef NOLUTFB 1 `else 0 `endif;
 

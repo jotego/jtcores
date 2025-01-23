@@ -40,7 +40,6 @@ module jttwin16_obj(
 
     input             dma_on,
     output            dma_bsy,
-    output            objbufinit,
 
     // ROM addressing
     output reg [21:2] rom_addr, // code + 1 bit. VH mostly embedded in core
@@ -85,7 +84,6 @@ jt00778x #(.CW(CW),.PW(16)) u_scan(    // sprite logic
     .obj_dx         ( obj_dx        ),
     .obj_dy         ( obj_dy        ),
     .gvflip         ( vflip         ),
-    .objbufinit     ( objbufinit    ),
 
     // ROM addressing
     .code           ( code          ),

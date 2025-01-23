@@ -35,7 +35,6 @@ module jttwin16_video(
 
     input             dma_on,
     output            dma_bsy,
-    output            objbufinit,
 
     input             hflip,
     input             vflip,
@@ -287,7 +286,6 @@ jttwin16_obj u_obj(
 
     .dma_on     ( dma_on    ),
     .dma_bsy    ( dma_bsy   ),
-    .objbufinit ( objbufinit),
 
     .rom_addr   ( lyro_addr ),
     .rom_data   ( osorted   ),

@@ -35,7 +35,6 @@ wire [ 1:0] vam_we, vbm_we, om_we, stile_we16,
 reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
 wire [ 2:0] prio;
-wire objbufinit;
 
 assign main_addr  = m_addr[17:1];
 assign mram_addr  = m_addr[13:1];
@@ -108,7 +107,7 @@ jttwin16_share u_share(
     .cen            ( cen_1m5       ),
     .tim1           ( tim1          ),  // main CPU has access to video
     .tim2           ( tim2          ),  // sub CPU does
-    .dma_bsy        ( objbufinit    ),
+    .dma_bsy        ( dma_bsy       ),
     // main CPU
     .m_addr         ( m_addr[13:1]  ),
     .m_dout         ( m_dout        ),
@@ -272,7 +271,6 @@ jttwin16_video u_video (
 
     .dma_on         ( dma_on        ),
     .dma_bsy        ( dma_bsy       ),
-    .objbufinit     ( objbufinit    ),
 
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),
