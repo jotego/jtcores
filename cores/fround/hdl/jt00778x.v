@@ -60,6 +60,7 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
     input             lvbl,
     input    [PW-1:0] obj_dx, obj_dy,
     input             gvflip,
+    output reg        objbufinit,
 
     // draw module
     output   [CW-1:0] code,
@@ -77,7 +78,8 @@ module jt00778x#(parameter CW=17,PW=10)(    // sprite logic
 wire   [15:0] scan_dout;
 wire   [13:1] dma_addr, copy_addr;
 wire   [10:1] scan_addr;
-wire          objbufinit, copy_bsy;
+wire          copy_bsy;
+reg           hs_l, copyinit;
 
 localparam NOLUTFB=`ifdef NOLUTFB 1 `else 0 `endif;
 
@@ -91,8 +93,14 @@ assign oram_addr = copy_bsy ? copy_addr :
 // skip LUT
 assign oram_addr = {3'b110, scan_addr};
 `endif
-// original equation from schematics, it is the same as the start of vblank
-assign objbufinit = ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
+always @(posedge clk) begin
+    hs_l <= hs;
+    if( hs && !hs_l) begin
+        // original equation from schematics, it is the same as the start of vblank
+        objbufinit <= ~|{ (~&vdump[7:5] | ~&{vdump[4],~vdump[3]}), vdump[2:1] };
+        copyinit   <= vdump == 9'h10B;
+    end
+end
 
 jt00778x_dma #(.PW(PW)) u_dma(
     .rst        ( rst           ),
@@ -124,7 +132,7 @@ jt00778x_copy_lut u_copy_lut(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .objbufinit ( objbufinit    ),
+    .objbufinit ( copyinit      ),
     .dma_on     ( dma_on        ),
     .dma_bsy    ( copy_bsy      ),
 

@@ -75,7 +75,7 @@ always @(posedge clk) begin
         end else if( dma_bsy ) begin
             if( dma_clr && dma_cen ) begin
                 { dma_clr, cpw_addr } <= nx_cpwa;
-                oram_we <= obj_en & nx_cpwa[11];
+                oram_we <= (obj_en | objbufinit) & nx_cpwa[11];
             end else if( !dma_clr ) begin // direct copy
                 if( !dma_cen ) begin
                     case( cpr_addr[3:1] )

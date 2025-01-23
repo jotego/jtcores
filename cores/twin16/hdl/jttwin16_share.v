@@ -25,6 +25,8 @@ module jttwin16_share(
     output reg           tim1=0,// main CPU has access to video
     output reg           tim2=0,// sub CPU does
 
+    input                dma_bsy,
+
     input         [15:0] m_dout, s_dout,
     output        [15:0] v_din,
     input         [13:1] m_addr, s_addr,
@@ -54,7 +56,8 @@ always @(posedge |os_we) osa_l <= s_addr;
 `endif
 
 assign v_din     = tim1 ? m_dout : s_dout;
-assign oram_we   = tim1 ? om_we  : os_we;
+// assign oram_we   = tim1 ? om_we  : os_we;
+assign oram_we   = (tim1 ? om_we : os_we ) & {2{~dma_bsy}};
 assign va_we     = tim1 ? vam_we : vas_we;
 assign vb_we     = tim1 ? vbm_we : vbs_we;
 assign osha_addr = tim1 ? m_addr : s_addr;
