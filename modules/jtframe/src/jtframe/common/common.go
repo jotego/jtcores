@@ -56,13 +56,12 @@ func FindFileInFolders( fname string, all_paths []string ) (string, error) {
 	for _, path := range all_paths {
 		fullpath := filepath.Join(path,fname)
 		f, e := os.Open(fullpath)
-		defer f.Close()
-		if e!=nil {
-			return "", e
+		f.Close()
+		if e==nil {
+			return fullpath, nil
 		}
-		return fullpath, nil
 	}
-	return "",fmt.Errorf("Error cannot find file %s in folders:\n",fname)
+	return "",fmt.Errorf("Error cannot find file %s",fname)
 }
 
 func FileExists(fname string) bool {
