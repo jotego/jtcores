@@ -158,11 +158,12 @@ func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 	const scale = 0x7FFF	// 16 bits, signed
 	if ch.Fir=="" { return }
 	coeff := make([]int,128)
-	fname := common.Find_in_folders( ch.Fir,
+	fname, e := common.FindFileInFolders( ch.Fir,
 		[]string{
-			filepath.Join(os.Getenv("CORES"),core,"cfg"),
+			common.ConfigFilePath(core, ""),
 			filepath.Join(os.Getenv("JTFRAME"),"hdl","sound"),
-		}, true)
+		})
+	common.Must(e)
 	f, e := os.Open(fname)
 	common.Must(e)
 	scanner := bufio.NewScanner(f)

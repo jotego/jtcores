@@ -52,23 +52,17 @@ func Doc2string(doc string) string {
 	return string(buf)
 }
 
-func Find_in_folders( fname string, paths []string, quit bool ) string {
-	for _, each := range paths {
-		full := filepath.Join(each,fname)
-		f, e := os.Open(full)
-		if e==nil {
-			f.Close()
-			return full
+func FindFileInFolders( fname string, all_paths []string ) (string, error) {
+	for _, path := range all_paths {
+		fullpath := filepath.Join(path,fname)
+		f, e := os.Open(fullpath)
+		defer f.Close()
+		if e!=nil {
+			return "", e
 		}
+		return fullpath, nil
 	}
-	if quit {
-		fmt.Printf("Error cannot find file %s in folders:\n",fname)
-		for _, each := range paths {
-			fmt.Println(each)
-		}
-		os.Exit(1)
-	}
-	return ""
+	return "",fmt.Errorf("Error cannot find file %s in folders:\n",fname)
 }
 
 func FileExists(fname string) bool {

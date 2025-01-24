@@ -24,75 +24,23 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 
 	"github.com/spf13/cobra"
 )
 
-var jtbin bool
+var jtbin, dryrun bool
 var output_folder string
 
-func parse_folder( corename string, cores_fs fs.FS, path string) {
-	entries, e := fs.ReadDir( cores_fs, path )
-	if e != nil {
-		return
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			parse_folder( entry.Name(), cores_fs, filepath.Join(path,entry.Name()) )
-		} else if strings.HasSuffix(entry.Name(),".kicad_pro") {
-			sch_name := strings.TrimSuffix(entry.Name(),".kicad_pro")
-			os.Chdir(filepath.Join(os.Getenv("CORES"),path))
-			cmd_args := []string{
-				"kicad-cli","sch","export","pdf",
-				"--output", filepath.Join(output_folder,sch_name+".pdf"), sch_name+".kicad_sch",
-			}
-			if verbose {
-				cwd,_:=os.Getwd()
-				fmt.Printf("Running:\n\t%s\n\tin %s\n", strings.Join(cmd_args," "), cwd)
-			}
-			cmd := exec.Command( cmd_args[0], cmd_args[1:]... )
-			e = cmd.Run()
-			if e != nil {
-				fmt.Println(e)
-			} else if verbose {
-				fmt.Printf("\tcompleted.\n")
-			}
-			os.Chdir(os.Getenv("JTROOT"))
-		}
-	}
+type kicad_sch struct{
+	path, name string
 }
 
-// schCmd represents the mra command
 var schCmd = &cobra.Command{
 	Use:   "sch [core-name...]",
 	Short: "Produces PDF views of the schematics associated with a core in the release/sch folder",
 	// Long: "",
-	Run: func(cmd *cobra.Command, args []string) {
-		var cores_fs fs.FS
-		os.Chdir(os.Getenv("JTROOT"))
-		cores_fs = os.DirFS( filepath.Join(os.Getenv("JTROOT"),"cores") )
-		// if e != nil {
-		// 	fmt.Println("Cannot open the cores folder ", os.Getenv("CORES") )
-		// 	os.Exit(1)
-		// }
-		if len(args)==0 {
-			entries, _ := fs.ReadDir( cores_fs, "." )
-			for _, each := range entries {
-				if each.IsDir() {
-					args = append(args,each.Name())
-				}
-			}
-		}
-		if jtbin {
-			output_folder = filepath.Join(os.Getenv("JTBIN"),"sch")
-		} else {
-			output_folder = filepath.Join(os.Getenv("JTROOT"),"release","sch")
-		}
-		os.MkdirAll(output_folder,0776)
-		for _, corename := range args {
-			parse_folder( corename, cores_fs, filepath.Join(corename,"sch") )
-		}
-	},
+	Run: run_sch,
 	Args: cobra.ArbitraryArgs,
 }
 
@@ -100,5 +48,123 @@ func init() {
 	rootCmd.AddCommand(schCmd)
 	flag := schCmd.Flags()
 
-	flag.BoolVarP(&jtbin, "git", "g", false, "Save files to $JTBIN/sch")
+	flag.BoolVarP(&jtbin,  "git",    "g", false, "Save files to $JTBIN/sch")
+	flag.BoolVar (&dryrun, "dryrun",      false, "Only show what will be done")
 }
+
+func run_sch(cmd *cobra.Command, args []string) {
+	os.Chdir(os.Getenv("JTROOT"))
+	core_folders := get_core_folder_names(args)
+	make_output_folder()
+	all_sch := find_all_sch(core_folders)
+	extract_in_parallel(all_sch)
+}
+
+func get_core_folder_names( names []string) (folders []string) {
+	if len(names)!=0 {
+		return names
+	}
+	return find_core_folder_names()
+}
+
+func find_core_folder_names() (folders []string) {
+	cores_fs := os.DirFS( filepath.Join(os.Getenv("JTROOT"),"cores") )
+	all_entries, e := fs.ReadDir( cores_fs, "." )
+	if e!= nil {
+		panic(e)
+	}
+	folders = make([]string,0,128)
+	for _, entry := range all_entries {
+		if !entry.IsDir() { continue }
+		folders = append(folders,entry.Name())
+	}
+	return folders
+}
+
+func make_output_folder() {
+	if jtbin {
+		output_folder = filepath.Join(os.Getenv("JTBIN"),"sch")
+	} else {
+		output_folder = filepath.Join(os.Getenv("JTROOT"),"release","sch")
+	}
+	os.MkdirAll(output_folder,0776)
+}
+
+func find_all_sch(core_folders []string) (all_sch []kicad_sch) {
+	cores_fs := os.DirFS( filepath.Join(os.Getenv("JTROOT"),"cores") )
+	all_sch = make([]kicad_sch,0,128)
+	for _, corename := range core_folders {
+		newly_found := parse_folder( corename, cores_fs, filepath.Join(corename,"sch") )
+		all_sch = append(all_sch, newly_found...)
+	}
+	return all_sch
+}
+
+func parse_folder( corename string, cores_fs fs.FS, path string) (all_sch []kicad_sch) {
+	entries, e := fs.ReadDir( cores_fs, path )
+	if e != nil {
+		return nil
+	}
+	all_sch = make([]kicad_sch,0,4)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			found_sch := parse_folder( entry.Name(), cores_fs, filepath.Join(path,entry.Name()) )
+			all_sch = append(all_sch,found_sch...)
+			continue
+		}
+		if is_KiCAD_project(entry.Name()) {
+			project_path := filepath.Join(os.Getenv("CORES"),path)
+			found_sch := kicad_sch{
+				name: entry.Name(),
+				path: project_path,
+			}
+			all_sch = append(all_sch,found_sch)
+			continue
+		}
+	}
+	return all_sch
+}
+
+func is_KiCAD_project(name string) bool {
+	return strings.HasSuffix(name,".kicad_pro")
+}
+
+func extract_in_parallel(all_sch []kicad_sch) {
+	var wg sync.WaitGroup
+	wg.Add(len(all_sch))
+	for _, sch := range all_sch {
+		go run_KiCAD_in_wg(sch,&wg)
+	}
+	wg.Wait()
+}
+
+func run_KiCAD_in_wg(sch kicad_sch,wg *sync.WaitGroup) {
+	sch.make_KiCAD_PDF()
+	wg.Done()
+}
+
+func (sch *kicad_sch) make_KiCAD_PDF() {
+	raw_name := strings.TrimSuffix(sch.name,".kicad_pro")
+	kicad_sch := filepath.Join(sch.path,raw_name+".kicad_sch")
+	pdf_filename := filepath.Join(output_folder,raw_name+".pdf")
+	cmd_args := []string{
+		"kicad-cli","sch","export","pdf",
+		kicad_sch,
+		"--output", pdf_filename,
+	}
+	if verbose || dryrun {
+		fmt.Printf("%s\n", strings.Join(cmd_args," "))
+	}
+	if dryrun {
+		return
+	}
+	cmd := exec.Command( cmd_args[0], cmd_args[1:]... )
+	e := cmd.Run()
+	if e != nil {
+		fmt.Println("warning: ",e)
+	}
+	if verbose {
+		fmt.Printf("- %-20s completed.\n",raw_name)
+	}
+}
+

@@ -21,6 +21,8 @@ import (
 	"log"
 	"path/filepath"
 	"os"
+
+	"github.com/jotego/jtframe/common"
 )
 
 func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename string) {
@@ -46,7 +48,7 @@ func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename strin
 }
 
 func nvram_file( machine *MachineXML, core string) ([]byte, error) {
-	cfgdir := filepath.Join(os.Getenv("JTROOT"),"cores",core,"cfg")
+	cfgdir :=  common.ConfigFilePath(core,"")
 	fname := filepath.Join(cfgdir,machine.Name+".nvm")
 	f, e := os.Open(fname)
 	if e!=nil {

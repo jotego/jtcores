@@ -96,7 +96,7 @@ func parse_args(cfg *Config, args []string, extra_def, extra_undef string) {
 		os.Exit(1)
     }
 	if len(cfg.Core) > 0 {
-		cfg.Deffile = filepath.Join(os.Getenv("CORES"), cfg.Core, "/hdl/jt"+cfg.Core+".def")
+		cfg.Deffile = ConfigFilePath(cfg.Core,"macros.def")
 	}
 	if Verbose {
 		fmt.Println("target=", cfg.Target)
