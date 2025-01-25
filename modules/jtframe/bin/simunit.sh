@@ -29,6 +29,18 @@ cd_to_run_folder() {
 prepare_files() {
 	GATHER=`mktemp`
 	envsubst < gather.f > $GATHER
+	copy_hex_files
+	filter_hex_out
+}
+
+copy_hex_files() {
+	for i in `grep hex$ $GATHER`; do
+		cp $i .
+	done
+}
+
+filter_hex_out() {
+	sed -i /hex$/d $GATHER
 }
 
 run_simulation() {

@@ -1,7 +1,6 @@
 jtframe:
   - get:
       - jtframe_board.v
-      - jtframe_debug.v
       - jtframe_led.v
       - jtframe_bcd_cnt.v
       - jtframe_enlarger.v
@@ -9,9 +8,15 @@ jtframe:
       - jtframe_uart.v
       - jtframe_dip.v
       - jtframe_sh.v
-      - jtframe_sys_info.v
       - jtframe_bcd_cnt.v
       - jtframe_rsthold.v
+      - jtframe_toggle.v
+  - from: debug
+    get:
+      - jtframe_debug.v
+      - jtframe_debug_bus.v
+      - jtframe_sys_info.v
+      - jtframe_binhex_overlay.v
   - from: clocking
     get:
       - jtframe_gated_cen.v
@@ -41,6 +46,8 @@ jtframe:
       - jtframe_credits.v
       - jtframe_wirebw.v
       - jtframe_short_blank.v
+      - jtframe_video_counter.v
+      - jtframe_font.v
   - from: sdram
     get:
       - jtframe_dwnld.v

@@ -24,15 +24,12 @@ module jtframe_test_clocks(
     output reg pxl_cen=0,
     output     lhbl,
     output     lvbl,
-    output     [ 7:0] linecnt,
+    output     [ 8:0] h,
+    output     [ 8:0] v,
     output reg [31:0] framecnt=0
 );
 
 parameter TIMEOUT=100_000_000, MAXFRAMES=4;
-
-wire [8:0] vdump;
-assign linecnt = vdump[7:0];
-
 initial begin
     rst=0;
     #30  rst=1;
@@ -62,10 +59,10 @@ end
 jtframe_vtimer u_timer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
+    .vdump      ( v         ),
     .vrender    (           ),    // 1 line ahead of vdump
     .vrender1   (           ),   // 2 lines ahead
-    .H          (           ),
+    .H          ( h         ),
     .Hinit      (           ),
     .Vinit      (           ),
     .LHBL       ( lhbl      ),

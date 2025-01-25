@@ -4,7 +4,7 @@ wire        rst, clk;
 reg  [ 1:0] raw=0;
 reg         cnt_rst=1;
 wire [ 1:0] joy;
-wire [ 7:0] frame_cnt;
+wire [ 8:0] v;
 wire [31:0] times_left, times_right;
 
 reg signed [7:0] ana=0;
@@ -22,7 +22,7 @@ localparam FULL_RIGHT=127,
 count_times cnt1( cnt_rst, vs, joy[1], times_left);
 count_times cnt2( cnt_rst, vs, joy[0], times_right);
 
-jtframe_multiway_emu_analog uut(clk,frame_cnt[1:0],raw,ana,joy);
+jtframe_multiway_emu_analog uut(clk,v   [1:0],raw,ana,joy);
 
 task rst_counters; begin
     cnt_rst=1;
@@ -121,7 +121,7 @@ jtframe_test_clocks clocks(
     .pxl_cen    (               ),
     .lhbl       ( vs            ),
     .lvbl       (               ),
-    .linecnt    ( frame_cnt     ),  // for faster simulation
+    .v          ( v             ),  // for faster simulation
     .framecnt   (               )
 );
 
