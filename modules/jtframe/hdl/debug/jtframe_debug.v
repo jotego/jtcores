@@ -28,8 +28,9 @@ module jtframe_debug #(
     input              shift,         // count step 16, instead of 1
     input              ctrl,          // reset debug_bus
     input              alt,
-    input              debug_plus,
-    input              debug_minus,
+    input              toggle_view,
+    input        [1:0] debug_plus,
+    input        [1:0] debug_minus,
     input        [3:0] key_gfx, board_gfx,
     input        [5:0] key_snd,               // enable individual sound channels
     input        [7:0] key_digit,
@@ -63,7 +64,6 @@ wire [8:0] h, v;
 wire [1:0] view_mode;
 wire       split_binhex, hex_en, bin_en;
 
-wire       toggle_view = shift & ctrl;
 wire [3:0] gfx_toggle  = key_gfx | board_gfx;
 
 jtframe_debug_ctrl u_ctrl(

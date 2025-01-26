@@ -36,6 +36,8 @@ jtframe:
       - jtframe_paddle.v
       - jtframe_mouse.v
       - jtframe_dial.v
+      - jtframe_ps2key_decoder.v
+      - jtframe_debug_keys.v
       - jt4701.v
       - ps2_intf_v.v
   - from: keyboard

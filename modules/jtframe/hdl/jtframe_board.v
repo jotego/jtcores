@@ -221,8 +221,8 @@ localparam
     PROG_LEN = 32;
 
 wire         osd_pause;
-wire         debug_plus, debug_minus, key_shift, key_ctrl, key_alt,
-             vol_up,   vol_down;
+wire         key_shift, key_ctrl, key_alt,
+             vol_up,   vol_down, debug_toggle;
 wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
@@ -231,7 +231,7 @@ wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty, frame_blank;
+wire   [1:0] sensty, frame_blank, debug_plus, debug_minus;
 wire         key_service, key_tilt;
 wire         locked;
 wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
@@ -381,26 +381,27 @@ jtframe_keyboard u_keyboard(
     .ps2_clk     ( ps2_kbd_clk   ),
     .ps2_data    ( ps2_kbd_data  ),
     // decoded keys
-    .key_joy1    ( raw_key_joy1  ),
-    .key_joy2    ( raw_key_joy2  ),
-    .key_joy3    ( raw_key_joy3  ),
-    .key_joy4    ( raw_key_joy4  ),
-    .key_start   ( key_start     ),
-    .key_coin    ( key_coin      ),
-    .key_reset   ( key_reset     ),
-    .key_test    ( key_test      ),
-    .key_pause   ( key_pause     ),
-    .key_service ( key_service   ),
-    .key_tilt    ( key_tilt      ),
-    .key_digit   ( key_digit     ),
+    .joy1        ( raw_key_joy1  ),
+    .joy2        ( raw_key_joy2  ),
+    .joy3        ( raw_key_joy3  ),
+    .joy4        ( raw_key_joy4  ),
+    .start       ( key_start     ),
+    .coin        ( key_coin      ),
+    .reset       ( key_reset     ),
+    .test        ( key_test      ),
+    .pause       ( key_pause     ),
+    .service     ( key_service   ),
+    .tilt        ( key_tilt      ),
+    .digit       ( key_digit     ),
 
     .shift       ( key_shift     ),
     .ctrl        ( key_ctrl      ),
     .alt         ( key_alt       ),
-    .key_gfx     ( key_gfx       ),
-    .key_snd     ( key_snd       ),
+    .gfx         ( key_gfx       ),
+    .snd         ( key_snd       ),
     .vol_up      ( vol_up        ),
     .vol_down    ( vol_down      ),
+    .debug_toggle( debug_toggle  ),
     .debug_plus  ( debug_plus    ),
     .debug_minus ( debug_minus   )
 );
@@ -421,19 +422,23 @@ jtframe_filter_keyboard u_filter_keyboard(
     wire [7:0] sys_info;
     // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
     wire       flip_info = 0;
+    // delete when Pocket keyboard goes through PS2 interface (#935)
+    wire [1:0] comb_plus  = debug_plus  | {1'b0, board_plus };
+    wire [1:0] comb_minus = debug_minus | {1'b0, board_minus};
 
     jtframe_debug #(.COLORW(COLORW)) u_debug(
         .clk         ( clk_sys       ),
         .rst         ( rst           ),
 
+        .toggle_view ( debug_toggle  ),
         .shift       ( key_shift   | board_shift ),
         .ctrl        ( key_ctrl    | board_ctrl  ),
         .alt         ( key_alt     | board_alt   ),
         .key_snd     ( key_snd                   ),
         .key_gfx     ( key_gfx     | board_gfx   ),
         .key_digit   ( key_digit   | board_digit ),
-        .debug_plus  ( debug_plus  | board_plus  ),
-        .debug_minus ( debug_minus | board_minus ),
+        .debug_plus  ( comb_plus     ), // replace for debug_plus when #935 is done
+        .debug_minus ( comb_minus    ), // ditto
         .board_gfx   ( board_gfx     ),
 
         // overlay the value on video

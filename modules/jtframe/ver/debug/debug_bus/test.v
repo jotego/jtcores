@@ -92,8 +92,8 @@ jtframe_debug_bus uut(
 
     .shift      ( shift     ),
     .ctrl       ( ctrl      ),
-    .inc        ( inc       ),
-    .dec        ( dec       ),
+    .inc        ( {1'b0,inc}),
+    .dec        ( {1'b0,dec}),
     .key_digit  ( key_digit ),
 
     .debug_bus  ( debug_bus )
