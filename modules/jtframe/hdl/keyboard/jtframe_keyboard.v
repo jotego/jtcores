@@ -169,6 +169,7 @@ always @(posedge clk) begin
 
                     9'h0_5b: debug_plus  <= !key_released;
                     9'h0_4a: debug_minus <= !key_released;
+                    default:;
                 endcase
             end
         end

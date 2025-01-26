@@ -27,7 +27,7 @@ module jtframe_paddle(
 `ifdef JTFRAME_PADDLE_MAX
     localparam [7:0] PADDLE_MAX = `JTFRAME_PADDLE_MAX;
 `else
-    localparam [7:0] PADDLE_MAX = 0;
+    localparam [7:0] PADDLE_MAX = 255;
 `endif
 
 `ifdef JTFRAME_PADDLE_SENS

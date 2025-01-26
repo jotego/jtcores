@@ -39,11 +39,11 @@ always @(posedge clk, posedge rst) begin
     end else begin
         last_rq <= rq;
         busy <= (busy | rq_edge) & ~ba_ack;
-        if( ba_ack & ~busy ) begin
+        if( (ba_ack & ~busy)!=0 ) begin
             $display("Warning: ACK from SDRAM but there was no active request (busy=%4b, ack=%4b)", busy, ba_ack );
         end
         ackd <= (ackd & ~rq_edge & ~ba_rdy ) | ba_ack;
-        if( ba_rdy & ~ackd ) begin
+        if( (ba_rdy & ~ackd)!=0 ) begin
             $display("\nError: RDY from SDRAM but there was no acknowledgement (rdy=%4b, ackd=%4b)\n", ba_rdy, ackd );
             $finish;
         end

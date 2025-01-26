@@ -154,8 +154,8 @@ always @(posedge clk) begin
     enable_psg  <= ~status[8];
     `endif
     // only for MiSTer
-    hdmi_arx    <= (!ar) ? (swap_ar ? ARX : ARY) : (ar-2'd1);
-    hdmi_ary    <= (!ar) ? (swap_ar ? ARY : ARX) : 13'd0;
+    hdmi_arx    <= ar==0 ? (swap_ar ? ARX : ARY) : {11'd0,ar-2'd1};
+    hdmi_ary    <= ar==0 ? (swap_ar ? ARY : ARX) : 13'd0;
 
     `ifdef SIMULATION
         `ifdef DIP_PAUSE

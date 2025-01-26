@@ -25,7 +25,7 @@ module jtframe_sim_inputs(
     output            coin,test, game_rst
 );
 `ifndef SIMINPUTS
-assign {game_rst,test,joy1,start,coin} = 0;
+assign {game_rst,test,joy1,service,start,coin} = 0;
 `else
 assign {game_rst,test,joy1,service,start,coin} = sim_inputs[frame_cnt][12:0];
 

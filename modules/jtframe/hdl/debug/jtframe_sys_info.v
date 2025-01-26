@@ -71,7 +71,7 @@ wire [ 7:0] stats;
 wire [ 7:0] vu_dB;
 
 assign frame_up   = LVBL & ~LVBLl & dip_pause;
-assign sample_clr = freq_cnt == MFREQ-1;
+assign sample_clr = freq_cnt == MFREQ[15:0]-1;
 assign sample_up  = sample & ~sl;
 
 always @(posedge clk) rst <= rst_sys;

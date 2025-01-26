@@ -30,7 +30,6 @@ module jtframe_debug #(
     input              alt,
     input              debug_plus,
     input              debug_minus,
-    input              debug_rst,
     input        [3:0] key_gfx, board_gfx,
     input        [5:0] key_snd,               // enable individual sound channels
     input        [7:0] key_digit,

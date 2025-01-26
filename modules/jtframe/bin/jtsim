@@ -840,17 +840,20 @@ verilator)
     if [ ! -z "$VERILATOR_ROOT" ]; then VERILATOR_PATH=${VERILATOR_ROOT}/bin/; fi
     if [ ! -z "$COV" ]; then echo "#define _COVERAGE" >> defmacros.h; fi
     rm -rf logs
-    $SHOWCMD ${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl \
-        -I$JTFRAME/hdl/inc \
-        -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
-        --timescale 1ps/1ps \
-        $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS \
-        -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal \
-        --top-module game_test -o sim \
-         $EXTRA $TRACE --prefix UUT --assert \
-         --cc test.cpp --exe $SIMULATOR_EXTRA $COV \
-         -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE \
-        || exit $?
+    VERILATOR_CMD="${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
+"       -I$JTFRAME/hdl/inc "\
+"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl "\
+"       --timescale 1ps/1ps "\
+"       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
+"       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
+"       -o sim "\
+"       $EXTRA $TRACE --prefix UUT --assert "\
+"       --cc test.cpp --exe $SIMULATOR_EXTRA $COV "\
+"       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "
+    $SHOWCMD $VERILATOR_CMD --top-module game_test || exit $?
+    if echo "$EXTRA" | grep lint-only; then
+        $VERILATOR_CMD --top-module jtframe_board
+    fi
     # Only use parallel compilation if we are not in a regression. Otherwise
     # all simulations will compete against each other for CPU resources
     if [ -z "$JTFRAME_REGRESSION" ]; then MAKEJOBS=-j; fi

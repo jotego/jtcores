@@ -372,7 +372,6 @@ jtframe_led u_led(
     assign { base_lhbl, base_lvbl    } = { LHBLs, LVBL };
 `endif
 
-`ifndef SIMULATION
 wire [9:0] raw_key_joy1, raw_key_joy2, raw_key_joy3, raw_key_joy4;
 
 jtframe_keyboard u_keyboard(
@@ -418,110 +417,88 @@ jtframe_filter_keyboard u_filter_keyboard(
     .joy4   ( key_joy4      )
 );
 
-    `ifndef JTFRAME_RELEASE
-        wire [7:0] sys_info;
-        // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
-        wire       flip_info = 0;
+`ifndef JTFRAME_RELEASE
+    wire [7:0] sys_info;
+    // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
+    wire       flip_info = 0;
 
-        jtframe_debug #(.COLORW(COLORW)) u_debug(
-            .clk         ( clk_sys       ),
-            .rst         ( rst           ),
+    jtframe_debug #(.COLORW(COLORW)) u_debug(
+        .clk         ( clk_sys       ),
+        .rst         ( rst           ),
 
-            .shift       ( key_shift   | board_shift ),
-            .ctrl        ( key_ctrl    | board_ctrl  ),
-            .alt         ( key_alt     | board_alt   ),
-            .key_snd     ( key_snd                   ),
-            .key_gfx     ( key_gfx     | board_gfx   ),
-            .key_digit   ( key_digit   | board_digit ),
-            .debug_plus  ( debug_plus  | board_plus  ),
-            .debug_minus ( debug_minus | board_minus ),
-            .board_gfx   ( board_gfx     ),
+        .shift       ( key_shift   | board_shift ),
+        .ctrl        ( key_ctrl    | board_ctrl  ),
+        .alt         ( key_alt     | board_alt   ),
+        .key_snd     ( key_snd                   ),
+        .key_gfx     ( key_gfx     | board_gfx   ),
+        .key_digit   ( key_digit   | board_digit ),
+        .debug_plus  ( debug_plus  | board_plus  ),
+        .debug_minus ( debug_minus | board_minus ),
+        .board_gfx   ( board_gfx     ),
 
-            // overlay the value on video
-            .pxl_cen     ( pxl_cen       ),
-            .dip_flip    ( flip_info     ),
-            .rin         ( crdts_r       ),
-            .gin         ( crdts_g       ),
-            .bin         ( crdts_b       ),
-            .lhbl        ( base_lhbl     ),
-            .lvbl        ( base_lvbl     ),
-            .rout        ( dbg_r         ),
-            .gout        ( dbg_g         ),
-            .bout        ( dbg_b         ),
+        // overlay the value on video
+        .pxl_cen     ( pxl_cen       ),
+        .dip_flip    ( flip_info     ),
+        .rin         ( crdts_r       ),
+        .gin         ( crdts_g       ),
+        .bin         ( crdts_b       ),
+        .lhbl        ( base_lhbl     ),
+        .lvbl        ( base_lvbl     ),
+        .rout        ( dbg_r         ),
+        .gout        ( dbg_g         ),
+        .bout        ( dbg_b         ),
 
-            .gfx_en      ( gfx_en        ),
-            .snd_en      ( snd_en        ),
-            .snd_vol     ( snd_vol       ),
-            .snd_mode    ( snd_mode      ),
-            .debug_bus   ( debug_bus     ),
-            .debug_view  ( debug_view    ),
-            .sys_info    ( sys_info      ),
-            .target_info ( target_info   )
-        );
+        .gfx_en      ( gfx_en        ),
+        .snd_en      ( snd_en        ),
+        .snd_vol     ( snd_vol       ),
+        .snd_mode    ( snd_mode      ),
+        .debug_bus   ( debug_bus     ),
+        .debug_view  ( debug_view    ),
+        .sys_info    ( sys_info      ),
+        .target_info ( target_info   )
+    );
 
-        jtframe_sys_info u_info(
-            .rst_sys    ( game_rst      ),
-            .clk        ( clk_sys       ),
-            .dip_pause  ( dip_pause     ),
-            .dip_flip   ( dip_flip      ),
-            .game_led   ( led_peak      ),
-            .LVBL       ( LVBL          ),
-            .core_mod   ( core_mod      ),
-            .gfx_en     ( gfx_en        ),
-            // sound
-            .sample     ( snd_sample    ),
-            .snd_en     ( snd_en        ),
-            .snd_vu     ( snd_vu        ),
-            .snd_l      ( snd_lin       ),
-            .snd_r      ( snd_rin       ),
-            .snd_vol    ( snd_vol       ),
-            .snd_mode   ( snd_mode      ),
-            .vu_peak    ( vu_peak       ),
+    jtframe_sys_info u_info(
+        .rst_sys    ( game_rst      ),
+        .clk        ( clk_sys       ),
+        .dip_pause  ( dip_pause     ),
+        .dip_flip   ( dip_flip      ),
+        .game_led   ( led_peak[0]   ),
+        .LVBL       ( LVBL          ),
+        .core_mod   ( core_mod      ),
+        .gfx_en     ( gfx_en        ),
+        // sound
+        .sample     ( snd_sample    ),
+        .snd_en     ( snd_en        ),
+        .snd_vu     ( snd_vu        ),
+        .snd_l      ( snd_lin       ),
+        .snd_r      ( snd_rin       ),
+        .snd_vol    ( snd_vol       ),
+        .snd_mode   ( snd_mode      ),
+        .vu_peak    ( vu_peak       ),
 
-            .dial_x     ( dial_x        ),
-            .ba_rdy     ( bax_rdy       ),
-            .dipsw      ( dipsw[23:0]   ),
-            // IOCTL
-            .ioctl_rom  ( dwnld_busy     ),
-            .ioctl_ram  ( ioctl_ram     ),
-            .ioctl_cart ( ioctl_cart    ),
-            // mouse
-            .mouse_f    ( bd_mouse_f    ),
-            .mouse_dx   ( bd_mouse_dx   ),
-            .mouse_dy   ( bd_mouse_dy   ),
-            .st_addr    ( debug_bus     ),
-            .st_dout    ( sys_info      )
-        );
-    `else
-        assign gfx_en    = 4'b1111;
-        assign snd_en    = 6'h3f;
-        assign debug_bus =  0;
-        assign vu_peak   =  0;
-        assign dbg_r = crdts_r;
-        assign dbg_g = crdts_g;
-        assign dbg_b = crdts_b;
-    `endif
+        .dial_x     ( dial_x        ),
+        .ba_rdy     ( bax_rdy       ),
+        .dipsw      ( dipsw[23:0]   ),
+        // IOCTL
+        .ioctl_rom  ( dwnld_busy     ),
+        .ioctl_ram  ( ioctl_ram     ),
+        .ioctl_cart ( ioctl_cart    ),
+        // mouse
+        .mouse_f    ( bd_mouse_f    ),
+        .mouse_dx   ( bd_mouse_dx   ),
+        .mouse_dy   ( bd_mouse_dy   ),
+        .st_addr    ( debug_bus     ),
+        .st_dout    ( sys_info      )
+    );
 `else
-    `ifndef JTFRAME_SIM_GFXEN
-    `define JTFRAME_SIM_GFXEN 4'hf
-    `endif
-    assign key_joy4    = 10'h0;
-    assign key_joy3    = 10'h0;
-    assign key_joy2    = 10'h0;
-    assign key_joy1    = 10'h0;
-    assign key_start   = 2'd0;
-    assign key_coin    = 2'd0;
-    assign key_reset   = 1'b0;
-    assign key_pause   = 1'b0;
-    assign key_service = 1'b0;
-    assign key_tilt    = 1'b0;
-    assign key_test    = 1'b0;
-    assign gfx_en      = `JTFRAME_SIM_GFXEN;
-    assign debug_bus   = 0;
-    assign key_gfx     = 0;
-    assign dbg_r       = crdts_r;
-    assign dbg_g       = crdts_g;
-    assign dbg_b       = crdts_b;
+    assign gfx_en    = 4'b1111;
+    assign snd_en    = 6'h3f;
+    assign debug_bus =  0;
+    assign vu_peak   =  0;
+    assign dbg_r = crdts_r;
+    assign dbg_g = crdts_g;
+    assign dbg_b = crdts_b;
 `endif
 
 jtframe_volume u_volume(

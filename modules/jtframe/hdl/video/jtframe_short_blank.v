@@ -58,8 +58,8 @@ always @(posedge clk) if(pxl_cen) begin
     last_hb    <= LHBL;
     pxl_count  <= pxl_count  + 1'b1;
     if( LHBL && !last_hb) pxl_count  <= 0;
-    if(pxl_count==max_pxl_count2)          lhbs <= 0;
-    if(pxl_count==max_pxl_count && LHBL)   lhbs <= 1;      
+    if(pxl_count     ==max_pxl_count2)        lhbs <= 0;
+    if(pxl_count[5:0]==max_pxl_count && LHBL) lhbs <= 1;
 end
 
 always @(posedge clk) begin
