@@ -1,3 +1,266 @@
+show_help() {
+        cat << EOF
+JTFRAME simulation tool. (c) Jose Tejada 2019-2022, @topapate
+Please support the development: https://patreon.com/jotego
+
+    -args      Additional arguments for the simulator
+    -batch     Tells jtsim that it is being run by a batch process
+    -cov       Enables coverage simulation (only verilator)
+               Look at the files in the cov folder for annotated results
+    -d         Add specific Verilog macros for the simulation.
+               Call jtmacros to display all macros.
+    -debug_bus x
+               Sets the debug_bus value to x (sets JTFRAME_SIM_DEBUG)
+    -dir       Create directory for the simulation. Use with -setname
+    -deep      Save all signals for scope verification. See -w below.
+    -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
+               Default DIP switch values for each game are dumped in ASCII
+               to .dip files in $ROM.
+               You can also use the setname with -dipsw and it will load the
+               matching .dip file from $ROM
+                    -dipsw shinobi2 --> loads $ROM/shinobi2.dip
+               If the simulation is run from a folder whose name matches a
+               .dip file in $ROM, and -dipsw is not set, then jtsim will load
+               the matching file automatically
+    -dump n    Uses IOCTL interface to dump the core contents. Sets ioctl_ram,
+               requires JTFRAME_IOCTL_RD. Dumping will start at frame n
+    -fast      Sets optimizer level to 3 when running Verilator sims. It may cause stability problems.
+    -frame     Number of frames to simulate
+    -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
+    -gates     Gate-level simulation
+    -fx68k     Keep FX68K files for Icarus Verilog
+    -inputs    Defines SIM_INPUTS macro:
+               Game cabinet inputs will be taken from sim_inputs.hex or
+               from the file name after -inputs. Note that in if you specify
+               a file, then sim_inputs.hex will get overwritten with that file.
+
+               The input file can be in .cab format (see jtframe cab --help) or
+               in plain hex format.
+
+               In hex format each line contains a byte with the input status.
+               All bits are read as active high. They are inverted
+               if necessary by JTFRAME logic,
+               The format is:
+               bit  |  Meaning
+               3:0  | { start[1:0], service, coin[0] }
+               7:4  | joystick for 1P
+                    | UP, DOWN, LEFT, RIGHT
+               10:8 | buttons
+                    | B3, B2, B1
+               11   | test
+    -iverilog  Use Icarus Verilog as the simulator
+    -lint      Run verilator as lint tool
+    -load      Load the ROM file using the SPI communication. Slower.
+    -modelsim  Use ModelSim as the simulator
+    -modules   Location of the modules folder with respect to the simulation folder
+    -mist      Use MiST setup for simulation, instead of using directly the
+               game module. This is slower but more informative.
+    -ncverilog Select NCVerilog as the simulator
+    -nosnd|-q  Disable SOUND hardware. Speeds up simulation a lot!
+    -pause     Enable pause DIP setting. Same as -d DIP_PAUSE
+    -pocket    Select PocketFPGA as target platform
+    -questasim Use QuestaSim as the simulator
+    -s|-scene  Simulates a scene dump. These dumps can be obtained through FPGA runs,
+               MAME emulation or simulation. New cores and encouraged to use the ioctl
+               dump features in mem.yaml to create these dumps.
+    -safe      Disable verilator optimizations that may halt the elaboration stage
+    -setname   Creates the .rom file for the given MAME setname by looking in the MRA folder
+    -shaup     Update the .sha file with the shasum for each frame.jpg
+    -srate     Sampling rate of the .wav file
+    -stats     Run SDRAM usage analysis
+    -synap     Use Synapticad's simulator
+    -time      Number of milliseconds to simulate
+    -test      Enable test DIP setting. Same as -d DIP_TEST
+    -keepcpp   Do not overwrite the test.cpp file from the JTUTIL version
+    -skipROM   Do not generate .rom files
+    -slowpll   Simulate using Altera's model for PLLs
+    -showcmd   Display the simulation command only. Do not run any simulation.
+    -u,-undef  Undefine macro during simulation
+    -sysname   Specify the name of the core
+    -verilator Use Verilator as the simulator
+    -video     Enable video output. Can be followed by a number to get
+               the number of frames to simulate.
+    -w [#]     Save a small set of signals for scope verification. If a number
+               is written after -w, the dump will start at that frame
+    -zoom      Enlarge output images
+EOF
+}
+
+define_terminal_colors() {
+	if [ -n "$TERM" ]; then # if running on a terminal
+	    export TERM
+	    red=`tput setaf 1`
+	    green=`tput setaf 2`
+	    blue=`tput setaf 4`
+	    white=`tput setaf 7`
+	    rBG=`tput setab 1; tput setaf 7`
+	    gBG=`tput setab 2; tput setaf 7`
+	    bBG=`tput setab 4; tput setaf 7`
+	    yBG=`tput setab 3; tput setaf 7`
+	    wBG=`tput setab 7; tput setaf 0`
+	    NC=`tput sgr0`
+	fi
+}
+
+has_parent() {
+    p=`pwd`
+    while [ "$p" != "/" ]; do
+        parent=$(dirname "$p")
+        if [ $(basename "$parent") = "$1" ]; then return 0; fi
+        p=$parent
+    done
+    return 1
+}
+
+clean_up() {
+    rm -f video.pipe frame.raw \
+       game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
+       make.log defmacros.h filtered.f microrom.mem nanorom.mem
+    if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
+    rm -f video.raw video.pipe
+    echo -e "\e[0m"
+    echo
+}
+
+add_dir() {
+    if [ ! -d "$1" ]; then
+        echo "${rBG}Error:${NC} add_dir (sim.sh) failed because $1 is not a directory" 1>&2
+        exit 1
+    fi
+    processF=no
+    echo "Adding dir $1 $2" >&2
+    for i in $(cat $1/$2); do
+        if [ "$i" = "-sv" ]; then
+            # ignore statements that iVerilog cannot understand
+            continue;
+        fi
+        if [ "$processF" = yes ]; then
+            processF=no
+            # echo $(dirname $i) >&2
+            # echo $(basename $i) >&2
+            dn=$(dirname $i)
+            if [ "$dn" = . ]; then
+                dn=$1
+            fi
+            add_dir $dn $(basename $i)
+            continue
+        fi
+        if [[ "$i" = -F || "$i" == -f ]]; then
+            processF=yes
+            continue
+        fi
+        # ignore comments
+        if [ "${i:0:1}" = \# ]; then
+            continue
+        fi
+        fn="$1/$i"
+        if [ ! -e "$fn" ]; then
+            (>&2 echo "Cannot find file $fn")
+        fi
+        echo $fn
+    done
+}
+
+# iverilog does not have a -F command:
+emulate_F() {
+    oldIFS="$IFS"
+    while IFS= read -r line; do
+        if [ `expr "$line" : -F ` -eq 2 ]; then
+            line=${line:3}
+            dname=$(dirname "$line")
+            fname=$(basename "$line")
+            add_dir $dname $fname
+        else
+            echo "$line"
+        fi
+    done < $1
+    IFS="$oldIFS"
+}
+
+# First parse all the arguments in search of simulator arguments
+preparse_args() {
+    while [ $# -gt 0 ]; do
+        case ${1:1} in
+            verilator|lint)
+                SIMULATOR=verilator
+                MACROPREFIX=-D
+                ;;
+            ncverilog|synapticad|modelsim|iverilog|questasim)
+                SIMULATOR=${1:1}
+                MACROPREFIX=+define+
+                ;;
+            xcelium)
+                SIMULATOR=${1:1}
+                MACROPREFIX="-define "
+                ;;
+            sysname) shift; SYSNAME=$1
+        esac
+        shift
+    done
+}
+
+require() {
+    if [ -z "$1" ]; then
+        echo "${rBG}Error:${NC} $2"
+        exit 1
+    fi
+}
+
+enable_load() {
+    # Moves away the old files to prevent mistakes
+    if [[ -e sdram_bank0.bin || -e sdram_bank0.hex ]]; then
+        echo "Moving old sdram_bank files to sdram.old"
+        mkdir -p sdram.old
+        mv sdram_bank?.* sdram.old > /dev/null
+    fi
+    add_macro LOADROM
+    echo ROM load through SPI enabled
+}
+
+
+add_macro() {
+    if [ $# = 0 ]; then return; fi
+    if [ ! -z "$ALLMACROS" ]; then
+        ALLMACROS=${ALLMACROS},
+    fi
+    ALLMACROS=${ALLMACROS}$1
+    shift
+    add_macro $*
+}
+
+has_macro() {
+    expr match "$ALLMACROS" ".*${1}.*" > /dev/null
+}
+
+set_mist_as_target() {
+    TOP=mist_test
+    TARGET=mist
+}
+
+set_sidi128_as_target() {
+    TOP=mist_test
+    TARGET=sidi128
+}
+
+set_zoom() {
+    export CONVERT_OPTIONS="-filter point -resize 200% $CONVERT_OPTIONS"
+}
+
+# Use this function to create
+# HEX files with initial contents for some of the RAMs
+clear_hex_file() {
+    cnt=0
+    rm -f $1.hex
+    while [ $cnt -lt $2 ]; do
+        echo 0 >> $1.hex
+        cnt=$((cnt+1))
+    done
+}
+
+jtcfgstr() {
+    jtframe cfgstr $SYSNAME --target=$TARGET --output=$1 --def=$ALLMACROS --undef=$UNDEF
+}
+
 make_verilator_command() {
 	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
 "       -I$JTFRAME/hdl/inc "\
