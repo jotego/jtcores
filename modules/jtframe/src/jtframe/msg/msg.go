@@ -1,4 +1,4 @@
-/*  This file is part of JT_FRAME.
+/*  This file is part of JTFRAME.
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -20,131 +20,144 @@ package msg
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"io"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/jotego/jtframe/common"
 )
 
-type Args struct {
-	Core    string
-	Verbose bool
+type Compiler struct {
+	core      string
+	date	  string
+	line_cnt  int
+	data      ChData
 }
 
 type ChData []int16
 
-func Run(args Args) {
-	msgpath := filepath.Join( os.Getenv("CORES"),args.Core,"cfg", "msg" )
-	fmsg, err := os.Open(msgpath)
-	if err != nil {
-		log.Fatal("jtframe msg: error opening ", msgpath, " file. ", err)
-	}
-	defer fmsg.Close()
-	datestr := fmt.Sprintf("%d-%d-%d", time.Now().Year(), time.Now().Month(), time.Now().Day())
-	scanner := bufio.NewScanner(fmsg)
-	data := make(ChData,0,1024)
-	line_cnt := 0
-	for scanner.Scan() {
-		escape := false
-		pal := 3
-		cnt := 0
-		line_data := make([]int16,32)
-		k := 0
-		line_cnt++
-		line_loop:
-		for _, c := range scanner.Text() {
-			if k==32 {
-				break
-			}
-			if c == '\\' {
-				escape = true
-				continue
-			}
-			if escape {
-				switch c {
-					case 'R': pal=0
-					case 'G': pal=1
-					case 'B': pal=2
-					case 'W': pal=3
-					// add the date
-					case 'D': {
-						if args.Verbose {
-							fmt.Print(datestr)
-						}
-						for _,x := range datestr {
-							line_data[k] = int16(x)-0x20
-							k++
-							if k==32 {
-								break line_loop
-							}
-						}
-					}
-					// add the commit
-					case 'C': {
-						commit, _ := common.GetCommit()
-						if args.Verbose {
-							fmt.Print(commit)
-						}
-						for _,x := range commit {
-							line_data[k] = int16(x)-0x20
-							k++
-							if k==32 {
-								break line_loop
-							}
-						}
-					}
-					default: log.Fatal("ERROR: invalid palette code")
-				}
-				escape = false
-				continue
-			}
-			if cnt>31 {
-				log.Fatal("jtframe msg: line is longer than 32 characters")
-			}
-			cnt++
-			if args.Verbose {
-				fmt.Printf("%c",c)
-			}
-			coded := int(c)
-			if coded <0x20 || coded>0x7f {
-				log.Fatal("jtframe msg: character code out of range at line ", line_cnt,
-				 ":", scanner.Text(),)
-			}
-			coded = (pal<<7) | ( (coded-0x20)&0x7f)
-			line_data[k] = int16(coded)
-			k++
-		}
-		data = append(data, line_data... )
-		if args.Verbose {
-			fmt.Println()
-		}
-	}
-	dump_msg(data)
+func MakeCompiler(core_name string) (cmp Compiler) {
+	cmp.core    = core_name
+	return cmp
 }
 
-func dump_msg( data ChData ) {
-	// Save the files
-	fhex, err := os.Create("msg.hex")
-	if err != nil {
-		log.Fatal("jtframe msg: cannot open msg.hex ", err)
+func (msg *Compiler) Convert() (e error) {
+	msgpath := common.ConfigFilePath(msg.core,"msg")
+	fmsg, e := os.Open(msgpath); if e!=nil { return e }
+	defer fmsg.Close()
+	_, e = msg.parse_stream(fmsg); if e!=nil { return e }
+	msg.roundup_1k()
+	return msg.dump_msg()
+}
+
+func (msg *Compiler) parse_stream(fmsg io.Reader) (parsed_lines int, e error) {
+	scanner  := bufio.NewScanner(fmsg)
+	msg.data  = make(ChData,0,1024)
+	msg.line_cnt = 1
+	for scanner.Scan() {
+		var line line_parser
+		text := scanner.Text()
+		e := line.parse(text)
+		if e!=nil {
+			return msg.line_cnt, fmt.Errorf("%w at line %d",e,msg.line_cnt)
+		}
+		msg.data=append(msg.data,line.data...)
+		msg.line_cnt++
 	}
-	fbin, err := os.Create("msg.bin")
-	if err != nil {
-		log.Fatal("jtframe msg: cannot open msg.bin ", err)
+	return msg.line_cnt, nil
+}
+
+type line_parser struct {
+	escape   bool
+	col int
+	pal      int16
+	data     []int16
+}
+
+func (line *line_parser) parse(text string) error {
+	line.escape = false
+	line.data   = make([]int16,32)
+	line.col    = 0
+	line.pal    = 3
+	for _, c := range text {
+		e := line.parse_char(c); if e!=nil { return e }
 	}
-	for _,c := range data {
-		fhex.WriteString( fmt.Sprintf("%X\n",c))
-		fbin.WriteString( fmt.Sprintf("%b\n",c))
+	return nil
+}
+
+func (line *line_parser) parse_char(c rune) error {
+	if c == '\\' {
+		line.escape = true
+		return nil
 	}
-	// complement to multiple of 1024
-	kmax := len(data)
-	if kmax&0x3ff != 0 { kmax = (kmax&^0x3ff)+0x400 }
-	for k:=len(data);k<kmax;k++ {
-		fhex.WriteString( fmt.Sprintf("0\n"))
-		fbin.WriteString( fmt.Sprintf("0\n"))
+	if line.escape {
+		return line.process_escape_char(c)
 	}
-	fhex.Close()
-	fbin.Close()
+	return line.push(c)
+}
+
+func (line *line_parser) process_escape_char(c rune) (e error) {
+	switch c {
+		case 'R': line.pal=0
+		case 'G': line.pal=1
+		case 'B': line.pal=2
+		case 'W': line.pal=3
+		// add the date
+		case 'D': {
+			date := get_date()
+			e = line.push_str(date)
+		}
+		// add the commit
+		case 'C': {
+			commit, _ := common.GetCommit()
+			e = line.push_str(commit)
+		}
+		default: e = fmt.Errorf("invalid palette code")
+	}
+	line.escape = false
+	return e
+}
+
+func get_date() string {
+	return fmt.Sprintf("%d-%d-%d", time.Now().Year(), time.Now().Month(), time.Now().Day())
+}
+
+func (line *line_parser) push_str( s string ) error {
+	for _,c := range s {
+		e := line.push(c)
+		if e!=nil { return e }
+	}
+	return nil
+}
+
+func (line *line_parser) push(c rune) error {
+	if line.col==32 {
+		return fmt.Errorf("Line is longer than 32 characters")
+	}
+	coded := int16(c)
+	if coded<0x20 || coded>0x7f {
+		return fmt.Errorf("character code out of range")
+	}
+	coded = (line.pal<<7) | ((coded-0x20)&0x7f)
+	line.data[line.col] = coded
+	line.col++
+	return nil
+}
+
+func (msg *Compiler)roundup_1k() {
+	rest := len(msg.data)%1024
+	if rest==0 { return }
+	chunks := 1+len(msg.data)/1024
+	expanded := make(ChData,chunks*1024)
+	copy(expanded,msg.data)
+	msg.data=expanded
+}
+
+func (msg *Compiler)dump_msg() error {
+	hex := common.MakeHexBytes(msg.data)
+	e := os.WriteFile("msg.hex",hex,0644)
+	if e!=nil { return e }
+	bin := common.MakeBinBytes(msg.data)
+	e = os.WriteFile("msg.bin",bin,0644)
+	return e
 }

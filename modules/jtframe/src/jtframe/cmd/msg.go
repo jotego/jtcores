@@ -19,11 +19,10 @@ package cmd
 
 import (
 	"github.com/jotego/jtframe/msg"
+	"github.com/jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )
-
-var msg_args msg.Args
 
 var msgCmd = &cobra.Command{
 	Use:   "msg <core-name>",
@@ -39,14 +38,18 @@ Message text:
 - \D is replaced by the current date in year-month-day format
 - \C is replaced by the string in the --commit argument
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		msg_args.Core = args[0]
-		msg_args.Verbose = verbose
-		msg.Run(msg_args)
-	},
+	Run: msgRun,
 	Args: cobra.ExactArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(msgCmd)
+}
+
+
+func msgRun(cmd *cobra.Command, args []string) {
+	corename := args[0]
+	cmp := msg.MakeCompiler(corename)
+	e := cmp.Convert()
+	common.Must(e)
 }
