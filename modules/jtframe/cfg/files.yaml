@@ -15,8 +15,10 @@ jtframe:
     get:
       - jtframe_debug.v
       - jtframe_debug_bus.v
+      - jtframe_debug_ctrl.v
       - jtframe_sys_info.v
       - jtframe_binhex_overlay.v
+      - jtframe_debug_viewmux.v
   - from: clocking
     get:
       - jtframe_gated_cen.v

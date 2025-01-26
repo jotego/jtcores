@@ -58,69 +58,50 @@ module jtframe_debug #(
     output        [5:0] snd_en
 );
 
-reg  [2:0] color;
-reg  [7:0] view_mux;
-reg        vtoggle_l;
-reg  [1:0] view_sel;
-wire       vtoggle;
+wire [2:0] color;
+wire [7:0] view_bin, view_hex, msg;
+wire [8:0] h, v;
+wire [1:0] view_mode;
+wire       split_binhex, hex_en, bin_en;
 
-assign vtoggle = shift & ctrl;
+wire       toggle_view = shift & ctrl;
+wire [3:0] gfx_toggle  = key_gfx | board_gfx;
 
-localparam [1:0] SYS_INFO    = 2'b01,
-                 TARGET_INFO = 2'b10;
+jtframe_debug_ctrl u_ctrl(
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
 
-always @(posedge clk) begin
-    if( rst ) begin
-        view_sel   <= 0;
-        view_mux   <= 0;
-    end else begin
-        vtoggle_l  <= vtoggle;
+    .debug_bus  ( debug_bus     ),
+    .view_bin   ( view_bin      ),
+    .view_hex   ( view_hex      ),
+    .v          ( v             ),
+    .h          ( h             ),
+    .view_mode  ( view_mode     ),
 
-        if( vtoggle && !vtoggle_l ) begin
-            view_sel <= view_sel==2 ? 2'd0 : view_sel+1'd1;
-        end
-        case( view_sel )
-            default:     view_mux <= debug_view;
-            SYS_INFO:    view_mux <= sys_info;
-            TARGET_INFO: view_mux <= target_info;
-        endcase
-    end
-end
+    .split_binhex(split_binhex  ),
 
-// Video overlay
-localparam [8:0] JTFRAME_DEBUG_VPOS=`JTFRAME_DEBUG_VPOS;
+    .hex_en     ( hex_en        ),
+    .bin_en     ( bin_en        ),
+    .color      ( color         ),
+    .msg        ( msg           )
+);
 
-reg  [7:0] dmux;
-wire [8:0] HBIN=((`JTFRAME_WIDTH&9'h1f8)>>1)-9'h10,
-                 HHEX=HBIN+9'h44,
-                 VOSD=(`JTFRAME_HEIGHT & 9'h1f8)-9'd8*JTFRAME_DEBUG_VPOS, // 4 rows above bottom
-                 VVIEW=VOSD+9'd8*9'd2;
+jtframe_debug_viewmux u_viewmux(
+    .clk        ( clk           ),
+    .toggle     ( toggle_view   ),
 
-wire [8:0] veff, heff;
-wire       osd_on = debug_view_sel | debug_bus_sel;
-reg        debug_view_sel, debug_bus_sel, hex_col, bin_col, hex_en, bin_en;
+    .debug_view ( debug_view    ),
+    .sys_info   ( sys_info      ),
+    .target_info( target_info   ),
 
-always @(posedge clk) begin
-    color <= 7;
-    if( view_sel==SYS_INFO    ) color<=3'b100; // system info is shown reddish
-    if( view_sel==TARGET_INFO ) color<=3'b001; // system info is shown blueish
-end
+    .snd_mode    ( snd_mode     ),
+    .snd_vol     ( snd_vol      ),
+    .split_binhex(split_binhex  ),
 
-always @(posedge clk) begin
-    // display of debug_bus
-    debug_bus_sel  <=  debug_bus!=0 && veff[8:3]==VOSD[8:3];
-    debug_view_sel <= (view_mux !=0 || view_sel!=0 || debug_bus!=0) && veff[8:3]==VVIEW[8:3];
-
-    hex_col <= heff[8:4] == HHEX[8:4];
-    bin_col <= heff[8:6] == HBIN[8:6];
-    if(pxl_cen) begin
-        hex_en <= osd_on & hex_col;
-        bin_en <= osd_on & bin_col;
-        dmux   <= debug_view_sel ? view_mux : debug_bus;
-    end
-end
-
-wire [3:0] gfx_toggle = key_gfx | board_gfx;
+    .view_bin   ( view_bin      ),
+    .view_hex   ( view_hex      ),
+    .sel        ( view_mode     )
+);
 
 jtframe_toggle #(.W(4),.VALUE_AT_RST(1'b1)) u_gfxen(
     .rst        ( rst         ),
@@ -138,12 +119,12 @@ jtframe_toggle #(.W(6),.VALUE_AT_RST(1'b1)) u_snd(
 
 jtframe_binhex_overlay #(.COLORW(COLORW)) u_overlay(
     .clk        ( clk         ),
-    .v          ( veff        ),
-    .h          ( heff        ),
+    .v          ( v           ),
+    .h          ( h           ),
 
     .bin_en     ( bin_en      ),
     .hex_en     ( hex_en      ),
-    .din        ( dmux        ),
+    .din        ( msg         ),
     .color      ( color       ),
 
     .rin        ( rin         ),
@@ -164,8 +145,8 @@ jtframe_video_counter u_vcounters(
     .lvbl       ( lvbl        ),
     .flip       ( dip_flip    ),
 
-    .v          ( veff        ),
-    .h          ( heff        )
+    .v          ( v           ),
+    .h          ( h           )
 );
 
 jtframe_debug_bus u_debug_bus(
