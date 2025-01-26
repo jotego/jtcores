@@ -17,6 +17,8 @@
 # Author: Jose Tejada Gomez. Twitter: @topapate
 # Date: 20-8-2022
 
+source $JTFRAME/bin/jtsim-funcs
+
 # Define colours if running on a terminal
 if [ -n "$TERM" ]; then
     export TERM
@@ -840,45 +842,24 @@ verilator)
     if [ ! -z "$VERILATOR_ROOT" ]; then VERILATOR_PATH=${VERILATOR_ROOT}/bin/; fi
     if [ ! -z "$COV" ]; then echo "#define _COVERAGE" >> defmacros.h; fi
     rm -rf logs
-    VERILATOR_CMD="${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
-"       -I$JTFRAME/hdl/inc "\
-"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl "\
-"       --timescale 1ps/1ps "\
-"       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
-"       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
-"       -o sim "\
-"       $EXTRA $TRACE --prefix UUT --assert "\
-"       --cc test.cpp --exe $SIMULATOR_EXTRA $COV "\
-"       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "
+    VERILATOR_CMD=`make_verilator_command`
     $SHOWCMD $VERILATOR_CMD --top-module game_test || exit $?
-    if echo "$EXTRA" | grep lint-only; then
+    if is_lint_on; then
         $VERILATOR_CMD --top-module jtframe_board
     fi
     # Only use parallel compilation if we are not in a regression. Otherwise
     # all simulations will compete against each other for CPU resources
     if [ -z "$JTFRAME_REGRESSION" ]; then MAKEJOBS=-j; fi
-    # boost C++ optimization without affecting other settings
-    if [ ! -z "$FAST" ]; then export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`; fi
     if echo "$EXTRA" | grep -q lint-only; then
         echo "Lint only: no simulation "
     else
-        if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
-            cat make.log
-            exit $?
-        fi
+        compile_verilator_sim
         # Run the simulation
-        rm -f test.vcd
-        if [[ -n "$DUMP" && -z "$SHOWCMD" ]]; then
-            if which vcd2fst > /dev/null; then
-                mkfifo test.vcd
-                vcd2fst -p test.vcd test.fst&
-            fi
-        fi
-        $SHOWCMD obj_dir/sim $TRACE -time $SIM_MS || echo "Verilator sim exit code $?"
-        rm -f test.vcd
+        prepare_fst_pipe
+        run_verilator_sim
+        clean_fst_pipe
         if [ -e logs/coverage.dat ]; then
-            mkdir -p cov
-            verilator_coverage --annotate cov logs/coverage.dat
+            run_coverage
         fi
         if [ ! -z "$SHOWCMD" ]; then exit 0; fi
     fi
@@ -886,50 +867,14 @@ esac
 
 clean_up
 
-# convert raw sound file to wav format
-if [ -e sound.raw ]; then
-    $JTUTIL/bin/raw2wav $SAMPLING_RATE < sound.raw
-    rm -f sound.raw
-fi
-
-if [ ! -z "$SETNAME" ]; then
-    if [ ! -z "$SHAUP" ]; then
-        shasum frame*jpg > ../$SETNAME.sha;
-    elif [ -e ../$SETNAME.sha ]; then
-        if shasum --check ../$SETNAME.sha; then echo PASS; else echo FAIL; fi
-    fi
-fi
-
-if [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 250 ]; then
-    if [ -z "$FRAMERATE" ]; then
-        FRAMERATE=30
-        echo "Define and export FRAMERATE"
-        if has_macro JTFRAME_SIM_VIDEO; then
-            FRAMERATE=60;
-        elif [ $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 2000 ]; then
-            echo "Large number of frames... maybe enable JTFRAME_SIM_VIDEO to create a full video"
-        fi
-    fi
-    if [[ "$VIDEO_DUMP" = TRUE ]]; then
-        ffmpeg -y -framerate $FRAMERATE \
-        -pattern_type glob -i frames/'frame_*.jpg' \
-        -i test.wav -c:a aac -c:v libx264 -vf "scale=iw*3:ih*3" \
-        -pix_fmt yuv420p test.mp4 > /dev/null 2>&1
-    fi
+convert_raw2wav
+check_shasum
+if [ `count_frame_images` -gt 250 ]; then
+    make_mpeg
 fi
 
 # convert per-channel raw sound files to wav
-shopt -s nullglob
-CHRAW=(ch?.raw)
-shopt -u nullglob
-for i in "${CHRAW[@]}"; do
-    if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
-        echo "$i is empty, deleting it" > /dev/null
-    else
-        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav > /dev/null 2>&1 || continue
-    fi
-    rm -f $i
-done
+convert_channel_raw2wav
 
 # Show simulation time
 END_TIME=$(date +%s)
@@ -941,13 +886,9 @@ echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 
 if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
     if [ ! -z "$BATCH" ]; then
-        SCNNUM=$(basename $(dirname $SCENE))
-        set -v
-        mv `ls frames/frame_*.jpg | tail -n 1` `dirname $SCENE`/$SCNNUM.jpg
-        set +v
+        copy_scene_frame
     elif which eom > /dev/null; then
-        # Open the image viewer for scene sims
-        eom `ls frames/frame_*.jpg | tail -n 1` &
+        display_scene_frame&
     fi
 fi
 
