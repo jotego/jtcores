@@ -1,5 +1,7 @@
 module test;
 
+`include "test_tasks.vh"
+
 wire       rst, clk, lhbl, lvbl, pxl_cen;
 wire [8:0] h,v;
 reg  [2:0] color;
@@ -7,13 +9,6 @@ wire [3:0] r, g, b;
 wire [7:0] din;
 reg        hex_en, bin_en;
 reg  [3:0] videoin;
-
-task assert_msg(input test, input string msg);
-    if(!test) begin
-        $display("Assertion failed: %s",msg);
-        $finish;
-    end
-endtask
 
 assign din={4'd0,v[7:4]};
 

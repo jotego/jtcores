@@ -44,7 +44,10 @@ filter_hex_out() {
 }
 
 run_simulation() {
-	iverilog -g2012 `find -name "*.v"` `find -name "*.sv"` $JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} -f$GATHER -s test -o sim -D SIMULATION
+	iverilog -g2012 `find -name "*.v"` `find -name "*.sv"` \
+		-I$JTFRAME/ver/inc \
+		$JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} \
+		-f$GATHER -s test -o sim -D SIMULATION
 	sim -lxt > sim.log
 }
 
