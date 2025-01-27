@@ -29,5 +29,6 @@ fi
 
 jtsim -lint -$TARGET $*
 EXIT=$?
+jtframe msg $CORE
 rm -rf $TEST_FOLDER
 exit $EXIT
