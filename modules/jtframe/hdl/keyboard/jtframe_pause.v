@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 10-5-2021 */
+    Date: 26-1-2025 */
 
 module jtframe_pause(
     input      rst, clk,
@@ -23,24 +23,20 @@ module jtframe_pause(
     output     game_pause
 );
 
-reg  toggle=0,
-     adv_toggle=0, lvbl_l=0, service_l=0, service_event=0, restore=0;
+reg  toggle=0;
+wire frame;
 
 always @(posedge clk) begin
-    toggle = |{key_pause, joy_pause, osd_pause, adv_toggle };
+    toggle <= |{key_pause, joy_pause, osd_pause, frame };
 end
 
-always @(posedge clk) begin
-    lvbl_l     <= lvbl;
-    service_l  <= service;
-    adv_toggle <= 0;
-    if( service && !service_l ) service_event <= game_pause;
-    if( !lvbl && lvbl_l ) begin
-        adv_toggle    <= service_event | restore;
-        restore       <= service_event;
-        service_event <= 0;
-    end
-end
+jtframe_pause_adv_frame u_frame(
+    .clk    ( clk       ),
+    .service( service   ),
+    .lvbl   ( lvbl      ),
+    .pause  ( game_pause),
+    .frame  ( frame     )
+);
 
 jtframe_toggle #(.W(1)) u_toggle(
     .rst    ( rst        ),
@@ -50,3 +46,24 @@ jtframe_toggle #(.W(1)) u_toggle(
 );
 
 endmodule        
+
+module jtframe_pause_adv_frame(
+    input       clk, service, lvbl, pause,
+    output reg  frame=0
+);
+
+reg lvbl_l=0, service_l=0, service_event=0, restore=0;
+
+always @(posedge clk) begin
+    lvbl_l     <= lvbl;
+    service_l  <= service;
+    frame <= 0;
+    if( service && !service_l ) service_event <= pause;
+    if( !lvbl && lvbl_l ) begin
+        frame    <= service_event | restore;
+        restore       <= service_event;
+        service_event <= 0;
+    end
+end
+
+endmodule
