@@ -1,0 +1,224 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 28-1-2025 */
+
+module jtframe_joysticks(
+    input             rst, clk,
+                      vs,  locked,
+
+    input       [3:0] board_coin, board_start,
+                      key_coin,   key_start,
+                      joy_coin,   joy_start,
+
+    input      [15:0] ana1, ana2,
+                      board_joy1, board_joy2, board_joy3, board_joy4,
+    input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
+    input             joy_test, key_test,
+
+    input       [2:0] mouse_but_1p, mouse_but_2p,
+
+    output      [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
+    output      [3:0] game_coin, game_start,
+    output            game_test
+);
+
+    wire [15:0] multi1, multi2;
+
+    jtframe_multiway u_multiway(
+        .clk        ( clk        ),
+        .vs         ( vs         ),
+        .ana1       ( ana1       ),
+        .ana2       ( ana2       ),
+        .raw1       ( board_joy1 ),
+        .raw2       ( board_joy2 ),
+        .joy1       ( multi1     ),
+        .joy2       ( multi2     )
+    );
+
+    jtframe_merge_keyjoy u_merge(
+        .clk        ( clk           ),
+
+        .board_coin ( board_coin    ),
+        .board_start( board_start   ),
+        .key_coin   ( key_coin      ),
+        .key_start  ( key_start     ),
+        .joy_coin   ( joy_coin      ),
+        .joy_start  ( joy_start     ),
+
+        .joy1       ( multi1        ),
+        .joy2       ( multi2        ),
+        .joy3       ( board_joy3    ),
+        .joy4       ( board_joy4    ),
+
+        .key_joy1   ( key_joy1      ),
+        .key_joy2   ( key_joy2      ),
+        .key_joy3   ( key_joy3      ),
+        .key_joy4   ( key_joy4      ),
+        .joy_test   ( joy_test      ),
+        .key_test   ( key_test      ),
+
+        .mouse_but_1p(mouse_but_1p  ),
+        .mouse_but_2p(mouse_but_2p  ),
+
+        .game_joy1  ( merge_joy1    ),
+        .game_joy2  ( merge_joy2    ),
+        .game_joy3  ( merge_joy3    ),
+        .game_joy4  ( merge_joy4    ),
+        .game_coin  ( merge_coin    ),
+        .game_start ( merge_start   ),
+        .game_test  ( merge_test    )
+    );
+
+    jtframe_joy_rotate u_rotate(
+        .rot,
+        .rot_ccw,
+        .raw1       ( merge_joy1    ),
+        .raw2       ( merge_joy2    ),
+        .raw3       ( merge_joy3    ),
+        .raw4       ( merge_joy4    ),
+        .joy1       ( rot_joy1      ),
+        .joy2       ( rot_joy2      ),
+        .joy3       ( rot_joy3      ),
+        .joy4       ( rot_joy4      )
+    );
+
+    jtframe_joy_reorder u_reorder(
+        .raw1       ( rot_joy1      ),
+        .raw2       ( rot_joy2      ),
+        .raw3       ( rot_joy3      ),
+        .raw4       ( rot_joy4      ),
+        .joy1       ( order_joy1    ),
+        .joy2       ( order_joy2    ),
+        .joy3       ( order_joy3    ),
+        .joy4       ( order_joy4    )
+    );
+
+    jtframe_joystick_lock u_lock(
+        .clk        ( clk           ),
+        .locked     ( locked        ),
+        ,
+        .raw1       ( order_joy1    ),
+        .raw2       ( order_joy2    ),
+        .raw3       ( order_joy3    ),
+        .raw4       ( order_joy4    ),
+        .raw_start  ( merge_start   ),
+        .raw_coin   ( mege_coin     ),
+        .raw_service( service       ),
+
+        .joy1       ( lock_joy1     ),
+        .joy2       ( lock_joy2     ),
+        .joy3       ( lock_joy3     ),
+        .joy4       ( lock_joy4     ),
+        .service    ( lock_service  ),
+        .coin       ( lock_coin     ),
+        .start      ( lock_start    )
+    );
+
+endmodule
+
+module jtframe_merge_keyjoy(
+    input             clk,
+
+    input       [3:0] board_coin, board_start,
+    input       [3:0] key_coin,   key_start,
+                      joy_coin,   joy_start,
+
+    input      [15:0] joy1,     joy2,     joy3,     joy4,
+    input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
+    input             joy_test, key_test,
+
+    input       [2:0] mouse_but_1p, mouse_but_2p,
+
+    output reg  [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
+    output reg  [3:0] game_coin, game_start,
+    output reg        game_test,
+);
+    always @(posedge clk) begin
+        game_test  <= key_test  | joy_test;
+
+        game_coin  <= joy_coin  | key_coin  | board_coin;
+        game_start <= joy_start | key_start | board_start;
+        game_joy1  <= joy1[9:0] | key_joy1  | { 3'd0, mouse_but_1p, 4'd0};
+        game_joy2  <= joy2[9:0] | key_joy2  | { 3'd0, mouse_but_2p, 4'd0};
+        game_joy3  <= joy3[9:0] | key_joy3;
+        game_joy4  <= joy4[9:0] | key_joy4;
+    end
+endmodule
+
+module jtframe_joy_rotate(
+    input       rot,
+    input       rot_ccw,
+    input      [9:0] raw1, raw2, raw3, raw4
+    output reg [9:0] joy1, joy2, joy3, joy4
+);
+    function [9:0] apply_rotation(input [9:0] joy_in); begin
+        reg [3:0] flipped;
+        flipped = rot_ccw ?
+             { joy_in[4], joy_in[0], joy_in[1], joy_in[3], joy_in[2] }:
+             { joy_in[4], joy_in[1], joy_in[0], joy_in[2], joy_in[3] };
+        apply_rotation[9:4] = joy_in[9:4];
+        apply_rotation[3:0] = rot ? flipped : joy_in;
+    end endfunction
+
+    always @(posedge clk) begin
+        joy1 <= apply_rotation( raw1 );
+        joy2 <= apply_rotation( raw2 );
+        joy3 <= apply_rotation( raw3 );
+        joy4 <= apply_rotation( raw4 );
+    end
+endmodule
+
+module jtframe_joy_reorder(
+    input  [9:0] raw1, raw2, raw3, raw4,
+    output [9:0] joy1, joy2, joy3, joy4
+);
+    function [9:0] reorder;
+        input [9:0] joy_in;
+        begin
+            reorder = joy_in; // default order up, down, left, right
+    `ifdef JTFRAME_JOY_LRUD reorder[3:0]={joy_in[1:0],joy_in[3:2]}; `endif
+    `ifdef JTFRAME_JOY_RLDU reorder[3:0]={joy_in[0], joy_in[1], joy_in[2], joy_in[3]}; `endif
+    `ifdef JTFRAME_JOY_DURL reorder[3:0]={joy_in[2], joy_in[3], joy_in[0], joy_in[1]}; `endif
+    `ifdef JTFRAME_JOY_DULR reorder[3:0]={joy_in[2], joy_in[3], joy_in[1], joy_in[0]}; `endif
+    `ifdef JTFRAME_JOY_UDRL reorder[3:0]={joy_in[3:2], joy_in[0], joy_in[1]}; `endif
+    `ifdef JTFRAME_JOY_B1B0 reorder[5:4]={joy_in[4], joy_in[5]}; `endif
+        end
+    endfunction
+
+    assign joy1 = reorder(raw1);
+    assign joy2 = reorder(raw2);
+    assign joy3 = reorder(raw3);
+    assign joy4 = reorder(raw4);
+endmodule
+
+
+module jtframe_joystick_lock(
+    input       clk, locked,
+    input [9:0] raw1, raw2, raw3, raw4,
+    input [3:0] raw_start,  raw_coin,
+    input       raw_service,
+    output reg [9:0] joy1,  joy2, joy3, joy4,
+    output reg [3:0] start, coin,
+    output reg       service
+);
+    always @(posedge clk) begin
+        {joy1,joy2,joy3,joy4,start,coin,service} <= locked ?
+             45'd0 :
+            {raw1,raw2,raw3,raw4,raw_start,raw_coin,raw_service};
+    end
+endmodule
+

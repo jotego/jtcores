@@ -100,7 +100,7 @@ module jtframe_board #(parameter
     input        [ 7:0] board_digit,
     input               board_reset, board_pause, board_tilt, board_test,
                         board_service, board_shift, board_ctrl, board_alt,
-    // debug features
+    // debug features - remove on #935
     input        [ 3:0] board_gfx,
     input               board_plus, board_minus,
     // Mouse & Paddle
@@ -222,17 +222,19 @@ localparam
 
 wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
-             vol_up,   vol_down, debug_toggle;
+             vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
 
-wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
+wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
+             game_rawjoy1, game_rawjoy2, game_rawjoy3, game_rawjoy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty, frame_blank, debug_plus, debug_minus;
-wire         key_service, key_tilt;
+wire   [1:0] sensty, frame_blank;
+wire  [12:7] func_key;
+wire         key_service, key_tilt, plus, minus;
 wire         locked;
 wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
 
@@ -397,13 +399,11 @@ jtframe_keyboard u_keyboard(
     .shift       ( key_shift     ),
     .ctrl        ( key_ctrl      ),
     .alt         ( key_alt       ),
-    .gfx         ( key_gfx       ),
-    .snd         ( key_snd       ),
     .vol_up      ( vol_up        ),
     .vol_down    ( vol_down      ),
-    .debug_toggle( debug_toggle  ),
-    .debug_plus  ( debug_plus    ),
-    .debug_minus ( debug_minus   )
+    .func_key    ( func_key      ),
+    .plus        ( plus          ),
+    .minus       ( minus         )
 );
 
 jtframe_filter_keyboard u_filter_keyboard(
@@ -422,24 +422,43 @@ jtframe_filter_keyboard u_filter_keyboard(
     wire [7:0] sys_info;
     // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
     wire       flip_info = 0;
-    // delete when Pocket keyboard goes through PS2 interface (#935)
-    wire [1:0] comb_plus  = debug_plus  | {1'b0, board_plus };
-    wire [1:0] comb_minus = debug_minus | {1'b0, board_minus};
+    wire       debug_toggle;
+    wire [1:0] debug_plus, debug_minus;
+
+    jtframe_debug_keys #(.ACTIVE_LOW(GAME_INPUTS_ACTIVE_LOW))
+    u_debugkeys(
+        .rst        ( rst           ),
+        .clk        ( clk_sys       ),
+
+        .ctrl       ( key_ctrl      ),
+        .shift      ( key_shift     ),
+        .func_key   ( func_key      ),
+        .coin       ( game_coin     ),
+        .start      ( game_start    ),
+        .joy1       ( game_rawjoy1  ),
+        .plus       ( plus          ),
+        .minus      ( minus         ),
+
+        .gfx_en     ( gfx_en        ),
+        .snd_en     ( snd_en        ),
+
+        .debug_toggle( debug_toggle ),
+        .debug_plus ( debug_plus    ),
+        .debug_minus( debug_minus   )
+    );
+
 
     jtframe_debug #(.COLORW(COLORW)) u_debug(
         .clk         ( clk_sys       ),
         .rst         ( rst           ),
 
         .toggle_view ( debug_toggle  ),
-        .shift       ( key_shift   | board_shift ),
-        .ctrl        ( key_ctrl    | board_ctrl  ),
-        .alt         ( key_alt     | board_alt   ),
-        .key_snd     ( key_snd                   ),
-        .key_gfx     ( key_gfx     | board_gfx   ),
-        .key_digit   ( key_digit   | board_digit ),
-        .debug_plus  ( comb_plus     ), // replace for debug_plus when #935 is done
-        .debug_minus ( comb_minus    ), // ditto
-        .board_gfx   ( board_gfx     ),
+        .shift       ( key_shift     ),
+        .ctrl        ( key_ctrl      ),
+        .alt         ( key_alt       ),
+        .key_digit   ( key_digit     ),
+        .debug_plus  ( debug_plus    ),
+        .debug_minus ( debug_minus   ),
 
         // overlay the value on video
         .pxl_cen     ( pxl_cen       ),
@@ -453,8 +472,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .gout        ( dbg_g         ),
         .bout        ( dbg_b         ),
 
-        .gfx_en      ( gfx_en        ),
-        .snd_en      ( snd_en        ),
         .snd_vol     ( snd_vol       ),
         .snd_mode    ( snd_mode      ),
         .debug_bus   ( debug_bus     ),
@@ -533,6 +550,17 @@ jtframe_short_blank #(
     .vb_out     (                 )
 );
 
+jtframe_joy_reorder u_reorder(
+    .raw1      ( game_rawjoy1    ),
+    .raw2      ( game_rawjoy2    ),
+    .raw3      ( game_rawjoy3    ),
+    .raw4      ( game_rawjoy4    ),
+    .joy1      ( game_joystick1  ),
+    .joy2      ( game_joystick2  ),
+    .joy3      ( game_joystick3  ),
+    .joy4      ( game_joystick4  )
+);
+
 jtframe_inputs #(
     .BUTTONS   ( BUTTONS                ),
     .ACTIVE_LOW( GAME_INPUTS_ACTIVE_LOW )
@@ -573,10 +601,10 @@ jtframe_inputs #(
     .key_reset      ( key_reset | board_reset     ),
     .rot_control    ( rot_control     ),
 
-    .game_joy1      ( game_joystick1  ),
-    .game_joy2      ( game_joystick2  ),
-    .game_joy3      ( game_joystick3  ),
-    .game_joy4      ( game_joystick4  ),
+    .game_joy1      ( game_rawjoy1    ),
+    .game_joy2      ( game_rawjoy2    ),
+    .game_joy3      ( game_rawjoy3    ),
+    .game_joy4      ( game_rawjoy4    ),
     .game_coin      ( game_coin       ),
     .game_start     ( game_start      ),
     .game_service   ( game_service    ),

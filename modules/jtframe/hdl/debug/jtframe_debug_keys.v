@@ -17,31 +17,44 @@
     Date: 26-1-2025 */
 
 module jtframe_debug_keys(
+    input            rst,
     input            clk,
 
     input            ctrl, shift,
+    input     [12:7] func_key,
     input      [3:0] coin,
     input      [3:0] start,
     input      [9:0] joy1,    
     input            plus,
     input            minus,
 
+    output     [3:0] gfx_en,
+    output     [5:0] snd_en,
+
     output reg       debug_toggle,
     output reg [1:0] debug_plus,
     output reg [1:0] debug_minus
 );
 
+parameter ACTIVE_LOW=1;
+
 localparam [3:0] UP=3, DOWN=2;
 
+reg [3:0] joy1_eff;
+
 wire key_toggle = ctrl     &  shift;
-wire alt_toggle = start[0] & |joy1[1:0];
+wire alt_toggle = start[0] & |joy1_eff[1:0];
 
-wire alt_plus   = start[0] & joy1[UP];
-wire alt_minus  = start[0] & joy1[DOWN];
+wire alt_plus   = start[0] & joy1_eff[UP];
+wire alt_minus  = start[0] & joy1_eff[DOWN];
 
-wire alt_plus16 =  coin[0] & joy1[UP];
-wire alt_minus16=  coin[0] & joy1[DOWN];
+wire alt_plus16 =  coin[0] & joy1_eff[UP];
+wire alt_minus16=  coin[0] & joy1_eff[DOWN];
 
+
+always @(posedge clk) begin
+    joy1_eff <= joy1[3:0] ^ {4{ACTIVE_LOW[0]}};
+end
 
 always @(posedge clk) begin
     debug_toggle  <= key_toggle | alt_toggle;
@@ -54,5 +67,23 @@ always @(posedge clk) begin
     debug_plus [1] <= (plus &shift) | alt_plus16;
     debug_minus[1] <= (minus&shift) | alt_minus16;
 end
+
+jtframe_toggle #(.W(4),.VALUE_AT_RST(1'b1)) u_gfxen(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+
+    .toggle ( func_key[10:7]),
+    .q      ( gfx_en        )
+);
+
+wire [5:0] snden_toggle = {6{shift}} & func_key[12:7];
+
+jtframe_toggle #(.W(6),.VALUE_AT_RST(1'b1)) u_snden(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+
+    .toggle ( snden_toggle  ),
+    .q      ( snd_en        )
+);
 
 endmodule 

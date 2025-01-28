@@ -20,8 +20,8 @@ module jtframe_toggle #(parameter
     W            = 4,
     VALUE_AT_RST = 1'b0
 )(
+    input            rst,
     input            clk,
-    input            rst,    
 
     input      [W-1:0] toggle,
     output reg [W-1:0] q

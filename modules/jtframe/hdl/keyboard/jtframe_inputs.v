@@ -20,6 +20,7 @@ module jtframe_inputs(
     input             rst,
     input             clk,
     input             vs,
+    input             lvbl,
     input             LHBL,
 
     input             rot_ccw,
@@ -29,7 +30,7 @@ module jtframe_inputs(
     input             dip_pause,
 
     output reg        soft_rst,
-    output reg        game_pause,
+    output            game_pause,
 
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4, ana1, ana2,
     input       [3:0] board_coin, board_start,
@@ -93,71 +94,15 @@ wire [ 9:0] pre_order1;
 // This one passes unfiltered
 assign game_paddle_2 = board_paddle_2;
 
-always @(posedge clk) begin
-    joy1_sync <= { board_joy1[15:4], joy4way1p[3:0] };
-    joy2_sync <= { board_joy2[15:4], joy4way2p[3:0] };
-    joy3_sync <= { board_joy3[15:4], joy4way3p[3:0] };
-    joy4_sync <= { board_joy4[15:4], joy4way4p[3:0] };
-end
-
-jtframe_multiway u_multiway(
-    .clk        ( clk       ),
-    .vs         ( vs        ),
-    .ana1       ( ana1      ),
-    .ana2       ( ana2      ),
-    .raw1       ( joy1_sync ),
-    .raw2       ( joy2_sync ),
-    .joy1       ( multi1    ),
-    .joy2       ( multi2    )
-);
-
-`ifdef JTFRAME_SUPPORT_4WAY
-    wire en4way = core_mod[1];
-
-    jtframe_4wayjoy u_4way_1p(
-        .clk        ( clk               ),
-        .enable     ( en4way            ),
-        .joy8way    ( board_joy1[3:0]   ),
-        .joy4way    ( joy4way1p         )
-    );
-
-    jtframe_4wayjoy u_4way_2p(
-        .clk        ( clk               ),
-        .enable     ( en4way            ),
-        .joy8way    ( board_joy2[3:0]   ),
-        .joy4way    ( joy4way2p         )
-    );
-
-    jtframe_4wayjoy u_4way_3p(
-        .clk        ( clk               ),
-        .enable     ( en4way            ),
-        .joy8way    ( board_joy3[3:0]   ),
-        .joy4way    ( joy4way3p         )
-    );
-
-    jtframe_4wayjoy u_4way_4p(
-        .clk        ( clk               ),
-        .enable     ( en4way            ),
-        .joy8way    ( board_joy4[3:0]   ),
-        .joy4way    ( joy4way4p         )
-    );
-`else
-    assign joy4way1p=board_joy1[3:0];
-    assign joy4way2p=board_joy2[3:0];
-    assign joy4way3p=board_joy3[3:0];
-    assign joy4way4p=board_joy4[3:0];
-`endif
-
-
 localparam START_BIT  = 6+(BUTTONS-2);
 localparam COIN_BIT   = START_BIT+1;
 localparam PAUSE_BIT  = COIN_BIT+1;
 
-reg        last_pause, last_osd_pause, last_joypause, last_reset;
+reg        last_reset;
 wire       joy_pause, joy_test;
 wire [3:0] joy_start, joy_coin;
 wire       vbl_in, vbl_out;
-reg        autofire, vsl, service_l, pause_frame;
+reg        autofire;
 reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
@@ -171,162 +116,18 @@ reg  [2:0] firecnt;
     assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , multi2[COIN_BIT] , multi1[COIN_BIT]};
     assign joy_test  = 0;
 `endif
-assign vbl_in    = vs && !vsl;
-assign vbl_out   =!vs &&  vsl;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        firecnt  <= 0;
-        autofire <= 1;
-        vsl      <= 0;
-    end else begin
-        vsl <= vs;
-        if( vbl_in ) firecnt <= firecnt+1'd1;
-        autofire <= !autofire0 || firecnt>5;
-    end
-end
 
-function [9:0] apply_rotation;
-    input [9:0] joy_in;
-    input       rot;
-    input       flip;
-    input       autofire;
-    begin
-    apply_rotation = {10{ACTIVE_LOW[0]}} ^
-        (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        flip ?
-         { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
-         { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
-    end
-endfunction
-
-function [9:0] reorder;
-    input [9:0] joy_in;
-    begin
-        reorder = joy_in; // default order up, down, left, right
-        if( reorder[1:0]=={2{~ACTIVE_LOW[0]}} ) reorder[1:0]=2'b01;
-        if( reorder[3:2]=={2{~ACTIVE_LOW[0]}} ) reorder[3:2]=2'b01;
-`ifdef JTFRAME_JOY_LRUD reorder[3:0]={joy_in[1:0],joy_in[3:2]}; `endif
-`ifdef JTFRAME_JOY_RLDU reorder[3:0]={joy_in[0], joy_in[1], joy_in[2], joy_in[3]}; `endif
-`ifdef JTFRAME_JOY_DURL reorder[3:0]={joy_in[2], joy_in[3], joy_in[0], joy_in[1]}; `endif
-`ifdef JTFRAME_JOY_DULR reorder[3:0]={joy_in[2], joy_in[3], joy_in[1], joy_in[0]}; `endif
-`ifdef JTFRAME_JOY_UDRL reorder[3:0]={joy_in[3:2], joy_in[0], joy_in[1]}; `endif
-`ifdef JTFRAME_JOY_B1B0 reorder[5:4]={joy_in[4], joy_in[5]}; `endif
-    end
-endfunction
-
-wire [6:0] sim_joy1;
-wire       sim_coin, sim_start, sim_service, sim_test, sim_rst;
-
-`ifdef SIMULATION
-jtframe_sim_inputs u_sim_inputs(
-    .rst        ( rst       ),
-    .vs         ( vs        ),
-
-    .joy1       ( sim_joy1  ),
-    .start      ( sim_start ),
-    .service    (sim_service),
-    .coin       ( sim_coin  ),
-    .test       ( sim_test  ),
-    .game_rst   ( sim_rst   )
+jtframe_pause u_pause(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .key_pause  ( key_pause     ),
+    .joy_pause  ( joy_pause     ),
+    .osd_pause  ( osd_pause     ),
+    .service    ( key_service   ),
+    .lvbl       ( lvbl          ),
+    .game_pause ( game_pause    )
 );
-`else
-assign {sim_joy1,sim_coin, sim_start, sim_service, sim_test, sim_rst}=0;
-`endif
-
-assign pre_order1 = apply_rotation( multi1[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~rot_ccw, autofire );
-
-always @(posedge clk) begin
-    if( rst ) begin
-        game_pause   <= 0;
-        game_service <= 1'b0 ^ ACTIVE_LOW[0];
-        soft_rst     <= 0;
-        service_l    <= 0;
-    end else begin
-        game_test      <= key_test | joy_test | sim_test;
-        service_l      <= game_service ^ sim_service;
-        last_pause     <= key_pause;
-        last_osd_pause <= osd_pause;
-        last_reset     <= key_reset;
-        last_joypause  <= joy_pause; // joy is active low!
-
-        // joystick, coin, start and service inputs are inverted
-        // as indicated in the instance parameter
-
-        game_coin  <= {4{ACTIVE_LOW[0]}} ^ ( joy_coin | key_coin  | board_coin  ) ^ { 3'b0, sim_coin };
-        game_start <= {4{ACTIVE_LOW[0]}} ^ ( joy_start| key_start | board_start ) ^ { 3'b0, sim_start };
-`ifdef JTFRAME_INPUT_RECORD
-        if( vsl && !vs ) // make sure the experienced input while playing is the recorded one
-`endif
-        game_joy1 <= reorder(pre_order1) ^ { 3'd0, sim_joy1 };
-        game_joy2 <= reorder(apply_rotation(multi2[9:0] | key_joy2 | { 3'd0, mouse_but_2p, 4'd0}, rot_control, ~rot_ccw, autofire ));
-        game_joy3 <= reorder(apply_rotation(joy3_sync[9:0] | key_joy3, rot_control, ~rot_ccw, autofire ));
-        game_joy4 <= reorder(apply_rotation(joy4_sync[9:0] | key_joy4, rot_control, ~rot_ccw, autofire ));
-
-        soft_rst <= (key_reset && !last_reset) || sim_rst;
-
-        // state variables:
-`ifndef DIP_PAUSE // Forces pause during simulation
-        if( ioctl_rom )
-            game_pause<=0;
-        else begin// toggle
-            if( (key_pause && !last_pause) || (joy_pause && !last_joypause) )
-                game_pause   <= ~game_pause;
-            if (last_osd_pause ^ osd_pause) game_pause <= osd_pause;
-            if( game_pause ) begin
-                if( game_service && !service_l ) begin
-                    pause_frame <= 1;
-                    game_pause <= 0;
-                end
-            end
-            if( vbl_out && pause_frame ) begin
-                game_pause <= ~game_pause;
-                if(!game_pause) pause_frame <= 0;
-            end
-        end
-`else
-        game_pause <= 1'b1;
-`endif
-        game_service <= key_service ^ ACTIVE_LOW[0];
-        game_tilt    <= key_tilt    ^ ACTIVE_LOW[0];
-
-        // Disable inputs for locked cores
-        if( locked ) begin
-            game_joy1    <= {10{ACTIVE_LOW[0]}};
-            game_joy2    <= {10{ACTIVE_LOW[0]}};
-            game_joy3    <= {10{ACTIVE_LOW[0]}};
-            game_joy4    <= {10{ACTIVE_LOW[0]}};
-            game_start   <= {4{ACTIVE_LOW[0]}};
-            game_coin    <= {4{ACTIVE_LOW[0]}};
-            game_pause   <= 0;
-            game_service <= ACTIVE_LOW[0];
-        end
-`ifdef SIM_INPUTS
-        game_service <= ACTIVE_LOW[0] ^ sim_inputs[frame_cnt][1];
-`endif
-    end
-end
-
-`ifdef JTFRAME_UNLOCKKEY // lock system inputs
-    localparam [31:0] UNLOCKKEY = `JTFRAME_UNLOCKKEY;
-    reg [7:0] lock_key[0:3];
-
-    initial begin
-        lock_key[0] = 0;
-        lock_key[1] = 0;
-        lock_key[2] = 0;
-        lock_key[3] = 0;
-        locked      = 1;
-    end
-
-    always @(posedge clk) begin
-        if( ioctl_lock && ioctl_wr )
-            lock_key[ ioctl_addr[1:0] ] <= ioctl_dout;
-        locked <= UNLOCKKEY != { lock_key[3], lock_key[2], lock_key[1], lock_key[0] };
-    end
-`else
-    initial locked=0;
-`endif
 
 // Dial emulation
 jtframe_dial u_dial(

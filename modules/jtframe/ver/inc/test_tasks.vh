@@ -4,3 +4,8 @@ task assert_msg(input test, input string msg);
         $finish;
     end
 endtask
+
+task pass();
+    $display("PASS");
+    $finish;
+endtask

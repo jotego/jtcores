@@ -7,6 +7,7 @@ main() {
 	parse_args $*
 	cd_to_run_folder
 	prepare_files
+	lint_uut
 	run_simulation
 	eval_result
 	clean_up
@@ -29,8 +30,23 @@ cd_to_run_folder() {
 prepare_files() {
 	GATHER=`mktemp`
 	envsubst < gather.f > $GATHER
+	echo >> $GATHER	# extra blank line
 	copy_hex_files
 	filter_hex_out
+}
+
+lint_uut() {
+	local top
+	top=`get_top_module`
+	verilator --lint-only -f $GATHER --top-module $top
+}
+
+get_top_module() {
+	local top_line filename module
+	top_line=`head -n 1 $GATHER`
+	filename=`basename $top_line`
+	module=${filename%.*}
+	echo $module
 }
 
 copy_hex_files() {
@@ -64,6 +80,9 @@ eval_result() {
 
 clean_up() {
 	rm -f sim $GATHER sim.log
+	if [ $FAIL = 0 ]; then
+		rm test.lxt
+	fi
 }
 
 exit_with_status() {
