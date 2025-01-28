@@ -15,6 +15,7 @@ names=[
     { machine="devilw", names="Power up,Shoot,Jump" },
     { machine="vulcan", names="Special power,Shoot,Missile" },
     { machine="mia",  names="Knife, Weapon, Weapon select" },
+    { machine="cuebrick",  names="Move, Warp, Stop" },
 ]
 
 [dipsw]
