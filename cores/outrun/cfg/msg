@@ -13,9 +13,10 @@
          measurements
 
         Known Issues:
- - Blank in the middle of the road
- - Blank lines in the sprite layer
- for very large sprites
+ - Blank in the middle
+        of the road
+ - Blank lines in the sprite
+ layer for very large sprites
 
          \BJTKCHAMP\W
     FPGA core by \RJOTEGO\W
