@@ -21,7 +21,7 @@ module jtframe_inputs(
     input             clk,
     input             vs,
     input             lvbl,
-    input             LHBL,
+    input             lhbl,
 
     input             rot_ccw,
     input             autofire0,
@@ -81,42 +81,75 @@ module jtframe_inputs(
     input              ioctl_rom
 );
 
-parameter BUTTONS    = 2,
-          ACTIVE_LOW = 1;
+parameter BUTTONS    = 2;
 
-reg  [15:0] joy1_sync, joy2_sync, joy3_sync, joy4_sync;
-wire [15:0] multi1, multi2;
-wire [ 3:0] joy4way1p, joy4way2p, joy4way3p, joy4way4p;
 wire [ 2:0] mouse_but_1p, mouse_but_2p;
-wire [ 9:0] pre_order1;
-
+wire [ 5:0] recjoy1;
 
 // This one passes unfiltered
-assign game_paddle_2 = board_paddle_2;
+assign  game_paddle_2 = board_paddle_2;
 
 localparam START_BIT  = 6+(BUTTONS-2);
 localparam COIN_BIT   = START_BIT+1;
 localparam PAUSE_BIT  = COIN_BIT+1;
 
-reg        last_reset;
-wire       joy_pause, joy_test;
+reg        joy_pause=0, joy_test=0;
 wire [3:0] joy_start, joy_coin;
-wire       vbl_in, vbl_out;
-reg        autofire;
-reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
-    assign joy_pause = board_coin[0] & board_joy1[4];
-    assign joy_test  = board_coin[0] & board_joy1[5];
+    always @(posedge clk) begin
+        joy_pause <= board_coin[0] & board_joy1[4];
+        joy_test  <= board_coin[0] & board_joy1[5];
+    end
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
-    assign joy_pause = multi1[PAUSE_BIT] | multi2[PAUSE_BIT] | joy3_sync[PAUSE_BIT] | joy4_sync[PAUSE_BIT];
-    assign joy_start = { joy4_sync[START_BIT], joy3_sync[START_BIT], multi2[START_BIT], multi1[START_BIT]};
-    assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , multi2[COIN_BIT] , multi1[COIN_BIT]};
-    assign joy_test  = 0;
+    always @(posedge clk) begin
+        joy_pause <= board_joy1[PAUSE_BIT] | board_joy2[PAUSE_BIT] | board_joy3[PAUSE_BIT] | board_joy4[PAUSE_BIT];
+    end
+    assign joy_start = { board_joy4[START_BIT], board_joy3[START_BIT], board_joy2[START_BIT], board_joy1[START_BIT]};
+    assign joy_coin  = { board_joy4[COIN_BIT] , board_joy3[COIN_BIT] , board_joy2[COIN_BIT] , board_joy1[COIN_BIT]};
 `endif
 
+jtframe_joysticks u_joysticks(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .vs         ( vs            ),
+    .locked     ( locked        ),
+
+    .board_coin ( board_coin    ),
+    .board_start( board_start   ),
+    .key_coin   ( key_coin      ),
+    .key_start  ( key_start     ),
+    .joy_coin   ( joy_coin      ),
+    .joy_start  ( joy_start     ),
+
+    .ana1       ( ana1          ),
+    .ana2       ( ana2          ),
+    .board_joy1 ( board_joy1    ),
+    .board_joy2 ( board_joy2    ),
+    .board_joy3 ( board_joy3    ),
+    .board_joy4 ( board_joy4    ),
+    .key_joy1   ( key_joy1      ),
+    .key_joy2   ( key_joy2      ),
+    .key_joy3   ( key_joy3      ),
+    .key_joy4   ( key_joy4      ),
+    .joy_test   ( joy_test      ),
+    .key_test   ( key_test      ),
+
+    .mouse_but_1p( mouse_but_1p ),
+    .mouse_but_2p( mouse_but_2p ),
+
+    .recjoy1    ( recjoy1       ),
+    .game_joy1  ( game_joy1     ),
+    .game_joy2  ( game_joy2     ),
+    .game_joy3  ( game_joy3     ),
+    .game_joy4  ( game_joy4     ),
+
+    .game_coin  ( game_coin     ),
+    .game_start ( game_start    ),
+    .game_test  ( game_test     )
+);
 
 jtframe_pause u_pause(
     .rst        ( rst           ),
@@ -133,7 +166,7 @@ jtframe_pause u_pause(
 jtframe_dial u_dial(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .LHBL       ( LHBL          ),
+    .lhbl       ( lhbl          ),
 
     // with spinner
     .spinner_1  ( spinner_1     ),
@@ -169,8 +202,8 @@ jtframe_mouse u_mouse(
     .lock       ( locked       ),
 
     // Mouse emulation
-    .joy1       ( game_joy1[3:0] ^ {4{ACTIVE_LOW[0]}} ),
-    .joy2       ( game_joy2[3:0] ^ {4{ACTIVE_LOW[0]}} ),
+    .joyn1      (game_joy1[3:0]),
+    .joyn2      (game_joy2[3:0]),
 
     // Actual mouse input
     .mouse_dx   ( bd_mouse_dx  ),
@@ -186,13 +219,10 @@ jtframe_mouse u_mouse(
 );
 
 // Record user inputs
-`ifndef JTFRAME_RELEASE
-`ifdef JTFRAME_INPUT_RECORD
-    localparam RECAW=`JTFRAME_INPUT_RECORD_AW;
+localparam RECAW=`ifdef JTFRAME_INPUT_RECORD_AW `JTFRAME_INPUT_RECORD_AW `else 8 `endif;
 
 jtframe_rec_inputs #(
-    .RECAW     ( RECAW      ),
-    .ACTIVE_LOW( ACTIVE_LOW )
+    .RECAW     ( RECAW      )
 ) u_rec(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -202,13 +232,11 @@ jtframe_rec_inputs #(
 
     .game_start     ( game_start    ),
     .game_coin      ( game_coin     ),
-    .joystick       (pre_order1[5:0]),
+    .joystick       ( recjoy1       ),
 
     .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_din      ( ioctl_din     ),
     .ioctl_merged   ( ioctl_merged  )
 );
-
-`else assign ioctl_merged = ioctl_din; `endif
-`else assign ioctl_merged = ioctl_din; `endif
 
 endmodule

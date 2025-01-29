@@ -21,7 +21,7 @@
 module jtframe_dial(
     input           rst,
     input           clk,
-    input           LHBL,
+    input           lhbl,
     // emulation based on mouse
     input           mouse_st,
     input     [8:0] mouse_dx,
@@ -40,7 +40,7 @@ localparam B0 = `JTFRAME_DIALEMU_LEFT,
 
 reg   [3:0] line_cnt;
 reg   [7:0] cnt1, cnt2;
-reg         LHBL_l, sel;
+reg         lhbl_l, sel;
 reg         i_1p, d_1p, inc_1p, inc_2p,
             i_2p, d_2p, dec_1p, dec_2p,
             up_1p, up_2p,
@@ -55,7 +55,7 @@ wire        mouse_inc_y, mouse_dec_y;
 
 assign toggle1  = last1 != spinner_1[8],
        toggle2  = last2 != spinner_2[8];
-assign line     = LHBL & ~LHBL_l;
+assign line     = lhbl & ~lhbl_l;
 
 always @* begin
     case( sensty ) // how often is the joystick check?
@@ -103,7 +103,7 @@ jtframe_dial_mouse u_dial_mouse_y (
 
 // The dial update rythm is set to once every four lines
 always @(posedge clk) begin
-    LHBL_l    <= LHBL;
+    lhbl_l    <= lhbl;
     cen       <= ~cen;
 
     if( line ) line_cnt <= line_cnt+4'd1;

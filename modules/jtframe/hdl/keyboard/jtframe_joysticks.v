@@ -31,12 +31,23 @@ module jtframe_joysticks(
 
     input       [2:0] mouse_but_1p, mouse_but_2p,
 
+    output      [5:0] recjoy1,
+
     output      [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
     output      [3:0] game_coin, game_start,
     output            game_test
 );
 
     wire [15:0] multi1, multi2;
+    wire [ 9:0] lock_joy1,  lock_joy2,  lock_joy3,  lock_joy4,
+                rot_joy1,   rot_joy2,   rot_joy3,   rot_joy4,
+                order_joy1, order_joy2, order_joy3, order_joy4,
+                merge_joy1, merge_joy2, merge_joy3, merge_joy4;
+    wire [ 3:0] merge_coin, lock_coin;
+    wire        merge_start, merge_test,
+                lock_start,  lock_service;
+
+    assign recjoy1 = ~merge_joy1[5:0];
 
     jtframe_multiway u_multiway(
         .clk        ( clk        ),
@@ -84,6 +95,7 @@ module jtframe_joysticks(
     );
 
     jtframe_joy_rotate u_rotate(
+        .clk        ( clk           ),
         .rot,
         .rot_ccw,
         .raw1       ( merge_joy1    ),
@@ -110,13 +122,13 @@ module jtframe_joysticks(
     jtframe_joystick_lock u_lock(
         .clk        ( clk           ),
         .locked     ( locked        ),
-        ,
+
         .raw1       ( order_joy1    ),
         .raw2       ( order_joy2    ),
         .raw3       ( order_joy3    ),
         .raw4       ( order_joy4    ),
         .raw_start  ( merge_start   ),
-        .raw_coin   ( mege_coin     ),
+        .raw_coin   ( merge_coin    ),
         .raw_service( service       ),
 
         .joy1       ( lock_joy1     ),
@@ -127,7 +139,6 @@ module jtframe_joysticks(
         .coin       ( lock_coin     ),
         .start      ( lock_start    )
     );
-
 endmodule
 
 module jtframe_merge_keyjoy(
@@ -143,26 +154,27 @@ module jtframe_merge_keyjoy(
 
     input       [2:0] mouse_but_1p, mouse_but_2p,
 
+    // game signals are active low
     output reg  [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
     output reg  [3:0] game_coin, game_start,
-    output reg        game_test,
+    output reg        game_test
 );
     always @(posedge clk) begin
-        game_test  <= key_test  | joy_test;
+        game_test  <= ~(key_test  | joy_test);
 
-        game_coin  <= joy_coin  | key_coin  | board_coin;
-        game_start <= joy_start | key_start | board_start;
-        game_joy1  <= joy1[9:0] | key_joy1  | { 3'd0, mouse_but_1p, 4'd0};
-        game_joy2  <= joy2[9:0] | key_joy2  | { 3'd0, mouse_but_2p, 4'd0};
-        game_joy3  <= joy3[9:0] | key_joy3;
-        game_joy4  <= joy4[9:0] | key_joy4;
+        game_coin  <= ~(joy_coin  | key_coin  | board_coin);
+        game_start <= ~(joy_start | key_start | board_start);
+        game_joy1  <= ~(joy1[9:0] | key_joy1  | { 3'd0, mouse_but_1p, 4'd0});
+        game_joy2  <= ~(joy2[9:0] | key_joy2  | { 3'd0, mouse_but_2p, 4'd0});
+        game_joy3  <= ~(joy3[9:0] | key_joy3);
+        game_joy4  <= ~(joy4[9:0] | key_joy4);
     end
 endmodule
 
 module jtframe_joy_rotate(
-    input       rot,
-    input       rot_ccw,
-    input      [9:0] raw1, raw2, raw3, raw4
+    input       clk,
+                rot, rot_ccw,
+    input      [9:0] raw1, raw2, raw3, raw4,
     output reg [9:0] joy1, joy2, joy3, joy4
 );
     function [9:0] apply_rotation(input [9:0] joy_in); begin
@@ -207,18 +219,17 @@ endmodule
 
 
 module jtframe_joystick_lock(
-    input       clk, locked,
-    input [9:0] raw1, raw2, raw3, raw4,
-    input [3:0] raw_start,  raw_coin,
-    input       raw_service,
+    input            clk, locked,
+    input      [9:0] raw1, raw2, raw3, raw4,
+    input      [3:0] raw_start,  raw_coin,
+    input            raw_service,
     output reg [9:0] joy1,  joy2, joy3, joy4,
     output reg [3:0] start, coin,
     output reg       service
 );
     always @(posedge clk) begin
         {joy1,joy2,joy3,joy4,start,coin,service} <= locked ?
-             45'd0 :
+             ~45'd0 :
             {raw1,raw2,raw3,raw4,raw_start,raw_coin,raw_service};
     end
 endmodule
-

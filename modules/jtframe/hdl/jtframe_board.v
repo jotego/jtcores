@@ -425,17 +425,16 @@ jtframe_filter_keyboard u_filter_keyboard(
     wire       debug_toggle;
     wire [1:0] debug_plus, debug_minus;
 
-    jtframe_debug_keys #(.ACTIVE_LOW(GAME_INPUTS_ACTIVE_LOW))
-    u_debugkeys(
+    jtframe_debug_keys u_debugkeys(
         .rst        ( rst           ),
         .clk        ( clk_sys       ),
 
         .ctrl       ( key_ctrl      ),
         .shift      ( key_shift     ),
         .func_key   ( func_key      ),
-        .coin       ( game_coin     ),
-        .start      ( game_start    ),
-        .joy1       ( game_rawjoy1  ),
+        .coin_n     ( game_coin[0]  ),
+        .start_n    ( game_start[0] ),
+        .joy_n      ( game_rawjoy1  ),
         .plus       ( plus          ),
         .minus      ( minus         ),
 
@@ -561,14 +560,13 @@ jtframe_joy_reorder u_reorder(
     .joy4      ( game_joystick4  )
 );
 
-jtframe_inputs #(
-    .BUTTONS   ( BUTTONS                ),
-    .ACTIVE_LOW( GAME_INPUTS_ACTIVE_LOW )
-) u_inputs(
+jtframe_inputs #( .BUTTONS( BUTTONS ))
+u_inputs(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
-    .LHBL           ( LHBLs           ),
+    .lhbl           ( LHBLs           ),
+    .lvbl           ( LVBL            ),
     .ioctl_rom      ( dwnld_busy      ),
     .rot_ccw        ( rotate[1]       ),
     .autofire0      ( autofire0       ),

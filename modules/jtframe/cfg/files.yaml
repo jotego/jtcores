@@ -31,12 +31,11 @@ jtframe:
       - jtframe_keyboard.v
       - jtframe_filter_keyboard.v
       - jtframe_multiway.v
-      - jtframe_4wayjoy.v
       - jtframe_inputs.v
+      - jtframe_joysticks.v
       - jtframe_rec_inputs.v
       - jtframe_paddle.v
       - jtframe_mouse.v
-      - jtframe_joy_reorder.v
       - jtframe_dial.v
       - jtframe_ps2key_decoder.v
       - jt4701.v

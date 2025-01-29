@@ -22,9 +22,11 @@ module jtframe_debug_keys(
 
     input            ctrl, shift,
     input     [12:7] func_key,
-    input      [3:0] coin,
-    input      [3:0] start,
-    input      [9:0] joy1,    
+    // active low
+    input            coin_n,
+    input            start_n,
+    input      [9:0] joy_n,
+    // active high
     input            plus,
     input            minus,
 
@@ -36,25 +38,16 @@ module jtframe_debug_keys(
     output reg [1:0] debug_minus
 );
 
-parameter ACTIVE_LOW=1;
-
 localparam [3:0] UP=3, DOWN=2;
 
-reg [3:0] joy1_eff;
+wire key_toggle =  ctrl     &  shift;
+wire alt_toggle = !start_n && joy_n[1:0]!=3;
 
-wire key_toggle = ctrl     &  shift;
-wire alt_toggle = start[0] & |joy1_eff[1:0];
+wire alt_plus   = ~start_n & ~joy_n[UP];
+wire alt_minus  = ~start_n & ~joy_n[DOWN];
 
-wire alt_plus   = start[0] & joy1_eff[UP];
-wire alt_minus  = start[0] & joy1_eff[DOWN];
-
-wire alt_plus16 =  coin[0] & joy1_eff[UP];
-wire alt_minus16=  coin[0] & joy1_eff[DOWN];
-
-
-always @(posedge clk) begin
-    joy1_eff <= joy1[3:0] ^ {4{ACTIVE_LOW[0]}};
-end
+wire alt_plus16 =  ~coin_n & ~joy_n[UP];
+wire alt_minus16=  ~coin_n & ~joy_n[DOWN];
 
 always @(posedge clk) begin
     debug_toggle  <= key_toggle | alt_toggle;
