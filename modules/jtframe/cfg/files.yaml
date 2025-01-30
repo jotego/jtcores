@@ -11,6 +11,7 @@ jtframe:
       - jtframe_bcd_cnt.v
       - jtframe_rsthold.v
       - jtframe_toggle.v
+      - jtframe_edge.v
   - from: debug
     get:
       - jtframe_debug.v
@@ -33,10 +34,12 @@ jtframe:
       - jtframe_multiway.v
       - jtframe_inputs.v
       - jtframe_joysticks.v
+      - jtframe_pause.v
       - jtframe_rec_inputs.v
       - jtframe_paddle.v
       - jtframe_mouse.v
       - jtframe_dial.v
+      - jtframe_beta_lock.v
       - jtframe_ps2key_decoder.v
       - jt4701.v
       - ps2_intf_v.v

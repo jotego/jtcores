@@ -236,7 +236,7 @@ wire   [1:0] sensty, frame_blank;
 wire  [12:7] func_key;
 wire         key_service, key_tilt, plus, minus;
 wire         locked;
-wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
+wire         dial_raw_en, dial_reverse, snd_mode;
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b;
@@ -249,7 +249,6 @@ wire [SDRAMW-1:0] bax_addr;
 
 wire LHBLs;
 
-assign autofire0 = `ifdef JTFRAME_AUTOFIRE0 status[18] `else 0 `endif;
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
@@ -568,8 +567,8 @@ u_inputs(
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBL            ),
     .ioctl_rom      ( dwnld_busy      ),
+    .rot            ( rot_control     ),
     .rot_ccw        ( rotate[1]       ),
-    .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
     .dial_reverse   ( dial_reverse    ),
     .sensty         ( sensty          ),
@@ -597,7 +596,6 @@ u_inputs(
     .key_test       ( key_test    | board_test    ),
     .osd_pause      ( osd_pause       ),
     .key_reset      ( key_reset | board_reset     ),
-    .rot_control    ( rot_control     ),
 
     .game_joy1      ( game_rawjoy1    ),
     .game_joy2      ( game_rawjoy2    ),

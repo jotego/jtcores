@@ -23,13 +23,13 @@ module jtframe_inputs(
     input             lvbl,
     input             lhbl,
 
+    input             rot,
     input             rot_ccw,
-    input             autofire0,
     input             dial_raw_en,
     input             dial_reverse,
     input             dip_pause,
 
-    output reg        soft_rst,
+    output            soft_rst,
     output            game_pause,
 
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4, ana1, ana2,
@@ -44,14 +44,13 @@ module jtframe_inputs(
     input             key_pause,
     input             osd_pause,
     input             key_reset,
-    input             rot_control,
 
-    output reg  [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
-    output reg  [3:0] game_coin, game_start,
-    output reg        game_service,
-    output reg        game_test,
-    output reg        game_tilt,
-    output reg        locked, // disable joystick inputs
+    output      [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
+    output      [3:0] game_coin, game_start,
+    output            game_service,
+    output            game_test,
+    output            game_tilt,
+    output            locked, // disable joystick inputs
 
     // Mouse & Paddle
     input signed [8:0] bd_mouse_dx, bd_mouse_dy,
@@ -115,12 +114,16 @@ jtframe_joysticks u_joysticks(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .vs         ( vs            ),
+    .rot        ( rot           ),
+    .rot_ccw    ( rot_ccw       ),
     .locked     ( locked        ),
 
     .board_coin ( board_coin    ),
     .board_start( board_start   ),
     .key_coin   ( key_coin      ),
     .key_start  ( key_start     ),
+    .key_service( key_service   ),
+    .key_reset  ( key_reset     ),
     .joy_coin   ( joy_coin      ),
     .joy_start  ( joy_start     ),
 
@@ -136,6 +139,7 @@ jtframe_joysticks u_joysticks(
     .key_joy4   ( key_joy4      ),
     .joy_test   ( joy_test      ),
     .key_test   ( key_test      ),
+    .key_tilt   ( key_tilt      ),
 
     .mouse_but_1p( mouse_but_1p ),
     .mouse_but_2p( mouse_but_2p ),
@@ -148,7 +152,10 @@ jtframe_joysticks u_joysticks(
 
     .game_coin  ( game_coin     ),
     .game_start ( game_start    ),
-    .game_test  ( game_test     )
+    .game_test  ( game_test     ),
+    .game_tilt  ( game_tilt     ),
+    .game_service(game_service  ),
+    .soft_rst   ( soft_rst      )
 );
 
 jtframe_pause u_pause(
@@ -216,6 +223,15 @@ jtframe_mouse u_mouse(
     .mouse_strobe(mouse_strobe ),
     .but_1p     ( mouse_but_1p ),
     .but_2p     ( mouse_but_2p )
+);
+
+jtframe_beta_lock u_lock(
+    .clk        ( clk           ),
+    .ioctl_lock ( ioctl_lock    ),
+    .ioctl_addr (ioctl_addr[1:0]),
+    .ioctl_dout ( ioctl_dout    ),
+    .ioctl_wr   ( ioctl_wr      ),
+    .locked     ( locked        )
 );
 
 // Record user inputs
