@@ -81,7 +81,7 @@ eval_result() {
 clean_up() {
 	rm -f sim $GATHER sim.log
 	if [ $FAIL = 0 ]; then
-		rm test.lxt
+		rm -f test.lxt
 	fi
 }
 
