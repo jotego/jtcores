@@ -37,7 +37,10 @@ module jtframe_debug_keys(
     output reg [1:0] debug_plus,
     output reg [1:0] debug_minus
 );
-
+`ifdef JTFRAME_RELEASE
+assign gfx_en=4'hf;
+assign snd_en=6'h3f;
+`else
 localparam [3:0] UP=3, DOWN=2;
 
 wire key_toggle =  ctrl     &  shift;
@@ -84,5 +87,5 @@ jtframe_toggle #(.W(6),.VALUE_AT_RST(1'b1)) u_snden(
     .toggle ( snden_toggle  ),
     .q      ( snd_en        )
 );
-
+`endif
 endmodule 

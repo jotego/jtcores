@@ -499,8 +499,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .st_dout    ( sys_info      )
     );
 `else
-    assign gfx_en    = 4'b1111;
-    assign snd_en    = 6'h3f;
     assign debug_bus =  0;
     assign vu_peak   =  0;
     assign dbg_r = crdts_r;
@@ -748,34 +746,8 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
 `endif
 
 // Audio
-// `ifdef JTFRAME_SND48K
-//     wire cen48;
-//     jtframe_frac_cen #(.W(1),.WC(11)) u_cen48k(
-//         .clk        ( clk48     ),
-//         .n          ( 11'd1     ),         // numerator
-//         .m          ( 11'd1024  ),         // denominator
-//         .cen        ( cen48     ),
-//         .cenb       (           )
-//     );
-
-//     jtframe_fir #(
-//         .KMAX   ( 75            ),
-//         .COEFFS ( "fir20k.hex"  )
-//     ) u_fir(
-//         .rst        ( rst       ),
-//         .clk        ( clk48     ),
-//         .sample     ( cen48     ),
-//         .l_in       ( snd_lin   ),
-//         .r_in       ( snd_rin   ),
-//         .l_out      ( snd_lout  ),
-//         .r_out      ( snd_rout  )
-//     );
-// `else
-    // bypass the sound signals if the interpolator is not used
     assign snd_rout = snd_rin;
     assign snd_lout = snd_lin;
-// `endif
-
 
 `ifdef SIMULATION
     integer fsnd;
