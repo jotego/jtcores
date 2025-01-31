@@ -38,8 +38,13 @@ module jtframe_debug_keys(
     output reg [1:0] debug_minus
 );
 `ifdef JTFRAME_RELEASE
-assign gfx_en=4'hf;
-assign snd_en=6'h3f;
+    assign gfx_en=4'hf;
+    assign snd_en=6'h3f;
+    initial begin
+        debug_toggle = 0;
+        debug_plus   = 0;
+        debug_minus  = 0;
+    end
 `else
 localparam [3:0] UP=3, DOWN=2;
 
