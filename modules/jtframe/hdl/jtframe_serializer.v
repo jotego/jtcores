@@ -22,6 +22,7 @@ module jtframe_serializer#(parameter DW=8, PAR=1)( // Set PAR==0 for even parity
     input            cen,
     input   [DW-1:0] din,
     input            load,
+    output           done,
     output           sdout,
     output reg       sclk
 );
@@ -29,7 +30,7 @@ module jtframe_serializer#(parameter DW=8, PAR=1)( // Set PAR==0 for even parity
 localparam CK=$clog2(DW+2);
 reg  [DW+1:0] pre_data;
 reg  [CK-1:0] cnt;
-wire done, par;
+wire          par;
 
 assign done  = cnt==0;
 assign sdout = pre_data[0];

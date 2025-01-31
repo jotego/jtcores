@@ -8,7 +8,7 @@ reg  [   7:0] cen_cnt=1;
 wire [DW-1:0] data_in;
 wire [DW-1:0] data_out;
 reg        load;
-wire       sd, valid, oddpar, sclk, cen;
+wire       sd, valid, sclk, cen;
 integer    value=0;
 
 
@@ -30,8 +30,7 @@ end
 always @(posedge clk) cen_cnt <= {cen_cnt[0],cen_cnt[7:1]};
 
 assign cen     = cen_cnt[0];
-assign oddpar  = ^value[7:0] ^1'b1;
-assign data_in = {oddpar,value[0+:DW]};
+assign data_in = value[0+:DW];
 
 initial begin
     rst    = 1;
@@ -46,6 +45,7 @@ initial begin
         repeat (8) @(posedge clk);
         load    = 0;
         wait ( valid && data_in == data_out );
+        repeat ($random%10) @(posedge clk);
     end
     repeat (10) @(posedge clk);
     $display("PASS");
