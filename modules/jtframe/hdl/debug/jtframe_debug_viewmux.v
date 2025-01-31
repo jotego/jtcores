@@ -17,8 +17,8 @@
     Date: 26-1-2025 */
 
 module jtframe_debug_viewmux(
-    input            clk,
-    input            toggle,
+    input            rst, clk,
+                     toggle,
 
     input      [7:0] debug_view, // an 8-bit signal that will be shown over the game image
     input      [7:0] sys_info,   // system information generated within JTFRAME, not the game
@@ -35,13 +35,17 @@ module jtframe_debug_viewmux(
 `include "jtframe_debug.vh"
 
 reg  [7:0] mux;
-reg        toggle_l;
+reg        toggle_l=0;
 
 always @(posedge clk) begin
-    toggle_l <= toggle;
+    if( rst ) begin
+        toggle_l <= 0;
+    end else begin
+        toggle_l <= toggle;
 
-    if( toggle && !toggle_l ) begin
-        sel <= sel==2 ? 2'd0 : sel+1'd1;
+        if( toggle && !toggle_l ) begin
+            sel <= sel==2 ? 2'd0 : sel+1'd1;
+        end
     end
 end
 

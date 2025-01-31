@@ -36,6 +36,7 @@ module jtframe_joysticks(
     output      [5:0] recjoy1,
 
     output      [9:0] game_joy1, game_joy2, game_joy3, game_joy4,
+                      lock_joy1,
     output      [3:0] game_coin, game_start,
     output            game_test, game_service, game_tilt,
                       soft_rst
@@ -43,8 +44,8 @@ module jtframe_joysticks(
 
     wire [15:0] multi1, multi2;
     wire [ 9:0] rot_joy1,   rot_joy2,   rot_joy3,   rot_joy4,
-                order_joy1, order_joy2, order_joy3, order_joy4,
-                merge_joy1, merge_joy2, merge_joy3, merge_joy4;
+                merge_joy1, merge_joy2, merge_joy3, merge_joy4,
+                            lock_joy2,  lock_joy3,  lock_joy4;
     wire [ 3:0] merge_coin, merge_start;
     wire        merge_service;
 
@@ -122,36 +123,36 @@ module jtframe_joysticks(
         .joy4       ( rot_joy4      )
     );
 
-    jtframe_joy_reorder u_reorder(
-        .raw1       ( rot_joy1      ),
-        .raw2       ( rot_joy2      ),
-        .raw3       ( rot_joy3      ),
-        .raw4       ( rot_joy4      ),
-        .joy1       ( order_joy1    ),
-        .joy2       ( order_joy2    ),
-        .joy3       ( order_joy3    ),
-        .joy4       ( order_joy4    )
-    );
-
     jtframe_joystick_lock u_lock(
         .clk        ( clk           ),
         .locked     ( locked        ),
 
-        .raw1       ( order_joy1    ),
-        .raw2       ( order_joy2    ),
-        .raw3       ( order_joy3    ),
-        .raw4       ( order_joy4    ),
+        .raw1       ( rot_joy1      ),
+        .raw2       ( rot_joy2      ),
+        .raw3       ( rot_joy3      ),
+        .raw4       ( rot_joy4      ),
         .raw_start  ( merge_start   ),
         .raw_coin   ( merge_coin    ),
         .raw_service( merge_service ),
 
-        .joy1       ( game_joy1     ),
-        .joy2       ( game_joy2     ),
-        .joy3       ( game_joy3     ),
-        .joy4       ( game_joy4     ),
+        .joy1       ( lock_joy1     ),
+        .joy2       ( lock_joy2     ),
+        .joy3       ( lock_joy3     ),
+        .joy4       ( lock_joy4     ),
         .service    ( game_service  ),
         .coin       ( game_coin     ),
         .start      ( game_start    )
+    );
+
+    jtframe_joy_reorder u_reorder(
+        .raw1       ( lock_joy1     ),
+        .raw2       ( lock_joy2     ),
+        .raw3       ( lock_joy3     ),
+        .raw4       ( lock_joy4     ),
+        .joy1       ( game_joy1     ),
+        .joy2       ( game_joy2     ),
+        .joy3       ( game_joy3     ),
+        .joy4       ( game_joy4     )
     );
 endmodule
 

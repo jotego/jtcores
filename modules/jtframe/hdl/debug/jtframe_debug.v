@@ -80,6 +80,7 @@ jtframe_debug_ctrl u_ctrl(
 );
 
 jtframe_debug_viewmux u_viewmux(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .toggle     ( toggle_view   ),
 

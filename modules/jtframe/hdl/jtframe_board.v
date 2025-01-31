@@ -227,16 +227,17 @@ wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
 
-wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
-             game_rawjoy1, game_rawjoy2, game_rawjoy3, game_rawjoy4;
+wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
 wire   [1:0] sensty, frame_blank;
 wire  [12:7] func_key;
-wire         key_service, key_tilt, plus, minus;
+wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
+wire         debug_toggle;
+wire   [1:0] debug_plus, debug_minus;
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b;
@@ -401,8 +402,8 @@ jtframe_keyboard u_keyboard(
     .vol_up      ( vol_up        ),
     .vol_down    ( vol_down      ),
     .func_key    ( func_key      ),
-    .plus        ( plus          ),
-    .minus       ( minus         )
+    .plus        ( key_plus      ),
+    .minus       ( key_minus     )
 );
 
 jtframe_filter_keyboard u_filter_keyboard(
@@ -421,30 +422,6 @@ jtframe_filter_keyboard u_filter_keyboard(
     wire [7:0] sys_info;
     // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
     wire       flip_info = 0;
-    wire       debug_toggle;
-    wire [1:0] debug_plus, debug_minus;
-
-    jtframe_debug_keys u_debugkeys(
-        .rst        ( rst           ),
-        .clk        ( clk_sys       ),
-
-        .ctrl       ( key_ctrl      ),
-        .shift      ( key_shift     ),
-        .func_key   ( func_key      ),
-        .coin_n     ( game_coin[0]  ),
-        .start_n    ( game_start[0] ),
-        .joy_n      ( game_rawjoy1  ),
-        .plus       ( plus          ),
-        .minus      ( minus         ),
-
-        .gfx_en     ( gfx_en        ),
-        .snd_en     ( snd_en        ),
-
-        .debug_toggle( debug_toggle ),
-        .debug_plus ( debug_plus    ),
-        .debug_minus( debug_minus   )
-    );
-
 
     jtframe_debug #(.COLORW(COLORW)) u_debug(
         .clk         ( clk_sys       ),
@@ -558,17 +535,6 @@ jtframe_short_blank #(
     .vb_out     (                 )
 );
 
-jtframe_joy_reorder u_reorder(
-    .raw1      ( game_rawjoy1    ),
-    .raw2      ( game_rawjoy2    ),
-    .raw3      ( game_rawjoy3    ),
-    .raw4      ( game_rawjoy4    ),
-    .joy1      ( game_joystick1  ),
-    .joy2      ( game_joystick2  ),
-    .joy3      ( game_joystick3  ),
-    .joy4      ( game_joystick4  )
-);
-
 jtframe_inputs #( .BUTTONS( BUTTONS ))
 u_inputs(
     .rst            ( game_rst        ),
@@ -606,11 +572,16 @@ u_inputs(
     .key_test       ( key_test    | board_test    ),
     .osd_pause      ( osd_pause       ),
     .key_reset      ( key_reset | board_reset     ),
+    .key_ctrl       ( key_ctrl        ),
+    .key_shift      ( key_shift       ),
+    .func_key       ( func_key        ),
+    .key_minus      ( key_minus       ),
+    .key_plus       ( key_plus        ),
 
-    .game_joy1      ( game_rawjoy1    ),
-    .game_joy2      ( game_rawjoy2    ),
-    .game_joy3      ( game_rawjoy3    ),
-    .game_joy4      ( game_rawjoy4    ),
+    .game_joy1      ( game_joystick1  ),
+    .game_joy2      ( game_joystick2  ),
+    .game_joy3      ( game_joystick3  ),
+    .game_joy4      ( game_joystick4  ),
     .game_coin      ( game_coin       ),
     .game_start     ( game_start      ),
     .game_service   ( game_service    ),
@@ -646,6 +617,12 @@ u_inputs(
     .ioctl_merged   ( ioctl_merged    ),
     .ioctl_wr       ( ioctl_wr        ),
 
+    // debug
+    .gfx_en         ( gfx_en          ),
+    .snd_en         ( snd_en          ),
+    .debug_plus     ( debug_plus      ),
+    .debug_minus    ( debug_minus     ),
+    .debug_toggle   ( debug_toggle    ),
     .debug_bus      ( debug_bus       ),
     // Simulation helpers
     .game_pause     ( game_pause      )

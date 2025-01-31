@@ -50,15 +50,21 @@ wire alt_plus16 =  ~coin_n & ~joy_n[UP];
 wire alt_minus16=  ~coin_n & ~joy_n[DOWN];
 
 always @(posedge clk) begin
-    debug_toggle  <= key_toggle | alt_toggle;
+    if(rst) begin
+        debug_toggle <= 0;
+        debug_plus   <= 0;
+        debug_minus  <= 0;
+    end else begin
+        debug_toggle  <= key_toggle | alt_toggle;
 
-    // 1 count steps
-    debug_plus [0] <= plus      | alt_plus;
-    debug_minus[0] <= minus     | alt_minus;
+        // 1 count steps
+        debug_plus [0] <= plus      | alt_plus;
+        debug_minus[0] <= minus     | alt_minus;
 
-    // 16-count steps
-    debug_plus [1] <= (plus &shift) | alt_plus16;
-    debug_minus[1] <= (minus&shift) | alt_minus16;
+        // 16-count steps
+        debug_plus [1] <= (plus &shift) | alt_plus16;
+        debug_minus[1] <= (minus&shift) | alt_minus16;
+    end
 end
 
 jtframe_toggle #(.W(4),.VALUE_AT_RST(1'b1)) u_gfxen(

@@ -36,10 +36,10 @@ module jtframe_inputs(
     input       [3:0] board_coin, board_start,
 
     input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
-    input       [3:0] key_start, key_coin,
-    input             key_service,
-    input             key_test,
-    input             key_tilt,
+    input       [3:0] key_start,   key_coin,
+    input             key_service, key_test, key_tilt,
+                      key_ctrl,    key_shift, key_plus, key_minus,
+    input      [12:7] func_key,
 
     input             key_pause,
     input             osd_pause,
@@ -76,6 +76,13 @@ module jtframe_inputs(
     input       [ 7:0] ioctl_dout,
     input              ioctl_wr,
     output      [ 7:0] ioctl_merged,
+    // debug
+    output       [3:0] gfx_en,
+    output       [5:0] snd_en,
+
+    output             debug_toggle,
+    output       [1:0] debug_plus,
+    output       [1:0] debug_minus,
     // For simulation only
     input              ioctl_rom
 );
@@ -84,6 +91,7 @@ parameter BUTTONS    = 2;
 
 wire [ 2:0] mouse_but_1p, mouse_but_2p;
 wire [ 5:0] recjoy1;
+wire [ 9:0] lock_joy1;
 
 // This one passes unfiltered
 assign  game_paddle_2 = board_paddle_2;
@@ -145,6 +153,7 @@ jtframe_joysticks u_joysticks(
     .mouse_but_2p( mouse_but_2p ),
 
     .recjoy1    ( recjoy1       ),
+    .lock_joy1  ( lock_joy1     ),
     .game_joy1  ( game_joy1     ),
     .game_joy2  ( game_joy2     ),
     .game_joy3  ( game_joy3     ),
@@ -156,6 +165,27 @@ jtframe_joysticks u_joysticks(
     .game_tilt  ( game_tilt     ),
     .game_service(game_service  ),
     .soft_rst   ( soft_rst      )
+);
+
+jtframe_debug_keys u_debugkeys(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+
+    .ctrl       ( key_ctrl      ),
+    .shift      ( key_shift     ),
+    .func_key   ( func_key      ),
+    .coin_n     ( game_coin[0]  ),
+    .start_n    ( game_start[0] ),
+    .joy_n      ( lock_joy1     ),
+    .plus       ( key_plus      ),
+    .minus      ( key_minus     ),
+
+    .gfx_en     ( gfx_en        ),
+    .snd_en     ( snd_en        ),
+
+    .debug_toggle( debug_toggle ),
+    .debug_plus ( debug_plus    ),
+    .debug_minus( debug_minus   )
 );
 
 jtframe_pause u_pause(
