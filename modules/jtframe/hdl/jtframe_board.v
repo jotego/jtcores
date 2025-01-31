@@ -497,6 +497,15 @@ jtframe_filter_keyboard u_filter_keyboard(
         .snd_mode   ( snd_mode      ),
         .vu_peak    ( vu_peak       ),
 
+        // joystick
+        .game_joy1  ( game_joystick1),
+        .joyana_l1  ( joyana_l1     ),
+        .game_coin  ( game_coin     ),
+        .game_start ( game_start    ),
+        .game_tilt  ( game_tilt     ),
+        .game_test  ( game_test     ),
+        .game_service( game_service ),
+
         .dial_x     ( dial_x        ),
         .ba_rdy     ( bax_rdy       ),
         .dipsw      ( dipsw[23:0]   ),

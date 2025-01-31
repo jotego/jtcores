@@ -36,6 +36,12 @@ module jtframe_sys_info(
     output              vu_peak,
     output reg          snd_mode,
 
+    // joysticks
+    input         [9:0] game_joy1,
+    input        [15:0] joyana_l1,
+    input         [3:0] game_coin, game_start,
+    input               game_tilt, game_test, game_service,
+
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
     // IOCTL
@@ -121,9 +127,16 @@ always @(posedge clk, posedge rst) begin
             2: st_dout <= stats; // SDRAM stats
             3: case( st_addr[5:4] )
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
-                1: st_dout <= mouse_dx[8:1];
-                2: st_dout <= mouse_dy[8:1];
-                3: st_dout <= mouse_f;
+                1: case(st_addr[3:0])
+                    0: st_dout <= game_joy1[7:0];
+                    1: st_dout <= {1'b1,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
+                    2: st_dout <= joyana_l1[ 7:0];
+                    3: st_dout <= joyana_l1[15:8];
+                    4: st_dout <= mouse_dx[8:1];
+                    5: st_dout <= mouse_dy[8:1];
+                    6: st_dout <= mouse_f;
+                endcase
+                default:; // 2/3
             endcase
             default: st_dout <= 0;
         endcase
