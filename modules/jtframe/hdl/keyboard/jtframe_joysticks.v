@@ -70,6 +70,7 @@ module jtframe_joysticks(
     );
 
     jtframe_merge_keyjoy u_merge(
+        .rst        ( rst           ),
         .clk        ( clk           ),
 
         .board_coin ( board_coin    ),
@@ -155,7 +156,7 @@ module jtframe_joysticks(
 endmodule
 
 module jtframe_merge_keyjoy(
-    input             clk,
+    input             rst, clk,
 
     input       [3:0] board_coin, board_start,
     input       [3:0] key_coin,   key_start,
@@ -173,16 +174,28 @@ module jtframe_merge_keyjoy(
     output reg        game_test, game_tilt, game_service
 );
     always @(posedge clk) begin
-        game_test    <= ~(key_test  | joy_test);
-        game_tilt    <= ~ key_tilt;
-        game_service <= ~ key_service;
+        if(rst) begin
+            game_test    <= 1;
+            game_tilt    <= 1;
+            game_service <= 1;
+            game_coin    <= 4'hf;
+            game_start   <= 4'hf;
+            game_joy1    <= 10'h3ff;
+            game_joy2    <= 10'h3ff;
+            game_joy3    <= 10'h3ff;
+            game_joy4    <= 10'h3ff;
+        end else begin
+            game_test    <= ~(key_test  | joy_test);
+            game_tilt    <= ~ key_tilt;
+            game_service <= ~ key_service;
 
-        game_coin    <= ~(joy_coin  | key_coin  | board_coin);
-        game_start   <= ~(joy_start | key_start | board_start);
-        game_joy1    <= ~(joy1[9:0] | key_joy1  | { 3'd0, mouse_but_1p, 4'd0});
-        game_joy2    <= ~(joy2[9:0] | key_joy2  | { 3'd0, mouse_but_2p, 4'd0});
-        game_joy3    <= ~(joy3[9:0] | key_joy3);
-        game_joy4    <= ~(joy4[9:0] | key_joy4);
+            game_coin    <= ~(joy_coin  | key_coin  | board_coin);
+            game_start   <= ~(joy_start | key_start | board_start);
+            game_joy1    <= ~(joy1[9:0] | key_joy1  | { 3'd0, mouse_but_1p, 4'd0});
+            game_joy2    <= ~(joy2[9:0] | key_joy2  | { 3'd0, mouse_but_2p, 4'd0});
+            game_joy3    <= ~(joy3[9:0] | key_joy3);
+            game_joy4    <= ~(joy4[9:0] | key_joy4);
+        end
     end
 endmodule
 

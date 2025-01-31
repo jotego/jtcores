@@ -505,6 +505,7 @@ jtframe_filter_keyboard u_filter_keyboard(
         .game_tilt  ( game_tilt     ),
         .game_test  ( game_test     ),
         .game_service( game_service ),
+        .rot        ( rot_control   ),
 
         .dial_x     ( dial_x        ),
         .ba_rdy     ( bax_rdy       ),

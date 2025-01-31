@@ -83,13 +83,13 @@ assign dip_flip    = ~status[1];
         `ifdef DIP_TEST
         assign dip_test = 0;
         `else
-        assign dip_test = ~game_test;
+        assign dip_test = game_test;
         `endif
     `else
-        assign dip_test = ~(status[10] | game_test); // assumes it is always active low
+        assign dip_test = ~status[10] & game_test; // assumes it is always active low
     `endif
 `else
-assign dip_test = ~game_test;
+assign dip_test = game_test;
 `endif
 
 wire [1:0] ar = status[17:16];    // only MiSTer
@@ -127,9 +127,9 @@ generate
         initial rot_control = 0;
         initial rot_osdonly = 0;
     end else begin // MiST derivativatives are always vertical
-        assign tate   = 1'b1 & core_mod[0];
+        assign tate   = core_mod[0];
         always @(posedge clk) begin
-            rot_control <= (status[2]^XOR_ROT[0])&core_mod[0]&rot_osdonly;
+            rot_control <= (status[2]^XOR_ROT[0]) & tate & rot_osdonly;
             rot_osdonly <= !status[13];
         end
     end

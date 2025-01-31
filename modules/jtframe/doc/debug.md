@@ -67,7 +67,7 @@ st_addr[5:4] |  Read
 st_addr[3:0] | Read
 -------------|---------
  0           | game_joy1[7:0]
- 1           | {1'b1,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
+ 1           | {rot_control,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
  2           | joy_ana1[ 7:0]
  3           | joy_ana2[15:8]
  4           | mouse_dx[8:1]

@@ -40,7 +40,7 @@ module jtframe_sys_info(
     input         [9:0] game_joy1,
     input        [15:0] joyana_l1,
     input         [3:0] game_coin, game_start,
-    input               game_tilt, game_test, game_service,
+    input               game_tilt, game_test, game_service, rot,
 
     input         [3:0] ba_rdy,
     input        [23:0] dipsw,
@@ -129,7 +129,7 @@ always @(posedge clk, posedge rst) begin
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
                 1: case(st_addr[3:0])
                     0: st_dout <= game_joy1[7:0];
-                    1: st_dout <= {1'b1,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
+                    1: st_dout <= {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
                     2: st_dout <= joyana_l1[ 7:0];
                     3: st_dout <= joyana_l1[15:8];
                     4: st_dout <= mouse_dx[8:1];
