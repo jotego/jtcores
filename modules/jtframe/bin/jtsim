@@ -285,7 +285,7 @@ require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
-if [[ -z "$SETNAME" && -s $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
+if [[ -z "$SETNAME" && -s $ROM/$(basename `pwd`).dip && `has_macro ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
     AUX=$(basename `pwd`)
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
     if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi

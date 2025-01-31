@@ -12,7 +12,6 @@
 {{ if .JTFRAME_OSD_TEST }}          OA,Test mode,Off,On; {{ end }}
 {{ if .JTFRAME_DIAL }}              O67,Sensitivity,high,highest,lowest,low;{{end}}
 {{ if not .JTFRAME_OSD_NOCREDITS }} OC,Pause,Off,On; {{ end }}
-{{ if .JTFRAME_AUTOFIRE0}}          OI,Autofire button 0,Off,On; {{ end }}
 {{ .SEPARATOR }}
 {{ .CORE_OSD }}
 {{ with .JTFRAME_IOCTL_RD }}         R{{ . }},Save NVRAM;{{ end }}

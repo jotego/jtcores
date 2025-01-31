@@ -2,7 +2,6 @@ include ../../cop/cfg/macros.def
 
 CORENAME=JTNINJA
 JTFRAME_VERTICAL
-JTFRAME_AUTOFIRE0
 -NOTRACKBALL
 
 # 8751 instead of HUC6820

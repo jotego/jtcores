@@ -62,7 +62,6 @@ module jtframe_multiway_emu_analog(
     input      [7:0] ana,
     output reg [1:0] joy
 );
-`ifndef POCKET
     localparam NONINVERT=1'b0, INVERT=1'b1, CONFLICT=2'b11;
 
     reg [1:0] multi;
@@ -90,9 +89,4 @@ module jtframe_multiway_emu_analog(
             default: joy <= multi;
         endcase
     end
-`else
-    always @* begin
-        joy=raw;
-    end
-`endif
 endmodule

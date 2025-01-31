@@ -40,10 +40,9 @@ module jtframe_ps2key_decoder(
     output reg       service,
     output reg       vol_up,
     output reg       vol_down,    
+    output reg [12:7]func_key,
     output reg       plus,
-    output reg       minus,
-    output reg [3:0] gfx,
-    output reg [5:0] snd
+    output reg       minus
 );
 
 reg        released, extended;
@@ -76,6 +75,8 @@ always @(posedge clk) begin
 
         vol_up   <= 0;
         vol_down <= 0;
+
+        func_key <= 0;
     end else begin
         // ps2 decoder has received a valid ps2byte
         if(valid) begin
@@ -143,21 +144,21 @@ always @(posedge clk) begin
                     9'h25: start[3] <= !released; // 4P start (4)
                     `endif
                     // system control
-                    9'h4d: pause   <= !released; //  P
-                    9'h2c: tilt    <= !released; //  T
-                    9'h06: test    <= !released; // F2
-                    9'h04: reset   <= !released; // F3
-                    9'h0c: vol_up      <= !released; // F4
-                    9'h03: vol_down    <= !released; // F5
-                    9'h46: service <= !released; //  9
+                    9'h4d: pause    <= !released; //  P
+                    9'h2c: tilt     <= !released; //  T
+                    9'h06: test     <= !released; // F2
+                    9'h04: reset    <= !released; // F3
+                    9'h0c: vol_up   <= !released; // F4
+                    9'h03: vol_down <= !released; // F5
+                    9'h46: service  <= !released; //  9
                     // Debug keys
                     // GFX/Sound channels enable
-                    9'h0_83: if( !shift ) gfx[0] <= !released; else snd[0] <= !released; // F7: CHAR enable
-                    9'h0_0a: if( !shift ) gfx[1] <= !released; else snd[1] <= !released; // F8: SCR1 enable
-                    9'h0_01: if( !shift ) gfx[2] <= !released; else snd[2] <= !released; // F9: SCR2 enable
-                    9'h0_09: if( !shift ) gfx[3] <= !released; else snd[3] <= !released; // F10:OBJ  enable
-                    9'h0_78: if(  shift ) snd[4] <= !released; // shift+F11:ch[4]  enable
-                    9'h0_07: if(  shift ) snd[5] <= !released; // shift+F12:ch[5]  enable
+                    9'h0_83: func_key[ 7] <= !released;
+                    9'h0_0a: func_key[ 8] <= !released;
+                    9'h0_01: func_key[ 9] <= !released;
+                    9'h0_09: func_key[10] <= !released;
+                    9'h0_78: func_key[11] <= !released;
+                    9'h0_07: func_key[12] <= !released;
 
                     9'h0_5b: plus  <= !released;
                     9'h0_4a: minus <= !released;

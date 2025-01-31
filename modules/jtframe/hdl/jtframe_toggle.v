@@ -20,8 +20,8 @@ module jtframe_toggle #(parameter
     W            = 4,
     VALUE_AT_RST = 1'b0
 )(
+    input            rst,
     input            clk,
-    input            rst,    
 
     input      [W-1:0] toggle,
     output reg [W-1:0] q
@@ -37,7 +37,7 @@ always @(posedge clk) begin
         toggle_l  <= 0;
     end else begin
         toggle_l <= toggle;
-        for(cnt=0; cnt<4; cnt=cnt+1)
+        for(cnt=0; cnt<W; cnt=cnt+1)
             if( toggle[cnt] && !toggle_l[cnt] ) q[cnt] <= ~q[cnt];
     end
 end

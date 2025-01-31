@@ -30,6 +30,7 @@ module jtframe_keyboard(
     output     [3:0] start,
     output     [3:0] coin,
     output     [7:0] digit,
+    output    [12:7] func_key,
     output           reset,
     output           pause,
     output           tilt,
@@ -41,15 +42,11 @@ module jtframe_keyboard(
     output           shift,
     output           ctrl,
     output           alt,
-    // debug features
-    output     [3:0] gfx,
-    output     [5:0] snd,
-    output           debug_toggle,
-    output     [1:0] debug_plus,
-    output     [1:0] debug_minus
+    output           plus,
+    output           minus
 );
 
-wire       valid, error, plus, minus;
+wire       valid, error;
 wire [7:0] ps2byte;
 
 assign shift = joy1[7] | joy3[5];
@@ -78,24 +75,9 @@ jtframe_ps2key_decoder u_ps2key_decoder(
     .service        ( service       ),
     .vol_up         ( vol_up        ),
     .vol_down       ( vol_down      ),
+    .func_key       ( func_key      ),
     .plus           ( plus          ),
-    .minus          ( minus         ),
-    .snd            ( snd           ),
-    .gfx            ( gfx           )
-);
-
-jtframe_debug_keys u_debug_keys(
-    .clk            ( clk           ),
-    .ctrl           ( ctrl          ),
-    .shift          ( shift         ),
-    .start          ( start         ),
-    .coin           ( coin          ),
-    .joy1           ( joy1          ),
-    .plus           ( plus          ),
-    .minus          ( minus         ),
-    .debug_toggle   ( debug_toggle  ),
-    .debug_plus     ( debug_plus    ),
-    .debug_minus    ( debug_minus   )
+    .minus          ( minus         )
 );
 
 // the ps2 decoder has been taken from the zx spectrum core

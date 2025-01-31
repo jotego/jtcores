@@ -7,4 +7,4 @@ export JTROOT=$(pwd)
 export JTFRAME=$JTROOT/modules/jtframe
 
 source $JTFRAME/bin/setprj.sh > /dev/null
-simunit.sh $*
+simunit.sh --run $*

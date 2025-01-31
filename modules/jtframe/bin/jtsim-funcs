@@ -229,7 +229,8 @@ add_macro() {
 }
 
 has_macro() {
-    expr match "$ALLMACROS" ".*${1}.*" > /dev/null
+    local name="$1"
+    expr match "$ALLMACROS" ".*$name.*" > /dev/null
 }
 
 set_mist_as_target() {

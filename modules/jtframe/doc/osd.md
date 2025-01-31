@@ -81,7 +81,6 @@ bit     |  meaning                | Enabled with macro
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
 13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
-18      | Autofire button 0       | JTFRAME_AUTOFIRE0
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)

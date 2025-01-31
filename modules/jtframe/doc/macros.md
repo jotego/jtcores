@@ -12,7 +12,6 @@ Macro                    | Target  |  Usage
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
-JTFRAME_AUTOFIRE0        | MiSTer  | Button 0 will autofire when pressed ([OSD](osd.md) option)
 JTFRAME_AVATARS          |         | Enables avatars on credits screen
 JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 by default)
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
