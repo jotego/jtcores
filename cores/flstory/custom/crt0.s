@@ -7,5 +7,4 @@
     .globl _main
 _start:
     ld sp, #0xC800       ; Set stack pointer at top of RAM (grows downward)
-    call _main           ; Call main() in C
-    ret                  ; Return when main exits
+    jp _main

@@ -1,11 +1,11 @@
--mjwx
--i custom.ihx
--b _CODE = 0x0000
--b _DATA = 0xc000
--k /usr/bin/../share/sdcc/lib/z80
--k /usr/share/sdcc/lib/z80
--l z80
-/usr/bin/../share/sdcc/lib/z80/crt0.rel
-custom.rel
+MEMORY {
+    ROM (rx) : ORIGIN = 0x0000, LENGTH = 0x4000
+    RAM (rw) : ORIGIN = 0xC000, LENGTH = 0x0800
+}
 
--e
+SECTIONS {
+    .text : { *(.text) } > ROM
+    .rodata : { *(.rodata) } > ROM
+    .data : { *(.data) } > RAM
+    .bss : { *(.bss) } > RAM
+}

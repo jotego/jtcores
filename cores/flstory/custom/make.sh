@@ -53,7 +53,7 @@ EOF
 }
 
 compile() {
-	sdcc -mz80 --code-loc 0x0000 --data-loc 0xC000 --xram-size 0x800 -c custom.c
+	sdcc -mz80 --code-loc 0x0100 --data-loc 0xC000 -c custom.c
 	sdasz80 -o crt0.rel crt0.s
 	sdld -i custom.ihx custom.rel crt0.rel -k custom.lk
 	makebin -s 0x2000 custom.ihx snd.22
