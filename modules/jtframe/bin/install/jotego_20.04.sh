@@ -164,3 +164,5 @@ sudo apt install mplayer audacity
 # Cross-Compiler
 # m68k-linux-gnu-gcc
 sudo apt install gcc-m68k-linux-gnu
+# small devices C compiler (for Z80, 6502...)
+sudo apt install --yes sdcc
