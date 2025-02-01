@@ -1,0 +1,11 @@
+-mjwx
+-i custom.ihx
+-b _CODE = 0x0000
+-b _DATA = 0xc000
+-k /usr/bin/../share/sdcc/lib/z80
+-k /usr/share/sdcc/lib/z80
+-l z80
+/usr/bin/../share/sdcc/lib/z80/crt0.rel
+custom.rel
+
+-e
