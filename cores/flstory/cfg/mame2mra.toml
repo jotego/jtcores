@@ -27,7 +27,7 @@ rename=[
 info="""byte 0: PCB id
 byte 1: 0 == same orientation as flstory
         1 == flipped both XY
-        2 =  flipped only Y -- to be tested -
+        2 =  flipped only Y - to be tested -
 """
 fill=0
 PCBs = [
