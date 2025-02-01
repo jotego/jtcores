@@ -103,7 +103,7 @@ func has_dev(name string, devs []MameDevice ) bool {
 
 func (cfg HeaderCfg) get_entry_bytes( data_entry HeaderData, machine *MachineXML ) []byte {
 	if data_entry.Pcb_id {
-		id := machine.Index(cfg.PCBs)
+		id := machine.Find(cfg.PCBs)
 		return []byte{byte(id)}
 	} else {
 		return rawdata2bytes(data_entry.Data)

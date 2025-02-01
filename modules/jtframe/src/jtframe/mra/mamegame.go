@@ -130,7 +130,7 @@ type MachineXML struct {
 	Ismechanical bool `xml:"ismechanical,attr"`
 }
 
-func (machine *MachineXML) Index(machine_options []Selectable) int {
+func (machine *MachineXML) Find(machine_options []Selectable) int {
     for k, option := range machine_options {
         if option.Match(machine)>0 {
             return k

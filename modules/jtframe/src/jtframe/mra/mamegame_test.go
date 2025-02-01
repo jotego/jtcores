@@ -16,13 +16,13 @@ func Test_get_first_match(t *testing.T) {
 	machine := MachineXML{
 		Name: cfg[exp].Machine,
 	}
-	if k:=machine.Index(cfg);k!=exp {
+	if k:=machine.Find(cfg);k!=exp {
 		t.Errorf("Expecting %d, got %d",exp,k)
 	}
 
 	const unknown = -1
 	machine.Name="none"
-	if k:=machine.Index(cfg);k!=unknown {
+	if k:=machine.Find(cfg);k!=unknown {
 		t.Errorf("Expecting %d, got %d",unknown,k)
 	}
 }
