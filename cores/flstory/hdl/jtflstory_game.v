@@ -20,7 +20,8 @@ module jtflstory_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip, no_used,
+wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
+            no_used, // noise used
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data, st_snd,
@@ -28,7 +29,7 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
 reg  [ 7:0] st_mux;
 wire [ 1:0] pal_bank, scr_bank;
 wire        rst_main, cen_hb, mute;
-reg         lhbl_l;
+reg         lhbl_l, mirror;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
@@ -37,7 +38,13 @@ assign debug_view = st_mux;
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? {clip,no_used,1'd0,mute,2'd0,gvflip,ghflip} : st_snd;
+    st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,1'd0,mirror,gvflip,ghflip};
+end
+
+localparam [2:0] MIRROR_OFFSET=3'd1;
+
+always @(posedge clk) begin
+    if( header && prog_addr[2:0]==MIRROR_OFFSET && prog_we ) mirror <= prog_data[0];
 end
 
 always @(posedge clk) lhbl_l <= LHBL;
@@ -56,6 +63,7 @@ jtflstory_main u_main(
     .clk        ( clk       ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
+    .mirror     ( mirror    ),
 
     .bus_addr   ( bus_addr  ),
     .bus_din    ( bus_din   ),

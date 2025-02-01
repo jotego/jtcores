@@ -21,6 +21,7 @@ module jtflstory_main(
     input            clk,
     input            cen,
     input            lvbl,       // video interrupt
+    input            mirror,
 
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
@@ -163,7 +164,7 @@ always @(posedge clk) begin
         pal_bank <= bus_dout[6:5];
         scr_bank <= bus_dout[4:3];
         scr_flen <= bus_dout[2];
-        { gvflip, ghflip } <= bus_dout[1:0];
+        { gvflip, ghflip } <= bus_dout[1:0]^{2{mirror}};
     end
     case(A[2:0])
         0: cab <= dipsw[ 7: 0];

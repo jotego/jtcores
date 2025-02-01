@@ -24,7 +24,23 @@ rename=[
 # ]
 
 [header]
+info="""byte 0: PCB id
+byte 1: 0 == same orientation as flstory
+        1 == flipped both XY
+        2 =  flipped only Y -- to be tested -
+"""
 fill=0
+PCBs = [
+	{ machine ="flstory"  },
+	{ machine ="onna34ro" },
+	{ machine ="victnine" },
+	{ machine ="rumba"    },
+]
+data = [
+	{ pcb_id=true, offset=0 },
+	{ machines=["onna34ro","victnine"], data="01", offset=1 },
+	{ machines=["rumba"],               data="02", offset=1 },
+]
 
 [ROM]
 regions = [
