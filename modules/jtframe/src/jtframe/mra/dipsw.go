@@ -45,29 +45,12 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
     base := 0
     def_all := 0xffffffff // 32 bits
     game_bitcnt := cfg.Dipsw.Bitcnt
-diploop:
     for _, ds := range machine.Dipswitch {
-        ignore := false
-        for _, each := range cfg.Dipsw.Delete {
-            if each.Match(machine)>0 {
-                for _, name := range each.Names {
-                    patternLwr := strings.ToLower(name)
-                    dipLwr := strings.ToLower(ds.Name)
-                    baseMatch :=  patternLwr == dipLwr
-                    // GLOB match considers / a special character (separtor) in linux
-                    // replace it for comparison
-                    globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
-                    if baseMatch || globMatch {
-                        if Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
-                        continue diploop
-                    }
-                }
-            }
-        }
+        ignore := cfg.Dipsw.is_deleted( ds.Name, machine )
         if ds.Condition.Tag != "" && ds.Condition.Value == 0 {
-            continue diploop // This switch depends on others, skip it
+            continue // This switch depends on others, skip it
         }
-        dip_rename( &ds, cfg )
+        cfg.Dipsw.rename( &ds )
         if Verbose {
             fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
                 ds.Name, ds.Tag, ds.msb, ds.lsb, uint(def_all) )
@@ -97,7 +80,7 @@ diploop:
         fmt.Printf("Default string before applying TOML overrides: %s (bit count=%d)\n",
             def_str, game_bitcnt)
     }
-    // Override the defaults is set so in the TOML
+    // Override the defaults if set so in the TOML
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
             def_str = each.Value
@@ -204,21 +187,53 @@ func dip_add_node( machineName, dsName, options string, n *XMLNode, lsb, msb int
     m.AddAttr("ids", strings.TrimSpace(options))
 }
 
-func dip_rename( ds *MachineDIP, cfg Mame2MRA ) {
-    for _, each := range cfg.Dipsw.Rename {
-        if each.Name == ds.Name {
-            if each.To != "" {
-                ds.Name = each.To
+func (cfg *DipswCfg)is_deleted( dip_name string, machine *MachineXML ) bool {
+    for _, each := range cfg.Delete {
+        if each.Match(machine)==0 { continue }
+        if each.is_deleted(dip_name) {
+            return true
+        }
+    }
+    return false
+}
+
+func (del DIPswDelete)is_deleted(dip_name string) bool {
+    for _, name := range del.Names {
+        patternLwr := strings.ToLower(name)
+        dipLwr := strings.ToLower(dip_name)
+        baseMatch :=  patternLwr == dipLwr
+        // GLOB match considers / a special character (separator) in linux
+        // replace it for comparison
+        globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
+        if baseMatch || globMatch {
+            if Verbose { fmt.Printf("DIP switch '%s' skipped\n", dip_name) }
+            return true
+        }
+    }
+    return false
+}
+
+func (cfg *DipswCfg)rename( ds *MachineDIP ) {
+    dip_name := strings.ToLower(ds.Name)
+    for _, rename := range cfg.Rename {
+        lwr_name := strings.ToLower(rename.Name)
+        if lwr_name == dip_name {
+            if rename.To != "" {
+                ds.Name = rename.To
             }
-            for k, v := range each.Values {
-                if k > len(ds.Dipvalue) {
-                    break
-                }
-                if v != "" {
-                    ds.Dipvalue[k].Name = v
-                }
-            }
+            rename.overwrite_dipsw_values(ds.Dipvalue)
             break
+        }
+    }
+}
+
+func (rename *DipswCfgRename) overwrite_dipsw_values( mame MAMEDIPValues ) {
+    for k, v := range rename.Values {
+        if k >= len(mame) {
+            break
+        }
+        if v != "" {
+            mame[k].Name = v
         }
     }
 }

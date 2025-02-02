@@ -180,34 +180,10 @@ type Overrule_t struct {
     Rotate           int
 }
 
-type DIPswDelete struct{
-    Selectable
-    Names []string
-}
-
 type DIPOffset struct {
     Selectable
     Name string
     Value int
-}
-
-type DipswCfg struct {
-    Delete []DIPswDelete
-    Offset []DIPOffset
-    base   int // Define it macros.def as JTFRAME_DIPBASE
-    Bitcnt int // Total bit count (including all switches)
-    Defaults [] struct {
-        Selectable
-        Value            string // used big-endian order, comma separated
-    }
-    Extra []struct {
-        Selectable
-        Name, Options, Bits string
-    }
-    Rename []struct {
-        Name, To string   // Will make Name <- To
-        Values   []string // Will rename the values if present
-    }
 }
 
 type FrameCfg struct {
@@ -307,6 +283,32 @@ type Mame2MRA struct {
             Defaults []RawData // Initial value for NVRAM
         }
     }
+}
+
+type DipswCfg struct {
+    Delete []DIPswDelete
+    Offset []DIPOffset
+    base   int // Define it macros.def as JTFRAME_DIPBASE
+    Bitcnt int // Total bit count (including all switches)
+    Defaults [] struct {
+        Selectable
+        Value            string // used big-endian order, comma separated
+    }
+    Extra []struct {
+        Selectable
+        Name, Options, Bits string
+    }
+    Rename []DipswCfgRename
+}
+
+type DIPswDelete struct{
+    Selectable
+    Names []string
+}
+
+type DipswCfgRename struct {
+    Name, To string   // Will make Name <- To
+    Values   []string // Will rename the values if present
 }
 
 type ParsedMachine struct {

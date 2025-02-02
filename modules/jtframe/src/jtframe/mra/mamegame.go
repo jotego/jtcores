@@ -51,13 +51,29 @@ type MameDevice struct {
 	Name string `xml:"name,attr"`
 }
 
+type MachineDIP struct {
+	Name      string   `xml:"name,attr"`
+	Tag       string   `xml:"tag,attr"`
+	Mask      int      `xml:"mask,attr"`
+	Condition struct { // The meaning of some DIP switches may change upon other switches' value
+		Tag      string `xml:"tag,attr"`
+		Mask     int    `xml:"mask,attr"`
+		Relation string `xml:"relation,attr"`
+		Value    int    `xml:"value,attr"`
+	} `xml:"condition"`
+	Diplocation []Diplocation `xml:"diplocation"`
+	Dipvalue MAMEDIPValues `xml:"dipvalue"`
+	// calculated by JTFRAME after reading XML
+	lsb, msb, full_mask, offset int
+}
+
+type MAMEDIPValues []MAMEDIPValue
+
 type MAMEDIPValue struct {
 	Name    string `xml:"name,attr"`
 	Value   int    `xml:"value,attr"`
 	Default string `xml:"default,attr"`
 }
-
-type MAMEDIPValues []MAMEDIPValue
 
 func (this MAMEDIPValues) Len() int {
 	return len(this)
@@ -76,22 +92,6 @@ func (this MAMEDIPValues) Less(i, j int) bool {
 type Diplocation struct {
 	Name   string `xml:"name,attr"`
 	Number int    `xml:"number,attr"`
-}
-
-type MachineDIP struct {
-	Name      string   `xml:"name,attr"`
-	Tag       string   `xml:"tag,attr"`
-	Mask      int      `xml:"mask,attr"`
-	Condition struct { // The meaning of some DIP switches may change upon other switches' value
-		Tag      string `xml:"tag,attr"`
-		Mask     int    `xml:"mask,attr"`
-		Relation string `xml:"relation,attr"`
-		Value    int    `xml:"value,attr"`
-	} `xml:"condition"`
-	Diplocation []Diplocation `xml:"diplocation"`
-	Dipvalue MAMEDIPValues `xml:"dipvalue"`
-	// calculated by JTFRAME after reading XML
-	lsb, msb, full_mask, offset int
 }
 
 type MachineXML struct {
