@@ -1,5 +1,7 @@
 320
 2 coin
 8
-2 start
+loop
+2 1p
 2
+repeat 80
