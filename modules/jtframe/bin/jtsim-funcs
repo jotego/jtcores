@@ -217,7 +217,6 @@ enable_load() {
     echo ROM load through SPI enabled
 }
 
-
 add_macro() {
     if [ $# = 0 ]; then return; fi
     if [ ! -z "$ALLMACROS" ]; then
@@ -231,6 +230,32 @@ add_macro() {
 has_macro() {
     local name="$1"
     expr match "$ALLMACROS" ".*$name.*" > /dev/null
+}
+
+get_macro() {
+    local name="$1"
+    if [ -z "$name" ]; then return; fi
+    IFS=',' read -ra allmacros <<< "$ALLMACROS"
+    for macro in "${allmacros[@]}"; do
+        local macro_name macro_value
+        macro_name="${macro%%=*}"
+        if [[ "$macro" == *"="* ]]; then
+            macro_value="${macro#*=}"
+        fi
+        if [ $macro_name = $name ]; then
+            echo $macro_value
+            return
+        fi
+    done
+}
+
+warn_if_longsim_noinputs() {
+    local maxframes
+    maxframes=`get_macro MAXFRAME`
+    if [ "$maxframes" -lt 100 ]; then return; fi
+    if ! has_macro SIM_INPUTS; then
+        echo "${rBG}WARNING:${NC} Long simulation ($maxframes frames) without cabinet inputs"
+    fi
 }
 
 set_mist_as_target() {

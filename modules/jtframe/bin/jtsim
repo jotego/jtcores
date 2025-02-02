@@ -272,6 +272,8 @@ fi
 
 echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
 
+warn_if_longsim_noinputs
+
 mkdir -p frames
 if [ -z "$SYSNAME" ]; then
     SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)

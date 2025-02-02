@@ -1,0 +1,33 @@
+name: Framework Unit Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+  repository_dispatch:
+    types: rebuild
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * *' # runs every night
+jobs:
+  framework:
+    runs-on: jotego/linter
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+    - id: bash
+      run: |
+        cd /jtcores
+        source setprj.sh
+        /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
+    - id: go
+      run: |
+        cd /jtcores
+        source setprj.sh
+        cd $JTFRAME/src/jtframe
+        go test ./...
+        cd $JTFRAME/src/jtutil
+        go test ./...
