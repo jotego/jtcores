@@ -29,7 +29,7 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
 reg  [ 7:0] st_mux;
 wire [ 1:0] pal_bank, scr_bank;
 wire        rst_main, cen_hb, mute;
-reg         lhbl_l, mirror;
+reg         lhbl_l, mirror, mcu_enb, mcu_rst;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
@@ -41,13 +41,18 @@ always @(posedge clk) begin
     st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,1'd0,mirror,gvflip,ghflip};
 end
 
-localparam [2:0] MIRROR_OFFSET=3'd1;
+localparam [2:0] MIRROR_OFFSET=3'd1,
+                 MCUENB_OFFSET=3'd2;
 
 always @(posedge clk) begin
-    if( header && prog_addr[2:0]==MIRROR_OFFSET && prog_we ) mirror <= prog_data[0];
+    if( header && prog_addr[2:0]==MIRROR_OFFSET && prog_we ) mirror  <= prog_data[0];
+    if( header && prog_addr[2:0]==MCUENB_OFFSET && prog_we ) mcu_enb <= prog_data[0];
 end
 
-always @(posedge clk) lhbl_l <= LHBL;
+always @(posedge clk) lhbl_l  <= LHBL;
+always @(posedge clk) mcu_rst <= rst | mcu_enb;
+
+
 assign cen_hb = LHBL & ~lhbl_l;
 // Let the MCU come out of reset first to take control of the port signals
 jtframe_enlarger #(.W(16)) u_rst(
@@ -120,7 +125,7 @@ jtflstory_main u_main(
 );
 
 jtflstory_mcu u_mcu(
-    .rst        ( rst       ),
+    .rst        ( mcu_rst   ),
     .clk        ( clk       ),
     .cen        ( cen_mcu   ),
 

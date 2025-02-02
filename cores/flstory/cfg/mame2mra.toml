@@ -24,10 +24,14 @@ rename=[
 # ]
 
 [header]
-info="""byte 0: PCB id
-byte 1: 0 == same orientation as flstory
-        1 == flipped both XY
-        2 =  flipped only Y - to be tested -
+info="""
+
+		byte 0: PCB id
+		byte 1: 0 == same orientation as flstory
+		        1 == flipped both XY
+		        2 =  flipped only Y - to be tested -
+		byte 2: 0 == MCU enabled
+		        1 == MCU disabled
 """
 fill=0
 PCBs = [
@@ -40,6 +44,8 @@ data = [
 	{ pcb_id=true, offset=0 },
 	{ machines=["onna34ro","victnine"], data="01", offset=1 },
 	{ machines=["rumba"],               data="02", offset=1 },
+	# Disable MCU
+	{ setname="onna34roa",              data="01", offset=2 },
 ]
 
 [ROM]

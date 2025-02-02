@@ -1,3 +1,5 @@
 #!/bin/bash
+VERYHARD=e4
+COINS=00
 ONELIFE=f0
-jtsim -dipsw $ONELIFE -inputs gameplay.cab -video 2900 -w 2500
+jtsim -dipsw ${VERYHARD}${COINS}${ONELIFE} -inputs gameplay.cab -video 2800 -w 2500
