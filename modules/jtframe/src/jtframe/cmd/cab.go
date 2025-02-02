@@ -61,6 +61,7 @@ to repeat the loop section (at least 1).
 		}
 		os.WriteFile("sim_inputs.hex",converted, 0660 )
 	},
+	Args: cobra.ExactArgs(1),
 }
 
 func init() {

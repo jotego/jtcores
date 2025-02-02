@@ -137,7 +137,7 @@ case "$1" in
                 exit 1
             fi
             if [[ "$1" == *.cab ]]; then
-                jtframe cab "$1"
+                jtframe cab "$1" || exit $?
             else
                 cp "$1" sim_inputs.hex
             fi
