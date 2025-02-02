@@ -27,9 +27,10 @@ wire [15:0] c2b_addr, bus_addr;
 wire [ 7:0] bus_din, s2m_data, st_snd,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
+reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank;
-wire        mute;
-reg         mirror, mcu_enb, mcu_rst;
+wire        mute, mirror, mcu_enb, coinxor;
+reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
@@ -41,15 +42,19 @@ always @(posedge clk) begin
     st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,1'd0,mirror,gvflip,ghflip};
 end
 
-localparam [2:0] MIRROR_OFFSET=3'd1,
-                 MCUENB_OFFSET=3'd2;
-
-always @(posedge clk) begin
-    if( header && prog_addr[2:0]==MIRROR_OFFSET && prog_we ) mirror  <= prog_data[0];
-    if( header && prog_addr[2:0]==MCUENB_OFFSET && prog_we ) mcu_enb <= prog_data[0];
-end
+jtflstory_header u_header (
+    .clk      ( clk             ),
+    .header   ( header          ),
+    .prog_we  ( prog_we         ),
+    .prog_addr( prog_addr[2:0]  ),
+    .prog_data( prog_data       ),
+    .mirror   ( mirror          ),
+    .mcu_enb  ( mcu_enb         ),
+    .coinxor  ( coinxor         )
+);
 
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
+always @(posedge clk) coin_eff <= coin[1:0]^{2{coinxor}};
 
 /* verilator tracing_on */
 jtflstory_main u_main(
@@ -97,7 +102,7 @@ jtflstory_main u_main(
     .gvflip     ( gvflip    ),
     // Cabinet inputs
     .cab_1p     (cab_1p[1:0]),
-    .coin       ( coin[1:0] ),
+    .coin       ( coin_eff  ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .dipsw      (dipsw[23:0]),
