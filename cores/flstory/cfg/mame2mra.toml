@@ -55,6 +55,7 @@ regions = [
 	{ name="maincpu"                             },
 	{ name="audiocpu", start="JTFRAME_BA1_START" },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,4,1,5,2,6,3,7] },
+	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,2,1,3,0,2,1,3], machine="rumba" },
 	{ name="bmcu:mcu", start="JTFRAME_PROM_START"},
 ]
 
