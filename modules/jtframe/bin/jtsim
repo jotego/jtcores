@@ -111,12 +111,7 @@ case "$1" in
         ;;
     -dipsw)
         shift
-        if [ -s $ROM/$1.dip ]; then
-            echo "Using rom/$1.dip"
-            add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$1.dip)
-        else
-            add_macro JTFRAME_SIM_DIPS=0x${1#0x}
-        fi;;
+        add_macro JTFRAME_SIM_DIPS=0x${1#0x};;
     -dump)
         shift
         add_macro "JTFRAME_SIM_IODUMP=$1";;
@@ -285,46 +280,19 @@ if [ -z "$SYSNAME" ]; then
 fi
 require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
-# Load DIP switches when there is a matching file in $ROM and
-# none have been specified yet
-if [[ -z "$SETNAME" && -s $ROM/$(basename `pwd`).dip && `has_macro ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
-    AUX=$(basename `pwd`)
-    add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
-    if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi
-    echo "Using DIP switches from rom/$(basename `pwd`).dip"
-fi
-
 # Load a specific rom set
 if [ ! -z "$SETNAME" ]; then
-    if [ ! -z "$DIR" ]; then # Run the simulation inside a folder named after the set
-        mkdir -p "$SETNAME" || exit $?
-        cd "$SETNAME"
-    fi
-    if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
-    if [ -s $ROM/$SETNAME.dip ]; then
-        if ! has_macro JTFRAME_SIM_DIPS; then
-            # Not all systems have DIPs
-            DIPS=`cat $ROM/$SETNAME.dip`
-            if [ ! -z "$DIPS" ]; then add_macro JTFRAME_SIM_DIPS=0x$DIPS; fi
-        fi
-    fi
-    ROMFILE=$ROM/$SETNAME.rom
-    if [ ! -e $ROMFILE ]; then
-        cat<<EOF
-jtsim: cannot produce $ROMFILE"
-    This may occur if the setname is longer than 8 characters or
-    if you are not in the core folder for the game
-EOF
-        exit 1
-    fi
-    if [[ ! -e rom.bin || `readlink rom.bin` != "$ROMFILE" ]]; then
-        ln -srf $ROMFILE rom.bin
-        enable_load
-    fi
-    if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+    use_setname
 else
-    SETNAME=$(basename $(pwd))
-    if [ $SETNAME = game ]; then unset SETNAME; fi
+    SETNAME=`derive_setname_from_folder`
+    if [ $SETNAME = game ]; then
+        unset SETNAME
+    else
+        if ! has_macro JTFRAME_SIM_DIPS; then
+            get_default_dipsw $SETNAME
+        fi
+        copy_mod_file $SETNAME
+    fi
 fi
 
 # Create a rom.bin link when possible, exit otherwise unless in lint mode

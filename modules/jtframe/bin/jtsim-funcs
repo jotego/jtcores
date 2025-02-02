@@ -16,9 +16,6 @@ Please support the development: https://patreon.com/jotego
     -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
                Default DIP switch values for each game are dumped in ASCII
                to .dip files in $ROM.
-               You can also use the setname with -dipsw and it will load the
-               matching .dip file from $ROM
-                    -dipsw shinobi2 --> loads $ROM/shinobi2.dip
                If the simulation is run from a folder whose name matches a
                .dip file in $ROM, and -dipsw is not set, then jtsim will load
                the matching file automatically
@@ -229,7 +226,7 @@ add_macro() {
 
 has_macro() {
     local name="$1"
-    expr match "$ALLMACROS" ".*$name.*" > /dev/null
+    test ! -z "`get_macro $1`"
 }
 
 get_macro() {
@@ -252,6 +249,7 @@ get_macro() {
 warn_if_longsim_noinputs() {
     local maxframes
     maxframes=`get_macro MAXFRAME`
+    if [ -z "$maxframes" ]; then return; fi
     if [ "$maxframes" -lt 100 ]; then return; fi
     if ! has_macro SIM_INPUTS; then
         echo "${rBG}WARNING:${NC} Long simulation ($maxframes frames) without cabinet inputs"
@@ -399,4 +397,57 @@ copy_scene_frame() {
 display_scene_frame() {
 	last_frame_image=`ls frames/frame_*.jpg | tail -n 1`
 	eom $last_frame_image
+}
+
+use_setname() {
+    if [ ! -z "$DIR" ]; then # Run the simulation inside a folder named after the set
+        mkdir -p "$SETNAME" || exit $?
+        cd "$SETNAME"
+    fi
+    if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
+    if [ -s $ROM/$SETNAME.dip ]; then
+        if ! has_macro JTFRAME_SIM_DIPS; then
+            # Not all systems have DIPs
+            DIPS=`cat $ROM/$SETNAME.dip`
+            if [ ! -z "$DIPS" ]; then add_macro JTFRAME_SIM_DIPS=0x$DIPS; fi
+        fi
+    fi
+    ROMFILE=$ROM/$SETNAME.rom
+    if [ ! -e $ROMFILE ]; then
+        cat<<EOF
+jtsim: cannot produce $ROMFILE"
+    This may occur if the setname is longer than 8 characters or
+    if you are not in the core folder for the game
+EOF
+        exit 1
+    fi
+    if [[ ! -e rom.bin || `readlink rom.bin` != "$ROMFILE" ]]; then
+        ln -srf $ROMFILE rom.bin
+        enable_load
+    fi
+    if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+}
+
+derive_setname_from_folder() {
+    local setname=$(basename `pwd`)
+    echo $setname
+}
+
+get_default_dipsw() {
+    local setname="$1"
+    if [ ! -s $ROM/${setname}.dip ]; then
+        return
+    fi
+    local hexdip
+    hexdip=`cat $ROM/${setname}.dip`
+    add_macro JTFRAME_SIM_DIPS=0x$hexdip
+    echo "Using DIP switches from rom/${setname}.dip"
+}
+
+copy_mod_file() {
+    local setname="$1"
+    if [ ! -e $ROM/${setname}.mod ]; then
+        return
+    fi
+    cp $ROM/${setname}.mod core.mod
 }
