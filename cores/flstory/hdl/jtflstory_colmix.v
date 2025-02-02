@@ -40,7 +40,7 @@ localparam [0:0] SCR = 1'b0,
 
 reg  [8:0] amux;
 reg        pal_sel;
-wire       prio_dout, obj_op, obj_win;
+wire       prio_dout, obj_op, obj_win, blank_n;
 reg  [1:0] scrprio_l, st;
 reg  [2:0] objprio_l;
 reg  [7:0] scrpxl_l,  objpxl_l;
@@ -49,6 +49,7 @@ assign obj_win   = obj_op & prio_dout;
 assign obj_op    = objpxl_l[3:0]!=4'hf;
 assign prio_dout = pal_dout[12];
 assign pal_addr  = { bank[1], pal_sel ? amux : {bank[0], objprio_l[1:0], scrprio_l, scrpxl_l[3:0]} };
+assign blank_n   = lvbl & lhbl;
 
 always @(posedge clk) begin
     st <= st<<1;
@@ -59,7 +60,7 @@ always @(posedge clk) begin
     if( pxl_cen ) begin
         {scrprio_l, scrpxl_l} <= {scr_prio, scr_pxl};
         {objprio_l, objpxl_l} <= {obj_prio, obj_pxl};
-        {blue,green,red} <= lvbl && lhbl ? pal_dout[11:0] : 12'd0;
+        {blue,green,red} <= blank_n ? pal_dout[11:0] : 12'd0;
         st      <= 1;
         pal_sel <= 0;
     end

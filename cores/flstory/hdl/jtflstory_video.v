@@ -66,6 +66,7 @@ wire [ 5:0] scr_pal;
 wire [ 1:0] scr_prio;
 wire [ 2:0] obj_prio;
 wire        flip, scr_hflip, scr_vflip;
+reg         lhbl_short;
 
 assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 2+2+8=12 bits
 assign scr_pal   = vram_data[13:8]; // upper 2 bits = priority
@@ -80,6 +81,8 @@ assign scr_sorted = ~{
     scr_data[ 4],scr_data[ 5],scr_data[ 6],scr_data[ 7],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
     scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],scr_data[18],scr_data[19]
 };
+
+always @(posedge clk) lhbl_short <= !(hdump>9'h9a && hdump<9'h100);
 
 jtframe_vtimer #(
     .V_START    ( 9'h0f0    ),
@@ -185,7 +188,7 @@ jtflstory_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
 
     .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
+    .lhbl       ( lhbl_short),
     .bank       ( pal_bank  ),
 
     .scr_prio   ( scr_prio  ),
