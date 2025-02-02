@@ -90,8 +90,8 @@ jtframe_vtimer #(
     .HCNT_START ( 9'h080    ),
     .HCNT_END   ( 9'h1ff    ),
     .HS_START   ( 9'h0ad    ),
-    .HB_START   ( 9'h089    ),
-    .HB_END     ( 9'h109    )
+    .HB_START   ( 9'h08a    ),
+    .HB_END     ( 9'h10a    )
 )   u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
