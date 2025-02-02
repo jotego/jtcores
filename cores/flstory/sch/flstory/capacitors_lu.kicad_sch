@@ -12789,7 +12789,6 @@
 	)
 	(label "VCC"
 		(at 106.68 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12800,7 +12799,6 @@
 	)
 	(label "VSS"
 		(at 106.68 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

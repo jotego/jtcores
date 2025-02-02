@@ -7702,7 +7702,6 @@
 	)
 	(label "SD4"
 		(at 215.9 68.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7713,7 +7712,6 @@
 	)
 	(label "SD7"
 		(at 215.9 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7724,7 +7722,6 @@
 	)
 	(label "SD2"
 		(at 213.36 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7735,7 +7732,6 @@
 	)
 	(label "VSS"
 		(at 276.86 186.69 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7746,7 +7742,6 @@
 	)
 	(label "VCC"
 		(at 212.725 247.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7757,7 +7752,6 @@
 	)
 	(label "VCC"
 		(at 211.455 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7768,7 +7762,6 @@
 	)
 	(label "VSS"
 		(at 280.67 69.85 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7779,7 +7772,6 @@
 	)
 	(label "TRB3"
 		(at 256.54 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7790,7 +7782,6 @@
 	)
 	(label "SD3"
 		(at 215.9 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7801,7 +7792,6 @@
 	)
 	(label "TRB2"
 		(at 246.38 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7812,7 +7802,6 @@
 	)
 	(label "SA10"
 		(at 60.325 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7823,7 +7812,6 @@
 	)
 	(label "SD0"
 		(at 211.455 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7834,7 +7822,6 @@
 	)
 	(label "BASS0"
 		(at 256.54 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7845,7 +7832,6 @@
 	)
 	(label "BASS2"
 		(at 246.38 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7856,7 +7842,6 @@
 	)
 	(label "SD3"
 		(at 213.36 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7867,7 +7852,6 @@
 	)
 	(label "SD7"
 		(at 211.455 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7878,7 +7862,6 @@
 	)
 	(label "BDIR"
 		(at 128.905 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7889,7 +7872,6 @@
 	)
 	(label "SD2"
 		(at 215.9 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7900,7 +7882,6 @@
 	)
 	(label "VSS"
 		(at 276.86 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7911,7 +7892,6 @@
 	)
 	(label "SD4"
 		(at 211.455 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7922,7 +7902,6 @@
 	)
 	(label "BASS3"
 		(at 256.54 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7933,7 +7912,6 @@
 	)
 	(label "~{RST}"
 		(at 211.455 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7944,7 +7922,6 @@
 	)
 	(label "SD4"
 		(at 212.09 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7955,7 +7932,6 @@
 	)
 	(label "BASS0"
 		(at 246.38 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7966,7 +7942,6 @@
 	)
 	(label "SA1"
 		(at 140.335 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7977,7 +7952,6 @@
 	)
 	(label "TRB2"
 		(at 256.54 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7988,7 +7962,6 @@
 	)
 	(label "BASS1"
 		(at 256.54 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7999,7 +7972,6 @@
 	)
 	(label "SD3"
 		(at 215.9 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8010,7 +7982,6 @@
 	)
 	(label "VSS"
 		(at 264.16 222.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8021,7 +7992,6 @@
 	)
 	(label "SD2"
 		(at 211.455 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8032,7 +8002,6 @@
 	)
 	(label "SD1"
 		(at 213.36 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8043,7 +8012,6 @@
 	)
 	(label "VDD"
 		(at 170.815 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8054,7 +8022,6 @@
 	)
 	(label "SD6"
 		(at 212.09 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8065,7 +8032,6 @@
 	)
 	(label "TRB0"
 		(at 246.38 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8076,7 +8042,6 @@
 	)
 	(label "VOL1"
 		(at 257.81 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8087,7 +8052,6 @@
 	)
 	(label "BAL1"
 		(at 246.38 58.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8098,7 +8062,6 @@
 	)
 	(label "VSS"
 		(at 276.86 163.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8109,7 +8072,6 @@
 	)
 	(label "BASS3"
 		(at 246.38 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8120,7 +8082,6 @@
 	)
 	(label "BAL1"
 		(at 257.81 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8131,7 +8092,6 @@
 	)
 	(label "SD2"
 		(at 215.9 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8142,7 +8102,6 @@
 	)
 	(label "CLK2"
 		(at 211.455 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8153,7 +8112,6 @@
 	)
 	(label "SA2"
 		(at 140.335 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8164,7 +8122,6 @@
 	)
 	(label "SD7"
 		(at 140.335 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8175,7 +8132,6 @@
 	)
 	(label "~{CFG0}"
 		(at 211.455 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8186,7 +8142,6 @@
 	)
 	(label "SD6"
 		(at 213.36 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8197,7 +8152,6 @@
 	)
 	(label "SA0"
 		(at 104.775 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8208,7 +8162,6 @@
 	)
 	(label "TRB0"
 		(at 256.54 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8219,7 +8172,6 @@
 	)
 	(label "BASS2"
 		(at 256.54 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8230,7 +8182,6 @@
 	)
 	(label "SD5"
 		(at 211.455 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8241,7 +8192,6 @@
 	)
 	(label "SD1"
 		(at 211.455 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8252,7 +8202,6 @@
 	)
 	(label "VOL3"
 		(at 257.81 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8263,7 +8212,6 @@
 	)
 	(label "VOL2"
 		(at 257.81 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8274,7 +8222,6 @@
 	)
 	(label "SD4"
 		(at 140.335 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8285,7 +8232,6 @@
 	)
 	(label "SD4"
 		(at 213.36 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8296,7 +8242,6 @@
 	)
 	(label "VOL0"
 		(at 246.38 68.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8307,7 +8252,6 @@
 	)
 	(label "SD3"
 		(at 211.455 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8318,7 +8262,6 @@
 	)
 	(label "SA3"
 		(at 140.335 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8329,7 +8272,6 @@
 	)
 	(label "VCC"
 		(at 211.455 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8340,7 +8282,6 @@
 	)
 	(label "~{CFG1}"
 		(at 211.455 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8351,7 +8292,6 @@
 	)
 	(label "VSS"
 		(at 281.94 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8362,7 +8302,6 @@
 	)
 	(label "VSS"
 		(at 156.845 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8373,7 +8312,6 @@
 	)
 	(label "VCC"
 		(at 211.455 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8384,7 +8322,6 @@
 	)
 	(label "BAL3"
 		(at 257.81 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8395,7 +8332,6 @@
 	)
 	(label "VOL2"
 		(at 246.38 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8406,7 +8342,6 @@
 	)
 	(label "SD5"
 		(at 140.335 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8417,7 +8352,6 @@
 	)
 	(label "VOL0"
 		(at 257.81 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8428,7 +8362,6 @@
 	)
 	(label "VSS"
 		(at 280.67 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8439,7 +8372,6 @@
 	)
 	(label "TRB3"
 		(at 246.38 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8450,7 +8382,6 @@
 	)
 	(label "SD6"
 		(at 212.09 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8461,7 +8392,6 @@
 	)
 	(label "BAL3"
 		(at 246.38 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8472,7 +8402,6 @@
 	)
 	(label "SD6"
 		(at 140.335 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8483,7 +8412,6 @@
 	)
 	(label "VOL3"
 		(at 246.38 66.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8494,7 +8422,6 @@
 	)
 	(label "SA0"
 		(at 140.335 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8505,7 +8432,6 @@
 	)
 	(label "SD6"
 		(at 211.455 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8516,7 +8442,6 @@
 	)
 	(label "SD0"
 		(at 140.335 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8527,7 +8452,6 @@
 	)
 	(label "BC1"
 		(at 146.685 165.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8538,7 +8462,6 @@
 	)
 	(label "SD5"
 		(at 213.36 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8549,7 +8472,6 @@
 	)
 	(label "~{CFG1}"
 		(at 95.885 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8560,7 +8482,6 @@
 	)
 	(label "VSS"
 		(at 211.455 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8571,7 +8492,6 @@
 	)
 	(label "TRB1"
 		(at 256.54 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8582,7 +8502,6 @@
 	)
 	(label "VCC"
 		(at 211.455 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8593,7 +8512,6 @@
 	)
 	(label "SD5"
 		(at 215.9 63.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8604,7 +8522,6 @@
 	)
 	(label "BAL0"
 		(at 257.81 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8615,7 +8532,6 @@
 	)
 	(label "BAL0"
 		(at 246.38 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8626,7 +8542,6 @@
 	)
 	(label "SD3"
 		(at 140.335 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8637,7 +8552,6 @@
 	)
 	(label "VOL1"
 		(at 246.38 63.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8648,7 +8562,6 @@
 	)
 	(label "SD1"
 		(at 215.9 58.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8659,7 +8572,6 @@
 	)
 	(label "SD7"
 		(at 213.36 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8670,7 +8582,6 @@
 	)
 	(label "VSS"
 		(at 276.86 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8681,7 +8592,6 @@
 	)
 	(label "SD1"
 		(at 215.9 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8692,7 +8602,6 @@
 	)
 	(label "SA9"
 		(at 60.325 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8703,7 +8612,6 @@
 	)
 	(label "~{MSM}"
 		(at 140.335 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8714,7 +8622,6 @@
 	)
 	(label "TRB1"
 		(at 246.38 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8725,7 +8632,6 @@
 	)
 	(label "SD5"
 		(at 215.9 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8736,7 +8642,6 @@
 	)
 	(label "BAL2"
 		(at 246.38 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8747,7 +8652,6 @@
 	)
 	(label "SD1"
 		(at 140.335 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8758,7 +8662,6 @@
 	)
 	(label "SD0"
 		(at 215.9 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8769,7 +8672,6 @@
 	)
 	(label "SD7"
 		(at 215.9 66.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8780,7 +8682,6 @@
 	)
 	(label "SD2"
 		(at 140.335 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8791,7 +8692,6 @@
 	)
 	(label "SD0"
 		(at 215.9 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8802,7 +8702,6 @@
 	)
 	(label "VSS"
 		(at 280.67 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8813,7 +8712,6 @@
 	)
 	(label "BDIR"
 		(at 211.455 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8824,7 +8722,6 @@
 	)
 	(label "BAL2"
 		(at 257.81 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8835,7 +8732,6 @@
 	)
 	(label "SD0"
 		(at 213.36 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8846,7 +8742,6 @@
 	)
 	(label "~{CFG0}"
 		(at 95.885 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8857,7 +8752,6 @@
 	)
 	(label "BASS1"
 		(at 246.38 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8868,7 +8762,6 @@
 	)
 	(label "BC1"
 		(at 211.455 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8880,7 +8773,6 @@
 	(hierarchical_label "TONEB"
 		(shape output)
 		(at 192.405 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8892,7 +8784,6 @@
 	(hierarchical_label "PTREBLE*"
 		(shape output)
 		(at 276.86 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8904,7 +8795,6 @@
 	(hierarchical_label "TONEA"
 		(shape output)
 		(at 192.405 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8916,7 +8806,6 @@
 	(hierarchical_label "SA[0..15]"
 		(shape input)
 		(at 132.715 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8928,7 +8817,6 @@
 	(hierarchical_label "DAC*"
 		(shape output)
 		(at 264.16 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8940,7 +8828,6 @@
 	(hierarchical_label "VSS"
 		(shape passive)
 		(at 228.6 203.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8952,7 +8839,6 @@
 	(hierarchical_label "VOL*"
 		(shape output)
 		(at 278.13 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8964,7 +8850,6 @@
 	(hierarchical_label "~{RST}"
 		(shape input)
 		(at 145.415 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8976,7 +8861,6 @@
 	(hierarchical_label "PBASS*"
 		(shape output)
 		(at 276.86 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8988,7 +8872,6 @@
 	(hierarchical_label "CLK2"
 		(shape input)
 		(at 145.415 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9000,7 +8883,6 @@
 	(hierarchical_label "SA[0..15]"
 		(shape input)
 		(at 56.515 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9012,7 +8894,6 @@
 	(hierarchical_label "CLK4"
 		(shape input)
 		(at 140.335 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9024,7 +8905,6 @@
 	(hierarchical_label "PSG"
 		(shape output)
 		(at 245.11 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9036,7 +8916,6 @@
 	(hierarchical_label "BAL*"
 		(shape output)
 		(at 278.13 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9048,7 +8927,6 @@
 	(hierarchical_label "TREBLE*"
 		(shape output)
 		(at 278.13 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9060,7 +8938,6 @@
 	(hierarchical_label "AVSS"
 		(shape passive)
 		(at 171.45 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9072,7 +8949,6 @@
 	(hierarchical_label "VCC"
 		(shape passive)
 		(at 228.6 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9084,7 +8960,6 @@
 	(hierarchical_label "~{ONGEN}"
 		(shape input)
 		(at 60.325 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9096,7 +8971,6 @@
 	(hierarchical_label "PVOL*"
 		(shape output)
 		(at 276.86 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9109,7 +8983,6 @@
 	(hierarchical_label "SD[0..7]"
 		(shape bidirectional)
 		(at 132.715 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9121,7 +8994,6 @@
 	(hierarchical_label "BASS*"
 		(shape output)
 		(at 278.13 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9133,7 +9005,6 @@
 	(hierarchical_label "PBAL*"
 		(shape output)
 		(at 276.86 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9146,7 +9017,6 @@
 	(hierarchical_label "~{MSM}"
 		(shape output)
 		(at 95.885 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9158,7 +9028,6 @@
 	(hierarchical_label "~{VDAC}"
 		(shape input)
 		(at 212.725 245.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

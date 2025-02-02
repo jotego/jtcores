@@ -57,7 +57,7 @@ jtframe_enlarger #(.W(16)) u_rst(
     .pulse_in ( rst       ),
     .pulse_out( rst_main  )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtflstory_main u_main(
     .rst        ( rst_main  ),
     .clk        ( clk       ),

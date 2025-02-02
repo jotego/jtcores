@@ -39,19 +39,20 @@ localparam [0:0] SCR = 1'b0,
 
 reg  [8:0] amux;
 reg        pal_sel;
-wire       prio_dout, obj_op;
+wire       prio_dout, obj_op, obj_win;
 reg  [1:0] scrprio_l, st;
 reg  [2:0] objprio_l;
 reg  [7:0] scrpxl_l,  objpxl_l;
 
-assign pal_addr  = { bank[1], pal_sel ? amux : {objprio_l, scrprio_l, objpxl_l[3:0]} };
+assign obj_win   = obj_op & prio_dout;
 assign obj_op    = objpxl_l[3:0]!=4'hf;
 assign prio_dout = pal_dout[12];
+assign pal_addr  = { bank[1], pal_sel ? amux : {bank[0], objprio_l[1:0], scrprio_l, scrpxl_l[3:0]} };
 
 always @(posedge clk) begin
     st <= st<<1;
     if( st[1] ) begin
-        amux    <= (obj_op & prio_dout) ? {OBJ,objpxl_l} : {SCR,scrpxl_l};
+        amux    <= obj_win ? {OBJ,objpxl_l} : {SCR,scrpxl_l};
         pal_sel <= 1;
     end
     if( pxl_cen ) begin
