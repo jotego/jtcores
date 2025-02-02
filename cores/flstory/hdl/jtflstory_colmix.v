@@ -31,7 +31,8 @@ module jtflstory_colmix(
     input       [1:0] scr_prio,
     input       [2:0] obj_prio,
     input       [7:0] scr_pxl, obj_pxl,
-    output reg  [3:0] red, green, blue
+    output reg  [3:0] red, green, blue,
+    input       [7:0] debug_bus
 );
 
 localparam [0:0] SCR = 1'b0,

@@ -54,7 +54,8 @@ module jtflstory_video(
     input      [ 1:0] pal_bank,
     output     [ 9:0] pal_addr,
     input      [15:0] pal_dout,
-    output     [ 3:0] red, green, blue
+    output     [ 3:0] red, green, blue,
+    input       [7:0] debug_bus
 );
 
 wire [31:0] scr_sorted;
@@ -198,7 +199,8 @@ jtflstory_colmix u_colmix(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus )
 );
 
 endmodule

@@ -140,10 +140,10 @@ always @* begin
                     1: {m2s_wr, s2m_rd} = {bus_we, bus_rd}; // D400
                     2: cab_cs = 1;  // D80?
                     3: case(A[9:8]) // DC?? ~ DF??
-                        0: oram_cs = 1;
-                        1: pal_lo  = 1;
-                        2: pal_hi  = 1; // includes priority bits
-                        3: case(A[1:0])
+                        0: oram_cs = 1; // DC??
+                        1: pal_lo  = 1; // DD??
+                        2: pal_hi  = 1; // DE?? includes priority bits
+                        3: case(A[1:0]) // DF??
                             // 0, 1, 2: related to gun games?
                             3: vcfg_cs = bus_we;
                             default:;
@@ -176,7 +176,7 @@ always @(posedge clk) begin
         4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
         5: cab <= {6'b001111, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
         6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
-        default:;
+        default: cab <= 8'hff;
     endcase
 end
 

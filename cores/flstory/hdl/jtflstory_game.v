@@ -173,7 +173,7 @@ jtflstory_sound u_sound(
     .clip       ( clip      ),
     .no_used    ( no_used   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtflstory_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -214,7 +214,8 @@ jtflstory_video u_video(
     .pal_dout   ( pal_dout  ),
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus )
 );
 
 endmodule
