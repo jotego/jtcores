@@ -28,8 +28,8 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
 wire [ 1:0] pal_bank, scr_bank;
-wire        rst_main, cen_hb, mute;
-reg         lhbl_l, mirror, mcu_enb, mcu_rst;
+wire        mute;
+reg         mirror, mcu_enb, mcu_rst;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
@@ -49,22 +49,11 @@ always @(posedge clk) begin
     if( header && prog_addr[2:0]==MCUENB_OFFSET && prog_we ) mcu_enb <= prog_data[0];
 end
 
-always @(posedge clk) lhbl_l  <= LHBL;
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
 
-
-assign cen_hb = LHBL & ~lhbl_l;
-// Let the MCU come out of reset first to take control of the port signals
-jtframe_enlarger #(.W(16)) u_rst(
-    .rst      ( 1'b0      ),
-    .clk      ( clk       ),
-    .cen      ( cen_hb    ),
-    .pulse_in ( rst       ),
-    .pulse_out( rst_main  )
-);
 /* verilator tracing_on */
 jtflstory_main u_main(
-    .rst        ( rst_main  ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
