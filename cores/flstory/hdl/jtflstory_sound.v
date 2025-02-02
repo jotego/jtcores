@@ -102,8 +102,18 @@ end
 
 always @(posedge clk) begin
     crst_n <= ~(rst | ~rst_n);
-    if( rst ) rst_n <= 1;
-    if( rst || !rst_n ) begin
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        rst_n <= 1;
+    end else begin
+        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0]^debug_bus[0];
+    end
+end
+
+always @(posedge clk) begin
+    if( !crst_n ) begin
         bus_din <= 0;
         ibf     <= 0;
         obf     <= 0;
@@ -112,7 +122,6 @@ always @(posedge clk) begin
     end else begin
         // access from the main bus to the sound subsystem
         if( !bus_a0 && bus_wr ) {ibf,ibuf} <= {1'b1,bus_dout};
-        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0];
         if( bus_rd ) begin
             if(!bus_a0) obf <= 0;
             bus_din <= bus_a0 ? {6'd0,obf,~ibf} : obuf;
