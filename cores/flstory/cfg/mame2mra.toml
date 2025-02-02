@@ -17,11 +17,9 @@ debug={ machines=[
 [dipsw]
 rename=[
 	{ name="Attract Sound on Title Screen",to="Attract Sound" },
-	{ name="Copyright String",to="Maker" },
+	{ name="Invulnerability (Cheat)",      to="Invulnerability"},
+	{ name="Copyright String",             to="Release year", values=["hide","show"] }
 ]
-# delete=[
-# 	{ names=["Unused"] },
-# ]
 
 [header]
 info="""
