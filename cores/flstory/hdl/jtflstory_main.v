@@ -157,6 +157,8 @@ always @* begin
     endcase
 end
 
+localparam [1:0] LOW_FOR_FLSTORY=2'd0;
+
 always @(posedge clk) begin
     rst_n <= ~rst;
     if( vcfg_cs ) begin
@@ -170,7 +172,7 @@ always @(posedge clk) begin
         0: cab <= dipsw[ 7: 0];
         1: cab <= dipsw[15: 8];
         2: cab <= dipsw[23:16];
-        3: cab <= {2'b0,coin,tilt,service,cab_1p};
+        3: cab <= {LOW_FOR_FLSTORY,coin,tilt,service,cab_1p};
         4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
         5: cab <= {6'b001111, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
         6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
