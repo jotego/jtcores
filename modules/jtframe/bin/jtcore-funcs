@@ -1,0 +1,17 @@
+lint_core() {
+	local core="$1"
+	local log=`mktemp`
+	local fail
+	if ! $JTFRAME/bin/lint-one.sh $core > /dev/null 2> $log; then
+		cat $log
+		fail=1
+	fi
+	if grep ^%Warning $log; then
+		cat $log
+		fail=1
+	fi
+	rm -f $log
+	if [ "$fail" = 1 ]; then
+		exit 1
+	fi
+}
