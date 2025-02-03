@@ -28,8 +28,8 @@ module jtframe_mouse(
     input              mouse_st,    // strobe
     input              mouse_idx,   // up to two mouse devices
     // Mouse emulation
-    input       [ 3:0] joy1,
-    input       [ 3:0] joy2,
+    input       [ 3:0] joyn1,       // active low
+    input       [ 3:0] joyn2,
 
     // { 8-bit dx, 8-bit dy } encoded for the core
     // in 2's complement unless JTFRAME_MOUSE_NO2COMPL is defined
@@ -42,7 +42,8 @@ module jtframe_mouse(
 );
 
 reg  [3:0] joy1_l, joy2_l;
-wire [3:0] joy1_on, joy1_off, joy2_on, joy2_off;
+wire [3:0] joy1,   joy2,
+           joy1_on, joy1_off, joy2_on, joy2_off;
 
 `ifndef JTFRAME_MOUSE_NOEMU
     localparam MOUSE_EMU=1;
@@ -66,6 +67,8 @@ function [7:0] cv( input [8:0] min ); // convert to the right format
     `endif
 endfunction
 
+assign joy1     = ~joyn1,
+       joy2     = ~joyn2;
 assign joy1_on  =  joy1 & ~joy1_l;
 assign joy1_off = ~joy1 &  joy1_l;
 assign joy2_on  =  joy2 & ~joy2_l;

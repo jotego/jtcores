@@ -16,6 +16,10 @@
     Version: 1.0
     Date: 10-2-2024 */
 
+`ifdef JTFRAME_RELEASE
+`undef JTFRAME_INPUT_RECORD
+`endif
+
 // record input data in a compressed format
 // decompress with `jtutil inputs`
 module jtframe_rec_inputs(
@@ -25,19 +29,24 @@ module jtframe_rec_inputs(
     input              vs,
     input              dip_pause,
 
-    input       [ 3:0] game_start,
-    input       [ 3:0] game_coin,
-    input       [ 5:0] joystick,
+    input       [ 3:0] game_start,  // active low
+    input       [ 3:0] game_coin,   // active low
+    input       [ 5:0] joystick,    // active high
 
     input       [12:0] ioctl_addr,
+
+    input       [ 7:0] ioctl_din,
     output      [ 7:0] ioctl_merged
 );
-    parameter RECAW=13, ACTIVE_LOW=1;
+    parameter RECAW=13;
+`ifndef JTFRAME_INPUT_RECORD
+    assign ioctl_merged = ioctl_din;
+`else
 
     reg  [ 7:0] recin, rec_l, fdiff;
     reg         rec_clrd, vsl;
     reg  [RECAW-1:0] reca;
-    wire [ 7:0] rec_data = { joystick[5:0], {2{ACTIVE_LOW[0]}}^{game_start[0], game_coin[0]} };
+    wire [ 7:0] rec_data = { joystick[5:0], ~{game_start[0], game_coin[0]} };
     reg  [ 1:0] recwsh;
     wire [ 7:0] recmux = !rec_clrd ? (!reca[0] ? 8'hff: 8'h0 ) :
                          recwsh[0] ?            recin : fdiff;
@@ -98,5 +107,5 @@ module jtframe_rec_inputs(
         .we1    ( 1'b0           ),
         .q1     ( ioctl_merged   )
     );
-
+`endif
 endmodule

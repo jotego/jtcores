@@ -17,6 +17,8 @@
 # Version: 1.0
 # Date: 7-7-2022
 
+source $JTFRAME/bin/jtcore-funcs
+
 function show_usage() {
     cat << EOF
 JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
@@ -426,6 +428,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     rm -rf $PRJPATH/$TARGET
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
+    lint_core $PRJ
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then

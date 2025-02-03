@@ -81,6 +81,7 @@ PCBs = [
     { machine=  "scontra"  },
 ]
 data = [
+	{ pcb_id = true, offset=0 } # filled with the PCB array innformation
 	{ machine="...", setname="...", dev="...", offset=3, data="12 32 43 ..." },
 	...
 ]

@@ -100,7 +100,7 @@ module jtframe_board #(parameter
     input        [ 7:0] board_digit,
     input               board_reset, board_pause, board_tilt, board_test,
                         board_service, board_shift, board_ctrl, board_alt,
-    // debug features
+    // debug features - remove on #935
     input        [ 3:0] board_gfx,
     input               board_plus, board_minus,
     // Mouse & Paddle
@@ -222,7 +222,7 @@ localparam
 
 wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
-             vol_up,   vol_down, debug_toggle;
+             vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
 wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
@@ -231,10 +231,13 @@ wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty, frame_blank, debug_plus, debug_minus;
-wire         key_service, key_tilt;
+wire   [1:0] sensty, frame_blank;
+wire  [12:7] func_key;
+wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
-wire         autofire0, dial_raw_en, dial_reverse, snd_mode;
+wire         dial_raw_en, dial_reverse, snd_mode;
+wire         debug_toggle;
+wire   [1:0] debug_plus, debug_minus;
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b;
@@ -247,7 +250,6 @@ wire [SDRAMW-1:0] bax_addr;
 
 wire LHBLs;
 
-assign autofire0 = `ifdef JTFRAME_AUTOFIRE0 status[18] `else 0 `endif;
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
@@ -397,13 +399,11 @@ jtframe_keyboard u_keyboard(
     .shift       ( key_shift     ),
     .ctrl        ( key_ctrl      ),
     .alt         ( key_alt       ),
-    .gfx         ( key_gfx       ),
-    .snd         ( key_snd       ),
     .vol_up      ( vol_up        ),
     .vol_down    ( vol_down      ),
-    .debug_toggle( debug_toggle  ),
-    .debug_plus  ( debug_plus    ),
-    .debug_minus ( debug_minus   )
+    .func_key    ( func_key      ),
+    .plus        ( key_plus      ),
+    .minus       ( key_minus     )
 );
 
 jtframe_filter_keyboard u_filter_keyboard(
@@ -422,24 +422,18 @@ jtframe_filter_keyboard u_filter_keyboard(
     wire [7:0] sys_info;
     // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
     wire       flip_info = 0;
-    // delete when Pocket keyboard goes through PS2 interface (#935)
-    wire [1:0] comb_plus  = debug_plus  | {1'b0, board_plus };
-    wire [1:0] comb_minus = debug_minus | {1'b0, board_minus};
 
     jtframe_debug #(.COLORW(COLORW)) u_debug(
         .clk         ( clk_sys       ),
         .rst         ( rst           ),
 
         .toggle_view ( debug_toggle  ),
-        .shift       ( key_shift   | board_shift ),
-        .ctrl        ( key_ctrl    | board_ctrl  ),
-        .alt         ( key_alt     | board_alt   ),
-        .key_snd     ( key_snd                   ),
-        .key_gfx     ( key_gfx     | board_gfx   ),
-        .key_digit   ( key_digit   | board_digit ),
-        .debug_plus  ( comb_plus     ), // replace for debug_plus when #935 is done
-        .debug_minus ( comb_minus    ), // ditto
-        .board_gfx   ( board_gfx     ),
+        .shift       ( key_shift     ),
+        .ctrl        ( key_ctrl      ),
+        .alt         ( key_alt       ),
+        .key_digit   ( key_digit     ),
+        .debug_plus  ( debug_plus    ),
+        .debug_minus ( debug_minus   ),
 
         // overlay the value on video
         .pxl_cen     ( pxl_cen       ),
@@ -453,8 +447,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .gout        ( dbg_g         ),
         .bout        ( dbg_b         ),
 
-        .gfx_en      ( gfx_en        ),
-        .snd_en      ( snd_en        ),
         .snd_vol     ( snd_vol       ),
         .snd_mode    ( snd_mode      ),
         .debug_bus   ( debug_bus     ),
@@ -482,6 +474,16 @@ jtframe_filter_keyboard u_filter_keyboard(
         .snd_mode   ( snd_mode      ),
         .vu_peak    ( vu_peak       ),
 
+        // joystick
+        .game_joy1  ( game_joystick1),
+        .joyana_l1  ( joyana_l1     ),
+        .game_coin  ( game_coin     ),
+        .game_start ( game_start    ),
+        .game_tilt  ( game_tilt     ),
+        .game_test  ( game_test     ),
+        .game_service( game_service ),
+        .rot        ( rot_control   ),
+
         .dial_x     ( dial_x        ),
         .ba_rdy     ( bax_rdy       ),
         .dipsw      ( dipsw[23:0]   ),
@@ -497,8 +499,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .st_dout    ( sys_info      )
     );
 `else
-    assign gfx_en    = 4'b1111;
-    assign snd_en    = 6'h3f;
     assign debug_bus =  0;
     assign vu_peak   =  0;
     assign dbg_r = crdts_r;
@@ -533,17 +533,16 @@ jtframe_short_blank #(
     .vb_out     (                 )
 );
 
-jtframe_inputs #(
-    .BUTTONS   ( BUTTONS                ),
-    .ACTIVE_LOW( GAME_INPUTS_ACTIVE_LOW )
-) u_inputs(
+jtframe_inputs #( .BUTTONS( BUTTONS ))
+u_inputs(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
-    .LHBL           ( LHBLs           ),
+    .lhbl           ( LHBLs           ),
+    .lvbl           ( LVBL            ),
     .ioctl_rom      ( dwnld_busy      ),
+    .rot            ( rot_control     ),
     .rot_ccw        ( rotate[1]       ),
-    .autofire0      ( autofire0       ),
     .dial_raw_en    ( dial_raw_en     ),
     .dial_reverse   ( dial_reverse    ),
     .sensty         ( sensty          ),
@@ -571,7 +570,11 @@ jtframe_inputs #(
     .key_test       ( key_test    | board_test    ),
     .osd_pause      ( osd_pause       ),
     .key_reset      ( key_reset | board_reset     ),
-    .rot_control    ( rot_control     ),
+    .key_ctrl       ( key_ctrl        ),
+    .key_shift      ( key_shift       ),
+    .func_key       ( func_key        ),
+    .key_minus      ( key_minus       ),
+    .key_plus       ( key_plus        ),
 
     .game_joy1      ( game_joystick1  ),
     .game_joy2      ( game_joystick2  ),
@@ -612,6 +615,12 @@ jtframe_inputs #(
     .ioctl_merged   ( ioctl_merged    ),
     .ioctl_wr       ( ioctl_wr        ),
 
+    // debug
+    .gfx_en         ( gfx_en          ),
+    .snd_en         ( snd_en          ),
+    .debug_plus     ( debug_plus      ),
+    .debug_minus    ( debug_minus     ),
+    .debug_toggle   ( debug_toggle    ),
     .debug_bus      ( debug_bus       ),
     // Simulation helpers
     .game_pause     ( game_pause      )
@@ -737,34 +746,8 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
 `endif
 
 // Audio
-// `ifdef JTFRAME_SND48K
-//     wire cen48;
-//     jtframe_frac_cen #(.W(1),.WC(11)) u_cen48k(
-//         .clk        ( clk48     ),
-//         .n          ( 11'd1     ),         // numerator
-//         .m          ( 11'd1024  ),         // denominator
-//         .cen        ( cen48     ),
-//         .cenb       (           )
-//     );
-
-//     jtframe_fir #(
-//         .KMAX   ( 75            ),
-//         .COEFFS ( "fir20k.hex"  )
-//     ) u_fir(
-//         .rst        ( rst       ),
-//         .clk        ( clk48     ),
-//         .sample     ( cen48     ),
-//         .l_in       ( snd_lin   ),
-//         .r_in       ( snd_rin   ),
-//         .l_out      ( snd_lout  ),
-//         .r_out      ( snd_rout  )
-//     );
-// `else
-    // bypass the sound signals if the interpolator is not used
     assign snd_rout = snd_rin;
     assign snd_lout = snd_lin;
-// `endif
-
 
 `ifdef SIMULATION
     integer fsnd;

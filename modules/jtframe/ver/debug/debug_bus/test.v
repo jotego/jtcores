@@ -1,17 +1,12 @@
 module test;
 
+`include "test_tasks.vh"
+
 wire       rst, clk;
 reg        shift, ctrl, inc, dec;
 reg  [7:0] key_digit, key_shadow;
 wire [7:0] debug_bus;
 integer    shadow=0;
-
-task assert_msg(input test, input string msg);
-    if(!test) begin
-        $display("Assertion failed: %s",msg);
-        $finish;
-    end
-endtask
 
 initial begin
     shift     = 0;

@@ -34,9 +34,9 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
   0111_0110  |  dipsw[23:16]
   10??_????  |  SDRAM stats
   1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
-  1101_????  |  mouse_dx[8:1]
-  1110_????  |  mouse_dy[8:1]
-  1111_????  |  mouse_f
+  1101_????  |  Joysticks and inputs
+  1110_????  |
+  1111_????  |
 
 See core_mod description [here](osd.md)
 
@@ -61,6 +61,18 @@ st_addr[5:4] |  Read
   1, [1:0]=1 | Channel enable bits
   1, [1:0]=2 | Sample rate in kHz (BCD)
   2          | Sound volume (gain set by the user/MRA)
+
+### Joysticks
+
+st_addr[3:0] | Read
+-------------|---------
+ 0           | game_joy1[7:0]
+ 1           | {rot_control,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
+ 2           | joy_ana1[ 7:0]
+ 3           | joy_ana2[15:8]
+ 4           | mouse_dx[8:1]
+ 5           | mouse_dy[8:1]
+ 6           | mouse_f
 
 ### SDRAM, IOCTL and DIPSW
 
