@@ -23,7 +23,7 @@ module jtframe_hid_ps2_translator(
 
     input  reg [7:0] keycheck,
     input            released,
-    // output           done,
+    output           last,
     output reg [7:0] ps2_code,
     output reg       high
 );
@@ -281,14 +281,18 @@ localparam [7:0]
 // KEY_HID_MEDIA_CALC=8'hfb;         // KEY_PS2_MEDIA_CALC=;
 
 reg [8:0] ps2_pre, ps2_pre_l;
+wire[7:0] code_nx;
 reg       rel, ph2_l;
-wire      test1, test2;
+wire      t1, t2;
 wire      ph2, ph3;
 
-assign ph2   = ps2_pre == ps2_pre_l;
+assign ph2   = ps2_pre == ps2_pre_l && ps2_pre!=0;
 assign ph3   = ph2 & ph2_l;
-assign test1 = ps2_pre[8] &&  !ph2;
-assign test2 = released   && (!ph2 || !ph3);
+assign t1 = ps2_pre[8] &&  !ph2;
+assign t2 = released   && (!ph2 || (!ph3 && high));
+assign 		last = code_nx == ps2_code;
+assign code_nx = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
+
 
 always @(posedge clk) begin
  	if(rst) begin
@@ -300,82 +304,83 @@ always @(posedge clk) begin
  	end else if(cen) begin
         ps2_pre_l <= ps2_pre;
         ph2_l     <= ph2;
- 		ps2_code <= test1 ? 8'he0 : (test2 ? 8'hf0 : ps2_pre[7:0]);
+ 		ps2_code <= code_nx;
         high <= ps2_pre[8];
         rel  <= released;
+        if( ps2_pre==0 ) ps2_code <= 0;
  	end
  end
 
 always @(posedge clk) begin
 		case(keycheck)
-			KEY_HID_A:                ps2_pre <= KEY_PS2_A;
-			KEY_HID_B:                ps2_pre <= KEY_PS2_B;
-			KEY_HID_C:                ps2_pre <= KEY_PS2_C;
-			KEY_HID_D:                ps2_pre <= KEY_PS2_D;
-			KEY_HID_E:                ps2_pre <= KEY_PS2_E;
-			KEY_HID_F:                ps2_pre <= KEY_PS2_F;
-			KEY_HID_G:                ps2_pre <= KEY_PS2_G;
-			KEY_HID_H:                ps2_pre <= KEY_PS2_H;
-			KEY_HID_I:                ps2_pre <= KEY_PS2_I;
-			KEY_HID_J:                ps2_pre <= KEY_PS2_J;
-			KEY_HID_K:                ps2_pre <= KEY_PS2_K;
-			KEY_HID_L:                ps2_pre <= KEY_PS2_L;
-			KEY_HID_M:                ps2_pre <= KEY_PS2_M;
-			KEY_HID_N:                ps2_pre <= KEY_PS2_N;
-			KEY_HID_O:                ps2_pre <= KEY_PS2_O;
-			KEY_HID_P:                ps2_pre <= KEY_PS2_P;
-			KEY_HID_Q:                ps2_pre <= KEY_PS2_Q;
-			KEY_HID_R:                ps2_pre <= KEY_PS2_R;
-			KEY_HID_S:                ps2_pre <= KEY_PS2_S;
-			KEY_HID_T:                ps2_pre <= KEY_PS2_T;
-			KEY_HID_U:                ps2_pre <= KEY_PS2_U;
-			KEY_HID_V:                ps2_pre <= KEY_PS2_V;
-			KEY_HID_W:                ps2_pre <= KEY_PS2_W;
-			KEY_HID_X:                ps2_pre <= KEY_PS2_X;
-			KEY_HID_Y:                ps2_pre <= KEY_PS2_Y;
-			KEY_HID_Z:                ps2_pre <= KEY_PS2_Z;
-			KEY_HID_1:                ps2_pre <= KEY_PS2_1;
-			KEY_HID_2:                ps2_pre <= KEY_PS2_2;
-			KEY_HID_3:                ps2_pre <= KEY_PS2_3;
-			KEY_HID_4:                ps2_pre <= KEY_PS2_4;
-			KEY_HID_5:                ps2_pre <= KEY_PS2_5;
-			KEY_HID_6:                ps2_pre <= KEY_PS2_6;
-			KEY_HID_7:                ps2_pre <= KEY_PS2_7;
-			KEY_HID_8:                ps2_pre <= KEY_PS2_8;
-			KEY_HID_9:                ps2_pre <= KEY_PS2_9;
-			KEY_HID_0:                ps2_pre <= KEY_PS2_0;
-			KEY_HID_ENTER:            ps2_pre <= KEY_PS2_ENTER;
-			KEY_HID_ESC:              ps2_pre <= KEY_PS2_ESC;
-			KEY_HID_BACKSPACE:        ps2_pre <= KEY_PS2_BACKSPACE;
-			KEY_HID_TAB:              ps2_pre <= KEY_PS2_TAB;
-			KEY_HID_SPACE:            ps2_pre <= KEY_PS2_SPACE;
-			KEY_HID_MINUS:            ps2_pre <= KEY_PS2_MINUS;
-			KEY_HID_EQUAL:            ps2_pre <= KEY_PS2_EQUAL;
-			KEY_HID_LEFTBRACE:        ps2_pre <= KEY_PS2_LEFTBRACE;
-			KEY_HID_RIGHTBRACE:       ps2_pre <= KEY_PS2_RIGHTBRACE;
-			KEY_HID_BACKSLASH:        ps2_pre <= KEY_PS2_BACKSLASH;
-			KEY_HID_HASHTILDE:        ps2_pre <= KEY_PS2_HASHTILDE;
-			KEY_HID_SEMICOLON:        ps2_pre <= KEY_PS2_SEMICOLON;
-			KEY_HID_APOSTROPHE:       ps2_pre <= KEY_PS2_APOSTROPHE;
-			KEY_HID_GRAVE:            ps2_pre <= KEY_PS2_GRAVE;
-			KEY_HID_COMMA:            ps2_pre <= KEY_PS2_COMMA;
-			KEY_HID_DOT:              ps2_pre <= KEY_PS2_DOT;
-			KEY_HID_SLASH:            ps2_pre <= KEY_PS2_SLASH;
-			KEY_HID_CAPSLOCK:         ps2_pre <= KEY_PS2_CAPSLOCK;
-			KEY_HID_F1:               ps2_pre <= KEY_PS2_F1;
-			KEY_HID_F2:               ps2_pre <= KEY_PS2_F2;
-			KEY_HID_F3:               ps2_pre <= KEY_PS2_F3;
-			KEY_HID_F4:               ps2_pre <= KEY_PS2_F4;
-			KEY_HID_F5:               ps2_pre <= KEY_PS2_F5;
-			KEY_HID_F6:               ps2_pre <= KEY_PS2_F6;
-			KEY_HID_F7:               ps2_pre <= KEY_PS2_F7;
-			KEY_HID_F8:               ps2_pre <= KEY_PS2_F8;
-			KEY_HID_F9:               ps2_pre <= KEY_PS2_F9;
-			KEY_HID_F10:              ps2_pre <= KEY_PS2_F10;
-			KEY_HID_F11:              ps2_pre <= KEY_PS2_F11;
-			KEY_HID_F12:              ps2_pre <= KEY_PS2_F12;
+			KEY_HID_A:                ps2_pre <= {1'b0,KEY_PS2_A};
+			KEY_HID_B:                ps2_pre <= {1'b0,KEY_PS2_B};
+			KEY_HID_C:                ps2_pre <= {1'b0,KEY_PS2_C};
+			KEY_HID_D:                ps2_pre <= {1'b0,KEY_PS2_D};
+			KEY_HID_E:                ps2_pre <= {1'b0,KEY_PS2_E};
+			KEY_HID_F:                ps2_pre <= {1'b0,KEY_PS2_F};
+			KEY_HID_G:                ps2_pre <= {1'b0,KEY_PS2_G};
+			KEY_HID_H:                ps2_pre <= {1'b0,KEY_PS2_H};
+			KEY_HID_I:                ps2_pre <= {1'b0,KEY_PS2_I};
+			KEY_HID_J:                ps2_pre <= {1'b0,KEY_PS2_J};
+			KEY_HID_K:                ps2_pre <= {1'b0,KEY_PS2_K};
+			KEY_HID_L:                ps2_pre <= {1'b0,KEY_PS2_L};
+			KEY_HID_M:                ps2_pre <= {1'b0,KEY_PS2_M};
+			KEY_HID_N:                ps2_pre <= {1'b0,KEY_PS2_N};
+			KEY_HID_O:                ps2_pre <= {1'b0,KEY_PS2_O};
+			KEY_HID_P:                ps2_pre <= {1'b0,KEY_PS2_P};
+			KEY_HID_Q:                ps2_pre <= {1'b0,KEY_PS2_Q};
+			KEY_HID_R:                ps2_pre <= {1'b0,KEY_PS2_R};
+			KEY_HID_S:                ps2_pre <= {1'b0,KEY_PS2_S};
+			KEY_HID_T:                ps2_pre <= {1'b0,KEY_PS2_T};
+			KEY_HID_U:                ps2_pre <= {1'b0,KEY_PS2_U};
+			KEY_HID_V:                ps2_pre <= {1'b0,KEY_PS2_V};
+			KEY_HID_W:                ps2_pre <= {1'b0,KEY_PS2_W};
+			KEY_HID_X:                ps2_pre <= {1'b0,KEY_PS2_X};
+			KEY_HID_Y:                ps2_pre <= {1'b0,KEY_PS2_Y};
+			KEY_HID_Z:                ps2_pre <= {1'b0,KEY_PS2_Z};
+			KEY_HID_1:                ps2_pre <= {1'b0,KEY_PS2_1};
+			KEY_HID_2:                ps2_pre <= {1'b0,KEY_PS2_2};
+			KEY_HID_3:                ps2_pre <= {1'b0,KEY_PS2_3};
+			KEY_HID_4:                ps2_pre <= {1'b0,KEY_PS2_4};
+			KEY_HID_5:                ps2_pre <= {1'b0,KEY_PS2_5};
+			KEY_HID_6:                ps2_pre <= {1'b0,KEY_PS2_6};
+			KEY_HID_7:                ps2_pre <= {1'b0,KEY_PS2_7};
+			KEY_HID_8:                ps2_pre <= {1'b0,KEY_PS2_8};
+			KEY_HID_9:                ps2_pre <= {1'b0,KEY_PS2_9};
+			KEY_HID_0:                ps2_pre <= {1'b0,KEY_PS2_0};
+			KEY_HID_ENTER:            ps2_pre <= {1'b0,KEY_PS2_ENTER};
+			KEY_HID_ESC:              ps2_pre <= {1'b0,KEY_PS2_ESC};
+			KEY_HID_BACKSPACE:        ps2_pre <= {1'b0,KEY_PS2_BACKSPACE};
+			KEY_HID_TAB:              ps2_pre <= {1'b0,KEY_PS2_TAB};
+			KEY_HID_SPACE:            ps2_pre <= {1'b0,KEY_PS2_SPACE};
+			KEY_HID_MINUS:            ps2_pre <= {1'b0,KEY_PS2_MINUS};
+			KEY_HID_EQUAL:            ps2_pre <= {1'b0,KEY_PS2_EQUAL};
+			KEY_HID_LEFTBRACE:        ps2_pre <= {1'b0,KEY_PS2_LEFTBRACE};
+			KEY_HID_RIGHTBRACE:       ps2_pre <= {1'b0,KEY_PS2_RIGHTBRACE};
+			KEY_HID_BACKSLASH:        ps2_pre <= {1'b0,KEY_PS2_BACKSLASH};
+			KEY_HID_HASHTILDE:        ps2_pre <= {1'b0,KEY_PS2_HASHTILDE};
+			KEY_HID_SEMICOLON:        ps2_pre <= {1'b0,KEY_PS2_SEMICOLON};
+			KEY_HID_APOSTROPHE:       ps2_pre <= {1'b0,KEY_PS2_APOSTROPHE};
+			KEY_HID_GRAVE:            ps2_pre <= {1'b0,KEY_PS2_GRAVE};
+			KEY_HID_COMMA:            ps2_pre <= {1'b0,KEY_PS2_COMMA};
+			KEY_HID_DOT:              ps2_pre <= {1'b0,KEY_PS2_DOT};
+			KEY_HID_SLASH:            ps2_pre <= {1'b0,KEY_PS2_SLASH};
+			KEY_HID_CAPSLOCK:         ps2_pre <= {1'b0,KEY_PS2_CAPSLOCK};
+			KEY_HID_F1:               ps2_pre <= {1'b0,KEY_PS2_F1};
+			KEY_HID_F2:               ps2_pre <= {1'b0,KEY_PS2_F2};
+			KEY_HID_F3:               ps2_pre <= {1'b0,KEY_PS2_F3};
+			KEY_HID_F4:               ps2_pre <= {1'b0,KEY_PS2_F4};
+			KEY_HID_F5:               ps2_pre <= {1'b0,KEY_PS2_F5};
+			KEY_HID_F6:               ps2_pre <= {1'b0,KEY_PS2_F6};
+			KEY_HID_F7:               ps2_pre <= {1'b0,KEY_PS2_F7};
+			KEY_HID_F8:               ps2_pre <= {1'b0,KEY_PS2_F8};
+			KEY_HID_F9:               ps2_pre <= {1'b0,KEY_PS2_F9};
+			KEY_HID_F10:              ps2_pre <= {1'b0,KEY_PS2_F10};
+			KEY_HID_F11:              ps2_pre <= {1'b0,KEY_PS2_F11};
+			KEY_HID_F12:              ps2_pre <= {1'b0,KEY_PS2_F12};
 			KEY_HID_SYSRQ:            ps2_pre <= {1'b1,KEY_PS2_SYSRQ};      // E0
-			KEY_HID_SCROLLLOCK:       ps2_pre <= KEY_PS2_SCROLLLOCK;
+			KEY_HID_SCROLLLOCK:       ps2_pre <= {1'b0,KEY_PS2_SCROLLLOCK};
 			KEY_HID_INSERT:           ps2_pre <= {1'b1,KEY_PS2_INSERT};     // E0
 			KEY_HID_HOME:             ps2_pre <= {1'b1,KEY_PS2_HOME};       // E0
 			KEY_HID_PAGEUP:           ps2_pre <= {1'b1,KEY_PS2_PAGEUP};     // E0
@@ -386,57 +391,57 @@ always @(posedge clk) begin
 			KEY_HID_LEFT:             ps2_pre <= {1'b1,KEY_PS2_LEFT};       // E0
 			KEY_HID_DOWN:             ps2_pre <= {1'b1,KEY_PS2_DOWN};       // E0
 			KEY_HID_UP:               ps2_pre <= {1'b1,KEY_PS2_UP};         // E0
-			KEY_HID_NUMLOCK:          ps2_pre <= KEY_PS2_NUMLOCK;
+			KEY_HID_NUMLOCK:          ps2_pre <= {1'b0,KEY_PS2_NUMLOCK};
 			KEY_HID_KPSLASH:          ps2_pre <= {1'b1,KEY_PS2_KPSLASH};    // E0
-			KEY_HID_KPASTERISK:       ps2_pre <= KEY_PS2_KPASTERISK;
-			KEY_HID_KPMINUS:          ps2_pre <= KEY_PS2_KPMINUS;
-			KEY_HID_KPPLUS:           ps2_pre <= KEY_PS2_KPPLUS;
+			KEY_HID_KPASTERISK:       ps2_pre <= {1'b0,KEY_PS2_KPASTERISK};
+			KEY_HID_KPMINUS:          ps2_pre <= {1'b0,KEY_PS2_KPMINUS};
+			KEY_HID_KPPLUS:           ps2_pre <= {1'b0,KEY_PS2_KPPLUS};
 			KEY_HID_KPENTER:          ps2_pre <= {1'b1,KEY_PS2_KPENTER};    // E0
-			KEY_HID_KP1:              ps2_pre <= KEY_PS2_KP1;
-			KEY_HID_KP2:              ps2_pre <= KEY_PS2_KP2;
-			KEY_HID_KP3:              ps2_pre <= KEY_PS2_KP3;
-			KEY_HID_KP4:              ps2_pre <= KEY_PS2_KP4;
-			KEY_HID_KP5:              ps2_pre <= KEY_PS2_KP5;
-			KEY_HID_KP6:              ps2_pre <= KEY_PS2_KP6;
-			KEY_HID_KP7:              ps2_pre <= KEY_PS2_KP7;
-			KEY_HID_KP8:              ps2_pre <= KEY_PS2_KP8;
-			KEY_HID_KP9:              ps2_pre <= KEY_PS2_KP9;
-			KEY_HID_KP0:              ps2_pre <= KEY_PS2_KP0;
-			KEY_HID_KPDOT:            ps2_pre <= KEY_PS2_KPDOT;
-			KEY_HID_102ND:            ps2_pre <= KEY_PS2_102ND;
+			KEY_HID_KP1:              ps2_pre <= {1'b0,KEY_PS2_KP1};
+			KEY_HID_KP2:              ps2_pre <= {1'b0,KEY_PS2_KP2};
+			KEY_HID_KP3:              ps2_pre <= {1'b0,KEY_PS2_KP3};
+			KEY_HID_KP4:              ps2_pre <= {1'b0,KEY_PS2_KP4};
+			KEY_HID_KP5:              ps2_pre <= {1'b0,KEY_PS2_KP5};
+			KEY_HID_KP6:              ps2_pre <= {1'b0,KEY_PS2_KP6};
+			KEY_HID_KP7:              ps2_pre <= {1'b0,KEY_PS2_KP7};
+			KEY_HID_KP8:              ps2_pre <= {1'b0,KEY_PS2_KP8};
+			KEY_HID_KP9:              ps2_pre <= {1'b0,KEY_PS2_KP9};
+			KEY_HID_KP0:              ps2_pre <= {1'b0,KEY_PS2_KP0};
+			KEY_HID_KPDOT:            ps2_pre <= {1'b0,KEY_PS2_KPDOT};
+			KEY_HID_102ND:            ps2_pre <= {1'b0,KEY_PS2_102ND};
 			KEY_HID_COMPOSE:          ps2_pre <= {1'b1,KEY_PS2_COMPOSE};   // E0
 			KEY_HID_POWER:            ps2_pre <= {1'b1,KEY_PS2_POWER};     // E0
-			KEY_HID_KPEQUAL:          ps2_pre <= KEY_PS2_KPEQUAL;
-			KEY_HID_F13:              ps2_pre <= KEY_PS2_F13;
-			KEY_HID_F14:              ps2_pre <= KEY_PS2_F14;
-			KEY_HID_F15:              ps2_pre <= KEY_PS2_F15;
-			KEY_HID_F16:              ps2_pre <= KEY_PS2_F16;
-			KEY_HID_F17:              ps2_pre <= KEY_PS2_F17;
-			KEY_HID_F18:              ps2_pre <= KEY_PS2_F18;
-			KEY_HID_F19:              ps2_pre <= KEY_PS2_F19;
-			KEY_HID_F20:              ps2_pre <= KEY_PS2_F20;
-			KEY_HID_F21:              ps2_pre <= KEY_PS2_F21;
-			KEY_HID_F22:              ps2_pre <= KEY_PS2_F22;
-			KEY_HID_F23:              ps2_pre <= KEY_PS2_F23;
-			KEY_HID_F24:              ps2_pre <= KEY_PS2_F24;
-			KEY_HID_KPCOMMA:          ps2_pre <= KEY_PS2_KPCOMMA;
-			KEY_HID_RO:               ps2_pre <= KEY_PS2_RO;
-			KEY_HID_KATAKANAHIRAGANA: ps2_pre <= KEY_PS2_KATAKANAHIRAGANA;
-			KEY_HID_YEN:              ps2_pre <= KEY_PS2_YEN;
-			KEY_HID_HENKAN:           ps2_pre <= KEY_PS2_HENKAN;
-			KEY_HID_MUHENKAN:         ps2_pre <= KEY_PS2_MUHENKAN;
-			KEY_HID_KPJPCOMMA:        ps2_pre <= KEY_PS2_KPJPCOMMA;
-			KEY_HID_HANGEUL:          ps2_pre <= KEY_PS2_HANGEUL;
-			KEY_HID_HANJA:            ps2_pre <= KEY_PS2_HANJA;
-			KEY_HID_KATAKANA:         ps2_pre <= KEY_PS2_KATAKANA;
-			KEY_HID_HIRAGANA:         ps2_pre <= KEY_PS2_HIRAGANA;
-			KEY_HID_ZENKAKUHANKAKU:   ps2_pre <= KEY_PS2_ZENKAKUHANKAKU;
-			KEY_HID_LEFTCTRL:         ps2_pre <= KEY_PS2_LEFTCTRL;
-			KEY_HID_LEFTSHIFT:        ps2_pre <= KEY_PS2_LEFTSHIFT;
-			KEY_HID_LEFTALT:          ps2_pre <= KEY_PS2_LEFTALT;
+			KEY_HID_KPEQUAL:          ps2_pre <= {1'b0,KEY_PS2_KPEQUAL};
+			KEY_HID_F13:              ps2_pre <= {1'b0,KEY_PS2_F13};
+			KEY_HID_F14:              ps2_pre <= {1'b0,KEY_PS2_F14};
+			KEY_HID_F15:              ps2_pre <= {1'b0,KEY_PS2_F15};
+			KEY_HID_F16:              ps2_pre <= {1'b0,KEY_PS2_F16};
+			KEY_HID_F17:              ps2_pre <= {1'b0,KEY_PS2_F17};
+			KEY_HID_F18:              ps2_pre <= {1'b0,KEY_PS2_F18};
+			KEY_HID_F19:              ps2_pre <= {1'b0,KEY_PS2_F19};
+			KEY_HID_F20:              ps2_pre <= {1'b0,KEY_PS2_F20};
+			KEY_HID_F21:              ps2_pre <= {1'b0,KEY_PS2_F21};
+			KEY_HID_F22:              ps2_pre <= {1'b0,KEY_PS2_F22};
+			KEY_HID_F23:              ps2_pre <= {1'b0,KEY_PS2_F23};
+			KEY_HID_F24:              ps2_pre <= {1'b0,KEY_PS2_F24};
+			KEY_HID_KPCOMMA:          ps2_pre <= {1'b0,KEY_PS2_KPCOMMA};
+			KEY_HID_RO:               ps2_pre <= {1'b0,KEY_PS2_RO};
+			KEY_HID_KATAKANAHIRAGANA: ps2_pre <= {1'b0,KEY_PS2_KATAKANAHIRAGANA};
+			KEY_HID_YEN:              ps2_pre <= {1'b0,KEY_PS2_YEN};
+			KEY_HID_HENKAN:           ps2_pre <= {1'b0,KEY_PS2_HENKAN};
+			KEY_HID_MUHENKAN:         ps2_pre <= {1'b0,KEY_PS2_MUHENKAN};
+			KEY_HID_KPJPCOMMA:        ps2_pre <= {1'b0,KEY_PS2_KPJPCOMMA};
+			KEY_HID_HANGEUL:          ps2_pre <= {1'b0,KEY_PS2_HANGEUL};
+			KEY_HID_HANJA:            ps2_pre <= {1'b0,KEY_PS2_HANJA};
+			KEY_HID_KATAKANA:         ps2_pre <= {1'b0,KEY_PS2_KATAKANA};
+			KEY_HID_HIRAGANA:         ps2_pre <= {1'b0,KEY_PS2_HIRAGANA};
+			KEY_HID_ZENKAKUHANKAKU:   ps2_pre <= {1'b0,KEY_PS2_ZENKAKUHANKAKU};
+			KEY_HID_LEFTCTRL:         ps2_pre <= {1'b0,KEY_PS2_LEFTCTRL};
+			KEY_HID_LEFTSHIFT:        ps2_pre <= {1'b0,KEY_PS2_LEFTSHIFT};
+			KEY_HID_LEFTALT:          ps2_pre <= {1'b0,KEY_PS2_LEFTALT};
 			KEY_HID_LEFTMETA:         ps2_pre <= {1'b1,KEY_PS2_LEFTMETA};    // E0
 			KEY_HID_RIGHTCTRL:        ps2_pre <= {1'b1,KEY_PS2_RIGHTCTRL};   // E0
-			KEY_HID_RIGHTSHIFT:       ps2_pre <= KEY_PS2_RIGHTSHIFT;
+			KEY_HID_RIGHTSHIFT:       ps2_pre <= {1'b0,KEY_PS2_RIGHTSHIFT};
 			KEY_HID_RIGHTALT:         ps2_pre <= {1'b1,KEY_PS2_RIGHTALT};    // E0
 			KEY_HID_RIGHTMETA:        ps2_pre <= {1'b1,KEY_PS2_RIGHTMETA};   // E0
 			default:                  ps2_pre <= 0;

@@ -51,7 +51,7 @@ initial begin
     for (value = 0; value < 256; value++) begin
         if( dexp != 0 ) begin
             wait ( cen==1 );
-        wait ( cen==0 );
+            wait ( cen==0 );
             repeat(3) @(posedge clk);
             if( high ) begin
                 wait ( cen==1 );
@@ -75,6 +75,7 @@ jtframe_hid_ps2_translator uut(
     .clk      ( clk      ),
     .cen      ( cen      ),
     .released ( 1'b0     ),
+    .last     (          ),
     .keycheck ( data_in  ),
     .ps2_code ( data_out ),
     .high     ( high     )
