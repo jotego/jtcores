@@ -215,7 +215,8 @@ jtflstory_video u_video(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( debug_bus ),
+    .gfx_en     ( gfx_en    )
 );
 
 endmodule

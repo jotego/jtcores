@@ -55,6 +55,7 @@ module jtflstory_video(
     output     [ 9:0] pal_addr,
     input      [15:0] pal_dout,
     output     [ 3:0] red, green, blue,
+    input       [3:0] gfx_en,
     input       [7:0] debug_bus
 );
 
@@ -203,7 +204,8 @@ jtflstory_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( debug_bus ),
+    .gfx_en     ( gfx_en    )
 );
 
 endmodule
