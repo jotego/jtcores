@@ -21,7 +21,7 @@ module jtframe_hid_ps2_translator(
     input            clk,
     input            cen,
 
-    input  reg [7:0] keycheck,
+    input      [7:0] keycheck,
     input            released,
     output           last,
     output reg [7:0] ps2_code,

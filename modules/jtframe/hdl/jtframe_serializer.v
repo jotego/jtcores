@@ -49,7 +49,7 @@ always @(posedge clk) begin
                 cnt <= cnt-1'b1;
             end
         end
-        if( load  ) begin
+        if( load && din!=0  ) begin
             pre_data <= {par,din, 1'b0};
             cnt <= DW+2'd2;
         end
