@@ -58,6 +58,7 @@ usage: jtcore <corename> [options]
     --mrpasswd      Sets the SSH pasword to use on MiSTer
     --nodbg         Defines JTFRAME_RELEASE
     --nosta         skips the STA check and marks as PASS compilations with timing problems
+    --nolinter      Do not run the verilator linter
     --program | -p  Programs the FPGA via JTAG
     --quick |-q     Quick compilation. Defines NOSOUND and JTFRAME_OSD_NOLOGO
                     Disables JTFRAME_CREDITS and HQ2X.
@@ -86,6 +87,7 @@ MACROS=
 OUTPUTDIR=output_files
 PRJ=
 NODBG=
+NOLINTER=
 PROG=FALSE
 SEED=1
 SKIPTIMING=
@@ -173,6 +175,7 @@ function parse_args {
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
             --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nolinter) NOLINTER=1;;
             --nosta) SKIPTIMING=1;;
             --sim)   SIM=TRUE;;
             --sd)
@@ -428,7 +431,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     rm -rf $PRJPATH/$TARGET
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
-    lint_core $PRJ
+    if [ -z "$NOLINTER" ]; then
+        lint_core $PRJ
+    fi
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then
