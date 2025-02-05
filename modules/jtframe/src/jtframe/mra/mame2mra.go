@@ -454,7 +454,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		os.Exit(1)
 	}
 	// Beta
-	if betas.All.IsBetaFor(corename,"mister") {
+	if betas.IsBetaFor(corename,"mister") {
 		n := root.AddNode("rom").AddAttr("index", "17")
 		// MiSTer makes a mess of md5 calculations, so I am not using that
 		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
