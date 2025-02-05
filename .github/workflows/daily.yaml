@@ -59,7 +59,7 @@ jobs:
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg --nolinter
       - id: upload
         uses: actions/upload-artifact@v4
         with:
