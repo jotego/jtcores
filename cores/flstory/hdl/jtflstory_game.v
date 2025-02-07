@@ -36,7 +36,6 @@ assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
-assign pal16_addr = {pal_bank,bus_addr[7:0]};
 
 always @(posedge clk) begin
     st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,1'd0,mirror,gvflip,ghflip};
@@ -91,6 +90,7 @@ jtflstory_main u_main(
     // video memories
     .pal16_we   ( pal16_we  ),
     .pal16_dout ( pal16_dout),
+    .pal16_addr ( pal16_addr),
     .vram16_dout(vram16_dout),
     .oram8_dout ( oram8_dout),
     .vram_we    ( vram_we   ),

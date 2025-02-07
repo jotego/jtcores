@@ -35,6 +35,7 @@ module jtflstory_main(
 
     // video memories
     output    [ 1:0] pal16_we,
+    output    [ 9:0] pal16_addr,
     output    [ 1:0] vram_we,
     output           oram_we,
     input     [15:0] pal16_dout,
@@ -95,18 +96,19 @@ reg         ram_cs,
             pal_lo,
             rst_n;
 
-assign A        = bus_addr;
-assign rom_addr = bus_addr;
-assign bus_addr = busak_n ? cpu_addr : c2b_addr;
-assign bus_dout = busak_n ? cpu_dout : c2b_dout;
-assign bus_din  = din;
-assign bus_we   = busak_n ? ~wr_n    : c2b_we;
-assign bus_rd   = busak_n ? ~rd_n    : c2b_rd;
-assign pal16_we = {2{bus_we}} & {pal_hi,pal_lo};
-assign sha_we   = sha_cs & bus_we;
-assign vram_we  = {2{vram_cs&bus_we}} & { A[0], ~A[0] };
-assign oram_we  = oram_cs & bus_we;
-assign int_n    = ~dip_pause | lvbl;
+assign A          = bus_addr;
+assign rom_addr   = bus_addr;
+assign bus_addr   = busak_n ? cpu_addr : c2b_addr;
+assign bus_dout   = busak_n ? cpu_dout : c2b_dout;
+assign bus_din    = din;
+assign bus_we     = busak_n ? ~wr_n    : c2b_we;
+assign bus_rd     = busak_n ? ~rd_n    : c2b_rd;
+assign pal16_we   = {2{bus_we}} & {pal_hi,pal_lo};
+assign pal16_addr = {pal_bank,bus_addr[7:0]};
+assign sha_we     = sha_cs & bus_we;
+assign vram_we    = {2{vram_cs&bus_we}} & { A[0], ~A[0] };
+assign oram_we    = oram_cs & bus_we;
+assign int_n      = ~dip_pause | lvbl;
 
 always @* begin
     rom_cs  = 0;
@@ -229,20 +231,21 @@ initial begin
     {scr_flen, gvflip, ghflip, pal_bank, scr_bank} = sim_data[0][6:0];
 end
 
-assign cpu_dout  = 0;
-assign bus_addr  = 0;
-assign bus_dout  = 0;
-assign bus_din   = 0;
-assign pal16_we  = 0;
-assign vram_we   = 0;
-assign oram_we   = 0;
-assign busak_n   = 0;
-assign sha_we    = 0;
-assign rom_addr  = 0;
-initial m2s_wr   = 0;
-initial s2m_rd   = 0;
-initial b2c_wr   = 0;
-initial b2c_rd   = 0;
-initial rom_cs   = 0;
+assign cpu_dout   = 0;
+assign bus_addr   = 0;
+assign bus_dout   = 0;
+assign bus_din    = 0;
+assign pal16_we   = 0;
+assign pal16_addr = 0;
+assign vram_we    = 0;
+assign oram_we    = 0;
+assign busak_n    = 0;
+assign sha_we     = 0;
+assign rom_addr   = 0;
+initial m2s_wr    = 0;
+initial s2m_rd    = 0;
+initial b2c_wr    = 0;
+initial b2c_rd    = 0;
+initial rom_cs    = 0;
 `endif
 endmodule
