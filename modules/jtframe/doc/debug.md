@@ -54,13 +54,13 @@ st_addr[1:0] |  Read
 
 If the core exercises the *sample* signal, JTFRAME can report the current sample rate.
 
-st_addr[5:4] |  Read
+st_addr[7:4] |  Read
 -------------|-----------
   0          | 8-bit VU (average power)
-  1, [1:0]=0 | 1-bit VU (signals sound activity per channel)
-  1, [1:0]=1 | Channel enable bits
-  1, [1:0]=2 | Sample rate in kHz (BCD)
-  2          | Sound volume (gain set by the user/MRA)
+  5, [1:0]=0 | 1-bit VU (signals sound activity per channel)
+  5, [1:0]=1 | Channel enable bits
+  5, [1:0]=2 | Sample rate in kHz (BCD)
+  6          | Sound volume (gain set by the user/MRA)
 
 ### Joysticks
 

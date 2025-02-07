@@ -18,9 +18,8 @@ jtframe:
     get:
       - jtframe_blink.v
       - jtframe_vtimer.v
-      - jtframe_scroll.v
-      - jtframe_tilemap.v
       - jtframe_obj.yaml
+      - jtframe_scroll.yaml
 jt5232:
 jt12:
   - get:

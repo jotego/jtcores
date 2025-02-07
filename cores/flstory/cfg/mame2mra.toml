@@ -10,7 +10,6 @@ names=[
 sourcefile=[ "flstory.cpp" ]
 debug={ machines=[
 	"victnine",
-	"rumba",
 ]}
 
 [dipsw]

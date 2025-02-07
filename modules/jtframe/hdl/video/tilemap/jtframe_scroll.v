@@ -24,7 +24,7 @@
 
 module jtframe_scroll #( parameter
     SIZE =  8,    // 8x8, 16x16 or 32x32
-    VA   = 10,
+    VA   = 12,
     CW   = 12,
     PW   =  8,
     MAP_HW = 9,    // 2^MAP_HW = size of the map in pixels
@@ -35,7 +35,9 @@ module jtframe_scroll #( parameter
     HW   = VW,
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
     XOR_VFLIP = 0, // set to 1 so vflip gets ^ with flip
-    HJUMP     = 1  // set to 0 for linear hdump starting at zero after HB
+    HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
+
+    COL_SCROLL = 0 // set to 1 to enable 8-pixel column scroll
 )(
     input              rst,
     input              clk,
@@ -69,25 +71,26 @@ module jtframe_scroll #( parameter
 // but the MSBs will be fixed
 localparam HDUMPW = MAP_HW, VDUMPW = MAP_VW;
 
-reg              hsl;
-reg        [8:0] vdf, hdf;
-reg [VDUMPW-1:0] veff;
-reg [HDUMPW-1:0] heff;
+wire [VDUMPW-1:0] veff;
+wire [HDUMPW-1:0] heff;
 
-always @* begin
-    hdf  = hdump ^ { 1'b0, {8{flip}} };
-    /* verilator lint_off WIDTHTRUNC */
-    heff = hdf + scrx;
-    /* verilator lint_on WIDTHTRUNC */
-    vdf  = vdump ^ { 1'b0, {8{flip}} };
-end
-
-always @(posedge clk) begin
-    hsl <= hs;
-    /* verilator lint_off WIDTHTRUNC */
-    if( ~hs & hsl ) veff <= vdf + scry;
-    /* verilator lint_on WIDTHTRUNC */
-end
+jtframe_scroll_offset #(
+    .MAP_HW     ( MAP_HW    ),
+    .MAP_VW     ( MAP_VW    ),
+    .HDUMPW     ( HDUMPW    ),
+    .VDUMPW     ( VDUMPW    ),
+    .COL_SCROLL ( COL_SCROLL)
+) u_offset(
+    .clk        ( clk       ),
+    .flip       ( flip      ),
+    .scrx       ( scrx      ),
+    .scry       ( scry      ),
+    .hs         ( hs        ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .heff       ( heff      ),
+    .veff       ( veff      )
+);
 
 jtframe_tilemap #(
     .SIZE       ( SIZE      ),

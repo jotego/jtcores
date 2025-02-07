@@ -127,7 +127,8 @@ jtframe_scroll #(
     .MAP_HW      (    8 ),
     .PW          (   10 ),
     .XOR_HFLIP   (    1 ),
-    .HJUMP       (    1 )
+    .HJUMP       (    1 ),
+    .COL_SCROLL  (    1 )
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),

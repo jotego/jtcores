@@ -10,8 +10,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_scroll.v
-      - jtframe_tilemap.v
+      - jtframe_scroll.yaml
   - from: video
     get:
       - jtframe_vtimer.v

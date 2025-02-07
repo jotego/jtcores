@@ -81,6 +81,7 @@ jtflstory_obj_scan u_scan(
     .clk        ( clk       ),
     .lhbl       ( lhbl      ),
     .blink      ( blink     ),
+    .ghflip     ( ghflip    ),
     .gvflip     ( gvflip    ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),

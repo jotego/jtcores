@@ -23,7 +23,8 @@
 
 module jtflstory_obj_scan(
     input             clk, 
-                      lhbl, blink, dr_busy, gvflip,
+                      lhbl, blink, dr_busy,
+                      ghflip, gvflip,
     input       [8:0] hdump, vdump,
     // RAM shared with CPU
     output     [ 7:0] ram_addr,
@@ -39,6 +40,7 @@ module jtflstory_obj_scan(
     output reg [ 6:0] pal
 );
 
+wire [ 8:0] hf;
 reg  [ 7:0] vlatch, chk; // object to check
 reg  [ 4:0] scan;
 reg  [ 3:0] cnt;
@@ -53,10 +55,10 @@ assign ram_din  = chk;
 assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   D0~D7, blinking D8~DF
                   info  ? {1'b0,   chk[4:0],  obj_sub   }: // object data       00~7F
                   order ? {3'b100, scan                 }: // object draw order 80~9F
-                          {3'b101, hdump[7:3]           }; // column scroll     A0~BF
+                          {3'b101, hf[7:3]              }; // column scroll     A0~BF
 assign ydiff    = vlatch+ram_dout;
 assign inzone   = ydiff[7:4] == 4'b1111;
-
+assign hf       = ghflip ? -9'h8-hdump : hdump;
 
 always @(posedge clk) begin
     lhbl_l   <= lhbl;
