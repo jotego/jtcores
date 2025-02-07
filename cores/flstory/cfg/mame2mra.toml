@@ -9,7 +9,6 @@ names=[
 [parse]
 sourcefile=[ "flstory.cpp" ]
 debug={ machines=[
-	"onna34ro",
 	"victnine",
 	"rumba",
 ]}
