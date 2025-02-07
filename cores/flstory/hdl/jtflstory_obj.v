@@ -188,19 +188,6 @@ jtframe_draw #(
     .buf_din    ( buf_din   )
 );
 
-// jtframe_dual_ram #(.AW(8), .DW(11)) u_linebuf (
-//     .clk0       ( clk         ),
-//     .addr0      ( buf_addr    ),
-//     .data0      ( buf_din     ),
-//     .we0        ( buf_we & buf_din[3:0] != 4'hf ),
-//     .q0         (             ),
-//     .clk1       ( clk         ),
-//     .addr1      ( hvdump[7:0] ),
-//     .data1      ( 11'hf       ),
-//     .we1        ( pxl_cen & hvdump[8] ),
-//     .q1         ( pxl_raw     )
-// );
-
 jtflstory_single_line_buffer u_linebuf(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
