@@ -39,8 +39,8 @@ fill=0
 PCBs = [
 	{ machine ="flstory"  },
 	{ machine ="onna34ro" },
-	{ machine ="victnine" },
 	{ machine ="rumba"    },
+	{ machine ="victnine" },
 ]
 data = [
 	{ pcb_id=true, offset=0 },

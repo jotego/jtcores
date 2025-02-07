@@ -23,11 +23,17 @@ audio:
   # temptative values
   rsum: 1k
   # mute: true
+  pcb:
+    # must match PCB order in TOML file - not automated check yet
+    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # flstory
+    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # onna34ro
+    - { rfb: 1k, rsums: [ 1k, 4k, 4k ] } # rumba
+    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # victnine
   channels:
 #     # FIR should be 3kHz, not 4kHz
-    - { name: msm,   module: jt5232,rsum: 1k, pre: 1.2 }
-    - { name: psg,   module: jt5232,rsum: 1k, pre: 0.8 } # not using jt49 settings because of signed output
-    - { name: dac,   data_width: 8, rsum: 1k, unsigned: true, dcrm: true, pre: 0.6 }
+    - { name: msm,   module: jt5232,rsum: 1k, pre: 1.1 }
+    - { name: psg,   module: jt5232,rsum: 1k, pre: 1.0 } # not using jt49 settings because of signed output
+    - { name: dac,   data_width: 8, rsum: 1k, unsigned: true, dcrm: true }
 sdram:
   banks:
     - buses:
