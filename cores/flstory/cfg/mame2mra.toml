@@ -32,6 +32,8 @@ info="""
 		        1 == MCU disabled
 		byte 3: 0 == coins are active low
 		        1 ==                  high
+		byte 4: 0 == GFX config register at $DF03
+		        1 == GFX config register at $DCE0
 """
 fill=0
 PCBs = [
@@ -48,6 +50,8 @@ data = [
 	{ setname="onna34roa",              data="01", offset=2 },
 	# coins active high/low
 	{ setname="rumba",                  data="01", offset=3 },
+	# GFX config register location
+	{ setname="rumba",                  data="01", offset=4 },
 ]
 
 [ROM]

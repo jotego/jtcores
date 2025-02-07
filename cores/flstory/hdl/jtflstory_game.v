@@ -29,7 +29,7 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
 reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank;
-wire        mute, mirror, mcu_enb, coinxor;
+wire        mute, mirror, mcu_enb, coinxor, gfxcfg;
 reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
@@ -38,7 +38,7 @@ assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
 
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,1'd0,mirror,gvflip,ghflip};
+    st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
 end
 
 jtflstory_header u_header (
@@ -49,7 +49,8 @@ jtflstory_header u_header (
     .prog_data( prog_data       ),
     .mirror   ( mirror          ),
     .mcu_enb  ( mcu_enb         ),
-    .coinxor  ( coinxor         )
+    .coinxor  ( coinxor         ),
+    .gfxcfg   ( gfxcfg          )
 );
 
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
@@ -61,7 +62,9 @@ jtflstory_main u_main(
     .clk        ( clk       ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
+
     .mirror     ( mirror    ),
+    .gfxcfg     ( gfxcfg    ),
 
     .bus_addr   ( bus_addr  ),
     .bus_din    ( bus_din   ),
@@ -142,7 +145,7 @@ jtflstory_mcu u_mcu(
     .rom_addr   ( mcu_addr  ),
     .rom_data   ( mcu_data  )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),

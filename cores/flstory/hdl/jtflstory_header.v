@@ -21,17 +21,19 @@ module jtflstory_header(
                 header, prog_we,
     input [2:0] prog_addr,
     input [7:0] prog_data,
-    output reg  mirror=0, mcu_enb=0, coinxor=0
+    output reg  mirror=0, mcu_enb=0, coinxor=0, gfxcfg=0
 );
 
 localparam [2:0] MIRROR_OFFSET  = 3'd1,
                  MCUENB_OFFSET  = 3'd2,
-                 COINXOR_OFFSET = 3'd3;
+                 COINXOR_OFFSET = 3'd3,
+                 GFXCFG_OFFSET  = 3'd4;
 
 always @(posedge clk) begin
     if( header && prog_addr[2:0]==MIRROR_OFFSET  && prog_we ) mirror  <= prog_data[0];
     if( header && prog_addr[2:0]==MCUENB_OFFSET  && prog_we ) mcu_enb <= prog_data[0];
     if( header && prog_addr[2:0]==COINXOR_OFFSET && prog_we ) coinxor <= prog_data[0];
+    if( header && prog_addr[2:0]==GFXCFG_OFFSET  && prog_we ) gfxcfg  <= prog_data[0];
 end
 
 endmodule

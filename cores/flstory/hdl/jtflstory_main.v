@@ -21,7 +21,8 @@ module jtflstory_main(
     input            clk,
     input            cen,
     input            lvbl,       // video interrupt
-    input            mirror,
+
+    input            mirror, gfxcfg,
 
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
@@ -86,15 +87,10 @@ module jtflstory_main(
 wire [15:0] A, cpu_addr;
 reg  [ 7:0] cab, din;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
-reg         ram_cs,
-            vram_cs,
-            sha_cs,
-            vcfg_cs,
-            oram_cs,
-            cab_cs,
-            pal_hi,
-            pal_lo,
-            rst_n;
+reg         rst_n,
+            pal_hi,  pal_lo,
+            vcfg_cs, rumba_cfg, flstory_cfg,
+            ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs;
 
 assign A          = bus_addr;
 assign rom_addr   = bus_addr;
@@ -111,18 +107,20 @@ assign oram_we    = oram_cs & bus_we;
 assign int_n      = ~dip_pause | lvbl;
 
 always @* begin
-    rom_cs  = 0;
-    vram_cs = 0;
-    sha_cs  = 0;
-    cab_cs  = 0;
-    oram_cs = 0;
-    pal_lo  = 0;
-    pal_hi  = 0;
-    vcfg_cs = 0;
-    m2s_wr  = 0;
-    s2m_rd  = 0;
-    b2c_wr  = 0;
-    b2c_rd  = 0;
+    rom_cs      = 0;
+    vram_cs     = 0;
+    sha_cs      = 0;
+    cab_cs      = 0;
+    oram_cs     = 0;
+    pal_lo      = 0;
+    pal_hi      = 0;
+    vcfg_cs     = 0;
+    m2s_wr      = 0;
+    s2m_rd      = 0;
+    b2c_wr      = 0;
+    b2c_rd      = 0;
+    flstory_cfg = 0;
+    rumba_cfg   = 0;
     if( !mreq_n && rfsh_n ) case(A[15:14])
         0,1,2: rom_cs = 1;
         3: case(A[13:12])
@@ -142,12 +140,15 @@ always @* begin
                     1: {m2s_wr, s2m_rd} = {bus_we, bus_rd}; // D400
                     2: cab_cs = 1;  // D80?
                     3: case(A[9:8]) // DC?? ~ DF??
-                        0: oram_cs = 1; // DC??
+                        0: begin // DC??
+                            oram_cs = 1; // DC??
+                            rumba_cfg = bus_we && A[7:4]==4'he; // DCE? used by rumba
+                        end
                         1: pal_lo  = 1; // DD??
                         2: pal_hi  = 1; // DE?? includes priority bits
                         3: case(A[1:0]) // DF??
                             // 0, 1, 2: related to gun games?
-                            3: vcfg_cs = bus_we;
+                            3: flstory_cfg = bus_we;
                             default:;
                         endcase
                     endcase
@@ -157,6 +158,7 @@ always @* begin
             default:;
         endcase
     endcase
+    vcfg_cs = gfxcfg ? rumba_cfg : flstory_cfg;
 end
 
 localparam [1:0] LOW_FOR_FLSTORY=2'd0;
