@@ -33,6 +33,8 @@ info="""
 		        1 ==                  high
 		byte 4: 0 == GFX config register at $DF03
 		        1 == GFX config register at $DCE0
+		byte 5: 0 == use priority RAM
+		        1 == obj always have priority
 """
 fill=0
 PCBs = [
@@ -51,6 +53,9 @@ data = [
 	{ setname="rumba",                  data="01", offset=3 },
 	# GFX config register location
 	{ setname="rumba",                  data="01", offset=4 },
+	# Layer priority
+	{ setname="rumba",                  data="01", offset=5 },
+
 ]
 
 [ROM]

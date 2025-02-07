@@ -20,6 +20,7 @@ module jtflstory_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+                      priocfg,
 
     input             ghflip,
     input             gvflip,
@@ -187,6 +188,7 @@ jtflstory_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .priocfg    ( priocfg   ),
 
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl_short),

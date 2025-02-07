@@ -85,7 +85,7 @@ module jtflstory_main(
 `ifndef NOMAIN
 
 wire [15:0] A, cpu_addr;
-reg  [ 7:0] cab, din;
+reg  [ 7:0] cab, din, vram8_dout;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
 reg         rst_n,
             pal_hi,  pal_lo,
@@ -142,7 +142,7 @@ always @* begin
                     3: case(A[9:8]) // DC?? ~ DF??
                         0: begin // DC??
                             oram_cs = 1; // DC??
-                            rumba_cfg = bus_we && A[7:4]==4'he; // DCE? used by rumba
+                            rumba_cfg = bus_we && A[7:0]==8'he0; // DCE? used by rumba
                         end
                         1: pal_lo  = 1; // DD??
                         2: pal_hi  = 1; // DE?? includes priority bits
@@ -184,16 +184,19 @@ always @(posedge clk) begin
     endcase
 end
 
+
 always @* begin
-    din = rom_cs ? rom_data   :
-          sha_cs ? sha_dout   :
-          cab_cs ? cab        :
-          oram_cs? oram8_dout :
-          s2m_rd ? s2m_data   :
-          b2c_rd ? mcu2bus    :
-          pal_lo ? pal16_dout[ 7:0] :
-          pal_hi ? pal16_dout[15:8] :
-          vram_cs? (A[0] ? vram16_dout[15:8] : vram16_dout[7:0]) :
+    vram8_dout = A[0] ? vram16_dout[15:8] : vram16_dout[7:0];
+
+    din = rom_cs  ? rom_data   :
+          sha_cs  ? sha_dout   :
+          cab_cs  ? cab        :
+          oram_cs ? oram8_dout :
+          s2m_rd  ? s2m_data   :
+          b2c_rd  ? mcu2bus    :
+          pal_lo  ? pal16_dout[ 7:0] :
+          pal_hi  ? pal16_dout[15:8] :
+          vram_cs ? vram8_dout :
           8'd0;
 end
 

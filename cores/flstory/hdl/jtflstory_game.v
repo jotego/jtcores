@@ -29,7 +29,7 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
 reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank;
-wire        mute, mirror, mcu_enb, coinxor, gfxcfg;
+wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg;
 reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
@@ -50,7 +50,8 @@ jtflstory_header u_header (
     .mirror   ( mirror          ),
     .mcu_enb  ( mcu_enb         ),
     .coinxor  ( coinxor         ),
-    .gfxcfg   ( gfxcfg          )
+    .gfxcfg   ( gfxcfg          ),
+    .priocfg  ( priocfg         )
 );
 
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
@@ -181,6 +182,7 @@ jtflstory_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .priocfg    ( priocfg   ),
 
     .ghflip     ( ghflip    ),
     .gvflip     ( gvflip    ),
