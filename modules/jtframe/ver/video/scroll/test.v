@@ -1,6 +1,7 @@
 module test;
 
 `include "test_tasks.vh"
+`include "video_tasks.vh"
 
 wire          rst, clk, pxl_cen, vs, hs;
 wire    [8:0] hdump, vdump;
