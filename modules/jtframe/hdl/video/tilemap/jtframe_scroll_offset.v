@@ -33,19 +33,26 @@ module jtframe_scroll_offset #(parameter
     output reg [HDUMPW-1:0] heff
 );
 
-reg        hsl;
-reg  [8:0] vdf, hdf;
-reg        h8_l, line_changed, tile_changed, update_veff;
-wire       h8;
+localparam VDW=9,
+           HEW = HDUMPW>VDW ? HDUMPW : VDW,
+           VEW = VDUMPW>VDW ? VDUMPW : VDW;
+
+reg  [VDW-1:0] vdf, hdf;
+reg  [HEW-1:0] hfull;
+reg  [VEW-1:0] vfull;
+wire h8;
+reg  hsl, h8_l,
+     line_changed, tile_changed, update_veff;
 
 assign h8 = heff[3];
 
 always @* begin
-    hdf  = hdump ^ { 1'b0, {8{flip}} };
-    /* verilator lint_off WIDTHTRUNC */
-    heff = hdf + scrx;
-    /* verilator lint_on WIDTHTRUNC */
-    vdf  = vdump ^ { 1'b0, {8{flip}} };
+    hdf   = hdump ^ { 1'b0, {8{flip}} };
+    hfull = hdf + scrx;
+    heff  = hfull[HDUMPW-1:0];
+
+    vdf   = vdump ^ { 1'b0, {8{flip}} };
+    vfull = vdf + scry;
 end
 
 always @* begin
@@ -57,9 +64,7 @@ end
 always @(posedge clk) begin
     hsl  <= hs;
     h8_l <= h8;
-    /* verilator lint_off WIDTHTRUNC */
-    if( update_veff ) veff <= vdf + scry;
-    /* verilator lint_on WIDTHTRUNC */
+    if( update_veff ) veff <= vfull[VDUMPW-1:0];
 end
 
 endmodule

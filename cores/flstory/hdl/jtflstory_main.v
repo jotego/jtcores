@@ -22,7 +22,7 @@ module jtflstory_main(
     input            cen,
     input            lvbl,       // video interrupt
 
-    input            mirror, gfxcfg,
+    input            mirror, gfxcfg, cabcfg,
 
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
@@ -68,8 +68,8 @@ module jtflstory_main(
     // Cabinet inputs
     input     [ 1:0] cab_1p,
     input     [ 1:0] coin,
-    input     [ 5:0] joystick1,
-    input     [ 5:0] joystick2,
+    input     [ 9:0] joystick1,
+    input     [ 9:0] joystick2,
     input     [23:0] dipsw,
     input            service,
     input            dip_pause,
@@ -86,6 +86,7 @@ module jtflstory_main(
 
 wire [15:0] A, cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout;
+wire [ 3:0] extra1p, extra2p;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
 reg         rst_n,
             pal_hi,  pal_lo,
@@ -163,6 +164,9 @@ end
 
 localparam [1:0] LOW_FOR_FLSTORY=2'd0;
 
+assign extra1p = cabcfg ? joystick1[9:6] : 4'b1111;
+assign extra2p = cabcfg ? joystick2[9:6] : 4'b1111;
+
 always @(posedge clk) begin
     rst_n <= ~rst;
     if( vcfg_cs ) begin
@@ -178,8 +182,9 @@ always @(posedge clk) begin
         2: cab <= dipsw[23:16];
         3: cab <= {LOW_FOR_FLSTORY,coin,tilt,service,cab_1p};
         4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
-        5: cab <= {6'b001111, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
+        5: cab <= {2'b00,extra1p, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
         6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
+        7: cab <= {2'b11,extra2p,2'b11};
         default: cab <= 8'hff;
     endcase
 end

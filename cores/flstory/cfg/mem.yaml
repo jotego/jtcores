@@ -28,7 +28,7 @@ audio:
     - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # flstory
     - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # onna34ro
     - { rfb: 1k, rsums: [ 1k, 4k, 4k ] } # rumba
-    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # victnine
+    - { rfb: 1k, rsums: [ 1k, 4k, 5k ] } # victnine
   channels:
 #     # FIR should be 3kHz, not 4kHz
     - { name: msm,   module: jt5232,rsum: 1k, pre: 1.1 }

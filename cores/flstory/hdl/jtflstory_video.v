@@ -20,7 +20,7 @@ module jtflstory_video(
     input             rst,
     input             clk,
     input             pxl_cen,
-                      priocfg,
+                      priocfg, palwcfg, objcfg,
 
     input             ghflip,
     input             gvflip,
@@ -60,29 +60,11 @@ module jtflstory_video(
     input       [7:0] debug_bus
 );
 
-wire [31:0] scr_sorted;
-wire [ 8:0] vdump, hdump, scry;
+wire [ 8:0] vdump, hdump;
 wire [ 7:0] scr_pxl, obj_pxl;
-wire [11:0] scr_code;
-wire [ 5:0] scr_pal;
-wire [ 1:0] scr_prio;
 wire [ 2:0] obj_prio;
-wire        flip, scr_hflip, scr_vflip;
+wire [ 1:0] scr_prio;
 reg         lhbl_short;
-
-assign scr_code  = { scr_bank, vram_data[15:14], vram_data[7:0] }; // 2+2+8=12 bits
-assign scr_pal   = vram_data[13:8]; // upper 2 bits = priority
-assign scr_hflip = vram_data[11] & scr_flen; // xor with ghflip on PCB
-assign scr_vflip = vram_data[12] & scr_flen;
-assign scry      = {1'b0,oram_dout};
-assign flip      = gvflip | ghflip; // imperfect implementation
-
-assign scr_sorted = ~{
-    scr_data[12],scr_data[13],scr_data[14],scr_data[15],scr_data[28],scr_data[29],scr_data[30],scr_data[31],
-    scr_data[ 8],scr_data[ 9],scr_data[10],scr_data[11],scr_data[24],scr_data[25],scr_data[26],scr_data[27],
-    scr_data[ 4],scr_data[ 5],scr_data[ 6],scr_data[ 7],scr_data[20],scr_data[21],scr_data[22],scr_data[23],
-    scr_data[ 0],scr_data[ 1],scr_data[ 2],scr_data[ 3],scr_data[16],scr_data[17],scr_data[18],scr_data[19]
-};
 
 always @(posedge clk) lhbl_short <= !(hdump>9'h9a && hdump<9'h100);
 
@@ -118,44 +100,34 @@ jtframe_vtimer #(
 // the same line. There is no double-line buffer, despite being enough memory
 // to implement it. This sets a harsh limit of 128/16=8 sprites per line
 
-// only vertical scroll available (column-wise)
-jtframe_scroll #(
-    .SIZE        (    8 ),
-    .CW          (   12 ),
-    .VA          (   10 ),
-    .MAP_VW      (    8 ),
-    .MAP_HW      (    8 ),
-    .PW          (   10 ),
-    .XOR_HFLIP   (    1 ),
-    .HJUMP       (    1 ),
-    .COL_SCROLL  (    1 )
-) u_scroll(
+jtflstory_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    .lvbl       ( lvbl      ),
     .hs         ( hs        ),
 
-    .vdump      ({1'b0,vdump[7:0]}),
-    .hdump      ({1'b0,hdump[7:0]}),
-    .blankn     ( lvbl      ),  // if !blankn there are no ROM requests
-    .flip       ( flip      ),
-    .scrx       ( 8'd0      ),
-    .scry       ( scry[7:0] ),
+    .gvflip     ( gvflip    ),
+    .ghflip     ( ghflip    ),
+    .palwcfg    ( palwcfg   ),
+
+    .bank       ( scr_bank  ),
+    .flen       ( scr_flen  ),
 
     .vram_addr  ( vram_addr ),
-
-    .code       ( scr_code  ),
-    .pal        ( scr_pal   ),
-    .hflip      ( scr_hflip ),
-    .vflip      ( scr_vflip ),
+    .vram_data  ( vram_data ),
+    .oram_dout  ( oram_dout ),
 
     .rom_addr   ( scr_addr  ),
-    .rom_data   ( scr_sorted),
+    .rom_data   ( scr_data  ),
     .rom_cs     ( scr_cs    ),
-    .rom_ok     ( scr_ok    ),      // ignored. It assumes that data is always right
+    .rom_ok     ( scr_ok    ),
 
-    .pxl        ( {scr_prio,scr_pxl}   )
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .prio       ( scr_prio  ),
+    .pxl        ( scr_pxl   )
 );
 
 jtflstory_obj u_obj(
@@ -168,6 +140,7 @@ jtflstory_obj u_obj(
     .hs         ( hs        ),
     .gvflip     ( gvflip    ),
     .ghflip     ( ghflip    ),
+    .layout     ( objcfg    ),
 
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),

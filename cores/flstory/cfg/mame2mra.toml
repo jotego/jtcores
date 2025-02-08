@@ -3,13 +3,17 @@ author=["jotego"]
 
 [buttons]
 names=[
-	{ machine="flstory", names="Shot,Jump" }
+	{ machine="flstory",  names="Shot,Jump" },
+	{ machine="onna34ro", names="Hit,Throw" },
+	{ machine="rumba",    names="Chop,Throw"},
+	# buttons 4/5/6 do not seem to be used
+	{ machine="victnine", names="Button 1,Button 2,Button 3,Button 4,Button 5,Button 6" },
 ]
 
 [parse]
 sourcefile=[ "flstory.cpp" ]
 debug={ machines=[
-	"victnine",
+	# "nycaptor"
 ]}
 
 [dipsw]
@@ -34,6 +38,12 @@ info="""
 		        1 == GFX config register at $DCE0
 		byte 5: 0 == use priority RAM
 		        1 == obj always have priority
+		byte 6: 0 == 4-bit palette for background
+		        1 == 3-bit palette
+		       0? == 2 buttons
+		       1? == 6 buttons
+		      0?? == 4 banks for sprites
+		      1?? == 2 banks
 """
 fill=0
 PCBs = [
@@ -44,17 +54,18 @@ PCBs = [
 ]
 data = [
 	{ pcb_id=true, offset=0 },
-	{ machines=["onna34ro","victnine"], data="01", offset=1 },
+	{ machines=["onna34ro"],            data="01", offset=1 },
 	{ machines=["rumba"],               data="02", offset=1 },
 	# Disable MCU
 	{ setname="onna34roa",              data="01", offset=2 },
 	# coins active high/low
 	{ setname="rumba",                  data="01", offset=3 },
 	# GFX config register location
-	{ setname="rumba",                  data="01", offset=4 },
+	{ machines=["rumba","victnine"],    data="01", offset=4 },
 	# Layer priority
-	{ setname="rumba",                  data="01", offset=5 },
-
+	{ machines=["rumba","victnine"],    data="01", offset=5 },
+	# Palette
+	{ setname="victnine",               data="07", offset=6 },
 ]
 
 [ROM]

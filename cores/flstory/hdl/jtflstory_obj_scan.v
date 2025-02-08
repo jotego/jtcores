@@ -25,6 +25,7 @@ module jtflstory_obj_scan(
     input             clk, 
                       lhbl, blink, dr_busy,
                       ghflip, gvflip,
+                      layout,
     input       [8:0] hdump, vdump,
     // RAM shared with CPU
     output     [ 7:0] ram_addr,
@@ -104,7 +105,10 @@ always @(posedge clk) begin
                             ysub <= ydiff[3:0];
                             inzone_l <= inzone;
                         end
-                        1: {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
+                        1: begin
+                            {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
+                            if(layout) code[9:8] <= {1'b0,ram_dout[5]};
+                        end
                         2: code[7:0] <= ram_dout;
                         3: begin
                             draw <= inzone_l;

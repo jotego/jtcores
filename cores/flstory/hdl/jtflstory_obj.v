@@ -23,13 +23,10 @@
 
 module jtflstory_obj(
     input             rst,
-    input             clk,
-    input             pxl_cen,
-    input             lhbl,
-    input             lvbl,
-    input             hs,
-    input             gvflip,
-    input             ghflip,
+                      clk, pxl_cen,
+                      lhbl, lvbl, hs,
+                      gvflip, ghflip,
+                      layout,
 
     input       [8:0] vdump,
     input       [8:0] hdump,
@@ -83,6 +80,7 @@ jtflstory_obj_scan u_scan(
     .blink      ( blink     ),
     .ghflip     ( ghflip    ),
     .gvflip     ( gvflip    ),
+    .layout     ( layout    ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     // RAM shared with CPU
