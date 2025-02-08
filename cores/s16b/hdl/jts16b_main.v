@@ -58,10 +58,10 @@ module jts16b_main(
     output      [12:1] cpu_addr,
 
     // cabinet I/O
-    input       [ 7:0] joystick1,
-    input       [ 7:0] joystick2,
-    input       [ 7:0] joystick3,
-    input       [ 7:0] joystick4,
+    input       [ 8:0] joystick1,
+    input       [ 8:0] joystick2,
+    input       [ 8:0] joystick3,
+    input       [ 8:0] joystick4,
     input       [15:0] joyana1,
     input       [15:0] joyana1b,
     input       [15:0] joyana2,

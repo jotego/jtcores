@@ -38,10 +38,10 @@ module jts16b_cabinet(
     input      [ 7:0] dipsw_c,
 
     // cabinet I/O
-    input      [ 7:0] joystick1,
-    input      [ 7:0] joystick2,
-    input      [ 7:0] joystick3,
-    input      [ 7:0] joystick4,
+    input      [ 8:0] joystick1,
+    input      [ 8:0] joystick2,
+    input      [ 8:0] joystick3,
+    input      [ 8:0] joystick4,
     input      [15:0] joyana1,
     input      [15:0] joyana1b, // used by Heavy Champ
     input      [15:0] joyana2,
@@ -102,9 +102,9 @@ function [7:0] sort_joy( input [7:0] joy_in );
 endfunction
 
 always @(*) begin
-    sort1 = sort_joy( joystick1 );
-    sort2 = sort_joy( joystick2 );
-    sort3 = sort_joy( joystick3 );
+    sort1 = sort_joy( joystick1[7:0] );
+    sort2 = sort_joy( joystick2[7:0] );
+    sort3 = sort_joy( joystick3[7:0] );
 end
 
 wire [8:0] joyana_sum = {joyana1[15], joyana1[15:8]} + {joyana2[15], joyana2[15:8]};
@@ -129,10 +129,6 @@ jts16_trackball u_trackball(
 
     .right_en   ( game_sdi      ),
 
-    .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),
-    .joystick3  ( joystick3     ),
-    .joystick4  ( joystick4     ),
     .joyana1    ( joyana1       ),
     .joyana1b   ( joyana1b      ), // used by Heavy Champ
     .joyana2    ( joyana2       ),
@@ -285,10 +281,10 @@ always @(posedge clk, posedge rst) begin
                     GAME_PASSSHT2: begin // Passing Shot (J)
                         //if( A[9:8]== 2'b10 ) begin
                             case( A[2:1] )
-                                0: cab_dout <= pass_joy( joystick1 );
-                                1: cab_dout <= pass_joy( joystick2 );
-                                2: cab_dout <= pass_joy( joystick3 );
-                                3: cab_dout <= pass_joy( joystick4 );
+                                0: cab_dout <= pass_joy( joystick1[7:0] );
+                                1: cab_dout <= pass_joy( joystick2[7:0] );
+                                2: cab_dout <= pass_joy( joystick3[7:0] );
+                                3: cab_dout <= pass_joy( joystick4[7:0] );
                             endcase
                         //end
                     end
