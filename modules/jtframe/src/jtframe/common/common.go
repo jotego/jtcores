@@ -19,8 +19,10 @@ package common
 
 import (
 	"fmt"
+	"errors"
 	"os"
 	"os/exec"
+	"strings"
 	"path/filepath"
 )
 
@@ -92,5 +94,22 @@ func ShowErrors( all_errors... error ) {
 	for _, e := range all_errors {
 		if e==nil { continue }
 		fmt.Println(e)
+	}
+}
+
+func JoinErrors( all_errors... error ) error {
+	var sb strings.Builder
+	for _, e := range all_errors {
+		if e!=nil {
+			if sb.Len()>0 {
+				sb.WriteString("\n")
+			}
+			sb.WriteString(e.Error())
+		}
+	}
+	if sb.Len()>0 {
+		return errors.New(sb.String())
+	} else {
+		return nil
 	}
 }

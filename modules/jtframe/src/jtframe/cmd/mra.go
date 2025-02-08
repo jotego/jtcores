@@ -83,7 +83,8 @@ func runMRA(cmd *cobra.Command, args []string) {
 		if cmd_args.clear_folders {
 			clear_folders()
 		}
-		parse_cores(cores)
+		parse_errors := parse_cores(cores)
+		Must(parse_errors)
 	}
 }
 
@@ -95,14 +96,14 @@ func clear_folders() {
 	}
 }
 
-func parse_cores( corenames []string ) {
+func parse_cores( corenames []string ) error {
 	mra_args.Xml_path=MakeJTpath("doc","mame.xml")
 	mra_args.Target="mister"
-	entries, e := os.ReadDir(MakeJTpath("cores"))
-	Must(e)
+	entries, e := os.ReadDir(MakeJTpath("cores")); Must(e)
 	if verbose {
 		fmt.Println("Parsing", mra_args.Xml_path)
 	}
+	var all_errors error
 	for _, entry := range entries {
 		if !entry.IsDir() { continue }
 		for _, pattern := range corenames {
@@ -112,9 +113,11 @@ func parse_cores( corenames []string ) {
 				fmt.Println("Skipping", mra_args.Core,"missing def/toml")
 				continue
 			}
-			mra.Run(mra_args)
+			core_errors := mra.Convert(mra_args)
+			all_errors = JoinErrors( all_errors, core_errors )
 		}
 	}
+	return all_errors
 }
 
 func check_files( corename string ) bool {

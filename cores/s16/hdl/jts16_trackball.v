@@ -23,10 +23,6 @@ module jts16_trackball(
 
     input             right_en,
 
-    input      [ 7:0] joystick1,
-    input      [ 7:0] joystick2,
-    input      [ 7:0] joystick3,
-    input      [ 7:0] joystick4,
     input      [15:0] joyana1,
     input      [15:0] joyana1b, // used by Heavy Champ
     input      [15:0] joyana2,

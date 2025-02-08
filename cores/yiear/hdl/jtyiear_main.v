@@ -31,8 +31,8 @@ module jtyiear_main(
     // cabinet I/O
     input       [ 1:0]  cab_1p,
     input       [ 1:0]  coin,
-    input       [ 5:0]  joystick1,
-    input       [ 5:0]  joystick2,
+    input       [ 6:0]  joystick1,
+    input       [ 6:0]  joystick2,
     input               service,
 
     // GFX
@@ -138,8 +138,8 @@ end
 always @(posedge clk) begin
     case( A[1:0] )
         0: cabinet <= { ~3'd0, cab_1p, service, coin };
-        1: cabinet <= { 2'b11, joystick1[5:0] };
-        2: cabinet <= { 2'b11, joystick2[5:0] };
+        1: cabinet <= { 1'b1, joystick1[6:0] };
+        2: cabinet <= { 1'b1, joystick2[6:0] };
         3: cabinet <= dipsw_a;
     endcase
     cpu_din <= rom_cs  ? rom_data  :

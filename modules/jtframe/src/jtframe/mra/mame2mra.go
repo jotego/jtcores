@@ -35,7 +35,7 @@ import (
 	"github.com/jotego/jtframe/common"
 )
 
-func Run(args Args) {
+func Convert(args Args) error {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
@@ -48,7 +48,7 @@ func Run(args Args) {
 	}
 	if args.Show_platform {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
-		return
+		return nil
 	}
 	if !args.SkipPocket {
 		pocket_init(mra_cfg, args)
@@ -72,10 +72,12 @@ func Run(args Args) {
 		delete_core_mrafiles(macros.Get("CORENAME"),args.outdir)
 	}
 	valid_setnames := []string{}
+	var all_errors error
 	for _, d := range parsed_machines {
 		_, good := parent_names[d.machine.Cloneof]
 		if good || len(d.machine.Cloneof) == 0 {
-			d.validate_core_macros()
+			bad_macros := d.validate_core_macros()
+			all_errors = common.JoinErrors( all_errors, bad_macros )
 			if args.PrintNames {
 				fmt.Println(d.machine.Description)
 			}
@@ -99,6 +101,7 @@ func Run(args Args) {
 	if !args.SkipPocket {
 		pocket_save()
 	}
+	return all_errors
 }
 
 func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
@@ -162,11 +165,36 @@ func (args *Args)make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMac
 	}
 }
 
-func (parsed *ParsedMachine)validate_core_macros() {
+func (parsed *ParsedMachine)validate_core_macros() error {
+	corename := macros.Get("CORENAME")
+	context  := fmt.Sprintf("Game %s (in %s)",parsed.machine.Name,corename)
+	e1 := parsed.validate_vertical(context)
+	e2 := parsed.validate_buttons(context)
+	return common.JoinErrors(e1,e2)
+}
+
+func (parsed *ParsedMachine) validate_vertical(context string) error {
 	if parsed.is_vertical() && !macros.IsSet("JTFRAME_VERTICAL") {
-		e := fmt.Errorf("Game %s is vertical but JTFRAME_VERTICAL is not set",parsed.machine.Name)
-		common.Must(e)
+		e := fmt.Errorf("%s is vertical but JTFRAME_VERTICAL is not set",context)
+		return e
 	}
+	return nil
+}
+
+func (parsed *ParsedMachine) validate_buttons(context string) error {
+	if macros.GetInt("JTFRAME_BUTTONS") < parsed.machine.Input.Control[0].Buttons {
+		msg := fmt.Sprintf("%s uses %d buttons but JTFRAME_BUTTONS is set to %d",
+			context,
+			parsed.machine.Input.Control[0].Buttons,
+			macros.GetInt("JTFRAME_BUTTONS"))
+		if parsed.machine.Input.Control[0].Buttons<=6 {
+			e := fmt.Errorf(msg)
+			return e
+		} else {
+			fmt.Println("Warning:",msg)
+		}
+	}
+	return nil
 }
 
 func (parsed *ParsedMachine)is_vertical() bool {
