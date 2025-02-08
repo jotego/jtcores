@@ -28,7 +28,9 @@ import (
 )
 
 var mra_args mra.Args
-var reduce, clear_folders bool
+var cmd_args = struct{
+	reduce, clear_folders bool
+}{}
 
 // mraCmd represents the mra command
 var mraCmd = &cobra.Command{
@@ -38,9 +40,34 @@ var mraCmd = &cobra.Command{
 	Run: runMRA,
 }
 
+func init() {
+	rootCmd.AddCommand(mraCmd)
+	flag := mraCmd.Flags()
+
+	mra_args.Target = "mist"
+	mame_roms := filepath.Join(os.Getenv("HOME"), ".mame", "roms")
+	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
+	flag.StringVar(&mra_args.Year,          "year",                  "", "Year string for MRA file comment")
+	flag.BoolVarP (&cmd_args.reduce,        "reduce",        "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
+	flag.BoolVar  (&cmd_args.clear_folders, "rm",                 false, "Deletes the release and rom folders in $JTROOT before proceeding")
+	flag.BoolVarP (&mra_args.SkipMRA,       "skipMRA",       "s", false, "Do not generate MRA files")
+	flag.BoolVarP (&mra_args.SkipROM,       "skipROM",       "n", false, "Do not generate .rom files")
+	flag.BoolVarP (&mra_args.MainOnly,      "mainonly",      "o", false, "Only parse the main version of each game")
+	flag.BoolVar  (&mra_args.Nodbg,         "nodbg",              false, "Do not parse games in debug phase")
+	flag.BoolVarP (&mra_args.Md5,           "md5",           "m", false, "Calculate MD5 sum even if the ROM is not saved")
+	flag.BoolVar  (&mra_args.PrintNames,    "names",              false, "Print out the title of each game supported")
+	flag.BoolVar  (&mra_args.SkipPocket,    "skipPocket",         false, "Do not generate JSON files for the Pocket")
+	flag.BoolVarP (&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
+	flag.BoolVarP (&mra_args.JTbin,         "git",           "g", false, "Save files to JTBIN")
+	flag.StringVar(&mra_args.Buttons,       "buttons",               "", "Buttons used by the game -upto six-")
+	flag.StringVar(&mra_args.URL,           "url",                "https://patreon.com/jotego", "Author's URL")
+	flag.StringVar(&mra_args.Rom_path,      "path",           mame_roms, "Path to MAME .zip files")
+}
+
+
 func runMRA(cmd *cobra.Command, args []string) {
 	mra.Verbose = verbose
-	if reduce {
+	if cmd_args.reduce {
 		if len(args)<1 {
 			fmt.Println("Expected one argument with the path mame.xml")
 			os.Exit(1)
@@ -53,28 +80,28 @@ func runMRA(cmd *cobra.Command, args []string) {
 			fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
 			os.Exit(1)
 		}
+		if cmd_args.clear_folders {
+			clear_folders()
+		}
 		parse_cores(cores)
 	}
 }
 
-func parse_cores( corenames []string ) {
-	if clear_folders {
-		root := os.Getenv("JTROOT")
-		if root=="" {
-			fmt.Println("Environment variable JTROOT is not set")
-			os.Exit(1)
-		}
-		e := os.RemoveAll( filepath.Join(root,"release") )
-		if mra.Verbose && e!= nil { fmt.Println(nil) }
-		e = os.RemoveAll( filepath.Join(root,"rom") )
-		if mra.Verbose && e!= nil { fmt.Println(nil) }
+func clear_folders() {
+	e1 := os.RemoveAll( MakeJTpath("release") )
+	e2 := os.RemoveAll( MakeJTpath("rom") )
+	if mra.Verbose {
+		ShowErrors( e1, e2 )
 	}
-	mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
+}
+
+func parse_cores( corenames []string ) {
+	mra_args.Xml_path=MakeJTpath("doc","mame.xml")
 	mra_args.Target="mister"
-	entries, e := os.ReadDir(filepath.Join(os.Getenv("JTROOT"),"cores"))
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
+	entries, e := os.ReadDir(MakeJTpath("cores"))
+	Must(e)
+	if verbose {
+		fmt.Println("Parsing", mra_args.Xml_path)
 	}
 	for _, entry := range entries {
 		if !entry.IsDir() { continue }
@@ -91,33 +118,10 @@ func parse_cores( corenames []string ) {
 }
 
 func check_files( corename string ) bool {
-	macros_def := ConfigFilePath(corename,"macros.def")
-	if !FileExists(macros_def) { return false }
-	toml_file := ConfigFilePath(corename,"mame2mra.toml")
-	if !FileExists(toml_file) { return false }
+	required_files := []string{"macros.def", "mame2mra.toml"}
+	for _, name := range required_files {
+		path := ConfigFilePath(corename,name)
+		if !FileExists(path) { return false }
+	}
 	return true
-}
-
-func init() {
-	rootCmd.AddCommand(mraCmd)
-	flag := mraCmd.Flags()
-
-	mra_args.Target = "mist"
-	mame_roms := filepath.Join(os.Getenv("HOME"), ".mame", "roms")
-	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
-	flag.StringVar(&mra_args.Year,          "year",                  "", "Year string for MRA file comment")
-	flag.BoolVarP (&reduce,                 "reduce",        "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
-	flag.BoolVar  (&clear_folders,          "rm",                 false, "Deletes the release and rom folders in $JTROOT before proceeding")
-	flag.BoolVarP (&mra_args.SkipMRA,       "skipMRA",       "s", false, "Do not generate MRA files")
-	flag.BoolVarP (&mra_args.SkipROM,       "skipROM",       "n", false, "Do not generate .rom files")
-	flag.BoolVarP (&mra_args.MainOnly,      "mainonly",      "o", false, "Only parse the main version of each game")
-	flag.BoolVar  (&mra_args.Nodbg,         "nodbg",              false, "Do not parse games in debug phase")
-	flag.BoolVarP (&mra_args.Md5,           "md5",           "m", false, "Calculate MD5 sum even if the ROM is not saved")
-	flag.BoolVar  (&mra_args.PrintNames,    "names",              false, "Print out the title of each game supported")
-	flag.BoolVar  (&mra_args.SkipPocket,    "skipPocket",         false, "Do not generate JSON files for the Pocket")
-	flag.BoolVarP (&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
-	flag.BoolVarP (&mra_args.JTbin,         "git",           "g", false, "Save files to JTBIN")
-	flag.StringVar(&mra_args.Buttons,       "buttons",               "", "Buttons used by the game -upto six-")
-	flag.StringVar(&mra_args.URL,           "url",                "https://patreon.com/jotego", "Author's URL")
-	flag.StringVar(&mra_args.Rom_path,      "path",           mame_roms, "Path to MAME .zip files")
 }

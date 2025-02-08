@@ -32,3 +32,22 @@ func Test_FindFileInFolders(t *testing.T) {
 	if e==nil { t.Errorf("The search should have failed") }
 	if path!="" { t.Errorf("File should not be found!") }
 }
+
+func Test_MakeJTpath(t *testing.T ) {
+	old_jtroot := os.Getenv("JTROOT")
+	jtroot := "/jtdev"
+	os.Setenv("JTROOT",jtroot)
+	got := MakeJTpath("doc","mame.xml")
+	exp := filepath.Join(jtroot,"doc","mame.xml")
+	if got!=exp {
+		t.Errorf("got %s, wanted %s",got, exp)
+	}
+
+	got = MakeJTpath("a","b","c","d")
+	exp = filepath.Join(jtroot,"a","b","c","d")
+	if got!=exp {
+		t.Errorf("got %s, wanted %s",got, exp)
+	}
+
+	os.Setenv("JTROOT",old_jtroot)
+}

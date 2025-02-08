@@ -41,9 +41,6 @@ func Run(args Args) {
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
 	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
-	if Verbose {
-		fmt.Println("Parsing", args.Xml_path)
-	}
 	mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
 	if mra_cfg.Global.Platform == "" {
@@ -56,57 +53,35 @@ func Run(args Args) {
 	if !args.SkipPocket {
 		pocket_init(mra_cfg, args)
 	}
-	data_queue, parent_names := collect_machines( mra_cfg, args )
+	parsed_machines, parent_names := collect_machines( mra_cfg, args )
 	if len(mra_cfg.Parse.Sourcefile)==0 {
-		if mra_cfg.Parse.Machine.Name=="" {
-			fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
-			os.Exit(1)
-		}
 		machine := &mra_cfg.Parse.Machine
-		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
-		data_queue = append(data_queue,ParsedMachine{
-			machine: machine,
-			mra_xml: mra_xml,
-			def_dipsw: def_dipsw,
-			coremod: coremod,
-		})
+		parsed  := args.make_from_name(machine, mra_cfg)
+		parsed_machines = append(parsed_machines,parsed)
 	}
 	// Add explicit parents to the list
 	for _, p := range mra_cfg.Parse.Parents {
 		parent_names[p.Name] = p.Description
 	}
 	// Dump MRA is delayed for later so we get all the parent names collected
-	if Verbose || len(data_queue) == 0 {
-		log.Println("Total: ", len(data_queue), " games")
+	if Verbose || len(parsed_machines) == 0 {
+		log.Println("Total: ", len(parsed_machines), " games")
 	}
 	main_copied := args.SkipMRA
-	old_deleted := false
+	if !args.SkipMRA {
+		delete_core_mrafiles(macros.Get("CORENAME"),args.outdir)
+	}
 	valid_setnames := []string{}
-	for _, d := range data_queue {
+	for _, d := range parsed_machines {
 		_, good := parent_names[d.machine.Cloneof]
 		if good || len(d.machine.Cloneof) == 0 {
+			d.validate_core_macros()
 			if args.PrintNames {
 				fmt.Println(d.machine.Description)
 			}
 			if !args.SkipMRA {
-				// Delete old MRA files
-				if !old_deleted {
-					delete_matching_mra(macros.Get("CORENAME"),args.outdir)
-					old_deleted = true
-				}
-				if !args.SkipROM || args.Md5 {
-					if !common.FileExists(args.Rom_path) {
-						fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
-						os.Exit(1)
-					} else {
-						mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
-					}
-				}
-				save_nvram(d.mra_xml)
-				// Do not merge dump_mra and the OR in the same line, or the compiler may skip
-				// calling dump_mra if main_copied is already set
-				dumped := dump_mra(args, d.machine, mra_cfg, d.mra_xml, parent_names)
-				main_copied = dumped || main_copied
+				args.produce_mra_rom_nvram(d, parent_names, mra_cfg)
+				main_copied = main_copied || is_main(d.machine, mra_cfg)
 				valid_setnames = append( valid_setnames, d.machine.Name )
 			}
 			if !args.SkipPocket {
@@ -171,6 +146,43 @@ extra_loop:
 		machines = append(machines, pm)
 	}
 	return machines, parent_names
+}
+
+func (args *Args)make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMachine {
+	if machine.Name=="" {
+		fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
+		os.Exit(1)
+	}
+	mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, *args)
+	return ParsedMachine{
+		machine: machine,
+		mra_xml: mra_xml,
+		def_dipsw: def_dipsw,
+		coremod: coremod,
+	}
+}
+
+func (parsed *ParsedMachine)validate_core_macros() {
+	if parsed.is_vertical() && !macros.IsSet("JTFRAME_VERTICAL") {
+		e := fmt.Errorf("Game %s is vertical but JTFRAME_VERTICAL is not set",parsed.machine.Name)
+		common.Must(e)
+	}
+}
+
+func (parsed *ParsedMachine)is_vertical() bool {
+	return parsed.coremod&1==1
+}
+
+func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string]string, mra_cfg Mame2MRA ) {
+	if !args.SkipROM || args.Md5 {
+		if !common.FileExists(args.Rom_path) {
+			fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
+			os.Exit(1)
+		}
+		mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
+	}
+	save_nvram(d.mra_xml)
+	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
 }
 
 func dump_setnames( corefolder string, sn []string ) {
@@ -262,7 +274,7 @@ func is_main( machine *MachineXML, mra_cfg Mame2MRA ) bool {
 	return false
 }
 
-func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) bool {
+func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
 	fname := args.outdir
 	game_name := strings.ReplaceAll(mra_xml.GetNode("name").text, ":", "")
 	game_name = strings.ReplaceAll(game_name, "/", "-")
@@ -304,7 +316,6 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	b.WriteString(mra_xml.Dump())
 	b.WriteString("\n")
 	os.WriteFile(fname, []byte(b.String()), 0666)
-	return main_mra
 }
 
 func mra_disclaimer(machine *MachineXML, year string) string {

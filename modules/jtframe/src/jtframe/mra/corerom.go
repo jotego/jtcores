@@ -150,7 +150,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 			} else if (reg_cfg.Width != 0 && reg_cfg.Width != 8) && len(reg_roms) > 1 {
 				parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
 			} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
-				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
+				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, &pos)
 			} else {
 				return fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
 					reg_cfg.Name, len(reg_roms), machine.Name )
@@ -455,7 +455,7 @@ func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {
 	return pos
 }
 
-func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args, pos *int) {
+func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 	reg_pos := 0
 	start_pos := *pos
 	for _, r := range reg_roms {
