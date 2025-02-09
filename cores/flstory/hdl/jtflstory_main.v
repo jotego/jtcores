@@ -23,6 +23,7 @@ module jtflstory_main(
     input            lvbl,       // video interrupt
 
     input            mirror, gfxcfg, cabcfg, dec_en,
+    input     [ 1:0] bankcfg,
 
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
@@ -76,7 +77,7 @@ module jtflstory_main(
     input            tilt,
     // ROM access
     output reg       rom_cs,
-    output    [15:0] rom_addr,
+    output reg[16:0] rom_addr,
     input     [ 7:0] rom_data,
     input            rom_ok,
 
@@ -84,17 +85,19 @@ module jtflstory_main(
 );
 `ifndef NOMAIN
 
+localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
+
 wire [15:0] A, cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
+reg  [ 1:0] bank=0;
 wire [ 3:0] extra1p, extra2p;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
 reg         rst_n,
             pal_hi,  pal_lo,
-            vcfg_cs, rumba_cfg, flstory_cfg,
+            vcfg_cs, rumba_cfg, flstory_cfg,  bank_cs, ctl_cs,
             ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs;
 
 assign A          = bus_addr;
-assign rom_addr   = bus_addr;
 assign bus_addr   = busak_n ? cpu_addr : c2b_addr;
 assign bus_dout   = busak_n ? cpu_dout : c2b_dout;
 assign bus_din    = din;
@@ -108,7 +111,18 @@ assign oram_we    = oram_cs & bus_we;
 assign int_n      = ~dip_pause | lvbl;
 
 always @* begin
-    rom_cs      = 0;
+    rom_addr   = {1'b0,bus_addr};
+    if(bank_cs) begin
+        rom_addr[16]   =1;
+        if( bankcfg==TWOBANKS )
+            rom_addr[15:14]={1'b0,bank[1]};
+        else
+            rom_addr[15:14]=bank;
+    end
+end
+
+always @* begin
+    rom_cs      = 0; bank_cs = 0; ctl_cs = 0;
     vram_cs     = 0;
     sha_cs      = 0;
     cab_cs      = 0;
@@ -123,7 +137,11 @@ always @* begin
     flstory_cfg = 0;
     rumba_cfg   = 0;
     if( !mreq_n && rfsh_n ) case(A[15:14])
-        0,1,2: rom_cs = 1;
+        0,1: rom_cs = 1;
+        2: begin
+            rom_cs  = 1;
+            bank_cs = bankcfg!=NOBANKS;
+        end
         3: case(A[13:12])
             0: vram_cs = 1;
             1: begin
@@ -131,7 +149,7 @@ always @* begin
                     0: if(bus_we) case(A[1:0])
                         0: b2c_wr = 1; // CPU writes to MCU latch
                         // 1: watchdog
-                        // 2: sub CPU reset and coin lock
+                        2: ctl_cs = bus_we; // sub CPU reset and coin lock
                         // 3: sub CPU NMI
                         default:;
                     endcase else if(bus_rd) case(A[1:0])
@@ -175,6 +193,9 @@ always @(posedge clk) begin
         scr_bank <= bus_dout[4:3];
         scr_flen <= bus_dout[2];
         { gvflip, ghflip } <= bus_dout[1:0]^{2{mirror}};
+    end
+    if( ctl_cs ) begin
+        bank <= cpu_dout[3:2];
     end
     case(A[2:0])
         0: cab <= dipsw[ 7: 0];

@@ -277,7 +277,8 @@ uint8_t nycaptor_state::nycaptor_generic_control_r()
 void nycaptor_state::nycaptor_generic_control_w(uint8_t data)
 {
 	m_generic_control_reg = data;
-	membank("bank1")->set_entry((data&0x08)>>3);
+//membank("bank1")->set_entry((data >> 2) & 3); // cyclshtg
+	membank("bank1")->set_entry((data >> 3) & 1);
 }
 
 void nycaptor_state::nycaptor_master_map(address_map &map)

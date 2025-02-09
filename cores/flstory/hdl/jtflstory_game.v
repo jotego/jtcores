@@ -28,7 +28,7 @@ wire [ 7:0] bus_din, s2m_data, st_snd,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
-wire [ 1:0] pal_bank, scr_bank;
+wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
             palwcfg, cabcfg, objcfg;
 reg         mcu_rst;
@@ -57,7 +57,8 @@ jtflstory_header u_header (
     .cab      ( cabcfg          ),
     .obj      ( objcfg          ),
     .sub      ( sub_en          ),
-    .dec      ( dec_en          )
+    .dec      ( dec_en          ),
+    .banks    ( bankcfg         )
 );
 
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
@@ -73,6 +74,7 @@ jtflstory_main u_main(
     .mirror     ( mirror    ),
     .gfxcfg     ( gfxcfg    ),
     .cabcfg     ( cabcfg    ),
+    .bankcfg    ( bankcfg   ),
     .dec_en     ( dec_en    ),
 
     .bus_addr   ( bus_addr  ),

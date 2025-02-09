@@ -22,7 +22,8 @@ module jtflstory_header(
     input [2:0] prog_addr,
     input [7:0] prog_data,
     output reg  mirror=0, mcu_enb=0, coinxor=0, gfx=0, prio=0,
-                palw=0,   cab=0,     obj=0,     sub,   dec=0
+                palw=0,   cab=0,     obj=0,     sub,   dec=0,
+    output reg [1:0] banks=0
 );
 
 localparam [2:0] MIRROR  = 3'd1,
@@ -36,6 +37,11 @@ always @(posedge clk) begin
     if( header && prog_addr[2:0]==MIRROR  && prog_we ) mirror  <= prog_data[0];
     if( header && prog_addr[2:0]==MCUENB  && prog_we ) begin
         { dec, sub, mcu_enb } <= prog_data[2:0];
+        case(prog_data[4:3])
+            0: banks <= 0;
+            1: banks <= 1;
+            default: banks <= 2;
+        endcase
     end
     if( header && prog_addr[2:0]==COINXOR && prog_we ) coinxor <= prog_data[0];
     if( header && prog_addr[2:0]==GFXCFG  && prog_we ) gfx     <= prog_data[0];
