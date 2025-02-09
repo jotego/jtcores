@@ -4470,6 +4470,16 @@
 	)
 	(wire
 		(pts
+			(xy 232.41 193.04) (xy 224.79 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a5ad634-44f9-4bed-a10a-5013dc3326d5")
+	)
+	(wire
+		(pts
 			(xy 377.19 149.86) (xy 384.81 149.86)
 		)
 		(stroke
@@ -6300,6 +6310,16 @@
 	)
 	(wire
 		(pts
+			(xy 377.19 118.11) (xy 388.62 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7264a1d-5cdd-4207-bf15-c46d415c5abd")
+	)
+	(wire
+		(pts
 			(xy 377.19 50.8) (xy 389.89 50.8)
 		)
 		(stroke
@@ -7561,6 +7581,16 @@
 		)
 		(uuid "7b05ec38-7b52-4613-b968-0fdc33b92af4")
 	)
+	(label "~{SBRST}"
+		(at 224.79 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7c805c24-3247-4d03-be6f-78e502d7510f")
+	)
 	(label "SHDB[0..7]"
 		(at 388.62 113.03 180)
 		(effects
@@ -8090,6 +8120,16 @@
 			(justify right bottom)
 		)
 		(uuid "c9bc71d9-948f-48cc-be11-5d03fca90def")
+	)
+	(label "~{SBRST}"
+		(at 388.62 118.11 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c9c6b684-7121-41f3-8b0e-b5a84edd1745")
 	)
 	(label "SERVICE"
 		(at 26.67 104.14 0)
