@@ -107,13 +107,12 @@ func Convert(args Args) error {
 func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
 	ex := NewExtractor(args.Xml_path)
 	parent_names = make(map[string]string)
-extra_loop:
 	for {
 		machine := ex.Extract(mra_cfg.Parse)
-		calc_DIP_bits( machine, mra_cfg.Dipsw )
 		if machine == nil {
 			break
 		}
+		calc_DIP_bits( machine, mra_cfg.Dipsw )
 		if Verbose {
 			fmt.Print("#####################\n#####################\nFound", machine.Name)
 			if machine.Cloneof != "" {
@@ -128,27 +127,39 @@ extra_loop:
 			parent_names[machine.Name] = machine.Description
 		}
 		if skip_game(machine, mra_cfg, args) {
-			continue extra_loop
+			continue
 		}
-		for _, each := range mra_cfg.Global.Overrule {
-			if each.Match(machine)>0 {
-				if each.Rotate != 0 {
-					machine.Display.Rotate = each.Rotate
-				}
-			}
-		}
-		for _, reg := range mra_cfg.ROM.Regions {
-			for k, r := range machine.Rom {
-				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
-					machine.Rom[k].Region = reg.Rename
-				}
-			}
-		}
+		overrule_mame_definitions(machine,mra_cfg.Global.Overrule)
+		rename_rom_regions(mra_cfg.ROM.Regions, machine.Rom, machine)
 		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
 		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
 		machines = append(machines, pm)
 	}
 	return machines, parent_names
+}
+
+func overrule_mame_definitions(machine *MachineXML, all_rules []Overrule_t) {
+	for _, overrule := range all_rules {
+		if overrule.Match(machine)>0 {
+			if overrule.Rotate != 0 {
+				machine.Display.Rotate = overrule.Rotate
+			}
+		}
+	}
+}
+
+func rename_rom_regions(all_cfgs []RegCfg, all_mameroms []MameROM, machine Matcher) {
+	for _, regcfg := range all_cfgs {
+		if regcfg.Rename == "" || !machine.IsMatch(regcfg) {
+			continue
+		}
+		for k, r := range all_mameroms {
+			is_to_be_renamed := r.Region == regcfg.Name
+			if is_to_be_renamed {
+				all_mameroms[k].Region = regcfg.Rename
+			}
+		}
+	}
 }
 
 func (args *Args)make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMachine {

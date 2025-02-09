@@ -64,6 +64,11 @@ type MachineXML struct {
 	Ismechanical bool `xml:"ismechanical,attr"`
 }
 
+// implements Matcher interface
+func (machine *MachineXML)IsMatch(m Matchable) bool {
+	return m.Match(machine)>0
+}
+
 type MameROM struct {
 	Name       string `xml:"name,attr"`
 	Crc        string `xml:"crc,attr"`

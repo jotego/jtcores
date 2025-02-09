@@ -48,9 +48,13 @@ type Matchable interface {
     Match( x *MachineXML ) int
 }
 
+type Matcher interface {
+    IsMatch(m Matchable) bool
+}
+
 // find if a selectable object is a match for a machine
 // use bestMatch below for slices
-func (this *Selectable) Match( x *MachineXML ) int {
+func (this Selectable) Match( x *MachineXML ) int {
     if this.Setname==x.Name || (this.Machine==x.Name && x.Cloneof=="") {
         return 3
     }
