@@ -22,7 +22,7 @@ module jtflstory_main(
     input            cen,
     input            lvbl,       // video interrupt
 
-    input            mirror, gfxcfg, cabcfg, dec_en,
+    input            mirror, gfxcfg, cabcfg, dec_en, iocfg,
     input     [ 1:0] bankcfg,
 
     output    [ 7:0] cpu_dout,
@@ -57,7 +57,7 @@ module jtflstory_main(
     input     [ 7:0] sub_dout,
     output    [ 7:0] sub_din,
     output           sub_wait,
-    output reg       sub_busrq_n,
+    output reg       sub_busrq_n, sub_rstn,
 
     // shared memory with MCU
     input            busrq_n,
@@ -99,7 +99,7 @@ localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 
 wire [15:0] cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
-reg  [ 1:0] bank=0;
+reg  [ 1:0] bank=0, unused_IO;
 wire [ 3:0] extra1p, extra2p;
 wire        mreq_n,  rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n, bus_cen,
             bus_cem, main_wait, sub_sel, m_reqref;
@@ -107,7 +107,7 @@ reg         rst_n,
             pal_hi,  pal_lo,
             vcfg_cs, rumba_cfg, flstory_cfg,  bank_cs, ctl_cs, CDEF_cs,
             ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs,
-            subhalt_cs;
+            subhalt_cs,         trcrt_cs,     gunx_cs, guny_cs;
 
 assign sub_sel    = sub_cs & ~sub_wait;
 assign bus_addr   = !busak_n ? c2b_addr : sub_sel ? sub_addr : cpu_addr;
@@ -152,6 +152,9 @@ always @* begin
     flstory_cfg = 0;
     rumba_cfg   = 0;
     subhalt_cs  = 0;
+    gunx_cs     = 0;
+    guny_cs     = 0;
+    trcrt_cs    = 0;
     if( m_reqref ) case(cpu_addr[15:14])
         0,1: rom_cs = 1;
         2: begin
@@ -187,7 +190,9 @@ always @* begin
                     1: pal_lo  = 1; // DD??
                     2: pal_hi  = 1; // DE?? includes priority bits
                     3: case(bus_addr[1:0]) // DF??
-                        // 0, 1, 2: related to gun games?
+                        0: gunx_cs  = 1;
+                        1: guny_cs  = 1;
+                        2: trcrt_cs = 1;
                         3: flstory_cfg = bus_we;
                         default:;
                     endcase
@@ -210,13 +215,28 @@ jtframe_wait_on_shared u_wait(
     .swait  ( sub_wait  )
 );
 
-localparam [1:0] LOW_FOR_FLSTORY=2'd0;
+localparam [1:0] LOW_FOR_FLSTORY=2'd0, HI_FOR_NYCAPTOR=2'b11;
 
 assign extra1p = cabcfg ? joystick1[9:6] : 4'b1111;
 assign extra2p = cabcfg ? joystick2[9:6] : 4'b1111;
 
 always @(posedge clk) begin
-    rst_n <= ~rst;
+    if(rst) begin
+        bank        <= 0;
+        sub_rstn    <= 0;
+        sub_busrq_n <= 0;
+    end else begin
+        if( subhalt_cs ) sub_busrq_n <= ~cpu_dout[0];
+        if( ctl_cs ) begin
+            sub_rstn <= cpu_dout[1];
+            bank     <= cpu_dout[3:2];
+        end
+    end
+end
+
+always @(posedge clk) begin
+    rst_n     <= ~rst;
+    unused_IO <= iocfg ? HI_FOR_NYCAPTOR : LOW_FOR_FLSTORY;
     if( vcfg_cs ) begin
         // hvlatch <= bus_dout[7]
         pal_bank <= bus_dout[6:5];
@@ -224,15 +244,11 @@ always @(posedge clk) begin
         scr_flen <= bus_dout[2];
         { gvflip, ghflip } <= bus_dout[1:0]^{2{mirror}};
     end
-    if( subhalt_cs ) sub_busrq_n <= ~cpu_dout[0];
-    if( ctl_cs ) begin
-        bank <= cpu_dout[3:2];
-    end
     case(bus_addr[2:0])
         0: cab <= dipsw[ 7: 0];
         1: cab <= dipsw[15: 8];
         2: cab <= dipsw[23:16];
-        3: cab <= {LOW_FOR_FLSTORY,coin,tilt,service,cab_1p};
+        3: cab <= {unused_IO,coin,tilt,service,cab_1p};
         4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
         5: cab <= {2'b00,extra1p, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
         6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
@@ -249,15 +265,16 @@ always @* begin
     vram8_dout = bus_addr[0] ? vram16_dout[15:8] : vram16_dout[7:0];
     rom_dec    = dec_en ? reverse(rom_data) : rom_data;
 
-    din = rom_cs  ? rom_dec    :
-          sha_cs  ? sha_dout   :
-          cab_cs  ? cab        :
-          oram_cs ? oram8_dout :
-          s2m_rd  ? s2m_data   :
-          b2c_rd  ? mcu2bus    :
-          pal_lo  ? pal16_dout[ 7:0] :
-          pal_hi  ? pal16_dout[15:8] :
-          vram_cs ? vram8_dout :
+    din = rom_cs   ? rom_dec    :
+          sha_cs   ? sha_dout   :
+          cab_cs   ? cab        :
+          oram_cs  ? oram8_dout :
+          s2m_rd   ? s2m_data   :
+          b2c_rd   ? mcu2bus    :
+          pal_lo   ? pal16_dout[ 7:0] :
+          pal_hi   ? pal16_dout[15:8] :
+          vram_cs  ? vram8_dout :
+          trcrt_cs ? 8'h1       :
           8'd0;
 end
 

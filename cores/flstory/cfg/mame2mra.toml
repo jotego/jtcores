@@ -42,6 +42,7 @@ info="""
 		    1???? == 4 ROM banks
 		byte 3: 0 == coins are active low
 		        1 ==                  high
+		    1???? == unused IO bits set to 1
 		byte 4: 0 == GFX config register at $DF03
 		        1 == GFX config register at $DCE0
 		byte 5: 0 == use priority RAM
@@ -76,6 +77,8 @@ data = [
 	{ setname="bronx",                  offset=2, data="16" }, # 4 banks
 	# coins active high/low
 	{ setname="rumba",                  offset=3, data="01" },
+	# unused IO bits set high
+	{ machines=["nycaptor","cyclshtg"], offset=3, data="10" },
 	# GFX config register location
 	{ machines=["rumba","victnine"],    offset=4, data="01" },
 	# Layer priority

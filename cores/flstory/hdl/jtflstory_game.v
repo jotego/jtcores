@@ -30,8 +30,8 @@ reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
-            palwcfg, cabcfg,   objcfg,
-            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n;
+            palwcfg, cabcfg, objcfg, iocfg,
+            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
 reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
@@ -59,7 +59,8 @@ jtflstory_header u_header (
     .obj      ( objcfg          ),
     .sub      ( sub_en          ),
     .dec      ( dec_en          ),
-    .banks    ( bankcfg         )
+    .banks    ( bankcfg         ),
+    .iocfg    ( iocfg           )
 );
 
 always @(posedge clk) mcu_rst <= rst | mcu_enb;
@@ -77,6 +78,7 @@ jtflstory_main u_main(
     .cabcfg     ( cabcfg    ),
     .bankcfg    ( bankcfg   ),
     .dec_en     ( dec_en    ),
+    .iocfg      ( iocfg     ),
 
     .bus_addr   ( bus_addr  ),
     .bus_din    ( bus_din   ),
@@ -84,6 +86,7 @@ jtflstory_main u_main(
     .cpu_dout   ( cpu_dout  ),
 
     // sub CPU
+    .sub_rstn   ( sub_rstn  ),
     .sub_addr   ( sub_addr  ),
     .sub_cs     ( subsh_cs  ),
     .sub_wr_n   ( sub_wr_n  ),
@@ -145,13 +148,15 @@ jtflstory_main u_main(
 jtflstory_sub u_sub(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .enable     ( sub_en    ),
+    // .enable     ( sub_en    ),
+    .enable     ( 1'b0      ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
     .nmi_n      ( 1'b1      ),
 
     .dip_pause  ( dip_pause ),
 
+    .bus_rstn   ( sub_rstn  ),
     .bus_addr   ( sub_addr  ),
     .bus_cs     ( subsh_cs  ),
     .bus_wr_n   ( sub_wr_n  ),

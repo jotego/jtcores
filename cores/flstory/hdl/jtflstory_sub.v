@@ -32,6 +32,7 @@ module jtflstory_sub(
     input     [ 7:0] bus_dout,
     input            busrq_n,
                      bus_wait,
+                     bus_rstn,
     // ROM access
     output reg       rom_cs,
     input     [ 7:0] rom_data,
@@ -68,7 +69,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    rst_n <= ~rst & enable;
+    rst_n <= ~rst & enable & bus_rstn;
 end
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
