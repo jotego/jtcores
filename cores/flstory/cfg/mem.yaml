@@ -1,3 +1,5 @@
+params:
+  - { name: SUB_OFFSET, value: "`SUB_START>>1" }
 clocks:
   clk:
     - freq: 3072000
@@ -40,6 +42,10 @@ sdram:
       - name: main
         addr_width: 17
         data_width: 8
+      - name: sub
+        addr_width: 16
+        data_width: 8
+        offset: SUB_OFFSET
     - buses:
       - name: snd
         addr_width: 16

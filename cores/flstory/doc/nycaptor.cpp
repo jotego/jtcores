@@ -269,11 +269,6 @@ void nycaptor_state::unk_w(uint8_t data)
 {
 }
 
-uint8_t nycaptor_state::nycaptor_generic_control_r()
-{
-	return m_generic_control_reg;
-}
-
 void nycaptor_state::nycaptor_generic_control_w(uint8_t data)
 {
 	m_generic_control_reg = data;
@@ -288,7 +283,7 @@ void nycaptor_state::nycaptor_master_map(address_map &map)
 	map(0xc000, 0xc7ff).ram().w(FUNC(nycaptor_state::nycaptor_videoram_w)).share("videoram");
 	map(0xd000, 0xd000).rw(m_bmcu, FUNC(taito68705_mcu_device::data_r), FUNC(taito68705_mcu_device::data_w));
 	map(0xd001, 0xd001).w(FUNC(nycaptor_state::sub_cpu_halt_w));
-	map(0xd002, 0xd002).rw(FUNC(nycaptor_state::nycaptor_generic_control_r), FUNC(nycaptor_state::nycaptor_generic_control_w));   /* bit 3 - memory bank at 0x8000-0xbfff */
+	map(0xd002, 0xd002).w(FUNC(nycaptor_state::nycaptor_generic_control_w));   /* bit 3 - memory bank at 0x8000-0xbfff */
 	map(0xd400, 0xd400).r(m_soundlatch2, FUNC(generic_latch_8_device::read)).w(m_soundlatch, FUNC(generic_latch_8_device::write));
 	map(0xd401, 0xd401).nopr();
 	map(0xd403, 0xd403).w(FUNC(nycaptor_state::sound_cpu_reset_w));

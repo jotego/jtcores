@@ -11,6 +11,9 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_6805mcu.yaml
+  - from: ram
+    get:
+      - jtframe_wait_on_shared.v
   - from: sound
     get:
       - jtframe_hipass.v

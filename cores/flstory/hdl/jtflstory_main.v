@@ -49,6 +49,15 @@ module jtflstory_main(
     output reg       gvflip,
     output reg       ghflip,
 
+    // sub CPU
+    input     [15:0] sub_addr,
+    input            sub_cs,
+    input            sub_wr_n,
+    input            sub_rd_n,
+    input     [ 7:0] sub_dout,
+    output    [ 7:0] sub_din,
+    output           sub_wait,
+
     // shared memory with MCU
     input            busrq_n,
     output           busak_n,
@@ -91,24 +100,31 @@ wire [15:0] A, cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
 reg  [ 1:0] bank=0;
 wire [ 3:0] extra1p, extra2p;
-wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
+wire        mreq_n,  rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n, bus_cen,
+            bus_cem, main_wait, sub_sel, m_reqref;
 reg         rst_n,
             pal_hi,  pal_lo,
-            vcfg_cs, rumba_cfg, flstory_cfg,  bank_cs, ctl_cs,
-            ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs;
+            vcfg_cs, rumba_cfg, flstory_cfg,  bank_cs, ctl_cs, CDEF_cs,
+            ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs,
+            subhalt_cs;
 
 assign A          = bus_addr;
-assign bus_addr   = busak_n ? cpu_addr : c2b_addr;
-assign bus_dout   = busak_n ? cpu_dout : c2b_dout;
+assign sub_sel    = sub_cs & ~sub_wait;
+assign bus_addr   = !busak_n ? c2b_addr : sub_sel ? sub_addr : cpu_addr;
+assign bus_dout   = !busak_n ? c2b_dout : sub_sel ? sub_dout : cpu_dout;
+assign bus_we     = !busak_n ? c2b_we : sub_sel ? ~sub_wr_n : ~wr_n;
+assign bus_rd     = !busak_n ? c2b_rd : sub_sel ? ~sub_rd_n : ~rd_n;
 assign bus_din    = din;
-assign bus_we     = busak_n ? ~wr_n    : c2b_we;
-assign bus_rd     = busak_n ? ~rd_n    : c2b_rd;
+assign bus_cen    = cen & ~main_wait;
+assign sub_din    = din;
+
 assign pal16_we   = {2{bus_we}} & {pal_hi,pal_lo};
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
-assign sha_we     = sha_cs & bus_we;
-assign vram_we    = {2{vram_cs&bus_we}} & { A[0], ~A[0] };
-assign oram_we    = oram_cs & bus_we;
+assign sha_we     =    sha_cs & bus_we;
+assign vram_we    = {2{vram_cs& bus_we}} & { bus_addr[0], ~bus_addr[0] };
+assign oram_we    =   oram_cs & bus_we;
 assign int_n      = ~dip_pause | lvbl;
+assign m_reqref   = !mreq_n && rfsh_n;
 
 always @* begin
     rom_addr   = {1'b0,bus_addr};
@@ -129,56 +145,70 @@ always @* begin
     oram_cs     = 0;
     pal_lo      = 0;
     pal_hi      = 0;
-    vcfg_cs     = 0;
     m2s_wr      = 0;
     s2m_rd      = 0;
     b2c_wr      = 0;
     b2c_rd      = 0;
     flstory_cfg = 0;
     rumba_cfg   = 0;
-    if( !mreq_n && rfsh_n ) case(A[15:14])
+    subhalt_cs  = 0;
+    if( m_reqref ) case(A[15:14])
         0,1: rom_cs = 1;
         2: begin
             rom_cs  = 1;
             bank_cs = bankcfg!=NOBANKS;
         end
-        3: case(A[13:12])
-            0: vram_cs = 1;
-            1: begin
-                case(A[11:10]) // D000
-                    0: if(bus_we) case(A[1:0])
-                        0: b2c_wr = 1; // CPU writes to MCU latch
-                        // 1: watchdog
-                        2: ctl_cs = bus_we; // sub CPU reset and coin lock
-                        // 3: sub CPU NMI
+        default:;
+    endcase
+    if( bus_addr[15:14]==3 && (m_reqref | sub_cs) ) case(bus_addr[13:12])
+        0: vram_cs = 1;
+        1: begin
+            case(bus_addr[11:10]) // D000
+                0: if(bus_we) case(bus_addr[1:0])
+                    0: b2c_wr = 1; // CPU writes to MCU latch
+                    1: begin
+                        subhalt_cs = 1;
+                        // watchdog = bus_rd
+                    end
+                    2: ctl_cs = bus_we; // sub CPU reset and coin lock
+                    // 3: sub CPU NMI
+                    default:;
+                endcase else if(bus_rd) case(bus_addr[1:0])
+                    0: b2c_rd = 1; // CPU reads from MCU latch
+                    default:;
+                endcase
+                1: {m2s_wr, s2m_rd} = {bus_we, bus_rd}; // D400
+                2: cab_cs = 1;  // D80?
+                3: case(bus_addr[9:8]) // DC?? ~ DF??
+                    0: begin // DC??
+                        oram_cs = 1; // DC??
+                        rumba_cfg = bus_we && bus_addr[7:0]==8'he0; // DCE? used by rumba
+                    end
+                    1: pal_lo  = 1; // DD??
+                    2: pal_hi  = 1; // DE?? includes priority bits
+                    3: case(bus_addr[1:0]) // DF??
+                        // 0, 1, 2: related to gun games?
+                        3: flstory_cfg = bus_we;
                         default:;
-                    endcase else if(bus_rd) case(A[1:0])
-                        0: b2c_rd = 1; // CPU reads from MCU latch
-                        default:;
-                    endcase
-                    1: {m2s_wr, s2m_rd} = {bus_we, bus_rd}; // D400
-                    2: cab_cs = 1;  // D80?
-                    3: case(A[9:8]) // DC?? ~ DF??
-                        0: begin // DC??
-                            oram_cs = 1; // DC??
-                            rumba_cfg = bus_we && A[7:0]==8'he0; // DCE? used by rumba
-                        end
-                        1: pal_lo  = 1; // DD??
-                        2: pal_hi  = 1; // DE?? includes priority bits
-                        3: case(A[1:0]) // DF??
-                            // 0, 1, 2: related to gun games?
-                            3: flstory_cfg = bus_we;
-                            default:;
-                        endcase
                     endcase
                 endcase
-            end
-            2,3: sha_cs = 1; // E000~FFFF
-            default:;
-        endcase
+            endcase
+        end
+        2,3: sha_cs = 1; // E000~FFFF
+        default:;
     endcase
     vcfg_cs = gfxcfg ? rumba_cfg : flstory_cfg;
+    CDEF_cs = cpu_addr[13:12]==2'b11 && m_reqref;
 end
+
+jtframe_wait_on_shared u_wait(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .mreq   ( CDEF_cs   ),
+    .sreq   ( sub_cs    ),
+    .mwait  ( main_wait ),
+    .swait  ( sub_wait  )
+);
 
 localparam [1:0] LOW_FOR_FLSTORY=2'd0;
 
@@ -197,7 +227,7 @@ always @(posedge clk) begin
     if( ctl_cs ) begin
         bank <= cpu_dout[3:2];
     end
-    case(A[2:0])
+    case(bus_addr[2:0])
         0: cab <= dipsw[ 7: 0];
         1: cab <= dipsw[15: 8];
         2: cab <= dipsw[23:16];
@@ -215,7 +245,7 @@ function [7:0] reverse(input [7:0] a); begin
 end endfunction
 
 always @* begin
-    vram8_dout = A[0]   ? vram16_dout[15:8] : vram16_dout[7:0];
+    vram8_dout = bus_addr[0] ? vram16_dout[15:8] : vram16_dout[7:0];
     rom_dec    = dec_en ? reverse(rom_data) : rom_data;
 
     din = rom_cs  ? rom_dec    :
@@ -233,7 +263,7 @@ end
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),
     .clk        ( clk         ),
-    .cen        ( cen         ),
+    .cen        ( bus_cen     ),
     .cpu_cen    (             ),
     .int_n      ( int_n       ), // int clear logic is internal
     .nmi_n      ( 1'b1        ),

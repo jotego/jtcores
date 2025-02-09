@@ -24,13 +24,14 @@ wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
             no_used, // noise used
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
-wire [ 7:0] bus_din, s2m_data, st_snd,
+wire [ 7:0] bus_din, s2m_data, st_snd, sub_din, sub_dout,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
-            palwcfg, cabcfg, objcfg;
+            palwcfg, cabcfg,   objcfg,
+            subsh_cs,sub_wr_n, sub_wait, sub_rd_n;
 reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
@@ -82,6 +83,14 @@ jtflstory_main u_main(
     .bus_dout   ( bus_dout  ),
     .cpu_dout   ( cpu_dout  ),
 
+    // sub CPU
+    .sub_addr   ( sub_addr  ),
+    .sub_cs     ( subsh_cs  ),
+    .sub_wr_n   ( sub_wr_n  ),
+    .sub_rd_n   ( sub_rd_n  ),
+    .sub_din    ( sub_din   ),
+    .sub_dout   ( sub_dout  ),
+    .sub_wait   ( sub_wait  ),
     // shared memory
     .sha_we     ( sha_we    ),
     .sha_dout   ( sha_dout  ),
@@ -132,6 +141,30 @@ jtflstory_main u_main(
     .debug_bus  ( debug_bus )
 );
 
+jtflstory_sub u_sub(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .enable     ( sub_en    ),
+    .cen        ( cen_5p3   ),
+    .lvbl       ( LVBL      ),       // video interrupt
+    .nmi_n      ( 1'b1      ),
+
+    .dip_pause  ( dip_pause ),
+
+    .bus_addr   ( sub_addr  ),
+    .bus_cs     ( subsh_cs  ),
+    .bus_wr_n   ( sub_wr_n  ),
+    .bus_rd_n   ( sub_rd_n  ),
+    .bus_din    ( sub_dout  ),
+    .bus_dout   ( sub_din   ),
+    .bus_wait   ( sub_wait  ),
+
+    // ROM access
+    .rom_cs     ( sub_cs    ),
+    .rom_data   ( sub_data  ),
+    .rom_ok     ( sub_ok    )
+);
+
 jtflstory_mcu u_mcu(
     .rst        ( mcu_rst   ),
     .clk        ( clk       ),
@@ -156,6 +189,7 @@ jtflstory_mcu u_mcu(
     .rom_addr   ( mcu_addr  ),
     .rom_data   ( mcu_data  )
 );
+
 /* verilator tracing_off */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
