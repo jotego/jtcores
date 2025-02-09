@@ -30,8 +30,8 @@ module jtflstory_sub(
     output           bus_wr_n, bus_rd_n,
     output    [ 7:0] bus_din,
     input     [ 7:0] bus_dout,
-
-    input            bus_wait,
+    input            busrq_n,
+                     bus_wait,
     // ROM access
     output reg       rom_cs,
     input     [ 7:0] rom_data,
@@ -42,7 +42,7 @@ wire [15:0] A;
 wire [ 7:0] cpu_dout;
 reg  [ 7:0] din;
 reg         rst_n;
-wire        mreq_n, rfsh_n, rd_n, wr_n, int_n;
+wire        mreq_n, rfsh_n, rd_n, wr_n, int_n, busak_n;
 wire        bus_cen;
 
 assign A        = bus_addr;
@@ -78,8 +78,8 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .cpu_cen    (             ),
     .int_n      ( int_n       ), // int clear logic is internal
     .nmi_n      ( nmi_n       ),
-    .busrq_n    ( 1'b1        ),
-    .busak_n    (             ),
+    .busrq_n    ( busrq_n     ),
+    .busak_n    ( busak_n     ),
     .m1_n       (             ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     (             ),

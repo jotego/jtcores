@@ -31,7 +31,7 @@ reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
             palwcfg, cabcfg,   objcfg,
-            subsh_cs,sub_wr_n, sub_wait, sub_rd_n;
+            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n;
 reg         mcu_rst;
 
 assign bus_a0     = bus_addr[0];
@@ -91,6 +91,7 @@ jtflstory_main u_main(
     .sub_din    ( sub_din   ),
     .sub_dout   ( sub_dout  ),
     .sub_wait   ( sub_wait  ),
+    .sub_busrq_n(sub_busrq_n),
     // shared memory
     .sha_we     ( sha_we    ),
     .sha_dout   ( sha_dout  ),
@@ -158,6 +159,7 @@ jtflstory_sub u_sub(
     .bus_din    ( sub_dout  ),
     .bus_dout   ( sub_din   ),
     .bus_wait   ( sub_wait  ),
+    .busrq_n    (sub_busrq_n),
 
     // ROM access
     .rom_cs     ( sub_cs    ),

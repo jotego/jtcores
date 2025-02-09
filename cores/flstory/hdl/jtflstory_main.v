@@ -57,6 +57,7 @@ module jtflstory_main(
     input     [ 7:0] sub_dout,
     output    [ 7:0] sub_din,
     output           sub_wait,
+    output reg       sub_busrq_n,
 
     // shared memory with MCU
     input            busrq_n,
@@ -96,7 +97,7 @@ module jtflstory_main(
 
 localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 
-wire [15:0] A, cpu_addr;
+wire [15:0] cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
 reg  [ 1:0] bank=0;
 wire [ 3:0] extra1p, extra2p;
@@ -108,7 +109,6 @@ reg         rst_n,
             ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs,
             subhalt_cs;
 
-assign A          = bus_addr;
 assign sub_sel    = sub_cs & ~sub_wait;
 assign bus_addr   = !busak_n ? c2b_addr : sub_sel ? sub_addr : cpu_addr;
 assign bus_dout   = !busak_n ? c2b_dout : sub_sel ? sub_dout : cpu_dout;
@@ -152,7 +152,7 @@ always @* begin
     flstory_cfg = 0;
     rumba_cfg   = 0;
     subhalt_cs  = 0;
-    if( m_reqref ) case(A[15:14])
+    if( m_reqref ) case(cpu_addr[15:14])
         0,1: rom_cs = 1;
         2: begin
             rom_cs  = 1;
@@ -198,7 +198,7 @@ always @* begin
         default:;
     endcase
     vcfg_cs = gfxcfg ? rumba_cfg : flstory_cfg;
-    CDEF_cs = cpu_addr[13:12]==2'b11 && m_reqref;
+    CDEF_cs = cpu_addr[15:14]==2'b11 && m_reqref;
 end
 
 jtframe_wait_on_shared u_wait(
@@ -224,6 +224,7 @@ always @(posedge clk) begin
         scr_flen <= bus_dout[2];
         { gvflip, ghflip } <= bus_dout[1:0]^{2{mirror}};
     end
+    if( subhalt_cs ) sub_busrq_n <= ~cpu_dout[0];
     if( ctl_cs ) begin
         bank <= cpu_dout[3:2];
     end
