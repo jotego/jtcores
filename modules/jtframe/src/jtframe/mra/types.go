@@ -199,20 +199,22 @@ type FrameCfg struct {
     Width int
 }
 
-type Mame2MRA struct {
-    Global struct {
-        Info      []Info
-        Author []string
-        Webpage, Twitter   string
-        Platform  string // Used by the Pocket target
-        Zip       struct {
-            Alt string
-        }
-        Orientation struct {
-            Fixed bool
-        }
-        Overrule []Overrule_t  // overrules values in MAME XML
+type GlobalCfg struct {
+    Info      []Info
+    Author []string
+    Webpage, Twitter   string
+    Platform  string // Used by the Pocket target
+    Zip       struct {
+        Alt string
     }
+    Orientation struct {
+        Fixed bool
+    }
+    Overrule []Overrule_t  // overrules values in MAME XML
+}
+
+type Mame2MRA struct {
+    Global GlobalCfg
 
     Pocket struct {
         Display_modes []int

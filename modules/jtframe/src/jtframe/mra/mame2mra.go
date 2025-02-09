@@ -465,30 +465,10 @@ func slice2csv( ss []string ) string {
 // Do not pass the macros to make_mra, but instead modifiy the configuration
 // based on the macros in parse_toml
 func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
-	root := MakeNode("misterromdescription")
-	n := root.AddNode("about")
-	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Author), "jotego"))
-	n.AddAttr("webpage", notEmpty(cfg.Global.Webpage,   "https://patreon.com/jotego"))
-	n.AddAttr("twitter", notEmpty(cfg.Global.Twitter,   "@topapate"))
-	n.AddAttr("source", "https://github.com/jotego/jtcores")
-	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
-	root.AddNode("setname", machine.Name)
-	corename := set_rbfname(&root, machine, cfg, args).GetText()[2:] // corename = RBF, skipping the JT part
-	root.AddNode("mameversion", Mame_version())
-	root.AddNode("year", machine.Year)
-	root.AddNode("manufacturer", machine.Manufacturer)
-	root.AddNode("players", strconv.Itoa(machine.Input.Players))
+	root := make_root_node(machine,cfg,args)
+	corename := set_rbfname(root, machine, cfg, args).GetText()[2:] // corename = RBF, skipping the JT part
 	if len(machine.Input.Control) > 0 {
 		root.AddNode("joystick", machine.Input.Control[0].Ways)
-	}
-	n = root.AddNode("rotation")
-	switch machine.Display.Rotate {
-	case 90:
-		n.SetText("vertical (cw)")
-	case 270:
-		n.SetText("vertical (ccw)")
-	default:
-		n.SetText("horizontal")
 	}
 	root.AddNode("region", guess_world_region(machine.Description))
 	// Custom tags, sort them first
@@ -500,62 +480,58 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		root.AddNode(t.Tag, t.Value)
 	}
 	// ROM load
-	if e:=make_ROM(&root, machine, cfg, args); e!=nil {
+	if e:=make_ROM(root, machine, cfg, args); e!=nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}
 	// Beta
 	if betas.IsBetaFor(corename,"mister") {
-		add_beta_keyload(&root)
+		add_beta_keyload(root)
 	}
 	if !cfg.Cheat.Disable {
-		skip := false
-		filename := ""
-		family_match := false
-		for _, each := range cfg.Cheat.Files {
-			if each.Machine == "" && each.Setname == "" && !family_match {
-				filename = each.AsmFile
-				skip = each.Skip
-			}
-			if each.Match(machine)>0 {
-				filename = each.AsmFile
-				skip = each.Skip
-				family_match = true
-			}
-			if each.Setname == machine.Name {
-				filename = each.AsmFile
-				skip = each.Skip
-				break
-			}
-		}
-		if filename == "" {
-			filename = args.Core + ".s"
-		}
-		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
-		if asmhex != nil && len(asmhex) > 0 && !skip {
-			root.AddComment("Machine code for the Picoblaze CPU")
-			n := root.AddNode("rom").AddAttr("index", "16")
-			if args.JTbin {
-				n.AddNode("part").SetText(hexdump(asmhex, 32)).SetIndent()
-			} else {
-				re := regexp.MustCompile("\\..*$")
-				basename := filepath.Base(re.ReplaceAllString(filename, ""))
-				n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
-				n.AddNode("part").AddAttr("name", basename+".bin")
-			}
-			if !args.SkipPocket {
-				pocket_pico( asmhex )
-			}
-		}
+		make_cheat_load(root,machine,cfg,args)
 	}
-	make_nvram(&root,machine,cfg,args.Core)
+	make_nvram(root,machine,cfg,args.Core)
 	// coreMOD
-	coremod := make_coreMOD(&root, machine, cfg)
+	coremod := make_coreMOD(root, machine, cfg)
 	// DIP switches
-	def_dipsw := make_switches(&root, machine, cfg, args)
+	def_dipsw := make_switches(root, machine, cfg, args)
 	// Buttons
-	make_buttons(&root, machine, cfg, args)
-	return &root, def_dipsw, coremod
+	make_buttons(root, machine, cfg, args)
+	return root, def_dipsw, coremod
+}
+
+func make_root_node(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode) {
+	root := MakeNode("misterromdescription")
+	make_about_node(&root,cfg.Global)
+	make_rotation_node(&root,machine.Display)
+	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
+	root.AddNode("setname", machine.Name)
+	root.AddNode("mameversion", Mame_version())
+	root.AddNode("year", machine.Year)
+	root.AddNode("manufacturer", machine.Manufacturer)
+	root.AddNode("players", strconv.Itoa(machine.Input.Players))
+	return &root
+}
+
+func make_about_node(root *XMLNode, global GlobalCfg) {
+	n := root.AddNode("about")
+	n.AddAttr("author",  notEmpty(slice2csv(global.Author), "jotego"))
+	n.AddAttr("webpage", notEmpty(global.Webpage,   "https://patreon.com/jotego"))
+	n.AddAttr("twitter", notEmpty(global.Twitter,   "@topapate"))
+	n.AddAttr("source", "https://github.com/jotego/jtcores")
+}
+
+func make_rotation_node(root *XMLNode, display MameDisplay) {
+	n := root.AddNode("rotation")
+	switch display.Rotate {
+	case 90:
+		n.SetText("vertical (cw)")
+	case 270:
+		n.SetText("vertical (ccw)")
+	default:
+		n.SetText("horizontal")
+	}
 }
 
 func add_beta_keyload(root *XMLNode) {
@@ -564,6 +540,47 @@ func add_beta_keyload(root *XMLNode) {
 	rom.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
 	part := rom.AddNode("part").AddAttr("name", "beta.bin")
 	part.AddAttr("crc",betas.Crcsum)
+}
+
+func make_cheat_load(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
+	skip := false
+	filename := ""
+	family_match := false
+	for _, each := range cfg.Cheat.Files {
+		if each.Machine == "" && each.Setname == "" && !family_match {
+			filename = each.AsmFile
+			skip = each.Skip
+		}
+		if each.Match(machine)>0 {
+			filename = each.AsmFile
+			skip = each.Skip
+			family_match = true
+		}
+		if each.Setname == machine.Name {
+			filename = each.AsmFile
+			skip = each.Skip
+			break
+		}
+	}
+	if filename == "" {
+		filename = args.Core + ".s"
+	}
+	asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
+	if asmhex != nil && len(asmhex) > 0 && !skip {
+		root.AddComment("Machine code for the Picoblaze CPU")
+		n := root.AddNode("rom").AddAttr("index", "16")
+		if args.JTbin {
+			n.AddNode("part").SetText(hexdump(asmhex, 32)).SetIndent()
+		} else {
+			re := regexp.MustCompile("\\..*$")
+			basename := filepath.Base(re.ReplaceAllString(filename, ""))
+			n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
+			n.AddNode("part").AddAttr("name", basename+".bin")
+		}
+		if !args.SkipPocket {
+			pocket_pico( asmhex )
+		}
+	}
 }
 
 func hexdump(data []byte, cols int) string {
