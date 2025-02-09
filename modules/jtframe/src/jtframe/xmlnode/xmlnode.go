@@ -121,8 +121,9 @@ func (n *XMLNode) SetIndent() *XMLNode {
 }
 
 func (n *XMLNode) AddComment(txt string) *XMLNode {
-	n.AddNode(txt).comment=true
-	return n
+	child := n.AddNode(txt)
+	child.comment=true
+	return child
 }
 
 func (n *XMLNode) GetAttr(name string) string {

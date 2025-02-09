@@ -41,14 +41,13 @@ type StartNode struct {
 }
 
 func (this *StartNode) add_length(pos int) {
-	if this.node != nil {
-		lenreg := pos - this.pos
-		if lenreg > 0 {
-			length_message := fmt.Sprintf("%s - length 0x%X (%d bits)",
-				this.node.GetName(), lenreg,
-				int(math.Ceil(math.Log2(float64(lenreg)))))
-			this.node.Rename(length_message)
-		}
+	if this.node == nil { return }
+	lenreg := pos - this.pos
+	if lenreg > 0 {
+		bits_needed := int(math.Ceil(math.Log2(float64(lenreg))))
+		length_message := fmt.Sprintf("%s - length 0x%X (%d bits)",
+			this.node.GetName(), lenreg, bits_needed)
+		this.node.Rename(length_message)
 	}
 }
 
