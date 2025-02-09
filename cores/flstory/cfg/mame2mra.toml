@@ -57,34 +57,37 @@ PCBs = [
 	{ machine ="rumba"    },
 	{ machine ="victnine" },
 	{ machine ="nycaptor" },
+	{ machine ="cyclshtg" },
 ]
 data = [
 	{ pcb_id=true, offset=0 },
-	{ machines=["onna34ro"],            data="01", offset=1 },
-	{ machines=["rumba"],               data="02", offset=1 },
+	{ machines=["onna34ro"],            offset=1, data="01" },
+	{ machines=["rumba"],               offset=1, data="02" },
 	# Disable MCU
-	{ setname="onna34roa",              data="01", offset=2 },
+	{ setname="onna34roa",              offset=2, data="01" },
 	# Enable sub Z80
-	{ machine="nycaptor",               data="02", offset=2 },
+	{ machines=["nycaptor","cyclshtg"], offset=2, data="02" },
 	# coins active high/low
-	{ setname="rumba",                  data="01", offset=3 },
+	{ setname="rumba",                  offset=3, data="01" },
 	# GFX config register location
-	{ machines=["rumba","victnine"],    data="01", offset=4 },
+	{ machines=["rumba","victnine"],    offset=4, data="01" },
 	# Layer priority
-	{ machines=["rumba","victnine"],    data="01", offset=5 },
+	{ machines=["rumba","victnine"],    offset=5, data="01" },
 	# Palette
-	{ setname="victnine",               data="07", offset=6 },
+	{ setname="victnine",               offset=6, data="07" },
 ]
 
 [ROM]
 regions = [
-	{ name="maincpu"                             },
-	{ name="sub", skip=true                      },
-	{ name="sub", machine="nycaptor"             },
-	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="maincpu"                                 },
+	{ name="sub",   skip=true                        },
+	{ name="user1", skip=true                        },
+	{ name="sub",   machines=["nycaptor","cyclshtg"] },  # sub Z80 ROM
+	{ name="user1", machine="cyclshtg"               },  # ROM mapped as sub Z80 IO ports
+	{ name="audiocpu", start="JTFRAME_BA1_START"     },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,4,1,5,2,6,3,7] },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,2,1,3,0,2,1,3], machine="rumba" },
-	{ name="bmcu:mcu", start="JTFRAME_PROM_START"},
+	{ name="bmcu:mcu", start="JTFRAME_PROM_START"    },
 ]
 
-order=["maincpu","sub","audiocpu","gfx1","bmcu:mcu"]
+order=["maincpu","sub","user1","audiocpu","gfx1","bmcu:mcu"]
