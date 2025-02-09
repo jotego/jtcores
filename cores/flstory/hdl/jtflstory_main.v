@@ -22,7 +22,7 @@ module jtflstory_main(
     input            cen,
     input            lvbl,       // video interrupt
 
-    input            mirror, gfxcfg, cabcfg,
+    input            mirror, gfxcfg, cabcfg, dec_en,
 
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
@@ -85,7 +85,7 @@ module jtflstory_main(
 `ifndef NOMAIN
 
 wire [15:0] A, cpu_addr;
-reg  [ 7:0] cab, din, vram8_dout;
+reg  [ 7:0] cab, din, vram8_dout, rom_dec;
 wire [ 3:0] extra1p, extra2p;
 wire        mreq_n, rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n;
 reg         rst_n,
@@ -189,11 +189,15 @@ always @(posedge clk) begin
     endcase
 end
 
+function [7:0] reverse(input [7:0] a); begin
+    reverse = {a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]};
+end endfunction
 
 always @* begin
-    vram8_dout = A[0] ? vram16_dout[15:8] : vram16_dout[7:0];
+    vram8_dout = A[0]   ? vram16_dout[15:8] : vram16_dout[7:0];
+    rom_dec    = dec_en ? reverse(rom_data) : rom_data;
 
-    din = rom_cs  ? rom_data   :
+    din = rom_cs  ? rom_dec    :
           sha_cs  ? sha_dout   :
           cab_cs  ? cab        :
           oram_cs ? oram8_dout :
