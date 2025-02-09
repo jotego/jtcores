@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -30,7 +31,26 @@ import (
 	"strings"
 
 	"github.com/jotego/jtframe/macros"
+	. "github.com/jotego/jtframe/xmlnode"
 )
+
+// first XML node of a ROM region
+type StartNode struct {
+	node *XMLNode
+	pos  int
+}
+
+func (this *StartNode) add_length(pos int) {
+	if this.node != nil {
+		lenreg := pos - this.pos
+		if lenreg > 0 {
+			length_message := fmt.Sprintf("%s - length 0x%X (%d bits)",
+				this.node.GetName(), lenreg,
+				int(math.Ceil(math.Log2(float64(lenreg)))))
+			this.node.Rename(length_message)
+		}
+	}
+}
 
 func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error {
 	if len(machine.Rom) == 0 {
@@ -73,8 +93,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		sdram_bank_comment(p, pos, macros.CopyToMap())
 		// comment with start and length of region
 		previous.add_length(pos)
-		previous.node = p.AddNode(fmt.Sprintf("%s - starts at 0x%X", reg, pos))
-		previous.node.comment = true
+		previous.node = p.AddComment(fmt.Sprintf("%s - starts at 0x%X", reg, pos))
 		previous.pos = pos
 		start_pos := pos
 
@@ -83,8 +102,8 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 			if parse_custom(reg_cfg, p, machine, &pos, args) {
 				fill_upto(&pos, start_pos+reg_cfg.Len, p)
 			} else {
-				p.AddNode(fmt.Sprintf("Skipping region %s because there is no dump known",
-					reg_cfg.EffName())).comment = true
+				p.AddComment(fmt.Sprintf("Skipping region %s because there is no dump known",
+					reg_cfg.EffName()))
 			}
 			continue
 		}
@@ -121,7 +140,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	}
 	previous.add_length(pos)
 	make_devROM(p, machine, cfg, &pos)
-	p.AddNode(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10)).comment = true
+	p.AddComment(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10))
 	make_patches(p, machine, cfg )
 	if header != nil {
 		if e:=make_header(header, reg_offsets, pos, cfg.Header, machine); e!= nil { return e }
@@ -168,10 +187,10 @@ func add_unlisted_regions(machine_roms []MameROM, initial_regions []string) (reg
 func (hdrCfg *HeaderCfg) make_header_node(parent *XMLNode) (header *XMLNode) {
 	if hdrCfg.len > 0 {
 		if len(hdrCfg.Info) > 0 {
-			parent.AddNode(hdrCfg.Info).comment = true
+			parent.AddComment(hdrCfg.Info)
 		}
 		header = parent.AddNode("part")
-		header.indent_txt = true
+		header.SetIndent()
 	}
 	return header
 }
@@ -192,8 +211,8 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 			continue
 		}
 		// add the comment only once
-		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.name })==nil {
-			root.AddNode(k).comment = true
+		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.GetName() })==nil {
+			root.AddComment(k)
 		}
 	}
 }
@@ -205,8 +224,8 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
 		if each.Match(machine) > 0 {
 			if header != 0 && !warned {
 				warned = true
-				root.AddNode(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
-					header)).comment=true
+				root.AddComment(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
+					header))
 			}
 			// apply the patch
 			root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
@@ -442,7 +461,7 @@ func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {
 		log.Fatal("jtframe mra: singleton only supported for width 16 and 32")
 	}
 	var n *XMLNode
-	p.AddNode("Singleton region. The files are merged with themselves.").comment = true
+	p.AddComment("Singleton region. The files are merged with themselves.")
 	msb := (reg_cfg.Width / 8) - 1
 	divider := reg_cfg.Width >> 3
 	mapfmt := fmt.Sprintf("%%0%db", divider)
@@ -546,7 +565,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 		reg_pos = *pos - start_pos
 		if blank_len := is_blank(reg_pos, reg, machine, cfg); blank_len > 0 {
 			fill_upto(pos, *pos+blank_len, p)
-			p.AddNode(fmt.Sprintf("Blank ends at 0x%X", *pos)).comment = true
+			p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 		}
 		reg_pos = *pos - start_pos
 	}
@@ -579,9 +598,9 @@ func parse_i8751(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, arg
 		return false
 	}
 	*pos += len(bin)
-	p.AddNode("Using custom firmware (no known dump)").comment = true
+	p.AddComment("Using custom firmware (no known dump)")
 	node := p.AddNode("part")
-	node.indent_txt = true
+	node.SetIndent()
 	node.SetText(hexdump(bin, 16))
 	return true
 }
@@ -622,9 +641,9 @@ func parse_asl(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, args 
 		return false
 	}
 	*pos += len(bin)
-	p.AddNode("Using custom firmware (no known dump)").comment = true
+	p.AddComment("Using custom firmware (no known dump)")
 	node := p.AddNode("part")
-	node.indent_txt = true
+	node.SetIndent()
 	node.SetText(hexdump(bin, 16))
 	return true
 }
@@ -920,7 +939,7 @@ func interleave_group( reg string,
 			reg_pos = *pos - start_pos
 			if blank_len := is_blank(reg_pos, reg, machine, cfg); blank_len > 0 {
 				fill_upto(pos, *pos+blank_len, p)
-				p.AddNode(fmt.Sprintf("Blank ends at 0x%X", *pos)).comment = true
+				p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 			}
 		}
 		if reg_cfg.Reverse {

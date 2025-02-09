@@ -17,6 +17,10 @@
 
 package mra
 
+import(
+    . "github.com/jotego/jtframe/xmlnode"
+)
+
 var Verbose bool
 
 type Args struct {

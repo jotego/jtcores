@@ -21,6 +21,7 @@ import(
 	"fmt"
 
 	"github.com/jotego/jtframe/macros"
+	. "github.com/jotego/jtframe/xmlnode"
 )
 
 func coreMOD_dial(machine *MachineXML, cfg Mame2MRA, coremod *int) {
@@ -69,11 +70,11 @@ func make_coreMOD(root *XMLNode, machine *MachineXML, cfg Mame2MRA) int {
 	coreMOD_audio(machine, cfg, &coremod)
 	// Fill MRA
 	if vertical {
-		root.AddNode("Vertical game").comment = true
+		root.AddComment("Vertical game")
 	}
 	rom := root.AddNode("rom").AddAttr("index", "1")
 	if wdiff>0 || hdiff>0 {
-		rom.AddNode(fmt.Sprintf("black frame %dx%d",wdiff,hdiff)).comment = true
+		rom.AddComment(fmt.Sprintf("black frame %dx%d",wdiff,hdiff))
 	}
 	rom.AddNode("part").SetText(fmt.Sprintf("%02X %02X", coremod&0xFF, (coremod>>8)&0xff))
 	return coremod

@@ -30,6 +30,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	. "github.com/jotego/jtframe/xmlnode"
 )
 
 // save2disk = false is uselful to update the md5 calculation only
@@ -43,7 +45,7 @@ func mra2rom(root *XMLNode, save2disk bool, zippath string) {
 
 func save_coremod(root *XMLNode) {
 	setname := root.GetNode("setname")
-	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "1" })
+	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.GetName() == "rom" && n.GetAttr("index") == "1" })
 	if xml_rom == nil || setname == nil {
 		log.Println("Warning: no ROM files associated with machine")
 		return
@@ -51,22 +53,22 @@ func save_coremod(root *XMLNode) {
 	// main ROM file
 	rombytes := make([]byte, 0)
 	parts2rom(nil, xml_rom, &rombytes)
-	rom_file(setname.text, ".mod", rombytes)
+	rom_file(setname.GetText(), ".mod", rombytes)
 }
 
 func save_nvram(root *XMLNode) {
 	setname := root.GetNode("setname")
 	// optional default NVRAM
-	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "2" })
+	xml_nvram := root.FindMatch(func(n *XMLNode) bool { return n.GetName() == "rom" && n.GetAttr("index") == "2" })
 	if xml_nvram == nil { return }
 	xml_nvram = xml_nvram.GetNode("part")
-	if xml_nvram == nil || xml_nvram.text=="" { return }
-	rom_file( strings.ToUpper(setname.text),".RAM",rawdata2bytes(xml_nvram.text))
+	if xml_nvram == nil || xml_nvram.GetText()=="" { return }
+	rom_file( strings.ToUpper(setname.GetText()),".RAM",rawdata2bytes(xml_nvram.GetText()))
 }
 
 func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 	setname := root.GetNode("setname")
-	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.name == "rom" && n.GetAttr("index") == "0" })
+	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.GetName() == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
 		log.Println("Warning: no ROM files associated with machine")
 		return nil
@@ -85,25 +87,25 @@ func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 			}
 		}
 	}
-	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s",setname.text, zipe.Error()) }
+	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s",setname.GetText(), zipe.Error()) }
 	if Verbose {
-		fmt.Println("**** Creating .rom file for", setname.text)
+		fmt.Println("**** Creating .rom file for", setname.GetText())
 	}
 	e := parts2rom(zf, xml_rom, &rombytes)
-	if e != nil { fmt.Println(setname.text,"\n",e)}
+	if e != nil { fmt.Println(setname.GetText(),"\n",e)}
 	if rombytes == nil {
-		return fmt.Errorf("No .rom created for %s\n\n", setname.text)
+		return fmt.Errorf("No .rom created for %s\n\n", setname.GetText())
 	}
 	update_md5(xml_rom, rombytes)
 	if len(rombytes)%4 != 0 {
-		log.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.text)
+		log.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.GetText())
 	}
 	if save2disk {
 		var e error
 		if e = patchrom(xml_rom, &rombytes); e!=nil {
-			e = fmt.Errorf("%s: %w\n", setname.text, e)
+			e = fmt.Errorf("%s: %w\n", setname.GetText(), e)
 		}
-		return comb_errors( e, rom_file(setname.text, ".rom", rombytes))
+		return comb_errors( e, rom_file(setname.GetText(), ".rom", rombytes))
 	}
 	return nil
 }
@@ -129,11 +131,11 @@ func update_md5(n *XMLNode, rb []byte) {
 }
 
 func patchrom(n *XMLNode, rb *[]byte) error {
-	for _, each := range n.children {
-		if each.name != "patch" {
+	for _, each := range n.GetChildren() {
+		if each.GetName() != "patch" {
 			continue
 		}
-		data := rawdata2bytes(each.text)
+		data := rawdata2bytes(each.GetText())
 		k, err := strconv.ParseInt(each.GetAttr("offset"), 0, 32)
 		if err != nil {
 			fmt.Println(err)
@@ -150,8 +152,8 @@ func patchrom(n *XMLNode, rb *[]byte) error {
 }
 
 func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte) (fail error) {
-	for _, each := range n.children {
-		switch each.name {
+	for _, each := range n.GetChildren() {
+		switch each.GetName() {
 		case "part":
 			fname := each.GetAttr("name")
 			if fname == "" {
@@ -160,7 +162,7 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte) (fail error) {
 				if rep == 0 {
 					rep = 1
 				}
-				data := rawdata2bytes(each.text)
+				data := rawdata2bytes(each.GetText())
 				// fmt.Printf("Adding rep x len(data) = $%x x $%x\n",rep,len(data))
 				for ; rep > 0; rep-- {
 					*rb = append(*rb, data...)
@@ -260,8 +262,8 @@ func interleave2rom(allzips []*zip.ReadCloser, n *XMLNode) (data []byte, fail er
 		step, pos int
 	}
 	fingers := make([]finger, 0)
-	for _, each := range n.children {
-		if each.name != "part" {
+	for _, each := range n.GetChildren() {
+		if each.GetName() != "part" {
 			continue
 		}
 		var f finger

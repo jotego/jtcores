@@ -33,6 +33,7 @@ import (
 	"github.com/jotego/jtframe/betas"
 	"github.com/jotego/jtframe/macros"
 	"github.com/jotego/jtframe/common"
+	. "github.com/jotego/jtframe/xmlnode"
 )
 
 func Convert(args Args) error {
@@ -315,7 +316,7 @@ func is_main( machine *MachineXML, mra_cfg Mame2MRA ) bool {
 
 func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
 	fname := args.outdir
-	game_name := strings.ReplaceAll(mra_xml.GetNode("name").text, ":", "")
+	game_name := strings.ReplaceAll(mra_xml.GetNode("name").GetText(), ":", "")
 	game_name = strings.ReplaceAll(game_name, "/", "-")
 	// Create the output directory
 	if args.outdir != "." && args.outdir != "" {
@@ -464,7 +465,7 @@ func slice2csv( ss []string ) string {
 // Do not pass the macros to make_mra, but instead modifiy the configuration
 // based on the macros in parse_toml
 func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
-	root := XMLNode{name: "misterromdescription"}
+	root := MakeNode("misterromdescription")
 	n := root.AddNode("about")
 	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Author), "jotego"))
 	n.AddAttr("webpage", notEmpty(cfg.Global.Webpage,   "https://patreon.com/jotego"))
@@ -472,7 +473,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	n.AddAttr("source", "https://github.com/jotego/jtcores")
 	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
 	root.AddNode("setname", machine.Name)
-	corename := set_rbfname(&root, machine, cfg, args).text[2:] // corename = RBF, skipping the JT part
+	corename := set_rbfname(&root, machine, cfg, args).GetText()[2:] // corename = RBF, skipping the JT part
 	root.AddNode("mameversion", Mame_version())
 	root.AddNode("year", machine.Year)
 	root.AddNode("manufacturer", machine.Manufacturer)
@@ -505,11 +506,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	}
 	// Beta
 	if betas.IsBetaFor(corename,"mister") {
-		n := root.AddNode("rom").AddAttr("index", "17")
-		// MiSTer makes a mess of md5 calculations, so I am not using that
-		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
-		m := n.AddNode("part").AddAttr("name", "beta.bin")
-		m.AddAttr("crc",betas.Crcsum)
+		add_beta_keyload(&root)
 	}
 	if !cfg.Cheat.Disable {
 		skip := false
@@ -536,10 +533,10 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		}
 		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
 		if asmhex != nil && len(asmhex) > 0 && !skip {
-			root.AddNode("Machine code for the Picoblaze CPU").comment = true
+			root.AddComment("Machine code for the Picoblaze CPU")
 			n := root.AddNode("rom").AddAttr("index", "16")
 			if args.JTbin {
-				n.AddNode("part").SetText(hexdump(asmhex, 32)).indent_txt = true
+				n.AddNode("part").SetText(hexdump(asmhex, 32)).SetIndent()
 			} else {
 				re := regexp.MustCompile("\\..*$")
 				basename := filepath.Base(re.ReplaceAllString(filename, ""))
@@ -559,6 +556,14 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	// Buttons
 	make_buttons(&root, machine, cfg, args)
 	return &root, def_dipsw, coremod
+}
+
+func add_beta_keyload(root *XMLNode) {
+	rom := root.AddNode("rom").AddAttr("index", "17")
+	// MiSTer makes a mess of md5 calculations, so I am not using that
+	rom.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
+	part := rom.AddNode("part").AddAttr("name", "beta.bin")
+	part.AddAttr("crc",betas.Crcsum)
 }
 
 func hexdump(data []byte, cols int) string {
@@ -634,9 +639,9 @@ func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 				fmt.Printf(
 					"\tstart offset overcome by 0x%X while adding FD1089 LUT\n", -delta)
 			}
-			root.AddNode(fmt.Sprintf(
-				"FD1089 base table starts at 0x%X", *pos)).comment = true
-			root.AddNode("part").SetText(hexdump(fd1089_bin[:], 16)).indent_txt = true
+			root.AddComment(fmt.Sprintf(
+				"FD1089 base table starts at 0x%X", *pos))
+			root.AddNode("part").SetText(hexdump(fd1089_bin[:], 16)).SetIndent()
 			*pos += len(fd1089_bin)
 		}
 	}

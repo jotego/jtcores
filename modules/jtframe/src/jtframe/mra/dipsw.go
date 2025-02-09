@@ -25,6 +25,8 @@ import(
     "sort"
     "strconv"
     "strings"
+
+    . "github.com/jotego/jtframe/xmlnode"
 )
 
 func dipsw_tag(ds MachineDIP ) bool {
@@ -58,7 +60,7 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
         if ds.Tag != last_tag {
             last_tag = ds.Tag
             m := n.AddNode(last_tag)
-            m.comment = true
+            m.SetIndent()
         }
         sort.Slice(ds.Dipvalue, func(p, q int) bool {
             return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value

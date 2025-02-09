@@ -19,6 +19,8 @@ package mra
 
 import (
 	"fmt"
+
+	. "github.com/jotego/jtframe/xmlnode"
 )
 
 func set_header_offset(headbytes []byte, pos int, reverse bool, bits, offset int) {
