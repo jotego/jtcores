@@ -237,7 +237,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if ! grep "Full Compilation was successful" "$LOG"; then
             grep -i error "$LOG" -A 2
             echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
-            report FAIL
             exit 1
         fi
         if [ ! -e $corename.map.rpt ]; then
@@ -280,14 +279,15 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         rm -f $AUX
         # Report timing
-        grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
-        if [[ $? = 0 && -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
-            FAIL=1
-            report FAIL
-            echo FAIL $PRJ
-        else
+        if grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"; then
+            if [[ -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
+                FAIL=1
+            fi
+        fi
+        if [ -z "$FAIL" ]; then
             echo PASS
-            report PASS
+        else
+            echo FAIL
         fi
     else
         # Simulation

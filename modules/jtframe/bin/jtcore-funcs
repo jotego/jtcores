@@ -230,16 +230,6 @@ copy_templates() {
     fi
 }
 
-
-report() {
-    cd $JTFRAME
-    JTFRAMECOMMIT=$(git rev-parse --short HEAD)
-    cd -
-    printf "%-14s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
-        $PRJ $TARGET $CORESTAMP $SEED $1 \
-        `git rev-parse --short HEAD` $JTFRAMECOMMIT >> $JTROOT/log/builds.log
-}
-
 append_if_exists() {
     val=
     while [ $# -gt 0 ]; do
