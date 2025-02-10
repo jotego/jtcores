@@ -73,7 +73,6 @@ Please support the development: https://patreon.com/jotego
     -slowpll   Simulate using Altera's model for PLLs
     -showcmd   Display the simulation command only. Do not run any simulation.
     -u,-undef  Undefine macro during simulation
-    -sysname   Specify the name of the core
     -verilator Use Verilator as the simulator
     -video     Enable video output. Can be followed by a number to get
                the number of frames to simulate.
@@ -428,6 +427,15 @@ EOF
     if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
 }
 
+derive_corename_from_folder() {
+    local corename=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
+    if [[ $corename == ..* ]]; then
+        echo "You must run jtsim from inside a folder in $CORES" >&2
+        exit 1
+    fi
+    echo $corename
+}
+
 derive_setname_from_folder() {
     local setname=$(basename `pwd`)
     echo $setname
@@ -450,4 +458,61 @@ copy_mod_file() {
         return
     fi
     cp $ROM/${setname}.mod core.mod
+}
+
+make_rombin_link() {
+    local setname="$1"
+    if [ ! -z "$setname" ]; then
+        echo "Create rom.bin manually or run the sim from a folder named after the ROM set name"
+        exit 1
+    fi
+    local romfile="$ROM/$setname.rom"
+    if [ ! -e $romfile ]; then
+        echo "ERROR: cannot make rom.bin from $romfile"
+        exit 1
+    fi
+    ln -sr $romfile rom.bin
+}
+
+get_file_length() {
+    local filename="$1"
+    if ! stat --version > /dev/null; then
+        stat -L -f %z $filename
+    else
+        stat -L -c%s $filename
+    fi
+}
+
+disable_patreon_credits() {
+    $SED /JTFRAME_CREDITS/d core.def
+}
+
+prepare_gatelevel_sim() {
+    # Gate-level simulation uses the synthesis output directly
+    GATENETLIST=$CORES/$SYSNAME/mist/simulation/ncsim/${CORENAME,,}_8_1200mv_85c_slow.vo
+    if [ ! -e "$GATENETLIST" ]; then
+        echo "${rBG}Error:${NC} cannot open the gate-level netlist. Looking for file"
+        echo "$GATENETLIST"
+        echo "Generate it using Quartus II, for the MiST core files"
+        exit 1
+    fi
+    QPATH=`which quartus`
+    if [[ -z "$QPATH" ]]; then
+        echo "${rBG}Error:${NC} Quartus is not in the PATH"
+        exit 1
+    fi
+    QPATH=${QPATH%quartus/bin/quartus}/modelsim_ae/altera/verilog/src
+    if [ ! -d "$QPATH" ]; then
+        echo "${rBG}Error:${NC} cannot find the path to Quartus simulation files"
+        echo Looking at "$QPATH"
+        exit 1
+    fi
+    echo $GATENETLIST > filtered.f
+    echo $QPATH/{altera_primitives,cycloneiii_atoms}.v >> filtered.f
+    echo $JTFRAME/target/mist/mist_test.v \
+mist_dump.v \
++define+GATES \
+>> filtered.f
+    # Remove MiST definitions
+    FILES=
 }

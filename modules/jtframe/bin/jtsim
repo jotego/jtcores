@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # This file is part of JT_FRAME.
 # JTFRAME program is free software: you can redistribute it and/or modify
@@ -87,7 +87,6 @@ case "$1" in
     -debug_bus) shift; add_macro "JTFRAME_SIM_DEBUG=$1";;
     -fx68k) KEEP_FX68K=1;;
     -showcmd) SHOWCMD="echo";;
-    -sysname) shift;; # ignore here
     -modules) shift;; # ignore here
     -w | -deep)
         add_macro DUMP
@@ -229,12 +228,10 @@ case "$1" in
         ;;
     -video)
         add_macro DUMP_VIDEO
-        echo Video dump enabled
         if [ "${2:0:1}" != - ]; then
             # get number of frames to simulate
             shift
             add_macro MAXFRAME=$1
-            echo Simulate up to $1 frames
         fi
         rm -rf video.bin frame_*.jpg frame.raw frames
         VIDEO_DUMP=TRUE
@@ -265,68 +262,42 @@ if [ -z "$TARGET" ]; then
     set_sidi128_as_target
 fi
 
-echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
-
-warn_if_longsim_noinputs
+SYSNAME=`derive_corename_from_folder`
 
 mkdir -p frames
-if [ -z "$SYSNAME" ]; then
-    SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
-    echo "Using $SYSNAME as the system name"
-    if [[ $(basename `pwd`) != game || $(basename `pwd`) != lint ]]; then
-        # generate the .dip files
-        getset.sh $SYSNAME $(basename `pwd`) --skipROM --skipPocket
-    fi
-fi
-require "$SYSNAME" "Missing core name. Specify it with -sysname"
+require "$SYSNAME" "Missing core name. Run jtsim for a cores/corename/ver/setname folder"
 
 # Load a specific rom set
 if [ ! -z "$SETNAME" ]; then
     use_setname
 else
     SETNAME=`derive_setname_from_folder`
-    if [ $SETNAME = game ]; then
-        unset SETNAME
-    else
-        if ! has_macro JTFRAME_SIM_DIPS; then
-            get_default_dipsw $SETNAME
-        fi
-        copy_mod_file $SETNAME
-    fi
 fi
 
-# Create a rom.bin link when possible, exit otherwise unless in lint mode
-if [[ ! -s rom.bin && -z "$LINT" ]]; then
-    if [[ ! -z "$SETNAME" && -e $ROM/$SETNAME.rom ]]; then
-        ln -sr $ROM/$SETNAME.rom rom.bin
-    else
-        echo "ERROR: file rom.bin is not valid."
-        exit 1
-    fi
+if [ $SETNAME = game ]; then
+    unset SETNAME
+    echo "Specify a valid ROM set name or run jtsim from a folder in ver/setname"
+    exit 1
 fi
+
+
+echo "${wBG}=========== JTSIM $SYSNAME $SETNAME ($TARGET) ===========${NC}" > /dev/stderr
+warn_if_longsim_noinputs
+
+if ! has_macro JTFRAME_SIM_DIPS; then
+    get_default_dipsw $SETNAME
+fi
+copy_mod_file $SETNAME
+if [[ ! -s rom.bin && -z "$LINT" ]]; then
+    make_rombin_link $SETNAME
+fi
+add_macro GAME_ROM_LEN=`get_file_length rom.bin`
 
 # Add a local copy of the dump file if it doesn't exist
 if [ ! -e ${TARGET}_dump.v ]; then
     cp $JTFRAME/target/$TARGET/ver/${TARGET}_dump.v .
 fi
 FILES="$FILES ${TARGET}_dump.v"
-
-if [ -e rom.bin ]; then
-    if ! stat --version > /dev/null; then
-        GAME_ROM_LEN=$(stat -L -f %z rom.bin)
-    else
-        GAME_ROM_LEN=$(stat -L -c%s rom.bin)
-    fi
-else
-    GAME_ROM_LEN=0
-fi
-
-if [ $GAME_ROM_LEN -eq 0 ]; then
-    echo "JTSIM: rom.bin not found or empty"
-fi
-
-add_macro GAME_ROM_LEN=${GAME_ROM_LEN}
-
 
 if [ ! -z "$EXTRA" ]; then
     echo Verilog macros: "$EXTRA"
@@ -346,7 +317,8 @@ if ! jtcfgstr $SIMULATOR > core.def; then
     cat core.def
     exit 1
 fi
-$SED /JTFRAME_CREDITS/d core.def
+
+disable_patreon_credits
 
 # Verilator macros
 if ! jtcfgstr cpp > defmacros.h ; then
@@ -410,33 +382,7 @@ if [ $GATES = NO ]; then
     emulate_F game_env.f | sort | uniq > filtered.f
     rm -f game_env.f tmp.f
 else
-    # Gate-level simulation uses the synthesis output directly
-    GATENETLIST=$CORES/$SYSNAME/mist/simulation/ncsim/${CORENAME,,}_8_1200mv_85c_slow.vo
-    if [ ! -e "$GATENETLIST" ]; then
-        echo "${rBG}Error:${NC} cannot open the gate-level netlist. Looking for file"
-        echo "$GATENETLIST"
-        echo "Generate it using Quartus II, for the MiST core files"
-        exit 1
-    fi
-    QPATH=`which quartus`
-    if [[ -z "$QPATH" ]]; then
-        echo "${rBG}Error:${NC} Quartus is not in the PATH"
-        exit 1
-    fi
-    QPATH=${QPATH%quartus/bin/quartus}/modelsim_ae/altera/verilog/src
-    if [ ! -d "$QPATH" ]; then
-        echo "${rBG}Error:${NC} cannot find the path to Quartus simulation files"
-        echo Looking at "$QPATH"
-        exit 1
-    fi
-    echo $GATENETLIST > filtered.f
-    echo $QPATH/{altera_primitives,cycloneiii_atoms}.v >> filtered.f
-    echo $JTFRAME/target/mist/mist_test.v \
-mist_dump.v \
-+define+GATES \
->> filtered.f
-    # Remove MiST definitions
-    FILES=
+    prepare_gatelevel_sim
 fi
 
 # Link to hex filters in module files as needed
