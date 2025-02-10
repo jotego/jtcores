@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 # use lint-one.sh core -u JTFRAME_SKIP
 # for cores in development phase
 
