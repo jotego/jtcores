@@ -462,7 +462,7 @@ copy_mod_file() {
 
 make_rombin_link() {
     local setname="$1"
-    if [ ! -z "$setname" ]; then
+    if [ -z "$setname" ]; then
         echo "Create rom.bin manually or run the sim from a folder named after the ROM set name"
         exit 1
     fi
