@@ -25,7 +25,7 @@ jobs:
     - id: bash
       run: |
         source setprj.sh
-        /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
+        $JTFRAME/bin/jtsim-funcs-test.sh
     - id: go
       run: |
         source ./setprj.sh
