@@ -22,14 +22,15 @@ jobs:
     - id: bash
       run: |
         find / -name jtcores -type d
-        echo $GITHUB_WORKSPACE
+        echo "workspace =" $GITHUB_WORKSPACE
         cd $GITHUB_WORKSPACE
-        source setprj.sh
+        ls
+        . setprj.sh
         /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
     - id: go
       run: |
         cd $GITHUB_WORKSPACE
-        source setprj.sh
+        . setprj.sh
         cd $JTFRAME/src/jtframe
         go test ./...
         cd $JTFRAME/src/jtutil
