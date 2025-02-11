@@ -12,7 +12,8 @@ on:
     - cron: '0 0 * * *' # runs every night
 jobs:
   framework:
-    runs-on: jotego/linter
+    runs-on: ubuntu-latest
+    container: jotego/linter
     steps:
     - uses: actions/checkout@v3
       with:
