@@ -22,12 +22,10 @@ jobs:
     - id: bash
       run: |
         find / -name jtcores -type d
-        cd /__w/jtcores/jtcores
         source setprj.sh
         /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
     - id: go
       run: |
-        cd /__w/jtcores/jtcores
         source setprj.sh
         cd $JTFRAME/src/jtframe
         go test ./...
