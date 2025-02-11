@@ -22,10 +22,16 @@ jobs:
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+    - id: bash
+      run: |
+        cd /jtcores
+        source setprj.sh
+        /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
     - id: go
       run: |
-        . ./setprj.sh
+        source ./setprj.sh
         cd $JTFRAME/src/jtframe
         go test ./...
         cd $JTFRAME/src/jtutil
         go test ./...
+
