@@ -261,7 +261,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         # Report connectivity problems
         AUX=`mktemp`
-        grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
+        (grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
@@ -270,7 +270,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         | grep -v "Warning: OUTCLK port on the PLL" \
         | grep -v "Can't pack node.*to I/O pin" \
         | grep -v "jitter performance" \
-        | grep -v "Warning \(10762\)" > $AUX
+        | grep -v "Warning \(10762\)" > $AUX) || true
         if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
             # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
             grep -v sys_top.v $AUX
@@ -284,7 +284,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
                 FAIL=1
             fi
         fi
-        if [ -z "$FAIL" ]; then
+        if [ "$FAIL" = 0 ]; then
             echo PASS
         else
             echo FAIL
