@@ -13,22 +13,24 @@ on:
 jobs:
   framework:
     runs-on: ubuntu-latest
-    container: jotego/linter
     steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.21.3'
     - uses: actions/checkout@v3
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: bash
       run: |
-        cd /jtcores
         source setprj.sh
-        /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
+        $JTFRAME/bin/jtsim-funcs-test.sh
     - id: go
       run: |
-        cd /jtcores
-        source setprj.sh
+        source ./setprj.sh
         cd $JTFRAME/src/jtframe
         go test ./...
         cd $JTFRAME/src/jtutil
         go test ./...
+
