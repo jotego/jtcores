@@ -22,7 +22,8 @@ jobs:
     - id: bash
       run: |
         cd $GITHUB_WORKSPACE
-        ls
+        ls ./setprj.sh
+        echo $SHELL
         . ./setprj.sh
         /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
     - id: go
