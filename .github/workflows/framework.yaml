@@ -21,16 +21,14 @@ jobs:
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
     - id: bash
       run: |
-        find / -name jtcores -type d
-        echo "workspace =" $GITHUB_WORKSPACE
         cd $GITHUB_WORKSPACE
         ls
-        . setprj.sh
+        . ./setprj.sh
         /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
     - id: go
       run: |
         cd $GITHUB_WORKSPACE
-        . setprj.sh
+        . ./setprj.sh
         cd $JTFRAME/src/jtframe
         go test ./...
         cd $JTFRAME/src/jtutil
