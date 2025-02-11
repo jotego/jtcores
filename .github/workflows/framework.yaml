@@ -24,8 +24,10 @@ jobs:
         cd $GITHUB_WORKSPACE
         ls ./setprj.sh
         echo $SHELL
-        . ./setprj.sh
-        /jtcores/modules/jtframe/bin/jtsim-funcs-test.sh
+        echo ". ./setprj.sh" > script.sh
+        echo "/jtcores/modules/jtframe/bin/jtsim-funcs-test.sh" >> script.sh
+        chmod +x script.sh
+        bash -c script.sh
     - id: go
       run: |
         cd $GITHUB_WORKSPACE
