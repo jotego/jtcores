@@ -38,24 +38,35 @@ func init() {
 		Run: run_md5_command,
 	}
 
+	jtbin := os.Getenv("JTBIN")
+	md5Cmd.Flags().StringP("compare","c", "", "json file to compare with")
+	md5Cmd.Flags().StringP("path","p", jtbin, "path to the mra folder to explore")
 	rootCmd.AddCommand(md5Cmd)
 }
 
 func run_md5_command(cmd *cobra.Command, args []string) {
-	e := list_md5()
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
+	mrapath,_ := cmd.Flags().GetString("path")
+	newfile, e := list_md5(mrapath); must(e,fmt.Errorf("while listing md5"))
+	reference,_ := cmd.Flags().GetString("compare")
+	if reference!= "" {
+		diff, e := compare(newfile,reference); must(e)
+		if len(diff)!=0 {
+			report_comparison(diff)
+			os.Exit(1)
+		}
 	}
 }
 
-func list_md5() error {
-	var md5 md5Collector
-	e := md5.collect_all_mra(); if e != nil { return e }
+func list_md5(mrafolder string) (filename string, e error) {
+	var md5 = md5Collector{
+		mrafolder: mrafolder,
+	}
+	e = md5.collect_all_mra(); if e != nil { return "",e }
 	md5.sort_by_name()
-	e = md5.print_report(); if e != nil { return e }
-	e = md5.dump_as_json("md5.json")
-	return e
+	_, e = md5.print_report(); if e != nil { return "",e }
+	filename = "md5.json"
+	e = md5.dump_as_json(filename); if e != nil { return "",e }
+	return filename, nil
 }
 
 func (clc *md5Collector) collect_all_mra() (e error) {
@@ -67,7 +78,9 @@ func (clc *md5Collector) collect_all_mra() (e error) {
 			fmt.Println(err)
 			return nil
 		}
-		if fi.IsDir() { return nil }
+		if !strings.HasSuffix(fname,".mra") || fi.IsDir() {
+			return nil
+		}
 		// get the information
 		var game MRA
 		buf, e := os.ReadFile(fname)
@@ -82,7 +95,7 @@ func (clc *md5Collector) collect_all_mra() (e error) {
 		all=append(all,&game)
 		return nil
 	}
-	e = filepath.WalkDir( filepath.Join(os.Getenv("JTBIN"),"mra"), get_mradata)
+	e = filepath.WalkDir( clc.mrafolder, get_mradata)
 	if e!=nil {
 		return e
 	} else {
@@ -98,7 +111,7 @@ func (clc *md5Collector) sort_by_name() {
 	sort.Slice( clc.all_mra, comparator )
 }
 
-func (clc *md5Collector)print_report() (e error) {
+func (clc *md5Collector)print_report() (filename string, e error) {
 	var sbuf strings.Builder
 	sbuf.WriteString(fmt.Sprintf("| Set Name     | Core       | Assembled MD5 Sum                | Default DIPs |\n"))
 	sbuf.WriteString(fmt.Sprintf("|--------------|------------|----------------------------------|--------------|\n"))
@@ -112,19 +125,27 @@ func (clc *md5Collector)print_report() (e error) {
 		}
 		sbuf.WriteString(fmt.Sprintf("| %-12s | %-10s | %32s | %-12s |\n", mra.Setname, mra.Rbf, md5, mra.Dip.Default ))
 	}
-	e = os.WriteFile(filepath.Join(os.Getenv("JTBIN"),"md5.md"),[]byte(sbuf.String()),0664)
-	return e
+	filename = filepath.Join(clc.mrafolder,"md5.md")
+	e = os.WriteFile(filename,[]byte(sbuf.String()),0664)
+	if e!=nil {
+		return "",fmt.Errorf("while print_report(): %w",e)
+	}
+	return filename,nil
 }
 
 func (clc *md5Collector)dump_as_json(filename string) error {
 	encoded, e := json.Marshal(clc.all_mra); if e!=nil { return e }
 	e = os.WriteFile(filename,encoded,0644)
-	return e
+	if e!=nil {
+		return fmt.Errorf("while dumping JSON file: %w",e)
+	}
+	return nil
 }
 
 type md5Collector struct {
 	all_mra MRACollection
 	bycore map[string][]*MRA
+	mrafolder string
 }
 
 type MRACollection []*MRA
@@ -143,4 +164,53 @@ type MRAROM struct {
 	Index	int    `xml:"index,attr"`
 	Zip		string `xml:"zip,attr"`
 	Md5		string `xml:"asm_md5,attr"`
+}
+
+func compare(newfile, reference string) (diff []string, e error) {
+	var new, ref MRACollection
+	new, e = read_md5_json(newfile); if e!=nil { return nil,fmt.Errorf("while reading %s\n%w",newfile,e) }
+	ref, e = read_md5_json(reference); if e!=nil { return nil,fmt.Errorf("while reading %s\n%w",reference,e) }
+	return compare_md5(new,ref),nil
+}
+
+func read_md5_json(filename string) (md5 MRACollection,e error) {
+	raw, e := os.ReadFile(filename); if e!=nil {return nil,e}
+	e = json.Unmarshal(raw,&md5); if e!=nil {return nil,e}
+	return md5,nil
+}
+
+func compare_md5(new,ref MRACollection) (diff []string) {
+	if new==nil || ref==nil { return nil }
+	diff=make([]string,0,64)
+	for _, newset := range new {
+		refset := find_by_setname(ref,newset.Setname)
+		if refset == nil { continue }
+		if newset.Rom[0].Md5!=refset.Rom[0].Md5 {
+			diff=append(diff,newset.Setname)
+		}
+	}
+	if len(diff)==0 {
+		diff = nil
+	}
+	return diff
+}
+
+func find_by_setname(all_mra MRACollection, name string) *MRA {
+	for _, mra := range all_mra {
+		if mra.Setname==name {
+			return mra
+		}
+	}
+	return nil
+}
+
+func report_comparison( diff []string) {
+	fmt.Println("Sets with md5 mismatches")
+	for k:=0;k<len(diff); {
+		for i:=0;i<4&&k<len(diff);i++ {
+			fmt.Printf("%-12s",diff[k])
+			k++
+		}
+		fmt.Println()
+	}
 }
