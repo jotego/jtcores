@@ -244,7 +244,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         else
             RPTPATH=.
         fi
-        grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
+        (grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt) || true
         gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
         cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
         if [ -s sdram_badio.rpt ]; then
