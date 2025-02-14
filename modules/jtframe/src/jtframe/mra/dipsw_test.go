@@ -62,13 +62,13 @@ func make_strings(vv MAMEDIPValues) (ss []string) {
 
 func Test_make_dip_file(t *testing.T) {
 	root := xmlnode.MakeNode("misterromdescription")
-	root.AddNode("setname").SetText("diswtester")
+	root.AddNode("setname").SetText("dipswtester")
 	root.AddNode("switches").AddAttr("default","12,34,56,78")
-	filename := make_dip_file(&root)
-	defer os.Remove(filename)
 	rom_folder := filepath.Join(os.Getenv("JTROOT"),"rom")
 	os.MkdirAll(rom_folder,0777)
-	expected := filepath.Join(rom_folder,"diswtester.dip")
+	expected := filepath.Join(rom_folder,"dipswtester.dip")
+	filename := make_dip_file(&root)
+	defer os.Remove(filename)
 	if filename!=expected {
 		t.Errorf("Wrong file name. Got %s, expected %s",filename,expected)
 	}
