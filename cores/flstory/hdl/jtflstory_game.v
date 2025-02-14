@@ -30,17 +30,20 @@ reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
-            palwcfg, cabcfg, objcfg, iocfg,
+            palwcfg, cabcfg, objcfg, iocfg, osdflip_en,
             subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
-reg         mcu_rst;
+reg         mcu_rst, osdflip;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
 
+localparam OSDFLIP_BIT=24;
+
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
+    st_mux  <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
+    osdflip <= osdflip_en & dipsw[OSDFLIP_BIT];
 end
 
 jtflstory_header u_header (
@@ -50,6 +53,7 @@ jtflstory_header u_header (
     .prog_addr( prog_addr[2:0]  ),
     .prog_data( prog_data       ),
     .mirror   ( mirror          ),
+    .osdflip  ( osdflip_en      ),
     .mcu_enb  ( mcu_enb         ),
     .coinxor  ( coinxor         ),
     .gfx      ( gfxcfg          ),
@@ -74,6 +78,7 @@ jtflstory_main u_main(
     .lvbl       ( LVBL      ),       // video interrupt
 
     .mirror     ( mirror    ),
+    .osdflip    ( osdflip   ),
     .gfxcfg     ( gfxcfg    ),
     .cabcfg     ( cabcfg    ),
     .bankcfg    ( bankcfg   ),

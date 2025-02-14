@@ -22,7 +22,7 @@ module jtflstory_main(
     input            cen,
     input            lvbl,       // video interrupt
 
-    input            mirror, gfxcfg, cabcfg, dec_en, iocfg,
+    input            mirror, gfxcfg, cabcfg, dec_en, iocfg, osdflip,
     input     [ 1:0] bankcfg,
 
     output    [ 7:0] cpu_dout,
@@ -99,7 +99,7 @@ localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 
 wire [15:0] cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
-reg  [ 1:0] bank=0, unused_IO;
+reg  [ 1:0] bank=0, unused_IO, pre_flip=0;
 wire [ 3:0] extra1p, extra2p;
 wire        mreq_n,  rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n, bus_cen,
             bus_cem, main_wait, sub_sel, m_reqref;
@@ -242,8 +242,9 @@ always @(posedge clk) begin
         pal_bank <= bus_dout[6:5];
         scr_bank <= bus_dout[4:3];
         scr_flen <= bus_dout[2];
-        { gvflip, ghflip } <= bus_dout[1:0]^{2{mirror}};
+        pre_flip <= bus_dout[1:0]^{2{mirror}};
     end
+    { gvflip, ghflip } <= pre_flip^{2{osdflip}};
     case(bus_addr[2:0])
         0: cab <= dipsw[ 7: 0];
         1: cab <= dipsw[15: 8];

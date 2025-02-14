@@ -26,6 +26,9 @@ rename=[
 	{ name="Invulnerability (Cheat)",      to="Invulnerability"},
 	{ name="Copyright String",             to="Release year", values=["hide","show"] }
 ]
+extra=[
+	{ machine="rumba", name="Flip", options="Off,On", bits="24" }
+]
 [header]
 info="""
 
@@ -33,6 +36,7 @@ info="""
 		byte 1: 0 == same orientation as flstory
 		        1 == flipped both XY
 		        2 =  flipped only Y - to be tested -
+		        4 =  use dipsw[24] for screen flip
 		byte 2: 0 == MCU enabled
 		        1 ==     disabled
 		       0? == sub Z80 disabled
@@ -66,7 +70,7 @@ PCBs = [
 data = [
 	{ pcb_id=true, offset=0 },
 	{ machines=["onna34ro"],            offset=1, data="01" },
-	{ machines=["rumba"],               offset=1, data="02" },
+	{ machines=["rumba"],               offset=1, data="12" },
 	# Disable MCU
 	{ setname="onna34roa",              offset=2, data="01" },
 	# Enable sub Z80 and number of banks
