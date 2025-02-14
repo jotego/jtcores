@@ -443,7 +443,7 @@ jtframe_board #(
     .rotate         ( rotate          ),
     .rot_osdonly    ( rot_osdonly     ),
     // LED
-    .osd_shown      ( osd_shown       ),
+    .osd_shown      ( 1'b0            ), // osd_shown would pause the game
     .led            ( LED             ),
     // UART
     .uart_rx        ( uart_rx         ),

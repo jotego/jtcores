@@ -31,7 +31,7 @@ module jtframe_dip(
 
     output reg         enable_fm,
     output reg         enable_psg,
-    output             osd_pause,
+    output reg         osd_pause,
     input              osd_shown,
 
     input              game_test,
@@ -94,20 +94,6 @@ assign dip_test = game_test;
 
 wire [1:0] ar = status[17:16];    // only MiSTer
 
-`ifdef POCKET
-    assign osd_pause = osd_shown;
-`else
-    `ifndef JTFRAME_OSD_NOCREDITS
-        `ifndef MISTER // Only MiST and derivatives can pause via the OSD
-            assign osd_pause   = status[12];
-        `else
-            assign osd_pause   = 1'b0;  // MiSTer relies on the keyboard/gamepad for pause
-        `endif
-    `else
-        assign osd_pause = 1'b0;
-    `endif
-`endif
-
 // Screen or control rotation
 `ifdef JTFRAME_VERTICAL
     // core_mod[0] = 0 horizontal game
@@ -142,6 +128,15 @@ endgenerate
     wire    swap_ar     = 1;
 `endif
 
+always @* begin
+    osd_pause = 0;
+    `ifndef JTFRAME_OSD_NOCREDITS
+    `ifndef MISTER // Only MiST and derivatives can pause via the OSD
+        osd_pause = status[12];
+    `endif
+    `endif
+end
+
 // all signals that are not direct re-wirings are latched
 always @(posedge clk) begin
     rotate      <= { dip_flip ^ core_mod[2], tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
@@ -157,14 +152,13 @@ always @(posedge clk) begin
     hdmi_arx    <= ar==0 ? (swap_ar ? ARX : ARY) : {11'd0,ar-2'd1};
     hdmi_ary    <= ar==0 ? (swap_ar ? ARY : ARX) : 13'd0;
 
+    dip_pause   <= ~game_pause & ~osd_shown; // active low
     `ifdef SIMULATION
         `ifdef DIP_PAUSE
             dip_pause <= 1'b0; // use to simulate pause screen
         `else
             dip_pause <= 1'b1; // avoid having the main CPU halted in simulation
         `endif
-    `else
-        dip_pause <= ~game_pause; // all dips are active low
     `endif
 end
 

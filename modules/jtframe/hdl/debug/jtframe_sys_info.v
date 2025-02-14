@@ -21,8 +21,7 @@
 module jtframe_sys_info(
     input               rst_sys,
     input               clk,
-    input               dip_pause,
-    input               dip_flip,
+    input               dip_flip, dip_pause, dip_test, show_credits,
     input               game_led,
     input               LVBL,
     input         [6:0] core_mod,
@@ -95,6 +94,7 @@ always @(posedge clk, posedge rst) begin
                 0: st_dout <= frame_bcd[15:8];
                 1: st_dout <= frame_bcd[7:0];
                 2: st_dout <= {4'd0, frame_bcd[19:16]};
+                3: st_dout <= {3'd0,dip_test,2'd0,show_credits,dip_pause};
                 default: st_dout <= 0;
             endcase
             1: begin
