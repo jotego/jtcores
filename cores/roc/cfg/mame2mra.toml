@@ -32,7 +32,7 @@ regions = [
     { name="timeplt_audio:tpsound", start="SND_START" },
     { name="tiles", width=16, no_offset=true, Sort_even=true, start="SCR_START" },
     { name="sprites", width=16, no_offset=true, start="OBJ_START", sort_even=true },
-    { name="proms", start="JTFRAME_PROM_START", name_sort=["b16_prom.bin","rocnrope.pr3","a17_prom.bin"], no_offset=true },
+    { name="proms", start="JTFRAME_PROM_START", sequence=[1,2,0], no_offset=true },
     { name="pal_cpuvidbd", skip=true },
     { name="pals_daughterbd", skip=true }
 ]
