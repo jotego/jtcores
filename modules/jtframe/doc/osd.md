@@ -74,8 +74,6 @@ bit     |  meaning                | Enabled with macro
 3-5     | Scandoubler Fx          | Scan line mode and HQ2X enable (MiSTer only)
 6-7     | FX Volume (00=lowest)   | JTFRAME_OSD_VOL
 6-7     | Spinner sensitivity     | MiST cfgstr maps the spinner here, but jtframe_board always looks at 32-33
-8       | FX enable/disable       | JTFRAME_OSD_SND_EN
-9       | FM enable/disable       | JTFRAME_OSD_SND_EN
 10      | Test mode               | JTFRAME_OSD_TEST
 11      | Horizontal filter       | MiSTer only
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)

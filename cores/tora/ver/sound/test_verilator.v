@@ -24,8 +24,6 @@ jtgng_sound #(.LAYOUT(3)) u_sound (
     .snd_int        ( 1'b1           ),  // unused
     .snd2_latch     ( snd2_latch     ),
     // sound control
-    .enable_psg     ( 1'b1           ),
-    .enable_fm      ( 1'b1           ),
     .psg_gain       ( 8'h10          ),
     // ROM
     .rom_addr       ( snd_addr       ),

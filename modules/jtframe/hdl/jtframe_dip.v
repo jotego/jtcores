@@ -29,8 +29,6 @@ module jtframe_dip(
     output reg         rot_osdonly,
     output reg         rot_control, // rotate player control inputs
 
-    output reg         enable_fm,
-    output reg         enable_psg,
     output reg         osd_pause,
     input              osd_shown,
 
@@ -141,13 +139,6 @@ end
 always @(posedge clk) begin
     rotate      <= { dip_flip ^ core_mod[2], tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
     dip_fxlevel <= 2'b10 ^ status[7:6];
-    `ifndef JTFRAME_OSD_SND_EN
-    enable_fm   <= 1;
-    enable_psg  <= 1;
-    `else
-    enable_fm   <= ~status[9];
-    enable_psg  <= ~status[8];
-    `endif
     // only for MiSTer
     hdmi_arx    <= ar==0 ? (swap_ar ? ARX : ARY) : {11'd0,ar-2'd1};
     hdmi_ary    <= ar==0 ? (swap_ar ? ARY : ARX) : 13'd0;

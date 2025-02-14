@@ -151,9 +151,6 @@ func CheckMacros() error {
 		if IsSet("JTFRAME_AUTOFIRE0") && dipbase < 17 {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_AUTOFIRE0")
 		}
-		if IsSet("JTFRAME_OSD_SND_EN") && dipbase < 10 {
-			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_SND_EN")
-		}
 		if IsSet("JTFRAME_OSD_TEST") && dipbase < 11 {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
 		}

@@ -47,8 +47,6 @@ module toki_sound(
 
   output     [15:0] snd,
   input       [1:0] fxlevel,
-  input             enable_fm,
-  input             enable_psg,
 
   input       [7:0] z80_rom_data,
   input             z80_rom_ok, 
@@ -412,12 +410,11 @@ reg [7:0] fm_volume;
 
 always @(posedge clk48)  begin //posedge clk ?
   if (clk48) begin
-   fm_volume <=  ~enable_fm ? 8'h00 : 8'h10; 
-   fx_volume <=  ~enable_psg ? 8'h00 : 
-                        (fxlevel == 2'h0) ? 8'h08 : 
-                        (fxlevel == 2'h1) ? 8'h0c : 
-                        (fxlevel == 2'h2) ? 8'h10 : 
-                                            8'h20; 
+   fm_volume <=  8'h10;
+   fx_volume <= (fxlevel == 2'h0) ? 8'h08 :
+                (fxlevel == 2'h1) ? 8'h0c :
+                (fxlevel == 2'h2) ? 8'h10 :
+                                    8'h20;
    end
 end
 

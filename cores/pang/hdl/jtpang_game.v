@@ -163,9 +163,6 @@ jtpang_snd u_snd(
     .pcm_dout   ( pcm_dout      ),
     .pcm_cs     ( oki_cs        ),
 
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
-
     .rom_addr   ( pcm_addr      ),
     .rom_data   ( pcm_data      ),
     .rom_ok     ( pcm_ok        ),
