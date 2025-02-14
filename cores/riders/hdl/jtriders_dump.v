@@ -38,8 +38,8 @@ module jtriders_dump(
     input      [ 7:0] st_scr,
     output reg [ 7:0] st_dout
 );
-`ifndef JTFRAME_RELEASE
 parameter FULLRAM = 0;
+`ifndef JTFRAME_RELEASE
 localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
            PAL_END  = SCR_END +16'h1000,
            OBJ_END  = PAL_END +16'h2000,
