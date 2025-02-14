@@ -77,9 +77,8 @@ regions = [
     { machine="pkladies", name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true },
     { machine="mgakuen2", name="chars", start="JTFRAME_BA2_START",           No_offset=true },
     { machine="marukin",  name="chars", start="JTFRAME_BA2_START",           No_offset=true },
-    { machine="cworld",   name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true, name_sort=[
-        "cw08.bin", "cw18.bin", "cw09.bin", "cw19.bin", "cw10.bin", "cw20.bin",
-        "cw11.bin", "cw21.bin"] },
+    { machine="cworld",   name="chars", start="JTFRAME_BA2_START", width=16, No_offset=true, sequence=[
+        0, 4, 1, 5, 2, 6, 3, 7] },
     { name="sprites", start="JTFRAME_BA3_START", width=16, No_offset=true, sort_even=true },
     { name="eeprom", eeprom=true },
 # Unused
