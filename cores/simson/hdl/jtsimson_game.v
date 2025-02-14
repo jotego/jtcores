@@ -56,8 +56,8 @@ end
 
 /* verilator tracing_off */
 jtsimson_main u_main(
-    .rst            ( rst           ),
-    .clk            ( clk           ),
+    .rst            ( rst48         ),
+    .clk            ( clk48         ),
     .cen_ref        ( cen24         ), // should it be cen12?
     .cpu_cen        ( cpu_cen       ),
 
@@ -126,8 +126,8 @@ jtsimson_main u_main(
 
 /* verilator tracing_on */
 jtsimson_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
 

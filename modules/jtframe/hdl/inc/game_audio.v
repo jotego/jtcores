@@ -51,8 +51,13 @@ jtframe_rcmix #(
     // Fractional cen for 192kHz
     .FRACW( {{ .FracW }}), .FRACN({{.FracN}}), .FRACM({{.FracM}})
 ) u_rcmix(
+`ifdef JTFRAME_CLK48
+    .rst    ( rst48     ),
+    .clk    ( clk48     ),
+`else
     .rst    ( rst       ),
     .clk    ( clk       ),
+`endif
     .mute   ( mute      ),
     .sample ( sample    ),
     .ch_en  ( snd_en    ),

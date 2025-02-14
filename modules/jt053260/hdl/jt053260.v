@@ -70,6 +70,7 @@ wire signed [15:0] pre_l, pre_r;
 reg    [ 7:0] pm2s[0:1];
 reg    [ 7:0] ps2m[0:1];
 
+reg    [ 4:0] ch_en_l;
 reg    [ 3:0] keyon, mode;
 wire   [ 3:0] bsy, mmr_we;
 reg    [ 3:0] adpcm_en, loop;
@@ -90,12 +91,14 @@ assign mmr_we = {4{ cs & ~wr_n & mmr_en }} &
                 { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
 assign tst_nx = tst_rd & ~tst_rdl;
 
+always @(posedge clk) ch_en_l <= ch_en; // to ease timing when using JTFRAME_SDRAM96
+
 jtframe_limsum u_suml(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen       ),
     .parts  ( {aux_l, ch3_snd_l, ch2_snd_l, ch1_snd_l, ch0_snd_l} ),
-    .en     ( ch_en     ),
+    .en     ( ch_en_l   ),
     .sum    ( pre_l     ),
     .peak   (           )
 );
@@ -105,7 +108,7 @@ jtframe_limsum u_sumr(
     .clk    ( clk       ),
     .cen    ( cen       ),
     .parts  ( {aux_r, ch3_snd_r, ch2_snd_r, ch1_snd_r, ch0_snd_r} ),
-    .en     ( ch_en     ),
+    .en     ( ch_en_l   ),
     .sum    ( pre_r     ),
     .peak   (           )
 );
