@@ -66,7 +66,9 @@ func Test_make_dip_file(t *testing.T) {
 	root.AddNode("switches").AddAttr("default","12,34,56,78")
 	filename := make_dip_file(&root)
 	defer os.Remove(filename)
-	expected := filepath.Join(os.Getenv("JTROOT"),"rom","diswtester.dip")
+	rom_folder := filepath.Join(os.Getenv("JTROOT"),"rom")
+	os.MkdirAll(rom_folder,0777)
+	expected := filepath.Join(rom_folder,"diswtester.dip")
 	if filename!=expected {
 		t.Errorf("Wrong file name. Got %s, expected %s",filename,expected)
 	}
