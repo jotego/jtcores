@@ -40,6 +40,7 @@ func mra2rom(root *XMLNode, save2disk bool, zippath string) {
 	if e!=nil { fmt.Println(e) }
 	if save2disk {
 		save_coremod(root)
+		make_dip_file(root)
 	}
 }
 

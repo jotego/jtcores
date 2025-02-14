@@ -18,7 +18,9 @@
 package mra
 
 import(
+	"fmt"
 	"errors"
+	"os"
 	"strings"
 	"strconv"
 )
@@ -49,4 +51,11 @@ func rawdata2bytes(rawstr string) []byte {
 		rawbytes = append(rawbytes, byte(conv))
 	}
 	return rawbytes
+}
+
+func must(e error) {
+	if e!=nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 }

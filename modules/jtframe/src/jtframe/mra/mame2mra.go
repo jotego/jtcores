@@ -480,10 +480,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		root.AddNode(t.Tag, t.Value)
 	}
 	// ROM load
-	if e:=make_ROM(root, machine, cfg, args); e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	e:=make_ROM(root, machine, cfg, args); must(e)
 	// Beta
 	if betas.IsBetaFor(corename,"mister") {
 		add_beta_keyload(root)

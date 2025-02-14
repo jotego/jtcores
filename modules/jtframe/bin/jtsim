@@ -287,6 +287,7 @@ warn_if_longsim_noinputs
 if ! has_macro JTFRAME_SIM_DIPS; then
     get_default_dipsw $SETNAME
 fi
+
 copy_mod_file $SETNAME
 if [[ ! -s rom.bin && -z "$LINT" ]]; then
     make_rombin_link $SETNAME

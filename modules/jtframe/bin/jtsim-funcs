@@ -443,7 +443,13 @@ derive_setname_from_folder() {
 
 get_default_dipsw() {
     local setname="$1"
-    if [ ! -s $ROM/${setname}.dip ]; then
+    if [ -z "$setname" ]; then
+        echo "get_default_dipsw called by setname is blank"
+        exit 1
+    fi
+    local dipfile=$ROM/${setname}.dip
+    if [ ! -s $dipfile ]; then
+        echo "${rBG}WARNING${NC}: $ROM/${setname}.dip not found"
         return
     fi
     local hexdip
