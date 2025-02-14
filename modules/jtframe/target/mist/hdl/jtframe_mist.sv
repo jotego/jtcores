@@ -167,9 +167,6 @@ module jtframe_mist #(parameter
     output      [ 1:0] mouse_strobe,
 
     // DIP and OSD settings
-    output             enable_fm,
-    output             enable_psg,
-
     output             dip_test,
     // non standard:
     output             dip_pause,
@@ -432,8 +429,6 @@ jtframe_board #(
     // DIP and OSD settings
     .status         ( board_status    ),
     .dipsw          ( dipsw[23:0]     ),
-    .enable_fm      ( enable_fm       ),
-    .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),
     .dip_pause      ( dip_pause       ),
     .dip_flip       ( dip_flip        ),

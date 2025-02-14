@@ -96,8 +96,6 @@ module game_test(
     output  signed [15:0] snd_left,
     output  signed [15:0] snd_right,
     output          sample,
-    input           enable_psg,
-    input           enable_fm,
 
     // SDRAM interface
     output          sdram_init,
@@ -537,9 +535,6 @@ u_game(
 `ifdef JTFRAME_MOUSE
     .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), .mouse_strobe( 2'd0 ), `endif
 
-    // Sound control
-    .enable_fm   ( enable_fm      ),
-    .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),

@@ -253,7 +253,6 @@ assign clk_pico = clk48;
 
 wire [ 7:0] debug_bus, debug_view;
 wire [ 1:0] dip_fxlevel;
-wire        enable_fm, enable_psg;
 wire        dip_pause, dip_flip, dip_test;
 wire        pxl_cen, pxl2_cen;
 wire [ 7:0] st_addr, st_dout;
@@ -498,8 +497,6 @@ u_frame(
     .joy2_bus       (                ),
     .JOY_SELECT     (                ),
     // DIP and OSD settings
-    .enable_fm      ( enable_fm      ),
-    .enable_psg     ( enable_psg     ),
     .dip_test       ( dip_test       ),
     .dip_pause      ( dip_pause      ),
     .dip_flip       ( dip_flip       ),

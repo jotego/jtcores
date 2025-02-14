@@ -57,10 +57,6 @@ set_false_path -to [get_ports {AUDIO_L}]
 set_false_path -to [get_ports {AUDIO_R}]
 set_false_path -to [get_ports {VGA_*}]
 
-# These are static signals that don't need to be concerned with
-set_false_path -from [get_registers {u_frame|u_board|u_dip|enable_psg}]
-set_false_path -from [get_registers {:u_frame|u_board|u_dip|enable_fm}]
-
 # Reset synchronization signal
 set_false_path -from [get_keepers {jtframe_mist:u_frame|jtframe_board:u_board|jtframe_reset:u_reset|rst_rom[0]}] -to [get_keepers {jtframe_mist:u_frame|jtframe_board:u_board|jtframe_reset:u_reset|rst_rom_sync}]
 

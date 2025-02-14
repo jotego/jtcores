@@ -744,8 +744,6 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
 #else
     download = false;
 #endif
-    game.enable_fm  = 1;
-    game.enable_psg = 1;
 #ifdef _JTFRAME_SIM_DEBUG
     game.debug_bus = _JTFRAME_SIM_DEBUG;
 #endif

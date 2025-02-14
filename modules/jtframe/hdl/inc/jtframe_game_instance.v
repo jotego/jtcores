@@ -96,9 +96,6 @@ u_game(
     .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
     .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ),
     .dial_x       ( dial_x           ), .dial_y       ( dial_y           ),
-    // Sound control
-    .enable_fm   ( enable_fm      ),
-    .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),

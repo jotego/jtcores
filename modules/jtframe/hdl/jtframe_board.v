@@ -123,9 +123,6 @@ module jtframe_board #(parameter
     output       [ 1:0] rotate,
     output              rot_osdonly,
 
-    output              enable_fm,
-    output              enable_psg,
-
     output              dip_test,
     // non standard:
     output              dip_pause,
@@ -308,7 +305,6 @@ jtframe_led u_led(
 reg  show_credits;
 `ifdef JTFRAME_CREDITS
     wire toggle = game_start!=4'hf;
-    wire is_vertical = core_mod[0];
     wire osd_credits_disabled = ~status[12];
     reg  fast_scroll;
 
@@ -319,7 +315,7 @@ reg  show_credits;
             if( osd_credits_disabled ) show_credits <= 0;
         `endif;
         `ifdef JTFRAME_CREDITS_HIDEVERT
-            if( is_vertical ) show_credits <= 0;
+            if( core_mod[0] ) show_credits <= 0; // hide for vertical games
         `endif
         `ifdef JTFRAME_CREDITS_AON
             show_credits <= 1;
@@ -644,8 +640,6 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .rotate     ( rotate        ),
     .rot_control( rot_control   ),
     .rot_osdonly( rot_osdonly   ),
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
     .osd_pause  ( osd_pause     ),
     .osd_shown  ( osd_shown     ),
     .game_test  ( game_test     ),

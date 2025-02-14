@@ -166,8 +166,6 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .dip_flip       ( dip_flip      ),
     .dip_test       ( dip_test      ),
     .dip_fxlevel    ( dip_fxlevel   ),
-    .enable_psg     ( enable_psg    ),
-    .enable_fm      ( enable_fm     ),
     // Ports declared in mem.yaml
     {{- range .Ports}}
     .{{.Name}}   ( {{.Name}} ),
