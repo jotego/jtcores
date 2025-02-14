@@ -67,7 +67,7 @@ jobs:
           path: release
           retention-days: 1
 
-  compile_cores20:
+  mister-pocket:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -86,11 +86,38 @@ jobs:
       - id: compile
         run: |
           # Compilation on Quartus 20.1
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi sidi128
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket
       - id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: release-q20-${{ matrix.core }}
+          name: release-mrpocket-${{ matrix.core }}
+          path: release
+          retention-days: 1
+
+  sidis:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs:
+      - list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+      - id: compile
+        run: |
+          # Compilation on Quartus 20.1
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} sidi sidi128
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-sidis-${{ matrix.core }}
           path: release
           retention-days: 1
 
