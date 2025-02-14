@@ -34,24 +34,24 @@ wire          par;
 
 assign done  = cnt==0;
 assign sdout = pre_data[0];
-assign par = ^din ^(PAR==1);
+assign par   = ^din ^(PAR==1);
 
 always @(posedge clk) begin 
     if(rst) begin
         sclk     <= 0;
         pre_data <= {DW+2{1'b1}};
-        cnt <= 0;
+        cnt      <= 0;
     end else if(cen) begin
-        sclk <= ~sclk;
-        if(!done ) begin
-            if( !sclk ) begin
+        sclk     <= ~sclk;
+        if(!done) begin
+            if(!sclk) begin
                 pre_data <= {1'b1,pre_data[DW+1:1]};
-                cnt <= cnt-1'b1;
+                cnt      <= cnt-1'b1;
             end
         end
-        if( load && din!=0  ) begin
+        if( load && din!=0 ) begin
             pre_data <= {par,din, 1'b0};
-            cnt <= DW+2'd2;
+            cnt      <= DW+2'd2;
         end
     end
 end

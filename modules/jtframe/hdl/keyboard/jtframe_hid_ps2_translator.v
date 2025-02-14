@@ -286,11 +286,11 @@ reg       rel, ph2_l;
 wire      t1, t2;
 wire      ph2, ph3;
 
-assign ph2   = ps2_pre == ps2_pre_l && ps2_pre!=0;
-assign ph3   = ph2 & ph2_l;
-assign t1 = ps2_pre[8] &&  !ph2;
-assign t2 = released   && (!ph2 || (!ph3 && high));
-assign 		last = code_nx == ps2_code;
+assign ph2     = ps2_pre == ps2_pre_l && ps2_pre!=0;
+assign ph3     = ph2 & ph2_l;
+assign t1      = ps2_pre[8] &&  !ph2;
+assign t2      = released   && (!ph2 || (!ph3 && high));
+assign last    = code_nx == ps2_code;
 assign code_nx = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
 
 
@@ -304,9 +304,9 @@ always @(posedge clk) begin
  	end else if(cen) begin
         ps2_pre_l <= ps2_pre;
         ph2_l     <= ph2;
- 		ps2_code <= code_nx;
-        high <= ps2_pre[8];
-        rel  <= released;
+ 		ps2_code  <= code_nx;
+        high      <= ps2_pre[8];
+        rel       <= released;
         if( ps2_pre==0 ) ps2_code <= 0;
  	end
  end
