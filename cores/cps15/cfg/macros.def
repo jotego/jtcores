@@ -7,6 +7,8 @@ GAMETOP=jtcps15_game
 JTFRAME_HEADER=64
 # CPS1.5 games don't have DIP switches
 # but use NVRAM instead
+# not all games support the test option, but it cannot be
+# shown selectively, so it may mislead users. See #961
 JTFRAME_OSD_TEST
 JTFRAME_DIPBASE=16
 
