@@ -48,9 +48,9 @@ wire        mcu_brn, mcu_DMAONn, mcu_ds;
 
 
 reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
-reg game_id=0; // 1 for SFJ style inputs
+reg cabcfg=0; // 1 for SFJ style inputs
 
-assign debug_view = 0;
+assign debug_view = {7'd0,cabcfg};
 assign dip_flip   = flip;
 assign vrom_cs    = vrom_reg;
 
@@ -117,9 +117,10 @@ always @* begin
 end
 
 // This distinguishes the games using SFJ-style input from the rest
+localparam [2:0] CABCFG=1;
+
 always @(posedge clk) begin
-    if( ioctl_addr==26'h19910 && prog_we )
-        game_id <= prog_data==6;
+    if( header && prog_addr[2:0]==CABCFG && prog_we ) cabcfg  <= prog_data[0];
 end
 
 wire [15:0] scrposh, scrposv, dmaout;
@@ -130,7 +131,7 @@ jtsf_main u_main (
     .rst        ( main_rst      ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
-    .game_id    ( game_id       ),
+    .cabcfg     ( debug_bus[7] ? debug_bus[0] : cabcfg ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),

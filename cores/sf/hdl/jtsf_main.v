@@ -65,7 +65,7 @@ module jtsf_main #(
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
-    input              game_id,
+    input              cabcfg,
     // BUS sharing
     output      [13:1] cpu_AB,
     output      [15:0] dmaout,
@@ -298,7 +298,7 @@ always @(posedge clk) begin
                 joystick1[BUT6], // 2
                 coin       // 1-0
             };
-        3'd1: cabinet_input <= game_id==0 ? { // IN1 in MAME
+        3'd1: cabinet_input <= cabcfg==0 ? { // IN1 in MAME
             joystick2[BUT5],
             joystick2[BUT4],
             joystick2[BUT2],
@@ -321,7 +321,7 @@ always @(posedge clk) begin
             4'b1111,
             joystick1[3:0]
         };
-        3'd2: cabinet_input <= game_id==0 ? 16'hffff : { // IN2 in MAME
+        3'd2: cabinet_input <= cabcfg==0 ? 16'hffff : { // IN2 in MAME
             1'b1,
             joystick2[BUT6],
             joystick2[BUT5],

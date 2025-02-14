@@ -34,6 +34,12 @@ delete=[
     { names=["Unused","Buy-In Feature"] }
 ]
 
+[header]
+info="byte 1, bit 0: high for Japanese cabinet and equivalents"
+data=[
+    { setnames=["sfj","sfua","sfw"], offset=1, data="01" }
+]
+
 [ROM]
 regions=[
     { name="maincpu", width=16, no_offset=true, reverse=true },
