@@ -1,0 +1,16 @@
+50
+2 coin
+30
+2 1p
+15
+2 1p
+# 1130 => TIME 36
+# 1193 => TIME 35
+# 1705 => TIME 28
+# 72 frames => 1 TIME UNIT
+=1130 b1
+loop
+50 b1
+22 b1 right
+repeat 8
+700 b1

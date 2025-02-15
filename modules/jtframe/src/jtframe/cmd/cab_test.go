@@ -28,13 +28,15 @@ import (
 func TestCab2Hex_empty( t *testing.T ) {
 	empty := strings.NewReader("")
 
-	converted, e := cab2hex(empty); if e!=nil { t.Error(e) }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(empty); if e!=nil { t.Error(e) }
 	if len(converted)!=0 { t.Errorf("Expected an empty value")}
 }
 
 func TestCab2Hex_lines( t *testing.T ) {
 	cab := strings.NewReader("200")
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e) }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
 	reader := bytes.NewReader(converted)
 	linecnt := 0
 	for scanner := bufio.NewScanner(reader);scanner.Scan(); {
@@ -46,7 +48,9 @@ func TestCab2Hex_lines( t *testing.T ) {
 
 func TestCab2Hex_comment( t *testing.T ) {
 	cab := strings.NewReader("#\n#\n5\n#\n#\n2\n")
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e) }
+
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
 	reader := bytes.NewReader(converted)
 	linecnt := 0
 	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
@@ -58,7 +62,8 @@ func TestCab2Hex_comment( t *testing.T ) {
 
 func TestCab2Hex_comment2( t *testing.T ) {
 	cab := strings.NewReader("# prologue\n")
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e) }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
 	reader := bytes.NewReader(converted)
 	linecnt := 0
 	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
@@ -83,7 +88,8 @@ b2
 b3
 test
 `)
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e) }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
 	reader := bytes.NewReader(converted)
 	scanner := bufio.NewScanner(reader)
 	linecnt := 0
@@ -123,7 +129,8 @@ func TestCab2Hex_1p( t *testing.T ) {
 4
 0
 `
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e); return }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
 	test_cab2hex_compare(converted,expected,t)
 }
 
@@ -141,7 +148,8 @@ right b2
 210
 0
 `
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e); return }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
 	test_cab2hex_compare(converted,expected,t)
 }
 
@@ -172,7 +180,8 @@ reset
 4
 1000
 `
-	converted, e := cab2hex(cab); if e!=nil { t.Error(e); return }
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
 	test_cab2hex_compare(converted,expected,t)
 }
 
@@ -185,4 +194,29 @@ func test_cab2hex_compare( converted []byte, expected string, t *testing.T) {
 		t.Log(expected)
 		t.Errorf("Failed conversion")
 	}
+}
+
+func TestCab_upto_frame(t *testing.T) {
+	cab := strings.NewReader(`2 coin
+5 b1
+=11 b2
+2 1p
+`)
+	expected := `1
+1
+100
+100
+100
+100
+100
+200
+200
+200
+200
+4
+4
+`
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
+	test_cab2hex_compare(converted,expected,t)
 }

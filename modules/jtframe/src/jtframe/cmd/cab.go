@@ -28,15 +28,17 @@ import (
 	. "github.com/jotego/jtframe/common"
 )
 
-// cabCmd represents the cab command
-var cabCmd = &cobra.Command{
-	Use:   "cab <filename>",
-	Short: "Convert cabinet input files (.cab) to sim_inputs.hex",
-	Long: `Converts a given cabinet input file (.cab) to sim_inputs.hex.
+
+func init() {
+	var cabCmd = &cobra.Command{
+		Use:   "cab <filename>",
+		Short: "Convert cabinet input files (.cab) to sim_inputs.hex",
+		Long: `Converts a given cabinet input file (.cab) to sim_inputs.hex.
 The cab file has the following syntax:
 
 # comment
 [number of frames] [button pressed] [button pressed]...
+[=frame to match] [button pressed] [button pressed]...
 loop
 [number of frames] [button pressed] [button pressed]...
 ...
@@ -50,25 +52,37 @@ The valid button names are:
 The loop line indicates the start of the loop and it does not take a frame.
 The repeat line indicates the loop end and it must indicate the number of times
 to repeat the loop section (at least 1).
-`,
-	Run: func(cmd *cobra.Command, args []string) {
-		filename := args[0]
-		f, e := os.Open(filename); Must(e)
-		defer f.Close()
-		converted, e := cab2hex(f);
-		if e!=nil {
-			Must(fmt.Errorf("%w of file %s",e,filename))
-		}
-		os.WriteFile("sim_inputs.hex",converted, 0660 )
-	},
-	Args: cobra.ExactArgs(1),
-}
-
-func init() {
+	`,
+		Run: run_cab,
+		Args: cobra.ExactArgs(1),
+	}
 	rootCmd.AddCommand(cabCmd)
 }
 
+func run_cab(cmd *cobra.Command, args []string) {
+	var filename string
+	defer func(){
+		if r:=recover(); r!=nil {
+			fmt.Printf("Problem found while parsing cab file %s\n",filename)
+			fmt.Println(r)
+			os.Exit(1)
+		}
+	}()
+	filename = args[0]
+	f, e := os.Open(filename); Must(e)
+	defer f.Close()
+	var cab  cab_converter
+	converted, e := cab.make_hexfile(f);
+	if e!=nil {
+		Must(fmt.Errorf("%w of file %s",e,filename))
+	}
+	os.WriteFile("sim_inputs.hex",converted, 0660 )
+}
+
 type loopCase int
+type cab_converter struct{
+	frame_cnt, linecnt int
+}
 
 const (
 	NO_LOOP    = 0
@@ -76,23 +90,24 @@ const (
 	// positive values mean that the loop sequence must be executed that number of times
 )
 
-func cab2hex(cab io.Reader) (hex []byte, e error) {
+func (cab *cab_converter)make_hexfile(cabfile io.Reader) (hex []byte, e error) {
+	cab.frame_cnt=0
 	hex = make([]byte,0,8*1024)
-	scanner := bufio.NewScanner(cab)
-	linecnt := 0
+	scanner := bufio.NewScanner(cabfile)
+	cab.linecnt = 0
 	var loop_body []byte
 	looping := false
 	for scanner.Scan() {
-		linecnt++
+		cab.linecnt++
 		trimmed := strings.TrimSpace(scanner.Text())
 		tokens := strings.Split( trimmed, " ")
-		loop_case, e := detect_loop(tokens)
+		loop_case, e := cab.detect_loop(tokens)
 		if e!=nil { return nil, e }
 		var parsed []byte
 		switch loop_case {
 			case NO_LOOP: {
-				parsed, e = parse_tokens( tokens )
-				if e!=nil { return nil, fmt.Errorf("%w at line %d",e,linecnt) }
+				parsed, e = cab.parse_tokens( tokens )
+				if e!=nil { return nil, fmt.Errorf("%w at line %d",e,cab.linecnt) }
 				if looping {
 					loop_body = append(loop_body,parsed...)
 				}
@@ -103,7 +118,7 @@ func cab2hex(cab io.Reader) (hex []byte, e error) {
 				continue
 			}
 			default: {
-				parsed = execute_loop(loop_body, int(loop_case))
+				parsed = cab.execute_loop(loop_body, int(loop_case))
 				loop_body = nil
 				looping = false
 			}
@@ -113,7 +128,7 @@ func cab2hex(cab io.Reader) (hex []byte, e error) {
 	return hex, nil
 }
 
-func detect_loop(tokens []string) (loopCase, error) {
+func (cab *cab_converter)detect_loop(tokens []string) (loopCase, error) {
 	if len(tokens)==0 || (len(tokens)==1 && tokens[0]=="") { return NO_LOOP, nil }
 	keyword := strings.ToLower(tokens[0])
 	switch keyword {
@@ -133,8 +148,9 @@ func detect_loop(tokens []string) (loopCase, error) {
 	return NO_LOOP,nil
 }
 
-func execute_loop(body []byte,times int) (unwrapped []byte) {
+func (cab *cab_converter)execute_loop(body []byte,times int) (unwrapped []byte) {
 	if times<=1 { return nil }
+	cab.frame_cnt+=times
 	unwrapped = make([]byte,0,len(body)*times)
 	for ;times>1;times-- {
 		unwrapped=append(unwrapped,body...)
@@ -142,15 +158,14 @@ func execute_loop(body []byte,times int) (unwrapped []byte) {
 	return unwrapped
 }
 
-func parse_tokens( tokens []string ) (parsed []byte, e error) {
+func (cab *cab_converter)parse_tokens( tokens []string ) (parsed []byte, e error) {
 	if len(tokens)==0 ||
 	  (len(tokens)>=1 && (tokens[0]=="" || tokens[0][0]=='#')) {
 		return nil, nil
 	}
 	pos := 0
-	repeat, e := strconv.ParseInt(tokens[pos],0,32)
-	pos++
-	if e!=nil { repeat=1; pos=0 }
+	repeat, valid := cab.calc_repetitions(tokens[pos])
+	if valid { pos++ }
 	value := 0
 	for ;pos<len(tokens);pos++ {
 		action := strings.ToLower(tokens[pos])
@@ -173,9 +188,29 @@ func parse_tokens( tokens []string ) (parsed []byte, e error) {
 		}
 	}
 	parsed = make([]byte,0,2*repeat)
+	cab.frame_cnt+=repeat
 	for ;repeat>0;repeat-- {
 		encoded := fmt.Sprintf("%x\n",value)
 		parsed=append(parsed,[]byte(encoded)...)
 	}
 	return parsed,nil
+}
+
+func (cab *cab_converter)calc_repetitions(expr string) (repeat int, valid bool) {
+	var e error
+	var aux int64
+	aux, e = strconv.ParseInt(expr,0,32)
+	repeat=int(aux)
+	if e==nil { return repeat, true }
+	if expr[0]=='=' {
+		aux, e = strconv.ParseInt(expr[1:],0,32)
+		final_frame := int(aux)
+		if e!=nil {
+			msg := fmt.Sprintf("a valid number must be entered after =\nbut found %s at line %d",expr,cab.linecnt)
+			panic(msg)
+		}
+		repeat = final_frame-cab.frame_cnt
+		return repeat, true
+	}
+	return 1,false
 }
