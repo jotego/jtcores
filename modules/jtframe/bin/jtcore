@@ -150,8 +150,7 @@ case $TARGET in
 esac
 export PATH=$PATH:$JTFRAME/bin
 
-# Convert macros.def to environment variables
-eval `parse_macros bash`
+make_macros_env_vars
 # lower case version
 corename=${CORENAME,,}
 

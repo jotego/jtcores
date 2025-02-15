@@ -8,7 +8,7 @@ JTFRAME_SDRAM96
 # priority to compilation over the small sprite issue
 -JTFRAME_SDRAM96
 
-[all]
+[*]
 JTFRAME_STEREO
 # Video configuration
 JTFRAME_COLORW=8

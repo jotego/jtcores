@@ -170,16 +170,31 @@ func CheckMacros() error {
 		header := Get("JTFRAME_HEADER")
 		return fmt.Errorf("Cannot parse JTFRAME_HEADER=%s\n", header )
 	}
-	if !IsInt("JTFRAME_WIDTH")  { return fmt.Errorf("JTFRAME_WIDTH must be an integer"  ) }
-	if !IsInt("JTFRAME_HEIGHT") { return fmt.Errorf("JTFRAME_HEIGHT must be an integer" ) }
+	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT"); e!=nil {
+		return e
+	}
 	return nil
 }
+
 
 func target_uses_dipbase( target string ) bool {
 	switch( target ) {
 	case "mist","sidi","neptuno","mc2","mcp": return true
 	default: return false
 	}
+}
+
+func check_integer(all_names... string) error{
+	for _,name := range all_names {
+		if !IsInt(name)  {
+			value := "Empty string found."
+			if v:=Get(name);v!="" {
+				value = "Found "+v
+			}
+			return fmt.Errorf("%s must be an integer. %s",name, value )
+		}
+	}
+	return nil
 }
 
 func str2macro( a string ) string {

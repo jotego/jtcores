@@ -28,7 +28,7 @@ import (
 
 func Must( e error ) {
 	if e!=nil {
-		fmt.Println(e)
+		fmt.Fprintln(os.Stderr,e)
 		os.Exit(1)
 	}
 }
