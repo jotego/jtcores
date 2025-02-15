@@ -56,13 +56,15 @@ reg  [ 3:0] st;
 wire [ 2:0] bank;
 wire [ 7:0] cfg_data;
 reg  [ 3:0] cur_ch;
-reg  [ 3:0] cfg_addr;
+reg  [ 4:0] cfg_addr;
+reg  [15:0] active;     // high for active channels, debug only
+reg  [ 7:0] cfg_en;
+reg  [ 7:0] delta, cfg_din;
+reg         cfg_we, was_enb;
+
 reg  [23: 0] cur_addr;
 reg  [23: 8] loop_addr;
 reg  [23:16] end_addr;
-reg  [ 7: 0] cfg_en;
-reg  [ 7: 0] delta, cfg_din;
-reg          cfg_we;
 
 reg  signed [ 7:0] vol_left, vol_right, vol_mux;
 wire signed [ 7:0] pcm_data;
@@ -70,20 +72,28 @@ reg  signed [15:0] mul_data;
 reg  signed [15:0] acc_l, acc_r;
 reg  signed [WD-1:0] mul_clip, buf_r;
 
+
 assign bank     = cfg_en[6:4];
 assign pcm_data = rom_data - 8'h80;
 
-jtframe_dual_ram #(.AW(8),.SIMHEXFILE(SIMHEXFILE)) u_ram(
+// only AW=8 is needed for the CPU. Using AW=9
+// to store the scratch value for lower
+// 8-bit address of the current sample
+// so it does not overwrite any register the CPU has
+// access too.
+// That register may actually be visible by
+// the CPU, using cfg_addr=4'o17 for AW=8 seems to work fine too
+jtframe_dual_ram #(.AW(9),.SIMHEXFILE(SIMHEXFILE)) u_ram(
     // Port 0: CPU
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
-    .addr0  ( cpu_addr  ),
+    .addr0  ({1'b0,cpu_addr}),
     .we0    ( we        ),
     .q0     ( cpu_din   ),
     // Port 1
     .clk1   ( clk       ),
     .data1  ( cfg_din   ),
-    .addr1  ( { cfg_addr[3], cur_ch, cfg_addr[2:0] } ),
+    .addr1  ( { cfg_addr[4:3], cur_ch, cfg_addr[2:0] } ),
     .we1    ( cfg_we    ),
     .q1     ( cfg_data  )
 );
@@ -105,38 +115,32 @@ function signed [15:0] clip_sum( input signed [15:0] a, input signed [WD-1:0] b 
     end
 endfunction
 
-// RAM address used as scratch for lower
-// 8-bit address of the current sample
-// It is not clear which one should be used, but
-// using 4'o13 breaks the sound of pass-by cars
-wire [3:0] addrlo = 4'o17; //debug_bus[4:0];
-
 always @* begin
     case( st )
-         0: cfg_addr = 4'o16; // enable
-         1: cfg_addr = addrlo; // addr 7-0
-         2: cfg_addr = 4'o14; // addr 15-8
-         3: cfg_addr = 4'o15; // addr 23-16
-         4: cfg_addr = 4'o07; // addr delta
-         5: cfg_addr = 4'o04; // loop addr 15-8
-         6: cfg_addr = 4'o05; // loop addr 23-16
-         7: cfg_addr = 4'o06; // end addr
-         8: cfg_addr = 4'o16; // enable (wr)
-         9: cfg_addr = addrlo; // addr  7- 0 (wr)
-        10: cfg_addr = 4'o14; // addr 15- 8 (wr)
-        11: cfg_addr = 4'o15; // addr 23-16 (wr)
-        12: cfg_addr = 4'o02; // vol. left
-        13: cfg_addr = 4'o03; // vol. right
+         0: cfg_addr = 5'o16; // enable
+         1: cfg_addr = 5'o20; // addr 7-0
+         2: cfg_addr = 5'o14; // addr 15-8
+         3: cfg_addr = 5'o15; // addr 23-16
+         4: cfg_addr = 5'o07; // addr delta
+         5: cfg_addr = 5'o04; // loop addr 15-8
+         6: cfg_addr = 5'o05; // loop addr 23-16
+         7: cfg_addr = 5'o06; // end addr
+         8: cfg_addr = 5'o16; // enable (wr)
+         9: cfg_addr = 5'o20; // addr  7- 0 (wr)
+        10: cfg_addr = 5'o14; // addr 15- 8 (wr)
+        11: cfg_addr = 5'o15; // addr 23-16 (wr)
+        12: cfg_addr = 5'o02; // vol. left
+        13: cfg_addr = 5'o03; // vol. right
         default: cfg_addr = 0;
     endcase
 
     vol_mux = st[0] ? vol_left : vol_right;
-    cfg_we  = st>=8 && st<=11;
     case( st )
-         8: cfg_din = cfg_en;
-         9: cfg_din = cfg_en[0] ? 8'd0 : cur_addr[7:0];
-        10: cfg_din = cur_addr[15:8];
-        default: cfg_din = cur_addr[23:16];
+         8: begin cfg_we = 1;        cfg_din = cfg_en; end
+         9: begin cfg_we = 1;        cfg_din = cur_addr[ 7: 0]; end
+        10: begin cfg_we = !was_enb; cfg_din = cur_addr[15: 8]; end
+        11: begin cfg_we = !was_enb; cfg_din = cur_addr[23:16]; end
+        default: begin cfg_we = 0; cfg_din = 0; end
     endcase
 end
 
@@ -149,7 +153,11 @@ function signed [15:0] clip2x( input signed [15:0] s);
     clip2x = s[15]==s[14] ? {s[14:0],s[15]} : {s[15],{15{~s[15]}}};
 endfunction
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    st_dout <= debug_bus[0] ? active[15:8] : active[7:0];
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         st        <= 0;
         cur_ch    <= 0;
@@ -165,11 +173,13 @@ always @(posedge clk, posedge rst) begin
         cfg_en    <= 0;
         vol_left  <= 0;
         vol_right <= 0;
+        was_enb   <= 0;
     end else if(cen) begin
         st <= st + 1'd1;
         case( st )
             0: begin
-                cfg_en <= cfg_data;
+                cfg_en  <= cfg_data;
+                was_enb <= cfg_data[0];
                 if( cur_ch==0 ) begin
                     snd_left  <= acc_l;
                     snd_right <= acc_r;
@@ -177,7 +187,7 @@ always @(posedge clk, posedge rst) begin
                     acc_r     <= 0;
                 end
             end
-            1: cur_addr[ 7: 0]  <= cfg_data;
+            1: cur_addr[ 7: 0]  <= was_enb ? 8'd0 : cfg_data;
             2: cur_addr[15: 8]  <= cfg_data;
             3: cur_addr[23:16]  <= cfg_data;
             4: delta            <= cfg_data;
@@ -200,9 +210,9 @@ always @(posedge clk, posedge rst) begin
             14: begin
                 rom_cs  <= 0; // ROM data must be good by now
                 buf_r   <= clipDAC(mul_data);
-                st_dout <= cfg_data;
             end
             15: begin
+                active[cur_ch] <= ~was_enb;
                 cur_ch <= cur_ch + 1'd1;
                 if( !cfg_en[0] ) begin
                     acc_r <= clip_sum( acc_r, buf_r);

@@ -1,3 +1,4 @@
+# play enough to hear the sound of passing over a rival
 50
 2 coin
 30
@@ -9,7 +10,13 @@
 # ~72 frames => 1 TIME UNIT
 =1098 b1
 loop
-32 b1 right
-40 b1
+25 b1 right
+11 b1
 repeat 8
+# 1386: turn harder
+loop
+30 b1 right
+ 6 b1
+repeat 5
+# 1602: straight
 700 b1
