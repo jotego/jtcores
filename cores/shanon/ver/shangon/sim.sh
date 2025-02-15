@@ -1,8 +1,8 @@
 #!/bin/bash
 # copy the road ROM in the right format for simulation
 
-dd if=rom.bin of=rd0.bin bs=4k skip=$((0x270000/4096)) count=$((0x4000/4096))
-dd if=rom.bin of=rd1.bin bs=4k skip=$((0x274000/4096)) count=$((0x4000/4096))
+dd if=rom.bin of=rd0.bin bs=16 skip=$((0x270010/16)) count=$((0x4000/16))
+dd if=rom.bin of=rd1.bin bs=16 skip=$((0x274010/16)) count=$((0x4000/16))
 
 jtutil drop1    <rd0.bin >rd0_hi.bin
 jtutil drop1 -l <rd0.bin >rd0_lo.bin

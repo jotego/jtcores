@@ -9,7 +9,7 @@
 # ~72 frames => 1 TIME UNIT
 =1098 b1
 loop
-50 b1
-22 b1 right
+32 b1 right
+40 b1
 repeat 8
 700 b1
