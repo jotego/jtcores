@@ -47,6 +47,7 @@ wire        busy_g, valid_y;
 reg  [ 6:0] ydf;
 reg  [ 2:0] st;
 reg  [ 7:0] objcnt;
+reg         in_hwindow=0;
 
 assign scan_addr = {objcnt,st[1:0]};
 assign busy_g    = busy_l | dr_busy;
@@ -75,6 +76,13 @@ end
 // EDCBEA98765432VVVVVH   32x32
 // EDCBEA987654VVVVVVHH   64x64
 
+function apply_hwindow(input [15:0]x); begin
+    reg j81, j78;
+    j81 = ~|{~&x[15:8],~|x[7:6]};
+    j78 =  &{~|x[15:9],~&x[8:7]};
+    apply_hwindow=j78|j81;
+end endfunction
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         hs_l     <= 0;
@@ -97,7 +105,10 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             st <= st + 1'd1;
             case( st )
-                1: hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
+                1: begin
+                    hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
+                    in_hwindow <= apply_hwindow({{16-PW{1'b0}},scan_dout[PW-1:0]});
+                end
                 2: begin
                     y <= 0;
                     y[PW-1:0] <=  scan_dout[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
@@ -131,7 +142,7 @@ always @(posedge clk, posedge rst) begin
                 6: begin
                     st <= 6;
                     if( !busy_g || !inzone ) begin
-                        dr_start <= inzone;
+                        dr_start <= inzone && in_hwindow;
                         st <= 1;
                         objcnt <= objcnt + 1'd1;
                         if( &objcnt ) done <= 1;
