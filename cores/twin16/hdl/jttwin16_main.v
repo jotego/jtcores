@@ -94,7 +94,7 @@ wire [15:0] vdout;
 reg  [ 7:0] cab_dout;
 reg  [ 4:0] nvram_ahi;
 reg         LVBLl;
-wire        bus_cs, bus_busy, BUSn, ab_sel;
+wire        bus_cs, bus_busy, bus_legit, BUSn, ab_sel;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -103,8 +103,8 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr  = A[19:1];
 assign nvram_addr = {nvram_ahi,A[9:1]};
 assign ram_dsn    = {UDSn, LDSn};
-assign bus_cs     = rom_cs | ram_cs;
-assign bus_busy   = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok);
+assign bus_cs     = rom_cs | ram_cs | oram_cs;
+assign bus_busy   = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) | (oram_cs & dma_bsy);
 assign BUSn       = ASn | (LDSn & UDSn);
 assign cpu_we     = ~RnW;
 assign ram_we     = ~RnW;
@@ -117,6 +117,7 @@ assign va_we      = dws & {2{vram_cs & ~A[13]}};
 assign vb_we      = dws & {2{vram_cs &  A[13]}};
 assign fx_we      = dws & {2{fix_cs}};
 assign oram_we    = dws & {2{oeff_cs}};
+assign bus_legit  = oram_cs;
 
 always @* begin
     case( debug_bus[3:0] )
@@ -280,7 +281,7 @@ jtframe_68kdtack_cen #(.W(5),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd3      ),  // numerator

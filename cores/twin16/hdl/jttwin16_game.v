@@ -107,6 +107,7 @@ jttwin16_share u_share(
     .cen            ( cen_1m5       ),
     .tim1           ( tim1          ),  // main CPU has access to video
     .tim2           ( tim2          ),  // sub CPU does
+    .dma_bsy        ( dma_bsy       ),
     // main CPU
     .m_addr         ( m_addr[13:1]  ),
     .m_dout         ( m_dout        ),

@@ -93,7 +93,7 @@ reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg         intn, LVBLl;
-wire        bus_cs, bus_busy, BUSn;
+wire        bus_cs, bus_busy, bus_legit, BUSn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -102,9 +102,10 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
-assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs;
+assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs | oram_cs;
 assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) |
-                  (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok);
+                  (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok) |
+                                        (oram_cs & dma_bsy);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -114,7 +115,8 @@ assign dws      = ~({2{RnW}} | {UDSn, LDSn});
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
 assign fx_we    = dws & {2{fix_cs}};
-assign obj_we   = dws & {2{oram_cs}};
+assign obj_we   = dws & {2{oram_cs}}; // gating the writes with dma_bsy breaks the graphics
+assign bus_legit= oram_cs;
 assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
 
 always @* begin
@@ -258,7 +260,7 @@ jtframe_68kdtack_cen #(.W(5),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd3      ),  // numerator
