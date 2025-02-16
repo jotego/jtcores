@@ -18,7 +18,7 @@
 package files
 
 import(
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
 )
 
 type Args struct {

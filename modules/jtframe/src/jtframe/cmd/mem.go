@@ -20,8 +20,8 @@ package cmd
 import (
 	"fmt"
 
-	. "github.com/jotego/jtframe/common"
-	"github.com/jotego/jtframe/mem"
+	. "jotego/jtframe/common"
+	"jotego/jtframe/mem"
 
 	"github.com/spf13/cobra"
 )

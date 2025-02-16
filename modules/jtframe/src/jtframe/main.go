@@ -24,8 +24,8 @@ import (
     "fmt"
     "os"
     "log"
-    "github.com/jotego/jtframe/cmd"
-    "github.com/jotego/jtframe/betas"
+    "jotego/jtframe/cmd"
+    "jotego/jtframe/betas"
 )
 
 func RequireEnv( v string ) {

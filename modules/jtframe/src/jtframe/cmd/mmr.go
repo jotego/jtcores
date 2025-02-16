@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 
-	"github.com/jotego/jtframe/mmr"
-	. "github.com/jotego/jtframe/common"
+	"jotego/jtframe/mmr"
+	. "jotego/jtframe/common"
 )
 
 // mmrCmd represents the mmr command

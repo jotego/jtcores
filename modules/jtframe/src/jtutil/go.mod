@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/PaesslerAG/gval v1.2.2
-	github.com/jotego/jtframe v0.0.0-00010101000000-000000000000
+	jotego/jtframe v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.7.0
 )
 
@@ -30,4 +30,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/jotego/jtframe => ../jtframe
+replace jotego/jtframe => ../jtframe

@@ -6,7 +6,7 @@ import(
 	"slices"
 	"testing"
 
-	"github.com/jotego/jtframe/xmlnode"
+	"jotego/jtframe/xmlnode"
 )
 
 var td struct { // Test Data

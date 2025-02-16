@@ -29,8 +29,8 @@ import (
 	"strings"
 	"time"
 
-    "github.com/jotego/jtframe/betas"
-    . "github.com/jotego/jtframe/common"
+    "jotego/jtframe/betas"
+    . "jotego/jtframe/common"
 )
 
 // returns true if the .def file section changes

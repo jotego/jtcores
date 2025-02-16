@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/spf13/cobra"
-	. "github.com/jotego/jtframe/common"
+	. "jotego/jtframe/common"
 )
 
 

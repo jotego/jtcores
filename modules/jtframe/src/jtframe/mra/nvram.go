@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"os"
 
-	"github.com/jotego/jtframe/common"
-	. "github.com/jotego/jtframe/xmlnode"
+	"jotego/jtframe/common"
+	. "jotego/jtframe/xmlnode"
 )
 
 func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename string) {

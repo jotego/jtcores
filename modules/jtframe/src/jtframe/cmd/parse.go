@@ -24,8 +24,8 @@ import (
 	"text/template"
 	"path/filepath"
 
-	"github.com/jotego/jtframe/common"
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/common"
+	"jotego/jtframe/macros"
 
 	"github.com/spf13/cobra"
 	"github.com/Masterminds/sprig/v3"	// more template functions

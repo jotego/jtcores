@@ -20,7 +20,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/jotego/jtframe/ucode"
+	"jotego/jtframe/ucode"
 	"github.com/spf13/cobra"
 )
 

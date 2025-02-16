@@ -30,10 +30,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jotego/jtframe/betas"
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/common"
-	. "github.com/jotego/jtframe/xmlnode"
+	"jotego/jtframe/betas"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/common"
+	. "jotego/jtframe/xmlnode"
 )
 
 func Convert(args Args) error {
@@ -516,7 +516,7 @@ func make_about_node(root *XMLNode, global GlobalCfg) {
 	n.AddAttr("author",  notEmpty(slice2csv(global.Author), "jotego"))
 	n.AddAttr("webpage", notEmpty(global.Webpage,   "https://patreon.com/jotego"))
 	n.AddAttr("twitter", notEmpty(global.Twitter,   "@topapate"))
-	n.AddAttr("source", "https://github.com/jotego/jtcores")
+	n.AddAttr("source", "https://jotego/jtcores")
 }
 
 func make_rotation_node(root *XMLNode, display MameDisplay) {

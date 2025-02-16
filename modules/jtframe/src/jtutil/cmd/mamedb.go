@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/mra"
+	"jotego/jtframe/mra"
 )
 
 var mamedb_cfg mra.ParseCfg

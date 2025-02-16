@@ -29,9 +29,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/jotego/jtframe/common"
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/mra"
+	"jotego/jtframe/common"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/mra"
 
 	"gopkg.in/yaml.v2" // do not upgrade to v3. See issue #904
 	"github.com/Masterminds/sprig/v3"	// more template functions

@@ -21,7 +21,7 @@ package mra
 
 import (
     "fmt"
-    . "github.com/jotego/jtframe/xmlnode"
+    . "jotego/jtframe/xmlnode"
 )
 
 var pocket_warning bool

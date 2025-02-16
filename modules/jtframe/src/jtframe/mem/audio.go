@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/common"
 
 	"gopkg.in/yaml.v2"
 )

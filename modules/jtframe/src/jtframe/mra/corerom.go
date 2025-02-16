@@ -30,8 +30,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jotego/jtframe/macros"
-	. "github.com/jotego/jtframe/xmlnode"
+	"jotego/jtframe/macros"
+	. "jotego/jtframe/xmlnode"
 )
 
 // first XML node of a ROM region

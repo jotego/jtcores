@@ -26,8 +26,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/common"
 )
 
 func Reduce(xml_in string) (error) {

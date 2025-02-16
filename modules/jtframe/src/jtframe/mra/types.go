@@ -18,7 +18,7 @@
 package mra
 
 import(
-    . "github.com/jotego/jtframe/xmlnode"
+    . "jotego/jtframe/xmlnode"
 )
 
 var Verbose bool

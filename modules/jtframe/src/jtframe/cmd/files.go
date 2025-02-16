@@ -18,9 +18,9 @@
 package cmd
 
 import (
-	jtfiles "github.com/jotego/jtframe/files"
+	jtfiles "jotego/jtframe/files"
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/common"
 )
 
 // filesCmd represents the files command

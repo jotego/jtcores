@@ -23,7 +23,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
 )
 
 func find_div( fin, fout float64) (int, int) {

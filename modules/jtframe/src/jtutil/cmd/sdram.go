@@ -24,8 +24,8 @@ import (
 	"strings"
 	"path/filepath"
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/mra"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/mra"
 )
 
 // sdramCmd represents the sdram command

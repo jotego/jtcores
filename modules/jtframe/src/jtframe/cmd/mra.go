@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"os"
-	"github.com/jotego/jtframe/mra"
-	. "github.com/jotego/jtframe/common"
+	"jotego/jtframe/mra"
+	. "jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )

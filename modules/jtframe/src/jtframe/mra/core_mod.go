@@ -20,8 +20,8 @@ package mra
 import(
 	"fmt"
 
-	"github.com/jotego/jtframe/macros"
-	. "github.com/jotego/jtframe/xmlnode"
+	"jotego/jtframe/macros"
+	. "jotego/jtframe/xmlnode"
 )
 
 func coreMOD_dial(machine *MachineXML, cfg Mame2MRA, coremod *int) {

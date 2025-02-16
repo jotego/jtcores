@@ -31,7 +31,7 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/jotego/jtframe/xmlnode"
+	. "jotego/jtframe/xmlnode"
 )
 
 // save2disk = false is uselful to update the md5 calculation only

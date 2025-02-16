@@ -27,7 +27,7 @@ import(
     "strconv"
     "strings"
 
-    . "github.com/jotego/jtframe/xmlnode"
+    . "jotego/jtframe/xmlnode"
 )
 
 func dipsw_tag(ds MachineDIP ) bool {
