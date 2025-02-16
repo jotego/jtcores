@@ -107,7 +107,7 @@ always @(posedge clk, posedge rst) begin
             case( st )
                 1: begin
                     hpos <= scan_dout[PW-1:0]+ {{PW-9{1'b0}},9'h69};
-                    in_hwindow <= apply_hwindow({{16-PW{1'b0}},scan_dout[PW-1:0]});
+                    in_hwindow <= apply_hwindow({{16-PW{scan_dout[PW-1]}},scan_dout[PW-1:0]});
                 end
                 2: begin
                     y <= 0;
