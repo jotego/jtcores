@@ -283,9 +283,10 @@ func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc")
 	game_sdram := filepath.Join(tpath,"game_sdram.v")
 	game_audio := filepath.Join(tpath,"game_audio.v")
+	ioctl_dump := filepath.Join(tpath,"ioctl_dump.v")
 	t := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap())
 	t.Funcs(audio_template_functions)
-	_, e = t.ParseFiles(game_audio,game_sdram)
+	_, e = t.ParseFiles(game_audio,game_sdram,ioctl_dump)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
 	if e = t.Execute(&buffer, cfg); e!= nil { return e }

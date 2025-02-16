@@ -95,12 +95,12 @@ reg  [23:0] offset;
 
 assign part_addr = ioctl_addr - offset;
 
-assign addr0_mx = sel[0] ? ioctl_addr[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addr0;
-assign addr1_mx = sel[1] ?  part_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addr1;
-assign addr2_mx = sel[2] ?  part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addr2;
-assign addr3_mx = sel[3] ?  part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addr3;
-assign addr4_mx = sel[4] ?  part_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addr4;
-assign addr5_mx = sel[5] ?  part_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addr5;
+assign addr0_mx = ioctl_ram ? ioctl_addr[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addr0;
+assign addr1_mx = ioctl_ram ?  part_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addr1;
+assign addr2_mx = ioctl_ram ?  part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addr2;
+assign addr3_mx = ioctl_ram ?  part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addr3;
+assign addr4_mx = ioctl_ram ?  part_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addr4;
+assign addr5_mx = ioctl_ram ?  part_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addr5;
 
 assign ioctl_din =
     sel[0] ? ( (DW0==16 && ioctl_addr[0]) ? dout0[DW0-1 -:8] : dout0[7:0]) :
