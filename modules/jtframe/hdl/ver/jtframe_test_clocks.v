@@ -22,8 +22,7 @@ module jtframe_test_clocks(
     output reg rst,
     output reg clk,
     output reg pxl_cen=0,
-    output     lhbl,
-    output     lvbl,
+    output     lhbl, lvbl, hs, vs,
     output     [ 8:0] h,
     output     [ 8:0] v,
     output reg [31:0] framecnt=0
@@ -67,8 +66,8 @@ jtframe_vtimer u_timer(
     .Vinit      (           ),
     .LHBL       ( lhbl      ),
     .LVBL       ( lvbl      ),
-    .HS         (           ),
-    .VS         (           )
+    .HS         ( hs        ),
+    .VS         ( vs        )
 );
 
 initial begin

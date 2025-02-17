@@ -21,25 +21,34 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
+	. "jotego/jtframe/xmlnode"
 )
 
-func zipName(machine *MachineXML, cfg Mame2MRA) string {
-	zipname := machine.Name + ".zip"
-	if len(machine.Cloneof) > 0 {
-		zipname += "|" + machine.Cloneof + ".zip"
+// first XML node of a ROM region
+type StartNode struct {
+	node *XMLNode
+	pos  int
+}
+
+func (this *StartNode) add_length(pos int) {
+	if this.node == nil { return }
+	lenreg := pos - this.pos
+	if lenreg > 0 {
+		bits_needed := int(math.Ceil(math.Log2(float64(lenreg))))
+		length_message := fmt.Sprintf("%s - length 0x%X (%d bits)",
+			this.node.GetName(), lenreg, bits_needed)
+		this.node.Rename(length_message)
 	}
-	if len(cfg.Global.Zip.Alt) > 0 {
-		zipname += "|" + cfg.Global.Zip.Alt
-	}
-	return zipname
 }
 
 func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error {
@@ -50,36 +59,13 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		fmt.Println("Parsing ", machine.Name)
 	}
 	// Create nodes
-	p := root.AddNode("rom").AddAttr("index", "0")
-	p.AddAttr("zip", zipName(machine,cfg))
-	p.AddAttr("md5", "None") // We do not know the value yet
-	if macros.IsSet("JTFRAME_MR_DDRLOAD") {
-		p.AddAttr("address", "0x30000000")
-	}
-	regions := cfg.ROM.Order
-	// Add regions unlisted in the config to the final list
+	p := make_rom_parent_node(root,machine,cfg.Global.Zip.Alt)
 	sorted_regs := make(map[string]bool)
-	for _, r := range regions {
+	for _, r := range cfg.ROM.Order {
 		sorted_regs[r] = true
 	}
-	cur_region := ""
-	for _, rom := range machine.Rom {
-		if cur_region != rom.Region {
-			cur_region = rom.Region
-			_, ok := sorted_regs[rom.Region]
-			if !ok {
-				regions = append(regions, cur_region)
-			}
-		}
-	}
-	var header *XMLNode
-	if cfg.Header.len > 0 {
-		if len(cfg.Header.Info) > 0 {
-			p.AddNode(cfg.Header.Info).comment = true
-		}
-		header = p.AddNode("part")
-		header.indent_txt = true
-	}
+	regions := add_unlisted_regions(machine.Rom,cfg.ROM.Order)
+	header := cfg.Header.make_header_node(p)
 	pos := 0
 	reg_offsets := make(map[string]int)
 
@@ -96,13 +82,6 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		}
 		reg_roms := extract_region(reg_cfg, machine.Rom, cfg.ROM.Remove)
 		// Do not skip empty regions, in case they have a minimum length to fill
-		// Skip regions with "nodump" ROMs
-		nodump := false
-		for _, each := range reg_roms {
-			if each.Status == "nodump" {
-				nodump = true
-			}
-		}
 		// Proceed with the ROM listing
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
 			if len(reg_roms)!=0 { fmt.Printf(
@@ -113,17 +92,17 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		sdram_bank_comment(p, pos, macros.CopyToMap())
 		// comment with start and length of region
 		previous.add_length(pos)
-		previous.node = p.AddNode(fmt.Sprintf("%s - starts at 0x%X", reg, pos))
-		previous.node.comment = true
+		previous.node = p.AddComment(fmt.Sprintf("%s - starts at 0x%X", reg, pos))
 		previous.pos = pos
 		start_pos := pos
 
-		if nodump {
+		// Skip regions with "nodump" ROMs
+		if is_rom_dump_missing(reg_roms) {
 			if parse_custom(reg_cfg, p, machine, &pos, args) {
 				fill_upto(&pos, start_pos+reg_cfg.Len, p)
 			} else {
-				p.AddNode(fmt.Sprintf("Skipping region %s because there is no dump known",
-					reg_cfg.EffName())).comment = true
+				p.AddComment(fmt.Sprintf("Skipping region %s because there is no dump known",
+					reg_cfg.EffName()))
 			}
 			continue
 		}
@@ -150,25 +129,78 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 			} else if (reg_cfg.Width != 0 && reg_cfg.Width != 8) && len(reg_roms) > 1 {
 				parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
 			} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
-				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
+				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, &pos)
 			} else {
 				return fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
 					reg_cfg.Name, len(reg_roms), machine.Name )
 			}
 		}
-		// if pos_old == pos {
-		// 	p.RmNode( previous.node )
-		// }
 		fill_upto(&pos, start_pos+reg_cfg.Len, p)
 	}
 	previous.add_length(pos)
 	make_devROM(p, machine, cfg, &pos)
-	p.AddNode(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10)).comment = true
+	p.AddComment(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10))
 	make_patches(p, machine, cfg )
 	if header != nil {
 		if e:=make_header(header, reg_offsets, pos, cfg.Header, machine); e!= nil { return e }
 	}
 	return nil
+}
+
+func make_rom_parent_node(root *XMLNode, machine *MachineXML, altzip string) (p *XMLNode) {
+	p = root.AddNode("rom").AddAttr("index", "0")
+	zip_name := make_zip_name(machine,altzip)
+	p.AddAttr("zip", zip_name)
+	p.AddAttr("md5", "None") // We do not know the value yet
+	if macros.IsSet("JTFRAME_MR_DDRLOAD") {
+		p.AddAttr("address", "0x30000000")
+	}
+	return p
+}
+
+func make_zip_name(machine *MachineXML, altzip string) string {
+	zipname := machine.Name + ".zip"
+	if len(machine.Cloneof) > 0 {
+		zipname += "|" + machine.Cloneof + ".zip"
+	}
+	if len(altzip) > 0 {
+		zipname += "|" + altzip
+	}
+	return zipname
+}
+
+func add_unlisted_regions(machine_roms []MameROM, initial_regions []string) (regions []string) {
+	regions = initial_regions
+	cur_region := ""
+	for _, rom := range machine_roms {
+		if cur_region != rom.Region {
+			cur_region = rom.Region
+			if !slices.Contains(initial_regions,cur_region) {
+				regions = append(regions, cur_region)
+			}
+		}
+	}
+	return regions
+}
+
+func (hdrCfg *HeaderCfg) make_header_node(parent *XMLNode) (header *XMLNode) {
+	if hdrCfg.len > 0 {
+		if len(hdrCfg.Info) > 0 {
+			parent.AddComment(hdrCfg.Info)
+		}
+		header = parent.AddNode("part")
+		header.SetIndent()
+	}
+	return header
+}
+
+func is_rom_dump_missing( reg_roms []MameROM) bool {
+	for _, each := range reg_roms {
+		if each.Status == "nodump" {
+			return true
+		}
+	}
+	return false
 }
 
 func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
@@ -178,8 +210,8 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 			continue
 		}
 		// add the comment only once
-		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.name })==nil {
-			root.AddNode(k).comment = true
+		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.GetName() })==nil {
+			root.AddComment(k)
 		}
 	}
 }
@@ -191,8 +223,8 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
 		if each.Match(machine) > 0 {
 			if header != 0 && !warned {
 				warned = true
-				root.AddNode(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
-					header)).comment=true
+				root.AddComment(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
+					header))
 			}
 			// apply the patch
 			root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
@@ -428,7 +460,7 @@ func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {
 		log.Fatal("jtframe mra: singleton only supported for width 16 and 32")
 	}
 	var n *XMLNode
-	p.AddNode("Singleton region. The files are merged with themselves.").comment = true
+	p.AddComment("Singleton region. The files are merged with themselves.")
 	msb := (reg_cfg.Width / 8) - 1
 	divider := reg_cfg.Width >> 3
 	mapfmt := fmt.Sprintf("%%0%db", divider)
@@ -455,7 +487,7 @@ func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {
 	return pos
 }
 
-func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args, pos *int) {
+func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 	reg_pos := 0
 	start_pos := *pos
 	for _, r := range reg_roms {
@@ -532,7 +564,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 		reg_pos = *pos - start_pos
 		if blank_len := is_blank(reg_pos, reg, machine, cfg); blank_len > 0 {
 			fill_upto(pos, *pos+blank_len, p)
-			p.AddNode(fmt.Sprintf("Blank ends at 0x%X", *pos)).comment = true
+			p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 		}
 		reg_pos = *pos - start_pos
 	}
@@ -565,9 +597,9 @@ func parse_i8751(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, arg
 		return false
 	}
 	*pos += len(bin)
-	p.AddNode("Using custom firmware (no known dump)").comment = true
+	p.AddComment("Using custom firmware (no known dump)")
 	node := p.AddNode("part")
-	node.indent_txt = true
+	node.SetIndent()
 	node.SetText(hexdump(bin, 16))
 	return true
 }
@@ -608,9 +640,9 @@ func parse_asl(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, args 
 		return false
 	}
 	*pos += len(bin)
-	p.AddNode("Using custom firmware (no known dump)").comment = true
+	p.AddComment("Using custom firmware (no known dump)")
 	node := p.AddNode("part")
-	node.indent_txt = true
+	node.SetIndent()
 	node.SetText(hexdump(bin, 16))
 	return true
 }
@@ -906,7 +938,7 @@ func interleave_group( reg string,
 			reg_pos = *pos - start_pos
 			if blank_len := is_blank(reg_pos, reg, machine, cfg); blank_len > 0 {
 				fill_upto(pos, *pos+blank_len, p)
-				p.AddNode(fmt.Sprintf("Blank ends at 0x%X", *pos)).comment = true
+				p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 			}
 		}
 		if reg_cfg.Reverse {

@@ -20,7 +20,7 @@ package mem
 import (
 	"testing"
 
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
 )
 
 func TestEnabled(t *testing.T) {

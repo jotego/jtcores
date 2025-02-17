@@ -3,35 +3,108 @@ author=["jotego"]
 
 [buttons]
 names=[
-	{ machine="flstory", names="Shot,Jump" }
+	{ machine="flstory",  names="Shot,Jump" },
+	{ machine="onna34ro", names="Hit,Throw" },
+	{ machine="rumba",    names="Chop,Throw"},
+	# buttons 4/5/6 do not seem to be used
+	{ machine="victnine", names="Button 1,Button 2,Button 3,Button 4,Button 5,Button 6" },
 ]
 
 [parse]
-sourcefile=[ "flstory.cpp" ]
+sourcefile=[ "flstory.cpp", "nycaptor.cpp" ]
 debug={ machines=[
-	"onna34ro",
-	"victnine",
-	"rumba",
+	# Two Z80 CPUs
+	"nycaptor",
+	"cyclshtg", # bad ROM dump
+	"colt",     # bit swapping on CPU ROM
+	"bronx",    # bit swapping on CPU ROM
 ]}
 
 [dipsw]
 rename=[
 	{ name="Attract Sound on Title Screen",to="Attract Sound" },
-	{ name="Copyright String",to="Maker" },
+	{ name="Invulnerability (Cheat)",      to="Invulnerability"},
+	{ name="Copyright String",             to="Release year", values=["hide","show"] }
 ]
-# delete=[
-# 	{ names=["Unused"] },
-# ]
-
+extra=[
+	{ machine="rumba", name="Flip", options="Off,On", bits="24" }
+]
 [header]
+info="""
+
+		byte 0: PCB id
+		byte 1: 0 == same orientation as flstory
+		        1 == flipped both XY
+		        2 =  flipped only Y - to be tested -
+		        4 =  use dipsw[24] for screen flip
+		byte 2: 0 == MCU enabled
+		        1 ==     disabled
+		       0? == sub Z80 disabled
+		       1? ==         enabled
+		      1?? == mirror ROM bits in main CPU
+		    01??? == 2 ROM banks
+		    1???? == 4 ROM banks
+		byte 3: 0 == coins are active low
+		        1 ==                  high
+		    1???? == unused IO bits set to 1
+		byte 4: 0 == GFX config register at $DF03
+		        1 == GFX config register at $DCE0
+		byte 5: 0 == use priority RAM
+		        1 == obj always have priority
+		byte 6: 0 == 4-bit palette for background
+		        1 == 3-bit palette
+		       0? == 2 buttons
+		       1? == 6 buttons
+		      0?? == 4 banks for sprites
+		      1?? == 2 banks
+"""
 fill=0
+PCBs = [
+	{ machine ="flstory"  },
+	{ machine ="onna34ro" },
+	{ machine ="rumba"    },
+	{ machine ="victnine" },
+	{ machine ="nycaptor" },
+	{ machine ="cyclshtg" },
+]
+data = [
+	{ pcb_id=true, offset=0 },
+	{ machines=["onna34ro"],            offset=1, data="01" },
+	{ machines=["rumba"],               offset=1, data="12" },
+	# Disable MCU
+	{ setname="onna34roa",              offset=2, data="01" },
+	# Enable sub Z80 and number of banks
+	{ machine="nycaptor",               offset=2, data="0A" }, # 2 banks
+	{ machine="cyclshtg",               offset=2, data="12" }, # 4 banks
+	# Enable sub Z80 and enable main Z80 decoding
+	{ setname="colt",                   offset=2, data="16" }, # 2 banks
+	{ setname="bronx",                  offset=2, data="16" }, # 4 banks
+	# coins active high/low
+	{ setname="rumba",                  offset=3, data="01" },
+	# unused IO bits set high
+	{ machines=["nycaptor","cyclshtg"], offset=3, data="10" },
+	# GFX config register location
+	{ machines=["rumba","victnine"],    offset=4, data="01" },
+	# Layer priority
+	{ machines=["rumba","victnine"],    offset=5, data="01" },
+	# Palette
+	{ setname="victnine",               offset=6, data="07" },
+]
 
 [ROM]
 regions = [
-	{ name="maincpu"                             },
-	{ name="audiocpu", start="JTFRAME_BA1_START" },
+	{ name="maincpu"                                 },
+	# Colt has to work with the 4-bank configuration, but it
+	# really only has two banks
+	{ name="maincpu", setname="colt", sequence=[0,1,0,1,2,2,3,3] },
+	{ name="sub",   skip=true                        },
+	{ name="user1", skip=true                        },
+	{ name="sub",   start="SUB_START", machines=["nycaptor","cyclshtg"] },  # sub Z80 ROM
+	{ name="user1", machine="cyclshtg"               },  # ROM mapped as sub Z80 IO ports
+	{ name="audiocpu", start="JTFRAME_BA1_START"     },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,4,1,5,2,6,3,7] },
-	{ name="bmcu:mcu", start="JTFRAME_PROM_START"},
+	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,2,1,3,0,2,1,3], machine="rumba" },
+	{ name="bmcu:mcu", start="JTFRAME_PROM_START"    },
 ]
 
-order=["maincpu","audiocpu","gfx1","bmcu:mcu"]
+order=["maincpu","sub","user1","audiocpu","gfx1","bmcu:mcu"]

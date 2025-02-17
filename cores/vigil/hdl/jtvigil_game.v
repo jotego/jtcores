@@ -167,7 +167,7 @@ jtvigil_video u_video(
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
-
+/* verilator tracing_on */
 jtvigil_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),

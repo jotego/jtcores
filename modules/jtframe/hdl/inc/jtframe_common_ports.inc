@@ -32,7 +32,6 @@
     input   [15:0]  joyana_l1, joyana_l2, joyana_l3, joyana_l4,
     input   [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
     // Sound control
-    input           enable_fm, enable_psg,
     input   [ 5:0]  snd_en,
     input   [ 7:0]  snd_vol,
     // DIP switches

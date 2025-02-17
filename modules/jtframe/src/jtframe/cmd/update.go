@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 	goflag "flag"
-	"github.com/jotego/jtframe/update"
+	"jotego/jtframe/update"
 
 	"github.com/spf13/cobra"
 )

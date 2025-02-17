@@ -22,7 +22,8 @@ import (
 	"path/filepath"
 	"os"
 
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/common"
+	. "jotego/jtframe/xmlnode"
 )
 
 func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename string) {
@@ -96,7 +97,8 @@ func nvram_rom(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
 		log.Printf("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
 		return
 	}
-	rom := root.AddNode("rom").AddAttr("index", "2").AddAttr("zip",zipName(machine,cfg))
+	zip_name := make_zip_name(machine,cfg.Global.Zip.Alt)
+	rom := root.AddNode("rom").AddAttr("index", "2").AddAttr("zip",zip_name)
 	p := rom.AddNode("part")
 	p.AddAttr("name",roms[0].Name)
 	p.AddAttr("crc",roms[0].Crc)

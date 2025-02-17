@@ -18,9 +18,8 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_tilemap.v
-      - jtframe_scroll.v
       - jtframe_obj.yaml
+      - jtframe_scroll.yaml
   - from: cpu
     unless: [NOMAIN]
     get:

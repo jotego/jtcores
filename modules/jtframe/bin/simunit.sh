@@ -22,6 +22,7 @@ parse_args() {
 	FAIL=0
 	while [ $# -gt 0 ]; do
 		case "$1" in
+			--keep)	  KEEP_LXTFILE=1;;
 			--run)    shift; RUNFOLDER="$1";;
 			--macros) shift; ALL_MACROS="$1";;
 			--help|-h) show_help; exit 0;;
@@ -37,9 +38,10 @@ show_help() {
 	cat <<EOF
 simunit.sh: run unit simulations
 
---run		sets run folder
+--keep		do not delete test.lxt after a PASS simulation
 --macros	comma separated list of macros. Each macro will trigger a different
             simulation.
+--run		sets run folder
 --help, -h	this help
 EOF
 }
@@ -137,7 +139,7 @@ eval_result() {
 
 clean_up() {
 	rm -f sim $GATHER sim.log
-	if [ $FAIL = 0 ]; then
+	if [[ $FAIL = 0 && -z "$KEEP_LXTFILE" ]]; then
 		rm -f test.lxt
 	fi
 }

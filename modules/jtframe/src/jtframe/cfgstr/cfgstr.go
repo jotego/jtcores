@@ -29,8 +29,8 @@ import (
 	"strings"
 	"text/template"
 
-	. "github.com/jotego/jtframe/common"
-	"github.com/jotego/jtframe/macros"
+	. "jotego/jtframe/common"
+	"jotego/jtframe/macros"
 )
 
 var Verbose bool

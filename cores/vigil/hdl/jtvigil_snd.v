@@ -17,8 +17,8 @@
     Date: 1-5-2022 */
 
 module jtvigil_snd(
-    input                clk,
     input                rst,
+    input                clk,
     input                cpu_cen,
     input                fm_cen,
     input                v1,
@@ -34,13 +34,13 @@ module jtvigil_snd(
     input                rom_ok,
 
     output               pcm_cs,
-    output    reg [15:0] pcm_addr,
+    output        [15:0] pcm_addr,
     input         [ 7:0] pcm_data,
     input                pcm_ok,
 
     input         [ 7:0] debug_bus,
     output signed [15:0] fm_l, fm_r,
-    output reg signed [ 7:0] pcm
+    output signed [ 7:0] pcm
 );
 
 `ifndef NOSOUND
@@ -49,7 +49,7 @@ wire [15:0] A;
 wire [ 7:0] ram_dout, fm_dout, cpu_dout, int_addr;
 reg  [ 7:0] cpu_din, latch;
 reg  [ 2:0] bank;
-reg         rst_n, ram_cs,  cntcs_l,
+reg         rst_n, ram_cs,
             fm_cs, latch_cs, irq_clr,
             hi_cs, lo_cs, cnt_cs, pcm_rd;
 wire        rd_n, wr_n, mreq_n, iorq_n;
@@ -58,7 +58,6 @@ wire        fm_intn, int_cs, m1_n;
 
 wire signed [15:0] left, right;
 
-assign pcm_cs   = 1;
 assign rom_addr = A;
 assign int_cs   = ~m1_n & ~iorq_n;
 assign int_addr = { 2'b11, main_intn, fm_intn, 4'hf };
@@ -97,47 +96,34 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// PCM controller
-
-wire signed [7:0] pcm_signed;
-reg         [1:0] pcm_rdy;
-
-assign pcm_signed = 8'h80 - pcm_data;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        pcm_addr <= 16'd0;
-        cntcs_l  <= 0;
-        pcm      <= 0;
-    end else begin
-        cntcs_l    <= cnt_cs;
-        pcm_rdy    <= { pcm_rdy[0], pcm_ok };
-        if( pcm_rdy==2'b01 && pcm_ok ) begin
-            pcm <= pcm_signed;
-        end
-        if( hi_cs ) pcm_addr[15:8] <= cpu_dout;
-        if( lo_cs ) pcm_addr[ 7:0] <= cpu_dout;
-        if( cnt_cs && !cntcs_l ) begin
-            pcm_addr <= pcm_addr + 16'd1;
-            pcm_rdy  <= 0;
-        end
-    end
+always @(posedge clk) begin
+    cpu_din <=
+        rom_cs   ? rom_data :
+        ram_cs   ? ram_dout :
+        pcm_rd   ? pcm_data :
+        latch_cs ? latch    :
+        int_cs   ? int_addr :
+        fm_cs    ? fm_dout  : 8'hff;
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        cpu_din <= 0;
-    end else begin
-        cpu_din <=
-            rom_cs   ? rom_data :
-            ram_cs   ? ram_dout :
-            pcm_rd   ? pcm_data :
-            latch_cs ? latch    :
-            int_cs   ? int_addr :
-            fm_cs    ? fm_dout  : 8'hff;
-    end
-end
+jtvigil_pcm u_pcm(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
 
+    .hi_cs      ( hi_cs         ),
+    .lo_cs      ( lo_cs         ),
+    .cnt_up     ( cnt_cs        ),
+    .din        ( cpu_dout      ),
+
+    .rom_cs     ( pcm_cs        ),
+    .rom_addr   ( pcm_addr      ),
+    .rom_data   ( pcm_data      ),
+    .rom_ok     ( pcm_ok        ),
+
+    .snd        ( pcm           )
+);
+
+/* verilator tracing_off */
 jtframe_sysz80 #(
     .RAM_AW     ( 12        )
 ) u_cpu(

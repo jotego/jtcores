@@ -123,9 +123,6 @@ module jtframe_board #(parameter
     output       [ 1:0] rotate,
     output              rot_osdonly,
 
-    output              enable_fm,
-    output              enable_psg,
-
     output              dip_test,
     // non standard:
     output              dip_pause,
@@ -305,20 +302,24 @@ jtframe_led u_led(
     .led        ( led           )
 );
 
+reg  show_credits;
 `ifdef JTFRAME_CREDITS
-    wire invert_inputs = GAME_INPUTS_ACTIVE_LOW[0];
-    wire toggle = |(game_start ^ {4{invert_inputs}});
-    reg  fast_scroll, show_credits;
-    wire hide_credits;
-
-
-    assign hide_credits = `ifdef JTFRAME_CREDITS_HIDEVERT core_mod[0] `else 0 `endif ;
+    wire toggle = game_start!=4'hf;
+    wire osd_credits_disabled = ~status[12];
+    reg  fast_scroll;
 
     always @(posedge clk_sys) begin
-        fast_scroll  <= |({game_joystick1[3:0], game_joystick2[3:0]} ^ {8{invert_inputs}});
-`ifndef JTFRAME_CREDITS_AON
-        show_credits <= (locked | ~dip_pause) & ~hide_credits `ifdef MISTER & ~status[12] `endif;
-`endif
+        fast_scroll  <= {game_joystick1[3:0], game_joystick2[3:0]}!=8'hff;
+        show_credits <=  locked | ~dip_pause;
+        `ifdef MISTER
+            if( osd_credits_disabled ) show_credits <= 0;
+        `endif;
+        `ifdef JTFRAME_CREDITS_HIDEVERT
+            if( core_mod[0] ) show_credits <= 0; // hide for vertical games
+        `endif
+        `ifdef JTFRAME_CREDITS_AON
+            show_credits <= 1;
+        `endif
     end
 
     // To do: HS and VS should actually be delayed inside jtframe_credits too
@@ -372,6 +373,7 @@ jtframe_led u_led(
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
     assign { base_lhbl, base_lvbl    } = { LHBLs, LVBL };
+    initial show_credits=0;
 `endif
 
 wire [9:0] raw_key_joy1, raw_key_joy2, raw_key_joy3, raw_key_joy4;
@@ -460,6 +462,8 @@ jtframe_filter_keyboard u_filter_keyboard(
         .clk        ( clk_sys       ),
         .dip_pause  ( dip_pause     ),
         .dip_flip   ( dip_flip      ),
+        .dip_test   ( dip_test      ),
+        .show_credits( show_credits ),
         .game_led   ( led_peak[0]   ),
         .LVBL       ( LVBL          ),
         .core_mod   ( core_mod      ),
@@ -636,8 +640,6 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .rotate     ( rotate        ),
     .rot_control( rot_control   ),
     .rot_osdonly( rot_osdonly   ),
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
     .osd_pause  ( osd_pause     ),
     .osd_shown  ( osd_shown     ),
     .game_test  ( game_test     ),

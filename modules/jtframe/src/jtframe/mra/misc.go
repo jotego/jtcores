@@ -9,7 +9,7 @@ import(
 	"strings"
 )
 
-func delete_matching_mra(corename,folder string) error {
+func delete_core_mrafiles(corename,folder string) error {
 	return filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {
 		if err != nil { return err }
 		if d.IsDir() || strings.HasSuffix(path, ".mra") { return nil }

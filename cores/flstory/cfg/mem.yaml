@@ -1,3 +1,5 @@
+params:
+  - { name: SUB_OFFSET, value: "`SUB_START>>1" }
 clocks:
   clk:
     - freq: 3072000
@@ -23,6 +25,12 @@ audio:
   # temptative values
   rsum: 1k
   # mute: true
+  pcb:
+    # must match PCB order in TOML file - not automated check yet
+    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # flstory
+    - { rfb: 1k, rsums: [ 1k, 1k, 1k ] } # onna34ro
+    - { rfb: 1k, rsums: [ 1k, 4k, 4k ] } # rumba
+    - { rfb: 1k, rsums: [ 1k, 4k, 5k ] } # victnine
   channels:
 #     # FIR should be 3kHz, not 4kHz
     - { name: msm,   module: jt5232,rsum: 1k, pre: 1.1 }
@@ -32,8 +40,12 @@ sdram:
   banks:
     - buses:
       - name: main
+        addr_width: 17
+        data_width: 8
+      - name: sub
         addr_width: 16
         data_width: 8
+        offset: SUB_OFFSET
     - buses:
       - name: snd
         addr_width: 16

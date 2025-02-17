@@ -23,13 +23,10 @@
 
 module jtflstory_obj(
     input             rst,
-    input             clk,
-    input             pxl_cen,
-    input             lhbl,
-    input             lvbl,
-    input             hs,
-    input             gvflip,
-    input             ghflip,
+                      clk, pxl_cen,
+                      lhbl, lvbl, hs,
+                      gvflip, ghflip,
+                      layout,
 
     input       [8:0] vdump,
     input       [8:0] hdump,
@@ -37,7 +34,7 @@ module jtflstory_obj(
     output     [ 7:0] ram_addr,
     input      [ 7:0] ram_dout,
     output     [ 7:0] ram_din,
-    output reg        ram_we,
+    output            ram_we,
     // ROM
     output     [16:2] rom_addr,
     input      [31:0] rom_data,
@@ -54,26 +51,13 @@ wire  [7:0] buf_addr;
 wire        buf_we;
 wire [10:0] buf_din;
 wire [10:0] pxl_raw;
-wire [ 7:0] ydiff;
-reg  [ 9:0] code;
-reg  [ 7:0] vlatch, xpos, chk; // object to check
-reg  [ 6:0] pal;               // priority at top 3 bits
-reg  [ 4:0] scan;
-reg  [ 3:0] ysub, cnt;
-reg  [ 1:0] obj_sub;
-reg  [ 2:0] st;
-reg         lhbl_l, lvbl_l, cen, draw, scan_done, hflip, vflip,
-            order, blink=0, blank, info, vsbl, inzone_l;
-wire        inzone, dr_busy;
+wire [ 9:0] code;
+wire [ 7:0] xpos; // object to check
+wire [ 6:0] pal;               // priority at top 3 bits
+wire [ 3:0] ysub;
+wire        hflip, vflip;
+wire        blink, dr_busy, draw;
 
-// same RAM usage as the original
-assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   D0~D7, blinking D8~DF
-                  info  ? {1'b0,   chk[4:0],  obj_sub   }: // object data       00~7F
-                  order ? {3'b100, scan                 }: // object draw order 80~9F
-                          {3'b101, hdump[7:3]           }; // column scroll     A0~BF
-assign ydiff    = vlatch+ram_dout;
-assign inzone   = ydiff[7:4] == 4'b1111;
-assign ram_din  = chk;
 assign rom_addr = { raw_addr[16:7], raw_addr[5], raw_addr[6], raw_addr[4:2] };
 
 assign sorted = ~{
@@ -83,81 +67,37 @@ assign sorted = ~{
     rom_data[ 0],rom_data[ 1],rom_data[ 2],rom_data[ 3],rom_data[16],rom_data[17],rom_data[18],rom_data[19]
 };
 
-always @(posedge clk) begin
-    lvbl_l <= lvbl;
-    if( lvbl && !lvbl_l ) blink <= ~blink;
-end
+jtframe_blink u_blink(
+    .clk   ( clk    ),
+    .en    ( 1'b1   ),
+    .vs    (~lvbl   ),
+    .blink ( blink  )
+);
 
-always @(posedge clk) begin
-    lhbl_l   <= lhbl;
-    draw     <= 0;
-    blank    <= vdump >= 9'h1f2 || vdump <= 9'h10e || !vdump[8];
-    cen      <= ~cen;
-    if(!scan_done && cen) begin
-        if( order ) begin
-            st <= {st[1:0],st[2]};
-            case(st)
-                1: begin
-                    chk  <= ram_dout;
-                    info <= 1;
-                end
-                2: if(inzone) begin
-                    ram_we <= 1;
-                    vsbl   <= 1;
-                end
-                4: begin
-                    scan   <= scan+5'd1;
-                    ram_we <= 0;
-                    vsbl   <= 0;
-                    info   <= 0;
-                    if(ram_we) cnt <= cnt + 4'd1;
-                    if(&scan || cnt == 15) begin
-                        order <= 0;
-                        cnt   <= 7;
-                        vsbl  <= 1;
-                    end
-                end
-            endcase
-        end else begin
-            if( !info  ) begin
-                chk      <= ram_dout;
-                pal[6:4] <= ram_dout[7:5]; // priority bits
-                info     <= 1;
-                vsbl     <= 0;
-            end else begin
-                if(!dr_busy) begin
-                    obj_sub <= obj_sub+2'd1;
-                    case(obj_sub)
-                        0: begin
-                            ysub <= ydiff[3:0];
-                            inzone_l <= inzone;
-                        end
-                        1: {vflip,hflip,code[9:8],pal[3:0]} <= ram_dout;
-                        2: code[7:0] <= ram_dout;
-                        3: begin
-                            draw <= inzone_l;
-                            info <= 0;
-                            vsbl <= 1;
-                            xpos <= ram_dout;
-                            {scan_done, cnt[2:0]} <= {1'b0,cnt[2:0]}-4'd1;
-                        end
-                    endcase
-                end
-            end
-        end
-    end
-    if(scan_done) {info,vsbl,order}<=0;
-    if( (!lhbl && lhbl_l) || blank ) begin
-        vlatch    <= vdump[7:0]^{8{gvflip}};
-        cnt       <= 0;
-        obj_sub   <= 0;
-        scan_done <= 0;
-        cen       <= 0;
-        {info,vsbl,order} <= 3'b001;
-        st        <= 1;
-        scan      <= 0;
-    end
-end
+jtflstory_obj_scan u_scan(
+    .clk        ( clk       ),
+    .lhbl       ( lhbl      ),
+    .blink      ( blink     ),
+    .ghflip     ( ghflip    ),
+    .gvflip     ( gvflip    ),
+    .layout     ( layout    ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    // RAM shared with CPU
+    .ram_addr   ( ram_addr  ),
+    .ram_dout   ( ram_dout  ),
+    .ram_din    ( ram_din   ),
+    .ram_we     ( ram_we    ),
+    // draw requests
+    .dr_busy    ( dr_busy   ),
+    .draw       ( draw      ),
+    .hflip      ( hflip     ),
+    .vflip      ( vflip     ),
+    .code       ( code      ),
+    .xpos       ( xpos      ),
+    .ysub       ( ysub      ),
+    .pal        ( pal       )
+);
 
 jtframe_draw #(
     .AW      ( 8        ),
@@ -188,17 +128,14 @@ jtframe_draw #(
     .buf_din    ( buf_din   )
 );
 
-jtframe_dual_ram #(.AW(8), .DW(11)) u_linebuf (
-    .clk0       ( clk         ),
-    .addr0      ( buf_addr    ),
-    .data0      ( buf_din     ),
-    .we0        ( buf_we & buf_din[3:0] != 4'hf ),
-    .q0         (             ),
-    .clk1       ( clk         ),
-    .addr1      ( hvdump[7:0] ),
-    .data1      ( 11'hf       ),
-    .we1        ( pxl_cen & hvdump[8] ),
-    .q1         ( pxl_raw     )
+jtflstory_single_line_buffer u_linebuf(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .we         ( buf_we    ),
+    .din        ( buf_din   ),
+    .addr       ( buf_addr  ),
+    .hvdump     ( hvdump    ),
+    .pxl        ( pxl_raw   )
 );
 
 jtframe_sh #(.W(11),.L(9)) u_sh(

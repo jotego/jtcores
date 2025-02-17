@@ -32,10 +32,6 @@ module jtpang_snd(
     output       [7:0] pcm_dout,
     input              pcm_cs,
 
-    // OSD control - not implemented yet
-    input              enable_psg,
-    input              enable_fm,
-
     // ROM interface
     output      [17:0] rom_addr,
     input       [ 7:0] rom_data,

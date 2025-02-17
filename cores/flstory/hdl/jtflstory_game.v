@@ -20,48 +20,86 @@ module jtflstory_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip, no_used,
+wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
+            no_used, // noise used
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
 wire [15:0] c2b_addr, bus_addr;
-wire [ 7:0] bus_din, s2m_data, st_snd,
+wire [ 7:0] bus_din, s2m_data, st_snd, sub_din, sub_dout,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
-wire [ 1:0] pal_bank, scr_bank;
-wire        rst_main, cen_hb, mute;
-reg         lhbl_l;
+reg  [ 1:0] coin_eff;
+wire [ 1:0] pal_bank, scr_bank, bankcfg;
+wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
+            palwcfg, cabcfg, objcfg, iocfg, osdflip_en,
+            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
+reg         mcu_rst, osdflip;
 
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
-assign pal16_addr = {pal_bank,bus_addr[7:0]};
+
+localparam OSDFLIP_BIT=24;
 
 always @(posedge clk) begin
-    st_mux <= debug_bus[7] ? {clip,no_used,1'd0,mute,2'd0,gvflip,ghflip} : st_snd;
+    st_mux  <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
+    osdflip <= osdflip_en & dipsw[OSDFLIP_BIT];
 end
 
-always @(posedge clk) lhbl_l <= LHBL;
-assign cen_hb = LHBL & ~lhbl_l;
-// Let the MCU come out of reset first to take control of the port signals
-jtframe_enlarger #(.W(16)) u_rst(
-    .rst      ( 1'b0      ),
-    .clk      ( clk       ),
-    .cen      ( cen_hb    ),
-    .pulse_in ( rst       ),
-    .pulse_out( rst_main  )
+jtflstory_header u_header (
+    .clk      ( clk             ),
+    .header   ( header          ),
+    .prog_we  ( prog_we         ),
+    .prog_addr( prog_addr[2:0]  ),
+    .prog_data( prog_data       ),
+    .mirror   ( mirror          ),
+    .osdflip  ( osdflip_en      ),
+    .mcu_enb  ( mcu_enb         ),
+    .coinxor  ( coinxor         ),
+    .gfx      ( gfxcfg          ),
+    .prio     ( priocfg         ),
+    .palw     ( palwcfg         ),
+    .cab      ( cabcfg          ),
+    .obj      ( objcfg          ),
+    .sub      ( sub_en          ),
+    .dec      ( dec_en          ),
+    .banks    ( bankcfg         ),
+    .iocfg    ( iocfg           )
 );
-/* verilator tracing_off */
+
+always @(posedge clk) mcu_rst <= rst | mcu_enb;
+always @(posedge clk) coin_eff <= coin[1:0]^{2{coinxor}};
+
+/* verilator tracing_on */
 jtflstory_main u_main(
-    .rst        ( rst_main  ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
+
+    .mirror     ( mirror    ),
+    .osdflip    ( osdflip   ),
+    .gfxcfg     ( gfxcfg    ),
+    .cabcfg     ( cabcfg    ),
+    .bankcfg    ( bankcfg   ),
+    .dec_en     ( dec_en    ),
+    .iocfg      ( iocfg     ),
 
     .bus_addr   ( bus_addr  ),
     .bus_din    ( bus_din   ),
     .bus_dout   ( bus_dout  ),
     .cpu_dout   ( cpu_dout  ),
 
+    // sub CPU
+    .sub_rstn   ( sub_rstn  ),
+    .sub_addr   ( sub_addr  ),
+    .sub_cs     ( subsh_cs  ),
+    .sub_wr_n   ( sub_wr_n  ),
+    .sub_rd_n   ( sub_rd_n  ),
+    .sub_din    ( sub_din   ),
+    .sub_dout   ( sub_dout  ),
+    .sub_wait   ( sub_wait  ),
+    .sub_busrq_n(sub_busrq_n),
     // shared memory
     .sha_we     ( sha_we    ),
     .sha_dout   ( sha_dout  ),
@@ -84,6 +122,7 @@ jtflstory_main u_main(
     // video memories
     .pal16_we   ( pal16_we  ),
     .pal16_dout ( pal16_dout),
+    .pal16_addr ( pal16_addr),
     .vram16_dout(vram16_dout),
     .oram8_dout ( oram8_dout),
     .vram_we    ( vram_we   ),
@@ -95,7 +134,7 @@ jtflstory_main u_main(
     .gvflip     ( gvflip    ),
     // Cabinet inputs
     .cab_1p     (cab_1p[1:0]),
-    .coin       ( coin[1:0] ),
+    .coin       ( coin_eff  ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .dipsw      (dipsw[23:0]),
@@ -111,8 +150,35 @@ jtflstory_main u_main(
     .debug_bus  ( debug_bus )
 );
 
-jtflstory_mcu u_mcu(
+jtflstory_sub u_sub(
     .rst        ( rst       ),
+    .clk        ( clk       ),
+    // .enable     ( sub_en    ),
+    .enable     ( 1'b0      ),
+    .cen        ( cen_5p3   ),
+    .lvbl       ( LVBL      ),       // video interrupt
+    .nmi_n      ( 1'b1      ),
+
+    .dip_pause  ( dip_pause ),
+
+    .bus_rstn   ( sub_rstn  ),
+    .bus_addr   ( sub_addr  ),
+    .bus_cs     ( subsh_cs  ),
+    .bus_wr_n   ( sub_wr_n  ),
+    .bus_rd_n   ( sub_rd_n  ),
+    .bus_din    ( sub_dout  ),
+    .bus_dout   ( sub_din   ),
+    .bus_wait   ( sub_wait  ),
+    .busrq_n    (sub_busrq_n),
+
+    // ROM access
+    .rom_cs     ( sub_cs    ),
+    .rom_data   ( sub_data  ),
+    .rom_ok     ( sub_ok    )
+);
+
+jtflstory_mcu u_mcu(
+    .rst        ( mcu_rst   ),
     .clk        ( clk       ),
     .cen        ( cen_mcu   ),
 
@@ -135,7 +201,8 @@ jtflstory_mcu u_mcu(
     .rom_addr   ( mcu_addr  ),
     .rom_data   ( mcu_data  )
 );
-/* verilator tracing_on */
+
+/* verilator tracing_off */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -166,11 +233,15 @@ jtflstory_sound u_sound(
     .clip       ( clip      ),
     .no_used    ( no_used   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtflstory_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+
+    .priocfg    ( priocfg   ),
+    .palwcfg    ( palwcfg   ),
+    .objcfg     ( objcfg    ),
 
     .ghflip     ( ghflip    ),
     .gvflip     ( gvflip    ),
@@ -207,7 +278,9 @@ jtflstory_video u_video(
     .pal_dout   ( pal_dout  ),
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus ),
+    .gfx_en     ( gfx_en    )
 );
 
 endmodule

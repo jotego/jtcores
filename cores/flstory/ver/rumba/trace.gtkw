@@ -1,0 +1,42 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Feb  2 14:17:37 2025
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/rumba/test.fst"
+[dumpfile_mtime] "Sun Feb  2 14:14:04 2025"
+[dumpfile_size] 155227001
+[savefile] "/home/jtejada/jtcores/cores/flstory/ver/rumba/trace.gtkw"
+[timestart] 10172
+[size] 2532 1005
+[pos] -1 -1
+*-33.985291 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_ram.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.u0.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_mcu.u_mcu.u_mcu.
+[sst_width] 278
+[signals_width] 211
+[sst_expanded] 1
+[sst_vpaned_height] 327
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.AF[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.BC[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.DE[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.HL[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.IX[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.IY[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.SP[15:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.PC[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -22,7 +22,7 @@ module jtframe_blink(
     input      clk,
     input      vs,
     input      en,      
-    output reg blink
+    output reg blink=0
 );
 
 reg vs_l=0, odd=0;

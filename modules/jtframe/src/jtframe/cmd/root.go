@@ -58,6 +58,17 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	check_environment()
+}
+
+func check_environment() {
+	for _,env := range []string{"JTROOT","JTFRAME","CORES"} {
+		value := os.Getenv(env)
+		if value =="" {
+			fmt.Printf("Environment variable %s is not set\n",env)
+			os.Exit(1)
+		}
+	}
 }
 
 var CANNOT_SOLVE_CORENAME error = errors.New("Cannot derive the core name from the current path")

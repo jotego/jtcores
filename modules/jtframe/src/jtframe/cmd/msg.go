@@ -18,8 +18,8 @@
 package cmd
 
 import (
-	"github.com/jotego/jtframe/msg"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/msg"
+	"jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )

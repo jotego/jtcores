@@ -38,8 +38,10 @@ jtframe:
     - jtframe_lfbuf_ddr_ctrl.v
     - jtframe_lfbuf_line.v
     - jtframe_logo.v
-    - jtframe_tilemap.v
     - jtframe_linebuf.v
+  - from: video/tilemap
+    get:
+    - jtframe_tilemap.v
   - from: clocking
     get:
     - jtframe_rst_sync.v

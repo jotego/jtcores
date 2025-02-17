@@ -239,8 +239,6 @@ toki_sound u_sound(
 
   .snd(snd),
   .fxlevel(dip_fxlevel),
-  .enable_fm(enable_fm),
-  .enable_psg(enable_psg),
 
   .z80_rom_addr(z80_rom_addr),
   .z80_rom_data(z80_rom_data),

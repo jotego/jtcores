@@ -19,8 +19,8 @@
 package cmd
 
 import (
-	"github.com/jotego/jtframe/cfgstr"
-	. "github.com/jotego/jtframe/common"
+	"jotego/jtframe/cfgstr"
+	. "jotego/jtframe/common"
 
 	"github.com/spf13/cobra"
 )

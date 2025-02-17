@@ -1,5 +1,14 @@
 CORENAME=JTSIMSON
 
+# 96 MHz needed for avoiding incomplete sprites in the final stages
+JTFRAME_CLK48
+JTFRAME_SDRAM96
+
+[mister|mist|sidi|sidi128]
+# priority to compilation over the small sprite issue
+-JTFRAME_SDRAM96
+
+[*]
 JTFRAME_STEREO
 # Video configuration
 JTFRAME_COLORW=8

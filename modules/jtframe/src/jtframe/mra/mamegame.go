@@ -28,6 +28,43 @@ import (
 	"strconv"
 )
 
+type MachineXML struct {
+	Name         string       `xml:"name,attr"`
+	Cloneof      string       `xml:"cloneof,attr"`
+	Sourcefile   string       `xml:"sourcefile,attr"`
+	Description  string       `xml:"description"`
+	Year         string       `xml:"year"`
+	Manufacturer string       `xml:"manufacturer"`
+	Rom          []MameROM    `xml:"rom"`
+	Devices      []MameDevice `xml:"device_ref"`
+	Chip         []struct {
+		Type  string `xml:"type,attr"`
+		Tag   string `xml:"tag,attr"`
+		Name  string `xml:"name,attr"`
+		Clock int    `xml:"clock,attr"`
+	} `xml:"chip"`
+	Display MameDisplay `xml:"display"`
+	Sound struct {
+		Channels int `xml:"channels"`
+	} `xml:"sound"`
+	Input struct {
+		Players int `xml:"players,attr"`
+		Control []struct {
+			Type    string `xml:"type,attr"`
+			Buttons int    `xml:"buttons,attr"`
+			Ways    string `xml:"ways,attr"`
+		} `xml:"control"`
+	} `xml:"input"`
+	Dipswitch []MachineDIP `xml:"dipswitch"`
+	// exclude pinballs
+	Ismechanical bool `xml:"ismechanical,attr"`
+}
+
+// implements Matcher interface
+func (machine *MachineXML)IsMatch(m Matchable) bool {
+	return m.Match(machine)>0
+}
+
 type MameROM struct {
 	Name       string `xml:"name,attr"`
 	Crc        string `xml:"crc,attr"`
@@ -51,31 +88,10 @@ type MameDevice struct {
 	Name string `xml:"name,attr"`
 }
 
-type MAMEDIPValue struct {
-	Name    string `xml:"name,attr"`
-	Value   int    `xml:"value,attr"`
-	Default string `xml:"default,attr"`
-}
-
-type MAMEDIPValues []MAMEDIPValue
-
-func (this MAMEDIPValues) Len() int {
-	return len(this)
-}
-
-func (this MAMEDIPValues) Swap(i, j int) {
-	aux := this[j]
-	this[j] = this[i]
-	this[i] = aux
-}
-
-func (this MAMEDIPValues) Less(i, j int) bool {
-	return this[i].Value < this[j].Value
-}
-
-type Diplocation struct {
-	Name   string `xml:"name,attr"`
-	Number int    `xml:"number,attr"`
+type MameDisplay struct {
+	Rotate int `xml:"rotate,attr"`
+	Width  int `xml:"width,attr"`
+	Height int `xml:"height,attr"`
 }
 
 type MachineDIP struct {
@@ -94,40 +110,31 @@ type MachineDIP struct {
 	lsb, msb, full_mask, offset int
 }
 
-type MachineXML struct {
-	Name         string       `xml:"name,attr"`
-	Cloneof      string       `xml:"cloneof,attr"`
-	Sourcefile   string       `xml:"sourcefile,attr"`
-	Description  string       `xml:"description"`
-	Year         string       `xml:"year"`
-	Manufacturer string       `xml:"manufacturer"`
-	Rom          []MameROM    `xml:"rom"`
-	Devices      []MameDevice `xml:"device_ref"`
-	Chip         []struct {
-		Type  string `xml:"type,attr"`
-		Tag   string `xml:"tag,attr"`
-		Name  string `xml:"name,attr"`
-		Clock int    `xml:"clock,attr"`
-	} `xml:"chip"`
-	Display struct {
-		Rotate int `xml:"rotate,attr"`
-		Width  int `xml:"width,attr"`
-		Height int `xml:"height,attr"`
-	} `xml:"display"`
-	Sound struct {
-		Channels int `xml:"channels"`
-	} `xml:"sound"`
-	Input struct {
-		Players int `xml:"players,attr"`
-		Control []struct {
-			Type    string `xml:"type,attr"`
-			Buttons int    `xml:"buttons,attr"`
-			Ways    string `xml:"ways,attr"`
-		} `xml:"control"`
-	} `xml:"input"`
-	Dipswitch []MachineDIP `xml:"dipswitch"`
-	// exclude pinballs
-	Ismechanical bool `xml:"ismechanical,attr"`
+type MAMEDIPValues []MAMEDIPValue
+
+type MAMEDIPValue struct {
+	Name    string `xml:"name,attr"`
+	Value   int    `xml:"value,attr"`
+	Default string `xml:"default,attr"`
+}
+
+func (this MAMEDIPValues) Len() int {
+	return len(this)
+}
+
+func (this MAMEDIPValues) Swap(i, j int) {
+	aux := this[j]
+	this[j] = this[i]
+	this[i] = aux
+}
+
+func (this MAMEDIPValues) Less(i, j int) bool {
+	return this[i].Value < this[j].Value
+}
+
+type Diplocation struct {
+	Name   string `xml:"name,attr"`
+	Number int    `xml:"number,attr"`
 }
 
 func (machine *MachineXML) Find(machine_options []Selectable) int {

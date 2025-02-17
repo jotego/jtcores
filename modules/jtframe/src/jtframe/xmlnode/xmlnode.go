@@ -15,11 +15,10 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Date: 4-1-2025 */
 
-package mra
+package xmlnode
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -37,20 +36,14 @@ type XMLNode struct {
 	indent_txt bool
 }
 
-// first XML node of a ROM region
-type StartNode struct {
-	node *XMLNode
-	pos  int
+func MakeNode(name string) (node XMLNode) {
+	node.name = name
+	return node
 }
 
-func (this *StartNode) add_length(pos int) {
-	if this.node != nil {
-		lenreg := pos - this.pos
-		if lenreg > 0 {
-			this.node.name = fmt.Sprintf("%s - length 0x%X (%d bits)", this.node.name, lenreg,
-				int(math.Ceil(math.Log2(float64(lenreg)))))
-		}
-	}
+func (n *XMLNode) Rename(name string) (*XMLNode) {
+	n.name = name
+	return n
 }
 
 func (n *XMLNode) GetNode(name string) *XMLNode {
@@ -60,6 +53,10 @@ func (n *XMLNode) GetNode(name string) *XMLNode {
 		}
 	}
 	return nil
+}
+
+func (n *XMLNode) GetChildren() ([]*XMLNode) {
+	return n.children
 }
 
 func (n *XMLNode) AddNode(names ...string) *XMLNode {
@@ -118,6 +115,17 @@ func (n *XMLNode) SetText(value string) *XMLNode {
 	return n
 }
 
+func (n *XMLNode) SetIndent() *XMLNode {
+	n.indent_txt = true
+	return n
+}
+
+func (n *XMLNode) AddComment(txt string) *XMLNode {
+	child := n.AddNode(txt)
+	child.comment=true
+	return child
+}
+
 func (n *XMLNode) GetAttr(name string) string {
 	for _, a := range n.attr {
 		if a.Name == name {
@@ -125,6 +133,14 @@ func (n *XMLNode) GetAttr(name string) string {
 		}
 	}
 	return ""
+}
+
+func (n *XMLNode) GetName() string {
+	return n.name
+}
+
+func (n *XMLNode) GetText() string {
+	return n.text
 }
 
 func (n *XMLNode) FindNode(name string) (found *XMLNode) {
@@ -153,15 +169,6 @@ func (n *XMLNode) FindMatch(f func(n *XMLNode) bool) *XMLNode {
 		}
 	}
 	return nil
-}
-
-func xml_str(in string) string {
-	out := strings.ReplaceAll(in, "&", "&amp;")
-	out = strings.ReplaceAll(out, "'", "&apos;")
-	out = strings.ReplaceAll(out, "<", "&lt;")
-	out = strings.ReplaceAll(out, ">", "&gt;")
-	out = strings.ReplaceAll(out, `\`, "&quot;")
-	return out
 }
 
 func (n *XMLNode) Dump() string {
@@ -205,4 +212,13 @@ func (n *XMLNode) Dump() string {
 		}
 	}
 	return s
+}
+
+func xml_str(in string) string {
+	out := strings.ReplaceAll(in, "&", "&amp;")
+	out = strings.ReplaceAll(out, "'", "&apos;")
+	out = strings.ReplaceAll(out, "<", "&lt;")
+	out = strings.ReplaceAll(out, ">", "&gt;")
+	out = strings.ReplaceAll(out, `\`, "&quot;")
+	return out
 }

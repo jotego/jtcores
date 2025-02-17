@@ -12698,7 +12698,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12709,7 +12708,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12720,7 +12718,6 @@
 	)
 	(label "VSS"
 		(at 55.88 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12731,7 +12728,6 @@
 	)
 	(label "SHDB3"
 		(at 308.61 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12742,7 +12738,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 261.62 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12753,7 +12748,6 @@
 	)
 	(label "VSS"
 		(at 142.24 217.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12764,7 +12758,6 @@
 	)
 	(label "CR2P_DOWN"
 		(at 261.62 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12775,7 +12768,6 @@
 	)
 	(label "CRNC1"
 		(at 261.62 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12786,7 +12778,6 @@
 	)
 	(label "VCC"
 		(at 146.05 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12797,7 +12788,6 @@
 	)
 	(label "CRNC3"
 		(at 261.62 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12808,7 +12798,6 @@
 	)
 	(label "CR2P_DOWN"
 		(at 107.95 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12819,7 +12808,6 @@
 	)
 	(label "CR1P_UP"
 		(at 261.62 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12830,7 +12818,6 @@
 	)
 	(label "CR1P_START"
 		(at 107.95 21.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12841,7 +12828,6 @@
 	)
 	(label "~{COINA}"
 		(at 13.97 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12852,7 +12838,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 261.62 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12863,7 +12848,6 @@
 	)
 	(label "SHAB2"
 		(at 327.66 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12874,7 +12858,6 @@
 	)
 	(label "CR1P_LEFT"
 		(at 261.62 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12885,7 +12868,6 @@
 	)
 	(label "VSS"
 		(at 55.88 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12896,7 +12878,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 269.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12907,7 +12888,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 332.74 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12918,7 +12898,6 @@
 	)
 	(label "CR1P_BTN_2"
 		(at 261.62 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12929,7 +12908,6 @@
 	)
 	(label "CR2P_BTN_1"
 		(at 261.62 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12940,7 +12918,6 @@
 	)
 	(label "SHAB1"
 		(at 327.66 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12951,7 +12928,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12962,7 +12938,6 @@
 	)
 	(label "CRNC2"
 		(at 107.95 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12973,7 +12948,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12984,7 +12958,6 @@
 	)
 	(label "VCC"
 		(at 142.24 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12995,7 +12968,6 @@
 	)
 	(label "~{COINA}"
 		(at 135.89 256.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13006,7 +12978,6 @@
 	)
 	(label "CRNC7"
 		(at 261.62 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13017,7 +12988,6 @@
 	)
 	(label "CR2P_BTN_1"
 		(at 328.93 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13028,7 +12998,6 @@
 	)
 	(label "~{COINB}B"
 		(at 261.62 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13039,7 +13008,6 @@
 	)
 	(label "VSS"
 		(at 359.41 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13050,7 +13018,6 @@
 	)
 	(label "CR1P_BTN_1"
 		(at 261.62 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13061,7 +13028,6 @@
 	)
 	(label "CRNC4"
 		(at 107.95 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13072,7 +13038,6 @@
 	)
 	(label "CR2P_RIGHT"
 		(at 107.95 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13083,7 +13048,6 @@
 	)
 	(label "CRNC2"
 		(at 261.62 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13094,7 +13058,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13105,7 +13068,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 271.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13116,7 +13078,6 @@
 	)
 	(label "VCC"
 		(at 52.07 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13127,7 +13088,6 @@
 	)
 	(label "VSS"
 		(at 44.45 278.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13138,7 +13098,6 @@
 	)
 	(label "CR1P_BTN_2"
 		(at 107.95 52.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13149,7 +13108,6 @@
 	)
 	(label "CR1P_LEFT"
 		(at 107.95 80.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13160,7 +13118,6 @@
 	)
 	(label "CR1P_DOWN"
 		(at 107.95 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13171,7 +13128,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 261.62 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13182,7 +13138,6 @@
 	)
 	(label "CR1P_UP"
 		(at 107.95 72.39 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13193,7 +13148,6 @@
 	)
 	(label "CR1P_RIGHT"
 		(at 261.62 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13204,7 +13158,6 @@
 	)
 	(label "SHDB1"
 		(at 308.61 72.39 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13215,7 +13168,6 @@
 	)
 	(label "CR1P_DOWN"
 		(at 261.62 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13226,7 +13178,6 @@
 	)
 	(label "CR2P_START"
 		(at 107.95 24.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13237,7 +13188,6 @@
 	)
 	(label "CR2P_START"
 		(at 261.62 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13248,7 +13198,6 @@
 	)
 	(label "SHDB6"
 		(at 373.38 66.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13259,7 +13208,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 332.74 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13270,7 +13218,6 @@
 	)
 	(label "SHDB0"
 		(at 308.61 27.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13281,7 +13228,6 @@
 	)
 	(label "CRNC8"
 		(at 261.62 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13292,7 +13238,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 327.66 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13303,7 +13248,6 @@
 	)
 	(label "SHDB7"
 		(at 373.38 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13314,7 +13258,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 261.62 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13325,7 +13268,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 274.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13336,7 +13278,6 @@
 	)
 	(label "CR2P_LEFT"
 		(at 107.95 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13347,7 +13288,6 @@
 	)
 	(label "~{COINB}B"
 		(at 44.45 200.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13358,7 +13298,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13369,7 +13308,6 @@
 	)
 	(label "VSS"
 		(at 328.93 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13380,7 +13318,6 @@
 	)
 	(label "~{COINA}B"
 		(at 44.45 193.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13391,7 +13328,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13402,7 +13338,6 @@
 	)
 	(label "VCC"
 		(at 134.62 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13413,7 +13348,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13424,7 +13358,6 @@
 	)
 	(label "VSS"
 		(at 55.88 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13435,7 +13368,6 @@
 	)
 	(label "VSS"
 		(at 35.56 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13446,7 +13378,6 @@
 	)
 	(label "CR2P_BTN_1"
 		(at 107.95 49.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13457,7 +13388,6 @@
 	)
 	(label "VSS"
 		(at 52.07 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13468,7 +13398,6 @@
 	)
 	(label "VSS"
 		(at 49.53 278.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13479,7 +13408,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13490,7 +13418,6 @@
 	)
 	(label "SBD1"
 		(at 372.11 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13501,7 +13428,6 @@
 	)
 	(label "CR2P_START"
 		(at 328.93 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13512,7 +13438,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13523,7 +13448,6 @@
 	)
 	(label "~{MAxD8}"
 		(at 261.62 279.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13534,7 +13458,6 @@
 	)
 	(label "CR2P_BTN_2"
 		(at 261.62 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13545,7 +13468,6 @@
 	)
 	(label "~{COIN_1}"
 		(at 102.87 261.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13556,7 +13478,6 @@
 	)
 	(label "SHDB4"
 		(at 308.61 201.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13567,7 +13488,6 @@
 	)
 	(label "CRNC3"
 		(at 107.95 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13578,7 +13498,6 @@
 	)
 	(label "CRSERVICE"
 		(at 261.62 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13589,7 +13508,6 @@
 	)
 	(label "VSS"
 		(at 55.88 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13600,7 +13518,6 @@
 	)
 	(label "CR2P_BTN_2"
 		(at 107.95 54.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13611,7 +13528,6 @@
 	)
 	(label "SHDB5"
 		(at 308.61 246.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13622,7 +13538,6 @@
 	)
 	(label "VSS"
 		(at 274.32 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13633,7 +13548,6 @@
 	)
 	(label "~{COINB}"
 		(at 135.89 264.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13644,7 +13558,6 @@
 	)
 	(label "VSS"
 		(at 55.88 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13655,7 +13568,6 @@
 	)
 	(label "CRNC5"
 		(at 261.62 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13666,7 +13578,6 @@
 	)
 	(label "CR2P_UP"
 		(at 261.62 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13677,7 +13588,6 @@
 	)
 	(label "VSS"
 		(at 105.41 283.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13688,7 +13598,6 @@
 	)
 	(label "VSS"
 		(at 31.75 278.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13699,7 +13608,6 @@
 	)
 	(label "~{COINB}"
 		(at 13.97 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13710,7 +13618,6 @@
 	)
 	(label "SHAB0"
 		(at 332.74 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13721,7 +13628,6 @@
 	)
 	(label "CRNC1"
 		(at 107.95 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13732,7 +13638,6 @@
 	)
 	(label "CRNC4"
 		(at 261.62 264.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13743,7 +13648,6 @@
 	)
 	(label "SHDB2"
 		(at 307.34 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13754,7 +13658,6 @@
 	)
 	(label "~{COINA}B"
 		(at 261.62 254 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13765,7 +13668,6 @@
 	)
 	(label "VSS"
 		(at 332.74 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13776,7 +13678,6 @@
 	)
 	(label "CRNC6"
 		(at 261.62 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13787,7 +13688,6 @@
 	)
 	(label "CR1P_BTN_1"
 		(at 328.93 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13798,7 +13698,6 @@
 	)
 	(label "CR2P_RIGHT"
 		(at 261.62 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13809,7 +13708,6 @@
 	)
 	(label "VSS"
 		(at 146.05 246.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13820,7 +13718,6 @@
 	)
 	(label "CR1P_BTN_1"
 		(at 107.95 46.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13831,7 +13728,6 @@
 	)
 	(label "VCC"
 		(at 52.07 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13842,7 +13738,6 @@
 	)
 	(label "VSS"
 		(at 55.88 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13853,7 +13748,6 @@
 	)
 	(label "SHAB1"
 		(at 261.62 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13864,7 +13758,6 @@
 	)
 	(label "CRSERVICE"
 		(at 107.95 26.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13875,7 +13768,6 @@
 	)
 	(label "CRNC5"
 		(at 107.95 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13886,7 +13778,6 @@
 	)
 	(label "COINLOCK"
 		(at 16.51 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13897,7 +13788,6 @@
 	)
 	(label "CRTILT"
 		(at 107.95 29.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13908,7 +13798,6 @@
 	)
 	(label "VCC"
 		(at 35.56 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13919,7 +13808,6 @@
 	)
 	(label "CRTILT"
 		(at 261.62 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13930,7 +13818,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13941,7 +13828,6 @@
 	)
 	(label "~{COIN_2}"
 		(at 102.87 259.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13952,7 +13838,6 @@
 	)
 	(label "SHAB1"
 		(at 332.74 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13963,7 +13848,6 @@
 	)
 	(label "CRNC7"
 		(at 107.95 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13974,7 +13858,6 @@
 	)
 	(label "~{COIN_1}"
 		(at 332.74 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13985,7 +13868,6 @@
 	)
 	(label "~{SBRST}"
 		(at 261.62 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13996,7 +13878,6 @@
 	)
 	(label "CR1P_START"
 		(at 261.62 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14007,7 +13888,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14018,7 +13898,6 @@
 	)
 	(label "SHAB2"
 		(at 261.62 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14029,7 +13908,6 @@
 	)
 	(label "PIN4RC1"
 		(at 328.93 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14040,7 +13918,6 @@
 	)
 	(label "CRNC8"
 		(at 107.95 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14051,7 +13928,6 @@
 	)
 	(label "CRNC6"
 		(at 107.95 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14062,7 +13938,6 @@
 	)
 	(label "CR2P_LEFT"
 		(at 261.62 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14073,7 +13948,6 @@
 	)
 	(label "CR2P_UP"
 		(at 107.95 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14084,7 +13958,6 @@
 	)
 	(label "SHAB0"
 		(at 261.62 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14095,7 +13968,6 @@
 	)
 	(label "CR1P_RIGHT"
 		(at 107.95 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14106,7 +13978,6 @@
 	)
 	(label "SHAB0"
 		(at 327.66 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14117,7 +13988,6 @@
 	)
 	(label "~{COIN_2}"
 		(at 332.74 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14129,7 +13999,6 @@
 	(hierarchical_label "1P_UP"
 		(shape input)
 		(at 33.02 72.39 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14141,7 +14010,6 @@
 	(hierarchical_label "COIN_1"
 		(shape input)
 		(at 25.4 250.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14153,7 +14021,6 @@
 	(hierarchical_label "~{SBRST}"
 		(shape input)
 		(at 334.01 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14165,7 +14032,6 @@
 	(hierarchical_label "1P_BTN_2"
 		(shape input)
 		(at 33.02 52.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14177,7 +14043,6 @@
 	(hierarchical_label "2P_UP"
 		(shape input)
 		(at 33.02 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14189,7 +14054,6 @@
 	(hierarchical_label "OBF"
 		(shape input)
 		(at 334.01 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14201,7 +14065,6 @@
 	(hierarchical_label "SERVICE"
 		(shape input)
 		(at 33.02 26.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14213,7 +14076,6 @@
 	(hierarchical_label "1P_RIGHT"
 		(shape input)
 		(at 33.02 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14225,7 +14087,6 @@
 	(hierarchical_label "2P_BTN_1"
 		(shape input)
 		(at 33.02 49.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14237,7 +14098,6 @@
 	(hierarchical_label "1P_BTN_1"
 		(shape input)
 		(at 33.02 46.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14249,7 +14109,6 @@
 	(hierarchical_label "COINLOCK"
 		(shape input)
 		(at 337.82 204.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14261,7 +14120,6 @@
 	(hierarchical_label "COIN_2"
 		(shape input)
 		(at 40.64 247.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14273,7 +14131,6 @@
 	(hierarchical_label "C.LOCK_1"
 		(shape output)
 		(at 147.32 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14285,7 +14142,6 @@
 	(hierarchical_label "2P_BTN_2"
 		(shape input)
 		(at 33.02 54.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14297,7 +14153,6 @@
 	(hierarchical_label "2P_START"
 		(shape input)
 		(at 33.02 24.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14309,7 +14164,6 @@
 	(hierarchical_label "SHAB[0..2]"
 		(shape input)
 		(at 256.54 53.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14321,7 +14175,6 @@
 	(hierarchical_label "2P_RIGHT"
 		(shape input)
 		(at 33.02 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14333,7 +14186,6 @@
 	(hierarchical_label "1P_START"
 		(shape input)
 		(at 33.02 21.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14345,7 +14197,6 @@
 	(hierarchical_label "~{MCUINT}"
 		(shape input)
 		(at 261.62 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14357,7 +14208,6 @@
 	(hierarchical_label "SHDB[0..7]"
 		(shape tri_state)
 		(at 382.27 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14369,7 +14219,6 @@
 	(hierarchical_label "OBF"
 		(shape input)
 		(at 256.54 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14381,7 +14230,6 @@
 	(hierarchical_label "1P_LEFT"
 		(shape input)
 		(at 33.02 80.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14393,7 +14241,6 @@
 	(hierarchical_label "~{MAxD8}"
 		(shape input)
 		(at 271.78 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14405,7 +14252,6 @@
 	(hierarchical_label "TILT"
 		(shape input)
 		(at 33.02 29.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14417,7 +14263,6 @@
 	(hierarchical_label "2P_LEFT"
 		(shape input)
 		(at 33.02 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14429,7 +14274,6 @@
 	(hierarchical_label "1P_DOWN"
 		(shape input)
 		(at 33.02 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14441,7 +14285,6 @@
 	(hierarchical_label "SBD[0..1]"
 		(shape tri_state)
 		(at 378.46 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14453,7 +14296,6 @@
 	(hierarchical_label "COUNTER_2"
 		(shape output)
 		(at 144.78 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14465,7 +14307,6 @@
 	(hierarchical_label "2P_DOWN"
 		(shape input)
 		(at 33.02 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

@@ -17,6 +17,10 @@
 
 package mra
 
+import(
+    . "jotego/jtframe/xmlnode"
+)
+
 var Verbose bool
 
 type Args struct {
@@ -48,9 +52,13 @@ type Matchable interface {
     Match( x *MachineXML ) int
 }
 
+type Matcher interface {
+    IsMatch(m Matchable) bool
+}
+
 // find if a selectable object is a match for a machine
 // use bestMatch below for slices
-func (this *Selectable) Match( x *MachineXML ) int {
+func (this Selectable) Match( x *MachineXML ) int {
     if this.Setname==x.Name || (this.Machine==x.Name && x.Cloneof=="") {
         return 3
     }
@@ -180,34 +188,10 @@ type Overrule_t struct {
     Rotate           int
 }
 
-type DIPswDelete struct{
-    Selectable
-    Names []string
-}
-
 type DIPOffset struct {
     Selectable
     Name string
     Value int
-}
-
-type DipswCfg struct {
-    Delete []DIPswDelete
-    Offset []DIPOffset
-    base   int // Define it macros.def as JTFRAME_DIPBASE
-    Bitcnt int // Total bit count (including all switches)
-    Defaults [] struct {
-        Selectable
-        Value            string // used big-endian order, comma separated
-    }
-    Extra []struct {
-        Selectable
-        Name, Options, Bits string
-    }
-    Rename []struct {
-        Name, To string   // Will make Name <- To
-        Values   []string // Will rename the values if present
-    }
 }
 
 type FrameCfg struct {
@@ -215,20 +199,22 @@ type FrameCfg struct {
     Width int
 }
 
-type Mame2MRA struct {
-    Global struct {
-        Info      []Info
-        Author []string
-        Webpage, Twitter   string
-        Platform  string // Used by the Pocket target
-        Zip       struct {
-            Alt string
-        }
-        Orientation struct {
-            Fixed bool
-        }
-        Overrule []Overrule_t  // overrules values in MAME XML
+type GlobalCfg struct {
+    Info      []Info
+    Author []string
+    Webpage, Twitter   string
+    Platform  string // Used by the Pocket target
+    Zip       struct {
+        Alt string
     }
+    Orientation struct {
+        Fixed bool
+    }
+    Overrule []Overrule_t  // overrules values in MAME XML
+}
+
+type Mame2MRA struct {
+    Global GlobalCfg
 
     Pocket struct {
         Display_modes []int
@@ -307,6 +293,32 @@ type Mame2MRA struct {
             Defaults []RawData // Initial value for NVRAM
         }
     }
+}
+
+type DipswCfg struct {
+    Delete []DIPswDelete
+    Offset []DIPOffset
+    base   int // Define it macros.def as JTFRAME_DIPBASE
+    Bitcnt int // Total bit count (including all switches)
+    Defaults [] struct {
+        Selectable
+        Value            string // used big-endian order, comma separated
+    }
+    Extra []struct {
+        Selectable
+        Name, Options, Bits string
+    }
+    Rename []DipswCfgRename
+}
+
+type DIPswDelete struct{
+    Selectable
+    Names []string
+}
+
+type DipswCfgRename struct {
+    Name, To string   // Will make Name <- To
+    Values   []string // Will rename the values if present
 }
 
 type ParsedMachine struct {

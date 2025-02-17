@@ -61,7 +61,7 @@ jtframe_bram_burst u_txtburst(
     .dout32 ( ram_full     )
 );
 
-jtframe_scroll #(.CW(11),.MAP_HW(8),.MAP_VW(8),.HJUMP(0)) u_scroll(
+jtframe_scroll #(.VA(10),.CW(11),.MAP_HW(8),.MAP_VW(8),.HJUMP(0)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

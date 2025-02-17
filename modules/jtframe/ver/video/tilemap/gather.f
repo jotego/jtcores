@@ -1,2 +1,2 @@
-$JTFRAME/hdl/video/jtframe_tilemap.v
+$JTFRAME/hdl/video/tilemap/jtframe_tilemap.v
 $JTROOT/cores/gng/hdl/jtgng_timer.v

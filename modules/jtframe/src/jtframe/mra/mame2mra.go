@@ -30,20 +30,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jotego/jtframe/betas"
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/betas"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/common"
+	. "jotego/jtframe/xmlnode"
 )
 
-func Run(args Args) {
+func Convert(args Args) error {
 	pocket_clear()
 	defer close_allzip()
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
 	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
-	if Verbose {
-		fmt.Println("Parsing", args.Xml_path)
-	}
 	mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
 	if mra_cfg.Global.Platform == "" {
@@ -51,62 +49,42 @@ func Run(args Args) {
 	}
 	if args.Show_platform {
 		fmt.Printf("%s", mra_cfg.Global.Platform)
-		return
+		return nil
 	}
 	if !args.SkipPocket {
 		pocket_init(mra_cfg, args)
 	}
-	data_queue, parent_names := collect_machines( mra_cfg, args )
+	parsed_machines, parent_names := collect_machines( mra_cfg, args )
 	if len(mra_cfg.Parse.Sourcefile)==0 {
-		if mra_cfg.Parse.Machine.Name=="" {
-			fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
-			os.Exit(1)
-		}
 		machine := &mra_cfg.Parse.Machine
-		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
-		data_queue = append(data_queue,ParsedMachine{
-			machine: machine,
-			mra_xml: mra_xml,
-			def_dipsw: def_dipsw,
-			coremod: coremod,
-		})
+		parsed  := args.make_from_name(machine, mra_cfg)
+		parsed_machines = append(parsed_machines,parsed)
 	}
 	// Add explicit parents to the list
 	for _, p := range mra_cfg.Parse.Parents {
 		parent_names[p.Name] = p.Description
 	}
 	// Dump MRA is delayed for later so we get all the parent names collected
-	if Verbose || len(data_queue) == 0 {
-		log.Println("Total: ", len(data_queue), " games")
+	if Verbose || len(parsed_machines) == 0 {
+		log.Println("Total: ", len(parsed_machines), " games")
 	}
 	main_copied := args.SkipMRA
-	old_deleted := false
+	if !args.SkipMRA {
+		delete_core_mrafiles(macros.Get("CORENAME"),args.outdir)
+	}
 	valid_setnames := []string{}
-	for _, d := range data_queue {
+	var all_errors error
+	for _, d := range parsed_machines {
 		_, good := parent_names[d.machine.Cloneof]
 		if good || len(d.machine.Cloneof) == 0 {
+			bad_macros := d.validate_core_macros()
+			all_errors = common.JoinErrors( all_errors, bad_macros )
 			if args.PrintNames {
 				fmt.Println(d.machine.Description)
 			}
 			if !args.SkipMRA {
-				// Delete old MRA files
-				if !old_deleted {
-					delete_matching_mra(macros.Get("CORENAME"),args.outdir)
-					old_deleted = true
-				}
-				if !args.SkipROM || args.Md5 {
-					if !common.FileExists(args.Rom_path) {
-						fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
-						os.Exit(1)
-					} else {
-						mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
-					}
-				}
-				save_nvram(d.mra_xml)
-				// Do not merge dump_mra and the OR in the same line, or the compiler may skip
-				// calling dump_mra if main_copied is already set
-				dumped := dump_mra(args, d.machine, mra_cfg, d.mra_xml, parent_names)
-				main_copied = dumped || main_copied
+				args.produce_mra_rom_nvram(d, parent_names, mra_cfg)
+				main_copied = main_copied || is_main(d.machine, mra_cfg)
 				valid_setnames = append( valid_setnames, d.machine.Name )
 			}
 			if !args.SkipPocket {
@@ -124,18 +102,18 @@ func Run(args Args) {
 	if !args.SkipPocket {
 		pocket_save()
 	}
+	return all_errors
 }
 
 func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
 	ex := NewExtractor(args.Xml_path)
 	parent_names = make(map[string]string)
-extra_loop:
 	for {
 		machine := ex.Extract(mra_cfg.Parse)
-		calc_DIP_bits( machine, mra_cfg.Dipsw )
 		if machine == nil {
 			break
 		}
+		calc_DIP_bits( machine, mra_cfg.Dipsw )
 		if Verbose {
 			fmt.Print("#####################\n#####################\nFound", machine.Name)
 			if machine.Cloneof != "" {
@@ -150,27 +128,101 @@ extra_loop:
 			parent_names[machine.Name] = machine.Description
 		}
 		if skip_game(machine, mra_cfg, args) {
-			continue extra_loop
+			continue
 		}
-		for _, each := range mra_cfg.Global.Overrule {
-			if each.Match(machine)>0 {
-				if each.Rotate != 0 {
-					machine.Display.Rotate = each.Rotate
-				}
-			}
-		}
-		for _, reg := range mra_cfg.ROM.Regions {
-			for k, r := range machine.Rom {
-				if r.Region == reg.Name && reg.Rename != "" && reg.Match(machine)>0 {
-					machine.Rom[k].Region = reg.Rename
-				}
-			}
-		}
+		overrule_mame_definitions(machine,mra_cfg.Global.Overrule)
+		rename_rom_regions(mra_cfg.ROM.Regions, machine.Rom, machine)
 		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
 		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
 		machines = append(machines, pm)
 	}
 	return machines, parent_names
+}
+
+func overrule_mame_definitions(machine *MachineXML, all_rules []Overrule_t) {
+	for _, overrule := range all_rules {
+		if overrule.Match(machine)>0 {
+			if overrule.Rotate != 0 {
+				machine.Display.Rotate = overrule.Rotate
+			}
+		}
+	}
+}
+
+func rename_rom_regions(all_cfgs []RegCfg, all_mameroms []MameROM, machine Matcher) {
+	for _, regcfg := range all_cfgs {
+		if regcfg.Rename == "" || !machine.IsMatch(regcfg) {
+			continue
+		}
+		for k, r := range all_mameroms {
+			is_to_be_renamed := r.Region == regcfg.Name
+			if is_to_be_renamed {
+				all_mameroms[k].Region = regcfg.Rename
+			}
+		}
+	}
+}
+
+func (args *Args)make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMachine {
+	if machine.Name=="" {
+		fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
+		os.Exit(1)
+	}
+	mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, *args)
+	return ParsedMachine{
+		machine: machine,
+		mra_xml: mra_xml,
+		def_dipsw: def_dipsw,
+		coremod: coremod,
+	}
+}
+
+func (parsed *ParsedMachine)validate_core_macros() error {
+	corename := macros.Get("CORENAME")
+	context  := fmt.Sprintf("Game %s (in %s)",parsed.machine.Name,corename)
+	e1 := parsed.validate_vertical(context)
+	e2 := parsed.validate_buttons(context)
+	return common.JoinErrors(e1,e2)
+}
+
+func (parsed *ParsedMachine) validate_vertical(context string) error {
+	if parsed.is_vertical() && !macros.IsSet("JTFRAME_VERTICAL") {
+		e := fmt.Errorf("%s is vertical but JTFRAME_VERTICAL is not set",context)
+		return e
+	}
+	return nil
+}
+
+func (parsed *ParsedMachine) validate_buttons(context string) error {
+	if macros.GetInt("JTFRAME_BUTTONS") < parsed.machine.Input.Control[0].Buttons {
+		msg := fmt.Sprintf("%s uses %d buttons but JTFRAME_BUTTONS is set to %d",
+			context,
+			parsed.machine.Input.Control[0].Buttons,
+			macros.GetInt("JTFRAME_BUTTONS"))
+		if parsed.machine.Input.Control[0].Buttons<=6 {
+			e := fmt.Errorf(msg)
+			return e
+		} else {
+			fmt.Println("Warning:",msg)
+		}
+	}
+	return nil
+}
+
+func (parsed *ParsedMachine)is_vertical() bool {
+	return parsed.coremod&1==1
+}
+
+func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string]string, mra_cfg Mame2MRA ) {
+	if !args.SkipROM || args.Md5 {
+		if !common.FileExists(args.Rom_path) {
+			fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
+			os.Exit(1)
+		}
+		mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
+	}
+	save_nvram(d.mra_xml)
+	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
 }
 
 func dump_setnames( corefolder string, sn []string ) {
@@ -262,9 +314,9 @@ func is_main( machine *MachineXML, mra_cfg Mame2MRA ) bool {
 	return false
 }
 
-func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) bool {
+func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
 	fname := args.outdir
-	game_name := strings.ReplaceAll(mra_xml.GetNode("name").text, ":", "")
+	game_name := strings.ReplaceAll(mra_xml.GetNode("name").GetText(), ":", "")
 	game_name = strings.ReplaceAll(game_name, "/", "-")
 	// Create the output directory
 	if args.outdir != "." && args.outdir != "" {
@@ -304,7 +356,6 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	b.WriteString(mra_xml.Dump())
 	b.WriteString("\n")
 	os.WriteFile(fname, []byte(b.String()), 0666)
-	return main_mra
 }
 
 func mra_disclaimer(machine *MachineXML, year string) string {
@@ -414,30 +465,10 @@ func slice2csv( ss []string ) string {
 // Do not pass the macros to make_mra, but instead modifiy the configuration
 // based on the macros in parse_toml
 func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
-	root := XMLNode{name: "misterromdescription"}
-	n := root.AddNode("about")
-	n.AddAttr("author",  notEmpty(slice2csv(cfg.Global.Author), "jotego"))
-	n.AddAttr("webpage", notEmpty(cfg.Global.Webpage,   "https://patreon.com/jotego"))
-	n.AddAttr("twitter", notEmpty(cfg.Global.Twitter,   "@topapate"))
-	n.AddAttr("source", "https://github.com/jotego/jtcores")
-	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
-	root.AddNode("setname", machine.Name)
-	corename := set_rbfname(&root, machine, cfg, args).text[2:] // corename = RBF, skipping the JT part
-	root.AddNode("mameversion", Mame_version())
-	root.AddNode("year", machine.Year)
-	root.AddNode("manufacturer", machine.Manufacturer)
-	root.AddNode("players", strconv.Itoa(machine.Input.Players))
+	root := make_root_node(machine,cfg,args)
+	corename := set_rbfname(root, machine, cfg, args).GetText()[2:] // corename = RBF, skipping the JT part
 	if len(machine.Input.Control) > 0 {
 		root.AddNode("joystick", machine.Input.Control[0].Ways)
-	}
-	n = root.AddNode("rotation")
-	switch machine.Display.Rotate {
-	case 90:
-		n.SetText("vertical (cw)")
-	case 270:
-		n.SetText("vertical (ccw)")
-	default:
-		n.SetText("horizontal")
 	}
 	root.AddNode("region", guess_world_region(machine.Description))
 	// Custom tags, sort them first
@@ -449,66 +480,104 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 		root.AddNode(t.Tag, t.Value)
 	}
 	// ROM load
-	if e:=make_ROM(&root, machine, cfg, args); e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
+	e:=make_ROM(root, machine, cfg, args); must(e)
 	// Beta
-	if betas.All.IsBetaFor(corename,"mister") {
-		n := root.AddNode("rom").AddAttr("index", "17")
-		// MiSTer makes a mess of md5 calculations, so I am not using that
-		n.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
-		m := n.AddNode("part").AddAttr("name", "beta.bin")
-		m.AddAttr("crc",betas.Crcsum)
+	if betas.IsBetaFor(corename,"mister") {
+		add_beta_keyload(root)
 	}
 	if !cfg.Cheat.Disable {
-		skip := false
-		filename := ""
-		family_match := false
-		for _, each := range cfg.Cheat.Files {
-			if each.Machine == "" && each.Setname == "" && !family_match {
-				filename = each.AsmFile
-				skip = each.Skip
-			}
-			if each.Match(machine)>0 {
-				filename = each.AsmFile
-				skip = each.Skip
-				family_match = true
-			}
-			if each.Setname == machine.Name {
-				filename = each.AsmFile
-				skip = each.Skip
-				break
-			}
+		make_cheat_load(root,machine,cfg,args)
+	}
+	make_nvram(root,machine,cfg,args.Core)
+	// coreMOD
+	coremod := make_coreMOD(root, machine, cfg)
+	// DIP switches
+	def_dipsw := make_switches(root, machine, cfg, args)
+	// Buttons
+	make_buttons(root, machine, cfg, args)
+	return root, def_dipsw, coremod
+}
+
+func make_root_node(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode) {
+	root := MakeNode("misterromdescription")
+	make_about_node(&root,cfg.Global)
+	make_rotation_node(&root,machine.Display)
+	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
+	root.AddNode("setname", machine.Name)
+	root.AddNode("mameversion", Mame_version())
+	root.AddNode("year", machine.Year)
+	root.AddNode("manufacturer", machine.Manufacturer)
+	root.AddNode("players", strconv.Itoa(machine.Input.Players))
+	return &root
+}
+
+func make_about_node(root *XMLNode, global GlobalCfg) {
+	n := root.AddNode("about")
+	n.AddAttr("author",  notEmpty(slice2csv(global.Author), "jotego"))
+	n.AddAttr("webpage", notEmpty(global.Webpage,   "https://patreon.com/jotego"))
+	n.AddAttr("twitter", notEmpty(global.Twitter,   "@topapate"))
+	n.AddAttr("source", "https://jotego/jtcores")
+}
+
+func make_rotation_node(root *XMLNode, display MameDisplay) {
+	n := root.AddNode("rotation")
+	switch display.Rotate {
+	case 90:
+		n.SetText("vertical (cw)")
+	case 270:
+		n.SetText("vertical (ccw)")
+	default:
+		n.SetText("horizontal")
+	}
+}
+
+func add_beta_keyload(root *XMLNode) {
+	rom := root.AddNode("rom").AddAttr("index", "17")
+	// MiSTer makes a mess of md5 calculations, so I am not using that
+	rom.AddAttr("zip", "jtbeta.zip").AddAttr("md5", "None").AddAttr("asm_md5", betas.Md5sum)
+	part := rom.AddNode("part").AddAttr("name", "beta.bin")
+	part.AddAttr("crc",betas.Crcsum)
+}
+
+func make_cheat_load(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
+	skip := false
+	filename := ""
+	family_match := false
+	for _, each := range cfg.Cheat.Files {
+		if each.Machine == "" && each.Setname == "" && !family_match {
+			filename = each.AsmFile
+			skip = each.Skip
 		}
-		if filename == "" {
-			filename = args.Core + ".s"
+		if each.Match(machine)>0 {
+			filename = each.AsmFile
+			skip = each.Skip
+			family_match = true
 		}
-		asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
-		if asmhex != nil && len(asmhex) > 0 && !skip {
-			root.AddNode("Machine code for the Picoblaze CPU").comment = true
-			n := root.AddNode("rom").AddAttr("index", "16")
-			if args.JTbin {
-				n.AddNode("part").SetText(hexdump(asmhex, 32)).indent_txt = true
-			} else {
-				re := regexp.MustCompile("\\..*$")
-				basename := filepath.Base(re.ReplaceAllString(filename, ""))
-				n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
-				n.AddNode("part").AddAttr("name", basename+".bin")
-			}
-			if !args.SkipPocket {
-				pocket_pico( asmhex )
-			}
+		if each.Setname == machine.Name {
+			filename = each.AsmFile
+			skip = each.Skip
+			break
 		}
 	}
-	make_nvram(&root,machine,cfg,args.Core)
-	// coreMOD
-	coremod := make_coreMOD(&root, machine, cfg)
-	// DIP switches
-	def_dipsw := make_switches(&root, machine, cfg, args)
-	// Buttons
-	make_buttons(&root, machine, cfg, args)
-	return &root, def_dipsw, coremod
+	if filename == "" {
+		filename = args.Core + ".s"
+	}
+	asmhex := picoasm(filename, cfg, args) // the filename is ignored for betas
+	if asmhex != nil && len(asmhex) > 0 && !skip {
+		root.AddComment("Machine code for the Picoblaze CPU")
+		n := root.AddNode("rom").AddAttr("index", "16")
+		if args.JTbin {
+			n.AddNode("part").SetText(hexdump(asmhex, 32)).SetIndent()
+		} else {
+			re := regexp.MustCompile("\\..*$")
+			basename := filepath.Base(re.ReplaceAllString(filename, ""))
+			n.AddAttr("zip", basename+"_cheat.zip").AddAttr("md5", "None")
+			n.AddNode("part").AddAttr("name", basename+".bin")
+		}
+		if !args.SkipPocket {
+			pocket_pico( asmhex )
+		}
+	}
 }
 
 func hexdump(data []byte, cols int) string {
@@ -584,9 +653,9 @@ func make_devROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, pos *int) {
 				fmt.Printf(
 					"\tstart offset overcome by 0x%X while adding FD1089 LUT\n", -delta)
 			}
-			root.AddNode(fmt.Sprintf(
-				"FD1089 base table starts at 0x%X", *pos)).comment = true
-			root.AddNode("part").SetText(hexdump(fd1089_bin[:], 16)).indent_txt = true
+			root.AddComment(fmt.Sprintf(
+				"FD1089 base table starts at 0x%X", *pos))
+			root.AddNode("part").SetText(hexdump(fd1089_bin[:], 16)).SetIndent()
 			*pos += len(fd1089_bin)
 		}
 	}

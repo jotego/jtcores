@@ -27,9 +27,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jotego/jtframe/common"
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/ucode"
+	"jotego/jtframe/common"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
 )

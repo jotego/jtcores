@@ -18,7 +18,7 @@
 package mem
 
 import(
-    "github.com/jotego/jtframe/macros"
+    "jotego/jtframe/macros"
 )
 
 func (item *BRAMBus_Ioctl) Enabled() bool {

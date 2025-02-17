@@ -16,6 +16,7 @@
     Version: 1.0
     Date: 21-8-2020 */
 
+// ADPCM samples have sound codes starting at $81 in the service menu
 module jtsf_adpcm(
     input           rst,
     input           clk,

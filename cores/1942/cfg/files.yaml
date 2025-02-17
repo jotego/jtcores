@@ -25,6 +25,8 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
+  - from: video/tilemap
+    get:
       - jtframe_tilemap.v
 jt12:
   - get:

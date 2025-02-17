@@ -113,7 +113,7 @@ end
 
 always @(posedge clk48) begin
     case( st_addr[7:6] )
-        0: st_mux <= st_snd; //st_main;
+        0: st_mux <= st_snd;
         1: st_mux <= st_sub;
         2: st_mux <= st_video;
         3: case( st_addr[3:0] )

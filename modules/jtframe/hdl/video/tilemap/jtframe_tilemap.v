@@ -110,8 +110,19 @@ end
 assign xhflip  = (flip & XOR_HFLIP[0])^hflip;
 assign vflip_g = (flip & XOR_VFLIP[0])^vflip;
 
-assign vram_addr[VA-1-:MAP_VW-VW]=veff[MAP_VW-1:VW];
-assign vram_addr[   0+:MAP_HW-HW]=heff[MAP_HW-1:HW];
+// VRAM address width of H and V portions
+localparam AHW=MAP_HW-HW,
+           AVW=MAP_VW-VW;
+
+assign vram_addr={ veff[MAP_VW-1:VW], heff[MAP_HW-1:HW] };
+
+initial begin
+    if( AHW+AVW > VA ) begin
+        $display("vram address width is too narrow.");
+        $display("It should be at least %d",AHW+AVW);
+        $finish;
+    end
+end
 
 integer i;
 always @* begin

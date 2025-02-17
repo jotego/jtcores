@@ -11,15 +11,18 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_6805mcu.yaml
+  - from: ram
+    get:
+      - jtframe_wait_on_shared.v
   - from: sound
     get:
       - jtframe_hipass.v
   - from: video
     get:
+      - jtframe_blink.v
       - jtframe_vtimer.v
-      - jtframe_scroll.v
-      - jtframe_tilemap.v
       - jtframe_obj.yaml
+      - jtframe_scroll.yaml
 jt5232:
 jt12:
   - get:

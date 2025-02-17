@@ -1,0 +1,6 @@
+jtframe:
+  - from: video/tilemap
+    get:
+      - jtframe_scroll.v
+      - jtframe_scroll_offset.v
+      - jtframe_tilemap.v

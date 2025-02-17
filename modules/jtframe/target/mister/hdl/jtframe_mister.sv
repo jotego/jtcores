@@ -173,9 +173,6 @@ module jtframe_mister #(parameter
     // DIP and OSD settings
     output  [ 1:0]  rotate,
 
-    output          enable_fm,
-    output          enable_psg,
-
     output          dip_test,
     // scan doubler
     output    [7:0] scan2x_r, scan2x_g, scan2x_b,
@@ -716,8 +713,6 @@ jtframe_board #(
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),
-    .enable_fm      ( enable_fm       ),
-    .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),
     .dip_pause      ( dip_pause       ),
     .dip_flip       ( dip_flip        ),

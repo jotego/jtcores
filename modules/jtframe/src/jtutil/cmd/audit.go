@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/jotego/jtframe/mem"
+	"jotego/jtframe/mem"
 )
 
 // auditCmd represents the audit command

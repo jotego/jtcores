@@ -1,0 +1,272 @@
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --corestamp)
+                if [ -z "$1" ]; then echo "Error: expecting word after --corestamp"; exit 1; fi
+                shift
+                CORESTAMP=$1;;
+            --credits)
+                MACROS="$MACROS NOSOUND MISTER_DEBUG_NOHDMI NOMAIN"
+                TARGET=mister;;
+            --def|-d)
+                shift
+                if [ ! -z "$1" ]; then
+                    MACROS="$1 $MACROS"
+                fi
+                ;;
+            --prog|-p) PROG=TRUE;;
+            --prog-only | -w)
+                PROG=TRUE
+                SKIP_COMPILE=TRUE;;
+            --quick|-q)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
+            -qs)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
+            --skip | -s) SKIP_COMPILE=TRUE;;
+            --quicker|-qq)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                TARGET=mister;;
+            -mr)
+                TARGET=mister;;
+            --mrpasswd)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --mrpasswd"; exit 1; fi
+                MISTERPASSWD=$1;;
+            -mrq)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                TARGET=mister;;
+            --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nolinter) NOLINTER=1;;
+            --nosta) SKIPTIMING=1;;
+            --sim)   SIM=TRUE;;
+            --sd)
+                if [ "${2:0:1}" != - ]; then
+                    shift
+                    JTBIN2SD=$1
+                else
+                    JTBIN2SD=" "
+                fi;;
+            --showmacros) SHOWMACROS=1;;
+            --target|-t)
+                shift
+                if [[ ! -d "$JTFRAME/target/$1" || -z "$1" ]]; then
+                    echo "Target $1 does not exist in $JTFRAME/target"
+                    exit 1
+                fi
+                TARGET=$1;;
+            --seed)
+                shift
+                if [[ ! $1 =~ ^[0-9]+$ ]]; then
+                    echo "Error: use an integer after --seed"
+                    exit 1
+                fi
+                SEED=$1;;
+            --undef|-u)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --undef"; exit 1; fi
+                UNMACROS="$1 $UNMACROS"
+                ;;
+            --verbose | -v)
+                VERBOSE=-v;;
+            --version)
+                cd $JTROOT; latest.sh
+                exit 0;;
+            --help | -h)
+                show_usage;;
+            *)  if [[ -z "$PRJ" && ${1:0:1} != - ]]; then
+                    PRJ=$1
+                elif [ -d "$JTFRAME/target/${1:1}" ]; then
+                    # the name is a valid target because there was a folder for it in $JTFRAME/target
+                    TARGET=${1:1}
+                else
+                    echo "Project name had already been defined to " $PRJ
+                    echo -e "${rBG}ERROR:${NC}${wBG} Unknown option ${red}$1${NC}";
+                    exit 1
+                fi
+                ;;
+        esac
+        shift
+    done
+}
+
+show_usage() {
+    cat << EOF
+JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
+usage: jtcore <corename> [options]
+
+    jtcore compiles only one core at a time. To compile many cores at once
+    use jtupdate.
+
+    Macro definition
+    --def | -d   Defines a verilog macro. Macros are removed from qsf file after
+                 compilation.
+                 Useful macros:
+                   NOSOUND             the core is compiled without sound (faster)
+                   MISTER_VIDEO_MIXER  uses the Mr video modules
+                   JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
+                   MISTER_DEBUG_NOHDMI skips MiSTer HDMI related logic. Speeds up compilation.
+    --undef | -u Undefines a macro
+
+    Target selection
+    -mist       compiles the MiST version. This is the default
+    -mister     compiles the MiSTer version
+    -sidi       compiles the SIDI version. This uses MiST's folders and settings but different pinout
+    -neptuno    compiles the NeptUNO version
+    -mc2        compiles the MultiCore2  version
+    -mcp        compiles the MultiCore2+ version
+    -pocket     compiles the PocketFPGA version
+    -sockit     compiles the Arrow SoCKit version
+    -de1soc     compiles the Terasic DE1-SoC version
+    -de10std    compiles the Terasic DE10-Standard version
+    -folder     any folder present in $JTFRAME/target/folder can be used as the target
+
+    General options
+
+    --corestamp     Sets the date string attached to the RBF file name. Defaults to today
+    --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
+    -mrq            Compiles MiSTer with no HDMI nor logo but with sound
+    --mrpasswd      Sets the SSH pasword to use on MiSTer
+    --nodbg         Defines JTFRAME_RELEASE
+    --nosta         skips the STA check and marks as PASS compilations with timing problems
+    --nolinter      Do not run the verilator linter
+    --program | -p  Programs the FPGA via JTAG
+    --quick |-q     Quick compilation. Defines NOSOUND and JTFRAME_OSD_NOLOGO
+                    Disables JTFRAME_CREDITS and HQ2X.
+    -qs             Same as -q but with sound.
+    --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
+    --sd [setname]  Copy to sd card, optional setname (uses jtbin2sd)
+    --seed          Sets random seed for compilation
+    --sim           Prepares Quartus simulation
+    --skip | -s     skips the compilation but executes the rest of the commands
+    --showmacros    Shows the macros used for compilation and exits
+    --target | -t <target>
+                    Specifies the target platform
+    --verbose | -v  verbose
+    --version       Shows the core version. Use "jtmerge -v" to see the JTFRAME version
+
+    --help          Displays this message
+EOF
+   exit 0
+}
+
+
+lint_core() {
+	local core="$1"
+	local log=`mktemp`
+	local fail
+	if ! $JTFRAME/bin/lint-one.sh $core > /dev/null 2> $log; then
+		cat $log
+		fail=1
+	fi
+	if grep ^%Warning $log; then
+		cat $log
+		fail=1
+	fi
+	rm -f $log
+	if [ "$fail" = 1 ]; then
+		exit 1
+	fi
+}
+
+# Sets the commit string to a short commit and an optional -dirty suffix
+is_dirty() {
+    git status --short | grep -i "^ M " > /dev/null
+}
+
+escape_bars() {
+    echo ${1//\//\\/}
+}
+
+macros2def() {
+    local MM=""
+    for i in $MACROS; do
+        MM="$i,$MM"
+    done
+    if [ ! -z "$MM" ]; then
+        MM="--def $MM"
+    fi
+    echo $MM
+}
+
+umacros2undef() {
+    local UM=""
+    for i in $UNMACROS; do
+        UM="$i,$UM"
+    done
+    if [ ! -z "$UM" ]; then
+        UM="--undef $UM"
+    fi
+    echo $UM
+}
+
+make_macros_env_vars() {
+    local macros
+    macros=`parse_macros bash`
+    if [ $? != 0 ]; then echo "Stopping at macro conversion"; exit 1; fi
+    eval "$macros"
+}
+
+parse_macros() {
+    if [ ! -z "$VERBOSE" ]; then
+        echo jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
+    fi
+    jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $*
+}
+
+# qsf line to disable SOUND synthesis
+# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+copy_templates() {
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
+    MACROS_FILE=$PRJPATH/cfg/macros.def
+    QSF=$PRJPATH/$TARGET/$corename.qsf
+    # Add definitions in "macros" files
+    if [ -e $MACROS_FILE ]; then
+        echo >> $QSF # add blank line
+        (parse_macros quartus | sort >> $QSF) || exit $?
+        if [ -n "$SHOWMACROS" ]; then
+            gawk -f $JTFRAME/bin/jtmacros.awk target=$TARGET $MACROS_FILE
+            exit 0
+        fi
+        # Prepare config string
+        parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
+    fi
+}
+
+append_if_exists() {
+    val=
+    while [ $# -gt 0 ]; do
+        if [ -e "$1" ]; then
+            val="$val $1"
+        fi
+        shift
+    done
+    echo $val
+}
+
+announce() {
+    if [ ! -z "$VERBOSE" ]; then echo "== $* =="; fi
+}
+
+is_mister_family() {
+    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10std ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# derive the default core name from the path
+get_corename_from_folder() {
+	local defprj
+	defprj=$(realpath . --relative-to=$CORES)
+	if [[ "$defprj" == ..* ]]; then
+		echo "Execute the program from a folder in $CORES" >&2
+		exit 1
+	fi
+	echo ${defprj%%/*}
+}

@@ -9,7 +9,7 @@ fi
 WARNLIST=
 ERRLIST=
 FAIL=
-LOGFOLDER=$JTROOT/log/linter/
+LOGFOLDER=$JTROOT/log/linter
 cd $CORES
 rm -rf $LOGFOLDER
 mkdir -p $LOGFOLDER
@@ -31,14 +31,19 @@ done
 
 # print out all log files that have problems
 if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
-    for i in $WARNLIST $ERRLIST; do
-        echo =========== $i ================
-        cat $LOGFOLDER/lint-$i.log
+    for core in $WARNLIST $ERRLIST; do
+        printf "=========== %8s ===========\n" $core
+        ls -l $LOGFOLDER/lint-$core.log
+        cat $LOGFOLDER/lint-$core.log
     done
 fi
 
 function make_table {
-    echo $* | tr ' ' '\n' | column
+    if which column > /dev/null; then
+        echo $* | tr ' ' '\n' | column
+    else
+        echo $*
+    fi
 }
 
 function count_cores {

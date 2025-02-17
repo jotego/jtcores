@@ -37,6 +37,8 @@ jtframe:
     get:
       - jtframe_blank.v
       - jtframe_vtimer.v
+  - from: video/tilemap
+    get:
       - jtframe_tilebuf.v
 jt51:
 jt5205:

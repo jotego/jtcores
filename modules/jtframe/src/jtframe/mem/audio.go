@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/jotego/jtframe/macros"
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/macros"
+	"jotego/jtframe/common"
 
 	"gopkg.in/yaml.v2"
 )
@@ -235,6 +235,9 @@ func make_rc( ch *AudioCh, fs float64 ) {
 
 func fill_audio_clock( cfg *Audio ) {
 	fmhz := macros.GetInt("JTFRAME_MCLK")
+	if macros.IsSet("JTFRAME_SDRAM96") {
+		fmhz /= 2 // clk48 always used for audio
+	}
 	cfg.FracN,cfg.FracM = find_div(float64(fmhz), 192000.0 )
 	cfg.FracW = int( math.Ceil(math.Log2( float64(max( cfg.FracM, cfg.FracN )) )))+1
 }

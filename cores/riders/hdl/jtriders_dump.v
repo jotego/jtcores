@@ -39,6 +39,7 @@ module jtriders_dump(
     output reg [ 7:0] st_dout
 );
 parameter FULLRAM = 0;
+`ifndef JTFRAME_RELEASE
 localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
            PAL_END  = SCR_END +16'h1000,
            OBJ_END  = PAL_END +16'h2000,
@@ -65,5 +66,12 @@ always @(posedge clk) begin
         ioctl_din <= obj_mmr; // 7 bytes, MMR 701F
     else ioctl_din <= other; // 7020
 end
-
+`else
+initial begin
+	ioctl_din = 0;
+	st_dout   = 0;
+end
+	
+assign obj_amsb=0;
+`endif
 endmodule

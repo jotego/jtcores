@@ -62,9 +62,10 @@ func init() {
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func must(e error) {
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
+func must(e... error) {
+	if e==nil || len(e)==0 || e[0]==nil { return }
+	for _, each_error := range e {
+		fmt.Println(each_error)
 	}
+	os.Exit(1)
 }

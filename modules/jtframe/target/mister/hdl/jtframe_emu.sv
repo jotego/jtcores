@@ -320,7 +320,6 @@ wire [63:0] status;
 wire [ 1:0] buttons;
 
 wire [ 1:0] dip_fxlevel;
-wire        enable_fm, enable_psg;
 wire        dip_pause, dip_flip, dip_test;
 wire [31:0] dipsw;
 
@@ -574,8 +573,6 @@ u_frame(
     .dial_x         ( dial_x         ),
     .dial_y         ( dial_y         ),
     // DIP and OSD settings
-    .enable_fm      ( enable_fm      ),
-    .enable_psg     ( enable_psg     ),
     .dip_test       ( dip_test       ),
     .dip_pause      ( dip_pause      ),
     .dip_flip       ( dip_flip       ),

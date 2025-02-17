@@ -22,7 +22,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
 
 	"gopkg.in/yaml.v2"
 )

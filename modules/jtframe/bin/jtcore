@@ -19,65 +19,6 @@
 
 source $JTFRAME/bin/jtcore-funcs
 
-function show_usage() {
-    cat << EOF
-JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
-usage: jtcore <corename> [options]
-
-    jtcore compiles only one core at a time. To compile many cores at once
-    use jtupdate.
-
-    Macro definition
-    --def | -d   Defines a verilog macro. Macros are removed from qsf file after
-                 compilation.
-                 Useful macros:
-                   NOSOUND             the core is compiled without sound (faster)
-                   MISTER_VIDEO_MIXER  uses the Mr video modules
-                   JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
-                   MISTER_DEBUG_NOHDMI skips MiSTer HDMI related logic. Speeds up compilation.
-    --undef | -u Undefines a macro
-
-    Target selection
-    -mist       compiles the MiST version. This is the default
-    -mister     compiles the MiSTer version
-    -sidi       compiles the SIDI version. This uses MiST's folders and settings but different pinout
-    -neptuno    compiles the NeptUNO version
-    -mc2        compiles the MultiCore2  version
-    -mcp        compiles the MultiCore2+ version
-    -pocket     compiles the PocketFPGA version
-    -sockit     compiles the Arrow SoCKit version
-    -de1soc     compiles the Terasic DE1-SoC version
-    -de10std    compiles the Terasic DE10-Standard version
-    -folder     any folder present in $JTFRAME/target/folder can be used as the target
-
-    General options
-
-    --corestamp     Sets the date string attached to the RBF file name. Defaults to today
-    --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
-    -mrq            Compiles MiSTer with no HDMI nor logo but with sound
-    --mrpasswd      Sets the SSH pasword to use on MiSTer
-    --nodbg         Defines JTFRAME_RELEASE
-    --nosta         skips the STA check and marks as PASS compilations with timing problems
-    --program | -p  Programs the FPGA via JTAG
-    --quick |-q     Quick compilation. Defines NOSOUND and JTFRAME_OSD_NOLOGO
-                    Disables JTFRAME_CREDITS and HQ2X.
-    -qs             Same as -q but with sound.
-    --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
-    --sd [setname]  Copy to sd card, optional setname (uses jtbin2sd)
-    --seed          Sets random seed for compilation
-    --sim           Prepares Quartus simulation
-    --skip | -s     skips the compilation but executes the rest of the commands
-    --showmacros    Shows the macros used for compilation and exits
-    --target | -t <target>
-                    Specifies the target platform
-    --verbose | -v  verbose
-    --version       Shows the core version. Use "jtmerge -v" to see the JTFRAME version
-
-    --help          Displays this message
-EOF
-   exit 0
-}
-
 CORESTAMP=$(date +"%Y%m%d")
 EXT=rbf
 FAIL=0
@@ -86,16 +27,13 @@ MACROS=
 OUTPUTDIR=output_files
 PRJ=
 NODBG=
+NOLINTER=
 PROG=FALSE
 SEED=1
 SKIPTIMING=
 SIM=FALSE
 SKIP_COMPILE=FALSE
 UNMACROS=
-
-# derive the default core name from the path
-DEFPRJ=$(realpath . --relative-to=$CORES)
-DEFPRJ=${DEFPRJ%%/*}
 
 # use setprj.sh's target function to
 # change the current default target
@@ -123,108 +61,6 @@ if [ -t 1 ]; then
     NC=`tput sgr0`
 fi
 
-function is_mister_family {
-    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10std ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-function parse_args {
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --corestamp)
-                if [ -z "$1" ]; then echo "Error: expecting word after --corestamp"; exit 1; fi
-                shift
-                CORESTAMP=$1;;
-            --credits)
-                MACROS="$MACROS NOSOUND MISTER_DEBUG_NOHDMI NOMAIN"
-                TARGET=mister;;
-            --def|-d)
-                shift
-                if [ ! -z "$1" ]; then
-                    MACROS="$1 $MACROS"
-                fi
-                ;;
-            --prog|-p) PROG=TRUE;;
-            --prog-only | -w)
-                PROG=TRUE
-                SKIP_COMPILE=TRUE;;
-            --quick|-q)
-                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
-            -qs)
-                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
-            --skip | -s) SKIP_COMPILE=TRUE;;
-            --quicker|-qq)
-                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                TARGET=mister;;
-            -mr)
-                TARGET=mister;;
-            --mrpasswd)
-                shift
-                if [ -z "$1" ]; then echo "Error: expecting word after --mrpasswd"; exit 1; fi
-                MISTERPASSWD=$1;;
-            -mrq)
-                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
-                UNMACROS="$UNMACROS JTFRAME_CREDITS"
-                TARGET=mister;;
-            --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
-            --nosta) SKIPTIMING=1;;
-            --sim)   SIM=TRUE;;
-            --sd)
-                if [ "${2:0:1}" != - ]; then
-                    shift
-                    JTBIN2SD=$1
-                else
-                    JTBIN2SD=" "
-                fi;;
-            --showmacros) SHOWMACROS=1;;
-            --target|-t)
-                shift
-                if [[ ! -d "$JTFRAME/target/$1" || -z "$1" ]]; then
-                    echo "Target $1 does not exist in $JTFRAME/target"
-                    exit 1
-                fi
-                TARGET=$1;;
-            --seed)
-                shift
-                if [[ ! $1 =~ ^[0-9]+$ ]]; then
-                    echo "Error: use an integer after --seed"
-                    exit 1
-                fi
-                SEED=$1;;
-            --undef|-u)
-                shift
-                if [ -z "$1" ]; then echo "Error: expecting word after --undef"; exit 1; fi
-                UNMACROS="$1 $UNMACROS"
-                ;;
-            --verbose | -v)
-                VERBOSE=-v;;
-            --version)
-                cd $JTROOT; latest.sh
-                exit 0;;
-            --help | -h)
-                show_usage;;
-            *)  if [[ -z "$PRJ" && ${1:0:1} != - ]]; then
-                    PRJ=$1
-                elif [ -d "$JTFRAME/target/${1:1}" ]; then
-                    # the name is a valid target because there was a folder for it in $JTFRAME/target
-                    TARGET=${1:1}
-                else
-                    echo "Project name had already been defined to " $PRJ
-                    echo -e "${rBG}ERROR:${NC}${wBG} Unknown option ${red}$1${NC}";
-                    exit 1
-                fi
-                ;;
-        esac
-        shift
-    done
-}
-
 parse_args $JTCORE_DEFAULT
 parse_args $*
 
@@ -248,34 +84,20 @@ fi
 
 if [ -e $JTROOT/.jtcore ]; then source $JTROOT/.jtcore; fi
 
+# Is the project defined?
+if [ -z "$PRJ" ]; then
+    PRJ=`get_corename_from_folder`
+fi
+
 cd $JTROOT
 MODULES=$JTROOT/modules
 JTFRAME=$MODULES/jtframe
-
-# Sets the commit string to a short commit and an optional -dirty suffix
-function is_dirty {
-    git status --short | grep -i "^ M " > /dev/null
-}
 
 if [ ! -e "$JTFRAME" ]; then
     echo -e "${rBG}ERROR:${NC}${wBG} cannot locate jtframe folder.${NC}"
     echo -e "      ${wBG} It should be at ${red}$JTFRAME${NC}"
     exit 1
 fi
-
-# Is the project defined?
-case "$PRJ" in
-    "")
-        # try using the name derived from the folder
-        PRJ=$DEFPRJ
-        if [ ! -d "$CORES/$PRJ" ]; then
-            echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
-            show_usage
-            exit 1
-        fi;;
-    -help | -h | --help)
-        show_usage;;
-esac
 
 if [ ${PRJ:0:1} = - ]; then
     echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
@@ -328,71 +150,7 @@ case $TARGET in
 esac
 export PATH=$PATH:$JTFRAME/bin
 
-function escape_bars {
-    echo ${1//\//\\/}
-}
-
-function macros2def {
-    local MM=""
-    for i in $MACROS; do
-        MM="$i,$MM"
-    done
-    if [ ! -z "$MM" ]; then
-        MM="--def $MM"
-    fi
-    echo $MM
-}
-
-function umacros2undef {
-    local UM=""
-    for i in $UNMACROS; do
-        UM="$i,$UM"
-    done
-    if [ ! -z "$UM" ]; then
-        UM="--undef $UM"
-    fi
-    echo $UM
-}
-
-function parse_macros {
-    if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
-    fi
-    jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $*
-}
-
-# qsf line to disable SOUND synthesis
-# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
-function copy_templates {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
-    MACROS_FILE=$PRJPATH/cfg/macros.def
-    QSF=$PRJPATH/$TARGET/$corename.qsf
-    # Add definitions in "macros" files
-    if [ -e $MACROS_FILE ]; then
-        echo >> $QSF # add blank line
-        (parse_macros quartus | sort >> $QSF) || exit $?
-        if [ -n "$SHOWMACROS" ]; then
-            gawk -f $JTFRAME/bin/jtmacros.awk target=$TARGET $MACROS_FILE
-            exit 0
-        fi
-        # Prepare config string
-        parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
-    fi
-}
-
-
-function report {
-    cd $JTFRAME
-    JTFRAMECOMMIT=$(git rev-parse --short HEAD)
-    cd -
-    printf "%-14s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
-        $PRJ $TARGET $CORESTAMP $SEED $1 \
-        `git rev-parse --short HEAD` $JTFRAMECOMMIT >> $JTROOT/log/builds.log
-}
-
-# Convert macros.def to environment variables
-eval `parse_macros bash`
+make_macros_env_vars
 # lower case version
 corename=${CORENAME,,}
 
@@ -428,7 +186,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     rm -rf $PRJPATH/$TARGET
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
-    lint_core $PRJ
+    if [ -z "$NOLINTER" ]; then
+        lint_core $PRJ
+    fi
     ############################################
     # Credits via jtframe_credits:
     if [[ -e $PRJPATH/cfg/msg ]]; then
@@ -476,7 +236,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if ! grep "Full Compilation was successful" "$LOG"; then
             grep -i error "$LOG" -A 2
             echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
-            report FAIL
             exit 1
         fi
         if [ ! -e $corename.map.rpt ]; then
@@ -484,7 +243,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         else
             RPTPATH=.
         fi
-        grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
+        (grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt) || true
         gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
         cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
         if [ -s sdram_badio.rpt ]; then
@@ -501,7 +260,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         # Report connectivity problems
         AUX=`mktemp`
-        grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
+        (grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
         | grep -v altera_cyclonev_pll\\.v \
         | grep -v "\.data_a.*has no driver or initial value" \
         | grep -v "\.waddr_a.*has no driver or initial value" \
@@ -510,7 +269,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         | grep -v "Warning: OUTCLK port on the PLL" \
         | grep -v "Can't pack node.*to I/O pin" \
         | grep -v "jitter performance" \
-        | grep -v "Warning \(10762\)" > $AUX
+        | grep -v "Warning \(10762\)" > $AUX) || true
         if [[ "$MACROS" == *MISTER_DEBUG_NOHDMI* ]]; then
             # There are many warnings coming from sys_top when HDMI is disabled, ignore them.
             grep -v sys_top.v $AUX
@@ -519,14 +278,15 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         rm -f $AUX
         # Report timing
-        grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
-        if [[ $? = 0 && -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
-            FAIL=1
-            report FAIL
-            echo FAIL $PRJ
-        else
+        if grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"; then
+            if [[ -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
+                FAIL=1
+            fi
+        fi
+        if [ "$FAIL" = 0 ]; then
             echo PASS
-            report PASS
+        else
+            echo FAIL
         fi
     else
         # Simulation
@@ -538,21 +298,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
 elif [ ! -z "$VERBOSE" ]; then
     echo "Skipping compilation"
 fi
-
-function append_if_exists {
-    val=
-    while [ $# -gt 0 ]; do
-        if [ -e "$1" ]; then
-            val="$val $1"
-        fi
-        shift
-    done
-    echo $val
-}
-
-function announce {
-    if [ ! -z "$VERBOSE" ]; then echo "== $* =="; fi
-}
 
 ################# Store output file
 # Determine file extension

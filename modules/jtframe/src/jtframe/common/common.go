@@ -19,14 +19,16 @@ package common
 
 import (
 	"fmt"
+	"errors"
 	"os"
 	"os/exec"
+	"strings"
 	"path/filepath"
 )
 
 func Must( e error ) {
 	if e!=nil {
-		fmt.Println(e)
+		fmt.Fprintln(os.Stderr,e)
 		os.Exit(1)
 	}
 }
@@ -45,8 +47,15 @@ func ConfigFilePath(core, file string) (full_path string) {
 	return filepath.Join(os.Getenv("JTROOT"),"cores",core,"cfg",file)
 }
 
+func MakeJTpath(parts...string) string {
+	jtroot := os.Getenv("JTROOT")
+	leaf := filepath.Join(parts...)
+	return filepath.Join(jtroot,leaf)
+}
+
 func Doc2string(doc string) string {
-	fname := filepath.Join(os.Getenv("JTFRAME"),"doc",doc)
+	jtframe := os.Getenv("JTFRAME")
+	fname := filepath.Join(jtframe,"doc",doc)
 	buf, e := os.ReadFile(fname)
 	Must(e)
 	return string(buf)
@@ -79,4 +88,28 @@ func GetCommit() (string,error) {
 	}
 	commit:=string(output)
 	return commit[0:7],nil
+}
+
+func ShowErrors( all_errors... error ) {
+	for _, e := range all_errors {
+		if e==nil { continue }
+		fmt.Println(e)
+	}
+}
+
+func JoinErrors( all_errors... error ) error {
+	var sb strings.Builder
+	for _, e := range all_errors {
+		if e!=nil {
+			if sb.Len()>0 {
+				sb.WriteString("\n")
+			}
+			sb.WriteString(e.Error())
+		}
+	}
+	if sb.Len()>0 {
+		return errors.New(sb.String())
+	} else {
+		return nil
+	}
 }

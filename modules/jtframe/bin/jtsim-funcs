@@ -16,9 +16,6 @@ Please support the development: https://patreon.com/jotego
     -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
                Default DIP switch values for each game are dumped in ASCII
                to .dip files in $ROM.
-               You can also use the setname with -dipsw and it will load the
-               matching .dip file from $ROM
-                    -dipsw shinobi2 --> loads $ROM/shinobi2.dip
                If the simulation is run from a folder whose name matches a
                .dip file in $ROM, and -dipsw is not set, then jtsim will load
                the matching file automatically
@@ -76,7 +73,6 @@ Please support the development: https://patreon.com/jotego
     -slowpll   Simulate using Altera's model for PLLs
     -showcmd   Display the simulation command only. Do not run any simulation.
     -u,-undef  Undefine macro during simulation
-    -sysname   Specify the name of the core
     -verilator Use Verilator as the simulator
     -video     Enable video output. Can be followed by a number to get
                the number of frames to simulate.
@@ -217,7 +213,6 @@ enable_load() {
     echo ROM load through SPI enabled
 }
 
-
 add_macro() {
     if [ $# = 0 ]; then return; fi
     if [ ! -z "$ALLMACROS" ]; then
@@ -230,7 +225,34 @@ add_macro() {
 
 has_macro() {
     local name="$1"
-    expr match "$ALLMACROS" ".*$name.*" > /dev/null
+    test ! -z "`get_macro $1`"
+}
+
+get_macro() {
+    local name="$1"
+    if [ -z "$name" ]; then return; fi
+    IFS=',' read -ra allmacros <<< "$ALLMACROS"
+    for macro in "${allmacros[@]}"; do
+        local macro_name macro_value
+        macro_name="${macro%%=*}"
+        if [[ "$macro" == *"="* ]]; then
+            macro_value="${macro#*=}"
+        fi
+        if [ $macro_name = $name ]; then
+            echo $macro_value
+            return
+        fi
+    done
+}
+
+warn_if_longsim_noinputs() {
+    local maxframes
+    maxframes=`get_macro MAXFRAME`
+    if [ -z "$maxframes" ]; then return; fi
+    if [ "$maxframes" -lt 100 ]; then return; fi
+    if ! has_macro SIM_INPUTS; then
+        echo "${rBG}WARNING:${NC} Long simulation ($maxframes frames) without cabinet inputs"
+    fi
 }
 
 set_mist_as_target() {
@@ -374,4 +396,129 @@ copy_scene_frame() {
 display_scene_frame() {
 	last_frame_image=`ls frames/frame_*.jpg | tail -n 1`
 	eom $last_frame_image
+}
+
+use_setname() {
+    if [ ! -z "$DIR" ]; then # Run the simulation inside a folder named after the set
+        mkdir -p "$SETNAME" || exit $?
+        cd "$SETNAME"
+    fi
+    if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
+    if [ -s $ROM/$SETNAME.dip ]; then
+        if ! has_macro JTFRAME_SIM_DIPS; then
+            # Not all systems have DIPs
+            DIPS=`cat $ROM/$SETNAME.dip`
+            if [ ! -z "$DIPS" ]; then add_macro JTFRAME_SIM_DIPS=0x$DIPS; fi
+        fi
+    fi
+    ROMFILE=$ROM/$SETNAME.rom
+    if [ ! -e $ROMFILE ]; then
+        cat<<EOF
+jtsim: cannot produce $ROMFILE"
+    This may occur if the setname is longer than 8 characters or
+    if you are not in the core folder for the game
+EOF
+        exit 1
+    fi
+    if [[ ! -e rom.bin || `readlink rom.bin` != "$ROMFILE" ]]; then
+        ln -srf $ROMFILE rom.bin
+        enable_load
+    fi
+    if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+}
+
+derive_corename_from_folder() {
+    local corename=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
+    if [[ $corename == ..* ]]; then
+        echo "You must run jtsim from inside a folder in $CORES" >&2
+        exit 1
+    fi
+    echo $corename
+}
+
+derive_setname_from_folder() {
+    local setname=$(basename `pwd`)
+    echo $setname
+}
+
+get_default_dipsw() {
+    local setname="$1"
+    if [ -z "$setname" ]; then
+        echo "get_default_dipsw called by setname is blank"
+        exit 1
+    fi
+    local dipfile=$ROM/${setname}.dip
+    if [ ! -s $dipfile ]; then
+        echo "${rBG}WARNING${NC}: $ROM/${setname}.dip not found"
+        return
+    fi
+    local hexdip
+    hexdip=`cat $ROM/${setname}.dip`
+    add_macro JTFRAME_SIM_DIPS=0x$hexdip
+    echo "Using DIP switches from rom/${setname}.dip"
+}
+
+copy_mod_file() {
+    local setname="$1"
+    if [ ! -e $ROM/${setname}.mod ]; then
+        return
+    fi
+    cp $ROM/${setname}.mod core.mod
+}
+
+make_rombin_link() {
+    local setname="$1"
+    if [ -z "$setname" ]; then
+        echo "Create rom.bin manually or run the sim from a folder named after the ROM set name"
+        exit 1
+    fi
+    local romfile="$ROM/$setname.rom"
+    if [ ! -e $romfile ]; then
+        echo "ERROR: cannot make rom.bin from $romfile"
+        exit 1
+    fi
+    ln -sr $romfile rom.bin
+}
+
+get_file_length() {
+    local filename="$1"
+    if ! stat --version > /dev/null; then
+        stat -L -f %z $filename
+    else
+        stat -L -c%s $filename
+    fi
+}
+
+disable_patreon_credits() {
+    $SED /JTFRAME_CREDITS/d core.def
+}
+
+prepare_gatelevel_sim() {
+    # Gate-level simulation uses the synthesis output directly
+    GATENETLIST=$CORES/$SYSNAME/mist/simulation/ncsim/${CORENAME,,}_8_1200mv_85c_slow.vo
+    if [ ! -e "$GATENETLIST" ]; then
+        echo "${rBG}Error:${NC} cannot open the gate-level netlist. Looking for file"
+        echo "$GATENETLIST"
+        echo "Generate it using Quartus II, for the MiST core files"
+        exit 1
+    fi
+    QPATH=`which quartus`
+    if [[ -z "$QPATH" ]]; then
+        echo "${rBG}Error:${NC} Quartus is not in the PATH"
+        exit 1
+    fi
+    QPATH=${QPATH%quartus/bin/quartus}/modelsim_ae/altera/verilog/src
+    if [ ! -d "$QPATH" ]; then
+        echo "${rBG}Error:${NC} cannot find the path to Quartus simulation files"
+        echo Looking at "$QPATH"
+        exit 1
+    fi
+    echo $GATENETLIST > filtered.f
+    echo $QPATH/{altera_primitives,cycloneiii_atoms}.v >> filtered.f
+    echo $JTFRAME/target/mist/mist_test.v \
+mist_dump.v \
++define+GATES \
+>> filtered.f
+    # Remove MiST definitions
+    FILES=
 }

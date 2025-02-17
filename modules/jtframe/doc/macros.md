@@ -62,7 +62,6 @@ JTFRAME_OSD_FLIP         |         | flip option on OSD
 JTFRAME_OSD_LOAD         | MiST(er)| load option shown on OSD (off by default on MiSTer)
 JTFRAME_OSD_NOCREDITS    |         | No credits option on OSD
 JTFRAME_OSD_NOLOGO       |         | Disables the JT logo as OSD background
-JTFRAME_OSD_SND_EN       |         | OSD option to enable/disable FX and FM channels
 JTFRAME_OSD_TEST         |         | Test option on OSD
 JTFRAME_OSD_VOL          |         | Show FX volume control on OSD
 JTFRAME_OSDCOLOR         |         | Sets the OSD colour. Use 0x30 for red.

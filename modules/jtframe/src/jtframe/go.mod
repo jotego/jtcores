@@ -1,4 +1,4 @@
-module github.com/jotego/jtframe
+module jotego/jtframe
 
 go 1.22.0
 

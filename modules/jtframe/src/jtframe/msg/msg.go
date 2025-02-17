@@ -24,7 +24,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/jotego/jtframe/common"
+	"jotego/jtframe/common"
 )
 
 type Compiler struct {

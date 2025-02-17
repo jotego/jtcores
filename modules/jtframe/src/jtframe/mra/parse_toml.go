@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 
 	"github.com/komkom/toml"
-	"github.com/jotego/jtframe/macros"
+	"jotego/jtframe/macros"
 )
 
 func ParseTomlFile(corename string) (mra_cfg Mame2MRA,e error) {
