@@ -1,16 +1,17 @@
 module test;
 
+`include "test_tasks.vh"
+
 localparam DW=8;
 
 reg clk, rst;
 
 reg  [    15:0] commands [0:255];
-reg  [     7:0] cen_cnt=1;
 wire [  DW-1:0] data_in, data_out;
-reg  [  DW-1:0] data_out_l=0;
-wire [2*DW-1:0] data_2bytes, dexp;
-wire            high, cen;
-integer         value=0, error_bus=0;
+wire [2*DW-1:0] dexp;
+wire            high, ready, send;
+reg             load=0,next=0, released=0;
+integer         value=0, steps=0;
 
 
 initial begin
@@ -22,63 +23,89 @@ initial begin
     $finish;
 end
 
-
 initial begin
     clk=0;
     forever #10 clk=~clk;
 end
 
-always @(posedge clk) begin
-    cen_cnt <= {cen_cnt[0],cen_cnt[7:1]};
-    if(cen) data_out_l <= data_out;
-    if( |error_bus ) begin
-        $display("Failed at %d. Expected output: %h", data_in, dexp);
-        #80 $finish;
-    end
-end
-
-assign cen         = cen_cnt[0];
 assign data_in     = value[0+:DW];
-assign data_2bytes = {data_out_l, data_out};
 assign dexp        = commands[value];
+assign high        = dexp[15:8]==8'he0;
 
 initial begin
     rst    = 1;
+    released = 0;
     repeat (20) @(posedge clk);
     rst  = 0;
     repeat (20) @(posedge clk);
 
-    for (value = 0; value < 256; value++) begin
-        if( dexp != 0 ) begin
-            wait ( cen==1 );
-            wait ( cen==0 );
-            repeat(3) @(posedge clk);
-            if( high ) begin
-                wait ( cen==1 );
-                wait ( cen==0 );
-                repeat(3) @(posedge clk);
-                assert( data_2bytes == dexp ) else error_bus = dexp;
-            end
-            assert(  data_out == dexp[7:0]  ) else error_bus = dexp;
+    repeat (2) begin
+        for (value = 0; value < 256; value++) begin
+            send_new_key();
+            check_commands();
         end
-        wait ( cen==1 );
-        wait ( cen==0 );
-        repeat(3) @(posedge clk);
+        released = ~released;
     end
-    repeat (10) @(posedge clk);
-    $display("PASS");
-    $finish;
+    pass();
 end
 
+task send_new_key();
+    assert_msg( ready ==1,"Translator not ready");
+    count_total_steps();
+    @(posedge clk) load = 1;
+    @(posedge clk) load = 0;
+    if( dexp != 0 )
+        @(posedge clk) assert_msg( ready ==0,"Translator should not be ready");
+endtask
+
+task count_total_steps();
+    steps = 1;
+    @(posedge clk);
+    if( high     ) steps = steps+1;
+    if( released ) steps = steps+1;
+endtask
+
+task check_current_output();
+    @(posedge clk);
+    if( steps==2 && released && dexp!=0 )
+        @(posedge clk) assert_msg( data_out==8'hf0,"Released code was expected");
+    else if( steps[1] && dexp!=0 )
+        @(posedge clk) assert_msg( data_out==8'he0,"Extended code was expected");
+    else
+        @(posedge clk) assert_msg( data_out==dexp[7:0],"Received unexpected code");
+endtask
+
+task check_send(input exp);
+    if( dexp == 0 || exp==0 )
+        assert_msg( send==0, "Send signal should not be active");
+    else
+        assert_msg( send==1, "Send signal should be active");
+endtask
+
+task check_commands();
+    repeat (steps) begin
+        check_send(0);
+        @(posedge clk) next=1;
+        check_current_output();
+        check_send(1);
+        @(posedge clk) next=0;
+        check_current_output();
+        check_send(0);
+        steps = steps-1;
+        repeat (5) @(posedge clk);
+    end
+endtask
+
 jtframe_hid_ps2_translator uut(
-    .rst      ( rst      ),
-    .clk      ( clk      ),
-    .cen      ( cen      ),
-    .released ( 1'b0     ),
-    .last     (          ),
-    .keycheck ( data_in  ),
-    .ps2_code ( data_out ),
-    .high     ( high     )
+    .rst       ( rst      ),
+    .clk       ( clk      ),
+    .keycheck  ( data_in  ),
+    .released  ( released ),
+    .load_key  ( load     ),
+    .tr_ready  ( ready    ),
+    .tr_send   ( send     ),
+    .next_code ( next     ),
+    .ps2_code  ( data_out )
 );
 
 localparam [7:0]

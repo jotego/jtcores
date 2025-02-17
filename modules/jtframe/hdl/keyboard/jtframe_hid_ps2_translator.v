@@ -19,13 +19,14 @@
 module jtframe_hid_ps2_translator(
     input            rst,
     input            clk,
-    input            cen,
 
     input      [7:0] keycheck,
     input            released,
-    output           last,
-    output reg [7:0] ps2_code,
-    output reg       high
+    input            next_code,
+    input            load_key,
+    output           tr_ready,
+    output reg       tr_send,
+    output reg [7:0] ps2_code
 );
 
 localparam [7:0]
@@ -281,38 +282,56 @@ localparam [7:0]
 // KEY_HID_MEDIA_CALC=8'hfb;         // KEY_PS2_MEDIA_CALC=;
 
 reg [8:0] ps2_pre, ps2_pre_l;
+reg [7:0] key;
 wire[7:0] code_nx;
-reg       rel, ph2_l;
+reg       rel, ph2_l, nx_l, high, new_key;
 wire      t1, t2;
-wire      ph2, ph3;
+wire      ph2, ph3, last;
 
-assign ph2     = ps2_pre == ps2_pre_l && ps2_pre!=0;
-assign ph3     = ph2 & ph2_l;
-assign t1      = ps2_pre[8] &&  !ph2;
-assign t2      = released   && (!ph2 || (!ph3 && high));
-assign last    = code_nx == ps2_code;
-assign code_nx = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
-
+assign ph2      = ps2_pre == ps2_pre_l && !new_key;
+assign ph3      = ph2 & ph2_l;
+assign t1       = ps2_pre[8] &&  !ph2;
+assign t2       = released   && (!ph2 || (!ph3 && high));
+assign last     = code_nx == ps2_code || ps2_pre==0;
+assign code_nx  = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
+assign tr_ready = last && !tr_send && !new_key || ps2_pre==0;
 
 always @(posedge clk) begin
  	if(rst) begin
         ps2_code  <= 0;
         high      <= 0;
-        rel       <= 0;
         ps2_pre_l <= 0;
         ph2_l     <= 0;
- 	end else if(cen) begin
-        ps2_pre_l <= ps2_pre;
-        ph2_l     <= ph2;
- 		ps2_code  <= code_nx;
-        high      <= ps2_pre[8];
-        rel       <= released;
-        if( ps2_pre==0 ) ps2_code <= 0;
+        tr_send   <= 0;
+        nx_l      <= 0;
+        new_key   <= 0;
+        key       <= 0;
+ 	end else begin
+ 		nx_l <= next_code;
+ 		if( load_key && tr_ready ) begin
+ 			key     <= keycheck;
+        	new_key <= 1;
+ 		end
+        if( ps2_pre==0 ) begin
+        	ps2_code <= 0;
+        	tr_send  <= 0;
+        	high     <= 0;
+        	tr_send  <= 0;
+        end else
+ 		if( next_code ) begin
+ 			if(!nx_l || new_key ) begin
+            	ps2_code <= code_nx;
+            	high     <= ps2_pre[8];
+            	tr_send  <= 1;
+            	new_key  <= 0;
+ 				{ps2_pre_l,ph2_l} <= {ps2_pre,ph2};
+ 			end
+ 		end else tr_send <= 0;
  	end
  end
 
 always @(posedge clk) begin
-		case(keycheck)
+		case(key)
 			KEY_HID_A:                ps2_pre <= {1'b0,KEY_PS2_A};
 			KEY_HID_B:                ps2_pre <= {1'b0,KEY_PS2_B};
 			KEY_HID_C:                ps2_pre <= {1'b0,KEY_PS2_C};
