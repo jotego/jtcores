@@ -43,15 +43,15 @@ always @(posedge clk) begin
         cnt      <= 0;
     end else if(cen) begin
         sclk     <= ~sclk;
-        if(!done) begin
-            if(!sclk) begin
+        if(!sclk) begin
+            if(!done) begin
                 pre_data <= {1'b1,pre_data[DW+1:1]};
                 cnt      <= cnt-1'b1;
             end
-        end
-        if( load && din!=0 ) begin
-            pre_data <= {par,din, 1'b0};
-            cnt      <= DW+2'd2;
+            if(load) begin
+                pre_data <= {par,din, 1'b0};
+                cnt      <= DW[0+:CK] + 'd2;
+            end
         end
     end
 end

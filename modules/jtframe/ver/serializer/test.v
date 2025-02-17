@@ -1,5 +1,7 @@
 module test;
 
+`include "test_tasks.vh"
+
 localparam DW=8;
 
 reg clk, rst;
@@ -8,7 +10,7 @@ reg  [   7:0] cen_cnt=1;
 wire [DW-1:0] data_in;
 wire [DW-1:0] data_out;
 reg        load;
-wire       sd, valid, sclk, cen;
+wire       sd, valid, sclk, cen, done;
 integer    value=0;
 
 
@@ -40,16 +42,19 @@ initial begin
     repeat (20) @(posedge clk);
     repeat (100) begin
         value  = $random;
-        wait ( cen==1 && !sclk );
-        load    = 1;
-        repeat (8) @(posedge clk);
-        load    = 0;
-        wait ( valid && data_in == data_out );
+        // wait ( cen==1 && !sclk );
+        wait ( done );
         repeat ($random%10) @(posedge clk);
+        @(posedge clk);
+        load    = 1;
+        wait( done==0 ) @(posedge clk);
+        load    = 0;
+        repeat ($random%10) @(posedge clk);
+        wait ( valid );
+        assert_msg(data_in == data_out,"Serialized output does not match expected input");
     end
     repeat (10) @(posedge clk);
-    $display("PASS");
-    $finish;
+    pass();
 end
 
 jtframe_serializer#(.DW(DW)) uut (
@@ -58,6 +63,7 @@ jtframe_serializer#(.DW(DW)) uut (
     .cen       ( cen      ),
     .din       ( data_in  ),
     .load      ( load     ),
+    .done      ( done     ),
     .sdout     ( sd       ),
     .sclk      ( sclk     )
 );
