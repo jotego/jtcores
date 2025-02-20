@@ -23,7 +23,7 @@ module jtframe_hid_ps2_translator(
     input      [7:0] keycheck,
     input            released,
     input            rq,
-    output           idle,
+    output reg       idle,
     input            ser_rdy,
     output reg       ser_send,
     output reg [7:0] ps2_code
@@ -284,17 +284,16 @@ localparam [7:0]
 reg [8:0] ps2_pre, ps2_pre_l;
 reg [7:0] key;
 wire[7:0] code_nx;
-reg       rel, ph2_l, nx_l, high, new_key;
+reg       rel, ph2_l, nx_l, high, rld;
 wire      t1, t2;
 wire      ph2, ph3, last;
 
 assign ph2     = ps2_pre == ps2_pre_l;
 assign ph3     = ph2 & ph2_l;
 assign t1      = ps2_pre[8] &&  !ph2;
-assign t2      = released   && (!ph2 || (!ph3 && high));
-assign last    = code_nx == ps2_code || ps2_pre==0;
+assign t2      = rld   && (!ph2 || (!ph3 && high));
+assign last    = ps2_pre[7:0] == ps2_code;
 assign code_nx = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
-assign idle    = last && !ser_send && !new_key || ps2_pre==0;
 
 always @(posedge clk) begin
  	if(rst) begin
@@ -304,30 +303,34 @@ always @(posedge clk) begin
         ph2_l     <= 0;
         ser_send  <= 0;
         nx_l      <= 0;
-        new_key   <= 0;
         key       <= 0;
+        idle <= 1;
  	end else begin
         nx_l     <= ser_rdy;
         ser_send <= 0;
  		if( rq && idle ) begin
  			key     <= keycheck;
-        	new_key <= 1;
+ 			rld     <= released;
         	{ps2_pre_l,ph2_l} <= 0;
+        	idle <= 0;
  		end
  		if( ser_rdy ) begin
             ps2_code <= code_nx;
             high     <= ps2_pre[8];
-            ser_send <= 1;
-            new_key  <= 0;
+            if(ps2_pre!=0)
+            	{idle, ser_send} <= 2'b01;
+            else
+            	{idle, ser_send} <= 2'b10;
  		end
- 		if(!ser_rdy && nx_l)
- 			{ps2_pre_l,ph2_l} <= {ps2_pre,ph2};
+ 		if(!ser_rdy && nx_l) begin
+ 			{ps2_pre_l,ph2_l} <= last? 0 : {ps2_pre,ph2};
+ 			idle <= last;
+ 		end
  	end
  end
 
 always @(posedge clk) begin
 		case(key)
-			KEY_HID_NONE:             ps2_pre <= {1'b0,8'hFF};
 			KEY_HID_A:                ps2_pre <= {1'b0,KEY_PS2_A};
 			KEY_HID_B:                ps2_pre <= {1'b0,KEY_PS2_B};
 			KEY_HID_C:                ps2_pre <= {1'b0,KEY_PS2_C};

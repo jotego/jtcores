@@ -1,6 +1,6 @@
 module test;
 
-reg clk, rst;
+reg clk, rst, bad=0;
 `include "test_tasks.vh"
 
 localparam DW=8;
@@ -10,7 +10,7 @@ reg  [    15:0] commands [0:255];
 wire [  DW-1:0] data_in, data_out;
 wire [2*DW-1:0] dexp;
 wire            high, ready, send;
-reg             load=0,next=0, released=0;
+reg             load=0,next=0, released=0, clr=0, sent_rel=0;
 integer         value=0, steps=0;
 
 
@@ -28,7 +28,7 @@ initial begin
     forever #10 clk=~clk;
 end
 
-assign data_in     = value[0+:DW];
+assign data_in     = clr ? 0 : value[0+:DW];
 assign dexp        = commands[value];
 assign high        = dexp[15:8]==8'he0;
 
@@ -43,6 +43,8 @@ initial begin
         for (value = 0; value < 256; value++) begin
             send_new_key();
             check_commands();
+            clear_key();
+            issue_same_codes_again();
         end
         released = ~released;
     end
@@ -51,23 +53,27 @@ end
 
 task send_new_key();
     assert_msg( ready ==1,"Translator not ready");
-    count_total_steps();
+    sent_rel <= released; clr = 0;
     @(posedge clk) load = 1;
     @(posedge clk) load = 0;
     if( dexp != 0 )
         @(posedge clk) assert_msg( ready ==0,"Translator should not be ready");
 endtask
 
+task clear_key();
+    clr = 1;
+endtask
+
 task count_total_steps();
     steps = 1;
     @(posedge clk);
     if( high     ) steps = steps+1;
-    if( released ) steps = steps+1;
+    if( sent_rel ) steps = steps+1;
 endtask
 
 task check_current_output();
     @(posedge clk);
-    if( steps==2 && released && dexp!=0 )
+    if( steps==2 && sent_rel && dexp!=0 )
         @(posedge clk) assert_msg( data_out==8'hf0,"Released code was expected");
     else if( steps[1] && dexp!=0 )
         @(posedge clk) assert_msg( data_out==8'he0,"Extended code was expected");
@@ -83,6 +89,7 @@ task check_send(input exp);
 endtask
 
 task check_commands();
+    count_total_steps();
     repeat (steps) begin
         check_send(0);
         @(posedge clk) next=1;
@@ -94,6 +101,12 @@ task check_commands();
         steps = steps-1;
         repeat (5) @(posedge clk);
     end
+endtask
+
+task issue_same_codes_again();
+    repeat(30) @(posedge clk);
+    check_commands();
+    repeat(30) @(posedge clk);
 endtask
 
 jtframe_hid_ps2_translator uut(
