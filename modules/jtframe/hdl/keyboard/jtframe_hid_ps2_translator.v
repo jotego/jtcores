@@ -320,7 +320,7 @@ always @(posedge clk) begin
  		end
  		if(!ser_rdy && nx_l) begin
  			idle     <= last;
- 			{ps2_pre_l,ph2_l} <= last? 0 : {ps2_pre,ph2};
+ 			{ps2_pre_l,ph2_l} <= last? 10'b0 : {ps2_pre,ph2};
  		end
  	end
  end
