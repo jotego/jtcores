@@ -82,7 +82,7 @@ task check_current_output();
 endtask
 
 task check_send(input exp);
-    if( /*dexp == 0 ||*/ exp==0 )
+    if( dexp == 0 || exp==0 )
         assert_msg( send==0, "Send signal should not be active");
     else
         assert_msg( send==1, "Send signal should be active");

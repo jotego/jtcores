@@ -286,45 +286,41 @@ reg [7:0] key;
 wire[7:0] code_nx;
 reg       rel, ph2_l, nx_l, high, rld;
 wire      t1, t2;
-wire      ph2, ph3, last;
+reg       ph2, ph3, last;
 
-assign ph2     = ps2_pre == ps2_pre_l;
-assign ph3     = ph2 & ph2_l;
-assign t1      = ps2_pre[8] &&  !ph2;
+assign t1      = high  &&  !ph2;
 assign t2      = rld   && (!ph2 || (!ph3 && high));
-assign last    = ps2_pre[7:0] == ps2_code;
 assign code_nx = t1 ? 8'he0 : (t2 ? 8'hf0 : ps2_pre[7:0]);
 
 always @(posedge clk) begin
  	if(rst) begin
-        ps2_code  <= 0;
-        high      <= 0;
-        ps2_pre_l <= 0;
+        ps2_code  <= 0;  ps2_pre_l <= 0;
+        high      <= 0;  rld       <= 0;
+        ser_send  <= 0;  nx_l      <= 0;
+        idle      <= 1;  key       <= 0;
+        ph2       <= 0;  ph3       <= 0;
         ph2_l     <= 0;
-        ser_send  <= 0;
-        nx_l      <= 0;
-        key       <= 0;
-        idle <= 1;
  	end else begin
-        nx_l     <= ser_rdy;
         ser_send <= 0;
+        nx_l     <= ser_rdy;
+		high     <= ps2_pre[8];
+		last     <= ps2_pre[7:0] == ps2_code;
+		ph2      <= ps2_pre      == ps2_pre_l;
+		ph3      <= ph2 & ph2_l;
  		if( rq && idle ) begin
  			key     <= keycheck;
  			rld     <= released;
+        	idle    <= 0;
         	{ps2_pre_l,ph2_l} <= 0;
-        	idle <= 0;
  		end
  		if( ser_rdy ) begin
             ps2_code <= code_nx;
-            high     <= ps2_pre[8];
-            if(ps2_pre!=0)
-            	{idle, ser_send} <= 2'b01;
-            else
-            	{idle, ser_send} <= 2'b10;
+            if(ps2_pre!=0) {idle, ser_send} <= 2'b01;
+            else           {idle, ser_send} <= 2'b10;
  		end
  		if(!ser_rdy && nx_l) begin
+ 			idle     <= last;
  			{ps2_pre_l,ph2_l} <= last? 0 : {ps2_pre,ph2};
- 			idle <= last;
  		end
  	end
  end
