@@ -1,10 +1,10 @@
 module test;
 
+reg clk, rst;
+
 `include "test_tasks.vh"
 
 localparam DW=8;
-
-reg clk, rst;
 
 reg  [   7:0] cen_cnt=1;
 wire [DW-1:0] data_in;
@@ -53,22 +53,24 @@ initial begin
         wait ( valid );
         assert_msg(data_in == data_out,"Serialized output does not match expected input");
     end
+    repeat (30) @(posedge clk);
+    assert_msg(data_in == data_out,"Serialized output does not match expected input");
     repeat (10) @(posedge clk);
     pass();
 end
 
-jtframe_serializer#(.DW(DW)) uut (
+jtframe_serializer#(.DW(DW)) uut(
     .clk       ( clk      ),
     .rst       ( rst      ),
     .cen       ( cen      ),
     .din       ( data_in  ),
-    .load      ( load     ),
-    .done      ( done     ),
+    .send      ( load     ),
+    .ready     ( done     ),
     .sdout     ( sd       ),
     .sclk      ( sclk     )
 );
 
-ps2_intf_v uut_s (
+ps2_intf_v uut_s(
     .CLK      ( clk      ),
     .nRESET   ( ~rst     ),
     .PS2_CLK  ( sclk     ),

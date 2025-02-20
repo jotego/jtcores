@@ -1,10 +1,10 @@
 module test;
 
+reg clk, rst;
 `include "test_tasks.vh"
 
 localparam DW=8;
 
-reg clk, rst;
 
 reg  [    15:0] commands [0:255];
 wire [  DW-1:0] data_in, data_out;
@@ -76,7 +76,7 @@ task check_current_output();
 endtask
 
 task check_send(input exp);
-    if( dexp == 0 || exp==0 )
+    if( /*dexp == 0 ||*/ exp==0 )
         assert_msg( send==0, "Send signal should not be active");
     else
         assert_msg( send==1, "Send signal should be active");
@@ -101,10 +101,10 @@ jtframe_hid_ps2_translator uut(
     .clk       ( clk      ),
     .keycheck  ( data_in  ),
     .released  ( released ),
-    .load_key  ( load     ),
-    .tr_ready  ( ready    ),
-    .tr_send   ( send     ),
-    .next_code ( next     ),
+    .rq        ( load     ),
+    .idle      ( ready    ),
+    .ser_send  ( send     ),
+    .ser_rdy   ( next     ),
     .ps2_code  ( data_out )
 );
 
