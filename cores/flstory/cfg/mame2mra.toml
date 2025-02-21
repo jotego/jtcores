@@ -82,7 +82,7 @@ data = [
 	# coins active high/low
 	{ setname="rumba",                  offset=3, data="01" },
 	# unused IO bits set high
-	{ machines=["nycaptor","cyclshtg"], offset=3, data="10" },
+	{ machines=["nycaptor","cyclshtg"], offset=3, data="11" },
 	# GFX config register location
 	{ machines=["rumba","victnine"],    offset=4, data="01" },
 	# Layer priority
