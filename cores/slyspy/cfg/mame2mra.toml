@@ -44,8 +44,7 @@ regions = [
     { name="gfx1",     start="JTFRAME_BA2_START", width=16, no_offset=true },
 
     # GFX2
-    { name="gfx2",     start="GFX2_START",width=16, no_offset=true,  ext_sort=[
-    "14d","14f","12d","12f","17d","17f","15d","15f","9h","9f","8h","8f"], sort_even=true },
+    { name="gfx2",     start="GFX2_START",width=16, no_offset=true, sort_even=true },
 
     # GFX3
     { name="gfx3",     start="GFX3_START", width=16, no_offset=true },
