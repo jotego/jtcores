@@ -28,3 +28,8 @@ type MAMEState struct{
 	alias mameAlias
 	ram []byte
 }
+
+func (st MAMEState)validate(name string) bool {
+    _, valid := st.data[name]
+    return valid
+}

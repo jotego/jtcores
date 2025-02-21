@@ -23,6 +23,7 @@ import(
     "log"
     "os"
     "sort"
+    "slices"
     "strings"
     "strconv"
     "github.com/PaesslerAG/gval"
@@ -46,7 +47,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     hier := GenerateHierarchy(ss)
     mame_st := &MAMEState{ alias: mame_alias, mask: make(NameValue) }
     sim_st := &SimState{ data: ss }
-    ignore := make(boolSet)
+    ignore := newBoolSet(mame_st)
     kmax := 4
 
     cmd_diff := func() {
@@ -164,24 +165,10 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
                 fmt.Printf("Start running a trace first\n")
                 break
             }
-            for k:=1; k<len(tokens);k++ {
-                name := tokens[k]
-                turnon:= true
-                if name[0]=='-' {
-                    turnon = false
-                    name=name[1:]
-                }
-                _, f := mame_st.data[name]
-                if !f {
-                    fmt.Printf("Couldn't find %s\n", name)
-                    continue
-                }
-                ignore[name]=turnon
-            }
-        }
-        case "il", "ignore-list": {
-            for k, each := range ignore {
-                if each { fmt.Printf("%s\n",k) }
+            if len(tokens)==1 {
+                ignore.Dump()
+            } else {
+                ignore.Update(tokens[1:]...)
             }
         }
         case "kmax": {
@@ -323,9 +310,9 @@ f,frame #number     advances the simulation upto the given frame
 g,go                compare MAME and simulation until a discrepancy cannot be resolved
 ?,help              produces this help screen
 h,hierarchy         shows the signal hierarchy in the simulation
-i,ignore foo boo    ignores the given MAME variables in comparison
-il,ignore-list      shows the list of ignored variables
-mask                sets bit masks for signals. Bits set at 1 will be ignored.
+i,ignore foo boo    ignores the given MAME variables in comparison. Shows the
+                    list of ignored variables if called without names
+mask name FF        sets bit masks for signals. Bits set at 1 will be ignored.
 match-vcd           moves MAME forward until it matches simulation vcd
 match-trace         moves the simulation forward until it matches MAME trace
 mt,mt-trace foo     moves MAME forward until the given condition is met
@@ -571,18 +558,18 @@ func parseTrace( s string ) NameValue {
     return nv
 }
 
-func diff( st *MAMEState, context string, verbose bool, ignore boolSet ) int {
+func diff( st *MAMEState, context string, verbose bool, ignore *boolSet ) int {
     d := 0
-    var diffs sort.StringSlice
+    var diffs []string
     for name, value := range st.data {
         if name=="PC" { continue }
         p, _ := st.alias[name]
         if p == nil { continue }
-        toignore, _ := ignore[name]
+        toignore := ignore.IsSet(name)
         mask, _ := st.mask[name]
         equal := (p.FullValue() | mask) == (value | mask)
         if equal && toignore { // use full value to concatenate data
-            ignore[name]=false  // stops ignoring it
+            ignore.Remove(name) // stops ignoring it
             fmt.Printf("%s taken out of the ignore list\n",name)
         }
         if !equal && !toignore {
@@ -592,14 +579,14 @@ func diff( st *MAMEState, context string, verbose bool, ignore boolSet ) int {
             }
             d++
         }
-        if p.Name=="irq_bsy" && p.Value==1 { // do not compare the interrupt interval
+        if p.Name=="irq_bsy" && p.Value==1 { // do not compare during the interrupt interval
             return 0
         }
     }
     if verbose && diffs!=nil {
         if context!="" { fmt.Println(context) }
         fmt.Println("\t     MAME  -   SIM")
-        diffs.Sort()
+        slices.Sort(diffs)
         for _,name := range diffs {
             p,_ := st.alias[name]
             if p==nil { continue }
@@ -698,7 +685,7 @@ func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
 }
 
 func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore boolSet, alu_busy, stack_busy, str_busy *VCDSignal, KMAX int ) {
+        ignore *boolSet, alu_busy, stack_busy, str_busy *VCDSignal, KMAX int ) {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -728,7 +715,7 @@ func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
         trace.line,formatTime(vcd.time), formatTime(div_time)), true, ignore )
 }
 
-func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boolSet ) bool {
+func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore *boolSet ) bool {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -751,7 +738,7 @@ func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boolS
 }
 
 func matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        alu_busy, stack_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
+        alu_busy, stack_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore *boolSet ) bool {
     var good, matched bool
     for {
         mv := 0

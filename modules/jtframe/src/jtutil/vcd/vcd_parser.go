@@ -39,13 +39,59 @@ type VCDSignal struct{
 }
 
 type vcdData map[string]*VCDSignal
-type boolSet map[string]bool
+type boolSet struct {
+	v validator
+	set map[string]bool
+}
 type mameAlias map[string]*VCDSignal
 type NameValue map[string]uint64
 
 type Hierarchy struct{
 	Nested map[string]*Hierarchy
 	Signals map[string]*VCDSignal
+}
+
+func (bset boolSet) Dump() {
+    for k, each := range bset.set {
+        if each { fmt.Printf("%s\n",k) }
+    }
+}
+
+type validator interface {
+	validate (name string) bool
+}
+
+func newBoolSet(v validator) (*boolSet) {
+	return &boolSet{
+		v: v,
+		set: make(map[string]bool),
+	}
+}
+
+func (b *boolSet) Update(all_names...string) {
+    for _, name := range all_names {
+        turnon:= true
+        if name[0]=='-' {
+            turnon = false
+            name=name[1:]
+        }
+        if !b.v.validate(name) {
+            fmt.Printf("Couldn't find %s\n", name)
+            continue
+        }
+        b.set[name]=turnon
+    }
+}
+
+func (b *boolSet)Remove(all_names... string) {
+    for _, name := range all_names {
+        b.set[name]=false
+    }
+}
+
+func (b boolSet)IsSet(name string) bool {
+	valid, _ := b.set[name]
+	return valid
 }
 
 func (this *VCDSignal) Dump() {
