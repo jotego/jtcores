@@ -16,16 +16,15 @@
     Version: 1.0
     Date: 30-5-2021 */
 
-/*
-        Logic cells  | Registers | Memory bits | M9Ks | Compilation time (jtcore shinobi -q -p)
-fx68k    5174        |  1388     | 39584       |  6   | 3m00s
-fx68k*   3078        |   881     | 40608       |  8   | 3m30s
-j68      9020        |  1870     |  7344       |  2   | 5m00s
+//         Logic cells  | Registers | Memory bits | M9Ks | Compilation time (jtcore shinobi -q -p)
+// fx68k    5174        |  1388     | 39584       |  6   | 3m00s
+// fx68k*   3078        |   881     | 40608       |  8   | 3m30s
+// j68      9020        |  1870     |  7344       |  2   | 5m00s
+//
+// * using Gyurco's BRAM option
 
-* using Gyurco's BRAM option
-
-*/
-
+/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_CPU /* verilator tracing_on  */ `endif
 module jtframe_m68k(
     input   clk,
     input   rst,
@@ -62,7 +61,6 @@ module jtframe_m68k(
     output [2:0] FC
 );
 
-`ifndef VERILATOR_KEEP_CPU /* verilator tracing_off  */ `endif
 `ifdef JTFRAME_J68
 jtframe_j68 u_cpu(
     .clk        ( clk         ),

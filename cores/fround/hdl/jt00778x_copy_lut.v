@@ -30,7 +30,7 @@ module jt00778x_copy_lut(
     output            oram_we
 );
 
-reg         dma_cen=0, obi_l;
+reg         obi_l;
 wire [11:1] nx_addr;
 reg  [10:1] lo_addr;
 
@@ -43,8 +43,7 @@ always @(posedge clk) begin
     if( rst ) begin
         dma_bsy  <= 0;
     end else if( pxl_cen ) begin
-        dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
-        obi_l   <= objbufinit;
+        obi_l <= objbufinit;
         if( objbufinit && !obi_l ) begin
             if(dma_on) begin
                 dma_bsy <= 1;

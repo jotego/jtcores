@@ -56,6 +56,8 @@ wire   stile_cs, lyra_cs, lyrb_cs;
 reg    stile_ok;
 assign stile_we  = stile_we16;
 always @(posedge clk) stile_ok <= stile_cs;
+
+/* verilator tracing_off */
 // makes consequitive requests to
 // convert 16 bit data to 32 bits
 jttwin16_tile u_tile(
@@ -100,7 +102,7 @@ end
 //     if( prog_addr==0 && prog_we && header )
 //         game_id <= prog_data[2:0];
 // end
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttwin16_share u_share(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -132,7 +134,7 @@ jttwin16_share u_share(
     .oram_we        ( osha_we       ),
     .v_din          ( v_din         )
 );
-
+/* verilator tracing_off */
 jttwin16_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -203,7 +205,7 @@ jttwin16_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_sub u_sub(
     .rst            ( rst           ),
     .clk            ( clk           ),

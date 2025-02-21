@@ -70,7 +70,7 @@ always @(posedge clk) if(cen) begin
     tim1 <= ~tim1;
     tim2 <=  tim1;
 end
-
+/* verilator tracing_off */
 jtframe_dual_ram16 #(.AW(13)) u_shram(
     // Port 0 - main CPU
     .clk0   ( clk       ),
