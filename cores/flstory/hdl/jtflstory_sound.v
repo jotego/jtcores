@@ -23,6 +23,7 @@ module jtflstory_sound(
     input            cen2,
     input            cen48k,
 
+    input            psg2_en,
     // communication with the other CPUs
     input            bus_wr,
     input            bus_rd,
@@ -49,17 +50,18 @@ module jtflstory_sound(
 `ifndef NOSOUND
 wire [15:0] A;
 wire [14:0] msm1, msm2, msm_mix;
-wire [ 7:0] ram_dout, cpu_dout, ay_dout, ioa, iob;
+wire [ 7:0] ram_dout, cpu_dout, ay0_dout, ay1_dout, ioa, iob, io1a,io1b;
 wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_treble, msm_bass, msm_vol, msm_bal;
 wire [ 3:0] psg_treble, psg_bass, psg_vol, psg_bal;
 reg  [13:0] int_cnt;
 reg         int_n;
-reg         ram_cs, bdir, bc1, msmw, cfg0, cfg1,
+reg         ram_cs, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
             ibf, obf, rst_n, crst_n;    // ibf = input buffer full
+reg  [ 1:0] bdir, bc1;
 wire [ 5:0] nc;
 wire [ 9:0] psg_raw;
 
@@ -154,17 +156,18 @@ always @* begin
         0,1,2,3,4,5,7: rom_cs = 1;
         6: case(A[12:11])
             0: ram_cs = 1;  // C000~C7FF
-            1: if(!wr_n) case(A[10:9]) // C800~CFFF sound chips
+            1: if(!wr_n) case(A[10:8]) // C800~CFFF sound chips
                 0: begin
-                    bdir = 1;
-                    bc1  = !A[0];
+                    bdir[A[1]] = 1;
+                    bc1[A[1]]  = !A[0];
                 end
-                1: msmw = 1;
-                2: cfg0 = 1;
-                3: cfg1 = 1;
+                1: if( psg2_en ) msmw = 1; // C900
+                2: if(!psg2_en ) msmw = 1; // CA00
+                4,5: cfg0 = 1; // CC00
+                6,7: cfg1 = 1; // CD00
+                default:;
             endcase
-            // 2: // D000~D7FF unused
-            3: begin    // D800~DFFF
+            2,3: begin // D000~D7FFF (nycaptor psg2_en=1) D800~DFFF (flstory psg2_en=0)
                 if(!rd_n) case(A[10:9]) // communication
                     0: cmd_rd = 1;
                     1: cmd_st = 1;
@@ -183,6 +186,7 @@ always @* begin
         endcase
         default:;
     endcase
+    if(!psg2_en) {bdir[1],bc1[1]} = 0;
 end
 
 always @* begin
@@ -191,7 +195,8 @@ always @* begin
           cmd_rd ? ibuf            :
           cmd_st ? {6'd0,obf,~ibf} :
           cmd_lr ? dac             :
-          bc1    ? ay_dout         : 8'd0;
+          bc1[0] ? ay0_dout        :
+          bc1[1] ? ay1_dout        : 8'd0;
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
@@ -224,11 +229,11 @@ jt49_bus u_ay0(
     .rst_n  ( crst_n    ),
     .clk    ( clk       ),
     .clk_en ( cen2      ),
-    .bdir   ( bdir      ),
-    .bc1    ( bc1       ),
+    .bdir   ( bdir[0]   ),
+    .bc1    ( bc1[0]    ),
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
-    .dout   ( ay_dout   ),
+    .dout   ( ay0_dout  ),
     .sound  ( psg_raw   ),
     .sample (           ),
     // unused
@@ -237,6 +242,27 @@ jt49_bus u_ay0(
     .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
     .IOB_out( iob       ),
+    .IOB_oe (           ),
+    .A(), .B(), .C() // unused outputs
+);
+
+jt49_bus u_ay1(
+    .rst_n  ( crst_n    ),
+    .clk    ( clk       ),
+    .clk_en ( cen2      ),
+    .bdir   ( bdir[1]   ),
+    .bc1    ( bc1[1]    ),
+    .din    ( cpu_dout  ),
+    .sel    ( 1'b1      ),
+    .dout   ( ay1_dout  ),
+    .sound  (           ), // to do
+    .sample (           ),
+    // unused
+    .IOA_in ( 8'h0      ),
+    .IOA_out( io1a      ),
+    .IOA_oe (           ),
+    .IOB_in ( 8'h0      ),
+    .IOB_out( io1b      ),
     .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );

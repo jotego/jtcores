@@ -30,7 +30,7 @@ reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
-            palwcfg, cabcfg, objcfg, iocfg, osdflip_en,
+            palwcfg, cabcfg, objcfg, iocfg, osdflip_en, psg2_en,
             subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
 reg         mcu_rst, osdflip;
 
@@ -64,6 +64,7 @@ jtflstory_header u_header (
     .sub      ( sub_en          ),
     .dec      ( dec_en          ),
     .banks    ( bankcfg         ),
+    .psg2_en  ( psg2_en         ),
     .iocfg    ( iocfg           )
 );
 
@@ -153,8 +154,7 @@ jtflstory_main u_main(
 jtflstory_sub u_sub(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    // .enable     ( sub_en    ),
-    .enable     ( 1'b0      ),
+    .enable     ( sub_en    ),
     .cen        ( cen_5p3   ),
     .lvbl       ( LVBL      ),       // video interrupt
     .nmi_n      ( 1'b1      ),
@@ -202,7 +202,7 @@ jtflstory_mcu u_mcu(
     .rom_data   ( mcu_data  )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -210,6 +210,7 @@ jtflstory_sound u_sound(
     .cen2       ( cen2      ),
     .cen48k     ( cen48k    ),
 
+    .psg2_en    ( psg2_en   ),
     // communication with the other CPUs
     .bus_wr     ( m2s_wr    ),
     .bus_rd     ( s2m_rd    ),
