@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 21-02-2025 */
 
-module jtframe_generic_cen#(parameter CKW=3)(
+module jtframe_int_cen#(parameter CKW=3)(
     input      clk,
     output reg cen
 );
