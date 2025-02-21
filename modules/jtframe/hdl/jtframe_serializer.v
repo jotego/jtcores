@@ -28,8 +28,8 @@ module jtframe_serializer#(parameter DW=8, PAR=1)( // Set PAR==0 for even parity
 );
 
 localparam CK=$clog2(DW+2);
+// reg  [DW-1:0] ser_l;  // Useful for debugging
 reg  [DW+1:0] pre_data;
-reg  [DW-1:0] ser_l;
 reg  [CK-1:0] cnt;
 wire          par, done;
 
@@ -42,7 +42,7 @@ always @(posedge clk) begin
         sclk     <= 0;
         pre_data <= {DW+2{1'b1}};
         cnt      <= 0;
-        ser_l    <= 0;
+        // ser_l    <= 0;
         ready    <= 1;
     end else if(cen) begin
         sclk     <= ~sclk;
@@ -55,7 +55,7 @@ always @(posedge clk) begin
             if(send) begin
                 pre_data <= {par,din, 1'b0};
                 cnt      <= DW[0+:CK] + {{CK-2{1'b0}},2'd2};
-                ser_l    <= din;
+                // ser_l    <= din;
             end
         end
     end
