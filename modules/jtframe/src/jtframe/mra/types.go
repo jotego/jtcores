@@ -117,9 +117,7 @@ type RegCfg struct {
     // warning messages or fillers, so no_offset=true is needed
     Sort_even    bool // sort ROMs by pushing all even ones first, and then the odd ones
     Singleton    bool // Each file can only merge with itself to make interleave sections
-    // The upper and lower halves of the same file are merged together
-    Ext_sort   []string // sorts by matching the file extension
-    Name_sort  []string // sorts by name
+                      // The upper and lower halves of the same file are merged together
     Sequence   []int    // File sequence, where the first file is identified with a 0, the next with 1 and so on
     // ROM files can be repeated or omitted in the sequence
     Frac struct {

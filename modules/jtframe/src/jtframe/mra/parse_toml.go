@@ -106,8 +106,8 @@ func (mra_cfg *Mame2MRA) prepare_regions() error {
 			}
 		}
 		if  this.Sort_even ||
-			this.Singleton || len(this.Ext_sort) > 0 ||
-			len(this.Name_sort) > 0 || len(this.Sequence) > 0 {
+			this.Singleton ||
+			len(this.Sequence) > 0 {
 			this.No_offset = true
 		}
 	}

@@ -29,14 +29,6 @@ func apply_sort(reg_cfg *RegCfg, roms []MameROM, setname string) []MameROM {
 	if len(reg_cfg.Sequence) > 0 {
 		return apply_sequence(reg_cfg, roms)
 	}
-	if len(reg_cfg.Ext_sort) > 0 {
-		sort_ext_list(reg_cfg, roms)
-		return roms
-	}
-	if len(reg_cfg.Name_sort) > 0 {
-		sort_name_list(reg_cfg, roms)
-		return roms
-	}
 	if reg_cfg.Sort_even {
 		sort_even_odd(reg_cfg, roms, true)
 		return roms
@@ -58,37 +50,6 @@ func sort_even_odd(reg_cfg *RegCfg, roms []MameROM, even_first bool) {
 	// Copy the odd ones
 	for i := 1; i < len(roms); i += 2 {
 		roms[(i>>1)+half] = base[i]
-	}
-}
-
-func sort_ext_list(reg_cfg *RegCfg, roms []MameROM) {
-	base := make([]MameROM, len(roms))
-	copy(base, roms)
-	k := 0
-	for _, ext := range reg_cfg.Ext_sort {
-		for i, _ := range base {
-			if strings.HasSuffix(base[i].Name, ext) {
-				roms[k] = base[i]
-				k++
-				break
-			}
-		}
-	}
-}
-
-func sort_name_list(reg_cfg *RegCfg, roms []MameROM) {
-	// fmt.Println("Applying name sorting ", reg_cfg.Name_sort)
-	base := make([]MameROM, len(roms))
-	copy(base, roms)
-	k := 0
-	for _, each := range reg_cfg.Name_sort {
-		for i, _ := range base {
-			if base[i].Name == each {
-				roms[k] = base[i]
-				k++
-				break
-			}
-		}
 	}
 }
 
