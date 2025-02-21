@@ -304,11 +304,11 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             fmt.Println(expr)
             if !mvTrace( trace, mame_st, expr ) { break } // EOF
         }
-        case "match-trace": { // moves the trace until it matches the VCD data
-            matchTrace( trace, sim_st, mame_st, ignore )
+        case "match-vcd": { // moves the trace until it matches the VCD data
+            matchVCD( trace, sim_st, mame_st, ignore )
         }
-        case "match-vcd": { // moves the VCD until it matches MAME data
-            matchVCD( vcd, sim_st, mame_alias, alu_busy, stack_busy, str_busy, mame_st, ignore )
+        case "match-trace": { // moves the VCD until it matches MAME data
+            matchTrace( vcd, sim_st, mame_alias, alu_busy, stack_busy, str_busy, mame_st, ignore )
         }
         case "?","help": {
             fmt.Println(`
@@ -326,8 +326,8 @@ h,hierarchy         shows the signal hierarchy in the simulation
 i,ignore foo boo    ignores the given MAME variables in comparison
 il,ignore-list      shows the list of ignored variables
 mask                sets bit masks for signals. Bits set at 1 will be ignored.
-match-trace         moves MAME forward until it matches simulation
-match-vcd           moves the simulation forward until it matches MAME data
+match-vcd           moves MAME forward until it matches simulation vcd
+match-trace         moves the simulation forward until it matches MAME trace
 mt,mt-trace foo     moves MAME forward until the given condition is met
                     start hex numbers with $ for comparison
 mv,mv-vcd foo       moves simulation forward until the given condition is met
@@ -728,7 +728,7 @@ func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
         trace.line,formatTime(vcd.time), formatTime(div_time)), true, ignore )
 }
 
-func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boolSet ) bool {
+func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boolSet ) bool {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -750,7 +750,7 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
     return matched
 }
 
-func matchVCD( file *LnFile, sim_st *SimState, mame_alias mameAlias,
+func matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
         alu_busy, stack_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
     var good, matched bool
     for {
