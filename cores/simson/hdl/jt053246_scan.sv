@@ -97,7 +97,6 @@ always @(posedge clk) begin
                        simson    ? 10'h117 : 10'h107); // Vendetta
     vscl <= rd_pzoffset(vzoom[9:0]);
     hscl <= rd_pzoffset(hzoom[9:0]);
-    y2      <= y + {1'b0,ymove};
     ydiff_b <= y2 + { vlatch[8], vlatch };
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
@@ -126,6 +125,7 @@ endfunction
 
 always @* begin : B
     ymove     = zmove( vsz, vscl );
+    y2        = y + {1'b0,ymove};
     ydiff     = yz_add[6+:10];
     x2        = x - zmove( hsz, hscl );
     left_wrap = x2 < HDUMP_MIN;
