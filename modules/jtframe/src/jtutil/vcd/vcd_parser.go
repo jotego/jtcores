@@ -43,8 +43,6 @@ type boolSet struct {
 	v validator
 	set map[string]bool
 }
-type mameAlias map[string]*VCDSignal
-type NameValue map[string]uint64
 
 type Hierarchy struct{
 	Nested map[string]*Hierarchy

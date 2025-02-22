@@ -535,8 +535,13 @@ func display( t []string, vcd, trace *LnFile, ss vcdData, scope string ) {
 }
 
 func parseTrace( s string ) NameValue {
-    nv := make(NameValue)
+    nv := pase_trace_interrupts(s)
+    parse_trace_tokens(s,nv)
+    return nv
+}
 
+func pase_trace_interrupts(s string) (nv NameValue) {
+    nv = make(NameValue)
     if k := strings.Index(s,"*"); k!=-1 {
         rest := s[k:]
         s = s[0:k]
@@ -548,14 +553,18 @@ func parseTrace( s string ) NameValue {
             fmt.Printf("MAME enters IRQ\n")
         }
     }
+    return nv
+}
+
+func parse_trace_tokens( s string, nv NameValue ) {
     for _, token := range strings.Split(s,",") {
         k := strings.Index(token,"=")
         if k==-1 || k+1>len(token) { continue }
-        v,_ := strconv.ParseInt(token[k+1:],16,64)
+        value_text := strings.TrimSpace(token[k+1:])
+        v,_ := strconv.ParseInt(value_text,16,64)
         n := token[0:k]
         nv[n] = uint64(v)
     }
-    return nv
 }
 
 func diff( st *MAMEState, context string, verbose bool, ignore *boolSet ) int {
