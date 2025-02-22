@@ -1,5 +1,7 @@
 params:
   - { name: SUB_OFFSET, value: "`SUB_START>>1" }
+ports:
+  - { name: bus_addr, msb: 15 }
 clocks:
   clk:
     - freq: 3072000
@@ -64,7 +66,7 @@ bram:
     data_width: 8
     prom: true
   - name: sha
-    addr: main_addr[10:0]
+    addr: bus_addr[10:0]
     din: bus_dout
     addr_width: 11
     data_width: 8
@@ -74,7 +76,7 @@ bram:
     data_width: 16
     dual_port:
       name: shram
-      addr: main_addr[10:1]
+      addr: bus_addr[10:1]
       din:  "{2{bus_dout}}"
       dout: vram16_dout
       we:   vram_we
@@ -88,7 +90,7 @@ bram:
     rw: true
     dual_port:
       name: shram
-      addr: main_addr[7:0]
+      addr: bus_addr[7:0]
       din:  bus_dout
       dout: oram8_dout
       we:   oram8_we

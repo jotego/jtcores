@@ -167,13 +167,13 @@ always @* begin
         1: begin
             case(bus_addr[11:10]) // D000
                 0: if(bus_we) case(bus_addr[1:0])
-                    0: b2c_wr = 1; // CPU writes to MCU latch
-                    1: begin
+                    0: b2c_wr = 1; // D000 CPU writes to MCU latch
+                    1: begin // D400
                         subhalt_cs = 1;
                         // watchdog = bus_rd
                     end
-                    2: ctl_cs = bus_we; // sub CPU reset and coin lock
-                    // 3: sub CPU NMI
+                    2: ctl_cs = bus_we; // D800 sub CPU reset and coin lock
+                    // 3: sub CPU NMI DC00
                     default:;
                 endcase else if(bus_rd) case(bus_addr[1:0])
                     0: b2c_rd = 1; // CPU reads from MCU latch

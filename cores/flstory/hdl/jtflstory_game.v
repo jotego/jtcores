@@ -23,7 +23,7 @@ module jtflstory_game(
 wire        ghflip, gvflip, m2s_wr, s2m_rd, bus_a0, scr_flen, clip,
             no_used, // noise used
             mcu_ibf, mcu_obf, busrq_n, busak_n, c2b_we, c2b_rd, b2c_rd, b2c_wr;
-wire [15:0] c2b_addr, bus_addr;
+wire [15:0] c2b_addr;
 wire [ 7:0] bus_din, s2m_data, st_snd, sub_din, sub_dout,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
