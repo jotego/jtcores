@@ -215,9 +215,10 @@ jtframe_wait_on_shared u_wait(
 );
 
 localparam [1:0] LOW_FOR_FLSTORY=2'd0, HI_FOR_NYCAPTOR=2'b11;
+localparam [3:0] NOEXTRA=4'b1111;
 
-assign extra1p = cabcfg ? joystick1[9:6] : 4'b1111;
-assign extra2p = cabcfg ? joystick2[9:6] : 4'b1111;
+assign extra1p = cabcfg ? joystick1[9:6] : NOEXTRA;
+assign extra2p = cabcfg ? joystick2[9:6] : NOEXTRA;
 
 always @(posedge clk) begin
     if(rst) begin

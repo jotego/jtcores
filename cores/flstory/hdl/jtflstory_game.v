@@ -28,12 +28,14 @@ wire [ 7:0] bus_din, s2m_data, st_snd, sub_din, sub_dout,
             c2b_dout, cpu_dout, mcu2bus;
 reg  [ 7:0] st_mux;
 reg  [ 1:0] coin_eff;
-wire [ 1:0] pal_bank, scr_bank, bankcfg;
+wire [ 1:0] pal_bank, scr_bank, bankcfg, sha_hi;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
-            palwcfg, cabcfg, objcfg, iocfg, osdflip_en, psg2_en,
+            palwcfg, cabcfg, objcfg, iocfg, osdflip_en, psg2_en, large_sha,
             subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
 reg         mcu_rst, osdflip;
 
+assign sha_addr   = {sha_hi,  bus_addr[10:0]};
+assign sha_hi     = large_sha ? bus_addr[12:11] : 2'd0;
 assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
@@ -42,7 +44,7 @@ assign debug_view = st_mux;
 localparam OSDFLIP_BIT=24;
 
 always @(posedge clk) begin
-    st_mux  <= debug_bus[7] ? st_snd : {1'd0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
+    st_mux  <= debug_bus[7] ? st_snd : {1'b0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
     osdflip <= osdflip_en & dipsw[OSDFLIP_BIT];
 end
 
@@ -65,6 +67,7 @@ jtflstory_header u_header (
     .dec      ( dec_en          ),
     .banks    ( bankcfg         ),
     .psg2_en  ( psg2_en         ),
+    .ramcfg   ( large_sha       ),
     .iocfg    ( iocfg           )
 );
 

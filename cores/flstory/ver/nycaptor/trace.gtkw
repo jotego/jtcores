@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Sat Feb 22 11:19:57 2025
+[*] Sat Feb 22 14:54:52 2025
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/flstory/ver/nycaptor/test.fst"
-[dumpfile_mtime] "Sat Feb 22 10:41:27 2025"
-[dumpfile_size] 1367704142
+[dumpfile_mtime] "Sat Feb 22 14:25:00 2025"
+[dumpfile_size] 1230968396
 [savefile] "/home/jtejada/jtcores/cores/flstory/ver/nycaptor/trace.gtkw"
-[timestart] 718430000000
+[timestart] 10172
 [size] 2532 1005
-[pos] -1 -1
-*-27.809362 -1 111444706644 719190621012 719198453452 719386655796 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] 1893 -58
+*-36.322296 -1 126344896372 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -25,12 +25,11 @@
 [sst_width] 278
 [signals_width] 246
 [sst_expanded] 1
-[sst_vpaned_height] 327
+[sst_vpaned_height] 620
 @24
 TOP.game_test.frame_cnt[31:0]
-@23
-TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.PC[15:0]
 @22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.PC[15:0]
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.AF[15:0]
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.BC[15:0]
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.DE[15:0]
@@ -48,37 +47,10 @@ TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.DE2[1
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.u_cpu.u_cpu.HL2[15:0]
 @200
 -
-@28
-TOP.game_test.u_game.u_game.u_main.bank_cs
-TOP.game_test.u_game.u_game.u_main.ram_cs
-TOP.game_test.u_game.u_game.u_main.rom_cs
-TOP.game_test.u_game.u_game.u_main.sha_cs
-@22
-TOP.game_test.u_game.u_game.u_main.cpu_addr[15:0]
-@28
-TOP.game_test.u_game.u_game.u_main.cab_cs
-TOP.game_test.u_game.u_game.u_main.sha_cs
-TOP.game_test.u_game.u_game.u_main.s2m_rd
-@22
-TOP.game_test.u_game.u_game.u_main.s2m_data[7:0]
-@200
 -
-@22
-TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.cpu_din[7:0]
 @28
-[color] 1
-TOP.game_test.u_game.u_game.u_main.u_cpu.rom_ok
-TOP.game_test.u_game.u_game.u_main.u_cpu.cpu_cen
-TOP.game_test.u_game.u_game.u_main.u_cpu.mreq_n
-@22
-TOP.game_test.u_game.u_game.u_main.rom_data[7:0]
-TOP.game_test.u_game.u_game.u_main.rom_addr[16:0]
-@28
-TOP.game_test.u_game.u_game.u_main.rom_cs
-TOP.game_test.u_game.u_game.u_main.sub_sel
-TOP.game_test.u_game.u_game.u_main.sub_wait
-TOP.game_test.u_game.u_game.u_main.main_wait
 TOP.game_test.u_game.u_game.u_main.sub_busrq_n
 TOP.game_test.u_game.u_game.u_main.u_cpu.u_cpu.u_z80wait.u_cpu.int_n
+TOP.game_test.u_game.u_game.u_main.sub_rstn
 [pattern_trace] 1
 [pattern_trace] 0

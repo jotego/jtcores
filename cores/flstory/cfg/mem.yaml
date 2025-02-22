@@ -26,6 +26,7 @@ clocks:
 audio:
   # temptative values
   rsum: 1k
+  gain: 0.8
   # mute: true
   pcb:
     # must match PCB order in TOML file - not automated check yet
@@ -66,9 +67,8 @@ bram:
     data_width: 8
     prom: true
   - name: sha
-    addr: bus_addr[10:0]
     din: bus_dout
-    addr_width: 11
+    addr_width: 13
     data_width: 8
     rw: true
   - name: vram
