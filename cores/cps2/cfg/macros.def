@@ -22,6 +22,7 @@ NOFIR
 
 [mist|sidi]
 # Not enough BRAM to show the credits
+-JTFRAME_CREDITS
 JTFRAME_OSD_NOLOGO
 # Not enough BRAM for the interpolator
 NOFIR
