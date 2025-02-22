@@ -28,7 +28,7 @@ module jtflstory_main(
     output    [ 7:0] cpu_dout,
     output    [15:0] bus_addr,
     output    [ 7:0] bus_dout,
-    output    [ 7:0] bus_din,
+    output reg[ 7:0] bus_din,
 
     // sound
     input     [ 7:0] s2m_data,
@@ -55,7 +55,6 @@ module jtflstory_main(
     input            sub_wr_n,
     input            sub_rd_n,
     input     [ 7:0] sub_dout,
-    output    [ 7:0] sub_din,
     output           sub_wait,
     output reg       sub_busrq_n, sub_rstn,
 
@@ -97,6 +96,7 @@ module jtflstory_main(
 
 localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 
+reg  [15:0] mcumain_addr;
 wire [15:0] cpu_addr;
 reg  [ 7:0] cab, din, vram8_dout, rom_dec;
 reg  [ 1:0] bank=0, unused_IO, pre_flip=0;
@@ -112,11 +112,9 @@ reg         rst_n,
 assign sub_sel    = sub_cs & ~sub_wait;
 assign bus_addr   = !busak_n ? c2b_addr : sub_sel ? sub_addr : cpu_addr;
 assign bus_dout   = !busak_n ? c2b_dout : sub_sel ? sub_dout : cpu_dout;
-assign bus_we     = !busak_n ? c2b_we : sub_sel ? ~sub_wr_n : ~wr_n;
-assign bus_rd     = !busak_n ? c2b_rd : sub_sel ? ~sub_rd_n : ~rd_n;
-assign bus_din    = din;
+assign bus_we     = !busak_n ? c2b_we   : sub_sel ? ~sub_wr_n : ~wr_n;
+assign bus_rd     = !busak_n ? c2b_rd   : sub_sel ? ~sub_rd_n : ~rd_n;
 assign bus_cen    = cen & ~main_wait;
-assign sub_din    = din;
 
 assign pal16_we   = {2{bus_we}} & {pal_hi,pal_lo};
 assign pal16_addr = {pal_bank,bus_addr[7:0]};
@@ -127,7 +125,8 @@ assign int_n      = ~dip_pause | lvbl;
 assign m_reqref   = !mreq_n && rfsh_n;
 
 always @* begin
-    rom_addr   = {1'b0,bus_addr};
+    mcumain_addr = !busak_n ? c2b_addr : cpu_addr;
+    rom_addr   = {1'b0,mcumain_addr};
     if(bank_cs) begin
         rom_addr[16]   =1;
         if( bankcfg==TWOBANKS )
@@ -226,10 +225,10 @@ always @(posedge clk) begin
         sub_rstn    <= 0;
         sub_busrq_n <= 0;
     end else begin
-        if( subhalt_cs ) sub_busrq_n <= ~cpu_dout[0];
+        if( subhalt_cs ) sub_busrq_n <= ~bus_dout[0];
         if( ctl_cs ) begin
-            sub_rstn <= cpu_dout[1];
-            bank     <= cpu_dout[3:2];
+            sub_rstn <= bus_dout[1];
+            bank     <= bus_dout[3:2];
         end
     end
 end
@@ -266,7 +265,7 @@ always @* begin
     vram8_dout = bus_addr[0] ? vram16_dout[15:8] : vram16_dout[7:0];
     rom_dec    = dec_en ? reverse(rom_data) : rom_data;
 
-    din = rom_cs   ? rom_dec    :
+    bus_din =
           sha_cs   ? sha_dout   :
           cab_cs   ? cab        :
           oram_cs  ? oram8_dout :
@@ -277,6 +276,7 @@ always @* begin
           vram_cs  ? vram8_dout :
           trcrt_cs ? 8'h1       :
           8'd0;
+    din = CDEF_cs ? bus_din : rom_dec;
 end
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(

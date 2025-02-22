@@ -25,11 +25,11 @@ module jtflstory_sub(
                      nmi_n,
                      dip_pause,
 
-    output    [15:0] bus_addr,
+    output    [15:0] addr,
     output reg       bus_cs,
-    output           bus_wr_n, bus_rd_n,
-    output    [ 7:0] bus_din,
-    input     [ 7:0] bus_dout,
+    output           wr_n, rd_n,
+    output    [ 7:0] dout,
+    input     [ 7:0] bus_din,
     input            busrq_n,
                      bus_wait,
                      bus_rstn,
@@ -40,19 +40,15 @@ module jtflstory_sub(
 );
 
 wire [15:0] A;
-wire [ 7:0] cpu_dout;
 reg  [ 7:0] din;
 reg         rst_n;
-wire        mreq_n, rfsh_n, rd_n, wr_n, int_n, busak_n;
+wire        mreq_n, rfsh_n, int_n, busak_n;
 wire        bus_cen;
 
-assign A        = bus_addr;
+assign A        = addr;
 assign int_n    = ~dip_pause | lvbl;
 
 assign bus_cen  = cen & ~bus_wait;
-assign bus_wr_n = wr_n;
-assign bus_rd_n = rd_n;
-assign bus_din  = cpu_dout;
 
 always @* begin
     rom_cs      = 0;
@@ -65,7 +61,7 @@ always @* begin
 end
 
 always @* begin
-    din = rom_cs ? rom_data : bus_dout;
+    din = rom_cs ? rom_data : bus_din;
 end
 
 always @(posedge clk) begin
@@ -88,9 +84,9 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
-    .A          ( bus_addr    ),
+    .A          ( addr        ),
     .cpu_din    ( din         ),
-    .cpu_dout   ( cpu_dout    ),
+    .cpu_dout   ( dout        ),
     .ram_dout   (             ),
     // ROM access
     .ram_cs     ( 1'b0        ),

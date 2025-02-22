@@ -92,7 +92,7 @@ func makeMAME( cpu string ) {
 	var s string
 	switch strings.ToLower(cpu) {
 		case "z80": s=`trace off
-trace debug.trace,maincpu,noloop,{tracelog "PC=%X,AF=%X,BC=%X,DE=%X,HL=%X,AF2=%X,BC2=%X,DE2=%X,HL2=%X,IX=%X,IY=%X,SP=%X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+trace debug.trace,maincpu,noloop,{tracelog "PC=%4X,AF=%4X,BC=%4X,DE=%4X,HL=%4X,AF2=%4X,BC2=%4X,DE2=%4X,HL2=%4X,IX=%4X,IY=%4X,SP=%4X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
 `
 		case "t900h": s=`trace debug.trace,maincpu,noloop,{tracelog "PC=%X,XWA0=%X,XBC0=%X,XDE0=%X,XHL0=%X,XWA1=%X,XBC1=%X,XDE1=%X,XHL1=%X,XWA2=%X,XBC2=%X,XDE2=%X,XHL2=%X,XWA3=%X,XBC3=%X,XDE3=%X,XHL3=%X,XIX=%X,XIY=%X,XIZ=%X,XSP=%X,* ",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
 `
