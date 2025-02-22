@@ -5,38 +5,7 @@ source jtrelease-funcs
 
 trap clean_up ERR
 
-HASH=
-LAST=
-SKIPROM=--skipROM
-VERBOSE=
-
-while [ $# -gt 0 ]; do
-	case "$1" in
-		-l|--local)
-			unset JTBIN;;
-		--last)
-			LAST="--last";;
-		--host)
-			shift
-			export MRHOST=$1;;
-		-r|--rom)
-			SKIPROM=;;
-		-v|--verbose)
-			VERBOSE=1;;
-		-h|--help)
-			show_help
-			exit 0;;
-		*) if [[ -z "$HASH" && ${1:0:1} != - ]]; then
-			HASH=`git rev-parse --short $1`
-			HASH=${HASH:0:7}
-		else
-			echo "Do not know what to do with arguments $HASH and $1"
-			exit 1
-		fi
-	esac
-	shift
-done
-
+parse_args
 check_jtbin
 
 REF=`get_valid_zip $HASH`

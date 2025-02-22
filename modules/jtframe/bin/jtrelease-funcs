@@ -1,13 +1,51 @@
 #!/bin/bash
 
-function clean_up {
+clean_up() {
 	if [[ ! -z "$DST" && -d "$DST" ]]; then
 		echo "Deleting $DST"
 		rm -rf "$DST";
 	fi
 }
 
-function show_help {
+parse_args() {
+	HASH=
+	LAST=
+	SKIPROM=--skipROM
+	VERBOSE=
+
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-l|--local)
+				unset JTBIN;;
+			--last)
+				LAST="--last";;
+			--host)
+				shift
+				export MRHOST=$1;;
+			-r|--rom)
+				SKIPROM=;;
+			-v|--verbose)
+				VERBOSE=1;;
+			-h|--help)
+				show_help
+				exit 0;;
+			*) if [[ -z "$HASH" && ${1:0:1} != - ]]; then
+				HASH=`git rev-parse --short $1`
+				HASH=${HASH:0:7}
+			else
+				echo "Do not know what to do with arguments $HASH and $1"
+				exit 1
+			fi
+		esac
+		shift
+	done
+	if [ -z "$HASH" ]; then
+		echo "Missing hash argument"
+		exit 1
+	fi
+}
+
+show_help() {
 	cat<<EOF
 jtrelease.sh <hash> [arguments]
 
@@ -26,14 +64,14 @@ hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
 EOF
 }
 
-function check_jtbin {
+check_jtbin() {
 	if [[ -z "$JTBIN" || ! -d "$JTBIN" || "$JTBIN" = "$DST/release" ]]; then
 		echo "\$JTBIN is not well defined"
 		return 1
 	fi
 }
 
-function get_valid_zip {
+get_valid_zip() {
 	local hash="$1"
 	local ref
 	if [ -z "$hash" ]; then
@@ -56,7 +94,7 @@ function get_valid_zip {
 	echo $ref
 }
 
-function clone_repo {
+clone_repo() {
 	local hash="$1"
 	local path="$2"
 	set --
@@ -72,11 +110,11 @@ function clone_repo {
 	git submodule update --depth 1 modules/jt51
 }
 
-function get_full_hash {
+get_full_hash() {
 	git rev-parse HEAD
 }
 
-function recompile_tool {
+recompile_tool() {
 	local toolname="jtframe"
 	local tmplog=`mktemp`
 	local status=0
@@ -90,7 +128,7 @@ function recompile_tool {
 	return $status
 }
 
-function unzip_release {
+unzip_release() {
 	local zipfile="$1"
 	local path="$2"
 	cd $path
@@ -99,7 +137,7 @@ function unzip_release {
 	if [ -d release/release ]; then mv release/release/* release; rmdir release/release; fi
 }
 
-function clean_jtbin {
+clean_jtbin() {
 	if [ ! -d .git ]; then return; fi
 	git reset --hard
 	git clean -fd .
@@ -107,14 +145,14 @@ function clean_jtbin {
 	rm -rf mist sidi* pocket mister mra
 }
 
-function refresh_schematics {
+refresh_schematics() {
 	echo "Refreshing schematics"
 	jtframe sch --git
 	echo "Deleting non-arcade PCB schematics"
 	rm -f $JTBIN/sch/{adapter,odyssey,rng}.pdf
 }
 
-function regenerate_mra {
+regenerate_mra() {
 	rm -rf release/mra
 	find release/pocket -name "*rbf_r" | xargs -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
 	find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
@@ -127,14 +165,14 @@ function regenerate_mra {
 	fi
 }
 
-function copy_rbf {
+copy_rbf() {
 	local repo="$1"
 	local curfolder=$(basename $(pwd))
 	echo "Copy release files to $curfolder"
 	cp -r $repo/release/* .
 }
 
-function make_all_pocket_zips {
+make_all_pocket_zips() {
 	echo "Making Pocket zip files"
 	mkdir -p $JTBIN/pocket/zips
 	for core in `find pocket/raw -name "*.rbf_r"`; do
@@ -143,20 +181,20 @@ function make_all_pocket_zips {
 	done
 }
 
-function make_md5_reference_file {
+make_md5_reference_file() {
 	jtutil md5
 }
 
-function pocket_zip {
+pocket_zip() {
 	local corename="$1"
 	cd $JTBIN/pocket/raw
 	zip -qr jotego.${corename}.zip ${corename}.txt Assets/${corename} Cores/jotego.${corename} \
 		Platforms/${corename}.json Platforms/_images/${corename}.bin Presets/jotego.${corename} Saves/${corename}
 	mv jotego.${corename}.zip $JTBIN/pocket/zips
-	cd -
+	cd - > /dev/null
 }
 
-function remove_mist_betas {
+remove_mist_betas() {
 	echo "Removing games in beta phase for SiDi and MiST"
 	for t in mist sidi sidi128; do
 		for rbf in $JTBIN/$t/*.rbf; do
@@ -168,29 +206,29 @@ function remove_mist_betas {
 	done
 }
 
-function make_game_list {
+make_game_list() {
 	jtutil mra --core             > $JTBIN/game_list.md
 	jtutil mra --core --main-only > $JTBIN/only_main_titles.md
 }
 
-function make_pocket_beta_helper {
+make_pocket_beta_helper() {
 	mkdir -p pocket/raw/Assets/jtpatreon/common
 	echo "beta.bin goes here" > pocket/raw/Assets/jtpatreon/common/BETABIN_GOES_HERE
 }
 
-function make_sound_balance_audit {
+make_sound_balance_audit() {
 	jtutil audit
 	mv audit.csv sound_balance.csv
 	git add sound_balance.csv
 }
 
-function commit_release {
+commit_release() {
 	echo "Commit to git"
 	git add .
 	git commit -m "release for https://github.com/jotego/jtcores/commit/$HASHLONG"
 }
 
-function tag_release_in_jtcores {
+tag_release_in_jtcores() {
 	cd $JTROOT
 	(git tag -f JTBIN && git push --tags --force) || echo "Could not tag the release on jtcores"
 }
