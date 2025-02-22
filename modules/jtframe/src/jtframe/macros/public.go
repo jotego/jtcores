@@ -118,3 +118,37 @@ func (item *MacroEnabled) Enabled() bool {
     }
     return len(item.When)==0
 }
+
+// check incompatible macro settings
+func CheckMacros() error {
+	// Check that MiST DIPs are defined after the
+	// last used status bit
+	dipbase, _ := strconv.Atoi(Get("JTFRAME_DIPBASE"))
+	if target_uses_dipbase(Get("TARGET")) {
+		if IsSet("JTFRAME_AUTOFIRE0") && dipbase < 17 {
+			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_AUTOFIRE0")
+		}
+		if IsSet("JTFRAME_OSD_TEST") && dipbase < 11 {
+			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
+		}
+	}
+	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_MR_DDRLOAD") {
+		return fmt.Errorf("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_MR_DDRLOAD")
+	}
+	// sim macros
+	maxframe_str   := Get("MAXFRAME")
+	dumpstart_str  := Get("DUMP_START")
+	maxframe, _ := strconv.Atoi(maxframe_str)
+	dumpstart,_ := strconv.Atoi(dumpstart_str)
+	if dumpstart > maxframe {
+		return fmt.Errorf("Set a frame start for dumping within the simulation range")
+	}
+	if IsSet("JTFRAME_HEADER") && !IsInt("JTFRAME_HEADER") {
+		header := Get("JTFRAME_HEADER")
+		return fmt.Errorf("Cannot parse JTFRAME_HEADER=%s\n", header )
+	}
+	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT"); e!=nil {
+		return e
+	}
+	return nil
+}

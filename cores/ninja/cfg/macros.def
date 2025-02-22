@@ -11,9 +11,6 @@ MCU_START          =0x210000
 JTFRAME_PROM_START =0x210000
 PROM_START =0x228000
 
-
-JTFRAME_CREDITS
-
 [mister]
 # The second analogue stick
 # can be used in MiSTer to control

@@ -50,7 +50,6 @@ func (cfg Config)prepare_macros() (copy map[string]string) {
 func (cfg Config)dump_macros(def map[string]string) error {
     switch cfg.Output {
     case "cfgstr": {
-        // Make the config string
         cfgstr, e := cfg.make_cfgstr(def); if e!=nil { return e }
         dump_cfgstr(cfgstr)
         // show the config string

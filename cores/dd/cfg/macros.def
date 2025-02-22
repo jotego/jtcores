@@ -7,7 +7,6 @@ JTFRAME_DIPBASE=16
 # OSD
 # Turbo does not work with the new MCU
 CORE_OSD=OD,Turbo,Off,On;
-JTFRAME_CREDITS
 
 # Video
 JTFRAME_WIDTH=256

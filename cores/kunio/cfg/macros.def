@@ -17,5 +17,4 @@ JTFRAME_BA3_START = 0x68000
 # This is calculated as the offset in bank 3
 MCU_START         = 0x1860000
 
-JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=3

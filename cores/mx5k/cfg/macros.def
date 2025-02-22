@@ -6,7 +6,6 @@ JTFRAME_COLORW=5
 JTFRAME_WIDTH=280
 JTFRAME_HEIGHT=224
 JTFRAME_BUTTONS=3
-JTFRAME_CREDITS
 # There is a large blank period
 # in the credits because going over
 # 4 pages, automatically requires 8 pages

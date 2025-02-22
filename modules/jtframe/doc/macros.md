@@ -201,7 +201,7 @@ JTFRAME_CREDITS is always enabled if JTFRAME_CHEAT is defined
 
 Macro                    | Target  |  Usage
 -------------------------|---------|---------------------------------------------
-JTFRAME_CREDITS          |         | Adds credits screen
+JTFRAME_CREDITS          |         | Adds credits screen. Automatic for releases if cfg/msg exists
 JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vertical game
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits

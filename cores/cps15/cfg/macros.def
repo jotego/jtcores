@@ -12,7 +12,6 @@ JTFRAME_HEADER=64
 JTFRAME_OSD_TEST
 JTFRAME_DIPBASE=16
 
-JTFRAME_CREDITS
 
 # FIR filter gain currently broken
 # disabled for now
