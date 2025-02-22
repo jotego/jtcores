@@ -67,7 +67,7 @@ func parse_def(path string, target string) {
 	scanner.Split(bufio.ScanLines)
 	section := target
 	linecnt := 0
-	release := IsSet("JTFRAME_RELEASE")
+	release := IsSet(JTFRAME_RELEASE)
 	for scanner.Scan() {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
@@ -205,8 +205,11 @@ func str2macro( a string ) string {
 	return strings.ToUpper(a)
 }
 
-func MakeMacros(core, target string) {
+func MakeMacros(core, target string, extra... string) {
 	macros = make(map[string]string)
+	if len(extra)>0 {
+		AddKeyValPairs(extra...)
+	}
 	read_target_macros(target)
 	core_def := ConfigFilePath(core,"macros.def")
 	parse_def(core_def, target)
@@ -222,34 +225,10 @@ func MakeMacros(core, target string) {
 	if mem_managed {
 		Set("JTFRAME_MEMGEN","")
 	}
-	// Macros with default values
-	year, month, day := time.Now().Date()
 	make_commit_macro()
-	defaul_values := map[string]string{
-		str2macro(core): "",				// the core is always set
-		"JTFRAME_180SHIFT":	     "0",
-		"JTFRAME_ARX":           "4",
-		"JTFRAME_ARY":           "3",
-		"JTFRAME_BUTTONS":       "2",
-		"JTFRAME_COLORW":        "4",
-		"JTFRAME_CREDITS_PAGES": "3",
-		"JTFRAME_DEBUG_VPOS":    "4",
-		"JTFRAME_DIALEMU_LEFT":  "5",
-		"JTFRAME_DIPBASE":      "16",
-		"JTFRAME_SHIFT":	     "0",
-		"JTFRAME_SIGNED_SND":    "1",
-		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
-		"CORENAME": core,
-		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
-		"TARGET": target,
-	}
-	for key,val := range defaul_values {
-		if !IsSet(key) {
-			Set(key, val)
-		}
-	}
+	fill_defaults(core, target)
+	add_credits_for_releases(core)
 	make_gametop_macro()
-	// for JTFRAME_VERTICAL define MISTER_FB
 	if IsSet("JTFRAME_VERTICAL") {
 		Set("MISTER_FB","")
 	}
@@ -293,6 +272,43 @@ func make_commit_macro() {
 	as_int, _ := strconv.ParseInt(commit,16,64)
 	as_dec := fmt.Sprintf("%d",as_int)
 	Set("JTFRAME_COMMIT_DEC",as_dec)
+}
+
+func fill_defaults(core, target string) {
+	year, month, day := time.Now().Date()
+	defaul_values := map[string]string{
+		str2macro(core): "",				// the core is always set
+		"JTFRAME_180SHIFT":	     "0",
+		"JTFRAME_ARX":           "4",
+		"JTFRAME_ARY":           "3",
+		"JTFRAME_BUTTONS":       "2",
+		"JTFRAME_COLORW":        "4",
+		"JTFRAME_CREDITS_PAGES": "3",
+		"JTFRAME_DEBUG_VPOS":    "4",
+		"JTFRAME_DIALEMU_LEFT":  "5",
+		"JTFRAME_DIPBASE":      "16",
+		"JTFRAME_SHIFT":	     "0",
+		"JTFRAME_SIGNED_SND":    "1",
+		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
+		"CORENAME": core,
+		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
+		"TARGET": target,
+	}
+	for key,val := range defaul_values {
+		if !IsSet(key) {
+			Set(key, val)
+		}
+	}
+}
+
+func add_credits_for_releases(core string) {
+	if !IsSet(JTFRAME_RELEASE) {
+		return
+	}
+	msgpath := ConfigFilePath(core,"msg")
+	if FileExists(msgpath) {
+		Set(JTFRAME_CREDITS,"")
+	}
 }
 
 // Derives the GAMETOP module from the CORENAME if unspecified

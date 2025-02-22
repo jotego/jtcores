@@ -17,12 +17,22 @@
 
 package cfgstr
 
+import(
+    "slices"
+    "jotego/jtframe/macros"
+)
+
 type Config struct {
 	Target,
-	Deffile,
 	Core,
 	Output,
 	Template string
 	Add     []string // new definitions in command line
 	Discard []string // definitions to be discarded
+}
+
+func (cfg *Config)SetReleaseMode() {
+    if !slices.Contains(cfg.Add,macros.JTFRAME_RELEASE) {
+        cfg.Add=append(cfg.Add,macros.JTFRAME_RELEASE)
+    }
 }

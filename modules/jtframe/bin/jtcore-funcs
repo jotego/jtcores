@@ -212,9 +212,9 @@ make_macros_env_vars() {
 
 parse_macros() {
     if [ ! -z "$VERBOSE" ]; then
-        echo jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
+        echo jtframe cfgstr $PRJ $NODBG --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
     fi
-    jtframe cfgstr $PRJ --target=$TARGET `macros2def` `umacros2undef` --output $*
+    jtframe cfgstr $PRJ $NODBG --target=$TARGET `macros2def` `umacros2undef` --output $*
 }
 
 # qsf line to disable SOUND synthesis

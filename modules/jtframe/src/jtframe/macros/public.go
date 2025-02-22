@@ -23,6 +23,9 @@ import(
 	"strings"
 )
 
+const JTFRAME_RELEASE="JTFRAME_RELEASE"
+const JTFRAME_CREDITS="JTFRAME_CREDITS"
+
 var macros map[string]string
 
 type MacroEnabled struct{

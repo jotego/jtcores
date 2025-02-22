@@ -298,7 +298,7 @@ jtframe_led u_led(
 reg  show_credits;
 `ifdef JTFRAME_CREDITS
     wire toggle = game_start!=4'hf;
-    wire osd_credits_disabled = ~status[12];
+    wire osd_credits_disabled = status[12];
     reg  fast_scroll;
 
     always @(posedge clk_sys) begin

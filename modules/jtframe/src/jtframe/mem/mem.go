@@ -40,11 +40,12 @@ import (
 func Run(args Args) (e error) {
 	var cfg MemConfig
 	Verbose = args.Verbose
-	macros.MakeMacros(args.Core,args.Target)
+	var extra_macros []string
 	if args.Nodbg {
 		if Verbose { fmt.Println("Defining macro JTFRAME_RELEASE")}
-		macros.Set("JTFRAME_RELEASE","")
+		extra_macros=[]string{macros.JTFRAME_RELEASE}
 	}
+	macros.MakeMacros(args.Core,args.Target, extra_macros...)
 	if !Parse_file(args.Core, "mem.yaml", &cfg) {
 		// the mem.yaml file does not exist, that's
 		// normally ok
