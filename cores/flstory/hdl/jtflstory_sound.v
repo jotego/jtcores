@@ -345,5 +345,7 @@ assign  no_used  = 0;
 initial debug_st = 0;
 initial mute     = 0;
 initial dac      = 0;
+initial ibf      = 0;
+initial obf      = 0;
 `endif
 endmodule

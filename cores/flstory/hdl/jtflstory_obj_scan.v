@@ -48,15 +48,17 @@ reg  [ 3:0] cnt;
 reg  [ 2:0] st;
 reg  [ 1:0] obj_sub;
 wire [ 7:0] ydiff;
+wire [ 7:3] hf_active;
 reg         blank, cen, scan_done, order, info, vsbl, inzone_l, lhbl_l;
 wire        inzone;
 
-assign ram_din  = chk;
+assign ram_din   = chk;
+assign hf_active = lhbl ? hf[7:3] : 5'd0;
 // same RAM usage as the original
 assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   D0~D7, blinking D8~DF
                   info  ? {1'b0,   chk[4:0],  obj_sub   }: // object data       00~7F
                   order ? {3'b100, scan                 }: // object draw order 80~9F
-                          {3'b101, hf[7:3]              }; // column scroll     A0~BF
+                          {3'b101, hf_active            }; // column scroll     A0~BF
 assign ydiff    = vlatch+ram_dout;
 assign inzone   = ydiff[7:4] == 4'b1111;
 assign hf       = ghflip ? -9'h8-hdump : hdump;

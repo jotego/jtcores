@@ -274,7 +274,8 @@ jtflstory_cab u_cab(
     .dip_pause  ( dip_pause     ),
     .tilt       ( tilt          ),
 
-    .cab        ( cab           )
+    .cab        ( cab           ),
+    .debug_bus  ( debug_bus     )
 );
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
@@ -324,10 +325,13 @@ assign oram_we    = 0;
 assign busak_n    = 0;
 assign sha_we     = 0;
 assign rom_addr   = 0;
+assign sub_wait   = 0;
 initial m2s_wr    = 0;
 initial s2m_rd    = 0;
 initial b2c_wr    = 0;
 initial b2c_rd    = 0;
 initial rom_cs    = 0;
+initial sub_busrq_n = 1;
+initial sub_rstn  = 1;
 `endif
 endmodule

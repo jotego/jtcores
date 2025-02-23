@@ -33,15 +33,19 @@ module jtflstory_cab(
     input            dip_pause,
     input            tilt,
 
-    output reg [7:0] cab
+    output reg [7:0] cab,
+    input      [7:0] debug_bus
 );
 
 localparam [1:0] LOW_FOR_FLSTORY=2'd0, HI_FOR_NYCAPTOR=2'b11;
 localparam [3:0] NOEXTRA=4'b1111;
 
+wire [ 7:0] mcu_st, snd_st;
 wire [ 3:0] extra1p, extra2p;
 reg  [ 1:0] unused_IO;
 
+assign mcu_st  = {2'b00,extra1p, mcu_obf, ~mcu_ibf};
+assign snd_st  = {6'h0,snd_obf, snd_ibf^debug_bus[0]};
 assign extra1p = cabcfg ? joystick1[9:6] : NOEXTRA;
 assign extra2p = cabcfg ? joystick2[9:6] : NOEXTRA;
 
@@ -58,9 +62,9 @@ always @(posedge clk) begin
         2: cab <= dipsw[23:16];
         3: cab <= {unused_IO,coin,tilt,service,cab_1p};
         4: cab <= arrange(joystick1);
-        5: cab <= iocfg ? {6'h0,mcu_obf,~mcu_ibf} : {2'b00,extra1p, mcu_obf, ~mcu_ibf};
-        6: cab <= iocfg ? {6'h0,snd_obf, snd_ibf} : arrange(joystick2);
-        7: cab <= iocfg ? {6'h0,mcu_obf,~mcu_ibf} : {2'b11,extra2p,2'b11};
+        5: cab <= mcu_st;
+        6: cab <= iocfg ? snd_st : arrange(joystick2);
+        7: cab <= iocfg ? mcu_st : {2'b11,extra2p,2'b11};
     endcase
 end    
 
