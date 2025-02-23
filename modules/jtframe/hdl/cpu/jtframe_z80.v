@@ -65,7 +65,7 @@ module jtframe_sysz80(
         .CLR_INT ( CLR_INT  ),
         .M1_WAIT ( M1_WAIT  ),
         .RECOVERY( RECOVERY )
-    ) u_cpu(
+    ) u_sysz80_nvram(
         .rst_n      ( rst_n     ),
         .clk        ( clk       ),
         .cen        ( cen       ),
@@ -219,7 +219,7 @@ module jtframe_z80_romwait (
               CLR_INT  = 0;  // if 0, int_n is the Z80 port
                 // if 1, int_n is latched and cleared with m1 and iorq signals
 
-    jtframe_z80_devwait #(.RECOVERY(RECOVERY),.CLR_INT(CLR_INT)) u_cpu(
+    jtframe_z80_devwait #(.RECOVERY(RECOVERY),.CLR_INT(CLR_INT)) u_z80_devwait(
         .rst_n      ( rst_n     ),
         .clk        ( clk       ),
         .cen        ( cen       ),
