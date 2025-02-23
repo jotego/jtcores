@@ -194,7 +194,7 @@ jtframe_pause u_pause(
     .key_pause  ( key_pause     ),
     .joy_pause  ( joy_pause     ),
     .osd_pause  ( osd_pause     ),
-    .service    ( key_service   ),
+    .adv_frame  ( key_service   ),
     .lvbl       ( lvbl          ),
     .game_pause ( game_pause    )
 );
