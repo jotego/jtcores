@@ -32,6 +32,7 @@ module jtflstory_main(
 
     // sound
     input     [ 7:0] s2m_data,
+    input            snd_ibf, snd_obf,
     output reg       m2s_wr,
     output reg       s2m_rd,
 
@@ -98,9 +99,9 @@ localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 
 reg  [15:0] mcumain_addr;
 wire [15:0] cpu_addr;
-reg  [ 7:0] cab, din, vram8_dout, rom_dec;
-reg  [ 1:0] bank=0, unused_IO, pre_flip=0;
-wire [ 3:0] extra1p, extra2p;
+reg  [ 7:0] din, vram8_dout, rom_dec;
+wire [ 7:0] cab;
+reg  [ 1:0] bank=0, pre_flip=0;
 wire        mreq_n,  rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n, bus_cen,
             bus_cem, main_wait, sub_sel, m_reqref;
 reg         rst_n,
@@ -214,12 +215,6 @@ jtframe_wait_on_shared u_wait(
     .swait  ( sub_wait  )
 );
 
-localparam [1:0] LOW_FOR_FLSTORY=2'd0, HI_FOR_NYCAPTOR=2'b11;
-localparam [3:0] NOEXTRA=4'b1111;
-
-assign extra1p = cabcfg ? joystick1[9:6] : NOEXTRA;
-assign extra2p = cabcfg ? joystick2[9:6] : NOEXTRA;
-
 always @(posedge clk) begin
     if(rst) begin
         bank        <= 0;
@@ -236,7 +231,6 @@ end
 
 always @(posedge clk) begin
     rst_n     <= ~rst;
-    unused_IO <= iocfg ? HI_FOR_NYCAPTOR : LOW_FOR_FLSTORY;
     if( vcfg_cs ) begin
         // hvlatch <= bus_dout[7]
         pal_bank <= bus_dout[6:5];
@@ -245,17 +239,6 @@ always @(posedge clk) begin
         pre_flip <= bus_dout[1:0]^{2{mirror}};
     end
     { gvflip, ghflip } <= pre_flip^{2{osdflip}};
-    case(bus_addr[2:0])
-        0: cab <= dipsw[ 7: 0];
-        1: cab <= dipsw[15: 8];
-        2: cab <= dipsw[23:16];
-        3: cab <= {unused_IO,coin,tilt,service,cab_1p};
-        4: cab <= {2'b11,joystick1[3:0],joystick1[5:4]};
-        5: cab <= {2'b00,extra1p, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
-        6: cab <= {2'b11,joystick2[3:0],joystick2[5:4]};
-        7: cab <= {2'b11,extra2p,2'b11};
-        default: cab <= 8'hff;
-    endcase
 end
 
 function [7:0] reverse(input [7:0] a); begin
@@ -279,6 +262,29 @@ always @* begin
           8'd0;
     din = CDEF_cs ? bus_din : rom_dec;
 end
+
+jtflstory_cab u_cab(
+    .clk        ( clk           ),
+    .cabcfg     ( cabcfg        ),
+    .iocfg      ( iocfg         ),
+    .addr       ( bus_addr[2:0] ),
+    // status bits
+    .mcu_ibf    ( mcu_ibf       ),
+    .mcu_obf    ( mcu_obf       ),
+    .snd_ibf    ( snd_ibf       ),
+    .snd_obf    ( snd_obf       ),
+    // Cabinet inputs
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .dipsw      ( dipsw         ),
+    .service    ( service       ),
+    .dip_pause  ( dip_pause     ),
+    .tilt       ( tilt          ),
+
+    .cab        ( cab           )
+);
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),

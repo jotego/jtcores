@@ -2,3 +2,4 @@ trace off
 trace debug.trace,maincpu,noloop,{tracelog "PC=%4X,AF=%4X,BC=%4X,DE=%4X,HL=%4X,AF2=%4X,BC2=%4X,DE2=%4X,HL2=%4X,IX=%4X,IY=%4X,SP=%4X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
 gtime #1200
 traceflush
+quit

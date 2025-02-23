@@ -31,7 +31,8 @@ reg  [ 1:0] coin_eff;
 wire [ 1:0] pal_bank, scr_bank, bankcfg, sha_hi;
 wire        mute, mirror, mcu_enb, coinxor, gfxcfg, priocfg, sub_en, dec_en,
             palwcfg, cabcfg, objcfg, iocfg, osdflip_en, psg2_en, large_sha,
-            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn;
+            subsh_cs,sub_wr_n, sub_wait, sub_rd_n, sub_busrq_n, sub_rstn,
+            snd_ibf, snd_obf;
 reg         mcu_rst, osdflip;
 
 assign sha_addr   = {sha_hi,  bus_addr[10:0]};
@@ -122,6 +123,8 @@ jtflstory_main u_main(
     .m2s_wr     ( m2s_wr    ),
     .s2m_rd     ( s2m_rd    ),
     .s2m_data   ( s2m_data  ),
+    .snd_ibf    ( snd_ibf   ),
+    .snd_obf    ( snd_obf   ),
     // video memories
     .pal16_we   ( pal16_we  ),
     .pal16_dout ( pal16_dout),
@@ -219,6 +222,8 @@ jtflstory_sound u_sound(
     .bus_a0     ( bus_a0    ),
     .bus_dout   ( bus_dout  ),
     .bus_din    ( s2m_data  ),
+    .obf        ( snd_obf   ),
+    .ibf        ( snd_ibf   ),
 
     .rom_addr   ( snd_addr  ),
     .rom_data   ( snd_data  ),

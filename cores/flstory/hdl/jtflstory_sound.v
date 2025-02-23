@@ -25,6 +25,7 @@ module jtflstory_sound(
 
     input            psg2_en,
     // communication with the other CPUs
+    output reg       ibf, obf,
     input            bus_wr,
     input            bus_rd,
     input            bus_a0,
@@ -60,7 +61,7 @@ reg         int_n;
 reg         ram_cs, msmw, cfg0, cfg1,
             cmd_rd, cmd_st, cmd_lr, cmd_wr,
             nmi_sen, nmi_sdi, dac_we, nmi_en,
-            ibf, obf, rst_n, crst_n;    // ibf = input buffer full
+            rst_n, crst_n;    // ibf = input buffer full
 reg  [ 1:0] bdir, bc1;
 wire [ 5:0] nc;
 wire [ 9:0] psg_raw;
@@ -110,7 +111,7 @@ always @(posedge clk) begin
     if( rst ) begin
         rst_n <= 1;
     end else begin
-        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0]^debug_bus[0];
+        if(  bus_a0 && bus_wr ) rst_n <= ~bus_dout[0];
     end
 end
 
