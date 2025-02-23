@@ -63,7 +63,7 @@ jtframe_pause uut(
     .key_pause  ( key       ),
     .joy_pause  ( joy       ),
     .osd_pause  ( osd       ),
-    .service    ( service   ),
+    .adv_frame  ( service   ),
     .lvbl       ( lvbl      ),
     .game_pause ( pause     )
 );
