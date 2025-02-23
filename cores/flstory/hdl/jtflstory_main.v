@@ -138,23 +138,14 @@ always @* begin
 end
 
 always @* begin
-    rom_cs      = 0; bank_cs = 0; ctl_cs = 0;
-    vram_cs     = 0;
-    sha_cs      = 0;
-    cab_cs      = 0;
-    oram_cs     = 0;
-    pal_lo      = 0;
-    pal_hi      = 0;
-    m2s_wr      = 0;
-    s2m_rd      = 0;
-    b2c_wr      = 0;
-    b2c_rd      = 0;
-    flstory_cfg = 0;
-    rumba_cfg   = 0;
-    subhalt_cs  = 0;
-    gunx_cs     = 0;
-    guny_cs     = 0;
-    trcrt_cs    = 0;
+    cab_cs      = 0; subhalt_cs  = 0;
+    pal_lo      = 0; pal_hi      = 0;
+    m2s_wr      = 0; s2m_rd      = 0;
+    b2c_wr      = 0; b2c_rd      = 0;
+    flstory_cfg = 0; rumba_cfg   = 0;
+    rom_cs      = 0; bank_cs     = 0; ctl_cs      = 0;
+    vram_cs     = 0; sha_cs      = 0; oram_cs     = 0;
+    gunx_cs     = 0; guny_cs     = 0; trcrt_cs    = 0;
     if( m_reqref ) case(cpu_addr[15:14])
         0,1: rom_cs = 1;
         2: begin
@@ -184,7 +175,7 @@ always @* begin
                 2: cab_cs = 1;  // D80?
                 3: case(bus_addr[9:8]) // DC?? ~ DF??
                     0: begin // DC??
-                        oram_cs = 1; // DC??
+                        oram_cs = 1;
                         rumba_cfg = bus_we && bus_addr[7:0]==8'he0; // DCE? used by rumba
                     end
                     1: pal_lo  = 1; // DD??

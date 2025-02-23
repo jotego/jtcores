@@ -8661,7 +8661,7 @@
 		)
 		(uuid "5c27ad8d-bfd8-4a46-a967-bbc510e9b682")
 	)
-	(label "~{MUTECK}"
+	(label "~{RST_CS}"
 		(at 132.08 99.06 180)
 		(effects
 			(font
@@ -8691,7 +8691,7 @@
 		)
 		(uuid "6412b82d-328e-4e5c-b9f4-13d808727410")
 	)
-	(label "~{MUTECK}"
+	(label "~{RST_CS}"
 		(at 171.45 218.44 0)
 		(effects
 			(font
