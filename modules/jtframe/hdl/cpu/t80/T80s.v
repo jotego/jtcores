@@ -3004,7 +3004,8 @@ module t80_mcode_0_0_1_2_3_4_5_6_7
   reg n3776_o;
   reg n3779_o;
   reg n3783_o;
-  wire n3785_o;
+  wire n3785_o, stack_busy; // imperfect busy signal, but it catches some instances
+  assign stack_busy=n3785_o;
   wire [30:0] n3788_o;
   wire n3790_o;
   wire [2:0] n3792_o;

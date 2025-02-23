@@ -2,28 +2,14 @@ g
 mask AF 00FF
 mask AF2 00FF
 ignore AF2 IX IY SP
-g
-s
-g
-st
 s
 s
-i IX
+s
+st
+st
+st
+d
 g
 s
 s
-g
-i IX
-g
-st
-g
-st
-st
-st
-st
-g
-st
-g
-st
-st
 g

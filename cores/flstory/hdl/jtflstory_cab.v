@@ -58,10 +58,9 @@ always @(posedge clk) begin
         2: cab <= dipsw[23:16];
         3: cab <= {unused_IO,coin,tilt,service,cab_1p};
         4: cab <= arrange(joystick1);
-        5: cab <= iocfg ? {6'h0,mcu_obf,1'b0}    : {2'b00,extra1p, mcu_obf, ~mcu_ibf}; // bits 5-2 could well be zero
-        6: cab <= iocfg ? {6'h0,snd_obf,snd_ibf} : arrange(joystick2);
-        7: cab <= iocfg ? {6'h0,~mcu_ibf,1'b0}   : {2'b11,extra2p,2'b11};
-        default: cab <= 8'hff;
+        5: cab <= iocfg ? {6'h0,mcu_obf,~mcu_ibf} : {2'b00,extra1p, mcu_obf, ~mcu_ibf};
+        6: cab <= iocfg ? {6'h0,snd_obf, snd_ibf} : arrange(joystick2);
+        7: cab <= iocfg ? {6'h0,mcu_obf,~mcu_ibf} : {2'b11,extra2p,2'b11};
     endcase
 end    
 
