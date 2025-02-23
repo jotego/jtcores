@@ -29,6 +29,19 @@ import(
     "github.com/PaesslerAG/gval"
 )
 
+// keep making this class bigger as refactoring progress
+type Comparator struct{
+    alu_busy, str_busy, stack_busy *VCDSignal
+}
+
+func NewComparator(ss vcdData) Comparator {
+    var cmp Comparator
+    cmp.alu_busy   = ss.Get(find_similar( "alu_busy", ss ))
+    cmp.str_busy   = ss.Get(find_similar( "str_busy", ss ))
+    cmp.stack_busy = ss.Get(find_similar( "stack_busy", ss ))
+    return cmp
+}
+
 func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     fses, e := os.Create("trace.ses") // echo all session commands to a file
     defer fses.Close()
@@ -38,9 +51,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     nested[0] = bufio.NewScanner(os.Stdin)
     scn := nested[0]
     pc_name := find_similar( "pc", ss)
-    alu_busy := ss.Get(find_similar( "alu_busy", ss ))
-    str_busy := ss.Get(find_similar( "str_busy", ss ))
-    stack_busy := ss.Get(find_similar( "stack_busy", ss ))
+    cmp := NewComparator(ss)
 
     scope := findCommonScope(ss)
     fmt.Printf("At scope %s\n",scope)
@@ -86,7 +97,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         if len(tokens)==0 { continue }
         if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
-        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, stack_busy, str_busy, kmax )
+        case "g","go": cmp.searchDiff( vcd, trace, sim_st, mame_st, ignore, kmax )
         case "ds","display": {
             var t []string
             if len(tokens)>1 { t = tokens[1:]}
@@ -262,7 +273,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             break
         }
         case "s","step": {
-            nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, stack_busy, str_busy )
+            cmp.nxVCDChange( vcd, sim_st, mame_st.alias )
             cmd_diff()
         }
         case "st","step-trace": {
@@ -295,7 +306,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             matchVCD( trace, sim_st, mame_st, ignore )
         }
         case "match-trace": { // moves the VCD until it matches MAME data
-            matchTrace( vcd, sim_st, mame_alias, alu_busy, stack_busy, str_busy, mame_st, ignore )
+            cmp.matchTrace( vcd, sim_st, mame_alias, mame_st, ignore )
         }
         case "?","help": {
             fmt.Println(`
@@ -605,15 +616,14 @@ func diff( st *MAMEState, context string, verbose bool, ignore *boolSet ) int {
     return d
 }
 
-func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        alu_busy, stack_busy, str_busy *VCDSignal ) (int,bool) {
+func (cmp *Comparator) nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias ) (int,bool) {
     l0 := file.line
     changed := false
     irq_bsy := sim_st.data.Get("TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.irq_bsy")
     was_irq := irq_bsy!=nil && irq_bsy.Value!=0
-    was_stack := stack_busy!=nil && stack_busy.Value!=0
-    was_alu := alu_busy!=nil && alu_busy.Value!=0
-    was_str := str_busy!=nil && str_busy.Value!=0
+    was_stack := cmp.stack_busy!=nil && cmp.stack_busy.Value!=0
+    was_alu   := cmp.alu_busy!=nil   && cmp.alu_busy.Value!=0
+    was_str   := cmp.str_busy!=nil   && cmp.str_busy.Value!=0
     for file.Scan() {
         txt := file.Text()
         if txt[0]=='#' {
@@ -631,21 +641,21 @@ func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias,
             log.Fatal("Error: bad pointer to VCDSignal\n")
         }
         // Skip busy sections
-        if alu_busy!=nil && alu_busy.Value==1 {
+        if cmp.alu_busy!=nil && cmp.alu_busy.Value==1 {
             was_alu = true
             continue
         } else if was_alu {
             changed = true
             break
         }
-        if str_busy!=nil && str_busy.Value==1 {
+        if cmp.str_busy!=nil && cmp.str_busy.Value==1 {
             was_str = true
             continue
         } else if was_str {
             changed = true
             break
         }
-        if stack_busy!=nil && stack_busy.Value==1 {
+        if cmp.stack_busy!=nil && cmp.stack_busy.Value==1 {
             was_stack = true
             continue
         } else if was_stack {
@@ -693,8 +703,8 @@ func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
     return mame_st.data,false
 }
 
-func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore *boolSet, alu_busy, stack_busy, str_busy *VCDSignal, KMAX int ) {
+func (cmp *Comparator)searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
+        ignore *boolSet, KMAX int ) {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
@@ -710,7 +720,7 @@ func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
         div_time = vcd.time
         for k:=0;k<KMAX;k++ {
             if diff( mame_st, "", false, ignore )==0 { continue main_loop }
-            _, good := nxVCDChange( vcd, sim_st, mame_st.alias, alu_busy, stack_busy, str_busy )
+            _, good := cmp.nxVCDChange( vcd, sim_st, mame_st.alias )
             if !good { break }
             // fmt.Printf("+%d VCD lines\n",lines)
         }
@@ -746,12 +756,12 @@ func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore *bool
     return matched
 }
 
-func matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        alu_busy, stack_busy, str_busy *VCDSignal, mame_st *MAMEState, ignore *boolSet ) bool {
+func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
+        mame_st *MAMEState, ignore *boolSet ) bool {
     var good, matched bool
     for {
         mv := 0
-        mv, good = nxVCDChange( file, sim_st, mame_alias, alu_busy, stack_busy, str_busy )
+        mv, good = cmp.nxVCDChange( file, sim_st, mame_alias )
         fmt.Printf("Moved by %d lines\n",mv)
         matched = diff( mame_st, "", false, ignore )==0
         if !good || matched { break }
