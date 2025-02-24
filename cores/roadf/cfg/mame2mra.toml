@@ -43,7 +43,8 @@ regions = [
     { name="maincpu" },
     { name="audiocpu" },
     { name="tiles", width=16, no_offset=true, Sort_even=true, start="SCR_START" },
-    { name="sprites", width=16, no_offset=true, start="OBJ_START" },
+    { machine="roadf", name="sprites", width=16, no_offset=true, start="OBJ_START" },
+    { machine="hyperspt", name="sprites", width=16, no_offset=true, start="OBJ_START", sequence=[0,4,1,5,2,6,3,7] },
     { name="vlm", start="PCM_START" },
     { name="proms", start="JTFRAME_PROM_START" },
 ]
