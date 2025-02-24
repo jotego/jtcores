@@ -234,6 +234,7 @@ jtflstory_sound u_sound(
     .mute       ( mute      ),
     .msm        ( msm       ),
     .psg        ( psg       ),
+    .psg2       ( psg2      ),
     .dac        ( dac       ),
     // debug
     .debug_bus  ( debug_bus ),

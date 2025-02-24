@@ -76,6 +76,7 @@ jtframe_blink u_blink(
 
 jtflstory_obj_scan u_scan(
     .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
     .lhbl       ( lhbl      ),
     .blink      ( blink     ),
     .ghflip     ( ghflip    ),

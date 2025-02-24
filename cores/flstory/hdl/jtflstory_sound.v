@@ -40,22 +40,23 @@ module jtflstory_sound(
     // sound output
     output reg       mute,
     output signed [15:0] msm,
-    output signed [15:0] psg,
+    output signed [15:0] psg, psg2,
     output reg[ 7:0] dac,
     // debug
     input     [ 7:0] debug_bus,
     output reg[ 7:0] debug_st,
     output           clip,
-    output           no_used
+    output           no_used    // noise used
 );
 `ifndef NOSOUND
 wire [15:0] A;
 wire [14:0] msm1, msm2, msm_mix;
-wire [ 7:0] ram_dout, cpu_dout, ay0_dout, ay1_dout, ioa, iob, io1a,io1b;
+wire [ 7:0] ram_dout, cpu_dout, ay1_dout, ay2_dout, ioa, iob, io2a,io2b;
 wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
 reg  [ 3:0] msm_treble, msm_bass, msm_vol, msm_bal;
-wire [ 3:0] psg_treble, psg_bass, psg_vol, psg_bal;
+wire [ 3:0] psg_treble,  psg_bass,  psg_vol,  psg_bal,
+            psg2_treble, psg2_bass, psg2_vol, psg2_bal;
 reg  [13:0] int_cnt;
 reg         int_n;
 reg         ram_cs, msmw, cfg0, cfg1,
@@ -64,22 +65,32 @@ reg         ram_cs, msmw, cfg0, cfg1,
             rst_n, crst_n;    // ibf = input buffer full
 reg  [ 1:0] bdir, bc1;
 wire [ 5:0] nc;
-wire [ 9:0] psg_raw;
+wire [ 9:0] psg_raw, psg2_raw;
 
-assign rom_addr  = A;
-assign irq_ack   = !iorq_n && !m1_n;
-assign nmi_n     = ~(ibf & nmi_en);
-assign psg_vol   = ioa[7:4];
-assign psg_bal   = ioa[3:0];
-assign psg_treble= iob[7:4];
-assign psg_bass  = iob[3:0];
+assign rom_addr   = A;
+assign irq_ack    = !iorq_n && !m1_n;
+assign nmi_n      = ~(ibf & nmi_en);
+assign psg_vol    = ioa[7:4];
+assign psg_bal    = ioa[3:0];
+assign psg_treble = iob[7:4];
+assign psg_bass   = iob[3:0];
+// PS2 volume/equalizer control is a guess based on FLSTORY
+assign psg2_vol   = io2a[7:4];
+assign psg2_bal   = io2a[3:0];
+assign psg2_treble= io2b[7:4];
+assign psg2_bass  = io2b[3:0];
+
 
 always @(posedge clk) begin
-    case(debug_bus[1:0])
+    case(debug_bus[2:0])
         0: debug_st <= {msm_vol,msm_bal};
         1: debug_st <= {msm_treble,msm_bass};
         2: debug_st <= {psg_vol,psg_bal};
         3: debug_st <= {psg_treble,psg_bass};
+        4: debug_st <= ioa;
+        5: debug_st <= iob;
+        6: debug_st <= io2a;
+        7: debug_st <= io2b;
     endcase
 end
 
@@ -196,8 +207,8 @@ always @* begin
           cmd_rd ? ibuf            :
           cmd_st ? {6'd0,obf,~ibf} :
           cmd_lr ? dac             :
-          bc1[0] ? ay0_dout        :
-          bc1[1] ? ay1_dout        : 8'd0;
+          bc1[0] ? ay1_dout        :
+          bc1[1] ? ay2_dout        : 8'd0;
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
@@ -226,7 +237,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rom_ok     ( rom_ok      )
 );
 
-jt49_bus u_ay0(
+jt49_bus u_ay1(
     .rst_n  ( crst_n    ),
     .clk    ( clk       ),
     .clk_en ( cen2      ),
@@ -234,7 +245,7 @@ jt49_bus u_ay0(
     .bc1    ( bc1[0]    ),
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
-    .dout   ( ay0_dout  ),
+    .dout   ( ay1_dout  ),
     .sound  ( psg_raw   ),
     .sample (           ),
     // unused
@@ -247,7 +258,7 @@ jt49_bus u_ay0(
     .A(), .B(), .C() // unused outputs
 );
 
-jt49_bus u_ay1(
+jt49_bus u_ay2(
     .rst_n  ( crst_n    ),
     .clk    ( clk       ),
     .clk_en ( cen2      ),
@@ -255,15 +266,15 @@ jt49_bus u_ay1(
     .bc1    ( bc1[1]    ),
     .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
-    .dout   ( ay1_dout  ),
-    .sound  (           ), // to do
+    .dout   ( ay2_dout  ),
+    .sound  ( psg2_raw  ), // to do
     .sample (           ),
     // unused
     .IOA_in ( 8'h0      ),
-    .IOA_out( io1a      ),
+    .IOA_out( io2a      ),
     .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
-    .IOB_out( io1b      ),
+    .IOB_out( io2b      ),
     .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
@@ -290,7 +301,7 @@ jt7630_bal #(15) u_bal(
     .sout   ( msm_mix )
 );
 
-wire [15:0] msm_amp, psg_amp, psg_aux;
+wire [15:0] msm_amp, psg_amp, psg2_amp;
 
 jt7630_vol u_vol(
     .clk    ( clk     ),
@@ -300,6 +311,17 @@ jt7630_vol u_vol(
     .sin1   ( {msm_mix,1'b0} ),
     .sout0  ( psg_amp ),
     .sout1  ( msm_amp )
+);
+
+// not sure
+jt7630_vol u_vol_psg2(
+    .clk    ( clk       ),
+    .vol0   ( psg2_vol  ),
+    .vol1   ( 4'd0      ),
+    .sin0   ( {psg2_raw,6'd0}),
+    .sin1   ( 16'd0     ),
+    .sout0  ( psg2_amp  ),
+    .sout1  (           )
 );
 
 jt7630_equ u_equ_msm(
@@ -318,7 +340,7 @@ jt7630_equ u_equ_msm(
     .hipass1    (               )
 );
 
-jt7630_equ u_equ_psg(
+jt7630_equ u_equ_psg1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen48k     ( cen48k        ),
@@ -334,11 +356,28 @@ jt7630_equ u_equ_psg(
     .hipass1    (               )
 );
 
+jt7630_equ u_equ_psg2(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen48k     ( cen48k        ),
+    .peak       (               ),
+    .lo_setting ( psg2_bass     ),
+    .hi_setting ( psg2_treble   ),
+    .sin        ( psg2_amp      ),
+    .sout       ( psg2          ),
+    // debug
+    .lopass0    (               ),
+    .lopass1    (               ),
+    .hipass0    (               ),
+    .hipass1    (               )
+);
+
 `else
 initial bus_din  = 0;
 initial rom_cs   = 0;
 assign  rom_addr = 0;
 assign  psg      = 0;
+assign  psg2     = 0;
 assign  msm      = 0;
 assign  clip     = 0;
 assign  no_used  = 0;

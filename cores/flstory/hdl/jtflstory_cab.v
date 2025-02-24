@@ -45,7 +45,7 @@ wire [ 3:0] extra1p, extra2p;
 reg  [ 1:0] unused_IO;
 
 assign mcu_st  = {2'b00,extra1p, mcu_obf, ~mcu_ibf};
-assign snd_st  = {6'h0,snd_obf, snd_ibf^debug_bus[0]};
+assign snd_st  = {6'h0,snd_obf, snd_ibf};
 assign extra1p = cabcfg ? joystick1[9:6] : NOEXTRA;
 assign extra2p = cabcfg ? joystick2[9:6] : NOEXTRA;
 

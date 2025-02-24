@@ -22,7 +22,7 @@
 //            7   priority bit
 
 module jtflstory_obj_scan(
-    input             clk, 
+    input             clk, pxl_cen,
                       lhbl, blink, dr_busy,
                       ghflip, gvflip,
                       layout,
@@ -48,20 +48,27 @@ reg  [ 3:0] cnt;
 reg  [ 2:0] st;
 reg  [ 1:0] obj_sub;
 wire [ 7:0] ydiff;
-wire [ 7:3] hf_active;
+reg  [ 7:3] colscr;
+reg  [ 7:0] hf_adj;
 reg         blank, cen, scan_done, order, info, vsbl, inzone_l, lhbl_l;
 wire        inzone;
 
+localparam [7:0] HADJ_FOR_COLSCROLL=8'd3;
+
 assign ram_din   = chk;
-assign hf_active = lhbl ? hf[7:3] : 5'd0;
 // same RAM usage as the original
 assign ram_addr = vsbl  ? {4'b1101,cnt[2:0],cnt[3]&blink}: // visible indexes   D0~D7, blinking D8~DF
                   info  ? {1'b0,   chk[4:0],  obj_sub   }: // object data       00~7F
                   order ? {3'b100, scan                 }: // object draw order 80~9F
-                          {3'b101, hf_active            }; // column scroll     A0~BF
+                          {3'b101, colscr            }; // column scroll     A0~BF
 assign ydiff    = vlatch+ram_dout;
 assign inzone   = ydiff[7:4] == 4'b1111;
 assign hf       = ghflip ? -9'h8-hdump : hdump;
+
+always @(posedge clk) if(pxl_cen) begin
+    hf_adj <= hf[7:0]+HADJ_FOR_COLSCROLL;
+    colscr <= lhbl ? hf_adj[7:3] : 5'd0;
+end
 
 always @(posedge clk) begin
     lhbl_l   <= lhbl;
