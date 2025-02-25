@@ -12,6 +12,8 @@ jtframe:
       - jtframe_rsthold.v
       - jtframe_toggle.v
       - jtframe_edge.v
+      - jtframe_crosshair_pos.v
+      - jtframe_lightguns.v
   - from: debug
     get:
       - jtframe_debug.v

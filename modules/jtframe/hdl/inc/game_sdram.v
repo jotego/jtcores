@@ -150,7 +150,9 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .coin     ( coin    ),
     .joystick1    ( joystick1        ), .joystick2    ( joystick2        ),
     .joystick3    ( joystick3        ), .joystick4    ( joystick4        ), `ifdef JTFRAME_MOUSE
-    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_SPINNER
+    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUNS
+    .lg1_x        ( lg1_x            ), .lg1_y        ( lg1_y            ),
+    .lg2_x        ( lg2_x            ), .lg2_y        ( lg2_y            ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),

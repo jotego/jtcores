@@ -18,52 +18,26 @@
 module jts18_crosshair(
     input        clk,
     input        pxl_cen,
-    input  [7:0] dx,
-    input  [7:0] dy,
-    input        strobe,
     input        LVBL,
     input        LHBL,
-    output reg [8:0] x,
-    output reg [8:0] y,
+    input  [8:0] x,
+    input  [8:0] y,
     output reg   crosshair
 );
 
 reg  [8:0] hcnt, vcnt;
-reg  [8:0] hcnt_max, vcnt_max;
 reg  LHBLl;
-wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx};
-wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy};
 
 wire [8:0] x_diff = hcnt - x;
 wire [8:0] y_diff = vcnt - y;
-
-always @(posedge clk) begin
-    if (strobe) begin
-        if (x_next[9] && dx[7])
-            x <= 0;
-        else if (x_next[8:0] > hcnt_max)
-            x <= hcnt_max;
-        else
-            x <= x_next[8:0];
-
-        if (y_next[9] && !dy[7])
-            y <= 0;
-        else if (y_next[8:0] > vcnt_max)
-            y <= vcnt_max;
-        else
-            y <= y_next[8:0];
-    end
-end
 
 always @(posedge clk) if (pxl_cen) begin
     LHBLl <= LHBL;
     if (!LVBL) begin
         hcnt <= 0;
         vcnt <= 0;
-        if (|vcnt) vcnt_max <= vcnt;
     end
     else if (LHBLl & !LHBL) begin
-        if (|hcnt) hcnt_max <= hcnt;
         hcnt <= 0;
         vcnt <= vcnt + 1'd1;
     end else if (LHBL)

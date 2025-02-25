@@ -19,6 +19,7 @@
 module jtframe_inputs(
     input             rst,
     input             clk,
+    input             pxl_cen,
     input             vs,
     input             lvbl,
     input             lhbl,
@@ -66,6 +67,9 @@ module jtframe_inputs(
     output      [ 1:0] mouse_strobe,
     output      [ 7:0] game_paddle_1, game_paddle_2,
     output      [ 1:0] dial_x, dial_y,
+
+    // Lightguns
+    output      [ 8:0] lg1_x, lg1_y, lg2_x, lg2_y,
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
@@ -253,6 +257,20 @@ jtframe_mouse u_mouse(
     .mouse_strobe(mouse_strobe ),
     .but_1p     ( mouse_but_1p ),
     .but_2p     ( mouse_but_2p )
+);
+
+jtframe_lightguns u_lightguns(
+    .clk         ( clk         ),
+    .pxl_cen     ( pxl_cen     ),
+    .mouse_1p    ( mouse_1p    ),
+    .mouse_2p    ( mouse_2p    ),
+    .mouse_strobe( mouse_strobe),
+    .LVBL        ( lvbl        ),
+    .LHBL        ( lhbl        ),
+    .lg1_x       ( lg1_x       ),
+    .lg1_y       ( lg1_y       ),
+    .lg2_x       ( lg2_x       ),
+    .lg2_y       ( lg2_y       )
 );
 
 jtframe_beta_lock u_lock(

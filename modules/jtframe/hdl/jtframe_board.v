@@ -109,6 +109,9 @@ module jtframe_board #(parameter
     output       [ 7:0] game_paddle_1, game_paddle_2,
     output       [ 1:0] dial_x, dial_y,
 
+    // Lightguns
+    output       [ 8:0] lg1_x, lg1_y, lg2_x, lg2_y,
+
     // DIP and OSD settings
     input        [63:0] status,
     input        [23:0] dipsw,
@@ -534,6 +537,7 @@ jtframe_inputs #( .BUTTONS( BUTTONS ))
 u_inputs(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
+    .pxl_cen        ( pxl_cen         ),
     .vs             ( vs              ),
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBL            ),
@@ -602,6 +606,12 @@ u_inputs(
     .spinner_2      ( spinner_2       ),
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
+
+    // Lightguns
+    .lg1_x          ( lg1_x           ),
+    .lg1_y          ( lg1_y           ),
+    .lg2_x          ( lg2_x           ),
+    .lg2_y          ( lg2_y           ),
 
     // Input recording
     .dip_pause      ( dip_pause       ),

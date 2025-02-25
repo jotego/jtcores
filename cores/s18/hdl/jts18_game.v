@@ -32,8 +32,10 @@ wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 wire [ 2:0] crosshairs;
-wire [ 8:0] lg1_x, lg2_x;
-wire [ 8:0] lg1_y, lg2_y;
+`ifndef JTFRAME_LIGHTGUNS
+wire [ 8:0] lg1_x=0, lg2_x=0;
+wire [ 8:0] lg1_y=0, lg2_y=0;
+`endif
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
@@ -314,9 +316,6 @@ jts18_video u_video(
 jts18_crosshair crosshair_left (
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .dx         ( mouse_1p[ 7: 0] ),
-    .dy         ( mouse_1p[15: 8] ),
-    .strobe     ( mouse_strobe[0] ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .x          ( lg1_x     ),
@@ -327,9 +326,6 @@ jts18_crosshair crosshair_left (
 jts18_crosshair crosshair_center (
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .dx         ( mouse_2p[ 7: 0] ),
-    .dy         ( mouse_2p[15: 8] ),
-    .strobe     ( mouse_strobe[1] ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .x          ( lg2_x     ),

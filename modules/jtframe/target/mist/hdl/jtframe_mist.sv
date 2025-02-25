@@ -166,6 +166,9 @@ module jtframe_mist #(parameter
     output      [15:0] mouse_1p, mouse_2p,
     output      [ 1:0] mouse_strobe,
 
+    // Lightguns
+    output      [ 8:0] lg1_x, lg1_y, lg2_x, lg2_y,
+
     // DIP and OSD settings
     output             dip_test,
     // non standard:
@@ -413,6 +416,11 @@ jtframe_board #(
     .mouse_1p       ( mouse_1p        ),
     .mouse_2p       ( mouse_2p        ),
     .mouse_strobe   ( mouse_strobe    ),
+    // Lightguns
+    .lg1_x          ( lg1_x           ),
+    .lg1_y          ( lg1_y           ),
+    .lg2_x          ( lg2_x           ),
+    .lg2_y          ( lg2_y           ),
     // DIP and OSD settings
     .status         ( board_status    ),
     .dipsw          ( dipsw[23:0]     ),
