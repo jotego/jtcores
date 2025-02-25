@@ -310,20 +310,24 @@ jts18_video u_video(
 );
 
 jts18_crosshair crosshair_left (
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
+    .flip       ( flip      ),
     .x          ( gun_1p_x  ),
     .y          ( gun_1p_y  ),
     .crosshair  ( crosshairs[0] )
 );
 
 jts18_crosshair crosshair_center (
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
+    .flip       ( flip      ),
     .x          ( gun_2p_x  ),
     .y          ( gun_2p_y  ),
     .crosshair  ( crosshairs[1] )

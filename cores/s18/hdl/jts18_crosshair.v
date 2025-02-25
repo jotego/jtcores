@@ -16,36 +16,35 @@
 */
 
 module jts18_crosshair(
+    input        rst,
     input        clk,
     input        pxl_cen,
     input        LVBL,
     input        LHBL,
+    input        flip,
     input  [8:0] x,
     input  [8:0] y,
     output reg   crosshair
 );
 
-reg  [8:0] hcnt, vcnt;
-reg  LHBLl;
+wire [8:0] hcnt, vcnt, x_diff, y_diff;
 
-wire [8:0] x_diff = hcnt - x;
-wire [8:0] y_diff = vcnt - y;
-
-always @(posedge clk) if (pxl_cen) begin
-    LHBLl <= LHBL;
-    if (!LVBL) begin
-        hcnt <= 0;
-        vcnt <= 0;
-    end
-    else if (LHBLl & !LHBL) begin
-        hcnt <= 0;
-        vcnt <= vcnt + 1'd1;
-    end else if (LHBL)
-        hcnt <= hcnt + 1'd1;
-end
+assign x_diff = hcnt - x;
+assign y_diff = vcnt - y;
 
 always @(posedge clk)
     crosshair <= ((x_diff[8:3] == 0 || (&x_diff[8:3] && |x_diff[2:0])) && y_diff == 0) ||
                  ((y_diff[8:3] == 0 || (&y_diff[8:3] && |y_diff[2:0])) && x_diff == 0);
+
+jtframe_video_counter u_vidcnt(
+    .rst    ( rst     ),
+    .clk    ( clk     ),
+    .pxl_cen( pxl_cen ),
+    .flip   ( flip    ),
+    .lhbl   ( LHBL    ),
+    .lvbl   ( LVBL    ),
+    .v      ( vcnt    ),
+    .h      ( hcnt    )
+);
 
 endmodule
