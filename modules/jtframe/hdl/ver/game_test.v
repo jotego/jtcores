@@ -534,7 +534,7 @@ u_game(
 
 `ifdef JTFRAME_MOUSE
     .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), .mouse_strobe( 2'd0 ), `endif
-`ifdef JTFRAME_LIGHTGUNS
+`ifdef JTFRAME_LIGHTGUN
     .lg1_x( 9'd0 ), .lg1_y( 9'd0 ),
     .lg2_x( 9'd0 ), .lg2_y( 9'd0 ), `endif
 

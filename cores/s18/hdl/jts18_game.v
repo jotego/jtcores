@@ -32,10 +32,6 @@ wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 wire [ 2:0] crosshairs;
-`ifndef JTFRAME_LIGHTGUNS
-wire [ 8:0] lg1_x=0, lg2_x=0;
-wire [ 8:0] lg1_y=0, lg2_y=0;
-`endif
 
 // SDRAM interface
 wire        vram_cs, ram_cs;

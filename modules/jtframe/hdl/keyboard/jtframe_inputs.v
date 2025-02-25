@@ -259,7 +259,7 @@ jtframe_mouse u_mouse(
     .but_2p     ( mouse_but_2p )
 );
 
-jtframe_lightguns u_lightguns(
+jtframe_lightguns u_lightgun(
     .clk         ( clk         ),
     .pxl_cen     ( pxl_cen     ),
     .mouse_1p    ( mouse_1p    ),

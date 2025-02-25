@@ -30,7 +30,7 @@ module jtframe_lightguns (
     output [ 8:0] lg2_y
 );
 
-`ifdef JTFRAME_LIGHTGUNS
+`ifdef JTFRAME_LIGHTGUN
 jtframe_crosshair_pos crosshair_left (
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

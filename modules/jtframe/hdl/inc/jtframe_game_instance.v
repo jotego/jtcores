@@ -89,7 +89,7 @@ u_game(
     .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_PADDLE
     .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ),
     .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
-    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUNS
+    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUN
     .lg1_x        ( lg1_x            ), .lg1_y        ( lg1_y            ),
     .lg2_x        ( lg2_x            ), .lg2_y        ( lg2_y            ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif

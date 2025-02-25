@@ -26,7 +26,7 @@
     input   [15:0]  mouse_1p, mouse_2p,
     input   [ 1:0]  mouse_strobe,
 `endif
-`ifdef JTFRAME_LIGHTGUNS
+`ifdef JTFRAME_LIGHTGUN
     input   [ 8:0]  lg1_x, lg1_y, lg2_x, lg2_y,
 `endif
 `ifdef JTFRAME_SPINNER
