@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 25-02-2025 */
 
-module jtframe_lightguns (
+module jtframe_lightgun (
     input         clk,
     input         pxl_cen,
     input  [15:0] mouse_1p,
@@ -24,10 +24,10 @@ module jtframe_lightguns (
     input  [ 1:0] mouse_strobe,
     input         LVBL,
     input         LHBL,
-    output [ 8:0] lg1_x, 
-    output [ 8:0] lg1_y, 
-    output [ 8:0] lg2_x,
-    output [ 8:0] lg2_y
+    output [ 8:0] gun_1p_x,
+    output [ 8:0] gun_1p_y,
+    output [ 8:0] gun_2p_x,
+    output [ 8:0] gun_2p_y
 );
 
 `ifdef JTFRAME_LIGHTGUN
@@ -39,8 +39,8 @@ jtframe_mouse_abspos crosshair_left (
     .strobe     ( mouse_strobe[0] ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .x          ( lg1_x     ),
-    .y          ( lg1_y     )
+    .x          ( gun_1p_x  ),
+    .y          ( gun_1p_y  )
 );
 
 jtframe_mouse_abspos crosshair_center (
@@ -51,13 +51,13 @@ jtframe_mouse_abspos crosshair_center (
     .strobe     ( mouse_strobe[1] ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .x          ( lg2_x     ),
-    .y          ( lg2_y     )
+    .x          ( gun_2p_x  ),
+    .y          ( gun_2p_y  )
 );
 
 `else
-assign {lg1_x, lg1_y} = 18'b0;
-assign {lg2_x, lg2_y} = 18'b0;
+assign {gun_1p_x, gun_1p_y} = 18'b0;
+assign {gun_2p_x, gun_2p_y} = 18'b0;
 `endif
 
 endmodule

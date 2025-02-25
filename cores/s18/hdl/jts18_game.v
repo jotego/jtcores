@@ -148,10 +148,10 @@ jts18_main u_main(
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
-    .lg1_x       ( lg1_x      ),
-    .lg1_y       ( lg1_y      ),
-    .lg2_x       ( lg2_x      ),
-    .lg2_y       ( lg2_y      ),
+    .gun_1p_x    ( gun_1p_x   ),
+    .gun_1p_y    ( gun_1p_y   ),
+    .gun_2p_x    ( gun_2p_x   ),
+    .gun_2p_y    ( gun_2p_y   ),
     .dial_x      ( dial_x     ),
     .dial_y      ( dial_y     ),
     .cab_1p      ( cab_1p[2:0]),
@@ -314,8 +314,8 @@ jts18_crosshair crosshair_left (
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .x          ( lg1_x     ),
-    .y          ( lg1_y     ),
+    .x          ( gun_1p_x  ),
+    .y          ( gun_1p_y  ),
     .crosshair  ( crosshairs[0] )
 );
 
@@ -324,8 +324,8 @@ jts18_crosshair crosshair_center (
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .x          ( lg2_x     ),
-    .y          ( lg2_y     ),
+    .x          ( gun_2p_x  ),
+    .y          ( gun_2p_y  ),
     .crosshair  ( crosshairs[1] )
 );
 

@@ -67,10 +67,10 @@ module jts18_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
-    input       [ 8:0] lg1_x,
-    input       [ 8:0] lg1_y,
-    input       [ 8:0] lg2_x,
-    input       [ 8:0] lg2_y,
+    input       [ 8:0] gun_1p_x,
+    input       [ 8:0] gun_1p_y,
+    input       [ 8:0] gun_2p_x,
+    input       [ 8:0] gun_2p_y,
     input       [ 1:0] dial_x,
     input       [ 1:0] dial_y,
     input       [ 2:0] cab_1p,
@@ -312,10 +312,10 @@ always @(posedge clk) begin
 
     if (io_we && A[15:4] == 12'h301) begin
         case (A[2:1])
-            0: m6253_shift_reg <= ~lg1_y[7:0];
-            1: m6253_shift_reg <= lg_xscale(lg1_x);
-            2: m6253_shift_reg <= ~lg2_y[7:0];
-            3: m6253_shift_reg <= lg_xscale(lg2_x);
+            0: m6253_shift_reg <= ~gun_1p_y[7:0];
+            1: m6253_shift_reg <= lg_xscale(gun_1p_x);
+            2: m6253_shift_reg <= ~gun_2p_y[7:0];
+            3: m6253_shift_reg <= lg_xscale(gun_2p_x);
             default: ;
         endcase
     end

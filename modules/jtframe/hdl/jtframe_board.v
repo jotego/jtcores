@@ -110,7 +110,7 @@ module jtframe_board #(parameter
     output       [ 1:0] dial_x, dial_y,
 
     // Lightguns
-    output       [ 8:0] lg1_x, lg1_y, lg2_x, lg2_y,
+    output       [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
 
     // DIP and OSD settings
     input        [63:0] status,
@@ -608,10 +608,10 @@ u_inputs(
     .dial_y         ( dial_y          ),
 
     // Lightguns
-    .lg1_x          ( lg1_x           ),
-    .lg1_y          ( lg1_y           ),
-    .lg2_x          ( lg2_x           ),
-    .lg2_y          ( lg2_y           ),
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
 
     // Input recording
     .dip_pause      ( dip_pause       ),

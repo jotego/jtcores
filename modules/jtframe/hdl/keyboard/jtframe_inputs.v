@@ -69,7 +69,7 @@ module jtframe_inputs(
     output      [ 1:0] dial_x, dial_y,
 
     // Lightguns
-    output      [ 8:0] lg1_x, lg1_y, lg2_x, lg2_y,
+    output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
@@ -259,7 +259,7 @@ jtframe_mouse u_mouse(
     .but_2p     ( mouse_but_2p )
 );
 
-jtframe_lightguns u_lightgun(
+jtframe_lightgun u_lightgun(
     .clk         ( clk         ),
     .pxl_cen     ( pxl_cen     ),
     .mouse_1p    ( mouse_1p    ),
@@ -267,10 +267,10 @@ jtframe_lightguns u_lightgun(
     .mouse_strobe( mouse_strobe),
     .LVBL        ( lvbl        ),
     .LHBL        ( lhbl        ),
-    .lg1_x       ( lg1_x       ),
-    .lg1_y       ( lg1_y       ),
-    .lg2_x       ( lg2_x       ),
-    .lg2_y       ( lg2_y       )
+    .gun_1p_x    ( gun_1p_x    ),
+    .gun_1p_y    ( gun_1p_y    ),
+    .gun_2p_x    ( gun_2p_x    ),
+    .gun_2p_y    ( gun_2p_y    )
 );
 
 jtframe_beta_lock u_lock(
