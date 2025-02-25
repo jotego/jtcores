@@ -12,7 +12,7 @@ jtframe:
       - jtframe_rsthold.v
       - jtframe_toggle.v
       - jtframe_edge.v
-      - jtframe_crosshair_pos.v
+      - jtframe_mouse_abspos.v
       - jtframe_lightgun.v
   - from: debug
     get:

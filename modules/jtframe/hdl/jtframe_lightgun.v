@@ -31,7 +31,7 @@ module jtframe_lightguns (
 );
 
 `ifdef JTFRAME_LIGHTGUN
-jtframe_crosshair_pos crosshair_left (
+jtframe_mouse_abspos crosshair_left (
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .dx         ( mouse_1p[ 7: 0] ),
@@ -43,7 +43,7 @@ jtframe_crosshair_pos crosshair_left (
     .y          ( lg1_y     )
 );
 
-jtframe_crosshair_pos crosshair_center (
+jtframe_mouse_abspos crosshair_center (
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .dx         ( mouse_2p[ 7: 0] ),

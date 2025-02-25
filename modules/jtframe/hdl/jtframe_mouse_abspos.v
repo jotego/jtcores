@@ -15,14 +15,14 @@
     Author: Gyorgy Szombathelyi Copyright: Miki Saito
 */
 
-module jtframe_crosshair_pos(
-    input        clk,
-    input        pxl_cen,
-    input  [7:0] dx,
-    input  [7:0] dy,
-    input        strobe,
-    input        LVBL,
-    input        LHBL,
+module jtframe_mouse_abspos(
+    input            clk,
+    input            pxl_cen,
+    input      [7:0] dx,
+    input      [7:0] dy,
+    input            strobe,
+    input            LVBL,
+    input            LHBL,
     output reg [8:0] x,
     output reg [8:0] y
 );
