@@ -19,7 +19,6 @@
 module jtframe_inputs(
     input             rst,
     input             clk,
-    input             pxl_cen,
     input             vs,
     input             lvbl,
     input             lhbl,
@@ -91,7 +90,7 @@ module jtframe_inputs(
     input              ioctl_rom
 );
 
-parameter BUTTONS    = 2;
+parameter BUTTONS    = 2, WIDTH = 384, HEIGHT = 224;
 
 wire [ 2:0] mouse_but_1p, mouse_but_2p;
 wire [ 5:0] recjoy1;
@@ -259,14 +258,12 @@ jtframe_mouse u_mouse(
     .but_2p     ( mouse_but_2p )
 );
 
-jtframe_lightgun u_lightgun(
+jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
+) u_lightgun(
     .clk         ( clk         ),
-    .pxl_cen     ( pxl_cen     ),
     .mouse_1p    ( mouse_1p    ),
     .mouse_2p    ( mouse_2p    ),
     .mouse_strobe( mouse_strobe),
-    .LVBL        ( lvbl        ),
-    .LHBL        ( lhbl        ),
     .gun_1p_x    ( gun_1p_x    ),
     .gun_1p_y    ( gun_1p_y    ),
     .gun_2p_x    ( gun_2p_x    ),

@@ -533,11 +533,13 @@ jtframe_short_blank #(
     .vb_out     (                 )
 );
 
-jtframe_inputs #( .BUTTONS( BUTTONS ))
-u_inputs(
+jtframe_inputs #(
+    .BUTTONS( BUTTONS      ),
+    .WIDTH  ( VIDEO_WIDTH  ),
+    .HEIGHT ( VIDEO_HEIGHT )
+) u_inputs(
     .rst            ( game_rst        ),
     .clk            ( clk_sys         ),
-    .pxl_cen        ( pxl_cen         ),
     .vs             ( vs              ),
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBL            ),
