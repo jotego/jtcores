@@ -165,6 +165,8 @@ module jtframe_mister #(parameter
     // mouse
     output  [15:0]  mouse_1p,  mouse_2p,
     output  [ 1:0]  mouse_strobe,
+    // Lightguns
+    output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -697,6 +699,11 @@ jtframe_board #(
     .spinner_2      ( spinner_2       ),
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
+    // Lightguns
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),
