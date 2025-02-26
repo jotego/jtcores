@@ -226,7 +226,7 @@ wire        ps2_kbd_clk, ps2_kbd_data;
 wire        force_scan2x, direct_video;
 wire        video_rotated;
 
-wire [ 7:0] core_mod;
+wire [ 6:0] core_mod;
 wire [ 7:0] st_lpbuf;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -368,15 +368,16 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 
 // OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
+wire        vertical;
 
 assign status_menumask[15:6] = 0,
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
-       status_menumask[4]    = ~core_mod[0],  // shown for vertical games
+       status_menumask[4]    = ~vertical,  // shown for vertical games
        status_menumask[1]    = 1,   // hidden
 `else
        status_menumask[4]    = 1,   // hidden
-       status_menumask[1]    = ~core_mod[0],  // shown for vertical games
+       status_menumask[1]    = ~vertical,  // shown for vertical games
 `endif
        status_menumask[3]    =~video_rotated, // scan FX options do not work with rotated video (except HQ2x)
        status_menumask[2]    = ~hsize_enable, // horizontal scaling
@@ -651,6 +652,8 @@ jtframe_board #(
     .clk_pico       ( clk_pico        ),
 
     .core_mod       ( core_mod        ),
+    .vertical       ( vertical        ),
+    .black_frame    (                 ),
     // Sound
     .snd_lin        ( snd_lin         ),
     .snd_rin        ( snd_rin         ),

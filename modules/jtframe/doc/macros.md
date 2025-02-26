@@ -38,6 +38,7 @@ JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  d
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
+JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for objects
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
@@ -54,7 +55,6 @@ JTFRAME_MR_DDR           | MiSTer  | Defined internally. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
-JTFRAME_NO_MRA_DIP       |         | DIPs are not in an MRA file. Do not call it out from the config string.
 JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
@@ -81,7 +81,6 @@ JTFRAME_SKIP             |         | If defined, jtcore will not compile the cor
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
 JTFRAME_STATUS           |         | Game module will receive an 8-bit address and can output 8-bit data in response
 JTFRAME_STEREO           |         | Enables stereo sound (snd_left/right outputs from game module instead of single snd)
-JTFRAME_SUPPORT_4WAY     |         | Enables support for 4-way joysticks if the MRA sets it
 JTFRAME_UART             |         | Connects the UART pins to the game module (see [inputs.md](inputs.md))
 JTFRAME_VERTICAL         |         | Enables support for vertical games
 JTFRAME_WIDTH            |         | Sets the video width

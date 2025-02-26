@@ -1,6 +1,7 @@
 jtframe:
   - get:
       - jtframe_board.v
+      - jtframe_coremod.v
       - jtframe_led.v
       - jtframe_bcd_cnt.v
       - jtframe_enlarger.v

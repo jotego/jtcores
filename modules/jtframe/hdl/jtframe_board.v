@@ -40,7 +40,9 @@ module jtframe_board #(parameter
     input               clk_rom,
     input               clk_pico,
 
-    input        [ 7:0] core_mod,
+    input        [ 6:0] core_mod,
+    output              vertical,
+    output       [ 1:0] black_frame,
     // LED
     input               osd_shown,
     output              led,
@@ -225,12 +227,12 @@ wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty, frame_blank;
+wire   [1:0] sensty;
 wire  [12:7] func_key;
 wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
-wire         lightgun_en;
+wire         lightgun_en, dipflip_xor;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
 
@@ -246,10 +248,16 @@ wire [SDRAMW-1:0] bax_addr;
 wire LHBLs;
 
 assign sensty    = status[33:32]; // MiST should drive these pins
-assign dial_raw_en  = core_mod[3];
-assign dial_reverse = core_mod[4];
-assign frame_blank  = core_mod[6:5];
-assign lightgun_en  = core_mod[7];
+
+jtframe_coremod u_coremod(
+    .core_mod       ( core_mod      ),
+    .vertical       ( vertical      ),
+    .lightgun_en    ( lightgun_en   ),
+    .dipflip_xor    ( dipflip_xor   ),
+    .dial_raw_en    ( dial_raw_en   ),
+    .dial_reverse   ( dial_reverse  ),
+    .black_frame    ( black_frame   )
+);
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
 
@@ -314,7 +322,7 @@ reg  show_credits;
             if( osd_credits_disabled ) show_credits <= 0;
         `endif;
         `ifdef JTFRAME_CREDITS_HIDEVERT
-            if( core_mod[0] ) show_credits <= 0; // hide for vertical games
+            if( vertical ) show_credits <= 0; // hide for vertical games
         `endif
         `ifdef JTFRAME_CREDITS_AON
             show_credits <= 1;
@@ -338,7 +346,7 @@ reg  show_credits;
         `ifdef JTFRAME_CREDITS_NOROTATE
             .rotate ( 2'd0          ),
         `else
-            .rotate ( locked ? 2'd0 : { rotate[1], core_mod[0] }  ),
+            .rotate ( locked ? 2'd0 : { rotate[1], vertical }  ),
         `endif
         .toggle     ( toggle        ),
         .fast_scroll( fast_scroll   ),
@@ -421,7 +429,6 @@ jtframe_filter_keyboard u_filter_keyboard(
 
 `ifndef JTFRAME_RELEASE
     wire [7:0] sys_info;
-    // wire       flip_info = dip_flip & ~core_mod[0]; // Do not flip the debug display for vertical games
     wire       flip_info = 0;
 
     jtframe_debug #(.COLORW(COLORW)) u_debug(
@@ -529,8 +536,8 @@ jtframe_short_blank #(
     .LHBL       ( LHBL            ),
     .LVBL       ( LVBL            ),
     .v_en       ( 1'b0            ),
-    .h_en       ( frame_blank[0]  ),
-    .wide       ( frame_blank[1]  ),
+    .h_en       ( black_frame[0]  ),
+    .wide       ( black_frame[1]  ),
     .HS         ( hs              ),
     .hb_out     ( LHBLs           ),
     .vb_out     (                 )
@@ -641,7 +648,8 @@ jtframe_inputs #(
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
-    .core_mod   ( core_mod      ),
+    .vertical   ( vertical      ),
+    .dipflip_xor( dipflip_xor   ),
     .game_pause ( game_pause    ),
     .hdmi_arx   ( hdmi_arx      ),
     .hdmi_ary   ( hdmi_ary      ),

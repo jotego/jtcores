@@ -19,8 +19,8 @@
 module jtframe_dip(
     input              clk,
     input      [63:0]  status,
-    input      [ 7:0]  core_mod,
     input              game_pause,
+                       vertical, dipflip_xor,
 
     //Video aspect ratio for HDMI. Most retro systems have ratio 4:3.
     output reg [12:0]  hdmi_arx,
@@ -94,9 +94,6 @@ wire [1:0] ar = status[17:16];    // only MiSTer
 
 // Screen or control rotation
 `ifdef JTFRAME_VERTICAL
-    // core_mod[0] = 0 horizontal game
-    //             = 1 vertical game
-    // core_mod[2] = XOR with dip_flip
     // status[13]  = 0 Rotate screen
     //             = 1 no rotation
     wire tate;
@@ -107,18 +104,18 @@ generate
         `else
             wire status_roten= ~status[2];
         `endif
-        assign tate = (!MISTER || status_roten) && core_mod[0]; // 1 if screen is vertical (tate in Japanese)
+        assign tate = (!MISTER || status_roten) && vertical; // 1 if screen is vertical (tate in Japanese)
         initial rot_control = 0;
         initial rot_osdonly = 0;
     end else begin // MiST derivativatives are always vertical
-        assign tate   = core_mod[0];
+        assign tate   = vertical;
         always @(posedge clk) begin
             rot_control <= (status[2]^XOR_ROT[0]) & tate & rot_osdonly;
             rot_osdonly <= !status[13];
         end
     end
 endgenerate
-    wire   swap_ar = ~tate | ~core_mod[0];
+    wire   swap_ar = ~tate | ~vertical;
 `else
     wire    tate        = 0;
     initial rot_control = 0;
@@ -137,7 +134,7 @@ end
 
 // all signals that are not direct re-wirings are latched
 always @(posedge clk) begin
-    rotate      <= { dip_flip ^ core_mod[2], tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
+    rotate      <= { dip_flip ^ dipflip_xor, tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
     dip_fxlevel <= 2'b10 ^ status[7:6];
     // only for MiSTer
     hdmi_arx    <= ar==0 ? (swap_ar ? ARX : ARY) : {11'd0,ar-2'd1};
