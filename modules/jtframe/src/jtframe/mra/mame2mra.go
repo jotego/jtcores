@@ -182,7 +182,8 @@ func (parsed *ParsedMachine)validate_core_macros() error {
 	context  := fmt.Sprintf("Game %s (in %s)",parsed.machine.Name,corename)
 	e1 := parsed.validate_vertical(context)
 	e2 := parsed.validate_buttons(context)
-	return common.JoinErrors(e1,e2)
+	e3 := parsed.validate_lightgun(context)
+	return common.JoinErrors(e1,e2,e3)
 }
 
 func (parsed *ParsedMachine) validate_vertical(context string) error {
@@ -210,7 +211,19 @@ func (parsed *ParsedMachine) validate_buttons(context string) error {
 }
 
 func (parsed *ParsedMachine)is_vertical() bool {
-	return parsed.coremod&1==1
+	return parsed.coremod&COREMOD_VERTICAL!=0
+}
+
+func (parsed *ParsedMachine) validate_lightgun(context string) error {
+	if !macros.IsSet("JTFRAME_LIGHTGUN") && parsed.has_lightgun() {
+		e := fmt.Errorf("%s uses a light gun but JTFRAME_LIGHTGUN is not set",context)
+		return e
+	}
+	return nil
+}
+
+func (parsed *ParsedMachine)has_lightgun() bool {
+	return parsed.coremod&COREMOD_LIGHTGUN!=0
 }
 
 func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string]string, mra_cfg Mame2MRA ) {

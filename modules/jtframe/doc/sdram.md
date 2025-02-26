@@ -34,6 +34,7 @@ Bit    |  Use                      | Set by
 4      | reverse the dial          | mame.xml
 5      | Horizontal frame bit 0    | mame.xml
 6      | H. frame bit 1            | mame.xml
+7      | Lightgun game             | mame.xml
 15-8   | sound volume              | mame2mra.toml's audio section
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
