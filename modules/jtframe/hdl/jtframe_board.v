@@ -40,7 +40,7 @@ module jtframe_board #(parameter
     input               clk_rom,
     input               clk_pico,
 
-    input        [ 6:0] core_mod,
+    input        [ 7:0] core_mod,
     // LED
     input               osd_shown,
     output              led,
@@ -111,6 +111,7 @@ module jtframe_board #(parameter
 
     // Lightguns
     output       [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output       [ 1:0] crosshair,
 
     // DIP and OSD settings
     input        [63:0] status,
@@ -229,6 +230,7 @@ wire  [12:7] func_key;
 wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
+wire         lightgun_en;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
 
@@ -247,6 +249,7 @@ assign sensty    = status[33:32]; // MiST should drive these pins
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];
 assign frame_blank  = core_mod[6:5];
+assign lightgun_en  = core_mod[7];
 
 assign base_rgb  = { dbg_r, dbg_g, dbg_b };
 
@@ -652,6 +655,21 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .dip_pause  ( pre_pause     ),
     .dip_flip   ( dip_flip      ),
     .dip_fxlevel( dip_fxlevel   )
+);
+
+jtframe_crosshair u_crosshair(
+    .rst        ( rst           ),
+    .clk        ( clk_sys       ),
+    .pxl_cen    ( pxl_cen       ),
+    .lvbl       ( LVBL          ),
+    .lhbl       ( LHBL          ),
+    .flip       ( dip_flip      ),
+    .draw_en    ( lightgun_en   ),
+    .gun_1p_x   ( gun_1p_x      ),
+    .gun_1p_y   ( gun_1p_y      ),
+    .gun_2p_x   ( gun_2p_x      ),
+    .gun_2p_y   ( gun_2p_y      ),
+    .crosshair  ( crosshair     )
 );
 
 `ifdef JTFRAME_CHEAT

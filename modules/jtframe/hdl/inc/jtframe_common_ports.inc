@@ -28,6 +28,7 @@
 `endif
 `ifdef JTFRAME_LIGHTGUN
     input   [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    input   [ 1:0]  crosshair,
 `endif
 `ifdef JTFRAME_SPINNER
     input   [ 7:0]  spinner_1p, spinner_2p,

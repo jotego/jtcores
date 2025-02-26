@@ -24,7 +24,7 @@ module jtframe_sys_info(
     input               dip_flip, dip_pause, dip_test, show_credits,
     input               game_led,
     input               LVBL,
-    input         [6:0] core_mod,
+    input         [7:0] core_mod,
     input         [3:0] gfx_en,
     // sound
     input               sample,

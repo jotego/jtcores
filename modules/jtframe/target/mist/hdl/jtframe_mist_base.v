@@ -29,7 +29,7 @@ module jtframe_mist_base #(parameter
     input           clk_rom,
     input           sdram_init,
     output          osd_shown,
-    output  [6:0]   core_mod,
+    output  [7:0]   core_mod,
     // Base video
     input   [1:0]   osd_rotate,
     input   [1:0]   rotation, // 0 - no rotation, 1 - clockwise, 2 - anticlockwise

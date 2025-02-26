@@ -167,6 +167,7 @@ module jtframe_mister #(parameter
     output  [ 1:0]  mouse_strobe,
     // Lightguns
     output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output  [ 1:0]  crosshair,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -225,7 +226,7 @@ wire        ps2_kbd_clk, ps2_kbd_data;
 wire        force_scan2x, direct_video;
 wire        video_rotated;
 
-wire [ 6:0] core_mod;
+wire [ 7:0] core_mod;
 wire [ 7:0] st_lpbuf;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -704,6 +705,7 @@ jtframe_board #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
+    .crosshair      ( crosshair       ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),

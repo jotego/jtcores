@@ -19,7 +19,7 @@
 module jtframe_dip(
     input              clk,
     input      [63:0]  status,
-    input      [ 6:0]  core_mod,
+    input      [ 7:0]  core_mod,
     input              game_pause,
 
     //Video aspect ratio for HDMI. Most retro systems have ratio 4:3.

@@ -60,7 +60,7 @@ module jtframe_mister_dwnld(
     output reg [ 7:0] ioctl_dout,
 
     // Configuration
-    output reg [ 6:0] core_mod,
+    output reg [ 7:0] core_mod,
     input      [31:0] status,
     output     [31:0] dipsw,
     output     [31:0] cheat,
@@ -97,7 +97,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         // The hps_addr[0]==1'b0 condition is needed in case JTFRAME_MR_FASTIO is enabled
         // as it always creates two write events and the second would delete the data of the first
-        if (hps_wr && (hps_index==IDX_MOD) && hps_addr[0]==1'b0) core_mod <= hps_dout[6:0];
+        if (hps_wr && (hps_index==IDX_MOD) && hps_addr[0]==1'b0) core_mod <= hps_dout/*[6:0]*/;
     end
 end
 

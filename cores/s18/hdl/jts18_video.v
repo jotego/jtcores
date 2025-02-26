@@ -286,7 +286,7 @@ jts18_colmix u_colmix(
     .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
     // Lighgun crosshairs
-    .lightguns  ( lightguns & {3{game_id[PCB_5873]}} ),
+    .lightguns  ( lightguns ),
     // S16 Video priority
     .sa         ( sa        ),
     .sb         ( sb        ),

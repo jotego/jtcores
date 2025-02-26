@@ -76,6 +76,8 @@ assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
+// 2 guns are supported right now
+assign crosshairs = {1'b0,crosshair};
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -308,32 +310,5 @@ jts18_video u_video(
     .st_addr    ( debug_bus ),
     .st_dout    ( st_video  )
 );
-
-jts18_crosshair crosshair_left (
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
-    .flip       ( flip      ),
-    .x          ( gun_1p_x  ),
-    .y          ( gun_1p_y  ),
-    .crosshair  ( crosshairs[0] )
-);
-
-jts18_crosshair crosshair_center (
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
-    .flip       ( flip      ),
-    .x          ( gun_2p_x  ),
-    .y          ( gun_2p_y  ),
-    .crosshair  ( crosshairs[1] )
-);
-
-// 2 guns are supported right now
-assign crosshairs[2] = 0;
 
 endmodule
