@@ -368,6 +368,8 @@ jtframe_board #(
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
     .core_mod       ( core_mod        ),
+    .vertical       (                 ),
+    .black_frame    (                 ),
     // Sound
     .snd_lin        ( snd_left        ),
     .snd_rin        ( snd_right       ),

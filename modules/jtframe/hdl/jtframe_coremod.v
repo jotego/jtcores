@@ -17,7 +17,7 @@
     Date: 26-2-2025 */
 
 module jtframe_coremod(
-    input  [6:0] core_mod
+    input  [6:0] core_mod,
 
     output       vertical,
                  lightgun_en,
