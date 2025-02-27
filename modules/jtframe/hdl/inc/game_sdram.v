@@ -152,7 +152,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .joystick3    ( joystick3        ), .joystick4    ( joystick4        ), `ifdef JTFRAME_MOUSE
     .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUN
     .gun_1p_x     ( gun_1p_x         ), .gun_1p_y     ( gun_1p_y         ),
-    .gun_2p_x     ( gun_2p_x         ), .gun_2p_y     ( gun_2p_y         ), .crosshair    ( crosshair    ), `endif `ifdef JTFRAME_SPINNER
+    .gun_2p_x     ( gun_2p_x         ), .gun_2p_y     ( gun_2p_y         ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),

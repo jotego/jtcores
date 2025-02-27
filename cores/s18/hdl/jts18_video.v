@@ -84,8 +84,6 @@ module jts18_video(
     output     [22:1]  obj_addr,
     input      [15:0]  obj_data,
 
-    input       [2:0]  lightguns,
-
     // Video signal
     output             HS,
     output             VS,
@@ -285,8 +283,6 @@ jts18_colmix u_colmix(
     .vdp_ysn    ( vdp_ysn   ),
     .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
-    // Lighgun crosshairs
-    .lightguns  ( lightguns ),
     // S16 Video priority
     .sa         ( sa        ),
     .sb         ( sb        ),

@@ -28,6 +28,5 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_blank.v
       - jtframe_linebuf.v
 jt12:

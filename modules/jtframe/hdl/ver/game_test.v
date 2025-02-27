@@ -536,7 +536,7 @@ u_game(
     .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), .mouse_strobe( 2'd0 ), `endif
 `ifdef JTFRAME_LIGHTGUN
     .gun_1p_x( 9'd0 ), .gun_1p_y( 9'd0 ),
-    .gun_2p_x( 9'd0 ), .gun_2p_y( 9'd0 ), .crosshair( 2'd0 ),`endif
+    .gun_2p_x( 9'd0 ), .gun_2p_y( 9'd0 ), `endif
 
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),

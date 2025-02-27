@@ -31,7 +31,6 @@ wire [ 8:0] vrender;
 wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
-wire [ 2:0] crosshairs;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
@@ -76,8 +75,6 @@ assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
-// 2 guns are supported right now
-assign crosshairs = {1'b0,crosshair};
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -292,8 +289,6 @@ jts18_video u_video(
     .obj_cs     ( obj_cs    ),
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
-
-    .lightguns  ( crosshairs),
 
     .joystick1   ( {joystick1[6],joystick1[5]}  ),
     // Video signal

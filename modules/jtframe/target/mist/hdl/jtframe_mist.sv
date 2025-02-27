@@ -168,7 +168,6 @@ module jtframe_mist #(parameter
 
     // Lightguns
     output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
-    output      [ 1:0] crosshair,
 
     // DIP and OSD settings
     output             dip_test,
@@ -424,7 +423,6 @@ jtframe_board #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
-    .crosshair      ( crosshair       ),
     // DIP and OSD settings
     .status         ( board_status    ),
     .dipsw          ( dipsw[23:0]     ),
