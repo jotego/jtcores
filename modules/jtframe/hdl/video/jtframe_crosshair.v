@@ -82,7 +82,7 @@ jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
     .rgb_cross  ( rgb_cross      )
 );
 
-jtframe_blank #(.DLY(4),.DW(COLORW*3)) u_blank(
+jtframe_blank #(.DLY(0),.DW(COLORW*3)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( pre_lhbl  ),

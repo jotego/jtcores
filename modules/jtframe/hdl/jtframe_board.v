@@ -238,7 +238,7 @@ wire   [1:0] debug_plus, debug_minus;
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b,
                   cross_r,cross_g, cross_b;
-wire              cross_lhbl, cross_lvbl;
+// wire              cross_lhbl, cross_lvbl;
 
 wire [ 3:0] bax_rd, bax_wr, bax_ack;
 wire [15:0] bax_din;
@@ -672,8 +672,8 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .pxl_cen    ( pxl_cen       ),
     .pre_lvbl   ( LVBL          ),
     .pre_lhbl   ( LHBLs         ),
-    .lvbl       ( cross_lhbl    ),
-    .lhbl       ( cross_lvbl    ),
+    .lvbl       ( /*cross_lhbl*/    ),
+    .lhbl       ( /*cross_lvbl*/    ),
     .flip       ( dip_flip      ),
     .draw_en    ( lightgun_en | debug_bus[0]  ),
     .gun_1p_x   ( gun_1p_x      ),
