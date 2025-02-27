@@ -15,8 +15,6 @@ jtframe:
       - jtframe_edge.v
       - jtframe_mouse_abspos.v
       - jtframe_lightgun.v
-      - jtframe_crosshair.v
-      - jtframe_crosshair_draw.v
   - from: debug
     get:
       - jtframe_debug.v
@@ -60,6 +58,8 @@ jtframe:
       - jtframe_short_blank.v
       - jtframe_video_counter.v
       - jtframe_font.v
+      - jtframe_crosshair.v
+      - jtframe_crosshair_draw.v
   - from: sdram
     get:
       - jtframe_dwnld.v
