@@ -58,8 +58,10 @@ jtframe:
       - jtframe_short_blank.v
       - jtframe_video_counter.v
       - jtframe_font.v
+      - jtframe_blank.v
       - jtframe_crosshair.v
       - jtframe_crosshair_draw.v
+      - jtframe_crosshair_color.v
   - from: sdram
     get:
       - jtframe_dwnld.v
