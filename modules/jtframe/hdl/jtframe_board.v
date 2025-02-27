@@ -113,7 +113,6 @@ module jtframe_board #(parameter
 
     // Lightguns
     output       [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
-    output       [ 1:0] crosshair,
 
     // DIP and OSD settings
     input        [63:0] status,
@@ -237,7 +236,9 @@ wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
-                  dbg_r, dbg_g, dbg_b;
+                  dbg_r, dbg_g, dbg_b,
+                  cross_r,cross_g, cross_b;
+wire              cross_lhbl, cross_lvbl;
 
 wire [ 3:0] bax_rd, bax_wr, bax_ack;
 wire [15:0] bax_din;
@@ -340,9 +341,9 @@ reg  show_credits;
         .pxl_cen    ( pxl_cen       ),
 
         // input image
-        .HB         ( LHBLs         ),
-        .VB         ( LVBL          ),
-        .rgb_in     ( { game_r, game_g, game_b } ),
+        .HB         ( /*LHBLs*/ cross_lhbl         ),
+        .VB         ( /*LVBL */ cross_lVbl         ),
+        .rgb_in     ( { cross_r,cross_g, cross_b /*game_r, game_g, game_b*/ } ),
         `ifdef JTFRAME_CREDITS_NOROTATE
             .rotate ( 2'd0          ),
         `else
@@ -378,8 +379,8 @@ reg  show_credits;
         .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
     );
 `else
-    assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
-    assign { base_lhbl, base_lvbl    } = { LHBLs, LVBL };
+    assign { crdts_r, crdts_g, crdts_b } = { cross_r,cross_g, cross_b /*game_r, game_g, game_b*/ };
+    assign { base_lhbl, base_lvbl    } = {cross_lhbl, cross_lvbl};// { LHBLs, LVBL };
     initial show_credits=0;
 `endif
 
@@ -665,19 +666,27 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .dip_fxlevel( dip_fxlevel   )
 );
 
-jtframe_crosshair u_crosshair(
+jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .pxl_cen    ( pxl_cen       ),
-    .lvbl       ( LVBL          ),
-    .lhbl       ( LHBL          ),
+    .pre_lvbl   ( LVBL          ),
+    .pre_lhbl   ( LHBLs         ),
+    .lvbl       ( cross_lhbl    ),
+    .lhbl       ( cross_lvbl    ),
     .flip       ( dip_flip      ),
-    .draw_en    ( lightgun_en   ),
+    .draw_en    ( lightgun_en | debug_bus[0]  ),
     .gun_1p_x   ( gun_1p_x      ),
     .gun_1p_y   ( gun_1p_y      ),
     .gun_2p_x   ( gun_2p_x      ),
     .gun_2p_y   ( gun_2p_y      ),
-    .crosshair  ( crosshair     )
+    .rin        ( game_r        ),
+    .gin        ( game_g        ),
+    .bin        ( game_b        ),
+    .rout       ( cross_r       ),
+    .gout       ( cross_g       ),
+    .bout       ( cross_b       )
+
 );
 
 `ifdef JTFRAME_CHEAT
