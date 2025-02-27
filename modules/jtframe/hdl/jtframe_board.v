@@ -260,7 +260,7 @@ jtframe_coremod u_coremod(
     .black_frame    ( black_frame   )
 );
 
-assign base_rgb  = { dbg_r, dbg_g, dbg_b };
+assign base_rgb  = { cross_r,cross_g, cross_b }; //{ dbg_r, dbg_g, dbg_b };
 
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
@@ -341,9 +341,9 @@ reg  show_credits;
         .pxl_cen    ( pxl_cen       ),
 
         // input image
-        .HB         ( /*LHBLs*/ cross_lhbl         ),
-        .VB         ( /*LVBL */ cross_lVbl         ),
-        .rgb_in     ( { cross_r,cross_g, cross_b /*game_r, game_g, game_b*/ } ),
+        .HB         ( LHBLs          ),
+        .VB         ( LVBL           ),
+        .rgb_in     ( {game_r, game_g, game_b} ),
         `ifdef JTFRAME_CREDITS_NOROTATE
             .rotate ( 2'd0          ),
         `else
@@ -379,8 +379,8 @@ reg  show_credits;
         .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
     );
 `else
-    assign { crdts_r, crdts_g, crdts_b } = { cross_r,cross_g, cross_b /*game_r, game_g, game_b*/ };
-    assign { base_lhbl, base_lvbl    } = {cross_lhbl, cross_lvbl};// { LHBLs, LVBL };
+    assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
+    assign { base_lhbl, base_lvbl      } = { LHBLs, LVBL };
     initial show_credits=0;
 `endif
 
@@ -680,9 +680,9 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .gun_1p_y   ( gun_1p_y      ),
     .gun_2p_x   ( gun_2p_x      ),
     .gun_2p_y   ( gun_2p_y      ),
-    .rin        ( game_r        ),
-    .gin        ( game_g        ),
-    .bin        ( game_b        ),
+    .rin        ( dbg_r         ),
+    .gin        ( dbg_g         ),
+    .bin        ( dbg_b         ),
     .rout       ( cross_r       ),
     .gout       ( cross_g       ),
     .bout       ( cross_b       )
