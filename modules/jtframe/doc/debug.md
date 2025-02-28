@@ -35,7 +35,7 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
   10??_????  |  SDRAM stats
   1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
   1101_????  |  Joysticks and inputs
-  1110_????  |
+  1110_????  |  Crosshair coordinates
   1111_????  |
 
 See core_mod description [here](osd.md)
