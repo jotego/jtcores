@@ -60,7 +60,7 @@ jtframe:
       - jtframe_font.v
       - jtframe_blank.v
       - jtframe_crosshair.v
-      - jtframe_crosshair_draw.v
+      - jtframe_crosshair_draw.sv
       - jtframe_crosshair_color.v
   - from: sdram
     get:

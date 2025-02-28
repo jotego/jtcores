@@ -41,7 +41,7 @@ module jtframe_crosshair #(parameter COLORW=4)(
 `ifdef JTFRAME_LIGHTGUN
 wire [3*COLORW-1:0] rgb_cross;
 wire [         8:0] hcnt, vcnt;
-wire [         1:0] crosshair;
+wire [         3:0] crosshair;
 
 jtframe_crosshair_draw crosshair_left(
     .clk        ( clk       ),
@@ -49,7 +49,7 @@ jtframe_crosshair_draw crosshair_left(
     .vcnt       ( vcnt      ),
     .x          ( gun_1p_x  ),
     .y          ( gun_1p_y  ),
-    .crosshair  ( crosshair[0] )
+    .crosshair  ( crosshair[1:0] )
 );
 
 jtframe_crosshair_draw crosshair_center(
@@ -58,7 +58,7 @@ jtframe_crosshair_draw crosshair_center(
     .vcnt       ( vcnt      ),
     .x          ( gun_2p_x  ),
     .y          ( gun_2p_y  ),
-    .crosshair  ( crosshair[1] )
+    .crosshair  ( crosshair[3:2] )
 );
 
 jtframe_video_counter u_vidcnt(
@@ -75,7 +75,7 @@ jtframe_video_counter u_vidcnt(
 jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
     .clk        ( clk            ),
     .draw_en    ( draw_en        ),
-    .crosshair  ({1'b0,crosshair}),
+    .crosshair  ({2'b0,crosshair}),
     .rin        ( rin            ),
     .gin        ( gin            ),
     .bin        ( bin            ),
