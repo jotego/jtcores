@@ -52,11 +52,6 @@ module jtframe_sys_info(
     input         [8:0] mouse_dx,
     input         [8:0] mouse_dy,
     input         [7:0] mouse_f,
-    // lightgun
-    input         [8:0] gun_1p_x,
-    input         [8:0] gun_1p_y,
-    input         [8:0] gun_2p_x,
-    input         [8:0] gun_2p_y,
     // status select
     input         [7:0] st_addr,
     output reg    [7:0] st_dout
@@ -141,13 +136,7 @@ always @(posedge clk, posedge rst) begin
                     5: st_dout <= mouse_dy[8:1];
                     6: st_dout <= mouse_f;
                 endcase
-                2: case(st_addr[1:0])
-                    0: st_dout <= gun_1p_x[8:1];
-                    1: st_dout <= gun_1p_y[8:1];
-                    2: st_dout <= gun_2p_x[8:1];
-                    3: st_dout <= gun_2p_y[8:1];
-                endcase
-                default:; // 3
+                default:; // 2/3
             endcase
             default: st_dout <= 0;
         endcase

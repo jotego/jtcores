@@ -232,14 +232,13 @@ wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
 wire         lightgun_en, dipflip_xor;
-wire   [1:0] cross_disable;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b,
                   cross_r,cross_g, cross_b;
-wire              crdts_lhbl, crdts_lvbl;
+// wire              cross_lhbl, cross_lvbl;
 
 wire [ 3:0] bax_rd, bax_wr, bax_ack;
 wire [15:0] bax_din;
@@ -375,13 +374,13 @@ reg  show_credits;
         `endif
 
         // output image
-        .HB_out     (  crdts_lhbl    ),
-        .VB_out     (  crdts_lvbl    ),
+        .HB_out     ( base_lhbl      ),
+        .VB_out     ( base_lvbl      ),
         .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
     );
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
-    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBL };
+    assign { base_lhbl, base_lvbl      } = { LHBLs, LVBL };
     initial show_credits=0;
 `endif
 
@@ -451,8 +450,8 @@ jtframe_filter_keyboard u_filter_keyboard(
         .rin         ( crdts_r       ),
         .gin         ( crdts_g       ),
         .bin         ( crdts_b       ),
-        .lhbl        ( crdts_lhbl    ),
-        .lvbl        ( crdts_lvbl    ),
+        .lhbl        ( base_lhbl     ),
+        .lvbl        ( base_lvbl     ),
         .rout        ( dbg_r         ),
         .gout        ( dbg_g         ),
         .bout        ( dbg_b         ),
@@ -507,11 +506,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .mouse_f    ( bd_mouse_f    ),
         .mouse_dx   ( bd_mouse_dx   ),
         .mouse_dy   ( bd_mouse_dy   ),
-        // lightgun
-        .gun_1p_x   ( gun_1p_x      ),
-        .gun_1p_y   ( gun_1p_y      ),
-        .gun_2p_x   ( gun_2p_x      ),
-        .gun_2p_y   ( gun_2p_y      ),
         .st_addr    ( debug_bus     ),
         .st_dout    ( sys_info      )
     );
@@ -631,7 +625,6 @@ jtframe_inputs #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
-    .cross_disable  ( cross_disable   ),
 
     // Input recording
     .dip_pause      ( dip_pause       ),
@@ -674,26 +667,26 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
 );
 
 jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
-    .rst          ( rst           ),
-    .clk          ( clk_sys       ),
-    .pxl_cen      ( pxl_cen       ),
-    .pre_lvbl     ( crdts_lvbl    ),
-    .pre_lhbl     ( crdts_lhbl    ),
-    .lvbl         ( base_lhbl     ),
-    .lhbl         ( base_lvbl     ),
-    .flip         ( dip_flip      ),
-    .draw_en      ( lightgun_en   ),
-    .cross_disable( cross_disable ),
-    .gun_1p_x     ( gun_1p_x      ),
-    .gun_1p_y     ( gun_1p_y      ),
-    .gun_2p_x     ( gun_2p_x      ),
-    .gun_2p_y     ( gun_2p_y      ),
-    .rin          ( dbg_r         ),
-    .gin          ( dbg_g         ),
-    .bin          ( dbg_b         ),
-    .rout         ( cross_r       ),
-    .gout         ( cross_g       ),
-    .bout         ( cross_b       )
+    .rst        ( rst           ),
+    .clk        ( clk_sys       ),
+    .pxl_cen    ( pxl_cen       ),
+    .pre_lvbl   ( LVBL          ),
+    .pre_lhbl   ( LHBLs         ),
+    .lvbl       ( /*cross_lhbl*/    ),
+    .lhbl       ( /*cross_lvbl*/    ),
+    .flip       ( dip_flip      ),
+    .draw_en    ( lightgun_en | debug_bus[0]  ),
+    .gun_1p_x   ( gun_1p_x      ),
+    .gun_1p_y   ( gun_1p_y      ),
+    .gun_2p_x   ( gun_2p_x      ),
+    .gun_2p_y   ( gun_2p_y      ),
+    .rin        ( dbg_r         ),
+    .gin        ( dbg_g         ),
+    .bin        ( dbg_b         ),
+    .rout       ( cross_r       ),
+    .gout       ( cross_g       ),
+    .bout       ( cross_b       )
+
 );
 
 `ifdef JTFRAME_CHEAT
