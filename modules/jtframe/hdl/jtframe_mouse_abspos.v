@@ -15,7 +15,7 @@
     Author: Gyorgy Szombathelyi Copyright: Miki Saito
 */
 
-module jtframe_mouse_abspos#(parameter XOFFSET=0, YOFFSET=0)(
+module jtframe_mouse_abspos(
     input            clk,
     input      [7:0] dx,
     input      [7:0] dy,
@@ -24,7 +24,7 @@ module jtframe_mouse_abspos#(parameter XOFFSET=0, YOFFSET=0)(
     output reg [8:0] y
 );
 
-parameter W = 384, H = 224;
+parameter W = 384, H = 224, XOFFSET=0, YOFFSET=0;
 
 wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx} + XOFFSET[9:0];
 wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy} + YOFFSET[9:0];
