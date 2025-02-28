@@ -77,14 +77,11 @@ module jtflstory_main(
     output           sha_we,
     input     [ 7:0] sha_dout,
     // Cabinet inputs
-    input     [ 1:0] cab_1p,
-    input     [ 1:0] coin,
-    input     [ 9:0] joystick1,
-    input     [ 9:0] joystick2,
+    input     [ 1:0] cab_1p, coin,
+    input     [ 9:0] joystick1, joystick2,
+    input     [ 8:0] gun_x, gun_y,
     input     [23:0] dipsw,
-    input            service,
-    input            dip_pause,
-    input            tilt,
+    input            service, dip_pause, tilt,
     // ROM access
     output reg       rom_cs,
     output reg[16:0] rom_addr,
@@ -100,7 +97,7 @@ localparam [1:0] NOBANKS=2'd0,TWOBANKS=2'd1,FOURBANKS=2'd2;
 reg  [15:0] mcumain_addr;
 wire [15:0] cpu_addr;
 reg  [ 7:0] din, vram8_dout, rom_dec;
-wire [ 7:0] cab;
+wire [ 7:0] cab, gun_dout;
 reg  [ 1:0] bank=0, pre_flip=0;
 wire        mreq_n,  rfsh_n, rd_n, wr_n, bus_we, bus_rd, int_n, bus_cen,
             bus_cem, main_wait, sub_sel, m_reqref;
@@ -138,14 +135,14 @@ always @* begin
 end
 
 always @* begin
-    cab_cs      = 0; subhalt_cs  = 0;
-    pal_lo      = 0; pal_hi      = 0;
-    m2s_wr      = 0; s2m_rd      = 0;
-    b2c_wr      = 0; b2c_rd      = 0;
-    flstory_cfg = 0; rumba_cfg   = 0;
-    rom_cs      = 0; bank_cs     = 0; ctl_cs      = 0;
-    vram_cs     = 0; sha_cs      = 0; oram_cs     = 0;
-    gunx_cs     = 0; guny_cs     = 0; trcrt_cs    = 0;
+    cab_cs      = 0; subhalt_cs = 0;
+    pal_lo      = 0; pal_hi     = 0;
+    m2s_wr      = 0; s2m_rd     = 0;
+    b2c_wr      = 0; b2c_rd     = 0;
+    flstory_cfg = 0; rumba_cfg  = 0;
+    rom_cs      = 0; bank_cs    = 0; ctl_cs   = 0;
+    vram_cs     = 0; sha_cs     = 0; oram_cs  = 0;
+    gunx_cs     = 0; guny_cs    = 0; trcrt_cs = 0;
     if( m_reqref ) case(cpu_addr[15:14])
         0,1: rom_cs = 1;
         2: begin
@@ -236,6 +233,8 @@ function [7:0] reverse(input [7:0] a); begin
     reverse = {a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]};
 end endfunction
 
+wire any_gun;
+
 always @* begin
     vram8_dout = bus_addr[0] ? vram16_dout[15:8] : vram16_dout[7:0];
     rom_dec    = dec_en ? reverse(rom_data) : rom_data;
@@ -249,10 +248,12 @@ always @* begin
           pal_lo   ? pal16_dout[ 7:0] :
           pal_hi   ? pal16_dout[15:8] :
           vram_cs  ? vram8_dout :
-          trcrt_cs ? 8'h1       :
+          any_gun  ? gun_dout   :
           8'd0;
     din = CDEF_cs ? bus_din : rom_dec;
 end
+
+assign any_gun = gunx_cs | guny_cs | trcrt_cs;
 
 jtflstory_cab u_cab(
     .clk        ( clk           ),
@@ -277,6 +278,17 @@ jtflstory_cab u_cab(
     .cab        ( cab           ),
     .debug_bus  ( debug_bus     )
 );
+
+jtflstory_gun u_gun (
+    .clk        ( clk           ),
+    .gunx_cs    ( gunx_cs       ),
+    .guny_cs    ( guny_cs       ),
+    .trcrt_cs   ( trcrt_cs      ),
+    .gun_x      ( gun_x         ),
+    .gun_y      ( gun_y         ),
+    .gun_dout   ( gun_dout      )
+);
+
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1),.RECOVERY(1)) u_cpu(
     .rst_n      ( rst_n       ),

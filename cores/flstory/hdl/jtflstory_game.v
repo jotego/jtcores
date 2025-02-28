@@ -143,6 +143,8 @@ jtflstory_main u_main(
     .coin       ( coin_eff  ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
+    .gun_x      ( gun_1p_x  ),
+    .gun_y      ( gun_1p_y  ),
     .dipsw      (dipsw[23:0]),
     .service    ( service   ),
     .tilt       ( tilt      ),
