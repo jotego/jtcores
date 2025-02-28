@@ -51,7 +51,7 @@ reg  [7:0] scrpxl_l,  objpxl_l;
 
 assign prio_eff  = priocfg ? OBJ_ALWAYS_PRIO : prio_dout;
 assign obj_op    = objpxl_l[3:0]!=4'hf;
-assign prio_addr = {bank[0], objprio_l[1:0], scrprio_l, scrpxl_l[3:0]};
+assign prio_addr = { objprio_l, scrprio_l, scrpxl_l[3:0] };
 assign prio_dout = pal_dout[12];
 assign pal_addr  = { bank[1], pal_sel ? pxl_mux : prio_addr };
 assign blank_n   = lvbl & lhbl;
