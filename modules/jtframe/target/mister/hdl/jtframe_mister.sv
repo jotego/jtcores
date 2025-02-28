@@ -165,6 +165,8 @@ module jtframe_mister #(parameter
     // mouse
     output  [15:0]  mouse_1p,  mouse_2p,
     output  [ 1:0]  mouse_strobe,
+    // Lightguns
+    output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -365,15 +367,16 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 
 // OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
+wire        vertical;
 
 assign status_menumask[15:6] = 0,
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
-       status_menumask[4]    = ~core_mod[0],  // shown for vertical games
+       status_menumask[4]    = ~vertical,  // shown for vertical games
        status_menumask[1]    = 1,   // hidden
 `else
        status_menumask[4]    = 1,   // hidden
-       status_menumask[1]    = ~core_mod[0],  // shown for vertical games
+       status_menumask[1]    = ~vertical,  // shown for vertical games
 `endif
        status_menumask[3]    =~video_rotated, // scan FX options do not work with rotated video (except HQ2x)
        status_menumask[2]    = ~hsize_enable, // horizontal scaling
@@ -648,6 +651,8 @@ jtframe_board #(
     .clk_pico       ( clk_pico        ),
 
     .core_mod       ( core_mod        ),
+    .vertical       ( vertical        ),
+    .black_frame    (                 ),
     // Sound
     .snd_lin        ( snd_lin         ),
     .snd_rin        ( snd_rin         ),
@@ -697,6 +702,11 @@ jtframe_board #(
     .spinner_2      ( spinner_2       ),
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
+    // Lightguns
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),

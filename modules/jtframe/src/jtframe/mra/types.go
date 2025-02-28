@@ -255,10 +255,7 @@ type Mame2MRA struct {
 
     Header HeaderCfg
     Audio struct {
-        Volume []struct {
-            Selectable
-            Value int
-        }
+        Volume []VolumeCfg
     }
     ROM struct {
         Firmware string     // Used for consoles by the Pocket target
@@ -291,6 +288,11 @@ type Mame2MRA struct {
             Defaults []RawData // Initial value for NVRAM
         }
     }
+}
+
+type VolumeCfg struct {
+    Selectable
+    Value int
 }
 
 type DipswCfg struct {

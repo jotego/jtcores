@@ -259,6 +259,7 @@ wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 wire [15:0] mouse_1p, mouse_2p;
 wire [ 1:0] mouse_strobe;
+wire [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y;
 wire [31:0] dipsw;
 
 `ifdef JTFRAME_DIPBASE
@@ -486,6 +487,11 @@ u_frame(
     .mouse_2p       ( mouse_2p       ),
     .mouse_strobe   ( mouse_strobe   ),
     .LED            ( LED            ),
+    // Lightguns position
+    .gun_1p_x       ( gun_1p_x       ),
+    .gun_1p_y       ( gun_1p_y       ),
+    .gun_2p_x       ( gun_2p_x       ),
+    .gun_2p_y       ( gun_2p_y       ),
     // Dial emulation
     .dial_x         ( dial_x         ),
     .dial_y         ( dial_y         ),

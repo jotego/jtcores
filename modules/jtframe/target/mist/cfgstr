@@ -1,6 +1,6 @@
 {{.CORENAME}};;
 
-{{ if not .JTFRAME_NO_MRA_DIP }}    DIP; {{ end }}
+                                    DIP;
 {{ if .JTFRAME_OSD_LOAD }}          F,rom; {{ end }}
 {{ if .JTFRAME_VERTICAL }}
 {{ if .JTFRAME_OSD_FLIP }}          O1,Flip screen,Off,On; {{ end }}

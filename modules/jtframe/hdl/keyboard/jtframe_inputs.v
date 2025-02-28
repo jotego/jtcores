@@ -67,6 +67,9 @@ module jtframe_inputs(
     output      [ 7:0] game_paddle_1, game_paddle_2,
     output      [ 1:0] dial_x, dial_y,
 
+    // Lightguns
+    output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
 
@@ -87,7 +90,7 @@ module jtframe_inputs(
     input              ioctl_rom
 );
 
-parameter BUTTONS    = 2;
+parameter BUTTONS    = 2, WIDTH = 384, HEIGHT = 224;
 
 wire [ 2:0] mouse_but_1p, mouse_but_2p;
 wire [ 5:0] recjoy1;
@@ -253,6 +256,18 @@ jtframe_mouse u_mouse(
     .mouse_strobe(mouse_strobe ),
     .but_1p     ( mouse_but_1p ),
     .but_2p     ( mouse_but_2p )
+);
+
+jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
+) u_lightgun(
+    .clk         ( clk         ),
+    .mouse_1p    ( mouse_1p    ),
+    .mouse_2p    ( mouse_2p    ),
+    .mouse_strobe( mouse_strobe),
+    .gun_1p_x    ( gun_1p_x    ),
+    .gun_1p_y    ( gun_1p_y    ),
+    .gun_2p_x    ( gun_2p_x    ),
+    .gun_2p_y    ( gun_2p_y    )
 );
 
 jtframe_beta_lock u_lock(

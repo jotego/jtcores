@@ -166,6 +166,9 @@ module jtframe_mist #(parameter
     output      [15:0] mouse_1p, mouse_2p,
     output      [ 1:0] mouse_strobe,
 
+    // Lightguns
+    output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+
     // DIP and OSD settings
     output             dip_test,
     // non standard:
@@ -364,6 +367,8 @@ jtframe_board #(
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
     .core_mod       ( core_mod        ),
+    .vertical       (                 ),
+    .black_frame    (                 ),
     // Sound
     .snd_lin        ( snd_left        ),
     .snd_rin        ( snd_right       ),
@@ -413,6 +418,11 @@ jtframe_board #(
     .mouse_1p       ( mouse_1p        ),
     .mouse_2p       ( mouse_2p        ),
     .mouse_strobe   ( mouse_strobe    ),
+    // Lightguns
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
     // DIP and OSD settings
     .status         ( board_status    ),
     .dipsw          ( dipsw[23:0]     ),

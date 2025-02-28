@@ -529,7 +529,7 @@ always @(posedge clk_sys) begin : cmd_block
 				8'h1e: if(abyte_cnt<9) status[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 
 				// core variant
-				8'h21: core_mod <= spi_byte_in[6:0];
+				8'h21: core_mod <= spi_byte_in[6:0]; // bit 7 reserved
 
 				// RTC
 				8'h22: if(abyte_cnt<9) rtc[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;

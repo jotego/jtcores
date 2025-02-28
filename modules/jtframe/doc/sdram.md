@@ -28,13 +28,16 @@ In MiSTer, the IOCTL ID for cartridges is limited to 6 bits. That enforces a 6-b
 Bit    |  Use                      | Set by
 -------|---------------------------|---------
 0      | High for vertical games   | mame.xml
-1      | 4-way joysticks           | JTFRAME_SUPPORT_4WAY
+1      | Lightgun game             | mame.xml
 2      | XOR with dip_flip         | mame.xml
 3      | dial input enable         | mame.xml
 4      | reverse the dial          | mame.xml
 5      | Horizontal frame bit 0    | mame.xml
 6      | H. frame bit 1            | mame.xml
+7      | N/A*                      |
 15-8   | sound volume              | mame2mra.toml's audio section
+
+* Bits 7 and above are not supported on MiST derivatives.
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
 

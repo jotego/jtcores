@@ -87,43 +87,35 @@ localparam [26:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET 
 
 wire is_rom, is_cart, is_nvram;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
-        `ifdef JTFRAME_VERTICAL
-            core_mod <= 7'b01; // see doc/sdram.md file for documentation on each bit
-        `else
-            core_mod <= 7'b00;
-        `endif
+        core_mod <= 0;
     end else begin
         // The hps_addr[0]==1'b0 condition is needed in case JTFRAME_MR_FASTIO is enabled
         // as it always creates two write events and the second would delete the data of the first
-        if (hps_wr && (hps_index==IDX_MOD) && hps_addr[0]==1'b0) core_mod <= hps_dout[6:0];
+        if (hps_wr && (hps_index==IDX_MOD) && hps_addr[1:0]==0) core_mod <= hps_dout[6:0];
     end
 end
 
-`ifdef JTFRAME_NO_MRA_DIP
-    // DIP switches through regular OSD options
-    assign dipsw        = status;
-`else
-    // Dip switches through MRA file
-    // Support for 32 bits only for now.
-    reg  [ 7:0] dsw[4];
 
-    `ifndef SIMULATION
-        assign dipsw = {dsw[3],dsw[2],dsw[1],dsw[0]};
-    `else // SIMULATION:
-        `ifndef JTFRAME_SIM_DIPS
-            assign dipsw = ~32'd0;
-        `else
-            assign dipsw = `JTFRAME_SIM_DIPS;
-        `endif
+// Dip switches through MRA file
+// Support for 32 bits only for now.
+reg  [ 7:0] dsw[4];
+
+`ifndef SIMULATION
+    assign dipsw = {dsw[3],dsw[2],dsw[1],dsw[0]};
+`else // SIMULATION:
+    `ifndef JTFRAME_SIM_DIPS
+        assign dipsw = ~32'd0;
+    `else
+        assign dipsw = `JTFRAME_SIM_DIPS;
     `endif
-
-    always @(posedge clk) begin
-        if (hps_wr && (hps_index==IDX_DIPSW) && !hps_addr[24:2])
-            dsw[hps_addr[1:0]] <= hps_dout;
-    end
 `endif
+
+always @(posedge clk) begin
+    if (hps_wr && (hps_index==IDX_DIPSW) && !hps_addr[24:2])
+        dsw[hps_addr[1:0]] <= hps_dout;
+end
 
 // Cheat
 reg [ 7:0] cheat_flags[4];

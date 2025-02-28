@@ -1,6 +1,7 @@
 jtframe:
   - get:
       - jtframe_board.v
+      - jtframe_coremod.v
       - jtframe_led.v
       - jtframe_bcd_cnt.v
       - jtframe_enlarger.v
@@ -12,6 +13,8 @@ jtframe:
       - jtframe_rsthold.v
       - jtframe_toggle.v
       - jtframe_edge.v
+      - jtframe_mouse_abspos.v
+      - jtframe_lightgun.v
   - from: debug
     get:
       - jtframe_debug.v
@@ -55,6 +58,10 @@ jtframe:
       - jtframe_short_blank.v
       - jtframe_video_counter.v
       - jtframe_font.v
+      - jtframe_blank.v
+      - jtframe_crosshair.v
+      - jtframe_crosshair_draw.v
+      - jtframe_crosshair_color.v
   - from: sdram
     get:
       - jtframe_dwnld.v
