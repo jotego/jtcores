@@ -238,7 +238,7 @@ wire   [1:0] debug_plus, debug_minus;
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b,
                   cross_r,cross_g, cross_b;
-// wire              cross_lhbl, cross_lvbl;
+wire              crdts_lhbl, crdts_lvbl;
 
 wire [ 3:0] bax_rd, bax_wr, bax_ack;
 wire [15:0] bax_din;
@@ -374,13 +374,13 @@ reg  show_credits;
         `endif
 
         // output image
-        .HB_out     ( base_lhbl      ),
-        .VB_out     ( base_lvbl      ),
+        .HB_out     (  crdts_lhbl    ),
+        .VB_out     (  crdts_lvbl    ),
         .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
     );
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
-    assign { base_lhbl, base_lvbl      } = { LHBLs, LVBL };
+    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBL };
     initial show_credits=0;
 `endif
 
@@ -450,8 +450,8 @@ jtframe_filter_keyboard u_filter_keyboard(
         .rin         ( crdts_r       ),
         .gin         ( crdts_g       ),
         .bin         ( crdts_b       ),
-        .lhbl        ( base_lhbl     ),
-        .lvbl        ( base_lvbl     ),
+        .lhbl        ( crdts_lhbl    ),
+        .lvbl        ( crdts_lvbl    ),
         .rout        ( dbg_r         ),
         .gout        ( dbg_g         ),
         .bout        ( dbg_b         ),
@@ -675,10 +675,10 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .rst        ( rst           ),
     .clk        ( clk_sys       ),
     .pxl_cen    ( pxl_cen       ),
-    .pre_lvbl   ( LVBL          ),
-    .pre_lhbl   ( LHBLs         ),
-    .lvbl       ( /*cross_lhbl*/    ),
-    .lhbl       ( /*cross_lvbl*/    ),
+    .pre_lvbl   ( crdts_lvbl    ),
+    .pre_lhbl   ( crdts_lhbl    ),
+    .lvbl       ( base_lhbl     ),
+    .lhbl       ( base_lvbl     ),
     .flip       ( dip_flip      ),
     .draw_en    ( lightgun_en   ),
     .gun_1p_x   ( gun_1p_x      ),
