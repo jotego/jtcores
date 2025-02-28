@@ -14,21 +14,22 @@ names=[
 sourcefile=[ "flstory.cpp", "nycaptor.cpp" ]
 debug={ machines=[
 	# Two Z80 CPUs
-	"nycaptor",
 	"cyclshtg", # bad ROM dump
 	"colt",     # bit swapping on CPU ROM
-	"bronx",    # bit swapping on CPU ROM
+	"bronx",    # bit swapping on CPU ROM, needs screen rotation implemented for lightgun
 ]}
 
 [dipsw]
 rename=[
 	{ name="Attract Sound on Title Screen",to="Attract Sound" },
 	{ name="Invulnerability (Cheat)",      to="Invulnerability"},
-	{ name="Copyright String",             to="Release year", values=["hide","show"] }
+	{ name="Copyright String",             to="Release year", values=["hide","show"] },
+	{ name="Reset Damage", values=["Every 4 spots","Every spot"] },
 ]
 extra=[
 	{ machine="rumba", name="Flip", options="Off,On", bits="24" }
 ]
+
 [header]
 info="""
 
