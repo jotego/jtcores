@@ -12763,7 +12763,7 @@
 	)
 	(wire
 		(pts
-			(xy 335.28 189.23) (xy 344.17 189.23)
+			(xy 335.28 189.23) (xy 340.36 189.23)
 		)
 		(stroke
 			(width 0)
@@ -18446,16 +18446,6 @@
 		)
 		(uuid "d945898e-838a-45ba-8cb5-30610aee9d08")
 	)
-	(label "TRIGGER"
-		(at 344.17 189.23 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d9b56da2-9c16-4af6-9331-5b55a5ba32b2")
-	)
 	(label "A7"
 		(at 199.39 81.28 0)
 		(effects
@@ -18932,7 +18922,7 @@
 		)
 		(uuid "34254d48-dee5-41a0-86bd-3427f9fdf507")
 	)
-	(hierarchical_label "DB[7..0]"
+	(hierarchical_label "DB[0..7]"
 		(shape bidirectional)
 		(at 118.11 172.72 180)
 		(effects
@@ -19009,7 +18999,7 @@
 		)
 		(uuid "761bcf2e-839d-44c4-9e4d-8cba1cf042e0")
 	)
-	(hierarchical_label "AB[10..0]"
+	(hierarchical_label "AB[0..10]"
 		(shape input)
 		(at 116.84 60.96 180)
 		(effects
@@ -19030,6 +19020,17 @@
 			(justify right)
 		)
 		(uuid "8c23f365-f370-4c8b-a474-3aec072bd976")
+	)
+	(hierarchical_label "TRIGGER"
+		(shape output)
+		(at 340.36 189.23 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8cdf95d6-81a5-40be-b616-1d5f8cd21755")
 	)
 	(hierarchical_label "GHFLIP"
 		(shape output)
