@@ -31,8 +31,8 @@ reg  [1:0] pxl [63:0];
 wire [1:0] cross_pre;
 reg        inzone;
 
-assign x_diff = hcnt - x + XOFFSET[8:0];
-assign y_diff = vcnt - y + YOFFSET[8:0];
+assign x_diff = hcnt - x;
+assign y_diff = vcnt - y;
 assign cross_pre = inzone ? pxl[cord] : 2'b0;
 
 always @(posedge clk) begin
