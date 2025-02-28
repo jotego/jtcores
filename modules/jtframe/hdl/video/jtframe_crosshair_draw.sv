@@ -22,7 +22,7 @@ module jtframe_crosshair_draw(
     input      [8:0] vcnt,
     input      [8:0] x,
     input      [8:0] y,
-    output reg [1:0]  crosshair
+    output reg [1:0] crosshair
 );
 
 wire [8:0] x_diff, y_diff;
@@ -31,8 +31,8 @@ reg  [1:0] pxl [63:0];
 wire [1:0] cross_pre;
 reg        inzone;
 
-assign x_diff = hcnt - x;
-assign y_diff = vcnt - y;
+assign x_diff = hcnt - x + XOFFSET[8:0];
+assign y_diff = vcnt - y + YOFFSET[8:0];
 assign cross_pre = inzone ? pxl[cord] : 2'b0;
 
 always @(posedge clk) begin

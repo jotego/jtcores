@@ -27,10 +27,13 @@ module jtframe_lightgun (
     output [ 8:0] gun_2p_y
 );
 
-parameter WIDTH = 384, HEIGHT = 224;
+parameter WIDTH = 384, HEIGHT = 224,
+          XOFFSET= `ifdef JTFRAME_LIGHTGUN_XOFFSET JTFRAME_LIGHTGUN_XOFFSET `else 0 `endif,
+          YOFFSET= `ifdef JTFRAME_LIGHTGUN_YOFFSET JTFRAME_LIGHTGUN_YOFFSET `else 0 `endif;
 
 `ifdef JTFRAME_LIGHTGUN
-jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT)
+jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT),
+    .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) crosshair_left (
     .clk        ( clk       ),
     .dx         ( mouse_1p[ 7: 0] ),
@@ -40,7 +43,8 @@ jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT)
     .y          ( gun_1p_y  )
 );
 
-jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT)
+jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT),
+    .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) crosshair_center (
     .clk        ( clk       ),
     .dx         ( mouse_2p[ 7: 0] ),

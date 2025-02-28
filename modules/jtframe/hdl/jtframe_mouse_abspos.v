@@ -15,7 +15,7 @@
     Author: Gyorgy Szombathelyi Copyright: Miki Saito
 */
 
-module jtframe_mouse_abspos(
+module jtframe_mouse_abspos#(parameter XOFFSET=0, YOFFSET=0)(
     input            clk,
     input      [7:0] dx,
     input      [7:0] dy,
@@ -26,8 +26,8 @@ module jtframe_mouse_abspos(
 
 parameter W = 384, H = 224;
 
-wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx};
-wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy};
+wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx} + XOFFSET[9:0];
+wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy} + YOFFSET[9:0];
 
 always @(posedge clk) begin
     if (strobe) begin
