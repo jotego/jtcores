@@ -122,7 +122,8 @@ data = [
     { offset=0x18, setname="afighterd",data="1d" },  # enable analogue input
     { offset=0x18, machine="passsht",  data="02" },  # enable four players
     { offset=0x18, setname="quartet",  data="04" },  # enable four players
-    { offset=0x18, setname="quarteta", data="04" }   # enable four players
+    { offset=0x18, setname="quarteta", data="04" },  # enable four players
+    { offset=0x18, setname="timescan1",data="1c" },  # extra DIP switches
 ]
 
 # Sample header data

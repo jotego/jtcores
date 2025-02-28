@@ -92,6 +92,7 @@ module jts16_main(
     input              dip_test,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
+    input    [7:0]     dipsw_c, // used by timescan1
 
     // MCU enable and ROM programming
     input              mcu_en,
@@ -112,6 +113,7 @@ localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_EXCTLEAG=`GAME_EXCTLEAG,
                  GAME_BULLET  =`GAME_BULLET  ,
                  GAME_PASSSHT3=`GAME_PASSSHT3,
+                 GAME_TIMESCAN=`GAME_TIMESCAN,
                  GAME_AFIGHTAN=`GAME_AFIGHTAN,  // Action Fighter, analogue controls
                  GAME_SDI     =`GAME_SDI     ;
 wire [23:1] A, cpu_A;
@@ -352,6 +354,8 @@ always @(posedge clk, posedge rst) begin
                                     joyana1[0] ? 8'h02 : 8'h01);
                             GAME_QUARTET:
                                 cab_dout <= {1'b1, coin[2], joystick3[4], joystick3[5], joystick3[1], joystick3[0], joystick3[3], joystick3[2] };
+                            GAME_TIMESCAN:
+                                cab_dout <= dipsw_c;
                              default: ;
                          endcase
                     end

@@ -222,9 +222,7 @@ assign key_mcaddr=0;
     .dip_test    ( dip_test   ),
     .dipsw_a     ( dipsw_a    ),
     .dipsw_b     ( dipsw_b    ),
-`ifdef S16B
     .dipsw_c     ( dipsw[16+:8]),
-`endif
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( st_addr    ),
