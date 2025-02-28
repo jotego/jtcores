@@ -5,7 +5,7 @@ source jtrelease-funcs
 
 trap clean_up ERR
 
-parse_args
+parse_args $*
 check_jtbin
 
 REF=`get_valid_zip $HASH`

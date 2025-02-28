@@ -12,7 +12,6 @@ parse_args() {
 	LAST=
 	SKIPROM=--skipROM
 	VERBOSE=
-
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			-l|--local)
@@ -102,7 +101,6 @@ clone_repo() {
 	cd $path
 	git checkout $hash
 	source setprj.sh
-	echo hola3
 	cd $path
 	git submodule init $JTFRAME/target/pocket
 	git submodule update --depth 1 $JTFRAME/target/pocket
