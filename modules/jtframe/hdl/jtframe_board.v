@@ -506,6 +506,11 @@ jtframe_filter_keyboard u_filter_keyboard(
         .mouse_f    ( bd_mouse_f    ),
         .mouse_dx   ( bd_mouse_dx   ),
         .mouse_dy   ( bd_mouse_dy   ),
+        // lightgun
+        .gun_1p_x   ( gun_1p_x      ),
+        .gun_1p_y   ( gun_1p_y      ),
+        .gun_2p_x   ( gun_2p_x      ),
+        .gun_2p_y   ( gun_2p_y      ),
         .st_addr    ( debug_bus     ),
         .st_dout    ( sys_info      )
     );
