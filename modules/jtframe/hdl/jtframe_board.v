@@ -232,6 +232,7 @@ wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
 wire         lightgun_en, dipflip_xor;
+wire   [1:0] cross_disable;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
 
@@ -630,6 +631,7 @@ jtframe_inputs #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
+    .cross_disable  ( cross_disable   ),
 
     // Input recording
     .dip_pause      ( dip_pause       ),
@@ -672,26 +674,26 @@ jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
 );
 
 jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
-    .rst        ( rst           ),
-    .clk        ( clk_sys       ),
-    .pxl_cen    ( pxl_cen       ),
-    .pre_lvbl   ( crdts_lvbl    ),
-    .pre_lhbl   ( crdts_lhbl    ),
-    .lvbl       ( base_lhbl     ),
-    .lhbl       ( base_lvbl     ),
-    .flip       ( dip_flip      ),
-    .draw_en    ( lightgun_en   ),
-    .gun_1p_x   ( gun_1p_x      ),
-    .gun_1p_y   ( gun_1p_y      ),
-    .gun_2p_x   ( gun_2p_x      ),
-    .gun_2p_y   ( gun_2p_y      ),
-    .rin        ( dbg_r         ),
-    .gin        ( dbg_g         ),
-    .bin        ( dbg_b         ),
-    .rout       ( cross_r       ),
-    .gout       ( cross_g       ),
-    .bout       ( cross_b       )
-
+    .rst          ( rst           ),
+    .clk          ( clk_sys       ),
+    .pxl_cen      ( pxl_cen       ),
+    .pre_lvbl     ( crdts_lvbl    ),
+    .pre_lhbl     ( crdts_lhbl    ),
+    .lvbl         ( base_lhbl     ),
+    .lhbl         ( base_lvbl     ),
+    .flip         ( dip_flip      ),
+    .draw_en      ( lightgun_en   ),
+    .cross_disable( cross_disable ),
+    .gun_1p_x     ( gun_1p_x      ),
+    .gun_1p_y     ( gun_1p_y      ),
+    .gun_2p_x     ( gun_2p_x      ),
+    .gun_2p_y     ( gun_2p_y      ),
+    .rin          ( dbg_r         ),
+    .gin          ( dbg_g         ),
+    .bin          ( dbg_b         ),
+    .rout         ( cross_r       ),
+    .gout         ( cross_g       ),
+    .bout         ( cross_b       )
 );
 
 `ifdef JTFRAME_CHEAT

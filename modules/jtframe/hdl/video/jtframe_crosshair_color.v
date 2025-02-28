@@ -19,6 +19,7 @@
 module jtframe_crosshair_color #(parameter COLORW=4)(
     input                 clk,
     input                 draw_en,
+    input  [         2:0] cross_disable,
     input  [         5:0] crosshair,
     input  [  COLORW-1:0] rin,
     input  [  COLORW-1:0] gin,
@@ -30,8 +31,8 @@ reg  [COLORW-1:0] r_cross, g_cross, b_cross;
 wire [       2:0] ch_col, ch_black;
 
 assign rgb_cross = {r_cross, g_cross, b_cross};
-assign ch_col    = {crosshair[4],crosshair[2],crosshair[0]};
-assign ch_black  = {crosshair[5],crosshair[3],crosshair[1]};
+assign ch_col    = {crosshair[4],crosshair[2],crosshair[0]} & ~cross_disable;
+assign ch_black  = {crosshair[5],crosshair[3],crosshair[1]} & ~cross_disable;
 
 always @(posedge clk) begin
     if(draw_en) begin

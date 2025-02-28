@@ -15,6 +15,8 @@ jtframe:
       - jtframe_edge.v
       - jtframe_mouse_abspos.v
       - jtframe_lightgun.v
+      - jtframe_crosshair_disable.v
+      - jtframe_countup.v
   - from: debug
     get:
       - jtframe_debug.v

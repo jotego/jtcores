@@ -22,6 +22,7 @@ module jtframe_crosshair #(parameter COLORW=4)(
     input               pxl_cen,
     input               flip,
     input               draw_en,
+    input  [       1:0] cross_disable,
     input               pre_lvbl,
     input               pre_lhbl,
     output              lvbl,
@@ -73,13 +74,14 @@ jtframe_video_counter u_vidcnt(
 );
 
 jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
-    .clk        ( clk            ),
-    .draw_en    ( draw_en        ),
-    .crosshair  ({2'b0,crosshair}),
-    .rin        ( rin            ),
-    .gin        ( gin            ),
-    .bin        ( bin            ),
-    .rgb_cross  ( rgb_cross      )
+    .clk          ( clk            ),
+    .draw_en      ( draw_en        ),
+    .cross_disable({1'b0,cross_disable}),
+    .crosshair    ({2'b0,crosshair}),
+    .rin          ( rin            ),
+    .gin          ( gin            ),
+    .bin          ( bin            ),
+    .rgb_cross    ( rgb_cross      )
 );
 
 jtframe_blank #(.DLY(1),.DW(COLORW*3)) u_blank(

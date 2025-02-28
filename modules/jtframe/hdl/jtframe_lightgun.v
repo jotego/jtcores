@@ -17,14 +17,17 @@
     Date: 25-02-2025 */
 
 module jtframe_lightgun (
+    input         rst,
     input         clk,
+    input         vs,
     input  [15:0] mouse_1p,
     input  [15:0] mouse_2p,
     input  [ 1:0] mouse_strobe,
     output [ 8:0] gun_1p_x,
     output [ 8:0] gun_1p_y,
     output [ 8:0] gun_2p_x,
-    output [ 8:0] gun_2p_y
+    output [ 8:0] gun_2p_y,
+    output [ 1:0] cross_disable
 );
 
 parameter WIDTH = 384, HEIGHT = 224,
@@ -35,28 +38,37 @@ parameter WIDTH = 384, HEIGHT = 224,
 jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT),
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) crosshair_left (
-    .clk        ( clk       ),
+    .clk        ( clk             ),
     .dx         ( mouse_1p[ 7: 0] ),
     .dy         ( mouse_1p[15: 8] ),
     .strobe     ( mouse_strobe[0] ),
-    .x          ( gun_1p_x  ),
-    .y          ( gun_1p_y  )
+    .x          ( gun_1p_x        ),
+    .y          ( gun_1p_y        )
 );
 
 jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT),
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) crosshair_center (
-    .clk        ( clk       ),
+    .clk        ( clk             ),
     .dx         ( mouse_2p[ 7: 0] ),
     .dy         ( mouse_2p[15: 8] ),
     .strobe     ( mouse_strobe[1] ),
-    .x          ( gun_2p_x  ),
-    .y          ( gun_2p_y  )
+    .x          ( gun_2p_x        ),
+    .y          ( gun_2p_y        )
+);
+
+jtframe_crosshair_disable crosshair_disable(
+    .rst        ( rst             ),
+    .clk        ( clk             ),
+    .vs         ( vs              ),
+    .strobe     ( mouse_strobe    ),
+    .en_b       ( cross_disable   )
 );
 
 `else
 assign {gun_1p_x, gun_1p_y} = 18'b0;
 assign {gun_2p_x, gun_2p_y} = 18'b0;
+assign  cross_disable   =  2'd3;
 `endif
 
 endmodule
