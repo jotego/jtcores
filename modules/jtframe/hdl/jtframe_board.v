@@ -675,7 +675,7 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .lvbl       ( /*cross_lhbl*/    ),
     .lhbl       ( /*cross_lvbl*/    ),
     .flip       ( dip_flip      ),
-    .draw_en    ( lightgun_en | debug_bus[0]  ),
+    .draw_en    ( lightgun_en   ),
     .gun_1p_x   ( gun_1p_x      ),
     .gun_1p_y   ( gun_1p_y      ),
     .gun_2p_x   ( gun_2p_x      ),
