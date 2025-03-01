@@ -8,7 +8,14 @@ skip = { setname="mastninj", machines=[
 debug = { machines=["drgnbowl", "raiga" ] }
 
 [dipsw]
-delete=[{names=["Unused","Unknown"]}]
+delete=[
+	{names=["Unused","Unknown"]},
+	{names=["Flip Screen"]}, # not fully implemented
+]
+rename=[
+	{name="Difficulty (Wild Fang)",    to="Difficulty"},
+	{name="Difficulty (Tecmo Knight)", to="Difficulty"},
+]
 
 [buttons]
 names=[
@@ -21,6 +28,7 @@ regions = [
 	{ name="maincpu", width=16, reverse=true },
 	{ name="audiocpu", start="JTFRAME_BA1_START" },
 	{ name="oki", start="PCM_START" },
+	{ name="mcu", skip=true, machine="wildfang" },
 	{ name="gfx1", start="JTFRAME_BA2_START", reverse=true },
 	{ name="gfx4", start="OBJ_START", width=16, reverse=true }, # objects
 	{ name="gfx2", start="JTFRAME_BA3_START", reverse=true }, # background
