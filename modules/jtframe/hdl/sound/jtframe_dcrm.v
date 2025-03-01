@@ -29,11 +29,11 @@ module jtframe_dcrm #(parameter
     SW           = 8,
     SIGNED_INPUT = 0
 )(
-    input                   rst,
-    input                   clk,
-    input                   sample,
-    input         [SW-1:0]  din,
-    output signed [SW-1:0]  dout
+    input rst,
+    input clk,
+    input sample,
+    input             [SW-1:0]  din,
+    output reg signed [SW-1:0]  dout
 );
 
 localparam DW=10; // width of the decimal portion
@@ -48,9 +48,11 @@ always @(*) begin
     pre_dout  = { SIGNED_INPUT ? din[SW-1] : 1'b0, din } - q;
 end
 
-assign dout = pre_dout[SW-1:0];
+always @(posedge clk) begin
+    dout <= pre_dout[SW-1:0];
+end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         samplel <= 0;
     end else begin
