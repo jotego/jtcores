@@ -39,3 +39,4 @@ make_pocket_beta_helper
 commit_release
 tag_release_in_jtcores
 clean_up
+show_md5_diff

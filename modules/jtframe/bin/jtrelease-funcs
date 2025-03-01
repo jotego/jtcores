@@ -230,3 +230,9 @@ tag_release_in_jtcores() {
 	cd $JTROOT
 	(git tag -f JTBIN && git push --tags --force) || echo "Could not tag the release on jtcores"
 }
+
+show_md5_diff() {
+	git show HEAD^1:md5.json > old.json
+	jtutil md5 --compare old.json || true
+	rm -f old.json
+}
