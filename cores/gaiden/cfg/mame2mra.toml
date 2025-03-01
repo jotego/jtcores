@@ -5,14 +5,15 @@ skip = { setname="mastninj", machines=[
 	"stratof", # uses MCU
 ] }
 
-debug = { machines=["drgnbowl", "wildfang", "raiga" ] }
+debug = { machines=["drgnbowl", "raiga" ] }
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 
 [buttons]
 names=[
-    { machine="shadoww", names="Grab,Attack,Jump" },
+    { machine="shadoww",  names="Grab,Attack,Jump"  },
+    { machine="wildfang", names="Jump,Punch,Change" },
 ]
 
 [ROM]

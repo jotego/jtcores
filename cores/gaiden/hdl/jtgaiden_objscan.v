@@ -64,7 +64,7 @@ reg  [ 7:0] attr;
 reg  [ 3:0] pre_pal;
 wire [ 7:0] objcnt;
 reg  [ 1:0] hsize, vaddr;
-reg         inzone;
+reg         inzone, hadj;
 
 assign draw_step = st==5;
 assign skip      = st==1 && !en;
@@ -83,7 +83,13 @@ always @* begin
     endcase
     inzone = inzone&blink;
     // if(objcnt!=debug_bus) inzone=0;
-    // if(objcnt!=32&&objcnt!=46) inzone=0;
+    case( haddr[1:0] )
+        0: hadj = 0;
+        1: hadj = 1;
+        2: hadj = 1;
+        3: hadj = 0;
+    endcase
+    hadj = hadj ^ hflip;
 end
 
 always @* begin
@@ -92,7 +98,7 @@ always @* begin
     case( hsize )
         0: rom_addr[6]    = code_lsb[1];
         2: rom_addr[ 8:7] = {vaddr[0],haddr[0]};     //32
-        3: rom_addr[10:7] = {vaddr[1],haddr[1],vaddr[0],haddr[0]};   //64
+        3: rom_addr[10:7] = {vaddr[1],hadj,vaddr[0],haddr[0]};   //64
         default:;
     endcase
 end
