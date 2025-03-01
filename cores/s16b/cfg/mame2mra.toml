@@ -294,7 +294,7 @@ data = [
     { setname="suprleag",   offset=0x18, data="15" },
     { setname="tetris2",    offset=0x18, data="40" },
     { setname="tetris1",    offset=0x18, data="11" },
-    { setname="timescan",   offset=0x18, data="1c" },
+    { machine="timescan",   offset=0x18, data="1c" },
     { setname="toryumon",   offset=0x18, data="20" },
     { setname="tturf",      offset=0x18, data="41" },
     { setname="tturfu",     offset=0x18, data="10" },
