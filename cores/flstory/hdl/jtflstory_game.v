@@ -183,7 +183,7 @@ jtflstory_sub u_sub(
     .rom_data   ( sub_data  ),
     .rom_ok     ( sub_ok    )
 );
-
+/* verilator tracing_off */
 jtflstory_mcu u_mcu(
     .rst        ( mcu_rst   ),
     .clk        ( clk       ),
@@ -209,7 +209,7 @@ jtflstory_mcu u_mcu(
     .rom_data   ( mcu_data  )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtflstory_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),

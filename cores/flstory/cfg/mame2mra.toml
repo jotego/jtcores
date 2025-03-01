@@ -14,9 +14,9 @@ names=[
 sourcefile=[ "flstory.cpp", "nycaptor.cpp" ]
 debug={ machines=[
 	# Two Z80 CPUs
+	"colt",     # title screen is upside down, the rest is fine. Sometimes the screen goes blue
 	"cyclshtg", # bad ROM dump
-	"colt",     # bit swapping on CPU ROM
-	"bronx",    # bit swapping on CPU ROM, needs screen rotation implemented for lightgun
+	"bronx",    # needs screen rotation implemented for lightgun. Sometimes the screen goes blue. Missing enemies.
 ]}
 
 [dipsw]
@@ -42,7 +42,7 @@ info="""
 		        1 ==     disabled
 		       0? == sub Z80 disabled
 		       1? ==         enabled
-		      1?? == mirror ROM bits in main CPU
+		      1?? == Z80 scrambled bits decoded
 		    01??? == 2 ROM banks
 		    1???? == 4 ROM banks
 		byte 3: 0 == coins are active low
@@ -77,11 +77,11 @@ data = [
 	# Disable MCU
 	{ setname="onna34roa",              offset=2, data="01" },
 	# Enable sub Z80 and number of banks
-	{ machine="nycaptor",               offset=2, data="0A" }, # 2 banks
-	{ machine="cyclshtg",               offset=2, data="12" }, # 4 banks
+	{ setname="nycaptor",               offset=2, data="0A" }, # 2 banks
+	{ setname="cyclshtg",               offset=2, data="12" }, # 4 banks
 	# Enable sub Z80 and enable main Z80 decoding
-	{ setname="colt",                   offset=2, data="16" }, # 2 banks
-	{ setname="bronx",                  offset=2, data="16" }, # 4 banks
+	{ setname="colt",                   offset=2, data="17" }, # 4 banks
+	{ setname="bronx",                  offset=2, data="17" }, # 4 banks
 	# coins active high/low
 	{ setname="rumba",                  offset=3, data="01" },
 	# unused IO bits set high, coins active high, two PSG chips, 8kB shared RAM

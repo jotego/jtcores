@@ -41,7 +41,8 @@ always @(posedge clk) begin
         case(prog_data[4:3])
             0: banks <= 0;
             1: banks <= 1;
-            default: banks <= 2;
+            2: banks <= 2;
+            default: banks <= 0;
         endcase
     end
     if( header && prog_addr[2:0]==COINXOR && prog_we )

@@ -49,6 +49,7 @@ localparam  COMM_RD = 1,
             BUSM_RD = 5,
             ADLO_LE = 6,
             ADHI_LE = 7;
+localparam HIGH_FOR_COLT_BOOTUP=1'd1;
 
 reg  [7:0] bus2mcu, mcu2bus, pbl;
 wire [7:0] pa_in, pa_out, pb_out;
@@ -71,7 +72,7 @@ assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
 always @(posedge clk) begin
     if( rst ) begin
         ibf     <= 0;
-        obf     <= 0;
+        obf     <= HIGH_FOR_COLT_BOOTUP;
         mcu2bus <= 8'hff;
         bus2mcu <= 0;
     end else begin
