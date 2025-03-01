@@ -42,9 +42,13 @@ module jtgaiden_text(
     output       [ 7:0] pxl
 );
 
+localparam [8:0] HOFFSET=1;
+localparam       PXLW=8;
+
 wire [10:0] code;
 wire [ 3:0] pal;
 wire [31:0] ram_full, sorted;
+wire [ 7:0] pxl_nodly;
 
 assign code = ram_full[16+:11];
 assign pal  = ram_full[7:4];
@@ -86,7 +90,14 @@ jtframe_scroll #(.VA(10),.CW(11),.MAP_HW(8),.MAP_VW(8),.HJUMP(0)) u_scroll(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
 
-    .pxl        ( pxl       )
+    .pxl        ( pxl_nodly )
+);
+
+jtframe_sh #(.W(PXLW),.L(HOFFSET)) u_sh(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( pxl_nodly ),
+    .drop   ( pxl       )
 );
 
 endmodule
