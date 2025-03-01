@@ -1,6 +1,7 @@
 gaiden:
   - get:
     - jtgaiden_*.v
+    - jtgaiden_*.sv
 jtframe:
   - get:
     - jtframe_edge.v

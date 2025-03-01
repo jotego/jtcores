@@ -3,8 +3,8 @@ sourcefile=[ "gaiden.cpp" ]
 skip = { setname="mastninj", machines=[
 	"drgnbowl", # encrtyped CPU
 	"stratof", # uses MCU
-	"wildfang" # uses MCU
 ] }
+
 debug = { machines=["drgnbowl", "wildfang", "raiga" ] }
 
 [dipsw]
