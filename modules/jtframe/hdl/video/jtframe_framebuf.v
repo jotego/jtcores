@@ -16,6 +16,9 @@
     Version: 1.0
     Date: 2-1-2025 */
 
+// jtframe_framebuf copies the contents of a memory, normally an object LUT,
+// at each vertical blank. It provides access to the data copied during the
+// previous frame.
 module jtframe_framebuf #(parameter AW=10,DW=8)(
     input               clk,
     input               lvbl,

@@ -22,6 +22,7 @@ module jtgaiden_obj(
     input               pxl_cen,
     input               flip,
     input               blankn,
+    input               frmbuf_en,
 
     input               lvbl,
     input               hs,
@@ -71,6 +72,7 @@ jtgaiden_objscan u_scan(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .blankn     ( blankn    ),
+    .frmbuf_en  ( frmbuf_en ),
 
     .scry       ( scry      ),
     .vrender    ( vrender   ),

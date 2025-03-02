@@ -22,6 +22,7 @@ module jtgaiden_video(
 
     input               pxl2_cen,
     input               pxl_cen,
+    input               frmbuf_en,
 
     output              LHBL,
     output              LVBL,
@@ -186,6 +187,7 @@ jtgaiden_obj u_obj(
     .pxl_cen    ( pxl_cen   ),
     .flip       ( flip      ),
     .blankn     ( vblankn   ),
+    .frmbuf_en  ( frmbuf_en ),
 
     .lvbl       ( LVBL      ),
     .hs         ( HS        ),

@@ -17,6 +17,13 @@ rename=[
 	{name="Difficulty (Tecmo Knight)", to="Difficulty"},
 ]
 
+[header]
+info="""byte 0: 0 = no frame buffer for sprites
+                     1 =    frame buffer enabled"""
+data=[
+	{machine="wildfang",offset=0,data="01"}
+]
+
 [buttons]
 names=[
     { machine="shadoww",  names="Grab,Attack,Jump"  },

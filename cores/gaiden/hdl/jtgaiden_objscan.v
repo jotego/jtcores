@@ -24,12 +24,13 @@ module jtgaiden_objscan(
     input             lvbl,
     input             hs,
     input             blankn,
+    input             frmbuf_en,
 
     input      [ 7:0] scry,
     input      [ 8:0] vrender,
 
     // Look-up table
-    output     [12:1] ram_addr,
+    output reg [12:1] ram_addr,
     input      [15:0] ram_dout,
     // rom address translation
     input      [19:2] raw_addr,
@@ -49,8 +50,9 @@ module jtgaiden_objscan(
     input      [ 7:0] debug_bus
 );
 
-wire [12:1] scan_addr;
-wire [15:0] scan_dout;
+wire [12:1] scan_addr, buf_dma;
+reg  [15:0] scan_dout;
+wire [15:0] buf_dout;
 wire [ 8:0] vlatch;
 wire [ 2:0] st, haddr, hsub;
 reg  [ 2:0] hreps=0;
@@ -148,17 +150,25 @@ jtframe_blink u_blink(
     .blink      ( blink     )
 );
 
-// jtframe_framebuf #(.AW(12),.DW(16))u_framebuf(
-//     .clk        ( clk       ),
-//     .lvbl       ( lvbl      ),
-//     .dma_addr   ( ram_addr  ),
-//     .dma_data   ( ram_dout  ),
+jtframe_framebuf #(.AW(12),.DW(16))u_framebuf(
+    .clk        ( clk       ),
+    .lvbl       ( lvbl      ),
+    .dma_addr   ( buf_dma   ),
+    .dma_data   ( ram_dout  ),
 
-//     .rd_addr    ( scan_addr ),
-//     .rd_data    ( scan_dout )
-// );
-assign ram_addr  = scan_addr;
-assign scan_dout = ram_dout;
+    .rd_addr    ( scan_addr ),
+    .rd_data    ( buf_dout  )
+);
+
+always @* begin
+    if(frmbuf_en) begin
+        ram_addr  = buf_dma;
+        scan_dout = buf_dout;
+    end else begin
+        ram_addr  = scan_addr;
+        scan_dout = ram_dout;
+    end
+end
 
 jtframe_objscan #(.OBJW(8),.STW(3))u_scan(
     .clk        ( clk       ),
