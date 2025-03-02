@@ -18,7 +18,6 @@
 
 module jtgaiden_colmix(
     input               clk,
-    input               lvbl,
     input               pxl_cen,
 
     output       [12:1] pal_addr,

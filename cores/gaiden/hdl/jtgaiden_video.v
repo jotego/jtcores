@@ -210,7 +210,6 @@ jtgaiden_obj u_obj(
 
 jtgaiden_colmix u_colmix(
     .clk        ( clk       ),
-    .lvbl       ( LVBL      ),
     .pxl_cen    ( pxl_cen   ),
 
     .pal_addr   ( pal_addr  ),
