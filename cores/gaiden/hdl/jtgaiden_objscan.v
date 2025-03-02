@@ -128,7 +128,7 @@ always @(posedge clk) begin
         4: begin
             x <= scan_dout[8:0];
         end
-        5: if(!dr_busy &&inzone) begin
+        5: if(!dr_busy && inzone) begin
             pal   <=  pre_pal;
             hsize <=  size;
             ysub  <=  ydf[3:0]^{4{attr[1]}};
