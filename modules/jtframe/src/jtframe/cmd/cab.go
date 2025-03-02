@@ -47,7 +47,7 @@ repeat <1 or more>
 If the number of frames is not explicit, the buttons are pressed for one frame.
 The valid button names are:
 
-	service, 1p, 2p, right, left, down, up, b1, b2, b3, test, reset
+	coin, service, 1p, 2p, right, left, down, up, b1, b2, b3, test, reset
 
 The loop line indicates the start of the loop and it does not take a frame.
 The repeat line indicates the loop end and it must indicate the number of times
