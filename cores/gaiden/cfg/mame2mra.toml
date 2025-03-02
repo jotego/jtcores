@@ -23,8 +23,8 @@ info="""byte 0: 0 = no frame buffer for sprites
                     0? = obj data delayed 10 pixels
                     1? =                  11 pixels"""
 data=[
-	{machine="shadoww", offset=0,data="02"},
-	{machine="wildfang",offset=0,data="01"},
+	{machine="shadoww", offset=0,data="00"},
+	{machine="wildfang",offset=0,data="03"},
 ]
 
 [buttons]

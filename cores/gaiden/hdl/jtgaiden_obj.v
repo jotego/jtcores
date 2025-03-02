@@ -42,7 +42,7 @@ module jtgaiden_obj(
     input        [ 7:0] debug_bus
 );
 
-localparam [8:0] HOFFSET=10;
+localparam [8:0] HOFFSET=9;
 localparam       PXLW=11,CW=13;
 
 wire   [CW+6:2] raw_addr;

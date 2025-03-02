@@ -96,8 +96,8 @@ end
 
 jtframe_vtimer #(
     .HS_START( 9'o452 ),
-    .HB_START( 9'o411 ),
-    .HB_END  ( 9'o011 ),
+    .HB_START( 9'o410 ),
+    .HB_END  ( 9'o010 ),
     .HCNT_END( 9'o577 ),
 
     .V_START ( 9'o020 ),
