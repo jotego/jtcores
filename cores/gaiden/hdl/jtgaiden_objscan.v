@@ -60,7 +60,7 @@ wire        draw_step, skip, blink;
 reg         en;
 reg  [ 8:0] y, x, yoffset;
 reg  [ 8:0] ydiff;
-reg  [ 1:0] code_lsb, codelsb_l;
+reg  [ 1:0] code_lsb;
 wire [ 8:0] ydf;
 reg  [ 7:0] attr;
 reg  [ 3:0] pre_pal;
@@ -107,9 +107,6 @@ end
 
 always @(posedge clk) begin
     yoffset <= frmbuf_en ? -9'd2 : 9'd0;
-    if( dr_draw ) begin
-        codelsb_l <= code_lsb;
-    end
 end
 
 always @(posedge clk) begin

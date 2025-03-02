@@ -5,6 +5,7 @@ gaiden:
 jtframe:
   - get:
     - jtframe_edge.v
+    - jtframe_counter.v
     - jtframe_16bit_reg.v
     - jtframe_mmr_reg.v
   - from: ram
