@@ -58,7 +58,7 @@ wire [ 2:0] st, haddr, hsub;
 reg  [ 2:0] hreps=0;
 wire        draw_step, skip, blink;
 reg         en;
-reg  [ 8:0] y, x;
+reg  [ 8:0] y, x, yoffset;
 reg  [ 8:0] ydiff;
 reg  [ 1:0] code_lsb, codelsb_l;
 wire [ 8:0] ydf;
@@ -106,6 +106,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    yoffset <= frmbuf_en ? -9'd2 : 9'd0;
     if( dr_draw ) begin
         codelsb_l <= code_lsb;
     end
@@ -120,7 +121,7 @@ always @(posedge clk) begin
         1: {code,code_lsb} <= scan_dout[14:0];
         2: {pre_pal,size} <= {scan_dout[7:4],scan_dout[1:0]};
         3: begin
-            y <= scan_dout[8:0]+{1'd0,scry};
+            y <= scan_dout[8:0]+{1'd0,scry}+yoffset;
             case(size)
                 0,1: hreps <=0; // single tile
                 2:   hreps <=1;   // 16x2=32

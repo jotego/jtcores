@@ -21,13 +21,15 @@ module jtgaiden_header(
                 header, prog_we,
     input [2:0] prog_addr,
     input [7:0] prog_data,
-    output reg  frmbuf=0    
+    output reg  frmbuf=0,
+                objdly=0
 );
 
 localparam [2:0] FRAMEBUFFER=0;
 
 always @(posedge clk) begin
-    if( header && prog_addr[2:0]==FRAMEBUFFER  && prog_we ) frmbuf  <= prog_data[0];
+    if( header && prog_addr[2:0]==FRAMEBUFFER  && prog_we )
+        {objdly,frmbuf}  <= prog_data[1:0];
 end
 
 endmodule

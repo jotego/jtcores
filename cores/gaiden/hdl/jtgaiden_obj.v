@@ -22,7 +22,7 @@ module jtgaiden_obj(
     input               pxl_cen,
     input               flip,
     input               blankn,
-    input               frmbuf_en,
+    input               frmbuf_en, objdly,
 
     input               lvbl,
     input               hs,
@@ -42,11 +42,11 @@ module jtgaiden_obj(
     input        [ 7:0] debug_bus
 );
 
-localparam [8:0] HOFFSET=9;
+localparam [8:0] HOFFSET=10;
 localparam       PXLW=11,CW=13;
 
 wire   [CW+6:2] raw_addr;
-wire [PXLW-1:0] pre_pxl;
+wire [PXLW-1:0] pre_pxl,dly_pxl,slow_pxl;
 
 wire          hflip, vflip, blend, dr_draw, dr_busy;
 wire   [ 8:0] hpos;
@@ -131,7 +131,16 @@ jtframe_sh #(.W(PXLW),.L(HOFFSET)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( pre_pxl   ),
-    .drop   ( pxl       )
+    .drop   ( dly_pxl   )
 );
+
+jtframe_sh #(.W(PXLW),.L(1)) u_sh2(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( dly_pxl   ),
+    .drop   ( slow_pxl  )
+);
+
+assign pxl = objdly ? slow_pxl : dly_pxl;
 
 endmodule
