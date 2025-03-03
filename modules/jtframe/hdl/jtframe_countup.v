@@ -14,32 +14,23 @@
 
     Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
     Version: 1.0
-    Date: 27-02-2025 */
+    Date: 28-02-2025 */
 
-module jtframe_crosshair_color #(parameter COLORW=4)(
-    input                 clk,
-    input                 draw_en,
-    input  [         2:0] cross_disable,
-    input  [         5:0] crosshair,
-    input  [  COLORW-1:0] rin,
-    input  [  COLORW-1:0] gin,
-    input  [  COLORW-1:0] bin,
-    output [3*COLORW-1:0] rgb_cross
-    );
+module jtframe_countup #(
+    parameter W=10
+)(
+    input  rst, clk, cen,  // keep port order
+    output reg v=0
+);
 
-reg [COLORW-1:0] r_cross, g_cross, b_cross;
-
-assign rgb_cross = {r_cross, g_cross, b_cross};
+reg [W-1:0] cnt=0;
 
 always @(posedge clk) begin
-    if(draw_en && crosshair[0]) begin
-        r_cross <= ~rin;
-        g_cross <= ~gin;
-        b_cross <= ~bin;
-    end else begin 
-        r_cross <= rin;
-        g_cross <= gin;
-        b_cross <= bin;
+    if( rst ) begin
+        cnt <= 0;
+        v   <= 0;
+    end else if(cen) begin
+        if(!v) {v,cnt} <= {v,cnt}+1'd1;
     end
 end
 

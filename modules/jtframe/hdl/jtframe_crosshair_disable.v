@@ -14,33 +14,40 @@
 
     Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
     Version: 1.0
-    Date: 27-02-2025 */
+    Date: 28-02-2025 */
 
-module jtframe_crosshair_color #(parameter COLORW=4)(
-    input                 clk,
-    input                 draw_en,
-    input  [         2:0] cross_disable,
-    input  [         5:0] crosshair,
-    input  [  COLORW-1:0] rin,
-    input  [  COLORW-1:0] gin,
-    input  [  COLORW-1:0] bin,
-    output [3*COLORW-1:0] rgb_cross
-    );
+module jtframe_crosshair_disable #(parameter CNTW=8)(
+    input        rst,
+    input        clk,
+    input        vs,
+    input  [1:0] strobe,
+    output [1:0] en_b
+);
 
-reg [COLORW-1:0] r_cross, g_cross, b_cross;
+wire pulse;
 
-assign rgb_cross = {r_cross, g_cross, b_cross};
+jtframe_countdown #(.W(CNTW)
+)crosshair_left(
+    .rst( strobe[0] ),
+    .clk( clk       ),
+    .cen( pulse     ),
+    .v  ( en_b[0]   )
+);
 
-always @(posedge clk) begin
-    if(draw_en && crosshair[0]) begin
-        r_cross <= ~rin;
-        g_cross <= ~gin;
-        b_cross <= ~bin;
-    end else begin 
-        r_cross <= rin;
-        g_cross <= gin;
-        b_cross <= bin;
-    end
-end
+jtframe_countdown #(.W(CNTW)
+)crosshair_rigth(
+    .rst( strobe[1] ),
+    .clk( clk       ),
+    .cen( pulse     ),
+    .v  ( en_b[1]   )
+);
+
+jtframe_edge cnt_pulse(
+    .rst   ( rst    ),
+    .clk   ( clk    ),
+    .edgeof( vs     ),
+    .clr   ( pulse  ),
+    .q     ( pulse  )
+);
 
 endmodule
