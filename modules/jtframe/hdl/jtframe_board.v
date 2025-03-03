@@ -682,7 +682,9 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .lvbl         ( base_lhbl     ),
     .lhbl         ( base_lvbl     ),
     .flip         ( dip_flip      ),
-    .draw_en      ( lightgun_en   ),
+    `ifndef JTFRAME_LIGHTGUN_ON
+    .draw_en      ( lightgun_en   ), `else
+    .draw_en      ( 1'b1          ), `endif
     .cross_disable( cross_disable ),
     .gun_1p_x     ( gun_1p_x      ),
     .gun_1p_y     ( gun_1p_y      ),
