@@ -30,7 +30,7 @@ assign x_diff = hcnt - x;
 assign y_diff = vcnt - y;
 
 always @(posedge clk)
-    crosshair <= ((x_diff[8:3] == 0 || (&x_diff[8:3] && |x_diff[2:1])) && y_diff[8:1] == 0) ||
-                 ((y_diff[8:3] == 0 || (&y_diff[8:3] && |y_diff[2:1])) && x_diff[8:1] == 0);
+    crosshair <= ((x_diff[8:3] == 0 || (&x_diff[8:3] && |x_diff[2:0])) && y_diff == 0) ||
+                 ((y_diff[8:3] == 0 || (&y_diff[8:3] && |y_diff[2:0])) && x_diff == 0);
 
 endmodule

@@ -32,10 +32,10 @@ reg [COLORW-1:0] r_cross, g_cross, b_cross;
 assign rgb_cross = {r_cross, g_cross, b_cross};
 
 always @(posedge clk) begin
-    if(draw_en && crosshair[0]) begin
-        r_cross <= ~rin;
-        g_cross <= ~gin;
-        b_cross <= ~bin;
+    if(draw_en) begin
+        r_cross <= rin | {COLORW{crosshair[0]}};
+        g_cross <= gin | {COLORW{crosshair[1]}};
+        b_cross <= bin | {COLORW{crosshair[2]}};
     end else begin 
         r_cross <= rin;
         g_cross <= gin;
