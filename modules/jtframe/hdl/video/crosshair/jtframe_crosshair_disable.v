@@ -26,7 +26,7 @@ module jtframe_crosshair_disable #(parameter CNTW=8)(
 
 wire pulse;
 
-jtframe_countdown #(.W(CNTW)
+jtframe_countup #(.W(CNTW)
 )crosshair_left(
     .rst( strobe[0] ),
     .clk( clk       ),
@@ -34,7 +34,7 @@ jtframe_countdown #(.W(CNTW)
     .v  ( en_b[0]   )
 );
 
-jtframe_countdown #(.W(CNTW)
+jtframe_countup #(.W(CNTW)
 )crosshair_rigth(
     .rst( strobe[1] ),
     .clk( clk       ),
