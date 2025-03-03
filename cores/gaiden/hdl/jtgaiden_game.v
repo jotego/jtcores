@@ -29,16 +29,12 @@ assign ioctl_din = vregs;
 assign debug_view= 0;
 assign ram_addr  = main_addr[13:1];
 
-`ifdef SMALL_BRAM
-assign ram_we = pre_ramwe;
-`else
 wire [1:0] ram_dsn;
 wire [15:0] ram_data = ram_dout;
 wire ram_cs, ram_ok, ramcs_l;
 assign ram_we = {2{pre_ramwe}} & ~ram_dsn;
 assign ram_ok = ramcs_l | ~ram_cs;
 jtframe_sh #(.W(1),.L(2)) u_sh(clk,1'b1,ram_cs,ramcs_l);
-`endif
 
 jtgaiden_header u_header (
     .clk      ( clk             ),
