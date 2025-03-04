@@ -69,6 +69,7 @@ module jtframe_inputs(
 
     // Lightguns
     output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output      [ 1:0] cross_disable,
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
@@ -260,14 +261,17 @@ jtframe_mouse u_mouse(
 
 jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
 ) u_lightgun(
-    .clk         ( clk         ),
-    .mouse_1p    ( mouse_1p    ),
-    .mouse_2p    ( mouse_2p    ),
-    .mouse_strobe( mouse_strobe),
-    .gun_1p_x    ( gun_1p_x    ),
-    .gun_1p_y    ( gun_1p_y    ),
-    .gun_2p_x    ( gun_2p_x    ),
-    .gun_2p_y    ( gun_2p_y    )
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .vs           ( vs            ),
+    .cross_disable( cross_disable ),
+    .mouse_1p     ( mouse_1p      ),
+    .mouse_2p     ( mouse_2p      ),
+    .mouse_strobe ( mouse_strobe  ),
+    .gun_1p_x     ( gun_1p_x      ),
+    .gun_1p_y     ( gun_1p_y      ),
+    .gun_2p_x     ( gun_2p_x      ),
+    .gun_2p_y     ( gun_2p_y      )
 );
 
 jtframe_beta_lock u_lock(
