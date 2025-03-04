@@ -113,6 +113,7 @@ git config --global url.ssh://git@github.com/.insteadOf https://github.com/
 git config --global alias.d diff
 git config --global alias.co checkout
 git config --global alias.st status
+git config --global alias.wt worktree
 git config --global alias.p pull
 git config --global alias.b bisect
 git config --global alias.su "submodule update"
