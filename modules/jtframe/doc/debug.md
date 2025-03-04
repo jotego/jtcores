@@ -64,15 +64,18 @@ st_addr[7:4] |  Read
 
 ### Joysticks
 
+See [jtframe_sys_info.v](../hdl/debug/jtframe_sys_info.v)
+
 st_addr[3:0] | Read
 -------------|---------
  0           | game_joy1[7:0]
- 1           | {rot_control,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
- 2           | joy_ana1[ 7:0]
- 3           | joy_ana2[15:8]
- 4           | mouse_dx[8:1]
- 5           | mouse_dy[8:1]
- 6           | mouse_f
+ 1           | {game_coin[0],game_start[0],game_joy1[9:4]}
+ 2           | {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
+ 3           | joyana_l1[ 7:0]
+ 4           | joyana_l1[15:8]
+ 5           | mouse_dx[8:1]
+ 6           | mouse_dy[8:1]
+ 7           | mouse_f
 
 ### SDRAM, IOCTL and DIPSW
 

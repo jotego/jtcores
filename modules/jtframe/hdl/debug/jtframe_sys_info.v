@@ -134,12 +134,13 @@ always @(posedge clk, posedge rst) begin
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
                 1: case(st_addr[3:0])
                     0: st_dout <= game_joy1[7:0];
-                    1: st_dout <= {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
-                    2: st_dout <= joyana_l1[ 7:0];
-                    3: st_dout <= joyana_l1[15:8];
-                    4: st_dout <= mouse_dx[8:1];
-                    5: st_dout <= mouse_dy[8:1];
-                    6: st_dout <= mouse_f;
+                    1: st_dout <= {game_coin[0],game_start[0],game_joy1[9:4]};
+                    2: st_dout <= {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
+                    3: st_dout <= joyana_l1[ 7:0];
+                    4: st_dout <= joyana_l1[15:8];
+                    5: st_dout <= mouse_dx[8:1];
+                    6: st_dout <= mouse_dy[8:1];
+                    7: st_dout <= mouse_f;
                 endcase
                 2: case(st_addr[1:0])
                     0: st_dout <= gun_1p_x[8:1];
