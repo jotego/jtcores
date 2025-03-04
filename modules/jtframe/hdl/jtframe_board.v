@@ -261,7 +261,7 @@ jtframe_coremod u_coremod(
     .black_frame    ( black_frame   )
 );
 
-assign base_rgb  = { cross_r,cross_g, cross_b }; //{ dbg_r, dbg_g, dbg_b };
+assign base_rgb  = { cross_r, cross_g, cross_b };
 
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
@@ -679,12 +679,15 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .pxl_cen      ( pxl_cen       ),
     .pre_lvbl     ( crdts_lvbl    ),
     .pre_lhbl     ( crdts_lhbl    ),
+    `ifdef MISTER
+    .lvbl         (               ),
+    .lhbl         (               ), `else
     .lvbl         ( base_lhbl     ),
-    .lhbl         ( base_lvbl     ),
+    .lhbl         ( base_lvbl     ), `endif
     .flip         ( dip_flip      ),
-    `ifndef JTFRAME_LIGHTGUN_ON
-    .draw_en      ( lightgun_en   ), `else
-    .draw_en      ( 1'b1          ), `endif
+    `ifdef JTFRAME_LIGHTGUN_ON
+    .draw_en      ( 1'b1          ), `else
+    .draw_en      ( lightgun_en   ), `endif
     .cross_disable( cross_disable ),
     .gun_1p_x     ( gun_1p_x      ),
     .gun_1p_y     ( gun_1p_y      ),
@@ -697,6 +700,8 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .gout         ( cross_g       ),
     .bout         ( cross_b       )
 );
+`ifdef MISTER
+    assign { base_lhbl, base_lvbl  } = {crdts_lhbl,crdts_lvbl}; `endif
 
 `ifdef JTFRAME_CHEAT
     wire       cheat_rd, cheat_ack, cheat_dst, cheat_rdy, cheat_wr;
