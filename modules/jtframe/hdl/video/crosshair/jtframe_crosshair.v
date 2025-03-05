@@ -25,8 +25,12 @@ module jtframe_crosshair #(parameter COLORW=4)(
     input  [       1:0] cross_disable,
     input               pre_lvbl,
     input               pre_lhbl,
+    input               pre_hs,
+    input               pre_vs,
     output              lvbl,
     output              lhbl,
+    output              hs,
+    output              vs,
     input  [       8:0] gun_1p_x,
     input  [       8:0] gun_1p_y,
     input  [       8:0] gun_2p_x,
@@ -76,6 +80,10 @@ jtframe_video_counter u_vidcnt(
 jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
     .clk          ( clk            ),
     .draw_en      ( draw_en        ),
+    .hs_in        ( pre_hs         ),
+    .vs_in        ( pre_vs         ),
+    .hs_out       ( hs             ),
+    .vs_out       ( vs             ),
     .cross_disable({1'b0,cross_disable}),
     .crosshair    ({2'b0,crosshair}),
     .rin          ( rin            ),
@@ -98,6 +106,7 @@ jtframe_blank #(.DLY(1),.DW(COLORW*3)) u_blank(
 `else 
 assign {rout,gout,bout} = {rin,gin,bin};
 assign {lhbl,lvbl}      = {pre_lhbl,pre_lvbl};
+assign {hs  , vs }      = {pre_hs,  pre_vs  };
 `endif
 
 endmodule
