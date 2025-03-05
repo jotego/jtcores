@@ -679,11 +679,8 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .pxl_cen      ( pxl_cen       ),
     .pre_lvbl     ( crdts_lvbl    ),
     .pre_lhbl     ( crdts_lhbl    ),
-    `ifdef MISTER
-    .lvbl         (               ),
-    .lhbl         (               ), `else
-    .lvbl         ( base_lhbl     ),
-    .lhbl         ( base_lvbl     ), `endif
+    .lvbl         ( base_lvbl     ),
+    .lhbl         ( base_lhbl     ),
     .flip         ( dip_flip      ),
     `ifdef JTFRAME_LIGHTGUN_ON
     .draw_en      ( 1'b1          ), `else
@@ -700,8 +697,6 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .gout         ( cross_g       ),
     .bout         ( cross_b       )
 );
-`ifdef MISTER
-    assign { base_lhbl, base_lvbl  } = {crdts_lhbl,crdts_lvbl}; `endif
 
 `ifdef JTFRAME_CHEAT
     wire       cheat_rd, cheat_ack, cheat_dst, cheat_rdy, cheat_wr;
