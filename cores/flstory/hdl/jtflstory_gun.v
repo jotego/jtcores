@@ -23,14 +23,13 @@ module jtflstory_gun(
 
     output reg [7:0] gun_dout
 );
-    localparam [7:0] XOFF=8'h28, YOFF=8'h08;
 
     reg [7:0] gunadj_x, gunadj_y;
 
     always @(posedge clk) begin
         if(trcrt_cs) begin
-            gunadj_x <= gun_x[7:0]+XOFF;
-            gunadj_y <= gun_y[7:0]+YOFF;
+            gunadj_x <= gun_x[7:0];
+            gunadj_y <= gun_y[7:0];
         end
         gun_dout <= gunx_cs ? gunadj_x :
                     guny_cs ? gunadj_y : 8'h01;

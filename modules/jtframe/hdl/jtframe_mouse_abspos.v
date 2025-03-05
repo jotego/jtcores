@@ -26,24 +26,29 @@ module jtframe_mouse_abspos(
 
 parameter W = 384, H = 224, XOFFSET=0, YOFFSET=0;
 
-wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx} + XOFFSET[9:0];
-wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy} + YOFFSET[9:0];
+wire [9:0] x_next, y_next;
+reg  [8:0] x_off,  y_off;
+
+assign x_next = {1'b0, x_off} + {{2{dx[7]}}, dx};
+assign y_next = {1'b0, y_off} - {{2{dy[7]}}, dy};
 
 always @(posedge clk) begin
+    x <= x_off + XOFFSET[8:0];
+    y <= y_off + YOFFSET[8:0];
     if (strobe) begin
         if (x_next[9] && dx[7])
-            x <= 0;
+            x_off <= 0;
         else if (x_next[8:0] > W[8:0])
-            x <= W[8:0];
+            x_off <= W[8:0];
         else
-            x <= x_next[8:0];
+            x_off <= x_next[8:0];
 
         if (y_next[9] && !dy[7])
-            y <= 0;
+            y_off <= 0;
         else if (y_next[8:0] > H[8:0])
-            y <= H[8:0];
+            y_off <= H[8:0];
         else
-            y <= y_next[8:0];
+            y_off <= y_next[8:0];
     end
 end
 

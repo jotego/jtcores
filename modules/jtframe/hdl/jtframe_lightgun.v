@@ -31,8 +31,8 @@ module jtframe_lightgun (
 );
 
 parameter WIDTH = 384, HEIGHT = 224,
-          XOFFSET= `ifdef JTFRAME_LIGHTGUN_XOFFSET JTFRAME_LIGHTGUN_XOFFSET `else 0 `endif,
-          YOFFSET= `ifdef JTFRAME_LIGHTGUN_YOFFSET JTFRAME_LIGHTGUN_YOFFSET `else 0 `endif;
+          XOFFSET= `ifdef JTFRAME_LIGHTGUN_XOFFSET `JTFRAME_LIGHTGUN_XOFFSET `else 0 `endif,
+          YOFFSET= `ifdef JTFRAME_LIGHTGUN_YOFFSET `JTFRAME_LIGHTGUN_YOFFSET `else 0 `endif;
 
 `ifdef JTFRAME_LIGHTGUN
 jtframe_mouse_abspos #(.W(WIDTH),.H(HEIGHT),
