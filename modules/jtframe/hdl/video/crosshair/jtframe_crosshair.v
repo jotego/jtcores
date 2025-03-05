@@ -22,10 +22,15 @@ module jtframe_crosshair #(parameter COLORW=4)(
     input               pxl_cen,
     input               flip,
     input               draw_en,
+    input  [       1:0] cross_disable,
     input               pre_lvbl,
     input               pre_lhbl,
+    input               pre_hs,
+    input               pre_vs,
     output              lvbl,
     output              lhbl,
+    output              hs,
+    output              vs,
     input  [       8:0] gun_1p_x,
     input  [       8:0] gun_1p_y,
     input  [       8:0] gun_2p_x,
@@ -41,7 +46,7 @@ module jtframe_crosshair #(parameter COLORW=4)(
 `ifdef JTFRAME_LIGHTGUN
 wire [3*COLORW-1:0] rgb_cross;
 wire [         8:0] hcnt, vcnt;
-wire [         1:0] crosshair;
+wire [         3:0] crosshair;
 
 jtframe_crosshair_draw crosshair_left(
     .clk        ( clk       ),
@@ -49,7 +54,7 @@ jtframe_crosshair_draw crosshair_left(
     .vcnt       ( vcnt      ),
     .x          ( gun_1p_x  ),
     .y          ( gun_1p_y  ),
-    .crosshair  ( crosshair[0] )
+    .crosshair  ( crosshair[1:0] )
 );
 
 jtframe_crosshair_draw crosshair_center(
@@ -58,7 +63,7 @@ jtframe_crosshair_draw crosshair_center(
     .vcnt       ( vcnt      ),
     .x          ( gun_2p_x  ),
     .y          ( gun_2p_y  ),
-    .crosshair  ( crosshair[1] )
+    .crosshair  ( crosshair[3:2] )
 );
 
 jtframe_video_counter u_vidcnt(
@@ -73,16 +78,21 @@ jtframe_video_counter u_vidcnt(
 );
 
 jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
-    .clk        ( clk            ),
-    .draw_en    ( draw_en        ),
-    .crosshair  ({1'b0,crosshair}),
-    .rin        ( rin            ),
-    .gin        ( gin            ),
-    .bin        ( bin            ),
-    .rgb_cross  ( rgb_cross      )
+    .clk          ( clk            ),
+    .draw_en      ( draw_en        ),
+    .hs_in        ( pre_hs         ),
+    .vs_in        ( pre_vs         ),
+    .hs_out       ( hs             ),
+    .vs_out       ( vs             ),
+    .cross_disable({1'b0,cross_disable}),
+    .crosshair    ({2'b0,crosshair}),
+    .rin          ( rin            ),
+    .gin          ( gin            ),
+    .bin          ( bin            ),
+    .rgb_cross    ( rgb_cross      )
 );
 
-jtframe_blank #(.DLY(0),.DW(COLORW*3)) u_blank(
+jtframe_blank #(.DLY(1),.DW(COLORW*3)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( pre_lhbl  ),
@@ -96,6 +106,7 @@ jtframe_blank #(.DLY(0),.DW(COLORW*3)) u_blank(
 `else 
 assign {rout,gout,bout} = {rin,gin,bin};
 assign {lhbl,lvbl}      = {pre_lhbl,pre_lvbl};
+assign {hs  , vs }      = {pre_hs,  pre_vs  };
 `endif
 
 endmodule
