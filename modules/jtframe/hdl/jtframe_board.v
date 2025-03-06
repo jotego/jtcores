@@ -223,6 +223,7 @@ wire         game_pause, soft_rst, game_test;
 wire         cheat_led, pre_pause;
 
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
+wire   [8:0] cross1_x, cross1_y, cross2_x, cross2_y;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
@@ -631,6 +632,10 @@ jtframe_inputs #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
+    .cross1_x       ( cross1_x        ),
+    .cross1_y       ( cross1_y        ),
+    .cross2_x       ( cross2_x        ),
+    .cross2_y       ( cross2_y        ),
     .cross_disable  ( cross_disable   ),
 
     // Input recording
@@ -690,10 +695,10 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .draw_en      ( 1'b1          ), `else
     .draw_en      ( lightgun_en   ), `endif
     .cross_disable( cross_disable ),
-    .gun_1p_x     ( gun_1p_x      ),
-    .gun_1p_y     ( gun_1p_y      ),
-    .gun_2p_x     ( gun_2p_x      ),
-    .gun_2p_y     ( gun_2p_y      ),
+    .gun_1p_x     ( cross1_x      ),
+    .gun_1p_y     ( cross1_y      ),
+    .gun_2p_x     ( cross2_x      ),
+    .gun_2p_y     ( cross2_y      ),
     .rin          ( dbg_r         ),
     .gin          ( dbg_g         ),
     .bin          ( dbg_b         ),

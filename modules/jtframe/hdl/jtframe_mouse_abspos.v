@@ -21,29 +21,35 @@ module jtframe_mouse_abspos(
     input      [7:0] dy,
     input            strobe,
     output reg [8:0] x,
-    output reg [8:0] y
+    output reg [8:0] y,
+    output reg [8:0] x_abs,
+    output reg [8:0] y_abs
 );
 
 parameter W = 384, H = 224, XOFFSET=0, YOFFSET=0;
 
-wire [9:0] x_next = {1'b0, x} + {{2{dx[7]}}, dx} + XOFFSET[9:0];
-wire [9:0] y_next = {1'b0, y} - {{2{dy[7]}}, dy} + YOFFSET[9:0];
+wire [9:0] x_next, y_next;
+
+assign x_next = {1'b0, x_abs} + {{2{dx[7]}}, dx};
+assign y_next = {1'b0, y_abs} - {{2{dy[7]}}, dy};
 
 always @(posedge clk) begin
+    x <= x_abs + XOFFSET[8:0];
+    y <= y_abs + YOFFSET[8:0];
     if (strobe) begin
         if (x_next[9] && dx[7])
-            x <= 0;
+            x_abs <= 0;
         else if (x_next[8:0] > W[8:0])
-            x <= W[8:0];
+            x_abs <= W[8:0];
         else
-            x <= x_next[8:0];
+            x_abs <= x_next[8:0];
 
         if (y_next[9] && !dy[7])
-            y <= 0;
+            y_abs <= 0;
         else if (y_next[8:0] > H[8:0])
-            y <= H[8:0];
+            y_abs <= H[8:0];
         else
-            y <= y_next[8:0];
+            y_abs <= y_next[8:0];
     end
 end
 
