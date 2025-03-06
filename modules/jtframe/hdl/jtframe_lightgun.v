@@ -76,6 +76,8 @@ jtframe_crosshair_disable crosshair_disable(
 `else
 assign {gun_1p_x, gun_1p_y} = 18'b0;
 assign {gun_2p_x, gun_2p_y} = 18'b0;
+assign {cross1_x, cross1_y} = 18'b0;
+assign {cross2_x, cross2_y} = 18'b0;
 assign  cross_disable   =  2'd3;
 `endif
 
