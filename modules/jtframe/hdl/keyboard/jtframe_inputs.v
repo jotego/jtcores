@@ -69,6 +69,7 @@ module jtframe_inputs(
 
     // Lightguns
     output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+                       cross1_x, cross1_y, cross2_x, cross2_y,
     output      [ 1:0] cross_disable,
 
     input       [ 7:0] debug_bus,
@@ -271,7 +272,11 @@ jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
     .gun_1p_x     ( gun_1p_x      ),
     .gun_1p_y     ( gun_1p_y      ),
     .gun_2p_x     ( gun_2p_x      ),
-    .gun_2p_y     ( gun_2p_y      )
+    .gun_2p_y     ( gun_2p_y      ),
+    .cross1_x     ( cross1_x      ),
+    .cross1_y     ( cross1_y      ),
+    .cross2_x     ( cross2_x      ),
+    .cross2_y     ( cross2_y      )
 );
 
 jtframe_beta_lock u_lock(

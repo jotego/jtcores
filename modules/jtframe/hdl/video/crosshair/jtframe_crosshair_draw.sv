@@ -25,17 +25,14 @@ module jtframe_crosshair_draw(
     output reg [1:0] crosshair
 );
 
-localparam [8:0] XOFFSET=`ifdef JTFRAME_LIGHTGUN_XOFFSET `JTFRAME_LIGHTGUN_XOFFSET `else 0 `endif,
-                 YOFFSET=`ifdef JTFRAME_LIGHTGUN_YOFFSET `JTFRAME_LIGHTGUN_YOFFSET `else 0 `endif;
-
 wire [8:0] x_diff, y_diff;
 reg  [5:0] cord;
 reg  [1:0] pxl [63:0];
 wire [1:0] cross_pre;
 reg        inzone;
 
-assign x_diff = hcnt - x + XOFFSET;
-assign y_diff = vcnt - y + YOFFSET;
+assign x_diff = hcnt - x;
+assign y_diff = vcnt - y;
 assign cross_pre = inzone ? pxl[cord] : 2'b0;
 
 always @(posedge clk) begin
