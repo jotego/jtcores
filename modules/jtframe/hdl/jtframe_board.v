@@ -513,10 +513,6 @@ jtframe_filter_keyboard u_filter_keyboard(
         .gun_1p_y   ( gun_1p_y      ),
         .gun_2p_x   ( gun_2p_x      ),
         .gun_2p_y   ( gun_2p_y      ),
-        .cross1_x   ( cross1_x      ),
-        .cross1_y   ( cross1_y      ),
-        .cross2_x   ( cross2_x      ),
-        .cross2_y   ( cross2_y      ),
         .st_addr    ( debug_bus     ),
         .st_dout    ( sys_info      )
     );
@@ -632,10 +628,14 @@ jtframe_inputs #(
     .dial_y         ( dial_y          ),
 
     // Lightguns
-    .gun_1p_x       ( cross1_x        ),
-    .gun_1p_y       ( cross1_y        ),
-    .gun_2p_x       ( cross2_x        ),
-    .gun_2p_y       ( cross2_y        ),
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
+    .cross1_x       ( cross1_x        ),
+    .cross1_y       ( cross1_y        ),
+    .cross2_x       ( cross2_x        ),
+    .cross2_y       ( cross2_y        ),
     .cross_disable  ( cross_disable   ),
 
     // Input recording
@@ -695,10 +695,10 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     .draw_en      ( 1'b1          ), `else
     .draw_en      ( lightgun_en   ), `endif
     .cross_disable( cross_disable ),
-    .gun_1p_x     ( gun_1p_x      ),
-    .gun_1p_y     ( gun_1p_y      ),
-    .gun_2p_x     ( gun_2p_x      ),
-    .gun_2p_y     ( gun_2p_y      ),
+    .gun_1p_x     ( cross1_x      ),
+    .gun_1p_y     ( cross1_y      ),
+    .gun_2p_x     ( cross2_x      ),
+    .gun_2p_y     ( cross2_y      ),
     .rin          ( dbg_r         ),
     .gin          ( dbg_g         ),
     .bin          ( dbg_b         ),
