@@ -739,7 +739,7 @@ wire         freeze;
 		.o_de     (hdmi_de),
 		.o_vbl    (hdmi_vbl),
 		.o_brd    (hdmi_brd),
-		.gunen    (gun_border_en),
+		.gun_border_en(gun_border_en),
 		.o_lltune (lltune),
 		.htotal   (WIDTH + HFP + HBP + HS[11:0]),
 		.hsstart  (WIDTH + HFP),

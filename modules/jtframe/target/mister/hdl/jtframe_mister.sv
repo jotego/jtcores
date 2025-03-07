@@ -280,8 +280,6 @@ reg         pxl1_cen;
 
 reg   [7:0] target_info;
 
-assign gun_border_en = debug_bus[7];
-
 // Vertical crop
 assign crop_en    = status[41];
 assign vcopt      = status[45:42];
@@ -710,6 +708,7 @@ jtframe_board #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
+    .gun_border_en  ( gun_border_en   ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),

@@ -113,6 +113,7 @@ module jtframe_board #(parameter
 
     // Lightguns
     output       [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output              gun_border_en,
 
     // DIP and OSD settings
     input        [63:0] status,
@@ -251,6 +252,7 @@ wire [SDRAMW-1:0] bax_addr;
 wire LHBLs;
 
 assign sensty    = status[33:32]; // MiST should drive these pins
+assign gun_border_en = debug_bus[7];
 
 jtframe_coremod u_coremod(
     .core_mod       ( core_mod      ),

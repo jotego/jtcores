@@ -168,7 +168,7 @@ ENTITY ascal IS
 		o_border   : IN unsigned(23 DOWNTO 0) := x"000000";
 
 		-- Enable white borders for SINDEN LIGHTGUN
-		gunen    : IN std_logic;
+		gun_border_en : IN std_logic;
 		------------------------------------
 		-- Framebuffer mode
 		o_fb_ena    : IN std_logic :='0'; -- Enable Framebuffer Mode
@@ -1856,7 +1856,7 @@ BEGIN
 			o_vsend  <=vsend; -- <ASYNC> ?
 			o_vdisp  <=vdisp; -- <ASYNC> ?
 
-			IF gunen='1' THEN
+			IF gun_border_en='1' THEN
 				o_hmin <= hmin + BORDER_H2;
 				o_hmax <= hmax - BORDER_H2;
 				o_vmin <= vmin + BORDER_V2;
@@ -2923,7 +2923,7 @@ BEGIN
 				END CASE;
 
 				IF o_pev(11)='0' THEN
-					IF o_bzl(11)='1' AND gunen='1' THEN
+					IF o_bzl(11)='1' AND gun_border_en='1' THEN
 						o_r<=x"FF";
 						o_g<=x"FF";
 						o_b<=x"FF";
