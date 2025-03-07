@@ -168,7 +168,7 @@ ENTITY ascal IS
 		o_border   : IN unsigned(23 DOWNTO 0) := x"000000";
 
 		-- Enable white borders for SINDEN LIGHTGUN
-		o_gunen    : IN std_logic;
+		gunen    : IN std_logic;
 		------------------------------------
 		-- Framebuffer mode
 		o_fb_ena    : IN std_logic :='0'; -- Enable Framebuffer Mode
@@ -1850,15 +1850,23 @@ BEGIN
 			o_hsstart<=hsstart; -- <ASYNC> ?
 			o_hsend  <=hsend; -- <ASYNC> ?
 			o_hdisp  <=hdisp; -- <ASYNC> ?
-			o_hmin   <=hmin + BORDER_H2; -- <ASYNC> ?
-			o_hmax   <=hmax - BORDER_H2; -- <ASYNC> ?
 
 			o_vtotal <=vtotal; -- <ASYNC> ?
 			o_vsstart<=vsstart; -- <ASYNC> ?
 			o_vsend  <=vsend; -- <ASYNC> ?
 			o_vdisp  <=vdisp; -- <ASYNC> ?
-			o_vmin   <=vmin + BORDER_V2; -- <ASYNC> ?
-			o_vmax   <=vmax - BORDER_V2; -- <ASYNC> ?
+
+			IF gunen='1' THEN
+				o_hmin <= hmin + BORDER_H2;
+				o_hmax <= hmax - BORDER_H2;
+				o_vmin <= vmin + BORDER_V2;
+				o_vmax <= vmax - BORDER_V2;
+			ELSE
+				o_hmin <= hmin;
+				o_hmax <= hmax;
+				o_vmin <= vmin;
+				o_vmax <= vmax;
+			END IF;
 
 			o_hsize  <=o_hmax - o_hmin + 1;
 			o_vsize  <=o_vmax - o_vmin + 1;
@@ -2915,7 +2923,7 @@ BEGIN
 				END CASE;
 
 				IF o_pev(11)='0' THEN
-					IF o_bzl(11)='1' AND o_gunen='1' THEN
+					IF o_bzl(11)='1' AND gunen='1' THEN
 						o_r<=x"FF";
 						o_g<=x"FF";
 						o_b<=x"FF";
