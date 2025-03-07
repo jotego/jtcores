@@ -739,6 +739,7 @@ wire         freeze;
 		.o_de     (hdmi_de),
 		.o_vbl    (hdmi_vbl),
 		.o_brd    (hdmi_brd),
+		.o_gunen  (gun_border_en),
 		.o_lltune (lltune),
 		.htotal   (WIDTH + HFP + HBP + HS[11:0]),
 		.hsstart  (WIDTH + HFP),
@@ -1713,6 +1714,7 @@ wire [13:0] fb_stride;
 
 reg  [1:0] sl_r;
 wire [1:0] sl = sl_r;
+wire       gun_border_en;
 always @(posedge clk_sys) sl_r <= FB_EN ? 2'b00 : scanlines;
 
 emu emu
@@ -1836,6 +1838,7 @@ emu emu
 	.USER_IN ( user_in   	),
 	.db15_en ( user_db15_en	),
 	.uart_en ( user_uart_en ),
+	.gun_border_en(gun_border_en),
 	.show_osd( show_osd		)
 );
 
