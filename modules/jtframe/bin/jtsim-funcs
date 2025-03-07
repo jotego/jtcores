@@ -25,6 +25,7 @@ Please support the development: https://patreon.com/jotego
     -frame     Number of frames to simulate
     -frate     Define the frame rate. Used for generating .mp4 files. Adds JTFRAME_SIM_VIDEO to dump all frames.
     -gates     Gate-level simulation
+    -gfx xx    Sets JTFRAME_SIM_GFXEN to the given hex value
     -fx68k     Keep FX68K files for Icarus Verilog
     -inputs    Defines SIM_INPUTS macro:
                Game cabinet inputs will be taken from sim_inputs.hex or

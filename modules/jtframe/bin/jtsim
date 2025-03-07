@@ -123,6 +123,9 @@ case "$1" in
             exit 1
         fi
         ;;
+    -gfx)
+        shift
+        add_macro JTFRAME_SIM_GFXEN=0x${1#0x};;
     -fast) FAST=1;;
     -frate)
         shift
