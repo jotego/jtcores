@@ -39,6 +39,9 @@ JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  l
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
 JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
+JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
+JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
+JTFRAME_LIGHTGUN_YOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun Y coordinate sent to core
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer for objects
 JTFRAME_LFBUF_CLR        |         | Sets the line clear value for the frame buffer. 0 by default.
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
