@@ -22,12 +22,13 @@ info="""byte 0: 0 = no frame buffer for sprites
                     10 =    frame buffer enabled (2x)
                    0?? = obj data delayed 10 pixels
                    1?? =                  11 pixels
+                 1???? = independent vertical size for objects
              byte 1: 0 = wildfang MCU
                      1 = raiga MCU"""
 data=[
 	{machine="shadoww", offset=0,data="00"},
 	{machine="wildfang",offset=0,data="05"},
-	{machine="stratof", offset=0,data="06"},
+	{machine="stratof", offset=0,data="16"},
 
 	{machine="stratof", offset=1,data="01"},
 ]

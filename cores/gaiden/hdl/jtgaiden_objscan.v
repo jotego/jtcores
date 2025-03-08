@@ -24,6 +24,7 @@ module jtgaiden_objscan(
     input             lvbl,
     input             hs,
     input             blankn,
+    input             vsize_en,     // set to have vsize independent of hsize
     input      [ 1:0] frmbuf_en,
 
     input      [ 7:0] scry,
@@ -66,12 +67,11 @@ wire [ 8:0] ydf;
 reg  [ 7:0] attr;
 reg  [ 3:0] pre_pal;
 wire [ 7:0] objcnt;
-reg  [ 1:0] hsize, vaddr;
+reg  [ 1:0] hsize, vsize, vaddr;
 reg         inzone, hadj;
 
 assign draw_step = st==5;
 assign skip      = st==1 && !en;
-// assign vsize     = size;
 assign ydf       = ydiff^{9{vflip}};
 assign scan_addr[12] = 0;
 assign objcnt    = scan_addr[4+:8];
@@ -82,7 +82,7 @@ localparam [1:0] DOUBLE_FRAME_BUFFER = 2'b10,
 
 always @* begin
     ydiff = vlatch - y-9'd1;
-    case( size )
+    case( vsize )
         0: inzone = ydiff[8:3]==0; //   8
         1: inzone = ydiff[8:4]==0; //  16
         2: inzone = ydiff[8:5]==0; //  32
@@ -121,7 +121,10 @@ always @(posedge clk) begin
             attr <= scan_dout[7:0];
         end
         1: {code,code_lsb} <= scan_dout[14:0];
-        2: {pre_pal,size} <= {scan_dout[7:4],scan_dout[1:0]};
+        2: begin
+            {pre_pal,size} <= {scan_dout[7:4],scan_dout[1:0]};
+            vsize <= vsize_en ? scan_dout[3:2] : scan_dout[1:0];
+        end
         3: begin
             y <= scan_dout[8:0]+{1'd0,scry}+yoffset;
             case(size)

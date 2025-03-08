@@ -20,7 +20,7 @@ module jtgaiden_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        nmi_set, flip, pre_ramwe, objdly, mcutype;
+wire        nmi_set, flip, pre_ramwe, objdly, mcutype, vsize_en;
 wire [ 1:0] frmbuf_en;
 wire [ 7:0] snd_cmd, obj_y, vregs;
 wire [15:0] txt_x, txt_y, scra_x, scra_y, scrb_x, scrb_y;
@@ -45,7 +45,8 @@ jtgaiden_header u_header (
     .prog_data( prog_data       ),
     .frmbuf   ( frmbuf_en       ),
     .objdly   ( objdly          ),
-    .mcutype  ( mcutype         )
+    .mcutype  ( mcutype         ),
+    .vsize_en ( vsize_en        )
 );
 
 jtgaiden_main u_main(
@@ -115,6 +116,7 @@ jtgaiden_video u_video(
     .flip       ( flip      ),
     .frmbuf_en  ( frmbuf_en ),
     .objdly     ( objdly    ),
+    .vsize_en   ( vsize_en  ),
 
     // scroll registers
     .txt_y      ( txt_y     ),
