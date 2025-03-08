@@ -28,7 +28,7 @@ info="""byte 0: 0 = no frame buffer for sprites
 data=[
 	{machine="shadoww", offset=0,data="00"},
 	{machine="wildfang",offset=0,data="05"},
-	{machine="stratof", offset=0,data="16"},
+	{machine="stratof", offset=0,data="11"},
 
 	{machine="stratof", offset=1,data="01"},
 ]
