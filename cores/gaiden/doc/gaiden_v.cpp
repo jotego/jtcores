@@ -346,7 +346,7 @@ void gaiden_state::screen_vblank_raiga(int state)
 	if (state)
 	{
 		const rectangle visarea = m_screen->visible_area();
-		// raiga sprite has 2 frame lags
+		// raiga sprite has 1 frame lags
 		m_sprite_bitmap.fill(0, visarea);
 		m_sprgen->gaiden_draw_sprites(*m_screen, m_gfxdecode->gfx(3), visarea, m_spriteram->buffer(), m_sprite_sizey, flip_screen() ? -m_spr_offset_y : m_spr_offset_y, flip_screen(), m_sprite_bitmap);
 

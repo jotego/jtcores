@@ -168,7 +168,7 @@ jtframe_framebuf #(.AW(12),.DW(16))u_framebuf(
     .rd_addr    ( buf1_rd   ),
     .rd_data    ( buf_dout  )
 );
-
+// to do: delete second frame buffer if finally no game uses it
 jtframe_framebuf #(.AW(12),.DW(16))u_framebuf2(
     .clk        ( clk       ),
     .lvbl       ( fb1_busy  ),
