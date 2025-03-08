@@ -22,7 +22,8 @@ module jtgaiden_video(
 
     input               pxl2_cen,
     input               pxl_cen,
-    input               frmbuf_en, objdly,
+    input               objdly,
+    input        [ 1:0] frmbuf_en,
 
     output              LHBL,
     output              LVBL,

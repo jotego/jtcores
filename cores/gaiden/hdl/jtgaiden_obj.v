@@ -22,7 +22,8 @@ module jtgaiden_obj(
     input               pxl_cen,
     input               flip,
     input               blankn,
-    input               frmbuf_en, objdly,
+    input        [ 1:0] frmbuf_en,
+    input               objdly,
 
     input               lvbl,
     input               hs,

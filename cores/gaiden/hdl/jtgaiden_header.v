@@ -17,20 +17,20 @@
     Date: 2-3-2025 */
 
 module jtgaiden_header(
-    input       clk,
-                header, prog_we,
-    input [2:0] prog_addr,
-    input [7:0] prog_data,
-    output reg  frmbuf=0,
-                objdly=0,
-                mcutype=0
+    input            clk,
+                     header, prog_we,
+    input      [2:0] prog_addr,
+    input      [7:0] prog_data,
+    output reg [1:0] frmbuf=0,
+    output reg       objdly=0,
+                     mcutype=0
 );
 
 localparam [2:0] FRAMEBUFFER=0, MCUTYPE=1;
 
 always @(posedge clk) begin
     if( header && prog_addr[2:0]==FRAMEBUFFER  && prog_we )
-        {objdly,frmbuf} <= prog_data[1:0];
+        {objdly,frmbuf} <= prog_data[2:0];
     if( header && prog_addr[2:0]==MCUTYPE  && prog_we )
         mcutype <= prog_data[0];
 end

@@ -24,7 +24,7 @@ module jtgaiden_objscan(
     input             lvbl,
     input             hs,
     input             blankn,
-    input             frmbuf_en,
+    input      [ 1:0] frmbuf_en,
 
     input      [ 7:0] scry,
     input      [ 8:0] vrender,
@@ -50,9 +50,10 @@ module jtgaiden_objscan(
     input      [ 7:0] debug_bus
 );
 
-wire [12:1] scan_addr, buf_dma;
+wire [12:1] scan_addr, buf_dma, buf2x_dma;
+reg  [12:1] buf1_rd;
 reg  [15:0] scan_dout;
-wire [15:0] buf_dout;
+wire [15:0] buf_dout, buf2x_dout;
 wire [ 8:0] vlatch;
 wire [ 2:0] st, haddr, hsub;
 reg  [ 2:0] hreps=0;
@@ -74,6 +75,10 @@ assign skip      = st==1 && !en;
 assign ydf       = ydiff^{9{vflip}};
 assign scan_addr[12] = 0;
 assign objcnt    = scan_addr[4+:8];
+
+localparam [1:0] DOUBLE_FRAME_BUFFER = 2'b10,
+                 SINGLE_FRAME_BUFFER = 2'b01,
+                 NO_FRAME_BUFFER     = 2'b00;
 
 always @* begin
     ydiff = vlatch - y-9'd1;
@@ -106,7 +111,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    yoffset <= frmbuf_en ? -9'd2 : 9'd0;
+    yoffset <= frmbuf_en==NO_FRAME_BUFFER ? 9'd0 : -9'd2;
 end
 
 always @(posedge clk) begin
@@ -148,24 +153,49 @@ jtframe_blink u_blink(
     .blink      ( blink     )
 );
 
+wire fb1_busy;
+
 jtframe_framebuf #(.AW(12),.DW(16))u_framebuf(
     .clk        ( clk       ),
     .lvbl       ( lvbl      ),
+    .busy       ( fb1_busy  ),
     .dma_addr   ( buf_dma   ),
     .dma_data   ( ram_dout  ),
 
-    .rd_addr    ( scan_addr ),
+    .rd_addr    ( buf1_rd   ),
     .rd_data    ( buf_dout  )
 );
 
+jtframe_framebuf #(.AW(12),.DW(16))u_framebuf2(
+    .clk        ( clk       ),
+    .lvbl       ( fb1_busy  ),
+    .busy       (           ),
+    .dma_addr   ( buf2x_dma ),
+    .dma_data   ( buf_dout  ),
+
+    .rd_addr    ( scan_addr ),
+    .rd_data    ( buf2x_dout)
+);
+
 always @* begin
-    if(frmbuf_en) begin
-        ram_addr  = buf_dma;
-        scan_dout = buf_dout;
-    end else begin
-        ram_addr  = scan_addr;
-        scan_dout = ram_dout;
-    end
+    case( frmbuf_en )
+        DOUBLE_FRAME_BUFFER: begin
+            ram_addr  = buf_dma;
+            buf1_rd   = buf2x_dma;
+            scan_dout = buf2x_dout;
+        end
+        SINGLE_FRAME_BUFFER: begin
+            ram_addr  = buf_dma;
+            buf1_rd   = scan_addr;
+            scan_dout = buf_dout;
+        end
+        default: begin
+            ram_addr  = scan_addr;
+            scan_dout = ram_dout;
+            // unused:
+            buf1_rd   = scan_addr;
+        end
+    endcase
 end
 
 jtframe_objscan #(.OBJW(8),.STW(3))u_scan(
