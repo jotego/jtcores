@@ -37,6 +37,7 @@ localparam [ 0:0] WILDFANG=0, RAIGA=1;
 localparam [15:0] SWITCH_TO_GAMEPLAY=-16'd2;
 
 reg  [ 7:0] addr;
+reg  [ 1:0] lsb_up;
 reg         gameplay_sel;
 reg  [15:0] jump;
 wire [15:0] wildfang, bootup, gameplay;
@@ -63,7 +64,7 @@ always @(posedge clk) begin
     if(rst) begin
         gameplay_sel <= 0;
     end else begin
-        if(!gameplay_sel && bootup==SWITCH_TO_GAMEPLAY) gameplay_sel <= 1;
+        if(!gameplay_sel && bootup==SWITCH_TO_GAMEPLAY && lsb_up[0]) gameplay_sel <= 1;
     end
 end
 
@@ -71,16 +72,19 @@ always @(posedge clk) begin
     if(rst) begin
         dout         <= 0;
         addr         <= 0;
-    end else if(we) case(din[7:4])
-        INIT:    dout <= 0;
-        CODEMSB: begin addr[7:4] <= din[3:0]; dout<=8'h10; end
-        CODELSB: begin addr[3:0] <= din[3:0]; dout<=8'h20; end
-        SELNIB3: dout <= {4'h4,jump[12+:4]};
-        SELNIB2: dout <= {4'h5,jump[ 8+:4]};
-        SELNIB1: dout <= {4'h6,jump[ 4+:4]};
-        SELNIB0: dout <= {4'h7,jump[ 0+:4]};
-        default:;
-    endcase
+    end else begin
+        lsb_up <= lsb_up >> 1;
+        if(we) case(din[7:4])
+            INIT:    dout <= 0;
+            CODEMSB: begin addr[7:4] <= din[3:0]; dout<=8'h10; end
+            CODELSB: begin addr[3:0] <= din[3:0]; dout<=8'h20; lsb_up[1]<=1; end
+            SELNIB3: dout <= {4'h4,jump[12+:4]};
+            SELNIB2: dout <= {4'h5,jump[ 8+:4]};
+            SELNIB1: dout <= {4'h6,jump[ 4+:4]};
+            SELNIB0: dout <= {4'h7,jump[ 0+:4]};
+            default:;
+        endcase
+    end
 end
 
 endmodule    

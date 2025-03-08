@@ -26,7 +26,7 @@ wire [15:0] txt_x, txt_y, scra_x, scra_y, scrb_x, scrb_y;
 
 assign dip_flip  = flip;
 assign ioctl_din = vregs;
-assign debug_view= {5'd0,mcutype,objdly,frmbuf_en};
+assign debug_view= 0; // {6'd0,objdly,frmbuf_en};
 assign ram_addr  = main_addr[13:1];
 
 wire [1:0] ram_dsn;

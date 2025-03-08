@@ -207,7 +207,7 @@ jtgaiden_scroll_adder u_scrb_y(
     .scroll     ( scrb_y        )
 );
 
-jtgaiden_mcu_emu u_wildfang_lut(
+jtgaiden_mcu_emu u_mcu_emu(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .we         ( mcu_wr        ),
