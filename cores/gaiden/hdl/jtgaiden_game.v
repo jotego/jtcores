@@ -20,13 +20,13 @@ module jtgaiden_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        nmi_set, flip, pre_ramwe, frmbuf_en, objdly;
+wire        nmi_set, flip, pre_ramwe, frmbuf_en, objdly, mcutype;
 wire [ 7:0] snd_cmd, obj_y, vregs;
 wire [15:0] txt_x, txt_y, scra_x, scra_y, scrb_x, scrb_y;
 
 assign dip_flip  = flip;
 assign ioctl_din = vregs;
-assign debug_view= 0;
+assign debug_view= {5'd0,mcutype,objdly,frmbuf_en};
 assign ram_addr  = main_addr[13:1];
 
 wire [1:0] ram_dsn;
@@ -43,13 +43,15 @@ jtgaiden_header u_header (
     .prog_addr( prog_addr[2:0]  ),
     .prog_data( prog_data       ),
     .frmbuf   ( frmbuf_en       ),
-    .objdly   ( objdly          )
+    .objdly   ( objdly          ),
+    .mcutype  ( mcutype         )
 );
 
 jtgaiden_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .LVBL       ( LVBL      ),
+    .mcutype    ( mcutype   ),
 
     .main_addr  ( main_addr ),
     .main_dout  ( ram_din   ),

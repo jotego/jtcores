@@ -20,6 +20,7 @@ module jtgaiden_main(
     input                rst,
     input                clk,
     input                LVBL,
+    input                mcutype,
 
     output        [17:1] main_addr,
     output        [15:0] main_dout,
@@ -206,12 +207,13 @@ jtgaiden_scroll_adder u_scrb_y(
     .scroll     ( scrb_y        )
 );
 
-jtgaiden_wildfang_lut u_wildfang_lut(
-    .rst    ( rst            ),
-    .clk    ( clk            ),
-    .we     ( mcu_wr         ),
-    .din    ( cpu_dout[15:8] ),
-    .dout   ( wf_lut[7:0]    )
+jtgaiden_mcu_emu u_wildfang_lut(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .we         ( mcu_wr        ),
+    .mcutype    ( mcutype       ),
+    .din        ( cpu_dout[15:8]),
+    .dout       ( wf_lut[7:0]   )
 );
 
 jtframe_edge #(.QSET(0))u_vbl(

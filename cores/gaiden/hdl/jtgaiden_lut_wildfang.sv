@@ -14,25 +14,25 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 2-3-2025 */
+    Date: 1-1-2025 */
 
-module jtgaiden_header(
-    input       clk,
-                header, prog_we,
-    input [2:0] prog_addr,
-    input [7:0] prog_data,
-    output reg  frmbuf=0,
-                objdly=0,
-                mcutype=0
+module jtgaiden_wildfang_lut(
+    input                clk,
+    input          [4:0] addr,
+    output reg    [15:0] jump
 );
 
-localparam [2:0] FRAMEBUFFER=0, MCUTYPE=1;
+reg [15:0] jump_lut[0:16];
 
-always @(posedge clk) begin
-    if( header && prog_addr[2:0]==FRAMEBUFFER  && prog_we )
-        {objdly,frmbuf} <= prog_data[1:0];
-    if( header && prog_addr[2:0]==MCUTYPE  && prog_we )
-        mcutype <= prog_data[0];
+initial begin
+    jump_lut = '{
+    16'h0c0c,16'h0cac,16'h0d42,16'h0da2,16'h0eea,16'h112e,16'h1300,16'h13fa,
+    16'h159a,16'h1630,16'h109a,16'h1700,16'h1750,16'h1806,16'h18d6,16'h1a44,
+    16'h1b52 };
 end
 
-endmodule
+always @(posedge clk) begin
+    jump <= jump_lut[addr];
+end
+
+endmodule    
