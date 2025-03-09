@@ -167,6 +167,7 @@ module jtframe_mister #(parameter
     output  [ 1:0]  mouse_strobe,
     // Lightguns
     output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output          gun_border_en,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -707,6 +708,7 @@ jtframe_board #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
+    .gun_border_en  ( gun_border_en   ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),
