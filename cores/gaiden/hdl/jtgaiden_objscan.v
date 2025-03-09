@@ -102,12 +102,26 @@ end
 always @* begin
     rom_addr = {raw_addr[19:7],raw_addr[5],~raw_addr[6],raw_addr[4:2]};
     hpos     = x + {2'd0,hsub,4'd0};
-    case( hsize )
-        0: rom_addr[6]    = code_lsb[1];
-        2: rom_addr[ 8:7] = {vaddr[0],haddr[0]};     //32
-        3: rom_addr[10:7] = {vaddr[1],hadj,vaddr[0],haddr[0]};   //64
-        default:;
-    endcase
+    if(vsize_en) begin
+        case( hsize )
+            0: rom_addr[6] = code_lsb[1];
+            2: rom_addr[7] = haddr[0];     //32
+            3: {rom_addr[9],rom_addr[7]} = {hadj,haddr[0]};   //64
+            default:;
+        endcase
+        case( vsize )
+            2: rom_addr[8] = vaddr[0];     //32
+            3: {rom_addr[10],rom_addr[8]} = vaddr[1:0];   //64
+            default:;
+        endcase
+    end else begin
+        case( hsize )
+            0: rom_addr[6]    = code_lsb[1];
+            2: rom_addr[ 8:7] = {vaddr[0],haddr[0]};     //32
+            3: rom_addr[10:7] = {vaddr[1],hadj,vaddr[0],haddr[0]};   //64
+            default:;
+        endcase
+    end
 end
 
 always @(posedge clk) begin
