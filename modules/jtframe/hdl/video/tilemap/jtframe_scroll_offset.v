@@ -21,7 +21,11 @@ module jtframe_scroll_offset #(parameter
     MAP_VW     = 9,
     VDUMPW     = 9,
     HDUMPW     = 9,
-    COL_SCROLL = 0 // set to 1 to enable 8-pixel column scroll
+    HLOOP      = 0, // when !=0, it is the value of hdump at which
+                    // hdump[8:7] are set to 1, and hdf uses &hdump[8:7] for MSBs
+                    // this is useful to have heff correctly operate at the
+                    // trasition from blanking to active
+    COL_SCROLL = 0  // set to 1 to enable 8-pixel column scroll
 )(
     input       clk, 
                 flip, hs,
@@ -33,22 +37,28 @@ module jtframe_scroll_offset #(parameter
     output reg [HDUMPW-1:0] heff
 );
 
-localparam VDW=9,
-           HEW = HDUMPW>VDW ? HDUMPW : VDW,
+localparam VDW=9, HDW=10,
+           HEW = HDUMPW>HDW ? HDUMPW : HDW,
            VEW = VDUMPW>VDW ? VDUMPW : VDW;
 
-reg  [VDW-1:0] vdf, hdf;
+reg  [VDW-1:0] vdf;
+reg  [HDW-1:0] hdf;
 reg  [HEW-1:0] hfull;
 reg  [VEW-1:0] vfull;
-wire h8;
+wire h8,blank;
 reg  hsl, h8_l,
      line_changed, tile_changed, update_veff;
+wire [8:0] hdfix = HLOOP==0 ? hdump :
+                   hdump>HLOOP ? {2'b11,hdump[6:0]} : hdump;
 
 assign h8 = heff[3];
+assign blank = HLOOP==0 ? hdump[8] : &hdfix[8:7];
 
 always @* begin
-    hdf   = hdump ^ { 1'b0, {8{flip}} };
-    hfull = hdf + scrx;
+    // hdf should make a perfect subtraction during blanking
+    // HLOOP can be used to help achieve that
+    hdf   = {blank,hdfix} ^ { 2'b0, {8{flip}} };
+    hfull = hdf + {{HDW-MAP_HW{1'b0}},scrx};
     heff  = hfull[HDUMPW-1:0];
 
     vdf   = vdump ^ { 1'b0, {8{flip}} };

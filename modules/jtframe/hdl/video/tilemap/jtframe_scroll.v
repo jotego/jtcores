@@ -36,7 +36,7 @@ module jtframe_scroll #( parameter
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
     XOR_VFLIP = 0, // set to 1 so vflip gets ^ with flip
     HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
-
+    HLOOP     = 0, // see jtframe_scroll_offset
     COL_SCROLL = 0 // set to 1 to enable 8-pixel column scroll
 )(
     input              rst,
@@ -79,6 +79,7 @@ jtframe_scroll_offset #(
     .MAP_VW     ( MAP_VW    ),
     .HDUMPW     ( HDUMPW    ),
     .VDUMPW     ( VDUMPW    ),
+    .HLOOP      ( HLOOP     ),
     .COL_SCROLL ( COL_SCROLL)
 ) u_offset(
     .clk        ( clk       ),

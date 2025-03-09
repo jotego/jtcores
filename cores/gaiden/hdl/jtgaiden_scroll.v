@@ -67,7 +67,13 @@ jtframe_bram_burst u_txtburst(
     .dout32 ( ram_full     )
 );
 
-jtframe_scroll #(.PW(9),.SIZE(16),.VA(11),.MAP_HW(10),.MAP_VW(9),.HJUMP(0)) u_scroll(
+localparam [8:0] DEEP_IN_HB=9'h120;
+
+jtframe_scroll #(
+    .PW(9),.SIZE(16),.VA(11),
+    .MAP_HW(10),.MAP_VW(9),
+    .HJUMP(0),.HLOOP(DEEP_IN_HB))
+u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -75,7 +81,7 @@ jtframe_scroll #(.PW(9),.SIZE(16),.VA(11),.MAP_HW(10),.MAP_VW(9),.HJUMP(0)) u_sc
     .hs         ( hs        ),
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),
-    .blankn     ( blankn    ),  // if !blankn there are no ROM requests
+    .blankn     ( 1'b1      ),
     .flip       ( flip      ),
     .scrx       ( scr_x[9:0]),
     .scry       ( scr_y[8:0]),

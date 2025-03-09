@@ -137,7 +137,7 @@ end
 
 reg heff_l, hmsb_l;
 wire zero = heff[3] != heff_l // read the ROM every 8 pixels
-         || (hmsb_l!=hdump[7] && HJUMP==0); // identify a typical blanking end case
+         || (hmsb_l!=hdump[HDUMPW-1] && HJUMP==0); // identify a typical blanking end case
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -148,7 +148,7 @@ always @(posedge clk) begin
         hflip_g  <= 0;
     end else if(pxl_cen) begin
         heff_l <= heff[3];
-        hmsb_l <= hdump[7];
+        hmsb_l <= hdump[HDUMPW-1];
         if( zero ) begin
             rom_cs <= ~rst & blankn;
             rom_addr[0+:VW] <= veff[0+:VW]^{VW{vflip_g}};
