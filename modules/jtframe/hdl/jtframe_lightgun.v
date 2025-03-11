@@ -77,8 +77,9 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 jtframe_crosshair_disable crosshair_disable(
     .rst        ( rst             ),
     .clk        ( clk             ),
-    .vs         ( vs              ),
-    .strobe     ( strobe          ),
+    .vs         ( vs              ), `ifdef JTFRAME_LIGHTGUN_ON
+    .strobe     ( strobe          ), `else
+    .strobe     ( mouse_strobe    ), `endif
     .en_b       ( cross_disable   )
 );
 
