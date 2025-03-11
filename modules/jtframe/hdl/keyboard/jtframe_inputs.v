@@ -268,6 +268,8 @@ jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
     .cross_disable( cross_disable ),
     .mouse_1p     ( mouse_1p      ),
     .mouse_2p     ( mouse_2p      ),
+    .joyana1      ( ana1          ),
+    .joyana2      ( ana2          ),
     .mouse_strobe ( mouse_strobe  ),
     .gun_1p_x     ( gun_1p_x      ),
     .gun_1p_y     ( gun_1p_y      ),
