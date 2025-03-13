@@ -70,7 +70,7 @@ jtframe_video_counter u_vidcnt(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),
     .lhbl       ( pre_lhbl  ),
     .lvbl       ( pre_lvbl  ),
     .v          ( vcnt      ),

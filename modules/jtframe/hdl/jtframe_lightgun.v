@@ -20,6 +20,7 @@ module jtframe_lightgun (
     input         rst,
     input         clk,
     input         vs,
+    input  [ 1:0] rotate,
     input  [15:0] joyana1,
     input  [15:0] joyana2,
     input  [15:0] mouse_1p,
@@ -49,6 +50,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 ) crosshair_left(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .rotate       ( rotate          ),
     .joyana       ( joyana1         ),
     .mouse        ( mouse_1p        ),
     .mouse_strobe ( mouse_strobe[0] ),
@@ -64,6 +66,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 ) crosshair_center(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .rotate       ( rotate          ),
     .joyana       ( joyana2         ),
     .mouse        ( mouse_2p        ),
     .mouse_strobe ( mouse_strobe[1] ),
@@ -73,6 +76,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
     .cross_x      ( cross2_x        ),
     .cross_y      ( cross2_y        )
 );
+
 
 jtframe_crosshair_disable crosshair_disable(
     .rst        ( rst             ),
@@ -96,6 +100,7 @@ endmodule
 module jtframe_lightgun_mux(
     input         rst,
     input         clk,
+    input  [ 1:0] rotate,
     input  [15:0] joyana,
     input  [15:0] mouse,
     input         mouse_strobe,
@@ -109,16 +114,28 @@ module jtframe_lightgun_mux(
 parameter W = 384, H = 224, XOFFSET=0, YOFFSET=0;
 
 wire [8:0] mouse_x, mouse_y, joyana_x, joyana_y;
-wire       a_strobe;
+wire [7:0] dx, dy;
+wire       a_strobe, mouse_strobe_dly;
+
+jtframe_mouse_rotation mouse_rot(
+    .clk          ( clk                 ),
+    .strobe       ( mouse_strobe        ),
+    .strobe_dly   ( mouse_strobe_dly    ),
+    .rotate       ( rotate              ),
+    .dx_in        ( mouse[ 7: 0]        ),
+    .dy_in        ( mouse[15: 8]        ),
+    .dx           ( dx                  ),
+    .dy           ( dy                  )
+);
 
 jtframe_mouse_abspos #(.W(W),.H(H)
 ) crosshair_mouse(
-    .clk        ( clk             ),
-    .dx         ( mouse[ 7: 0]    ),
-    .dy         ( mouse[15: 8]    ),
-    .strobe     ( mouse_strobe    ),
-    .x          ( mouse_x         ),
-    .y          ( mouse_y         )
+    .clk        ( clk              ),
+    .dx         ( dx               ),
+    .dy         ( dy               ),
+    .strobe     ( mouse_strobe_dly ),
+    .x          ( mouse_x          ),
+    .y          ( mouse_y          )
 );
 
 jtframe_joyana_abspos #(.W(W),.H(H)

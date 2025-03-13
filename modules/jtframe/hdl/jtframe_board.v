@@ -563,7 +563,7 @@ jtframe_inputs #(
     .lvbl           ( LVBL            ),
     .ioctl_rom      ( dwnld_busy      ),
     .rot            ( rot_control     ),
-    .rot_ccw        ( rotate[1]       ),
+    .rotate         ( rotate          ),
     .dial_raw_en    ( dial_raw_en     ),
     .dial_reverse   ( dial_reverse    ),
     .sensty         ( sensty          ),

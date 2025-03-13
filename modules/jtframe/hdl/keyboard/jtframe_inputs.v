@@ -24,7 +24,7 @@ module jtframe_inputs(
     input             lhbl,
 
     input             rot,
-    input             rot_ccw,
+    input      [1:0]  rotate,
     input             dial_raw_en,
     input             dial_reverse,
     input             dip_pause,
@@ -128,7 +128,7 @@ jtframe_joysticks u_joysticks(
     .clk        ( clk           ),
     .vs         ( vs            ),
     .rot        ( rot           ),
-    .rot_ccw    ( rot_ccw       ),
+    .rot_ccw    ( rotate[1]     ),
     .locked     ( locked        ),
 
     .board_coin ( board_coin    ),
@@ -265,6 +265,7 @@ jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
     .rst          ( rst           ),
     .clk          ( clk           ),
     .vs           ( vs            ),
+    .rotate       ( rotate        ),
     .cross_disable( cross_disable ),
     .mouse_1p     ( mouse_1p      ),
     .mouse_2p     ( mouse_2p      ),
