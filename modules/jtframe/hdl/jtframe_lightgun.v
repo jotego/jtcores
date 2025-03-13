@@ -42,7 +42,7 @@ parameter WIDTH = 384, HEIGHT = 224,
           YOFFSET= `ifdef JTFRAME_LIGHTGUN_YOFFSET `JTFRAME_LIGHTGUN_YOFFSET `else 0 `endif;
 
 `ifdef JTFRAME_LIGHTGUN
-`define JTFRAME_MOUSE_NOEMU
+
 wire [1:0] strobe;
 
 jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),

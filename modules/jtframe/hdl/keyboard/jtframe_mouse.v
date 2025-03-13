@@ -46,7 +46,11 @@ wire [3:0] joy1,   joy2,
            joy1_on, joy1_off, joy2_on, joy2_off;
 
 `ifndef JTFRAME_MOUSE_NOEMU
-    localparam MOUSE_EMU=1;
+    `ifndef JTFRAME_LIGHTGUN
+        localparam MOUSE_EMU=1;
+    `else
+        localparam MOUSE_EMU=0;
+    `endif
 `else
     localparam MOUSE_EMU=0;
 `endif
