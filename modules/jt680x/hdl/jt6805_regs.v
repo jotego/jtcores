@@ -87,7 +87,7 @@ always @( posedge clk, posedge rst ) begin
     if( rst ) begin
         a   <= 0;
         x   <= 0;
-        s   <= 0;
+        s   <= 6'h3f;
         op0 <= 0;
         op1 <= 0;
         md  <= 0;
