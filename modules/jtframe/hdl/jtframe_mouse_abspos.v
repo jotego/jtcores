@@ -91,6 +91,7 @@ endmodule
 module jtframe_lightgun_position(
     input             rst,
     input             clk,
+    input             gun_border_en,
     input      [ 8:0] m_x, m_y, // mouse
     input             m_strobe,
     input      [ 8:0] a_x, a_y, // analog stick
@@ -104,15 +105,19 @@ module jtframe_lightgun_position(
 
 parameter XOFFSET=0, YOFFSET=0;
 
+`ifndef JTFRAME_RELEASE
+always @(posedge clk) strobe <= m_strobe | (a_strobe & gun_border_en);
+`else
+always @(posedge clk) strobe <= m_strobe;
+`endif
+
 always @(posedge clk) begin
     if(rst) begin
         x      <= 0; y      <= 0;
         x_abs  <= 0; y_abs  <= 0;
-        strobe <= 0;
     end else begin
         x <= x_abs + XOFFSET[8:0];
         y <= y_abs + YOFFSET[8:0];
-        strobe <= a_strobe | m_strobe;
 
         if (a_strobe) begin
             x_abs <= a_x;

@@ -113,7 +113,8 @@ module jtframe_board #(parameter
 
     // Lightguns
     output       [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
-    output              gun_border_en, lightgun_en,
+    output              gun_border_en,
+    output  reg         hide_gunen,
 
     // DIP and OSD settings
     input        [63:0] status,
@@ -233,7 +234,7 @@ wire  [12:7] func_key;
 wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
 wire         dial_raw_en, dial_reverse, snd_mode;
-wire         dipflip_xor;
+wire         lightgun_en, dipflip_xor;
 wire   [1:0] cross_disable;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
@@ -253,6 +254,10 @@ wire LHBLs;
 
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign gun_border_en = status[9];
+always @(posedge clk_sys) begin
+    hide_gunen <= ~lightgun_en; `ifdef JTFRAME_LIGHTGUN_ON
+    hide_gunen <= 0;            `endif
+end
 
 jtframe_coremod u_coremod(
     .core_mod       ( core_mod      ),
@@ -639,6 +644,7 @@ jtframe_inputs #(
     .cross2_x       ( cross2_x        ),
     .cross2_y       ( cross2_y        ),
     .cross_disable  ( cross_disable   ),
+    .gun_border_en  ( gun_border_en   ),
 
     // Input recording
     .dip_pause      ( dip_pause       ),

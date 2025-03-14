@@ -20,6 +20,7 @@ module jtframe_lightgun (
     input         rst,
     input         clk,
     input         vs,
+    input         gun_border_en,
     input  [ 1:0] rotate,
     input  [15:0] joyana1,
     input  [15:0] joyana2,
@@ -50,6 +51,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 ) crosshair_left(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .gun_border_en( gun_border_en   ),
     .rotate       ( rotate          ),
     .joyana       ( joyana1         ),
     .mouse        ( mouse_1p        ),
@@ -66,6 +68,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 ) crosshair_center(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .gun_border_en( gun_border_en   ),
     .rotate       ( rotate          ),
     .joyana       ( joyana2         ),
     .mouse        ( mouse_2p        ),
@@ -81,9 +84,8 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 jtframe_crosshair_disable crosshair_disable(
     .rst        ( rst             ),
     .clk        ( clk             ),
-    .vs         ( vs              ), `ifdef JTFRAME_LIGHTGUN_ON
-    .strobe     ( strobe          ), `else
-    .strobe     ( mouse_strobe    ), `endif
+    .vs         ( vs              ),
+    .strobe     ( strobe          ),
     .en_b       ( cross_disable   )
 );
 
@@ -100,6 +102,7 @@ endmodule
 module jtframe_lightgun_mux(
     input         rst,
     input         clk,
+    input         gun_border_en,
     input  [ 1:0] rotate,
     input  [15:0] joyana,
     input  [15:0] mouse,
@@ -152,6 +155,7 @@ jtframe_lightgun_position #(
 ) crosshair_mux(
     .rst        ( rst             ),
     .clk        ( clk             ),
+    .gun_border_en( gun_border_en ),
     .m_x        ( mouse_x         ),
     .m_y        ( mouse_y         ),
     .m_strobe   ( mouse_strobe    ),
