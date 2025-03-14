@@ -232,6 +232,7 @@ wire [ 7:0] st_lpbuf;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
 wire [24:0] ps2_mouse;
+reg         ps2_mouse_l;
 wire [ 8:0] mouse_dx, mouse_dy;
 wire [ 7:0] mouse_f;
 wire        mouse_st;
@@ -280,6 +281,13 @@ reg         pxl1_cen;
 
 wire  [7:0] target_info;
 
+assign game_paddle_3 = paddle_3;
+assign game_paddle_4 = paddle_4;
+
+`ifdef JTFRAME_VERTICAL
+assign {FB_PAL_CLK, FB_FORCE_BLANK, FB_PAL_ADDR, FB_PAL_DOUT, FB_PAL_WR} = '0;
+`endif
+
 // UART
 // The core and cheat UARTs are connected in parallel
 // If JTFRAME_UART is not defined, the core side is disabled
@@ -291,15 +299,21 @@ always @(posedge clk_sys) begin
         7'h7f;
 end
 
+assign uart_rx  = uart_en ? USER_IN[1] : 1'b1;
+assign game_rx  = uart_rx;
+assign joy_in   = USER_IN;
+
+// Mouse
+assign mouse_st = ps2_mouse[24]^ps2_mouse_l;
+assign mouse_f  = ps2_mouse[7:0];
+assign mouse_dx = { mouse_f[4], ps2_mouse[15: 8] };
+assign mouse_dy = { mouse_f[5], ps2_mouse[23:16] };
+
+always @(posedge clk_sys)
+    ps2_mouse_l <= ps2_mouse[24];
+
 jtframe_mister_status u_status(
-    .clk            ( clk_sys        ),
     .status         ( status         ),
-    .ps2_mouse      ( ps2_mouse      ),
-    .USER_IN        ( USER_IN        ),
-    .paddle_3       ( paddle_3       ),
-    .paddle_4       ( paddle_4       ),
-    .game_paddle_3  ( game_paddle_3  ),
-    .game_paddle_4  ( game_paddle_4  ),
     .crop_en        ( crop_en        ),
     .vcopt          ( vcopt          ),
     .crop_scale     ( crop_scale     ),
@@ -307,21 +321,7 @@ jtframe_mister_status u_status(
     .hoffset        ( hoffset        ),
     .hsize_enable   ( hsize_enable   ),
     .hsize_scale    ( hsize_scale    ),
-    .joy_in         ( joy_in         ),
-    .mouse_st       ( mouse_st       ),
-    .mouse_f        ( mouse_f        ),
-    .mouse_dx       ( mouse_dx       ),
-    .mouse_dy       ( mouse_dy       ),
-`ifdef JTFRAME_VERTICAL
-    .FB_FORCE_BLANK ( FB_FORCE_BLANK ),
-    .FB_PAL_CLK     ( FB_PAL_CLK     ),
-    .FB_PAL_ADDR    ( FB_PAL_ADDR    ),
-    .FB_PAL_DOUT    ( FB_PAL_DOUT    ),
-    .FB_PAL_WR      ( FB_PAL_WR      ),
-`endif
-    .uart_en        ( uart_en        ),
-    .uart_rx        ( uart_rx        ),
-    .game_rx        ( game_rx        )
+    .uart_en        ( uart_en        )
 );
 
 jtframe_target_info u_target_info(
