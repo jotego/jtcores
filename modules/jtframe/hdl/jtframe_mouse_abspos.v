@@ -51,7 +51,7 @@ end
 
 endmodule
 
-module jtframe_joyana_abspos(
+module jtframe_lightgun_scaler(
     input             clk,
     input      [15:0] joyana,
     output reg        strobe,
