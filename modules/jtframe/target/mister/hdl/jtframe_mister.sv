@@ -167,7 +167,6 @@ module jtframe_mister #(parameter
     output  [ 1:0]  mouse_strobe,
     // Lightguns
     output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
-    output          gun_border_en,
     // Dial
     output  [ 1:0]  dial_x,    dial_y,
     // HDMI
@@ -225,6 +224,7 @@ wire [15:0] joystick1, joystick2, joystick3, joystick4;
 wire        ps2_kbd_clk, ps2_kbd_data;
 wire        force_scan2x, direct_video;
 wire        video_rotated;
+wire        lightgun_en;
 
 wire [ 6:0] core_mod;
 wire [ 7:0] st_lpbuf;
@@ -371,7 +371,8 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 wire [15:0] status_menumask; // a high value hides the menu item
 wire        vertical;
 
-assign status_menumask[15:6] = 0,
+assign status_menumask[15:7] = 0,
+       status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
        status_menumask[4]    = ~vertical,  // shown for vertical games
@@ -710,6 +711,7 @@ jtframe_board #(
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
     .gun_border_en  ( gun_border_en   ),
+    .lightgun_en    ( lightgun_en     ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),
