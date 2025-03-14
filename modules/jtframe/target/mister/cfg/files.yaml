@@ -3,6 +3,7 @@ jtframe/target/mister:
     - jtframe_emu.sv
     - jtframe_mister.sv
     - jtframe_mister_dwnld.v
+    - jtframe_target_info.sv
     - jtframe_mr_ddrmux.v
     - jtframe_mr_ddrtest.v
     - jtframe_joymux.v

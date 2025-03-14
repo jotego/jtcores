@@ -231,7 +231,6 @@ wire [ 7:0] st_lpbuf;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
 wire [24:0] ps2_mouse;
-reg         ps2_mouse_l;
 wire [ 8:0] mouse_dx, mouse_dy;
 wire [ 7:0] mouse_f;
 wire        mouse_st;
@@ -278,26 +277,7 @@ reg         en216p;
 reg   [4:0] voff;
 reg         pxl1_cen;
 
-reg   [7:0] target_info;
-
-// Vertical crop
-assign crop_en    = status[41];
-assign vcopt      = status[45:42];
-assign crop_scale = {1'b0, status[47:46]};
-
-// H-Pos & V-Pos for CRT
-assign { voffset, hoffset } = status[60:53];
-
-// Horizontal scaling for CRT
-assign hsize_enable = status[48];
-assign hsize_scale  = status[52:49];
-
-assign game_paddle_3 = paddle_3;
-assign game_paddle_4 = paddle_4;
-
-`ifdef JTFRAME_VERTICAL
-assign {FB_PAL_CLK, FB_FORCE_BLANK, FB_PAL_ADDR, FB_PAL_DOUT, FB_PAL_WR} = '0;
-`endif
+wire  [7:0] target_info;
 
 // UART
 // The core and cheat UARTs are connected in parallel
@@ -310,46 +290,67 @@ always @(posedge clk_sys) begin
         7'h7f;
 end
 
-assign uart_rx  = uart_en ? USER_IN[1] : 1'b1;
-assign game_rx  = uart_rx;
-assign joy_in   = USER_IN;
-assign uart_en  = status[38]; // It can be used by the cheat engine or the game
+jtframe_mister_status u_status(
+    .clk            ( clk_sys        ),
+    .status         ( status         ),
+    .ps2_mouse      ( ps2_mouse      ),
+    .USER_IN        ( USER_IN        ),
+    .paddle_3       ( paddle_3       ),
+    .paddle_4       ( paddle_4       ),
+    .game_paddle_3  ( game_paddle_3  ),
+    .game_paddle_4  ( game_paddle_4  ),
+    .crop_en        ( crop_en        ),
+    .vcopt          ( vcopt          ),
+    .crop_scale     ( crop_scale     ),
+    .voffset        ( voffset        ),
+    .hoffset        ( hoffset        ),
+    .hsize_enable   ( hsize_enable   ),
+    .hsize_scale    ( hsize_scale    ),
+    .joy_in         ( joy_in         ),
+    .mouse_st       ( mouse_st       ),
+    .mouse_f        ( mouse_f        ),
+    .mouse_dx       ( mouse_dx       ),
+    .mouse_dy       ( mouse_dy       ),
+`ifdef JTFRAME_VERTICAL
+    .FB_FORCE_BLANK ( FB_FORCE_BLANK ),
+    .FB_PAL_CLK     ( FB_PAL_CLK     ),
+    .FB_PAL_ADDR    ( FB_PAL_ADDR    ),
+    .FB_PAL_DOUT    ( FB_PAL_DOUT    ),
+    .FB_PAL_WR      ( FB_PAL_WR      ),
+`endif
+    .uart_en        ( uart_en        ),
+    .uart_rx        ( uart_rx        ),
+    .game_rx        ( game_rx        )
+);
 
-// Mouse
-assign mouse_st = ps2_mouse[24]^ps2_mouse_l;
-assign mouse_f  = ps2_mouse[7:0];
-assign mouse_dx = { mouse_f[4], ps2_mouse[15: 8] };
-assign mouse_dy = { mouse_f[5], ps2_mouse[23:16] };
-
-always @(posedge clk_sys) begin
-    ps2_mouse_l <= ps2_mouse[24];
-
-    target_info <= 0;
-    case( debug_bus[7:6] )
-        0: target_info <= st_lpbuf;
-        1: case( debug_bus[3:0] )
-            0:  target_info <= joyana_l1[7:0];
-            1:  target_info <= joyana_l1[15:8];
-            2:  target_info <= joyana_r1[7:0];
-            3:  target_info <= joyana_r1[15:8];
-            4:  target_info <= { spinner_4[8:7], spinner_3[8:7], spinner_2[8:7], spinner_1[8:7] };
-            5:  target_info <= spinner_1[7:0];
-            6:  target_info <= game_paddle_1;
-            7:  target_info <= game_paddle_2;
-            8:  target_info <= joystick1[7:0];
-            9:  target_info <= joystick2[7:0];
-            10: target_info <= { 6'd0, dial_x };
-            11: target_info <= { 6'd0, dial_y };
-            12: target_info <= mouse_1p[7:0];
-            13: target_info <= mouse_1p[15:8];
-            14: target_info <= mouse_2p[7:0];
-            15: target_info <= mouse_2p[15:8];
-        endcase
-        2: target_info <= { ioctl_lock, ioctl_cart, ioctl_ram, ioctl_rom, 1'b0, ioctl_wr, dwnld_busy, hps_download };
-        3: target_info <= hps_index[7:0];
-        default: target_info <= debug_bus;
-    endcase
-end
+jtframe_target_info u_target_info(
+    .clk            ( clk_sys        ),
+    .joyana_l1      ( joyana_l1      ),
+    .joyana_r1      ( joyana_r1      ),
+    .joystick1      ( joystick1      ),
+    .joystick2      ( joystick2      ),
+    .mouse_1p       ( mouse_1p       ),
+    .mouse_2p       ( mouse_2p       ),
+    .hps_index      ( hps_index      ),
+    .spinner_1      ( spinner_1      ),
+    .spinner_2      ( spinner_2      ),
+    .spinner_3      ( spinner_3      ),
+    .spinner_4      ( spinner_4      ),
+    .game_paddle_1  ( game_paddle_1  ),
+    .game_paddle_2  ( game_paddle_2  ),
+    .dial_x         ( dial_x         ),
+    .dial_y         ( dial_y         ),
+    .st_lpbuf       ( st_lpbuf       ),
+    .ioctl_lock     ( ioctl_lock     ),
+    .ioctl_cart     ( ioctl_cart     ),
+    .ioctl_ram      ( ioctl_ram      ),
+    .ioctl_rom      ( ioctl_rom      ),
+    .ioctl_wr       ( ioctl_wr       ),
+    .dwnld_busy     ( dwnld_busy     ),
+    .hps_download   ( hps_download   ),
+    .debug_bus      ( debug_bus      ),
+    .target_info    ( target_info    )
+);
 
 jtframe_resync u_resync(
     .clk        ( clk_sys       ),
