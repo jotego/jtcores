@@ -16,33 +16,32 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_video(
+module jtrthunder_colmix(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen,
+    input             pxl_cen
 
-    output            lvbl, lhbl, hs, vs,
-    output     [ 7:0] red, green, blue,
-    // Dump MMR
-    input      [ 5:0] ioctl_addr,
-    output reg [ 7:0] ioctl_din,
-    // Debug
-    input      [ 3:0] gfx_en,
-    input      [ 7:0] debug_bus
-    // output reg [ 7:0] st_dout
+    input      [ 7:0] scr0_pxl, scr1_pxl, obj_pxl,
+    input      [ 2:0] obj_prio, scr_prio,
+
+    output     [ 7:0] prom_addr,
+    input      [ 7:0] rg_data, b_data,
+
+    output     [ 3:0] red, green, blue,
 );
 
-jtshouse_vtimer u_vtimer(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .vrender1   ( vrender1  ),
-    .hdump      ( hdump     ),
-    .lhbl       ( lhbl      ),
-    .lvbl       ( lvbl      ),
-    .hs         ( hs        ),
-    .vs         ( vs        )
-);
+reg scrwin, obj_op;
+
+always @* begin
+    obj_op = ~&obj_pxl[3:0];
+    scrwin = scr_prio > scr_prio;
+    if(!obj_op) scrwin = 1;
+end
+
+
+always @(posedge clk) if(pxl_cen) begin
+    prom_addr <= scrwin ? scrmix : obj_pxl;
+    {green,red,blue} <= {rg_data,b_data[3:0]};
+end
 
 endmodule    

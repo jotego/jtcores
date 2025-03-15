@@ -39,6 +39,27 @@ sdram:
         addr_width: 19
         data_width: 8
 bram:
+  # PROM order here must match the MRA order
+  - name: rgpal # 3R
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: bpal # 3S
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: scr_pal # 4V
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: obj_pal # 5V
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: tiledec # 6U
+    addr_width: 5
+    data_width: 8
+    prom: true
   - name: scr0 # CUS42 tilemap RAM -> gfx1
     addr_width: 13
     data_width: 8
