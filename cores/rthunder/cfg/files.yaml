@@ -1,0 +1,8 @@
+rthunder:
+  - get:
+    - "*.v"
+shouse:
+  - get:
+    - jtcus30.sv
+    - jtcus30_mmr.v
+    - jtshouse_vtimer.v
