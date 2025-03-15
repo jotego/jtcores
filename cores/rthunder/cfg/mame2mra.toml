@@ -1,0 +1,36 @@
+[parse]
+sourcefile=[ "namcos86.cpp" ]
+
+debug = { machines=[
+	"hopmappy",
+	"roishtar",
+	"genpeitd",
+	"rthunder",
+	"wndrmomo",
+]}
+
+[buttons]
+names=[
+	{ machine="rthunder",names="Shot,Jump" }
+]
+
+[ROM]
+regions = [
+	{ name="cpu1"                             },
+	{ name="user1"                            },
+	{ name="cpu2", start="JTFRAME_BA1_START"  },
+	{ name="namco2"                           },
+	{ name="gfx1", start="JTFRAME_BA2_START"  },
+	{ name="gfx2"                             },
+	{ name="gfx3", start="JTFRAME_BA3_START"  },
+	{ name="mcusub"                           },
+	{ name="mcu",  start="JTFRAME_PROM_START" },
+	{ name="proms"                            },
+]
+
+order=["cpu1","user1",
+       "cpu2","namco2",
+       "gfx1","gfx2",
+       "gfx3","mcusub",
+       "mcu","proms"
+]
