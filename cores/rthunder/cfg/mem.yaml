@@ -65,9 +65,20 @@ bram:
     addr_width: 5
     data_width: 8
     prom: true
+  # Tile maps
   - name: scr0 # CUS42 tilemap RAM -> gfx1
     addr_width: 13
-    data_width: 8
+    data_width: 16
+    dual_port:
+      name: sh0
+      addr: bus_addr[12:1]
+      din:  "{2{bus_dout}}"
+      rw:   true
   - name: scr1 # CUS42 tilemap RAM -> gfx2
     addr_width: 13
-    data_width: 8
+    data_width: 16
+    dual_port:
+      name: sh1
+      addr: bus_addr[12:1]
+      din:  "{2{bus_dout}}"
+      rw:   true
