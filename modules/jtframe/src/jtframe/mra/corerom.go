@@ -438,6 +438,7 @@ func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_
 func parse_parts(reg_cfg *RegCfg, p *XMLNode) int {
 	dumped := 0
 	n := p
+	reg_cfg.check_width_vs_parts()
 	if reg_cfg.Width>8 {
 		n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 	}
@@ -452,6 +453,22 @@ func parse_parts(reg_cfg *RegCfg, p *XMLNode) int {
 		dumped += each.Length
 	}
 	return dumped
+}
+
+func (cfg *RegCfg)check_width_vs_parts() {
+	bytemap_len := 0
+	for _,part := range cfg.Parts {
+		if this_len := len(part.Map); this_len>bytemap_len {
+			bytemap_len = this_len
+		}
+	}
+	derived_width := bytemap_len*8
+	if cfg.Width == 0 {
+		cfg.Width = derived_width
+	} else if cfg.Width!=derived_width {
+		msg := fmt.Sprintf("Expected interleave of width %d for region %s",derived_width,cfg.Name)
+		panic(msg)
+	}
 }
 
 func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {

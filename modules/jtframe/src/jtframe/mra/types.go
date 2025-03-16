@@ -121,6 +121,8 @@ type RegCfg struct {
     Sequence   []int    // File sequence, where the first file is identified with a 0, the next with 1 and so on
     // ROM files can be repeated or omitted in the sequence
     Frac struct {
+        // take n bytes from each part (1 part=1 file)
+        // files=multiple of parts
         Bytes, Parts int
     }
     Overrules []struct { // Overrules the region settings for specific files
