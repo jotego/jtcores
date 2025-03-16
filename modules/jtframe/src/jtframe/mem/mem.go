@@ -55,6 +55,7 @@ func Run(args Args) (e error) {
 	// Checks
 	if e = cfg.check_banks(); e!=nil { return e }
 	if e = cfg.check_bram (); e!=nil { return e }
+	cfg.calc_prom_we()
 	// Data arrangement
 	fill_implicit_ports( &cfg )
 	make_ioctl( &cfg )
