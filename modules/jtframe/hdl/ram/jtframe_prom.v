@@ -121,5 +121,4 @@ generate
     end
 endgenerate
 
-
-endmodule // jtframe_ram
+endmodule

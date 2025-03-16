@@ -69,6 +69,7 @@ jtframe:
   - from: sdram
     get:
       - jtframe_dwnld.v
+      - jtframe_ioctl_range.v
       - jtframe_headerbyte.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml

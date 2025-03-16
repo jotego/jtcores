@@ -53,8 +53,8 @@ func Run(args Args) (e error) {
 	}
 	if e = bankOffset( &cfg, args.Core ); e!=nil { return e }
 	// Checks
-	if e = check_banks( &cfg ); e!=nil { return e }
-	if e = check_bram ( &cfg ); e!=nil { return e }
+	if e = cfg.check_banks(); e!=nil { return e }
+	if e = cfg.check_bram (); e!=nil { return e }
 	// Data arrangement
 	fill_implicit_ports( &cfg )
 	make_ioctl( &cfg )
@@ -285,9 +285,10 @@ func make_sdram( finder path_finder, cfg *MemConfig) (e error){
 	game_sdram := filepath.Join(tpath,"game_sdram.v")
 	game_audio := filepath.Join(tpath,"game_audio.v")
 	ioctl_dump := filepath.Join(tpath,"ioctl_dump.v")
+	prom_dwnld := filepath.Join(tpath,"prom_dwnld.v")
 	t := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap())
 	t.Funcs(audio_template_functions)
-	_, e = t.ParseFiles(game_audio,game_sdram,ioctl_dump)
+	_, e = t.ParseFiles(game_audio,game_sdram,ioctl_dump,prom_dwnld)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
 	if e = t.Execute(&buffer, cfg); e!= nil { return e }
@@ -383,7 +384,7 @@ func bankOffset( cfg *MemConfig, corename string) (e error) {
 	return nil
 }
 
-func check_banks( cfg *MemConfig ) error {
+func (cfg *MemConfig)check_banks() error {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
@@ -470,15 +471,16 @@ func report_bad_int(macro_name string) bool {
 	return false
 }
 
-func check_bram( cfg *MemConfig ) error {
+func (cfg *MemConfig)check_bram() error {
 	prom_cnt := 0
-	for _, bram := range cfg.BRAM {
+	for k, _ := range cfg.BRAM {
+		bram := &cfg.BRAM[k]
 		if !bram.Prom { continue }
-		if prom_cnt!=0 {
-			return fmt.Errorf("Currently only support for a single PROM BRAM block is implemented")
-		}
 		if bram.Data_width>8 {
 			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits",bram.Name, bram.Data_width )
+		}
+		if bram.Dout=="" {
+			bram.Dout=bram.Name+"_data"
 		}
 		prom_cnt++
 	}

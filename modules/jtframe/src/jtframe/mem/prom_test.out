@@ -1,0 +1,120 @@
+// pal PROM
+wire [ 7:0]pal_dd;
+wire [ 7:0]pal_waddr;
+wire       pal_we;
+
+jtframe_ioctl_range #(
+    .AW(8),
+    .OFFSET(JTFRAME_PROM_START+'h0)
+) u_range_pal(
+    .clk        ( clk                ),
+    .addr       ( raw_addr           ),
+    .addr_rel   ( pal_waddr          ),
+    .en         ( prog_we            ),
+    .inrange    ( pal_we             ),
+    .din        ( raw_data[7:0]      ),
+    .dout       ( pal_dd             )
+);
+
+jtframe_prom #(
+    .DW(8),
+    .AW(8)
+) u_prom_pal(
+    .clk        ( clk                ),
+    .cen        ( 1'b1               ),
+    .data       ( pal_dd[ 7:0]       ),
+    .rd_addr    (                    ),
+    .wr_addr    ( pal_waddr          ),
+    .we         ( pal_we             ),
+    .q          ( pal_data           )
+);
+// pal1 PROM
+wire [ 7:0]pal1_dd;
+wire [ 8:0]pal1_waddr;
+wire       pal1_we;
+
+jtframe_ioctl_range #(
+    .AW(9),
+    .OFFSET(JTFRAME_PROM_START+'h100)
+) u_range_pal1(
+    .clk        ( clk                ),
+    .addr       ( raw_addr           ),
+    .addr_rel   ( pal1_waddr         ),
+    .en         ( prog_we            ),
+    .inrange    ( pal1_we            ),
+    .din        ( raw_data[7:0]      ),
+    .dout       ( pal1_dd            )
+);
+
+jtframe_prom #(
+    .DW(8),
+    .AW(9)
+) u_prom_pal1(
+    .clk        ( clk                ),
+    .cen        ( 1'b1               ),
+    .data       ( pal1_dd[ 7:0]      ),
+    .rd_addr    (                    ),
+    .wr_addr    ( pal1_waddr         ),
+    .we         ( pal1_we            ),
+    .q          ( pal1_data          )
+);
+// pal2 PROM
+wire [ 7:0]pal2_dd;
+wire [ 4:0]pal2_waddr;
+wire       pal2_we;
+
+jtframe_ioctl_range #(
+    .AW(5),
+    .OFFSET(JTFRAME_PROM_START+'h300)
+) u_range_pal2(
+    .clk        ( clk                ),
+    .addr       ( raw_addr           ),
+    .addr_rel   ( pal2_waddr         ),
+    .en         ( prog_we            ),
+    .inrange    ( pal2_we            ),
+    .din        ( raw_data[7:0]      ),
+    .dout       ( pal2_dd            )
+);
+
+jtframe_prom #(
+    .DW(8),
+    .AW(5)
+) u_prom_pal2(
+    .clk        ( clk                ),
+    .cen        ( 1'b1               ),
+    .data       ( pal2_dd[ 7:0]      ),
+    .rd_addr    (                    ),
+    .wr_addr    ( pal2_waddr         ),
+    .we         ( pal2_we            ),
+    .q          ( pal2_data          )
+);
+// pal3 PROM
+wire [ 7:0]pal3_dd;
+wire [ 5:0]pal3_waddr;
+wire       pal3_we;
+
+jtframe_ioctl_range #(
+    .AW(6),
+    .OFFSET(JTFRAME_PROM_START+'h320)
+) u_range_pal3(
+    .clk        ( clk                ),
+    .addr       ( raw_addr           ),
+    .addr_rel   ( pal3_waddr         ),
+    .en         ( prog_we            ),
+    .inrange    ( pal3_we            ),
+    .din        ( raw_data[7:0]      ),
+    .dout       ( pal3_dd            )
+);
+
+jtframe_prom #(
+    .DW(4),
+    .AW(6)
+) u_prom_pal3(
+    .clk        ( clk                ),
+    .cen        ( 1'b1               ),
+    .data       ( pal3_dd[ 3:0]      ),
+    .rd_addr    (                    ),
+    .wr_addr    ( pal3_waddr         ),
+    .we         ( pal3_we            ),
+    .q          ( pal3_data          )
+);

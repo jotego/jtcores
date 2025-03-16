@@ -19,8 +19,12 @@ package mem
 
 import (
 	"encoding/json"
+	"path/filepath"
+	"os"
 	"slices"
+	"strings"
 	"testing"
+	"text/template"
 
 	"jotego/jtframe/macros"
 
@@ -218,4 +222,97 @@ sdram:
 	if total:=len(cfg.SDRAM.Banks);total!=2 {t.Errorf("Expecting 2 banks, got %d",total); return}
 	if total:=len(cfg.SDRAM.Banks[1].Buses);total!=1 {t.Errorf("Expecting 2 buses on bank 1, got %d",total); return}
 	if cfg.SDRAM.Banks[1].Buses[0].Name!="cart0" { t.Error("Bus 0 of Bank 1 is not named cart0") }
+}
+
+const BRAM_YAML = `
+bram:
+  - name: pal
+    addr_width: 8
+    data_width: 8
+    prom: true
+  - name: pal1
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: pal2
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: pal3
+    addr_width: 6
+    data_width: 4
+    prom: true
+`
+
+func Test_prom_start(t *testing.T) {
+	var cfg MemConfig
+	e := unmarshal([]byte(BRAM_YAML),&cfg)
+	if e!=nil { t.Error(e); return }
+	cfg.calc_prom_we()
+	expected := []int{0,0x100,0x300,0x320}
+	for k,bram := range cfg.BRAM {
+		if bram.PROM_offset != expected[k] {
+			t.Errorf("Wrong start for PROM %d. Got %X, wanted %X",
+				k,bram.PROM_offset,expected[k])
+		}
+	}
+}
+
+func Test_prom_template(t *testing.T) {
+	var cfg MemConfig
+	e := unmarshal([]byte(BRAM_YAML),&cfg)
+	if e!=nil { t.Error(e); return }
+	cfg.check_bram()
+	cfg.calc_prom_we()
+	tpl := get_prom_dwnld_template(t)
+	var verilog strings.Builder
+	for _,bram := range cfg.BRAM {
+		tpl.Execute(&verilog,bram)
+	}
+	expected_fname := filepath.Join(os.Getenv("JTFRAME"),"src","jtframe","mem","prom_test.out")
+	compare_string_with_file(verilog.String(),expected_fname,t)
+}
+
+func compare_string_with_file(got, fname string,t *testing.T) {
+	expected, e := os.ReadFile(fname)
+	if e!=nil { t.Error(e) }
+	bad:=false
+	if got!=string(expected) {
+		e := string(expected)
+		line := 1
+		col := 1
+		for k,_ := range got {
+			if k>=len(e) {
+				t.Logf("Result is too long. Difference at line %d, column %d",line,col)
+				bad=true
+				break
+			}
+			if got[k]!=e[k] {
+				t.Logf("Difference at line %d, column %d",line,col)
+				bad=true
+				break
+			}
+			col++
+			if got[k]=='\n' {
+				line++
+				col = 1
+			}
+		}
+		t.Error("Output differs")
+	}
+	if bad {
+		t.Log(got)
+	}
+}
+
+func get_prom_dwnld_template(t *testing.T) *template.Template{
+	prom_dwnld := filepath.Join(os.Getenv("JTFRAME"),"hdl","inc","prom_dwnld.v")
+	tpl := template.New("prom_dwnld.v")
+	tpl.Funcs(funcMap)
+	_, e := tpl.ParseFiles(prom_dwnld)
+	if e!=nil {
+		t.Error(e)
+		t.FailNow()
+	}
+	return tpl
 }

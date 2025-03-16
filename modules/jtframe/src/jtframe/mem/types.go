@@ -99,6 +99,8 @@ type BRAMBus struct {
     ROM struct { // Use the BRAM as ROM
         Offset string `yaml:"offset"`
     } `yaml:"rom"`
+    // Derived information
+    PROM_offset   int // PROM offset in .rom file
 }
 
 type SDRAMBank struct {

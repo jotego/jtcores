@@ -44,3 +44,13 @@ func (item *SDRAMBus) Enabled() bool {
     }
     return aux.Enabled()
 }
+
+func (cfg *MemConfig)calc_prom_we() {
+    offset := 0
+    for k,_ := range cfg.BRAM {
+        bram := &cfg.BRAM[k]
+        if !bram.Prom { continue }
+        bram.PROM_offset = offset
+        offset += 1<<bram.Addr_width
+    }
+}
