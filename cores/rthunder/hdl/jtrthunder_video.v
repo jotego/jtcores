@@ -26,11 +26,20 @@ module jtrthunder_video(
     // Dump MMR
     input      [ 5:0] ioctl_addr,
     output reg [ 7:0] ioctl_din,
+
+    output     [ 8:0] rgb_addr,
+    input      [ 7:0] rg_data,
+    input      [ 3:0] b_data,
+    output     [ 3:0] red, green, blue,
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus
     // output reg [ 7:0] st_dout
 );
+
+wire [ 7:0] scr0_pxl, scr1_pxl, obj_pxl;
+wire [ 2:0] obj_prio, scr_prio;
+
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -43,6 +52,25 @@ jtshouse_vtimer u_vtimer(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .vs         ( vs        )
+);
+
+jtrthunder_colmix u_colmix(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .scr0_pxl   ( scr0_pxl  ),
+    .scr1_pxl   ( scr1_pxl  ),
+    .obj_pxl    ( obj_pxl   ),
+    .obj_prio   ( obj_prio  ),
+    .scr_prio   ( scr_prio  ),
+
+    .rgb_addr   ( rgb_addr  ),
+    .rg_data    ( rg_data   ),
+    .b_data     ( b_data    ),
+
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      ),
 );
 
 endmodule    

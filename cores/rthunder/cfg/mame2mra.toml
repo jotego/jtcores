@@ -14,14 +14,52 @@ names=[
 	{ machine="rthunder",names="Shot,Jump" }
 ]
 
+[header]
+# reserve 1 bit to indicate 2bpp tile data
+
 [ROM]
 regions = [
 	{ name="cpu1"                             },
 	{ name="user1"                            },
 	{ name="cpu2", start="JTFRAME_BA1_START"  },
 	{ name="namco2"                           },
-	{ name="gfx1", start="JTFRAME_BA2_START"  },
-	{ name="gfx2"                             },
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="rthunder", parts=[
+		{name="rt1_7.7r", crc="a85efa39",map="0001",length=0x8000 },
+		{name="rt1_7.7r", crc="a85efa39",map="0010",length=0x8000,offset=0x8000},
+		{name="rt1_8.7s", crc="f7a95820",map="0100"},
+		{name="rt1_8.7s", crc="f7a95820",map="1000"},
+	]},
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="skykiddx", parts=[
+		{name="sk3_9.7r",  crc="48675b17",map="0001",length=0x8000 },
+		{name="sk3_9.7r",  crc="48675b17",map="0010",length=0x8000,offset=0x8000},
+		{name="sk3_10.7s", crc="7418465a",map="0100"},
+		{name="sk3_10.7s", crc="7418465a",map="1000"},
+	]},
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="hopmappy", parts=[
+		{name="hm1_6.7r", crc="fd0e8887",map="0001",length=0x2000 },
+		{name="hm1_6.7r", crc="fd0e8887",map="0010",length=0x2000,offset=0x2000},
+		{name="hm1_6.7r", crc="fd0e8887",map="0100",length=0x2000 },
+		{name="hm1_6.7r", crc="fd0e8887",map="1000",length=0x2000,offset=0x2000},
+	]},
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="roishtar", parts=[
+		{name="ri1_14.7r", crc="de8154b4",map="0001",length=0x2000 },
+		{name="ri1_14.7r", crc="de8154b4",map="0010",length=0x2000,offset=0x2000},
+		{name="ri1_15.7s", crc="4298822b",map="0100"},
+		{name="ri1_15.7s", crc="4298822b",map="1000"},
+	]},
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="genpeitd", parts=[
+		{name="gt1_7.7r", crc="ea77a211",map="0001",length=0x8000 },
+		{name="gt1_7.7r", crc="ea77a211",map="0010",length=0x8000,offset=0x8000},
+		{name="gt1_6.7s", crc="1b128a2e",map="0100"},
+		{name="gt1_6.7s", crc="1b128a2e",map="1000"},
+	]},
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="wndrmomo", parts=[
+		{name="wm1_6.7r", crc="93955fbb",map="0001",length=0x4000 },
+		{name="wm1_6.7r", crc="93955fbb",map="0010",length=0x4000,offset=0x4000},
+		{name="wm1_7.7s", crc="7d662527",map="0100"},
+		{name="wm1_7.7s", crc="7d662527",map="1000"},
+	]},
+	{ name="gfx2", start="SCR1_START"         },
 	{ name="gfx3", start="JTFRAME_BA3_START"  },
 	{ name="mcusub"                           },
 	{ name="mcu",  start="JTFRAME_PROM_START" },

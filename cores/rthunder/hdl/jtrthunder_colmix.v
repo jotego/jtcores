@@ -17,15 +17,15 @@
     Date: 15-3-2025 */
 
 module jtrthunder_colmix(
-    input             rst,
     input             clk,
     input             pxl_cen
 
     input      [ 7:0] scr0_pxl, scr1_pxl, obj_pxl,
     input      [ 2:0] obj_prio, scr_prio,
 
-    output     [ 7:0] prom_addr,
-    input      [ 7:0] rg_data, b_data,
+    output     [ 8:0] rgb_addr,
+    input      [ 7:0] rg_data,
+    input      [ 3:0] b_data,
 
     output     [ 3:0] red, green, blue,
 );
@@ -40,7 +40,7 @@ end
 
 
 always @(posedge clk) if(pxl_cen) begin
-    prom_addr <= scrwin ? scrmix : obj_pxl;
+    rgb_addr <= scrwin ? scrmix : obj_pxl;
     {green,red,blue} <= {rg_data,b_data[3:0]};
 end
 

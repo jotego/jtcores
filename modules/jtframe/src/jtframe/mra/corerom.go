@@ -445,8 +445,12 @@ func parse_parts(reg_cfg *RegCfg, p *XMLNode) int {
 	for _,each := range reg_cfg.Parts {
 		m := n.AddNode("part").AddAttr("name",each.Name)
 		m.AddAttr("crc",each.Crc)
-		m.AddAttr("map",each.Map)
-		m.AddAttr("length", fmt.Sprintf("0x%X",each.Length))
+		if each.Map!=""{
+			m.AddAttr("map",each.Map)
+		}
+		if each.Length != 0 {
+			m.AddAttr("length", fmt.Sprintf("0x%X",each.Length))
+		}
 		if( each.Offset != 0 ) {
 			m.AddAttr("offset",fmt.Sprintf("0x%X",each.Offset))
 		}
