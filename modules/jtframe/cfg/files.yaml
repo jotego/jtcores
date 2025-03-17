@@ -13,8 +13,6 @@ jtframe:
       - jtframe_rsthold.v
       - jtframe_toggle.v
       - jtframe_edge.v
-      - jtframe_mouse_abspos.v
-      - jtframe_lightgun.v
       - jtframe_countup.v
   - from: debug
     get:
