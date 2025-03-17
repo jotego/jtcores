@@ -51,6 +51,9 @@ jtframe:
     when: [ SIMULATION ]
     get:
       - jtframe_sim_inputs.v
+  - from: lightgun
+    get:
+      - *.v
   - from: video
     get:
       - jtframe_resync.v
