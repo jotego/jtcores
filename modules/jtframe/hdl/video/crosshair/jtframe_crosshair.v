@@ -48,7 +48,7 @@ wire [3*COLORW-1:0] rgb_cross;
 wire [         8:0] hcnt, vcnt;
 wire [         3:0] crosshair;
 
-jtframe_crosshair_draw crosshair_left(
+jtframe_crosshair_draw u_crosshair_left(
     .clk        ( clk       ),
     .hcnt       ( hcnt      ),
     .vcnt       ( vcnt      ),
@@ -57,7 +57,7 @@ jtframe_crosshair_draw crosshair_left(
     .crosshair  ( crosshair[1:0] )
 );
 
-jtframe_crosshair_draw crosshair_center(
+jtframe_crosshair_draw u_crosshair_center(
     .clk        ( clk       ),
     .hcnt       ( hcnt      ),
     .vcnt       ( vcnt      ),
@@ -77,7 +77,7 @@ jtframe_video_counter u_vidcnt(
     .h          ( hcnt      )
 );
 
-jtframe_crosshair_color #(.COLORW(COLORW)) crosshair_color(
+jtframe_crosshair_color #(.COLORW(COLORW)) u_crosshair_color(
     .clk          ( clk            ),
     .draw_en      ( draw_en        ),
     .hs_in        ( pre_hs         ),

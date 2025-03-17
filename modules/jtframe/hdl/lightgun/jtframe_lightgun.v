@@ -48,7 +48,7 @@ wire [1:0] strobe;
 
 jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
-) crosshair_left(
+) u_crosshair_left(
     .rst          ( rst             ),
     .clk          ( clk             ),
     .gun_border_en( gun_border_en   ),
@@ -65,7 +65,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 
 jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
-) crosshair_center(
+) u_crosshair_center(
     .rst          ( rst             ),
     .clk          ( clk             ),
     .gun_border_en( gun_border_en   ),
@@ -81,7 +81,7 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 );
 
 
-jtframe_crosshair_disable crosshair_disable(
+jtframe_crosshair_disable u_crosshair_disable(
     .rst        ( rst             ),
     .clk        ( clk             ),
     .vs         ( vs              ),

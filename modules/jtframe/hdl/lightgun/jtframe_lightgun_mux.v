@@ -37,7 +37,7 @@ wire [8:0] mouse_x, mouse_y, joyana_x, joyana_y;
 wire [7:0] dx, dy;
 wire       a_strobe, mouse_strobe_dly;
 
-jtframe_mouse_rotation mouse_rot(
+jtframe_mouse_rotation u_mouse_rotation(
     .clk          ( clk                 ),
     .strobe       ( mouse_strobe        ),
     .strobe_dly   ( mouse_strobe_dly    ),
@@ -49,7 +49,7 @@ jtframe_mouse_rotation mouse_rot(
 );
 
 jtframe_mouse_abspos #(.W(W),.H(H)
-) crosshair_mouse(
+) u_mouse_abspos(
     .clk        ( clk              ),
     .dx         ( dx               ),
     .dy         ( dy               ),
@@ -59,7 +59,7 @@ jtframe_mouse_abspos #(.W(W),.H(H)
 );
 
 jtframe_lightgun_scaler #(.W(W),.H(H)
-) crosshair_joyana(
+) u_lightgun_scaler(
     .clk        ( clk             ),
     .joyana     ( joyana          ),
     .strobe     ( a_strobe        ),
@@ -69,7 +69,7 @@ jtframe_lightgun_scaler #(.W(W),.H(H)
 
 jtframe_lightgun_position #(
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
-) crosshair_mux(
+) u_lightgun_position(
     .rst        ( rst             ),
     .clk        ( clk             ),
     .gun_border_en( gun_border_en ),
