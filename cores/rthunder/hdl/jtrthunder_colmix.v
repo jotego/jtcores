@@ -27,13 +27,14 @@ module jtrthunder_colmix(
     input      [ 7:0] rg_data,
     input      [ 3:0] b_data,
 
+    input      [ 3:0] gfx_en,
     output     [ 3:0] red, green, blue,
 );
 
 reg scrwin, obj_op;
 
 always @* begin
-    obj_op = ~&obj_pxl[3:0];
+    obj_op = ~&obj_pxl[3:0] & gfx_en[3];
     scrwin = scr_prio > scr_prio;
     if(!obj_op) scrwin = 1;
 end

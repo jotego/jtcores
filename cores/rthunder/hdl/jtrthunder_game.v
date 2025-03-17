@@ -23,6 +23,7 @@ module jtrthunder_game(
 wire [15:0] fave;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux;
+wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 
 assign debug_view= dbg_mux;
 
@@ -47,6 +48,50 @@ jtrthunder_cenloop u_cen(
 
     .fave       ( fave      ),
     .fworst     (           )
+);
+
+jtrthunder_video u_video(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .flip       ( flip      ),
+
+    .lvbl       ( LVBL      ),
+    .lhbl       ( LHBL      ),
+    .hs         ( HS        ),
+    .vs         ( VS        ),
+    .scr0x      ( scr0x     ),
+    .scr0y      ( scr0y     ),
+    .scr1x      ( scr1x     ),
+    .scr1y      ( scr1y     ),
+
+    // Tile ROM decoder PROM
+    .dec0_addr  ( dec0_addr ),
+    .dec1_addr  ( dec1_addr ),
+    .dec0_data  ( dec0_data ),
+    .dec1_data  ( dec1_data ),
+
+    // ROMs
+    .scr0_cs    ( scr0_cs   ),
+    .scr0_addr  ( scr0_addr ),
+    .scr0_data  ( scr0_data ),
+    .scr0_ok    ( scr0_ok   ),
+
+    .scr1_cs    ( scr1_cs   ),
+    .scr1_addr  ( scr1_addr ),
+    .scr1_data  ( scr1_data ),
+    .scr1_ok    ( scr1_ok   ),
+
+    .rgb_addr   ( rgb_addr  ),
+    .rg_data    ( rg_data   ),
+    .b_data     ( b_data    ),
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      ),
+    // Debug
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus )
+    // output reg [ 7:0] st_dout
 );
 
 endmodule

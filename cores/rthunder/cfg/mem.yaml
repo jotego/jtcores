@@ -61,7 +61,11 @@ bram:
     addr_width: 11
     data_width: 8
     prom: true
-  - name: tiledec # 6U
+  - name: scr0dec # 6U
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: scr1dec # 6U (copy)
     addr_width: 5
     data_width: 8
     prom: true

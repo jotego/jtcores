@@ -19,13 +19,20 @@
 module jtrthunder_video(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen,
+    input             pxl_cen, flip,
 
     output            lvbl, lhbl, hs, vs,
-    output     [ 7:0] red, green, blue,
-    // Dump MMR
-    input      [ 5:0] ioctl_addr,
-    output reg [ 7:0] ioctl_din,
+    input      [ 8:0] scr0x, scr0y, scr1x, scr1y,
+
+    // Tile ROM decoder PROM
+    output     [ 4:0] dec0_addr, dec1_addr,
+    input      [ 7:0] dec0_data, dec1_data,
+
+    // ROMs
+    output            scr0_cs,   scr1_cs,
+    output     [15:2] scr0_addr, scr1_addr,
+    input      [31:0] scr0_data, scr1_data,
+    input             scr0_ok,   scr1_ok,
 
     output     [ 8:0] rgb_addr,
     input      [ 7:0] rg_data,
@@ -37,7 +44,8 @@ module jtrthunder_video(
     // output reg [ 7:0] st_dout
 );
 
-wire [ 7:0] scr0_pxl, scr1_pxl, obj_pxl;
+wire [10:0] scr0_pxl, scr1_pxl;
+wire [ 7:0] obj_pxl;
 wire [ 2:0] obj_prio, scr_prio;
 
 
@@ -52,6 +60,52 @@ jtshouse_vtimer u_vtimer(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .vs         ( vs        )
+);
+
+jtrthunder_scroll #(.ID(0)) u_scroll0(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .flip       ( flip          ),
+    .hdump      ( hdump         ),
+    .vdump      ( vdump         ),
+    .scrx       ( scr0x         ),
+    .scry       ( scr0y         ),
+
+    .vram_addr  ( vram0_addr    ),
+    .vram_dout  ( vram0_dout    ),
+    .dec_addr   ( dec0_addr     ),
+    .dec_data   ( dec0_data     ),
+
+    .rom_cs     ( scr0_cs       ),
+    .rom_addr   ( scr0_addr     ),
+    .rom_data   ( scr0_data     ),
+    .rom_ok     ( scr0_ok       ),
+
+    .pxl        ( scr0_pxl      )
+);
+
+jtrthunder_scroll #(.ID(1)) u_scroll1(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .flip       ( flip          ),
+    .hdump      ( hdump         ),
+    .vdump      ( vdump         ),
+    .scrx       ( scr1x         ),
+    .scry       ( scr1y         ),
+
+    .vram_addr  ( vram1_addr    ),
+    .vram_dout  ( vram1_dout    ),
+    .dec_addr   ( dec1_addr     ),
+    .dec_data   ( dec1_data     ),
+
+    .rom_cs     ( scr1_cs       ),
+    .rom_addr   ( scr1_addr     ),
+    .rom_data   ( scr1_data     ),
+    .rom_ok     ( scr1_ok       ),
+
+    .pxl        ( scr1_pxl      )
 );
 
 jtrthunder_colmix u_colmix(

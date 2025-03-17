@@ -102,7 +102,7 @@ regions = [
 	{ name="gfx3", start="JTFRAME_BA3_START"  },
 	{ name="mcusub"                           },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
-	{ name="proms"                            },
+	{ name="proms", sequence=[0,1,2,3,4,4]    },
 ]
 
 order=["cpu1","user1",
