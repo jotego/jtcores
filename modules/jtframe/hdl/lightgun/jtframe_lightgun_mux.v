@@ -58,7 +58,7 @@ jtframe_mouse_abspos #(.W(W),.H(H)
     .y          ( mouse_y          )
 );
 
-jtframe_joyana_abspos #(.W(W),.H(H)
+jtframe_lightgun_scaler #(.W(W),.H(H)
 ) crosshair_joyana(
     .clk        ( clk             ),
     .joyana     ( joyana          ),

@@ -51,7 +51,7 @@ jtframe:
       - jtframe_sim_inputs.v
   - from: lightgun
     get:
-      - *.v
+      - "*.v"
   - from: video
     get:
       - jtframe_resync.v
