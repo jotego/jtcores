@@ -28,26 +28,33 @@ parameter W = 384, H = 224;
 
 reg  [15:0] joya_l;
 wire [ 9:0] x_next, y_next;
+wire [ 7:0] x_corr, y_corr;
+reg  [17:0] x_scaled, y_scaled;
 
-assign x_next = {joyana[ 7:0],1'b0} + {2'b0, W[8:1]};
-assign y_next = {joyana[15:8],1'b0} + {2'b0, H[8:1]};
+assign x_corr = joyana[ 7:0] + 8'h80;
+assign y_corr = joyana[15:8] + 8'h80;
+assign x_next = x_scaled[17:8];
+assign y_next = y_scaled[17:8];
 
 always @(posedge clk) begin
     strobe <= joyana != joya_l;
     joya_l <= joyana;
 
-    if (~x_next[9] & joyana[7])
-        x <= 0;
-    else if (x_next[8:0] > W[8:0])
-        x <= W[8:0];
-    else
+    x_scaled <= x_corr[7:0] * W[8:0];
+    y_scaled <= y_corr[7:0] * H[8:0];
+
+    // if (~x_next[9] & joyana[7])
+        // x <= 0;
+    // else if (x_next[8:0] > W[8:0])
+        // x <= W[8:0];
+    // else
         x <= x_next[8:0];
 
-    if (~y_next[9] & joyana[15])
-        y <= 0;
-    else if (y_next[8:0] > H[8:0])
-        y <= H[8:0];
-    else
+    // if (~y_next[9] & joyana[15])
+        // y <= 0;
+    // else if (y_next[8:0] > H[8:0])
+        // y <= H[8:0];
+    // else
         y <= y_next[8:0];
 end
 
