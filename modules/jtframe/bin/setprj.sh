@@ -58,6 +58,23 @@ function lint {
     lint-one.sh $CORENAME -u JTFRAME_SKIP
 }
 
+function cpscene {
+    local ramfile
+    local scene_name="$1"
+    ramfile=`find /media/$USER -name "*.RAM" | head -n 1`
+    if [ ! -e "$ramfile" ]; then
+        echo "Did not find any .RAM files"
+        return 1
+    fi
+    if [ -z "$scene_name" ]; then
+        echo "You must specify a name for the scene"
+        return 1
+    fi
+    local folder="scenes/$scene_name"
+    mkdir -p "$folder" || return 1
+    mv $ramfile "$folder"/dump.bin
+}
+
 function swcore {
     if [ -z "$JTROOT" ]; then
         echo Have you forgot to define JTROOT?
