@@ -23,6 +23,7 @@ module jtrthunder_video(
 
     output            lvbl, lhbl, hs, vs,
     input      [ 8:0] scr0x, scr0y, scr1x, scr1y,
+    input      [ 7:0] backcolor,
 
     // Tile ROM decoder PROM
     output     [ 4:0] dec0_addr, dec1_addr,
@@ -33,6 +34,10 @@ module jtrthunder_video(
     output     [15:2] scr0_addr, scr1_addr,
     input      [31:0] scr0_data, scr1_data,
     input             scr0_ok,   scr1_ok,
+
+    // Palette PROMs
+    output     [10:0] scrpal_addr,
+    input      [ 7:0] scrpal_data,
 
     output     [ 8:0] rgb_addr,
     input      [ 7:0] rg_data,
@@ -111,6 +116,14 @@ jtrthunder_scroll #(.ID(1)) u_scroll1(
 jtrthunder_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
+
+    .scr0_prio  ( scr0_prio ),
+    .scr1_prio  ( scr1_prio ),
+    .backcolor  ( backcolor ),
+
+    .scrpal_addr(scrpal_addr),
+    .scrpal_data(scrpal_data),
 
     .scr0_pxl   ( scr0_pxl  ),
     .scr1_pxl   ( scr1_pxl  ),
@@ -125,6 +138,7 @@ jtrthunder_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
+    .gfx_en     ( gfx_en    )
 );
 
 endmodule    

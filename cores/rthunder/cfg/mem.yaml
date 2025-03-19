@@ -27,10 +27,17 @@ sdram:
         addr_width: 19
         data_width: 8
     - buses:
-      - name: scr0
+      - name: scr0a
         addr_width: 17
         data_width: 32
-      - name: scr1
+      - name: scr0b
+        addr_width: 17
+        data_width: 32
+      - name: scr1a
+        addr_width: 16
+        data_width: 32
+        offset: SCR1_OFFSET
+      - name: scr1b
         addr_width: 16
         data_width: 32
         offset: SCR1_OFFSET
@@ -53,11 +60,11 @@ bram:
     data_width: 8
     addr: rgb_addr
     prom: true
-  - name: scr_pal # 4V
+  - name: scrpal # 4V
     addr_width: 11
     data_width: 8
     prom: true
-  - name: obj_pal # 5V
+  - name: objpal # 5V
     addr_width: 11
     data_width: 8
     prom: true

@@ -22,7 +22,7 @@ module jtrthunder_game(
 
 wire [15:0] fave;
 wire [ 2:0] busy;
-reg  [ 7:0] dbg_mux;
+reg  [ 7:0] dbg_mux, backcolor;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 
 assign debug_view= dbg_mux;
@@ -54,12 +54,15 @@ jtrthunder_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
+    .backcolor  ( backcolor ),
 
     .lvbl       ( LVBL      ),
     .lhbl       ( LHBL      ),
     .hs         ( HS        ),
     .vs         ( VS        ),
+
     .scr0x      ( scr0x     ),
     .scr0y      ( scr0y     ),
     .scr1x      ( scr1x     ),
@@ -81,6 +84,10 @@ jtrthunder_video u_video(
     .scr1_addr  ( scr1_addr ),
     .scr1_data  ( scr1_data ),
     .scr1_ok    ( scr1_ok   ),
+
+    // Palette PROMs
+    .scrpal_addr(scrpal_addr),
+    .scrpal_data(scrpal_data),
 
     .rgb_addr   ( rgb_addr  ),
     .rg_data    ( rg_data   ),

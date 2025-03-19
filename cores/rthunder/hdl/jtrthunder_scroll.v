@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-// memory address decoder for main CPU (cpu1 in MAME)
 module jtrthunder_scroll(
     input               rst,
     input               clk, pxl_cen,
