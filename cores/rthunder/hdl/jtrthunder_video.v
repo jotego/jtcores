@@ -30,10 +30,10 @@ module jtrthunder_video(
     input      [ 7:0] dec0_data, dec1_data,
 
     // ROMs
-    output            scr0_cs,   scr1_cs,
-    output     [15:2] scr0_addr, scr1_addr,
-    input      [31:0] scr0_data, scr1_data,
-    input             scr0_ok,   scr1_ok,
+    output            scr0a_cs,   scr0b_cs,   scr1a_cs,   scr1b_cs,
+    output     [15:2] scr0a_addr, scr0b_addr, scr1a_addr, scr1b_addr,
+    input      [31:0] scr0a_data, scr0b_data, scr1a_data, scr1b_data,
+    input             scr0a_ok,   scr0b_ok,   scr1a_ok,   scr1b_ok,
 
     // Palette PROMs
     output     [10:0] scrpal_addr,
@@ -43,6 +43,9 @@ module jtrthunder_video(
     input      [ 7:0] rg_data,
     input      [ 3:0] b_data,
     output     [ 3:0] red, green, blue,
+
+    input      [ 2:0] ioctl_addr,
+    output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus
@@ -67,49 +70,73 @@ jtshouse_vtimer u_vtimer(
     .vs         ( vs        )
 );
 
-jtrthunder_scroll #(.ID(0)) u_scroll0(
+jtrthunder_cus42 #(.ID(0)) u_scroll0(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .flip       ( flip          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
-    .scrx       ( scr0x         ),
-    .scry       ( scr0y         ),
+
+    .cs         ( mmr0_cs       ),
+    .rnw        ( rnw           ),
+    .cpu_addr   ( cpu_addr      ),
+    .cpu_dout   ( cpu_dout      ),
 
     .vram_addr  ( vram0_addr    ),
     .vram_dout  ( vram0_dout    ),
     .dec_addr   ( dec0_addr     ),
     .dec_data   ( dec0_data     ),
 
-    .rom_cs     ( scr0_cs       ),
-    .rom_addr   ( scr0_addr     ),
-    .rom_data   ( scr0_data     ),
-    .rom_ok     ( scr0_ok       ),
+    .roma_cs    ( scr0a_cs      ),
+    .roma_addr  ( scr0a_addr    ),
+    .roma_data  ( scr0a_data    ),
+    .roma_ok    ( scr0a_ok      ),
 
+    .romb_cs    ( scr0b_cs      ),
+    .romb_addr  ( scr0b_addr    ),
+    .romb_data  ( scr0b_data    ),
+    .romb_ok    ( scr0b_ok      ),
+
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+
+    .prio       ( scr0_prio     ),
     .pxl        ( scr0_pxl      )
 );
 
-jtrthunder_scroll #(.ID(1)) u_scroll1(
+jtrthunder_cus42 #(.ID(1)) u_scroll1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .flip       ( flip          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
-    .scrx       ( scr1x         ),
-    .scry       ( scr1y         ),
+
+    .cs         ( mmr1_cs       ),
+    .rnw        ( rnw           ),
+    .cpu_addr   ( cpu_addr      ),
+    .cpu_dout   ( cpu_dout      ),
 
     .vram_addr  ( vram1_addr    ),
     .vram_dout  ( vram1_dout    ),
     .dec_addr   ( dec1_addr     ),
     .dec_data   ( dec1_data     ),
 
-    .rom_cs     ( scr1_cs       ),
-    .rom_addr   ( scr1_addr     ),
-    .rom_data   ( scr1_data     ),
-    .rom_ok     ( scr1_ok       ),
+    .roma_cs    ( scr1a_cs      ),
+    .roma_addr  ( scr1a_addr    ),
+    .roma_data  ( scr1a_data    ),
+    .roma_ok    ( scr1a_ok      ),
 
+    .romb_cs    ( scr1b_cs      ),
+    .romb_addr  ( scr1b_addr    ),
+    .romb_data  ( scr1b_data    ),
+    .romb_ok    ( scr1b_ok      ),
+
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     ),
+
+    .prio       ( scr1_prio     ),
     .pxl        ( scr1_pxl      )
 );
 

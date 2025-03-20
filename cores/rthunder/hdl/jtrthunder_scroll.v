@@ -76,5 +76,4 @@ jtframe_scroll #(.PW(12)) u_scroll (
     .pxl        ( pre_pxl       )
 );
 
-
 endmodule
