@@ -225,7 +225,7 @@ wire [15:0] joystick1, joystick2, joystick3, joystick4;
 wire        ps2_kbd_clk, ps2_kbd_data;
 wire        force_scan2x, direct_video;
 wire        video_rotated;
-wire        hide_gunen;
+wire        lightgun_en;
 
 wire [ 6:0] core_mod;
 wire [ 7:0] st_lpbuf;
@@ -321,6 +321,7 @@ jtframe_mister_status u_status(
     .hoffset        ( hoffset        ),
     .hsize_enable   ( hsize_enable   ),
     .hsize_scale    ( hsize_scale    ),
+    .gun_border_en  ( gun_border_en  ),
     .uart_en        ( uart_en        )
 );
 
@@ -373,7 +374,7 @@ wire [15:0] status_menumask; // a high value hides the menu item
 wire        vertical;
 
 assign status_menumask[15:7] = 0,
-       status_menumask[6]    = hide_gunen, // sinden lightgun borders
+       status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
        status_menumask[4]    = ~vertical,  // shown for vertical games
@@ -711,8 +712,7 @@ jtframe_board #(
     .gun_1p_y       ( gun_1p_y        ),
     .gun_2p_x       ( gun_2p_x        ),
     .gun_2p_y       ( gun_2p_y        ),
-    .gun_border_en  ( gun_border_en   ),
-    .hide_gunen     ( hide_gunen      ),
+    .lightgun_en    ( lightgun_en     ),
     // DIP and OSD settings
     .status         ( status          ),
     .dipsw          ( dipsw           ),

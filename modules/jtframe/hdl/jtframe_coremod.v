@@ -28,7 +28,7 @@ module jtframe_coremod(
 );
 
 assign vertical     = core_mod[0];
-assign lightgun_en  = core_mod[1];
+assign lightgun_en  = `ifdef JTFRAME_LIGHTGUN_ON 1'b1 `else core_mod[1]; `endif
 assign dipflip_xor  = core_mod[2];
 assign dial_raw_en  = core_mod[3];
 assign dial_reverse = core_mod[4];

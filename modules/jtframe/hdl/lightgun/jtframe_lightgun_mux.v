@@ -19,7 +19,7 @@
 module jtframe_lightgun_mux(
     input         rst,
     input         clk,
-    input         gun_border_en,
+    input         gun_crossh_en,
     input  [ 1:0] rotate,
     input  [15:0] joyana,
     input  [15:0] mouse,
@@ -72,7 +72,7 @@ jtframe_lightgun_position #(
 ) u_lightgun_position(
     .rst        ( rst             ),
     .clk        ( clk             ),
-    .gun_border_en( gun_border_en ),
+    .gun_crossh_en( gun_crossh_en ),
     .m_x        ( mouse_x         ),
     .m_y        ( mouse_y         ),
     .m_strobe   ( mouse_strobe    ),

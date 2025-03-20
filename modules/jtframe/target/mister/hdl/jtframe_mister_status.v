@@ -24,6 +24,7 @@ module jtframe_mister_status (
     output [ 3:0] hoffset,
     output        hsize_enable,
     output [ 3:0] hsize_scale,
+    output        gun_border_en,
     output        uart_en
 );
 
@@ -40,5 +41,8 @@ assign hsize_enable = status[48];
 assign hsize_scale  = status[52:49];
 
 assign uart_en  = status[38]; // It can be used by the cheat engine or the game
+
+// Sinden Lightgun white borders
+assign gun_border_en = status[8];
 
 endmodule

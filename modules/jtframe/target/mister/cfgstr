@@ -20,7 +20,8 @@ H0P1OGH,Aspect ratio,Original,Full screen,[ARC1],[ARC2];
                                     H1P1O2,Rotate screen,Yes,No;
     {{ end }}
 {{ end }}
-{{ if .JTFRAME_LIGHTGUN }} H6O9,Sinden Lightgun,Off,On; {{ end }}
+{{ if .JTFRAME_LIGHTGUN }} H6O8,Sinden Lightgun,Off,On;
+                           H6O9,Sinden Crosshair,Off,On; {{ end }}
 P1oEF,Scale,Normal,V-Integer,Narrower HV-Integer,Wider HV-Integer;
 {{- /* crop options are only valid when the monitor is full HD 216*5=1080 */ -}}
 d5P1o9,Vertical Crop,Disabled,216p(5x);
