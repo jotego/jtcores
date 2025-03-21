@@ -7,19 +7,20 @@ skip.setnames = [
     "mstworld", "mstworld2",
     "spangbl","spangbl2",
     "pangba","pangbb","pangbc",
-    # wrong obj shown
-    "hatena", "mgakuen2",
-    # Missing ROM
-    "dokaben2",
-    # Not booting
-    "blockbl", "qtono1", "qsangoku"
-]
-skip.machines = [
-    # control problems
-    "pkladies", "mgakuen",
-    "marukin",
 ]
 skip.bootlegs=true
+debug = {machines=[
+    # wrong obj shown
+    "hatena", "mgakuen2",
+    # control problems
+    # 8 buttons
+    "pkladies",
+    # 20 buttons
+    "marukin",
+    # Not booting
+    "blockbl", "qtono1", "qsangoku",
+    "mgakuen", "7toitsu"
+]}
 
 [Audio]
 volume = [
