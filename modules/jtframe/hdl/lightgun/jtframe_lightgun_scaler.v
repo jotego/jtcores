@@ -43,19 +43,8 @@ always @(posedge clk) begin
     x_scaled <= x_corr[7:0] * W[8:0];
     y_scaled <= y_corr[7:0] * H[8:0];
 
-    // if (~x_next[9] & joyana[7])
-        // x <= 0;
-    // else if (x_next[8:0] > W[8:0])
-        // x <= W[8:0];
-    // else
-        x <= x_next[8:0];
-
-    // if (~y_next[9] & joyana[15])
-        // y <= 0;
-    // else if (y_next[8:0] > H[8:0])
-        // y <= H[8:0];
-    // else
-        y <= y_next[8:0];
+    x <= x_next[8:0];
+    y <= y_next[8:0];
 end
 
 endmodule
