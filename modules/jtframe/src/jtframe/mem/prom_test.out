@@ -10,7 +10,7 @@ jtframe_ioctl_range #(
     .clk        ( clk                ),
     .addr       ( raw_addr           ),
     .addr_rel   ( pal_waddr          ),
-    .en         ( prog_we            ),
+    .en         ( prom_we            ),
     .inrange    ( pal_we             ),
     .din        ( raw_data[7:0]      ),
     .dout       ( pal_dd             )
@@ -40,7 +40,7 @@ jtframe_ioctl_range #(
     .clk        ( clk                ),
     .addr       ( raw_addr           ),
     .addr_rel   ( pal1_waddr         ),
-    .en         ( prog_we            ),
+    .en         ( prom_we            ),
     .inrange    ( pal1_we            ),
     .din        ( raw_data[7:0]      ),
     .dout       ( pal1_dd            )
@@ -70,7 +70,7 @@ jtframe_ioctl_range #(
     .clk        ( clk                ),
     .addr       ( raw_addr           ),
     .addr_rel   ( pal2_waddr         ),
-    .en         ( prog_we            ),
+    .en         ( prom_we            ),
     .inrange    ( pal2_we            ),
     .din        ( raw_data[7:0]      ),
     .dout       ( pal2_dd            )
@@ -100,7 +100,7 @@ jtframe_ioctl_range #(
     .clk        ( clk                ),
     .addr       ( raw_addr           ),
     .addr_rel   ( pal3_waddr         ),
-    .en         ( prog_we            ),
+    .en         ( prom_we            ),
     .inrange    ( pal3_we            ),
     .din        ( raw_data[7:0]      ),
     .dout       ( pal3_dd            )
