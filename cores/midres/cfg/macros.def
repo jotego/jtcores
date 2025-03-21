@@ -3,6 +3,7 @@ include ../../cop/cfg/macros.def
 CORENAME=JTMIDRES
 NOHUC
 NOTRACKBALL
+JTFRAME_NOMULTIWAY
 # Enable DEC1 core variations
 DEC1
 

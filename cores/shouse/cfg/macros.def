@@ -3,6 +3,8 @@ CORENAME=JTSHOUSE
 JTFRAME_STEREO
 JTFRAME_BUTTONS=6
 JTFRAME_DIAL
+# this core would benefit from selectively enabling multiway
+JTFRAME_NOMULTIWAY
 
 # Video configuration
 JTFRAME_COLORW=8

@@ -50,6 +50,7 @@ JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo scre
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
 JTFRAME_MIST_DSP_BLOCKS  | MiST    | Use regular logic to implement DSP blocks if needed
+JTFRAME_NOMULTIWAY       |         | Disables 24-way joystick emulation via analog stick
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
 JTFRAME_MOUSE_EMUSENS    |         | Positive 9-bit value for the emulated mouse sensitivity. Default value is 9'h10. MSB should be zero
 JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude instead of default 2's complement

@@ -3,6 +3,7 @@ include ../../cop/cfg/macros.def
 CORENAME=JTNINJA
 JTFRAME_VERTICAL
 -NOTRACKBALL
+JTFRAME_NOMULTIWAY
 
 # 8751 instead of HUC6820
 MCU=1

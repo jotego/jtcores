@@ -14,6 +14,7 @@ JTFRAME_CREDITS_HSTART=48
 # mjleague uses 5 buttons, 5th button
 # not fully implemented
 JTFRAME_BUTTONS=5
+JTFRAME_NOMULTIWAY
 
 # Debug
 JTFRAME_STATUS

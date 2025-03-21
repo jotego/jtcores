@@ -183,7 +183,8 @@ func (parsed *ParsedMachine)validate_core_macros() error {
 	e1 := parsed.validate_vertical(context)
 	e2 := parsed.validate_buttons(context)
 	e3 := parsed.validate_lightgun(context)
-	return common.JoinErrors(e1,e2,e3)
+	e4 := parsed.validate_paddle(context)
+	return common.JoinErrors(e1,e2,e3,e4)
 }
 
 func (parsed *ParsedMachine) validate_vertical(context string) error {
@@ -222,8 +223,20 @@ func (parsed *ParsedMachine) validate_lightgun(context string) error {
 	return nil
 }
 
+func (parsed *ParsedMachine) validate_paddle(context string) error {
+	if !macros.IsSet("JTFRAME_NOMULTIWAY") && parsed.has_paddle() {
+		e := fmt.Errorf("%s uses a paddle but 24-way joystick emulation is enabled. This can create problems. See https://github.com/jotego/jtcores/issues/1001. Set JTFRAME_NOMULTIWAY",context)
+		return e
+	}
+	return nil
+}
+
 func (parsed *ParsedMachine)has_lightgun() bool {
 	return parsed.coremod&COREMOD_LIGHTGUN!=0
+}
+
+func (parsed *ParsedMachine)has_paddle() bool {
+	return parsed.machine.Dial() || parsed.machine.HasPaddle()
 }
 
 func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string]string, mra_cfg Mame2MRA ) {

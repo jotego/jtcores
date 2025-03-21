@@ -59,6 +59,9 @@ module jtframe_joysticks(
         .q      ( soft_rst  )
     );
 
+`ifdef JTFRAME_NOMULTIWAY
+    assign {multi2,multi1}={board_joy2,board_joy1};
+`else
     jtframe_multiway u_multiway(
         .clk        ( clk        ),
         .vs         ( vs         ),
@@ -69,6 +72,7 @@ module jtframe_joysticks(
         .joy1       ( multi1     ),
         .joy2       ( multi2     )
     );
+`endif
 
     jtframe_merge_keyjoy u_merge(
         .rst        ( rst           ),

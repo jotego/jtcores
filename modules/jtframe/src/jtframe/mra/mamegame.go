@@ -170,6 +170,16 @@ func (this *MachineXML)Dial() bool {
 	return false
 }
 
+func (this *MachineXML)HasPaddle() bool {
+	for _, each := range this.Input.Control {
+		switch strings.ToLower(each.Type) {
+			case "paddle": return true
+		}
+	}
+	return false
+}
+
+
 func FamilyName(machine *MachineXML) string {
 	if machine.Cloneof != "" {
 		return machine.Cloneof
