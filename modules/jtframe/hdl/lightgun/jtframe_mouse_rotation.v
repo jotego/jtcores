@@ -12,26 +12,27 @@
     You should have received a copy of the GNU General Public License
     along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: Jose Tejada Gomez. Twitter: @topapate
+    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
     Version: 1.0
-    Date: 26-2-2025 */
+    Date: 14-03-2025 */
 
-module jtframe_coremod(
-    input  [6:0] core_mod,
-
-    output       vertical,
-                 lightgun_en,
-                 dipflip_xor,
-                 dial_raw_en,
-                 dial_reverse,
-    output [1:0] black_frame
+module jtframe_mouse_rotation(
+    input            clk,
+    input            strobe,
+    output reg       strobe_dly,
+    input      [1:0] rotate,
+    input      [7:0] dx_in, dy_in,
+    output reg [7:0] dx,    dy
 );
 
-assign vertical     = core_mod[0];
-assign lightgun_en  = `ifdef JTFRAME_LIGHTGUN_ON 1'b1 `else core_mod[1]; `endif
-assign dipflip_xor  = core_mod[2];
-assign dial_raw_en  = core_mod[3];
-assign dial_reverse = core_mod[4];
-assign black_frame  = core_mod[6:5];
+always @(posedge clk) begin
+    dx <= dx_in;
+    dy <= dy_in;
+    strobe_dly <= strobe;
+    if(rotate[0]) begin
+        dx <= rotate[1] ?  dy_in : -dy_in;
+        dy <= rotate[1] ? -dx_in :  dx_in;
+    end
+end
 
 endmodule

@@ -156,6 +156,7 @@ module emu
     output  [6:0] USER_OUT,
     output        db15_en,
     output        uart_en,
+    output        gun_border_en,
     output        show_osd,
     input         OSD_STATUS
     `ifdef SIMULATION
@@ -578,6 +579,7 @@ u_frame(
     .gun_1p_y       ( gun_1p_y       ),
     .gun_2p_x       ( gun_2p_x       ),
     .gun_2p_y       ( gun_2p_y       ),
+    .gun_border_en  ( gun_border_en  ),
     // DIP and OSD settings
     .dip_test       ( dip_test       ),
     .dip_pause      ( dip_pause      ),

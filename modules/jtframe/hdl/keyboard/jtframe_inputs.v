@@ -71,6 +71,7 @@ module jtframe_inputs(
     output      [ 8:0] gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
                        cross1_x, cross1_y, cross2_x, cross2_y,
     output      [ 1:0] cross_disable,
+    input              gun_crossh_en,
 
     input       [ 7:0] debug_bus,
     input              ioctl_lock,
@@ -265,6 +266,7 @@ jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
     .rst          ( rst           ),
     .clk          ( clk           ),
     .vs           ( vs            ),
+    .gun_crossh_en( gun_crossh_en ),
     .rotate       ( rotate        ),
     .cross_disable( cross_disable ),
     .mouse_1p     ( mouse_1p      ),
