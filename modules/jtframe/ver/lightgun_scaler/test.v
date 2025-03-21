@@ -54,7 +54,7 @@ task calc_exp_output();
     @(posedge clk);
     x_eint = $rtoi(x_exp);
     y_eint = $rtoi(y_exp);
-    repeat(2) @(posedge clk);
+    @(posedge clk);
 endtask
 
 task check_output();

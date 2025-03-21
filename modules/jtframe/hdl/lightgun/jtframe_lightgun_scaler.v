@@ -36,15 +36,16 @@ assign y_corr = joyana[15:8] + 8'h80;
 assign x_next = x_scaled[17:8];
 assign y_next = y_scaled[17:8];
 
+always @(*) begin
+    x_scaled  = x_corr[7:0] * W[8:0];
+    y_scaled  = y_corr[7:0] * H[8:0];
+end
+
 always @(posedge clk) begin
     strobe <= joyana != joya_l;
     joya_l <= joyana;
-
-    x_scaled <= x_corr[7:0] * W[8:0];
-    y_scaled <= y_corr[7:0] * H[8:0];
-
-    x <= x_next[8:0];
-    y <= y_next[8:0];
+    x      <= x_next[8:0];
+    y      <= y_next[8:0];
 end
 
 endmodule
