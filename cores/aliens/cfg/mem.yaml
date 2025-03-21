@@ -21,7 +21,7 @@ audio:
     - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 0.19 ] } # aliens
     - { rfb: 10k, rsums: [  3.2k, 13.25k ], pres: [ 1.0, 1.00 ] } # crimfght, gbusters, pregain does not follow sch, which must be wrong
     - { rfb: 27k, rsums: [ 12.0k, 12.25k ], pres: [ 1.0, 0.16 ] } # thunderx, FM could also be 24k instead of 12k as there is a typo either in R4 or R5 in sch
-    - { rfb: 27k, rsums: [  4.7k, 12.25k ], pres: [ 1.0, 0.16 ] } # scontra
+    - { rfb: 27k, rsums: [  4.7k, 12.25k ], pres: [ 1.0, 0.32 ] } # scontra
   channels:
     - {name: fm,  module: jt51,     rsum:  7.1k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
     # pcm: 0.20 gain before variable gain bloc 4066
