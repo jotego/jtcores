@@ -15,7 +15,7 @@ jtframe_ioctl_range #(
     .clk        ( clk                ),
     .addr       ( raw_addr           ),
     .addr_rel   ( {{printf "%-18s" $local_addr}} ),
-    .en         ( prog_we            ),
+    .en         ( prom_we            ),
     .inrange    ( {{printf "%-18s" $local_we}} ),
     .din        ( raw_data[7:0]      ),
     .dout       ( {{printf "%-18s" $local_dd}} )
