@@ -14,7 +14,8 @@ audio:
     - { name: pcm, data_width: 11, dcrm: true, rsum: 100, fir: fir_192k_4k.csv, vpp: 1.0 }
     - { name: cus30, module: jtcus30, rsum: 6.8k }
 ports:
-  - { name: bus_dout, msb: 7, lsb: 0 }
+  - { name: bus_dout, msb:  7, lsb: 0 }
+  - { name: bus_addr, msb: 12, lsb: 0 }
 sdram:
   banks:
     - buses:

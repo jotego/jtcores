@@ -24,7 +24,7 @@ module jtrthunder_scroll(
     input        [ 8:0] scrx,
     input        [ 7:0] scry,
 
-    output       [12:1] vram_addr,
+    output       [11:1] vram_addr,
     input        [15:0] vram_dout,
     output       [ 4:0] dec_addr,
     input        [ 7:0] dec_data,
@@ -51,7 +51,7 @@ assign pxl  = {pre_pxl[11:4],pre_pxl[2:0]};
 assign dec_addr = {ID[0],ID==0?pal[1:0]:2'b0,ID==1?pal[1:0]:2'b0};
 assign code_msb = ID==0 ? dec_data[3:1] : dec_data[7:5];
 
-jtframe_scroll #(.PW(12),.CW(11)) u_scroll (
+jtframe_scroll #(.PW(12),.CW(11),.VA(11),.MAP_VW(8)) u_scroll (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -61,7 +61,7 @@ jtframe_scroll #(.PW(12),.CW(11)) u_scroll (
     .blankn     ( 1'b1          ),
     .flip       ( flip          ),
     .scrx       ( scrx          ),
-    .scry       ( {1'b0,scry}   ),
+    .scry       ( scry          ),
     .vram_addr  ( vram_addr     ),
     .code       ( code          ),
     .pal        ( pal           ),

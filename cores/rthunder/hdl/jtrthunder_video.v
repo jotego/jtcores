@@ -24,7 +24,7 @@ module jtrthunder_video(
     output            lvbl, lhbl, hs, vs,
     input             mmr0_cs, mmr1_cs, rnw,
     input      [ 7:0] cpu_dout,
-    input      [ 2:0] cpu_addr,
+    input      [12:0] cpu_addr,
     input      [ 7:0] backcolor,
 
     // Tile ROM decoder PROM
@@ -38,10 +38,14 @@ module jtrthunder_video(
     output     [15:2] scr0a_addr, scr0b_addr, scr1a_addr, scr1b_addr,
     input      [31:0] scr0a_data, scr0b_data, scr1a_data, scr1b_data,
     input             scr0a_ok,   scr0b_ok,   scr1a_ok,   scr1b_ok,
+    output            obj_cs,
+    output     [18:2] obj_addr,
+    input      [31:0] obj_data,
+    input             obj_ok,
 
     // Palette PROMs
-    output     [10:0] scrpal_addr,
-    input      [ 7:0] scrpal_data,
+    output     [10:0] scrpal_addr, objpal_addr,
+    input      [ 7:0] scrpal_data, objpal_data,
 
     output     [ 8:0] rgb_addr,
     input      [ 7:0] rg_data,
@@ -60,6 +64,8 @@ wire [10:0] scr0_pxl, scr1_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] obj_pxl;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
+
+assign obj_pxl  = 0, obj_prio = 0, obj_cs=0, obj_addr=0, objpal_addr=0;
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -85,7 +91,7 @@ jtcus42 #(.ID(0)) u_scroll0(
 
     .cs         ( mmr0_cs       ),
     .rnw        ( rnw           ),
-    .cpu_addr   ( cpu_addr      ),
+    .cpu_addr   ( cpu_addr[2:0] ),
     .cpu_dout   ( cpu_dout      ),
 
     .vram_addr  ( vram0_addr    ),
@@ -121,7 +127,7 @@ jtcus42 #(.ID(1)) u_scroll1(
 
     .cs         ( mmr1_cs       ),
     .rnw        ( rnw           ),
-    .cpu_addr   ( cpu_addr      ),
+    .cpu_addr   ( cpu_addr[2:0] ),
     .cpu_dout   ( cpu_dout      ),
 
     .vram_addr  ( vram1_addr    ),

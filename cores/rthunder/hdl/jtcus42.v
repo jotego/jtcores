@@ -65,7 +65,7 @@ jtframe_ram_rdmux #(.AW(12),.DW(16)) u_vram_mux(
     .addr       ( vram_addr     ),
     .data       ( vram_dout     ),
     .addr_a     ( {1'b0,a_addr} ),
-    .addr_b     ( {1'b0,b_addr} ),
+    .addr_b     ( {1'b1,b_addr} ),
     .douta      ( a_dout        ),
     .doutb      ( b_dout        )
 );
