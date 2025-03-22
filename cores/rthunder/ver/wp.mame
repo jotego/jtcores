@@ -1,0 +1,15 @@
+wp 9000,1,w,1,{printf "00 scr0xa=%X",wpdata;go}
+wp 9001,1,w,1,{printf "01 scr0xa=%X (MSB)",wpdata;go}
+wp 9002,1,w,1,{printf "02 scr0ya=%X",wpdata;go}
+
+wp 9004,1,w,1,{printf "04 scr0xb=%X",wpdata;go}
+wp 9005,1,w,1,{printf "05 scr0xb=%X (MSB)",wpdata;go}
+wp 9006,1,w,1,{printf "06 scr0yb=%X",wpdata;go}
+
+wp 9400,1,w,1,{printf "08 scr0xa=%X",wpdata;go}
+wp 9401,1,w,1,{printf "09 scr0xa=%X (MSB)",wpdata;go}
+wp 9402,1,w,1,{printf "0A scr0ya=%X",wpdata;go}
+
+wp 9404,1,w,1,{printf "0C scr0xb=%X",wpdata;go}
+wp 9405,1,w,1,{printf "0D scr0xb=%X (MSB)",wpdata;go}
+wp 9406,1,w,1,{printf "0E scr0yb=%X",wpdata;go}

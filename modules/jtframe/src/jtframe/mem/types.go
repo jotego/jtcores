@@ -41,25 +41,6 @@ type Bus interface {
     Is_nbits(n int) bool
 }
 
-type SDRAMBus struct {
-    // MacroEnabled
-    When    []string `yaml:"when"`
-    Unless  []string `yaml:"unless"`
-
-    Name       string `yaml:"name"`
-    Offset     string `yaml:"offset"`
-    Addr       string `yaml:"addr"`
-    Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
-    Data_width int    `yaml:"data_width"`
-    Cache_size int    `yaml:"cache_size"`
-    Rw         bool   `yaml:"rw"`
-    Dont_erase bool   `yaml:"do_not_erase"`
-    Dsn        string `yaml:"dsn"`  // optional name for dsn signal
-    Din        string `yaml:"din"`  // optional name for din signal
-    Cs         string `yaml:"cs"`
-    Gfx        string `yaml:"gfx_sort"`
-}
-
 type BRAMBus_Ioctl struct {
     // Instantiating MacroEnabled anonymously does not work
     // with the YAML package, so When and Unless are duplicated here
@@ -103,21 +84,11 @@ type BRAMBus struct {
     PROM_offset   int // PROM offset in .rom file
 }
 
-type SDRAMBank struct {
-    Buses []SDRAMBus `yaml:"buses"`
-    // Precalculated values
-    MemType string
-}
-
 type DownloadCfg struct {
     Pre_addr  bool `yaml:"pre_addr"`  // Pass some signals to the game so it can remap the download address
     Post_addr bool `yaml:"post_addr"` // Pass some signals to the game so it can remap the download address
     Post_data bool `yaml:"post_data"` // Pass some signals to the game so it can remap the download data
     Noswab    bool `yaml:"noswab"`    // SWAB parameter of jtframe_download
-}
-
-type SDRAMCfg struct {
-    Banks []SDRAMBank `yaml:"banks"`
 }
 
 type Include struct {
@@ -248,6 +219,35 @@ type MemConfig struct {
     Gfx16    string
     Gfx8b0, Gfx16b0 int
     Balut,Lutsh int
+}
+
+type SDRAMCfg struct {
+    Banks []SDRAMBank `yaml:"banks"`
+}
+
+type SDRAMBank struct {
+    Buses []SDRAMBus `yaml:"buses"`
+    // Precalculated values
+    MemType string
+}
+
+type SDRAMBus struct {
+    // MacroEnabled
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+
+    Name       string `yaml:"name"`
+    Offset     string `yaml:"offset"`
+    Addr       string `yaml:"addr"`
+    Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
+    Data_width int    `yaml:"data_width"`
+    Cache_size int    `yaml:"cache_size"`
+    Rw         bool   `yaml:"rw"`
+    Dont_erase bool   `yaml:"do_not_erase"`
+    Dsn        string `yaml:"dsn"`  // optional name for dsn signal
+    Din        string `yaml:"din"`  // optional name for din signal
+    Cs         string `yaml:"cs"`
+    Gfx        string `yaml:"gfx_sort"`
 }
 
 type Optional interface{
