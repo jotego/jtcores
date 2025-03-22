@@ -31,8 +31,8 @@ regions = [
 		{name="rt1_8.7s", crc="f7a95820",map="1000"},
 	]},
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="skykiddx", parts=[
-		{name="sk3_9.7r",  crc="48675b17",map="0001",length=0x8000 },
-		{name="sk3_9.7r",  crc="48675b17",map="0010",length=0x8000,offset=0x8000},
+		{name="sk3_9.7r",  crc="48675b17",map="0001",length=0x4000 },
+		{name="sk3_9.7r",  crc="48675b17",map="0010",length=0x4000,offset=0x4000},
 		{name="sk3_10.7s", crc="7418465a",map="0100"},
 		{name="sk3_10.7s", crc="7418465a",map="1000"},
 	]},
@@ -62,14 +62,14 @@ regions = [
 	]},
 	# gfx2 (SCROLL 1)
 	{ name="gfx2", start="SCR1_START", machine="rthunder", parts=[
-		{name="rt1_5.4r", crc="d0fc470b",map="0001",length=0x8000 },
-		{name="rt1_5.4r", crc="d0fc470b",map="0010",length=0x8000,offset=0x8000},
+		{name="rt1_5.4r", crc="d0fc470b",map="0001",length=0x4000 },
+		{name="rt1_5.4r", crc="d0fc470b",map="0010",length=0x4000,offset=0x4000},
 		{name="rt1_6.4s", crc="6b57edb2",map="0100"},
 		{name="rt1_6.4s", crc="6b57edb2",map="1000"},
 	]},
 	{ name="gfx2", start="SCR1_START", machine="skykiddx", parts=[
-		{name="sk3_7.4r", crc="4036b735",map="0001",length=0x8000 },
-		{name="sk3_7.4r", crc="4036b735",map="0010",length=0x8000,offset=0x8000},
+		{name="sk3_7.4r", crc="4036b735",map="0001",length=0x4000 },
+		{name="sk3_7.4r", crc="4036b735",map="0010",length=0x4000,offset=0x4000},
 		{name="sk3_8.4s", crc="044bfd21",map="0100"},
 		{name="sk3_8.4s", crc="044bfd21",map="1000"},
 	]},
@@ -86,8 +86,8 @@ regions = [
 		{name="ri1_13.4s", crc="9ebe8e32",map="1000"},
 	]},
 	{ name="gfx2", start="SCR1_START", machine="genpeitd", parts=[
-		{name="gt1_5.4r", crc="44d58b06",map="0001",length=0x8000 },
-		{name="gt1_5.4r", crc="44d58b06",map="0010",length=0x8000,offset=0x8000},
+		{name="gt1_5.4r", crc="44d58b06",map="0001",length=0x4000 },
+		{name="gt1_5.4r", crc="44d58b06",map="0010",length=0x4000,offset=0x4000},
 		{name="gt1_4.4s", crc="db8d45b0",map="0100"},
 		{name="gt1_4.4s", crc="db8d45b0",map="1000"},
 	]},
