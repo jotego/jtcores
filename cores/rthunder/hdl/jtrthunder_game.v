@@ -131,7 +131,7 @@ jtrthunder_video u_video(
     .blue       ( blue      ),
     // Debug
     .ioctl_din  ( ioctl_din ),
-    .ioctl_addr ( ioctl_addr[2:0] ),
+    .ioctl_addr ( ioctl_addr[4:0] ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
     // output reg [ 7:0] st_dout

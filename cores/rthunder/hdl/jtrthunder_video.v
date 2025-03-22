@@ -52,7 +52,7 @@ module jtrthunder_video(
     input      [ 3:0] b_data,
     output     [ 3:0] red, green, blue,
 
-    input      [ 2:0] ioctl_addr,
+    input      [ 4:0] ioctl_addr,
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0] gfx_en,
@@ -62,10 +62,10 @@ module jtrthunder_video(
 
 wire [10:0] scr0_pxl, scr1_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] obj_pxl;
+wire [ 7:0] obj_pxl, mmr0, mmr1;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
 
-assign obj_pxl  = 0, obj_prio = 0, obj_cs=0, obj_addr=0, objpal_addr=0;
+assign obj_pxl=0, obj_prio=0, obj_cs=0, obj_addr=0, objpal_addr=0;
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -78,6 +78,15 @@ jtshouse_vtimer u_vtimer(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .vs         ( vs        )
+);
+
+jtrthunder_ioctl_mux u_iomux(
+    .flip       ( flip      ),
+    .backcolor  ( backcolor ),
+    .mmr0       ( mmr0      ),
+    .mmr1       ( mmr1      ),
+    .ioctl_addr ( ioctl_addr),
+    .ioctl_din  ( ioctl_din )
 );
 
 jtcus42 #(.ID(0)) u_scroll0(
@@ -109,8 +118,8 @@ jtcus42 #(.ID(0)) u_scroll0(
     .romb_data  ( scr0b_data    ),
     .romb_ok    ( scr0b_ok      ),
 
-    .ioctl_addr ( ioctl_addr    ),
-    .ioctl_din  ( ioctl_din     ),
+    .ioctl_addr (ioctl_addr[2:0]),
+    .ioctl_din  ( mmr0          ),
 
     .prio       ( scr0_prio     ),
     .pxl        ( scr0_pxl      )
@@ -145,8 +154,8 @@ jtcus42 #(.ID(1)) u_scroll1(
     .romb_data  ( scr1b_data    ),
     .romb_ok    ( scr1b_ok      ),
 
-    .ioctl_addr ( ioctl_addr    ),
-    .ioctl_din  ( ioctl_din     ),
+    .ioctl_addr (ioctl_addr[2:0]),
+    .ioctl_din  ( mmr1          ),
 
     .prio       ( scr1_prio     ),
     .pxl        ( scr1_pxl      )

@@ -1,0 +1,2 @@
+save vram0.bin,0,2000
+save vram1.bin,2000,4000
