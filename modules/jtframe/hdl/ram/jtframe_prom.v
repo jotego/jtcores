@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-/* verilator tracing_off*/
+`ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif
 module jtframe_prom #(parameter
     DW      = 8,
     AW      = 10,
