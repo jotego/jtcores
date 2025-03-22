@@ -56,7 +56,6 @@ wire [10:0] scr0_pxl, scr1_pxl;
 wire [ 7:0] obj_pxl;
 wire [ 2:0] obj_prio, scr_prio;
 
-
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

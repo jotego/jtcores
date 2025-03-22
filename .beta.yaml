@@ -1,7 +1,8 @@
 # Remember to update JTFRAME_SKIP when adding
 # or removing betas
-ngpc:    [ mister, pocket ]
-s18:     [ mister, pocket ]
-riders:  [ mister, pocket ]
-flstory: [ mister, pocket ]
-gaiden:  [ mister, pocket ]
+ngpc:     [ mister, pocket ]
+s18:      [ mister, pocket ]
+riders:   [ mister, pocket ]
+flstory:  [ mister, pocket ]
+gaiden:   [ mister, pocket ]
+rthunder: [ mister, pocket ]
