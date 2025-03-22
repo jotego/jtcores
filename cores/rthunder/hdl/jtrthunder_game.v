@@ -24,8 +24,12 @@ wire [15:0] fave;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux, backcolor;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
+wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, bus_rnw;
 
 assign debug_view= dbg_mux;
+assign flip = 0;
+assign mmr0_cs = 0,  mmr1_cs = 0, bus_rnw = 1;
+assign bus_dout = 0, bus_addr = 0;
 
 always @* begin
     case( debug_bus[7:6] )
@@ -63,39 +67,56 @@ jtrthunder_video u_video(
     .hs         ( HS        ),
     .vs         ( VS        ),
 
-    .scr0x      ( scr0x     ),
-    .scr0y      ( scr0y     ),
-    .scr1x      ( scr1x     ),
-    .scr1y      ( scr1y     ),
+    .mmr0_cs    ( mmr0_cs   ),
+    .mmr1_cs    ( mmr1_cs   ),
+    .rnw        ( bus_rnw   ),
+    .cpu_dout   ( bus_dout  ),
+    .cpu_addr   ( bus_addr[2:0]  ),
 
     // Tile ROM decoder PROM
+    .vram0_addr ( vram0_addr),
+    .vram1_addr ( vram1_addr),
+    .vram0_dout ( vram0_dout),
+    .vram1_dout ( vram1_dout),
     .dec0_addr  ( dec0_addr ),
     .dec1_addr  ( dec1_addr ),
     .dec0_data  ( dec0_data ),
     .dec1_data  ( dec1_data ),
 
     // ROMs
-    .scr0_cs    ( scr0_cs   ),
-    .scr0_addr  ( scr0_addr ),
-    .scr0_data  ( scr0_data ),
-    .scr0_ok    ( scr0_ok   ),
+    .scr0a_cs   ( scr0a_cs  ),
+    .scr0a_addr ( scr0a_addr),
+    .scr0a_data ( scr0a_data),
+    .scr0a_ok   ( scr0a_ok  ),
 
-    .scr1_cs    ( scr1_cs   ),
-    .scr1_addr  ( scr1_addr ),
-    .scr1_data  ( scr1_data ),
-    .scr1_ok    ( scr1_ok   ),
+    .scr0b_cs   ( scr0b_cs  ),
+    .scr0b_addr ( scr0b_addr),
+    .scr0b_data ( scr0b_data),
+    .scr0b_ok   ( scr0b_ok  ),
+
+    .scr1a_cs   ( scr1a_cs  ),
+    .scr1a_addr ( scr1a_addr),
+    .scr1a_data ( scr1a_data),
+    .scr1a_ok   ( scr1a_ok  ),
+
+    .scr1b_cs   ( scr1b_cs  ),
+    .scr1b_addr ( scr1b_addr),
+    .scr1b_data ( scr1b_data),
+    .scr1b_ok   ( scr1b_ok  ),
 
     // Palette PROMs
     .scrpal_addr(scrpal_addr),
     .scrpal_data(scrpal_data),
 
     .rgb_addr   ( rgb_addr  ),
-    .rg_data    ( rg_data   ),
-    .b_data     ( b_data    ),
+    .rg_data    ( rgpal_data),
+    .b_data     ( bpal_data ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     // Debug
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_addr ( ioctl_addr),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
     // output reg [ 7:0] st_dout

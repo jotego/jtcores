@@ -32,10 +32,10 @@ module jtrthunder_colmix(
     input      [ 3:0] b_data,
 
     input      [ 3:0] gfx_en,
-    output     [ 3:0] red, green, blue,
+    output     [ 3:0] red, green, blue
 );
 
-localparam [2:0] ALPHA=0,BG_PXL=3'b111;
+localparam [2:0] ALPHA=0,BG_PXL=3'b111, BG_PRIO=3'b0;
 
 reg  [2:0] bg_prio;
 reg        scrwin, scr1win;
@@ -47,18 +47,19 @@ assign obj_op  = ~&obj_pxl[3:0] & gfx_en[3];
 
 always @* begin
     scr1win = scr1_op && scr1_prio > scr0_prio;
-    scrwin  = scr_prio > obj_prio || !obj_op;
+    scrwin  = bg_prio > obj_prio || !obj_op;
 end
 
 always @(posedge clk) if(pxl2_cen) begin
     { bg_prio, scrpal_addr } <=
         scr1win ? {scr1_prio,scr1_pxl} :
         scr0_op ? {scr0_prio,scr0_pxl} :
-                  {backcolor,  BG_PXL} ;
+                  {BG_PRIO, backcolor,  BG_PXL} ;
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    rgb_addr <= scrwin ? scrpal_data : obj_pxl;
+    rgb_addr[8]   <= scrwin;
+    rgb_addr[7:0] <= scrwin ? scrpal_data : obj_pxl;
     {green,red,blue} <= {rg_data,b_data[3:0]};
 end
 

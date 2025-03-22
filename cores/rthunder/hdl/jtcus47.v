@@ -17,7 +17,7 @@
     Date: 15-3-2025 */
 
 // memory address decoder for main CPU (cpu1 in MAME)
-module jtrthunder_cus47(
+module jtcus47(
     input               rst,
     input               clk,
     input        [15:0] addr,

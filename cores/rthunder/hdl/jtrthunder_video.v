@@ -19,13 +19,17 @@
 module jtrthunder_video(
     input             rst,
     input             clk,
-    input             pxl_cen, flip,
+    input             pxl_cen, pxl2_cen, flip,
 
     output            lvbl, lhbl, hs, vs,
-    input      [ 8:0] scr0x, scr0y, scr1x, scr1y,
+    input             mmr0_cs, mmr1_cs, rnw,
+    input      [ 7:0] cpu_dout,
+    input      [ 2:0] cpu_addr,
     input      [ 7:0] backcolor,
 
     // Tile ROM decoder PROM
+    output     [12:1] vram0_addr, vram1_addr,
+    input      [15:0] vram0_dout, vram1_dout,
     output     [ 4:0] dec0_addr, dec1_addr,
     input      [ 7:0] dec0_data, dec1_data,
 
@@ -53,8 +57,9 @@ module jtrthunder_video(
 );
 
 wire [10:0] scr0_pxl, scr1_pxl;
+wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] obj_pxl;
-wire [ 2:0] obj_prio, scr_prio;
+wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -69,10 +74,11 @@ jtshouse_vtimer u_vtimer(
     .vs         ( vs        )
 );
 
-jtrthunder_cus42 #(.ID(0)) u_scroll0(
+jtcus42 #(.ID(0)) u_scroll0(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
     .flip       ( flip          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
@@ -104,10 +110,11 @@ jtrthunder_cus42 #(.ID(0)) u_scroll0(
     .pxl        ( scr0_pxl      )
 );
 
-jtrthunder_cus42 #(.ID(1)) u_scroll1(
+jtcus42 #(.ID(1)) u_scroll1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
     .flip       ( flip          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
@@ -144,10 +151,6 @@ jtrthunder_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 
-    .scr0_prio  ( scr0_prio ),
-    .scr1_prio  ( scr1_prio ),
-    .backcolor  ( backcolor ),
-
     .scrpal_addr(scrpal_addr),
     .scrpal_data(scrpal_data),
 
@@ -155,7 +158,9 @@ jtrthunder_colmix u_colmix(
     .scr1_pxl   ( scr1_pxl  ),
     .obj_pxl    ( obj_pxl   ),
     .obj_prio   ( obj_prio  ),
-    .scr_prio   ( scr_prio  ),
+    .scr0_prio  ( scr0_prio ),
+    .scr1_prio  ( scr1_prio ),
+    .backcolor  ( backcolor ),
 
     .rgb_addr   ( rgb_addr  ),
     .rg_data    ( rg_data   ),

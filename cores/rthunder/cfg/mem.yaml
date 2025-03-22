@@ -13,6 +13,8 @@ audio:
     # to do: variable gain for PCM
     - { name: pcm, data_width: 11, dcrm: true, rsum: 100, fir: fir_192k_4k.csv, vpp: 1.0 }
     - { name: cus30, module: jtcus30, rsum: 6.8k }
+ports:
+  - { name: bus_dout, msb: 7, lsb: 0 }
 sdram:
   banks:
     - buses:
@@ -20,7 +22,7 @@ sdram:
         addr_width: 19
         data_width: 8
     - buses:
-      - name: snd,
+      - name: snd
         addr_width: 16
         data_width: 8
       - name: pcm
@@ -28,10 +30,10 @@ sdram:
         data_width: 8
     - buses:
       - name: scr0a
-        addr_width: 17
+        addr_width: 16
         data_width: 32
       - name: scr0b
-        addr_width: 17
+        addr_width: 16
         data_width: 32
       - name: scr1a
         addr_width: 16
@@ -77,7 +79,7 @@ bram:
     data_width: 8
     prom: true
   # Tile maps
-  - name: scr0 # CUS42 tilemap RAM -> gfx1
+  - name: vram0 # CUS42 tilemap RAM -> gfx1
     addr_width: 13
     data_width: 16
     dual_port:
@@ -86,7 +88,7 @@ bram:
       din:  "{2{bus_dout}}"
       rw:   true
     ioctl: { save: true, order: 0 }
-  - name: scr1 # CUS42 tilemap RAM -> gfx2
+  - name: vram1 # CUS42 tilemap RAM -> gfx2
     addr_width: 13
     data_width: 16
     dual_port:

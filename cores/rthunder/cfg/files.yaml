@@ -1,10 +1,14 @@
 rthunder:
   - get:
-    - "*.v"
+    - jtcus42*.v
+    - jtrthunder_game.v
+    - jtrthunder_video.v
+    - jtrthunder_colmix.v
+    - jtrthunder_scroll.v
 shouse:
   - get:
     - jtcus30.sv
-    - jtshouse_cus30_mmr.v
+    - jtcus30_mmr.v
     - jtshouse_vtimer.v
 jtframe:
   - get:
@@ -23,4 +27,8 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
       - jtframe_obj.yaml
+      - jtframe_scroll.yaml
+  - from: ram
+    get:
+      - jtframe_ram_rdmux.v
 jt51:

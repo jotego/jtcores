@@ -17,7 +17,7 @@
     Date: 15-3-2025 */
 
 // memory address decoder for sound CPU (cpu2 in MAME)
-module jtrthunder_cus41(
+module jtcus41(
     input               rst,
     input               clk,
 );
