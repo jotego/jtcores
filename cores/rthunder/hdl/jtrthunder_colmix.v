@@ -43,7 +43,7 @@ wire       scr1_op, scr0_op, obj_op;
 
 assign scr1_op = scr1_pxl[2:0]!=ALPHA && gfx_en[1];
 assign scr0_op = scr0_pxl[2:0]!=ALPHA && gfx_en[0];
-assign obj_op  = ~&obj_pxl[3:0] & gfx_en[3];
+assign obj_op  = |obj_pxl[3:0] & gfx_en[3];
 
 always @* begin
     scr1win = scr1_op && scr1_prio > scr0_prio;

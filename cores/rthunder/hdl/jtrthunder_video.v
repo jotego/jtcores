@@ -35,7 +35,7 @@ module jtrthunder_video(
 
     // ROMs
     output            scr0a_cs,   scr0b_cs,   scr1a_cs,   scr1b_cs,
-    output     [15:2] scr0a_addr, scr0b_addr, scr1a_addr, scr1b_addr,
+    output     [16:2] scr0a_addr, scr0b_addr, scr1a_addr, scr1b_addr,
     input      [31:0] scr0a_data, scr0b_data, scr1a_data, scr1b_data,
     input             scr0a_ok,   scr0b_ok,   scr1a_ok,   scr1b_ok,
     output            obj_cs,

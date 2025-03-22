@@ -33,6 +33,7 @@ assign flip = 0;
 assign mmr0_cs = 0,  mmr1_cs = 0, bus_rnw = 1;
 assign bus_dout = 0, bus_addr = 0;
 assign backcolor = 0, sh0_we=0, sh1_we=0;
+assign mcu_addr = 0;
 
 assign mcusub_cs=0,mcusub_addr=0, busy=0;
 assign pcm_cs=0, pcm_addr=0, snd_cs=0, snd_addr=0, main_cs=0, main_addr=0;
