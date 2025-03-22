@@ -35,6 +35,7 @@
 - name: cus30
   size: 63
   read_only: true
+  no_core_name: true
   regs:
     - name: lvol
       desc: "left volume"

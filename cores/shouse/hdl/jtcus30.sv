@@ -184,7 +184,7 @@ jtframe_dual_ram u_wave( // 4 (waves) + 5 (wave length) = 9 bits, 10th bit must 
     .q1     ( wdata8     )
 );
 
-jtshouse_cus30_mmr u_mmr(
+jtcus30_mmr u_mmr(
     .rst    ( rst       ),
     .clk    ( clk       ),
 
