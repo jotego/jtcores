@@ -134,11 +134,13 @@ type RegCfg struct {
         // Machine, Setname string // Optional filters
         Dev string // Device name for assembler
     }
-    Parts []struct {
-        Name, Crc, Map  string
-        Length, Offset int
-    }
+    Parts []RegParts
     Files []MameROM // This replaces the information in mame.xml completely if present
+}
+
+type RegParts struct {
+    Name, Crc, Map  string
+    Length, Offset int
 }
 
 func (this *RegCfg) EffName() string {

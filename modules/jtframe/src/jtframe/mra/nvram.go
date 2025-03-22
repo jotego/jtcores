@@ -91,7 +91,7 @@ func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
 func nvram_rom(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
 	reg := find_region_cfg(machine,"nvram",cfg)
 	if reg==nil { return }
-	roms := extract_region(reg, machine.Rom, cfg.ROM.Remove)
+	roms := reg.extract_region(machine.Rom, cfg.ROM.Remove)
 	if len(roms)==0 { return }
 	if len(roms)!=1 {
 		log.Printf("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
