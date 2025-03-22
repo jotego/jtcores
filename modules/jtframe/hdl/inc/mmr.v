@@ -91,7 +91,7 @@ initial begin
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
         end else begin{{ range .Regs }}{{ if not .Wr_event }}
-            $display("\t{{.Name}} = %X",{ {{range .Chunks}} mmr[{{.Byte}}][{{if eq .Msb .Lsb}}{{.Msb}}{{else}}{{.Msb}}:{{.Lsb}}{{end}}],{{end}}{0{1'b0}}});
+            $display("\t{{.Name}} = %X",{ {{range .Chunks}} mmr_init[{{.Byte}}][{{if eq .Msb .Lsb}}{{.Msb}}{{else}}{{.Msb}}:{{.Lsb}}{{end}}],{{end}}{0{1'b0}}});
             {{- end }}{{ end }}
         end
     end
