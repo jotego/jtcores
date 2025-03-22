@@ -435,14 +435,15 @@ func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_
 	}
 }
 
-func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
+func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 	dumped := 0
 	n := p
 	reg_cfg.check_width_vs_parts()
 	if reg_cfg.Width>8 {
 		n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 	}
-	for _,each := range reg_cfg.Parts {
+	for k,_ := range reg_cfg.Parts {
+		each := &reg_cfg.Parts[k]
 		m := n.AddNode("part").AddAttr("name",each.Name)
 		m.AddAttr("crc",each.Crc)
 		if each.Map!=""{
@@ -450,6 +451,8 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
 		}
 		if each.Length == 0 {
 			each.get_size_from_mame(roms)
+		} else {
+			each.verify_size(roms)
 		}
 		m.AddAttr("length", fmt.Sprintf("0x%X",each.Length))
 		if( each.Offset != 0 ) {
@@ -457,7 +460,19 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
 		}
 		dumped += each.Length
 	}
+	reg_cfg.check_parts_consistency()
 	return dumped
+}
+
+func (reg_cfg *RegCfg)check_parts_consistency() {
+	for k:=1; k<len(reg_cfg.Parts); k++ {
+		if reg_cfg.Parts[k].Length!=reg_cfg.Parts[k-1].Length {
+			msg := fmt.Sprintf("Different length for parts %s (%X) and %s (%X) in region %s",
+				reg_cfg.Parts[k-1].Name, reg_cfg.Parts[k-1].Length,
+				reg_cfg.Parts[k].Name,   reg_cfg.Parts[k].Length, reg_cfg.Name )
+			panic(msg)
+		}
+	}
 }
 
 func (part *RegParts)get_size_from_mame(roms []MameROM) {
@@ -475,8 +490,21 @@ func (part *RegParts)find_rom(all_roms []MameROM) (k int) {
 	return -1
 }
 
+func (part *RegParts)verify_size(roms []MameROM) {
+	idx := part.find_rom(roms)
+	if idx==-1 { part.panic_unknown_rom() }
+	if part.Length+part.Offset > roms[idx].Size {
+		part.panic_rom_too_small(roms[idx].Size)
+	}
+}
+
 func (part *RegParts)panic_unknown_rom() {
 	msg := fmt.Sprintf("Unknown ROM length for ROM %s (CRC %s)",part.Name,part.Crc)
+	panic(msg)
+}
+
+func (part *RegParts)panic_rom_too_small(ref int) {
+	msg := fmt.Sprintf("ROM length+offset set in TOML for ROM %s as 0x%X, but the file is only 0x%X in MAME",part.Name,part.Length,ref)
 	panic(msg)
 }
 
