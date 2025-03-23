@@ -14,6 +14,7 @@ jtframe:
   - get:
       - jtframe_ff.v
       - jtframe_bcd_cnt.v
+      - jtframe_mmr_reg.v
   - from: cpu
     get:
       - mc6809i.v

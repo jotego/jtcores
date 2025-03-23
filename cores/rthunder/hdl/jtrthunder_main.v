@@ -17,8 +17,11 @@
     Date: 15-3-2025 */
 
 module jtrthunder_main(
-    input               rst,
-    input               clk,
+    input               rst, clk,
+                        lvbl,
+
+    output              tile_bank,
+    output       [ 7:0] backcolor,
 
     output              mrom_cs,   srom_cs,   ram_cs,
     input               mrom_ok,   srom_ok,   ram_ok,
@@ -30,11 +33,58 @@ module jtrthunder_main(
 `ifndef NOMAIN
 
 wire [15:0] maddr;
+wire [ 7:0] mdout, sdout;
+wire        mrnw, srnw, mint_n, sint_n;
+wire        mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
+            sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs;
 
-jtrthunder_cus47 u_cus47(
+assign st_dout   = 0;
+
+jtframe_mmr_reg u_backcolor(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .wr_n       ( mrnw      ),
+    .din        ( mdout     ),
+    .cs         ( bcolor_cs ),
+    .dout       ( backcolor )
+);
+
+// address decoder for main CPU
+jtcus47 u_cus47(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .lvbl       ( lvbl      ),
     .addr       ( maddr     ),
+    .rnw        ( mrnw      ),
+    .bank       ( tile_bank ),
+    .scr0_cs    ( mscr0_cs  ),
+    .scr1_cs    ( mscr1_cs  ),
+    .latch0_cs  ( mlatch0_cs),
+    .latch1_cs  ( mlatch1_cs),
+    .latch2_cs  ( bcolor_cs ),
+    .oram_cs    ( moram_cs  ),
+    .mbank_cs   ( mmbank_cs ),
+    .sbank_cs   ( msbank_cs ),
+    .wdog_cs    (           ),
+    .int_n      ( mint_n     )
+);
+
+// address decoder for sound CPU
+jtcus41 u_cus41(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .lvbl       ( lvbl      ),
+    .addr       ( saddr     ),
+    .rnw        ( srnw      ),
+    .scr0_cs    ( sscr0_cs  ),
+    .scr1_cs    ( sscr1_cs  ),
+    .latch0_cs  ( latch0_cs ),
+    .latch1_cs  ( latch1_cs ),
+    .oram_cs    ( soram_cs  ),
+    .mbank_cs   ( smbank_cs ),
+    .sbank_cs   ( ssbank_cs ),
+    .wdog_cs    (           ),
+    .int_n      ( int_n     )
 );
 
 mc6809i u_mcpu(
@@ -47,8 +97,8 @@ mc6809i u_mcpu(
     .ADDR       ( maddr     ),
     .RnW        ( mrnw      ),
     // Interrupts
-    .nIRQ       ( mirq_n    ),
-    .nFIRQ      ( mfirq_n   ),
+    .nIRQ       ( mint_n    ),
+    .nFIRQ      ( 1'b1      ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
     // unused
@@ -72,8 +122,8 @@ mc6809i u_scpu(
     .ADDR       ( saddr     ),
     .RnW        ( srnw      ),
     // Interrupts
-    .nIRQ       ( sirq_n    ),
-    .nFIRQ      ( sfirq_n   ),
+    .nIRQ       ( sint_n    ),
+    .nFIRQ      ( 1'b1      ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
     // unused
@@ -87,5 +137,9 @@ mc6809i u_scpu(
     .RegData    (           )
 );
 `else
+// change for scene values:
+assign tile_bank = 0;
+assign backcolor = 0;
+assign st_dout   = 0;
 `endif
 endmodule
