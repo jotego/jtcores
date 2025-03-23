@@ -24,7 +24,7 @@ module jtrthunder_main(
     output              tile_bank, latch0_cs, latch1_cs,
     output       [ 7:0] backcolor,
 
-    output              mrom_cs,   srom_cs,
+    output              mrom_cs,   srom_cs, bus_busy,
     input               mrom_ok,   srom_ok,
     output       [15:0] mrom_addr, srom_addr,
     output       [12:0] baddr,
@@ -58,6 +58,7 @@ assign sub_Q  = cen_main;
 assign st_dout   = 0;
 assign mrom_addr = mbanked_cs ? {1'b0,mbank, maddr[12:0]} : maddr;
 assign srom_addr = sbanked_cs ? {1'b0,sbank, saddr[12:0]} : saddr;
+assign bus_busy  = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok};
 
 always @(posedge clk) rst_n <= ~rst;
 

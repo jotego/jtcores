@@ -19,12 +19,14 @@
 module jtrthunder_sound(
     input               rst,
     input               clk, cen_fm, cen_fm2,
-    input        [15:0] dipsw,
 
-    // PROM programming
-    input      [11:0]  prog_addr,
-    input      [ 7:0]  prog_data,
-    input              prog_we,
+    input        [15:0] dipsw,
+    input        [ 6:0] joystick1, joystick2,
+
+    output       [11:0] embd_addr,
+    input        [ 7:0] embd_data,
+    output       [11:0] ram_addr,
+    input        [ 7:0] ram_data,
 
     output reg          rom_cs,
     output       [14:0] rom_addr,
@@ -33,32 +35,33 @@ module jtrthunder_sound(
     output              bus_busy,
 );
 
-wire [11:0] internal_addr;
-wire [ 7:0] internal_data, mcu_dout;
-reg  [ 7:0] mcu_din;
+wire [ 7:0] mcu_dout;
+reg  [ 7:0] mcu_din, cab_dout;
+reg         bc30_cs, fm_cs, cab_cs, dip_cs;
 
 assign bus_busy = rom_cs & ~rom_ok;
+assign ram_addr = A[11:0];
 
 // Address decoder
 always @(*) begin
-    pcm_cs  = vma && ^A[15:14];                    // 4000~bfff
-    swio_cs = vma &&  A[15:12]==4'h1;
-    // the init_done mechanism mimics MAME's hack to prevent a lock up during the boot sequence
-    // see https://github.com/jotego/jtcores/issues/410
-    ram_cs  = vma &&  A[15:12]==4'hc && !A[11] /*&& (A[10:0]!=0 || rnw || !init_done)*/;    // c000~c7ff
-    epr_cs  = vma &&  A[15:12]==4'hc &&  A[11];    // c800~cfff
-    reg_cs  = vma &&  A[15:12]==4'hd && wr;
-    dip_cs  = vma && swio_cs && A[11:10]==0;
-    cab_cs  = vma && swio_cs && A[11:10]==1;
+    bc30_cs = vma && A[15:12]==1 && A[11:10]==0;    // 1000~13FF
+    ram_cs  = vma && A[15:12]==1 && A[11:10]!=0;    // 1400~1FFF -> 4kB
+    fm_cs   = vma && A[15:12]==2 && A[ 7: 4]==0;    // 2000~200F
+    cab_cs  = vma && A[15:12]==2 && A[ 7: 4]==2;    // 2020~202F
+    dip_cs  = vma && A[15:12]==2 && A[ 7: 4]==3;    // 2030~203F
+    rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
 end
 
 always @* begin
-    mcu_din =   pcm_cs  ? pcm_data   :
-                ram_cs  ? ram_dout   :
-                epr_cs  ? eerom_dout :
-                cab_cs  ? cab_dout   :
-                dip_cs  ? { 4'hf, dipmx[0], dipmx[1], dipmx[2], dipmx[3] } :
-                8'd0;
+    mcu_din = rom_cs  ? rom_data :
+              ram_cs  ? ram_dout :
+              cab_cs  ? cab_dout :
+              dip_cs  ? dip_mux  :
+              8'd0;
+end
+
+always @(posedge clk) begin
+    case
 end
 
 /* verilator tracing_on */
@@ -90,18 +93,8 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .p4_dout    (               ),
     // ROM
     .rom_cs     (               ),
-    .rom_addr   ( internal_addr ),
-    .rom_data   ( rom_data      )
-);
-
-jtframe_prom #(.AW(12)) u_prom(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prog_data     ),
-    .we     ( prog_we       ),
-    .wr_addr( prog_addr     ),
-    .rd_addr( internal_addr ),
-    .q      ( internal_data )
+    .rom_addr   ( embd_addr     ),
+    .rom_data   ( embd_data     )
 );
 
 jtcus30 u_wav(

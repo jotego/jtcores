@@ -21,7 +21,7 @@ module jtrthunder_game(
 );
 
 wire [15:0] fave;
-wire [ 2:0] busy;
+wire [ 1:0] busy;
 reg  [ 7:0] dbg_mux, backcolor, st_main;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank;
@@ -32,7 +32,6 @@ assign dip_flip   = flip;
 assign flip = 0;
 assign mcu_addr = 0;
 
-assign mcusub_cs=0,mcusub_addr=0, busy=0;
 assign pcm_cs=0, pcm_addr=0;
 assign fm_l=0, fm_r=0,pcm=0,cus30_r=0,cus30_l=0;
 
@@ -80,6 +79,8 @@ jtrthunder_main u_main(
     .srom_addr  ( snd_addr  ),
     .srom_data  ( snd_data  ),
 
+    .bus_busy   ( busy[0]   ),
+
     // VRAM
     .baddr      ( baddr     ),
     .bdout      ( bdout     ),
@@ -96,6 +97,25 @@ jtrthunder_main u_main(
 
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
+);
+
+jtrthunder_sound u_sound(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen_fm     ( cen_fm    ),
+    .cen_fm2    ( cen_fm2   ),
+
+    .dipsw      ( dipsw[15:0]),
+
+    .embd_addr  ( mcu_addr  ),
+    .embd_data  ( mcu_data  ),
+
+    .rom_cs     (mcusub_cs  ),
+    .rom_ok     (mcusub_ok  ),
+    .rom_addr   (mcusub_addr),
+    .rom_data   (mcusub_data),
+
+    .bus_busy   ( busy[1]   )
 );
 
 jtrthunder_video u_video(
