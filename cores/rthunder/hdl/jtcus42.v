@@ -33,7 +33,7 @@ module jtcus42(
     input        [ 7:0] dec_data,
 
     output              roma_cs, romb_cs,
-    output       [16:2] roma_addr, romb_addr,
+    output       [15:2] roma_addr, romb_addr,
     input        [31:0] roma_data, romb_data,   // upper byte not used
     input               roma_ok, romb_ok,
 

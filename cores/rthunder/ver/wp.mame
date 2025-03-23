@@ -13,3 +13,6 @@ wp 9402,1,w,1,{printf "0A scr0ya=%X",wpdata;go}
 wp 9404,1,w,1,{printf "0C scr0xb=%X",wpdata;go}
 wp 9405,1,w,1,{printf "0D scr0xb=%X (MSB)",wpdata;go}
 wp 9406,1,w,1,{printf "0E scr0yb=%X",wpdata;go}
+
+wp a000,1,w,1,{printf "10 backcolor=%X",wpdata;go}
+wp 8800,800,w,1,{printf "11 bank=%X",(wpaddr>>10)&1;go}

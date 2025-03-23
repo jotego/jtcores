@@ -24,12 +24,12 @@ wire [15:0] fave;
 wire [ 2:0] busy;
 reg  [ 7:0] dbg_mux, backcolor;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
-wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, bus_rnw;
+wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, bus_rnw, bank;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
 
-assign flip = 0;
+assign flip = 0, bank=0;
 assign mmr0_cs = 0,  mmr1_cs = 0, bus_rnw = 1;
 assign bus_dout = 0, bus_addr = 0;
 assign backcolor = 0, sh0_we=0, sh1_we=0;
@@ -69,6 +69,7 @@ jtrthunder_video u_video(
     .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
     .backcolor  ( backcolor ),
+    .bank       ( bank      ),
 
     .lvbl       ( LVBL      ),
     .lhbl       ( LHBL      ),

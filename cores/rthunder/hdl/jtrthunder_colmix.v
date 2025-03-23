@@ -35,7 +35,7 @@ module jtrthunder_colmix(
     output     [ 3:0] red, green, blue
 );
 
-localparam [2:0] ALPHA=0,BG_PXL=3'b111, BG_PRIO=3'b0;
+localparam [2:0] ALPHA=7,BG_PXL=3'b111, BG_PRIO=3'b0;
 
 reg  [2:0] bg_prio;
 reg        scrwin, scr1win;

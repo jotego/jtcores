@@ -17,7 +17,7 @@
     Date: 22-3-2025 */
 
 module jtrthunder_ioctl_mux(
-    input            flip,
+    input            flip, bank,
     input      [7:0] backcolor, mmr0, mmr1,
     input      [4:0] ioctl_addr,
     output reg [7:0] ioctl_din
@@ -27,8 +27,11 @@ always @* begin
     case(ioctl_addr[4:3])
         0: ioctl_din = mmr0;
         1: ioctl_din = mmr1;
-        2: ioctl_din = backcolor;
-        3: ioctl_din = {7'd0, flip};
+        2: case(ioctl_addr[0])
+            0: ioctl_din = backcolor;
+            1: ioctl_din = {3'd0, flip, 3'd0, bank};
+        endcase
+        default: ioctl_din = 0;
     endcase
 end
 

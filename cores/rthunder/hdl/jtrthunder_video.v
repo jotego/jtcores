@@ -19,7 +19,7 @@
 module jtrthunder_video(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen, flip,
+    input             pxl_cen, pxl2_cen, flip, bank,
 
     output            lvbl, lhbl, hs, vs,
     input             mmr0_cs, mmr1_cs, rnw,
@@ -35,7 +35,8 @@ module jtrthunder_video(
 
     // ROMs
     output            scr0a_cs,   scr0b_cs,   scr1a_cs,   scr1b_cs,
-    output     [16:2] scr0a_addr, scr0b_addr, scr1a_addr, scr1b_addr,
+    output     [16:2] scr0a_addr, scr0b_addr,
+    output     [15:2] scr1a_addr, scr1b_addr,
     input      [31:0] scr0a_data, scr0b_data, scr1a_data, scr1b_data,
     input             scr0a_ok,   scr0b_ok,   scr1a_ok,   scr1b_ok,
     output            obj_cs,
@@ -66,6 +67,7 @@ wire [ 7:0] obj_pxl, mmr0, mmr1;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
 
 assign obj_pxl=0, obj_prio=0, obj_cs=0, obj_addr=0, objpal_addr=0;
+assign scr0a_addr[16]=bank, scr0b_addr[16]=bank;
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -81,6 +83,7 @@ jtshouse_vtimer u_vtimer(
 );
 
 jtrthunder_ioctl_mux u_iomux(
+    .bank       ( bank      ),
     .flip       ( flip      ),
     .backcolor  ( backcolor ),
     .mmr0       ( mmr0      ),
@@ -109,12 +112,12 @@ jtcus42 #(.ID(0)) u_scroll0(
     .dec_data   ( dec0_data     ),
 
     .roma_cs    ( scr0a_cs      ),
-    .roma_addr  ( scr0a_addr    ),
+    .roma_addr  (scr0a_addr[15:2]),
     .roma_data  ( scr0a_data    ),
     .roma_ok    ( scr0a_ok      ),
 
     .romb_cs    ( scr0b_cs      ),
-    .romb_addr  ( scr0b_addr    ),
+    .romb_addr  (scr0b_addr[15:2]),
     .romb_data  ( scr0b_data    ),
     .romb_ok    ( scr0b_ok      ),
 
