@@ -14,13 +14,13 @@ audio:
     - { name: pcm, data_width: 11, dcrm: true, rsum: 100, fir: fir_192k_4k.csv, vpp: 1.0 }
     - { name: cus30, module: jtcus30, rsum: 6.8k }
 ports:
-  - { name: bus_dout, msb:  7, lsb: 0 }
-  - { name: bus_addr, msb: 12, lsb: 0 }
+  - { name: bdout, msb:  7, lsb: 0 }
+  - { name: baddr, msb: 12, lsb: 0 }
 sdram:
   banks:
     - buses:
       - name: main
-        addr_width: 19
+        addr_width: 16
         data_width: 8
     - buses:
       - name: snd
@@ -90,8 +90,8 @@ bram:
     sim_file: true
     dual_port:
       name: sh0
-      addr: bus_addr[12:1]
-      din:  "{2{bus_dout}}"
+      addr: baddr[12:1]
+      din:  "{2{bdout}}"
       rw:   true
     ioctl: { save: true, order: 0 }
   - name: vram1 # CUS42 tilemap RAM -> gfx2
@@ -100,8 +100,8 @@ bram:
     sim_file: true
     dual_port:
       name: sh1
-      addr: bus_addr[12:1]
-      din:  "{2{bus_dout}}"
+      addr: baddr[12:1]
+      din:  "{2{bdout}}"
       rw:   true
     ioctl: { save: true, order: 1 }
   # Objects
@@ -111,7 +111,7 @@ bram:
     data_width: 16
     dual_port:
       name: osh
-      addr: bus_addr[12:1]
-      din:  "{2{bus_dout}}"
+      addr: baddr[12:1]
+      din:  "{2{bdout}}"
       rw:   true
     ioctl: { save: true, order: 2 }

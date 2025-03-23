@@ -22,28 +22,25 @@ module jtrthunder_game(
 
 wire [15:0] fave;
 wire [ 2:0] busy;
-reg  [ 7:0] dbg_mux, backcolor;
+reg  [ 7:0] dbg_mux, backcolor, st_main;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
-wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, bus_rnw, bank;
+wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
 
-assign flip = 0, bank=0;
-assign mmr0_cs = 0,  mmr1_cs = 0, bus_rnw = 1;
-assign bus_dout = 0, bus_addr = 0;
-assign backcolor = 0, sh0_we=0, sh1_we=0;
+assign flip = 0;
 assign mcu_addr = 0;
 
 assign mcusub_cs=0,mcusub_addr=0, busy=0;
-assign pcm_cs=0, pcm_addr=0, snd_cs=0, snd_addr=0, main_cs=0, main_addr=0;
+assign pcm_cs=0, pcm_addr=0;
 assign fm_l=0, fm_r=0,pcm=0,cus30_r=0,cus30_l=0;
 
 always @* begin
     case( debug_bus[7:6] )
         // 0: dbg_mux = { 3'd0, mcu_halt, 3'd0, ~srst_n };
         // 1: dbg_mux = st_video;
-        // 2: dbg_mux = st_main;
+        2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
     endcase
@@ -62,6 +59,45 @@ jtrthunder_cenloop u_cen(
     .fworst     (           )
 );
 
+jtrthunder_main u_main(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen_main   ( cen_main  ),
+    .cen_sub    ( cen_sub   ),
+    .lvbl       ( LVBL      ),
+
+    .backcolor  ( backcolor ),
+    .tile_bank  ( tile_bank ),
+
+    // ROM
+    .mrom_cs    ( main_cs   ),
+    .mrom_ok    ( main_ok   ),
+    .mrom_addr  ( main_addr ),
+    .mrom_data  ( main_data ),
+
+    .srom_cs    ( snd_cs    ),
+    .srom_ok    ( snd_ok    ),
+    .srom_addr  ( snd_addr  ),
+    .srom_data  ( snd_data  ),
+
+    // VRAM
+    .baddr      ( baddr     ),
+    .bdout      ( bdout     ),
+    .scr0_dout  (vram0_dout ),
+    .scr1_dout  (vram1_dout ),
+    .oram_dout  ( oram_dout ),
+    .scr0_we    ( sh0_we    ),
+    .scr1_we    ( sh1_we    ),
+    .oram_we    ( osh_we    ),
+    .brnw       ( brnw      ),
+
+    .latch0_cs  ( mmr0_cs   ),
+    .latch1_cs  ( mmr1_cs   ),
+
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_main   )
+);
+
 jtrthunder_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -69,7 +105,7 @@ jtrthunder_video u_video(
     .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
     .backcolor  ( backcolor ),
-    .bank       ( bank      ),
+    .bank       ( tile_bank ),
 
     .lvbl       ( LVBL      ),
     .lhbl       ( LHBL      ),
@@ -78,9 +114,9 @@ jtrthunder_video u_video(
 
     .mmr0_cs    ( mmr0_cs   ),
     .mmr1_cs    ( mmr1_cs   ),
-    .rnw        ( bus_rnw   ),
-    .cpu_dout   ( bus_dout  ),
-    .cpu_addr   ( bus_addr  ),
+    .rnw        ( brnw      ),
+    .cpu_dout   ( bdout     ),
+    .cpu_addr   ( baddr     ),
 
     // Tile ROM decoder PROM
     .vram0_addr ( vram0_addr),
@@ -91,6 +127,9 @@ jtrthunder_video u_video(
     .dec1_addr  ( dec1_addr ),
     .dec0_data  ( dec0_data ),
     .dec1_data  ( dec1_data ),
+
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
 
     // ROMs
     .obj_cs     ( obj_cs    ),

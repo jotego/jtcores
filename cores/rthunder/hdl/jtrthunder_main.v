@@ -18,27 +18,48 @@
 
 module jtrthunder_main(
     input               rst, clk,
+                        cen_main, cen_sub,
                         lvbl,
 
-    output              tile_bank,
+    output              tile_bank, latch0_cs, latch1_cs,
     output       [ 7:0] backcolor,
 
-    output              mrom_cs,   srom_cs,   ram_cs,
-    input               mrom_ok,   srom_ok,   ram_ok,
-    input        [ 7:0] mrom_data, srom_data, ram_dout,
+    output              mrom_cs,   srom_cs,
+    input               mrom_ok,   srom_ok,
+    output       [15:0] mrom_addr, srom_addr,
+    output       [12:0] baddr,
+    output       [ 7:0] bdout,
+    output       [ 1:0] scr0_we, scr1_we, oram_we,
+    output              brnw,
+    input        [ 7:0] mrom_data, srom_data,
+    input        [15:0] scr0_dout, scr1_dout, oram_dout,
 
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
 );
 `ifndef NOMAIN
 
-wire [15:0] maddr;
-wire [ 7:0] mdout, sdout;
-wire        mrnw, srnw, mint_n, sint_n;
-wire        mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
-            sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs;
+wire [15:0] maddr, saddr;
+wire [ 7:0] mdout, sdout, bdin;
+wire [ 1:0] mbank, sbank;
+reg  [ 7:0] mdin,  sdin;
+reg         rst_n;
+wire        mrnw, srnw, mint_n, sint_n,   mavma,     savma,
+            main_E, main_Q, sub_E, sub_Q, snd_cs,
+            mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
+            sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
+            mbanked_cs, sbanked_cs;
+
+assign main_E = cen_main;
+assign main_Q = cen_sub;
+assign sub_E  = cen_sub;
+assign sub_Q  = cen_main;
 
 assign st_dout   = 0;
+assign mrom_addr = mbanked_cs ? {1'b0,mbank, maddr[12:0]} : maddr;
+assign srom_addr = sbanked_cs ? {1'b0,sbank, saddr[12:0]} : saddr;
+
+always @(posedge clk) rst_n <= ~rst;
 
 jtframe_mmr_reg u_backcolor(
     .rst        ( rst       ),
@@ -47,6 +68,61 @@ jtframe_mmr_reg u_backcolor(
     .din        ( mdout     ),
     .cs         ( bcolor_cs ),
     .dout       ( backcolor )
+);
+
+jtrthunder_busmux u_busmux(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen_main   ( cen_main  ),
+    .cen_sub    ( cen_sub   ),
+    .mavma      ( mavma     ),
+    .savma      ( savma     ),
+    .mrom_cs    ( mrom_cs   ),
+    .srom_cs    ( srom_cs   ),
+    .mscr0_cs   ( mscr0_cs  ),
+    .sscr0_cs   ( sscr0_cs  ),
+    .mscr1_cs   ( mscr1_cs  ),
+    .sscr1_cs   ( sscr1_cs  ),
+    .mmbank_cs  ( mmbank_cs ),
+    .msbank_cs  ( msbank_cs ),
+    .smbank_cs  ( smbank_cs ),
+    .ssbank_cs  ( ssbank_cs ),
+    .moram_cs   ( moram_cs  ),
+    .soram_cs   ( soram_cs  ),
+    .mlatch0_cs ( mlatch0_cs),
+    .mlatch1_cs ( mlatch1_cs),
+    .slatch0_cs ( slatch0_cs),
+    .slatch1_cs ( slatch1_cs),
+    // address
+    .maddr      ( maddr     ),
+    .saddr      ( saddr     ),
+    .mrnw       ( mrnw      ),
+    .srnw       ( srnw      ),
+    // banking registers
+    .mbank      ( mbank     ),
+    .sbank      ( sbank     ),
+    // data buses
+    .mdout      ( mdout     ),
+    .sdout      ( sdout     ),
+    .mrom_data  ( mrom_data ),
+    .srom_data  ( srom_data ),
+    .scr0_dout  ( scr0_dout ),
+    .scr1_dout  ( scr1_dout ),
+    .oram_dout  ( oram_dout ),
+    // multiplexed
+    .latch0_cs  ( latch0_cs ),
+    .latch1_cs  ( latch1_cs ),
+
+    .oram_we    ( oram_we   ),
+    .scr0_we    ( scr0_we   ),
+    .scr1_we    ( scr1_we   ),
+
+    .baddr      ( baddr     ),
+    .brnw       ( brnw      ),
+    .bdout      ( bdout     ),
+
+    .mdin       ( mdin      ),
+    .sdin       ( sdin      )
 );
 
 // address decoder for main CPU
@@ -65,8 +141,11 @@ jtcus47 u_cus47(
     .oram_cs    ( moram_cs  ),
     .mbank_cs   ( mmbank_cs ),
     .sbank_cs   ( msbank_cs ),
+    .rom_cs     ( mrom_cs   ),
+    .banked_cs  (mbanked_cs ),
+    .snd_cs     ( snd_cs    ),
     .wdog_cs    (           ),
-    .int_n      ( mint_n     )
+    .int_n      ( mint_n    )
 );
 
 // address decoder for sound CPU
@@ -78,13 +157,15 @@ jtcus41 u_cus41(
     .rnw        ( srnw      ),
     .scr0_cs    ( sscr0_cs  ),
     .scr1_cs    ( sscr1_cs  ),
-    .latch0_cs  ( latch0_cs ),
-    .latch1_cs  ( latch1_cs ),
+    .latch0_cs  ( slatch0_cs),
+    .latch1_cs  ( slatch1_cs),
     .oram_cs    ( soram_cs  ),
     .mbank_cs   ( smbank_cs ),
     .sbank_cs   ( ssbank_cs ),
     .wdog_cs    (           ),
-    .int_n      ( int_n     )
+    .rom_cs     ( srom_cs   ),
+    .banked_cs  (sbanked_cs ),
+    .int_n      ( sint_n    )
 );
 
 mc6809i u_mcpu(

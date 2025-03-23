@@ -169,8 +169,8 @@ mc6809i u_mcpu(
     .nFIRQ      ( mfirq_n   ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
-    // unused
     .AVMA       ( mavma     ),
+    // unused
     .BS         (           ),
     .BA         (           ),
     .BUSY       (           ),
@@ -194,8 +194,8 @@ mc6809i u_scpu(
     .nFIRQ      ( sfirq_n   ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
-    // unused
     .AVMA       ( savma     ),
+    // unused
     .BS         (           ),
     .BA         (           ),
     .BUSY       (           ),

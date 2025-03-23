@@ -21,7 +21,7 @@ module jtcus41(
     input          rst, clk,
                    rnw, lvbl,
     input   [15:0] addr,
-    output  reg    scr0_cs,   scr1_cs,   oram_cs,
+    output  reg    scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
                    latch0_cs, latch1_cs,
                    mbank_cs,  sbank_cs,
                    wdog_cs,   int_n
@@ -38,12 +38,19 @@ jtframe_edge #(.QSET(0))u_irq(
 );
 
 always @* begin
+    oram_cs = 0;
+    scr0_cs = 0;
+    scr1_cs = 0;
+    banked_cs = 0;
+    wdog_cs   = 0;
+    irq_ack   = 0;
+    latch0_cs = 0;
+    latch1_cs = 0;
     casez(addr[15:12])
-        4'b000?: oram_cs = 1; // 0000~1FFF
-        4'b001?: scr0_cs = 1; // 2000~3FFF 8kB tilemap RAM
-        4'b010?: scr1_cs = 1; // 4000~5FFF
-        4'b011?: begin rom_cs = 1; banked_cs = 1; end // 6000~7FFF ROM (banked)
-        4'b1???: rom_cs = rnw; // 8000~FFFF
+        4'b000?: oram_cs   = 1; // 0000~1FFF
+        4'b001?: scr0_cs   = 1; // 2000~3FFF 8kB tilemap RAM
+        4'b010?: scr1_cs   = 1; // 4000~5FFF
+        4'b011?: banked_cs = 1; // 6000~7FFF ROM (banked)
         4'b1000: if(!rnw) casez(addr[11])
             0: wdog_cs = 1;
             1: irq_ack = 1;
@@ -52,9 +59,11 @@ always @* begin
             0: latch0_cs = 1; // LATCH0 in schematics
             1: latch1_cs = 1; // LATCH1
         endcase
-        mbank_cs = latch0_cs && addr[1:0]==3;
-        sbank_cs = latch1_cs && addr[1:0]==3;
+        default:;
     endcase
+    rom_cs = (addr[15] && rnw) || banked_cs; // 8000~FFFF
+    mbank_cs = latch0_cs && addr[1:0]==3;
+    sbank_cs = latch1_cs && addr[1:0]==3;
 end
 
 endmodule

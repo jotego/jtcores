@@ -22,8 +22,8 @@ module jtcus47(
                    rnw, lvbl,
     input   [15:0] addr,
     output  reg    bank=0,   // SCR0 ROM bank
-                   scr0_cs,   scr1_cs,   oram_cs,
-                   latch0_cs, latch1_cs, latch2_cs,
+                   scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
+                   latch0_cs, latch1_cs, latch2_cs, snd_cs,
                    mbank_cs,  sbank_cs,
                    wdog_cs,   int_n
 );
@@ -57,20 +57,21 @@ always @* begin
         4'b001?: scr1_cs = 1; // 2000~3FFF
         4'b010?: oram_cs = 1; // 4000~4FFF
         // shared with MCU (via CUS30)
-        4'b0100: snd_cs  = A[11:10]==0; // 4000~43FF CUS30
-        4'b011?: begin rom_cs = 1; banked_cs = 1; end // 6000~7FFF ROM (banked)
-        4'b1???: rom_cs = rnw;
+        4'b011?: banked_cs = 1; // 6000~7FFF ROM (banked)
         4'b1000: if(!rnw) casez(addr[11:10])
             2'b00: wdog_cs = 1;
             2'b01: irq_ack = 1;
             2'b1?: scrbank_cs = 1;
         endcase
-        5'b1001: if(!rnw) case(addr[10])
+        4'b1001: if(!rnw) case(addr[10])
             0: latch0_cs = 1; // LATCH0 in schematics
             1: latch1_cs = 1; // LATCH1
         endcase
-        5'b1010: latch2_cs = !rnw; // Back color
+        4'b1010: latch2_cs = !rnw; // Back color
+        default:;
     endcase
+    snd_cs   = addr[15:12]==4'h4 && addr[11:10]==0; // 4000~43FF CUS30
+    rom_cs   = (addr[15] && rnw) || banked_cs;
     mbank_cs = latch0_cs && addr[1:0]==3;
     sbank_cs = latch1_cs && addr[1:0]==3;
 end

@@ -28,8 +28,8 @@ module jtrthunder_video(
     input      [ 7:0] backcolor,
 
     // Tile ROM decoder PROM
-    output     [12:1] vram0_addr, vram1_addr,
-    input      [15:0] vram0_dout, vram1_dout,
+    output     [12:1] vram0_addr, vram1_addr, oram_addr,
+    input      [15:0] vram0_dout, vram1_dout, oram_dout,
     output     [ 4:0] dec0_addr, dec1_addr,
     input      [ 7:0] dec0_data, dec1_data,
 
@@ -68,6 +68,7 @@ wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
 
 assign obj_pxl=0, obj_prio=0, obj_cs=0, obj_addr=0, objpal_addr=0;
 assign scr0a_addr[16]=bank, scr0b_addr[16]=bank;
+assign oram_addr=0;
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
