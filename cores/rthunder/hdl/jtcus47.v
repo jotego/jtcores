@@ -25,7 +25,8 @@ module jtcus47(
                    scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
                    latch0_cs, latch1_cs, latch2_cs, snd_cs,
                    mbank_cs,  sbank_cs,
-                   wdog_cs,   int_n
+                   wdog_cs,
+    output         int_n
 );
 
 reg scrbank_cs, irq_ack;
@@ -43,14 +44,16 @@ jtframe_edge #(.QSET(0))u_irq(
 );
 
 always @* begin
-    scr0_cs   = 0;
-    scr1_cs   = 0;
-    oram_cs   = 0;
-    latch0_cs = 0;
-    latch1_cs = 0;
-    latch2_cs = 0;
-    wdog_cs   = 0;
-    irq_ack   = 0;
+    scr0_cs    = 0;
+    scr1_cs    = 0;
+    oram_cs    = 0;
+    latch0_cs  = 0;
+    latch1_cs  = 0;
+    latch2_cs  = 0;
+    wdog_cs    = 0;
+    irq_ack    = 0;
+    banked_cs  = 0;
+    scrbank_cs = 0;
     casez(addr[15:12])
         // shared with sub CPU
         4'b000?: scr0_cs = 1; // 0000~1FFF 8kB tilemap RAM

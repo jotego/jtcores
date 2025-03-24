@@ -27,12 +27,12 @@ module jtrthunder_colmix(
     output reg [10:0] scrpal_addr,
     input      [ 7:0] scrpal_data,
 
-    output     [ 8:0] rgb_addr,
+    output reg [ 8:0] rgb_addr,
     input      [ 7:0] rg_data,
     input      [ 3:0] b_data,
 
     input      [ 3:0] gfx_en,
-    output     [ 3:0] red, green, blue
+    output reg [ 3:0] red, green, blue
 );
 
 localparam [2:0] ALPHA=7,BG_PXL=3'b111, BG_PRIO=3'b0;

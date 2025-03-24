@@ -52,9 +52,9 @@ module jtrthunder_sound(
 );
 
 wire [15:0] A;
-wire [ 7:0] mcu_dout, cab_other, fm_dout, c30_dout, p1_dout;
+wire [ 7:0] mcu_dout, cab_other, fm_dout, c30_dout, p1_dout, cab_dout;
 wire [ 4:0] p2_dout;
-reg  [ 7:0] mcu_din, cab_dout;
+reg  [ 7:0] mcu_din;
 reg         uc30_cs, fm_cs, dec7d, porta, portb, cab_cs, ram_cs, irq_ack;
 wire        halted, vma, wr, irq;
 

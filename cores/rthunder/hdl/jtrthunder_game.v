@@ -22,7 +22,8 @@ module jtrthunder_game(
 
 wire [15:0] fave, saddr;
 wire [ 1:0] busy;
-reg  [ 7:0] dbg_mux, backcolor, st_main, sdout;
+reg  [ 7:0] dbg_mux;
+wire [ 7:0] backcolor, st_main, sdout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             srnw, bsel, sc30_cs;
@@ -31,8 +32,6 @@ assign debug_view = dbg_mux;
 assign dip_flip   = flip;
 
 assign flip = 0;
-assign mcu_addr = 0;
-
 assign pcm_cs=0, pcm_addr=0, pcm=0;
 
 always @* begin

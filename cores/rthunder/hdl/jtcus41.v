@@ -24,7 +24,8 @@ module jtcus41(
     output  reg    scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
                    latch0_cs, latch1_cs,
                    mbank_cs,  sbank_cs,
-                   wdog_cs,   int_n
+                   wdog_cs,
+    output         int_n
 );
 
 reg irq_ack;

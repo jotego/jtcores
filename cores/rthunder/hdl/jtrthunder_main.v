@@ -47,7 +47,7 @@ module jtrthunder_main(
 wire [15:0] maddr;
 wire [ 7:0] mdout, bdin;
 wire [ 1:0] mbank, sbank;
-reg  [ 7:0] mdin,  sdin;
+wire [ 7:0] mdin,  sdin;
 reg         rst_n;
 wire        mrnw, mint_n, sint_n,   mavma,     savma,
             main_E, main_Q, sub_E, sub_Q,

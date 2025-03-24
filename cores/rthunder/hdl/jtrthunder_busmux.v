@@ -27,7 +27,7 @@ module jtrthunder_busmux(
 
     output     latch0_cs, latch1_cs, brnw,
     output reg bsel,
-    output reg [1:0] mbank, sbank,
+    output     [1:0] mbank, sbank,
     output     [1:0] scr0_we, scr1_we, oram_we,
 
     input  [15:0] maddr,     saddr,
