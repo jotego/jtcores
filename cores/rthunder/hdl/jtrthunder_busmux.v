@@ -25,7 +25,8 @@ module jtrthunder_busmux(
             sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
             mrnw,     srnw,
 
-    output  latch0_cs, latch1_cs, brnw,
+    output     latch0_cs, latch1_cs, brnw,
+    output reg bsel,
     output reg [1:0] mbank, sbank,
     output     [1:0] scr0_we, scr1_we, oram_we,
 
@@ -42,9 +43,9 @@ module jtrthunder_busmux(
 wire [7:0] bdin;
 wire       master, sub, mbank_cs, sbank_cs,
            scr0_cs, scr1_cs, oram_cs, vma;
-reg        bsel, mvma, svma;
+reg        mvma, svma;
 
-assign brnw       = bsel ? srnw       : mrnw;
+assign brnw      = bsel ? srnw       : mrnw;
 assign vma       = bsel ? svma       : mvma;
 assign mbank_cs  = bsel ? smbank_cs  : mmbank_cs;
 assign sbank_cs  = bsel ? ssbank_cs  : msbank_cs;

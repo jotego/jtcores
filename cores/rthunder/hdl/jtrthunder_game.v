@@ -25,7 +25,7 @@ wire [ 1:0] busy;
 reg  [ 7:0] dbg_mux, backcolor, st_main, sdout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
-            srnw, sc30_cs;
+            srnw, bsel, sc30_cs;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
@@ -96,6 +96,7 @@ jtrthunder_main u_main(
     .latch1_cs  ( mmr1_cs   ),
 
     // CUS30
+    .bsel       ( bsel      ),
     .sc30_cs    ( sc30_cs   ),
     .srnw       ( srnw      ),
     .saddr      ( saddr     ),
@@ -122,6 +123,7 @@ jtrthunder_sound u_sound(
     .service    ( service   ),
 
     // sub 6809 connection to CUS30
+    .bsel       ( bsel      ),
     .sc30_cs    ( sc30_cs   ),
     .srnw       ( srnw      ),
     .saddr      ( saddr[9:0]),

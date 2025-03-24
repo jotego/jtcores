@@ -21,7 +21,7 @@ module jtrthunder_main(
                         cen_main, cen_sub,
                         lvbl,
 
-    output              tile_bank, latch0_cs, latch1_cs,
+    output              tile_bank, latch0_cs, latch1_cs, bsel,
     output       [ 7:0] backcolor,
 
     output              mrom_cs,   srom_cs, bus_busy,
@@ -81,8 +81,11 @@ jtrthunder_busmux u_busmux(
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
+
     .mavma      ( mavma     ),
     .savma      ( savma     ),
+    .bsel       ( bsel      ),
+
     .mrom_cs    ( mrom_cs   ),
     .srom_cs    ( srom_cs   ),
     .mscr0_cs   ( mscr0_cs  ),

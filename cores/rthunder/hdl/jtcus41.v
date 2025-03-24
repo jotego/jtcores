@@ -38,9 +38,9 @@ jtframe_edge #(.QSET(0))u_irq(
 );
 
 always @* begin
-    oram_cs = 0;
-    scr0_cs = 0;
-    scr1_cs = 0;
+    oram_cs   = 0;
+    scr0_cs   = 0;
+    scr1_cs   = 0;
     banked_cs = 0;
     wdog_cs   = 0;
     irq_ack   = 0;
@@ -61,9 +61,9 @@ always @* begin
         endcase
         default:;
     endcase
-    rom_cs = (addr[15] && rnw) || banked_cs; // 8000~FFFF
-    mbank_cs = latch0_cs && addr[1:0]==3;
-    sbank_cs = latch1_cs && addr[1:0]==3;
+    rom_cs   = (addr[15] && rnw) || banked_cs; // 8000~FFFF
+    mbank_cs =  latch0_cs && addr[1:0]==3;
+    sbank_cs =  latch1_cs && addr[1:0]==3;
 end
 
 endmodule
