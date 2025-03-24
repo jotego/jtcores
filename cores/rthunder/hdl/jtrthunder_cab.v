@@ -28,18 +28,23 @@ module jtrthunder_cab(
     input        [ 1:0] coin,
     input               service,
 
-    output reg   [ 7:0] cab_dout=0
+    output reg   [ 7:0] cab_dout=0,
+    output       [ 7:0] other
 );
 
 localparam UP=3,DOWN=2,LEFT=1,RIGHT=0,B0=4,B1=5,B2=6;
+localparam [2:0] UNUSED=3'b111;
 
 wire service1=1'b1;
 
+assign other={joystick2[LEFT],joystick2[B0],joystick1[RIGHT],joystick1[LEFT],joystick1[B0],UNUSED};
+
 always @(posedge clk) begin
+    cab_dout <= 0;
     if(portb) cab_dout <= a0 ? dipsw[15:8] : dipsw[7:0];
     if(porta) cab_dout <= a0 ?
-        {1'b1   ,cab_1p[1],coin[1],service1,joystick2[UP],joystick1[UP],joystick2[B2], joystick1[B3]} :
-        {service,cab_1p[1],coin[1],service1,joystick2[RIGHT],joystick2[DOWN],joystick1[DOWN], joystick1[B2], joystick2[B3]};
+        {1'b1   ,cab_1p[1],coin[1],service1,joystick2[UP],joystick1[UP],joystick2[B1], joystick1[B2]} :
+        {service,cab_1p[1],coin[1],joystick2[RIGHT],joystick2[DOWN],joystick1[DOWN], joystick1[B1], joystick2[B2]};
 end
 
 endmodule

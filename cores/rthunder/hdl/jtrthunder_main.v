@@ -34,18 +34,23 @@ module jtrthunder_main(
     input        [ 7:0] mrom_data, srom_data,
     input        [15:0] scr0_dout, scr1_dout, oram_dout,
 
+    // CUS30
+    output              srnw, sc30_cs,
+    output       [ 7:0] sdout,
+    output       [15:0] saddr,
+
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
 );
 `ifndef NOMAIN
 
-wire [15:0] maddr, saddr;
-wire [ 7:0] mdout, sdout, bdin;
+wire [15:0] maddr;
+wire [ 7:0] mdout, bdin;
 wire [ 1:0] mbank, sbank;
 reg  [ 7:0] mdin,  sdin;
 reg         rst_n;
-wire        mrnw, srnw, mint_n, sint_n,   mavma,     savma,
-            main_E, main_Q, sub_E, sub_Q, snd_cs,
+wire        mrnw, mint_n, sint_n,   mavma,     savma,
+            main_E, main_Q, sub_E, sub_Q,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
             sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
             mbanked_cs, sbanked_cs;
@@ -144,7 +149,7 @@ jtcus47 u_cus47(
     .sbank_cs   ( msbank_cs ),
     .rom_cs     ( mrom_cs   ),
     .banked_cs  (mbanked_cs ),
-    .snd_cs     ( snd_cs    ),
+    .snd_cs     ( sc30_cs   ),
     .wdog_cs    (           ),
     .int_n      ( mint_n    )
 );

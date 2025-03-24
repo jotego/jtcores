@@ -49,7 +49,7 @@ sdram:
         addr_width: 19
         data_width: 32
       - name: mcusub
-        addr_width: 19
+        addr_width: 15
         data_width: 8
 bram:
   # PROM order here must match the MRA order
@@ -107,7 +107,6 @@ bram:
   # Objects
   - name: oram
     addr_width: 13
-    data_width: 8
     data_width: 16
     dual_port:
       name: osh
@@ -115,3 +114,8 @@ bram:
       din:  "{2{bdout}}"
       rw:   true
     ioctl: { save: true, order: 2 }
+  # sound RAM connected to cus30
+  - name: sndram
+    rw: true
+    addr_width: 12
+    data_width: 8

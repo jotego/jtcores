@@ -20,11 +20,12 @@ module jtrthunder_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:0] fave;
+wire [15:0] fave, saddr;
 wire [ 1:0] busy;
-reg  [ 7:0] dbg_mux, backcolor, st_main;
+reg  [ 7:0] dbg_mux, backcolor, st_main, sdout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
-wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank;
+wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
+            srnw, sc30_cs;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
@@ -32,8 +33,7 @@ assign dip_flip   = flip;
 assign flip = 0;
 assign mcu_addr = 0;
 
-assign pcm_cs=0, pcm_addr=0;
-assign fm_l=0, fm_r=0,pcm=0,cus30_r=0,cus30_l=0;
+assign pcm_cs=0, pcm_addr=0, pcm=0;
 
 always @* begin
     case( debug_bus[7:6] )
@@ -95,6 +95,12 @@ jtrthunder_main u_main(
     .latch0_cs  ( mmr0_cs   ),
     .latch1_cs  ( mmr1_cs   ),
 
+    // CUS30
+    .sc30_cs    ( sc30_cs   ),
+    .srnw       ( srnw      ),
+    .saddr      ( saddr     ),
+    .sdout      ( sdout     ),
+
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
 );
@@ -102,10 +108,29 @@ jtrthunder_main u_main(
 jtrthunder_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen_mcu    ( cen_mcu   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
 
+    .lvbl       ( LVBL      ),
+
     .dipsw      ( dipsw[15:0]),
+    .joystick1  (joystick1[6:0]),
+    .joystick2  (joystick2[6:0]),
+    .cab_1p     ( cab_1p[1:0]),
+    .coin       ( coin[1:0] ),
+    .service    ( service   ),
+
+    // sub 6809 connection to CUS30
+    .sc30_cs    ( sc30_cs   ),
+    .srnw       ( srnw      ),
+    .saddr      ( saddr[9:0]),
+    .sdout      ( sdout     ),
+
+    .ram_addr   (sndram_addr),
+    .ram_dout   (sndram_dout),
+    .ram_we     (sndram_we  ),
+    .ram_din    (sndram_din ),
 
     .embd_addr  ( mcu_addr  ),
     .embd_data  ( mcu_data  ),
@@ -114,8 +139,13 @@ jtrthunder_sound u_sound(
     .rom_ok     (mcusub_ok  ),
     .rom_addr   (mcusub_addr),
     .rom_data   (mcusub_data),
+    .bus_busy   ( busy[1]   ),
 
-    .bus_busy   ( busy[1]   )
+    .fm_l       ( fm_l      ),
+    .fm_r       ( fm_r      ),
+    .cus30_l    ( cus30_l   ),
+    .cus30_r    ( cus30_r   ),
+    .debug_bus  ( debug_bus )
 );
 
 jtrthunder_video u_video(

@@ -1,10 +1,6 @@
 rthunder:
   - get:
-    - jtcus42*.v
-    - jtrthunder_game.v
-    - jtrthunder_video.v
-    - jtrthunder_colmix.v
-    - jtrthunder_scroll.v
+    - "*.v"
 shouse:
   - get:
     - jtcus30.sv

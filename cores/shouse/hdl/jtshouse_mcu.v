@@ -32,7 +32,7 @@ module jtshouse_mcu(
     output             rnw,
     output reg         ram_cs,      // Tri port RAM
     input       [7:0]  ram_dout,
-    output             halted,      // signals an decoding error too
+    output             halted,      // signals a decoding error too
     // Ports
     // cabinet I/O
     input       [1:0]  io_mode,

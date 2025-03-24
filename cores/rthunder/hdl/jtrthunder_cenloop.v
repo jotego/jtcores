@@ -19,7 +19,7 @@
 module jtrthunder_cenloop(
     input             rst,
     input             clk,
-    input      [ 2:0] busy,
+    input      [ 1:0] busy,
 
     output            cen_main, cen_sub, cen_mcu,
 
