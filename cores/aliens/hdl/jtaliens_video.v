@@ -171,7 +171,7 @@ function [7:0] cgate( input [7:0] c);
                             { c[7:6], 6'd0       };
 endfunction
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -256,7 +256,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -305,7 +305,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
