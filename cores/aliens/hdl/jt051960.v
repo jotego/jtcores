@@ -256,7 +256,7 @@ always @(posedge clk, posedge rst) begin
                         7    : {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
                     endcase
                     hcode <= {code[4],code[2],code[0]};
-                    if( !inzone ) begin
+                    if( !inzone || (scan_obj!=7'h64 && scan_obj!=7'h63) ) begin
                         scan_sub <= 1;
                         scan_obj <= scan_obj + 1'd1;
                         if( &scan_obj ) done <= 1;
