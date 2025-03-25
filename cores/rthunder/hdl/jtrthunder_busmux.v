@@ -20,7 +20,7 @@ module jtrthunder_busmux(
     input   rst, clk,
             cen_main, cen_sub,
             mavma,    savma,
-    input   mrom_cs,  srom_cs,
+    input   mrom_cs,  srom_cs,  mc30_cs,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs,
             sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
             mrnw,     srnw,
@@ -31,7 +31,7 @@ module jtrthunder_busmux(
     output     [1:0] scr0_we, scr1_we, oram_we,
 
     input  [15:0] maddr,     saddr,
-    input   [7:0] mdout,     sdout,
+    input   [7:0] mdout,     sdout,     c30_dout,
                   mrom_data, srom_data,
     input  [15:0] scr0_dout, scr1_dout, oram_dout,
     output [12:0] baddr,
@@ -94,7 +94,8 @@ always @(posedge clk) begin
     if( cen_main ) begin bsel <= 1; mvma <= mavma; end
     if( cen_sub  ) begin bsel <= 0; svma <= savma; end
     if( master )
-        mdin <= mrom_cs ? mrom_data : bdin;
+        mdin <= mrom_cs ? mrom_data :
+                mc30_cs ? c30_dout  : bdin;
     else
         sdin <= srom_cs ? srom_data : bdin;
 end

@@ -20,13 +20,13 @@ module jtrthunder_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:0] fave, saddr;
+wire [15:0] fave, maddr;
 wire [ 1:0] busy;
 reg  [ 7:0] dbg_mux;
-wire [ 7:0] backcolor, st_main, sdout;
+wire [ 7:0] backcolor, st_main, mdout, c30_dout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
-            srnw, bsel, sc30_cs;
+            mrnw, bsel, mc30_cs;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
@@ -96,10 +96,11 @@ jtrthunder_main u_main(
 
     // CUS30
     .bsel       ( bsel      ),
-    .sc30_cs    ( sc30_cs   ),
-    .srnw       ( srnw      ),
-    .saddr      ( saddr     ),
-    .sdout      ( sdout     ),
+    .c30_dout   ( c30_dout  ),
+    .mc30_cs    ( mc30_cs   ),
+    .mrnw       ( mrnw      ),
+    .maddr      ( maddr     ),
+    .mdout      ( mdout     ),
 
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
@@ -123,10 +124,11 @@ jtrthunder_sound u_sound(
 
     // sub 6809 connection to CUS30
     .bsel       ( bsel      ),
-    .sc30_cs    ( sc30_cs   ),
-    .srnw       ( srnw      ),
-    .saddr      ( saddr[9:0]),
-    .sdout      ( sdout     ),
+    .c30_dout   ( c30_dout  ),
+    .mc30_cs    ( mc30_cs   ),
+    .mrnw       ( mrnw      ),
+    .maddr      ( maddr[9:0]),
+    .mdout      ( mdout     ),
 
     .ram_addr   (sndram_addr),
     .ram_dout   (sndram_dout),

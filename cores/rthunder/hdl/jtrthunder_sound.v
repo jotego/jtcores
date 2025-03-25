@@ -28,10 +28,11 @@ module jtrthunder_sound(
     input               service,
 
     // Sub 6809 also connects to CUS30
-    input        [ 9:0] saddr,
-    input        [ 7:0] sdout,
-    input               sc30_cs,
-    input               srnw,
+    input        [ 9:0] maddr,
+    input        [ 7:0] mdout,
+    output       [ 7:0] c30_dout,
+    input               mc30_cs,
+    input               mrnw,
 
     output       [11:0] embd_addr,
     input        [ 7:0] embd_data,
@@ -46,13 +47,13 @@ module jtrthunder_sound(
     input               rom_ok,
     output              bus_busy,
 
-    output signed[15:0] fm_l, fm_r,
+    output signed[15:0] fm_l,    fm_r,
     output signed[12:0] cus30_l, cus30_r,
     input        [ 7:0] debug_bus
 );
 
 wire [15:0] A;
-wire [ 7:0] mcu_dout, cab_other, fm_dout, c30_dout, p1_dout, cab_dout;
+wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout;
 wire [ 4:0] p2_dout;
 reg  [ 7:0] mcu_din;
 reg         uc30_cs, fm_cs, dec7d, porta, portb, cab_cs, ram_cs, irq_ack;
@@ -153,10 +154,10 @@ jtcus30 u_wav(
 
     .xdin       ( c30_dout      ),
     // main/sub bus
-    .bcs        ( sc30_cs       ),
-    .brnw       ( srnw          ),
-    .baddr      ( saddr         ),
-    .bdout      ( sdout         ),
+    .bcs        ( mc30_cs       ),
+    .brnw       ( mrnw          ),
+    .baddr      ( maddr         ),
+    .bdout      ( mdout         ),
 
     // sound CPU
     .scs        ( uc30_cs       ),
