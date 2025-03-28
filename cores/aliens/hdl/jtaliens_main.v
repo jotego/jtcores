@@ -394,6 +394,10 @@ jtkcpu u_cpu(
     assign st_dout  = 0;
     assign pal_we   = 0;
     assign rom_addr = 0;
+    assign pmc_we   = 0;
+    assign pmc_addr = 0;
+    assign pmc_din  = 0;
+    assign cpu2pmc_we = 0;
 
     reg [7:0] prio_init[0:0];
     integer f,fcnt=0;
