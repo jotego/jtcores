@@ -45,17 +45,18 @@ wire       master, sub, mbank_cs, sbank_cs,
            scr0_cs, scr1_cs, oram_cs, vma;
 reg        mvma, svma;
 
-assign brnw      = bsel ? srnw       : mrnw;
 assign vma       = bsel ? svma       : mvma;
 assign mbank_cs  = bsel ? smbank_cs  : mmbank_cs;
 assign sbank_cs  = bsel ? ssbank_cs  : msbank_cs;
-assign bdout     = bsel ? sdout      : mdout;
 assign scr0_cs   = bsel ? sscr0_cs   : mscr0_cs;
 assign scr1_cs   = bsel ? sscr1_cs   : mscr1_cs;
 assign oram_cs   = bsel ? soram_cs   : moram_cs;
 assign latch0_cs = bsel ? slatch0_cs : mlatch0_cs;
 assign latch1_cs = bsel ? slatch1_cs : mlatch1_cs;
-assign baddr     = bsel ? maddr[12:0]: saddr[12:0];
+
+assign bdout     = bsel ? sdout      : mdout;
+assign brnw      = bsel ? srnw       : mrnw;
+assign baddr     = bsel ? saddr[12:0]: maddr[12:0];
 
 assign scr0_we   = {2{scr0_cs&~brnw}} & { baddr[0], ~baddr[0] };
 assign scr1_we   = {2{scr1_cs&~brnw}} & { baddr[0], ~baddr[0] };

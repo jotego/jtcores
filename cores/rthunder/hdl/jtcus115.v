@@ -26,8 +26,10 @@ module jtcus115(
 );
 
 wire banksel_cs;
+wire [3:0] asel;
 
-assign banksel_cs = addr[12:9]==4 && cs;
+assign asel       = addr[12:9];
+assign banksel_cs = asel==4 && cs;
 
 jtframe_mmr_reg #(.W(5)) u_mbank(
     .rst        ( rst       ),
