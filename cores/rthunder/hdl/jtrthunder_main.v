@@ -19,19 +19,20 @@
 module jtrthunder_main(
     input               rst, clk,
                         cen_main, cen_sub,
-                        lvbl,
+                        lvbl, sndext_en,
 
     output              tile_bank, latch0_cs, latch1_cs, bsel,
     output       [ 7:0] backcolor,
 
-    output              mrom_cs,   srom_cs, bus_busy,
-    input               mrom_ok,   srom_ok,
-    output       [15:0] mrom_addr, srom_addr,
+    output              mrom_cs,   srom_cs, ext_cs, bus_busy,
+    input               mrom_ok,   srom_ok, ext_ok,
+    output       [17:0] ext_addr,
+    output       [15:0] mrom_addr, srom_addr
     output       [12:0] baddr,
     output       [ 7:0] bdout,
     output       [ 1:0] scr0_we, scr1_we, oram_we,
     output              brnw,
-    input        [ 7:0] mrom_data, srom_data,
+    input        [ 7:0] mrom_data, srom_data, ext_data,
     input        [15:0] scr0_dout, scr1_dout, oram_dout,
 
     // CUS30
@@ -47,6 +48,7 @@ module jtrthunder_main(
 
 wire [15:0] saddr;
 wire [ 7:0] sdout, bdin;
+wire [ 4:0] mbank_ext;
 wire [ 1:0] mbank, sbank;
 wire [ 7:0] mdin,  sdin;
 reg         rst_n;
@@ -54,7 +56,7 @@ wire        srnw, mint_n, sint_n,   mavma,     savma,
             main_E, main_Q, sub_E, sub_Q,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
             sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
-            mbanked_cs, sbanked_cs;
+            mbanked_cs, sbanked_cs, c115_cs;
 
 assign main_E = cen_main;
 assign main_Q = cen_sub;
@@ -64,7 +66,9 @@ assign sub_Q  = cen_main;
 assign st_dout   = 0;
 assign mrom_addr = mbanked_cs ? {1'b0,mbank, maddr[12:0]} : maddr;
 assign srom_addr = sbanked_cs ? {1'b0,sbank, saddr[12:0]} : saddr;
-assign bus_busy  = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok};
+assign ext_addr  = {mbank_ext,maddr[12:0]};
+assign ext_cs    = mbanked_cs & sndext_en;
+assign bus_busy  = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ext_cs&~ext_ok};
 
 always @(posedge clk) rst_n <= ~rst;
 
@@ -75,6 +79,15 @@ jtframe_mmr_reg u_backcolor(
     .din        ( mdout     ),
     .cs         ( bcolor_cs ),
     .dout       ( backcolor )
+);
+
+jtcus115 u_cus115(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cs         ( c115_cs   ),
+    .addr       ( maddr     ),
+    .din        ( mdout     ),
+    .banksel    ( mbank_ext )
 );
 
 jtrthunder_busmux u_busmux(
@@ -156,6 +169,7 @@ jtcus47 u_cus47(
     .rom_cs     ( mrom_cs   ),
     .banked_cs  (mbanked_cs ),
     .snd_cs     ( mc30_cs   ),
+    .c115_cs    ( c115_cs   ),
     .wdog_cs    (           ),
     .int_n      ( mint_n    )
 );

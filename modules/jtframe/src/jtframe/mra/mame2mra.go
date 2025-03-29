@@ -96,6 +96,8 @@ func Convert(args Args) error {
 		}
 	}
 	dump_setnames( args.Core, valid_setnames )
+	bad_header := dump_verilog_header(args.Core, mra_cfg.Header)
+	all_errors = common.JoinErrors(all_errors, bad_header )
 	if !main_copied {
 		log.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
 	}
@@ -800,4 +802,12 @@ func parse_args(args *Args) {
 	args.altdir = filepath.Join(args.outdir, "_alternatives")
 	args.pocketdir = filepath.Join(release_dir, "pocket", "raw")
 	args.firmware_dir = filepath.Join(cores, args.Core, "firmware")
+}
+
+func dump_verilog_header( corename string, hdr HeaderCfg ) error {
+	bb, e := hdr.MakeVerilog(corename)
+	if e!=nil { return e }
+	fname := "jt"+corename+"_header.v"
+	fname = filepath.Join(os.Getenv("CORES"),corename,"hdl",fname)
+	return os.WriteFile(fname,bb,0664)
 }

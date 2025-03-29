@@ -169,7 +169,11 @@ jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .cen_da     (           )
 );
 
-jtframe_dual_ram u_wave( // 4 (waves) + 5 (wave length) = 9 bits, 10th bit must be used as regular RAM
+// 4 (waves) + 5 (wave length) = 9 bits, 10th bit must be used as regular RAM
+// connected to a 4kB RAM on Rolling Thunder through a 2kB address interface
+// it should be possible to take this RAM out of this module and have it
+// external as part of the larger RAM
+jtframe_dual_ram u_wave(
     // Port 0 - CPUs
     .clk0   ( clk        ),
     .data0  ( xdout      ),

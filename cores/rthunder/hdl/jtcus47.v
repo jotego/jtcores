@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-// memory address decoder for main CPU (cpu1 in MAME)
+// memory address decoder for CPU1 (connected to CUS30)
 module jtcus47(
     input          rst, clk,
                    rnw, lvbl,
@@ -24,7 +24,7 @@ module jtcus47(
     output  reg    bank=0,   // SCR0 ROM bank
                    scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
                    latch0_cs, latch1_cs, latch2_cs, snd_cs,
-                   mbank_cs,  sbank_cs,
+                   mbank_cs,  sbank_cs,  c115_cs,
                    wdog_cs,
     output         int_n
 );
@@ -54,21 +54,25 @@ always @* begin
     irq_ack    = 0;
     banked_cs  = 0;
     scrbank_cs = 0;
+    c115_cs    = 0;
     casez(addr[15:12])
         // shared with sub CPU
         4'b000?: scr0_cs = 1; // 0000~1FFF 8kB tilemap RAM
         4'b001?: scr1_cs = 1; // 2000~3FFF
         4'b010?: oram_cs = 1; // 4000~4FFF
         // shared with MCU (via CUS30)
-        4'b011?: banked_cs = 1; // 6000~7FFF ROM (banked)
-        4'b1000: if(!rnw) casez(addr[11:10])
-            2'b00: wdog_cs = 1;
-            2'b01: irq_ack = 1;
-            2'b1?: scrbank_cs = 1;
+        4'b011?: begin
+            banked_cs = rnw; // 6000~7FFF ROM (banked)
+            c115_cs   =!rnw; // 6000~7FFF control of 63701X
+        end
+        4'b1000: if(!rnw) casez(addr[11:10]) // only writes
+            2'b00: wdog_cs = 1;     // 8000
+            2'b01: irq_ack = 1;     // 8400
+            2'b1?: scrbank_cs = 1;  // 8800~8FFF
         endcase
         4'b1001: if(!rnw) case(addr[10])
-            0: latch0_cs = 1; // LATCH0 in schematics
-            1: latch1_cs = 1; // LATCH1
+            0: latch0_cs = 1; // 9000 LATCH0 in schematics
+            1: latch1_cs = 1; // 9400 LATCH1
         endcase
         4'b1010: latch2_cs = !rnw; // Back color
         default:;

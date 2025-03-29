@@ -68,8 +68,8 @@ assign rom_addr = A[14:0];
 // Address decoder
 always @(*) begin
     uc30_cs = vma && A[15:12]==1 && A[11:10]==0;    // 1000~13FF
-    ram_cs  = vma && A[15:12]==1 && A[11:10]!=0;    // 1400~1FFF -> 4kB
-    dec7d   = vma && A[15:12]==2 && A[ 7: 4]==0;    // 2000~2FFF
+    ram_cs  = vma && A[15:12]==1 && A[11:10]!=0;    // 1400~1FFF -> 3kB
+    dec7d   = vma && A[15:12]==2;                   // 2000~2FFF
     rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
     irq_ack = vma && A[15:12]==4'hb && wr;          // B000~BFFF
     fm_cs   = dec7d && A[5:4]==0;

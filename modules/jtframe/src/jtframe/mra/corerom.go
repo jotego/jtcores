@@ -65,7 +65,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		sorted_regs[r] = true
 	}
 	regions := add_unlisted_regions(machine.Rom,cfg.ROM.Order)
-	header := cfg.Header.make_header_node(p)
+	cfg.Header.MakeNode(p)
 	pos := 0
 	reg_offsets := make(map[string]int)
 
@@ -141,9 +141,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	make_devROM(p, machine, cfg, &pos)
 	p.AddComment(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10))
 	make_patches(p, machine, cfg )
-	if header != nil {
-		if e:=make_header(header, reg_offsets, pos, cfg.Header, machine); e!= nil { return e }
-	}
+	if e:=cfg.Header.FillData(reg_offsets, pos, machine); e!= nil { return e }
 	return nil
 }
 
@@ -181,17 +179,6 @@ func add_unlisted_regions(machine_roms []MameROM, initial_regions []string) (reg
 		}
 	}
 	return regions
-}
-
-func (hdrCfg *HeaderCfg) make_header_node(parent *XMLNode) (header *XMLNode) {
-	if hdrCfg.len > 0 {
-		if len(hdrCfg.Info) > 0 {
-			parent.AddComment(hdrCfg.Info)
-		}
-		header = parent.AddNode("part")
-		header.SetIndent()
-	}
-	return header
 }
 
 func is_rom_dump_missing( reg_roms []MameROM) bool {

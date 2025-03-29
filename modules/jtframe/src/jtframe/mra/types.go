@@ -155,6 +155,20 @@ type RawData struct {
     Selectable
 }
 
+type HeaderCfg struct {
+    Info    string
+    Fill    int
+    Data   []HeaderData
+    Registers []HeaderReg
+    PCBs   []Selectable
+    // Offset in the ROM stream of each ROM region
+    Offset HeaderOffset
+    Frames []FrameCfg // indicates that the game draws a black frame around the active video
+    // Filled automatically
+    len int
+    node *XMLNode
+}
+
 type HeaderData struct {
     RawData
     Offset  int
@@ -162,23 +176,25 @@ type HeaderData struct {
     Pcb_id  bool
 }
 
+type HeaderReg struct {
+    Name string
+    Pos  string // format: byte[msb:lsb] or byte[bit]
+    Desc string
+    Values []HeaderRegValue
+    // private
+    offset, bit, mask, msb, lsb int
+}
+
+type HeaderRegValue struct {
+    Selectable
+    Value int
+}
+
 type HeaderOffset struct {
     Bits    int
     Reverse bool
     Start   int // Start location for the offset table
     Regions []string
-}
-
-type HeaderCfg struct {
-    Info    string
-    Fill    int
-    Data   []HeaderData
-    PCBs   []Selectable
-    // Offset in the ROM stream of each ROM region
-    Offset HeaderOffset
-    Frames []FrameCfg // indicates that the game draws a black frame around the active video
-    // Filled automatically
-    len int
 }
 
 type Info struct {

@@ -15,7 +15,10 @@ names=[
 ]
 
 [header]
-# reserve 1 bit to indicate 2bpp tile data
+registers = [
+	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}], desc="Scroll uses only 2 color planes" },
+	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound" },
+]
 
 [ROM]
 regions = [

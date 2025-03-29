@@ -27,6 +27,8 @@ wire [ 7:0] backcolor, st_main, mdout, c30_dout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs;
+// Configuration through MRA header
+wire        scr2bpp, sndext_en;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
@@ -43,6 +45,17 @@ always @* begin
         default: dbg_mux = 0;
     endcase
 end
+
+jtrthunder_header u_header(
+    .clk        ( clk       ),
+    .clk        ( header    ),
+    .prog_we    ( prog_we   ),
+
+    .scr2bpp    ( scr2bpp   ),
+    .sndext_en  ( sndext_en ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data )
+);
 
 jtrthunder_cenloop u_cen(
     .rst        ( rst       ),
@@ -77,6 +90,12 @@ jtrthunder_main u_main(
     .srom_ok    ( snd_ok    ),
     .srom_addr  ( snd_addr  ),
     .srom_data  ( snd_data  ),
+
+    .ext_cs     ( ext_cs    ),
+    .ext_ok     ( ext_ok    ),
+    .ext_addr   ( ext_addr  ),
+    .ext_data   ( ext_data  ),
+    .sndext_en  ( sndext_en ),
 
     .bus_busy   ( busy[0]   ),
 

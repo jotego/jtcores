@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-// memory address decoder for sound CPU (cpu2 in MAME)
+// memory address decoder for CPU 2 (11A on PCB)
 module jtcus41(
     input          rst, clk,
                    rnw, lvbl,
@@ -53,12 +53,12 @@ always @* begin
         4'b010?: scr1_cs   = 1; // 4000~5FFF
         4'b011?: banked_cs = 1; // 6000~7FFF ROM (banked)
         4'b1000: if(!rnw) casez(addr[11])
-            0: wdog_cs = 1;
-            1: irq_ack = 1;
+            0: wdog_cs = 1; // 8000
+            1: irq_ack = 1; // 8800
         endcase
         4'b1101: if(!rnw) case(addr[11])
-            0: latch0_cs = 1; // LATCH0 in schematics
-            1: latch1_cs = 1; // LATCH1
+            0: latch0_cs = 1; // D000 LATCH0 in schematics
+            1: latch1_cs = 1; // D800 LATCH1
         endcase
         default:;
     endcase
