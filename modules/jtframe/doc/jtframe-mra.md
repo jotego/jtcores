@@ -80,11 +80,18 @@ PCBs = [
     { machine=  "thunderx" },
     { machine=  "scontra"  },
 ]
+# explicit data assignment in the TOML
 data = [
 	{ pcb_id = true, offset=0 } # filled with the PCB array innformation
 	{ machine="...", setname="...", dev="...", offset=3, data="12 32 43 ..." },
 	...
 ]
+# automatic header module generation
+registers = [
+	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}], desc="Scroll uses only 2 color planes" },
+	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound" },
+]
+
 
 # region offset table at "start" byte in the header. This will also enable
 # the LUT parameters in jtframe_dwnld automatically

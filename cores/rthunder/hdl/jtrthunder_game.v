@@ -48,7 +48,7 @@ end
 
 jtrthunder_header u_header(
     .clk        ( clk       ),
-    .clk        ( header    ),
+    .header     ( header    ),
     .prog_we    ( prog_we   ),
 
     .scr2bpp    ( scr2bpp   ),

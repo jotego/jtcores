@@ -22,7 +22,7 @@ sdram:
       - name: main
         addr_width: 16
         data_width: 8
-      - name: ext   // sound extension board on some games
+      - name: ext   # sound extension board on some games
         addr_width: 18
         data_width: 8
     - buses:

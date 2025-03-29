@@ -33,7 +33,7 @@ jtframe_mmr_reg #(.W(5)) u_mbank(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .wr_n       ( 1'b0      ),
-    .din        ( din       ),
+    .din        ( din[4:0]  ),
     .cs         ( banksel_cs),
     .dout       ( banksel   )
 );

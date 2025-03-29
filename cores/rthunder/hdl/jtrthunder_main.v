@@ -27,7 +27,7 @@ module jtrthunder_main(
     output              mrom_cs,   srom_cs, ext_cs, bus_busy,
     input               mrom_ok,   srom_ok, ext_ok,
     output       [17:0] ext_addr,
-    output       [15:0] mrom_addr, srom_addr
+    output       [15:0] mrom_addr, srom_addr,
     output       [12:0] baddr,
     output       [ 7:0] bdout,
     output       [ 1:0] scr0_we, scr1_we, oram_we,
@@ -117,6 +117,7 @@ jtrthunder_busmux u_busmux(
     .mlatch1_cs ( mlatch1_cs),
     .slatch0_cs ( slatch0_cs),
     .slatch1_cs ( slatch1_cs),
+    .ext_cs     ( ext_cs    ),
     // address
     .maddr      ( maddr     ),
     .saddr      ( saddr     ),
@@ -129,6 +130,7 @@ jtrthunder_busmux u_busmux(
     .mdout      ( mdout     ),
     .sdout      ( sdout     ),
     .mrom_data  ( mrom_data ),
+    .ext_data   ( ext_data  ),
     .srom_data  ( srom_data ),
     .scr0_dout  ( scr0_dout ),
     .scr1_dout  ( scr1_dout ),
