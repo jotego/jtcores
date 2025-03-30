@@ -807,6 +807,7 @@ func parse_args(args *Args) {
 func dump_verilog_header( corename string, hdr HeaderCfg ) error {
 	bb, e := hdr.MakeVerilog(corename)
 	if e!=nil { return e }
+	if len(bb)==0 { return nil }
 	fname := "jt"+corename+"_header.v"
 	fname = filepath.Join(os.Getenv("CORES"),corename,"hdl",fname)
 	return os.WriteFile(fname,bb,0664)
