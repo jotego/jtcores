@@ -63,7 +63,7 @@ assign bus_busy = rom_cs & ~rom_ok;
 assign ram_addr = A[11:0];
 assign ram_we   = ram_cs & wr;
 assign ram_din  = mcu_dout;
-assign rom_addr = A[14:0];
+assign rom_addr = {A[15],A[13:0]};
 
 // Address decoder
 always @(*) begin

@@ -1,6 +1,0 @@
-focus 0
-trace off
-trace debug.trace,cpu1,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
-
-gtime 1100
-traceflush

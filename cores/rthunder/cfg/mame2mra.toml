@@ -103,7 +103,7 @@ regions = [
 
 
 	{ name="gfx3", start="JTFRAME_BA3_START"  },
-	{ name="mcusub"                           },
+	{ name="mcusub",start="MCUSUB_START"      },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
 	{ name="proms", sequence=[0,1,2,3,4,4]    },
 ]
