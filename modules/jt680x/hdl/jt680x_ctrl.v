@@ -53,7 +53,7 @@ module jt680x_ctrl(
     output [3:0] rmux_sel,
     output [4:0] cc_sel,
     // info
-    output reg   stack_bsy
+    output reg   stack_busy
 );
 
 `include "6801_param.vh"
@@ -72,11 +72,11 @@ assign still = ni & ext_halt;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        uaddr     <= IVRD_SEQA;
-        jsr_ret   <= 0;
-        iv        <= 4'o17; // reset vector
-        ba        <= 0;
-        stack_bsy <= 1;
+        uaddr      <= IVRD_SEQA;
+        jsr_ret    <= 0;
+        iv         <= 4'o17; // reset vector
+        ba         <= 0;
+        stack_busy <= 1;
     end else if(cen) begin
         if(!halt && !still) uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= 4'o15; // lowest priority
@@ -86,7 +86,7 @@ always @(posedge clk, posedge rst) begin
             nmi_l <= nmi;
             if( !still ) begin
                 uaddr <= { md[7:0], 4'd0 };
-                stack_bsy <= 0;
+                stack_busy <= 0;
                 // ops[md[7:0]] <= 1;
                 // if( ops_old != ops ) begin
                 //     $display("---------");
@@ -97,18 +97,18 @@ always @(posedge clk, posedge rst) begin
             end
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
                 // alt signal used to bypass the register push to the stack (set by WAI instruction)
-                if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end // lowest priority
-                if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
-                if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
-                if( irq_tof) begin iv <= 4'o11; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
-                if( irq_ocf) begin iv <= 4'o12; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
-                if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end
-                if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_bsy<=1; end // highest priority
+                if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end // lowest priority
+                if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
+                if( irq2   ) begin iv <= 4'o05; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
+                if( irq_tof) begin iv <= 4'o11; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
+                if( irq_ocf) begin iv <= 4'o12; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
+                if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
+                if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end // highest priority
             end
             if( nmi & ~nmi_l ) begin
                 iv <= 4'o16;
                 uaddr <= ISRV_SEQA;
-                stack_bsy <= 1;
+                stack_busy <= 1;
             end
         end
         if( jsr_en ) begin
