@@ -23,8 +23,8 @@ registers = [
 [ROM]
 regions = [
 	{ name="cpu1"                             },
-	{ name="user1"                            },
-	{ name="cpu2", start="JTFRAME_BA1_START"  },
+	{ name="user1", start="EXT_START"         },
+	{ name="cpu2",  start="JTFRAME_BA1_START" },
 	{ name="namco2"                           },
 	# gfx1 (SCROLL 011)
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="rthunder", parts=[

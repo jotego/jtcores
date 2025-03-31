@@ -196,7 +196,7 @@ localparam POCKET=0;
                             f=$fopen(SIMFILE,"wb");
                             if( f!=0 ) begin
                                 for( readcnt=0; readcnt<(2**AW)-1; readcnt=readcnt+2) begin
-                                    $fwrite(f,"%u",32'hffff);
+                                    $fwrite(f,"%u",32'h0000);
                                 end
                                 $fclose(f);
                                 $display("Blank %s created",SIMFILE);

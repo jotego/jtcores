@@ -102,9 +102,9 @@ jtrthunder_main u_main(
     // VRAM
     .baddr      ( baddr     ),
     .bdout      ( bdout     ),
-    .scr0_dout  (vram0_dout ),
-    .scr1_dout  (vram1_dout ),
-    .oram_dout  ( oram_dout ),
+    .scr0_dout  (vram02sh0_data ),
+    .scr1_dout  (vram12sh1_data ),
+    .oram_dout  (oram2osh_data ),
     .scr0_we    ( sh0_we    ),
     .scr1_we    ( sh1_we    ),
     .oram_we    ( osh_we    ),

@@ -1,5 +1,8 @@
 params:
-  - { name: SCR1_OFFSET, value: "`SCR1_START>>1" }
+  - { name: EXT_OFFSET,  value: "`EXT_START>>1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: MCU_OFFSET,  value: "(`MCUSUB_START-`JTFRAME_BA3_START)>>1" }
 clocks:
   clk48:
     - freq: 3579545
@@ -25,6 +28,7 @@ sdram:
       - name: ext   # sound extension board on some games
         addr_width: 18
         data_width: 8
+        offset: EXT_OFFSET
     - buses:
       - name: snd
         addr_width: 16
@@ -32,6 +36,7 @@ sdram:
       - name: pcm
         addr_width: 19
         data_width: 8
+        offset: PCM_OFFSET
     - buses:
       - name: scr0a
         addr_width: 17
@@ -54,6 +59,7 @@ sdram:
       - name: mcusub
         addr_width: 15
         data_width: 8
+        offset: MCU_OFFSET
 bram:
   # PROM order here must match the MRA order
   - name: mcu

@@ -149,7 +149,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
 jtcus30 u_wav(
     .rst        ( rst           ),  // original does not have a reset pin
     .clk        ( clk           ),
-    .bsel       ( bsel          ),
+    .bsel       ( ~bsel         ),
     .cen        ( cen_mcu       ),
 
     .xdin       ( c30_dout      ),
