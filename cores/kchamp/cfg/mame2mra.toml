@@ -10,7 +10,7 @@ volume = [
 ]
 
 [buttons]
-Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]
+Names = [ { names="right(2),left(2),up(2),bottom(2)"} ]
 
 [dipsw]
 delete=[{names=["Unused","Unknown","Coin A","Coin B"]}]
