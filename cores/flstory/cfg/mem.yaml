@@ -1,5 +1,6 @@
 params:
   - { name: SUB_OFFSET, value: "`SUB_START>>1" }
+  - { name: USER1_OFFSET, value: "`USER1_START>>1" }
 ports:
   - { name: bus_addr, msb: 15 }
 clocks:
@@ -53,6 +54,10 @@ sdram:
         addr_width: 16
         data_width: 8
         offset: SUB_OFFSET
+      - name: user1
+        addr_width: 16
+        data_width: 8
+        offset: USER1_OFFSET
     - buses:
       - name: snd
         addr_width: 16

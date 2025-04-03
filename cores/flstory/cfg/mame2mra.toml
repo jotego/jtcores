@@ -101,9 +101,8 @@ regions = [
 	# really only has two banks
 	{ name="maincpu", setname="colt", sequence=[0,1,0,1,2,2,3,3] },
 	{ name="sub",   skip=true                        },
-	{ name="user1", skip=true                        },
 	{ name="sub",   start="SUB_START", machines=["nycaptor","cyclshtg"] },  # sub Z80 ROM
-	{ name="user1", machine="cyclshtg"               },  # ROM mapped as sub Z80 IO ports
+	{ name="user1", start="USER1_START", machine="cyclshtg" },  # ROM mapped as sub Z80 IO ports
 	{ name="audiocpu", start="JTFRAME_BA1_START"     },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,4,1,5,2,6,3,7] },
 	{ name="gfx1",     start="JTFRAME_BA2_START", width=16, sequence=[0,2,1,3,0,2,1,3], machine="rumba" },
