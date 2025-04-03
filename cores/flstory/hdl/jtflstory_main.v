@@ -157,11 +157,11 @@ always @* begin
             case(bus_addr[11:10]) // D000
                 0: if(bus_we) case(bus_addr[1:0])
                     0: b2c_wr = 1; // D000 CPU writes to MCU latch
-                    1: begin // D400
+                    1: begin // D001
                         subhalt_cs = 1;
                         // watchdog = bus_rd
                     end
-                    2: ctl_cs = bus_we; // D800 sub CPU reset and coin lock
+                    2: ctl_cs = bus_we; // D002 sub CPU reset and coin lock
                     // 3: sub CPU NMI DC00
                     default:;
                 endcase else if(bus_rd) case(bus_addr[1:0])
@@ -207,9 +207,9 @@ always @(posedge clk) begin
     if(rst) begin
         bank        <= 0;
         sub_rstn    <= 0;
-        sub_busrq_n <= 0;
+        sub_busrq_n <= 1;
     end else begin
-        if( subhalt_cs ) sub_busrq_n <= ~bus_dout[0];
+        //if( subhalt_cs ) sub_busrq_n <= ~bus_dout[0]; // halting doesn't make sense in Bronx
         if( ctl_cs ) begin
             sub_rstn <= bus_dout[1];
             bank     <= bus_dout[3:2];

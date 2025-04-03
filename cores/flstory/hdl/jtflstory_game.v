@@ -41,6 +41,7 @@ assign bus_a0     = bus_addr[0];
 assign dip_flip   = gvflip | ghflip;
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
+assign user1_addr = sub_addr;
 
 localparam OSDFLIP_BIT=24;
 
@@ -181,8 +182,12 @@ jtflstory_sub u_sub(
     // ROM access
     .rom_cs     ( sub_cs    ),
     .rom_data   ( sub_data  ),
-    .rom_ok     ( sub_ok    )
+    .rom_ok     ( sub_ok    ),
+    .user1_cs   ( user1_cs  ),
+    .user1_data ( user1_data),
+    .user1_ok   ( user1_ok  )
 );
+
 /* verilator tracing_off */
 jtflstory_mcu u_mcu(
     .rst        ( mcu_rst   ),
