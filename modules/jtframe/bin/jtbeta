@@ -39,7 +39,7 @@ check_folder() {
 
 make_new_key() {
     cd $JTUTIL
-    local BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
+    BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
     echo -n $BETAKEY | xxd -r -p > beta.bin
     zip jtbeta.zip beta.bin
     echo "Beta key updated in \$JTUTIL"
