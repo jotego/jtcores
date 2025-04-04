@@ -94,7 +94,6 @@ always @* begin
         readon = 1;
         { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
     end
-    if( start   ) {moveon, readon} = 2'b10;
     if( no_zoom ) {moveon, readon} = 2'b11;
 end
 
@@ -109,6 +108,7 @@ always @(posedge clk, posedge rst) begin
         cnt      <= 0;
         hz_cnt   <= 0;
         no_zoom  <= 0;
+        start    <= 0;
     end else begin
         if( !busy ) begin
             if( draw ) begin
@@ -122,9 +122,9 @@ always @(posedge clk, posedge rst) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
                     start    <= 1;
-                end else begin
-                    hz_cnt <= nx_hz;
-                end
+                end // else begin
+                    // hz_cnt <= nx_hz;
+                // end
             end
         end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it
