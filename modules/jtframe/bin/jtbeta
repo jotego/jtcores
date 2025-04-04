@@ -39,6 +39,7 @@ check_folder() {
 
 make_new_key() {
     cd $JTUTIL
+    git pull
     BETAKEY=$(printf "%04X%04X" $RANDOM $RANDOM)
     echo -n $BETAKEY | xxd -r -p > beta.bin
     zip jtbeta.zip beta.bin
@@ -58,8 +59,8 @@ upload_to_jtcores() {
 upload_to_jtbeta() {
     jtbeta="$1"
     cd $jtbeta
-    cp $JTUTIL/jtbeta.zip .
     git pull
+    cp $JTUTIL/jtbeta.zip .
     git add jtbeta.zip
     git commit -m "new beta key"
     git push
