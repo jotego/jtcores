@@ -161,7 +161,7 @@ always @* begin
                     //     subhalt_cs = 1;
                     //     watchdog = bus_rd
                     // end
-                    2: ctl_cs = bus_we; // D800 sub CPU reset and coin lock
+                    2: ctl_cs = bus_we; // D002 sub CPU reset and coin lock
                     // 3: sub CPU NMI DC00
                     default:;
                 endcase else if(bus_rd) case(bus_addr[1:0])
