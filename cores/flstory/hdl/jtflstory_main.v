@@ -105,7 +105,7 @@ reg         rst_n,
             pal_hi,  pal_lo,
             vcfg_cs, rumba_cfg, flstory_cfg,  bank_cs, ctl_cs, CDEF_cs,
             ram_cs,  vram_cs,   sha_cs,       oram_cs, cab_cs,
-            subhalt_cs,         trcrt_cs,     gunx_cs, guny_cs;
+                                trcrt_cs,     gunx_cs, guny_cs;
 
 assign sub_sel    = sub_cs & ~sub_wait;
 assign bus_addr   = !busak_n ? c2b_addr : sub_sel ? sub_addr : cpu_addr;
@@ -135,7 +135,7 @@ always @* begin
 end
 
 always @* begin
-    cab_cs      = 0; subhalt_cs = 0;
+    cab_cs      = 0;
     pal_lo      = 0; pal_hi     = 0;
     m2s_wr      = 0; s2m_rd     = 0;
     b2c_wr      = 0; b2c_rd     = 0;
@@ -157,11 +157,11 @@ always @* begin
             case(bus_addr[11:10]) // D000
                 0: if(bus_we) case(bus_addr[1:0])
                     0: b2c_wr = 1; // D000 CPU writes to MCU latch
-                    1: begin // D001
-                        subhalt_cs = 1;
-                        // watchdog = bus_rd
-                    end
-                    2: ctl_cs = bus_we; // D002 sub CPU reset and coin lock
+                    // 1: begin // D001
+                    //     subhalt_cs = 1;
+                    //     watchdog = bus_rd
+                    // end
+                    2: ctl_cs = bus_we; // D800 sub CPU reset and coin lock
                     // 3: sub CPU NMI DC00
                     default:;
                 endcase else if(bus_rd) case(bus_addr[1:0])
@@ -209,7 +209,6 @@ always @(posedge clk) begin
         sub_rstn    <= 0;
         sub_busrq_n <= 1;
     end else begin
-        //if( subhalt_cs ) sub_busrq_n <= ~bus_dout[0]; // halting doesn't make sense in Bronx
         if( ctl_cs ) begin
             sub_rstn <= bus_dout[1];
             bank     <= bus_dout[3:2];

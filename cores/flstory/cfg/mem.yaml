@@ -1,5 +1,5 @@
 params:
-  - { name: SUB_OFFSET, value: "`SUB_START>>1" }
+  - { name: SUB_OFFSET,   value: "`SUB_START>>1"   }
   - { name: USER1_OFFSET, value: "`USER1_START>>1" }
 ports:
   - { name: bus_addr, msb: 15 }
