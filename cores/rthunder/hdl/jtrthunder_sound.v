@@ -19,7 +19,7 @@
 module jtrthunder_sound(
     input               rst, clk,
                         cen_fm, cen_fm2, cen_mcu,
-                        lvbl, bsel,
+                        lvbl, mcu_seln,
 
     input        [15:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
@@ -149,7 +149,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
 jtcus30 u_wav(
     .rst        ( rst           ),  // original does not have a reset pin
     .clk        ( clk           ),
-    .bsel       ( ~bsel         ),
+    .bsel       ( mcu_seln      ),
     .cen        ( cen_mcu       ),
 
     .xdin       ( c30_dout      ),

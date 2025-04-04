@@ -214,11 +214,11 @@ initial begin
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
         end else begin
-            $display("\tlvol = %X",{  mmr[0][3:0], mmr[8][3:0], mmr[16][3:0], mmr[24][3:0], mmr[32][3:0], mmr[40][3:0], mmr[48][3:0], mmr[56][3:0],{0{1'b0}}});
-            $display("\trvol = %X",{  mmr[4][3:0], mmr[12][3:0], mmr[20][3:0], mmr[28][3:0], mmr[36][3:0], mmr[44][3:0], mmr[52][3:0], mmr[60][3:0],{0{1'b0}}});
-            $display("\tno_en = %X",{  mmr[60][7], mmr[4][7], mmr[12][7], mmr[20][7], mmr[28][7], mmr[36][7], mmr[44][7], mmr[52][7],{0{1'b0}}});
-            $display("\twsel = %X",{  mmr[1][7:4], mmr[9][7:4], mmr[17][7:4], mmr[25][7:4], mmr[33][7:4], mmr[41][7:4], mmr[49][7:4], mmr[57][7:4],{0{1'b0}}});
-            $display("\tfreq = %X",{  mmr[1][3:0], mmr[2][7:0], mmr[3][7:0], mmr[9][3:0], mmr[10][7:0], mmr[11][7:0], mmr[17][3:0], mmr[18][7:0], mmr[19][7:0], mmr[25][3:0], mmr[26][7:0], mmr[27][7:0], mmr[33][3:0], mmr[34][7:0], mmr[35][7:0], mmr[41][3:0], mmr[42][7:0], mmr[43][7:0], mmr[49][3:0], mmr[50][7:0], mmr[51][7:0], mmr[57][3:0], mmr[58][7:0], mmr[59][7:0],{0{1'b0}}});
+            $display("\tlvol = %X",{  mmr_init[0][3:0], mmr_init[8][3:0], mmr_init[16][3:0], mmr_init[24][3:0], mmr_init[32][3:0], mmr_init[40][3:0], mmr_init[48][3:0], mmr_init[56][3:0],{0{1'b0}}});
+            $display("\trvol = %X",{  mmr_init[4][3:0], mmr_init[12][3:0], mmr_init[20][3:0], mmr_init[28][3:0], mmr_init[36][3:0], mmr_init[44][3:0], mmr_init[52][3:0], mmr_init[60][3:0],{0{1'b0}}});
+            $display("\tno_en = %X",{  mmr_init[60][7], mmr_init[4][7], mmr_init[12][7], mmr_init[20][7], mmr_init[28][7], mmr_init[36][7], mmr_init[44][7], mmr_init[52][7],{0{1'b0}}});
+            $display("\twsel = %X",{  mmr_init[1][7:4], mmr_init[9][7:4], mmr_init[17][7:4], mmr_init[25][7:4], mmr_init[33][7:4], mmr_init[41][7:4], mmr_init[49][7:4], mmr_init[57][7:4],{0{1'b0}}});
+            $display("\tfreq = %X",{  mmr_init[1][3:0], mmr_init[2][7:0], mmr_init[3][7:0], mmr_init[9][3:0], mmr_init[10][7:0], mmr_init[11][7:0], mmr_init[17][3:0], mmr_init[18][7:0], mmr_init[19][7:0], mmr_init[25][3:0], mmr_init[26][7:0], mmr_init[27][7:0], mmr_init[33][3:0], mmr_init[34][7:0], mmr_init[35][7:0], mmr_init[41][3:0], mmr_init[42][7:0], mmr_init[43][7:0], mmr_init[49][3:0], mmr_init[50][7:0], mmr_init[51][7:0], mmr_init[57][3:0], mmr_init[58][7:0], mmr_init[59][7:0],{0{1'b0}}});
         end
     end
     $fclose(f);

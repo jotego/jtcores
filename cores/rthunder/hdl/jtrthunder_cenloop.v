@@ -21,7 +21,7 @@ module jtrthunder_cenloop(
     input             clk,
     input      [ 1:0] busy,
 
-    output            cen_main, cen_sub, cen_mcu,
+    output            cen_main, cen_sub, cen_mcu, mcu_seln,
 
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
@@ -34,6 +34,7 @@ parameter FCLK = 49152,
 
 reg     [3:0] cpu_cen;
 reg     [1:0] clk4;
+reg           cen_main_l;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
@@ -46,9 +47,11 @@ assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
 
 assign cen_main = cpu_cen[0];
 assign cen_sub  = cpu_cen[1];
-assign cen_mcu  =|cpu_cen[3:0];
+assign cen_mcu  =|cpu_cen[3:1];
+assign mcu_seln = (over&(clk4==0)) | cen_main | cen_main_l;
 
 always @(posedge clk) begin
+    cen_main_l <= cen_main;
     if( ~&blank ) blank <= blank + 1'd1 ;
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin

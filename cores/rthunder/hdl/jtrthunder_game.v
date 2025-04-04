@@ -26,7 +26,7 @@ reg  [ 7:0] dbg_mux;
 wire [ 7:0] backcolor, st_main, mdout, c30_dout;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
-            mrnw, bsel, mc30_cs;
+            mrnw, bsel, mc30_cs, mcu_seln;
 // Configuration through MRA header
 wire        scr2bpp, sndext_en;
 
@@ -65,6 +65,7 @@ jtrthunder_cenloop u_cen(
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
     .cen_mcu    ( cen_mcu   ),
+    .mcu_seln   ( mcu_seln  ),
 
     .fave       ( fave      ),
     .fworst     (           )
@@ -142,7 +143,7 @@ jtrthunder_sound u_sound(
     .service    ( service   ),
 
     // sub 6809 connection to CUS30
-    .bsel       ( bsel      ),
+    .mcu_seln   ( mcu_seln  ),
     .c30_dout   ( c30_dout  ),
     .mc30_cs    ( mc30_cs   ),
     .mrnw       ( mrnw      ),

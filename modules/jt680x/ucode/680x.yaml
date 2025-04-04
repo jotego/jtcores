@@ -165,11 +165,14 @@ ucode:
   - name: psh16
     start: 2
     seq:
-      - s_rmux,    ld0_opnd, s_ea
-      - one_rmux,  ld1_opnd, s_ea
-      - sub_alu    s_ld, wr, s_ea
-      - s_rmux,    ld0_opnd, s_ea
-      - sub_alu,   s_ld, wr, s_ea, md_shift, ret_jsr
+      # both byte pushes take the same number of cycles: 3
+      # this makes easier to multiplex the memory with another CPU
+      - s_rmux,    ld0_opnd, wr, s_ea
+      - one_rmux,  ld1_opnd, wr, s_ea
+      - sub_alu    s_ld,     wr, s_ea
+      - s_rmux,    ld0_opnd, wr, s_ea, md_shift
+      -                      wr, s_ea, md_shift
+      - sub_alu,   s_ld,     wr, s_ea, md_shift, ret_jsr
   - name: pul8 # 1+11 ucode cycles = 3 bus cycles
     start: 3
     seq:
@@ -293,7 +296,8 @@ ucode:
       - imm_jsr
       - pc_rmux, ld1_opnd, branch
       -          ld0_opnd
-      - add_alu, pc_ld, idle4_jsr
+      - add_alu, pc_ld
+      -
       - fetch
       - # wait for the fetch
       - ni
@@ -383,7 +387,7 @@ ucode:
       - ni
   - mnemo: [ WAI ]
     seq: # 9*4 = 36 codes
-      - inc_pc, idle4_jsr
+      - inc_pc
       - pc_rmux, ld0_opnd
       - md_ld, psh16_jsr
 
@@ -415,5 +419,5 @@ ucode:
 
       - cc_rmux, ld0_opnd, s_ea
       - md_ld, psh8_jsr,   s_ea
-      - idle6_jsr
+      - idle4_jsr
       - swi, ivrd_jsr
