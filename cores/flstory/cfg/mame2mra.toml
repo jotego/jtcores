@@ -15,8 +15,10 @@ sourcefile=[ "flstory.cpp", "nycaptor.cpp" ]
 debug={ machines=[
 	# Two Z80 CPUs
 	"colt",     # title screen is upside down, the rest is fine. Sometimes the screen goes blue
+], setnames=[
 	"cyclshtg", # bad ROM dump
 ]}
+main_setnames=["bronx"]
 
 [dipsw]
 rename=[
