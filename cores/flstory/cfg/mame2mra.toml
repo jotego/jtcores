@@ -16,7 +16,6 @@ debug={ machines=[
 	# Two Z80 CPUs
 	"colt",     # title screen is upside down, the rest is fine. Sometimes the screen goes blue
 	"cyclshtg", # bad ROM dump
-	"bronx",    # needs screen rotation implemented for lightgun. Sometimes the screen goes blue. Missing enemies.
 ]}
 
 [dipsw]
