@@ -69,7 +69,7 @@ reg      [ 3:0] cnt;
 wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
-reg             cen=0, moveon, readon, no_zoom, start;
+reg             cen=0, moveon, readon, no_zoom;
 // wire            msb;
 
 // assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
@@ -90,11 +90,11 @@ always @* begin
         moveon = hzint <= 1; // buffer moves (enlarge)
         nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
         if( moveon  ) nx_hz = nx_hz + hzoom;
+        if( no_zoom ) {moveon, readon} = 2'b11;
     end else begin
         readon = 1;
         { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
     end
-    if( no_zoom ) {moveon, readon} = 2'b11;
 end
 
 always @(posedge clk) cen <= ~cen;
@@ -108,7 +108,6 @@ always @(posedge clk, posedge rst) begin
         cnt      <= 0;
         hz_cnt   <= 0;
         no_zoom  <= 0;
-        start    <= 0;
     end else begin
         if( !busy ) begin
             if( draw ) begin
@@ -117,14 +116,10 @@ always @(posedge clk, posedge rst) begin
                 busy    <= 1;
                 cnt     <= 8;
                 no_zoom <= hzoom == HZONE || hzoom == 0; // zoom=0 is not valid. Makes counts keep going and busy stays forever. Check simpsons/scene 32
-                start    <= 0;
                 if( !hz_keep ) begin
-                    hz_cnt   <= 0;
+                    hz_cnt   <= HZONE >> 1;
                     buf_addr <= xpos;
-                    start    <= 1;
-                end // else begin
-                    // hz_cnt <= nx_hz;
-                // end
+                end
             end
         end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
             // cen is required when old buffer data must be preserved but it
@@ -145,10 +140,7 @@ always @(posedge clk, posedge rst) begin
                     cnt      <= cnt+1'd1;
                     pxl_data <= hflip ? pxl_data << 1 : pxl_data >> 1;
                 end
-                if( moveon ) begin
-                    buf_addr <= buf_addr+1'd1;
-                    start    <= 0;
-                end
+                if( moveon ) buf_addr <= buf_addr+1'd1;
                 rom_lsb  <= ~hflip;
                 if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0; // 16 pixels
                 if( cnt[2:0]==7 && trunc==2'b10      ) busy <= 0; //  8 pixels
