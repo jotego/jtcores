@@ -232,6 +232,7 @@ tag_release_in_jtcores() {
 }
 
 show_md5_diff() {
+	cd $JTBIN
 	git show HEAD^1:md5.json > old.json
 	jtutil md5 --compare old.json || true
 	rm -f old.json
