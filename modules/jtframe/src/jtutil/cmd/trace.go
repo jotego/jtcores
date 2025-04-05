@@ -34,7 +34,7 @@ you want to compare.
 debug.trace		text file generated with MAME
 debug.vcd		VCD file for comparison
 
-File names cannot be overriden.
+File names can be overriden with --base-name
 
 An automatic matching  between the MAME variables and the VCD signal names will
 be attempted. If a signal is not matched to MAME, manually add it with the alias

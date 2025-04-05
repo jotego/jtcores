@@ -754,7 +754,7 @@ func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore *bool
         fmt.Printf("Impossible to match MAME to VCD")
         diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
     } else {
-        fmt.Printf("Matched (+ %d lines)\n",trace.line-line0)
+        fmt.Printf("VCD matched by advancing MAME trace(+ %d lines)\n",trace.line-line0)
     }
     return matched
 }
@@ -765,7 +765,7 @@ func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mam
     for {
         mv := 0
         mv, good = cmp.nxVCDChange( file, sim_st, mame_alias )
-        fmt.Printf("Moved by %d lines\n",mv)
+        fmt.Printf("MAME trace matched by advancing the VCD by %d lines\n",mv)
         matched = diff( mame_st, "", false, ignore )==0
         if !good || matched { break }
     }
