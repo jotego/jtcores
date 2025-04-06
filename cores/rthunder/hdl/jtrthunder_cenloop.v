@@ -21,7 +21,7 @@ module jtrthunder_cenloop(
     input             clk,
     input      [ 1:0] busy,
 
-    output            cen_main, cen_sub, cen_mcu, mcu_seln,
+    output reg        cen_main=0, cen_sub=0, cen_mcu=0, mcu_seln=0,
 
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
@@ -32,45 +32,47 @@ parameter FCLK = 49152,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
 
-reg     [3:0] cpu_cen;
-reg     [1:0] clk4;
-reg           cen_main_l;
+reg     [1:0] clk4=0;
+reg     [6:0] mcu_sh=0;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
 reg     [1:0] blank=0;
+reg           blank_ok=0;
 wire          bsyg = busy==0 || rst;
 
-assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
+assign over      = blank_ok && !mcu_seln && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
-assign cen_main = cpu_cen[0];
-assign cen_sub  = cpu_cen[1];
-assign cen_mcu  =|cpu_cen[3:1];
-assign mcu_seln = (over&(clk4==0)) | cen_main | cen_main_l;
 
 always @(posedge clk) begin
-    cen_main_l <= cen_main;
-    if( ~&blank ) blank <= blank + 1'd1 ;
+    mcu_sh   <= {mcu_sh[5:0],cen_mcu};
+    cen_main <= clk4==0 &&  mcu_sh[2];
+    cen_sub  <= clk4==2 &&  mcu_sh[2];
+    mcu_seln <= clk4==0 && |mcu_sh[3:1];
+end
+
+always @(posedge clk) begin
+    if( !blank_ok ) begin
+        blank <= blank + 1'd1 ;
+        blank_ok <= blank==3;
+    end
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( over && bsyg ) begin
-        blank <= 0;
-        clk4 <= clk4+2'd1;
-        cpu_cen[0] <= clk4==0;
-        cpu_cen[1] <= clk4==2;
-        cpu_cen[2] <= clk4==1;
-        cpu_cen[3] <= clk4==3;
+        blank_ok <= 0;
+        clk4  <= clk4+2'd1;
+        cen_mcu <= 1;
     end else begin
-        cpu_cen <= 0;
+        cen_mcu    <= 0;
     end
 end
 
 jtframe_freqinfo #(.MFREQ( FCLK )) u_info(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pulse      ( cpu_cen[0]),
-    .fave       ( fave      ), // average cpu_cen frequency in kHz
+    .pulse      ( cen_main  ),
+    .fave       ( fave      ), // average CPU frequency in kHz
     .fworst     ( fworst    )
 );
 
