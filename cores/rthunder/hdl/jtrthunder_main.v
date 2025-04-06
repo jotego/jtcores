@@ -206,7 +206,7 @@ mc6809i u_mcpu(
     .ADDR       ( maddr     ),
     .RnW        ( mrnw      ),
     // Interrupts
-    .nIRQ       ( mint_n    ),
+    .nIRQ       ( mint_n    ),  // verified on PCB
     .nFIRQ      ( 1'b1      ),
     .nNMI       ( 1'b1      ),
     .nHALT      ( 1'b1      ),
