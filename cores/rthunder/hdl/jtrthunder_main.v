@@ -19,7 +19,7 @@
 module jtrthunder_main(
     input               rst, clk,
                         cen_main, cen_sub,
-                        lvbl, sndext_en,
+                        lvbl, sndext_en, nocpu2,
 
     output              tile_bank, latch0_cs, latch1_cs, bsel,
     output       [ 7:0] backcolor,
@@ -51,26 +51,24 @@ wire [ 7:0] sdout, bdin;
 wire [ 4:0] mbank_ext;
 wire [ 1:0] mbank, sbank;
 wire [ 7:0] mdin,  sdin;
-reg         rst_n;
 wire        srnw, mint_n, sint_n,   mavma,     savma,
             main_E, main_Q, sub_E, sub_Q,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs, bcolor_cs,
             sscr0_cs, sscr1_cs, soram_cs, smbank_cs, ssbank_cs, slatch0_cs, slatch1_cs,
-            mbanked_cs, sbanked_cs, c115_cs;
+            mbanked_cs, sbanked_cs, c115_cs,
+            mwdog, swdog, srst_n, mrst_n;
 
 assign main_E = cen_main;
 assign main_Q = cen_sub;
 assign sub_E  = cen_sub;
 assign sub_Q  = cen_main;
 
-assign st_dout   = 0;
+assign st_dout   = {6'd0,~swdog,~mwdog};
 assign mrom_addr = mbanked_cs ? {1'b0,mbank, maddr[12:0]} : maddr;
 assign srom_addr = sbanked_cs ? {1'b0,sbank, saddr[12:0]} : saddr;
 assign ext_addr  = {mbank_ext,maddr[12:0]};
 assign ext_cs    = mbanked_cs & sndext_en;
 assign bus_busy  = |{mrom_cs&~mrom_ok, srom_cs&~srom_ok, ext_cs&~ext_ok};
-
-always @(posedge clk) rst_n <= ~rst;
 
 jtframe_mmr_reg u_backcolor(
     .rst        ( rst       ),
@@ -152,6 +150,13 @@ jtrthunder_busmux u_busmux(
     .sdin       ( sdin      )
 );
 
+reg srst;
+
+always @(posedge clk) srst <= rst | nocpu2;
+
+jtframe_watchdog #(.INVERT(1))u_wdog_main( rst, clk, lvbl, mwdog, mrst_n);
+jtframe_watchdog #(.INVERT(1))u_wdog_sub (srst, clk, lvbl, swdog, srst_n);
+
 // address decoder for main CPU
 jtcus47 u_cus47(
     .rst        ( rst       ),
@@ -172,7 +177,7 @@ jtcus47 u_cus47(
     .banked_cs  (mbanked_cs ),
     .snd_cs     ( mc30_cs   ),
     .c115_cs    ( c115_cs   ),
-    .wdog_cs    (           ),
+    .wdog_cs    ( mwdog     ),
     .int_n      ( mint_n    )
 );
 
@@ -190,14 +195,14 @@ jtcus41 u_cus41(
     .oram_cs    ( soram_cs  ),
     .mbank_cs   ( smbank_cs ),
     .sbank_cs   ( ssbank_cs ),
-    .wdog_cs    (           ),
+    .wdog_cs    ( swdog     ),
     .rom_cs     ( srom_cs   ),
     .banked_cs  (sbanked_cs ),
     .int_n      ( sint_n    )
 );
 
 mc6809i u_mcpu(
-    .nRESET     ( rst_n     ),
+    .nRESET     ( mrst_n    ),
     .clk        ( clk       ),
     .cen_E      ( main_E    ),
     .cen_Q      ( main_Q    ),
@@ -222,7 +227,7 @@ mc6809i u_mcpu(
 );
 
 mc6809i u_scpu(
-    .nRESET     ( rst_n     ),
+    .nRESET     ( srst_n    ),
     .clk        ( clk       ),
     .cen_E      ( sub_E     ),
     .cen_Q      ( sub_Q     ),

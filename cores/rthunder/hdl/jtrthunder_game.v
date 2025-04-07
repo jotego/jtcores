@@ -28,7 +28,7 @@ wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln;
 // Configuration through MRA header
-wire        scr2bpp, sndext_en;
+wire        scr2bpp, sndext_en, nocpu2;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
@@ -51,6 +51,7 @@ jtrthunder_header u_header(
     .header     ( header    ),
     .prog_we    ( prog_we   ),
 
+    .nocpu2     ( nocpu2    ),
     .scr2bpp    ( scr2bpp   ),
     .sndext_en  ( sndext_en ),
     .prog_addr  ( prog_addr[2:0] ),
@@ -77,6 +78,7 @@ jtrthunder_main u_main(
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
     .lvbl       ( LVBL      ),
+    .nocpu2     ( nocpu2    ),
 
     .backcolor  ( backcolor ),
     .tile_bank  ( tile_bank ),
@@ -134,6 +136,7 @@ jtrthunder_sound u_sound(
     .cen_fm2    ( cen_fm2   ),
 
     .lvbl       ( LVBL      ),
+    .hopmappy   ( nocpu2    ),
 
     .dipsw      ( dipsw[15:0]),
     .joystick1  (joystick1[6:0]),

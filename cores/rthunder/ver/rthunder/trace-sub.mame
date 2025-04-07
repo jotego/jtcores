@@ -1,6 +1,6 @@
 focus 1
 trace off
-trace debug.trace,cpu2,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
+trace debug.trace,cpu2,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,ticks=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,cycles,frame}
 
 gtime 1100
 traceflush

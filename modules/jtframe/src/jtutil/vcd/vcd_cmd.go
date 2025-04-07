@@ -132,26 +132,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             display( t, vcd, trace, sim_st.data, scope )
         }
         case "d","diff": cmd_diff()
-        case "dt","display-trace": {
-            names := make([]string,len(mame_st.data))
-            k := 0
-            for n,_ := range mame_st.data {
-                names[k]=n
-                k++
-            }
-            sort.Slice(names,func(i,j int) bool { return strings.Compare(names[i],names[j])<0})
-            fmt.Printf("At line %d",trace.line)
-            ltxt := trace.Text()
-            if k:=strings.Index(ltxt,"*"); k!=-1 { fmt.Printf(ltxt[k+1:])}
-            fmt.Println()
-            for _,each := range names {
-                if each=="frame_cnt" {
-                    fmt.Printf("%s=%d\n", each, mame_st.data[each] )
-                } else {
-                    fmt.Printf("%s=0x%X\n", each, mame_st.data[each] )
-                }
-            }
-        }
+        case "dt","display-trace": display_trace(mame_st,trace)
         case "a","alias": {
             if len(tokens)==1 {
                 for k, each := range mame_st.alias {
@@ -762,10 +743,12 @@ func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore *bool
 func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
         mame_st *MAMEState, ignore *boolSet ) bool {
     var good, matched bool
+    total_lines := 0
+    time0 := file.time
     for {
-        mv := 0
-        mv, good = cmp.nxVCDChange( file, sim_st, mame_alias )
-        fmt.Printf("MAME trace matched by advancing the VCD by %d lines\n",mv)
+        lines := 0
+        lines, good = cmp.nxVCDChange( file, sim_st, mame_alias )
+        total_lines += lines
         matched = diff( mame_st, "", false, ignore )==0
         if !good || matched { break }
     }
@@ -773,6 +756,11 @@ func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mam
     if !matched {
         fmt.Printf("Impossible to match VCD to MAME")
         diff( mame_st, fmt.Sprintf("sim at time %d",file.time), true, ignore )
+    } else {
+        time1 := file.time
+        delta := time1-time0
+        fmt.Printf("MAME trace matched by advancing the VCD by %d lines (%s)\n",
+            total_lines, formatTime(delta))
     }
     return matched
 }
@@ -803,5 +791,26 @@ func MakeAlias( trace string, ss vcdData ) mameAlias {
         mame_alias[each[0:k]]=p
     }
     return mame_alias
+}
+
+func display_trace(mame_st *MAMEState, trace *LnFile) {
+    fmt.Printf("At line %d",trace.line)
+    ltxt := trace.Text()
+    print_assembler_code(ltxt)
+
+    names := mame_st.get_sorted_name_indexes()
+    if len(names)==0 {
+        fmt.Println("\nNo register content in line")
+        fmt.Printf("Line: '%s'\n",ltxt)
+        return
+    }
+    mame_st.print_registers(names)
+}
+
+func print_assembler_code(line string) {
+    if k:=strings.Index(line,"*"); k!=-1 {
+        assembler_code := line[k+1:]
+        fmt.Println(assembler_code)
+    }
 }
 

@@ -16,7 +16,8 @@ names=[
 
 [header]
 registers = [
-	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}], desc="Scroll uses only 2 color planes" },
+	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state" },
+	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}],                          desc="Scroll uses only 2 color planes" },
 	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound" },
 ]
 
@@ -104,6 +105,7 @@ regions = [
 
 	{ name="gfx3", start="JTFRAME_BA3_START"  },
 	{ name="mcusub",start="MCUSUB_START"      },
+	{ name="mcusub",start="MCUSUB_START", machine="hopmappy", sequence=[0,0,0,0] },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
 	{ name="proms", sequence=[0,1,2,3,4,4]    },
 ]

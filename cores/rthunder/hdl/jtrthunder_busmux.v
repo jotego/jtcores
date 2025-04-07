@@ -41,7 +41,7 @@ module jtrthunder_busmux(
 );
 
 wire [7:0] bdin;
-wire       master, sub, mbank_cs, sbank_cs,
+wire       mbank_cs, sbank_cs,
            scr0_cs, scr1_cs, oram_cs, vma;
 reg        mvma, svma;
 
@@ -84,22 +84,28 @@ jtframe_mmr_reg #(.W(2)) u_sbank(
     .dout       ( sbank     )
 );
 
-assign master = ~bsel;
-assign sub    =  bsel;
+// assign master = ~bsel;
+// assign sub    =  bsel;
 assign bdin   = scr0_cs ? w2b(scr0_dout) :
                 scr1_cs ? w2b(scr1_dout) :
                 oram_cs ? w2b(oram_dout) : 8'd0;
 
+reg [7:0] mother;
 
 always @(posedge clk) begin
     if( cen_main ) begin bsel <= 1; mvma <= mavma; end
     if( cen_sub  ) begin bsel <= 0; svma <= savma; end
-    if( master )
-        mdin <= ext_cs  ? ext_data  :
-                mrom_cs ? mrom_data :
-                mc30_cs ? c30_dout  : bdin;
-    else
-        sdin <= srom_cs ? srom_data : bdin;
+    sdin   <= srom_cs ? srom_data : bdin;
+    mother <= ext_cs  ? ext_data  :
+              mrom_cs ? mrom_data : bdin;
+end
+
+always @* begin
+    // mdin =  ext_cs  ? ext_data  :
+    //         mrom_cs ? mrom_data :
+    //         mc30_cs ? c30_dout  : bdin; // c30_dout comes too late to register mdin
+    mdin =  mc30_cs ? c30_dout : mother; // c30_dout comes too late to register mdin
+
 end
 
 endmodule

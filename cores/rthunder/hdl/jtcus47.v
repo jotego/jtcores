@@ -59,7 +59,7 @@ always @* begin
         // shared with sub CPU
         4'b000?: scr0_cs = 1; // 0000~1FFF 8kB tilemap RAM
         4'b001?: scr1_cs = 1; // 2000~3FFF
-        4'b010?: oram_cs = 1; // 4000~5FFF
+        4'b010?: oram_cs = addr[12:0]>=13'h400; // 4400~5FFF
         // shared with MCU (via CUS30)
         4'b011?: begin
             banked_cs = rnw; // 6000~7FFF ROM (banked)

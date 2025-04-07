@@ -20,6 +20,7 @@ module jtrthunder_sound(
     input               rst, clk,
                         cen_fm, cen_fm2, cen_mcu,
                         lvbl, mcu_seln,
+                        hopmappy,
 
     input        [15:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
@@ -56,26 +57,32 @@ wire [15:0] A;
 wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout;
 wire [ 4:0] p2_dout;
 reg  [ 7:0] mcu_din;
-reg         uc30_cs, fm_cs, dec7d, porta, portb, cab_cs, ram_cs, irq_ack;
-wire        halted, vma, wr, irq;
+reg         uc30_cs, fm_cs, dec7d, porta, portb, cab_cs, ram_cs, irq_aux;
+wire        halted, vma, wr, irq, irq_ack;
 
 assign bus_busy = rom_cs & ~rom_ok;
 assign ram_addr = A[11:0];
 assign ram_we   = ram_cs & wr;
 assign ram_din  = mcu_dout;
 assign rom_addr = {A[15],A[13:0]};
+assign irq_ack  = A==16'hFFF8;
 
 // Address decoder
 always @(*) begin
-    uc30_cs = vma && A[15:12]==1 && A[11:10]==0;    // 1000~13FF
-    ram_cs  = vma && A[15:12]==1 && A[11:10]!=0;    // 1400~1FFF -> 3kB
+    if(hopmappy) begin
+        rom_cs  = vma && A[15:12]>=8 && A[15:12]<=4'hb; // 8000~BFFF
+        irq_aux = vma && A[15:12]==4'h8 && wr;          // 8000~BFFF
+    end else begin
+        rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
+        irq_aux = vma && A[15:12]==4'hb && wr;          // B000~BFFF
+    end
     dec7d   = vma && A[15:12]==2;                   // 2000~2FFF
-    rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
-    irq_ack = vma && A[15:12]==4'hb && wr;          // B000~BFFF
     fm_cs   = dec7d && A[5:4]==0;
     porta   = dec7d && A[5:4]==2 && ~wr;
     portb   = dec7d && A[5:4]==3 && ~wr;
     cab_cs  = porta | portb;
+    uc30_cs = vma && A[15:12]==1 && A[11:10]==0;    // 1000~13FF
+    ram_cs  = vma && A[15:12]==1 && A[11:10]!=0;    // 1400~1FFF -> 3kB
 end
 
 always @* begin

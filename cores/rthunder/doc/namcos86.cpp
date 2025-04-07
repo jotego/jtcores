@@ -69,7 +69,7 @@ FEDC BA9876543210
 1001 01-------x0x   W xxxxxxxx LATCH1    tilemap 2/3 X scroll + priority
 1001 01-------x10   W xxxxxxxx LATCH1    tilemap 2/3 Y scroll
 1001 01--------11   W ------xx BAMNKS    ROM 12D bank select
-1100 00----------   W xxxxxxxx BACKCOLOR background color
+1010 00----------   W xxxxxxxx BACKCOLOR background color
 
 [1] Note that this is partially overlapped by sound RAM
 [2] In Rolling Thunder and others, replaced by the ROM/voice expansion board
@@ -101,6 +101,7 @@ MCU:
 
 Address          Dir Data     Name      Description
 ---------------- --- -------- --------- -----------------------
+FEDCBA9876543210
 00000000xxxxxxxx                        MCU internal registers, timers, ports and RAM
 0001xxxxxxxxxxxx R/W xxxxxxxx RAM 3F    sound RAM (through CUS30, partially shared with main CPU)
 00010000xxxxxxxx R/W xxxxxxxx           portion holding the sound wave data
