@@ -29,12 +29,15 @@ wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln;
 // Configuration through MRA header
 wire        scr2bpp, sndext_en, nocpu2;
+reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
 
 assign flip = 0;
 assign pcm_cs=0, pcm_addr=0, pcm=0;
+
+always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
 always @* begin
     case( debug_bus[7:6] )
@@ -77,7 +80,7 @@ jtrthunder_main u_main(
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
-    .lvbl       ( LVBL      ),
+    .lvbl       ( lvbl_ps   ),
     .nocpu2     ( nocpu2    ),
 
     .backcolor  ( backcolor ),
@@ -135,7 +138,7 @@ jtrthunder_sound u_sound(
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
 
-    .lvbl       ( LVBL      ),
+    .lvbl       ( lvbl_ps   ),
     .hopmappy   ( nocpu2    ),
 
     .dipsw      ( dipsw[15:0]),

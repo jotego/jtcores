@@ -45,7 +45,6 @@ module jtrthunder_main(
     output       [ 7:0] st_dout
 );
 `ifndef NOMAIN
-
 wire [15:0] saddr;
 wire [ 7:0] sdout, bdin;
 wire [ 4:0] mbank_ext;
@@ -254,6 +253,10 @@ mc6809i u_scpu(
 // change for scene values:
 assign tile_bank = 0;
 assign backcolor = 0;
-assign st_dout   = 0;
+assign latch0_cs = 0, latch1_cs = 0, bsel = 0,
+       mrom_cs   = 0, srom_cs   = 0, ext_cs = 0, bus_busy = 0,
+       ext_addr  = 0, mrom_addr = 0, srom_addr = 0, baddr = 0, bdout = 0,
+       scr0_we   = 0, scr1_we   = 0, oram_we   = 0, brnw  = 0,
+       mrnw      = 0, mc30_cs   = 0, mdout     = 0, maddr = 0, st_dout = 0;
 `endif
 endmodule

@@ -52,7 +52,7 @@ module jtrthunder_sound(
     output signed[12:0] cus30_l, cus30_r,
     input        [ 7:0] debug_bus
 );
-
+`ifndef NOMAIN // sound always needed if main is compiled
 wire [15:0] A;
 wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout;
 wire [ 4:0] p2_dout;
@@ -200,5 +200,9 @@ jt51 u_jt51(
     .xleft      ( fm_l      ),
     .xright     ( fm_r      )
 );
-
+`else
+assign c30_dout = 0, embd_addr = 0, ram_addr = 0, ram_we = 0,
+    ram_din = 0, rom_cs = 0, rom_addr = 0, bus_busy = 0,
+    fm_l = 0, fm_r = 0, cus30_l = 0, cus30_r = 0;
+`endif
 endmodule
