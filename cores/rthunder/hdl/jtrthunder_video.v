@@ -57,18 +57,22 @@ module jtrthunder_video(
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0] gfx_en,
-    input      [ 7:0] debug_bus
-    // output reg [ 7:0] st_dout
+    input      [ 7:0] debug_bus,
+    output reg [ 7:0] st_dout
 );
 
 wire [10:0] scr0_pxl, scr1_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] obj_pxl, mmr0, mmr1;
+wire [ 7:0] obj_pxl, mmr0, mmr1, st0, st1;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio;
 
 assign obj_pxl=0, obj_prio=0, obj_cs=0, obj_addr=0, objpal_addr=0;
 assign scr0a_addr[16]=bank, scr0b_addr[16]=bank;
 assign oram_addr=0;
+
+always @(posedge clk) begin
+    st_dout <= debug_bus[3] ? st1 : st0;
+end
 
 jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
@@ -126,7 +130,10 @@ jtcus42 #(.ID(0)) u_scroll0(
     .ioctl_din  ( mmr0          ),
 
     .prio       ( scr0_prio     ),
-    .pxl        ( scr0_pxl      )
+    .pxl        ( scr0_pxl      ),
+    // debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st0           )
 );
 
 jtcus42 #(.ID(1)) u_scroll1(
@@ -162,7 +169,10 @@ jtcus42 #(.ID(1)) u_scroll1(
     .ioctl_din  ( mmr1          ),
 
     .prio       ( scr1_prio     ),
-    .pxl        ( scr1_pxl      )
+    .pxl        ( scr1_pxl      ),
+    // debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st1           )
 );
 
 jtrthunder_colmix u_colmix(

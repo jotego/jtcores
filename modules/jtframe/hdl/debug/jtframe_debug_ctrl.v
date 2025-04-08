@@ -41,7 +41,7 @@ module jtframe_debug_ctrl(
 localparam [8:0] JTFRAME_DEBUG_VPOS=`JTFRAME_DEBUG_VPOS;
 
 wire [8:0] HBIN=((`JTFRAME_WIDTH&9'h1f8)>>1)-9'h10,
-                 HHEX=HBIN+9'h44,
+                 HHEX=HBIN+9'h50,
                  VOSD=(`JTFRAME_HEIGHT & 9'h1f8)-9'd8*JTFRAME_DEBUG_VPOS, // 4 rows above bottom
                  VVIEW=VOSD+9'd8*9'd2;
 

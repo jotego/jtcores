@@ -41,7 +41,10 @@ module jtcus42(
     output        [7:0] ioctl_din,
 
     output       [10:0] pxl,
-    output       [ 2:0] prio
+    output       [ 2:0] prio,
+    // debug
+    input        [ 7:0] debug_bus,
+    output       [ 7:0] st_dout
 );
 
 parameter ID=0;
@@ -102,8 +105,8 @@ jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     ),
     // Debug
-    .debug_bus  ( 8'd0          ),
-    .st_dout    (               )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
 );
 
 jtrthunder_scroll #(.ID(ID)) u_scra(

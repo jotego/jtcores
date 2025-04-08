@@ -23,7 +23,7 @@ module jtrthunder_game(
 wire [15:0] fave, maddr;
 wire [ 1:0] busy;
 reg  [ 7:0] dbg_mux;
-wire [ 7:0] backcolor, st_main, mdout, c30_dout;
+wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln;
@@ -38,8 +38,8 @@ assign pcm_cs=0, pcm_addr=0, pcm=0;
 
 always @* begin
     case( debug_bus[7:6] )
-        // 0: dbg_mux = { 3'd0, mcu_halt, 3'd0, ~srst_n };
-        // 1: dbg_mux = st_video;
+        0: dbg_mux = st_video;
+        // 1: dbg_mux = { 3'd0, mcu_halt, 3'd0, ~srst_n };
         2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
@@ -250,8 +250,8 @@ jtrthunder_video u_video(
     .ioctl_din  ( ioctl_din ),
     .ioctl_addr ( ioctl_addr[4:0] ),
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus )
-    // output reg [ 7:0] st_dout
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 endmodule
