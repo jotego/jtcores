@@ -4,20 +4,20 @@
   regs:
     - name: scrxa
       desc: "horizontal scroll A"
-      dw: 9
-      at: "0,1[0]"
+      dw: 10
+      at: "0[1:0],1"
     - name: prioa
       desc: "priority scroll A"
       dw: 3
-      at: "1[3:1]"
+      at: "0[3:1]"
     - name: scrya
       desc: "vertical scroll A"
       dw: 8
       at: "2"
     - name: scrxb
       desc: "horizontal scroll B"
-      dw: 9
-      at: "4,5[0]"
+      dw: 10
+      at: "4[1:0],5"
     - name: scryb
       desc: "vertical scroll B"
       dw: 8
@@ -25,4 +25,4 @@
     - name: priob
       desc: "priority scroll B"
       dw: 3
-      at: "1[3:1]"
+      at: "4[3:1]"

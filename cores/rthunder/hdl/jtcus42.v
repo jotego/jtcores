@@ -52,7 +52,7 @@ parameter ID=0;
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
 wire [15:0] a_dout, b_dout;
-wire [ 8:0] scrxa, scrxb;
+wire [ 9:0] scrxa, scrxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;

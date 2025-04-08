@@ -21,7 +21,7 @@ module jtrthunder_scroll(
     input               clk, pxl_cen, hs,
     input               flip,
     input        [ 8:0] hdump, vdump,
-    input        [ 8:0] scrx,
+    input        [ 9:0] scrx,
     input        [ 7:0] scry,
 
     output       [11:1] vram_addr,
@@ -60,7 +60,7 @@ jtframe_scroll #(.PW(12),.CW(11),.VA(11),.MAP_VW(8)) u_scroll (
     .hdump      ( hdump         ),
     .blankn     ( 1'b1          ),
     .flip       ( flip          ),
-    .scrx       ( scrx          ),
+    .scrx       ( scrx[8:0]     ),
     .scry       ( scry          ),
     .vram_addr  ( vram_addr     ),
     .code       ( code          ),
