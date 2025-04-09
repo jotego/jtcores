@@ -1717,8 +1717,8 @@ void namcos86_state::init_namco86()
 	{
 		std::vector<uint8_t> buffer(size);
 		uint8_t *dest1 = gfx;
-		uint8_t *dest2 = gfx + (size / 2);
-		uint8_t *mono = gfx + size;
+		uint8_t *dest2 = gfx + (size / 2); // +1/3
+		uint8_t *mono = gfx + size;        // +2/3
 
 		memcpy(&buffer[0], gfx, size);
 

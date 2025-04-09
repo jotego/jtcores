@@ -29,8 +29,7 @@ regions = [
 	{ name="namco2"                           },
 	# gfx1 (SCROLL 011)
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="rthunder", parts=[
-		{name="rt1_7.7r", crc="a85efa39",map="0001",length=0x8000 },
-		{name="rt1_7.7r", crc="a85efa39",map="0010",length=0x8000,offset=0x8000},
+		{name="rt1_7.7r", crc="a85efa39",map="0021"},
 		{name="rt1_8.7s", crc="f7a95820",map="0100"},
 		{name="rt1_8.7s", crc="f7a95820",map="1000"},
 	]},
@@ -66,8 +65,7 @@ regions = [
 	]},
 	# gfx2 (SCROLL 1)
 	{ name="gfx2", start="SCR1_START", machine="rthunder", parts=[
-		{name="rt1_5.4r", crc="d0fc470b",map="0001",length=0x4000 },
-		{name="rt1_5.4r", crc="d0fc470b",map="0010",length=0x4000,offset=0x4000},
+		{name="rt1_5.4r", crc="d0fc470b",map="0021"},
 		{name="rt1_6.4s", crc="6b57edb2",map="0100"},
 		{name="rt1_6.4s", crc="6b57edb2",map="1000"},
 	]},

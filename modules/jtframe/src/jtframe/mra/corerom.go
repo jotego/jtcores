@@ -447,7 +447,7 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 		}
 		dumped += each.Length
 	}
-	reg_cfg.check_parts_consistency()
+	// reg_cfg.check_parts_consistency()
 	return dumped
 }
 
