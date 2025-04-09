@@ -44,7 +44,7 @@ always @(posedge clk) begin
     if(portb) cab_dout <= a0 ? dipsw[15:8] : dipsw[7:0];
     if(porta) cab_dout <= a0 ?
         {1'b1   ,cab_1p[1],coin[1],service1,joystick2[UP],joystick1[UP],joystick2[B1], joystick1[B2]} :
-        {service,cab_1p[1],coin[1],joystick2[RIGHT],joystick2[DOWN],joystick1[DOWN], joystick1[B1], joystick2[B2]};
+        {service,cab_1p[0],coin[0],joystick2[RIGHT],joystick2[DOWN],joystick1[DOWN], joystick1[B1], joystick2[B2]};
 end
 
 endmodule
