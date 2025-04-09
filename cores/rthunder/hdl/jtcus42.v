@@ -52,7 +52,7 @@ parameter ID=0;
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
 wire [15:0] a_dout, b_dout;
-wire [ 9:0] scrxa, scrxb;
+wire [ 8:0] scrxa, scrxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
@@ -109,7 +109,7 @@ jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
     .st_dout    ( st_dout       )
 );
 
-jtrthunder_scroll #(.ID(ID)) u_scra(
+jtrthunder_scroll #(.LYR(0)) u_scra(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -133,7 +133,7 @@ jtrthunder_scroll #(.ID(ID)) u_scra(
     .pxl        ( scra_pxl      )
 );
 
-jtrthunder_scroll #(.ID(ID)) u_scrb(
+jtrthunder_scroll #(.LYR(1)) u_scrb(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),

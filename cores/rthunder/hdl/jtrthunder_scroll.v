@@ -21,7 +21,7 @@ module jtrthunder_scroll(
     input               clk, pxl_cen, hs,
     input               flip,
     input        [ 8:0] hdump, vdump,
-    input        [ 9:0] scrx,
+    input        [ 8:0] scrx,
     input        [ 7:0] scry,
 
     output       [11:1] vram_addr,
@@ -37,19 +37,22 @@ module jtrthunder_scroll(
     output       [10:0] pxl
 );
 
-parameter ID=0;
+parameter LYR=0, HOFFSET=-9'h20,VOFFSET=-8'd8;
 
 wire [11:0] pre_pxl;
 wire [10:0] code;
-wire [ 7:0] pal;
+wire [ 7:0] pal, yadj;
+wire [ 8:0] xadj;
 wire [ 2:0] code_msb;
 wire        hflip, vflip;
 
 assign pal  = vram_dout[15:8];
 assign code = {code_msb,vram_dout[7:0]};
 assign pxl  = {pre_pxl[11:4],pre_pxl[2:0]};
-assign dec_addr = {ID[0],ID==0?pal[1:0]:2'b0,ID==1?pal[1:0]:2'b0};
-assign code_msb = ID==0 ? dec_data[3:1] : dec_data[7:5];
+assign xadj = scrx + HOFFSET;
+assign yadj = scry + VOFFSET;
+assign dec_addr = {LYR[0],LYR==0?pal[1:0]:2'b0,LYR==1?pal[1:0]:2'b0};
+assign code_msb = LYR==0 ? dec_data[3:1] : dec_data[7:5];
 
 jtframe_scroll #(.PW(12),.CW(11),.VA(11),.MAP_VW(8)) u_scroll (
     .rst        ( rst           ),
@@ -60,8 +63,8 @@ jtframe_scroll #(.PW(12),.CW(11),.VA(11),.MAP_VW(8)) u_scroll (
     .hdump      ( hdump         ),
     .blankn     ( 1'b1          ),
     .flip       ( flip          ),
-    .scrx       ( scrx[8:0]     ),
-    .scry       ( scry          ),
+    .scrx       ( xadj          ),
+    .scry       ( yadj          ),
     .vram_addr  ( vram_addr     ),
     .code       ( code          ),
     .pal        ( pal           ),
