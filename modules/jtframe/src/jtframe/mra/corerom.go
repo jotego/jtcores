@@ -447,13 +447,19 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 		}
 		dumped += each.Length
 	}
-	// reg_cfg.check_parts_consistency()
+	reg_cfg.check_parts_consistency()
 	return dumped
+}
+
+func (part *RegParts)get_size_from_mame(roms []MameROM) {
+	idx := part.find_rom(roms)
+	if idx==-1 { part.panic_unknown_rom() }
+	part.Length = roms[idx].Size
 }
 
 func (reg_cfg *RegCfg)check_parts_consistency() {
 	for k:=1; k<len(reg_cfg.Parts); k++ {
-		if reg_cfg.Parts[k].Length!=reg_cfg.Parts[k-1].Length {
+		if reg_cfg.Parts[k].equivalent_size()!=reg_cfg.Parts[k-1].equivalent_size() {
 			msg := fmt.Sprintf("Different length for parts %s (%X) and %s (%X) in region %s",
 				reg_cfg.Parts[k-1].Name, reg_cfg.Parts[k-1].Length,
 				reg_cfg.Parts[k].Name,   reg_cfg.Parts[k].Length, reg_cfg.Name )
@@ -462,10 +468,20 @@ func (reg_cfg *RegCfg)check_parts_consistency() {
 	}
 }
 
-func (part *RegParts)get_size_from_mame(roms []MameROM) {
-	idx := part.find_rom(roms)
-	if idx==-1 { part.panic_unknown_rom() }
-	part.Length = roms[idx].Size
+func (part *RegParts)equivalent_size() int {
+	if part.Map=="" {
+		return part.Length
+	}
+	times:=0;
+	for _, char := range part.Map {
+		if char!='0' {
+			times++
+		}
+	}
+	if times==0 {
+		return 0
+	}
+	return part.Length/times
 }
 
 func (part *RegParts)find_rom(all_roms []MameROM) (k int) {

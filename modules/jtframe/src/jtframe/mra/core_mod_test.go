@@ -60,3 +60,29 @@ func Test_coremod_XML(t *testing.T) {
 	}
 }
 
+func Test_check_parts_consistency(t *testing.T) {
+	reg := RegCfg{
+		Name: "test_region",
+		Parts: []RegParts{
+			{ Name: "wide",    Map: "0012", Length: 0x2000 },
+			{ Name: "narrow0", Map: "0100", Length: 0x1000 },
+			{ Name: "narrow1", Map: "1000", Length: 0x1000 },
+		},
+	}
+	should_panic := false
+    defer func(){
+        r:= recover()
+        if !should_panic && r!=nil {
+            t.Errorf("The region should not be deemed invalid")
+            return
+        }
+        if  should_panic && r==nil {
+            t.Errorf("The region should be deemed invalid")
+            return
+        }
+    }()
+    reg.check_parts_consistency()
+    reg.Parts[0].Length=0x1000
+    should_panic=true
+    reg.check_parts_consistency()
+}
