@@ -37,6 +37,8 @@ module jtrthunder_busmux(
     output [12:0] baddr,
     output  [7:0] bdout,
 
+    output           ommr_cs,
+    output reg       dmaon=0,
     output reg [7:0] mdin, sdin
 );
 
@@ -51,6 +53,7 @@ assign sbank_cs  = bsel ? ssbank_cs  : msbank_cs;
 assign scr0_cs   = bsel ? sscr0_cs   : mscr0_cs;
 assign scr1_cs   = bsel ? sscr1_cs   : mscr1_cs;
 assign oram_cs   = bsel ? soram_cs   : moram_cs;
+assign ommr_cs   = oram_cs && baddr>13'h7f4 && baddr<13'h7f8;
 assign latch0_cs = bsel ? slatch0_cs : mlatch0_cs;
 assign latch1_cs = bsel ? slatch1_cs : mlatch1_cs;
 
@@ -84,6 +87,10 @@ jtframe_mmr_reg #(.W(2)) u_sbank(
     .dout       ( sbank     )
 );
 
+always @(posedge clk) begin
+    dmaon <= !brnw && baddr==13'h1ff2;
+end
+
 // assign master = ~bsel;
 // assign sub    =  bsel;
 assign bdin   = scr0_cs ? w2b(scr0_dout) :
@@ -91,8 +98,10 @@ assign bdin   = scr0_cs ? w2b(scr0_dout) :
                 oram_cs ? w2b(oram_dout) : 8'd0;
 
 reg [7:0] mother;
+reg       mc30_csl;
 
 always @(posedge clk) begin
+    mc30_csl <= mc30_cs;
     if( cen_main ) begin bsel <= 1; mvma <= mavma; end
     if( cen_sub  ) begin bsel <= 0; svma <= savma; end
     sdin   <= srom_cs ? srom_data : bdin;
@@ -101,11 +110,7 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    // mdin =  ext_cs  ? ext_data  :
-    //         mrom_cs ? mrom_data :
-    //         mc30_cs ? c30_dout  : bdin; // c30_dout comes too late to register mdin
-    mdin =  mc30_cs ? c30_dout : mother; // c30_dout comes too late to register mdin
-
+    mdin =  mc30_csl ? c30_dout : mother; // c30_dout comes too late to register mdin
 end
 
 endmodule

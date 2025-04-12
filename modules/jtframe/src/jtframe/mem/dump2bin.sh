@@ -34,9 +34,12 @@ make_rest() {
 }
 
 run_core_specific_script() {
-	if [ -x rest2bin.sh ]; then
-		rest2bin.sh
-	fi
+	for path in . ..; do
+		if [ -x $path/rest2bin.sh ]; then
+			$path/rest2bin.sh
+			return
+		fi
+	done
 }
 
 main $*

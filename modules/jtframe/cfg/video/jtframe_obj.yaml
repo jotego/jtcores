@@ -2,6 +2,7 @@ jtframe:
   - from: video
     get:
       - jtframe_draw.v
+      - jtframe_objscan.v
       - jtframe_objdraw.v
       - jtframe_objdraw_trunc.v
       - jtframe_objdraw_gate.v

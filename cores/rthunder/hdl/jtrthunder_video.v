@@ -19,13 +19,18 @@
 module jtrthunder_video(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen, flip, bank,
+    input             pxl_cen, pxl2_cen, flip, bank, dmaon,
 
     output            lvbl, lhbl, hs, vs,
-    input             mmr0_cs, mmr1_cs, rnw,
+    input             mmr0_cs, mmr1_cs, cpu_rnw,
     input      [ 7:0] cpu_dout,
     input      [12:0] cpu_addr,
     input      [ 7:0] backcolor,
+
+    // Objects
+    input             ommr_cs,
+    output     [15:0] oram_din,
+    output     [ 1:0] oram_we,
 
     // Tile ROM decoder PROM
     output     [12:1] vram0_addr, vram1_addr, oram_addr,
@@ -40,7 +45,7 @@ module jtrthunder_video(
     input      [31:0] scr0a_data, scr0b_data, scr1a_data, scr1b_data,
     input             scr0a_ok,   scr0b_ok,   scr1a_ok,   scr1b_ok,
     output            obj_cs,
-    output     [18:2] obj_addr,
+    output     [19:2] obj_addr,
     input      [31:0] obj_data,
     input             obj_ok,
 
@@ -61,19 +66,21 @@ module jtrthunder_video(
     output reg [ 7:0] st_dout
 );
 
-wire [10:0] scr0_pxl, scr1_pxl, pre1_pxl;
+wire [10:0] scr0_pxl, scr1_pxl, pre1_pxl, obj_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] obj_pxl, mmr0, mmr1, st0, st1;
+wire [ 7:0] mmr0, mmr1, st0, st1,  obj_mmr, obj_st;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio, pre1_prio;
 
-assign obj_pxl=0, obj_prio=0, obj_cs=0, obj_addr=0, objpal_addr=0;
 assign scr0a_addr[16]=bank, scr0b_addr[16]=bank;
-assign oram_addr=0;
 
 always @(posedge clk) begin
-    st_dout <= debug_bus[3] ? st1 : st0;
+    case(debug_bus[4:3])
+        0: st_dout <= st0;
+        1: st_dout <= st1;
+        2: st_dout <= obj_st;
+        default: st_dout <= 0;
+    endcase
 end
-
 
 jtframe_sh #(.W(14),.L(2)) u_sh(
     .clk    ( clk                   ),
@@ -83,26 +90,27 @@ jtframe_sh #(.W(14),.L(2)) u_sh(
 );
 
 jtshouse_vtimer u_vtimer(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .vrender1   ( vrender1  ),
-    .hdump      ( hdump     ),
-    .lhbl       ( lhbl      ),
-    .lvbl       ( lvbl      ),
-    .hs         ( hs        ),
-    .vs         ( vs        )
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .vdump      ( vdump         ),
+    .vrender    ( vrender       ),
+    .vrender1   ( vrender1      ),
+    .hdump      ( hdump         ),
+    .lhbl       ( lhbl          ),
+    .lvbl       ( lvbl          ),
+    .hs         ( hs            ),
+    .vs         ( vs            )
 );
 
 jtrthunder_ioctl_mux u_iomux(
-    .bank       ( bank      ),
-    .flip       ( flip      ),
-    .backcolor  ( backcolor ),
-    .mmr0       ( mmr0      ),
-    .mmr1       ( mmr1      ),
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
+    .bank       ( bank          ),
+    .flip       ( flip          ),
+    .backcolor  ( backcolor     ),
+    .mmr0       ( mmr0          ),
+    .mmr1       ( mmr1          ),
+    .mmr2       ( obj_mmr       ),
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     )
 );
 
 jtcus42 #(.ID(0)) u_scroll0(
@@ -115,7 +123,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .vdump      ( vdump         ),
 
     .cs         ( mmr0_cs       ),
-    .rnw        ( rnw           ),
+    .cpu_rnw    ( cpu_rnw       ),
     .cpu_addr   ( cpu_addr[2:0] ),
     .cpu_dout   ( cpu_dout      ),
 
@@ -154,7 +162,7 @@ jtcus42 #(.ID(1)) u_scroll1(
     .vdump      ( vdump         ),
 
     .cs         ( mmr1_cs       ),
-    .rnw        ( rnw           ),
+    .cpu_rnw    ( cpu_rnw       ),
     .cpu_addr   ( cpu_addr[2:0] ),
     .cpu_dout   ( cpu_dout      ),
 
@@ -183,6 +191,44 @@ jtcus42 #(.ID(1)) u_scroll1(
     .st_dout    ( st1           )
 );
 
+jtrthunder_obj u_obj(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .flip       ( flip      ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+
+    .dmaon      ( dmaon     ),
+    // MMR
+    .mmr_cs     ( ommr_cs   ),
+    .cpu_addr   (cpu_addr[1:0]),
+    .cpu_rnw    ( cpu_rnw   ),
+    .cpu_dout   ( cpu_dout  ),
+
+    // Look-up table
+    .ram_addr   ( oram_addr ),
+    .ram_dout   ( oram_dout ),
+    .ram_din    ( oram_din  ),
+    .ram_we     ( oram_we   ),
+
+    .rom_cs     ( obj_cs    ),
+    .rom_addr   ( obj_addr  ),
+    .rom_data   ( obj_data  ),   // upper byte not used
+    .rom_ok     ( obj_ok    ),
+
+    .pxl        ( obj_pxl   ),
+    .pxl_prio   ( obj_prio  ),
+
+    .ioctl_addr (ioctl_addr[1:0]),
+    .ioctl_din  ( obj_mmr   ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( obj_st    )
+);
+
 jtrthunder_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -190,6 +236,8 @@ jtrthunder_colmix u_colmix(
 
     .scrpal_addr(scrpal_addr),
     .scrpal_data(scrpal_data),
+    .objpal_addr(objpal_addr),
+    .objpal_data(objpal_data),
 
     .scr0_pxl   ( scr0_pxl  ),
     .scr1_pxl   ( scr1_pxl  ),

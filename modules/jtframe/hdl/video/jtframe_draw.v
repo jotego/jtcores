@@ -60,9 +60,6 @@ module jtframe_draw#( parameter
 
 localparam [ZW-1:0] HZONE = { {ZW-1{1'b0}},1'b1} << ZI;
 
-// Each tile is 16x16 and comes from the same ROM
-// but it looks like the sprites have the two 8x16 halves swapped
-
 reg      [31:0] pxl_data;
 reg             rom_lsb;
 reg      [ 3:0] cnt;
@@ -70,9 +67,7 @@ wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
 reg             cen=0, moveon, readon, no_zoom;
-// wire            msb;
 
-// assign msb     = !trunc[0] ? cnt[3] : trunc[1] ? cnt[1] : cnt[2]; // 16, 4 or 8 pixels
 assign ysubf   = ysub^{4{vflip}};
 assign buf_din = { pal, pxl };
 assign pxl     = hflip ?
@@ -82,7 +77,6 @@ assign pxl     = hflip ?
 assign rom_addr = { code, rom_lsb^SWAPH[0], ysubf[3:0] };
 assign buf_we   = busy & ~cnt[3];
 assign hzint    = hz_cnt[ZW-1:ZI];
-// assign { skip, nx_hz } = {1'b0, hz_cnt}+{1'b0,hzoom};
 
 always @* begin
     if( ZENLARGE==1 ) begin
@@ -111,7 +105,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( !busy ) begin
             if( draw ) begin
-                rom_lsb <= hflip; // 14+4 = 18 (+2=20)
+                rom_lsb <= hflip;
                 rom_cs  <= 1;
                 busy    <= 1;
                 cnt     <= 8;

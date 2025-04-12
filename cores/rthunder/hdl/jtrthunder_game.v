@@ -26,7 +26,7 @@ reg  [ 7:0] dbg_mux;
 wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
-            mrnw, bsel, mc30_cs, mcu_seln;
+            mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs;
 // Configuration through MRA header
 wire        scr2bpp, sndext_en, nocpu2;
 reg         lvbl_ps;
@@ -82,6 +82,9 @@ jtrthunder_main u_main(
     .cen_sub    ( cen_sub   ),
     .lvbl       ( lvbl_ps   ),
     .nocpu2     ( nocpu2    ),
+
+    .dmaon      ( dmaon     ),
+    .ommr_cs    ( ommr_cs   ),
 
     .backcolor  ( backcolor ),
     .tile_bank  ( tile_bank ),
@@ -186,6 +189,9 @@ jtrthunder_video u_video(
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
 
+    .dmaon      ( dmaon     ),
+    .ommr_cs    ( ommr_cs   ),
+
     .lvbl       ( LVBL      ),
     .lhbl       ( LHBL      ),
     .hs         ( HS        ),
@@ -193,9 +199,15 @@ jtrthunder_video u_video(
 
     .mmr0_cs    ( mmr0_cs   ),
     .mmr1_cs    ( mmr1_cs   ),
-    .rnw        ( brnw      ),
+    .cpu_rnw    ( brnw      ),
     .cpu_dout   ( bdout     ),
     .cpu_addr   ( baddr     ),
+
+    // Objects
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
+    .oram_din   ( oram_din  ),
+    .oram_we    ( oram_we   ),
 
     // Tile ROM decoder PROM
     .vram0_addr ( vram0_addr),
@@ -206,9 +218,6 @@ jtrthunder_video u_video(
     .dec1_addr  ( dec1_addr ),
     .dec0_data  ( dec0_data ),
     .dec1_data  ( dec1_data ),
-
-    .oram_addr  ( oram_addr ),
-    .oram_dout  ( oram_dout ),
 
     // ROMs
     .obj_cs     ( obj_cs    ),

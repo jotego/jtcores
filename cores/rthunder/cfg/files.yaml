@@ -22,10 +22,10 @@ jtframe:
       - jtframe_cendiv.v
   - from: video
     get:
-      - jtframe_vtimer.v
-      - jtframe_linebuf.v
       - jtframe_obj.yaml
+      - jtframe_vtimer.v
       - jtframe_scroll.yaml
+      - jtframe_linebuf.v
   - from: ram
     get:
       - jtframe_ram_rdmux.v

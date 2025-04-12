@@ -21,7 +21,7 @@ module jtrthunder_main(
                         cen_main, cen_sub,
                         lvbl, sndext_en, nocpu2,
 
-    output              tile_bank, latch0_cs, latch1_cs, bsel,
+    output              tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
     output       [ 7:0] backcolor,
 
     output              mrom_cs,   srom_cs, ext_cs, bus_busy,
@@ -96,6 +96,8 @@ jtrthunder_busmux u_busmux(
     .mavma      ( mavma     ),
     .savma      ( savma     ),
     .bsel       ( bsel      ),
+    .dmaon      ( dmaon     ),
+    .ommr_cs    ( ommr_cs   ),
 
     .mc30_cs    ( mc30_cs   ),
     .mrom_cs    ( mrom_cs   ),
@@ -257,6 +259,8 @@ assign latch0_cs = 0, latch1_cs = 0, bsel = 0,
        mrom_cs   = 0, srom_cs   = 0, ext_cs = 0, bus_busy = 0,
        ext_addr  = 0, mrom_addr = 0, srom_addr = 0, baddr = 0, bdout = 0,
        scr0_we   = 0, scr1_we   = 0, oram_we   = 0, brnw  = 0,
-       mrnw      = 0, mc30_cs   = 0, mdout     = 0, maddr = 0, st_dout = 0;
+       mrnw      = 0, mc30_cs   = 0, mdout     = 0, maddr = 0, st_dout = 0,
+       dmaon     = lvbl,
+       ommr_cs   = 0;
 `endif
 endmodule

@@ -26,3 +26,12 @@
       desc: "priority scroll B"
       dw: 3
       at: "4[3:1]"
+- name: obj
+  size: 4
+  regs:
+    - name: xoffset
+      dw: 9
+      at: "0[0],1"
+    - name: yoffset
+      dw: 8
+      at: "3"

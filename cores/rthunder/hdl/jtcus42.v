@@ -23,7 +23,7 @@ module jtcus42(
     input               flip, hs,
     input        [ 8:0] hdump, vdump,
 
-    input               cs, rnw,
+    input               cs, cpu_rnw,
     input        [ 2:0] cpu_addr,
     input        [ 7:0] cpu_dout,
 
@@ -89,7 +89,7 @@ jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
 
     .cs         ( cs            ),
     .addr       ( cpu_addr      ),
-    .rnw        ( rnw           ),
+    .rnw        ( cpu_rnw       ),
     .din        ( cpu_dout      ),
     .dout       (               ),
 

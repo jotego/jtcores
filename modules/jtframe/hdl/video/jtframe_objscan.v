@@ -20,9 +20,6 @@ module jtframe_objscan #(parameter
     OBJW=6,
     STW=4,
     HREPW=3,
-    // do not advance the state machine while dr_busy is high
-    // this is slower, but it will keep the module inputs steady
-    // as the external driver will not receive advances in the step signal
     HOLD_WHILE_DRBUSY=1,
     // do not modify:
     AW=OBJW+STW
