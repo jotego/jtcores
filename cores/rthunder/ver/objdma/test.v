@@ -1,13 +1,13 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire        rst, clk, lvbl, lhbl, busy, copy;
 wire [ 1:0] ram_we;
 wire [12:1] ram_addr;
 wire [ 8:0] vdump;
 wire [15:0] ram_din;
 reg  [15:0] last, ram_dout;
+
+`include "test_tasks.vh"
 
 assign copy     = vdump==9'h50;
 
