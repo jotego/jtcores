@@ -1,0 +1,9 @@
+jt680x:
+  - get:
+    - jt6808_alu.v
+    - jt6808_ctrl.v
+    - jt6808_regs.v
+    - jt6808.v
+    ucode:
+      src: "6808.yaml"
+      output: "6801"
