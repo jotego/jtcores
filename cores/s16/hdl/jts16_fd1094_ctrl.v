@@ -71,8 +71,8 @@ always @(posedge clk, posedge rst) begin
             end
         end
         if( !op_n && !dtackn && sup_prog /*&& stchange==0*/ ) begin
-            // cmpi.l #data
-            if( dec[15:8]==8'h0c && dec[7:6]==2'b10 ) begin
+            // cmpi.l #data, Dx
+            if( dec[15:8]==8'h0c && dec[7:6]==2'b10 && dec[5:3] == 0 ) begin
                 stchange <= 2'b01;
             end
             // rte
