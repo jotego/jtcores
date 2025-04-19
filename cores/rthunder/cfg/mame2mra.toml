@@ -89,7 +89,7 @@ regions = [
 	]},
 
 
-	{ name="gfx3", start="JTFRAME_BA3_START"  },
+	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true },
 	{ name="mcusub",start="MCUSUB_START"      },
 	{ name="mcusub",start="MCUSUB_START", machine="hopmappy", sequence=[0,0,0,0] },
 	{ name="mcu",  start="JTFRAME_PROM_START" },

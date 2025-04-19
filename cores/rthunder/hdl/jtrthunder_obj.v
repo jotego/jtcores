@@ -70,10 +70,10 @@ assign rom_addr = { raw_addr[17:7],
     hsize[0] ? hmsb[0] : raw_addr[6] /* H8 */};
 assign ram_addr = dma_busy ? dma_addr : scan_addr;
 assign sorted   = {
-    rom_data[31], rom_data[27], rom_data[23], rom_data[19], rom_data[15], rom_data[11], rom_data[7], rom_data[3],
-    rom_data[30], rom_data[26], rom_data[22], rom_data[18], rom_data[14], rom_data[10], rom_data[6], rom_data[2],
-    rom_data[29], rom_data[25], rom_data[21], rom_data[17], rom_data[13], rom_data[ 9], rom_data[5], rom_data[1],
-    rom_data[28], rom_data[24], rom_data[20], rom_data[16], rom_data[12], rom_data[ 8], rom_data[4], rom_data[0]
+    rom_data[27], rom_data[31], rom_data[19], rom_data[23], rom_data[11], rom_data[15], rom_data[3], rom_data[7],
+    rom_data[26], rom_data[30], rom_data[18], rom_data[22], rom_data[10], rom_data[14], rom_data[2], rom_data[6],
+    rom_data[25], rom_data[29], rom_data[17], rom_data[21], rom_data[ 9], rom_data[13], rom_data[1], rom_data[5],
+    rom_data[24], rom_data[28], rom_data[16], rom_data[20], rom_data[ 8], rom_data[12], rom_data[0], rom_data[4]
 };
 
 always @(posedge clk) blankn <= !(vdump>9'hf8 && vdump<9'h11d);
@@ -145,7 +145,7 @@ jtrthunder_objscan u_scan(
 
 wire [13:0] buf_loop;
 
-jtframe_objdraw_gate #(.CW(11),.PW(11+3),.LATCH(1),.HFIX(0)) u_draw(
+jtframe_objdraw_gate #(.CW(11),.PW(11+3),.LATCH(1),.HFIX(0),.ALPHA(15)) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

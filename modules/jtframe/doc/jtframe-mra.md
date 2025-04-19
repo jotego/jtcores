@@ -124,6 +124,9 @@ regions = [
 		reverse=true, no_offset=true, overrules=[ { names="...", reverse=false }, ... ] },
 	{ name==soundcpu, sequence=[2,1,0,0], no_offset=true } # inverts the order and repeats the first ROM
 	{ name=plds, skip=true },
+	# Set rom_len when the PCB socket is for a larger ROM than the one used on some games.
+	# duplicate files to match it. You may also need to set no_offset=true to avoid warnings
+	{ name=gfx2, rom_len=0x20000 },
 	{ name=gfx1, skip=true, remove=[ "notwanted"... ] }, # remove specific files from the dump
 	{ name=proms, files=[ {name="myname", crc="12345678", size=0x200 }... ] }	# Replace mame.xml information with specific files
 	# regions called "nvram" are automatically skipped

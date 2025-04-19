@@ -29,6 +29,7 @@ module jtframe_objscan #(parameter
     input               blankn,
     input        [ 8:0] vrender,
     output reg   [ 8:0] vlatch,
+    output reg          cen=0,
     
     input               draw_step,
     input               skip,
@@ -38,6 +39,7 @@ module jtframe_objscan #(parameter
     input      [HREPW-1:0] hsize,  // number of extra tiles to repeat (default zero)
     output     [HREPW-1:0] haddr,  // tile code portion (goes to rom_addr)
     output reg [HREPW-1:0] hsub=0, // H position delta
+    output     [HREPW-1:0] hcnt_nx,
     input                  hflip,
 
     input               dr_busy,
@@ -47,12 +49,13 @@ module jtframe_objscan #(parameter
     output reg[STW-1:0] step
 );
 
-reg             cen=0,hs_l=0,done=0, hs_latched;
+reg             hs_l=0,done=0, hs_latched;
 reg [OBJW-1:0]  objcnt;
 reg [HREPW-1:0] hcnt; // current tile repetition
 
-assign addr  = {objcnt,step};
-assign haddr = hcnt^{HREPW{hflip}};
+assign addr    = {objcnt,step};
+assign haddr   = hcnt^{HREPW{hflip}};
+assign hcnt_nx = hcnt+1'd1;
 
 always @(posedge clk) begin
     cen <= ~cen;
@@ -83,7 +86,7 @@ always @(posedge clk) if(cen) begin
                     hsub    <= hcnt;
                 end
                 if(hcnt!=hsize) begin
-                    hcnt<=hcnt+1'd1;
+                    hcnt<=hcnt_nx;
                 end else begin
                     step  <= 0;
                     {done,objcnt} <= {1'd0,objcnt}+1'd1;

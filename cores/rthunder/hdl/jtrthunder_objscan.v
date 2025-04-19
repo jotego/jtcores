@@ -40,21 +40,23 @@ module jtrthunder_objscan(
     input      [ 7:0] debug_bus
 );
 
-localparam [8:0] XOS=9'h20;
+localparam [8:0] XOS=9'h3d;
 localparam [7:0] YOS=8'h20;
 localparam [1:0] HLARGE=2'd2; // 32-pixel wide object
 
-reg [15:0] prev;
-reg  [7:0] y;
-reg  [8:0] objcnt, ydiff;
+reg  [7:0] y, vos_dr;
+reg  [8:0] ydiff;
+wire [6:0] objcnt;
 wire [8:0] vlatch, raw_addr;
 wire [1:0] st;
-reg  [1:0] hos, vos, nx_hmsb;
+reg  [1:0] hos, vos, hmsb_nx;
 reg  [4:0] nx_ysub;
-reg        inzone, half=0, wide=0;
-wire       draw_step, hsub;
+reg        inzone, wide=0;
+wire       draw_step, hsub, cen, hcnt_nx;
 
 assign draw_step = st==3;
+assign objcnt    = raw_addr[2+:7];
+
 assign ram_addr[12:11] = 2'b11;
 assign ram_addr[10: 4] = raw_addr[8-:7];
 assign ram_addr[ 3: 1] = {1'b0,raw_addr[1:0]}+3'd5;
@@ -75,42 +77,42 @@ always @* begin
         default:;
     endcase
     case( hsize )
-        0: nx_hmsb = { hos[1], 1'b0}; // 16 pxl
-        1,3: nx_hmsb = hos; // 8/4 pxl
-        default: nx_hmsb = { hflip, 1'b0 }; // 32 pxl
+        0: hmsb_nx = { hos[1], 1'b0}; // 16 pxl
+        1,3: hmsb_nx = hos; // 8/4 pxl
+        default: hmsb_nx = { hflip, 1'b0 }; // 32 pxl
     endcase
-    // if(objcnt!=debug_bus) inzone=0;
+    if(debug_bus[7] && objcnt!=debug_bus[6:0]) inzone=0;
+    if(&objcnt) inzone=0;
+
+    case(ram_dout[2:1])
+        0: vos_dr = -16;
+        1: vos_dr = -24;
+        2: vos_dr = -0;
+        3: vos_dr = -28;
+    endcase
 end
 
-always @(posedge clk) begin
+always @(posedge clk) if(cen) begin
     case(st)
-        0: prev <= ram_dout; // do not modify output values yet as the draw
-                             // module needs 1 tick to register them
-        1: begin
-            { hpos[7:0], pal, hpos[8] }   <= ram_dout;
-            { code[7:0], hsize, hflip, hos, code[10:8] } <= prev;
-        end
+        0: { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
+        1: { hpos[7:0], pal, hpos[8] } <= ram_dout;
         2: begin
-            wide <= hsize==HLARGE;
+            wide  <= hsize==HLARGE;
             { prio, vos, vsize, vflip } <= ram_dout[7:0];
-            y    <= ram_dout[15:8] + yoffset + YOS;
+            y    <= ram_dout[15:8] + yoffset + YOS + vos_dr;
             hpos <= hpos + xoffset + XOS;
         end
-        3: if(!dr_busy && inzone) begin
+        3: if(!dr_busy && !dr_draw && inzone) begin
             ysub <= nx_ysub;
-            hmsb <= nx_hmsb;
+            hmsb <= hmsb_nx;
             case( hsize )
                 1: trunc <= 2'b10;
                 3: trunc <= 2'b11;
                 default: trunc <= 0;
             endcase
-            if( half ) begin // half of 32-pxl object
-                half <= 0;
+            if( wide && !hcnt_nx ) begin // half of 32-pxl object
                 hpos <= hpos + 9'h10;
                 hmsb[1] <= ~hmsb[1];
-            end
-            if( hsize==HLARGE && !half ) begin
-                half <= 1;
             end
         end
     endcase
@@ -119,6 +121,7 @@ end
 jtframe_objscan #(.OBJW(7),.STW(2),.HREPW(1))
 u_scan(
     .clk        ( clk       ),
+    .cen        ( cen       ),
     .hs         ( hs        ),
     .blankn     ( blankn    ),
     .vrender    ( vrender   ),
@@ -132,6 +135,7 @@ u_scan(
     .hsub       ( hsub      ),
     .haddr      (           ),
     .hflip      ( hflip     ),
+    .hcnt_nx    ( hcnt_nx   ),
 
     .dr_busy    ( dr_busy   ),
     .dr_draw    ( dr_draw   ),
@@ -139,6 +143,5 @@ u_scan(
     .addr       ( raw_addr  ),
     .step       ( st        )
 );
-
 
 endmodule
