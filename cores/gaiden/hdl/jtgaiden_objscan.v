@@ -217,6 +217,7 @@ end
 
 jtframe_objscan #(.OBJW(8),.STW(3))u_scan(
     .clk        ( clk       ),
+    .cen        (           ),
     .hs         ( hs        ),
     .blankn     ( blankn    ),
     .vrender    ( vrender   ),
@@ -230,6 +231,7 @@ jtframe_objscan #(.OBJW(8),.STW(3))u_scan(
     .hsub       ( hsub      ),
     .haddr      ( haddr     ),
     .hflip      ( hflip     ),
+    .hcnt_nx    (           ),
 
     .dr_busy    ( dr_busy   ),
     .dr_draw    ( dr_draw   ),
