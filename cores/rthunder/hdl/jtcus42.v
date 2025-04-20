@@ -49,6 +49,8 @@ module jtcus42(
 
 parameter ID=0;
 
+localparam [2:0] ALPHA=7;
+
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
 wire [15:0] a_dout, b_dout;
@@ -58,7 +60,7 @@ wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
 wire        scrb_op, selb;
 
-assign scrb_op = scrb_pxl[2:0]==0;
+assign scrb_op = scrb_pxl[2:0]!=ALPHA;
 assign selb    = scrb_op && priob > prioa;
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
