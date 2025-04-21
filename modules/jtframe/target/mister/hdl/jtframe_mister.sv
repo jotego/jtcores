@@ -228,7 +228,7 @@ wire        video_rotated;
 wire        lightgun_en;
 
 wire [ 6:0] core_mod;
-wire [ 7:0] st_lpbuf;
+wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
 wire [24:0] ps2_mouse;
@@ -422,6 +422,7 @@ jtframe_mister_dwnld u_dwnld(
 
     // Configuration
     .core_mod       ( core_mod       ),
+    .game_vol       ( game_vol       ),
     .status         ( status         ),
     .dipsw          ( dipsw          ),
     .cheat          ( cheat          ),
@@ -656,6 +657,7 @@ jtframe_board #(
     .clk_pico       ( clk_pico        ),
 
     .core_mod       ( core_mod        ),
+    .game_vol       ( game_vol        ),
     .vertical       ( vertical        ),
     .black_frame    (                 ),
     // Sound

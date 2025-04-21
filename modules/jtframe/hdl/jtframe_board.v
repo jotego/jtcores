@@ -49,6 +49,7 @@ module jtframe_board #(parameter
     // Audio
     input  signed [15:0] snd_lin,  snd_rin,
     output signed [15:0] snd_lout, snd_rout,
+    input         [ 7:0] game_vol, // set by MRA file
     output        [ 7:0] snd_vol,
     input                snd_sample,
     input                snd_peak,
@@ -533,6 +534,7 @@ jtframe_volume u_volume(
     .peak           ( snd_peak        ),
     .up             ( vol_up          ),
     .down           ( vol_down        ),
+    .game_vol       ( game_vol        ),
     .vol            ( snd_vol         )
 );
 

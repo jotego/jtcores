@@ -190,6 +190,7 @@ reg  [63:0]   board_status;
 wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
 
+wire [7:0]    game_vol=0; // per-game volume settings not available on ARC files
 wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
 
@@ -366,6 +367,7 @@ jtframe_board #(
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
+    .game_vol       ( game_vol        ),
     .core_mod       ( core_mod        ),
     .vertical       (                 ),
     .black_frame    (                 ),
