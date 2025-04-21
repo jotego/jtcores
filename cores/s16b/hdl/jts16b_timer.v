@@ -133,7 +133,6 @@ always @(posedge clk, posedge rst) begin
                 end
                 6: mmr[2] <= write_reg( 2 );
                 4'h8,4'hc: mmr[8] <= write_reg( 8 );
-                15: mmr[2] <= write_reg( 10 );
                 4'hf: begin
                     snd_data <= din[7:0];
                     snd_irq  <= 1;
