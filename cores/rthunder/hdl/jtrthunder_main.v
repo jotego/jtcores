@@ -41,6 +41,10 @@ module jtrthunder_main(
     output       [ 7:0] mdout,
     output       [15:0] maddr,
 
+    // PCM
+    output       [ 1:0] pcm_addr,
+    output              pcm_wr,
+
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
 );
@@ -84,7 +88,9 @@ jtcus115 u_cus115(
     .cs         ( c115_cs   ),
     .addr       ( maddr     ),
     .din        ( mdout     ),
-    .banksel    ( mbank_ext )
+    .banksel    ( mbank_ext ),
+    .pcm_addr   ( pcm_addr  ),
+    .pcm_wr     ( pcm_wr    )
 );
 
 jtrthunder_busmux u_busmux(

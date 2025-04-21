@@ -21,21 +21,20 @@ module jtrthunder_game(
 );
 
 wire [15:0] fave, maddr;
-wire [ 1:0] busy;
+wire [ 1:0] busy, pcm_wraddr;
 reg  [ 7:0] dbg_mux;
 wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs;
 // Configuration through MRA header
-wire        scr2bpp, sndext_en, nocpu2;
+wire        scr2bpp, sndext_en, nocpu2, pcm_wr;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
 
 assign flip = 0;
-assign pcm_cs=0, pcm_addr=0, pcm=0;
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
@@ -129,6 +128,9 @@ jtrthunder_main u_main(
     .mrnw       ( mrnw      ),
     .maddr      ( maddr     ),
     .mdout      ( mdout     ),
+    // PCM
+    .pcm_wr     ( pcm_wr    ),
+    .pcm_addr   ( pcm_wraddr),
 
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_main   )
@@ -140,6 +142,7 @@ jtrthunder_sound u_sound(
     .cen_mcu    ( cen_mcu   ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
+    .cen_pcm    ( cen_pcm   ),
 
     .lvbl       ( lvbl_ps   ),
     .hopmappy   ( nocpu2    ),
@@ -151,9 +154,11 @@ jtrthunder_sound u_sound(
     .coin       ( coin[1:0] ),
     .service    ( service   ),
 
-    // sub 6809 connection to CUS30
+    // sub 6809 connection to CUS30/PCM MCU
     .mcu_seln   ( mcu_seln  ),
     .c30_dout   ( c30_dout  ),
+    .pcm_wr     ( pcm_wr    ),
+    .pcm_waddr  ( pcm_wraddr),
     .mc30_cs    ( mc30_cs   ),
     .mrnw       ( mrnw      ),
     .maddr      ( maddr[9:0]),
@@ -173,8 +178,21 @@ jtrthunder_sound u_sound(
     .rom_data   (mcusub_data),
     .bus_busy   ( busy[1]   ),
 
+    // PCM samples
+    .pcm0_addr  ( pcm0_addr ),
+    .pcm0_data  ( pcm0_data ),
+    .pcm0_cs    ( pcm0_cs   ),
+    .pcm0_ok    ( pcm0_ok   ),
+
+    .pcm1_addr  ( pcm1_addr ),
+    .pcm1_data  ( pcm1_data ),
+    .pcm1_cs    ( pcm1_cs   ),
+    .pcm1_ok    ( pcm1_ok   ),
+
     .fm_l       ( fm_l      ),
     .fm_r       ( fm_r      ),
+    .pcm0       ( pcm0      ),
+    .pcm1       ( pcm1      ),
     .cus30_l    ( cus30_l   ),
     .cus30_r    ( cus30_r   ),
     .debug_bus  ( debug_bus )

@@ -18,7 +18,7 @@
 
 module jtrthunder_sound(
     input               rst, clk,
-                        cen_fm, cen_fm2, cen_mcu,
+                        cen_fm, cen_fm2, cen_mcu, cen_pcm,
                         lvbl, mcu_seln,
                         hopmappy,
 
@@ -34,6 +34,8 @@ module jtrthunder_sound(
     output       [ 7:0] c30_dout,
     input               mc30_cs,
     input               mrnw,
+    input               pcm_wr,
+    input        [ 1:0] pcm_waddr,
 
     output       [11:0] embd_addr,
     input        [ 7:0] embd_data,
@@ -48,7 +50,20 @@ module jtrthunder_sound(
     input               rom_ok,
     output              bus_busy,
 
-    output signed[15:0] fm_l,    fm_r,
+    // PCM
+    output       [18:0] pcm0_addr,
+    input        [ 7:0] pcm0_data,
+    output              pcm0_cs,
+    input               pcm0_ok,
+
+    output       [18:0] pcm1_addr,
+    input        [ 7:0] pcm1_data,
+    output              pcm1_cs,
+    input               pcm1_ok,
+
+
+    output signed[15:0] fm_l, fm_r,
+    output       [11:0] pcm0, pcm1,
     output signed[12:0] cus30_l, cus30_r,
     input        [ 7:0] debug_bus
 );
@@ -118,6 +133,28 @@ jtrthunder_cab u_cab(
 
     .cab_dout   ( cab_dout      ),
     .other      ( cab_other     )
+);
+
+jtrthunder_pcm u_pcm(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen_pcm   ),
+    .wr         ( pcm_wr    ),
+    .addr       ( pcm_waddr ),
+    .din        ( mdout     ),
+
+    .rom0_addr  ( pcm0_addr ),
+    .rom0_data  ( pcm0_data ),
+    .rom0_cs    ( pcm0_cs   ),
+    .rom0_ok    ( pcm0_ok   ),
+
+    .rom1_addr  ( pcm1_addr ),
+    .rom1_data  ( pcm1_data ),
+    .rom1_cs    ( pcm1_cs   ),
+    .rom1_ok    ( pcm1_ok   ),
+
+    .pcm0       ( pcm0      ),
+    .pcm1       ( pcm1      )
 );
 
 /* verilator tracing_on */

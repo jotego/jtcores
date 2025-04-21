@@ -9,12 +9,16 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
+    - freq: 6000
+      outputs:
+        - cen_pcm
 audio:
   rsum: 18k
   channels:
     - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 2.2 }
     # to do: variable gain for PCM
-    - { name: pcm, data_width: 11, dcrm: true, rsum: 100, fir: fir_192k_4k.csv, vpp: 1.0 }
+    - { name: pcm0, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0 }
+    - { name: pcm1, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0 }
     - { name: cus30, module: jtcus30, rsum: 6.8k }
 ports:
   - { name: bdout, msb:  7, lsb: 0 }
@@ -33,7 +37,11 @@ sdram:
       - name: snd
         addr_width: 16
         data_width: 8
-      - name: pcm
+      - name: pcm0
+        addr_width: 19
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: pcm1
         addr_width: 19
         data_width: 8
         offset: PCM_OFFSET

@@ -85,10 +85,10 @@ always @* begin
     if(&objcnt) inzone=0;
 
     case(ram_dout[2:1])
-        0: vos_dr = -16;
-        1: vos_dr = -24;
-        2: vos_dr = -0;
-        3: vos_dr = -28;
+        0: vos_dr = -8'd16;
+        1: vos_dr = -8'd24;
+        2: vos_dr = -8'd0;
+        3: vos_dr = -8'd28;
     endcase
 end
 
