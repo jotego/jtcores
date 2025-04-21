@@ -36,6 +36,7 @@ type mmr_gen struct {
 	cfg []MMRdef
 	converted []string
 	corename, hdl_path string
+	bits []int // location of bits used
 }
 
 type MMRdef struct {
@@ -63,6 +64,10 @@ type Chunk struct {
 	Byte, Msb, Lsb int
 }
 
+type checker interface {
+	check(bytenum,lsb,msb int)
+}
+
 func GetMMRPath( corename string ) (mmrpath string) {
 	return filepath.Join(os.Getenv("CORES"),corename,"cfg","mmr.yaml")
 }
@@ -84,6 +89,7 @@ func Generate( corename string, verbose bool ) (e error) {
 func (mmr *mmr_gen) generate() (e error) {
 	mmr.converted=make([]string,len(mmr.cfg))
 	for k, _ := range mmr.cfg {
+		mmr.bits=make([]int,1024*8)
 		if mmr.cfg[k].No_core_name {
 			mmr.cfg[k].Module=fmt.Sprintf("jt%s_mmr", mmr.cfg[k].Name )
 		} else {
@@ -93,7 +99,7 @@ func (mmr *mmr_gen) generate() (e error) {
 		mmr.cfg[k].Seq=make([]int,mmr.cfg[k].Size)
 		for i:=0;i<mmr.cfg[k].Size;i++ { mmr.cfg[k].Seq[i]=i }
 		for j, _ := range mmr.cfg[k].Regs {
-			e = mmr.cfg[k].Regs[j].parse()
+			e = mmr.cfg[k].Regs[j].parse(mmr)
 			if e!=nil { return e }
 		}
 		mmr.converted[k], e = mmr.cfg[k].convert()
@@ -110,7 +116,7 @@ func (mmr *mmr_gen) dump_all() (e error) {
 	return nil
 }
 
-func (reg *Register)parse() error {
+func (reg *Register)parse( ck checker) error {
 	ss := strings.Split(reg.At,",")
 	for j, _ := range ss {
 		ss[j] = strings.TrimSpace(ss[j])
@@ -127,6 +133,7 @@ func (reg *Register)parse() error {
 			aux.Msb = 7
 			aux.Lsb = 0
 			// fmt.Printf("%s matched as single digit\n",ss[m])
+			ck.check(aux.Byte,aux.Lsb,aux.Msb)
 			continue
 		}
 		// match number[number]
@@ -138,6 +145,7 @@ func (reg *Register)parse() error {
 			a, _ = strconv.ParseInt( matches[2], 0, 16 )
 			aux.Msb = int(a)
 			aux.Lsb = aux.Msb
+			ck.check(aux.Byte,aux.Lsb,aux.Msb)
 			// fmt.Printf("%s matched as n[m]\n",ss[m])
 			continue
 		}
@@ -151,6 +159,7 @@ func (reg *Register)parse() error {
 			aux.Msb = int(a)
 			a, _ = strconv.ParseInt( matches[3], 0, 16 )
 			aux.Lsb = int(a)
+			ck.check(aux.Byte,aux.Lsb,aux.Msb)
 			// fmt.Printf("%s matched as n[m:l]\n",ss[m])
 			continue
 		}
@@ -158,6 +167,27 @@ func (reg *Register)parse() error {
 		return fmt.Errorf("Error: jtframe mmr cannot parse location %s\n",ss[m])
 	}
 	return nil
+}
+
+func (mmr *mmr_gen)check(bytenum,lsb,msb int) {
+	if bytenum>1024 {
+		panic("jtframe mmr: Cannot allocate more than 1kB")
+	}
+	if msb<lsb {
+		msg := fmt.Sprintf("jtframe mmr: Wrong MSB-LSB order, got %d->%d",lsb,msb)
+		panic(msg)
+	}
+	if msb>7 {
+		panic("jtframe mmr: MSB must be less than 8")
+	}
+	for i:=lsb;i<=msb;i++ {
+		pos := bytenum<<3+i
+		if mmr.bits[pos]==1 {
+			msg := fmt.Sprintf("MMR bit %d of byte %d is already in use",i,bytenum)
+			panic(msg)
+		}
+		mmr.bits[pos]=1
+	}
 }
 
 func (cfg MMRdef) convert() (conv string, e error) {
