@@ -36,6 +36,10 @@ module jts18_video(
     input      [ 7:0]  game_id,
     output     [ 8:0]  vrender,
 
+    // VRAM
+    input      [15:0]  cscn_dout,
+    output     [11:1]  cscn_addr,
+
     // CPU interface
     input              dip_pause,
     input              bank_cs,
@@ -48,7 +52,6 @@ module jts18_video(
     input              asn,
     output             vdp_dtackn,
 
-    output     [15:0]  char_dout,
     output     [15:0]  obj_dout,
     output     [15:0]  vdp_dout,
     input      [ 2:0]  vdp_prio,
@@ -180,7 +183,10 @@ jts18_video16 u_video16(
     .din        ( din       ),
     .dsn        ( dsn | {2{rnw}}),
 
-    .char_dout  ( char_dout ),
+    // VRAM
+    .cscn_addr  ( cscn_addr ),
+    .cscn_dout  ( cscn_dout ),
+
     .obj_dout   ( obj_dout  ),
     .vint       ( vint      ),
 

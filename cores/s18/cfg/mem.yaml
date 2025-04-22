@@ -54,10 +54,32 @@ bram:
       din: pcm1_din
       dout: pcm1_dout
       rw: true
-  - { name: pal, addr_width: 12, data_width: 16, rw: false,
-      ioctl: { save: true, order: 0 },
-      dual_port: { name: main, rw: true, we: pal_we }
-    }
+  # Fixed layer (characters) VRAM
+  - name: cscn
+    addr_width: 12
+    data_width: 16
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: cram
+      addr: main_addr[11:1]
+      din: xram_din
+      dout: char_dout
+      rw: true
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: false,
+    ioctl:
+      save: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: main
+      rw: true
+      we: pal_we
   # 16kB of work RAM area saved as NVRAM
   - name: nvram
     addr_width: 14
@@ -66,7 +88,7 @@ bram:
     ioctl:
       save: true
       restore: true
-      order: 1
+      order: 0
     dual_port:
       name: wram
       rw: true

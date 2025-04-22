@@ -55,7 +55,7 @@ wire        ram_ok;
 
 // CPU interface
 wire [12:1] cpu_addr;
-wire [15:0] main_dout, char_dout, pal_dout, obj_dout;
+wire [15:0] main_dout, pal_dout, obj_dout;
 wire [ 1:0] dsn;
 wire        UDSWn, LDSWn, main_rnw;
 wire        char_cs, scr1_cs, pal_cs, objram_cs;
@@ -104,6 +104,7 @@ assign nvram_din            = 0;
 assign ram_ok               = ~xram_cs | xram_ok;
 assign ram_data             =  xram_cs ? xram_data : wram_dout;
 assign ioctl_din            = 0;
+assign cram_we              = ~dsn & {2{char_cs}};
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
@@ -347,6 +348,10 @@ jts16_video u_video(
 
     .video_en   ( video_en  ),
     .game_id    ( game_id   ),
+
+    // VRAM
+    .cscn_dout  ( cscn_dout ),
+    .cscn_addr  ( cscn_addr ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .char_cs    ( char_cs   ),
@@ -357,7 +362,6 @@ jts16_video u_video(
 
     .cpu_dout   ( main_dout ),
     .dsn        ( dsn       ),
-    .char_dout  ( char_dout ),
     .pal_dout   ( pal_dout  ),
     .obj_dout   ( obj_dout  ),
 

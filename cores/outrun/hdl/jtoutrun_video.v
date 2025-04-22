@@ -43,7 +43,6 @@ module jtoutrun_video #(
     input      [ 1:0]  sub_dsn,
     input              sub_rnw,
 
-    output     [15:0]  char_dout,
     output     [15:0]  pal_dout,
     output     [15:0]  obj_dout,
     output     [15:0]  road_dout,
@@ -53,6 +52,10 @@ module jtoutrun_video #(
     // Other configuration
     input              flip,
     inout              ext_flip,
+
+    // VRAM
+    input      [15:0]  cscn_dout,
+    output     [11:1]  cscn_addr,
 
     // SDRAM interface
     input              char_ok,
@@ -234,8 +237,10 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .cpu_addr   ( cpu_addr[12:1] ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( main_dswn ),
-    .char_dout  ( char_dout ),
     .vint       ( vint      ),
+
+    .cscn_addr  ( cscn_addr ),
+    .cscn_dout  ( cscn_dout ),
 
     // Other configuration
     .flip       ( flip      ),
