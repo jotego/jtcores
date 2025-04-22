@@ -23,12 +23,9 @@ module jts16_char(
     input              pxl_cen,   // pixel clock enable
     input              alt_en,
 
-    // CPU interface
-    input              char_cs,
-    input      [11:1]  cpu_addr,
-    input      [15:0]  cpu_dout,
-    input      [ 1:0]  dswn,
-    output     [15:0]  cpu_din,
+    // VRAM
+    input      [15:0]  scan,
+    output reg [11:1]  scan_addr,
 
     // SDRAM interface
     input              char_ok,
@@ -61,33 +58,8 @@ module jts16_char(
 
 parameter MODEL=0;  // 0 = S16A, 1 = S16B
 
-wire [15:0] scan;
-reg  [10:0] scan_addr;
 wire [ 1:0] we;
 reg  [ 8:0] code, vf, vfr, hf;
-
-assign we = ~dswn & {2{char_cs}};
-
-jtframe_dual_ram16 #(
-    .AW(11),
-    .SIMFILE_LO("char_lo.bin"),
-    .SIMFILE_HI("char_hi.bin")
-) u_ram(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
-
-    // CPU writes
-    .addr0  ( cpu_addr  ),
-    .data0  ( cpu_dout  ),
-    .we0    ( we        ),
-    .q0     ( cpu_din   ),
-
-    // Video reads
-    .addr1  ( scan_addr ),
-    .data1  (           ),
-    .we1    ( 2'b0      ),
-    .q1     ( scan      )
-);
 
 localparam [4:0] ROWREAD=8;
 localparam [8:0] FLIPOFFSET = 9'ha3;

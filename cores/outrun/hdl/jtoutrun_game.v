@@ -38,7 +38,7 @@ wire        obj_swap;
 
 // CPU interface
 wire        creset;
-wire [15:0] main_dout, char_dout, pal_dout, obj_dout;
+wire [15:0] main_dout, pal_dout, obj_dout;
 wire [ 1:0] main_dsn, main_dswn;
 wire        main_rnw, sub_br,
             char_cs, scr1_cs, pal_cs, objram_cs;
@@ -96,6 +96,8 @@ assign subram_dsn  = sub_dsn;
 assign subram_we   = ~sub_rnw;
 assign subram_din  = sub_dout;
 assign subrom_addr = sub_addr;
+// VRAM
+assign cram_we    = ~main_dsn & {2{char_cs}};
 
 assign key_we    = prom_we && prog_addr[21:13]==KEY_PROM[21:13];
 assign fd1089_we = prom_we && prog_addr[21: 8]==FD_PROM [21: 8];
@@ -368,6 +370,9 @@ jtoutrun_video u_video(
     .gfx_en     ( gfx_en    ),
 
     .video_en   ( video_en  ),
+    // VRAM
+    .cscn_addr  ( cscn_addr ),
+    .cscn_dout  ( cscn_dout ),
     // CPU interface
     .cpu_addr   ( full_addr[13:1]),
     .sub_addr   ( sub_addr[11:1] ),
@@ -385,7 +390,6 @@ jtoutrun_video u_video(
     .sub_dsn    ( sub_dsn   ),
     .sub_rnw    ( sub_rnw   ),
     .sub_dout   ( sub_dout  ),
-    .char_dout  ( char_dout ),
     .pal_dout   ( pal_dout  ),
     .obj_dout   ( obj_dout  ),
     .road_dout  ( road_dout ),

@@ -37,12 +37,15 @@ module jts18_video16(
     input      [15:0]  din,
     input      [ 1:0]  dsn,
 
-    output     [15:0]  char_dout,
     output     [15:0]  obj_dout,
     output             vint,
 
     // Other configuration
     input              flip,
+
+    // VRAM
+    input      [15:0]  cscn_dout,
+    output     [11:1]  cscn_addr,
 
     // SDRAM interface
     input              char_ok,
@@ -120,12 +123,15 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .pxl_cen    ( pxl_cen   ),
 
     .dip_pause  ( dip_pause ),
-    .char_cs    ( char_cs   ),
     .cpu_addr   ( addr      ),
     .cpu_dout   ( din       ),
     .dswn       ( dsn       ),
-    .char_dout  ( char_dout ),
     .vint       ( vint      ),
+    .char_cs    ( char_cs   ),
+
+    // VRAM
+    .cscn_addr  ( cscn_addr ),
+    .cscn_dout  ( cscn_dout ),
 
     // Other configuration
     .flip       ( flip      ),
