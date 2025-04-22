@@ -82,7 +82,6 @@ assign cram_we    = ~dsn & {2{char_cs}};
 assign otbl_we    = {2{otbl_we0}};
 assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
 
-
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: case( debug_bus[1:0] )
