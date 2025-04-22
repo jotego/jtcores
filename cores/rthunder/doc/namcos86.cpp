@@ -215,8 +215,8 @@ uint8_t namcos86_state::dsw0_r()
 
 	rhi  = (m_io_dsw[0]->read() & 0x01) << 4;
 	rhi |= (m_io_dsw[0]->read() & 0x04) << 3;
-	rhi |= (m_io_dsw[0]->read() & 0x10) << 2;
-	rhi |= (m_io_dsw[0]->read() & 0x40) << 1;
+	rhi |= (m_io_dsw[0]->read() & 0x10) << 2; // 6
+	rhi |= (m_io_dsw[0]->read() & 0x40) << 1; // 7
 
 	rlo  = (m_io_dsw[1]->read() & 0x01);
 	rlo |= (m_io_dsw[1]->read() & 0x04) >> 1;
