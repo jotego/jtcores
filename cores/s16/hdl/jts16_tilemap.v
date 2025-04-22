@@ -40,7 +40,6 @@ module jts16_tilemap(
     input      [15:0]  cpu_dout,
     input      [ 1:0]  dswn,
 
-    output     [15:0]  char_dout,
     output             vint,
 
     // Other configuration
@@ -51,6 +50,10 @@ module jts16_tilemap(
     input              alt_en, // This is controlled by pin 77, named K8 in sch.
                                // pin 77 was set with a jumper on the ROM board
                                // That pin corresponds to ~alt_en in Super Hang On sch.
+
+    // VRAM
+    input      [15:0]  cscn_dout,
+    output     [11:1]  cscn_addr,
 
     // SDRAM interface
     input              char_ok,
@@ -224,12 +227,9 @@ jts16_char #(.MODEL(MODEL)) u_char(
     .pxl_cen   ( pxl_cen        ),
 
     .alt_en    ( alt_en         ),
-    // CPU interface
-    .char_cs   ( char_cs        ),
-    .cpu_addr  ( cpu_addr[11:1] ),
-    .cpu_dout  ( cpu_dout       ),
-    .dswn      ( dswn           ),
-    .cpu_din   ( char_dout      ),
+
+    .scan      ( cscn_dout      ),
+    .scan_addr ( cscn_addr      ),
 
     // SDRAM interface
     .char_ok   ( char_ok        ),
