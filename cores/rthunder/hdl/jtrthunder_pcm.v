@@ -59,7 +59,7 @@ jtrthunder_pcm_single u_ch1(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .addr       ( addr[1]   ),
+    .addr       ( addr[0]   ),
     .din        ( din       ),
     .wr         ( wr1       ),
     .rom_addr   ( rom1_addr ),

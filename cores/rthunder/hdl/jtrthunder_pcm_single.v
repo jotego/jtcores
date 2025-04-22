@@ -41,10 +41,11 @@ reg [ 3:0] gain;
 reg [ 2:0] bank=0, st=0;
 reg [ 1:0] vol=0;
 reg        start=0, start_l=0, cen_ok=0;
-wire       rom_good;
+wire       rom_good, valid;
 
 assign rom_good = ~rom_cs | rom_ok;
 assign rom_addr = { bank, rda }; // 3+16=19
+assign valid    = sample!=0;
 
 always @(posedge clk) begin
     if(rst) begin
@@ -124,7 +125,7 @@ always @(posedge clk) begin
             default: rom_cs <= 0;
         endcase
         start_l <= start;
-        if(start & ~start_l) begin
+        if(start && !start_l && valid) begin
             rom_cs <= 0;
             st     <= START;
         end
