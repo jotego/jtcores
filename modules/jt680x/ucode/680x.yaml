@@ -50,11 +50,11 @@ ucode:
       - idle6_jsr
       - ivrd_jsr
   - name: imm # 1+3 ucode cycles = 1 bus cycle
-    start: 0x12
+    start: 0x8F
     seq:
       - fetch, inc_pc, ret_jsr
   - name: imm16 # 1+7 ucode cycles = 2 bus cycles
-    start: 0x13
+    start: 0xCF
     seq:
       - fetch, inc_pc
       - # mem wait cycle
@@ -421,3 +421,15 @@ ucode:
       - md_ld, psh8_jsr,   s_ea
       - idle4_jsr
       - swi, ivrd_jsr
+  - mnemo: [ UNDOC1, UNDOC2 ]
+    seq:
+      # undocumented instructions, maybe a fluke
+      # X <- X+(S+1)
+      - s_rmux,    ld0_opnd
+      - one_rmux,  ld1_opnd
+      - add_alu,   ea_ld,
+      - fetch,     m_ea
+      -            ld0_opnd,
+      - x_rmux,    ld1_opnd,
+      - add_alu,   x_ld,     fetch
+      - ni

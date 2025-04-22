@@ -280,6 +280,8 @@ ops:
   - { name: TIM,  op: 0x6b, ctl: { alu: AND, addr: idx,         cc: nzv0 }, cycles: 7 }
   - { name: XGDX, op: 0x18,                                                 cycles: 2 }
   - { name: SLP,  op: 0x1a,                                                 cycles: 4 }
+  - { name: UNDOC1,  op: 0x12,                                              cycles: 2 }
+  - { name: UNDOC2,  op: 0x13,                                              cycles: 2 }
 ucode:
   - mnemo: [ MUL ]
     seq:
