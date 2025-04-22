@@ -37,7 +37,7 @@ wire        vram_cs, ram_cs;
 
 // CPU interface
 wire [23:1] cpu_addr;
-wire [15:0] char_dout, obj_dout, vdp_dout;
+wire [15:0] obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
 wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn;
@@ -75,6 +75,8 @@ assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
+assign cram_we    = ~dsn & {2{char_cs}};
+
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -251,11 +253,14 @@ jts18_video u_video(
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
+    // VRAM
+    .cscn_dout  ( cscn_dout ),
+    .cscn_addr  ( cscn_addr ),
+
     .din        ( main_dout ),
     .dsn        ( dsn       ),
     .asn        ( asn       ),
     .rnw        ( main_rnw  ),
-    .char_dout  ( char_dout ),
     .obj_dout   ( obj_dout  ),
     .vdp_dout   ( vdp_dout  ),
     .vdp_dtackn ( vdp_dtackn),

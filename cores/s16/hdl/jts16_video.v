@@ -34,10 +34,13 @@ module jts16_video(
     input      [15:0]  cpu_dout,
     input      [ 1:0]  dsn,
 
-    output     [15:0]  char_dout,
     output     [15:0]  pal_dout,
     output     [15:0]  obj_dout,
     output             vint,
+
+    // VRAM
+    input      [15:0]  cscn_dout,
+    output     [11:1]  cscn_addr,
 
     // Other configuration
     input              flip,
@@ -122,8 +125,10 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( dsn       ),
-    .char_dout  ( char_dout ),
     .vint       ( vint      ),
+
+    .cscn_dout  ( cscn_dout ),
+    .cscn_addr  ( cscn_addr ),
 
     // Other configuration
     .flip       ( flip      ),

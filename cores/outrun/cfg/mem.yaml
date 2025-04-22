@@ -66,6 +66,20 @@ bram:
       addr: main_addr[14:1]
       din: xram_din
       dout: wram_dout
+  # Fixed layer (characters) VRAM
+  - name: cscn
+    addr_width: 12
+    data_width: 16
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: cram
+      addr: main_addr[11:1]
+      din: xram_din
+      dout: char_dout
+      rw: true
 # bram:
 #   - { name: palram, addr_width: 14, data_width: 16, simfile: pal,
 #       nvram: {
