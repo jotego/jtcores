@@ -288,7 +288,7 @@ ucode:
       - fetch
       - # wait for the fetch
       - ni
-  - mnemo: [  BSR ]
+  - mnemo: [ BSR ]
     seq:
       - inc_pc, one_rmux, ld1_opnd
       - pc_rmux, ld0_opnd

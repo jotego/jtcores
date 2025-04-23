@@ -90,7 +90,7 @@ ops:
   - { name: BLT,  op: 0x2d, cycles: 3 }
   - { name: BGT,  op: 0x2e, cycles: 3 }
   - { name: BLE,  op: 0x2f, cycles: 3 }
-  - { name: BSR,  op: 0x8d, cycles: 5 }
+  - { name: BSR,  op: 0x8d, cycles: 6 }
 
   - { name: CBA,  op: 0x11, ctl: { alu: SUB, op0: a, op1: b, cc: nzvc}, cycles: 2 }
 
