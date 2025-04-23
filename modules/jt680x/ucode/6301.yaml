@@ -268,8 +268,10 @@ ops:
   - { name: RTI,  op: 0x3b,                                                                     cycles: 10 }
   - { name: RTS,  op: 0x39,                                                                     cycles: 5  }
   - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
-  - { name: UNDOC1,  op: 0x12,                                                                  cycles: 2 }
-  - { name: UNDOC2,  op: 0x13,                                                                  cycles: 2 }
+
+  # undocumented
+  - { name: UNDOC1, op: 0x12, cycles: 2 }
+  - { name: UNDOC2, op: 0x13, cycles: 2 }
 
   # New instructions, not present in 6801
   - { name: AIM,  op: 0x71, ctl: { alu: AND, addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
