@@ -319,3 +319,16 @@ ucode:
       - idle6_jsr
       - idle6_jsr
       - halt
+  # different from 680x.yaml to make it shorter by removing idle4_jsr
+  - mnemo: [ BSR ]
+    seq:
+      - inc_pc, one_rmux, ld1_opnd
+      - pc_rmux, ld0_opnd
+      - add_alu, md_ld, psh16_jsr
+      - imm_jsr
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, pc_ld
+      - fetch
+      - # wait for the fetch
+      - ni
