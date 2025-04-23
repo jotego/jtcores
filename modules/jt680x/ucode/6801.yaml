@@ -255,19 +255,24 @@ ops:
   - { name: SUBD, op: 0xb3, ctl: { alu: SUB, op0: d,  op1: md,  addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
 
   - { name: SWI,  op: 0x3f, ctl: {                                                 cc: i1    }, cycles: 12 }
-  - { name: TAB,  op: 0x16, ctl: {           op0: a,                       ld: b,  cc: nzv0  }, cycles: 2 }
-  - { name: TAP,  op: 0x06, ctl: {           op0: a,                       ld: cc            }, cycles: 2 }
-  - { name: TBA,  op: 0x17, ctl: {           op0: b,                       ld: a,  cc: nzv0  }, cycles: 2 }
-  - { name: TPA,  op: 0x07, ctl: {           op0: cc,                      ld: a             }, cycles: 2 }
-  - { name: TXS,  op: 0x35, ctl: { alu: SUB, op0: x,  op1: one,            ld: s             }, cycles: 3 }
-  - { name: TSX,  op: 0x30, ctl: { alu: ADD, op0: s,  op1: one,            ld: x             }, cycles: 3 }
-  - { name: TST,  op: 0x6d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx,       cc: nzv0c0 }, cycles: 6 }
-  - { name: TST,  op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: ext,       cc: nzv0c0 }, cycles: 6 }
-  - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
-  - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles: 2 }
+  - { name: TAB,  op: 0x16, ctl: {           op0: a,                       ld: b,  cc: nzv0  }, cycles:  2 }
+  - { name: TAP,  op: 0x06, ctl: {           op0: a,                       ld: cc            }, cycles:  2 }
+  - { name: TBA,  op: 0x17, ctl: {           op0: b,                       ld: a,  cc: nzv0  }, cycles:  2 }
+  - { name: TPA,  op: 0x07, ctl: {           op0: cc,                      ld: a             }, cycles:  2 }
+  - { name: TXS,  op: 0x35, ctl: { alu: SUB, op0: x,  op1: one,            ld: s             }, cycles:  3 }
+  - { name: TSX,  op: 0x30, ctl: { alu: ADD, op0: s,  op1: one,            ld: x             }, cycles:  3 }
+  - { name: TST,  op: 0x6d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx,       cc: nzv0c0 }, cycles:  6 }
+  - { name: TST,  op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: ext,       cc: nzv0c0 }, cycles:  6 }
+  - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a,  op1: zero,                  cc: nzv0c0 }, cycles:  2 }
+  - { name: TSTB, op: 0x5d, ctl: { alu: SUB, op0: b,  op1: zero,                  cc: nzv0c0 }, cycles:  2 }
   - { name: RTI,  op: 0x3b,                                                                     cycles: 10 }
-  - { name: RTS,  op: 0x39,                                                                     cycles: 5  }
-  - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
+  - { name: RTS,  op: 0x39,                                                                     cycles:  5 }
+  - { name: WAI,  op: 0x3e,                                                                     cycles:  9 }
+
+  # undocumented
+  - { name: UNDOC1, op: 0x12, cycles:  2 }
+  - { name: UNDOC2, op: 0x13, cycles:  2 }
+
 ucode:
   - mnemo: [ MUL ]
     seq:

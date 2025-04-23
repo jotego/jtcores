@@ -269,6 +269,10 @@ ops:
   - { name: RTS,  op: 0x39,                                                                     cycles: 5  }
   - { name: WAI,  op: 0x3e,                                                                     cycles: 9  }
 
+  # undocumented
+  - { name: UNDOC1, op: 0x12, cycles: 2 }
+  - { name: UNDOC2, op: 0x13, cycles: 2 }
+
   # New instructions, not present in 6801
   - { name: AIM,  op: 0x71, ctl: { alu: AND, addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
   - { name: AIM,  op: 0x61, ctl: { alu: AND, addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
@@ -280,8 +284,6 @@ ops:
   - { name: TIM,  op: 0x6b, ctl: { alu: AND, addr: idx,         cc: nzv0 }, cycles: 7 }
   - { name: XGDX, op: 0x18,                                                 cycles: 2 }
   - { name: SLP,  op: 0x1a,                                                 cycles: 4 }
-  - { name: UNDOC1,  op: 0x12,                                              cycles: 2 }
-  - { name: UNDOC2,  op: 0x13,                                              cycles: 2 }
 ucode:
   - mnemo: [ MUL ]
     seq:
@@ -319,3 +321,16 @@ ucode:
       - idle6_jsr
       - idle6_jsr
       - halt
+  # different from 680x.yaml to make it shorter by removing idle4_jsr
+  - mnemo: [ BSR ]
+    seq:
+      - inc_pc, one_rmux, ld1_opnd
+      - pc_rmux, ld0_opnd
+      - add_alu, md_ld, psh16_jsr
+      - imm_jsr
+      - pc_rmux, ld1_opnd, branch
+      -          ld0_opnd
+      - add_alu, pc_ld
+      - fetch
+      - # wait for the fetch
+      - ni
