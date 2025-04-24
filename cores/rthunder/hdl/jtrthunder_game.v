@@ -26,9 +26,9 @@ reg  [ 7:0] dbg_mux;
 wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video;
 wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
-            mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs;
+            mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
-wire        scr2bpp, sndext_en, nocpu2, pcm_wr;
+wire        scr2bpp, sndext_en, nocpu2, mcualt, genpeitd, roishtar, wndrmomo;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
@@ -56,6 +56,10 @@ jtrthunder_header u_header(
     .nocpu2     ( nocpu2    ),
     .scr2bpp    ( scr2bpp   ),
     .sndext_en  ( sndext_en ),
+    .mcualt     ( mcualt    ),
+    .genpeitd   ( genpeitd  ),
+    .roishtar   ( roishtar  ),
+    .wndrmomo   ( wndrmomo  ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 );
@@ -145,7 +149,10 @@ jtrthunder_sound u_sound(
     .cen_pcm    ( cen_pcm   ),
 
     .lvbl       ( lvbl_ps   ),
-    .hopmappy   ( nocpu2    ),
+    .hopmappy   ( mcualt    ),
+    .genpeitd   ( genpeitd  ),
+    .roishtar   ( roishtar  ),
+    .wndrmomo   ( wndrmomo  ),
 
     .dipsw      ( dipsw[15:0]),
     .joystick1  (joystick1[6:0]),

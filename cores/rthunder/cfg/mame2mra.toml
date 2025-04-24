@@ -16,9 +16,13 @@ names=[
 
 [header]
 registers = [
-	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state" },
-	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}],                          desc="Scroll uses only 2 color planes" },
-	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound" },
+	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}],                          desc="Scroll uses only 2 color planes"      },
+	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
+	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
+	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
+	{ name="roishtar",  pos="5[0]", values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
+	{ name="genpeitd",  pos="5[0]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
+	{ name="wndrmomo",  pos="6[0]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
 ]
 
 [ROM]
