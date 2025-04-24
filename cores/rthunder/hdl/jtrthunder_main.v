@@ -266,7 +266,7 @@ assign latch0_cs = 0, latch1_cs = 0, bsel = 0,
        ext_addr  = 0, mrom_addr = 0, srom_addr = 0, baddr = 0, bdout = 0,
        scr0_we   = 0, scr1_we   = 0, oram_we   = 0, brnw  = 0,
        mrnw      = 0, mc30_cs   = 0, mdout     = 0, maddr = 0, st_dout = 0,
-       dmaon     = lvbl,
+       dmaon     = lvbl,             pcm_addr  = 0, pcm_wr= 0,
        ommr_cs   = 0;
 `endif
 endmodule

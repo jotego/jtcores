@@ -254,6 +254,7 @@ jt51 u_jt51(
 `else
 assign c30_dout = 0, embd_addr = 0, ram_addr = 0, ram_we = 0,
     ram_din = 0, rom_cs = 0, rom_addr = 0, bus_busy = 0,
-    fm_l = 0, fm_r = 0, cus30_l = 0, cus30_r = 0;
+    fm_l = 0, fm_r = 0, cus30_l = 0, cus30_r = 0,
+    pcm0_addr = 0, pcm1_addr = 0, pcm0_cs=0, pcm1_cs=0, pcm0=0, pcm1=0;
 `endif
 endmodule
