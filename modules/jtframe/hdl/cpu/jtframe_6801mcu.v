@@ -130,6 +130,18 @@ localparam  P1DDR = 'h0,
             ICR2H = 'h1E,    // input capture register 2 (MSB)
             ICR2L = 'h1F;    // input capture register 2 (LSB)
 
+`ifdef SIMULATION
+integer ticks=0;
+reg [1:0] subticks=0;
+
+always @(posedge clk) begin
+    if(rst) begin
+        {ticks,subticks} <= 0;
+    end else if(cen) begin
+        {ticks,subticks} <= {ticks,subticks}+1'd1;
+    end
+end
+`endif
 
 assign buf_we = buf_cs & wr;
 assign rom_addr = addr[0+:ROMW];
