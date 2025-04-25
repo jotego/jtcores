@@ -379,6 +379,17 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 {{ end -}}
 
+jtframe_shadow #(/*.LW(16),*/.START(VRAM_OFFSET))u_shadow0(
+    .clk_rom    ( clk         ),
+    .ba0_addr   ( ba0_addr    ),
+    .wr0        ( ba_wr[0]    ),
+    .din        ( ba0_din     ),
+    .din_m      ( ba0_dsn ^debug_bus[1:0]     ),
+    .ioctl_addr ( ioctl_addr[21:0] ),
+    .ioctl_din  ( ioctl_sh   )
+);
+wire [7:0] ioctl_sh;
+
 `ifdef JTFRAME_PROM_START
 localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 `endif

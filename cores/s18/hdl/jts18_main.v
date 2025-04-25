@@ -565,6 +565,8 @@ jtframe_m68k u_cpu(
     initial vram_cs     = 0;
     initial rom_cs      = 0;
     initial rom_addr    = 0;
+    initial vdp_prio    = 0;
+    initial bank_cs     = 0;
     assign  cpu_cen     = 0;
     assign  cpu_cenb    = 0;
     assign  flip        = 0;

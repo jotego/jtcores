@@ -66,6 +66,7 @@ bram:
     ioctl:
       save: true
       restore: true
+      order: 1
     dual_port:
       name: wram
       rw: true
