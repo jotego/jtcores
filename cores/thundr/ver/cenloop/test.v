@@ -31,7 +31,7 @@ initial begin
 end
 
 
-jtrthunder_cenloop uut(
+jtthundr_cenloop uut(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .busy       ( {1'b0,busy}   ),

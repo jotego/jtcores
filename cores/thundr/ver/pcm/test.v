@@ -48,7 +48,7 @@ initial begin
     pass();
 end
 
-jtrthunder_pcm_single uut(
+jtthundr_pcm_single uut(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen           ),

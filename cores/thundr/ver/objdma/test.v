@@ -27,7 +27,7 @@ always @(posedge clk) begin
     assert_msg(ram_we==0 || !lvbl,"RAM writes must occur during lvbl");
 end
 
-jtrthunder_objdma u_objdma(
+jtthundr_objdma u_objdma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .copy       ( copy      ),
