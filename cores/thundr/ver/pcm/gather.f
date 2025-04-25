@@ -1,1 +1,1 @@
-../../hdl/jtrthunder_pcm_single.v
+../../hdl/jtthundr_pcm_single.v

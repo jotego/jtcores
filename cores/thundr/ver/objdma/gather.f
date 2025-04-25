@@ -1,2 +1,2 @@
-../../hdl/jtrthunder_objdma.v
+../../hdl/jtthundr_objdma.v
 $JTFRAME/hdl/jtframe_edge.v

@@ -3,7 +3,7 @@ module test;
 `include "test_tasks.vh"
 
 wire        rst, clk, lvbl, lhbl, rom_cs;
-wire [ 7:0] pcm;
+wire [11:0] pcm;
 wire        cen;
 reg         addr=0, wr=0, rom_ok=0;
 reg  [ 7:0] din=0, rom_data=0;
