@@ -19,7 +19,7 @@ jtframe_ioctl_dump #(
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_aux  ( ioctl_aux ),
+    .ioctl_aux  ( ioctl_sh/*aux*/ ),
     .ioctl_wr   ( ioctl_wr  ),
 `ifdef JTFRAME_IOCTL_RD
     .ioctl_din  ( ioctl_din ),
