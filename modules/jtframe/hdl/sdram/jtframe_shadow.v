@@ -36,7 +36,7 @@ module jtframe_shadow #( parameter
 
 wire [15:0]   dout;
 wire [LW-1:0] rd_addr   = ioctl_addr[LW:1];
-wire [LW-1:0] wr_addr   = ba0_addr-START[AW-1:0];
+wire [AW-1:0] wr_addr   = ba0_addr-START[AW-1:0];
 wire [1:0]    wr_m      = (ba0_addr >= START && ba0_addr<( START + (1<<LW) )) ? ~din_m : 2'd0;
 
 assign ioctl_din = ioctl_addr[0] ? dout[15:8] : dout[7:0];
@@ -46,7 +46,7 @@ jtframe_dual_ram16 #(.AW(LW)) u_ram(
     .clk1       ( clk_rom   ),
     // SDRAM writes
     .data0      ( din       ),
-    .addr0      ( wr_addr   ),
+    .addr0      ( wr_addr[LW-1:0] ),
     .we0        ( wr_m      ),
     .q0         (           ),
     // hps_io reads
