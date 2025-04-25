@@ -1,0 +1,19 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+	echo "Use jtcore13 <core-name> to compile a core for MiST using jtseed"
+	exit 0
+fi
+corename="$1"
+cd $JTROOT
+runscript=`mktemp`
+cat <<EOF > $runscript
+export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
+git config --global --add safe.directory /jtcores
+git config --global --add safe.directory /jtcores/modules/jtframe/target/pocket
+cd jtcores
+./setprj.sh
+jtframe
+./setprj.sh jtseed 3 $corename --target mist --nodbg --nolinter
+EOF
+docker run -i --rm -v $PWD:/jtcores jotego/jtcore13 < $runscript
+rm $runscript
