@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 9-4-2025 */
 
-module jtrthunder_objdma(
+module jtthundr_objdma(
     input             rst, clk,
     input             copy, lvbl,
 

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_busmux(
+module jtthundr_busmux(
     input   rst, clk,
             cen_main, cen_sub,
             mavma,    savma,

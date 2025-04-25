@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_cenloop(
+module jtthundr_cenloop(
     input             rst,
     input             clk,
     input      [ 1:0] busy,

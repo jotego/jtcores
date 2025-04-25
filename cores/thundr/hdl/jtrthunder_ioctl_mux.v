@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 22-3-2025 */
 
-module jtrthunder_ioctl_mux(
+module jtthundr_ioctl_mux(
     input            flip, bank,
     input      [7:0] backcolor, mmr0, mmr1, mmr2,
     input      [4:0] ioctl_addr,

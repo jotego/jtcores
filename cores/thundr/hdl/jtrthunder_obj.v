@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 9-4-2025 */
 
-module jtrthunder_obj(
+module jtthundr_obj(
     input             rst,
     input             clk, pxl_cen, hs, lvbl,
                       flip, dmaon,
@@ -78,7 +78,7 @@ assign sorted   = {
 
 always @(posedge clk) blankn <= !(vdump>9'hf8 && vdump<9'h11d);
 
-jtrthunder_obj_mmr #(.SIMFILE("ommr.bin")) u_mmr(
+jtthundr_obj_mmr #(.SIMFILE("ommr.bin")) u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
@@ -99,7 +99,7 @@ jtrthunder_obj_mmr #(.SIMFILE("ommr.bin")) u_mmr(
     .st_dout    ( st_dout   )
 );
 
-jtrthunder_objdma u_dma(
+jtthundr_objdma u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lvbl       ( lvbl      ),
@@ -112,7 +112,7 @@ jtrthunder_objdma u_dma(
     .ram_din    ( ram_din   )
 );
 
-jtrthunder_objscan u_scan(
+jtthundr_objscan u_scan(
     .clk        ( clk       ),
     .hs         ( hs        ),
     .blankn     ( blankn    ),

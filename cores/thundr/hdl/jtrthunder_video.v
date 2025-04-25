@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_video(
+module jtthundr_video(
     input             rst,
     input             clk,
     input             pxl_cen, pxl2_cen, flip, bank, dmaon,
@@ -102,7 +102,7 @@ jtshouse_vtimer u_vtimer(
     .vs         ( vs            )
 );
 
-jtrthunder_ioctl_mux u_iomux(
+jtthundr_ioctl_mux u_iomux(
     .bank       ( bank          ),
     .flip       ( flip          ),
     .backcolor  ( backcolor     ),
@@ -191,7 +191,7 @@ jtcus42 #(.ID(1)) u_scroll1(
     .st_dout    ( st1           )
 );
 
-jtrthunder_obj u_obj(
+jtthundr_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -229,7 +229,7 @@ jtrthunder_obj u_obj(
     .st_dout    ( obj_st    )
 );
 
-jtrthunder_colmix u_colmix(
+jtthundr_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),

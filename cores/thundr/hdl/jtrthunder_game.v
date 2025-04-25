@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_game(
+module jtthundr_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
@@ -48,7 +48,7 @@ always @* begin
     endcase
 end
 
-jtrthunder_header u_header(
+jtthundr_header u_header(
     .clk        ( clk       ),
     .header     ( header    ),
     .prog_we    ( prog_we   ),
@@ -64,7 +64,7 @@ jtrthunder_header u_header(
     .prog_data  ( prog_data )
 );
 
-jtrthunder_cenloop u_cen(
+jtthundr_cenloop u_cen(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .busy       ( busy      ),
@@ -78,7 +78,7 @@ jtrthunder_cenloop u_cen(
     .fworst     (           )
 );
 
-jtrthunder_main u_main(
+jtthundr_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
@@ -140,7 +140,7 @@ jtrthunder_main u_main(
     .st_dout    ( st_main   )
 );
 
-jtrthunder_sound u_sound(
+jtthundr_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_mcu    ( cen_mcu   ),
@@ -206,7 +206,7 @@ jtrthunder_sound u_sound(
     .debug_bus  ( debug_bus )
 );
 
-jtrthunder_video u_video(
+jtthundr_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

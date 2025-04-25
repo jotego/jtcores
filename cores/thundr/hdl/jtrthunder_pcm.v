@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 23-3-2025 */
 
-module jtrthunder_pcm(
+module jtthundr_pcm(
     input               rst,
                         clk, cen,
     input        [ 1:0] addr,
@@ -41,7 +41,7 @@ wire wr0, wr1;
 assign wr0 = ~addr[1] & wr;
 assign wr1 =  addr[1] & wr;
 
-jtrthunder_pcm_single u_ch0(
+jtthundr_pcm_single u_ch0(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -55,7 +55,7 @@ jtrthunder_pcm_single u_ch0(
     .snd        ( pcm0      )
 );
 
-jtrthunder_pcm_single u_ch1(
+jtthundr_pcm_single u_ch1(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),

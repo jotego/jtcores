@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 9-4-2025 */
 
-module jtrthunder_objscan(
+module jtthundr_objscan(
     input             clk, hs, blankn,
     input             flip,
     input      [ 8:0] vrender, xoffset,

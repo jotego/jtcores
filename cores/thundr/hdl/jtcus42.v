@@ -111,7 +111,7 @@ jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
     .st_dout    ( st_dout       )
 );
 
-jtrthunder_scroll #(.LYR(0)) u_scra(
+jtthundr_scroll #(.LYR(0)) u_scra(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -135,7 +135,7 @@ jtrthunder_scroll #(.LYR(0)) u_scra(
     .pxl        ( scra_pxl      )
 );
 
-jtrthunder_scroll #(.LYR(1)) u_scrb(
+jtthundr_scroll #(.LYR(1)) u_scrb(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),

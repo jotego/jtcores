@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 23-3-2025 */
 
-module jtrthunder_cab(
+module jtthundr_cab(
     input               clk,
 
     input               a0,

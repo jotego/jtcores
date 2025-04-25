@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 23-3-2025 */
 
-module jtrthunder_pcm_single(
+module jtthundr_pcm_single(
     input               rst,
                         clk, cen,
     input               addr,

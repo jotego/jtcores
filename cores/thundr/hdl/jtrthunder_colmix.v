@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_colmix(
+module jtthundr_colmix(
     input             clk,
     input             pxl_cen, pxl2_cen,
 

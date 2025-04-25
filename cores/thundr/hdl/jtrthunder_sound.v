@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_sound(
+module jtthundr_sound(
     input               rst, clk,
                         cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen,
                         lvbl, mcu_seln,
@@ -131,7 +131,7 @@ jtframe_edge u_irq(
     .q      ( irq       )
 );
 
-jtrthunder_cab u_cab(
+jtthundr_cab u_cab(
     .clk        ( clk           ),
 
     .a0         ( A[0]          ),
@@ -149,7 +149,7 @@ jtrthunder_cab u_cab(
     .other      ( cab_other     )
 );
 
-jtrthunder_pcm u_pcm(
+jtthundr_pcm u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),

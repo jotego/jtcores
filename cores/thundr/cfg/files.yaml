@@ -1,4 +1,4 @@
-rthunder:
+thundr:
   - get:
     - "*.v"
 shouse:

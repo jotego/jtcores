@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_scroll(
+module jtthundr_scroll(
     input               rst,
     input               clk, pxl_cen, hs,
     input               flip,

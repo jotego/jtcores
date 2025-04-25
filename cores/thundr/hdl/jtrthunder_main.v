@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-3-2025 */
 
-module jtrthunder_main(
+module jtthundr_main(
     input               rst, clk,
                         cen_main, cen_sub,
                         lvbl, sndext_en, nocpu2,
@@ -93,7 +93,7 @@ jtcus115 u_cus115(
     .pcm_wr     ( pcm_wr    )
 );
 
-jtrthunder_busmux u_busmux(
+jtthundr_busmux u_busmux(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
