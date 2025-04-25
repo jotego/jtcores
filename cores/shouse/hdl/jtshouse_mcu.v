@@ -23,7 +23,7 @@ module jtshouse_mcu(
     input              clk,
     input              game_rst,
     input              rstn,
-    input              cen,
+    input              cen, pxl_cen,
     input              lvbl,
 
     input       [8:0]  hdump,
@@ -293,6 +293,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
+    .cen_tmr    ( pxl_cen       ),
 
     // Bus
     .wr         ( wr            ),

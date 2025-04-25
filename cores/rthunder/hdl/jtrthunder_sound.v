@@ -18,7 +18,7 @@
 
 module jtrthunder_sound(
     input               rst, clk,
-                        cen_fm, cen_fm2, cen_mcu, cen_pcm,
+                        cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen,
                         lvbl, mcu_seln,
                         hopmappy, genpeitd, roishtar, wndrmomo,
 
@@ -176,6 +176,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
+    .cen_tmr    ( pxl_cen       ),
 
     // Bus
     .wr         ( wr            ),

@@ -160,6 +160,7 @@ jtshouse_mcu u_mcu(
     .rstn       ( srst_n    ),
     .clk        ( clk       ),
     .cen        ( cen_mcu   ), // is 2 the best one?
+    .pxl_cen    ( pxl_cen   ),
 
     .lvbl       ( LVBL      ),
     .hdump      ( hdump     ),

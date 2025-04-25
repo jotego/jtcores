@@ -15,7 +15,7 @@ clocks:
 audio:
   rsum: 18k
   channels:
-    - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 2.2 }
+    - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 0.5 } # it should be pre=2.2
     # to do: variable gain for PCM
     - { name: pcm0, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0 }
     - { name: pcm1, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0 }

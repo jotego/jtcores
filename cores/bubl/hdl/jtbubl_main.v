@@ -528,6 +528,7 @@ jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     // .rst( rst ), // for quick sims
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
+    .cen_tmr    ( cen_mcu       ),
     .wr         (               ),
     .addr       (               ),
     .dout       (               ),

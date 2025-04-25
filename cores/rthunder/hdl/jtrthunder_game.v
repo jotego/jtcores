@@ -147,6 +147,7 @@ jtrthunder_sound u_sound(
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .cen_pcm    ( cen_pcm   ),
+    .pxl_cen    ( pxl_cen   ),
 
     .lvbl       ( lvbl_ps   ),
     .hopmappy   ( mcualt    ),
