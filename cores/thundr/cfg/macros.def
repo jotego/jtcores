@@ -1,8 +1,5 @@
 CORENAME=JTTHUNDR
 
-# Not ready yet
-release JTFRAME_SKIP
-
 JTFRAME_BUTTONS=3
 
 
