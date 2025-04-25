@@ -425,11 +425,13 @@ ucode:
     seq:
       # undocumented instructions, maybe a fluke
       # X <- X+(S+1)
-      - s_rmux,    ld0_opnd
+      - s_rmux,    ld0_opnd, inc_pc
       - one_rmux,  ld1_opnd
-      - add_alu,   ea_ld,
+      - add_alu,   ea_ld
+      -            m_ea
       - fetch,     m_ea
-      -            ld0_opnd,
-      - x_rmux,    ld1_opnd,
-      - add_alu,   x_ld,     fetch
+      - x_rmux,    ld1_opnd
+      -            ld0_opnd
+      - add_alu,   x_ld, fetch
+      - # wait for the fetch
       - ni

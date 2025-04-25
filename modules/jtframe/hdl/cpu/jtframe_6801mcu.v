@@ -30,6 +30,7 @@ module jtframe_6801mcu #(
     input              rst,     // use it for standby too, RAM is always preserved
     input              clk,
     input              cen,     // clk must be at leat x4 cen (24MHz -> 6MHz maximum)
+    input              cen_tmr, // cen for timer, derive it from video circuitry
 
     // all inputs are active high
     input              irq,
@@ -258,7 +259,7 @@ always @(posedge clk, posedge rst) begin
             ocr3 <= 'hffff;
         end
     end else begin
-        if( cen ) begin
+        if( cen_tmr ) begin
             oc_en_aux <= 3'b111;
             // Free running counter
             cen_frc <= cen_frc+1'd1;

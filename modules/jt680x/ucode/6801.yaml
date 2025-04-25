@@ -270,8 +270,8 @@ ops:
   - { name: WAI,  op: 0x3e,                                                                     cycles:  9 }
 
   # undocumented
-  - { name: UNDOC1, op: 0x12, cycles:  2 }
-  - { name: UNDOC2, op: 0x13, cycles:  2 }
+  - { name: UNDOC1, op: 0x12, cycles: 3 }
+  - { name: UNDOC2, op: 0x13, cycles: 3 }
 
 ucode:
   - mnemo: [ MUL ]
