@@ -60,9 +60,9 @@ jobs:
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           # generate header files
-          jtframe
+          . ./setprj.sh
           jtframe mra ${{ matrix.core }} --nodbg --skipROM
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target mist --nodbg --nolinter
+          jtseed 10 ${{ matrix.core }} --target mist --nodbg --nolinter
           rm -rf /__w/jtcores/jtcores/release/mra
       - id: upload
         uses: actions/upload-artifact@v4
