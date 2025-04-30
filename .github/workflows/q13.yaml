@@ -65,38 +65,3 @@ jobs:
           name: release-q13-${{ matrix.core }}
           path: release
           retention-days: 1
-
-  upload:
-    runs-on: ubuntu-latest
-    needs: [ compile_cores13, mister-pocket, sidis ]
-    if: ${{ always() }} # upload the results even if some core did not compile correctly
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release
-          pattern: release-*
-          merge-multiple: true
-      - name: Set zip file name
-        run: |
-          echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
-          echo COMMIT_DATE=$(git show -s --format=%ci 2> /dev/null) >> "$GITHUB_ENV"
-      - name: Make zip file
-        run: |
-          ls -l release/*
-          echo ARTIFACT_NAME=$ARTIFACT_NAME
-          zip -r $ARTIFACT_NAME release
-          touch -m -d "$COMMIT_DATE" "$ARTIFACT_NAME"
-          ls -l $ARTIFACT_NAME
-      - name: Upload bundle
-        uses: bayssmekanique/action-simple-file-upload@v2
-        with:
-          user: ${{ secrets.FTPUSER }}
-          password: ${{ secrets.FTPPASS }}
-          host: jotego.es
-          src: ${{ env.ARTIFACT_NAME }}
-          dest: ${{ env.ARTIFACT_NAME }}
-      - uses: geekyeggo/delete-artifact@v4
-        with:
-            name: $ARTIFACT_NAME
