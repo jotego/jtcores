@@ -18,7 +18,7 @@
 
 module jtthundr_sound(
     input               rst, clk,
-                        cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen,
+                        cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen, cen_c30,
                         lvbl, mcu_seln,
                         hopmappy, genpeitd, roishtar, wndrmomo,
 
@@ -209,7 +209,7 @@ jtcus30 u_wav(
     .rst        ( rst           ),  // original does not have a reset pin
     .clk        ( clk           ),
     .bsel       ( mcu_seln      ),
-    .cen        ( cen_mcu       ),
+    .cen        ( cen_c30       ),
 
     .xdin       ( c30_dout      ),
     // main/sub bus
