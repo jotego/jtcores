@@ -147,6 +147,7 @@ jtthundr_sound u_sound(
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
     .cen_pcm    ( cen_pcm   ),
+    .cen_c30    ( cen_c30   ),
     .pxl_cen    ( pxl_cen   ),
 
     .lvbl       ( lvbl_ps   ),

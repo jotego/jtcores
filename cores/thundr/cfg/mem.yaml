@@ -12,6 +12,9 @@ clocks:
     - freq: 6000
       outputs:
         - cen_pcm
+    - freq: 3072000
+      outputs:
+        - cen_c30
 audio:
   rsum: 18k
   channels:
