@@ -311,7 +311,7 @@ func make_clocks(target string) (mclk int) {
 		pll=strings.ToUpper(pll)
 		switch(pll) {
 		case "JTFRAME_PLL6144": switch(target) {
-			case "MISTER": freq=6143465
+			case "MISTER": freq=6143465 // ideally 6.144000
 			default:       freq=6144230
 		}
 		case "JTFRAME_PLL6293": switch(target) {
@@ -319,7 +319,7 @@ func make_clocks(target string) (mclk int) {
 			default:       freq=6289772
 		}
 		case "JTFRAME_PLL6671": switch(target) {
-			case "MISTER": freq=6670673
+			case "MISTER": freq=6670673 // ideally 6.671000
 			default:       freq=6673954
 		}
 		default: {

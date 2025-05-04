@@ -26,7 +26,8 @@ module jtthundr_cenloop(
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
-parameter FCLK = 49152,
+// 49.152 crystal on board
+parameter FCLK = `JTFRAME_MCLK/1000,
           FCPU =  1536*4, // 49152/1536/4 = 8
           NUM  = 1,
           DEN  = FCLK/FCPU,
