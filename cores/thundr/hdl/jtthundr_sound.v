@@ -176,7 +176,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
-    .cen_tmr    ( pxl_cen       ),
+    .cen_tmr    ( cen_mcu       ),
 
     // Bus
     .wr         ( wr            ),
