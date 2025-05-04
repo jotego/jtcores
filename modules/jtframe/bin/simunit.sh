@@ -98,8 +98,10 @@ lint_uut() {
 	fi
 	local top
 	top=`get_top_module`
-	verilator --lint-only -f $GATHER --top-module $top \
-		$macro -DJTFRAME_MCLK=48000000
+	if [[ $macro != *JTFRAME_MCLK* ]]; then
+		macro="$macro -DJTFRAME_MCLK=48000000"
+	fi
+	verilator --lint-only -f $GATHER --top-module $top $macro
 }
 
 get_top_module() {
@@ -125,10 +127,13 @@ run_simulation() {
 	if [ ! -z "$MACRO" ]; then
 		macro="-D $MACRO"
 	fi
+	if [[ $macro != *JTFRAME_MCLK* ]]; then
+		macro="$macro -D JTFRAME_MCLK=48000000"
+	fi
 	iverilog -g2012 `find -name "*.v"` `find -name "*.sv"` \
 		-I$JTFRAME/ver/inc \
 		$JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} \
-		-f$GATHER -s test -o sim -D SIMULATION -D JTFRAME_MCLK=48000000 $macro
+		-f$GATHER -s test -o sim -D SIMULATION $macro
 	sim -lxt > sim.log
 }
 
