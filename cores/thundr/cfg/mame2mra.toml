@@ -13,7 +13,8 @@ debug = { machines=[
 
 [buttons]
 names=[
-	{ machine="rthunder",names="Shot,Jump" }
+	{ machine="rthunder",names="Shot,Jump" },
+	{ machine="skykiddx",names="Shot,Roll/Bomb" },
 ]
 
 [header]
