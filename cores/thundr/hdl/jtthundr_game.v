@@ -28,7 +28,7 @@ wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
-wire        scr2bpp, sndext_en, nocpu2, mcualt, genpeitd, roishtar, wndrmomo;
+wire        nobank, sndext_en, nocpu2, mcualt, genpeitd, roishtar, wndrmomo;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
@@ -54,7 +54,7 @@ jtthundr_header u_header(
     .prog_we    ( prog_we   ),
 
     .nocpu2     ( nocpu2    ),
-    .scr2bpp    ( scr2bpp   ),
+    .nobank     ( nobank    ),
     .sndext_en  ( sndext_en ),
     .mcualt     ( mcualt    ),
     .genpeitd   ( genpeitd  ),
@@ -215,6 +215,7 @@ jtthundr_video u_video(
     .flip       ( flip      ),
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
+    .nobank     ( nobank    ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),

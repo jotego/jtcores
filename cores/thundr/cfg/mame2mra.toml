@@ -18,7 +18,7 @@ names=[
 
 [header]
 registers = [
-	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}],                          desc="Scroll uses only 2 color planes"      },
+	{ name="nobank",    pos="1[0]", values=[{machines=["hopmappy","skykiddx","roishtar","wndrmomo"], value=1}], desc="No ROM for upper tilemap bank"        },
 	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
 	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
 	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
