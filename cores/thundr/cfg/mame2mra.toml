@@ -4,7 +4,6 @@ sourcefile=[ "namcos86.cpp" ]
 debug = { machines=[
 	# scroll layer not visible
 	"hopmappy",
-	"skykiddx",
 	# CPU2 mapping missing
 	"roishtar",
 	"genpeitd",
