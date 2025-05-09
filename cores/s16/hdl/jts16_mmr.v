@@ -108,6 +108,7 @@ endfunction
 `endif
 
 always @(posedge clk, posedge rst) begin
+    `ifndef NOMAIN
     if( rst ) begin
         scr1_pages <= 0;
         scr2_pages <= 0;
@@ -134,7 +135,7 @@ always @(posedge clk, posedge rst) begin
             scr1_hpos_std   <= 0;
             scr2_hpos_std   <= 0;
         end
-    end else begin
+    end else `endif begin
         if( MODEL==0 ) begin
             scr1_pages <= flip ? scr1_pages_flip : scr1_pages_nofl;
             scr2_pages <= flip ? scr2_pages_flip : scr2_pages_nofl;
