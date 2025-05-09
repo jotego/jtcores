@@ -19,7 +19,7 @@
 // memory address decoder for CPU 2 (11A on PCB)
 module jtcus41(
     input          rst, clk,
-                   rnw, lvbl,
+                   rnw, lvbl, genpeitd, wndrmomo,
     input   [15:0] addr,
     output  reg    scr0_cs,   scr1_cs,   oram_cs, rom_cs, banked_cs,
                    latch0_cs, latch1_cs,
@@ -59,6 +59,24 @@ always @* begin
         4'b1101: if(!rnw) case(addr[11])
             0: latch0_cs = 1; // D000 LATCH0 in schematics
             1: latch1_cs = 1; // D800 LATCH1
+        endcase
+        default:;
+    endcase
+    if(genpeitd) casez(addr[15:12])
+        4'b000?: scr0_cs   = 1; // 0000~1FFF 8kB tilemap RAM
+        4'b001?: scr1_cs   = 1; // 2000~3FFF
+        4'b010?: oram_cs   = 1; // 4000~5FFF
+        4'b1000: if(!rnw && addr[11]) irq_ack = 1;
+        4'b1011: if(!rnw) wdog_cs = 1;
+        default:;
+    endcase
+    if(wndrmomo) casez(addr[15:12])
+        4'b001?: oram_cs   = 1; // 2000~3FFF
+        4'b010?: scr0_cs   = 1; // 4000~5FFF 8kB tilemap RAM
+        4'b011?: scr1_cs   = 1; // 6000~7FFF
+        4'b1100: if(!rnw) casez(addr[11])
+            0: wdog_cs = 1; // C000
+            1: irq_ack = 1; // C800
         endcase
         default:;
     endcase

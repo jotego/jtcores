@@ -20,8 +20,9 @@ module jtthundr_main(
     input               rst, clk,
                         cen_main, cen_sub,
                         lvbl, sndext_en, nocpu2,
+                        genpeitd, wndrmomo, scrhflip,
 
-    output              tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
+    output              flip, tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
     output       [ 7:0] backcolor,
 
     output              mrom_cs,   srom_cs, ext_cs, bus_busy,
@@ -98,6 +99,9 @@ jtthundr_busmux u_busmux(
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
+
+    .scrhflip   ( scrhflip  ),
+    .flip       ( flip      ),
 
     .mavma      ( mavma     ),
     .savma      ( savma     ),
@@ -193,6 +197,8 @@ jtcus41 u_cus41(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lvbl       ( lvbl      ),
+    .wndrmomo   ( wndrmomo  ),
+    .genpeitd   ( genpeitd  ),
     .addr       ( saddr     ),
     .rnw        ( srnw      ),
     .scr0_cs    ( sscr0_cs  ),

@@ -28,20 +28,18 @@ wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
-wire        nobank, sndext_en, nocpu2, mcualt, genpeitd, roishtar, wndrmomo;
+wire        nobank, sndext_en, nocpu2, mcualt, scrhflip, genpeitd, roishtar, wndrmomo;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
-
-assign flip = 0;
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
 always @* begin
     case( debug_bus[7:6] )
         0: dbg_mux = st_video;
-        // 1: dbg_mux = { 3'd0, mcu_halt, 3'd0, ~srst_n };
+        1: dbg_mux = { 5'd0, genpeitd, roishtar, wndrmomo };
         2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;
@@ -60,6 +58,7 @@ jtthundr_header u_header(
     .genpeitd   ( genpeitd  ),
     .roishtar   ( roishtar  ),
     .wndrmomo   ( wndrmomo  ),
+    .scrhflip   ( scrhflip  ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 );
@@ -84,7 +83,11 @@ jtthundr_main u_main(
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
     .lvbl       ( lvbl_ps   ),
+    .flip       ( flip      ),
+    .scrhflip   ( scrhflip  ),
     .nocpu2     ( nocpu2    ),
+    .genpeitd   ( genpeitd  ),
+    .wndrmomo   ( wndrmomo  ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),
@@ -213,6 +216,7 @@ jtthundr_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
+    .scrhflip   ( scrhflip  ),
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
     .nobank     ( nobank    ),

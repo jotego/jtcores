@@ -22,9 +22,10 @@ registers = [
 	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
 	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
 	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
+	{ name="scrhflip",  pos="4[1]", values=[{machines=["skykiddx"], value=1}],                       desc="Ignore flip bit and reverse H scroll" },
 	{ name="roishtar",  pos="5[0]", values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
-	{ name="genpeitd",  pos="5[0]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
-	{ name="wndrmomo",  pos="6[0]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="genpeitd",  pos="6[0]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
+	{ name="wndrmomo",  pos="7[0]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
 ]
 
 [ROM]

@@ -18,7 +18,7 @@
 
 module jtthundr_busmux(
     input   rst, clk,
-            cen_main, cen_sub,
+            cen_main, cen_sub, scrhflip,
             mavma,    savma,
     input   mrom_cs,  srom_cs,  mc30_cs,  ext_cs,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs,
@@ -26,7 +26,7 @@ module jtthundr_busmux(
             mrnw,     srnw,
 
     output     latch0_cs, latch1_cs, brnw,
-    output reg bsel,
+    output reg bsel, flip,
     output     [1:0] mbank, sbank,
     output     [1:0] scr0_we, scr1_we, oram_we,
 
@@ -86,6 +86,12 @@ jtframe_mmr_reg #(.W(2)) u_sbank(
     .cs         ( sbank_cs  ),
     .dout       ( sbank     )
 );
+
+localparam [12:0] FLIP_MMR=13'h1FF6;
+
+always @(posedge clk) begin
+    if(oram_we[0]&&baddr[12:1]==FLIP_MMR[12:1]) flip <= scrhflip ? 1'b0 : bdout[0];
+end
 
 always @(posedge clk) begin
     dmaon <= !brnw && baddr==13'h1ff2;

@@ -20,7 +20,7 @@
 module jtcus42(
     input               rst,
     input               clk, pxl_cen,
-    input               flip, hs,
+    input               flip, scrhflip, hs,
     input        [ 8:0] hdump, vdump,
 
     input               cs, cpu_rnw,
@@ -117,6 +117,7 @@ jtthundr_scroll #(.LYR(0)) u_scra(
     .pxl_cen    ( pxl_cen       ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .scrx       ( scrxa         ),
@@ -131,6 +132,7 @@ jtthundr_scroll #(.LYR(0)) u_scra(
     .rom_addr   ( roma_addr     ),
     .rom_data   ( roma_data     ),
     .rom_ok     ( roma_ok       ),
+    .debug_bus  ( debug_bus     ),
 
     .pxl        ( scra_pxl      )
 );
@@ -141,6 +143,7 @@ jtthundr_scroll #(.LYR(1)) u_scrb(
     .pxl_cen    ( pxl_cen       ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .scrx       ( scrxb         ),
@@ -155,6 +158,7 @@ jtthundr_scroll #(.LYR(1)) u_scrb(
     .rom_addr   ( romb_addr     ),
     .rom_data   ( romb_data     ),
     .rom_ok     ( romb_ok       ),
+    .debug_bus  ( debug_bus     ),
 
     .pxl        ( scrb_pxl      )
 );

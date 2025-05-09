@@ -19,7 +19,7 @@
 module jtthundr_scroll(
     input               rst,
     input               clk, pxl_cen, hs,
-    input               flip,
+    input               flip, scrhflip,
     input        [ 8:0] hdump, vdump,
     input        [ 8:0] scrx,
     input        [ 7:0] scry,
@@ -33,11 +33,12 @@ module jtthundr_scroll(
     output       [15:2] rom_addr,
     input        [31:0] rom_data,   // upper byte not used
     input               rom_ok,
+    input        [ 7:0] debug_bus,
 
     output       [10:0] pxl
 );
 
-parameter LYR=0, HOFFSET=-9'h20,VOFFSET=-8'd8;
+parameter LYR=0, HOFFSET=-9'h20,VOFFSET=-8'd8,SCRHFLIP=9'h98;
 
 wire [31:0] sorted;
 wire [11:0] pre_pxl;
@@ -50,7 +51,7 @@ wire        hflip, vflip;
 assign pal  = vram_dout[15:8];
 assign code = {code_msb,vram_dout[7:0]};
 assign pxl  = {pre_pxl[11:4],pre_pxl[2:0]};
-assign xadj = scrx + HOFFSET;
+assign xadj = scrhflip ? (SCRHFLIP-scrx) : (scrx + HOFFSET);
 assign yadj = scry + VOFFSET;
 assign dec_addr = {LYR[0],LYR==0?pal[1:0]:2'b0,LYR==1?pal[1:0]:2'b0};
 assign code_msb = LYR==0 ? dec_data[3:1] : dec_data[7:5];

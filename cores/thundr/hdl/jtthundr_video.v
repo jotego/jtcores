@@ -19,7 +19,7 @@
 module jtthundr_video(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen, flip, bank, dmaon, nobank,
+    input             pxl_cen, pxl2_cen, bank, dmaon, nobank, flip, scrhflip,
 
     output            lvbl, lhbl, hs, vs,
     input             mmr0_cs, mmr1_cs, cpu_rnw,
@@ -76,11 +76,11 @@ assign bank_eff      = bank & ~nobank;
 assign scr0a_addr[16]= bank_eff, scr0b_addr[16]=bank_eff;
 
 always @(posedge clk) begin
-    case(debug_bus[4:3])
+    case(debug_bus[5:4])
         0: st_dout <= st0;
         1: st_dout <= st1;
         2: st_dout <= obj_st;
-        default: st_dout <= 0;
+        default: st_dout <= {6'd0,bank,flip};
     endcase
 end
 
@@ -121,6 +121,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .pxl_cen    ( pxl_cen       ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
 
@@ -160,6 +161,7 @@ jtcus42 #(.ID(1)) u_scroll1(
     .pxl_cen    ( pxl_cen       ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
 
