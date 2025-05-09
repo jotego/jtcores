@@ -63,7 +63,11 @@ module jtframe_ram_rq #(parameter
     reg [AW-1:0] erase_cnt;
     wire         cs_posedge = addr_ok && !last_cs;
     // wire   cs_negedge = !addr_ok && last_cs;
+`ifndef SIMULATION
     assign erase_bsy = ERASE[0] && !erased;
+`else
+    assign erase_bsy = 0;
+`endif
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
@@ -73,11 +77,14 @@ module jtframe_ram_rq #(parameter
             pending   <= 0;
             dout      <= 0;
             req_rnw   <= 1;
+`ifndef SIMULATION
             if( ERASE==1 ) begin
                 erased    <= 0;
                 erase_cnt <= 0;
             end
+`endif
         end else begin
+`ifndef SIMULATION
             if( ERASE==1 && !erased ) begin
                 if( we ) begin
                     req <= 0;
@@ -90,6 +97,7 @@ module jtframe_ram_rq #(parameter
                     end
                 end
             end else begin
+`else   begin `endif
                 last_cs <= addr_ok;
                 if( !addr_ok ) data_ok <= 0;
                 if( we ) begin
