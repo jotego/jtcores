@@ -20,6 +20,7 @@ module jtthundr_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+wire [31:0] fix0a_data, fix0b_data, fix1a_data, fix1b_data;
 wire [15:0] fave, maddr;
 wire [ 1:0] busy, pcm_wraddr;
 reg  [ 7:0] dbg_mux;
@@ -28,11 +29,16 @@ wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
-wire        nobank, sndext_en, nocpu2, mcualt, scrhflip, genpeitd, roishtar, wndrmomo;
+wire        sndext_en, nocpu2, mcualt, scrhflip, only2bpp,
+            genpeitd, roishtar, wndrmomo;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
+assign fix0a_data = { 8'h0, only2bpp ? 8'h0 : scr0a_data[23:16], scr0a_data[15:0]};
+assign fix0b_data = { 8'h0, only2bpp ? 8'h0 : scr0b_data[23:16], scr0b_data[15:0]};
+assign fix1a_data = { 8'h0, only2bpp ? 8'h0 : scr1a_data[23:16], scr1a_data[15:0]};
+assign fix1b_data = { 8'h0, only2bpp ? 8'h0 : scr1b_data[23:16], scr1b_data[15:0]};
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
@@ -51,8 +57,8 @@ jtthundr_header u_header(
     .header     ( header    ),
     .prog_we    ( prog_we   ),
 
+    .only2bpp   ( only2bpp  ),
     .nocpu2     ( nocpu2    ),
-    .nobank     ( nobank    ),
     .sndext_en  ( sndext_en ),
     .mcualt     ( mcualt    ),
     .genpeitd   ( genpeitd  ),
@@ -219,7 +225,6 @@ jtthundr_video u_video(
     .scrhflip   ( scrhflip  ),
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
-    .nobank     ( nobank    ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),
@@ -259,22 +264,22 @@ jtthundr_video u_video(
 
     .scr0a_cs   ( scr0a_cs  ),
     .scr0a_addr ( scr0a_addr),
-    .scr0a_data ( scr0a_data),
+    .scr0a_data ( fix0a_data),
     .scr0a_ok   ( scr0a_ok  ),
 
     .scr0b_cs   ( scr0b_cs  ),
     .scr0b_addr ( scr0b_addr),
-    .scr0b_data ( scr0b_data),
+    .scr0b_data ( fix0b_data),
     .scr0b_ok   ( scr0b_ok  ),
 
     .scr1a_cs   ( scr1a_cs  ),
     .scr1a_addr ( scr1a_addr),
-    .scr1a_data ( scr1a_data),
+    .scr1a_data ( fix1a_data),
     .scr1a_ok   ( scr1a_ok  ),
 
     .scr1b_cs   ( scr1b_cs  ),
     .scr1b_addr ( scr1b_addr),
-    .scr1b_data ( scr1b_data),
+    .scr1b_data ( fix1b_data),
     .scr1b_ok   ( scr1b_ok  ),
 
     // Palette PROMs

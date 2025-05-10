@@ -214,6 +214,21 @@ func (n *XMLNode) Dump() string {
 	return s
 }
 
+func (n *XMLNode) CopyChildren(from *XMLNode) {
+	for _,child := range from.children {
+		n.children = append(n.children,child)
+		child.set_depth(n.depth+1)
+	}
+}
+
+func (n *XMLNode)set_depth(depth int) {
+	n.depth = depth
+	child_depth := depth+1
+	for _, child := range n.children {
+		child.set_depth(child_depth)
+	}
+}
+
 func xml_str(in string) string {
 	out := strings.ReplaceAll(in, "&", "&amp;")
 	out = strings.ReplaceAll(out, "'", "&apos;")

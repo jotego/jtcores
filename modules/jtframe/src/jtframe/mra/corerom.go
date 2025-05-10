@@ -70,7 +70,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	reg_offsets := make(map[string]int)
 
 	var previous StartNode
-	for _, reg := range regions {
+	for reg_k, reg := range regions {
 		reg_cfg := find_region_cfg(machine, reg, cfg)
 		if reg_cfg.Skip || reg_cfg.Name=="nvram" {
 			continue
@@ -115,25 +115,13 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		if Verbose {
 			fmt.Println("\tafter sorting:\n\t", reg_roms)
 		}
-		// pos_old := pos
-		if len(reg_cfg.Parts)!=0 {
-			pos += reg_cfg.parse_parts(p, reg_roms)
-		} else if reg_cfg.Singleton {
-			// Singleton interleave case
-			pos += parse_singleton(reg_roms, reg_cfg, p)
+		parts, e := make_region_parts(reg, reg_cfg, reg_roms, machine, cfg)
+		if e!=nil { return e }
+		if reg_cfg.Mirror {
+			reg_len := derive_region_length(reg_cfg, start_pos, reg_k, regions, machine, cfg)
+			pos += parts.mirror_into(p, reg_len)
 		} else {
-			split_offset, split_minlen := is_split(reg, machine, cfg)
-			// Regular interleave case
-			if reg_cfg.Frac.Parts != 0 {
-				pos += make_frac(p, reg_cfg, reg_roms)
-			} else if (reg_cfg.Width != 0 && reg_cfg.Width != 8) && len(reg_roms) > 1 {
-				parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, p, machine, cfg, args, &pos)
-			} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
-				parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, p, machine, cfg, &pos)
-			} else {
-				return fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
-					reg_cfg.Name, len(reg_roms), machine.Name )
-			}
+			pos += parts.copy_into(p)
 		}
 		fill_upto(&pos, start_pos+reg_cfg.Len, p)
 	}
@@ -143,6 +131,63 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	make_patches(p, machine, cfg )
 	if e:=cfg.Header.FillData(reg_offsets, pos, machine); e!= nil { return e }
 	return nil
+}
+
+type region_parts struct{
+	node XMLNode
+	length int				// length of the parts, without filling or repetition
+}
+
+func make_region_parts(reg string, reg_cfg *RegCfg, reg_roms []MameROM, machine *MachineXML, cfg Mame2MRA) (parts region_parts, e error) {
+	parts.node = MakeNode("parts")
+	if len(reg_cfg.Parts)!=0 {
+		parts.length += reg_cfg.parse_parts(&parts.node, reg_roms)
+	} else if reg_cfg.Singleton {
+		// Singleton interleave case
+		parts.length += parse_singleton(reg_roms, reg_cfg, &parts.node)
+	} else {
+		split_offset, split_minlen := is_split(reg, machine, cfg)
+		// Regular interleave case
+		if reg_cfg.Frac.Parts != 0 {
+			parts.length += make_frac(&parts.node, reg_cfg, reg_roms)
+		} else if (reg_cfg.Width != 0 && reg_cfg.Width != 8) && len(reg_roms) > 1 {
+			parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
+		} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
+			parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
+		} else {
+			return parts, fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
+				reg_cfg.Name, len(reg_roms), machine.Name )
+		}
+	}
+	return parts, nil
+}
+
+func derive_region_length(reg_cfg *RegCfg, start_pos, reg_k int, regions []string, machine *MachineXML, cfg Mame2MRA) int {
+	if has_explicit_length := reg_cfg.Len!=0; has_explicit_length { return reg_cfg.Len }
+	// derive from the start of the next region
+	if is_not_last:=reg_k < len(regions)-1; is_not_last {
+		next_reg := find_region_cfg(machine, regions[reg_k+1], cfg)
+		if this_len := next_reg.start-start_pos; this_len>0 {
+			return this_len
+		}
+	}
+	const unknown_length=0
+	return unknown_length
+}
+
+func (parts *region_parts)mirror_into(p *XMLNode, reg_len int) (pos int) {
+	if reg_len <=0 {
+		reg_len = parts.length
+	}
+	for copied:=0;(reg_len-copied)>=parts.length && parts.length>0; copied+=parts.length {
+		pos += parts.copy_into(p)
+	}
+	return pos
+}
+
+func (parts *region_parts)copy_into(p *XMLNode) int {
+	p.CopyChildren(&parts.node)
+	return parts.length
 }
 
 func make_rom_parent_node(root *XMLNode, machine *MachineXML, altzip string) (p *XMLNode) {
@@ -745,7 +790,7 @@ func reg_used( reg_roms []MameROM ) bool {
 
 func parse_regular_interleave(split_offset int, reg string,
 		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, args Args, pos *int) {
+		machine *MachineXML, cfg Mame2MRA, pos *int) {
 	if Verbose {
 		fmt.Printf("Regular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
@@ -771,12 +816,12 @@ func parse_regular_interleave(split_offset int, reg string,
 			reg_roms = append(reg_roms, each)
 		}
 	}
-	make_interleave_groups( reg, reg_roms, reg_cfg, p, machine, cfg, args, pos )
+	make_interleave_groups( reg, reg_roms, reg_cfg, p, machine, cfg, pos )
 }
 
 func make_interleave_groups( reg string,
 		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, args Args, pos *int) {
+		machine *MachineXML, cfg Mame2MRA, pos *int) {
 	if Verbose {
 		fmt.Printf("\tRegular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
@@ -916,7 +961,7 @@ func make_interleave_groups( reg string,
 			}
 			interleave_group( reg,
 				new_group, reg_cfg, p ,
- 				machine, cfg, args, pos, start_pos )
+ 				machine, cfg, pos, start_pos )
 			// Update used bytes
 			for j:=0;j<len(sel);j++ {
 				reg_roms[sel[j]].used += group_size*reg_roms[sel[j]].wlen
@@ -938,14 +983,14 @@ func make_interleave_groups( reg string,
 		}
 		interleave_group( reg,
 					reg_roms, reg_cfg, p ,
-					machine, cfg, args, pos, start_pos )
+					machine, cfg, pos, start_pos )
 	}
 	if Verbose { fmt.Println("*******************") }
 }
 
 func interleave_group( reg string,
 		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, args Args, pos *int, start_pos int) {
+		machine *MachineXML, cfg Mame2MRA, pos *int, start_pos int) {
 	reg_pos := 0
 	n := p
 	deficit := 0

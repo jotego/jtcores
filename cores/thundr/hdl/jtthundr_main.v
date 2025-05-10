@@ -266,7 +266,7 @@ mc6809i u_scpu(
 `else
 // change for scene values:
 assign tile_bank = 0;
-assign backcolor = 0;
+assign backcolor = 0, flip = 0;
 assign latch0_cs = 0, latch1_cs = 0, bsel = 0,
        mrom_cs   = 0, srom_cs   = 0, ext_cs = 0, bus_busy = 0,
        ext_addr  = 0, mrom_addr = 0, srom_addr = 0, baddr = 0, bdout = 0,

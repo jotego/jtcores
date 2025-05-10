@@ -110,6 +110,9 @@ type RegCfg struct {
     Width, Len    int
     Rom_len       int
     Reverse, Skip bool
+    // Mirror will duplicate the part entries until the region length is filled
+    // instead of filling it with FF
+    Mirror        bool
     Reverse_only  []int // specify ROM widths to which the reverse will be applied
     No_offset     bool // Using the default offset helps in some CPU configurations. If the file order is not changed,
     // keeping the original offset usually has no effect as the offset is just the file size

@@ -19,7 +19,8 @@
 module jtthundr_video(
     input             rst,
     input             clk,
-    input             pxl_cen, pxl2_cen, bank, dmaon, nobank, flip, scrhflip,
+    input             pxl_cen, pxl2_cen, bank, dmaon, flip,
+                      scrhflip,
 
     output            lvbl, lhbl, hs, vs,
     input             mmr0_cs, mmr1_cs, cpu_rnw,
@@ -70,10 +71,8 @@ wire [10:0] scr0_pxl, scr1_pxl, pre1_pxl, obj_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] mmr0, mmr1, st0, st1,  obj_mmr, obj_st;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio, pre1_prio;
-wire        bank_eff;
 
-assign bank_eff      = bank & ~nobank;
-assign scr0a_addr[16]= bank_eff, scr0b_addr[16]=bank_eff;
+assign scr0a_addr[16]= bank, scr0b_addr[16]=bank;
 
 always @(posedge clk) begin
     case(debug_bus[5:4])

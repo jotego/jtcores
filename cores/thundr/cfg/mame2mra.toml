@@ -2,11 +2,10 @@
 sourcefile=[ "namcos86.cpp" ]
 
 debug = { machines=[
-	# scroll layer not visible
-	"hopmappy",
-	# CPU2 mapping missing
+	# not booting
 	"roishtar",
 	"genpeitd",
+	# missing object layer
 	"wndrmomo",
 ]}
 
@@ -14,11 +13,12 @@ debug = { machines=[
 names=[
 	{ machine="rthunder",names="Shot,Jump" },
 	{ machine="skykiddx",names="Shot,Roll/Bomb" },
+	{ machine="hopmappy",names="Fast" },
 ]
 
 [header]
 registers = [
-	{ name="nobank",    pos="1[0]", values=[{machines=["hopmappy","skykiddx","roishtar","wndrmomo"], value=1}], desc="No ROM for upper tilemap bank"        },
+	{ name="only2bpp",  pos="1[0]", values=[{machines=["hopmappy"], value=1}],                       desc="Only 2bpp for backgrounds"            },
 	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
 	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
 	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
@@ -39,64 +39,63 @@ regions = [
 		{name="rt1_7.7r", crc="a85efa39",map="0021"},
 		{name="rt1_8.7s", crc="f7a95820",map="0100"},
 		{name="rt1_8.7s", crc="f7a95820",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="skykiddx", parts=[
 		{name="sk3_9.7r",  crc="48675b17",map="0021"},
 		{name="sk3_10.7s", crc="7418465a",map="0100"},
 		{name="sk3_10.7s", crc="7418465a",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="hopmappy", parts=[
 		{name="hm1_6.7r", crc="fd0e8887",map="0021"},
 		{name="hm1_6.7r", crc="fd0e8887",map="2100"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="roishtar", parts=[
 		{name="ri1_14.7r", crc="de8154b4",map="0021"},
 		{name="ri1_15.7s", crc="4298822b",map="0100"},
 		{name="ri1_15.7s", crc="4298822b",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="genpeitd", parts=[
 		{name="gt1_7.7r", crc="ea77a211",map="0021"},
 		{name="gt1_6.7s", crc="1b128a2e",map="0100"},
 		{name="gt1_6.7s", crc="1b128a2e",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="wndrmomo", parts=[
 		{name="wm1_6.7r", crc="93955fbb",map="0021"},
 		{name="wm1_7.7s", crc="7d662527",map="0100"},
 		{name="wm1_7.7s", crc="7d662527",map="1000"},
-	]},
+	], mirror=true },
 	# gfx2 (SCROLL 1)
 	{ name="gfx2", start="SCR1_START", machine="rthunder", parts=[
 		{name="rt1_5.4r", crc="d0fc470b",map="0021"},
 		{name="rt1_6.4s", crc="6b57edb2",map="0100"},
 		{name="rt1_6.4s", crc="6b57edb2",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="skykiddx", parts=[
 		{name="sk3_7.4r", crc="4036b735",map="0021"},
 		{name="sk3_8.4s", crc="044bfd21",map="0100"},
 		{name="sk3_8.4s", crc="044bfd21",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="hopmappy", parts=[
 		{name="hm1_5.4r", crc="9c4f31ae",map="0021"},
 		{name="hm1_5.4r", crc="9c4f31ae",map="2100"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="roishtar", parts=[
 		{name="ri1_12.4r", crc="557e54d3",map="0021"},
 		{name="ri1_13.4s", crc="9ebe8e32",map="0100"},
 		{name="ri1_13.4s", crc="9ebe8e32",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="genpeitd", parts=[
 		{name="gt1_5.4r", crc="44d58b06",map="0021"},
 		{name="gt1_4.4s", crc="db8d45b0",map="0100"},
 		{name="gt1_4.4s", crc="db8d45b0",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="wndrmomo", parts=[
 		{name="wm1_4.4r", crc="bbe67836",map="0021"},
 		{name="wm1_5.4s", crc="a81b481f",map="0100"},
 		{name="wm1_5.4s", crc="a81b481f",map="1000"},
-	]},
+	], mirror=true },
 
-
-	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true },
+	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true, mirror=true },
 	{ name="mcusub",start="MCUSUB_START"      },
 	{ name="mcusub",start="MCUSUB_START", machine="hopmappy", sequence=[0,0,0,0] },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
