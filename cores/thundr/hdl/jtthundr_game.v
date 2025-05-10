@@ -92,6 +92,7 @@ jtthundr_main u_main(
     .flip       ( flip      ),
     .scrhflip   ( scrhflip  ),
     .nocpu2     ( nocpu2    ),
+    .roishtar   ( roishtar  ),
     .genpeitd   ( genpeitd  ),
     .wndrmomo   ( wndrmomo  ),
 

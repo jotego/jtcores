@@ -19,8 +19,8 @@
 module jtthundr_main(
     input               rst, clk,
                         cen_main, cen_sub,
-                        lvbl, sndext_en, nocpu2,
-                        genpeitd, wndrmomo, scrhflip,
+                        lvbl, sndext_en, nocpu2, scrhflip,
+                        roishtar, genpeitd, wndrmomo,
 
     output              flip, tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
     output       [ 7:0] backcolor,
@@ -197,6 +197,7 @@ jtcus41 u_cus41(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lvbl       ( lvbl      ),
+    .roishtar   ( roishtar  ),
     .wndrmomo   ( wndrmomo  ),
     .genpeitd   ( genpeitd  ),
     .addr       ( saddr     ),
