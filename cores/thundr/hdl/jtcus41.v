@@ -56,7 +56,7 @@ always @* begin
                 4'b010?: scr1_cs   = 1; // 4000~5FFF
                 4'b011?: oram_cs   = 1; // 6000~7FFF
                 4'b1010: if(!rnw) wdog_cs = 1;
-                4'b1011: if(!rnw && addr[11]) irq_ack = 1;
+                4'b1011: if(!rnw) irq_ack = 1;
                 default:;
             endcase
         GENPEITD:
