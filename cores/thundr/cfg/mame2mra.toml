@@ -5,8 +5,6 @@ debug = { machines=[
 	# not booting
 	"roishtar",
 	"genpeitd",
-	# missing object layer
-	"wndrmomo",
 ]}
 
 [buttons]
@@ -14,6 +12,7 @@ names=[
 	{ machine="rthunder",names="Shot,Jump" },
 	{ machine="skykiddx",names="Shot,Roll/Bomb" },
 	{ machine="hopmappy",names="Fast" },
+	{ machine="wndrmomo",names="Kick,Jump" },
 ]
 
 [header]
