@@ -38,7 +38,7 @@ jtframe_edge #(.QSET(0))u_irq(
     .q      ( int_n     )
 );
 
-localparam [2:0] GENPEITD=3'b001, WNDRMOMO=3'b010,ROISHTAR=3'b100;
+localparam [2:0] ROISHTAR=3'b100, WNDRMOMO=3'b010, GENPEITD=3'b001;
 
 always @* begin
     oram_cs   = 0;
@@ -52,20 +52,11 @@ always @* begin
     case({roishtar,wndrmomo,genpeitd})
         ROISHTAR:
             casez(addr[15:12])
-                4'b000?: scr0_cs   = 1; // 0000~1FFF 8kB tilemap RAM
-                4'b010?: scr1_cs   = 1; // 4000~5FFF
-                4'b011?: oram_cs   = 1; // 6000~7FFF
+                4'b000?: oram_cs   = 1; // 0000~1FFF
+                4'b010?: scr0_cs   = 1; // 4000~5FFF 8kB tilemap RAM
+                4'b011?: scr1_cs   = 1; // 6000~7FFF
                 4'b1010: if(!rnw) wdog_cs = 1;
                 4'b1011: if(!rnw) irq_ack = 1;
-                default:;
-            endcase
-        GENPEITD:
-            casez(addr[15:12])
-                4'b000?: scr0_cs   = 1; // 0000~1FFF 8kB tilemap RAM
-                4'b001?: scr1_cs   = 1; // 2000~3FFF
-                4'b010?: oram_cs   = 1; // 4000~5FFF
-                4'b1000: if(!rnw && addr[11]) irq_ack = 1;
-                4'b1011: if(!rnw) wdog_cs = 1;
                 default:;
             endcase
         WNDRMOMO:
@@ -77,6 +68,15 @@ always @* begin
                     0: wdog_cs = 1; // C000
                     1: irq_ack = 1; // C800
                 endcase
+                default:;
+            endcase
+        GENPEITD:
+            casez(addr[15:12])
+                4'b000?: scr0_cs   = 1; // 0000~1FFF 8kB tilemap RAM
+                4'b001?: scr1_cs   = 1; // 2000~3FFF
+                4'b010?: oram_cs   = 1; // 4000~5FFF
+                4'b1000: if(!rnw && addr[11]) irq_ack = 1;
+                4'b1011: if(!rnw) wdog_cs = 1;
                 default:;
             endcase
         default:
