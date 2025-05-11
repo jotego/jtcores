@@ -141,6 +141,7 @@ void namcos86_state::video_start()
 	for (int i = 0; i < 4; i++)
 	{
 		static constexpr int xdisp[] = { 47, 49, 46, 48 };
+		                              // +1  +3   0  +2
 
 		m_bg_tilemap[i]->set_scrolldx(xdisp[i], 422 - xdisp[i]);
 		m_bg_tilemap[i]->set_scrolldy(-9, 9);

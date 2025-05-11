@@ -38,7 +38,10 @@ module jtthundr_scroll(
     output       [10:0] pxl
 );
 
-parameter LYR=0, HOFFSET=-9'h20,VOFFSET=-8'd8,SCRHFLIP=9'h98;
+parameter LYR=0,
+          HOFFSET=LYR==0 ? -9'h1E : -9'h24,
+          VOFFSET=-8'd8,
+          SCRHFLIP=9'h98;
 
 wire [31:0] sorted;
 wire [11:0] pre_pxl;

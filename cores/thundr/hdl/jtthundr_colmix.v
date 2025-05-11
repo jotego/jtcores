@@ -38,23 +38,26 @@ module jtthundr_colmix(
 localparam [2:0] ALPHA=7,BG_PXL=3'b111, BG_PRIO=3'b0;
 localparam [3:0] OALPHA=15;
 
-reg  [2:0] bg_prio;
+reg [10:0] scr1_dly;
+reg [ 2:0] bg_prio;
 reg        scrwin, scr1win;
 wire       scr1_op, scr0_op, obj_op;
 
-assign scr1_op = scr1_pxl[2:0]!= ALPHA && gfx_en[1];
+assign scr1_op = scr1_dly[2:0]!= ALPHA && gfx_en[1];
 assign scr0_op = scr0_pxl[2:0]!= ALPHA && gfx_en[0];
 assign obj_op  =  obj_pxl[3:0]!=OALPHA && gfx_en[3];
 
 always @* begin
-    scr1win = scr1_op && scr1_prio > scr0_prio;
+    scr1win = scr1_op && (scr1_prio > scr0_prio || !scr0_op);
     scrwin  = bg_prio > obj_prio || !obj_op;
 end
+
+always @(posedge clk) if(pxl_cen) scr1_dly <= scr1_pxl;
 
 always @(posedge clk) if(pxl2_cen) begin
     objpal_addr <= obj_pxl;
     { bg_prio, scrpal_addr } <=
-        scr1win ? {scr1_prio,scr1_pxl} :
+        scr1win ? {scr1_prio,scr1_dly} :
         scr0_op ? {scr0_prio,scr0_pxl} :
                   {BG_PRIO, backcolor,  BG_PXL} ;
 end

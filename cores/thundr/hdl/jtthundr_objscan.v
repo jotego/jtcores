@@ -40,8 +40,8 @@ module jtthundr_objscan(
     input      [ 7:0] debug_bus
 );
 
-localparam [8:0] XOS=9'h3d;
-localparam [7:0] YOS=8'h20;
+localparam [8:0] XOS=9'h3b;
+localparam [7:0] YOS=8'h1f;
 localparam [1:0] HLARGE=2'd2; // 32-pixel wide object
 
 reg  [7:0] y, vos_dr;
