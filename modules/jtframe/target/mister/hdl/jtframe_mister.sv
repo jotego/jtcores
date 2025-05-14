@@ -481,6 +481,7 @@ assign joystick2 = joyusb_2;
 
         // Let data be dumped via NVRAM interface
         .ioctl_addr ( ioctl_addr    ),
+        .ioctl_aux  ( 8'b0          ),
         .ioctl_din  ( hps_din       )
     );
 `else

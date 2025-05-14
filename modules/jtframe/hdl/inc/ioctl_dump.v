@@ -17,9 +17,10 @@ jtframe_ioctl_dump #(
     .we{{$k}}          ( {{if eq $v.DW 8 }}{ 1'b0,{{ $v.We }} }{{else}}{{$v.We}}{{end}}),
     .we{{$k}}_mx       ( {{with $v.Name}}{{.}}_wemx{{end}} ),
     {{end }}
+    .aux_addr   ( ioctl_aux_addr   ),
     .ioctl_addr ( ioctl_addr[23:0] ),
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_aux  ( ioctl_sh/*aux*/ ),
+    .ioctl_aux  ( ioctl_sh  ),
     .ioctl_wr   ( ioctl_wr  ),
 `ifdef JTFRAME_IOCTL_RD
     .ioctl_din  ( ioctl_din ),
