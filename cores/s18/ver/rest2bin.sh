@@ -2,6 +2,8 @@
 
 main(){
 	VRAM_OFFSET=$((0x200000))
+	SIZE=$((0x10000)) # 64 KiB
+	REST="rest.bin"
 
 	refresh_sdram
 	substitute_64k_in_sdram
@@ -13,7 +15,7 @@ refresh_sdram(){
 }
 
 substitute_64k_in_sdram(){
-	dd if=rest.bin of=sdram_bank0.bin bs=1 seek=$VRAM_OFFSET conv=notrunc
+	dd if=$REST of=sdram_bank0.bin bs=1 count=$SIZE seek=$VRAM_OFFSET conv=notrunc
 }
 
 obtain_mmr_hex(){

@@ -40,7 +40,7 @@ wire [23:1] cpu_addr;
 wire [15:0] obj_dout, vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn;
+wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn, otbl_we0;
 
 // Protection
 wire        key_we, mcu_we;
@@ -68,7 +68,6 @@ assign key_we     = prom_we && prog_addr[15:12]< MCU_START[15:12];
 assign xram_cs    = vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
-assign ioctl_din  = 0;
 assign xram_addr  = main_addr[15:1];
 // work RAM (non volatile)
 assign nvram_addr = 0;
@@ -185,6 +184,9 @@ jts18_main u_main(
     // DIP switches
     .dip_test    ( dip_test   ),
     .dipsw       ( dipsw[15:0]),
+    // IOCTL Dump
+    .ioctl_addr  ( ioctl_addr[2:0] ),
+    .ioctl_din   ( ioctl_din  ),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( debug_bus  ),
