@@ -383,16 +383,22 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 {{ end -}}
 
-jtframe_shadow #(/*.LW(16),*/.START(VRAM_OFFSET))u_shadow0(
+wire [21:0] ioctl_aux_addr;
+wire [ 7:0] ioctl_sh;
+`ifdef JTFRAME_SHADOW
+jtframe_shadow #(.LW(16),.START(VRAM_OFFSET),.BE(1),.AUX(1))u_shadow0(
     .clk_rom    ( clk         ),
     .ba0_addr   ( ba0_addr    ),
     .wr0        ( ba_wr[0]    ),
     .din        ( ba0_din     ),
-    .din_m      ( ba0_dsn ^debug_bus[1:0]     ),
-    .ioctl_addr ( ioctl_addr[21:0] ),
+    .din_m      ( ba0_dsn     ),
+    .ioctl_addr ( ioctl_aux_addr ),
+    .ioctl_aux  ( ioctl_aux  ),
     .ioctl_din  ( ioctl_sh   )
 );
-wire [7:0] ioctl_sh;
+`else
+assign ioctl_sh = ioctl_aux;
+`endif
 
 `ifdef JTFRAME_PROM_START
 localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
@@ -410,7 +416,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .clk0   ( clk ),
     .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
     .data0  ( {{$bus.Din}}  ),
-    .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
+    .we0    ( {{ if $bus.We }}{{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
     .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),

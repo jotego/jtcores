@@ -19,7 +19,9 @@
 module jtframe_shadow #( parameter
     AW    = 22,
     START = 22'h10_0000,
-    LW    = 15  // length of data to be dumped as a power of 2
+    LW    = 15,  // length of data to be dumped as a power of 2
+    BE    = 0,   // if BE=1, higher byte in dout is sent out first
+    AUX   = 0    // if AUX=1, ioctl_aux is sent out after dumping all shadow memory
 ) (
     input   clk_rom,
 
@@ -31,6 +33,7 @@ module jtframe_shadow #( parameter
 
     // Let data be dumped via NVRAM interface
     input      [AW-1:0] ioctl_addr,
+    input        [ 7:0] ioctl_aux,
     output       [ 7:0] ioctl_din
 );
 
@@ -38,8 +41,10 @@ wire [15:0]   dout;
 wire [LW-1:0] rd_addr   = ioctl_addr[LW:1];
 wire [AW-1:0] wr_addr   = ba0_addr-START[AW-1:0];
 wire [1:0]    wr_m      = (ba0_addr >= START && ba0_addr<( START + (1<<LW) )) ? ~din_m : 2'd0;
+wire          aux_en    = AUX[0] && ioctl_addr[AW-1:LW]!=0;
 
-assign ioctl_din = ioctl_addr[0] ? dout[15:8] : dout[7:0];
+assign ioctl_din = aux_en              ? ioctl_aux :
+                 ( ioctl_addr[0]^BE[0] ? dout[15:8] : dout[7:0]);
 
 jtframe_dual_ram16 #(.AW(LW)) u_ram(
     .clk0       ( clk_rom   ),

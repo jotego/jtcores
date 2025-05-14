@@ -67,6 +67,7 @@ module jtframe_ioctl_dump #(parameter
     output  [(AW3==0?0:AW3-1):(AW3==0?0:DW3>>4)] addr3_mx,
     output  [(AW4==0?0:AW4-1):(AW4==0?0:DW4>>4)] addr4_mx,
     output  [(AW5==0?0:AW5-1):(AW5==0?0:DW5>>4)] addr5_mx,
+    output  [(AW6==0?0:AW6-1):(AW6==0?0:DW6>>4)] aux_addr,
 
     input      [ 1:0] we0, we1, we2, we3, we4, we5,
     output     [ 1:0] we0_mx, we1_mx, we2_mx, we3_mx, we4_mx, we5_mx,
@@ -77,6 +78,8 @@ module jtframe_ioctl_dump #(parameter
     input      [ 7:0] ioctl_aux, ioctl_dout,
     output     [ 7:0] ioctl_din
 );
+
+localparam DW6=8, AW6=22;
 
 `ifdef SIMULATION
 initial begin // assertions
@@ -101,6 +104,7 @@ assign addr2_mx = ioctl_ram ?  part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : a
 assign addr3_mx = ioctl_ram ?  part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addr3;
 assign addr4_mx = ioctl_ram ?  part_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addr4;
 assign addr5_mx = ioctl_ram ?  part_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addr5;
+assign aux_addr = ioctl_ram ?  part_addr[(AW6!=0?AW6-1:0):(AW6!=0?DW6>>4:0)] : ioctl_addr[(AW6!=0?AW6-1:0):(AW6!=0?DW6>>4:0)];
 
 assign ioctl_din =
     sel[0] ? ( (DW0==16 && ioctl_addr[0]) ? dout0[DW0-1 -:8] : dout0[7:0]) :
@@ -135,6 +139,7 @@ always @(*) begin
         else if( ioctl_addr < OS4 && AW3!=0) begin sel[3] = 1; offset = OS3[23:0]; end
         else if( ioctl_addr < OS5 && AW4!=0) begin sel[4] = 1; offset = OS4[23:0]; end
         else if( ioctl_addr < OS6 && AW5!=0) begin sel[5] = 1; offset = OS5[23:0]; end
+        else                                                   offset = OS6[23:0];
     end
 end
 
