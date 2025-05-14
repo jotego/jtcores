@@ -163,7 +163,7 @@ localparam       PCB_5874 = 0,  // refers to the bit in game_id
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, /*misc_o,*/ key_data;
+wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, key_data;
 wire [12:0] key_addr;
 
 `ifdef SIMULATION
