@@ -26,7 +26,7 @@ module vram
 	input SE,
 	input [7:0] AD,
 	input [7:0] RD_i,
-	output reg [7:0] RD_o,
+	output [7:0] RD_o,
 	output RD_d,
 	output [7:0] SD_o,
 	output SD_d
@@ -47,15 +47,24 @@ module vram
 	wire wr = ~RAS & ~CAS & ~WE;
 	wire rd = ~RAS & ~CAS & ~OE & ~dt;
 
-	reg [7:0] mem[65536];
-	reg [7:0] ser_o;
+	wire [7:0] ser_o;
 
-	always @(posedge MCLK) begin
-		RD_o <= mem[addr];
-		if (wr) mem[addr] <= RD_i;
-
-		ser_o <= mem[{addr_ser_page, addr_ser}];
-	end
+	jtframe_dual_ram #(
+	    .AW(16)
+	) u_vram_vdp(
+	    // Port 0 - Read
+	    .clk0   ( MCLK  ),
+	    .addr0  ( {addr_ser_page, addr_ser} ),
+	    .data0  ( 8'h0  ),
+	    .we0    ( 1'd0  ),
+	    .q0     ( ser_o ),
+	    // Port 1 - Write
+	    .clk1   ( MCLK  ),
+	    .data1  ( RD_i  ),
+	    .addr1  ( addr  ),
+	    .we1    ( wr    ),
+	    .q1     ( RD_o  )
+	);
 
 	assign RD_d = ~o_valid;
 	assign SD_d = SE;
