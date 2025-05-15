@@ -39,12 +39,15 @@ module jts18_video(
     // VRAM
     input      [15:0]  cscn_dout,
     output     [11:1]  cscn_addr,
+    input      [15:0]  otbl_dout,
+    output     [15:0]  otbl_din,
+    output     [10:1]  otbl_addr,
+    output             otbl_we,
 
     // CPU interface
     input              dip_pause,
     input              bank_cs,
     input              char_cs,
-    input              objram_cs,
     input      [23:1]  addr,
     input      [15:0]  din,
     input      [ 1:0]  dsn,
@@ -52,7 +55,6 @@ module jts18_video(
     input              asn,
     output             vdp_dtackn,
 
-    output     [15:0]  obj_dout,
     output     [15:0]  vdp_dout,
     input      [ 2:0]  vdp_prio,
     output             vint,
@@ -178,7 +180,6 @@ jts18_video16 u_video16(
     // CPU interface
     .dip_pause  ( dip_pause ),
     .char_cs    ( char_cs   ),
-    .objram_cs  ( objram_cs ),
     .addr       ( addr[12:1]),
     .din        ( din       ),
     .dsn        ( dsn | {2{rnw}}),
@@ -186,8 +187,11 @@ jts18_video16 u_video16(
     // VRAM
     .cscn_addr  ( cscn_addr ),
     .cscn_dout  ( cscn_dout ),
+    .otbl_addr  ( otbl_addr ),
+    .otbl_dout  ( otbl_dout ),
+    .otbl_we    ( otbl_we   ),
+    .otbl_din   ( otbl_din  ),
 
-    .obj_dout   ( obj_dout  ),
     .vint       ( vint      ),
 
     // SDRAM interface

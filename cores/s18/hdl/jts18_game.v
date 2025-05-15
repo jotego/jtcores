@@ -37,7 +37,7 @@ wire        vram_cs, ram_cs;
 
 // CPU interface
 wire [23:1] cpu_addr;
-wire [15:0] obj_dout, vdp_dout;
+wire [15:0] vdp_dout;
 wire [ 1:0] dsn, dswn;
 wire        UDSn, LDSn, main_rnw, vdp_dtackn;
 wire        char_cs, scr1_cs, pal_cs, objram_cs, bank_cs, asn, otbl_we0;
@@ -69,12 +69,15 @@ assign xram_cs    = vram_cs;
 assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign xram_addr  = main_addr[15:1];
+assign oram_addr  = cpu_addr[10:1];
 // work RAM (non volatile)
 assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 assign cram_we    = ~dsn & {2{char_cs}};
+assign otbl_we    = {2{otbl_we0}};
+assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
 
 
 always @(posedge clk) begin
@@ -250,7 +253,6 @@ jts18_video u_video(
     // CPU interface
     .addr       ( cpu_addr  ),
     .char_cs    ( char_cs   ),
-    .objram_cs  ( objram_cs ),
     .bank_cs    ( bank_cs   ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
@@ -258,12 +260,15 @@ jts18_video u_video(
     // VRAM
     .cscn_dout  ( cscn_dout ),
     .cscn_addr  ( cscn_addr ),
+    .otbl_addr  ( otbl_addr ),
+    .otbl_dout  ( otbl_dout ),
+    .otbl_we    ( otbl_we0  ),
+    .otbl_din   ( otbl_din  ),
 
     .din        ( main_dout ),
     .dsn        ( dsn       ),
     .asn        ( asn       ),
     .rnw        ( main_rnw  ),
-    .obj_dout   ( obj_dout  ),
     .vdp_dout   ( vdp_dout  ),
     .vdp_dtackn ( vdp_dtackn),
 

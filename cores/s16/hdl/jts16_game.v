@@ -55,7 +55,7 @@ wire        ram_ok;
 
 // CPU interface
 wire [12:1] cpu_addr;
-wire [15:0] main_dout, pal_dout, obj_dout;
+wire [15:0] main_dout, pal_dout;
 wire [ 1:0] dsn;
 wire        UDSWn, LDSWn, main_rnw;
 wire        char_cs, scr1_cs, pal_cs, objram_cs;
@@ -80,6 +80,8 @@ wire [ 7:0] snd_latch;
 wire        snd_irqn, snd_ack;
 
 wire        flip, video_en, sound_en;
+// VRAM
+wire otbl_we0;
 
 // Cabinet inputs
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -105,6 +107,9 @@ assign ram_ok               = ~xram_cs | xram_ok;
 assign ram_data             =  xram_cs ? xram_data : wram_dout;
 assign ioctl_din            = 0;
 assign cram_we              = ~dsn & {2{char_cs}};
+assign otbl_we              = {2{otbl_we0}};
+assign oram_we              = ~dsn & {2{objram_cs}};
+assign oram_addr            = cpu_addr[10:1];
 
 always @(posedge clk) begin
     case( st_addr[7:4] )
@@ -352,18 +357,20 @@ jts16_video u_video(
     // VRAM
     .cscn_dout  ( cscn_dout ),
     .cscn_addr  ( cscn_addr ),
+    .otbl_dout  ( otbl_dout ),
+    .otbl_din   ( otbl_din  ),
+    .otbl_addr  ( otbl_addr ),
+    .otbl_we    ( otbl_we0  ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .char_cs    ( char_cs   ),
     .pal_cs     ( pal_cs    ),
-    .objram_cs  ( objram_cs ),
     .vint       ( vint      ),
     .dip_pause  ( dip_pause ),
 
     .cpu_dout   ( main_dout ),
     .dsn        ( dsn       ),
     .pal_dout   ( pal_dout  ),
-    .obj_dout   ( obj_dout  ),
 
     .flip       ( flip      ),
     .ext_flip   ( dip_flip  ),
