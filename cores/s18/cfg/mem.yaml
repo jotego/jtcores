@@ -80,6 +80,20 @@ bram:
       name: main
       rw: true
       we: pal_we
+  - name: otbl
+    addr_width: 11
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      restore: true
+      order: 3
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: oram
+      din: xram_din
+      dout: obj_dout
+      rw: true
   # 16kB of work RAM area saved as NVRAM
   - name: nvram
     addr_width: 14

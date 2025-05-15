@@ -22,12 +22,11 @@ module jts16_obj(
     input              pxl_cen,   // pixel clock enable
 
     input              alt_bank,
-    // CPU interface
-    input              cpu_obj_cs,
-    input      [10:1]  cpu_addr,
-    input      [15:0]  cpu_dout,
-    input      [ 1:0]  dswn,
-    output     [15:0]  cpu_din,
+    // VRAM
+    input      [15:0]  tbl_dout,
+    output     [15:0]  tbl_din,
+    output     [10:1]  tbl_addr,
+    output             tbl_we,
 
     // SDRAM interface
     input              obj_ok,
@@ -50,11 +49,6 @@ parameter        MODEL=0;  // 0 = S16A, 1 = S16B
 parameter  [8:0] PXL_DLY=MODEL ? 9'd19 : 9'd14;
 /* verilator lint_on WIDTH */
 
-// Object scan
-wire [10:1] tbl_addr;
-wire [15:0] tbl_din, tbl_dout;
-wire        tbl_we;
-
 // Draw commands
 wire        dr_start;
 wire        dr_busy;
@@ -70,22 +64,6 @@ wire        dr_hflipb;
 wire [11:0] buf_data;
 wire [ 8:0] buf_addr;
 wire        buf_we;
-
-jts16_obj_ram u_ram(
-    .rst       ( rst            ),
-    .clk       ( clk            ),
-    // CPU interface
-    .obj_cs    ( cpu_obj_cs     ),
-    .cpu_addr  ( cpu_addr       ),
-    .cpu_dout  ( cpu_dout       ),
-    .dswn      ( dswn           ),
-    .cpu_din   ( cpu_din        ),
-    // Scan
-    .tbl_addr  ( tbl_addr       ),
-    .tbl_dout  ( tbl_dout       ),
-    .tbl_we    ( tbl_we         ),
-    .tbl_din   ( tbl_din        )
-);
 
 jts16_obj_scan #(.PXL_DLY(0),.MODEL(MODEL)) u_scan(
     .rst       ( rst            ),

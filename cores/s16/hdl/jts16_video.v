@@ -29,18 +29,20 @@ module jts16_video(
     input              dip_pause,
     input              char_cs,
     input              pal_cs,
-    input              objram_cs,
     input      [12:1]  cpu_addr,
     input      [15:0]  cpu_dout,
     input      [ 1:0]  dsn,
 
     output     [15:0]  pal_dout,
-    output     [15:0]  obj_dout,
     output             vint,
 
     // VRAM
     input      [15:0]  cscn_dout,
     output     [11:1]  cscn_addr,
+    input      [15:0]  otbl_dout,
+    output     [15:0]  otbl_din,
+    output     [10:1]  otbl_addr,
+    output             otbl_we,
 
     // Other configuration
     input              flip,
@@ -190,12 +192,11 @@ jts16_obj #(.MODEL(MODEL)) u_obj(
     .pxl_cen   ( pxl_cen        ),
     .alt_bank  ( alt_objbank    ),
 
-    // CPU interface
-    .cpu_obj_cs( objram_cs      ),
-    .cpu_addr  ( cpu_addr[10:1] ),
-    .cpu_dout  ( cpu_dout       ),
-    .dswn      ( dsn            ),
-    .cpu_din   ( obj_dout       ),
+    // VRAM
+    .tbl_dout  ( otbl_dout      ),
+    .tbl_din   ( otbl_din       ),
+    .tbl_addr  ( otbl_addr      ),
+    .tbl_we    ( otbl_we        ),
 
     // SDRAM interface
     .obj_ok    ( obj_ok         ),

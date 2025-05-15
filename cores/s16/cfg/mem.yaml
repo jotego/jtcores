@@ -93,3 +93,18 @@ bram:
       din: xram_din
       dout: char_dout
       rw: true
+    # Objects VRAM
+  - name: otbl
+    addr_width: 11
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      restore: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: oram
+      din: xram_din
+      dout: obj_dout
+      rw: true
