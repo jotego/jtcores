@@ -26,12 +26,16 @@ module vram
 	input SE,
 	input [7:0] AD,
 	input [7:0] RD_i,
-	output [7:0] RD_o,
+	output reg [7:0] RD_o,
 	output RD_d,
 	output [7:0] SD_o,
-	output SD_d
+	output SD_d,
+    // IOCTL Dump
+	input             ioctl_ram ,
+	input      [15:0] ioctl_addr,
+	output reg [ 7:0] ioctl_din
 	);
-	
+	parameter OFFSET = 20'h16800; // value of ioctl_addr when finished with jtframe_shadow
 	reg [15:0] addr;
 	reg dt;
 	reg [7:0] addr_ser;
@@ -47,10 +51,26 @@ module vram
 	wire wr = ~RAS & ~CAS & ~WE;
 	wire rd = ~RAS & ~CAS & ~OE & ~dt;
 
-	wire [7:0] ser_o;
+	wire [ 7:0] ser_o;
+	reg  [15:0] wr_addr;
+	reg  [ 7:0] wr_o, RD_o_l;
+	reg         we;
+
+	always @(*) begin
+		wr_addr   = addr;
+		we        = wr;
+		RD_o      = wr_o;
+		ioctl_din = 8'b0;
+		if(ioctl_ram) begin
+			wr_addr   = ioctl_addr - OFFSET[15:0];
+			we        = 1'b0;
+			RD_o      = RD_o_l;
+			ioctl_din = wr_o;
+		end
+	end
 
 	jtframe_dual_ram #(
-	    .AW(16)
+	    .AW(16),.SIMFILE("vdp.bin")
 	) u_vram_vdp(
 	    // Port 0 - Read
 	    .clk0   ( MCLK  ),
@@ -61,9 +81,9 @@ module vram
 	    // Port 1 - Write
 	    .clk1   ( MCLK  ),
 	    .data1  ( RD_i  ),
-	    .addr1  ( addr  ),
-	    .we1    ( wr    ),
-	    .q1     ( RD_o  )
+	    .addr1  ( wr_addr  ),
+	    .we1    ( we /*wr*/    ),
+	    .q1     ( wr_o /*RD_o*/  )
 	);
 
 	assign RD_d = ~o_valid;
@@ -108,6 +128,7 @@ module vram
 		o_RAS <= RAS;
 		o_cas <= cas;
 		o_SC <= SC;
+		RD_o_l <= RD_o;
 	end
 
 endmodule

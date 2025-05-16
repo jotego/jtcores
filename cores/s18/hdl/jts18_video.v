@@ -98,6 +98,10 @@ module jts18_video(
     output     [ 7:0]  green,
     output     [ 7:0]  blue,
 
+    // IOCTL dump
+    input             ioctl_ram,
+    input      [15:0] ioctl_addr,
+    output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0]  gfx_en,
     input      [ 7:0]  debug_bus,
@@ -249,7 +253,7 @@ jts18_video16 u_video16(
 );
 
 // Megadrive VDP
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_vdp u_vdp(
     .rst        ( rst       ),
     .clk96      ( clk96     ),
@@ -279,10 +283,15 @@ jts18_vdp u_vdp(
     .spa_b      ( vdp_spa_b ),
     .ys_n       ( vdp_ysn   ),
     .video_en   ( vdp_on    ),
+    // IOCTL Dump
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_addr ( ioctl_addr[15:0] ),
+    .ioctl_din  ( ioctl_din ),
+    // debug
     .debug_bus  ( 8'b0/*debug_bus*/ ),
     .st_dout    ( st_vdp    )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk48     ),

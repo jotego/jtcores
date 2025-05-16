@@ -117,7 +117,7 @@ wire [7:0] tile_bank_r, misc_o_r, misc_o;
 wire [2:0] vdp_prio_r;
 wire       vdp_en_r, vid16_en_r;
 
-jts18_main_mmr #(.SEEK(65536)) u_main_mmr(
+jts18_main_mmr #(.SIMFILE("main_mmr.bin")) u_main_mmr(  /*131072*/ /*65536*/
     .rst         ( rst         ),
     .clk         ( clk         ),
     .cs          ( 1'b1        ),

@@ -34,6 +34,8 @@ wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
+// IOCTL dump
+wire [ 7:0] ioctl_main, ioctl_vdp;
 
 // CPU interface
 wire [23:1] cpu_addr;
@@ -70,6 +72,7 @@ assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign xram_addr  = main_addr[15:1];
 assign oram_addr  = cpu_addr[10:1];
+assign ioctl_din  = ioctl_addr[17:11]==7'h4D ? ioctl_main : ioctl_vdp;
 // work RAM (non volatile)
 assign nvram_addr = 0;
 assign nvram_we   = 0;
@@ -189,7 +192,7 @@ jts18_main u_main(
     .dipsw       ( dipsw[15:0]),
     // IOCTL Dump
     .ioctl_addr  ( ioctl_addr[2:0] ),
-    .ioctl_din   ( ioctl_din  ),
+    .ioctl_din   ( ioctl_main ),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( debug_bus  ),
@@ -312,6 +315,10 @@ jts18_video u_video(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
+    // IOCTL Dump
+    .ioctl_ram  ( ioctl_ram  ),
+    .ioctl_addr ( ioctl_addr[15:0] ),
+    .ioctl_din  ( ioctl_vdp  ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_addr    ( debug_bus ),

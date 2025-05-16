@@ -45,6 +45,10 @@ module jts18_vdp(
     output      [ 7:0] red,
     output      [ 7:0] green,
     output      [ 7:0] blue,
+    // IOCTL dump
+    input              ioctl_ram,
+    input       [15:0] ioctl_addr,
+    output      [ 7:0] ioctl_din,
     // Debug
     input       [ 7:0] debug_bus,
     output reg  [ 7:0] st_dout
@@ -133,7 +137,7 @@ end
 
 always @(negedge clk96) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
-/* verilator tracing_off */
+/* verilator tracing_on */
 ym7101 u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk96     ),
@@ -229,7 +233,11 @@ vram u_vram(
     .RD_o       ( vram1_AD_o),
     .RD_d       ( vram1_AD_d),
     .SD_o       ( vram1_SD_o),
-    .SD_d       ( vram1_SD_d)
+    .SD_d       ( vram1_SD_d),
+    // IOCTL Dump
+    .ioctl_ram  ( ioctl_ram  ),
+    .ioctl_addr ( ioctl_addr[15:0] ),
+    .ioctl_din  ( ioctl_din  )
 );
 /* verilator lint_on PINMISSING */
 
