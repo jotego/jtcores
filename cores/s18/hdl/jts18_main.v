@@ -163,7 +163,7 @@ localparam       PCB_5874 = 0,  // refers to the bit in game_id
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
-wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, key_data;
+wire [ 7:0] st_mapper, st_timer, st_io, io_dout, io5296_dout, misc_o, key_data;
 wire [12:0] key_addr;
 
 `ifdef SIMULATION
@@ -597,16 +597,9 @@ jtframe_m68k u_cpu(
     initial vram_cs     = 0;
     initial rom_cs      = 0;
     initial rom_addr    = 0;
-    initial vdp_prio    = vdp_prio_r;
     initial bank_cs     = 0;
     assign  cpu_cen     = 0;
     assign  cpu_cenb    = 0;
-    assign  misc_o      = 0;
-    assign  flip        = misc_o_r[5];
-    assign  gray_n      = misc_o_r[6];
-    assign  vdp_en      = vdp_en_r;
-    assign  vid16_en    = vid16_en_r;
-    assign  tile_bank   = tile_bank_r;
     assign  cpu_dout    = 0;
     assign  UDSn        = 0;
     assign  LDSn        = 0;
@@ -617,5 +610,11 @@ jtframe_m68k u_cpu(
     assign  sndmap_pbf  = 0;
     assign  st_dout     = 0;
 `endif
+jtframe_simdumper #(.DW(15),.SIMFILE("main.bin")) dumper(
+    .clk        ( clk           ),
+    .data       ( {tile_bank,flip,gray_n,vdp_prio,vdp_en,vid16_en} ),
+    .ioctl_addr ( ioctl_addr[0] ),
+    .ioctl_din  ( ioctl_din     )
+);
 
 endmodule
