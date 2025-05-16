@@ -13,6 +13,7 @@ names=[
 	{ machine="skykiddx",names="Shot,Roll/Bomb" },
 	{ machine="hopmappy",names="Fast" },
 	{ machine="wndrmomo",names="Kick,Jump" },
+	{ machine="roishtar",names="Cast Spell,Select Spell" },
 ]
 
 [header]
