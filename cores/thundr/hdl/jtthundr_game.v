@@ -45,7 +45,7 @@ always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 always @* begin
     case( debug_bus[7:6] )
         0: dbg_mux = st_video;
-        1: dbg_mux = { 5'd0, genpeitd, roishtar, wndrmomo };
+        1: dbg_mux = { 5'd0, roishtar,wndrmomo,genpeitd };
         2: dbg_mux = st_main;
         3: dbg_mux = debug_bus[0] ? fave[7:0] : fave[15:8]; // average CPU frequency (BCD format)
         default: dbg_mux = 0;

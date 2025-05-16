@@ -53,8 +53,8 @@ always @* begin
         ROISHTAR:
             casez(addr[15:12])
                 4'b000?: oram_cs   = 1; // 0000~1FFF
-                4'b010?: scr0_cs   = 1; // 4000~5FFF 8kB tilemap RAM
-                4'b011?: scr1_cs   = 1; // 6000~7FFF
+                4'b010?: scr1_cs   = 1; // 4000~5FFF 8kB tilemap RAM
+                4'b011?: scr0_cs   = 1; // 6000~7FFF
                 4'b1010: if(!rnw) wdog_cs = 1;
                 4'b1011: if(!rnw) irq_ack = 1;
                 default:;
