@@ -20,7 +20,7 @@ substitute_64k_in_sdram(){
 }
 
 get_main(){
-	tail --bytes 8 $REST > main.bin
+	tail --bytes 2 $REST > main.bin
 }
 
 obtain_mmr_hex(){
