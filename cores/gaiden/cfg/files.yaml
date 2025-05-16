@@ -8,6 +8,9 @@ jtframe:
     - jtframe_counter.v
     - jtframe_16bit_reg.v
     - jtframe_mmr_reg.v
+  - from: debug
+    get:
+      - jtframe_simdumper.v
   - from: ram
     get:
       - jtframe_bram_burst.v
