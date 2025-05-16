@@ -29,4 +29,7 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_linebuf.v
+  - from: debug
+    get:
+      - jtframe_simdumper.v
 jt12:

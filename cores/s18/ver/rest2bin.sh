@@ -6,6 +6,7 @@ main(){
 	REST="rest.bin"
 
 	refresh_sdram
+	get_main
 	substitute_64k_in_sdram
 	obtain_mmr_hex
 }
@@ -16,6 +17,10 @@ refresh_sdram(){
 
 substitute_64k_in_sdram(){
 	dd if=$REST of=sdram_bank0.bin bs=1 count=$SIZE seek=$VRAM_OFFSET conv=notrunc
+}
+
+get_main(){
+	tail --bytes 8 $REST > main.bin
 }
 
 obtain_mmr_hex(){
