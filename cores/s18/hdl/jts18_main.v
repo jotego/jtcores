@@ -113,33 +113,6 @@ module jts18_main(
     output      [ 7:0] st_dout
 );
 
-wire [7:0] tile_bank_r, misc_o_r, misc_o;
-wire [2:0] vdp_prio_r;
-wire       vdp_en_r, vid16_en_r;
-
-jts18_main_mmr #(.SIMFILE("main_mmr.bin")) u_main_mmr(  /*131072*/ /*65536*/
-    .rst         ( rst         ),
-    .clk         ( clk         ),
-    .cs          ( 1'b1        ),
-    .addr        ( 3'b0        ),
-    .rnw         ( 1'b0        ),
-    .din         ( 8'b0        ),
-    .dout        (             ),
-    .tile_bank   ( tile_bank   ),
-    .misc_o      ( misc_o      ),
-    .vdp_prio    ( vdp_prio    ),
-    .vdp_en      ( vdp_en      ),
-    .vid16_en    ( vid16_en    ),
-    .tile_bank_r ( tile_bank_r ),
-    .misc_o_r    ( misc_o_r    ),
-    .vdp_prio_r  ( vdp_prio_r  ),
-    .vdp_en_r    ( vdp_en_r    ),
-    .vid16_en_r  ( vid16_en_r  ),
-    .ioctl_addr  ( ioctl_addr  ),
-    .ioctl_din   ( ioctl_din   ),
-    .debug_bus   ( debug_bus   ),
-    .st_dout     (              )
-);
 `ifndef NOMAIN
 //  Region 0 - Program ROM
 //  Region 3 - 68000 work RAM
