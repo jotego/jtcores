@@ -63,7 +63,7 @@ module jtgaiden_main(
 
     // IOCTL dump
     input         [ 3:0] ioctl_addr,
-    output reg    [ 7:0] ioctl_din
+    output        [ 7:0] ioctl_din
 );
 `ifndef NOMAIN
 wire [23:1] A;
@@ -145,26 +145,6 @@ always @(posedge clk) begin
                pal_cs  ? mp_dout  :
                mcu_rd  ? wf_lut   :
                cab_cs  ? cab_dout : 16'h0;
-end
-
-always @(posedge clk) begin
-    case(ioctl_addr)
-        0: ioctl_din = txt_x[ 7:0];
-        1: ioctl_din = txt_x[15:8];
-        2: ioctl_din = txt_y[ 7:0];
-        3: ioctl_din = txt_y[15:8];
-        4: ioctl_din = scra_x[ 7:0];
-        5: ioctl_din = scra_x[15:8];
-        6: ioctl_din = scra_y[ 7:0];
-        7: ioctl_din = scra_y[15:8];
-        8: ioctl_din = scrb_x[ 7:0];
-        9: ioctl_din = scrb_x[15:8];
-       10: ioctl_din = scrb_y[ 7:0];
-       11: ioctl_din = scrb_y[15:8];
-       12: ioctl_din = obj_y;
-       13: ioctl_din = {7'd0,flip};
-       default: ioctl_din = 0;
-    endcase
 end
 
 jtframe_16bit_reg   u_txtx (rst,clk,RnW, dsn, cpu_dout, txtx_cs,  txt_x  );
@@ -275,25 +255,6 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-    integer fin, fcnt;
-    reg [7:0] mmr[0:13];
-
-    initial begin
-        for( fcnt=0; fcnt<11; fcnt=fcnt+1 ) mmr[fcnt]=0;
-        fin=$fopen("rest.bin","rb");
-        fcnt = $fread(mmr,fin);
-        $display("Read %d bytes from rest.bin",fcnt);
-        $fclose(fin);
-    end
-    assign txt_x  = {mmr[1],mmr[0]};
-    assign txt_y  = {mmr[3],mmr[2]};
-    assign scra_x = {mmr[5],mmr[4]};
-    assign scra_y = {mmr[7],mmr[6]};
-    assign scrb_x = {mmr[9],mmr[8]};
-    assign scrb_y = {mmr[11],mmr[10]};
-    assign obj_y  =  mmr[12];
-    assign flip   =  mmr[13][0];
-
     initial begin
         rom_cs = 0;
         ram_cs = 0;
@@ -303,4 +264,10 @@ jtframe_m68k u_cpu(
     main_addr = 0, main_dout = 0, ram_we = 0, dsn = 0, snd_cmd = 0, txt_we = 0,
     scra_we = 0, scrb_we = 0, obj_we = 0, pal_we = 0, ioctl_din = 0;
 `endif
+jtframe_simdumper #(.DW(105)) dumper(
+    .clk        ( clk           ),
+    .data       ( {flip,obj_y,scrb_y,scrb_x,scra_y,scra_x,txt_y,txt_x} ),
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     )
+);
 endmodule
