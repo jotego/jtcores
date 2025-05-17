@@ -19,11 +19,12 @@
 module jtthundr_sound(
     input               rst, clk,
                         cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen, cen_c30,
-                        lvbl, mcu_seln,
+                        vs, lvbl, mcu_seln,
                         hopmappy, genpeitd, roishtar, wndrmomo,
 
     input        [15:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
+    input        [15:0] joyana_r1,
     input        [ 1:0] cab_1p,
     input        [ 1:0] coin,
     input               service,
@@ -131,6 +132,20 @@ jtframe_edge u_irq(
     .q      ( irq       )
 );
 
+wire [6:0] joymerge1, joymerge2;
+
+jtthundr_roishtar_joy2 u_joy2(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .vs         ( vs            ),
+    .roishtar   ( roishtar      ),
+    .joyana_r1  ( joyana_r1     ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .merged1    ( joymerge1     ),
+    .merged2    ( joymerge2     )
+);
+
 jtthundr_cab u_cab(
     .clk        ( clk           ),
 
@@ -139,8 +154,8 @@ jtthundr_cab u_cab(
     .portb      ( portb         ),
 
     .dipsw      ( dipsw         ),
-    .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),
+    .joystick1  ( joymerge1     ),
+    .joystick2  ( joymerge2     ),
     .cab_1p     ( cab_1p        ),
     .coin       ( coin          ),
     .service    ( service       ),

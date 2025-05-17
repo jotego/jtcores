@@ -12,7 +12,7 @@ names=[
 	{ machine="skykiddx",names="Shot,Roll/Bomb" },
 	{ machine="hopmappy",names="Fast" },
 	{ machine="wndrmomo",names="Kick,Jump" },
-	{ machine="roishtar",names="Cast Spell,Select Spell" },
+	{ machine="roishtar",names="Cast Spell,Select Spell,Swap" },
 	{ machine="genpeitd",names="Attack,Jump" },
 ]
 

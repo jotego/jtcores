@@ -160,16 +160,18 @@ jtthundr_sound u_sound(
     .cen_c30    ( cen_c30   ),
     .pxl_cen    ( pxl_cen   ),
 
+    .vs         ( VS        ),
     .lvbl       ( lvbl_ps   ),
     .hopmappy   ( mcualt    ),
     .genpeitd   ( genpeitd  ),
     .roishtar   ( roishtar  ),
     .wndrmomo   ( wndrmomo  ),
 
-    .dipsw      ( dipsw[15:0]),
+    .dipsw      (dipsw[15:0]),
     .joystick1  (joystick1[6:0]),
     .joystick2  (joystick2[6:0]),
-    .cab_1p     ( cab_1p[1:0]),
+    .joyana_r1  ( joyana_r1 ),
+    .cab_1p     (cab_1p[1:0]),
     .coin       ( coin[1:0] ),
     .service    ( service   ),
 
