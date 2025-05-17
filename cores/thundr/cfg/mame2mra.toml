@@ -2,8 +2,7 @@
 sourcefile=[ "namcos86.cpp" ]
 
 debug = { machines=[
-	# not booting
-	"roishtar",
+	# GFX problems
 	"genpeitd",
 ]}
 
@@ -14,6 +13,7 @@ names=[
 	{ machine="hopmappy",names="Fast" },
 	{ machine="wndrmomo",names="Kick,Jump" },
 	{ machine="roishtar",names="Cast Spell,Select Spell" },
+	{ machine="genpeitd",names="Attack,Jump" },
 ]
 
 [header]

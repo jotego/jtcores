@@ -42,6 +42,8 @@ module jtthundr_busmux(
     output reg [7:0] mdin, sdin
 );
 
+localparam [12:0] OBJMMR=13'h1FF4;
+
 wire [7:0] bdin;
 wire       mbank_cs, sbank_cs,
            scr0_cs, scr1_cs, oram_cs, vma;
@@ -53,7 +55,7 @@ assign sbank_cs  = bsel ? ssbank_cs  : msbank_cs;
 assign scr0_cs   = bsel ? sscr0_cs   : mscr0_cs;
 assign scr1_cs   = bsel ? sscr1_cs   : mscr1_cs;
 assign oram_cs   = bsel ? soram_cs   : moram_cs;
-assign ommr_cs   = oram_cs && baddr>13'h7f4 && baddr<13'h7f8;
+assign ommr_cs   = oram_cs && baddr[12:2]==OBJMMR[12:2];
 assign latch0_cs = bsel ? slatch0_cs : mlatch0_cs;
 assign latch1_cs = bsel ? slatch1_cs : mlatch1_cs;
 
