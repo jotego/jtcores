@@ -24,7 +24,7 @@ module jtthundr_roishtar_joy2(
     output reg   [ 6:0] merged1, merged2
 );
 
-localparam JOY1_IS_KI=1'b0, JOY1_IS_GIL=1'b1;
+localparam JOY1_IS_KI=1'b1, JOY1_IS_GIL=1'b0;
 
 wire sel;
 reg [6:0] mux1,mux2;
@@ -41,8 +41,8 @@ wire [15:0] multi;
 
 always @(posedge clk) begin
     case(sel)
-        JOY1_IS_KI:  {mux1,mux2} <= {joystick1,joystick2};
-        JOY1_IS_GIL: {mux1,mux2} <= {joystick2,joystick1};
+        JOY1_IS_KI:  {mux1,mux2} <= {joystick1,joystick2}; // normal assignment
+        JOY1_IS_GIL: {mux1,mux2} <= {joystick2,joystick1}; // reversed
     endcase
     // buttons are not multiplexed as Ki is the only one that can use buttons
     merged1 <= { joystick1[6:4], roishtar ?  mux1 [3:0] : joystick1[3:0] };

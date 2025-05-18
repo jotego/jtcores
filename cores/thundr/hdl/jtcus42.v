@@ -47,7 +47,7 @@ module jtcus42(
     output       [ 7:0] st_dout
 );
 
-parameter ID=0;
+parameter ID=0,HBASE=9'd0;
 
 localparam [2:0] ALPHA=7;
 
@@ -111,7 +111,7 @@ jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
     .st_dout    ( st_dout       )
 );
 
-jtthundr_scroll #(.LYR(0)) u_scra(
+jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -137,7 +137,7 @@ jtthundr_scroll #(.LYR(0)) u_scra(
     .pxl        ( scra_pxl      )
 );
 
-jtthundr_scroll #(.LYR(1)) u_scrb(
+jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),

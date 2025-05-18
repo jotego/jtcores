@@ -39,7 +39,8 @@ module jtthundr_scroll(
 );
 
 parameter LYR=0,
-          HOFFSET=LYR==0 ? -9'h22 : -9'h24,
+          HBASE=9'd0,
+          HOFFSET=(LYR==0 ? -9'h22 : -9'h24)+HBASE,
           VOFFSET=-8'd8,
           SCRHFLIP=9'h98;
 

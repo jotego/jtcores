@@ -154,7 +154,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .st_dout    ( st0           )
 );
 
-jtcus42 #(.ID(1)) u_scroll1(
+jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
