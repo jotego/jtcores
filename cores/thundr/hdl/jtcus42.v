@@ -58,10 +58,11 @@ wire [ 8:0] scrxa, scrxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
-wire        scrb_op, selb;
+wire        scra_op, scrb_op, selb;
 
+assign scra_op = scra_pxl[2:0]!=ALPHA;
 assign scrb_op = scrb_pxl[2:0]!=ALPHA;
-assign selb    = scrb_op && priob > prioa;
+assign selb    = scrb_op && (!scra_op || priob > prioa);
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
 

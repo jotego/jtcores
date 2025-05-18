@@ -1,11 +1,6 @@
 [parse]
 sourcefile=[ "namcos86.cpp" ]
 
-debug = { machines=[
-	# GFX problems
-	"genpeitd",
-]}
-
 [buttons]
 names=[
 	{ machine="rthunder",names="Shot,Jump" },
