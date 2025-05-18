@@ -4,4 +4,6 @@ localparam [8:0]
     VB_START = 9'h000,
     VB_END   = 9'h120,
     VS_START = 9'h108,
-    VS_END   = 9'h110;
+    VS_END   = 9'h110,
+    HS_START = 9'h177,
+    HS_END   = 9'h017;

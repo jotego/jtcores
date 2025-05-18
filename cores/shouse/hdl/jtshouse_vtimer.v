@@ -31,8 +31,8 @@ jtframe_vtimer #(
     .HCNT_END   ( 9'h17F    ),
     .HB_START   ( 9'h160    ), // 288 visible, 384 total (96 pxl=HB)
     .HB_END     ( 9'h040    ), // Fixed layer is mapped for a counter that leaves blanking at $40
-    .HS_START   ( 9'h17f    ), // HS starts 32 pixels after HB
-    .HS_END     ( 9'h01f    ), // 32 pixel wide
+    .HS_START   ( HS_START  ), // HS starts 32 pixels after HB
+    .HS_END     ( HS_END    ), // 32 pixel wide
 
     .V_START    ( V_START   ), // 224 visible, 40 blank, 264 total
     .VB_START   ( VB_START  ),
