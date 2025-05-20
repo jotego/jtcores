@@ -99,8 +99,7 @@ module jts18_video(
     output     [ 7:0]  blue,
 
     // IOCTL dump
-    input             ioctl_ram,
-    input      [15:0] ioctl_addr,
+    input      [ 3:0] ioctl_addr,
     output     [ 7:0] ioctl_din,
     // Debug
     input      [ 3:0]  gfx_en,
@@ -130,12 +129,17 @@ wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
 wire [1:0] obj_prio;
 wire [2:0] scr1_bank, scr2_bank;
 wire [3:0] obj_bank;
+wire [7:0] tilebanks_nx, tb_mmr;
+wire [3:0] tilebanks_addr = rst ? hdump[3:0] : addr[4:1];
 (* ramstyle = "logic" *) reg  [7:0] tilebanks[16];
 
+assign tilebanks_nx= game_id[PCB_7525] ? (din[7] ? {3'd0, din[4:0]} + 8'h20 : {3'd0, din[4:0]}) : din[7:0];
 wire       alt_gfx = game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]|game_id[PCB_7525];
 
-always @(posedge clk48)
-   if (bank_cs) tilebanks[addr[4:1]] <= game_id[PCB_7525] ? (din[7] ? {3'd0, din[4:0]} + 8'h20 : {3'd0, din[4:0]}) : din[7:0];
+always @(posedge clk48) begin
+   if (rst)     tilebanks[hdump[3:0]] <= tb_mmr; else
+   if (bank_cs) tilebanks[addr[4:1]]  <= tilebanks_nx;
+end
 wire [7:0] st_show;
 assign st_dout = st_show;//{3'd0, vdp_en, 3'd0,vdp_on};
 assign scr1_sel = scr1_bank[2];
@@ -167,6 +171,23 @@ assign LHBL = scr_lhbl;
 //         LVBL <= LVBL48;
 //     end
 // end
+`ifdef NOMAIN
+jts18_video_mmr #(.SIMFILE("main.bin")) u_tilebanks(
+    .rst       ( rst           ),
+    .clk       ( clk48         ),
+    .cs        ( bank_cs       ),
+    .addr      ( tilebanks_addr),
+    .rnw       ( 1'b0          ),
+    .din       ( tilebanks_nx  ),
+    .dout      ( tb_mmr        ),
+    .ioctl_addr(ioctl_addr[3:0]),
+    .ioctl_din ( ioctl_din     ),
+    .debug_bus ( debug_bus     ),
+    .st_dout   (               )
+);
+`else
+assign tb_mmr = 0;
+`endif
 
 /* verilator tracing_on */
 jts18_video16 u_video16(
