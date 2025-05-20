@@ -171,7 +171,7 @@ assign LHBL = scr_lhbl;
 //         LVBL <= LVBL48;
 //     end
 // end
-`ifdef NOMAIN
+`ifndef JTFRAME_RELEASE
 jts18_video_mmr #(.SIMFILE("main.bin")) u_tilebanks(
     .rst       ( rst           ),
     .clk       ( clk48         ),
