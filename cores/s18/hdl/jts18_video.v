@@ -186,7 +186,8 @@ jts18_video_mmr #(.SIMFILE("main.bin")) u_tilebanks(
     .st_dout   (               )
 );
 `else
-assign tb_mmr = 0;
+assign tb_mmr    = 0;
+assign ioctl_din = 0;
 `endif
 
 /* verilator tracing_on */
