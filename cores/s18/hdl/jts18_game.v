@@ -56,6 +56,7 @@ wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
 // Status report
 wire [7:0] st_video, st_main;
 reg  [7:0] st_mux, game_id;
+wire [7:0] ioctl_vid, ioctl_main;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
@@ -78,6 +79,7 @@ assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 assign cram_we    = ~dsn & {2{char_cs}};
 assign otbl_we    = {2{otbl_we0}};
 assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
+assign ioctl_din  = ioctl_addr[4] ? ioctl_main : ioctl_vid;
 
 
 always @(posedge clk) begin
@@ -189,7 +191,7 @@ jts18_main u_main(
     .dipsw       ( dipsw[15:0]),
     // IOCTL Dump
     .ioctl_addr  ( ioctl_addr[2:0] ),
-    .ioctl_din   ( ioctl_din  ),
+    .ioctl_din   ( ioctl_main ),
     // Status report
     .debug_bus   ( debug_bus  ),
     .st_addr     ( debug_bus  ),
@@ -312,6 +314,9 @@ jts18_video u_video(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
+    // IOCTL Dump
+    .ioctl_addr  ( ioctl_addr[3:0] ),
+    .ioctl_din   ( ioctl_vid  ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_addr    ( debug_bus ),
