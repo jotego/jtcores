@@ -6,7 +6,7 @@ main(){
 	REST="rest.bin"
 
 	refresh_sdram
-	get_main_mmr
+	get_main
 	substitute_64k_in_sdram
 	get_vdp
 	obtain_mmr_hex
@@ -24,8 +24,8 @@ get_vdp(){
 	dd if=$REST of=vdp.bin bs=1 count=$SIZE skip=$SIZE conv=notrunc
 }
 
-get_main_mmr(){
-	tail --bytes 8 $REST > main_mmr.bin
+get_main(){
+	tail --bytes 18 $REST > main.bin
 }
 
 obtain_mmr_hex(){

@@ -35,7 +35,7 @@ wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 // SDRAM interface
 wire        vram_cs, ram_cs;
 // IOCTL dump
-wire [ 7:0] ioctl_main, ioctl_vdp;
+wire [ 7:0] ioctl_main, ioctl_vdp, ioctl_vid;
 
 // CPU interface
 wire [23:1] cpu_addr;
@@ -72,15 +72,15 @@ assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign xram_addr  = main_addr[15:1];
 assign oram_addr  = cpu_addr[10:1];
-assign ioctl_din  = ioctl_addr[17:11]==7'h4D ? ioctl_main : ioctl_vdp;
 // work RAM (non volatile)
 assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
-assign cram_we    = ~dsn & {2{char_cs}};
+assign cram_we    = {2{char_cs&~main_rnw}}& ~dsn;
 assign otbl_we    = {2{otbl_we0}};
 assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
+assign ioctl_din  = ioctl_addr[17:11]==7'h4D ? (ioctl_addr[4] ? ioctl_main : ioctl_vid) : ioctl_vdp;
 
 
 always @(posedge clk) begin
@@ -319,6 +319,7 @@ jts18_video u_video(
     .ioctl_ram  ( ioctl_ram  ),
     .ioctl_addr ( ioctl_addr[15:0] ),
     .ioctl_din  ( ioctl_vdp  ),
+    .ioctl_din   ( ioctl_vid  ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_addr    ( debug_bus ),
