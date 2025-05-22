@@ -123,6 +123,7 @@ module ym7101
 	output vdp_dma_oe_early,
 	output vdp_dma,
 
+	input        ioctl_ram,
 	input  [7:0] ioctl_addr,
 	output [7:0] ioctl_din
 	);
@@ -2233,7 +2234,6 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	reg [55:0] linebuffer_out_0;
 	reg [55:0] linebuffer_out_1;
 	
-	reg [8:0] color_ram[0:63];
 	wire [8:0] color_ram_out;
 	
 	// extra
@@ -6758,42 +6758,35 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 		(w1103[2][16] ? 8'd255 : 8'd0);
 	
 	// color ram
-	
 	wire [5:0] color_ram_index = l617;
-	
 	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
-	
-	always @(posedge MCLK) // remove this block
-	begin
-		if (hclk1) // write cycle
-		begin
-			if (l602)
-				color_ram[color_ram_index][5:0] <= color_ram_data_in[5:0];
-			if (l601)
-				color_ram[color_ram_index][8:6] <= color_ram_data_in[8:6];
-		end
-	end
 
 	wire [15:0] color_dump;
+	wire [ 8:0] color_ram_dp;
+	wire [ 5:0] color_addr;
 	wire [ 1:0] color_ram_we;
+
 	assign color_ram_we = {2{hclk1}} & {l601,l602};
+	assign color_addr   = ioctl_ram ? ioctl_addr[6:1] : l617_dp;
+	always @(posedge MCLK) if(!ioctl_ram) color_ram_out_dp <= color_ram_dp;
+
 	jtframe_dual_ram16_gate #(
 	    .AW(6),.SIMFILE_LO("vdp_col_lo.bin"),.SIMFILE_HI("vdp_col_hi.bin"),.DW1(6),.DW2(3)
 	) u_color_ram(
 	    // Port 0 - Read
-	    .clk0   ( MCLK  ),
-	    .addr0  ( ioctl_addr [6:1]),
-	    .data0  ( 9'h0  ),
-	    .we0    ( 2'd0  ),
-	    .q0_16  ( color_dump ),
-	    .q0     (  ),
+	    .clk0   ( MCLK              ),
+	    .addr0  ( color_addr        ),
+	    .data0  ( 9'h0              ),
+	    .we0    ( 2'd0              ),
+	    .q0_16  ( color_dump        ),
+	    .q0     ( color_ram_dp      ),
 	    // Port 1 - Write
-	    .clk1   ( MCLK  ),
-	    .data1  ( color_ram_data_in  ),
-	    .addr1  ( color_ram_index  ),
-	    .we1    (  color_ram_we    ),
-	    .q1_16  (        ),
-	    .q1     (  color_ram_out  )
+	    .clk1   ( MCLK              ),
+	    .data1  ( color_ram_data_in ),
+	    .addr1  ( color_ram_index   ),
+	    .we1    ( color_ram_we      ),
+	    .q1_16  (                   ),
+	    .q1     ( color_ram_out     )
 	);
 	
 	// PSG block
@@ -7264,8 +7257,6 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	
 	assign w1076_dp = { color_pal, color_index };
 	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617_dp(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w1076_dp), .data_out(l617_dp));
-	
-	always @(posedge MCLK) color_ram_out_dp <= color_ram[l617_dp];
 	
 	assign vdp_dma_oe_early = reg_8b_b6 ?
 		(io_m1_dff2_l2 | w15 | w28 | w30 | w102) :
