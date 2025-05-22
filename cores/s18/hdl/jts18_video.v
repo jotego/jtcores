@@ -99,8 +99,10 @@ module jts18_video(
     output     [ 7:0]  blue,
 
     // IOCTL dump
-    input      [ 3:0] ioctl_addr,
+    input             ioctl_ram,
+    input      [16:0] ioctl_addr,
     output     [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_vdp,
     // Debug
     input      [ 3:0]  gfx_en,
     input      [ 7:0]  debug_bus,
@@ -172,7 +174,7 @@ assign LHBL = scr_lhbl;
 //     end
 // end
 `ifndef JTFRAME_RELEASE
-jts18_video_mmr #(.SIMFILE("main.bin")) u_tilebanks(
+jts18_video_mmr #(.SIMFILE("regs.bin"),.SEEK(32)) u_tilebanks(
     .rst       ( rst           ),
     .clk       ( clk48         ),
     .cs        ( bank_cs       ),
@@ -307,8 +309,8 @@ jts18_vdp u_vdp(
     .video_en   ( vdp_on    ),
     // IOCTL Dump
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[15:0] ),
-    .ioctl_din  ( ioctl_din ),
+    .ioctl_addr ( ioctl_addr[16:0] ),
+    .ioctl_din  ( ioctl_vdp ),
     // debug
     .debug_bus  ( 8'b0/*debug_bus*/ ),
     .st_dout    ( st_vdp    )

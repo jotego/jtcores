@@ -32,4 +32,7 @@ jtframe:
   - from: debug
     get:
       - jtframe_simdumper.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16_gate.v
 jt12:

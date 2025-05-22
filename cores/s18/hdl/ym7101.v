@@ -121,8 +121,21 @@ module ym7101
 	output vdp_hsync2,
 	input  vdp_cramdot_dis,
 	output vdp_dma_oe_early,
-	output vdp_dma
+	output vdp_dma,
+
+	input  [7:0] ioctl_addr,
+	output [7:0] ioctl_din
 	);
+
+localparam DW=236; // 256 bits - 32 bytes
+wire [7:0] regs_dump;
+jtframe_simdumper #(.DW(DW),.SIMFILE("regs.bin")) dumper(
+    .clk        ( MCLK           ),
+    .data       ( {reg_data_l2,reg_8b_b4,reg_8b_b5,reg_8b_b6,reg_8b_b7,reg_8c_b4,reg_8c_b5,reg_8c_b6, reg_8e_b0,reg_8e_b4, reg_80_b0,reg_80_b2,reg_80_b3,reg_80_b6,reg_80_b7,reg_81_b0,reg_81_b1,reg_81_b7, reg_86_b2,reg_86_b5, reg_88, reg_addr, reg_at, reg_code, reg_col_b6,reg_col_b7, reg_col_index,reg_col_pal, reg_disp,reg_dmd,reg_down, reg_hit,reg_hs,reg_hscr,reg_hsz, reg_ie0,reg_ie1,reg_ie2, reg_inc,reg_lcb,reg_lg,reg_lg_of, reg_lscr,reg_lsm0,reg_lsm0_latch,reg_lsm1,reg_lsm1_latch, reg_m1,reg_m2,reg_m3,reg_m5, reg_nt,reg_rigt,reg_rs0,reg_rs1, reg_sa,reg_sa_high,reg_sa_low,reg_sa_of, reg_sb,reg_ste,reg_test0,reg_test1,reg_test_18, reg_vscr,reg_vsz,reg_wd,reg_whp,reg_wvp} ),
+    .ioctl_addr ( ioctl_addr[4:0] ),
+    .ioctl_din  ( regs_dump     )
+);
+assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] : color_dump[7:0];
 
 	wire cpu_sel;
 	wire cpu_as;
@@ -2221,7 +2234,7 @@ module ym7101
 	reg [55:0] linebuffer_out_1;
 	
 	reg [8:0] color_ram[0:63];
-	reg [8:0] color_ram_out;
+	wire [8:0] color_ram_out;
 	
 	// extra
 	wire [5:0] w1076_dp;
@@ -3361,7 +3374,6 @@ module ym7101
 	
 	ym7101_dff #(.DATA_WIDTH(3)) reg_data_2(.MCLK(MCLK), .clk(~w181), .inp(reg_data_mux[16:14]),
 		.rst(w204), .outp(reg_data_l2[16:14]));
-	
 	ym_slatch sl_80_b0(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[0]), .val(reg_80_b0));
 	ym_slatch sl_m3(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[1]), .val(reg_m3));
 	ym_slatch sl_80_b2(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[2]), .val(reg_80_b2));
@@ -6529,11 +6541,11 @@ module ym7101
 	assign w1099 = l622[3] & l624 & reg_m5;
 	assign w1100 = l622[0] & l624 & reg_m5;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr626(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1090, w1089, w1100 }), .data_out(l626));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr626(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1090, w1089, w1100 }), .data_out(l626)); // red
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr627(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1092, w1091, w1099 }), .data_out(l627));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr627(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1092, w1091, w1099 }), .data_out(l627)); // green
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr628(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1094, w1093, w1098 }), .data_out(l628));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr628(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1094, w1093, w1098 }), .data_out(l628)); // blue
 	
 	ym_sr_bit sr629(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l610), .sr_out(l629));
 	
@@ -6751,7 +6763,7 @@ module ym7101
 	
 	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
 	
-	always @(posedge MCLK)
+	always @(posedge MCLK) // remove this block
 	begin
 		if (hclk1) // write cycle
 		begin
@@ -6760,8 +6772,29 @@ module ym7101
 			if (l601)
 				color_ram[color_ram_index][8:6] <= color_ram_data_in[8:6];
 		end
-		color_ram_out <= color_ram[color_ram_index];
 	end
+
+	wire [15:0] color_dump;
+	wire [ 1:0] color_ram_we;
+	assign color_ram_we = {2{hclk1}} & {l601,l602};
+	jtframe_dual_ram16_gate #(
+	    .AW(6),.SIMFILE_LO("vdp_col_lo.bin"),.SIMFILE_HI("vdp_col_hi.bin"),.DW1(6),.DW2(3)
+	) u_color_ram(
+	    // Port 0 - Read
+	    .clk0   ( MCLK  ),
+	    .addr0  ( ioctl_addr [6:1]),
+	    .data0  ( 9'h0  ),
+	    .we0    ( 2'd0  ),
+	    .q0_16  ( color_dump ),
+	    .q0     (  ),
+	    // Port 1 - Write
+	    .clk1   ( MCLK  ),
+	    .data1  ( color_ram_data_in  ),
+	    .addr1  ( color_ram_index  ),
+	    .we1    (  color_ram_we    ),
+	    .q1_16  (        ),
+	    .q1     (  color_ram_out  )
+	);
 	
 	// PSG block
 	

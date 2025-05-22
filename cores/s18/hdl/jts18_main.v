@@ -583,7 +583,7 @@ jtframe_m68k u_cpu(
     assign  sndmap_pbf  = 0;
     assign  st_dout     = 0;
 `endif
-jtframe_simdumper #(.DW(15),.SIMFILE("main.bin"),.SEEK(16)) dumper(
+jtframe_simdumper #(.DW(15),.SIMFILE("regs.bin"),.SEEK(48)) dumper(
     .clk        ( clk           ),
     .data       ( {tile_bank,flip,gray_n,vdp_prio,vdp_en,vid16_en} ),
     .ioctl_addr ( ioctl_addr[0] ),
