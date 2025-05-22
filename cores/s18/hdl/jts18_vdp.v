@@ -221,8 +221,9 @@ ym7101 u_vdp(
     .vdp_de_h   ( hde       ),
     .vdp_de_v   ( vde       ),
     // IOCTL Dump
+    .ioctl_ram  ( ioctl_ram ),
     .ioctl_addr ( ioctl_addr[7:0] ),
-    .ioctl_din  ( ioctl_vdp  )
+    .ioctl_din  ( ioctl_vdp )
 );
 
 vram u_vram(
