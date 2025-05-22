@@ -47,7 +47,7 @@ module jts18_vdp(
     output      [ 7:0] blue,
     // IOCTL dump
     input              ioctl_ram,
-    input       [15:0] ioctl_addr,
+    input       [16:0] ioctl_addr,
     output      [ 7:0] ioctl_din,
     // Debug
     input       [ 7:0] debug_bus,
@@ -60,6 +60,7 @@ wire        ras0, cas0, ras1, cas1, we0, we1, CLK1_o, SPA_B_pull,
             CSYNC_pull, HSYNC_pull, dtack_pull;
 wire [ 7:0] vram_dout, vram1_AD_o, vram1_SD_o,
             RD, AD, SD, ym_RD_o, ym_AD_o;
+wire [ 7:0] ioctl_vram,ioctl_vdp;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
 wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, nc2, slow,
@@ -73,6 +74,7 @@ reg         rnw_r, asn_r;
 reg  [ 1:0] dsn_r;
 initial st_dout = 0;
 
+assign ioctl_din = ioctl_addr[16] ? ioctl_vdp : ioctl_vram;
 assign vs     = ~vs_n;
 assign spa_b  = ~SPA_B_pull;
 assign CD     = CD_d ? din : dout;
@@ -217,7 +219,10 @@ ym7101 u_vdp(
     .vdp_hsync2 ( hs        ), // hsync without 'fast' lines in vblank
     .vdp_vsync2 ( vs_n      ), // vsync regardless of test bit
     .vdp_de_h   ( hde       ),
-    .vdp_de_v   ( vde       )
+    .vdp_de_v   ( vde       ),
+    // IOCTL Dump
+    .ioctl_addr ( ioctl_addr[7:0] ),
+    .ioctl_din  ( ioctl_vdp  )
 );
 
 vram u_vram(
@@ -237,7 +242,7 @@ vram u_vram(
     // IOCTL Dump
     .ioctl_ram  ( ioctl_ram  ),
     .ioctl_addr ( ioctl_addr[15:0] ),
-    .ioctl_din  ( ioctl_din  )
+    .ioctl_din  ( ioctl_vram )
 );
 /* verilator lint_on PINMISSING */
 

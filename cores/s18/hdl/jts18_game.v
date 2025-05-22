@@ -36,7 +36,8 @@ wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
 wire        vram_cs, ram_cs;
 // IOCTL dump
 wire [ 7:0] ioctl_main, ioctl_vdp, ioctl_vid;
-
+wire [17:0] ioctl_addr_of;
+localparam DUMP_OFFSET = `ifdef DUMP_OFFSET `DUMP_OFFSET `else 0 `endif;
 // CPU interface
 wire [23:1] cpu_addr;
 wire [15:0] vdp_dout;
@@ -80,8 +81,8 @@ assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 assign cram_we    = {2{char_cs&~main_rnw}}& ~dsn;
 assign otbl_we    = {2{otbl_we0}};
 assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
-assign ioctl_din  = ioctl_addr[17:11]==7'h4D ? (ioctl_addr[4] ? ioctl_main : ioctl_vid) : ioctl_vdp;
-
+assign ioctl_din  = ioctl_addr_of[16]&ioctl_addr_of[7]&ioctl_addr_of[5] ? (ioctl_addr_of[4] ? ioctl_main : ioctl_vid) : ioctl_vdp;
+assign ioctl_addr_of = ioctl_addr[17:0] - DUMP_OFFSET[17:0];
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -191,7 +192,7 @@ jts18_main u_main(
     .dip_test    ( dip_test   ),
     .dipsw       ( dipsw[15:0]),
     // IOCTL Dump
-    .ioctl_addr  ( ioctl_addr[2:0] ),
+    .ioctl_addr  ( ioctl_addr_of[2:0] ),
     .ioctl_din   ( ioctl_main ),
     // Status report
     .debug_bus   ( debug_bus  ),
@@ -317,9 +318,9 @@ jts18_video u_video(
     .blue       ( blue      ),
     // IOCTL Dump
     .ioctl_ram  ( ioctl_ram  ),
-    .ioctl_addr ( ioctl_addr[15:0] ),
-    .ioctl_din  ( ioctl_vdp  ),
-    .ioctl_din   ( ioctl_vid  ),
+    .ioctl_addr ( ioctl_addr_of[16:0] ),
+    .ioctl_vdp  ( ioctl_vdp  ),
+    .ioctl_din  ( ioctl_vid  ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_addr    ( debug_bus ),
