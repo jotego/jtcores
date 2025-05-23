@@ -1,5 +1,4 @@
 #!/bin/bash -e
-
 main(){
 	VRAM_OFFSET=$((0x200000))
 	SIZE=$((0x10000)) # 64 KiB
@@ -20,20 +19,18 @@ refresh_sdram(){
 }
 
 substitute_64k_in_sdram(){
-	dd if=$REST of=sdram_bank0.bin bs=1 count=$SIZE seek=$VRAM_OFFSET conv=notrunc
-	SKIP=$((SKIP+SIZE))
+	parse_file sdram_bank0.bin "$SIZE" --seek "$VRAM_OFFSET"
 }
 
 get_vdp(){
-	dd if=$REST of=vdp.bin bs=1 count=$SIZE skip=$SKIP conv=notrunc
-	SKIP=$((SKIP+SIZE))
+	parse_file vdp.bin "$SIZE"
 }
 
 get_vdp_mem(){
-	dd if=$REST of=vdp_col.bin  bs=1 count=128 skip=$SKIP conv=notrunc; SKIP=$((SKIP+128))
-	dd if=$REST of=vdp_spr0.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
-	dd if=$REST of=vdp_spr1.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
-	dd if=$REST of=vdp_spr2.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
+	parse_file vdp_col.bin  128
+	parse_file vdp_spr0.bin  64
+	parse_file vdp_spr1.bin  64
+	parse_file vdp_spr2.bin  64
 	divide_files_hi_lo
 }
 
@@ -57,6 +54,48 @@ divide_files_hi_lo(){
 
 	jtutil drop1    < vdp_spr2.bin > spr2_hi.bin
 	jtutil drop1 -l < vdp_spr2.bin > spr2_lo.bin
+}
+
+parse_file(){
+	# Declare variables
+	OF=$1; 	  shift
+	COUNT=$1; shift
+	OTHER=
+	SEEK=
+	SKIP_UPDATE=1
+
+	parse_args $*
+	dd if=$REST of="$OF" bs=1 count=$COUNT conv=notrunc $OTHER
+	update_skip
+}
+
+update_skip(){
+	if [[ "$SKIP_UPDATE" == 1 ]]; then
+		SKIP=$((SKIP + COUNT))
+	fi
+}
+parse_args(){
+	while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --seek)
+				shift
+                SEEK=$1
+                ;;
+            --no-skip)
+                SKIP_UPDATE=0
+                ;;
+            *)
+                OTHER+=" $1"
+                ;;
+        esac
+        shift
+    done
+
+	if [[ ! -z $SEEK ]]; then
+		OTHER+=" seek=$SEEK"
+	else
+		OTHER+=" skip=$SKIP"
+	fi
 }
 
 main $*
