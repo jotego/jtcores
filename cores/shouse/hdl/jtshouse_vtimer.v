@@ -29,8 +29,8 @@ module jtshouse_vtimer(
 jtframe_vtimer #(
     .HCNT_START ( 9'h000    ),
     .HCNT_END   ( 9'h17F    ),
-    .HB_START   ( 9'h160    ), // 288 visible, 384 total (96 pxl=HB)
-    .HB_END     ( 9'h040    ), // Fixed layer is mapped for a counter that leaves blanking at $40
+    .HB_START   ( HB_START  ), // 288 visible, 384 total (96 pxl=HB)
+    .HB_END     ( HB_END    ), // Fixed layer is mapped for a counter that leaves blanking at $40
     .HS_START   ( HS_START  ), // HS starts 32 pixels after HB
     .HS_END     ( HS_END    ), // 32 pixel wide
 

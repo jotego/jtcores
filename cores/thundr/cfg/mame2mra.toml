@@ -1,5 +1,6 @@
 [parse]
 sourcefile=[ "namcos86.cpp" ]
+debug={machines=["roishtar","genpeitd"]}
 
 [buttons]
 names=[

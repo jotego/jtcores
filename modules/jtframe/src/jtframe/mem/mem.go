@@ -165,7 +165,8 @@ func Parse_file(core, filename string, cfg *MemConfig) bool {
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
 			switch each.Gfx {
-				case "", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx": break
+				case "", "hvvv", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx",
+					 "vhhvvv","vhhvvvx","vhhvvvxx": break
 				default: {
 					fmt.Printf("Unsupported gfx_sort %s\n", each.Gfx)
 					return false
@@ -773,6 +774,8 @@ func fill_gfx_sort( cfg *MemConfig ) {
 			return "0;",0
 		}
 	}
-	cfg.Gfx8, cfg.Gfx8b0  = make_gfx("hhvvv")
-	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
+	cfg.Gfx4,  cfg.Gfx8b0  = make_gfx("hvvv")
+	cfg.Gfx8,  cfg.Gfx8b0  = make_gfx("hhvvv")
+	cfg.Gfx16, cfg.Gfx16b0 = make_gfx("hhvvvv")
+	cfg.Gfx16b,cfg.Gfx16b0 = make_gfx("vhhvvv")
 }

@@ -215,8 +215,9 @@ type MemConfig struct {
     Unused   [4]bool // true for unused banks
     // Derived information
     Ioctl    Ioctl
+    Gfx4     string
     Gfx8     string
-    Gfx16    string
+    Gfx16, Gfx16b string
     Gfx8b0, Gfx16b0 int
     Balut,Lutsh int
 }
