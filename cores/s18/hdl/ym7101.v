@@ -124,7 +124,7 @@ module ym7101
 	output vdp_dma,
 
 	input        ioctl_ram,
-	input  [7:0] ioctl_addr,
+	input  [8:0] ioctl_addr,
 	output [7:0] ioctl_din
 	);
 
@@ -136,7 +136,8 @@ jtframe_simdumper #(.DW(DW),.SIMFILE("regs.bin")) dumper(
     .ioctl_addr ( ioctl_addr[4:0] ),
     .ioctl_din  ( regs_dump     )
 );
-assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] : color_dump[7:0];
+assign ioctl_din = 	ioctl_addr >= 9'h140 ? regs_dump  :
+					ioctl_addr >= 9'h80  ? spr_dump   : color_dump;
 
 	wire cpu_sel;
 	wire cpu_as;
@@ -2224,7 +2225,6 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	reg [20:0] sat_out_2;
 	reg [20:0] sat_out_3;
 	
-	reg [33:0] sprdata[0:19];
 	reg [33:0] sprdata_out;
 	reg [33:0] sprdata_out_0;
 	reg [33:0] sprdata_out_1;
@@ -6052,33 +6052,89 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	assign sprdata_ys_o = sprdata_out[27:26];
 	assign sprdata_yoffset_o = sprdata_out[33:28];
 	
-	always @(posedge MCLK)
-	begin
-		if (sprdata_index < 5'd20)
-		begin
-			if (hclk1) // write cycle
-			begin
-				if (w712)
-					sprdata[sprdata_index][10:0] <= sprdata_in[10:0];
-				if (w715)
-					sprdata[sprdata_index][19:11] <= sprdata_in[19:11];
-				if (w709)
-					sprdata[sprdata_index][33:20] <= sprdata_in[33:20];
-			end
-			sprdata_out <= sprdata[sprdata_index];
-			if (sprdata_index[0])
-				sprdata_out_1 <= sprdata[sprdata_index];
-			else
-				sprdata_out_0 <= sprdata[sprdata_index];
-		end
+always @(posedge MCLK) begin
+	sprdata_out_1_l <= sprdata_out_1;
+	sprdata_out_0_l <= sprdata_out_0;
+	if (sprdata_index[0])
+		sprdata_out_latch <= sprdata_out & sprdata_out_1;
+	else
+		sprdata_out_latch <= sprdata_out & sprdata_out_0;
+end
+
+reg  [33:0] sprdata_out_latch, sprdata_out_1_l,sprdata_out_0_l;
+reg  [ 2:0] spr_we;
+wire [33:0] sprdata_out_pre;
+wire [15:0] spr_q0, spr_q1, spr_q2, spr_dump0, spr_dump1, spr_dump2, spr_dump16;
+wire [ 7:0] spr_dump;
+
+assign sprdata_out_pre = {spr_q2[13:0], spr_q1[8:0], spr_q0[10:0]};
+assign spr_dump16      = ioctl_addr[7] ? spr_dump2 : ioctl_addr[6] ? spr_dump1 : spr_dump0;
+assign spr_dump        = ioctl_addr[0] ? spr_dump16[15:8] : spr_dump16[7:0];
+
+always @(*) begin
+	spr_we      = 0;
+	sprdata_out = sprdata_out_latch;
+	sprdata_out_1 = sprdata_out_1_l;
+	sprdata_out_0 = sprdata_out_0_l;
+
+	if(sprdata_index < 5'd20) begin
+		spr_we      = {3{hclk1}} & {w709, w715, w712};
+		sprdata_out = sprdata_out_pre;
+		if(sprdata_index[0])
+			sprdata_out_1 = sprdata_out_pre;
 		else
-		begin
-			if (sprdata_index[0])
-				sprdata_out <= sprdata_out & sprdata_out_1;
-			else
-				sprdata_out <= sprdata_out & sprdata_out_0;
-		end
+			sprdata_out_0 = sprdata_out_pre;
 	end
+end
+
+jtframe_dual_ram16 #(
+    .AW(5),.SIMFILE_HI("spr0_hi.bin"),.SIMFILE_LO ("spr0_hi.bin")
+)u_spr_ram0(
+    .clk0       ( MCLK                     ),
+    .clk1       ( MCLK                     ),
+    // Port 0  - Read & Write
+    .data0      ( {5'b0,sprdata_in[10:0]}  ),
+    .addr0      ( sprdata_index            ),
+    .we0        ( {2{spr_we[0]}}           ),
+    .q0         ( spr_q0                   ),
+    // Port 1  - Dump
+    .data1      ( 16'b0                    ),
+    .addr1      ( ioctl_addr[5:1]          ),
+    .we1        ( 2'b0                     ),
+    .q1         ( spr_dump0                )
+);
+jtframe_dual_ram16 #(
+    .AW(5),.SIMFILE_HI("spr1_hi.bin"),.SIMFILE_LO ("spr1_hi.bin")
+)u_spr_ram1(
+    .clk0       ( MCLK                     ),
+    .clk1       ( MCLK                     ),
+    // Port 0  - Read & Write
+    .data0      ( {7'b0,sprdata_in[19:11]} ),
+    .addr0      ( sprdata_index            ),
+    .we0        ( {2{spr_we[1]}}           ),
+    .q0         ( spr_q1                   ),
+    // Port 1  - Dump
+    .data1      ( 16'b0                    ),
+    .addr1      ( ioctl_addr[5:1]          ),
+    .we1        ( 2'b0                     ),
+    .q1         ( spr_dump1                )
+);
+jtframe_dual_ram16 #(
+    .AW(5),.SIMFILE_HI("spr2_hi.bin"),.SIMFILE_LO ("spr2_hi.bin")
+)u_spr_ram2(
+    .clk0       ( MCLK                     ),
+    .clk1       ( MCLK                     ),
+    // Port 0  - Read & Write
+    .data0      ( {2'b0,sprdata_in[33:20]} ),
+    .addr0      ( sprdata_index            ),
+    .we0        ( {2{spr_we[2]}}           ),
+    .q0         ( spr_q2                   ),
+    // Port 1  - Dump
+    .data1      ( 16'b0                    ),
+    .addr1      ( ioctl_addr[5:1]          ),
+    .we1        ( 2'b0                     ),
+    .q1         ( spr_dump2                )
+);
 	
 	// linebuffer
 	
@@ -6761,13 +6817,15 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	wire [5:0] color_ram_index = l617;
 	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
 
-	wire [15:0] color_dump;
+	wire [15:0] color_dump16;
+	wire [ 7:0] color_dump;
 	wire [ 8:0] color_ram_dp;
 	wire [ 5:0] color_addr;
 	wire [ 1:0] color_ram_we;
 
 	assign color_ram_we = {2{hclk1}} & {l601,l602};
-	assign color_addr   = ioctl_ram ? ioctl_addr[6:1] : l617_dp;
+	assign color_addr   = ioctl_ram     ? ioctl_addr[6:1]    : l617_dp;
+	assign color_dump   = ioctl_addr[0] ? color_dump16[15:8] : color_dump16[7:0];
 	always @(posedge MCLK) if(!ioctl_ram) color_ram_out_dp <= color_ram_dp;
 
 	jtframe_dual_ram16_gate #(
@@ -6778,7 +6836,7 @@ assign ioctl_din = ioctl_addr[7] ? regs_dump : ioctl_addr[0] ? color_dump[15:8] 
 	    .addr0  ( color_addr        ),
 	    .data0  ( 9'h0              ),
 	    .we0    ( 2'd0              ),
-	    .q0_16  ( color_dump        ),
+	    .q0_16  ( color_dump16      ),
 	    .q0     ( color_ram_dp      ),
 	    // Port 1 - Write
 	    .clk1   ( MCLK              ),
