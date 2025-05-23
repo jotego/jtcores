@@ -30,9 +30,11 @@ get_vdp(){
 }
 
 get_vdp_mem(){
-	dd if=$REST of=vdp_col.bin bs=1 count=128 skip=$SKIP conv=notrunc
-	jtutil drop1    < vdp_col.bin > vdp_col_hi.bin
-	jtutil drop1 -l < vdp_col.bin > vdp_col_lo.bin
+	dd if=$REST of=vdp_col.bin  bs=1 count=128 skip=$SKIP conv=notrunc; SKIP=$((SKIP+128))
+	dd if=$REST of=vdp_spr0.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
+	dd if=$REST of=vdp_spr1.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
+	dd if=$REST of=vdp_spr2.bin bs=1 count=64  skip=$SKIP conv=notrunc; SKIP=$((SKIP+64 ))
+	divide_files_hi_lo
 }
 
 get_regs(){
@@ -41,6 +43,20 @@ get_regs(){
 
 obtain_mmr_hex(){
 	tail --bytes 512 cscn.bin | hexdump -v -e '/2 "%04X\n"' > mmr.hex
+}
+
+divide_files_hi_lo(){
+	jtutil drop1    < vdp_col.bin  > vdp_col_hi.bin
+	jtutil drop1 -l < vdp_col.bin  > vdp_col_lo.bin
+
+	jtutil drop1    < vdp_spr0.bin > spr0_hi.bin
+	jtutil drop1 -l < vdp_spr0.bin > spr0_lo.bin
+
+	jtutil drop1    < vdp_spr1.bin > spr1_hi.bin
+	jtutil drop1 -l < vdp_spr1.bin > spr1_lo.bin
+
+	jtutil drop1    < vdp_spr2.bin > spr2_hi.bin
+	jtutil drop1 -l < vdp_spr2.bin > spr2_lo.bin
 }
 
 main $*
