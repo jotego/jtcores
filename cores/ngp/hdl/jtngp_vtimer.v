@@ -85,7 +85,7 @@ always @(posedge clk) begin
                     LVBL <= 1;
                     hcmp <= hcmp+9'd1;
                 end
-                if( vdump==180 )
+                if( vdump==179 )
                     VS <= 1;
                 else if( vdump==183 )
                     VS <= 0;
