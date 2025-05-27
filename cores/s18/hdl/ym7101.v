@@ -136,7 +136,8 @@ jtframe_simdumper #(.DW(DW),.SIMFILE("regs.bin")) dumper(
     .ioctl_addr ( ioctl_addr[4:0] ),
     .ioctl_din  ( regs_dump     )
 );
-assign ioctl_din = 	ioctl_addr >= 9'h140 ? regs_dump  :
+assign ioctl_din = 	ioctl_addr >= 9'h1C0 ? regs_dump  :
+					ioctl_addr >= 9'h140 ? vsr_dump   :
 					ioctl_addr >= 9'h80  ? spr_dump   : color_dump;
 
 	wire cpu_sel;
@@ -2213,7 +2214,6 @@ assign ioctl_din = 	ioctl_addr >= 9'h140 ? regs_dump  :
 	wire color_priority;
 	wire [1:0] color_pal;
 	
-	reg [10:0] vsram[0:39];
 	reg [10:0] vsram_out;
 	reg [10:0] vsram_out_0;
 	reg [10:0] vsram_out_1;
@@ -4760,33 +4760,58 @@ assign ioctl_din = 	ioctl_addr >= 9'h140 ? regs_dump  :
 	
 	// vsram
 	
-	wire [5:0] vsram_index = l212;
-	
-	always @(posedge MCLK)
-	begin
-		if (vsram_index < 6'd40)
-		begin
-			if (hclk1) // write cycle
-			begin
-				if (l211)
-					vsram[vsram_index][7:0] <= l181[7:0];
-				if (l210)
-					vsram[vsram_index][10:8] <= l181[10:8];
-			end
-			vsram_out <= vsram[vsram_index];
-			if (vsram_index[0])
-				vsram_out_1 <= vsram[vsram_index];
-			else
-				vsram_out_0 <= vsram[vsram_index];
-		end
+
+always @(posedge MCLK) begin
+	vsram_out_1_l <= vsram_out_1;
+	vsram_out_0_l <= vsram_out_0;
+	if (vsram_index[0])
+		vsram_out_latch <= vsram_out & vsram_out_1;
+	else
+		vsram_out_latch <= vsram_out & vsram_out_0;
+end
+
+reg  [10:0] vsram_out_latch, vsram_out_1_l,vsram_out_0_l;
+reg  [ 1:0] vsram_we;
+wire [15:0] vsram_out_pre, vsram_in, vsr_dump16;
+wire [ 7:0] vsr_dump;
+wire [ 5:0] vsram_index = l212;
+
+assign vsr_dump = ioctl_addr[0] ? vsr_dump16[7:0] : vsr_dump16[15:8];
+assign vsram_in = {5'b0,l181};
+
+always @(*) begin
+	vsram_we    = 0;
+	vsram_out   = vsram_out_latch;
+	vsram_out_1 = vsram_out_1_l;
+	vsram_out_0 = vsram_out_0_l;
+
+	if(vsram_index < 6'd40) begin
+		vsram_we  = {2{hclk1}} & {l210, l211};
+		vsram_out = vsram_out_pre[10:0];
+		if(vsram_index[0])
+			vsram_out_1 = vsram_out_pre[10:0];
 		else
-		begin
-			if (vsram_index[0])
-				vsram_out <= vsram_out & vsram_out_1;
-			else
-				vsram_out <= vsram_out & vsram_out_0;
-		end
+			vsram_out_0 = vsram_out_pre[10:0];
 	end
+end
+
+
+jtframe_dual_ram16 #(
+    .AW(6),.SIMFILE_HI("vsram_hi.bin"),.SIMFILE_LO ("vsram_lo.bin")
+)u_vsram(
+    .clk0       ( MCLK                     ),
+    .clk1       ( MCLK                     ),
+    // Port 0  - Read & Write
+    .data0      ( vsram_in                 ),
+    .addr0      ( vsram_index              ),
+    .we0        ( vsram_we                 ),
+    .q0         ( vsram_out_pre            ),
+    // Port 1  - Dump
+    .data1      ( 16'b0                    ),
+    .addr1      ( ioctl_addr[6:1]          ),
+    .we1        ( 2'b0                     ),
+    .q1         ( vsr_dump16               )
+);
 	
 	
 	// Sprite block
@@ -6088,7 +6113,7 @@ always @(*) begin
 end
 
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr0_hi.bin"),.SIMFILE_LO ("spr0_hi.bin")
+    .AW(5),.SIMFILE_HI("spr0_hi.bin"),.SIMFILE_LO ("spr0_lo.bin")
 )u_spr_ram0(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),
@@ -6104,7 +6129,7 @@ jtframe_dual_ram16 #(
     .q1         ( spr_dump0                )
 );
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr1_hi.bin"),.SIMFILE_LO ("spr1_hi.bin")
+    .AW(5),.SIMFILE_HI("spr1_hi.bin"),.SIMFILE_LO ("spr1_lo.bin")
 )u_spr_ram1(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),
@@ -6120,7 +6145,7 @@ jtframe_dual_ram16 #(
     .q1         ( spr_dump1                )
 );
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr2_hi.bin"),.SIMFILE_LO ("spr2_hi.bin")
+    .AW(5),.SIMFILE_HI("spr2_hi.bin"),.SIMFILE_LO ("spr2_lo.bin")
 )u_spr_ram2(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),

@@ -31,6 +31,7 @@ get_vdp_mem(){
 	parse_file vdp_spr0.bin  64
 	parse_file vdp_spr1.bin  64
 	parse_file vdp_spr2.bin  64
+	parse_file vdp_vsram.bin 128
 	divide_files_hi_lo
 }
 
@@ -54,6 +55,9 @@ divide_files_hi_lo(){
 
 	jtutil drop1    < vdp_spr2.bin > spr2_hi.bin
 	jtutil drop1 -l < vdp_spr2.bin > spr2_lo.bin
+
+	jtutil drop1    < vdp_vsram.bin > vsram_hi.bin
+	jtutil drop1 -l < vdp_vsram.bin > vsram_lo.bin
 }
 
 parse_file(){
