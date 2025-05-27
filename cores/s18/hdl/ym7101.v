@@ -4797,7 +4797,7 @@ end
 
 
 jtframe_dual_ram16 #(
-    .AW(6),.SIMFILE_HI("vsram_hi.bin"),.SIMFILE_LO ("vsram_lo.bin")
+    .AW(6),.SIMFILE_HI("vdp_vsram_hi.bin"),.SIMFILE_LO ("vdp_vsram_lo.bin")
 )u_vsram(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),
@@ -6113,7 +6113,7 @@ always @(*) begin
 end
 
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr0_hi.bin"),.SIMFILE_LO ("spr0_lo.bin")
+    .AW(5),.SIMFILE_HI("vdp_spr0_hi.bin"),.SIMFILE_LO ("vdp_spr0_lo.bin")
 )u_spr_ram0(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),
@@ -6129,7 +6129,7 @@ jtframe_dual_ram16 #(
     .q1         ( spr_dump0                )
 );
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr1_hi.bin"),.SIMFILE_LO ("spr1_lo.bin")
+    .AW(5),.SIMFILE_HI("vdp_spr1_hi.bin"),.SIMFILE_LO ("vdp_spr1_lo.bin")
 )u_spr_ram1(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),
@@ -6145,7 +6145,7 @@ jtframe_dual_ram16 #(
     .q1         ( spr_dump1                )
 );
 jtframe_dual_ram16 #(
-    .AW(5),.SIMFILE_HI("spr2_hi.bin"),.SIMFILE_LO ("spr2_lo.bin")
+    .AW(5),.SIMFILE_HI("vdp_spr2_hi.bin"),.SIMFILE_LO ("vdp_spr2_lo.bin")
 )u_spr_ram2(
     .clk0       ( MCLK                     ),
     .clk1       ( MCLK                     ),

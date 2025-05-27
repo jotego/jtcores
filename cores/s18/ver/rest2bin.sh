@@ -19,20 +19,19 @@ refresh_sdram(){
 }
 
 substitute_64k_in_sdram(){
-	parse_file sdram_bank0.bin "$SIZE" --seek "$VRAM_OFFSET"
+	parse_file sdram_bank0 "$SIZE" --seek "$VRAM_OFFSET"
 }
 
 get_vdp(){
-	parse_file vdp.bin "$SIZE"
+	parse_file vdp "$SIZE"
 }
 
 get_vdp_mem(){
-	parse_file vdp_col.bin  128
-	parse_file vdp_spr0.bin  64
-	parse_file vdp_spr1.bin  64
-	parse_file vdp_spr2.bin  64
-	parse_file vdp_vsram.bin 128
-	divide_files_hi_lo
+	parse_file vdp_col   128 --hilo
+	parse_file vdp_spr0   64 --hilo
+	parse_file vdp_spr1   64 --hilo
+	parse_file vdp_spr2   64 --hilo
+	parse_file vdp_vsram 128 --hilo
 }
 
 get_regs(){
@@ -43,41 +42,24 @@ obtain_mmr_hex(){
 	tail --bytes 512 cscn.bin | hexdump -v -e '/2 "%04X\n"' > mmr.hex
 }
 
-divide_files_hi_lo(){
-	jtutil drop1    < vdp_col.bin  > vdp_col_hi.bin
-	jtutil drop1 -l < vdp_col.bin  > vdp_col_lo.bin
-
-	jtutil drop1    < vdp_spr0.bin > spr0_hi.bin
-	jtutil drop1 -l < vdp_spr0.bin > spr0_lo.bin
-
-	jtutil drop1    < vdp_spr1.bin > spr1_hi.bin
-	jtutil drop1 -l < vdp_spr1.bin > spr1_lo.bin
-
-	jtutil drop1    < vdp_spr2.bin > spr2_hi.bin
-	jtutil drop1 -l < vdp_spr2.bin > spr2_lo.bin
-
-	jtutil drop1    < vdp_vsram.bin > vsram_hi.bin
-	jtutil drop1 -l < vdp_vsram.bin > vsram_lo.bin
+parse_file(){
+	initialize_variables "$1" "$2"
+	shift 2
+	parse_args $*
+	dd if=$REST of="$OF.bin" bs=1 count=$COUNT conv=notrunc $OTHER
+	update_skip
+	divide_files_hi_lo
 }
 
-parse_file(){
-	# Declare variables
-	OF=$1; 	  shift
-	COUNT=$1; shift
-	OTHER=
+initialize_variables(){
+	OF="$1";
+	COUNT="$2";
 	SEEK=
 	SKIP_UPDATE=1
-
-	parse_args $*
-	dd if=$REST of="$OF" bs=1 count=$COUNT conv=notrunc $OTHER
-	update_skip
+	HILO=0
+	OTHER=
 }
 
-update_skip(){
-	if [[ "$SKIP_UPDATE" == 1 ]]; then
-		SKIP=$((SKIP + COUNT))
-	fi
-}
 parse_args(){
 	while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -88,6 +70,9 @@ parse_args(){
             --no-skip)
                 SKIP_UPDATE=0
                 ;;
+            --hilo)
+				HILO=1
+				;;
             *)
                 OTHER+=" $1"
                 ;;
@@ -99,6 +84,19 @@ parse_args(){
 		OTHER+=" seek=$SEEK"
 	else
 		OTHER+=" skip=$SKIP"
+	fi
+}
+
+update_skip(){
+	if [[ "$SKIP_UPDATE" == 1 ]]; then
+		SKIP=$((SKIP + COUNT))
+	fi
+}
+
+divide_files_hi_lo(){
+	if [[ "$HILO" == 1 ]]; then
+		jtutil drop1    < "$OF.bin"  > "${OF}_hi.bin"
+		jtutil drop1 -l < "$OF.bin"  > "${OF}_lo.bin"
 	fi
 }
 
