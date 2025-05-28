@@ -124,7 +124,7 @@ module ym7101
 	output vdp_dma,
 
 	input        ioctl_ram,
-	input  [8:0] ioctl_addr,
+	input  [9:0] ioctl_addr,
 	output [7:0] ioctl_din
 	);
 
@@ -136,9 +136,10 @@ jtframe_simdumper #(.DW(DW),.SIMFILE("regs.bin")) dumper(
     .ioctl_addr ( ioctl_addr[4:0] ),
     .ioctl_din  ( regs_dump     )
 );
-assign ioctl_din = 	ioctl_addr >= 9'h1C0 ? regs_dump  :
-					ioctl_addr >= 9'h140 ? vsr_dump   :
-					ioctl_addr >= 9'h80  ? spr_dump   : color_dump;
+assign ioctl_din = 	ioctl_addr >= 10'h3C0 ? regs_dump  :
+					ioctl_addr >= 10'h300 ? spr_dump   :
+					ioctl_addr >= 10'h280 ? vsr_dump   :
+					ioctl_addr >= 10'h200 ? col_dump   : sat_dump;
 
 	wire cpu_sel;
 	wire cpu_as;
@@ -6024,40 +6025,87 @@ jtframe_dual_ram16 #(
 	assign sat_size = sat_out[10:7];
 	assign sat_ypos = sat_out[20:11];
 	
-	always @(posedge MCLK)
-	begin
-		if (sat_index < 7'd80)
-		begin
-			if (hclk1) // write cycle
-			begin
-				if (w687)
-					sat[sat_index][6:0] <= sat_data_in[6:0];
-				if (w688)
-					sat[sat_index][10:7] <= sat_data_in[10:7];
-				if (w689)
-					sat[sat_index][20:19] <= sat_data_in[20:19];
-				if (w690)
-					sat[sat_index][18:11] <= sat_data_in[18:11];
-			end
-			sat_out <= sat[sat_index];
-			case (sat_index[1:0])
-				2'h0: sat_out_0 <= sat[sat_index];
-				2'h1: sat_out_1 <= sat[sat_index];
-				2'h2: sat_out_2 <= sat[sat_index];
-				2'h3: sat_out_3 <= sat[sat_index];
-			endcase
-		end
-		else
-		begin
-			case (sat_index[1:0])
-				2'h0: sat_out <= sat_out & sat_out_0;
-				2'h1: sat_out <= sat_out & sat_out_1;
-				2'h2: sat_out <= sat_out & sat_out_2;
-				2'h3: sat_out <= sat_out & sat_out_3;
-			endcase
-		end
-	end
+always @(posedge MCLK) begin
+	sat_out_0_l <= sat_out_0;
+	sat_out_1_l <= sat_out_1;
+	sat_out_2_l <= sat_out_2;
+	sat_out_3_l <= sat_out_3;
+	case(sat_index[1:0])
+		2'h0: sat_out_latch <= sat_out & sat_out_0;
+		2'h1: sat_out_latch <= sat_out & sat_out_1;
+		2'h2: sat_out_latch <= sat_out & sat_out_2;
+		2'h3: sat_out_latch <= sat_out & sat_out_3;
+	endcase
+end
 	
+reg  [20:0] sat_out_latch, sat_out_3_l, sat_out_2_l, sat_out_1_l,sat_out_0_l;
+reg  [ 3:0] sat_we;
+wire [20:0] sat_out_pre;
+wire [15:0] sat0_dump16, sat1_dump16;
+wire [ 7:0] sat_dump, sat0_dump, sat1_dump;
+
+assign sat0_dump = ioctl_addr[0] ? sat0_dump16[7:0] : sat0_dump16[15:8];
+assign sat1_dump = ioctl_addr[0] ? sat1_dump16[7:0] : sat1_dump16[15:8];
+assign sat_dump  = ioctl_addr[8] ? sat1_dump        : sat0_dump;
+
+always @(*) begin
+	sat_we    = 0;
+	sat_out   = sat_out_latch;
+	sat_out_0 = sat_out_0_l;
+	sat_out_1 = sat_out_1_l;
+	sat_out_2 = sat_out_2_l;
+	sat_out_3 = sat_out_3_l;
+
+	if(sat_index < 7'd80) begin
+		sat_we  = {4{hclk1}} & {w689, w690, w688, w687};
+		sat_out = sat_out_pre;
+		case(sat_index[1:0])
+			2'h0: sat_out_0 = sat_out_pre;
+			2'h1: sat_out_1 = sat_out_pre;
+			2'h2: sat_out_2 = sat_out_pre;
+			2'h3: sat_out_3 = sat_out_pre;
+		endcase
+	end
+end
+
+jtframe_dual_ram16_gate #(
+    .AW(7),.SIMFILE_LO("vdp_sat0_lo.bin"),.SIMFILE_HI("vdp_sat0_hi.bin"),.DW1(7),.DW2(4)
+) u_sat0_ram(
+    // Port 0 - Read & Write
+    .clk0   ( MCLK              ),
+    .addr0  ( sat_index         ),
+    .data0  ( sat_data_in[10:0] ),
+    .we0    ( sat_we[1:0]       ),
+    .q0_16  (                   ),
+    .q0     ( sat_out_pre[10:0] ),
+    // Port 1 - Dump
+    .clk1   ( MCLK              ),
+    .data1  ( 11'b0             ),
+    .addr1  ( ioctl_addr[7:1]   ),
+    .we1    ( 2'b0              ),
+    .q1_16  ( sat0_dump16       ),
+    .q1     (                   )
+);
+
+jtframe_dual_ram16_gate #(
+    .AW(7),.SIMFILE_LO("vdp_sat1_lo.bin"),.SIMFILE_HI("vdp_sat1_hi.bin"),.DW1(8),.DW2(2)
+) u_sat1_ram(
+    // Port 0 - Read & Write
+    .clk0   ( MCLK              ),
+    .addr0  ( sat_index         ),
+    .data0  ( sat_data_in[20:11]),
+    .we0    ( sat_we[3:2]       ),
+    .q0_16  (                   ),
+    .q0     ( sat_out_pre[20:11]),
+    // Port 1 - Dump
+    .clk1   ( MCLK              ),
+    .data1  ( 10'b0             ),
+    .addr1  ( ioctl_addr[7:1]   ),
+    .we1    ( 2'b0              ),
+    .q1_16  ( sat1_dump16       ),
+    .q1     (                   )
+);
+
 	// sprdata
 	
 	wire [4:0] sprdata_index = w697;
@@ -6843,14 +6891,14 @@ jtframe_dual_ram16 #(
 	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
 
 	wire [15:0] color_dump16;
-	wire [ 7:0] color_dump;
+	wire [ 7:0] col_dump;
 	wire [ 8:0] color_ram_dp;
 	wire [ 5:0] color_addr;
 	wire [ 1:0] color_ram_we;
 
 	assign color_ram_we = {2{hclk1}} & {l601,l602};
 	assign color_addr   = ioctl_ram     ? ioctl_addr[6:1]    : l617_dp;
-	assign color_dump   = ioctl_addr[0] ? color_dump16[15:8] : color_dump16[7:0];
+	assign col_dump     = ioctl_addr[0] ? color_dump16[15:8] : color_dump16[7:0];
 	always @(posedge MCLK) if(!ioctl_ram) color_ram_out_dp <= color_ram_dp;
 
 	jtframe_dual_ram16_gate #(

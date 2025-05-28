@@ -27,11 +27,13 @@ get_vdp(){
 }
 
 get_vdp_mem(){
+	parse_file vdp_sat0  256 --hilo
+	parse_file vdp_sat1  256 --hilo
 	parse_file vdp_col   128 --hilo
+	parse_file vdp_vsram 128 --hilo
 	parse_file vdp_spr0   64 --hilo
 	parse_file vdp_spr1   64 --hilo
 	parse_file vdp_spr2   64 --hilo
-	parse_file vdp_vsram 128 --hilo
 }
 
 get_regs(){

@@ -81,7 +81,7 @@ assign wram_we    = {2{ram_cs&~main_rnw}} & ~dsn;
 assign cram_we    = {2{char_cs&~main_rnw}}& ~dsn;
 assign otbl_we    = {2{otbl_we0}};
 assign oram_we    = {2{objram_cs&~main_rnw}} & ~dsn;
-assign ioctl_din  = ioctl_addr_of[16:0] >= 17'h101E0 ? (ioctl_addr_of[4] ? ioctl_main : ioctl_vid) : ioctl_vdp;
+assign ioctl_din  = ioctl_addr_of[16:0] >= 17'h103E0 ? (ioctl_addr_of[4] ? ioctl_main : ioctl_vid) : ioctl_vdp;
 assign ioctl_addr_of = ioctl_addr[17:0] - DUMP_OFFSET[17:0];
 
 always @(posedge clk) begin
