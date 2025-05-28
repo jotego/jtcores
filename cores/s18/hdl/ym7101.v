@@ -2219,7 +2219,6 @@ assign ioctl_din = 	ioctl_addr >= 10'h3C0 ? regs_dump  :
 	reg [10:0] vsram_out_0;
 	reg [10:0] vsram_out_1;
 	
-	reg [20:0] sat[0:79];
 	reg [20:0] sat_out;
 	reg [20:0] sat_out_0;
 	reg [20:0] sat_out_1;
