@@ -20,12 +20,14 @@ audio:
   channels:
     - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 0.5 } # it should be pre=2.2
     # to do: variable gain for PCM
-    - { name: pcm0, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0, pre: 2.0 }
-    - { name: pcm1, data_width: 12, dcrm: true, rsum: 2k, fir: fir_192k_4k.csv, vpp: 1.0, pre: 2.0 }
+    - { name: pcm0, data_width: 12, rsum: 2k, fir: fir_192k_4k.csv, vpp: 5.0, pre: 1.0 }
+    - { name: pcm1, data_width: 12, rsum: 2k, fir: fir_192k_4k.csv, vpp: 5.0, pre: 1.0 }
     - { name: cus30, module: jtcus30, rsum: 6.8k }
 ports:
   - { name: bdout, msb:  7, lsb: 0 }
   - { name: baddr, msb: 12, lsb: 0 }
+  - { name: vtxta, msb: 12, lsb: 1 }
+  - { name: metrocrs }
 sdram:
   banks:
     - buses:
@@ -37,6 +39,11 @@ sdram:
         data_width: 8
         offset: EXT_OFFSET
     - buses:
+      - name: txt       # Metro Cross text layer
+        addr_width: 13
+        data_width: 16
+        gfx_sort: hvvv
+        gfx_sort_en: metrocrs
       - name: snd
         addr_width: 16
         data_width: 8
@@ -77,6 +84,14 @@ bram:
     addr_width: 12
     data_width: 8
     prom: true
+  - name: scrpal # 4V
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: objpal # 5V
+    addr_width: 11
+    data_width: 8
+    prom: true
   - name: rgpal # 3R
     addr_width: 9
     data_width: 8
@@ -86,14 +101,6 @@ bram:
     addr_width: 9
     data_width: 8
     addr: rgb_addr
-    prom: true
-  - name: scrpal # 4V
-    addr_width: 11
-    data_width: 8
-    prom: true
-  - name: objpal # 5V
-    addr_width: 11
-    data_width: 8
     prom: true
   - name: dec0 # 6U
     addr_width: 5
@@ -120,7 +127,7 @@ bram:
     sim_file: true
     dual_port:
       name: sh1
-      addr: baddr[12:1]
+      addr: vtxta
       din:  "{2{bdout}}"
       rw:   true
     ioctl: { save: true, order: 1 }

@@ -21,6 +21,7 @@
 package main
 
 import (
+    "runtime/debug"
     "fmt"
     "os"
     "log"
@@ -39,6 +40,7 @@ func main() {
     defer func(){
         if r:= recover(); r!=nil {
             fmt.Println(r)
+            debug.PrintStack()
             os.Exit(1)
         }
     }()

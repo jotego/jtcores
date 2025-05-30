@@ -20,9 +20,9 @@ module jtthundr_sound(
     input               rst, clk,
                         cen_fm, cen_fm2, cen_mcu, cen_pcm, pxl_cen, cen_c30,
                         vs, lvbl, mcu_seln,
-                        hopmappy, genpeitd, roishtar, wndrmomo,
+                        hopmappy, genpeitd, roishtar, wndrmomo, metrocrs,
 
-    input        [15:0] dipsw,
+    input        [19:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
     input        [15:0] joyana_r1,
     input        [ 1:0] cab_1p,
@@ -73,6 +73,8 @@ wire [15:0] A;
 wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout;
 wire [ 4:0] p2_dout;
 reg  [ 7:0] mcu_din;
+wire [ 7:0] thcab, mxcab;
+reg  [ 7:0] cab;
 reg         uc30_cs, fm_cs, dec7d, porta, portb, cab_cs, ram_cs, irq_aux;
 wire        halted, vma, wr, irq, irq_ack;
 
@@ -104,6 +106,11 @@ always @(*) begin
         dec7d   = vma && A[15: 8]==8'h38;               // 3800~38FF
         rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
         irq_aux = vma && A[15:12]==4'hc && wr;          // C000~CFFF
+    end else if (metrocrs) begin // metrocross/baraduke
+        rom_cs  = vma && A[15:12]>=8    && A[15:12]<=4'hb; // 8000~BFFF
+        ram_cs  = vma && A[15:12]==4'hc && !A[11];         // C000~C7FF -> 2kB
+        dec7d   = 0;
+        irq_aux = 0;
     end else begin // rthunder
         dec7d   = vma && A[15: 8]==8'h20;               // 2000~2FFF
         rom_cs  = vma && A[15:12]>=4 && A[15:12]<=4'hb; // 4000~BFFF
@@ -146,14 +153,14 @@ jtthundr_roishtar_joy2 u_joy2(
     .merged2    ( joymerge2     )
 );
 
-jtthundr_cab u_cab(
+jtthundr_cab u_thcab(
     .clk        ( clk           ),
 
     .a0         ( A[0]          ),
     .porta      ( porta         ),
     .portb      ( portb         ),
 
-    .dipsw      ( dipsw         ),
+    .dipsw      ( dipsw[15:0]   ),
     .joystick1  ( joymerge1     ),
     .joystick2  ( joymerge2     ),
     .cab_1p     ( cab_1p        ),
@@ -161,8 +168,26 @@ jtthundr_cab u_cab(
     .service    ( service       ),
 
     .cab_dout   ( cab_dout      ),
-    .other      ( cab_other     )
+    .other      ( thcab         )
 );
+
+jtmetrox_cab u_mxcab(
+    .clk        ( clk           ),
+
+    .p1_dout    ( p1_dout       ),
+    .dipsw      ( dipsw         ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+
+    .cab        ( mxcab         )
+);
+
+always @(posedge clk) begin
+    cab <= metrocrs ? mxcab : thcab;
+end
 
 jtthundr_pcm u_pcm(
     .rst        ( rst       ),
@@ -205,7 +230,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .irq        ( irq           ),
     .nmi        ( 1'b0          ),
     // ports
-    .p1_din     ( cab_other     ),
+    .p1_din     ( cab           ),
     .p2_din     ( 5'h1f         ),
     .p3_din     ( 8'd0          ),
     .p4_din     ( 8'd0          ),

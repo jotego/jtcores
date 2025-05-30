@@ -471,20 +471,41 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 	dumped := 0
 	n := p
 	reg_cfg.check_width_vs_parts()
+	mask := 0
 	if reg_cfg.Width>8 {
 		n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
+		switch(reg_cfg.Width) {
+		case 16:  mask=0x3
+		case 32:  mask=0xf
+		case 255: mask=0xff
+		default: panic("Unexpected value of width")
+		}
 	}
+	mapped := 0
 	for k,_ := range reg_cfg.Parts {
+		if (mapped&mask)==mask {
+			n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
+			mapped=0
+		}
 		each := &reg_cfg.Parts[k]
 		m := n.AddNode("part").AddAttr("name",each.Name)
 		m.AddAttr("crc",each.Crc)
 		if each.Map!=""{
 			m.AddAttr("map",each.Map)
+			for k, char := range each.Map {
+				if char!='0' {
+					mapped |= 1<<k
+				}
+			}
 		}
 		if each.Length == 0 {
 			each.get_size_from_mame(roms)
 		} else {
-			each.verify_size(roms)
+			e := each.verify_size(roms)
+			if e!=nil {
+				fmt.Println(roms)
+				panic(fmt.Errorf("While parsing region %s:\n\t%s",reg_cfg.Name,e))
+			}
 		}
 		m.AddAttr("length", fmt.Sprintf("0x%X",each.Length))
 		if( each.Offset != 0 ) {
@@ -498,7 +519,7 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 
 func (part *RegParts)get_size_from_mame(roms []MameROM) {
 	idx := part.find_rom(roms)
-	if idx==-1 { part.panic_unknown_rom() }
+	if idx==-1 { panic(part.error_unknown_rom()) }
 	part.Length = roms[idx].Size
 }
 
@@ -538,17 +559,17 @@ func (part *RegParts)find_rom(all_roms []MameROM) (k int) {
 	return -1
 }
 
-func (part *RegParts)verify_size(roms []MameROM) {
+func (part *RegParts)verify_size(roms []MameROM) error {
 	idx := part.find_rom(roms)
-	if idx==-1 { part.panic_unknown_rom() }
+	if idx==-1 { return part.error_unknown_rom() }
 	if part.Length+part.Offset > roms[idx].Size {
 		part.panic_rom_too_small(roms[idx].Size)
 	}
+	return nil
 }
 
-func (part *RegParts)panic_unknown_rom() {
-	msg := fmt.Sprintf("Unknown ROM length for ROM %s (CRC %s)",part.Name,part.Crc)
-	panic(msg)
+func (part *RegParts)error_unknown_rom() error{
+	return fmt.Errorf("Unknown ROM length for ROM %s (CRC %s)",part.Name,part.Crc)
 }
 
 func (part *RegParts)panic_rom_too_small(ref int) {

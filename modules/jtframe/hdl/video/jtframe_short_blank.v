@@ -20,6 +20,8 @@
 // This is used when the game software draws black frames around the
 // image. Shortening the blanking signals will cause MiSTer/Pocket
 // platforms to crop the black frames
+// The core colmix should not produce color output during the extended
+// blanking
 module jtframe_short_blank #(parameter WIDTH=511, HEIGHT=264) (
     input   clk,
     input   pxl_cen,
@@ -27,7 +29,7 @@ module jtframe_short_blank #(parameter WIDTH=511, HEIGHT=264) (
     input   LVBL,
     input   HS,
 
-    input   h_en,   // HB shortening enable
+    input   h_en,   // HB enlargement enable
     input   v_en,   // VB enable
     input   wide,   // 8 or 16 pixels (per side)
 

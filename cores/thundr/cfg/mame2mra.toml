@@ -1,6 +1,8 @@
 [parse]
-sourcefile=[ "namcos86.cpp" ]
-debug={machines=["roishtar","genpeitd"]}
+sourcefile=[ "namcos86.cpp", "baraduke.cpp" ]
+debug={machines=[
+	"aliensec","metrocrs",
+]}
 
 [buttons]
 names=[
@@ -12,25 +14,33 @@ names=[
 	{ machine="genpeitd",names="Attack,Jump" },
 ]
 
+[dipsw]
+rename=[
+	{ name="Allow Continue From Last Level", to="Continue from last lvl"}
+]
+
 [header]
 registers = [
-	{ name="only2bpp",  pos="1[0]", values=[{machines=["hopmappy"], value=1}],                       desc="Only 2bpp for backgrounds"            },
+	{ name="only2bpp",  pos="1[0]", values=[{machines=["hopmappy","metrocrs"], value=1}],            desc="Only 2bpp for backgrounds"            },
 	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
-	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
+	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx","aliensec","metrocrs"], value=1}],            desc="Keeps CPU2 in reset state"            },
 	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
 	{ name="scrhflip",  pos="4[1]", values=[{machines=["skykiddx"], value=1}],                       desc="Ignore flip bit and reverse H scroll" },
 	{ name="roishtar",  pos="5[0]", values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
-	{ name="genpeitd",  pos="6[0]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
-	{ name="wndrmomo",  pos="7[0]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="genpeitd",  pos="5[1]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
+	{ name="wndrmomo",  pos="5[2]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="metrocrs",  pos="5[3]", values=[{machine="metrocrs", value=1}],                          desc="Special SUB/MCU mapping for Metro Cross" },
 ]
 
 [ROM]
 regions = [
 	{ name="cpu1"                             },
+	{ name="maincpu", rename="cpu1", skip=true},
 	{ name="user1", start="EXT_START"         },
 	{ name="cpu2",  start="JTFRAME_BA1_START" },
 	{ name="namco2"                           },
-	# gfx1 (SCROLL 011)
+	{ name="chars",  start="JTFRAME_BA1_START"}, # only baraduke/metrocrs
+	# gfx1 (SCROLL 0)
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="rthunder", parts=[
 		{name="rt1_7.7r", crc="a85efa39",map="0021"},
 		{name="rt1_8.7s", crc="f7a95820",map="0100"},
@@ -61,6 +71,7 @@ regions = [
 		{name="wm1_7.7s", crc="7d662527",map="1000"},
 	], mirror=true },
 	# gfx2 (SCROLL 1)
+	{ name="gfx2", start="SCR1_START" },
 	{ name="gfx2", start="SCR1_START", machine="rthunder", parts=[
 		{name="rt1_5.4r", crc="d0fc470b",map="0021"},
 		{name="rt1_6.4s", crc="6b57edb2",map="0100"},
@@ -90,16 +101,38 @@ regions = [
 		{name="wm1_5.4s", crc="a81b481f",map="0100"},
 		{name="wm1_5.4s", crc="a81b481f",map="1000"},
 	], mirror=true },
-
+	{ name="tiles", rename="gfx1", skip=true }, # baraduke, metrocrs
+	# aliensec tiles
+	{ name="gfx1", start="JTFRAME_BA2_START", setname="aliensec", parts=[
+		{name="bd2_8.4p", crc="432bd7d9",map="0001"},
+		{name="bd1_7.4n", crc="0d7ebec9",map="0010"},
+		{name="bd2_6.4m", crc="f4c1df60",map="0100"},
+		{name="bd2_6.4m", crc="f4c1df60",map="1000"},
+	], mirror=true },
+	# baraduke tiles
+	{ name="gfx1", start="JTFRAME_BA2_START", setname="baraduke", parts=[
+		{name="bd1_8.4p", crc="b0bb0710",map="0001"},
+		{name="bd1_7.4n", crc="0d7ebec9",map="0010"},
+		{name="bd1_6.4m", crc="e5da0896",map="0100"},
+		{name="bd1_6.4m", crc="e5da0896",map="1000"},
+	], mirror=true },
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="metrocrs", parts=[
+		{name="mc1-7.4p", crc="c9dfa003",map="0021"}, # only 2 bpp
+		{name="mc1-7.4p", crc="c9dfa003",map="2100"},
+		{name="mc1-6.4n", crc="9686dc3c",map="0021"},
+		{name="mc1-6.4n", crc="9686dc3c",map="2100"},
+	], mirror=true },
 	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true, mirror=true },
-	{ name="mcusub",start="MCUSUB_START"      },
-	{ name="mcusub",start="MCUSUB_START", machine="hopmappy", sequence=[0,0,0,0] },
+	{ name="sprites", rename="gfx3", skip=true },
+	{ name="gfx3", machines=["metrocrs","baraduke"], start="JTFRAME_BA3_START", no_offset=true, mirror=true },
+	{ name="mcusub",start="MCUSUB_START", mirror=true },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
-	{ name="proms", sequence=[0,1,2,3,4,4]    },
+	{ name="proms", machines=["baraduke","metrocrs"], sequence=[0,1] },
+	{ name="proms", sequence=[2,3,0,1,4,4]    },
 ]
 
 order=["cpu1","user1",
-       "cpu2","namco2",
+       "cpu2","namco2","chars",
        "gfx1","gfx2",
        "gfx3","mcusub",
        "mcu","proms"

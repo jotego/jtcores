@@ -64,6 +64,7 @@ jtthundr_header u_header(
     .genpeitd   ( genpeitd  ),
     .roishtar   ( roishtar  ),
     .wndrmomo   ( wndrmomo  ),
+    .metrocrs   ( metrocrs  ),
     .scrhflip   ( scrhflip  ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
@@ -95,6 +96,7 @@ jtthundr_main u_main(
     .roishtar   ( roishtar  ),
     .genpeitd   ( genpeitd  ),
     .wndrmomo   ( wndrmomo  ),
+    .metrocrs   ( metrocrs  ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),
@@ -122,6 +124,7 @@ jtthundr_main u_main(
     .bus_busy   ( busy[0]   ),
 
     // VRAM
+    .vtxta      ( vtxta     ),
     .baddr      ( baddr     ),
     .bdout      ( bdout     ),
     .scr0_dout  (vram02sh0_data ),
@@ -166,8 +169,9 @@ jtthundr_sound u_sound(
     .genpeitd   ( genpeitd  ),
     .roishtar   ( roishtar  ),
     .wndrmomo   ( wndrmomo  ),
+    .metrocrs   ( metrocrs  ),
 
-    .dipsw      (dipsw[15:0]),
+    .dipsw      (dipsw[19:0]),
     .joystick1  (joystick1[6:0]),
     .joystick2  (joystick2[6:0]),
     .joyana_r1  ( joyana_r1 ),
@@ -228,6 +232,7 @@ jtthundr_video u_video(
     .scrhflip   ( scrhflip  ),
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
+    .metrocrs   ( metrocrs  ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),
@@ -284,6 +289,11 @@ jtthundr_video u_video(
     .scr1b_addr ( scr1b_addr),
     .scr1b_data ( fix1b_data),
     .scr1b_ok   ( scr1b_ok  ),
+
+    .txt_cs     ( txt_cs    ),
+    .txt_addr   ( txt_addr  ),
+    .txt_data   ( txt_data  ),
+    .txt_ok     ( txt_ok    ),
 
     // Palette PROMs
     .objpal_addr(objpal_addr),

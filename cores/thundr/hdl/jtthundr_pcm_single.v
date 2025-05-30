@@ -28,16 +28,19 @@ module jtthundr_pcm_single(
     output reg          rom_cs,
     input               rom_ok,
 
-    output reg   [11:0] snd=0
+    output signed [11:0] snd
 );
 
 localparam [2:0] IDLE=0, OS0=1, OS1=2, OS2=3,PLAY=4,LOOP0=5,LOOP1=6, START=7;
-localparam [7:0] END=8'hff,SILENT=8'h0, MUTE=8'h80;
+localparam [7:0] END=8'hff,SILENT=8'h0, MUTE=8'h0, OS=8'h80;
 
 reg [15:0] rda=0;
-reg [ 7:0] loop=0,page=0,pcm;
+reg [ 7:0] loop=0,page=0;
+reg  signed [7:0] pcm;
+wire signed [7:0] osdata;
 reg [ 4:0] sample=0;
-reg [ 3:0] gain;
+reg [12:0] extrabit;
+reg signed [4:0] gain;
 reg [ 2:0] bank=0, st=0;
 reg [ 1:0] vol=0;
 reg        start=0, start_l=0, cen_ok=0;
@@ -46,6 +49,8 @@ wire       rom_good, valid;
 assign rom_good = ~rom_cs | rom_ok;
 assign rom_addr = { bank, rda }; // 3+16=19
 assign valid    = sample!=0;
+assign osdata   = rom_data - OS;
+assign snd      = extrabit[11:0];
 
 always @(posedge clk) begin
     if(rst) begin
@@ -63,12 +68,12 @@ end
 always @(posedge clk) begin
     cen_ok <= ~cen_ok;
     case(vol)
-        0: gain <= 4'd01;
-        1: gain <= 4'd03;
-        2: gain <= 4'd08;
-        3: gain <= 4'd10;
+        0: gain <= 5'd01;
+        1: gain <= 5'd03;
+        2: gain <= 5'd08;
+        3: gain <= 5'd10;
     endcase
-    snd <= pcm*gain;
+    extrabit <= pcm*gain;
 end
 
 always @(posedge clk) begin
@@ -95,13 +100,12 @@ always @(posedge clk) begin
             end
             PLAY: if(cen) begin
                 rda[15:0] <= rda[15:0] + 16'd1;
-                pcm <= rom_data;
                 if(rom_data==SILENT) begin
-                    pcm <= MUTE;
                     st  <= LOOP0;
+                end else begin
+                    pcm <= osdata;
                 end
                 if(rom_data==END) begin
-                    pcm <= MUTE;
                     st  <= IDLE;
                 end
             end
@@ -111,9 +115,8 @@ always @(posedge clk) begin
                 st <= LOOP1;
             end
             LOOP1: if(cen) begin
+                pcm <= pcm>>>1;
                 if(loop<=1) begin
-                    rda[15:0] <= rda[15:0] + 16'd1;
-                    pcm <= rom_data;
                     st  <= PLAY;
                 end
                 loop <= loop-8'd1;
@@ -122,7 +125,10 @@ always @(posedge clk) begin
                 rom_cs <= 0;
                 st     <= OS0;
             end
-            default: rom_cs <= 0;
+            default: begin
+                rom_cs <= 0;
+                if(cen) pcm <= pcm>>>1;
+            end
         endcase
         start_l <= start;
         if(start && !start_l && valid) begin

@@ -249,6 +249,7 @@ type SDRAMBus struct {
     Din        string `yaml:"din"`  // optional name for din signal
     Cs         string `yaml:"cs"`
     Gfx        string `yaml:"gfx_sort"`
+    Gfx_en     string `yaml:"gfx_sort_en"`
 }
 
 type Optional interface{

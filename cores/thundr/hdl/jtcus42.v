@@ -19,7 +19,7 @@
 // dual tilemap with independent scroll
 module jtcus42(
     input               rst,
-    input               clk, pxl_cen,
+    input               clk, pxl_cen, dec_en,
     input               flip, scrhflip, hs,
     input        [ 8:0] hdump, vdump,
 
@@ -116,6 +116,7 @@ jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .dec_en     ( dec_en        ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
@@ -142,6 +143,7 @@ jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .dec_en     ( dec_en        ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),

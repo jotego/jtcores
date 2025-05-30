@@ -18,7 +18,7 @@
 
 module jtthundr_busmux(
     input   rst, clk,
-            cen_main, cen_sub, scrhflip,
+            cen_main, cen_sub, scrhflip, metrocrs,
             mavma,    savma,
     input   mrom_cs,  srom_cs,  mc30_cs,  ext_cs,
             mscr0_cs, mscr1_cs, moram_cs, mmbank_cs, msbank_cs, mlatch0_cs, mlatch1_cs,
@@ -35,6 +35,7 @@ module jtthundr_busmux(
                   mrom_data, srom_data, ext_data,
     input  [15:0] scr0_dout, scr1_dout, oram_dout,
     output [12:0] baddr,
+    output [12:1] vtxta,
     output  [7:0] bdout,
 
     output           ommr_cs,
@@ -64,8 +65,9 @@ assign brnw      = bsel ? srnw       : mrnw;
 assign baddr     = bsel ? saddr[12:0]: maddr[12:0];
 
 assign scr0_we   = {2{scr0_cs&~brnw}} & { baddr[0], ~baddr[0] };
-assign scr1_we   = {2{scr1_cs&~brnw}} & { baddr[0], ~baddr[0] };
+assign scr1_we   = {2{scr1_cs&~brnw}} & (metrocrs ? { baddr[10],~baddr[10]} : { baddr[0], ~baddr[0] });
 assign oram_we   = {2{oram_cs&~brnw}} & { baddr[0], ~baddr[0] };
+assign vtxta     = metrocrs ? {2'd0,baddr[9:0] } : baddr[12:1];
 
 function [7:0] w2b(input [15:0] w); begin
     w2b = baddr[0] ? w[15:8] : w[7:0];
