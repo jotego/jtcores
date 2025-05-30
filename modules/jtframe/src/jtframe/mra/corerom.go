@@ -477,8 +477,11 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 		switch(reg_cfg.Width) {
 		case 16:  mask=0x3
 		case 32:  mask=0xf
-		case 255: mask=0xff
-		default: panic("Unexpected value of width")
+		case 64: mask=0xff
+		default: {
+			msg := fmt.Sprintf("Unexpected value of width %d",reg_cfg.Width)
+			panic(msg)
+		}
 		}
 	}
 	mapped := 0

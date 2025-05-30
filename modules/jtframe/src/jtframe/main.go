@@ -40,6 +40,7 @@ func main() {
     defer func(){
         if r:= recover(); r!=nil {
             fmt.Println(r)
+            fmt.Printf("\n\n")
             debug.PrintStack()
             os.Exit(1)
         }
