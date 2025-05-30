@@ -45,12 +45,14 @@ reg [ 2:0] bank=0, st=0;
 reg [ 1:0] vol=0;
 reg        start=0, start_l=0, cen_ok=0;
 wire       rom_good, valid;
+wire [7:0] att;
 
 assign rom_good = ~rom_cs | rom_ok;
 assign rom_addr = { bank, rda }; // 3+16=19
 assign valid    = sample!=0;
 assign osdata   = rom_data - OS;
 assign snd      = extrabit[11:0];
+assign att      = pcm==-1 ? MUTE : {pcm[7],pcm[7:1]};
 
 always @(posedge clk) begin
     if(rst) begin
@@ -100,14 +102,11 @@ always @(posedge clk) begin
             end
             PLAY: if(cen) begin
                 rda[15:0] <= rda[15:0] + 16'd1;
-                if(rom_data==SILENT) begin
-                    st  <= LOOP0;
-                end else begin
-                    pcm <= osdata;
-                end
-                if(rom_data==END) begin
-                    st  <= IDLE;
-                end
+                case(rom_data)
+                    END:     st  <= IDLE;
+                    SILENT:  st  <= LOOP0;
+                    default: pcm <= osdata;
+                endcase
             end
             LOOP0: if(cen) begin
                 loop <= rom_data;
@@ -115,7 +114,7 @@ always @(posedge clk) begin
                 st <= LOOP1;
             end
             LOOP1: if(cen) begin
-                pcm <= pcm>>>1;
+                pcm <= att;
                 if(loop<=1) begin
                     st  <= PLAY;
                 end
@@ -127,7 +126,7 @@ always @(posedge clk) begin
             end
             default: begin
                 rom_cs <= 0;
-                if(cen) pcm <= pcm>>>1;
+                if(cen) pcm <= att;
             end
         endcase
         start_l <= start;
