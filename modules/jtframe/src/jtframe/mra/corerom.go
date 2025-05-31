@@ -473,21 +473,22 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 	reg_cfg.check_width_vs_parts()
 	mask := 0
 	if reg_cfg.Width>8 {
-		n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 		switch(reg_cfg.Width) {
 		case 16:  mask=0x3
 		case 32:  mask=0xf
-		case 64: mask=0xff
+		case 64:  mask=0xff
 		default: {
 			msg := fmt.Sprintf("Unexpected value of width %d",reg_cfg.Width)
 			panic(msg)
-		}
+		}}
+		if mask!=0 {
+			n = reg_cfg.add_interleave(p)
 		}
 	}
 	mapped := 0
 	for k,_ := range reg_cfg.Parts {
-		if (mapped&mask)==mask {
-			n = p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
+		if (mapped&mask)==mask && mask!=0 {
+			n = reg_cfg.add_interleave(p)
 			mapped=0
 		}
 		each := &reg_cfg.Parts[k]
@@ -518,6 +519,10 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 	}
 	reg_cfg.check_parts_consistency()
 	return dumped
+}
+
+func (reg_cfg *RegCfg)add_interleave(p *XMLNode) *XMLNode {
+	return p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 }
 
 func (part *RegParts)get_size_from_mame(roms []MameROM) {

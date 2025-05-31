@@ -232,7 +232,7 @@ function target {
 
 # check that git hooks are present
 for HOOK in $JTFRAME/bin/hooks/*; do
-    echo cp --update $HOOK $(git rev-parse --git-path hooks)
+    cp --update $HOOK $(git rev-parse --git-path hooks)
 done
 
 if ! git config -l | grep instead > /dev/null; then
