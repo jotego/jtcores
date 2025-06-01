@@ -117,22 +117,18 @@ regions = [
 	# aliensec tiles
 	{ name="gfx1", start="JTFRAME_BA2_START", setname="aliensec", parts=[
 		{name="bd2_8.4p", crc="432bd7d9",map="0021"},
-		{name="bd2_6.4m", crc="432bd7d9",map="0100", length=0x2000},
-		{name="bd2_6.4m", crc="432bd7d9",map="1000", length=0x2000},
+		{name="bd2_6.4m", crc="432bd7d9",map="2100"},
 
 		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
-		{name="bd2_6.4m", crc="432bd7d9",map="0100", length=0x2000, offset=0x2000},
-		{name="bd2_6.4m", crc="432bd7d9",map="1000", length=0x2000, offset=0x2000},
+		{name="bd2_6.4m", crc="432bd7d9",map="2100"},
 	], mirror=true },
 	# baraduke tiles
 	{ name="gfx1", start="JTFRAME_BA2_START", setname="baraduke", parts=[
 		{name="bd1_8.4p", crc="b0bb0710",map="0021"},
-		{name="bd1_6.4m", crc="e5da0896",map="0100", length=0x2000},
-		{name="bd1_6.4m", crc="e5da0896",map="1000", length=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100"},
 
 		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
-		{name="bd1_6.4m", crc="e5da0896",map="0100", length=0x2000, offset=0x2000},
-		{name="bd1_6.4m", crc="e5da0896",map="1000", length=0x2000, offset=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100"},
 	], mirror=true },
 	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true, mirror=true },
 	{ name="sprites", rename="gfx3", skip=true },

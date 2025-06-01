@@ -39,7 +39,7 @@ localparam [1:0] OBJ=2'b01;
 
 wire       txt_op, obj_op;
 
-assign txt_op = txt_pxl[1:0]!= ALPHA[1:0] && gfx_en[1];
+assign txt_op = txt_pxl[1:0]!= ALPHA[1:0] && gfx_en[0];
 assign obj_op = obj_pxl[3:0]!=OALPHA      && gfx_en[3];
 
 always @(posedge clk) if(pxl_cen) begin

@@ -36,10 +36,10 @@ reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
-assign fix0a_data = { 8'h0, only2bpp ? 8'hff : scr0a_data[23:16], scr0a_data[15:0]};
-assign fix0b_data = { 8'h0, only2bpp ? 8'hff : scr0b_data[23:16], scr0b_data[15:0]};
-assign fix1a_data = { 8'h0, only2bpp ? 8'hff : scr1a_data[23:16], scr1a_data[15:0]};
-assign fix1b_data = { 8'h0, only2bpp ? 8'hff : scr1b_data[23:16], scr1b_data[15:0]};
+assign fix0a_data = { only2bpp ? 16'hffff : scr0a_data[31:16], scr0a_data[15:0]};
+assign fix0b_data = { only2bpp ? 16'hffff : scr0b_data[31:16], scr0b_data[15:0]};
+assign fix1a_data = { only2bpp ? 16'hffff : scr1a_data[31:16], scr1a_data[15:0]};
+assign fix1b_data = { only2bpp ? 16'hffff : scr1b_data[31:16], scr1b_data[15:0]};
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
