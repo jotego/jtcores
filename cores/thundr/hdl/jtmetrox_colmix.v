@@ -22,6 +22,7 @@ module jtmetrox_colmix(
     input      [ 8:0] hdump, vdump,
 
     input      [10:0] scr0_pxl, obj_pxl,
+    input      [ 2:0] scr0_prio, obj_prio,
     input      [ 8:0] txt_pxl,
 
     output reg [10:0] rgb_addr,
@@ -43,7 +44,7 @@ assign obj_op = obj_pxl[3:0]!=OALPHA      && gfx_en[3];
 
 always @(posedge clk) if(pxl_cen) begin
     rgb_addr <= txt_op ? {txt_pxl[8:2],2'd0,txt_pxl[1:0]} :
-                obj_op ? obj_pxl : scr0_pxl;
+                (obj_op && obj_prio>=scr0_prio) ? obj_pxl : scr0_pxl;
     {blue,green,red} <= {bg_data,r_data[3:0]};
 end
 

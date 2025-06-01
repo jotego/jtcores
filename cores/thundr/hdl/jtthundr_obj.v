@@ -19,9 +19,9 @@
 module jtthundr_obj(
     input             rst,
     input             clk, pxl_cen, hs, lvbl,
-                      flip, dmaon, alt_offset,
-    input      [ 8:0] hdump, vdump,
-
+                      flip, dmaon,
+    input      [ 8:0] hdump, vdump, hos,
+    input      [ 7:0] vos,
     // MMR
     input             mmr_cs,
     input       [1:0] cpu_addr,
@@ -81,8 +81,8 @@ assign sorted   = {
 
 always @(posedge clk) begin
     blankn <= !(vdump>9'hf8 && vdump<9'h11d);
-    xos    <= alt_offset ? xoffset-9'h5c : xoffset;
-    yos    <= alt_offset ? yoffset+8'h04 : yoffset;
+    xos    <= xoffset+hos;
+    yos    <= yoffset+vos;
 end
 
 jtthundr_obj_mmr #(.SIMFILE("ommr.bin")) u_mmr(

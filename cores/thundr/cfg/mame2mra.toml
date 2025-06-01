@@ -1,7 +1,7 @@
 [parse]
 sourcefile=[ "namcos86.cpp", "baraduke.cpp" ]
 debug={machines=[
-	"aliensec","metrocrs",
+	"aliensec",
 ]}
 
 [buttons]
@@ -12,6 +12,7 @@ names=[
 	{ machine="wndrmomo",names="Kick,Jump" },
 	{ machine="roishtar",names="Cast Spell,Select Spell,Swap" },
 	{ machine="genpeitd",names="Attack,Jump" },
+	{ machine="metrocrs",names="Jump" },
 ]
 
 [dipsw]
@@ -21,15 +22,19 @@ rename=[
 
 [header]
 registers = [
-	{ name="only2bpp",  pos="1[0]", values=[{machines=["hopmappy","metrocrs"], value=1}],            desc="Only 2bpp for backgrounds"            },
-	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
-	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx","aliensec","metrocrs"], value=1}],            desc="Keeps CPU2 in reset state"            },
-	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
-	{ name="scrhflip",  pos="4[1]", values=[{machines=["skykiddx"], value=1}],                       desc="Ignore flip bit and reverse H scroll" },
-	{ name="roishtar",  pos="5[0]", values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
-	{ name="genpeitd",  pos="5[1]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
-	{ name="wndrmomo",  pos="5[2]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
-	{ name="metrocrs",  pos="5[3]", values=[{machine="metrocrs", value=1}],                          desc="Special SUB/MCU mapping for Metro Cross" },
+	{ name="only2bpp",  pos="1[0]",  values=[{machines=["hopmappy","metrocrs"], value=1}],            desc="Only 2bpp for backgrounds"            },
+	{ name="sndext_en", pos="1[1]",  values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
+	{ name="nocpu2",    pos="1[2]",  values=[{machines=["hopmappy","skykiddx","aliensec","metrocrs"], value=1}],            desc="Keeps CPU2 in reset state"            },
+	{ name="mcualt",    pos="1[3]",  values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
+	{ name="scrhflip",  pos="1[4]",  values=[{machines=["skykiddx"], value=1}],                       desc="Ignore flip bit and reverse H scroll" },
+	{ name="roishtar",  pos="2[0]",  values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
+	{ name="genpeitd",  pos="2[1]",  values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
+	{ name="wndrmomo",  pos="2[2]",  values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="metrocrs",  pos="2[3]",  values=[{machine="metrocrs", value=1}],                          desc="Special SUB/MCU mapping for Metro Cross" },
+	{ name="objhos8",   pos="2[7]",  values=[{machines=["skykiddx","metrocrs"], value=0x1}],          desc="Object H offset bit 8"},
+	{ name="objhos",    pos="3[7:0]",values=[{machine="skykiddx", value=0xa4},{machine="metrocrs",value=0xfc}], desc="Object H offset bits 7-0"},
+	{ name="objvos",    pos="4[7:0]",values=[{machine="skykiddx", value=4}],                          desc="Object V offset bits 7-0"},
+	{ name="scrhos",    pos="6[3:0]",values=[{machine="metrocrs", value=6}],                          desc="Horizontal offset on CUS42 (signed)" },
 ]
 
 [ROM]

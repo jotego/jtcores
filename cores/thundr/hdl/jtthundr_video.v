@@ -21,6 +21,10 @@ module jtthundr_video(
     input             clk,
     input             pxl_cen, pxl2_cen, bank, dmaon, flip,
                       scrhflip, metrocrs,
+    // per game video offsets
+    input      [ 3:0] scrhos,         // H scroll 0 adjustment
+    input      [ 8:0] objhos,
+    input      [ 7:0] objvos,
 
     output            lvbl, lhbl, hs, vs,
     input             mmr0_cs, mmr1_cs, cpu_rnw,
@@ -145,6 +149,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
+    .scrhos     ( scrhos        ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( dec_en        ),
@@ -186,6 +191,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
+    .scrhos     ( scrhos        ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( 1'b1          ),
@@ -228,7 +234,8 @@ jtthundr_obj u_obj(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .alt_offset ( scrhflip  ),
+    .hos        ( objhos    ),
+    .vos        ( objvos    ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
 
@@ -315,9 +322,11 @@ jtmetrox_colmix u_metrox_colmix(
     .vdump      ( vdump         ),
     .hdump      ( hdump         ),
 
-    .scr0_pxl   ( scr0_pxl      ),
     .txt_pxl    ( txt_pxl       ),
+    .scr0_pxl   ( scr0_pxl      ),
+    .scr0_prio  ( scr0_prio     ),
     .obj_pxl    ( obj_pxl       ),
+    .obj_prio   ( obj_prio      ),
 
     .rgb_addr   ( mxrgb_addr    ),
     .bg_data    ( scrpal_data   ),

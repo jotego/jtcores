@@ -22,6 +22,7 @@ module jtcus42(
     input               clk, pxl_cen, dec_en,
     input               flip, scrhflip, hs,
     input        [ 8:0] hdump, vdump,
+    input        [ 3:0] scrhos,         // per game adjustment
 
     input               cs, cpu_rnw,
     input        [ 2:0] cpu_addr,
@@ -55,6 +56,7 @@ wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
 wire [15:0] a_dout, b_dout;
 wire [ 8:0] scrxa, scrxb;
+reg  [ 8:0] effxa, effxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
@@ -65,6 +67,11 @@ assign scrb_op = scrb_pxl[2:0]!=ALPHA;
 assign selb    = scrb_op && (!scra_op || priob > prioa);
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
+
+always @(posedge clk) begin
+    effxa <= scrxa + { {5{scrhos[3]}}, scrhos };
+    effxb <= scrxb + { {5{scrhos[3]}}, scrhos };
+end
 
 jtframe_ram_rdmux #(.AW(12),.DW(16)) u_vram_mux(
     .clk        ( clk           ),
@@ -122,7 +129,7 @@ jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
-    .scrx       ( scrxa         ),
+    .scrx       ( effxa         ),
     .scry       ( scrya         ),
 
     .vram_addr  ( a_addr        ),
@@ -149,7 +156,7 @@ jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .scrhflip   ( scrhflip      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
-    .scrx       ( scrxb         ),
+    .scrx       ( effxb         ),
     .scry       ( scryb         ),
 
     .vram_addr  ( b_addr        ),

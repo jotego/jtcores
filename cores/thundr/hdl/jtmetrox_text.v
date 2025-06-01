@@ -33,7 +33,7 @@ module jtmetrox_text(
     output       [ 8:0] pxl
 );
 
-localparam [8:0] HOFFSET=9'o120, VOFFSET=9'o20+9'o1;
+localparam [8:0] HOFFSET=9'o110-9'o2, VOFFSET=9'o20+9'o1;
 
 
 wire [31:0] sorted;
@@ -42,7 +42,7 @@ wire [10:1] vram_prea;
 wire [ 8:0] code, hadj, vadj;
 wire [ 6:0] pal;
 wire [ 2:0] code_msb;
-wire        blankn = hdump>9'o70 && hdump<9'o550, border;
+wire        blankn = hdump>=9'o60 && hdump<9'o550, border;
 
 assign pal    = vram_dout[14:8];
 assign code   = {vram_dout[15],vram_dout[7:0]};

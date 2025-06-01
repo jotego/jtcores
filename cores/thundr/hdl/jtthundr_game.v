@@ -23,9 +23,10 @@ module jtthundr_game(
 wire [31:0] fix0a_data, fix0b_data, fix1a_data, fix1b_data;
 wire [15:0] fave, maddr;
 wire [ 1:0] busy, pcm_wraddr;
+wire [ 3:0] scrhos;
 reg  [ 7:0] dbg_mux;
-wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video;
-wire [ 8:0] scr0x, scr0y, scr1x, scr1y;
+wire [ 7:0] backcolor, st_main, mdout, c30_dout, st_video, objvos;
+wire [ 8:0] scr0x, scr0y, scr1x, scr1y, objhos;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
@@ -66,6 +67,11 @@ jtthundr_header u_header(
     .wndrmomo   ( wndrmomo  ),
     .metrocrs   ( metrocrs  ),
     .scrhflip   ( scrhflip  ),
+    .scrhos     ( scrhos    ),
+    // object offset
+    .objhos8    ( objhos[8] ),
+    .objhos     ( objhos[7:0]),
+    .objvos     ( objvos    ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
 );
@@ -233,6 +239,11 @@ jtthundr_video u_video(
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
     .metrocrs   ( metrocrs  ),
+
+    // per game screen offsets
+    .scrhos     ( scrhos    ),
+    .objhos     ( objhos    ),
+    .objvos     ( objvos    ),
 
     .dmaon      ( dmaon     ),
     .ommr_cs    ( ommr_cs   ),
