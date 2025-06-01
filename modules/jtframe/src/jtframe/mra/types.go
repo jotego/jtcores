@@ -185,12 +185,21 @@ type HeaderReg struct {
     Desc string
     Values []HeaderRegValue
     // private
-    offset, bit, mask, msb, lsb int
+    parts []headerRegPart
+    bitwidth int
 }
 
 type HeaderRegValue struct {
     Selectable
     Value int
+}
+
+type headerRegPart struct {
+    // from header byte at offset take [msb:lsb]
+    offset, msb, lsb int
+    // and place it at bit [at]
+    at   int
+    mask int
 }
 
 type HeaderOffset struct {

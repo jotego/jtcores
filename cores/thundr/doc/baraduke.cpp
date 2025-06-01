@@ -827,7 +827,7 @@ ROM_START( metrocrsa )
 	ROM_REGION( 0x10000, "tiles", 0 )
 	ROM_LOAD( "mc1-7.4p",   0x00000, 0x4000, CRC(c9dfa003) SHA1(86e8f9fc25de67691ce5385d93b723e7eb836b2b) )
 	ROM_LOAD( "mc1-6.4n",   0x04000, 0x4000, CRC(9686dc3c) SHA1(1caf712eedb1f70559169685e5421e11866e518c) )
-	ROM_FILL(               0x08000, 0x4000, 0xff )
+	ROM_FILL(               0x08000, 0x4000, 0xff ) // third color bit
 	// 0xc000-0xffff  will be unpacked from 0x8000-0xbfff
 
 	ROM_REGION( 0x08000, "sprites", 0 )

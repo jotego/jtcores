@@ -30,16 +30,16 @@ wire [ 8:0] scr0x, scr0y, scr1x, scr1y, objhos;
 wire        cen_main, cen_sub, cen_mcu, flip, mmr0_cs, mmr1_cs, brnw, tile_bank,
             mrnw, bsel, mc30_cs, mcu_seln, dmaon, ommr_cs, pcm_wr;
 // Configuration through MRA header
-wire        sndext_en, nocpu2, mcualt, scrhflip, only2bpp,
+wire        sndext_en, nocpu2, mcualt, scrhflip, only2bpp, plane3inv,
             genpeitd, roishtar, wndrmomo;
 reg         lvbl_ps;
 
 assign debug_view = dbg_mux;
 assign dip_flip   = flip;
-assign fix0a_data = { 8'h0, only2bpp ? 8'h0 : scr0a_data[23:16], scr0a_data[15:0]};
-assign fix0b_data = { 8'h0, only2bpp ? 8'h0 : scr0b_data[23:16], scr0b_data[15:0]};
-assign fix1a_data = { 8'h0, only2bpp ? 8'h0 : scr1a_data[23:16], scr1a_data[15:0]};
-assign fix1b_data = { 8'h0, only2bpp ? 8'h0 : scr1b_data[23:16], scr1b_data[15:0]};
+assign fix0a_data = { 8'h0, only2bpp ? 8'hff : scr0a_data[23:16], scr0a_data[15:0]};
+assign fix0b_data = { 8'h0, only2bpp ? 8'hff : scr0b_data[23:16], scr0b_data[15:0]};
+assign fix1a_data = { 8'h0, only2bpp ? 8'hff : scr1a_data[23:16], scr1a_data[15:0]};
+assign fix1b_data = { 8'h0, only2bpp ? 8'hff : scr1b_data[23:16], scr1b_data[15:0]};
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
@@ -59,6 +59,7 @@ jtthundr_header u_header(
     .prog_we    ( prog_we   ),
 
     .only2bpp   ( only2bpp  ),
+    .plane3inv  ( plane3inv ),
     .nocpu2     ( nocpu2    ),
     .sndext_en  ( sndext_en ),
     .mcualt     ( mcualt    ),
@@ -69,8 +70,7 @@ jtthundr_header u_header(
     .scrhflip   ( scrhflip  ),
     .scrhos     ( scrhos    ),
     // object offset
-    .objhos8    ( objhos[8] ),
-    .objhos     ( objhos[7:0]),
+    .objhos     ( objhos    ),
     .objvos     ( objvos    ),
     .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data )
@@ -236,6 +236,7 @@ jtthundr_video u_video(
     .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
     .scrhflip   ( scrhflip  ),
+    .plane3inv  ( plane3inv ),
     .backcolor  ( backcolor ),
     .bank       ( tile_bank ),
     .metrocrs   ( metrocrs  ),

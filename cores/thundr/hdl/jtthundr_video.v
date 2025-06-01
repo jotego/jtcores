@@ -20,7 +20,7 @@ module jtthundr_video(
     input             rst,
     input             clk,
     input             pxl_cen, pxl2_cen, bank, dmaon, flip,
-                      scrhflip, metrocrs,
+                      scrhflip, plane3inv, metrocrs,
     // per game video offsets
     input      [ 3:0] scrhos,         // H scroll 0 adjustment
     input      [ 8:0] objhos,
@@ -153,6 +153,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( dec_en        ),
+    .plane3inv  ( plane3inv     ),
 
     .cs         ( mmr0_cs       ),
     .cpu_rnw    ( cpu_rnw       ),
@@ -195,6 +196,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( 1'b1          ),
+    .plane3inv  ( plane3inv     ),
 
     .cs         ( mmr1_cs       ),
     .cpu_rnw    ( cpu_rnw       ),

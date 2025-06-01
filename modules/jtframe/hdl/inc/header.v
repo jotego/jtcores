@@ -19,8 +19,8 @@
 module jt{{ .Core }}_header(
     input            clk,
                      header, prog_we,
-    {{ range .Registers }}
-    output reg {{ if ne .Msb .Lsb }}[{{sub .Msb .Lsb}}:0]{{else}}     {{ end }} {{.Name}}=0,
+    {{ range .Names }}
+    output reg {{ if ne .Msb 0 }}[{{.Msb}}:0]{{else}}     {{ end }} {{.Name}}=0,
     {{- end }}
     input      [2:0] prog_addr,
     input      [7:0] prog_data

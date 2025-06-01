@@ -19,7 +19,7 @@
 module jtthundr_scroll(
     input               rst,
     input               clk, pxl_cen, hs,
-    input               flip, scrhflip, dec_en,
+    input               flip, scrhflip, dec_en, plane3inv,
     input        [ 8:0] hdump, vdump,
     input        [ 8:0] scrx,
     input        [ 7:0] scry,
@@ -58,10 +58,11 @@ assign xadj = scrhflip ? (SCRHFLIP-scrx) : (scrx + HOFFSET);
 assign yadj = scry + VOFFSET;
 assign dec_addr = {LYR[0],LYR==0?pal[1:0]:2'b0,LYR==1?pal[1:0]:2'b0};
 assign code_msb = dec_en ? (LYR==0 ? dec_data[3:1] : dec_data[7:5]) : {LYR[0],pal[1:0]};
-assign sorted   = {rom_data[31-:8],~rom_data[23-:8],
-        rom_data[7-:4],rom_data[15-:4],
-        rom_data[0+:4],rom_data[ 8+:4]
-    };
+assign sorted   = {
+    rom_data[31-:8],rom_data[23-:8]^{8{plane3inv}},
+    rom_data[ 7-:4],rom_data[15-:4],
+    rom_data[ 0+:4],rom_data[ 8+:4]
+};
 
 jtframe_scroll #(.PW(12),.CW(11),.VA(11),.MAP_VW(8)) u_scroll (
     .rst        ( rst           ),

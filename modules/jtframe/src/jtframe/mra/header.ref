@@ -22,6 +22,7 @@ module jtxx_header(
     
     output reg       gfx=0,
     output reg [2:0] snd=0,
+    output reg [8:0] long=0,
     input      [2:0] prog_addr,
     input      [7:0] prog_data
 );
@@ -31,6 +32,10 @@ always @(posedge clk) begin
         gfx <= prog_data[2];
     if( header && prog_addr[2:0]==3 && prog_we )
         snd <= prog_data[4:2];
+    if( header && prog_addr[2:0]==5 && prog_we )
+        long[8:7] <= prog_data[1:0];
+    if( header && prog_addr[2:0]==4 && prog_we )
+        long[6:0] <= prog_data[7:1];
 end
 
 endmodule
