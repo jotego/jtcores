@@ -266,7 +266,9 @@ jtframe_m68k u_cpu(
 `endif
 jtframe_simdumper #(.DW(105)) dumper(
     .clk        ( clk           ),
+    .rst        ( rst           ),
     .data       ( {flip,obj_y,scrb_y,scrb_x,scra_y,scra_x,txt_y,txt_x} ),
+    .set_data   (               ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     )
 );

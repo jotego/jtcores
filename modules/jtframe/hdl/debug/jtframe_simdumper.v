@@ -30,6 +30,8 @@ module jtframe_simdumper #(parameter
     AW=$clog2(SIZE)
 )(
     input             clk,
+    input             rst,
+    output reg        set_data=0,
 `ifdef JTFRAME_SIMDUMPER_RESTORE
     output reg [DW-1:0] data,
 `else    
@@ -79,6 +81,13 @@ initial begin
         end 
     end
     $fclose(f);    
+end
+
+reg rst_l;
+always @(posedge clk)begin
+    rst_l    <= rst;
+    set_data <= 0;
+    if(rst_l && ~rst) set_data <= 1;
 end
 `endif
 

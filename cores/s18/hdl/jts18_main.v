@@ -585,6 +585,8 @@ jtframe_m68k u_cpu(
 `endif
 jtframe_simdumper #(.DW(15),.SIMFILE("regs.bin"),.SEEK(48)) dumper(
     .clk        ( clk           ),
+    .rst        ( rst           ),
+    .set_data   (               ),
     .data       ( {tile_bank,flip,gray_n,vdp_prio,vdp_en,vid16_en} ),
     .ioctl_addr ( ioctl_addr[0] ),
     .ioctl_din  ( ioctl_din     )
