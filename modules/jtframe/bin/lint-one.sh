@@ -8,7 +8,7 @@ main() {
     CORE=$1
     shift
     set_target
-    read_core_macros
+    read_core_macros $*
 
     if must_skip; then
         echo "Skipping $CORE"
@@ -19,7 +19,7 @@ main() {
     cd $TEST_FOLDER
     make_dummy_rom
 
-    run_linter
+    run_linter $*
     check_msg
     clean_up
 }
