@@ -129,25 +129,49 @@ module ym7101
 	);
 
 localparam DW=236; // 256 bits - 32 bytes
-wire [16:0] reg_data_l2_init;
 wire [ 7:0] regs_dump;
 wire	 	set_data;
+wire [16:0] reg_data_l2_init,    reg_addr_init;
+wire [15:0] reg_lg_init,         reg_sa_low_init;
+wire [14:0] reg_test0_init;
+wire [11:0] reg_test_18_init;
+wire [10:0] reg_test1_init;
+wire [ 7:0] reg_88_init,         reg_at_init,   reg_hit_init,    reg_inc_init;
+wire [ 6:0] reg_hs_init;
+wire [ 5:0] reg_sa_high_init,    reg_wd_init;
+wire [ 4:0] reg_code_init,       reg_whp_init,   reg_wvp_init;
+wire [ 3:0] reg_col_index_init,  reg_sa_init,    reg_sb_init;
+wire [ 1:0] reg_col_pal_init,    reg_dmd_init,   reg_hsz_init,   reg_nt_init,    reg_vsz_init;
+wire		reg_8b_b4_init,		 reg_8b_b5_init, reg_8b_b6_init, reg_8b_b7_init, reg_8c_b4_init, reg_8c_b5_init, reg_8c_b6_init, reg_8e_b0_init, reg_8e_b4_init,  reg_80_b0_init,      reg_80_b2_init,
+			reg_80_b3_init,      reg_80_b6_init, reg_80_b7_init, reg_81_b0_init, reg_81_b1_init, reg_81_b7_init, reg_86_b2_init, reg_86_b5_init, reg_col_b6_init, reg_col_b7_init,     reg_disp_init,
+			reg_down_init,       reg_hscr_init,  reg_ie0_init,   reg_ie1_init,   reg_ie2_init,   reg_lcb_init,   reg_lg_of_init, reg_lscr_init,  reg_lsm0_init,   reg_lsm0_latch_init, reg_lsm1_init,
+			reg_lsm1_latch_init, reg_m1_init,    reg_m2_init,    reg_m3_init,    reg_m5_init,    reg_rigt_init,  reg_rs0_init,   reg_rs1_init,   reg_sa_of_init,  reg_ste_init,        reg_vscr_init;
+`ifdef JTFRAME_RELEASE
+assign {reg_data_l2_init,reg_8b_b4_init,reg_8b_b5_init,reg_8b_b6_init,reg_8b_b7_init,reg_8c_b4_init,reg_8c_b5_init,reg_8c_b6_init,reg_8e_b0_init,reg_8e_b4_init,reg_80_b0_init,reg_80_b2_init,reg_80_b3_init,reg_80_b6_init,reg_80_b7_init,reg_81_b0_init,reg_81_b1_init,reg_81_b7_init,reg_86_b2_init,reg_86_b5_init,reg_88_init,reg_addr_init, reg_at_init, reg_code_init, reg_col_b6_init,reg_col_b7_init, reg_col_index_init,reg_col_pal_init, reg_disp_init,reg_dmd_init,reg_down_init, reg_hit_init,reg_hs_init,reg_hscr_init,reg_hsz_init, reg_ie0_init,reg_ie1_init,reg_ie2_init, reg_inc_init,reg_lcb_init,reg_lg_init,reg_lg_of_init, reg_lscr_init,reg_lsm0_init,reg_lsm0_latch_init,reg_lsm1_init,reg_lsm1_latch_init, reg_m1_init,reg_m2_init,reg_m3_init,reg_m5_init, reg_nt_init,reg_rigt_init,reg_rs0_init,reg_rs1_init, reg_sa_init,reg_sa_high_init,reg_sa_low_init,reg_sa_of_init, reg_sb_init,reg_ste_init,reg_test0_init,reg_test1_init,reg_test_18_init, reg_vscr_init,reg_vsz_init,reg_wd_init,reg_whp_init,reg_wvp_init} = 0;
+assign {set_data,regs_dump}=0;
+`else
+`ifdef SIMULATION `ifdef NOMAIN
+`define JTFRAME_SIMDUMPER_RESTORE
+`endif `endif
 jtframe_simdumper #(.DW(DW),.SIMFILE("regs.bin")) dumper(
     .rst        ( reset_comb     ),
     .clk        ( MCLK           ),
-    .data       ( {reg_data_l2_init,reg_8b_b4,reg_8b_b5,reg_8b_b6,reg_8b_b7,reg_8c_b4,reg_8c_b5,reg_8c_b6,reg_8e_b0,reg_8e_b4,reg_80_b0,reg_80_b2,reg_80_b3,reg_80_b6,reg_80_b7,reg_81_b0,reg_81_b1,reg_81_b7,reg_86_b2,reg_86_b5,reg_88,reg_addr, reg_at, reg_code, reg_col_b6,reg_col_b7, reg_col_index,reg_col_pal, reg_disp,reg_dmd,reg_down, reg_hit,reg_hs,reg_hscr,reg_hsz, reg_ie0,reg_ie1,reg_ie2, reg_inc,reg_lcb,reg_lg,reg_lg_of, reg_lscr,reg_lsm0,reg_lsm0_latch,reg_lsm1,reg_lsm1_latch, reg_m1,reg_m2,reg_m3,reg_m5, reg_nt,reg_rigt,reg_rs0,reg_rs1, reg_sa,reg_sa_high,reg_sa_low,reg_sa_of, reg_sb,reg_ste,reg_test0,reg_test1,reg_test_18, reg_vscr,reg_vsz,reg_wd,reg_whp,reg_wvp} ),
+    `ifdef 	JTFRAME_SIMDUMPER_RESTORE
+    .data       ( {reg_data_l2_init,reg_8b_b4_init,reg_8b_b5_init,reg_8b_b6_init,reg_8b_b7_init,reg_8c_b4_init,reg_8c_b5_init,reg_8c_b6_init,reg_8e_b0_init,reg_8e_b4_init,reg_80_b0_init,reg_80_b2_init,reg_80_b3_init,reg_80_b6_init,reg_80_b7_init,reg_81_b0_init,reg_81_b1_init,reg_81_b7_init,reg_86_b2_init,reg_86_b5_init,reg_88_init,reg_addr_init, reg_at_init, reg_code_init, reg_col_b6_init,reg_col_b7_init, reg_col_index_init,reg_col_pal_init, reg_disp_init,reg_dmd_init,reg_down_init, reg_hit_init,reg_hs_init,reg_hscr_init,reg_hsz_init, reg_ie0_init,reg_ie1_init,reg_ie2_init, reg_inc_init,reg_lcb_init,reg_lg_init,reg_lg_of_init, reg_lscr_init,reg_lsm0_init,reg_lsm0_latch_init,reg_lsm1_init,reg_lsm1_latch_init, reg_m1_init,reg_m2_init,reg_m3_init,reg_m5_init, reg_nt_init,reg_rigt_init,reg_rs0_init,reg_rs1_init, reg_sa_init,reg_sa_high_init,reg_sa_low_init,reg_sa_of_init, reg_sb_init,reg_ste_init,reg_test0_init,reg_test1_init,reg_test_18_init, reg_vscr_init,reg_vsz_init,reg_wd_init,reg_whp_init,reg_wvp_init} ),`else
+    .data       ( {reg_data_l2,reg_8b_b4,reg_8b_b5,reg_8b_b6,reg_8b_b7,reg_8c_b4,reg_8c_b5,reg_8c_b6,reg_8e_b0,reg_8e_b4,reg_80_b0,reg_80_b2,reg_80_b3,reg_80_b6,reg_80_b7,reg_81_b0,reg_81_b1,reg_81_b7,reg_86_b2,reg_86_b5,reg_88,reg_addr, reg_at, reg_code, reg_col_b6,reg_col_b7, reg_col_index,reg_col_pal, reg_disp,reg_dmd,reg_down, reg_hit,reg_hs,reg_hscr,reg_hsz, reg_ie0,reg_ie1,reg_ie2, reg_inc,reg_lcb,reg_lg,reg_lg_of, reg_lscr,reg_lsm0,reg_lsm0_latch,reg_lsm1,reg_lsm1_latch, reg_m1,reg_m2,reg_m3,reg_m5, reg_nt,reg_rigt,reg_rs0,reg_rs1, reg_sa,reg_sa_high,reg_sa_low,reg_sa_of, reg_sb,reg_ste,reg_test0,reg_test1,reg_test_18, reg_vscr,reg_vsz,reg_wd,reg_whp,reg_wvp} ),
+    `endif
     .set_data   ( set_data       ),
     .ioctl_addr ( ioctl_addr[4:0]),
     .ioctl_din  ( regs_dump      )
 );
+`ifndef JTFRAME_SIMDUMPER_RESTORE
+assign {reg_data_l2_init,reg_8b_b4_init,reg_8b_b5_init,reg_8b_b6_init,reg_8b_b7_init,reg_8c_b4_init,reg_8c_b5_init,reg_8c_b6_init,reg_8e_b0_init,reg_8e_b4_init,reg_80_b0_init,reg_80_b2_init,reg_80_b3_init,reg_80_b6_init,reg_80_b7_init,reg_81_b0_init,reg_81_b1_init,reg_81_b7_init,reg_86_b2_init,reg_86_b5_init,reg_88_init,reg_addr_init, reg_at_init, reg_code_init, reg_col_b6_init,reg_col_b7_init, reg_col_index_init,reg_col_pal_init, reg_disp_init,reg_dmd_init,reg_down_init, reg_hit_init,reg_hs_init,reg_hscr_init,reg_hsz_init, reg_ie0_init,reg_ie1_init,reg_ie2_init, reg_inc_init,reg_lcb_init,reg_lg_init,reg_lg_of_init, reg_lscr_init,reg_lsm0_init,reg_lsm0_latch_init,reg_lsm1_init,reg_lsm1_latch_init, reg_m1_init,reg_m2_init,reg_m3_init,reg_m5_init, reg_nt_init,reg_rigt_init,reg_rs0_init,reg_rs1_init, reg_sa_init,reg_sa_high_init,reg_sa_low_init,reg_sa_of_init, reg_sb_init,reg_ste_init,reg_test0_init,reg_test1_init,reg_test_18_init, reg_vscr_init,reg_vsz_init,reg_wd_init,reg_whp_init,reg_wvp_init} = 0;
+`endif `endif
+
 assign ioctl_din = 	ioctl_addr >= 10'h3C0 ? regs_dump  :
 					ioctl_addr >= 10'h300 ? spr_dump   :
 					ioctl_addr >= 10'h280 ? vsr_dump   :
 					ioctl_addr >= 10'h200 ? col_dump   : sat_dump;
-`ifndef SIMULATION `ifndef NOMAIN
-assign reg_data_l2_init = reg_data_l2;
-`endif `endif
-
 	wire cpu_sel;
 	wire cpu_as;
 	wire cpu_uds;
@@ -3355,23 +3379,23 @@ assign reg_data_l2_init = reg_data_l2;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(8)) sr104(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(unk_data), .data_out(l104));
 	
-	ym_slatch_r #(.DATA_WIDTH(8)) sl_hit(.MCLK(MCLK), .en(w229), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit));
+	ym_slatch_r_set #(.DATA_WIDTH(8)) sl_hit(.MCLK(MCLK), .en(w229), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit),         .set(set_data),.set_val(reg_hit_init));
 	
-	ym_slatch sl_lsm0_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm0), .val(reg_lsm0_latch));
-	ym_slatch sl_lsm1_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm1), .val(reg_lsm1_latch));
+	ym_slatch_set sl_lsm0_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm0), .val(reg_lsm0_latch), .set(set_data), .set_val(reg_lsm0_latch_init));
+	ym_slatch_set sl_lsm1_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm1), .val(reg_lsm1_latch), .set(set_data), .set_val(reg_lsm1_latch_init));
 	
-	ym_slatch_r #(.DATA_WIDTH(12)) sl_test_18( .MCLK(MCLK), .en(w128),.rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18));
+	ym_slatch_r_set #(.DATA_WIDTH(12)) sl_test_18( .MCLK(MCLK), .en(w128),.rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18),     .set(set_data),.set_val(reg_test_18_init));
 	
-	ym_slatch_r #(.DATA_WIDTH(15)) sl_test0(   .MCLK(MCLK), .en(w84), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0));
+	ym_slatch_r_set #(.DATA_WIDTH(15)) sl_test0(   .MCLK(MCLK), .en(w84), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0),       .set(set_data),.set_val(reg_test0_init));
 	
-	ym_slatch_r #(.DATA_WIDTH(11)) sl_test1(   .MCLK(MCLK), .en(w85), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1));
+	ym_slatch_r_set #(.DATA_WIDTH(11)) sl_test1(   .MCLK(MCLK), .en(w85), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1),       .set(set_data),.set_val(reg_test1_init));
 	
-	ym_slatch #(  .DATA_WIDTH(2))  sl_code_01( .MCLK(MCLK), .en(w164),                 .inp(w350[7:6]),     .val(reg_code[1:0]));
-	ym_slatch_r #(.DATA_WIDTH(3))  sl_code_234(.MCLK(MCLK), .en(w168), .rst(w204),     .inp(io_data[6:4]),  .val(reg_code[4:2]));
+	ym_slatch_set #(  .DATA_WIDTH(2))  sl_code_01( .MCLK(MCLK), .en(w164),                 .inp(w350[7:6]),     .val(reg_code[1:0]),   .set(set_data),.set_val(reg_code_init[1:0]));
+	ym_slatch_r_set #(.DATA_WIDTH(3))  sl_code_234(.MCLK(MCLK), .en(w168), .rst(w204),     .inp(io_data[6:4]),  .val(reg_code[4:2]),   .set(set_data),.set_val(reg_code_init[4:2]));
 	
-	ym_slatch #(  .DATA_WIDTH(8))  sl_addr_1(  .MCLK(MCLK), .en(w165),                 .inp(io_data[7:0]),  .val(reg_addr[7:0]));
-	ym_slatch #(  .DATA_WIDTH(6))  sl_addr_2(  .MCLK(MCLK), .en(w164),                 .inp(w350[5:0]),     .val(reg_addr[13:8]));
-	ym_slatch_r #(.DATA_WIDTH(3))  sl_addr_3(  .MCLK(MCLK), .en(w168), .rst(w204),     .inp(io_data[2:0]),  .val(reg_addr[16:14]));
+	ym_slatch_set #(  .DATA_WIDTH(8))  sl_addr_1(  .MCLK(MCLK), .en(w165),                 .inp(io_data[7:0]),  .val(reg_addr[7:0]),   .set(set_data),.set_val(reg_addr_init[7:0]));
+	ym_slatch_set #(  .DATA_WIDTH(6))  sl_addr_2(  .MCLK(MCLK), .en(w164),                 .inp(w350[5:0]),     .val(reg_addr[13:8]),  .set(set_data),.set_val(reg_addr_init[13:8]));
+	ym_slatch_r_set #(.DATA_WIDTH(3))  sl_addr_3(  .MCLK(MCLK), .en(w168), .rst(w204),     .inp(io_data[2:0]),  .val(reg_addr[16:14]), .set(set_data),.set_val(reg_addr_init[16:14]));
 	
 	wire [16:0] reg_data_sum = reg_data_l2 + { 9'h0, reg_inc } + { 16'h0, ~reg_m5 };
 	wire [16:0] reg_data_mux = w185 ? reg_addr : reg_data_sum;
@@ -3382,61 +3406,61 @@ assign reg_data_l2_init = reg_data_l2;
 	ym7101_dff_set #(.DATA_WIDTH(3))  reg_data_2(.MCLK(MCLK), .clk(~w181), .inp(reg_data_mux[16:14]), .set_val(reg_data_l2_init[16:14]), .set(set_data),
 		.rst(w204),       .outp(reg_data_l2[16:14]));
 	// Reg # 0.
-	ym_slatch sl_80_b0(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[0]), .val(reg_80_b0));
-	ym_slatch sl_m3(   .MCLK(MCLK), .en(w216), .inp(reg_data_l2[1]), .val(reg_m3));       // 0: Enable read HV.Counter
-	ym_slatch sl_80_b2(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[2]), .val(reg_80_b2));
-	ym_slatch sl_80_b3(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[3]), .val(reg_80_b3));
-	ym_slatch sl_ie1(  .MCLK(MCLK), .en(w216), .inp(reg_data_l2[4]), .val(reg_ie1));     // 1: Enanle H interrupt
-	ym_slatch sl_lcb(  .MCLK(MCLK), .en(w216), .inp(reg_data_l2[5]), .val(reg_lcb));     // 1
-	ym_slatch sl_80_b6(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[6]), .val(reg_80_b6));
-	ym_slatch sl_80_b7(.MCLK(MCLK), .en(w216), .inp(reg_data_l2[7]), .val(reg_80_b7));
+	ym_slatch_set sl_80_b0(.MCLK(MCLK), .set(set_data), .set_val(reg_80_b0_init), .en(w216), .inp(reg_data_l2[0]), .val(reg_80_b0));
+	ym_slatch_set sl_m3(   .MCLK(MCLK), .set(set_data), .set_val(reg_m3_init   ), .en(w216), .inp(reg_data_l2[1]), .val(reg_m3));       // 0: Enable read HV.Counter
+	ym_slatch_set sl_80_b2(.MCLK(MCLK), .set(set_data), .set_val(reg_80_b2_init), .en(w216), .inp(reg_data_l2[2]), .val(reg_80_b2));
+	ym_slatch_set sl_80_b3(.MCLK(MCLK), .set(set_data), .set_val(reg_80_b3_init), .en(w216), .inp(reg_data_l2[3]), .val(reg_80_b3));
+	ym_slatch_set sl_ie1(  .MCLK(MCLK), .set(set_data), .set_val(reg_ie1_init  ), .en(w216), .inp(reg_data_l2[4]), .val(reg_ie1));     // 1: Enanle H interrupt
+	ym_slatch_set sl_lcb(  .MCLK(MCLK), .set(set_data), .set_val(reg_lcb_init  ), .en(w216), .inp(reg_data_l2[5]), .val(reg_lcb));     // 1
+	ym_slatch_set sl_80_b6(.MCLK(MCLK), .set(set_data), .set_val(reg_80_b6_init), .en(w216), .inp(reg_data_l2[6]), .val(reg_80_b6));
+	ym_slatch_set sl_80_b7(.MCLK(MCLK), .set(set_data), .set_val(reg_80_b7_init), .en(w216), .inp(reg_data_l2[7]), .val(reg_80_b7));
 
 	// Reg # 12
-	ym_slatch sl_rs1(  .MCLK(MCLK), .en(w215), .inp(reg_data_l2[0]), .val(reg_rs1));     // 0/1: H 32/40 cell mode. Should be same as rs0
-	ym_slatch sl_lsm0( .MCLK(MCLK), .en(w215), .inp(reg_data_l2[1]), .val(reg_lsm0));    // {lsm1,lsm0}:   0: no interlace; 1: interlace;
-	ym_slatch sl_lsm1( .MCLK(MCLK), .en(w215), .inp(reg_data_l2[2]), .val(reg_lsm1));    // 2: prohibited; 3:interlace (double resolution)
-	ym_slatch sl_ste(  .MCLK(MCLK), .en(w215), .inp(reg_data_l2[3]), .val(reg_ste));     // 1/0: S/TE enable/disable Shadow and highlight
-	ym_slatch sl_8c_b4(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[4]), .val(reg_8c_b4));
-	ym_slatch sl_8c_b5(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[5]), .val(reg_8c_b5));
-	ym_slatch sl_8c_b6(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[6]), .val(reg_8c_b6));
-	ym_slatch sl_rs0(  .MCLK(MCLK), .en(w215), .inp(reg_data_l2[7]), .val(reg_rs0));     // 0/1: H 32/40 cell mode. Should be same as rs1
+	ym_slatch_set sl_rs1(  .MCLK(MCLK), .set(set_data), .set_val(reg_rs1_init  ), .en(w215), .inp(reg_data_l2[0]), .val(reg_rs1));     // 0/1: H 32/40 cell mode. Should be same as rs0
+	ym_slatch_set sl_lsm0( .MCLK(MCLK), .set(set_data), .set_val(reg_lsm0_init ), .en(w215), .inp(reg_data_l2[1]), .val(reg_lsm0));    // {lsm1,lsm0}:   0: no interlace; 1: interlace;
+	ym_slatch_set sl_lsm1( .MCLK(MCLK), .set(set_data), .set_val(reg_lsm1_init ), .en(w215), .inp(reg_data_l2[2]), .val(reg_lsm1));    // 2: prohibited; 3:interlace (double resolution)
+	ym_slatch_set sl_ste(  .MCLK(MCLK), .set(set_data), .set_val(reg_ste_init  ), .en(w215), .inp(reg_data_l2[3]), .val(reg_ste));     // 1/0: S/TE enable/disable Shadow and highlight
+	ym_slatch_set sl_8c_b4(.MCLK(MCLK), .set(set_data), .set_val(reg_8c_b4_init), .en(w215), .inp(reg_data_l2[4]), .val(reg_8c_b4));
+	ym_slatch_set sl_8c_b5(.MCLK(MCLK), .set(set_data), .set_val(reg_8c_b5_init), .en(w215), .inp(reg_data_l2[5]), .val(reg_8c_b5));
+	ym_slatch_set sl_8c_b6(.MCLK(MCLK), .set(set_data), .set_val(reg_8c_b6_init), .en(w215), .inp(reg_data_l2[6]), .val(reg_8c_b6));
+	ym_slatch_set sl_rs0(  .MCLK(MCLK), .set(set_data), .set_val(reg_rs0_init  ), .en(w215), .inp(reg_data_l2[7]), .val(reg_rs0));     // 0/1: H 32/40 cell mode. Should be same as rs1
 	// Reg # 1
-	ym_slatch sl_81_b0(.MCLK(MCLK), .en(w217), .inp(reg_data_l2[0]), .val(reg_81_b0));
-	ym_slatch sl_81_b1(.MCLK(MCLK), .en(w217), .inp(reg_data_l2[1]), .val(reg_81_b1));
-	ym_slatch sl_m5(   .MCLK(MCLK), .en(w217), .inp(reg_data_l2[2]), .val(reg_m5));       // should be 1 according to documentation
-	ym_slatch sl_m2(   .MCLK(MCLK), .en(w217), .inp(reg_data_l2[3]), .val(reg_m2));       // 1: V 30 cell mode (PAL). 0: V28 cell mode (PAL/NTSC)
-	ym_slatch sl_m1(   .MCLK(MCLK), .en(w217), .inp(reg_data_l2[4]), .val(reg_m1));       // 1/0: DMA enable/disable
-	ym_slatch sl_ie0(  .MCLK(MCLK), .en(w217), .inp(reg_data_l2[5]), .val(reg_ie0));      // 1/0: Enable/disable V interrupt
-	ym_slatch sl_disp( .MCLK(MCLK), .en(w217), .inp(reg_data_l2[6]), .val(reg_disp));     // 1/0: Enable/disable Display
-	ym_slatch sl_81_b7(.MCLK(MCLK), .en(w217), .inp(reg_data_l2[7]), .val(reg_81_b7));
+	ym_slatch_set sl_81_b0(.MCLK(MCLK), .set(set_data), .set_val(reg_81_b0_init), .en(w217), .inp(reg_data_l2[0]), .val(reg_81_b0));
+	ym_slatch_set sl_81_b1(.MCLK(MCLK), .set(set_data), .set_val(reg_81_b1_init), .en(w217), .inp(reg_data_l2[1]), .val(reg_81_b1));
+	ym_slatch_set sl_m5(   .MCLK(MCLK), .set(set_data), .set_val(reg_m5_init   ), .en(w217), .inp(reg_data_l2[2]), .val(reg_m5));       // should be 1 according to documentation
+	ym_slatch_set sl_m2(   .MCLK(MCLK), .set(set_data), .set_val(reg_m2_init   ), .en(w217), .inp(reg_data_l2[3]), .val(reg_m2));       // 1: V 30 cell mode (PAL). 0: V28 cell mode (PAL/NTSC)
+	ym_slatch_set sl_m1(   .MCLK(MCLK), .set(set_data), .set_val(reg_m1_init   ), .en(w217), .inp(reg_data_l2[4]), .val(reg_m1));       // 1/0: DMA enable/disable
+	ym_slatch_set sl_ie0(  .MCLK(MCLK), .set(set_data), .set_val(reg_ie0_init  ), .en(w217), .inp(reg_data_l2[5]), .val(reg_ie0));      // 1/0: Enable/disable V interrupt
+	ym_slatch_set sl_disp( .MCLK(MCLK), .set(set_data), .set_val(reg_disp_init ), .en(w217), .inp(reg_data_l2[6]), .val(reg_disp));     // 1/0: Enable/disable Display
+	ym_slatch_set sl_81_b7(.MCLK(MCLK), .set(set_data), .set_val(reg_81_b7_init), .en(w217), .inp(reg_data_l2[7]), .val(reg_81_b7));
 	
 	// Reg # 11
-	ym_slatch sl_lscr( .MCLK(MCLK), .en(w213), .inp(reg_data_l2[0]), .val(reg_lscr));     // case({hscr,lscr}) 0: full scroll; 1: Prohibited;
-	ym_slatch sl_hscr( .MCLK(MCLK), .en(w213), .inp(reg_data_l2[1]), .val(reg_hscr));     // 2: Each 1 cell scroll; 3: Each 1 line scroll; endcase
-	ym_slatch sl_vscr( .MCLK(MCLK), .en(w213), .inp(reg_data_l2[2]), .val(reg_vscr));     // 0: Full scroll; 1: Each cell 2 cell scroll
-	ym_slatch sl_ie2(  .MCLK(MCLK), .en(w213), .inp(reg_data_l2[3]), .val(reg_ie2));      // 1/0: Enable/disable external interrupt
-	ym_slatch sl_8b_b4(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[4]), .val(reg_8b_b4));
-	ym_slatch sl_8b_b5(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[5]), .val(reg_8b_b5));
-	ym_slatch sl_8b_b6(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[6]), .val(reg_8b_b6));
-	ym_slatch sl_8b_b7(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[7]), .val(reg_8b_b7));
+	ym_slatch_set sl_lscr( .MCLK(MCLK), .set(set_data), .set_val(reg_lscr_init ), .en(w213), .inp(reg_data_l2[0]), .val(reg_lscr));     // case({hscr,lscr}) 0: full scroll; 1: Prohibited;
+	ym_slatch_set sl_hscr( .MCLK(MCLK), .set(set_data), .set_val(reg_hscr_init ), .en(w213), .inp(reg_data_l2[1]), .val(reg_hscr));     // 2: Each 1 cell scroll; 3: Each 1 line scroll; endcase
+	ym_slatch_set sl_vscr( .MCLK(MCLK), .set(set_data), .set_val(reg_vscr_init ), .en(w213), .inp(reg_data_l2[2]), .val(reg_vscr));     // 0: Full scroll; 1: Each cell 2 cell scroll
+	ym_slatch_set sl_ie2(  .MCLK(MCLK), .set(set_data), .set_val(reg_ie2_init  ), .en(w213), .inp(reg_data_l2[3]), .val(reg_ie2));      // 1/0: Enable/disable external interrupt
+	ym_slatch_set sl_8b_b4(.MCLK(MCLK), .set(set_data), .set_val(reg_8b_b4_init), .en(w213), .inp(reg_data_l2[4]), .val(reg_8b_b4));
+	ym_slatch_set sl_8b_b5(.MCLK(MCLK), .set(set_data), .set_val(reg_8b_b5_init), .en(w213), .inp(reg_data_l2[5]), .val(reg_8b_b5));
+	ym_slatch_set sl_8b_b6(.MCLK(MCLK), .set(set_data), .set_val(reg_8b_b6_init), .en(w213), .inp(reg_data_l2[6]), .val(reg_8b_b6));
+	ym_slatch_set sl_8b_b7(.MCLK(MCLK), .set(set_data), .set_val(reg_8b_b7_init), .en(w213), .inp(reg_data_l2[7]), .val(reg_8b_b7));
 	// Reg # 15. Auto increment data
-	ym_slatch #(.DATA_WIDTH(8)) sl_inc(    .MCLK(MCLK), .en(w210), .inp(reg_data_l2[7:0]), .val(reg_inc));     // Bias number. Added automatically after ram access
+	ym_slatch_set #(.DATA_WIDTH(8)) sl_inc(    .MCLK(MCLK), .en(w210),.set(set_data),.set_val(reg_inc_init    ),.inp(reg_data_l2[7:0]), .val(reg_inc));     // Bias number. Added automatically after ram access
 	// Reg # 23. DMA source address high
-	ym_slatch #(.DATA_WIDTH(6)) sl_sa_high(.MCLK(MCLK), .en(w227), .inp(reg_data_l2[5:0]), .val(reg_sa_high)); // DMA source address SA[22:17]
-	ym_slatch #(.DATA_WIDTH(2)) sl_dmd(    .MCLK(MCLK), .en(w227), .inp(reg_data_l2[7:6]), .val(reg_dmd));     // DMA mode: 0,1: Memory to vram and SA[23]=dmd[0]
+	ym_slatch_set #(.DATA_WIDTH(6)) sl_sa_high(.MCLK(MCLK), .en(w227),.set(set_data),.set_val(reg_sa_high_init),.inp(reg_data_l2[5:0]), .val(reg_sa_high)); // DMA source address SA[22:17]
+	ym_slatch_set #(.DATA_WIDTH(2)) sl_dmd(    .MCLK(MCLK), .en(w227),.set(set_data),.set_val(reg_dmd_init    ),.inp(reg_data_l2[7:6]), .val(reg_dmd));     // DMA mode: 0,1: Memory to vram and SA[23]=dmd[0]
 	                                                                                                           //     2: VRAM Fill;  3: VRAM Copy
 	// Reg # 19.  DMA Length Counter Low
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_lg_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w235), .reset(1'h0), .load(w211), .load_val(~reg_data_l2[7:0]), .c_out(reg_lg_of), .val(reg_lg[7:0]));     // DMA length_counter[7:0]
+		.c_in(w235), .reset(1'h0), .load(w211|set_data), .load_val(set_data?reg_lg_init[ 7:0]:~reg_data_l2[7:0]),    .c_out(reg_lg_of), .val(reg_lg[7:0]));     // DMA length_counter[7:0]
 	// Reg # 20.  DMA Length Counter High
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_lg_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w251), .reset(1'h0), .load(w212), .load_val(~reg_data_l2[7:0]),                   .val(reg_lg[15:8]));     // DMA length counter[15:8]
+		.c_in(w251), .reset(1'h0), .load(w212|set_data), .load_val(set_data?reg_lg_init[15:8]:~reg_data_l2[7:0]),                       .val(reg_lg[15:8]));     // DMA length counter[15:8]
 	// Reg # 21. DMA source address low
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_sa_low_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w235), .reset(1'h0), .load(w228), .load_val(reg_data_l2[7:0]), .c_out(reg_sa_of), .val(reg_sa_low[7:0]));  // DMA source address SA[8:1]
+		.c_in(w235), .reset(1'h0), .load(w228|set_data), .load_val(set_data?reg_sa_low_init[ 7:0]:reg_data_l2[7:0]), .c_out(reg_sa_of), .val(reg_sa_low[7:0]));  // DMA source address SA[8:1]
 	// Reg # 22. DMA source address mid
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_sa_low_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w255), .reset(1'h0), .load(w214), .load_val(reg_data_l2[7:0]),                    .val(reg_sa_low[15:8])); // DMA source address SA[16:9]
+		.c_in(w255), .reset(1'h0), .load(w214|set_data), .load_val(set_data?reg_sa_low_init[15:8]:reg_data_l2[7:0]),                    .val(reg_sa_low[15:8])); // DMA source address SA[16:9]
 	
 	assign IPL1_pull = ~io_ipl1;
 	assign IPL2_pull = ~io_ipl2;
@@ -4126,9 +4150,9 @@ assign reg_data_l2_init = reg_data_l2;
 	
 	assign w522 = w521 + { 2'h0, w355[8:0] };
 	// Reg # 16. H Scroll Size (A & B)
-	ym_slatch #(.DATA_WIDTH(2)) sl_hsz(.MCLK(MCLK), .en(w224), .inp(reg_data_l2[1:0]), .val(reg_hsz)); // 0/1/3: H 32/64/128 cell; 2: prohibited
+	ym_slatch_set #(.DATA_WIDTH(2)) sl_hsz(.MCLK(MCLK),.set(set_data),.set_val(reg_hsz_init), .en(w224), .inp(reg_data_l2[1:0]), .val(reg_hsz)); // 0/1/3: H 32/64/128 cell; 2: prohibited
 	// Reg # 16. V Scroll Size (A & B)
-	ym_slatch #(.DATA_WIDTH(2)) sl_vsz(.MCLK(MCLK), .en(w224), .inp(reg_data_l2[5:4]), .val(reg_vsz)); // 0/1/3: V 32/64/128 cell; 2: prohibited
+	ym_slatch_set #(.DATA_WIDTH(2)) sl_vsz(.MCLK(MCLK),.set(set_data),.set_val(reg_vsz_init), .en(w224), .inp(reg_data_l2[5:4]), .val(reg_vsz)); // 0/1/3: V 32/64/128 cell; 2: prohibited
 	
 	assign w523 = reg_hsz == 2'h0; // Scroll H size  32 cell
 	
@@ -4153,19 +4177,19 @@ assign reg_data_l2_init = reg_data_l2;
 	
 	assign w531 = reg_m5 & w558;
 	// Reg # 2. Pattern name table base address for Scroll A
-	ym_slatch #(.DATA_WIDTH(4)) sl_sa(.MCLK(MCLK), .en(w218), .inp(reg_data_l2[6:3]), .val(reg_sa)); // vram_addr[15:13] for scroll A
+	ym_slatch_set #(.DATA_WIDTH(4)) sl_sa(.MCLK(MCLK), .set(set_data), .set_val(reg_sa_init),.en(w218), .inp(reg_data_l2[6:3]), .val(reg_sa)); // vram_addr[15:13] for scroll A
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl_nt(.MCLK(MCLK), .en(w218), .inp(reg_data_l2[2:1]), .val(reg_nt)); // nt ??
+	ym_slatch_set #(.DATA_WIDTH(2)) sl_nt(.MCLK(MCLK), .set(set_data), .set_val(reg_nt_init),.en(w218), .inp(reg_data_l2[2:1]), .val(reg_nt)); // nt ??
 	// Reg # 4. Pattern name table base address for Scroll B
-	ym_slatch #(.DATA_WIDTH(4)) sl_sb(.MCLK(MCLK), .en(w220), .inp(reg_data_l2[3:0]), .val(reg_sb)); // vram_addr[15:13] for scroll B
+	ym_slatch_set #(.DATA_WIDTH(4)) sl_sb(.MCLK(MCLK), .set(set_data), .set_val(reg_sb_init),.en(w220), .inp(reg_data_l2[3:0]), .val(reg_sb)); // vram_addr[15:13] for scroll B
 	
 	assign w532 = l200 ? reg_sb : reg_sa;
 	
 	assign w533 = reg_m5 ? w527[6:5] : reg_nt;
 	
-	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[0]), .val(reg_8e_b0));
+	ym_slatch_set sl_8e_b0(.MCLK(MCLK), .set(set_data),.set_val(reg_8e_b0_init),.en(w232), .inp(reg_data_l2[0]), .val(reg_8e_b0));
 	
-	ym_slatch sl_8e_b4(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[4]), .val(reg_8e_b4));
+	ym_slatch_set sl_8e_b4(.MCLK(MCLK), .set(set_data),.set_val(reg_8e_b4_init),.en(w232), .inp(reg_data_l2[4]), .val(reg_8e_b4));
 	
 	assign w534 = l106[8:7] != 2'h3;
 	
@@ -4175,9 +4199,9 @@ assign reg_data_l2_init = reg_data_l2;
 		{ w537[7:3], l106[8] } :
 		{ reg_wd[0], w537[7:3] };
 	// Reg # 3. Pattern name table base address for window
-	ym_slatch #(.DATA_WIDTH(6)) sl_wd(.MCLK(MCLK), .en(w219), .inp(reg_data_l2[6:1]), .val(reg_wd)); // vram_addr[15:11] = wd for window. wd[0]=0 for H 40 cell mode
+	ym_slatch_set #(.DATA_WIDTH(6)) sl_wd(.MCLK(MCLK),.set(set_data),.set_val(reg_wd_init), .en(w219), .inp(reg_data_l2[6:1]), .val(reg_wd)); // vram_addr[15:11] = wd for window. wd[0]=0 for H 40 cell mode
 	// Reg # 13 H Scroll Data table base address
-	ym_slatch #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK), .en(w233), .inp(reg_data_l2[6:0]), .val(reg_hs)); // vram_addr[15:11] = hs for scroll data
+	ym_slatch_set #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK),.set(set_data),.set_val(reg_hs_init), .en(w233), .inp(reg_data_l2[6:0]), .val(reg_hs)); // vram_addr[15:11] = hs for scroll data
 	
 	assign w537 = w106 ? w355[8:1] : w355[7:0];
 	
@@ -4189,13 +4213,13 @@ assign reg_data_l2_init = reg_data_l2;
 	
 	assign w541 = (w540 | w539) & ~l106[3] & reg_m5;
 	// Reg # 17 Window H position
-	ym_slatch #(.DATA_WIDTH(5)) sl_whp(.MCLK(MCLK), .en(w223), .inp(reg_data_l2[4:0]), .val(reg_whp));  // WHP[5:1] base pointer
+	ym_slatch_set #(.DATA_WIDTH(5)) sl_whp(.MCLK(MCLK),.set(set_data),.set_val(reg_whp_init ), .en(w223), .inp(reg_data_l2[4:0]), .val(reg_whp));  // WHP[5:1] base pointer
 	
-	ym_slatch sl_rigt(                 .MCLK(MCLK), .en(w223), .inp(reg_data_l2[7]),   .val(reg_rigt)); // 0/1: Window is in left/right side from base point
+	ym_slatch_set sl_rigt(                 .MCLK(MCLK),.set(set_data),.set_val(reg_rigt_init), .en(w223), .inp(reg_data_l2[7]),   .val(reg_rigt)); // 0/1: Window is in left/right side from base point
 	// Reg # 18 Window V position
-	ym_slatch #(.DATA_WIDTH(5)) sl_wvp(.MCLK(MCLK), .en(w222), .inp(reg_data_l2[4:0]), .val(reg_wvp)); // WVP[4:0] base pointer
+	ym_slatch_set #(.DATA_WIDTH(5)) sl_wvp(.MCLK(MCLK),.set(set_data),.set_val(reg_wvp_init ), .en(w222), .inp(reg_data_l2[4:0]), .val(reg_wvp)); // WVP[4:0] base pointer
 	
-	ym_slatch sl_down(                 .MCLK(MCLK), .en(w222), .inp(reg_data_l2[7]),   .val(reg_down)); // 0/1: Window is in upper/lower side from base point
+	ym_slatch_set sl_down(                 .MCLK(MCLK),.set(set_data),.set_val(reg_down_init), .en(w222), .inp(reg_data_l2[7]),   .val(reg_down)); // 0/1: Window is in upper/lower side from base point
 	
 	assign w542 = reg_test1[7] | l115;
 	
@@ -4217,7 +4241,7 @@ assign reg_data_l2_init = reg_data_l2;
 	
 	assign w547 = reg_test1[7] | l115;
 	// Reg # 10 H interrupt Register (?)
-	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(w231), .inp(reg_data_l2[7:0]), .val(reg_88)); // H interrupts timing by number of Raster H interrupt. Enabled by ie=1
+	ym_slatch_set #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK),.set(set_data),.set_val(reg_88_init), .en(w231), .inp(reg_data_l2[7:0]), .val(reg_88)); // H interrupts timing by number of Raster H interrupt. Enabled by ie=1
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(w570), .inp(vram_serial), .val(l191));
 	
@@ -5145,11 +5169,11 @@ jtframe_dual_ram16 #(
 	
 	assign w739 = w94 ? io_data[3:0] : l341[3:0];
 	
-	ym_slatch sl_86_b2(.MCLK(MCLK), .en(w225), .inp(reg_data_l2[2]), .val(reg_86_b2));
+	ym_slatch_set sl_86_b2(.MCLK(MCLK),.set(set_data),.set_val(reg_86_b2_init), .en(w225), .inp(reg_data_l2[2]), .val(reg_86_b2));
 	
-	ym_slatch sl_86_b5(.MCLK(MCLK), .en(w225), .inp(reg_data_l2[5]), .val(reg_86_b5));
+	ym_slatch_set sl_86_b5(.MCLK(MCLK),.set(set_data),.set_val(reg_86_b5_init), .en(w225), .inp(reg_data_l2[5]), .val(reg_86_b5));
 	// Reg # 5. Sprite atribute table base name
-	ym_slatch #(.DATA_WIDTH(8)) sl_at(.MCLK(MCLK), .en(w226), .inp(reg_data_l2[7:0]), .val(reg_at)); // vram_addr[15:9]=at[6:0] for sprites. at[0]==0 for 40 cell mode
+	ym_slatch_set #(.DATA_WIDTH(8)) sl_at(.MCLK(MCLK),.set(set_data),.set_val(reg_at_init), .en(w226), .inp(reg_data_l2[7:0]), .val(reg_at)); // vram_addr[15:9]=at[6:0] for sprites. at[0]==0 for 40 cell mode
 	
 	wire [7:0] spr_at_1 = reg_at | { 7'h0, reg_rs1 };
 	wire [7:0] spr_at_2 = vram_address[16:9] | { 7'h0, reg_rs1 };
@@ -6602,13 +6626,13 @@ jtframe_dual_ram16 #(
 	
 	assign w1073 = ~reg_m5 & w1021;
 	// Reg # 7 Background color
-	ym_slatch #(.DATA_WIDTH(4)) sl_col_index(.MCLK(MCLK), .en(w221), .inp(reg_data_l2[3:0]), .val(reg_col_index)); // Color code
+	ym_slatch_set #(.DATA_WIDTH(4)) sl_col_index(.MCLK(MCLK),.set(set_data),.set_val(reg_col_index_init), .en(w221), .inp(reg_data_l2[3:0]), .val(reg_col_index)); // Color code
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl_col_pal(  .MCLK(MCLK), .en(w221), .inp(reg_data_l2[5:4]), .val(reg_col_pal));   // Color palett
+	ym_slatch_set #(.DATA_WIDTH(2)) sl_col_pal(  .MCLK(MCLK),.set(set_data),.set_val(reg_col_pal_init  ), .en(w221), .inp(reg_data_l2[5:4]), .val(reg_col_pal));   // Color palett
 	
-	ym_slatch sl_col_b6(.MCLK(MCLK), .en(w221), .inp(reg_data_l2[6]), .val(reg_col_b6));                           // 0 in documentation
+	ym_slatch_set sl_col_b6(.MCLK(MCLK),.set(set_data),.set_val(reg_col_b6_init), .en(w221), .inp(reg_data_l2[6]), .val(reg_col_b6));                           // 0 in documentation
 	
-	ym_slatch sl_col_b7(.MCLK(MCLK), .en(w221), .inp(reg_data_l2[7]), .val(reg_col_b7));                           // 0 in documentation
+	ym_slatch_set sl_col_b7(.MCLK(MCLK),.set(set_data),.set_val(reg_col_b7_init), .en(w221), .inp(reg_data_l2[7]), .val(reg_col_b7));                           // 0 in documentation
 	
 	ym_sr_bit sr614(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1074), .sr_out(l614));
 	
@@ -7487,7 +7511,7 @@ module ym7101_dff_set #(parameter DATA_WIDTH = 1)
 
 	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
 
-	wire [DATA_WIDTH-1:0] l2_assign = /*set ? set_val : */rst ? {DATA_WIDTH{1'h0}} : (clk ? l1 : l2);
+	wire [DATA_WIDTH-1:0] l2_assign = rst ? {DATA_WIDTH{1'h0}} : (clk ? l1 : l2);
 
 	assign outp = l2_assign;
 	//assign outp = l2;
