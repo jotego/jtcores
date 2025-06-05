@@ -351,6 +351,31 @@ module ym_slatch #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+module ym_slatch_set #(parameter DATA_WIDTH = 1)
+	(
+	input MCLK,
+	input en, set,
+	input [DATA_WIDTH-1:0] inp, set_val,
+	output [DATA_WIDTH-1:0] val,
+	output [DATA_WIDTH-1:0] nval
+	);
+
+	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
+
+	wire [DATA_WIDTH-1:0] mem_assign = set ? set_val : en ? inp : mem;
+
+	always @(posedge MCLK)
+	begin
+		mem <= mem_assign;
+	end
+
+	//assign val = mem_assign;
+	//assign nval = ~mem_assign;
+	assign val = mem;
+	assign nval = ~mem;
+
+endmodule
+
 /*module ym_slatch #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -642,6 +667,32 @@ module ym_slatch_r #(parameter DATA_WIDTH = 1)
 	assign val = mem;
 	assign nval = ~mem;
 	
+endmodule
+
+module ym_slatch_r_set #(parameter DATA_WIDTH = 1)
+	(
+	input MCLK,
+	input en,set,
+	input rst,
+	input [DATA_WIDTH-1:0] inp, set_val,
+	output [DATA_WIDTH-1:0] val,
+	output [DATA_WIDTH-1:0] nval
+	);
+
+	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
+
+	wire [DATA_WIDTH-1:0] mem_assign = set? set_val : rst ? {DATA_WIDTH{1'h0}} : (en ? inp : mem);
+
+	always @(posedge MCLK)
+	begin
+		mem <= mem_assign;
+	end
+
+	//assign val = mem_assign;
+	//assign nval = ~mem_assign;
+	assign val = mem;
+	assign nval = ~mem;
+
 endmodule
 
 /*module ym_slatch_r #(parameter DATA_WIDTH = 1)
