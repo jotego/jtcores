@@ -583,7 +583,7 @@ jtframe_m68k u_cpu(
     assign  sndmap_pbf  = 0;
     assign  st_dout     = 0;
 `endif
-jtframe_simdumper #(.DW(15),.SIMFILE("regs.bin"),.SEEK(48)) dumper(
+jtframe_simdumper #(.DW(15),.SIMFILE("regs.bin"),.SEEK(272)) dumper(
     .clk        ( clk           ),
     .rst        ( rst           ),
     .set_data   (               ),
