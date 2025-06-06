@@ -73,6 +73,10 @@ function [7:0] w2b(input [15:0] w); begin
     w2b = baddr[0] ? w[15:8] : w[7:0];
 end endfunction
 
+function [7:0] x2b(input [15:0] w); begin
+    x2b = (metrocrs ? baddr[10] : baddr[0]) ? w[15:8] : w[7:0];
+end endfunction
+
 jtframe_mmr_reg #(.W(2)) u_mbank(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -104,7 +108,7 @@ end
 // assign master = ~bsel;
 // assign sub    =  bsel;
 assign bdin   = scr0_cs ? w2b(scr0_dout) :
-                scr1_cs ? w2b(scr1_dout) :
+                scr1_cs ? x2b(scr1_dout) :
                 oram_cs ? w2b(oram_dout) : 8'd0;
 
 reg [7:0] mother;
