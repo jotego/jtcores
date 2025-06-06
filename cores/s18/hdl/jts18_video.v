@@ -174,7 +174,7 @@ assign LHBL = scr_lhbl;
 //     end
 // end
 `ifndef JTFRAME_RELEASE
-jts18_video_mmr #(.SIMFILE("regs.bin"),.SEEK(32)) u_tilebanks(
+jts18_video_mmr #(.SIMFILE("regs.bin"),.SEEK(256)) u_tilebanks(
     .rst       ( rst           ),
     .clk       ( clk48         ),
     .cs        ( bank_cs       ),

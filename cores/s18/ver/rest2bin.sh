@@ -2,7 +2,7 @@
 main(){
 	VRAM_OFFSET=$((0x200000))
 	SIZE=$((0x10000)) # 64 KiB
-	BYTES=$((2+16+32)) # main + video + vdp
+	BYTES=$((2+16+256)) # main + video + vdp
 	REST="rest.bin"
 	SKIP=0
 
