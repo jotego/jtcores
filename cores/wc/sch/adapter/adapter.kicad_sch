@@ -4206,6 +4206,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 69.85) (xy 85.09 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31cc9fce-736a-4f82-a9c0-12852e18f541")
+	)
+	(wire
+		(pts
 			(xy 170.18 50.8) (xy 167.64 50.8)
 		)
 		(stroke
@@ -4413,16 +4423,6 @@
 			(type default)
 		)
 		(uuid "54c3155f-52dc-4241-800a-e800ef6fe04b")
-	)
-	(wire
-		(pts
-			(xy 81.28 69.85) (xy 85.09 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5713cfd3-8beb-4cb0-b547-737b990e5c37")
 	)
 	(wire
 		(pts
@@ -5195,6 +5195,16 @@
 		(uuid "ffeb0ada-303a-4fd4-af0e-1fedc60020f5")
 	)
 	(label "VCC"
+		(at 81.28 72.39 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "00549957-7a81-4ed7-b6a0-296e6492233d")
+	)
+	(label "VCC"
 		(at 266.7 71.12 180)
 		(effects
 			(font
@@ -5575,16 +5585,6 @@
 		(uuid "6ab3f96a-03c9-4673-9a01-e052117ac9b4")
 	)
 	(label "GND"
-		(at 35.56 72.39 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6b6833a5-3fec-4968-9389-f52e375a550a")
-	)
-	(label "GND"
 		(at 213.36 96.52 0)
 		(effects
 			(font
@@ -5633,16 +5633,6 @@
 			(justify right bottom)
 		)
 		(uuid "7457b6c6-444a-490e-8e20-f3c469eb7045")
-	)
-	(label "GND"
-		(at 81.28 72.39 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "750a67ff-8bbb-4b81-839f-571d9c0287ed")
 	)
 	(label "~{1PU}"
 		(at 78.74 106.68 0)
@@ -6264,6 +6254,16 @@
 		)
 		(uuid "f5b5c749-1875-4d38-9119-3373e6fdc5b0")
 	)
+	(label "VCC"
+		(at 35.56 72.39 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fdef1b93-cd9f-4b5a-ace1-c0457cf5db15")
+	)
 	(label "~{COIN1}"
 		(at 213.36 101.6 0)
 		(effects
@@ -6310,7 +6310,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "arcade:thekan_wc"
 			(at 176.53 129.54 0)
 			(effects
 				(font
@@ -6634,7 +6634,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "arcade:thekan_wc"
 			(at 176.53 74.93 0)
 			(effects
 				(font
@@ -6803,7 +6803,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_DIP:DIP-20_W7.62mm_Socket"
 			(at 52.07 59.69 0)
 			(effects
 				(font
@@ -6924,7 +6924,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "arcade:JAMMA MALE"
 			(at 241.3 93.98 0)
 			(effects
 				(font
@@ -7277,7 +7277,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_DIP:DIP-20_W7.62mm_Socket"
 			(at 97.79 59.69 0)
 			(effects
 				(font
