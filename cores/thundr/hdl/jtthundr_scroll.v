@@ -61,7 +61,7 @@ assign code_msb = dec_en ? (LYR==0 ? dec_data[3:1] : dec_data[7:5]) : {LYR[0],pa
 assign upper_nibbles = { rom_data[20+:4], rom_data[28+:4] };
 assign lower_nibbles = { rom_data[16+:4], rom_data[24+:4] };
 assign sorted   = { 8'd0,
-    dec_en ? rom_data[23-:8]^{8{plane3inv}} : LYR==1 ? upper_nibbles:lower_nibbles,
+    dec_en ? rom_data[23-:8]^{8{plane3inv}} : code[9] ? lower_nibbles : upper_nibbles,
     rom_data[ 4+:4],rom_data[12+:4],
     rom_data[ 0+:4],rom_data[ 8+:4]
 };

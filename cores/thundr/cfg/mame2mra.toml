@@ -1,6 +1,7 @@
 [parse]
 sourcefile=[ "namcos86.cpp", "baraduke.cpp" ]
 debug={machines=[
+	# bad third bit plane of scroll layer
 	"aliensec",
 ]}
 
@@ -117,10 +118,10 @@ regions = [
 	# aliensec tiles
 	{ name="gfx1", start="JTFRAME_BA2_START", setname="aliensec", parts=[
 		{name="bd2_8.4p", crc="432bd7d9",map="0021"},
-		{name="bd2_6.4m", crc="432bd7d9",map="2100"},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
 
 		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
-		{name="bd2_6.4m", crc="432bd7d9",map="2100"},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
 	], mirror=true },
 	# baraduke tiles
 	{ name="gfx1", start="JTFRAME_BA2_START", setname="baraduke", parts=[

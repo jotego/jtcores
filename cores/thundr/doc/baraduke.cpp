@@ -845,12 +845,12 @@ void baraduke_state::init_baraduke()
 	// unpack the third tile ROM
 	uint8_t *rom = memregion("tiles")->base() + 0x8000;
 	for (int i = 0x2000; i < 0x4000; i++)
-	{
+	{	// scroll layer 1
 		rom[i + 0x2000] = rom[i];
 		rom[i + 0x4000] = rom[i] << 4;
 	}
 	for (int i = 0; i < 0x2000; i++)
-	{
+	{	// scroll layer 0
 		rom[i + 0x2000] = rom[i] << 4;
 	}
 }
