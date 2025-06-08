@@ -37,14 +37,14 @@ Status bits in the configuration string are indicated with characters. This is t
 
 ```
 Bits 0-31 (o in upper case)
-bit          00000000001111111112222222222233
-  number   : 01234567890123456789012345678901
-status char: 0123456789ABCDEFGHIJKLMNOPQRSTUV
+bit          00000000 00111111 11122222 22222233
+  number   : 01234567 89012345 67890123 45678901
+status char: 01234567 89ABCDEF GHIJKLMN OPQRSTUV
 
 Bits 32-63 (o in lower case)
-bit          33333333444444444455555555556666
-  number   : 23456789012345678901234567890123
-status char: 0123456789ABCDEFGHIJKLMNOPQRSTUV
+bit          33333333 44444444 44555555 55556666
+  number   : 23456789 01234567 89012345 67890123
+status char: 01234567 89ABCDEF GHIJKLMN OPQRSTUV
 
 ```
 
@@ -81,6 +81,7 @@ bit     |  meaning                | Enabled with macro
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
 13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
+18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)

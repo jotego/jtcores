@@ -31,6 +31,7 @@ JTFRAME_HEIGHT           |         | Sets the video height
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
+JTFRAME_JOY1_POS         |         | Joystick 1 can be mapped to a different player (see TMNT core)
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
 JTFRAME_JOY_DULR         |         | Joystick lower 4 bits are:  down,  up,    left,  right
 JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, up,    down

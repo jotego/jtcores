@@ -135,6 +135,9 @@ func CheckMacros() error {
 	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_MR_DDRLOAD") {
 		return fmt.Errorf("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_MR_DDRLOAD")
 	}
+	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
+		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")
+	}
 	// sim macros
 	maxframe_str   := Get("MAXFRAME")
 	dumpstart_str  := Get("DUMP_START")

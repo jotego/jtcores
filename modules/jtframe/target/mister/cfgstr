@@ -30,6 +30,7 @@ d5P1oAD,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;
 {{ if .CORE_OSD }}
     {{ .CORE_OSD }}
 {{ end }}
+{{ if .JTFRAME_JOY1_POS }}          OIJ,Player 1 character,First,Second,Third,Fourth; {{ end }}
 {{ if .JTFRAME_OSD_VOL }}           O67,FX volume,high,highest,lowest,low; {{ end }}
 {{ if .JTFRAME_OSD_TEST }}          OA,Service mode,Off,On; {{ end }}
 {{ if .JTFRAME_DIAL }}              o03,Sensitivity,high,highest,lowest,low;{{end}}

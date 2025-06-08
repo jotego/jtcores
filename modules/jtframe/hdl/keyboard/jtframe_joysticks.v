@@ -21,6 +21,7 @@ module jtframe_joysticks(
                       vs,  locked,
                       rot, rot_ccw,
 
+    input       [1:0] joy1_pos,
     input       [3:0] board_coin, board_start,
                       key_coin,   key_start,
                       joy_coin,   joy_start,
@@ -45,8 +46,9 @@ module jtframe_joysticks(
     wire [15:0] multi1, multi2;
     wire [ 9:0] rot_joy1,   rot_joy2,   rot_joy3,   rot_joy4,
                 merge_joy1, merge_joy2, merge_joy3, merge_joy4,
-                            lock_joy2,  lock_joy3,  lock_joy4;
-    wire [ 3:0] merge_coin, merge_start;
+                            lock_joy2,  lock_joy3,  lock_joy4,
+                sortd_joy1, sortd_joy2, sortd_joy3, sortd_joy4;
+    wire [ 3:0] merge_coin, merge_start, lock_coin, lock_start;
     wire        merge_service;
 
     assign recjoy1 = ~merge_joy1[5:0];
@@ -144,8 +146,8 @@ module jtframe_joysticks(
         .joy3       ( lock_joy3     ),
         .joy4       ( lock_joy4     ),
         .service    ( game_service  ),
-        .coin       ( game_coin     ),
-        .start      ( game_start    )
+        .coin       ( lock_coin     ),
+        .start      ( lock_start    )
     );
 
     jtframe_joy_reorder u_reorder(
@@ -153,10 +155,29 @@ module jtframe_joysticks(
         .raw2       ( lock_joy2     ),
         .raw3       ( lock_joy3     ),
         .raw4       ( lock_joy4     ),
+        .joy1       ( sortd_joy1    ),
+        .joy2       ( sortd_joy2    ),
+        .joy3       ( sortd_joy3    ),
+        .joy4       ( sortd_joy4    )
+    );
+
+    jtframe_joy1_pos u_joy1_pos(
+        .clk        ( clk           ),
+        .pos        ( joy1_pos      ),
+
+        .raw1       ( sortd_joy1    ),
+        .raw2       ( sortd_joy2    ),
+        .raw3       ( sortd_joy3    ),
+        .raw4       ( sortd_joy4    ),
+        .raw_coin   ( lock_coin     ),
+        .raw_start  ( lock_start    ),
+
         .joy1       ( game_joy1     ),
         .joy2       ( game_joy2     ),
         .joy3       ( game_joy3     ),
-        .joy4       ( game_joy4     )
+        .joy4       ( game_joy4     ),
+        .coin       ( game_coin     ),
+        .start      ( game_start    )
     );
 endmodule
 
@@ -248,4 +269,58 @@ module jtframe_joy_reorder(
     assign joy2 = reorder(raw2);
     assign joy3 = reorder(raw3);
     assign joy4 = reorder(raw4);
+endmodule
+
+module jtframe_joy1_pos(
+    input             clk,
+    input       [1:0] pos,
+
+    input       [9:0] raw1, raw2, raw3, raw4,
+    input       [3:0] raw_coin, raw_start,
+
+    output reg  [9:0] joy1, joy2, joy3, joy4,
+    output reg  [3:0] coin, start
+);
+    `ifdef JTFRAME_JOY1_POS
+    always @(posedge clk) begin
+        joy1  <= raw1;
+        joy2  <= raw2;
+        joy3  <= raw3;
+        joy4  <= raw4;
+        coin  <= raw_coin;
+        start <= raw_start;
+        // disable 1P
+        if(pos!=0) begin
+            start[0] <= 1;
+            coin[0]  <= 1;
+        end
+        // move 1P to a different position
+        case(pos)
+            1: begin
+                joy2 <= raw1;
+                start[1] <= raw_start[0];
+                coin [1] <= raw_coin[0];
+            end
+            2: begin
+                joy3 <= raw1;
+                start[2] <= raw_start[0];
+                coin [2] <= raw_coin[0];
+            end
+            3: begin
+                joy4 <= raw1;
+                start[3] <= raw_start[0];
+                coin [3] <= raw_coin[0];
+            end
+        endcase
+    end
+    `else
+    always @* begin
+        joy1 = raw1;
+        joy2 = raw2;
+        joy3 = raw3;
+        joy4 = raw4;
+        coin = raw_coin;
+        start = raw_start;
+    end
+    `endif
 endmodule
