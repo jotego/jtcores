@@ -35,11 +35,17 @@ module jtcircus_video(
 
     input               vram_cs,
     input               vscr_cs,
-    output        [7:0] vram_dout,
+    output        [7:0] vcpu_din,
 
-    input               objram_cs,
-    output        [7:0] obj_dout,
+    output       [ 1:0] vramrw_we,
+    input        [15:0] vramrw_dout,
+    output       [10:1] vramrw_addr,
+    // VRAM read out
+    output       [10:1] vram_addr,
+    input        [15:0] vram_dout,
 
+    output       [ 9:0] olut_addr,
+    input        [ 7:0] olut_dout,
     // PROMs
     input         [7:0] prog_data,
     input         [9:0] prog_addr,
@@ -107,8 +113,13 @@ jtkicker_scroll #(.LAYOUT(6)) u_scroll(
     .cpu_rnw    ( cpu_rnw   ),
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( vscr_cs   ),
-    .vram_dout  ( vram_dout ),
+    .cpu_din    ( vcpu_din  ),
     .vscr_dout  (           ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_dout(vramrw_dout),
+    .vramrw_addr(vramrw_addr),
+    .vram_dout  ( vram_dout ),
+    .rd_addr    ( vram_addr ),
 
     // video inputs
     .LHBL       ( LHBL      ),
@@ -139,13 +150,9 @@ jtcircus_obj u_obj(
 
     .pxl_cen    ( pxl_cen   ),
     .obj_frame  ( obj_frame ),
-    // CPU interface
-    .cpu_addr   ( cpu_addr[9:0] ),
-    .cpu_dout   ( cpu_dout  ),
-    .objram_cs  ( objram_cs ),
-    .cpu_rnw    ( cpu_rnw   ),
-    .obj_dout   ( obj_dout  ),
-
+    // Video RAM
+    .olut_addr  ( olut_addr ),
+    .olut_dout  ( olut_dout ),
     // video inputs
     .hs         ( HS        ),
     .LHBL       ( LHBL      ),

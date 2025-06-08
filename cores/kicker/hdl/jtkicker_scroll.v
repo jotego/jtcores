@@ -29,9 +29,16 @@ module jtkicker_scroll(
     input               cpu_rnw,
     input               vram_cs,
     input               vscr_cs,
-    output        [7:0] vram_dout,
+    output        [7:0] cpu_din,
     output        [7:0] vscr_dout,
 
+    output       [ 1:0] vramrw_we,
+    input        [15:0] vramrw_dout,
+    output reg   [10:1] vramrw_addr,
+
+    // VRAM read out
+    output       [10:1] rd_addr,
+    input        [15:0] vram_dout,
     // video inputs
     input               LHBL,
     input               LVBL,
@@ -83,26 +90,23 @@ reg  [ 3:0] pal_msb;
 reg  [ 3:0] cur_pal;
 reg  [ 1:0] code_msb;
 reg  [31:0] pxl_data;
-wire [ 9:0] rd_addr;
 reg  [ 7:0] hdf, vpos, vscr;
 reg         cur_hf;
-wire        vram_we_low, vram_we_high;
 reg         vflip, hflip;
-wire        vram_we;
-reg  [ 9:0] eff_addr;
+wire        vram_prewe;
 reg         scr_prio;
 reg         cur_prio;
 
-assign vram_we      = vram_cs & ~cpu_rnw;
-assign vram_we_low  = vram_we & ~cpu_addr[BSEL];
-assign vram_we_high = vram_we &  cpu_addr[BSEL];
-assign vram_dout    = cpu_addr[BSEL] ? vram_high : vram_low;
+assign vram_prewe = vram_cs & ~cpu_rnw;
+assign vramrw_we  = {2{vram_prewe}} &  {cpu_addr[BSEL],~cpu_addr[BSEL]};
+assign cpu_din    = cpu_addr[BSEL] ? vramrw_dout[15:8] : vramrw_dout[7:0];
+assign {code,attr}= vram_dout;
 
 always @* begin
     hdf = flip ? (~hdump[7:0]-8'd3) : hdump[7:0];
-    eff_addr =  LAYOUT==5 ? cpu_addr[9:0] :
-                (NOSCROLL && LAYOUT!=3) ? cpu_addr[10:1] :
-                cpu_addr[9:0];
+    vramrw_addr =  LAYOUT==5 ? cpu_addr[9:0] :
+            (NOSCROLL && LAYOUT!=3) ? cpu_addr[10:1] :
+            cpu_addr[9:0];
     case( LAYOUT )
         0: begin // Kicker
             vflip    = attr[5];
@@ -195,7 +199,7 @@ always @(posedge clk) if(pxl_cen) begin
         pxl_data <= cur_hf ? pxl_data>>4 : pxl_data<<4;
     end
 end
-
+/*
 jtframe_dual_ram #(.SIMFILE("vram_lo.bin")) u_low(
     // Port 0, CPU
     .clk0   ( clk24         ),
@@ -225,7 +229,7 @@ jtframe_dual_ram #(.SIMFILE("vram_hi.bin")) u_high(
     .we1    ( 1'b0          ),
     .q1     ( code          )
 );
-
+*/
 generate
     if( BYPASS_PROM ) begin
         assign pxl = pal_addr[3:0];

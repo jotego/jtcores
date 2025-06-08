@@ -27,12 +27,14 @@ localparam [24:0] PROM_START = `JTFRAME_PROM_START;
 
 wire        cpu_rnw, cpu_irqn, cpu_nmin, cpu_cen, obj_frame,
             snd_on, main_pause, mute;
-wire        vram_cs, vgap_cs, objram_cs, flip;
-wire [ 7:0] vram_dout, obj_dout, cpu_dout, st_snd, snd_latch;
+wire        vram_cs, vgap_cs, oram_cs, flip;
+wire [ 7:0] vcpu_din, obj_dout, st_snd, snd_latch;
 
 assign dip_flip   = flip^dipsw[16]; // extra DIPSW, not in the original
 assign main_pause = dip_pause & ~ioctl_ram;
 assign debug_view = { mute, st_snd[4], 1'd0, dip_flip, st_snd[3:0] };
+assign oram_we    = oram_cs & ~cpu_rnw;
+assign ioctl_din  = 0;
 
 jtcircus_main u_main(
     .rst            ( rst24         ),
@@ -55,10 +57,10 @@ jtcircus_main u_main(
     .cpu_rnw        ( cpu_rnw       ),
     .vgap_cs        ( vgap_cs       ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
 
-    .objram_cs      ( objram_cs     ),
-    .obj_dout       ( obj_dout      ),
+    .objram_cs      ( oram_cs       ),
+    .obj_dout       ( oram_dout     ),
     // Sound control
     .snd_latch      ( snd_latch     ),
     .snd_irq        ( snd_on        ),
@@ -119,10 +121,14 @@ jtcircus_video u_video(
     .vram_cs    ( vram_cs   ),
     .vram_dout  ( vram_dout ),
     .vscr_cs    ( vgap_cs   ),
+    .vcpu_din   ( vcpu_din  ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_dout(vramrw_dout),
+    .vramrw_addr(vramrw_addr),
+    .vram_addr  ( vram_addr ),
     // Objects
-    .objram_cs  ( objram_cs ),
-    .obj_dout   ( obj_dout  ),
-
+    .olut_addr  ( olut_addr ),
+    .olut_dout  ( olut_dout ),
     // PROMs
     .prog_data  ( prog_data ),
     .prog_addr  ( prog_addr[9:0] ),

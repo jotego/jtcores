@@ -46,3 +46,24 @@ sdram:
       - name: objrom
         addr_width: 16
         data_width: 32
+bram:
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: vramrw
+      din:  "{2{cpu_dout}}"
+      dout: vramrw_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }
+  - name: olut
+    addr_width: 10
+    data_width: 8
+    dual_port:
+      name: oram
+      addr: main_addr[9:0]
+      din:  "cpu_dout"
+      dout: oram_dout
+      rw: true
+    ioctl: { save: true, order: 1 }
