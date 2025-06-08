@@ -54,7 +54,7 @@ module jtcircus_obj(
     input         [7:0] debug_bus
 );
 
-parameter [7:0] HOFFSET = 0;
+parameter [7:0] HOFFSET = 8'd1;
 parameter REV_SCAN = 0;
 
 localparam FIX = 9'h2d, FIXF = 9'hde;
