@@ -185,6 +185,7 @@ jtyiear_colmix #(.BLANK_DLY(9),.LOWONLY(1)) u_colmix(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .scr_prio   ( 1'b0      ),
 
     // video inputs
     .obj_pxl    ( obj_pxl   ),

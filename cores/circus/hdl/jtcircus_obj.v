@@ -55,20 +55,15 @@ module jtcircus_obj(
 );
 
 parameter [7:0] HOFFSET = 8'd1;
-parameter REV_SCAN = 0;
-
-localparam FIX = 9'h2d, FIXF = 9'hde;
 
 wire [ 7:0] scan_dout;
-wire        obj_bl;
 reg  [ 7:0] scan_addr=0;
 reg         dma_we, dma_done;
 reg  [ 7:0] dma_addr;
 wire [ 3:0] pal_data, pre_pxl, pxl_dly;
 
 assign olut_addr = {1'b0,obj_frame,dma_addr};
-assign pxl     = obj_bl ? 4'd0 : flip ? pre_pxl : pxl_dly;
-assign obj_bl  = flip ? hdump>=FIXF : hdump <= FIX;
+assign pxl     = flip ? pre_pxl : pxl_dly;
 
 jtframe_sh #(.W(4),.L(5)) u_sh(
     .clk    ( clk       ),

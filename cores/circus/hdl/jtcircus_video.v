@@ -74,7 +74,7 @@ module jtcircus_video(
     input         [7:0] debug_bus
 );
 
-wire       preLHBL, preLVBL, nc;
+wire       preLHBL, preLVBL, scr_prio, nc;
 wire [8:0] vdump, vrender, hdump;
 wire [3:0] obj_pxl, scr_pxl;
 reg  [2:0] prom_we;
@@ -138,7 +138,7 @@ jtkicker_scroll #(.LAYOUT(6)) u_scroll(
     .rom_data   ( scr_data  ),
     .rom_ok     ( scr_ok    ),
 
-    .prio       (           ),
+    .prio       ( scr_prio  ),
     .pxl        ( scr_pxl   ),
     .debug_bus  ( debug_bus )
 );
@@ -180,6 +180,7 @@ jtyiear_colmix #(.SIMFILE(""),.BLANK_DLY(9)) u_colmix(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .scr_prio   ( scr_prio  ),
 
     // video inputs
     .obj_pxl    ( obj_pxl   ),

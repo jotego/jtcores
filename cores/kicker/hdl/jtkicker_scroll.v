@@ -127,7 +127,7 @@ always @* begin
             vflip    = attr[7];
             hflip    = ~attr[6];
             pal_msb  = attr[3:0];
-            scr_prio = attr[4];
+            scr_prio = LAYOUT==6 ? ~attr[4] : attr[4];
         end
         4: begin // Road Fighter
             code_msb = {1'b0,attr[5]};
