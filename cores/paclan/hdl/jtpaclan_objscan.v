@@ -57,7 +57,7 @@ assign draw_step = st==3;
 assign objcnt    = raw_addr[2+:6];
 
 assign ram_addr[12:11] = st[1:0];
-assign ram_addr[10: 7] = 4'b1110;
+assign ram_addr[10: 7] = 4'b1111;
 assign ram_addr[ 6: 1] = objcnt;
 
 always @* begin
