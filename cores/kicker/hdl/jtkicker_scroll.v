@@ -199,37 +199,7 @@ always @(posedge clk) if(pxl_cen) begin
         pxl_data <= cur_hf ? pxl_data>>4 : pxl_data<<4;
     end
 end
-/*
-jtframe_dual_ram #(.SIMFILE("vram_lo.bin")) u_low(
-    // Port 0, CPU
-    .clk0   ( clk24         ),
-    .data0  ( cpu_dout      ),
-    .addr0  ( eff_addr      ),
-    .we0    ( vram_we_low   ),
-    .q0     ( vram_low      ),
-    // Port 1
-    .clk1   ( clk           ),
-    .data1  (               ),
-    .addr1  ( rd_addr       ),
-    .we1    ( 1'b0          ),
-    .q1     ( attr          )
-);
 
-jtframe_dual_ram #(.SIMFILE("vram_hi.bin")) u_high(
-    // Port 0, CPU
-    .clk0   ( clk24         ),
-    .data0  ( cpu_dout      ),
-    .addr0  ( eff_addr      ),
-    .we0    ( vram_we_high  ),
-    .q0     ( vram_high     ),
-    // Port 1
-    .clk1   ( clk           ),
-    .data1  (               ),
-    .addr1  ( rd_addr       ),
-    .we1    ( 1'b0          ),
-    .q1     ( code          )
-);
-*/
 generate
     if( BYPASS_PROM ) begin
         assign pxl = pal_addr[3:0];

@@ -69,28 +69,14 @@ wire [ 3:0] pal_data, pre_pxl, pxl_dly;
 assign olut_addr = {1'b0,obj_frame,dma_addr};
 assign pxl     = obj_bl ? 4'd0 : flip ? pre_pxl : pxl_dly;
 assign obj_bl  = flip ? hdump>=FIXF : hdump <= FIX;
+
 jtframe_sh #(.W(4),.L(5)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( pre_pxl   ),
     .drop   ( pxl_dly   )
 );
-/*
-jtframe_dual_ram u_hi(
-    // Port 0, CPU
-    .clk0   ( clk24      ),
-    .data0  ( cpu_dout   ),
-    .addr0  ( cpu_addr   ),
-    .we0    ( obj_we     ),
-    .q0     ( obj_dout   ),
-    // Port 1
-    .clk1   ( clk        ),
-    .data1  (            ),
-    .addr1  ( olut_addr    ),
-    .we1    ( 1'b0       ),
-    .q1     ( olut_dout    )
-);
-*/
+
 // LUT frame buffer and DMA
 jtframe_dual_ram #(.AW(8)) u_fb(
     // Port 0, DMA
