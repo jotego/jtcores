@@ -2,7 +2,8 @@
 main(){
 	VRAM_OFFSET=$((0x200000))
 	SIZE=$((0x10000)) # 64 KiB
-	BYTES=$((2+16+256)) # main + video + vdp
+	BYTES=$((2+16)) # main + video
+	VBYTES=$((512)) # vdp
 	REST="rest.bin"
 	SKIP=0
 
@@ -11,6 +12,7 @@ main(){
 	substitute_64k_in_sdram
 	get_vdp
 	get_vdp_mem
+	get_vdp_regs
 	obtain_mmr_hex
 }
 
@@ -34,6 +36,10 @@ get_vdp_mem(){
 	parse_file vdp_spr0   64 --hilo
 	parse_file vdp_spr1   64 --hilo
 	parse_file vdp_spr2   64 --hilo
+}
+
+get_vdp_regs(){
+	parse_file vdp_regs $VBYTES
 }
 
 get_regs(){
