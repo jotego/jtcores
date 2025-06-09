@@ -6,3 +6,14 @@ audio:
   channels:
     - { name: ti1, module: jt89,    rsum: 1.22k, rc: [{ r:  180, c: 47n}]}
     - { name: vlm, module: vlm5030, rsum: 1k,    rc: [{ r:  10k, c: 47p }, { r: 2.5k, c: 1n  }] } # equivalent filter
+bram:
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: vramrw
+      din:  vramrw_din
+      dout: vramrw_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }
