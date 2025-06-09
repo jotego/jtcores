@@ -33,7 +33,7 @@ wire [ 2:0] pal_sel;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, obj1_cs, obj2_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout;
+wire [ 7:0] vscr_dout, vcpu_din, obj_dout, cpu_dout;
 wire        vsync60;
 wire        is_scr, is_obj;
 
@@ -44,6 +44,8 @@ assign scr_cs = LVBL;
 assign pcm_cs = 1;
 assign is_scr = ioctl_addr[21:0] >= SCR_START && ioctl_addr[21:0]<OBJ_START;
 assign is_obj = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PCM_START;
+assign vramrw_din = {2{cpu_dout}};
+assign ioctl_din  = 0;
 
 always @(*) begin
     post_addr = prog_addr;
@@ -82,7 +84,7 @@ end
 
     .vscr_cs        ( vscr_cs       ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
     .vscr_dout      ( vscr_dout     ),
 
     .obj1_cs        ( obj1_cs       ),
@@ -130,11 +132,16 @@ end
 
     // CPU interface
     .cpu_addr   ( main_addr[10:0]  ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_rnw    ( cpu_rnw   ),
+    .cpu_dout   ( cpu_dout   ),
+    .cpu_rnw    ( cpu_rnw    ),
+    .vcpu_din   ( vcpu_din   ),
+    .vramrw_we  ( vramrw_we  ),
+    .vramrw_dout( vramrw_dout),
+    .vramrw_addr( vramrw_addr),
     // Scroll
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( vscr_cs   ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
     // Objects
