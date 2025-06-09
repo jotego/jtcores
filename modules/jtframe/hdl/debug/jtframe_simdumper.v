@@ -43,6 +43,7 @@ module jtframe_simdumper #(parameter
 );
 
 `ifndef JTFRAME_SIMDUMPER_RESTORE
+initial set_data=0;
 reg [AW-1:0] addr;
 integer aux;
 
