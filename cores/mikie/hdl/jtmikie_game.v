@@ -35,7 +35,7 @@ wire [ 2:0] pal_sel;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout, st_snd;
+wire [ 7:0] vscr_dout, vcpu_din, obj_dout, cpu_dout, st_snd;
 wire        vsync60;
 wire        snd_cen, psg_cen;
 
@@ -46,7 +46,9 @@ wire        m2s_on;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[17:0];
 assign dip_flip = dipsw_c[0];
+assign vramrw_din = {2{cpu_dout}};
 assign debug_view = st_snd;
+assign ioctl_din = 0;
 
 always @(*) begin
     post_data = prog_data;
@@ -90,7 +92,7 @@ jtmikie_main u_main(
     .cpu_rnw        ( cpu_rnw       ),
 
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
     .vscr_dout      ( vscr_dout     ),
 
     .objram_cs      ( objram_cs     ),
@@ -159,9 +161,14 @@ jtmikie_video u_video(
     .cpu_addr   ( main_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .vcpu_din   ( vcpu_din  ),
     // Scroll
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( 1'b0      ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
     // Objects
