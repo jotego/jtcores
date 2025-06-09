@@ -34,7 +34,7 @@ reg  [ 7:0] view_mux;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vram_dout, obj_dout, cpu_dout;
+wire [ 7:0] vcpu_din, obj_dout, cpu_dout;
 
 // Sound
 wire [ 7:0] snd_latch;
@@ -44,7 +44,9 @@ wire        m2s_on;
 reg  [24:0] dwn_addr;
 
 assign dip_flip   = ~flip;
+assign vramrw_din = {2{cpu_dout}};
 assign debug_view = view_mux;
+assign ioctl_din  = 0;
 
 always @(*) begin
     case( debug_bus[7:6])
@@ -91,7 +93,7 @@ jtroc_main u_main(
 
     .bus_addr       ( cpu_addr      ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
 
     .objram_cs      ( objram_cs     ),
     .obj_dout       ( obj_dout      ),
@@ -161,8 +163,13 @@ jtroc_video u_video(
     .cpu_addr   ( cpu_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .vcpu_din   ( vcpu_din  ),
     // Scroll
     .vram_cs    ( vram_cs   ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     // Objects
     .objram_cs  ( objram_cs ),
