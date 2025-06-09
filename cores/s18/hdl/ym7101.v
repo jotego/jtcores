@@ -3412,23 +3412,23 @@ assign regs_clk  = ioctl_ram ? 1'b0 : MCLK;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(8)) sr104(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(unk_data), .data_out(l104));
 	
-	ym_slatch_r_set #(.DATA_WIDTH(8)) sl_hit(.MCLK(/*MCLK*/ regs_clk), .en(w229), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit),         .set(set_data),.set_val(reg_hit_init));
+	ym_slatch_r #(.DATA_WIDTH(8)) sl_hit(.MCLK(/*MCLK*/ regs_clk), .en(w229), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit),         .set(set_data),.set_val(reg_hit_init));
 	
 	ym_slatch sl_lsm0_latch(.MCLK(/*MCLK*/ regs_clk), .en(w457), .inp(reg_lsm0), .val(reg_lsm0_latch), .set(set_data), .set_val(reg_lsm0_latch_init));
 	ym_slatch sl_lsm1_latch(.MCLK(/*MCLK*/ regs_clk), .en(w457), .inp(reg_lsm1), .val(reg_lsm1_latch), .set(set_data), .set_val(reg_lsm1_latch_init));
 	
-	ym_slatch_r_set #(.DATA_WIDTH(12)) sl_test_18( .MCLK(/*MCLK*/ regs_clk), .en(w128),.rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18),     .set(set_data),.set_val(reg_test_18_init));
+	ym_slatch_r #(.DATA_WIDTH(12)) sl_test_18( .MCLK(/*MCLK*/ regs_clk), .en(w128),.rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18),     .set(set_data),.set_val(reg_test_18_init));
 	
-	ym_slatch_r_set #(.DATA_WIDTH(15)) sl_test0(   .MCLK(/*MCLK*/ regs_clk), .en(w84), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0),       .set(set_data),.set_val(reg_test0_init));
+	ym_slatch_r #(.DATA_WIDTH(15)) sl_test0(   .MCLK(/*MCLK*/ regs_clk), .en(w84), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0),       .set(set_data),.set_val(reg_test0_init));
 	
-	ym_slatch_r_set #(.DATA_WIDTH(11)) sl_test1(   .MCLK(/*MCLK*/ regs_clk), .en(w85), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1),       .set(set_data),.set_val(reg_test1_init));
+	ym_slatch_r #(.DATA_WIDTH(11)) sl_test1(   .MCLK(/*MCLK*/ regs_clk), .en(w85), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1),       .set(set_data),.set_val(reg_test1_init));
 	
 	ym_slatch #(  .DATA_WIDTH(2))  sl_code_01( .MCLK(/*MCLK*/ regs_clk), .en(w164),                 .inp(w350[7:6]),     .val(reg_code[1:0]),   .set(set_data),.set_val(reg_code_init[1:0]));
-	ym_slatch_r_set #(.DATA_WIDTH(3))  sl_code_234(.MCLK(/*MCLK*/ regs_clk), .en(w168), .rst(w204),     .inp(io_data[6:4]),  .val(reg_code[4:2]),   .set(set_data),.set_val(reg_code_init[4:2]));
+	ym_slatch_r #(.DATA_WIDTH(3))  sl_code_234(.MCLK(/*MCLK*/ regs_clk), .en(w168), .rst(w204),     .inp(io_data[6:4]),  .val(reg_code[4:2]),   .set(set_data),.set_val(reg_code_init[4:2]));
 	
 	ym_slatch #(  .DATA_WIDTH(8))  sl_addr_1(  .MCLK(/*MCLK*/ regs_clk), .en(w165),                 .inp(io_data[7:0]),  .val(reg_addr[7:0]),   .set(set_data),.set_val(reg_addr_init[7:0]));
 	ym_slatch #(  .DATA_WIDTH(6))  sl_addr_2(  .MCLK(/*MCLK*/ regs_clk), .en(w164),                 .inp(w350[5:0]),     .val(reg_addr[13:8]),  .set(set_data),.set_val(reg_addr_init[13:8]));
-	ym_slatch_r_set #(.DATA_WIDTH(3))  sl_addr_3(  .MCLK(/*MCLK*/ regs_clk), .en(w168), .rst(w204),     .inp(io_data[2:0]),  .val(reg_addr[16:14]), .set(set_data),.set_val(reg_addr_init[16:14]));
+	ym_slatch_r #(.DATA_WIDTH(3))  sl_addr_3(  .MCLK(/*MCLK*/ regs_clk), .en(w168), .rst(w204),     .inp(io_data[2:0]),  .val(reg_addr[16:14]), .set(set_data),.set_val(reg_addr_init[16:14]));
 	
 	wire [16:0] reg_data_sum = reg_data_l2 + { 9'h0, reg_inc } + { 16'h0, ~reg_m5 };
 	wire [16:0] reg_data_mux = w185 ? reg_addr : reg_data_sum;
