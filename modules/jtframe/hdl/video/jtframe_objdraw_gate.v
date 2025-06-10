@@ -47,6 +47,8 @@ module jtframe_objdraw_gate #( parameter
     KEEP_OLD   =0, // new writes do not overwrite old ones (reverse priority)
     SHADOW_PEN = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
     // object line buffer
+    BUFDLY     =0, // extra latency to add to buf_addr and buf_we, use if buf_din is not combinational
+    ALPHAW     =4,
     ALPHA      =0,
     PACKED     =0  // 0 if rom_data is { plane3, plane2, plane1, plane0 }, 8 bits each
                    // 1 if rom_data packs the 4 planes in nibbles
@@ -85,6 +87,7 @@ module jtframe_objdraw_gate #( parameter
 );
 
 reg  [AW-1:0] aeff, hdf, hdfix;
+wire [AW-1:0] adly;
 
 reg  [CW-1:0] dr_code;
 reg  [AW-1:0] dr_xpos;
@@ -96,7 +99,7 @@ reg  [ZW-1:0] dr_hzoom;
 reg           dr_hz_keep;
 
 wire [AW-1:0] buf_addr;
-wire          buf_we;
+wire          buf_we, we_dly;
 wire   [31:0] rom_sorted;
 
 wire          pre_bsy;
@@ -180,6 +183,19 @@ generate
     end
 endgenerate
 
+generate
+    if(BUFDLY==0) begin
+        assign adly   = aeff,
+               we_dly = buf_we;
+    end else begin
+        jtframe_sh #(.L(BUFDLY),.W(1+AW)) u_sh(
+            .clk    ( clk           ),
+            .clk_en ( 1'b1          ),
+            .din    ( {aeff,buf_we} ),
+            .drop   ( {adly,we_dly} )
+        );
+    end
+endgenerate
 
 jtframe_draw #(
     .AW      ( AW       ),
@@ -217,6 +233,7 @@ jtframe_draw #(
 jtframe_obj_buffer #(
     .AW         ( AW          ),
     .DW         ( PW          ),
+    .ALPHAW     ( ALPHAW      ),
     .ALPHA      ( ALPHA       ),
     .SW         ( SW          ),
     .SHADOW     ( SHADOW      ),
@@ -227,9 +244,9 @@ jtframe_obj_buffer #(
     .flip       ( 1'b0      ),      // flip is solved before this instance
     .LHBL       ( ~hs       ),
     // New line writting
-    .we         ( buf_we    ),
+    .we         ( we_dly    ),
     .wr_data    ( buf_din   ),
-    .wr_addr    ( aeff      ),
+    .wr_addr    ( adly      ),
     // Previous line reading
     .rd         ( pxl_cen   ),
     .rd_addr    ( hdf       ),

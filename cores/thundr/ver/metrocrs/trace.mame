@@ -1,0 +1,6 @@
+focus 1
+trace off
+trace mcu.trace,mcu,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,ticks=%d,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,totalcycles,frame}
+
+gtime 900
+traceflush

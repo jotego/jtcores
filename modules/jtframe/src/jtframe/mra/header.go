@@ -35,9 +35,11 @@ func (hdr *HeaderCfg) MakeVerilog(corename string) ([]byte,error) {
 	if len(hdr.Registers)==0 { return nil, nil }
 	info := struct{
 		Core string
+		Names []reg_names
 		Registers []reg_info
 	}{
 		Core: corename,
+		Names: hdr.make_reg_names(),
 		Registers: hdr.make_reg_info(),
 	}
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc","header.v")
@@ -52,24 +54,48 @@ func (hdr *HeaderCfg) MakeVerilog(corename string) ([]byte,error) {
 	return buffer.Bytes(),nil
 }
 
+type reg_names struct{
+	Name string
+	Msb int
+}
+
 type reg_info struct{
 	Name, Index string
 	Msb, Lsb, Offset int
 }
 
-func (hdr *HeaderCfg)make_reg_info() (info []reg_info) {
-	info = make([]reg_info,len(hdr.Registers))
+func (hdr HeaderCfg)make_reg_names() (names []reg_names) {
+	names = make([]reg_names,len(hdr.Registers))
 	for k, reg := range hdr.Registers {
 		reg.calc_pos()
-		n := &info[k]
-		n.Name = reg.Name
-		n.Msb = reg.msb
-		n.Lsb = reg.lsb
-		n.Offset = reg.offset
-		if n.Msb==n.Lsb {
-			n.Index = fmt.Sprintf("[%d]",n.Lsb)
-		} else {
-			n.Index = fmt.Sprintf("[%d:%d]",n.Msb,n.Lsb)
+		names[k].Name = reg.Name
+		names[k].Msb = reg.bitwidth-1
+	}
+	return names
+}
+
+func (hdr HeaderCfg)make_reg_info() (info []reg_info) {
+	info = make([]reg_info,0,len(hdr.Registers))
+	for _, reg := range hdr.Registers {
+		reg.calc_pos()
+		for _, part := range reg.parts {
+			var r reg_info
+			r.Name   = reg.Name
+			r.Offset = part.offset
+			if part.msb==part.lsb {
+				r.Index = fmt.Sprintf("[%d]",part.lsb)
+			} else {
+				r.Index = fmt.Sprintf("[%d:%d]",part.msb,part.lsb)
+			}
+			if len(reg.parts)>1 {
+				part_dw := part.msb-part.lsb+1
+				if part_dw==1 {
+					r.Name=fmt.Sprintf("%s[%d]",r.Name,part.at)
+				} else {
+					r.Name=fmt.Sprintf("%s[%d:%d]",r.Name,part.at+part_dw-1,part.at)
+				}
+			}
+			info=append(info,r)
 		}
 	}
 	return info
@@ -97,7 +123,7 @@ func (cfg *HeaderCfg)make_info_comment(parent *XMLNode) {
 	parent.AddComment(info.String())
 }
 
-func (hdr *HeaderCfg)FillData(reg_offsets map[string]int, total int, machine *MachineXML) error {
+func (hdr *HeaderCfg)FillData(reg_offsets map[string]int, total int, machine *MachineXML) (e error) {
 	if hdr.node==nil { return nil }
 	if hdr.Offset.Regions != nil && hdr.len<5 {
 		return fmt.Errorf("Header too short for containing offset regions. Make it at least 5:\nJTFRAME_HEADER = 5")
@@ -105,7 +131,7 @@ func (hdr *HeaderCfg)FillData(reg_offsets map[string]int, total int, machine *Ma
 	headbytes := make_byte_slice(byte(hdr.Fill),hdr.len)
 	hdr.bank_offset( headbytes, reg_offsets)
 	headbytes = hdr.parse_data(headbytes,machine)
-	headbytes = hdr.parse_regs(headbytes,machine)
+	headbytes, e = hdr.parse_regs(headbytes,machine); if e!=nil { return e }
 	hdr.node.SetText(hexdump(headbytes, 8))
 	return nil
 }
@@ -186,16 +212,17 @@ func (cfg HeaderCfg) get_entry_bytes( data_entry HeaderData, machine *MachineXML
 	}
 }
 
-func (hdr HeaderCfg) parse_regs( headbytes []byte, machine *MachineXML ) []byte {
+func (hdr *HeaderCfg) parse_regs( headbytes []byte, machine *MachineXML ) ([]byte,error) {
 	filled := make([]byte,len(headbytes))
 	copy(filled,headbytes)
-	for _, reg := range hdr.Registers {
-		reg.apply(filled,machine)
+	for k, _ := range hdr.Registers {
+		e := hdr.Registers[k].apply(filled,machine)
+		if e!=nil { return nil,e }
 	}
-	return filled
+	return filled,nil
 }
 
-func (reg HeaderReg) apply( headbytes []byte, machine *MachineXML) {
+func (reg *HeaderReg) apply( headbytes []byte, machine *MachineXML) error {
 	last_match := 0
 	fill := 0
 	for _, value := range reg.Values {
@@ -205,42 +232,80 @@ func (reg HeaderReg) apply( headbytes []byte, machine *MachineXML) {
 			fill = value.Value
 		}
 	}
-	if last_match==0 { return }
-	reg.calc_pos()
-	if reg.offset>len(headbytes) {
-		msg := fmt.Sprintf("Header register offset %d too big for header length %d",reg.offset,len(headbytes))
-		panic(msg)
-	}
-	headbytes[reg.offset] = (headbytes[reg.offset] & byte(^reg.mask)) | (byte(fill)<<reg.bit)
+	if last_match==0 { return nil }
+	var e error
+	e=reg.calc_pos(); if e!=nil { return e }
+	e=reg.apply_value_to_header(headbytes,fill)
+	return e
 }
 
-func (reg *HeaderReg) calc_pos() error {
+func (reg *HeaderReg) calc_pos() (e error) {
+	pos_expr := strings.Split(reg.Pos,",")
+	if len(pos_expr)==0 {
+		return fmt.Errorf("Header register has no position in TOML file")
+	}
+	reg.parts = make([]headerRegPart,len(pos_expr))
+	reg.bitwidth = 0
+	for k:=len(pos_expr)-1;k>=0;k-- {
+		pos := pos_expr[k]
+		e = reg.parse_pos(k,pos); if e!=nil { return e }
+		reg.update_bitwidth(k)
+	}
+	return nil
+}
+
+func (reg *HeaderReg) parse_pos(k int, pos string) error {
 	var aux int64
 	rebyte, e := regexp.Compile("^([0-9]+)\\[([0-7]):?([0-7])?\\]$"); must(e)
-	chunks := rebyte.FindStringSubmatch(reg.Pos)
+	chunks := rebyte.FindStringSubmatch(pos)
 	if total:=len(chunks); total!=4 {
 		return fmt.Errorf("Wrong position specification for header register %s. Expecting byte[MSB:LSB] or byte[bit], found %s (%d chunks)",
-			reg.Name, reg.Pos, total )
+			reg.Name, pos, total )
 	}
+	part := &reg.parts[k]
 	aux, e = strconv.ParseInt(chunks[1],10,32); must(e)
-	reg.offset = int(aux)
+	part.offset = int(aux)
 	aux, e = strconv.ParseInt(chunks[2],10,32); must(e)
-	reg.msb = int(aux)
-	reg.lsb = reg.msb
+	part.msb = int(aux)
+	part.lsb = part.msb
 	if chunks[3]!="" {
 		aux, e = strconv.ParseInt(chunks[3],10,32); must(e)
-		reg.lsb = int(aux)
+		part.lsb = int(aux)
 	}
-	if reg.lsb>reg.msb {
+	e = reg.validate_pos(part); if e!=nil { return e }
+	if part.msb==part.lsb {
+		part.mask = 1<<part.msb
+	} else {
+		part.mask = (1<<(part.msb+1))-1
+		part.mask = part.mask & ^((1<<part.lsb)-1)
+	}
+	return nil
+}
+
+func (reg *HeaderReg) validate_pos(part *headerRegPart) error {
+	if part.lsb>part.msb {
 		return fmt.Errorf("Wrong position specification for header register %s. Expecting byte[MSB:LSB] but found LSB>MSB in %s",
 			reg.Name, reg.Pos )
 	}
-	reg.bit = reg.lsb
-	if reg.msb==reg.lsb {
-		reg.mask = 1<<reg.msb
-	} else {
-		reg.mask = (1<<(reg.msb+1))-1
-		reg.mask = reg.mask & ^((1<<reg.lsb)-1)
+	if part.msb>7 || part.lsb<0 {
+		return fmt.Errorf("MSB cannot be more than 7 and LSB cannot be less than 0, but found %d:%d in header register %s",part.msb,part.lsb,reg.Name)
+	}
+	return nil
+}
+
+func (reg *HeaderReg) update_bitwidth(k int) {
+	reg.parts[k].at = reg.bitwidth
+	reg.bitwidth += reg.parts[k].msb-reg.parts[k].lsb+1
+}
+
+func (reg *HeaderReg) apply_value_to_header(headbytes []byte,value int) error {
+	for _, chunk := range reg.parts {
+		if chunk.offset>len(headbytes) {
+			return fmt.Errorf("Header register offset %d too big for header length %d",chunk.offset,len(headbytes))
+		}
+		value_mask := 1<<(chunk.msb-chunk.lsb+1)-1
+		valid_bits := byte(value>>chunk.at) & byte(value_mask)
+		headbytes[chunk.offset] = (headbytes[chunk.offset] & byte(^chunk.mask)) | (valid_bits<<chunk.lsb)
 	}
 	return nil
 }

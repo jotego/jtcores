@@ -64,12 +64,7 @@ end
 always @(posedge clk) if(cen) begin
     hs_l    <= hs;
     dr_draw <= 0;
-    if( hs && !hs_l && blankn ) begin
-        done   <= 0;
-        objcnt <= 0;
-        step   <= 0;
-        vlatch <= vrender;
-    end else if( !done ) begin
+    if( !done ) begin
         if(!dr_busy && HOLD_WHILE_DRBUSY==1) step  <= step + 1'd1;
         if(step==0) begin
             hcnt<=0;
@@ -93,6 +88,12 @@ always @(posedge clk) if(cen) begin
                 end
             end
         end
+    end
+    if( hs && !hs_l && blankn ) begin
+        done   <= 0;
+        objcnt <= 0;
+        step   <= 0;
+        vlatch <= vrender;
     end
 end
 

@@ -24,7 +24,7 @@ module jtframe_inputs(
     input             lhbl,
 
     input             rot,
-    input      [1:0]  rotate,
+    input      [1:0]  rotate, joy1_pos,
     input             dial_raw_en,
     input             dial_reverse,
     input             dip_pause,
@@ -131,6 +131,7 @@ jtframe_joysticks u_joysticks(
     .rot        ( rot           ),
     .rot_ccw    ( rotate[1]     ),
     .locked     ( locked        ),
+    .joy1_pos   ( joy1_pos      ),
 
     .board_coin ( board_coin    ),
     .board_start( board_start   ),

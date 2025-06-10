@@ -229,7 +229,7 @@ wire   [8:0] cross1_x, cross1_y, cross2_x, cross2_y;
 wire   [7:0] key_digit;
 wire   [3:0] key_start, key_coin, key_gfx;
 wire   [5:0] key_snd;
-wire   [1:0] sensty;
+wire   [1:0] sensty, joy1_pos;
 wire  [12:7] func_key;
 wire         key_service, key_tilt, key_plus, key_minus;
 wire         locked;
@@ -253,6 +253,7 @@ wire [SDRAMW-1:0] bax_addr;
 wire LHBLs;
 
 assign sensty    = status[33:32]; // MiST should drive these pins
+assign joy1_pos  = status[19:18];
 assign gun_crossh_en = status[9];
 
 jtframe_coremod u_coremod(
@@ -566,6 +567,7 @@ jtframe_inputs #(
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBL            ),
     .ioctl_rom      ( dwnld_busy      ),
+    .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),
     .rotate         ( rotate          ),
     .dial_raw_en    ( dial_raw_en     ),

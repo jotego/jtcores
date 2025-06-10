@@ -1,109 +1,147 @@
 [parse]
-sourcefile=[ "namcos86.cpp" ]
-
-debug = { machines=[
-	# scroll layer not visible
-	"hopmappy",
-	"skykiddx",
-	# CPU2 mapping missing
-	"roishtar",
-	"genpeitd",
-	"wndrmomo",
+sourcefile=[ "namcos86.cpp", "baraduke.cpp" ]
+debug={machines=[
+	# bad third bit plane of scroll layer
+	"aliensec",
 ]}
 
 [buttons]
 names=[
-	{ machine="rthunder",names="Shot,Jump" }
+	{ machine="rthunder",names="Shot,Jump" },
+	{ machine="skykiddx",names="Shot,Roll/Bomb" },
+	{ machine="hopmappy",names="Fast" },
+	{ machine="wndrmomo",names="Kick,Jump" },
+	{ machine="roishtar",names="Cast Spell,Select Spell,Swap" },
+	{ machine="genpeitd",names="Attack,Jump" },
+	{ machine="metrocrs",names="Jump" },
+]
+
+[dipsw]
+rename=[
+	{ name="Allow Continue From Last Level", to="Continue from last lvl"}
 ]
 
 [header]
 registers = [
-	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}],                          desc="Scroll uses only 2 color planes"      },
-	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
-	{ name="nocpu2",    pos="3[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Keeps CPU2 in reset state"            },
-	{ name="mcualt",    pos="4[0]", values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
-	{ name="roishtar",  pos="5[0]", values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
-	{ name="genpeitd",  pos="5[0]", values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
-	{ name="wndrmomo",  pos="6[0]", values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="only2bpp",  pos="1[0]",  values=[{machines=["hopmappy","metrocrs"], value=1}],            desc="Only 2bpp for backgrounds"            },
+	{ name="sndext_en", pos="1[1]",  values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound"       },
+	{ name="nocpu2",    pos="1[2]",  values=[{machines=["hopmappy","skykiddx","metrocrs","aliensec"], value=1}],  desc="Keeps CPU2 in reset state"},
+	{ name="mcualt",    pos="1[3]",  values=[{machines=["hopmappy","skykiddx"], value=1}],            desc="Alternative mapping for MCU ROM"      },
+	{ name="scrhflip",  pos="1[4]",  values=[{machines=["skykiddx"], value=1}],                       desc="Ignore flip bit and reverse H scroll" },
+	{ name="plane3inv", pos="1[5]",  values=[{machines=["genpeitd","rthunder","wndrmomo","roishtar","skykiddx"], value=1}], desc="Invert data for color plane 3" },
+	{ name="roishtar",  pos="2[0]",  values=[{machine="roishtar", value=1}],                          desc="Special SUB/MCU mapping for roishtar" },
+	{ name="genpeitd",  pos="2[1]",  values=[{machine="genpeitd", value=1}],                          desc="Special SUB/MCU mapping for genpei"   },
+	{ name="wndrmomo",  pos="2[2]",  values=[{machine="wndrmomo", value=1}],                          desc="Special SUB/MCU mapping for wndrmomo" },
+	{ name="metrocrs",  pos="2[3]",  values=[{machines=["metrocrs","aliensec"], value=1}],            desc="Special SUB/MCU mapping for Metro Cross" },
+	{ name="objhos",    pos="2[7],3[7:0]",values=[{machine="skykiddx", value=0x1a4},{machines=["metrocrs","aliensec"],value=0x1fc}], desc="Object H offset"},
+	{ name="objvos",    pos="4[7:0]",values=[{machine="skykiddx", value=4}],                          desc="Object V offset bits 7-0"},
+	{ name="scrhos",    pos="6[3:0]",values=[{machines=["metrocrs","aliensec"], value=6}],            desc="Horizontal offset on CUS42 (signed)" },
 ]
 
 [ROM]
 regions = [
 	{ name="cpu1"                             },
+	{ name="maincpu", rename="cpu1", skip=true},
 	{ name="user1", start="EXT_START"         },
 	{ name="cpu2",  start="JTFRAME_BA1_START" },
 	{ name="namco2"                           },
-	# gfx1 (SCROLL 011)
+	{ name="chars",  start="JTFRAME_BA1_START"}, # only metrocrs, aliensec
+	# gfx1 (SCROLL 0)
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="rthunder", parts=[
 		{name="rt1_7.7r", crc="a85efa39",map="0021"},
 		{name="rt1_8.7s", crc="f7a95820",map="0100"},
 		{name="rt1_8.7s", crc="f7a95820",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="skykiddx", parts=[
 		{name="sk3_9.7r",  crc="48675b17",map="0021"},
 		{name="sk3_10.7s", crc="7418465a",map="0100"},
 		{name="sk3_10.7s", crc="7418465a",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="hopmappy", parts=[
 		{name="hm1_6.7r", crc="fd0e8887",map="0021"},
 		{name="hm1_6.7r", crc="fd0e8887",map="2100"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="roishtar", parts=[
 		{name="ri1_14.7r", crc="de8154b4",map="0021"},
 		{name="ri1_15.7s", crc="4298822b",map="0100"},
 		{name="ri1_15.7s", crc="4298822b",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="genpeitd", parts=[
 		{name="gt1_7.7r", crc="ea77a211",map="0021"},
 		{name="gt1_6.7s", crc="1b128a2e",map="0100"},
 		{name="gt1_6.7s", crc="1b128a2e",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx1", start="JTFRAME_BA2_START", machine="wndrmomo", parts=[
 		{name="wm1_6.7r", crc="93955fbb",map="0021"},
 		{name="wm1_7.7s", crc="7d662527",map="0100"},
 		{name="wm1_7.7s", crc="7d662527",map="1000"},
-	]},
+	], mirror=true },
 	# gfx2 (SCROLL 1)
+	{ name="gfx2", start="SCR1_START" },
 	{ name="gfx2", start="SCR1_START", machine="rthunder", parts=[
 		{name="rt1_5.4r", crc="d0fc470b",map="0021"},
 		{name="rt1_6.4s", crc="6b57edb2",map="0100"},
 		{name="rt1_6.4s", crc="6b57edb2",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="skykiddx", parts=[
 		{name="sk3_7.4r", crc="4036b735",map="0021"},
 		{name="sk3_8.4s", crc="044bfd21",map="0100"},
 		{name="sk3_8.4s", crc="044bfd21",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="hopmappy", parts=[
 		{name="hm1_5.4r", crc="9c4f31ae",map="0021"},
 		{name="hm1_5.4r", crc="9c4f31ae",map="2100"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="roishtar", parts=[
 		{name="ri1_12.4r", crc="557e54d3",map="0021"},
 		{name="ri1_13.4s", crc="9ebe8e32",map="0100"},
 		{name="ri1_13.4s", crc="9ebe8e32",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="genpeitd", parts=[
 		{name="gt1_5.4r", crc="44d58b06",map="0021"},
 		{name="gt1_4.4s", crc="db8d45b0",map="0100"},
 		{name="gt1_4.4s", crc="db8d45b0",map="1000"},
-	]},
+	], mirror=true },
 	{ name="gfx2", start="SCR1_START", machine="wndrmomo", parts=[
 		{name="wm1_4.4r", crc="bbe67836",map="0021"},
 		{name="wm1_5.4s", crc="a81b481f",map="0100"},
 		{name="wm1_5.4s", crc="a81b481f",map="1000"},
-	]},
+	], mirror=true },
+	{ name="tiles", rename="gfx1", skip=true }, # metrocrs, aliensec
+	# metrocrs tiles
+	{ name="gfx1", start="JTFRAME_BA2_START", machine="metrocrs", parts=[
+		{name="mc1-7.4p", crc="c9dfa003",map="0021"}, # only 2 bpp
+		{name="mc1-7.4p", crc="c9dfa003",map="2100"},
+		{name="mc1-6.4n", crc="9686dc3c",map="0021"},
+		{name="mc1-6.4n", crc="9686dc3c",map="2100"},
+	], mirror=true },
+	# aliensec tiles
+	{ name="gfx1", start="JTFRAME_BA2_START", setname="aliensec", parts=[
+		{name="bd2_8.4p", crc="432bd7d9",map="0021"},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
 
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
+	], mirror=true },
+	# baraduke tiles
+	{ name="gfx1", start="JTFRAME_BA2_START", setname="baraduke", parts=[
+		{name="bd1_8.4p", crc="b0bb0710",map="0021"},
+		{name="bd1_6.4m", crc="e5da0896",map="2100"},
 
-	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true },
-	{ name="mcusub",start="MCUSUB_START"      },
-	{ name="mcusub",start="MCUSUB_START", machine="hopmappy", sequence=[0,0,0,0] },
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
+		{name="bd1_6.4m", crc="e5da0896",map="2100"},
+	], mirror=true },
+	{ name="gfx3", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true, mirror=true },
+	{ name="sprites", rename="gfx3", skip=true },
+	{ name="gfx3", machines=["metrocrs","aliensec"], start="JTFRAME_BA3_START", no_offset=true, mirror=true },
+	{ name="mcusub",start="MCUSUB_START", mirror=true },
 	{ name="mcu",  start="JTFRAME_PROM_START" },
-	{ name="proms", sequence=[0,1,2,3,4,4]    },
+	{ name="proms", machines=["metrocrs","aliensec"], sequence=[0,1] },
+	{ name="proms", sequence=[2,3,0,1,4,4]    },
 ]
 
 order=["cpu1","user1",
-       "cpu2","namco2",
+       "cpu2","namco2","chars",
        "gfx1","gfx2",
        "gfx3","mcusub",
        "mcu","proms"

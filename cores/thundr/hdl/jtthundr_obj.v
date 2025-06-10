@@ -20,8 +20,8 @@ module jtthundr_obj(
     input             rst,
     input             clk, pxl_cen, hs, lvbl,
                       flip, dmaon,
-    input      [ 8:0] hdump, vdump,
-
+    input      [ 8:0] hdump, vdump, hos,
+    input      [ 7:0] vos,
     // MMR
     input             mmr_cs,
     input       [1:0] cpu_addr,
@@ -55,6 +55,8 @@ wire [12:1] dma_addr, scan_addr;
 wire        dma_busy, hflip, vflip, draw, dr_busy, dr_draw;
 wire [10:0] code;
 wire [ 8:0] xoffset, hpos;
+reg  [ 8:0] xos;
+reg  [ 7:0] yos;
 wire [ 7:0] yoffset;
 wire [ 6:0] pal;
 wire [ 4:0] ysub;
@@ -67,7 +69,8 @@ assign rom_addr = { raw_addr[17:7],
     hmsb[1],       // H16
     ysub[3],       // V8 (unaffected by vflip)
     raw_addr[4:2], // V4~V1
-    hsize[0] ? hmsb[0] : raw_addr[6] /* H8 */};
+    hsize[0] ? hmsb[0] : raw_addr[6] /* H8 */
+};
 assign ram_addr = dma_busy ? dma_addr : scan_addr;
 assign sorted   = {
     rom_data[27], rom_data[31], rom_data[19], rom_data[23], rom_data[11], rom_data[15], rom_data[3], rom_data[7],
@@ -76,7 +79,11 @@ assign sorted   = {
     rom_data[24], rom_data[28], rom_data[16], rom_data[20], rom_data[ 8], rom_data[12], rom_data[0], rom_data[4]
 };
 
-always @(posedge clk) blankn <= !(vdump>9'hf8 && vdump<9'h11d);
+always @(posedge clk) begin
+    blankn <= !(vdump>9'hf8 && vdump<9'h11d);
+    xos    <= xoffset+hos;
+    yos    <= yoffset+vos;
+end
 
 jtthundr_obj_mmr #(.SIMFILE("ommr.bin")) u_mmr(
     .rst        ( rst       ),
@@ -118,8 +125,8 @@ jtthundr_objscan u_scan(
     .blankn     ( blankn    ),
     .flip       ( flip      ),
     .vrender    ( vdump     ),
-    .xoffset    ( xoffset   ),
-    .yoffset    ( yoffset   ),
+    .xoffset    ( xos       ),
+    .yoffset    ( yos       ),
 
     .code       ( code      ),
     .hsize      ( hsize     ),

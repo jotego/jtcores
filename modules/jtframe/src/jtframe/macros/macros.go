@@ -241,7 +241,7 @@ func make_commit_macro() {
 
 func fill_defaults(core, target string) {
 	year, month, day := time.Now().Date()
-	defaul_values := map[string]string{
+	default_values := map[string]string{
 		str2macro(core): "",				// the core is always set
 		"JTFRAME_180SHIFT":	     "0",
 		"JTFRAME_ARX":           "4",
@@ -259,7 +259,10 @@ func fill_defaults(core, target string) {
 		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
 		"TARGET": target,
 	}
-	for key,val := range defaul_values {
+	if IsSet("JTFRAME_JOY1_POS") {
+		default_values["JTFRAME_DIPBASE"]="20"
+	}
+	for key,val := range default_values {
 		if !IsSet(key) {
 			Set(key, val)
 		}

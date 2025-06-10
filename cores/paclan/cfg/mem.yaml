@@ -1,0 +1,108 @@
+params:
+  - { name: SCR1_OFFSET, value: "(`BG_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk48:
+    - freq: 6000
+      outputs:
+        - cen_pcm
+    - freq: 3072000
+      outputs:
+        - cen_c30
+audio:
+  rsum: 1k
+  channels:
+    - { name: cus30, module: jtcus30, rsum: 1k }
+ports:
+  - { name: cpu_dout, msb:  7, lsb: 0 }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+    - buses:
+      - name: mcusub
+        addr_width: 13
+        data_width: 8
+    - buses:
+      - name: scr0      # foreground
+        addr_width: 13
+        data_width: 16
+        gfx_sort: hvvv
+      - name: scr1      # background
+        addr_width: 13
+        data_width: 16
+        offset: SCR1_OFFSET
+        gfx_sort: hvvv
+    - buses:
+      - name: obj
+        addr_width: 16
+        data_width: 32
+        gfx_sort: vhhvvvx
+bram:
+  # PROM order here must match the MRA order
+  - name: mcu
+    addr_width: 12
+    data_width: 8
+    prom: true
+  - name: rgpal
+    addr_width: 10
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: bpal
+    addr_width: 10
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: scr0pal
+    addr_width: 10
+    data_width: 8
+    prom: true
+  - name: scr1pal
+    addr_width: 10
+    data_width: 8
+    prom: true
+  - name: objpal # 5V
+    addr_width: 10
+    data_width: 8
+    prom: true
+  # Tile maps
+  - name: vram0     # foreground
+    addr_width: 12
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: bg
+      addr: main_addr[11:1]
+      din:  "{2{cpu_dout}}"
+      dout: fg_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }
+  - name: vram1     # background
+    addr_width: 12
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: fg
+      addr: main_addr[11:1]
+      din:  "{2{cpu_dout}}"
+      dout: bg_dout
+      rw:   true
+    ioctl: { save: true, order: 1 }
+  # Objects (8kB but upper 2kB are not mapped to any device)
+  - name: oram
+    addr_width: 13
+    data_width: 16
+    dual_port:
+      name: olut
+      addr: main_addr[12:1]
+      din:  "{2{cpu_dout}}"
+      dout: olut_dout
+      rw:   true
+    ioctl: { save: true, order: 2 }
+  # sound RAM connected to cus30
+  - name: sndram
+    rw: true
+    addr_width: 12
+    data_width: 8

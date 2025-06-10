@@ -38,8 +38,10 @@ module jtframe_dwnld(
     output               prog_rd,
     output reg [ 1:0]    prog_ba,
 
+    input                gfx4_en,   //  HVVV  -> VVVH
     input                gfx8_en,   // HHVVV  -> VVVHH
     input                gfx16_en,  // HHVVVV -> VVVVHH
+    input                gfx16b_en, // VHHVVV -> VVVVHH
 
     output reg           prom_we,
     output reg           header,
@@ -74,16 +76,19 @@ localparam BA_EN   = BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0
 /* verilator lint_on  WIDTH */
 reg  [ 7:0] data_out;
 wire        is_prom;
-reg  [25:0] part_addr;
+reg  [25:0] part_addr, nohdr_addr;
 
 assign prog_data = {2{data_out}};
 assign prog_rd   = 0;
 
 always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
-    part_addr = ioctl_addr-HEADER;
-    if( gfx8_en  ) part_addr[GFX8B0 +:5] = { part_addr[GFX8B0 +:3], part_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
-    if( gfx16_en ) part_addr[GFX16B0+:6] = { part_addr[GFX16B0+:4], part_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
+    nohdr_addr = ioctl_addr-HEADER;
+    part_addr  = nohdr_addr;
+    if( gfx4_en  ) part_addr[GFX8B0 +:4] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:1] }; // HVVV   -> VVVH
+    if( gfx8_en  ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
+    if( gfx16_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
+    if( gfx16b_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+5], nohdr_addr[GFX16B0+:3],nohdr_addr[GFX16B0+3+:2] }; // VHHVVV -> VVVVHH
 end
 
 `ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM

@@ -19,9 +19,10 @@
 module jtthundr_main(
     input               rst, clk,
                         cen_main, cen_sub,
-                        lvbl, sndext_en, nocpu2,
+                        lvbl, sndext_en, nocpu2, scrhflip,
+                        roishtar, genpeitd, wndrmomo, metrocrs,
 
-    output              tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
+    output              flip, tile_bank, latch0_cs, latch1_cs, bsel, dmaon, ommr_cs,
     output       [ 7:0] backcolor,
 
     output              mrom_cs,   srom_cs, ext_cs, bus_busy,
@@ -29,6 +30,7 @@ module jtthundr_main(
     output       [17:0] ext_addr,
     output       [15:0] mrom_addr, srom_addr,
     output       [12:0] baddr,
+    output       [12:1] vtxta,
     output       [ 7:0] bdout,
     output       [ 1:0] scr0_we, scr1_we, oram_we,
     output              brnw,
@@ -98,6 +100,10 @@ jtthundr_busmux u_busmux(
     .clk        ( clk       ),
     .cen_main   ( cen_main  ),
     .cen_sub    ( cen_sub   ),
+    .metrocrs   ( metrocrs  ),
+
+    .scrhflip   ( scrhflip  ),
+    .flip       ( flip      ),
 
     .mavma      ( mavma     ),
     .savma      ( savma     ),
@@ -128,6 +134,7 @@ jtthundr_busmux u_busmux(
     .saddr      ( saddr     ),
     .mrnw       ( mrnw      ),
     .srnw       ( srnw      ),
+    .vtxta      ( vtxta     ),
     // banking registers
     .mbank      ( mbank     ),
     .sbank      ( sbank     ),
@@ -168,6 +175,7 @@ jtframe_watchdog #(.INVERT(1))u_wdog_sub (srst, clk, lvbl, swdog, srst_n);
 jtcus47 u_cus47(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .metrocrs   ( metrocrs  ),
     .lvbl       ( lvbl      ),
     .addr       ( maddr     ),
     .rnw        ( mrnw      ),
@@ -193,6 +201,9 @@ jtcus41 u_cus41(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lvbl       ( lvbl      ),
+    .roishtar   ( roishtar  ),
+    .wndrmomo   ( wndrmomo  ),
+    .genpeitd   ( genpeitd  ),
     .addr       ( saddr     ),
     .rnw        ( srnw      ),
     .scr0_cs    ( sscr0_cs  ),
@@ -260,13 +271,13 @@ mc6809i u_scpu(
 `else
 // change for scene values:
 assign tile_bank = 0;
-assign backcolor = 0;
+assign backcolor = 0, flip = 0;
 assign latch0_cs = 0, latch1_cs = 0, bsel = 0,
        mrom_cs   = 0, srom_cs   = 0, ext_cs = 0, bus_busy = 0,
        ext_addr  = 0, mrom_addr = 0, srom_addr = 0, baddr = 0, bdout = 0,
        scr0_we   = 0, scr1_we   = 0, oram_we   = 0, brnw  = 0,
        mrnw      = 0, mc30_cs   = 0, mdout     = 0, maddr = 0, st_dout = 0,
        dmaon     = lvbl,             pcm_addr  = 0, pcm_wr= 0,
-       ommr_cs   = 0;
+       ommr_cs   = 0, vtxta     = 0;
 `endif
 endmodule

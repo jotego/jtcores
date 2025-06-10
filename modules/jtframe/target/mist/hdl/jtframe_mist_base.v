@@ -159,7 +159,17 @@ assign joyana_r4 = 0;
 
 
 always @(posedge clk_sys) begin
-    debug_view <= { osd_shown, 1'b0, osd_rotate, 1'b0, no_csync, ypbpr, scan2x_enb };
+    case(debug_bus[3:0])
+        0: debug_view <= status[0*8+:8];
+        1: debug_view <= status[1*8+:8];
+        2: debug_view <= status[2*8+:8];
+        3: debug_view <= status[3*8+:8];
+        4: debug_view <= status[4*8+:8];
+        5: debug_view <= status[5*8+:8];
+        6: debug_view <= status[6*8+:8];
+        7: debug_view <= status[7*8+:8];
+        default: debug_view <= { osd_shown, 1'b0, osd_rotate, 1'b0, no_csync, ypbpr, scan2x_enb };
+    endcase
 end
 
 `ifndef SIMULATION

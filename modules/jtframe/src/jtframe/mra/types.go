@@ -110,6 +110,9 @@ type RegCfg struct {
     Width, Len    int
     Rom_len       int
     Reverse, Skip bool
+    // Mirror will duplicate the part entries until the region length is filled
+    // instead of filling it with FF
+    Mirror        bool
     Reverse_only  []int // specify ROM widths to which the reverse will be applied
     No_offset     bool // Using the default offset helps in some CPU configurations. If the file order is not changed,
     // keeping the original offset usually has no effect as the offset is just the file size
@@ -182,12 +185,21 @@ type HeaderReg struct {
     Desc string
     Values []HeaderRegValue
     // private
-    offset, bit, mask, msb, lsb int
+    parts []headerRegPart
+    bitwidth int
 }
 
 type HeaderRegValue struct {
     Selectable
     Value int
+}
+
+type headerRegPart struct {
+    // from header byte at offset take [msb:lsb]
+    offset, msb, lsb int
+    // and place it at bit [at]
+    at   int
+    mask int
 }
 
 type HeaderOffset struct {

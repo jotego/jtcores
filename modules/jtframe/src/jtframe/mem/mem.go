@@ -165,7 +165,8 @@ func Parse_file(core, filename string, cfg *MemConfig) bool {
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
 			switch each.Gfx {
-				case "", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx": break
+				case "", "hvvv", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx",
+					 "vhhvvv","vhhvvvx","vhhvvvxx": break
 				default: {
 					fmt.Printf("Unsupported gfx_sort %s\n", each.Gfx)
 					return false
@@ -715,64 +716,105 @@ func check_ioctl_size(dump_size int) {
 	}
 }
 
+const NOGFXRANGE="0;"
+
 func fill_gfx_sort( cfg *MemConfig ) {
 	// this will not merge correctly hhvvv and hhvvvx used together, that's
 	// not supported in jtframe_dwnld at the moment
-	appendif := func( ss *[]string, mac string ) {
-		if macros.IsSet(mac) { *ss = append(*ss, "`"+mac) }
-	}
-	make_gfx := func( match string ) (string, int) {
-		ranges :=  make([]string,0)
-		b0 := 0
-		for k, bank := range cfg.SDRAM.Banks {
-			offsets := make([]string,0)
-			appendif(&offsets, "JTFRAME_HEADER" )
-			appendif(&offsets,fmt.Sprintf("JTFRAME_BA%d_START",k))
-			for j, each := range bank.Buses {
-				if each.Offset != "" { offsets = append(offsets, fmt.Sprintf("(%s<<1)",each.Offset) )}
-				if each.Gfx!=match && each.Gfx!=(match+"x") && each.Gfx!=(match+"xx") { continue }
-				// bit 0 should be the one containing the first H bit
-				if strings.HasSuffix(each.Gfx,"x")  { b0=1 }
-				if strings.HasSuffix(each.Gfx,"xx") { b0=2 }
-				new_range := ""
-				if len(offsets)>0 {
-					addr0 := fmt.Sprintf("(%s)",strings.Join(offsets,"+"))
-					new_range = fmt.Sprintf("ioctl_addr>=(%s)", addr0 )
-				}
-				addr1 := ""
-				offsets2 := make([]string,0)
-				if j+1<len(bank.Buses) { // is there another entry in the same bank?
-					if bank.Buses[j+1].Offset == ""	{
-						fmt.Printf("Error: missing offset of bus entry %s (bank %d)\n", bank.Buses[j+1].Name, k)
-						fmt.Println("You need to define it as the previous entry has gfx_sort definition")
-						os.Exit(1)
-					}
-					offsets2 = append(offsets,fmt.Sprintf("(%s<<1)",bank.Buses[j+1].Offset))
-				} else {
-					if macros.IsSet(fmt.Sprintf("JTFRAME_BA%d_START",k+1)) { // is there another bank
-						appendif( &offsets2, "JTFRAME_HEADER" )
-						offsets2 = append(offsets2,fmt.Sprintf("`JTFRAME_BA%d_START",k+1))
-					} else if macros.IsSet("JTFRAME_PROM_START") {
-						appendif( &offsets2, "JTFRAME_HEADER" )
-						offsets2 = append(offsets2,"JTFRAME_PROM_START")
-					}
-				}
-				if len(offsets2)>0 {
-					addr1 = strings.Join(offsets2,"+")
-					new_range = fmt.Sprintf("%s && ioctl_addr<(%s)", new_range, addr1 )
-				}
-				new_range = fmt.Sprintf("(%s) /* %s */", new_range, each.Name )
-				ranges = append(ranges, new_range)
+	var b04,b08,b016,b016b int
+	cfg.Gfx4,  b04   = cfg.make_gfx("hvvv")
+	cfg.Gfx8,  b08   = cfg.make_gfx("hhvvv")
+	cfg.Gfx16, b016  = cfg.make_gfx("hhvvvv")
+	cfg.Gfx16b,b016b = cfg.make_gfx("vhhvvv")
+	cfg.Gfx8b0  = cfg.solve_bit0("gfx4/8",   cfg.Gfx4, cfg.Gfx8,  b04, b08)
+	cfg.Gfx16b0 = cfg.solve_bit0("gfx16/16b",cfg.Gfx16,cfg.Gfx16b,b016,b016b)
+}
+
+func (cfg *MemConfig) make_gfx ( match string ) (string, int) {
+	ranges, b0 := cfg.make_gfx_ranges(match)
+	if len(ranges)==0 { return NOGFXRANGE,0 }
+	verilog_expr := cfg.join_ranges(ranges)
+	return verilog_expr,b0
+}
+
+func (cfg *MemConfig) make_gfx_ranges( match string ) (ranges []string, b0 int) {
+	ranges =  make([]string,0)
+	for k, bank := range cfg.SDRAM.Banks {
+		start_offset := make([]string,0)
+		appendif(&start_offset, "JTFRAME_HEADER" )
+		appendif(&start_offset,fmt.Sprintf("JTFRAME_BA%d_START",k))
+		for j, each := range bank.Buses {
+			if each.Offset != "" { start_offset = append(start_offset, fmt.Sprintf("(%s<<1)",each.Offset) )}
+			if each.Gfx!=match && each.Gfx!=(match+"x") && each.Gfx!=(match+"xx") { continue }
+			// bit 0 should be the one containing the first H bit
+			if strings.HasSuffix(each.Gfx,"x")  { b0=1 }
+			if strings.HasSuffix(each.Gfx,"xx") { b0=2 }
+			new_range := ""
+			if len(start_offset)>0 {
+				addr0 := fmt.Sprintf("(%s)",strings.Join(start_offset,"+"))
+				new_range = fmt.Sprintf("ioctl_addr>=(%s)", addr0 )
 			}
-		}
-		if len(ranges)>0 {
-			aux := strings.Join(ranges,"||\n    ")
-			aux += ";"
-			return aux,b0
-		} else {
-			return "0;",0
+			addr1 := ""
+			end_offset := cfg.find_gfx_sort_end(k,j,bank.Buses, start_offset)
+			if len(end_offset)>0 {
+				addr1 = strings.Join(end_offset,"+")
+				new_range = fmt.Sprintf("%s && ioctl_addr<(%s)", new_range, addr1 )
+			}
+			new_range = fmt.Sprintf("(%s) /* %s */", new_range, each.Name )
+			if each.Gfx_en != "" {
+				new_range = fmt.Sprintf("(%s & %s)",new_range,each.Gfx_en)
+			}
+			ranges = append(ranges, new_range)
 		}
 	}
-	cfg.Gfx8, cfg.Gfx8b0  = make_gfx("hhvvv")
-	cfg.Gfx16,cfg.Gfx16b0 = make_gfx("hhvvvv")
+	return ranges, b0
+}
+
+func (cfg *MemConfig) solve_bit0(msg, a, b string, a0,b0 int) int {
+	if a!=NOGFXRANGE && b==NOGFXRANGE { return a0 }
+	if a==NOGFXRANGE && b!=NOGFXRANGE { return b0 }
+	if a==NOGFXRANGE && b==NOGFXRANGE { return  0 }
+	panic_msg, _ := fmt.Printf("%s have different bit 0 settings. They need to share the same bit 0\nGot\t%s\n\t%s\n", msg,a,b)
+	panic(panic_msg)
+	return 0
+}
+
+func appendif( ss *[]string, mac string ) {
+	if macros.IsSet(mac) { *ss = append(*ss, "`"+mac) }
+}
+
+func (cfg *MemConfig)find_gfx_sort_end(bank,bus int, Buses []SDRAMBus, start []string) (end_offset []string) {
+	if bus+1==len(Buses) || Buses[bus].Gfx_en!="" {
+		return cfg.set_gfx_sort_end_at_next_bank(bank)
+	} else {
+		return cfg.set_gfx_sort_end_at_next_bus(bank,bus,Buses,start)
+	}
+}
+
+func (cfg *MemConfig)set_gfx_sort_end_at_next_bank(bank int) (end_offset []string){
+	end_offset = make([]string,0)
+	if macros.IsSet(fmt.Sprintf("JTFRAME_BA%d_START",bank+1)) { // is there another bank
+		appendif( &end_offset, "JTFRAME_HEADER" )
+		end_offset = append(end_offset,fmt.Sprintf("`JTFRAME_BA%d_START",bank+1))
+	} else if macros.IsSet("JTFRAME_PROM_START") {
+		appendif( &end_offset, "JTFRAME_HEADER" )
+		end_offset = append(end_offset,"JTFRAME_PROM_START")
+	}
+	return end_offset
+}
+
+func (cfg *MemConfig)set_gfx_sort_end_at_next_bus(bank, bus int, Buses []SDRAMBus, start []string) (end_offset []string) {
+	end_offset = make([]string,0)
+	if Buses[bus+1].Offset == ""	{
+		msg, _ := fmt.Printf("Error: missing offset of bus entry %s (bank %d)\nYou need to define it as the previous entry has gfx_sort definition", Buses[bus+1].Name, bank,)
+		panic(msg)
+	}
+	end_offset = append(start,fmt.Sprintf("(%s<<1)",Buses[bus+1].Offset))
+	return end_offset
+}
+
+func (cfg *MemConfig)join_ranges(ranges []string) (verilog string) {
+	verilog = strings.Join(ranges,"||\n    ")
+	verilog += ";"
+	return verilog
 }
