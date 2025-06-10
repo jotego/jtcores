@@ -4841,7 +4841,7 @@ wire [15:0] vsram_out_pre, vsram_in, vsr_dump16;
 wire [ 7:0] vsr_dump;
 wire [ 5:0] vsram_index = l212;
 
-assign vsr_dump = ioctl_addr[0] ? vsr_dump16[7:0] : vsr_dump16[15:8];
+assign vsr_dump = ioctl_addr[0] ? vsr_dump16[15:8] : vsr_dump16[7:0];
 assign vsram_in = {5'b0,l181};
 
 always @(*) begin
@@ -6108,9 +6108,9 @@ wire [20:0] sat_out_pre;
 wire [15:0] sat0_dump16, sat1_dump16;
 wire [ 7:0] sat_dump, sat0_dump, sat1_dump;
 
-assign sat0_dump = ioctl_addr[0] ? sat0_dump16[7:0] : sat0_dump16[15:8];
-assign sat1_dump = ioctl_addr[0] ? sat1_dump16[7:0] : sat1_dump16[15:8];
-assign sat_dump  = ioctl_addr[8] ? sat1_dump        : sat0_dump;
+assign sat0_dump = ioctl_addr[0] ? sat0_dump16[15:8] : sat0_dump16[7:0];
+assign sat1_dump = ioctl_addr[0] ? sat1_dump16[15:8] : sat1_dump16[7:0];
+assign sat_dump  = ioctl_addr[8] ? sat1_dump         : sat0_dump;
 
 always @(*) begin
 	sat_we    = 0;
