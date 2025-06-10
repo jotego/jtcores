@@ -170,6 +170,8 @@ mc6809i u_cpu(
 `endif
 jtframe_simdumper #(.DW(21)) dumper(
     .clk        ( clk           ),
+    .rst        ( rst           ),
+    .set_data   (               ),
     .data       ( {flip,palbank,scr1_pos,scr0_pos} ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     )

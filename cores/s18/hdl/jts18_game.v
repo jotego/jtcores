@@ -59,7 +59,6 @@ wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
 // Status report
 wire [7:0] st_video, st_main;
 reg  [7:0] st_mux, game_id;
-wire [7:0] ioctl_vid, ioctl_main;
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
@@ -74,7 +73,6 @@ assign gfx_cs     = LVBL || vrender==0 || vrender[8];
 assign pal_we     = ~dswn & {2{pal_cs}};
 assign xram_addr  = main_addr[15:1];
 assign oram_addr  = cpu_addr[10:1];
-assign ioctl_din  = ioctl_addr[17:11]==7'h4D ? ioctl_main : ioctl_vdp;
 // work RAM (non volatile)
 assign nvram_addr = 0;
 assign nvram_we   = 0;
