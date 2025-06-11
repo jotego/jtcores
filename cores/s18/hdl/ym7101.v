@@ -194,9 +194,6 @@ jtframe_simdumper #(.DW(DW),.SIMFILE("vdp_regs.bin")) dumper(
 assign {reg_data_l2_init,reg_8b_b4_init,reg_8b_b5_init,reg_8b_b6_init,reg_8b_b7_init,reg_8c_b4_init,reg_8c_b5_init,reg_8c_b6_init,reg_8e_b0_init,reg_8e_b4_init,reg_80_b0_init,reg_80_b2_init,reg_80_b3_init,reg_80_b6_init,reg_80_b7_init,reg_81_b0_init,reg_81_b1_init,reg_81_b7_init,reg_86_b2_init,reg_86_b5_init,reg_88_init,reg_addr_init, reg_at_init, reg_code_init, reg_col_b6_init,reg_col_b7_init, reg_col_index_init,reg_col_pal_init, reg_disp_init,reg_dmd_init,reg_down_init, reg_hit_init,reg_hs_init,reg_hscr_init,reg_hsz_init, reg_ie0_init,reg_ie1_init,reg_ie2_init, reg_inc_init,reg_lcb_init,reg_lg_init,reg_lg_of_init, reg_lscr_init,reg_lsm0_init,reg_lsm0_latch_init,reg_lsm1_init,reg_lsm1_latch_init, reg_m1_init,reg_m2_init,reg_m3_init,reg_m5_init, reg_nt_init,reg_rigt_init,reg_rs0_init,reg_rs1_init, reg_sa_init,reg_sa_high_init,reg_sa_low_init,reg_sa_of_init, reg_sb_init,reg_ste_init,reg_test0_init,reg_test1_init,reg_test_18_init, reg_vscr_init,reg_vsz_init,reg_wd_init,reg_whp_init,reg_wvp_init} = 0;
 assign {l17_init,  l18_init,  l19_init,  l24_init,  l25_init,  l35_init,  l36_init,  l37_init,  l38_init,  l39_init,  l47_init,  l55_init,  l56_init,  l57_init,  l58_init,  l59_init,  l60_init,  l61_init,  l62_init,  l63_init,  l64_init,  l65_init,  l66_init,  l67_init,  l68_init,  l69_init, l70_init,  l71_init,  l72_init,  l73_init,  l74_init,  l75_init,  l76_init,  l77_init,  l78_init,  l90_init,  l91_init,  l92_init,  l93_init,  l94_init,  l95_init,  l96_init,  l97_init,  l98_init,  l99_init,  l100_init, l101_init, l102_init, l103_init, l179_init, l180_init, l184_init, l185_init, l187_init, l188_init, l189_init, l190_init, l191_init, l192_init, l193_init, l194_init, l195_init, l219_init, l220_init, l221_init, l222_init, l223_init, l224_init, l225_init, l226_init, l232_init, l233_init, l234_init, l235_init, l236_init, l237_init, l238_init, l239_init, l240_init, l243_init, l244_init, l245_init, l246_init, l255_init, l256_init, l257_init, l258_init, l259_init, l260_init, l261_init, l262_init, l263_init, l264_init, l265_init, l275_init, l276_init, l277_init, l278_init, l279_init, l280_init, l281_init, l282_init, l287_init, l288_init, l289_init, l290_init, l291_init, l292_init, l294_init, l295_init, l296_init, l297_init, l303_init, l304_init, l305_init, l306_init, l307_init, l308_init, l309_init, l310_init, l324_init, l332_init, l342_init, l343_init, l379_init, l380_init, l386_init, l387_init, l413_init, l414_init, l415_init, l416_init, l417_init, l418_init, l424_init, l425_init, l435_init, l436_init, l437_init, l448_init, l450_init, l451_init, l452_init, l453_init, l473_init, l478_init, l479_init, l480_init, l481_init, l486_init, l487_init, l488_init, l491_init, l492_init, l493_init, l494_init, l505_init, l523_init, l524_init, l525_init, l526_init, l527_init, l528_init, l529_init, l530_init, l592_init, l593_init, l594_init, l595_init, l596_init, l597_init, l598_init, l599_init, l621_init, l653_init, l654_init, l655_init, l656_init, l657_init, l658_init, l659_init, l660_init, l661_init, l662_init} = 0;
 assign {sprdata_out_latch_init, sprdata_out_1_l_init,sprdata_out_0_l_init} = 0;
-initial wr_wait = 0;
-`else
-initial wr_wait = 1;
 `endif `endif
 
 assign ioctl_din = 	ioctl_addr >= 10'h3C0 ? regs_dump  :
@@ -6201,10 +6198,8 @@ always @(posedge MCLK) begin if(!ioctl_ram)
 		sprdata_out_0_l   <= sprdata_out_0_l_init;
 		sprdata_out_latch <= sprdata_out_latch_init;
 	end
-	if(set_data) wr_wait <= 0;
 end
 
-reg         wr_wait;
 reg  [33:0] sprdata_out_latch, sprdata_out_1_l,sprdata_out_0_l;
 reg  [ 2:0] spr_we;
 wire [33:0] sprdata_out_pre;
@@ -6229,7 +6224,6 @@ always @(*) begin
 		else
 			sprdata_out_0 = sprdata_out_pre;
 	end
-	if(wr_wait) spr_we=0;
 end
 
 jtframe_dual_ram16 #(
