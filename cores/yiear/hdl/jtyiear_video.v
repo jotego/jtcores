@@ -32,10 +32,16 @@ module jtyiear_video(
     input        [10:0] cpu_addr,
     input         [7:0] cpu_dout,
     input               cpu_rnw,
+    output        [7:0] vcpu_din,
+
+    output       [ 1:0] vramrw_we,
+    input        [15:0] vramrw_dout,
+    output       [10:1] vramrw_addr,
 
     input               vram_cs,
     input               vscr_cs,
-    output        [7:0] vram_dout,
+    output       [10:1] vram_addr,
+    input        [15:0] vram_dout,
     output        [7:0] vscr_dout,
 
     input               obj1_cs,
@@ -102,6 +108,11 @@ jtkicker_scroll #(.BYPASS_PROM(1),.NOSCROLL(1)) u_scroll(
     .cpu_rnw    ( cpu_rnw   ),
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( 1'b0      ),  // No 085 chip, so no scroll
+    .cpu_din    ( vcpu_din  ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .rd_addr    ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
 
@@ -173,6 +184,7 @@ jtyiear_colmix u_colmix(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .scr_prio   ( 1'b0      ),
 
     // video inputs
     .obj_pxl    ( obj_pxl   ),

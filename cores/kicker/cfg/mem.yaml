@@ -37,3 +37,14 @@ sdram:
         - name: main
           addr_width: 16
           data_width: 8
+bram:
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: vramrw
+      din:  vramrw_din
+      dout: vramrw_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }
