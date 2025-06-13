@@ -236,6 +236,7 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .dswn       ( main_dswn ),
     .char_dout  ( char_dout ),
     .vint       ( vint      ),
+    .active     (           ),
 
     // Other configuration
     .flip       ( flip      ),
