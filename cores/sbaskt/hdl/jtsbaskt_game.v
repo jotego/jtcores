@@ -30,7 +30,7 @@ wire [ 3:0] pal_sel;
 wire        obj_frame;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout,
+wire [ 7:0] vscr_dout, vcpu_din, obj_dout,
             debug_snd;
 wire        vsync60;
 
@@ -39,6 +39,7 @@ reg         decode;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
+assign ioctl_din  = 0;
 assign debug_view = {3'd0, vlm_rcen, psg_rcen, rdac_rcen };
 
 wire [ 7:0] nc, pre_data;
@@ -79,7 +80,7 @@ jtsbaskt_main u_main(
 
     .vscr_cs        ( vscr_cs       ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
     .vscr_dout      ( vscr_dout     ),
 
     .objram_cs      ( objram_cs     ),
@@ -157,9 +158,14 @@ jtsbaskt_video u_video(
     .cpu_addr   ( main_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vcpu_din   ( vcpu_din  ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
     // Scroll
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( vscr_cs   ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
     // Objects

@@ -27,14 +27,9 @@ module jtcircus_obj(
     input               clk24,      // 24 MHz
 
     input               pxl_cen,
-
-    // CPU interface
-    input         [9:0] cpu_addr,
-    input         [7:0] cpu_dout,
-    input               objram_cs,
-    input               cpu_rnw,
-    output        [7:0] obj_dout,
-
+    // Video RAM
+    output       [ 9:0] olut_addr,
+    input        [ 7:0] olut_dout,
     // video inputs
     input               obj_frame,
     input               hs,
@@ -59,23 +54,17 @@ module jtcircus_obj(
     input         [7:0] debug_bus
 );
 
-parameter [7:0] HOFFSET = 0;
-parameter REV_SCAN = 0;
+parameter [7:0] HOFFSET = 8'd1;
 
-localparam FIX = 9'h2d, FIXF = 9'hde;
-
-wire [ 7:0] dma_din, scan_dout;
-wire        obj_we, obj_bl;
+wire [ 7:0] scan_dout;
 reg  [ 7:0] scan_addr=0;
 reg         dma_we, dma_done;
-wire [ 9:0] eff_dma;
 reg  [ 7:0] dma_addr;
 wire [ 3:0] pal_data, pre_pxl, pxl_dly;
 
-assign obj_we  = objram_cs & ~cpu_rnw;
-assign eff_dma = {1'b0,obj_frame,dma_addr};
-assign pxl     = obj_bl ? 4'd0 : flip ? pre_pxl : pxl_dly;
-assign obj_bl  = flip ? hdump>=FIXF : hdump <= FIX;
+assign olut_addr = {1'b0,obj_frame,dma_addr};
+assign pxl     = flip ? pre_pxl : pxl_dly;
+
 jtframe_sh #(.W(4),.L(5)) u_sh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
@@ -83,26 +72,11 @@ jtframe_sh #(.W(4),.L(5)) u_sh(
     .drop   ( pxl_dly   )
 );
 
-jtframe_dual_ram u_hi(
-    // Port 0, CPU
-    .clk0   ( clk24      ),
-    .data0  ( cpu_dout   ),
-    .addr0  ( cpu_addr   ),
-    .we0    ( obj_we     ),
-    .q0     ( obj_dout   ),
-    // Port 1
-    .clk1   ( clk        ),
-    .data1  (            ),
-    .addr1  ( eff_dma    ),
-    .we1    ( 1'b0       ),
-    .q1     ( dma_din    )
-);
-
 // LUT frame buffer and DMA
 jtframe_dual_ram #(.AW(8)) u_fb(
     // Port 0, DMA
     .clk0   ( clk           ),
-    .data0  ( dma_din       ),
+    .data0  ( olut_dout       ),
     .addr0  ( dma_addr      ),
     .we0    ( dma_we        ),
     .q0     (               ),

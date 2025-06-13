@@ -61,3 +61,13 @@ bram:
     rw: true
     addr: "main_addr[11:0]"
     din: cpu_dout
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    sim_file: true
+    dual_port:
+      name: vramrw
+      din:  "{2{cpu_dout}}"
+      dout: vramrw_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }

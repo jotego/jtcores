@@ -33,10 +33,18 @@ module jtroc_video(
     input               cpu_rnw,
 
     input               vram_cs,
-    output        [7:0] vram_dout,
+    output        [7:0] vcpu_din,
+
+    output       [ 1:0] vramrw_we,
+    input        [15:0] vramrw_dout,
+    output       [10:1] vramrw_addr,
 
     input               objram_cs,
     output        [7:0] obj_dout,
+
+    //VRAM read out
+    output       [10:1] vram_addr,
+    input        [15:0] vram_dout,
 
     // PROMs
     input         [7:0] prog_data,
@@ -118,6 +126,11 @@ jtkicker_scroll #(.LAYOUT(LAYOUT),.NOSCROLL(1)) u_scroll(
     .vscr_cs    ( 1'b0      ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  (           ),
+    .cpu_din    ( vcpu_din  ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .rd_addr    ( vram_addr ),
 
     // video inputs
     .LHBL       ( LHBL      ),
@@ -185,6 +198,7 @@ jtyiear_colmix #(.BLANK_DLY(9),.LOWONLY(1)) u_colmix(
     .clk        ( clk       ),
 
     .pxl_cen    ( pxl_cen   ),
+    .scr_prio   ( 1'b0      ),
 
     // video inputs
     .obj_pxl    ( obj_pxl   ),

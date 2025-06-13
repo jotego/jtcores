@@ -3,7 +3,6 @@ sourcefile=[ "segas18.cpp" ]
 
 debug = { machines=[
     # VDP priority bad
-    "lghost",    # light gun aim position a bit off
     "hamaway",
     "desertbr",
     # bad tile mapping

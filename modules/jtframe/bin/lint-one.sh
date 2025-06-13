@@ -7,8 +7,9 @@ trap "clean_up; exit 1" INT KILL
 main() {
     CORE=$1
     shift
+    parse_args $*
     set_target
-    read_core_macros
+    read_core_macros "$FRAME_ARGS"
 
     if must_skip; then
         echo "Skipping $CORE"
@@ -19,9 +20,48 @@ main() {
     cd $TEST_FOLDER
     make_dummy_rom
 
-    run_linter
+    run_linter "$SIM_ARGS"
     check_msg
     clean_up
+}
+
+parse_args() {
+    FRAME_ARGS=
+    SIM_ARGS=
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -d|--def) shift
+                add_to_both -d $1;;
+            -u|--undef) shift
+                add_to_both --undef $1;;
+            --nodbg)
+                add_to_jtframe $1
+                add_to_jtsim -d JTFRAME_RELEASE;;
+            -o|--output) shift;;
+            --tpl) shift
+                add_to_jtframe --tpl $1;;
+            -t|--target) shift
+                TARGET=$1;;
+            -mist|-mister|-pocket|-sidi128)
+                TARGET=${1#-};;
+            *)
+                add_to_jtsim $*;;
+        esac
+        shift
+    done
+}
+
+add_to_jtframe() {
+    FRAME_ARGS+=" $*"
+}
+
+add_to_jtsim() {
+    SIM_ARGS+=" $*"
+}
+
+add_to_both() {
+    add_to_jtframe $*
+    add_to_jtsim $*
 }
 
 set_target() {

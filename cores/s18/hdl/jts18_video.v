@@ -130,7 +130,7 @@ wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            sa, sb, fix, s1_pri, s2_pri;
 wire [1:0] obj_prio;
 wire [2:0] scr1_bank, scr2_bank;
-wire [3:0] obj_bank;
+wire [3:0] obj_bank, active;
 wire [7:0] tilebanks_nx, tb_mmr;
 wire [3:0] tilebanks_addr = rst ? hdump[3:0] : addr[4:1];
 (* ramstyle = "logic" *) reg  [7:0] tilebanks[16];
@@ -249,6 +249,7 @@ jts18_video16 u_video16(
     .obj_data   ( obj_data  ),
 
     // Video signal
+    .active     ( active    ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
@@ -333,6 +334,7 @@ jts18_colmix u_colmix(
     .obj_prio   ( obj_prio  ),
     .s1_pri     ( s1_pri    ),
     .s2_pri     ( s2_pri    ),
+    .active     ( active    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),

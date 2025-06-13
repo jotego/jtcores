@@ -238,6 +238,7 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .cpu_dout   ( cpu_dout  ),
     .dswn       ( main_dswn ),
     .vint       ( vint      ),
+    .active     (           ),
 
     .cscn_addr  ( cscn_addr ),
     .cscn_dout  ( cscn_dout ),

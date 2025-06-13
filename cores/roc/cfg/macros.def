@@ -3,6 +3,7 @@ include ../../kicker/cfg/common.def
 
 CORENAME=JTROC
 
+JTFRAME_IOCTL_RD=2048
 SND_START =0x0A000
 SCR_START =0x0C000
 OBJ_START =0x10000
