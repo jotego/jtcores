@@ -28,6 +28,7 @@ module jts18_colmix(
     // S16B
     input              vid16_en, sa, sb, fix, s1_pri, s2_pri,
     input        [1:0] obj_prio,
+    input        [3:0] active,
     // VDP
     input              vdp_en,
     input        [2:0] vdp_prio,
@@ -70,7 +71,7 @@ always @(posedge clk) begin
     //     4: vdp_sel <= !fix && ( sa || sb );
     //     default: vdp_sel <= s16_blank;
     // endcase
-    nblnk   <= s16_blank & obj;
+    nblnk   <= active==0;// s16_blank & obj;
     vdp_sel <= vdp_sel_o;
     if(  nblnk    ) vdp_sel <= 1;
     if( !vdp_ysn  ) vdp_sel <= 0;

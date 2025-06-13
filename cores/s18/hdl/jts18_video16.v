@@ -83,6 +83,7 @@ module jts18_video16(
     output     [ 5:0]  blue,
 
     // priority bits
+    output     [ 3:0] active,
     output     [ 1:0]  obj_prio,
     output             fix, sa, sb, tprio, s1_pri, s2_pri,
     // palette RAM
@@ -173,6 +174,7 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .st_dout    ( st_dout   ),
     .scr_bad    ( scr_bad   ),
     // Active layer
+    .active   (active),
     .fix        ( fix       ),
     .sa         (  sa       ),
     .sb         (  sb       ),
