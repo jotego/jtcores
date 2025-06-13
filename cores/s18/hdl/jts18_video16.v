@@ -174,7 +174,7 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .st_dout    ( st_dout   ),
     .scr_bad    ( scr_bad   ),
     // Active layer
-    .active   (active),
+    .active     ( active    ),
     .fix        ( fix       ),
     .sa         (  sa       ),
     .sb         (  sb       ),

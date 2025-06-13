@@ -211,7 +211,7 @@ jts18_video16 u_video16(
     .obj_data   ( obj_data  ),
 
     // Video signal
-    .active   (active),
+    .active     ( active    ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
@@ -291,7 +291,7 @@ jts18_colmix u_colmix(
     .obj_prio   ( obj_prio  ),
     .s1_pri     ( s1_pri    ),
     .s2_pri     ( s2_pri    ),
-    .active   (active),
+    .active     ( active    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),

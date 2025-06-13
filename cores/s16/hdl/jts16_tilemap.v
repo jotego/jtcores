@@ -362,7 +362,7 @@ jts16_prio u_prio(
     .tprio     ( tprio          ),
     .scr1_prio ( s1_pri         ),
     .scr2_prio ( s2_pri         ),
-    .active   (active),
+    .active    ( active         ),
 
     .pal_addr  ( pal_addr       ),
     .shadow    ( shadow         ),
