@@ -31,6 +31,7 @@ module jtriders_obj #(parameter
     input             vs,
     input             lhbl, // not an input in the original
     input             lvbl,
+    input             lgtnfght,
 
     // CPU interface
     input             ram_cs,
@@ -72,7 +73,7 @@ wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
 wire [21:1] rmrd_addr;
-wire [13:1] dma_addr;
+wire [13:1] scn_addr, dma_addr;
 wire [15:0] pre_pxl;
 
 // Draw module
@@ -98,6 +99,7 @@ assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;
+assign dma_addr  = lgtnfght ? {scn_addr[10:4],2'b00,scn_addr[3:1],1'b0} : scn_addr;
 
 // Shadow understanding so far
 // The 053251 color mixer lets shadow pass based on numerical priority only
@@ -133,7 +135,7 @@ jt053244 u_scan(    // sprite logic
     .rmrd_addr  ( rmrd_addr ),
 
     // External RAM
-    .dma_addr   ( dma_addr  ), // up to 16 kB
+    .dma_addr   ( scn_addr  ), // up to 16 kB
     .dma_data   ( dma_data  ),
     .dma_bsy    ( dma_bsy   ),
 

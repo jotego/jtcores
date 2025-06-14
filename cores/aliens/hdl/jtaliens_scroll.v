@@ -89,7 +89,8 @@ module jtaliens_scroll(
     output     [ 7:0] st_dout
 );
 
-parameter [8:0] HB_EXTRAL=0,
+parameter [8:0] HB_OFFSET=0,
+                HB_EXTRAL=0,
                 HB_EXTRAR=0;
 parameter       FULLRAM  =0; // Enables the three possible memory chips
 
@@ -164,6 +165,7 @@ jt052109 #(.FULLRAM(FULLRAM)) u_tilemap(
 
 /* verilator tracing_on */
 jt051962 #(
+    .HB_OFFSET  ( HB_OFFSET ),
     .HB_EXTRAL  ( HB_EXTRAL ),
     .HB_EXTRAR  ( HB_EXTRAR )
 ) u_draw(

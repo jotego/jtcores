@@ -11,7 +11,6 @@ skip = { bootlegs=true, machines=[
 	# not covered yet
 	"blswhstl",
     "cuebrick",
-    "lgtnfght",
     "blswhstl",
     "glfgreat",
     "qgakumon",
@@ -21,7 +20,7 @@ skip = { bootlegs=true, machines=[
     "asterix",
 ]}
 
-debug={machines=["tmnt2"]}
+debug={machines=["tmnt2","lgtnfght",]}
 
 [buttons]
 names = [
@@ -34,6 +33,7 @@ info="Offsets for each ROM region. Byte 15 = game selection."
 data = [
 	{ machine="ssriders", offset=15, data="00" },
 	{ machine="tmnt2",    offset=15, data="01" },
+	{ machine="lgtnfght", offset=15, data="02" },
 ]
 offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
 
@@ -42,11 +42,11 @@ regions = [
     { name="maincpu", width=16, reverse=true  },
 
     { name="audiocpu"  },
-    { name="k053260", rename="pcm", machines=[ "ssriders", "tmnt2" ]   },
+    { name="k053260", rename="pcm", machines=[ "ssriders", "tmnt2", "lgtnfght" ]   },
 
     { name="k052109", width=32 }, # tiles
     # sprites
-    { name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2" ] },
+    { name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2", "lgtnfght" ] },
     { name="eeprom", skip=true }
 ]
 
@@ -57,6 +57,11 @@ patches=[
 	{setname="ssriders",offset=0x1a40,data="71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E"},
 	# skip wait after displaying the video grid
 	{setname="ssriders",offset=0x1392,data="71 4E"},
+	# skip wait after displaying the video grid
+	# {setname="lgtnfght",offset=0x181a,data="71 4E 71 4E"},
+	# {setname="lgtnfght",offset=0x1824,data="71 4E 71 4E"},
+	# # bypass halt on boot-up errors
+	# {setname="lgtnfght",offset=0x1830,data="71 4E"},
 ]
 
 # default configuration to prevent from boot-up error

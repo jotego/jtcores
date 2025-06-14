@@ -21,11 +21,12 @@ module jtriders_game(
 );
 
 localparam [2:0] SSRIDERS = 3'd0,
-                 TMNT2    = 3'd1;
+                 TMNT2    = 3'd1,
+                 LGTNFGHT = 3'd2;
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol,
-            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
@@ -33,7 +34,7 @@ wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         ssriders, tmnt2;
+reg         ssriders, tmnt2, lgtnfght;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
@@ -60,18 +61,21 @@ always @(posedge clk) begin
     if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
     ssriders <= game_id == SSRIDERS;
     tmnt2    <= game_id == TMNT2;
+    lgtnfght <= game_id == LGTNFGHT;
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .LVBL           ( LVBL          ),
+    .lgtnfght       ( lgtnfght      ),
 
+    .LVBL           ( LVBL          ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
+    .cpu_n          ( cpu_n         ),
 
     // protection chip
     .BGACKn         ( BGACKn        ),
@@ -128,6 +132,7 @@ jtriders_main u_main(
     .nv_din         ( nvram_din     ),
     .nv_we          ( nvram_we      ),
     // DIP switches
+    .dipsw          ( dipsw[19:0]   ),
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
     // Debug
@@ -171,8 +176,10 @@ jtriders_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
+    .cpu_n          ( cpu_n         ),
 
     .ssriders       ( ssriders      ),
+    .lgtnfght       ( lgtnfght      ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -247,6 +254,7 @@ jtriders_sound u_sound(
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
+    .lgtnfght   ( lgtnfght      ),
 
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),

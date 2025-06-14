@@ -1,14 +1,6 @@
 riders:
   - get:
-    - jtriders_game.v
-    - jtriders_colmix.v
-    - jtriders_video.v
-    - jtriders_main.v
-    - jt053244.sv
-    - jt053244_scan.sv
-    - jtriders_obj.v
-    - jtriders_prot.v
+    - "*.v"
+    - "*.sv"
     - common.yaml
-  # - from: tmnt
-  #   get:
 
