@@ -41,6 +41,9 @@ func Convert(args Args) error {
 	defer close_allzip()
 	parse_args(&args)
 	macros.MakeMacros(args.Core,args.Target)
+	if args.Target=="pocket" && macros.IsSet("JTFRAME_SKIP") && args.Nodbg {
+		args.SkipPocket = true
+	}
 	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
 	mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank

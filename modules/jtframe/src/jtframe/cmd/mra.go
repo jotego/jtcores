@@ -98,7 +98,7 @@ func clear_folders() {
 
 func parse_cores( corenames []string ) error {
 	mra_args.Xml_path=MakeJTpath("doc","mame.xml")
-	mra_args.Target="mister"
+	mra_args.Target="pocket"
 	entries, e := os.ReadDir(MakeJTpath("cores")); Must(e)
 	if verbose {
 		fmt.Println("Parsing", mra_args.Xml_path)
