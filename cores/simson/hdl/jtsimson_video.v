@@ -203,6 +203,7 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
 `else
 assign obj_shd[1] = 1'b0;
 jtriders_obj #(.RAMW(ORAMW)) u_obj(
+    .lgtnfght   ( 1'b0      ),
 `endif
     .rst        ( rst       ),
     .clk        ( clk       ),
