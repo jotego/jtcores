@@ -182,7 +182,7 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .s2_pri     ( s2_pri    )
 );
 
-jts16_obj #(.MODEL(MODEL)) u_obj(
+jts16_obj #(.MODEL(MODEL), .PXL_DLY(9'd17)) u_obj(
     .rst       ( rst            ),
     .clk       ( clk            ),
     .pxl_cen   ( pxl_cen        ),
