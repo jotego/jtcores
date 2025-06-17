@@ -117,10 +117,10 @@ wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel, vdp_on,
-           sa, sb, fix, s1_pri, s2_pri;
+           obj, sa, sb, fix, s1_pri, s2_pri;
 wire [1:0] obj_prio;
 wire [2:0] scr1_bank, scr2_bank;
-wire [3:0] obj_bank, active;
+wire [3:0] obj_bank;
 (* ramstyle = "logic" *) reg  [7:0] tilebanks[16];
 
 wire       alt_gfx = game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]|game_id[PCB_7525];
@@ -211,7 +211,7 @@ jts18_video16 u_video16(
     .obj_data   ( obj_data  ),
 
     // Video signal
-    .active     ( active    ),
+    .obj        ( obj       ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
@@ -285,13 +285,13 @@ jts18_colmix u_colmix(
     .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
     // S16 Video priority
+    .obj16     ( obj       ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
     .obj_prio   ( obj_prio  ),
     .s1_pri     ( s1_pri    ),
     .s2_pri     ( s2_pri    ),
-    .active     ( active    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
