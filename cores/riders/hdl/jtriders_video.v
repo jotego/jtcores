@@ -185,7 +185,7 @@ endfunction
 // the end of stage 2
 // It also makes the grid look squared, wihtout nothing hanging off the sides
 jtaliens_scroll #(
-    .HB_OFFSET( 9'd1 ), // good for lgtnfght, what about ssriders?
+    .HB_OFFSET( 9'd3 ), // good for lgtnfght, what about ssriders?
     .HB_EXTRAL( 9'd8 ),
     .HB_EXTRAR( 9'd8 )
 ) u_scroll(
