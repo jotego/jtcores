@@ -297,17 +297,20 @@ module jtframe_joy1_pos(
         // move 1P to a different position
         case(pos)
             1: begin
-                joy2 <= raw1; joy1 <= raw2;
+                joy1 <= raw2;
+                joy2 <= raw1;
                 start[1] <= raw_start[0];
                 coin [1] <= raw_coin[0];
             end
             2: begin
-                joy3 <= raw1; joy1 <= raw3;
+                joy1 <= raw3;
+                joy3 <= raw1;
                 start[2] <= raw_start[0];
                 coin [2] <= raw_coin[0];
             end
             3: begin
-                joy4 <= raw1; joy1 <= raw4;
+                joy1 <= raw4;
+                joy4 <= raw1;
                 start[3] <= raw_start[0];
                 coin [3] <= raw_coin[0];
             end
