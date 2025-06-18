@@ -46,6 +46,10 @@ Delete=[
     { Names=["Credits needed", "Game Time P1", "Game Time P2"] },
 ]
 
+defaults=[
+    { machine="lghost",value="ff,e5"}
+]
+
 [header]
 # follows the same structure as JTS16's
 offset = { bits=12, reverse=true, regions=["maincpu","soundcpu","tiles", "sprites", "maincpu:key", "mcu"] }
