@@ -42,7 +42,7 @@ parameter FULLRAM = 0;
 `ifndef JTFRAME_RELEASE
 localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
            PAL_END  = SCR_END +16'h1000,
-           OBJ_END  = PAL_END +16'h2000,
+           OBJ_END  = PAL_END +16'h4000,
            PMMR_END = OBJ_END +16'h0010,
            SMMR_END = PMMR_END+16'h0008,
            OMMR_END = SMMR_END+16'h0008;
