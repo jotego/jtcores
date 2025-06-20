@@ -4,7 +4,6 @@ sourcefile=[ "segas18.cpp" ]
 debug = { machines=[
     # VDP priority bad
     "hamaway",
-    "desertbr",
     # bad tile mapping
     "wwallyj",
     "ddcrew",
