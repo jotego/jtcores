@@ -4,6 +4,7 @@ SCENE=
 FNAME=
 NVRAM=0
 FULLRAM=0
+FULLOBJ=0
 DUALPAL=0
 SKIP=0
 
@@ -19,6 +20,8 @@ while [ $# -gt 0 ]; do
 			NVRAM=1;;
 		-x|--fullram)
 			FULLRAM=1;;
+		-o|--fullobj)
+			FULLOBJ=1;;
 		-p|--pal2)
 			DUALPAL=1;;
         *) OTHER="$OTHER $1";;
@@ -58,7 +61,13 @@ if [ $FULLRAM = 1 ]; then
 	dd if=$TMP  of=scrx.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 fi
 dd if=$TMP      of=pal.bin     count=8  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +8 ))   # 4kB
-dd if=$TMP      of=obj.bin     count=32 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +32))   # 16kB
+
+if [ $FULLOBJ = 1 ]; then
+	dd if=$TMP      of=obj.bin     count=32 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +32))   # 16kB
+else
+	dd if=$TMP      of=obj.bin     count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 16kB
+	dd if=/dev/zero of=obj.bin     count=16 conv=notrunc oflag=append 2> /dev/null;        # 8kB blank
+fi
 SKIP=$((SKIP*512/8))
 # MMR
 dd if=$TMP of=pal_mmr.bin bs=8 count=2  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +2))
