@@ -23,7 +23,7 @@ SND_RAMW=11
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
-debug JTFRAME_IOCTL_RD+=28705
+debug JTFRAME_IOCTL_RD+=36897
 
 # But MiST/SiDi cannot handle that much
 [mist|sidi]

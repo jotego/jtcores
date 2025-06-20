@@ -58,8 +58,8 @@ if [ $FULLRAM = 1 ]; then
 	dd if=$TMP  of=scrx.bin    count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
 fi
 dd if=$TMP      of=pal.bin     count=8  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +8 ))   # 4kB
-dd if=$TMP      of=obj.bin     count=16 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +16))   # 8kB
-dd if=/dev/zero of=obj.bin     count=16 conv=notrunc oflag=append 2> /dev/null; SKIP=$((SKIP*512/8)) # 8kB blank
+dd if=$TMP      of=obj.bin     count=32 skip=$SKIP      2> /dev/null; SKIP=$((SKIP +32))   # 16kB
+SKIP=$((SKIP*512/8))
 # MMR
 dd if=$TMP of=pal_mmr.bin bs=8 count=2  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +2))
 dd if=$TMP of=scr_mmr.bin bs=8 count=1  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +1))
