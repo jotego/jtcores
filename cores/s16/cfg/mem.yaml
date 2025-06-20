@@ -31,15 +31,19 @@ clocks:
         - mcu_cen
         - cen_nc4
 audio:
-  rsum: 10k
   mute: true
+  rsum: 47k
   rc: { r: 47k, c: 1n }
+  rsum_feedback_res: true
+  # pcb:
+  #   # must match PCB order in TOML file - not automated check yet
+  #   - { rfb: 47k, rsums: [ 47k, 47k ], pres: [ 0.5, 1.00 ] } # Quartet
+  #   - { rfb: 47k, rsums: [ 47k, 47k ], pres: [ 0.5, 1.00 ] } # Other games
   channels:
-    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}]}
-    # 0.8 because of TTL output not reaching the supply fully
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}], pre: 0.5 }
+    # 0.8 because of TTL output not reaching the supply fully: 3.6Vpp/5V = 0.72
     # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
-    # 3.6Vpp/5V = 0.72
-    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_192k_4k.csv, vpp: 0.72, pre: 0.1 }
+    - { name: pcm, data_width: 8, rsum: 47k, fir: fir_192k_4k.csv, vpp: 0.72 }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
