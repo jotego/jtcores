@@ -133,7 +133,7 @@ assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
 
-jtriders_dump #(.RIDERS(1)) u_dump(
+jtriders_dump #(.FULLOBJ(1)) u_dump(
     .clk            ( clk           ),
     .dump_scr       ( dump_scr      ),
     .dump_obj       ( dump_obj      ),
