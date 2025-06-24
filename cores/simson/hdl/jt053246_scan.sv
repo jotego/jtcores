@@ -143,7 +143,7 @@ always @* begin : B
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( y2[9] || |yz_add[17:16] ) inzone=0;
+    if( |yz_add[17:16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
