@@ -20,7 +20,7 @@ skip = { bootlegs=true, machines=[
     "asterix",
 ]}
 
-debug={machines=["tmnt2","lgtnfght",]}
+debug={machines=["tmnt2",]}
 
 [buttons]
 names = [
