@@ -335,6 +335,7 @@ jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .lgtnfght   ( lgtnfght  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
