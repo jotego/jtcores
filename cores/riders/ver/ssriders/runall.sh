@@ -3,7 +3,7 @@
 BAD=
 
 for i in scenes/*; do
-    if ! sim.sh -s $(basename $i) --batch $*; then
+    if ! sim.sh -s $(basename $i) --batch $* > /dev/null 2>&1; then
         BAD="$(basename $i) $BAD"
     fi
 done
