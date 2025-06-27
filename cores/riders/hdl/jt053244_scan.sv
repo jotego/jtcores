@@ -57,6 +57,8 @@
     input      [ 7:0] debug_bus
 );
 
+parameter HFLIP_OFFSET = 0;
+
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
@@ -68,6 +70,7 @@ reg  [ 1:0] scan_sub, reserved;
 reg         inzone, hs_l, done, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, vs_l, hhalf;
+wire [ 9:0] hflip_off;
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
 reg  [ 8:0] zoffset [0:255];
@@ -80,12 +83,13 @@ assign ysub      = ydiff[3:0];
 assign last_obj  = &scan_obj[6:0];
 assign nx_mir    = scan_even[9:8];
 assign {vsz,hsz} = size;
+assign hflip_off = ghf ? HFLIP_OFFSET[9:0] : 0;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset + 10'h66 ;
+    xadj <= xoffset + 10'h66 + hflip_off;
     yadj <= yoffset + 10'h107;
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */

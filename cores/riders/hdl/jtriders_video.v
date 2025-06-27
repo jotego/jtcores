@@ -283,7 +283,7 @@ assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
 
-jtriders_obj #(.RAMW(13)) u_obj(    // sprite logic
+jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

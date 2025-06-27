@@ -70,6 +70,8 @@ module jt053244(    // sprite logic
     output     [ 7:0] st_dout
 );
 
+parameter HFLIP_OFFSET = 0;
+
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
@@ -91,7 +93,8 @@ assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = cs && cpu_addr[2:1]==3;
 
-jt053244_scan u_scan(
+jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET)
+    )u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
     .code      ( code       ),
