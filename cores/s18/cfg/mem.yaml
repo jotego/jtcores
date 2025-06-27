@@ -1,8 +1,6 @@
 params:
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
 audio:
-  gain: 1.5
-  rsum: 22k
   channels:
     - { name: fm0, rsum: 22k, module: jt12, pre: 0.47 }
     - { name: fm1, rsum: 22k, module: jt12, pre: 0.47 }
@@ -10,7 +8,7 @@ audio:
     # extracted. There seems to be a clear 1-order RC filter at the end
     # of it, though
     # the sampling frequency is about 26kHz for a clock of 10MHz
-    - { name: pcm, rsum: 11k, module: jtpcm568, fir: fir_192k_13k.csv, pre: 3.0 }
+    - { name: pcm, rsum: 22k, module: jtpcm568, fir: fir_192k_13k.csv }
 clocks:
   clk48:
     - freq: 8000000
