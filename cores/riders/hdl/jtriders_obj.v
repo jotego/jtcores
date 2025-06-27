@@ -18,7 +18,8 @@
 
 // 053244/5
 module jtriders_obj #(parameter
-    RAMW   = 12
+    RAMW   = 12,
+    HFLIP_OFFSET = 0
 )(
     input             rst,
     input             clk,
@@ -120,7 +121,7 @@ assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
 assign sorted = rom_data;
 
-jt053244 #(.HFLIP_OFFSET(10'd325)
+jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET)
     )u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
