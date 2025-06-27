@@ -101,7 +101,7 @@ always @(posedge clk) begin
     end
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -189,7 +189,7 @@ jts18_main u_main(
     .st_dout     ( st_main    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -223,7 +223,7 @@ jts18_sound u_sound(
     .pcm        ( pcm       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_video u_video(
     .rst        ( rst       ),
     .clk96      ( clk96     ),
