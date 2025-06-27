@@ -120,7 +120,8 @@ assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
 assign sorted = rom_data;
 
-jt053244 u_scan(    // sprite logic
+jt053244 #(.HFLIP_OFFSET(10'd325)
+    )u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
