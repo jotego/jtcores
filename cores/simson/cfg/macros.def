@@ -1,4 +1,5 @@
 CORENAME=JTSIMSON
+JTFRAME_MR_DDRLOAD
 
 # 96 MHz needed for avoiding incomplete sprites in the final stages
 JTFRAME_CLK48
@@ -50,4 +51,3 @@ JTFRAME_OSD_NOCREDITS
 [mister]
 JTFRAME_ARX=5
 JTFRAME_ARY=4
-JTFRAME_MR_DDRLOAD
