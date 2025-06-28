@@ -20,6 +20,7 @@ module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
     input                lgtnfght,
+    input                glfgreat,
     input                LVBL,
     input                cpu_n,       // low when CPU can access video RAM
 
@@ -73,10 +74,7 @@ module jtriders_main(
     output      [ 7:0]   nv_din,
     output               nv_we,
     // Cabinet
-    input         [ 6:0] joystick1,
-    input         [ 6:0] joystick2,
-    input         [ 6:0] joystick3,
-    input         [ 6:0] joystick4,
+    input         [ 6:0] joystick1, joystick2, joystick3, joystick4,
     input         [19:0] dipsw,
     input         [ 3:0] cab_1p,
     input         [ 3:0] coin,
@@ -95,11 +93,11 @@ reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs,
             riders_son, riders_rmrd;
-reg  [15:0] cpu_din;
-reg  [ 7:0] cab_dout;
+reg  [15:0] cpu_din, cab_dout;
+wire [15:0] glfgreat_cab;
 wire [ 7:0] riders_cab, lgtnfght_cab;
 wire [ 2:0] lgtnfght_dim;
-wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
+wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn, adc=0;
 wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd;
 
 `ifdef SIMULATION
@@ -141,7 +139,7 @@ always @* begin
     pcu_cs     = 0;
     prot_cs    = 0;
     // wdog     = 0;
-    if(!ASn) if(lgtnfght) casez(A[20:16])
+    if(!ASn) begin if(lgtnfght) casez(A[20:16])
         5'o0?: rom_cs = 1;
         5'o10: pal_cs = 1;      // 0x08'0000
         5'o11: ram_cs = ~BUSn;  // 0x09'0000
@@ -157,6 +155,20 @@ always @* begin
         // 5'o15: bw_cs = 1; ???
         5'o16: pcu_cs  = 1;     // 0x0E'0000
         5'o20: vram_cs = 1;     // 0x10'0000
+        default:;
+    endcase else if(glfgreat) casez(A[21:12]) // 2-4-4
+        10'b00_????_????: rom_cs  = 1;     // 00'0000 ~ 0F'FFFF
+        10'b01_??00_00??: ram_cs  = ~BUSn; // 10'0000 ~ 10'3FFF
+        10'b01_??00_01??: obj_cs  = 1;     // 10'4000 ~ 10'7FFF
+        10'b01_??00_10??: pal_cs  = 1;     // 10'8000 ~ 10'8FFF
+    //  10'b01_??00_11??:                  // 10'C000 ~ 10'CFFF 053936
+        10'b01_??01_00??: objreg_cs=1;     // 11'0000 ~ 11'0FFF
+    //  10'b01_??01_01??: objreg_cs=1;     // 11'4000 ~ 11'4FFF
+    //  10'b01_??01_01??:                  // 11'8000 ~ 11'8FFF 053936
+        10'b01_??01_11??: pcu_cs  = 1;     // 11'C000 ~ 11'CFFF
+        10'b01_??1?_?000: cab_cs  = 1;     // 12'0000 ~ 12'0FFF
+
+        10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF
         default:;
     endcase else case(A[23:20]) // tmnt2/ssriders
         0: rom_cs = 1;
@@ -189,7 +201,7 @@ always @* begin
             endcase
         6: vram_cs = 1; // probably different at boot time
         default:;
-    endcase
+    endcase end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, iowr_cs, /*wdog,*/
         cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, riders_son, pcu_cs, prot_cs};
@@ -200,7 +212,9 @@ always @(posedge clk) begin
     IPLn    <= lgtnfght ? {tile_irqn, 1'b1,tile_irqn}:
                           {tile_irqn, 1'b1,prot_irqn};
     HALTn   <= dip_pause & ~rst;
-    cab_dout<= lgtnfght ? lgtnfght_cab  : riders_cab;
+    cab_dout<= glfgreat ? glfgreat_cab:
+               lgtnfght ? {8'd0,lgtnfght_cab}:
+                          {8'd0,riders_cab  };
     sndon   <= lgtnfght ? lgtnfght_son  : riders_son;
     dim     <= lgtnfght ? lgtnfght_dim  : riders_dim;
     rmrd    <= lgtnfght ? lgtnfght_rmrd : riders_rmrd;
@@ -212,7 +226,7 @@ always @(posedge clk) begin
                pal_cs  ? pal_dout        :
                snd_cs  ? {8'd0,snd2main }:
                omsb_cs ? {8'd0,omsb_dout}:
-               cab_cs  ? {8'd0,cab_dout }: 16'hffff;
+               cab_cs  ? cab_dout        : 16'h0;
 end
 
 jtriders_cab u_riders_cab(
@@ -233,6 +247,25 @@ jtriders_cab u_riders_cab(
     .service    ( service       ),
     .dip_test   ( dip_test      ),
     .dout       ( riders_cab    )
+);
+
+jtglfgreat_cab u_cab(
+    .clk        ( clk           ),
+    .cpu_cen    ( cpu_cen       ),
+    .cs         ( cab_cs        ),
+    .LVBL       ( LVBL          ),
+    .dipsw      ( dipsw         ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .joystick3  ( joystick3     ),
+    .joystick4  ( joystick4     ),
+    .addr       ( A[8:1]        ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service[0]    ),
+    .dip_test   ( dip_test      ),
+    .adc        ( adc           ),
+    .dout       ( glfgreat_cab  )
 );
 
 jtlgtnfght_cab u_lgtnfght_cab(

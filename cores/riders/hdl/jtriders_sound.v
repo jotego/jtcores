@@ -25,6 +25,7 @@ module jtriders_sound(
     input           cen_fm2,
     input           cen_pcm,
     input           lgtnfght,
+    input           glfgreat,
 
     // communication with main CPU
     input   [ 7:0]  main_dout,  // bus access for Punk Shot
@@ -34,7 +35,7 @@ module jtriders_sound(
 
     input           snd_irq,
     // ROM
-    output  [16:0]  rom_addr,
+    output  [15:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
@@ -69,15 +70,20 @@ wire        [20:0]  rawa_addr;
 wire        [15:0]  A;
 wire signed [15:0]  fm_l,  fm_r;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, sample, upper4k, cen_g, int_n, nmi_trig, nmi_clr;
-reg                 ram_cs, fm_cs,  k60_cs, mem_acc,
-                    mem_upper, nmi_cs;
+                    cpu_cen, sample, upper4k, cen_g, int_n, nmi_trig, nmi_clr,
+                    mem_f8, mem_fa, mem_fc, mem_acc, mem_upper;
+reg                 ram_cs, fm_cs,  k60_cs,  nmi_cs;
 
 assign int_n    = ~snd_irq;
 assign nmi_trig =  sample;
 assign nmi_clr  =  nmi_cs;
-assign rom_addr = {1'b0,A[15:0]};
+assign rom_addr = A[15:0];
 assign upper4k  = &A[15:12];
+assign mem_acc  = !mreq_n && rfsh_n;
+assign mem_upper= mem_acc && upper4k;
+assign mem_f8   = mem_upper &&  A[11:9]==4; // F8xx
+assign mem_fa   = mem_upper &&  A[11:9]==5; // FAxx
+assign mem_fc   = mem_upper &&  A[11:9]==6; // FCxx
 assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
                   k60_cs ? k60_dout   :
@@ -88,13 +94,13 @@ assign pcma_addr= lgtnfght ? {1'b0,rawa_addr[19:0]} : rawa_addr;
 always @(*) begin
     k60_cs    = 0;
     nmi_cs    = 0;
-    mem_acc   = !mreq_n && rfsh_n;
-    mem_upper = mem_acc && upper4k;
+    rom_cs    = mem_acc   && !upper4k && !rd_n;
+    ram_cs    = mem_upper && !A[11];      // F0xx~F7FF
+    fm_cs     = 0;
     if(lgtnfght) begin
         nmi_cs = 1;
         rom_cs = 0;
         ram_cs = 0;
-        fm_cs  = 0;
         k60_cs = 0;
         if(mem_acc) casez(A[15:13])
             3'b0??: rom_cs = 1;
@@ -103,12 +109,13 @@ always @(*) begin
             3'b110: k60_cs = 1;
             default:;
         endcase
+    end else if(glfgreat) begin
+        k60_cs    = mem_f8;
+        nmi_cs    = mem_fa;
     end else begin
-        rom_cs    = mem_acc   && !upper4k && !rd_n;
-        ram_cs    = mem_upper && !A[11];      // F0xx~F7FF
-        fm_cs     = mem_upper &&  A[11:9]==4; // F8xx
-        k60_cs    = mem_upper &&  A[11:9]==5; // FAxx
-        nmi_cs    = mem_upper &&  A[11:9]==6; // FCxx
+        fm_cs     = mem_f8;
+        k60_cs    = mem_fa;
+        nmi_cs    = mem_fc;
     end
 end
 

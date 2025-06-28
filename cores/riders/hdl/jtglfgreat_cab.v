@@ -14,33 +14,24 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 13-6-2025 */
+    Date: 20-6-2025 */
 
-module jtriders_cab(
-    input                clk, cpu_cen, cs, LVBL, eep_rdy, eep_do,
-    input          [2:0] IPLn,
+module jtglfgreat_cab(
+    input                clk, cpu_cen, cs, LVBL,
+    input         [19:0] dipsw,
     input          [8:1] addr,
     input          [6:0] joystick1, joystick2, joystick3, joystick4,
-    input          [3:0] cab_1p, coin, service,
-    input                dip_test,
-    output reg     [7:0] dout
+    input          [3:0] cab_1p, coin,
+    input                service, dip_test, adc,
+    output reg     [15:0] dout
 );
 
-reg fake_dma=0, cs_l;
-
 always @(posedge clk) begin
-    if( cpu_cen ) begin
-        cs_l <= cs;
-        if( !cs && !cs_l ) fake_dma <= ~fake_dma;
-    end
-    dout[7:0] <= addr[1] ? { dip_test, 2'b11, IPLn[0], LVBL, fake_dma, eep_rdy, eep_do }:
-                       { service, coin };
-    case( {addr[8],addr[2:1]} )
-        0: dout <= { cab_1p[0], joystick1[6:0] };
-        1: dout <= { cab_1p[1], joystick2[6:0] };
-        2: dout <= { cab_1p[2], joystick3[6:0] };
-        3: dout <= { cab_1p[3], joystick4[6:0] };
-        default:;
+    case( addr[2:1] )
+        0: dout <= { 1'b1, joystick2[6:0],  adc, joystick1[6:0] };
+        1: dout <= { 1'b1, joystick4[6:0], 1'b1, joystick3[6:0] };
+        2: dout <= { dipsw[19:16], LVBL, dip_test, cab_1p[1:0], 3'b111, service, coin };
+        3: dout <= dipsw[15:0];
     endcase
 end
 

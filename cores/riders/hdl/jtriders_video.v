@@ -22,7 +22,7 @@ module jtriders_video(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             ssriders, lgtnfght,
+    input             ssriders, lgtnfght, glfgreat,
     output            cpu_n,
 
     // Base Video
@@ -85,6 +85,16 @@ module jtriders_video(
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
     input      [31:0] lyro_data,
+    // Z Gfx (glfgreat only)
+    output     [20:2] ztiles_addr,
+    input      [31:0] ztiles_data,
+    output            ztiles_cs,
+    input             ztiles_ok,
+
+    output     [20:2] zmap_addr,
+    input      [31:0] zmap_data,
+    output            zmap_cs,
+    input             zmap_ok,
 
     // Color
     input      [ 2:0] dim,
@@ -120,10 +130,11 @@ wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
+reg         skip12;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = lgtnfght ? { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] } :
-                              { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
+assign cpu_saddr = skip12 ? { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] } :
+                            { cpu_addr[16:15], cpu_dsn[1], cpu_addr[13:1] };
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
@@ -132,6 +143,13 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
+
+// not ready yet
+assign  ztiles_addr=0, zmap_addr=0, ztiles_cs=0, zmap_cs=0;
+
+always @(posedge clk) begin
+    skip12 <= lgtnfght | glfgreat;
+end
 
 jtriders_dump #(.FULLOBJ(1)) u_dump(
     .clk            ( clk           ),

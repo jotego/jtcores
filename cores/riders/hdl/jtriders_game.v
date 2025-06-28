@@ -20,9 +20,10 @@ module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [2:0] SSRIDERS = 3'd0,
-                 TMNT2    = 3'd1,
-                 LGTNFGHT = 3'd2;
+localparam SSRIDERS = 0,
+           TMNT2    = 1,
+           LGTNFGHT = 2,
+           GLFGREAT = 3;
 
 /* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol,
@@ -33,8 +34,7 @@ wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
-reg  [ 2:0] game_id;
-reg         ssriders, tmnt2, lgtnfght;
+reg         ssriders=0, tmnt2=0, lgtnfght=0, glfgreat=0;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
@@ -58,10 +58,12 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
-    ssriders <= game_id == SSRIDERS;
-    tmnt2    <= game_id == TMNT2;
-    lgtnfght <= game_id == LGTNFGHT;
+    if( prog_addr[3:0]==15 && prog_we && header ) begin
+        ssriders <= prog_data[SSRIDERS];
+        tmnt2    <= prog_data[TMNT2];
+        lgtnfght <= prog_data[LGTNFGHT];
+        glfgreat <= prog_data[GLFGREAT];
+    end
 end
 
 /* verilator tracing_on */
@@ -69,6 +71,7 @@ jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .lgtnfght       ( lgtnfght      ),
+    .glfgreat       ( glfgreat      ),
 
     .LVBL           ( LVBL          ),
     .cpu_we         ( cpu_we        ),
@@ -97,10 +100,10 @@ jtriders_main u_main(
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
-    .joystick3      ( joystick3     ),
-    .joystick4      ( joystick4     ),
+    .joystick1      ( joystick1[6:0]),
+    .joystick2      ( joystick2[6:0]),
+    .joystick3      ( joystick3[6:0]),
+    .joystick4      ( joystick4[6:0]),
     .service        ( {4{service}}  ),
 
     .vram_dout      ( tilesys_dout  ),
@@ -180,6 +183,7 @@ jtriders_video u_video (
 
     .ssriders       ( ssriders      ),
     .lgtnfght       ( lgtnfght      ),
+    .glfgreat       ( glfgreat      ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -213,6 +217,16 @@ jtriders_video u_video (
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .dma_bsy        (               ),
+    // Z GFX
+    .ztiles_addr    ( ztiles_addr   ),
+    .ztiles_data    ( ztiles_data   ),
+    .ztiles_cs      ( ztiles_cs     ),
+    .ztiles_ok      ( ztiles_ok     ),
+
+    .zmap_addr      ( zmap_addr     ),
+    .zmap_data      ( zmap_data     ),
+    .zmap_cs        ( zmap_cs       ),
+    .zmap_ok        ( zmap_ok       ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
@@ -254,7 +268,9 @@ jtriders_sound u_sound(
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
+
     .lgtnfght   ( lgtnfght      ),
+    .glfgreat   ( glfgreat      ),
 
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
