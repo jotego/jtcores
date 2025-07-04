@@ -3,7 +3,6 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "ajax.cpp" ]
-debug={ machines=["ajax"] }
 
 [buttons]
 names = [
