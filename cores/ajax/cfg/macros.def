@@ -29,11 +29,14 @@ JTFRAME_PROM_START=0x300000
 # Debugging
 JTFRAME_IOCTL_RD=23584
 
-[mist|sidi]
+[mist]
 # OSD credits cannot be used when
 # DIP base is less than 13
 JTFRAME_CREDITS_PAGES=4
 JTFRAME_OSD_NOCREDITS
+
+[sidi]
+-JTFRAME_CREDITS
 
 [mister]
 JTFRAME_ARX=5
