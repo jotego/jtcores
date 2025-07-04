@@ -1,0 +1,48 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+
+Outputs:
+
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, Output feedback output, Active low)
+18 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active high)
+
+Equations:
+
+/BOOT = //AS & /AB23 & /AB22 & /i4 & /i5 & i9
+BOOT.oe = vcc
+
+/o13 = //AS & /AB23 & /AB22 & i4 & /i5 +
+       //AS & /AB23 & /AB22 & /i4 & i5
+o13.oe = vcc
+
+/o14 = //AS & /AB23 & /AB22 & i4 & i5 & i6
+o14.oe = vcc
+
+/o15 = //AS & /AB23 & /AB22 & i4 & i5 & /i6
+o15.oe = vcc
+
+/o16 = //AS & /AB23 & AB22
+o16.oe = vcc
+
+/o17 = //AS & /AB23 & /AB22 & i4 & i5 & i6
+o17.oe = vcc
+
+/o18 = /i7 & /i8
+o18.oe = vcc
+
+o19 = AB22 & i4 & i5 & /i11 +
+      AB22 & /i4 & /i5 & /i6 & /i11 +
+      /AS & /AB22 & /i6 & /i11 +
+      /AS & i4 & /i11 +
+      /AS & /i5 & i6 & /i11 +
+      /AS & /i4 & i5 & /i11 +
+      AB23 & /i11
+o19.oe = vcc
+
