@@ -13,3 +13,16 @@ skip.Setnames=[
 	"rungunud",
 	"slmdunkjd",
 ]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true  },
+
+    { name="soundcpu"  },
+    { name="k054539", rename="pcm", machines=[ "xmen" ] },
+
+    { name="gfx1" }, # PSAC tiles
+    { name="gfx3" }, # fix layer
+    { name="k055673", width=64, rename="obj"},
+    { name="eeprom", skip=true }
+]
