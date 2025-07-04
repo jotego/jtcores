@@ -13,36 +13,30 @@ Outputs:
 18 (Combinatorial, Output feedback output, Active low)
 19 (Combinatorial, Output feedback output, Active high)
 
+External logic:
+/i11 = FIXDT & LANCDT & (W2DT & PSDT)
+
 Equations:
 
-/BOOT = //AS & /AB23 & /AB22 & /i4 & /i5 & i9
-BOOT.oe = vcc
+/BOOT = AS & /AB23 & /AB22 & /AB21 & /AB20 & RW
 
-/o13 = //AS & /AB23 & /AB22 & i4 & /i5 +
-       //AS & /AB23 & /AB22 & /i4 & i5
-o13.oe = vcc
+/o13 = AS & /AB23 & /AB22 & AB21 & /AB20 +
+       AS & /AB23 & /AB22 & /AB21 & AB20
 
-/o14 = //AS & /AB23 & /AB22 & i4 & i5 & i6
-o14.oe = vcc
+/o14 = AS & /AB23 & /AB22 & AB21 & AB20 & i6
 
-/o15 = //AS & /AB23 & /AB22 & i4 & i5 & /i6
-o15.oe = vcc
+/o15 = AS & /AB23 & /AB22 & AB21 & AB20 & /i6
 
-/o16 = //AS & /AB23 & AB22
-o16.oe = vcc
+/o16 = AS & /AB23 & AB22
 
-/o17 = //AS & /AB23 & /AB22 & i4 & i5 & i6
-o17.oe = vcc
+/o17 = AS & /AB23 & /AB22 & AB21 & AB20 & i6
 
-/o18 = /i7 & /i8
-o18.oe = vcc
+/o18 = UDS & LDS
 
-o19 = AB22 & i4 & i5 & /i11 +
-      AB22 & /i4 & /i5 & /i6 & /i11 +
+o19 = AB22 & AB21 & AB20 & /i11 +
+      AB22 & /AB21 & /AB20 & /i6 & /i11 +
       /AS & /AB22 & /i6 & /i11 +
-      /AS & i4 & /i11 +
-      /AS & /i5 & i6 & /i11 +
-      /AS & /i4 & i5 & /i11 +
+      /AS & AB21 & /i11 +
+      /AS & /AB20 & i6 & /i11 +
+      /AS & /AB21 & AB20 & /i11 +
       AB23 & /i11
-o19.oe = vcc
-

@@ -1,0 +1,15 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "rungun.cpp" ]
+
+skip.Setnames=[
+	# 2 screen versions:
+	"rungunad",
+	"rungunbd",
+	"rungund",
+	"rungunuad",
+	"rungunud",
+	"slmdunkjd",
+]
