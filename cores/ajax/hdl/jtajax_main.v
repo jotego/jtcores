@@ -193,14 +193,14 @@ jtkcpu u_cpu(
     assign cpu_dout = 0;
     assign ram_we   = 0;
     assign cpu_we   = 0;
-    assign st_dout  = 0;
     assign pal_we   = 0;
-    assign rom_addr = 0;
     assign com_we =0;
 
     reg [7:0] prio_init[0:0];
     integer f,fcnt=0;
     initial begin
+        rom_addr   = 0;
+        st_dout    = 0;
         rom_cs     = 0;
         prio       = 0;
         objsys_cs  = 0;
