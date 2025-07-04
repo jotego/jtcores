@@ -1,0 +1,32 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "ajax.cpp" ]
+debug={ machines=["ajax"] }
+
+[buttons]
+names = [
+    { machine="ajax", names="Machine Gun,Missile,Super Weapon" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+rename=[
+    {name="Control in 3D Stages", to="3D Control"},
+]
+
+[ROM]
+regions = [
+    { name="maincpu" }, # First 32kB go to $8000, the rest are banked at $6000
+    { name="sub",       start="SUB_START" },
+    { name="audiocpu",  start="JTFRAME_BA1_START" },
+    { name="k007232_1", start="PCM_START" },
+    { name="k007232_2", start="PCM2_START" },
+    { name="k051316",   start="PSAC_START" },
+    { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
+    { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
+    { name="proms",     start="JTFRAME_PROM_START" } # last one is the priority encoder
+]
+
+order = [ "maincpu", "sub", "audiocpu", "k007232_1", "k007232_2", "k052109", "k051960", "k051316", "proms" ]

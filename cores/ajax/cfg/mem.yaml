@@ -1,0 +1,80 @@
+params:
+  - { name: SUB_OFFSET, value: "(`SUB_START                    ) >> 1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START -`JTFRAME_BA1_START) >> 1" }
+  - { name: PCM2_OFFSET,value: "(`PCM2_START-`JTFRAME_BA1_START) >> 1" }
+  - { name: PSAC_OFFSET,value: "(`PSAC_START-`JTFRAME_BA3_START) >> 1" }
+clocks:
+  clk48:
+    - freq: 24000000
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+  clk24:
+    - freq: 3000000
+      outputs:
+        - cen3
+audio:
+  rsum: 10k
+  rsum_feedback_res: true
+  channels:
+    - {name: fm,   module: jt51,     rsum:  7.1k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
+    - {name: pcm1, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.32 }
+    - {name: pcm2, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.32 }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 17
+          data_width: 8
+        - name: sub
+          addr_width: 17
+          data_width: 8
+          offset: SUB_OFFSET
+    - buses:
+        - name: snd
+          addr_width: 15
+          data_width: 8
+        - name: pcma
+          addr_width: 18
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 18
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcm2a
+          addr_width: 19
+          data_width: 8
+          offset: PCM2_OFFSET
+        - name: pcm2b
+          addr_width: 19
+          data_width: 8
+          offset: PCM2_OFFSET
+    - buses:
+        - name: lyrf
+          addr_width: 19
+          data_width: 32
+        - name: lyra
+          addr_width: 19
+          data_width: 32
+        - name: lyrb
+          addr_width: 19
+          data_width: 32
+    - buses:
+        - name: lyro
+          addr_width: 20
+          data_width: 32
+        - name: psac
+          addr_width: 19
+          data_width: 8
+          offset: PSAC_OFFSET
+bram:
+  - name: ram
+    addr_width: 13
+    data_width: 8
+    rw: true
+    addr: main_addr[12:0]

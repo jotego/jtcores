@@ -1,0 +1,9 @@
+/ROMLOW  = VPE &  A15 & (SRB3 + A13 + A14)
+/ROMBANK = VPE &  A15 & /A14 & /A13 & /SRB3
+/LATCH   = VPE & /A15 & /A14 & /A13 &  A12 &  A11 & /A10 & /A9
+/RVCH    = VPE & /A15 & /A14 & /A13 &  A12 & /A11
+/IOCS    = VPE & /A15 & /A14 & /A13 & /A12 &  A11
+/VRCS    = VPE & /A15 & /A14 & /A13 & /A12 & /A11
+/SCOMCS  = VPE & /A15 & /A14 &  A13
+/VRAMCS  = VPE & /A15 &  A14
+

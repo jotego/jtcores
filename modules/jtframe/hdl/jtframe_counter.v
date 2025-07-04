@@ -17,7 +17,7 @@
     Date: 22-1-2025 */
 
 module jtframe_counter #(
-    parameter W=10
+    parameter W=10, RST_VAL=0
 )(
     input  rst, clk, cen,  // keep port order
     output reg [W-1:0] cnt=0
@@ -25,7 +25,7 @@ module jtframe_counter #(
 
 always @(posedge clk) begin
     if( rst ) begin
-        cnt <= 0;
+        cnt <= RST_VAL[0+:W];
     end else if(cen) begin
         cnt <= cnt+1'd1;
     end

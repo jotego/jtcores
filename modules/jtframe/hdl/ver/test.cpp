@@ -227,8 +227,14 @@ public:
 #ifdef _JTFRAME_JOY_LRUD
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
 #endif
+#ifdef _JTFRAME_JOY_LRDU
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>3)&1) | ((v>>1)&2);
+#endif
 #ifdef _JTFRAME_JOY_RLDU
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
+#endif
+#ifdef _JTFRAME_JOY_RLUD
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>2) | ((v&8)>>2);
 #endif
 #ifdef _JTFRAME_JOY_DURL
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
