@@ -20,6 +20,7 @@ module jtrungun_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
+    input                disp,
 
     output        [21:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -42,7 +43,7 @@ module jtrungun_main(
     output reg           obj_cs,
 
     input         [15:0] oram_dout,
-    input         [ 7:0] vram_dout,
+    input         [15:0] vram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -55,11 +56,14 @@ module jtrungun_main(
     output reg           objreg_cs,
     output reg           objcha_n,
     output reg           rmrd,
+    output        [ 3:0] psac_bank,
+    output               gvflip, ghflip,
+    output               pri,
     input                dma_bsy,
     // EEPROM
-    output      [ 6:0]   nv_addr,
-    input       [ 7:0]   nv_dout,
-    output      [ 7:0]   nv_din,
+    output        [ 6:0] nv_addr,
+    input         [ 7:0] nv_dout,
+    output        [ 7:0] nv_din,
     output               nv_we,
     // Cabinet
     input         [ 6:0] joystick1,
@@ -69,6 +73,7 @@ module jtrungun_main(
     input         [ 3:0] cab_1p,
     input         [ 3:0] coin,
     input         [ 3:0] service,
+    input         [ 3:0] dipsw,
     input                dip_pause,
     input                dip_test,
     output        [ 7:0] st_dout,
@@ -76,9 +81,14 @@ module jtrungun_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
+wire [15:0] sys1_dout, sys2_dout;
+reg  [15:0] cab_dout;
 wire        cpu_cen, cpu_cenb,
-            UDSn, LDSn, RnW, ASn, BUSn;
-reg         boot_cs, xrom_cs, gfx_cs;
+            fmode, fsel,
+            UDSn, LDSn, RnW, ASn, BUSn,
+            eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
+reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, lrsw,
+            io1_cs, io2_cs, io_cs, misc_cs, HALTn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -89,13 +99,32 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_we   = ~RnW;
+assign pri      = sys1_dout[14];
+assign gvflip   = sys1_dout[ 6];
+assign ghflip   = sys1_dout[ 5];
+assign eep_di   = sys1_dout[ 0];
+assign eep_clk  = sys1_dout[ 2];
+assign eep_cs   = sys1_dout[ 1];
+assign psac_bank= sys2_dout[7:4];
+assign fmode    = sys2_dout[ 1];
+assign fsel     = sys2_dout[ 0];
+
+assign lrsw     = fmode ? disp : fsel;
 
 always @* begin
-    boot_cs =   !ASn &&  A[23:20]==0 && RnW;
-    xrom_cs =   !ASn && (A[23:20]==2 || A[23:20]==1);
-    ram_cs  =   !ASn &&  A[23:19]==5'b1_0 && !BUSn;
-    gfx_cs  =   !ASn &&  A[23:21]==3'b010;
-    vram_cs = gfx_cs &&  A[20:18]==5;
+    boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
+    xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
+    ram_cs  =   !ASn  &&  A[23:19]==5'b1_0 && !BUSn;
+    gfx_cs  =   !ASn  &&  A[23:21]==3'b011;
+    misc_cs =   !ASn  &&  A[23:21]==3'b010;
+    vram_cs = gfx_cs  &&  A[20:18]==5;
+    io_cs   = misc_cs &&  A[20:18]==2;
+    sys2_cs = io_cs   &&  A[ 3: 2]==3;
+    sys1_cs = io_cs   &&  A[ 3: 2]==2;
+    io2_cs  = io_cs   &&  A[ 3: 2]==1;
+    io1_cs  = io_cs   &&  A[ 3: 2]==0;
+
+    cab_cs  = io1_cs  || io2_cs;
 end
 
 always @* begin
@@ -107,6 +136,58 @@ always @* begin
         2: main_addr[21:20] = 2'b01;
     endcase
 end
+
+always @(posedge clk) begin
+    cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
+                        {cab_1p[2],joystick3,cab_1p[0],joystick1};
+    cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
+                                      {service,   coin};
+    cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
+    HALTn   <= dip_pause & ~rst;
+    cpu_din <= rom_cs  ? rom_data        :
+               ram_cs  ? ram_dout        :
+               vram_cs ? vram_dout       :
+               cab_cs  ? cab_dout        : 16'h0;
+end
+
+jtframe_16bit_reg u_sys1(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .wr_n       ( RnW       ),
+    .dsn        ( ram_dsn   ),
+    .din        ( cpu_dout  ),
+    .cs         ( sys1_cs   ),
+    .dout       ( sys1_dout )
+);
+
+jtframe_16bit_reg u_sys2(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .wr_n       ( RnW       ),
+    .dsn        ( ram_dsn   ),
+    .din        ( cpu_dout  ),
+    .cs         ( sys2_cs   ),
+    .dout       ( sys2_dout )
+);
+
+jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // chip interface
+    .sclk       ( eep_clk   ),         // serial clock
+    .sdi        ( eep_di    ),         // serial data in
+    .sdo        ( eep_do    ),         // serial data out
+    .rdy        ( eep_rdy   ),
+    .scs        ( eep_cs    ),         // chip select, active high. Goes low in between instructions
+    // Dump access
+    .mem_addr   ( nv_addr   ),
+    .mem_din    ( nv_din    ),
+    .mem_we     ( nv_we     ),
+    .mem_dout   ( nv_dout   ),
+    // NVRAM contents changed
+    .dump_clr   ( 1'b0      ),
+    .dump_flag  (           )
+);
 
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
