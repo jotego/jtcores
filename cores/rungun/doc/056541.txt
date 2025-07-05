@@ -18,25 +18,25 @@ External logic:
 
 Equations:
 
-/BOOT = AS & /AB23 & /AB22 & /AB21 & /AB20 & RW
+/BOOT = /AS & /AB23 & /AB22 & /AB21 & /AB20 & RW
 
-/o13 = AS & /AB23 & /AB22 & AB21 & /AB20 +
-       AS & /AB23 & /AB22 & /AB21 & AB20
+/ROM = /AS & /AB23 & /AB22 & AB21 & /AB20 +
+       /AS & /AB23 & /AB22 & /AB21 & AB20
 
-/o14 = AS & /AB23 & /AB22 & AB21 & AB20 & i6
+/RAM = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
 
-/o15 = AS & /AB23 & /AB22 & AB21 & AB20 & /i6
+/o15 = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
 
-/o16 = AS & /AB23 & AB22
+/o16 = /AS & /AB23 & AB22
 
-/o17 = AS & /AB23 & /AB22 & AB21 & AB20 & i6
+/o17 = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
 
 /o18 = UDS & LDS
 
 o19 = AB22 & AB21 & AB20 & /i11 +
-      AB22 & /AB21 & /AB20 & /i6 & /i11 +
-      /AS & /AB22 & /i6 & /i11 +
-      /AS & AB21 & /i11 +
-      /AS & /AB20 & i6 & /i11 +
-      /AS & /AB21 & AB20 & /i11 +
+      AB22 & /AB21 & /AB20 & //AB19 & /i11 +
+      AS & /AB22 & //AB19 & /i11 +
+      AS & AB21 & /i11 +
+      AS & /AB20 & /AB19 & /i11 +
+      AS & /AB21 & AB20 & /i11 +
       AB23 & /i11

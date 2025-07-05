@@ -16,13 +16,15 @@ skip.Setnames=[
 
 [ROM]
 regions = [
-    { name="maincpu", width=16, reverse=true  },
+    { name="maincpu", width=16, reverse=true, no_offset=true  },
 
-    { name="soundcpu"  },
-    { name="k054539", rename="pcm", machines=[ "xmen" ] },
+    { name="soundcpu", start="JTFRAME_BA1_START"  },
+    { name="k054539",  start="PCM_START" },
 
-    { name="gfx1" }, # PSAC tiles
-    { name="gfx3" }, # fix layer
+    { name="gfx1", start="JTFRAME_BA2_START" }, # PSAC tiles
+    { name="gfx3", start="FIX_START", rename="fix" },
     { name="k055673", width=64, rename="obj"},
     { name="eeprom", skip=true }
 ]
+
+order=["maincpu","soundcpu","k054539","gfx1","fix","obj"]
