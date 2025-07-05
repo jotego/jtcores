@@ -27,7 +27,7 @@ Equations:
 
 /o15 = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
 
-/o16 = /AS & /AB23 & AB22
+/GFX = /AS & /AB23 & AB22
 
 /o17 = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
 

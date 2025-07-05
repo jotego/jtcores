@@ -78,6 +78,7 @@ module jtrungun_main(
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb,
             UDSn, LDSn, RnW, ASn, BUSn;
+reg         boot_cs, xrom_cs, gfx_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -87,11 +88,14 @@ assign ram_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
+assign cpu_we   = ~RnW;
 
 always @* begin
-    boot_cs = !ASn &&  A[23:20]==0 && RnW;
-    xrom_cs = !ASn && (A[23:20]==2 || A[23:20]==1);
-    ram_cs  = !ASn &&  A[23:19]==5'b1_0 && !BUSn;
+    boot_cs =   !ASn &&  A[23:20]==0 && RnW;
+    xrom_cs =   !ASn && (A[23:20]==2 || A[23:20]==1);
+    ram_cs  =   !ASn &&  A[23:19]==5'b1_0 && !BUSn;
+    gfx_cs  =   !ASn &&  A[23:21]==3'b010;
+    vram_cs = gfx_cs &&  A[20:18]==5;
 end
 
 always @* begin
