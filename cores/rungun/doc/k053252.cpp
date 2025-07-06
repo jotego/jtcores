@@ -10,6 +10,7 @@
 
 left res = current in game, right res = computed
 
+		    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 hexion:    02 FF 00 4D 00 73 00 00 01 1F 05 0E B7 7C 00 00 512x256 ~ 512x256 <- writes to e and f regs, in an irq ack fashion
 overdriv:  01 7F 00 22 00 0D 00 03 01 07 10 0F 73 00 00 00 304x256 ~ 305x224
 esckids:   01 7F 00 12 00 0D 00 01 01 07 08 07 73 00 00 00 304x224 ~ 321x240
@@ -22,7 +23,7 @@ viostorm:  01 FF 00 16 00 39 00 00 01 07 11 0E 75 00 00 00 384x224 ~ 385x224
 mtlchamp:  01 FF 00 21 00 37 00 00 01 07 11 0E 74 00 00 00 384x224 ~ 384x224
 dbz:       01 FF 00 21 00 37 00 00 01 20 0C 0E 54 00 00 00 384x256 ~ 384x256
 dbz2:      01 FF 00 21 00 37 00 00 01 20 0C 0E 54 00 00 00 384x256 ~ 384x256
-xexex:     01 FF 00 21 00 37 01 00 00 20 0C 0E 54 00 00 00 384x256 ~ 384x256 (*)
+xexex:     01 FF 00 21 00 37 01 00 01 20 0C 0E 54 00 00 00 384x256 ~ 384x256 (*)
 (all konamigx, cowboys of moo mesa, run & gun, dj main)
 
 (*) hcount total 512 (0x200), hdisp 384 (0x180), vcount total 289 (0x121), vdisp 256 (0x100)

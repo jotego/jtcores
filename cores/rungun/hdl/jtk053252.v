@@ -26,41 +26,60 @@ module jtk053252(
     input             rnw,
     input       [7:0] din,
     output reg  [7:0] dout,
+
     output reg  [9:0] hdump,
     output reg  [8:0] vdump,
+    output reg        lhbl, lvbl, hs, vs,
     // IOCTL dump
     input      [3:0] ioctl_addr,
     output reg [7:0] ioctl_din
 );
 
+parameter [127:0] INIT=128'h00_00_00_54_0E_0C_20_01_00_01_37_00_21_00_FF_01;
+
 wire [9:0] htotal;
 wire [8:0] hfporch, hbporch, vtotal;
-wire [7:0] int1en, int2en, vfporch, vbporch, inttime, int1ack, int1ack;
+reg  [8:0] vend;
+wire [7:0] int1en, int2en, vfporch, vbporch, inttime, int1ack, int2ack;
 wire [3:0] hswidth, vswidth;
 
-reg  [9:0] hcnt, hb_end;
-reg  [8:0] vcnt, vb_end;
+reg  [9:0] hcnt, hb_end, hs_end, hs_beg;
+reg  [8:0] vcnt, vb_end, vs_end, vs_beg;
 wire       hover = hcnt==htotal;
-wire       vover = vcnt==vtotal;
+wire       vover = vcnt==vend;
+
+assign vs_beg = {1'b0,vfporch};
+assign hs_beg = {1'b0,hfporch};
 
 always @(posedge clk) begin
-    hb_end <= hfporch+hbporch + {2'd0,hswidth,3'd0}+9'd7;
-    vb_end <= vfporch+vbporch + {5'd0,vswidth}+9'd1;
+    hs_end <= hfporch + {2'd0,hswidth,3'd0}+9'd7;
+    hb_end <= hs_end  + hbporch;
+    vs_end <= vfporch + {5'd0,vswidth};
+    vb_end <= vs_end  + vbporch;
+    vend   <= vtotal - vfporch - vbporch + 9'd1;
 end
 
 always @(posedge clk) begin
     if(rst) begin
         hcnt <= 0;
         vcnt <= 0;
+        lvbl <= 0;
+        lhbl <= 0;
+        vs   <= 0;
+        hs   <= 0;
     end else if(pxl_cen) begin
         hcnt <= hover ? 10'd0 : hcnt+10'd1;
         if(hover) begin
             vcnt <= vover ? 9'd0: vcnt+9'd1;
             lhbl <= 0;
-            if( vover ) lvbl <= 0;
+            if( vover )       lvbl <= 0;
+            if( vcnt==vb_end) lvbl <= 1;
+            if( vcnt==vs_beg)   vs <= 1;
+            if( vcnt==vs_end)   vs <= 0;
         end
+        if(hcnt==hs_beg ) hs <= 1;
+        if(hcnt==hs_end ) hs <= 0;
         if(hcnt==hb_end) lhbl <= 1;
-        if(vcnt==vb_end) lvbl <= 1;
     end
 end
 
@@ -86,7 +105,7 @@ jtk053252_mmr u_mmr(
     .hswidth    ( hswidth   ),
     .inttime    ( inttime   ),
     .int1ack    ( int1ack   ),
-    .int1ack    ( int1ack   ),
+    .int2ack    ( int2ack   ),
 
     // IOCTL dump
     .ioctl_addr ( ioctl_addr),
