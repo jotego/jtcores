@@ -17,43 +17,38 @@
     Date: 4-7-2025 */
 
 module jtrungun_main(
-    input                rst,
-    input                clk, // 48 MHz
-    input                LVBL,
+    input                rst, clk, pxl_cen,
+    input                lvbl,
     input                disp,
 
-    output        [21:1] main_addr,
+    output reg    [21:1] main_addr,
     output        [ 1:0] ram_dsn,
+    output               ram_we,
     output        [15:0] cpu_dout,
+    input         [ 7:0] vtimer_mmr,
     // 8-bit interface
-    output               cpu_we,
+    output               cpu_rnw,
     output        [ 1:0] cpal_we, vmem_we,
-    output reg           pcu_cs,
     output reg           ccu_cs,
 
     output        [11:1] cpal_addr,
+    output        [12:1] vmem_addr,
 
     output reg           rom_cs,
     output reg           ram_cs,
-    output reg           obj_cs,
 
-    input         [15:0] oram_dout,
     input         [15:0] vmem_dout,
     input         [15:0] cpal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
-    input                vdtac,
 
     // video configuration
-    output reg           objreg_cs,
-    output reg           objcha_n,
-    output reg           rmrd,
     output        [ 3:0] psac_bank,
     output               gvflip, ghflip,
     output               pri,
-    input                dma_bsy,
+    output               lrsw,
     // EEPROM
     output        [ 6:0] nv_addr,
     input         [ 7:0] nv_dout,
@@ -76,14 +71,15 @@ module jtrungun_main(
 `ifndef NOMAIN
 wire [23:1] A;
 wire [15:0] sys1_dout, sys2_dout;
-reg  [15:0] cab_dout;
+reg  [15:0] cab_dout, cpu_din, cab1_dout;
+reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
-            fmode, fsel, l5mas, l3mas, l2mas,
-            UDSn, LDSn, RnW, ASn, BUSn,
+            fmode, fsel, l5mas, l3mas, l2mas, int5,
+            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
-reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs, lrsw,
-            io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, HALTn;
+reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
+            io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -91,10 +87,11 @@ wire [23:0] A_full = {A,1'b0};
 
 assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
+assign ram_we   = ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
-assign cpu_we   = ~RnW;
+assign cpu_rnw  = RnW;
 // sys1
 assign pri      = sys1_dout[14];
 assign l5mas    = sys1_dout[10];
@@ -109,19 +106,14 @@ assign l3mas    = sys2_dout[ 8];
 assign psac_bank= sys2_dout[7:4];
 assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
+assign st_dout  = 0;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
-assign cmem_we  = ~ram_dsn & {2{vmem_cs & ~RnW}};
+assign vmem_we  = ~ram_dsn & {2{vmem_cs & ~RnW}};
+assign cpal_addr= { fsel, A[10:1] };
+assign vmem_addr= { fsel, A[11:1] };
 
 assign lrsw     = fmode ? disp : fsel;
-
-jtrungun_dtack u_dtack(
-    .clk        ( clk       ),
-    .dsn        ( ram_dsn   ),
-    .pxl_cen    ( pxl_cen   ),
-    .fix_cs     ( vmem_cs   ),
-    .dtack      ( dtack     ),
-);
 
 always @* begin
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
@@ -131,6 +123,7 @@ always @* begin
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_1;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     vmem_cs = gfx_cs  &&  A[20:18]==5;
+    ccu_cs  = misc_cs &&  A[20:18]==3;
     io_cs   = misc_cs &&  A[20:18]==2;
     sys2_cs = io_cs   &&  A[ 3: 2]==3;
     sys1_cs = io_cs   &&  A[ 3: 2]==2;
@@ -168,14 +161,15 @@ always @(posedge clk) begin
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
-                                      {service,   coin};
+                                      {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
     HALTn   <= dip_pause & ~rst;
-    cpu_din <= rom_cs  ? rom_data        :
-               ram_cs  ? ram_dout        :
-               cpal_cs ? cpal_dout       :
-               vmem_cs ? vram_dout       :
-               cab_cs  ? cab_dout        : 16'h0;
+    cpu_din <= rom_cs  ? rom_data          :
+               ram_cs  ? ram_dout          :
+               cpal_cs ? cpal_dout         :
+               vmem_cs ? vmem_dout         :
+               ccu_cs  ? {8'd0,vtimer_mmr} :
+               cab_cs  ? cab_dout          : 16'h0;
 end
 
 jtframe_16bit_reg u_sys1(
@@ -221,12 +215,12 @@ jtrungun_dtack u_dtack(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .bus_dtackn ( bus_dtackn),
-    .fix_cs     ( fix_cs    ),
+    .fix_cs     ( vmem_cs   ),
     .dsn        ( ram_dsn   ),
     .dtackn     ( dtackn    )
 );
 
-jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -284,7 +278,6 @@ jtframe_m68k u_cpu(
         objcha_n  = 1;
         objreg_cs = 0;
         cpal_cs    = 0;
-        pcu_cs    = 0;
         ram_cs    = 0;
         rmrd      = 0;
         rom_cs    = 0;
@@ -294,7 +287,7 @@ jtframe_m68k u_cpu(
     end
     assign
         cpu_dout  = 0,
-        cpu_we    = 0,
+        cpu_rnw   = 1,
         main_addr = 0,
         ram_dsn   = 0,
         snd_wrn   = 0,

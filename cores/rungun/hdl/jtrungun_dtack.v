@@ -29,7 +29,7 @@ wire fix_acc, fix_dt;
 assign fix_acc = ~dsn[0] & fix_cs;
 assign dtackn  =~(~fix_acc | fix_dt) | bus_dtackn;
 
-jtframe_sh u_fixsh(
+jtframe_sh #(.W(1),.L(3)) u_fixsh(
     .clk    ( clk       ),
     .clk_en ( pxl_cen   ),
     .din    ( fix_acc   ),

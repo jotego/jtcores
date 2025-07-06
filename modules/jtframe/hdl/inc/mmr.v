@@ -93,7 +93,7 @@ initial begin
             {{- end }}{{ end }}
         end
     end else begin
-        for(i=0;i<SIZE;i++) mmr_init[i] <= 0;
+        for(i=0;i<SIZE;i++) mmr_init[i] = 0;
     end
     $fclose(f);
 end

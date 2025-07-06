@@ -20,6 +20,7 @@ module jtrungun_video(
     input              rst, clk,
     input              pxl_cen,
                        ghflip, gvflip, pri,
+    input              lrsw,
     output             disp,
     // Base Video
     output             lhbl,
@@ -35,6 +36,16 @@ module jtrungun_video(
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
+    // PSAC (scroll)
+    output      [20:2] scr_addr,
+    input       [31:0] scr_data,
+    output             scr_cs,
+    input              scr_ok,
+    // Objects
+    output      [22:2] obj_addr,
+    input       [31:0] obj_data,
+    output             obj_cs,
+    input              obj_ok,
     // palette
     output      [11:1] pal_addr,
     input       [15:0] pal_dout,
@@ -60,7 +71,9 @@ wire [ 7:0] vdump, vdumpf;
 wire [ 7:0] fix_pxl;
 wire [ 3:0] fix_pal;
 
-assign vram_addr[12] = vram_bank;
+assign scr_addr=0, scr_cs=0, obj_addr=0, obj_cs=0;
+
+assign vram_addr[12] = lrsw;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 
@@ -103,8 +116,9 @@ jtk053252 u_k053252(
 jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
 
 jtframe_tilemap #(
-    .VA(12),
+    .VA(11),
     .MAP_HW(9),
+    .VDUMPW(8),
     .FLIP_HDUMP(0),
     .FLIP_VDUMP(0)
 )u_fix(
@@ -117,7 +131,7 @@ jtframe_tilemap #(
     .blankn     ( 1'b1          ),
     .flip       ( 1'b0          ),    // Screen flip
 
-    .vram_addr  ( vram_addr     ),
+    .vram_addr  (vram_addr[11:1]),
 
     .code       ( fix_code      ),
     .pal        ( fix_pal       ),
@@ -136,6 +150,7 @@ jtrungun_colmix u_colmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .lrsw       ( lrsw          ),
 
     // Base Video
     .lhbl       ( lhbl          ),
@@ -144,7 +159,7 @@ jtrungun_colmix u_colmix(
     .pal_addr   ( pal_addr      ),
     .pal_dout   ( pal_dout      ),
     // Final pixels
-    .fix_pxl    ( fix_pxl       )
+    .fix_pxl    ( fix_pxl       ),
 
     .red        ( red           ),
     .green      ( green         ),

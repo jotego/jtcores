@@ -50,6 +50,7 @@ module jtk053252_mmr(
 
 parameter SIMFILE="rest.bin",
           SEEK=0;
+parameter [SIZE*8-1:0] INIT=0; // from high to low regs {mmr[3],mmr[2],mmr[1],mmr[0]}
 
 localparam SIZE=16;
 
@@ -116,23 +117,7 @@ assign int2ack = {
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
     `ifndef SIMULATION
-        // no mechanism for default values yet
-        mmr[0] <= 0;
-        mmr[1] <= 0;
-        mmr[2] <= 0;
-        mmr[3] <= 0;
-        mmr[4] <= 0;
-        mmr[5] <= 0;
-        mmr[6] <= 0;
-        mmr[7] <= 0;
-        mmr[8] <= 0;
-        mmr[9] <= 0;
-        mmr[10] <= 0;
-        mmr[11] <= 0;
-        mmr[12] <= 0;
-        mmr[13] <= 0;
-        mmr[14] <= 0;
-        mmr[15] <= 0;
+        for(i=0;i<SIZE;i++) mmr[i] <= INIT[i*8+:8];
     `else
         for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
     `endif 
@@ -178,7 +163,7 @@ initial begin
             $display("\tint2ack = %X",{  mmr_init[15][7:0],{0{1'b0}}});
         end
     end else begin
-        for(i=0;i<SIZE;i++) mmr_init[i] <= 0;
+        for(i=0;i<SIZE;i++) mmr_init[i] = 0;
     end
     $fclose(f);
 end

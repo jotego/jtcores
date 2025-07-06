@@ -30,7 +30,7 @@ reg  [8:0] hcnt;
 reg  [7:0] vcnt;
 reg        hs_l, vs_l;
 
-assign hinit = { {3{hflip}}, 5'd0 };
+assign hinit = { {3{hflip}}, 1'b0, hflip, 4'd0 };
 assign vinit = { {4{vflip}}, 4'd0 };
 
 assign hdump  = hcnt,

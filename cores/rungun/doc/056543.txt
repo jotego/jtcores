@@ -13,21 +13,26 @@ Outputs:
 
 Equations:
 
+      DISP toggles every frame
+      FMODE and FSEL are set by the CPU
+      if FMODE is high, LRSW toggles at 60Hz -> two screens at 30Hz each
+               is low,  LRSW is set by the CPU
+      LRSW = left/right switch?
 LRSW = FMODE & DISP  +
       /FMODE & FSEL
 
 o15 = L-R & /i7 +
       i6 & i7
 
-o16 = /i1 & i8 & /i9 +
-      i1 & i8 & i9 +
+o16 = /LRSW & i8 & /i9 +
+      LRSW & i8 & i9 +
       L-R & /i8
 
-o17 = L-R & /i5 +
-      i1 & i5
+PRAMBK = /PSVRM & L-R +
+          PSVRM & LRSW
 
 o18 = L-R & /i4 +
-      i1 & i4
+      LRSW & i4
 
 FRAMBK =  1H & LRSW +
          /1H & L-R

@@ -21,23 +21,31 @@ module jtrungun_game(
 );
 
 wire [15:0] oram_dout=0;
-wire disp, gvflip, ghflip, pri;
+wire [ 7:0] vtimer_mmr, st_main;
+wire [ 3:0] psac_bank;
+wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
+
+assign sample=0, snd_left=0, snd_right=0, debug_view=0;
+assign dip_flip = ghflip ^ gvflip;
 
 jtrungun_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .LVBL           ( LVBL          ),
+    .pxl_cen        ( pxl_cen       ),
+    .lvbl           ( LVBL          ),
 
+    .lrsw           ( lrsw          ),
     .disp           ( disp          ),
     .pri            ( pri           ),
     .ghflip         ( ghflip        ),
     .gvflip         ( gvflip        ),
 
-
-    .cpu_we         ( cpu_we        ),
+    .cpu_rnw        ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
-    .vdtac          ( vdtac         ),
-    .tile_irqn      ( tile_irqn     ),
+
+    .vmem_addr      ( vmem_addr     ),
+    .psac_bank      ( psac_bank     ),
+    .vtimer_mmr     ( vtimer_mmr    ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -45,6 +53,7 @@ jtrungun_main u_main(
     .rom_ok         ( main_ok       ),
     // RAM
     .ram_dsn        ( ram_dsn       ),
+    .ram_we         ( ram_we        ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
     .ram_ok         ( ram_ok        ),
@@ -63,18 +72,8 @@ jtrungun_main u_main(
     .vmem_we        ( vmem_we       ),
 
     .vmem_dout      ( vmem_dout     ),
-    .oram_dout      ( oram_dout     ),
     .cpal_dout      ( cpal_dout     ),
-    // To video
-    .rmrd           ( rmrd          ),
-    .dma_bsy        ( dma_bsy       ),
-    .objreg_cs      ( objreg_cs     ),
-    .objcha_n       ( objcha_n      ),
 
-    .obj_cs         ( objsys_cs     ),
-    .vram_cs        ( tilesys_cs    ),
-    .pal_cs         ( pal_cs        ),
-    .pcu_cs         ( pcu_cs        ), // priority mixer
     .ccu_cs         ( ccu_cs        ), // video timer
     // EEPROM
     .nv_addr        ( nvram_addr    ),
@@ -96,6 +95,7 @@ jtrungun_video u_video(
     .pxl_cen        ( pxl_cen       ),
     .ghflip         ( ghflip        ),
     .gvflip         ( gvflip        ),
+    .lrsw           ( lrsw          ),
     .pri            ( pri           ),
 
     .disp           ( disp          ),
@@ -106,7 +106,7 @@ jtrungun_video u_video(
     .vs             ( VS            ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
-    .addr           ( main_addr[3:1]),
+    .addr           ( main_addr[4:1]),
     .rnw            ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
     .vtimer_mmr     ( vtimer_mmr    ),
@@ -121,6 +121,16 @@ jtrungun_video u_video(
     .fix_data       ( fix_data      ),
     .fix_cs         ( fix_cs        ),
     .fix_ok         ( fix_ok        ),
+
+    .scr_addr       ( scr_addr      ),
+    .scr_data       ( scr_data      ),
+    .scr_cs         ( scr_cs        ),
+    .scr_ok         ( scr_ok        ),
+
+    .obj_addr       ( obj_addr      ),
+    .obj_data       ( obj_data      ),
+    .obj_cs         ( obj_cs        ),
+    .obj_ok         ( obj_ok        ),
     // final pixel
     .red            ( red           ),
     .green          ( green         ),

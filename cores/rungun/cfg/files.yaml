@@ -7,6 +7,8 @@ simson:
     - jt053246_scan.sv
     - jtsimson_obj.v
 jtframe:
+  - get:
+    - jtframe_16bit_reg.v
   - from: cpu
     unless: [NOMAIN]
     get:
@@ -17,4 +19,10 @@ jtframe:
   - from: video
     get:
       - jtframe_obj.yaml      
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
 jt539:
+jteeprom:
+  - get:
+    - jt5911.sv

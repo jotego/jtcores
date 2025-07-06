@@ -17,13 +17,10 @@
     Date: 6-7-2025 */
 
 module jtrungun_colmix(
-    input             rst,
-    input             clk,
-    input             pxl_cen,
+    input             rst, clk, pxl_cen,
 
     // Base Video
-    input             lhbl,
-    input             lvbl,
+    input             lhbl, lvbl, lrsw,
 
     output     [11:1] pal_addr,
     input      [15:0] pal_dout,
@@ -45,10 +42,10 @@ module jtrungun_colmix(
 
 reg  [23:0] bgr;
 reg  [ 7:0] r8, b8, g8;
-wire [10:0] pal_addr;
 wire        shad;
 
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+assign pal_addr = {lrsw,debug_bus[1:0],fix_pxl};
 
 assign shad      = 0; // to do
 
