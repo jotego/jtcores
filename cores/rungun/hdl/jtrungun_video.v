@@ -65,6 +65,7 @@ module jtrungun_video(
     output     [7:0] ioctl_din
 );
 
+wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] hdump, hdumpf;
 wire [ 7:0] vdump, vdumpf;
@@ -114,6 +115,7 @@ jtk053252 u_k053252(
 );
 
 jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
+jtframe_8x8x4_packed_msb u_packed(fix_data,fix_sort);
 
 jtframe_tilemap #(
     .VA(11),
@@ -139,7 +141,7 @@ jtframe_tilemap #(
     .vflip      ( 1'b0          ),
 
     .rom_addr   ( fix_addr      ),
-    .rom_data   ( fix_data      ),    // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
+    .rom_data   ( fix_sort      ),    // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
     .rom_cs     ( fix_cs        ),
     .rom_ok     ( fix_ok        ), // zeros used if rom_ok is not high in time
 

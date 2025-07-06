@@ -79,7 +79,9 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
-            io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn;
+            io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
+            pslrm_cs, psvrm_cs, psreg_cs, objrg_cs, objrm_cs,
+            objch_cs, pair_cs, sdon_cs, psch_cs, dmac_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -116,15 +118,29 @@ assign vmem_addr= { fsel, A[11:1] };
 assign lrsw     = fmode ? disp : fsel;
 
 always @* begin
+    // 056541 PAL
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
     ram_cs  =   !ASn  &&  A[23:19]==5'b1_0 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;
+    dmac_cs =   !ASn  &&  A[23:19]==5'b0011_0;
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_1;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
+    // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5;
+    pslrm_cs= gfx_cs  &&  A[20:18]==4;
+    psvrm_cs= gfx_cs  &&  A[20:18]==3;
+    psreg_cs= gfx_cs  &&  A[20:18]==2;
+    objrg_cs= gfx_cs  &&  A[20:18]==1;
+    objrm_cs= gfx_cs  &&  A[20:18]==0;
+    // 74F138 at 13P
+    objch_cs= misc_cs &&  A[20:18]==7;
+    pair_cs = misc_cs &&  A[20:18]==6;
+    sdon_cs = misc_cs &&  A[20:18]==5;
     ccu_cs  = misc_cs &&  A[20:18]==3;
     io_cs   = misc_cs &&  A[20:18]==2;
+    psch_cs = misc_cs &&  A[20:19]==0;
+
     sys2_cs = io_cs   &&  A[ 3: 2]==3;
     sys1_cs = io_cs   &&  A[ 3: 2]==2;
     io2_cs  = io_cs   &&  A[ 3: 2]==1;

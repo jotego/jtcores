@@ -19,6 +19,9 @@ jtframe:
   - from: video
     get:
       - jtframe_obj.yaml      
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
   - from: video/tilemap
     get:
       - jtframe_tilemap.v
