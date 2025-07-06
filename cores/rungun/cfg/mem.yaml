@@ -45,7 +45,11 @@ bram:
     addr_width: 13
     data_width: 16
     dual_port:
-      name: vram
-      addr: vrambank_addr
-      dout: vram_dout
+      name: vmem
+      rw: true
+  - name: palrd
+    addr_width: 12
+    data_width: 16
+    dual_port:
+      name: cpal
       rw: true

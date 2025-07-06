@@ -35,11 +35,20 @@ module jtrungun_video(
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
+    // palette
+    output      [11:1] pal_addr,
+    input       [15:0] pal_dout,
 
     output      [16:2] fix_addr,
     input       [31:0] fix_data,
     output             fix_cs,
     input              fix_ok,
+    // final pixel
+    output      [ 7:0] red,
+    output      [ 7:0] green,
+    output      [ 7:0] blue,
+    // Debug
+    input       [ 7:0] debug_bus,
     // IOCTL dump
     input      [3:0] ioctl_addr,
     output reg [7:0] ioctl_din
@@ -54,8 +63,6 @@ wire [ 3:0] fix_pal;
 assign vram_addr[12] = vram_bank;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
-assign vf       = {10{gvflip}}^vdump;
-assign hf       = {10{ghflip}}^hdump;
 
 jtrungun_vtimer u_vtimer(
     .rst        ( rst           ),
@@ -105,8 +112,8 @@ jtframe_tilemap #(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
-    .vdump      ( vf            ),
-    .hdump      ( hf            ),
+    .vdump      ( vdumpf        ),
+    .hdump      ( hdumpf        ),
     .blankn     ( 1'b1          ),
     .flip       ( 1'b0          ),    // Screen flip
 
@@ -123,6 +130,33 @@ jtframe_tilemap #(
     .rom_ok     ( fix_ok        ), // zeros used if rom_ok is not high in time
 
     .pxl        ( fix_pxl       )
+);
+
+jtrungun_colmix u_colmix(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+    // Base Video
+    .lhbl       ( lhbl          ),
+    .lvbl       ( lvbl          ),
+
+    .pal_addr   ( pal_addr      ),
+    .pal_dout   ( pal_dout      ),
+    // Final pixels
+    .fix_pxl    ( fix_pxl       )
+
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+
+    // Debug
+    // input      [11:0] ioctl_addr,
+    // input             ioctl_ram,
+    // output     [ 7:0] ioctl_din,
+    // output     [ 7:0] dump_mmr,
+
+    .debug_bus  ( debug_bus     )
 );
 
 endmodule
