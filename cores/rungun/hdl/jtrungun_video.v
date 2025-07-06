@@ -26,6 +26,12 @@ module jtrungun_video(
     output            lvbl,
     output            hs,
     output            vs,
+    // CPU interface
+    input             ccu_cs,   // timer
+    input       [3:0] addr,
+    input             rnw,
+    input       [7:0] cpu_dout,
+    output      [7:0] cpu_din,
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
@@ -34,10 +40,14 @@ module jtrungun_video(
     input       [31:0] fix_data,
     output             fix_cs,
     input              fix_ok,
+    // IOCTL dump
+    input      [3:0] ioctl_addr,
+    output reg [7:0] ioctl_din
 );
 
 wire [11:0] fix_code;
-wire [ 9:0] hdump, vdump, vf, hf;
+wire [ 8:0] hdump, hdumpf;
+wire [ 7:0] vdump, vdumpf;
 wire [ 7:0] fix_pxl;
 wire [ 3:0] fix_pal;
 
@@ -46,6 +56,42 @@ assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 assign vf       = {10{gvflip}}^vdump;
 assign hf       = {10{ghflip}}^hdump;
+
+jtrungun_vtimer u_vtimer(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
+    .vs         ( vs            ),
+
+    .hflip      ( ghflip        ),
+    .vflip      ( gvflip        ),
+    .hdump      ( hdump         ),
+    .hdumpf     ( hdumpf        ),
+    .vdump      ( vdump         ),
+    .vdumpf     ( vdumpf        )
+);
+
+jtk053252 u_k053252(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+
+    .cs         ( ccu_cs        ),
+    .addr       ( addr          ),
+    .rnw        ( rnw           ),
+    .din        ( cpu_dout      ),
+    .dout       ( cpu_din       ),
+
+    .hs         ( hs            ),
+    .vs         ( vs            ),
+    .lhbl       ( lhbl          ),
+    .lvbl       ( lvbl          ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_din  ( ioctl_din     )
+);
 
 jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
 

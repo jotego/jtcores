@@ -27,8 +27,6 @@ module jtk053252(
     input       [7:0] din,
     output reg  [7:0] dout,
 
-    output reg  [9:0] hdump,
-    output reg  [8:0] vdump,
     output reg        lhbl, lvbl, hs, vs,
     // IOCTL dump
     input      [3:0] ioctl_addr,

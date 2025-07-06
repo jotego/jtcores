@@ -1,0 +1,20 @@
+rungun:
+  - get:
+    - "*.v"
+simson:
+  - get:
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jtsimson_obj.v
+jtframe:
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml   
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_obj.yaml      
+jt539:
