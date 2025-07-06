@@ -25,7 +25,7 @@ Equations:
 
 /RAM = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
 
-/o15 = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
+/CRM = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
 
 /GFX = /AS & /AB23 & AB22
 

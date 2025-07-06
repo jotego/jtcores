@@ -22,16 +22,16 @@ module jtrungun_video(
                        ghflip, gvflip, pri,
     output             disp,
     // Base Video
-    output            lhbl,
-    output            lvbl,
-    output            hs,
-    output            vs,
+    output             lhbl,
+    output             lvbl,
+    output             hs,
+    output             vs,
     // CPU interface
-    input             ccu_cs,   // timer
-    input       [3:0] addr,
-    input             rnw,
-    input       [7:0] cpu_dout,
-    output      [7:0] cpu_din,
+    input              ccu_cs,   // timer
+    input       [ 3:0] addr,
+    input              rnw,
+    input       [15:0] cpu_dout,
+    output      [ 7:0] vtimer_mmr,
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
@@ -88,8 +88,8 @@ jtk053252 u_k053252(
     .cs         ( ccu_cs        ),
     .addr       ( addr          ),
     .rnw        ( rnw           ),
-    .din        ( cpu_dout      ),
-    .dout       ( cpu_din       ),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( vtimer_mmr    ),
 
     .hs         ( hs            ),
     .vs         ( vs            ),

@@ -27,30 +27,24 @@ module jtrungun_main(
     output        [15:0] cpu_dout,
     // 8-bit interface
     output               cpu_we,
-    output reg           pal_cs,
+    output        [ 1:0] cpal_we, vmem_we,
     output reg           pcu_cs,
-    // Sound interface
-    output               pair_we,   // K054321 (some latches)
-    input         [ 7:0] pair_dout, // K054321 (X-Men)
-    output               snd_wrn,   // K053260 (PCM sound)
-    input         [ 7:0] snd2main,  // K053260 (PCM sound)
-    output reg           sndon,     // irq trigger
-    output reg           mute,
+    output reg           ccu_cs,
+
+    output        [11:1] cpal_addr,
 
     output reg           rom_cs,
     output reg           ram_cs,
-    output reg           vram_cs,
     output reg           obj_cs,
 
     input         [15:0] oram_dout,
-    input         [15:0] vram_dout,
-    input         [15:0] pal_dout,
+    input         [15:0] vmem_dout,
+    input         [15:0] cpal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
     input                vdtac,
-    input                tile_irqn,
 
     // video configuration
     output reg           objreg_cs,
@@ -83,12 +77,12 @@ module jtrungun_main(
 wire [23:1] A;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout;
-wire        cpu_cen, cpu_cenb,
+wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn,
             fmode, fsel,
             UDSn, LDSn, RnW, ASn, BUSn,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
-reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, lrsw,
-            io1_cs, io2_cs, io_cs, misc_cs, HALTn;
+reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs, lrsw,
+            io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, HALTn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -108,16 +102,27 @@ assign eep_cs   = sys1_dout[ 1];
 assign psac_bank= sys2_dout[7:4];
 assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
+assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
+assign cmem_we  = ~ram_dsn & {2{vmem_cs & ~RnW}};
 
 assign lrsw     = fmode ? disp : fsel;
+
+jtrungun_dtack u_dtack(
+    .clk        ( clk       ),
+    .dsn        ( ram_dsn   ),
+    .pxl_cen    ( pxl_cen   ),
+    .fix_cs     ( vmem_cs   ),
+    .dtack      ( dtack     ),
+);
 
 always @* begin
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
     ram_cs  =   !ASn  &&  A[23:19]==5'b1_0 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;
+    cpal_cs =   !ASn  &&  A[23:19]==5'b0011_1;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
-    vram_cs = gfx_cs  &&  A[20:18]==5;
+    vmem_cs = gfx_cs  &&  A[20:18]==5;
     io_cs   = misc_cs &&  A[20:18]==2;
     sys2_cs = io_cs   &&  A[ 3: 2]==3;
     sys1_cs = io_cs   &&  A[ 3: 2]==2;
@@ -146,7 +151,8 @@ always @(posedge clk) begin
     HALTn   <= dip_pause & ~rst;
     cpu_din <= rom_cs  ? rom_data        :
                ram_cs  ? ram_dout        :
-               vram_cs ? vram_dout       :
+               cpal_cs ? cpal_dout       :
+               vmem_cs ? vram_dout       :
                cab_cs  ? cab_dout        : 16'h0;
 end
 
@@ -189,6 +195,15 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .dump_flag  (           )
 );
 
+jtrungun_dtack u_dtack(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .bus_dtackn ( bus_dtackn),
+    .fix_cs     ( fix_cs    ),
+    .dsn        ( ram_dsn   ),
+    .dtackn     ( dtackn    )
+);
+
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -201,7 +216,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
-    .DTACKn     ( DTACKn    ),
+    .DTACKn     ( bus_dtackn),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // Frequency report
@@ -236,7 +251,7 @@ jtframe_m68k u_cpu(
     .BGACKn     ( 1'b1        ),
     .BGn        (             ),
 
-    .DTACKn     ( dtac_mux    ),
+    .DTACKn     ( dtackn      ),
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
@@ -258,13 +273,13 @@ jtframe_m68k u_cpu(
         obj_cs    = 0;
         objcha_n  = 1;
         objreg_cs = 0;
-        pal_cs    = 0;
+        cpal_cs    = 0;
         pcu_cs    = 0;
         ram_cs    = 0;
         rmrd      = 0;
         rom_cs    = 0;
         sndon     = 0;
-        vram_cs   = 0;
+        vmem_cs   = 0;
         mute      = 0;
     end
     assign

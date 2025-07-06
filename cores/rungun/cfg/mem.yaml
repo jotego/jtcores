@@ -41,15 +41,19 @@ bram:
     sim_file: true
     rw: true
     ioctl: { save: true, restore: true, order: 0 }
-  - name: vramrd
+  - name: vram
     addr_width: 13
     data_width: 16
     dual_port:
       name: vmem
+      din:  cpu_dout
+      dout: vmem_dout
       rw: true
-  - name: palrd
+  - name: pal
     addr_width: 12
     data_width: 16
     dual_port:
       name: cpal
+      din:  cpu_dout
+      dout: cpal_dout
       rw: true
