@@ -77,8 +77,9 @@ module jtrungun_main(
 wire [23:1] A;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout;
-wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn,
-            fmode, fsel,
+reg  [ 2:0] IPLn;
+wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
+            fmode, fsel, l5mas, l3mas, l2mas,
             UDSn, LDSn, RnW, ASn, BUSn,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs, lrsw,
@@ -88,20 +89,27 @@ reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs, lrsw,
 wire [23:0] A_full = {A,1'b0};
 `endif
 
+assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_we   = ~RnW;
+// sys1
 assign pri      = sys1_dout[14];
+assign l5mas    = sys1_dout[10];
+assign l2mas    =~sys1_dout[ 8];
 assign gvflip   = sys1_dout[ 6];
 assign ghflip   = sys1_dout[ 5];
 assign eep_di   = sys1_dout[ 0];
 assign eep_clk  = sys1_dout[ 2];
 assign eep_cs   = sys1_dout[ 1];
+// sys2
+assign l3mas    = sys2_dout[ 8];
 assign psac_bank= sys2_dout[7:4];
 assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
+
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
 assign cmem_we  = ~ram_dsn & {2{vmem_cs & ~RnW}};
 
@@ -140,6 +148,20 @@ always @* begin
         1: main_addr[21:20] = 2'b10;
         2: main_addr[21:20] = 2'b01;
     endcase
+end
+
+jtframe_edge u_lvbl(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( lvbl      ),
+    .clr    (~l5mas     ),
+    .q      ( int5      )
+);
+
+always @* begin
+    IPLn = 7;
+    if( int5 ) IPLn = ~3'd5;
+    // 2 more interrupt sources seen on sch CPU sheet
 end
 
 always @(posedge clk) begin
@@ -242,7 +264,7 @@ jtframe_m68k u_cpu(
     .UDSn       ( UDSn        ),
     .ASn        ( ASn         ),
     .VPAn       ( VPAn        ),
-    .FC         ( FC          ),
+    .FC         (             ),
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
@@ -257,18 +279,6 @@ jtframe_m68k u_cpu(
 `else
     reg [7:0] saved[0:0];
     integer f,fcnt=0;
-
-    // initial begin
-    //     f=$fopen("other.bin","rb");
-    //     if( f!=0 ) begin
-    //         fcnt=$fread(saved,f);
-    //         $fclose(f);
-    //         $display("Read %1d bytes for dimming configuration", fcnt);
-    //         {dimmod,dimpol,dim} = {saved[0][5:4],saved[0][2:0]};
-    //     end else begin
-    //         {dimmod,dimpol,dim} = 0;
-    //     end
-    // end
     initial begin
         obj_cs    = 0;
         objcha_n  = 1;
@@ -291,7 +301,6 @@ jtframe_m68k u_cpu(
         st_dout   = 0,
         nv_addr   = 0,
         nv_din    = 0,
-        pair_we   = 0,
         nv_we     = 0;
 `endif
 endmodule
