@@ -55,9 +55,9 @@ assign {{.Name}} = { {{ range .Chunks }}
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
     `ifndef SIMULATION
-        for(i=0;i<SIZE;i++) mmr[i] <= INIT[i*8+:8];
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
-        for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif {{ range .Regs }}{{ if .Wr_event }}
     {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
     dout <= 0; {{- end }}
@@ -70,6 +70,7 @@ always @(posedge clk, posedge rst) begin
             mmr[addr]<=din;{{ range .Regs }}{{ if .Wr_event }}
             {{.Name}} <= 1; {{ end }}{{- end }}
         end
+        i = 0; // for Quartus linter
     end
 end
 

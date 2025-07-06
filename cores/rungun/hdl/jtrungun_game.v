@@ -20,7 +20,6 @@ module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:0] oram_dout=0;
 wire [ 7:0] vtimer_mmr, st_main;
 wire [ 3:0] psac_bank;
 wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;

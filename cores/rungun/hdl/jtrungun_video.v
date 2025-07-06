@@ -62,7 +62,7 @@ module jtrungun_video(
     input       [ 7:0] debug_bus,
     // IOCTL dump
     input      [3:0] ioctl_addr,
-    output reg [7:0] ioctl_din
+    output     [7:0] ioctl_din
 );
 
 wire [11:0] fix_code;

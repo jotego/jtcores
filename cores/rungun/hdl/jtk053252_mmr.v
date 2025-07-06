@@ -117,9 +117,9 @@ assign int2ack = {
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
     `ifndef SIMULATION
-        for(i=0;i<SIZE;i++) mmr[i] <= INIT[i*8+:8];
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
-        for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif 
     dout <= 0;
     end else begin
@@ -129,6 +129,7 @@ always @(posedge clk, posedge rst) begin
         if( cs & ~rnw ) begin
             mmr[addr]<=din;
         end
+        i = 0; // for Quartus linter
     end
 end
 

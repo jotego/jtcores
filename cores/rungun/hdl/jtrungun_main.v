@@ -95,14 +95,14 @@ assign cpu_rnw  = RnW;
 // sys1
 assign pri      = sys1_dout[14];
 assign l5mas    = sys1_dout[10];
-assign l2mas    =~sys1_dout[ 8];
+// assign l2mas =~sys1_dout[ 8];
 assign gvflip   = sys1_dout[ 6];
 assign ghflip   = sys1_dout[ 5];
 assign eep_di   = sys1_dout[ 0];
 assign eep_clk  = sys1_dout[ 2];
 assign eep_cs   = sys1_dout[ 1];
 // sys2
-assign l3mas    = sys2_dout[ 8];
+// assign l3mas = sys2_dout[ 8];
 assign psac_bank= sys2_dout[7:4];
 assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
@@ -140,6 +140,7 @@ always @* begin
     if(rom_cs ) case(A[21:20])
         1: main_addr[21:20] = 2'b10;
         2: main_addr[21:20] = 2'b01;
+        default:;
     endcase
 end
 

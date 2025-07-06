@@ -1085,7 +1085,7 @@ int main(int argc, char *argv[]) {
         while( !sim.done() ) {
             sim.clock(1'000); // this will dump at 48kHz sampling rate
             sim.update_wav(); // Other clock rates will not have exact wav dumps
-            if( sim.get_frame()==2 ) {
+            if( sim.get_frame()==3 ) {
                 if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
                     fprintf(stderr, "\nERROR: (test.cpp)  video size mismatch. Macros define it as %dx%d but the core outputs %dx%d\n",
                         _JTFRAME_WIDTH, _JTFRAME_HEIGHT, sim.activew, sim.activeh );
