@@ -26,6 +26,7 @@ wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
 
 assign sample=0, snd_left=0, snd_right=0, debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
+assign snd_cs=0, snd_addr=0, pcm_cs=0, pcm_addr=0;
 
 jtrungun_main u_main(
     .rst            ( rst           ),

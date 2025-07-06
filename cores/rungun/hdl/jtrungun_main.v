@@ -111,9 +111,9 @@ assign fsel     = sys2_dout[ 0];
 assign st_dout  = 0;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
-assign vmem_we  = ~ram_dsn & {2{vmem_cs & ~RnW}};
+assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
 assign cpal_addr= { fsel, A[10:1] };
-assign vmem_addr= { fsel, A[11:1] };
+assign vmem_addr= { fsel, A[12:2] };
 
 assign lrsw     = fmode ? disp : fsel;
 

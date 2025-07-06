@@ -18,13 +18,13 @@ sdram:
           addr_width: 22
           data_width: 16
     - buses:
-        # - name: snd
-        #   addr_width: 17
-        #   data_width: 8
-        # - name: pcm
-        #   addr_width: 22
-        #   data_width: 8
-        #   offset: PCM_OFFSET
+        - name: snd
+          addr_width: 17
+          data_width: 8
+        - name: pcm
+          addr_width: 22
+          data_width: 8
+          offset: PCM_OFFSET
     - buses:
         - name: scr
           addr_width: 21
@@ -50,7 +50,7 @@ bram:
     data_width: 16
     dual_port:
       name: vmem
-      din:  cpu_dout
+      din:  "{2{cpu_dout[7:0]}}"
       dout: vmem_dout
       rw: true
   - name: pal
