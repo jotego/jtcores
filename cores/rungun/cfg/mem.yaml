@@ -1,0 +1,51 @@
+params:
+  - { name: RAM_OFFSET,   value: "22'h200000" }
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: FIX_OFFSET,   value: "(`FIX_START-`JTFRAME_BA2_START)>>1" }
+sdram:
+  banks:
+    - buses:
+        - name: ram
+          addr_width: 17
+          data_width: 16
+          offset: RAM_OFFSET
+          rw: true
+        - name: main
+          addr_width: 22
+          data_width: 16
+    - buses:
+        - name: snd
+          addr_width: 17
+          data_width: 8
+        - name: pcm
+          addr_width: 22
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: scr
+          addr_width: 21
+          data_width: 32
+        - name: fix
+          addr_width: 17
+          data_width: 32
+          offset: FIX_OFFSET
+    - buses:
+        - name: obj
+          addr_width: 23
+          data_width: 32
+bram:
+  # EEROM - ER5911
+  - name: nvram
+    addr_width: 7
+    data_width: 8
+    sim_file: true
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: vramrd
+    addr_width: 13
+    data_width: 16
+    dual_port:
+      name: vram
+      addr: vrambank_addr
+      dout: vram_dout
+      rw: true
