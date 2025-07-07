@@ -18,9 +18,12 @@ External logic:
 
 Equations:
 
+        !i1 &   !i2 &   !i3 &   !i4 &   !i5 & i9
 /BOOT = /AS & /AB23 & /AB22 & /AB21 & /AB20 & RW
 
+       !i1 &   !i2 &   !i3 &   i4 & !i5
 /ROM = /AS & /AB23 & /AB22 & AB21 & /AB20 +
+       !i1 &   !i2 &   !i3 &   !i4 & i5
        /AS & /AB23 & /AB22 & /AB21 & AB20
 
        !i1 &   !i2 &   !i3 &   i4 &   i5 &  i6;

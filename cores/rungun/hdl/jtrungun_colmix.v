@@ -45,7 +45,7 @@ reg  [ 7:0] r8, b8, g8;
 wire        shad;
 
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
-assign pal_addr = {lrsw,debug_bus[1:0],fix_pxl};
+assign pal_addr = {lrsw,2'd0,fix_pxl};
 
 assign shad      = 0; // to do
 

@@ -165,8 +165,8 @@ jtrungun_colmix u_colmix(
     .lvbl       ( lvbl          ),
 
     .pal_addr   ( pal_addr      ),
-    // .pal_dout   ( pal_dout      ),
-    .pal_dout   ( gray          ),
+    .pal_dout   ( pal_dout      ),
+    // .pal_dout   ( gray          ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
 

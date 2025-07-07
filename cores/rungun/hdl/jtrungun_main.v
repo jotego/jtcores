@@ -121,15 +121,15 @@ assign lrsw     = fmode ? disp : fsel;
 
 always @* begin
     // 056541 PAL
-    boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
+    boot_cs =   !ASn  &&  A[23:20]==0 && RnW && !BUSn;
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
     ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
-    gfx_cs  =   !ASn  &&  A[23:21]==3'b011;
+    gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
     dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     // 74F138 at 11T
-    vmem_cs = gfx_cs  &&  A[20:18]==5;
+    vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
     pslrm_cs= gfx_cs  &&  A[20:18]==4;
     psvrm_cs= gfx_cs  &&  A[20:18]==3;
     psreg_cs= gfx_cs  &&  A[20:18]==2;
