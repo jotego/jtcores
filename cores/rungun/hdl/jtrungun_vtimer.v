@@ -48,7 +48,7 @@ always @(posedge clk) begin
     if(rst) begin
         hcnt <= 0;
         vcnt <= 0;
-    end else begin        
+    end else if(pxl_cen) begin
         hcnt <= hcnt+9'd1;
         if( hs & ~hs_l ) begin
             hcnt <= hinit;

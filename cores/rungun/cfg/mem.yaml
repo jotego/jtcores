@@ -48,6 +48,7 @@ bram:
   - name: vram
     addr_width: 13
     data_width: 16
+    ioctl: { save: true, order: 1 }
     dual_port:
       name: vmem
       din:  "{2{cpu_dout[7:0]}}"
@@ -56,6 +57,7 @@ bram:
   - name: pal
     addr_width: 12
     data_width: 16
+    ioctl: { save: true, order: 2 }
     dual_port:
       name: cpal
       din:  cpu_dout
