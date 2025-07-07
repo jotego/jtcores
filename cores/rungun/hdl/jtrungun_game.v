@@ -27,7 +27,7 @@ wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
 assign sample=0, snd_left=0, snd_right=0, debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
 assign snd_cs=0, snd_addr=0, pcm_cs=0, pcm_addr=0;
-assign oram_addr=0, psac_addr=0;
+assign oram_addr=0, psac0_addr=0, psac1_addr=0, psac2_addr=0, line_addr=0;
 
 jtrungun_main u_main(
     .rst            ( rst           ),
@@ -71,12 +71,18 @@ jtrungun_main u_main(
     .cpal_addr      ( cpal_addr     ),
 
     .vmem_we        ( vmem_we       ),
-    .pmem_we        ( pmem_we       ),
+    .pmem0_we       ( pmem0_we      ),
+    .pmem1_we       ( pmem1_we      ),
+    .pmem2_we       ( pmem2_we      ),
+    .lmem_we        ( lmem_we       ),
     .omem_we        ( omem_we       ),
     .cpal_we        ( cpal_we       ),
 
     .vmem_dout      ( vmem_dout     ),
-    .pmem_dout      ( pmem_dout     ),
+    .pmem0_dout     ( pmem0_dout    ),
+    .pmem1_dout     ( pmem1_dout    ),
+    .pmem2_dout     ( pmem2_dout    ),
+    .lmem_dout      ( lmem_dout     ),
     .omem_dout      ( omem_dout     ),
     .cpal_dout      ( cpal_dout     ),
 

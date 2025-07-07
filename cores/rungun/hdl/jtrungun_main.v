@@ -28,18 +28,19 @@ module jtrungun_main(
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
     output               cpu_rnw,
-    output        [ 1:0] cpal_we, vmem_we, omem_we, pmem_we,
+    output        [ 1:0] cpal_we,  vmem_we,  omem_we, lmem_we,
+    output               pmem0_we, pmem1_we, pmem2_we,
     output reg           ccu_cs,
 
     output        [11:1] cpal_addr,
     output        [12:1] vmem_addr,
-    output        [15:1] pmem_addr,
+    output        [14:0] pmem_addr,
 
     output reg           rom_cs,
     output reg           ram_cs,
 
-    input         [15:0] pmem_dout,
-    input         [15:0] vmem_dout,
+    input         [ 7:0] pmem0_dout, pmem1_dout, pmem2_dout,
+    input         [15:0] vmem_dout, lmem_dout,
     input         [15:0] omem_dout,
     input         [15:0] cpal_dout,
     input         [15:0] ram_dout,
@@ -77,6 +78,7 @@ wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout, cpu_din, cab1_dout;
 reg  [ 9:0] cab2_dout;
 wire [ 7:0] vmem_mux;
+reg  [15:0] pmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5,
@@ -116,12 +118,15 @@ assign st_dout  = 0;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
 assign omem_we  = ~ram_dsn & {2{ objrm_cs & ~RnW}};
-assign pmem_we  = ~ram_dsn & {2{ psvrm_cs & ~RnW}};
+assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
+assign pmem0_we = ~LDSn    & psvrm_cs & ~RnW &  A[1];
+assign pmem1_we = ~UDSn    & psvrm_cs & ~RnW &  A[1];
+assign pmem2_we = ~LDSn    & psvrm_cs & ~RnW & ~A[1];
 assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
 assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 assign cpal_addr= { fsel, A[10:1] };
 assign vmem_addr= { fsel, A[12:2] };
-assign pmem_addr= { fsel, A[14:1] };
+assign pmem_addr= { fsel, A[15:2] };
 
 assign lrsw     = fmode ? disp : fsel;
 
@@ -136,7 +141,7 @@ always @* begin
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
-    pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_
+    pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_... 2k PSAC line
     psvrm_cs= gfx_cs  &&  A[20:18]==3; // $6C_... 32k+32k of RAM for PSAC
     psreg_cs= gfx_cs  &&  A[20:18]==2; // $68_
     objrg_cs= gfx_cs  &&  A[20:18]==1; // $64_... object registers
@@ -188,14 +193,16 @@ always @(posedge clk) begin
     cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
-    HALTn   <= dip_pause & ~rst;
+    HALTn     <= dip_pause & ~rst;
+    pmem_mux  <= A[1] ? {8'd0,pmem2_dout} : {pmem1_dout,pmem0_dout};
     cpu_din <= rom_cs   ? rom_data          :
                ram_cs   ? ram_dout          :
                cpal_cs  ? cpal_dout         :
                vmem_cs  ? {8'd0,vmem_mux}   :
                ccu_cs   ? {8'd0,vtimer_mmr} :
                objrm_cs ? omem_dout         :
-               psvrm_cs ? pmem_dout         :
+               psvrm_cs ? pmem_mux          :
+               pslrm_cs ? lmem_dout         :
                cab_cs   ? cab_dout          : 16'h0;
 end
 
