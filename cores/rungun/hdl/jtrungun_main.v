@@ -288,26 +288,26 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-    reg [7:0] saved[0:0];
-    integer f,fcnt=0;
     initial begin
-        obj_cs    = 0;
-        objcha_n  = 1;
-        objreg_cs = 0;
-        cpal_cs    = 0;
         ram_cs    = 0;
-        rmrd      = 0;
         rom_cs    = 0;
-        sndon     = 0;
-        vmem_cs   = 0;
-        mute      = 0;
     end
     assign
+        gvflip    = 0,
+        ghflip    = 0,
+        pri       = 0,
+        lrsw      = 0,
+        vmem_addr = 0,
+        cpal_addr = 0,
+        psac_bank = 0,
         cpu_dout  = 0,
+        ccu_cs    = 0,
+        cpal_we   = 0,
+        vmem_we   = 0,
+        ram_we    = 0,
         cpu_rnw   = 1,
         main_addr = 0,
         ram_dsn   = 0,
-        snd_wrn   = 0,
         st_dout   = 0,
         nv_addr   = 0,
         nv_din    = 0,

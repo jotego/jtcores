@@ -114,7 +114,8 @@ jtk053252 u_k053252(
     .ioctl_din  ( ioctl_din     )
 );
 
-jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
+assign disp = 0;
+// jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
 jtframe_8x8x4_packed_msb u_packed(fix_data,fix_sort);
 
 jtframe_tilemap #(
@@ -148,6 +149,11 @@ jtframe_tilemap #(
     .pxl        ( fix_pxl       )
 );
 
+wire [15:0] gray;
+wire [ 3:0] lo;
+assign lo =pal_addr[4:1];
+assign gray = {1'b0,{3{lo,lo[0]}}};
+
 jtrungun_colmix u_colmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -159,7 +165,8 @@ jtrungun_colmix u_colmix(
     .lvbl       ( lvbl          ),
 
     .pal_addr   ( pal_addr      ),
-    .pal_dout   ( pal_dout      ),
+    // .pal_dout   ( pal_dout      ),
+    .pal_dout   ( gray          ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
 

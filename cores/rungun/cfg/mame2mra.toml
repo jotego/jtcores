@@ -27,7 +27,7 @@ regions = [
     { name="k054539",  start="PCM_START" },
 
     { name="gfx1", start="JTFRAME_BA2_START" }, # PSAC tiles
-    { name="gfx3", start="FIX_START", rename="fix" },
+    { name="gfx3", start="FIX_START", rename="fix", reverse=true },
     { name="k055673", width=64, rename="obj"},
     { name="eeprom", skip=true }
 ]
