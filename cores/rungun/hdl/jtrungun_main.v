@@ -194,7 +194,7 @@ always @(posedge clk) begin
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
     HALTn     <= dip_pause & ~rst;
-    pmem_mux  <= A[1] ? {8'd0,pmem2_dout} : {pmem1_dout,pmem0_dout};
+    pmem_mux  <= A[1] ? {pmem1_dout,pmem0_dout} : {8'd0,pmem2_dout};
     cpu_din <= rom_cs   ? rom_data          :
                ram_cs   ? ram_dout          :
                cpal_cs  ? cpal_dout         :
