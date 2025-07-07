@@ -28,15 +28,17 @@ module jtrungun_main(
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
     output               cpu_rnw,
-    output        [ 1:0] cpal_we, vmem_we, omem_we,
+    output        [ 1:0] cpal_we, vmem_we, omem_we, pmem_we,
     output reg           ccu_cs,
 
     output        [11:1] cpal_addr,
     output        [12:1] vmem_addr,
+    output        [15:1] pmem_addr,
 
     output reg           rom_cs,
     output reg           ram_cs,
 
+    input         [15:0] pmem_dout,
     input         [15:0] vmem_dout,
     input         [15:0] omem_dout,
     input         [15:0] cpal_dout,
@@ -112,12 +114,14 @@ assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
 assign st_dout  = 0;
 
-assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
+assign cpal_we  = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
 assign omem_we  = ~ram_dsn & {2{ objrm_cs & ~RnW}};
+assign pmem_we  = ~ram_dsn & {2{ psvrm_cs & ~RnW}};
 assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
 assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 assign cpal_addr= { fsel, A[10:1] };
 assign vmem_addr= { fsel, A[12:2] };
+assign pmem_addr= { fsel, A[14:1] };
 
 assign lrsw     = fmode ? disp : fsel;
 
@@ -133,7 +137,7 @@ always @* begin
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
     pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_
-    psvrm_cs= gfx_cs  &&  A[20:18]==3; // $6C_
+    psvrm_cs= gfx_cs  &&  A[20:18]==3; // $6C_... 32k+32k of RAM for PSAC
     psreg_cs= gfx_cs  &&  A[20:18]==2; // $68_
     objrg_cs= gfx_cs  &&  A[20:18]==1; // $64_... object registers
     objrm_cs= gfx_cs  &&  A[20:18]==0; // $60_... object RAM
@@ -191,6 +195,7 @@ always @(posedge clk) begin
                vmem_cs  ? {8'd0,vmem_mux}   :
                ccu_cs   ? {8'd0,vtimer_mmr} :
                objrm_cs ? omem_dout         :
+               psvrm_cs ? pmem_dout         :
                cab_cs   ? cab_dout          : 16'h0;
 end
 

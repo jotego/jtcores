@@ -64,6 +64,15 @@ bram:
       din:  cpu_dout
       dout: omem_dout
       rw: true
+  - name: psac
+    addr_width: 16
+    data_width: 16
+    ioctl: { save: true, order: 3 }
+    dual_port:
+      name: pmem
+      din:  cpu_dout
+      dout: pmem_dout
+      rw: true
   - name: pal
     addr_width: 12
     data_width: 16
