@@ -81,7 +81,7 @@ wire [ 7:0] vmem_mux;
 reg  [15:0] pmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
-            fmode, fsel, l5mas, l3mas, l2mas, int5,
+            fmode, fsel, l5mas, l3mas, l2mas, int5, l_r,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
@@ -104,6 +104,7 @@ assign cpu_rnw  = RnW;
 assign pri      = sys1_dout[14];
 assign l5mas    = sys1_dout[10];
 // assign l2mas =~sys1_dout[ 8];
+assign l_r      = sys1_dout[ 7];
 assign gvflip   = sys1_dout[ 6];
 assign ghflip   = sys1_dout[ 5];
 assign eep_di   = sys1_dout[ 0];
@@ -124,9 +125,11 @@ assign pmem1_we = ~UDSn    & psvrm_cs & ~RnW &  A[1];
 assign pmem2_we = ~LDSn    & psvrm_cs & ~RnW & ~A[1];
 assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
 assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
-assign cpal_addr= { fsel, A[10:1] };
-assign vmem_addr= { fsel, A[12:2] };
-assign pmem_addr= { fsel, A[15:2] };
+// MSB could either be L-R or SEL signals (see page 4-5B/5C)
+// as they are changed at the same time during test
+assign cpal_addr= { l_r, A[10:1] };
+assign vmem_addr= { l_r, A[12:2] };
+assign pmem_addr= { l_r, A[15:2] }; // A[17:16] are set to zero when psvrm_cs is set
 
 assign lrsw     = fmode ? disp : fsel;
 
