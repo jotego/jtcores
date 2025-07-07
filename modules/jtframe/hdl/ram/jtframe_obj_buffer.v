@@ -127,7 +127,7 @@ generate
 
         assign sh0_rdmx  =  line ? wr_af   : rd_addr;
         assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
-        assign shadow_we = /*~*/line ? shdout0 : shdout1;
+        assign shadow_we =  line ? shdout0 : shdout1;
         assign sh_we     = |shadow_we ? newwe_l : we_l;
         assign sh0_wemx  =  line & sh_we;
         assign sh1_wemx  = ~line & sh_we;

@@ -298,7 +298,7 @@ color >= 0xf0 always have priority.
 The priority bit comes from the tilemap RAM, but through an additional filter:
 sprite pixels of color < 0x80 act as a "cookie cut" mask, handled externally,
 which overload the PRI bit, making the sprite always have priority. The external
-RAM that holds this mask contains the OR of all sprite pixels drawn at a certain
+RAM that holds this mask contains the OR of all sprite pixels (bit 7 only) drawn at a certain
 position, therefore when sprites overlap, it is sufficient for one of them to
 have color < 0x80 to promote priority of the frontmost sprite. This is used
 to draw the light in round 19.

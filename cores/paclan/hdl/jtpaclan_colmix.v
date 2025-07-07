@@ -45,7 +45,7 @@ module jtpaclan_colmix(
 
 localparam [6:0] ALPHA=7'h7f;
 
-reg  [7:0] scr_pal;
+reg  [7:0] scr_pal, cus29;
 reg        scrwin, scr1win;
 wire       scr0_op, obj0_op, obj1_op, obj2_op, obj3_op;
 
@@ -63,19 +63,22 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    scr1win = ~scr0_op && gfx_en[1];
-    scrwin = 1;
-    if(gfx_en[3]) begin
-        if(obj0_op && scr1win) scrwin=0;
-        if(obj1_op && (scr1win || !scr0_prio)) scrwin = 0;
-        if(obj2_op) scrwin = 0;
-        if(obj3_op) {scr1win,scrwin} = {scr0_op,1'b1};
-    end
+    scrwin  = obj_pxl[7] ? 0 : scr0_prio;
+    cus29   = scrwin ? scr0pal_data : obj_pxl;
+    scr1win =&cus29[6:0];
+    // scr1win = ~scr0_op && gfx_en[1];
+    // scrwin = 1;
+    // if(gfx_en[3]) begin
+    //     if(obj0_op && scr1win) scrwin=0;
+    //     if(obj1_op && (scr1win || !scr0_prio)) scrwin = 0;
+    //     if(obj2_op) scrwin = 0;
+    //     if(obj3_op) {scr1win,scrwin} = {scr0_op,1'b1};
+    // end
 end
 
 always @(posedge clk) if(pxl_cen) begin
     rgb_addr[9:8] <= palbank;
-    rgb_addr[7:0] <= scrwin ? scr_pal : obj_pxl;
+    rgb_addr[7:0] <= scr1win ? scr1pal_data : cus29;
     {green,red,blue} <= {rg_data,b_data[3:0]};
 end
 

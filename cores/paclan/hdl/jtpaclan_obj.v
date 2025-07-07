@@ -97,11 +97,29 @@ jtpaclan_objscan u_scan(
     .debug_bus  ( debug_bus )
 );
 
-jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
+// bit 7 treatment in schematics:
+// Any sprite at a given pixel can set bit 7 to 1,
+// the rest of the bits are set by the most visible sprite
+// this means that any sprite can set priority over foreground
+// This is implemented using the shadow bit of jtframe_objdraw_gate, which
+// is always the MSB.
+// Because the pal_addr needs 10 bits, the module has to work with PW=10
+// but the final pixel only has 8 bits and the MSB must be the "shadow" bit
+// That's why there is a gap in the buf_din and pxl port connections.
+
+reg [1:0] pal_msb;
+assign pal_addr[9:8] = pal_msb;
+
+always @(posedge clk) begin
+    if( dr_draw ) pal_msb <= pal[5:4];
+end
+
+jtframe_objdraw_gate #(.CW(9),.PW(8),.LATCH(1),
     .HFIX(0),.SWAPH(1),
     // the full palette data is used as alpha
-    .ALPHA(255),
-    .ALPHAW(8),
+    .ALPHA(7'h7f),
+    .ALPHAW(7),
+    .SHADOW(1), // bit 7 is OR'ed across all sprites
     .BUFDLY(1)
 ) u_draw(
     .rst        ( rst       ),
@@ -123,17 +141,17 @@ jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
 
     .hflip      ( hflip     ),
     .vflip      ( vflip     ),
-    .pal        ( pal       ),
+    .pal        ( pal[3:0]  ),
 
-    .buf_pred   ( pal_addr  ),
-    .buf_din    ({2'd0,pal_data}),
+    .buf_pred   ( pal_addr[7:0]  ),
+    .buf_din    ( pal_data  ),
 
     .rom_addr   ( {addr_hi,addr_h,addr_v}  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( sorted    ),
 
-    .pxl        ( {nc,pxl}  )
+    .pxl        ( pxl       )
 );
 
 endmodule
