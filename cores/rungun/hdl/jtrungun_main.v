@@ -73,6 +73,7 @@ wire [23:1] A;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout, cpu_din, cab1_dout;
 reg  [ 9:0] cab2_dout;
+wire [ 7:0] vmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5,
@@ -112,6 +113,7 @@ assign st_dout  = 0;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
 assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
+assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 assign cpal_addr= { fsel, A[10:1] };
 assign vmem_addr= { fsel, A[12:2] };
 
@@ -184,7 +186,7 @@ always @(posedge clk) begin
     cpu_din <= rom_cs  ? rom_data          :
                ram_cs  ? ram_dout          :
                cpal_cs ? cpal_dout         :
-               vmem_cs ? vmem_dout         :
+               vmem_cs ? {8'd0,vmem_mux}   :
                ccu_cs  ? {8'd0,vtimer_mmr} :
                cab_cs  ? cab_dout          : 16'h0;
 end
