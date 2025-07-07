@@ -28,7 +28,7 @@ module jtrungun_main(
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
     output               cpu_rnw,
-    output        [ 1:0] cpal_we, vmem_we,
+    output        [ 1:0] cpal_we, vmem_we, omem_we,
     output reg           ccu_cs,
 
     output        [11:1] cpal_addr,
@@ -38,6 +38,7 @@ module jtrungun_main(
     output reg           ram_cs,
 
     input         [15:0] vmem_dout,
+    input         [15:0] omem_dout,
     input         [15:0] cpal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -112,6 +113,7 @@ assign fsel     = sys2_dout[ 0];
 assign st_dout  = 0;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs & ~RnW}};
+assign omem_we  = ~ram_dsn & {2{ objrm_cs & ~RnW}};
 assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
 assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 assign cpal_addr= { fsel, A[10:1] };
@@ -130,11 +132,11 @@ always @* begin
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
-    pslrm_cs= gfx_cs  &&  A[20:18]==4;
-    psvrm_cs= gfx_cs  &&  A[20:18]==3;
-    psreg_cs= gfx_cs  &&  A[20:18]==2;
-    objrg_cs= gfx_cs  &&  A[20:18]==1;
-    objrm_cs= gfx_cs  &&  A[20:18]==0;
+    pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_
+    psvrm_cs= gfx_cs  &&  A[20:18]==3; // $6C_
+    psreg_cs= gfx_cs  &&  A[20:18]==2; // $68_
+    objrg_cs= gfx_cs  &&  A[20:18]==1; // $64_... object registers
+    objrm_cs= gfx_cs  &&  A[20:18]==0; // $60_... object RAM
     // 74F138 at 13P
     objch_cs= misc_cs &&  A[20:18]==7;
     pair_cs = misc_cs &&  A[20:18]==6;
@@ -183,12 +185,13 @@ always @(posedge clk) begin
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
     HALTn   <= dip_pause & ~rst;
-    cpu_din <= rom_cs  ? rom_data          :
-               ram_cs  ? ram_dout          :
-               cpal_cs ? cpal_dout         :
-               vmem_cs ? {8'd0,vmem_mux}   :
-               ccu_cs  ? {8'd0,vtimer_mmr} :
-               cab_cs  ? cab_dout          : 16'h0;
+    cpu_din <= rom_cs   ? rom_data          :
+               ram_cs   ? ram_dout          :
+               cpal_cs  ? cpal_dout         :
+               vmem_cs  ? {8'd0,vmem_mux}   :
+               ccu_cs   ? {8'd0,vtimer_mmr} :
+               objrm_cs ? omem_dout         :
+               cab_cs   ? cab_dout          : 16'h0;
 end
 
 jtframe_16bit_reg u_sys1(

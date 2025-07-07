@@ -27,6 +27,7 @@ wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
 assign sample=0, snd_left=0, snd_right=0, debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
 assign snd_cs=0, snd_addr=0, pcm_cs=0, pcm_addr=0;
+assign oram_addr=0;
 
 jtrungun_main u_main(
     .rst            ( rst           ),
@@ -68,10 +69,12 @@ jtrungun_main u_main(
 
     .cpal_addr      ( cpal_addr     ),
 
-    .cpal_we        ( cpal_we       ),
     .vmem_we        ( vmem_we       ),
+    .omem_we        ( omem_we       ),
+    .cpal_we        ( cpal_we       ),
 
     .vmem_dout      ( vmem_dout     ),
+    .omem_dout      ( omem_dout     ),
     .cpal_dout      ( cpal_dout     ),
 
     .ccu_cs         ( ccu_cs        ), // video timer
