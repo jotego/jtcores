@@ -123,10 +123,10 @@ always @* begin
     // 056541 PAL
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW;
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
-    ram_cs  =   !ASn  &&  A[23:19]==5'b1_0 && !BUSn;
+    ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;
-    dmac_cs =   !ASn  &&  A[23:19]==5'b0011_0;
-    cpal_cs =   !ASn  &&  A[23:19]==5'b0011_1;
+    dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;
+    cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5;

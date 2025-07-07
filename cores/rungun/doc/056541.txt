@@ -23,13 +23,16 @@ Equations:
 /ROM = /AS & /AB23 & /AB22 & AB21 & /AB20 +
        /AS & /AB23 & /AB22 & /AB21 & AB20
 
-/RAM = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
+       !i1 &   !i2 &   !i3 &   i4 &   i5 &  i6;
+/RAM = /AS & /AB23 & /AB22 & AB21 & AB20 &  AB19
 
-/CRM = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
+       !i1 &   !i2 &   !i3 &   i4 &   i5 &  !i6;
+/CRM = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
 
 /GFX = /AS & /AB23 & AB22
 
-/DMAC = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
+        !i1 &   !i2 &   !i3 &   i4 &   i5 & i6
+/DMAC = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
 
 /o18 = UDS & LDS
 
