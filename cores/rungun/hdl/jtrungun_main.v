@@ -85,7 +85,7 @@ reg  [15:0] pmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5, l_r,
-            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
+            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=1,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
@@ -181,14 +181,6 @@ always @* begin
     endcase
 end
 
-jtframe_edge u_lvbl(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .edgeof ( lvbl      ),
-    .clr    (~l5mas     ),
-    .q      ( int5      )
-);
-
 always @* begin
     IPLn = 7;
     if( int5 ) IPLn = ~3'd5;
@@ -200,7 +192,7 @@ always @(posedge clk) begin
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
                                       {service,   coin}};
-    cab_dout  <= io1_cs ? cab1_dout : {6'd0, cab2_dout};
+    cab_dout  <= io1_cs ? cab1_dout : {6'h0, cab2_dout};
     HALTn     <= dip_pause & ~rst;
     pmem_mux  <= A[1] ? {pmem1_dout,pmem0_dout} : {8'd0,pmem2_dout};
     cpu_din <= rom_cs   ? rom_data          :
@@ -214,6 +206,15 @@ always @(posedge clk) begin
                pair_cs  ? {pair_dout,8'd0}  :
                cab_cs   ? cab_dout          : 16'h0;
 end
+
+/* verilator tracing_off */
+jtframe_edge u_lvbl(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( lvbl      ),
+    .clr    (~l5mas     ),
+    .q      ( int5      )
+);
 
 jtframe_16bit_reg u_sys1(
     .rst        ( rst       ),

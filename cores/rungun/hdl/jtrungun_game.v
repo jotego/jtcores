@@ -103,7 +103,7 @@ jtrungun_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-
+/* verilator tracing_off */
 jtrungun_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -156,7 +156,7 @@ jtrungun_video u_video(
     .ioctl_addr     ( ioctl_addr[3:0]),
     .ioctl_din      ( ioctl_din     )
 );
-
+/* verilator tracing_off */
 jtrungun_sound u_sound(
     .rst            ( rst           ),
     .clk            ( clk           ),
