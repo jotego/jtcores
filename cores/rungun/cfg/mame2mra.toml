@@ -19,6 +19,10 @@ names = [
     { machine="rungun", names="Shoot/Jump,Pass/Steal,Select" },
 ]
 
+[dipsw]
+# not real DIP switches, wrongly identified in MAME
+delete=[ {names=["Freeze","Field Bit (DEBUG)"] }]
+
 [ROM]
 regions = [
     { name="maincpu", width=16, reverse=true, no_offset=true  },
