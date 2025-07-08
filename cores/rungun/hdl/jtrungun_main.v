@@ -58,6 +58,9 @@ module jtrungun_main(
     input         [ 7:0] nv_dout,
     output        [ 7:0] nv_din,
     output               nv_we,
+    // Sound
+    output               pair_we, sdon,
+    input         [ 7:0] pair_dout,
     // Cabinet
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
@@ -130,6 +133,8 @@ assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 assign cpal_addr= { l_r, A[10:1] };
 assign vmem_addr= { l_r, A[12:2] };
 assign pmem_addr= { l_r, A[15:2] }; // A[17:16] are set to zero when psvrm_cs is set
+assign pair_we  = pair_cs & ~RnW & ~UDSn;
+assign sdon     = sdon_cs;
 
 assign lrsw     = fmode ? disp : fsel;
 
@@ -206,6 +211,7 @@ always @(posedge clk) begin
                objrm_cs ? omem_dout         :
                psvrm_cs ? pmem_mux          :
                pslrm_cs ? lmem_dout         :
+               pair_cs  ? {pair_dout,8'd0}  :
                cab_cs   ? cab_dout          : 16'h0;
 end
 

@@ -1,6 +1,9 @@
 rungun:
   - get:
     - "*.v"
+riders:
+  - get:
+    - jt054321.v
 simson:
   - get:
     - jt053246.sv
@@ -8,6 +11,7 @@ simson:
     - jtsimson_obj.v
 jtframe:
   - get:
+    - jtframe_8bit_reg.v
     - jtframe_16bit_reg.v
   - from: cpu
     unless: [NOMAIN]

@@ -20,13 +20,12 @@ module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [ 7:0] vtimer_mmr, st_main, st_snd;
+wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
-wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
+wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we, sdon;
 
-assign sample=0, snd_left=0, snd_right=0, debug_view=0;
+assign debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
-assign snd_cs=0, snd_addr=0, pcm_cs=0, pcm_addr=0;
 assign oram_addr=0, psac0_addr=0, psac1_addr=0, psac2_addr=0, line_addr=0;
 
 jtrungun_main u_main(
@@ -92,6 +91,10 @@ jtrungun_main u_main(
     .nv_dout        ( nvram_dout    ),
     .nv_din         ( nvram_din     ),
     .nv_we          ( nvram_we      ),
+    // Sound
+    .pair_dout      ( pair_dout     ),
+    .pair_we        ( pair_we       ),
+    .sdon           ( sdon          ),
     // DIP switches
     .dipsw          ( dipsw[3:0]    ),
     .dip_pause      ( dip_pause     ),
@@ -160,15 +163,13 @@ jtrungun_sound u_sound(
     .cen_8          ( cen_8         ),
     .cen_pcm        ( cen_pcm       ),
 
-    input           pair_we,
     // communication with main CPU
-    input   [ 7:0]  main_dout,  // bus access for Punk Shot
-    output  [ 7:0]  main_din,
-    output  [ 7:0]  pair_dout,
-    input   [ 4:1]  main_addr,
-    input           main_rnw,
+    .main_dout      ( cpu_dout[15:8]),  // bus access for Punk Shot
+    .pair_dout      ( pair_dout     ),
+    .main_addr      ( main_addr[4:1]),
+    .pair_we        ( pair_we       ),
 
-    input           snd_irq,
+    .snd_irq        ( sdon          ),
     // ROM
     .rom_addr       ( snd_addr      ),
     .rom_cs         ( snd_cs        ),
@@ -177,8 +178,8 @@ jtrungun_sound u_sound(
     // ADPCM ROM
     .pcma_addr      ( pcma_addr     ),
     .pcmb_addr      ( pcmb_addr     ),
-    .pcma_dout      ( pcma_dout     ),
-    .pcmb_dout      ( pcmb_dout     ),
+    .pcma_data      ( pcma_data     ),
+    .pcmb_data      ( pcmb_data     ),
     .pcma_cs        ( pcma_cs       ),
     .pcmb_cs        ( pcmb_cs       ),
     // Sound output

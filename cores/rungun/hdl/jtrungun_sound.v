@@ -24,11 +24,9 @@ module jtrungun_sound(
 
     input           pair_we,
     // communication with main CPU
-    input   [ 7:0]  main_dout,  // bus access for Punk Shot
-    output  [ 7:0]  main_din,
+    input   [ 7:0]  main_dout,
     output  [ 7:0]  pair_dout,
     input   [ 4:1]  main_addr,
-    input           main_rnw,
 
     input           snd_irq,
     // ROM
@@ -38,7 +36,7 @@ module jtrungun_sound(
     input           rom_ok,
     // ADPCM ROM
     output   [21:0] pcma_addr, pcmb_addr,
-    input    [ 7:0] pcma_dout, pcmb_dout,
+    input    [ 7:0] pcma_data, pcmb_data,
     output          pcma_cs,   pcmb_cs,
     // Sound output
     output     signed [15:0] k539a_l, k539a_r, k539b_l, k539b_r,
@@ -47,25 +45,29 @@ module jtrungun_sound(
     output   [ 7:0] st_dout
 );
 
-assign main_din = 0;
-
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
-                    k39a_dout, k39b_dout, latch_dout;
+                    k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
 wire        [ 3:0]  rom_hi;
 wire        [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, latch_we,
-                    latch_intn, int_n, nmi_trig, nmi_clr;
-reg                 ram_cs, fm_cs,  k39a_cs, k39b_cs, mem_acc,
-                    nmi_clrr, bank_cs, wreq;
+                    cpu_cen, latch_we, tima, timb,
+                    latch_intn, int_n, nmi_clr;
+reg                 ram_cs, k21_cs, k39a_cs, k39b_cs, mem_acc,
+                    bank_cs, wreq;
 
 assign rom_hi   = A[15] ? bank : {3'd0, A[14]};
 assign rom_addr = {rom_hi[2:0], A[13:0]};
-assign nmi_clr  =~ctl[5];
+assign nmi_clr  =~ctl[4];
 assign bank     = ctl[3:0];
 assign st_dout  = sta_dout;
+assign latch_we = k21_cs & ~wr_n;
+assign cpu_din  = rom_cs  ? rom_data   :
+                  ram_cs  ? ram_dout   :
+                  k39a_cs ? k39a_dout  :
+                  k39b_cs ? k39b_dout  :
+                  k21_cs  ? latch_dout : 8'h0;
 
 always @(*) begin
     mem_acc = !mreq_n && rfsh_n;
@@ -73,7 +75,7 @@ always @(*) begin
     ram_cs  = mem_acc && A[15:13]==3'b110;     // Cxxx
     k39a_cs = mem_acc && A[15:10]==6'b1110_00; // E0xx
     k39b_cs = mem_acc && A[15:10]==6'b1110_01; // E4xx
-    pair_cs = mem_acc && A[15:10]==6'b1111_00; // F0xx
+    k21_cs  = mem_acc && A[15:10]==6'b1111_00; // F0xx (pair_cs on sch)
     bank_cs = mem_acc && A[15:10]==6'b1111_10; // F8xx
     wreq    = !m1_n && (!A[15] || !A[14]);
 end
@@ -83,7 +85,7 @@ jtframe_8bit_reg u_reg(rst,clk,wr_n,cpu_dout,bank_cs,ctl);
 jtframe_edge #(.QSET(0)) u_edge (
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( nmi_trig  ),
+    .edgeof ( tima      ),
     .clr    ( nmi_clr   ),
     .q      ( nmi_n     )
 );
@@ -114,10 +116,30 @@ jtframe_sysz80 #(.RAM_AW(13), .CLR_INT(1)) u_cpu(
     .rom_ok     ( rom_ok    )
 );
 
+jt054321 u_54321(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .maddr      ( main_addr ),
+    .mdout      ( main_dout ),
+    .mdin       ( pair_dout ),
+    .mwe        ( pair_we   ),
+
+    .saddr      ( A[1:0]    ),
+    .sdout      ( cpu_dout  ),
+    .sdin       ( latch_dout),
+    .swe        ( latch_we  ),
+
+    // Z80 bus control
+    .snd_on     ( snd_irq   ),
+    .siorq_n    ( iorq_n    ),
+    .int_n      ( int_n     )
+);
+
 jt539 u_k54539a(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
+    .timeout    ( tima      ),
     // CPU interface
     .addr       ({A[9],A[7:0]}),
     .we         ( ~wr_n     ),
@@ -128,7 +150,7 @@ jt539 u_k54539a(
     // ROM
     .rom_cs     ( pcma_cs   ),
     .rom_addr   ( pcma_addr ),
-    .rom_data   ( pcma_dout ),
+    .rom_data   ( pcma_data ),
     // Sound output
     .left       ( k539a_l   ),
     .right      ( k539a_r   ),
@@ -141,6 +163,7 @@ jt539 u_k54539b(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
+    .timeout    ( timb      ),
     // CPU interface
     .addr       ({A[9],A[7:0]}),
     .we         ( ~wr_n     ),
@@ -151,7 +174,7 @@ jt539 u_k54539b(
     // ROM
     .rom_cs     ( pcmb_cs   ),
     .rom_addr   ( pcmb_addr ),
-    .rom_data   ( pcmb_dout ),
+    .rom_data   ( pcmb_data ),
     // Sound output
     .left       ( k539b_l   ),
     .right      ( k539b_r   ),

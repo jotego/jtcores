@@ -13,7 +13,7 @@ clocks:
     # - freq: 5926736
     # - freq: 12315757
     # - freq: 11853472
-      gate: [pcm]
+      gate: [pcma,pcmb]
       outputs:
         - cen_pcm
 audio:
