@@ -2,6 +2,27 @@ params:
   - { name: RAM_OFFSET,   value: "22'h200000" }
   - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
   - { name: FIX_OFFSET,   value: "(`FIX_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk48:
+    - freq: 8000000
+      outputs:
+        - cen_8
+    # adjusted for pitch
+    # - freq: 18432000
+    - freq: 12288000
+    # - freq: 5926736
+    # - freq: 12315757
+    # - freq: 11853472
+      gate: [pcm]
+      outputs:
+        - cen_pcm
+audio:
+  # using same mixing as MAME for now
+  # same filter as X-Men
+  rsum: 2k
+  channels:
+    - { name: k539a,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
+    - { name: k539b,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ], pre: 0.6 }
 ports:
   - { name: cpu_dout, msb: 15 }
 sdram:
@@ -21,7 +42,11 @@ sdram:
         - name: snd
           addr_width: 17
           data_width: 8
-        - name: pcm
+        - name: pcma
+          addr_width: 22
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
           addr_width: 22
           data_width: 8
           offset: PCM_OFFSET

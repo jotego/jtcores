@@ -20,7 +20,7 @@ module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [ 7:0] vtimer_mmr, st_main;
+wire [ 7:0] vtimer_mmr, st_main, st_snd;
 wire [ 3:0] psac_bank;
 wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw;
 
@@ -152,6 +152,43 @@ jtrungun_video u_video(
     // IOCTL dump
     .ioctl_addr     ( ioctl_addr[3:0]),
     .ioctl_din      ( ioctl_din     )
+);
+
+jtrungun_sound u_sound(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .cen_8          ( cen_8         ),
+    .cen_pcm        ( cen_pcm       ),
+
+    input           pair_we,
+    // communication with main CPU
+    input   [ 7:0]  main_dout,  // bus access for Punk Shot
+    output  [ 7:0]  main_din,
+    output  [ 7:0]  pair_dout,
+    input   [ 4:1]  main_addr,
+    input           main_rnw,
+
+    input           snd_irq,
+    // ROM
+    .rom_addr       ( snd_addr      ),
+    .rom_cs         ( snd_cs        ),
+    .rom_data       ( snd_data      ),
+    .rom_ok         ( snd_ok        ),
+    // ADPCM ROM
+    .pcma_addr      ( pcma_addr     ),
+    .pcmb_addr      ( pcmb_addr     ),
+    .pcma_dout      ( pcma_dout     ),
+    .pcmb_dout      ( pcmb_dout     ),
+    .pcma_cs        ( pcma_cs       ),
+    .pcmb_cs        ( pcmb_cs       ),
+    // Sound output
+    .k539a_l        ( k539a_l       ),
+    .k539a_r        ( k539a_r       ),
+    .k539b_l        ( k539b_l       ),
+    .k539b_r        ( k539b_r       ),
+    // Debug
+    .debug_bus      ( debug_bus     ),
+    .st_dout        ( st_snd        )
 );
 
 endmodule
