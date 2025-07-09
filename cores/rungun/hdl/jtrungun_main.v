@@ -85,7 +85,7 @@ reg  [15:0] pmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5, l_r,
-            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=1,
+            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
