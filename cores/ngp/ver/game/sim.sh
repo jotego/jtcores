@@ -101,4 +101,4 @@ if [ -n "$SCENE" ]; then
 fi
 
 echo jtsim $OTHER
-jtsim -sysname $CORE -d JTFRAME_SIM_DIPS=0 $OTHER
+jtsim -d JTFRAME_SIM_DIPS=0 $OTHER
