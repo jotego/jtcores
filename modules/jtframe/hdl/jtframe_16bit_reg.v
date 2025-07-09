@@ -34,7 +34,7 @@ always @(posedge clk) begin
     end else begin
         if( cs && !wr_n ) begin
             if(!dsn[0]) dout[ 7:0] <= din[ 7:0];
-            if(!dsn[0]) dout[15:8] <= din[15:8];
+            if(!dsn[1]) dout[15:8] <= din[15:8];
         end
     end
 end

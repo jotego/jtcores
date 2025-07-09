@@ -212,7 +212,7 @@ jtframe_edge u_lvbl(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( lvbl      ),
-    .clr    (~l5mas     ),
+    .clr    ( l5mas^debug_bus[0]     ),
     .q      ( int5      )
 );
 
