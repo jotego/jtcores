@@ -50,8 +50,9 @@ assign f1g_dout = cart_size[2] ? flash1_dout : 16'd0;
 always @(posedge clk) begin
     if( ioctl_cart && !cart_l ) cart_size <= 0;
     if( prog_ba==1 && !ioctl_ram && ioctl_wr ) begin
-        if( prog_addr[18] && cart_size<3'd1 ) cart_size <= 3'b001;
-        if( prog_addr[19] && cart_size<3'd2 ) cart_size <= 3'b010;
+        if( prog_addr[17] && cart_size<3'd1 ) cart_size <= 3'b001;
+        if( prog_addr[18] && cart_size<3'd2 ) cart_size <= 3'b010;
+        if( prog_addr[19] && cart_size<3'd3 ) cart_size <= 3'b011;
         if( prog_addr[20] && cart_size<3'd4 ) cart_size <= 3'b100;
     end
 end

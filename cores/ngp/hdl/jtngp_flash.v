@@ -114,7 +114,7 @@ always @* begin
     case( dev_type )
         DEV_AB:  ba_full = ~&eff_addr[18:16];
         DEV_2C:  ba_full = ~&eff_addr[19:16];
-        DEV_2F:  ba_full = ~&eff_addr[20:16];
+        DEV_2F,3:  ba_full = ~&eff_addr[20:16];
         default: ba_full = 1;
     endcase
 
