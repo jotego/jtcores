@@ -23,7 +23,7 @@ module jtngp_flash(
     input             rst,
     input             clk,
 
-    input      [ 2:0] dev_type, // see below
+    input      [ 3:0] dev_type, // see below
     // interface to CPU
     input      [20:1] cpu_addr,
     input             cpu_cs,
@@ -43,9 +43,10 @@ module jtngp_flash(
     output reg [15:0] cart_din
 );
 
-localparam [2:0] DEV_2F = 4, //   2 or 4 MB
-                 DEV_2C = 2, //   1 MB
-                 DEV_AB = 1; // <=512 kB
+localparam [3:0] DEV_2F_4 = 8, //   4 MB
+                 DEV_2F_2 = 4, //   2 MB
+                 DEV_2C   = 2, //   1 MB
+                 DEV_AB   = 1; // <=512 kB
 
 localparam [2:0] IDLE     = 0,
                  READ     = 1,
@@ -112,10 +113,10 @@ always @* begin
     ba_addr = { eff_addr[20:13], 12'd0 };
     ba_size = BA_64K;
     case( dev_type )
-        DEV_AB:  ba_full = ~&eff_addr[18:16];
-        DEV_2C:  ba_full = ~&eff_addr[19:16];
-        DEV_2F,3:  ba_full = ~&eff_addr[20:16];
-        default: ba_full = 1;
+        DEV_AB:             ba_full = ~&eff_addr[18:16];
+        DEV_2C:             ba_full = ~&eff_addr[19:16];
+        DEV_2F_2, DEV_2F_4: ba_full = ~&eff_addr[20:16];
+        default:            ba_full = 1;
     endcase
 
     if( ba_full ) begin
