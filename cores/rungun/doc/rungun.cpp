@@ -174,7 +174,7 @@ uint16_t rungun_state::sysregs_r(offs_t offset, uint16_t mem_mask)
 			return (m_p_inputs[1]->read() | m_p_inputs[3]->read() << 8);
 
 
-		case 0x04/2:
+		case 0x04/2: // A[3:2]=1, A1=0
 			/*
 			    bit0-7: coin mechs and services
 			    bit8 : freeze
@@ -187,7 +187,7 @@ uint16_t rungun_state::sysregs_r(offs_t offset, uint16_t mem_mask)
 				return (m_system->read() & 0xfdff) | (field_bit << 9);
 			}
 
-		case 0x06/2:
+		case 0x06/2: // A[3:2]=1, A1=1
 			if (ACCESSING_BITS_0_7)
 			{
 				data = m_dsw->read();

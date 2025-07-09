@@ -44,7 +44,6 @@ module jtrungun_sound(
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
-
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
                     k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
