@@ -52,8 +52,8 @@ always @(posedge clk) begin
     if( prog_ba==1 && !ioctl_ram && ioctl_wr ) begin
         if( prog_addr[17] && cart_size<4'd1 ) cart_size <= 4'b0001;
         if( prog_addr[18] && cart_size<4'd2 ) cart_size <= 4'b0010;
-        if( prog_addr[19] && cart_size<4'd3 ) cart_size <= 4'b0100;
-        if( prog_addr[20] && cart_size<4'd4 ) cart_size <= 4'b1000;
+        if( prog_addr[19] && cart_size<4'd4 ) cart_size <= 4'b0100;
+        if( prog_addr[20] && cart_size<4'd8 ) cart_size <= 4'b1000;
     end
 end
 
