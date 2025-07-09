@@ -90,7 +90,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
             pslrm_cs, psvrm_cs, psreg_cs, objrg_cs, objrm_cs,
-            objch_cs, pair_cs, sdon_cs, psch_cs;
+            objch_cs, pair_cs, sdon_cs, psch_cs, rom_good, ram_good;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -100,7 +100,7 @@ assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
 assign ram_we   = ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~(rom_ok & rom_good)) | (ram_cs & ~(ram_ok & ram_good));
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 // sys1
@@ -141,7 +141,7 @@ assign lrsw     = fmode ? disp : fsel;
 always @* begin
     // 056541 PAL
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW && !BUSn;
-    xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
+    xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1) && !BUSn;
     ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
     // dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
@@ -188,6 +188,8 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    rom_good  <= rom_cs & rom_ok;
+    ram_good  <= ram_cs & ram_ok;
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
