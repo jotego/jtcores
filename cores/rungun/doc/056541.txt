@@ -34,7 +34,7 @@ Equations:
 
 /GFX = /AS & /AB23 & AB22
 
-        !i1 &   !i2 &   !i3 &   i4 &   i5 & i6
+        !i1 &   !i2 &   !i3 &   i4 &   i5 &   i6
 /DMAC = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
 
 /o18 = UDS & LDS

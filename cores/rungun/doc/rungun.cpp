@@ -236,11 +236,11 @@ void rungun_state::sysregs_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 
 		case 0x0c/2:
 			/*
-			    bit 0  : also enables IRQ???
-			    bit 1  : disable PSAC2 input?
-			    bit 2  : OBJCHA
-			    bit 3  : enable IRQ 5
 			    bit 7-4: base address for 53936 ROM readback.
+			    bit 3  : enable IRQ 5
+			    bit 2  : OBJCHA
+			    bit 1  : disable PSAC2 input?
+			    bit 0  : also enables IRQ???
 			*/
 			m_k055673->k053246_set_objcha_line((data & 0x04) ? ASSERT_LINE : CLEAR_LINE);
 			m_roz_rombase = (data & 0xf0) >> 4;

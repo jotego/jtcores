@@ -96,7 +96,7 @@ jtrungun_main u_main(
     .pair_we        ( pair_we       ),
     .sdon           ( sdon          ),
     // DIP switches
-    .dipsw          ( dipsw[3:0]    ),
+    .dipsw          ( dipsw[7:4]    ),
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
     // Debug

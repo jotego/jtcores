@@ -90,7 +90,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
             pslrm_cs, psvrm_cs, psreg_cs, objrg_cs, objrm_cs,
-            objch_cs, pair_cs, sdon_cs, psch_cs, dmac_cs;
+            objch_cs, pair_cs, sdon_cs, psch_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -144,7 +144,7 @@ always @* begin
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1);
     ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
-    dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;
+    // dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
     misc_cs =   !ASn  &&  A[23:21]==3'b010;
     // 74F138 at 11T
@@ -283,7 +283,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .fave       (           ),
     .fworst     (           )
 );
-
+/* verilator tracing_on */
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
     .rst        ( rst         ),

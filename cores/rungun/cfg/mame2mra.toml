@@ -4,7 +4,9 @@ author=["jotego"]
 [parse]
 sourcefile=[ "rungun.cpp" ]
 
-skip.Setnames=[
+debug.Setnames=[
+	# not booting
+	"slmdunkj",
 	# 2 screen versions:
 	"rungunad",
 	"rungunbd",
@@ -38,8 +40,13 @@ regions = [
 
 order=["maincpu","soundcpu","k054539","gfx1","fix","obj"]
 
+patches=[
+	# bypass system test
+	{setname="rungun",offset=0x8e8,data="71 4E 71 4E 71 4E"},
+]
+
 nvram={	Defaults=[
-	{ setname="rungun", data="""\
+	{ data="""\
 	04 14 fb eb 92 47 45 41 41 00 15 03 07 03 00 00
 	00 00 00 00 00 00 00 1e 00 15 20 00 01 00 00 00
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
