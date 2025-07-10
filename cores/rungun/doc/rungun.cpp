@@ -295,20 +295,22 @@ void rungun_state::rungun_map(address_map &map)
 	map(0x00'0000, 0x2f'ffff).rom();                                         // main program + data
 	map(0x30'0000, 0x30'07ff).rw(FUNC(rungun_state::palette_r), FUNC(rungun_state::palette_w));
 	map(0x38'0000, 0x39'ffff).ram();                                         // work RAM
-	map(0x40'0000, 0x43'ffff).r(FUNC(rungun_state::k53936_rom_r)).umask16(0x00ff);               // '936 ROM readback window
-	map(0x48'0000, 0x48'001f).rw(FUNC(rungun_state::sysregs_r), FUNC(rungun_state::sysregs_w)).share("sysreg");
-	map(0x4c'0000, 0x4c'001f).rw(m_k053252, FUNC(k053252_device::read), FUNC(k053252_device::write)).umask16(0x00ff); // CCU (for scanline and vblank polling)
-	map(0x54'0000, 0x54'0001).w(FUNC(rungun_state::sound_irq_w));
-	map(0x58'0000, 0x58'001f).m(m_k054321, FUNC(k054321_device::main_map)).umask16(0xff00);
-	map(0x5c'0000, 0x5c'000f).r(m_k055673, FUNC(k055673_device::k055673_rom_word_r));                       // 246A ROM readback window
-	map(0x5c'0010, 0x5c'001f).w(m_k055673, FUNC(k055673_device::k055673_reg_word_w));
-	map(0x60'0000, 0x60'1fff).bankrw("spriteram_bank");                                                // OBJ RAM
-	map(0x64'0000, 0x64'0007).w(m_k055673, FUNC(k055673_device::k053246_w));                      // '246A registers
-	map(0x68'0000, 0x68'001f).w(m_k053936, FUNC(k053936_device::ctrl_w));          // '936 registers
-	map(0x6c'0000, 0x6c'ffff).rw(FUNC(rungun_state::psac2_videoram_r), FUNC(rungun_state::psac2_videoram_w)); // PSAC2 ('936) RAM (34v + 35v)
-	map(0x70'0000, 0x70'07ff).rw(m_k053936, FUNC(k053936_device::linectrl_r), FUNC(k053936_device::linectrl_w));          // PSAC "Line RAM"
-	map(0x74'0000, 0x74'1fff).rw(FUNC(rungun_state::ttl_ram_r), FUNC(rungun_state::ttl_ram_w));     // text plane RAM
+	// 74F138 at 11T
 	map(0x7c'0000, 0x7c'0001).nopw();                                    // watchdog
+	map(0x74'0000, 0x74'1fff).rw(FUNC(rungun_state::ttl_ram_r), FUNC(rungun_state::ttl_ram_w));     // text plane RAM
+	map(0x70'0000, 0x70'07ff).rw(m_k053936, FUNC(k053936_device::linectrl_r), FUNC(k053936_device::linectrl_w));          // PSAC "Line RAM"
+	map(0x6c'0000, 0x6c'ffff).rw(FUNC(rungun_state::psac2_videoram_r), FUNC(rungun_state::psac2_videoram_w)); // PSAC2 ('936) RAM (34v + 35v)
+	map(0x68'0000, 0x68'001f).w(m_k053936, FUNC(k053936_device::ctrl_w));          // '936 registers
+	map(0x64'0000, 0x64'0007).w(m_k055673, FUNC(k055673_device::k053246_w));                      // '246A registers
+	map(0x60'0000, 0x60'1fff).bankrw("spriteram_bank");                                                // OBJ RAM
+	// 74F138 at 13P
+	map(0x5c'0010, 0x5c'001f).w(m_k055673, FUNC(k055673_device::k055673_reg_word_w));
+	map(0x5c'0000, 0x5c'000f).r(m_k055673, FUNC(k055673_device::k055673_rom_word_r));                       // 246A ROM readback window
+	map(0x58'0000, 0x58'001f).m(m_k054321, FUNC(k054321_device::main_map)).umask16(0xff00);
+	map(0x54'0000, 0x54'0001).w(FUNC(rungun_state::sound_irq_w));
+	map(0x4c'0000, 0x4c'001f).rw(m_k053252, FUNC(k053252_device::read), FUNC(k053252_device::write)).umask16(0x00ff); // CCU (for scanline and vblank polling)
+	map(0x48'0000, 0x48'001f).rw(FUNC(rungun_state::sysregs_r), FUNC(rungun_state::sysregs_w)).share("sysreg");
+	map(0x40'0000, 0x43'ffff).r(FUNC(rungun_state::k53936_rom_r)).umask16(0x00ff);               // '936 ROM readback window
 }
 
 

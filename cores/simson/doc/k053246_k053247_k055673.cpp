@@ -32,7 +32,8 @@ The sprite RAM format is very similar to the 053245.
 ???-??? R  reads data from the gfx ROMs (16 bits in total). The address of the
            data is determined by the registers above
 
-
+055673
+0C         bit 4 = sort objects in ascending order (bigger z closer)
 */
 
 #include "emu.h"
