@@ -68,14 +68,14 @@ assign cpu_din  = rom_cs  ? rom_data   :
                   k21_cs  ? latch_dout : 8'h0;
 
 always @(*) begin
-    mem_acc = !mreq_n && rfsh_n;
-    rom_cs  = mem_acc && (!A[15] || !A[14]);
-    ram_cs  = mem_acc && A[15:13]==3'b110;     // Cxxx
-    k39a_cs = mem_acc && A[15:10]==6'b1110_00; // E0xx
-    k39b_cs = mem_acc && A[15:10]==6'b1110_01; // E4xx
-    k21_cs  = mem_acc && A[15:10]==6'b1111_00; // F0xx (pair_cs on sch)
-    bank_cs = mem_acc && A[15:10]==6'b1111_10; // F8xx
-    wreq    = !m1_n && (!A[15] || !A[14]);
+    mem_acc =!mreq_n  && rfsh_n;
+    wreq    =!m1_n    &&(!A[15] || !A[14]);
+    rom_cs  = mem_acc &&(!A[15] || !A[14]);
+    ram_cs  = mem_acc &&  A[15:13]==3'b110;     // Cxxx
+    k39a_cs = mem_acc &&  A[15:10]==6'b1110_00; // E0xx
+    k39b_cs = mem_acc &&  A[15:10]==6'b1110_01; // E4xx
+    k21_cs  = mem_acc &&  A[15:10]==6'b1111_00; // F0xx (pair_cs on sch)
+    bank_cs = mem_acc &&  A[15:10]==6'b1111_10; // F8xx
 end
 
 jtframe_8bit_reg u_reg(rst,clk,wr_n,cpu_dout,bank_cs,ctl);
@@ -182,7 +182,8 @@ jt539 u_k54539b(
 );
 `else
 assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
-       m1_n=1, mreq_n=1, rfsh_n=1, rd_n=1, wr_n=1,A=0,
-       pcma_cs=0, pcmb_cs=0;
+       m1_n=1, mreq_n=1, rfsh_n=1, wr_n=1, A=0,
+       pcma_cs=0, pcmb_cs=0, pcma_addr=0, pcmb_addr=0, ram_dout=0,
+       k39a_dout=0, k39b_dout=0, sta_dout=0, stb_dout=0;
 `endif
 endmodule 
