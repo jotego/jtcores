@@ -258,7 +258,7 @@ assign ommra = {cpu_addr[3:1],cpu_dsn[1]};
 // xmen never exercises cpu_addr[13], although it is connected to the RAM
 assign orama = cpu_addr[13:1];
 
-jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(13), .XMEN(1), .SHADOW(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

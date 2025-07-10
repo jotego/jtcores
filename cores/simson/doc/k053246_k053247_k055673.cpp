@@ -898,7 +898,7 @@ k055673_device::k055673_device(const machine_config &mconfig, const char *tag, d
 //  device_start - device-specific startup
 //-------------------------------------------------
 
-void k055673_device::device_start()
+void k055673_device::device_start() // RUN & GUN
 {
 	// assumes it can make an address mask with m_gfxrom.length() - 1
 	assert(!(m_gfxrom.length() & (m_gfxrom.length() - 1)));
@@ -1095,7 +1095,7 @@ void k053247_device::device_start()
 	/* decode the graphics */
 	switch (m_bpp)
 	{
-	case NORMAL_PLANE_ORDER:
+	case NORMAL_PLANE_ORDER: // X-Men
 		total = m_gfxrom.length() / 128;
 		konami_decode_gfx(*this, m_gfx_num, (u8 *)&m_gfxrom[0], total, &spritelayout, 4);
 		break;

@@ -48,7 +48,7 @@ wire        shad, fix_op;
 
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign fix_op   = fix_pxl[3:0]!=0;
-assign pal_addr =  fix_op ? {lrsw,2'd0,fix_pxl} : {lrsw,1'b0,obj_pxl};
+assign pal_addr =  fix_op ? {lrsw,2'd0,fix_pxl} : {lrsw,1'b1,obj_pxl};
 
 assign shad      = 0; // to do
 

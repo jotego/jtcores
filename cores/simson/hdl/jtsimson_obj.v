@@ -18,7 +18,9 @@
 
 module jtsimson_obj #(parameter
     RAMW   = 12,
-    XMEN   = 0
+    XMEN   = 0,
+    PACKED = 1,
+    SHADOW = 0
 )(
     input             rst,
     input             clk,
@@ -69,6 +71,8 @@ module jtsimson_obj #(parameter
     input      [ 7:0] debug_bus
 );
 
+localparam SHADOW_PEN = SHADOW[0]==1 ? 4'd15 : 4'd0;
+
 wire [ 1:0] pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
@@ -85,7 +89,7 @@ wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 9:0] hpos;
 wire [ 3:0] ysub;
 wire [11:0] hzoom;
-wire [31:0] sorted;
+wire [31:0] sorted, sort_packed, sort_unpacked;
 wire        pen15;
 
 wire scr_hflip, scr_vflip;
@@ -114,12 +118,10 @@ assign shd     =  ~(pre_pxl[15:14] & {2{pen15}});
 assign prio    =  pre_pxl[13:9];
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
-assign sorted = {
-    rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
-    rom_data[14], rom_data[10], rom_data[6], rom_data[2], rom_data[30], rom_data[26], rom_data[22], rom_data[18],
-    rom_data[13], rom_data[ 9], rom_data[5], rom_data[1], rom_data[29], rom_data[25], rom_data[21], rom_data[17],
-    rom_data[12], rom_data[ 8], rom_data[4], rom_data[0], rom_data[28], rom_data[24], rom_data[20], rom_data[16]
-};
+// Simpsons, X-Men
+jtframe_8x8x4_packed_msb u_packed(rom_data, sort_packed);
+
+assign sorted = PACKED==1 ? sort_packed : rom_data;
 
 jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -172,9 +174,9 @@ jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
-    `ifdef XMEN .SHADOW(1),.SHADOW_PEN (4'd15), `endif
+    .SHADOW(SHADOW),.SHADOW_PEN(SHADOW_PEN),
     .AW(10),.CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
-    .ZW(12),.ZI(6),.ZENLARGE(1),.SW(2),.FLIP_OFFSET(9'h12)
+    .ZW(12),.ZI(6), .ZENLARGE(1),.SW(2),.FLIP_OFFSET(9'h12)
 ) u_draw(
     .rst        ( rst           ),
     .clk        ( clk           ),

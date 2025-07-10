@@ -164,7 +164,7 @@ jtframe_tilemap #(
 
 assign obj_addr[22]=0;
 
-jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
+jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

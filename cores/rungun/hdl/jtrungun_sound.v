@@ -44,7 +44,6 @@ module jtrungun_sound(
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
-`ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
                     k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
 wire        [ 3:0]  rom_hi;
@@ -89,6 +88,25 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
+jt054321 u_54321(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .maddr      ( main_addr ),
+    .mdout      ( main_dout ),
+    .mdin       ( pair_dout ),
+    .mwe        ( pair_we   ),
+
+    .saddr      ( A[1:0]    ),
+    .sdout      ( cpu_dout  ),
+    .sdin       ( latch_dout),
+    .swe        ( latch_we  ),
+
+    // Z80 bus control
+    .snd_on     ( snd_irq   ),
+    .siorq_n    ( iorq_n    ),
+    .int_n      ( int_n     )
+);
+`ifndef NOSOUND
 jtframe_sysz80 #(.RAM_AW(13), .CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -113,25 +131,6 @@ jtframe_sysz80 #(.RAM_AW(13), .CLR_INT(1)) u_cpu(
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
-);
-
-jt054321 u_54321(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .maddr      ( main_addr ),
-    .mdout      ( main_dout ),
-    .mdin       ( pair_dout ),
-    .mwe        ( pair_we   ),
-
-    .saddr      ( A[1:0]    ),
-    .sdout      ( cpu_dout  ),
-    .sdin       ( latch_dout),
-    .swe        ( latch_we  ),
-
-    // Z80 bus control
-    .snd_on     ( snd_irq   ),
-    .siorq_n    ( iorq_n    ),
-    .int_n      ( int_n     )
 );
 
 jt539 u_k54539a(
@@ -181,5 +180,8 @@ jt539 u_k54539b(
     .debug_bus  ( debug_bus ),
     .st_dout    ( stb_dout  )
 );
+`else
+assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
+       m1_n=1, mreq_n=1, rfsh_n=1, rd_n=1, wr_n=1,A=0;
 `endif
 endmodule 
