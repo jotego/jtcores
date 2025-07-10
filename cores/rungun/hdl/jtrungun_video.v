@@ -162,7 +162,7 @@ jtframe_tilemap #(
     .pxl        ( fix_pxl       )
 );
 
-jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1)) u_obj(    // sprite logic
+jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1),.K55673(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

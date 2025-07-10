@@ -72,7 +72,7 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
-parameter XMEN = 0;
+parameter XMEN = 0, K55673=0, K55673_DESC_SORT=0;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -121,7 +121,7 @@ jt053246_scan #(.XMEN(XMEN)) u_scan(
 );
 
 
-jt053246_dma u_dma(
+jt053246_dma #(.K55673(K55673),.K55673_DESC_SORT(K55673_DESC_SORT)) u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -145,7 +145,8 @@ jt053246_dma u_dma(
     .dma_wr_addr(dma_wr_addr),
     .dma_din    ( dma_din   ),
 
-    .flicker    ( flicker   )  // debug
+    .flicker    ( flicker   ), // debug
+    .debug_bus  ( debug_bus )
 );
 
 jt053246_mmr u_mmr(

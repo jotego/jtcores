@@ -17,10 +17,16 @@
     Date: 24-7-2023 */
 
 module jtsimson_obj #(parameter
-    RAMW   = 12,
-    XMEN   = 0,
-    PACKED = 1,
-    SHADOW = 0
+    RAMW      = 12,
+    XMEN      = 0,
+    PACKED    = 1,
+    SHADOW    = 0,
+    K55673    = 0,
+    // K55673 (used with K53246 on Run'n Gun) uses ascending order
+    // This is actually programmed on register 12, bit 4, but
+    // it is never changed. Other register functions are unknown
+    // so I am leaving it static for now
+    K55673_DESC_SORT = 0
 )(
     input             rst,
     input             clk,
@@ -114,8 +120,8 @@ assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
 // 053244 (parodius) has 7 palette bits, top 2 used for priority
 assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
-assign shd     =  ~(pre_pxl[15:14] & {2{pen15}});
-assign prio    =  pre_pxl[13:9];
+assign shd     =~(pre_pxl[15:14] & {2{pen15}});
+assign prio    = pre_pxl[13:9];
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
 // Simpsons, X-Men
@@ -123,7 +129,7 @@ jtframe_8x8x4_packed_msb u_packed(rom_data, sort_packed);
 
 assign sorted = PACKED==1 ? sort_packed : rom_data;
 
-jt053246 #(.XMEN(XMEN))u_scan(    // sprite logic
+jt053246 #(.XMEN(XMEN),.K55673(K55673),.K55673_DESC_SORT(K55673_DESC_SORT))u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
