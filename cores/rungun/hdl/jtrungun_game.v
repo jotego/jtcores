@@ -22,7 +22,8 @@ module jtrungun_game(
 
 wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
-wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we, sdon;
+wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we, sdon,
+            objrg_cs, objcha_n, dma_bsy;
 
 assign debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
@@ -66,6 +67,10 @@ jtrungun_main u_main(
     .joystick3      ( joystick3     ),
     .joystick4      ( joystick4     ),
     .service        ( {4{service}}  ),
+    // objects
+    .objrg_cs       ( objrg_cs      ),
+    .odma           ( dma_bsy       ),
+    .objcha_n       ( objcha_n      ),
 
     .cpal_addr      ( cpal_addr     ),
 
@@ -108,6 +113,7 @@ jtrungun_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
     .ghflip         ( ghflip        ),
     .gvflip         ( gvflip        ),
     .lrsw           ( lrsw          ),
@@ -121,13 +127,18 @@ jtrungun_video u_video(
     .vs             ( VS            ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
-    .addr           ( main_addr[4:1]),
+    .addr           (main_addr[12:1]),
     .rnw            ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
+    .cpu_dsn        ( ram_dsn       ),
     .vtimer_mmr     ( vtimer_mmr    ),
     // fixed layer
     .vram_addr      ( vram_addr     ),
     .vram_dout      ( vram_dout     ),
+    // objects
+    .objrg_cs       ( objrg_cs      ),
+    .dma_bsy        ( dma_bsy       ),
+    .objcha_n       ( objcha_n      ),
     // palette
     .pal_addr       ( pal_addr      ),
     .pal_dout       ( pal_dout      ),

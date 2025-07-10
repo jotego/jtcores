@@ -53,6 +53,10 @@ module jtrungun_main(
     output               gvflip, ghflip,
     output               pri,
     output               lrsw,
+    // Objects
+    output           reg objrg_cs,
+    output               objcha_n,
+    input                odma,
     // EEPROM
     output        [ 6:0] nv_addr,
     input         [ 7:0] nv_dout,
@@ -85,11 +89,11 @@ reg  [15:0] pmem_mux;
 reg  [ 2:0] IPLn;
 wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5, l_r,
-            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs, odma=0,
+            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
-            pslrm_cs, psvrm_cs, psreg_cs, objrg_cs, objrm_cs,
+            pslrm_cs, psvrm_cs, psreg_cs, objrm_cs,
             objch_cs, pair_cs, sdon_cs, psch_cs, rom_good, ram_good;
 
 `ifdef SIMULATION
@@ -119,6 +123,7 @@ assign psac_bank= sys2_dout[7:4];
 assign fmode    = sys2_dout[ 1];
 assign fsel     = sys2_dout[ 0];
 assign st_dout  = 0;
+assign objcha_n = ~objch_cs;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
 assign omem_we  = ~ram_dsn & {2{ objrm_cs & ~RnW}};
@@ -192,6 +197,7 @@ always @(posedge clk) begin
     ram_good  <= ram_cs & ram_ok;
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
+    // odma=0 halts the game
     cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'h0, cab2_dout};

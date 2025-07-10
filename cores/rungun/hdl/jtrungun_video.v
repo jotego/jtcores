@@ -18,7 +18,7 @@
 
 module jtrungun_video(
     input              rst, clk,
-    input              pxl_cen,
+    input              pxl_cen, pxl2_cen,
                        ghflip, gvflip, pri,
     input              lrsw,
     output             disp,
@@ -29,26 +29,31 @@ module jtrungun_video(
     output             vs,
     // CPU interface
     input              ccu_cs,   // timer
-    input       [ 3:0] addr,
+    input       [12:1] addr,
     input              rnw,
     input       [15:0] cpu_dout,
+    input       [ 1:0] cpu_dsn,
     output      [ 7:0] vtimer_mmr,
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
+    // Objects
+    input              objrg_cs, objcha_n, objrm_cs,
+    output             dma_bsy,
+    output      [15:0] objrm_dout,
     // PSAC (scroll)
     output      [20:2] scr_addr,
     input       [31:0] scr_data,
     output             scr_cs,
     input              scr_ok,
-    // Objects
+    // palette
+    output      [11:1] pal_addr,
+    input       [15:0] pal_dout,
+    // ROMs
     output      [22:2] obj_addr,
     input       [31:0] obj_data,
     output             obj_cs,
     input              obj_ok,
-    // palette
-    output      [11:1] pal_addr,
-    input       [15:0] pal_dout,
 
     output      [16:2] fix_addr,
     input       [31:0] fix_data,
@@ -61,18 +66,25 @@ module jtrungun_video(
     // Debug
     input       [ 7:0] debug_bus,
     // IOCTL dump
-    input      [3:0] ioctl_addr,
-    output     [7:0] ioctl_din
+    input     [14:0] ioctl_addr,
+    output     [7:0] ioctl_din,
+    input            ioctl_ram
 );
 
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
-wire [ 8:0] hdump, hdumpf;
+wire [ 8:0] hdump, hdumpf, obj_pxl;
 wire [ 7:0] vdump, vdumpf;
-wire [ 7:0] fix_pxl;
-wire [ 3:0] fix_pal;
+wire [ 7:0] fix_pxl, dump_obj, obj_mmr;
+wire [ 4:0] obj_prio;
+wire [ 3:0] fix_pal, ommra;
+wire [ 1:0] oram_we;
+wire        cpu_we;
 
-assign scr_addr=0, scr_cs=0, obj_addr=0, obj_cs=0;
+assign scr_addr=0, scr_cs=0;
+assign cpu_we  = ~rnw;
+assign oram_we = ~cpu_dsn & {2{~rnw}};
+assign ommra   = {cpu_addr[3:1],cpu_dsn[1]};
 
 assign vram_addr[12] = lrsw;
 assign fix_pal  = vram_dout[15:12];
@@ -100,7 +112,7 @@ jtk053252 u_k053252(
 
 
     .cs         ( ccu_cs        ),
-    .addr       ( addr          ),
+    .addr       ( addr[4:1]     ),
     .rnw        ( rnw           ),
     .din        ( cpu_dout[7:0] ),
     .dout       ( vtimer_mmr    ),
@@ -149,6 +161,53 @@ jtframe_tilemap #(
     .pxl        ( fix_pxl       )
 );
 
+jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
+
+    .simson     ( 1'b0      ),
+    // Base Video (inputs)
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    // CPU interface
+    .ram_cs     ( objrm_cs  ),
+    .ram_addr   ( addr      ),
+    .ram_din    ( cpu_dout  ),
+    .ram_we     ( oram_we   ),
+    .cpu_din    ( objrm_dout),
+
+    .reg_cs     ( objrg_cs  ),
+    .mmr_addr   ( ommra     ),
+    .mmr_din    ( cpu_dout  ),
+    .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
+    .mmr_dsn    ( cpu_dsn   ),
+
+    .dma_bsy    ( dma_bsy   ),
+    // ROM
+    .rom_addr   ( obj_addr  ),
+    .rom_data   ( obj_data  ),
+    .rom_ok     ( obj_ok    ),
+    .rom_cs     ( obj_cs    ),
+    .objcha_n   ( objcha_n  ),
+    // pixel output
+    .pxl        ( obj_pxl   ),
+    .shd        ( shadow    ),
+    .prio       ( obj_prio  ),
+    // Debug
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_addr ( ioctl_addr[13:0] ),
+    .dump_ram   ( dump_obj  ),
+    .dump_reg   ( obj_mmr   ),
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus )
+);
+
 wire [15:0] gray;
 wire [ 3:0] lo;
 assign lo =pal_addr[4:1];
@@ -169,6 +228,8 @@ jtrungun_colmix u_colmix(
     // .pal_dout   ( gray          ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
+    .obj_pxl    ( obj_pxl       ),
+    .shadow     ( shadow        ),
 
     .red        ( red           ),
     .green      ( green         ),

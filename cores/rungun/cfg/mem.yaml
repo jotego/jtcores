@@ -79,16 +79,6 @@ bram:
       din:  "{2{cpu_dout[7:0]}}"
       dout: vmem_dout
       rw: true
-  - name: oram
-    addr_width: 13
-    data_width: 16
-    ioctl: { save: true, order: 2 }
-    dual_port:
-      name: omem
-      addr: "main_addr[12:1]"
-      din:  cpu_dout
-      dout: omem_dout
-      rw: true
   - name: psac0
     addr_width: 15
     data_width: 8
