@@ -33,7 +33,7 @@ module jt053246(    // sprite logic
     input      [ 1:0] cpu_dsn,  // only used for MMR in 16-bit mode
 
     // ROM check by CPU
-    output     [21:1] rmrd_addr,
+    output     [22:1] rmrd_addr,
 
     // External RAM
     output     [13:1] dma_addr, // up to 16 kB

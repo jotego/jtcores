@@ -182,6 +182,7 @@ jt539 u_k54539b(
 );
 `else
 assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
-       m1_n=1, mreq_n=1, rfsh_n=1, rd_n=1, wr_n=1,A=0;
+       m1_n=1, mreq_n=1, rfsh_n=1, rd_n=1, wr_n=1,A=0,
+       pcma_cs=0, pcmb_cs=0;
 `endif
 endmodule 

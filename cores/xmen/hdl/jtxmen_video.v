@@ -107,7 +107,7 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
 wire [ 3:0] obj_amsb;
-wire        lyrf_blnk_n,
+wire        lyrf_blnk_n, nc,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
@@ -287,7 +287,7 @@ jtsimson_obj #(.RAMW(13), .XMEN(1), .SHADOW(1)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( lyro_addr ),
+    .rom_addr   ({nc,lyro_addr}),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),

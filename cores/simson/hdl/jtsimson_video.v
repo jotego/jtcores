@@ -194,6 +194,8 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
 
 localparam ORAMW=12;
 wire [ORAMW:1] oram_a;
+wire           nc;
+
 assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
@@ -232,18 +234,19 @@ jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     .objcha_n   ( objcha_n  ),
+`ifdef SIMSON
+    .rom_addr   ({nc,lyro_addr}),
+    .shd        ( obj_shd   ),
+`else
+    .rom_addr   ( lyro_addr ),
+    .shd        ( obj_shd[0]),
+`endif
     // pixel output
     .pxl        ( lyro_pxl  ),
-    `ifdef SIMSON
-    .shd        ( obj_shd   ),
-    `else
-    .shd        ( obj_shd[0]),
-    `endif
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),

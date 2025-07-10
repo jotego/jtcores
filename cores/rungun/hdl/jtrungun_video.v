@@ -162,8 +162,6 @@ jtframe_tilemap #(
     .pxl        ( fix_pxl       )
 );
 
-assign obj_addr[22]=0;
-
 jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -193,7 +191,7 @@ jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( obj_addr[21:2]  ),
+    .rom_addr   ( obj_addr  ),
     .rom_data   ( obj_data  ),
     .rom_ok     ( obj_ok    ),
     .rom_cs     ( obj_cs    ),

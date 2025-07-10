@@ -51,7 +51,7 @@ module jtsimson_obj #(parameter
     output            dma_bsy,
 
     // ROM addressing
-    output     [21:2] rom_addr,
+    output     [22:2] rom_addr,
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -77,7 +77,7 @@ wire [ 1:0] pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
-wire [21:1] rmrd_addr;
+wire [22:1] rmrd_addr;
 wire [13:1] dma_addr;
 wire [15:0] pre_pxl;
 
@@ -95,8 +95,8 @@ wire        pen15;
 wire scr_hflip, scr_vflip;
 
 assign rom_cs    = ~objcha_n | pre_cs;
-assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-    { pre_addr[21:7], pre_addr[5:2], pre_addr[6] };
+assign rom_addr  = !objcha_n ? rmrd_addr[22:2] :
+    { pre_addr[22:7], pre_addr[5:2], pre_addr[6] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;

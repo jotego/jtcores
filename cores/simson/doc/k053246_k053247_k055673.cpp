@@ -337,7 +337,7 @@ void k053247_device::k053247_sprites_draw_common(BitmapClass &bitmap, const rect
 	int w = count;
 	count--;
 	int h = count;
-
+	// sprite sorting
 	if (!(m_kx47_regs[0xc / 2] & 0x10))
 	{
 		// sort objects in decending order(smaller z closer) when OPSET PRI is clear
@@ -383,7 +383,7 @@ void k053247_device::k053247_sprites_draw_common(BitmapClass &bitmap, const rect
 	{
 		offs = sortedlist[count];
 
-		code = m_ram[offs + 1];
+		code = m_ram[offs + 1]; // 16 bit pointer
 		shadow = color = m_ram[offs + 6];
 		primask = 0;
 
