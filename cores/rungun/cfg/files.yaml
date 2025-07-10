@@ -9,6 +9,8 @@ simson:
     - jt053246.sv
     - jt053246_scan.sv
     - jtsimson_obj.v
+    - jt053246_dma.v
+    - jt053246_mmr.v
 jtframe:
   - get:
     - jtframe_8bit_reg.v
@@ -29,6 +31,10 @@ jtframe:
   - from: video/tilemap
     get:
       - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
 jt539:
 jteeprom:
   - get:

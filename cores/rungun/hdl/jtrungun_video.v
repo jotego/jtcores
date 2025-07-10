@@ -64,6 +64,7 @@ module jtrungun_video(
     output      [ 7:0] green,
     output      [ 7:0] blue,
     // Debug
+    input       [ 3:0] gfx_en,
     input       [ 7:0] debug_bus,
     // IOCTL dump
     input     [14:0] ioctl_addr,
@@ -78,13 +79,13 @@ wire [ 7:0] vdump, vdumpf;
 wire [ 7:0] fix_pxl, dump_obj, obj_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
-wire [ 1:0] oram_we;
+wire [ 1:0] oram_we, shadow;
 wire        cpu_we;
 
 assign scr_addr=0, scr_cs=0;
 assign cpu_we  = ~rnw;
 assign oram_we = ~cpu_dsn & {2{~rnw}};
-assign ommra   = {cpu_addr[3:1],cpu_dsn[1]};
+assign ommra   = {addr[3:1],cpu_dsn[1]};
 
 assign vram_addr[12] = lrsw;
 assign fix_pal  = vram_dout[15:12];
@@ -122,7 +123,7 @@ jtk053252 u_k053252(
     .lhbl       ( lhbl          ),
     .lvbl       ( lvbl          ),
     // IOCTL dump
-    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_addr (ioctl_addr[3:0]),
     .ioctl_din  ( ioctl_din     )
 );
 
@@ -161,6 +162,8 @@ jtframe_tilemap #(
     .pxl        ( fix_pxl       )
 );
 
+assign obj_addr[22]=0;
+
 jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -174,7 +177,7 @@ jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
+    .vdump      ({1'b1,vdump} ),
     // CPU interface
     .ram_cs     ( objrm_cs  ),
     .ram_addr   ( addr      ),
@@ -190,7 +193,7 @@ jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( obj_addr  ),
+    .rom_addr   ( obj_addr[21:2]  ),
     .rom_data   ( obj_data  ),
     .rom_ok     ( obj_ok    ),
     .rom_cs     ( obj_cs    ),
@@ -207,11 +210,6 @@ jtsimson_obj #(.XMEN(1)) u_obj(    // sprite logic
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
-
-wire [15:0] gray;
-wire [ 3:0] lo;
-assign lo =pal_addr[4:1];
-assign gray = {1'b0,{3{lo,lo[0]}}};
 
 jtrungun_colmix u_colmix(
     .rst        ( rst           ),

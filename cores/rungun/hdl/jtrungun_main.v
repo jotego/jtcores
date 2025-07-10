@@ -28,7 +28,7 @@ module jtrungun_main(
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
     output               cpu_rnw,
-    output        [ 1:0] cpal_we,  vmem_we,  omem_we, lmem_we,
+    output        [ 1:0] cpal_we,  vmem_we,  lmem_we,
     output               pmem0_we, pmem1_we, pmem2_we,
     output reg           ccu_cs,
 
@@ -54,7 +54,7 @@ module jtrungun_main(
     output               pri,
     output               lrsw,
     // Objects
-    output           reg objrg_cs,
+    output           reg objrg_cs, objrm_cs,
     output               objcha_n,
     input                odma,
     // EEPROM
@@ -93,7 +93,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
-            pslrm_cs, psvrm_cs, psreg_cs, objrm_cs,
+            pslrm_cs, psvrm_cs, psreg_cs,
             objch_cs, pair_cs, sdon_cs, psch_cs, rom_good, ram_good;
 
 `ifdef SIMULATION
@@ -126,7 +126,6 @@ assign st_dout  = 0;
 assign objcha_n = ~objch_cs;
 
 assign cpal_we  = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
-assign omem_we  = ~ram_dsn & {2{ objrm_cs & ~RnW}};
 assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 assign pmem0_we = ~LDSn    & psvrm_cs & ~RnW &  A[1];
 assign pmem1_we = ~UDSn    & psvrm_cs & ~RnW &  A[1];

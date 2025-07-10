@@ -20,14 +20,15 @@ module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+wire [15:0] omem_dout;
 wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
 wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we, sdon,
-            objrg_cs, objcha_n, dma_bsy;
+            objrg_cs, objrm_cs, objcha_n, dma_bsy;
 
 assign debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
-assign oram_addr=0, psac0_addr=0, psac1_addr=0, psac2_addr=0, line_addr=0;
+assign psac0_addr=0, psac1_addr=0, psac2_addr=0, line_addr=0;
 
 jtrungun_main u_main(
     .rst            ( rst           ),
@@ -69,6 +70,7 @@ jtrungun_main u_main(
     .service        ( {4{service}}  ),
     // objects
     .objrg_cs       ( objrg_cs      ),
+    .objrm_cs       ( objrm_cs      ),
     .odma           ( dma_bsy       ),
     .objcha_n       ( objcha_n      ),
 
@@ -79,7 +81,6 @@ jtrungun_main u_main(
     .pmem1_we       ( pmem1_we      ),
     .pmem2_we       ( pmem2_we      ),
     .lmem_we        ( lmem_we       ),
-    .omem_we        ( omem_we       ),
     .cpal_we        ( cpal_we       ),
 
     .vmem_dout      ( vmem_dout     ),
@@ -107,65 +108,6 @@ jtrungun_main u_main(
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
-);
-/* verilator tracing_off */
-jtrungun_video u_video(
-    .rst            ( rst           ),
-    .clk            ( clk           ),
-    .pxl_cen        ( pxl_cen       ),
-    .pxl2_cen       ( pxl2_cen      ),
-    .ghflip         ( ghflip        ),
-    .gvflip         ( gvflip        ),
-    .lrsw           ( lrsw          ),
-    .pri            ( pri           ),
-
-    .disp           ( disp          ),
-    // Base Video
-    .lhbl           ( LHBL          ),
-    .lvbl           ( LVBL          ),
-    .hs             ( HS            ),
-    .vs             ( VS            ),
-    // CPU interface
-    .ccu_cs         ( ccu_cs        ),   // timer
-    .addr           (main_addr[12:1]),
-    .rnw            ( cpu_rnw       ),
-    .cpu_dout       ( cpu_dout      ),
-    .cpu_dsn        ( ram_dsn       ),
-    .vtimer_mmr     ( vtimer_mmr    ),
-    // fixed layer
-    .vram_addr      ( vram_addr     ),
-    .vram_dout      ( vram_dout     ),
-    // objects
-    .objrg_cs       ( objrg_cs      ),
-    .dma_bsy        ( dma_bsy       ),
-    .objcha_n       ( objcha_n      ),
-    // palette
-    .pal_addr       ( pal_addr      ),
-    .pal_dout       ( pal_dout      ),
-
-    .fix_addr       ( fix_addr      ),
-    .fix_data       ( fix_data      ),
-    .fix_cs         ( fix_cs        ),
-    .fix_ok         ( fix_ok        ),
-
-    .scr_addr       ( scr_addr      ),
-    .scr_data       ( scr_data      ),
-    .scr_cs         ( scr_cs        ),
-    .scr_ok         ( scr_ok        ),
-
-    .obj_addr       ( obj_addr      ),
-    .obj_data       ( obj_data      ),
-    .obj_cs         ( obj_cs        ),
-    .obj_ok         ( obj_ok        ),
-    // final pixel
-    .red            ( red           ),
-    .green          ( green         ),
-    .blue           ( blue          ),
-    // Debug
-    .debug_bus      ( debug_bus     ),
-    // IOCTL dump
-    .ioctl_addr     ( ioctl_addr[3:0]),
-    .ioctl_din      ( ioctl_din     )
 );
 /* verilator tracing_off */
 jtrungun_sound u_sound(
@@ -201,6 +143,69 @@ jtrungun_sound u_sound(
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
+);
+/* verilator tracing_on */
+jtrungun_video u_video(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
+    .ghflip         ( ghflip        ),
+    .gvflip         ( gvflip        ),
+    .lrsw           ( lrsw          ),
+    .pri            ( pri           ),
+
+    .disp           ( disp          ),
+    // Base Video
+    .lhbl           ( LHBL          ),
+    .lvbl           ( LVBL          ),
+    .hs             ( HS            ),
+    .vs             ( VS            ),
+    // CPU interface
+    .ccu_cs         ( ccu_cs        ),   // timer
+    .addr           (main_addr[12:1]),
+    .rnw            ( cpu_rnw       ),
+    .cpu_dout       ( cpu_dout      ),
+    .cpu_dsn        ( ram_dsn       ),
+    .vtimer_mmr     ( vtimer_mmr    ),
+    // fixed layer
+    .vram_addr      ( vram_addr     ),
+    .vram_dout      ( vram_dout     ),
+    // objects
+    .objrg_cs       ( objrg_cs      ),
+    .objrm_cs       ( objrm_cs      ),
+    .dma_bsy        ( dma_bsy       ),
+    .objcha_n       ( objcha_n      ),
+    .objrm_dout     ( omem_dout     ),
+    // palette
+    .pal_addr       ( pal_addr      ),
+    .pal_dout       ( pal_dout      ),
+
+    .fix_addr       ( fix_addr      ),
+    .fix_data       ( fix_data      ),
+    .fix_cs         ( fix_cs        ),
+    .fix_ok         ( fix_ok        ),
+
+    .scr_addr       ( scr_addr      ),
+    .scr_data       ( scr_data      ),
+    .scr_cs         ( scr_cs        ),
+    .scr_ok         ( scr_ok        ),
+
+    .obj_addr       ( obj_addr      ),
+    .obj_data       ( obj_data      ),
+    .obj_cs         ( obj_cs        ),
+    .obj_ok         ( obj_ok        ),
+    // final pixel
+    .red            ( red           ),
+    .green          ( green         ),
+    .blue           ( blue          ),
+    // Debug
+    .gfx_en         ( gfx_en        ),
+    .debug_bus      ( debug_bus     ),
+    // IOCTL dump
+    .ioctl_ram      ( ioctl_ram     ),
+    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_din      ( ioctl_din     )
 );
 
 endmodule
