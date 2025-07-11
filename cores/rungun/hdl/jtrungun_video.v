@@ -81,18 +81,27 @@ wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
 wire        cpu_we;
+reg  [14:0] ioctl_adj;
+wire        iosel_obj, iosel_ccu;
 
-assign scr_addr=0, scr_cs=0;
-assign cpu_we  = ~rnw;
-assign oram_we = ~cpu_dsn & {2{~rnw}};
-assign ommra   = {addr[3:1],cpu_dsn[1]};
+assign scr_addr  =0, scr_cs=0;
+assign cpu_we    = ~rnw;
+assign oram_we   = ~cpu_dsn & {2{~rnw}};
+assign ommra     = {addr[3:1],cpu_dsn[1]};
 
 assign vram_addr[12] = lrsw;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 
-assign ioctl_din=!ioctl_addr[14] ? dump_obj :
-                  ioctl_addr[ 4] ? ccu_mmr  : obj_mmr;
+always @(posedge clk) begin
+    ioctl_adj <= ioctl_addr - 15'h3080;
+end
+
+assign iosel_obj=~ioctl_adj[13];
+assign iosel_ccu= ioctl_adj[13] & ioctl_adj[4];
+
+assign ioctl_din= iosel_obj ? dump_obj :
+                  iosel_ccu ? ccu_mmr  : obj_mmr;
 
 jtrungun_vtimer u_vtimer(
     .rst        ( rst           ),
@@ -126,7 +135,7 @@ jtk053252 u_k053252(
     .lhbl       ( lhbl          ),
     .lvbl       ( lvbl          ),
     // IOCTL dump
-    .ioctl_addr (ioctl_addr[3:0]),
+    .ioctl_addr ( ioctl_adj[3:0]),
     .ioctl_din  ( ccu_mmr       )
 );
 
@@ -205,7 +214,7 @@ jtsimson_obj #(.PACKED(0),.XMEN(1),.SHADOW(1),.K55673(1)) u_obj(    // sprite lo
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[13:0] ),
+    .ioctl_addr ( ioctl_adj[13:0] ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),

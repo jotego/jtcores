@@ -20,7 +20,6 @@ set_input_file() {
 split_into_parts() {
 	{{ range .Ioctl.Buses }}{{ if .Name -}}
 	# {{ .Name }} {{ .Size }} bytes ({{.SizekB}} kB)
-	echo -e "\t{{.Name}}"
 	dd if="$DUMP" of={{.Name}}.bin bs=64 count={{.Blocks}} skip={{.SkipBlocks}}
 	{{ if eq .DW 16 -}}
 	jtutil drop1    < {{.Name}}.bin > {{.Name}}_hi.bin
@@ -35,8 +34,10 @@ make_rest() {
 }
 
 run_core_specific_script() {
-	for path in . ..; do
+	local script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	for path in $script_path/. $script_path/..; do
 		if [ -x $path/rest2bin.sh ]; then
+			echo $path/rest2bin.sh
 			$path/rest2bin.sh
 			return
 		fi

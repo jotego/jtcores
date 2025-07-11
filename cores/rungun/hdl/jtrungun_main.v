@@ -333,7 +333,7 @@ jtframe_m68k u_cpu(
     assign
         gvflip    = 0,
         ghflip    = 0,
-        pri       = 0, lrsw = 0, vmem_addr = 0, cpal_addr = 0, psac_bank = 0,
+        pri       = 0, lrsw = 1, vmem_addr = 0, cpal_addr = 0, psac_bank = 0,
         vmem_we   = 0, cpu_dout = 0, ccu_cs = 0, cpal_we = 0,
         ram_we    = 0,
         cpu_rnw   = 1,

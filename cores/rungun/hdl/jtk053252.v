@@ -79,7 +79,7 @@ always @(posedge clk) begin
     end
 end
 
-jtk053252_mmr u_mmr(
+jtk053252_mmr #(.SIMFILE("ccu.bin")) u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
