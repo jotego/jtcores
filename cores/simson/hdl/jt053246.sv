@@ -78,6 +78,9 @@ parameter [9:0] HOFFSET   = 10'd62;
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
+// K55673 seems to have fewer objects. Or maybe the lower half
+// is used for the second screen on Run'n Gun (?)
+localparam [7:0] SCAN_START = K55673==1 ? 8'h80 : 8'h0;
 
 wire [15:0] scan_even, scan_odd, dma_din;
 wire [11:2] scan_addr;
@@ -93,7 +96,7 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 
-jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET)) u_scan(
+jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
     .simson    ( simson     ),

@@ -60,7 +60,8 @@ module jt053246_scan (    // sprite logic
     input      [ 7:0] debug_bus
 );
 parameter       XMEN = 0;
-parameter [9:0] HOFFSET   = 10'd62;
+parameter [7:0] SCAN_START = 8'd0;
+parameter [9:0] HOFFSET    = 10'd62;
 
 localparam [9:0] HDUMP_MIN = 10'h020,
                  HADJ      = 10'h008;
@@ -122,7 +123,7 @@ function [8:0] rd_pzoffset( input [9:0] zoom );
         2:       rd_pzoffset =  9'd3;
         3:       rd_pzoffset =  9'd2;
     endcase
-endfunction 
+endfunction
 
 always @* begin : B
     ymove     = zmove( vsz, vscl );
@@ -188,7 +189,7 @@ always @(posedge clk, posedge rst) begin : A
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
-            scan_obj <= 0;
+            scan_obj <= SCAN_START;
             scan_sub <= 0;
             indr     <= 0;
             vlatch   <= vdump;
