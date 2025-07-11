@@ -59,7 +59,8 @@ module jt053246_scan (    // sprite logic
     // Debug
     input      [ 7:0] debug_bus
 );
-parameter XMEN = 0;
+parameter       XMEN = 0;
+parameter [9:0] HOFFSET   = 10'd62;
 
 localparam [9:0] HDUMP_MIN = 10'h020,
                  HADJ      = 10'h008;
@@ -92,7 +93,7 @@ assign {vsz,hsz} = size;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - 10'd62;
+    xadj <= xoffset - HOFFSET;
     yadj <= yoffset + (XMEN==1   ? 10'h0FF :
                        simson    ? 10'h117 : 10'h107); // Vendetta
     vscl <= rd_pzoffset(vzoom[9:0]);

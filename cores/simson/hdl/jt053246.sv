@@ -72,7 +72,8 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
-parameter XMEN = 0, K55673=0, K55673_DESC_SORT=0;
+parameter       XMEN = 0, K55673=0, K55673_DESC_SORT=0;
+parameter [9:0] HOFFSET   = 10'd62;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -92,7 +93,7 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 
-jt053246_scan #(.XMEN(XMEN)) u_scan(
+jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET)) u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
     .simson    ( simson     ),

@@ -26,7 +26,8 @@ module jtsimson_obj #(parameter
     // This is actually programmed on register 12, bit 4, but
     // it is never changed. Other register functions are unknown
     // so I am leaving it static for now
-    K55673_DESC_SORT = 0
+    K55673_DESC_SORT = 0,
+    [9:0] HOFFSET   = 10'd62
 )(
     input             rst,
     input             clk,
@@ -129,7 +130,12 @@ jtframe_8x8x4_packed_msb u_packed(rom_data, sort_packed);
 
 assign sorted = PACKED==1 ? sort_packed : rom_data;
 
-jt053246 #(.XMEN(XMEN),.K55673(K55673),.K55673_DESC_SORT(K55673_DESC_SORT))u_scan(    // sprite logic
+jt053246 #(
+    .XMEN            ( XMEN             ),
+    .K55673          ( K55673           ),
+    .K55673_DESC_SORT( K55673_DESC_SORT ),
+    .HOFFSET         ( HOFFSET          )
+) u_scan (    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
