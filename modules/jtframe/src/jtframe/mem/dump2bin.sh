@@ -20,7 +20,8 @@ set_input_file() {
 split_into_parts() {
 	{{ range .Ioctl.Buses }}{{ if .Name -}}
 	# {{ .Name }} {{ .Size }} bytes ({{.SizekB}} kB)
-	dd if="$DUMP" of={{.Name}}.bin bs=256 count={{.Blocks}} skip={{.SkipBlocks}}
+	echo -e "\t{{.Name}}"
+	dd if="$DUMP" of={{.Name}}.bin bs=64 count={{.Blocks}} skip={{.SkipBlocks}}
 	{{ if eq .DW 16 -}}
 	jtutil drop1    < {{.Name}}.bin > {{.Name}}_hi.bin
 	jtutil drop1 -l < {{.Name}}.bin > {{.Name}}_lo.bin
@@ -30,7 +31,7 @@ split_into_parts() {
 }
 
 make_rest() {
-	dd if="$DUMP" of=rest.bin bs=256 skip={{.Ioctl.SkipAll}}
+	dd if="$DUMP" of=rest.bin bs=64 skip={{.Ioctl.SkipAll}}
 }
 
 run_core_specific_script() {
