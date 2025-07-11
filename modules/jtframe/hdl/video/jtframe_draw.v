@@ -60,7 +60,7 @@ module jtframe_draw#( parameter
 
 localparam [ZW-1:0] HZONE = { {ZW-1{1'b0}},1'b1} << ZI;
 
-reg      [31:0] pxl_data;
+reg      [31:0] pxl_data, data_mux;
 reg             rom_lsb;
 reg      [ 3:0] cnt;
 wire     [ 3:0] ysubf, pxl;
@@ -71,12 +71,13 @@ reg             cen=0, moveon, readon, no_zoom;
 assign ysubf   = ysub^{4{vflip}};
 assign buf_din = { pal, pxl };
 assign pxl     = hflip ?
-    { pxl_data[31], pxl_data[23], pxl_data[15], pxl_data[ 7] } :
-    { pxl_data[24], pxl_data[16], pxl_data[ 8], pxl_data[ 0] };
+    { data_mux[31], data_mux[23], data_mux[15], data_mux[ 7] } :
+    { data_mux[24], data_mux[16], data_mux[ 8], data_mux[ 0] };
 
 assign rom_addr = { code, rom_lsb^SWAPH[0], ysubf[3:0] };
-assign buf_we   = busy & ~cnt[3];
+assign buf_we   = busy & (~cnt[3] | rom_ok);
 assign hzint    = hz_cnt[ZW-1:ZI];
+assign data_mux = cnt[2:0]==0 ? rom_data : pxl_data;
 
 always @* begin
     if( ZENLARGE==1 ) begin
@@ -93,7 +94,7 @@ end
 
 always @(posedge clk) cen <= ~cen;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         rom_cs   <= 0;
         buf_addr <= 0;
@@ -119,26 +120,25 @@ always @(posedge clk, posedge rst) begin
             // cen is required when old buffer data must be preserved but it
             // slows down the process. That wait is not needed while cnt[3]
             // is high, so it can be used to gain back some time
+            if( !cnt[3] || (cnt[3] && rom_ok) ) begin
+                hz_cnt   <= nx_hz;
+                if( readon ) begin
+                    cnt      <= cnt+1'd1;
+                    pxl_data <= hflip ? data_mux << 1 : data_mux >> 1;
+                end
+                if( moveon ) buf_addr <= buf_addr+1'd1;
+                if(!cnt[3]) rom_lsb  <= ~hflip;
+                if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0; // 16 pixels
+                if( cnt[2:0]==7 && trunc==2'b10      ) busy <= 0; //  8 pixels
+                if( cnt[1:0]==3 && trunc==2'b11      ) busy <= 0; //  4 pixels
+            end
             if( rom_ok && rom_cs && cnt[3]) begin
-                pxl_data <= rom_data;
-                cnt[3]   <= 0;
+                cnt[3] <= 0;
                 if( rom_lsb^hflip ) begin
                     rom_cs <= 0;
                 end else begin
                     rom_cs <= 1;
                 end
-            end
-            if( !cnt[3] ) begin
-                hz_cnt   <= nx_hz;
-                if( readon ) begin
-                    cnt      <= cnt+1'd1;
-                    pxl_data <= hflip ? pxl_data << 1 : pxl_data >> 1;
-                end
-                if( moveon ) buf_addr <= buf_addr+1'd1;
-                rom_lsb  <= ~hflip;
-                if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0; // 16 pixels
-                if( cnt[2:0]==7 && trunc==2'b10      ) busy <= 0; //  8 pixels
-                if( cnt[1:0]==3 && trunc==2'b11      ) busy <= 0; //  4 pixels
             end
         end
     end
