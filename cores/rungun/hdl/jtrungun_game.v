@@ -112,7 +112,7 @@ jtrungun_main u_main(
 /* verilator tracing_off */
 jtrungun_sound u_sound(
     .rst            ( rst           ),
-    .clk            ( clk           ),
+    .clk            ( clk48         ),
     .cen_8          ( cen_8         ),
     .cen_pcm        ( cen_pcm       ),
 

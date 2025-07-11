@@ -282,7 +282,11 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
+`ifdef JTFRAME_SDRAM96
+    .den        ( 6'd6      ),  // denominator, 6 (16MHz)
+`else
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
+`endif
     .DTACKn     ( bus_dtackn),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),

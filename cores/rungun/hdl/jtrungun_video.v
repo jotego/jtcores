@@ -76,7 +76,7 @@ wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] hdump, hdumpf, obj_pxl;
 wire [ 7:0] vdump, vdumpf;
-wire [ 7:0] fix_pxl, dump_obj, obj_mmr;
+wire [ 7:0] fix_pxl, dump_obj, obj_mmr, ccu_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
@@ -90,6 +90,9 @@ assign ommra   = {addr[3:1],cpu_dsn[1]};
 assign vram_addr[12] = lrsw;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
+
+assign ioctl_din=!ioctl_addr[14] ? dump_obj :
+                  ioctl_addr[ 4] ? ccu_mmr  : obj_mmr;
 
 jtrungun_vtimer u_vtimer(
     .rst        ( rst           ),
@@ -124,7 +127,7 @@ jtk053252 u_k053252(
     .lvbl       ( lvbl          ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[3:0]),
-    .ioctl_din  ( ioctl_din     )
+    .ioctl_din  ( ccu_mmr       )
 );
 
 assign disp = 0;

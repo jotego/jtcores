@@ -17,7 +17,7 @@
     Date: 24-7-2023 */
 
 module jtsimson_obj #(parameter
-    RAMW      = 12,
+    RAMW      = 12, // 12 -> 8kB
     XMEN      = 0,
     PACKED    = 1,
     SHADOW    = 0,
