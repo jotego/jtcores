@@ -12,19 +12,19 @@ module k053936(
 
 	input HSYNC, VSYNC,
 	input NUCS, NLCS, NWCS,
-	output NDMA,
+	output NDMA,	// Low during line parameter RAM access
 	input NDTACK,
 
 	input NLOE,
-	output [2:0] LH,
-	output [8:0] LA,
+	output [2:0] LH, // External line parameter RAM address lower bits
+	output [8:0] LA, // External line parameter RAM address
 
-	input NOE,
-	output [12:0] X,
+	input NOE,       // OE for pixel coordinate pins
+	output [12:0] X, // pixel X coordinate
 	output XH,
-	output [12:0] Y,
+	output [12:0] Y, // pixel X coordinate
 	output YH,
-	output reg NOB
+	output reg NOB	// pixel out of bounds
 );
 
 assign {X, XH, Y, YH} = NOE ? {28{1'bz}} : {X_REG, Y_REG};
@@ -121,7 +121,7 @@ always @(*) begin
 		5'b10_010: L76 <= 4'b1101;
 		5'b10_100: L76 <= 4'b1011;
 		5'b10_110: L76 <= 4'b0111;
-    	default: L76 <= 4'b1111;
+    	default:   L76 <= 4'b1111;
 	endcase
 	
 	case({L99A, L104B, LH[2:1], N16_8 & ~LH[0]})
@@ -129,7 +129,7 @@ always @(*) begin
 		5'b10_010: M80 <= 4'b1101;
 		5'b10_100: M80 <= 4'b1011;
 		5'b10_110: M80 <= 4'b0111;
-    	default: M80 <= 4'b1111;
+    	default:   M80 <= 4'b1111;
 	endcase
 end
 

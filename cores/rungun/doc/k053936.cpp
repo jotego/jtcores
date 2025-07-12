@@ -63,10 +63,9 @@ control registers
 009 max x screen coordinate to draw to (only when enabled by register 7)
 00a min y screen coordinate to draw to (only when enabled by register 7)
 00b max y screen coordinate to draw to (only when enabled by register 7)
-00c unknown
-00d unknown
+00c H counter initial value
+00d V counter initial value
 00e unknown
-00f unknown
 
 additional control from extra RAM:
 (line*4)+0 X counter starting value / 256 (add to register 000)
