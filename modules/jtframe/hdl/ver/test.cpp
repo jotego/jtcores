@@ -737,13 +737,17 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     if ( opt!=NULL ) convert_options = opt;
     get_coremod();
     // Derive the clock speed from _JTFRAME_PLL
+    bool use96 = false;
+#if _JTFRAME_SIM96 || _JTFRAME_SDRAM96
+    use96 = true;
+#endif
+
 #ifdef _JTFRAME_PLL
     semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
-#elif _JTFRAME_SIM96 || _JTFRAME_SDRAM96
-    semi_period = (vluint64_t)(10416/2); // 96MHz
 #else
     semi_period = (vluint64_t)10416; // 48MHz
 #endif
+    if (use96) semi_period /= 2;
     fprintf(stderr,"Simulation clock period set to %d ps (%.3f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
 #ifdef _LOADROM
     download = true;
