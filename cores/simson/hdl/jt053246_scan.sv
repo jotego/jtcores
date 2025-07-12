@@ -82,6 +82,7 @@ wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
+integer     missing;
 
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
@@ -193,7 +194,14 @@ always @(posedge clk, posedge rst) begin : A
             scan_sub <= 0;
             indr     <= 0;
             vlatch   <= vdump;
-            if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
+            if( scan_obj!=0 ) begin
+                $display("Obj scan did not finish. Last obj %X",scan_obj);
+                missing <= missing + 1;
+            end
+            if(vdump==9'h1f0 && missing!=0 ) begin
+                missing <= 0;
+                $display("%d uncompleted lines",missing);
+            end
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
             case( {indr, scan_sub} )
