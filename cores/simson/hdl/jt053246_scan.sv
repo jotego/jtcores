@@ -63,8 +63,9 @@ parameter       XMEN = 0;
 parameter [7:0] SCAN_START = 8'd0;
 parameter [9:0] HOFFSET    = 10'd62;
 
-localparam [9:0] HDUMP_MIN = 10'h020,
-                 HADJ      = 10'h008;
+localparam [11:0] MAX_ZOOMIN= 3; // a value below 3 will break the "pass" scene in run&gun
+localparam [ 9:0] HDUMP_MIN = 10'h020,
+                  HADJ      = 10'h008;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
@@ -208,11 +209,9 @@ always @(posedge clk, posedge rst) begin : A
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
-                    // zcode   <= scan_even[7:0];
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
                     if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -235,6 +234,11 @@ always @(posedge clk, posedge rst) begin : A
                     { vmir, hmir } <= nx_mir;
                     { reserved, shd, attr } <= scan_even[13:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    if( hzoom < MAX_ZOOMIN ) begin
+                        { indr, scan_sub } <= 0;
+                        scan_obj <= scan_obj + 1'd1;
+                        if( last_obj ) done <= 1;
+                    end
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
@@ -267,7 +271,6 @@ always @(posedge clk, posedge rst) begin : A
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
-                            // hz_keep <= 0;
                             if( last_obj ) done <= 1;
                         end
                     end
