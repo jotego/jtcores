@@ -63,7 +63,7 @@ parameter       XMEN = 0;
 parameter [7:0] SCAN_START = 8'd0;
 parameter [9:0] HOFFSET    = 10'd62;
 
-localparam [11:0] MAX_ZOOMIN= 3; // a value below 3 will break the "pass" scene in run&gun
+localparam [11:0] MAX_ZOOMIN= 6; // a value below 3 will break the "pass" scene in run&gun
 localparam [ 9:0] HDUMP_MIN = 10'h020,
                   HADJ      = 10'h008;
 
