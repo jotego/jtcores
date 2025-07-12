@@ -23,49 +23,23 @@ module jtframe_pxlcen(
     output  pxl2_cen
 );
 
-    localparam PXLCLK = `JTFRAME_PXLCLK;
-
-    reg [3:0] m;
-    wire is_clk112, is_clk96, is_clk48, pll7000, sdram96;
-
-    assign pll7000 = `ifdef JTFRAME_PLL7000 1 `else 0 `endif ;
-    assign sdram96 = `ifdef JTFRAME_SDRAM96 1 `else 0 `endif ;
-    assign is_clk112 = sdram96 &  pll7000;
-    assign is_clk96  = sdram96 & ~pll7000;
-    assign is_clk48  =~sdram96;
-
-    initial begin
-        m = 1;
-        if(is_clk112) case(PXLCLK)
-            8: m=7;
-            6: begin $display("Cannot produce 6MHz with an integer divider at 112MHz"); $finish; end
-            default:;
-        endcase
-        if(is_clk96) case(PXLCLK)
-            8: m=6;
-            6: m=8;
-            default:;
-        endcase
-        if(is_clk48) case(PXLCLK)
-            8: m=3;
-            6: m=4;
-            default:;
-        endcase
-    end
+    localparam PXLCLK = `JTFRAME_PXLCLK,
+               CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
+               M      = (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
 
     initial begin
         if( PXLCLK!=8 && PXLCLK!=6 ) begin
             $display("JTFRAME_PXLCLK is set to %d. But that value isn't supported yet.",PXLCLK);
             $finish;
         end else begin
-            $display("jtframe_pxlcen: using %0d as clock divider", m);
+            $display("jtframe_pxlcen: using %0d as clock divider", M[3:0]);
         end
     end
 
     jtframe_frac_cen #(.WC(4),.W(2)) u_cen(
         .clk    ( clk       ),    // 48 or 96 MHz
         .n      ( 4'd1      ),
-        .m      ( m         ),
+        .m      (M[3:0]),
         .cen    ( { pxl_cen, pxl2_cen } ),
         .cenb   (           )
     );
