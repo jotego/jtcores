@@ -100,7 +100,7 @@ module jt053936(
         .lh         ( lh        ),
         .rd         ( ln_rd     ),
         .ok         ( ln_ok     ),
-        .dly        ( hs_dly    )
+        .hs_dly     ( hs_dly    )
     );
 
     jt053936_counter u_hcnt(
@@ -112,7 +112,7 @@ module jt053936(
         .hs_dly     ( hs_dly    ),
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
-        .cnt0       ( hcnt0     ),
+        .cnt0       ( xcnt0     ),
         .hmul       ( hmul      ),
         .vmul       ( vmul      ),
         .cnt        ( xsum      )
@@ -127,7 +127,7 @@ module jt053936(
         .hs_dly     ( hs_dly    ),
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
-        .cnt0       ( vcnt0     ),
+        .cnt0       ( ycnt0     ),
         .hmul       ( hmul      ),
         .vmul       ( vmul      ),
         .cnt        ( ysum      )
@@ -328,29 +328,30 @@ endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_counter(
-    input         clk,cen,hs,hs_dly,vs,ln_en,
-    input  [15:0] hstep, vstep,cnt0,
-    input  [ 1:0] hmul, vmul,
-    output [23:0] cnt
+    input             clk,cen,hs,hs_dly,vs,ln_en,
+    input      [15:0] hstep, vstep,cnt0,
+    input      [ 1:0] hmul, vmul,
+    output reg [23:0] cnt
 );
-    reg [23:0] eff_hstep, eff_vstep, mux, sum, prev;
-    wire up = ln_en ? vs : hs_dly;
+    reg [23:0] eff_hstep, eff_vstep, mux;
+    reg        hs_mx;
+    wire up    = ln_en ? hs_dly : vs;
 
     always @(posedge clk) if(cen) begin
         if(up) begin
             eff_hstep <= hmul[0] ? {hstep,8'd0} : {{8{hmul[1]}},hstep};
             eff_vstep <= vmul[0] ? {vstep,8'd0} : {{8{vmul[1]}},vstep};
         end
-        cnt <= sum;
+        hs_mx <= ln_en ? hs_dly : hs;
+        cnt   <= mux + cnt;
     end
 
     always @* begin
-        case({hs, vs})
+        case({hs_mx, vs})
             2'b00:   mux = eff_hstep;
             2'b10:   mux = eff_vstep;
             2'b01:   mux = {cnt0,8'd0};
             default: mux = 0;
         endcase
-        sum  = mux + prev;
     end
 endmodule
