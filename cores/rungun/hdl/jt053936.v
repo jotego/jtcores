@@ -38,20 +38,21 @@ module jt053936(
     output          xh,
     output   [12:0] y,
     output          yh,
-    output      reg nob,
+    output          ob, // out of bonds, original pin: NOB
     // IOCTL dump
     input      [4:0] ioctl_addr,
     output reg [7:0] ioctl_din
 );
+    wire [23:0] xsum, ysum;
     reg  [15:0] mmr[0:15]; // used (real) registers are aliased as wires
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
     wire [ 9:0] xmin,  xmax, hcnt0, h;
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v, ln;
     wire [ 1:0] xmul,  ymul;
     wire [ 5:0] xclip, yclip;
-    wire        ln_en, ob_n;
-    wire [ 1:0] ob_cfg, ob_dly;
-    wire        nulwin, tick_hs, tick_vs, xout, yout, xyout;
+    wire        ln_en;
+    wire [ 5:0] ob_cfg;
+    wire        nulwin, tick_hs, tick_vs;
     integer k;
 
     assign io_mux = mmr[ioctl_addr[4:1]];
@@ -66,10 +67,7 @@ module jt053936(
     assign xclip  = mmr[ 6][ 5: 0];
     assign yclip  = mmr[ 6][13: 8];
     assign ln_en  = mmr[ 7][6];
-    assign ob_n   = mmr[ 7][5];
-    assign ob_cfg = mmr[ 7][4:3];
-    assign nulwin = mmr[ 7][2];
-    assign ob_dly = mmr[ 7][1:0];
+    assign ob_cfg = mmr[ 7][5:0];
     assign xmin   = mmr[ 8][9:0];
     assign xmax   = mmr[ 9][9:0];
     assign ymax   = mmr[10][8:0];
@@ -79,12 +77,31 @@ module jt053936(
     assign ln0    = mmr[14][8:0];
 
     assign dma_n  = !ln_en;
-    assign xyout  = xout & yout;
 
     jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
     jt053936_video_counters u_vid(clk,cen,tick_hs,tick_vs,vcnt0,ln0,hcnt0,v,ln,h);
-    jt053936_window #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmin,xmax,xout);
-    jt053936_window #( 9) u_vwin(clk,cen,tick_vs,nulwin,v,ymin,ymax,yout);
+
+    jt053936_window u_window(
+        .clk        ( clk       ),
+        .cen        ( cen       ),
+        .cfg        ( ob_cfg    ),
+
+        .tick_hs    ( tick_hs   ),
+        .tick_vs    ( tick_vs   ),
+
+        .h          ( h         ),
+        .xmin       ( xmin      ),
+        .xmax       ( xmax      ),
+        .xclip      ( xclip     ),
+        .xsum       (xsum[23:18]),
+
+        .v          ( v         ),
+        .ymin       ( ymin      ),
+        .ymax       ( ymax      ),
+        .yclip      ( yclip     ),
+        .ysum       (ysum[23:18]),
+        .ob         ( ob        )
+    );
 
     task mmr_write();
         if( !dsn[0] ) mmr[addr][ 7:0] <= din[ 7:0];
@@ -131,39 +148,99 @@ endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_video_counters(
-    input            clk, cen, ticks_hs, ticks_vs,
+    input            clk, cen, tick_hs, tick_vs,
     input      [8:0] v0, ln0,
     input      [9:0] h0,
     output reg [8:0] v, ln,
     output reg [9:0] h
 );
     always @(posedge clk) if(cen) begin
-        h  <= ticks_hs ?  h0 : h0+10'd1;
-        v  <= ticks_vs ?  v0 : ticks_hs ?  v+9'd1 :  v;
-        ln <= ticks_vs ? ln0 : ticks_hs ? ln+9'd1 : ln;
+        h  <= tick_hs ?  h0 : h0+10'd1;
+        v  <= tick_vs ?  v0 : tick_hs ?  v+9'd1 :  v;
+        ln <= tick_vs ? ln0 : tick_hs ? ln+9'd1 : ln;
     end
 endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_window #(parameter W=9)(
+    input         clk, cen, tick_hs, tick_vs,
+    input [9:0]   h, xmin,  xmax,
+    input [8:0]   v, ymin,  ymax,
+    input [5:0]   xclip, yclip,
+    input [23:18] xsum,  ysum,
+    // config bits
+    input [5:0]   cfg,
+    output reg    ob  // out of bounds (active high)
+);
+    reg  [2:0] sh;
+    wire       xout, yout, xyout, obx_n, oby_n, ob_mix_n;
+    reg        ob_win, ob_dly;
+
+    wire    ob_en  = cfg[5];
+    wire    ob_dis = cfg[4];
+    wire    invert = cfg[3];
+    wire    nulwin = cfg[2];
+    wire [1:0] dly = cfg[1:0];
+
+    assign xyout    = xout & yout;
+    assign ob_mix_n = ~|{obx_n, oby_n, ob_win};
+
+    jt053936_outside #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmin,xmax,xout);
+    jt053936_outside #( 9) u_vwin(clk,cen,tick_vs,nulwin,v,ymin,ymax,yout);
+    jt053936_clip         u_xclip(xclip,xsum,obx_n);
+    jt053936_clip         u_yclip(yclip,ysum,oby_n);
+
+    always @(posedge clk) if(cen) begin
+        if( !ob_en ) begin
+            ob_win <= 1;
+        end else begin
+            ob_win <= ~(ob_dis | (xyout^invert));
+        end
+    end
+
+    always @* begin
+        case(dly)
+            0: ob_dly = ob_mix_n;
+            1: ob_dly = sh[0];
+            2: ob_dly = sh[1];
+            3: ob_dly = sh[2];
+        endcase
+    end
+
+    always @(posedge clk) if(cen) begin
+        sh <=  {sh[1:0],ob_mix_n};
+        ob <= ~ob_dly;
+    end
+endmodule
+
+/////////////////////////////////////////////////////
+module jt053936_outside #(parameter W=9)(
     input         clk, cen, s_edge, nulwin,
     input [W-1:0] cnt, min,  max,
     output reg    outside
 );
 
-localparam [1:0] MAX=2'b01,MIN=2'b10,BOTH=2'b00,NONE=2'b11;
+    localparam [1:0] MAX=2'b01,MIN=2'b10,BOTH=2'b00,NONE=2'b11;
 
-wire [1:0] hit;
+    wire [1:0] hit;
 
-assign hit = {cnt==min,cnt==max};
+    assign hit = {cnt==min,cnt==max};
 
-always @(posedge clk) if(cen) begin
-    case(hit)
-        MIN:  outside <= 0;
-        MAX:  outside <= 1;
-        BOTH: outside <= 0;
-        NONE: if(s_edge) outside <= nulwin;
-    endcase
-end
+    always @(posedge clk) if(cen) begin
+        case(hit)
+            MIN:  outside <= 0;
+            MAX:  outside <= 1;
+            BOTH: outside <= 0;
+            NONE: if(s_edge) outside <= nulwin;
+        endcase
+    end
+endmodule
 
+/////////////////////////////////////////////////////
+module jt053936_clip(
+    input [5:0] clip, sum,
+    output      hitn
+);
+    wire [5:0] adj = { ~sum[5], {5{~&{sum[5],clip[5]}}}^sum[4:0] };
+    assign hitn = ~&{ clip | adj };
 endmodule
