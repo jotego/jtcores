@@ -17,6 +17,12 @@
     Date: 12-7-2025 */
 
 // Based on Furrtek's module (see the original in the doc folder)
+// The original chip can operate with both a 16-bit interface and an 8-bit
+// interface by setting the N16_8 pin low (16) or high (8)
+// This affected the use of the data bus pins and the LH part of the
+// line address RAM.
+// MAME only seems to implement the 16-bit interface, so it might have
+// been the only one used on commercial games.
 
 module jt053936(
     input           rst, clk, cen,
@@ -29,8 +35,8 @@ module jt053936(
     input    [ 1:0] dsn,
     output          dma_n,
 
-    input    [15:0] ldin,        // shared with CPU data pins on original
-    output   [ 2:0] lh,
+    input    [15:0] ldout,       // shared with CPU data pins on original
+    output   [ 2:1] lh,          // lh[0] always zero for 16-bit memories
     output   [ 8:0] la,
 
     input           noe,
@@ -50,7 +56,7 @@ module jt053936(
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v;
     wire [ 1:0] xmul,  ymul;
     wire [ 5:0] xclip, yclip;
-    wire        ln_en;
+    wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
     wire        nulwin, tick_hs, tick_vs;
     integer k;
@@ -76,10 +82,25 @@ module jt053936(
     assign vcnt0  = mmr[13][8:0];
     assign ln0    = mmr[14][8:0];
 
-    assign dma_n  = !ln_en;
+    assign dma_n  = ln_rd || !ln_en;
 
     jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
-    jt053936_video_counters u_vid(clk,cen,tick_hs,tick_vs,vcnt0,ln0,hcnt0,v,la,h);
+    jt053936_video_counters u_vid(clk,cen,tick_hs,tick_vs,vcnt0,hcnt0,v,h);
+
+    jt053936_line_ram u_line_ram(
+        .clk        ( clk       ),
+        .cen        ( cen       ),
+        .dtackn     ( dtackn    ),
+
+        .tick_hs    ( tick_hs   ),
+        .tick_vs    ( tick_vs   ),
+
+        .ln0        ( ln0       ),
+        .la         ( la        ),
+        .lh         ( lh        ),
+        .rd         ( ln_rd     ),
+        .ok         ( ln_ok     )
+    );
 
     jt053936_window u_window(
         .clk        ( clk       ),
@@ -118,6 +139,12 @@ module jt053936(
                 default: mmr_write;
             endcase
             // add logic for ln_en reads into mmr[2~5]
+            if(ln_ok) case(lh)
+                0: mmr[2] <= ldout;
+                1: mmr[3] <= ldout;
+                2: mmr[4] <= ldout;
+                3: mmr[5] <= ldout;
+            endcase
         end
     end
 
@@ -164,14 +191,19 @@ endmodule
 module jt053936_line_ram(
     input            clk, cen, tick_hs, tick_vs, dtackn,
     input      [8:0] ln0,
-    output reg [8:0] ln,
-    output reg [2:0] lh
+    output reg [8:0] la,
+    output     [2:1] lh,
+    output           rd, ok
 );
     reg [3:0] cnt;
 
+    assign lh     = cnt[2:1];
+    assign rd     =~cnt[3];
+    assign ok   = rd & ~dtackn;
+
     always @(posedge clk) if(cen) begin
-        ln  <= tick_vs ? ln0  : tick_hs ? ln +9'd1 : ln;
-        cnt <= tick_hs ? 4'd0 : cnt_up  ? cnt+4'd1 : cnt;
+        la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
+        cnt <= tick_hs ? 4'd0 : ok      ? cnt+4'd1 : cnt;
     end
 endmodule
 

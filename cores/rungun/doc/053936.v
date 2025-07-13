@@ -113,25 +113,25 @@ assign L103A = N16_8 & ~LH[0];
 assign NDMA = LNRD_n | ~REGL7[6];
 
 assign LNOK = ~|{LNRD_n, NDTACK};	// Uses a delay cell
-assign L99A = LNOK & REGL7[6];
+assign L99A = LNOK & REGL7[6]; //  REGL7[6] = line RAM enable
 
 reg [3:0] L76;
 reg [3:0] M80;
 always @(*) begin
-	case({L99A, LNRD_n, LH})
-		5'b10_000: L76 <= 4'b1110;
-		5'b10_010: L76 <= 4'b1101;
-		5'b10_100: L76 <= 4'b1011;
-		5'b10_110: L76 <= 4'b0111;
-    	default:   L76 <= 4'b1111;
-	endcase
-	
-	case({L99A, LNRD_n, LH[2:1], N16_8 & ~LH[0]})
+	({L99A, LNRD_n, LH[2:1], N16_8 & ~LH[0]}) // reads lower 8 bits
 		5'b10_000: M80 <= 4'b1110;
 		5'b10_010: M80 <= 4'b1101;
 		5'b10_100: M80 <= 4'b1011;
 		5'b10_110: M80 <= 4'b0111;
     	default:   M80 <= 4'b1111;
+	endcase
+
+	case({L99A, LNRD_n, LH})		// reads upper 8 bits from RAM
+		5'b10_000: L76 <= 4'b1110;
+		5'b10_010: L76 <= 4'b1101;
+		5'b10_100: L76 <= 4'b1011;
+		5'b10_110: L76 <= 4'b0111;
+    	default:   L76 <= 4'b1111;
 	endcase
 end
 
