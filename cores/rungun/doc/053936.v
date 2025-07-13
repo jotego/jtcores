@@ -7,7 +7,7 @@ module k053936(
 	input CLK,
 
 	input [15:0] D,
-	input [4:1] A,
+	input [ 4:1] A,
     // compatibility with 8-bit CPUs (high)
     // leave low for 16-bit bus writes
 	input N16_8,
@@ -98,27 +98,27 @@ always @(posedge CLK) begin
 	NOB <= OOB_DELAYED;
 end
 
-reg [3:0] M95;
+reg [3:0] LHCNT;
 always @(posedge CLK) begin
     if (!TICK_HSn)
-    	M95 <= 4'd0;
-    else if (L105B)
-    	M95 <= M95 + 1'b1;
+    	LHCNT <= 4'd0;
+    else if (LNOK)
+    	LHCNT <= LHCNT + 1'b1;
 end
 
 wire [2:0] LH_SEL;
-assign {L104B, LH_SEL} = N16_8 ? M95 : {M95[2:0], 1'b0};
+assign {LNRD_n, LH_SEL} = N16_8 ? LHCNT : {LHCNT[2:0], 1'b0};
 assign L103A = N16_8 & ~LH[0];
 
-assign NDMA = L104B | ~REGL7[6];
+assign NDMA = LNRD_n | ~REGL7[6];
 
-assign L105B = ~|{L104B, NDTACK};	// Uses a delay cell
-assign L99A = L105B & REGL7[6];
+assign LNOK = ~|{LNRD_n, NDTACK};	// Uses a delay cell
+assign L99A = LNOK & REGL7[6];
 
 reg [3:0] L76;
 reg [3:0] M80;
 always @(*) begin
-	case({L99A, L104B, LH})
+	case({L99A, LNRD_n, LH})
 		5'b10_000: L76 <= 4'b1110;
 		5'b10_010: L76 <= 4'b1101;
 		5'b10_100: L76 <= 4'b1011;
@@ -126,7 +126,7 @@ always @(*) begin
     	default:   L76 <= 4'b1111;
 	endcase
 	
-	case({L99A, L104B, LH[2:1], N16_8 & ~LH[0]})
+	case({L99A, LNRD_n, LH[2:1], N16_8 & ~LH[0]})
 		5'b10_000: M80 <= 4'b1110;
 		5'b10_010: M80 <= 4'b1101;
 		5'b10_100: M80 <= 4'b1011;
