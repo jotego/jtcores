@@ -41,7 +41,7 @@ module jt053936(
     output      reg nob,
     // IOCTL dump
     input      [4:0] ioctl_addr,
-    output reg [7:0] ioctl_din,
+    output reg [7:0] ioctl_din
 );
     reg  [15:0] mmr[0:15]; // used (real) registers are aliased as wires
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
@@ -81,10 +81,10 @@ module jt053936(
     assign dma_n  = !ln_en;
     assign xyout  = xout & yout;
 
-    jt053936_ticks u_ticks(clk,hs,vs,tick_hs,tick_vs);
-    jt053936_video_counters u_vid(clk,cen, hs_edge,vs_edge,vcnt0,ln0,hcnt0,v,ln,h);
-    jt053936_window #(10) u_hwin(clk,cen,hs_edge,h,xmin,xmax,xout);
-    jt053936_window #( 9) u_vwin(clk,cen,vs_edge,v,ymin,ymax,yout);
+    jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
+    jt053936_video_counters u_vid(clk,cen,tick_hs,tick_vs,vcnt0,ln0,hcnt0,v,ln,h);
+    jt053936_window #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmin,xmax,xout);
+    jt053936_window #( 9) u_vwin(clk,cen,tick_vs,nulwin,v,ymin,ymax,yout);
 
     task mmr_write();
         if( !dsn[0] ) mmr[addr][ 7:0] <= din[ 7:0];
@@ -112,7 +112,7 @@ endmodule
 /////////////////////////////////////////////////////
 module jt053936_ticks(
     // keep port order
-    input      clk,hs,vs,
+    input      clk,cen,hs,vs,
     output reg tick_hs,tick_vs
 );
     reg [1:0] hs_l, vs_l;
@@ -131,16 +131,16 @@ endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_video_counters(
-    input            clk, cen, hs_edge, vs_edge,
+    input            clk, cen, ticks_hs, ticks_vs,
     input      [8:0] v0, ln0,
     input      [9:0] h0,
     output reg [8:0] v, ln,
     output reg [9:0] h
 );
     always @(posedge clk) if(cen) begin
-        h  <= hs_edge ?  h0 : h0+10'd1;
-        v  <= vs_edge ?  v0 : hs_edge ?  v+9'd1 :  v;
-        ln <= vs_edge ? ln0 : hs_edge ? ln+9'd1 : ln;
+        h  <= ticks_hs ?  h0 : h0+10'd1;
+        v  <= ticks_vs ?  v0 : ticks_hs ?  v+9'd1 :  v;
+        ln <= ticks_vs ? ln0 : ticks_hs ? ln+9'd1 : ln;
     end
 endmodule
 
