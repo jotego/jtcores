@@ -39,12 +39,11 @@ module jt053936(
     output   [ 2:1] lh,          // lh[0] always zero for 16-bit memories
     output   [ 8:0] la,
 
-    input           noe,
-    output   [12:0] x,
-    output          xh,
-    output   [12:0] y,
-    output          yh,
-    output          ob, // out of bonds, original pin: NOB
+    output reg [12:0] x,
+    output            xh,
+    output reg [12:0] y,
+    output            yh,
+    output            ob, // out of bonds, original pin: NOB
     // IOCTL dump
     input      [4:0] ioctl_addr,
     output reg [7:0] ioctl_din
@@ -159,6 +158,11 @@ module jt053936(
         if( !dsn[0] ) mmr[addr][ 7:0] <= din[ 7:0];
         if( !dsn[1] ) mmr[addr][15:8] <= din[15:8];
     endtask
+
+    always @(posedge clk) if(cen) begin
+        {x,xh} <= xsum[23:10];
+        {y,yh} <= ysum[23:10];
+    end
 
     always @(posedge clk) begin
         if( rst ) begin
