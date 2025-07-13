@@ -54,11 +54,11 @@ module jt053936(
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
     wire [ 9:0] xmin,  xmax, hcnt0, h;
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v;
-    wire [ 1:0] xmul,  ymul;
+    wire [ 1:0] hmul,  vmul;
     wire [ 5:0] xclip, yclip;
     wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
-    wire        nulwin, tick_hs, tick_vs;
+    wire        nulwin, tick_hs, tick_vs, hs_dly;
     integer k;
 
     assign io_mux = mmr[ioctl_addr[4:1]];
@@ -68,8 +68,8 @@ module jt053936(
     assign yvstep = mmr[ 3]; // external RAM when ln_en is set
     assign xhstep = mmr[ 4]; //
     assign yhstep = mmr[ 5]; //
-    assign xmul   = mmr[ 6][ 7: 6];
-    assign ymul   = mmr[ 6][15:14];
+    assign hmul   = mmr[ 6][ 7: 6];
+    assign vmul   = mmr[ 6][15:14];
     assign xclip  = mmr[ 6][ 5: 0];
     assign yclip  = mmr[ 6][13: 8];
     assign ln_en  = mmr[ 7][6];
@@ -99,7 +99,38 @@ module jt053936(
         .la         ( la        ),
         .lh         ( lh        ),
         .rd         ( ln_rd     ),
-        .ok         ( ln_ok     )
+        .ok         ( ln_ok     ),
+        .dly        ( hs_dly    )
+    );
+
+    jt053936_counter u_hcnt(
+        .clk        ( clk       ),
+        .cen        ( cen       ),
+        .ln_en      ( ln_en     ),
+        .vs         ( tick_vs   ),
+        .hs         ( tick_hs   ),
+        .hs_dly     ( hs_dly    ),
+        .hstep      ( xhstep    ),
+        .vstep      ( xvstep    ),
+        .cnt0       ( hcnt0     ),
+        .hmul       ( hmul      ),
+        .vmul       ( vmul      ),
+        .cnt        ( xsum      )
+    );
+
+    jt053936_counter u_vcnt(
+        .clk        ( clk       ),
+        .cen        ( cen       ),
+        .ln_en      ( ln_en     ),
+        .vs         ( tick_vs   ),
+        .hs         ( tick_hs   ),
+        .hs_dly     ( hs_dly    ),
+        .hstep      ( yhstep    ),
+        .vstep      ( yvstep    ),
+        .cnt0       ( vcnt0     ),
+        .hmul       ( hmul      ),
+        .vmul       ( vmul      ),
+        .cnt        ( ysum      )
     );
 
     jt053936_window u_window(
@@ -193,17 +224,20 @@ module jt053936_line_ram(
     input      [8:0] ln0,
     output reg [8:0] la,
     output     [2:1] lh,
-    output           rd, ok
+    output           rd, ok, hs_dly
 );
     reg [3:0] cnt;
+    reg [7:0] dly;
 
     assign lh     = cnt[2:1];
     assign rd     =~cnt[3];
-    assign ok   = rd & ~dtackn;
+    assign ok     = rd & ~dtackn;
+    assign hs_dly = dly[7];
 
     always @(posedge clk) if(cen) begin
         la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
         cnt <= tick_hs ? 4'd0 : ok      ? cnt+4'd1 : cnt;
+        dly <= tick_hs ? 8'd1 : dly<<1;
     end
 endmodule
 
@@ -290,4 +324,33 @@ module jt053936_clip(
 );
     wire [5:0] adj = { ~sum[5], {5{~&{sum[5],clip[5]}}}^sum[4:0] };
     assign hitn = ~&{ clip | adj };
+endmodule
+
+/////////////////////////////////////////////////////
+module jt053936_counter(
+    input         clk,cen,hs,hs_dly,vs,ln_en,
+    input  [15:0] hstep, vstep,cnt0,
+    input  [ 1:0] hmul, vmul,
+    output [23:0] cnt
+);
+    reg [23:0] eff_hstep, eff_vstep, mux, sum, prev;
+    wire up = ln_en ? vs : hs_dly;
+
+    always @(posedge clk) if(cen) begin
+        if(up) begin
+            eff_hstep <= hmul[0] ? {hstep,8'd0} : {{8{hmul[1]}},hstep};
+            eff_vstep <= vmul[0] ? {vstep,8'd0} : {{8{vmul[1]}},vstep};
+        end
+        cnt <= sum;
+    end
+
+    always @* begin
+        case({hs, vs})
+            2'b00:   mux = eff_hstep;
+            2'b10:   mux = eff_vstep;
+            2'b01:   mux = {cnt0,8'd0};
+            default: mux = 0;
+        endcase
+        sum  = mux + prev;
+    end
 endmodule

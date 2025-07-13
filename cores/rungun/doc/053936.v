@@ -140,7 +140,7 @@ end
 
 wire L116 = L132_QC;	// Todo: Check
 
-wire L114B = CLK | (REGL7[6] ? hs_edge_n : TICK_VSn);
+wire L114B = CLK | (REGL7[6] ? hs_edge_n : TICK_VSn); // REGL7[6] = line RAM enable
 wire F159  = CLK | (REGL7[6] ? TICK_VSn: L116);	// Uses a delay cell
 
 // Really duplicated logic ?
@@ -290,10 +290,10 @@ end
 reg [23:0] MUX_X;
 always @(*) begin
 	case({H104A, H131A, H100A})
-    	3'b100: MUX_X <= XMUX_REG_A;	// H152A
-    	3'b010: MUX_X <= XMUX_REG_B;	// J152A
-    	3'b001: MUX_X <= {REGU0, REGL0, 8'd0};
-    	default: MUX_X <= 24'd0;	// Shouldn't happen
+    	3'b100:  MUX_X = XMUX_REG_A;	// H152A
+    	3'b010:  MUX_X = XMUX_REG_B;	// J152A
+    	3'b001:  MUX_X = {REGU0, REGL0, 8'd0};
+    	default: MUX_X = 24'd0;	// Shouldn't happen
 	endcase
 end
 
