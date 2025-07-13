@@ -53,7 +53,7 @@ sdram:
     - buses:
         - name: scr
           addr_width: 21
-          data_width: 32
+          data_width:  8
         - name: fix
           addr_width: 17
           data_width: 32
@@ -91,6 +91,7 @@ bram:
   - name: psac0
     addr_width: 15
     data_width: 8
+    addr: psac_addr
     # ioctl: { save: true, order: 3 }
     dual_port:
       name: pmem0
@@ -101,6 +102,7 @@ bram:
   - name: psac1
     addr_width: 15
     data_width: 8
+    addr: psac_addr
     # ioctl: { save: true, order: 4 }
     dual_port:
       name: pmem1
@@ -111,6 +113,7 @@ bram:
   - name: psac2
     addr_width: 15
     data_width: 8
+    addr: psac_addr
     # ioctl: { save: true, order: 5 }
     dual_port:
       name: pmem2

@@ -20,15 +20,16 @@ module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+wire [23:0] psrm_dout;
 wire [15:0] omem_dout;
 wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
-wire        lrsw, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we, sdon,
-            objrg_cs, objrm_cs, objcha_n, dma_bsy;
+wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
+            sdon, objrg_cs, objrm_cs, objcha_n, dma_bsy;
 
 assign debug_view=0;
 assign dip_flip = ghflip ^ gvflip;
-assign psac0_addr=0, psac1_addr=0, psac2_addr=0, line_addr=0;
+assign psrm_dout = {psac2_dout,psac1_dout,psac0_dout};
 
 jtrungun_main u_main(
     .rst            ( rst           ),
@@ -91,6 +92,7 @@ jtrungun_main u_main(
     .omem_dout      ( omem_dout     ),
     .cpal_dout      ( cpal_dout     ),
 
+    .psreg_cs       ( psac_cs       ),
     .ccu_cs         ( ccu_cs        ), // video timer
     // EEPROM
     .nv_addr        ( nvram_addr    ),
@@ -163,6 +165,7 @@ jtrungun_video u_video(
     .vs             ( VS            ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
+    .psac_cs        ( psac_cs       ),
     .addr           (main_addr[12:1]),
     .rnw            ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
@@ -185,6 +188,13 @@ jtrungun_video u_video(
     .fix_data       ( fix_data      ),
     .fix_cs         ( fix_cs        ),
     .fix_ok         ( fix_ok        ),
+
+    // PSAC
+    .line_addr      ( line_addr     ),
+    .line_dout      ( line_dout     ),
+
+    .psrm_addr      ( psac_addr     ),
+    .psrm_dout      ( psrm_dout     ),
 
     .scr_addr       ( scr_addr      ),
     .scr_data       ( scr_data      ),

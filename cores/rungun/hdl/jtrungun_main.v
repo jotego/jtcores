@@ -30,7 +30,7 @@ module jtrungun_main(
     output               cpu_rnw,
     output        [ 1:0] cpal_we,  vmem_we,  lmem_we,
     output               pmem0_we, pmem1_we, pmem2_we,
-    output reg           ccu_cs,
+    output reg           ccu_cs, psreg_cs,
 
     output        [11:1] cpal_addr,
     output        [12:1] vmem_addr,
@@ -93,7 +93,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
-            pslrm_cs, psvrm_cs, psreg_cs,
+            pslrm_cs, psvrm_cs,
             objch_cs, pair_cs, sdon_cs, psch_cs, rom_good, ram_good;
 
 `ifdef SIMULATION

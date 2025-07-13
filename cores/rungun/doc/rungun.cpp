@@ -360,7 +360,7 @@ TILE_GET_INFO_MEMBER(rungun_state::get_rng_936_tile_info)
 {
 	uint32_t base_addr = (uintptr_t)tilemap.user_data();
 	int tileno, colour, flipx;
-
+	// m_psac2_vram 16-bit pointer
 	tileno = m_psac2_vram[tile_index * 2 + 1 + base_addr] & 0x3fff;
 	flipx = (m_psac2_vram[tile_index * 2 + 1 + base_addr] & 0xc000) >> 14;
 	colour = 0x10 + (m_psac2_vram[tile_index * 2 + base_addr] & 0x000f);

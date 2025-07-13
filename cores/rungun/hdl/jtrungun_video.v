@@ -29,6 +29,7 @@ module jtrungun_video(
     output             vs,
     // CPU interface
     input              ccu_cs,   // timer
+    input              psac_cs,
     input       [12:1] addr,
     input              rnw,
     input       [15:0] cpu_dout,
@@ -41,9 +42,15 @@ module jtrungun_video(
     input              objrg_cs, objcha_n, objrm_cs,
     output             dma_bsy,
     output      [15:0] objrm_dout,
+    // PSAC Lines
+    output      [10:1] line_addr,
+    input       [15:0] line_dout,
+    // Tile map
+    output      [14:0] psrm_addr,
+    input       [23:0] psrm_dout,
     // PSAC (scroll)
-    output      [20:2] scr_addr,
-    input       [31:0] scr_data,
+    output      [20:0] scr_addr,
+    input       [ 7:0] scr_data,
     output             scr_cs,
     input              scr_ok,
     // palette
@@ -75,14 +82,14 @@ module jtrungun_video(
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] hdump, hdumpf, obj_pxl;
-wire [ 7:0] vdump, vdumpf;
-wire [ 7:0] fix_pxl, dump_obj, obj_mmr, ccu_mmr;
+wire [ 7:0] vdump, vdumpf, scr_pxl;
+wire [ 7:0] fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
 wire        cpu_we;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu;
+wire        iosel_obj, iosel_ccu, iosel_psc;
 
 assign scr_addr  =0, scr_cs=0;
 assign cpu_we    = ~rnw;
@@ -90,6 +97,7 @@ assign oram_we   = ~cpu_dsn & {2{~rnw}};
 assign ommra     = {addr[3:1],cpu_dsn[1]};
 
 assign vram_addr[12] = lrsw;
+assign psrm_addr[14] = lrsw;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 
@@ -98,10 +106,12 @@ always @(posedge clk) begin
 end
 
 assign iosel_obj=~ioctl_adj[13];
-assign iosel_ccu= ioctl_adj[13] & ioctl_adj[4];
+assign iosel_ccu= ioctl_adj[13] && ioctl_adj[5:4]==1,
+       iosel_psc= ioctl_adj[13] && ioctl_adj[5:4]==2;
 
 assign ioctl_din= iosel_obj ? dump_obj :
-                  iosel_ccu ? ccu_mmr  : obj_mmr;
+                  iosel_ccu ? ccu_mmr  :
+                  iosel_psc ? psac_mmr : obj_mmr; // obj is dumped before ccu and psac
 
 jtrungun_vtimer u_vtimer(
     .rst        ( rst           ),
@@ -172,6 +182,38 @@ jtframe_tilemap #(
     .rom_ok     ( fix_ok        ), // zeros used if rom_ok is not high in time
 
     .pxl        ( fix_pxl       )
+);
+
+jtrungun_psac u_psac(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+    .dtackn     ( 1'b0      ),
+
+    .cs         ( psac_cs   ), // cs always writes
+    .din        ( cpu_dout  ),
+    .addr       ( addr[4:1] ),
+    .dsn        ( cpu_dsn   ),
+    .dma_n      (           ),
+
+    .vram_addr  ( psrm_addr[13:0] ),
+    .vram_dout  ( psrm_dout ),
+
+    .line_addr  ( line_addr ),
+    .line_dout  ( line_dout ),
+
+    // Tiles
+    .rom_addr   ( scr_addr  ),
+    .rom_data   ( scr_data  ),
+    .rom_cs     ( scr_cs    ),
+    .rom_ok     ( scr_ok    ),
+    .pxl        ( scr_pxl   ),
+    // IOCTL dump
+    .ioctl_addr (ioctl_addr[4:0]),
+    .ioctl_din  ( psac_mmr  )
 );
 
 jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(0)) u_obj(    // sprite logic
