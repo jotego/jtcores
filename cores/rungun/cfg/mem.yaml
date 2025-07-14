@@ -92,7 +92,7 @@ bram:
     addr_width: 15
     data_width: 8
     addr: psac_addr
-    # ioctl: { save: true, order: 3 }
+    ioctl: { save: true, order: 3 }
     dual_port:
       name: pmem0
       addr: pmem_addr
@@ -103,7 +103,7 @@ bram:
     addr_width: 15
     data_width: 8
     addr: psac_addr
-    # ioctl: { save: true, order: 4 }
+    ioctl: { save: true, order: 4 }
     dual_port:
       name: pmem1
       addr: pmem_addr
@@ -114,7 +114,7 @@ bram:
     addr_width: 15
     data_width: 8
     addr: psac_addr
-    # ioctl: { save: true, order: 5 }
+    ioctl: { save: true, order: 5 }
     dual_port:
       name: pmem2
       addr: pmem_addr
@@ -124,7 +124,7 @@ bram:
   - name: line
     addr_width: 11
     data_width: 16
-    # ioctl: { save: true, order: 5 }
+    # ioctl: { save: true, order: 6 }
     dual_port:
       name: lmem
       addr: "main_addr[10:1]"
