@@ -20,35 +20,34 @@ module jtrungun_colmix(
     input             rst, clk, pxl_cen,
 
     // Base Video
-    input             lhbl, lvbl, lrsw,
+    input             lhbl, lvbl, lrsw, pri,
 
     output     [11:1] pal_addr,
     input      [15:0] pal_dout,
     // Final pixels
     input      [ 1:0] shadow,
     input      [ 8:0] obj_pxl,
-    input      [ 7:0] fix_pxl,
+    input      [ 7:0] fix_pxl, psc_pxl,
 
     output     [ 7:0] red,
     output     [ 7:0] green,
     output     [ 7:0] blue,
-
-    // Debug
-    // input      [11:0] ioctl_addr,
-    // input             ioctl_ram,
-    // output     [ 7:0] ioctl_din,
-    // output     [ 7:0] dump_mmr,
 
     input      [ 7:0] debug_bus
 );
 
 reg  [23:0] bgr;
 reg  [ 7:0] r8, b8, g8;
-wire        shad, fix_op;
+wire        shad, fix_op, psc_op, obj_op;
 
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign fix_op   = fix_pxl[3:0]!=0;
-assign pal_addr =  fix_op ? {lrsw,2'd0,fix_pxl} : {lrsw,1'b1,obj_pxl};
+assign psc_op   = psc_pxl[3:0]!=0;
+assign obj_op   = obj_pxl[3:0]!=0;
+assign pal_addr[11]   = lrsw;
+assign pal_addr[10:1] =  fix_op ?         {2'b00,fix_pxl} :
+            !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
+                                          {2'b01,psc_pxl};
 
 assign shad      = 0; // to do
 

@@ -40,9 +40,9 @@ module jt053936(
     output   [ 8:0] la,
 
     output reg [12:0] x,
-    output            xh,
+    output reg        xh,
     output reg [12:0] y,
-    output            yh,
+    output reg        yh,
     output            ob, // out of bonds, original pin: NOB
     // IOCTL dump
     input      [4:0] ioctl_addr,

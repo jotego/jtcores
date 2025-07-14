@@ -82,7 +82,7 @@ module jtrungun_video(
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] hdump, hdumpf, obj_pxl;
-wire [ 7:0] vdump, vdumpf, scr_pxl;
+wire [ 7:0] vdump, vdumpf, psc_pxl;
 wire [ 7:0] fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
@@ -91,7 +91,6 @@ wire        cpu_we;
 reg  [14:0] ioctl_adj;
 wire        iosel_obj, iosel_ccu, iosel_psc;
 
-assign scr_addr  =0, scr_cs=0;
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
 assign ommra     = {addr[3:1],cpu_dsn[1]};
@@ -210,7 +209,7 @@ jtrungun_psac u_psac(
     .rom_data   ( scr_data  ),
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),
-    .pxl        ( scr_pxl   ),
+    .pxl        ( psc_pxl   ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[4:0]),
     .ioctl_din  ( psac_mmr  )
@@ -272,24 +271,19 @@ jtrungun_colmix u_colmix(
     // Base Video
     .lhbl       ( lhbl          ),
     .lvbl       ( lvbl          ),
+    .pri        ( pri           ),
 
     .pal_addr   ( pal_addr      ),
     .pal_dout   ( pal_dout      ),
-    // .pal_dout   ( gray          ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
     .obj_pxl    ( obj_pxl       ),
+    .psc_pxl    ( psc_pxl       ),
     .shadow     ( shadow        ),
 
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
-
-    // Debug
-    // input      [11:0] ioctl_addr,
-    // input             ioctl_ram,
-    // output     [ 7:0] ioctl_din,
-    // output     [ 7:0] dump_mmr,
 
     .debug_bus  ( debug_bus     )
 );
