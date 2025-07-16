@@ -94,6 +94,7 @@ module jt053936(
         .tick_hs    ( tick_hs   ),
         .tick_vs    ( tick_vs   ),
 
+        .en         ( ln_en     ),
         .ln0        ( ln0       ),
         .la         ( la        ),
         .lh         ( lh        ),
@@ -178,7 +179,7 @@ module jt053936(
                 default: mmr_write;
             endcase
             // add logic for ln_en reads into mmr[2~5]
-            if(ln_ok) case(lh)
+            if(ln_ok) if(cen) case(lh)
                 0: mmr[2] <= ldout;
                 1: mmr[3] <= ldout;
                 2: mmr[4] <= ldout;
@@ -245,24 +246,24 @@ endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_line_ram(
-    input            clk, cen, tick_hs, tick_vs, dtackn,
+    input            clk, cen, tick_hs, tick_vs, dtackn, en,
     input      [8:0] ln0,
     output reg [8:0] la,
     output     [2:1] lh,
     output           rd, ok, hs_dly
 );
     reg [3:0] cnt;
-    reg [7:0] dly;
+    reg [8:0] dly;
 
     assign lh     = cnt[2:1];
-    assign rd     =~cnt[3];
+    assign rd     =~cnt[3] & en;
     assign ok     = rd & ~dtackn;
-    assign hs_dly = dly[7];
+    assign hs_dly = dly[8];
 
     always @(posedge clk) if(cen) begin
         la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
         cnt <= tick_hs ? 4'd0 : ok      ? cnt+4'd1 : cnt;
-        dly <= tick_hs ? 8'd1 : dly<<1;
+        dly <= tick_hs ? 9'd1 : dly<<1;
     end
 endmodule
 
