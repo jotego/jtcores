@@ -28,8 +28,8 @@ module jtrungun_main(
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
     output               cpu_rnw,
-    output        [ 1:0] cpal_we,  vmem_we,  lmem_we,
-    output               pmem0_we, pmem1_we, pmem2_we,
+    output        [ 1:0] cpal_we,  vmem_we,  lmem_we, pmem01_we,
+    output               pmem2_we,
     output reg           ccu_cs, psreg_cs,
 
     output        [11:1] cpal_addr,
@@ -39,8 +39,8 @@ module jtrungun_main(
     output reg           rom_cs,
     output reg           ram_cs,
 
-    input         [ 7:0] pmem0_dout, pmem1_dout, pmem2_dout,
-    input         [15:0] vmem_dout, lmem_dout,
+    input         [ 7:0] pmem2_dout,
+    input         [15:0] pmem01_dout, vmem_dout, lmem_dout,
     input         [15:0] omem_dout,
     input         [15:0] cpal_dout,
     input         [15:0] ram_dout,
@@ -125,22 +125,21 @@ assign fsel     = sys2_dout[ 0];
 assign st_dout  = 0;
 assign objcha_n = ~objch_cs;
 
-assign cpal_we  = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
-assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
-assign pmem0_we = ~LDSn    & psvrm_cs & ~RnW &  A[1];
-assign pmem1_we = ~UDSn    & psvrm_cs & ~RnW &  A[1];
-assign pmem2_we = ~LDSn    & psvrm_cs & ~RnW & ~A[1];
-assign vmem_we  = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
-assign vmem_mux = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
+assign cpal_we   = ~ram_dsn & {2{ cpal_cs  & ~RnW}};
+assign lmem_we   = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
+assign pmem01_we = ~ram_dsn & {2{psvrm_cs & ~RnW &  A[1]}};
+assign pmem2_we  = ~LDSn    & psvrm_cs & ~RnW & ~A[1];
+assign vmem_we   = {2{vmem_cs & ~RnW & ~LDSn}} & {~A[1],A[1]};
+assign vmem_mux  = A[1] ? vmem_dout[7:0] : vmem_dout[15:8];
 // MSB could either be L-R or SEL signals (see page 4-5B/5C)
 // as they are changed at the same time during test
-assign cpal_addr= { l_r, A[10:1] };
-assign vmem_addr= { l_r, A[12:2] };
-assign pmem_addr= { l_r, A[15:2] }; // A[17:16] are set to zero when psvrm_cs is set
-assign pair_we  = pair_cs & ~RnW & ~UDSn;
-assign sdon     = sdon_cs;
+assign cpal_addr = { l_r, A[10:1] };
+assign vmem_addr = { l_r, A[12:2] };
+assign pmem_addr = { l_r, A[15:2] }; // A[17:16] are set to zero when psvrm_cs is set
+assign pair_we   = pair_cs & ~RnW & ~UDSn;
+assign sdon      = sdon_cs;
 
-assign lrsw     = fmode ? disp : fsel;
+assign lrsw      = fmode ? disp : fsel;
 
 always @* begin
     // 056541 PAL
@@ -201,7 +200,7 @@ always @(posedge clk) begin
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'h0, cab2_dout};
     HALTn     <= dip_pause & ~rst;
-    pmem_mux  <= A[1] ? {pmem1_dout,pmem0_dout} : {8'd0,pmem2_dout};
+    pmem_mux  <= A[1] ? pmem01_dout : {8'd0,pmem2_dout};
     cpu_din <= rom_cs   ? rom_data          :
                ram_cs   ? ram_dout          :
                cpal_cs  ? cpal_dout         :
@@ -339,7 +338,7 @@ jtframe_m68k u_cpu(
         cpu_rnw   = 1,
         main_addr = 0,
         ram_dsn   = 0, objrm_cs = 0, sdon = 0, objrg_cs=0, objcha_n=1,
-        st_dout   = 0, lmem_we = 0, pmem0_we = 0, pmem1_we = 0, pmem_addr = 0,
+        st_dout   = 0, lmem_we = 0, pmem01_we = 0, pmem_addr = 0,
         nv_addr   = 0, nv_din  = 0, nv_we = 0, pmem2_we = 0, pair_we=0;
 `endif
 endmodule

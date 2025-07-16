@@ -166,7 +166,11 @@ module jt053936(
 
     always @(posedge clk) begin
         if( rst ) begin
+        `ifndef SIMULATION
             for(k=0;k<16;k=k+1) mmr[k] <= 0;
+        `else
+            for(i=0;i<16;i=i+1) mmr[i] <= {mmr_init[i*2+1],mmr_init[i*2]};
+        `endif
         end else begin
             k = 0; // for Quartus linter
             if(cs) case(addr)
@@ -186,6 +190,23 @@ module jt053936(
     always @(posedge clk) begin
         ioctl_din <= ioctl_addr[0] ? io_mux[15:8] : io_mux[7:0];
     end
+`ifdef SIMULATION
+    integer f, i, fcnt, err;
+    reg [7:0] mmr_init[0:31];
+    initial begin
+        f=$fopen("psac.bin","rb");
+        if( f!=0 ) begin
+            fcnt=$fread(mmr_init,f);
+            $display("MMR %m - read %0d bytes",fcnt);
+            if( fcnt!=32 ) begin
+                $display("WARNING: Missing %d bytes for %m.mmr",32-fcnt);
+            end
+        end else begin
+            for(i=0;i<32;i++) mmr_init[i] = 0;
+        end
+        $fclose(f);
+    end
+`endif
 endmodule
 
 /////////////////////////////////////////////////////

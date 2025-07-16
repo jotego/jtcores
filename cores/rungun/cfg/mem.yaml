@@ -88,43 +88,32 @@ bram:
       din:  cpu_dout
       dout: cpal_dout
       rw: true
-  - name: psac0
-    addr_width: 15
-    data_width: 8
+  - name: psac01
+    addr_width: 16
+    data_width: 16
     addr: psac_addr
     ioctl: { save: true, order: 3 }
     dual_port:
-      name: pmem0
+      name: pmem01
       addr: pmem_addr
-      din:  cpu_dout[7:0]
-      dout: pmem0_dout
-      rw: true
-  - name: psac1
-    addr_width: 15
-    data_width: 8
-    addr: psac_addr
-    ioctl: { save: true, order: 4 }
-    dual_port:
-      name: pmem1
-      addr: pmem_addr
-      din:  cpu_dout[15:8]
-      dout: pmem1_dout
+      din:  cpu_dout
+      dout: pmem01_dout
       rw: true
   - name: psac2
     addr_width: 15
     data_width: 8
     addr: psac_addr
-    ioctl: { save: true, order: 5 }
+    ioctl: { save: true, order: 4 }
     dual_port:
       name: pmem2
-      addr: pmem_addr
+      addr: "pmem_addr[15:1]"
       din:  cpu_dout[7:0]
       dout: pmem2_dout
       rw: true
   - name: line
     addr_width: 11
     data_width: 16
-    # ioctl: { save: true, order: 6 }
+    ioctl: { save: true, order: 5 }
     dual_port:
       name: lmem
       addr: "main_addr[10:1]"

@@ -1,5 +1,5 @@
 #!/bin/bash -e
-EXPECTED=$((8192+16+16))
+EXPECTED=$((8192+16+16+32))
 SIZE=$(wc -c < rest.bin)
 if [ $SIZE -ne  $EXPECTED ]; then
 	echo "wrong size for rest.bin. Expected $EXPECTED bytes but got $SIZE"
@@ -17,3 +17,5 @@ if [ $(od -tx1 -An ccu.bin | tr -d ' ') != 01ff0019001f04000107110e74000000 ]; t
 	echo "wrong contents for CCU configuration"
 	exit 1
 fi
+
+dd if=rest.bin of=psac.bin bs=8  count=4 skip=1028

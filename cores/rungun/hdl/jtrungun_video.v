@@ -100,13 +100,16 @@ assign psrm_addr[14] = lrsw;
 assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 
+localparam [19:0] IOCTL_RD_SIZE=`JTFRAME_IOCTL_RD;
+localparam [14:0] IOADDR0 = IOCTL_RD_SIZE[14:0]-15'd8192-15'd16*4;
+
 always @(posedge clk) begin
-    ioctl_adj <= ioctl_addr - 15'h3080;
+    ioctl_adj <= ioctl_addr - IOADDR0;
 end
 
 assign iosel_obj=~ioctl_adj[13];
 assign iosel_ccu= ioctl_adj[13] && ioctl_adj[5:4]==1,
-       iosel_psc= ioctl_adj[13] && ioctl_adj[5:4]==2;
+       iosel_psc= ioctl_adj[13] && ioctl_adj[5:4]>=2;
 
 assign ioctl_din= iosel_obj ? dump_obj :
                   iosel_ccu ? ccu_mmr  :
