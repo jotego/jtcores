@@ -35,6 +35,8 @@ module jtframe_credits #(
     input               pxl_cen,
     input               HB,
     input               VB,
+    input               HS,
+    input               VS,
     input [COLW*3-1:0]  rgb_in,
 
     // Optional VRAM control
@@ -53,6 +55,8 @@ module jtframe_credits #(
     // output image
     output reg              HB_out,
     output reg              VB_out,
+    output reg              HS_out,
+    output reg              VS_out,
     output reg [COLW*3-1:0] rgb_out
 );
 
@@ -414,7 +418,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    { HB_out, VB_out } <= { HB, VB };
+    { HB_out, VB_out, HS_out, VS_out } <= { HB, VB, HS, VS };
     // if HOFFSET != 0 and the game is vertical, the full horizontal length
     // of the screen is used. Otherwise, the credits will start at HOFFSET
     // and last for 256 pixels
