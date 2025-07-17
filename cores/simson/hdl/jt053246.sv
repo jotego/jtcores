@@ -149,8 +149,7 @@ jt053246_dma #(.K55673(K55673),.K55673_DESC_SORT(K55673_DESC_SORT)) u_dma(
     .dma_wr_addr(dma_wr_addr),
     .dma_din    ( dma_din   ),
 
-    .flicker    ( flicker   ), // debug
-    .debug_bus  ( debug_bus )
+    .flicker    ( flicker   )  // debug
 );
 
 jt053246_mmr u_mmr(

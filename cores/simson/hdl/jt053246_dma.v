@@ -39,9 +39,7 @@ module jt053246_dma(
     output            dma_wel,
     output     [11:1] dma_wr_addr,
     output     [15:0] dma_din,
-    output reg        flicker,
-    // Debug
-    input      [ 7:0] debug_bus
+    output reg        flicker
 );
 
 parameter K55673=0, K55673_DESC_SORT=0;
