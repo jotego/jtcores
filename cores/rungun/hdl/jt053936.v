@@ -359,7 +359,7 @@ module jt053936_counter(
     input      [ 1:0] hmul, vmul,
     output reg [23:0] cnt
 );
-    reg [23:0] eff_hstep, eff_vstep, mux;
+    reg [23:0] eff_hstep, eff_vstep, vcnt;
     reg        hs_mx;
     wire up    = ln_en ? hs_dly : vs;
 
@@ -369,15 +369,14 @@ module jt053936_counter(
             eff_vstep <= vmul[0] ? {vstep,8'd0} : {{8{vmul[1]}},vstep};
         end
         hs_mx <= ln_en ? hs_dly : hs;
-        cnt   <= mux + cnt;
-    end
-
-    always @* begin
-        case({hs_mx, vs})
-            2'b00:   mux = eff_hstep;
-            2'b10:   mux = eff_vstep;
-            2'b01:   mux = {cnt0,8'd0};
-            default: mux = 0;
-        endcase
+        cnt   <= eff_hstep + cnt;
+        if(hs_mx) begin
+            cnt  <= vcnt;
+            vcnt <= eff_vstep + vcnt;
+        end
+        if(vs) begin
+             cnt <= {cnt0,8'd0};
+            vcnt <= {cnt0,8'd0};
+        end
     end
 endmodule

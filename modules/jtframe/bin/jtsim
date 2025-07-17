@@ -198,6 +198,7 @@ case "$1" in
         SETNAME=$1;;
     -s|-scene)
         shift
+        rename_scene_file "$1"
         SCENE="$1/dump.bin"
         if [ ! -e "$SCENE" ]; then
             SCENE="scenes/$SCENE"

@@ -523,3 +523,19 @@ mist_dump.v \
     # Remove MiST definitions
     FILES=
 }
+
+rename_scene_file() {
+    local folder="scenes/$1"
+    local scene="$folder/dump.bin"
+    if [ -e "$scene" ]; then return; fi
+    if rename_ext_file "$folder" nvm; then return; fi
+    rename_ext_file "$folder" RAM
+}
+
+rename_ext_file() {
+    local folder="$1"
+    local ext=$2
+    local old_name=$(find $folder -maxdepth 1 -name "*.$ext" | head -n 1)
+    if [[ -z "$old_name" || ! -e "$old_name" ]]; then return 1; fi
+    mv "$old_name" $folder/dump.bin
+}
