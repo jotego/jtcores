@@ -215,7 +215,7 @@ wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
 
 wire [3*COLORW-1:0] base_rgb;
-wire        base_lhbl, base_lvbl;
+wire        base_lhbl, base_lvbl, base_hs, base_vs;
 
 wire [ 3:0] hoffset, voffset;
 wire [31:0] cheat;
@@ -810,6 +810,8 @@ jtframe_board #(
     // output video with credits and debug informaiton
     .base_lhbl      ( base_lhbl         ),
     .base_lvbl      ( base_lvbl         ),
+    .base_hs        ( base_hs           ), // Unconnected 
+    .base_vs        ( base_vs           ), // Unconnected
     .base_rgb       ( base_rgb          ),
     // Debug
     .gfx_en         ( gfx_en          ),
