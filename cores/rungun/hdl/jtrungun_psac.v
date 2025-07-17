@@ -53,13 +53,13 @@ wire        hflip, vflip;
 wire [ 3:0] pal, vf, hf, dmux;
 
 assign line_addr = {la[7:0],lh};
-assign vram_addr = {y[9:3], x[9:3]};
+assign vram_addr = {y[10:4], x[10:4]};
 assign code      = vram_dout[13:0];
 assign hflip     = vram_dout[14];
 assign vflip     = vram_dout[15];
 assign pal       = vram_dout[19:16];
-assign vf        = {4{vflip}} ^ {y[2:0],yh};
-assign hf        = {4{hflip}} ^ {x[2:0],xh};
+assign vf        = {4{vflip}} ^ {y[3:0]};
+assign hf        = {4{hflip}} ^ {x[3:0]};
 
 assign rom_cs    = 1;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
