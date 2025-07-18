@@ -26,6 +26,8 @@ JTFRAME_CART_OFFSET=0x10000
 JTFRAME_BA1_START=0x10000
 JTFRAME_BA1_WEN
 
+JTFRAME_CREDITS_PAGES=5
+
 #JTFRAME_IOCTL_RD=16384
 # RAM=12288, NGP ports=64 RTC=4
 # Although saving works (tested MiSTer) and data is loaded back correctly
