@@ -205,7 +205,7 @@ wire          bd_mouse_st, bd_mouse_idx;
 wire  [ 7:0]  bd_mouse_f;
 wire  [ 7:0]  ioctl_merged, mist_view;
 wire  [3*COLORW-1:0] base_rgb;
-wire          base_lhbl, base_lvbl;
+wire          base_lhbl, base_lvbl, base_hs, base_vs;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
@@ -240,8 +240,8 @@ jtframe_mist_base #(
     .game_rgb       ( base_rgb      ),
     .game_lhbl      ( base_lhbl     ),
     .game_lvbl      ( base_lvbl     ),
-    .game_hs        ( hs            ),
-    .game_vs        ( vs            ),
+    .game_hs        ( base_hs       ),
+    .game_vs        ( base_vs       ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
     // MiST VGA pins (includes OSD)
@@ -520,6 +520,8 @@ jtframe_board #(
     .base_rgb       ( base_rgb        ),
     .base_lhbl      ( base_lhbl       ),
     .base_lvbl      ( base_lvbl       ),
+    .base_hs        ( base_hs         ),
+    .base_vs        ( base_vs         ),
     // Debug
     .gfx_en         ( gfx_en          ),
     .debug_bus      ( debug_bus       ),
