@@ -810,8 +810,8 @@ jtframe_board #(
     // output video with credits and debug informaiton
     .base_lhbl      ( base_lhbl         ),
     .base_lvbl      ( base_lvbl         ),
-    .base_hs        ( base_hs           ), // Unconnected 
-    .base_vs        ( base_vs           ), // Unconnected
+    .base_hs        ( base_hs           ), // Disconnected 
+    .base_vs        ( base_vs           ), // Disconnected
     .base_rgb       ( base_rgb          ),
     // Debug
     .gfx_en         ( gfx_en          ),
