@@ -70,10 +70,8 @@ wire [DW-1:0]       dump_data;
 wire [EW-1:0]       old;
 
 assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
-    && ((old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0]  /*||
-         (old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0] && SHADOW_PEN!=ALPHA && wr_data[ALPHAW-1:0]!=SHADOW_PEN[ALPHAW-1:0] )*/
-         ) || (KEEP_OLD==0 &&
-           ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]) && SHADOW==1
+    && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] || (KEEP_OLD==0 &&
+       ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]) && SHADOW==1
             || SHADOW==0 )));
 
 

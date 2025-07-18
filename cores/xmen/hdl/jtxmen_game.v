@@ -140,27 +140,28 @@ jtxmen_video u_video (
     .hs             ( HS            ),
     .vs             ( VS            ),
     .flip           ( dip_flip      ),
-    // Object DMA
-    .oram_we        ( oram_we       ),
-    .oram_din       ( ram_din       ),
-    .oram_addr      ( oram_addr     ),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
+    .cpu_addr       (main_addr[16:1]),
+    .cpu_dsn        ( ram_dsn       ),
+    .cpu_dout       ( ram_din       ),
+
+    // Object DMA
+    .oram_we        ( oram_we       ),
+    .oram_addr      ( oram_addr     ),
+    .dma_bsy        ( dma_bsy       ),
+
     .objsys_cs      ( objsys_cs     ),
     .objreg_cs      ( objreg_cs     ),
     .objcha_n       ( objcha_n      ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
-    .cpu_addr       (main_addr[16:1]),
-    .cpu_dsn        ( ram_dsn       ),
-    .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
-    .dma_bsy        ( dma_bsy       ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

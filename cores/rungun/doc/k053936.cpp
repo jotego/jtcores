@@ -47,12 +47,12 @@ control registers
 003 ["simple" mode only] amount to add to the Y counter after each line
 004 ["simple" mode only] amount to add to the X counter after each horizontal pixel
 005 ["simple" mode only] amount to add to the Y counter after each horizontal pixel (0 = no rotation)
-006 x------- -------- when set, register (line*4)+2 must be multiplied by 256
-    -x------ -------- when set, registers 002 and 003 must be multiplied by 256
+006 x------- -------- when set, register (line*4)+2 (hstep for X counter) must be multiplied by 256
+    -x------ -------- when set, registers 002 and 003 (vstep for X/Y counters) must be multiplied by 256
     --xxxxxx -------- clipping for the generated address? usually 3F, Premier Soccer
                       sets it to 07 before penalty kicks
-    -------- x------- when set, register (line*4)+3 must be multiplied by 256
-    -------- -x------ when set, registers 004 and 005 must be multiplied by 256
+    -------- x------- when set, register (line*4)+3 (hstep for Y counter) must be multiplied by 256
+    -------- -x------ when set, registers 004 and 005 (hstep for X/Y counters) must be multiplied by 256
     -------- --xxxxxx clipping for the generated address? usually 3F, Premier Soccer
                       sets it to 0F before penalty kicks
 007 -------- -x------ enable "super" mode
@@ -63,10 +63,9 @@ control registers
 009 max x screen coordinate to draw to (only when enabled by register 7)
 00a min y screen coordinate to draw to (only when enabled by register 7)
 00b max y screen coordinate to draw to (only when enabled by register 7)
-00c unknown
-00d unknown
+00c H counter initial value
+00d V counter initial value
 00e unknown
-00f unknown
 
 additional control from extra RAM:
 (line*4)+0 X counter starting value / 256 (add to register 000)

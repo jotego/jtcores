@@ -33,7 +33,7 @@ module jt053246(    // sprite logic
     input      [ 1:0] cpu_dsn,  // only used for MMR in 16-bit mode
 
     // ROM check by CPU
-    output     [21:1] rmrd_addr,
+    output     [22:1] rmrd_addr,
 
     // External RAM
     output     [13:1] dma_addr, // up to 16 kB
@@ -72,11 +72,15 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
-parameter XMEN = 0;
+parameter       XMEN = 0, K55673=0, K55673_DESC_SORT=0;
+parameter [9:0] HOFFSET   = 10'd62;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
+// K55673 seems to have fewer objects. Or maybe the lower half
+// is used for the second screen on Run'n Gun (?)
+localparam [7:0] SCAN_START = K55673==1 ? 8'h80 : 8'h0;
 
 wire [15:0] scan_even, scan_odd, dma_din;
 wire [11:2] scan_addr;
@@ -92,7 +96,7 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 
-jt053246_scan #(.XMEN(XMEN)) u_scan(
+jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
     .simson    ( simson     ),
@@ -121,7 +125,7 @@ jt053246_scan #(.XMEN(XMEN)) u_scan(
 );
 
 
-jt053246_dma u_dma(
+jt053246_dma #(.K55673(K55673),.K55673_DESC_SORT(K55673_DESC_SORT)) u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),

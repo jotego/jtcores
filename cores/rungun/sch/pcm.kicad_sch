@@ -1,0 +1,49 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "9e430823-2d12-4796-be4c-50503e3e3405")
+	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
+	(lib_symbols)
+	(sheet
+		(at 76.2 49.53)
+		(size 36.83 34.29)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "b0aac862-a63e-4c3d-bf45-95e8bd1113f7")
+		(property "Sheetname" "K054539"
+			(at 76.2 48.8184 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "k054539.kicad_sch"
+			(at 76.2 84.4046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rungun"
+				(path "/f107f3c9-7303-4384-a4ef-8be2535c58e8/4e92e68d-fa4c-4ee8-ac46-467bbbc68d01"
+					(page "4")
+				)
+			)
+		)
+	)
+)

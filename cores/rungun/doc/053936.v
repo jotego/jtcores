@@ -7,24 +7,26 @@ module k053936(
 	input CLK,
 
 	input [15:0] D,
-	input [4:1] A,
+	input [ 4:1] A,
+    // compatibility with 8-bit CPUs (high)
+    // leave low for 16-bit bus writes
 	input N16_8,
 
 	input HSYNC, VSYNC,
 	input NUCS, NLCS, NWCS,
-	output NDMA,
+	output NDMA,	// Low during line parameter RAM access
 	input NDTACK,
 
 	input NLOE,
-	output [2:0] LH,
-	output [8:0] LA,
+	output [2:0] LH, // External line parameter RAM address lower bits
+	output [8:0] LA, // External line parameter RAM address
 
-	input NOE,
-	output [12:0] X,
+	input NOE,       // OE for pixel coordinate pins
+	output [12:0] X, // pixel X coordinate
 	output XH,
-	output [12:0] Y,
+	output [12:0] Y, // pixel X coordinate
 	output YH,
-	output reg NOB
+	output reg NOB	// pixel out of bounds
 );
 
 assign {X, XH, Y, YH} = NOE ? {28{1'bz}} : {X_REG, Y_REG};
@@ -35,25 +37,25 @@ wire [15:8] MUX_D;
 assign MUX_D = N16_8 ? D[7:0] : D[15:8];
 
 
-wire N114A = ~&{N96, ~N109};	// Low pulse on VSYNC rising edge
-wire N114B = ~&{N99, ~N106};	// Low pulse on HSYNC rising edge
+wire vs_edge_n = ~&{VSYNC_l, ~VSYNC_ll};	// Low pulse on VSYNC rising edge
+wire hs_edge_n = ~&{HSYNC_l, ~HSYNC_ll};	// Low pulse on HSYNC rising edge
 
-reg N96, N109, N99, N106;
+reg VSYNC_l, VSYNC_ll, HSYNC_l, HSYNC_ll;
 reg L132_QA;
 reg L132_QC;
-reg TICK_VS;
-reg TICK_HS;
+reg TICK_VSn;
+reg TICK_HSn;
 always @(posedge CLK) begin
-	N96 <= VSYNC;
-	N109 <= N96;
+	VSYNC_l  <= VSYNC;
+	VSYNC_ll <= VSYNC_l;
 
-	N99 <= HSYNC;
-	N106 <= N99;
+	HSYNC_l  <= HSYNC;
+	HSYNC_ll <= HSYNC_l;
 
-	L132_QA <= N114A & ~N114B;	// High when HSYNC rising edge without VSYNC rising edge at the same time, todo: check
-	TICK_VS <= N114A;
-	L132_QC <= N114A & N114B;	// Low when HSYNC rising edge or VSYNC rising edge at the same time, todo: check
-	TICK_HS <= N114B;
+	L132_QA  <= vs_edge_n & ~hs_edge_n;	// High when HSYNC rising edge without VSYNC rising edge at the same time, todo: check
+	TICK_VSn <= vs_edge_n;
+	L132_QC  <= vs_edge_n & hs_edge_n;	// Low when HSYNC rising edge or VSYNC rising edge at the same time, todo: check
+	TICK_HSn <= hs_edge_n;
 end
 
 wire OOB_X = ~&{
@@ -96,40 +98,40 @@ always @(posedge CLK) begin
 	NOB <= OOB_DELAYED;
 end
 
-reg [3:0] M95;
+reg [3:0] LHCNT;
 always @(posedge CLK) begin
-    if (!TICK_HS)
-    	M95 <= 4'd0;
-    else if (L105B)
-    	M95 <= M95 + 1'b1;
+    if (!TICK_HSn)
+    	LHCNT <= 4'd0;
+    else if (LNOK)
+    	LHCNT <= LHCNT + 1'b1;
 end
 
 wire [2:0] LH_SEL;
-assign {L104B, LH_SEL} = N16_8 ? M95 : {M95[2:0], 1'b0};
+assign {LNRD_n, LH_SEL} = N16_8 ? LHCNT : {LHCNT[2:0], 1'b0};
 assign L103A = N16_8 & ~LH[0];
 
-assign NDMA = L104B | ~REGL7[6];
+assign NDMA = LNRD_n | ~REGL7[6];
 
-assign L105B = ~|{L104B, NDTACK};	// Uses a delay cell
-assign L99A = L105B & REGL7[6];
+assign LNOK = ~|{LNRD_n, NDTACK};	// Uses a delay cell
+assign L99A = LNOK & REGL7[6]; //  REGL7[6] = line RAM enable
 
 reg [3:0] L76;
 reg [3:0] M80;
 always @(*) begin
-	case({L99A, L104B, LH})
-		5'b10_000: L76 <= 4'b1110;
-		5'b10_010: L76 <= 4'b1101;
-		5'b10_100: L76 <= 4'b1011;
-		5'b10_110: L76 <= 4'b0111;
-    	default: L76 <= 4'b1111;
-	endcase
-	
-	case({L99A, L104B, LH[2:1], N16_8 & ~LH[0]})
+	({L99A, LNRD_n, LH[2:1], N16_8 & ~LH[0]}) // reads lower 8 bits
 		5'b10_000: M80 <= 4'b1110;
 		5'b10_010: M80 <= 4'b1101;
 		5'b10_100: M80 <= 4'b1011;
 		5'b10_110: M80 <= 4'b0111;
-    	default: M80 <= 4'b1111;
+    	default:   M80 <= 4'b1111;
+	endcase
+
+	case({L99A, LNRD_n, LH})		// reads upper 8 bits from RAM
+		5'b10_000: L76 <= 4'b1110;
+		5'b10_010: L76 <= 4'b1101;
+		5'b10_100: L76 <= 4'b1011;
+		5'b10_110: L76 <= 4'b0111;
+    	default:   L76 <= 4'b1111;
 	endcase
 end
 
@@ -138,12 +140,12 @@ end
 
 wire L116 = L132_QC;	// Todo: Check
 
-wire L114B = CLK | (REGL7[6] ? N114B : TICK_VS);
-wire F159 = CLK | (REGL7[6] ? TICK_VS: L116);	// Uses a delay cell
+wire L114B = CLK | (REGL7[6] ? hs_edge_n : TICK_VSn); // REGL7[6] = line RAM enable
+wire F159  = CLK | (REGL7[6] ? TICK_VSn: L116);	// Uses a delay cell
 
 // Really duplicated logic ?
-wire H99 = ~|{TICK_VS, L116};
-wire H100A = ~|{TICK_VS, L116};
+wire H99 = ~|{TICK_VSn, L116};
+wire H100A = ~|{TICK_VSn, L116};
 
 wire H131A = ~|{H100A, L116};
 wire H104A = ~|{H100A, ~L116};
@@ -187,14 +189,14 @@ assign PREV_Y = L132_QA ? SUM_YR_B : SUM_YR;
 initial begin
 	// These need to be initialized to make sync signals processing work from t=0
 	// Otherwise 3 clock edges are needed for the HSYNC and VSYNC input states to get in
-	N96 <= 1'b0;
-	N109 <= 1'b0;
-	N99 <= 1'b0;
-	N106 <= 1'b0;
+	VSYNC_l <= 1'b0;
+	VSYNC_ll <= 1'b0;
+	HSYNC_l <= 1'b0;
+	HSYNC_ll <= 1'b0;
 	L132_QA <= 1'b0;	// If HSYNC and VSYNC were always low
-	TICK_VS <= 1'b1;
+	TICK_VSn <= 1'b1;
 	L132_QC <= 1'b1;
-	TICK_HS <= 1'b1;
+	TICK_HSn <= 1'b1;
 
 	// These need to be initialized otherwise adder outputs can never go out of x state
 	SUM_XR <= 24'd0;
@@ -223,14 +225,14 @@ initial begin
 	{REGU14, REGL14} <= 9'd0;
 end
 
-
+// Video counters
 reg [8:0] LA_REG;
 reg [8:0] V;
 always @(posedge CLK) begin
-   	if (!TICK_VS) begin
+   	if (!TICK_VSn) begin
     	LA_REG <= {REGU14, REGL14};
 		V <= {REGU13, REGL13};
-    end else if (!TICK_HS) begin
+    end else if (!TICK_HSn) begin
     	LA_REG <= LA_REG + 1'b1;
     	V <= V + 1'b1;
     end
@@ -238,32 +240,32 @@ end
 
 reg [9:0] H;
 always @(posedge CLK) begin
-   	if (!TICK_HS)
+   	if (!TICK_HSn)
 		H <= {REGU12, REGL12};
     else
     	H <= H + 1'b1;
 end
 
 
-
-wire MATCH1 = CLK | ~&{~(V ^ {REGU10, REGL10})};
-wire MATCH2 = CLK | ~&{~(V ^ {REGU11, REGL11})};
-wire MATCH3 = CLK | ~&{~(H ^ {REGU8, REGL8})};
-wire MATCH4 = CLK | ~&{~(H ^ {REGU9, REGL9})};
+// window detection
+wire MATCHn1 = CLK | ~&{~(V ^ {REGU10, REGL10})}; // y max
+wire MATCHn2 = CLK | ~&{~(V ^ {REGU11, REGL11})}; // y min
+wire MATCHn3 = CLK | ~&{~(H ^ {REGU8, REGL8})};   // x min
+wire MATCHn4 = CLK | ~&{~(H ^ {REGU9, REGL9})};   // x max
 
 reg N120, N124;
-always @(posedge TICK_VS or negedge MATCH1 or negedge MATCH2) begin
-	case({MATCH1, MATCH2})
-		2'b00: N120 <= 1'b0;	// To check
-		2'b01: N120 <= 1'b1;
-		2'b10: N120 <= 1'b0;
-		2'b11: N120 <= REGL7[2];
+always @(posedge TICK_VSn or negedge MATCHn1 or negedge MATCHn2) begin
+	case({MATCHn1, MATCHn2}) // max,min
+		2'b00:   N120 <= 1'b0;	// To check
+		2'b01:   N120 <= 1'b1;
+		2'b10:   N120 <= 1'b0;
+		2'b11:   N120 <= REGL7[2];
 		default: N120 <= N120;
 	endcase
 end
 
-always @(posedge TICK_HS or negedge MATCH3 or negedge MATCH4) begin
-	case({MATCH3, MATCH4})
+always @(posedge TICK_HSn or negedge MATCHn3 or negedge MATCHn4) begin
+	case({MATCHn3, MATCHn4})
 		2'b00: N124 <= 1'b0;	// To check
 		2'b01: N124 <= 1'b1;
 		2'b10: N124 <= 1'b0;
@@ -288,10 +290,10 @@ end
 reg [23:0] MUX_X;
 always @(*) begin
 	case({H104A, H131A, H100A})
-    	3'b100: MUX_X <= XMUX_REG_A;	// H152A
-    	3'b010: MUX_X <= XMUX_REG_B;	// J152A
-    	3'b001: MUX_X <= {REGU0, REGL0, 8'd0};
-    	default: MUX_X <= 24'd0;	// Shouldn't happen
+    	3'b100:  MUX_X = XMUX_REG_A;	// H152A
+    	3'b010:  MUX_X = XMUX_REG_B;	// J152A
+    	3'b001:  MUX_X = {REGU0, REGL0, 8'd0};
+    	default: MUX_X = 24'd0;	// Shouldn't happen
 	endcase
 end
 
@@ -301,11 +303,11 @@ assign SUM_X = MUX_X + PREV_X;
 // Y, exact same as X
 // F154A = F154B = L114B
 reg [23:0] YMUX_REG_A;
-always @(posedge L114B) begin
+always @(posedge L114B) begin // eff_hstep
 	YMUX_REG_A <= REGU6[6] ? {REGU5, REGL5, 8'd0} : {{8{REGU5[7]}}, REGU5, REGL5};
 end
 reg [23:0] YMUX_REG_B;
-always @(posedge L114B) begin
+always @(posedge L114B) begin // eff_vstep
 	YMUX_REG_B <= REGU6[7] ? {REGU3, REGL3, 8'd0} : {{8{REGU3[7]}}, REGU3, REGL3};
 end
 

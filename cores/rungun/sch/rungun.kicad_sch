@@ -1,0 +1,92 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "f107f3c9-7303-4384-a4ef-8be2535c58e8")
+	(paper "A3")
+	(title_block
+		(company "JOTEGO")
+	)
+	(lib_symbols)
+	(sheet
+		(at 251.46 53.34)
+		(size 31.75 39.37)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "4e92e68d-fa4c-4ee8-ac46-467bbbc68d01")
+		(property "Sheetname" "pcm"
+			(at 251.46 52.6284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "pcm.kicad_sch"
+			(at 251.46 93.2946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rungun"
+				(path "/f107f3c9-7303-4384-a4ef-8be2535c58e8"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 194.31 53.34)
+		(size 26.67 39.37)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "91663516-334e-489b-b770-af051a9d6c22")
+		(property "Sheetname" "PSAC"
+			(at 194.31 52.6284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "psac.kicad_sch"
+			(at 194.31 93.2946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rungun"
+				(path "/f107f3c9-7303-4384-a4ef-8be2535c58e8"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

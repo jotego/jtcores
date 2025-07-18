@@ -42,10 +42,13 @@ module jt053246_dma(
     output reg        flicker
 );
 
+parameter K55673=0, K55673_DESC_SORT=0;
+
 wire        dma_we, hs_pos;
 reg  [ 1:0] vs_sh;
 reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;
+wire [ 7:0] sort_24x, sort_673;
 reg         dma_clr, dma_wait, dma_ok, dma_44, hsl;
 
 assign dma_wel = dma_we & ~dma_wr_addr[1];
@@ -55,6 +58,9 @@ assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
 assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
+
+assign sort_673 = dma_data[7:0]^{8{K55673_DESC_SORT[0]}};
+assign sort_24x ={ ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0]};
 
 // DMA logic
 always @(posedge clk, posedge rst) begin
@@ -110,7 +116,7 @@ always @(posedge clk, posedge rst) begin
                 // I was skipping it before, but priority 0 is used in Vendetta and it must take priority
                 // over the rest (see scene vendetta/3)
                 // LUT half as big for 053244 and reversed order
-                dma_bufa <= { ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0], 3'd0 };
+                dma_bufa <= { K55673==1 ? sort_673 : sort_24x, 3'd0 };
                 dma_ok   <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
             end
             dma_addr[12:1] <= dma_addr[12:1] + 1'd1;

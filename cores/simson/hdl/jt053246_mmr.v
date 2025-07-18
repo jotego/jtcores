@@ -31,7 +31,8 @@ module jt053246_mmr(
     output reg [ 7:0] cfg,
     output reg [ 9:0] xoffset,
     output reg [ 9:0] yoffset,
-    output reg [21:1] rmrd_addr,
+    output reg [22:1] rmrd_addr, // This might be set by 53247/55673 and not 53246
+    // 53247 (X-Men) would be [21:1] whereas 55673 (Run&Gun) is [22:1]
 
     input      [ 7:0] st_addr,
     output reg [ 7:0] st_dout
@@ -80,12 +81,12 @@ always @(posedge clk, posedge rst) begin
                     cfg <= cpu_dout[7:0]; // $34 (simpsons/vendetta) $30/20 (xmen)
                     $display("OBJ CFG=%X",cpu_dout);
                 end
-                6: if(!k44_en) rmrd_addr[21:17] <= cpu_dout[4:0];
+                6: if(!k44_en) rmrd_addr[22:17] <= {1'b0,cpu_dout[4:0]};
                 7: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout[7:0];
                 // k44_en only
                 8:  rmrd_addr[16: 9] <= cpu_dout[7:0];
                 9:  rmrd_addr[ 8: 1] <= cpu_dout[7:0];
-                11: rmrd_addr[21:17] <= cpu_dout[4:0];
+                11: rmrd_addr[22:17] <={1'b0,cpu_dout[4:0]};
             endcase else case( cpu_addr[2:1] ) // 16-bit access
                 0: begin
                     if( !cpu_dsn[1] ) xoffset[9:8] <= cpu_dout[9:8];
@@ -103,7 +104,7 @@ always @(posedge clk, posedge rst) begin
                     end
                 end
                 3: begin
-                    if( !cpu_dsn[1] ) rmrd_addr[21:17] <= cpu_dout[12:8];
+                    if( !cpu_dsn[1] ) rmrd_addr[22:17] <= cpu_dout[13:8];
                     if( !cpu_dsn[0] ) rmrd_addr[16: 9] <= cpu_dout[ 7:0];
                 end
             endcase

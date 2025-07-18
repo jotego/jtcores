@@ -1,0 +1,5 @@
+# skips the RUN&GUN logo
+loop
+1 b1
+1
+repeat 300

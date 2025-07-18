@@ -1,0 +1,89 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "rungun.cpp" ]
+
+debug.Setnames=[
+	# not booting
+	"slmdunkj",
+	# 2 screen versions:
+	"rungunad",
+	"rungunbd",
+	"rungund",
+	"rungunuad",
+	"rungunud",
+	"slmdunkjd",
+]
+
+[buttons]
+names = [
+    { machine="rungun", names="Shoot/Jump,Pass/Steal,Select" },
+]
+
+[dipsw]
+# not real DIP switches, wrongly identified in MAME
+delete=[ {names=["Freeze","Field Bit (DEBUG)"] }]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true, no_offset=true  },
+
+    { name="soundcpu", start="JTFRAME_BA1_START"  },
+    { name="k054539",  start="PCM_START" },
+
+    { name="gfx1",    start="JTFRAME_BA2_START" }, # PSAC tiles
+    { name="gfx3",    start="FIX_START", rename="fix", reverse=true },
+    { name="k055673", start="JTFRAME_BA3_START", width=64, rename="obj"},
+    { name="eeprom", skip=true }
+]
+
+order=["maincpu","soundcpu","k054539","gfx1","fix","obj"]
+
+patches=[
+	# bypass system test
+	{setname="rungun",offset=0x8e8,data="71 4E 71 4E 71 4E"},
+]
+
+nvram={	Defaults=[
+	{ data="""\
+	04 14 fb eb 92 47 45 41 41 00 15 03 07 03 00 00
+	00 00 00 00 00 00 00 1e 00 15 20 00 01 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	"""},
+	{ setname="rungunua", data="""\
+    04 3b fb c4 92 47 55 42 41 00 15 03 07 03 00 00
+    00 00 00 07 07 00 07 1e 01 15 20 00 01 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	"""},
+	{ setname="slmdunkj", data="""\
+    04 19 fb e6 92 47 4a 41 41 00 15 03 07 03 00 00
+    00 00 00 00 00 00 00 1e 00 15 20 00 01 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	"""},
+	{ setname="rungunu", data="""\
+    04 26 fb d9 92 47 55 41 42 00 10 03 07 03 00 00
+    00 00 00 07 07 00 07 1a 01 10 1a 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	"""},
+]}

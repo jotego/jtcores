@@ -28,7 +28,17 @@ module jtframe_test_clocks(
     output reg [31:0] framecnt=0
 );
 
-parameter TIMEOUT=100_000_000, MAXFRAMES=4;
+parameter TIMEOUT=100_000_000, MAXFRAMES=4, PXLCLK=6;
+
+localparam PXLEND = PXLCLK==6 ? 7 : 5;
+
+initial begin
+    if(PXLCLK!=6 && PXLCLK!=8) begin
+        $display("PXLCLK can only be set to 6 or 8 (MHz)");
+        $finish;
+    end
+end
+
 initial begin
     rst=0;
     #30  rst=1;
@@ -46,8 +56,8 @@ end
 integer cnt=0;
 
 always @(posedge clk) begin
-    cnt<=cnt==7 ? 0 : cnt+1;
-    pxl_cen <= cnt==7;  // 6MHz
+    cnt<=cnt==PXLEND ? 0 : cnt+1;
+    pxl_cen <= cnt==PXLEND;  // 6MHz or 8MHz
 end
 
 always @(negedge lvbl) begin

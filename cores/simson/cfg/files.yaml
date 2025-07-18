@@ -32,6 +32,9 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
   - from: ram
     get:
       - jtframe_dual_ram16.v

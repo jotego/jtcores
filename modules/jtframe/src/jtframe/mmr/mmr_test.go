@@ -47,13 +47,15 @@ func Test_generate(t *testing.T) {
 		t.Errorf("Expected one conversion, got %d",total)
 		return
 	}
-	ref_file := add_path_from_this_file("test_ref.v")
+	const ref_filename="test_ref.v"
+	ref_file := add_path_from_this_file(ref_filename)
 	ref, e := os.ReadFile(ref_file)
 	if e!=nil {
 		t.Error(e)
 		return
 	}
 	compare(string(ref),mmr.converted[0],t)
+	// os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644)
 }
 
 func add_path_from_this_file(fname string) string {
