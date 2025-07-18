@@ -52,7 +52,7 @@ always @(posedge clk) begin
     hs_end <= hfporch + {2'd0,hswidth,3'd0}+9'd7;
     hb_end <= hs_end  + hbporch;
     vs_end <= vfporch + {5'd0,vswidth};
-    vb_end <= vs_end  + vbporch + 9'd1;
+    vb_end <= vs_end  + vbporch;
 end
 
 always @(posedge clk) begin

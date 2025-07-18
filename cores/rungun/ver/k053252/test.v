@@ -58,7 +58,7 @@ always @(posedge hs) begin
         lines <= lines + 1;
         if(!lvbl && lvbl_l) begin
             lines <= 1;
-            if(lines!=0) assert_msg(lines==9'd264,"Must have 264 lines");
+            if(lines!=0) assert_msg(lines==9'd289,"Must have 289 lines");
         end
     end
 end
@@ -73,8 +73,6 @@ jtk053252 uut(
     .rnw        ( rnw       ),
     .din        ( din       ),
     .dout       (           ),
-    .hdump      (           ),
-    .vdump      (           ),
 
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
