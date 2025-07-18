@@ -43,7 +43,7 @@ always @(negedge lvbl) if(prog_done) begin
 end
 
 always @(posedge lvbl) if(rdy) begin
-    assert_msg(uut.vcnt==9'h20,"lvbl at unexpected time");
+    assert_msg(uut.vcnt==9'h21,"lvbl at unexpected time");
 end
 
 reg lvbl_l;
