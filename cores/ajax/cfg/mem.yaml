@@ -21,9 +21,9 @@ audio:
   rsum: 10k
   rsum_feedback_res: true
   channels:
-    - {name: fm,   module: jt51,     rsum:  7.1k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
-    - {name: pcm1, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.32 }
-    - {name: pcm2, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.32 }
+    - {name: fm,   rsum:  4.7k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }], module: jt51   }
+    - {name: pcm1, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.16,  module: jt007232        }
+    - {name: pcm2, rsum: 10.00k, rc: [{ r: 33k,  c: 470p }], pre: 0.16,  module: jt007232_stereo }
 sdram:
   banks:
     - buses:

@@ -52,22 +52,23 @@ module jtajax_sound(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [10:0] pcm1, pcm2,
+    output signed [10:0] pcm1, pcm2_l, pcm2_r,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
 
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm1, st2_pcm;
-wire        [15:0]  A;
-reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
-reg                 ram_cs, latch_cs, fm_cs, dac1_cs, dac2_cs, bank_cs;
-wire                cpu_cen;
-reg                 mem_acc, mem_upper;
-reg         [ 5:0]  pcm_bank;
-wire        [ 1:0]  ct;
+wire        [ 7:0] cpu_dout, ram_dout, fm_dout, st_pcm1, st2_pcm;
+wire        [15:0] A;
+reg         [ 7:0] cpu_din;
+wire               m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
+reg                ram_cs, latch_cs, fm_cs, dac1_cs, dac2_cs, bank_cs;
+wire               cpu_cen;
+reg                mem_acc, mem_upper;
+reg         [ 5:0] pcm_bank;
+wire        [ 1:0] ct;
+wire signed [10:0] pcm2_a, pcm2_b;
 
 assign rom_addr = A[14:0];
 assign st_dout  = { 2'd0, pcm_bank };
@@ -159,6 +160,19 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 /* verilator tracing_on */
+jtajax_pcmvol u_pcm2vol(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cs         ( dac2_cs   ),
+    .wr_n       ( wr_n      ),
+    .addr       ( A[3:0]    ),
+    .haddr      ( A[11]     ),
+    .din        ( cpu_dout  ),
+    .pcm_a      (pcm2_a[6:0]),
+    .pcm_b      (pcm2_b[6:0]),
+    .l          (pcm2_l     ),
+    .r          (pcm2_r     )
+);
 
 jt007232 #(.REG12A(0)) u_pcm1(
     .rst        ( rst       ),
@@ -192,7 +206,7 @@ jt007232 #(.REG12A(0)) u_pcm1(
     .st_dout    ( st_pcm1   )
 );
 
-jt007232 #(.REG12A(0)) u_pcm2(
+jt007232 #(.REG12A(0),.NOGAIN(1)) u_pcm2(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -202,7 +216,7 @@ jt007232 #(.REG12A(0)) u_pcm2(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
-    .swap_gains ( 1'b1      ),
+    .swap_gains ( 1'b1      ),  // no effect as NOGAIN=1
 
     // External memory - the original chip
     // only had one bus
@@ -216,9 +230,9 @@ jt007232 #(.REG12A(0)) u_pcm2(
     .romb_cs    ( pcm2b_cs   ),
     .romb_ok    ( pcm2b_ok   ),
     // sound output - raw
-    .snda       (           ),
-    .sndb       (           ),
-    .snd        ( pcm2      ),
+    .snda       ( pcm2_a    ),
+    .sndb       ( pcm2_b    ),
+    .snd        (           ),
     // debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st2_pcm   )

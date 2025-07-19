@@ -51,7 +51,7 @@ always @* begin
     for(k=0;k<K;k=k+1) full = k==0? ext(en[k],parts[WI-1:0]) : full+ext(en[k],parts[WI*k+:WI]);
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         sum  <= 0;
         peak <= 0;

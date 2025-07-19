@@ -1,6 +1,11 @@
 CORENAME=JTAJAX
 JTFRAME_MR_DDRLOAD
 
+# Available schematics show the same stereo partition that
+# MAME implements but only a single mono amplifier at the end.
+# There might be a different board version with a stereo amplifier
+JTFRAME_STEREO
+
 # Video configuration
 JTFRAME_COLORW=8
 JTFRAME_PXLCLK=6

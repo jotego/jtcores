@@ -91,7 +91,9 @@ parameter REG12A=1, // location of CHA gain, the gain device is external to the
                     // the SLEV pin when set.
                     // MX5000 uses the upper nibble for channel A, but
                     // aliens uses the lower.
-          INVA0 =0; // invert A0? The real chip did, we don't by default
+          INVA0 =0, // invert A0? The real chip did, we don't by default
+          NOGAIN=0; // Set to 1 to output the raw channel sign-extended to 11 bits
+                    // in order to apply gain externally. See use case in ajax
 
 reg [7:0] mmr[0:13]; // Not all bits are used
 
@@ -113,7 +115,7 @@ wire        chb_loop = mmr[13][1];
 
 wire [3:0] addrj = INVA0==1 ? (addr^4'b1) : addr; // addr LSB may be inverted
 
-jt007232_gain #(.REG12A(REG12A)) u_gain(
+jt007232_gain #(.REG12A(REG12A),.NOGAIN(NOGAIN)) u_gain(
     .clk        ( clk         ),
     .reg12      ( mmr[12]     ),
     .swap_gains ( swap_gains  ),

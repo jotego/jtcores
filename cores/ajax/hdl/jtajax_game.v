@@ -166,7 +166,8 @@ jtajax_sound u_sound(
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
     .pcm1       ( pcm1          ),
-    .pcm2       ( pcm2          ),
+    .pcm2_l     ( pcm2_l        ),
+    .pcm2_r     ( pcm2_r        ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )

@@ -24,15 +24,20 @@ module jt007232_gain(
     output reg signed [10:0] snda, sndb
 );
 
-parameter REG12A=1;
+parameter REG12A=1, NOGAIN=0;
 
 wire signed [ 4:0] cha_gain = {1'b0,  (REG12A[0]^swap_gains) ? reg12[7:4] : reg12[3:0] };
 wire signed [ 4:0] chb_gain = {1'b0, ~(REG12A[0]^swap_gains) ? reg12[7:4] : reg12[3:0] };
 reg  signed [11:0] mula, mulb;
 
 always @(posedge clk) begin
-    snda <= rawa * cha_gain;
-    sndb <= rawb * chb_gain;
+    if(NOGAIN==1) begin
+        snda <= {{4{rawa[6]}},rawa};
+        sndb <= {{4{rawb[6]}},rawb};
+    end else begin
+        snda <= rawa * cha_gain;
+        sndb <= rawb * chb_gain;
+    end
 end
 
 endmodule
