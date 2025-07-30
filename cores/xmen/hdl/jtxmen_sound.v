@@ -59,7 +59,7 @@ reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     cpu_cen, cen_g, fm_intn, latch_we, cen_fm, cen_fm2,
-                    latch_intn, int_n, nmi_trig, nmi_clr, k39_we;
+                    latch_intn, int_n, nmi_trig, nmi_clr, nc;
 reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
                     nmi_clrr, bank_we, k21_cs;
 
@@ -158,6 +158,7 @@ jt539 u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
+    .timeout    (           ),
     // CPU interface
     .addr       ({A[9],A[7:0]}),
     .we         ( ~wr_n     ),
@@ -167,7 +168,7 @@ jt539 u_k54539(
     .dout       ( k39_dout  ),
     // ROM
     .rom_cs     ( pcm_cs    ),
-    .rom_addr   ( pcm_addr  ),
+    .rom_addr   ({nc,pcm_addr}),
     .rom_data   ( pcm_dout  ),
     // Sound output
     .left       ( k539_l    ),

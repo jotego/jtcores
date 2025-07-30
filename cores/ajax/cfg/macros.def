@@ -1,0 +1,44 @@
+CORENAME=JTAJAX
+JTFRAME_MR_DDRLOAD
+
+# Available schematics show the same stereo partition that
+# MAME implements but only a single mono amplifier at the end.
+# There might be a different board version with a stereo amplifier
+JTFRAME_STEREO
+
+# Video configuration
+JTFRAME_COLORW=8
+JTFRAME_PXLCLK=6
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=224
+JTFRAME_VERTICAL
+JTFRAME_ARX=5
+JTFRAME_ARY=4
+
+JTFRAME_CREDITS_PAGES=4
+
+JTFRAME_JOY_DURL
+JTFRAME_BUTTONS=3
+
+# ROM configuration
+JTFRAME_HEADER=8
+SUB_START         =0x020000
+JTFRAME_BA1_START =0x038000
+PCM_START         =0x040000
+PCM2_START        =0x080000
+JTFRAME_BA2_START =0x100000
+JTFRAME_BA3_START =0x180000
+PSAC_START        =0x280000
+JTFRAME_PROM_START=0x300000
+
+# Debugging
+JTFRAME_IOCTL_RD=23584
+
+[mist]
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+
+[sidi]
+-JTFRAME_CREDITS
+

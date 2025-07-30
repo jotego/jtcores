@@ -143,6 +143,8 @@ module jtframe_board #(parameter
     output [3*COLORW-1:0] base_rgb,
     output              base_lhbl,
     output              base_lvbl,
+    output              base_hs,
+    output              base_vs,
 
     // ROM ioctl_rom (cheat engine)
     input               prog_cheat,
@@ -336,7 +338,6 @@ reg  show_credits;
         `endif
     end
 
-    // To do: HS and VS should actually be delayed inside jtframe_credits too
     jtframe_credits #(
         .PAGES  ( `JTFRAME_CREDITS_PAGES ),
         .COLW   ( COLORW                 ),
@@ -349,6 +350,8 @@ reg  show_credits;
         // input image
         .HB         ( LHBLs          ),
         .VB         ( LVBL           ),
+        .HS         ( hs             ),
+        .VS         ( vs             ),
         .rgb_in     ( {game_r, game_g, game_b} ),
         `ifdef JTFRAME_CREDITS_NOROTATE
             .rotate ( 2'd0          ),
@@ -382,11 +385,14 @@ reg  show_credits;
         // output image
         .HB_out     (  crdts_lhbl    ),
         .VB_out     (  crdts_lvbl    ),
+        .HS_out     (  base_hs       ),
+        .VS_out     (  base_vs       ),
         .rgb_out    ( {crdts_r, crdts_g, crdts_b } )
     );
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
     assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBL };
+    assign { base_hs,    base_vs       } = { hs,    vs   };
     initial show_credits=0;
 `endif
 

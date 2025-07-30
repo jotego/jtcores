@@ -1,0 +1,39 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17, 18
+
+Outputs:
+
+12 (Combinatorial, No output feedback, Active high)
+15 (Combinatorial, Output feedback output, Active high)
+16 (Combinatorial, Output feedback output, Active high)
+17 (Combinatorial, Output feedback output, Active high)
+18 (Combinatorial, Output feedback output, Active high)
+19 (Combinatorial, No output feedback, Active high)
+
+Equations:
+
+      DISP toggles every frame
+      FMODE and FSEL are set by the CPU
+      if FMODE is high, LRSW toggles at 60Hz -> two screens at 30Hz each
+               is low,  LRSW is set by the CPU
+      LRSW = left/right switch?
+LRSW = FMODE & DISP  +
+      /FMODE & FSEL
+
+o15 = L-R & /i7 +
+      i6 & i7
+
+o16 = /LRSW & i8 & /i9 +
+      LRSW & i8 & i9 +
+      L-R & /i8
+
+PRAMBK = /PSVRM & L-R +
+          PSVRM & LRSW
+
+o18 = L-R & /i4 +
+      LRSW & i4
+
+FRAMBK =  1H & LRSW +
+         /1H & L-R
+

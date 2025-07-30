@@ -1,0 +1,41 @@
+rungun:
+  - get:
+    - "*.v"
+riders:
+  - get:
+    - jt054321.v
+simson:
+  - get:
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jtsimson_obj.v
+    - jt053246_dma.v
+    - jt053246_mmr.v
+jtframe:
+  - get:
+    - jtframe_8bit_reg.v
+    - jtframe_16bit_reg.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml   
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_obj.yaml      
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+jt539:
+jteeprom:
+  - get:
+    - jt5911.sv

@@ -75,11 +75,13 @@ always @(posedge clk) begin
     end
 end
 
+wire [10:7] fnoshift = {4{~shift}} & func_key[10:7];
+
 jtframe_toggle #(.W(4),.VALUE_AT_RST(1'b1)) u_gfxen(
     .rst    ( rst           ),
     .clk    ( clk           ),
 
-    .toggle ( func_key[10:7]),
+    .toggle ( fnoshift      ),
     .q      ( gfx_en        )
 );
 

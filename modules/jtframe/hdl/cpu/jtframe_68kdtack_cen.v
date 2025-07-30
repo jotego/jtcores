@@ -120,7 +120,7 @@ always @(posedge clk) begin : dtack_gen
 end
 
 always @* begin
-    cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt} +num2;
+    cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt}+num2;
 end
 
 always @(posedge clk) begin

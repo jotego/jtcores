@@ -34,7 +34,6 @@ module jtxmen_video(
     // Object DMA
     input      [13:1] oram_addr,
     input      [ 1:0] oram_we,
-    input      [15:0] oram_din,
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
@@ -98,7 +97,6 @@ module jtxmen_video(
     output     [ 7:0] st_dout
 );
 
-wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl;
@@ -109,18 +107,15 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
 wire [ 3:0] obj_amsb;
-wire        lyrf_blnk_n,
+wire        lyrf_blnk_n, nc,
             lyra_blnk_n, obj_nmin,
-            lyrb_blnk_n, lyro_precs,
+            lyrb_blnk_n,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
-assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = cpu_addr;
-assign cpu_d8    = cpu_dout[ 7:0]  ;
-// Object ROM address MSB might come from a RAM
-assign lyro_addr   = lyro_prea;
-assign lyro_cs     = lyro_precs;
-assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
+assign cpu_weg    = cpu_we && cpu_dsn!=3;
+assign cpu_saddr  = cpu_addr;
+assign cpu_d8     = cpu_dout[7:0];
+assign dump_other = {2'd0,dimpol, dimmod, 1'b0, dim};
 
 jtriders_dump #(.FULLRAM(1)) u_dump(
     .clk            ( clk             ),
@@ -257,15 +252,13 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 4:0] lyro_pri;
 wire [ 3:0] ommra;
-wire [ 8:0] vmux;
 wire [13:1] orama;
 
 assign ommra = {cpu_addr[3:1],cpu_dsn[1]};
 // xmen never exercises cpu_addr[13], although it is connected to the RAM
 assign orama = cpu_addr[13:1];
-assign vmux  = vdump;
 
-jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
+jtsimson_obj #(.RAMW(13), .XMEN(1), .SHADOW(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -278,11 +271,11 @@ jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vmux      ),
+    .vdump      ( vdump     ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
     .ram_addr   ( orama     ),
-    .ram_din    ( oram_din  ),
+    .ram_din    ( cpu_dout  ),
     .ram_we     ( oram_we   ),
     .cpu_din    (objsys_dout),
 
@@ -294,10 +287,10 @@ jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( lyro_prea ),
+    .rom_addr   ({nc,lyro_addr}),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
-    .rom_cs     (lyro_precs ),
+    .rom_cs     ( lyro_cs   ),
     .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl  ),

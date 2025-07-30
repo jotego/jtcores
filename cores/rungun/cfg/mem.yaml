@@ -1,0 +1,122 @@
+params:
+  - { name: RAM_OFFSET,   value: "22'h200000" }
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: FIX_OFFSET,   value: "(`FIX_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk48:
+    - freq: 8000000
+      outputs:
+        - cen_8
+    # adjusted for pitch
+    # - freq: 18432000
+    - freq: 12288000
+    # - freq: 5926736
+    # - freq: 12315757
+    # - freq: 11853472
+      gate: [pcma,pcmb]
+      outputs:
+        - cen_pcm
+audio:
+  # using same mixing as MAME for now
+  # same filter as X-Men
+  rsum: 2k
+  channels:
+    - { name: k539a,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
+    - { name: k539b,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ], pre: 0.6 }
+ports:
+  - { name: cpu_dout, msb: 15 }
+sdram:
+  banks:
+    - buses:
+        - name: ram
+          addr_width: 17
+          data_width: 16
+          addr: main_addr[16:1]
+          din: cpu_dout
+          offset: RAM_OFFSET
+          rw: true
+        - name: main
+          addr_width: 22
+          data_width: 16
+    - buses:
+        - name: snd
+          addr_width: 17
+          data_width: 8
+        - name: pcma
+          addr_width: 22
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 22
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: scr
+          addr_width: 21
+          data_width:  8
+        - name: fix
+          addr_width: 17
+          data_width: 32
+          offset: FIX_OFFSET
+    - buses:
+        - name: obj
+          addr_width: 23
+          data_width: 32
+bram:
+  # EEROM - ER5911
+  - name: nvram
+    addr_width: 7
+    data_width: 8
+    sim_file: true
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: vram
+    addr_width: 13
+    data_width: 16
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: vmem
+      din:  "{2{cpu_dout[7:0]}}"
+      dout: vmem_dout
+      rw: true
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    ioctl: { save: true, order: 2 }
+    dual_port:
+      name: cpal
+      din:  cpu_dout
+      dout: cpal_dout
+      rw: true
+  - name: psac01
+    addr_width: 16
+    data_width: 16
+    addr: psac_addr
+    ioctl: { save: true, order: 3 }
+    dual_port:
+      name: pmem01
+      addr: pmem_addr
+      din:  cpu_dout
+      dout: pmem01_dout
+      rw: true
+  - name: psac2
+    addr_width: 15
+    data_width: 8
+    addr: psac_addr
+    ioctl: { save: true, order: 4 }
+    dual_port:
+      name: pmem2
+      addr: "pmem_addr[15:1]"
+      din:  cpu_dout[7:0]
+      dout: pmem2_dout
+      rw: true
+  - name: line
+    addr_width: 11
+    data_width: 16
+    ioctl: { save: true, order: 5 }
+    dual_port:
+      name: lmem
+      addr: "main_addr[10:1]"
+      din:  cpu_dout
+      dout: lmem_dout
+      rw: true

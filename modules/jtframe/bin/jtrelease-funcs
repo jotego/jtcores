@@ -113,7 +113,7 @@ get_full_hash() {
 }
 
 recompile_tool() {
-	local toolname="jtframe"
+	local toolname=$1
 	local tmplog=`mktemp`
 	local status=0
 	cd $JTFRAME/src/$toolname

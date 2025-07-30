@@ -674,12 +674,16 @@ func make_ioctl( cfg *MemConfig ) int {
 			each.Din = each.Name+"_dimx"
 		}
 		// size
+		const block_size = 6
 		dump_size     += 1<<each.Addr_width
 		ioinfo.Size   = 1<<each.Addr_width
 		ioinfo.SizekB = ioinfo.Size >> 10
-		ioinfo.Blocks = ioinfo.Size >> 8
+		ioinfo.Blocks = ioinfo.Size >> block_size
 		ioinfo.SkipBlocks = total_blocks
 		total_blocks  += ioinfo.Blocks
+		if (ioinfo.Blocks<<block_size) != ioinfo.Size {
+			fmt.Printf("WARNING: there is an ioctl request in mem.yaml lower than %d bytes. This will not be restored correctly in dump2bin.sh\n",1<<block_size)
+		}
 	}
 	cfg.Ioctl.SkipAll = total_blocks
 	if found {

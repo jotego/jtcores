@@ -35,7 +35,9 @@ JTFRAME_JOY1_POS         |         | Joystick 1 can be mapped to a different pla
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
 JTFRAME_JOY_DULR         |         | Joystick lower 4 bits are:  down,  up,    left,  right
 JTFRAME_JOY_LRUD         |         | Joystick lower 4 bits are:  left,  right, up,    down
+JTFRAME_JOY_LRDU         |         | Joystick lower 4 bits are:  left,  right, down,  up
 JTFRAME_JOY_RLDU         |         | Joystick lower 4 bits are:  right, left,  down,  up
+JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  up,    down
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons

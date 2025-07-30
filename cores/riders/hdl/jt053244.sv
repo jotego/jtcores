@@ -82,7 +82,7 @@ wire [11:2] scan_addr;
 wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 wire [ 7:0] cfg;
-wire        dma_wel, dma_weh, dma_trig, vb_rd,
+wire        dma_wel, dma_weh, dma_trig, vb_rd, nc,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 
 
@@ -160,7 +160,7 @@ jt053246_mmr u_mmr(
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
     .yoffset    ( yoffset   ),
-    .rmrd_addr  ( rmrd_addr ),
+    .rmrd_addr  ({nc,rmrd_addr}),
     .st_addr    ( st_addr   ),
     .st_dout    ( st_dout   )
 );
