@@ -21,7 +21,7 @@ module jtriders_main(
     input                clk, // 48 MHz
     input                lgtnfght,
     input                glfgreat,
-    input                LVBL,
+    input                LVBL, dma_bsy,
     input                cpu_n,       // low when CPU can access video RAM
 
     output        [19:1] main_addr,
@@ -92,7 +92,7 @@ wire [ 2:0] FC;
 reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs,
-            riders_son, riders_rmrd;
+            riders_son, riders_rmrd, adc_cs, out_cs, hit_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire [15:0] glfgreat_cab;
 wire [ 7:0] riders_cab, lgtnfght_cab;
@@ -115,7 +115,7 @@ assign omsb_we  = omsb_cs && cpu_we && !LDSn;
 assign omsb_addr= { cbnk, A[6:1] };
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
-assign VPAn     = lgtnfght ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
+assign VPAn     = (lgtnfght | glfgreat) ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
@@ -138,6 +138,14 @@ always @* begin
     riders_son = 0;
     pcu_cs     = 0;
     prot_cs    = 0;
+    // 053936
+    pslrm_cs   = 0;
+    psreg_cs   = 0;
+    rmrd_cs    = 0;
+    // glfgreat
+    adc_cs     = 0;
+    out_cs     = 0;
+    hit_cs     = 0;
     // wdog     = 0;
     if(!ASn) begin if(lgtnfght) casez(A[20:16])
         5'o0?: rom_cs = 1;
@@ -156,21 +164,28 @@ always @* begin
         5'o16: pcu_cs  = 1;     // 0x0E'0000
         5'o20: vram_cs = 1;     // 0x10'0000
         default:;
-    endcase else if(glfgreat) casez(A[21:12]) // 2-4-4
-        10'b00_????_????: rom_cs  = 1;     // 00'0000 ~ 0F'FFFF
-        10'b01_??00_00??: ram_cs  = ~BUSn; // 10'0000 ~ 10'3FFF
+    endcase else if(glfgreat) begin if(!A[23]) casez(A[21:12]) // 2-4-4
+       //   22 1111 1111
+       //   10 9876 5432
+        10'b00_????_????: rom_cs  = 1;     // 00'0000 ~ 0F'FFFF - LS139 @ 3F
+        10'b01_??00_00??: ram_cs  = ~BUSn; // 10'0000 ~ 10'3FFF - LS138 @ 4F
         10'b01_??00_01??: obj_cs  = 1;     // 10'4000 ~ 10'7FFF
         10'b01_??00_10??: pal_cs  = 1;     // 10'8000 ~ 10'8FFF
-    //  10'b01_??00_11??:                  // 10'C000 ~ 10'CFFF 053936
-        10'b01_??01_00??: objreg_cs=1;     // 11'0000 ~ 11'0FFF
-    //  10'b01_??01_01??: objreg_cs=1;     // 11'4000 ~ 11'4FFF
-    //  10'b01_??01_01??:                  // 11'8000 ~ 11'8FFF 053936
+        10'b01_??00_11??: pslrm_cs= 1;     // 10'C000 ~ 10'CFFF 053936 line RAM
+        10'b01_??01_00??: objreg_cs=1;     // 11'0000 ~ 11'0FFF OBJSET1
+    //  10'b01_??01_01??: objreg_cs=1;     // 11'4000 ~ 11'4FFF OBJSET2
+        10'b01_??01_10??: psreg_cs= 1;     // 11'8000 ~ 11'8FFF 053936 regs
         10'b01_??01_11??: pcu_cs  = 1;     // 11'C000 ~ 11'CFFF
-        10'b01_??1?_?000: cab_cs  = 1;     // 12'0000 ~ 12'0FFF
+        10'b01_??1?_?000: cab_cs  = 1;     // 12'0000           - LS138 @ 7E
+        10'b01_??1?_?001: hit_cs  = 1;     // 12'0001           - LS138 @ 7E
+        10'b01_??1?_?010: out_cs  = 1;     // 12'0001           - LS138 @ 7E
+        10'b01_??1?_?011: adc_cs  = 1;     // 12'0001           - LS138 @ 7E
+        10'b01_??1?_?101: snd_cs  = 1;     // 12'0001           - LS138 @ 7E
 
-        10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF
+        10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF - LS139 @ 3F
+        10'b11_????_????: rmrd_cs = 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
         default:;
-    endcase else case(A[23:20]) // tmnt2/ssriders
+    endcase end else case(A[23:20]) // tmnt2/ssriders
         0: rom_cs = 1;
         1: case(A[19:18])
             0: ram_cs  = A[14] & ~BUSn;
@@ -209,8 +224,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    IPLn    <= lgtnfght ? {tile_irqn, 1'b1,tile_irqn}:
-                          {tile_irqn, 1'b1,prot_irqn};
+    IPLn    <= {tile_irqn,1'b1, (lgtnfght | glfgreat) ? tile_irqn : prot_irqn};
     HALTn   <= dip_pause & ~rst;
     cab_dout<= glfgreat ? glfgreat_cab:
                lgtnfght ? {8'd0,lgtnfght_cab}:
@@ -253,7 +267,7 @@ jtglfgreat_cab u_cab(
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .cs         ( cab_cs        ),
-    .LVBL       ( LVBL          ),
+    .dma        ( dma_bsy       ),
     .dipsw      ( dipsw         ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),

@@ -26,7 +26,7 @@ localparam SSRIDERS = 0,
            GLFGREAT = 3;
 
 /* verilator tracing_on */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol,
+wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
@@ -113,6 +113,7 @@ jtriders_main u_main(
     .omsb_we        ( omsb_we       ),
     .omsb_addr      ( omsb_addr     ),
     .omsb_dout      ( omsb_dout     ),
+    .dma_bsy        ( dma_bsy       ),
     // To video
     .rmrd           ( rmrd          ),
     .dimmod         ( dimmod        ),
@@ -216,7 +217,7 @@ jtriders_video u_video (
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
-    .dma_bsy        (               ),
+    .dma_bsy        ( dma_bsy       ),
     // Z GFX
     .ztiles_addr    ( ztiles_addr   ),
     .ztiles_data    ( ztiles_data   ),

@@ -21,7 +21,7 @@ module jtriders_colmix(
     input             clk,
     input             pxl_cen,
 
-    input             lgtnfght,
+    input             lgtnfght, glfgreat,
 
     // Base Video
     input             lhbl,
@@ -38,7 +38,7 @@ module jtriders_colmix(
     output     [15:0] cpu_din,
 
     // Final pixels
-    input      [ 7:0] lyrf_pxl,
+    input      [ 7:0] lyrf_pxl, psc_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
@@ -87,7 +87,7 @@ assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
 assign pri1      = {1'b1, lyro_pxl[10:9], 3'd0};
-assign ci0       =  9'd0;
+assign ci0       =  glfgreat ? psc_pxl : 9'd0;
 assign ci1       =  lyro_pxl[8:0];
 assign ci2       = {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
 assign ci3       = {1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
