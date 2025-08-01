@@ -5,6 +5,14 @@
 
 set -e
 
+# Store arch
+raw_arch="$(uname -m)"
+case "$raw_arch" in
+    x86_64|amd64) arch="amd64" ;;
+    aarch64|arm64) arch="arch64" ;;
+    *) echo "Unkonwn architecture $raw_arch"; exit 1 ;;
+esac
+
 # Sublime Text
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
@@ -18,6 +26,9 @@ sudo apt install --yes --install-suggests build-essential git gtkwave figlet xml
 # repository called docker in ubuntu 20.04, docker.io in ubuntu 24.04    
 sudo apt install --yes docker.io
 sudo apt install --yes python-is-python3
+
+# Ubuntu only (ignore if alrea error)
+sudo apt install --yes libfl2 libfl-dev zlib1g zlib1g-dev 
 
 # required by iverilog
 sudo apt install --yes flex gperf bison
@@ -49,7 +60,8 @@ sudo apt install --yes locales locales-all
 sudo locale-gen en_US.UTF-8
 
 # open picoblaze assembler needed for assembling the cheat and beta code
-sudo pip install --upgrade opbasm
+python -m pip install --user --no-build-isolation "setuptools<58" "wheel<0.38"
+python -m pip install --user --no-build-isolation opbasm
 
 # as31 to compile 8051/8751 assembler code
 sudo apt install --yes as31
@@ -66,7 +78,11 @@ cd /tmp
 wget http://john.ccac.rwth-aachen.de:8000/ftp/as/source/c_version/asl-current.tar.gz
 tar xfz asl-current.tar.gz
 cd asl-current
-ln -s Makefile.def-samples/Makefile.def-x86_64-unknown-linux Makefile.def
+if [[ "$arch" == "arch64" ]]; then
+    ln -s Makefile.def-samples/Makefile.def-arm-apple-linux Makefile.def
+elif [[ "$arch" == "amd64" ]]; then
+    ln -s Makefile.def-samples/Makefile.def-x86_64-unknown-linux Makefile.def
+fi
 make
 sudo cp alink asl p2bin p2hex pbind plist /usr/local/bin
 sudo mkdir -p /usr/local/share/man/man1/
@@ -82,8 +98,6 @@ sudo mv mra /usr/local/bin/mra
 # Verilator
 sudo apt install --yes git help2man perl python3 make autoconf g++ flex bison ccache
 sudo apt install --yes libgoogle-perftools-dev numactl perl-doc
-# Ubuntu only (ignore if alrea error)
-sudo apt install --yes libfl2 libfl-dev zlib1g zlib1g-dev 
 
 cd $HOME
 unset VERILATOR_ROOT
@@ -106,7 +120,7 @@ make -j $((`nproc`*4/5))
 sudo make install
 
 # nice to have
-sudo apt install --yes htop flameshot ghex
+sudo apt install --yes htop flameshot ghex imagemagick
 
 # git configuration
 git config --global url.ssh://git@github.com/.insteadOf https://github.com/
@@ -125,7 +139,11 @@ git config --global core.autocrlf input
 git config --global pull.rebase true
 
 # Go
-GONAME=go1.21.3.linux-amd64.tar.gz
+if [[ "$arch" == "arch64" ]]; then
+    GONAME=go1.21.3.linux-arm64.tar.gz
+elif [[ "$arch" == "amd64" ]]; then
+    GONAME=go1.21.3.linux-amd64.tar.gz
+fi
 wget https://go.dev/dl/$GONAME
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf $GONAME
 sudo rm -f $GONAME
