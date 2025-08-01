@@ -93,7 +93,7 @@ assign tst_nx = tst_rd & ~tst_rdl;
 
 always @(posedge clk) ch_en_l <= ch_en; // to ease timing when using JTFRAME_SDRAM96
 
-jt053260_timer(rst,clk,cen,tim2);
+jt053260_timer u_tim2(rst,clk,cen,tim2);
 
 jtframe_limsum u_suml(
     .rst    ( rst       ),

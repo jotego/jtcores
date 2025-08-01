@@ -26,7 +26,7 @@ localparam SSRIDERS = 0,
            GLFGREAT = 3;
 
 /* verilator tracing_on */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy,
+wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
@@ -109,6 +109,11 @@ jtriders_main u_main(
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
+    // PSAC
+    .psreg_cs       ( psac_cs       ),
+    .psac_bank      ( psac_bank     ),
+    .lmem_we        ( lmem_we       ),
+    .lmem_dout      ( lmem_dout     ),
     // Object MSB RAM
     .omsb_we        ( omsb_we       ),
     .omsb_addr      ( omsb_addr     ),
@@ -218,16 +223,21 @@ jtriders_video u_video (
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .dma_bsy        ( dma_bsy       ),
-    // Z GFX
-    .ztiles_addr    ( ztiles_addr   ),
-    .ztiles_data    ( ztiles_data   ),
-    .ztiles_cs      ( ztiles_cs     ),
-    .ztiles_ok      ( ztiles_ok     ),
+    // PSAC GFX
+    .psac_cs        ( psac_cs       ),
+    .psac_bank      ( psac_bank     ),
+    .psc_addr       ( psc_addr      ),
+    .psc_data       ( psc_data      ),
+    .psc_cs         ( psc_cs        ),
+    .psc_ok         ( psc_ok        ),
 
-    .zmap_addr      ( zmap_addr     ),
-    .zmap_data      ( zmap_data     ),
-    .zmap_cs        ( zmap_cs       ),
-    .zmap_ok        ( zmap_ok       ),
+    .pscmap_addr    ( pscmap_addr   ),
+    .pscmap_data    ( pscmap_data   ),
+    .pscmap_cs      ( pscmap_cs     ),
+    .pscmap_ok      ( pscmap_ok     ),
+
+    .line_addr      ( line_addr     ),
+    .line_dout      ( line_dout     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

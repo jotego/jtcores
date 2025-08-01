@@ -3,4 +3,6 @@ riders:
     - "*.v"
     - "*.sv"
     - common.yaml
-
+rungun:
+  - get:
+    - jt053936.v

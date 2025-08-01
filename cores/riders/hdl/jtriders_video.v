@@ -44,6 +44,7 @@ module jtriders_video(
     input      [15:0] cpu_dout,
     input             cpu_we,
 
+    input             psac_cs,
     input             pcu_cs,
     input             pal_cs,
     output     [15:0] pal_dout,
@@ -86,16 +87,19 @@ module jtriders_video(
     input      [31:0] lyrb_data,
     input      [31:0] lyro_data,
     // Z Gfx (glfgreat only)
-    output     [20:2] ztiles_addr,
-    input      [31:0] ztiles_data,
-    output            ztiles_cs,
-    input             ztiles_ok,
+    input             psac_bank,
+    output     [20:0] psc_addr,
+    input      [ 7:0] psc_data,
+    output            psc_cs,
+    input             psc_ok,
 
-    output     [20:2] zmap_addr,
-    input      [31:0] zmap_data,
-    output            zmap_cs,
-    input             zmap_ok,
+    output     [18:0] pscmap_addr,
+    input      [31:0] pscmap_data,
+    input             pscmap_ok,
+    output            pscmap_cs,
 
+    output     [10:1] line_addr,
+    input      [15:0] line_dout,
     // Color
     input      [ 2:0] dim,
     input             dimmod,
@@ -120,9 +124,9 @@ wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
+wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr, psc_pxl,
             lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
-            lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
+            lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire        shadow;
 wire [ 3:0] obj_amsb;
@@ -143,9 +147,7 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
-
-// not ready yet
-assign  ztiles_addr=0, zmap_addr=0, ztiles_cs=0, zmap_cs=0;
+assign pscmap_cs   = glfgreat;
 
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
@@ -288,6 +290,40 @@ jtaliens_scroll #(
 );
 
 /* verilator tracing_on */
+jtriders_psac u_psac(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .enable     ( glfgreat  ),
+    .tmap_bank  ( psac_bank ),
+
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+    .dtackn     ( 1'b0      ),
+
+    .cs         ( psac_cs   ), // cs always writes
+    .din        ( cpu_dout  ),
+    .addr       ( cpu_addr[4:1] ),
+    .dsn        ( cpu_dsn   ),
+    .dma_n      (           ),
+
+    .vram_addr  (pscmap_addr),
+    .vram_dout  ( pscmap_data[23:0] ),
+
+    .line_addr  ( line_addr ),
+    .line_dout  ( line_dout ),
+
+    // Tiles
+    .rom_addr   ( psc_addr  ),
+    .rom_data   ( psc_data  ),
+    .rom_cs     ( psc_cs    ),
+    .rom_ok     ( psc_ok    ),
+    .pxl        ( psc_pxl   ),
+    // IOCTL dump
+    .ioctl_addr (ioctl_addr[4:0]),
+    .ioctl_din  ( psac_mmr  )
+);
+
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
 wire [ 8:0] vmux;
@@ -354,6 +390,7 @@ jtriders_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .lgtnfght   ( lgtnfght  ),
+    .glfgreat   ( glfgreat  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -375,6 +412,7 @@ jtriders_colmix u_colmix(
     .lyrb_pxl   ( lyrb_pxl  ),
     .lyro_pxl   ( lyro_pxl  ),
     .lyro_pri   ( lyro_pri  ),
+    .psc_pxl    ( psc_pxl   ),
 
     // shadow
     .dimmod     ( dimmod    ),

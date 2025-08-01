@@ -25,7 +25,7 @@ module jtriders_main(
     input                cpu_n,       // low when CPU can access video RAM
 
     output        [19:1] main_addr,
-    output        [ 1:0] ram_dsn,
+    output        [ 1:0] ram_dsn, lmem_we,
     output        [15:0] cpu_dout,
     input                BRn,
     input                BGACKn,
@@ -34,6 +34,7 @@ module jtriders_main(
     output               cpu_we,
     output reg           pal_cs,
     output reg           pcu_cs,
+    output reg           psreg_cs, psac_bank,
     // Sound interface
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
@@ -45,7 +46,7 @@ module jtriders_main(
     output reg           obj_cs,
 
     input         [15:0] oram_dout,
-    input         [15:0] prot_dout,
+    input         [15:0] prot_dout, lmem_dout,
     input         [ 7:0] vram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
@@ -91,7 +92,7 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC;
 reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
-            eep_di, eep_clk, eep_cs, omsb_cs,
+            eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs, psvrm_cs,
             riders_son, riders_rmrd, adc_cs, out_cs, hit_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire [15:0] glfgreat_cab;
@@ -113,6 +114,7 @@ assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_we   = ~RnW;
 assign omsb_we  = omsb_cs && cpu_we && !LDSn;
 assign omsb_addr= { cbnk, A[6:1] };
+assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = (lgtnfght | glfgreat) ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
@@ -141,7 +143,7 @@ always @* begin
     // 053936
     pslrm_cs   = 0;
     psreg_cs   = 0;
-    rmrd_cs    = 0;
+    psvrm_cs   = 0;
     // glfgreat
     adc_cs     = 0;
     out_cs     = 0;
@@ -183,7 +185,7 @@ always @* begin
         10'b01_??1?_?101: snd_cs  = 1;     // 12'0001           - LS138 @ 7E
 
         10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF - LS139 @ 3F
-        10'b11_????_????: rmrd_cs = 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
+        10'b11_????_????: psvrm_cs= 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
         default:;
     endcase end else case(A[23:20]) // tmnt2/ssriders
         0: rom_cs = 1;
@@ -232,15 +234,20 @@ always @(posedge clk) begin
     sndon   <= lgtnfght ? lgtnfght_son  : riders_son;
     dim     <= lgtnfght ? lgtnfght_dim  : riders_dim;
     rmrd    <= lgtnfght ? lgtnfght_rmrd : riders_rmrd;
-    cpu_din <= rom_cs  ? rom_data        :
-               ram_cs  ? ram_dout        :
-               obj_cs  ? oram_dout       :
-               prot_cs ? prot_dout       :
-               vram_cs ? {2{vram_dout}}  :
-               pal_cs  ? pal_dout        :
-               snd_cs  ? {8'd0,snd2main }:
-               omsb_cs ? {8'd0,omsb_dout}:
-               cab_cs  ? cab_dout        : 16'h0;
+    cpu_din <= rom_cs   ? rom_data         :
+               ram_cs   ? ram_dout         :
+               obj_cs   ? oram_dout        :
+               prot_cs  ? prot_dout        :
+               vram_cs  ? {2{vram_dout}}   :
+               pal_cs   ? pal_dout         :
+               pslrm_cs ? lmem_dout        :
+               snd_cs   ? {8'd0,snd2main } :
+               omsb_cs  ? {8'd0,omsb_dout} :
+               cab_cs   ? cab_dout         : 16'h0;
+    if(out_cs) begin // glfgreat
+        rmrd <= cpu_dout[4];
+        psac_bank <= cpu_dout[5];
+    end
 end
 
 jtriders_cab u_riders_cab(
