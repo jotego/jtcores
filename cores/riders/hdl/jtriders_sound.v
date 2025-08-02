@@ -235,6 +235,6 @@ assign  pcmd_addr  = 0;
 assign  pcmd_cs    = 0;
 assign  rom_addr   = 0;
 initial rom_cs     = 0;
-assign  { fm_l, fm_r, k60_l, k60_r } = 0;
+assign  { k60_l, k60_r } = 0;
 `endif
 endmodule
