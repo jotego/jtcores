@@ -28,7 +28,7 @@ module jtriders_sound(
     input           glfgreat,
 
     // communication with main CPU
-    input   [ 7:0]  main_dout,  // bus access for Punk Shot
+    input   [15:0]  main_dout,  // bus access for Punk Shot
     output  [ 7:0]  main_din,
     input   [ 4:1]  main_addr,
     input           main_rnw,
@@ -64,7 +64,7 @@ module jtriders_sound(
     output     signed [15:0] k60_l, k60_r
 );
 `ifndef NOSOUND
-wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
+wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout, main_dmux,
                     k60_dout /*, k39_dout,*/ /*latch_dout*/;
 wire        [20:0]  rawa_addr;
 wire        [15:0]  A;
@@ -88,6 +88,7 @@ assign cpu_din  = rom_cs ? rom_data   :
                   fm_cs  ? fm_dout    : 8'hff;
 assign cen_g    = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
 assign pcma_addr= lgtnfght ? {1'b0,rawa_addr[19:0]} : rawa_addr;
+assign main_dmux= glfgreat ? main_dout[15:8] : main_dout[7:0];
 
 always @(*) begin
     k60_cs    = 0;
@@ -109,7 +110,10 @@ always @(*) begin
         endcase
     end else if(glfgreat) begin
         k60_cs    = mem_f8;
-        nmi_cs    = mem_fa;
+        // nmi_cs    = mem_fa;
+        nmi_cs    = 1;      // disables NMI. It isn't used by the software
+        // but if left on, it will be triggered before the stack pointer is
+        // set, causing the program to crash
     end else begin
         fm_cs     = mem_f8;
         k60_cs    = mem_fa;
@@ -125,7 +129,7 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_sysz80 #(`ifdef SND_RAMW .RAM_AW(`SND_RAMW), `endif .CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -184,7 +188,7 @@ jt053260 u_k53260(
     .mrdnw      ( main_rnw  ),
     .mcs        ( 1'b1      ),
     .mdin       ( main_din  ),
-    .mdout      ( main_dout ),
+    .mdout      ( main_dmux ),
     // Sub CPU control
     .addr       ( A[5:0]    ),
     .rd_n       ( rd_n      ),

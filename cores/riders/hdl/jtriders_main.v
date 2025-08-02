@@ -119,7 +119,7 @@ assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = (lgtnfght | glfgreat) ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
 assign dtac_mux = DTACKn | ~vdtac;
-assign snd_wrn  = ~(snd_cs & ~RnW);
+assign snd_wrn  = ~(snd_cs & ~RnW & (glfgreat ? ~UDSn : ~LDSn));
 
 reg none_cs/*, wdog*/;
 // not following the PALs as the dumps from PLD Archive are not readable
@@ -179,10 +179,10 @@ always @* begin
         10'b01_??01_10??: psreg_cs= 1;     // 11'8000 ~ 11'8FFF 053936 regs
         10'b01_??01_11??: pcu_cs  = 1;     // 11'C000 ~ 11'CFFF
         10'b01_??1?_?000: cab_cs  = 1;     // 12'0000           - LS138 @ 7E
-        10'b01_??1?_?001: hit_cs  = 1;     // 12'0001           - LS138 @ 7E
-        10'b01_??1?_?010: out_cs  = 1;     // 12'0001           - LS138 @ 7E
-        10'b01_??1?_?011: adc_cs  = 1;     // 12'0001           - LS138 @ 7E
-        10'b01_??1?_?101: snd_cs  = 1;     // 12'0001           - LS138 @ 7E
+        10'b01_??1?_?001: hit_cs  = 1;     // 12'1000           - LS138 @ 7E
+        10'b01_??1?_?010: out_cs  = 1;     // 12'2000           - LS138 @ 7E
+        10'b01_??1?_?011: adc_cs  = 1;     // 12'3000           - LS138 @ 7E
+        10'b01_??1?_?101: snd_cs  = 1;     // 12'5000           - LS138 @ 7E
 
         10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF - LS139 @ 3F
         10'b11_????_????: psvrm_cs= 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
@@ -208,8 +208,8 @@ always @* begin
             4'ha: objreg_cs = 1;
             4'hc: case(A[11:8]) // 13G
                 6: begin
-                    snd_cs = !A[2]; // 053260
-                    riders_son  =  A[2];
+                    snd_cs     = !A[2]; // 053260
+                    riders_son =  A[2];
                 end
                 7: pcu_cs = 1;      // 053251
                 default:;
@@ -242,7 +242,7 @@ always @(posedge clk) begin
                hit_cs   ? {8'd0,platch }   :
                pal_cs   ? pal_dout         :
                pslrm_cs ? lmem_dout        :
-               snd_cs   ? {8'd0,snd2main } :
+               snd_cs   ? {2{snd2main}}    : // glfgreat uses upper byte, others use the lower one
                omsb_cs  ? {8'd0,omsb_dout} :
                cab_cs   ? cab_dout         : 16'h0;
     if(out_cs) begin // glfgreat

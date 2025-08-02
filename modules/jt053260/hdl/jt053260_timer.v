@@ -21,18 +21,18 @@ module jt053260_timer(
     input                    rst,
     input                    clk,
     input                    cen,
-    output reg               tim2    
+    output reg               tim2 // 2ms period for a cen&clk of 3.57 MHz
 );
 
-reg [7:0] cnt;
-wire      over = cnt==111;
+reg [12:0] cnt;
+wire       over = cnt==7167;
 
 always @(posedge clk) begin
     if(rst) begin
         cnt <= 0;
     end else if(cen) begin
         tim2 <= over;
-        cnt  <= over ? 8'd0 : cnt+8'd1;
+        cnt  <= over ? 13'd0 : cnt+13'd1;
     end
 end
 

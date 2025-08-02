@@ -180,7 +180,7 @@ jtriders_prot u_prot(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -287,7 +287,7 @@ jtriders_sound u_sound(
     .glfgreat   ( glfgreat      ),
 
     // communication with main CPU
-    .main_dout  ( ram_din[7:0]  ),
+    .main_dout  ( ram_din       ),
     .main_din   ( snd2main      ),
     .main_addr  ( main_addr[4:1]),
     .main_rnw   ( snd_wrn       ),
