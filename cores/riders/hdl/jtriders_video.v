@@ -196,6 +196,41 @@ function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
 endfunction
 
+function [31:0] shuffle(input [31:0]x);
+    reg [7:0] a,b,c,d;
+    {d,c,b,a}=x;
+    case(debug_bus[4:0])
+        0: shuffle = {d,c,b,a};
+        1: shuffle = {c,d,b,a};
+        2: shuffle = {d,b,c,a};
+        3: shuffle = {b,d,c,a};
+        4: shuffle = {c,b,d,a};
+        5: shuffle = {b,c,d,a};
+
+        6: shuffle = {d,c,a,b};
+        7: shuffle = {c,d,a,b};
+        8: shuffle = {d,a,c,b};
+        9: shuffle = {a,d,c,b};
+       10: shuffle = {c,a,d,b};
+       11: shuffle = {a,c,d,b};
+
+       12: shuffle = {d,a,b,c};
+       13: shuffle = {a,d,b,c};
+       14: shuffle = {d,b,a,c};
+       15: shuffle = {b,d,a,c};
+       16: shuffle = {a,b,d,c};
+       17: shuffle = {b,a,d,c};
+
+       18: shuffle = {a,c,b,d};
+       19: shuffle = {c,a,b,d};
+       20: shuffle = {a,b,c,d};
+       21: shuffle = {b,a,c,d};
+       22: shuffle = {c,b,a,d};
+       23: shuffle = {a,c,d,d};
+       default: shuffle = {d,c,b,a};
+    endcase
+endfunction
+
 /* verilator tracing_on */
 // extra blanking added to help MiSTer output
 // on real hardware, it would've been manually
@@ -264,9 +299,9 @@ jtaliens_scroll #(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( lyrf_data ),
-    .lyra_data  ( lyra_data ),
-    .lyrb_data  ( lyrb_data ),
+    .lyrf_data  ( shuffle(lyrf_data) ),
+    .lyra_data  ( shuffle(lyra_data) ),
+    .lyrb_data  ( shuffle(lyrb_data) ),
 
     .lyra_ok    ( lyra_ok ),
 
