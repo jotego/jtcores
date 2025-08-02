@@ -10,22 +10,22 @@ skip = { bootlegs=true, machines=[
 	"punkshot",
 	# not covered yet
 	"blswhstl",
-    "cuebrick",
-    "blswhstl",
-    "qgakumon",
-    "thndrx2",
-    "prmrsocr",
-    # ROM regions names
-    "asterix",
+	"cuebrick",
+	"blswhstl",
+	"qgakumon",
+	"thndrx2",
+	"prmrsocr",
+	# ROM regions names
+	"asterix",
 ]}
 
 debug={machines=["tmnt2","glfgreat"]}
 
 [buttons]
 names = [
-    { machine="ssriders", names="Shoot,Jump" },
-    { machine="tmnt2",    names="Shoot,Jump" },
-    { machine="glfgreat", names="Stance,Shot"},
+	{ machine="ssriders", names="Shoot,Jump" },
+	{ machine="tmnt2",    names="Shoot,Jump" },
+	{ machine="glfgreat", names="Stance,Shot"},
 ]
 
 [header]
@@ -40,24 +40,24 @@ offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"
 
 [ROM]
 regions = [
-    { name="maincpu", width=16, reverse=true  },
+	{ name="maincpu", width=16, reverse=true  },
 
-    { name="audiocpu"  },
-    { name="k053260", rename="pcm" },
+	{ name="audiocpu"  },
+	{ name="k053260", rename="pcm" },
 	# tiles
-    { name="k052109", width=32 },
-    { name="k052109", width=32, machines=["glfgreat"], parts=[
-    	{name="061d13.12k", crc="9f999f0b",  map="0201"},
-    	{name="061d14.12l", crc="b9440924",  map="2010"},
-    ] },
-    # sprites
-    { name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2", "lgtnfght" ] },
-    { name="k053245", width=16, rename="obj", machines=[ "glfgreat" ] },
-    # ROZ plane
-    { name="zoom",  machines=["glfgreat"], rename="z-tiles", start="PSC_START" }, # 053936 tiles
-    { name="user1", machines=["glfgreat"], rename="z-tilemap", width=32, sequence=[0,1,2,0], start="PSCMAP_START" }, # 053936 tile maps
+	{ name="k052109", width=32 },
+	{ name="k052109", width=32, machines=["glfgreat"], parts=[
+		{name="061d13.12k", crc="9f999f0b",  map="2010"},
+		{name="061d14.12l", crc="b9440924",  map="0201"},
+	] },
+	# sprites
+	{ name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2", "lgtnfght" ] },
+	{ name="k053245", width=16, rename="obj", machines=[ "glfgreat" ] },
+	# ROZ plane
+	{ name="zoom",  machines=["glfgreat"], rename="z-tiles", start="PSC_START" }, # 053936 tiles
+	{ name="user1", machines=["glfgreat"], rename="z-tilemap", width=32, sequence=[0,1,2,0], start="PSCMAP_START" }, # 053936 tile maps
 
-    { name="eeprom", skip=true }
+	{ name="eeprom", skip=true }
 ]
 
 order=["maincpu","audiocpu","pcm","k052109","obj", "z-tiles", "z-tilemap"]
@@ -248,13 +248,13 @@ nvram={	Defaults=[
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
 	{ setname="tmnt2", data="""\
-    03 cc fc 33 90 63 55 41 41 00 00 00 00 01 01 01
-    00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
+	03 cc fc 33 90 63 55 41 41 00 00 00 00 01 01 01
+	00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
 ] }
 
