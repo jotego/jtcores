@@ -43,6 +43,7 @@ module jtriders_video(
     input      [ 1:0] cpu_dsn,
     input      [15:0] cpu_dout,
     input             cpu_we,
+    output     [ 7:0] platch,
 
     input             psac_cs,
     input             pcu_cs,
@@ -174,18 +175,6 @@ jtriders_dump #(.FULLOBJ(1)) u_dump(
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 
-// function [31:0] sorto( input [31:0] x );
-//     sorto= {
-//         x[12], x[ 8], x[ 4], x[ 0],
-//         x[28], x[24], x[20], x[16],
-//         x[13], x[ 9], x[ 5], x[ 1],
-//         x[29], x[25], x[21], x[17],
-//         x[14], x[10], x[ 6], x[ 2],
-//         x[30], x[26], x[22], x[18],
-//         x[15], x[11], x[ 7], x[ 3],
-//         x[31], x[27], x[23], x[19] };
-// endfunction
-
 always @* begin
     lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
     lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
@@ -309,6 +298,7 @@ jtriders_psac u_psac(
 
     .vram_addr  (pscmap_addr),
     .vram_dout  ( pscmap_data[23:0] ),
+    .vram_ok    ( pscmap_ok ),
 
     .line_addr  ( line_addr ),
     .line_dout  ( line_dout ),
@@ -413,6 +403,7 @@ jtriders_colmix u_colmix(
     .lyro_pxl   ( lyro_pxl  ),
     .lyro_pri   ( lyro_pri  ),
     .psc_pxl    ( psc_pxl   ),
+    .platch     ( platch    ),
 
     // shadow
     .dimmod     ( dimmod    ),

@@ -47,7 +47,7 @@ module jtriders_main(
 
     input         [15:0] oram_dout,
     input         [15:0] prot_dout, lmem_dout,
-    input         [ 7:0] vram_dout,
+    input         [ 7:0] vram_dout, platch,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -239,6 +239,7 @@ always @(posedge clk) begin
                obj_cs   ? oram_dout        :
                prot_cs  ? prot_dout        :
                vram_cs  ? {2{vram_dout}}   :
+               hit_cs   ? {8'd0,platch }   :
                pal_cs   ? pal_dout         :
                pslrm_cs ? lmem_dout        :
                snd_cs   ? {8'd0,snd2main } :

@@ -53,6 +53,8 @@ module jtriders_colmix(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
+    output reg [ 7:0] platch,   // data read by glfgreat when hit_cs is set
+
     // Debug
     input      [11:0] ioctl_addr,
     input             ioctl_ram,
@@ -73,7 +75,7 @@ reg         st;
 wire [ 7:0] r8, bg8;
 reg  [ 7:0] b8, g8;
 wire [10:0] pal_addr;
-wire        brit, shad, pcu_we, nc;
+wire        brit, shad, pcu_we, nc, hit;
 wire [ 6:0] lyra, lyrb;
 // 053251 inputs
 wire [ 5:0] pri1;
@@ -99,6 +101,7 @@ assign ci4       = glfgreat ? {1'b0, lyrb } : {1'b0, lyra };
 assign shad      =  shd_out[0];
 assign shd_in    = {1'b0,shadow};
 assign k251_din  = glfgreat ? cpu_dout[13:8]: cpu_dout[5:0];
+assign hit       =&lyro_pxl[1+:8];
 
 always @* begin
     // LUT generated with
@@ -126,7 +129,11 @@ wire nodimming = 1;
 wire nodimming = 0;
 `endif
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    if( hit ) platch <= psc_pxl;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         bgr   <= 0;
         bsel  <= 0;

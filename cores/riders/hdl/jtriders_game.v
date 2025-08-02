@@ -38,6 +38,7 @@ reg         ssriders=0, tmnt2=0, lgtnfght=0, glfgreat=0;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
+wire [ 7:0] platch;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
 
@@ -114,6 +115,7 @@ jtriders_main u_main(
     .psac_bank      ( psac_bank     ),
     .lmem_we        ( lmem_we       ),
     .lmem_dout      ( lmem_dout     ),
+    .platch         ( platch        ),
     // Object MSB RAM
     .omsb_we        ( omsb_we       ),
     .omsb_addr      ( omsb_addr     ),
@@ -223,6 +225,7 @@ jtriders_video u_video (
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .dma_bsy        ( dma_bsy       ),
+    .platch         ( platch        ),
     // PSAC GFX
     .psac_cs        ( psac_cs       ),
     .psac_bank      ( psac_bank     ),
