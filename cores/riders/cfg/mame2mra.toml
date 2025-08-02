@@ -46,7 +46,10 @@ regions = [
     { name="k053260", rename="pcm" },
 
     { name="k052109", width=32 }, # tiles
-    { name="k052109", width=16, machines=["glfgreat"] }, # tiles
+    { name="k052109", width=32, machines=["glfgreat"], parts=[
+    	{name="061d14.12l", crc="b9440924",  map="0201"},
+    	{name="061d13.12k", crc="9f999f0b",  map="2010"},
+    ] }, # tiles
     # sprites
     { name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2", "lgtnfght" ] },
     { name="k053245", width=16, rename="obj", machines=[ "glfgreat" ] },
