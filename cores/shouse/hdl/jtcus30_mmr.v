@@ -41,6 +41,7 @@ module jtcus30_mmr(
 
 parameter SIMFILE="rest.bin",
           SEEK=0;
+parameter [SIZE*8-1:0] INIT=0; // from high to low regs {mmr[3],mmr[2],mmr[1],mmr[0]}
 
 localparam SIZE=63;
 
@@ -122,72 +123,9 @@ assign freq = {
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
     `ifndef SIMULATION
-        // no mechanism for default values yet
-        mmr[0] <= 0;
-        mmr[1] <= 0;
-        mmr[2] <= 0;
-        mmr[3] <= 0;
-        mmr[4] <= 0;
-        mmr[5] <= 0;
-        mmr[6] <= 0;
-        mmr[7] <= 0;
-        mmr[8] <= 0;
-        mmr[9] <= 0;
-        mmr[10] <= 0;
-        mmr[11] <= 0;
-        mmr[12] <= 0;
-        mmr[13] <= 0;
-        mmr[14] <= 0;
-        mmr[15] <= 0;
-        mmr[16] <= 0;
-        mmr[17] <= 0;
-        mmr[18] <= 0;
-        mmr[19] <= 0;
-        mmr[20] <= 0;
-        mmr[21] <= 0;
-        mmr[22] <= 0;
-        mmr[23] <= 0;
-        mmr[24] <= 0;
-        mmr[25] <= 0;
-        mmr[26] <= 0;
-        mmr[27] <= 0;
-        mmr[28] <= 0;
-        mmr[29] <= 0;
-        mmr[30] <= 0;
-        mmr[31] <= 0;
-        mmr[32] <= 0;
-        mmr[33] <= 0;
-        mmr[34] <= 0;
-        mmr[35] <= 0;
-        mmr[36] <= 0;
-        mmr[37] <= 0;
-        mmr[38] <= 0;
-        mmr[39] <= 0;
-        mmr[40] <= 0;
-        mmr[41] <= 0;
-        mmr[42] <= 0;
-        mmr[43] <= 0;
-        mmr[44] <= 0;
-        mmr[45] <= 0;
-        mmr[46] <= 0;
-        mmr[47] <= 0;
-        mmr[48] <= 0;
-        mmr[49] <= 0;
-        mmr[50] <= 0;
-        mmr[51] <= 0;
-        mmr[52] <= 0;
-        mmr[53] <= 0;
-        mmr[54] <= 0;
-        mmr[55] <= 0;
-        mmr[56] <= 0;
-        mmr[57] <= 0;
-        mmr[58] <= 0;
-        mmr[59] <= 0;
-        mmr[60] <= 0;
-        mmr[61] <= 0;
-        mmr[62] <= 0;
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
-        for(i=0;i<SIZE;i++) mmr[i] <= mmr_init[i];
+        for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif 
     end else begin
         st_dout   <= mmr[debug_bus[5:0]];
@@ -195,6 +133,7 @@ always @(posedge clk, posedge rst) begin
         if( cs & ~rnw ) begin
             mmr[addr]<=din;
         end
+        i = 0; // for Quartus linter
     end
 end
 
@@ -220,6 +159,8 @@ initial begin
             $display("\twsel = %X",{  mmr_init[1][7:4], mmr_init[9][7:4], mmr_init[17][7:4], mmr_init[25][7:4], mmr_init[33][7:4], mmr_init[41][7:4], mmr_init[49][7:4], mmr_init[57][7:4],{0{1'b0}}});
             $display("\tfreq = %X",{  mmr_init[1][3:0], mmr_init[2][7:0], mmr_init[3][7:0], mmr_init[9][3:0], mmr_init[10][7:0], mmr_init[11][7:0], mmr_init[17][3:0], mmr_init[18][7:0], mmr_init[19][7:0], mmr_init[25][3:0], mmr_init[26][7:0], mmr_init[27][7:0], mmr_init[33][3:0], mmr_init[34][7:0], mmr_init[35][7:0], mmr_init[41][3:0], mmr_init[42][7:0], mmr_init[43][7:0], mmr_init[49][3:0], mmr_init[50][7:0], mmr_init[51][7:0], mmr_init[57][3:0], mmr_init[58][7:0], mmr_init[59][7:0],{0{1'b0}}});
         end
+    end else begin
+        for(i=0;i<SIZE;i++) mmr_init[i] = 0;
     end
     $fclose(f);
 end

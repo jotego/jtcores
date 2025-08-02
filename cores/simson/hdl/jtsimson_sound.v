@@ -223,6 +223,7 @@ jt053260 u_pcm(
     .aux_r      ( fm_r      ),
     .snd_l      ( snd_l     ),
     .snd_r      ( snd_r     ),
+    .tim2       (           ),
     .sample     (           )
 );
 `else
