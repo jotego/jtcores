@@ -52,7 +52,8 @@ files=[
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ { machine="..." names=[ "Name*", "match??" ] }, ... ] # use */? for matching
 # applies an offset to the bit position of MAME's DIP sw tag given by "name"
-# JTTMNT uses this for PunkShot
+# The bit count for the given DIP tag will start at the given value
+# Used in TMNT and RIDER cores
 offset=[
 	{ machine="", setname="", name="", value=0 },...
 ]

@@ -28,6 +28,12 @@ names = [
 	{ machine="glfgreat", names="Stance,Shot"},
 ]
 
+[dipsw]
+offset=[
+	{machine="glfgreat", name="DSW1_DSW2",  value=0},
+	{machine="glfgreat", name="COINS_DSW3", value=4},
+]
+
 [header]
 info="Offsets for each ROM region. Byte 15 = game selection."
 data = [
