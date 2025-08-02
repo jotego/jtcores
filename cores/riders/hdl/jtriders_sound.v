@@ -69,13 +69,12 @@ wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, fm_dout,
 wire        [20:0]  rawa_addr;
 wire        [15:0]  A;
 wire signed [15:0]  fm_l,  fm_r;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, sample, upper4k, cen_g, int_n, nmi_trig, nmi_clr,
+wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n, tim2,
+                    cpu_cen, sample, upper4k, cen_g, int_n,   nmi_clr,
                     mem_f8, mem_fa, mem_fc, mem_acc, mem_upper;
 reg                 ram_cs, fm_cs,  k60_cs,  nmi_cs;
 
-assign int_n    = ~snd_irq;
-assign nmi_trig =  sample;
+assign int_n    = glfgreat ? ~tim2 : ~snd_irq;
 assign nmi_clr  =  nmi_cs;
 assign rom_addr = A[15:0];
 assign upper4k  = &A[15:12];
@@ -122,7 +121,7 @@ end
 jtframe_edge #(.QSET(0)) u_edge (
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( nmi_trig  ),
+    .edgeof ( sample    ),
     .clr    ( nmi_clr   ),
     .q      ( nmi_n     )
 );
@@ -222,6 +221,7 @@ jt053260 u_k53260(
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
     .sample     (           ),
+    .tim2       ( tim2      ),
     .ch_en      (snd_en[5:1])
 );
 `else

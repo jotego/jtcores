@@ -301,7 +301,8 @@ jt053260 u_k53260(
     .aux_r      ( 16'd0     ),
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
-    .sample     (           )
+    .sample     (           ),
+    .tim2       (           )
 );
 
 jt007232 u_k7232(
