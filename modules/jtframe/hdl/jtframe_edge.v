@@ -17,7 +17,8 @@
     Date: 17-12-2022 */
 
 module jtframe_edge #(parameter
-    QSET=1    // q value when set
+    QSET=1,         // q value when set
+    ATRST=~QSET[0]  // q value at rst event
 )(
     input       rst,
     input       clk,
@@ -34,7 +35,7 @@ module jtframe_edge #(parameter
 
     always @(posedge clk,posedge rst) begin
         if( rst ) begin
-            q <= ~QSET[0];
+            q <= ATRST;
         end else begin
             if( clr )
                 q <= ~QSET[0];

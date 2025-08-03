@@ -110,10 +110,7 @@ always @(*) begin
         endcase
     end else if(glfgreat) begin
         k60_cs    = mem_f8;
-        // nmi_cs    = mem_fa;
-        nmi_cs    = 1;      // disables NMI. It isn't used by the software
-        // but if left on, it will be triggered before the stack pointer is
-        // set, causing the program to crash
+        nmi_cs    = mem_fa;
     end else begin
         fm_cs     = mem_f8;
         k60_cs    = mem_fa;
@@ -121,7 +118,8 @@ always @(*) begin
     end
 end
 
-jtframe_edge #(.QSET(0)) u_edge (
+// NMI starts asserted so the CPU ignores it until it clears it
+jtframe_edge #(.QSET(0),.ATRST(0)) u_edge (
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( sample    ),
@@ -129,7 +127,7 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtframe_sysz80 #(`ifdef SND_RAMW .RAM_AW(`SND_RAMW), `endif .CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
