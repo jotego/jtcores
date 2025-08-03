@@ -180,7 +180,7 @@ jt51 u_jt51(
 jt053260 u_k53260(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen_fm    ),
+    .cen        ( cen_pcm   ),
     // Main CPU interface
     .ma0        ( main_addr[1] ),
     .mrdnw      ( main_rnw  ),

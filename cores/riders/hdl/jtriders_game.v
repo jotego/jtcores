@@ -67,7 +67,7 @@ always @(posedge clk) begin
     end
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),

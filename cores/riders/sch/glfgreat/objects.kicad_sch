@@ -22758,7 +22758,7 @@
 	)
 	(wire
 		(pts
-			(xy 281.94 151.13) (xy 292.1 151.13)
+			(xy 289.56 151.13) (xy 292.1 151.13)
 		)
 		(stroke
 			(width 0)
@@ -31282,16 +31282,6 @@
 		)
 		(uuid "4ced9196-24f7-406a-8577-f63510335fbe")
 	)
-	(label "OBJ~{SET}"
-		(at 281.94 151.13 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4cfd02d6-6427-43a6-bedc-2f5941512a00")
-	)
 	(label "OBJROMA0"
 		(at 226.06 222.25 0)
 		(effects
@@ -35316,6 +35306,17 @@
 		)
 		(uuid "9de5e09b-066a-4e7a-b1aa-eb9571efc226")
 	)
+	(hierarchical_label "OBJ~{SET}2"
+		(shape input)
+		(at 289.56 151.13 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "a60298a8-675b-4bd4-b44c-b7190115a865")
+	)
 	(hierarchical_label "MAIN_A[13..1]"
 		(shape input)
 		(at 31.75 196.85 180)
@@ -35404,7 +35405,7 @@
 		)
 		(uuid "e5917a6b-e0f7-494b-8b63-76bf89f4d08e")
 	)
-	(hierarchical_label "OBJ~{SET}"
+	(hierarchical_label "OBJ~{SET}1"
 		(shape input)
 		(at 142.24 55.88 180)
 		(effects
@@ -37563,7 +37564,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "aefcb0bd-70f9-4309-b302-ec2c7592229c")
-		(property "Reference" "J?"
+		(property "Reference" "2K"
 			(at 339.09 144.78 0)
 			(effects
 				(font
@@ -37970,7 +37971,7 @@
 		(instances
 			(project "glfgreat"
 				(path "/8184121b-5d93-49c3-ac6c-bca02e3bbc2c/fcd761d3-6fa8-4ccf-bcf0-33f8dd85ebf6"
-					(reference "J?")
+					(reference "2K")
 					(unit 1)
 				)
 			)
@@ -38800,7 +38801,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f8cfd6a9-d5e6-471c-acc6-8165ef814e58")
-		(property "Reference" "J?"
+		(property "Reference" "5K"
 			(at 193.04 74.93 0)
 			(effects
 				(font
@@ -39207,7 +39208,7 @@
 		(instances
 			(project "glfgreat"
 				(path "/8184121b-5d93-49c3-ac6c-bca02e3bbc2c/fcd761d3-6fa8-4ccf-bcf0-33f8dd85ebf6"
-					(reference "J?")
+					(reference "5K")
 					(unit 1)
 				)
 			)

@@ -14,9 +14,10 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 18432000
+    - freq: 3579545
       outputs:
         - cen_pcm
+      gate: [ pcma, pcmb, pcmc, pcmd ]
 audio:
   rsum: 1k
   channels:

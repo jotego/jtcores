@@ -9305,6 +9305,16 @@
 	)
 	(wire
 		(pts
+			(xy 240.03 102.87) (xy 246.38 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0bc9393b-6bad-4d3e-baa9-7ca90737199a")
+	)
+	(wire
+		(pts
 			(xy 229.87 151.13) (xy 236.22 151.13)
 		)
 		(stroke
@@ -14783,7 +14793,7 @@
 		)
 		(uuid "393e4ae2-7904-422a-b008-665943ad48f0")
 	)
-	(hierarchical_label "~{OBJREG}"
+	(hierarchical_label "OBJ~{SET}1"
 		(shape output)
 		(at 246.38 100.33 0)
 		(effects
@@ -14925,6 +14935,17 @@
 			(justify left)
 		)
 		(uuid "e2b08721-e1e0-4f82-ab78-64ed17ba8af2")
+	)
+	(hierarchical_label "OBJ~{SET}2"
+		(shape output)
+		(at 246.38 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e2b1357b-7cbe-420c-b845-300784b1e1ea")
 	)
 	(hierarchical_label "~{CFG}"
 		(shape output)
