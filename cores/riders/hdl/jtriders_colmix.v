@@ -21,7 +21,7 @@ module jtriders_colmix(
     input             clk,
     input             pxl_cen,
 
-    input             lgtnfght,
+    input             lgtnfght, glfgreat,
 
     // Base Video
     input             lhbl,
@@ -38,7 +38,7 @@ module jtriders_colmix(
     output     [15:0] cpu_din,
 
     // Final pixels
-    input      [ 7:0] lyrf_pxl,
+    input      [ 7:0] lyrf_pxl, psc_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
@@ -53,6 +53,8 @@ module jtriders_colmix(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
+    output reg [ 7:0] platch,   // data read by glfgreat when hit_cs is set
+
     // Debug
     input      [11:0] ioctl_addr,
     input             ioctl_ram,
@@ -63,6 +65,7 @@ module jtriders_colmix(
 );
 
 wire [15:0] pal_dout;
+wire [ 5:0] k251_din;
 wire [ 1:0] cpu_palwe;
 reg  [ 1:0] dim_cmn;
 reg  [ 4:0] pal_dmux;
@@ -72,7 +75,8 @@ reg         st;
 wire [ 7:0] r8, bg8;
 reg  [ 7:0] b8, g8;
 wire [10:0] pal_addr;
-wire        brit, shad, pcu_we, nc;
+wire        brit, shad, pcu_we, nc, hit;
+wire [ 6:0] lyra, lyrb;
 // 053251 inputs
 wire [ 5:0] pri1;
 wire [ 8:0] ci0, ci1, ci2;
@@ -81,19 +85,23 @@ wire [ 1:0] shd_out, shd_in;
 
 // 8/16 bit interface
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ~cpu_dsn;
-assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
+assign pcu_we    = pcu_cs & ~(glfgreat ? cpu_dsn[1] : cpu_dsn[0]) & cpu_we;
 assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 // 053251 wiring
+assign lyra      = {lyra_pxl[7:5], lyra_pxl[3:0]};
+assign lyrb      = {lyrb_pxl[7:5], lyrb_pxl[3:0]};
 assign pri1      = {1'b1, lyro_pxl[10:9], 3'd0};
-assign ci0       =  9'd0;
+assign ci0       =  glfgreat ? {1'b0,psc_pxl} : 9'd0;
 assign ci1       =  lyro_pxl[8:0];
-assign ci2       = {2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
-assign ci3       = {1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-assign ci4       = {1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
+assign ci2       = {2'd0,    lyrf_pxl[7:5], lyrf_pxl[3:0] };
+assign ci3       = glfgreat ? {1'b1, lyra } : {1'b0, lyrb };
+assign ci4       = glfgreat ? {1'b0, lyrb } : {1'b0, lyra };
 assign shad      =  shd_out[0];
 assign shd_in    = {1'b0,shadow};
+assign k251_din  = glfgreat ? cpu_dout[13:8]: cpu_dout[5:0];
+assign hit       =&lyro_pxl[1+:8];
 
 always @* begin
     // LUT generated with
@@ -121,7 +129,11 @@ wire nodimming = 1;
 wire nodimming = 0;
 `endif
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    if( hit ) platch <= psc_pxl;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         bgr   <= 0;
         bsel  <= 0;
@@ -148,7 +160,7 @@ jtcolmix_053251 u_k251(
     // CPU interface
     .cs         ( pcu_we    ),
     .addr       (cpu_addr[4:1]),
-    .din        (cpu_dout[5:0]),
+    .din        ( k251_din  ),
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),

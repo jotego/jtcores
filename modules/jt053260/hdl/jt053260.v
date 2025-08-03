@@ -1,16 +1,16 @@
-/*  This file is part of JTKCPU.
-    JTKCPU program is free software: you can redistribute it and/or modify
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    JTKCPU program is distributed in the hope that it will be useful,
+    JTCORES program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with JTKCPU.  If not, see <http://www.gnu.org/licenses/>.
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
@@ -54,7 +54,7 @@ module jt053260(
     input      signed [15:0] aux_l, aux_r,
     output reg signed [15:0] snd_l,
     output reg signed [15:0] snd_r,
-    output                   sample,
+    output                   sample, tim2,
     // debug
     input             [ 4:0] ch_en
     // unsupported pins
@@ -67,6 +67,7 @@ module jt053260(
     // output              cen_q     // M6809 clock
 );
 wire signed [15:0] pre_l, pre_r;
+reg    [ 7:0] test_2b;
 reg    [ 7:0] pm2s[0:1];
 reg    [ 7:0] ps2m[0:1];
 
@@ -76,7 +77,7 @@ wire   [ 3:0] bsy, mmr_we;
 reg    [ 3:0] adpcm_en, loop;
 reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
-wire          ch0_sample, ch1_sample, ch2_sample, ch3_sample;
+wire          ch0_sample, ch1_sample, ch2_sample, ch3_sample, tim2_enb;
 wire signed [15:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
                    ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r;
 
@@ -85,13 +86,16 @@ reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
 reg           tst_rd, tst_rdl;
 wire          mmr_en, tst_nx;
 
-assign sample = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
-assign mmr_en = addr[5:3]>=1 && addr[5:3]<=4;
-assign mmr_we = {4{ cs & ~wr_n & mmr_en }} &
-                { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
-assign tst_nx = tst_rd & ~tst_rdl;
+assign sample  = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
+assign mmr_en  = addr[5:3]>=1 && addr[5:3]<=4;
+assign mmr_we  = {4{ cs & ~wr_n & mmr_en }} &
+                 { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
+assign tst_nx  = tst_rd & ~tst_rdl;
+assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
 
 always @(posedge clk) ch_en_l <= ch_en; // to ease timing when using JTFRAME_SDRAM96
+
+jt053260_timer u_tim2(rst,clk,cen,tim2);
 
 jtframe_limsum u_suml(
     .rst    ( rst       ),
@@ -148,6 +152,7 @@ always @(posedge clk, posedge rst) begin
         dout    <= 0;
         tst_rd  <= 0;
         tst_rdl <= 0;
+        test_2b <= 0;
     end else begin
         tst_rdl <= tst_rd;
         if( cs ) begin
@@ -156,6 +161,7 @@ always @(posedge clk, posedge rst) begin
                     2,3:   ps2m[addr[0]] <= din;
                     6'h28: keyon <= din[3:0];
                     6'h2A: { adpcm_en, loop } <= din;
+                    6'h2B: test_2b <= din;
                     6'h2C: { ch1_pan, ch0_pan } <= din[5:0];
                     6'h2D: { ch3_pan, ch2_pan } <= din[5:0];
                     6'h2F: mode <= din[3:0];

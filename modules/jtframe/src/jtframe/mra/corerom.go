@@ -854,9 +854,7 @@ func make_interleave_groups( reg string,
 	if Verbose {
 		fmt.Printf("\tRegular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
-	if len(reg_roms)==0 {
-		return
-	}
+	if len(reg_roms)==0 { return }
 	start_pos := *pos
 	if !reg_cfg.No_offset {
 		// Try to determine from the offset the word-length of each ROM
@@ -1006,15 +1004,19 @@ func make_interleave_groups( reg string,
 			log.Fatal(fmt.Sprintf("The number of ROMs for the %d-bit region (%s) is not even in %s",
 				reg_cfg.Width, reg_cfg.Name, machine.Name))
 		}
-		for j, _ := range reg_roms {
-			reg_roms[j].group = 1
-			reg_roms[j].wlen = 1
-		}
+		assign_1byte_length_as_single_group(reg_roms)
 		interleave_group( reg,
-					reg_roms, reg_cfg, p ,
+					reg_roms, reg_cfg, p,
 					machine, cfg, pos, start_pos )
 	}
 	if Verbose { fmt.Println("*******************") }
+}
+
+func assign_1byte_length_as_single_group(reg_roms []MameROM) {
+	for j, _ := range reg_roms {
+		reg_roms[j].group = 1
+		reg_roms[j].wlen  = 1
+	}
 }
 
 func interleave_group( reg string,
