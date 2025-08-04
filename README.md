@@ -13,7 +13,7 @@ I hope you will have as much fun with this project as I had while working on it!
 
 You can find the list of supported games in [jtbin/game_list](https://github.com/jotego/jtbin/blob/master/game_list.md). That list is actually an output of the source code of this repository and gets updated every release. There are 1050+ supported titles at the moment ( January 2025 ).
 
-The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/jotego/jtbin). Most cores are released early for [patrons](https://patreon.com/jotego) so check it out too. [JTFRAME](https://github.com/jotego/jtframe) supports more FPGA platforms than the ones publised in JTBIN. You are welcome to compile the cores for the other platforms. Distribution of the core binary files together with copyrighted ROM files is not permitted.
+The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/jotego/jtbin). Most cores are released early for [patrons](https://patreon.com/jotego) so check it out too. [JTFRAME](modules/jtframe/README.md) supports more FPGA platforms than the ones publised in JTBIN. You are welcome to compile the cores for the other platforms. Distribution of the core binary files together with copyrighted ROM files is not permitted.
 
 # Compilation - JTFRAME
 
@@ -58,7 +58,7 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
 # Credits
 
 Jose Tejada Gomez. Twitter @topapate
-The project is hosted in http://www.github.com/jotego/jt_gng
+The project is hosted in http://www.github.com/jotego/jtcores
 License: GPL3, you are obligued to publish your code if you use mine
 
 
