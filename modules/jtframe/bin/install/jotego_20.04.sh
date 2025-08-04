@@ -222,4 +222,4 @@ sudo apt install -y mplayer audacity
 
 # Cross-Compiler
 # m68k-linux-gnu-gcc
-sudo apt install gcc-m68k-linux-gnu
+sudo apt install -y gcc-m68k-linux-gnu
