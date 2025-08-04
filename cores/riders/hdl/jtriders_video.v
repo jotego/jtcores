@@ -154,7 +154,7 @@ always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
 end
 
-jtriders_dump #(.FULLOBJ(1)) u_dump(
+jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .clk            ( clk           ),
     .dump_scr       ( dump_scr      ),
     .dump_obj       ( dump_obj      ),
@@ -162,6 +162,7 @@ jtriders_dump #(.FULLOBJ(1)) u_dump(
     .pal_mmr        ( pal_mmr       ),
     .scr_mmr        ( scr_mmr       ),
     .obj_mmr        ( obj_mmr       ),
+    .psac_mmr       ( psac_mmr      ),
     .other          ( dump_other    ),
 
     .ioctl_addr     ( ioctl_addr    ),

@@ -26,6 +26,7 @@ module jtriders_dump(
     input      [ 7:0] pal_mmr,  
     input      [ 7:0] scr_mmr,  
     input      [ 7:0] obj_mmr,
+    input      [ 7:0] psac_mmr,
 
     input      [ 7:0] other,        // stand-alone byte coming from main CPU
 
@@ -38,12 +39,13 @@ module jtriders_dump(
     input      [ 7:0] st_scr,
     output reg [ 7:0] st_dout
 );
-parameter FULLRAM = 0, FULLOBJ=0;
+parameter FULLRAM = 0, FULLOBJ=0, PSAC=0;
 `ifndef JTFRAME_RELEASE
 localparam SCR_END  = FULLRAM==1 ? 16'h6000 : 16'h4000,
            PAL_END  = SCR_END +16'h1000,
            OBJ_END  = PAL_END +( FULLOBJ==1 ? 16'h4000 : 16'h2000 ),
-           PMMR_END = OBJ_END +16'h0010,
+           PSAC_END = OBJ_END +( PSAC==1    ? 16'h0020 : 16'h0000 ),
+           PMMR_END = PSAC_END+16'h0010,
            SMMR_END = PMMR_END+16'h0008,
            OMMR_END = SMMR_END+16'h0008;
 
@@ -58,8 +60,10 @@ always @(posedge clk) begin
         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr < OBJ_END  )
         ioctl_din <= dump_obj;  // 8kB 5000~6FFF
-    else if( ioctl_addr < PMMR_END )//     7000~700F
-        ioctl_din <= pal_mmr;
+    else if( ioctl_addr < PSAC_END )
+        ioctl_din <= psac_mmr;  //     7000~701F
+    else if( ioctl_addr < PMMR_END )
+        ioctl_din <= pal_mmr;   // 7000~700F or 7020~702F
     else if( ioctl_addr < SMMR_END )
         ioctl_din <= scr_mmr;  // 8 bytes, MMR 7017
     else if( ioctl_addr < OMMR_END )

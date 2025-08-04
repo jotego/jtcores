@@ -6,6 +6,7 @@ NVRAM=0
 FULLRAM=0
 FULLOBJ=0
 DUALPAL=0
+PSAC=0
 SKIP=0
 
 while [ $# -gt 0 ]; do
@@ -24,6 +25,8 @@ while [ $# -gt 0 ]; do
 			FULLOBJ=1;;
 		-p|--pal2)
 			DUALPAL=1;;
+		-ps|--psac)
+			PSAC=1;;
         *) OTHER="$OTHER $1";;
     esac
     shift
@@ -70,6 +73,9 @@ else
 fi
 SKIP=$((SKIP*512/8))
 # MMR
+if [ $PSAC = 1 ]; then
+	dd if=$TMP of=psac.bin bs=8 count=4  skip=$SKIP     2> /dev/null; SKIP=$((SKIP +4))
+fi
 dd if=$TMP of=pal_mmr.bin bs=8 count=2  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +2))
 dd if=$TMP of=scr_mmr.bin bs=8 count=1  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +1))
 dd if=$TMP of=obj_mmr.bin bs=8 count=1  skip=$SKIP      2> /dev/null; SKIP=$(((SKIP+1)*8))
