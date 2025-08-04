@@ -76,7 +76,7 @@ git submodule update
 
 # Compilation
 
-Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions.
+Refer to [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) for compilation instructions.
 
 # Keyboard
 

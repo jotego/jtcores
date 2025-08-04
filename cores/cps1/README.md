@@ -106,7 +106,7 @@ jedutil -view wl24b.1a gal16v8
 In order to see the equations for Willow's PAL.
 
 # Compilation
-The core is compiled using jtcore from **JTFRAME**. Follow the instructions in the README file of (JTFRAME)[https://github.com/jotego/jtframe] and then:
+The core is compiled using jtcore from **JTFRAME**. Follow the instructions in the README file of (JTFRAME)[https://github.com/jotego/jtcores/tree/master/modules/jtframe] and then:
 
 ```
 source setprj.sh

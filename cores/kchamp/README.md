@@ -48,7 +48,7 @@ The **Analogue Pocket** version is supported for [Patreon](https://patreon.com/j
 
 ## Compilation
 
-This project uses the [JTFRAME](https://github.com/jotego/JTFRAME) framework. Please refer to it for compilation instructions.
+This project uses the [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) framework. Please refer to it for compilation instructions.
 
 ## Special thanks to Patreon subscribers
 

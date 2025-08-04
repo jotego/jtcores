@@ -74,7 +74,7 @@ Use the MRA files available in the rom/mra folder. MRA files are the recommended
 
 # Compilation
 
-Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions.
+Refer to [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) for compilation instructions.
 
 # SD Card
 
