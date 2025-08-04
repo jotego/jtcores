@@ -56,6 +56,7 @@ sudo updatedb
 # KiCAD
 sudo add-apt-repository -y ppa:kicad/kicad-8.0-releases
 sudo apt update
+sudo apt install --yes occt-misc=7.6.3+dfsg1-7.1build1 libocct-visualization-7.6t64
 sudo apt install --yes kicad
 
 # Locale
