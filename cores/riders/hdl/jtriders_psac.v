@@ -18,9 +18,10 @@
 
 module jtriders_psac(
     input              rst, clk,
-                       pxl_cen,  // use cen instead (see below)
+                       pxl_cen, pxl2_cen, // use cen instead (see below)
                        hs, vs, dtackn, enable,
                        cs, // cs always writes
+    input       [ 8:0] hdump,
 
     input       [15:0] din,        // from CPU
     input       [ 4:1] addr,
@@ -41,14 +42,15 @@ module jtriders_psac(
     output             rom_cs,
     input              rom_ok,
 
-    output reg  [ 7:0] pxl,
+    output /*reg*/  [ 7:0] pxl,
 
     // IOCTL dump
     input      [4:0] ioctl_addr,
     output     [7:0] ioctl_din
 );
 
-wire [ 8:0] la;
+wire [ 7:0] buf_din;
+wire [ 8:0] la, wr_addr, rd_addr;
 wire [ 2:1] lh;
 wire [12:0] x, y;
 wire        xh,yh,ob;
@@ -65,17 +67,19 @@ assign vflip     = 0;
 assign pal       = vram_dout[14+:4];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
-assign cen       = pxl_cen & vram_ok;
+// assign cen       = pxl_cen & vram_ok;
 
 assign rom_cs    = 1;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 
+assign buf_din   = {pal,dmux};
+
 always @(posedge clk) rst2 <= rst | ~enable;
 
-always @(posedge clk) if(cen) begin
-    if(rom_ok) pxl <= {pal,dmux};
-end
+// always @(posedge clk) if(cen) begin
+    // if(rom_ok) pxl <= {pal,dmux};
+// end
 
 jt053936 u_xy(
     .rst        ( rst2      ),
@@ -105,5 +109,40 @@ jt053936 u_xy(
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
 );
+
+jtframe_sh #(.W(9),.L(9'h15/*RD_DLY*/)) u_hb_dly(
+    .clk        ( clk       ),
+    .clk_en     ( pxl_cen   ),
+    .din        ( hdump     ),
+    .drop       ( rd_addr   )
+);
+
+jtframe_tilebuf #(.HW(9), .HOVER(9'h19F), .HSTART(9'h020)/*, .HOFFSET(9'h005)*/) u_linebuf(
+    .clk     ( clk       ),
+    .rst     ( rst       ),
+    .rom_ok  ( rom_ok    ),
+    .hdump   ( rd_addr/*hdump*/     ),
+    .pxl2_cen( pxl2_cen & vram_ok  ),
+    .vdump   ( 8'b0      ),
+    .scan_cen( /*cen*/  ),
+    .we      ( cen  ),
+    .hscan   (      ),
+    .vscan   (      ),
+    .pxl_data( buf_din  ),
+    .pxl_dump( pxl  )
+    );
+
+// jtframe_linebuf u_linebuf(
+//     .clk        ( clk       ),
+//     .LHBL       ( ~hs       ),
+//     // New line writting
+//     .we         ( rom_ok    ),
+//     .wr_data    ( buf_din   ),
+//     .wr_addr    ( wr_addr   ),
+//     // Previous line reading
+//     .rd_gated   (           ),
+//     .rd_addr    ( hdump/*rd_addr*/   ),
+//     .rd_data    ( pxl       )
+// );
 
 endmodule

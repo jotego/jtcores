@@ -22,7 +22,8 @@ module jtframe_tilebuf #(
                        PALW    = 4,
                        HOFFSET = 0,
                        PW      = PALW+4,
-    parameter [HW-1:0] HOVER = {HW{1'd1}} // H count at which a new line starts
+    parameter [HW-1:0] HOVER = {HW{1'd1}}, // H count at which a new line starts
+                       HSTART = HOVER      // H count starting value
 ) (
     input               rst,
     input               clk,
@@ -33,7 +34,7 @@ module jtframe_tilebuf #(
     input      [VW-1:0] vdump,
 
     // to graphics block
-    output              scan_cen,
+    output              scan_cen, we,
     output reg [HW-1:0] hscan,
     output reg [VW-1:0] vscan,
     input      [PW-1:0] pxl_data,
@@ -44,7 +45,7 @@ module jtframe_tilebuf #(
 
 reg           line, done;
 wire [HW-1:0] hnext;
-wire          we;
+// wire          we;
 wire [HW-1:0] hread = hdump + HOFFSET[HW-1:0];
 
 assign hnext = hscan + 1'd1;
@@ -60,9 +61,9 @@ always @(posedge clk, posedge rst) begin
     end else begin
         vscan <= vdump+1'd1;
 
-        if( hdump==HOVER ) begin
+        if( hdump==HSTART ) begin
             if(done) line <= ~line;
-            hscan <= HOVER;
+            hscan <= HSTART;
             done  <= 0;
         end else
         if( we ) begin

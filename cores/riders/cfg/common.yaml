@@ -17,6 +17,9 @@ aliens:
 jtframe:
   - get:
     - jtframe_edge.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilebuf.v
   - from: video
     get:
       - jtframe_vtimer.v
