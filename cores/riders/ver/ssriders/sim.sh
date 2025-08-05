@@ -33,7 +33,7 @@ EOF
     exit 0
 fi
 
-../game/dump_split.sh --scene "$SCENE" --nvram --fullobj --psac
+../game/dump_split.sh --scene "$SCENE" --nvram --fullobj --fullpsac
 
 jtsim $OTHER
 
