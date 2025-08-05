@@ -31,6 +31,7 @@ module jtriders_dump(
     input      [ 7:0] other,        // stand-alone byte coming from main CPU
 
     input      [15:0] ioctl_addr,
+    output     [15:0] part_addr,
     output reg [ 7:0] ioctl_din,
     output     [ 3:0] obj_amsb,
 
@@ -49,8 +50,6 @@ localparam [15:0]   OFFSET   = PSAC==1    ? 16'h0800 : 16'h0000,
                     PMMR_END = PSAC_END+16'h0010,
                     SMMR_END = PMMR_END+16'h0008,
                     OMMR_END = SMMR_END+16'h0008;
-
-wire [15:0] part_addr;
 
 assign part_addr = ioctl_addr       - OFFSET;
 assign obj_amsb  = part_addr[15:12] - PAL_END[15:12];
@@ -79,7 +78,7 @@ initial begin
 	ioctl_din = 0;
 	st_dout   = 0;
 end
-	
-assign obj_amsb=0;
+assign obj_amsb =0;
+assign part_addr=0;
 `endif
 endmodule

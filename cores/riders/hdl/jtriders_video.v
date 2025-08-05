@@ -121,7 +121,7 @@ module jtriders_video(
 );
 
 wire [21:2] lyro_prea;
-wire [15:0] cpu_saddr;
+wire [15:0] cpu_saddr, dump_addr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
@@ -168,6 +168,7 @@ jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
     .obj_amsb       ( obj_amsb      ),
+    .part_addr      ( dump_addr     ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),
@@ -269,7 +270,7 @@ jtaliens_scroll #(
     .lyrb_pxl   ( lyrb_pxl  ),
 
     // Debug
-    .ioctl_addr ( ioctl_addr[14:0]),
+    .ioctl_addr ( dump_addr[14:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_scr  ),
     .mmr_dump   ( scr_mmr   ),
@@ -311,7 +312,7 @@ jtriders_psac u_psac(
     .rom_ok     ( psc_ok    ),
     .pxl        ( psc_pxl   ),
     // IOCTL dump
-    .ioctl_addr (ioctl_addr[4:0]),
+    .ioctl_addr (dump_addr[4:0]),
     .ioctl_din  ( psac_mmr  )
 );
 
@@ -368,7 +369,7 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .prio       ({lyro_pxl[11:9],lyro_pri}),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
+    .ioctl_addr ( {obj_amsb[1:0],dump_addr[11:0]} ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
@@ -417,7 +418,7 @@ jtriders_colmix u_colmix(
     .blue       ( blue      ),
 
     // Debug
-    .ioctl_addr ( ioctl_addr[11:0]),
+    .ioctl_addr ( dump_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
     .dump_mmr   ( pal_mmr   ),
