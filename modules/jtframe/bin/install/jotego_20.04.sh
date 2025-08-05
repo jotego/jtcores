@@ -54,7 +54,7 @@ sudo apt install --yes parallel locate python3-pip fatattr sshpass gawk libxml2-
 sudo updatedb
 
 # KiCAD
-sudo add-apt-repository -y ppa:kicad/kicad-8.0-releases
+sudo add-apt-repository --yes ppa:kicad/kicad-8.0-releases
 sudo apt update
 sudo apt install --yes occt-misc=7.6.3+dfsg1-7.1build1 libocct-visualization-7.6t64
 sudo apt install --yes kicad
@@ -67,10 +67,10 @@ sudo locale-gen en_US.UTF-8
 if command -v python3.11 >/dev/null 2>&1; then
     PYTHON=python3.11
 else
-    sudo apt install -y software-properties-common
-    sudo add-apt-repository -y ppa:deadsnakes/ppa
+    sudo apt install --yes software-properties-common
+    sudo add-apt-repository --yes ppa:deadsnakes/ppa
     sudo apt update
-    sudo apt install -y python3.11 python3.11-distutils
+    sudo apt install --yes python3.11 python3.11-distutils
     PYTHON=python3.11
 fi
 if ! $PYTHON -m pip --version >/dev/null 2>&1; then
@@ -192,12 +192,12 @@ go install golang.org/x/tools/cmd/goimports@latest
 go install golang.org/x/tools/cmd/godoc@latest
 
 # GitHub CLI
-type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+type -p curl >/dev/null || (sudo apt update && sudo apt install curl --yes)
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
 && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
 && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
 && sudo apt update \
-&& sudo apt install gh -y
+&& sudo apt install gh --yes
 
 # Set up repositories
 cat<<EOF
@@ -218,8 +218,8 @@ EOF
 sudo $JTFRAME/bin/jtblaster
 
 # audio play and visualization
-sudo apt install -y mplayer audacity
+sudo apt install --yes mplayer audacity
 
 # Cross-Compiler
 # m68k-linux-gnu-gcc
-sudo apt install -y gcc-m68k-linux-gnu
+sudo apt install --yes gcc-m68k-linux-gnu
