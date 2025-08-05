@@ -429,12 +429,15 @@ jtframe_m68k u_cpu(
         sndon     = 0;
         vram_cs   = 0;
         prot_cs   = 0;
+        psreg_cs  = 0;
+        psac_bank = 0;
     end
     assign
         cpu_dout  = 0,
         cpu_we    = 0,
         main_addr = 0,
         ram_dsn   = 0,
+        lmem_we   = 0,
         snd_wrn   = 0,
         st_dout   = 0,
         nv_addr   = 0,

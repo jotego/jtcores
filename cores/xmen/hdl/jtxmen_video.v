@@ -125,11 +125,13 @@ jtriders_dump #(.FULLRAM(1)) u_dump(
     .pal_mmr        ( pal_mmr         ),
     .scr_mmr        ( scr_mmr         ),
     .obj_mmr        ( obj_mmr         ),
+    .psac_mmr       ( 8'b0            ),
     .other          ( dump_other      ),
 
     .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
     .obj_amsb       ( obj_amsb        ),
+    .part_addr      (                 ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
