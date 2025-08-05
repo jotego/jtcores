@@ -71,8 +71,7 @@ check_scene_dir(){
 set_input_file(){
 	if [ -z "$FNAME" ]; then
 		FNAME=$(basename $(pwd))
-		FNAME=${FNAME^^}
-		IF_NAMES=("${FNAME}.RAM" "dump.bin")
+		IF_NAMES=("${FNAME^^}.RAM" "${FNAME}.sav" "dump.bin")
 		for name in "${IF_NAMES[@]}"; do
 			if [[ -f "$SCENE/$name" ]]; then
 				FNAME=$name
