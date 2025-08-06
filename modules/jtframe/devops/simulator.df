@@ -2,6 +2,6 @@ FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
 # For convert command
-RUN apt install -y imagemagick
+RUN apt install --yes imagemagick
 
 ENTRYPOINT ["bash"]

@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
 BUILDER_NAME="jotego-builder"
 PLATFORMS="linux/amd64,linux/arm64"
@@ -15,64 +14,23 @@ main(){
         docker login
     fi
 
-    image="jtcore-base"
-    path="."
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
+    build "jtcore-base" "." $PUSH_IMAGES $PLATFORMS
+    build "jtcore13" "/opt/altera" $PUSH_IMAGES $PLATFORMS
+    build "jtcore17" "/opt/intelFPGA_lite" $PUSH_IMAGES $PLATFORMS
+    build "jtcore20" "/opt/intelFPGA_lite" $PUSH_IMAGES $PLATFORMS
+    build "linter" "." $PUSH_IMAGES $PLATFORMS
+    build "simulator" "." $PUSH_IMAGES $PLATFORMS
 
-    image="jtcore13"
-    path="/opt/altera"
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
-
-    image="jtcore17"
-    path="/opt/intelFPGA_lite"
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
-
-    image="jtcore20"
-    path="/opt/intelFPGA_lite"
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
-
-    image="linter"
-    path="."
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
-
-    image="simulator"
-    path="."
-    if build $image $path $PUSH_IMAGES $PLATFORMS; then
-        SUCCESS+=("$image")
-    else
-        FAIL+=("$image")
-    fi
-
-    echo "✅ Builds completed:"
+    echo "Builds completed:"
     printf '  - %s\n' "${SUCCESS[@]}"
 
-    echo "❌ Builds failed:"
+    echo "Builds failed:"
     printf '  - %s\n' "${FAIL[@]}"
 
     if $PUSH_IMAGES; then
-        echo "📤 Images were pushed to Docker Hub."
+        echo "Images were pushed to Docker Hub."
     else
-        echo "📦 Images were loaded locally"
+        echo "Images were loaded locally"
     fi
 }
 
@@ -93,16 +51,20 @@ build() {
     local push_flag=$3
     local platforms=$4
 
-    echo "🚧 Building jotego/$image..."
+    echo "Building jotego/$image..."
     if $push_flag; then
-        if ! docker buildx build --platform "$platforms" --file $image.df --tag jotego/$image:latest --push $path; then
-            echo "⚠️ Build failed for $image"
-            return 1
+        if docker buildx build --platform "$platforms" --file $image.df --tag jotego/$image:latest --push $path; then
+            SUCCESS+=("$image")
+        else
+            echo "Build failed for $image"
+            FAIL+=("$image")
         fi
     else
-        if ! docker build --file $image.df --tag jotego/$image:latest --load $path; then
-            echo "⚠️ Build failed for $image"
-            return 1
+        if docker build --file $image.df --tag jotego/$image:latest --load $path; then
+            SUCCESS+=("$image")
+        else
+            echo "Build failed for $image"
+            FAIL+=("$image")
         fi
     fi
 }
@@ -113,9 +75,10 @@ parse_args() {
 	while [[ $# -gt 0 ]]; do
         case "$1" in
             --push) PUSH_IMAGES=true ;;
+            *) echo "Usage: $0 [--push]" && exit 1 ;;
         esac
         shift
     done
 }
 
-main $*
+main "$@"
