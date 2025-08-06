@@ -12,7 +12,19 @@ RUN apt install -yq rsync
 RUN apt install -yq python python3-pip && pip install pypng
 
 # Go
-RUN GONAME=go1.21.3.linux-amd64.tar.gz; curl -LO https://go.dev/dl/$GONAME && tar -C /usr/local -xzf $GONAME && rm -f $GONAME
+RUN ARCH=$(uname -m) && \
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]') && \
+    case "$ARCH" in \
+        x86_64) ARCH=amd64 ;; \
+        aarch64) ARCH=arm64 ;; \
+        armv7l) ARCH=armv6l ;; \
+        *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
+    esac && \
+    GOVER=1.21.3 && \
+    GONAME=go${GOVER}.${OS}-${ARCH}.tar.gz && \
+    curl -LO https://go.dev/dl/${GONAME} && \
+    tar -C /usr/local -xzf ${GONAME} && \
+    rm -f ${GONAME}
 ENV PATH="$PATH:/usr/local/go/bin"
 
 # iverilog compilation
