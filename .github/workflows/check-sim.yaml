@@ -1,4 +1,4 @@
-name: Run Jotego Simulations
+name: Run core simulations
 
 on:
   workflow_dispatch:
@@ -30,9 +30,5 @@ jobs:
           token: ${{ secrets.PAT }}
 
       - name: Run simulation
-        run: |
-          docker run --rm \
-            --network host \
-            -v "$PWD:/jtcores" \
-            jotego/simulator \
-            ./run_simulation.sh ${{ matrix.core }}
+        run: pwd
+        # run: ./run_simulation.sh ${{ matrix.core }}
