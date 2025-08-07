@@ -1257,6 +1257,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
     endtask
 
     // Timing Parameters for -7E (133 MHz @ CL2)
+`ifndef VERILATOR
     specify
         specparam
             tAH  =  0.8,                                        // Addr, Ba Hold Time
@@ -1284,5 +1285,5 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
         // $setuphold(posedge Clk,    Dqm,   tCMS, tCMH);
         // $setuphold(posedge Dq_chk, Dq,    tDS,  tDH);
     endspecify
-
+`endif
 endmodule
