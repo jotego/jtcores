@@ -7,37 +7,27 @@ main(){
     SUCCESS=()
     FAIL=()
 
-    parse_args $*
+    parse_args "$@"
 
     if $PUSH_IMAGES; then
         prepare_builder $BUILDER_NAME
         docker login
     fi
 
-    build "jtcore-base" "." $PUSH_IMAGES $PLATFORMS
-    build "jtcore13" "/opt/altera" $PUSH_IMAGES $PLATFORMS
-    build "jtcore17" "/opt/intelFPGA_lite" $PUSH_IMAGES $PLATFORMS
-    build "jtcore20" "/opt/intelFPGA_lite" $PUSH_IMAGES $PLATFORMS
-    build "linter" "." $PUSH_IMAGES $PLATFORMS
-    build "simulator" "." $PUSH_IMAGES $PLATFORMS
+    build "jtcore-base" "." 
+    build "jtcore13"    "/opt/altera"
+    build "jtcore17"    "/opt/intelFPGA_lite"
+    build "jtcore20"    "/opt/intelFPGA_lite"
+    build "linter"      "."
+    build "simulator"   "."
 
-    echo "Builds completed:"
-    printf '  - %s\n' "${SUCCESS[@]}"
-
-    echo "Builds failed:"
-    printf '  - %s\n' "${FAIL[@]}"
-
-    if $PUSH_IMAGES; then
-        echo "Images were pushed to Docker Hub."
-    else
-        echo "Images were loaded locally"
-    fi
+    print_results
 }
 
 prepare_builder() {
     local name=$1
     if ! docker buildx inspect "$name" >/dev/null 2>&1; then
-        echo "🔧 Creating buildx builder '$name'..."
+        echo "Creating buildx builder '$name'..."
         docker buildx create --name "$name" --driver "docker-container" --use
     else
         docker buildx use "$name"
@@ -48,12 +38,10 @@ prepare_builder() {
 build() {
     local image=$1
     local path=$2
-    local push_flag=$3
-    local platforms=$4
 
     echo "Building jotego/$image..."
-    if $push_flag; then
-        if docker buildx build --platform "$platforms" --file $image.df --tag jotego/$image:latest --push $path; then
+    if $PUSH_IMAGES; then
+        if docker buildx build --platform "$PLATFORMS" --file $image.df --tag jotego/$image:latest --push $path; then
             SUCCESS+=("$image")
         else
             echo "Build failed for $image"
@@ -79,6 +67,26 @@ parse_args() {
         esac
         shift
     done
+}
+
+print_results() {
+    echo "Builds completed:"
+    if [ "${#SUCCESS[@]}" -gt 0 ]; then
+        printf '  - %s\n' "${SUCCESS[@]}"
+    else
+        echo "  -"
+    fi
+
+    if [ "${#FAIL[@]}" -gt 0 ]; then
+        echo "Builds failed:"
+        printf '  - %s\n' "${FAIL[@]}"
+    fi
+
+    if $PUSH_IMAGES; then
+        echo "Images were pushed to Docker Hub."
+    else
+        echo "Images were loaded locally"
+    fi
 }
 
 main "$@"
