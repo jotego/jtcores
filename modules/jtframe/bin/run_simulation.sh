@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-ROMS_DIR=~/.mame/roms
 REGRESSION_FILE=.regression
 
 main() {
@@ -42,11 +41,11 @@ parse_args() {
     push=false
 
     if [[ $# -lt 1 ]]; then
-        echo "Usage: $0 <core> [--check] [--push] [--frames <number_of_frames>]"
+        echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         exit 1
     fi
     if [[ $1 == --help ]]; then
-        echo "Usage: $0 <core> [--check] [--push] [--frames <number_of_frames>]"
+        echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         echo ""
         print_help
         exit 0
@@ -70,14 +69,14 @@ parse_args() {
             --local-rom) local_rom=true ;;
             --push) push=true ;;
             -h|--help)
-                echo "Usage: $0 <core> [--check] [--push] [--frames <number_of_frames>]"
+                echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
                 echo ""
                 print_help
                 exit 0
                 ;;
             *)
                 echo "[ERROR] Unknown option: $1"
-                echo "Usage: $0 <core> [--check] [--push] [--frames <number_of_frames>]"
+                echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
                 exit 1
                 ;;
         esac
@@ -271,35 +270,35 @@ check_frames() {
     if $failed; then return 1; fi
 }
 
-check_audio() {
-    local core=$1
-    local ref_audio="$REFERENCE_DIR/$core/test.wav"
-    local test_audio="test.wav"
-    local diff_audio="__diff_audio.wav"
+# check_audio() {
+#     local core=$1
+#     local ref_audio="$REFERENCE_DIR/$core/test.wav"
+#     local test_audio="test.wav"
+#     local diff_audio="__diff_audio.wav"
 
-    print_step "Checking audio"
+#     print_step "Checking audio"
 
-    if [[ ! -f "$ref_audio" || ! -f "$test_audio" ]]; then
-        echo "Missing audio file for $core"
-        return 1
-    fi
+#     if [[ ! -f "$ref_audio" || ! -f "$test_audio" ]]; then
+#         echo "Missing audio file for $core"
+#         return 1
+#     fi
 
-    sox -m -v 1 "$ref_audio" -v -1 "$test_audio" "$diff_audio" silence 1 0.1 0.1%
+#     sox -m -v 1 "$ref_audio" -v -1 "$test_audio" "$diff_audio" silence 1 0.1 0.1%
 
-    local rms=$(sox "$diff_audio" -n stat 2>&1 | tee /dev/stderr | awk '/RMS.*amplitude/ { print $3 }')
+#     local rms=$(sox "$diff_audio" -n stat 2>&1 | tee /dev/stderr | awk '/RMS.*amplitude/ { print $3 }')
     
-    rm -f "$diff_audio"
+#     rm -f "$diff_audio"
 
-    local threshold=0.001
+#     local threshold=0.001
 
-    if (( $(echo "$rms < $threshold" | bc -l) )); then
-        echo "Audio for $core matches (RMS = $rms)"
-        return 0
-    else
-        echo "Audio for $core differs (RMS = $rms)"
-        return 1
-    fi
-}
+#     if (( $(echo "$rms < $threshold" | bc -l) )); then
+#         echo "Audio for $core matches (RMS = $rms)"
+#         return 0
+#     else
+#         echo "Audio for $core differs (RMS = $rms)"
+#         return 1
+#     fi
+# }
 
 upload_results() {
     print_step "Uploading simulation results"
