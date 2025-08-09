@@ -48,7 +48,7 @@ offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"
 regions = [
 	{ name="maincpu", width=16, reverse=true  },
 
-	{ name="audiocpu"  },
+	{ name="audiocpu", len=0x10000  },
 	{ name="k053260", rename="pcm" },
 	# tiles
 	{ name="k052109", width=32 },

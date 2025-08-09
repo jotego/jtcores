@@ -67,7 +67,7 @@ assign vflip     = 0;
 assign pal       = vram_dout[14+:4];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
-// assign cen       = pxl_cen & vram_ok;
+assign cen       = pxl_cen & vram_ok & rom_ok;
 
 assign rom_cs    = 1;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
@@ -77,9 +77,9 @@ assign buf_din   = {pal,dmux};
 
 always @(posedge clk) rst2 <= rst | ~enable;
 
-// always @(posedge clk) if(cen) begin
-    // if(rom_ok) pxl <= {pal,dmux};
-// end
+always @(posedge clk) if(cen) begin
+    pxl <= {pal,dmux};
+end
 
 jt053936 u_xy(
     .rst        ( rst2      ),

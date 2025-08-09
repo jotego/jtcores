@@ -383,7 +383,7 @@ module jtframe_z80 (
         if( CLR_INT==1 ) begin
             // This is the most common logic used to handle interrupts
             reg int_ff, intn_l;
-            always @(posedge clk, negedge rst_n) begin
+            always @(posedge clk) begin
                 if( !rst_n ) begin
                     int_ff <= 0;
                     intn_l <= 0;
