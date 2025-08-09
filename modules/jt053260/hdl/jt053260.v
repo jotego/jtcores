@@ -62,7 +62,6 @@ module jt053260(
     // input               st2,
     // input               aux2,
     // output              rdnwp,
-    // output              tim2,
     // output              cen_e,    // M6809 clock
     // output              cen_q     // M6809 clock
 );
@@ -71,9 +70,10 @@ reg    [ 7:0] test_2b;
 reg    [ 7:0] pm2s[0:1];
 reg    [ 7:0] ps2m[0:1];
 
-reg    [ 4:0] ch_en_l;
+reg    [ 5:0] sum_en;
 reg    [ 3:0] keyon, mode;
 wire   [ 3:0] bsy, mmr_we;
+wire   [ 4:0] left_en, right_en;
 reg    [ 3:0] adpcm_en, loop;
 reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
@@ -83,8 +83,9 @@ wire signed [15:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
 
 reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
               pan2_l, pan2_r, pan3_l, pan3_r;
-reg           tst_rd, tst_rdl;
+reg           tst_rd, tst_rdl, nib_swap;
 wire          mmr_en, tst_nx;
+wire   [ 1:0] aux_en;
 
 assign sample  = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
 assign mmr_en  = addr[5:3]>=1 && addr[5:3]<=4;
@@ -92,8 +93,13 @@ assign mmr_we  = {4{ cs & ~wr_n & mmr_en }} &
                  { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
 assign tst_nx  = tst_rd & ~tst_rdl;
 assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
+assign left_en = sum_en[4:0];
+assign right_en={sum_en[5],sum_en[3:0]};
+assign aux_en  = mode[3:2];
 
-always @(posedge clk) ch_en_l <= ch_en; // to ease timing when using JTFRAME_SDRAM96
+always @(posedge clk) begin
+    sum_en <= { {2{ch_en[4]}} & aux_en, ch_en[3:0]};
+end
 
 jt053260_timer u_tim2(rst,clk,cen,tim2);
 
@@ -102,7 +108,7 @@ jtframe_limsum u_suml(
     .clk    ( clk       ),
     .cen    ( cen       ),
     .parts  ( {aux_l, ch3_snd_l, ch2_snd_l, ch1_snd_l, ch0_snd_l} ),
-    .en     ( ch_en_l   ),
+    .en     ( left_en   ),
     .sum    ( pre_l     ),
     .peak   (           )
 );
@@ -112,7 +118,7 @@ jtframe_limsum u_sumr(
     .clk    ( clk       ),
     .cen    ( cen       ),
     .parts  ( {aux_r, ch3_snd_r, ch2_snd_r, ch1_snd_r, ch0_snd_r} ),
-    .en     ( ch_en_l   ),
+    .en     ( right_en  ),
     .sum    ( pre_r     ),
     .peak   (           )
 );
@@ -159,7 +165,7 @@ always @(posedge clk, posedge rst) begin
             if ( !wr_n ) begin
                 case ( addr )
                     2,3:   ps2m[addr[0]] <= din;
-                    6'h28: keyon <= din[3:0];
+                    6'h28: { nib_swap, keyon } <= { din[7], din[3:0] };
                     6'h2A: { adpcm_en, loop } <= din;
                     6'h2B: test_2b <= din;
                     6'h2C: { ch1_pan, ch0_pan } <= din[5:0];

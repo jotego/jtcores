@@ -52,6 +52,7 @@ reg         [16:0] cnt;
 reg         [15:0] inc;
 reg         [11:0] pitch_cnt;
 reg  signed [ 7:0] pre_snd;
+wire signed [ 7:0] fade_out;
 reg  signed [ 7:0] kadpcm;
 reg                adpcm_cnt, cnt_up, keyon_l;
 
@@ -75,6 +76,7 @@ assign svr          = {1'b0, vol_r[13-:7]};
 assign mul_l        = pre_snd * svl;
 assign mul_r        = pre_snd * svr;
 assign over         = cnt[16] & keyon;
+assign fade_out     = pre_snd >>> 1;
 
 always @* begin
     case ( nibble )
@@ -140,32 +142,32 @@ always @(posedge clk, posedge rst) begin
                 rom_addr <= rom_addr+1'd1;
             end
             cnt       <= {1'd0, length};
-            adpcm_cnt <= 0;
+            adpcm_cnt <= 1;
             pre_snd   <= 0;
             rom_cs    <= tst_en;
             pitch_cnt <= pitch;
             cnt_up    <= 0;
             bsy       <= 0;
         end else if( cen ) begin
-            if( !keyon_l ) bsy <= 1;
-            // ROM address increment and sample cnt decrement
-            if( !cnt[16] && nx_pitch_cnt[12] ) begin
-                adpcm_cnt <= ~adpcm_cnt;
-                if( adpcm_cnt || !adpcm_en ) begin
-                    rom_addr <= rom_addr + 1'd1;
-                    cnt_up <= 1;
-                    if( cnt==0 && loop ) begin
-                        rom_addr <= start;
-                        cnt      <= {1'd0, length};
-                        cnt_up   <= 0;
-                    end
-                end
-                pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
-            end
+            bsy <= ~over;
             pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
-            if( over ) begin
-                pre_snd <= pre_snd >>> 1; // fade out to keep dc level low
-                bsy     <= 0;
+            if( nx_pitch_cnt[12] ) begin
+                if( over  ) begin
+                    pre_snd <= fade_out;
+                end else begin
+                    // ROM address increment and sample cnt decrement
+                    adpcm_cnt <= ~adpcm_cnt;
+                    if( !adpcm_cnt || !adpcm_en ) begin
+                        rom_addr <= rom_addr + 1'd1;
+                        cnt_up <= 1;
+                        if( cnt==0 && loop ) begin
+                            rom_addr <= start;
+                            cnt      <= {1'd0, length};
+                            cnt_up   <= 0;
+                        end
+                    end
+                    pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
+                end
             end
         end
     end
