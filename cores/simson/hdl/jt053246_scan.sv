@@ -21,7 +21,7 @@
 module jt053246_scan (    // sprite logic
     input             rst,
     input             clk,
-    input             simson,   // enables temporary hack for The Simpsons
+    input      [ 9:0] voffset,
 
     // ROM addressing 22 bits in total
     output reg [15:0] code,
@@ -59,7 +59,6 @@ module jt053246_scan (    // sprite logic
     // Debug
     input      [ 7:0] debug_bus
 );
-parameter       XMEN = 0;
 parameter [7:0] SCAN_START = 8'd0;
 parameter [9:0] HOFFSET    = 10'd62;
 
@@ -97,8 +96,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset - HOFFSET;
-    yadj <= yoffset + (XMEN==1   ? 10'h0FF :
-                       simson    ? 10'h117 : 10'h107); // Vendetta
+    yadj <= yoffset + voffset;
     vscl <= rd_pzoffset(vzoom[9:0]);
     hscl <= rd_pzoffset(hzoom[9:0]);
     ydiff_b <= y2 + { vlatch[8], vlatch };

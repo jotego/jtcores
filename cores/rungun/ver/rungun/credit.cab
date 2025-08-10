@@ -1,0 +1,20 @@
+# skips the RUN&GUN logo
+loop
+1 b1
+1
+repeat 50
+1 coin
+1
+loop
+1 1p
+1
+1 b1
+1
+repeat 50
+# select single screen
+30
+1 right
+1
+1 b1
+1
+

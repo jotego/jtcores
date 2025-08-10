@@ -25,11 +25,12 @@ module jtshouse_cus30_mmr(
     input             rnw,
     input       [7:0] din, 
     
-    output    [31:0] lvol,
-    output    [31:0] rvol,
-    output    [7:0] no_en,
-    output    [31:0] wsel,
-    output    [159:0] freq,
+    output [31:0] lvol,
+    output [31:0] rvol,
+    output [7:0] no_en,
+    output [31:0] wsel,
+    output [159:0] freq,
+    output reg   ack,
 
     // IOCTL dump
     input      [5:0] ioctl_addr,
@@ -120,18 +121,21 @@ assign freq = {
     };
 
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
     `ifndef SIMULATION
         for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
         for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif 
+        ack <= 0; 
     end else begin
+        ack <= 0; 
         st_dout   <= mmr[debug_bus[5:0]];
         ioctl_din <= mmr[ioctl_addr];
         if( cs & ~rnw ) begin
             mmr[addr]<=din;
+            if(addr=='d63) ack <= 1; 
         end
         i = 0; // for Quartus linter
     end

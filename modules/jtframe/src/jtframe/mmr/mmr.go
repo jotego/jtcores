@@ -58,6 +58,7 @@ type Register struct {
 	Wr_event bool
 	// Added by jtframe
 	Chunks []Chunk
+	Wr_addr string
 }
 
 type Chunk struct {
@@ -116,7 +117,32 @@ func (mmr *mmr_gen) dump_all() (e error) {
 	return nil
 }
 
-func (reg *Register)parse( ck checker) error {
+func (reg *Register)parse(ck checker) error {
+	reg.parse_wr_event()
+	return reg.parse_chunks(ck)
+}
+
+func (reg *Register)parse_wr_event() error {
+	as_int, e := strconv.ParseInt(reg.first_address(),0,16)
+	if e!=nil { return fmt.Errorf("While parsing address for register %s, found %w",reg.Name,e) }
+	reg.Wr_addr = fmt.Sprintf("'d%d", as_int )
+	return nil
+}
+
+func (reg *Register)first_address() string {
+	ss := strings.Split(reg.At,",")
+	bracket := strings.Index(ss[0],"[")
+	if bracket!=-1 {
+		return ss[0][0:bracket]
+	} else {
+		return ss[0]
+	}
+}
+
+func (reg *Register)parse_chunks(ck checker) error {
+	is_write_event_only := reg.Wr_event && reg.Dw==0
+	if is_write_event_only { return nil }
+
 	ss := strings.Split(reg.At,",")
 	for j, _ := range ss {
 		ss[j] = strings.TrimSpace(ss[j])
@@ -226,7 +252,7 @@ func sanity_check( cfg []MMRdef ) {
 				fmt.Printf("Error: %s's MMR has unnamed registers\n", each.Name)
 				os.Exit(1)
 			}
-			if reg.Dw == 0 {
+			if reg.Dw == 0 && !reg.Wr_event {
 				fmt.Printf("Error: %s's MMR has register %s with no size\n", each.Name, reg.Name)
 				os.Exit(1)
 			}

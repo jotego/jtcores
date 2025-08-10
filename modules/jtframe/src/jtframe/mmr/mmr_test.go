@@ -37,6 +37,9 @@ func Test_generate(t *testing.T) {
       dw: 0o240 # 20 bits per channel
       desc: "frequency"
       at: "001[3:0],002,003,011[3:0],012,013,021[3:0],022,023,031[3:0],032,033,041[3:0],042,043,051[3:0],052,053,061[3:0],062,063,071[3:0],072,073"
+    - name: ack
+      wr_event: true
+      at: "077"
 `
 	var mmr = mmr_gen{
 		corename: "shouse",
@@ -54,8 +57,9 @@ func Test_generate(t *testing.T) {
 		t.Error(e)
 		return
 	}
+	if len(mmr.converted[0])==0 { t.Error("Empty conversion"); return }
 	compare(string(ref),mmr.converted[0],t)
-	// os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644)
+	// os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644) // uncomment to update the reference file
 }
 
 func add_path_from_this_file(fname string) string {

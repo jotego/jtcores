@@ -23,8 +23,8 @@ module jt053246(    // sprite logic
     input             clk,
     input             pxl2_cen,
     input             pxl_cen,
+    input             simson,
 
-    input             simson,   // enables temporary hack for The Simpsons
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -56,6 +56,7 @@ module jt053246(    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
+    input      [ 9:0] voffset,
     input             vs,
     input             hs,
 
@@ -72,7 +73,7 @@ module jt053246(    // sprite logic
     input      [ 7:0] st_addr,
     output     [ 7:0] st_dout
 );
-parameter       XMEN = 0, K55673=0, K55673_DESC_SORT=0;
+parameter       K55673=0, K55673_DESC_SORT=0;
 parameter [9:0] HOFFSET   = 10'd62;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
@@ -96,10 +97,9 @@ assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 
-jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
+jt053246_scan #(.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
-    .simson    ( simson     ),
     .code      ( code       ),
     .attr      ( attr       ),
     .hflip     ( hflip      ),
@@ -110,6 +110,7 @@ jt053246_scan #(.XMEN(XMEN),.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .hz_keep   ( hz_keep    ),
     .hdump     ( hdump      ),
     .vdump     ( vdump      ),
+    .voffset   ( voffset    ),
     .hs        ( hs         ),
     .scan_even ( scan_even  ),
     .scan_odd  ( scan_odd   ),

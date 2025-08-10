@@ -224,8 +224,8 @@ module jt053936_ticks(
 );
     reg [1:0] hs_l, vs_l;
 
-    wire vs_edge = vs_l[0] & ~vs_l[1];
-    wire hs_edge = hs_l[0] & ~hs_l[1];
+    wire vs_edge =~vs_l[0] & vs_l[1];
+    wire hs_edge =~hs_l[0] & hs_l[1];
 
     always @(posedge clk) if(cen) begin
         hs_l <= {hs_l[0],hs};

@@ -83,11 +83,11 @@ wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] hdump, hdumpf, obj_pxl;
 wire [ 7:0] vdump, vdumpf, psc_pxl;
-wire [ 7:0] fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
+wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
-wire        cpu_we;
+wire        cpu_we, hld, vld;
 reg  [14:0] ioctl_adj;
 wire        iosel_obj, iosel_ccu, iosel_psc;
 
@@ -119,8 +119,8 @@ jtrungun_vtimer u_vtimer(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .hs         ( hs            ),
-    .vs         ( vs            ),
+    .vld        ( vld           ),
+    .hld        ( hld           ),
 
     .hflip      ( ghflip        ),
     .vflip      ( gvflip        ),
@@ -145,7 +145,16 @@ jtk053252 u_k053252(
     .hs         ( hs            ),
     .vs         ( vs            ),
     .lhbl       ( lhbl          ),
+    .lhbs       (               ),
     .lvbl       ( lvbl          ),
+    .hld        ( hld           ),
+    .vld        ( vld           ),
+    // unused
+    .vldi       ( 1'b1          ),
+    .hldi       ( 1'b1          ),
+    .sel        ( 3'd0          ),
+    .int1       (               ),
+    .int2       (               ),
     // IOCTL dump
     .ioctl_addr ( ioctl_adj[3:0]),
     .ioctl_din  ( ccu_mmr       )
@@ -183,7 +192,14 @@ jtframe_tilemap #(
     .rom_cs     ( fix_cs        ),
     .rom_ok     ( fix_ok        ), // zeros used if rom_ok is not high in time
 
-    .pxl        ( fix_pxl       )
+    .pxl        ( fix_raw       )
+);
+
+jtframe_sh #(.W(8),.L(2)) u_fixsh(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( fix_raw   ),
+    .drop   ( fix_pxl   )
 );
 
 jtrungun_psac u_psac(
@@ -218,13 +234,16 @@ jtrungun_psac u_psac(
     .ioctl_din  ( psac_mmr  )
 );
 
-jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(0)) u_obj(    // sprite logic
+localparam [9:0] OVOFFSET = 10'h111;
+
+jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-
     .simson     ( 1'b0      ),
+
+    .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),

@@ -26,7 +26,7 @@ module {{ .Module }}(
     input       [7:0] din, {{ if not .Read_only }}
     output reg  [7:0] dout, {{- end }}
     {{ range .Regs }}
-    output {{if .Wr_event }}reg{{ end }}   {{if eq .Dw 1}}    {{else}}[{{ sub .Dw 1 }}:0]{{end}} {{ .Name }},
+    output {{if .Wr_event }}reg  {{else}}{{if eq .Dw 1}}     {{else}}[{{ sub .Dw 1 }}:0]{{end}}{{ end }} {{ .Name }},
     {{- end }}
 
     // IOCTL dump
@@ -52,14 +52,14 @@ assign {{.Name}} = { {{ range .Chunks }}
     };
 {{end}}{{ end }}
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
     `ifndef SIMULATION
         for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
         for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif {{ range .Regs }}{{ if .Wr_event }}
-    {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
+        {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
     dout <= 0; {{- end }}
     end else begin{{ range .Regs }}{{ if .Wr_event }}
         {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
@@ -68,7 +68,7 @@ always @(posedge clk, posedge rst) begin
         ioctl_din <= mmr[ioctl_addr];
         if( cs & ~rnw ) begin
             mmr[addr]<=din;{{ range .Regs }}{{ if .Wr_event }}
-            {{.Name}} <= 1; {{ end }}{{- end }}
+            if(addr=={{.Wr_addr}}) {{.Name}} <= 1; {{ end }}{{- end }}
         end
         i = 0; // for Quartus linter
     end

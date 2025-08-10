@@ -1,11 +1,26 @@
+`timescale 1ns/1ps
+
 module test;
 
 `include "test_tasks.vh"
 
-wire      rst, clk, pxl_cen, hs, vs, lvbl, lhbl, rdy;
+reg rst, clk; // 32 MHz
+
+wire      nc, pxl_cen, hs, vs, lvbl, lhbl, rdy;
 reg       cs, rnw, prog_done, first=0;
 reg [3:0] addr;
 reg [7:0] din;
+
+initial begin
+    clk=0;
+    forever #15.625 clk=~clk;   // 32 MHz
+end
+
+initial begin
+    rst=0;
+    #10 rst=1;
+    #350 rst=0;
+end
 
 assign rdy = prog_done & first;
 
@@ -18,10 +33,10 @@ task write(input [3:0]a, input [7:0] d);
     rnw  = 0;
     cs   = 1;
     din  = d;
-    repeat(2) @(negedge clk);
+    repeat(4) @(negedge clk);
     rnw  = 1;
     cs   = 0;
-    repeat(2) @(negedge clk);
+    repeat(4) @(negedge clk);
 endtask    
 
 initial begin
@@ -29,7 +44,7 @@ initial begin
     repeat (100) @(negedge clk);
     write_all(128'h01_FF_00_21_00_37_01_00_01_20_0C_0E_54_00_00_00);
     prog_done = 1;
-    repeat (512*256*4) @(negedge pxl_cen);
+    repeat (512*256*6) @(negedge pxl_cen);
     pass();
 end
 
@@ -43,7 +58,7 @@ always @(negedge lvbl) if(prog_done) begin
 end
 
 always @(posedge lvbl) if(rdy) begin
-    assert_msg(uut.vcnt==9'h21,"lvbl at unexpected time");
+    assert_msg(uut.vcnt==9'hf7,"lvbl at unexpected time");
 end
 
 reg lvbl_l;
@@ -67,6 +82,7 @@ jtk053252 uut(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .sel        ( 3'd0      ),
 
     .cs         ( cs        ),
     .addr       ( addr      ),
@@ -83,10 +99,31 @@ jtk053252 uut(
     .ioctl_din  (           )
 );
 
-jtframe_test_clocks #(.PXLCLK(8),.MAXFRAMES(5)) u_clocks(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   )
+// Furrtek's model for the chip. Use as reference
+k053252 u_ref(
+    .PIN_RESET  ( ~rst              ),
+    .PIN_CLK    ( clk               ),
+    .PIN_SEL    ( 3'd0              ),
+    .PIN_CCS    ( ~cs               ),
+    .PIN_RW     ( rnw               ),
+    .PIN_AB     ( addr              ),
+    .PIN_DB_IN  ( din               ),
+    .PIN_HLD1   ( 1'b1              ),
+    .PIN_VLD1   ( 1'b1              )
 );
+
+jtframe_frac_cen #(2,3) u_frac_cen(
+    .clk    ( clk       ),
+    .n      ( 3'd1      ),
+    .m      ( 3'd4      ),
+    .cen    ( {nc,pxl_cen} ),
+    .cenb   (           )
+);
+
+initial begin
+    $dumpfile("test.lxt");
+    $dumpvars;
+    $dumpon;
+end
 
 endmodule

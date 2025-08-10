@@ -17,7 +17,7 @@
     Date: 5-7-2025 */
 
 module jtrungun_vtimer(
-    input            rst, clk, pxl_cen, vs, hs, 
+    input            rst, clk, pxl_cen, vld, hld,
                      hflip, vflip,
     output     [8:0] hdump, hdumpf,
     output     [7:0] vdump, vdumpf
@@ -28,7 +28,7 @@ wire [7:0] vinit;
 
 reg  [8:0] hcnt;
 reg  [7:0] vcnt;
-reg        hs_l, vs_l;
+reg        hld_l, vld_l;
 
 assign hinit = { {3{hflip}}, 1'b0, hflip, 4'd0 };
 assign vinit = { {4{vflip}}, 4'd0 };
@@ -40,8 +40,8 @@ assign hdump  = hcnt,
 
 // external counters
 always @(posedge clk) if(pxl_cen) begin
-    hs_l <= hs;
-    vs_l <= vs;
+    hld_l <= hld;
+    vld_l <= vld;
 end
 
 always @(posedge clk) begin
@@ -50,11 +50,11 @@ always @(posedge clk) begin
         vcnt <= 0;
     end else if(pxl_cen) begin
         hcnt <= hcnt+9'd1;
-        if( hs & ~hs_l ) begin
+        if( hld & ~hld_l ) begin
             hcnt <= hinit;
             vcnt <= vcnt+8'd1;
-            if( vs & &vs_l ) vcnt <= vinit;
         end
+        if( vld & ~vld_l ) vcnt <= vinit;
     end
 end
 

@@ -18,7 +18,6 @@
 
 module jtsimson_obj #(parameter
     RAMW      = 12, // 12 -> 8kB
-    XMEN      = 0,
     PACKED    = 1,
     SHADOW    = 0,
     K55673    = 0,
@@ -32,12 +31,12 @@ module jtsimson_obj #(parameter
     input             rst,
     input             clk,
 
-    input             simson,
-
     input             pxl_cen,
     input             pxl2_cen,
+    input             simson,
     input      [ 8:0] hdump,
     input      [ 8:0] vdump,
+    input      [ 9:0] voffset,
     input             hs,
     input             vs,
     input             lhbl, // not an input in the original
@@ -131,7 +130,6 @@ jtframe_8x8x4_packed_msb u_packed(rom_data, sort_packed);
 assign sorted = PACKED==1 ? sort_packed : rom_data;
 
 jt053246 #(
-    .XMEN            ( XMEN             ),
     .K55673          ( K55673           ),
     .K55673_DESC_SORT( K55673_DESC_SORT ),
     .HOFFSET         ( HOFFSET          )
@@ -140,8 +138,9 @@ jt053246 #(
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
-
     .simson     ( simson    ),
+
+    .voffset    ( voffset   ),
     // CPU interface
     .cs         ( reg_cs    ),
     .cpu_we     ( mmr_we    ),

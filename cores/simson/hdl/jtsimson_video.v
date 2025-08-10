@@ -202,7 +202,10 @@ assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 `ifdef SIMSON
+wire [9:0] voffset = simson ? 10'h117 : 10'h107;
+
 jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
+    .voffset    ( voffset   ),
     .simson     ( simson    ),
 `else
 assign obj_shd[1] = 1'b0;

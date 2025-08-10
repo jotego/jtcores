@@ -26,19 +26,21 @@ module jtk053252_mmr(
     input       [7:0] din, 
     output reg  [7:0] dout,
     
-    output    [9:0] htotal,
-    output    [8:0] hfporch,
-    output    [8:0] hbporch,
-    output    [7:0] int1en,
-    output    [7:0] int2en,
-    output    [8:0] vtotal,
-    output    [7:0] vfporch,
-    output    [7:0] vbporch,
-    output    [3:0] vswidth,
-    output    [3:0] hswidth,
-    output    [7:0] inttime,
-    output    [7:0] int1ack,
-    output    [7:0] int2ack,
+    output [9:0] hcnt0,
+    output [8:0] hbstart,
+    output [8:0] hb2cnt0,
+    output [2:0] nhbs_dly,
+    output [1:0] fcnt_out,
+    output       hcnt_dis,
+    output [8:0] vcnt0,
+    output [7:0] vbstart,
+    output [7:0] vbcnt0,
+    output [3:0] vswidth,
+    output [3:0] hswidth,
+    output [7:0] int2cnt0,
+    output reg   set_int2en,
+    output reg   int1ack,
+    output reg   int2ack,
 
     // IOCTL dump
     input      [3:0] ioctl_addr,
@@ -57,39 +59,43 @@ localparam SIZE=16;
 reg  [ 7:0] mmr[0:SIZE-1];
 integer     i;
 
-assign htotal = { 
+assign hcnt0 = { 
     mmr[0][1:0],
     mmr[1][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign hfporch = { 
+assign hbstart = { 
     mmr[2][0],
     mmr[3][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign hbporch = { 
+assign hb2cnt0 = { 
     mmr[4][0],
     mmr[5][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign int1en = { 
-    mmr[6][7:0], {0{1'b0}}  // finish off without a comma
+assign nhbs_dly = { 
+    mmr[6][2:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign int2en = { 
-    mmr[7][7:0], {0{1'b0}}  // finish off without a comma
+assign fcnt_out = { 
+    mmr[7][1:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign vtotal = { 
+assign hcnt_dis = { 
+    mmr[7][7], {0{1'b0}}  // finish off without a comma
+    };
+
+assign vcnt0 = { 
     mmr[8][0],
     mmr[9][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign vfporch = { 
+assign vbstart = { 
     mmr[10][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign vbporch = { 
+assign vbcnt0 = { 
     mmr[11][7:0], {0{1'b0}}  // finish off without a comma
     };
 
@@ -101,33 +107,34 @@ assign hswidth = {
     mmr[12][3:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign inttime = { 
+assign int2cnt0 = { 
     mmr[13][7:0], {0{1'b0}}  // finish off without a comma
     };
 
-assign int1ack = { 
-    mmr[14][7:0], {0{1'b0}}  // finish off without a comma
-    };
 
-assign int2ack = { 
-    mmr[15][7:0], {0{1'b0}}  // finish off without a comma
-    };
-
-
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
     `ifndef SIMULATION
         for(i=0;i<SIZE;i=i+1) mmr[i] <= INIT[i*8+:8];
     `else
         for(i=0;i<SIZE;i=i+1) mmr[i] <= mmr_init[i];
     `endif 
+        set_int2en <= 0; 
+        int1ack <= 0; 
+        int2ack <= 0; 
     dout <= 0;
     end else begin
+        set_int2en <= 0; 
+        int1ack <= 0; 
+        int2ack <= 0; 
         dout      <= mmr[addr];
         st_dout   <= mmr[debug_bus[3:0]];
         ioctl_din <= mmr[ioctl_addr];
         if( cs & ~rnw ) begin
             mmr[addr]<=din;
+            if(addr=='d13) set_int2en <= 1; 
+            if(addr=='d14) int1ack <= 1; 
+            if(addr=='d15) int2ack <= 1; 
         end
         i = 0; // for Quartus linter
     end
@@ -149,19 +156,18 @@ initial begin
         if( fcnt!=SIZE ) begin
             $display("WARNING: Missing %d bytes for %m.mmr",SIZE-fcnt);
         end else begin
-            $display("\thtotal = %X",{  mmr_init[0][1:0], mmr_init[1][7:0],{0{1'b0}}});
-            $display("\thfporch = %X",{  mmr_init[2][0], mmr_init[3][7:0],{0{1'b0}}});
-            $display("\thbporch = %X",{  mmr_init[4][0], mmr_init[5][7:0],{0{1'b0}}});
-            $display("\tint1en = %X",{  mmr_init[6][7:0],{0{1'b0}}});
-            $display("\tint2en = %X",{  mmr_init[7][7:0],{0{1'b0}}});
-            $display("\tvtotal = %X",{  mmr_init[8][0], mmr_init[9][7:0],{0{1'b0}}});
-            $display("\tvfporch = %X",{  mmr_init[10][7:0],{0{1'b0}}});
-            $display("\tvbporch = %X",{  mmr_init[11][7:0],{0{1'b0}}});
+            $display("\thcnt0 = %X",{  mmr_init[0][1:0], mmr_init[1][7:0],{0{1'b0}}});
+            $display("\thbstart = %X",{  mmr_init[2][0], mmr_init[3][7:0],{0{1'b0}}});
+            $display("\thb2cnt0 = %X",{  mmr_init[4][0], mmr_init[5][7:0],{0{1'b0}}});
+            $display("\tnhbs_dly = %X",{  mmr_init[6][2:0],{0{1'b0}}});
+            $display("\tfcnt_out = %X",{  mmr_init[7][1:0],{0{1'b0}}});
+            $display("\thcnt_dis = %X",{  mmr_init[7][7],{0{1'b0}}});
+            $display("\tvcnt0 = %X",{  mmr_init[8][0], mmr_init[9][7:0],{0{1'b0}}});
+            $display("\tvbstart = %X",{  mmr_init[10][7:0],{0{1'b0}}});
+            $display("\tvbcnt0 = %X",{  mmr_init[11][7:0],{0{1'b0}}});
             $display("\tvswidth = %X",{  mmr_init[12][7:4],{0{1'b0}}});
             $display("\thswidth = %X",{  mmr_init[12][3:0],{0{1'b0}}});
-            $display("\tinttime = %X",{  mmr_init[13][7:0],{0{1'b0}}});
-            $display("\tint1ack = %X",{  mmr_init[14][7:0],{0{1'b0}}});
-            $display("\tint2ack = %X",{  mmr_init[15][7:0],{0{1'b0}}});
+            $display("\tint2cnt0 = %X",{  mmr_init[13][7:0],{0{1'b0}}});
         end
     end else begin
         for(i=0;i<SIZE;i++) mmr_init[i] = 0;
