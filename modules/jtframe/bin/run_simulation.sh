@@ -1,6 +1,9 @@
 #!/bin/bash -e
 
 REGRESSION_FILE=.regression
+SFTP_HOST=109.106.246.118
+SFTP_PORT=65002
+SFTP_USER=u693100196
 
 main() {
     parse_args "$@"
@@ -12,22 +15,50 @@ main() {
         exit 1
     fi
 
-    if ! simulate; then 
-        echo -e "\nERROR: Couldn't simulate\n"
-        exit 1
-    fi
+    declare -A pids
+    for folder in "${regression_folders[@]}"; do
+        print_step "Running regression for $(basename $folder)"
+        run_regression $folder &
+        pids[$!]="$folder"
+    done
 
+    n_fail=0
+    for pid in "${!pids[@]}"; do
+        local folder="${pids[$pid]}"
+        local setname=$(basename $folder)
+        if wait "$pid"; then
+            echo "OK: $setname"
+        else
+            echo "FAILED: $setname"
+            ((n_fail++))
+        fi
+    done
+
+    if (( n_fail > 0 )); then exit 1; fi
+}
+
+run_regression() {
+    local regression_folder=$1
+    local setname=$(basename $regression_folder)
+
+    print_step "Simulating $setname"
+    if ! simulate $regression_folder; then 
+        echo -e "\nERROR: Couldn't simulate\n"
+        return 1
+    fi
     if $check || $local_check; then
-        if check_video; then
+        print_step "Checking simulation for $setname"
+        if check_video $regression_folder; then
             echo -e "\nValidation succeed\n"
         else
             echo -e "\nValidation failed\n"
-            exit 1
+            return 1
         fi
     fi
 
     if $push; then
-        upload_results
+        print_step "Uploading simulation results $setname"
+        upload_results $regression_folder
     fi
 }
 
@@ -131,37 +162,42 @@ print_step() {
 }
 
 simulate() {
-    for folder in "${regression_folders[@]}"; do
-        local setname=$(basename $folder)
+    local folder=$1
+    local setname=$(basename $folder)
 
-        cd $folder
-        if ! $local_rom; then
-            zipfile=$(get_zipfile)
+    cd $folder
+    if ! $local_rom; then
+        local zipfile
+        if ! get_zipfile zipfile $setname; then
+            echo "[ERROR] Unable to find zip for $setname"
+            return 1
+        fi
 
-            local roms_dir=$(mktemp -d)
-            trap "rm -rf $roms_dir" EXIT
-            cd $roms_dir
-            sftp -P 65002 u693100196@109.106.246.118:domains/jotego.es <<EOF
+        local roms_dir=$(mktemp -d)
+        trap "rm -rf $roms_dir" EXIT
+        cd $roms_dir
+        sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 get mame/$zipfile
 bye
 EOF
-            if [[ ! -f "$zipfile" ]]; then
-                echo "[ERROR] Cannot download ROM for $setname"
-                return 1
-            fi
-
-            cd $folder
-            jtframe mra --path $roms_dir
+        if [[ ! -f "$zipfile" ]]; then
+            echo "[ERROR] Cannot download ROM for $setname"
+            return 1
         fi
 
-        print_step "Simulating"
-        jtsim -batch -load -video $FRAMES -setname $setname
-    done
+        cd $folder
+        jtframe mra --path $roms_dir
+    fi
+
+    jtsim -batch -load -video $FRAMES -setname $setname
 }
 
 get_zipfile() {
+    declare -n zipfile_ref=$1
+    local setname=$2
+
     jtframe mra --skipROM
-    zipfile=$(
+    zipfile_ref=$(
         JTBIN="$JTROOT/release" jtutil mra -c -z |
         awk -F'|' -v setname="$setname" '
             # Erase whitespaces
@@ -183,7 +219,8 @@ get_zipfile() {
             }
         '
     )
-    echo $zipfile
+    
+    if [[ -z $zipfile_ref ]]; then return 1; fi
 }
 
 get_regression_folders() {
@@ -204,22 +241,19 @@ get_regression_folders() {
 }
 
 check_video() {
+    local folder=$1
+    local setname=$(basename $folder)
     local failed=false
-    for folder in "${regression_folders[@]}"; do
-        local setname=$(basename $folder)
 
-        if $check; then
-            local frames_dir
-            get_remote_frames $setname frames_dir
-            print_step "Checking remote frames"
-            if ! check_frames $folder/frames $frames_dir $setname; then local failed=true; fi
-        fi
+    if $check; then
+        local frames_dir
+        get_remote_frames $setname frames_dir
+        if ! check_frames $folder/frames $frames_dir $setname; then local failed=true; fi
+    fi
 
-        if $local_check; then
-            print_step "Checking local frames"
-            if ! check_frames $folder/frames $LOCAL_DIR/$core/$setname/frames $$etname; then local failed=true; fi
-        fi
-    done  
+    if $local_check; then
+        if ! check_frames $folder/frames $LOCAL_DIR/$core/$setname/frames $$etname; then local failed=true; fi
+    fi
 
     if $failed; then return 1; fi
 }
@@ -230,10 +264,9 @@ get_remote_frames() {
     dir=$(mktemp -d)
     trap "rm -rf $dir" EXIT
 
-    print_step "Downloading remote frames for setname $setname"
-
+    echo "Downloading remote frames for setname $setname"
     cd $dir
-    sftp -P 65002 u693100196@109.106.246.118:domains/jotego.es <<EOF
+    sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 get regression/$core/$setname/frames/*
 bye
 EOF
@@ -301,12 +334,10 @@ check_frames() {
 # }
 
 upload_results() {
-    print_step "Uploading simulation results"
+    local folder=$1
+    local setname=$(basename $folder)
 
-    for folder in "${regression_folders[@]}"; do
-        local setname=$(basename $folder)
-
-        sftp -P 65002 u693100196@109.106.246.118:domains/jotego.es <<EOF
+    sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 mkdir regression
 mkdir regression/$core
 mkdir regression/$core/$setname
@@ -316,7 +347,6 @@ cd regression/$core/$setname/frames
 put $folder/frames/*
 bye
 EOF
-    done 
 }
 
 main "$@"
