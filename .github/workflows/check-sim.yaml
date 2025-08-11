@@ -2,100 +2,50 @@ name: Run core simulations
 
 on:
   workflow_dispatch:
-  # pull_request:
-  # repository_dispatch:
-  #   types: [rebuild]
-  # push:
-  #   branches:
-  #     - master
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
+  list_cores:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      cores: ${{ steps.generate-matrix.outputs.cores }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        token: ${{ secrets.PAT }}
+    - id: generate-matrix
+      run: |
+        cd cores
+        # Get list of cores ready for regression
+        CORES='['
+        for i in *; do
+          if [[ -e $i/cfg/.regression ]]; then
+            if [ "$CORES" != '[' ]; then CORES="$CORES, "; fi
+            CORES="$CORES \"$i\""
+          fi
+        done
+        CORES="$CORES ]"
+        echo $CORES
+        echo "cores=${CORES}" >> $GITHUB_OUTPUT
+
   simulate:
     name: Simulate ${{ matrix.core }}
     runs-on: ubuntu-24.04
     container:
       image: jotego/simulator
+    needs:
+      - list_cores
 
     strategy:
       matrix:
-        core:
-          - 1943
-          - ajax
-          - aliens
-          - contra
-          - flstory
-          - gaiden
-          - gng
-          - karnov
-          - kchamp
-          - kicker
-          - midres
-          - mikie
-          - pang
-          - paroda
-          - rastan
-          - roadf
-          - slyspy
-          - tmnt
-          - toki
-          - twin16
-          - vigil
-          - wc
-          - wwfss
-          - yiear
-          - btiger
-          - castle
-          - commnd
-          - comsc
-          - cop
-          - dd
-          - dd2
-          - exed
-          - flane
-          - gunsmk
-          - kiwi
-          - kunio
-          - labrun
-          - mix5k
-          - pinpon
-          - riders
-          - rumble
-          - rungun
-          - s16c
-          - sarms
-          - sbaskt
-          - sectnz
-          - shanon
-          - shouse
-          - tora
-          - shanon
-          - capbowl
-          - circus
-          - grad3
-          - gunbird2
-          - ktiger
-          - odyssey
-          - paclan
-          - rbike
-          - risle
-          - s18
-          - simson
-          - sx
-          - thundr
-          - troja
-          - bubl
-          - cps1
-          - cps15
-          - cps2
-          - cps3
-          - ngpc
-          - ninja
-          - roc
-          - s16
-          - biocom
-          - track
-          - xmen
-
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -114,8 +64,9 @@ jobs:
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.SFTP_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ secrets.SFTP_PORT }}" "${{ secrets.SFTP_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Run simulation
-        run: pwd
-        # run: ./run_simulation.sh ${{ matrix.core }} --check
+        run: |
+          mkdir -p ~/.mame/roms
+          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} --check'
