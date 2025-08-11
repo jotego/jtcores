@@ -19,8 +19,82 @@ jobs:
     strategy:
       matrix:
         core:
-          - 1942
+          - 1943
+          - ajax
           - aliens
+          - contra
+          - flstory
+          - gaiden
+          - gng
+          - karnov
+          - kchamp
+          - kicker
+          - midres
+          - mikie
+          - pang
+          - paroda
+          - rastan
+          - roadf
+          - slyspy
+          - tmnt
+          - toki
+          - twin16
+          - vigil
+          - wc
+          - wwfss
+          - yiear
+          - btiger
+          - castle
+          - commnd
+          - comsc
+          - cop
+          - dd
+          - dd2
+          - exed
+          - flane
+          - gunsmk
+          - kiwi
+          - kunio
+          - labrun
+          - mix5k
+          - pinpon
+          - riders
+          - rumble
+          - rungun
+          - s16c
+          - sarms
+          - sbaskt
+          - sectnz
+          - shanon
+          - shouse
+          - tora
+          - shanon
+          - capbowl
+          - circus
+          - grad3
+          - gunbird2
+          - ktiger
+          - odyssey
+          - paclan
+          - rbike
+          - risle
+          - s18
+          - simson
+          - sx
+          - thundr
+          - troja
+          - bubl
+          - cps1
+          - cps15
+          - cps2
+          - cps3
+          - ngpc
+          - ninja
+          - roc
+          - s16
+          - biocom
+          - track
+          - xmen
 
     steps:
       - name: Checkout repo
@@ -29,6 +103,19 @@ jobs:
           submodules: recursive
           token: ${{ secrets.PAT }}
 
+      - name: Start ssh-agent and add key
+        run: |
+          eval "$(ssh-agent -s)"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SFTP_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-add ~/.ssh/id_ed25519
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.SFTP_HOST }}" >> ~/.ssh/known_hosts
+
       - name: Run simulation
         run: pwd
-        # run: ./run_simulation.sh ${{ matrix.core }}
+        # run: ./run_simulation.sh ${{ matrix.core }} --check

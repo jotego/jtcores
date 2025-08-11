@@ -17,7 +17,7 @@ main() {
 
     declare -A pids
     for folder in "${regression_folders[@]}"; do
-        print_step "Running regression for $(basename $folder)"
+        print_step "Launching regression for $(basename $folder)"
         run_regression $folder &
         pids[$!]="$folder"
     done
