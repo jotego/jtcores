@@ -1,7 +1,6 @@
 FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
-# For convert command
-RUN apt install --yes imagemagick
+RUN apt install --yes imagemagick perceptualdiff
 
 ENTRYPOINT ["bash"]
