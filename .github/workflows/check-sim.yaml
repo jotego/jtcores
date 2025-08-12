@@ -39,6 +39,7 @@ jobs:
       - list_setnames
 
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJSON(needs.list_setnames.outputs.pairs) }}
     steps:
@@ -64,5 +65,5 @@ jobs:
       - name: Run simulation
         run: |
           mkdir -p ~/.mame/roms
-          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} ${{ matrix.setname }} --check --frames 20 --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
+          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} ${{ matrix.setname }} --check --frames 2000 --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
