@@ -1,6 +1,6 @@
 FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
-RUN apt install --yes imagemagick perceptualdiff
+RUN apt install --yes imagemagick perceptualdiff zip
 
 ENTRYPOINT ["bash"]
