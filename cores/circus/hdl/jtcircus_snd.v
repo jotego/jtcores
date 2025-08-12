@@ -69,7 +69,7 @@ always @(posedge clk) begin
     end else begin
         if( psg2_cen   ) cnt      <= cnt+1'd1;
         if( psgdata_cs ) psg_data <= dout;
-        if( rdac_cs    ) rdac     <= dout;
+        if( rdac_cs    ) rdac     <= dout!=0 ? dout-8'h80 : dout;
         if( rcen_cs    ) rc_en    <= A[6:3];
     end
 end
