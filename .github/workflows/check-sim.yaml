@@ -8,44 +8,39 @@ on:
       - master
 
 jobs:
-  list_cores:
+  list_setnames:
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        shell: bash
     outputs:
-      cores: ${{ steps.generate-matrix.outputs.cores }}
+      pairs: ${{ steps.get.outputs.result }}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-        token: ${{ secrets.PAT }}
-    - id: generate-matrix
-      run: |
-        cd cores
-        # Get list of cores ready for regression
-        CORES='['
-        for i in *; do
-          if [[ -e $i/cfg/.regression ]]; then
-            if [ "$CORES" != '[' ]; then CORES="$CORES, "; fi
-            CORES="$CORES \"$i\""
-          fi
-        done
-        CORES="$CORES ]"
-        echo $CORES
-        echo "cores=${CORES}" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+
+      - name: Get core/setname pairs
+        id: get
+        uses: mikefarah/yq@v4
+        with:
+          cmd: >
+            yq ea -o=json -I=0 '
+              [
+                to_entries[]
+                | .key as $core
+                | (.value // [])
+                | (.[]? | select(has("setname")) | .setname) as $sn
+                | {"core": $core, "setname": $sn}
+              ] | unique
+            ' cores/*/cfg/regression.yaml
 
   simulate:
-    name: Simulate ${{ matrix.core }}
+    name: Simulate ${{ matrix.setname }}
     runs-on: ubuntu-24.04
     container:
       image: jotego/simulator
     needs:
-      - list_cores
+      - list_setnames
 
     strategy:
       matrix:
-        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+        include: ${{ fromJSON(needs.list_setnames.outputs.pairs) }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -64,9 +59,10 @@ jobs:
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -p "${{ secrets.SFTP_PORT }}" "${{ secrets.SFTP_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
 
       - name: Run simulation
         run: |
           mkdir -p ~/.mame/roms
-          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} --check'
+          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} ${{ matrix.setname }} --check --frames 20 --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
+          
