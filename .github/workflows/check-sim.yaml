@@ -65,6 +65,5 @@ jobs:
       - name: Run simulation
         run: |
           mkdir -p ~/.mame/roms
-          apt-get update && apt-get install --yes yq
           bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
