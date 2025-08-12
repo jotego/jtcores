@@ -48,7 +48,6 @@ module jtframe_lfbuf_ctrl #(parameter
     output reg [ 21:16] cr_addr,
     inout      [  15:0] cr_adq,
     input               cr_wait,
-    output              cr_clk,
     output reg          cr_advn,
     output reg          cr_cre,
     output     [   1:0] cr_cen, // chip enable
@@ -111,7 +110,6 @@ assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the
 assign cr_dsn  = 0;
 assign fb_dout =  cr_oen ? 16'd0 : cr_adq;
 assign cr_adq  = !cr_advn ? adq_reg : !cr_oen ? 16'hzzzz : fb_din;
-assign cr_clk  = clk;
 assign fb_over = &fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
 assign scr_we  = cr_wait & ~cr_oen;

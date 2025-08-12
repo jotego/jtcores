@@ -28,6 +28,7 @@ module jtframe_mist_clocks(
     // System clocks
     output  clk_sys,
     output  clk_rom,
+    output  clk_alt,        // extra 48 MHz output
     output  SDRAM_CLK,
 
     // reset signals
@@ -87,7 +88,7 @@ assign pll_locked = pll0_lock & pll1_lock & pll2_lock;
     .c1     ( clk48       ), // 48 MHz
     .c2     ( clk96       ),
     .c3     ( clk24       ),
-    .c4     (             ),
+    .c4     ( clk_alt     ),
     .locked ( pll1_lock   )
 );
 
