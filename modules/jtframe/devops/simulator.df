@@ -1,6 +1,11 @@
+FROM mikefarah/yq AS yqbin
+
 FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
 RUN apt install --yes imagemagick perceptualdiff zip
+
+# Yq
+COPY --from=yqbin /usr/bin/yq /usr/local/bin/yq
 
 ENTRYPOINT ["bash"]
