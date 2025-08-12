@@ -61,7 +61,7 @@ assign pal       = vram_dout[19:16];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
 
-assign rom_cs    = 1;
+assign rom_cs    = ~ob;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 
