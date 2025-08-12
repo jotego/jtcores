@@ -247,7 +247,7 @@ always @(posedge CLK) begin
 end
 
 
-// window detection
+// window detection. Low when V/H == register value
 wire MATCHn1 = CLK | ~&{~(V ^ {REGU10, REGL10})}; // y max
 wire MATCHn2 = CLK | ~&{~(V ^ {REGU11, REGL11})}; // y min
 wire MATCHn3 = CLK | ~&{~(H ^ {REGU8, REGL8})};   // x min
