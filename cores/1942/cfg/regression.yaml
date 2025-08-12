@@ -1,3 +1,9 @@
 1942:
-  - setname: 1942
-  # - setname: vulgus
+  1942:
+    frames: 2000
+  #   inputs: file
+  #   dipsw: "" 
+  # vulgus:
+  #   frames: 2000
+  #   inputs: ...
+  #   dipsw: ""

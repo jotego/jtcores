@@ -24,8 +24,8 @@ jobs:
               [
                 to_entries[]
                 | .key as $core
-                | (.value // [])
-                | (.[]? | select(has("setname")) | .setname) as $sn
+                | (.value // {} | to_entries[]
+                  | .key) as $sn
                 | {"core": $core, "setname": $sn}
               ] | unique
             ' cores/*/cfg/regression.yaml
@@ -65,5 +65,6 @@ jobs:
       - name: Run simulation
         run: |
           mkdir -p ~/.mame/roms
-          bash -c 'source setprj.sh && run_simulation.sh ${{ matrix.core }} ${{ matrix.setname }} --check --frames 2000 --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
+          apt-get update && apt-get install --yes yq
+          bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
