@@ -67,6 +67,7 @@ assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 
 always @(posedge clk) if(pxl_cen) begin
     if(rom_ok) pxl <= {pal,dmux};
+    if(  ob  ) pxl <= 0;
 end
 
 jt053936 u_xy(

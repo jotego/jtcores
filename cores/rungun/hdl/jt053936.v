@@ -333,16 +333,25 @@ module jt053936_outside #(parameter W=9)(
 
     localparam [1:0] MAX=2'b01,MIN=2'b10,BOTH=2'b00,NONE=2'b11;
 
-    wire [1:0] hit;
+    wire [1:0] hit_n;
+    reg  [1:0] hitn_l;
+    wire       up;
 
-    assign hit = {cnt==min,cnt==max};
+    assign hit_n = {cnt!=max,cnt!=min};
+    assign up    = s_edge || falling(hit_n[0],hitn_l[0]) || falling(hit_n[1],hitn_l[1]);
+
+    function falling(input a, a_l);
+        falling = ~a & a_l;
+    endfunction // falling
 
     always @(posedge clk) if(cen) begin
-        case(hit)
-            MIN:  outside <= 0;
+        hitn_l <= hit_n;
+        if( up )
+        case(hit_n)
+            BOTH: outside <= 1;
             MAX:  outside <= 1;
-            BOTH: outside <= 0;
-            NONE: if(s_edge) outside <= nulwin;
+            MIN:  outside <= 0;
+            NONE: outside <= nulwin;
         endcase
     end
 endmodule
