@@ -1,64 +1,43 @@
-#!/bin/bash -e
+#!/bin/bash
 
 REGRESSION_FILE=.regression
-SFTP_HOST=109.106.246.118
-SFTP_PORT=65002
-SFTP_USER=u693100196
 
 main() {
-    parse_args "$@"
-    shopt -s nullglob
-
-    print_title "Simulation for core $core"
-
-    if ! get_regression_folders; then
+    if [[ -z $JTROOT ]]; then
+        echo "[ERROR] JTROOT environment variable not defined."
+        echo "Execute 'source setprj.sh' first"
         exit 1
     fi
 
-    declare -A pids
-    for folder in "${regression_folders[@]}"; do
-        print_step "Launching regression for $(basename $folder)"
-        run_regression $folder &
-        pids[$!]="$folder"
-    done
+    shopt -s nullglob
 
-    n_fail=0
-    for pid in "${!pids[@]}"; do
-        local folder="${pids[$pid]}"
-        local setname=$(basename $folder)
-        if wait "$pid"; then
-            echo "OK: $setname"
-        else
-            echo "FAILED: $setname"
-            ((n_fail++))
-        fi
-    done
+    parse_args "$@"
 
-    if (( n_fail > 0 )); then exit 1; fi
-}
+    print_title "Launching regression for $setname"
 
-run_regression() {
-    local regression_folder=$1
-    local setname=$(basename $regression_folder)
+    if ! cd_ver_folder; then exit 1; fi
 
     print_step "Simulating $setname"
-    if ! simulate $regression_folder; then 
-        echo -e "\nERROR: Couldn't simulate\n"
+    if ! simulate; then 
+        echo -e "\n[ERROR] Couldn't simulate\n"
         return 1
     fi
+
+    local check_result=1
     if $check || $local_check; then
         print_step "Checking simulation for $setname"
-        if check_video $regression_folder; then
-            echo -e "\nValidation succeed\n"
-        else
-            echo -e "\nValidation failed\n"
-            return 1
-        fi
+        check_video
+        check_result=$?
+        case $check_result in
+            0) echo -e "\n[INFO] Validation succeed\n" ;;
+            1) echo -e "\n[WARNING] Cannot perform validation\n" ;;
+            2) echo -e "\n[ERROR] Validation failed\n" ;;
+        esac
     fi
 
     if $push; then
         print_step "Uploading simulation results $setname"
-        upload_results $regression_folder
+        upload_results $check_result
     fi
 }
 
@@ -71,69 +50,94 @@ parse_args() {
     local_rom=false
     push=false
 
-    if [[ $# -lt 1 ]]; then
-        echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+    if [[ $# -lt 2 ]]; then
+        echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         exit 1
     fi
     if [[ $1 == --help ]]; then
-        echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+        echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         echo ""
         print_help
         exit 0
     fi
     core=$1; shift
+    setname=$1; shift
 
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --frames)
-                shift
-                if [[ "$1" =~ ^[0-9]+$ ]]; then
-                    FRAMES="$1"
-                else
-                    echo "[ERROR] --frames requires a numeric argument"
-                    exit 1
-                fi
-                ;;
-            --path) shift; REMOTE_DIR="$1" ;;
-            --check) check=true ;;
-            --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
-            --local-rom) local_rom=true ;;
-            --push) push=true ;;
-            -h|--help)
-                echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
-                echo ""
-                print_help
-                exit 0
-                ;;
-            *)
-                echo "[ERROR] Unknown option: $1"
-                echo "Usage: $0 <core> [--frames <number_of_frames>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+        --frames)
+            shift
+            if [[ "$1" =~ ^[0-9]+$ ]]; then
+                FRAMES="$1"
+            else
+                echo "[ERROR] --frames requires a numeric argument"
                 exit 1
-                ;;
-        esac
-        shift
-    done
+            fi
+            ;;
+        --path) shift; REMOTE_DIR="$1" ;;
+        --check) check=true ;;
+        --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
+        --local-rom) local_rom=true ;;
+        --push) push=true ;;
+        --help)
+            echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+            echo ""
+            print_help
+            exit 0
+            ;;
+        --port) 
+            shift
+            if [[ "$1" =~ ^[0-9]+$ ]]; then
+                SSH_PORT="$1"
+            else
+                echo "[ERROR] --port requires a numeric argument"
+                exit 1
+            fi
+            ;;
+        --host) shift; SFTP_HOST=$1 ;;
+        --user) shift; SFTP_USER=$1 ;;
+        *)
+            echo "[ERROR] Unknown option: $1"
+            echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+            exit 1
+            ;;
+    esac; shift; done
+    if [[ "$1" == '--' ]]; then shift; fi
+
+    if $check || $push || ! $local_rom; then
+        if [[ -z $SFTP_HOST || -z $SFTP_USER || -z $SSH_PORT ]]; then 
+            echo "[ERROR] If you are going to use SFTP server, you need to specify --port, --host and --user flags"
+            exit 1
+        fi
+    fi
 }
 
 print_help() {
     cat <<'EOF'
-Run all simulations for the specified core found in the `ver` directory.
-Only subdirectories containing a `.regression` file will be processed.
+Run a simulation for the specified setname.
+If the corresponding folder doesn't exist it will be created.
 
 Options:
   --frames N                Run simulations with N frames (default: 100).
   --path REMOTE_DIR         Specify the REMOTE_DIR path (default: ./regression).
                             Be sure to have the right permissions on the directory you specify.
-  --check                   Validate extracted simulations against reference results stored
+  --check                   Validate extracted simulation against reference results stored
                             in REMOTE_DIR on the remote server. Can be used with --local-check.
-  --local-check LOCAL_DIR   Validate extracted simulations against reference results
+  --local-check LOCAL_DIR   Validate extracted simulation against reference results
                             stored in LOCAL_DIR in your machine. Can be used with --check.
   --local-rom               Will use your ROM files stored on ~/.mame/roms, Instead of
                             downloading them from the remote server.
-  --push                    Upload extracted simulations to the remote server.
-                            If used with --check or --local-check, only uploads simulations
-                            that pass validation. WARNING. If you don't use --check,
-                            you may upload wrong simulations.
+  --push                    Upload extracted simulation to the remote server.
+                            If it is not used with --check or --local-check, only uploads
+                            simulations to the folder NOT CHECKED. WARNING. Otherwise, it will
+                            upload to the folders VALID (if check was successfull), FAIL (if 
+                            check was failed) or NOT CHECKED (if there weren't enough references
+                            to check)
+  --port                    Specify the SSH port to connect to the SFTP server. Mandatory if you
+                            are going to use the remote server.
+  --host                    Specify the IP/hostname of the SFTP server. Mandatory if you are
+                            going to use the remote server.
+  --user                    Specify the user to connect to the SFTP server. Mandatory if you are
+                            going to use the remote server.
 
 By default, simulations are extracted without validation or upload.
 EOF
@@ -161,31 +165,40 @@ print_step() {
     echo ""
 }
 
-simulate() {
-    local folder=$1
-    local setname=$(basename $folder)
+cd_ver_folder() {
+    if [[ ! -d "$JTROOT/cores/$core" ]]; then
+        echo "[ERROR] Folder for core $core doesn't exist"
+        return 1
+    fi
 
-    cd $folder
+    local ver_folder="$JTROOT/cores/$core/ver/$setname"
+    if [[ ! -d "$ver_folder" ]]; then
+        echo "[WARNING] Verification folder for setname $setname doesn't exist. It will be created"
+    fi
+
+    mkdir -p $ver_folder
+    cd $ver_folder
+}
+
+simulate() {
     if ! $local_rom; then
         local zipfile
-        if ! get_zipfile zipfile $setname; then
+        if ! get_zipfile zipfile; then
             echo "[ERROR] Unable to find zip for $setname"
             return 1
         fi
 
         local roms_dir=$(mktemp -d)
         trap "rm -rf $roms_dir" EXIT
-        cd $roms_dir
-        sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
-get mame/$zipfile
+        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+get mame/$zipfile $roms_dir
 bye
 EOF
-        if [[ ! -f "$zipfile" ]]; then
+        if [[ ! -f "$roms_dir/$zipfile" ]]; then
             echo "[ERROR] Cannot download ROM for $setname"
             return 1
         fi
 
-        cd $folder
         jtframe mra --path $roms_dir
     fi
 
@@ -194,7 +207,6 @@ EOF
 
 get_zipfile() {
     declare -n zipfile_ref=$1
-    local setname=$2
 
     jtframe mra --skipROM
     zipfile_ref=$(
@@ -202,20 +214,19 @@ get_zipfile() {
         awk -F'|' -v setname="$setname" '
             # Erase whitespaces
             {
-            name = $4; zips = $5
-            gsub(/^[ \t]+|[ \t]+$/, "", name)
-            gsub(/^[ \t]+|[ \t]+$/, "", zips)
+                name = $4; zips = $5
+                gsub(/^[ \t]+|[ \t]+$/, "", name)
+                gsub(/^[ \t]+|[ \t]+$/, "", zips)
             }
 
             # Match setname and get zip
             name == setname {
-            n = split(zips, a, /[ \t]+/)
-            last = a[n]
+                n = split(zips, a, /[ \t]+/)
+                last = a[n]
             }
 
             END {
-            if (last != "") print last;
-            else exit 1
+                print last;
             }
         '
     )
@@ -223,66 +234,47 @@ get_zipfile() {
     if [[ -z $zipfile_ref ]]; then return 1; fi
 }
 
-get_regression_folders() {
-    local ver_folder="$JTROOT/cores/$core/ver"
-
-    regression_folders=()
-
-    for dir in $ver_folder/*/; do
-        if [[ -f "$dir/$REGRESSION_FILE" ]]; then
-            regression_folders+=$dir            
-        fi
-    done
-
-    if [[ "${#regression_folders[@]}" == 0 ]]; then
-        echo " [ERROR] Cannot find regression folders for core $core"
-        return 1
-    fi
-}
-
 check_video() {
-    local folder=$1
-    local setname=$(basename $folder)
-    local failed=false
-
     if $check; then
         local frames_dir
-        get_remote_frames $setname frames_dir
-        if ! check_frames $folder/frames $frames_dir $setname; then local failed=true; fi
+        if ! get_remote_frames frames_dir; then return 1; fi
+        check_frames $frames_dir/frames
+        return $?
     fi
 
     if $local_check; then
-        if ! check_frames $folder/frames $LOCAL_DIR/$core/$setname/frames $$etname; then local failed=true; fi
+        check_frames $LOCAL_DIR/$core/$setname/frames
+        return $?
     fi
-
-    if $failed; then return 1; fi
 }
 
 get_remote_frames() {
-    local setname=$1
-    declare -n dir=$2
+    declare -n dir=$1
     dir=$(mktemp -d)
     trap "rm -rf $dir" EXIT
 
-    echo "Downloading remote frames for setname $setname"
-    cd $dir
-    sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
-get regression/$core/$setname/frames/*
+    echo "[INFO] Downloading remote frames for setname $setname"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+get regression/$core/$setname/VALID/frames.zip $dir
 bye
 EOF
+    if [[ ! -f "$dir/frames.zip" ]]; then
+        echo "[WARNING] There are no valid frames yet"
+        return 1
+    fi
+    unzip -d $dir $dir/frames.zip
 }
 
 check_frames() {
-    local local_dir=$1
-    local ref_dir=$2
+    local ref_dir=$1
 
-    local frames=($local_dir/*.jpg)
+    local frames=(frames/*.jpg)
     local n_frames="${#frames[@]}"
     local ref_frames=($ref_dir/*.jpg)
     local n_ref_frames="${#ref_frames[@]}"
 
     if [[ $n_frames -gt $n_ref_frames ]]; then
-        echo " [ERROR] There are $n_ref_frames frames available for comparison, when it is needed a minium of $n_frames"
+        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minium of $n_frames"
         return 1
     fi
 
@@ -293,14 +285,14 @@ check_frames() {
         echo "Comparing $(basename $frame)..."
         local failed=false
         if perceptualdiff "$ref_frame" "$frame"; then
-            echo "$(basename $frame): match"
+            echo "[INFO] $(basename $frame): match"
         else
-            echo "$(basename $frame): difference detected"
+            echo "[WARNING] $(basename $frame): difference detected"
             local failed=true
         fi
     done
 
-    if $failed; then return 1; fi
+    if $failed; then return 2; fi
 }
 
 # check_audio() {
@@ -334,19 +326,30 @@ check_frames() {
 # }
 
 upload_results() {
-    local folder=$1
-    local setname=$(basename $folder)
+    local dest=$1
+    case $dest in
+        0)
+            echo "[INFO] Results are valid. Skipping upload"
+            return 0
+        ;;
+        1) local folder="NOT_CHECKED" ;;
+        2) local folder="FAIL" ;;
+    esac
 
-    sftp -P $SFTP_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+    local zipname="$(date +"%d-%m-%Y_%H-%M-%S").zip"
+    zip $zipname frames/*
+
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 mkdir regression
 mkdir regression/$core
 mkdir regression/$core/$setname
-rm regression/$core/$setname/frames/*
-mkdir regression/$core/$setname/frames
-cd regression/$core/$setname/frames
-put $folder/frames/*
+mkdir regression/$core/$setname/$folder
+cd regression/$core/$setname/$folder
+put $zipname
 bye
 EOF
+
+    return $dest
 }
 
 main "$@"
