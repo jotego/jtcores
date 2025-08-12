@@ -1,6 +1,7 @@
 #!/bin/bash
 
 REGRESSION_FILE=.regression
+DEFAULT_FRAMES=100
 
 main() {
     if [[ -z $JTROOT ]]; then
@@ -42,7 +43,6 @@ main() {
 }
 
 parse_args() {
-    FRAMES=100
     REMOTE_DIR=regression # Relative to ~/domains/jotego.es
     LOCAL_DIR=""
     check=false
@@ -64,15 +64,6 @@ parse_args() {
     setname=$1; shift
 
     while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-        --frames)
-            shift
-            if [[ "$1" =~ ^[0-9]+$ ]]; then
-                FRAMES="$1"
-            else
-                echo "[ERROR] --frames requires a numeric argument"
-                exit 1
-            fi
-            ;;
         --path) shift; REMOTE_DIR="$1" ;;
         --check) check=true ;;
         --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
@@ -202,7 +193,37 @@ EOF
         jtframe mra --path $roms_dir
     fi
 
-    jtsim -batch -load -video $FRAMES -setname $setname
+    declare -a sim_opts
+    get_opts sim_opts
+    
+    jtsim -batch -load -setname $setname "${sim_opts[@]}"
+}
+
+get_opts() {
+    declare -n opts_ref=$1
+    local frames
+    local inputs
+    local dipsw
+
+    local cfg_file="$JTROOT/cores/$core/cfg/regression.yaml"
+
+    frames=$(yq ".$core.$setname.frames" $cfg_file)
+    inputs=$(yq ".$core.$setname.inputs" $cfg_file)
+    dipsw=$(yq ".$core.$setname.dipsw" $cfg_file)
+
+    if [[ $frames != "null" ]]; then
+        opts_ref+=(-video $frames)
+    else
+        opts_ref+=(-video $DEFAULT_FRAMES)
+    fi
+
+    if [[ $inputs != "null" ]]; then
+        opts_ref+=(-inputs $inputs)
+    fi
+
+    if [[ $dipsw != "null" ]]; then
+        opts_ref+=(-dipsw $dipsw)
+    fi
 }
 
 get_zipfile() {
@@ -336,8 +357,7 @@ upload_results() {
         2) local folder="FAIL" ;;
     esac
 
-    local zipname="$(date +"%d-%m-%Y_%H-%M-%S").zip"
-    zip $zipname frames/*
+    zip frames.zip frames/*
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 mkdir regression
@@ -345,7 +365,7 @@ mkdir regression/$core
 mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
-put $zipname
+put frames.zip
 bye
 EOF
 
