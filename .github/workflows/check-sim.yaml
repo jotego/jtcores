@@ -56,14 +56,12 @@ jobs:
 
       - name: Add server to known_hosts
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p "${{ secrets.SSH_PORT }}" "${{ secrets.SERVER_IP }}" >> /etc/ssh/ssh_known_hosts
 
       - name: Run regression
         run: |
           mkdir -p ~/.mame/roms
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
-          bash -c 'source setprj.sh && jtframe' # To setup jtframe
           bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
