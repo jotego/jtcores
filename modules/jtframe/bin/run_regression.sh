@@ -229,7 +229,9 @@ get_opts() {
 get_zipfile() {
     declare -n zipfile_ref=$1
 
-    jtframe mra --skipROM
+    jtframe mra --skipROM >&1 2>&1 # DEBUG
+    pwd # DEBUG
+
     zipfile_ref=$(
         JTBIN="$JTROOT/release" jtutil mra -c -z |
         awk -F'|' -v setname="$setname" '
