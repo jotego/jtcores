@@ -62,6 +62,8 @@ jobs:
       - name: Run regression
         run: |
           mkdir -p ~/.mame/roms
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           bash -c 'source setprj.sh && jtframe' # To setup jtframe
           bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
