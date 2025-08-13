@@ -81,6 +81,7 @@ module jtrungun_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
+wire [ 2:0] FC;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout, cpu_din, cab1_dout;
 reg  [ 9:0] cab2_dout;
@@ -312,7 +313,7 @@ jtframe_m68k u_cpu(
     .UDSn       ( UDSn        ),
     .ASn        ( ASn         ),
     .VPAn       ( VPAn        ),
-    .FC         (             ),
+    .FC         ( FC          ),
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
