@@ -17,6 +17,7 @@ aliens:
 jtframe:
   - get:
     - jtframe_edge.v
+    - jtframe_counter.v
   - from: video/tilemap
     get:
       - jtframe_tilebuf.v
@@ -24,6 +25,8 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
+      - jtframe_linebuf.v
+      - jtframe_linebuf_gate.v
   - from: cpu
     unless: [NOMAIN]
     get:

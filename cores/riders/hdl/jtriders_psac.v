@@ -19,9 +19,9 @@
 module jtriders_psac(
     input              rst, clk,
                        pxl_cen, pxl2_cen, // use cen instead (see below)
-                       hs, vs, dtackn, enable,
+                       hs, vs, dtackn, enable, lvbl,
                        cs, // cs always writes
-    input       [ 8:0] hdump,
+    input       [ 8:0] hdump, vdump,
 
     input       [15:0] din,        // from CPU
     input       [ 4:1] addr,
@@ -37,7 +37,7 @@ module jtriders_psac(
     input              vram_ok,
 
     // Tiles
-    output      [20:0] rom_addr,
+    output reg     [20:0] rom_addr,
     input       [ 7:0] rom_data,
     output             rom_cs,
     input              rom_ok,
@@ -49,42 +49,49 @@ module jtriders_psac(
     output     [7:0] ioctl_din
 );
 
-wire [ 7:0] buf_din;
+reg  [ 7:0] buf_din;
 wire [ 8:0] la, wr_addr, rd_addr;
 wire [ 2:1] lh;
 wire [12:0] x, y;
 wire        xh,yh,ob;
 wire [13:0] code;
 wire        hflip, vflip, cen;
-wire [ 3:0] pal, vf, hf, dmux;
-reg         rst2;
+wire [ 3:0] /*pal,*/ vf, hf, dmux;
+reg  [ 3:0] pal;
+reg         rst2, we, cen_cen;
 
 assign line_addr = {la[7:0],lh};
 assign vram_addr = {tmap_bank,y[12:4], x[12:4]};
 assign code      = vram_dout[13:0];
 assign hflip     = 0;
 assign vflip     = 0;
-assign pal       = vram_dout[14+:4];
+// assign pal       = vram_dout[14+:4];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
-assign cen       = pxl_cen & vram_ok & rom_ok;
 
 assign rom_cs    = 1;
-assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
+// assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 
-assign buf_din   = {pal,dmux};
-
+// assign buf_din   = {pal,dmux};
+initial cen_cen =0;
 always @(posedge clk) rst2 <= rst | ~enable;
+always @(posedge clk) cen_cen <= ~cen_cen;
 
-always @(posedge clk) if(cen) begin
-    pxl <= {pal,dmux};
+always @(clk) // if(cen)
+    begin
+    if(rom_ok) buf_din <= {pal,dmux};
+    if(vram_ok) begin
+        rom_addr  <= {code,vf,hf[3:1]};
+        pal       <= vram_dout[14+:4];
+    end
+    we <= rom_ok & vram_ok  || vram_dout==0;
 end
 
 jt053936 u_xy(
     .rst        ( rst2      ),
     .clk        ( clk       ),
-    .cen        ( cen       ),
+    .cen        ( cen /*pxl2_cen*/ /*cen_cen & vram_ok*/       ),
 
     .din        ( din       ),        // from CPU
     .addr       ( addr      ),
@@ -110,39 +117,23 @@ jt053936 u_xy(
     .ioctl_din  ( ioctl_din )
 );
 
-jtframe_sh #(.W(9),.L(9'h15/*RD_DLY*/)) u_hb_dly(
-    .clk        ( clk       ),
-    .clk_en     ( pxl_cen   ),
-    .din        ( hdump     ),
-    .drop       ( rd_addr   )
+jtframe_linebuf_gate #(.RD_DLY(9'h15), .WR_STRT(9'h025)) u_truelinebuf(
+    .rst      ( rst       ),
+    .clk      ( clk       ),
+    .cen      (  /*cen_cen*/ /*1'b1*/ pxl2_cen /*cen*/       ),
+    .lvbl     ( /*lvbl*/ 1'b1     ),
+    .hs       (  hs       ),
+    .cnt_cen (cen),
+  //  New line writting
+    .we         (   /*pxl2_cen & */ /*rom_ok*/ cen /*we*/    ),
+    .hdump      ( hdump   ),
+    .vdump      ( vdump   ),
+  //  Previous line reading
+    .rom_ok     ( rom_ok /*& vram_ok*/  /*|| vram_dout==0*/  ),
+    .rom_cs     ( rom_cs    ),
+    .pxl_data   ( buf_din   ),
+    .pxl_dump   ( pxl       )
 );
 
-jtframe_tilebuf #(.HW(9), .HOVER(9'h19F), .HSTART(9'h020)/*, .HOFFSET(9'h005)*/) u_linebuf(
-    .clk     ( clk       ),
-    .rst     ( rst       ),
-    .rom_ok  ( rom_ok    ),
-    .hdump   ( rd_addr/*hdump*/     ),
-    .pxl2_cen( pxl2_cen & vram_ok  ),
-    .vdump   ( 8'b0      ),
-    .scan_cen( /*cen*/  ),
-    .we      ( cen  ),
-    .hscan   (      ),
-    .vscan   (      ),
-    .pxl_data( buf_din  ),
-    .pxl_dump( pxl  )
-    );
-
-// jtframe_linebuf u_linebuf(
-//     .clk        ( clk       ),
-//     .LHBL       ( ~hs       ),
-//     // New line writting
-//     .we         ( rom_ok    ),
-//     .wr_data    ( buf_din   ),
-//     .wr_addr    ( wr_addr   ),
-//     // Previous line reading
-//     .rd_gated   (           ),
-//     .rd_addr    ( hdump/*rd_addr*/   ),
-//     .rd_data    ( pxl       )
-// );
 
 endmodule

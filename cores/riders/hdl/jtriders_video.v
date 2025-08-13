@@ -289,10 +289,12 @@ jtriders_psac u_psac(
     .enable     ( glfgreat  ),
     .tmap_bank  ( psac_bank ),
 
+    .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .vs         ( vs        ),
     .dtackn     ( 1'b0      ),
     .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
 
     .cs         ( psac_cs   ), // cs always writes
     .din        ( cpu_dout  ),
