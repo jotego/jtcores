@@ -1,4 +1,4 @@
-name: Run core simulations
+name: Run core regressions
 
 on:
   workflow_dispatch:
@@ -49,20 +49,17 @@ jobs:
           submodules: recursive
           token: ${{ secrets.PAT }}
 
-      - name: Start ssh-agent and add key
-        run: |
-          eval "$(ssh-agent -s)"
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SFTP_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-add ~/.ssh/id_ed25519
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SFTP_PRIVATE_KEY }}
 
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
 
-      - name: Run simulation
+      - name: Run regression
         run: |
           mkdir -p ~/.mame/roms
           bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SFTP_USER }}" --host "${{ secrets.SERVER_IP }}"'
