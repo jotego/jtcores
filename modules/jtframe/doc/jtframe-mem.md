@@ -65,7 +65,7 @@ clocks:
 # Audio filters and accumulator
 audio:
   rsum: 1k
-  gain: 2.0   # global gain
+  gain: 2.0   # global gain, applied to all channels before summing them
   rsum_feedback_res: false # if false, rsum attenuates, if true, rsum gives gain
   mute: true  # add mute signal
   RC: { r: 1k, c: 1n } # global RC filter
