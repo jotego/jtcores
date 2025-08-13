@@ -227,11 +227,9 @@ get_opts() {
 }
 
 get_zipfile() {
-    pwd # DEBUG
     declare -n zipfile_ref=$1
-    echo "I should reach here" # DEBUG
 
-    jtframe mra --skipROM >&1 2>&1 # DEBUG
+    jtframe mra --skipROM
     
     zipfile_ref=$(
         JTBIN="$JTROOT/release" jtutil mra -c -z |

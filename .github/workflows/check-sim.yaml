@@ -62,5 +62,6 @@ jobs:
       - name: Run regression
         run: |
           mkdir -p ~/.mame/roms
+          bash -c 'source setprj.sh && jtframe' # To setup jtframe
           bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
