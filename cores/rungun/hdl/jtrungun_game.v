@@ -30,7 +30,7 @@ wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
 assign debug_view={7'd0,dma_bsy};
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtrungun_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -144,7 +144,7 @@ jtrungun_sound u_sound(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtrungun_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
