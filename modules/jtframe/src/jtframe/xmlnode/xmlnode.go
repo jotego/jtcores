@@ -237,3 +237,19 @@ func xml_str(in string) string {
 	out = strings.ReplaceAll(out, `\`, "&quot;")
 	return out
 }
+
+func (n *XMLNode)FindAll(name string) (all []*XMLNode) {
+	all	= make([]*XMLNode,0,32)
+	return n.find_rec(name,all)
+}
+
+func (n *XMLNode)find_rec(name string, prev []*XMLNode) (all []*XMLNode) {
+	all = prev
+	if n.name==name {
+		all = append(all,n)
+	}
+	for _, child := range n.children {
+		all = child.find_rec(name,all)
+	}
+	return all
+}
