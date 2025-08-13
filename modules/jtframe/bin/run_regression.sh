@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REGRESSION_FILE=.regression
+REGRESSION_FILE="reg.yaml"
 DEFAULT_FRAMES=100
 
 main() {
@@ -34,6 +34,9 @@ main() {
             1) echo -e "\n[WARNING] Cannot perform validation\n" ;;
             2) echo -e "\n[ERROR] Validation failed\n" ;;
         esac
+
+        # check_audio
+        # if [[ $? > check_result ]]; then check_result=$?; fi
     fi
 
     if $push; then
@@ -205,11 +208,11 @@ get_opts() {
     local inputs
     local dipsw
 
-    local cfg_file="$JTROOT/cores/$core/cfg/regression.yaml"
+    local cfg_file="$JTROOT/cores/$core/cfg/$REGRESSION_FILE"
 
-    frames=$(yq ".$core.$setname.frames" $cfg_file)
-    inputs=$(yq ".$core.$setname.inputs" $cfg_file)
-    dipsw=$(yq ".$core.$setname.dipsw" $cfg_file)
+    frames=$(yq ".$setname.frames" $cfg_file)
+    inputs=$(yq ".$setname.inputs" $cfg_file)
+    dipsw=$(yq ".$setname.dipsw" $cfg_file)
 
     if [[ $frames != "null" ]]; then
         opts_ref+=(-video $frames)
@@ -318,33 +321,55 @@ check_frames() {
 }
 
 # check_audio() {
-#     local core=$1
-#     local ref_audio="$REFERENCE_DIR/$core/test.wav"
+#     local ref_audio="audio.wav"
+#     local ref_spectro="audio.png"
 #     local test_audio="test.wav"
-#     local diff_audio="__diff_audio.wav"
+#     local test_spectro="test.png"
 
 #     print_step "Checking audio"
 
-#     if [[ ! -f "$ref_audio" || ! -f "$test_audio" ]]; then
-#         echo "Missing audio file for $core"
-#         return 1
+#     if [[ ! -f "$test_audio" ]]; then
+#         echo "[ERROR] Missing audio file for $core"
+#         return 2
 #     fi
 
-#     sox -m -v 1 "$ref_audio" -v -1 "$test_audio" "$diff_audio" silence 1 0.1 0.1%
+#     if $check; then
+#         if ! get_remote_audio; then
+#             echo "[WARNING] Cannot get remote audio"
+#             return 1;
+#         fi
+#     elif $local_check; then
+#         if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
+#             echo "[ERROR] Local audio doesn't exist"
+#             return 2
+#         fi
+#         mv $LOCAL_DIR/$core/$setname/audio.wav .
+#     fi
 
-#     local rms=$(sox "$diff_audio" -n stat 2>&1 | tee /dev/stderr | awk '/RMS.*amplitude/ { print $3 }')
-    
-#     rm -f "$diff_audio"
+#     sox $ref_audio -n spectrogram -o $ref_spectro
+#     sox $test_audio -n spectrogram -o $test_spectro
 
-#     local threshold=0.001
-
-#     if (( $(echo "$rms < $threshold" | bc -l) )); then
-#         echo "Audio for $core matches (RMS = $rms)"
+#     if perceptualdiff "$ref_spectro" "$test_spectro"; then
+#         echo "[INFO] Audio match"
 #         return 0
 #     else
-#         echo "Audio for $core differs (RMS = $rms)"
-#         return 1
+#         echo "[ERROR] Audio doesn't match"
+#         return 2
 #     fi
+# }
+
+# get_remote_audio() {
+#     echo "[INFO] Downloading remote audio for setname $setname"
+#     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+# get regression/$core/$setname/VALID/audio.zip
+# bye
+# EOF
+#     if [[ ! -f "audio.zip" ]]; then return 1; fi
+
+#     unzip audio.zip
+#     rm -f audio.zip
+#     mv test.wav audio.wav
+#     trap "rm -f remote_audio.wav" EXIT
 # }
 
 upload_results() {
@@ -359,6 +384,7 @@ upload_results() {
     esac
 
     zip frames.zip frames/*
+    # zip audio.zip test.wav
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 mkdir regression
@@ -367,6 +393,7 @@ mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
 put frames.zip
+# put audio.zip
 bye
 EOF
 
