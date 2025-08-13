@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REGRESSION_FILE="reg.yaml"
-DEFAULT_FRAMES=100
+DEFAULT_FRAMES=1000
 
 main() {
     if [[ -z $JTROOT ]]; then
@@ -384,7 +384,7 @@ upload_results() {
     esac
 
     zip frames.zip frames/*
-    # zip audio.zip test.wav
+    zip audio.zip test.wav
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
 mkdir regression
@@ -393,7 +393,7 @@ mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
 put frames.zip
-# put audio.zip
+put audio.zip
 bye
 EOF
 

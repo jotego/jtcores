@@ -1,4 +1,4 @@
-name: Run core regressions
+name: Core regressions
 
 on:
   workflow_dispatch:
@@ -10,25 +10,32 @@ on:
 jobs:
   list_setnames:
     runs-on: ubuntu-24.04
+    container:
+      image: jotego/simulator
     outputs:
-      pairs: ${{ steps.get.outputs.result }}
+      pairs: ${{ steps.get.outputs.pairs }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Get core/setname pairs
         id: get
-        uses: mikefarah/yq@v4
-        with:
-          cmd: >
-            yq ea -o=json -I=0 '
-              [
-                to_entries[]
-                | .key as $core
-                | (.value // {} | to_entries[]
-                  | .key) as $sn
-                | {"core": $core, "setname": $sn}
-              ] | unique
-            ' cores/*/cfg/regression.yaml
+        shell: bash
+        run: |
+          JSON="["
+          first=1
+          for f in cores/*/cfg/reg.yaml; do
+            core=$(basename "$(dirname "$(dirname "$f")")")
+            for sn in $(yq -r 'keys | .[]' "$f"); do
+              if (( first )); then
+                JSON="${JSON}{\"core\":\"$core\",\"setname\":\"$sn\"}"
+                first=0
+              else
+                JSON="${JSON}, {\"core\":\"$core\",\"setname\":\"$sn\"}"
+              fi
+            done
+          done
+          JSON="${JSON}]"
+          echo "pairs=$JSON" >> "$GITHUB_OUTPUT"
 
   simulate:
     name: Simulate ${{ matrix.setname }}
