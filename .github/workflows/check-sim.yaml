@@ -37,18 +37,61 @@ jobs:
           JSON="${JSON}]"
           echo "pairs=$JSON" >> "$GITHUB_OUTPUT"
 
+  make_batches:
+    runs-on: ubuntu-24.04
+    container:
+      image: jotego/simulator
+    outputs:
+      batches: ${{ steps.extract.outputs.batches }}
+    needs:
+      - list_setnames
+    steps:
+      - name: Extract batches
+        id: extract
+        env:
+          PAIRS: ${{ needs.list_setnames.outputs.pairs }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAX=256
+          printf '%s' "$PAIRS" > pairs.json
+          LEN=$(yq -r 'length' pairs.json)
+          if (( LEN == 0 )); then
+            echo "batches=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( LEN < MAX )); then
+            num_batches="$LEN"
+          else
+            num_batches="$MAX"
+          fi
+          echo '[]' > batches.json
+          for ((b=0; b<num_batches; b++)); do
+            yq -i -I=0 '. += [ [] ]' batches.json
+          done
+          for ((count=0; count<LEN; count++)); do
+            item=$(yq -o=json -I=0 ".[$count]" pairs.json)
+            batch=$(( count % num_batches ))
+            yq -i -I=0 ".[$batch] += [ ${item} ]" batches.json
+          done
+          {
+            echo "batches<<EOF"
+            cat batches.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
   simulate:
-    name: Simulate ${{ matrix.setname }}
+    name: Simulate
     runs-on: ubuntu-24.04
     container:
       image: jotego/simulator
     needs:
-      - list_setnames
+      - make_batches
 
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.list_setnames.outputs.pairs) }}
+        batch: ${{ fromJSON(needs.make_batches.outputs.batches) }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -70,5 +113,12 @@ jobs:
           mkdir -p ~/.mame/roms
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
-          bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
+          # bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
+          printf '%s' '${{ toJSON(matrix.batch) }}' > batch.json
+          yq -r '.[] | .core' batch.json > cores.lst
+          yq -r '.[] | .setname' batch.json > setnames.lst
+
+          bash -c ' source setprj.sh && parallel --jobs 0 run_regression.sh {1} {2} --check --push \
+            --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}" \
+            :::: cores.lst ::::+ setnames.lst'
