@@ -46,7 +46,7 @@ main() {
 }
 
 parse_args() {
-    REMOTE_DIR=regression # Relative to ~/domains/jotego.es
+    REMOTE_DIR=domains/jotego.es
     LOCAL_DIR=""
     check=false
     local_check=false
@@ -112,7 +112,7 @@ If the corresponding folder doesn't exist it will be created.
 
 Options:
   --frames N                Run simulations with N frames (default: 100).
-  --path REMOTE_DIR         Specify the REMOTE_DIR path (default: ./regression).
+  --path REMOTE_DIR         Specify the REMOTE_DIR path (default: domains/jotego.es).
                             Be sure to have the right permissions on the directory you specify.
   --check                   Validate extracted simulation against reference results stored
                             in REMOTE_DIR on the remote server. Can be used with --local-check.
@@ -184,7 +184,7 @@ simulate() {
 
         local roms_dir=$(mktemp -d)
         trap "rm -rf $roms_dir" EXIT
-        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 get mame/$zipfile $roms_dir
 bye
 EOF
@@ -199,34 +199,59 @@ EOF
     declare -a sim_opts
     get_opts sim_opts
     
-    jtsim -batch -load -setname $setname "${sim_opts[@]}"
+    jtsim -batch -load -setname $setname "${sim_opts[@]}" -d JTFRAME_SIM_VIDEO
 }
 
 get_opts() {
     declare -n opts_ref=$1
-    local frames
-    local inputs
-    local dipsw
 
-    local cfg_file="$JTROOT/cores/$core/cfg/$REGRESSION_FILE"
+    local global_cfg_file="$JTROOT/modules/jtframe/bin/$REGRESSION_FILE"
+    local local_cfg_file="$JTROOT/cores/$core/cfg/$REGRESSION_FILE"
 
-    frames=$(yq ".$setname.frames" $cfg_file)
-    inputs=$(yq ".$setname.inputs" $cfg_file)
-    dipsw=$(yq ".$setname.dipsw" $cfg_file)
+    local frames_found=false
 
-    if [[ $frames != "null" ]]; then
-        opts_ref+=(-video $frames)
+    # --- Parse global config ---
+    if [[ ! -f $global_cfg_file ]]; then
+        echo "[WARNING] Cannot find global configuration file for regressions. Searched in $global_cfg_file"
     else
+        readarray raw_opts < <(yq -o=j -I=0 "to_entries[]" $global_cfg_file)
+        for item in "${raw_opts[@]}"; do
+            key=$(echo $item | yq '.key' -)
+            value=$(echo $item | yq '.value' -)
+            if [[ $key == "frames" ]]; then
+                opts_ref+=(-video $value)
+                frames_found=true
+            else
+                opts_ref+=(-$key $value)
+            fi
+        done
+    fi
+
+    # --- Parse core config ---
+    if [[ ! -f $local_cfg_file ]]; then
+        echo "[WARNING] Cannot find local configuration file for $core regressions. Searched in $local_cfg_file"
+    elif [[ $(yq ".$setname" $local_cfg_file) == "null" ]]; then
+        echo "[WARNING] $setname is not meant to execute a regression. You shouldn't be requesting it"
+    else
+        readarray raw_opts < <(yq -o=j -I=0 ".$setname | to_entries[]" $local_cfg_file)
+        for item in "${raw_opts[@]}"; do
+            key=$(echo $item | yq '.key' -)
+            value=$(echo $item | yq '.value' -)
+            if [[ $key == "frames" ]]; then
+                opts_ref+=(-video $value)
+                frames_found=true
+            else
+                opts_ref+=(-$key $value)
+            fi
+        done
+    fi
+
+    if ! $frames_found; then 
+        echo "[WARNING] frames not defined neither in global config or core config. Setting to $DEFAULT_FRAMES"
         opts_ref+=(-video $DEFAULT_FRAMES)
     fi
 
-    if [[ $inputs != "null" ]]; then
-        opts_ref+=(-inputs $inputs)
-    fi
-
-    if [[ $dipsw != "null" ]]; then
-        opts_ref+=(-dipsw $dipsw)
-    fi
+    echo "[INFO] Simulation options are ${opts_ref[@]}"
 }
 
 get_zipfile() {
@@ -279,7 +304,7 @@ get_remote_frames() {
     trap "rm -rf $dir" EXIT
 
     echo "[INFO] Downloading remote frames for setname $setname"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 get regression/$core/$setname/VALID/frames.zip $dir
 bye
 EOF
@@ -360,7 +385,7 @@ check_frames() {
 
 # get_remote_audio() {
 #     echo "[INFO] Downloading remote audio for setname $setname"
-#     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+#     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 # get regression/$core/$setname/VALID/audio.zip
 # bye
 # EOF
@@ -385,8 +410,14 @@ upload_results() {
 
     zip frames.zip frames/*
     zip audio.zip test.wav
+    
+    if [[ ! -f "test.mp4" ]]; then 
+        echo "[WARNING] Generated video not found"
+    else
+        zip video.zip test.mp4
+    fi
 
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:domains/jotego.es <<EOF
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 mkdir regression
 mkdir regression/$core
 mkdir regression/$core/$setname
@@ -394,6 +425,7 @@ mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
 put frames.zip
 put audio.zip
+put video.zip
 bye
 EOF
 

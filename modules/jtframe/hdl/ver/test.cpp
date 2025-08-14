@@ -1072,6 +1072,9 @@ WaveWritter::~WaveWritter() {
 
 void report_vrate( float vrate ) {
     printf("\nFrame rate: %.2f Hz\n",vrate);
+    ofstream framerate("framerate");
+    framerate << vrate;
+    framerate.close();
 }
 
 ////////////////////////////////////////////////////
