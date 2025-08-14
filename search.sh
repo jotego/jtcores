@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-dst=/nobackup/outrun/phase48
+seed=24
+dst=/nobackup/outrun/phase48-${seed}
 pllfiles=$MODULES/jtframe/target/sidi128/hdl/pllgame
 cd $JTROOT
 
@@ -11,14 +12,14 @@ compile() {
 	echo "=== Delay ${dly} ps ==="
 	git restore -- $pllfiles/*
 	sed -i s/2600/"$dly"/g $pllfiles/*
-	jtcore outrun -pocket --nosta -u JTFRAME_SKIP || return 1
+	jtcore outrun -pocket --nosta -u JTFRAME_SKIP --seed $seed || return 1
 	mkdir -p $dst
 	cp -r $RLS/pocket/raw/Cores $dst/"$dly"
 	echo -e "\n\n"
 }
 
-dly=260
-while [ $dly -lt 5200 ]; do
+dly=0
+while [ $dly -lt 5000 ]; do
 	if compile; then
 		dly=$((dly+260))
 	fi
