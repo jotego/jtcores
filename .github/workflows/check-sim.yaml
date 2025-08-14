@@ -104,16 +104,21 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SFTP_PRIVATE_KEY }}
 
-      - name: Add server to known_hosts
+      - name: Accept SFTP server connection
         run: |
-          ssh-keyscan -H -p "${{ secrets.SSH_PORT }}" "${{ secrets.SERVER_IP }}" >> /etc/ssh/ssh_known_hosts
+          cat <<'EOF' >> ~/.ssh/config
+          Host "${{ secrets.SERVER_IP }}"
+            HostName "${{ secrets.SERVER_IP }}"
+            Port "${{ secrets.SSH_PORT }}"
+            User "${{ secrets.SSH_USER }}"
+            StrictHostKeyChecking accept-new
+          EOF
 
       - name: Run regression
         run: |
           mkdir -p ~/.mame/roms
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
-          # bash -c 'source setprj.sh && run_regression.sh ${{ matrix.core }} ${{ matrix.setname }} --check --push --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}"'
           
           printf '%s' '${{ toJSON(matrix.batch) }}' > batch.json
           yq -r '.[] | .core' batch.json > cores.lst
