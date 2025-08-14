@@ -80,7 +80,9 @@ localparam [21:0] BUS_CFG = {
     2'd1, // drive strength (default)
     1'b1, // no burst wrap
     3'd7  // continuous burst
-}, REF_CFG = {
+},
+// refresh configuration register
+REF_CFG = {
     2'd0, // reserved
     2'd0, // refresh configuration register
     13'd0, // reserved
@@ -151,38 +153,42 @@ always @( posedge clk, posedge rst ) begin
     end
 end
 
-reg [4:0] init_seq[0:15];
+localparam SEQLAST=16;
+reg [4:0] init_seq[0:SEQLAST];
 reg [4:0] init_cnt;
 
 initial begin
     //                cen,  cre, advn,  oen,  wen
     init_seq[ 0] =  { 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
     init_seq[ 1] =  { 1'b0, 1'b1, 1'b0, 1'b1, 1'b1 };  // latch address
-    init_seq[ 2] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[ 2] =  { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1 };
     init_seq[ 3] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };  // write starts
     init_seq[ 4] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };
-    init_seq[ 5] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };  // cfg written
+    init_seq[ 5] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };
+    init_seq[ 6] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };  // cfg written
     //                cen,  cre, advn,  oen,  wen
-    init_seq[ 6] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // read
-    init_seq[ 7] =  { 1'b0, 1'b0, 1'b0, 1'b1, 1'b1 };
-    init_seq[ 8] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[ 7] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // read
+    init_seq[ 8] =  { 1'b0, 1'b0, 1'b0, 1'b1, 1'b1 };
     init_seq[ 9] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
-    init_seq[10] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
+    init_seq[10] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
     init_seq[11] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
     init_seq[12] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[13] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[13] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
+    init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
     //                cen,  cre, advn,  oen,  wen
-    init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
-    init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
+    init_seq[16] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
 end
 
 always @( posedge clk, posedge rst ) begin
     if( rst ) begin
         st       <= INIT;
-        cr_advn  <= 0;
-        cr_oen   <= 0;
+        cr_addr  <= 0;
+        cr_advn  <= 1;
+        cr_oen   <= 1;
         cr_cre   <= 0;
-        csn      <= 0;
+        cr_wen   <= 1;
+        csn      <= 1;
         fb_addr  <= 0;
         fb_clr   <= 0;
         fb_done  <= 0;
@@ -207,10 +213,10 @@ always @( posedge clk, posedge rst ) begin
         end else case( st )
             INIT: begin
                 if( init_cnt==0  ) { cr_addr, adq_reg } <= REF_CFG;
-                if( init_cnt==15 ) { cr_addr, adq_reg } <= BUS_CFG;
+                if( init_cnt==SEQLAST ) { cr_addr, adq_reg } <= BUS_CFG;
                 init_cnt <= init_cnt + 1'd1;
-                { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[3:0]];
-                if( &init_cnt ) st <= IDLE;
+                { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[4:0]];
+                if( init_cnt==SEQLAST ) st <= IDLE;
             end
             // Wait for requests
             IDLE: begin
