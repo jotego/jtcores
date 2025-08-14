@@ -106,7 +106,7 @@ jobs:
 
       - name: Accept SFTP server connection
         run: |
-          cat <<'EOF' >> ~/.ssh/config
+          cat <<'EOF' >> /etc/ssh/ssh_config
           Host "${{ secrets.SERVER_IP }}"
             HostName "${{ secrets.SERVER_IP }}"
             Port "${{ secrets.SSH_PORT }}"
