@@ -193,7 +193,7 @@ EOF
             return 1
         fi
 
-        jtframe mra --path $roms_dir
+        jtframe mra --path $roms_dir --setname $setname
     fi
 
     declare -a sim_opts
