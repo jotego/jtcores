@@ -381,7 +381,6 @@ assign snd_right  = 0;
 assign adpcm_addr = 0;
 assign adpcm_cs   = 0;
 assign sample     = 0;
-assign game_led   = 0;
 `endif
 
 reg rst_sdram;
