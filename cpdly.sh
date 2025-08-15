@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
-dly=$1
-cp -r /nobackup/outrun/phase48/${dly}/Cores release/pocket/raw/
+seed=$1
+dly=$2
+cp -r /nobackup/outrun/phase48-${seed}/${dly}/* release/pocket/raw/Cores
 jtbin2sd

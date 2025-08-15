@@ -12,14 +12,14 @@ compile() {
 	echo "=== Delay ${dly} ps ==="
 	git restore -- $pllfiles/*
 	sed -i s/2600/"$dly"/g $pllfiles/*
-	jtcore outrun -pocket --nosta -u JTFRAME_SKIP --seed $seed || return 1
+	jtcore outrun -pocket -q --nosta -u JTFRAME_SKIP --seed $seed || return 1
 	mkdir -p $dst
 	cp -r $RLS/pocket/raw/Cores $dst/"$dly"
 	echo -e "\n\n"
 }
 
 dly=0
-while [ $dly -lt 5000 ]; do
+while [ $dly -lt 2500 ]; do
 	if compile; then
 		dly=$((dly+260))
 	fi
