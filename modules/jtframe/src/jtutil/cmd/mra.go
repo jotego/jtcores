@@ -66,7 +66,15 @@ func list_zip() {
 		if len(names) == 0 {
 			return nil
 		}
-		merged := names[len(names)-1]
+		if len(names)>1 && verbose {
+			fmt.Println(names)
+		}
+		last := len(names)-1
+		merged := names[last]
+		if merged=="qsound.zip" && len(names)==2 {
+			setname := names[last-1]
+			zipuse[setname] = true
+		}
 		zipuse[merged] = true
 		return nil
 	}
